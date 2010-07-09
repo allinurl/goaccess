@@ -136,8 +136,10 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 	enum MODULES modules;
 	int x, y, xx, r, col, row;
 	float l_bar, scr_cal, orig_cal;
-	struct tm tm = { 0 };
+	struct tm tm;
 	char buf[12] = "", *http_code; /* max possible size of date */
+
+	memset (&tm, 0, sizeof (tm));
 	
 	getyx(main_win,y,x);
 	getmaxyx(stdscr,row,col);
@@ -464,8 +466,10 @@ ITEM **get_menu_items(struct stu_alloc_holder **sorted_alloc_holder,
 	char *hits = NULL;
 	char buf[12] = "";
 	char *buffer_date = NULL; /* max possible size of date */
-	struct tm tm = { 0 };
+	struct tm tm;
 	ITEM **items;
+
+	memset (&tm, 0, sizeof (tm));
 
 	/* sort the struct prior to display */
 	if (sort)	

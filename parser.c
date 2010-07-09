@@ -66,9 +66,11 @@ void process_unique_data(struct logger *logger, char *host, char *date, char *ag
 	 * C may not initialize stack structs and arrays to zeros 
 	 * so strptime uses struct for output and input as well.
 	 */
-	struct tm tm = { 0 };
+	struct tm tm;
 	char buf[9] = "";
 	
+	memset (&tm, 0, sizeof (tm));
+
 	if (strptime(date, "%d/%b/%Y", &tm) == NULL) 
 			;
 	strftime(buf, strlen(buf)-1, "%Y%m%d ", &tm);
