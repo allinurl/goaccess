@@ -18,6 +18,10 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
+/* "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
+ * correctly. */
+#define _XOPEN_SOURCE 700
+
 #include <string.h>
 #include <curses.h>
 #include <time.h>

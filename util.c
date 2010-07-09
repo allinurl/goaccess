@@ -25,6 +25,7 @@
 #include <netdb.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <ctype.h>
 
 #include "util.h"
 #include "commons.h"

@@ -27,6 +27,7 @@
 #include <menu.h>
 #include <assert.h>
 #include <unistd.h>
+#include <ctype.h>
 
 #include "alloc.h"
 #include "commons.h"
