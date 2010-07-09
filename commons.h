@@ -22,6 +22,13 @@
 #ifndef COMMONS_H_INCLUDED
 #define COMMONS_H_INCLUDED
 
+/* Remove the __attribute__ stuff when the compiler is not GCC. */
+#if !__GNUC__
+# define __attribute__(x) /**/
+#endif
+
+#define GO_UNUSED __attribute__((unused))
+
 #define DEBUG
 #define BUFFER 			4096
 #define MAX_CHOICES 	100

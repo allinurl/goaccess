@@ -36,7 +36,7 @@
 #include "parser.h"
 
 /* frees the memory allocated by the GHashTable */
-static void free_key_value(gpointer old_key, gpointer old_value, gpointer user_data)
+static void free_key_value(gpointer old_key, GO_UNUSED gpointer old_value, GO_UNUSED gpointer user_data)
 {
 	g_free(old_key);
 }

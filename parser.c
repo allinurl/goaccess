@@ -371,7 +371,7 @@ int parse_log(struct logger *logger, char *filename)
 	return 0;
 }
 
-void generate_unique_visitors(WINDOW *main_win, struct stu_alloc_holder **sorted_alloc_holder, 
+void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holder **sorted_alloc_holder, 
 							  struct stu_alloc_all **sorted_alloc_all, struct logger *logger)
 {
 	int row, col, n = 0, b, e,
