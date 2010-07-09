@@ -1,0 +1,373 @@
+/** 
+ * goaccess.c -- main log analyzer 
+ * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * GoAccess - An ncurses apache weblog analyzer & interactive viewer
+ * @version 0.1
+ * Last Modified: Wednesday, July 07, 2010
+ * Path:  /goaccess.c
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * GoAccess is released under the GNU/GPL License.
+ * Copy of the GNU General Public License is attached to this source 
+ * distribution for its full text.
+ *
+ * Visit http://goaccess.prosoftcorp.com for new releases.
+ */
+
+#include <string.h>
+#include <stdlib.h>
+#include <curses.h>
+#include <glib.h>
+#include <stdint.h>
+#include <sys/types.h>
+#include <menu.h>
+#include <assert.h>
+#include <unistd.h>
+
+#include "alloc.h"
+#include "commons.h"
+#include "util.h"
+#include "ui.h"
+#include "parser.h"
+
+/* frees the memory allocated by the GHashTable */
+static void free_key_value(gpointer old_key, gpointer old_value, gpointer user_data)
+{
+	g_free(old_key);
+}
+
+int is_agent_present(const char *str)
+{
+	return (str && *str && str[strlen(str) - 2] == '"') ? 0 : 1;
+}
+
+struct logger *init_struct(void)
+{
+	struct logger *logger;
+
+	if ( (logger = malloc(sizeof(*logger) ) ) == NULL)	return NULL;
+
+	logger->total_process	= 0;
+	logger->total_invalid	= 0;
+	logger->counter			= 0;
+	logger->alloc_counter	= 0;
+	logger->current_module	= 1;
+
+	return logger; 
+}
+
+void cmd_help()
+{
+	printf("\nUsage: ");
+	printf("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ -f log_file ]\n\n");
+	printf("The following options can also be supplied to the command:\n\n");
+	printf("  -f  - Path to input log <filename> \n");
+	printf("  -b  - Enable total bandwidth consumption. To achieve faster parsing, do not enable this flag. \n");
+	printf("  -s  - Enable/report HTTP status codes. To avoid overhead while parsing, \n");
+	printf(" 	    this has been disabled by default. \n");
+	printf("  -e  - Exclude an IP from being counted under the HOST module. \n");
+	printf("        This has been disabled by default. \n\n");
+	printf("For more details visit: http://goaccess.prosoftcorp.com \n\n");
+}
+
+int main(int argc, char *argv[]) 
+{
+	char *ifile = NULL;
+	extern char *optarg;
+	extern int optind, optopt, opterr;
+	int row, col, o, bflag = 0, fflag = 0, sflag = 0;
+
+	struct logger *logger;
+	struct scrolling scrolling;
+	struct stu_alloc_all **sorted_alloc_all;
+	struct stu_alloc_holder **sorted_alloc_holder;
+
+	if (argc < 2) { 
+		fprintf(stderr, "goaccess version %s\n", GO_VERSION);
+		cmd_help();
+		exit(1);
+	}
+	
+	opterr = 0;
+	while ((o = getopt (argc, argv, "f:e:sb")) != -1) {
+		switch (o) {
+			case 'f':
+				fflag = 1;
+				ifile = optarg;
+				break;
+			case 'e':
+				ignore_flag = 1;
+				ignore_host = optarg;
+				break;
+			case 's':
+				sflag = 1;
+				http_status_code_flag = 1;
+				break;
+			case 'b':
+				bflag = 1;
+				bandwidth_flag = 1;
+				break;
+			case '?':
+				if (isprint(optopt)) fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+				else fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+				return 1;
+			default:
+				abort();
+		}
+	}
+	
+	if (!fflag) {
+		fprintf(stderr, "goaccess version %s\n", GO_VERSION);
+		cmd_help();
+		exit(1);
+	}
+	
+	WINDOW *header_win, *main_win, *my_menu_win, *help_win;
+
+	/* initialize hash tables */
+	ht_unique_visitors 	  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_requests 		  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_referers 		  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_unique_vis 		  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_requests_static 	  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_not_found_requests = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_os 				  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_browsers			  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_hosts			  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_status_code		  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	ht_referring_sites 	  = g_hash_table_new_full(g_str_hash, g_str_equal, (GDestroyNotify) free_key_value, NULL);
+	
+	initscr();
+	clear();
+	if (has_colors() == FALSE) {
+		endwin();
+		printf("Your terminal does not support color\n");
+		exit(1);
+	}
+
+	start_color();
+	noecho();
+	cbreak();
+	keypad(stdscr, TRUE);
+	use_default_colors();
+
+	init_pair(5, COLOR_WHITE, -1);
+	attron(COLOR_PAIR(5));
+	getmaxyx(stdscr, row, col);
+	if (row < 40 || col < 97) {
+		endwin();
+		fprintf(stderr, "\nMinimum screen size - 97 columns by 40 lines\n");
+		exit(1);
+	}
+	
+	header_win = newwin(5, col, 0, 0);
+	keypad(header_win, TRUE);
+	if (header_win == NULL)	{
+		addstr("Unable to allocate memory for new window.");
+		endwin();
+		return(1);
+	}
+
+	/* main processing event */
+	(void) time(&start_proc);	
+	logger = init_struct();	
+	if (parse_log(logger, ifile)) {
+		printf("%s: %s\n", argv[1], "Error while processing file");
+	}
+
+	generate_time();
+	mvaddstr(row - 1, 1, "[F1]Help  [O]pen detail view");
+	mvprintw(row - 1, col - 64, "Generated: %s", asctime(now_tm));
+	mvaddstr(row - 1, col - 23, "[Q]uit Analyzer");
+	mvaddstr(row - 1, col - 5, GO_VERSION);
+
+	main_win = newwin(row - 7, col, 6, 0);
+	keypad(header_win, TRUE);
+	if ( main_win == NULL) {
+		addstr("Unable to allocate memory for new window.");
+		endwin();
+		return(1);
+	}
+
+	/* allocate per module */	
+	ALLOCATE_STRUCT(sorted_alloc_all, 170);
+	
+	/* note that the order in which we call them, that is the way modules will be displayed */	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_unique_visitors));
+	generate_unique_visitors(main_win,sorted_alloc_holder, sorted_alloc_all, logger);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_requests));
+	generate_struct_data(ht_requests, sorted_alloc_holder, sorted_alloc_all, logger, 2);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_requests_static));
+	generate_struct_data(ht_requests_static, sorted_alloc_holder, sorted_alloc_all, logger, 3);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_referers));
+	generate_struct_data(ht_referers, sorted_alloc_holder, sorted_alloc_all, logger, 4);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_not_found_requests));
+	generate_struct_data(ht_not_found_requests, sorted_alloc_holder, sorted_alloc_all, logger, 5);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_os));
+	generate_struct_data(ht_os, sorted_alloc_holder, sorted_alloc_all, logger, 6);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_browsers));
+	generate_struct_data(ht_browsers, sorted_alloc_holder, sorted_alloc_all, logger, 7);
+	
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_hosts));
+	generate_struct_data(ht_hosts, sorted_alloc_holder, sorted_alloc_all, logger, 8);
+		
+	if (!http_status_code_flag) goto nohttpstatuscode;
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_status_code));
+	generate_struct_data(ht_status_code, sorted_alloc_holder, sorted_alloc_all, logger, 9);
+	
+	nohttpstatuscode:;
+
+	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_referring_sites));
+	generate_struct_data(ht_referring_sites, sorted_alloc_holder, sorted_alloc_all, logger, 10);
+	
+	display_content(main_win, sorted_alloc_all, logger);
+
+	(void) time(&end_proc);
+
+	refresh();
+	/* call general header so we can display it */
+	display_general(header_win, logger, ifile);
+	wrefresh(header_win);
+	
+	int cur_x, cur_y, y, x, c;
+	wmove(main_win,row,0);
+	getmaxyx(main_win,y,x);
+	scrolling.scrl_main_win = y;
+	wrefresh(main_win);
+	
+	/* display active label based on current module */
+	init_pair(6, COLOR_BLUE, COLOR_GREEN);
+	wattron(header_win, COLOR_PAIR(6));
+	wmove(header_win, 0, 30);
+	mvwprintw(header_win, 0, col - 20, "[Active Module %d]", logger->current_module);
+	wattroff(header_win, COLOR_PAIR(6));
+	wrefresh(header_win);
+
+	while ((c = wgetch(stdscr)) != 'q')	{  
+		switch (c) {
+			case KEY_DOWN: /* scroll down main_win */
+				wmove(main_win, y - 1, 0);
+				do_scrolling(main_win, sorted_alloc_all, logger, &scrolling, 1);
+				break;
+			case KEY_UP:  /* scroll up main_win */
+				wmove(main_win, 0, 0);
+				do_scrolling(main_win, sorted_alloc_all, logger, &scrolling, 0);
+				break;
+			case 9: 	/* tab - increment module counter */
+				if (logger->current_module < TOTAL_MODULES)
+					logger->current_module++;
+				else if (logger->current_module = TOTAL_MODULES)
+					logger->current_module = 1;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 353: 	/* tab - increment module counter */
+				if (logger->current_module > 1 && logger->current_module <= TOTAL_MODULES)
+					logger->current_module--;
+				else if (logger->current_module = 1)
+					logger->current_module = 10;
+				update_header(header_win, logger->current_module);	
+				break;
+			case KEY_RIGHT:
+			case 'o':
+			case 'O':
+				my_menu_win = create_win(main_win);
+				load_popup(my_menu_win, sorted_alloc_holder, logger);
+				touchwin(main_win);
+				close_win(my_menu_win);	
+				break;
+			case 49: /* key 1 - module 1 */
+				logger->current_module = 1;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 50: /* key 2 - module 2 */
+				logger->current_module = 2;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 51: /* key 3 - module 3 */
+				logger->current_module = 3;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 52: /* key 4 - module 4 */
+				logger->current_module = 4;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 53: /* key 5 - module 5 */
+				logger->current_module = 5;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 54: /* key 6 - module 6 */
+				logger->current_module = 6;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 55: /* key 7 - module 7 */
+				logger->current_module = 7;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 56: /* key 8 - module 8 */
+				logger->current_module = 8;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 57: /* key 9 - module 9 */
+				if (http_status_code_flag)	
+				logger->current_module = 9;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 48: /* key 0 - module 10 */
+				logger->current_module = 10;
+				update_header(header_win, logger->current_module);	
+				break;
+			case 265:
+				help_win = newwin( y - 12, x - 40, 8, 20);
+				load_help_popup(help_win);	
+				wrefresh(help_win);
+				touchwin(main_win);
+				close_win(help_win);
+				break;
+			case KEY_RESIZE:
+				/* ###TODO: work on terminal resize */
+				/* environment variables */
+				wresize(stdscr, COLS, LINES);
+				break;
+		}
+		wrefresh(main_win);
+	}
+
+	/* clean stuff up */
+	int f;
+	for (f = 0; f < logger->alloc_counter; f++)
+		free(sorted_alloc_all[f]->data);
+	
+	for (f = 0; f < 170; f++) 
+		free(sorted_alloc_all[f]);
+
+	assert(sorted_alloc_all != 0);
+	free(sorted_alloc_all);
+	free(logger);
+	
+	g_hash_table_destroy(ht_unique_vis);
+	g_hash_table_destroy(ht_referers);
+	g_hash_table_destroy(ht_requests);
+	g_hash_table_destroy(ht_requests_static);
+	g_hash_table_destroy(ht_not_found_requests); 
+	g_hash_table_destroy(ht_unique_visitors); 
+	g_hash_table_destroy(ht_os); 
+	g_hash_table_destroy(ht_browsers); 
+	g_hash_table_destroy(ht_hosts); 
+	g_hash_table_destroy(ht_status_code); 
+	g_hash_table_destroy(ht_referring_sites); 
+
+	attroff(COLOR_PAIR(5));
+	/* restore tty modes and reset terminal into non-visual mode */
+	endwin();
+	return 0;
+}

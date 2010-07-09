@@ -1,0 +1,60 @@
+GoAccess - http://goaccess.prosoftcorp.com/
+by Gerardo Orellana <-ga@prosoftcorp.com>
+
+July 05, 2010
+
+INTRODUCTION
+-------------
+GoAccess is a free and open source Apache web log 
+analyzer that provides fast and valuable HTTP statistics 
+for system administrators that require a visual report on the fly.
+
+How it works and what it does?
+-------------------------------
+Well, basically the way GoAccess works is by parsing the well-known 
+Apache access log file, then GoAccess will collect data from the 
+parsed file and it will display it to the console or the X terminal. 
+The collected information will be displayed to the user (sysadmin) 
+in a visual/interactive window. This information includes data such as:
+
+    * General Statistics, Bandwidth etc.
+    * Top Visitors
+    * Requested files
+    * Requested static files, images, swf, js, etc.
+    * Referrers URLs
+    * 404 or Not Found
+    * Operating Systems
+    * Browsers and Spiders
+    * Hosts, Reverse DNS, IP Location
+    * HTTP Status Codes
+    * Referring Sites
+
+Why GoAccess?
+-------------
+The main idea behind GoAccess is being able to quickly analyze 
+and view web server statistics without having to generate huge reports. 
+You can see it more as a monitor command tool than anything else. 
+(or at least that's the intended purpose)
+
+
+Keys
+----
+The user can make use of the following keys:
+
+    * ^F1^            main help
+    * ^q^             quit the program/current window
+    * ^o^             open detail view for selected module
+    * ^TAB^           iterate modules (forward)
+    * ^SHIFT^ + ^TAB^ iterate modules (backward)
+    * ^RIGHT ARROW^   open detail view for selected module
+    * ^0-9^           select module so the user can open a
+    		          [detail view] with either ^o^ or ^RIGHT ARROW^ 
+	* ^s^             [detail view] sort unique visitors by date
+    * ^S^             [detail view] sort unique visitors by hits
+    * ^/^             [detail view] search forward for the
+                      occurrence of pattern 
+	* ^n^             [detail view] find the position of the next
+					  occurrence 
+	* ^t^ 			  [detail view] move to the first item
+    * ^b^ 			  [detail view] move to the last item
+

@@ -1,0 +1,139 @@
+.TH goaccess 1 "JULY 2010" Linux "User Manuals"
+.SH NAME
+goaccess \-  a fast and open source Apache Web Log Analyzer
+.SH SYNOPSIS
+.B goaccess [-f
+.I input-file
+.B ]
+.I [-b] [-s] [-e]
+.SH DESCRIPTION
+.B goaccess
+is a free (GPL) and open source Apache web log 
+analyzer that provides fast and valuable HTTP statistics 
+for system administrators that require a visual report on the fly.
+GoAccess will parse the well-known Apache access log file, 
+then it will collect data from the parsed file and it will display it 
+to the console or the X terminal. The collected information will be 
+displayed to the user in a visual/interactive window. 
+The collected information includes:
+
+.IP "General Statistics:"
+Total number of valid requests,
+Total number of invalid requests,
+Total time to analyze the data,
+Total unique visitors, 
+Total unique requests files,
+Total unique static files 
+.IR (css, ico, jpg, js, swf, gif, png)
+Total unique HTTP referrers (URLs),
+Total unique 404s 
+.I (not found),
+Size of the parsed log file,
+Total bandwidth consumption.
+.IP "Unique visitors:"
+HTTP requests having the same IP, 
+same date and same agent will be 
+considered a unique visit. 
+.I (including spiders).
+.B {Detail view} is available for this module
+.IP "Requested files"
+The totals are based on unique requested files. 
+This is based on the premise that 
+HTTP requests having the same IP,
+same date and same agent will be
+considered a unique visit. 
+.B {Detail view} is available for this module
+.IP "Requested static files"
+The totals are based on unique requested files. 
+Includes files such as:
+.I jpg, css, swf, js, gif, png etc.
+Unique requests are based on the premise that 
+HTTP requests having the same IP,
+same date and same agent will be
+considered a unique visit. 
+.B {Detail view} is available for this module
+.IP "Referrers URLs"
+The URL where the request came from.
+Totals are not based on the above premise,
+but instead, based on the total number of 
+requests.
+.B {Detail view} is available for this module
+.IP "404 or Not Found"
+The total number is based on total requests.
+.B {Detail view} is available for this module
+.IP "Operating Systems"
+The total number is based on unique visitors.
+As version 0.1, the total number of different
+operating systems is 20.
+.B {Detail view} is available for this module
+.IP "Browsers"
+The total number is based on unique visitors.
+As version 0.1, the total number of different
+browsers and spiders combined is 56.
+.B {Detail view} is available for this module
+.IP "Hosts"
+The total number is based on total requests.
+.B {Detail view} is available for this module.
+{Detail view} for each IP can display extra 
+information for the particular host, including
+reverse dns, and geolocation of the IP.
+.IP "HTTP Status Codes"
+Totals are based on total requests.
+.B {Detail view} is available for this module
+.IP "Referring Sites"
+This module will display only the host
+but not the whole URL.
+The total number is based on total requests.
+.B {Detail view} is available for this module
+.SH OPTIONS
+.IP -b
+Enable total bandwidth consumption. To achieve faster parsing, do not enable this flag.
+This has been disabled by default.
+.IP "-f input-file"
+path to input log filename
+.IP -s
+Enable/report HTTP status codes. To avoid overhead while parsing,
+this has been disabled by default.
+.IP -e
+Exclude an IP from being count it under the HOST module.
+This has been disabled by default.
+
+.SH INTERACTIVE MENU
+.IP "F1"
+Main help.
+.IP "q"
+Quit the program or the current {detail view} (window).
+.IP "o"
+Open a {detail view} for the current active module.
+.IP "TAB"
+Forward iteration of modules. Starts from current active module.
+.IP "SHIFT + TAB"
+Backward iteration of modules. Starts from current active module.
+.IP "RIGHT ARROW"
+Open a {detail view} for the current active module. 
+.IP "0-9"
+Activate module so the user can open a {detail view} with either ^o^ or ^RIGHT ARROW^.
+.IP "s"
+Sort unique visitors by date. This will only work on the
+.B Unique visitors module(1).
+.IP "S"
+Sort unique visitors by hits. This will only work on the
+.B Unique visitors module(1).
+.IP "/"
+Search forward on any {detail view} window for the occurrence of typed pattern. 
+.IP "n"
+Find the position of the next occurrence on any {detail view} window.
+.IP "t"
+Move to the first item on any {detail view} window.
+.IP "b"
+Move to the last item on any {detail view} window.
+.SH NOTES
+On each {detail view} window, the total number of items displayed is 100. 
+Visit http://goaccess.prosoftcorp.com for future implementations.
+.SH BUGS
+If you think you have found a bug, please send me an email to 
+.I goaccess@prosoftcorp.com
+.SH AUTHOR
+Gerardo Orellana <goaccess@prosoftcorp.com>
+For more details about it, or new releases, please visit http://goaccess.prosoftcorp.com
+
