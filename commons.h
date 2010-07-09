@@ -118,4 +118,9 @@ extern const char *os[];
 extern const char *browsers[];
 extern char *help_main[];
 
+size_t os_size(void);
+size_t browsers_size(void);
+size_t codes_size(void);
+size_t help_main_size(void);
+
 #endif

@@ -20,10 +20,6 @@
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
 
-static MENU *my_menu = NULL;
-/*static WINDOW *my_menu_win = NULL;*/
-static ITEM **items = NULL;
-
 WINDOW *create_win(WINDOW *main_win);
 
 void close_win(WINDOW *w);
@@ -31,6 +27,8 @@ void close_win(WINDOW *w);
 void generate_time(void);
 
 void drawHeader(WINDOW *win, char* header, int x, int y, int w, int color);
+
+void update_header(WINDOW *header_win, int current);
 
 void display_general(WINDOW *header_win, struct logger *logger, char *ifile);
 
@@ -44,6 +42,8 @@ void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 
 void do_scrolling(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
 				  struct logger *logger, struct scrolling *scrolling, int cmd);
+
+void load_help_popup(WINDOW *help_win);
 
 void load_reverse_dns_popup(WINDOW *ip_detail_win, char *addr);
 

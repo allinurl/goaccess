@@ -40,11 +40,6 @@ static void free_key_value(gpointer old_key, gpointer old_value, gpointer user_d
 	g_free(old_key);
 }
 
-int is_agent_present(const char *str)
-{
-	return (str && *str && str[strlen(str) - 2] == '"') ? 0 : 1;
-}
-
 struct logger *init_struct(void)
 {
 	struct logger *logger;

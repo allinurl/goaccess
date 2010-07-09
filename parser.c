@@ -28,6 +28,11 @@
 #include "parser.h"
 #include "util.h"
 
+static int is_agent_present(const char *str)
+{
+	return (str && *str && str[strlen(str) - 2] == '"') ? 0 : 1;
+}
+
 /* qsort struct comparision function (hits field) */
 int struct_cmp_by_hits(const void *a, const void *b)
 {

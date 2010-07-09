@@ -32,6 +32,9 @@
 #include "util.h"
 #include "ui.h"
 
+static MENU *my_menu = NULL;
+static ITEM **items = NULL;
+
 /* creation - ncurses' window handling */
 WINDOW *create_win(WINDOW *main_win)
 {
