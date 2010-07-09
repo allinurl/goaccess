@@ -399,16 +399,19 @@ void load_help_popup(WINDOW *help_win)
 {
 	WINDOW *inner_win;
 	int y, x, c;
+	size_t sz;
 	struct scrolling scrolling;
-	
+
 	getmaxyx(help_win, y, x);
 	draw_header(help_win,"  Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit", 0, 1, x, 2);
 	wborder(help_win, '|', '|', '-', '-', '+', '+', '+', '+');
 
 	inner_win = newwin( y - 5, x - 4, 11, 21); 
+
+	sz = help_main_size ();
  
 	int i, m = 0;
-	for (i = 0; i < y ; i++, m++)
+	for (i = 0; (i < y) && (((size_t) i) < sz) ; i++, m++)
 		mvwaddstr(inner_win, m, 2 ,help_main[i]);
 
 	scrolling.scrl_help_win = y;
