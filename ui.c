@@ -363,7 +363,7 @@ void do_scrolling(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 	}
 }
 
-void load_help_popup_content(WINDOW *inner_win, int where, struct scrolling *scrolling)
+static void load_help_popup_content(WINDOW *inner_win, int where, struct scrolling *scrolling)
 {
 	int y, x;
 
@@ -454,7 +454,7 @@ void load_reverse_dns_popup(WINDOW *ip_detail_win, char *addr)
 	if ((c = wgetch(stdscr)) != 'q') return;
 }
 
-ITEM **get_menu_items(struct stu_alloc_holder **sorted_alloc_holder,
+static ITEM **get_menu_items(struct stu_alloc_holder **sorted_alloc_holder,
                  struct logger *logger, int choices, int sort)
 {
 	int i;
@@ -493,7 +493,7 @@ ITEM **get_menu_items(struct stu_alloc_holder **sorted_alloc_holder,
 	return items;
 }
 
-MENU *set_menu(WINDOW *my_menu_win, ITEM ** items, struct logger *logger)
+static MENU *set_menu(WINDOW *my_menu_win, ITEM ** items, struct logger *logger)
 {
 	MENU *my_menu = NULL;
 	int x = 0;
@@ -519,7 +519,7 @@ MENU *set_menu(WINDOW *my_menu_win, ITEM ** items, struct logger *logger)
 	return my_menu;
 }
 
-void load_popup_content(WINDOW *my_menu_win, int choices,
+static void load_popup_content(WINDOW *my_menu_win, int choices,
 						struct stu_alloc_holder **sorted_alloc_holder, 
 						struct logger *logger, int sort)
 {
@@ -530,7 +530,7 @@ void load_popup_content(WINDOW *my_menu_win, int choices,
 	wrefresh(my_menu_win);
 }
 
-void load_popup_free_items(ITEM ** items, struct logger *logger)
+static void load_popup_free_items(ITEM ** items, struct logger *logger)
 {
 	int i;
 	char *name = NULL;

@@ -41,7 +41,7 @@ static void free_key_value(gpointer old_key, GO_UNUSED gpointer old_value, GO_UN
 	g_free(old_key);
 }
 
-struct logger *init_struct(void)
+static struct logger *init_struct(void)
 {
 	struct logger *logger;
 
@@ -56,7 +56,7 @@ struct logger *init_struct(void)
 	return logger; 
 }
 
-void cmd_help()
+static void cmd_help()
 {
 	printf("\nUsage: ");
 	printf("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ -f log_file ]\n\n");

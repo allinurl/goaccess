@@ -54,7 +54,7 @@ int struct_cmp(const void *a, const void *b)
 	return strcmp(ib->data, ia->data);
 }
 
-void process_unique_data(char *host, char *date, char *agent, 
+static void process_unique_data(char *host, char *date, char *agent, 
 		char *status, char *referer)
 {
 	char *cat_hold;
@@ -147,7 +147,7 @@ void process_unique_data(char *host, char *date, char *agent,
 	free(cat_hold);
 }
 
-void process_generic_data(GHashTable *hash_table, const char *key)
+static void process_generic_data(GHashTable *hash_table, const char *key)
 {
 	gpointer old_value, old_key;
 	gint value;
@@ -161,7 +161,7 @@ void process_generic_data(GHashTable *hash_table, const char *key)
 	g_hash_table_replace(hash_table, g_strdup(key), GINT_TO_POINTER(value));
 }
 
-int verify_static_content(char *url)
+static int verify_static_content(char *url)
 {
 	char *nul = url + strlen(url);
 
@@ -178,7 +178,7 @@ int verify_static_content(char *url)
 	return 0;
 }
 
-char *parse_req(char *line)
+static char *parse_req(char *line)
 {
 	char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
 
@@ -221,7 +221,7 @@ char *parse_req(char *line)
 	return reqs;
 }
 
-int parse_req_size(char *line, int format) 
+static int parse_req_size(char *line, int format) 
 {
 	long size = 0;
 
@@ -248,7 +248,7 @@ int parse_req_size(char *line, int format)
 	return size;
 }
 
-int parse_request(struct logger *logger, char *line)
+static int parse_request(struct logger *logger, char *line)
 {
 	char *ptr, *prb = NULL, *fqm = NULL, *sqm = NULL, *host, *date, *ref, *hour = NULL;
 	char *cpy_line = strdup(line);
@@ -326,7 +326,7 @@ int parse_request(struct logger *logger, char *line)
 	return 0;
 }
 
-int process_log(struct logger *logger, char *line)
+static int process_log(struct logger *logger, char *line)
 {
 	struct logger log;
 	char *cpy_line = strdup(line);
