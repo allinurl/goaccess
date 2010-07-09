@@ -79,7 +79,7 @@ void process_unique_data(struct logger *logger, char *host, char *date, char *ag
 
 	if (h_len + d_len + a_len + 3 > BUFFER) {
 		endwin();
-		fprintf(stderr, "\nAn error has occurred while opening '%s'");
+		fprintf(stderr, "\nAn error has occurred:");
 		fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
 		exit(1);
 	}
@@ -87,7 +87,7 @@ void process_unique_data(struct logger *logger, char *host, char *date, char *ag
 	cat_hold = malloc (h_len + d_len + a_len + 3);
 	if (cat_hold == NULL) {
 		endwin();
-		fprintf(stderr, "\nAn error has occurred while opening '%s'");
+		fprintf(stderr, "\nAn error has occurred:");
 		fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
 		exit(1);
 	}
