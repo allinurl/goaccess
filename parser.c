@@ -383,18 +383,19 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 	struct stu_alloc_holder **s_holder;
 
 	GHashTableIter iter;
-	gchar *k,*v;   
+	gpointer k = NULL;
+	gpointer v = NULL;
 
 	/* get the number of rows and columns */
 	getmaxyx(stdscr,row,col);
 
 	g_hash_table_iter_init (&iter, ht_unique_visitors);
-	while (g_hash_table_iter_next (&iter, (gpointer) &k, (gpointer) &v)) {
+	while (g_hash_table_iter_next (&iter, &k, &v)) {
 		/* ###FIXME: 64 bit portability issues might arise */
 		process_generic_data(ht_os, verify_os((gchar *)k));
 		process_generic_data(ht_browsers, verify_browser((gchar *)k));
 		sorted_alloc_holder[n]->data = (gchar *)k;
-		sorted_alloc_holder[n++]->hits = (gint)v;
+		sorted_alloc_holder[n++]->hits = GPOINTER_TO_INT(v);
 		logger->counter++;
 	}
 
@@ -409,11 +410,11 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 	int ct = 0;
 	s_holder = (struct stu_alloc_holder **)malloc(sizeof(struct stu_alloc_holder *)*g_hash_table_size(ht_unique_vis));
 	g_hash_table_iter_init (&iter, ht_unique_vis);
-	while (g_hash_table_iter_next (&iter, (gpointer) &k, (gpointer) &v)) {
+	while (g_hash_table_iter_next (&iter, &k, &v)) {
 		/* ###FIXME: 64 bit portability issues might arise */
 		s_holder[w] = (struct stu_alloc_holder *)malloc(sizeof(struct stu_alloc_holder));
 		s_holder[w]->data = (gchar *)k;
-		s_holder[w++]->hits = (gint)v;
+		s_holder[w++]->hits = GPOINTER_TO_INT(v);
 		ct++;
 	}
 
@@ -466,13 +467,14 @@ void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sort
 	
 	int i = 0;
 	GHashTableIter iter;
-	gchar *k,*v;
+	gpointer k = NULL;
+	gpointer v = NULL;
 	
 	g_hash_table_iter_init (&iter, hash_table);
-	while (g_hash_table_iter_next (&iter, (gpointer) &k, (gpointer) &v)) {
+	while (g_hash_table_iter_next (&iter, &k, &v)) {
 		/* ###FIXME: 64 bit portability issues might arise */
 		sorted_alloc_holder[i]->data = (gchar *)k;
-		sorted_alloc_holder[i++]->hits = (gint)v;
+		sorted_alloc_holder[i++]->hits = GPOINTER_TO_INT(v);
 		logger->counter++;
 	}
 	

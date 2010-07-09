@@ -632,13 +632,14 @@ void load_popup(WINDOW *my_menu_win,  struct stu_alloc_holder **sorted_alloc_hol
 	
 	int i = 0;
 	GHashTableIter iter;
-	gchar *k,*v;
+	gpointer k = NULL;
+	gpointer v = NULL;
 	
 	g_hash_table_iter_init (&iter, hash_table);
-	while (g_hash_table_iter_next (&iter, (gpointer) &k, (gpointer) &v)) {
+	while (g_hash_table_iter_next (&iter, &k, &v)) {
 		/* ###FIXME: 64 bit portability issues might arise */
 		sorted_alloc_holder[i]->data = (gchar *)k;
-		sorted_alloc_holder[i++]->hits = (gint)v;
+		sorted_alloc_holder[i++]->hits = GPOINTER_TO_INT(v);
 		logger->counter++;
 	}
 
