@@ -54,8 +54,8 @@ int struct_cmp(const void *a, const void *b)
 	return strcmp(ib->data, ia->data);
 }
 
-void process_unique_data(struct logger *logger, char *host, char *date, char *agent, 
-						 char *status, char *referer)
+void process_unique_data(char *host, char *date, char *agent, 
+		char *status, char *referer)
 {
 	char *cat_hold;
 	gpointer old_key, old_value;
@@ -333,7 +333,7 @@ int process_log(struct logger *logger, char *line)
 	logger->total_process++;
 
 	if (parse_request(&log, line) == 0) {
-		process_unique_data(logger, log.host, log.date, log.agent, log.status, log.referer);
+		process_unique_data(log.host, log.date, log.agent, log.status, log.referer);
 		free(status_code);
 		if (verify_static_content(log.request)) {
 			if (strstr(cpy_line, "\" 404 ")) process_generic_data(ht_not_found_requests,log.request);

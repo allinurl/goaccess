@@ -28,7 +28,7 @@ int struct_cmp_by_hits(const void *a, const void *b);
 
 int struct_cmp(const void *a, const void *b);
 
-void process_unique_data(struct logger *logger, char *host, char *date, 
+void process_unique_data(char *host, char *date, 
 						 char *agent, char *status, char *referer);
 
 void process_generic_data(GHashTable *hash_table, const char *key);
