@@ -41,9 +41,9 @@ char *substring(const char *str, int begin, int len)
 		begin = 0;
 	if (len < 0)
 		len = 0;
-	if (begin >strlen (str))
+	if (((size_t) begin) >strlen (str))
 		begin = strlen (str);
-	if (len > strlen (&str[begin]))
+	if (((size_t) len) > strlen (&str[begin]))
 		len = strlen (&str[begin]);
 	if ((buffer = malloc (len + 1)) == NULL)
 		return NULL;
@@ -103,7 +103,7 @@ off_t file_size(const char *filename)
 
 const char *verify_os(char * str) 
 {
-	int i;
+	size_t i;
 	for (i = 0; i < os_size(); i++) {
 		if (strstr(str, os[i]) != NULL) return os[i];
 	}
@@ -112,7 +112,7 @@ const char *verify_os(char * str)
 
 const char *verify_browser(char * str) 
 {
-	int i;
+	size_t i;
 	for (i = 0; i < browsers_size(); i++) {
 		if (strstr(str, browsers[i]) != NULL) return browsers[i];
 	}
@@ -121,7 +121,7 @@ const char *verify_browser(char * str)
 
 char *verify_status_code(char *str)
 {
-	int i;
+	size_t i;
 	for (i = 0; i < codes_size(); i++) {
 		if (strstr(str, codes[i][0]) != NULL) return codes[i][1];
 	}

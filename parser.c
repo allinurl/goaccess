@@ -518,7 +518,8 @@ void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sort
 	}
 
 	/* r : pos */	
-	int f, lo, r = 0, t_req = logger->counter > 6 ? 6 : logger->counter;
+	int lo, r = 0;
+	guint f;
 	
 	init_pair(2, COLOR_BLACK, COLOR_CYAN);
 	attron(COLOR_PAIR(2));
@@ -534,7 +535,7 @@ void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sort
 		else if (lo == 2 || lo == 9)
 			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string("");
 		else if (r<logger->counter){
-			if (strlen(sorted_alloc_holder[r]->data) > col - 15) {
+			if (strlen(sorted_alloc_holder[r]->data) > ((size_t) (col - 15))) {
 				stripped_str = substring(sorted_alloc_holder[r]->data, 0, col - 15);	
 				sorted_alloc_all[logger->alloc_counter]->data = stripped_str;
 			} else sorted_alloc_all[logger->alloc_counter]->data = alloc_string(sorted_alloc_holder[r]->data);

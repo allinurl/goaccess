@@ -372,8 +372,8 @@ void load_help_popup_content(WINDOW *inner_win, int where, struct scrolling *scr
 	getmaxyx(inner_win, y, x);
 	switch (where) {
 		case 1: /* scroll down */
-			if (scrolling->scrl_help_win - 5 >= help_main_size()) 
-			return;	
+			if (((size_t) (scrolling->scrl_help_win - 5)) >= help_main_size()) 
+				return;	
 			scrollok(inner_win, TRUE);
 			wscrl(inner_win, 1);
 			scrollok(inner_win, FALSE);
