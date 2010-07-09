@@ -72,7 +72,7 @@ void process_unique_data(struct logger *logger, char *host, char *date, char *ag
 	memset (&tm, 0, sizeof (tm));
 
 	if (strptime(date, "%d/%b/%Y", &tm) == NULL) 
-			;
+		return;
 	strftime(buf, strlen(buf)-1, "%Y%m%d ", &tm);
 	
 	size_t h_len = strlen(host);
