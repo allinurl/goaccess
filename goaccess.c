@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
 	display_general(header_win, logger, ifile);
 	wrefresh(header_win);
 	
-	int cur_x, cur_y, y, x, c;
+	int y, x, c;
 	wmove(main_win,row,0);
 	getmaxyx(main_win,y,x);
 	scrolling.scrl_main_win = y;

@@ -133,11 +133,10 @@ void display_general(WINDOW *header_win, struct logger *logger, char *ifile)
 void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
 				   struct logger *logger, int i, int module, int max)
 {
-	enum MODULES modules;
 	int x, y, xx, r, col, row;
 	float l_bar, scr_cal, orig_cal;
 	struct tm tm;
-	char buf[12] = "", *http_code; /* max possible size of date */
+	char buf[12] = ""; /* max possible size of date */
 
 	memset (&tm, 0, sizeof (tm));
 	
@@ -235,10 +234,7 @@ int get_max_value(struct stu_alloc_all **sorted_alloc_all, struct logger *logger
 void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
 					 struct logger *logger)
 {
-	int i, x, y, xx, r, max = 0, until = 0;
-	float l_bar;
-	char buf[12] = ""; /* max possible size of date */
-	struct tm tm = { 0 };
+	int i, x, y, max = 0, until = 0;
 	
 	getmaxyx(main_win,y,x);
 	init_pair(3, COLOR_RED, -1);
@@ -288,7 +284,7 @@ void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 void do_scrolling(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
 				  struct logger *logger, struct scrolling *scrolling, int cmd)
 {
-	int cur_y, cur_x, y, x, next = 0, i, m, max = 0;
+	int cur_y, cur_x, y, x, max = 0;
 	getyx(main_win, cur_y, cur_x);
 	getmaxyx(main_win,y,x);
 	
@@ -403,7 +399,6 @@ void load_help_popup(WINDOW *help_win)
 {
 	WINDOW *inner_win;
 	int y, x, c;
-	char *line;
 	struct scrolling scrolling;
 	
 	getmaxyx(help_win, y, x);
@@ -412,7 +407,7 @@ void load_help_popup(WINDOW *help_win)
 
 	inner_win = newwin( y - 5, x - 4, 11, 21); 
  
-	int i, m = 0, down = 0;
+	int i, m = 0;
 	for (i = 0; i < y ; i++, m++)
 		mvwaddstr(inner_win, m, 2 ,help_main[i]);
 
@@ -566,7 +561,6 @@ static ITEM *search_request(MENU *my_menu, const char *input)
 
 	if (input != NULL) { 
 		int i = -1, j = -1, response = 0;
-		ITEM **items = NULL;
 		j = item_index(current_item(my_menu));
 
 		for (i = j + 1; i < item_count(my_menu) && !response; i++) {
@@ -581,17 +575,12 @@ static ITEM *search_request(MENU *my_menu, const char *input)
 void load_popup(WINDOW *my_menu_win,  struct stu_alloc_holder **sorted_alloc_holder, struct logger *logger)
 {
 	WINDOW *ip_detail_win;
-	enum MODULES modules;
 	ITEM *query = NULL;	
 	
 	/*###TODO: perhaps let the user change the size of the popup choices
 	 * however, tail implementation may vary  */
 	int choices = MAX_CHOICES, c, x, y;
-	char *hits = NULL;
-	char buf[12] = "";
-	char *buffer_date = NULL; /* max possible size of date */
 	char input[BUFFER] = "";
-	struct tm tm = { 0 };
 	
 	GHashTable *hash_table;
 	switch (logger->current_module)

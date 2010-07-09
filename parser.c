@@ -57,7 +57,7 @@ int struct_cmp(const void *a, const void *b)
 void process_unique_data(struct logger *logger, char *host, char *date, char *agent, 
 						 char *status, char *referer)
 {
-	char *cat_hold, *p, *k;
+	char *cat_hold;
 	gpointer old_key, old_value;
 	gint value;
 
@@ -250,7 +250,7 @@ int parse_req_size(char *line, int format)
 
 int parse_request(struct logger *logger, char *line)
 {
-	char *ptr, *prb = NULL, *fqm = NULL, *sqm = NULL, *agent, *host, *date, *ref, *hour;
+	char *ptr, *prb = NULL, *fqm = NULL, *sqm = NULL, *host, *date, *ref, *hour = NULL;
 	char *cpy_line = strdup(line);
 	int format = 0;
 
@@ -376,9 +376,7 @@ int parse_log(struct logger *logger, char *filename)
 void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holder **sorted_alloc_holder, 
 							  struct stu_alloc_all **sorted_alloc_all, struct logger *logger)
 {
-	int row, col, n = 0, b, e,
-		lo, r = 0, j = 0, i, x_bar_pos, w = 0;
-	float l_bar = 0;
+	int row, col, n = 0, lo, r = 0, w = 0;
 	char *date, *current_date;
 	struct stu_alloc_holder **s_holder;
 
@@ -419,13 +417,9 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 	}
 
 	qsort(s_holder, ct, sizeof(struct stu_alloc_holder*), struct_cmp);
-	int t_req = g_hash_table_size(ht_unique_vis) > 6 ? 6 : g_hash_table_size(ht_unique_vis);
 
 	init_pair(3, COLOR_RED, -1);
 	init_pair(4, COLOR_GREEN, -1);
-
-	struct tm tm = { 0 };
-	char buf[12] = ""; /* max possible size for date type */
 
 	r = 0;
 	/* fixed value in here, perhaps it could be dynamic depending on the module */	
