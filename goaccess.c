@@ -262,14 +262,14 @@ int main(int argc, char *argv[])
 			case 9: 	/* tab - increment module counter */
 				if (logger->current_module < TOTAL_MODULES)
 					logger->current_module++;
-				else if (logger->current_module = TOTAL_MODULES)
+				else if (logger->current_module == TOTAL_MODULES)
 					logger->current_module = 1;
 				update_header(header_win, logger->current_module);	
 				break;
 			case 353: 	/* tab - increment module counter */
 				if (logger->current_module > 1 && logger->current_module <= TOTAL_MODULES)
 					logger->current_module--;
-				else if (logger->current_module = 1)
+				else if (logger->current_module == 1)
 					logger->current_module = 10;
 				update_header(header_win, logger->current_module);	
 				break;

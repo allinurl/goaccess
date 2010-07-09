@@ -454,7 +454,7 @@ void load_reverse_dns_popup(WINDOW *ip_detail_win, char *addr)
 	free(my_addr);
 
 	wrefresh(ip_detail_win);
-	if (c = wgetch(stdscr) != 'q') return;
+	if ((c = wgetch(stdscr)) != 'q') return;
 }
 
 ITEM **get_menu_items(struct stu_alloc_holder **sorted_alloc_holder,

@@ -229,7 +229,7 @@ int parse_req_size(char *line, int format)
 	/* Common Log Format */
 	char *c;
 	if (format) {
-		if (c = strrchr(trim_str(line), ' '))
+		if ((c = strrchr(trim_str(line), ' ')) != 0)
 			size = strtol(c + 1, NULL, 10);
 		return size;
 	} 
@@ -239,7 +239,7 @@ int parse_req_size(char *line, int format)
 	else return -1; /* no protocol used? huh... */
 
 	char *p = NULL;
-	if (p = strchr(c + 6, ' '))
+	if ((p = strchr(c + 6, ' ')) != 0)
 		size = strtol(p + 1, NULL, 10);
 	else size = -1;
 
