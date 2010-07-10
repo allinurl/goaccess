@@ -95,7 +95,8 @@ char *reverse_ip(char *str)
 	return (hent != NULL ? strdup(hent->h_name) : NULL);
 }
 
-off64_t file_size(const char *filename) 
+/* off_t becomes 64 bit aware */
+off_t file_size(const char *filename) 
 {
     struct stat st;
 
