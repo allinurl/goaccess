@@ -332,6 +332,9 @@ static int process_log(struct logger *logger, char *line)
 	char *cpy_line = strdup(line);
 	logger->total_process++;
 
+	/* Make compiler happy */
+	memset (&log, 0, sizeof (log));
+
 	if (parse_request(&log, line) == 0) {
 		process_unique_data(log.host, log.date, log.agent, log.status, log.referer);
 		free(status_code);
@@ -377,7 +380,7 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 							  struct stu_alloc_all **sorted_alloc_all, struct logger *logger)
 {
 	int row, col, n = 0, lo, r = 0, w = 0;
-	char *date, *current_date;
+	char *date;
 	struct stu_alloc_holder **s_holder;
 
 	GHashTableIter iter;
@@ -399,10 +402,13 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 
 	for (lo=0; lo<logger->counter; lo++) {
 		if ((date = strchr(sorted_alloc_holder[lo]->data, '|')) != NULL) {
-			current_date = clean_date(date);
-			process_generic_data(ht_unique_vis,current_date);
+			char *tmp;
+
+			tmp = clean_date(date);
+			process_generic_data(ht_unique_vis,tmp);
+
+			free (tmp);
 		}
-		free(current_date);
 	}
 	
 	int ct = 0;

@@ -137,13 +137,12 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 	float l_bar, scr_cal, orig_cal;
 	struct tm tm;
 	char buf[12] = ""; /* max possible size of date */
+	GHashTable *hash_table = NULL;
 
 	memset (&tm, 0, sizeof (tm));
 	
 	getyx(main_win,y,x);
 	getmaxyx(stdscr,row,col);
-	
-	GHashTable *hash_table;
 	
 	switch (module)
 	{
@@ -585,7 +584,8 @@ void load_popup(WINDOW *my_menu_win,  struct stu_alloc_holder **sorted_alloc_hol
 	int choices = MAX_CHOICES, c, x, y;
 	char input[BUFFER] = "";
 	
-	GHashTable *hash_table;
+	GHashTable *hash_table = NULL;
+
 	switch (logger->current_module)
 	{
 		case UNIQUE_VISITORS:
