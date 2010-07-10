@@ -18,6 +18,9 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
+#define _LARGEFILE64_SOURCE 1
+#define _FILE_OFFSET_BITS 64
+
 #include <string.h>
 #include <stdio.h>
 #include <arpa/inet.h>
@@ -41,7 +44,7 @@ char *substring(const char *str, int begin, int len)
 		begin = 0;
 	if (len < 0)
 		len = 0;
-	if (((size_t) begin) >strlen (str))
+	if (((size_t) begin) > strlen (str))
 		begin = strlen (str);
 	if (((size_t) len) > strlen (&str[begin]))
 		len = strlen (&str[begin]);
@@ -55,9 +58,12 @@ char *substring(const char *str, int begin, int len)
 
 char *alloc_string(const char* str)
 {
-    char *new = malloc(strlen(str) + 1) ;
+    char *new = malloc(strlen(str) + 1);
+	if (new == NULL)	
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Unable to allocate memory");
     strcpy(new, str);        
-    return new ;
+    return new;
 }
 
 char *reverse_ip(char *str)
@@ -89,7 +95,7 @@ char *reverse_ip(char *str)
 	return (hent != NULL ? strdup(hent->h_name) : NULL);
 }
 
-off_t file_size(const char *filename) 
+off64_t file_size(const char *filename) 
 {
     struct stat st;
 
@@ -104,29 +110,25 @@ off_t file_size(const char *filename)
 const char *verify_os(char * str) 
 {
 	size_t i;
-	for (i = 0; i < os_size(); i++) {
+	for (i = 0; i < os_size(); i++)
 		if (strstr(str, os[i]) != NULL) return os[i];
-	}
 	return "Unknown";
 }
 
 const char *verify_browser(char * str) 
 {
 	size_t i;
-	for (i = 0; i < browsers_size(); i++) {
+	for (i = 0; i < browsers_size(); i++)
 		if (strstr(str, browsers[i]) != NULL) return browsers[i];
-	}
 	return "Unknown";
 }
 
 char *verify_status_code(char *str)
 {
 	size_t i;
-	for (i = 0; i < codes_size(); i++) {
+	for (i = 0; i < codes_size(); i++)
 		if (strstr(str, codes[i][0]) != NULL) return codes[i][1];
-	}
 	return "Unknown";
-
 }
 
 char *trim_str(char *str) 
