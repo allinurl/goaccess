@@ -29,9 +29,9 @@ void error_handler(const char *func, char *file, int line, char *msg)
 {
 	(void) endwin();
 	
-	fprintf(stderr, "\nGoAccess - version %s\n", GO_VERSION);
+	fprintf(stderr, "\nGoAccess - version %s %s %s\n", GO_VERSION, __DATE__, __TIME__);
 	fprintf(stderr, "\nAn error has occurred");
-	fprintf(stderr, "\nError occured at: %s - %s - %d'", file, func, line);
-	fprintf(stderr, "\nMessage %s'\n\n", msg);
+	fprintf(stderr, "\nError occured at: %s - %s - %d", file, func, line);
+	fprintf(stderr, "\nMessage: %s\n\n", msg);
 	abort();
 }

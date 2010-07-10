@@ -29,6 +29,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
+#include "error.h"
 #include "alloc.h"
 #include "commons.h"
 #include "util.h"
@@ -82,7 +83,7 @@ int main(int argc, char *argv[])
 	struct stu_alloc_all **sorted_alloc_all;
 	struct stu_alloc_holder **sorted_alloc_holder;
 
-	if (argc < 2) { 
+	if (argc < 2) {
 		fprintf(stderr, "goaccess version %s\n", GO_VERSION);
 		cmd_help();
 		exit(1);
@@ -108,8 +109,10 @@ int main(int argc, char *argv[])
 				bandwidth_flag = 1;
 				break;
 			case '?':
-				if (isprint(optopt)) fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-				else fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+				if (isprint(optopt)) 
+					fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+				else 
+					fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
 				return 1;
 			default:
 				abort();
@@ -139,12 +142,9 @@ int main(int argc, char *argv[])
 	
 	initscr();
 	clear();
-	if (has_colors() == FALSE) {
-		endwin();
-		printf("Your terminal does not support color\n");
-		exit(1);
-	}
-
+	if (has_colors() == FALSE)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Your terminal does not support color");
 	start_color();
 	noecho();
 	cbreak();
@@ -154,19 +154,15 @@ int main(int argc, char *argv[])
 	init_pair(5, COLOR_WHITE, -1);
 	attron(COLOR_PAIR(5));
 	getmaxyx(stdscr, row, col);
-	if (row < 40 || col < 97) {
-		endwin();
-		fprintf(stderr, "\nMinimum screen size - 97 columns by 40 lines\n");
-		exit(1);
-	}
-	
+	if (row < 40 || col < 97) 
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Minimum screen size - 97 columns by 40 lines");
+
 	header_win = newwin(5, col, 0, 0);
 	keypad(header_win, TRUE);
-	if (header_win == NULL)	{
-		addstr("Unable to allocate memory for new window.");
-		endwin();
-		return(1);
-	}
+	if (header_win == NULL)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Unable to allocate memory for new window.");
 
 	/* main processing event */
 	(void) time(&start_proc);	
@@ -183,11 +179,9 @@ int main(int argc, char *argv[])
 
 	main_win = newwin(row - 7, col, 6, 0);
 	keypad(header_win, TRUE);
-	if ( main_win == NULL) {
-		addstr("Unable to allocate memory for new window.");
-		endwin();
-		return(1);
-	}
+	if (main_win == NULL)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Unable to allocate memory for new window.");
 
 	/* allocate per module */	
 	ALLOCATE_STRUCT(sorted_alloc_all, 170);
@@ -324,6 +318,11 @@ int main(int argc, char *argv[])
 				break;
 			case 265:
 				help_win = newwin( y - 12, x - 40, 8, 20);
+
+				if (help_win == NULL)
+					error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+								  "Unable to allocate memory for new window.");
+
 				load_help_popup(help_win);	
 				wrefresh(help_win);
 				touchwin(main_win);

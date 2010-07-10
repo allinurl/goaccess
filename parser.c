@@ -29,9 +29,11 @@
 #include <stdio.h>
 #include <time.h>
 
+#include "error.h"
 #include "commons.h"
 #include "parser.h"
 #include "util.h"
+
 
 static int is_agent_present(const char *str)
 {
@@ -79,20 +81,15 @@ static void process_unique_data(char *host, char *date, char *agent,
 	size_t d_len = strlen(buf) - 1;
 	size_t a_len = strlen(agent);
 
-	if (h_len + d_len + a_len + 3 > BUFFER) {
-		endwin();
-		fprintf(stderr, "\nAn error has occurred:");
-		fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
-		exit(1);
-	}
+	if (h_len + d_len + a_len + 3 > BUFFER)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Line greater than current buffer");
 
 	cat_hold = malloc (h_len + d_len + a_len + 3);
-	if (cat_hold == NULL) {
-		endwin();
-		fprintf(stderr, "\nAn error has occurred:");
-		fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
-		exit(1);
-	}
+	if (cat_hold == NULL)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Unable to allocate memory");
+
 	memcpy(cat_hold, host, h_len); 
 	cat_hold[h_len] = '|';
 	memcpy(cat_hold + h_len + 1, buf, d_len + 1); 
@@ -194,11 +191,9 @@ static char *parse_req(char *line)
 		if ((req_r = strstr(line, " HTTP")) == NULL) {
 			/* didn't find it :( weird */
 			reqs = (char*) malloc (2);
-			if (reqs == NULL) {
-				endwin(); /* something went wrong */
-				fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
-				exit(1);
-			}
+			if (reqs == NULL)
+				error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+							  "Unable to allocate memory");
 			sprintf (reqs, "-");
 			return reqs;
 		} 
@@ -211,11 +206,9 @@ static char *parse_req(char *line)
 		(reqs)[req_len] = 0;
 	} else {
 		reqs = (char*) malloc (2);
-		if (reqs == NULL) {
-			endwin(); /* something went wrong */
-			fprintf(stderr, "\nError: %s - %s - %d'\n\n", __PRETTY_FUNCTION__, __FILE__, __LINE__);
-			exit(1);
-		}
+		if (reqs == NULL)
+			error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+							  "Unable to allocate memory");
 		sprintf (reqs, "-");
 	}
 	return reqs;
@@ -361,12 +354,9 @@ int parse_log(struct logger *logger, char *filename)
 	FILE *fp;
 	char line[BUFFER];
 
-	if ((fp = fopen(filename, "r")) == NULL) {
-		endwin();
-		fprintf(stderr, "\nAn error has occurred while opening '%s'", filename);
-		fprintf(stderr, "\n%s%s'\n\n", __PRETTY_FUNCTION__, __FILE__);
-		exit(1);
-	}
+	if ((fp = fopen(filename, "r")) == NULL)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+						  "An error has occurred while opening the log file. Make sure it exists.");
 	while (fgets(line, BUFFER, fp) != NULL) {
 		if (process_log(logger, line)) {
 			fclose(fp);
@@ -392,7 +382,6 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 
 	g_hash_table_iter_init (&iter, ht_unique_visitors);
 	while (g_hash_table_iter_next (&iter, &k, &v)) {
-		/* ###FIXME: 64 bit portability issues might arise */
 		process_generic_data(ht_os, verify_os((gchar *)k));
 		process_generic_data(ht_browsers, verify_browser((gchar *)k));
 		sorted_alloc_holder[n]->data = (gchar *)k;
@@ -415,7 +404,6 @@ void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holde
 	s_holder = (struct stu_alloc_holder **)malloc(sizeof(struct stu_alloc_holder *)*g_hash_table_size(ht_unique_vis));
 	g_hash_table_iter_init (&iter, ht_unique_vis);
 	while (g_hash_table_iter_next (&iter, &k, &v)) {
-		/* ###FIXME: 64 bit portability issues might arise */
 		s_holder[w] = (struct stu_alloc_holder *)malloc(sizeof(struct stu_alloc_holder));
 		s_holder[w]->data = (gchar *)k;
 		s_holder[w++]->hits = GPOINTER_TO_INT(v);
@@ -521,7 +509,7 @@ void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sort
 			break;	
 	}
 
-	/* r : pos */	
+	/* r : pos on y */	
 	int lo, r = 0;
 	guint f;
 	
