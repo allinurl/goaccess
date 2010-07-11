@@ -59,7 +59,7 @@ int struct_cmp(const void *a, const void *b)
 static void process_unique_data(char *host, char *date, char *agent, 
 		char *status, char *referer)
 {
-	char *cat_hold;
+	char unique_visitors_key[2048];
 	gpointer old_key, old_value;
 	gint value;
 
@@ -78,24 +78,9 @@ static void process_unique_data(char *host, char *date, char *agent,
 		return;
 	strftime(buf, sizeof (buf) - 1, "%Y%m%d ", &tm);
 	
-	size_t h_len = strlen(host);
-	size_t d_len = strlen(buf) - 1;
-	size_t a_len = strlen(agent);
-
-	if (h_len + d_len + a_len + 3 > BUFFER)
-		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-					  "Line greater than current buffer");
-
-	cat_hold = malloc (h_len + d_len + a_len + 3);
-	if (cat_hold == NULL)
-		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-					  "Unable to allocate memory");
-
-	memcpy(cat_hold, host, h_len); 
-	cat_hold[h_len] = '|';
-	memcpy(cat_hold + h_len + 1, buf, d_len + 1); 
-	cat_hold[h_len + d_len + 1] = '|';
-	memcpy(cat_hold + h_len + d_len + 2, agent, a_len + 1);
+	snprintf (unique_visitors_key, sizeof (unique_visitors_key),
+			"%s|%s|%s", host, buf, agent);
+	unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
 
 	char url[512] = "";
 	if (sscanf(referer, "http://%511[^/\n]", url) != 1 ) {
@@ -134,15 +119,13 @@ static void process_unique_data(char *host, char *date, char *agent,
 	g_hash_table_replace(ht_hosts, g_strdup(host), GINT_TO_POINTER(value));
 	avoidhost:;
 
-	if (g_hash_table_lookup_extended(ht_unique_visitors, cat_hold, &old_key, &old_value)) {
+	if (g_hash_table_lookup_extended(ht_unique_visitors, unique_visitors_key, &old_key, &old_value)) {
 		value = GPOINTER_TO_INT(old_value);
 		value = value + 1;
 	} else {
 		value = 1;
 	}
-	g_hash_table_replace(ht_unique_visitors, g_strdup(cat_hold), GINT_TO_POINTER(value));
-
-	free(cat_hold);
+	g_hash_table_replace(ht_unique_visitors, g_strdup(unique_visitors_key), GINT_TO_POINTER(value));
 }
 
 static void process_generic_data(GHashTable *hash_table, const char *key)
