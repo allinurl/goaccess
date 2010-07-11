@@ -28,6 +28,7 @@
 #include <regex.h>
 #include <stdio.h>
 #include <time.h>
+#include <errno.h>
 
 #include "error.h"
 #include "commons.h"
@@ -56,12 +57,32 @@ int struct_cmp(const void *a, const void *b)
 	return strcmp(ib->data, ia->data);
 }
 
+static int process_generic_data (GHashTable *ht, const char *key)
+{
+	gpointer value_ptr;
+	gint value_int;
+
+	if ((ht == NULL) || (key == NULL))
+		return (EINVAL);
+
+	value_ptr = g_hash_table_lookup (ht, key);
+	if (value_ptr != NULL)
+		value_int = GPOINTER_TO_INT (value_ptr);
+	else
+		value_int = 0;
+
+	value_int++;
+
+	/* Replace the entry. The old key will be freed by "free_key_value". */
+	g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
+
+	return (0);
+} /* int process_generic_data */
+
 static void process_unique_data(char *host, char *date, char *agent, 
 		char *status, char *referer)
 {
 	char unique_visitors_key[2048];
-	gpointer old_key, old_value;
-	gint value;
 
 	/* 
 	 * C struct initialization and strptime BUG 
@@ -83,64 +104,23 @@ static void process_unique_data(char *host, char *date, char *agent,
 	unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
 
 	char url[512] = "";
-	if (sscanf(referer, "http://%511[^/\n]", url) != 1 ) {
-		goto noref;
+	if (sscanf(referer, "http://%511[^/\n]", url) == 1) {
+		process_generic_data (ht_referring_sites, url);
 	}
-	if (g_hash_table_lookup_extended(ht_referring_sites, url, &old_key, &old_value)) {
-		value = GPOINTER_TO_INT(old_value);
-		value = value + 1;
-	} else {
-		value = 1;
-	}
-	g_hash_table_replace(ht_referring_sites, g_strdup(url), GINT_TO_POINTER(value));
-	noref:;
 
-	if (!http_status_code_flag) {
-		goto nohttpstatuscode;
+	if (http_status_code_flag) {
+		process_generic_data (ht_status_code, status);
 	}
-	if (g_hash_table_lookup_extended(ht_status_code, status, &old_key, &old_value)) {
-		value = GPOINTER_TO_INT(old_value);
-		value = value + 1;
-	} else {
-		value = 1;
-	}
-	g_hash_table_replace(ht_status_code, g_strdup(status), GINT_TO_POINTER(value));
-	nohttpstatuscode:;
 
 	if (ignore_flag && strcmp(host, ignore_host) == 0) {
-		goto avoidhost;
+		/* ignore */
 	}
-	if (g_hash_table_lookup_extended(ht_hosts, host, &old_key, &old_value)) {
-		value = GPOINTER_TO_INT(old_value);
-		value = value + 1;
-	} else {
-		value = 1;
+	else {
+		process_generic_data (ht_hosts, host);
 	}
-	g_hash_table_replace(ht_hosts, g_strdup(host), GINT_TO_POINTER(value));
-	avoidhost:;
 
-	if (g_hash_table_lookup_extended(ht_unique_visitors, unique_visitors_key, &old_key, &old_value)) {
-		value = GPOINTER_TO_INT(old_value);
-		value = value + 1;
-	} else {
-		value = 1;
-	}
-	g_hash_table_replace(ht_unique_visitors, g_strdup(unique_visitors_key), GINT_TO_POINTER(value));
-}
-
-static void process_generic_data(GHashTable *hash_table, const char *key)
-{
-	gpointer old_value, old_key;
-	gint value;
-
-	if (g_hash_table_lookup_extended(hash_table,key, &old_key, &old_value)) {
-		value = GPOINTER_TO_INT(old_value);
-		value = value+1;
-	} else {
-		value = 1;
-	}
-	g_hash_table_replace(hash_table, g_strdup(key), GINT_TO_POINTER(value));
-}
+	process_generic_data (ht_unique_visitors, unique_visitors_key);
+} /* void process_unique_data */
 
 static int verify_static_content(char *url)
 {
