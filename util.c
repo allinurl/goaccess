@@ -32,6 +32,7 @@
 
 #include "util.h"
 #include "commons.h"
+#include "error.h"
 
 /* helper functions */
 char *substring(const char *str, int begin, int len) 
