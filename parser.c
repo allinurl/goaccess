@@ -69,13 +69,14 @@ static void process_unique_data(char *host, char *date, char *agent,
 	 * so strptime uses struct for output and input as well.
 	 */
 	struct tm tm;
-	char buf[9] = "";
+	char buf[32];
 	
 	memset (&tm, 0, sizeof (tm));
+	memset (buf, 0, sizeof (buf));
 
 	if (strptime(date, "%d/%b/%Y", &tm) == NULL) 
 		return;
-	strftime(buf, strlen(buf)-1, "%Y%m%d ", &tm);
+	strftime(buf, sizeof (buf) - 1, "%Y%m%d ", &tm);
 	
 	size_t h_len = strlen(host);
 	size_t d_len = strlen(buf) - 1;
