@@ -2,8 +2,8 @@
  * goaccess.c -- main log analyzer 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1
- * Last Modified: Wednesday, July 07, 2010
+ * @version 0.1.1
+ * Last Modified: Saturday, July 10, 2010
  * Path:  /goaccess.c
  *
  * This program is distributed in the hope that it will be useful,
@@ -175,7 +175,7 @@ int main(int argc, char *argv[])
 	mvaddstr(row - 1, 1, "[F1]Help  [O]pen detail view");
 	mvprintw(row - 1, col - 64, "Generated: %s", asctime(now_tm));
 	mvaddstr(row - 1, col - 23, "[Q]uit Analyzer");
-	mvaddstr(row - 1, col - 5, GO_VERSION);
+	mvaddstr(row - 1, col - 6, GO_VERSION);
 
 	main_win = newwin(row - 7, col, 6, 0);
 	keypad(header_win, TRUE);

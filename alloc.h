@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1
- * Last Modified: Wednesday, July 07, 2010
+ * @version 0.1.1
+ * Last Modified: Saturday, July 10, 2010
  * Path:  /alloc.h
  *
  * This program is distributed in the hope that it will be useful,
