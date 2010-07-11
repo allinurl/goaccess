@@ -363,6 +363,7 @@ int parse_log(struct logger *logger, char *filename)
 			return 1;
 		}
 	}
+	fclose(fp);
 	return 0;
 }
 
