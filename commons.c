@@ -56,6 +56,12 @@ time_t start_proc;
 time_t end_proc;
 time_t now;
 
+/* resizing */
+int size_x, size_y;
+
+/* file */
+char *ifile = NULL;
+
 char *module_names[] 	= { 
 	"  Visitors - ^s^ sort by date - ^S^ sort by hits", 
 	"  Requests", "  Static Requests", "  Referrers", 

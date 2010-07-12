@@ -119,6 +119,11 @@ extern time_t now;
 extern time_t start_proc;
 extern time_t end_proc;
 
+extern int size_x;
+extern int size_y;
+
+extern char *ifile;
+
 extern char *codes[][2];
 extern char *module_names[];
 extern const char *os[];
