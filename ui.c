@@ -21,6 +21,7 @@
 /* "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
  * correctly. */
 #define _XOPEN_SOURCE 700
+#define STDIN_FILENO  0
 
 #include <string.h>
 #include <curses.h>
@@ -84,6 +85,16 @@ void update_header(WINDOW *header_win, int current)
 	mvwprintw(header_win, 0, col - 20, "[Active Module %d]", current);
 	wattroff(header_win,COLOR_PAIR(6));
 	wrefresh(header_win);
+}
+
+void resize_terminal(void)
+{
+	terminal_size(STDIN_FILENO, &size_x, &size_y);
+	if (resizeterm(size_y, size_x) == ERR)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+				"A problem occured while resizing the terminal");
+	refresh();
+	render_screens(); 
 }
 
 void display_general(WINDOW *header_win, struct logger *logger, char *ifile)

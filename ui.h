@@ -30,6 +30,8 @@ void drawHeader(WINDOW *win, char* header, int x, int y, int w, int color);
 
 void update_header(WINDOW *header_win, int current);
 
+void resize_terminal(void);
+
 void display_general(WINDOW *header_win, struct logger *logger, char *ifile);
 
 void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
