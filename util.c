@@ -26,6 +26,7 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <stropts.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <ctype.h>
@@ -107,6 +108,33 @@ off_t file_size(const char *filename)
 	fprintf(stderr, "Cannot determine size of %s: %s\n", filename, strerror(errno));
 
     return -1;
+}
+
+/*
+ * Getting the real term size
+ * STDIN_FILENO signal, x-coord, y-coord	
+ */
+int terminal_size(int fildes, int *size_x, int *size_y)
+{
+	/* make sure we check due to different terminals */
+	#ifdef TIOCGSIZE
+		struct ttysize term;
+	#elif defined(TIOCGWINSZ)
+		struct winsize term;
+	#endif
+
+	#if TIOCGSIZE
+	if (ioctl(fildes, TIOCGSIZE, (char *) &term) < 0) return -1;
+	if (size_x) *size_x = term.ts_cols;
+	if (size_y) *size_y = term.ts_lines;
+
+	#elif defined(TIOCGWINSZ)
+	if (ioctl(fildes, TIOCGWINSZ, (char *) &term) < 0) return -1;
+	*size_x = term.ws_col;
+	*size_y = term.ws_row;
+
+	#endif
+	return 0;	
 }
 
 const char *verify_os(char * str) 

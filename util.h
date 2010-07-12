@@ -28,6 +28,8 @@ char *reverse_ip(char *str);
 
 off_t file_size(const char *filename);
 
+int terminal_size(int fildes, int *size_x, int *size_y);
+
 const char *verify_os(char * str);
 
 const char *verify_browser(char * str);
