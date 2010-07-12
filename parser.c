@@ -164,7 +164,12 @@ static char *parse_req(char *line)
 			
 		req_l += strlen(lookfor);
 		ptrdiff_t req_len = req_r - req_l;
-
+		/* make sure we don't have some weird requests */
+		if (req_len < 0) {
+			reqs = (char*) malloc (2);
+			sprintf (reqs, "-");
+			return reqs;
+		}
 		reqs = malloc(req_len + 1);
 		strncpy(reqs, req_l, req_len);
 		(reqs)[req_len] = 0;
