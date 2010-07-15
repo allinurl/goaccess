@@ -256,6 +256,8 @@ void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 	until = (logger->alloc_counter > real_size_y) ? real_size_y + scrolling.init_scrl_main_win : logger->alloc_counter;
 	start = scrolling.init_scrl_main_win;
 	
+	/* making sure we dont go over logger->alloc_counter */
+	if (until > logger->alloc_counter) until = logger->alloc_counter;	
 	for (i = start; i < until; i++, pos_y++) {
 		if (sorted_alloc_all[i]->hits != 0)
 			mvwprintw(main_win, pos_y, 2, "%d", sorted_alloc_all[i]->hits);
