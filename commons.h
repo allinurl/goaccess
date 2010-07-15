@@ -1,7 +1,7 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
+ * @version 0.2
  * Last Modified: Saturday, July 10, 2010
  * Path:  /commons.h
  *
@@ -33,7 +33,15 @@
 #define BUFFER 			4096
 #define MAX_CHOICES 	100
 #define TOTAL_MODULES 	10
-#define GO_VERSION 		"0.1.1"
+#define GO_VERSION 		"0.2"
+
+#define MIN_HEIGHT 		40
+#define MIN_WIDTH       97
+
+/* max height of header window (rows) */
+#define MAX_HEIGHT_HEADER 6
+/* max height of footer stdscr (rows) */
+#define MAX_HEIGHT_FOOTER 1
 
 #define KB (1024)
 #define MB (KB * 1024)
@@ -97,8 +105,9 @@ struct stu_alloc_holder {
 };
 
 struct scrolling {
-	int scrl_main_win;
-	int scrl_help_win;
+	size_t scrl_main_win;
+	size_t scrl_help_win;
+	size_t init_scrl_main_win;
 };
 
 struct tm *now_tm;
@@ -119,8 +128,9 @@ extern time_t now;
 extern time_t start_proc;
 extern time_t end_proc;
 
-extern int size_x;
-extern int size_y;
+extern size_t term_h;
+extern size_t term_w;
+extern size_t real_size_y;
 
 extern char *ifile;
 

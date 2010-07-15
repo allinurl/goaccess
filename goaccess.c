@@ -2,7 +2,7 @@
  * goaccess.c -- main log analyzer 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
+ * @version 0.2
  * Last Modified: Saturday, July 10, 2010
  * Path:  /goaccess.c
  *
@@ -114,7 +114,7 @@ static void get_keys(void)
 	while ((c = wgetch(stdscr)) != 'q')	{  
 		switch (c) {
 			case KEY_DOWN: /* scroll down main_win */
-				wmove(main_win, y - 1, 0);
+				wmove(main_win, real_size_y - 1, 0);
 				do_scrolling(main_win, sorted_alloc_all, logger, &scrolling, 1);
 				break;
 			case KEY_UP:  /* scroll up main_win */
@@ -186,7 +186,6 @@ static void get_keys(void)
 				break;
 			case 265:
 				help_win = newwin( y - 12, x - 40, 8, 20);
-
 				if (help_win == NULL)
 					error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
 								  "Unable to allocate memory for new window.");
@@ -197,7 +196,10 @@ static void get_keys(void)
 				break;
 			case 269:
 			case KEY_RESIZE:
-				resize_terminal();
+				term_size(main_win);
+				scrolling.scrl_main_win = real_size_y;
+				refresh();
+				render_screens(); 
 				break;
 		}
 		wrefresh(main_win);
@@ -213,6 +215,7 @@ void render_screens(void)
 	wclear(stdscr);
 
 	getmaxyx(stdscr, row, col);
+	term_size(main_win);
 
 	generate_time();
 	mvaddstr(row - 1, 1, "[F1]Help  [O]pen detail view");
@@ -220,18 +223,13 @@ void render_screens(void)
 	mvaddstr(row - 1, col - 23, "[Q]uit Analyzer");
 	mvaddstr(row - 1, col - 6, GO_VERSION);
 
-	display_content(main_win, sorted_alloc_all, logger);
-
-	(void) time(&end_proc);
+	display_content(main_win, sorted_alloc_all, logger, scrolling);
 
 	refresh();
 	/* call general header so we can display it */
 	display_general(header_win, logger, ifile);
 	wrefresh(header_win);
 
-	wmove(main_win,row,0);
-	getmaxyx(main_win,y,x);
-	scrolling.scrl_main_win = y;
 	wrefresh(main_win);
 
 	/* display active label based on current module */
@@ -318,7 +316,7 @@ int main(int argc, char *argv[])
 	attron(COLOR_PAIR(5));
 
 	getmaxyx(stdscr, row, col);
-	if (row < 40 || col < 97) 
+	if (row < MIN_HEIGHT || col < MIN_WIDTH) 
 		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
 					  "Minimum screen size - 97 columns by 40 lines");
 
@@ -379,7 +377,13 @@ int main(int argc, char *argv[])
 	ALLOCATE_STRUCT(sorted_alloc_holder, g_hash_table_size(ht_referring_sites));
 	generate_struct_data(ht_referring_sites, sorted_alloc_holder, sorted_alloc_all, logger, 10);
 
+	(void) time(&end_proc);
 	/* draw screens */
+	int x, y;
+	getmaxyx(main_win,y,x);
+
+	scrolling.scrl_main_win = y;
+	scrolling.init_scrl_main_win = 0;
 	render_screens();
 	get_keys();
 

@@ -2,7 +2,7 @@
  * parser.c -- web log parsing
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
+ * @version 0.2
  * Last Modified: Saturday, July 10, 2010
  * Path:  /parser.c
  *
@@ -167,6 +167,9 @@ static char *parse_req(char *line)
 		/* make sure we don't have some weird requests */
 		if (req_len < 0) {
 			reqs = (char*) malloc (2);
+			if (reqs == NULL)
+				error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+							  "Unable to allocate memory");
 			sprintf (reqs, "-");
 			return reqs;
 		}

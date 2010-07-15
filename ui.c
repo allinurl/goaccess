@@ -2,7 +2,7 @@
  * ui.c -- curses user interface
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
+ * @version 0.2
  * Last Modified: Saturday, July 10, 2010
  * Path:  /ui.c
  *
@@ -87,14 +87,13 @@ void update_header(WINDOW *header_win, int current)
 	wrefresh(header_win);
 }
 
-void resize_terminal(void)
+void term_size(WINDOW *main_win)
 {
-	terminal_size(STDIN_FILENO, &size_x, &size_y);
-	if (resizeterm(size_y, size_x) == ERR)
-		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-				"A problem occured while resizing the terminal");
-	refresh();
-	render_screens(); 
+	getmaxyx(stdscr, term_h, term_w);
+
+	real_size_y = term_h - (MAX_HEIGHT_HEADER + MAX_HEIGHT_FOOTER);
+	wresize(main_win, real_size_y, term_w);
+	wmove(main_win, real_size_y, 0);
 }
 
 void display_general(WINDOW *header_win, struct logger *logger, char *ifile)
@@ -152,8 +151,8 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 
 	memset (&tm, 0, sizeof (tm));
 	
-	getyx(main_win,y,x);
-	getmaxyx(stdscr,row,col);
+	getyx(main_win, y, x);
+	getmaxyx(stdscr, row, col);
 	
 	switch (module)
 	{
@@ -191,7 +190,6 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 
 	orig_cal 	= (float)(sorted_alloc_all[i]->hits * 100);
 	l_bar 		= (float)(sorted_alloc_all[i]->hits * 100);
-
 	orig_cal 	= (module != 8 && module != 9) ? (l_bar / g_hash_table_size(hash_table)) : (orig_cal / logger->total_process);
 	l_bar 		= (l_bar / max);
 
@@ -218,7 +216,6 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 	scr_cal = (float) ((col - 38));
 	scr_cal = (float) scr_cal / 100;
 	l_bar = l_bar * scr_cal;
-	/*if (orig_cal < 1 || l_bar < 1 ) l_bar = 1;*/
 
 	for (r = 0, xx = 35; r < (int) l_bar; r++, xx++) {
 		wattron(main_win,COLOR_PAIR(4));
@@ -242,50 +239,57 @@ int get_max_value(struct stu_alloc_all **sorted_alloc_all, struct logger *logger
 /* ###NOTE: Modules 6, 7 are based on module 1 totals 
    this way we avoid the overhead of adding them up */
 void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
-					 struct logger *logger)
+					 struct logger *logger, struct scrolling scrolling)
 {
-	int i, x, y, max = 0, until = 0;
+	int i, x, y, max = 0, until = 0, start = 0, pos_y = 0;
 	
-	getmaxyx(main_win,y,x);
+	getmaxyx(stdscr, term_h, term_w);
+	getmaxyx(main_win, y, x);
+	
 	init_pair(3, COLOR_RED, -1);
 	init_pair(4, COLOR_GREEN, -1);
 
-	until = (logger->alloc_counter > y) ? y : logger->alloc_counter;
+	if (term_h < MIN_HEIGHT || term_w < MIN_WIDTH)
+		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
+					  "Minimum screen size - 97 columns by 40 lines");
 
-	for (i = 0; i < until; i++) {
+	until = (logger->alloc_counter > real_size_y) ? real_size_y + scrolling.init_scrl_main_win : logger->alloc_counter;
+	start = scrolling.init_scrl_main_win;
+	
+	for (i = start; i < until; i++, pos_y++) {
 		if (sorted_alloc_all[i]->hits != 0)
-			mvwprintw(main_win, i, 2, "%d", sorted_alloc_all[i]->hits);
+			mvwprintw(main_win, pos_y, 2, "%d", sorted_alloc_all[i]->hits);
 		/* draw headers */
 		if ((i % 10) == 0)
-			draw_header(main_win, sorted_alloc_all[i]->data, 0, i, x, 1);
+			draw_header(main_win, sorted_alloc_all[i]->data, 0, pos_y, x, 1);
 		else if ((i % 10) == 1) {
-			draw_header(main_win, sorted_alloc_all[i]->data, 0, i, x, 2);
-		} else if (((sorted_alloc_all[i]->module == 1)) &&	
-				   ((i % 10 >= 3) && (i % 10 <=8) && (sorted_alloc_all[i]->hits != 0))) {
+			draw_header(main_win, sorted_alloc_all[i]->data, 0, pos_y, x, 2);
+		} else if (((sorted_alloc_all[i]->module == UNIQUE_VISITORS)) &&	
+				((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
 
-				max = get_max_value(sorted_alloc_all, logger, 1);
-				create_graphs(main_win, sorted_alloc_all, logger, i, 1, max);
-		} else if (((sorted_alloc_all[i]->module == 6)) &&	
-				   ((i % 10 >= 3) && (i % 10 <=8) && (sorted_alloc_all[i]->hits != 0))) {
+			max = get_max_value(sorted_alloc_all, logger, UNIQUE_VISITORS);
+			create_graphs(main_win, sorted_alloc_all, logger, i, UNIQUE_VISITORS, max);
+		} else if (((sorted_alloc_all[i]->module == OS)) &&	
+				((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
 
-				max = get_max_value(sorted_alloc_all, logger, 6);
-				create_graphs(main_win, sorted_alloc_all, logger, i, 1, max);
-		} else if (((sorted_alloc_all[i]->module == 7)) &&	
-				   ((i % 10 >= 3) && (i % 10 <=8) && (sorted_alloc_all[i]->hits != 0))) {
+			max = get_max_value(sorted_alloc_all, logger, OS);
+			create_graphs(main_win, sorted_alloc_all, logger, i, UNIQUE_VISITORS, max);
+		} else if (((sorted_alloc_all[i]->module == BROWSERS)) &&	
+				((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
 
-				max = get_max_value(sorted_alloc_all, logger, 7);
-				create_graphs(main_win, sorted_alloc_all, logger, i, 1, max);
-		} else if (((sorted_alloc_all[i]->module == 8)) &&	
-				   ((i % 10 >= 3) && (i % 10 <=8) && (sorted_alloc_all[i]->hits != 0))) {
+			max = get_max_value(sorted_alloc_all, logger, BROWSERS);
+			create_graphs(main_win, sorted_alloc_all, logger, i, UNIQUE_VISITORS, max);
+		} else if (((sorted_alloc_all[i]->module == HOSTS)) &&	
+				((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
 
-				max = get_max_value(sorted_alloc_all, logger, 8);
-				create_graphs(main_win, sorted_alloc_all, logger, i, 8, max);
-		} else if (((sorted_alloc_all[i]->module == 9)) &&	
-				   ((i % 10 >= 3) && (i % 10 <=8) && (sorted_alloc_all[i]->hits != 0))) {
+			max = get_max_value(sorted_alloc_all, logger, HOSTS);
+			create_graphs(main_win, sorted_alloc_all, logger, i, HOSTS, max);
+		} else if (((sorted_alloc_all[i]->module == STATUS_CODES)) &&	
+				((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
 
-				max = get_max_value(sorted_alloc_all, logger, 9);
-				create_graphs(main_win, sorted_alloc_all, logger, i, 9, max);
-		} else mvwprintw(main_win, i, 10, "%s", sorted_alloc_all[i]->data);
+			max = get_max_value(sorted_alloc_all, logger, STATUS_CODES);
+			create_graphs(main_win, sorted_alloc_all, logger, i, STATUS_CODES, max);
+		} else mvwprintw(main_win, pos_y, 10, "%s", sorted_alloc_all[i]->data);
 	}
 }
 
@@ -295,80 +299,103 @@ void do_scrolling(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 				  struct logger *logger, struct scrolling *scrolling, int cmd)
 {
 	int cur_y, cur_x, y, x, max = 0;
-	getyx(main_win, cur_y, cur_x);
-	getmaxyx(main_win,y,x);
+	getyx(main_win, cur_y, cur_x); /* cursor */
+	getmaxyx(main_win, y, x);
+
+	int i = real_size_y + scrolling->init_scrl_main_win; 
+	int j = scrolling->init_scrl_main_win - 1;
 	
 	switch (cmd)
 	{
 		/* scroll down main window by repositioning cursor */
 		case 1: 
-			if (!(scrolling->scrl_main_win < logger->alloc_counter)) return;
+			if (!(i < logger->alloc_counter)) return;
 			scrollok(main_win, TRUE);
-			wscrl(main_win,1);
+			wscrl(main_win, 1);
 			scrollok(main_win, FALSE);
+
+			/*mvwprintw(main_win, cur_y, 36, "%d - %d -  %d - %d", i, real_size_y, cur_y, (scrolling->scrl_main_win) - real_size_y);*/
+			if (sorted_alloc_all[i]->hits != 0)
+				mvwprintw(main_win, cur_y, 2, "%d", sorted_alloc_all[i]->hits);
+			/* draw headers */
+			if ((i % 10) == 0)
+				draw_header(main_win, sorted_alloc_all[i]->data, 0, cur_y, x, 1);
+			else if ((i % 10) == 1) {
+				draw_header(main_win, sorted_alloc_all[i]->data, 0, cur_y, x, 2);
+			} else if (((sorted_alloc_all[i]->module == UNIQUE_VISITORS)) &&	
+					((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, UNIQUE_VISITORS);
+				create_graphs(main_win, sorted_alloc_all, logger, i, UNIQUE_VISITORS, max);
+			} else if (((sorted_alloc_all[i]->module == OS)) &&	
+					((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, OS);
+				create_graphs(main_win, sorted_alloc_all, logger, i, 1, max);
+			} else if (((sorted_alloc_all[i]->module == BROWSERS)) &&	
+					((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, BROWSERS);
+				create_graphs(main_win, sorted_alloc_all, logger, i, 1, max);
+			} else if (((sorted_alloc_all[i]->module == HOSTS)) &&	
+					((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, HOSTS);
+				create_graphs(main_win, sorted_alloc_all, logger, i, HOSTS, max);
+			} else if (((sorted_alloc_all[i]->module == STATUS_CODES)) &&	
+					((i % 10 >= 3) && (i % 10 <= 8) && (sorted_alloc_all[i]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, STATUS_CODES);
+				create_graphs(main_win, sorted_alloc_all, logger, i, STATUS_CODES, max);
+			} else mvwprintw(main_win, cur_y, 10, "%s", sorted_alloc_all[i]->data);
 			
-			if ((scrolling->scrl_main_win % 10) == 0)
-				draw_header(main_win,sorted_alloc_all[scrolling->scrl_main_win]->data, 0, cur_y, x,1);
-			else if ((scrolling->scrl_main_win % 10) == 1)
-				draw_header(main_win,sorted_alloc_all[scrolling->scrl_main_win]->data, 0, cur_y, x,2);
-			else if ((scrolling->scrl_main_win % 10) != 2 && (scrolling->scrl_main_win % 10)!=9 && (sorted_alloc_all[scrolling->scrl_main_win]->hits != 0)) {
-	
-				if (sorted_alloc_all[scrolling->scrl_main_win]->module == 1) {
-					max = get_max_value(sorted_alloc_all, logger, 1);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win]->module == 6) {
-					max = get_max_value(sorted_alloc_all, logger, 6);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win]->module == 7) {
-					max = get_max_value(sorted_alloc_all, logger, 7);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win]->module == 8) {
-					max = get_max_value(sorted_alloc_all, logger, 8);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win, 8, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win]->module == 9 && http_status_code_flag) {
-					max = get_max_value(sorted_alloc_all, logger, 9);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win, 9, max);
-				} else {
-					mvwprintw(main_win, cur_y, 10, "%s", sorted_alloc_all[scrolling->scrl_main_win]->data);
-					mvwprintw(main_win, cur_y, 2, "%d", sorted_alloc_all[scrolling->scrl_main_win]->hits);
-				}
-			}
 			scrolling->scrl_main_win++;
+			scrolling->init_scrl_main_win++;
 			break;
 		/* scroll up main window by repositioning cursor */
 		case 0:
-			if (!((scrolling->scrl_main_win) - y > 0)) return;
+			if (!(j >= 0 )) return;
 			scrollok(main_win, TRUE);
 			wscrl(main_win, -1);
 			scrollok(main_win, FALSE);
-				
-			if (((scrolling->scrl_main_win-y-1) % 10) == 0)
-				draw_header(main_win,sorted_alloc_all[scrolling->scrl_main_win-y-1]->data, 0, 0, x,1);
-			else if (((scrolling->scrl_main_win-y-1) % 10) == 1)
-				draw_header(main_win,sorted_alloc_all[scrolling->scrl_main_win-y-1]->data, 0, 0, x,2);
-			else if (((scrolling->scrl_main_win-y-1) % 10)!=2 && ((scrolling->scrl_main_win-y-1) % 10)!=9 && (sorted_alloc_all[scrolling->scrl_main_win-y-1]->hits !=0)) {
-	
-				if (sorted_alloc_all[scrolling->scrl_main_win-y-1]->module == 1) {
-					max = get_max_value(sorted_alloc_all, logger, 1);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win-y-1, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win-y-1]->module == 6) {
-					max = get_max_value(sorted_alloc_all, logger, 6);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win-y-1, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win-y-1]->module == 7) {
-					max = get_max_value(sorted_alloc_all, logger, 7);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win-y-1, 1, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win-y-1]->module == 8) {
-					max = get_max_value(sorted_alloc_all, logger, 8);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win-y-1, 8, max);
-				} else if (sorted_alloc_all[scrolling->scrl_main_win-y-1]->module == 9 && http_status_code_flag) {
-					max = get_max_value(sorted_alloc_all, logger, 9);
-					create_graphs(main_win, sorted_alloc_all, logger, scrolling->scrl_main_win-y-1, 9, max);
-				} else {
-					mvwprintw(main_win, 0, 10, "%s", sorted_alloc_all[scrolling->scrl_main_win-y-1]->data);
-					mvwprintw(main_win, 0, 2, "%d", sorted_alloc_all[scrolling->scrl_main_win-y-1]->hits);
-				}
-			}
+
+			/*mvwprintw(main_win, cur_y, 36, "%d - %d -  %d - %d", i, real_size_y, cur_y, scrolling->init_scrl_main_win);*/
+			if (sorted_alloc_all[j]->hits != 0)
+				mvwprintw(main_win, 0, 2, "%d", sorted_alloc_all[j]->hits);
+			/* draw headers */
+			if ((j % 10) == 0)
+				draw_header(main_win, sorted_alloc_all[j]->data, 0, 0, x, 1);
+			else if ((j % 10) == 1) {
+				draw_header(main_win, sorted_alloc_all[j]->data, 0, 0, x, 2);
+			} else if (((sorted_alloc_all[j]->module == UNIQUE_VISITORS)) &&	
+					((j % 10 >= 3) && (j % 10 <= 8) && (sorted_alloc_all[j]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, UNIQUE_VISITORS);
+				create_graphs(main_win, sorted_alloc_all, logger, j, UNIQUE_VISITORS, max);
+			} else if (((sorted_alloc_all[j]->module == OS)) &&	
+					((j % 10 >= 3) && (j % 10 <= 8) && (sorted_alloc_all[j]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, OS);
+				create_graphs(main_win, sorted_alloc_all, logger, j, UNIQUE_VISITORS, max);
+			} else if (((sorted_alloc_all[j]->module == BROWSERS)) &&	
+					((j % 10 >= 3) && (j % 10 <= 8) && (sorted_alloc_all[j]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, BROWSERS);
+				create_graphs(main_win, sorted_alloc_all, logger, j, UNIQUE_VISITORS, max);
+			} else if (((sorted_alloc_all[j]->module == HOSTS)) &&	
+					((j % 10 >= 3) && (j % 10 <= 8) && (sorted_alloc_all[j]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, HOSTS);
+				create_graphs(main_win, sorted_alloc_all, logger, j, HOSTS, max);
+			} else if (((sorted_alloc_all[j]->module == STATUS_CODES)) &&	
+					((j % 10 >= 3) && (j % 10 <= 8) && (sorted_alloc_all[j]->hits != 0))) {
+
+				max = get_max_value(sorted_alloc_all, logger, STATUS_CODES);
+				create_graphs(main_win, sorted_alloc_all, logger, j, STATUS_CODES, max);
+			} else mvwprintw(main_win, cur_y, 10, "%s", sorted_alloc_all[j]->data);
+
 			scrolling->scrl_main_win--;
+			scrolling->init_scrl_main_win--;
 			break;
 	}
 }
@@ -378,7 +405,8 @@ static void load_help_popup_content(WINDOW *inner_win, int where, struct scrolli
 	int y, x;
 
 	getmaxyx(inner_win, y, x);
-	switch (where) {
+	switch (where) 
+	{
 		case 1: /* scroll down */
 			if (((size_t) (scrolling->scrl_help_win - 5)) >= help_main_size()) 
 				return;	
@@ -392,7 +420,7 @@ static void load_help_popup_content(WINDOW *inner_win, int where, struct scrolli
 			break;
 		case 0: /* scroll up */ 
 			if ((scrolling->scrl_help_win - y) - 5 <= 0) 
-			return;	
+				return;	
 			scrollok(inner_win, TRUE);
 			wscrl(inner_win, -1);
 			scrollok(inner_win, FALSE);

@@ -30,7 +30,7 @@ void drawHeader(WINDOW *win, char* header, int x, int y, int w, int color);
 
 void update_header(WINDOW *header_win, int current);
 
-void resize_terminal(void);
+void term_size(WINDOW *main_win);
 
 void display_general(WINDOW *header_win, struct logger *logger, char *ifile);
 
@@ -40,7 +40,7 @@ void create_graphs(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all,
 int get_max_value(struct stu_alloc_all **sorted_alloc_all, struct logger *logger, int module);
 
 void display_content(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
-					 struct logger *logger);
+					 struct logger *logger, struct scrolling scrolling);
 
 void do_scrolling(WINDOW *main_win, struct stu_alloc_all **sorted_alloc_all, 
 				  struct logger *logger, struct scrolling *scrolling, int cmd);

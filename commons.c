@@ -2,7 +2,7 @@
  * commons.c -- holds different data types 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
+ * @version 0.2
  * Last Modified: Saturday, July 10, 2010
  * Path:  /commons.c
  *
@@ -57,7 +57,9 @@ time_t end_proc;
 time_t now;
 
 /* resizing */
-int size_x, size_y;
+size_t term_h = 0;
+size_t term_w = 0;
+size_t real_size_y = 0;
 
 /* file */
 char *ifile = NULL;
