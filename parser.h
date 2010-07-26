@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
- * Last Modified: Saturday, July 10, 2010
+ * @version 0.2
+ * Last Modified: Sunday, July 25, 2010
  * Path:  /parser.h
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,20 +20,22 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#ifndef COMMONS 
+#ifndef COMMONS
 #include "commons.h"
 #endif
 
-int struct_cmp_by_hits(const void *a, const void *b);
+int struct_cmp_by_hits (const void *a, const void *b);
 
-int struct_cmp(const void *a, const void *b);
+int struct_cmp (const void *a, const void *b);
 
-int parse_log(struct logger *logger, char *filename);
+int parse_log (struct logger *logger, char *filename, char *tail);
 
-void generate_unique_visitors(WINDOW *main_win, struct stu_alloc_holder **sorted_alloc_holder, 
-							  struct stu_alloc_all **sorted_alloc_all, struct logger *logger);
+void generate_unique_visitors (struct struct_display **s_display,
+                               struct logger *logger);
 
-void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sorted_alloc_holder, 
-						  struct stu_alloc_all **sorted_alloc_all, struct logger *logger, int module);
+void generate_struct_data (GHashTable * hash_table,
+                           struct struct_holder **s_holder,
+                           struct struct_display **s_display,
+                           struct logger *logger, int module);
 
 #endif

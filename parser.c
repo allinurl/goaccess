@@ -3,7 +3,7 @@
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
  * @version 0.2
- * Last Modified: Saturday, July 10, 2010
+ * Last Modified: Sunday, July 25, 2010
  * Path:  /parser.c
  *
  * This program is distributed in the hope that it will be useful,
@@ -25,7 +25,6 @@
 #include <stdlib.h>
 #include <curses.h>
 #include <string.h>
-#include <regex.h>
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
@@ -36,481 +35,589 @@
 #include "util.h"
 
 
-static int is_agent_present(const char *str)
+static int
+is_agent_present (const char *str)
 {
-	return (str && *str && str[strlen(str) - 2] == '"') ? 0 : 1;
+    return (str && *str && str[strlen (str) - 2] == '"') ? 0 : 1;
 }
 
 /* qsort struct comparision function (hits field) */
-int struct_cmp_by_hits(const void *a, const void *b)
+int
+struct_cmp_by_hits (const void *a, const void *b)
 {
-	struct stu_alloc_holder *ia = *(struct stu_alloc_holder **)a;
-	struct stu_alloc_holder *ib = *(struct stu_alloc_holder **)b;
-	return (int)(ib->hits - ia->hits);
-	/* integer comparison: returns negative if b > a and positive if a > b */
-}
- 
-int struct_cmp(const void *a, const void *b) 
-{
-	struct stu_alloc_holder *ia = *(struct stu_alloc_holder **)a;
-	struct stu_alloc_holder *ib = *(struct stu_alloc_holder **)b;
-	return strcmp(ib->data, ia->data);
+    struct struct_holder *ia = *(struct struct_holder **) a;
+    struct struct_holder *ib = *(struct struct_holder **) b;
+    return (int) (ib->hits - ia->hits);
+    /* integer comparison: returns negative if b > a and positive if a > b */
 }
 
-static int process_generic_data (GHashTable *ht, const char *key)
+int
+struct_cmp (const void *a, const void *b)
 {
-	gpointer value_ptr;
-	gint value_int;
-
-	if ((ht == NULL) || (key == NULL))
-		return (EINVAL);
-
-	value_ptr = g_hash_table_lookup (ht, key);
-	if (value_ptr != NULL)
-		value_int = GPOINTER_TO_INT (value_ptr);
-	else
-		value_int = 0;
-
-	value_int++;
-
-	/* Replace the entry. The old key will be freed by "free_key_value". */
-	g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
-
-	return (0);
-} /* int process_generic_data */
-
-static void process_unique_data(char *host, char *date, char *agent, 
-		char *status, char *referer)
-{
-	char unique_visitors_key[2048];
-
-	/* 
-	 * C struct initialization and strptime BUG 
-	 * C may not initialize stack structs and arrays to zeros 
-	 * so strptime uses struct for output and input as well.
-	 */
-	struct tm tm;
-	char buf[32];
-	
-	memset (&tm, 0, sizeof (tm));
-	memset (buf, 0, sizeof (buf));
-
-	if (strptime(date, "%d/%b/%Y", &tm) == NULL) 
-		return;
-	strftime(buf, sizeof (buf) - 1, "%Y%m%d ", &tm);
-	
-	snprintf (unique_visitors_key, sizeof (unique_visitors_key),
-			"%s|%s|%s", host, buf, agent);
-	unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
-
-	char url[512] = "";
-	if (sscanf(referer, "http://%511[^/\n]", url) == 1) {
-		process_generic_data (ht_referring_sites, url);
-	}
-
-	if (http_status_code_flag) {
-		process_generic_data (ht_status_code, status);
-	}
-
-	if (ignore_flag && strcmp(host, ignore_host) == 0) {
-		/* ignore */
-	}
-	else {
-		process_generic_data (ht_hosts, host);
-	}
-
-	process_generic_data (ht_unique_visitors, unique_visitors_key);
-} /* void process_unique_data */
-
-static int verify_static_content(char *url)
-{
-	char *nul = url + strlen(url);
-
-	if (strlen(url) < 5) return 0;
-	if (!memcmp(nul - 4, ".jpg", 4)  || !memcmp(nul - 4, ".JPG", 4)  ||
-		!memcmp(nul - 4, ".gif", 4)  || !memcmp(nul - 4, ".GIF", 4)  ||
-		!memcmp(nul - 4, ".png", 4)  || !memcmp(nul - 4, ".PNG", 4)  ||
-		!memcmp(nul - 4, ".ico", 4)  || !memcmp(nul - 4, ".ICO", 4)  ||
-		!memcmp(nul - 5, ".jpeg", 5) || !memcmp(nul - 4, ".JPEG", 5) ||
-		!memcmp(nul - 4, ".swf", 4)  || !memcmp(nul - 4, ".SWF", 4)  ||
-		!memcmp(nul - 4, ".css", 4)  || !memcmp(nul - 4, ".CSS", 4)  ||
-		!memcmp(nul - 3, ".js", 3)   || !memcmp(nul - 3, ".JS", 3))
-		return 1;
-	return 0;
+    struct struct_holder *ia = *(struct struct_holder **) a;
+    struct struct_holder *ib = *(struct struct_holder **) b;
+    return strcmp (ib->data, ia->data);
 }
 
-static char *parse_req(char *line)
+static int
+process_generic_data (GHashTable * ht, const char *key)
 {
-	char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
+    int first = 0;
+    char *date = NULL;
+    gpointer value_ptr;
+    gint value_int;
 
-	if ((lookfor = "\"GET ",  req_l = strstr(line, lookfor)) != NULL ||
-		(lookfor = "\"POST ", req_l = strstr(line, lookfor)) != NULL ||
-		(lookfor = "\"HEAD ", req_l = strstr(line, lookfor)) != NULL ||
-		(lookfor = "\"get ",  req_l = strstr(line, lookfor)) != NULL ||
-		(lookfor = "\"post ", req_l = strstr(line, lookfor)) != NULL ||
-		(lookfor = "\"head ", req_l = strstr(line, lookfor)) != NULL) {
+    if ((ht == NULL) || (key == NULL))
+        return (EINVAL);
 
-		/* The last part of the request is the protocol being used, 
-		   at the time of this writing typically HTTP/1.0 or HTTP/1.1. */
-		if ((req_r = strstr(line, " HTTP")) == NULL) {
-			/* didn't find it :( weird */
-			reqs = (char*) malloc (2);
-			if (reqs == NULL)
-				error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-							  "Unable to allocate memory");
-			sprintf (reqs, "-");
-			return reqs;
-		} 
-			
-		req_l += strlen(lookfor);
-		ptrdiff_t req_len = req_r - req_l;
-		/* make sure we don't have some weird requests */
-		if (req_len < 0) {
-			reqs = (char*) malloc (2);
-			if (reqs == NULL)
-				error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-							  "Unable to allocate memory");
-			sprintf (reqs, "-");
-			return reqs;
-		}
-		reqs = malloc(req_len + 1);
-		strncpy(reqs, req_l, req_len);
-		(reqs)[req_len] = 0;
-	} else {
-		reqs = (char*) malloc (2);
-		if (reqs == NULL)
-			error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-							  "Unable to allocate memory");
-		sprintf (reqs, "-");
-	}
-	return reqs;
+    value_ptr = g_hash_table_lookup (ht, key);
+    if (value_ptr != NULL)
+        value_int = GPOINTER_TO_INT (value_ptr);
+    else {
+        value_int = 0;
+        first = 1;
+    }
+
+    value_int++;
+
+    /* Replace the entry. The old key will be freed by "free_key_value". */
+    g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
+    if (first && ht == ht_unique_visitors) {
+        char *mykey = strdup (key);
+        process_generic_data (ht_os, verify_os (mykey));
+        process_generic_data (ht_browsers, verify_browser (mykey));
+        free (mykey);
+        if ((date = strchr (key, '|')) != NULL) {
+            char *tmp;
+            tmp = clean_date (date);
+            process_generic_data (ht_unique_vis, tmp);
+            free (tmp);
+        }
+    }
+    return (0);
 }
 
-static int parse_req_size(char *line, int format) 
+/* int process_generic_data */
+
+/* 
+ * from oreillynet.com 
+ * with minor modifications
+ */
+#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : \
+                             (toupper((x)) - 'A' + 10))
+char *
+spc_decode_url (char *url)
 {
-	long size = 0;
+    char *out, *ptr;
+    const char *c;
 
-	/* Common Log Format */
-	if ((strstr(line, " -\n") != NULL))	return -1;
-
-	/* Common Log Format */
-	char *c;
-	if (format) {
-		if ((c = strrchr(trim_str(line), ' ')) != 0)
-			size = strtol(c + 1, NULL, 10);
-		return size;
-	} 
-	/* Combined Log Format */
-	if ((c = strstr(line, "1.1\" ")) != NULL || 
-		(c = strstr(line, "1.0\" ")) != NULL) c++;
-	else return -1; /* no protocol used? huh... */
-
-	char *p = NULL;
-	if ((p = strchr(c + 6, ' ')) != 0)
-		size = strtol(p + 1, NULL, 10);
-	else size = -1;
-
-	return size;
+    if (!(out = ptr = strdup (url)))
+        return 0;
+    for (c = url; *c; c++) {
+        if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2]))
+            *ptr++ = *c;
+        else {
+            *ptr++ =
+                (SPC_BASE16_TO_10 (c[1]) * 16) + (SPC_BASE16_TO_10 (c[2]));
+            c += 2;
+        }
+    }
+    *ptr = 0;
+    if (strlen (url) == (ptr - out));
+    return trim_str (out);
 }
 
-static int parse_request(struct logger *logger, char *line)
+static int
+process_keyphrases (char *ref)
 {
-	char *ptr, *prb = NULL, *fqm = NULL, *sqm = NULL, *host, *date, *ref, *hour = NULL;
-	char *cpy_line = strdup(line);
-	int format = 0;
+    if (!(strstr (ref, "http://www.google.")) &&
+        !(strstr (ref, "http://webcache.googleusercontent.com/")) &&
+        !(strstr (ref, "http://translate.googleusercontent.com/")))
+        return -1;
 
-	host = line;
-	if ((date = strchr(line, '[')) == NULL) return 1;
-	date++;
-
-	/* agent */
-	if (is_agent_present(line)) {
-		format = 1; 
-		fqm = "-";
-		goto noagent;
-	}
-	for (prb = line; * prb; prb++) {
-		if (*prb != '"') continue;
-		else if (fqm == 0) 
-			fqm = prb; 
-		else if (sqm == 0) 
-			sqm = prb; 
-		else { 
-			fqm = sqm; sqm = prb; 
-		}
-	}
-	noagent:;
-	if ((ref = strstr(line, "\"http")) != NULL || 
-		(ref = strstr(line, "\"HTTP")) != NULL)	ref++;
-	else ref = "";
-	
-	if (!bandwidth_flag) goto nobanwidth;
-	/* bandwidth */
-	long long band_size = parse_req_size(cpy_line, format);
-	if (band_size != -1)
-		req_size = req_size + band_size;
-	else req_size = req_size + 0;
-	nobanwidth:;
-
-	if ((ptr = strchr(host, ' ')) == NULL) return 1;
-	*ptr = '\0';
-	if ((ptr = strchr(date, ']')) == NULL) return 1;
-	*ptr = '\0';
-	if ((ptr = strchr(date, ':')) == NULL) return 1;
-	*ptr = '\0';
-	if ((ptr = strchr(ref, '"')) == NULL) ref = "-";
-	else *ptr = '\0';
-
-	/* req */
-	req = parse_req(cpy_line);
-
-	if (!http_status_code_flag) goto nohttpstatuscode;
-	char *lookfor = NULL, *s_l;
-	if ((lookfor = "1.0\" ",  s_l = strstr(cpy_line, lookfor)) != NULL ||
-		(lookfor = "1.1\" ",  s_l = strstr(cpy_line, lookfor)) != NULL) {
-		status_code = clean_status(s_l + 5);
-	} else {
-		/* perhaps something wrong with the log */
-		status_code = (char*) malloc (8);
-		if (status_code == NULL) exit (1); /* something went wrong */
-		sprintf (status_code, "Invalid");
-	}
-	nohttpstatuscode:;
-
-	logger->host 	= host;
-	logger->agent 	= fqm;
-	logger->date 	= date;
-	logger->hour 	= hour;
-	logger->referer = ref;
-	logger->request = req;
-
-	if (http_status_code_flag)
-		logger->status = status_code;
-
-	free(cpy_line);
-	return 0;
+    char *r, *ptr, *p, *dec;
+    if ((r = strstr (ref, "/+&")) != NULL)
+        r = "-";
+    else if ((r = strstr (ref, "/+")) != NULL)
+        r += 2;
+    else if ((r = strstr (ref, "&q=")) != NULL
+             || (r = strstr (ref, "?q=")) != NULL)
+        r += 3;
+    else if ((r = strstr (ref, "%26q%3D")) != NULL
+             || (r = strstr (ref, "%3Fq%3D")) != NULL)
+        r += 7;
+    else 
+        return -1;
+    dec = spc_decode_url (r);
+    if ((ptr = strstr (dec, "%26")) != NULL
+        || (ptr = strchr (dec, '&')) != NULL)
+        *ptr = '\0';
+    p = dec;
+    while (*p != '\0') {
+        if (*p == '+')
+            *p = ' ';
+        p++;
+    }
+    process_generic_data (ht_keyphrases, dec);
+    free (dec);
+    return 0;
 }
 
-static int process_log(struct logger *logger, char *line)
+static void
+process_unique_data (char *host, char *date, char *agent, char *status,
+                     char *referer)
 {
-	struct logger log;
-	char *cpy_line = strdup(line);
-	logger->total_process++;
+    char unique_visitors_key[2048];
 
-	/* Make compiler happy */
-	memset (&log, 0, sizeof (log));
+    /* 
+     * C struct initialization and strptime 
+     * C may not initialize stack structs and arrays to zeros 
+     * so strptime uses struct for output and input as well.
+     */
+    struct tm tm;
+    char buf[32];
 
-	if (parse_request(&log, line) == 0) {
-		process_unique_data(log.host, log.date, log.agent, log.status, log.referer);
-		free(status_code);
-		if (verify_static_content(log.request)) {
-			if (strstr(cpy_line, "\" 404 ")) process_generic_data(ht_not_found_requests,log.request);
-			process_generic_data(ht_requests_static,log.request);
-		} else {
-			if (strstr(cpy_line, "\" 404 ")) process_generic_data(ht_not_found_requests,log.request);
-			process_generic_data(ht_requests, log.request);
-		}
-		process_generic_data(ht_referers, log.referer);
-		free(cpy_line);
-	} else {
-		free(cpy_line);
-		logger->total_invalid++;
-		return 0;
-	}
-	free(req);
-	return 0;
+    memset (&tm, 0, sizeof (tm));
+    memset (buf, 0, sizeof (buf));
+
+    if (strptime (date, "%d/%b/%Y", &tm) == NULL)
+        return;
+    strftime (buf, sizeof (buf) - 1, "%Y%m%d ", &tm);
+
+    snprintf (unique_visitors_key, sizeof (unique_visitors_key), "%s|%s|%s",
+              host, buf, agent);
+    unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
+
+    char url[512] = "";
+    if (sscanf (referer, "http://%511[^/\n]", url) == 1) {
+        process_generic_data (ht_referring_sites, url);
+    }
+    process_keyphrases (referer);
+
+    if (http_status_code_flag) {
+        process_generic_data (ht_status_code, status);
+    }
+
+    if (ignore_flag && strcmp (host, ignore_host) == 0) {
+        /* ignore */
+    } else {
+        process_generic_data (ht_hosts, host);
+    }
+
+    process_generic_data (ht_unique_visitors, unique_visitors_key);
 }
 
-int parse_log(struct logger *logger, char *filename)
-{
-	FILE *fp;
-	char line[BUFFER];
+/* void process_unique_data */
 
-	if ((fp = fopen(filename, "r")) == NULL)
-		error_handler(__PRETTY_FUNCTION__, __FILE__, __LINE__, 
-						  "An error has occurred while opening the log file. Make sure it exists.");
-	while (fgets(line, BUFFER, fp) != NULL) {
-		if (process_log(logger, line)) {
-			fclose(fp);
-			return 1;
-		}
-	}
-	fclose(fp);
-	return 0;
+static int
+verify_static_content (char *url)
+{
+    char *nul = url + strlen (url);
+
+    if (strlen (url) < 5)
+        return 0;
+    if (!memcmp (nul - 4, ".jpg", 4) || !memcmp (nul - 4, ".JPG", 4) ||
+        !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
+        !memcmp (nul - 4, ".png", 4) || !memcmp (nul - 4, ".PNG", 4) ||
+        !memcmp (nul - 4, ".ico", 4) || !memcmp (nul - 4, ".ICO", 4) ||
+        !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 4, ".JPEG", 5) ||
+        !memcmp (nul - 4, ".swf", 4) || !memcmp (nul - 4, ".SWF", 4) ||
+        !memcmp (nul - 4, ".css", 4) || !memcmp (nul - 4, ".CSS", 4) ||
+        !memcmp (nul - 3, ".js", 3) || !memcmp (nul - 3, ".JS", 3))
+        return 1;
+    return 0;
 }
 
-void generate_unique_visitors(GO_UNUSED WINDOW *main_win, struct stu_alloc_holder **sorted_alloc_holder, 
-							  struct stu_alloc_all **sorted_alloc_all, struct logger *logger)
+static char *
+parse_req (char *line)
 {
-	int row, col, n = 0, lo, r = 0, w = 0;
-	char *date;
-	struct stu_alloc_holder **s_holder;
+    char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
 
-	GHashTableIter iter;
-	gpointer k = NULL;
-	gpointer v = NULL;
+    if ((lookfor = "\"GET ", req_l = strstr (line, lookfor)) != NULL ||
+        (lookfor = "\"POST ", req_l = strstr (line, lookfor)) != NULL ||
+        (lookfor = "\"HEAD ", req_l = strstr (line, lookfor)) != NULL ||
+        (lookfor = "\"get ", req_l = strstr (line, lookfor)) != NULL ||
+        (lookfor = "\"post ", req_l = strstr (line, lookfor)) != NULL ||
+        (lookfor = "\"head ", req_l = strstr (line, lookfor)) != NULL) {
 
-	/* get the number of rows and columns */
-	getmaxyx(stdscr,row,col);
+        /* The last part of the request is the protocol being used, 
+           at the time of this writing typically HTTP/1.0 or HTTP/1.1. */
+        if ((req_r = strstr (line, " HTTP")) == NULL) {
+            /* didn't find it :( weird */
+            reqs = (char *) malloc (2);
+            if (reqs == NULL)
+                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                               "Unable to allocate memory");
+            sprintf (reqs, "-");
+            return reqs;
+        }
 
-	g_hash_table_iter_init (&iter, ht_unique_visitors);
-	while (g_hash_table_iter_next (&iter, &k, &v)) {
-		process_generic_data(ht_os, verify_os((gchar *)k));
-		process_generic_data(ht_browsers, verify_browser((gchar *)k));
-		sorted_alloc_holder[n]->data = (gchar *)k;
-		sorted_alloc_holder[n++]->hits = GPOINTER_TO_INT(v);
-		logger->counter++;
-	}
-
-	for (lo=0; lo<logger->counter; lo++) {
-		if ((date = strchr(sorted_alloc_holder[lo]->data, '|')) != NULL) {
-			char *tmp;
-
-			tmp = clean_date(date);
-			process_generic_data(ht_unique_vis,tmp);
-
-			free (tmp);
-		}
-	}
-	
-	int ct = 0;
-	s_holder = (struct stu_alloc_holder **)malloc(sizeof(struct stu_alloc_holder *)*g_hash_table_size(ht_unique_vis));
-	g_hash_table_iter_init (&iter, ht_unique_vis);
-	while (g_hash_table_iter_next (&iter, &k, &v)) {
-		s_holder[w] = (struct stu_alloc_holder *)malloc(sizeof(struct stu_alloc_holder));
-		s_holder[w]->data = (gchar *)k;
-		s_holder[w++]->hits = GPOINTER_TO_INT(v);
-		ct++;
-	}
-
-	qsort(s_holder, ct, sizeof(struct stu_alloc_holder*), struct_cmp);
-
-	init_pair(3, COLOR_RED, -1);
-	init_pair(4, COLOR_GREEN, -1);
-
-	r = 0;
-	/* fixed value in here, perhaps it could be dynamic depending on the module */	
-	for (lo=0; lo<10; lo++) {
-		sorted_alloc_all[logger->alloc_counter]->hits = 0;
-		sorted_alloc_all[logger->alloc_counter]->module = 1;
-
-		if (lo == 0)
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string(" 1 - Unique visitors per day - Including spiders");
-		else if (lo == 1) 
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string(" HTTP requests having the same IP, same date and same agent will be considered a unique visit");
-		else if (lo == 2 || lo == 9)
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string("");
-		else if (r < ct) {
-			sorted_alloc_all[logger->alloc_counter]->hits = s_holder[r]->hits;
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string(s_holder[r]->data);
-			r++;
-		} else sorted_alloc_all[logger->alloc_counter++]->data = alloc_string("");
-	}
-		
-	int f;
-	for (f = 0; f < ct; f++)
-		free(s_holder[f]);
-	free(s_holder);
-
-	for (f=0; f<logger->counter; f++)
-		free(sorted_alloc_holder[f]);
-	free(sorted_alloc_holder);
-	logger->counter = 0;
+        req_l += strlen (lookfor);
+        ptrdiff_t req_len = req_r - req_l;
+        /* make sure we don't have some weird requests */
+        if (req_len < 0) {
+            reqs = (char *) malloc (2);
+            if (reqs == NULL)
+                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                               "Unable to allocate memory");
+            sprintf (reqs, "-");
+            return reqs;
+        }
+        reqs = malloc (req_len + 1);
+        strncpy (reqs, req_l, req_len);
+        (reqs)[req_len] = 0;
+    } else {
+        reqs = (char *) malloc (2);
+        if (reqs == NULL)
+            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                           "Unable to allocate memory");
+        sprintf (reqs, "-");
+    }
+    return reqs;
 }
 
-int c = 0;
-void generate_struct_data(GHashTable *hash_table, struct stu_alloc_holder **sorted_alloc_holder, struct stu_alloc_all **sorted_alloc_all, struct logger *logger, int module)
+static int
+parse_req_size (char *line, int format)
 {
-	int row,col;
-	
-	/* get the number of rows and columns */
-	getmaxyx(stdscr,row,col);
-	
-	int i = 0;
-	GHashTableIter iter;
-	gpointer k = NULL;
-	gpointer v = NULL;
-	
-	g_hash_table_iter_init (&iter, hash_table);
-	while (g_hash_table_iter_next (&iter, &k, &v)) {
-		/* ###FIXME: 64 bit portability issues might arise */
-		sorted_alloc_holder[i]->data = (gchar *)k;
-		sorted_alloc_holder[i++]->hits = GPOINTER_TO_INT(v);
-		logger->counter++;
-	}
-	
-	qsort(sorted_alloc_holder, logger->counter, sizeof(struct stu_alloc_holder*), struct_cmp_by_hits);
-	
-	/* headers & sub-headers */
-	char *head = NULL, *desc = NULL;
-	switch (module) {
-		case 2:
-			head = " 2 - Requested files - File requests ordered by hits";
-			desc = " Top 6 different files requested";
-			break;	
-		case 3:
-			head = " 3 - Requested static files - Static content (jpg,png,gif,js etc)";
-			desc = " Top 6 different static files requested, ordered by hits";
-			break;	
-		case 4:
-			head = " 4 - Referrers URLs";
-			desc = " Top 6 different referrers ordered by hits";
-			break;	
-		case 5:
-			head = " 5 - 404 or Not Found request message";
-			desc = " Top 6 different 404 ordered by hits";
-			break;	
-		case 6:
-			head = " 6 - Operating Systems";
-			desc = " Top 6 common Operating systems";
-			break;	
-		case 7:
-			head = " 7 - Browsers";
-			desc = " Top 6 common browsers";
-			break;
-		case 8:
-			head = " 8 - Hosts";
-			desc = " Top 6 unique hosts sorted by hits";
-			break;	
-		case 9:
-			head = " 9 - HTTP Status Codes";
-			desc = " Top 6 unique status codes sorted by hits";
-			break;	
-		case 10:
-			head = " 10 - Top Referring Sites";
-			desc = " Top 6 unique referring sites sorted by hits";
-			break;	
-	}
+    long size = 0;
 
-	/* r : pos on y */	
-	int lo, r = 0;
-	guint f;
-	
-	init_pair(2, COLOR_BLACK, COLOR_CYAN);
-	attron(COLOR_PAIR(2));
-	attroff(COLOR_PAIR(2));
+    /* Common Log Format */
+    if ((strstr (line, " -\n") != NULL))
+        return -1;
 
-	for (lo = 0; lo < 10; lo++) {
-		sorted_alloc_all[logger->alloc_counter]->hits = 0;
-		sorted_alloc_all[logger->alloc_counter]->module = module;
-		if (lo == 0)
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string(head);
-		else if (lo == 1)
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string(desc);
-		else if (lo == 2 || lo == 9)
-			sorted_alloc_all[logger->alloc_counter++]->data = alloc_string("");
-		else if (r<logger->counter){
-			if (strlen(sorted_alloc_holder[r]->data) > ((size_t) (col - 15))) {
-				stripped_str = substring(sorted_alloc_holder[r]->data, 0, col - 15);	
-				sorted_alloc_all[logger->alloc_counter]->data = stripped_str;
-			} else sorted_alloc_all[logger->alloc_counter]->data = alloc_string(sorted_alloc_holder[r]->data);
-			sorted_alloc_all[logger->alloc_counter++]->hits = sorted_alloc_holder[r]->hits;
-			r++;
-		} else sorted_alloc_all[logger->alloc_counter++]->data = alloc_string("");
-	}
-	
-	for (f = 0; f < g_hash_table_size(hash_table); f++)
-		free(sorted_alloc_holder[f]);
-	free(sorted_alloc_holder);
-	logger->counter = 0;
+    /* Common Log Format */
+    char *c;
+    if (format) {
+        if ((c = strrchr (trim_str (line), ' ')) != 0)
+            size = strtol (c + 1, NULL, 10);
+        return size;
+    }
+    /* Combined Log Format */
+    if ((c = strstr (line, "1.1\" ")) != NULL
+        || (c = strstr (line, "1.0\" ")) != NULL)
+        c++;
+    else
+        return -1;              /* no protocol used? huh... */
+
+    char *p = NULL;
+    if ((p = strchr (c + 6, ' ')) != 0)
+        size = strtol (p + 1, NULL, 10);
+    else
+        size = -1;
+
+    return size;
+}
+
+static int
+parse_request (struct logger *logger, char *line)
+{
+    char *ptr, *prb = NULL, *fqm = NULL, *sqm =
+        NULL, *host, *date, *ref, *hour = NULL;
+    int format = 0;
+
+    host = line;
+    if ((date = strchr (line, '[')) == NULL)
+        return 1;
+    date++;
+
+    /* agent */
+    if (is_agent_present (line)) {
+        format = 1;
+        fqm = "-";
+        goto noagent;
+    }
+    for (prb = line; *prb; prb++) {
+        if (*prb != '"')
+            continue;
+        else if (fqm == 0)
+            fqm = prb;
+        else if (sqm == 0)
+            sqm = prb;
+        else {
+            fqm = sqm;
+            sqm = prb;
+        }
+    }
+  noagent:;
+    if ((ref = strstr (line, "\"http")) != NULL
+        || (ref = strstr (line, "\"HTTP")) != NULL)
+        ref++;
+    else
+        ref = "-";
+
+    char *cpy_line = strdup (line);
+
+    if (!bandwidth_flag)
+        goto nobanwidth;
+    /* bandwidth */
+    long long band_size = parse_req_size (cpy_line, format);
+    if (band_size != -1)
+        req_size = req_size + band_size;
+    else
+        req_size = req_size + 0;
+  nobanwidth:;
+
+    if ((ptr = strchr (host, ' ')) == NULL)
+        return 1;
+    *ptr = '\0';
+    if ((ptr = strchr (date, ']')) == NULL)
+        return 1;
+    *ptr = '\0';
+    if ((ptr = strchr (date, ':')) == NULL)
+        return 1;
+    *ptr = '\0';
+    if ((ptr = strchr (ref, '"')) == NULL)
+        ref = "-";
+    else
+        *ptr = '\0';
+
+    /* req */
+    req = parse_req (cpy_line);
+
+    if (!http_status_code_flag)
+        goto nohttpstatuscode;
+
+    char *lookfor = NULL, *s_l;
+    if ((lookfor = "1.0\" ", s_l = strstr (cpy_line, lookfor)) != NULL ||
+        (lookfor = "1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL) {
+        status_code = clean_status (s_l + 5);
+    } else {
+        /* perhaps something wrong with the log */
+        status_code = (char *) malloc (8);
+        if (status_code == NULL)
+            exit (1);           /* something went wrong */
+        sprintf (status_code, "Invalid");
+    }
+  nohttpstatuscode:;
+
+    logger->host = host;
+    logger->agent = fqm;
+    logger->date = date;
+    logger->hour = hour;
+    logger->referer = ref;
+    logger->request = req;
+
+    if (http_status_code_flag)
+        logger->status = status_code;
+
+    free (cpy_line);
+    return 0;
+}
+
+static int
+process_log (struct logger *logger, char *line)
+{
+    struct logger log;
+    char *cpy_line = strdup (line);
+    logger->total_process++;
+
+    /* Make compiler happy */
+    memset (&log, 0, sizeof (log));
+
+    if (parse_request (&log, line) == 0) {
+        process_unique_data (log.host, log.date, log.agent, log.status,
+                             log.referer);
+        free (status_code);
+        if (verify_static_content (log.request)) {
+            if (strstr (cpy_line, "\" 404 "))
+                process_generic_data (ht_not_found_requests, log.request);
+            process_generic_data (ht_requests_static, log.request);
+        } else {
+            if (strstr (cpy_line, "\" 404 "))
+                process_generic_data (ht_not_found_requests, log.request);
+            process_generic_data (ht_requests, log.request);
+        }
+        process_generic_data (ht_referers, log.referer);
+        free (cpy_line);
+    } else {
+        free (cpy_line);
+        logger->total_invalid++;
+        return 0;
+    }
+    free (req);
+    return 0;
+}
+
+int
+parse_log (struct logger *logger, char *filename, char *tail)
+{
+    FILE *fp;
+    char line[BUFFER];
+
+    if (tail != NULL) {
+        if (process_log (logger, tail))
+            return 1;
+        return 0;
+    }
+    if ((fp = fopen (filename, "r")) == NULL)
+        error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                       "An error has occurred while opening the log file. Make sure it exists.");
+    while (fgets (line, BUFFER, fp) != NULL) {
+        if (process_log (logger, line)) {
+            fclose (fp);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void
+generate_unique_visitors (struct struct_display **s_display,
+                          struct logger *logger)
+{
+    char *date;
+    int row, col, n = 0, lo, r = 0, w = 0;
+    struct struct_holder **t_holder;
+
+    GHashTableIter iter;
+    gpointer k = NULL;
+    gpointer v = NULL;
+
+    getmaxyx (stdscr, row, col);
+
+    int ct = 0;
+    t_holder =
+        (struct struct_holder **) malloc (sizeof (struct struct_holder *) *
+                                          g_hash_table_size (ht_unique_vis));
+    g_hash_table_iter_init (&iter, ht_unique_vis);
+    while (g_hash_table_iter_next (&iter, &k, &v)) {
+        t_holder[w] =
+            (struct struct_holder *) malloc (sizeof (struct struct_holder));
+        t_holder[w]->data = (gchar *) k;
+        t_holder[w++]->hits = GPOINTER_TO_INT (v);
+        ct++;
+    }
+
+    qsort (t_holder, ct, sizeof (struct struct_holder *), struct_cmp);
+
+    /* fixed value in here, perhaps it could be dynamic depending on the module */
+    for (lo = 0; lo < 10; lo++) {
+        s_display[logger->alloc_counter]->hits = 0;
+        s_display[logger->alloc_counter]->module = 1;
+        if (lo == 0)
+            s_display[logger->alloc_counter++]->data =
+                alloc_string
+                (" 1 - Unique visitors per day - Including spiders");
+        else if (lo == 1)
+            s_display[logger->alloc_counter++]->data =
+                alloc_string
+                (" HTTP requests having the same IP, same date and same agent will be considered a unique visit");
+        else if (lo == 2 || lo == 9)
+            s_display[logger->alloc_counter++]->data = alloc_string ("");
+        else if (r < ct) {
+            s_display[logger->alloc_counter]->hits = t_holder[r]->hits;
+            s_display[logger->alloc_counter++]->data =
+                alloc_string (t_holder[r]->data);
+            r++;
+        } else
+            s_display[logger->alloc_counter++]->data = alloc_string ("");
+    }
+
+    int f;
+    for (f = 0; f < ct; f++)
+        free (t_holder[f]);
+    free (t_holder);
+    logger->counter = 0;
+}
+
+void
+generate_struct_data (GHashTable * hash_table,
+                      struct struct_holder **s_holder,
+                      struct struct_display **s_display,
+                      struct logger *logger, int module)
+{
+    int row, col;
+
+    getmaxyx (stdscr, row, col);
+
+    int i = 0;
+    GHashTableIter iter;
+    gpointer k = NULL;
+    gpointer v = NULL;
+
+    g_hash_table_iter_init (&iter, hash_table);
+    while (g_hash_table_iter_next (&iter, &k, &v)) {
+        s_holder[i]->data = (gchar *) k;
+        s_holder[i++]->hits = GPOINTER_TO_INT (v);
+        logger->counter++;
+    }
+
+    qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
+           struct_cmp_by_hits);
+
+    /* headers & sub-headers */
+    char *head = NULL, *desc = NULL;
+    switch (module) {
+     case 2:
+         head = " 2 - Requested files - File requests ordered by hits";
+         desc = " Top 6 different files requested";
+         break;
+     case 3:
+         head = " 3 - Requested static files - Static content (png,js,etc)";
+         desc = " Top 6 different static files requested, ordered by hits";
+         break;
+     case 4:
+         head = " 4 - Referrers URLs";
+         desc = " Top 6 different referrers ordered by hits";
+         break;
+     case 5:
+         head = " 5 - 404 or Not Found request message";
+         desc = " Top 6 different 404 ordered by hits";
+         break;
+     case 6:
+         head = " 6 - Operating Systems";
+         desc = " Top 6 common Operating Systems sorted by unique hits";
+         break;
+     case 7:
+         head = " 7 - Browsers";
+         desc = " Top 6 common browsers sorted by unique hits";
+         break;
+     case 8:
+         head = " 8 - Hosts";
+         desc = " Top 6 unique hosts sorted by hits";
+         break;
+     case 9:
+         head = " 9 - HTTP Status Codes";
+         desc = " Top 6 unique status codes sorted by hits";
+         break;
+     case 10:
+         head = " 10 - Top Referring Sites";
+         desc = " Top 6 unique referring sites sorted by hits";
+         break;
+     case 11:
+         head = " 11 - Top different keyphrases";
+         desc = " Top 6 unique different keyphrases sorted by hits";
+         break;
+    }
+
+    /* r : pos on y */
+    int lo, r = 0;
+    guint f;
+
+    for (lo = 0; lo < 10; lo++) {
+        s_display[logger->alloc_counter]->hits = 0;
+        s_display[logger->alloc_counter]->module = module;
+        if (lo == 0)
+            s_display[logger->alloc_counter++]->data = alloc_string (head);
+        else if (lo == 1)
+            s_display[logger->alloc_counter++]->data = alloc_string (desc);
+        else if (lo == 2 || lo == 9)
+            s_display[logger->alloc_counter++]->data = alloc_string ("");
+        else if (r < logger->counter) {
+            if (strlen (s_holder[r]->data) > ((size_t) (col - 15))) {
+                stripped_str = substring (s_holder[r]->data, 0, col - 15);
+                s_display[logger->alloc_counter]->data = stripped_str;
+            } else
+                s_display[logger->alloc_counter]->data =
+                    alloc_string (s_holder[r]->data);
+            s_display[logger->alloc_counter++]->hits = s_holder[r]->hits;
+            r++;
+        } else
+            s_display[logger->alloc_counter++]->data = alloc_string ("");
+    }
+
+    for (f = 0; f < g_hash_table_size (hash_table); f++)
+        free (s_holder[f]);
+    free (s_holder);
+    logger->counter = 0;
 }
