@@ -1,25 +1,45 @@
-Changes to GoAccess 0.1.1 i - Sat Jul 10 2010
+Changes to GoAccess 0.2 - Sunday, July 25, 2010
+
+    * Implemented real-time statistics (RTS). Data will be appended as the log file
+      grows. Equivalant to 'tail -f' on Unix systems
+    * Added a keyphrases report coming from Google search engine.
+      This includes, raw, cache, and translation queries.
+    * Implemented screen resize functionality
+    * Various small speed increases & code cleanup
+    * Fixed a memory leak when invalid entries were parsed
+    * Simplify the "process_unique_data" function
+         (Thanks to Florian Forster contribution)
+    * Simplify creation of the "unique visitors" hash-key.
+         (Thanks to Florian Forster contribution)
+    * Fix a potential buffer overflow.
+         (Thanks to Florian Forster contribution)
+
+Changes to GoAccess 0.1.2 - Monday, July 12 2010
+
+	* Fixed a segmentation fault when parsing logs with unusual request type. 
+		Ex. ("GET HTTP/1.1 HTTP/1.1")
+
+Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 
     * Added an enhanced error handling
-	* Added Glibc LFS
-	* Added an extra macro on configure.ac to check against GHashTableIter. 
-		./configure might not check for glib 2.16 that introducted 'GHashTableIter'.  
-	* Clean up code a little bit
-
-	* Fixed a segmentation fault when displaying the help text on x86_64.
-			 (Thanks to Florian Forster contribution)
-	* Fixed casts associated with "g_hash_table_iter_next".
-			 (Thanks to Florian Forster contribution)
-	* Fixed two format strings. (If the error was ever triggered, it'd most likely lead to a segfault.)
-			 (Thanks to Florian Forster contribution)
-	* Fixed assignments in conditions. In case the assignment is actually intended, put extra parenthesis around it. This will shut GCC (and others) up.
-			 (Thanks to Florian Forster contribution)
-	* Fixed comparison between signed and unsigned integer types.
-			 (Thanks to Florian Forster contribution)
-	* Fixed includes.
-			 (Thanks to Florian Forster contribution)
-	* Fixed function declarations.
-			 (Thanks to Florian Forster contribution)
+    * Added Glibc LFS
+    * Added an extra macro on configure.ac to check against GHashTableIter. 
+      ./configure might not check for glib 2.16 that introducted 'GHashTableIter'.  
+    * Clean up code a little bit
+    * Fixed a segmentation fault when displaying the help text on x86_64.
+         (Thanks to Florian Forster contribution)
+    * Fixed casts associated with "g_hash_table_iter_next".
+         (Thanks to Florian Forster contribution)
+    * Fixed two format strings. (If the error was ever triggered, it'd most likely lead to a segfault.)
+         (Thanks to Florian Forster contribution)
+    * Fixed assignments in conditions. In case the assignment is actually intended, put extra parenthesis around it. This will shut GCC (and others) up.
+         (Thanks to Florian Forster contribution)
+    * Fixed comparison between signed and unsigned integer types.
+         (Thanks to Florian Forster contribution)
+    * Fixed includes.
+         (Thanks to Florian Forster contribution)
+    * Fixed function declarations.
+         (Thanks to Florian Forster contribution)
 
 Tuesday, July 06, 21:12:29 2010 Gerardo Orellana (goaccess at prosoftcorp.com)
 

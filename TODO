@@ -1,12 +1,9 @@
 GoAccess - http://goaccess.prosoftcorp.com/
 by Gerardo Orellana <goaccess@prosoftcorp.com>
 
-July 05, 2010
-What features are you planning to incorporate?
-
-    * For sure I'm planning to increase the performance when parsing the log.
-    * In addition to that, I'm planning to have a tail functionality for real time view.
-    * Add more reports to it.
-    * Add command-line parameters.
-	* Filtering data by date.
-	* Work on 'terminal resize' functionality, so all windows are properly resized. 
+Sunday, July 25, 2010
+* Resize child windows when term is resized.
+* Increase the performance when parsing the log file.
+* Add more reports to it.
+* Add command-line parameters.
+* Filtering data by date.

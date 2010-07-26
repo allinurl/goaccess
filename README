@@ -1,13 +1,14 @@
 GoAccess - http://goaccess.prosoftcorp.com/
-by Gerardo Orellana <-ga@prosoftcorp.com>
+by Gerardo Orellana <goaccess@prosoftcorp.com>
 
-July 05, 2010
+Sunday, July 25, 2010
 
 INTRODUCTION
 -------------
-GoAccess is a free and open source Apache web log 
-analyzer that provides fast and valuable HTTP statistics 
-for system administrators that require a visual report on the fly.
+GoAccess is an open source real-time Apache web log analyzer and 
+interactive viewer that runs in a terminal and provides fast and 
+valuable HTTP statistics for system administrators that require a 
+visual report on the fly.
 
 How it works and what it does?
 -------------------------------
@@ -28,6 +29,7 @@ in a visual/interactive window. This information includes data such as:
     * Hosts, Reverse DNS, IP Location
     * HTTP Status Codes
     * Referring Sites
+    * Keyphrases
 
 Why GoAccess?
 -------------
@@ -42,6 +44,7 @@ Keys
 The user can make use of the following keys:
 
     * ^F1^            main help
+    * ^F5^            Redraw main window
     * ^q^             quit the program/current window
     * ^o^             open detail view for selected module
     * ^TAB^           iterate modules (forward)
@@ -49,6 +52,7 @@ The user can make use of the following keys:
     * ^RIGHT ARROW^   open detail view for selected module
     * ^0-9^           select module so the user can open a
     		          [detail view] with either ^o^ or ^RIGHT ARROW^ 
+    * ^SHIFT^ + ^0-9^ activate module above 10
 	* ^s^             [detail view] sort unique visitors by date
     * ^S^             [detail view] sort unique visitors by hits
     * ^/^             [detail view] search forward for the
