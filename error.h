@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
- * Last Modified: Saturday, July 10, 2010
+ * @version 0.2
+ * Last Modified: Sunday, July 25, 2010
  * Path:  /error.h
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,10 +20,10 @@
 #ifndef ERROR_H_INCLUDED
 #define ERROR_H_INCLUDED
 
-#ifndef COMMONS 
+#ifndef COMMONS
 #include "commons.h"
 #endif
 
-void error_handler(const char *func, char *file, int line, char *msg);
+void error_handler (const char *func, char *file, int line, char *msg);
 
 #endif

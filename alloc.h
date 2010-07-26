@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1.1
- * Last Modified: Saturday, July 10, 2010
+ * @version 0.2
+ * Last Modified: Sunday, July 25, 2010
  * Path:  /alloc.h
  *
  * This program is distributed in the hope that it will be useful,
@@ -21,16 +21,14 @@
 #define ALLOC_H_INCLUDED
 
 /* macro for easily allocating memory */
-#define ALLOCATE_STRUCT(target, size)				\
-do {												\
+#define MALLOC_STRUCT(target, size)				\
+do {								\
 	target = malloc(sizeof * target * size);		\
-	if (target) {									\
-		size_t i;									\
-		for (i = 0; i < size; i++) {				\
+	if (target) {						\
+		size_t i;					\
+		for (i = 0; i < size; i++) {			\
 			target[i] = malloc(sizeof * target[i]);	\
-		}											\
-	}												\
+		}						\
+	}							\
 } while (0);
-
 #endif
-

@@ -1,8 +1,8 @@
 /**
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.1
- * Last Modified: Wednesday, July 07, 2010
+ * @version 0.2
+ * Last Modified: Sunday, July 25, 2010
  * Path:  /util.h
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,28 +20,28 @@
 #ifndef UTIL_H_INCLUDED
 #define UTIL_H_INCLUDED
 
-char *substring(const char *str, int begin, int len);
+char *substring (const char *str, int begin, int len);
 
-char *alloc_string(const char* str);
+char *alloc_string (const char *str);
 
-char *reverse_ip(char *str);
+char *reverse_ip (char *str);
 
-off_t file_size(const char *filename);
+off_t file_size (const char *filename);
 
-const char *verify_os(char * str);
+const char *verify_os (char *str);
 
-const char *verify_browser(char * str);
+const char *verify_browser (char *str);
 
-char *verify_status_code(char *str);
+char *verify_status_code (char *str);
 
-char *trim_str(char *str);
- 
-char *clean_date_time(char *s);
+char *trim_str (char *str);
 
-char *clean_date(char *s);
+char *clean_date_time (char *s);
 
-char *clean_time(char *s);
+char *clean_date (char *s);
 
-char *clean_status(char *s);
+char *clean_time (char *s);
+
+char *clean_status (char *s);
 
 #endif
