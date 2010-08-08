@@ -39,7 +39,7 @@
 /* Definitions checked against declarations */
 GHashTable *ht_unique_visitors = NULL;
 GHashTable *ht_requests = NULL;
-GHashTable *ht_referers = NULL;
+GHashTable *ht_referrers = NULL;
 GHashTable *ht_unique_vis = NULL;
 GHashTable *ht_requests_static = NULL;
 GHashTable *ht_not_found_requests = NULL;
@@ -87,28 +87,45 @@ char *module_names[] = {
     "  Top Search Keyphrases (Google, Cache, Translate)"
 };
 
-const char *os[] = {
+char *os[] = {
     "Windows", "Debian", "Ubuntu", "Fedora", "Android", "Centos",
     "Gentoo", "Linux", "linux", "iPad", "Macintosh", "BSD", "SunOS",
     "iPhone", "Amiga", "BlackBerry", "SymbianOS",
     "PlayStation Portable", "DoCoMo"
 };
 
-const char *browsers[] = {
-    "MSIE 6.0", "MSIE 7.0", "MSIE 8.0", "MSIE",
-    "Firefox", "Netscape", "SVN", "Opera",
-    "Chrome", "Safari", "Konqueror", "Media Center PC",
-    "Wget", "w3m", "Links", "Lynx",
-    "Camino", "Dillo", "Kazehakase", "msnbot-media",
-    "msnbot", "ia_archiver", "Mediapartners-Google", "TwitterFeed",
-    "Googlebot-Image", "Googlebot", "slurp", "Baiduspider",
-    "SeaMonkey", "Gigabot", "Twiceler", "Ask Jeeves",
-    "Iceape", "Nokia", "Donzilla", "Kazehakase",
-    "Galeon", "Exabot", "K-Meleon", "Avant",
-    "curl", "archive.org_bot", "BrowseX", "ELinks",
-    "Iceweasel", "Google Wireless Transcoder", "Google-Sitemaps",
-    "Mosaic", "Songbird", "W3C_Validator", "Jigsaw",
-    "Flock", "Minefield", "Midori", "Opera Mini"
+/* {"search string", "belongs to"} */
+char *browsers[][2] = {
+    /* BROWSERS & OFFLINE BROWSERS */
+    {"Avant Browser", "Others"},
+    {"America Online Browser", "Others"},
+    {"MSIE 6.", "MSIE"}, {"MSIE 7.", "MSIE"}, {"MSIE 8.", "MSIE"},
+    {"MSIE 5.", "MSIE"}, {"MSIE 4.", "MSIE"},
+    {"Flock", "Others"}, {"Epiphany", "Others"},
+    {"SeaMonkey", "Others"}, {"Iceweasel", "Others"},
+    {"Minefield", "Others"}, {"GranParadiso", "Others"},
+    {"Firefox", "Firefox"}, {"Chrome", "Chrome"}, {"Safari", "Safari"},
+    {"Opera Mini", "Opera"}, {"Opera", "Opera"}, {"Netscape", "Others"},
+    {"Konqueror", "Others"}, {"Wget", "Others"}, {"w3m", "Others"},
+    {"Links", "Others"}, {"Lynx", "Others"},
+    {"Camino", "Others"}, {"Dillo", "Others"}, {"Kazehakase", "Others"},
+    {"Iceape", "Others"}, {"K-Meleon", "Others"}, {"Galeon", "Others"},
+    {"BrowserX", "Others"}, {"ELinks", "Others"}, {"IBrowse", "Others"},
+    {"Mosaic", "Others"}, {"midori", "Others"}, {"Midori", "Others"},
+    {"Firebird", "Others"}, {"Mozilla", "Others"},
+    /* CRAWLERS & VALIDATORS */
+    {"W3C_Validator", "Crawlers"},
+    {"W3C_CSS_Validator", "Crawlers"},
+    {"msnbot-media", "Crawlers"}, {"msnbot", "Crawlers"},
+    {"ia_archiver", "Crawlers"}, {"Mediapartners-Google", "Crawlers"},
+    {"Googlebot-Image", "Crawlers"}, {"Googlebot", "Crawlers"},
+    {"slurp", "Crawlers"}, {"Baiduspider", "Crawlers"},
+    {"YandexBot", "Crawlers"}, {"FeedFetcher-Google", "Crawlers"},
+    {"Speedy Spider", "Crawlers"}, {"Java", "Crawlers"},
+    {"Gigabot", "Crawlers"}, {"Twiceler", "Crawlers"},
+    {"Ask Jeeves", "Crawlers"}, {"Exabot", "Crawlers"},
+    {"archive.org_bot", "Crawlers"}, {"Google-Sitemaps", "Crawlers"},
+    {"PostRank", "Crawlers"}, {"KaloogaBot", "Crawlers"}
 };
 
 char *codes[][2] = {

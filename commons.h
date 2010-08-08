@@ -53,8 +53,7 @@
 #define BLACK_GREEN  8
 #define BLACK_CYAN   9
 #define WHITE_RED    10
-
-enum MODULES
+    enum MODULES
 {
     UNIQUE_VISITORS = 1,
     REQUESTS,
@@ -74,7 +73,7 @@ extern enum MODULES modules;
 /* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_unique_visitors;
 extern GHashTable *ht_requests;
-extern GHashTable *ht_referers;
+extern GHashTable *ht_referrers;
 extern GHashTable *ht_unique_vis;
 extern GHashTable *ht_requests_static;
 extern GHashTable *ht_not_found_requests;
@@ -94,7 +93,7 @@ struct logger
     char *date;
     char *request;
     char *status;
-    char *referer;
+    char *referrer;
     char *agent;
     int total_process;
     int total_invalid;
@@ -103,8 +102,6 @@ struct logger
     int current_module;
     int max_value;
 };
-
-/*extern struct logger logger;  */
 
 struct struct_display
 {
@@ -127,8 +124,6 @@ struct scrolling
 };
 
 struct tm *now_tm;
-
-/*extern struct tm tm;*/
 
 /* Declaration of variables */
 extern int stripped_flag;
@@ -153,8 +148,8 @@ extern char *ifile;
 
 extern char *codes[][2];
 extern char *module_names[];
-extern const char *os[];
-extern const char *browsers[];
+extern char *os[];
+extern char *browsers[][2];
 extern char *help_main[];
 
 void init_colors (void);
