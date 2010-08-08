@@ -101,7 +101,7 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
     free (logger);
 
     g_hash_table_destroy (ht_unique_vis);
-    g_hash_table_destroy (ht_referers);
+    g_hash_table_destroy (ht_referrers);
     g_hash_table_destroy (ht_requests);
     g_hash_table_destroy (ht_requests_static);
     g_hash_table_destroy (ht_not_found_requests);
@@ -144,8 +144,8 @@ allocate_structs (int free_me)
     MALLOC_STRUCT (s_holder, g_hash_table_size (ht_requests_static));
     generate_struct_data (ht_requests_static, s_holder, s_display, logger, 3);
 
-    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referers));
-    generate_struct_data (ht_referers, s_holder, s_display, logger, 4);
+    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referrers));
+    generate_struct_data (ht_referrers, s_holder, s_display, logger, 4);
 
     MALLOC_STRUCT (s_holder, g_hash_table_size (ht_not_found_requests));
     generate_struct_data (ht_not_found_requests, s_holder, s_display, logger,
@@ -412,7 +412,7 @@ main (int argc, char *argv[])
     ht_requests =
         g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify) free_key_value, NULL);
-    ht_referers =
+    ht_referrers =
         g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify) free_key_value, NULL);
     ht_unique_vis =
