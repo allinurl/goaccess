@@ -1,9 +1,17 @@
-GoAccess - http://goaccess.prosoftcorp.com/
-by Gerardo Orellana <goaccess@prosoftcorp.com>
+Copyright (C) 2010
+Gerardo Orellana <goaccess@prosoftcorp.com>
 
-Sunday, July 25, 2010
-* Resize child windows when term is resized.
-* Increase the performance when parsing the log file.
-* Add more reports to it.
-* Add command-line parameters.
-* Filtering data by date.
+This is the todo list for GoAccess.
+If you are interested in working on any of these, email goaccess@prosoftcorp.com.
+
+* General:
+ - Really support UTF-8
+ - Resize child windows when term is resized.
+ - Increase the performance when parsing the log file.
+ - Add more reports to it.
+ - Add command-line parameters.
+ - Filtering data by date.
+
+* Documentation:
+  - Improve the manual, and other documentation etc.
+
