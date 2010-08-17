@@ -2,8 +2,8 @@
  * error.c -- error handling
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.2
- * Last Modified: Sunday, July 25, 2010
+ * @version 0.3
+ * Last Modified: Thursday, August 12 2010
  * Path:  /error.c
  *
  * This program is distributed in the hope that it will be useful,
