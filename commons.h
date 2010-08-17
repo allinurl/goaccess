@@ -32,7 +32,7 @@
 #define BUFFER 			4096
 #define MAX_CHOICES 	100
 #define TOTAL_MODULES 	11
-#define GO_VERSION 		"0.2"
+#define GO_VERSION 		"0.3"
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 /* max height of header window (rows) */
@@ -83,6 +83,7 @@ extern GHashTable *ht_hosts;
 extern GHashTable *ht_status_code;
 extern GHashTable *ht_referring_sites;
 extern GHashTable *ht_keyphrases;
+extern GHashTable *ht_file_bw;
 
 struct logger
 {
@@ -95,6 +96,7 @@ struct logger
     char *status;
     char *referrer;
     char *agent;
+    long long resp_size;
     int total_process;
     int total_invalid;
     int counter;
@@ -126,13 +128,11 @@ struct scrolling
 struct tm *now_tm;
 
 /* Declaration of variables */
-extern int stripped_flag;
 extern int bandwidth_flag;
 extern int ignore_flag;
 extern int http_status_code_flag;
 extern long long req_size;
 extern char *req;
-extern char *stripped_str;
 extern char *status_code;
 extern char *ignore_host;
 
@@ -148,7 +148,7 @@ extern char *ifile;
 
 extern char *codes[][2];
 extern char *module_names[];
-extern char *os[];
+extern char *os[][2];
 extern char *browsers[][2];
 extern char *help_main[];
 

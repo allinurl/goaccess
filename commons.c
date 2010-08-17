@@ -2,8 +2,8 @@
  * commons.c -- holds different data types 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.2
- * Last Modified: Sunday, July 25, 2010
+ * @version 0.3
+ * Last Modified: Thursday, August 12 2010
  * Path:  /commons.c
  *
  * This program is distributed in the hope that it will be useful,
@@ -49,26 +49,26 @@ GHashTable *ht_hosts = NULL;
 GHashTable *ht_status_code = NULL;
 GHashTable *ht_referring_sites = NULL;
 GHashTable *ht_keyphrases = NULL;
+GHashTable *ht_file_bw = NULL;
 
 enum MODULES modules;
 
 /* enable flags */
+int ignore_flag = 0;
 int stripped_flag = 0;
 int bandwidth_flag = 0;
-int ignore_flag = 0;
-int http_status_code_flag = 0;
 long long req_size = 0;
+int http_status_code_flag = 0;
 
 /* string processing */
 char *req;
-char *stripped_str = NULL;
 char *status_code;
 char *ignore_host;
 
 /* Processing time */
-time_t start_proc;
-time_t end_proc;
 time_t now;
+time_t end_proc;
+time_t start_proc;
 
 /* resizing */
 size_t term_h = 0;
@@ -87,11 +87,25 @@ char *module_names[] = {
     "  Top Search Keyphrases (Google, Cache, Translate)"
 };
 
-char *os[] = {
-    "Windows", "Debian", "Ubuntu", "Fedora", "Android", "Centos",
-    "Gentoo", "Linux", "linux", "iPad", "Macintosh", "BSD", "SunOS",
-    "iPhone", "Amiga", "BlackBerry", "SymbianOS",
-    "PlayStation Portable", "DoCoMo"
+/* {"search string", "belongs to"} */
+char *os[][2] = {
+    /* WINDOWS PLATFORM TOKENS */
+    {"Windows NT 5.1", "Windows"}, {"Windows NT 6.0", "Windows"},
+    {"Windows NT 6.1", "Windows"}, {"Windows NT 5.01", "Windows"},
+    {"Windows NT 5.0", "Windows"}, {"Windows NT 4.0", "Windows"},
+    {"Win 9x 4.90", "Windows"}, {"Windows 98", "Windows"},
+    {"Windows 95", "Windows"}, {"Windows CE", "Windows"},
+    /* LINUX, MAC & OTHERS */
+    {"Debian", "Linux"}, {"Ubuntu", "Linux"}, {"Fedora", "Linux"},
+    {"Mint", "Linux"}, {"SUSE", "Linux"}, {"Mandriva", "Linux"},
+    {"Red Hat", "Linux"}, {"Gentoo", "Linux"}, {"CentOS", "Linux"},
+    {"Android", "Linux"}, {"PCLinuxOS", "Linux"}, {"Linux", "Linux"},
+    {"iPad", "Macintosh"}, {"iPhone", "Macintosh"}, {"iPod", "Macintosh"},
+    {"iTunes", "Macintosh"}, {"Mac OS X", "Macintosh"},
+    {"Mac OS", "Macintosh"}, {"FreeBSD", "BSD"}, {"NetBSD", "BSD"},
+    {"OpenBSD", "BSD"}, {"SunOS", "Others"}, {"AmigaOS", "Others"},
+    {"BlackBerry", "Others"}, {"Symbian OS", "Others"}, {"Xbox", "Others"},
+    {"Nokia", "Others"}, {"PlayStation", "Others"}
 };
 
 /* {"search string", "belongs to"} */
@@ -112,10 +126,10 @@ char *browsers[][2] = {
     {"Iceape", "Others"}, {"K-Meleon", "Others"}, {"Galeon", "Others"},
     {"BrowserX", "Others"}, {"ELinks", "Others"}, {"IBrowse", "Others"},
     {"Mosaic", "Others"}, {"midori", "Others"}, {"Midori", "Others"},
-    {"Firebird", "Others"}, {"Mozilla", "Others"},
+    {"Firebird", "Others"},
     /* CRAWLERS & VALIDATORS */
     {"W3C_Validator", "Crawlers"},
-    {"W3C_CSS_Validator", "Crawlers"},
+    {"W3C_CSS_Validator", "Crawlers"}, {"facebook", "Crawlers"},
     {"msnbot-media", "Crawlers"}, {"msnbot", "Crawlers"},
     {"ia_archiver", "Crawlers"}, {"Mediapartners-Google", "Crawlers"},
     {"Googlebot-Image", "Crawlers"}, {"Googlebot", "Crawlers"},
@@ -125,7 +139,10 @@ char *browsers[][2] = {
     {"Gigabot", "Crawlers"}, {"Twiceler", "Crawlers"},
     {"Ask Jeeves", "Crawlers"}, {"Exabot", "Crawlers"},
     {"archive.org_bot", "Crawlers"}, {"Google-Sitemaps", "Crawlers"},
-    {"PostRank", "Crawlers"}, {"KaloogaBot", "Crawlers"}
+    {"PostRank", "Crawlers"}, {"KaloogaBot", "Crawlers"},
+    {"Twitter", "Crawlers"}, {"yacy", "Crawlers"}, {"Nutch", "Crawlers"},
+    {"ichiro", "Crawlers"}, {"Sogou", "Crawlers"}, {"KaloogaBot", "Crawlers"},
+    {"Mozilla", "Others"}
 };
 
 char *codes[][2] = {
