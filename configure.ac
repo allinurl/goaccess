@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.2], [goaccess@prosoftcorp.com])
-AM_INIT_AUTOMAKE(goaccess, 0.2)
+AC_INIT([goaccess], [0.3], [goaccess@prosoftcorp.com])
+AM_INIT_AUTOMAKE(goaccess, 0.3)
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
 
@@ -25,7 +25,8 @@ AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])]
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h netdb.h stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([locale.h arpa/inet.h netdb.h stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_FUNCS([setlocale])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -39,7 +40,8 @@ AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([gethostbyaddr gethostbyname strchr strdup strerror strrchr strstr strtol memset])
+AC_FUNC_FSEEKO
+AC_CHECK_FUNCS([floor gethostbyaddr gethostbyname strchr strdup strerror strrchr strstr strtol memset])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
