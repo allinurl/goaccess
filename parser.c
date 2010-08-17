@@ -2,8 +2,8 @@
  * parser.c -- web log parsing
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.2
- * Last Modified: Sunday, July 25, 2010
+ * @version 0.3
+ * Last Modified: Thursday, August 12 2010
  * Path:  /parser.c
  *
  * This program is distributed in the hope that it will be useful,
@@ -20,6 +20,10 @@
 
 /* "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
  * correctly. */
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+#define _FILE_OFFSET_BITS 64
+
 #define _XOPEN_SOURCE 700
 
 #include <stdlib.h>
@@ -28,12 +32,13 @@
 #include <stdio.h>
 #include <time.h>
 #include <errno.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 #include "error.h"
 #include "commons.h"
 #include "parser.h"
 #include "util.h"
-
 
 static int
 is_agent_present (const char *str)
@@ -52,18 +57,78 @@ struct_cmp_by_hits (const void *a, const void *b)
 }
 
 int
-struct_cmp (const void *a, const void *b)
+struct_cmp_desc (const void *a, const void *b)
 {
     struct struct_holder *ia = *(struct struct_holder **) a;
     struct struct_holder *ib = *(struct struct_holder **) b;
     return strcmp (ib->data, ia->data);
 }
 
+int
+struct_cmp_asc (const void *a, const void *b)
+{
+    struct struct_holder *ia = *(struct struct_holder **) a;
+    struct struct_holder *ib = *(struct struct_holder **) b;
+    return strcmp (ia->data, ib->data);
+}
+
+static char *
+verify_browser_type (char *str)
+{
+    char *lookfor = NULL;
+
+    if ((lookfor = "Chrome", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Crawlers", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Firefox", strstr (str, lookfor)) != NULL ||
+        (lookfor = "MSIE", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Opera", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Safari", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Others", strstr (str, lookfor)) != NULL) {
+        return lookfor;
+    } else
+        return NULL;
+}
+
+static char *
+verify_os_type (char *str)
+{
+    char *lookfor = NULL;
+
+    if ((lookfor = "Windows", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Macintosh", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Linux", strstr (str, lookfor)) != NULL ||
+        (lookfor = "BSD", strstr (str, lookfor)) != NULL ||
+        (lookfor = "Others", strstr (str, lookfor)) != NULL) {
+        return lookfor;
+    } else
+        return NULL;
+}
+
+static int
+process_request_bw (GHashTable * ht, const char *req, long long resp_size)
+{
+    gpointer value_ptr;
+    gint value_int;
+
+    if ((ht == NULL) || (req == NULL))
+        return (EINVAL);
+
+    value_ptr = g_hash_table_lookup (ht, req);
+    if (value_ptr != NULL)
+        value_int = GPOINTER_TO_INT (value_ptr);
+    else
+        value_int = 0;
+    value_int += resp_size;
+
+    /* replace the entry. old key will be freed by "free_key_value". */
+    g_hash_table_replace (ht, g_strdup (req), GINT_TO_POINTER (value_int));
+}
+
 static int
 process_generic_data (GHashTable * ht, const char *key)
 {
     int first = 0;
-    char *date = NULL;
+    char *date = NULL, *ref = NULL;
     gpointer value_ptr;
     gint value_int;
 
@@ -77,16 +142,27 @@ process_generic_data (GHashTable * ht, const char *key)
         value_int = 0;
         first = 1;
     }
-
     value_int++;
 
-    /* Replace the entry. The old key will be freed by "free_key_value". */
+    /* replace the entry. old key will be freed by "free_key_value". */
     g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
     if (first && ht == ht_unique_visitors) {
-        char *mykey = strdup (key);
-        process_generic_data (ht_os, verify_os (mykey));
-        process_generic_data (ht_browsers, verify_browser (mykey));
+        char *mykey, *b_key, *o_key;
+        mykey = strdup (key);
+        /* get browser & OS from agent */
+        b_key = verify_browser (mykey);
+        o_key = verify_os (mykey);
+        /* insert new keys & values */
+        process_generic_data (ht_browsers, b_key);
+        process_generic_data (ht_os, o_key);
+        /* check type & add up totals */
+        process_generic_data (ht_browsers, verify_browser_type (b_key));
+        process_generic_data (ht_os, verify_os_type (o_key));
+        /* clean stuff up */
         free (mykey);
+        free (o_key);
+        free (b_key);
+
         if ((date = strchr (key, '|')) != NULL) {
             char *tmp;
             tmp = clean_date (date);
@@ -97,14 +173,10 @@ process_generic_data (GHashTable * ht, const char *key)
     return (0);
 }
 
-/* int process_generic_data */
-
-/* 
- * from oreillynet.com 
- * with minor modifications
- */
-#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : \
-                             (toupper((x)) - 'A' + 10))
+/** from oreillynet.com 
+ ** with minor modifications **/
+#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? \
+                            ((x) - '0') : (toupper((x)) - 'A' + 10))
 char *
 spc_decode_url (char *url)
 {
@@ -146,7 +218,7 @@ process_keyphrases (char *ref)
     else if ((r = strstr (ref, "%26q%3D")) != NULL
              || (r = strstr (ref, "%3Fq%3D")) != NULL)
         r += 7;
-    else 
+    else
         return -1;
     dec = spc_decode_url (r);
     if ((ptr = strstr (dec, "%26")) != NULL
@@ -158,6 +230,7 @@ process_keyphrases (char *ref)
             *p = ' ';
         p++;
     }
+
     process_generic_data (ht_keyphrases, dec);
     free (dec);
     return 0;
@@ -165,10 +238,9 @@ process_keyphrases (char *ref)
 
 static void
 process_unique_data (char *host, char *date, char *agent, char *status,
-                     char *referer)
+                     char *referrer)
 {
     char unique_visitors_key[2048];
-
     /* 
      * C struct initialization and strptime 
      * C may not initialize stack structs and arrays to zeros 
@@ -189,10 +261,10 @@ process_unique_data (char *host, char *date, char *agent, char *status,
     unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
 
     char url[512] = "";
-    if (sscanf (referer, "http://%511[^/\n]", url) == 1) {
+    if (sscanf (referrer, "http://%511[^/\n]", url) == 1) {
         process_generic_data (ht_referring_sites, url);
     }
-    process_keyphrases (referer);
+    process_keyphrases (referrer);
 
     if (http_status_code_flag) {
         process_generic_data (ht_status_code, status);
@@ -203,11 +275,8 @@ process_unique_data (char *host, char *date, char *agent, char *status,
     } else {
         process_generic_data (ht_hosts, host);
     }
-
     process_generic_data (ht_unique_visitors, unique_visitors_key);
 }
-
-/* void process_unique_data */
 
 static int
 verify_static_content (char *url)
@@ -345,6 +414,11 @@ parse_request (struct logger *logger, char *line)
     else
         ref = "-";
 
+    if ((hour = strchr (line, ':')) != NULL)
+        hour++;
+    else
+        hour = "-";
+
     char *cpy_line = strdup (line);
 
     if (!bandwidth_flag)
@@ -366,6 +440,9 @@ parse_request (struct logger *logger, char *line)
     if ((ptr = strchr (date, ':')) == NULL)
         return 1;
     *ptr = '\0';
+    if ((ptr = strchr (hour, ':')) == NULL)
+        return 1;
+    *ptr = '\0';
     if ((ptr = strchr (ref, '"')) == NULL)
         ref = "-";
     else
@@ -385,7 +462,8 @@ parse_request (struct logger *logger, char *line)
         /* perhaps something wrong with the log */
         status_code = (char *) malloc (8);
         if (status_code == NULL)
-            exit (1);           /* something went wrong */
+            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                           "Unable to allocate memory");
         sprintf (status_code, "Invalid");
     }
   nohttpstatuscode:;
@@ -394,8 +472,9 @@ parse_request (struct logger *logger, char *line)
     logger->agent = fqm;
     logger->date = date;
     logger->hour = hour;
-    logger->referer = ref;
+    logger->referrer = ref;
     logger->request = req;
+    logger->resp_size = band_size;
 
     if (http_status_code_flag)
         logger->status = status_code;
@@ -407,33 +486,34 @@ parse_request (struct logger *logger, char *line)
 static int
 process_log (struct logger *logger, char *line)
 {
-    struct logger log;
     char *cpy_line = strdup (line);
+    struct logger log;
     logger->total_process++;
 
     /* Make compiler happy */
     memset (&log, 0, sizeof (log));
-
-    if (parse_request (&log, line) == 0) {
-        process_unique_data (log.host, log.date, log.agent, log.status,
-                             log.referer);
-        free (status_code);
-        if (verify_static_content (log.request)) {
-            if (strstr (cpy_line, "\" 404 "))
-                process_generic_data (ht_not_found_requests, log.request);
-            process_generic_data (ht_requests_static, log.request);
-        } else {
-            if (strstr (cpy_line, "\" 404 "))
-                process_generic_data (ht_not_found_requests, log.request);
-            process_generic_data (ht_requests, log.request);
-        }
-        process_generic_data (ht_referers, log.referer);
-        free (cpy_line);
-    } else {
+    if (parse_request (&log, line) != 0) {
         free (cpy_line);
         logger->total_invalid++;
         return 0;
     }
+
+    process_unique_data (log.host, log.date, log.agent, log.status,
+                         log.referrer);
+    free (status_code);
+    if (verify_static_content (log.request)) {
+        if (strstr (cpy_line, "\" 404 "))
+            process_generic_data (ht_not_found_requests, log.request);
+        process_generic_data (ht_requests_static, log.request);
+    } else {
+        if (strstr (cpy_line, "\" 404 "))
+            process_generic_data (ht_not_found_requests, log.request);
+        process_generic_data (ht_requests, log.request);
+    }
+    process_generic_data (ht_referrers, log.referrer);
+    if (bandwidth_flag)
+        process_request_bw (ht_file_bw, log.request, log.resp_size);
+    free (cpy_line);
     free (req);
     return 0;
 }
@@ -465,20 +545,18 @@ void
 generate_unique_visitors (struct struct_display **s_display,
                           struct logger *logger)
 {
-    char *date;
-    int row, col, n = 0, lo, r = 0, w = 0;
+    int lo, r = 0, w = 0;
     struct struct_holder **t_holder;
 
     GHashTableIter iter;
     gpointer k = NULL;
     gpointer v = NULL;
 
-    getmaxyx (stdscr, row, col);
-
     int ct = 0;
     t_holder =
         (struct struct_holder **) malloc (sizeof (struct struct_holder *) *
                                           g_hash_table_size (ht_unique_vis));
+
     g_hash_table_iter_init (&iter, ht_unique_vis);
     while (g_hash_table_iter_next (&iter, &k, &v)) {
         t_holder[w] =
@@ -488,7 +566,7 @@ generate_unique_visitors (struct struct_display **s_display,
         ct++;
     }
 
-    qsort (t_holder, ct, sizeof (struct struct_holder *), struct_cmp);
+    qsort (t_holder, ct, sizeof (struct struct_holder *), struct_cmp_desc);
 
     /* fixed value in here, perhaps it could be dynamic depending on the module */
     for (lo = 0; lo < 10; lo++) {
@@ -537,6 +615,9 @@ generate_struct_data (GHashTable * hash_table,
 
     g_hash_table_iter_init (&iter, hash_table);
     while (g_hash_table_iter_next (&iter, &k, &v)) {
+        if (module == BROWSERS || module == OS)
+            if (strchr ((gchar *) k, '|') != NULL)
+                continue;
         s_holder[i]->data = (gchar *) k;
         s_holder[i++]->hits = GPOINTER_TO_INT (v);
         logger->counter++;
@@ -549,48 +630,52 @@ generate_struct_data (GHashTable * hash_table,
     char *head = NULL, *desc = NULL;
     switch (module) {
      case 2:
-         head = " 2 - Requested files - File requests ordered by hits";
-         desc = " Top 6 different files requested";
+         head = " 2 - Requested files (Pages-URL)";
+         desc =
+             " Top 6 different files requested sorted by requests - percent - bandwidth";
          break;
      case 3:
-         head = " 3 - Requested static files - Static content (png,js,etc)";
-         desc = " Top 6 different static files requested, ordered by hits";
+         head = " 3 - Requested static files - (Static content: png,js,etc)";
+         desc =
+             " Top 6 different static files requested, sorted by requests - percent - bandwidth";
          break;
      case 4:
          head = " 4 - Referrers URLs";
-         desc = " Top 6 different referrers ordered by hits";
+         desc = " Top 6 different referrers sorted by requests";
          break;
      case 5:
-         head = " 5 - 404 or Not Found request message";
-         desc = " Top 6 different 404 ordered by hits";
+         head = " 5 - HTTP 404 Not Found response code";
+         desc = " Top 6 different 404 sorted by requests";
          break;
      case 6:
          head = " 6 - Operating Systems";
-         desc = " Top 6 common Operating Systems sorted by unique hits";
+         desc =
+             " Top 6 different Operating Systems sorted by unique requests";
          break;
      case 7:
          head = " 7 - Browsers";
-         desc = " Top 6 common browsers sorted by unique hits";
+         desc = " Top 6 different browsers sorted by unique requests";
          break;
      case 8:
          head = " 8 - Hosts";
-         desc = " Top 6 unique hosts sorted by hits";
+         desc = " Top 6 different hosts sorted by requests";
          break;
      case 9:
          head = " 9 - HTTP Status Codes";
-         desc = " Top 6 unique status codes sorted by hits";
+         desc = " Top 6 different status codes sorted by requests";
          break;
      case 10:
          head = " 10 - Top Referring Sites";
-         desc = " Top 6 unique referring sites sorted by hits";
+         desc = " Top 6 different referring sites sorted by requests";
          break;
      case 11:
-         head = " 11 - Top different keyphrases";
-         desc = " Top 6 unique different keyphrases sorted by hits";
+         head = " 11 - Top Keyphrases used on Google's search engine";
+         desc = " Top 6 different keyphrases sorted by requests";
          break;
     }
 
     /* r : pos on y */
+    char *stripped_str = NULL;
     int lo, r = 0;
     guint f;
 
@@ -604,12 +689,8 @@ generate_struct_data (GHashTable * hash_table,
         else if (lo == 2 || lo == 9)
             s_display[logger->alloc_counter++]->data = alloc_string ("");
         else if (r < logger->counter) {
-            if (strlen (s_holder[r]->data) > ((size_t) (col - 15))) {
-                stripped_str = substring (s_holder[r]->data, 0, col - 15);
-                s_display[logger->alloc_counter]->data = stripped_str;
-            } else
-                s_display[logger->alloc_counter]->data =
-                    alloc_string (s_holder[r]->data);
+            s_display[logger->alloc_counter]->data =
+                alloc_string (s_holder[r]->data);
             s_display[logger->alloc_counter++]->hits = s_holder[r]->hits;
             r++;
         } else

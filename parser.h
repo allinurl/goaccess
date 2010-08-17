@@ -26,7 +26,8 @@
 
 int struct_cmp_by_hits (const void *a, const void *b);
 
-int struct_cmp (const void *a, const void *b);
+int struct_cmp_desc (const void *a, const void *b);
+int struct_cmp_asc (const void *a, const void *b);
 
 int parse_log (struct logger *logger, char *filename, char *tail);
 
