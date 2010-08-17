@@ -2,8 +2,8 @@
  * goaccess.c -- main log analyzer 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.2
- * Last Modified: Sunday, July 25, 2010
+ * @version 0.3
+ * Last Modified: Thursday, August 12 2010
  * Path:  /goaccess.c
  *
  * This program is distributed in the hope that it will be useful,
@@ -17,6 +17,9 @@
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
+#define _FILE_OFFSET_BITS 64
 
 #include <string.h>
 #include <stdlib.h>
@@ -29,6 +32,7 @@
 #include <assert.h>
 #include <unistd.h>
 #include <ctype.h>
+#include <locale.h>
 
 #include "error.h"
 #include "alloc.h"
@@ -39,6 +43,7 @@
 
 static WINDOW *header_win, *main_win, *my_menu_win, *help_win;
 
+static int initial_reqs = 0;
 static struct logger *logger;
 static struct scrolling scrolling;
 static struct struct_display **s_display;
@@ -84,6 +89,7 @@ cmd_help (void)
     printf ("  -e  - Exclude an IP from being counted under the HOST\n");
     printf ("        module. This has been disabled by default. \n\n");
     printf ("For more details visit: http://goaccess.prosoftcorp.com \n\n");
+    exit (1);
 }
 
 static void
@@ -112,6 +118,7 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
     g_hash_table_destroy (ht_status_code);
     g_hash_table_destroy (ht_referring_sites);
     g_hash_table_destroy (ht_keyphrases);
+    g_hash_table_destroy (ht_file_bw);
 }
 
 void
@@ -177,7 +184,7 @@ allocate_structs (int free_me)
 void
 render_screens (void)
 {
-    int row, col, x, y;
+    int row, col, x, y, chg = 0;
 
     werase (main_win);
     getmaxyx (stdscr, row, col);
@@ -185,10 +192,12 @@ render_screens (void)
 
     wattron (stdscr, COLOR_PAIR (COL_WHITE));
     generate_time ();
+    chg = ((logger->total_process - initial_reqs));
     mvaddstr (row - 1, 1, "[F1]Help  [O]pen detail view");
-    mvprintw (row - 1, col - 64, "Last Updated: %s", asctime (now_tm));
-    mvaddstr (row - 1, col - 23, "[Q]uit Analyzer");
-    mvaddstr (row - 1, col - 6, GO_VERSION);
+    mvprintw (row - 1, 32, "Updated: %d - %s", chg, asctime (now_tm));
+    mvaddstr (row - 1, col - 21, "[Q]uit Analyzer");
+
+    mvprintw (row - 1, col - 5, "v%s", GO_VERSION);
     wattroff (stdscr, COLOR_PAIR (COL_WHITE));
     display_content (main_win, s_display, logger, scrolling);
 
@@ -213,7 +222,7 @@ get_keys (void)
     int y, x, c, quit = 0;
     getmaxyx (main_win, y, x);
 
-    off_t size1, size2;
+    unsigned long long size1, size2;
     char buf[BUFFER];
     FILE *fp;
 
@@ -334,11 +343,12 @@ get_keys (void)
              break;
          default:
              size2 = file_size (ifile);
+             /* file has changed */
              if (size2 != size1) {
                  if (!(fp = fopen (ifile, "r")))
                      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                                     "Unable to read log file.");
-                 if (!fseek (fp, size1, SEEK_SET))
+                 if (!fseeko (fp, size1, SEEK_SET))
                      while (fgets (buf, BUFFER, fp) != NULL)
                          parse_log (logger, ifile, buf);
                  fclose (fp);
@@ -361,18 +371,15 @@ main (int argc, char *argv[])
 {
     extern char *optarg;
     extern int optind, optopt, opterr;
-    int row, col, o, bflag = 0, fflag = 0, sflag = 0;
+    int row, col, o, bflag = 0, sflag = 0;
 
-    if (argc < 2) {
+    if (argc < 2)
         cmd_help ();
-        exit (1);
-    }
 
     opterr = 0;
     while ((o = getopt (argc, argv, "f:e:sb")) != -1) {
         switch (o) {
          case 'f':
-             fflag = 1;
              ifile = optarg;
              break;
          case 'e':
@@ -397,12 +404,6 @@ main (int argc, char *argv[])
          default:
              abort ();
         }
-    }
-
-    if (!fflag) {
-        fprintf (stderr, "goaccess version %s\n", GO_VERSION);
-        cmd_help ();
-        exit (1);
     }
 
     /* initialize hash tables */
@@ -442,6 +443,13 @@ main (int argc, char *argv[])
     ht_keyphrases =
         g_hash_table_new_full (g_str_hash, g_str_equal,
                                (GDestroyNotify) free_key_value, NULL);
+    ht_file_bw =
+        g_hash_table_new_full (g_str_hash, g_str_equal,
+                               (GDestroyNotify) free_key_value, NULL);
+
+    /** should work on UTF-8 terminals as long as the 
+     ** user did set LC_ALL to *._UTF-8 locale **/
+    setlocale (LC_ALL, "");
     initscr ();
     clear ();
     if (has_colors () == FALSE)
@@ -484,6 +492,7 @@ main (int argc, char *argv[])
 
     (void) time (&end_proc);
 
+    initial_reqs = logger->total_process;
     /* draw screens */
     int x, y;
     getmaxyx (main_win, y, x);
