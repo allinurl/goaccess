@@ -6,11 +6,12 @@ If you are interested in working on any of these, email goaccess@prosoftcorp.com
 
 * General:
  - Really support UTF-8
- - Resize child windows when term is resized.
- - Increase the performance when parsing the log file.
- - Add more reports to it.
- - Add command-line parameters.
+ - Support for parsing IPv6
  - Filtering data by date.
+ - Increase the performance when parsing the log file.
+ - Resize child windows when term is resized.
+ - Add command-line parameters.
+ - Add more reports to it.
 
 * Documentation:
   - Improve the manual, and other documentation etc.

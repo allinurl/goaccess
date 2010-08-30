@@ -1,7 +1,21 @@
+Changes to GoAccess 0.3 - Sunday, August 29, 2010
+
+    * Fixed invalid entries when parsing status codes
+    * Implemented a real support for LFS - Handles files larger than 2 GiB on 32-bit systems
+    * Added a more detailed and comprehensive browser and os report
+    * Fixed a segmentation fault on popup window search if haystack was null
+    * Added bandwidth details for requested files
+    * Added percentage details on modules 2, 3, 4, 5, 10, 11
+    * Implemented support for 'vhost_combined' log format
+    * Fixed a potential segmentation fault when resizing main window
+    * Position of data/graphs will change depending on # of hits
+    * A counter for total requests since initial parse was implemented
+    * Code cleanups
+
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
     * Implemented real-time statistics (RTS). Data will be appended as the log file
-      grows. Equivalant to 'tail -f' on Unix systems
+      grows. Equivalent to 'tail -f' on Unix systems
     * Added a keyphrases report coming from Google search engine.
       This includes, raw, cache, and translation queries.
     * Implemented screen resize functionality
@@ -16,8 +30,8 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
 Changes to GoAccess 0.1.2 - Monday, July 12 2010
 
-	* Fixed a segmentation fault when parsing logs with unusual request type. 
-		Ex. ("GET HTTP/1.1 HTTP/1.1")
+    * Fixed a segmentation fault when parsing logs with unusual request type. 
+        Ex. ("GET HTTP/1.1 HTTP/1.1")
 
 Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 
@@ -43,4 +57,4 @@ Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 
 Tuesday, July 06, 21:12:29 2010 Gerardo Orellana (goaccess at prosoftcorp.com)
 
-	* Initial release 0.1
+    * Initial release 0.1
