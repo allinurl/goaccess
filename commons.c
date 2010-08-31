@@ -2,18 +2,19 @@
  * commons.c -- holds different data types 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.3
- * Last Modified: Thursday, August 12 2010
- * Path:  /commons.c
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * GoAccess is released under the GNU/GPL License.
- * Copy of the GNU General Public License is attached to this source 
- * distribution for its full text.
+ * This program is free software; you can redistribute it and/or    
+ * modify it under the terms of the GNU General Public License as   
+ * published by the Free Software Foundation; either version 2 of   
+ * the License, or (at your option) any later version.              
+ *                                                                  
+ * This program is distributed in the hope that it will be useful,  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of   
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+ * GNU General Public License for more details.                     
+ *                                                                  
+ * A copy of the GNU General Public License is attached to this 
+ * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
@@ -80,10 +81,15 @@ char *ifile = NULL;
 
 char *module_names[] = {
     "  Visitors - ^s^ sort by date - ^S^ sort by hits",
-    "  Requests", "  Static Requests", "  Referrers",
-    "  404 - Not Found", "  Operating Systems ordered by unique hits",
-    "  Browsers ordered by unique hits", "  Hosts",
-    "  HTTP Status Codes", "  Top Referring Sites",
+    "  Requests sorted by hits",
+    "  Static Requests sorted by hits",
+    "  Referrers sorted by hits",
+    "  404 - Not Found sorted by hits",
+    "  Operating Systems sorted by unique visitors",
+    "  Browsers sorted by unique visitors",
+    "  Hosts sorted by hits",
+    "  HTTP Status Codes sorted by hits",
+    "  Top Referring Sites sorted by hits",
     "  Top Search Keyphrases (Google, Cache, Translate)"
 };
 
@@ -137,12 +143,13 @@ char *browsers[][2] = {
     {"YandexBot", "Crawlers"}, {"FeedFetcher-Google", "Crawlers"},
     {"Speedy Spider", "Crawlers"}, {"Java", "Crawlers"},
     {"Gigabot", "Crawlers"}, {"Twiceler", "Crawlers"},
+    {"YoudaoBot", "Crawlers"}, {"Turnitin", "Crawlers"},
     {"Ask Jeeves", "Crawlers"}, {"Exabot", "Crawlers"},
     {"archive.org_bot", "Crawlers"}, {"Google-Sitemaps", "Crawlers"},
     {"PostRank", "Crawlers"}, {"KaloogaBot", "Crawlers"},
     {"Twitter", "Crawlers"}, {"yacy", "Crawlers"}, {"Nutch", "Crawlers"},
-    {"ichiro", "Crawlers"}, {"Sogou", "Crawlers"}, {"KaloogaBot", "Crawlers"},
-    {"Mozilla", "Others"}
+    {"ichiro", "Crawlers"}, {"Sogou", "Crawlers"},
+    {"KaloogaBot", "Crawlers"}, {"Mozilla", "Others"}
 };
 
 char *codes[][2] = {
@@ -157,8 +164,8 @@ char *codes[][2] = {
     {"206", "Partial Content - The partial GET has been successful"},
     {"300", "Multiple Choices - Multiple options for the resource"},
     {"301", "Moved Permanently - Resource has permanently moved"},
-    {"302", "302 Found - Moved Temporarily"},
-    {"303", "303 See Other - The response is at a different URI"},
+    {"302", "Moved Temporarily"},
+    {"303", "See Other - The response is at a different URI"},
     {"304", "Not Modified - Resource has not been modified"},
     {"305", "Use Proxy - Can only be accessed through the proxy"},
     {"307", "Temporary Redirect - Resource temporarily moved"},
@@ -166,7 +173,7 @@ char *codes[][2] = {
     {"401", "Unauthorized - Request needs user authentication"},
     {"402", "Payment Required"},
     {"403", "Forbidden -  Server is refusing to respond to it"},
-    {"404", "Not Found - Requested resource could not be found"},
+    {"404", "Document Not Found - Requested resource could not be found"},
     {"405", "Method Not Allowed - Request method not supported"},
     {"406", "Not Acceptable"},
     {"407", "Proxy Authentication Required"},
@@ -181,6 +188,7 @@ char *codes[][2] = {
     {"416", "Requested Range Not Satisfiable - Cannot supply that portion"},
     {"417", "Expectation Failed"},
     {"500", "Internal Server Error"},
+    {"501", "Not Implemented"},
     {"502", "Bad Gateway - Received an invalid response from the upstream"},
     {"503", "Service Unavailable - The server is currently unavailable"},
     {"504", "Gateway Timeout - The upstream server failed to send request"},
@@ -236,7 +244,7 @@ char *help_main[] = {
     "would be interesting to hear your experience with",
     "GoAccess, such as generating time, visitors or hits.",
     "",
-    "Send your questions, comments and suggestions to ",
+    "Feedback? Just shoot me an email to:",
     "goaccess@prosoftcorp.com",
 };
 
