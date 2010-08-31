@@ -2,21 +2,23 @@
  * goaccess.c -- main log analyzer 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.3
- * Last Modified: Thursday, August 12 2010
- * Path:  /goaccess.c
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * GoAccess is released under the GNU/GPL License.
- * Copy of the GNU General Public License is attached to this source 
- * distribution for its full text.
+ * This program is free software; you can redistribute it and/or    
+ * modify it under the terms of the GNU General Public License as   
+ * published by the Free Software Foundation; either version 2 of   
+ * the License, or (at your option) any later version.              
+ *                                                                  
+ * This program is distributed in the hope that it will be useful,  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of   
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+ * GNU General Public License for more details.                     
+ *                                                                  
+ * A copy of the GNU General Public License is attached to this 
+ * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
+
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
@@ -192,7 +194,7 @@ render_screens (void)
 
     wattron (stdscr, COLOR_PAIR (COL_WHITE));
     generate_time ();
-    chg = ((logger->total_process - initial_reqs));
+    chg = logger->total_process - initial_reqs;
     mvaddstr (row - 1, 1, "[F1]Help  [O]pen detail view");
     mvprintw (row - 1, 32, "Updated: %d - %s", chg, asctime (now_tm));
     mvaddstr (row - 1, col - 21, "[Q]uit Analyzer");
@@ -333,7 +335,9 @@ get_keys (void)
              break;
          case 269:
          case KEY_RESIZE:
-             werase (help_win);
+             endwin ();
+             refresh ();
+             werase (header_win);
              werase (main_win);
              werase (stdscr);
              term_size (main_win);
@@ -445,11 +449,12 @@ main (int argc, char *argv[])
                                (GDestroyNotify) free_key_value, NULL);
     ht_file_bw =
         g_hash_table_new_full (g_str_hash, g_str_equal,
-                               (GDestroyNotify) free_key_value, NULL);
+                               (GDestroyNotify) g_free, g_free);
 
-    /** should work on UTF-8 terminals as long as the 
-     ** user did set LC_ALL to *._UTF-8 locale **/
-    setlocale (LC_ALL, "");
+    /** 'should' work on UTF-8 terminals as long as the 
+     ** user did set it to *._UTF-8 locale **/
+    /** ###TODO: real UTF-8 support needs to be done **/
+    setlocale (LC_CTYPE, "");
     initscr ();
     clear ();
     if (has_colors () == FALSE)
