@@ -2,23 +2,25 @@
  * util.c -- a set of handy functions to help parsing 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.2
- * Last Modified: Sunday, July 25, 2010
- * Path:  /util.c
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * GoAccess is released under the GNU/GPL License.
- * Copy of the GNU General Public License is attached to this source 
- * distribution for its full text.
+ * This program is free software; you can redistribute it and/or    
+ * modify it under the terms of the GNU General Public License as   
+ * published by the Free Software Foundation; either version 2 of   
+ * the License, or (at your option) any later version.              
+ *                                                                  
+ * This program is distributed in the hope that it will be useful,  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of   
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+ * GNU General Public License for more details.                     
+ *                                                                  
+ * A copy of the GNU General Public License is attached to this 
+ * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#define _LARGEFILE64_SOURCE 1
+#define _LARGEFILE_SOURCE
+#define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
 #include <string.h>
@@ -26,6 +28,8 @@
 #include <arpa/inet.h>
 #include <stdlib.h>
 #include <netdb.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <ctype.h>
@@ -118,24 +122,88 @@ file_size (const char *filename)
     return -1;
 }
 
-const char *
+char *
 verify_os (char *str)
 {
+    char *a, *b, *s, *p, *lookfor;
     size_t i;
-    for (i = 0; i < os_size (); i++)
-        if (strstr (str, os[i]) != NULL)
-            return os[i];
-    return "Unknown";
+
+    if (str == NULL || *str == '\0')
+        return (NULL);
+
+    for (i = 0; i < os_size (); i++) {
+        if ((a = strstr (str, os[i][0])) == NULL)
+            continue;
+        /* agents w/ space in between */
+        if ((lookfor = "Windows", strstr (str, lookfor)) != NULL ||
+            (lookfor = "Mac OS", strstr (str, lookfor)) != NULL ||
+            (lookfor = "Red Hat", strstr (str, lookfor)) != NULL ||
+            (lookfor = "Win", strstr (str, lookfor)) != NULL) {
+            s = malloc (snprintf (NULL, 0, "%s|%s", os[i][1], os[i][0]) + 1);
+            sprintf (s, "%s|%s", os[i][1], os[i][0]);
+            return s;
+        }
+        if (!(b = a))
+            return "-";
+        for (p = a; *p; p++) {
+            if (*p != ' ' && isalnum (p[0]) && *p != '\0') {
+                a++;
+                continue;
+            } else
+                break;
+        }
+        *p = 0;
+        if (strlen (a) == (p - b));
+
+        s = malloc (snprintf (NULL, 0, "%s|%s", os[i][1], b) + 1);
+        sprintf (s, "%s|%s", os[i][1], b);
+
+        return s;
+    }
+
+    return alloc_string ("Unknown");
 }
 
-const char *
+char *
 verify_browser (char *str)
 {
+    char *a, *b, *p, *ptr;
     size_t i;
-    for (i = 0; i < browsers_size (); i++)
-        if (strstr (str, browsers[i]) != NULL)
-            return browsers[i];
-    return "Unknown";
+
+    if (str == NULL || *str == '\0')
+        return (NULL);
+
+    for (i = 0; i < browsers_size (); i++) {
+        if ((a = strstr (str, browsers[i][0])) == NULL)
+            continue;
+        if (!(b = a))
+            return "-";
+        ptr = a;
+        /* MSIE needs additional code. sigh... */
+        if ((strstr (a, "MSIE")) != NULL || (strstr (a, "Ask")) != NULL) {
+            while (*ptr != ';' && *ptr != ')' && *ptr != '-' && *ptr != '\0') {
+                if (*ptr == ' ')
+                    *ptr = '/';
+                ptr++;
+            }
+        }
+        for (p = a; *p; p++) {
+            if (isalnum (p[0]) || *p == '.' || *p == '/' || *p == '_'
+                || *p == '-') {
+                a++;
+                continue;
+            } else
+                break;
+        }
+        *p = 0;
+        if (strlen (a) == (p - b));
+
+        char *s = malloc (snprintf (NULL, 0, "%s|%s", browsers[i][1], b) + 1);
+        sprintf (s, "%s|%s", browsers[i][1], b);
+
+        return s;
+    }
+    return alloc_string ("Unknown");
 }
 
 char *
@@ -159,6 +227,25 @@ trim_str (char *str)
     for (p = str + strlen (str) - 1; (p >= str) && isspace (*p); --p);
     p[1] = '\0';
     return str;
+}
+
+char *
+filesize_str (off_t log_size)
+{
+    char *size = (char *) malloc (sizeof (char) * 10);
+    if (size == NULL)
+        error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                       "Unable to allocate memory");
+    if (log_size >= GB)
+        snprintf (size, 10, "%.2f GB", (double) (log_size) / GB);
+    else if (log_size >= MB)
+        snprintf (size, 10, "%.2f MB", (double) (log_size) / MB);
+    else if (log_size >= KB)
+        snprintf (size, 10, "%.2f KB", (double) (log_size) / KB);
+    else
+        snprintf (size, 10, "%.1f  B", (double) (log_size));
+
+    return size;
 }
 
 char *
