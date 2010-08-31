@@ -2,18 +2,19 @@
  * parser.c -- web log parsing
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An ncurses apache weblog analyzer & interactive viewer
- * @version 0.3
- * Last Modified: Thursday, August 12 2010
- * Path:  /parser.c
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * GoAccess is released under the GNU/GPL License.
- * Copy of the GNU General Public License is attached to this source 
- * distribution for its full text.
+ * This program is free software; you can redistribute it and/or    
+ * modify it under the terms of the GNU General Public License as   
+ * published by the Free Software Foundation; either version 2 of   
+ * the License, or (at your option) any later version.              
+ *                                                                  
+ * This program is distributed in the hope that it will be useful,  
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of   
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
+ * GNU General Public License for more details.                     
+ *                                                                  
+ * A copy of the GNU General Public License is attached to this 
+ * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
@@ -108,20 +109,28 @@ static int
 process_request_bw (GHashTable * ht, const char *req, long long resp_size)
 {
     gpointer value_ptr;
-    gint value_int;
 
     if ((ht == NULL) || (req == NULL))
         return (EINVAL);
 
-    value_ptr = g_hash_table_lookup (ht, req);
-    if (value_ptr != NULL)
-        value_int = GPOINTER_TO_INT (value_ptr);
-    else
-        value_int = 0;
-    value_int += resp_size;
+    long long *ptr_value;
+    long long add_value;
 
-    /* replace the entry. old key will be freed by "free_key_value". */
-    g_hash_table_replace (ht, g_strdup (req), GINT_TO_POINTER (value_int));
+    value_ptr = g_hash_table_lookup (ht, req);
+    if (value_ptr != NULL) {
+        ptr_value = (long long *) value_ptr;
+        add_value = *ptr_value + resp_size;
+    } else
+        add_value = 0 + resp_size;
+
+    if (resp_size == -1)
+        add_value = 0;
+
+    ptr_value = g_malloc (sizeof (long long));
+    *ptr_value = add_value;
+
+    g_hash_table_replace (ht, g_strdup (req), ptr_value);
+    return 0;
 }
 
 static int
@@ -177,7 +186,7 @@ process_generic_data (GHashTable * ht, const char *key)
  ** with minor modifications **/
 #define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? \
                             ((x) - '0') : (toupper((x)) - 'A' + 10))
-char *
+static char *
 spc_decode_url (char *url)
 {
     char *out, *ptr;
@@ -230,9 +239,9 @@ process_keyphrases (char *ref)
             *p = ' ';
         p++;
     }
-
     process_generic_data (ht_keyphrases, dec);
     free (dec);
+
     return 0;
 }
 
@@ -311,37 +320,23 @@ parse_req (char *line)
 
         /* The last part of the request is the protocol being used, 
            at the time of this writing typically HTTP/1.0 or HTTP/1.1. */
-        if ((req_r = strstr (line, " HTTP")) == NULL) {
+        if ((req_r = strstr (line, " HTTP")) == NULL)
             /* didn't find it :( weird */
-            reqs = (char *) malloc (2);
-            if (reqs == NULL)
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                               "Unable to allocate memory");
-            sprintf (reqs, "-");
-            return reqs;
-        }
+            return alloc_string ("-");
 
         req_l += strlen (lookfor);
         ptrdiff_t req_len = req_r - req_l;
+
         /* make sure we don't have some weird requests */
-        if (req_len < 0) {
-            reqs = (char *) malloc (2);
-            if (reqs == NULL)
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                               "Unable to allocate memory");
-            sprintf (reqs, "-");
-            return reqs;
-        }
+        if (req_len < 0)
+            return alloc_string ("-");
+
         reqs = malloc (req_len + 1);
         strncpy (reqs, req_l, req_len);
         (reqs)[req_len] = 0;
-    } else {
-        reqs = (char *) malloc (2);
-        if (reqs == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                           "Unable to allocate memory");
-        sprintf (reqs, "-");
-    }
+    } else
+        reqs = alloc_string ("-");
+
     return reqs;
 }
 
@@ -378,13 +373,25 @@ parse_req_size (char *line, int format)
 }
 
 static int
-parse_request (struct logger *logger, char *line)
+parse_request (struct logger *logger, char *line, char *cpy_line)
 {
     char *ptr, *prb = NULL, *fqm = NULL, *sqm =
-        NULL, *host, *date, *ref, *hour = NULL;
+        NULL, *host, *date, *ref, *hour = NULL, *h, *p;
     int format = 0;
 
     host = line;
+    if ((h = strchr (line, ' ')) == NULL)
+        return 1;
+
+    /* vhost_combined? */
+    for (p = h; *p; p++) {
+        if (isdigit (p[1]) && isspace (p[0])) {
+            host = h + 1;
+            line = h + 1;
+        } else
+            break;
+    }
+
     if ((date = strchr (line, '[')) == NULL)
         return 1;
     date++;
@@ -418,8 +425,6 @@ parse_request (struct logger *logger, char *line)
         hour++;
     else
         hour = "-";
-
-    char *cpy_line = strdup (line);
 
     if (!bandwidth_flag)
         goto nobanwidth;
@@ -455,17 +460,12 @@ parse_request (struct logger *logger, char *line)
         goto nohttpstatuscode;
 
     char *lookfor = NULL, *s_l;
-    if ((lookfor = "1.0\" ", s_l = strstr (cpy_line, lookfor)) != NULL ||
-        (lookfor = "1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL) {
-        status_code = clean_status (s_l + 5);
-    } else {
+    if ((lookfor = "/1.0\" ", s_l = strstr (cpy_line, lookfor)) != NULL ||
+        (lookfor = "/1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL)
+        status_code = clean_status (s_l + 6);
+    else
         /* perhaps something wrong with the log */
-        status_code = (char *) malloc (8);
-        if (status_code == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                           "Unable to allocate memory");
-        sprintf (status_code, "Invalid");
-    }
+        status_code = alloc_string ("---");
   nohttpstatuscode:;
 
     logger->host = host;
@@ -479,7 +479,6 @@ parse_request (struct logger *logger, char *line)
     if (http_status_code_flag)
         logger->status = status_code;
 
-    free (cpy_line);
     return 0;
 }
 
@@ -492,7 +491,7 @@ process_log (struct logger *logger, char *line)
 
     /* Make compiler happy */
     memset (&log, 0, sizeof (log));
-    if (parse_request (&log, line) != 0) {
+    if (parse_request (&log, line, cpy_line) != 0) {
         free (cpy_line);
         logger->total_invalid++;
         return 0;
@@ -632,12 +631,12 @@ generate_struct_data (GHashTable * hash_table,
      case 2:
          head = " 2 - Requested files (Pages-URL)";
          desc =
-             " Top 6 different files requested sorted by requests - percent - bandwidth";
+             " Top 6 different files requested sorted by requests - percent - [bandwidth]";
          break;
      case 3:
          head = " 3 - Requested static files - (Static content: png,js,etc)";
          desc =
-             " Top 6 different static files requested, sorted by requests - percent - bandwidth";
+             " Top 6 different static files requested, sorted by requests - percent - [bandwidth]";
          break;
      case 4:
          head = " 4 - Referrers URLs";
