@@ -54,19 +54,19 @@
 #define BLACK_GREEN  8
 #define BLACK_CYAN   9
 #define WHITE_RED    10
-    enum MODULES
+   enum MODULES
 {
-    UNIQUE_VISITORS = 1,
-    REQUESTS,
-    REQUESTS_STATIC,
-    REFERRERS,
-    NOT_FOUND,
-    OS,
-    BROWSERS,
-    HOSTS,
-    STATUS_CODES,
-    REFERRING_SITES,
-    KEYPHRASES
+   UNIQUE_VISITORS = 1,
+   REQUESTS,
+   REQUESTS_STATIC,
+   REFERRERS,
+   NOT_FOUND,
+   OS,
+   BROWSERS,
+   HOSTS,
+   STATUS_CODES,
+   REFERRING_SITES,
+   KEYPHRASES
 };
 
 extern enum MODULES modules;
@@ -88,42 +88,42 @@ extern GHashTable *ht_file_bw;
 
 struct logger
 {
-    char *host;
-    char *identd;
-    char *userid;
-    char *hour;
-    char *date;
-    char *request;
-    char *status;
-    char *referrer;
-    char *agent;
-    long long resp_size;
-    int total_process;
-    int total_invalid;
-    int counter;
-    int alloc_counter;
-    int current_module;
-    int max_value;
+   char *host;
+   char *identd;
+   char *userid;
+   char *hour;
+   char *date;
+   char *request;
+   char *status;
+   char *referrer;
+   char *agent;
+   long long resp_size;
+   int total_process;
+   int total_invalid;
+   int counter;
+   int alloc_counter;
+   int current_module;
+   int max_value;
 };
 
 struct struct_display
 {
-    char *data;
-    int hits;
-    int module;
+   char *data;
+   int hits;
+   int module;
 };
 
 struct struct_holder
 {
-    char *data;
-    int hits;
+   char *data;
+   int hits;
 };
 
 struct scrolling
 {
-    size_t scrl_main_win;
-    size_t scrl_help_win;
-    size_t init_scrl_main_win;
+   size_t scrl_main_win;
+   size_t scrl_help_win;
+   size_t init_scrl_main_win;
 };
 
 struct tm *now_tm;
