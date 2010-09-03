@@ -2,8 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.3], [goaccess@prosoftcorp.com])
-AM_INIT_AUTOMAKE(goaccess, 0.3)
+AC_INIT([goaccess], [0.3-1], [goaccess@prosoftcorp.com])
+AM_INIT_AUTOMAKE(goaccess, 0.3-1)
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
 
