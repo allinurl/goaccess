@@ -53,6 +53,7 @@ GHashTable *ht_keyphrases = NULL;
 GHashTable *ht_file_bw = NULL;
 
 enum MODULES modules;
+enum SCHEMES schemes;
 
 /* enable flags */
 int ignore_flag = 0;
@@ -60,6 +61,7 @@ int stripped_flag = 0;
 int bandwidth_flag = 0;
 long long req_size = 0;
 int http_status_code_flag = 0;
+int color_scheme = 1;
 
 /* string processing */
 char *req;
@@ -78,6 +80,9 @@ size_t real_size_y = 0;
 
 /* file */
 char *ifile = NULL;
+char *conf_keywords[][2] = {
+   {"1", "color_scheme"},
+};
 
 char *module_names[] = {
    "  Visitors - ^s^ sort by date - ^S^ sort by hits",
@@ -253,12 +258,18 @@ init_colors (void)
 {
    use_default_colors ();
    init_pair (COL_BLUE, COLOR_BLUE, -1);
-   init_pair (COL_GREEN, COLOR_WHITE, -1);
+   if (color_scheme == MONOCHROME)
+      init_pair (COL_GREEN, COLOR_WHITE, -1);
+   else
+      init_pair (COL_GREEN, COLOR_GREEN, -1);
    init_pair (COL_RED, COLOR_RED, -1);
    init_pair (COL_BLACK, COLOR_BLACK, -1);
    init_pair (COL_CYAN, COLOR_CYAN, -1);
    init_pair (COL_YELLOW, COLOR_YELLOW, -1);
-   init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);
+   if (color_scheme == MONOCHROME)
+      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_WHITE);
+   else
+      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);
    init_pair (BLACK_GREEN, COLOR_BLACK, COLOR_GREEN);
    init_pair (BLACK_CYAN, COLOR_BLACK, COLOR_CYAN);
    init_pair (WHITE_RED, COLOR_WHITE, COLOR_RED);
@@ -286,4 +297,10 @@ size_t
 help_main_size ()
 {
    return sizeof (help_main) / sizeof (help_main[0]);
+}
+
+size_t
+keywords_size ()
+{
+   return sizeof (conf_keywords) / sizeof (conf_keywords[0]);
 }

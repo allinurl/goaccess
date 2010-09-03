@@ -33,7 +33,7 @@
 #define BUFFER 			4096
 #define MAX_CHOICES 	100
 #define TOTAL_MODULES 	11
-#define GO_VERSION 		"0.3"
+#define GO_VERSION 		"0.3.1"
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 /* max height of header window (rows) */
@@ -69,7 +69,14 @@
    KEYPHRASES
 };
 
+enum SCHEMES
+{
+   MONOCHROME = 1,
+   STD_GREEN
+};
+
 extern enum MODULES modules;
+extern enum SCHEMES schemes;
 
 /* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_unique_visitors;
@@ -136,6 +143,7 @@ extern long long req_size;
 extern char *req;
 extern char *status_code;
 extern char *ignore_host;
+extern int color_scheme;
 
 extern time_t now;
 extern time_t start_proc;
@@ -146,6 +154,7 @@ extern size_t term_w;
 extern size_t real_size_y;
 
 extern char *ifile;
+extern char *conf_keywords[][2];
 
 extern char *codes[][2];
 extern char *module_names[];

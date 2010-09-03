@@ -81,9 +81,13 @@ generate_time (void)
 void
 draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
 {
-   init_pair (1, COLOR_BLACK, COLOR_GREEN);
-   init_pair (2, COLOR_BLACK, COLOR_CYAN);
-
+   if (color_scheme == MONOCHROME) {
+      init_pair (1, COLOR_BLACK, COLOR_WHITE);
+      init_pair (2, COLOR_WHITE, -1);
+   } else {
+      init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      init_pair (2, COLOR_BLACK, COLOR_CYAN);
+   }
    wattron (win, COLOR_PAIR (color));
    mvwhline (win, y, x, ' ', w);
    mvwaddnstr (win, y, x, header, w);
@@ -631,6 +635,93 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
           break;
       }
    }
+   render_screens ();
+   return;
+}
+
+static void
+scheme_choosen (char *name)
+{
+   if (strcmp ("Monochrome/Default", name) == 0)
+      color_scheme = MONOCHROME;
+   else
+      color_scheme = STD_GREEN;
+   init_colors ();
+   render_screens ();
+}
+
+void
+load_schemes_win (WINDOW * schemes_win)
+{
+   int y, x, c, quit = 1, n_choices, i;
+   char *choices[] = { "Monochrome/Default", "Green/Original" };
+   MENU *menu;
+   ITEM **my_items;
+   ITEM *cur_item;
+
+   /* Create items */
+   n_choices = ARRAY_SIZE (choices);
+   my_items = (ITEM **) malloc (sizeof (ITEM *) * (n_choices + 1));
+   for (i = 0; i < n_choices; ++i) {
+      my_items[i] = new_item (choices[i], choices[i]);
+      set_item_userptr (my_items[i], scheme_choosen);
+   }
+   my_items[n_choices] = (ITEM *) NULL;
+
+   /* crate menu */
+   menu = new_menu (my_items);
+   menu_opts_off (menu, O_SHOWDESC);
+   keypad (schemes_win, TRUE);
+
+   /* set main window and sub window */
+   set_menu_win (menu, schemes_win);
+   set_menu_sub (menu, derwin (schemes_win, 6, 38, 3, 1));
+   set_menu_format (menu, 5, 1);
+   set_menu_mark (menu, " => ");
+
+   getmaxyx (schemes_win, y, x);
+   draw_header (schemes_win, "  Color schemes - q:quit", 0, 1, x - 1, 2);
+   wborder (schemes_win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+   post_menu (menu);
+   wrefresh (schemes_win);
+   /* ###TODO: resize child windows. */
+   /* for now we can close them up */
+   while (quit) {
+      c = wgetch (stdscr);
+      switch (c) {
+       case KEY_DOWN:
+          menu_driver (menu, REQ_DOWN_ITEM);
+          break;
+       case KEY_UP:
+          menu_driver (menu, REQ_UP_ITEM);
+          break;
+       case 32:
+       case 0x0a:
+       case 0x0d:
+       case KEY_ENTER:
+          cur_item = current_item (menu);
+          if (cur_item == NULL)
+             break;
+          void (*p) (char *);
+          p = item_userptr (cur_item);
+          p ((char *) item_name (cur_item));
+          pos_menu_cursor (menu);
+          quit = 0;
+          break;
+       case KEY_RESIZE:
+       case 'q':
+          quit = 0;
+          break;
+      }
+      wrefresh (schemes_win);
+   }
+   unpost_menu (menu);
+   free_menu (menu);
+   for (i = 0; i < n_choices; ++i) {
+      free_item (my_items[i]);
+   }
+   free (my_items);
    render_screens ();
    return;
 }

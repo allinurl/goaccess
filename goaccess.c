@@ -43,7 +43,7 @@
 #include "ui.h"
 #include "parser.h"
 
-static WINDOW *header_win, *main_win, *my_menu_win, *help_win;
+static WINDOW *header_win, *main_win, *my_menu_win, *help_win, *schemes_win;
 
 static int initial_reqs = 0;
 static struct logger *logger;
@@ -198,7 +198,7 @@ render_screens (void)
    mvprintw (row - 1, 32, "Updated: %d - %s", chg, asctime (now_tm));
    mvaddstr (row - 1, col - 21, "[Q]uit Analyzer");
 
-   mvprintw (row - 1, col - 5, "v%s", GO_VERSION);
+   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
    wattroff (stdscr, COLOR_PAIR (COL_WHITE));
    display_content (main_win, s_display, logger, scrolling);
 
@@ -331,6 +331,16 @@ get_keys (void)
           wrefresh (help_win);
           touchwin (main_win);
           close_win (help_win);
+          break;
+       case 99:
+          schemes_win = newwin (10, 40, 8, 20);
+          if (schemes_win == NULL)
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory for new window.");
+          load_schemes_win (schemes_win);
+          wrefresh (schemes_win);
+          touchwin (main_win);
+          close_win (schemes_win);
           break;
        case 269:
        case KEY_RESIZE:
@@ -465,6 +475,7 @@ main (int argc, char *argv[])
    keypad (stdscr, TRUE);
    curs_set (0);
    start_color ();
+   parse_conf_file ();
    init_colors ();
 
    attron (COLOR_PAIR (COL_WHITE));
@@ -505,6 +516,7 @@ main (int argc, char *argv[])
    render_screens ();
    get_keys ();
 
+   write_conf_file ();
    house_keeping (logger, s_display);
    attroff (COLOR_PAIR (COL_WHITE));
 

@@ -39,6 +39,7 @@ void do_scrolling (WINDOW * main_win, struct struct_display **s_display,
                    struct logger *logger, struct scrolling *scrolling,
                    int cmd);
 void load_help_popup (WINDOW * help_win);
+void load_schemes_win (WINDOW * schemes_win);
 void load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr);
 void load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
                  struct logger *logger);
