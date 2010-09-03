@@ -225,6 +225,7 @@ char *help_main[] = {
    " ^F5^    redraw [main window]",
    " ^q^     quit the program/current window",
    " ^o^     open detail view for selected module",
+   " ^c^     set or change scheme color",
    " ^RIGHT ARROW^ open detail view for selected",
    "         module",
    " ^TAB^   iterate modules (forward)",
