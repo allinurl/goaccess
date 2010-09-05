@@ -1,3 +1,7 @@
+Changes to GoAccess 0.3.1 - Friday, September 03, 2010
+
+    * Added a color scheme implementation
+
 Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
     * Fixed invalid entries when parsing status codes

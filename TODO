@@ -5,7 +5,7 @@ This is the todo list for GoAccess.
 If you are interested in working on any of these, email goaccess@prosoftcorp.com.
 
 * General:
- - Really support UTF-8
+ - Better support for UTF-8
  - Support for parsing IPv6
  - Filtering data by date.
  - Increase the performance when parsing the log file.
