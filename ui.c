@@ -640,7 +640,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 }
 
 static void
-scheme_choosen (char *name)
+scheme_chosen (char *name)
 {
    if (strcmp ("Monochrome/Default", name) == 0)
       color_scheme = MONOCHROME;
@@ -664,7 +664,7 @@ load_schemes_win (WINDOW * schemes_win)
    my_items = (ITEM **) malloc (sizeof (ITEM *) * (n_choices + 1));
    for (i = 0; i < n_choices; ++i) {
       my_items[i] = new_item (choices[i], choices[i]);
-      set_item_userptr (my_items[i], scheme_choosen);
+      set_item_userptr (my_items[i], scheme_chosen);
    }
    my_items[n_choices] = (ITEM *) NULL;
 
