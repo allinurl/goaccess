@@ -1,3 +1,7 @@
+Changes to GoAccess 0.3.2 - Thursday, September 09, 2010
+
+    * Fixed an agent parsing issue. As a result, operating systems were not properly counted.
+
 Changes to GoAccess 0.3.1 - Friday, September 03, 2010
 
     * Added a color scheme implementation

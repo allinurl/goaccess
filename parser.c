@@ -156,11 +156,11 @@ process_generic_data (GHashTable * ht, const char *key)
    /* replace the entry. old key will be freed by "free_key_value". */
    g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
    if (first && ht == ht_unique_visitors) {
-      char *mykey, *b_key, *o_key;
-      mykey = strdup (key);
+      char *dup_k_b = strdup (key), *dup_k_o = strdup (key);
+      char *b_key = NULL, *o_key = NULL;
       /* get browser & OS from agent */
-      b_key = verify_browser (mykey);
-      o_key = verify_os (mykey);
+      b_key = verify_browser (dup_k_b);
+      o_key = verify_os (dup_k_o);
       /* insert new keys & values */
       process_generic_data (ht_browsers, b_key);
       process_generic_data (ht_os, o_key);
@@ -168,10 +168,10 @@ process_generic_data (GHashTable * ht, const char *key)
       process_generic_data (ht_browsers, verify_browser_type (b_key));
       process_generic_data (ht_os, verify_os_type (o_key));
       /* clean stuff up */
-      free (mykey);
+      free (dup_k_b);
+      free (dup_k_o);
       free (o_key);
       free (b_key);
-
       if ((date = strchr (key, '|')) != NULL) {
          char *tmp;
          tmp = clean_date (date);

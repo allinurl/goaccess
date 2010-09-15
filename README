@@ -2,7 +2,7 @@ Copyright (C) 2010
 Gerardo Orellana <goaccess@prosoftcorp.com>
 http://goaccess.prosoftcorp.com/
 
-Sunday, July 25, 2010
+Thursday, September 09 2010
 
 INTRODUCTION
 -------------
@@ -13,11 +13,11 @@ visual report on the fly.
 
 How it works and what it does?
 -------------------------------
-Well, basically the way GoAccess works is by parsing the well-known 
-Apache access log file, then GoAccess will collect data from the 
-parsed file and it will display it to the console or the X terminal. 
-The collected information will be displayed to the user (sysadmin) 
-in a visual/interactive window. This information includes data such as:
+Essentially, the way GoAccess works is that it will parse the 
+well-known Apache access log file, from there, GoAccess will collect data 
+from the parsed file and it will display it to the console or the X terminal. 
+The collected information or generated reports will be displayed to the 
+user/sysadmin in a visual/interactive window. Reports include:
 
     * General Statistics, Bandwidth etc.
     * Top Visitors
@@ -31,35 +31,36 @@ in a visual/interactive window. This information includes data such as:
     * HTTP Status Codes
     * Referring Sites
     * Keyphrases
+    * Different Color Schemes
+    * Unlimited log file size
 
 Why GoAccess?
 -------------
 The main idea behind GoAccess is being able to quickly analyze 
-and view web server statistics without having to generate huge reports. 
-You can see it more as a monitor command tool than anything else. 
-(or at least that's the intended purpose)
-
+and view web server statistics in real time  without having to 
+generate huge web reports. You can see it more as a monitor 
+command tool than anything else. (or at least that's the intended purpose)
 
 Keys
 ----
 The user can make use of the following keys:
 
-    * ^F1^            main help
-    * ^F5^            Redraw main window
-    * ^q^             quit the program/current window
-    * ^o^             open detail view for selected module
-    * ^TAB^           iterate modules (forward)
-    * ^SHIFT^ + ^TAB^ iterate modules (backward)
-    * ^RIGHT ARROW^   open detail view for selected module
-    * ^0-9^           select module so the user can open a
-    		          [detail view] with either ^o^ or ^RIGHT ARROW^ 
-    * ^SHIFT^ + ^0-9^ activate module above 10
-	* ^s^             [detail view] sort unique visitors by date
-    * ^S^             [detail view] sort unique visitors by hits
-    * ^/^             [detail view] search forward for the
-                      occurrence of pattern 
-	* ^n^             [detail view] find the position of the next
-					  occurrence 
-	* ^t^ 			  [detail view] move to the first item
-    * ^b^ 			  [detail view] move to the last item
+   * ^F1^            main help
+   * ^F5^            Redraw main window
+   * ^q^             quit the program/current window
+   * ^o^             open detail view for selected module
+   * ^TAB^           iterate modules (forward)
+   * ^SHIFT^ + ^TAB^ iterate modules (backward)
+   * ^RIGHT ARROW^   open detail view for selected module
+   * ^0-9^           select module so the user can open a
+                     [detail view] with either ^o^ or ^RIGHT ARROW^ 
+   * ^SHIFT^ + ^0-9^ activate module above 10
+   * ^s^             [detail view] sort unique visitors by date
+   * ^S^             [detail view] sort unique visitors by hits
+   * ^/^             [detail view] search forward for the
+                     occurrence of pattern 
+   * ^n^             [detail view] find the position of the next
+                     occurrence 
+   * ^t^ 			   [detail view] move to the first item
+   * ^b^ 			   [detail view] move to the last item
 
