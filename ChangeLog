@@ -1,3 +1,8 @@
+Changes to GoAccess 0.3.3 - Saturday, September 18, 2010
+
+    * Fixed a request size parsing issue. Due to malformed syntax on the HTTP protocol sent by the client, bandwidth was reset to 0.
+      Ex. "HEAD /" 400 20392
+
 Changes to GoAccess 0.3.2 - Thursday, September 09, 2010
 
     * Fixed an agent parsing issue. As a result, operating systems were not properly counted.
@@ -39,7 +44,7 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
 Changes to GoAccess 0.1.2 - Monday, July 12 2010
 
     * Fixed a segmentation fault when parsing logs with unusual request type. 
-        Ex. ("GET HTTP/1.1 HTTP/1.1")
+      Ex. "GET HTTP/1.1 HTTP/1.1"
 
 Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 

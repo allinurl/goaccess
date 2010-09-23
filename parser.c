@@ -432,7 +432,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
    if (band_size != -1)
       req_size = req_size + band_size;
    else
-      req_size = req_size + 0;
+      band_size = 0;
  nobanwidth:;
 
    if ((ptr = strchr (host, ' ')) == NULL)
@@ -463,7 +463,8 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
        (lookfor = "/1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL)
       status_code = clean_status (s_l + 6);
    else
-      /* perhaps something wrong with the log */
+      /* perhaps something wrong with the log,
+         more likely malformed request syntax */
       status_code = alloc_string ("---");
  nohttpstatuscode:;
 

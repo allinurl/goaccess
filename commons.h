@@ -33,7 +33,7 @@
 #define BUFFER 			4096
 #define MAX_CHOICES 	100
 #define TOTAL_MODULES 	11
-#define GO_VERSION 		"0.3.2"
+#define GO_VERSION 		"0.3.3"
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 /* max height of header window (rows) */
