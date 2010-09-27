@@ -1042,7 +1042,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
     * might be a better way to go */
    if (logger->current_module == BROWSERS)
       choices = g_hash_table_size (hash_table);
-   else if (g_hash_table_size (hash_table) > 100)
+   else if (g_hash_table_size (hash_table) > 300)
       choices = MAX_CHOICES;
    else
       choices = g_hash_table_size (hash_table);
