@@ -36,5 +36,5 @@ error_handler (const char *func, char *file, int line, char *msg)
    fprintf (stderr, "\nAn error has occurred");
    fprintf (stderr, "\nError occured at: %s - %s - %d", file, func, line);
    fprintf (stderr, "\nMessage: %s\n\n", msg);
-   abort ();
+   exit (EXIT_FAILURE);
 }
