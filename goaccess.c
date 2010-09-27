@@ -91,7 +91,7 @@ cmd_help (void)
    printf ("  -e  - Exclude an IP from being counted under the HOST\n");
    printf ("        module. This has been disabled by default. \n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com \n\n");
-   exit (1);
+   exit (EXIT_FAILURE);
 }
 
 static void
@@ -178,6 +178,7 @@ allocate_structs (int free_me)
 
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referring_sites));
    generate_struct_data (ht_referring_sites, s_holder, s_display, logger, 10);
+
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_keyphrases));
    generate_struct_data (ht_keyphrases, s_holder, s_display, logger, 11);
 }
@@ -384,7 +385,7 @@ main (int argc, char *argv[])
 {
    extern char *optarg;
    extern int optind, optopt, opterr;
-   int row, col, o, bflag = 0, sflag = 0;
+   int row, col, o, index;
 
    if (argc < 2)
       cmd_help ();
@@ -400,15 +401,15 @@ main (int argc, char *argv[])
           ignore_host = optarg;
           break;
        case 's':
-          sflag = 1;
           http_status_code_flag = 1;
           break;
        case 'b':
-          bflag = 1;
           bandwidth_flag = 1;
           break;
        case '?':
-          if (isprint (optopt))
+          if (optopt == 'f' || optopt == 'e')
+             fprintf (stderr, "Option -%c requires an argument.\n", optopt);
+          else if (isprint (optopt))
              fprintf (stderr, "Unknown option `-%c'.\n", optopt);
           else
              fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
@@ -417,6 +418,10 @@ main (int argc, char *argv[])
           abort ();
       }
    }
+   if (!ifile)
+      cmd_help ();
+   for (index = optind; index < argc; index++)
+      cmd_help ();
 
    /* initialize hash tables */
    ht_unique_visitors =
