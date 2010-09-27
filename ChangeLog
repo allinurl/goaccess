@@ -1,7 +1,9 @@
-Changes to GoAccess 0.3.3 - Saturday, September 18, 2010
+Changes to GoAccess 0.3.3 - Monday, September 27, 2010
 
-    * Fixed a request size parsing issue. Due to malformed syntax on the HTTP protocol sent by the client, bandwidth was reset to 0.
-      Ex. "HEAD /" 400 20392
+   * Fixed a request size parsing issue. Due to malformed syntax on the HTTP protocol, bandwidth was reset to 0.
+     Ex. "HEAD /" 400 20392
+   * Fixed a segfault when goaccess was executed without any options but with an additional unknown argument.
+   * Tarball's filename was changed.
 
 Changes to GoAccess 0.3.2 - Thursday, September 09, 2010
 

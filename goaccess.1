@@ -1,6 +1,6 @@
 .TH goaccess 1 "JULY 2010" Linux "User Manuals"
 .SH NAME
-goaccess \-  a fast and open source Apache Web Log Analyzer
+goaccess \- fast log analyzer and interactive viewer for the Apache web server
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
@@ -8,11 +8,12 @@ goaccess \-  a fast and open source Apache Web Log Analyzer
 .I [-b] [-s] [-e]
 .SH DESCRIPTION
 .B goaccess
-is a free (GPL) and open source Apache web log 
-analyzer that provides fast and valuable HTTP statistics 
-for system administrators that require a visual report on the fly.
-GoAccess will parse the well-known Apache access log file, 
-then it will collect data from the parsed file and it will display it 
+is a free (GPL) real-time Apache web log analyzer and interactive 
+viewer that runs in a terminal in *nix systems. 
+It provides fast and valuable HTTP statistics for system 
+administrators that require a visual server report on the fly.
+First it will parse the access log file, then it will collect data 
+from the parsed file and it will display it 
 to the console or the X terminal. The collected information will be 
 displayed to the user in a visual/interactive window. 
 The collected information includes:
@@ -22,7 +23,7 @@ Total number of valid requests,
 Total number of invalid requests,
 Total time to analyze the data,
 Total unique visitors, 
-Total unique requests files,
+Total unique requested files,
 Total unique static files 
 .IR (css, ico, jpg, js, swf, gif, png)
 Total unique HTTP referrers (URLs),
@@ -34,7 +35,7 @@ Total bandwidth consumption.
 HTTP requests having the same IP, 
 same date and same agent will be 
 considered a unique visit. 
-.I (including spiders).
+.I (including crawlers).
 .B {Detail view} is available for this module
 .IP "Requested files"
 The totals are based on unique requested files. 
@@ -94,10 +95,10 @@ This has been disabled by default.
 .IP "-f input-file"
 path to input log filename
 .IP -s
-Enable/report HTTP status codes. To avoid overhead while parsing,
-this has been disabled by default.
+Enable HTTP response status codes report. To avoid overhead while parsing,
+this feature has been disabled by default.
 .IP -e
-Exclude an IP from being count it under the HOST module.
+Exclude an IP from being counted under the HOST module.
 This has been disabled by default.
 
 .SH INTERACTIVE MENU
