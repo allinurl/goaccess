@@ -153,7 +153,7 @@ char *browsers[][2] = {
    {"archive.org_bot", "Crawlers"}, {"Google-Sitemaps", "Crawlers"},
    {"PostRank", "Crawlers"}, {"KaloogaBot", "Crawlers"},
    {"Twitter", "Crawlers"}, {"yacy", "Crawlers"}, {"Nutch", "Crawlers"},
-   {"ichiro", "Crawlers"}, {"Sogou", "Crawlers"},
+   {"ichiro", "Crawlers"}, {"Sogou", "Crawlers"}, {"wikiwix", "Crawlers"},
    {"KaloogaBot", "Crawlers"}, {"Mozilla", "Others"}
 };
 
@@ -169,8 +169,8 @@ char *codes[][2] = {
    {"206", "Partial Content - The partial GET has been successful"},
    {"300", "Multiple Choices - Multiple options for the resource"},
    {"301", "Moved Permanently - Resource has permanently moved"},
-   {"302", "Moved Temporarily"},
-   {"303", "See Other - The response is at a different URI"},
+   {"302", "Moved Temporarily (redirect)"},
+   {"303", "See Other Document - The response is at a different URI"},
    {"304", "Not Modified - Resource has not been modified"},
    {"305", "Use Proxy - Can only be accessed through the proxy"},
    {"307", "Temporary Redirect - Resource temporarily moved"},
@@ -187,8 +187,8 @@ char *codes[][2] = {
    {"410", "Gone - Resource requested is no longer available"},
    {"411", "Length Required - Invalid Content-Length"},
    {"412", "Precondition Failed - Server does not meet preconditions"},
-   {"413", "Request entity Too Long"},
-   {"414", "Request-URI Too Long"},
+   {"413", "Requested Entity Too Long"},
+   {"414", "Requested Filename Too Long"},
    {"415", "Unsupported Media Type - Media type is not supported"},
    {"416", "Requested Range Not Satisfiable - Cannot supply that portion"},
    {"417", "Expectation Failed"},
