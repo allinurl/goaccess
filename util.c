@@ -68,8 +68,8 @@ alloc_string (const char *str)
 {
    char *new = malloc (strlen (str) + 1);
    if (new == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
+      error_handler (__PRETTY_FUNCTION__,
+                     __FILE__, __LINE__, "Unable to allocate memory");
    strcpy (new, str);
    return new;
 }
@@ -234,8 +234,8 @@ filesize_str (off_t log_size)
 {
    char *size = (char *) malloc (sizeof (char) * 10);
    if (size == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
+      error_handler (__PRETTY_FUNCTION__,
+                     __FILE__, __LINE__, "Unable to allocate memory");
    if (log_size >= GB)
       snprintf (size, 10, "%.2f GB", (double) (log_size) / GB);
    else if (log_size >= MB)

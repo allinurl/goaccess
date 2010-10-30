@@ -171,6 +171,7 @@ allocate_structs (int free_me)
 
    if (!http_status_code_flag)
       goto nohttpstatuscode;
+
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_status_code));
    generate_struct_data (ht_status_code, s_holder, s_display, logger, 9);
 
@@ -360,7 +361,8 @@ get_keys (void)
           /* file has changed */
           if (size2 != size1) {
              if (!(fp = fopen (ifile, "r")))
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                error_handler (__PRETTY_FUNCTION__,
+                               __FILE__, __LINE__,
                                "Unable to read log file.");
              if (!fseeko (fp, size1, SEEK_SET))
                 while (fgets (buf, BUFFER, fp) != NULL)

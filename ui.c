@@ -302,7 +302,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
          if (strlen (s_display[i]->data) > ((size_t) (col - 32))) {
             char *str = (char *) malloc (col - 32 + 1);
             if (str == NULL)
-               error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+               error_handler (__PRETTY_FUNCTION__,
+                              __FILE__, __LINE__,
                               "Unable to allocate memory");
             strncpy (str, s_display[i]->data, col - 32);
             (str)[col - 32] = 0;
@@ -316,8 +317,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    } else if (strlen (s_display[i]->data) > ((size_t) (col - 22))) {
       char *str = (char *) malloc (col - 22 + 1);
       if (str == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        "Unable to allocate memory");
+         error_handler (__PRETTY_FUNCTION__,
+                        __FILE__, __LINE__, "Unable to allocate memory");
       strncpy (str, s_display[i]->data, col - 22);
       (str)[col - 22] = 0;
       mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", str);
@@ -749,8 +750,8 @@ convert_hits_to_string (int nhits)
    char *hits = NULL;
    hits = (char *) malloc (sizeof (char) * 11);
    if (hits == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
+      error_handler (__PRETTY_FUNCTION__,
+                     __FILE__, __LINE__, "Unable to allocate memory");
    sprintf (hits, "%3i", nhits);
    return hits;
 }
@@ -794,8 +795,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           hits = convert_hits_to_string (s_holder[i]->hits);
           buffer_date = (char *) malloc (sizeof (char) * 13);
           if (buffer_date == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__,
+                            __FILE__, __LINE__, "Unable to allocate memory");
           strptime (s_holder[i]->data, "%Y%m%d", &tm);
           strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
           sprintf (buffer_date, "%s", buf);
@@ -816,8 +817,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           w_bw = malloc (snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits)
                          + 2);
           if (w_bw == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__,
+                            __FILE__, __LINE__, "Unable to allocate memory");
           sprintf (w_bw, "%9s - %d", bw, s_holder[i]->hits);
           items[i] = new_item (w_bw, s_holder[i]->data);
           free (bw);
@@ -833,8 +834,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                      (NULL, 0, "|`- %s",
                       get_browser_type (s_holder[i]->data)) + 1);
           if (o_version == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__,
+                            __FILE__, __LINE__, "Unable to allocate memory");
           sprintf (o_version, "|`- %s", get_browser_type (s_holder[i]->data));
           items[i] = new_item (hits, o_version);
           break;
@@ -849,8 +850,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                      (NULL, 0, "|`- %s",
                       get_browser_type (s_holder[i]->data)) + 1);
           if (b_version == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__,
+                            __FILE__, __LINE__, "Unable to allocate memory");
           sprintf (b_version, "|`- %s", get_browser_type (s_holder[i]->data));
           items[i] = new_item (hits, b_version);
           break;
@@ -859,14 +860,15 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           status_code = verify_status_code (s_holder[i]->data);
           token = (char *) malloc (sizeof (char) * 64);
           if (token == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__,
+                            __FILE__, __LINE__, "Unable to allocate memory");
           if (sscanf (status_code, "%[^-]", token) == 1) {
              status_str =
                 malloc (snprintf
                         (NULL, 0, "%s %s", s_holder[i]->data, token) + 1);
              if (status_str == NULL)
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                error_handler (__PRETTY_FUNCTION__,
+                               __FILE__, __LINE__,
                                "Unable to allocate memory");
              sprintf (status_str, "%s %s", s_holder[i]->data, token);
              items[i] = new_item (hits, status_str);
