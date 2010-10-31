@@ -25,15 +25,15 @@
 #include "commons.h"
 #endif
 
+int parse_log (struct logger *logger, char *filename, char *tail);
+int struct_cmp_asc (const void *a, const void *b);
 int struct_cmp_by_hits (const void *a, const void *b);
 int struct_cmp_desc (const void *a, const void *b);
-int struct_cmp_asc (const void *a, const void *b);
-int parse_log (struct logger *logger, char *filename, char *tail);
-void generate_unique_visitors (struct struct_display **s_display,
-                               struct logger *logger);
 void generate_struct_data (GHashTable * hash_table,
                            struct struct_holder **s_holder,
                            struct struct_display **s_display,
                            struct logger *logger, int module);
+void generate_unique_visitors (struct struct_display **s_display,
+                               struct logger *logger);
 
 #endif

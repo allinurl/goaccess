@@ -30,16 +30,16 @@
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
 
-#include <string.h>
 #include <curses.h>
-#include <time.h>
-#include <menu.h>
-#include <glib.h>
-#include <stdlib.h>
 #include <GeoIP.h>
-#include <unistd.h>
-#include <sys/stat.h>
+#include <glib.h>
 #include <math.h>
+#include <menu.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "parser.h"
 #include "alloc.h"
@@ -47,8 +47,8 @@
 #include "util.h"
 #include "ui.h"
 
-static MENU *my_menu = NULL;
 static ITEM **items = NULL;
+static MENU *my_menu = NULL;
 
 /* creation - ncurses' window handling */
 WINDOW *
@@ -760,18 +760,19 @@ static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                 int choices, int sort)
 {
-   int i;
-   char *hits = NULL;
    char buf[12] = "";
    char *buffer_date = NULL, *b_version = NULL, *o_version = NULL;
+   char *hits = NULL;
    char *p = NULL, *b;
-   struct tm tm;
+   int i;
    ITEM **items;
+   struct struct_dates **s_dates;
+   struct tm tm;
 
    /* requests module */
+   char *bw, *w_bw, *status_code, *token, *status_str;
    gpointer value_ptr;
    long long *ptr_value;
-   char *bw, *w_bw, *status_code, *token, *status_str;
 
    memset (&tm, 0, sizeof (tm));
 

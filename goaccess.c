@@ -23,18 +23,18 @@
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
-#include <string.h>
-#include <stdlib.h>
+#include <assert.h>
+#include <ctype.h>
 #include <curses.h>
 #include <glib.h>
-#include <stdint.h>
-#include <sys/types.h>
-#include <menu.h>
-#include <sys/stat.h>
-#include <assert.h>
-#include <unistd.h>
-#include <ctype.h>
 #include <locale.h>
+#include <menu.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "error.h"
 #include "alloc.h"
@@ -67,11 +67,11 @@ init_struct (void)
    if ((logger = malloc (sizeof (*logger))) == NULL)
       return NULL;
 
-   logger->total_process = 0;
-   logger->total_invalid = 0;
-   logger->counter = 0;
    logger->alloc_counter = 0;
+   logger->counter = 0;
    logger->current_module = 1;
+   logger->total_invalid = 0;
+   logger->total_process = 0;
 
    return logger;
 }
@@ -108,19 +108,19 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
    free (s_display);
    free (logger);
 
-   g_hash_table_destroy (ht_unique_vis);
+   g_hash_table_destroy (ht_browsers);
+   g_hash_table_destroy (ht_file_bw);
+   g_hash_table_destroy (ht_hosts);
+   g_hash_table_destroy (ht_keyphrases);
+   g_hash_table_destroy (ht_not_found_requests);
+   g_hash_table_destroy (ht_os);
    g_hash_table_destroy (ht_referrers);
+   g_hash_table_destroy (ht_referring_sites);
    g_hash_table_destroy (ht_requests);
    g_hash_table_destroy (ht_requests_static);
-   g_hash_table_destroy (ht_not_found_requests);
-   g_hash_table_destroy (ht_unique_visitors);
-   g_hash_table_destroy (ht_os);
-   g_hash_table_destroy (ht_browsers);
-   g_hash_table_destroy (ht_hosts);
    g_hash_table_destroy (ht_status_code);
-   g_hash_table_destroy (ht_referring_sites);
-   g_hash_table_destroy (ht_keyphrases);
-   g_hash_table_destroy (ht_file_bw);
+   g_hash_table_destroy (ht_unique_vis);
+   g_hash_table_destroy (ht_unique_visitors);
 }
 
 void
@@ -476,9 +476,9 @@ main (int argc, char *argv[])
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Your terminal does not support color");
    noecho ();
-   halfdelay (10);
-   nonl ();
-   intrflush (stdscr, FALSE);
+   halfdelay (10); 
+   nonl (); 
+   intrflush (stdscr, FALSE); 
    keypad (stdscr, TRUE);
    curs_set (0);
    start_color ();
@@ -520,7 +520,7 @@ main (int argc, char *argv[])
 
    scrolling.scrl_main_win = y;
    scrolling.init_scrl_main_win = 0;
-   render_screens ();
+   render_screens (); 
    get_keys ();
 
    write_conf_file ();

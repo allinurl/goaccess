@@ -19,9 +19,9 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "error.h"
 #include "commons.h"

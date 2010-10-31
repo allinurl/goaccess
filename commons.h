@@ -18,8 +18,8 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#include <glib.h>
 #include <curses.h>
+#include <glib.h>
 
 #ifndef COMMONS_H_INCLUDED
 #define COMMONS_H_INCLUDED
@@ -28,14 +28,14 @@
 #if !__GNUC__
 # define __attribute__(x) /**/
 #endif
-#define GO_UNUSED __attribute__((unused))
-#define DEBUG
 #define BUFFER 			4096
-#define MAX_CHOICES 	300
-#define TOTAL_MODULES 	11
+#define DEBUG
+#define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"0.3.3"
+#define MAX_CHOICES 	   300
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
+#define TOTAL_MODULES 	11
 /* max height of header window (rows) */
 #define MAX_HEIGHT_HEADER 6
 /* max height of footer stdscr (rows) */
@@ -43,16 +43,16 @@
 #define KB (1024)
 #define MB (KB * 1024)
 #define GB (MB * 1024)
-#define COL_WHITE    0
+#define BLACK_CYAN   9
+#define BLACK_GREEN  8
+#define BLUE_GREEN   7
+#define COL_BLACK    4
 #define COL_BLUE     1
+#define COL_CYAN     5
 #define COL_GREEN    11
 #define COL_RED      3
-#define COL_BLACK    4
-#define COL_CYAN     5
+#define COL_WHITE    0
 #define COL_YELLOW   6
-#define BLUE_GREEN   7
-#define BLACK_GREEN  8
-#define BLACK_CYAN   9
 #define WHITE_RED    10
    enum MODULES
 {
@@ -79,38 +79,39 @@ extern enum MODULES modules;
 extern enum SCHEMES schemes;
 
 /* to create a new hash value out of a key, which can be NULL */
-extern GHashTable *ht_unique_visitors;
-extern GHashTable *ht_requests;
-extern GHashTable *ht_referrers;
-extern GHashTable *ht_unique_vis;
-extern GHashTable *ht_requests_static;
+extern GHashTable *ht_browsers;
+extern GHashTable *ht_file_bw;
+extern GHashTable *ht_hosts;
+extern GHashTable *ht_keyphrases;
+extern GHashTable *ht_monthly;
 extern GHashTable *ht_not_found_requests;
 extern GHashTable *ht_os;
-extern GHashTable *ht_browsers;
-extern GHashTable *ht_hosts;
-extern GHashTable *ht_status_code;
+extern GHashTable *ht_referrers;
 extern GHashTable *ht_referring_sites;
-extern GHashTable *ht_keyphrases;
-extern GHashTable *ht_file_bw;
+extern GHashTable *ht_requests;
+extern GHashTable *ht_requests_static;
+extern GHashTable *ht_status_code;
+extern GHashTable *ht_unique_vis;
+extern GHashTable *ht_unique_visitors;
 
 struct logger
 {
-   char *host;
-   char *identd;
-   char *userid;
-   char *hour;
+   char *agent;
    char *date;
+   char *host;
+   char *hour;
+   char *identd;
+   char *referrer;
    char *request;
    char *status;
-   char *referrer;
-   char *agent;
-   long long resp_size;
-   int total_process;
-   int total_invalid;
-   int counter;
+   char *userid;
    int alloc_counter;
+   int counter;
    int current_module;
    int max_value;
+   int total_invalid;
+   int total_process;
+   long long resp_size;
 };
 
 struct struct_display
@@ -128,44 +129,44 @@ struct struct_holder
 
 struct scrolling
 {
-   size_t scrl_main_win;
-   size_t scrl_help_win;
    size_t init_scrl_main_win;
+   size_t scrl_help_win;
+   size_t scrl_main_win;
 };
 
 struct tm *now_tm;
 
 /* Declaration of variables */
-extern int bandwidth_flag;
-extern int ignore_flag;
-extern int http_status_code_flag;
-extern long long req_size;
+extern char *ignore_host;
 extern char *req;
 extern char *status_code;
-extern char *ignore_host;
+extern int bandwidth_flag;
 extern int color_scheme;
+extern int http_status_code_flag;
+extern int ignore_flag;
+extern long long req_size;
 
+extern time_t end_proc;
 extern time_t now;
 extern time_t start_proc;
-extern time_t end_proc;
 
+extern size_t real_size_y;
 extern size_t term_h;
 extern size_t term_w;
-extern size_t real_size_y;
 
-extern char *ifile;
 extern char *conf_keywords[][2];
+extern char *ifile;
 
+extern char *browsers[][2];
 extern char *codes[][2];
+extern char *help_main[];
 extern char *module_names[];
 extern char *os[][2];
-extern char *browsers[][2];
-extern char *help_main[];
 
-void init_colors (void);
-size_t os_size (void);
 size_t browsers_size (void);
 size_t codes_size (void);
 size_t help_main_size (void);
+size_t os_size (void);
+void init_colors (void);
 
 #endif

@@ -20,63 +20,64 @@
  */
 
 #include <curses.h>
-#include <time.h>
 #include <glib.h>
+#include <time.h>
 
 #include "commons.h"
 
-#define COL_WHITE    0
+#define BLACK_CYAN   9
+#define BLACK_GREEN  8
+#define BLUE_GREEN   7
+#define COL_BLACK    4
 #define COL_BLUE     1
+#define COL_CYAN     5
 #define COL_GREEN    11
 #define COL_RED      3
-#define COL_BLACK    4
-#define COL_CYAN     5
+#define COL_WHITE    0
 #define COL_YELLOW   6
-#define BLUE_GREEN   7
-#define BLACK_GREEN  8
-#define BLACK_CYAN   9
 #define WHITE_RED    10
 
 /* Definitions checked against declarations */
-GHashTable *ht_unique_visitors = NULL;
-GHashTable *ht_requests = NULL;
-GHashTable *ht_referrers = NULL;
-GHashTable *ht_unique_vis = NULL;
-GHashTable *ht_requests_static = NULL;
+GHashTable *ht_browsers = NULL;
+GHashTable *ht_file_bw = NULL;
+GHashTable *ht_hosts = NULL;
+GHashTable *ht_keyphrases = NULL;
+GHashTable *ht_monthly = NULL;
 GHashTable *ht_not_found_requests = NULL;
 GHashTable *ht_os = NULL;
-GHashTable *ht_browsers = NULL;
-GHashTable *ht_hosts = NULL;
-GHashTable *ht_status_code = NULL;
+GHashTable *ht_referrers = NULL;
 GHashTable *ht_referring_sites = NULL;
-GHashTable *ht_keyphrases = NULL;
-GHashTable *ht_file_bw = NULL;
+GHashTable *ht_requests = NULL;
+GHashTable *ht_requests_static = NULL;
+GHashTable *ht_status_code = NULL;
+GHashTable *ht_unique_visitors = NULL;
+GHashTable *ht_unique_vis = NULL;
 
 enum MODULES modules;
 enum SCHEMES schemes;
 
 /* enable flags */
+int bandwidth_flag = 0;
+int color_scheme = 1;
+int http_status_code_flag = 0;
 int ignore_flag = 0;
 int stripped_flag = 0;
-int bandwidth_flag = 0;
 long long req_size = 0;
-int http_status_code_flag = 0;
-int color_scheme = 1;
 
 /* string processing */
+char *ignore_host;
 char *req;
 char *status_code;
-char *ignore_host;
 
 /* Processing time */
-time_t now;
 time_t end_proc;
+time_t now;
 time_t start_proc;
 
 /* resizing */
+size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
-size_t real_size_y = 0;
 
 /* file */
 char *ifile = NULL;

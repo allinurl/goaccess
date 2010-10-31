@@ -27,14 +27,14 @@
 
 #define _XOPEN_SOURCE 700
 
-#include <stdlib.h>
 #include <curses.h>
-#include <string.h>
-#include <stdio.h>
-#include <time.h>
 #include <errno.h>
-#include <sys/types.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <time.h>
 
 #include "error.h"
 #include "commons.h"

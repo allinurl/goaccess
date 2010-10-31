@@ -25,7 +25,7 @@
 #include "commons.h"
 #endif
 
-void write_conf_file (void);
 int parse_conf_file (void);
+void write_conf_file (void);
 
 #endif
