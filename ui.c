@@ -59,6 +59,17 @@ create_win (WINDOW * main_win)
    return (newwin (y - 12, x - 40, 8, 20));
 }
 
+void
+set_input_opts (void)
+{
+   noecho ();
+   halfdelay (10);
+   nonl ();
+   intrflush (stdscr, FALSE);
+   keypad (stdscr, TRUE);
+   curs_set (0);
+}
+
 /* delete ncurses window handling */
 void
 close_win (WINDOW * w)
@@ -176,10 +187,10 @@ void
 create_graphs (WINDOW * main_win, struct struct_display **s_display,
                struct logger *logger, int i, int module, int max)
 {
-   struct tm tm;
-   int x, y, xx, r, col, row;
-   float l_bar, scr_cal, orig_cal;
    char buf[12] = "";           /* date */
+   float l_bar, scr_cal, orig_cal;
+   int x, y, xx, r, col, row;
+   struct tm tm;
 
    GHashTable *hash_table = NULL;
 
@@ -559,10 +570,10 @@ load_help_popup_content (WINDOW * inner_win, int where,
 void
 load_help_popup (WINDOW * help_win)
 {
-   WINDOW *inner_win;
    int y, x, c, quit = 1;
    size_t sz;
    struct scrolling scrolling;
+   WINDOW *inner_win;
 
    getmaxyx (help_win, y, x);
    draw_header (help_win,
@@ -603,9 +614,9 @@ load_help_popup (WINDOW * help_win)
 void
 load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 {
-   int y, x, c, quit = 1;
    char *my_addr = reverse_ip (addr);
    const char *location;
+   int y, x, c, quit = 1;
 
    getmaxyx (ip_detail_win, y, x);
    draw_header (ip_detail_win, "  Reverse DNS lookup - q:quit", 0, 1, x - 1,
@@ -654,11 +665,11 @@ scheme_chosen (char *name)
 void
 load_schemes_win (WINDOW * schemes_win)
 {
-   int y, x, c, quit = 1, n_choices, i;
    char *choices[] = { "Monochrome/Default", "Green/Original" };
-   MENU *menu;
-   ITEM **my_items;
+   int y, x, c, quit = 1, n_choices, i;
    ITEM *cur_item;
+   ITEM **my_items;
+   MENU *menu;
 
    /* Create items */
    n_choices = ARRAY_SIZE (choices);
@@ -756,6 +767,37 @@ convert_hits_to_string (int nhits)
    return hits;
 }
 
+static void
+process_monthly (struct struct_holder **s_holder, struct logger *logger)
+{
+   /* remove old keys/vals if exist */
+   g_hash_table_destroy (ht_monthly);
+   ht_monthly =
+      g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                             g_free);
+
+   gpointer value_ptr;
+   int add_value;
+   int i;
+   int *ptr_value;
+
+   for (i = 0; i < logger->counter; i++) {
+      char *month = clean_month (s_holder[i]->data);
+      value_ptr = g_hash_table_lookup (ht_monthly, month);
+      if (value_ptr != NULL) {
+         ptr_value = (int *) value_ptr;
+         add_value = *ptr_value + s_holder[i]->hits;
+      } else
+         add_value = 0 + s_holder[i]->hits;
+
+      ptr_value = g_malloc (sizeof (int));
+      *ptr_value = add_value;
+
+      g_hash_table_replace (ht_monthly, g_strdup (month), ptr_value);
+      free (month);
+   }
+}
+
 static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                 int choices, int sort)
@@ -766,10 +808,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
    char *p = NULL, *b;
    int i;
    ITEM **items;
-   struct struct_dates **s_dates;
    struct tm tm;
 
-   /* requests module */
    char *bw, *w_bw, *status_code, *token, *status_str;
    gpointer value_ptr;
    long long *ptr_value;
@@ -777,12 +817,15 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
    memset (&tm, 0, sizeof (tm));
 
    /* sort struct prior to display */
-   if (sort)
-      qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
+   if (!sort && logger->current_module == UNIQUE_VISITORS)
+      qsort (s_holder, choices, sizeof (struct struct_holder *),
              struct_cmp_by_hits);
+   else if (logger->current_module == UNIQUE_VISITORS)
+      qsort (s_holder, choices, sizeof (struct struct_holder *),
+             struct_cmp_desc);
    else
       qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
-             struct_cmp_desc);
+             struct_cmp_by_hits);
 
    if (logger->current_module == BROWSERS || logger->current_module == OS)
       qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
@@ -794,12 +837,19 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
       switch (logger->current_module) {
        case UNIQUE_VISITORS:
           hits = convert_hits_to_string (s_holder[i]->hits);
-          buffer_date = (char *) malloc (sizeof (char) * 13);
+          buffer_date = (char *) malloc (sizeof (char) * 17);
           if (buffer_date == NULL)
              error_handler (__PRETTY_FUNCTION__,
                             __FILE__, __LINE__, "Unable to allocate memory");
-          strptime (s_holder[i]->data, "%Y%m%d", &tm);
-          strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
+          if (strchr (s_holder[i]->data, '|') == NULL) {
+             strptime (s_holder[i]->data, "%Y%m%d", &tm);
+             strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
+             sprintf (buffer_date, "|`- %s", buf);
+             items[i] = new_item (hits, buffer_date);
+             break;
+          }
+          strptime (s_holder[i]->data, "%Y%m", &tm);
+          strftime (buf, sizeof (buf), "%b/%Y", &tm);
           sprintf (buffer_date, "%s", buf);
           items[i] = new_item (hits, buffer_date);
           break;
@@ -815,8 +865,9 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
              break;
           ptr_value = (long long *) value_ptr;
           bw = filesize_str (*ptr_value);
-          w_bw = malloc (snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits)
-                         + 2);
+          w_bw =
+             malloc (snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits) +
+                     2);
           if (w_bw == NULL)
              error_handler (__PRETTY_FUNCTION__,
                             __FILE__, __LINE__, "Unable to allocate memory");
@@ -884,16 +935,15 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
       }
    }
    items[i] = (ITEM *) NULL;
-
    return items;
 }
 
 static MENU *
 set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
 {
-   MENU *my_menu = NULL;
    int x = 0;
    int y = 0;
+   MENU *my_menu = NULL;
 
    getmaxyx (my_menu_win, y, x);
    my_menu = new_menu (items);
@@ -930,9 +980,9 @@ load_popup_content (WINDOW * my_menu_win, int choices,
 static void
 load_popup_free_items (ITEM ** items, struct logger *logger)
 {
-   int i;
-   char *name = NULL;
    char *description = NULL;
+   char *name = NULL;
+   int i;
 
    /* clean up stuff */
    i = 0;
@@ -981,12 +1031,12 @@ void
 load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
             struct logger *logger)
 {
-   WINDOW *ip_detail_win;
    ITEM *query = NULL;
+   WINDOW *ip_detail_win;
 
    /*###TODO: perhaps let the user change the size of MAX_CHOICES */
-   int choices = MAX_CHOICES, c, x, y;
    char input[BUFFER] = "";
+   int choices = MAX_CHOICES, c, x, y;
 
    GHashTable *hash_table = NULL;
 
@@ -1028,11 +1078,12 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
    getmaxyx (my_menu_win, y, x);
    MALLOC_STRUCT (s_holder, g_hash_table_size (hash_table));
 
-   int i = 0, quit = 1;
    char *p;
    GHashTableIter iter;
    gpointer k = NULL;
    gpointer v = NULL;
+   int i = 0, quit = 1;
+   int new_menu_size = 0;
 
    g_hash_table_iter_init (&iter, hash_table);
    while (g_hash_table_iter_next (&iter, &k, &v)) {
@@ -1049,6 +1100,41 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       choices = MAX_CHOICES;
    else
       choices = g_hash_table_size (hash_table);
+
+   if (logger->current_module == UNIQUE_VISITORS) {
+      /* add up monthly history totals */
+      process_monthly (s_holder, logger);
+      /* realloc the extra space needed for months */
+      new_menu_size = (logger->counter + g_hash_table_size (ht_monthly));
+      struct struct_holder **s_tmp;
+      s_tmp = realloc (s_holder, new_menu_size * sizeof *s_holder);
+      if (s_tmp == NULL)
+         error_handler (__PRETTY_FUNCTION__,
+                        __FILE__, __LINE__, "Unable to re-allocate memory");
+      else
+         s_holder = s_tmp;
+
+      GHashTableIter iter;
+      gpointer k = NULL;
+      gpointer v = NULL;
+
+      i = logger->counter;
+      g_hash_table_iter_init (&iter, ht_monthly);
+      while (g_hash_table_iter_next (&iter, &k, &v)) {
+         s_holder[i] = malloc (sizeof *s_holder[i]);
+         /* we assume we dont have 99 days in a month, */
+         /* this way we can sort them out and put them on top */
+         /* there might be a better way to go :) */
+         char *s = malloc (snprintf (NULL, 0, "%s|99", (gchar *) k) + 1);
+         if (s == NULL)
+            error_handler (__PRETTY_FUNCTION__,
+                           __FILE__, __LINE__, "Unable to allocate memory");
+         sprintf (s, "%s|99", (gchar *) k);
+         s_holder[i]->data = s;
+         s_holder[i++]->hits = *(int *) v;
+      }
+      choices = new_menu_size;
+   }
 
    load_popup_content (my_menu_win, choices, s_holder, logger, 1);
 
@@ -1080,12 +1166,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
           wscanw (my_menu_win, "%s", input);
           wattroff (my_menu_win, COLOR_PAIR (COL_CYAN));
           cbreak ();
-          noecho ();
-          halfdelay (10);
-          nonl ();
-          intrflush (stdscr, FALSE);
-          curs_set (0);
-
+          set_input_opts ();    /* set curses input options */
           query = search_request (my_menu, input);
           if (query != NULL) {
              while (FALSE == item_visible (query))
@@ -1166,9 +1247,13 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       wrefresh (my_menu_win);
    }
 
-   int f;
-   for (f = 0; f < logger->counter; f++)
-      free (s_holder[f]);
+   int free_n = (new_menu_size != 0) ? new_menu_size : logger->counter;
+   for (i = 0; i < free_n; i++) {
+      if (logger->current_module == UNIQUE_VISITORS
+          && strchr (s_holder[i]->data, '|') != NULL)
+         free (s_holder[i]->data);
+      free (s_holder[i]);
+   }
    free (s_holder);
    logger->counter = 0;
 

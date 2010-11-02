@@ -24,6 +24,7 @@
 char *alloc_string (const char *str);
 char *clean_date (char *s);
 char *clean_date_time (char *s);
+char *clean_month (char *s);
 char *clean_status (char *s);
 char *clean_time (char *s);
 char *filesize_str (off_t log_size);

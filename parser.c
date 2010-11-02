@@ -173,10 +173,10 @@ process_generic_data (GHashTable * ht, const char *key)
       free (o_key);
       free (b_key);
       if ((date = strchr (key, '|')) != NULL) {
-         char *tmp;
-         tmp = clean_date (date);
-         process_generic_data (ht_unique_vis, tmp);
-         free (tmp);
+         char *tmp_date;
+         tmp_date = clean_date (date);
+         process_generic_data (ht_unique_vis, tmp_date);
+         free (tmp_date);
       }
    }
    return (0);

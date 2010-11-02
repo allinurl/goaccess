@@ -112,6 +112,7 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
    g_hash_table_destroy (ht_file_bw);
    g_hash_table_destroy (ht_hosts);
    g_hash_table_destroy (ht_keyphrases);
+   g_hash_table_destroy (ht_monthly);
    g_hash_table_destroy (ht_not_found_requests);
    g_hash_table_destroy (ht_os);
    g_hash_table_destroy (ht_referrers);
@@ -225,9 +226,9 @@ get_keys (void)
    int y, x, c, quit = 0;
    getmaxyx (main_win, y, x);
 
-   unsigned long long size1, size2;
    char buf[BUFFER];
    FILE *fp;
+   unsigned long long size1, size2;
 
    size1 = file_size (ifile);
    while (((c = wgetch (stdscr)) != 'q')) {
@@ -465,6 +466,9 @@ main (int argc, char *argv[])
    ht_file_bw =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
+   ht_monthly =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
 
     /** 'should' work on UTF-8 terminals as long as the 
      ** user did set it to *._UTF-8 locale **/
@@ -475,12 +479,7 @@ main (int argc, char *argv[])
    if (has_colors () == FALSE)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Your terminal does not support color");
-   noecho ();
-   halfdelay (10); 
-   nonl (); 
-   intrflush (stdscr, FALSE); 
-   keypad (stdscr, TRUE);
-   curs_set (0);
+   set_input_opts ();
    start_color ();
    parse_conf_file ();
    init_colors ();
@@ -520,7 +519,7 @@ main (int argc, char *argv[])
 
    scrolling.scrl_main_win = y;
    scrolling.init_scrl_main_win = 0;
-   render_screens (); 
+   render_screens ();
    get_keys ();
 
    write_conf_file ();

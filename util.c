@@ -261,6 +261,12 @@ clean_date (char *s)
 }
 
 char *
+clean_month (char *s)
+{
+   return substring (s, 0, 6);
+}
+
+char *
 clean_time (char *s)
 {
    return substring (s, 13, 8);

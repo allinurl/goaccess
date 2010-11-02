@@ -31,7 +31,7 @@
 #define BUFFER 			4096
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.3.3"
+#define GO_VERSION 		"0.4"
 #define MAX_CHOICES 	   300
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
