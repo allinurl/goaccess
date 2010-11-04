@@ -219,8 +219,8 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    else
       inc_pos_x = 0;
 
-   orig_cal = (float) (s_display[i]->hits * 100);
    l_bar = (float) (s_display[i]->hits * 100);
+   orig_cal = (float) (s_display[i]->hits * 100);
 
    /* hosts - status codes */
    if (module != 8 && module != 9)
@@ -305,8 +305,7 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
            || s_display[i]->module == REQUESTS_STATIC)) {
       value_ptr = g_hash_table_lookup (ht_file_bw, s_display[i]->data);
       if (value_ptr != NULL) {
-         ptr_value = (long long *) value_ptr;
-         char *bw = filesize_str (*ptr_value);
+         char *bw = filesize_str (*(long long *) value_ptr);
          wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
          mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%9s", bw);
          wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
@@ -352,8 +351,8 @@ display_content (WINDOW * main_win, struct struct_display **s_display,
 {
    int i, x, y, max = 0, until = 0, start = 0, pos_y = 0;
 
-   getmaxyx (stdscr, term_h, term_w);
    getmaxyx (main_win, y, x);
+   getmaxyx (stdscr, term_h, term_w);
 
    if (term_h < MIN_HEIGHT || term_w < MIN_WIDTH)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
@@ -420,8 +419,8 @@ do_scrolling (WINDOW * main_win, struct struct_display **s_display,
               struct logger *logger, struct scrolling *scrolling, int cmd)
 {
    int cur_y, cur_x, y, x, max = 0;
-   getyx (main_win, cur_y, cur_x);      /* cursor */
    getmaxyx (main_win, y, x);
+   getyx (main_win, cur_y, cur_x);      /* cursor */
 
    int i = real_size_y + scrolling->init_scrl_main_win;
    int j = scrolling->init_scrl_main_win - 1;
@@ -775,7 +774,6 @@ process_monthly (struct struct_holder **s_holder, struct logger *logger)
    ht_monthly =
       g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
                              g_free);
-
    gpointer value_ptr;
    int add_value;
    int i;
@@ -951,6 +949,13 @@ set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
 
    /* set main window and sub window */
    set_menu_win (my_menu, my_menu_win);
+   if (logger->current_module == UNIQUE_VISITORS)
+      mvwprintw (my_menu_win, 3, x - 30, "[Months:%4d - Days:%4d]",
+                 g_hash_table_size (ht_monthly),
+                 g_hash_table_size (ht_unique_vis));
+   if (logger->current_module == HOSTS)
+      mvwprintw (my_menu_win, 3, x - 31, "[Different Hosts:%8d]",
+                 g_hash_table_size (ht_hosts));
    set_menu_sub (my_menu, derwin (my_menu_win, y - 6, x - 2, 4, 1));
    set_menu_format (my_menu, y - 6, 1);
 
