@@ -262,7 +262,7 @@ process_unique_data (char *host, char *date, char *agent, char *status,
 
    if (strptime (date, "%d/%b/%Y", &tm) == NULL)
       return;
-   strftime (buf, sizeof (buf) - 1, "%Y%m%d ", &tm);
+   strftime (buf, sizeof (buf) - 1, "%Y%m%d", &tm);
 
    snprintf (unique_visitors_key, sizeof (unique_visitors_key), "%s|%s|%s",
              host, buf, agent);
@@ -375,7 +375,7 @@ static int
 parse_request (struct logger *logger, char *line, char *cpy_line)
 {
    char *ptr, *prb = NULL, *fqm = NULL, *sqm =
-      NULL, *host, *date, *ref, *hour = NULL, *h, *p;
+      NULL, *host, *date, *ref, *h, *p;
    int format = 0;
 
    host = line;
@@ -420,11 +420,6 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
    else
       ref = "-";
 
-   if ((hour = strchr (line, ':')) != NULL)
-      hour++;
-   else
-      hour = "-";
-
    if (!bandwidth_flag)
       goto nobanwidth;
    /* bandwidth */
@@ -442,9 +437,6 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
       return 1;
    *ptr = '\0';
    if ((ptr = strchr (date, ':')) == NULL)
-      return 1;
-   *ptr = '\0';
-   if ((ptr = strchr (hour, ':')) == NULL)
       return 1;
    *ptr = '\0';
    if ((ptr = strchr (ref, '"')) == NULL)
@@ -471,7 +463,6 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
    logger->host = host;
    logger->agent = fqm;
    logger->date = date;
-   logger->hour = hour;
    logger->referrer = ref;
    logger->request = req;
    logger->resp_size = band_size;
