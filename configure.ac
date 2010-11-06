@@ -20,7 +20,6 @@ AC_SUBST(GLIB2_LIBS)
 AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
 AC_CHECK_LIB([menu], [new_menu], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
 AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
-AC_CHECK_LIB([glib-2.0], [g_hash_table_iter_init], [], [AC_MSG_ERROR([glib-2.16 or greater is missing])])
 AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
 
 # Checks for header files.

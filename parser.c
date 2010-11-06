@@ -531,47 +531,42 @@ parse_log (struct logger *logger, char *filename, char *tail)
    return 0;
 }
 
+static void
+unique_visitors_iter (gpointer k, gpointer v, struct struct_holder **t_holder)
+{
+   t_holder[iter_ctr] = malloc (sizeof (struct struct_holder));
+   t_holder[iter_ctr]->data = (gchar *) k;
+   t_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
+}
+
 void
 generate_unique_visitors (struct struct_display **s_display,
                           struct logger *logger)
 {
-   int lo, r = 0, w = 0;
+   int i, r;
+   int s_size = g_hash_table_size (ht_unique_vis);
    struct struct_holder **t_holder;
 
-   GHashTableIter iter;
-   gpointer k = NULL;
-   gpointer v = NULL;
+   t_holder = malloc (sizeof (struct struct_holder *) * s_size);
+   g_hash_table_foreach (ht_unique_vis, (GHFunc) unique_visitors_iter,
+                         t_holder);
 
-   int ct = 0;
-   t_holder =
-      (struct struct_holder **) malloc (sizeof (struct struct_holder *) *
-                                        g_hash_table_size (ht_unique_vis));
-
-   g_hash_table_iter_init (&iter, ht_unique_vis);
-   while (g_hash_table_iter_next (&iter, &k, &v)) {
-      t_holder[w] =
-         (struct struct_holder *) malloc (sizeof (struct struct_holder));
-      t_holder[w]->data = (gchar *) k;
-      t_holder[w++]->hits = GPOINTER_TO_INT (v);
-      ct++;
-   }
-
-   qsort (t_holder, ct, sizeof (struct struct_holder *), struct_cmp_desc);
+   qsort (t_holder, s_size, sizeof (struct struct_holder *), struct_cmp_desc);
 
    /* fixed value in here, perhaps it could be dynamic depending on the module */
-   for (lo = 0; lo < 10; lo++) {
+   for (i = 0, r = 0; i < 10; i++) {
       s_display[logger->alloc_counter]->hits = 0;
       s_display[logger->alloc_counter]->module = 1;
-      if (lo == 0)
+      if (i == 0)
          s_display[logger->alloc_counter++]->data =
             alloc_string (" 1 - Unique visitors per day - Including spiders");
-      else if (lo == 1)
+      else if (i == 1)
          s_display[logger->alloc_counter++]->data =
             alloc_string
             (" HTTP requests having the same IP, same date and same agent will be considered a unique visit");
-      else if (lo == 2 || lo == 9)
+      else if (i == 2 || i == 9)
          s_display[logger->alloc_counter++]->data = alloc_string ("");
-      else if (r < ct) {
+      else if (r < s_size) {
          s_display[logger->alloc_counter]->hits = t_holder[r]->hits;
          s_display[logger->alloc_counter++]->data =
             alloc_string (t_holder[r]->data);
@@ -580,11 +575,21 @@ generate_unique_visitors (struct struct_display **s_display,
          s_display[logger->alloc_counter++]->data = alloc_string ("");
    }
 
-   int f;
-   for (f = 0; f < ct; f++)
-      free (t_holder[f]);
+   for (i = 0; i < s_size; i++)
+      free (t_holder[i]);
    free (t_holder);
-   logger->counter = 0;
+
+   iter_ctr = 0;
+}
+
+static void
+struct_data_iter (gpointer k, gpointer v, struct struct_holder **s_holder)
+{
+   if (iter_module == BROWSERS || iter_module == OS)
+      if (strchr ((gchar *) k, '|') != NULL)
+         return;
+   s_holder[iter_ctr]->data = (gchar *) k;
+   s_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
 }
 
 void
@@ -594,25 +599,12 @@ generate_struct_data (GHashTable * hash_table,
                       struct logger *logger, int module)
 {
    int row, col;
-
+   int i = 0, r;
    getmaxyx (stdscr, row, col);
 
-   int i = 0;
-   GHashTableIter iter;
-   gpointer k = NULL;
-   gpointer v = NULL;
-
-   g_hash_table_iter_init (&iter, hash_table);
-   while (g_hash_table_iter_next (&iter, &k, &v)) {
-      if (module == BROWSERS || module == OS)
-         if (strchr ((gchar *) k, '|') != NULL)
-            continue;
-      s_holder[i]->data = (gchar *) k;
-      s_holder[i++]->hits = GPOINTER_TO_INT (v);
-      logger->counter++;
-   }
-
-   qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
+   iter_module = module;
+   g_hash_table_foreach (hash_table, (GHFunc) struct_data_iter, s_holder);
+   qsort (s_holder, iter_ctr, sizeof (struct struct_holder *),
           struct_cmp_by_hits);
 
    /* headers & sub-headers */
@@ -662,21 +654,16 @@ generate_struct_data (GHashTable * hash_table,
        break;
    }
 
-   /* r : pos on y */
-   char *stripped_str = NULL;
-   int lo, r = 0;
-   guint f;
-
-   for (lo = 0; lo < 10; lo++) {
+   for (i = 0, r = 0; i < 10; i++) {
       s_display[logger->alloc_counter]->hits = 0;
       s_display[logger->alloc_counter]->module = module;
-      if (lo == 0)
+      if (i == 0)
          s_display[logger->alloc_counter++]->data = alloc_string (head);
-      else if (lo == 1)
+      else if (i == 1)
          s_display[logger->alloc_counter++]->data = alloc_string (desc);
-      else if (lo == 2 || lo == 9)
+      else if (i == 2 || i == 9)
          s_display[logger->alloc_counter++]->data = alloc_string ("");
-      else if (r < logger->counter) {
+      else if (r < iter_ctr) {
          s_display[logger->alloc_counter]->data =
             alloc_string (s_holder[r]->data);
          s_display[logger->alloc_counter++]->hits = s_holder[r]->hits;
@@ -685,8 +672,8 @@ generate_struct_data (GHashTable * hash_table,
          s_display[logger->alloc_counter++]->data = alloc_string ("");
    }
 
-   for (f = 0; f < g_hash_table_size (hash_table); f++)
-      free (s_holder[f]);
+   for (i = 0; i < g_hash_table_size (hash_table); i++)
+      free (s_holder[i]);
    free (s_holder);
-   logger->counter = 0;
+   iter_ctr = 0;
 }

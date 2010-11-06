@@ -36,10 +36,10 @@
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 #define TOTAL_MODULES 	11
-/* max height of header window (rows) */
-#define MAX_HEIGHT_HEADER 6
 /* max height of footer stdscr (rows) */
 #define MAX_HEIGHT_FOOTER 1
+/* max height of header window (rows) */
+#define MAX_HEIGHT_HEADER 6
 #define KB (1024)
 #define MB (KB * 1024)
 #define GB (MB * 1024)
@@ -54,7 +54,10 @@
 #define COL_WHITE    0
 #define COL_YELLOW   6
 #define WHITE_RED    10
-   enum MODULES
+extern enum MODULES modules;
+extern enum SCHEMES schemes;
+
+enum MODULES
 {
    UNIQUE_VISITORS = 1,
    REQUESTS,
@@ -74,9 +77,6 @@ enum SCHEMES
    MONOCHROME = 1,
    STD_GREEN
 };
-
-extern enum MODULES modules;
-extern enum SCHEMES schemes;
 
 /* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_browsers;
@@ -125,6 +125,8 @@ struct struct_holder
 {
    char *data;
    int hits;
+   int curr_module;
+   size_t s_ctr;
 };
 
 struct scrolling
@@ -142,6 +144,8 @@ extern char *req;
 extern char *status_code;
 extern int bandwidth_flag;
 extern int color_scheme;
+extern int iter_ctr;
+extern int iter_module;
 extern int http_status_code_flag;
 extern int ignore_flag;
 extern long long req_size;

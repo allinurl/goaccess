@@ -767,7 +767,7 @@ convert_hits_to_string (int nhits)
 }
 
 static void
-process_monthly (struct struct_holder **s_holder, struct logger *logger)
+process_monthly (struct struct_holder **s_holder, int n_months)
 {
    /* remove old keys/vals if exist */
    g_hash_table_destroy (ht_monthly);
@@ -779,7 +779,7 @@ process_monthly (struct struct_holder **s_holder, struct logger *logger)
    int i;
    int *ptr_value;
 
-   for (i = 0; i < logger->counter; i++) {
+   for (i = 0; i < n_months; i++) {
       char *month = clean_month (s_holder[i]->data);
       value_ptr = g_hash_table_lookup (ht_monthly, month);
       if (value_ptr != NULL) {
@@ -822,11 +822,11 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
       qsort (s_holder, choices, sizeof (struct struct_holder *),
              struct_cmp_desc);
    else
-      qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
+      qsort (s_holder, choices, sizeof (struct struct_holder *),
              struct_cmp_by_hits);
 
    if (logger->current_module == BROWSERS || logger->current_module == OS)
-      qsort (s_holder, logger->counter, sizeof (struct struct_holder *),
+      qsort (s_holder, choices, sizeof (struct struct_holder *),
              struct_cmp_asc);
 
    items = (ITEM **) malloc (sizeof (ITEM *) * (choices + 1));
@@ -1032,6 +1032,30 @@ search_request (MENU * my_menu, const char *input)
    return item_ptr;
 }
 
+static void
+load_popup_iter (gpointer k, gpointer v, struct struct_holder **s_holder)
+{
+   s_holder[iter_ctr]->data = (gchar *) k;
+   s_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
+}
+
+static void
+load_popup_visitors_iter (gpointer k, gpointer v,
+                          struct struct_holder **s_holder)
+{
+   s_holder[iter_ctr] = malloc (sizeof *s_holder[iter_ctr]);
+   /* we assume we dont have 99 days in a month, */
+   /* this way we can sort them out and put them on top */
+   /* there might be a better way to go :) */
+   char *s = malloc (snprintf (NULL, 0, "%s|99", (gchar *) k) + 1);
+   if (s == NULL)
+      error_handler (__PRETTY_FUNCTION__,
+                     __FILE__, __LINE__, "Unable to allocate memory");
+   sprintf (s, "%s|99", (gchar *) k);
+   s_holder[iter_ctr]->data = s;
+   s_holder[iter_ctr++]->hits = *(int *) v;
+}
+
 void
 load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
             struct logger *logger)
@@ -1084,18 +1108,13 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
    MALLOC_STRUCT (s_holder, g_hash_table_size (hash_table));
 
    char *p;
-   GHashTableIter iter;
-   gpointer k = NULL;
-   gpointer v = NULL;
+   int hash_table_size = g_hash_table_size (hash_table);
    int i = 0, quit = 1;
    int new_menu_size = 0;
 
-   g_hash_table_iter_init (&iter, hash_table);
-   while (g_hash_table_iter_next (&iter, &k, &v)) {
-      s_holder[i]->data = (gchar *) k;
-      s_holder[i++]->hits = GPOINTER_TO_INT (v);
-      logger->counter++;
-   }
+   g_hash_table_foreach (hash_table, (GHFunc) load_popup_iter, s_holder);
+   /* set it 0 for the next g_hash_table_foreach() */
+   iter_ctr = 0;
 
    /* again, letting the user to set the max number 
     * might be a better way to go */
@@ -1108,9 +1127,9 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
 
    if (logger->current_module == UNIQUE_VISITORS) {
       /* add up monthly history totals */
-      process_monthly (s_holder, logger);
+      process_monthly (s_holder, hash_table_size);
       /* realloc the extra space needed for months */
-      new_menu_size = (logger->counter + g_hash_table_size (ht_monthly));
+      new_menu_size = (hash_table_size + g_hash_table_size (ht_monthly));
       struct struct_holder **s_tmp;
       s_tmp = realloc (s_holder, new_menu_size * sizeof *s_holder);
       if (s_tmp == NULL)
@@ -1119,26 +1138,11 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       else
          s_holder = s_tmp;
 
-      GHashTableIter iter;
-      gpointer k = NULL;
-      gpointer v = NULL;
-
-      i = logger->counter;
-      g_hash_table_iter_init (&iter, ht_monthly);
-      while (g_hash_table_iter_next (&iter, &k, &v)) {
-         s_holder[i] = malloc (sizeof *s_holder[i]);
-         /* we assume we dont have 99 days in a month, */
-         /* this way we can sort them out and put them on top */
-         /* there might be a better way to go :) */
-         char *s = malloc (snprintf (NULL, 0, "%s|99", (gchar *) k) + 1);
-         if (s == NULL)
-            error_handler (__PRETTY_FUNCTION__,
-                           __FILE__, __LINE__, "Unable to allocate memory");
-         sprintf (s, "%s|99", (gchar *) k);
-         s_holder[i]->data = s;
-         s_holder[i++]->hits = *(int *) v;
-      }
+      iter_ctr = hash_table_size;
+      g_hash_table_foreach (ht_monthly, (GHFunc) load_popup_visitors_iter,
+                            s_holder);
       choices = new_menu_size;
+      iter_ctr = 0;
    }
 
    load_popup_content (my_menu_win, choices, s_holder, logger, 1);
@@ -1252,7 +1256,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       wrefresh (my_menu_win);
    }
 
-   int free_n = (new_menu_size != 0) ? new_menu_size : logger->counter;
+   int free_n = (new_menu_size != 0) ? new_menu_size : hash_table_size;
    for (i = 0; i < free_n; i++) {
       if (logger->current_module == UNIQUE_VISITORS
           && strchr (s_holder[i]->data, '|') != NULL)
@@ -1260,7 +1264,6 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       free (s_holder[i]);
    }
    free (s_holder);
-   logger->counter = 0;
 
    /* unpost and free all the memory taken up */
    unpost_menu (my_menu);
