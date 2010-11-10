@@ -400,7 +400,6 @@ main (int argc, char *argv[])
           ifile = optarg;
           break;
        case 'e':
-          ignore_flag = 1;
           ignore_host = optarg;
           break;
        case 's':

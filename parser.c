@@ -278,7 +278,7 @@ process_unique_data (char *host, char *date, char *agent, char *status,
       process_generic_data (ht_status_code, status);
    }
 
-   if (ignore_flag && strcmp (host, ignore_host) == 0) {
+   if (ignore_host != NULL && strcmp (host, ignore_host) == 0) {
       /* ignore */
    } else {
       process_generic_data (ht_hosts, host);

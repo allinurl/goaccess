@@ -147,7 +147,6 @@ extern int color_scheme;
 extern int iter_ctr;
 extern int iter_module;
 extern int http_status_code_flag;
-extern int ignore_flag;
 extern long long req_size;
 
 extern time_t end_proc;

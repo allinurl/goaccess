@@ -821,9 +821,6 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
    else if (logger->current_module == UNIQUE_VISITORS)
       qsort (s_holder, choices, sizeof (struct struct_holder *),
              struct_cmp_desc);
-   else
-      qsort (s_holder, choices, sizeof (struct struct_holder *),
-             struct_cmp_by_hits);
 
    if (logger->current_module == BROWSERS || logger->current_module == OS)
       qsort (s_holder, choices, sizeof (struct struct_holder *),
@@ -1125,6 +1122,9 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
    else
       choices = g_hash_table_size (hash_table);
 
+   /* sort s_holder */
+   qsort (s_holder, hash_table_size, sizeof (struct struct_holder *),
+          struct_cmp_by_hits);
    if (logger->current_module == UNIQUE_VISITORS) {
       /* add up monthly history totals */
       process_monthly (s_holder, hash_table_size);

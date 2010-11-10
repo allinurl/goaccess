@@ -60,10 +60,8 @@ enum SCHEMES schemes;
 int bandwidth_flag = 0;
 int color_scheme = 1;
 int http_status_code_flag = 0;
-int ignore_flag = 0;
 int iter_ctr = 0;
 int iter_module = 0;
-int stripped_flag = 0;
 long long req_size = 0;
 
 /* string processing */
