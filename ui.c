@@ -610,19 +610,93 @@ load_help_popup (WINDOW * help_win)
    render_screens ();
 }
 
-void
+static void
+scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
+                struct struct_agents *s_agents, size_t win_alloc)
+{
+   int y, x;
+   getmaxyx (inner_win, y, x);
+
+   switch (where) {
+       /* scroll down */
+    case 1:
+       if ((scrolling->scrl_agen_win > win_alloc)
+           || (s_agents[scrolling->scrl_agen_win].agents == NULL))
+          return;
+       scrollok (inner_win, TRUE);
+       wscrl (inner_win, 1);
+       scrollok (inner_win, FALSE);
+       wmove (inner_win, y - 1, 2);
+       mvwaddch (inner_win, y - 1, 1, '[');
+       mvwaddch (inner_win, y - 1, x - 2, ']');
+       /* minus help_win offset - 0 */
+       mvwaddstr (inner_win, y - 1, 2,
+                  s_agents[scrolling->scrl_agen_win].agents);
+       scrolling->scrl_agen_win++;
+       break;
+       /* scroll up */
+    case 0:
+       if (scrolling->scrl_agen_win - y < 1)
+          return;
+       scrollok (inner_win, TRUE);
+       wscrl (inner_win, -1);
+       scrollok (inner_win, FALSE);
+       wmove (inner_win, 0, 2);
+       mvwaddch (inner_win, 0, 1, '[');
+       mvwaddch (inner_win, 0, x - 2, ']');
+       /* minus help_win offset - y */
+       mvwaddstr (inner_win, 0, 2,
+                  s_agents[(scrolling->scrl_agen_win - y) - 1].agents);
+       scrolling->scrl_agen_win--;
+       break;
+   }
+   wrefresh (inner_win);
+}
+
+static void
+split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
+{
+   char *curr, *holder;
+   char *p = ptr_value;
+   int i = 0, offset = 0;
+
+   s_agents[i].agents = malloc (max + 1);
+   if (s_agents[i].agents == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__,
+                     __LINE__, "Unable to allocate memory.");
+   holder = s_agents[i].agents;
+
+   while (*p != '\0') {
+      if (offset < max && *p != '|') {
+         *(holder++) = *(p++);
+         offset++;
+         continue;
+      } else if (*p == '|')
+         *p++;
+      offset = 0;
+      *holder = '\0';
+      s_agents[++i].agents = malloc (max + 1);
+      holder = s_agents[i].agents;
+   }
+   *holder = '\0';
+}
+
+static void
 load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 {
    char *my_addr = reverse_ip (addr);
    const char *location;
    int y, x, c, quit = 1;
+   struct scrolling scrolling;
+   struct struct_agents *s_agents;;
+   WINDOW *inner_win;
 
    getmaxyx (ip_detail_win, y, x);
-   draw_header (ip_detail_win, "  Reverse DNS lookup - q:quit", 0, 1, x - 1,
-                2);
+   draw_header (ip_detail_win, "Reverse DNS lookup - q:quit", 2, 1, x - 3, 2);
    wborder (ip_detail_win, '|', '|', '-', '-', '+', '+', '+', '+');
    mvwprintw (ip_detail_win, 3, 2, "Reverse DNS for address: %s", addr);
    mvwprintw (ip_detail_win, 4, 2, "%s", my_addr);
+   draw_header (ip_detail_win, "[List of USER-AGENTS]", 2, 7, x - 3, 2);
 
    /* geolocation data */
    GeoIP *gi;
@@ -634,18 +708,78 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    mvwprintw (ip_detail_win, 5, 2, "Country: %s", location);
    free (my_addr);
 
+   char *ptr_value;
+   gpointer value_ptr;
+   int i, m, delims = 0;
+   size_t inner_y, inner_x;
+   size_t win_alloc, width_max;
+
+   /* agents list */
+   value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
+   if (value_ptr != NULL) {
+      ptr_value = (char *) value_ptr;
+
+      inner_win = newwin (y - 10, x - 2, 19, 22);
+      if (inner_win == NULL)
+         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                        "Unable to allocate memory for new window.");
+      getmaxyx (inner_win, inner_y, inner_x);
+
+      char *ch_delim;
+      ch_delim = strchr (ptr_value, '|');
+      while (ch_delim != NULL) {
+         delims++;
+         ch_delim = strchr (ch_delim + 1, '|');
+      }
+
+      width_max = inner_x - 4;
+      /* round-up + padding */
+      win_alloc =
+         ((strlen (ptr_value) + width_max - 1) / width_max) + delims + 1;
+      s_agents = malloc (win_alloc * sizeof (s_agents));
+      if (s_agents == NULL)
+         error_handler (__PRETTY_FUNCTION__, __FILE__,
+                        __LINE__, "Unable to allocate memory.");
+      memset (s_agents, 0, win_alloc * sizeof (s_agents));
+
+      split_agent_str (ptr_value, s_agents, width_max);
+      for (i = 0, m = 0; (i < inner_y) && (s_agents[i].agents != NULL);
+           i++, m++) {
+         mvwaddch (inner_win, m, 1, '[');
+         mvwaddch (inner_win, m, inner_x - 2, ']');
+         mvwaddstr (inner_win, m, 2, s_agents[i].agents);
+      }
+   }
+
+   scrolling.scrl_agen_win = inner_y;
+   wmove (inner_win, inner_y, 0);
    wrefresh (ip_detail_win);
+   wrefresh (inner_win);
    /* ###TODO: resize child windows. */
    /* for now we can close them up */
    while (quit) {
       c = wgetch (stdscr);
       switch (c) {
+       case KEY_DOWN:
+          (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents,
+                                 win_alloc);
+          break;
+       case KEY_UP:
+          (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents,
+                                 win_alloc);
+          break;
        case KEY_RESIZE:
        case 'q':
           quit = 0;
           break;
       }
+      wrefresh (ip_detail_win);
    }
+
+   for (i = 0; s_agents[i].agents != NULL; i++)
+      free (s_agents[i].agents);
+   free (s_agents);
+
    render_screens ();
    return;
 }
@@ -1237,7 +1371,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
           if (cur == NULL)
              break;
 
-          ip_detail_win = newwin (y - 13, x - 5, 10, 21);
+          ip_detail_win = newwin (y - 3, x - 2, 10, 21);
           char addrs[32];
           sprintf (addrs, "%s", item_description (cur));
           load_reverse_dns_popup (ip_detail_win, addrs);

@@ -468,6 +468,9 @@ main (int argc, char *argv[])
    ht_monthly =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
+   ht_hosts_agents =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
 
     /** 'should' work on UTF-8 terminals as long as the 
      ** user did set it to *._UTF-8 locale **/

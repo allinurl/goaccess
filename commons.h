@@ -82,6 +82,7 @@ enum SCHEMES
 extern GHashTable *ht_browsers;
 extern GHashTable *ht_file_bw;
 extern GHashTable *ht_hosts;
+extern GHashTable *ht_hosts_agents;
 extern GHashTable *ht_keyphrases;
 extern GHashTable *ht_monthly;
 extern GHashTable *ht_not_found_requests;
@@ -134,6 +135,7 @@ struct scrolling
    size_t init_scrl_main_win;
    size_t scrl_help_win;
    size_t scrl_main_win;
+   size_t scrl_agen_win;
 };
 
 struct tm *now_tm;

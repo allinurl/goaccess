@@ -23,6 +23,11 @@
 
 WINDOW *create_win (WINDOW * main_win);
 
+struct struct_agents
+{
+   char *agents;
+};
+
 int get_max_value (struct struct_display **s_display, struct logger *logger,
                    int module);
 void close_win (WINDOW * w);
@@ -40,7 +45,6 @@ void generate_time (void);
 void load_help_popup (WINDOW * help_win);
 void load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
                  struct logger *logger);
-void load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr);
 void load_schemes_win (WINDOW * schemes_win);
 void term_size (WINDOW * main_win);
 void update_header (WINDOW * header_win, int current);

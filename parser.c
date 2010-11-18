@@ -244,6 +244,40 @@ process_keyphrases (char *ref)
    return 0;
 }
 
+static int
+process_host_agents (char *host, char *agent)
+{
+   GHashTable *ht = ht_hosts_agents;
+   gpointer value_ptr;
+
+   if ((ht == NULL) || (host == NULL) || (agent == NULL))
+      return (EINVAL);
+
+   char *ptr_value, *tmp;
+
+   value_ptr = g_hash_table_lookup (ht, host);
+   if (value_ptr != NULL) {
+      ptr_value = (char *) value_ptr;
+      if (strstr (ptr_value, agent))
+         return 0;
+
+      size_t len1 = strlen (ptr_value);
+      size_t len2 = strlen (agent);
+
+      tmp = malloc (len1 + len2 + 2);
+      if (tmp == NULL)
+         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                        "Unable to allocate memory.");
+      memcpy (tmp, ptr_value, len1);
+      tmp[len1] = '|';
+      memcpy (tmp + len1 + 1, agent, len2 + 1); // includes terminating null
+   } else
+      tmp = alloc_string (agent);
+
+   g_hash_table_replace (ht, g_strdup (host), tmp);
+   return 0;
+}
+
 static void
 process_unique_data (char *host, char *date, char *agent, char *status,
                      char *referrer)
@@ -283,6 +317,9 @@ process_unique_data (char *host, char *date, char *agent, char *status,
    } else {
       process_generic_data (ht_hosts, host);
    }
+   if (agent[strlen (agent) - 1] == '\n')
+      agent[strlen (agent) - 1] = 0;
+   process_host_agents (host, agent);
    process_generic_data (ht_unique_visitors, unique_visitors_key);
 }
 

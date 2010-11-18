@@ -40,6 +40,7 @@
 /* Definitions checked against declarations */
 GHashTable *ht_browsers = NULL;
 GHashTable *ht_file_bw = NULL;
+GHashTable *ht_hosts_agents = NULL;
 GHashTable *ht_hosts = NULL;
 GHashTable *ht_keyphrases = NULL;
 GHashTable *ht_monthly = NULL;
