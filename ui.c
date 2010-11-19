@@ -335,9 +335,6 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    } else
       mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", s_display[i]->data);
 
-   /* hits are always displayed */
-   mvwprintw (main_win, pos_y, 2, "%d", s_display[i]->hits); 
-
    wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
    mvwprintw (main_win, pos_y, 10 + inc_pos_x, "%4.2f%%", t);
    wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
