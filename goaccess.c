@@ -218,6 +218,11 @@ render_screens (void)
               logger->current_module);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
+   /* no valid entries to process from the log */
+   if ((logger->total_process == 0)
+       || (logger->total_process == logger->total_invalid))
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Nothing valid to process.");
 }
 
 static void

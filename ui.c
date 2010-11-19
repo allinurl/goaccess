@@ -312,9 +312,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
          if (strlen (s_display[i]->data) > ((size_t) (col - 32))) {
             char *str = (char *) malloc (col - 32 + 1);
             if (str == NULL)
-               error_handler (__PRETTY_FUNCTION__,
-                              __FILE__, __LINE__,
-                              "Unable to allocate memory");
+               error_handler (__PRETTY_FUNCTION__, __FILE__,
+                              __LINE__, "Unable to allocate memory");
             strncpy (str, s_display[i]->data, col - 32);
             (str)[col - 32] = 0;
             mvwprintw (main_win, pos_y, 29 + inc_pos_x, "%s", str);
@@ -327,8 +326,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    } else if (strlen (s_display[i]->data) > ((size_t) (col - 22))) {
       char *str = (char *) malloc (col - 22 + 1);
       if (str == NULL)
-         error_handler (__PRETTY_FUNCTION__,
-                        __FILE__, __LINE__, "Unable to allocate memory");
+         error_handler (__PRETTY_FUNCTION__, __FILE__,
+                        __LINE__, "Unable to allocate memory");
       strncpy (str, s_display[i]->data, col - 22);
       (str)[col - 22] = 0;
       mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", str);
@@ -336,7 +335,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    } else
       mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", s_display[i]->data);
 
-   mvwprintw (main_win, pos_y, 2, "%d", s_display[i]->hits);
+   /* hits are always displayed */
+   mvwprintw (main_win, pos_y, 2, "%d", s_display[i]->hits); 
 
    wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
    mvwprintw (main_win, pos_y, 10 + inc_pos_x, "%4.2f%%", t);
@@ -627,10 +627,8 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
        wscrl (inner_win, 1);
        scrollok (inner_win, FALSE);
        wmove (inner_win, y - 1, 2);
-       mvwaddch (inner_win, y - 1, 1, '[');
-       mvwaddch (inner_win, y - 1, x - 2, ']');
        /* minus help_win offset - 0 */
-       mvwaddstr (inner_win, y - 1, 2,
+       mvwaddstr (inner_win, y - 1, 1,
                   s_agents[scrolling->scrl_agen_win].agents);
        scrolling->scrl_agen_win++;
        break;
@@ -642,10 +640,8 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
        wscrl (inner_win, -1);
        scrollok (inner_win, FALSE);
        wmove (inner_win, 0, 2);
-       mvwaddch (inner_win, 0, 1, '[');
-       mvwaddch (inner_win, 0, x - 2, ']');
        /* minus help_win offset - y */
-       mvwaddstr (inner_win, 0, 2,
+       mvwaddstr (inner_win, 0, 1,
                   s_agents[(scrolling->scrl_agen_win - y) - 1].agents);
        scrolling->scrl_agen_win--;
        break;
@@ -710,6 +706,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 
    char *ptr_value;
    gpointer value_ptr;
+
    int i, m, delims = 0;
    size_t inner_y, inner_x;
    size_t win_alloc, width_max;
@@ -744,17 +741,15 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 
       split_agent_str (ptr_value, s_agents, width_max);
       for (i = 0, m = 0; (i < inner_y) && (s_agents[i].agents != NULL);
-           i++, m++) {
-         mvwaddch (inner_win, m, 1, '[');
-         mvwaddch (inner_win, m, inner_x - 2, ']');
-         mvwaddstr (inner_win, m, 2, s_agents[i].agents);
-      }
+           i++, m++)
+         mvwaddstr (inner_win, m, 1, s_agents[i].agents);
    }
 
    scrolling.scrl_agen_win = inner_y;
    wmove (inner_win, inner_y, 0);
    wrefresh (ip_detail_win);
    wrefresh (inner_win);
+
    /* ###TODO: resize child windows. */
    /* for now we can close them up */
    while (quit) {
@@ -1145,21 +1140,23 @@ search_request (MENU * my_menu, const char *input)
    const char *haystack;
    ITEM *item_ptr = NULL;
 
-   if (input != NULL) {
-      int i = -1, j = -1, response = 0;
-      j = item_index (current_item (my_menu));
+   if (input == NULL)
+      return item_ptr;
 
-      for (i = j + 1; i < item_count (my_menu) && !response; i++) {
-         haystack = item_description (menu_items (my_menu)[i]);
-         if (haystack != NULL && input != NULL) {
-            if (strstr (haystack, input))
-               response = 1;
-         } else
-            response = 0;
-      }
-      if (response)
-         item_ptr = menu_items (my_menu)[i - 1];
+   int i = -1, j = -1, response = 0;
+   j = item_index (current_item (my_menu));
+
+   for (i = j + 1; i < item_count (my_menu) && !response; i++) {
+      haystack = item_description (menu_items (my_menu)[i]);
+      if (haystack != NULL && input != NULL) {
+         if (strstr (haystack, input))
+            response = 1;
+      } else
+         response = 0;
    }
+   if (response)
+      item_ptr = menu_items (my_menu)[i - 1];
+
    return item_ptr;
 }
 
