@@ -28,11 +28,7 @@ struct struct_agents
    char *agents;
 };
 
-int get_max_value (struct struct_display **s_display, struct logger *logger,
-                   int module);
 void close_win (WINDOW * w);
-void create_graphs (WINDOW * main_win, struct struct_display **s_display,
-                    struct logger *logger, int i, int module, int max);
 void display_content (WINDOW * main_win, struct struct_display **s_display,
                       struct logger *logger, struct scrolling scrolling);
 void display_general (WINDOW * header_win, struct logger *logger,

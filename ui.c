@@ -183,7 +183,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    wattroff (header_win, COLOR_PAIR (COL_WHITE));
 }
 
-void
+static void
 create_graphs (WINDOW * main_win, struct struct_display **s_display,
                struct logger *logger, int i, int module, int max)
 {
@@ -263,7 +263,7 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    wattroff (main_win, COLOR_PAIR (COL_GREEN));
 }
 
-int
+static int
 get_max_value (struct struct_display **s_display, struct logger *logger,
                int module)
 {
@@ -753,10 +753,14 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
       c = wgetch (stdscr);
       switch (c) {
        case KEY_DOWN:
+          if (value_ptr == NULL)
+             break;
           (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents,
                                  win_alloc);
           break;
        case KEY_UP:
+          if (value_ptr == NULL)
+             break;
           (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents,
                                  win_alloc);
           break;
@@ -768,7 +772,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
       wrefresh (ip_detail_win);
    }
 
-   for (i = 0; s_agents[i].agents != NULL; i++)
+   for (i = 0; value_ptr != NULL && s_agents[i].agents != NULL; i++)
       free (s_agents[i].agents);
    free (s_agents);
 
@@ -922,35 +926,56 @@ process_monthly (struct struct_holder **s_holder, int n_months)
    }
 }
 
+static char *
+subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
+{
+   char *buf;
+   int len_bar = 0;
+   size_t width = (x / 2);
+
+   if ((max == 0) || (x == 0))
+      return alloc_string ("");
+
+   len_bar = ((curr * width) / max);
+
+   buf = malloc (len_bar + 1);
+   if (buf == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   memset (buf, '|', len_bar);
+   buf[len_bar] = '\0';
+
+   return buf;
+}
+
 static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
-                int choices, int sort)
+                int choices, int sort, WINDOW * my_menu_win, int max)
 {
-   char buf[12] = "";
-   char *buffer_date = NULL, *b_version = NULL, *o_version = NULL;
-   char *hits = NULL;
-   char *p = NULL, *b;
-   int i;
+   char buf[12] = "", *buffer_date = NULL;
+   char *b_version = NULL, *o_version = NULL;
+   char *hits = NULL, *p = NULL, *b = NULL, *graph = NULL;
    ITEM **items;
    struct tm tm;
 
    char *bw, *w_bw, *status_code, *token, *status_str;
    gpointer value_ptr;
+   int i;
    long long *ptr_value;
+   size_t y, x;
 
    memset (&tm, 0, sizeof (tm));
 
-   /* sort struct prior to display */
-   if (!sort && logger->current_module == UNIQUE_VISITORS)
-      qsort (s_holder, choices, sizeof (struct struct_holder *),
-             struct_cmp_by_hits);
-   else if (logger->current_module == UNIQUE_VISITORS)
-      qsort (s_holder, choices, sizeof (struct struct_holder *),
-             struct_cmp_desc);
+   if (logger->current_module == UNIQUE_VISITORS)
+      getmaxyx (my_menu_win, y, x);
 
+   /* sort struct prior to display */
    if (logger->current_module == BROWSERS || logger->current_module == OS)
-      qsort (s_holder, choices, sizeof (struct struct_holder *),
-             struct_cmp_asc);
+      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_asc);
+   else if (!sort && logger->current_module == UNIQUE_VISITORS)
+      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_by_hits);
+   else if (logger->current_module == UNIQUE_VISITORS)
+      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_desc);
 
    items = (ITEM **) malloc (sizeof (ITEM *) * (choices + 1));
 
@@ -958,15 +983,17 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
       switch (logger->current_module) {
        case UNIQUE_VISITORS:
           hits = convert_hits_to_string (s_holder[i]->hits);
-          buffer_date = (char *) malloc (sizeof (char) * 17);
+          buffer_date = (char *) malloc (sizeof (char) * (100));
           if (buffer_date == NULL)
-             error_handler (__PRETTY_FUNCTION__,
-                            __FILE__, __LINE__, "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__, __FILE__,
+                            __LINE__, "Unable to allocate memory");
           if (strchr (s_holder[i]->data, '|') == NULL) {
+             graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
              strptime (s_holder[i]->data, "%Y%m%d", &tm);
              strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
-             sprintf (buffer_date, "|`- %s", buf);
+             sprintf (buffer_date, "|`- %s %s", buf, graph);
              items[i] = new_item (hits, buffer_date);
+             free (graph);
              break;
           }
           strptime (s_holder[i]->data, "%Y%m", &tm);
@@ -1055,6 +1082,7 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           break;
       }
    }
+
    items[i] = (ITEM *) NULL;
    return items;
 }
@@ -1096,10 +1124,10 @@ set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
 static void
 load_popup_content (WINDOW * my_menu_win, int choices,
                     struct struct_holder **s_holder, struct logger *logger,
-                    int sort)
+                    int sort, int max)
 {
    wclrtoeol (my_menu_win);
-   items = get_menu_items (s_holder, logger, choices, sort);
+   items = get_menu_items (s_holder, logger, choices, sort, my_menu_win, max);
    my_menu = set_menu (my_menu_win, items, logger);
    post_menu (my_menu);
    wrefresh (my_menu_win);
@@ -1234,7 +1262,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
 
    char *p;
    int hash_table_size = g_hash_table_size (hash_table);
-   int i = 0, quit = 1;
+   int i = 0, quit = 1, max = 0;
    int new_menu_size = 0;
 
    g_hash_table_foreach (hash_table, (GHFunc) load_popup_iter, s_holder);
@@ -1251,9 +1279,12 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       choices = g_hash_table_size (hash_table);
 
    /* sort s_holder */
-   qsort (s_holder, hash_table_size, sizeof (struct struct_holder *),
-          struct_cmp_by_hits);
+   qsort (s_holder, hash_table_size, sizeof *s_holder, struct_cmp_by_hits);
    if (logger->current_module == UNIQUE_VISITORS) {
+      for (i = 0; i < g_hash_table_size (ht_unique_vis); i++) {
+         if (s_holder[i]->hits > max)
+            max = s_holder[i]->hits;
+      }
       /* add up monthly history totals */
       process_monthly (s_holder, hash_table_size);
       /* realloc the extra space needed for months */
@@ -1261,8 +1292,8 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       struct struct_holder **s_tmp;
       s_tmp = realloc (s_holder, new_menu_size * sizeof *s_holder);
       if (s_tmp == NULL)
-         error_handler (__PRETTY_FUNCTION__,
-                        __FILE__, __LINE__, "Unable to re-allocate memory");
+         error_handler (__PRETTY_FUNCTION__, __FILE__,
+                        __LINE__, "Unable to re-allocate memory");
       else
          s_holder = s_tmp;
 
@@ -1273,7 +1304,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       iter_ctr = 0;
    }
 
-   load_popup_content (my_menu_win, choices, s_holder, logger, 1);
+   load_popup_content (my_menu_win, choices, s_holder, logger, 1, max);
 
    while (quit) {
       c = wgetch (stdscr);
@@ -1344,7 +1375,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
           free_menu (my_menu);
           my_menu = NULL;
           load_popup_free_items (items, logger);
-          load_popup_content (my_menu_win, choices, s_holder, logger, 0);
+          load_popup_content (my_menu_win, choices, s_holder, logger, 0, max);
           break;
        case 'S':
           if (logger->current_module != UNIQUE_VISITORS)
@@ -1353,7 +1384,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
           free_menu (my_menu);
           my_menu = NULL;
           load_popup_free_items (items, logger);
-          load_popup_content (my_menu_win, choices, s_holder, logger, 1);
+          load_popup_content (my_menu_win, choices, s_holder, logger, 1, max);
           break;
        case 10:
        case KEY_RIGHT:
