@@ -143,7 +143,6 @@ struct tm *now_tm;
 /* Declaration of variables */
 extern char *ignore_host;
 extern char *req;
-extern char *status_code;
 extern int bandwidth_flag;
 extern int color_scheme;
 extern int iter_ctr;

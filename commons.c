@@ -68,7 +68,6 @@ long long req_size = 0;
 /* string processing */
 char *ignore_host;
 char *req;
-char *status_code;
 
 /* Processing time */
 time_t end_proc;

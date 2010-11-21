@@ -409,7 +409,8 @@ parse_req_size (char *line, int format)
 }
 
 static int
-parse_request (struct logger *logger, char *line, char *cpy_line)
+parse_request (struct logger *logger, char *line, char *cpy_line,
+               char **status_code)
 {
    char *ptr, *prb = NULL, *fqm = NULL, *sqm =
       NULL, *host, *date, *ref, *h, *p;
@@ -490,11 +491,11 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
    char *lookfor = NULL, *s_l;
    if ((lookfor = "/1.0\" ", s_l = strstr (cpy_line, lookfor)) != NULL ||
        (lookfor = "/1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL)
-      status_code = clean_status (s_l + 6);
+      *status_code = clean_status (s_l + 6);
    else
       /* perhaps something wrong with the log,
          more likely malformed request syntax */
-      status_code = alloc_string ("---");
+      *status_code = alloc_string ("---");
  nohttpstatuscode:;
 
    logger->host = host;
@@ -505,7 +506,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line)
    logger->resp_size = band_size;
 
    if (http_status_code_flag)
-      logger->status = status_code;
+      logger->status = *status_code;
 
    return 0;
 }
@@ -514,12 +515,13 @@ static int
 process_log (struct logger *logger, char *line)
 {
    char *cpy_line = strdup (line);
+   char *status_code;
    struct logger log;
    logger->total_process++;
 
    /* Make compiler happy */
    memset (&log, 0, sizeof (log));
-   if (parse_request (&log, line, cpy_line) != 0) {
+   if (parse_request (&log, line, cpy_line, &status_code) != 0) {
       free (cpy_line);
       logger->total_invalid++;
       return 0;
@@ -527,7 +529,8 @@ process_log (struct logger *logger, char *line)
 
    process_unique_data (log.host, log.date, log.agent, log.status,
                         log.referrer);
-   free (status_code);
+   if (http_status_code_flag)
+      free (status_code);
    if (verify_static_content (log.request)) {
       if (strstr (cpy_line, "\" 404 "))
          process_generic_data (ht_not_found_requests, log.request);
