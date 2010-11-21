@@ -609,7 +609,7 @@ load_help_popup (WINDOW * help_win)
 
 static void
 scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
-                struct struct_agents *s_agents, size_t win_alloc)
+                struct struct_agents *s_agents, size_t alloc)
 {
    int y, x;
    getmaxyx (inner_win, y, x);
@@ -617,7 +617,7 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
    switch (where) {
        /* scroll down */
     case 1:
-       if ((scrolling->scrl_agen_win > win_alloc)
+       if ((scrolling->scrl_agen_win > alloc - 1)
            || (s_agents[scrolling->scrl_agen_win].agents == NULL))
           return;
        scrollok (inner_win, TRUE);
@@ -706,7 +706,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 
    int i, m, delims = 0;
    size_t inner_y, inner_x;
-   size_t win_alloc, width_max;
+   size_t alloc, width_max;
 
    /* agents list */
    value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
@@ -719,22 +719,20 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
                         "Unable to allocate memory for new window.");
       getmaxyx (inner_win, inner_y, inner_x);
 
-      char *ch_delim;
-      ch_delim = strchr (ptr_value, '|');
-      while (ch_delim != NULL) {
-         delims++;
-         ch_delim = strchr (ch_delim + 1, '|');
-      }
+      char *c_del = ptr_value;
+      do {
+         if (*c_del == '|')
+            delims++;
+      } while (*(c_del++));
 
       width_max = inner_x - 4;
       /* round-up + padding */
-      win_alloc =
-         ((strlen (ptr_value) + width_max - 1) / width_max) + delims + 1;
-      s_agents = malloc (win_alloc * sizeof (s_agents));
+      alloc = ((strlen (ptr_value) + width_max - 1) / width_max) + delims + 1;
+      s_agents = malloc (alloc * sizeof (s_agents));
       if (s_agents == NULL)
          error_handler (__PRETTY_FUNCTION__, __FILE__,
                         __LINE__, "Unable to allocate memory.");
-      memset (s_agents, 0, win_alloc * sizeof (s_agents));
+      memset (s_agents, 0, alloc * sizeof (s_agents));
 
       split_agent_str (ptr_value, s_agents, width_max);
       for (i = 0, m = 0; (i < inner_y) && (s_agents[i].agents != NULL);
@@ -755,14 +753,12 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
        case KEY_DOWN:
           if (value_ptr == NULL)
              break;
-          (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents,
-                                 win_alloc);
+          (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents, alloc);
           break;
        case KEY_UP:
           if (value_ptr == NULL)
              break;
-          (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents,
-                                 win_alloc);
+          (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents, alloc);
           break;
        case KEY_RESIZE:
        case 'q':
