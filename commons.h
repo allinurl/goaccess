@@ -141,25 +141,34 @@ struct scrolling
 struct tm *now_tm;
 
 /* Declaration of variables */
+/* enable flags */
 extern char *ignore_host;
-extern char *req;
 extern int bandwidth_flag;
-extern int color_scheme;
+extern int host_agents_list_flag;
+extern int http_status_code_flag;
+
+/* iteration */
 extern int iter_ctr;
 extern int iter_module;
-extern int http_status_code_flag;
+
+/* string processing */
+extern char *req;
 extern long long req_size;
 
+/* Processing time */
 extern time_t end_proc;
 extern time_t now;
 extern time_t start_proc;
 
+/* resizing/scheme */
+extern int color_scheme;
 extern size_t real_size_y;
 extern size_t term_h;
 extern size_t term_w;
 
-extern char *conf_keywords[][2];
+/* file */
 extern char *ifile;
+extern char *conf_keywords[][2];
 
 extern char *browsers[][2];
 extern char *codes[][2];

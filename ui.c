@@ -689,7 +689,6 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    wborder (ip_detail_win, '|', '|', '-', '-', '+', '+', '+', '+');
    mvwprintw (ip_detail_win, 3, 2, "Reverse DNS for address: %s", addr);
    mvwprintw (ip_detail_win, 4, 2, "%s", my_addr);
-   draw_header (ip_detail_win, "[List of USER-AGENTS]", 2, 7, x - 3, 2);
 
    /* geolocation data */
    GeoIP *gi;
@@ -701,6 +700,10 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    mvwprintw (ip_detail_win, 5, 2, "Country: %s", location);
    free (my_addr);
 
+   /* List of User-Agents by host */
+   if (!host_agents_list_flag)
+      goto noagentlist;
+
    char *ptr_value;
    gpointer value_ptr;
 
@@ -708,7 +711,8 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    size_t inner_y, inner_x;
    size_t alloc, width_max;
 
-   /* agents list */
+   draw_header (ip_detail_win, "[List of User-Agents]", 2, 7, x - 3, 2);
+
    value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
    if (value_ptr != NULL) {
       ptr_value = (char *) value_ptr;
@@ -719,12 +723,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
                         "Unable to allocate memory for new window.");
       getmaxyx (inner_win, inner_y, inner_x);
 
-      char *c_del = ptr_value;
-      do {
-         if (*c_del == '|')
-            delims++;
-      } while (*(c_del++));
-
+      delims = count_occurrences (ptr_value, '|');
       width_max = inner_x - 4;
       /* round-up + padding */
       alloc = ((strlen (ptr_value) + width_max - 1) / width_max) + delims + 1;
@@ -739,6 +738,8 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
            i++, m++)
          mvwaddstr (inner_win, m, 1, s_agents[i].agents);
    }
+
+ noagentlist:;
 
    scrolling.scrl_agen_win = inner_y;
    wmove (inner_win, inner_y, 0);
@@ -768,10 +769,11 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
       wrefresh (ip_detail_win);
    }
 
-   for (i = 0; value_ptr != NULL && s_agents[i].agents != NULL; i++)
-      free (s_agents[i].agents);
-   free (s_agents);
-
+   if (host_agents_list_flag) {
+      for (i = 0; value_ptr != NULL && s_agents[i].agents != NULL; i++)
+         free (s_agents[i].agents);
+      free (s_agents);
+   }
    render_screens ();
    return;
 }

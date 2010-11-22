@@ -74,6 +74,18 @@ alloc_string (const char *str)
    return new;
 }
 
+int
+count_occurrences (const char *s1, char c)
+{
+   const char *ptr = s1;
+   int n = 0;
+   do {
+      if (*ptr == c)
+         n++;
+   } while (*(ptr++));
+   return n;
+}
+
 char *
 reverse_ip (char *str)
 {

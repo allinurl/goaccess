@@ -81,16 +81,19 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ -f log_file ]\n\n");
+   printf ("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
-   printf ("  -f  - Path to input log <filename> \n");
-   printf ("  -b  - Enable total bandwidth consumption. To achieve\n");
-   printf ("        faster parsing, do not enable this flag. \n");
-   printf ("  -s  - Enable/report HTTP status codes. To avoid overhead\n");
-   printf ("        while parsing, this has been disabled by default. \n");
-   printf ("  -e  - Exclude an IP from being counted under the HOST\n");
-   printf ("        module. This has been disabled by default. \n\n");
-   printf ("For more details visit: http://goaccess.prosoftcorp.com \n\n");
+   printf (" -f <argument> - Path to input log <filename> \n");
+   printf (" -b            - Enables total bandwidth consumption.\n");
+   printf ("                 For faster parsing, don't enable this flag.\n");
+   printf (" -s            - Enables HTTP status codes report.\n");
+   printf ("                 For faster parsing, don't enable this flag.\n");
+   printf (" -a            - Enables a List of User-Agents by host.\n");
+   printf (" -e <argument> - Excludes an IP from being counted under the\n");
+   printf ("                 HOST module. Disabled by default.\n\n");
+   printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
+   printf ("GoAccess Copyright (C) 2009-2010 GNU GPL'd, by Gerardo Orellana");
+   printf ("\n\n");
    exit (EXIT_FAILURE);
 }
 
@@ -399,7 +402,7 @@ main (int argc, char *argv[])
       cmd_help ();
 
    opterr = 0;
-   while ((o = getopt (argc, argv, "f:e:sb")) != -1) {
+   while ((o = getopt (argc, argv, "f:e:sba")) != -1) {
       switch (o) {
        case 'f':
           ifile = optarg;
@@ -412,6 +415,9 @@ main (int argc, char *argv[])
           break;
        case 'b':
           bandwidth_flag = 1;
+          break;
+       case 'a':
+          host_agents_list_flag = 1;
           break;
        case '?':
           if (optopt == 'f' || optopt == 'e')

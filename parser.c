@@ -319,7 +319,8 @@ process_unique_data (char *host, char *date, char *agent, char *status,
    }
    if (agent[strlen (agent) - 1] == '\n')
       agent[strlen (agent) - 1] = 0;
-   process_host_agents (host, agent);
+   if (host_agents_list_flag)
+      process_host_agents (host, agent);
    process_generic_data (ht_unique_visitors, unique_visitors_key);
 }
 

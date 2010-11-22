@@ -58,23 +58,26 @@ enum MODULES modules;
 enum SCHEMES schemes;
 
 /* enable flags */
+char *ignore_host;
 int bandwidth_flag = 0;
-int color_scheme = 1;
+int host_agents_list_flag = 0;
 int http_status_code_flag = 0;
+
+/* iteration */
 int iter_ctr = 0;
 int iter_module = 0;
-long long req_size = 0;
 
 /* string processing */
-char *ignore_host;
 char *req;
+long long req_size = 0;
 
 /* Processing time */
 time_t end_proc;
 time_t now;
 time_t start_proc;
 
-/* resizing */
+/* resizing/scheme */
+int color_scheme = 1;
 size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
