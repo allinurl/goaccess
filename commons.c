@@ -68,7 +68,6 @@ int iter_ctr = 0;
 int iter_module = 0;
 
 /* string processing */
-char *req;
 long long req_size = 0;
 
 /* Processing time */

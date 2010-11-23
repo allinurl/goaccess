@@ -1384,7 +1384,9 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
           load_popup_free_items (items, logger);
           load_popup_content (my_menu_win, choices, s_holder, logger, 1, max);
           break;
-       case 10:
+       case 0x0a:
+       case 0x0d:
+       case KEY_ENTER:
        case KEY_RIGHT:
           if (logger->current_module != 8)
              break;

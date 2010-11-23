@@ -332,13 +332,13 @@ verify_static_content (char *url)
    if (strlen (url) < 5)
       return 0;
    if (!memcmp (nul - 4, ".jpg", 4) || !memcmp (nul - 4, ".JPG", 4) ||
-       !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
        !memcmp (nul - 4, ".png", 4) || !memcmp (nul - 4, ".PNG", 4) ||
-       !memcmp (nul - 4, ".ico", 4) || !memcmp (nul - 4, ".ICO", 4) ||
-       !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 4, ".JPEG", 5) ||
-       !memcmp (nul - 4, ".swf", 4) || !memcmp (nul - 4, ".SWF", 4) ||
+       !memcmp (nul - 3, ".js", 3) || !memcmp (nul - 3, ".JS", 3) ||
+       !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
        !memcmp (nul - 4, ".css", 4) || !memcmp (nul - 4, ".CSS", 4) ||
-       !memcmp (nul - 3, ".js", 3) || !memcmp (nul - 3, ".JS", 3))
+       !memcmp (nul - 4, ".ico", 4) || !memcmp (nul - 4, ".ICO", 4) ||
+       !memcmp (nul - 4, ".swf", 4) || !memcmp (nul - 4, ".SWF", 4) ||
+       !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 4, ".JPEG", 5))
       return 1;
    return 0;
 }
@@ -411,7 +411,7 @@ parse_req_size (char *line, int format)
 
 static int
 parse_request (struct logger *logger, char *line, char *cpy_line,
-               char **status_code)
+               char **status_code, char **req)
 {
    char *ptr, *prb = NULL, *fqm = NULL, *sqm =
       NULL, *host, *date, *ref, *h, *p;
@@ -484,7 +484,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line,
       *ptr = '\0';
 
    /* req */
-   req = parse_req (cpy_line);
+   *req = parse_req (cpy_line);
 
    if (!http_status_code_flag)
       goto nohttpstatuscode;
@@ -503,7 +503,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line,
    logger->agent = fqm;
    logger->date = date;
    logger->referrer = ref;
-   logger->request = req;
+   logger->request = *req;
    logger->resp_size = band_size;
 
    if (http_status_code_flag)
@@ -516,13 +516,13 @@ static int
 process_log (struct logger *logger, char *line)
 {
    char *cpy_line = strdup (line);
-   char *status_code;
+   char *status_code, *req;
    struct logger log;
    logger->total_process++;
 
    /* Make compiler happy */
    memset (&log, 0, sizeof (log));
-   if (parse_request (&log, line, cpy_line, &status_code) != 0) {
+   if (parse_request (&log, line, cpy_line, &status_code, &req) != 0) {
       free (cpy_line);
       logger->total_invalid++;
       return 0;

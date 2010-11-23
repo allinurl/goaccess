@@ -152,7 +152,6 @@ extern int iter_ctr;
 extern int iter_module;
 
 /* string processing */
-extern char *req;
 extern long long req_size;
 
 /* Processing time */
