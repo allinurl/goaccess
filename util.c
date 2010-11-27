@@ -23,6 +23,8 @@
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
+#define _XOPEN_SOURCE 700
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <errno.h>
@@ -32,6 +34,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "util.h"
@@ -84,6 +87,21 @@ count_occurrences (const char *s1, char c)
          n++;
    } while (*(ptr++));
    return n;
+}
+
+char *
+convert_date (char *result, char *data, int size)
+{
+   struct tm tm;
+
+   memset (&tm, 0, sizeof (tm));
+
+   strptime (data, "%Y%m%d", &tm);
+   if (strftime (result, size, "%d/%b/%Y", &tm) <= 0) {
+      *result = 0;
+   }
+
+   return result;
 }
 
 char *

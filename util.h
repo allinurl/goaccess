@@ -28,12 +28,14 @@ char *clean_month (char *s);
 char *clean_status (char *s);
 char *clean_time (char *s);
 char *filesize_str (off_t log_size);
+char *convert_date (char *result, char *data, int size);
 char *reverse_ip (char *str);
 char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *verify_browser (char *str);
 char *verify_os (char *str);
 char *verify_status_code (char *str);
+int count_occurrences (const char *s1, char c);
 off_t file_size (const char *filename);
 
 #endif

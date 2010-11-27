@@ -27,6 +27,7 @@
 
 #define _XOPEN_SOURCE 700
 
+#include <ctype.h>
 #include <curses.h>
 #include <errno.h>
 #include <stdio.h>
@@ -106,40 +107,60 @@ verify_os_type (char *str)
 }
 
 static int
-process_request_bw (GHashTable * ht, const char *req, long long resp_size)
+process_request_bw (char *host, char *date, char *req, long long resp_size)
 {
+   GHashTable *ht;
    gpointer value_ptr;
+   int i, n_tbls = 3;           /* hash_tables to process */
 
-   if ((ht == NULL) || (req == NULL))
+   if ((host == NULL) || (date == NULL) || (req == NULL))
       return (EINVAL);
 
-   long long *ptr_value;
+   char *key = NULL;
    long long add_value;
+   long long *ptr_value;
 
-   value_ptr = g_hash_table_lookup (ht, req);
-   if (value_ptr != NULL) {
-      ptr_value = (long long *) value_ptr;
-      add_value = *ptr_value + resp_size;
-   } else
-      add_value = 0 + resp_size;
+   for (i = 0; i < n_tbls; i++) {
+      switch (i) {
+       case 0:                 /* HOSTS bandwith */
+          ht = ht_host_bw;
+          key = host;
+          break;
+       case 1:                 /* FILES bandwith */
+          ht = ht_file_bw;
+          key = req;
+          break;
+       case 2:                 /* DATE bandwith */
+          ht = ht_date_bw;
+          key = date;
+          break;
+      }
+      value_ptr = g_hash_table_lookup (ht, key);
+      if (value_ptr != NULL) {
+         ptr_value = (long long *) value_ptr;
+         add_value = *ptr_value + resp_size;
+      } else
+         add_value = 0 + resp_size;
 
-   if (resp_size == -1)
-      add_value = 0;
+      if (resp_size == -1)
+         add_value = 0;
 
-   ptr_value = g_malloc (sizeof (long long));
-   *ptr_value = add_value;
+      ptr_value = g_malloc (sizeof (long long));
+      *ptr_value = add_value;
 
-   g_hash_table_replace (ht, g_strdup (req), ptr_value);
+      g_hash_table_replace (ht, g_strdup (key), ptr_value);
+   }
+
    return 0;
 }
 
 static int
 process_generic_data (GHashTable * ht, const char *key)
 {
-   int first = 0;
-   char *date = NULL, *ref = NULL;
-   gpointer value_ptr;
+   char *date = NULL;
    gint value_int;
+   gpointer value_ptr;
+   int first = 0;
 
    if ((ht == NULL) || (key == NULL))
       return (EINVAL);
@@ -416,6 +437,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line,
    char *ptr, *prb = NULL, *fqm = NULL, *sqm =
       NULL, *host, *date, *ref, *h, *p;
    int format = 0;
+   long long band_size = 0;
 
    host = line;
    if ((h = strchr (line, ' ')) == NULL)
@@ -462,7 +484,7 @@ parse_request (struct logger *logger, char *line, char *cpy_line,
    if (!bandwidth_flag)
       goto nobanwidth;
    /* bandwidth */
-   long long band_size = parse_req_size (cpy_line, format);
+   band_size = parse_req_size (cpy_line, format);
    if (band_size != -1)
       req_size = req_size + band_size;
    else
@@ -516,7 +538,7 @@ static int
 process_log (struct logger *logger, char *line)
 {
    char *cpy_line = strdup (line);
-   char *status_code, *req;
+   char *status_code = NULL, *req;
    struct logger log;
    logger->total_process++;
 
@@ -543,7 +565,7 @@ process_log (struct logger *logger, char *line)
    }
    process_generic_data (ht_referrers, log.referrer);
    if (bandwidth_flag)
-      process_request_bw (ht_file_bw, log.request, log.resp_size);
+      process_request_bw (log.host, log.date, log.request, log.resp_size);
    free (cpy_line);
    free (req);
    return 0;

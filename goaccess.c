@@ -42,6 +42,7 @@
 #include "util.h"
 #include "ui.h"
 #include "parser.h"
+#include "settings.h"
 
 static WINDOW *header_win, *main_win, *my_menu_win, *help_win, *schemes_win;
 
@@ -83,12 +84,13 @@ cmd_help (void)
    printf ("Usage: ");
    printf ("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
-   printf (" -f <argument> - Path to input log <filename> \n");
+   printf (" -f <argument> - Path to input log file.\n");
    printf (" -b            - Enables total bandwidth consumption.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -s            - Enables HTTP status codes report.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -a            - Enables a List of User-Agents by host.\n");
+   printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Excludes an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
@@ -112,7 +114,9 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
    free (logger);
 
    g_hash_table_destroy (ht_browsers);
+   g_hash_table_destroy (ht_date_bw);
    g_hash_table_destroy (ht_file_bw);
+   g_hash_table_destroy (ht_host_bw);
    g_hash_table_destroy (ht_hosts);
    g_hash_table_destroy (ht_keyphrases);
    g_hash_table_destroy (ht_monthly);
@@ -191,7 +195,7 @@ allocate_structs (int free_me)
 void
 render_screens (void)
 {
-   int row, col, x, y, chg = 0;
+   int row, col, chg = 0;
 
    werase (main_win);
    getmaxyx (stdscr, row, col);
@@ -231,7 +235,7 @@ render_screens (void)
 static void
 get_keys (void)
 {
-   int y, x, c, quit = 0;
+   int y, x, c;
    getmaxyx (main_win, y, x);
 
    char buf[BUFFER];
@@ -474,6 +478,12 @@ main (int argc, char *argv[])
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
    ht_file_bw =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
+   ht_host_bw =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
+   ht_date_bw =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
    ht_monthly =

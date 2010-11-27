@@ -19,6 +19,7 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,7 +43,7 @@ int
 parse_conf_file ()
 {
    char *val, *c;
-   int key;
+   int key = 0;
    char *user_home;
 
    user_home = getenv ("HOME");

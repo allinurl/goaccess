@@ -36,6 +36,7 @@
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 #define TOTAL_MODULES 	11
+#define DATELEN         12
 /* max height of footer stdscr (rows) */
 #define MAX_HEIGHT_FOOTER 1
 /* max height of header window (rows) */
@@ -80,7 +81,9 @@ enum SCHEMES
 
 /* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_browsers;
+extern GHashTable *ht_date_bw;
 extern GHashTable *ht_file_bw;
+extern GHashTable *ht_host_bw;
 extern GHashTable *ht_hosts;
 extern GHashTable *ht_hosts_agents;
 extern GHashTable *ht_keyphrases;
@@ -178,6 +181,7 @@ extern char *os[][2];
 size_t browsers_size (void);
 size_t codes_size (void);
 size_t help_main_size (void);
+size_t keywords_size (void);
 size_t os_size (void);
 void init_colors (void);
 

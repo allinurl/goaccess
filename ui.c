@@ -46,6 +46,7 @@
 #include "commons.h"
 #include "util.h"
 #include "ui.h"
+#include "error.h"
 
 static ITEM **items = NULL;
 static MENU *my_menu = NULL;
@@ -183,6 +184,18 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    wattroff (header_win, COLOR_PAIR (COL_WHITE));
 }
 
+static char *
+ht_bw_str (GHashTable * ht, const char *key)
+{
+   gpointer value_ptr;
+
+   value_ptr = g_hash_table_lookup (ht, key);
+   if (value_ptr != NULL)
+      return filesize_str (*(long long *) value_ptr);
+   else
+      return alloc_string ("-");
+}
+
 static void
 create_graphs (WINDOW * main_win, struct struct_display **s_display,
                struct logger *logger, int i, int module, int max)
@@ -211,13 +224,14 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
        break;
    }
 
-   int inc_pos_x = 0, magn = 0;
+   int padding_rx = 0, magn = 0;
+   int padding_gx = 0;          /* only graph padding */
 
    magn = floor (log10 (logger->total_process));
    if (magn >= 7)
-      inc_pos_x = magn % 5;
+      padding_rx = magn % 5;
    else
-      inc_pos_x = 0;
+      padding_rx = 0;
 
    l_bar = (float) (s_display[i]->hits * 100);
    orig_cal = (float) (s_display[i]->hits * 100);
@@ -233,19 +247,27 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    if (s_display[i]->module == 1) {
       strptime (s_display[i]->data, "%Y%m%d", &tm);
       strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
-      mvwprintw (main_win, y, 18 + inc_pos_x, "%s", buf);
+      mvwprintw (main_win, y, 18 + padding_rx, "%s", buf);
+      /* bandwidth */
+      if (bandwidth_flag) {
+         char *bw = ht_bw_str (ht_date_bw, buf);
+         wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+         mvwprintw (main_win, y, 31 + padding_rx, "%9s", bw);
+         wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+         free (bw);
+      }
    } else if (s_display[i]->module == 9)
       /* HTTP status codes */
-      mvwprintw (main_win, y, 18 + inc_pos_x, "%s\t%s",
+      mvwprintw (main_win, y, 18 + padding_rx, "%s\t%s",
                  s_display[i]->data, verify_status_code (s_display[i]->data));
    else
-      mvwprintw (main_win, y, 18 + inc_pos_x, "%s", s_display[i]->data);
+      mvwprintw (main_win, y, 18 + padding_rx, "%s", s_display[i]->data);
    mvwprintw (main_win, y, 2, "%d", s_display[i]->hits);
    if (s_display[i]->hits == max)
       wattron (main_win, COLOR_PAIR (COL_YELLOW));
    else
       wattron (main_win, COLOR_PAIR (COL_RED));
-   mvwprintw (main_win, y, 10 + inc_pos_x, "%4.2f%%", orig_cal);
+   mvwprintw (main_win, y, 10 + padding_rx, "%4.2f%%", orig_cal);
    if (s_display[i]->hits == max)
       wattroff (main_win, COLOR_PAIR (COL_YELLOW));
    else
@@ -253,12 +275,16 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    if (s_display[i]->module == 9)
       return;
 
-   scr_cal = (float) ((col - 38) - inc_pos_x);
+   if (bandwidth_flag && s_display[i]->module == 1)
+      padding_gx = 44;
+   else
+      padding_gx = 36;
+   scr_cal = (float) ((col - padding_gx) - padding_rx);
    scr_cal = (float) scr_cal / 100;
    l_bar = l_bar * scr_cal;
 
    wattron (main_win, COLOR_PAIR (COL_GREEN));
-   for (r = 0, xx = 35 + inc_pos_x; r < (int) l_bar; r++, xx++)
+   for (r = 0, xx = padding_gx - 2 + padding_rx; r < (int) l_bar; r++, xx++)
       mvwprintw (main_win, y, xx, "|");
    wattroff (main_win, COLOR_PAIR (COL_GREEN));
 }
@@ -282,7 +308,7 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
                     struct struct_display **s_display, int i)
 {
    float h = 0, t = 0;
-   int inc_pos_x = 0, magn = 0, col, row;
+   int padding_rx = 0, magn = 0, col, row;
    getmaxyx (main_win, row, col);
 
    if (s_display[i]->hits == 0)
@@ -293,50 +319,44 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
 
    magn = floor (log10 (logger->total_process));
    if (magn >= 7)
-      inc_pos_x = magn % 5;
+      padding_rx = magn % 5;
    else
-      inc_pos_x = 0;
+      padding_rx = 0;
 
-   gpointer value_ptr;
-   long long *ptr_value;
+   char *c_data = s_display[i]->data;   /* current m_data */
+   int c_mod = s_display[i]->module;    /* current module */
 
-   if (bandwidth_flag
-       && (s_display[i]->module == REQUESTS
-           || s_display[i]->module == REQUESTS_STATIC)) {
-      value_ptr = g_hash_table_lookup (ht_file_bw, s_display[i]->data);
-      if (value_ptr != NULL) {
-         char *bw = filesize_str (*(long long *) value_ptr);
-         wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-         mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%9s", bw);
-         wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-         if (strlen (s_display[i]->data) > ((size_t) (col - 32))) {
-            char *str = (char *) malloc (col - 32 + 1);
-            if (str == NULL)
-               error_handler (__PRETTY_FUNCTION__, __FILE__,
-                              __LINE__, "Unable to allocate memory");
-            strncpy (str, s_display[i]->data, col - 32);
-            (str)[col - 32] = 0;
-            mvwprintw (main_win, pos_y, 29 + inc_pos_x, "%s", str);
-            free (str);
-         } else
-            mvwprintw (main_win, pos_y, 29 + inc_pos_x, "%s",
-                       s_display[i]->data);
-         free (bw);
-      }
-   } else if (strlen (s_display[i]->data) > ((size_t) (col - 22))) {
+   if (bandwidth_flag && (c_mod == REQUESTS || c_mod == REQUESTS_STATIC)) {
+      char *bw = ht_bw_str (ht_file_bw, c_data);
+      wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+      mvwprintw (main_win, pos_y, 18 + padding_rx, "%9s", bw);
+      wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+      if (strlen (c_data) > ((size_t) (col - 32))) {
+         char *str = (char *) malloc (col - 32 + 1);
+         if (str == NULL)
+            error_handler (__PRETTY_FUNCTION__, __FILE__,
+                           __LINE__, "Unable to allocate memory");
+         strncpy (str, c_data, col - 32);
+         (str)[col - 32] = 0;
+         mvwprintw (main_win, pos_y, 29 + padding_rx, "%s", str);
+         free (str);
+      } else
+         mvwprintw (main_win, pos_y, 29 + padding_rx, "%s", c_data);
+      free (bw);
+   } else if (strlen (c_data) > ((size_t) (col - 22))) {
       char *str = (char *) malloc (col - 22 + 1);
       if (str == NULL)
          error_handler (__PRETTY_FUNCTION__, __FILE__,
                         __LINE__, "Unable to allocate memory");
-      strncpy (str, s_display[i]->data, col - 22);
+      strncpy (str, c_data, col - 22);
       (str)[col - 22] = 0;
-      mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", str);
+      mvwprintw (main_win, pos_y, 18 + padding_rx, "%s", str);
       free (str);
    } else
-      mvwprintw (main_win, pos_y, 18 + inc_pos_x, "%s", s_display[i]->data);
+      mvwprintw (main_win, pos_y, 18 + padding_rx, "%s", c_data);
 
    wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-   mvwprintw (main_win, pos_y, 10 + inc_pos_x, "%4.2f%%", t);
+   mvwprintw (main_win, pos_y, 10 + padding_rx, "%4.2f%%", t);
    wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
 }
 
@@ -358,7 +378,7 @@ display_content (WINDOW * main_win, struct struct_display **s_display,
    if (logger->alloc_counter > real_size_y)
       until = real_size_y + scrolling.init_scrl_main_win;
    else
-      logger->alloc_counter;
+      until = logger->alloc_counter;
 
    start = scrolling.init_scrl_main_win;
 
@@ -646,10 +666,11 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
    wrefresh (inner_win);
 }
 
+/* split agent str if length > than max or if '|' is found */
 static void
 split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
 {
-   char *curr, *holder;
+   char *holder;
    char *p = ptr_value;
    int i = 0, offset = 0;
 
@@ -665,7 +686,7 @@ split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
          offset++;
          continue;
       } else if (*p == '|')
-         *p++;
+         (void) *p++;
       offset = 0;
       *holder = '\0';
       s_agents[++i].agents = malloc (max + 1);
@@ -871,7 +892,7 @@ get_browser_type (char *line)
    char *p;
    char token[128];
 
-   if (p = strchr (line, '|')) {
+   if ((p = strchr (line, '|')) != NULL) {
       if (sscanf (line, "%[^|]", token) == 1)
          return line + strlen (token) + 1;
       else {
@@ -903,17 +924,15 @@ process_monthly (struct struct_holder **s_holder, int n_months)
       g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
                              g_free);
    gpointer value_ptr;
-   int add_value;
-   int i;
+   int add_value, i;
    int *ptr_value;
 
    for (i = 0; i < n_months; i++) {
       char *month = clean_month (s_holder[i]->data);
       value_ptr = g_hash_table_lookup (ht_monthly, month);
-      if (value_ptr != NULL) {
-         ptr_value = (int *) value_ptr;
-         add_value = *ptr_value + s_holder[i]->hits;
-      } else
+      if (value_ptr != NULL)
+         add_value = (int) *ptr_value + s_holder[i]->hits;
+      else
          add_value = 0 + s_holder[i]->hits;
 
       ptr_value = g_malloc (sizeof (int));
@@ -929,7 +948,7 @@ subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
 {
    char *buf;
    int len_bar = 0;
-   size_t width = (x / 2);
+   size_t width = (x / 2) - 13;
 
    if ((max == 0) || (x == 0))
       return alloc_string ("");
@@ -946,13 +965,38 @@ subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
    return buf;
 }
 
+static char *
+set_popup_data_unique_visitors (char *buf, char *graph)
+{
+   char *bw, *w_bw;
+   gpointer value_ptr;
+   int len;
+   long long *ptr_value;
+
+   value_ptr = g_hash_table_lookup (ht_date_bw, buf);
+   if (value_ptr == NULL)
+      return alloc_string ("-");
+
+   ptr_value = (long long *) value_ptr;
+   bw = filesize_str (*ptr_value);
+   len = snprintf (NULL, 0, "|`- %s %9s %s", buf, bw, graph);
+   w_bw = malloc (len + 3);
+   if (w_bw == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   sprintf (w_bw, "|`- %s %9s %s", buf, bw, graph);
+   free (bw);
+
+   return w_bw;
+}
+
 static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                 int choices, int sort, WINDOW * my_menu_win, int max)
 {
-   char buf[12] = "", *buffer_date = NULL;
+   char buf[DATELEN] = "", *buffer_date = NULL;
    char *b_version = NULL, *o_version = NULL;
-   char *hits = NULL, *p = NULL, *b = NULL, *graph = NULL;
+   char *hits = NULL, *graph = NULL;
    ITEM **items;
    struct tm tm;
 
@@ -977,23 +1021,36 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
 
    items = (ITEM **) malloc (sizeof (ITEM *) * (choices + 1));
 
+   int len;                     /* str len */
+   char *data = NULL;           /* s_holder[i]->data */
    for (i = 0; i < choices; ++i) {
       switch (logger->current_module) {
        case UNIQUE_VISITORS:
           hits = convert_hits_to_string (s_holder[i]->hits);
-          buffer_date = (char *) malloc (sizeof (char) * (100));
-          if (buffer_date == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__,
-                            __LINE__, "Unable to allocate memory");
-          if (strchr (s_holder[i]->data, '|') == NULL) {
+          if (strchr (s_holder[i]->data, '|') == NULL && bandwidth_flag) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
-             strptime (s_holder[i]->data, "%Y%m%d", &tm);
-             strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
-             sprintf (buffer_date, "|`- %s %s", buf, graph);
-             items[i] = new_item (hits, buffer_date);
+             convert_date (buf, s_holder[i]->data, DATELEN);
+             data = set_popup_data_unique_visitors (buf, graph);
+             items[i] = new_item (hits, data);
+             free (graph);
+             break;
+          } else if (strchr (s_holder[i]->data, '|') == NULL) {
+             graph = subgraphs (s_holder, s_holder[i]->hits, x + 13, max);
+             convert_date (buf, s_holder[i]->data, DATELEN);
+             len = snprintf (NULL, 0, "|`- %s %s", buf, graph);
+             w_bw = malloc (len + 2);
+             if (w_bw == NULL)
+                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                               "Unable to allocate memory");
+             sprintf (w_bw, "|`- %s %s", buf, graph);
+             items[i] = new_item (hits, w_bw);
              free (graph);
              break;
           }
+          buffer_date = (char *) malloc (sizeof (char) * (DATELEN));
+          if (buffer_date == NULL)
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory");
           strptime (s_holder[i]->data, "%Y%m", &tm);
           strftime (buf, sizeof (buf), "%b/%Y", &tm);
           sprintf (buffer_date, "%s", buf);
@@ -1001,22 +1058,25 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           break;
        case REQUESTS:
        case REQUESTS_STATIC:
+       case HOSTS:
           if (!bandwidth_flag) {
              hits = convert_hits_to_string (s_holder[i]->hits);
              items[i] = new_item (hits, s_holder[i]->data);
              break;
           }
-          value_ptr = g_hash_table_lookup (ht_file_bw, s_holder[i]->data);
+          if (logger->current_module == HOSTS)
+             value_ptr = g_hash_table_lookup (ht_host_bw, s_holder[i]->data);
+          else
+             value_ptr = g_hash_table_lookup (ht_file_bw, s_holder[i]->data);
           if (value_ptr == NULL)
              break;
           ptr_value = (long long *) value_ptr;
           bw = filesize_str (*ptr_value);
-          w_bw =
-             malloc (snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits) +
-                     2);
+          len = snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits);
+          w_bw = malloc (len + 2);
           if (w_bw == NULL)
-             error_handler (__PRETTY_FUNCTION__,
-                            __FILE__, __LINE__, "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory");
           sprintf (w_bw, "%9s - %d", bw, s_holder[i]->hits);
           items[i] = new_item (w_bw, s_holder[i]->data);
           free (bw);
@@ -1027,13 +1087,12 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
              items[i] = new_item (hits, alloc_string (s_holder[i]->data));
              break;
           }
-          o_version =
-             malloc (snprintf
-                     (NULL, 0, "|`- %s",
-                      get_browser_type (s_holder[i]->data)) + 1);
+          data = get_browser_type (s_holder[i]->data);
+          len = snprintf (NULL, 0, "|`- %s", data);
+          o_version = malloc (len + 1);
           if (o_version == NULL)
-             error_handler (__PRETTY_FUNCTION__,
-                            __FILE__, __LINE__, "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory");
           sprintf (o_version, "|`- %s", get_browser_type (s_holder[i]->data));
           items[i] = new_item (hits, o_version);
           break;
@@ -1043,13 +1102,12 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
              items[i] = new_item (hits, alloc_string (s_holder[i]->data));
              break;
           }
-          b_version =
-             malloc (snprintf
-                     (NULL, 0, "|`- %s",
-                      get_browser_type (s_holder[i]->data)) + 1);
+          data = get_browser_type (s_holder[i]->data);
+          len = snprintf (NULL, 0, "|`- %s", data);
+          b_version = malloc (len + 1);
           if (b_version == NULL)
-             error_handler (__PRETTY_FUNCTION__,
-                            __FILE__, __LINE__, "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory");
           sprintf (b_version, "|`- %s", get_browser_type (s_holder[i]->data));
           items[i] = new_item (hits, b_version);
           break;
@@ -1058,15 +1116,13 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           status_code = verify_status_code (s_holder[i]->data);
           token = (char *) malloc (sizeof (char) * 64);
           if (token == NULL)
-             error_handler (__PRETTY_FUNCTION__,
-                            __FILE__, __LINE__, "Unable to allocate memory");
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            "Unable to allocate memory");
           if (sscanf (status_code, "%[^-]", token) == 1) {
-             status_str =
-                malloc (snprintf
-                        (NULL, 0, "%s %s", s_holder[i]->data, token) + 1);
+             len = snprintf (NULL, 0, "%s %s", s_holder[i]->data, token);
+             status_str = malloc (len + 1);
              if (status_str == NULL)
-                error_handler (__PRETTY_FUNCTION__,
-                               __FILE__, __LINE__,
+                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                                "Unable to allocate memory");
              sprintf (status_str, "%s %s", s_holder[i]->data, token);
              items[i] = new_item (hits, status_str);
@@ -1110,11 +1166,10 @@ set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
 
    /* set menu mark */
    set_menu_mark (my_menu, " => ");
-   draw_header (my_menu_win,
-                "  Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit", 0, 1,
-                x, 2);
-   draw_header (my_menu_win, module_names[logger->current_module - 1], 0, 2,
-                x, 1);
+   char *desc = module_names[logger->current_module - 1];
+   char *head = "Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit";
+   draw_header (my_menu_win, head, 2, 1, x, 2);
+   draw_header (my_menu_win, desc, 0, 2, x, 1);
    wborder (my_menu_win, '|', '|', '-', '-', '+', '+', '+', '+');
    return my_menu;
 }
@@ -1197,7 +1252,7 @@ load_popup_visitors_iter (gpointer k, gpointer v,
    s_holder[iter_ctr] = malloc (sizeof *s_holder[iter_ctr]);
    /* we assume we dont have 99 days in a month, */
    /* this way we can sort them out and put them on top */
-   /* there might be a better way to go :) */
+   /* there might be a better way to go though :) */
    char *s = malloc (snprintf (NULL, 0, "%s|99", (gchar *) k) + 1);
    if (s == NULL)
       error_handler (__PRETTY_FUNCTION__,
@@ -1258,7 +1313,6 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
    getmaxyx (my_menu_win, y, x);
    MALLOC_STRUCT (s_holder, g_hash_table_size (hash_table));
 
-   char *p;
    int hash_table_size = g_hash_table_size (hash_table);
    int i = 0, quit = 1, max = 0;
    int new_menu_size = 0;
@@ -1283,6 +1337,8 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
          if (s_holder[i]->hits > max)
             max = s_holder[i]->hits;
       }
+      if (hash_table_size == 0)
+         goto err;
       /* add up monthly history totals */
       process_monthly (s_holder, hash_table_size);
       /* realloc the extra space needed for months */
@@ -1299,6 +1355,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
       g_hash_table_foreach (ht_monthly, (GHFunc) load_popup_visitors_iter,
                             s_holder);
       choices = new_menu_size;
+    err:;
       iter_ctr = 0;
    }
 

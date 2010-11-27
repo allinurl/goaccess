@@ -39,7 +39,9 @@
 
 /* Definitions checked against declarations */
 GHashTable *ht_browsers = NULL;
+GHashTable *ht_date_bw = NULL;
 GHashTable *ht_file_bw = NULL;
+GHashTable *ht_host_bw = NULL;
 GHashTable *ht_hosts_agents = NULL;
 GHashTable *ht_hosts = NULL;
 GHashTable *ht_keyphrases = NULL;
@@ -63,14 +65,14 @@ int bandwidth_flag = 0;
 int host_agents_list_flag = 0;
 int http_status_code_flag = 0;
 
-/* iteration */
+/* hash iteration */
 int iter_ctr = 0;
 int iter_module = 0;
 
 /* string processing */
 long long req_size = 0;
 
-/* Processing time */
+/* processing time */
 time_t end_proc;
 time_t now;
 time_t start_proc;

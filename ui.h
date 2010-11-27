@@ -42,6 +42,7 @@ void load_help_popup (WINDOW * help_win);
 void load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
                  struct logger *logger);
 void load_schemes_win (WINDOW * schemes_win);
+void set_input_opts (void);
 void term_size (WINDOW * main_win);
 void update_header (WINDOW * header_win, int current);
 

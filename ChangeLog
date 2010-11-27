@@ -1,13 +1,23 @@
+Changes to GoAccess 0.4 - Monday, November 29, 2010
+
+   * Rewrote hash tables iterative code to avoid the use of GHashTableIter, 
+     this way it works with all GLib > 2.0.0.
+   * Implemented list of agents for specific hosts
+   * Added graphs to the unique_visitors subwin
+
 Changes to GoAccess 0.3.3 - Monday, September 27, 2010
 
-   * Fixed a request size parsing issue. Due to malformed syntax on the HTTP protocol, bandwidth was reset to 0.
+   * Fixed a request size parsing issue. Due to malformed syntax on the 
+     HTTP protocol, bandwidth was reset to 0.
      Ex. "HEAD /" 400 20392
-   * Fixed a segfault when goaccess was executed without any options but with an additional unknown argument.
+   * Fixed a segfault when goaccess was executed without any options but 
+     with an additional unknown argument.
    * Tarball's filename was changed.
 
 Changes to GoAccess 0.3.2 - Thursday, September 09, 2010
 
-    * Fixed an agent parsing issue. As a result, operating systems were not properly counted.
+    * Fixed an agent parsing issue. As a result, operating systems were 
+      not properly counted.
 
 Changes to GoAccess 0.3.1 - Friday, September 03, 2010
 
@@ -16,9 +26,10 @@ Changes to GoAccess 0.3.1 - Friday, September 03, 2010
 Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
     * Fixed invalid entries when parsing status codes
-    * Implemented a real support for LFS - Handles files larger than 2 GiB on 32-bit systems
+    * Implemented a real support for LFS - Handles files larger than 
+      2 GiB on 32-bit systems
     * Added a more detailed and comprehensive browser and os report
-    * Fixed a segmentation fault on popup window search if haystack was null
+    * Fixed a segmentation fault on pop-up window search if haystack was null
     * Added bandwidth details for requested files
     * Added percentage details on modules 2, 3, 4, 5, 10, 11
     * Implemented support for 'vhost_combined' log format
@@ -29,8 +40,8 @@ Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
-    * Implemented real-time statistics (RTS). Data will be appended as the log file
-      grows. Equivalent to 'tail -f' on Unix systems
+    * Implemented real-time statistics (RTS). Data will be appended as the 
+      log file grows. Equivalent to 'tail -f' on Unix systems
     * Added a keyphrases report coming from Google search engine.
       This includes, raw, cache, and translation queries.
     * Implemented screen resize functionality
@@ -53,15 +64,18 @@ Changes to GoAccess 0.1.1 - Saturday, July 10 2010
     * Added an enhanced error handling
     * Added Glibc LFS
     * Added an extra macro on configure.ac to check against GHashTableIter. 
-      ./configure might not check for glib 2.16 that introducted 'GHashTableIter'.  
+      ./configure might not check for glib 2.16 that introduced 'GHashTableIter'.  
     * Clean up code a little bit
     * Fixed a segmentation fault when displaying the help text on x86_64.
          (Thanks to Florian Forster contribution)
     * Fixed casts associated with "g_hash_table_iter_next".
          (Thanks to Florian Forster contribution)
-    * Fixed two format strings. (If the error was ever triggered, it'd most likely lead to a segfault.)
+    * Fixed two format strings. (If the error was ever triggered, it'd most 
+      likely lead to a segfault.)
          (Thanks to Florian Forster contribution)
-    * Fixed assignments in conditions. In case the assignment is actually intended, put extra parenthesis around it. This will shut GCC (and others) up.
+    * Fixed assignments in conditions. In case the assignment is actually 
+      intended, put extra parenthesis around it. This will shut GCC 
+      (and others) up.
          (Thanks to Florian Forster contribution)
     * Fixed comparison between signed and unsigned integer types.
          (Thanks to Florian Forster contribution)
