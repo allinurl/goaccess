@@ -966,7 +966,52 @@ subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
 }
 
 static char *
-set_popup_data_unique_visitors (char *buf, char *graph)
+set_month_data_unique_visitors (char *data)
+{
+   char buf[DATELEN] = "";
+   char *buffer_month;
+   struct tm tm;
+
+   memset (&tm, 0, sizeof (tm));
+
+   if ((data == NULL))
+      return alloc_string ("-");
+
+   buffer_month = (char *) malloc (sizeof (char) * (DATELEN));
+   if (buffer_month == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+
+   strptime (data, "%Y%m", &tm);
+   if (strftime (buf, sizeof (buf), "%b/%Y", &tm) <= 0)
+      *buf = 0;
+   strftime (buf, sizeof (buf), "%b/%Y", &tm);
+   sprintf (buffer_month, "%s", buf);
+
+   return buffer_month;
+}
+
+static char *
+set_nobw_data_unique_visitors (char *buf, char *graph)
+{
+   char *data;
+   int len;
+
+   if ((buf == NULL) || (graph == NULL))
+      return alloc_string ("-");
+
+   len = snprintf (NULL, 0, "|`- %s %s", buf, graph);
+   data = malloc (len + 2);
+   if (data == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   sprintf (data, "|`- %s %s", buf, graph);
+
+   return data;
+}
+
+static char *
+set_bw_data_unique_visitors (char *buf, char *graph)
 {
    char *bw, *w_bw;
    gpointer value_ptr;
@@ -994,7 +1039,7 @@ static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                 int choices, int sort, WINDOW * my_menu_win, int max)
 {
-   char buf[DATELEN] = "", *buffer_date = NULL;
+   char buf[DATELEN] = "";
    char *b_version = NULL, *o_version = NULL;
    char *hits = NULL, *graph = NULL;
    ITEM **items;
@@ -1030,31 +1075,20 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           if (strchr (s_holder[i]->data, '|') == NULL && bandwidth_flag) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
              convert_date (buf, s_holder[i]->data, DATELEN);
-             data = set_popup_data_unique_visitors (buf, graph);
+             data = set_bw_data_unique_visitors (buf, graph);
              items[i] = new_item (hits, data);
              free (graph);
              break;
           } else if (strchr (s_holder[i]->data, '|') == NULL) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x + 13, max);
              convert_date (buf, s_holder[i]->data, DATELEN);
-             len = snprintf (NULL, 0, "|`- %s %s", buf, graph);
-             w_bw = malloc (len + 2);
-             if (w_bw == NULL)
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                               "Unable to allocate memory");
-             sprintf (w_bw, "|`- %s %s", buf, graph);
-             items[i] = new_item (hits, w_bw);
+             data = set_nobw_data_unique_visitors (buf, graph);
+             items[i] = new_item (hits, data);
              free (graph);
              break;
           }
-          buffer_date = (char *) malloc (sizeof (char) * (DATELEN));
-          if (buffer_date == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
-          strptime (s_holder[i]->data, "%Y%m", &tm);
-          strftime (buf, sizeof (buf), "%b/%Y", &tm);
-          sprintf (buffer_date, "%s", buf);
-          items[i] = new_item (hits, buffer_date);
+          data = set_month_data_unique_visitors (s_holder[i]->data);
+          items[i] = new_item (hits, data);
           break;
        case REQUESTS:
        case REQUESTS_STATIC:

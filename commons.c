@@ -137,10 +137,10 @@ char *browsers[][2] = {
    {"Firefox", "Firefox"}, {"Chrome", "Chrome"}, {"Safari", "Safari"},
    {"Opera Mini", "Opera"}, {"Opera", "Opera"}, {"Netscape", "Others"},
    {"Konqueror", "Others"}, {"Wget", "Others"}, {"w3m", "Others"},
-   {"Links", "Others"}, {"Lynx", "Others"},
+   {"ELinks", "Others"}, {"Links", "Others"}, {"Lynx", "Others"},
    {"Camino", "Others"}, {"Dillo", "Others"}, {"Kazehakase", "Others"},
    {"Iceape", "Others"}, {"K-Meleon", "Others"}, {"Galeon", "Others"},
-   {"BrowserX", "Others"}, {"ELinks", "Others"}, {"IBrowse", "Others"},
+   {"BrowserX", "Others"}, {"IBrowse", "Others"},
    {"Mosaic", "Others"}, {"midori", "Others"}, {"Midori", "Others"},
    {"Firebird", "Others"},
    /* CRAWLERS & VALIDATORS */

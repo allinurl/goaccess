@@ -97,9 +97,8 @@ convert_date (char *result, char *data, int size)
    memset (&tm, 0, sizeof (tm));
 
    strptime (data, "%Y%m%d", &tm);
-   if (strftime (result, size, "%d/%b/%Y", &tm) <= 0) {
+   if (strftime (result, size, "%d/%b/%Y", &tm) <= 0)
       *result = 0;
-   }
 
    return result;
 }
