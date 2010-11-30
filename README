@@ -60,7 +60,6 @@ The user can make use of the following keys:
    * ^/^             [detail view] search forward for the
                      occurrence of pattern 
    * ^n^             [detail view] find the position of the next
-                     occurrence 
-   * ^t^ 			   [detail view] move to the first item
-   * ^b^ 			   [detail view] move to the last item
-
+   occurrence 
+   * ^t^             [detail view] move to the first item
+   * ^b^             [detail view] move to the last item

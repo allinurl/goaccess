@@ -109,9 +109,9 @@ verify_os_type (char *str)
 static int
 process_request_bw (char *host, char *date, char *req, long long resp_size)
 {
-   GHashTable *ht;
+   GHashTable *ht = NULL;
    gpointer value_ptr;
-   int i, n_tbls = 3;           /* hash_tables to process */
+   int i;                       /* hash_tables to process */
 
    if ((host == NULL) || (date == NULL) || (req == NULL))
       return (EINVAL);
@@ -120,7 +120,7 @@ process_request_bw (char *host, char *date, char *req, long long resp_size)
    long long add_value;
    long long *ptr_value;
 
-   for (i = 0; i < n_tbls; i++) {
+   for (i = 0; i < BW_HASHTABLES; i++) {
       switch (i) {
        case 0:                 /* HOSTS bandwith */
           ht = ht_host_bw;
@@ -291,7 +291,8 @@ process_host_agents (char *host, char *agent)
                         "Unable to allocate memory.");
       memcpy (tmp, ptr_value, len1);
       tmp[len1] = '|';
-      memcpy (tmp + len1 + 1, agent, len2 + 1); // includes terminating null
+      /* NUL-terminated */
+      memcpy (tmp + len1 + 1, agent, len2 + 1);
    } else
       tmp = alloc_string (agent);
 

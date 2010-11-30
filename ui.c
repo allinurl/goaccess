@@ -47,6 +47,7 @@
 #include "util.h"
 #include "ui.h"
 #include "error.h"
+#include "goaccess.h"
 
 static ITEM **items = NULL;
 static MENU *my_menu = NULL;
@@ -666,7 +667,7 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
    wrefresh (inner_win);
 }
 
-/* split agent str if length > than max or if '|' is found */
+/* split agent str if length > max or if '|' is found */
 static void
 split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
 {
@@ -698,51 +699,59 @@ split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
 static void
 load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 {
-   char *my_addr = reverse_ip (addr);
-   const char *location;
+   char *my_addr = NULL;
+   const char *location = NULL;
    int y, x, c, quit = 1;
    struct scrolling scrolling;
-   struct struct_agents *s_agents;;
+   struct struct_agents *s_agents;
    WINDOW *inner_win;
 
+   /* make compiler happy */
+   memset (&s_agents, 0, sizeof (s_agents));
+
+   my_addr = reverse_ip (addr); /* reverse dns */
    getmaxyx (ip_detail_win, y, x);
-   draw_header (ip_detail_win, "Reverse DNS lookup - q:quit", 2, 1, x - 3, 2);
+   draw_header (ip_detail_win, " Reverse DNS lookup - q:quit", 1, 1, x - 2,
+                2);
    wborder (ip_detail_win, '|', '|', '-', '-', '+', '+', '+', '+');
    mvwprintw (ip_detail_win, 3, 2, "Reverse DNS for address: %s", addr);
    mvwprintw (ip_detail_win, 4, 2, "%s", my_addr);
+   free (my_addr);
 
-   /* geolocation data */
+   /* Geolocation data */
    GeoIP *gi;
    gi = GeoIP_new (GEOIP_STANDARD);
-   location = GeoIP_country_name_by_name (gi, addr);
-   GeoIP_delete (gi);
+   if (gi != NULL)
+      location = GeoIP_country_name_by_name (gi, addr);
    if (location == NULL)
       location = "Not found";
    mvwprintw (ip_detail_win, 5, 2, "Country: %s", location);
-   free (my_addr);
+   if (gi != NULL)
+      GeoIP_delete (gi);
+
+   draw_header (ip_detail_win, " [List of User-Agents]", 1, 7, x - 2, 2);
+   mvwprintw (ip_detail_win, 9, 2, "N/A");
+
+   char *ptr_value;
+   gpointer value_ptr = NULL;
+
+   int i, m, delims = 0;
+   size_t alloc = 0, width_max = 0, inner_y, inner_x;
+
+   /* agents' inner win */
+   inner_win = newwin (y - 10, x - 2, 19, 22);
+   if (inner_win == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory for new window.");
+   getmaxyx (inner_win, inner_y, inner_x);
 
    /* List of User-Agents by host */
    if (!host_agents_list_flag)
       goto noagentlist;
 
-   char *ptr_value;
-   gpointer value_ptr;
-
-   int i, m, delims = 0;
-   size_t inner_y, inner_x;
-   size_t alloc, width_max;
-
-   draw_header (ip_detail_win, "[List of User-Agents]", 2, 7, x - 3, 2);
-
    value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
    if (value_ptr != NULL) {
       ptr_value = (char *) value_ptr;
-
-      inner_win = newwin (y - 10, x - 2, 19, 22);
-      if (inner_win == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        "Unable to allocate memory for new window.");
-      getmaxyx (inner_win, inner_y, inner_x);
 
       delims = count_occurrences (ptr_value, '|');
       width_max = inner_x - 4;
@@ -773,12 +782,12 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
       c = wgetch (stdscr);
       switch (c) {
        case KEY_DOWN:
-          if (value_ptr == NULL)
+          if ((value_ptr == NULL) || (alloc == 0))
              break;
           (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents, alloc);
           break;
        case KEY_UP:
-          if (value_ptr == NULL)
+          if ((value_ptr == NULL) || (alloc == 0))
              break;
           (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents, alloc);
           break;
@@ -791,7 +800,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    }
 
    if (host_agents_list_flag) {
-      for (i = 0; value_ptr != NULL && s_agents[i].agents != NULL; i++)
+      for (i = 0; (value_ptr != NULL && s_agents[i].agents != NULL); i++)
          free (s_agents[i].agents);
       free (s_agents);
    }
@@ -925,7 +934,7 @@ process_monthly (struct struct_holder **s_holder, int n_months)
                              g_free);
    gpointer value_ptr;
    int add_value, i;
-   int *ptr_value;
+   int *ptr_value = 0;
 
    for (i = 0; i < n_months; i++) {
       char *month = clean_month (s_holder[i]->data);
@@ -1053,9 +1062,7 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
 
    memset (&tm, 0, sizeof (tm));
 
-   if (logger->current_module == UNIQUE_VISITORS)
-      getmaxyx (my_menu_win, y, x);
-
+   getmaxyx (my_menu_win, y, x);
    /* sort struct prior to display */
    if (logger->current_module == BROWSERS || logger->current_module == OS)
       qsort (s_holder, choices, sizeof *s_holder, struct_cmp_asc);
@@ -1201,8 +1208,8 @@ set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
    /* set menu mark */
    set_menu_mark (my_menu, " => ");
    char *desc = module_names[logger->current_module - 1];
-   char *head = "Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit";
-   draw_header (my_menu_win, head, 2, 1, x, 2);
+   char *head = " Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit";
+   draw_header (my_menu_win, head, 1, 1, x, 2);
    draw_header (my_menu_win, desc, 0, 2, x, 1);
    wborder (my_menu_win, '|', '|', '-', '-', '+', '+', '+', '+');
    return my_menu;

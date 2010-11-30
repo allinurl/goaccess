@@ -1,4 +1,4 @@
-.TH goaccess 1 "JULY 2010" Linux "User Manuals"
+.TH goaccess 1 "NOVEMBER 2010" Linux "User Manuals"
 .SH NAME
 goaccess \- fast log analyzer and interactive viewer for the Apache web server
 .SH SYNOPSIS
@@ -93,13 +93,14 @@ The total number is based on total requests.
 Enable total bandwidth consumption. To achieve faster parsing, do not enable this flag.
 This has been disabled by default.
 .IP "-f input-file"
-path to input log filename
+Path to input log file.
 .IP -s
 Enable HTTP response status codes report. To avoid overhead while parsing,
 this feature has been disabled by default.
 .IP -e
 Exclude an IP from being counted under the HOST module.
-This has been disabled by default.
+.IP -a
+Enable a list of User-Agents for the selected host.
 
 .SH INTERACTIVE MENU
 .IP "F1"
@@ -137,7 +138,7 @@ Move to the first item on any {detail view} window.
 .IP "b"
 Move to the last item on any {detail view} window.
 .SH NOTES
-On each {detail view} window, the total number of items is 100.
+On each {detail view} window, the total number of items is 300.
 .SH BUGS
 If you think you have found a bug, please send me an email to 
 .I goaccess@prosoftcorp.com

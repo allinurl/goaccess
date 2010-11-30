@@ -107,11 +107,11 @@ char *
 reverse_ip (char *str)
 {
    char *p;
-   struct hostent *hent;
+   in_addr_t addr;
    int is_valid = 1, dots = 0;
-   unsigned int addr = 0;
+   struct hostent *hent;
 
-   if (str == NULL || *str == '\0')
+   if ((str == NULL) || (*str == '\0'))
       return (NULL);
 
    /* double check and make sure we got an ip in here */
@@ -129,7 +129,7 @@ reverse_ip (char *str)
 
    if (is_valid) {
       addr = inet_addr (str);
-      hent = gethostbyaddr ((char *) &addr, sizeof (unsigned int), AF_INET);
+      hent = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
    } else
       hent = gethostbyname (str);
 

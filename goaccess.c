@@ -85,13 +85,13 @@ cmd_help (void)
    printf ("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
-   printf (" -b            - Enables total bandwidth consumption.\n");
+   printf (" -b            - Enable total bandwidth consumption.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -s            - Enables HTTP status codes report.\n");
+   printf (" -s            - Enable HTTP status codes report.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -a            - Enables a List of User-Agents by host.\n");
+   printf (" -a            - Enable a List of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -e <argument> - Excludes an IP from being counted under the\n");
+   printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2010 GNU GPL'd, by Gerardo Orellana");

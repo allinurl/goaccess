@@ -1,9 +1,11 @@
-Changes to GoAccess 0.4 - Monday, November 29, 2010
+Changes to GoAccess 0.4 - Tuesday, November 30, 2010
 
    * Rewrote hash tables iterative code to avoid the use of GHashTableIter, 
      this way it works with all GLib > 2.0.0.
-   * Implemented list of agents for specific hosts
-   * Added graphs to the unique_visitors subwin
+   * Implemented list of agents for specific hosts.
+   * Added graphs to the unique_visitors subwin.
+   * Various bug fixes and code cleanups (mainly in the subwin modules).
+   * Bandwidth per day, and host was implemented as well.
 
 Changes to GoAccess 0.3.3 - Monday, September 27, 2010
 

@@ -29,6 +29,8 @@
 # define __attribute__(x) /**/
 #endif
 #define BUFFER 			4096
+#define BW_HASHTABLES   3
+#define DATELEN         12
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"0.4"
@@ -36,7 +38,6 @@
 #define MIN_HEIGHT 		40
 #define MIN_WIDTH       97
 #define TOTAL_MODULES 	11
-#define DATELEN         12
 /* max height of footer stdscr (rows) */
 #define MAX_HEIGHT_FOOTER 1
 /* max height of header window (rows) */
