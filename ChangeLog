@@ -1,3 +1,11 @@
+Changes to GoAccess 0.4.1 - Monday, December 13, 2010
+
+   * Ability to pass a flag to ./configure so it can disable GeoIP
+   * More flexibility when resizing the terminal. Should work fine with
+     the standard 80x24.
+   * Implemented a pipeline from stdin, so the input is not necessarily
+     only a filename.
+
 Changes to GoAccess 0.4 - Tuesday, November 30, 2010
 
    * Rewrote hash tables iterative code to avoid the use of GHashTableIter, 

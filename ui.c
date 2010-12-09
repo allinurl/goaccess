@@ -30,6 +30,7 @@
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
 
+#include <ctype.h>
 #include <curses.h>
 #include <GeoIP.h>
 #include <glib.h>
@@ -41,13 +42,13 @@
 #include <time.h>
 #include <unistd.h>
 
-#include "parser.h"
 #include "alloc.h"
 #include "commons.h"
-#include "util.h"
-#include "ui.h"
 #include "error.h"
 #include "goaccess.h"
+#include "parser.h"
+#include "ui.h"
+#include "util.h"
 
 static ITEM **items = NULL;
 static MENU *my_menu = NULL;
@@ -56,9 +57,9 @@ static MENU *my_menu = NULL;
 WINDOW *
 create_win (WINDOW * main_win)
 {
-   int y, x;
+   int y, x, h = 2, starty = 5;
    getmaxyx (main_win, y, x);
-   return (newwin (y - 12, x - 40, 8, 20));
+   return (newwin (y - h, x - 30, starty, ((x - (x - 30)) / 2)));
 }
 
 void
@@ -115,7 +116,7 @@ update_header (WINDOW * header_win, int current)
    getmaxyx (stdscr, row, col);
    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
    wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 20, "[Active Module %d]", current);
+   mvwprintw (header_win, 0, col - 19, "[Active Module %d]", current);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
 }
@@ -130,59 +131,102 @@ term_size (WINDOW * main_win)
    wmove (main_win, real_size_y, 0);
 }
 
+static void
+colour_noutput (WINDOW * header_win, char *str, int y)
+{
+   int row, col;
+   getmaxyx (stdscr, row, col);
+
+   char *p;
+   int x = 2, path_flag = 0;
+   p = str;
+
+   while (*p != '\0') {
+      if (x > col)
+         break;
+      /* since the path can contain # */
+      if (isdigit (p[0]) && !path_flag) {
+         wattron (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
+         mvwprintw (header_win, y, x++, "%c", *p);
+         wattroff (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
+      } else if (*p == '[') {
+         wattron (header_win, COLOR_PAIR (COL_YELLOW));
+         path_flag = 1;
+      } else
+         mvwprintw (header_win, y, x++, "%c", *p);
+      p++;
+   }
+   if (path_flag)
+      wattroff (header_win, COLOR_PAIR (COL_YELLOW));
+}
+
 void
 display_general (WINDOW * header_win, struct logger *logger, char *ifile)
 {
    int row, col;
    char *head_desc =
-      " General Statistics - Information analyzed from log file - Unique totals";
+      " General Summary - Analysed Log Statistics - Unique totals";
    getmaxyx (stdscr, row, col);
    draw_header (header_win, head_desc, 0, 0, col, 1);
 
    /* general stats */
-   wattron (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
-   mvwprintw (header_win, 2, 18, "%u", logger->total_process);
-   mvwprintw (header_win, 3, 18, "%u", logger->total_invalid);
-   mvwprintw (header_win, 4, 18, "%d sec", (int) end_proc - start_proc);
-   mvwprintw (header_win, 2, 50, "%d",
-              g_hash_table_size (ht_unique_visitors));
-   mvwprintw (header_win, 3, 50, "%d", g_hash_table_size (ht_requests));
-   mvwprintw (header_win, 4, 50, "%d",
-              g_hash_table_size (ht_requests_static));
-   mvwprintw (header_win, 2, 75, "%d", g_hash_table_size (ht_referrers));
-   mvwprintw (header_win, 3, 75, "%d",
-              g_hash_table_size (ht_not_found_requests));
-
+   char *bw;
    off_t log_size = file_size (ifile);
    char *size = filesize_str (log_size);
-   mvwprintw (header_win, 2, 87, "%s", size);
+
+   if (bandwidth_flag)
+      bw = filesize_str ((float) req_size);
+   else
+      bw = alloc_string ("N/A");
+
+   char *line1, *line2, *line3;
+   const char *format_line1 = "%-15s %-9d %-15s %-9d %-10s %-9d %-3s %s";
+   const char *format_line2 = "%-15s %-9lu %-15s %-9d [%s";
+   size_t len1, len2, len3;
+
+   len1 =
+      snprintf (NULL, 0, format_line1, T_REQUESTS, logger->total_process,
+                T_UNIQUE_VIS, g_hash_table_size (ht_unique_visitors),
+                T_REFERRER, g_hash_table_size (ht_referrers), T_LOG, size);
+   line1 = malloc (len1 + 1);
+   if (line1 == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   sprintf (line1, format_line1, T_REQUESTS, logger->total_process,
+            T_UNIQUE_VIS, g_hash_table_size (ht_unique_visitors), T_REFERRER,
+            g_hash_table_size (ht_referrers), T_LOG, size);
+   colour_noutput (header_win, line1, 2);
+   free (line1);
+
+   len2 =
+      snprintf (NULL, 0, format_line1, T_F_REQUESTS, logger->total_invalid,
+                T_UNIQUE_FIL, g_hash_table_size (ht_requests), T_UNIQUE404,
+                g_hash_table_size (ht_not_found_requests), T_BW, bw);
+   line2 = malloc (len2 + 1);
+   if (line2 == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   sprintf (line2, format_line1, T_F_REQUESTS, logger->total_invalid,
+            T_UNIQUE_FIL, g_hash_table_size (ht_requests), T_UNIQUE404,
+            g_hash_table_size (ht_not_found_requests), T_BW, bw);
+   colour_noutput (header_win, line2, 3);
+   free (line2);
+
+   len3 =
+      snprintf (NULL, 0, format_line2, T_GEN_TIME,
+                ((int) end_proc - start_proc), T_STATIC_FIL,
+                g_hash_table_size (ht_requests_static), ifile);
+   line3 = malloc (len3 + 1);
+   if (line3 == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   sprintf (line3, format_line2, T_GEN_TIME, ((int) end_proc - start_proc),
+            T_STATIC_FIL, g_hash_table_size (ht_requests_static), ifile);
+   colour_noutput (header_win, line3, 4);
+   free (line3);
+
    free (size);
-
-   if (bandwidth_flag) {
-      char *bw = filesize_str ((float) req_size);
-      mvwprintw (header_win, 3, 87, "%s", bw);
-      free (bw);
-   } else
-      mvwprintw (header_win, 3, 87, "N/A");
-
-   wattroff (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
-   wattron (header_win, COLOR_PAIR (COL_YELLOW));
-   mvwprintw (header_win, 4, 58, "%s", ifile);
-   wattroff (header_win, COLOR_PAIR (COL_YELLOW));
-
-   /* labels */
-   wattron (header_win, COLOR_PAIR (COL_WHITE));
-   mvwprintw (header_win, 2, 2, "Total Requests");
-   mvwprintw (header_win, 3, 2, "Failed Requests");
-   mvwprintw (header_win, 4, 2, "Generation Time");
-   mvwprintw (header_win, 2, 28, "Total Unique Visitors");
-   mvwprintw (header_win, 3, 28, "Total Unique Files");
-   mvwprintw (header_win, 4, 28, "Total Static Files");
-   mvwprintw (header_win, 2, 58, "Total Referrers");
-   mvwprintw (header_win, 3, 58, "Total Unique 404");
-   mvwprintw (header_win, 3, 82, "BW");
-   mvwprintw (header_win, 2, 82, "Log");
-   wattroff (header_win, COLOR_PAIR (COL_WHITE));
+   free (bw);
 }
 
 static char *
@@ -374,7 +418,7 @@ display_content (WINDOW * main_win, struct struct_display **s_display,
 
    if (term_h < MIN_HEIGHT || term_w < MIN_WIDTH)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Minimum screen size - 97 columns by 40 lines");
+                     "Minimum screen size - 0 columns by 7 lines");
 
    if (logger->alloc_counter > real_size_y)
       until = real_size_y + scrolling.init_scrl_main_win;
@@ -585,7 +629,7 @@ load_help_popup_content (WINDOW * inner_win, int where,
 }
 
 void
-load_help_popup (WINDOW * help_win)
+load_help_popup (WINDOW * help_win, size_t startx)
 {
    int y, x, c, quit = 1;
    size_t sz;
@@ -597,7 +641,7 @@ load_help_popup (WINDOW * help_win)
                 "  Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit", 0, 1,
                 x, 2);
    wborder (help_win, '|', '|', '-', '-', '+', '+', '+', '+');
-   inner_win = newwin (y - 5, x - 4, 11, 21);
+   inner_win = newwin (y - 5, x - 4, 8, startx + 2);
    sz = help_main_size ();
 
    int i, m = 0;
@@ -729,9 +773,6 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    if (gi != NULL)
       GeoIP_delete (gi);
 
-   draw_header (ip_detail_win, " [List of User-Agents]", 1, 7, x - 2, 2);
-   mvwprintw (ip_detail_win, 9, 2, "N/A");
-
    char *ptr_value;
    gpointer value_ptr = NULL;
 
@@ -739,7 +780,10 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    size_t alloc = 0, width_max = 0, inner_y, inner_x;
 
    /* agents' inner win */
-   inner_win = newwin (y - 10, x - 2, 19, 22);
+   if (y < 10)
+      goto noagentlist;         /* parent win too small to create inner_win */
+
+   inner_win = newwin (y - 8, x - 2, 14, 17);
    if (inner_win == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Unable to allocate memory for new window.");
@@ -820,7 +864,7 @@ scheme_chosen (char *name)
 }
 
 void
-load_schemes_win (WINDOW * schemes_win)
+load_schemes_win (WINDOW * schemes_win, size_t startx)
 {
    char *choices[] = { "Monochrome/Default", "Green/Original" };
    int y, x, c, quit = 1, n_choices, i;
@@ -843,13 +887,14 @@ load_schemes_win (WINDOW * schemes_win)
    keypad (schemes_win, TRUE);
 
    /* set main window and sub window */
-   set_menu_win (menu, schemes_win);
-   set_menu_sub (menu, derwin (schemes_win, 6, 38, 3, 1));
-   set_menu_format (menu, 5, 1);
-   set_menu_mark (menu, " => ");
-
    getmaxyx (schemes_win, y, x);
-   draw_header (schemes_win, "  Color schemes - q:quit", 0, 1, x - 1, 2);
+   set_menu_win (menu, schemes_win);
+   set_menu_sub (menu, derwin (schemes_win, y - 4, x - 2, 3, 1));
+   set_menu_format (menu, 5, 1);
+   set_menu_mark (menu, " > ");
+
+   draw_header (schemes_win, "  Select Color Scheme - q:quit", 0, 1, x - 1,
+                2);
    wborder (schemes_win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    post_menu (menu);
@@ -957,7 +1002,7 @@ subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
 {
    char *buf;
    int len_bar = 0;
-   size_t width = (x / 2) - 13;
+   size_t width = (x - 38);
 
    if ((max == 0) || (x == 0))
       return alloc_string ("");
@@ -1087,7 +1132,7 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
              free (graph);
              break;
           } else if (strchr (s_holder[i]->data, '|') == NULL) {
-             graph = subgraphs (s_holder, s_holder[i]->hits, x + 13, max);
+             graph = subgraphs (s_holder, s_holder[i]->hits, x + 8, max);
              convert_date (buf, s_holder[i]->data, DATELEN);
              data = set_nobw_data_unique_visitors (buf, graph);
              items[i] = new_item (hits, data);
@@ -1196,17 +1241,17 @@ set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
    /* set main window and sub window */
    set_menu_win (my_menu, my_menu_win);
    if (logger->current_module == UNIQUE_VISITORS)
-      mvwprintw (my_menu_win, 3, x - 30, "[Months:%4d - Days:%4d]",
+      mvwprintw (my_menu_win, 3, x - 33, "[Month(s):%4d - Day(s):%4d]",
                  g_hash_table_size (ht_monthly),
                  g_hash_table_size (ht_unique_vis));
    if (logger->current_module == HOSTS)
-      mvwprintw (my_menu_win, 3, x - 31, "[Different Hosts:%8d]",
+      mvwprintw (my_menu_win, 3, x - 33, "[Different Host(s):%8d]",
                  g_hash_table_size (ht_hosts));
    set_menu_sub (my_menu, derwin (my_menu_win, y - 6, x - 2, 4, 1));
    set_menu_format (my_menu, y - 6, 1);
 
    /* set menu mark */
-   set_menu_mark (my_menu, " => ");
+   set_menu_mark (my_menu, " > ");
    char *desc = module_names[logger->current_module - 1];
    char *head = " Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit";
    draw_header (my_menu_win, head, 1, 1, x, 2);
@@ -1486,15 +1531,15 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
        case 0x0d:
        case KEY_ENTER:
        case KEY_RIGHT:
-          if (logger->current_module != 8)
+          /* stdscr too small to create win */
+          if (logger->current_module != 8 || ((x < 27) || (y < 9)))
              break;
 
-          ITEM *cur;
-          cur = current_item (my_menu);
+          ITEM *cur = current_item (my_menu);
           if (cur == NULL)
              break;
 
-          ip_detail_win = newwin (y - 3, x - 2, 10, 21);
+          ip_detail_win = newwin (y - 3, x - 2, 7, 16);
           char addrs[32];
           sprintf (addrs, "%s", item_description (cur));
           load_reverse_dns_popup (ip_detail_win, addrs);

@@ -627,7 +627,7 @@ generate_unique_visitors (struct struct_display **s_display,
       else if (i == 1)
          s_display[logger->alloc_counter++]->data =
             alloc_string
-            (" HTTP requests having the same IP, same date and same agent will be considered a unique visit");
+            (" HTTP requests having the same IP, same date and same agent are considered a unique visit");
       else if (i == 2 || i == 9)
          s_display[logger->alloc_counter++]->data = alloc_string ("");
       else if (r < s_size) {

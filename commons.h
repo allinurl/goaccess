@@ -33,10 +33,10 @@
 #define DATELEN         12
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.4"
+#define GO_VERSION 		"0.4.1"
 #define MAX_CHOICES 	   300
-#define MIN_HEIGHT 		40
-#define MIN_WIDTH       97
+#define MIN_HEIGHT 		7
+#define MIN_WIDTH       0
 #define TOTAL_MODULES 	11
 /* max height of footer stdscr (rows) */
 #define MAX_HEIGHT_FOOTER 1

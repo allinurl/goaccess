@@ -152,7 +152,8 @@ allocate_structs (int free_me)
    /* allocate 10 per module */
    MALLOC_STRUCT (s_display, 170);
 
-   /* note that the order in which we call them, is the way modules will be displayed */
+   /* note that the order in which we call them, 
+    * is the way modules will be displayed */
    generate_unique_visitors (s_display, logger);
 
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_requests));
@@ -204,8 +205,8 @@ render_screens (void)
    wattron (stdscr, COLOR_PAIR (COL_WHITE));
    generate_time ();
    chg = logger->total_process - initial_reqs;
-   mvaddstr (row - 1, 1, "[F1]Help  [O]pen detail view");
-   mvprintw (row - 1, 32, "Updated: %d - %s", chg, asctime (now_tm));
+   mvaddstr (row - 1, 1, "[F1]Help [O]pen detail view");
+   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
    mvaddstr (row - 1, col - 21, "[Q]uit Analyzer");
 
    mvprintw (row - 1, col - 5, "%s", GO_VERSION);
@@ -221,7 +222,7 @@ render_screens (void)
    /* display active label based on current module */
    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
    wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 20, "[Active Module %d]",
+   mvwprintw (header_win, 0, col - 19, "[Active Module %d]",
               logger->current_module);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
@@ -236,7 +237,6 @@ static void
 get_keys (void)
 {
    int y, x, c;
-   getmaxyx (main_win, y, x);
 
    char buf[BUFFER];
    FILE *fp;
@@ -244,6 +244,7 @@ get_keys (void)
 
    size1 = file_size (ifile);
    while (((c = wgetch (stdscr)) != 'q')) {
+      getmaxyx (main_win, y, x);
       switch (c) {
           /* scroll down main_win */
        case KEY_DOWN:
@@ -275,6 +276,8 @@ get_keys (void)
        case KEY_RIGHT:
        case 'o':
        case 'O':
+          if ((x < 75) || (y < 12))
+             break;             /* stdscr too small to create subwin */
           my_menu_win = create_win (main_win);
           load_popup (my_menu_win, s_holder, logger);
           touchwin (main_win);
@@ -338,21 +341,25 @@ get_keys (void)
           break;
        case 8:
        case 265:
-          help_win = newwin (y - 12, x - 40, 8, 20);
+          if ((x < 65) || (y < 12))
+             break;             /* stdscr too small to create win */
+          help_win = newwin (y - 3, 57, 5, ((x - 57) / 2));
           if (help_win == NULL)
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             "Unable to allocate memory for new window.");
-          load_help_popup (help_win);
+          load_help_popup (help_win, ((x - 57) / 2));
           wrefresh (help_win);
           touchwin (main_win);
           close_win (help_win);
           break;
        case 99:
-          schemes_win = newwin (10, 40, 8, 20);
+          if ((x < 75) || (y < 12))
+             break;             /* stdscr too small to create win */
+          schemes_win = newwin (7, 57, 8, ((x - 57) / 2));
           if (schemes_win == NULL)
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             "Unable to allocate memory for new window.");
-          load_schemes_win (schemes_win);
+          load_schemes_win (schemes_win, ((x - 57) / 2));
           wrefresh (schemes_win);
           touchwin (main_win);
           close_win (schemes_win);
@@ -374,9 +381,8 @@ get_keys (void)
           /* file has changed */
           if (size2 != size1) {
              if (!(fp = fopen (ifile, "r")))
-                error_handler (__PRETTY_FUNCTION__,
-                               __FILE__, __LINE__,
-                               "Unable to read log file.");
+                error_handler (__PRETTY_FUNCTION__, __FILE__,
+                               __LINE__, "Unable to read log file.");
              if (!fseeko (fp, size1, SEEK_SET))
                 while (fgets (buf, BUFFER, fp) != NULL)
                    parse_log (logger, ifile, buf);
@@ -511,7 +517,7 @@ main (int argc, char *argv[])
    getmaxyx (stdscr, row, col);
    if (row < MIN_HEIGHT || col < MIN_WIDTH)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Minimum screen size - 97 columns by 40 lines");
+                     "Minimum screen size - 0 columns by 7 lines");
 
    header_win = newwin (5, col, 0, 0);
    keypad (header_win, TRUE);
