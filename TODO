@@ -13,7 +13,7 @@ email goaccess@prosoftcorp.com.
  - Increase the performance when parsing the log file.
  - Resize child windows when term is resized.
  - Add command-line parameters.
- - Filtering data by date.
+ - Filtering data by date. (Done, see `man goaccess`)
  - Add more reports to it.
 
 * Documentation:

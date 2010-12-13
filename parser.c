@@ -575,7 +575,7 @@ process_log (struct logger *logger, char *line)
 int
 parse_log (struct logger *logger, char *filename, char *tail)
 {
-   FILE *fp;
+   FILE *fp = NULL;
    char line[BUFFER];
 
    if (tail != NULL) {
@@ -583,15 +583,25 @@ parse_log (struct logger *logger, char *filename, char *tail)
          return 1;
       return 0;
    }
-   if ((fp = fopen (filename, "r")) == NULL)
+   if (filename == NULL) {
+      fp = stdin;
+      piping = 1;
+   }
+   if (!piping && (fp = fopen (filename, "r")) == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "An error has occurred while opening the log file. Make sure it exists.");
+
    while (fgets (line, BUFFER, fp) != NULL) {
       if (process_log (logger, line)) {
-         fclose (fp);
+         if (!piping)
+            fclose (fp);
          return 1;
       }
    }
+   /* definitely not portable! */
+   if (piping)
+      stdin = freopen ("/dev/tty", "r", stdin);
+
    return 0;
 }
 

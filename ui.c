@@ -30,9 +30,17 @@
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ctype.h>
 #include <curses.h>
+
+#ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
+#endif
+
 #include <glib.h>
 #include <math.h>
 #include <menu.h>
@@ -165,14 +173,18 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
 {
    int row, col;
    char *head_desc =
-      " General Summary - Analysed Log Statistics - Unique totals";
+      " General Summary - Overall Analysed Requests - Unique totals";
    getmaxyx (stdscr, row, col);
    draw_header (header_win, head_desc, 0, 0, col, 1);
 
    /* general stats */
    char *bw;
-   off_t log_size = file_size (ifile);
-   char *size = filesize_str (log_size);
+   char *size;
+   if (!piping) {
+      off_t log_size = file_size (ifile);
+      size = filesize_str (log_size);
+   } else
+      size = alloc_string ("N/A");
 
    if (bandwidth_flag)
       bw = filesize_str ((float) req_size);
@@ -183,6 +195,9 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    const char *format_line1 = "%-15s %-9d %-15s %-9d %-10s %-9d %-3s %s";
    const char *format_line2 = "%-15s %-9lu %-15s %-9d [%s";
    size_t len1, len2, len3;
+
+   if (ifile == NULL)
+      ifile = "STDIN";
 
    len1 =
       snprintf (NULL, 0, format_line1, T_REQUESTS, logger->total_process,
@@ -744,11 +759,15 @@ static void
 load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
 {
    char *my_addr = NULL;
+
+#ifdef HAVE_LIBGEOIP
    const char *location = NULL;
+#endif
+
    int y, x, c, quit = 1;
    struct scrolling scrolling;
    struct struct_agents *s_agents;
-   WINDOW *inner_win;
+   WINDOW *inner_win = NULL;
 
    /* make compiler happy */
    memset (&s_agents, 0, sizeof (s_agents));
@@ -762,6 +781,7 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    mvwprintw (ip_detail_win, 4, 2, "%s", my_addr);
    free (my_addr);
 
+#ifdef HAVE_LIBGEOIP
    /* Geolocation data */
    GeoIP *gi;
    gi = GeoIP_new (GEOIP_STANDARD);
@@ -772,12 +792,13 @@ load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
    mvwprintw (ip_detail_win, 5, 2, "Country: %s", location);
    if (gi != NULL)
       GeoIP_delete (gi);
+#endif
 
    char *ptr_value;
    gpointer value_ptr = NULL;
 
    int i, m, delims = 0;
-   size_t alloc = 0, width_max = 0, inner_y, inner_x;
+   size_t alloc = 0, width_max = 0, inner_y = 0, inner_x = 0;
 
    /* agents' inner win */
    if (y < 10)

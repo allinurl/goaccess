@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "error.h"
 #include "alloc.h"
@@ -93,6 +94,7 @@ cmd_help (void)
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n\n");
+   printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2010 GNU GPL'd, by Gerardo Orellana");
    printf ("\n\n");
@@ -239,10 +241,11 @@ get_keys (void)
    int y, x, c;
 
    char buf[BUFFER];
-   FILE *fp;
-   unsigned long long size1, size2;
+   FILE *fp = NULL;
+   unsigned long long size1 = 0, size2 = 0;
 
-   size1 = file_size (ifile);
+   if (!piping)
+      size1 = file_size (ifile);
    while (((c = wgetch (stdscr)) != 'q')) {
       getmaxyx (main_win, y, x);
       switch (c) {
@@ -377,6 +380,8 @@ get_keys (void)
           render_screens ();
           break;
        default:
+          if (piping)
+             break;
           size2 = file_size (ifile);
           /* file has changed */
           if (size2 != size1) {
@@ -408,9 +413,6 @@ main (int argc, char *argv[])
    extern int optind, optopt, opterr;
    int row, col, o, index;
 
-   if (argc < 2)
-      cmd_help ();
-
    opterr = 0;
    while ((o = getopt (argc, argv, "f:e:sba")) != -1) {
       switch (o) {
@@ -441,7 +443,9 @@ main (int argc, char *argv[])
           abort ();
       }
    }
-   if (!ifile)
+   if (ifile != NULL && !isatty (STDIN_FILENO))
+      cmd_help ();
+   if (ifile == NULL && isatty (STDIN_FILENO))
       cmd_help ();
    for (index = optind; index < argc; index++)
       cmd_help ();

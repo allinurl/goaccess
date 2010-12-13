@@ -16,16 +16,21 @@ PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([*** glib2 not found!]))
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
+AC_ARG_ENABLE(geoip,--enable-geoip Enable GeoIP country lookup, USE_GEOIP="yes")
+
+if test "$USE_GEOIP" = "yes"; then
+  AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
+  CFLAGS="-lGeoIP"
+fi
+
 # Checks for libraries.
 AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
 AC_CHECK_LIB([menu], [new_menu], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
 AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
-AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([locale.h arpa/inet.h netdb.h stdint.h stdlib.h string.h unistd.h])
-AC_CHECK_FUNCS([setlocale])
+AC_CHECK_HEADERS([arpa/inet.h locale.h netdb.h stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -35,13 +40,13 @@ AC_STRUCT_TM
 AC_CHECK_TYPES([ptrdiff_t])
 
 # Checks for library functions.
+AC_FUNC_FSEEKO
 AC_FUNC_MALLOC
-AC_FUNC_REALLOC
 AC_FUNC_MEMCMP
+AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_FUNC_FSEEKO
-AC_CHECK_FUNCS([floor gethostbyaddr gethostbyname strchr strdup strerror strrchr strstr strtol memset])
+AC_CHECK_FUNCS([floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

@@ -150,6 +150,7 @@ extern char *ignore_host;
 extern int bandwidth_flag;
 extern int host_agents_list_flag;
 extern int http_status_code_flag;
+extern int piping;
 
 /* iteration */
 extern int iter_ctr;

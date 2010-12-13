@@ -1,10 +1,11 @@
 Changes to GoAccess 0.4.1 - Monday, December 13, 2010
 
-   * Ability to pass a flag to ./configure so it can disable GeoIP
+   * Ability to pass a flag to ./configure so GeoIP can be enabled if
+     needed.
    * More flexibility when resizing the terminal. Should work fine with
      the standard 80x24.
-   * Implemented a pipeline from stdin, so the input is not necessarily
-     only a filename.
+   * Implemented a pipeline from stdin, so the input doesn't have to be
+     only a file.
 
 Changes to GoAccess 0.4 - Tuesday, November 30, 2010
 

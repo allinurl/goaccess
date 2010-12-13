@@ -64,6 +64,7 @@ char *ignore_host;
 int bandwidth_flag = 0;
 int host_agents_list_flag = 0;
 int http_status_code_flag = 0;
+int piping = 0;
 
 /* hash iteration */
 int iter_ctr = 0;
@@ -247,6 +248,8 @@ char *help_main[] = {
    "         occurrence",
    " ^t^     [detail view] move to the first item",
    " ^b^     [detail view] move to the last item",
+   "",
+   "Examples can be found by running `man goaccess`.",
    "",
    "If you believe you have found a bug, please drop me",
    "an email with details.",

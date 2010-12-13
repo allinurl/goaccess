@@ -1,11 +1,11 @@
-.TH goaccess 1 "NOVEMBER 2010" Linux "User Manuals"
+.TH goaccess 1 "DECEMBER 2010" Linux "User Manuals"
 .SH NAME
 goaccess \- fast log analyzer and interactive viewer for the Apache web server
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
 .B ]
-.I [-b] [-s] [-e]
+.I [-b] [-s] [-e] [-a]
 .SH DESCRIPTION
 .B goaccess
 is a free (GPL) real-time Apache web log analyzer and interactive 
@@ -137,8 +137,66 @@ Find the position of the next occurrence on any {detail view} window.
 Move to the first item on any {detail view} window.
 .IP "b"
 Move to the last item on any {detail view} window.
+.SH EXAMPLES
+The simplest and fastest usage would be:
+
+# goaccess -f access.log
+
+That will generate an interactive text-only output.
+
+To generate full statistics we can run GoAccess as:
+
+# goaccess -f access.log -a -s -b
+
+The 
+.I -a 
+flag indicates that we want to process an agent-list for every host parsed.
+The 
+.I -s 
+flag tells GoAccess go get every HTTP status code.
+The 
+.I -b 
+flag will process the total bandwidth consumption for files, hosts, and dates.
+
+Now if we want to add more flexibility to GoAccess, we can do a series of  pipes.
+For instance:
+
+If we would like to process all
+.I access.log.*.gz
+we can do:
+
+#  zcat access.log.*.gz | goaccess
+
+OR
+
+#  zcat -f access.log* | goaccess
+
+Another useful pipe would be filtering dates out of the Apache's access log
+
+The following will get all HTTP requests starting on 05/Dec/2010 until 
+the end of the file.
+
+# sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -s -b
+
+If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
+
+sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -s -b
+
+.I Note that this could take longer time to parse depending on the speed of sed.
+
+.B Also,
+it is worth pointing out that if we want to run GoAccess at lower priority, we
+can run it as:
+
+# nice -n 19 goaccess -f access.log -s -a -b
+
 .SH NOTES
 On each {detail view} window, the total number of items is 300.
+
+Piping a log to GoAccess will disable the real-time functionality. This is due to the
+portability issue on determining the actual size of STDIN. However, a future release *might* 
+include this feature.
+
 .SH BUGS
 If you think you have found a bug, please send me an email to 
 .I goaccess@prosoftcorp.com
