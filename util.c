@@ -151,19 +151,6 @@ file_size (const char *filename)
    return -1;
 }
 
-off_t
-stdin_size (FILE * stdin_stream)
-{
-   struct stat st;
-
-   if (fstat (fileno (stdin_stream), &st) == 0)
-      return st.st_size;
-
-   fprintf (stderr, "Cannot determine size of STDIN: %s\n", strerror (errno));
-
-   return -1;
-}
-
 char *
 verify_os (char *str)
 {
