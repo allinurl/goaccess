@@ -18,7 +18,18 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#include <curses.h>
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#ifdef HAVE_LIBNCURSESW
+#  include <ncursesw/menu.h>
+#  include <ncursesw/curses.h>
+#else
+#  include <ncurses.h>
+#  include <menu.h>
+#endif
+
 #include <glib.h>
 
 #ifndef COMMONS_H_INCLUDED
@@ -26,14 +37,14 @@
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
-# define __attribute__(x) /**/
+#  define __attribute__(x) /**/
 #endif
 #define BUFFER 			4096
 #define BW_HASHTABLES   3
 #define DATELEN         12
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.4.1"
+#define GO_VERSION 		"0.4.2"
 #define MAX_CHOICES 	   300
 #define MIN_HEIGHT 		7
 #define MIN_WIDTH       0

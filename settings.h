@@ -22,7 +22,7 @@
 #define SETTINGS_H_INCLUDED
 
 #ifndef COMMONS
-#include "commons.h"
+#  include "commons.h"
 #endif
 
 int parse_conf_file (void);

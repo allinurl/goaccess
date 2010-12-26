@@ -25,25 +25,36 @@
 
 #include <assert.h>
 #include <ctype.h>
-#include <curses.h>
+#include <errno.h>
 #include <glib.h>
 #include <locale.h>
-#include <menu.h>
+
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#ifdef HAVE_LIBNCURSESW
+#  include <ncursesw/menu.h>
+#  include <ncursesw/curses.h>
+#else
+#  include <ncurses.h>
+#  include <menu.h>
+#endif
+
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <errno.h>
 
-#include "error.h"
 #include "alloc.h"
 #include "commons.h"
-#include "util.h"
-#include "ui.h"
+#include "error.h"
 #include "parser.h"
 #include "settings.h"
+#include "ui.h"
+#include "util.h"
 
 static WINDOW *header_win, *main_win, *my_menu_win, *help_win, *schemes_win;
 

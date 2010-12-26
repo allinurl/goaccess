@@ -19,7 +19,16 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#include <curses.h>
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#ifdef HAVE_LIBNCURSESW
+#  include <ncursesw/curses.h>
+#else
+#  include <ncurses.h>
+#endif
+
 #include <glib.h>
 #include <time.h>
 

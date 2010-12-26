@@ -24,12 +24,12 @@
 /* macro for easily allocating memory */
 #define MALLOC_STRUCT(target, size)                 \
 do {                                                \
-	target = malloc(sizeof * target * size);        \
-	if (target) {                                   \
-		size_t i;                                   \
-		for (i = 0; i < size; i++) {                \
-			target[i] = malloc(sizeof * target[i]);	\
-		}                                           \
-	}                                               \
+	target = malloc(sizeof * target * size);         \
+	if (target) {                                    \
+		size_t i;                                     \
+		for (i = 0; i < size; i++) {                  \
+			target[i] = malloc(sizeof * target[i]);	 \
+		}                                             \
+	}                                                \
 } while (0);
 #endif

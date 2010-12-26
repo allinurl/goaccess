@@ -28,8 +28,18 @@
 #define _XOPEN_SOURCE 700
 
 #include <ctype.h>
-#include <curses.h>
 #include <errno.h>
+
+#if HAVE_CONFIG_H
+#  include <config.h>
+#endif
+
+#ifdef HAVE_LIBNCURSESW
+#  include <ncursesw/curses.h>
+#else
+#  include <ncurses.h>
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -22,7 +22,7 @@
 #define PARSER_H_INCLUDED
 
 #ifndef COMMONS
-#include "commons.h"
+#  include "commons.h"
 #endif
 
 int parse_log (struct logger *logger, char *filename, char *tail);

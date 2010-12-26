@@ -6,9 +6,7 @@ If you are interested in working on any of these,
 email goaccess@prosoftcorp.com.
 
 * General:
- - Better support for UTF-8 
-   (This is almost done as v0.4, however, it will 
-    be rolled out on the next version)
+ - Better support for UTF-8 (Done, run ./configure --enable-utf8)
  - Support for parsing IPv6
  - Increase the performance when parsing the log file.
  - Resize child windows when term is resized.

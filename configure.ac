@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.4.1], [goaccess@prosoftcorp.com])
+AC_INIT([goaccess], [0.4.2], [goaccess@prosoftcorp.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
@@ -17,15 +17,24 @@ AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
 AC_ARG_ENABLE(geoip,--enable-geoip Enable GeoIP country lookup, USE_GEOIP="yes")
+AC_ARG_ENABLE(utf8,--enable-utf8 Enable UTF-8 support for wide characters, USE_UTF8="yes")
 
 if test "$USE_GEOIP" = "yes"; then
-  AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
-  CFLAGS="-lGeoIP"
+   AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
+   CFLAGS="-lGeoIP"
+fi
+
+if test "$USE_UTF8" = "yes"; then
+   AC_CHECK_LIB([ncursesw], [mvaddwstr], [], [AC_MSG_ERROR([libncursesw5-dev is missing])])
+   AC_CHECK_LIB([menuw], [new_menu], [], [AC_MSG_ERROR([libncursesw5-dev is missing])])
+   CFLAGS="-lmenuw -lncursesw"
+else
+   AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
+   AC_CHECK_LIB([menu], [new_menu], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
+   CFLAGS="-lmenu -lncurses"
 fi
 
 # Checks for libraries.
-AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
-AC_CHECK_LIB([menu], [new_menu], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
 AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
 
 # Checks for header files.

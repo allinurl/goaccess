@@ -31,19 +31,25 @@
 #define STDIN_FILENO  0
 
 #if HAVE_CONFIG_H
-#include <config.h>
+#  include <config.h>
 #endif
 
 #include <ctype.h>
-#include <curses.h>
 
 #ifdef HAVE_LIBGEOIP
-#include <GeoIP.h>
+#  include <GeoIP.h>
+#endif
+
+#ifdef HAVE_LIBNCURSESW
+#  include <ncursesw/menu.h>
+#  include <ncursesw/curses.h>
+#else
+#  include <ncurses.h>
+#  include <menu.h>
 #endif
 
 #include <glib.h>
 #include <math.h>
-#include <menu.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
