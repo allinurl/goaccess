@@ -184,8 +184,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    draw_header (header_win, head_desc, 0, 0, col, 1);
 
    /* general stats */
-   char *bw;
-   char *size;
+   char *bw, *size;
    if (!piping) {
       off_t log_size = file_size (ifile);
       size = filesize_str (log_size);
@@ -200,11 +199,13 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    char *line1, *line2, *line3;
    const char *format_line1 = "%-15s %-9d %-15s %-9d %-10s %-9d %-3s %s";
    const char *format_line2 = "%-15s %-9lu %-15s %-9d [%s";
+
    size_t len1, len2, len3;
 
    if (ifile == NULL)
       ifile = "STDIN";
 
+   /* first row */
    len1 =
       snprintf (NULL, 0, format_line1, T_REQUESTS, logger->total_process,
                 T_UNIQUE_VIS, g_hash_table_size (ht_unique_visitors),
@@ -219,6 +220,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    colour_noutput (header_win, line1, 2);
    free (line1);
 
+   /* second row */
    len2 =
       snprintf (NULL, 0, format_line1, T_F_REQUESTS, logger->total_invalid,
                 T_UNIQUE_FIL, g_hash_table_size (ht_requests), T_UNIQUE404,
@@ -233,6 +235,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    colour_noutput (header_win, line2, 3);
    free (line2);
 
+   /* third row */
    len3 =
       snprintf (NULL, 0, format_line2, T_GEN_TIME,
                 ((int) end_proc - start_proc), T_STATIC_FIL,
@@ -246,6 +249,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    colour_noutput (header_win, line3, 4);
    free (line3);
 
+   /* clean up */
    free (size);
    free (bw);
 }
@@ -1011,9 +1015,10 @@ process_monthly (struct struct_holder **s_holder, int n_months)
    for (i = 0; i < n_months; i++) {
       char *month = clean_month (s_holder[i]->data);
       value_ptr = g_hash_table_lookup (ht_monthly, month);
-      if (value_ptr != NULL)
-         add_value = (int) *ptr_value + s_holder[i]->hits;
-      else
+      if (value_ptr != NULL) {
+         ptr_value = (int *) value_ptr;
+         add_value = *ptr_value + s_holder[i]->hits;
+      } else
          add_value = 0 + s_holder[i]->hits;
 
       ptr_value = g_malloc (sizeof (int));
@@ -1438,7 +1443,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
     * might be a better way to go */
    if (logger->current_module == BROWSERS)
       choices = g_hash_table_size (hash_table);
-   else if (g_hash_table_size (hash_table) > 300)
+   else if (g_hash_table_size (hash_table) > MAX_CHOICES)
       choices = MAX_CHOICES;
    else
       choices = g_hash_table_size (hash_table);
