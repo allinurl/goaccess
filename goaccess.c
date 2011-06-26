@@ -390,6 +390,16 @@ get_keys (void)
           refresh ();
           render_screens ();
           break;
+       case 98:                /* SCRL DOWN */
+          werase (main_win);
+          scrolling.init_scrl_main_win = logger->alloc_counter - real_size_y;
+          render_screens ();
+          break;
+       case 116:               /* SCRL UP */
+          werase (main_win);
+          scrolling.init_scrl_main_win = 0;
+          render_screens ();
+          break;
        default:
           if (piping)
              break;
