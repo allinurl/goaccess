@@ -25,6 +25,10 @@
 
 #define _XOPEN_SOURCE 700
 
+#ifdef __FreeBSD__
+#include <sys/socket.h>
+#endif
+
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <errno.h>
