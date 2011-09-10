@@ -246,13 +246,17 @@ process_keyphrases (char *ref)
        !(strstr (ref, "http://translate.googleusercontent.com/")))
       return -1;
 
-   char *r, *ptr, *p, *dec;
+   char *r, *ptr, *p, *dec, *pch;
    if ((r = strstr (ref, "/+&")) != NULL)
       r = "-";
    else if ((r = strstr (ref, "/+")) != NULL)
       r += 2;
-   else if ((r = strstr (ref, "&q=")) != NULL
-            || (r = strstr (ref, "?q=")) != NULL)
+   else if ((r = strstr (ref, "q=cache:")) != NULL) {
+      pch = strchr (r, '+');
+      if (pch)
+         r += pch - r + 1;
+   } else if ((r = strstr (ref, "&q=")) != NULL
+              || (r = strstr (ref, "?q=")) != NULL)
       r += 3;
    else if ((r = strstr (ref, "%26q%3D")) != NULL
             || (r = strstr (ref, "%3Fq%3D")) != NULL)
