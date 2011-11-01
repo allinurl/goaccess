@@ -268,12 +268,14 @@ process_keyphrases (char *ref)
        || (ptr = strchr (dec, '&')) != NULL)
       *ptr = '\0';
    p = dec;
+   if (p[0] == '\0')
+      return -1;
    while (*p != '\0') {
       if (*p == '+')
          *p = ' ';
       p++;
    }
-   process_generic_data (ht_keyphrases, dec);
+   process_generic_data (ht_keyphrases, trim_str (dec));
    free (dec);
 
    return 0;
