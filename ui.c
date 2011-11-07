@@ -1,7 +1,7 @@
 /** 
  * ui.c -- curses user interface
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
- * GoAccess - An ncurses apache weblog analyzer & interactive viewer
+ * GoAccess - Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or    
  * modify it under the terms of the GNU General Public License as   
