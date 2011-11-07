@@ -1,7 +1,7 @@
 /** 
  * goaccess.c -- main log analyzer 
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
- * GoAccess - Ncurses apache weblog analyzer & interactive viewer
+ * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or    
  * modify it under the terms of the GNU General Public License as   
