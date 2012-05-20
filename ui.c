@@ -26,6 +26,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
+#define min(a, b) (((a) < (b)) ? (a) : (b))
 
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
@@ -174,6 +175,129 @@ colour_noutput (WINDOW * header_win, char *str, int y)
       wattroff (header_win, COLOR_PAIR (COL_YELLOW));
 }
 
+char *
+input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
+{
+   char *s = malloc (max_width + 1), *tmp;
+   if (s == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory.");
+   int size_y, size_x, pos = 0, x = 0, quit = 1, c;
+   getmaxyx (win, size_y, size_x);
+   size_x -= 4;
+
+   if (str) {
+      size_t len = min (max_width, strlen (str));
+      memcpy (s, str, len);
+      s[len] = '\0';
+
+      x = pos = 0;
+      if (strlen (s) > size_x) {
+         tmp = strdup (&s[0]);
+         tmp[size_x] = '\0';
+         mvwprintw (win, pos_y, pos_x, "%s", tmp);
+         free (tmp);
+      } else
+         mvwprintw (win, pos_y, pos_x, "%s", s);
+   } else
+      s[0] = '\0';
+
+   wmove (win, pos_y, pos_x + x);
+   wrefresh (win);
+
+   curs_set (1);
+   while (quit) {
+      c = wgetch (stdscr);
+      switch (c) {
+       case 1:
+       case 262:
+          pos = x = 0;
+          break;
+       case 5:
+       case 360:
+          if (strlen (s) > size_x) {
+             x = size_x;
+             pos = strlen (s) - size_x;
+          } else {
+             pos = 0;
+             x = strlen (s);
+          }
+          break;
+       case 7:
+          pos = x = 0;
+          if (!str)
+             s[0] = '\0';
+          quit = 0;
+          break;
+       case 21:
+          s[0] = '\0';
+          pos = x = 0;
+          break;
+       case KEY_BACKSPACE:
+          if (pos + x > 0) {
+             memmove (&s[(pos + x) - 1], &s[pos + x],
+                      (max_width - (pos + x)) + 1);
+             if (pos <= 0)
+                x--;
+             else
+                pos--;
+          }
+          break;
+       case KEY_LEFT:
+          if (x > 0)
+             x--;
+          else if (pos > 0)
+             pos--;
+          break;
+       case KEY_RIGHT:
+          if ((x + pos) < strlen (s)) {
+             if (x < size_x)
+                x++;
+             else
+                pos++;
+          }
+          break;
+       case 0x0a:
+       case 0x0d:
+       case KEY_ENTER:
+          quit = 0;
+          break;
+       default:
+          if (strlen (s) == max_width)
+             break;
+          if (!isprint (c))
+             break;
+
+          if (strlen (s) == pos) {
+             s[pos + x] = c;
+             s[pos + x + 1] = '\0';
+             waddch (win, c);
+          } else {
+             memmove (&s[pos + x + 1], &s[pos + x], strlen (&s[pos + x]) + 1);
+             s[pos + x] = c;
+          }
+          if ((x + pos) < max_width) {
+             if (x < size_x)
+                x++;
+             else
+                pos++;
+          }
+      }
+      int i;
+      tmp = strdup (&s[pos > 0 ? pos : 0]);
+      tmp[min (strlen (tmp), size_x)] = '\0';
+      for (i = strlen (tmp); i < size_x; i++)
+         mvwprintw (win, pos_y, pos_x + i, "%s", " ");
+      mvwprintw (win, pos_y, pos_x, "%s", tmp);
+      free (tmp);
+
+      wmove (win, pos_y, pos_x + x);
+      wrefresh (win);
+   }
+   curs_set (0);
+   return s;
+}
+
 void
 display_general (WINDOW * header_win, struct logger *logger, char *ifile)
 {
@@ -191,10 +315,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    } else
       size = alloc_string ("N/A");
 
-   if (bandwidth_flag)
-      bw = filesize_str ((float) req_size);
-   else
-      bw = alloc_string ("N/A");
+   bw = filesize_str ((float) req_size);
 
    char *line1, *line2, *line3;
    const char *format_line1 = "%-15s %-9d %-15s %-9d %-10s %-9d %-3s %s";
@@ -319,13 +440,11 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
       strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
       mvwprintw (main_win, y, 18 + padding_rx, "%s", buf);
       /* bandwidth */
-      if (bandwidth_flag) {
-         char *bw = ht_bw_str (ht_date_bw, buf);
-         wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-         mvwprintw (main_win, y, 31 + padding_rx, "%9s", bw);
-         wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-         free (bw);
-      }
+      char *bw = ht_bw_str (ht_date_bw, s_display[i]->data);
+      wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+      mvwprintw (main_win, y, 31 + padding_rx, "%9s", bw);
+      wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
+      free (bw);
    } else if (s_display[i]->module == 9)
       /* HTTP status codes */
       mvwprintw (main_win, y, 18 + padding_rx, "%s\t%s",
@@ -345,7 +464,7 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    if (s_display[i]->module == 9)
       return;
 
-   if (bandwidth_flag && s_display[i]->module == 1)
+   if (s_display[i]->module == 1)
       padding_gx = 44;
    else
       padding_gx = 36;
@@ -396,7 +515,7 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    char *c_data = s_display[i]->data;   /* current m_data */
    int c_mod = s_display[i]->module;    /* current module */
 
-   if (bandwidth_flag && (c_mod == REQUESTS || c_mod == REQUESTS_STATIC)) {
+   if ((c_mod == REQUESTS) || (c_mod == REQUESTS_STATIC)) {
       char *bw = ht_bw_str (ht_file_bw, c_data);
       wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
       mvwprintw (main_win, pos_y, 18 + padding_rx, "%9s", bw);
@@ -1078,14 +1197,16 @@ set_month_data_unique_visitors (char *data)
 }
 
 static char *
-set_nobw_data_unique_visitors (char *buf, char *graph)
+set_nobw_data_unique_visitors (char *date, char *graph)
 {
+   char buf[DATELEN] = "";
    char *data;
    int len;
 
    if ((buf == NULL) || (graph == NULL))
       return alloc_string ("-");
 
+   convert_date (buf, date, DATELEN);
    len = snprintf (NULL, 0, "|`- %s %s", buf, graph);
    data = malloc (len + 2);
    if (data == NULL)
@@ -1097,17 +1218,19 @@ set_nobw_data_unique_visitors (char *buf, char *graph)
 }
 
 static char *
-set_bw_data_unique_visitors (char *buf, char *graph)
+set_bw_data_unique_visitors (char *date, char *graph)
 {
+   char buf[DATELEN] = "";
    char *bw, *w_bw;
    gpointer value_ptr;
    int len;
    long long *ptr_value;
 
-   value_ptr = g_hash_table_lookup (ht_date_bw, buf);
+   value_ptr = g_hash_table_lookup (ht_date_bw, date);
    if (value_ptr == NULL)
       return alloc_string ("-");
 
+   convert_date (buf, date, DATELEN);
    ptr_value = (long long *) value_ptr;
    bw = filesize_str (*ptr_value);
    len = snprintf (NULL, 0, "|`- %s %9s %s", buf, bw, graph);
@@ -1125,19 +1248,15 @@ static ITEM **
 get_menu_items (struct struct_holder **s_holder, struct logger *logger,
                 int choices, int sort, WINDOW * my_menu_win, int max)
 {
-   char buf[DATELEN] = "";
    char *b_version = NULL, *o_version = NULL;
    char *hits = NULL, *graph = NULL;
    ITEM **items;
-   struct tm tm;
 
    char *bw, *w_bw, *status_code, *token, *status_str;
    gpointer value_ptr;
    int i;
    long long *ptr_value;
    size_t y, x;
-
-   memset (&tm, 0, sizeof (tm));
 
    getmaxyx (my_menu_win, y, x);
    /* sort struct prior to display */
@@ -1156,17 +1275,15 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
       switch (logger->current_module) {
        case UNIQUE_VISITORS:
           hits = convert_hits_to_string (s_holder[i]->hits);
-          if (strchr (s_holder[i]->data, '|') == NULL && bandwidth_flag) {
+          if (strchr (s_holder[i]->data, '|') == NULL) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
-             convert_date (buf, s_holder[i]->data, DATELEN);
-             data = set_bw_data_unique_visitors (buf, graph);
+             data = set_bw_data_unique_visitors (s_holder[i]->data, graph);
              items[i] = new_item (hits, data);
              free (graph);
              break;
           } else if (strchr (s_holder[i]->data, '|') == NULL) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x + 8, max);
-             convert_date (buf, s_holder[i]->data, DATELEN);
-             data = set_nobw_data_unique_visitors (buf, graph);
+             data = set_nobw_data_unique_visitors (s_holder[i]->data, graph);
              items[i] = new_item (hits, data);
              free (graph);
              break;
@@ -1177,11 +1294,6 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
        case REQUESTS:
        case REQUESTS_STATIC:
        case HOSTS:
-          if (!bandwidth_flag) {
-             hits = convert_hits_to_string (s_holder[i]->hits);
-             items[i] = new_item (hits, s_holder[i]->data);
-             break;
-          }
           if (logger->current_module == HOSTS)
              value_ptr = g_hash_table_lookup (ht_host_bw, s_holder[i]->data);
           else

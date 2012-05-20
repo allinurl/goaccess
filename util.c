@@ -107,16 +107,14 @@ convert_date (char *result, char *data, int size)
    return result;
 }
 
-char *
-reverse_ip (char *str)
+int
+not_ipv4 (char *str)
 {
    char *p;
-   in_addr_t addr;
-   int is_valid = 1, dots = 0;
-   struct hostent *hent;
+   int is_valid = 0, dots = 0;
 
    if ((str == NULL) || (*str == '\0'))
-      return (NULL);
+      return 1;
 
    /* double check and make sure we got an ip in here */
    for (p = str; *p; p++) {
@@ -124,14 +122,26 @@ reverse_ip (char *str)
          dots++;
          continue;
       } else if (!isdigit (*p)) {
-         is_valid = 0;
+         is_valid = 1;
          break;
       }
    }
    if (dots != 3)
-      is_valid = 0;
+      is_valid = 1;
 
-   if (is_valid) {
+   return is_valid;
+}
+
+char *
+reverse_ip (char *str)
+{
+   in_addr_t addr;
+   struct hostent *hent;
+
+   if ((str == NULL) || (*str == '\0'))
+      return (NULL);
+
+   if (!not_ipv4 (str)) {
       addr = inet_addr (str);
       hent = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
    } else
@@ -282,12 +292,6 @@ filesize_str (off_t log_size)
 }
 
 char *
-clean_date_time (char *s)
-{
-   return substring (s + 1, 0, 20);
-}
-
-char *
 clean_date (char *s)
 {
    return substring (s + 1, 0, 8);
@@ -297,16 +301,4 @@ char *
 clean_month (char *s)
 {
    return substring (s, 0, 6);
-}
-
-char *
-clean_time (char *s)
-{
-   return substring (s, 13, 8);
-}
-
-char *
-clean_status (char *s)
-{
-   return substring (s, 0, 3);
 }

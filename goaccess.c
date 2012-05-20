@@ -83,6 +83,7 @@ init_struct (void)
    logger->alloc_counter = 0;
    logger->counter = 0;
    logger->current_module = 1;
+   logger->resp_size = 0LL;
    logger->total_invalid = 0;
    logger->total_process = 0;
 
@@ -191,13 +192,8 @@ allocate_structs (int free_me)
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_hosts));
    generate_struct_data (ht_hosts, s_holder, s_display, logger, 8);
 
-   if (!http_status_code_flag)
-      goto nohttpstatuscode;
-
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_status_code));
    generate_struct_data (ht_status_code, s_holder, s_display, logger, 9);
-
- nohttpstatuscode:;
 
    MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referring_sites));
    generate_struct_data (ht_referring_sites, s_holder, s_display, logger, 10);
@@ -240,8 +236,8 @@ render_screens (void)
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
    /* no valid entries to process from the log */
-   if ((logger->total_process == 0)
-       || (logger->total_process == logger->total_invalid))
+   if ((logger->total_process == 0) ||
+       (logger->total_process == logger->total_invalid))
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Nothing valid to process.");
 }
@@ -339,8 +335,7 @@ get_keys (void)
           break;
           /* key 9 - module 9 */
        case 57:
-          if (http_status_code_flag)
-             logger->current_module = 9;
+          logger->current_module = 9;
           update_header (header_win, logger->current_module);
           break;
           /* key 0 - module 10 */
@@ -411,7 +406,7 @@ get_keys (void)
                                __LINE__, "Unable to read log file.");
              if (!fseeko (fp, size1, SEEK_SET))
                 while (fgets (buf, BUFFER, fp) != NULL)
-                   parse_log (logger, ifile, buf);
+                   parse_log (logger, ifile, buf, -1);
              fclose (fp);
              size1 = size2;
              allocate_structs (1);
@@ -432,10 +427,10 @@ main (int argc, char *argv[])
 {
    extern char *optarg;
    extern int optind, optopt, opterr;
-   int row, col, o, index;
+   int row, col, o, index, conf = 0, quit = 0;
 
    opterr = 0;
-   while ((o = getopt (argc, argv, "f:e:sba")) != -1) {
+   while ((o = getopt (argc, argv, "f:e:ac")) != -1) {
       switch (o) {
        case 'f':
           ifile = optarg;
@@ -443,14 +438,11 @@ main (int argc, char *argv[])
        case 'e':
           ignore_host = optarg;
           break;
-       case 's':
-          http_status_code_flag = 1;
-          break;
-       case 'b':
-          bandwidth_flag = 1;
-          break;
        case 'a':
           host_agents_list_flag = 1;
+          break;
+       case 'c':
+          conf = 1;
           break;
        case '?':
           if (optopt == 'f' || optopt == 'e')
@@ -556,10 +548,15 @@ main (int argc, char *argv[])
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Unable to allocate memory for new window.");
 
+   logger = init_struct ();
+   if (isatty (STDIN_FILENO) && (log_format == NULL || conf)) {
+      refresh ();
+      quit = verify_format (logger);
+   }
+
    /* main processing event */
    (void) time (&start_proc);
-   logger = init_struct ();
-   if (parse_log (logger, ifile, NULL))
+   if (!quit && parse_log (logger, ifile, NULL, -1))
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Error while processing file");
    allocate_structs (0);

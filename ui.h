@@ -56,5 +56,9 @@ void load_schemes_win (WINDOW * schemes_win, size_t startx);
 void set_input_opts (void);
 void term_size (WINDOW * main_win);
 void update_header (WINDOW * header_win, int current);
+ITEM **render_menu (char *items[], int n, int idx, void (*f) (int));
+void free_render_menu (MENU * menu, ITEM ** my_items, int all);
+char *input_string (WINDOW * win, int win_y, int win_x, int max_width,
+                    char *str);
 
 #endif

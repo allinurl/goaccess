@@ -1,19 +1,19 @@
-/** 
- * commons.c -- holds different data types 
+/**
+ * commons.c -- holds different data types
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -70,9 +70,7 @@ enum SCHEMES schemes;
 
 /* enable flags */
 char *ignore_host;
-int bandwidth_flag = 0;
 int host_agents_list_flag = 0;
-int http_status_code_flag = 0;
 int piping = 0;
 
 /* hash iteration */
@@ -88,15 +86,31 @@ time_t now;
 time_t start_proc;
 
 /* resizing/scheme */
-int color_scheme = 1;
 size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
 
 /* file */
 char *ifile = NULL;
+
+/* seetings */
+char *date_format = NULL;
+char *log_format = NULL;
+char *tmp_date_format = NULL;
+char *tmp_log_format = NULL;
+char APACHE_DATE[] = "%d/%b/%Y";
+char W3C_DATE[] = "%Y-%m-%d";
+char COMBINED1[] = "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"";
+char COMBINED2[] = "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"";
+char COMMON1[] = "%h %^[%d:%^] \"%r\" %s %b";
+char COMMON2[] = "%^:%^ %h %^[%d:%^] \"%r\" %s %b";
+char W3C_INTERNET[] = "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R";
+
+int color_scheme = 1;
 char *conf_keywords[][2] = {
    {"1", "color_scheme"},
+   {"2", "log_format"},
+   {"3", "date_format"}
 };
 
 char *module_names[] = {

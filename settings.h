@@ -27,5 +27,6 @@
 
 int parse_conf_file (void);
 void write_conf_file (void);
+int verify_format (struct logger *logger);
 
 #endif

@@ -2,17 +2,17 @@
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -117,8 +117,8 @@ struct logger
    char *host;
    char *hour;
    char *identd;
-   char *referrer;
-   char *request;
+   char *ref;
+   char *req;
    char *status;
    char *userid;
    int alloc_counter;
@@ -158,9 +158,7 @@ struct tm *now_tm;
 /* Declaration of variables */
 /* enable flags */
 extern char *ignore_host;
-extern int bandwidth_flag;
 extern int host_agents_list_flag;
-extern int http_status_code_flag;
 extern int piping;
 
 /* iteration */
@@ -175,15 +173,28 @@ extern time_t end_proc;
 extern time_t now;
 extern time_t start_proc;
 
-/* resizing/scheme */
-extern int color_scheme;
+/* resizing */
 extern size_t real_size_y;
 extern size_t term_h;
 extern size_t term_w;
 
+/* seetings */
+extern char *date_format;
+extern char *log_format;
+extern char *tmp_date_format;
+extern char *tmp_log_format;
+extern char APACHE_DATE[];
+extern char W3C_DATE[];
+extern char COMBINED1[];
+extern char COMBINED2[];
+extern char COMMON1[];
+extern char COMMON2[];
+extern char W3C_INTERNET[];
+extern int color_scheme;
+extern char *conf_keywords[][2];
+
 /* file */
 extern char *ifile;
-extern char *conf_keywords[][2];
 
 extern char *browsers[][2];
 extern char *codes[][2];

@@ -1,19 +1,19 @@
-/** 
+/**
  * parser.c -- web log parsing
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -46,17 +46,12 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <arpa/inet.h>
 
 #include "error.h"
 #include "commons.h"
 #include "parser.h"
 #include "util.h"
-
-static int
-is_agent_present (const char *str)
-{
-   return (str && *str && str[strlen (str) - 2] == '"') ? 0 : 1;
-}
 
 /* qsort struct comparision function (hits field) */
 int
@@ -82,6 +77,23 @@ struct_cmp_asc (const void *a, const void *b)
    struct struct_holder *ia = *(struct struct_holder **) a;
    struct struct_holder *ib = *(struct struct_holder **) b;
    return strcmp (ia->data, ib->data);
+}
+
+static void
+free_logger (struct logger *log)
+{
+   if (log->agent != NULL)
+      free (log->agent);
+   if (log->date != NULL)
+      free (log->date);
+   if (log->host != NULL)
+      free (log->host);
+   if (log->ref != NULL)
+      free (log->ref);
+   if (log->req != NULL)
+      free (log->req);
+   if (log->status != NULL)
+      free (log->status);
 }
 
 static char *
@@ -117,7 +129,7 @@ verify_os_type (char *str)
 }
 
 static int
-process_request_bw (char *host, char *date, char *req, long long resp_size)
+process_request_bw (char *host, char *date, char *req, long long size)
 {
    GHashTable *ht = NULL;
    gpointer value_ptr;
@@ -148,12 +160,9 @@ process_request_bw (char *host, char *date, char *req, long long resp_size)
       value_ptr = g_hash_table_lookup (ht, key);
       if (value_ptr != NULL) {
          ptr_value = (long long *) value_ptr;
-         add_value = *ptr_value + resp_size;
+         add_value = *ptr_value + size;
       } else
-         add_value = 0 + resp_size;
-
-      if (resp_size == -1)
-         add_value = 0;
+         add_value = 0 + size;
 
       ptr_value = g_malloc (sizeof (long long));
       *ptr_value = add_value;
@@ -213,7 +222,7 @@ process_generic_data (GHashTable * ht, const char *key)
    return (0);
 }
 
-/** from oreillynet.com 
+/** from oreillynet.com
  ** with minor modifications **/
 #define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? \
                             ((x) - '0') : (toupper((x)) - 'A' + 10))
@@ -264,8 +273,8 @@ process_keyphrases (char *ref)
    else
       return -1;
    dec = spc_decode_url (r);
-   if ((ptr = strstr (dec, "%26")) != NULL
-       || (ptr = strchr (dec, '&')) != NULL)
+   if ((ptr = strstr (dec, "%26")) != NULL ||
+       (ptr = strchr (dec, '&')) != NULL)
       *ptr = '\0';
    p = dec;
    if (p[0] == '\0')
@@ -321,53 +330,42 @@ process_unique_data (char *host, char *date, char *agent, char *status,
                      char *referrer)
 {
    char unique_visitors_key[2048];
-   /* 
-    * C struct initialization and strptime 
-    * C may not initialize stack structs and arrays to zeros 
+   /*
+    * C struct initialization and strptime
+    * C may not initialize stack structs and arrays to zeros
     * so strptime uses struct for output and input as well.
     */
-   struct tm tm;
-   char buf[32];
-
-   memset (&tm, 0, sizeof (tm));
-   memset (buf, 0, sizeof (buf));
-
-   if (strptime (date, "%d/%b/%Y", &tm) == NULL)
-      return;
-   strftime (buf, sizeof (buf) - 1, "%Y%m%d", &tm);
-
+   if (agent == NULL)
+      agent = "-";
    snprintf (unique_visitors_key, sizeof (unique_visitors_key), "%s|%s|%s",
-             host, buf, agent);
+             host, date, agent);
    unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
 
    char url[512] = "";
-   if (sscanf (referrer, "http://%511[^/\n]", url) == 1) {
+   if (referrer != NULL && sscanf (referrer, "http://%511[^/\n]", url) == 1) {
       process_generic_data (ht_referring_sites, url);
    }
-   process_keyphrases (referrer);
+   if (referrer != NULL)
+      process_keyphrases (referrer);
 
-   if (http_status_code_flag) {
-      process_generic_data (ht_status_code, status);
-   }
+   process_generic_data (ht_status_code, status);
 
    if (ignore_host != NULL && strcmp (host, ignore_host) == 0) {
       /* ignore */
    } else {
       process_generic_data (ht_hosts, host);
    }
-   if (agent[strlen (agent) - 1] == '\n')
-      agent[strlen (agent) - 1] = 0;
    if (host_agents_list_flag)
       process_host_agents (host, agent);
    process_generic_data (ht_unique_visitors, unique_visitors_key);
 }
 
 static int
-verify_static_content (char *url)
+verify_static_content (char *req)
 {
-   char *nul = url + strlen (url);
+   char *nul = req + strlen (req);
 
-   if (strlen (url) < 5)
+   if (strlen (req) < 5)
       return 0;
    if (!memcmp (nul - 4, ".jpg", 4) || !memcmp (nul - 4, ".JPG", 4) ||
        !memcmp (nul - 4, ".png", 4) || !memcmp (nul - 4, ".PNG", 4) ||
@@ -386,216 +384,271 @@ parse_req (char *line)
 {
    char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
 
-   if ((lookfor = "\"GET ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "\"POST ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "\"HEAD ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "\"get ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "\"post ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "\"head ", req_l = strstr (line, lookfor)) != NULL) {
+   if ((lookfor = "GET ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "POST ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "HEAD ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "get ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "post ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL) {
 
-      /* The last part of the request is the protocol being used, 
-         at the time of this writing typically HTTP/1.0 or HTTP/1.1. */
-      if ((req_r = strstr (line, " HTTP")) == NULL)
-         /* didn't find it :( weird */
+      /* didn't find it - weird */
+      if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
+          (req_r = strstr (line, " HTTP/1.1")) == NULL)
          return alloc_string ("-");
 
       req_l += strlen (lookfor);
       ptrdiff_t req_len = req_r - req_l;
 
       /* make sure we don't have some weird requests */
-      if (req_len < 0)
+      if (req_len <= 0)
          return alloc_string ("-");
 
       reqs = malloc (req_len + 1);
       strncpy (reqs, req_l, req_len);
       (reqs)[req_len] = 0;
    } else
-      reqs = alloc_string ("-");
+      reqs = alloc_string (line);
 
    return reqs;
 }
 
-static int
-parse_req_size (char *line, int format)
+static char *
+parse_string (char **str, char end)
 {
-   long size = 0;
-
-   /* Common Log Format */
-   if ((strstr (line, " -\n") != NULL))
-      return -1;
-
-   /* Common Log Format */
-   char *c;
-   if (format) {
-      if ((c = strrchr (trim_str (line), ' ')) != 0)
-         size = strtol (c + 1, NULL, 10);
-      return size;
-   }
-   /* Combined Log Format */
-   if ((c = strstr (line, "1.1\" ")) != NULL
-       || (c = strstr (line, "1.0\" ")) != NULL)
-      c++;
-   else
-      return -1;                /* no protocol used? huh... */
-
-   char *p = NULL;
-   if ((p = strchr (c + 6, ' ')) != 0)
-      size = strtol (p + 1, NULL, 10);
-   else
-      size = -1;
-
-   return size;
+   char *pch = *str, *p;
+   do {
+      if (*pch == end || *pch == '\0') {
+         size_t len = (pch - *str + 1);
+         p = malloc (len);
+         if (p == NULL)
+            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                           "Unable to allocate memory");
+         memcpy (p, *str, (len - 1));
+         p[len - 1] = '\0';
+         *str += len - 1;
+         return trim_str (p);
+      }
+      /* advance to the first unescaped delim */
+      if (*pch == '\\')
+         pch++;
+   } while (*pch++);
+   return NULL;
 }
 
 static int
-parse_request (struct logger *logger, char *line, char *cpy_line,
-               char **status_code, char **req)
+parse_format (struct logger *logger, const char *fmt, char *str)
 {
-   char *ptr, *prb = NULL, *fqm = NULL, *sqm =
-      NULL, *host, *date, *ref, *h, *p;
-   int format = 0;
-   long long band_size = 0;
+   const char *p;
 
-   host = line;
-   if ((h = strchr (line, ' ')) == NULL)
+   if (str == NULL || *str == '\0')
       return 1;
 
-   /* vhost_combined? */
-   for (p = h; *p; p++) {
-      if (isdigit (p[1]) && isspace (p[0])) {
-         host = h + 1;
-         line = h + 1;
-      } else
-         break;
-   }
+   struct tm tm;
+   memset (&tm, 0, sizeof (tm));
 
-   if ((date = strchr (line, '[')) == NULL)
-      return 1;
-   date++;
-
-   /* agent */
-   if (is_agent_present (line)) {
-      format = 1;
-      fqm = "-";
-      goto noagent;
-   }
-   for (prb = line; *prb; prb++) {
-      if (*prb != '"')
+   int special = 0;
+   for (p = fmt; *p; p++) {
+      if (*p == '%') {
+         special++;
          continue;
-      else if (fqm == 0)
-         fqm = prb;
-      else if (sqm == 0)
-         sqm = prb;
-      else {
-         fqm = sqm;
-         sqm = prb;
       }
+      if (special && *p != '\0') {
+         char *pch, *sEnd, *bEnd, *tkn = NULL;
+         errno = 0;
+         long long bandw = 0;
+         long status = 0;
+
+         switch (*p) {
+          case 'd':
+             if (logger->date)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             if (strptime (tkn, date_format, &tm) == NULL) {
+                free (tkn);
+                return 1;
+             }
+             logger->date = tkn;
+             break;
+          case 'h':
+             if (logger->host)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             if (not_ipv4 (tkn)) {
+                free (tkn);
+                return 1;
+             }
+             logger->host = tkn;
+             break;
+          case 'r':
+             if (logger->req)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             logger->req = parse_req (tkn);
+             free (tkn);
+             break;
+          case 's':
+             if (logger->status)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             status = strtol (tkn, &sEnd, 10);
+             if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
+                free (tkn);
+                return 1;
+             }
+             logger->status = tkn;
+             break;
+          case 'b':
+             if (logger->resp_size)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             bandw = strtol (tkn, &bEnd, 10);
+             if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+                bandw = 0;
+             logger->resp_size = bandw;
+             req_size += bandw;
+             free (tkn);
+             break;
+          case 'R':
+             if (logger->ref)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                tkn = alloc_string ("-");
+             if (tkn != NULL && *tkn == '\0') {
+                free (tkn);
+                tkn = alloc_string ("-");
+             }
+             logger->ref = tkn;
+             break;
+          case 'u':
+             if (logger->agent)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                tkn = alloc_string ("-");
+             if (tkn != NULL && *tkn == '\0') {
+                free (tkn);
+                tkn = alloc_string ("-");
+             }
+             logger->agent = tkn;
+             break;
+          default:
+             if ((pch = strchr (str, p[1])) != NULL)
+                str += pch - str;
+         }
+         if ((str == NULL) || (*str == '\0'))
+            return 0;
+         special = 0;
+      } else if (special && isspace (p[0])) {
+         return 1;
+      } else
+         str++;
    }
- noagent:;
-   if ((ref = strstr (line, "\"http")) != NULL
-       || (ref = strstr (line, "\"HTTP")) != NULL)
-      ref++;
-   else
-      ref = "-";
-
-   if (!bandwidth_flag)
-      goto nobanwidth;
-   /* bandwidth */
-   band_size = parse_req_size (cpy_line, format);
-   if (band_size != -1)
-      req_size = req_size + band_size;
-   else
-      band_size = 0;
- nobanwidth:;
-
-   if ((ptr = strchr (host, ' ')) == NULL)
-      return 1;
-   *ptr = '\0';
-   if ((ptr = strchr (date, ']')) == NULL)
-      return 1;
-   *ptr = '\0';
-   if ((ptr = strchr (date, ':')) == NULL)
-      return 1;
-   *ptr = '\0';
-   if ((ptr = strchr (ref, '"')) == NULL)
-      ref = "-";
-   else
-      *ptr = '\0';
-
-   /* req */
-   *req = parse_req (cpy_line);
-
-   if (!http_status_code_flag)
-      goto nohttpstatuscode;
-
-   char *lookfor = NULL, *s_l;
-   if ((lookfor = "/1.0\" ", s_l = strstr (cpy_line, lookfor)) != NULL ||
-       (lookfor = "/1.1\" ", s_l = strstr (cpy_line, lookfor)) != NULL)
-      *status_code = clean_status (s_l + 6);
-   else
-      /* perhaps something wrong with the log,
-         more likely malformed request syntax */
-      *status_code = alloc_string ("---");
- nohttpstatuscode:;
-
-   logger->host = host;
-   logger->agent = fqm;
-   logger->date = date;
-   logger->referrer = ref;
-   logger->request = *req;
-   logger->resp_size = band_size;
-
-   if (http_status_code_flag)
-      logger->status = *status_code;
-
    return 0;
 }
 
 static int
-process_log (struct logger *logger, char *line)
+process_log (struct logger *logger, char *line, int test)
 {
-   char *cpy_line = strdup (line);
-   char *status_code = NULL, *req;
    struct logger log;
-   logger->total_process++;
 
-   /* Make compiler happy */
+   struct tm tm;
+   char buf[32];
+
+   /* make compiler happy */
+   memset (buf, 0, sizeof (buf));
    memset (&log, 0, sizeof (log));
-   if (parse_request (&log, line, cpy_line, &status_code, &req) != 0) {
-      free (cpy_line);
+   memset (&tm, 0, sizeof (tm));
+
+   if (date_format == NULL || *date_format == '\0')
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "No date format was found on your conf file.");
+
+   if (log_format == NULL || *log_format == '\0')
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "No log format was found on your conf file.");
+
+   if ((line == NULL) || (*line == '\0')) {
       logger->total_invalid++;
       return 0;
    }
+   if (*line == '#' || *line == '\n')
+      return 0;
 
-   process_unique_data (log.host, log.date, log.agent, log.status,
-                        log.referrer);
-   if (http_status_code_flag)
-      free (status_code);
-   if (verify_static_content (log.request)) {
-      if (strstr (cpy_line, "\" 404 "))
-         process_generic_data (ht_not_found_requests, log.request);
-      process_generic_data (ht_requests_static, log.request);
-   } else {
-      if (strstr (cpy_line, "\" 404 "))
-         process_generic_data (ht_not_found_requests, log.request);
-      process_generic_data (ht_requests, log.request);
+   logger->total_process++;
+   if (parse_format (&log, log_format, line) == 1) {
+      FILE *pFile;
+      pFile = fopen ("myfile.txt", "a+");
+      fprintf (pFile, "%s\n", line);
+      fclose (pFile);
+
+      free_logger (&log);
+      logger->total_invalid++;
+      return 0;
    }
-   process_generic_data (ht_referrers, log.referrer);
-   if (bandwidth_flag)
-      process_request_bw (log.host, log.date, log.request, log.resp_size);
-   free (cpy_line);
-   free (req);
+   if (log.host == NULL || log.date == NULL || log.status == NULL ||
+       log.req == NULL) {
+      free_logger (&log);
+      logger->total_invalid++;
+      return 0;
+   }
+   if (test) {
+      free_logger (&log);
+      return 0;
+   }
+
+   if (strptime (log.date, date_format, &tm) == NULL)
+      return 0;
+   if (strftime (buf, sizeof (buf) - 1, "%Y%m%d", &tm) == 0)
+      return 0;
+
+   process_unique_data (log.host, buf, log.agent, log.status, log.ref);
+
+   if (!memcmp (log.status, "404", 3))
+      process_generic_data (ht_not_found_requests, log.req);
+   if (verify_static_content (log.req))
+      process_generic_data (ht_requests_static, log.req);
+   else
+      process_generic_data (ht_requests, log.req);
+
+   process_generic_data (ht_referrers, log.ref);
+   process_request_bw (log.host, buf, log.req, log.resp_size);
+
+   free_logger (&log);
    return 0;
 }
 
+void
+reset_struct (struct logger *logger)
+{
+   logger->alloc_counter = 0;
+   logger->counter = 0;
+   logger->current_module = 1;
+   logger->resp_size = 0LL;
+   logger->total_invalid = 0;
+   logger->total_process = 0;
+   req_size = 0;
+}
+
 int
-parse_log (struct logger *logger, char *filename, char *tail)
+parse_log (struct logger *logger, char *filename, char *tail, int n)
 {
    FILE *fp = NULL;
    char line[BUFFER];
+   int i = 0, test = -1 == n ? 0 : 1;
 
    if (tail != NULL) {
-      if (process_log (logger, tail))
+      if (process_log (logger, tail, test))
          return 1;
       return 0;
    }
@@ -608,7 +661,9 @@ parse_log (struct logger *logger, char *filename, char *tail)
                      "An error has occurred while opening the log file. Make sure it exists.");
 
    while (fgets (line, BUFFER, fp) != NULL) {
-      if (process_log (logger, line)) {
+      if (n >= 0 && i++ == n)
+         break;
+      if (process_log (logger, line, test)) {
          if (!piping)
             fclose (fp);
          return 1;
@@ -618,6 +673,8 @@ parse_log (struct logger *logger, char *filename, char *tail)
    if (piping)
       stdin = freopen ("/dev/tty", "r", stdin);
 
+   if (!piping)
+      fclose (fp);
    return 0;
 }
 
@@ -630,8 +687,7 @@ unique_visitors_iter (gpointer k, gpointer v, struct struct_holder **t_holder)
 }
 
 void
-generate_unique_visitors (struct struct_display **s_display,
-                          struct logger *logger)
+generate_unique_visitors (struct struct_display **disp, struct logger *logger)
 {
    int i, r;
    int s_size = g_hash_table_size (ht_unique_vis);
@@ -643,26 +699,28 @@ generate_unique_visitors (struct struct_display **s_display,
 
    qsort (t_holder, s_size, sizeof (struct struct_holder *), struct_cmp_desc);
 
+   char *head = NULL;
+   head =
+      alloc_string
+      (" HTTP requests having the same IP, same date and same agent are considered a unique visit");
    /* fixed value in here, perhaps it could be dynamic depending on the module */
    for (i = 0, r = 0; i < 10; i++) {
-      s_display[logger->alloc_counter]->hits = 0;
-      s_display[logger->alloc_counter]->module = 1;
+      disp[logger->alloc_counter]->hits = 0;
+      disp[logger->alloc_counter]->module = 1;
       if (i == 0)
-         s_display[logger->alloc_counter++]->data =
+         disp[logger->alloc_counter++]->data =
             alloc_string (" 1 - Unique visitors per day - Including spiders");
       else if (i == 1)
-         s_display[logger->alloc_counter++]->data =
-            alloc_string
-            (" HTTP requests having the same IP, same date and same agent are considered a unique visit");
+         disp[logger->alloc_counter++]->data = head;
       else if (i == 2 || i == 9)
-         s_display[logger->alloc_counter++]->data = alloc_string ("");
+         disp[logger->alloc_counter++]->data = alloc_string ("");
       else if (r < s_size) {
-         s_display[logger->alloc_counter]->hits = t_holder[r]->hits;
-         s_display[logger->alloc_counter++]->data =
+         disp[logger->alloc_counter]->hits = t_holder[r]->hits;
+         disp[logger->alloc_counter++]->data =
             alloc_string (t_holder[r]->data);
          r++;
       } else
-         s_display[logger->alloc_counter++]->data = alloc_string ("");
+         disp[logger->alloc_counter++]->data = alloc_string ("");
    }
 
    for (i = 0; i < s_size; i++)
@@ -685,8 +743,8 @@ struct_data_iter (gpointer k, gpointer v, struct struct_holder **s_holder)
 void
 generate_struct_data (GHashTable * hash_table,
                       struct struct_holder **s_holder,
-                      struct struct_display **s_display,
-                      struct logger *logger, int module)
+                      struct struct_display **disp, struct logger *logger,
+                      int module)
 {
    int row, col;
    int i = 0, r;
@@ -745,21 +803,20 @@ generate_struct_data (GHashTable * hash_table,
    }
 
    for (i = 0, r = 0; i < 10; i++) {
-      s_display[logger->alloc_counter]->hits = 0;
-      s_display[logger->alloc_counter]->module = module;
+      disp[logger->alloc_counter]->hits = 0;
+      disp[logger->alloc_counter]->module = module;
       if (i == 0)
-         s_display[logger->alloc_counter++]->data = alloc_string (head);
+         disp[logger->alloc_counter++]->data = alloc_string (head);
       else if (i == 1)
-         s_display[logger->alloc_counter++]->data = alloc_string (desc);
+         disp[logger->alloc_counter++]->data = alloc_string (desc);
       else if (i == 2 || i == 9)
-         s_display[logger->alloc_counter++]->data = alloc_string ("");
+         disp[logger->alloc_counter++]->data = alloc_string ("");
       else if (r < iter_ctr) {
-         s_display[logger->alloc_counter]->data =
-            alloc_string (s_holder[r]->data);
-         s_display[logger->alloc_counter++]->hits = s_holder[r]->hits;
+         disp[logger->alloc_counter]->data = alloc_string (s_holder[r]->data);
+         disp[logger->alloc_counter++]->hits = s_holder[r]->hits;
          r++;
       } else
-         s_display[logger->alloc_counter++]->data = alloc_string ("");
+         disp[logger->alloc_counter++]->data = alloc_string ("");
    }
 
    for (i = 0; i < g_hash_table_size (hash_table); i++)
