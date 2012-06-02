@@ -22,53 +22,17 @@
 #  include <config.h>
 #endif
 
-#ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/curses.h>
-#else
-#  include <ncurses.h>
-#endif
+#ifndef OUTPUT_H_INCLUDED
+#define OUTPUT_H_INCLUDED
 
-#ifndef GMENU_H_INCLUDED
-#define GMENU_H_INCLUDED
+typedef struct GOutput_ GOutput;
 
-enum ACTION
+struct GOutput_
 {
-   REQ_DOWN,
-   REQ_UP,
-   REQ_SEL
+   char *data;
+   int hits;
 };
 
-typedef struct GMenu_ GMenu;
-typedef struct GItem_ GItem;
-
-struct GItem_
-{
-   char *name;
-   int checked;
-};
-
-struct GMenu_
-{
-   WINDOW *win;
-
-   int count;
-   int size;
-   int idx;
-   int start;
-   int h;
-   int w;
-   int x;
-   int y;
-   unsigned short multiple;
-   unsigned short selectable;
-   unsigned short status;
-   GItem *items;
-};
-
-GMenu *new_gmenu (WINDOW * parent, int h, int w);
-int post_gmenu (GMenu * menu);
-void gmenu_driver (GMenu * menu, int c);
-void draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
-                     int checked);
+void output_html (struct logger *logger);
 
 #endif

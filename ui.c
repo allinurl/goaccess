@@ -1,19 +1,19 @@
-/** 
+/**
  * ui.c -- curses user interface
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -302,10 +302,8 @@ void
 display_general (WINDOW * header_win, struct logger *logger, char *ifile)
 {
    int row, col;
-   char *head_desc =
-      " General Summary - Overall Analysed Requests - Unique totals";
    getmaxyx (stdscr, row, col);
-   draw_header (header_win, head_desc, 0, 0, col, 1);
+   draw_header (header_win, T_HEAD, 0, 0, col, 1);
 
    /* general stats */
    char *bw, *size;
@@ -375,7 +373,7 @@ display_general (WINDOW * header_win, struct logger *logger, char *ifile)
    free (bw);
 }
 
-static char *
+char *
 ht_bw_str (GHashTable * ht, const char *key)
 {
    gpointer value_ptr;
@@ -549,7 +547,7 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
    wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
 }
 
-/* ###NOTE: Modules 6, 7 are based on module 1 totals 
+/* ###NOTE: Modules 6, 7 are based on module 1 totals
    this way we avoid the overhead of adding them up */
 void
 display_content (WINDOW * main_win, struct struct_display **s_display,
@@ -618,7 +616,7 @@ display_content (WINDOW * main_win, struct struct_display **s_display,
    }
 }
 
-/* ###NOTE: Modules 6, 7 are based on module 1 totals 
+/* ###NOTE: Modules 6, 7 are based on module 1 totals
    this way we avoid the overhead of adding them up */
 void
 do_scrolling (WINDOW * main_win, struct struct_display **s_display,
@@ -856,7 +854,7 @@ scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
 }
 
 /* split agent str if length > max or if '|' is found */
-static void
+void
 split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
 {
    char *holder;
@@ -1090,7 +1088,7 @@ load_schemes_win (WINDOW * schemes_win, size_t startx)
    return;
 }
 
-static char *
+char *
 get_browser_type (char *line)
 {
    char *p;
@@ -1174,7 +1172,7 @@ static char *
 set_month_data_unique_visitors (char *data)
 {
    char buf[DATELEN] = "";
-   char *buffer_month;
+   char *buffer_month, *date = NULL, *end = NULL;
    struct tm tm;
 
    memset (&tm, 0, sizeof (tm));
@@ -1182,39 +1180,22 @@ set_month_data_unique_visitors (char *data)
    if ((data == NULL))
       return alloc_string ("-");
 
+   date = clean_date (data);
+   end = strptime (date, "%Y%m", &tm);
+   if (end == NULL || *end != '\0')
+      return alloc_string ("-");
+
+   if (strftime (buf, sizeof (buf), "%b/%Y", &tm) <= 0)
+      return alloc_string ("-");
+
    buffer_month = (char *) malloc (sizeof (char) * (DATELEN));
    if (buffer_month == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Unable to allocate memory");
-
-   strptime (data, "%Y%m", &tm);
-   if (strftime (buf, sizeof (buf), "%b/%Y", &tm) <= 0)
-      *buf = 0;
-   strftime (buf, sizeof (buf), "%b/%Y", &tm);
    sprintf (buffer_month, "%s", buf);
-
+   if (date)
+      free (date);
    return buffer_month;
-}
-
-static char *
-set_nobw_data_unique_visitors (char *date, char *graph)
-{
-   char buf[DATELEN] = "";
-   char *data;
-   int len;
-
-   if ((buf == NULL) || (graph == NULL))
-      return alloc_string ("-");
-
-   convert_date (buf, date, DATELEN);
-   len = snprintf (NULL, 0, "|`- %s %s", buf, graph);
-   data = malloc (len + 2);
-   if (data == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (data, "|`- %s %s", buf, graph);
-
-   return data;
 }
 
 static char *
@@ -1278,12 +1259,6 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
           if (strchr (s_holder[i]->data, '|') == NULL) {
              graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
              data = set_bw_data_unique_visitors (s_holder[i]->data, graph);
-             items[i] = new_item (hits, data);
-             free (graph);
-             break;
-          } else if (strchr (s_holder[i]->data, '|') == NULL) {
-             graph = subgraphs (s_holder, s_holder[i]->hits, x + 8, max);
-             data = set_nobw_data_unique_visitors (s_holder[i]->data, graph);
              items[i] = new_item (hits, data);
              free (graph);
              break;
@@ -1551,7 +1526,7 @@ load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
    /* set it 0 for the next g_hash_table_foreach() */
    iter_ctr = 0;
 
-   /* again, letting the user to set the max number 
+   /* again, letting the user to set the max number
     * might be a better way to go */
    if (logger->current_module == BROWSERS)
       choices = g_hash_table_size (hash_table);

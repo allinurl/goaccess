@@ -196,27 +196,37 @@ process_generic_data (GHashTable * ht, const char *key)
    /* replace the entry. old key will be freed by "free_key_value". */
    g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
    if (first && ht == ht_unique_visitors) {
-      char *dup_k_b = strdup (key), *dup_k_o = strdup (key);
+      char *new_key = strdup (key);
+      new_key = char_replace (new_key, '+', ' ');
+
+      char *dup_k_b = strdup (new_key), *dup_k_o = strdup (new_key);
       char *b_key = NULL, *o_key = NULL;
+
       /* get browser & OS from agent */
       b_key = verify_browser (dup_k_b);
       o_key = verify_os (dup_k_o);
+
       /* insert new keys & values */
       process_generic_data (ht_browsers, b_key);
       process_generic_data (ht_os, o_key);
       /* check type & add up totals */
       process_generic_data (ht_browsers, verify_browser_type (b_key));
       process_generic_data (ht_os, verify_os_type (o_key));
+
       /* clean stuff up */
+      free (b_key);
       free (dup_k_b);
       free (dup_k_o);
+      free (new_key);
       free (o_key);
-      free (b_key);
+
       if ((date = strchr (key, '|')) != NULL) {
-         char *tmp_date;
-         tmp_date = clean_date (date);
-         process_generic_data (ht_unique_vis, tmp_date);
-         free (tmp_date);
+         char *tmp_date = NULL;
+         tmp_date = clean_date (++date);
+         if (tmp_date != NULL) {
+            process_generic_data (ht_unique_vis, tmp_date);
+            free (tmp_date);
+         }
       }
    }
    return (0);
@@ -453,7 +463,7 @@ parse_format (struct logger *logger, const char *fmt, char *str)
          continue;
       }
       if (special && *p != '\0') {
-         char *pch, *sEnd, *bEnd, *tkn = NULL;
+         char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
          errno = 0;
          long long bandw = 0;
          long status = 0;
@@ -465,7 +475,8 @@ parse_format (struct logger *logger, const char *fmt, char *str)
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             if (strptime (tkn, date_format, &tm) == NULL) {
+             end = strptime (tkn, date_format, &tm);
+             if (end == NULL || *end != '\0') {
                 free (tkn);
                 return 1;
              }
@@ -477,7 +488,7 @@ parse_format (struct logger *logger, const char *fmt, char *str)
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             if (not_ipv4 (tkn)) {
+             if (invalid_ipaddr(tkn)) {
                 free (tkn);
                 return 1;
              }
@@ -587,11 +598,6 @@ process_log (struct logger *logger, char *line, int test)
 
    logger->total_process++;
    if (parse_format (&log, log_format, line) == 1) {
-      FILE *pFile;
-      pFile = fopen ("myfile.txt", "a+");
-      fprintf (pFile, "%s\n", line);
-      fclose (pFile);
-
       free_logger (&log);
       logger->total_invalid++;
       return 0;
@@ -607,7 +613,8 @@ process_log (struct logger *logger, char *line, int test)
       return 0;
    }
 
-   if (strptime (log.date, date_format, &tm) == NULL)
+   char *end = strptime (log.date, date_format, &tm);
+   if (end == NULL || *end != '\0')
       return 0;
    if (strftime (buf, sizeof (buf) - 1, "%Y%m%d", &tm) == 0)
       return 0;
@@ -699,19 +706,14 @@ generate_unique_visitors (struct struct_display **disp, struct logger *logger)
 
    qsort (t_holder, s_size, sizeof (struct struct_holder *), struct_cmp_desc);
 
-   char *head = NULL;
-   head =
-      alloc_string
-      (" HTTP requests having the same IP, same date and same agent are considered a unique visit");
    /* fixed value in here, perhaps it could be dynamic depending on the module */
    for (i = 0, r = 0; i < 10; i++) {
       disp[logger->alloc_counter]->hits = 0;
       disp[logger->alloc_counter]->module = 1;
       if (i == 0)
-         disp[logger->alloc_counter++]->data =
-            alloc_string (" 1 - Unique visitors per day - Including spiders");
+         disp[logger->alloc_counter++]->data = alloc_string (vis_head);
       else if (i == 1)
-         disp[logger->alloc_counter++]->data = head;
+         disp[logger->alloc_counter++]->data = alloc_string (vis_desc);
       else if (i == 2 || i == 9)
          disp[logger->alloc_counter++]->data = alloc_string ("");
       else if (r < s_size) {
@@ -756,49 +758,47 @@ generate_struct_data (GHashTable * hash_table,
           struct_cmp_by_hits);
 
    /* headers & sub-headers */
-   char *head = NULL, *desc = NULL;
+   const char *head = NULL, *desc = NULL;
    switch (module) {
     case 2:
-       head = " 2 - Requested files (Pages-URL)";
-       desc =
-          " Top 6 different files requested sorted by requests - percent - [bandwidth]";
+       head = req_head;
+       desc = req_desc;
        break;
     case 3:
-       head = " 3 - Requested static files - (Static content: png,js,etc)";
-       desc =
-          " Top 6 different static files requested, sorted by requests - percent - [bandwidth]";
+       head = static_head;
+       desc = status_desc;
        break;
     case 4:
-       head = " 4 - Referrers URLs";
-       desc = " Top 6 different referrers sorted by requests";
+       head = ref_head;
+       desc = ref_desc;
        break;
     case 5:
-       head = " 5 - HTTP 404 Not Found response code";
-       desc = " Top 6 different 404 sorted by requests";
+       head = not_found_head;
+       desc = not_found_desc;
        break;
     case 6:
-       head = " 6 - Operating Systems";
-       desc = " Top 6 different Operating Systems sorted by unique requests";
+       head = os_head;
+       desc = os_desc;
        break;
     case 7:
-       head = " 7 - Browsers";
-       desc = " Top 6 different browsers sorted by unique requests";
+       head = browser_head;
+       desc = browser_desc;
        break;
     case 8:
-       head = " 8 - Hosts";
-       desc = " Top 6 different hosts sorted by requests";
+       head = host_head;
+       desc = host_desc;
        break;
     case 9:
-       head = " 9 - HTTP Status Codes";
-       desc = " Top 6 different status codes sorted by requests";
+       head = status_head;
+       desc = status_desc;
        break;
     case 10:
-       head = " 10 - Top Referring Sites";
-       desc = " Top 6 different referring sites sorted by requests";
+       head = sites_head;
+       desc = sites_desc;
        break;
     case 11:
-       head = " 11 - Top Keyphrases used on Google's search engine";
-       desc = " Top 6 different keyphrases sorted by requests";
+       head = key_head;
+       desc = key_desc;
        break;
    }
 

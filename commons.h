@@ -44,10 +44,11 @@
 #define DATELEN         12
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.4.2"
+#define GO_VERSION 		"0.5"
 #define MAX_CHOICES 	   300
 #define MIN_HEIGHT 		7
 #define MIN_WIDTH       0
+#define OUTPUT_N        10
 #define TOTAL_MODULES 	11
 /* max height of footer stdscr (rows) */
 #define MAX_HEIGHT_FOOTER 1
@@ -142,7 +143,6 @@ struct struct_holder
    char *data;
    int hits;
    int curr_module;
-   size_t s_ctr;
 };
 
 struct scrolling
@@ -159,6 +159,7 @@ struct tm *now_tm;
 /* enable flags */
 extern char *ignore_host;
 extern int host_agents_list_flag;
+extern int outputting;
 extern int piping;
 
 /* iteration */
@@ -192,6 +193,29 @@ extern char COMMON2[];
 extern char W3C_INTERNET[];
 extern int color_scheme;
 extern char *conf_keywords[][2];
+
+extern const char *vis_head;
+extern const char *vis_desc;
+extern const char *req_head;
+extern const char *req_desc;
+extern const char *static_head;
+extern const char *static_desc;
+extern const char *ref_head;
+extern const char *ref_desc;
+extern const char *not_found_head;
+extern const char *not_found_desc;
+extern const char *os_head;
+extern const char *os_desc;
+extern const char *browser_head;
+extern const char *browser_desc;
+extern const char *host_head;
+extern const char *host_desc;
+extern const char *status_head;
+extern const char *status_desc;
+extern const char *sites_head;
+extern const char *sites_desc;
+extern const char *key_head;
+extern const char *key_desc;
 
 /* file */
 extern char *ifile;

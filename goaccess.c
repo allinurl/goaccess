@@ -1,19 +1,19 @@
-/** 
- * goaccess.c -- main log analyzer 
+/**
+ * goaccess.c -- main log analyzer
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -51,6 +51,7 @@
 #include "alloc.h"
 #include "commons.h"
 #include "error.h"
+#include "output.h"
 #include "parser.h"
 #include "settings.h"
 #include "ui.h"
@@ -95,13 +96,10 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [ -b ][ -s ][ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
+   printf ("goaccess [ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
-   printf (" -b            - Enable total bandwidth consumption.\n");
-   printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -s            - Enable HTTP status codes report.\n");
-   printf ("                 For faster parsing, don't enable this flag.\n");
+   printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -a            - Enable a List of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
@@ -166,7 +164,7 @@ allocate_structs (int free_me)
    /* allocate 10 per module */
    MALLOC_STRUCT (s_display, 170);
 
-   /* note that the order in which we call them, 
+   /* note that the order in which we call them,
     * is the way modules will be displayed */
    generate_unique_visitors (s_display, logger);
 
@@ -456,6 +454,8 @@ main (int argc, char *argv[])
           abort ();
       }
    }
+   if (!isatty (STDOUT_FILENO))
+      outputting = 1;
    if (ifile != NULL && !isatty (STDIN_FILENO))
       cmd_help ();
    if (ifile == NULL && isatty (STDIN_FILENO))
@@ -516,10 +516,15 @@ main (int argc, char *argv[])
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
 
-    /** 'should' work on UTF-8 terminals as long as the 
+    /** 'should' work on UTF-8 terminals as long as the
      ** user did set it to *._UTF-8 locale **/
     /** ###TODO: real UTF-8 support needs to be done **/
    setlocale (LC_CTYPE, "");
+   parse_conf_file ();
+
+   if (outputting)
+      goto out;
+
    initscr ();
    clear ();
    if (has_colors () == FALSE)
@@ -527,7 +532,6 @@ main (int argc, char *argv[])
                      "Your terminal does not support color");
    set_input_opts ();
    start_color ();
-   parse_conf_file ();
    init_colors ();
 
    attron (COLOR_PAIR (COL_WHITE));
@@ -548,8 +552,9 @@ main (int argc, char *argv[])
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Unable to allocate memory for new window.");
 
+ out:
    logger = init_struct ();
-   if (isatty (STDIN_FILENO) && (log_format == NULL || conf)) {
+   if (isatty (STDIN_FILENO) && (log_format == NULL || conf) && !outputting) {
       refresh ();
       quit = verify_format (logger);
    }
@@ -564,6 +569,16 @@ main (int argc, char *argv[])
    (void) time (&end_proc);
 
    initial_reqs = logger->total_process;
+
+   if (outputting) {
+      /* no valid entries to process from the log */
+      if ((logger->total_process == 0)
+          || (logger->total_process == logger->total_invalid))
+         goto done;
+
+      (void) output_html (logger);
+      goto done;
+   }
    /* draw screens */
    int x, y;
    getmaxyx (main_win, y, x);
@@ -573,12 +588,14 @@ main (int argc, char *argv[])
    render_screens ();
    get_keys ();
 
-   write_conf_file ();
-   house_keeping (logger, s_display);
    attroff (COLOR_PAIR (COL_WHITE));
 
-   /* restore tty modes and reset 
+   /* restore tty modes and reset
     * terminal into non-visual mode */
    endwin ();
+ done:
+   write_conf_file ();
+   house_keeping (logger, s_display);
+
    return 0;
 }

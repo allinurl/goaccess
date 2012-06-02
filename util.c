@@ -1,19 +1,19 @@
-/** 
- * util.c -- a set of handy functions to help parsing 
+/**
+ * util.c -- a set of handy functions to help parsing
  * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
- * This program is free software; you can redistribute it and/or    
- * modify it under the terms of the GNU General Public License as   
- * published by the Free Software Foundation; either version 2 of   
- * the License, or (at your option) any later version.              
- *                                                                  
- * This program is distributed in the hope that it will be useful,  
- * but WITHOUT ANY WARRANTY; without even the implied warranty of   
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the    
- * GNU General Public License for more details.                     
- *                                                                  
- * A copy of the GNU General Public License is attached to this 
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of
+ * the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * A copy of the GNU General Public License is attached to this
  * source distribution for its full text.
  *
  * Visit http://goaccess.prosoftcorp.com for new releases.
@@ -22,6 +22,8 @@
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
+
+#define H_SIZE 256
 
 #define _XOPEN_SOURCE 700
 
@@ -38,6 +40,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <time.h>
 #include <unistd.h>
 
@@ -46,30 +49,6 @@
 #include "error.h"
 
 /* helper functions */
-char *
-substring (const char *str, int begin, int len)
-{
-   char *buffer;
-   if (str == NULL)
-      return NULL;
-   if (begin < 0)
-      begin = strlen (str) + begin;
-   if (begin < 0)
-      begin = 0;
-   if (len < 0)
-      len = 0;
-   if (((size_t) begin) > strlen (str))
-      begin = strlen (str);
-   if (((size_t) len) > strlen (&str[begin]))
-      len = strlen (&str[begin]);
-   if ((buffer = malloc (len + 1)) == NULL)
-      return NULL;
-   memcpy (buffer, &(str[begin]), len);
-   buffer[len] = '\0';
-
-   return buffer;
-}
-
 char *
 alloc_string (const char *str)
 {
@@ -100,54 +79,70 @@ convert_date (char *result, char *data, int size)
 
    memset (&tm, 0, sizeof (tm));
 
-   strptime (data, "%Y%m%d", &tm);
+   char *end = strptime (data, "%Y%m%d", &tm);
+   if (end == NULL || *end != '\0')
+      return 0;
    if (strftime (result, size, "%d/%b/%Y", &tm) <= 0)
-      *result = 0;
+      return 0;
 
    return result;
 }
 
 int
-not_ipv4 (char *str)
+invalid_ipaddr (char *str)
 {
-   char *p;
-   int is_valid = 0, dots = 0;
-
-   if ((str == NULL) || (*str == '\0'))
+   if (str == NULL || *str == '\0')
       return 1;
 
-   /* double check and make sure we got an ip in here */
-   for (p = str; *p; p++) {
-      if (*p == '.') {
-         dots++;
-         continue;
-      } else if (!isdigit (*p)) {
-         is_valid = 1;
-         break;
-      }
-   }
-   if (dots != 3)
-      is_valid = 1;
+   union
+   {
+      struct sockaddr addr;
+      struct sockaddr_in6 addr6;
+      struct sockaddr_in addr4;
+   } a;
+   memset (&a, 0, sizeof (a));
+   if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr))
+      return 0;
+   else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr))
+      return 0;
+   return 1;
+}
 
-   return is_valid;
+char *
+reverse_host (const struct sockaddr *a, socklen_t length)
+{
+   char h[H_SIZE];
+   int flags, st;
+
+   flags = NI_NAMEREQD;
+   st = getnameinfo (a, length, h, H_SIZE, NULL, 0, flags);
+   if (!st)
+      return alloc_string (h);
+   return alloc_string (gai_strerror (st));
 }
 
 char *
 reverse_ip (char *str)
 {
-   in_addr_t addr;
-   struct hostent *hent;
+   if (str == NULL || *str == '\0')
+      return NULL;
 
-   if ((str == NULL) || (*str == '\0'))
-      return (NULL);
+   union
+   {
+      struct sockaddr addr;
+      struct sockaddr_in6 addr6;
+      struct sockaddr_in addr4;
+   } a;
 
-   if (!not_ipv4 (str)) {
-      addr = inet_addr (str);
-      hent = gethostbyaddr ((char *) &addr, sizeof (addr), AF_INET);
-   } else
-      hent = gethostbyname (str);
-
-   return (hent != NULL ? strdup (hent->h_name) : NULL);
+   memset (&a, 0, sizeof (a));
+   if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr)) {
+      a.addr4.sin_family = AF_INET;
+      return reverse_host (&a.addr, sizeof (a.addr4));
+   } else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr)) {
+      a.addr6.sin6_family = AF_INET6;
+      return reverse_host (&a.addr, sizeof (a.addr6));
+   }
+   return NULL;
 }
 
 /* off_t becomes 64 bit aware */
@@ -205,6 +200,18 @@ verify_os (char *str)
    }
 
    return alloc_string ("Unknown");
+}
+
+char *
+char_replace (char *str, char o, char n)
+{
+   if (str == NULL || *str == '\0')
+      return str;
+
+   char *p = str;
+   while ((p = strchr (p, o)) != NULL)
+      *p++ = n;
+   return str;
 }
 
 char *
@@ -294,11 +301,33 @@ filesize_str (off_t log_size)
 char *
 clean_date (char *s)
 {
-   return substring (s + 1, 0, 8);
+   if ((s == NULL) || (*s == '\0'))
+      return NULL;
+
+   char *buffer = malloc (strlen (s) + 1);
+   if (buffer == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   if (sscanf (s, "%8[^|]", buffer) != 1) {
+      free (buffer);
+      return NULL;
+   }
+   return buffer;
 }
 
 char *
 clean_month (char *s)
 {
-   return substring (s, 0, 6);
+   if ((s == NULL) || (*s == '\0'))
+      return NULL;
+
+   char *buffer = malloc (strlen (s) + 1);
+   if (buffer == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory");
+   if (sscanf (s, "%6[^|]", buffer) != 1) {
+      free (buffer);
+      return NULL;
+   }
+   return buffer;
 }

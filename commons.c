@@ -71,6 +71,7 @@ enum SCHEMES schemes;
 /* enable flags */
 char *ignore_host;
 int host_agents_list_flag = 0;
+int outputting = 0;
 int piping = 0;
 
 /* hash iteration */
@@ -105,6 +106,46 @@ char COMBINED2[] = "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"";
 char COMMON1[] = "%h %^[%d:%^] \"%r\" %s %b";
 char COMMON2[] = "%^:%^ %h %^[%d:%^] \"%r\" %s %b";
 char W3C_INTERNET[] = "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R";
+
+/* header strings */
+const char *vis_head = " 1 - Unique visitors per day - Including spiders";
+const char *vis_desc =
+   " HTTP requests having the same IP, same date and same agent are considered a unique visit";
+
+const char *req_head = " 2 - Requested files (Pages-URL)";
+const char *req_desc =
+   " Top different files requested sorted by requests - percent - [bandwidth]";
+
+const char *static_head =
+   " 3 - Requested static files - (Static content: png,js,etc)";
+const char *static_desc =
+   " Top different static files requested, sorted by requests - percent - [bandwidth]";
+
+const char *ref_head = " 4 - Referrers URLs";
+const char *ref_desc = " Top different referrers sorted by requests";
+
+const char *not_found_head = " 5 - HTTP 404 Not Found response code";
+const char *not_found_desc = " Top different 404 sorted by requests";
+
+const char *os_head = " 6 - Operating Systems";
+const char *os_desc =
+   " Top different Operating Systems sorted by unique requests";
+
+const char *browser_head = " 7 - Browsers";
+const char *browser_desc =
+   " Top different browsers sorted by unique requests";
+
+const char *host_head = " 8 - Hosts";
+const char *host_desc = " Top different hosts sorted by requests";
+
+const char *status_head = " 9 - HTTP Status Codes";
+const char *status_desc = " Top different status codes sorted by requests";
+
+const char *sites_head = " 10 - Top Referring Sites";
+const char *sites_desc = " Top different referring sites sorted by requests";
+
+const char *key_head = " 11 - Top Keyphrases used on Google's search engine";
+const char *key_desc = " Top different keyphrases sorted by requests";
 
 int color_scheme = 1;
 char *conf_keywords[][2] = {
@@ -230,7 +271,7 @@ char *codes[][2] = {
 };
 
 char *help_main[] = {
-   "Copyright (C) 2010",
+   "Copyright (C) 2012",
    "by Gerardo Orellana <goaccess@prosoftcorp.com>",
    "http://goaccess.prosoftcorp.com",
    "Released under the GNU GPL. See `man` page for",
@@ -269,8 +310,8 @@ char *help_main[] = {
    "         occurrence of pattern",
    " ^n^     detail view - find the position of the next",
    "         occurrence",
-   " ^t^     [detail view] move to the first item",
-   " ^b^     [detail view] move to the last item",
+   " ^t^     move to the first item or top of screen",
+   " ^b^     move to the last item or bottom of screen",
    "",
    "Examples can be found by running `man goaccess`.",
    "",
