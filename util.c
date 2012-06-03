@@ -217,7 +217,7 @@ char_replace (char *str, char o, char n)
 char *
 verify_browser (char *str)
 {
-   char *a, *b, *p, *ptr;
+   char *a, *b, *p, *ptr, *slash;
    size_t i;
 
    if (str == NULL || *str == '\0')
@@ -229,6 +229,12 @@ verify_browser (char *str)
       if (!(b = a))
          return "-";
       ptr = a;
+
+      if ((strstr (a, "Opera")) != NULL) {
+         slash = strrchr (str, '/');
+         if ((slash != NULL) && (a < slash))
+            memmove (a + 5, slash, strlen (slash) + 1);
+      }
       /* MSIE needs additional code. sigh... */
       if ((strstr (a, "MSIE")) != NULL || (strstr (a, "Ask")) != NULL) {
          while (*ptr != ';' && *ptr != ')' && *ptr != '-' && *ptr != '\0') {
@@ -238,8 +244,8 @@ verify_browser (char *str)
          }
       }
       for (p = a; *p; p++) {
-         if (isalnum (p[0]) || *p == '.' || *p == '/' || *p == '_'
-             || *p == '-') {
+         if (isalnum (p[0]) || *p == '.' || *p == '/' || *p == '_' ||
+             *p == '-') {
             a++;
             continue;
          } else

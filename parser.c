@@ -488,7 +488,7 @@ parse_format (struct logger *logger, const char *fmt, char *str)
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             if (invalid_ipaddr(tkn)) {
+             if (invalid_ipaddr (tkn)) {
                 free (tkn);
                 return 1;
              }

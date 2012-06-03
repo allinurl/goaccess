@@ -572,8 +572,8 @@ main (int argc, char *argv[])
 
    if (outputting) {
       /* no valid entries to process from the log */
-      if ((logger->total_process == 0)
-          || (logger->total_process == logger->total_invalid))
+      if ((logger->total_process == 0) ||
+          (logger->total_process == logger->total_invalid))
          goto done;
 
       (void) output_html (logger);

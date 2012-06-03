@@ -308,7 +308,7 @@ char *help_main[] = {
    " ^S^     [detail view] sort unique visitors by hits",
    " ^/^     [detail view] search forward for the ",
    "         occurrence of pattern",
-   " ^n^     detail view - find the position of the next",
+   " ^n^     [detail view] find position of the next",
    "         occurrence",
    " ^t^     move to the first item or top of screen",
    " ^b^     move to the last item or bottom of screen",
