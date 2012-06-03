@@ -1,6 +1,6 @@
 /**
  * commons.c -- holds different data types
- * Copyright (C) 2010 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -110,16 +110,15 @@ char W3C_INTERNET[] = "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R";
 /* header strings */
 const char *vis_head = " 1 - Unique visitors per day - Including spiders";
 const char *vis_desc =
-   " HTTP requests having the same IP, same date and same agent are considered a unique visit";
+   " Requests having the same IP, same date and same agent are considered a unique visit";
 
 const char *req_head = " 2 - Requested files (Pages-URL)";
 const char *req_desc =
-   " Top different files requested sorted by requests - percent - [bandwidth]";
+   " Top different files requested sorted by requests - percent - bandwidth";
 
-const char *static_head =
-   " 3 - Requested static files - (Static content: png,js,etc)";
+const char *static_head = " 3 - Requested static files - (e.g., png,js,etc)";
 const char *static_desc =
-   " Top different static files requested, sorted by requests - percent - [bandwidth]";
+   " Top different static files requested, sorted by requests - percent - bandwidth";
 
 const char *ref_head = " 4 - Referrers URLs";
 const char *ref_desc = " Top different referrers sorted by requests";
@@ -271,7 +270,7 @@ char *codes[][2] = {
 };
 
 char *help_main[] = {
-   "Copyright (C) 2012",
+   "Copyright (C) 2010-2012-2012",
    "by Gerardo Orellana <goaccess@prosoftcorp.com>",
    "http://goaccess.prosoftcorp.com",
    "Released under the GNU GPL. See `man` page for",
