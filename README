@@ -1,25 +1,26 @@
-Copyright (C) 2010
+Copyright (C) 2009-2012
 Gerardo Orellana <goaccess@prosoftcorp.com>
 http://goaccess.prosoftcorp.com/
 
-Thursday, September 09 2010
+Monday, June 04 2012
 
 INTRODUCTION
 -------------
-GoAccess is an open source real-time Apache web log analyzer and 
-interactive viewer that runs in a terminal and provides fast and 
-valuable HTTP statistics for system administrators that require a 
-visual report on the fly.
+GoAccess is an open source real-time web log analyzer 
+and interactive viewer that runs in a terminal in *nix systems. 
+It provides fast and valuable HTTP statistics for system 
+administrators that require a visual server report on the fly.
 
 How it works and what it does?
 -------------------------------
-Essentially, the way GoAccess works is that it will parse the 
-well-known Apache access log file, from there, GoAccess will collect data 
-from the parsed file and it will display it to the console or the X terminal. 
-The collected information or generated reports will be displayed to the 
-user/sysadmin in a visual/interactive window. Reports include:
+Essentially, GoAccess will parse the specified web log file; 
+from there, it will collect data from the parsed log 
+and it will display it to the console or the X terminal. 
+The collected information or generated reports will be 
+displayed to the user/sysadmin in a visual/interactive window. 
+Reports include:
 
-    * General Statistics, Bandwidth etc.
+    * General Statistics, bandwidth etc.
     * Top Visitors
     * Requested files
     * Requested static files, images, swf, js, etc.
@@ -31,15 +32,21 @@ user/sysadmin in a visual/interactive window. Reports include:
     * HTTP Status Codes
     * Referring Sites
     * Keyphrases
+    * Support for IPv6
     * Different Color Schemes
     * Unlimited log file size
+    * Custom log format
+    * Output statistics to a file. See report. 
 
 Why GoAccess?
 -------------
-The main idea behind GoAccess is being able to quickly analyze 
-and view web server statistics in real time  without having to 
-generate huge web reports. You can see it more as a monitor 
-command tool than anything else. (or at least that's the intended purpose)
+The main idea behind GoAccess is being able to quickly 
+analyze and view web server statistics in real time 
+without having to generate an HTML report. 
+Although it is possible to generate an HTML report, 
+by default it outputs to a terminal.
+
+You can see it more as a monitor command tool than anything else.
 
 Keys
 ----

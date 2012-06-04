@@ -1,4 +1,4 @@
-Copyright (C) 2010
+Copyright (C) 2009-2012
 Gerardo Orellana <goaccess@prosoftcorp.com>
 
 This is the TODO list for GoAccess.
@@ -6,12 +6,8 @@ If you are interested in working on any of these,
 email goaccess@prosoftcorp.com.
 
 * General:
- - Better support for UTF-8 (Done, run ./configure --enable-utf8)
- - Support for parsing IPv6
  - Increase the performance when parsing the log file.
- - Resize child windows when term is resized.
  - Add command-line parameters.
- - Filtering data by date. (Done, see `man goaccess`)
  - Add more reports to it.
 
 * Documentation:

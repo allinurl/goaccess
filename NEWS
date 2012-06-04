@@ -1,7 +1,9 @@
-Copyright (C) 2010
+Copyright (C) 2009-2012
 Gerardo Orellana <goaccess@prosoftcorp.com>
 
 * Version history:
+    - 0.5  [Monday, June 04, 2012]
+        . GoAccess 0.5 Released. See ChangeLog for new features/bug-fixes.
     - 0.4.2  [Monday, January 03, 2011]
         . GoAccess 0.4.2 Released. See ChangeLog for new features/bug-fixes.
     - 0.4.1  [Monday, December 13, 2010]

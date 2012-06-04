@@ -1,3 +1,15 @@
+Changes to GoAccess 0.5 - Monday, June 04, 2012
+
+   * Added the ability to parse a custom format string.
+   * Added ability to output a full stats report to a file.
+   * Added support for IPv6
+   * Fixed issue on Opera agents where version was not recognized correctly.
+   * Fixed issue on empty Google query strings.
+   * Fixed google cache key-phrases.
+   * Added a new include sys/socket.h - BSD
+   * Added a key shortcut to scroll top/bottom.
+   * Fixed other minor fixes and changes.
+
 Changes to GoAccess 0.4.2 - Monday, January 03, 2011
 
    * Fixed a minor bug when adding monthly totals on visitors subwin.
