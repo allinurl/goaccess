@@ -21,7 +21,7 @@
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
 
-#define T_HEAD "General Summary - Overall Analysed Requests - Unique totals"
+#define T_HEAD " General Summary - Overall Analysed Requests - Unique totals"
 #define T_BW         "BW"
 #define T_F_REQUESTS "Failed Requests"
 #define T_GEN_TIME   "Generation Time"

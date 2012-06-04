@@ -1,18 +1,18 @@
-.TH goaccess 1 "DECEMBER 2010" Linux "User Manuals"
+.TH goaccess 1 "JUNE 2012" Linux "User Manuals"
 .SH NAME
-goaccess \- fast log analyzer and interactive viewer for the Apache web server
+goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
 .B ]
-.I [-b] [-s] [-e] [-a]
+.I [-c] [-e] [-a]
 .SH DESCRIPTION
 .B goaccess
-is a free (GPL) real-time Apache web log analyzer and interactive 
+is a free (GPL) real-time web log analyzer and interactive 
 viewer that runs in a terminal in *nix systems. 
 It provides fast and valuable HTTP statistics for system 
 administrators that require a visual server report on the fly.
-First it will parse the access log file, then it will collect data 
+First it will parse the web log file, then it will collect data 
 from the parsed file and it will display it 
 to the console or the X terminal. The collected information will be 
 displayed to the user in a visual/interactive window. 
@@ -89,19 +89,57 @@ translate.
 The total number is based on total requests.
 .B {Detail view} is available for this module
 .SH OPTIONS
-.IP -b
-Enable total bandwidth consumption. To achieve faster parsing, do not enable this flag.
-This has been disabled by default.
 .IP "-f input-file"
 Path to input log file.
-.IP -s
-Enable HTTP response status codes report. To avoid overhead while parsing,
-this feature has been disabled by default.
+.IP -c
+Prompt date and log format configuration window.
 .IP -e
 Exclude an IP from being counted under the HOST module.
 .IP -a
 Enable a list of User-Agents for the selected host.
+.SH CUSTOM LOG/DATE FORMAT
+GoAccess can parse virtually any web log format. 
 
+Predefined options include, Common Log Format (CLF), 
+Combined Log Format (XLF/ELF), including virtual host 
+and W3C format (IIS). 
+
+GoAccess allows any custom format string as well. 
+
+There are two ways to configure the log format.
+The easiest is to run GoAccess with
+.I -c
+to prompt a configuration window. Otherwise, it can be
+configured under ~/.goaccessrc.
+.IP "date_format"
+The 
+.I date_format 
+variable followed by a space, specifies the log format
+date containing any combination of regular characters
+and special format specifiers. They all begin with a 
+percentage (%) sign. See http://linux.die.net/man/3/strftime
+.IP "log_format"
+The 
+.I log_format 
+variable followed by a space, specifies the log format string.
+.IP %d
+date field matching the
+.I date_format
+variable.
+.IP %h
+host (the client IP address, either IPv4 or IPv6)
+.IP %r
+The request line from the client.
+.IP %s
+The status code that the server sends back to the client.
+.IP %b
+The size of the object returned to the client.
+.IP %R
+The "Referer" HTTP request header.
+.IP %u
+The User-Agent HTTP request header.
+.IP %^
+Ignore this field.
 .SH INTERACTIVE MENU
 .IP "F1"
 Main help.
@@ -134,9 +172,9 @@ Search forward on any {detail view} window for the occurrence of typed pattern.
 .IP "n"
 Find the position of the next occurrence on any {detail view} window.
 .IP "t"
-Move to the first item on any {detail view} window.
+Move to the first item or top of screen.
 .IP "b"
-Move to the last item on any {detail view} window.
+Move to the last item or bottom of screen.
 .SH EXAMPLES
 The simplest and fastest usage would be:
 
@@ -144,19 +182,21 @@ The simplest and fastest usage would be:
 
 That will generate an interactive text-only output.
 
+To generate an HTML report:
+
+# goaccess -f access.log -a > report.html
+
 To generate full statistics we can run GoAccess as:
 
-# goaccess -f access.log -a -s -b
+# goaccess -f access.log -a
 
 The 
 .I -a 
 flag indicates that we want to process an agent-list for every host parsed.
 The 
-.I -s 
-flag tells GoAccess go get every HTTP status code.
-The 
-.I -b 
-flag will process the total bandwidth consumption for files, hosts, and dates.
+.I -c 
+flag will prompt the date and log format configuration window. Only when
+curses is initialized.
 
 Now if we want to add more flexibility to GoAccess, we can do a series of  pipes.
 For instance:
@@ -171,16 +211,16 @@ OR
 
 #  zcat -f access.log* | goaccess
 
-Another useful pipe would be filtering dates out of the Apache's access log
+Another useful pipe would be filtering dates out of the web log
 
 The following will get all HTTP requests starting on 05/Dec/2010 until 
 the end of the file.
 
-# sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -s -b
+# sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -a
 
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
-sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -s -b
+sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
 
 .I Note that this could take longer time to parse depending on the speed of sed.
 
@@ -188,7 +228,7 @@ sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -s -b
 it is worth pointing out that if we want to run GoAccess at lower priority, we
 can run it as:
 
-# nice -n 19 goaccess -f access.log -s -a -b
+# nice -n 19 goaccess -f access.log -a
 
 .SH NOTES
 On each {detail view} window, the total number of items is 300.

@@ -222,6 +222,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
           }
           break;
        case 7:
+       case 27:
           pos = x = 0;
           if (!str)
              s[0] = '\0';
