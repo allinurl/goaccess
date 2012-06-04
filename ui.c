@@ -1,6 +1,6 @@
 /**
  * ui.c -- curses user interface
- * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -126,9 +126,8 @@ draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
 void
 update_header (WINDOW * header_win, int current)
 {
-   int row = 0, col = 0;
+   int col = getmaxx (stdscr);
 
-   getmaxyx (stdscr, row, col);
    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
    wmove (header_win, 0, 30);
    mvwprintw (header_win, 0, col - 19, "[Active Module %d]", current);
@@ -149,8 +148,7 @@ term_size (WINDOW * main_win)
 static void
 colour_noutput (WINDOW * header_win, char *str, int y)
 {
-   int row, col;
-   getmaxyx (stdscr, row, col);
+   int col = getmaxx (stdscr);
 
    char *p;
    int x = 2, path_flag = 0;
@@ -182,8 +180,8 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
    if (s == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Unable to allocate memory.");
-   int size_y, size_x, pos = 0, x = 0, quit = 1, c;
-   getmaxyx (win, size_y, size_x);
+   int pos = 0, x = 0, quit = 1, c;
+   int size_x = getmaxx (win);
    size_x -= 4;
 
    if (str) {
@@ -301,8 +299,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
 void
 display_general (WINDOW * header_win, struct logger *logger, char *ifile)
 {
-   int row, col;
-   getmaxyx (stdscr, row, col);
+   int col = getmaxx (stdscr);
    draw_header (header_win, T_HEAD, 0, 0, col, 1);
 
    /* general stats */
@@ -391,7 +388,7 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
 {
    char buf[12] = "";           /* date */
    float l_bar, scr_cal, orig_cal;
-   int x, y, xx, r, col, row;
+   int x, y, xx, r;
    struct tm tm;
 
    GHashTable *hash_table = NULL;
@@ -399,7 +396,8 @@ create_graphs (WINDOW * main_win, struct struct_display **s_display,
    memset (&tm, 0, sizeof (tm));
 
    getyx (main_win, y, x);
-   getmaxyx (stdscr, row, col);
+   x = x;                       /* Get rid of "set but not used" lint warning */
+   int col = getmaxx (stdscr);
 
    switch (module) {
     case UNIQUE_VISITORS:
@@ -495,8 +493,8 @@ data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
                     struct struct_display **s_display, int i)
 {
    float h = 0, t = 0;
-   int padding_rx = 0, magn = 0, col, row;
-   getmaxyx (main_win, row, col);
+   int padding_rx = 0, magn = 0;
+   int col = getmaxx (main_win);
 
    if (s_display[i]->hits == 0)
       return;
@@ -553,9 +551,9 @@ void
 display_content (WINDOW * main_win, struct struct_display **s_display,
                  struct logger *logger, struct scrolling scrolling)
 {
-   int i, x, y, max = 0, until = 0, start = 0, pos_y = 0;
+   int i, max = 0, until = 0, start = 0, pos_y = 0;
 
-   getmaxyx (main_win, y, x);
+   int x = getmaxx (main_win);
    getmaxyx (stdscr, term_h, term_w);
 
    if (term_h < MIN_HEIGHT || term_w < MIN_WIDTH)
@@ -622,9 +620,10 @@ void
 do_scrolling (WINDOW * main_win, struct struct_display **s_display,
               struct logger *logger, struct scrolling *scrolling, int cmd)
 {
-   int cur_y, cur_x, y, x, max = 0;
-   getmaxyx (main_win, y, x);
+   int cur_y, cur_x, max = 0;
+   int x = getmaxx (main_win);
    getyx (main_win, cur_y, cur_x);      /* cursor */
+   cur_x = cur_x;               /* Get rid of "set but not used" lint warning */
 
    int i = real_size_y + scrolling->init_scrl_main_win;
    int j = scrolling->init_scrl_main_win - 1;
@@ -736,8 +735,7 @@ static void
 load_help_popup_content (WINDOW * inner_win, int where,
                          struct scrolling *scrolling)
 {
-   int y, x;
-   getmaxyx (inner_win, y, x);
+   int y = getmaxy (inner_win);
 
    switch (where) {
        /* scroll down */
@@ -818,8 +816,7 @@ static void
 scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
                 struct struct_agents *s_agents, size_t alloc)
 {
-   int y, x;
-   getmaxyx (inner_win, y, x);
+   int y = getmaxy (inner_win);
 
    switch (where) {
        /* scroll down */
@@ -1237,9 +1234,8 @@ get_menu_items (struct struct_holder **s_holder, struct logger *logger,
    gpointer value_ptr;
    int i;
    long long *ptr_value;
-   size_t y, x;
 
-   getmaxyx (my_menu_win, y, x);
+   size_t x = getmaxx (my_menu_win);
    /* sort struct prior to display */
    if (logger->current_module == BROWSERS || logger->current_module == OS)
       qsort (s_holder, choices, sizeof *s_holder, struct_cmp_asc);

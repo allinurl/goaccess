@@ -1,6 +1,6 @@
 /**
  * parser.c -- web log parsing
- * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -466,7 +466,6 @@ parse_format (struct logger *logger, const char *fmt, char *str)
          char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
          errno = 0;
          long long bandw = 0;
-         long status = 0;
 
          switch (*p) {
           case 'd':
@@ -509,7 +508,7 @@ parse_format (struct logger *logger, const char *fmt, char *str)
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             status = strtol (tkn, &sEnd, 10);
+             strtol (tkn, &sEnd, 10);
              if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
                 free (tkn);
                 return 1;
@@ -748,9 +747,7 @@ generate_struct_data (GHashTable * hash_table,
                       struct struct_display **disp, struct logger *logger,
                       int module)
 {
-   int row, col;
    int i = 0, r;
-   getmaxyx (stdscr, row, col);
 
    iter_module = module;
    g_hash_table_foreach (hash_table, (GHFunc) struct_data_iter, s_holder);

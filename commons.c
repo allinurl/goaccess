@@ -1,6 +1,6 @@
 /**
  * commons.c -- holds different data types
- * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -270,7 +270,7 @@ char *codes[][2] = {
 };
 
 char *help_main[] = {
-   "Copyright (C) 2010-2012-2012",
+   "Copyright (C) 2009-2012",
    "by Gerardo Orellana <goaccess@prosoftcorp.com>",
    "http://goaccess.prosoftcorp.com",
    "Released under the GNU GPL. See `man` page for",

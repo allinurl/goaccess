@@ -1,6 +1,6 @@
 /**
  * output.c -- output to the standard output stream
- * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or

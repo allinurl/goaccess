@@ -1,6 +1,6 @@
 /**
  * goaccess.c -- main log analyzer
- * Copyright (C) 2010-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -96,7 +96,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [ -e IP_ADDRESS][ - a ]< -f log_file >\n\n");
+   printf ("goaccess [ -e IP_ADDRESS][ - a ][ - c ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -106,7 +106,7 @@ cmd_help (void)
    printf ("                 HOST module. Disabled by default.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
-   printf ("GoAccess Copyright (C) 2009-2010 GNU GPL'd, by Gerardo Orellana");
+   printf ("GoAccess Copyright (C) 2009-2012 GNU GPL'd, by Gerardo Orellana");
    printf ("\n\n");
    exit (EXIT_FAILURE);
 }
@@ -580,8 +580,7 @@ main (int argc, char *argv[])
       goto done;
    }
    /* draw screens */
-   int x, y;
-   getmaxyx (main_win, y, x);
+   int y = getmaxy (main_win);
 
    scrolling.scrl_main_win = y;
    scrolling.init_scrl_main_win = 0;
