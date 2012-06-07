@@ -547,7 +547,7 @@ print_html_request_report (FILE * fp, GHashTable * ht, struct logger *logger)
       v = output[i]->data;
 
       bw = ht_bw_str (ht_file_bw, v);
-      t = ((float) (k * 100) / n);
+      t = ((float) (k * 100) / logger->total_process);
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
