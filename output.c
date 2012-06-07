@@ -53,86 +53,84 @@ new_goutput (int n)
 }
 
 static void
-print_html_header (FILE *fp, char *now)
+print_html_header (FILE * fp, char *now)
 {
    fprintf (fp, "<html>\n");
    fprintf (fp, "<head>\n");
    fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
    fprintf (fp, "<script type=\"text/javascript\">\n");
 
-   fprintf (fp,
-   "function t(c){for(var "
-   "b=c.parentNode.parentNode.parentNode.getElementsByTagName('tr'),"
-   "a=0;a<b.length;a++)'hide'==b[a].className?(b[a].className='show',"
-   "c.innerHTML='[-] Collapse'):'show'=="
-   "b[a].className&&(b[a].className='hide',c.innerHTML='[+] Expand')};");
+   fprintf (fp, "function t(c){for(var ");
+   fprintf (fp, "b=c.parentNode.parentNode.parentNode.");
+   fprintf (fp, "getElementsByTagName('tr'),a=0;a<b.length;a++)");
+   fprintf (fp, "'hide'==b[a].className?(b[a].className='show',");
+   fprintf (fp, "c.innerHTML='[-] Collapse'):'show'==b[a].className&&");
+   fprintf (fp, "(b[a].className='hide',c.innerHTML='[+] Expand')};");
 
-   fprintf (fp,
-   "function a(c){var b=c.parentNode.parentNode.nextElementSibling;"
-   "'a-hide'==b.className?(b.className='a-show',c.innerHTML='[-]'):"
-   "'a-show'==b.className&&(b.className='a-hide',c.innerHTML='[+]')};");
+   fprintf (fp, "function a(c){var b=c.parentNode.parentNode.nextSibling;");
+   fprintf (fp, "while(b && b.nodeType != 1) b=b.nextSibling;");
+   fprintf (fp, "'a-hide'==b.className?(b.className='a-show',");
+   fprintf (fp, "c.innerHTML='[-]'):'a-show'==b.className&&");
+   fprintf (fp, "(b.className='a-hide',c.innerHTML='[+]')};");
 
    fprintf (fp, "</script>\n");
    fprintf (fp, "<style type=\"text/css\">\n");
 
-   fprintf (fp,
-   "body {"
-   "   font-family: Verdana;"
-   "   font-size: 11px;"
-   "}"
-   "table.a1,"
-   "table.a2 {"
-   "   border-spacing: 0;"
-   "   font-size: 11px;"
-   "   margin: 5px;"
-   "   table-layout: fixed;"
-   "   white-space: nowrap;"
-   "}"
-   "table.a1 { width: 600px }"
-   "table.a2 {"
-   "   background-color: #EEE;"
-   "   padding: 0 5px;"
-   "   width: 590px;"
-   "}"
-   ".head {"
-   "   background-color: #222;"
-   "   color: #FFF;"
-   "   padding: 5px;"
-   "}"
-   ".head span,"
-   ".s {"
-   "   cursor: pointer;"
-   "   font-size: 9px;"
-   "}"
-   ".r { text-align: right }"
-   ".red {"
-   "   color: #D20B2C;"
-   "   font-weight: 700;"
-   "}"
-   ".lnk {"
-   "   font-weight:bold;"
-   "   font-size:10px;"
-   "}"
-   "a { color: #222 }"
-   ".desc {"
-   "   background-color: #EEE;"
-   "   color: #222;"
-   "   padding: 5px;"
-   "}"
-   ".d1,"
-   ".d2 {"
-   "   overflow: hidden;"
-   "   text-overflow: ellipsis;"
-   "}"
-   ".d1 { border-bottom: 1px dotted #eee }"
-   ".d2 { border-bottom: 1px dotted #ccc }"
-   ".bar {"
-   "   background-color: #777;"
-   "   border-right: 1px #FFF solid;"
-   "   height: 10px;"
-   "}"
-   ".a-hide,"
-   ".hide { display: none }");
+   fprintf (fp, "body {");
+   fprintf (fp, "    font-family: Verdana;");
+   fprintf (fp, "    font-size: 11px;");
+   fprintf (fp, "}");
+   fprintf (fp, "table.a1, table.a2 {");
+   fprintf (fp, "    border-spacing: 0;");
+   fprintf (fp, "    font-size: 11px;");
+   fprintf (fp, "    margin: 5px;");
+   fprintf (fp, "    table-layout: fixed;");
+   fprintf (fp, "    white-space: nowrap;");
+   fprintf (fp, "}");
+   fprintf (fp, "table.a1 { width: 600px }");
+   fprintf (fp, "table.a2 {");
+   fprintf (fp, "    background-color: #EEE;");
+   fprintf (fp, "    padding: 0 5px;");
+   fprintf (fp, "    width: 590px;");
+   fprintf (fp, "}");
+   fprintf (fp, ".head {");
+   fprintf (fp, "    background-color: #222;");
+   fprintf (fp, "    color: #FFF;");
+   fprintf (fp, "    padding: 5px;");
+   fprintf (fp, "}");
+   fprintf (fp, ".r, .s {");
+   fprintf (fp, "    cursor: pointer;");
+   fprintf (fp, "    font-size: 9px;");
+   fprintf (fp, "}");
+   fprintf (fp, ".r { float: right }");
+   fprintf (fp, ".red {");
+   fprintf (fp, "    color: #D20B2C;");
+   fprintf (fp, "    font-weight: 700;");
+   fprintf (fp, "}");
+   fprintf (fp, ".lnk {");
+   fprintf (fp, "    font-size: 10px;");
+   fprintf (fp, "    font-weight: 700;");
+   fprintf (fp, "}");
+   fprintf (fp, "a { color: #222 }");
+   fprintf (fp, ".desc {");
+   fprintf (fp, "    background-color: #EEE;");
+   fprintf (fp, "    color: #222;");
+   fprintf (fp, "    padding: 5px;");
+   fprintf (fp, "}");
+   fprintf (fp, ".d1, .d2 {");
+   fprintf (fp, "    -ms-text-overflow: ellipsis;");
+   fprintf (fp, "    overflow: hidden;");
+   fprintf (fp, "    text-overflow: ellipsis;");
+   fprintf (fp, "    white-space: nowrap;");
+   fprintf (fp, "}");
+   fprintf (fp, "td.d1 { border-bottom: 1px dotted #eee }");
+   fprintf (fp, ".d2 { border-bottom: 1px dotted #ccc }");
+   fprintf (fp, ".bar {");
+   fprintf (fp, "    background-color: #777;");
+   fprintf (fp, "    border-right: 1px #FFF solid;");
+   fprintf (fp, "    height: 10px;");
+   fprintf (fp, "}");
+   fprintf (fp, ".a-hide, .hide { display: none }");
 
    fprintf (fp, "</style>\n");
    fprintf (fp, "</head>\n");
@@ -166,10 +164,9 @@ print_html_head_top (FILE * fp, const char *s, int span, int exp)
 {
    fprintf (fp, "<tr>");
    if (exp) {
-      span--;
-      fprintf (fp, "<td class=\"head\" colspan=\"%d\">%s</td>", span, s);
-      fprintf (fp, "<td class=\"head r\">");
-      fprintf (fp, "<span onclick=\"t(this)\">Expand [+]</span>");
+      fprintf (fp, "<td colspan=\"%d\" class=\"head\">", span);
+      fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">Expand [+]</span>");
+      fprintf (fp, "<span>%s</span>", s);
       fprintf (fp, "</td>");
    } else
       fprintf (fp, "<td class=\"head\" colspan=\"%d\">%s</td>", span, s);
@@ -248,7 +245,7 @@ print_html_status (FILE * fp, struct logger *logger)
 
       print_html_begin_tr (fp, 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
       fprintf (fp, "<td class=\"d1\">%s</td>", v);
       fprintf (fp, "<td class=\"d1\">%s</td>", verify_status_code (v));
       print_html_end_tr (fp);
@@ -313,7 +310,7 @@ print_html_hosts (FILE * fp, struct logger *logger)
       fprintf (fp, "</td>");
 
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
       fprintf (fp, "<td class=\"d1\">%s</td>", v);
       fprintf (fp, "<td class=\"d1\">%s</td>", bw);
 
@@ -336,7 +333,7 @@ print_html_hosts (FILE * fp, struct logger *logger)
 
          split_agent_str (ptr_value, s_agents, 200);
          fprintf (fp, "<tr class=\"a-hide\">\n");
-         fprintf (fp, "<td colspan=\"5\">\n");
+         fprintf (fp, "<td colspan=\"6\">\n");
          fprintf (fp, "<div style=\"padding:10px 0;\">");
          fprintf (fp, "<table class=\"a2\">");
 
@@ -421,12 +418,14 @@ print_html_os_browser (FILE * fp, GHashTable * ht, struct logger *logger)
       print_html_begin_tr (fp, hide ? 1 : 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
       if (k == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t);
+         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t < 0 ? 0 : t);
       else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
 
       if (hide) {
-         fprintf (fp, "<td class=\"d1\">%s</td>", val);
+         fprintf (fp, "<td class=\"d1\">");
+         fprintf (fp, "<span class=\"d1\">%s</span>", val);
+         fprintf (fp, "</td>");
          free (val);
       } else
          fprintf (fp, "<td class=\"d1\">%s</td>", v);
@@ -494,13 +493,18 @@ print_html_generic (FILE * fp, GHashTable * ht, struct logger *logger,
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
       if (ht == ht_referrers) {
          fprintf (fp, "<td class=\"d1\">");
-         fprintf (fp, "<a href=\"%s\" rel=\"nofollow\">%s</a>", v, v);
+         fprintf (fp, "<a class=\"d1\" href=\"%s\" rel=\"nofollow\">", v);
+         fprintf (fp, "%s", v);
+         fprintf (fp, "</a>");
          fprintf (fp, "</td>");
-      } else
-         fprintf (fp, "<td class=\"d1\">%s</td>", v);
+      } else {
+         fprintf (fp, "<td class=\"d1\">");
+         fprintf (fp, "<span class=\"d1\">%s</span>", v);
+         fprintf (fp, "</td>");
+      }
       print_html_end_tr (fp);
    }
    for (i = 0; i < n; i++)
@@ -551,9 +555,9 @@ print_html_request_report (FILE * fp, GHashTable * ht, struct logger *logger)
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
       fprintf (fp, "<td class=\"d1\">%s</td>", bw);
-      fprintf (fp, "<td class=\"d1\">%s</td>", v);
+      fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", v);
       print_html_end_tr (fp);
 
       free (bw);
@@ -609,9 +613,9 @@ print_html_visitors_report (FILE * fp, struct logger *logger)
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td class=\"d1\">%d</td>", k);
       if (k == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t);
+         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t < 0 ? 0 : t);
       else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t);
+         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
       fprintf (fp, "<td class=\"d1\">%s</td>", buf);
       fprintf (fp, "<td class=\"d1\">%s</td>", bw);
       fprintf (fp, "<td class=\"d1\">");
@@ -629,8 +633,8 @@ print_html_visitors_report (FILE * fp, struct logger *logger)
 static void
 print_html_summary_field (FILE * fp, int hits, char *field)
 {
-   fprintf (fp, "<td class=\"d1\">%s</td>", field);
-   fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", field);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%d</span></td>", hits);
 }
 
 static void
@@ -641,13 +645,13 @@ print_html_summary (FILE * fp, struct logger *logger)
    print_html_begin_table (fp);
 
    print_html_col (fp, 100);
-   print_html_col (fp, 60);
+   print_html_col (fp, 75);
    print_html_col (fp, 100);
    print_html_col (fp, 60);
    print_html_col (fp, 80);
    print_html_col (fp, 60);
-   print_html_col (fp, 60);
-   print_html_col (fp, 60);
+   print_html_col (fp, 40);
+   print_html_col (fp, 80);
 
    print_html_head_top (fp, T_HEAD, 8, 0);
 
@@ -667,8 +671,8 @@ print_html_summary (FILE * fp, struct logger *logger)
    bw = filesize_str ((float) req_size);
    if (ifile == NULL)
       ifile = "STDIN";
-   fprintf (fp, "<td class=\"d1\">%s</td>", T_LOG);
-   fprintf (fp, "<td class=\"d1\">%s</td>", size);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_LOG);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", size);
    print_html_end_tr (fp);
 
    print_html_begin_tr (fp, 0);
@@ -677,16 +681,25 @@ print_html_summary (FILE * fp, struct logger *logger)
                              T_UNIQUE_FIL);
    print_html_summary_field (fp, g_hash_table_size (ht_not_found_requests),
                              T_UNIQUE404);
-   fprintf (fp, "<td class=\"d1\">%s</td>", T_BW);
-   fprintf (fp, "<td class=\"d1\">%s</td>", bw);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_BW);
+   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", bw);
    print_html_end_tr (fp);
 
    print_html_begin_tr (fp, 0);
-   fprintf (fp, "<td class=\"d1\">%s</td>", T_GEN_TIME);
-   fprintf (fp, "<td class=\"d1\">%lu</td>", ((int) end_proc - start_proc));
+   fprintf (fp, "<td class=\"d1\">");
+   fprintf (fp, "<span class=\"d1\">%s</span>", T_GEN_TIME);
+   fprintf (fp, "</td>");
+
+   fprintf (fp, "<td class=\"d1\">");
+   fprintf (fp, "<span class=\"d1\">%lu</span>",
+            ((int) end_proc - start_proc));
+   fprintf (fp, "</td>");
+
    print_html_summary_field (fp, g_hash_table_size (ht_requests_static),
                              T_STATIC_FIL);
-   fprintf (fp, "<td colspan=\"4\" class=\"d1\">%s</td>", ifile);
+   fprintf (fp, "<td class=\"d1\" colspan=\"4\">");
+   fprintf (fp, "<span class=\"d1\">%s</span>", ifile);
+   fprintf (fp, "</td>");
 
    print_html_end_tr (fp);
    print_html_end_table (fp);

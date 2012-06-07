@@ -44,7 +44,7 @@
 #define DATELEN         12
 #define DEBUG
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.5"
+#define GO_VERSION 		"0.5.1"
 #define MAX_CHOICES 	   300
 #define MIN_HEIGHT 		7
 #define MIN_WIDTH       0
