@@ -763,7 +763,7 @@ generate_struct_data (GHashTable * hash_table,
        break;
     case 3:
        head = static_head;
-       desc = status_desc;
+       desc = static_desc;
        break;
     case 4:
        head = ref_head;
