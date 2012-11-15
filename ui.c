@@ -232,6 +232,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
           s[0] = '\0';
           pos = x = 0;
           break;
+       case 127:
        case KEY_BACKSPACE:
           if (pos + x > 0) {
              memmove (&s[(pos + x) - 1], &s[pos + x],
