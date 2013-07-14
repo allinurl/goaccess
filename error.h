@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -22,7 +22,7 @@
 #define ERROR_H_INCLUDED
 
 #ifndef COMMONS
-#  include "commons.h"
+#include "commons.h"
 #endif
 
 void error_handler (const char *func, char *file, int line, char *msg);

@@ -1,11 +1,11 @@
-.TH goaccess 1 "JUNE 2012" Linux "User Manuals"
+.TH goaccess 1 "JULY 2013" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
 .B ]
-.I [-c] [-e] [-a]
+.I [-c] [-e] [-r] [-a]
 .SH DESCRIPTION
 .B goaccess
 is a free (GPL) real-time web log analyzer and interactive 
@@ -36,58 +36,44 @@ HTTP requests having the same IP,
 same date and same agent will be 
 considered a unique visit. 
 .I (including crawlers).
-.B {Detail view} is available for this module
 .IP "Requested files"
-The totals are based on unique requested files. 
-This is based on the premise that 
-HTTP requests having the same IP,
-same date and same agent will be
-considered a unique visit. 
-.B {Detail view} is available for this module
+Hit totals are based on total requests.
+This module will display hits, percent, [bandwidth, time served]
 .IP "Requested static files"
-The totals are based on unique requested files. 
-Includes files such as:
-.I jpg, css, swf, js, gif, png etc.
-Unique requests are based on the premise that 
-HTTP requests having the same IP,
-same date and same agent will be
-considered a unique visit. 
-.B {Detail view} is available for this module
-.IP "Referrers URLs"
-The URL where the request came from.
-Totals are not based on the above premise,
-but instead, based on the total number of 
-requests.
-.B {Detail view} is available for this module
+Hit totals are based on total requests. Includes files such as:
+jpg, css, swf, js, gif, png etc. This module will display hits,
+percent, [bandwidth, time served]
 .IP "404 or Not Found"
-The total number is based on total requests.
-.B {Detail view} is available for this module
-.IP "Operating Systems"
-The total number is based on unique visitors.
-.B {Detail view} is available for this module
-.IP "Browsers"
-The total number is based on unique visitors.
-.B {Detail view} is available for this module
+Hit totals are based on total requests. This module will display
+hits, percent, [bandwidth, time served]
 .IP "Hosts"
-The total number is based on total requests.
-.B {Detail view} is available for this module.
-{Detail view} for each IP can display extra 
-information for the particular host, including
-reverse dns, and geolocation of the IP.
-.IP "HTTP Status Codes"
-Totals are based on total requests.
-.B {Detail view} is available for this module
+Hit totals are based on total requests. This module will display
+hits, percent, [bandwidth, time served]. The expanded module
+can display extra information such as reverse DNS and country.
+If -a is enabled, a list of user agents will be displayed.
+.IP "Operating Systems"
+Hit totals are based on unique visitors. This module will
+display hits and percent. The expanded module shows all available
+versions of the parent node.
+.IP "Browsers"
+Hit totals are based on unique visitors. This module will
+display hits and percent. The expanded module shows all
+available versions of the parent node.
+.IP "Referrers URLs"
+The URL where the request came from. Hit totals are based on
+total requests. This module will display hits and percent.
 .IP "Referring Sites"
-This module will display only the host
-but not the whole URL.
-The total number is based on total requests.
-.B {Detail view} is available for this module
+This module will display only the host but not the whole URL.
+The URL where the request came from. Hit totals are based on
+total requests. This module will display hits and percent.
 .IP "Keyphrases"
-This module will report keyphrases used on
-Google search, Google cache, and Google 
-translate.
-The total number is based on total requests.
-.B {Detail view} is available for this module
+This module will report keyphrases used on Google search,
+Google cache, and Google translate. Hit totals are based on
+total requests. This module will display hits and percent.
+.IP "HTTP Status Codes"
+The values of the numeric status code to HTTP requests.
+Hit totals are based on total requests. This module will
+display hits and percent.
 .SH OPTIONS
 .IP "-f input-file"
 Path to input log file.
@@ -97,12 +83,15 @@ Prompt date and log format configuration window.
 Exclude an IP from being counted under the HOST module.
 .IP -a
 Enable a list of User-Agents for the selected host.
+.IP -r
+Disables IP resolver
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format. 
 
 Predefined options include, Common Log Format (CLF), 
-Combined Log Format (XLF/ELF), including virtual host 
-and W3C format (IIS). 
+Combined Log Format (XLF/ELF), including virtual host,
+Amazon CloudFront (Download Distribution) and 
+W3C format (IIS). 
 
 GoAccess allows any custom format string as well. 
 
@@ -138,42 +127,46 @@ The size of the object returned to the client.
 The "Referer" HTTP request header.
 .IP %u
 The User-Agent HTTP request header.
+.IP %D
+The time taken to serve the request, in microseconds.
+.IP %T
+The time taken to serve the request, in seconds.
+.I Note:
+%D will take priority over %T if both are used.
 .IP %^
 Ignore this field.
 .SH INTERACTIVE MENU
-.IP "F1"
+.IP "F1 or ^ h" 
 Main help.
 .IP "F5"
 Redraw main window.
 .IP "q"
-Quit the program or the current {detail view} (window).
-.IP "o"
-Open a {detail view} for the current active module.
+Quit the program, current window or collapse active module
+.IP "o or  ENTER"
+Expand selected module or open window
+.IP "^ DOWN or j"
+Scroll down within expanded module
+.IP "^ UP or k"
+Scroll up within expanded module
 .IP "c"
-set or change scheme color.
+Set or change scheme color.
 .IP "TAB"
 Forward iteration of modules. Starts from current active module.
 .IP "SHIFT + TAB"
 Backward iteration of modules. Starts from current active module.
-.IP "RIGHT ARROW"
-Open a {detail view} for the current active module. 
-.IP "0-9"
-Activate module so the user can open a {detail view} with either ^o^ or ^RIGHT ARROW^.
-.IP "SHIFT + 0-9"
-Activate module above 10.
+.IP "^ f"
+Scroll forward one screen within an active module.
+.IP "^ b"
+Scroll backward one screen within an active module.
 .IP "s"
-Sort unique visitors by date. This will only work on the
-.B Unique visitors module(1).
-.IP "S"
-Sort unique visitors by hits. This will only work on the
-.B Unique visitors module(1).
+Sort options for active module
 .IP "/"
-Search forward on any {detail view} window for the occurrence of typed pattern. 
+Search across all modules (regex allowed)
 .IP "n"
-Find the position of the next occurrence on any {detail view} window.
-.IP "t"
+Find the position of the next occurrence across all modules.
+.IP "g"
 Move to the first item or top of screen.
-.IP "b"
+.IP "G"
 Move to the last item or bottom of screen.
 .SH EXAMPLES
 The simplest and fastest usage would be:
@@ -230,12 +223,18 @@ can run it as:
 
 # nice -n 19 goaccess -f access.log -a
 
-.SH NOTES
-On each {detail view} window, the total number of items is 300.
+and if you don't want to install it on your server, you can still run it 
+from your local machine:
 
-Piping a log to GoAccess will disable the real-time functionality. This is due to the
-portability issue on determining the actual size of STDIN. However, a future release *might* 
-include this feature.
+# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
+
+.SH NOTES
+For now, each active window has a total of 300 items.
+Eventually this will be customizable.
+
+Piping a log to GoAccess will disable the real-time functionality.
+This is due to the portability issue on determining the actual size of STDIN.
+However, a future release *might* include this feature.
 
 .SH BUGS
 If you think you have found a bug, please send me an email to 
@@ -243,4 +242,3 @@ If you think you have found a bug, please send me an email to
 .SH AUTHOR
 Gerardo Orellana <goaccess@prosoftcorp.com>
 For more details about it, or new releases, please visit http://goaccess.prosoftcorp.com
-

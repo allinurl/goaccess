@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,8 @@
 #ifndef GOACCESS_H_INCLUDED
 #define GOACCESS_H_INCLUDED
 
-void allocate_structs (int free_me);
+extern int active_gdns;         /* kill dns pthread flag */
 void render_screens (void);
+void allocate_hosts_holder (char *ip);
 
 #endif

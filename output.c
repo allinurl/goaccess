@@ -1,6 +1,6 @@
 /**
  * output.c -- output to the standard output stream
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -23,33 +23,51 @@
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
+#include <ctype.h>
 #include <glib.h>
 #include <math.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <ctype.h>
-#include <stdio.h>
+
+#include "output.h"
 
 #include "commons.h"
 #include "error.h"
-#include "output.h"
-#include "parser.h"
+#include "xmalloc.h"
 #include "ui.h"
+#include "gdashboard.h"
 #include "util.h"
 
-static GOutput **
-new_goutput (int n)
+static void
+clean_output (FILE * fp, char *s)
 {
-   GOutput **output = malloc (sizeof (GOutput *) * n);
-   if (output == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory for new GOutput.");
-   memset (output, 0, sizeof *output);
-
-   return output;
+   while (*s) {
+      switch (*s) {
+       case '\'':
+          fprintf (fp, "&#39;");
+          break;
+       case '"':
+          fprintf (fp, "&#34;");
+          break;
+       case '&':
+          fprintf (fp, "&amp;");
+          break;
+       case '<':
+          fprintf (fp, "&lt;");
+          break;
+       case '>':
+          fprintf (fp, "&gt;");
+          break;
+       default:
+          fputc (*s, fp);
+          break;
+      }
+      s++;
+   }
 }
 
 static void
@@ -58,6 +76,8 @@ print_html_header (FILE * fp, char *now)
    fprintf (fp, "<html>\n");
    fprintf (fp, "<head>\n");
    fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
+   fprintf (fp, "<meta charset=\"UTF-8\" />");
+   fprintf (fp, "<meta name=\"robots\" content=\"noindex, nofollow\" />");
    fprintf (fp, "<script type=\"text/javascript\">\n");
 
    fprintf (fp, "function t(c){for(var ");
@@ -203,103 +223,280 @@ print_html_end_tr (FILE * fp)
 }
 
 static void
-report_iter (gpointer k, gpointer v, GOutput ** output)
+print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
 {
-   output[iter_ctr] = malloc (sizeof (GOutput));
-   output[iter_ctr]->data = (gchar *) k;
-   output[iter_ctr++]->hits = GPOINTER_TO_INT (v);
+   char *data, *val = NULL;
+   int hits;
+   float percent;
+   GSubItem *iter;
+
+   for (iter = sub_list->head; iter; iter = iter->next) {
+      hits = iter->hits;
+      data = (char *) iter->data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      val = xmalloc (snprintf (NULL, 0, "|`- %s", data) + 1);
+      sprintf (val, "|`- %s", data);
+
+      print_html_begin_tr (fp, 1);
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+
+      fprintf (fp, "<td class=\"d1\">");
+      clean_output (fp, val);
+      fprintf (fp, "</td>");
+
+      print_html_end_tr (fp);
+      free (val);
+   }
 }
 
 static void
-print_html_status (FILE * fp, struct logger *logger)
+print_html_status (FILE * fp, GHolder * h, int process)
 {
-   GHashTable *ht = ht_status_code;
+   char *data;
+   float percent;
+   int hits;
+   int i;
 
-   char *v = NULL;
-   float t;
-   int n = g_hash_table_size (ht), i, k;
-   if (n == 0)
+   if (h->idx == 0)
       return;
-
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_by_hits);
 
    print_html_begin_table (fp);
 
    print_html_col (fp, 60);
    print_html_col (fp, 80);
-   print_html_col (fp, 60);
-   print_html_col (fp, 400);
+   print_html_col (fp, 460);
 
-   print_html_head_top (fp, status_head, 4, 0);
-   print_html_head_bottom (fp, status_desc, 4);
+   print_html_head_top (fp, CODES_HEAD, 3, 1);
+   print_html_head_bottom (fp, CODES_DESC, 3);
 
-   for (i = 0; i < n; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
-
-      t = ((float) (k * 100) / logger->total_process);
+   for (i = 0; i < h->idx; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
 
       print_html_begin_tr (fp, 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
-      fprintf (fp, "<td class=\"d1\">%s</td>", v);
-      fprintf (fp, "<td class=\"d1\">%s</td>", verify_status_code (v));
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td class=\"d1\">%s</td>", data);
       print_html_end_tr (fp);
 
-      free (output[i]);
+      GSubList *sub_list = h->items[i].sub_list;
+      print_html_sub_status (fp, sub_list, process);
    }
-   free (output);
    print_html_end_table (fp);
 }
 
 static void
-print_html_hosts (FILE * fp, struct logger *logger)
+print_html_generic (FILE * fp, GHolder * h, int process)
 {
-   GHashTable *ht = ht_hosts;
-   char *bw, *ag, *v = NULL, *ptr_value;
-   float t, l;
-   int n = g_hash_table_size (ht), i, k, max, j, until = 0, delims = 0;
+   char *data;
+   float percent;
+   int hits;
+   int i, until = 0;
+
+   if (h->idx == 0)
+      return;
+
+   print_html_begin_table (fp);
+
+   print_html_col (fp, 60);
+   print_html_col (fp, 80);
+   print_html_col (fp, 460);
+
+   switch (h->module) {
+    case REFERRERS:
+       print_html_head_top (fp, REFER_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, REFER_DESC, 3);
+       break;
+    case NOT_FOUND:
+       print_html_head_top (fp, FOUND_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, FOUND_DESC, 3);
+       break;
+    case REFERRING_SITES:
+       print_html_head_top (fp, SITES_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, SITES_DESC, 3);
+       break;
+    case KEYPHRASES:
+       print_html_head_top (fp, KEYPH_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, KEYPH_DESC, 3);
+       break;
+    default:
+       break;
+   }
+
+   until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
+   for (i = 0; i < until; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td class=\"d1\">");
+      fprintf (fp, "<span class=\"d1\">");
+      clean_output (fp, data);
+      fprintf (fp, "</span>");
+      fprintf (fp, "</td>");
+      print_html_end_tr (fp);
+   }
+
+   print_html_end_table (fp);
+}
+
+static void
+print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
+{
+   char *data, *val = NULL;
+   int hits;
+   float percent, l;
+   GSubItem *iter;
+
+   for (iter = sub_list->head; iter; iter = iter->next) {
+      hits = iter->hits;
+      data = (char *) iter->data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      l = get_percentage (process, hits);
+      l = l < 1 ? 1 : l;
+
+      val = xmalloc (snprintf (NULL, 0, "|`- %s", data) + 1);
+      sprintf (val, "|`- %s", data);
+
+      print_html_begin_tr (fp, 1);
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+
+      fprintf (fp, "<td class=\"d1\">");
+      clean_output (fp, val);
+      fprintf (fp, "</td>");
+
+      fprintf (fp, "<td class=\"d1\">");
+      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "</td>");
+      print_html_end_tr (fp);
+      free (val);
+   }
+}
+
+static void
+print_html_browser_os (FILE * fp, GHolder * h)
+{
+   char *data;
+   int hits;
+   float percent, l;
+   int i, max, process = g_hash_table_size (ht_unique_visitors);
+
+   if (h->idx == 0)
+      return;
+
+   print_html_begin_table (fp);
+
+   print_html_col (fp, 60);
+   print_html_col (fp, 80);
+   print_html_col (fp, 220);
+   print_html_col (fp, 240);
+
+   /* *INDENT-OFF* */
+   if (h->module == OS) {
+      print_html_head_top (fp, OPERA_HEAD, 4, 1);
+      print_html_head_bottom (fp, OPERA_DESC, 4);
+   }
+   else if (h->module == BROWSERS) {
+      print_html_head_top (fp, BROWS_HEAD, 4, 1);
+      print_html_head_bottom (fp, BROWS_DESC, 4);
+   }
+   /* *INDENT-ON* */
+
+   max = 0;
+   for (i = 0; i < h->idx; i++) {
+      if (h->items[i].hits > max)
+         max = h->items[i].hits;
+   }
+
+   for (i = 0; i < h->idx; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      l = get_percentage (max, hits);
+      l = l < 1 ? 1 : l;
+
+      print_html_begin_tr (fp, 0);
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      if (hits == max)
+         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", percent);
+      else
+         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+
+      /* data */
+      fprintf (fp, "<td class=\"d1\">");
+      clean_output (fp, data);
+      fprintf (fp, "</td>");
+
+      fprintf (fp, "<td class=\"d1\">");
+      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "</td>");
+      print_html_end_tr (fp);
+
+      GSubList *sub_list = h->items[i].sub_list;
+      print_html_sub_os (fp, sub_list, process);
+   }
+
+   print_html_end_table (fp);
+}
+
+static void
+print_html_hosts (FILE * fp, GHolder * h, int process)
+{
+   GAgents *agents;
+
+   char *data, *bandwidth, *usecs, *ag, *ptr_value;
+   float percent, l;
+   int hits;
+   int i, j, max, until = 0, delims = 0;
    size_t alloc = 0;
-   struct struct_agents *s_agents;
 
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_by_hits);
+   if (h->idx == 0)
+      return;
 
    print_html_begin_table (fp);
 
    print_html_col (fp, 20);
    print_html_col (fp, 60);
    print_html_col (fp, 80);
-   print_html_col (fp, 120);
    print_html_col (fp, 80);
-   print_html_col (fp, 240);
+   print_html_col (fp, 80);
+   print_html_col (fp, 120);
+   print_html_col (fp, 160);
 
-   print_html_head_top (fp, host_head, 6, n > OUTPUT_N ? 1 : 0);
-   print_html_head_bottom (fp, host_desc, 6);
+   print_html_head_top (fp, HOSTS_HEAD, 7, h->idx > OUTPUT_N ? 1 : 0);
+   print_html_head_bottom (fp, HOSTS_DESC, 7);
 
-   until = n < MAX_CHOICES ? n : MAX_CHOICES;
+   until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
    max = 0;
    for (i = 0; i < until; i++) {
-      if (output[i]->hits > max)
-         max = output[i]->hits;
+      if (h->items[i].hits > max)
+         max = h->items[i].hits;
    }
-   for (i = 0; i < until; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
 
-      bw = ht_bw_str (ht_host_bw, v);
-      t = ((float) (k * 100) / logger->total_process);
-      l = ((float) (k * 100) / max);
+   for (i = 0; i < until; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+      bandwidth = filesize_str (h->items[i].bw);
+      l = get_percentage (max, hits);
       l = l < 1 ? 1 : l;
 
-      ag = g_hash_table_lookup (ht_hosts_agents, v);
+      ag = g_hash_table_lookup (ht_hosts_agents, data);
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td>");
@@ -309,37 +506,43 @@ print_html_hosts (FILE * fp, struct logger *logger)
          fprintf (fp, "<span class=\"s\">-</span>");
       fprintf (fp, "</td>");
 
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
-      fprintf (fp, "<td class=\"d1\">%s</td>", v);
-      fprintf (fp, "<td class=\"d1\">%s</td>", bw);
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+      /* usecs */
+      usecs = usecs_to_str (h->items[i].usecs);
+      fprintf (fp, "<td class=\"d1\">%s</td>", usecs);
+      fprintf (fp, "<td class=\"d1\">%s</td>", data);
 
       fprintf (fp, "<td class=\"d1\">");
       fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
+      /* render agents for each host */
       if (ag != NULL) {
          ptr_value = (char *) ag;
 
          delims = count_occurrences (ptr_value, '|');
          /* round-up + padding */
-         alloc = ((strlen (ptr_value) + 200 - 1) / 200) + delims + 1;
-         s_agents = malloc (alloc * sizeof (s_agents));
-         if (s_agents == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                           "Unable to allocate memory.");
-         memset (s_agents, 0, alloc * sizeof (s_agents));
+         alloc = ((strlen (ptr_value) + 300 - 1) / 300) + delims + 1;
+         agents = xmalloc (alloc * sizeof (GAgents));
+         memset (agents, 0, alloc * sizeof (GAgents));
 
-         split_agent_str (ptr_value, s_agents, 200);
+         /* split agents into struct */
+         split_agent_str (ptr_value, agents, 300);
+
          fprintf (fp, "<tr class=\"a-hide\">\n");
          fprintf (fp, "<td colspan=\"6\">\n");
          fprintf (fp, "<div style=\"padding:10px 0;\">");
          fprintf (fp, "<table class=\"a2\">");
 
-         for (j = 0; (j < 10) && (s_agents[j].agents != NULL); j++) {
+         /* output agents from struct */
+         for (j = 0; (j < 10) && (agents[j].agents != NULL); j++) {
             print_html_begin_tr (fp, 0);
-            fprintf (fp, "<td class=\"d2\">%s</td>", s_agents[j].agents);
+            fprintf (fp, "<td class=\"d2\">");
+            clean_output (fp, agents[j].agents);
+            fprintf (fp, "</td>");
             print_html_end_tr (fp);
          }
 
@@ -348,241 +551,27 @@ print_html_hosts (FILE * fp, struct logger *logger)
          fprintf (fp, "</td>\n");
          print_html_end_tr (fp);
 
-         for (j = 0; (s_agents[j].agents != NULL); j++)
-            free (s_agents[j].agents);
-         free (s_agents);
+         for (j = 0; (agents[j].agents != NULL); j++)
+            free (agents[j].agents);
+         free (agents);
       }
-      free (bw);
+      free (usecs);
+      free (bandwidth);
    }
 
-   for (i = 0; i < n; i++)
-      free (output[i]);
-   free (output);
    print_html_end_table (fp);
 }
 
 static void
-print_html_os_browser (FILE * fp, GHashTable * ht, struct logger *logger)
+print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
 {
-   char *val = NULL, *v = NULL;
-   float t, l;
-   int n = g_hash_table_size (ht), i, k, max, hide = 0;
-   int total_uniq = g_hash_table_size (ht_unique_visitors);
-   if (n == 0)
+   char *data, *bandwidth, *usecs;
+   float percent;
+   int hits;
+   int i, until = 0;
+
+   if (h->idx == 0)
       return;
-
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_asc);
-
-   print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 120);
-   print_html_col (fp, 340);
-
-   if (ht == ht_os) {
-      print_html_head_top (fp, os_head, 4, 1);
-      print_html_head_bottom (fp, os_desc, 4);
-   } else if (ht == ht_browsers) {
-      print_html_head_top (fp, browser_head, 4, 1);
-      print_html_head_bottom (fp, browser_desc, 4);
-   }
-
-   max = 0;
-   for (i = 0; i < n; i++) {
-      if (output[i]->hits > max)
-         max = output[i]->hits;
-   }
-   for (i = 0; i < n; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
-
-      t = ((float) (k * 100) / total_uniq);
-      l = ((float) (k * 100) / max);
-      l = l < 1 ? 1 : l;
-
-      hide = 0;
-      if (strchr (v, '|') != NULL) {
-         val = malloc (snprintf (NULL, 0, "|`- %s", v) + 1);
-         if (val == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                           "Unable to allocate memory");
-         sprintf (val, "|`- %s", get_browser_type (v));
-         hide = 1;
-      }
-
-      print_html_begin_tr (fp, hide ? 1 : 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      if (k == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t < 0 ? 0 : t);
-      else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
-
-      if (hide) {
-         fprintf (fp, "<td class=\"d1\">");
-         fprintf (fp, "<span class=\"d1\">%s</span>", val);
-         fprintf (fp, "</td>");
-         free (val);
-      } else
-         fprintf (fp, "<td class=\"d1\">%s</td>", v);
-
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
-      fprintf (fp, "</td>");
-      print_html_end_tr (fp);
-   }
-   for (i = 0; i < n; i++)
-      free (output[i]);
-
-   free (output);
-   print_html_end_table (fp);
-}
-
-static void
-print_html_generic (FILE * fp, GHashTable * ht, struct logger *logger,
-                    int module)
-{
-   char *v = NULL;
-   float t;
-   int n = g_hash_table_size (ht), i, k, until = 0;
-
-   if (n == 0)
-      return;
-
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_by_hits);
-
-   print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 460);
-
-   switch (module) {
-    case REFERRERS:
-       print_html_head_top (fp, ref_head, 3, n > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, ref_desc, 3);
-       break;
-    case NOT_FOUND:
-       print_html_head_top (fp, not_found_head, 3, n > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, not_found_desc, 3);
-       break;
-    case REFERRING_SITES:
-       print_html_head_top (fp, sites_head, 3, n > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, sites_desc, 3);
-       break;
-    case KEYPHRASES:
-       print_html_head_top (fp, key_head, 3, n > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, key_desc, 3);
-       break;
-   }
-
-   until = n < MAX_CHOICES ? n : MAX_CHOICES;
-   for (i = 0; i < until; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
-
-      t = ((float) (k * 100) / logger->total_process);
-
-      print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
-      if (ht == ht_referrers) {
-         fprintf (fp, "<td class=\"d1\">");
-         fprintf (fp, "<a class=\"d1\" href=\"%s\" rel=\"nofollow\">", v);
-         fprintf (fp, "%s", v);
-         fprintf (fp, "</a>");
-         fprintf (fp, "</td>");
-      } else {
-         fprintf (fp, "<td class=\"d1\">");
-         fprintf (fp, "<span class=\"d1\">%s</span>", v);
-         fprintf (fp, "</td>");
-      }
-      print_html_end_tr (fp);
-   }
-   for (i = 0; i < n; i++)
-      free (output[i]);
-
-   free (output);
-   print_html_end_table (fp);
-}
-
-static void
-print_html_request_report (FILE * fp, GHashTable * ht, struct logger *logger)
-{
-   char *bw, *v = NULL;
-   float t;
-   int n = g_hash_table_size (ht), i, k, until = 0;
-
-   if (n == 0)
-      return;
-
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_by_hits);
-
-   print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 100);
-   print_html_col (fp, 360);
-
-   if (ht == ht_requests) {
-      print_html_head_top (fp, req_head, 4, n > OUTPUT_N ? 1 : 0);
-      print_html_head_bottom (fp, req_desc, 4);
-   } else if (ht == ht_requests_static) {
-      print_html_head_top (fp, static_head, 4, n > OUTPUT_N ? 1 : 0);
-      print_html_head_bottom (fp, static_desc, 4);
-   }
-
-   until = n < MAX_CHOICES ? n : MAX_CHOICES;
-   for (i = 0; i < until; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
-
-      bw = ht_bw_str (ht_file_bw, v);
-      t = ((float) (k * 100) / logger->total_process);
-
-      print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
-      fprintf (fp, "<td class=\"d1\">%s</td>", bw);
-      fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", v);
-      print_html_end_tr (fp);
-
-      free (bw);
-   }
-   for (i = 0; i < n; i++)
-      free (output[i]);
-
-   free (output);
-   print_html_end_table (fp);
-}
-
-static void
-print_html_visitors_report (FILE * fp, struct logger *logger)
-{
-   GHashTable *ht = ht_unique_vis;
-   char *bw, *v = NULL, buf[DATELEN] = "";
-   float t, l;
-   int n = g_hash_table_size (ht), i, k, max;
-   int total_uniq = g_hash_table_size (ht_unique_visitors);
-
-   iter_ctr = 0;
-   GOutput **output = new_goutput (n);
-   g_hash_table_foreach (ht, (GHFunc) report_iter, output);
-
-   qsort (output, iter_ctr, sizeof (GOutput *), struct_cmp_desc);
 
    print_html_begin_table (fp);
 
@@ -592,41 +581,122 @@ print_html_visitors_report (FILE * fp, struct logger *logger)
    print_html_col (fp, 100);
    print_html_col (fp, 260);
 
-   print_html_head_top (fp, vis_head, 5, n > OUTPUT_N ? 1 : 0);
-   print_html_head_bottom (fp, vis_desc, 5);
+   /* *INDENT-OFF* */
+   if (ht == ht_requests) {
+      print_html_head_top (fp, REQUE_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
+      print_html_head_bottom (fp, REQUE_DESC, 5);
+   }
+   else if (ht == ht_requests_static) {
+      print_html_head_top (fp, STATI_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
+      print_html_head_bottom (fp, STATI_DESC, 5);
+   }
+   else if (ht == ht_not_found_requests) {
+      print_html_head_top (fp, FOUND_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
+      print_html_head_bottom (fp, FOUND_DESC, 5);
+   }
+   /* *INDENT-ON* */
+
+   until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
+   for (i = 0; i < until; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+      bandwidth = filesize_str (h->items[i].bw);
+
+      print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
+
+      /* hits */
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      /* percent */
+      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      /* bandwidth */
+      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+
+      /* usecs */
+      usecs = usecs_to_str (h->items[i].usecs);
+      fprintf (fp, "<td class=\"d1\">%s</td>", usecs);
+
+      /* data */
+      fprintf (fp, "<td class=\"d1\">");
+      fprintf (fp, "<span class=\"d1\">");
+      clean_output (fp, data);
+      fprintf (fp, "</span>");
+      fprintf (fp, "</td>");
+
+      print_html_end_tr (fp);
+
+      free (usecs);
+      free (bandwidth);
+   }
+
+   print_html_end_table (fp);
+}
+
+static void
+print_html_visitors_report (FILE * fp, GHolder * h)
+{
+   char buf[DATE_LEN];
+   /* make compiler happy */
+   memset (buf, 0, sizeof (buf));
+
+   char *data, *bandwidth;
+   int hits;
+   float percent, l;
+   int i, max, process = g_hash_table_size (ht_unique_visitors);
+
+   print_html_begin_table (fp);
+
+   print_html_col (fp, 60);
+   print_html_col (fp, 80);
+   print_html_col (fp, 100);
+   print_html_col (fp, 100);
+   print_html_col (fp, 260);
+
+   print_html_head_top (fp, VISIT_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
+   print_html_head_bottom (fp, VISIT_DESC, 5);
 
    max = 0;
-   for (i = 0; i < n; i++) {
-      if (output[i]->hits > max)
-         max = output[i]->hits;
+   for (i = 0; i < h->idx; i++) {
+      if (h->items[i].hits > max)
+         max = h->items[i].hits;
    }
-   for (i = 0; i < n; i++) {
-      k = output[i]->hits;
-      v = output[i]->data;
+   for (i = 0; i < h->idx; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+      bandwidth = filesize_str (h->items[i].bw);
 
-      bw = ht_bw_str (ht_date_bw, v);
-      convert_date (buf, v, DATELEN);
-      t = ((float) (k * 100) / total_uniq);
-      l = ((float) (k * 100) / max);
+      l = get_percentage (max, hits);
       l = l < 1 ? 1 : l;
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", k);
-      if (k == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", t < 0 ? 0 : t);
+
+      /* hits */
+      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      if (hits == max)
+         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", percent);
       else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", t < 0 ? 0 : t);
+         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+
+      /* date */
+      convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
       fprintf (fp, "<td class=\"d1\">%s</td>", buf);
-      fprintf (fp, "<td class=\"d1\">%s</td>", bw);
+
+      /* bandwidth */
+      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+
+      /* bars */
       fprintf (fp, "<td class=\"d1\">");
       fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
+
       print_html_end_tr (fp);
 
-      free (bw);
-      free (output[i]);
+      free (bandwidth);
    }
-   free (output);
+
    print_html_end_table (fp);
 }
 
@@ -638,7 +708,7 @@ print_html_summary_field (FILE * fp, int hits, char *field)
 }
 
 static void
-print_html_summary (FILE * fp, struct logger *logger)
+print_html_summary (FILE * fp, GLog * logger)
 {
    char *bw, *size;
    off_t log_size;
@@ -656,29 +726,28 @@ print_html_summary (FILE * fp, struct logger *logger)
    print_html_head_top (fp, T_HEAD, 8, 0);
 
    print_html_begin_tr (fp, 0);
-   print_html_summary_field (fp, logger->total_process, T_REQUESTS);
+   print_html_summary_field (fp, logger->process, T_REQUESTS);
    print_html_summary_field (fp, g_hash_table_size (ht_unique_visitors),
                              T_UNIQUE_VIS);
-   print_html_summary_field (fp, g_hash_table_size (ht_referrers),
-                             T_REFERRER);
+   print_html_summary_field (fp, g_hash_table_size (ht_referrers), T_REFERRER);
 
-   if (!piping) {
-      log_size = file_size (ifile);
+   if (!logger->piping) {
+      log_size = file_size (conf.ifile);
       size = filesize_str (log_size);
    } else
       size = alloc_string ("N/A");
 
-   bw = filesize_str ((float) req_size);
-   if (ifile == NULL)
-      ifile = "STDIN";
+   bw = filesize_str ((float) logger->resp_size);
+   if (conf.ifile == NULL)
+      conf.ifile = "STDIN";
+
    fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_LOG);
    fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", size);
    print_html_end_tr (fp);
 
    print_html_begin_tr (fp, 0);
-   print_html_summary_field (fp, logger->total_invalid, T_F_REQUESTS);
-   print_html_summary_field (fp, g_hash_table_size (ht_requests),
-                             T_UNIQUE_FIL);
+   print_html_summary_field (fp, logger->invalid, T_F_REQUESTS);
+   print_html_summary_field (fp, g_hash_table_size (ht_requests), T_UNIQUE_FIL);
    print_html_summary_field (fp, g_hash_table_size (ht_not_found_requests),
                              T_UNIQUE404);
    fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_BW);
@@ -691,14 +760,13 @@ print_html_summary (FILE * fp, struct logger *logger)
    fprintf (fp, "</td>");
 
    fprintf (fp, "<td class=\"d1\">");
-   fprintf (fp, "<span class=\"d1\">%lu</span>",
-            ((int) end_proc - start_proc));
+   fprintf (fp, "<span class=\"d1\">%lu</span>", ((int) end_proc - start_proc));
    fprintf (fp, "</td>");
 
    print_html_summary_field (fp, g_hash_table_size (ht_requests_static),
                              T_STATIC_FIL);
    fprintf (fp, "<td class=\"d1\" colspan=\"4\">");
-   fprintf (fp, "<span class=\"d1\">%s</span>", ifile);
+   fprintf (fp, "<span class=\"d1\">%s</span>", conf.ifile);
    fprintf (fp, "</td>");
 
    print_html_end_tr (fp);
@@ -708,7 +776,7 @@ print_html_summary (FILE * fp, struct logger *logger)
 }
 
 void
-output_html (struct logger *logger)
+output_html (GLog * logger, GHolder * holder)
 {
    generate_time ();
 
@@ -716,17 +784,22 @@ output_html (struct logger *logger)
 
    print_html_header (fp, asctime (now_tm));
    print_html_summary (fp, logger);
-   print_html_visitors_report (fp, logger);
-   print_html_request_report (fp, ht_requests, logger);
-   print_html_request_report (fp, ht_requests_static, logger);
-   print_html_generic (fp, ht_referrers, logger, REFERRERS);
-   print_html_generic (fp, ht_not_found_requests, logger, NOT_FOUND);
-   print_html_os_browser (fp, ht_os, logger);
-   print_html_os_browser (fp, ht_browsers, logger);
-   print_html_hosts (fp, logger);
-   print_html_status (fp, logger);
-   print_html_generic (fp, ht_referring_sites, logger, REFERRING_SITES);
-   print_html_generic (fp, ht_keyphrases, logger, KEYPHRASES);
+
+   print_html_visitors_report (fp, holder + VISITORS);
+   print_html_request_report (fp, holder + REQUESTS, ht_requests,
+                              logger->process);
+   print_html_request_report (fp, holder + REQUESTS_STATIC, ht_requests_static,
+                              logger->process);
+   print_html_request_report (fp, holder + NOT_FOUND, ht_not_found_requests,
+                              logger->process);
+   print_html_hosts (fp, holder + HOSTS, logger->process);
+   print_html_browser_os (fp, holder + OS);
+   print_html_browser_os (fp, holder + BROWSERS);
+
+   print_html_generic (fp, holder + REFERRERS, logger->process);
+   print_html_generic (fp, holder + REFERRING_SITES, logger->process);
+   print_html_generic (fp, holder + KEYPHRASES, logger->process);
+   print_html_status (fp, holder + STATUS_CODES, logger->process);
 
    print_html_footer (fp, asctime (now_tm));
 }

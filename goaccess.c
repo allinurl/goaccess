@@ -1,6 +1,6 @@
 /**
  * goaccess.c -- main log analyzer
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -21,7 +21,7 @@
 
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
-#define _FILE_OFFSET_BITS 64
+#define _FILE_OFFSET_BITS    64
 
 #include <assert.h>
 #include <ctype.h>
@@ -30,17 +30,10 @@
 #include <locale.h>
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
-#ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/menu.h>
-#  include <ncursesw/curses.h>
-#else
-#  include <ncurses.h>
-#  include <menu.h>
-#endif
-
+#include <pthread.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -48,23 +41,61 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "alloc.h"
 #include "commons.h"
 #include "error.h"
+#include "gdns.h"
+#include "gdashboard.h"
 #include "output.h"
 #include "parser.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
 
-static WINDOW *header_win, *main_win, *my_menu_win, *help_win, *schemes_win;
+static WINDOW *header_win, *main_win;
+static char short_options[] = "f:e:acr";
 
-static int initial_reqs = 0;
-static struct logger *logger;
-static struct scrolling scrolling;
-static struct struct_display **s_display;
-static struct struct_holder **s_holder;
+GConf conf = { 0 };
 
+int active_gdns = 0;
+static GDash *dash;
+static GHolder *holder;
+static GLog *logger;
+static GSpinner *parsing_spinner;
+
+/* *INDENT-OFF* */
+static GSort sort[TOTAL_MODULES] = {
+   {VISITORS        , SORT_BY_DATA, SORT_DESC}, 
+   {REQUESTS        , SORT_BY_HITS, SORT_DESC}, 
+   {REQUESTS_STATIC , SORT_BY_HITS, SORT_DESC}, 
+   {NOT_FOUND       , SORT_BY_HITS, SORT_DESC}, 
+   {HOSTS           , SORT_BY_HITS, SORT_DESC}, 
+   {OS              , SORT_BY_HITS, SORT_DESC}, 
+   {BROWSERS        , SORT_BY_HITS, SORT_DESC}, 
+   {REFERRERS       , SORT_BY_HITS, SORT_DESC}, 
+   {REFERRING_SITES , SORT_BY_HITS, SORT_DESC}, 
+   {KEYPHRASES      , SORT_BY_HITS, SORT_DESC}, 
+   {STATUS_CODES    , SORT_BY_HITS, SORT_DESC}, 
+};
+
+static GScrolling scrolling = {
+   {
+      {0, 0}, /* visitors   {scroll, offset} */
+      {0, 0}, /* requests   {scroll, offset} */
+      {0, 0}, /* req static {scroll, offset} */
+      {0, 0}, /* not found  {scroll, offset} */ 
+      {0, 0}, /* hosts      {scroll, offset} */ 
+      {0, 0}, /* os         {scroll, offset} */ 
+      {0, 0}, /* browsers   {scroll, offset} */ 
+      {0, 0}, /* status     {scroll, offset} */ 
+      {0, 0}, /* referrers  {scroll, offset} */ 
+      {0, 0}, /* ref sites  {scroll, offset} */ 
+      {0, 0}  /* keywords   {scroll, offset} */
+   },
+   0,         /* current module */
+   0,         /* main dashboard scroll */
+   0,         /* expanded flag */
+};
+/* *INDENT-ON* */
 /* frees the memory allocated by the GHashTable */
 static void
 free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
@@ -73,62 +104,48 @@ free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
    g_free (old_key);
 }
 
-static struct logger *
-init_struct (void)
-{
-   struct logger *logger;
-
-   if ((logger = malloc (sizeof (*logger))) == NULL)
-      return NULL;
-
-   logger->alloc_counter = 0;
-   logger->counter = 0;
-   logger->current_module = 1;
-   logger->resp_size = 0LL;
-   logger->total_invalid = 0;
-   logger->total_process = 0;
-
-   return logger;
-}
-
 static void
 cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [ -e IP_ADDRESS][ - a ][ - c ]< -f log_file >\n\n");
+   printf ("goaccess [ -e IP_ADDRESS][ - a ][ - r][ - c ]< -f log_file >\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
+   printf (" -r            - Disable IP resolver.\n");
    printf (" -a            - Enable a List of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
-   printf ("GoAccess Copyright (C) 2009-2012 GNU GPL'd, by Gerardo Orellana");
+   printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
    printf ("\n\n");
    exit (EXIT_FAILURE);
 }
 
 static void
-house_keeping (struct logger *logger, struct struct_display **s_display)
+house_keeping (GLog * logger, GDash * dash)
 {
-   int f;
-   for (f = 0; f < logger->alloc_counter; f++)
-      free (s_display[f]->data);
+   pthread_mutex_lock (&gdns_thread.mutex);
+   active_gdns = 0;             /* kill dns pthread */
+   free_holder (&holder);
+   gdns_free_queue ();
+   g_hash_table_destroy (ht_hostnames);
+   pthread_mutex_unlock (&gdns_thread.mutex);
 
-   for (f = 0; f < 170; f++)
-      free (s_display[f]);
+   if (!conf.output_html) {
+      free_dashboard (dash);
+      reset_find ();
+   }
 
-   assert (s_display != 0);
-   free (s_display);
    free (logger);
-
    g_hash_table_destroy (ht_browsers);
    g_hash_table_destroy (ht_date_bw);
    g_hash_table_destroy (ht_file_bw);
    g_hash_table_destroy (ht_host_bw);
+
    g_hash_table_destroy (ht_hosts);
    g_hash_table_destroy (ht_keyphrases);
    g_hash_table_destroy (ht_monthly);
@@ -143,233 +160,432 @@ house_keeping (struct logger *logger, struct struct_display **s_display)
    g_hash_table_destroy (ht_unique_visitors);
 }
 
-void
-allocate_structs (int free_me)
+static void
+allocate_holder (void)
 {
-   if (free_me) {
-      int f;
-      for (f = 0; f < logger->alloc_counter; f++)
-         free (s_display[f]->data);
+   int ht_size = 0;
 
-      for (f = 0; f < 170; f++)
-         free (s_display[f]);
+   int i;
+   GHashTable *ht;
+   GModule module;
+   GRawData *raw_data;
 
-      assert (s_display != 0);
-      free (s_display);
+   holder = new_gholder (TOTAL_MODULES);
+   for (i = 0; i < TOTAL_MODULES; i++) {
+      module = i;
+      switch (module) {
+       case VISITORS:
+          ht = ht_unique_vis;
+          break;
+       case REQUESTS:
+          ht = ht_requests;
+          break;
+       case REQUESTS_STATIC:
+          ht = ht_requests_static;
+          break;
+       case NOT_FOUND:
+          ht = ht_not_found_requests;
+          break;
+       case HOSTS:
+          ht = ht_hosts;
+          break;
+       case OS:
+          ht = ht_os;
+          break;
+       case BROWSERS:
+          ht = ht_browsers;
+          break;
+       case REFERRERS:
+          ht = ht_referrers;
+          break;
+       case REFERRING_SITES:
+          ht = ht_referring_sites;
+          break;
+       case KEYPHRASES:
+          ht = ht_keyphrases;
+          break;
+       case STATUS_CODES:
+          ht = ht_status_code;
+          break;
+      }
 
-      logger->counter = 0;
-      logger->alloc_counter = 0;
+      /* extract data from the corresponding hash table */
+      ht_size = g_hash_table_size (ht);
+      raw_data = parse_raw_data (ht, ht_size, module);
+      load_data_to_holder (raw_data, holder + module, module, sort[module]);
    }
 
-   /* allocate 10 per module */
-   MALLOC_STRUCT (s_display, 170);
+   if (!conf.output_html && !conf.skip_resolver) {
+      active_gdns = 1;
+      gdns_thread_create ();
+   }
+}
 
-   /* note that the order in which we call them,
-    * is the way modules will be displayed */
-   generate_unique_visitors (s_display, logger);
+static void
+allocate_data ()
+{
+   int col_data = DASH_COLLAPSED - DASH_NON_DATA;
+   int size = 0, ht_size = 0;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_requests));
-   generate_struct_data (ht_requests, s_holder, s_display, logger, 2);
+   int i;
+   GHashTable *ht;
+   GModule module;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_requests_static));
-   generate_struct_data (ht_requests_static, s_holder, s_display, logger, 3);
+   dash = new_gdash ();
+   for (i = 0; i < TOTAL_MODULES; i++) {
+      module = i;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referrers));
-   generate_struct_data (ht_referrers, s_holder, s_display, logger, 4);
+      switch (module) {
+       case VISITORS:
+          ht = ht_unique_vis;
+          dash->module[module].head = VISIT_HEAD;
+          dash->module[module].desc = VISIT_DESC;
+          break;
+       case REQUESTS:
+          ht = ht_requests;
+          dash->module[module].head = REQUE_HEAD;
+          dash->module[module].desc = REQUE_DESC;
+          break;
+       case REQUESTS_STATIC:
+          ht = ht_requests_static;
+          dash->module[module].head = STATI_HEAD;
+          dash->module[module].desc = STATI_DESC;
+          break;
+       case NOT_FOUND:
+          ht = ht_not_found_requests;
+          dash->module[module].head = FOUND_HEAD;
+          dash->module[module].desc = FOUND_DESC;
+          break;
+       case HOSTS:
+          ht = ht_hosts;
+          dash->module[module].head = HOSTS_HEAD;
+          dash->module[module].desc = HOSTS_DESC;
+          break;
+       case OS:
+          ht = ht_os;
+          dash->module[module].head = OPERA_HEAD;
+          dash->module[module].desc = OPERA_DESC;
+          break;
+       case BROWSERS:
+          ht = ht_browsers;
+          dash->module[module].head = BROWS_HEAD;
+          dash->module[module].desc = BROWS_DESC;
+          break;
+       case REFERRERS:
+          ht = ht_referrers;
+          dash->module[module].head = REFER_HEAD;
+          dash->module[module].desc = REFER_DESC;
+          break;
+       case REFERRING_SITES:
+          ht = ht_referring_sites;
+          dash->module[module].head = SITES_HEAD;
+          dash->module[module].desc = SITES_DESC;
+          break;
+       case KEYPHRASES:
+          ht = ht_keyphrases;
+          dash->module[module].head = KEYPH_HEAD;
+          dash->module[module].desc = KEYPH_DESC;
+          break;
+       case STATUS_CODES:
+          ht = ht_status_code;
+          dash->module[module].head = CODES_HEAD;
+          dash->module[module].desc = CODES_DESC;
+          break;
+      }
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_not_found_requests));
-   generate_struct_data (ht_not_found_requests, s_holder, s_display, logger,
-                         5);
+      ht_size = g_hash_table_size (ht);
+      size = ht_size > col_data ? col_data : ht_size;
+      if (scrolling.expanded && module == scrolling.current)
+         size = MAX_CHOICES;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_os));
-   generate_struct_data (ht_os, s_holder, s_display, logger, 6);
+      dash->module[module].alloc_data = size;   /* data allocated  */
+      dash->module[module].ht_size = ht_size;   /* hash table size */
+      dash->module[module].idx_data = 0;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_browsers));
-   generate_struct_data (ht_browsers, s_holder, s_display, logger, 7);
+      if (scrolling.expanded && module == scrolling.current)
+         dash->module[module].dash_size = DASH_EXPANDED;
+      else
+         dash->module[module].dash_size = DASH_COLLAPSED;
+      dash->total_alloc += dash->module[module].dash_size;
 
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_hosts));
-   generate_struct_data (ht_hosts, s_holder, s_display, logger, 8);
-
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_status_code));
-   generate_struct_data (ht_status_code, s_holder, s_display, logger, 9);
-
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_referring_sites));
-   generate_struct_data (ht_referring_sites, s_holder, s_display, logger, 10);
-
-   MALLOC_STRUCT (s_holder, g_hash_table_size (ht_keyphrases));
-   generate_struct_data (ht_keyphrases, s_holder, s_display, logger, 11);
+      pthread_mutex_lock (&gdns_thread.mutex);
+      load_data_to_dash (&holder[module], dash, module, &scrolling);
+      pthread_mutex_unlock (&gdns_thread.mutex);
+   }
 }
 
 void
-render_screens (void)
+allocate_hosts_holder (char *ip)
+{
+   load_host_to_holder (holder + HOSTS, ip);
+}
+
+void
+render_screens (GLog * logger)
 {
    int row, col, chg = 0;
 
-   werase (main_win);
    getmaxyx (stdscr, row, col);
    term_size (main_win);
 
-   wattron (stdscr, COLOR_PAIR (COL_WHITE));
    generate_time ();
-   chg = logger->total_process - initial_reqs;
+   chg = logger->process - logger->offset;
+
+   draw_header (stdscr, "", 0, row - 1, col, 0);
+   wattron (stdscr, COLOR_PAIR (COL_WHITE));
    mvaddstr (row - 1, 1, "[F1]Help [O]pen detail view");
    mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
-   mvaddstr (row - 1, col - 21, "[Q]uit Analyzer");
-
+   mvaddstr (row - 1, col - 21, "[Q]uit GoAccess");
    mvprintw (row - 1, col - 5, "%s", GO_VERSION);
    wattroff (stdscr, COLOR_PAIR (COL_WHITE));
-   display_content (main_win, s_display, logger, scrolling);
-
    refresh ();
+
    /* call general stats header */
-   display_general (header_win, logger, ifile);
+   display_general (header_win, conf.ifile, logger->piping,
+                    logger->process, logger->invalid, logger->resp_size);
    wrefresh (header_win);
-   wrefresh (main_win);
 
    /* display active label based on current module */
    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
    wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 19, "[Active Module %d]",
-              logger->current_module);
+   mvwprintw (header_win, 0, col - 18, "[Active Module %d]", scrolling.current);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
+
+   display_content (main_win, logger, dash, &scrolling);
    /* no valid entries to process from the log */
-   if ((logger->total_process == 0) ||
-       (logger->total_process == logger->total_invalid))
+   if ((logger->process == 0) || (logger->process == logger->invalid))
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Nothing valid to process.");
 }
 
 static void
-get_keys (void)
+collapse_current_module (void)
 {
-   int y, x, c;
+   if (scrolling.expanded) {
+      scrolling.expanded = 0;
+      reset_scroll_offsets (&scrolling);
+      free_dashboard (dash);
+      allocate_data ();
+      display_content (main_win, logger, dash, &scrolling);
+   }
+}
 
-   char buf[BUFFER];
+static void
+get_keys (GLog * logger)
+{
+   int search;
+   int c, quit = 1, scroll, offset;
+   int *scroll_ptr, *offset_ptr;
+   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+
+   char buf[LINE_BUFFER];
    FILE *fp = NULL;
    unsigned long long size1 = 0, size2 = 0;
 
-   if (!piping)
-      size1 = file_size (ifile);
-   while (((c = wgetch (stdscr)) != 'q')) {
-      getmaxyx (main_win, y, x);
+   if (!logger->piping)
+      size1 = file_size (conf.ifile);
+   while (quit) {
+      c = wgetch (stdscr);
       switch (c) {
-          /* scroll down main_win */
-       case KEY_DOWN:
-          wmove (main_win, real_size_y - 1, 0);
-          do_scrolling (main_win, s_display, logger, &scrolling, 1);
-          break;
-          /* scroll up main_win */
-       case KEY_UP:
-          wmove (main_win, 0, 0);
-          do_scrolling (main_win, s_display, logger, &scrolling, 0);
-          break;
-          /* tab - increment module counter */
-       case 9:
-          if (logger->current_module < TOTAL_MODULES)
-             logger->current_module++;
-          else if (logger->current_module == TOTAL_MODULES)
-             logger->current_module = 1;
-          update_header (header_win, logger->current_module);
-          break;
-          /* tab - increment module counter */
-       case 353:
-          if (logger->current_module > 1
-              && logger->current_module <= TOTAL_MODULES)
-             logger->current_module--;
-          else if (logger->current_module == 1)
-             logger->current_module = TOTAL_MODULES;
-          update_header (header_win, logger->current_module);
-          break;
-       case KEY_RIGHT:
-       case 'o':
-       case 'O':
-          if ((x < 75) || (y < 12))
-             break;             /* stdscr too small to create subwin */
-          my_menu_win = create_win (main_win);
-          load_popup (my_menu_win, s_holder, logger);
-          touchwin (main_win);
-          close_win (my_menu_win);
-          break;
-          /* key 1 - module 1 */
-       case 49:
-          logger->current_module = 1;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 2 - module 2 */
-       case 50:
-          logger->current_module = 2;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 3 - module 3 */
-       case 51:
-          logger->current_module = 3;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 4 - module 4 */
-       case 52:
-          logger->current_module = 4;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 5 - module 5 */
-       case 53:
-          logger->current_module = 5;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 6 - module 6 */
-       case 54:
-          logger->current_module = 6;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 7 - module 7 */
-       case 55:
-          logger->current_module = 7;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 8 - module 8 */
-       case 56:
-          logger->current_module = 8;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 9 - module 9 */
-       case 57:
-          logger->current_module = 9;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key 0 - module 10 */
-       case 48:
-          logger->current_module = 10;
-          update_header (header_win, logger->current_module);
-          break;
-          /* key ^SHIFT^ + 1 - module 11 */
-       case 33:
-          logger->current_module = 11;
-          update_header (header_win, logger->current_module);
+       case 'q':               /* quit */
+          if (!scrolling.expanded) {
+             quit = 0;
+             break;
+          }
+          scrolling.module[scrolling.current].scroll = 0;
+          scrolling.module[scrolling.current].offset = 0;
+          scrolling.expanded = 0;
+          free_dashboard (dash);
+          allocate_data ();
+          display_content (main_win, logger, dash, &scrolling);
           break;
        case 8:
        case 265:
-          if ((x < 65) || (y < 12))
-             break;             /* stdscr too small to create win */
-          help_win = newwin (y - 3, 57, 5, ((x - 57) / 2));
-          if (help_win == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory for new window.");
-          load_help_popup (help_win, ((x - 57) / 2));
-          wrefresh (help_win);
-          touchwin (main_win);
-          close_win (help_win);
+          load_help_popup (main_win);
           break;
-       case 99:
-          if ((x < 75) || (y < 12))
-             break;             /* stdscr too small to create win */
-          schemes_win = newwin (7, 57, 8, ((x - 57) / 2));
-          if (schemes_win == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory for new window.");
-          load_schemes_win (schemes_win, ((x - 57) / 2));
-          wrefresh (schemes_win);
-          touchwin (main_win);
-          close_win (schemes_win);
+       case 9:                 /* TAB */
+          /* reset expanded module */
+          collapse_current_module ();
+          scrolling.current++;
+          if (scrolling.current == TOTAL_MODULES)
+             scrolling.current = 0;
+          update_active_module (header_win, scrolling.current);
+          break;
+       case 353:               /* Shift TAB */
+          /* reset expanded module */
+          collapse_current_module ();
+          if (scrolling.current == 0)
+             scrolling.current = TOTAL_MODULES - 1;
+          else
+             scrolling.current--;
+          update_active_module (header_win, scrolling.current);
+          break;
+       case 'g':               /* g = top */
+          if (!scrolling.expanded)
+             scrolling.dash = 0;
+          else {
+             scrolling.module[scrolling.current].scroll = 0;
+             scrolling.module[scrolling.current].offset = 0;
+          }
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+       case 'G':               /* G = down */
+          if (!scrolling.expanded)
+             scrolling.dash = dash->total_alloc - real_size_y;
+          else {
+             scroll = offset = 0;
+             scroll = dash->module[scrolling.current].idx_data - 1;
+             if (scroll >= exp_size && scroll >= offset + exp_size)
+                offset = scroll < exp_size - 1 ? 0 : scroll - exp_size + 1;
+             scrolling.module[scrolling.current].scroll = scroll;
+             scrolling.module[scrolling.current].offset = offset;
+          }
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+          /* expand dashboard module */
+       case KEY_RIGHT:
+       case 0x0a:
+       case 0x0d:
+       case 32:                /* ENTER */
+       case 79:                /* o */
+       case 111:               /* O */
+       case KEY_ENTER:
+          if (scrolling.expanded && scrolling.current == HOSTS) {
+             /* make sure we have a valid IP */
+             int sel = scrolling.module[scrolling.current].scroll;
+             if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
+                load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+             break;
+          }
+          reset_scroll_offsets (&scrolling);
+          scrolling.expanded = 1;
+          free_dashboard (dash);
+          allocate_data ();
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+       case KEY_DOWN:
+          if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
+             scrolling.dash++;
+             display_content (main_win, logger, dash, &scrolling);
+          }
+          break;
+       case 106:               /* j - DOWN expanded module */
+       case 519:               /* ^ DOWN - xterm-256color  */
+       case 527:               /* ^ DOWN - gnome-terminal  */
+       case 66:                /* ^ DOWN - screen-256color */
+          scroll_ptr = &scrolling.module[scrolling.current].scroll;
+          offset_ptr = &scrolling.module[scrolling.current].offset;
+
+          if (!scrolling.expanded)
+             break;
+          if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+             break;
+          ++(*scroll_ptr);
+          if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+             ++(*offset_ptr);
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+          /* scroll up main_win */
+       case KEY_UP:
+          if (scrolling.dash > 0) {
+             scrolling.dash--;
+             display_content (main_win, logger, dash, &scrolling);
+          }
+          break;
+       case 2:                 /* ^ b - page up */
+       case 339:               /* ^ PG UP */
+          scroll_ptr = &scrolling.module[scrolling.current].scroll;
+          offset_ptr = &scrolling.module[scrolling.current].offset;
+
+          if (!scrolling.expanded)
+             break;
+          /* decrease scroll and offset by exp_size */
+          *scroll_ptr -= exp_size;
+          if (*scroll_ptr < 0)
+             *scroll_ptr = 0;
+
+          if (*scroll_ptr < *offset_ptr)
+             *offset_ptr -= exp_size;
+          if (*offset_ptr <= 0)
+             *offset_ptr = 0;
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+       case 6:                 /* ^ f - page down */
+       case 338:               /* ^ PG DOWN */
+          scroll_ptr = &scrolling.module[scrolling.current].scroll;
+          offset_ptr = &scrolling.module[scrolling.current].offset;
+
+          if (!scrolling.expanded)
+             break;
+
+          *scroll_ptr += exp_size;
+          if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+             *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
+          if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+             *offset_ptr += exp_size;
+          if (*offset_ptr + exp_size >=
+              dash->module[scrolling.current].idx_data - 1)
+             *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
+          if (*scroll_ptr < exp_size - 1)
+             *offset_ptr = 0;
+
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+       case 107:               /* k - UP expanded module */
+       case 560:               /* ^ UP - xterm-256color  */
+       case 568:               /* ^ UP - gnome-terminal  */
+       case 65:                /* ^ UP - screen-256color */
+          scroll_ptr = &scrolling.module[scrolling.current].scroll;
+          offset_ptr = &scrolling.module[scrolling.current].offset;
+
+          if (!scrolling.expanded)
+             break;
+          if (*scroll_ptr <= 0)
+             break;
+          --(*scroll_ptr);
+          if (*scroll_ptr < *offset_ptr)
+             --(*offset_ptr);
+          display_content (main_win, logger, dash, &scrolling);
+          break;
+       case 'n':
+          pthread_mutex_lock (&gdns_thread.mutex);
+          search = perform_next_find (holder, &scrolling);
+          pthread_mutex_unlock (&gdns_thread.mutex);
+          if (search == 0) {
+             free_dashboard (dash);
+             allocate_data ();
+             render_screens (logger);
+          }
+          break;
+       case '/':
+          if (render_find_dialog (main_win, &scrolling))
+             break;
+          pthread_mutex_lock (&gdns_thread.mutex);
+          search = perform_next_find (holder, &scrolling);
+          pthread_mutex_unlock (&gdns_thread.mutex);
+          if (search == 0) {
+             free_dashboard (dash);
+             allocate_data ();
+             render_screens (logger);
+          }
+          break;
+       case 99:                /* c */
+          load_schemes_win (main_win);
+          free_dashboard (dash);
+          allocate_data ();
+          render_screens (logger);
+          break;
+       case 115:               /* s */
+          load_sort_win (main_win, scrolling.current, &sort[scrolling.current]);
+          pthread_mutex_lock (&gdns_thread.mutex);
+          free_holder (&holder);
+          pthread_cond_broadcast (&gdns_thread.not_empty);
+          pthread_mutex_unlock (&gdns_thread.mutex);
+          free_dashboard (dash);
+          allocate_holder ();
+          allocate_data ();
+          render_screens (logger);
           break;
        case 269:
        case KEY_RESIZE:
@@ -379,44 +595,36 @@ get_keys (void)
           werase (main_win);
           werase (stdscr);
           term_size (main_win);
-          scrolling.scrl_main_win = real_size_y;
           refresh ();
-          render_screens ();
-          break;
-       case 98:                /* SCRL DOWN */
-          werase (main_win);
-          scrolling.init_scrl_main_win = logger->alloc_counter - real_size_y;
-          render_screens ();
-          break;
-       case 116:               /* SCRL UP */
-          werase (main_win);
-          scrolling.init_scrl_main_win = 0;
-          render_screens ();
+          render_screens (logger);
           break;
        default:
-          if (piping)
+          if (logger->piping)
              break;
-          size2 = file_size (ifile);
+          size2 = file_size (conf.ifile);
           /* file has changed */
           if (size2 != size1) {
-             if (!(fp = fopen (ifile, "r")))
+             if (!(fp = fopen (conf.ifile, "r")))
                 error_handler (__PRETTY_FUNCTION__, __FILE__,
                                __LINE__, "Unable to read log file.");
              if (!fseeko (fp, size1, SEEK_SET))
-                while (fgets (buf, BUFFER, fp) != NULL)
-                   parse_log (logger, ifile, buf, -1);
+                while (fgets (buf, LINE_BUFFER, fp) != NULL)
+                   parse_log (&logger, buf, -1);
              fclose (fp);
              size1 = size2;
-             allocate_structs (1);
+             pthread_mutex_lock (&gdns_thread.mutex);
+             free_holder (&holder);
+             pthread_cond_broadcast (&gdns_thread.not_empty);
+             pthread_mutex_unlock (&gdns_thread.mutex);
+             free_dashboard (dash);
+             allocate_holder ();
+             allocate_data ();
              term_size (main_win);
-             scrolling.scrl_main_win = real_size_y;
-             refresh ();
-             render_screens ();
+             render_screens (logger);
              usleep (200000);   /* 0.2 seconds */
           }
           break;
       }
-      wrefresh (main_win);
    }
 }
 
@@ -425,22 +633,25 @@ main (int argc, char *argv[])
 {
    extern char *optarg;
    extern int optind, optopt, opterr;
-   int row, col, o, index, conf = 0, quit = 0;
+   int row, col, o, index, quit = 0;
 
    opterr = 0;
-   while ((o = getopt (argc, argv, "f:e:ac")) != -1) {
+   while ((o = getopt (argc, argv, short_options)) != -1) {
       switch (o) {
        case 'f':
-          ifile = optarg;
+          conf.ifile = optarg;
           break;
        case 'e':
-          ignore_host = optarg;
+          conf.ignore_host = optarg;
           break;
        case 'a':
-          host_agents_list_flag = 1;
+          conf.list_agents = 1;
           break;
        case 'c':
-          conf = 1;
+          conf.load_conf_dlg = 1;
+          break;
+       case 'r':
+          conf.skip_resolver = 1;
           break;
        case '?':
           if (optopt == 'f' || optopt == 'e')
@@ -455,15 +666,17 @@ main (int argc, char *argv[])
       }
    }
    if (!isatty (STDOUT_FILENO))
-      outputting = 1;
-   if (ifile != NULL && !isatty (STDIN_FILENO))
+      conf.output_html = 1;
+   if (conf.ifile != NULL && !isatty (STDIN_FILENO))
       cmd_help ();
-   if (ifile == NULL && isatty (STDIN_FILENO))
+   if (conf.ifile == NULL && isatty (STDIN_FILENO))
       cmd_help ();
    for (index = optind; index < argc; index++)
       cmd_help ();
 
-   /* initialize hash tables */
+   /*
+    * initialize hash tables 
+    */
    ht_unique_visitors =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
@@ -515,14 +728,27 @@ main (int argc, char *argv[])
    ht_hosts_agents =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
+   ht_hostnames =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
+   ht_file_serve_usecs =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
+   ht_host_serve_usecs =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) g_free, g_free);
 
-    /** 'should' work on UTF-8 terminals as long as the
-     ** user did set it to *._UTF-8 locale **/
-    /** ###TODO: real UTF-8 support needs to be done **/
-   setlocale (LC_CTYPE, "");
+   char *loc_ctype = getenv ("LC_CTYPE");
+   if (loc_ctype != NULL)
+      setlocale (LC_CTYPE, loc_ctype);
+   else if ((loc_ctype = getenv ("LC_ALL")))
+      setlocale (LC_CTYPE, loc_ctype);
+   else
+      setlocale (LC_CTYPE, "");
+
    parse_conf_file ();
 
-   if (outputting)
+   if (conf.output_html)
       goto out;
 
    initscr ();
@@ -544,57 +770,64 @@ main (int argc, char *argv[])
    keypad (header_win, TRUE);
    if (header_win == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory for new window.");
+                     "Unable to allocate memory for header_win.");
 
    main_win = newwin (row - 7, col, 6, 0);
    keypad (main_win, TRUE);
    if (main_win == NULL)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory for new window.");
+                     "Unable to allocate memory for main_win.");
 
+   parsing_spinner = new_gspinner ();
  out:
-   logger = init_struct ();
-   if (isatty (STDIN_FILENO) && (log_format == NULL || conf) && !outputting) {
+
+   logger = init_log ();
+   if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)
+       && !conf.output_html) {
       refresh ();
-      quit = verify_format (logger);
+      quit = verify_format (logger, parsing_spinner);
+   } else if (!conf.output_html) {
+      draw_header (stdscr, "Parsing...", 0, row - 1, col, HIGHLIGHT);
+      ui_spinner_create (parsing_spinner);
    }
 
    /* main processing event */
-   (void) time (&start_proc);
-   if (!quit && parse_log (logger, ifile, NULL, -1))
+   time (&start_proc);
+   if (!quit && parse_log (&logger, NULL, -1))
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Error while processing file");
-   allocate_structs (0);
+   time (&end_proc);
 
-   (void) time (&end_proc);
-
-   initial_reqs = logger->total_process;
-
-   if (outputting) {
+   gdns_init ();
+   logger->offset = logger->process;
+   if (conf.output_html) {
       /* no valid entries to process from the log */
-      if ((logger->total_process == 0) ||
-          (logger->total_process == logger->total_invalid))
+      if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
-
-      (void) output_html (logger);
+      allocate_holder ();
+      output_html (logger, holder);
       goto done;
    }
-   /* draw screens */
-   int y = getmaxy (main_win);
 
-   scrolling.scrl_main_win = y;
-   scrolling.init_scrl_main_win = 0;
-   render_screens ();
-   get_keys ();
+   pthread_mutex_lock (&parsing_spinner->mutex);
+   werase (parsing_spinner->win);
+   parsing_spinner->state = SPN_END;
+   pthread_mutex_unlock (&parsing_spinner->mutex);
+
+   allocate_holder ();
+   allocate_data ();
+
+   render_screens (logger);
+   get_keys (logger);
 
    attroff (COLOR_PAIR (COL_WHITE));
 
-   /* restore tty modes and reset
-    * terminal into non-visual mode */
+   /* restore tty modes and reset */
+   /* terminal into non-visual mode */
    endwin ();
  done:
    write_conf_file ();
-   house_keeping (logger, s_display);
+   house_keeping (logger, dash);
 
-   return 0;
+   return EXIT_SUCCESS;
 }

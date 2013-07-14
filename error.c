@@ -1,6 +1,6 @@
 /**
  * error.c -- error handling
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -20,13 +20,13 @@
  */
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/curses.h>
+#include <ncursesw/curses.h>
 #else
-#  include <ncurses.h>
+#include <ncurses.h>
 #endif
 
 #include <stdio.h>

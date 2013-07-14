@@ -1,6 +1,6 @@
 /**
  * parser.c -- web log parsing
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -19,8 +19,10 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-/* "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. */
+/*
+ * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
+ * correctly. 
+ */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
@@ -31,13 +33,13 @@
 #include <errno.h>
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/curses.h>
+#include <ncursesw/curses.h>
 #else
-#  include <ncurses.h>
+#include <ncurses.h>
 #endif
 
 #include <stdio.h>
@@ -48,39 +50,149 @@
 #include <time.h>
 #include <arpa/inet.h>
 
-#include "error.h"
-#include "commons.h"
 #include "parser.h"
+
+#include "commons.h"
+#include "error.h"
+#include "xmalloc.h"
+#include "gdashboard.h"
+#include "settings.h"
 #include "util.h"
 
-/* qsort struct comparision function (hits field) */
-int
-struct_cmp_by_hits (const void *a, const void *b)
-{
-   struct struct_holder *ia = *(struct struct_holder **) a;
-   struct struct_holder *ib = *(struct struct_holder **) b;
-   return (int) (ib->hits - ia->hits);
-   /* integer comparison: returns negative if b > a and positive if a > b */
-}
+/* *INDENT-OFF* */
+/* Definitions checked against declarations */
+GHashTable *ht_browsers               = NULL;
+GHashTable *ht_date_bw                = NULL;
+GHashTable *ht_file_bw                = NULL;
+GHashTable *ht_file_serve_usecs       = NULL;
+GHashTable *ht_host_serve_usecs       = NULL;
+GHashTable *ht_host_bw                = NULL;
+GHashTable *ht_hostnames              = NULL;
+GHashTable *ht_hosts_agents           = NULL;
+GHashTable *ht_hosts                  = NULL;
+GHashTable *ht_keyphrases             = NULL;
+GHashTable *ht_monthly                = NULL;
+GHashTable *ht_not_found_requests     = NULL;
+GHashTable *ht_os                     = NULL;
+GHashTable *ht_referrers              = NULL;
+GHashTable *ht_referring_sites        = NULL;
+GHashTable *ht_requests               = NULL;
+GHashTable *ht_requests_static        = NULL;
+GHashTable *ht_status_code            = NULL;
+GHashTable *ht_unique_visitors        = NULL;
+GHashTable *ht_unique_vis             = NULL;
+/* *INDENT-ON* */
 
+/* sort data ascending */
 int
-struct_cmp_desc (const void *a, const void *b)
+cmp_data_asc (const void *a, const void *b)
 {
-   struct struct_holder *ia = *(struct struct_holder **) a;
-   struct struct_holder *ib = *(struct struct_holder **) b;
-   return strcmp (ib->data, ia->data);
-}
-
-int
-struct_cmp_asc (const void *a, const void *b)
-{
-   struct struct_holder *ia = *(struct struct_holder **) a;
-   struct struct_holder *ib = *(struct struct_holder **) b;
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
    return strcmp (ia->data, ib->data);
 }
 
+/* sort data descending */
+int
+cmp_data_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return strcmp (ib->data, ia->data);
+}
+
+/* sort numeric descending */
+int
+cmp_num_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (int) (ib->hits - ia->hits);
+}
+
+/* sort numeric ascending */
+int
+cmp_num_asc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (int) (ia->hits - ib->hits);
+}
+
+/* sort bandwidth descending */
+int
+cmp_bw_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (unsigned long long) (ib->bw - ia->bw);
+}
+
+/* sort bandwidth ascending */
+int
+cmp_bw_asc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (unsigned long long) (ia->bw - ib->bw);
+}
+
+/* sort usec descending */
+int
+cmp_usec_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (unsigned long long) (ib->usecs - ia->usecs);
+}
+
+/* sort usec ascending */
+int
+cmp_usec_asc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return (unsigned long long) (ia->usecs - ib->usecs);
+}
+
+void
+reset_struct (GLog * logger)
+{
+   logger->invalid = 0;
+   logger->process = 0;
+   logger->resp_size = 0LL;
+}
+
+GLog *
+init_log (void)
+{
+   GLog *log = xmalloc (sizeof (GLog));
+   memset (log, 0, sizeof *log);
+
+   return log;
+}
+
+GLogItem *
+init_log_item (GLog * logger)
+{
+   logger->items = xmalloc (sizeof (GLogItem));
+   GLogItem *log = logger->items;
+   memset (log, 0, sizeof *log);
+
+   log->agent = NULL;
+   log->date = NULL;
+   log->host = NULL;
+   log->ref = NULL;
+   log->req = NULL;
+   log->status = NULL;
+   log->resp_size = 0LL;
+   log->serve_time = 0;
+
+   return log;
+}
+
 static void
-free_logger (struct logger *log)
+free_logger (GLogItem * log)
 {
    if (log->agent != NULL)
       free (log->agent);
@@ -94,81 +206,30 @@ free_logger (struct logger *log)
       free (log->req);
    if (log->status != NULL)
       free (log->status);
-}
-
-static char *
-verify_browser_type (char *str)
-{
-   char *lookfor = NULL;
-
-   if ((lookfor = "Chrome", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Crawlers", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Firefox", strstr (str, lookfor)) != NULL ||
-       (lookfor = "MSIE", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Opera", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Safari", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Others", strstr (str, lookfor)) != NULL) {
-      return lookfor;
-   } else
-      return NULL;
-}
-
-static char *
-verify_os_type (char *str)
-{
-   char *lookfor = NULL;
-
-   if ((lookfor = "Windows", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Macintosh", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Linux", strstr (str, lookfor)) != NULL ||
-       (lookfor = "BSD", strstr (str, lookfor)) != NULL ||
-       (lookfor = "Others", strstr (str, lookfor)) != NULL) {
-      return lookfor;
-   } else
-      return NULL;
+   free (log);
 }
 
 static int
-process_request_bw (char *host, char *date, char *req, long long size)
+process_request_meta (GHashTable * ht, char *key, unsigned long long size)
 {
-   GHashTable *ht = NULL;
-   gpointer value_ptr;
-   int i;                       /* hash_tables to process */
-
-   if ((host == NULL) || (date == NULL) || (req == NULL))
+   if ((ht == NULL) || (key == NULL))
       return (EINVAL);
 
-   char *key = NULL;
-   long long add_value;
-   long long *ptr_value;
+   gpointer value_ptr;
+   unsigned long long add_value;
+   unsigned long long *ptr_value;
 
-   for (i = 0; i < BW_HASHTABLES; i++) {
-      switch (i) {
-       case 0:                 /* HOSTS bandwith */
-          ht = ht_host_bw;
-          key = host;
-          break;
-       case 1:                 /* FILES bandwith */
-          ht = ht_file_bw;
-          key = req;
-          break;
-       case 2:                 /* DATE bandwith */
-          ht = ht_date_bw;
-          key = date;
-          break;
-      }
-      value_ptr = g_hash_table_lookup (ht, key);
-      if (value_ptr != NULL) {
-         ptr_value = (long long *) value_ptr;
-         add_value = *ptr_value + size;
-      } else
-         add_value = 0 + size;
+   value_ptr = g_hash_table_lookup (ht, key);
+   if (value_ptr != NULL) {
+      ptr_value = (unsigned long long *) value_ptr;
+      add_value = *ptr_value + size;
+   } else
+      add_value = 0 + size;
 
-      ptr_value = g_malloc (sizeof (long long));
-      *ptr_value = add_value;
+   ptr_value = xmalloc (sizeof (unsigned long long));
+   *ptr_value = add_value;
 
-      g_hash_table_replace (ht, g_strdup (key), ptr_value);
-   }
+   g_hash_table_replace (ht, g_strdup (key), ptr_value);
 
    return 0;
 }
@@ -176,10 +237,10 @@ process_request_bw (char *host, char *date, char *req, long long size)
 static int
 process_generic_data (GHashTable * ht, const char *key)
 {
-   char *date = NULL;
+   int first = 0;
+
    gint value_int;
    gpointer value_ptr;
-   int first = 0;
 
    if ((ht == NULL) || (key == NULL))
       return (EINVAL);
@@ -193,56 +254,23 @@ process_generic_data (GHashTable * ht, const char *key)
    }
    value_int++;
 
-   /* replace the entry. old key will be freed by "free_key_value". */
+   /* replace the entry. old key will be freed by "free_key_value" */
    g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
-   if (first && ht == ht_unique_visitors) {
-      char *new_key = strdup (key);
-      new_key = char_replace (new_key, '+', ' ');
 
-      char *dup_k_b = strdup (new_key), *dup_k_o = strdup (new_key);
-      char *b_key = NULL, *o_key = NULL;
-
-      /* get browser & OS from agent */
-      b_key = verify_browser (dup_k_b);
-      o_key = verify_os (dup_k_o);
-
-      /* insert new keys & values */
-      process_generic_data (ht_browsers, b_key);
-      process_generic_data (ht_os, o_key);
-      /* check type & add up totals */
-      process_generic_data (ht_browsers, verify_browser_type (b_key));
-      process_generic_data (ht_os, verify_os_type (o_key));
-
-      /* clean stuff up */
-      free (b_key);
-      free (dup_k_b);
-      free (dup_k_o);
-      free (new_key);
-      free (o_key);
-
-      if ((date = strchr (key, '|')) != NULL) {
-         char *tmp_date = NULL;
-         tmp_date = clean_date (++date);
-         if (tmp_date != NULL) {
-            process_generic_data (ht_unique_vis, tmp_date);
-            free (tmp_date);
-         }
-      }
-   }
-   return (0);
+   return first ? KEY_NOT_FOUND : KEY_FOUND;
 }
 
 /** from oreillynet.com
- ** with minor modifications **/
+** with minor modifications **/
 #define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? \
-                            ((x) - '0') : (toupper((x)) - 'A' + 10))
+                             ((x) - '0') : (toupper((x)) - 'A' + 10))
 static char *
 spc_decode_url (char *url)
 {
    char *out, *ptr;
    const char *c;
 
-   if (!(out = ptr = strdup (url)))
+   if (!(out = ptr = xstrdup (url)))
       return 0;
    for (c = url; *c; c++) {
       if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2]))
@@ -253,7 +281,8 @@ spc_decode_url (char *url)
       }
    }
    *ptr = 0;
-   if (strlen (url) == (ptr - out));
+   if (strlen (url) == (ptr - out)) {
+   }
    return trim_str (out);
 }
 
@@ -274,28 +303,32 @@ process_keyphrases (char *ref)
       pch = strchr (r, '+');
       if (pch)
          r += pch - r + 1;
-   } else if ((r = strstr (ref, "&q=")) != NULL
-              || (r = strstr (ref, "?q=")) != NULL)
+   } else if ((r = strstr (ref, "&q=")) != NULL ||
+              (r = strstr (ref, "?q=")) != NULL)
       r += 3;
-   else if ((r = strstr (ref, "%26q%3D")) != NULL
-            || (r = strstr (ref, "%3Fq%3D")) != NULL)
+   else if ((r = strstr (ref, "%26q%3D")) != NULL ||
+            (r = strstr (ref, "%3Fq%3D")) != NULL)
       r += 7;
    else
       return -1;
    dec = spc_decode_url (r);
-   if ((ptr = strstr (dec, "%26")) != NULL ||
-       (ptr = strchr (dec, '&')) != NULL)
+   if ((ptr = strstr (dec, "%26")) != NULL || (ptr = strchr (dec, '&')) != NULL)
       *ptr = '\0';
+
    p = dec;
-   if (p[0] == '\0')
+   if (p[0] == '\0') {
+      if (dec != NULL)
+         free (dec);
       return -1;
+   }
    while (*p != '\0') {
       if (*p == '+')
          *p = ' ';
       p++;
    }
    process_generic_data (ht_keyphrases, trim_str (dec));
-   free (dec);
+   if (dec != NULL)
+      free (dec);
 
    return 0;
 }
@@ -309,65 +342,112 @@ process_host_agents (char *host, char *agent)
    if ((ht == NULL) || (host == NULL) || (agent == NULL))
       return (EINVAL);
 
-   char *ptr_value, *tmp;
+   char *ptr_value, *tmp, *a = spc_decode_url (agent);
 
    value_ptr = g_hash_table_lookup (ht, host);
    if (value_ptr != NULL) {
       ptr_value = (char *) value_ptr;
-      if (strstr (ptr_value, agent))
+      if (strstr (ptr_value, a)) {
+         if (a != NULL)
+            free (a);
          return 0;
+      }
 
       size_t len1 = strlen (ptr_value);
-      size_t len2 = strlen (agent);
+      size_t len2 = strlen (a);
 
-      tmp = malloc (len1 + len2 + 2);
-      if (tmp == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        "Unable to allocate memory.");
+      tmp = xmalloc (len1 + len2 + 2);
       memcpy (tmp, ptr_value, len1);
       tmp[len1] = '|';
-      /* NUL-terminated */
-      memcpy (tmp + len1 + 1, agent, len2 + 1);
+      /*
+       * NUL-terminated 
+       */
+      memcpy (tmp + len1 + 1, a, len2 + 1);
    } else
-      tmp = alloc_string (agent);
+      tmp = alloc_string (a);
 
    g_hash_table_replace (ht, g_strdup (host), tmp);
+   if (a != NULL)
+      free (a);
    return 0;
 }
 
 static void
-process_unique_data (char *host, char *date, char *agent, char *status,
-                     char *referrer)
+process_referrers (char *referrer)
 {
-   char unique_visitors_key[2048];
-   /*
-    * C struct initialization and strptime
-    * C may not initialize stack structs and arrays to zeros
-    * so strptime uses struct for output and input as well.
-    */
+   if (referrer == NULL)
+      return;
+
+   char *ref = spc_decode_url (referrer);
+   char url[512] = "";
+   if (sscanf (ref, "http://%511[^/\n]", url) == 1)
+      process_generic_data (ht_referring_sites, url);
+   process_generic_data (ht_referrers, ref);
+   process_keyphrases (referrer);
+   free (ref);
+}
+
+static void
+process_unique_data (char *host, char *date, char *agent)
+{
+   char visitor_key[2048];
+   char *browser = NULL;
+   char *opsys = NULL;
+   char *dup_key = NULL, *clean_key = NULL;
+   char *browser_key = NULL;
+   char *os_key = NULL;
+
    if (agent == NULL)
       agent = "-";
-   snprintf (unique_visitors_key, sizeof (unique_visitors_key), "%s|%s|%s",
-             host, date, agent);
-   unique_visitors_key[sizeof (unique_visitors_key) - 1] = 0;
 
-   char url[512] = "";
-   if (referrer != NULL && sscanf (referrer, "http://%511[^/\n]", url) == 1) {
-      process_generic_data (ht_referring_sites, url);
-   }
-   if (referrer != NULL)
-      process_keyphrases (referrer);
+   snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, agent);
+   (visitor_key)[sizeof (visitor_key) - 1] = '\0';
 
-   process_generic_data (ht_status_code, status);
-
-   if (ignore_host != NULL && strcmp (host, ignore_host) == 0) {
-      /* ignore */
-   } else {
-      process_generic_data (ht_hosts, host);
-   }
-   if (host_agents_list_flag)
+   /* insert agents that are part of a host */
+   if (conf.list_agents)
       process_host_agents (host, agent);
-   process_generic_data (ht_unique_visitors, unique_visitors_key);
+
+   /* process unique data  */
+   if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
+      /* replace '+' in user-agent + with ' ' */
+      clean_key = spc_decode_url (visitor_key);
+      dup_key = char_replace (strdup (clean_key), '+', ' ');
+
+      browser_key = strdup (dup_key);
+      os_key = strdup (dup_key);
+
+      /* extract browser & OS from agent  */
+      browser = verify_browser (browser_key, BROWSER);
+      opsys = verify_os (os_key, OPESYS);
+
+      if (browser != NULL)
+         process_generic_data (ht_browsers, browser);
+
+      if (opsys != NULL)
+         process_generic_data (ht_os, opsys);
+
+      if ((date = strchr (visitor_key, '|')) != NULL) {
+         char *tmp_date = NULL;
+         tmp_date = clean_date (++date);
+         if (tmp_date != NULL) {
+            process_generic_data (ht_unique_vis, tmp_date);
+            free (tmp_date);
+         }
+      }
+   }
+
+   if (browser != NULL)
+      free (browser);
+   if (browser_key != NULL)
+      free (browser_key);
+   if (os_key != NULL)
+      free (os_key);
+   if (opsys != NULL)
+      free (opsys);
+   if (dup_key != NULL)
+      free (dup_key);
+   if (clean_key != NULL)
+      free (clean_key);
 }
 
 static int
@@ -401,7 +481,9 @@ parse_req (char *line)
        (lookfor = "post ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL) {
 
-      /* didn't find it - weird */
+      /*
+       * didn't find it - weird 
+       */
       if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
           (req_r = strstr (line, " HTTP/1.1")) == NULL)
          return alloc_string ("-");
@@ -409,11 +491,13 @@ parse_req (char *line)
       req_l += strlen (lookfor);
       ptrdiff_t req_len = req_r - req_l;
 
-      /* make sure we don't have some weird requests */
+      /*
+       * make sure we don't have some weird requests 
+       */
       if (req_len <= 0)
          return alloc_string ("-");
 
-      reqs = malloc (req_len + 1);
+      reqs = xmalloc (req_len + 1);
       strncpy (reqs, req_l, req_len);
       (reqs)[req_len] = 0;
    } else
@@ -429,16 +513,15 @@ parse_string (char **str, char end)
    do {
       if (*pch == end || *pch == '\0') {
          size_t len = (pch - *str + 1);
-         p = malloc (len);
-         if (p == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                           "Unable to allocate memory");
+         p = xmalloc (len);
          memcpy (p, *str, (len - 1));
          p[len - 1] = '\0';
          *str += len - 1;
          return trim_str (p);
       }
-      /* advance to the first unescaped delim */
+      /*
+       * advance to the first unescaped delim 
+       */
       if (*pch == '\\')
          pch++;
    } while (*pch++);
@@ -446,7 +529,8 @@ parse_string (char **str, char end)
 }
 
 static int
-parse_format (struct logger *logger, const char *fmt, char *str)
+parse_format (GLogItem * log, const char *fmt, const char *date_format,
+              char *str)
 {
    const char *p;
 
@@ -465,11 +549,13 @@ parse_format (struct logger *logger, const char *fmt, char *str)
       if (special && *p != '\0') {
          char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
          errno = 0;
-         long long bandw = 0;
+         unsigned long long bandw = 0;
+         unsigned long long serve_time = 0;
+         double serve_secs = 0;
 
          switch (*p) {
           case 'd':
-             if (logger->date)
+             if (log->date)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -479,10 +565,10 @@ parse_format (struct logger *logger, const char *fmt, char *str)
                 free (tkn);
                 return 1;
              }
-             logger->date = tkn;
+             log->date = tkn;
              break;
           case 'h':
-             if (logger->host)
+             if (log->host)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -491,19 +577,19 @@ parse_format (struct logger *logger, const char *fmt, char *str)
                 free (tkn);
                 return 1;
              }
-             logger->host = tkn;
+             log->host = tkn;
              break;
           case 'r':
-             if (logger->req)
+             if (log->req)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             logger->req = parse_req (tkn);
+             log->req = parse_req (tkn);
              free (tkn);
              break;
           case 's':
-             if (logger->status)
+             if (log->status)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -513,10 +599,10 @@ parse_format (struct logger *logger, const char *fmt, char *str)
                 free (tkn);
                 return 1;
              }
-             logger->status = tkn;
+             log->status = tkn;
              break;
           case 'b':
-             if (logger->resp_size)
+             if (log->resp_size)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -524,12 +610,12 @@ parse_format (struct logger *logger, const char *fmt, char *str)
              bandw = strtol (tkn, &bEnd, 10);
              if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
                 bandw = 0;
-             logger->resp_size = bandw;
-             req_size += bandw;
+             log->resp_size = bandw;
+             conf.bandwidth = 1;
              free (tkn);
              break;
           case 'R':
-             if (logger->ref)
+             if (log->ref)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -538,10 +624,10 @@ parse_format (struct logger *logger, const char *fmt, char *str)
                 free (tkn);
                 tkn = alloc_string ("-");
              }
-             logger->ref = tkn;
+             log->ref = tkn;
              break;
           case 'u':
-             if (logger->agent)
+             if (log->agent)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
@@ -550,7 +636,40 @@ parse_format (struct logger *logger, const char *fmt, char *str)
                 free (tkn);
                 tkn = alloc_string ("-");
              }
-             logger->agent = tkn;
+             log->agent = tkn;
+             break;
+          case 'T':
+             if (log->serve_time)
+                return 1;
+             /* ignore seconds if we have microseconds */
+             if (strstr (fmt, "%D") != NULL)
+                break;
+
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             serve_secs = strtoull (tkn, &bEnd, 10);
+             if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+                serve_secs = 0;
+             if (serve_secs > 0)
+                log->serve_time = serve_secs * SECS;
+             else
+                log->serve_time = 0;
+             conf.serve_usecs = 1;
+             free (tkn);
+             break;
+          case 'D':
+             if (log->serve_time)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             serve_time = strtoull (tkn, &bEnd, 10);
+             if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+                serve_time = 0;
+             log->serve_time = serve_time;
+             conf.serve_usecs = 1;
+             free (tkn);
              break;
           default:
              if ((pch = strchr (str, p[1])) != NULL)
@@ -568,256 +687,145 @@ parse_format (struct logger *logger, const char *fmt, char *str)
 }
 
 static int
-process_log (struct logger *logger, char *line, int test)
+process_log (GLog * logger, char *line, int test)
 {
-   struct logger log;
-
-   struct tm tm;
-   char buf[32];
+   char buf[DATE_LEN];
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
-   memset (&log, 0, sizeof (log));
-   memset (&tm, 0, sizeof (tm));
 
-   if (date_format == NULL || *date_format == '\0')
+   if (conf.date_format == NULL || *conf.date_format == '\0')
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "No date format was found on your conf file.");
 
-   if (log_format == NULL || *log_format == '\0')
+   if (conf.log_format == NULL || *conf.log_format == '\0')
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "No log format was found on your conf file.");
 
    if ((line == NULL) || (*line == '\0')) {
-      logger->total_invalid++;
+      logger->invalid++;
       return 0;
    }
+
    if (*line == '#' || *line == '\n')
       return 0;
 
-   logger->total_process++;
-   if (parse_format (&log, log_format, line) == 1) {
-      free_logger (&log);
-      logger->total_invalid++;
+   logger->process++;
+
+   GLogItem *log = init_log_item (logger);
+   if (parse_format (log, conf.log_format, conf.date_format, line) == 1) {
+      free_logger (log);
+      logger->invalid++;
       return 0;
    }
-   if (log.host == NULL || log.date == NULL || log.status == NULL ||
-       log.req == NULL) {
-      free_logger (&log);
-      logger->total_invalid++;
+
+   if (log->host == NULL || log->date == NULL || log->status == NULL ||
+       log->req == NULL) {
+      free_logger (log);
+      logger->invalid++;
       return 0;
    }
+
    if (test) {
-      free_logger (&log);
+      free_logger (log);
       return 0;
    }
 
-   char *end = strptime (log.date, date_format, &tm);
-   if (end == NULL || *end != '\0')
-      return 0;
-   if (strftime (buf, sizeof (buf) - 1, "%Y%m%d", &tm) == 0)
+   convert_date (buf, log->date, conf.date_format, "%Y%m%d", DATE_LEN);
+   if (buf == NULL)
       return 0;
 
-   process_unique_data (log.host, buf, log.agent, log.status, log.ref);
+   /* ignore host */
+   if (conf.ignore_host != NULL && strcmp (log->host, conf.ignore_host) == 0)
+      return 0;
 
-   if (!memcmp (log.status, "404", 3))
-      process_generic_data (ht_not_found_requests, log.req);
-   if (verify_static_content (log.req))
-      process_generic_data (ht_requests_static, log.req);
+   /* process visitors, browsers, and OS */
+   process_unique_data (log->host, buf, log->agent);
+
+   /* process 404s */
+   if (!memcmp (log->status, "404", 3))
+      process_generic_data (ht_not_found_requests, log->req);
+
+   /* process static files */
+   if (verify_static_content (log->req))
+      process_generic_data (ht_requests_static, log->req);
+   /* process regular files */
    else
-      process_generic_data (ht_requests, log.req);
+      process_generic_data (ht_requests, log->req);
 
-   process_generic_data (ht_referrers, log.ref);
-   process_request_bw (log.host, buf, log.req, log.resp_size);
+   /* process referrers */
+   process_referrers (log->ref);
+   /* process status codes */
+   process_generic_data (ht_status_code, log->status);
+   /* process hosts */
+   process_generic_data (ht_hosts, log->host);
 
-   free_logger (&log);
+   /* process bandwidth  */
+   process_request_meta (ht_date_bw, buf, log->resp_size);
+   process_request_meta (ht_file_bw, log->req, log->resp_size);
+   process_request_meta (ht_host_bw, log->host, log->resp_size);
+
+   /* process time taken to serve the request, in microseconds */
+   process_request_meta (ht_file_serve_usecs, log->req, log->serve_time);
+   process_request_meta (ht_host_serve_usecs, log->host, log->serve_time);
+
+   logger->resp_size += log->resp_size;
+
+   free_logger (log);
    return 0;
 }
 
-void
-reset_struct (struct logger *logger)
-{
-   logger->alloc_counter = 0;
-   logger->counter = 0;
-   logger->current_module = 1;
-   logger->resp_size = 0LL;
-   logger->total_invalid = 0;
-   logger->total_process = 0;
-   req_size = 0;
-}
-
 int
-parse_log (struct logger *logger, char *filename, char *tail, int n)
+parse_log (GLog ** logger, char *tail, int n)
 {
    FILE *fp = NULL;
-   char line[BUFFER];
+
+   char line[LINE_BUFFER];
    int i = 0, test = -1 == n ? 0 : 1;
 
    if (tail != NULL) {
-      if (process_log (logger, tail, test))
+      if (process_log ((*logger), tail, test))
          return 1;
       return 0;
    }
-   if (filename == NULL) {
-      fp = stdin;
-      piping = 1;
-   }
-   if (!piping && (fp = fopen (filename, "r")) == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "An error has occurred while opening the log file. Make sure it exists.");
 
-   while (fgets (line, BUFFER, fp) != NULL) {
+   if (conf.ifile == NULL) {
+      fp = stdin;
+      (*logger)->piping = 1;
+   }
+
+   if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Error while opening the log file. Make sure it exists.");
+
+   while (fgets (line, LINE_BUFFER, fp) != NULL) {
       if (n >= 0 && i++ == n)
          break;
-      if (process_log (logger, line, test)) {
-         if (!piping)
+      if (process_log ((*logger), line, test)) {
+         if (!(*logger)->piping)
             fclose (fp);
          return 1;
       }
    }
-   /* definitely not portable! */
-   if (piping)
-      stdin = freopen ("/dev/tty", "r", stdin);
+   /*
+    * definitely not portable! 
+    */
+   if ((*logger)->piping)
+      freopen ("/dev/tty", "r", stdin);
 
-   if (!piping)
+   if (!(*logger)->piping)
       fclose (fp);
    return 0;
 }
 
-static void
-unique_visitors_iter (gpointer k, gpointer v, struct struct_holder **t_holder)
+int
+test_format (GLog * logger)
 {
-   t_holder[iter_ctr] = malloc (sizeof (struct struct_holder));
-   t_holder[iter_ctr]->data = (gchar *) k;
-   t_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
-}
+   if (parse_log (&logger, NULL, 20))
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Error while processing file");
 
-void
-generate_unique_visitors (struct struct_display **disp, struct logger *logger)
-{
-   int i, r;
-   int s_size = g_hash_table_size (ht_unique_vis);
-   struct struct_holder **t_holder;
-
-   t_holder = malloc (sizeof (struct struct_holder *) * s_size);
-   g_hash_table_foreach (ht_unique_vis, (GHFunc) unique_visitors_iter,
-                         t_holder);
-
-   qsort (t_holder, s_size, sizeof (struct struct_holder *), struct_cmp_desc);
-
-   /* fixed value in here, perhaps it could be dynamic depending on the module */
-   for (i = 0, r = 0; i < 10; i++) {
-      disp[logger->alloc_counter]->hits = 0;
-      disp[logger->alloc_counter]->module = 1;
-      if (i == 0)
-         disp[logger->alloc_counter++]->data = alloc_string (vis_head);
-      else if (i == 1)
-         disp[logger->alloc_counter++]->data = alloc_string (vis_desc);
-      else if (i == 2 || i == 9)
-         disp[logger->alloc_counter++]->data = alloc_string ("");
-      else if (r < s_size) {
-         disp[logger->alloc_counter]->hits = t_holder[r]->hits;
-         disp[logger->alloc_counter++]->data =
-            alloc_string (t_holder[r]->data);
-         r++;
-      } else
-         disp[logger->alloc_counter++]->data = alloc_string ("");
-   }
-
-   for (i = 0; i < s_size; i++)
-      free (t_holder[i]);
-   free (t_holder);
-
-   iter_ctr = 0;
-}
-
-static void
-struct_data_iter (gpointer k, gpointer v, struct struct_holder **s_holder)
-{
-   if (iter_module == BROWSERS || iter_module == OS)
-      if (strchr ((gchar *) k, '|') != NULL)
-         return;
-   s_holder[iter_ctr]->data = (gchar *) k;
-   s_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
-}
-
-void
-generate_struct_data (GHashTable * hash_table,
-                      struct struct_holder **s_holder,
-                      struct struct_display **disp, struct logger *logger,
-                      int module)
-{
-   int i = 0, r;
-
-   iter_module = module;
-   g_hash_table_foreach (hash_table, (GHFunc) struct_data_iter, s_holder);
-   qsort (s_holder, iter_ctr, sizeof (struct struct_holder *),
-          struct_cmp_by_hits);
-
-   /* headers & sub-headers */
-   const char *head = NULL, *desc = NULL;
-   switch (module) {
-    case 2:
-       head = req_head;
-       desc = req_desc;
-       break;
-    case 3:
-       head = static_head;
-       desc = static_desc;
-       break;
-    case 4:
-       head = ref_head;
-       desc = ref_desc;
-       break;
-    case 5:
-       head = not_found_head;
-       desc = not_found_desc;
-       break;
-    case 6:
-       head = os_head;
-       desc = os_desc;
-       break;
-    case 7:
-       head = browser_head;
-       desc = browser_desc;
-       break;
-    case 8:
-       head = host_head;
-       desc = host_desc;
-       break;
-    case 9:
-       head = status_head;
-       desc = status_desc;
-       break;
-    case 10:
-       head = sites_head;
-       desc = sites_desc;
-       break;
-    case 11:
-       head = key_head;
-       desc = key_desc;
-       break;
-   }
-
-   for (i = 0, r = 0; i < 10; i++) {
-      disp[logger->alloc_counter]->hits = 0;
-      disp[logger->alloc_counter]->module = module;
-      if (i == 0)
-         disp[logger->alloc_counter++]->data = alloc_string (head);
-      else if (i == 1)
-         disp[logger->alloc_counter++]->data = alloc_string (desc);
-      else if (i == 2 || i == 9)
-         disp[logger->alloc_counter++]->data = alloc_string ("");
-      else if (r < iter_ctr) {
-         disp[logger->alloc_counter]->data = alloc_string (s_holder[r]->data);
-         disp[logger->alloc_counter++]->hits = s_holder[r]->hits;
-         r++;
-      } else
-         disp[logger->alloc_counter++]->data = alloc_string ("");
-   }
-
-   for (i = 0; i < g_hash_table_size (hash_table); i++)
-      free (s_holder[i]);
-   free (s_holder);
-   iter_ctr = 0;
+   if ((logger->process == 0) || (logger->process == logger->invalid))
+      return 1;
+   return 0;
 }

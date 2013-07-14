@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -21,20 +21,71 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#ifndef COMMONS
-#  include "commons.h"
+#define LINE_BUFFER 	   4096
+#define BW_HASHTABLES   3
+#define KEY_FOUND       1
+#define KEY_NOT_FOUND  -1
+
+#ifdef HAVE_LIBGLIB_2_0
+#include <glib.h>
 #endif
 
-int struct_cmp_by_hits (const void *a, const void *b);
-int struct_cmp_desc (const void *a, const void *b);
-int struct_cmp_asc (const void *a, const void *b);
-void reset_struct (struct logger *logger);
-int parse_log (struct logger *logger, char *filename, char *tail, int n);
-void generate_unique_visitors (struct struct_display **disp,
-                               struct logger *logger);
-void generate_struct_data (GHashTable * hash_table,
-                           struct struct_holder **s_holder,
-                           struct struct_display **s_display,
-                           struct logger *logger, int module);
+/* to create a new hash value out of a key, which can be NULL */
+extern GHashTable *ht_browsers;
+extern GHashTable *ht_date_bw;
+extern GHashTable *ht_file_bw;
+extern GHashTable *ht_file_serve_usecs;
+extern GHashTable *ht_host_serve_usecs;
+extern GHashTable *ht_host_bw;
+extern GHashTable *ht_hostnames;
+extern GHashTable *ht_hosts;
+extern GHashTable *ht_hosts_agents;
+extern GHashTable *ht_keyphrases;
+extern GHashTable *ht_monthly;
+extern GHashTable *ht_not_found_requests;
+extern GHashTable *ht_os;
+extern GHashTable *ht_referrers;
+extern GHashTable *ht_referring_sites;
+extern GHashTable *ht_requests;
+extern GHashTable *ht_requests_static;
+extern GHashTable *ht_status_code;
+extern GHashTable *ht_unique_vis;
+extern GHashTable *ht_unique_visitors;
+
+typedef struct GLogItem_
+{
+   char *agent;
+   char *date;
+   char *host;
+   char *ref;
+   char *req;
+   char *status;
+   unsigned long long resp_size;
+   unsigned long long serve_time;
+} GLogItem;
+
+typedef struct GLog_
+{
+   unsigned int invalid;
+   unsigned int offset;
+   unsigned int process;
+   unsigned long long resp_size;
+   unsigned short piping;
+   GLogItem *items;
+} GLog;
+
+GLog *init_log (void);
+GLogItem *init_log_item (GLog * logger);
+int cmp_data_asc (const void *a, const void *b);
+int cmp_data_desc (const void *a, const void *b);
+int cmp_num_desc (const void *a, const void *b);
+int cmp_num_asc (const void *a, const void *b);
+int cmp_bw_desc (const void *a, const void *b);
+int cmp_bw_asc (const void *a, const void *b);
+int cmp_usec_desc (const void *a, const void *b);
+int cmp_usec_asc (const void *a, const void *b);
+int parse_log (GLog ** logger, char *tail, int n);
+int test_format (GLog * logger);
+void reset_struct (GLog * logger);
 
 #endif

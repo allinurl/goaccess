@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -21,12 +21,60 @@
 #ifndef SETTINGS_H_INCLUDED
 #define SETTINGS_H_INCLUDED
 
-#ifndef COMMONS
-#  include "commons.h"
-#endif
+/*
+ * predefined log dates 
+ */
+typedef struct GPreConfDate_
+{
+   char *apache;
+   char *w3c;
+   char *cloudfront;
+} GPreConfDate;
 
-int parse_conf_file (void);
-void write_conf_file (void);
-int verify_format (struct logger *logger);
+/*
+ * predefined log formats 
+ */
+typedef struct GPreConfLog_
+{
+   char *combined;
+   char *common;
+   char *vcombined;
+   char *vcommon;
+   char *w3c;
+   char *cloudfront;
+} GPreConfLog;
+
+typedef struct GConfKeyword_
+{
+   unsigned short key_id;
+   char *keyword;
+} GConfKeyword;
+
+typedef struct GConf_
+{
+   char *ifile;
+   char *ignore_host;
+   char *date_format;
+   char *log_format;
+   int color_scheme;
+   int list_agents;
+   int load_conf_dlg;
+   int skip_resolver;
+   int output_html;
+   int serve_usecs;
+   int serve_secs;
+   int bandwidth;
+} GConf;
+
+char *get_selected_date_str (size_t idx);
+char *get_selected_format_str (size_t idx);
+size_t get_selected_format_idx ();
+
+extern GConf conf;
+extern char *tmp_log_format;
+extern char *tmp_date_format;
+
+int parse_conf_file ();
+void write_conf_file ();
 
 #endif

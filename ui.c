@@ -1,6 +1,6 @@
 /**
- * ui.c -- curses user interface
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * ui.c -- various curses interfaces
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -19,64 +19,95 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-/* "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. */
+/*
+ * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
+ * correctly. 
+ */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
-#define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
-#define min(a, b) (((a) < (b)) ? (a) : (b))
-
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
+#define _BSD_SOURCE
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
+#include <pthread.h>
 #include <ctype.h>
 
-#ifdef HAVE_LIBGEOIP
-#  include <GeoIP.h>
-#endif
-
-#ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/menu.h>
-#  include <ncursesw/curses.h>
-#else
-#  include <ncurses.h>
-#  include <menu.h>
-#endif
-
 #include <glib.h>
-#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "alloc.h"
+#include "ui.h"
+
 #include "commons.h"
 #include "error.h"
+#include "xmalloc.h"
+#include "gmenu.h"
 #include "goaccess.h"
 #include "parser.h"
-#include "ui.h"
+#include "settings.h"
 #include "util.h"
 
-static ITEM **items = NULL;
-static MENU *my_menu = NULL;
+static GSortModule module_sort[TOTAL_MODULES] = {
+   {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+};
 
 /* creation - ncurses' window handling */
 WINDOW *
-create_win (WINDOW * main_win)
+create_win (int h, int w, int y, int x)
 {
-   int y, x, h = 2, starty = 5;
-   getmaxyx (main_win, y, x);
-   return (newwin (y - h, x - 30, starty, ((x - (x - 30)) / 2)));
+   WINDOW *win = newwin (h, w, y, x);
+   if (win == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Unable to allocate memory for new WINDOW.");
+   return win;
 }
 
+void
+init_colors ()
+{
+   use_default_colors ();
+
+   init_pair (COL_BLUE, COLOR_BLUE, -1);
+   if (conf.color_scheme == MONOCHROME)
+      init_pair (COL_GREEN, COLOR_WHITE, -1);
+   else
+      init_pair (COL_GREEN, COLOR_GREEN, -1);
+
+   init_pair (COL_RED, COLOR_RED, -1);
+   init_pair (COL_BLACK, COLOR_BLACK, -1);
+   init_pair (COL_CYAN, COLOR_CYAN, -1);
+   init_pair (COL_YELLOW, COLOR_YELLOW, -1);
+
+   if (conf.color_scheme == MONOCHROME)
+      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_WHITE);
+   else
+      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);
+
+   init_pair (BLACK_GREEN, COLOR_BLACK, COLOR_GREEN);
+   init_pair (BLACK_CYAN, COLOR_BLACK, COLOR_CYAN);
+   init_pair (WHITE_RED, COLOR_WHITE, COLOR_RED);
+}
+
+/* creation - ncurses' window handling */
 void
 set_input_opts (void)
 {
@@ -99,7 +130,6 @@ close_win (WINDOW * w)
    delwin (w);
 }
 
-/* get the current date-time */
 void
 generate_time (void)
 {
@@ -110,7 +140,10 @@ generate_time (void)
 void
 draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
 {
-   if (color_scheme == MONOCHROME) {
+   char buf[256];
+   snprintf (buf, sizeof buf, "%s%s", " ", header);
+
+   if (conf.color_scheme == MONOCHROME) {
       init_pair (1, COLOR_BLACK, COLOR_WHITE);
       init_pair (2, COLOR_WHITE, -1);
    } else {
@@ -119,20 +152,8 @@ draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
    }
    wattron (win, COLOR_PAIR (color));
    mvwhline (win, y, x, ' ', w);
-   mvwaddnstr (win, y, x, header, w);
+   mvwaddnstr (win, y, x, buf, w);
    wattroff (win, COLOR_PAIR (color));
-}
-
-void
-update_header (WINDOW * header_win, int current)
-{
-   int col = getmaxx (stdscr);
-
-   wattron (header_win, COLOR_PAIR (BLUE_GREEN));
-   wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 19, "[Active Module %d]", current);
-   wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
-   wrefresh (header_win);
 }
 
 void
@@ -145,53 +166,133 @@ term_size (WINDOW * main_win)
    wmove (main_win, real_size_y, 0);
 }
 
-static void
-colour_noutput (WINDOW * header_win, char *str, int y)
+void
+update_active_module (WINDOW * header_win, GModule current)
 {
    int col = getmaxx (stdscr);
 
-   char *p;
-   int x = 2, path_flag = 0;
-   p = str;
+   wattron (header_win, COLOR_PAIR (BLUE_GREEN));
+   wmove (header_win, 0, 30);
+   mvwprintw (header_win, 0, col - 18, "[Active Module %d]", current);
+   wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
+   wrefresh (header_win);
+}
 
-   while (*p != '\0') {
-      if (x > col)
-         break;
-      /* since the path can contain # */
-      if (isdigit (p[0]) && !path_flag) {
-         wattron (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
-         mvwprintw (header_win, y, x++, "%c", *p);
-         wattroff (header_win, A_BOLD | COLOR_PAIR (COL_CYAN));
-      } else if (*p == '[') {
-         wattron (header_win, COLOR_PAIR (COL_YELLOW));
-         path_flag = 1;
-      } else
-         mvwprintw (header_win, y, x++, "%c", *p);
-      p++;
+void
+display_general (WINDOW * win, char *ifile, int piping, int processed,
+                 int invalid, unsigned long long bandwidth)
+{
+   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
+   int x_field = 2, x_value = 0;
+   char *bw, *size, *log_file;
+
+   werase (win);
+
+   draw_header (win, T_HEAD, 0, 0, getmaxx (stdscr), 1);
+
+   if (!piping && ifile != NULL) {
+      size = filesize_str (file_size (ifile));
+      log_file = alloc_string (ifile);
+   } else {
+      size = alloc_string ("N/A");
+      log_file = alloc_string ("STDIN");
    }
-   if (path_flag)
-      wattroff (header_win, COLOR_PAIR (COL_YELLOW));
+   bw = filesize_str ((float) bandwidth);
+
+   typedef struct Field_
+   {
+      char *field;
+      char *value;              /* char due to log, bw, log_file */
+      int color;
+   } Field;
+
+   /* *INDENT-OFF* */ 
+   char *failed       = int_to_str (invalid);
+   char *not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
+   char *process      = int_to_str (processed);
+   char *ref          = int_to_str (g_hash_table_size (ht_referrers));
+   char *req          = int_to_str (g_hash_table_size (ht_requests));
+   char *static_files = int_to_str (g_hash_table_size (ht_requests_static));
+   char *time         = int_to_str (((int) end_proc - start_proc));
+   char *visitors     = int_to_str (g_hash_table_size (ht_unique_visitors));
+
+   Field fields[] = {
+      {T_REQUESTS,   process,           COL_CYAN},
+      {T_UNIQUE_VIS, visitors,          COL_CYAN},
+      {T_REFERRER,   ref,               COL_CYAN},
+      {T_LOG,        size,              COL_CYAN},
+      {T_F_REQUESTS, failed,            COL_CYAN},
+      {T_UNIQUE_FIL, req,               COL_CYAN},
+      {T_UNIQUE404,  not_found,         COL_CYAN},
+      {T_BW,         bw,                COL_CYAN},
+      {T_GEN_TIME,   time,              COL_CYAN},
+      {T_STATIC_FIL, static_files,      COL_CYAN},
+      {"",           alloc_string (""), COL_CYAN},
+      {T_LOG_PATH,   log_file,          COL_YELLOW}
+   };
+   n = ARRAY_SIZE (fields);
+
+   /* *INDENT-ON* */
+   for (i = 0, y = 2; i < n; i++) {
+      mod_val = i % 4;
+      if (i > 0 && mod_val == 0) {
+         max_field = 0;
+         max_value = 0;
+         x_field = 2;
+         x_value = 2;
+         y++;
+      }
+
+      x_field += max_field;
+      mvwprintw (win, y, x_field, "%s", fields[i].field);
+
+      max_field = 0;
+      for (j = 0; j < n; j++) {
+         size_t len = strlen (fields[j].field);
+         if (j % 4 == mod_val && len > max_field)
+            max_field = len;
+      }
+
+      max_value = 0;
+      for (j = 0; j < n; j++) {
+         size_t len = strlen (fields[j].value);
+         if (j % 4 == mod_val && len > max_value)
+            max_value = len;
+      }
+      x_value = max_field + x_field + 1;
+      max_field += max_value + 2;
+
+      wattron (win, A_BOLD | COLOR_PAIR (fields[i].color));
+      mvwprintw (win, y, x_value, "%s", fields[i].value);
+      wattroff (win, A_BOLD | COLOR_PAIR (fields[i].color));
+   }
+   for (i = 0; i < n; i++) {
+      free (fields[i].value);
+   }
 }
 
 char *
-input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
+input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, char *str,
+              int enable_case, int *toggle_case)
 {
-   char *s = malloc (max_width + 1), *tmp;
-   if (s == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory.");
-   int pos = 0, x = 0, quit = 1, c;
-   int size_x = getmaxx (win);
+   char *s = xmalloc (max_width + 1), *tmp;
+   size_t pos = 0, x = 0, quit = 1, c;
+
+   /* window dimensions */
+   size_t size_x = 0, size_y = 0;
+   getmaxyx (win, size_y, size_x);
    size_x -= 4;
 
+   /* are we setting a default string */
    if (str) {
-      size_t len = min (max_width, strlen (str));
+      size_t len = MIN (max_width, strlen (str));
       memcpy (s, str, len);
       s[len] = '\0';
 
       x = pos = 0;
+      /* is the default str length greater than input field? */
       if (strlen (s) > size_x) {
-         tmp = strdup (&s[0]);
+         tmp = xstrdup (&s[0]);
          tmp[size_x] = '\0';
          mvwprintw (win, pos_y, pos_x, "%s", tmp);
          free (tmp);
@@ -200,6 +301,9 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
    } else
       s[0] = '\0';
 
+   if (enable_case)
+      draw_header (win, "[x] case sensitive", 1, size_y - 2, size_x - 2, 2);
+
    wmove (win, pos_y, pos_x + x);
    wrefresh (win);
 
@@ -207,12 +311,12 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
    while (quit) {
       c = wgetch (stdscr);
       switch (c) {
-       case 1:
-       case 262:
+       case 1:                 /* ^a   */
+       case 262:               /* HOME */
           pos = x = 0;
           break;
        case 5:
-       case 360:
+       case 360:               /* END of line */
           if (strlen (s) > size_x) {
              x = size_x;
              pos = strlen (s) - size_x;
@@ -221,14 +325,25 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
              x = strlen (s);
           }
           break;
-       case 7:
-       case 27:
+       case 7:                 /* ^g  */
+       case 27:                /* ESC */
           pos = x = 0;
-          if (!str)
+          if (str && *str == '\0')
              s[0] = '\0';
           quit = 0;
           break;
-       case 21:
+       case 9:                 /* TAB   */
+          if (!enable_case)
+             break;
+          *toggle_case = *toggle_case == 0 ? 1 : 0;
+          if (*toggle_case)
+             draw_header (win, "[ ] case sensitive", 1, size_y - 2, size_x - 2,
+                          2);
+          else if (!*toggle_case)
+             draw_header (win, "[x] case sensitive", 1, size_y - 2, size_x - 2,
+                          2);
+          break;
+       case 21:                /* ^u */
           s[0] = '\0';
           pos = x = 0;
           break;
@@ -283,9 +398,9 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
                 pos++;
           }
       }
-      int i;
-      tmp = strdup (&s[pos > 0 ? pos : 0]);
-      tmp[min (strlen (tmp), size_x)] = '\0';
+      size_t i;
+      tmp = xstrdup (&s[pos > 0 ? pos : 0]);
+      tmp[MIN (strlen (tmp), size_x)] = '\0';
       for (i = strlen (tmp); i < size_x; i++)
          mvwprintw (win, pos_y, pos_x + i, "%s", " ");
       mvwprintw (win, pos_y, pos_x, "%s", tmp);
@@ -298,80 +413,6 @@ input_string (WINDOW * win, int pos_y, int pos_x, int max_width, char *str)
    return s;
 }
 
-void
-display_general (WINDOW * header_win, struct logger *logger, char *ifile)
-{
-   int col = getmaxx (stdscr);
-   draw_header (header_win, T_HEAD, 0, 0, col, 1);
-
-   /* general stats */
-   char *bw, *size;
-   if (!piping) {
-      off_t log_size = file_size (ifile);
-      size = filesize_str (log_size);
-   } else
-      size = alloc_string ("N/A");
-
-   bw = filesize_str ((float) req_size);
-
-   char *line1, *line2, *line3;
-   const char *format_line1 = "%-15s %-9d %-15s %-9d %-10s %-9d %-3s %s";
-   const char *format_line2 = "%-15s %-9lu %-15s %-9d [%s";
-
-   size_t len1, len2, len3;
-
-   if (ifile == NULL)
-      ifile = "STDIN";
-
-   /* first row */
-   len1 =
-      snprintf (NULL, 0, format_line1, T_REQUESTS, logger->total_process,
-                T_UNIQUE_VIS, g_hash_table_size (ht_unique_visitors),
-                T_REFERRER, g_hash_table_size (ht_referrers), T_LOG, size);
-   line1 = malloc (len1 + 1);
-   if (line1 == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (line1, format_line1, T_REQUESTS, logger->total_process,
-            T_UNIQUE_VIS, g_hash_table_size (ht_unique_visitors), T_REFERRER,
-            g_hash_table_size (ht_referrers), T_LOG, size);
-   colour_noutput (header_win, line1, 2);
-   free (line1);
-
-   /* second row */
-   len2 =
-      snprintf (NULL, 0, format_line1, T_F_REQUESTS, logger->total_invalid,
-                T_UNIQUE_FIL, g_hash_table_size (ht_requests), T_UNIQUE404,
-                g_hash_table_size (ht_not_found_requests), T_BW, bw);
-   line2 = malloc (len2 + 1);
-   if (line2 == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (line2, format_line1, T_F_REQUESTS, logger->total_invalid,
-            T_UNIQUE_FIL, g_hash_table_size (ht_requests), T_UNIQUE404,
-            g_hash_table_size (ht_not_found_requests), T_BW, bw);
-   colour_noutput (header_win, line2, 3);
-   free (line2);
-
-   /* third row */
-   len3 =
-      snprintf (NULL, 0, format_line2, T_GEN_TIME,
-                ((int) end_proc - start_proc), T_STATIC_FIL,
-                g_hash_table_size (ht_requests_static), ifile);
-   line3 = malloc (len3 + 1);
-   if (line3 == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (line3, format_line2, T_GEN_TIME, ((int) end_proc - start_proc),
-            T_STATIC_FIL, g_hash_table_size (ht_requests_static), ifile);
-   colour_noutput (header_win, line3, 4);
-   free (line3);
-
-   /* clean up */
-   free (size);
-   free (bw);
-}
-
 char *
 ht_bw_str (GHashTable * ht, const char *key)
 {
@@ -379,695 +420,463 @@ ht_bw_str (GHashTable * ht, const char *key)
 
    value_ptr = g_hash_table_lookup (ht, key);
    if (value_ptr != NULL)
-      return filesize_str (*(long long *) value_ptr);
+      return filesize_str (*(unsigned long long *) value_ptr);
    else
       return alloc_string ("-");
 }
 
-static void
-create_graphs (WINDOW * main_win, struct struct_display **s_display,
-               struct logger *logger, int i, int module, int max)
+/* get human-readable bandwidth given X bytes */
+char *
+bandwidth_string (unsigned long long bw)
 {
-   char buf[12] = "";           /* date */
-   float l_bar, scr_cal, orig_cal;
-   int x, y, xx, r;
-   struct tm tm;
-
-   GHashTable *hash_table = NULL;
-
-   memset (&tm, 0, sizeof (tm));
-
-   getyx (main_win, y, x);
-   x = x;                       /* Get rid of "set but not used" lint warning */
-   int col = getmaxx (stdscr);
-
-   switch (module) {
-    case UNIQUE_VISITORS:
-       hash_table = ht_unique_visitors;
-       break;
-    case HOSTS:
-       hash_table = ht_hosts;
-       break;
-    case STATUS_CODES:
-       hash_table = ht_status_code;
-       break;
-   }
-
-   int padding_rx = 0, magn = 0;
-   int padding_gx = 0;          /* only graph padding */
-
-   magn = floor (log10 (logger->total_process));
-   if (magn >= 7)
-      padding_rx = magn % 5;
-   else
-      padding_rx = 0;
-
-   l_bar = (float) (s_display[i]->hits * 100);
-   orig_cal = (float) (s_display[i]->hits * 100);
-
-   /* hosts - status codes */
-   if (module != 8 && module != 9)
-      orig_cal = (l_bar / g_hash_table_size (hash_table));
-   else
-      orig_cal = (orig_cal / logger->total_process);
-
-   l_bar = (l_bar / max);
-   /* unique visitors */
-   if (s_display[i]->module == 1) {
-      strptime (s_display[i]->data, "%Y%m%d", &tm);
-      strftime (buf, sizeof (buf), "%d/%b/%Y", &tm);
-      mvwprintw (main_win, y, 18 + padding_rx, "%s", buf);
-      /* bandwidth */
-      char *bw = ht_bw_str (ht_date_bw, s_display[i]->data);
-      wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-      mvwprintw (main_win, y, 31 + padding_rx, "%9s", bw);
-      wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-      free (bw);
-   } else if (s_display[i]->module == 9)
-      /* HTTP status codes */
-      mvwprintw (main_win, y, 18 + padding_rx, "%s\t%s",
-                 s_display[i]->data, verify_status_code (s_display[i]->data));
-   else
-      mvwprintw (main_win, y, 18 + padding_rx, "%s", s_display[i]->data);
-   mvwprintw (main_win, y, 2, "%d", s_display[i]->hits);
-   if (s_display[i]->hits == max)
-      wattron (main_win, COLOR_PAIR (COL_YELLOW));
-   else
-      wattron (main_win, COLOR_PAIR (COL_RED));
-   mvwprintw (main_win, y, 10 + padding_rx, "%4.2f%%", orig_cal);
-   if (s_display[i]->hits == max)
-      wattroff (main_win, COLOR_PAIR (COL_YELLOW));
-   else
-      wattroff (main_win, COLOR_PAIR (COL_RED));
-   if (s_display[i]->module == 9)
-      return;
-
-   if (s_display[i]->module == 1)
-      padding_gx = 44;
-   else
-      padding_gx = 36;
-   scr_cal = (float) ((col - padding_gx) - padding_rx);
-   scr_cal = (float) scr_cal / 100;
-   l_bar = l_bar * scr_cal;
-
-   wattron (main_win, COLOR_PAIR (COL_GREEN));
-   for (r = 0, xx = padding_gx - 2 + padding_rx; r < (int) l_bar; r++, xx++)
-      mvwprintw (main_win, y, xx, "|");
-   wattroff (main_win, COLOR_PAIR (COL_GREEN));
+   return filesize_str (bw);
 }
 
-static int
-get_max_value (struct struct_display **s_display, struct logger *logger,
-               int module)
+/* allocate memory for a new instace of GAgents */
+GAgents *
+new_gagents (unsigned int n)
 {
-   int i, temp = 0;
-   for (i = 0; i < logger->alloc_counter; i++) {
-      if (s_display[i]->module == module) {
-         if (s_display[i]->hits > temp)
-            temp = s_display[i]->hits;
-      }
-   }
-   return temp;
-}
-
-static void
-data_by_total_hits (WINDOW * main_win, int pos_y, struct logger *logger,
-                    struct struct_display **s_display, int i)
-{
-   float h = 0, t = 0;
-   int padding_rx = 0, magn = 0;
-   int col = getmaxx (main_win);
-
-   if (s_display[i]->hits == 0)
-      return;
-
-   h = (s_display[i]->hits * 100);
-   t = (h / logger->total_process);
-
-   magn = floor (log10 (logger->total_process));
-   if (magn >= 7)
-      padding_rx = magn % 5;
-   else
-      padding_rx = 0;
-
-   char *c_data = s_display[i]->data;   /* current m_data */
-   int c_mod = s_display[i]->module;    /* current module */
-
-   if ((c_mod == REQUESTS) || (c_mod == REQUESTS_STATIC)) {
-      char *bw = ht_bw_str (ht_file_bw, c_data);
-      wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-      mvwprintw (main_win, pos_y, 18 + padding_rx, "%9s", bw);
-      wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-      if (strlen (c_data) > ((size_t) (col - 32))) {
-         char *str = (char *) malloc (col - 32 + 1);
-         if (str == NULL)
-            error_handler (__PRETTY_FUNCTION__, __FILE__,
-                           __LINE__, "Unable to allocate memory");
-         strncpy (str, c_data, col - 32);
-         (str)[col - 32] = 0;
-         mvwprintw (main_win, pos_y, 29 + padding_rx, "%s", str);
-         free (str);
-      } else
-         mvwprintw (main_win, pos_y, 29 + padding_rx, "%s", c_data);
-      free (bw);
-   } else if (strlen (c_data) > ((size_t) (col - 22))) {
-      char *str = (char *) malloc (col - 22 + 1);
-      if (str == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__,
-                        __LINE__, "Unable to allocate memory");
-      strncpy (str, c_data, col - 22);
-      (str)[col - 22] = 0;
-      mvwprintw (main_win, pos_y, 18 + padding_rx, "%s", str);
-      free (str);
-   } else
-      mvwprintw (main_win, pos_y, 18 + padding_rx, "%s", c_data);
-
-   wattron (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-   mvwprintw (main_win, pos_y, 10 + padding_rx, "%4.2f%%", t);
-   wattroff (main_win, A_BOLD | COLOR_PAIR (COL_BLACK));
-}
-
-/* ###NOTE: Modules 6, 7 are based on module 1 totals
-   this way we avoid the overhead of adding them up */
-void
-display_content (WINDOW * main_win, struct struct_display **s_display,
-                 struct logger *logger, struct scrolling scrolling)
-{
-   int i, max = 0, until = 0, start = 0, pos_y = 0;
-
-   int x = getmaxx (main_win);
-   getmaxyx (stdscr, term_h, term_w);
-
-   if (term_h < MIN_HEIGHT || term_w < MIN_WIDTH)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Minimum screen size - 0 columns by 7 lines");
-
-   if (logger->alloc_counter > real_size_y)
-      until = real_size_y + scrolling.init_scrl_main_win;
-   else
-      until = logger->alloc_counter;
-
-   start = scrolling.init_scrl_main_win;
-
-   /* making sure we dont go over logger->alloc_counter */
-   if (until > logger->alloc_counter)
-      until = logger->alloc_counter;
-
-   for (i = start; i < until; i++, pos_y++) {
-      if (s_display[i]->hits != 0)
-         mvwprintw (main_win, pos_y, 2, "%d", s_display[i]->hits);
-      /* draw headers */
-      if ((i % 10) == 0)
-         draw_header (main_win, s_display[i]->data, 0, pos_y, x, 1);
-      else if ((i % 10) == 1) {
-         draw_header (main_win, s_display[i]->data, 0, pos_y, x, 2);
-      } else if (((s_display[i]->module == UNIQUE_VISITORS))
-                 && ((i % 10 >= 3) && (i % 10 <= 8)
-                     && (s_display[i]->hits != 0))) {
-         max = get_max_value (s_display, logger, UNIQUE_VISITORS);
-         create_graphs (main_win, s_display, logger, i, 1, max);
-
-      } else if (((s_display[i]->module == OS))
-                 && ((i % 10 >= 3) && (i % 10 <= 8)
-                     && (s_display[i]->hits != 0))) {
-         max = get_max_value (s_display, logger, OS);
-         create_graphs (main_win, s_display, logger, i, 1, max);
-
-      } else if (((s_display[i]->module == BROWSERS))
-                 && ((i % 10 >= 3) && (i % 10 <= 8)
-                     && (s_display[i]->hits != 0))) {
-         max = get_max_value (s_display, logger, BROWSERS);
-         create_graphs (main_win, s_display, logger, i, 1, max);
-
-      } else if (((s_display[i]->module == HOSTS))
-                 && ((i % 10 >= 3) && (i % 10 <= 8)
-                     && (s_display[i]->hits != 0))) {
-         max = get_max_value (s_display, logger, HOSTS);
-         create_graphs (main_win, s_display, logger, i, HOSTS, max);
-
-      } else if (((s_display[i]->module == STATUS_CODES))
-                 && ((i % 10 >= 3) && (i % 10 <= 8)
-                     && (s_display[i]->hits != 0))) {
-         max = get_max_value (s_display, logger, STATUS_CODES);
-         create_graphs (main_win, s_display, logger, i, STATUS_CODES, max);
-
-      } else
-         data_by_total_hits (main_win, pos_y, logger, s_display, i);
-   }
-}
-
-/* ###NOTE: Modules 6, 7 are based on module 1 totals
-   this way we avoid the overhead of adding them up */
-void
-do_scrolling (WINDOW * main_win, struct struct_display **s_display,
-              struct logger *logger, struct scrolling *scrolling, int cmd)
-{
-   int cur_y, cur_x, max = 0;
-   int x = getmaxx (main_win);
-   getyx (main_win, cur_y, cur_x);      /* cursor */
-   cur_x = cur_x;               /* Get rid of "set but not used" lint warning */
-
-   int i = real_size_y + scrolling->init_scrl_main_win;
-   int j = scrolling->init_scrl_main_win - 1;
-
-   switch (cmd) {
-       /* scroll down main window */
-    case 1:
-       if (!(i < logger->alloc_counter))
-          return;
-       scrollok (main_win, TRUE);
-       wscrl (main_win, 1);
-       scrollok (main_win, FALSE);
-
-       if (s_display[i]->hits != 0)
-          mvwprintw (main_win, cur_y, 2, "%d", s_display[i]->hits);
-       /* draw headers */
-       if ((i % 10) == 0)
-          draw_header (main_win, s_display[i]->data, 0, cur_y, x, 1);
-       else if ((i % 10) == 1) {
-          draw_header (main_win, s_display[i]->data, 0, cur_y, x, 2);
-       } else if (((s_display[i]->module == UNIQUE_VISITORS))
-                  && ((i % 10 >= 3) && (i % 10 <= 8)
-                      && (s_display[i]->hits != 0))) {
-          max = get_max_value (s_display, logger, UNIQUE_VISITORS);
-          create_graphs (main_win, s_display, logger, i, 1, max);
-
-       } else if (((s_display[i]->module == OS))
-                  && ((i % 10 >= 3) && (i % 10 <= 8)
-                      && (s_display[i]->hits != 0))) {
-          max = get_max_value (s_display, logger, OS);
-          create_graphs (main_win, s_display, logger, i, 1, max);
-
-       } else if (((s_display[i]->module == BROWSERS))
-                  && ((i % 10 >= 3) && (i % 10 <= 8)
-                      && (s_display[i]->hits != 0))) {
-          max = get_max_value (s_display, logger, BROWSERS);
-          create_graphs (main_win, s_display, logger, i, 1, max);
-
-       } else if (((s_display[i]->module == HOSTS))
-                  && ((i % 10 >= 3) && (i % 10 <= 8)
-                      && (s_display[i]->hits != 0))) {
-          max = get_max_value (s_display, logger, HOSTS);
-          create_graphs (main_win, s_display, logger, i, 8, max);
-
-       } else if (((s_display[i]->module == STATUS_CODES))
-                  && ((i % 10 >= 3) && (i % 10 <= 8)
-                      && (s_display[i]->hits != 0))) {
-          max = get_max_value (s_display, logger, STATUS_CODES);
-          create_graphs (main_win, s_display, logger, i, 9, max);
-
-       } else
-          data_by_total_hits (main_win, cur_y, logger, s_display, i);
-
-       scrolling->scrl_main_win++;
-       scrolling->init_scrl_main_win++;
-       break;
-       /* scroll up main window */
-    case 0:
-       if (!(j >= 0))
-          return;
-       scrollok (main_win, TRUE);
-       wscrl (main_win, -1);
-       scrollok (main_win, FALSE);
-
-       if (s_display[j]->hits != 0)
-          mvwprintw (main_win, 0, 2, "%d", s_display[j]->hits);
-       /* draw headers */
-       if ((j % 10) == 0)
-          draw_header (main_win, s_display[j]->data, 0, 0, x, 1);
-       else if ((j % 10) == 1) {
-          draw_header (main_win, s_display[j]->data, 0, 0, x, 2);
-       } else if (((s_display[j]->module == UNIQUE_VISITORS))
-                  && ((j % 10 >= 3) && (j % 10 <= 8)
-                      && (s_display[j]->hits != 0))) {
-          max = get_max_value (s_display, logger, UNIQUE_VISITORS);
-          create_graphs (main_win, s_display, logger, j, 1, max);
-       } else if (((s_display[j]->module == OS))
-                  && ((j % 10 >= 3) && (j % 10 <= 8)
-                      && (s_display[j]->hits != 0))) {
-          max = get_max_value (s_display, logger, OS);
-          create_graphs (main_win, s_display, logger, j, 1, max);
-       } else if (((s_display[j]->module == BROWSERS))
-                  && ((j % 10 >= 3) && (j % 10 <= 8)
-                      && (s_display[j]->hits != 0))) {
-          max = get_max_value (s_display, logger, BROWSERS);
-          create_graphs (main_win, s_display, logger, j, 1, max);
-       } else if (((s_display[j]->module == HOSTS))
-                  && ((j % 10 >= 3) && (j % 10 <= 8)
-                      && (s_display[j]->hits != 0))) {
-          max = get_max_value (s_display, logger, HOSTS);
-          create_graphs (main_win, s_display, logger, j, 8, max);
-
-       } else if (((s_display[j]->module == STATUS_CODES))
-                  && ((j % 10 >= 3) && (j % 10 <= 8)
-                      && (s_display[j]->hits != 0))) {
-          max = get_max_value (s_display, logger, STATUS_CODES);
-          create_graphs (main_win, s_display, logger, j, 9, max);
-
-       } else
-          data_by_total_hits (main_win, cur_y, logger, s_display, j);
-
-       scrolling->scrl_main_win--;
-       scrolling->init_scrl_main_win--;
-       break;
-   }
-}
-
-static void
-load_help_popup_content (WINDOW * inner_win, int where,
-                         struct scrolling *scrolling)
-{
-   int y = getmaxy (inner_win);
-
-   switch (where) {
-       /* scroll down */
-    case 1:
-       if (((size_t) (scrolling->scrl_help_win - 5)) >= help_main_size ())
-          return;
-       scrollok (inner_win, TRUE);
-       wscrl (inner_win, 1);
-       scrollok (inner_win, FALSE);
-       wmove (inner_win, y - 1, 2);
-       /* minus help_win offset - 5 */
-       mvwaddstr (inner_win, y - 1, 2,
-                  help_main[scrolling->scrl_help_win - 5]);
-       scrolling->scrl_help_win++;
-       break;
-       /* scroll up */
-    case 0:
-       if ((scrolling->scrl_help_win - y) - 5 <= 0)
-          return;
-       scrollok (inner_win, TRUE);
-       wscrl (inner_win, -1);
-       scrollok (inner_win, FALSE);
-       wmove (inner_win, 0, 2);
-       /* minus help_win offset - 6 */
-       mvwaddstr (inner_win, 0, 2,
-                  help_main[(scrolling->scrl_help_win - y) - 6]);
-       scrolling->scrl_help_win--;
-       break;
-   }
-   wrefresh (inner_win);
-}
-
-void
-load_help_popup (WINDOW * help_win, size_t startx)
-{
-   int y, x, c, quit = 1;
-   size_t sz;
-   struct scrolling scrolling;
-   WINDOW *inner_win;
-
-   getmaxyx (help_win, y, x);
-   draw_header (help_win,
-                "  Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit", 0, 1,
-                x, 2);
-   wborder (help_win, '|', '|', '-', '-', '+', '+', '+', '+');
-   inner_win = newwin (y - 5, x - 4, 8, startx + 2);
-   sz = help_main_size ();
-
-   int i, m = 0;
-   for (i = 0; (i < y) && (((size_t) i) < sz); i++, m++)
-      mvwaddstr (inner_win, m, 2, help_main[i]);
-
-   scrolling.scrl_help_win = y;
-   wmove (help_win, y, 0);
-   wrefresh (help_win);
-   wrefresh (inner_win);
-
-   while (quit) {
-      c = wgetch (stdscr);
-      switch (c) {
-       case KEY_DOWN:
-          (void) load_help_popup_content (inner_win, 1, &scrolling);
-          break;
-       case KEY_UP:
-          (void) load_help_popup_content (inner_win, 0, &scrolling);
-          break;
-       case KEY_RESIZE:
-       case 'q':
-          quit = 0;
-          break;
-      }
-      wrefresh (help_win);
-   }
-   render_screens ();
-}
-
-static void
-scrl_agent_win (WINDOW * inner_win, int where, struct scrolling *scrolling,
-                struct struct_agents *s_agents, size_t alloc)
-{
-   int y = getmaxy (inner_win);
-
-   switch (where) {
-       /* scroll down */
-    case 1:
-       if ((scrolling->scrl_agen_win > alloc - 1)
-           || (s_agents[scrolling->scrl_agen_win].agents == NULL))
-          return;
-       scrollok (inner_win, TRUE);
-       wscrl (inner_win, 1);
-       scrollok (inner_win, FALSE);
-       wmove (inner_win, y - 1, 2);
-       /* minus help_win offset - 0 */
-       mvwaddstr (inner_win, y - 1, 1,
-                  s_agents[scrolling->scrl_agen_win].agents);
-       scrolling->scrl_agen_win++;
-       break;
-       /* scroll up */
-    case 0:
-       if (scrolling->scrl_agen_win - y < 1)
-          return;
-       scrollok (inner_win, TRUE);
-       wscrl (inner_win, -1);
-       scrollok (inner_win, FALSE);
-       wmove (inner_win, 0, 2);
-       /* minus help_win offset - y */
-       mvwaddstr (inner_win, 0, 1,
-                  s_agents[(scrolling->scrl_agen_win - y) - 1].agents);
-       scrolling->scrl_agen_win--;
-       break;
-   }
-   wrefresh (inner_win);
+   GAgents *agents = xcalloc (n, sizeof (GAgents));
+   return agents;
 }
 
 /* split agent str if length > max or if '|' is found */
-void
-split_agent_str (char *ptr_value, struct struct_agents *s_agents, size_t max)
+int
+split_agent_str (char *ptr_value, GAgents * agents, int max)
 {
    char *holder;
    char *p = ptr_value;
    int i = 0, offset = 0;
 
-   s_agents[i].agents = malloc (max + 1);
-   if (s_agents[i].agents == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__,
-                     __LINE__, "Unable to allocate memory.");
-   holder = s_agents[i].agents;
+   agents[i].agents = xmalloc (max + 1);
+   holder = agents[i].agents;
 
    while (*p != '\0') {
+      /* add char to holder */
       if (offset < max && *p != '|') {
          *(holder++) = *(p++);
          offset++;
          continue;
-      } else if (*p == '|')
+      }
+      /* split agent string since a delim was found */
+      else if (*p == '|')
          (void) *p++;
       offset = 0;
       *holder = '\0';
-      s_agents[++i].agents = malloc (max + 1);
-      holder = s_agents[i].agents;
+      agents[++i].agents = xmalloc (max + 1);
+      holder = agents[i].agents;
    }
    *holder = '\0';
+   return i + 1;
 }
 
-static void
-load_reverse_dns_popup (WINDOW * ip_detail_win, char *addr)
+/* render a list of agents if available */
+void
+load_agent_list (WINDOW * main_win, char *addr)
 {
-   char *my_addr = NULL;
-
-#ifdef HAVE_LIBGEOIP
-   const char *location = NULL;
-#endif
-
-   int y, x, c, quit = 1;
-   struct scrolling scrolling;
-   struct struct_agents *s_agents;
-   WINDOW *inner_win = NULL;
-
-   /* make compiler happy */
-   memset (&s_agents, 0, sizeof (s_agents));
-
-   my_addr = reverse_ip (addr); /* reverse dns */
-   getmaxyx (ip_detail_win, y, x);
-   draw_header (ip_detail_win, " Reverse DNS lookup - q:quit", 1, 1, x - 2,
-                2);
-   wborder (ip_detail_win, '|', '|', '-', '-', '+', '+', '+', '+');
-   mvwprintw (ip_detail_win, 3, 2, "Reverse DNS for address: %s", addr);
-   mvwprintw (ip_detail_win, 4, 2, "%s", my_addr);
-   free (my_addr);
-
-#ifdef HAVE_LIBGEOIP
-   /* Geolocation data */
-   GeoIP *gi;
-   gi = GeoIP_new (GEOIP_STANDARD);
-   if (gi != NULL)
-      location = GeoIP_country_name_by_name (gi, addr);
-   if (location == NULL)
-      location = "Not found";
-   mvwprintw (ip_detail_win, 5, 2, "Country: %s", location);
-   if (gi != NULL)
-      GeoIP_delete (gi);
-#endif
+   if (!conf.list_agents)
+      return;
 
    char *ptr_value;
+   GAgents *agents = NULL;
    gpointer value_ptr = NULL;
+   int c, quit = 1, delims = 0;
+   int i, n = 0, alloc = 0;
+   int y, x, list_h, list_w, menu_w, menu_h;
 
-   int i, m, delims = 0;
-   size_t alloc = 0, width_max = 0, inner_y = 0, inner_x = 0;
-
-   /* agents' inner win */
-   if (y < 10)
-      goto noagentlist;         /* parent win too small to create inner_win */
-
-   inner_win = newwin (y - 8, x - 2, 14, 17);
-   if (inner_win == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory for new window.");
-   getmaxyx (inner_win, inner_y, inner_x);
-
-   /* List of User-Agents by host */
-   if (!host_agents_list_flag)
-      goto noagentlist;
+   getmaxyx (stdscr, y, x);
+   list_h = y / 2;              /* list window - height */
+   list_w = x - 4;              /* list window - width */
+   menu_h = list_h - AGENTS_MENU_Y - 1; /* menu window - height */
+   menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;     /* menu window - width */
 
    value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
    if (value_ptr != NULL) {
       ptr_value = (char *) value_ptr;
-
       delims = count_occurrences (ptr_value, '|');
-      width_max = inner_x - 4;
-      /* round-up + padding */
-      alloc = ((strlen (ptr_value) + width_max - 1) / width_max) + delims + 1;
-      s_agents = malloc (alloc * sizeof (s_agents));
-      if (s_agents == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__,
-                        __LINE__, "Unable to allocate memory.");
-      memset (s_agents, 0, alloc * sizeof (s_agents));
 
-      split_agent_str (ptr_value, s_agents, width_max);
-      for (i = 0, m = 0; (i < inner_y) && (s_agents[i].agents != NULL);
-           i++, m++)
-         mvwaddstr (inner_win, m, 1, s_agents[i].agents);
+      n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1;
+      agents = new_gagents (n);
+      alloc = split_agent_str (ptr_value, agents, menu_w);
    }
 
- noagentlist:;
+   WINDOW *win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
+   keypad (win, TRUE);
+   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
-   scrolling.scrl_agen_win = inner_y;
-   wmove (inner_win, inner_y, 0);
-   wrefresh (ip_detail_win);
-   wrefresh (inner_win);
+   /* create a new instance of GMenu and make it selectable */
+   GMenu *menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
 
-   /* ###TODO: resize child windows. */
-   /* for now we can close them up */
+   /* add items to GMenu */
+   menu->items = (GItem *) xcalloc (alloc, sizeof (GItem));
+   for (i = 0; i < alloc; ++i) {
+      menu->items[i].name = alloc_string (agents[i].agents);
+      menu->items[i].checked = 0;
+      menu->size++;
+   }
+   post_gmenu (menu);
+
+   char buf[256];
+   snprintf (buf, sizeof buf, "User Agents for %s", addr);
+   draw_header (win, buf, 1, 1, list_w - 2, 1);
+   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
+
+   wrefresh (win);
    while (quit) {
       c = wgetch (stdscr);
       switch (c) {
        case KEY_DOWN:
-          if ((value_ptr == NULL) || (alloc == 0))
-             break;
-          (void) scrl_agent_win (inner_win, 1, &scrolling, s_agents, alloc);
+          gmenu_driver (menu, REQ_DOWN);
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
           break;
        case KEY_UP:
-          if ((value_ptr == NULL) || (alloc == 0))
-             break;
-          (void) scrl_agent_win (inner_win, 0, &scrolling, s_agents, alloc);
+          gmenu_driver (menu, REQ_UP);
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
           break;
        case KEY_RESIZE:
        case 'q':
           quit = 0;
           break;
       }
-      wrefresh (ip_detail_win);
+      wrefresh (win);
+   }
+   /* clean stuff up */
+   for (i = 0; i < alloc; ++i)
+      free (menu->items[i].name);
+   free (menu->items);
+   free (menu);
+
+   for (i = 0; i < alloc; ++i)
+      free (agents[i].agents);
+   if (agents)
+      free (agents);
+
+   touchwin (main_win);
+   close_win (win);
+   wrefresh (main_win);
+}
+
+void
+ui_spinner (void *ptr_data)
+{
+   GSpinner *spinner = (GSpinner *) ptr_data;
+   static char const spin_chars[] = "/-\\|";
+   int i = 0;
+   while (1) {
+      pthread_mutex_lock (&spinner->mutex);
+      if (spinner->state == SPN_END)
+         break;
+      wattron (spinner->win, COLOR_PAIR (spinner->color));
+      mvwaddch (spinner->win, spinner->y, spinner->x, spin_chars[i++ & 3]);
+      wattroff (spinner->win, COLOR_PAIR (spinner->color));
+      wrefresh (spinner->win);
+      pthread_mutex_unlock (&spinner->mutex);
+      usleep (100000);
+   }
+   free (spinner);
+}
+
+void
+ui_spinner_create (GSpinner * spinner)
+{
+   pthread_create (&(spinner->thread), NULL, (void *) &ui_spinner, spinner);
+   pthread_detach (spinner->thread);
+}
+
+GSpinner *
+new_gspinner ()
+{
+   int y, x;
+   getmaxyx (stdscr, y, x);
+
+   GSpinner *spinner = xcalloc (1, sizeof (GSpinner));
+
+   spinner->color = HIGHLIGHT;
+   spinner->state = SPN_RUN;
+   spinner->win = stdscr;
+   spinner->x = x - 2;
+   spinner->y = y - 1;
+
+   if (pthread_mutex_init (&(spinner->mutex), NULL))
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Failed thread mutex");
+
+   return spinner;
+}
+
+int
+verify_format (GLog * logger, GSpinner * spinner)
+{
+   char *cstm_log, *cstm_date;
+   int c, quit = 1;
+   size_t i, n;
+   int invalid = 1;
+   int y, x, h = CONF_WIN_H, w = CONF_WIN_W;
+   int w2 = w - 2;
+
+   /* conf dialog menu options */
+   char *choices[] = {
+      "Common Log Format (CLF)",
+      "Common Log Format (CLF) with Virtual Host",
+      "NCSA Combined Log Format",
+      "NCSA Combined Log Format with Virtual Host",
+      "W3C",
+      "CloudFront (Download Distribution)"
+   };
+   n = ARRAY_SIZE (choices);
+   getmaxyx (stdscr, y, x);
+
+   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   keypad (win, TRUE);
+   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+   /* create a new instance of GMenu and make it selectable */
+   GMenu *menu =
+      new_gmenu (win, CONF_MENU_H, CONF_MENU_W, CONF_MENU_Y, CONF_MENU_X);
+   menu->size = n;
+   menu->selectable = 1;
+
+   /* add items to GMenu */
+   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+   for (i = 0; i < n; ++i) {
+      menu->items[i].name = alloc_string (choices[i]);
+      size_t sel = get_selected_format_idx ();
+      menu->items[i].checked = sel == i ? 1 : 0;
+   }
+   post_gmenu (menu);
+
+   draw_header (win, "Log Format Configuration", 1, 1, w2, 1);
+   mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
+
+   /* set log format from goaccessrc if available */
+   draw_header (win, "Log Format - [c] to add/edit format", 1, 11, w2, 1);
+   if (conf.log_format) {
+      tmp_log_format = alloc_string (conf.log_format);
+      mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, conf.log_format);
+      free (conf.log_format);
+      conf.log_format = NULL;
    }
 
-   if (host_agents_list_flag) {
-      for (i = 0; (value_ptr != NULL && s_agents[i].agents != NULL); i++)
-         free (s_agents[i].agents);
-      free (s_agents);
+   /* set date format from goaccessrc if available */
+   draw_header (win, "Date Format - [d] to add/edit format", 1, 14, w2, 1);
+   if (conf.date_format) {
+      tmp_date_format = alloc_string (conf.date_format);
+      mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, conf.date_format);
+      free (conf.date_format);
+      conf.date_format = NULL;
    }
-   render_screens ();
-   return;
+
+   wrefresh (win);
+   while (quit) {
+      c = wgetch (stdscr);
+      switch (c) {
+       case KEY_DOWN:
+          gmenu_driver (menu, REQ_DOWN);
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
+          break;
+       case KEY_UP:
+          gmenu_driver (menu, REQ_UP);
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
+          break;
+       case 32:                /* space */
+          gmenu_driver (menu, REQ_SEL);
+          if (tmp_log_format)
+             free (tmp_log_format);
+
+          if (tmp_date_format)
+             free (tmp_date_format);
+
+          for (i = 0; i < n; ++i) {
+             if (menu->items[i].checked != 1)
+                continue;
+
+             tmp_log_format = get_selected_format_str (i);
+             tmp_date_format = get_selected_date_str (i);
+             draw_header (win, tmp_log_format, 1, 12, CONF_MENU_W, 0);
+             draw_header (win, tmp_date_format, 1, 15, CONF_MENU_W, 0);
+             break;
+          }
+          break;
+       case 89:                /* Y/y */
+       case 121:
+          if (tmp_log_format) {
+             conf.log_format = alloc_string (tmp_log_format);
+             quit = 0;
+          }
+          break;
+       case 99:                /* c */
+          /* clear top status bar */
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
+          wmove (win, 12, 2);
+
+          /* get input string */
+          cstm_log = input_string (win, 12, 2, 70, tmp_log_format, 0, 0);
+          if (cstm_log != NULL && *cstm_log != '\0') {
+             if (tmp_log_format)
+                free (tmp_log_format);
+             tmp_log_format = alloc_string (cstm_log);
+             free (cstm_log);
+          } else {
+             if (cstm_log)
+                free (cstm_log);
+             if (tmp_log_format) {
+                free (tmp_log_format);
+                tmp_log_format = NULL;
+             }
+          }
+          break;
+       case 100:               /* d */
+          /* clear top status bar */
+          draw_header (win, "", 2, 3, CONF_MENU_W, 0);
+          wmove (win, 15, 0);
+
+          /* get input string */
+          cstm_date = input_string (win, 15, 2, 14, tmp_date_format, 0, 0);
+          if (cstm_date != NULL && *cstm_date != '\0') {
+             if (tmp_date_format)
+                free (tmp_date_format);
+             tmp_date_format = alloc_string (cstm_date);
+             free (cstm_date);
+          } else {
+             if (cstm_date)
+                free (cstm_date);
+             if (tmp_date_format) {
+                free (tmp_date_format);
+                tmp_date_format = NULL;
+             }
+          }
+          break;
+       case 274:               /* F10 */
+       case 0x0a:
+       case 0x0d:
+       case KEY_ENTER:
+          /* display status bar error messages */
+          if (tmp_date_format == NULL)
+             draw_header (win, "Select a date format.", 2, 3, CONF_MENU_W,
+                          WHITE_RED);
+          if (tmp_log_format == NULL)
+             draw_header (win, "Select a log format.", 2, 3, CONF_MENU_W,
+                          WHITE_RED);
+
+          if (tmp_log_format && tmp_date_format) {
+             conf.date_format = alloc_string (tmp_date_format);
+             conf.log_format = alloc_string (tmp_log_format);
+
+             /* test log against selected settings */
+             if (test_format (logger)) {
+                invalid = 1;
+                draw_header (win, "No valid hits. 'y' to continue anyway.", 2,
+                             3, CONF_MENU_W, WHITE_RED);
+                free (conf.date_format);
+                free (conf.log_format);
+
+                conf.date_format = NULL;
+                conf.log_format = NULL;
+             }
+             /* valid data, reset logger & start parsing */
+             else {
+                reset_struct (logger);
+                draw_header (win, "Parsing...", 2, 3, CONF_MENU_W, BLACK_CYAN);
+
+                /* start spinner thread */
+                spinner->win = win;
+                spinner->y = 3;
+                spinner->x = w - 4;
+                spinner->color = BLACK_CYAN;
+                ui_spinner_create (spinner);
+
+                invalid = 0;
+                quit = 0;
+             }
+          }
+          break;
+       case KEY_RESIZE:
+       case 'q':
+          quit = 0;
+          break;
+      }
+      pthread_mutex_lock (&spinner->mutex);
+      wrefresh (win);
+      pthread_mutex_unlock (&spinner->mutex);
+   }
+   /* clean stuff up */
+   for (i = 0; i < n; ++i)
+      free (menu->items[i].name);
+   free (menu->items);
+   free (menu);
+
+   return invalid ? 1 : 0;
 }
 
 static void
 scheme_chosen (char *name)
 {
    if (strcmp ("Monochrome/Default", name) == 0)
-      color_scheme = MONOCHROME;
+      conf.color_scheme = MONOCHROME;
    else
-      color_scheme = STD_GREEN;
+      conf.color_scheme = STD_GREEN;
    init_colors ();
-   render_screens ();
 }
 
 void
-load_schemes_win (WINDOW * schemes_win, size_t startx)
+load_schemes_win (WINDOW * main_win)
 {
-   char *choices[] = { "Monochrome/Default", "Green/Original" };
-   int y, x, c, quit = 1, n_choices, i;
-   ITEM *cur_item;
-   ITEM **my_items;
-   MENU *menu;
+   int c, quit = 1;
+   size_t i, n;
+   int y, x, h = SCHEME_WIN_H, w = SCHEME_WIN_W;
+   int w2 = w - 2;
 
-   /* Create items */
-   n_choices = ARRAY_SIZE (choices);
-   my_items = (ITEM **) malloc (sizeof (ITEM *) * (n_choices + 1));
-   for (i = 0; i < n_choices; ++i) {
-      my_items[i] = new_item (choices[i], choices[i]);
-      set_item_userptr (my_items[i], scheme_chosen);
+   char *choices[] = {
+      "Monochrome/Default",
+      "Green/Original"
+   };
+
+   n = ARRAY_SIZE (choices);
+   getmaxyx (stdscr, y, x);
+
+   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   keypad (win, TRUE);
+   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+   /* create a new instance of GMenu and make it selectable */
+   GMenu *menu = new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y,
+                            SCHEME_MENU_X);
+   menu->size = n;
+
+   /* add items to GMenu */
+   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+   for (i = 0; i < n; ++i) {
+      menu->items[i].name = alloc_string (choices[i]);
+      menu->items[i].checked = 0;
    }
-   my_items[n_choices] = (ITEM *) NULL;
+   post_gmenu (menu);
 
-   /* crate menu */
-   menu = new_menu (my_items);
-   menu_opts_off (menu, O_SHOWDESC);
-   keypad (schemes_win, TRUE);
+   draw_header (win, "Scheme Configuration", 1, 1, w2, 1);
+   mvwprintw (win, 2, 2, "[ENTER] to switch scheme");
 
-   /* set main window and sub window */
-   getmaxyx (schemes_win, y, x);
-   set_menu_win (menu, schemes_win);
-   set_menu_sub (menu, derwin (schemes_win, y - 4, x - 2, 3, 1));
-   set_menu_format (menu, 5, 1);
-   set_menu_mark (menu, " > ");
-
-   draw_header (schemes_win, "  Select Color Scheme - q:quit", 0, 1, x - 1,
-                2);
-   wborder (schemes_win, '|', '|', '-', '-', '+', '+', '+', '+');
-
-   post_menu (menu);
-   wrefresh (schemes_win);
-   /* ###TODO: resize child windows. */
-   /* for now we can close them up */
+   wrefresh (win);
    while (quit) {
       c = wgetch (stdscr);
       switch (c) {
        case KEY_DOWN:
-          menu_driver (menu, REQ_DOWN_ITEM);
+          gmenu_driver (menu, REQ_DOWN);
+          draw_header (win, "", 2, 3, SCHEME_MENU_W, 0);
           break;
        case KEY_UP:
-          menu_driver (menu, REQ_UP_ITEM);
+          gmenu_driver (menu, REQ_UP);
+          draw_header (win, "", 2, 3, SCHEME_MENU_W, 0);
           break;
        case 32:
        case 0x0a:
        case 0x0d:
        case KEY_ENTER:
-          cur_item = current_item (menu);
-          if (cur_item == NULL)
+          gmenu_driver (menu, REQ_SEL);
+          for (i = 0; i < n; ++i) {
+             if (menu->items[i].checked != 1)
+                continue;
+             scheme_chosen (choices[i]);
              break;
-          void (*p) (char *);
-          p = item_userptr (cur_item);
-          p ((char *) item_name (cur_item));
-          pos_menu_cursor (menu);
+          }
           quit = 0;
           break;
        case KEY_RESIZE:
@@ -1075,621 +884,258 @@ load_schemes_win (WINDOW * schemes_win, size_t startx)
           quit = 0;
           break;
       }
-      wrefresh (schemes_win);
+      wrefresh (win);
    }
-   unpost_menu (menu);
-   free_menu (menu);
-   for (i = 0; i < n_choices; ++i) {
-      free_item (my_items[i]);
-   }
-   free (my_items);
-   render_screens ();
-   return;
-}
+   /* clean stuff up */
+   for (i = 0; i < n; ++i)
+      free (menu->items[i].name);
+   free (menu->items);
+   free (menu);
 
-char *
-get_browser_type (char *line)
-{
-   char *p;
-   char token[128];
-
-   if ((p = strchr (line, '|')) != NULL) {
-      if (sscanf (line, "%[^|]", token) == 1)
-         return line + strlen (token) + 1;
-      else {
-         token[0] = '\0';
-         return p + 1;
-      }
-   } else
-      return "Others";
-}
-
-static char *
-convert_hits_to_string (int nhits)
-{
-   char *hits = NULL;
-   hits = (char *) malloc (sizeof (char) * 11);
-   if (hits == NULL)
-      error_handler (__PRETTY_FUNCTION__,
-                     __FILE__, __LINE__, "Unable to allocate memory");
-   sprintf (hits, "%3i", nhits);
-   return hits;
-}
-
-static void
-process_monthly (struct struct_holder **s_holder, int n_months)
-{
-   /* remove old keys/vals if exist */
-   g_hash_table_destroy (ht_monthly);
-   ht_monthly =
-      g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                             g_free);
-   gpointer value_ptr;
-   int add_value, i;
-   int *ptr_value = 0;
-
-   for (i = 0; i < n_months; i++) {
-      char *month = clean_month (s_holder[i]->data);
-      value_ptr = g_hash_table_lookup (ht_monthly, month);
-      if (value_ptr != NULL) {
-         ptr_value = (int *) value_ptr;
-         add_value = *ptr_value + s_holder[i]->hits;
-      } else
-         add_value = 0 + s_holder[i]->hits;
-
-      ptr_value = g_malloc (sizeof (int));
-      *ptr_value = add_value;
-
-      g_hash_table_replace (ht_monthly, g_strdup (month), ptr_value);
-      free (month);
-   }
-}
-
-static char *
-subgraphs (struct struct_holder **s_holder, int curr, size_t x, int max)
-{
-   char *buf;
-   int len_bar = 0;
-   size_t width = (x - 38);
-
-   if ((max == 0) || (x == 0))
-      return alloc_string ("");
-
-   len_bar = ((curr * width) / max);
-
-   buf = malloc (len_bar + 1);
-   if (buf == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   memset (buf, '|', len_bar);
-   buf[len_bar] = '\0';
-
-   return buf;
-}
-
-static char *
-set_month_data_unique_visitors (char *data)
-{
-   char buf[DATELEN] = "";
-   char *buffer_month, *date = NULL, *end = NULL;
-   struct tm tm;
-
-   memset (&tm, 0, sizeof (tm));
-
-   if ((data == NULL))
-      return alloc_string ("-");
-
-   date = clean_date (data);
-   end = strptime (date, "%Y%m", &tm);
-   if (end == NULL || *end != '\0')
-      return alloc_string ("-");
-
-   if (strftime (buf, sizeof (buf), "%b/%Y", &tm) <= 0)
-      return alloc_string ("-");
-
-   buffer_month = (char *) malloc (sizeof (char) * (DATELEN));
-   if (buffer_month == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (buffer_month, "%s", buf);
-   if (date)
-      free (date);
-   return buffer_month;
-}
-
-static char *
-set_bw_data_unique_visitors (char *date, char *graph)
-{
-   char buf[DATELEN] = "";
-   char *bw, *w_bw;
-   gpointer value_ptr;
-   int len;
-   long long *ptr_value;
-
-   value_ptr = g_hash_table_lookup (ht_date_bw, date);
-   if (value_ptr == NULL)
-      return alloc_string ("-");
-
-   convert_date (buf, date, DATELEN);
-   ptr_value = (long long *) value_ptr;
-   bw = filesize_str (*ptr_value);
-   len = snprintf (NULL, 0, "|`- %s %9s %s", buf, bw, graph);
-   w_bw = malloc (len + 3);
-   if (w_bw == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory");
-   sprintf (w_bw, "|`- %s %9s %s", buf, bw, graph);
-   free (bw);
-
-   return w_bw;
-}
-
-static ITEM **
-get_menu_items (struct struct_holder **s_holder, struct logger *logger,
-                int choices, int sort, WINDOW * my_menu_win, int max)
-{
-   char *b_version = NULL, *o_version = NULL;
-   char *hits = NULL, *graph = NULL;
-   ITEM **items;
-
-   char *bw, *w_bw, *status_code, *token, *status_str;
-   gpointer value_ptr;
-   int i;
-   long long *ptr_value;
-
-   size_t x = getmaxx (my_menu_win);
-   /* sort struct prior to display */
-   if (logger->current_module == BROWSERS || logger->current_module == OS)
-      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_asc);
-   else if (!sort && logger->current_module == UNIQUE_VISITORS)
-      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_by_hits);
-   else if (logger->current_module == UNIQUE_VISITORS)
-      qsort (s_holder, choices, sizeof *s_holder, struct_cmp_desc);
-
-   items = (ITEM **) malloc (sizeof (ITEM *) * (choices + 1));
-
-   int len;                     /* str len */
-   char *data = NULL;           /* s_holder[i]->data */
-   for (i = 0; i < choices; ++i) {
-      switch (logger->current_module) {
-       case UNIQUE_VISITORS:
-          hits = convert_hits_to_string (s_holder[i]->hits);
-          if (strchr (s_holder[i]->data, '|') == NULL) {
-             graph = subgraphs (s_holder, s_holder[i]->hits, x, max);
-             data = set_bw_data_unique_visitors (s_holder[i]->data, graph);
-             items[i] = new_item (hits, data);
-             free (graph);
-             break;
-          }
-          data = set_month_data_unique_visitors (s_holder[i]->data);
-          items[i] = new_item (hits, data);
-          break;
-       case REQUESTS:
-       case REQUESTS_STATIC:
-       case HOSTS:
-          if (logger->current_module == HOSTS)
-             value_ptr = g_hash_table_lookup (ht_host_bw, s_holder[i]->data);
-          else
-             value_ptr = g_hash_table_lookup (ht_file_bw, s_holder[i]->data);
-          if (value_ptr == NULL)
-             break;
-          ptr_value = (long long *) value_ptr;
-          bw = filesize_str (*ptr_value);
-          len = snprintf (NULL, 0, "%9s - %d", bw, s_holder[i]->hits);
-          w_bw = malloc (len + 2);
-          if (w_bw == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
-          sprintf (w_bw, "%9s - %d", bw, s_holder[i]->hits);
-          items[i] = new_item (w_bw, s_holder[i]->data);
-          free (bw);
-          break;
-       case OS:
-          hits = convert_hits_to_string (s_holder[i]->hits);
-          if (strchr (s_holder[i]->data, '|') == NULL) {
-             items[i] = new_item (hits, alloc_string (s_holder[i]->data));
-             break;
-          }
-          data = get_browser_type (s_holder[i]->data);
-          len = snprintf (NULL, 0, "|`- %s", data);
-          o_version = malloc (len + 1);
-          if (o_version == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
-          sprintf (o_version, "|`- %s", get_browser_type (s_holder[i]->data));
-          items[i] = new_item (hits, o_version);
-          break;
-       case BROWSERS:
-          hits = convert_hits_to_string (s_holder[i]->hits);
-          if (strchr (s_holder[i]->data, '|') == NULL) {
-             items[i] = new_item (hits, alloc_string (s_holder[i]->data));
-             break;
-          }
-          data = get_browser_type (s_holder[i]->data);
-          len = snprintf (NULL, 0, "|`- %s", data);
-          b_version = malloc (len + 1);
-          if (b_version == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
-          sprintf (b_version, "|`- %s", get_browser_type (s_holder[i]->data));
-          items[i] = new_item (hits, b_version);
-          break;
-       case STATUS_CODES:
-          hits = convert_hits_to_string (s_holder[i]->hits);
-          status_code = verify_status_code (s_holder[i]->data);
-          token = (char *) malloc (sizeof (char) * 64);
-          if (token == NULL)
-             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                            "Unable to allocate memory");
-          if (sscanf (status_code, "%[^-]", token) == 1) {
-             len = snprintf (NULL, 0, "%s %s", s_holder[i]->data, token);
-             status_str = malloc (len + 1);
-             if (status_str == NULL)
-                error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                               "Unable to allocate memory");
-             sprintf (status_str, "%s %s", s_holder[i]->data, token);
-             items[i] = new_item (hits, status_str);
-             free (token);
-          } else
-             items[i] = new_item (hits, alloc_string (s_holder[i]->data));
-          break;
-       default:
-          hits = convert_hits_to_string (s_holder[i]->hits);
-          items[i] = new_item (hits, s_holder[i]->data);
-          break;
-      }
-   }
-
-   items[i] = (ITEM *) NULL;
-   return items;
-}
-
-static MENU *
-set_menu (WINDOW * my_menu_win, ITEM ** items, struct logger *logger)
-{
-   int x = 0;
-   int y = 0;
-   MENU *my_menu = NULL;
-
-   getmaxyx (my_menu_win, y, x);
-   my_menu = new_menu (items);
-   keypad (my_menu_win, TRUE);
-
-   /* set main window and sub window */
-   set_menu_win (my_menu, my_menu_win);
-   if (logger->current_module == UNIQUE_VISITORS)
-      mvwprintw (my_menu_win, 3, x - 33, "[Month(s):%4d - Day(s):%4d]",
-                 g_hash_table_size (ht_monthly),
-                 g_hash_table_size (ht_unique_vis));
-   if (logger->current_module == HOSTS)
-      mvwprintw (my_menu_win, 3, x - 33, "[Different Host(s):%8d]",
-                 g_hash_table_size (ht_hosts));
-   set_menu_sub (my_menu, derwin (my_menu_win, y - 6, x - 2, 4, 1));
-   set_menu_format (my_menu, y - 6, 1);
-
-   /* set menu mark */
-   set_menu_mark (my_menu, " > ");
-   char *desc = module_names[logger->current_module - 1];
-   char *head = " Use cursor UP/DOWN - PGUP/PGDOWN to scroll. q:quit";
-   draw_header (my_menu_win, head, 1, 1, x, 2);
-   draw_header (my_menu_win, desc, 0, 2, x, 1);
-   wborder (my_menu_win, '|', '|', '-', '-', '+', '+', '+', '+');
-   return my_menu;
-}
-
-static void
-load_popup_content (WINDOW * my_menu_win, int choices,
-                    struct struct_holder **s_holder, struct logger *logger,
-                    int sort, int max)
-{
-   wclrtoeol (my_menu_win);
-   items = get_menu_items (s_holder, logger, choices, sort, my_menu_win, max);
-   my_menu = set_menu (my_menu_win, items, logger);
-   post_menu (my_menu);
-   wrefresh (my_menu_win);
-}
-
-static void
-load_popup_free_items (ITEM ** items, struct logger *logger)
-{
-   char *description = NULL;
-   char *name = NULL;
-   int i;
-
-   /* clean up stuff */
-   i = 0;
-   while ((ITEM *) NULL != items[i]) {
-      name = (char *) item_name (items[i]);
-      free (name);
-      if (logger->current_module == UNIQUE_VISITORS ||
-          logger->current_module == OS ||
-          logger->current_module == BROWSERS ||
-          logger->current_module == STATUS_CODES) {
-         description = (char *) item_description (items[i]);
-         free (description);
-      }
-      free_item (items[i]);
-      i++;
-   }
-   free (items);
-   items = NULL;
-}
-
-static ITEM *
-search_request (MENU * my_menu, const char *input)
-{
-   const char *haystack;
-   ITEM *item_ptr = NULL;
-
-   if (input == NULL)
-      return item_ptr;
-
-   int i = -1, j = -1, response = 0;
-   j = item_index (current_item (my_menu));
-
-   for (i = j + 1; i < item_count (my_menu) && !response; i++) {
-      haystack = item_description (menu_items (my_menu)[i]);
-      if (haystack != NULL && input != NULL) {
-         if (strstr (haystack, input))
-            response = 1;
-      } else
-         response = 0;
-   }
-   if (response)
-      item_ptr = menu_items (my_menu)[i - 1];
-
-   return item_ptr;
-}
-
-static void
-load_popup_iter (gpointer k, gpointer v, struct struct_holder **s_holder)
-{
-   s_holder[iter_ctr]->data = (gchar *) k;
-   s_holder[iter_ctr++]->hits = GPOINTER_TO_INT (v);
-}
-
-static void
-load_popup_visitors_iter (gpointer k, gpointer v,
-                          struct struct_holder **s_holder)
-{
-   s_holder[iter_ctr] = malloc (sizeof *s_holder[iter_ctr]);
-   /* we assume we dont have 99 days in a month, */
-   /* this way we can sort them out and put them on top */
-   /* there might be a better way to go though :) */
-   char *s = malloc (snprintf (NULL, 0, "%s|99", (gchar *) k) + 1);
-   if (s == NULL)
-      error_handler (__PRETTY_FUNCTION__,
-                     __FILE__, __LINE__, "Unable to allocate memory");
-   sprintf (s, "%s|99", (gchar *) k);
-   s_holder[iter_ctr]->data = s;
-   s_holder[iter_ctr++]->hits = *(int *) v;
+   touchwin (main_win);
+   close_win (win);
+   wrefresh (main_win);
 }
 
 void
-load_popup (WINDOW * my_menu_win, struct struct_holder **s_holder,
-            struct logger *logger)
+load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 {
-   ITEM *query = NULL;
-   WINDOW *ip_detail_win;
+   int c, quit = 1;
+   int i = 0, n = 0;
+   int y, x, h = SORT_WIN_H, w = SORT_WIN_W;
+   int w2 = w - 2;
+   getmaxyx (stdscr, y, x);
 
-   /*###TODO: perhaps let the user change the size of MAX_CHOICES */
-   char input[BUFFER] = "";
-   int choices = MAX_CHOICES, c, x, y;
-
-   GHashTable *hash_table = NULL;
-
-   switch (logger->current_module) {
-    case UNIQUE_VISITORS:
-       hash_table = ht_unique_vis;
-       break;
-    case REQUESTS:
-       hash_table = ht_requests;
-       break;
-    case REQUESTS_STATIC:
-       hash_table = ht_requests_static;
-       break;
-    case REFERRERS:
-       hash_table = ht_referrers;
-       break;
-    case NOT_FOUND:
-       hash_table = ht_not_found_requests;
-       break;
-    case OS:
-       hash_table = ht_os;
-       break;
-    case BROWSERS:
-       hash_table = ht_browsers;
-       break;
-    case HOSTS:
-       hash_table = ht_hosts;
-       break;
-    case STATUS_CODES:
-       hash_table = ht_status_code;
-       break;
-    case REFERRING_SITES:
-       hash_table = ht_referring_sites;
-       break;
-    case KEYPHRASES:
-       hash_table = ht_keyphrases;
-       break;
+   /* determine amount of sort choices */
+   for (i = 0; NULL != module_sort[module].choices[i]; i++) {
+      const char *name = module_sort[module].choices[i];
+      if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs &&
+          !conf.serve_secs)
+         continue;
+      else if (strcmp ("Bandwidth", name) == 0 && !conf.bandwidth)
+         continue;
+      n++;
    }
-   getmaxyx (my_menu_win, y, x);
-   MALLOC_STRUCT (s_holder, g_hash_table_size (hash_table));
 
-   int hash_table_size = g_hash_table_size (hash_table);
-   int i = 0, quit = 1, max = 0;
-   int new_menu_size = 0;
+   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   keypad (win, TRUE);
+   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
-   g_hash_table_foreach (hash_table, (GHFunc) load_popup_iter, s_holder);
-   /* set it 0 for the next g_hash_table_foreach() */
-   iter_ctr = 0;
+   /* create a new instance of GMenu and make it selectable */
+   GMenu *menu =
+      new_gmenu (win, SORT_MENU_H, SORT_MENU_W, SORT_MENU_Y, SORT_MENU_X);
+   menu->size = n;
+   menu->selectable = 1;
 
-   /* again, letting the user to set the max number
-    * might be a better way to go */
-   if (logger->current_module == BROWSERS)
-      choices = g_hash_table_size (hash_table);
-   else if (g_hash_table_size (hash_table) > MAX_CHOICES)
-      choices = MAX_CHOICES;
-   else
-      choices = g_hash_table_size (hash_table);
+   /* add items to GMenu */
+   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+   /* set checked option and set index */
+   for (i = 0; i < n; ++i) {
+      menu->items[i].name = alloc_string (module_sort[module].choices[i]);
 
-   /* sort s_holder */
-   qsort (s_holder, hash_table_size, sizeof *s_holder, struct_cmp_by_hits);
-   if (logger->current_module == UNIQUE_VISITORS) {
-      for (i = 0; i < g_hash_table_size (ht_unique_vis); i++) {
-         if (s_holder[i]->hits > max)
-            max = s_holder[i]->hits;
+      if (sort->field == SORT_BY_HITS &&
+          strcmp ("Hits", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
+      } else if (sort->field == SORT_BY_DATA &&
+                 strcmp ("Data", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
+      } else if (sort->field == SORT_BY_BW &&
+                 strcmp ("Bandwidth", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
+      } else if (sort->field == SORT_BY_USEC &&
+                 strcmp ("Time Served", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
       }
-      if (hash_table_size == 0)
-         goto err;
-      /* add up monthly history totals */
-      process_monthly (s_holder, hash_table_size);
-      /* realloc the extra space needed for months */
-      new_menu_size = (hash_table_size + g_hash_table_size (ht_monthly));
-      struct struct_holder **s_tmp;
-      s_tmp = realloc (s_holder, new_menu_size * sizeof *s_holder);
-      if (s_tmp == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__,
-                        __LINE__, "Unable to re-allocate memory");
-      else
-         s_holder = s_tmp;
-
-      iter_ctr = hash_table_size;
-      g_hash_table_foreach (ht_monthly, (GHFunc) load_popup_visitors_iter,
-                            s_holder);
-      choices = new_menu_size;
-    err:;
-      iter_ctr = 0;
    }
+   post_gmenu (menu);
 
-   load_popup_content (my_menu_win, choices, s_holder, logger, 1, max);
+   draw_header (win, "Sort active module by", 1, 1, w2, 1);
+   mvwprintw (win, 2, 2, "[ENTER] to select field - [TAB] sort");
+   if (sort->sort == SORT_ASC)
+      draw_header (win, "[x] ASC [ ] DESC", 1, SORT_WIN_H - 2, SORT_WIN_W - 2,
+                   2);
+   else
+      draw_header (win, "[ ] ASC [x] DESC", 1, SORT_WIN_H - 2, SORT_WIN_W - 2,
+                   2);
 
+   wrefresh (win);
    while (quit) {
       c = wgetch (stdscr);
       switch (c) {
        case KEY_DOWN:
-          menu_driver (my_menu, REQ_DOWN_ITEM);
+          gmenu_driver (menu, REQ_DOWN);
+          draw_header (win, "", 2, 3, SORT_MENU_W, 0);
           break;
        case KEY_UP:
-          menu_driver (my_menu, REQ_UP_ITEM);
+          gmenu_driver (menu, REQ_UP);
+          draw_header (win, "", 2, 3, SORT_MENU_W, 0);
           break;
-       case KEY_NPAGE:
-          menu_driver (my_menu, REQ_SCR_DPAGE);
-          break;
-       case KEY_PPAGE:
-          menu_driver (my_menu, REQ_SCR_UPAGE);
-          break;
-       case '/':
-          /* set the whole ui for search */
-          wattron (my_menu_win, COLOR_PAIR (COL_CYAN));
-          mvwhline (my_menu_win, y - 2, 2, ' ', x - 4);
-          mvwaddnstr (my_menu_win, y - 2, 2, "/", 20);
-          wattroff (my_menu_win, COLOR_PAIR (COL_CYAN));
-          nocbreak ();
-          echo ();
-          curs_set (1);
-          wattron (my_menu_win, COLOR_PAIR (COL_CYAN));
-          wscanw (my_menu_win, "%s", input);
-          wattroff (my_menu_win, COLOR_PAIR (COL_CYAN));
-          cbreak ();
-          set_input_opts ();    /* set curses input options */
-          query = search_request (my_menu, input);
-          if (query != NULL) {
-             while (FALSE == item_visible (query))
-                menu_driver (my_menu, REQ_SCR_DPAGE);
-             set_current_item (my_menu, query);
-          } else {
-             wattron (my_menu_win, COLOR_PAIR (WHITE_RED));
-             mvwhline (my_menu_win, y - 2, 2, ' ', x - 4);
-             mvwaddnstr (my_menu_win, y - 2, 2, "Pattern not found", 20);
-             wattroff (my_menu_win, COLOR_PAIR (WHITE_RED));
+       case 9:                 /* TAB   */
+          /* ascending */
+          if (sort->sort == SORT_ASC) {
+             sort->sort = SORT_DESC;
+             draw_header (win, "[ ] ASC [x] DESC", 1, SORT_WIN_H - 2,
+                          SORT_WIN_W - 2, 2);
+          }
+          /* descending */
+          else {
+             sort->sort = SORT_ASC;
+             draw_header (win, "[x] ASC [ ] DESC", 1, SORT_WIN_H - 2,
+                          SORT_WIN_W - 2, 2);
           }
           break;
-       case 'n':
-          if (strlen (input) == 0)
-             break;
-          query = search_request (my_menu, input);
-          if (query != NULL) {
-             while (FALSE == item_visible (query))
-                menu_driver (my_menu, REQ_SCR_DPAGE);
-             set_current_item (my_menu, query);
-          } else {
-             wattron (my_menu_win, COLOR_PAIR (WHITE_RED));
-             mvwhline (my_menu_win, y - 2, 2, ' ', x - 4);
-             mvwaddnstr (my_menu_win, y - 2, 2, "search hit BOTTOM", 20);
-             wattroff (my_menu_win, COLOR_PAIR (WHITE_RED));
-          }
-          break;
-       case 116:
-          menu_driver (my_menu, REQ_FIRST_ITEM);
-          break;
-       case 98:
-          menu_driver (my_menu, REQ_LAST_ITEM);
-          break;
-       case 's':
-          if (logger->current_module != UNIQUE_VISITORS)
-             break;
-          unpost_menu (my_menu);
-          free_menu (my_menu);
-          my_menu = NULL;
-          load_popup_free_items (items, logger);
-          load_popup_content (my_menu_win, choices, s_holder, logger, 0, max);
-          break;
-       case 'S':
-          if (logger->current_module != UNIQUE_VISITORS)
-             break;
-          unpost_menu (my_menu);
-          free_menu (my_menu);
-          my_menu = NULL;
-          load_popup_free_items (items, logger);
-          load_popup_content (my_menu_win, choices, s_holder, logger, 1, max);
-          break;
+       case 32:
        case 0x0a:
        case 0x0d:
        case KEY_ENTER:
-       case KEY_RIGHT:
-          /* stdscr too small to create win */
-          if (logger->current_module != 8 || ((x < 27) || (y < 9)))
+          gmenu_driver (menu, REQ_SEL);
+          for (i = 0; i < n; ++i) {
+             if (menu->items[i].checked != 1)
+                continue;
+             if (strcmp ("Hits", menu->items[i].name) == 0)
+                sort->field = SORT_BY_HITS;
+             else if (strcmp ("Data", menu->items[i].name) == 0)
+                sort->field = SORT_BY_DATA;
+             else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
+                sort->field = SORT_BY_BW;
+             else if (strcmp ("Time Served", menu->items[i].name) == 0)
+                sort->field = SORT_BY_USEC;
+             quit = 0;
              break;
-
-          ITEM *cur = current_item (my_menu);
-          if (cur == NULL)
-             break;
-
-          ip_detail_win = newwin (y - 3, x - 2, 7, 16);
-          char addrs[32];
-          sprintf (addrs, "%s", item_description (cur));
-          load_reverse_dns_popup (ip_detail_win, addrs);
-          pos_menu_cursor (my_menu);
-          wrefresh (ip_detail_win);
-          touchwin (my_menu_win);
-          close_win (ip_detail_win);
+          }
           break;
-          /* ###TODO: resize child windows. */
-          /* for now we can close them up */
        case KEY_RESIZE:
        case 'q':
           quit = 0;
           break;
       }
-      wrefresh (my_menu_win);
+      wrefresh (win);
    }
+   /* clean stuff up */
+   for (i = 0; i < n; ++i)
+      free (menu->items[i].name);
+   free (menu->items);
+   free (menu);
 
-   int free_n = (new_menu_size != 0) ? new_menu_size : hash_table_size;
-   for (i = 0; i < free_n; i++) {
-      if (logger->current_module == UNIQUE_VISITORS
-          && strchr (s_holder[i]->data, '|') != NULL)
-         free (s_holder[i]->data);
-      free (s_holder[i]);
+   touchwin (main_win);
+   close_win (win);
+   wrefresh (main_win);
+}
+
+static char *help_main[] = {
+   "Copyright (C) 2009-2013",
+   "by Gerardo Orellana <goaccess@prosoftcorp.com>",
+   "http://goaccess.prosoftcorp.com",
+   "Released under the GNU GPL. See `man` page for",
+   "more details.",
+   "",
+   "GoAccess is an open source real-time web log",
+   "analyzer and interactive viewer that runs in a",
+   "terminal in *nix systems. It provides fast and",
+   "valuable HTTP statistics for system administrators",
+   "that require a visual server report on the fly." "",
+   "The data collected based on the parsing of the log",
+   "is divided into different modules. Modules are",
+   "automatically generated and presented to the user.",
+   "",
+   "The main dashboard displays general statistics, top",
+   "visitors, requests, browsers, operating systems,",
+   "hosts, etc.",
+   "",
+   "The user can make use of the following keys:",
+   " ^F1^ or ^CTRL^ + ^h^ [main help]",
+   " ^F5^    redraw [main window]",
+   " ^q^     quit the program, current window or module",
+   " ^o^  or ^ENTER^  expand selected module",
+   " ^j^     scroll down within expanded module",
+   " ^k^     scroll up within expanded module",
+   " ^c^     set or change scheme color",
+   " ^CTRL^ + ^f^ scroll forward one screen within",
+   "         active module",
+   " ^CTRL^ + ^b^ scroll backward one screen within",
+   "         active module",
+   " ^TAB^   iterate modules (forward)",
+   " ^SHIFT^ + ^TAB^ iterate modules (backward)",
+   " ^s^     sort options for current module",
+   " ^/^     search across all modules",
+   " ^n^     find position of the next occurrence",
+   " ^g^     move to the first item or top of screen",
+   " ^G^     move to the last item or bottom of screen",
+   "",
+   "Examples can be found by running `man goaccess`.",
+   "",
+   "If you believe you have found a bug, please drop me",
+   "an email with details.",
+   "",
+   "If you have a medium or high traffic website, it",
+   "would be interesting to hear your experience with",
+   "GoAccess, such as generating time, visitors or hits.",
+   "",
+   "Feedback? Just shoot me an email to:",
+   "goaccess@prosoftcorp.com",
+};
+
+void
+load_help_popup (WINDOW * main_win)
+{
+   int c, quit = 1;
+   size_t i, n;
+   int y, x, h = HELP_WIN_HEIGHT, w = HELP_WIN_WIDTH;
+   int w2 = w - 2;
+
+   n = ARRAY_SIZE (help_main);
+   getmaxyx (stdscr, y, x);
+
+   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   keypad (win, TRUE);
+   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+   /* create a new instance of GMenu and make it selectable */
+   GMenu *menu = new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y,
+                            HELP_MENU_X);
+   menu->size = n;
+
+   /* add items to GMenu */
+   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+   for (i = 0; i < n; ++i) {
+      menu->items[i].name = alloc_string (help_main[i]);
+      menu->items[i].checked = 0;
    }
-   free (s_holder);
+   post_gmenu (menu);
 
-   /* unpost and free all the memory taken up */
-   unpost_menu (my_menu);
-   free_menu (my_menu);
+   draw_header (win, "GoAccess Quick Help", 1, 1, w2, 1);
+   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
 
-   /* clean up stuff */
-   my_menu = NULL;
-   load_popup_free_items (items, logger);
-   render_screens ();
+   wrefresh (win);
+   while (quit) {
+      c = wgetch (stdscr);
+      switch (c) {
+       case KEY_DOWN:
+          gmenu_driver (menu, REQ_DOWN);
+          draw_header (win, "", 2, 3, HELP_MENU_WIDTH, 0);
+          break;
+       case KEY_UP:
+          gmenu_driver (menu, REQ_UP);
+          draw_header (win, "", 2, 3, HELP_MENU_WIDTH, 0);
+          break;
+       case KEY_RESIZE:
+       case 'q':
+          quit = 0;
+          break;
+      }
+      wrefresh (win);
+   }
+   /* clean stuff up */
+   for (i = 0; i < n; ++i)
+      free (menu->items[i].name);
+   free (menu->items);
+   free (menu);
+
+   touchwin (main_win);
+   close_win (win);
+   wrefresh (main_win);
 }

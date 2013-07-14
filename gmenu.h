@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -19,13 +19,13 @@
  */
 
 #if HAVE_CONFIG_H
-#  include <config.h>
+#include <config.h>
 #endif
 
 #ifdef HAVE_LIBNCURSESW
-#  include <ncursesw/curses.h>
+#include <ncursesw/curses.h>
 #else
-#  include <ncurses.h>
+#include <ncurses.h>
 #endif
 
 #ifndef GMENU_H_INCLUDED
@@ -65,10 +65,10 @@ struct GMenu_
    GItem *items;
 };
 
-GMenu *new_gmenu (WINDOW * parent, int h, int w);
+GMenu *new_gmenu (WINDOW * parent, int h, int w, int y, int x);
 int post_gmenu (GMenu * menu);
-void gmenu_driver (GMenu * menu, int c);
 void draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
                      int checked);
+void gmenu_driver (GMenu * menu, int c);
 
 #endif

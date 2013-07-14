@@ -1,6 +1,6 @@
 /**
  * gmenu.c -- goaccess menus
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -25,16 +25,17 @@
 #include <string.h>
 
 #include "gmenu.h"
+
 #include "error.h"
+#include "xmalloc.h"
+#include "settings.h"
 #include "util.h"
+#include "ui.h"
 
 GMenu *
-new_gmenu (WINDOW * parent, int h, int w)
+new_gmenu (WINDOW * parent, int h, int w, int y, int x)
 {
-   GMenu *menu = malloc (sizeof (GMenu));
-   if (menu == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory for new GMenu.");
+   GMenu *menu = xmalloc (sizeof (GMenu));
 
    memset (menu, 0, sizeof *menu);
    menu->count = 0;
@@ -46,8 +47,8 @@ new_gmenu (WINDOW * parent, int h, int w)
 
    menu->h = h;
    menu->w = w;
-   menu->x = 2;
-   menu->y = 4;
+   menu->x = x;
+   menu->y = y;
    menu->win = derwin (parent, menu->h, menu->w, menu->y, menu->x);
 
    return menu;
@@ -114,7 +115,7 @@ void
 draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
                 int checked)
 {
-   if (color_scheme == MONOCHROME) {
+   if (conf.color_scheme == MONOCHROME) {
       init_pair (1, COLOR_BLACK, COLOR_WHITE);
       init_pair (2, COLOR_WHITE, -1);
    } else {

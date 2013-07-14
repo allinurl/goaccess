@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.5.1], [goaccess@prosoftcorp.com])
+AC_INIT([goaccess], [0.6], [goaccess@prosoftcorp.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
@@ -26,20 +26,22 @@ fi
 
 if test "$USE_UTF8" = "yes"; then
    AC_CHECK_LIB([ncursesw], [mvaddwstr], [], [AC_MSG_ERROR([libncursesw5-dev is missing])])
-   AC_CHECK_LIB([menuw], [new_menu], [], [AC_MSG_ERROR([libncursesw5-dev is missing])])
-   CFLAGS="-lmenuw -lncursesw"
+   CFLAGS="-lncursesw"
 else
    AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
-   AC_CHECK_LIB([menu], [new_menu], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
-   CFLAGS="-lmenu -lncurses"
+   CFLAGS="-lncurses"
 fi
+
+# pthread
+AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
+CFLAGS="-pthread"
 
 # Checks for libraries.
 AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h locale.h netdb.h stdint.h stdlib.h string.h unistd.h])
+AC_CHECK_HEADERS([netinet/in.h sys/socket.h arpa/inet.h locale.h netdb.h stdint.h stdlib.h string.h unistd.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -55,7 +57,7 @@ AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol])
+AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

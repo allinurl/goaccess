@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2009-2012 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -18,18 +18,12 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#ifndef ALLOC_H_INCLUDED
-#define ALLOC_H_INCLUDED
+#ifndef XMALLOC_H_INCLUDED
+#define XMALLOC_H_INCLUDED
 
-/* macro for easily allocating memory */
-#define MALLOC_STRUCT(target, size)                 \
-do {                                                \
-	target = malloc(sizeof * target * size);         \
-	if (target) {                                    \
-		size_t i;                                     \
-		for (i = 0; i < size; i++) {                  \
-			target[i] = malloc(sizeof * target[i]);	 \
-		}                                             \
-	}                                                \
-} while (0);
+char *xstrdup (const char *s);
+void *xcalloc (size_t nmemb, size_t size);
+void *xmalloc (size_t size);
+void *xrealloc (void *oldptr, size_t nmemb, size_t size);
+
 #endif
