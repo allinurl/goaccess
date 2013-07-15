@@ -13,6 +13,7 @@ Changes to GoAccess 0.6 - Monday, July 15, 2013
    * Added parsing/processing indicators.
    * Updated the hosts module so it shows the reverse DNS as a
      sub node.
+   * Sanitized HTML output with html entities for special chars.
    * Fixed issue where Opera +15 was identified as Chrome.
    * Fixed a bunch of minor fixes and changes. 
    * Added and updated list of browsers and operating systems.
