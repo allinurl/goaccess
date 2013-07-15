@@ -42,6 +42,7 @@
 #include "gdashboard.h"
 #include "util.h"
 
+/* sanitize output with html entities for special chars */
 static void
 clean_output (FILE * fp, char *s)
 {
@@ -775,6 +776,7 @@ print_html_summary (FILE * fp, GLog * logger)
    free (size);
 }
 
+/* entry point to generate a report writing it to the fp */
 void
 output_html (GLog * logger, GHolder * holder)
 {

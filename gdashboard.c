@@ -1,5 +1,5 @@
 /**
- * gmenu.c -- goaccess menus
+ * gmenu.c -- goaccess main dashboard
  * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
@@ -640,6 +640,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
    }
 }
 
+/* entry point to render dashboard */
 void
 display_content (WINDOW * win, GLog * logger, GDash * dash,
                  GScrolling * scrolling)
@@ -665,6 +666,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
          }
       }
 
+      /* every module other than VISITORS will use total req as base */
       switch (i) {
        case VISITORS:
           process = g_hash_table_size (ht_unique_visitors);
@@ -741,6 +743,7 @@ perform_find_dash_scroll (GScrolling * scrolling, GModule module)
    find_t.module = module;
 }
 
+/* find item within the given sub_list */
 static int
 find_next_sub_item (GSubList * sub_list, regex_t * regex)
 {
@@ -833,6 +836,7 @@ perform_next_find (GHolder * h, GScrolling * scrolling)
    return 0;
 }
 
+/* render find dialog */
 int
 render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
 {
@@ -866,6 +870,7 @@ render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
    return valid;
 }
 
+/* get bandwidth consumption for given key */
 static unsigned long long
 get_bandwidth (const char *key, GModule module)
 {
@@ -899,6 +904,7 @@ get_bandwidth (const char *key, GModule module)
    return 0;
 }
 
+/* get time taken to serve the request, in microseconds for given key */
 static unsigned long long
 get_serve_time (const char *key, GModule module)
 {
@@ -928,6 +934,8 @@ get_serve_time (const char *key, GModule module)
    return 0;
 }
 
+/* iterate over holder and get the key index.
+ * return -1 if not found */
 int
 get_item_idx_in_holder (GHolder * holder, char *k)
 {
@@ -945,6 +953,7 @@ get_item_idx_in_holder (GHolder * holder, char *k)
    return -1;
 }
 
+/* add an item from a sub_list to the dashboard */
 static void
 add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 {
@@ -991,6 +1000,7 @@ get_geoip_data (const char *data)
    return (char *) location;
 }
 
+/* add a host item to holder */
 static void
 add_host_node (GHolder * h, int hits, char *data, unsigned long long bw,
                unsigned long long usecs)
@@ -1035,6 +1045,7 @@ add_host_node (GHolder * h, int hits, char *data, unsigned long long bw,
    h->idx++;
 }
 
+/* add a browser item to holder */
 static void
 add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
 {
@@ -1070,6 +1081,7 @@ add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
    free (type);
 }
 
+/* add a status code item to holder */
 static void
 add_status_code_node (GHolder * h, int hits, char *data, unsigned long long bw)
 {
@@ -1102,6 +1114,7 @@ add_status_code_node (GHolder * h, int hits, char *data, unsigned long long bw)
    }
 }
 
+/* add a first level item to dashboard */
 static void
 add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
 {
@@ -1119,6 +1132,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
    (*idx)++;
 }
 
+/* load holder's data into dashboard */
 void
 load_data_to_dash (GHolder * h, GDash * dash, GModule module,
                    GScrolling * scrolling)
@@ -1242,6 +1256,7 @@ load_host_to_holder (GHolder * h, char *ip)
    }
 }
 
+/* load raw hash table's data into holder */
 void
 load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
                      GSort sort)
@@ -1291,6 +1306,7 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
    free_raw_data (raw_data);
 }
 
+/* iterate over the key/value pairs in the hash table */
 static void
 raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
 {
@@ -1317,6 +1333,7 @@ raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
    raw_data->idx++;
 }
 
+/* store the key/value pairs from a hash table into raw_data */
 GRawData *
 parse_raw_data (GHashTable * ht, int ht_size, GModule module)
 {

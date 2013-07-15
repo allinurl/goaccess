@@ -29,6 +29,7 @@
 #include "error.h"
 #include "xmalloc.h"
 
+/* self-checking wrapper to malloc() */
 void *
 xmalloc (size_t size)
 {
@@ -54,6 +55,7 @@ xstrdup (const char *s)
    return (ptr);
 }
 
+/* self-checking wrapper to calloc() */
 void *
 xcalloc (size_t nmemb, size_t size)
 {
@@ -66,6 +68,7 @@ xcalloc (size_t nmemb, size_t size)
    return (ptr);
 }
 
+/* self-checking wrapper to realloc() */
 void *
 xrealloc (void *oldptr, size_t nmemb, size_t size)
 {

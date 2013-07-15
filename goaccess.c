@@ -160,6 +160,7 @@ house_keeping (GLog * logger, GDash * dash)
    g_hash_table_destroy (ht_unique_visitors);
 }
 
+/* allocate memory for an instance of holder */
 static void
 allocate_holder (void)
 {
@@ -221,6 +222,7 @@ allocate_holder (void)
    }
 }
 
+/* allocate memory for an instance of dashboard */
 static void
 allocate_data ()
 {
@@ -320,6 +322,7 @@ allocate_hosts_holder (char *ip)
    load_host_to_holder (holder + HOSTS, ip);
 }
 
+/* render all windows */
 void
 render_screens (GLog * logger)
 {
@@ -359,6 +362,7 @@ render_screens (GLog * logger)
                      "Nothing valid to process.");
 }
 
+/* collapse the current expanded module */
 static void
 collapse_current_module (void)
 {
