@@ -6,7 +6,7 @@ What is it?
 GoAccess is an open source real-time web log analyzer and interactive viewer that runs in a terminal in *nix systems. It provides fast and valuable HTTP statistics for system administrators that require a visual server report on the fly.
 More info at: http://goaccess.prosoftcorp.com/ 
 
-![Alt text](http://goaccess.prosoftcorp.com/images/goaccess_screenshot1M-03L.png)
+![GoAccess Main Dashboard](http://goaccess.prosoftcorp.com/images/goaccess_screenshot1M-03L.png?1373815595)
 
 Features
 ----------
