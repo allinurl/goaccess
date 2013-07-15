@@ -37,27 +37,31 @@
 char *tmp_log_format = NULL;
 char *tmp_date_format = NULL;
 
+/* *INDENT-OFF* */
 static GPreConfLog logs = {
-   "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",
-   "%h %^[%d:%^] \"%r\" %s %b",
-   "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",
-   "%^:%^ %h %^[%d:%^] \"%r\" %s %b",
-   "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R",
-   "%d %^ %^ %b %h %^ %^ %r %s %R %u %^"
+   "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",       /* CLF           */
+   "%h %^[%d:%^] \"%r\" %s %b",                     /* CLF w/ VHost  */
+   "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"", /* NCSA          */
+   "%^:%^ %h %^[%d:%^] \"%r\" %s %b",               /* NCSA w/ VHost */
+   "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R",  /* W3C           */
+   "%d %^ %^ %b %h %^ %^ %r %s %R %u %^"            /* CloudFront    */
 };
 
 static GPreConfDate dates = {
-   "%d/%b/%Y",
-   "%Y-%m-%d",
-   "%m/%d/%Y"
+   "%d/%b/%Y", /* Apache     */
+   "%Y-%m-%d", /* W3C        */
+   "%m/%d/%Y"  /* CloudFront */
 };
+/* *INDENT-ON* */
 
+/* config file keywords */
 static GConfKeyword keywords[] = {
    {1, "color_scheme"},
    {2, "log_format"},
    {3, "date_format"}
 };
 
+/* set config key/values pair */
 static void
 set_conf_vars (int key, char *val)
 {
@@ -74,9 +78,7 @@ set_conf_vars (int key, char *val)
    }
 }
 
-/*
- * ###TODO: allow extra values for every key separated by a delimeter 
- */
+/* ###TODO: allow extra values for every key separated by a delimeter */
 int
 parse_conf_file ()
 {
@@ -126,6 +128,7 @@ parse_conf_file ()
    return 0;
 }
 
+/* write config key/value pair to goaccessrc */
 void
 write_conf_file ()
 {
@@ -176,9 +179,7 @@ write_conf_file ()
    free (path);
 }
 
-/*
- * return the index of the matched item, or -1 if no such item exists 
- */
+/* return the index of the matched item, or -1 if no such item exists */
 size_t
 get_selected_format_idx ()
 {
@@ -200,9 +201,7 @@ get_selected_format_idx ()
       return -1;
 }
 
-/*
- * return the string of the matched item, or NULL if no such item exists 
- */
+/* return the string of the matched item, or NULL if no such item exists */
 char *
 get_selected_format_str (size_t idx)
 {

@@ -209,6 +209,7 @@ free_logger (GLogItem * log)
    free (log);
 }
 
+/* process bandwidth & time taken to serve the request */
 static int
 process_request_meta (GHashTable * ht, char *key, unsigned long long size)
 {
@@ -234,6 +235,7 @@ process_request_meta (GHashTable * ht, char *key, unsigned long long size)
    return 0;
 }
 
+/* process data based on the amount of requests */
 static int
 process_generic_data (GHashTable * ht, const char *key)
 {
@@ -286,6 +288,8 @@ spc_decode_url (char *url)
    return trim_str (out);
 }
 
+/* process keyphrases used on Google search, Google cache, and
+ * Google translate. */
 static int
 process_keyphrases (char *ref)
 {
@@ -333,6 +337,7 @@ process_keyphrases (char *ref)
    return 0;
 }
 
+/* process host agent strings */
 static int
 process_host_agents (char *host, char *agent)
 {
@@ -372,6 +377,7 @@ process_host_agents (char *host, char *agent)
    return 0;
 }
 
+/* process referer */
 static void
 process_referrers (char *referrer)
 {
@@ -387,6 +393,8 @@ process_referrers (char *referrer)
    free (ref);
 }
 
+/* process data based on a unique key, this includes the following
+ * modules, VISITORS, BROWSERS, OS */
 static void
 process_unique_data (char *host, char *date, char *agent)
 {
@@ -450,6 +458,7 @@ process_unique_data (char *host, char *date, char *agent)
       free (clean_key);
 }
 
+/* returns 1 if the request seems to be a static file */
 static int
 verify_static_content (char *req)
 {
@@ -481,9 +490,7 @@ parse_req (char *line)
        (lookfor = "post ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL) {
 
-      /*
-       * didn't find it - weird 
-       */
+      /* didn't find it - weird  */
       if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
           (req_r = strstr (line, " HTTP/1.1")) == NULL)
          return alloc_string ("-");
@@ -491,9 +498,7 @@ parse_req (char *line)
       req_l += strlen (lookfor);
       ptrdiff_t req_len = req_r - req_l;
 
-      /*
-       * make sure we don't have some weird requests 
-       */
+      /* make sure we don't have some weird requests */
       if (req_len <= 0)
          return alloc_string ("-");
 
@@ -519,9 +524,7 @@ parse_string (char **str, char end)
          *str += len - 1;
          return trim_str (p);
       }
-      /*
-       * advance to the first unescaped delim 
-       */
+      /* advance to the first unescaped delim */
       if (*pch == '\\')
          pch++;
    } while (*pch++);
@@ -541,6 +544,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
    memset (&tm, 0, sizeof (tm));
 
    int special = 0;
+   /* iterate over the log format */
    for (p = fmt; *p; p++) {
       if (*p == '%') {
          special++;
@@ -554,6 +558,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
          double serve_secs = 0;
 
          switch (*p) {
+             /* date */
           case 'd':
              if (log->date)
                 return 1;
@@ -567,6 +572,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->date = tkn;
              break;
+             /* remote hostname (IP only) */
           case 'h':
              if (log->host)
                 return 1;
@@ -579,6 +585,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->host = tkn;
              break;
+             /* request */
           case 'r':
              if (log->req)
                 return 1;
@@ -588,6 +595,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              log->req = parse_req (tkn);
              free (tkn);
              break;
+             /* Status Code */
           case 's':
              if (log->status)
                 return 1;
@@ -601,6 +609,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->status = tkn;
              break;
+             /* size of response in bytes - excluding HTTP headers */
           case 'b':
              if (log->resp_size)
                 return 1;
@@ -614,6 +623,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              conf.bandwidth = 1;
              free (tkn);
              break;
+             /* referrer */
           case 'R':
              if (log->ref)
                 return 1;
@@ -626,6 +636,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->ref = tkn;
              break;
+             /* user agent */
           case 'u':
              if (log->agent)
                 return 1;
@@ -638,6 +649,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->agent = tkn;
              break;
+             /* time taken to serve the request, in seconds */
           case 'T':
              if (log->serve_time)
                 return 1;
@@ -651,6 +663,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              serve_secs = strtoull (tkn, &bEnd, 10);
              if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
                 serve_secs = 0;
+             /* convert it to microseconds */
              if (serve_secs > 0)
                 log->serve_time = serve_secs * SECS;
              else
@@ -658,6 +671,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              conf.serve_usecs = 1;
              free (tkn);
              break;
+             /* time taken to serve the request, in microseconds */
           case 'D':
              if (log->serve_time)
                 return 1;
@@ -671,6 +685,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              conf.serve_usecs = 1;
              free (tkn);
              break;
+             /* everything else skip it */
           default:
              if ((pch = strchr (str, p[1])) != NULL)
                 str += pch - str;
@@ -686,6 +701,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
    return 0;
 }
 
+/* process a line from the log and store it accordingly */
 static int
 process_log (GLog * logger, char *line, int test)
 {
@@ -775,6 +791,7 @@ process_log (GLog * logger, char *line, int test)
    return 0;
 }
 
+/* entry point to parse the log line by line */
 int
 parse_log (GLog ** logger, char *tail, int n)
 {
@@ -807,9 +824,7 @@ parse_log (GLog ** logger, char *tail, int n)
          return 1;
       }
    }
-   /*
-    * definitely not portable! 
-    */
+   /* definitely not portable! */
    if ((*logger)->piping)
       freopen ("/dev/tty", "r", stdin);
 
@@ -818,6 +833,7 @@ parse_log (GLog ** logger, char *tail, int n)
    return 0;
 }
 
+/* make sure we have valid hits */
 int
 test_format (GLog * logger)
 {

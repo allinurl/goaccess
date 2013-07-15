@@ -81,6 +81,7 @@ create_win (int h, int w, int y, int x)
    return win;
 }
 
+/* initialize curses colors */
 void
 init_colors ()
 {
@@ -137,6 +138,7 @@ generate_time (void)
    now_tm = localtime (&now);
 }
 
+/* draw a generic header */
 void
 draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
 {
@@ -156,6 +158,7 @@ draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
    wattroff (win, COLOR_PAIR (color));
 }
 
+/* determine the actual size of the main window */
 void
 term_size (WINDOW * main_win)
 {
@@ -166,6 +169,7 @@ term_size (WINDOW * main_win)
    wmove (main_win, real_size_y, 0);
 }
 
+/* rerender header window to reflect active module */
 void
 update_active_module (WINDOW * header_win, GModule current)
 {
@@ -178,6 +182,7 @@ update_active_module (WINDOW * header_win, GModule current)
    wrefresh (header_win);
 }
 
+/* render general statistics */
 void
 display_general (WINDOW * win, char *ifile, int piping, int processed,
                  int invalid, unsigned long long bandwidth)
@@ -271,6 +276,7 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
    }
 }
 
+/* implement basic frame work to build a field input */
 char *
 input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, char *str,
               int enable_case, int *toggle_case)
@@ -413,6 +419,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, char *str,
    return s;
 }
 
+/* get user-agent string for given key */
 char *
 ht_bw_str (GHashTable * ht, const char *key)
 {
@@ -425,7 +432,7 @@ ht_bw_str (GHashTable * ht, const char *key)
       return alloc_string ("-");
 }
 
-/* get human-readable bandwidth given X bytes */
+/* wrapper - get human-readable bandwidth given X bytes */
 char *
 bandwidth_string (unsigned long long bw)
 {
@@ -556,6 +563,7 @@ load_agent_list (WINDOW * main_win, char *addr)
    wrefresh (main_win);
 }
 
+/* render processing spinner */
 void
 ui_spinner (void *ptr_data)
 {
@@ -576,6 +584,7 @@ ui_spinner (void *ptr_data)
    free (spinner);
 }
 
+/* create spinner's thread */
 void
 ui_spinner_create (GSpinner * spinner)
 {
@@ -583,6 +592,7 @@ ui_spinner_create (GSpinner * spinner)
    pthread_detach (spinner->thread);
 }
 
+/* allocate memory and initialize data */
 GSpinner *
 new_gspinner ()
 {
@@ -604,6 +614,7 @@ new_gspinner ()
    return spinner;
 }
 
+/* render config log date/format dialog */
 int
 verify_format (GLog * logger, GSpinner * spinner)
 {
@@ -808,6 +819,7 @@ verify_format (GLog * logger, GSpinner * spinner)
    return invalid ? 1 : 0;
 }
 
+/* get selected scheme */
 static void
 scheme_chosen (char *name)
 {
@@ -818,6 +830,7 @@ scheme_chosen (char *name)
    init_colors ();
 }
 
+/* render schemes dialog */
 void
 load_schemes_win (WINDOW * main_win)
 {
@@ -897,6 +910,7 @@ load_schemes_win (WINDOW * main_win)
    wrefresh (main_win);
 }
 
+/* render sort dialog */
 void
 load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 {
@@ -1079,6 +1093,7 @@ static char *help_main[] = {
    "goaccess@prosoftcorp.com",
 };
 
+/* render help dialog */
 void
 load_help_popup (WINDOW * main_win)
 {

@@ -21,9 +21,7 @@
 #ifndef SETTINGS_H_INCLUDED
 #define SETTINGS_H_INCLUDED
 
-/*
- * predefined log dates 
- */
+/* predefined log dates */
 typedef struct GPreConfDate_
 {
    char *apache;
@@ -31,9 +29,7 @@ typedef struct GPreConfDate_
    char *cloudfront;
 } GPreConfDate;
 
-/*
- * predefined log formats 
- */
+/* predefined log formats */
 typedef struct GPreConfLog_
 {
    char *combined;

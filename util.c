@@ -25,7 +25,6 @@
 
 #define _XOPEN_SOURCE     700
 
-
 #include <arpa/inet.h>
 #include <ctype.h>
 #include <errno.h>
@@ -324,9 +323,7 @@ invalid_ipaddr (char *str)
    return 1;
 }
 
-/*
- * off_t becomes 64 bit aware 
- */
+/* off_t becomes 64 bit aware */
 off_t
 file_size (const char *filename)
 {

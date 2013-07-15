@@ -32,6 +32,7 @@
 #include "util.h"
 #include "ui.h"
 
+/* allocate memory for a new GMenu instance */
 GMenu *
 new_gmenu (WINDOW * parent, int h, int w, int y, int x)
 {
@@ -54,6 +55,7 @@ new_gmenu (WINDOW * parent, int h, int w, int y, int x)
    return menu;
 }
 
+/* displays a menu to its associated window */
 int
 post_gmenu (GMenu * menu)
 {
@@ -76,6 +78,7 @@ post_gmenu (GMenu * menu)
    return 0;
 }
 
+/* main work horse of the menu system processing input events */
 void
 gmenu_driver (GMenu * menu, int c)
 {
@@ -111,6 +114,7 @@ gmenu_driver (GMenu * menu, int c)
    }
 }
 
+/* render an actual menu item */
 void
 draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
                 int checked)
