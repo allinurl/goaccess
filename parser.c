@@ -386,7 +386,8 @@ process_referrers (char *referrer)
 
    char *ref = spc_decode_url (referrer);
    char url[512] = "";
-   if (sscanf (ref, "http://%511[^/\n]", url) == 1)
+   /* extract the host part, i.e., www.foo.com */
+   if (sscanf (ref, "%*[^/]%*[/]%[^/]", url) == 1)
       process_generic_data (ht_referring_sites, url);
    process_generic_data (ht_referrers, ref);
    process_keyphrases (referrer);
