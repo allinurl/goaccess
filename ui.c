@@ -169,15 +169,39 @@ term_size (WINDOW * main_win)
    wmove (main_win, real_size_y, 0);
 }
 
+const char *
+module_to_label (GModule module)
+{
+   static const char *modules[] = {
+      "Visitors",
+      "Requests",
+      "Static Requests",
+      "Not Found",
+      "Hosts",
+      "OS",
+      "Browsers",
+      "Referrers",
+      "Referring Sites",
+      "Keyphrases",
+      "Status Codes"
+   };
+
+   return modules[module];
+}
+
 /* rerender header window to reflect active module */
 void
 update_active_module (WINDOW * header_win, GModule current)
 {
+   const char *module = module_to_label (current);
    int col = getmaxx (stdscr);
+
+   char *lbl = xmalloc (snprintf (NULL, 0, "[Active Module: %s]", module) + 1);
+   sprintf (lbl, "[Active Module: %s]", module);
 
    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
    wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 18, "[Active Module %d]", current);
+   mvwprintw (header_win, 0, col - strlen (lbl) - 1, "%s", lbl);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
 }

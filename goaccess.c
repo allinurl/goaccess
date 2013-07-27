@@ -344,16 +344,12 @@ render_screens (GLog * logger)
    refresh ();
 
    /* call general stats header */
-   display_general (header_win, conf.ifile, logger->piping,
-                    logger->process, logger->invalid, logger->resp_size);
+   display_general (header_win, conf.ifile, logger->piping, logger->process,
+                    logger->invalid, logger->resp_size);
    wrefresh (header_win);
 
    /* display active label based on current module */
-   wattron (header_win, COLOR_PAIR (BLUE_GREEN));
-   wmove (header_win, 0, 30);
-   mvwprintw (header_win, 0, col - 18, "[Active Module %d]", scrolling.current);
-   wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
-   wrefresh (header_win);
+   update_active_module (header_win, scrolling.current);
 
    display_content (main_win, logger, dash, &scrolling);
    /* no valid entries to process from the log */
@@ -414,7 +410,7 @@ get_keys (GLog * logger)
           scrolling.current++;
           if (scrolling.current == TOTAL_MODULES)
              scrolling.current = 0;
-          update_active_module (header_win, scrolling.current);
+          render_screens (logger);
           break;
        case 353:               /* Shift TAB */
           /* reset expanded module */
@@ -423,7 +419,7 @@ get_keys (GLog * logger)
              scrolling.current = TOTAL_MODULES - 1;
           else
              scrolling.current--;
-          update_active_module (header_win, scrolling.current);
+          render_screens (logger);
           break;
        case 'g':               /* g = top */
           if (!scrolling.expanded)
