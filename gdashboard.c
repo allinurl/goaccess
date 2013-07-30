@@ -669,6 +669,8 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
       /* every module other than VISITORS will use total req as base */
       switch (i) {
        case VISITORS:
+       case BROWSERS:
+       case OS:
           process = g_hash_table_size (ht_unique_visitors);
           break;
        default:
