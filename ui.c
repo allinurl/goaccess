@@ -204,6 +204,8 @@ update_active_module (WINDOW * header_win, GModule current)
    mvwprintw (header_win, 0, col - strlen (lbl) - 1, "%s", lbl);
    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
    wrefresh (header_win);
+
+   free (lbl);
 }
 
 /* render general statistics */
