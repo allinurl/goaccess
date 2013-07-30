@@ -30,7 +30,7 @@
 #define __attribute__(x) /**/
 #endif
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.6"
+#define GO_VERSION 		"0.6.1"
 struct tm *now_tm;
 
 /* Processing time */
