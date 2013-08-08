@@ -201,6 +201,9 @@ delete_sub_list (GSubList * sub_list)
 void
 free_holder (GHolder ** holder)
 {
+   if ((*holder) == NULL)
+      return;
+
    GSubList *sub_list;
    int i, j;
    for (i = 0; i < TOTAL_MODULES; i++) {
