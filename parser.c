@@ -813,6 +813,10 @@ parse_log (GLog ** logger, char *tail, int n)
    }
 
    if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
+      if (errno == EACCES) {
+        error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Error while opening the log file. Permission denied.");
+      }
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                      "Error while opening the log file. Make sure it exists.");
 
