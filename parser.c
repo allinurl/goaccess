@@ -812,13 +812,9 @@ parse_log (GLog ** logger, char *tail, int n)
       (*logger)->piping = 1;
    }
 
+   /* make sure we can open the log (if not reading from stdin) */
    if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
-      if (errno == EACCES) {
-        error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Error while opening the log file. Permission denied.");
-      }
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Error while opening the log file. Make sure it exists.");
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, strerror (errno));
 
    while (fgets (line, LINE_BUFFER, fp) != NULL) {
       if (n >= 0 && i++ == n)
