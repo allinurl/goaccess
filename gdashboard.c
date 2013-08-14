@@ -669,7 +669,9 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
          }
       }
 
-      /* every module other than VISITORS will use total req as base */
+      /* Every module other than VISITORS, BROWSERS and OS
+       * will use total req as base
+       */
       switch (i) {
        case VISITORS:
        case BROWSERS:
