@@ -25,6 +25,8 @@
 #ifndef COMMONS_H_INCLUDED
 #define COMMONS_H_INCLUDED
 
+#include <time.h>
+
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
 #define __attribute__(x) /**/
