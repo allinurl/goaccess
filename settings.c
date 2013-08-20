@@ -86,15 +86,19 @@ parse_conf_file ()
    char *val, *c;
    int key = 0;
    FILE *file;
+       
+   if (conf.iconfigfile != NULL){
+      conf_file = conf.iconfigfile;
+   }else{
+      user_home = getenv ("HOME");
+      if (user_home == NULL)
+        user_home = "";
 
-   user_home = getenv ("HOME");
-   if (user_home == NULL)
-      user_home = "";
+  	  path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
+      sprintf (path, "%s/.goaccessrc", user_home);
+      conf_file = path;
+   }
 
-   path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
-   sprintf (path, "%s/.goaccessrc", user_home);
-
-   conf_file = path;
    file = fopen (conf_file, "r");
 
    if (file == NULL) {
