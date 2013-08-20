@@ -49,6 +49,7 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
    char *ifile;
+   char iconfigfile[200];
    char *ignore_host;
    char *date_format;
    char *log_format;

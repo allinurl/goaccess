@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:acr";
+static char short_options[] = "f:e:p:acr";
 
 GConf conf = { 0 };
 
@@ -109,7 +109,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [ -e IP_ADDRESS][ - a ][ - r][ - c ]< -f log_file >\n\n");
+   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-p CONFIGFILE] -f log_file\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -117,7 +117,8 @@ cmd_help (void)
    printf (" -a            - Enable a List of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
-   printf ("                 HOST module. Disabled by default.\n\n");
+   printf ("                 HOST module. Disabled by default.\n");
+   printf (" -p <argument> - Custom configuration file.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
@@ -641,6 +642,9 @@ main (int argc, char *argv[])
        case 'f':
           conf.ifile = optarg;
           break;
+       case 'p':
+	      realpath( optarg, conf.iconfigfile );
+          break;
        case 'e':
           conf.ignore_host = optarg;
           break;
@@ -654,7 +658,7 @@ main (int argc, char *argv[])
           conf.skip_resolver = 1;
           break;
        case '?':
-          if (optopt == 'f' || optopt == 'e')
+          if (optopt == 'f' || optopt == 'e' || optopt == 'p')
              fprintf (stderr, "Option -%c requires an argument.\n", optopt);
           else if (isprint (optopt))
              fprintf (stderr, "Unknown option `-%c'.\n", optopt);
