@@ -1,15 +1,13 @@
 GoAccess
 ========
 
-What is it?
--------------
+## What is it? ##
 GoAccess is an open source **real-time web log analyzer** and interactive viewer that **runs in a terminal in *nix systems**. It provides fast and valuable HTTP statistics for system administrators that require a visual server report on the fly.
 More info at: http://goaccess.prosoftcorp.com/ 
 
 ![GoAccess Main Dashboard](http://goaccess.prosoftcorp.com/images/goaccess_screenshot1M-03L.png?1373815595)
 
-Features
-----------
+## Features ##
 GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
 
 * General Statistics, bandwidth etc.
@@ -40,23 +38,33 @@ GoAccess allows any custom log format string. Predefined options include, but no
 * Amazon CloudFront (Download Distribution).
 * Apache virtual hosts
 
-Why GoAccess?
--------------
+## Why GoAccess? ##
 The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an HTML report, by default it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
 
-Installation
-------------
+## Installation ##
 GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
-Briefly, the shell commands `./configure; make; make install` should configure, build, and install GoAccess.
-An INSTALL file is attached within the package for more-detailed instructions. 
+Download, extract and compile GoAccess with:
 
-http://goaccess.prosoftcorp.com/download#installation
+    $ wget http://downloads.sourceforge.net/project/goaccess/0.6/goaccess-0.6.tar.gz
+    $ tar -xzvf goaccess-0.6.tar.gz
+    $ cd goaccess-0.6/
+    $ ./configure --enable-geoip --enable-utf8 
+    $ make
+    # make install
+    
+### Build from GitHub (Development) ###
 
-Usage
------
+    $ git clone https://github.com/allinurl/goaccess.git 
+    $ cd goaccess 
+    $ autoreconf -fi 
+    $ ./configure --enable-geoip --enable-utf8 
+    $ make
+    # make install
+
+## Usage ##
 The simplest and fastest usage would be:
 
     # goaccess -f access.log
