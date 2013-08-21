@@ -21,6 +21,8 @@
 #ifndef SETTINGS_H_INCLUDED
 #define SETTINGS_H_INCLUDED
 
+#include <limits.h>
+
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
@@ -49,7 +51,7 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
    char *ifile;
-   char iconfigfile[200];
+   char iconfigfile[_POSIX_PATH_MAX];
    char *ignore_host;
    char *date_format;
    char *log_format;

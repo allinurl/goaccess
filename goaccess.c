@@ -109,7 +109,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-p CONFIGFILE] -f log_file\n\n");
+   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-p CONFFILE] -f log_file\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -643,7 +643,9 @@ main (int argc, char *argv[])
           conf.ifile = optarg;
           break;
        case 'p':
-	      realpath( optarg, conf.iconfigfile );
+          if (realpath (optarg, conf.iconfigfile) == 0)
+             error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                            strerror (errno));
           break;
        case 'e':
           conf.ignore_host = optarg;
@@ -664,7 +666,7 @@ main (int argc, char *argv[])
              fprintf (stderr, "Unknown option `-%c'.\n", optopt);
           else
              fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
-          return 1;
+          return EXIT_FAILURE;
        default:
           abort ();
       }

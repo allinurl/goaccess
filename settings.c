@@ -82,25 +82,24 @@ set_conf_vars (int key, char *val)
 int
 parse_conf_file ()
 {
-   char *path = NULL, *conf_file = NULL, *user_home = NULL;
+   char *path = NULL, *user_home = NULL;
    char *val, *c;
    int key = 0;
    FILE *file;
-       
-   if (conf.iconfigfile != NULL){
-      conf_file = conf.iconfigfile;
-   }else{
+
+   if (conf.iconfigfile[0] != '\0')
+      path = alloc_string (conf.iconfigfile);
+   else {
       user_home = getenv ("HOME");
       if (user_home == NULL)
-        user_home = "";
+         user_home = "";
 
-  	  path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
+      path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
       sprintf (path, "%s/.goaccessrc", user_home);
-      conf_file = path;
    }
+   file = fopen (path, "r");
 
-   file = fopen (conf_file, "r");
-
+   /* could not open conf file, if so prompt conf dialog */
    if (file == NULL) {
       free (path);
       return -1;
@@ -118,9 +117,7 @@ parse_conf_file ()
          return -1;
       }
       for (c = val; *c; c++) {
-         /*
-          * get everything after space 
-          */
+         /* get everything after the space */
          if (!isspace (c[0])) {
             set_conf_vars (key, trim_str (c));
             break;
@@ -136,40 +133,37 @@ parse_conf_file ()
 void
 write_conf_file ()
 {
-   char *user_home;
-   user_home = getenv ("HOME");
-   if (user_home == NULL)
-      user_home = "";
-
-   char *path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
-   sprintf (path, "%s/.goaccessrc", user_home);
-
    FILE *file;
+   char *path = NULL, *user_home = NULL;
+
+   if (conf.iconfigfile[0] != '\0')
+      path = alloc_string (conf.iconfigfile);
+   else {
+      user_home = getenv ("HOME");
+      if (user_home == NULL)
+         user_home = "";
+
+      path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
+      sprintf (path, "%s/.goaccessrc", user_home);
+   }
+
    file = fopen (path, "w");
-   /*
-    * no file available 
-    */
+   /* no file available */
    if (file == NULL) {
       free (path);
       return;
    }
 
-   /*
-    * color scheme 
-    */
+   /* color scheme */
    fprintf (file, "color_scheme %d\n", conf.color_scheme);
 
-   /*
-    * date format 
-    */
+   /* date format */
    if (tmp_date_format)
       fprintf (file, "date_format %s\n", tmp_date_format);
    else
       fprintf (file, "date_format %s\n", conf.date_format);
 
-   /*
-    * log format 
-    */
+   /* log format */
    if (tmp_log_format)
       fprintf (file, "log_format %s", tmp_log_format);
    else
