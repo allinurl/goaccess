@@ -55,6 +55,7 @@ typedef struct GConf_
    char *ignore_host;
    char *date_format;
    char *log_format;
+   char *output_format; 
    int color_scheme;
    int list_agents;
    int load_conf_dlg;

@@ -32,5 +32,6 @@
 #include "settings.h"
 
 void output_html (GLog * logger, GHolder * holder);
+void output_csv (GLog * logger, GHolder * holder);
 
 #endif
