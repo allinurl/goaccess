@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:acrm";
+static char short_options[] = "f:e:p:o:acrm";
 
 GConf conf = { 0 };
 
@@ -109,8 +109,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf
-      ("goaccess -f log_file [-c][-r][-m][-a][-e IP_ADDRESS][-p CONFFILE]\n\n");
+   printf ("goaccess -f log_file [-c][-r][-m][-a][-o csv][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -120,6 +119,7 @@ cmd_help (void)
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n");
+   printf (" -o <argument> - Output format. '-o csv' for CSV.\n");
    printf (" -p <argument> - Custom configuration file.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
@@ -686,6 +686,9 @@ main (int argc, char *argv[])
        case 'c':
           conf.load_conf_dlg = 1;
           break;
+       case 'o':
+          conf.output_format = optarg;
+          break; 
        case 'r':
           conf.skip_resolver = 1;
           break;
@@ -693,7 +696,7 @@ main (int argc, char *argv[])
           conf.mouse_support = 1;
           break;
        case '?':
-          if (optopt == 'f' || optopt == 'e' || optopt == 'p')
+          if (optopt == 'f' || optopt == 'e' || optopt == 'p' || optopt == 'o')
              fprintf (stderr, "Option -%c requires an argument.\n", optopt);
           else if (isprint (optopt))
              fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -844,7 +847,10 @@ main (int argc, char *argv[])
       if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
       allocate_holder ();
-      output_html (logger, holder);
+      if( conf.output_format != NULL && *conf.output_format == 'c' )
+        output_csv (logger, holder);    
+      else
+        output_html (logger, holder); 
       goto done;
    }
 
