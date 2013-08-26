@@ -75,6 +75,7 @@ static GSort sort[TOTAL_MODULES] = {
    {REFERRING_SITES , SORT_BY_HITS, SORT_DESC}, 
    {KEYPHRASES      , SORT_BY_HITS, SORT_DESC}, 
    {STATUS_CODES    , SORT_BY_HITS, SORT_DESC}, 
+   {COUNTRIES       , SORT_BY_HITS, SORT_DESC}, 
 };
 
 static GScrolling scrolling = {
@@ -158,6 +159,7 @@ house_keeping (GLog * logger, GDash * dash)
    g_hash_table_destroy (ht_requests);
    g_hash_table_destroy (ht_requests_static);
    g_hash_table_destroy (ht_status_code);
+   g_hash_table_destroy (ht_countries);
    g_hash_table_destroy (ht_unique_vis);
    g_hash_table_destroy (ht_unique_visitors);
 }
@@ -209,6 +211,9 @@ allocate_holder (void)
           break;
        case STATUS_CODES:
           ht = ht_status_code;
+          break;
+       case COUNTRIES:
+          ht = ht_countries;
           break;
       }
 
@@ -292,6 +297,11 @@ allocate_data ()
           break;
        case STATUS_CODES:
           ht = ht_status_code;
+          dash->module[module].head = CODES_HEAD;
+          dash->module[module].desc = CODES_DESC;
+          break;
+       case COUNTRIES:
+          ht = ht_countries;
           dash->module[module].head = CODES_HEAD;
           dash->module[module].desc = CODES_DESC;
           break;
@@ -715,6 +725,9 @@ main (int argc, char *argv[])
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
    ht_status_code =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) free_key_value, NULL);
+   ht_countries =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
    ht_referring_sites =

@@ -79,6 +79,7 @@ GHashTable *ht_referring_sites        = NULL;
 GHashTable *ht_requests               = NULL;
 GHashTable *ht_requests_static        = NULL;
 GHashTable *ht_status_code            = NULL;
+GHashTable *ht_countries              = NULL;
 GHashTable *ht_unique_visitors        = NULL;
 GHashTable *ht_unique_vis             = NULL;
 /* *INDENT-ON* */
@@ -774,6 +775,12 @@ process_log (GLog * logger, char *line, int test)
    process_referrers (log->ref);
    /* process status codes */
    process_generic_data (ht_status_code, log->status);
+
+#ifdef HAVE_LIBGEOIP
+   /* process country */
+   process_generic_data (ht_countries, get_geoip_data( log->host) );
+#endif
+
    /* process hosts */
    process_generic_data (ht_hosts, log->host);
 

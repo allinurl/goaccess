@@ -70,6 +70,12 @@ clean_output (FILE * fp, char *s)
        case '\\':
           fprintf (fp, "&#92;");
           break;
+       case 'ç':
+          fprintf (fp, "&#231;");
+          break;
+       case 'Ç':
+          fprintf (fp, "&#199;");
+          break;
        default:
           fputc (*s, fp);
           break;
@@ -332,6 +338,10 @@ print_html_generic (FILE * fp, GHolder * h, int process)
     case KEYPHRASES:
        print_html_head_top (fp, KEYPH_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
        print_html_head_bottom (fp, KEYPH_DESC, 3);
+       break;
+    case COUNTRIES:
+       print_html_head_top (fp, COUNT_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, COUNT_DESC, 3);
        break;
     default:
        break;
@@ -810,6 +820,7 @@ output_html (GLog * logger, GHolder * holder)
    print_html_generic (fp, holder + REFERRING_SITES, logger->process);
    print_html_generic (fp, holder + KEYPHRASES, logger->process);
    print_html_status (fp, holder + STATUS_CODES, logger->process);
+   print_html_generic (fp, holder + COUNTRIES, logger->process);
 
    print_html_footer (fp, asctime (now_tm));
 }
@@ -934,7 +945,7 @@ output_csv (GLog * logger, GHolder * holder)
    }
 
    /* os, browsers, referrers, referring sites, keyphrases & status code report */
-   for (r = 0; r < 6; r++) {
+   for (r = 0; r < 7; r++) {
 	switch (r) {
        case 0:	h = holder + OS;
 				strcpy( id, "os" );
@@ -953,6 +964,9 @@ output_csv (GLog * logger, GHolder * holder)
 				break;
        case 5:	h = holder + STATUS_CODES;
 				strcpy( id, "status" );
+				break;
+       case 6:	h = holder + COUNTRIES;
+				strcpy( id, "country" );
 				break;
 	}
 
