@@ -23,6 +23,5 @@
 
 extern int active_gdns;         /* kill dns pthread flag */
 void render_screens (void);
-void allocate_hosts_holder (char *ip);
 
 #endif

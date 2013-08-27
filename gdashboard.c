@@ -1042,7 +1042,7 @@ add_host_node (GHolder * h, int hits, char *data, unsigned long long bw,
 
    if (!found) {
       dns_resolver (ip);
-   } else {
+   } else if (value_ptr) {
       add_sub_item_back (sub_list, h->module, (char *) value_ptr, hits, bw);
       h->items[h->idx].sub_list = sub_list;
       h->sub_items_size++;
