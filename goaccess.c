@@ -217,11 +217,6 @@ allocate_holder (void)
       raw_data = parse_raw_data (ht, ht_size, module);
       load_data_to_holder (raw_data, holder + module, module, sort[module]);
    }
-
-   if (!conf.output_html && !conf.skip_resolver) {
-      active_gdns = 1;
-      gdns_thread_create ();
-   }
 }
 
 /* allocate memory for an instance of dashboard */
@@ -316,12 +311,6 @@ allocate_data ()
       load_data_to_dash (&holder[module], dash, module, &scrolling);
       pthread_mutex_unlock (&gdns_thread.mutex);
    }
-}
-
-void
-allocate_hosts_holder (char *ip)
-{
-   load_host_to_holder (holder + HOSTS, ip);
 }
 
 /* render all windows */
@@ -462,8 +451,12 @@ get_keys (GLog * logger)
           }
           reset_scroll_offsets (&scrolling);
           scrolling.expanded = 1;
+
+          free_holder (&holder);
           free_dashboard (dash);
+          allocate_holder ();
           allocate_data ();
+
           display_content (main_win, logger, dash, &scrolling);
           break;
        case KEY_DOWN:
@@ -829,6 +822,11 @@ main (int argc, char *argv[])
 
    allocate_holder ();
    allocate_data ();
+
+   if (!conf.skip_resolver) {
+      active_gdns = 1;
+      gdns_thread_create ();
+   }
 
    render_screens (logger);
    get_keys (logger);
