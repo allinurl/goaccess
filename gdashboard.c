@@ -1234,35 +1234,6 @@ sort_sub_list (GHolder * h, GSort sort)
    }
 }
 
-void
-load_host_to_holder (GHolder * h, char *ip)
-{
-   int idx = get_item_idx_in_holder (h, ip);
-   if (idx == -1)
-      return;
-
-   int hits = 0;
-   unsigned long long bw;
-
-   gpointer value_ptr;
-   GSubList *sub_list;
-
-   bw = h->items[idx].bw;
-   hits = h->items[idx].hits;
-   sub_list = h->items[idx].sub_list;
-
-   if (sub_list == NULL)
-      sub_list = new_gsublist ();
-
-   value_ptr = g_hash_table_lookup (ht_hostnames, ip);
-
-   if (value_ptr != NULL) {
-      add_sub_item_back (sub_list, HOSTS, (char *) value_ptr, hits, bw);
-      h->items[idx].sub_list = sub_list;
-      h->sub_items_size++;
-   }
-}
-
 /* load raw hash table's data into holder */
 void
 load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
