@@ -343,6 +343,10 @@ print_html_generic (FILE * fp, GHolder * h, int process)
        print_html_head_top (fp, COUNT_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
        print_html_head_bottom (fp, COUNT_DESC, 3);
        break;
+    case CONTINENTS:
+       print_html_head_top (fp, CONTI_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, CONTI_DESC, 3);
+       break;
     default:
        break;
    }
@@ -821,7 +825,7 @@ output_html (GLog * logger, GHolder * holder)
    print_html_generic (fp, holder + KEYPHRASES, logger->process);
    print_html_status (fp, holder + STATUS_CODES, logger->process);
    print_html_generic (fp, holder + COUNTRIES, logger->process);
-
+   print_html_generic (fp, holder + CONTINENTS, logger->process);
    print_html_footer (fp, asctime (now_tm));
 }
 
@@ -945,7 +949,7 @@ output_csv (GLog * logger, GHolder * holder)
    }
 
    /* os, browsers, referrers, referring sites, keyphrases & status code report */
-   for (r = 0; r < 7; r++) {
+   for (r = 0; r < 8; r++) {
 	switch (r) {
        case 0:	h = holder + OS;
 				strcpy( id, "os" );
@@ -967,6 +971,9 @@ output_csv (GLog * logger, GHolder * holder)
 				break;
        case 6:	h = holder + COUNTRIES;
 				strcpy( id, "country" );
+				break;
+       case 7:	h = holder + CONTINENTS;
+				strcpy( id, "continent" );
 				break;
 	}
 

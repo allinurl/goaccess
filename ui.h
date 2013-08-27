@@ -110,7 +110,7 @@
 
 #define HIGHLIGHT         1
 
-#define TOTAL_MODULES     12
+#define TOTAL_MODULES     13
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -130,6 +130,7 @@ typedef enum MODULES
    KEYPHRASES,
    STATUS_CODES,
    COUNTRIES,
+   CONTINENTS,
 } GModule;
 
 typedef enum SCHEMES

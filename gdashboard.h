@@ -67,6 +67,8 @@
 #define KEYPH_DESC "Top keyphrases - hits, percent"
 #define COUNT_HEAD "Countries"
 #define COUNT_DESC "Top countries - hits, percent"
+#define CONTI_HEAD "Continents"
+#define CONTI_DESC "Top continents - hits, percent"
 
 typedef struct GDashStyle_
 {
@@ -183,7 +185,6 @@ void load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module, GSor
 void load_host_to_holder (GHolder * h, char *ip);
 void reset_find ();
 void reset_scroll_offsets (GScrolling * scrolling);
-char *get_geoip_data (const char *data);
 /* *INDENT-ON* */
 
 #endif
