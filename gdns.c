@@ -175,6 +175,7 @@ dns_resolver (char *addr)
    if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
       g_hash_table_replace (ht_hostnames, g_strdup (addr), NULL);
       gqueue_enqueue (gdns_queue, addr);
+      pthread_cond_broadcast (&gdns_thread.not_empty);
    }
    pthread_mutex_unlock (&gdns_thread.mutex);
 }
@@ -202,10 +203,9 @@ dns_worker (void GO_UNUSED (*ptr_data))
          break;
       }
 
-      if (host != NULL && active_gdns) {
+      if (host != NULL && active_gdns)
          g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
-         allocate_hosts_holder (ip);
-      }
+
       pthread_cond_signal (&gdns_thread.not_full);
       pthread_mutex_unlock (&gdns_thread.mutex);
    }
