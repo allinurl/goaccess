@@ -55,7 +55,7 @@ typedef struct GConf_
    char *ignore_host;
    char *date_format;
    char *log_format;
-   char *output_format; 
+   char *output_format;
    int color_scheme;
    int list_agents;
    int load_conf_dlg;
@@ -71,8 +71,8 @@ char *get_selected_format_str (size_t idx);
 size_t get_selected_format_idx ();
 
 extern GConf conf;
-extern char *tmp_log_format;
 extern char *tmp_date_format;
+extern char *tmp_log_format;
 
 int parse_conf_file ();
 void write_conf_file ();

@@ -56,6 +56,7 @@
 #include "settings.h"
 #include "util.h"
 
+GeoIP *geo_location_data;
 static GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},

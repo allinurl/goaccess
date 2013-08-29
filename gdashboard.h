@@ -174,6 +174,7 @@ GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 int get_item_idx_in_holder (GHolder * holder, char *k);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
+char *get_geoip_data (const char *data);
 void *add_hostname_node (void *ptr_holder);
 void add_sub_item_back (GSubList * sub_list, GModule module, const char *data, int hits, unsigned long long bw);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScrolling * scrolling);

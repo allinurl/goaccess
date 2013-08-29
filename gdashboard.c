@@ -31,10 +31,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-#ifdef HAVE_LIBGEOIP
-#  include <GeoIP.h>
-#endif
-
 #include "gdashboard.h"
 
 #include "error.h"
@@ -48,6 +44,7 @@
 
 GHolder *holder = NULL;
 static GFind find_t;
+
 /* module's styles */
 static GDashStyle module_style[TOTAL_MODULES] = {
    {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1},          /* VISITORS        */
@@ -995,14 +992,10 @@ get_geoip_data (const char *data)
 #ifdef HAVE_LIBGEOIP
    const char *addr = data;
    /* Geolocation data */
-   GeoIP *gi;
-   gi = GeoIP_new (GEOIP_STANDARD);
-   if (gi != NULL)
-      location = GeoIP_country_name_by_name (gi, addr);
+   if (geo_location_data != NULL)
+      location = GeoIP_country_name_by_name (geo_location_data, addr);
    if (location == NULL)
       location = "Location Unknown";
-   if (gi != NULL)
-      GeoIP_delete (gi);
 #endif
    return (char *) location;
 }

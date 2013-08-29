@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:o:acr"; 
+static char short_options[] = "f:e:p:o:acr";
 
 GConf conf = { 0 };
 
@@ -111,7 +111,8 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-o csv][-p CONFFILE] -f log_file\n\n");
+   printf
+      ("goaccess [-e IP_ADDRESS][-a][-r][-c][-o csv][-p CONFFILE] -f log_file\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -143,6 +144,10 @@ house_keeping (GLog * logger, GDash * dash)
       free_dashboard (dash);
       reset_find ();
    }
+#ifdef HAVE_LIBGEOIP
+   if (geo_location_data != NULL)
+      GeoIP_delete (geo_location_data);
+#endif
 
    free (logger);
    g_hash_table_destroy (ht_browsers);
@@ -671,7 +676,7 @@ main (int argc, char *argv[])
           break;
        case 'o':
           conf.output_format = optarg;
-          break; 
+          break;
        case 'r':
           conf.skip_resolver = 1;
           break;
@@ -774,6 +779,11 @@ main (int argc, char *argv[])
    else
       setlocale (LC_CTYPE, "");
 
+#ifdef HAVE_LIBGEOIP
+   /* Geolocation data */
+   geo_location_data = GeoIP_new (GEOIP_STANDARD);
+#endif
+
    parse_conf_file ();
 
    if (conf.output_html)
@@ -833,10 +843,10 @@ main (int argc, char *argv[])
       if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
       allocate_holder ();
-      if( conf.output_format != NULL && *conf.output_format == 'c' )
-        output_csv (logger, holder);    
+      if (conf.output_format != NULL && *conf.output_format == 'c')
+         output_csv (logger, holder);
       else
-        output_html (logger, holder); 
+         output_html (logger, holder);
       goto done;
    }
 

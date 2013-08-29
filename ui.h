@@ -212,6 +212,8 @@ typedef struct GSpinner_
    } state;
 } GSpinner;
 
+extern GeoIP *geo_location_data;
+
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);
 char *ht_bw_str (GHashTable * ht, const char *key);
