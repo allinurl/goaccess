@@ -49,6 +49,8 @@ extern GHashTable *ht_referring_sites;
 extern GHashTable *ht_requests;
 extern GHashTable *ht_requests_static;
 extern GHashTable *ht_status_code;
+extern GHashTable *ht_countries;
+extern GHashTable *ht_continents;
 extern GHashTable *ht_unique_vis;
 extern GHashTable *ht_unique_visitors;
 

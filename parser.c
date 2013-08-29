@@ -79,9 +79,13 @@ GHashTable *ht_referring_sites        = NULL;
 GHashTable *ht_requests               = NULL;
 GHashTable *ht_requests_static        = NULL;
 GHashTable *ht_status_code            = NULL;
+GHashTable *ht_countries              = NULL;
+GHashTable *ht_continents             = NULL;
 GHashTable *ht_unique_visitors        = NULL;
 GHashTable *ht_unique_vis             = NULL;
 /* *INDENT-ON* */
+
+GeoIP *giobj;
 
 /* sort data ascending */
 int
@@ -375,6 +379,27 @@ process_host_agents (char *host, char *agent)
    if (a != NULL)
       free (a);
    return 0;
+}
+
+/* process country */
+static void
+process_country (const char *countryname)
+{
+   process_generic_data (ht_countries, countryname );
+}
+
+/* process continent */
+static void
+process_continent (const char *continentid)
+{
+   if(      memcmp( continentid, "NA", 2 ) == 0 ) process_generic_data ( ht_continents, "North America" );
+   else if( memcmp( continentid, "OC", 2 ) == 0 ) process_generic_data ( ht_continents, "Oceania" );
+   else if( memcmp( continentid, "EU", 2 ) == 0 ) process_generic_data ( ht_continents, "Europe" );
+   else if( memcmp( continentid, "SA", 2 ) == 0 ) process_generic_data ( ht_continents, "South America" );
+   else if( memcmp( continentid, "AF", 2 ) == 0 ) process_generic_data ( ht_continents, "Africa" );
+   else if( memcmp( continentid, "AN", 2 ) == 0 ) process_generic_data ( ht_continents, "Antarctica" );
+   else if( memcmp( continentid, "AS", 2 ) == 0 ) process_generic_data ( ht_continents, "Asia" );
+   else process_generic_data ( ht_continents, "Unknown" );
 }
 
 /* process referer */
@@ -774,6 +799,17 @@ process_log (GLog * logger, char *line, int test)
    process_referrers (log->ref);
    /* process status codes */
    process_generic_data (ht_status_code, log->status);
+   
+#ifdef HAVE_LIBGEOIP
+   int geoid = GeoIP_id_by_name( giobj, log->host );
+
+   /* process country */
+   process_country( GeoIP_country_name_by_id( giobj, geoid ) );
+
+   /* process continent */
+   process_continent( GeoIP_continent_by_id( geoid ) );
+#endif
+
    /* process hosts */
    process_generic_data (ht_hosts, log->host);
 
@@ -797,6 +833,10 @@ int
 parse_log (GLog ** logger, char *tail, int n)
 {
    FILE *fp = NULL;
+
+#ifdef HAVE_LIBGEOIP
+   giobj = GeoIP_new (GEOIP_MEMORY_CACHE);
+#endif
 
    char line[LINE_BUFFER];
    int i = 0, test = -1 == n ? 0 : 1;
@@ -825,6 +865,12 @@ parse_log (GLog ** logger, char *tail, int n)
          return 1;
       }
    }
+
+#ifdef HAVE_LIBGEOIP
+   if (giobj != NULL)
+      GeoIP_delete (giobj);
+#endif
+
    /* definitely not portable! */
    if ((*logger)->piping)
       freopen ("/dev/tty", "r", stdin);

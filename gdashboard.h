@@ -65,6 +65,10 @@
 #define SITES_DESC "Top referring sites - hits, percent"
 #define KEYPH_HEAD "Keyphrases from Google's search engine"
 #define KEYPH_DESC "Top keyphrases - hits, percent"
+#define COUNT_HEAD "Countries"
+#define COUNT_DESC "Top countries - hits, percent"
+#define CONTI_HEAD "Continents"
+#define CONTI_DESC "Top continents - hits, percent"
 
 typedef struct GDashStyle_
 {

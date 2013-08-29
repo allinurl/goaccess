@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:acr";
+static char short_options[] = "f:e:p:o:acr"; 
 
 GConf conf = { 0 };
 
@@ -75,6 +75,8 @@ static GSort sort[TOTAL_MODULES] = {
    {REFERRING_SITES , SORT_BY_HITS, SORT_DESC}, 
    {KEYPHRASES      , SORT_BY_HITS, SORT_DESC}, 
    {STATUS_CODES    , SORT_BY_HITS, SORT_DESC}, 
+   {COUNTRIES       , SORT_BY_HITS, SORT_DESC}, 
+   {CONTINENTS      , SORT_BY_HITS, SORT_DESC}, 
 };
 
 static GScrolling scrolling = {
@@ -109,7 +111,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-p CONFFILE] -f log_file\n\n");
+   printf ("goaccess [-e IP_ADDRESS][-a][-r][-c][-o csv][-p CONFFILE] -f log_file\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -118,6 +120,7 @@ cmd_help (void)
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n");
+   printf (" -o <argument> - Output format. '-o csv' for CSV.\n");
    printf (" -p <argument> - Custom configuration file.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
@@ -157,6 +160,8 @@ house_keeping (GLog * logger, GDash * dash)
    g_hash_table_destroy (ht_requests);
    g_hash_table_destroy (ht_requests_static);
    g_hash_table_destroy (ht_status_code);
+   g_hash_table_destroy (ht_countries);
+   g_hash_table_destroy (ht_continents);
    g_hash_table_destroy (ht_unique_vis);
    g_hash_table_destroy (ht_unique_visitors);
 }
@@ -208,6 +213,12 @@ allocate_holder (void)
           break;
        case STATUS_CODES:
           ht = ht_status_code;
+          break;
+       case COUNTRIES:
+          ht = ht_countries;
+          break;
+       case CONTINENTS:
+          ht = ht_continents;
           break;
       }
 
@@ -288,6 +299,16 @@ allocate_data ()
           ht = ht_status_code;
           dash->module[module].head = CODES_HEAD;
           dash->module[module].desc = CODES_DESC;
+          break;
+       case COUNTRIES:
+          ht = ht_countries;
+          dash->module[module].head = COUNT_HEAD;
+          dash->module[module].desc = COUNT_DESC;
+		  break;
+       case CONTINENTS:
+          ht = ht_continents;
+          dash->module[module].head = CONTI_HEAD;
+          dash->module[module].desc = CONTI_DESC;
           break;
       }
 
@@ -649,11 +670,14 @@ main (int argc, char *argv[])
        case 'c':
           conf.load_conf_dlg = 1;
           break;
+       case 'o':
+          conf.output_format = optarg;
+          break; 
        case 'r':
           conf.skip_resolver = 1;
           break;
        case '?':
-          if (optopt == 'f' || optopt == 'e' || optopt == 'p')
+          if (optopt == 'f' || optopt == 'e' || optopt == 'p' || optopt == 'o')
              fprintf (stderr, "Option -%c requires an argument.\n", optopt);
           else if (isprint (optopt))
              fprintf (stderr, "Unknown option `-%c'.\n", optopt);
@@ -704,6 +728,12 @@ main (int argc, char *argv[])
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
    ht_status_code =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) free_key_value, NULL);
+   ht_countries =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) free_key_value, NULL);
+   ht_continents =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
    ht_referring_sites =
@@ -804,7 +834,10 @@ main (int argc, char *argv[])
       if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
       allocate_holder ();
-      output_html (logger, holder);
+      if( conf.output_format != NULL && *conf.output_format == 'c' )
+        output_csv (logger, holder);    
+      else
+        output_html (logger, holder); 
       goto done;
    }
 
