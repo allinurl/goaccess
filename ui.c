@@ -21,7 +21,7 @@
 
 /*
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. 
+ * correctly.
  */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -63,6 +63,8 @@ static GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
@@ -184,7 +186,9 @@ module_to_label (GModule module)
       "Referrers",
       "Referring Sites",
       "Keyphrases",
-      "Status Codes"
+      "Status Codes",
+      "Countries",
+      "Continents",
    };
 
    return modules[module];
@@ -238,7 +242,7 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
       int color;
    } Field;
 
-   /* *INDENT-OFF* */ 
+   /* *INDENT-OFF* */
    char *failed       = int_to_str (invalid);
    char *not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
    char *process      = int_to_str (processed);

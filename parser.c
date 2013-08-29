@@ -21,7 +21,7 @@
 
 /*
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. 
+ * correctly.
  */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -366,9 +366,7 @@ process_host_agents (char *host, char *agent)
       tmp = xmalloc (len1 + len2 + 2);
       memcpy (tmp, ptr_value, len1);
       tmp[len1] = '|';
-      /*
-       * NUL-terminated 
-       */
+      /* NUL-terminated */
       memcpy (tmp + len1 + 1, a, len2 + 1);
    } else
       tmp = alloc_string (a);

@@ -58,6 +58,8 @@ static GDashStyle module_style[TOTAL_MODULES] = {
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* REFERRING_SITES */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* KEYPHRASES      */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* STATUS CODES    */
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* COUNTRIES       */
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* CONTINENTS      */
 };
 /* *INDENT-ON* */
 

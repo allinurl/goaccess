@@ -29,19 +29,19 @@
 #include "parser.h"
 
 /* *INDENT-OFF* */
-#define DASH_HEAD_POS   0  /* header line pos           */ 
-#define DASH_DESC_POS   1  /* description line pos      */ 
-#define DASH_EMPTY_POS  2  /* empty line pos            */ 
-#define DASH_DATA_POS   3  /* empty line pos            */ 
+#define DASH_HEAD_POS   0  /* header line pos           */
+#define DASH_DESC_POS   1  /* description line pos      */
+#define DASH_EMPTY_POS  2  /* empty line pos            */
+#define DASH_DATA_POS   3  /* empty line pos            */
 
-#define DASH_COLLAPSED  11 /* total items per module    */ 
-#define DASH_EXPANDED   32 /* total items when expanded */ 
-#define DASH_NON_DATA   4  /* items without stats       */ 
+#define DASH_COLLAPSED  11 /* total items per module    */
+#define DASH_EXPANDED   32 /* total items when expanded */
+#define DASH_NON_DATA   4  /* items without stats       */
 
-#define DASH_INIT_X     2  /* x-axis offset             */ 
-#define DASH_BW_LEN     11 /* max bandwidth length      */ 
-#define DASH_SRV_TM_LEN 9  /* max served time length    */ 
-#define DASH_SPACE      1  /* space between data        */ 
+#define DASH_INIT_X     2  /* x-axis offset             */
+#define DASH_BW_LEN     11 /* max bandwidth length      */
+#define DASH_SRV_TM_LEN 9  /* max served time length    */
+#define DASH_SPACE      1  /* space between data        */
 
 #define VISIT_HEAD "Unique visitors per day - Including spiders"
 #define VISIT_DESC "Hits having the same IP, date and agent are a unique visit"
@@ -143,9 +143,9 @@ typedef struct GHolderItem_
 
 typedef struct GHolder_
 {
-   GHolderItem *items; /* 1st level data    */ 
-   GModule module;     /* current module    */ 
-   int idx;            /* 1st level index   */ 
+   GHolderItem *items; /* 1st level data    */
+   GModule module;     /* current module    */
+   int idx;            /* 1st level index   */
    int holder_size;    /* total items on ht */
    int sub_items_size;
 } GHolder;
@@ -160,10 +160,10 @@ typedef struct GRawDataItem_
 
 typedef struct GRawData_
 {
-   GRawDataItem *items; /* 1st level data    */ 
-   GModule module;      /* current module    */ 
-   int idx;             /* 1st level index   */ 
-   int size;            /* total items on ht */ 
+   GRawDataItem *items; /* 1st level data    */
+   GModule module;      /* current module    */
+   int idx;             /* 1st level index   */
+   int size;            /* total items on ht */
 } GRawData;
 
 float get_percentage (unsigned long long total, unsigned long long hit);
