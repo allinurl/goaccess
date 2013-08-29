@@ -307,12 +307,13 @@ allocate_data ()
           break;
        case COUNTRIES:
           ht = ht_countries;
-          dash->module[module].head = CODES_HEAD;
-          dash->module[module].desc = CODES_DESC;
+          dash->module[module].head = COUNT_HEAD;
+          dash->module[module].desc = COUNT_DESC;
+		  break;
        case CONTINENTS:
           ht = ht_continents;
-          dash->module[module].head = CODES_HEAD;
-          dash->module[module].desc = CODES_DESC;
+          dash->module[module].head = CONTI_HEAD;
+          dash->module[module].desc = CONTI_DESC;
           break;
       }
 
