@@ -64,6 +64,7 @@ typedef struct GConf_
    int serve_usecs;
    int serve_secs;
    int bandwidth;
+   int geo_db;
 } GConf;
 
 char *get_selected_date_str (size_t idx);

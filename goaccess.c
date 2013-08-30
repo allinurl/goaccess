@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:o:acr";
+static char short_options[] = "f:e:p:o:acgr";
 
 GConf conf = { 0 };
 
@@ -114,11 +114,14 @@ cmd_help (void)
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
    printf
-      ("goaccess [-e IP_ADDRESS][-a][-r][-c][-o csv][-p CONFFILE] -f log_file\n\n");
+      ("goaccess [-e IP_ADDRESS][-arc][-o csv][-p CONFFILE] -f log_file\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
+#ifdef HAVE_LIBGEOIP
+   printf (" -g            - Standard GeoIP database for less memory usage.\n");
+#endif
    printf (" -a            - Enable a List of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
@@ -658,6 +661,7 @@ main (int argc, char *argv[])
    int row, col, o, index, quit = 0;
 
    opterr = 0;
+   conf.geo_db = GEOIP_MEMORY_CACHE;
    while ((o = getopt (argc, argv, short_options)) != -1) {
       switch (o) {
        case 'f':
@@ -667,6 +671,9 @@ main (int argc, char *argv[])
           if (realpath (optarg, conf.iconfigfile) == 0)
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             strerror (errno));
+          break;
+       case 'g':
+          conf.geo_db = GEOIP_STANDARD;
           break;
        case 'e':
           conf.ignore_host = optarg;
@@ -782,7 +789,7 @@ main (int argc, char *argv[])
 
 #ifdef HAVE_LIBGEOIP
    /* Geolocation data */
-   geo_location_data = GeoIP_new (GEOIP_STANDARD);
+   geo_location_data = GeoIP_new (conf.geo_db);
 #endif
 
    parse_conf_file ();
