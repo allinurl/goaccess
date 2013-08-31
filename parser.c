@@ -21,7 +21,7 @@
 
 /*
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. 
+ * correctly.
  */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -365,7 +365,7 @@ process_host_agents (char *host, char *agent)
       memcpy (tmp, ptr_value, len1);
       tmp[len1] = '|';
       /*
-       * NUL-terminated 
+       * NUL-terminated
        */
       memcpy (tmp + len1 + 1, a, len2 + 1);
    } else
@@ -661,7 +661,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             serve_secs = strtoull (tkn, &bEnd, 10);
+             if (strchr (tkn, '.') != NULL)
+                serve_secs = strtod (tkn, &bEnd);
+             else
+                serve_secs = strtoull (tkn, &bEnd, 10);
+
              if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
                 serve_secs = 0;
              /* convert it to microseconds */

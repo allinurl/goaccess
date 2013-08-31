@@ -21,7 +21,7 @@
 
 /*
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly. 
+ * correctly.
  */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
@@ -237,7 +237,7 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
       int color;
    } Field;
 
-   /* *INDENT-OFF* */ 
+   /* *INDENT-OFF* */
    char *failed       = int_to_str (invalid);
    char *not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
    char *process      = int_to_str (processed);
