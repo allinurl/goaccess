@@ -64,17 +64,17 @@ static GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
 static GSort sort[TOTAL_MODULES] = {
-   {VISITORS        , SORT_BY_DATA, SORT_DESC}, 
-   {REQUESTS        , SORT_BY_HITS, SORT_DESC}, 
-   {REQUESTS_STATIC , SORT_BY_HITS, SORT_DESC}, 
-   {NOT_FOUND       , SORT_BY_HITS, SORT_DESC}, 
-   {HOSTS           , SORT_BY_HITS, SORT_DESC}, 
-   {OS              , SORT_BY_HITS, SORT_DESC}, 
-   {BROWSERS        , SORT_BY_HITS, SORT_DESC}, 
-   {REFERRERS       , SORT_BY_HITS, SORT_DESC}, 
-   {REFERRING_SITES , SORT_BY_HITS, SORT_DESC}, 
-   {KEYPHRASES      , SORT_BY_HITS, SORT_DESC}, 
-   {STATUS_CODES    , SORT_BY_HITS, SORT_DESC}, 
+   {VISITORS        , SORT_BY_DATA, SORT_DESC},
+   {REQUESTS        , SORT_BY_HITS, SORT_DESC},
+   {REQUESTS_STATIC , SORT_BY_HITS, SORT_DESC},
+   {NOT_FOUND       , SORT_BY_HITS, SORT_DESC},
+   {HOSTS           , SORT_BY_HITS, SORT_DESC},
+   {OS              , SORT_BY_HITS, SORT_DESC},
+   {BROWSERS        , SORT_BY_HITS, SORT_DESC},
+   {REFERRERS       , SORT_BY_HITS, SORT_DESC},
+   {REFERRING_SITES , SORT_BY_HITS, SORT_DESC},
+   {KEYPHRASES      , SORT_BY_HITS, SORT_DESC},
+   {STATUS_CODES    , SORT_BY_HITS, SORT_DESC},
 };
 
 static GScrolling scrolling = {
@@ -82,13 +82,13 @@ static GScrolling scrolling = {
       {0, 0}, /* visitors   {scroll, offset} */
       {0, 0}, /* requests   {scroll, offset} */
       {0, 0}, /* req static {scroll, offset} */
-      {0, 0}, /* not found  {scroll, offset} */ 
-      {0, 0}, /* hosts      {scroll, offset} */ 
-      {0, 0}, /* os         {scroll, offset} */ 
-      {0, 0}, /* browsers   {scroll, offset} */ 
-      {0, 0}, /* status     {scroll, offset} */ 
-      {0, 0}, /* referrers  {scroll, offset} */ 
-      {0, 0}, /* ref sites  {scroll, offset} */ 
+      {0, 0}, /* not found  {scroll, offset} */
+      {0, 0}, /* hosts      {scroll, offset} */
+      {0, 0}, /* os         {scroll, offset} */
+      {0, 0}, /* browsers   {scroll, offset} */
+      {0, 0}, /* status     {scroll, offset} */
+      {0, 0}, /* referrers  {scroll, offset} */
+      {0, 0}, /* ref sites  {scroll, offset} */
       {0, 0}  /* keywords   {scroll, offset} */
    },
    0,         /* current module */
@@ -674,7 +674,7 @@ main (int argc, char *argv[])
       cmd_help ();
 
    /*
-    * initialize hash tables 
+    * initialize hash tables
     */
    ht_unique_visitors =
       g_hash_table_new_full (g_str_hash, g_str_equal,
