@@ -212,7 +212,9 @@ typedef struct GSpinner_
    } state;
 } GSpinner;
 
+#ifdef HAVE_LIBGEOIP
 extern GeoIP *geo_location_data;
+#endif
 
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);

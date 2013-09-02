@@ -377,13 +377,7 @@ process_host_agents (char *host, char *agent)
    return 0;
 }
 
-/* process country */
-static void
-process_country (const char *countryname)
-{
-   process_generic_data (ht_countries, countryname);
-}
-
+#ifdef HAVE_LIBGEOIP
 /* process continent */
 static void
 process_continent (const char *continentid)
@@ -405,6 +399,7 @@ process_continent (const char *continentid)
    else
       process_generic_data (ht_continents, "Unknown");
 }
+#endif
 
 /* process referer */
 static void
@@ -735,8 +730,6 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
 static int
 process_log (GLog * logger, char *line, int test)
 {
-   int geo_id;
-   const char *location = NULL;
    char buf[DATE_LEN];
 
    /* make compiler happy */
@@ -807,11 +800,11 @@ process_log (GLog * logger, char *line, int test)
    process_generic_data (ht_status_code, log->status);
 
 #ifdef HAVE_LIBGEOIP
-   geo_id = GeoIP_id_by_name (geo_location_data, log->host);
+   int geo_id = GeoIP_id_by_name (geo_location_data, log->host);
 
    /* process country */
-   location = get_geoip_data (log->host);
-   process_country (location);
+   const char *location = get_geoip_data (log->host);
+   process_generic_data (ht_countries, location);
 
    /* process continent */
    process_continent (GeoIP_continent_by_id (geo_id));

@@ -52,7 +52,12 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:o:acgr";
+
+#ifdef HAVE_LIBGEOIP
+static char short_options[] = "f:e:p:o:acgr";   /* geoip on */
+#else
+static char short_options[] = "f:e:p:o:acr";    /* no geoip */
+#endif
 
 GConf conf = { 0 };
 
@@ -661,7 +666,9 @@ main (int argc, char *argv[])
    int row, col, o, index, quit = 0;
 
    opterr = 0;
+#ifdef HAVE_LIBGEOIP
    conf.geo_db = GEOIP_MEMORY_CACHE;
+#endif
    while ((o = getopt (argc, argv, short_options)) != -1) {
       switch (o) {
        case 'f':
@@ -672,9 +679,11 @@ main (int argc, char *argv[])
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             strerror (errno));
           break;
+#ifdef HAVE_LIBGEOIP
        case 'g':
           conf.geo_db = GEOIP_STANDARD;
           break;
+#endif
        case 'e':
           conf.ignore_host = optarg;
           break;
