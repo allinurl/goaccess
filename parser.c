@@ -397,7 +397,7 @@ process_continent (const char *continentid)
    else if (memcmp (continentid, "AS", 2) == 0)
       process_generic_data (ht_continents, "Asia");
    else
-      process_generic_data (ht_continents, "Unknown");
+      process_generic_data (ht_continents, "Location Unknown");
 }
 #endif
 
