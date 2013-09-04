@@ -197,7 +197,30 @@ delete_sub_list (GSubList * sub_list)
    free (sub_list);
 }
 
-/* free allocated memory for holder */
+/* free memory allocated in holder for specific module */
+void
+free_holder_by_module (GHolder ** holder, GModule module)
+{
+   if ((*holder) == NULL)
+      return;
+
+   GSubList *sub_list;
+   int j;
+   for (j = 0; j < (*holder)[module].holder_size; j++) {
+      sub_list = (*holder)[module].items[j].sub_list;
+      /* free the sub list */
+      if (sub_list != NULL)
+         delete_sub_list (sub_list);
+      if ((*holder)[module].items[j].data != NULL)
+         free ((*holder)[module].items[j].data);
+   }
+   free ((*holder)[module].items);
+   (*holder)[module].holder_size = 0;
+   (*holder)[module].idx = 0;
+   (*holder)[module].sub_items_size = 0;
+}
+
+/* free memory allocated in holder */
 void
 free_holder (GHolder ** holder)
 {
@@ -239,7 +262,7 @@ new_grawdata_item (unsigned int size)
    return item;
 }
 
-/* free allocated memory for raw data */
+/* free memory allocated in raw data */
 void
 free_raw_data (GRawData * raw_data)
 {
@@ -1232,6 +1255,98 @@ sort_sub_list (GHolder * h, GSort sort)
       }
       free (arr_items);
    }
+}
+
+GHashTable *
+get_ht_by_module (GModule module)
+{
+   GHashTable *ht;
+
+   switch (module) {
+    case VISITORS:
+       ht = ht_unique_vis;
+       break;
+    case REQUESTS:
+       ht = ht_requests;
+       break;
+    case REQUESTS_STATIC:
+       ht = ht_requests_static;
+       break;
+    case NOT_FOUND:
+       ht = ht_not_found_requests;
+       break;
+    case HOSTS:
+       ht = ht_hosts;
+       break;
+    case OS:
+       ht = ht_os;
+       break;
+    case BROWSERS:
+       ht = ht_browsers;
+       break;
+    case REFERRERS:
+       ht = ht_referrers;
+       break;
+    case REFERRING_SITES:
+       ht = ht_referring_sites;
+       break;
+    case KEYPHRASES:
+       ht = ht_keyphrases;
+       break;
+    case STATUS_CODES:
+       ht = ht_status_code;
+       break;
+    default:
+       return NULL;
+   }
+
+   return ht;
+}
+
+unsigned int
+get_ht_size_by_module (GModule module)
+{
+   GHashTable *ht;
+
+   switch (module) {
+    case VISITORS:
+       ht = ht_unique_vis;
+       break;
+    case REQUESTS:
+       ht = ht_requests;
+       break;
+    case REQUESTS_STATIC:
+       ht = ht_requests_static;
+       break;
+    case NOT_FOUND:
+       ht = ht_not_found_requests;
+       break;
+    case HOSTS:
+       ht = ht_hosts;
+       break;
+    case OS:
+       ht = ht_os;
+       break;
+    case BROWSERS:
+       ht = ht_browsers;
+       break;
+    case REFERRERS:
+       ht = ht_referrers;
+       break;
+    case REFERRING_SITES:
+       ht = ht_referring_sites;
+       break;
+    case KEYPHRASES:
+       ht = ht_keyphrases;
+       break;
+    case STATUS_CODES:
+       ht = ht_status_code;
+       break;
+    default:
+       return 0;
+   }
+
+   return g_hash_table_size (ht);
 }
 
 /* load raw hash table's data into holder */

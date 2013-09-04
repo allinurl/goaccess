@@ -139,11 +139,11 @@ typedef struct GHolderItem_
 
 typedef struct GHolder_
 {
-   GHolderItem *items; /* 1st level data    */
-   GModule module;     /* current module    */
-   int idx;            /* 1st level index   */
-   int holder_size;    /* total items on ht */
-   int sub_items_size;
+   GHolderItem *items; /* data                             */
+   GModule module;     /* current module                   */
+   int idx;            /* first level index                */
+   int holder_size;    /* total num of items (first level) */
+   int sub_items_size; /* total number of sub items        */
 } GHolder;
 
 typedef struct GRawDataItem_
@@ -156,10 +156,10 @@ typedef struct GRawDataItem_
 
 typedef struct GRawData_
 {
-   GRawDataItem *items; /* 1st level data    */
-   GModule module;      /* current module    */
-   int idx;             /* 1st level index   */
-   int size;            /* total items on ht */
+   GRawDataItem *items; /* data                     */
+   GModule module;      /* current module           */
+   int idx;             /* first level index        */
+   int size;            /* total num of items on ht */
 } GRawData;
 
 float get_percentage (unsigned long long total, unsigned long long hit);
@@ -178,6 +178,8 @@ void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScrolling * scrolling);
 void load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
+GHashTable *get_ht_by_module (GModule module);
+unsigned int get_ht_size_by_module (GModule module);
 void load_host_to_holder (GHolder * h, char *ip);
 void reset_find ();
 void reset_scroll_offsets (GScrolling * scrolling);
