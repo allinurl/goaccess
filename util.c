@@ -46,6 +46,7 @@
 
 /* {"search string", "belongs to"} */
 static char *os[][2] = {
+   {"Windows NT 6.3", "Windows"},
    {"Windows NT 6.2", "Windows"},
    {"Windows NT 6.1", "Windows"},
    {"Windows NT 6.0", "Windows"},
@@ -94,6 +95,7 @@ static char *browsers[][2] = {
    {"Avant Browser", "Others"},
    {"America Online Browser", "Others"},
    {"MSIE", "MSIE"},
+   {"Trident", "MSIE"},
    {"Flock", "Others"},
    {"Epiphany", "Others"},
    {"SeaMonkey", "Others"},
