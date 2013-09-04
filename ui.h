@@ -128,7 +128,7 @@ typedef enum MODULES
    REFERRERS,
    REFERRING_SITES,
    KEYPHRASES,
-   STATUS_CODES,
+   STATUS_CODES
 } GModule;
 
 typedef enum SCHEMES

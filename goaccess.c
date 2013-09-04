@@ -96,7 +96,7 @@ static GScrolling scrolling = {
    0,         /* expanded flag */
 };
 /* *INDENT-ON* */
-/* frees the memory allocated by the GHashTable */
+/* free memory allocated by g_hash_table_new_full() function */
 static void
 free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
                 GO_UNUSED gpointer user_data)
@@ -163,56 +163,36 @@ house_keeping (GLog * logger, GDash * dash)
 
 /* allocate memory for an instance of holder */
 static void
+allocate_holder_by_module (GHolder * h, GModule module)
+{
+   GHashTable *ht;
+   GRawData *raw_data;
+   unsigned int ht_size = 0;
+
+   /* extract data from the corresponding hash table */
+   ht = get_ht_by_module (module);
+   ht_size = get_ht_size_by_module (module);
+   raw_data = parse_raw_data (ht, ht_size, module);
+   load_data_to_holder (raw_data, holder + module, module, sort[module]);
+}
+
+/* allocate memory for an instance of holder */
+static void
 allocate_holder (void)
 {
-   int ht_size = 0;
-
-   int i;
    GHashTable *ht;
    GModule module;
    GRawData *raw_data;
+   int i;
+   unsigned int ht_size = 0;
 
    holder = new_gholder (TOTAL_MODULES);
    for (i = 0; i < TOTAL_MODULES; i++) {
       module = i;
-      switch (module) {
-       case VISITORS:
-          ht = ht_unique_vis;
-          break;
-       case REQUESTS:
-          ht = ht_requests;
-          break;
-       case REQUESTS_STATIC:
-          ht = ht_requests_static;
-          break;
-       case NOT_FOUND:
-          ht = ht_not_found_requests;
-          break;
-       case HOSTS:
-          ht = ht_hosts;
-          break;
-       case OS:
-          ht = ht_os;
-          break;
-       case BROWSERS:
-          ht = ht_browsers;
-          break;
-       case REFERRERS:
-          ht = ht_referrers;
-          break;
-       case REFERRING_SITES:
-          ht = ht_referring_sites;
-          break;
-       case KEYPHRASES:
-          ht = ht_keyphrases;
-          break;
-       case STATUS_CODES:
-          ht = ht_status_code;
-          break;
-      }
 
       /* extract data from the corresponding hash table */
-      ht_size = g_hash_table_size (ht);
+      ht = get_ht_by_module (module);
+      ht_size = get_ht_size_by_module (module);
       raw_data = parse_raw_data (ht, ht_size, module);
       load_data_to_holder (raw_data, holder + module, module, sort[module]);
    }
@@ -226,7 +206,6 @@ allocate_data ()
    int size = 0, ht_size = 0;
 
    int i;
-   GHashTable *ht;
    GModule module;
 
    dash = new_gdash ();
@@ -235,63 +214,52 @@ allocate_data ()
 
       switch (module) {
        case VISITORS:
-          ht = ht_unique_vis;
           dash->module[module].head = VISIT_HEAD;
           dash->module[module].desc = VISIT_DESC;
           break;
        case REQUESTS:
-          ht = ht_requests;
           dash->module[module].head = REQUE_HEAD;
           dash->module[module].desc = REQUE_DESC;
           break;
        case REQUESTS_STATIC:
-          ht = ht_requests_static;
           dash->module[module].head = STATI_HEAD;
           dash->module[module].desc = STATI_DESC;
           break;
        case NOT_FOUND:
-          ht = ht_not_found_requests;
           dash->module[module].head = FOUND_HEAD;
           dash->module[module].desc = FOUND_DESC;
           break;
        case HOSTS:
-          ht = ht_hosts;
           dash->module[module].head = HOSTS_HEAD;
           dash->module[module].desc = HOSTS_DESC;
           break;
        case OS:
-          ht = ht_os;
           dash->module[module].head = OPERA_HEAD;
           dash->module[module].desc = OPERA_DESC;
           break;
        case BROWSERS:
-          ht = ht_browsers;
           dash->module[module].head = BROWS_HEAD;
           dash->module[module].desc = BROWS_DESC;
           break;
        case REFERRERS:
-          ht = ht_referrers;
           dash->module[module].head = REFER_HEAD;
           dash->module[module].desc = REFER_DESC;
           break;
        case REFERRING_SITES:
-          ht = ht_referring_sites;
           dash->module[module].head = SITES_HEAD;
           dash->module[module].desc = SITES_DESC;
           break;
        case KEYPHRASES:
-          ht = ht_keyphrases;
           dash->module[module].head = KEYPH_HEAD;
           dash->module[module].desc = KEYPH_DESC;
           break;
        case STATUS_CODES:
-          ht = ht_status_code;
           dash->module[module].head = CODES_HEAD;
           dash->module[module].desc = CODES_DESC;
           break;
       }
 
-      ht_size = g_hash_table_size (ht);
+      ht_size = get_ht_size_by_module (module);
       size = ht_size > col_data ? col_data : ht_size;
       if (scrolling.expanded && module == scrolling.current)
          size = MAX_CHOICES;
@@ -451,9 +419,9 @@ get_keys (GLog * logger)
           reset_scroll_offsets (&scrolling);
           scrolling.expanded = 1;
 
-          free_holder (&holder);
+          free_holder_by_module (&holder, scrolling.current);
           free_dashboard (dash);
-          allocate_holder ();
+          allocate_holder_by_module (holder, scrolling.current);
           allocate_data ();
 
           display_content (main_win, logger, dash, &scrolling);
