@@ -405,10 +405,10 @@ render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 
    bar = get_bars (module_data->data[idx].hits, module_data->max_hits, *x);
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
@@ -436,10 +436,10 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
@@ -472,10 +472,10 @@ render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
       return;
 
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
@@ -504,10 +504,10 @@ render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x,
       return;
 
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
@@ -540,10 +540,10 @@ render_percent (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       max_hit = 1;
 
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
@@ -580,10 +580,10 @@ render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       goto inc;
 
    if (selected) {
-      if (conf.color_scheme == MONOCHROME)
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      else
+      if (conf.color_scheme == STD_GREEN)
          init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, 0, ' ', w);

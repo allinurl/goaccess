@@ -119,12 +119,12 @@ void
 draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
                 int checked)
 {
-   if (conf.color_scheme == MONOCHROME) {
-      init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      init_pair (2, COLOR_WHITE, -1);
-   } else {
+   if (conf.color_scheme == STD_GREEN) {
       init_pair (1, COLOR_BLACK, COLOR_GREEN);
       init_pair (2, COLOR_BLACK, COLOR_CYAN);
+   } else {
+      init_pair (1, COLOR_BLACK, COLOR_WHITE);
+      init_pair (2, COLOR_WHITE, -1);
    }
    wattron (menu->win, COLOR_PAIR (color));
    mvwhline (menu->win, y, x, ' ', w);
