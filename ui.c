@@ -192,6 +192,7 @@ module_to_label (GModule module)
       "Status Codes",
       "Countries",
       "Continents",
+      "Daily requests",
    };
 
    return modules[module];

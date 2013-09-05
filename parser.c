@@ -83,6 +83,7 @@ GHashTable *ht_countries              = NULL;
 GHashTable *ht_continents             = NULL;
 GHashTable *ht_unique_visitors        = NULL;
 GHashTable *ht_unique_vis             = NULL;
+GHashTable *ht_drequests              = NULL;
 /* *INDENT-ON* */
 
 /* sort data ascending */
@@ -400,6 +401,15 @@ process_continent (const char *continentid)
       process_generic_data (ht_continents, "Location Unknown");
 }
 #endif
+
+/* process requests by day */
+static void
+process_drequests (char *date)
+{
+   char buf[DATE_LEN];
+   convert_date (buf, date, conf.date_format, "%d/%b/%Y", DATE_LEN);
+   process_generic_data (ht_drequests, buf);
+}
 
 /* process referer */
 static void
@@ -782,6 +792,9 @@ process_log (GLog * logger, char *line, int test)
 
    /* process visitors, browsers, and OS */
    process_unique_data (log->host, buf, log->agent);
+
+   /* process requests by day */
+   process_drequests( log->date );
 
    /* process 404s */
    if (!memcmp (log->status, "404", 3))

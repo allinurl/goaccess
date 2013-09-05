@@ -82,6 +82,7 @@ static GSort sort[TOTAL_MODULES] = {
    {STATUS_CODES    , SORT_BY_HITS, SORT_DESC},
    {COUNTRIES       , SORT_BY_HITS, SORT_DESC},
    {CONTINENTS      , SORT_BY_HITS, SORT_DESC},
+   {DREQUESTS       , SORT_BY_DATA, SORT_DESC},
 };
 
 static GScrolling scrolling = {
@@ -99,6 +100,7 @@ static GScrolling scrolling = {
       {0, 0}, /* status     {scroll, offset} */
       {0, 0}, /* countries  {scroll, offset} */
       {0, 0}, /* continents {scroll, offset} */
+      {0, 0}, /* drequests  {scroll, offset} */
    },
    0,         /* current module */
    0,         /* main dashboard scroll */
@@ -184,6 +186,7 @@ house_keeping (GLog * logger, GDash * dash)
    g_hash_table_destroy (ht_continents);
    g_hash_table_destroy (ht_unique_vis);
    g_hash_table_destroy (ht_unique_visitors);
+   g_hash_table_destroy (ht_drequests);
 }
 
 /* allocate memory for an instance of holder */
@@ -239,6 +242,9 @@ allocate_holder (void)
           break;
        case CONTINENTS:
           ht = ht_continents;
+          break;
+       case DREQUESTS:
+          ht = ht_drequests;
           break;
       }
 
@@ -329,6 +335,11 @@ allocate_data ()
           ht = ht_continents;
           dash->module[module].head = CONTI_HEAD;
           dash->module[module].desc = CONTI_DESC;
+          break;
+       case DREQUESTS:
+          ht = ht_drequests;
+          dash->module[module].head = DREQU_HEAD;
+          dash->module[module].desc = DREQU_DESC;
           break;
       }
 
@@ -792,6 +803,9 @@ main (int argc, char *argv[])
    ht_host_serve_usecs =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
+   ht_drequests =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) free_key_value, NULL);
 
    char *loc_ctype = getenv ("LC_CTYPE");
    if (loc_ctype != NULL)
