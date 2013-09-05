@@ -88,20 +88,20 @@ init_colors ()
    use_default_colors ();
 
    init_pair (COL_BLUE, COLOR_BLUE, -1);
-   if (conf.color_scheme == MONOCHROME)
-      init_pair (COL_GREEN, COLOR_WHITE, -1);
-   else
+   if (conf.color_scheme == STD_GREEN)
       init_pair (COL_GREEN, COLOR_GREEN, -1);
+   else
+      init_pair (COL_GREEN, COLOR_WHITE, -1);
 
    init_pair (COL_RED, COLOR_RED, -1);
    init_pair (COL_BLACK, COLOR_BLACK, -1);
    init_pair (COL_CYAN, COLOR_CYAN, -1);
    init_pair (COL_YELLOW, COLOR_YELLOW, -1);
 
-   if (conf.color_scheme == MONOCHROME)
-      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_WHITE);
-   else
+   if (conf.color_scheme == STD_GREEN)
       init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);
+   else
+      init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_WHITE);
 
    init_pair (BLACK_GREEN, COLOR_BLACK, COLOR_GREEN);
    init_pair (BLACK_CYAN, COLOR_BLACK, COLOR_CYAN);
@@ -145,12 +145,12 @@ draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
    char buf[256];
    snprintf (buf, sizeof buf, "%s%s", " ", header);
 
-   if (conf.color_scheme == MONOCHROME) {
-      init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      init_pair (2, COLOR_WHITE, -1);
-   } else {
+   if (conf.color_scheme == STD_GREEN) {
       init_pair (1, COLOR_BLACK, COLOR_GREEN);
       init_pair (2, COLOR_BLACK, COLOR_CYAN);
+   } else {
+      init_pair (1, COLOR_BLACK, COLOR_WHITE);
+      init_pair (2, COLOR_WHITE, -1);
    }
    wattron (win, COLOR_PAIR (color));
    mvwhline (win, y, x, ' ', w);
@@ -849,10 +849,10 @@ verify_format (GLog * logger, GSpinner * spinner)
 static void
 scheme_chosen (char *name)
 {
-   if (strcmp ("Monochrome/Default", name) == 0)
-      conf.color_scheme = MONOCHROME;
-   else
+   if (strcmp ("Green/Original", name) == 0)
       conf.color_scheme = STD_GREEN;
+   else
+      conf.color_scheme = MONOCHROME;
    init_colors ();
 }
 
