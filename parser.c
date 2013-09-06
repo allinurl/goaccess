@@ -484,12 +484,22 @@ parse_req (char *line)
 {
    char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
 
-   if ((lookfor = "GET ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "POST ", req_l = strstr (line, lookfor)) != NULL ||
+   if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "GET ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "HEAD ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "POST ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "PUT ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "DELETE ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "TRACE ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "CONNECT ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "options ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "get ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "post ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL) {
+       (lookfor = "put ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "delete ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "trace ", req_l = strstr (line, lookfor)) != NULL ||
+       (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL ){
 
       /* didn't find it - weird  */
       if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
