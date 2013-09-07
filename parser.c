@@ -83,6 +83,7 @@ GHashTable *ht_countries              = NULL;
 GHashTable *ht_continents             = NULL;
 GHashTable *ht_unique_visitors        = NULL;
 GHashTable *ht_unique_vis             = NULL;
+GHashTable *ht_drequests              = NULL;
 /* *INDENT-ON* */
 
 /* sort data ascending */
@@ -383,23 +384,32 @@ static void
 process_continent (const char *continentid)
 {
    if (memcmp (continentid, "NA", 2) == 0)
-      process_generic_data (ht_continents, "North America");
+      process_generic_data (ht_continents, "NA North America");
    else if (memcmp (continentid, "OC", 2) == 0)
-      process_generic_data (ht_continents, "Oceania");
+      process_generic_data (ht_continents, "OC Oceania");
    else if (memcmp (continentid, "EU", 2) == 0)
-      process_generic_data (ht_continents, "Europe");
+      process_generic_data (ht_continents, "EU Europe");
    else if (memcmp (continentid, "SA", 2) == 0)
-      process_generic_data (ht_continents, "South America");
+      process_generic_data (ht_continents, "SA South America");
    else if (memcmp (continentid, "AF", 2) == 0)
-      process_generic_data (ht_continents, "Africa");
+      process_generic_data (ht_continents, "AF Africa");
    else if (memcmp (continentid, "AN", 2) == 0)
-      process_generic_data (ht_continents, "Antarctica");
+      process_generic_data (ht_continents, "AN Antarctica");
    else if (memcmp (continentid, "AS", 2) == 0)
-      process_generic_data (ht_continents, "Asia");
+      process_generic_data (ht_continents, "AS Asia");
    else
-      process_generic_data (ht_continents, "Location Unknown");
+      process_generic_data (ht_continents, "-- Location Unknown");
 }
 #endif
+
+/* process requests by day */
+static void
+process_drequests (char *date)
+{
+   char buf[DATE_LEN];
+   convert_date (buf, date, conf.date_format, "%d/%b/%Y", DATE_LEN);
+   process_generic_data (ht_drequests, buf);
+}
 
 /* process referer */
 static void
@@ -783,6 +793,9 @@ process_log (GLog * logger, char *line, int test)
    /* process visitors, browsers, and OS */
    process_unique_data (log->host, buf, log->agent);
 
+   /* process requests by day */
+   process_drequests( log->date );
+
    /* process 404s */
    if (!memcmp (log->status, "404", 3))
       process_generic_data (ht_not_found_requests, log->req);
@@ -803,7 +816,8 @@ process_log (GLog * logger, char *line, int test)
    int geo_id = GeoIP_id_by_name (geo_location_data, log->host);
 
    /* process country */
-   const char *location = get_geoip_data (log->host);
+   char location[30];
+   sprintf( location, "%s %s", GeoIP_code_by_id( geo_id ), get_geoip_data (log->host) );
    process_generic_data (ht_countries, location);
 
    /* process continent */

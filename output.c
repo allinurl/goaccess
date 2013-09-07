@@ -347,6 +347,10 @@ print_html_generic (FILE * fp, GHolder * h, int process)
        print_html_head_top (fp, CONTI_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
        print_html_head_bottom (fp, CONTI_DESC, 3);
        break;
+    case DREQUESTS:
+       print_html_head_top (fp, DREQU_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
+       print_html_head_bottom (fp, DREQU_DESC, 3);
+       break;
     default:
        break;
    }
@@ -609,6 +613,10 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       print_html_head_top (fp, REQUE_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
       print_html_head_bottom (fp, REQUE_DESC, 5);
    }
+   if (ht == ht_drequests) {
+      print_html_head_top (fp, DREQU_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
+      print_html_head_bottom (fp, DREQU_DESC, 5);
+   }
    else if (ht == ht_requests_static) {
       print_html_head_top (fp, STATI_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
       print_html_head_bottom (fp, STATI_DESC, 5);
@@ -810,6 +818,7 @@ output_html (GLog * logger, GHolder * holder)
    print_html_summary (fp, logger);
 
    print_html_visitors_report (fp, holder + VISITORS);
+   print_html_generic (fp, holder + DREQUESTS, logger->process);
    print_html_request_report (fp, holder + REQUESTS, ht_requests,
                               logger->process);
    print_html_request_report (fp, holder + REQUESTS_STATIC, ht_requests_static,
@@ -957,8 +966,8 @@ output_csv (GLog * logger, GHolder * holder)
       }
    }
 
-   /* os, browsers, referrers, referring sites, keyphrases & status code report */
-   for (r = 0; r < 8; r++) {
+   /* os, browsers, referrers, referring sites, keyphrases, status code & daily report */
+   for (r = 0; r < 9; r++) {
       switch (r) {
        case 0:
           h = holder + OS;
@@ -991,6 +1000,10 @@ output_csv (GLog * logger, GHolder * holder)
        case 7:
           h = holder + CONTINENTS;
           strcpy (id, "continent");
+          break;
+       case 8:
+          h = holder + DREQUESTS;
+          strcpy (id, "dailyrequest");
           break;
       }
 

@@ -53,6 +53,7 @@ extern GHashTable *ht_countries;
 extern GHashTable *ht_continents;
 extern GHashTable *ht_unique_vis;
 extern GHashTable *ht_unique_visitors;
+extern GHashTable *ht_drequests;
 
 typedef struct GLogItem_
 {

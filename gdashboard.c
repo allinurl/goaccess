@@ -60,6 +60,7 @@ static GDashStyle module_style[TOTAL_MODULES] = {
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* STATUS CODES    */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* COUNTRIES       */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* CONTINENTS      */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1},          /* DAILY REQUESTS  */
 };
 /* *INDENT-ON* */
 

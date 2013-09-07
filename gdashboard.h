@@ -69,6 +69,8 @@
 #define COUNT_DESC "Top countries - hits, percent"
 #define CONTI_HEAD "Continents"
 #define CONTI_DESC "Top continents - hits, percent"
+#define DREQU_HEAD "Requests per day - Including spiders"
+#define DREQU_DESC "Requests group by day"
 
 typedef struct GDashStyle_
 {
