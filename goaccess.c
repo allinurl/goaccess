@@ -727,11 +727,11 @@ main (int argc, char *argv[])
           abort ();
       }
    }
-   if (!isatty (STDOUT_FILENO))
+   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
       conf.output_html = 1;
-   if (conf.ifile != NULL && !isatty (STDIN_FILENO))
+   if (conf.ifile != NULL && !isatty (STDIN_FILENO) && conf.output_format == NULL )
       cmd_help ();
-   if (conf.ifile == NULL && isatty (STDIN_FILENO))
+   if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL )
       cmd_help ();
    for (index = optind; index < argc; index++)
       cmd_help ();
