@@ -325,11 +325,7 @@ process_keyphrases (char *ref)
          free (dec);
       return -1;
    }
-   while (*p != '\0') {
-      if (*p == '+')
-         *p = ' ';
-      p++;
-   }
+   p = char_replace (p, '+', ' ');
    process_generic_data (ht_keyphrases, trim_str (dec));
    if (dec != NULL)
       free (dec);
