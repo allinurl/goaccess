@@ -632,11 +632,11 @@ main (int argc, char *argv[])
           abort ();
       }
    }
-   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
+   if (!isatty (STDOUT_FILENO))
       conf.output_html = 1;
-   if (conf.ifile != NULL && !isatty (STDIN_FILENO) && conf.output_format == NULL )
+   if (conf.ifile != NULL && !isatty (STDIN_FILENO))
       cmd_help ();
-   if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL )
+   if (conf.ifile == NULL && isatty (STDIN_FILENO))
       cmd_help ();
    for (index = optind; index < argc; index++)
       cmd_help ();
