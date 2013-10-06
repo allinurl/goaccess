@@ -1,11 +1,11 @@
-.TH goaccess 1 "JULY 2013" Linux "User Manuals"
+.TH goaccess 1 "OCTOBER 2013" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
 .B ]
-.I [-c] [-e] [-r] [-a]
+.I [-c] [-r][-m][-a][-e IP_ADDRESS][-p CONFFILE]
 .SH DESCRIPTION
 .B goaccess
 is a free (GPL) real-time web log analyzer and interactive 
@@ -79,12 +79,16 @@ display hits and percent.
 Path to input log file.
 .IP -c
 Prompt date and log format configuration window.
-.IP -e
+.IP "-e ip address"
 Exclude an IP from being counted under the HOST module.
 .IP -a
 Enable a list of User-Agents for the selected host.
 .IP -r
 Disables IP resolver
+.IP -m
+Enable mouse support on main dashboard.
+.IP "-p conf file"
+Use a custom configuration file.
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format. 
 
@@ -130,13 +134,13 @@ The User-Agent HTTP request header.
 .IP %D
 The time taken to serve the request, in microseconds.
 .IP %T
-The time taken to serve the request, in seconds.
+The time taken to serve the request, in seconds or milliseconds.
 .I Note:
 %D will take priority over %T if both are used.
 .IP %^
 Ignore this field.
 .SH INTERACTIVE MENU
-.IP "F1 or ^ h" 
+.IP "F1 or h" 
 Main help.
 .IP "F5"
 Redraw main window.
@@ -144,9 +148,11 @@ Redraw main window.
 Quit the program, current window or collapse active module
 .IP "o or  ENTER"
 Expand selected module or open window
-.IP "^ DOWN or j"
+.IP "0-9 and Shift + 0"
+Set selected module to active
+.IP "j"
 Scroll down within expanded module
-.IP "^ UP or k"
+.IP "k"
 Scroll up within expanded module
 .IP "c"
 Set or change scheme color.
