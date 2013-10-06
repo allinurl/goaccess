@@ -100,7 +100,7 @@ http://goaccess.prosoftcorp.com/man
 
 ## Contributing ##
 
-If you're thinking to contribute to GoAccess, we'd love to hear from you! Feel free to use the Github issue tracker and pull requests to discuss and submit code changes.
+Any help on GoAccess is welcome. Feel free to use the Github issue tracker and pull requests to discuss and submit code changes.
 
 
 Enjoy!
