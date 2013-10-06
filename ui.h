@@ -90,11 +90,11 @@
 #define AGENTS_MENU_Y     4
 
 #define HELP_MENU_HEIGHT  12
-#define HELP_MENU_WIDTH   52
+#define HELP_MENU_WIDTH   60
 #define HELP_MENU_X       2
 #define HELP_MENU_Y       4
 #define HELP_WIN_HEIGHT   17
-#define HELP_WIN_WIDTH    56
+#define HELP_WIN_WIDTH    64
 
 #define BLACK_CYAN        9
 #define BLACK_GREEN       8

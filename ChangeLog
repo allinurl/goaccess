@@ -1,3 +1,21 @@
+Changes to GoAccess 0.6.1 - Monday, October 07, 2013
+   * Added active module indication by name.
+   * Added additional crawlers to the list.
+   * Added custom configuration file option.
+   * Added human-readable string when unable to open log.
+   * Added missing include when compiling on OSX 10.6.
+   * Added optional mouse support to the main dashboard.
+   * Added the ability to select active module by number (keys).
+   * Added the rest of HTTP methods according to RFC2616.
+   * Changed referring site sscanf format to process multiple URLs.
+   * Changed the default color scheme to monochrome.
+   * Fixed issue where %T was not processing floating-point numbers.
+   * Fixed percentage issue for browsers and os modules.
+   * Fixed SIGSEGV when reading from stdin to stdout.
+   * Improved performance when expanding a module.
+   * Reduced memory consumption by decreasing number of dns threads.
+   * Removed ^UP/^DOWN due to a key mapping conflict.
+
 Changes to GoAccess 0.6 - Monday, July 15, 2013
 
    * Moved away from the original pop-up UI to a new expandable
