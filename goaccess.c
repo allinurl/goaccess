@@ -333,6 +333,15 @@ collapse_current_module (void)
 }
 
 static void
+set_module_to (GLog * logger, GScrolling * scrolling, GModule module)
+{
+   /* reset expanded module */
+   collapse_current_module ();
+   scrolling->current = module;
+   render_screens (logger);
+}
+
+static void
 get_keys (GLog * logger)
 {
    int search;
@@ -366,6 +375,50 @@ get_keys (GLog * logger)
        case '?':
        case 'h':
           load_help_popup (main_win);
+          break;
+       case 49:                /* 1 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, VISITORS);
+          break;
+       case 50:                /* 2 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, REQUESTS);
+          break;
+       case 51:                /* 3 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, REQUESTS_STATIC);
+          break;
+       case 52:                /* 4 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, NOT_FOUND);
+          break;
+       case 53:                /* 5 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, HOSTS);
+          break;
+       case 54:                /* 6 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, OS);
+          break;
+       case 55:                /* 7 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, BROWSERS);
+          break;
+       case 56:                /* 8 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, REFERRERS);
+          break;
+       case 57:                /* 9 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, REFERRING_SITES);
+          break;
+       case 48:                /* 0 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, KEYPHRASES);
+          break;
+       case 33:                /* Shift+1 */
+          /* reset expanded module */
+          set_module_to (logger, &scrolling, STATUS_CODES);
           break;
        case 9:                 /* TAB */
           /* reset expanded module */
@@ -459,9 +512,6 @@ get_keys (GLog * logger)
           }
           break;
        case 106:               /* j - DOWN expanded module */
-       case 519:               /* ^ DOWN - xterm-256color  */
-       case 527:               /* ^ DOWN - gnome-terminal  */
-       case 66:                /* ^ DOWN - screen-256color */
           scroll_ptr = &scrolling.module[scrolling.current].scroll;
           offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -521,9 +571,6 @@ get_keys (GLog * logger)
           display_content (main_win, logger, dash, &scrolling);
           break;
        case 107:               /* k - UP expanded module */
-       case 560:               /* ^ UP - xterm-256color  */
-       case 568:               /* ^ UP - gnome-terminal  */
-       case 65:                /* ^ UP - screen-256color */
           scroll_ptr = &scrolling.module[scrolling.current].scroll;
           offset_ptr = &scrolling.module[scrolling.current].offset;
 
