@@ -34,8 +34,8 @@
 #define DASH_EMPTY_POS  2  /* empty line pos            */
 #define DASH_DATA_POS   3  /* empty line pos            */
 
-#define DASH_COLLAPSED  11 /* total items per module    */
-#define DASH_EXPANDED   32 /* total items when expanded */
+#define DASH_COLLAPSED  11 /* total lines per module    */
+#define DASH_EXPANDED   32 /* total lines when expanded */
 #define DASH_NON_DATA   4  /* items without stats       */
 
 #define DASH_INIT_X     2  /* x-axis offset             */
@@ -103,6 +103,7 @@ typedef struct GDashModule_
    int idx_data;    /* idx data         */
    int max_hits;
    int perc_len;
+   unsigned short pos_y;
 } GDashModule;
 
 typedef struct GDash_
@@ -165,11 +166,13 @@ typedef struct GRawData_
 float get_percentage (unsigned long long total, unsigned long long hit);
 GDashData *new_gdata (unsigned int size);
 GDash *new_gdash ();
+GHashTable *get_ht_by_module (GModule module);
 GHolder *new_gholder (unsigned int size);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 int get_item_idx_in_holder (GHolder * holder, char *k);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
+unsigned int get_ht_size_by_module (GModule module);
 void *add_hostname_node (void *ptr_holder);
 void add_sub_item_back (GSubList * sub_list, GModule module, const char *data, int hits, unsigned long long bw);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScrolling * scrolling);
@@ -178,11 +181,10 @@ void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScrolling * scrolling);
 void load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
-GHashTable *get_ht_by_module (GModule module);
-unsigned int get_ht_size_by_module (GModule module);
 void load_host_to_holder (GHolder * h, char *ip);
 void reset_find ();
 void reset_scroll_offsets (GScrolling * scrolling);
+void set_module_from_mouse_event (GScrolling *scrolling, GDash *dash, int y);
 /* *INDENT-ON* */
 
 #endif

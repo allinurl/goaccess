@@ -118,6 +118,9 @@ set_input_opts (void)
    intrflush (stdscr, FALSE);
    keypad (stdscr, TRUE);
    curs_set (0);
+
+   if (conf.mouse_support)
+      mousemask (BUTTON1_CLICKED, NULL);
 }
 
 /* delete ncurses window handling */

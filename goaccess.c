@@ -52,7 +52,7 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
-static char short_options[] = "f:e:p:acr";
+static char short_options[] = "f:e:p:acrm";
 
 GConf conf = { 0 };
 
@@ -114,7 +114,8 @@ cmd_help (void)
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
-   printf (" -a            - Enable a List of User-Agents by host.\n");
+   printf (" -m            - Enable mouse support on main dashboard.\n");
+   printf (" -a            - Enable a list of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n");
@@ -267,6 +268,7 @@ allocate_data ()
       dash->module[module].alloc_data = size;   /* data allocated  */
       dash->module[module].ht_size = ht_size;   /* hash table size */
       dash->module[module].idx_data = 0;
+      dash->module[module].pos_y = 0;
 
       if (scrolling.expanded && module == scrolling.current)
          dash->module[module].dash_size = DASH_EXPANDED;
@@ -333,9 +335,10 @@ static void
 get_keys (GLog * logger)
 {
    int search;
-   int c, quit = 1, scroll, offset;
+   int c, quit = 1, scroll, offset, ok_mouse;
    int *scroll_ptr, *offset_ptr;
    int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+   MEVENT event;
 
    char buf[LINE_BUFFER];
    FILE *fp = NULL;
@@ -358,8 +361,9 @@ get_keys (GLog * logger)
           allocate_data ();
           display_content (main_win, logger, dash, &scrolling);
           break;
-       case 8:
-       case 265:
+       case KEY_F (1):
+       case '?':
+       case 'h':
           load_help_popup (main_win);
           break;
        case 9:                 /* TAB */
@@ -426,10 +430,31 @@ get_keys (GLog * logger)
 
           display_content (main_win, logger, dash, &scrolling);
           break;
-       case KEY_DOWN:
+       case KEY_DOWN:          /* scroll main dashboard */
           if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
              scrolling.dash++;
              display_content (main_win, logger, dash, &scrolling);
+          }
+          break;
+       case KEY_MOUSE:         /* handles mouse events */
+          ok_mouse = getmouse (&event);
+          if (conf.mouse_support && ok_mouse == OK) {
+             if (event.bstate & BUTTON1_CLICKED) {
+                /* ignore header/footer clicks */
+                if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
+                   break;
+
+                set_module_from_mouse_event (&scrolling, dash, event.y);
+                reset_scroll_offsets (&scrolling);
+                scrolling.expanded = 1;
+
+                free_holder_by_module (&holder, scrolling.current);
+                free_dashboard (dash);
+                allocate_holder_by_module (holder, scrolling.current);
+                allocate_data ();
+
+                render_screens (logger);
+             }
           }
           break;
        case 106:               /* j - DOWN expanded module */
@@ -619,6 +644,9 @@ main (int argc, char *argv[])
           break;
        case 'r':
           conf.skip_resolver = 1;
+          break;
+       case 'm':
+          conf.mouse_support = 1;
           break;
        case '?':
           if (optopt == 'f' || optopt == 'e' || optopt == 'p')

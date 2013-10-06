@@ -495,7 +495,7 @@ parse_req (char *line)
        (lookfor = "put ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "delete ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "trace ", req_l = strstr (line, lookfor)) != NULL ||
-       (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL ){
+       (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL) {
 
       /* didn't find it - weird  */
       if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
