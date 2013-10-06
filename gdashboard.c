@@ -270,6 +270,41 @@ free_raw_data (GRawData * raw_data)
    free (raw_data);
 }
 
+/**
+ * Determine which module should be expanded given the
+ * current mouse position.
+ */
+void
+set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
+{
+   int module = 0, i;
+   int offset = y - MAX_HEIGHT_HEADER - MAX_HEIGHT_FOOTER + 1;
+   if (scrolling->expanded) {
+      for (i = 0; i < TOTAL_MODULES; i++) {
+         /* set current module */
+         if (dash->module[i].pos_y == offset) {
+            module = i;
+            break;
+         }
+         /* we went over by one module, set current - 1 */
+         if (dash->module[i].pos_y > offset) {
+            module = i - 1;
+            break;
+         }
+      }
+   } else {
+      offset += scrolling->dash;
+      module = offset / DASH_COLLAPSED;
+   }
+
+   if (module >= TOTAL_MODULES)
+      module = TOTAL_MODULES - 1;
+   else if (module < 0)
+      module = 0;
+
+   scrolling->current = module;
+}
+
 /* calculate hits percentage */
 float
 get_percentage (unsigned long long total, unsigned long long hit)
@@ -625,6 +660,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
       if ((i % size) == DASH_HEAD_POS) {
          draw_header (win, module_data->head, 0, (*y), w, 1);
          render_total_label (win, module_data, (*y));
+         module_data->pos_y = (*y);
          (*y)++;
       }
       /* description */
@@ -712,8 +748,8 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
       dash->module[i].perc_len = intlen ((int) max_percent) + 4;
 
       render_content (win, &dash->module[i], &y, &offset, &total, scrolling);
-      if (y >= win_h)
-         break;
+      /*if (y >= win_h) */
+      /*break; */
    }
    wrefresh (win);
 }

@@ -50,19 +50,20 @@ typedef struct GConfKeyword_
 
 typedef struct GConf_
 {
-   char *ifile;
-   char iconfigfile[_POSIX_PATH_MAX];
-   char *ignore_host;
    char *date_format;
+   char iconfigfile[_POSIX_PATH_MAX];
+   char *ifile;
+   char *ignore_host;
    char *log_format;
+   int bandwidth;
    int color_scheme;
    int list_agents;
    int load_conf_dlg;
-   int skip_resolver;
+   int mouse_support;
    int output_html;
-   int serve_usecs;
    int serve_secs;
-   int bandwidth;
+   int serve_usecs;
+   int skip_resolver;
 } GConf;
 
 char *get_selected_date_str (size_t idx);
