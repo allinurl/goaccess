@@ -98,5 +98,9 @@ The following will get all HTTP requests starting on 05/Dec/2010 until the end o
 For more examples, please check GoAccess' man page: 
 http://goaccess.prosoftcorp.com/man
 
+## Contributing ##
+
+If you're thinking to contribute to GoAccess, we'd love to hear from you! Feel free to use the Github issue tracker and pull requests to discuss and submit code changes.
+
 
 Enjoy!
