@@ -709,9 +709,6 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
 {
    float max_percent = 0.0;
    int i, j, n = 0, process = 0;
-   int win_h, win_w;
-   getmaxyx (win, win_h, win_w);
-   win_w = win_w;
 
    int y = 0, offset = 0, total = 0;
    int dash_scroll = scrolling->dash;
@@ -748,8 +745,6 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
       dash->module[i].perc_len = intlen ((int) max_percent) + 4;
 
       render_content (win, &dash->module[i], &y, &offset, &total, scrolling);
-      /*if (y >= win_h) */
-      /*break; */
    }
    wrefresh (win);
 }
