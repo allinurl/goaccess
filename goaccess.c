@@ -328,7 +328,7 @@ collapse_current_module (void)
       reset_scroll_offsets (&scrolling);
       free_dashboard (dash);
       allocate_data ();
-      display_content (main_win, logger, dash, &scrolling);
+      render_screens (logger);
    }
 }
 
@@ -364,17 +364,13 @@ get_keys (GLog * logger)
              quit = 0;
              break;
           }
-          scrolling.module[scrolling.current].scroll = 0;
-          scrolling.module[scrolling.current].offset = 0;
-          scrolling.expanded = 0;
-          free_dashboard (dash);
-          allocate_data ();
-          display_content (main_win, logger, dash, &scrolling);
+          collapse_current_module ();
           break;
        case KEY_F (1):
        case '?':
        case 'h':
           load_help_popup (main_win);
+          render_screens (logger);
           break;
        case 49:                /* 1 */
           /* reset expanded module */
