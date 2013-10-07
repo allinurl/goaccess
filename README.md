@@ -48,9 +48,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://downloads.sourceforge.net/project/goaccess/0.6/goaccess-0.6.tar.gz
-    $ tar -xzvf goaccess-0.6.tar.gz
-    $ cd goaccess-0.6/
+    $ wget http://downloads.sourceforge.net/project/goaccess/0.6.1/goaccess-0.6.1.tar.gz
+    $ tar -xzvf goaccess-0.6.1.tar.gz
+    $ cd goaccess-0.6.1/
     $ ./configure --enable-geoip --enable-utf8 
     $ make
     # make install
