@@ -38,7 +38,7 @@ char *tmp_log_format = NULL;
 char *tmp_date_format = NULL;
 
 /* *INDENT-OFF* */
-static GPreConfLog logs = {
+static const GPreConfLog logs = {
    "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",       /* CLF           */
    "%h %^[%d:%^] \"%r\" %s %b",                     /* CLF w/ VHost  */
    "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"", /* NCSA          */
@@ -47,7 +47,7 @@ static GPreConfLog logs = {
    "%d %^ %^ %b %h %^ %^ %r %s %R %u %^"            /* CloudFront    */
 };
 
-static GPreConfDate dates = {
+static const GPreConfDate dates = {
    "%d/%b/%Y", /* Apache     */
    "%Y-%m-%d", /* W3C        */
    "%m/%d/%Y"  /* CloudFront */
@@ -55,7 +55,7 @@ static GPreConfDate dates = {
 /* *INDENT-ON* */
 
 /* config file keywords */
-static GConfKeyword keywords[] = {
+static const GConfKeyword keywords[] = {
    {1, "color_scheme"},
    {2, "log_format"},
    {3, "date_format"}

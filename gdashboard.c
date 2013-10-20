@@ -49,7 +49,7 @@
 GHolder *holder = NULL;
 static GFind find_t;
 /* module's styles */
-static GDashStyle module_style[TOTAL_MODULES] = {
+static const GDashStyle module_style[TOTAL_MODULES] = {
    {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1},          /* VISITORS        */
    {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK},        /* REQUESTS        */
    {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK},        /* REQUESTS_STATIC */
@@ -431,7 +431,7 @@ void
 render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
    char *bar;
 
@@ -463,7 +463,7 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
    char buf[DATE_LEN];
    char *data;
 
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    data = substring (module_data->data[idx].data, 0, w - *x);
@@ -498,7 +498,7 @@ void
 render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
                   int idx, int w, int selected)
 {
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
@@ -530,7 +530,7 @@ void
 render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x,
               int idx, int w, int selected)
 {
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
@@ -563,7 +563,7 @@ render_percent (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
                 int w, int selected)
 {
    int max_hit = 0;
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
@@ -608,7 +608,7 @@ void
 render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
-   GDashStyle *style = module_style;
+   const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
