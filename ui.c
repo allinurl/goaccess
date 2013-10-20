@@ -655,7 +655,7 @@ verify_format (GLog * logger, GSpinner * spinner)
    int w2 = w - 2;
 
    /* conf dialog menu options */
-   char *choices[] = {
+   const char *choices[] = {
       "Common Log Format (CLF)",
       "Common Log Format (CLF) with Virtual Host",
       "NCSA Combined Log Format",
@@ -1069,7 +1069,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
    wrefresh (main_win);
 }
 
-static char *help_main[] = {
+static const char *help_main[] = {
    "Copyright (C) 2009-2013",
    "by Gerardo Orellana <goaccess@prosoftcorp.com>",
    "http://goaccess.prosoftcorp.com",

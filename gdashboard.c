@@ -998,7 +998,7 @@ get_serve_time (const char *key, GModule module)
 /* iterate over holder and get the key index.
  * return -1 if not found */
 int
-get_item_idx_in_holder (GHolder * holder, char *k)
+get_item_idx_in_holder (GHolder * holder, const char *k)
 {
    int i;
    if (holder == NULL)
@@ -1147,7 +1147,7 @@ static void
 add_status_code_node (GHolder * h, int hits, char *data, unsigned long long bw)
 {
    GSubList *sub_list;
-   char *type = NULL, *status = NULL;
+   const char *type = NULL, *status = NULL;
    int type_idx = -1;
 
    type = verify_status_code_type (data);

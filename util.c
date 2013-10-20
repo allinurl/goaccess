@@ -45,7 +45,7 @@
 #include "xmalloc.h"
 
 /* {"search string", "belongs to"} */
-static char *os[][2] = {
+static const char *os[][2] = {
    {"Windows NT 6.2", "Windows"},
    {"Windows NT 6.1", "Windows"},
    {"Windows NT 6.0", "Windows"},
@@ -89,7 +89,7 @@ static char *os[][2] = {
 };
 
 /* {"search string", "belongs to"} */
-static char *browsers[][2] = {
+static const char *browsers[][2] = {
    /* browsers & offline browsers */
    {"Avant Browser", "Others"},
    {"America Online Browser", "Others"},
@@ -519,7 +519,7 @@ static char *browsers[][2] = {
    {"Mozilla", "Others"}
 };
 
-static char *code_type[][2] = {
+static const char *code_type[][2] = {
    {"1", "1xx Informational"},
    {"2", "2xx Success"},
    {"3", "3xx Redirection"},
@@ -527,7 +527,7 @@ static char *code_type[][2] = {
    {"5", "5xx Server Error"},
 };
 
-static char *codes[][2] = {
+static const char *codes[][2] = {
    {"100", "100 - Continue: Server has received the request headers"},
    {"101", "101 - Switching Protocols: Client asked to switch protocols"},
    {"200", "200 - OK: The request sent by the client was successful"},
@@ -813,7 +813,7 @@ verify_browser (const char *str, GBrowserStr b_type)
    return alloc_string ("Unknown");
 }
 
-char *
+const char *
 verify_status_code_type (const char *str)
 {
    size_t i;
@@ -824,7 +824,7 @@ verify_status_code_type (const char *str)
    return "Unknown";
 }
 
-char *
+const char *
 verify_status_code (char *str)
 {
    size_t i;
