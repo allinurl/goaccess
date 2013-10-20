@@ -56,7 +56,7 @@
 #include "settings.h"
 #include "util.h"
 
-static GSortModule module_sort[TOTAL_MODULES] = {
+static const GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
