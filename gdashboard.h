@@ -68,12 +68,12 @@
 
 typedef struct GDashStyle_
 {
-   int color_hits;
-   int color_data;
-   int color_bw;
-   int color_percent;
-   int color_bars;
-   int color_usecs;
+   const int color_hits;
+   const int color_data;
+   const int color_bw;
+   const int color_percent;
+   const int color_bars;
+   const int color_usecs;
 } GDashStyle;
 
 typedef struct GDashData_
@@ -92,8 +92,8 @@ typedef struct GDashModule_
 {
    GDashData *data;
    GModule module;
-   char *desc;
-   char *head;
+   const char *desc;
+   const char *head;
    int alloc_data;  /* alloc data items */
    int dash_size;   /* dashboard size   */
    int data_len;
