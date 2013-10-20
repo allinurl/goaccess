@@ -143,7 +143,7 @@ generate_time (void)
 
 /* draw a generic header */
 void
-draw_header (WINDOW * win, char *header, int x, int y, int w, int color)
+draw_header (WINDOW * win, const char *header, int x, int y, int w, int color)
 {
    char buf[256];
    snprintf (buf, sizeof buf, "%s%s", " ", header);

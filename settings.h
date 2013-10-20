@@ -26,26 +26,26 @@
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
-   char *apache;
-   char *w3c;
-   char *cloudfront;
+   const char *apache;
+   const char *w3c;
+   const char *cloudfront;
 } GPreConfDate;
 
 /* predefined log formats */
 typedef struct GPreConfLog_
 {
-   char *combined;
-   char *common;
-   char *vcombined;
-   char *vcommon;
-   char *w3c;
-   char *cloudfront;
+   const char *combined;
+   const char *common;
+   const char *vcombined;
+   const char *vcommon;
+   const char *w3c;
+   const char *cloudfront;
 } GPreConfLog;
 
 typedef struct GConfKeyword_
 {
-   unsigned short key_id;
-   char *keyword;
+   const unsigned short key_id;
+   const char *keyword;
 } GConfKeyword;
 
 typedef struct GConf_
