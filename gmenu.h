@@ -67,8 +67,6 @@ struct GMenu_
 
 GMenu *new_gmenu (WINDOW * parent, int h, int w, int y, int x);
 int post_gmenu (GMenu * menu);
-void draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
-                     int checked);
 void gmenu_driver (GMenu * menu, int c);
 
 #endif

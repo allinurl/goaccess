@@ -55,6 +55,28 @@ new_gmenu (WINDOW * parent, int h, int w, int y, int x)
    return menu;
 }
 
+/* render an actual menu item */
+static void
+draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
+                int checked)
+{
+   if (conf.color_scheme == STD_GREEN) {
+      init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      init_pair (2, COLOR_BLACK, COLOR_CYAN);
+   } else {
+      init_pair (1, COLOR_BLACK, COLOR_WHITE);
+      init_pair (2, COLOR_WHITE, -1);
+   }
+   wattron (menu->win, COLOR_PAIR (color));
+   mvwhline (menu->win, y, x, ' ', w);
+   if (menu->selectable) {
+      char check = checked ? 'x' : ' ';
+      mvwprintw (menu->win, y, x, "[%c] %s", check, s);
+   } else
+      mvwprintw (menu->win, y, x, "%s", s);
+   wattroff (menu->win, COLOR_PAIR (color));
+}
+
 /* displays a menu to its associated window */
 int
 post_gmenu (GMenu * menu)
@@ -112,26 +134,4 @@ gmenu_driver (GMenu * menu, int c)
        post_gmenu (menu);
        break;
    }
-}
-
-/* render an actual menu item */
-void
-draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
-                int checked)
-{
-   if (conf.color_scheme == STD_GREEN) {
-      init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      init_pair (2, COLOR_BLACK, COLOR_CYAN);
-   } else {
-      init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      init_pair (2, COLOR_WHITE, -1);
-   }
-   wattron (menu->win, COLOR_PAIR (color));
-   mvwhline (menu->win, y, x, ' ', w);
-   if (menu->selectable) {
-      char check = checked ? 'x' : ' ';
-      mvwprintw (menu->win, y, x, "[%c] %s", check, s);
-   } else
-      mvwprintw (menu->win, y, x, "%s", s);
-   wattroff (menu->win, COLOR_PAIR (color));
 }
