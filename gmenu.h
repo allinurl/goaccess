@@ -44,7 +44,7 @@ typedef struct GItem_ GItem;
 struct GItem_
 {
    char *name;
-   int checked;
+   unsigned checked:1;          /* flag */
 };
 
 struct GMenu_
