@@ -49,6 +49,7 @@ typedef enum
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
+char *replace_str (const char *str, const char *old, const char *new);
 char *clean_date (char *s);
 char *clean_month (char *s);
 char *convert_date (char *result, char *data, char *from, char *to, int size);
