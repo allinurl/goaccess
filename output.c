@@ -71,107 +71,215 @@ clean_output (FILE * fp, char *s)
    }
 }
 
+/* create a sanitized string with html entities for special chars */
+static void
+clean_output_replacing (char *input, char *output)
+{
+   strncpy(output, "\0", 1);
+   while (*input) {
+      switch (*input) {
+       case '\'':
+          strncat(output, "&#39;", 5);
+          break;
+       case '"':
+          strncat(output, "&#34;", 5);
+          break;
+       case '&':
+          strncat(output, "&amp;", 5);
+          break;
+       case '<':
+          strncat(output, "&lt;", 4);
+          break;
+       case '>':
+          strncat(output, "&gt;", 4);
+          break;
+       case ' ':
+          strncat(output, "&nbsp;", 6);
+          break;
+       default:
+          strncat(output, input, 1);
+          break;
+      }
+      input++;
+   }
+   strncat(output, "\0", 1);
+}
+
+static char *
+nbsp_replace (char *input)
+{
+   return replace_str (input, " ", "&nbsp;");
+}
+
 static void
 print_html_header (FILE * fp, char *now)
 {
-   fprintf (fp, "<html>\n");
-   fprintf (fp, "<head>\n");
+   fprintf (fp, "<!DOCTYPE html>\n");
+   fprintf (fp, "<html lang=\"en\"><head>\n");
    fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
    fprintf (fp, "<meta charset=\"UTF-8\" />");
    fprintf (fp, "<meta name=\"robots\" content=\"noindex, nofollow\" />");
-   fprintf (fp, "<script type=\"text/javascript\">\n");
+   fprintf (fp, "<link rel=\"stylesheet\" href=\"http://yui.yahooapis.com/pure/0.3.0/pure-min.css\">");
 
+   fprintf (fp, "<script type=\"text/javascript\">\n");
    fprintf (fp, "function t(c){for(var ");
-   fprintf (fp, "b=c.parentNode.parentNode.parentNode.");
+   fprintf (fp, "b=c.parentNode.parentNode.parentNode.parentNode.");
    fprintf (fp, "getElementsByTagName('tr'),a=0;a<b.length;a++)");
    fprintf (fp, "'hide'==b[a].className?(b[a].className='show',");
-   fprintf (fp, "c.innerHTML='[-] Collapse'):'show'==b[a].className&&");
-   fprintf (fp, "(b[a].className='hide',c.innerHTML='[+] Expand')};");
-
+   fprintf (fp, "c.innerHTML='▼'):'show'==b[a].className&&");
+   fprintf (fp, "(b[a].className='hide',c.innerHTML='◀')};");
    fprintf (fp, "function a(c){var b=c.parentNode.parentNode.nextSibling;");
    fprintf (fp, "while(b && b.nodeType != 1) b=b.nextSibling;");
    fprintf (fp, "'a-hide'==b.className?(b.className='a-show',");
-   fprintf (fp, "c.innerHTML='[-]'):'a-show'==b.className&&");
-   fprintf (fp, "(b.className='a-hide',c.innerHTML='[+]')};");
-
+   fprintf (fp, "c.innerHTML='▼'):'a-show'==b.className&&");
+   fprintf (fp, "(b.className='a-hide',c.innerHTML='▶')};");
    fprintf (fp, "</script>\n");
-   fprintf (fp, "<style type=\"text/css\">\n");
 
+   fprintf (fp, "<style type=\"text/css\">\n");
    fprintf (fp, "body {");
-   fprintf (fp, "    font-family: Verdana;");
-   fprintf (fp, "    font-size: 11px;");
+   fprintf (fp, "   font-size: 11px;");
+   fprintf (fp, "   color: #777;");
    fprintf (fp, "}");
-   fprintf (fp, "table.a1, table.a2 {");
-   fprintf (fp, "    border-spacing: 0;");
-   fprintf (fp, "    font-size: 11px;");
-   fprintf (fp, "    margin: 5px;");
-   fprintf (fp, "    table-layout: fixed;");
-   fprintf (fp, "    white-space: nowrap;");
+
+   fprintf (fp, "h1, h2, h3, h4, h5, h6 {");
+   fprintf (fp, "   font-weight: bold;");
+   fprintf (fp, "   color: rgb(75, 75, 75);");
    fprintf (fp, "}");
-   fprintf (fp, "table.a1 { width: 600px }");
-   fprintf (fp, "table.a2 {");
-   fprintf (fp, "    background-color: #EEE;");
-   fprintf (fp, "    padding: 0 5px;");
-   fprintf (fp, "    width: 590px;");
-   fprintf (fp, "}");
-   fprintf (fp, ".head {");
-   fprintf (fp, "    background-color: #222;");
-   fprintf (fp, "    color: #FFF;");
-   fprintf (fp, "    padding: 5px;");
-   fprintf (fp, "}");
+
+   fprintf (fp, ".a-hide, .hide { display: none }");
    fprintf (fp, ".r, .s {");
-   fprintf (fp, "    cursor: pointer;");
-   fprintf (fp, "    font-size: 9px;");
+   fprintf (fp, "   cursor: pointer;");
    fprintf (fp, "}");
-   fprintf (fp, ".r { float: right }");
-   fprintf (fp, ".red {");
+   fprintf (fp, ".r { float:right; }");
+
+   fprintf (fp, "thead th {");
+   fprintf (fp, "   text-align:center;");
+   fprintf (fp, "}");
+
+   fprintf (fp, ".max {");
    fprintf (fp, "    color: #D20B2C;");
    fprintf (fp, "    font-weight: 700;");
    fprintf (fp, "}");
-   fprintf (fp, ".lnk {");
-   fprintf (fp, "    font-size: 10px;");
-   fprintf (fp, "    font-weight: 700;");
+   fprintf (fp, "#layout {");
+   fprintf (fp, "   padding-left: 150px;");
+   fprintf (fp, "   left: 0;");
    fprintf (fp, "}");
-   fprintf (fp, "a { color: #222 }");
-   fprintf (fp, ".desc {");
-   fprintf (fp, "    background-color: #EEE;");
-   fprintf (fp, "    color: #222;");
-   fprintf (fp, "    padding: 5px;");
+   fprintf (fp, ".l-box {");
+   fprintf (fp, "   padding: 1.3em;");
    fprintf (fp, "}");
-   fprintf (fp, ".d1, .d2 {");
-   fprintf (fp, "    -ms-text-overflow: ellipsis;");
-   fprintf (fp, "    overflow: hidden;");
-   fprintf (fp, "    text-overflow: ellipsis;");
-   fprintf (fp, "    white-space: nowrap;");
+   fprintf (fp, "#menu {");
+   fprintf (fp, "   margin-left: -150px;");
+   fprintf (fp, "   width: 150px;");
+   fprintf (fp, "   position: fixed;");
+   fprintf (fp, "   top:0;");
+   fprintf (fp, "   left:150px;");
+   fprintf (fp, "   bottom:0;");
+   fprintf (fp, "   z-index: 1000;");
+   fprintf (fp, "   background: #191818;");
+   fprintf (fp, "   overflow-y: auto;");
+   fprintf (fp, "   -webkit-overflow-scroll: touch;");
    fprintf (fp, "}");
-   fprintf (fp, "td.d1 { border-bottom: 1px dotted #eee }");
-   fprintf (fp, ".d2 { border-bottom: 1px dotted #ccc }");
-   fprintf (fp, ".bar {");
-   fprintf (fp, "    background-color: #777;");
-   fprintf (fp, "    border-right: 1px #FFF solid;");
-   fprintf (fp, "    height: 10px;");
+
+   fprintf (fp, "#menu a {");
+   fprintf (fp, "   color: #999;");
+   fprintf (fp, "   border: none;");
+   fprintf (fp, "   white-space: normal;");
+   fprintf (fp, "   padding: 0.6em 0 0.6em 0.6em;");
    fprintf (fp, "}");
-   fprintf (fp, ".a-hide, .hide { display: none }");
+
+   fprintf (fp, "#menu p {");
+   fprintf (fp, "   color: #eee;");
+   fprintf (fp, "   padding: 0.6em;");
+   fprintf (fp, "   text-align:center;");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu-open {");
+   fprintf (fp, "   background: transparent;");
+   fprintf (fp, "   border: 0;");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu ul {");
+   fprintf (fp, "   border: none;");
+   fprintf (fp, "   background: transparent;");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu ul,");
+   fprintf (fp, "#menu .pure-menu .menu-item-divided {");
+   fprintf (fp, "   border-top: 1px solid #333;");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu li a:hover,");
+   fprintf (fp, "#menu .pure-menu li a:focus {");
+   fprintf (fp, "    background: #333;");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu-heading:hover, #menu .pure-menu-heading:focus {");
+   fprintf (fp, "   color: rgb(153, 153, 153);");
+   fprintf (fp, "}");
+
+   fprintf (fp, "#menu .pure-menu-heading {");
+   fprintf (fp, "   font-size: 110%%;");
+   fprintf (fp, "   color: #eee;");
+   fprintf (fp, "}");
+
+   fprintf (fp, ".graph{");
+   fprintf (fp, "    height:1.529411765em;");
+   fprintf (fp, "    margin-bottom:.470588235em;");
+   fprintf (fp, "    overflow:hidden;");
+   fprintf (fp, "    background-color:#e5e5e5;");
+   fprintf (fp, "    border-radius:.071428571em;");
+   fprintf (fp, "    text-align:center;");
+   fprintf (fp, "}");
+   fprintf (fp, ".graph-bar{");
+   fprintf (fp, "    float:left;");
+   fprintf (fp, "    width:0;");
+   fprintf (fp, "    height:100%%;");
+   fprintf (fp, "    color:#ffffff;");
+   fprintf (fp, "    background-color:#777;");
+   fprintf (fp, "    -webkit-box-sizing:border-box;");
+   fprintf (fp, "    -moz-box-sizing:border-box;");
+   fprintf (fp, "    box-sizing:border-box;");
+   fprintf (fp, "}");
+   fprintf (fp, ".graph-light{");
+   fprintf (fp, "    background-color:#BBB;");
+   fprintf (fp, "}");
 
    fprintf (fp, "</style>\n");
    fprintf (fp, "</head>\n");
    fprintf (fp, "<body>\n");
+
+   fprintf (fp, "<div class=\"pure-g-r\" id=\"layout\">");
 }
 
 static void
-print_html_footer (FILE * fp, char *now)
+print_html_footer (FILE * fp)
 {
-   fprintf (fp, "<p class=\"lnk\">Generated by: ");
-   fprintf (fp, "<a href=\"http://goaccess.prosoftcorp.com/\">GoAccess</a> ");
-   fprintf (fp, "%s on %s</p>", GO_VERSION, now);
+   fprintf (fp, "</div> <!-- l-box -->\n");
+   fprintf (fp, "</div> <!-- main -->\n");
+   fprintf (fp, "</div> <!-- layout -->\n");
    fprintf (fp, "</body>\n");
    fprintf (fp, "</html>");
 }
 
 static void
+print_html_h2 (FILE* fp, char *title, char *id)
+{
+   if (id)
+      fprintf (fp, "<h2 id=\"%s\">%s</h2>", id, title);
+   else
+      fprintf (fp, "<h2>%s</h2>", title);
+}
+
+static void
+print_p (FILE* fp, char *paragraph)
+{
+   fprintf (fp, "<p>%s</p>", paragraph);
+}
+
+static void
 print_html_begin_table (FILE * fp)
 {
-   fprintf (fp, "<table class=\"a1\">\n");
+   fprintf (fp, "<table class=\"pure-table\">\n");
 }
 
 static void
@@ -181,31 +289,27 @@ print_html_end_table (FILE * fp)
 }
 
 static void
-print_html_head_top (FILE * fp, const char *s, int span, int exp)
+print_html_begin_thead (FILE * fp)
 {
-   fprintf (fp, "<tr>");
-   if (exp) {
-      fprintf (fp, "<td colspan=\"%d\" class=\"head\">", span);
-      fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">Expand [+]</span>");
-      fprintf (fp, "<span>%s</span>", s);
-      fprintf (fp, "</td>");
-   } else
-      fprintf (fp, "<td class=\"head\" colspan=\"%d\">%s</td>", span, s);
-   fprintf (fp, "</tr>\n");
+   fprintf (fp, "<thead>\n");
 }
 
 static void
-print_html_head_bottom (FILE * fp, const char *s, int colspan)
+print_html_end_thead (FILE * fp)
 {
-   fprintf (fp, "<tr>");
-   fprintf (fp, "<td class=\"desc\" colspan=\"%d\">%s</td>", colspan, s);
-   fprintf (fp, "</tr>\n");
+   fprintf (fp, "</thead>\n");
 }
 
 static void
-print_html_col (FILE * fp, int w)
+print_html_begin_tbody (FILE * fp)
 {
-   fprintf (fp, "<col style=\"width:%dpx\">\n", w);
+   fprintf (fp, "<tbody>\n");
+}
+
+static void
+print_html_end_tbody (FILE * fp)
+{
+   fprintf (fp, "</tbody>\n");
 }
 
 static void
@@ -226,7 +330,7 @@ print_html_end_tr (FILE * fp)
 static void
 print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
 {
-   char *data, *val = NULL;
+   char *data, *name = NULL;
    int hits;
    float percent;
    GSubItem *iter;
@@ -237,19 +341,20 @@ print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
 
-      val = xmalloc (snprintf (NULL, 0, "|`- %s", data) + 1);
-      sprintf (val, "|`- %s", data);
+      char cleaned_data[6*strlen(data)]; // maximum possible size of the cleaned string
+      clean_output_replacing (data, cleaned_data);
+      char *format = "—&nbsp;%s";
+      name = xmalloc (snprintf (NULL, 0, format, data) + 1);
+      sprintf (name, format, data);
 
       print_html_begin_tr (fp, 1);
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
 
-      fprintf (fp, "<td class=\"d1\">");
-      clean_output (fp, val);
-      fprintf (fp, "</td>");
+      fprintf (fp, "<td>%s</td>", name);
 
       print_html_end_tr (fp);
-      free (val);
+      free (name);
    }
 }
 
@@ -264,14 +369,13 @@ print_html_status (FILE * fp, GHolder * h, int process)
    if (h->idx == 0)
       return;
 
+   print_html_h2 (fp, CODES_HEAD, CODES_ID);
+   print_p (fp, CODES_DESC);
    print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 460);
-
-   print_html_head_top (fp, CODES_HEAD, 3, 1);
-   print_html_head_bottom (fp, CODES_DESC, 3);
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Code<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
 
    for (i = 0; i < h->idx; i++) {
       hits = h->items[i].hits;
@@ -280,14 +384,15 @@ print_html_status (FILE * fp, GHolder * h, int process)
       percent = percent < 0 ? 0 : percent;
 
       print_html_begin_tr (fp, 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
-      fprintf (fp, "<td class=\"d1\">%s</td>", data);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%s</td>", data);
       print_html_end_tr (fp);
 
       GSubList *sub_list = h->items[i].sub_list;
       print_html_sub_status (fp, sub_list, process);
    }
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
@@ -302,32 +407,30 @@ print_html_generic (FILE * fp, GHolder * h, int process)
    if (h->idx == 0)
       return;
 
-   print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 460);
-
-   switch (h->module) {
-    case REFERRERS:
-       print_html_head_top (fp, REFER_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, REFER_DESC, 3);
-       break;
-    case NOT_FOUND:
-       print_html_head_top (fp, FOUND_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, FOUND_DESC, 3);
-       break;
-    case REFERRING_SITES:
-       print_html_head_top (fp, SITES_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, SITES_DESC, 3);
-       break;
-    case KEYPHRASES:
-       print_html_head_top (fp, KEYPH_HEAD, 3, h->idx > OUTPUT_N ? 1 : 0);
-       print_html_head_bottom (fp, KEYPH_DESC, 3);
-       break;
-    default:
-       break;
+   char *head = REFER_HEAD;
+   char *id = REFER_ID;
+   char *desc = REFER_DESC;
+   if (h->module == NOT_FOUND) {
+       head = FOUND_HEAD;
+       id = FOUND_ID;
+       desc = FOUND_DESC;
+   } else if (h->module == REFERRING_SITES) {
+       head = SITES_HEAD;
+       id = SITES_ID;
+       desc = SITES_DESC;
+   } else if (h->module == KEYPHRASES) {
+       head = KEYPH_HEAD;
+       id = KEYPH_ID;
+       desc = KEYPH_DESC;
    }
+
+   print_html_h2 (fp, head, id);
+   print_p (fp, desc);
+   print_html_begin_table (fp);
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
 
    until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
    for (i = 0; i < until; i++) {
@@ -337,23 +440,23 @@ print_html_generic (FILE * fp, GHolder * h, int process)
       percent = percent < 0 ? 0 : percent;
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<span class=\"d1\">");
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
+
+      fprintf (fp, "<td>");
       clean_output (fp, data);
-      fprintf (fp, "</span>");
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
    }
 
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
 static void
 print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
 {
-   char *data, *val = NULL;
+   char *data, *name = NULL;
    int hits;
    float percent, l;
    GSubItem *iter;
@@ -367,22 +470,23 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      val = xmalloc (snprintf (NULL, 0, "|`- %s", data) + 1);
-      sprintf (val, "|`- %s", data);
+      char cleaned_data[6*strlen(data)]; // maximum possible size of the cleaned string
+      clean_output_replacing (data, cleaned_data);
+      char *format = "—&nbsp;%s";
+      name = xmalloc (snprintf (NULL, 0, format, data) + 1);
+      sprintf (name, format, data);
 
       print_html_begin_tr (fp, 1);
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
 
-      fprintf (fp, "<td class=\"d1\">");
-      clean_output (fp, val);
-      fprintf (fp, "</td>");
+      fprintf (fp, "<td>%s</td>", name);
 
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<td class=\"graph\">");
+      fprintf (fp, "<div class=\"graph-bar graph-light\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
-      free (val);
+      free (name);
    }
 }
 
@@ -397,23 +501,22 @@ print_html_browser_os (FILE * fp, GHolder * h)
    if (h->idx == 0)
       return;
 
+   char *head = OPERA_HEAD;
+   char *id = OPERA_ID;
+   char *desc = OPERA_DESC;
+   if (h->module == BROWSERS) {
+      head = BROWS_HEAD;
+      id = BROWS_ID;
+      desc = BROWS_DESC;
+   }
+
+   print_html_h2 (fp, head, id);
+   print_p (fp, desc);
    print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 220);
-   print_html_col (fp, 240);
-
-   /* *INDENT-OFF* */
-   if (h->module == OS) {
-      print_html_head_top (fp, OPERA_HEAD, 4, 1);
-      print_html_head_bottom (fp, OPERA_DESC, 4);
-   }
-   else if (h->module == BROWSERS) {
-      print_html_head_top (fp, BROWS_HEAD, 4, 1);
-      print_html_head_bottom (fp, BROWS_DESC, 4);
-   }
-   /* *INDENT-ON* */
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Name</th><th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
 
    max = 0;
    for (i = 0; i < h->idx; i++) {
@@ -431,19 +534,19 @@ print_html_browser_os (FILE * fp, GHolder * h)
       l = l < 1 ? 1 : l;
 
       print_html_begin_tr (fp, 0);
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      if (hits == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", percent);
-      else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%d</td>", hits);
+//       if (hits == max)
+//          fprintf (fp, "<td class=\"max\">%4.2f%%</td>", percent);
+//       else
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
 
       /* data */
-      fprintf (fp, "<td class=\"d1\">");
+      fprintf (fp, "<td>");
       clean_output (fp, data);
       fprintf (fp, "</td>");
 
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<td class=\"graph\">");
+      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
@@ -468,18 +571,13 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    if (h->idx == 0)
       return;
 
+   print_html_h2 (fp, HOSTS_HEAD, HOSTS_ID);
+   print_p (fp, HOSTS_DESC);
    print_html_begin_table (fp);
-
-   print_html_col (fp, 20);
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 80);
-   print_html_col (fp, 80);
-   print_html_col (fp, 120);
-   print_html_col (fp, 160);
-
-   print_html_head_top (fp, HOSTS_HEAD, 7, h->idx > OUTPUT_N ? 1 : 0);
-   print_html_head_bottom (fp, HOSTS_DESC, 7);
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th></th><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>IP</th><th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
 
    until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
    max = 0;
@@ -502,21 +600,21 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
       fprintf (fp, "<td>");
       if (ag != NULL)
-         fprintf (fp, "<span class=\"s\" onclick=\"a(this)\">[+]</span>");
+         fprintf (fp, "<span class=\"s\" onclick=\"a(this)\">▶</span>");
       else
          fprintf (fp, "<span class=\"s\">-</span>");
       fprintf (fp, "</td>");
 
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
-      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%s</td>", bandwidth);
       /* usecs */
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td class=\"d1\">%s</td>", usecs);
-      fprintf (fp, "<td class=\"d1\">%s</td>", data);
+      fprintf (fp, "<td>%s</td>", usecs);
+      fprintf (fp, "<td>%s</td>", data);
 
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<td class=\"graph\">");
+      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
@@ -534,14 +632,14 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
          split_agent_str (ptr_value, agents, 300);
 
          fprintf (fp, "<tr class=\"a-hide\">\n");
-         fprintf (fp, "<td colspan=\"6\">\n");
-         fprintf (fp, "<div style=\"padding:10px 0;\">");
-         fprintf (fp, "<table class=\"a2\">");
+         fprintf (fp, "<td colspan=\"7\">\n");
+         fprintf (fp, "<div>");
+         fprintf (fp, "<table class=\"pure-table-striped\">");
 
          /* output agents from struct */
          for (j = 0; (j < 10) && (agents[j].agents != NULL); j++) {
             print_html_begin_tr (fp, 0);
-            fprintf (fp, "<td class=\"d2\">");
+            fprintf (fp, "<td>");
             clean_output (fp, agents[j].agents);
             fprintf (fp, "</td>");
             print_html_end_tr (fp);
@@ -560,6 +658,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       free (bandwidth);
    }
 
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
@@ -574,28 +673,27 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    if (h->idx == 0)
       return;
 
-   print_html_begin_table (fp);
-
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 100);
-   print_html_col (fp, 100);
-   print_html_col (fp, 260);
-
-   /* *INDENT-OFF* */
-   if (ht == ht_requests) {
-      print_html_head_top (fp, REQUE_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
-      print_html_head_bottom (fp, REQUE_DESC, 5);
-   }
-   else if (ht == ht_requests_static) {
-      print_html_head_top (fp, STATI_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
-      print_html_head_bottom (fp, STATI_DESC, 5);
+   char *head = REQUE_HEAD;
+   char *id = REQUE_ID;
+   char *desc = REQUE_DESC;
+   if (ht == ht_requests_static) {
+      head = STATI_HEAD;
+      id = STATI_ID;
+      desc = STATI_DESC;
    }
    else if (ht == ht_not_found_requests) {
-      print_html_head_top (fp, FOUND_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
-      print_html_head_bottom (fp, FOUND_DESC, 5);
+      head = FOUND_HEAD;
+      id = FOUND_ID;
+      desc = FOUND_DESC;
    }
-   /* *INDENT-ON* */
+
+   print_html_h2 (fp, head, id);
+   print_p (fp, desc);
+   print_html_begin_table (fp);
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
 
    until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
    for (i = 0; i < until; i++) {
@@ -608,21 +706,19 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
 
       /* hits */
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td>%d</td>", hits);
       /* percent */
-      fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
       /* bandwidth */
-      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+      fprintf (fp, "<td>%s</td>", bandwidth);
 
       /* usecs */
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td class=\"d1\">%s</td>", usecs);
+      fprintf (fp, "<td>%s</td>", usecs);
 
       /* data */
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<span class=\"d1\">");
+      fprintf (fp, "<td>");
       clean_output (fp, data);
-      fprintf (fp, "</span>");
       fprintf (fp, "</td>");
 
       print_html_end_tr (fp);
@@ -631,6 +727,7 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       free (bandwidth);
    }
 
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
@@ -646,16 +743,15 @@ print_html_visitors_report (FILE * fp, GHolder * h)
    float percent, l;
    int i, max, process = g_hash_table_size (ht_unique_visitors);
 
+   print_html_h2 (fp, VISIT_HEAD, VISIT_ID);
+   print_p (fp, VISIT_DESC);
    print_html_begin_table (fp);
+   print_html_begin_thead (fp);
+   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Date</th><th>Size</th>");
+   fprintf (fp, "<th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   print_html_end_thead (fp);
 
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 100);
-   print_html_col (fp, 100);
-   print_html_col (fp, 260);
-
-   print_html_head_top (fp, VISIT_HEAD, 5, h->idx > OUTPUT_N ? 1 : 0);
-   print_html_head_bottom (fp, VISIT_DESC, 5);
+   print_html_begin_tbody (fp);
 
    max = 0;
    for (i = 0; i < h->idx; i++) {
@@ -668,6 +764,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
       bandwidth = filesize_str (h->items[i].bw);
+      bandwidth = nbsp_replace (bandwidth);
 
       l = get_percentage (max, hits);
       l = l < 1 ? 1 : l;
@@ -675,37 +772,37 @@ print_html_visitors_report (FILE * fp, GHolder * h)
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
 
       /* hits */
-      fprintf (fp, "<td class=\"d1\">%d</td>", hits);
+      fprintf (fp, "<td>%d</td>", hits);
       if (hits == max)
-         fprintf (fp, "<td class=\"d1 red\">%4.2f%%</td>", percent);
+         fprintf (fp, "<td class=\"max\">%4.2f%%</td>", percent);
       else
-         fprintf (fp, "<td class=\"d1\">%4.2f%%</td>", percent);
+         fprintf (fp, "<td>%4.2f%%</td>", percent);
 
       /* date */
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
-      fprintf (fp, "<td class=\"d1\">%s</td>", buf);
+      fprintf (fp, "<td>%s</td>", buf);
 
       /* bandwidth */
-      fprintf (fp, "<td class=\"d1\">%s</td>", bandwidth);
+      fprintf (fp, "<td>%s</td>\n", bandwidth);
 
       /* bars */
-      fprintf (fp, "<td class=\"d1\">");
-      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
-      fprintf (fp, "</td>");
+      fprintf (fp, "<td class=\"graph\">");
+      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "</td>\n");
 
       print_html_end_tr (fp);
 
       free (bandwidth);
    }
 
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
 static void
 print_html_summary_field (FILE * fp, int hits, char *field)
 {
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", field);
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%d</span></td>", hits);
+   fprintf (fp, "<td>%s</td><td>%d</td>", field, hits);
 }
 
 static void
@@ -713,18 +810,10 @@ print_html_summary (FILE * fp, GLog * logger)
 {
    char *bw, *size;
    off_t log_size;
+
+   print_html_h2 (fp, T_HEAD, 0);
    print_html_begin_table (fp);
-
-   print_html_col (fp, 100);
-   print_html_col (fp, 75);
-   print_html_col (fp, 100);
-   print_html_col (fp, 60);
-   print_html_col (fp, 80);
-   print_html_col (fp, 60);
-   print_html_col (fp, 40);
-   print_html_col (fp, 80);
-
-   print_html_head_top (fp, T_HEAD, 8, 0);
+   print_html_begin_tbody (fp);
 
    print_html_begin_tr (fp, 0);
    print_html_summary_field (fp, logger->process, T_REQUESTS);
@@ -742,8 +831,7 @@ print_html_summary (FILE * fp, GLog * logger)
    if (conf.ifile == NULL)
       conf.ifile = "STDIN";
 
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_LOG);
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", size);
+   fprintf (fp, "<td>%s</td><td>%s</td>", T_LOG, size);
    print_html_end_tr (fp);
 
    print_html_begin_tr (fp, 0);
@@ -751,29 +839,52 @@ print_html_summary (FILE * fp, GLog * logger)
    print_html_summary_field (fp, g_hash_table_size (ht_requests), T_UNIQUE_FIL);
    print_html_summary_field (fp, g_hash_table_size (ht_not_found_requests),
                              T_UNIQUE404);
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", T_BW);
-   fprintf (fp, "<td class=\"d1\"><span class=\"d1\">%s</span></td>", bw);
+   fprintf (fp, "<td>%s</td><td>%s</td>", T_BW, bw);
    print_html_end_tr (fp);
 
    print_html_begin_tr (fp, 0);
-   fprintf (fp, "<td class=\"d1\">");
-   fprintf (fp, "<span class=\"d1\">%s</span>", T_GEN_TIME);
-   fprintf (fp, "</td>");
-
-   fprintf (fp, "<td class=\"d1\">");
-   fprintf (fp, "<span class=\"d1\">%lu</span>", ((int) end_proc - start_proc));
-   fprintf (fp, "</td>");
+   fprintf (fp, "<td>%s</td>", T_GEN_TIME);
+   fprintf (fp, "<td>%lu</td>", ((int) end_proc - start_proc));
 
    print_html_summary_field (fp, g_hash_table_size (ht_requests_static),
                              T_STATIC_FIL);
-   fprintf (fp, "<td class=\"d1\" colspan=\"4\">");
-   fprintf (fp, "<span class=\"d1\">%s</span>", conf.ifile);
-   fprintf (fp, "</td>");
+   fprintf (fp, "<td colspan=\"4\">%s</td>", conf.ifile);
 
    print_html_end_tr (fp);
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
    free (bw);
    free (size);
+}
+
+static void
+print_pure_menu (FILE * fp, char *now)
+{
+    fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
+    fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
+    fprintf (fp, "<a class=\"pure-menu-heading\" href=\"http://goaccess.prosoftcorp.com/\">GoAccess</a>");
+    fprintf (fp, "<ul>");
+    fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
+    fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Requested files</a></li>", REQUE_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>", STATI_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Not found URLs</a></li>", FOUND_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
+    fprintf (fp, "<li><a href=\"#%s\">Status codes</a></li>", CODES_ID);
+    fprintf (fp, "<li class=\"menu-item-divided\"></li>");
+
+    fprintf (fp, "</ul>");
+    fprintf (fp, "<p>Generated by<br />GoAccess %s<br />—<br />%s</p>", GO_VERSION, now);
+    fprintf (fp, "</div>");
+    fprintf (fp, "</div> <!-- menu -->");
+
+    fprintf (fp, "<div id=\"main\" class=\"pure-u-1\">");
+    fprintf (fp, "<div class=\"l-box\">");
 }
 
 /* entry point to generate a report writing it to the fp */
@@ -783,8 +894,12 @@ output_html (GLog * logger, GHolder * holder)
    generate_time ();
 
    FILE *fp = stdout;
+   char now[20];
+   strftime(now, 20, "%Y-%m-%d %H:%M:%S", now_tm);
 
-   print_html_header (fp, asctime (now_tm));
+   print_html_header (fp, now);
+   print_pure_menu (fp, now);
+
    print_html_summary (fp, logger);
 
    print_html_visitors_report (fp, holder + VISITORS);
@@ -794,7 +909,9 @@ output_html (GLog * logger, GHolder * holder)
                               logger->process);
    print_html_request_report (fp, holder + NOT_FOUND, ht_not_found_requests,
                               logger->process);
+
    print_html_hosts (fp, holder + HOSTS, logger->process);
+
    print_html_browser_os (fp, holder + OS);
    print_html_browser_os (fp, holder + BROWSERS);
 
@@ -803,5 +920,5 @@ output_html (GLog * logger, GHolder * holder)
    print_html_generic (fp, holder + KEYPHRASES, logger->process);
    print_html_status (fp, holder + STATUS_CODES, logger->process);
 
-   print_html_footer (fp, asctime (now_tm));
+   print_html_footer (fp);
 }
