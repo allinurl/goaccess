@@ -11,7 +11,7 @@ More info at: http://goaccess.prosoftcorp.com/
 GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
 
 * General Statistics, bandwidth etc.
-* Time taken to serve the request
+* Time taken to serve the request _(useful to track pages that are slowing down your site)_
 * Top Visitors
 * Requested files
 * Requested static files, images, swf, js, etc.
