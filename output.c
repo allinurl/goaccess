@@ -135,114 +135,50 @@ print_html_header (FILE * fp, char *now)
    fprintf (fp, "(b.className='a-hide',c.innerHTML='▶')};");
    fprintf (fp, "</script>\n");
 
-   fprintf (fp, "<style type=\"text/css\">\n");
-   fprintf (fp, "body {");
-   fprintf (fp, "   font-size: 11px;");
-   fprintf (fp, "   color: #777;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "h1, h2, h3, h4, h5, h6 {");
-   fprintf (fp, "   font-weight: bold;");
-   fprintf (fp, "   color: rgb(75, 75, 75);");
-   fprintf (fp, "}");
-
-   fprintf (fp, ".a-hide, .hide { display: none }");
-   fprintf (fp, ".r, .s {");
-   fprintf (fp, "   cursor: pointer;");
-   fprintf (fp, "}");
-   fprintf (fp, ".r { float:right; }");
-
-   fprintf (fp, "thead th {");
-   fprintf (fp, "   text-align:center;");
-   fprintf (fp, "}");
-
-   fprintf (fp, ".max {");
-   fprintf (fp, "    color: #D20B2C;");
-   fprintf (fp, "    font-weight: 700;");
-   fprintf (fp, "}");
-   fprintf (fp, "#layout {");
-   fprintf (fp, "   padding-left: 150px;");
-   fprintf (fp, "   left: 0;");
-   fprintf (fp, "}");
-   fprintf (fp, ".l-box {");
-   fprintf (fp, "   padding: 1.3em;");
-   fprintf (fp, "}");
-   fprintf (fp, "#menu {");
-   fprintf (fp, "   margin-left: -150px;");
-   fprintf (fp, "   width: 150px;");
-   fprintf (fp, "   position: fixed;");
-   fprintf (fp, "   top:0;");
-   fprintf (fp, "   left:150px;");
-   fprintf (fp, "   bottom:0;");
-   fprintf (fp, "   z-index: 1000;");
-   fprintf (fp, "   background: #191818;");
-   fprintf (fp, "   overflow-y: auto;");
-   fprintf (fp, "   -webkit-overflow-scroll: touch;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu a {");
-   fprintf (fp, "   color: #999;");
-   fprintf (fp, "   border: none;");
-   fprintf (fp, "   white-space: normal;");
-   fprintf (fp, "   padding: 0.6em 0 0.6em 0.6em;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu p {");
-   fprintf (fp, "   color: #eee;");
-   fprintf (fp, "   padding: 0.6em;");
-   fprintf (fp, "   text-align:center;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu-open {");
-   fprintf (fp, "   background: transparent;");
-   fprintf (fp, "   border: 0;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu ul {");
-   fprintf (fp, "   border: none;");
-   fprintf (fp, "   background: transparent;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu ul,");
-   fprintf (fp, "#menu .pure-menu .menu-item-divided {");
-   fprintf (fp, "   border-top: 1px solid #333;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu li a:hover,");
-   fprintf (fp, "#menu .pure-menu li a:focus {");
-   fprintf (fp, "    background: #333;");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu-heading:hover, #menu .pure-menu-heading:focus {");
-   fprintf (fp, "   color: rgb(153, 153, 153);");
-   fprintf (fp, "}");
-
-   fprintf (fp, "#menu .pure-menu-heading {");
-   fprintf (fp, "   font-size: 110%%;");
-   fprintf (fp, "   color: #eee;");
-   fprintf (fp, "}");
-
-   fprintf (fp, ".graph{");
-   fprintf (fp, "    height:1.529411765em;");
-   fprintf (fp, "    margin-bottom:.470588235em;");
-   fprintf (fp, "    overflow:hidden;");
-   fprintf (fp, "    background-color:#e5e5e5;");
-   fprintf (fp, "    border-radius:.071428571em;");
-   fprintf (fp, "    text-align:center;");
-   fprintf (fp, "}");
-   fprintf (fp, ".graph-bar{");
-   fprintf (fp, "    float:left;");
-   fprintf (fp, "    width:0;");
-   fprintf (fp, "    height:100%%;");
-   fprintf (fp, "    color:#ffffff;");
-   fprintf (fp, "    background-color:#777;");
-   fprintf (fp, "    -webkit-box-sizing:border-box;");
-   fprintf (fp, "    -moz-box-sizing:border-box;");
-   fprintf (fp, "    box-sizing:border-box;");
-   fprintf (fp, "}");
-   fprintf (fp, ".graph-light{");
-   fprintf (fp, "    background-color:#BBB;");
-   fprintf (fp, "}");
+   fprintf (fp, "<style type=\"text/css\">");
+   fprintf (fp, "body{font-size:11px;color:#777;margin:0}");
+   fprintf (fp, "h2{font-weight:700;color:#4b4b4b;font-size:1.5em;margin:.83em 0}");
+   fprintf (fp, ".a-hide,.hide{display:none}");
+   fprintf (fp, ".r,.s{cursor:pointer}.r{float:right}");
+   fprintf (fp, "thead th{text-align:center}");
+   fprintf (fp, ".max{color:#D20B2C;font-weight:700}");
+   fprintf (fp, "#layout{padding-left:150px;left:0}.l-box{padding:1.3em}");
+   fprintf (fp, "#menu{margin-left:-150px;width:150px;position:fixed;top:0;left:150px;bottom:0;z-index:1000;background:#191818;overflow-y:auto;-webkit-overflow-scroll:touch}");
+   fprintf (fp, "#menu a{color:#999;border:0;white-space:normal;padding:.6em 0 .6em .6em}");
+   fprintf (fp, "#menu p{color:#eee;padding:.6em;text-align:center}");
+   fprintf (fp, "#menu .pure-menu-open{background:transparent;border:0}");
+   fprintf (fp, "#menu .pure-menu ul{border:0;background:transparent}");
+   fprintf (fp, "#menu .pure-menu ul,#menu .pure-menu .menu-item-divided{border-top:1px solid #333}");
+   fprintf (fp, "#menu .pure-menu li a:hover,#menu .pure-menu li a:focus{background:#333}");
+   fprintf (fp, "#menu .pure-menu-heading:hover,#menu .pure-menu-heading:focus{color:#999}");
+   fprintf (fp, "#menu .pure-menu-heading{font-size:110%%;color:#eee}");
+   fprintf (fp, ".graph{height:1.529411765em;margin-bottom:.470588235em;overflow:hidden;background-color:#e5e5e5;border-radius:.071428571em;text-align:center}");
+   fprintf (fp, ".graph-bar{float:left;width:0;height:100%%;color:#fff;background-color:#777;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}");
+   fprintf (fp, ".graph-light{background-color:#BBB}html{font-size:100%%;-ms-text-size-adjust:100%%;-webkit-text-size-adjust:100%%}html{font-family:sans-serif}");
+   fprintf (fp, "a:focus{outline:thin dotted}a:active,a:hover{outline:0}");
+   fprintf (fp, "p{margin:1em 0}ul{margin:1em 0}ul{padding:0 0 0 40px}");
+   fprintf (fp, "table{border-collapse:collapse;border-spacing:0}");
+   fprintf (fp, ".pure-u{display:inline-block;*display:inline;zoom:1;letter-spacing:normal;word-spacing:normal;vertical-align:top;text-rendering:auto}");
+   fprintf (fp, ".pure-u-1{display:inline-block;*display:inline;zoom:1;letter-spacing:normal;word-spacing:normal;vertical-align:top;text-rendering:auto}");
+   fprintf (fp, ".pure-u-1{width:100%%}");
+   fprintf (fp, ".pure-g-r{letter-spacing:-.31em;*letter-spacing:normal;*word-spacing:-.43em;font-family:FreeSans,Arimo,\"Droid Sans\",Helvetica,Arial,sans-serif;display:-webkit-flex;-webkit-flex-flow:row wrap;display:-ms-flexbox;-ms-flex-flow:row wrap}.pure-g-r{word-spacing:-.43em}");
+   fprintf (fp, ".pure-g-r [class *=pure-u]{font-family:sans-serif}");
+   fprintf (fp, "@media (max-width:480px){.pure-g-r>.pure-u,.pure-g-r>[class *=pure-u-]{width:100%%}}");
+   fprintf (fp, "@media (max-width:767px){.pure-g-r>.pure-u,.pure-g-r>[class *=pure-u-]{width:100%%}}");
+   fprintf (fp, ".pure-menu ul{position:absolute;visibility:hidden}.pure-menu.pure-menu-open{visibility:visible;z-index:2;width:100%%}");
+   fprintf (fp, ".pure-menu ul{left:-10000px;list-style:none;margin:0;padding:0;top:-10000px;z-index:1}.pure-menu>ul{position:relative}");
+   fprintf (fp, ".pure-menu-open>ul{left:0;top:0;visibility:visible}.pure-menu-open>ul:focus{outline:0}.pure-menu li{position:relative}");
+   fprintf (fp, ".pure-menu a,.pure-menu .pure-menu-heading{display:block;color:inherit;line-height:1.5em;padding:5px 20px;text-decoration:none;white-space:nowrap}");
+   fprintf (fp, ".pure-menu li a{padding:5px 20px}.pure-menu.pure-menu-open{background:#fff;border:1px solid #b7b7b7}");
+   fprintf (fp, ".pure-menu a{border:1px solid transparent;border-left:0;border-right:0}.pure-menu a{color:#777}");
+   fprintf (fp, ".pure-menu li a:hover,.pure-menu li a:focus{background:#eee}");
+   fprintf (fp, ".pure-menu .pure-menu-heading{color:#565d64;text-transform:uppercase;font-size:90%%;margin-top:.5em;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#dfdfdf}");
+   fprintf (fp, ".pure-table{border-collapse:collapse;border-spacing:0;empty-cells:show;border:1px solid #cbcbcb}");
+   fprintf (fp, ".pure-table td,.pure-table th{border-left:1px solid #cbcbcb;border-width:0 0 0 1px;font-size:inherit;margin:0;overflow:visible;padding:6px 12px}");
+   fprintf (fp, ".pure-table td:first-child,.pure-table th:first-child{border-left-width:0}");
+   fprintf (fp, ".pure-table thead{background:#e0e0e0;color:#000;text-align:left;vertical-align:bottom}");
+   fprintf (fp, ".pure-table td{background-color:transparent}");
+   fprintf (fp, ".pure-table-striped tr:nth-child(2n-1) td{background-color:#f2f2f2}");
 
    fprintf (fp, "</style>\n");
    fprintf (fp, "</head>\n");
