@@ -63,52 +63,15 @@ clean_output (FILE * fp, char *s)
        case '>':
           fprintf (fp, "&gt;");
           break;
+       case ' ':
+          fprintf (fp, "&nbsp;");
+          break;
        default:
           fputc (*s, fp);
           break;
       }
       s++;
    }
-}
-
-/* create a sanitized string with html entities for special chars */
-static void
-clean_output_replacing (char *input, char *output)
-{
-   strncpy (output, "\0", 1);
-   while (*input) {
-      switch (*input) {
-       case '\'':
-          strncat (output, "&#39;", 5);
-          break;
-       case '"':
-          strncat (output, "&#34;", 5);
-          break;
-       case '&':
-          strncat (output, "&amp;", 5);
-          break;
-       case '<':
-          strncat (output, "&lt;", 4);
-          break;
-       case '>':
-          strncat (output, "&gt;", 4);
-          break;
-       case ' ':
-          strncat (output, "&nbsp;", 6);
-          break;
-       default:
-          strncat (output, input, 1);
-          break;
-      }
-      input++;
-   }
-   strncat (output, "\0", 1);
-}
-
-static char *
-nbsp_replace (char *input)
-{
-   return replace_str (input, " ", "&nbsp;");
 }
 
 /* *INDENT-OFF* */
@@ -278,8 +241,6 @@ print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
 
-      char cleaned_data[6 * strlen (data)];     // maximum possible size of the cleaned string
-      clean_output_replacing (data, cleaned_data);
       char *format = "—&nbsp;%s";
       name = xmalloc (snprintf (NULL, 0, format, data) + 1);
       sprintf (name, format, data);
@@ -421,8 +382,6 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      char cleaned_data[6 * strlen (data)];     // maximum possible size of the cleaned string
-      clean_output_replacing (data, cleaned_data);
       char *format = "—&nbsp;%s";
       name = xmalloc (snprintf (NULL, 0, format, data) + 1);
       sprintf (name, format, data);
@@ -741,7 +700,6 @@ print_html_visitors_report (FILE * fp, GHolder * h)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
       bandwidth = filesize_str (h->items[i].bw);
-      bandwidth = nbsp_replace (bandwidth);
 
       l = get_percentage (max, hits);
       l = l < 1 ? 1 : l;
@@ -760,7 +718,9 @@ print_html_visitors_report (FILE * fp, GHolder * h)
       fprintf (fp, "<td>%s</td>", buf);
 
       /* bandwidth */
-      fprintf (fp, "<td>%s</td>\n", bandwidth);
+      fprintf (fp, "<td>");
+      clean_output (fp, bandwidth);
+      fprintf (fp, "</td>\n");
 
       /* bars */
       fprintf (fp, "<td class=\"graph\">");
