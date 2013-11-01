@@ -119,7 +119,6 @@ print_html_header (FILE * fp, char *now)
    fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
    fprintf (fp, "<meta charset=\"UTF-8\" />");
    fprintf (fp, "<meta name=\"robots\" content=\"noindex, nofollow\" />");
-   fprintf (fp, "<link rel=\"stylesheet\" href=\"http://yui.yahooapis.com/pure/0.3.0/pure-min.css\">");
 
    fprintf (fp, "<script type=\"text/javascript\">\n");
    fprintf (fp, "function t(c){for(var ");
