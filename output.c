@@ -75,34 +75,34 @@ clean_output (FILE * fp, char *s)
 static void
 clean_output_replacing (char *input, char *output)
 {
-   strncpy(output, "\0", 1);
+   strncpy (output, "\0", 1);
    while (*input) {
       switch (*input) {
        case '\'':
-          strncat(output, "&#39;", 5);
+          strncat (output, "&#39;", 5);
           break;
        case '"':
-          strncat(output, "&#34;", 5);
+          strncat (output, "&#34;", 5);
           break;
        case '&':
-          strncat(output, "&amp;", 5);
+          strncat (output, "&amp;", 5);
           break;
        case '<':
-          strncat(output, "&lt;", 4);
+          strncat (output, "&lt;", 4);
           break;
        case '>':
-          strncat(output, "&gt;", 4);
+          strncat (output, "&gt;", 4);
           break;
        case ' ':
-          strncat(output, "&nbsp;", 6);
+          strncat (output, "&nbsp;", 6);
           break;
        default:
-          strncat(output, input, 1);
+          strncat (output, input, 1);
           break;
       }
       input++;
    }
-   strncat(output, "\0", 1);
+   strncat (output, "\0", 1);
 }
 
 static char *
@@ -111,6 +111,7 @@ nbsp_replace (char *input)
    return replace_str (input, " ", "&nbsp;");
 }
 
+/* *INDENT-OFF* */
 static void
 print_html_header (FILE * fp, char *now)
 {
@@ -185,6 +186,7 @@ print_html_header (FILE * fp, char *now)
 
    fprintf (fp, "<div class=\"pure-g-r\" id=\"layout\">");
 }
+/* *INDENT-ON* */
 
 static void
 print_html_footer (FILE * fp)
@@ -197,7 +199,7 @@ print_html_footer (FILE * fp)
 }
 
 static void
-print_html_h2 (FILE* fp, char *title, char *id)
+print_html_h2 (FILE * fp, char *title, char *id)
 {
    if (id)
       fprintf (fp, "<h2 id=\"%s\">%s</h2>", id, title);
@@ -206,7 +208,7 @@ print_html_h2 (FILE* fp, char *title, char *id)
 }
 
 static void
-print_p (FILE* fp, char *paragraph)
+print_p (FILE * fp, char *paragraph)
 {
    fprintf (fp, "<p>%s</p>", paragraph);
 }
@@ -276,7 +278,7 @@ print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
 
-      char cleaned_data[6*strlen(data)]; // maximum possible size of the cleaned string
+      char cleaned_data[6 * strlen (data)];     // maximum possible size of the cleaned string
       clean_output_replacing (data, cleaned_data);
       char *format = "—&nbsp;%s";
       name = xmalloc (snprintf (NULL, 0, format, data) + 1);
@@ -308,7 +310,14 @@ print_html_status (FILE * fp, GHolder * h, int process)
    print_p (fp, CODES_DESC);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Code<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp,
+            "<th>Code<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -346,24 +355,30 @@ print_html_generic (FILE * fp, GHolder * h, int process)
    char *id = REFER_ID;
    char *desc = REFER_DESC;
    if (h->module == NOT_FOUND) {
-       head = FOUND_HEAD;
-       id = FOUND_ID;
-       desc = FOUND_DESC;
+      head = FOUND_HEAD;
+      id = FOUND_ID;
+      desc = FOUND_DESC;
    } else if (h->module == REFERRING_SITES) {
-       head = SITES_HEAD;
-       id = SITES_ID;
-       desc = SITES_DESC;
+      head = SITES_HEAD;
+      id = SITES_ID;
+      desc = SITES_DESC;
    } else if (h->module == KEYPHRASES) {
-       head = KEYPH_HEAD;
-       id = KEYPH_ID;
-       desc = KEYPH_DESC;
+      head = KEYPH_HEAD;
+      id = KEYPH_ID;
+      desc = KEYPH_DESC;
    }
 
    print_html_h2 (fp, head, id);
    print_p (fp, desc);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -375,12 +390,13 @@ print_html_generic (FILE * fp, GHolder * h, int process)
       percent = percent < 0 ? 0 : percent;
 
       print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
+
       fprintf (fp, "<td>%d</td>", hits);
       fprintf (fp, "<td>%4.2f%%</td>", percent);
-
       fprintf (fp, "<td>");
       clean_output (fp, data);
       fprintf (fp, "</td>");
+
       print_html_end_tr (fp);
    }
 
@@ -405,7 +421,7 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      char cleaned_data[6*strlen(data)]; // maximum possible size of the cleaned string
+      char cleaned_data[6 * strlen (data)];     // maximum possible size of the cleaned string
       clean_output_replacing (data, cleaned_data);
       char *format = "—&nbsp;%s";
       name = xmalloc (snprintf (NULL, 0, format, data) + 1);
@@ -414,11 +430,11 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       print_html_begin_tr (fp, 1);
       fprintf (fp, "<td>%d</td>", hits);
       fprintf (fp, "<td>%4.2f%%</td>", percent);
-
       fprintf (fp, "<td>%s</td>", name);
-
       fprintf (fp, "<td class=\"graph\">");
-      fprintf (fp, "<div class=\"graph-bar graph-light\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp,
+               "<div class=\"graph-bar graph-light\" style=\"width:%f%%\"></div>",
+               l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
       free (name);
@@ -449,7 +465,16 @@ print_html_browser_os (FILE * fp, GHolder * h)
    print_p (fp, desc);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Name</th><th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>Name</th>");
+   fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
+   fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
+   fprintf (fp, "</th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -469,10 +494,6 @@ print_html_browser_os (FILE * fp, GHolder * h)
       l = l < 1 ? 1 : l;
 
       print_html_begin_tr (fp, 0);
-      fprintf (fp, "<td>%d</td>", hits);
-//       if (hits == max)
-//          fprintf (fp, "<td class=\"max\">%4.2f%%</td>", percent);
-//       else
       fprintf (fp, "<td>%4.2f%%</td>", percent);
 
       /* data */
@@ -510,7 +531,19 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    print_p (fp, HOSTS_DESC);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th></th><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>IP</th><th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th></th>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>Bandwidth</th>");
+   fprintf (fp, "<th>Time&nbsp;served</th>");
+   fprintf (fp, "<th>IP</th>");
+   fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
+   fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
+   fprintf (fp, "</th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -615,8 +648,7 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       head = STATI_HEAD;
       id = STATI_ID;
       desc = STATI_DESC;
-   }
-   else if (ht == ht_not_found_requests) {
+   } else if (ht == ht_not_found_requests) {
       head = FOUND_HEAD;
       id = FOUND_ID;
       desc = FOUND_DESC;
@@ -626,7 +658,8 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    print_p (fp, desc);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+   fprintf (fp,
+            "<tr><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -682,8 +715,17 @@ print_html_visitors_report (FILE * fp, GHolder * h)
    print_p (fp, VISIT_DESC);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp, "<tr><th>Hits</th><th>%%</th><th>Date</th><th>Size</th>");
-   fprintf (fp, "<th style=\"width:100%%;text-align:right;\"><span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>Date</th>");
+   fprintf (fp, "<th>Size</th>");
+   fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
+   fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
+   fprintf (fp, "</th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
 
    print_html_begin_tbody (fp);
@@ -795,31 +837,34 @@ print_html_summary (FILE * fp, GLog * logger)
 static void
 print_pure_menu (FILE * fp, char *now)
 {
-    fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
-    fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
-    fprintf (fp, "<a class=\"pure-menu-heading\" href=\"http://goaccess.prosoftcorp.com/\">GoAccess</a>");
-    fprintf (fp, "<ul>");
-    fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
-    fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Requested files</a></li>", REQUE_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>", STATI_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Not found URLs</a></li>", FOUND_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
-    fprintf (fp, "<li><a href=\"#%s\">Status codes</a></li>", CODES_ID);
-    fprintf (fp, "<li class=\"menu-item-divided\"></li>");
+   fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
+   fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
+   fprintf (fp,
+            "<a class=\"pure-menu-heading\" href=\"http://goaccess.prosoftcorp.com/\">GoAccess</a>");
+   fprintf (fp, "<ul>");
+   fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
+   fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Requested files</a></li>", REQUE_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>",
+            STATI_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Not found URLs</a></li>", FOUND_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
+   fprintf (fp, "<li><a href=\"#%s\">Status codes</a></li>", CODES_ID);
+   fprintf (fp, "<li class=\"menu-item-divided\"></li>");
 
-    fprintf (fp, "</ul>");
-    fprintf (fp, "<p>Generated by<br />GoAccess %s<br />—<br />%s</p>", GO_VERSION, now);
-    fprintf (fp, "</div>");
-    fprintf (fp, "</div> <!-- menu -->");
+   fprintf (fp, "</ul>");
+   fprintf (fp, "<p>Generated by<br />GoAccess %s<br />—<br />%s</p>",
+            GO_VERSION, now);
+   fprintf (fp, "</div>");
+   fprintf (fp, "</div> <!-- menu -->");
 
-    fprintf (fp, "<div id=\"main\" class=\"pure-u-1\">");
-    fprintf (fp, "<div class=\"l-box\">");
+   fprintf (fp, "<div id=\"main\" class=\"pure-u-1\">");
+   fprintf (fp, "<div class=\"l-box\">");
 }
 
 /* entry point to generate a report writing it to the fp */
@@ -830,7 +875,7 @@ output_html (GLog * logger, GHolder * holder)
 
    FILE *fp = stdout;
    char now[20];
-   strftime(now, 20, "%Y-%m-%d %H:%M:%S", now_tm);
+   strftime (now, 20, "%Y-%m-%d %H:%M:%S", now_tm);
 
    print_html_header (fp, now);
    print_pure_menu (fp, now);
