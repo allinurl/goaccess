@@ -426,7 +426,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
    print_html_begin_thead (fp);
 
    fprintf (fp, "<tr>");
-   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>Visitors</th>");
    fprintf (fp, "<th>%%</th>");
    fprintf (fp, "<th>Name</th>");
    fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
@@ -617,8 +617,16 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    print_p (fp, desc);
    print_html_begin_table (fp);
    print_html_begin_thead (fp);
-   fprintf (fp,
-            "<tr><th>Hits</th><th>%%</th><th>Bandwidth</th><th>Time&nbsp;served</th><th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th></tr>");
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>Bandwidth</th>");
+   fprintf (fp, "<th>Time&nbsp;served</th>");
+   fprintf (fp, "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span>");
+   fprintf (fp, "</th>");
+   fprintf (fp, "</tr>");
+
    print_html_end_thead (fp);
    print_html_begin_tbody (fp);
 
@@ -676,7 +684,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
    print_html_begin_thead (fp);
 
    fprintf (fp, "<tr>");
-   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>Visitors</th>");
    fprintf (fp, "<th>%%</th>");
    fprintf (fp, "<th>Date</th>");
    fprintf (fp, "<th>Size</th>");
