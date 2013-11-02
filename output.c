@@ -136,7 +136,7 @@ print_html_header (FILE * fp, char *now)
    "h2 {"
    "    font-weight: 700;"
    "    color: #4b4b4b;"
-   "    font-size: 1.5em;"
+   "    font-size: 1.2em;"
    "    margin: .83em 0 .20em 0;"
    "}"
    ".agent-hide,"
