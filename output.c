@@ -93,55 +93,320 @@ print_html_header (FILE * fp, char *now)
    fprintf (fp, "(b[a].className='hide',c.innerHTML='◀')};");
    fprintf (fp, "function a(c){var b=c.parentNode.parentNode.nextSibling;");
    fprintf (fp, "while(b && b.nodeType != 1) b=b.nextSibling;");
-   fprintf (fp, "'a-hide'==b.className?(b.className='a-show',");
+   fprintf (fp, "'agent-hide'==b.className?(b.className='a-show',");
    fprintf (fp, "c.innerHTML='▼'):'a-show'==b.className&&");
-   fprintf (fp, "(b.className='a-hide',c.innerHTML='▶')};");
+   fprintf (fp, "(b.className='agent-hide',c.innerHTML='▶')};");
    fprintf (fp, "</script>\n");
 
    fprintf (fp, "<style type=\"text/css\">");
-   fprintf (fp, "body{font-size:11px;color:#777;margin:0}");
-   fprintf (fp, "h2{font-weight:700;color:#4b4b4b;font-size:1.5em;margin:.83em 0}");
-   fprintf (fp, ".a-hide,.hide{display:none}");
-   fprintf (fp, ".r,.s{cursor:pointer}.r{float:right}");
-   fprintf (fp, "thead th{text-align:center}");
-   fprintf (fp, ".max{color:#D20B2C;font-weight:700}");
-   fprintf (fp, "#layout{padding-left:150px;left:0}.l-box{padding:1.3em}");
-   fprintf (fp, "#menu{margin-left:-150px;width:150px;position:fixed;top:0;left:150px;bottom:0;z-index:1000;background:#191818;overflow-y:auto;-webkit-overflow-scroll:touch}");
-   fprintf (fp, "#menu a{color:#999;border:0;white-space:normal;padding:.6em 0 .6em .6em}");
-   fprintf (fp, "#menu p{color:#eee;padding:.6em;text-align:center}");
-   fprintf (fp, "#menu .pure-menu-open{background:transparent;border:0}");
-   fprintf (fp, "#menu .pure-menu ul{border:0;background:transparent}");
-   fprintf (fp, "#menu .pure-menu ul,#menu .pure-menu .menu-item-divided{border-top:1px solid #333}");
-   fprintf (fp, "#menu .pure-menu li a:hover,#menu .pure-menu li a:focus{background:#333}");
-   fprintf (fp, "#menu .pure-menu-heading:hover,#menu .pure-menu-heading:focus{color:#999}");
-   fprintf (fp, "#menu .pure-menu-heading{font-size:110%%;color:#eee}");
-   fprintf (fp, ".graph{height:1.529411765em;margin-bottom:.470588235em;overflow:hidden;background-color:#e5e5e5;border-radius:.071428571em;text-align:center}");
-   fprintf (fp, ".graph-bar{float:left;width:0;height:100%%;color:#fff;background-color:#777;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box}");
-   fprintf (fp, ".graph-light{background-color:#BBB}html{font-size:100%%;-ms-text-size-adjust:100%%;-webkit-text-size-adjust:100%%}html{font-family:sans-serif}");
-   fprintf (fp, "a:focus{outline:thin dotted}a:active,a:hover{outline:0}");
-   fprintf (fp, "p{margin:1em 0}ul{margin:1em 0}ul{padding:0 0 0 40px}");
-   fprintf (fp, "table{border-collapse:collapse;border-spacing:0}");
-   fprintf (fp, ".pure-u{display:inline-block;*display:inline;zoom:1;letter-spacing:normal;word-spacing:normal;vertical-align:top;text-rendering:auto}");
-   fprintf (fp, ".pure-u-1{display:inline-block;*display:inline;zoom:1;letter-spacing:normal;word-spacing:normal;vertical-align:top;text-rendering:auto}");
-   fprintf (fp, ".pure-u-1{width:100%%}");
-   fprintf (fp, ".pure-g-r{letter-spacing:-.31em;*letter-spacing:normal;*word-spacing:-.43em;font-family:FreeSans,Arimo,\"Droid Sans\",Helvetica,Arial,sans-serif;display:-webkit-flex;-webkit-flex-flow:row wrap;display:-ms-flexbox;-ms-flex-flow:row wrap}.pure-g-r{word-spacing:-.43em}");
-   fprintf (fp, ".pure-g-r [class *=pure-u]{font-family:sans-serif}");
-   fprintf (fp, "@media (max-width:480px){.pure-g-r>.pure-u,.pure-g-r>[class *=pure-u-]{width:100%%}}");
-   fprintf (fp, "@media (max-width:767px){.pure-g-r>.pure-u,.pure-g-r>[class *=pure-u-]{width:100%%}}");
-   fprintf (fp, ".pure-menu ul{position:absolute;visibility:hidden}.pure-menu.pure-menu-open{visibility:visible;z-index:2;width:100%%}");
-   fprintf (fp, ".pure-menu ul{left:-10000px;list-style:none;margin:0;padding:0;top:-10000px;z-index:1}.pure-menu>ul{position:relative}");
-   fprintf (fp, ".pure-menu-open>ul{left:0;top:0;visibility:visible}.pure-menu-open>ul:focus{outline:0}.pure-menu li{position:relative}");
-   fprintf (fp, ".pure-menu a,.pure-menu .pure-menu-heading{display:block;color:inherit;line-height:1.5em;padding:5px 20px;text-decoration:none;white-space:nowrap}");
-   fprintf (fp, ".pure-menu li a{padding:5px 20px}.pure-menu.pure-menu-open{background:#fff;border:1px solid #b7b7b7}");
-   fprintf (fp, ".pure-menu a{border:1px solid transparent;border-left:0;border-right:0}.pure-menu a{color:#777}");
-   fprintf (fp, ".pure-menu li a:hover,.pure-menu li a:focus{background:#eee}");
-   fprintf (fp, ".pure-menu .pure-menu-heading{color:#565d64;text-transform:uppercase;font-size:90%%;margin-top:.5em;border-bottom-width:1px;border-bottom-style:solid;border-bottom-color:#dfdfdf}");
-   fprintf (fp, ".pure-table{border-collapse:collapse;border-spacing:0;empty-cells:show;border:1px solid #cbcbcb}");
-   fprintf (fp, ".pure-table td,.pure-table th{border-left:1px solid #cbcbcb;border-width:0 0 0 1px;font-size:inherit;margin:0;overflow:visible;padding:6px 12px}");
-   fprintf (fp, ".pure-table td:first-child,.pure-table th:first-child{border-left-width:0}");
-   fprintf (fp, ".pure-table thead{background:#e0e0e0;color:#000;text-align:left;vertical-align:bottom}");
-   fprintf (fp, ".pure-table td{background-color:transparent}");
-   fprintf (fp, ".pure-table-striped tr:nth-child(2n-1) td{background-color:#f2f2f2}");
+   fprintf (fp,
+   "html {"
+   "    font-size: 100%%;"
+   "    -ms-text-size-adjust: 100%%;"
+   "    -webkit-text-size-adjust: 100%%;"
+   "}"
+   "html {"
+   "    font-family: sans-serif"
+   "}"
+   "body {"
+   "    font-size: 80%%;"
+   "    color: #777;"
+   "    margin: 0;"
+   "}"
+   "a:focus {"
+   "    outline: thin dotted"
+   "}"
+   "a:active,"
+   "a:hover {"
+   "    outline: 0"
+   "}"
+   "p {"
+   "    margin: 0 0 1em 0"
+   "}"
+   "ul {"
+   "    margin: 1em 0"
+   "}"
+   "ul {"
+   "    padding: 0 0 0 40px"
+   "}"
+   "table {"
+   "    border-collapse: collapse;"
+   "    border-spacing: 0;"
+   "}"
+   "h2 {"
+   "    font-weight: 700;"
+   "    color: #4b4b4b;"
+   "    font-size: 1.5em;"
+   "    margin: .83em 0 .20em 0;"
+   "}"
+   ".agent-hide,"
+   ".hide {"
+   "    display: none"
+   "}"
+   ".r,"
+   ".s {"
+   "    cursor: pointer"
+   "}"
+   ".r {"
+   "    float: right"
+   "}"
+   "thead th {"
+   "    text-align: center"
+   "}"
+   ".max {"
+   "    color: #D20B2C;"
+   "    font-weight: 700;"
+   "}"
+   "#layout {"
+   "    padding-left: 150px;"
+   "    left: 0;"
+   "}"
+   ".l-box {"
+   "    padding: 0 1.3em 1.3em 1.3em"
+   "}"
+   ".graph {"
+   "    height: 1.529411765em;"
+   "    margin-bottom: .470588235em;"
+   "    overflow: hidden;"
+   "    background-color: #e5e5e5;"
+   "    border-radius: .071428571em;"
+   "    text-align: center;"
+   "}"
+   ".graph .bar {"
+   "    float: left;"
+   "    width: 0;"
+   "    height: 100%%;"
+   "    color: #fff;"
+   "    background-color: #777;"
+   "    -webkit-box-sizing: border-box;"
+   "    -moz-box-sizing: border-box;"
+   "    box-sizing: border-box;"
+   "}"
+   ".graph .light {"
+   "    background-color: #BBB"
+   "}"
+   "#menu {"
+   "    margin-left: -150px;"
+   "    width: 150px;"
+   "    position: fixed;"
+   "    top: 0;"
+   "    left: 150px;"
+   "    bottom: 0;"
+   "    z-index: 1000;"
+   "    background: #242424;"
+   "    overflow-y: auto;"
+   "    -webkit-overflow-scroll: touch;"
+   "}"
+   "#menu a {"
+   "    color: #999;"
+   "    border: 0;"
+   "    white-space: normal;"
+   "    padding: .6em 0 .6em .6em;"
+   "}"
+   "#menu p {"
+   "    color: #eee;"
+   "    padding: .6em;"
+   "    text-align: center;"
+   "}"
+   "#menu .pure-menu-open {"
+   "    background: transparent;"
+   "    border: 0;"
+   "}"
+   "#menu .pure-menu ul {"
+   "    border: 0;"
+   "    background: transparent;"
+   "}"
+   "#menu .pure-menu ul,"
+   "#menu .pure-menu .menu-item-divided {"
+   "    border-top: 1px solid #333"
+   "}"
+   "#menu .pure-menu li a:hover,"
+   "#menu .pure-menu li a:focus {"
+   "    background: #333"
+   "}"
+   "#menu .pure-menu-heading:hover,"
+   "#menu .pure-menu-heading:focus {"
+   "    color: #999"
+   "}"
+   "#menu .pure-menu-heading {"
+   "    color: #FFF;"
+   "    font-size: 110%%;"
+   "    font-weight: bold;"
+   "}"
+   ".pure-u {"
+   "    display: inline-block;"
+   "    *display: inline;"
+   "    zoom: 1;"
+   "    letter-spacing: normal;"
+   "    word-spacing: normal;"
+   "    vertical-align: top;"
+   "    text-rendering: auto;"
+   "}"
+   ".pure-u-1 {"
+   "    display: inline-block;"
+   "    *display: inline;"
+   "    zoom: 1;"
+   "    letter-spacing: normal;"
+   "    word-spacing: normal;"
+   "    vertical-align: top;"
+   "    text-rendering: auto;"
+   "}"
+   ".pure-u-1 {"
+   "    width: 100%%"
+   "}"
+   ".pure-g-r {"
+   "    letter-spacing: -.31em;"
+   "    *letter-spacing: normal;"
+   "    *word-spacing: -.43em;"
+   "    font-family: sans-serif;"
+   "    display: -webkit-flex;"
+   "    -webkit-flex-flow: row wrap;"
+   "    display: -ms-flexbox;"
+   "    -ms-flex-flow: row wrap;"
+   "}"
+   ".pure-g-r {"
+   "    word-spacing: -.43em"
+   "}"
+   ".pure-g-r [class *=pure-u] {"
+   "    font-family: sans-serif"
+   "}"
+   "@media (max-width:480px) { "
+   "    .pure-g-r>.pure-u,"
+   "    .pure-g-r>[class *=pure-u-] {"
+   "        width: 100%%"
+   "    }"
+   "}"
+   "@media (max-width:767px) { "
+   "    .pure-g-r>.pure-u,"
+   "    .pure-g-r>[class *=pure-u-] {"
+   "        width: 100%%"
+   "    }"
+   "}"
+   ".pure-menu ul {"
+   "    position: absolute;"
+   "    visibility: hidden;"
+   "}"
+   ".pure-menu.pure-menu-open {"
+   "    visibility: visible;"
+   "    z-index: 2;"
+   "    width: 100%%;"
+   "}"
+   ".pure-menu ul {"
+   "    left: -10000px;"
+   "    list-style: none;"
+   "    margin: 0;"
+   "    padding: 0;"
+   "    top: -10000px;"
+   "    z-index: 1;"
+   "}"
+   ".pure-menu>ul {"
+   "    position: relative"
+   "}"
+   ".pure-menu-open>ul {"
+   "    left: 0;"
+   "    top: 0;"
+   "    visibility: visible;"
+   "}"
+   ".pure-menu-open>ul:focus {"
+   "    outline: 0"
+   "}"
+   ".pure-menu li {"
+   "    position: relative"
+   "}"
+   ".pure-menu a,"
+   ".pure-menu .pure-menu-heading {"
+   "    display: block;"
+   "    color: inherit;"
+   "    line-height: 1.5em;"
+   "    padding: 5px 20px;"
+   "    text-decoration: none;"
+   "    white-space: nowrap;"
+   "}"
+   ".pure-menu li a {"
+   "    padding: 5px 20px"
+   "}"
+   ".pure-menu.pure-menu-open {"
+   "    background: #fff;"
+   "    border: 1px solid #b7b7b7;"
+   "}"
+   ".pure-menu a {"
+   "    border: 1px solid transparent;"
+   "    border-left: 0;"
+   "    border-right: 0;"
+   "}"
+   ".pure-menu a {"
+   "    color: #777"
+   "}"
+   ".pure-menu li a:hover,"
+   ".pure-menu li a:focus {"
+   "    background: #eee"
+   "}"
+   ".pure-menu .pure-menu-heading {"
+   "    color: #565d64;"
+   "    font-size: 90%%;"
+   "    margin-top: .5em;"
+   "    border-bottom-width: 1px;"
+   "    border-bottom-style: solid;"
+   "    border-bottom-color: #dfdfdf;"
+   "}"
+   ".pure-table {"
+   "    border-collapse: collapse;"
+   "    border-spacing: 0;"
+   "    empty-cells: show;"
+   "    border: 1px solid #cbcbcb;"
+   "}"
+   ".pure-table td,"
+   ".pure-table th {"
+   "    border-left: 1px solid #cbcbcb;"
+   "    border-width: 0 0 0 1px;"
+   "    font-size: inherit;"
+   "    margin: 0;"
+   "    overflow: visible;"
+   "    padding: 6px 12px;"
+   "}"
+   ".pure-table td:first-child,"
+   ".pure-table th:first-child {"
+   "    border-left-width: 0"
+   "}"
+   ".pure-table thead {"
+   "    background: #242424;"
+   "    color: #FFF;"
+   "    text-align: left;"
+   "    vertical-align: bottom;"
+   "}"
+   ".pure-table td {"
+   "    background-color: transparent"
+   "}"
+   ".pure-table tbody tr:hover,"
+   ".pure-table-striped tr:nth-child(2n-1) td {"
+   "    background-color: #f2f2f2"
+   "}"
+   "@media (max-width: 924px) {"
+   "    #layout {"
+   "        position: relative;"
+   "        padding-left: 0;"
+   "    }"
+   "    #layout.active {"
+   "        position: relative;"
+   "        left: 150px;"
+   "    }"
+   "    #layout.active #menu {"
+   "        left: 150px;"
+   "        width: 150px;"
+   "    }"
+   "    #menu {"
+   "        left: 0"
+   "    }"
+   "    .pure-menu-link {"
+   "        position: fixed;"
+   "        left: 0;"
+   "        display: block;"
+   "    }"
+   "    #layout.active .pure-menu-link {"
+   "        left: 150px"
+   "    }"
+   "}"
+   );
 
    fprintf (fp, "</style>\n");
    fprintf (fp, "</head>\n");
@@ -382,7 +647,7 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      char *format = "—&nbsp;%s";
+      char *format = "`-&nbsp;%s";
       name = xmalloc (snprintf (NULL, 0, format, data) + 1);
       sprintf (name, format, data);
 
@@ -391,9 +656,7 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       fprintf (fp, "<td>%4.2f%%</td>", percent);
       fprintf (fp, "<td>%s</td>", name);
       fprintf (fp, "<td class=\"graph\">");
-      fprintf (fp,
-               "<div class=\"graph-bar graph-light\" style=\"width:%f%%\"></div>",
-               l);
+      fprintf (fp, "<div class=\"bar light\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
       free (name);
@@ -453,6 +716,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
       l = l < 1 ? 1 : l;
 
       print_html_begin_tr (fp, 0);
+      fprintf (fp, "<td>%d</td>", hits);
       fprintf (fp, "<td>%4.2f%%</td>", percent);
 
       /* data */
@@ -461,7 +725,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
       fprintf (fp, "</td>");
 
       fprintf (fp, "<td class=\"graph\">");
-      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
@@ -534,14 +798,20 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 
       fprintf (fp, "<td>%d</td>", hits);
       fprintf (fp, "<td>%4.2f%%</td>", percent);
-      fprintf (fp, "<td>%s</td>", bandwidth);
+
+      fprintf (fp, "<td>");
+      clean_output (fp, bandwidth);
+      fprintf (fp, "</td>");
+
       /* usecs */
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>%s</td>", usecs);
+      fprintf (fp, "<td>");
+      clean_output (fp, usecs);
+      fprintf (fp, "</td>");
       fprintf (fp, "<td>%s</td>", data);
 
       fprintf (fp, "<td class=\"graph\">");
-      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
@@ -558,7 +828,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
          /* split agents into struct */
          split_agent_str (ptr_value, agents, 300);
 
-         fprintf (fp, "<tr class=\"a-hide\">\n");
+         fprintf (fp, "<tr class=\"agent-hide\">\n");
          fprintf (fp, "<td colspan=\"7\">\n");
          fprintf (fp, "<div>");
          fprintf (fp, "<table class=\"pure-table-striped\">");
@@ -645,11 +915,15 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       /* percent */
       fprintf (fp, "<td>%4.2f%%</td>", percent);
       /* bandwidth */
-      fprintf (fp, "<td>%s</td>", bandwidth);
+      fprintf (fp, "<td>");
+      clean_output (fp, bandwidth);
+      fprintf (fp, "</td>");
 
       /* usecs */
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>%s</td>", usecs);
+      fprintf (fp, "<td>");
+      clean_output (fp, usecs);
+      fprintf (fp, "</td>");
 
       /* data */
       fprintf (fp, "<td>");
@@ -728,11 +1002,11 @@ print_html_visitors_report (FILE * fp, GHolder * h)
       /* bandwidth */
       fprintf (fp, "<td>");
       clean_output (fp, bandwidth);
-      fprintf (fp, "</td>\n");
+      fprintf (fp, "</td>");
 
       /* bars */
       fprintf (fp, "<td class=\"graph\">");
-      fprintf (fp, "<div class=\"graph-bar\" style=\"width:%f%%\"></div>", l);
+      fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>\n");
 
       print_html_end_tr (fp);
@@ -849,7 +1123,6 @@ output_html (GLog * logger, GHolder * holder)
    print_pure_menu (fp, now);
 
    print_html_summary (fp, logger);
-
    print_html_visitors_report (fp, holder + VISITORS);
    print_html_request_report (fp, holder + REQUESTS, ht_requests,
                               logger->process);
@@ -857,12 +1130,9 @@ output_html (GLog * logger, GHolder * holder)
                               logger->process);
    print_html_request_report (fp, holder + NOT_FOUND, ht_not_found_requests,
                               logger->process);
-
    print_html_hosts (fp, holder + HOSTS, logger->process);
-
    print_html_browser_os (fp, holder + OS);
    print_html_browser_os (fp, holder + BROWSERS);
-
    print_html_generic (fp, holder + REFERRERS, logger->process);
    print_html_generic (fp, holder + REFERRING_SITES, logger->process);
    print_html_generic (fp, holder + KEYPHRASES, logger->process);
