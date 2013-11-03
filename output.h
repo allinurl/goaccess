@@ -25,7 +25,9 @@
 #ifndef OUTPUT_H_INCLUDED
 #define OUTPUT_H_INCLUDED
 
-#define OUTPUT_N        10
+#define OUTPUT_N  10
+#define REF_LEN   20
+#define DATE_TIME 20
 
 #include "gdashboard.h"
 #include "parser.h"
