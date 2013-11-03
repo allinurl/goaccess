@@ -46,7 +46,7 @@
 static void
 clean_output (FILE * fp, char *s)
 {
-   int limit=250;
+   int limit = 250;
    while (*s && limit) {
       switch (*s) {
        case '\'':
@@ -77,7 +77,7 @@ clean_output (FILE * fp, char *s)
           break;
       }
       s++;
-	  limit--;
+      limit--;
    }
 }
 
@@ -1159,18 +1159,19 @@ void
 output_csv (GLog * logger, GHolder * holder)
 {
    generate_time ();
-   
-   FILE *fp = stdout;   
+
+   FILE *fp = stdout;
    char *bw, *size;
    off_t log_size;
-   char buffer [80];
+   char buffer[80];
 
    /* general statistics info */
-   strftime (buffer,80,"%c", now_tm);
-   fprintf (fp, "general,processingtime,%s,,,\n", buffer );
-   fprintf (fp, "general,totalrequests,%d,,,\n", logger->process );
-   fprintf (fp, "general,uniquevisitors,%d,,,\n", g_hash_table_size (ht_unique_visitors) );
-   fprintf (fp, "general,referrers,%d,,,\n", g_hash_table_size (ht_referrers) );
+   strftime (buffer, 80, "%c", now_tm);
+   fprintf (fp, "general,processingtime,%s,,,\n", buffer);
+   fprintf (fp, "general,totalrequests,%d,,,\n", logger->process);
+   fprintf (fp, "general,uniquevisitors,%d,,,\n",
+            g_hash_table_size (ht_unique_visitors));
+   fprintf (fp, "general,referrers,%d,,,\n", g_hash_table_size (ht_referrers));
 
    if (!logger->piping) {
       log_size = file_size (conf.ifile);
@@ -1178,21 +1179,24 @@ output_csv (GLog * logger, GHolder * holder)
    } else
       size = alloc_string ("N/A");
 
-   fprintf (fp, "general,filesize,%s,,,\n", size );	  
-   fprintf (fp, "general,failedrequests,%d,,,\n", logger->invalid );
-   fprintf (fp, "general,uniquefiles,%d,,,\n", g_hash_table_size (ht_requests) );
-   fprintf (fp, "general,unique404,%d,,,\n", g_hash_table_size (ht_not_found_requests) );
+   fprintf (fp, "general,filesize,%s,,,\n", size);
+   fprintf (fp, "general,failedrequests,%d,,,\n", logger->invalid);
+   fprintf (fp, "general,uniquefiles,%d,,,\n", g_hash_table_size (ht_requests));
+   fprintf (fp, "general,unique404,%d,,,\n",
+            g_hash_table_size (ht_not_found_requests));
 
    bw = filesize_str ((float) logger->resp_size);
 
-   fprintf (fp, "general,bandwidth,%s,,,\n", bw );
-   fprintf (fp, "general,generationtime,%lu,,,\n", ((int) end_proc - start_proc) );
-   fprintf (fp, "general,staticfiles,%d,,,\n", g_hash_table_size (ht_requests_static) );
+   fprintf (fp, "general,bandwidth,%s,,,\n", bw);
+   fprintf (fp, "general,generationtime,%lu,,,\n",
+            ((int) end_proc - start_proc));
+   fprintf (fp, "general,staticfiles,%d,,,\n",
+            g_hash_table_size (ht_requests_static));
 
    if (conf.ifile == NULL)
-      conf.ifile = "STDIN";   
+      conf.ifile = "STDIN";
 
-   fprintf (fp, "general,filename,%s,,,\n", conf.ifile );
+   fprintf (fp, "general,filename,%s,,,\n", conf.ifile);
 
    /* unique visitors per day report */
    char buf[DATE_LEN];
@@ -1204,9 +1208,9 @@ output_csv (GLog * logger, GHolder * holder)
    int hits;
    float percent;
    int i, r, max, process = g_hash_table_size (ht_unique_visitors);
-   char id [20];
+   char id[20];
 
-   GHolder * h = holder + VISITORS;
+   GHolder *h = holder + VISITORS;
 
    max = 0;
    for (i = 0; i < h->idx; i++) {
@@ -1220,99 +1224,110 @@ output_csv (GLog * logger, GHolder * holder)
       percent = percent < 0 ? 0 : percent;
       bandwidth = filesize_str (h->items[i].bw);
 
-   /* date */
-   convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);	  
+      /* date */
+      convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
-   /* entry */
-   fprintf (fp, "unique,%d,%4.2f%%,%s,%s,\n", hits, percent, buf, bandwidth );
+      /* entry */
+      fprintf (fp, "unique,%d,%4.2f%%,%s,%s,\n", hits, percent, buf, bandwidth);
 
-   free (bandwidth);
-  }   
+      free (bandwidth);
+   }
 
-	char *usecs;
-	int until = 0;
-	
+   char *usecs;
+   int until = 0;
+
    /* requests url, requests static, not found & hosts report */
    for (r = 0; r < 4; r++) {
-   	switch (r) {
-       case 0:	h = holder + REQUESTS;
-				strcpy( id, "reqfile" );
-				break;
-       case 1:	h = holder + REQUESTS_STATIC;
-				strcpy( id, "reqstfile" );
-				break;
-       case 2:  h = holder + NOT_FOUND;
-				strcpy( id, "notfound" );
-				break;
-       case 3:  h = holder + HOSTS;
-				strcpy( id, "host" );
-				break;
-	}
+      switch (r) {
+       case 0:
+          h = holder + REQUESTS;
+          strcpy (id, "reqfile");
+          break;
+       case 1:
+          h = holder + REQUESTS_STATIC;
+          strcpy (id, "reqstfile");
+          break;
+       case 2:
+          h = holder + NOT_FOUND;
+          strcpy (id, "notfound");
+          break;
+       case 3:
+          h = holder + HOSTS;
+          strcpy (id, "host");
+          break;
+      }
 
-	process = logger->process;
+      process = logger->process;
 
-	if (h->idx == 0)
-      continue;
+      if (h->idx == 0)
+         continue;
 
-	until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
-	for (i = 0; i < until; i++) {
-      hits = h->items[i].hits;
-      data = h->items[i].data;
-      percent = get_percentage (process, hits);
-      percent = percent < 0 ? 0 : percent;
-      bandwidth = filesize_str (h->items[i].bw);
+      until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
+      for (i = 0; i < until; i++) {
+         hits = h->items[i].hits;
+         data = h->items[i].data;
+         percent = get_percentage (process, hits);
+         percent = percent < 0 ? 0 : percent;
+         bandwidth = filesize_str (h->items[i].bw);
 
-      /* usecs */
-      usecs = usecs_to_str (h->items[i].usecs);
+         /* usecs */
+         usecs = usecs_to_str (h->items[i].usecs);
 
-      fprintf (fp, "%s,%d,%4.2f%%,%s,%s,", id, hits, percent, bandwidth, usecs );
-      clean_output (fp, data);
-	  fprintf (fp, "\n");
+         fprintf (fp, "%s,%d,%4.2f%%,%s,%s,", id, hits, percent, bandwidth,
+                  usecs);
+         clean_output (fp, data);
+         fprintf (fp, "\n");
 
-      free (usecs);
-      free (bandwidth);
-	}
+         free (usecs);
+         free (bandwidth);
+      }
    }
 
    /* os, browsers, referrers, referring sites, keyphrases & status code report */
    for (r = 0; r < 6; r++) {
-	switch (r) {
-       case 0:	h = holder + OS;
-				strcpy( id, "os" );
-				break;
-       case 1:	h = holder + BROWSERS;
-				strcpy( id, "browser" );
-				break;
-       case 2:	h = holder + REFERRERS;
-				strcpy( id, "refurl" );
-				break;
-       case 3:	h = holder + REFERRING_SITES;
-				strcpy( id, "refsite" );
-				break;
-       case 4:	h = holder + KEYPHRASES;
-				strcpy( id, "keyphrase" );
-				break;
-       case 5:	h = holder + STATUS_CODES;
-				strcpy( id, "status" );
-				break;
-	}
+      switch (r) {
+       case 0:
+          h = holder + OS;
+          strcpy (id, "os");
+          break;
+       case 1:
+          h = holder + BROWSERS;
+          strcpy (id, "browser");
+          break;
+       case 2:
+          h = holder + REFERRERS;
+          strcpy (id, "refurl");
+          break;
+       case 3:
+          h = holder + REFERRING_SITES;
+          strcpy (id, "refsite");
+          break;
+       case 4:
+          h = holder + KEYPHRASES;
+          strcpy (id, "keyphrase");
+          break;
+       case 5:
+          h = holder + STATUS_CODES;
+          strcpy (id, "status");
+          break;
+      }
 
-	if (h->idx == 0)
-      continue;
+      if (h->idx == 0)
+         continue;
 
-   until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
-   for (i = 0; i < until; i++) {
-      hits = h->items[i].hits;
-      data = h->items[i].data;
-      percent = get_percentage (process, hits);
-      percent = percent < 0 ? 0 : percent;
-	  
-      fprintf (fp, "%s,%d,%4.2f%%,", id, hits, percent );
-      clean_output (fp, data);
-	  fprintf (fp, ",,\n");
-	  
+      until = h->idx < MAX_CHOICES ? h->idx : MAX_CHOICES;
+      for (i = 0; i < until; i++) {
+         hits = h->items[i].hits;
+         data = h->items[i].data;
+         percent = get_percentage (process, hits);
+         percent = percent < 0 ? 0 : percent;
+
+         fprintf (fp, "%s,%d,%4.2f%%,", id, hits, percent);
+         clean_output (fp, data);
+         fprintf (fp, ",,\n");
+
+      }
    }
-  }
 
-  fclose(fp);
+   fclose (fp);
 }
