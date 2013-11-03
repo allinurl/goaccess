@@ -848,7 +848,7 @@ main (int argc, char *argv[])
       if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
       allocate_holder ();
-      if (conf.output_format != NULL && *conf.output_format == 'c')
+      if (conf.output_format != NULL && strcmp ("csv", conf.output_format) == 0)
          output_csv (logger, holder);
       else
          output_html (logger, holder);
