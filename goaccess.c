@@ -109,7 +109,8 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess -f log_file [-c][-r][-m][-a][-o csv][-e IP_ADDRESS][-p CONFFILE]\n\n");
+   printf
+      ("goaccess -f log_file [-c][-r][-m][-a][-o csv][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -688,7 +689,7 @@ main (int argc, char *argv[])
           break;
        case 'o':
           conf.output_format = optarg;
-          break; 
+          break;
        case 'r':
           conf.skip_resolver = 1;
           break;
@@ -847,10 +848,10 @@ main (int argc, char *argv[])
       if ((logger->process == 0) || (logger->process == logger->invalid))
          goto done;
       allocate_holder ();
-      if( conf.output_format != NULL && *conf.output_format == 'c' )
-        output_csv (logger, holder);    
+      if (conf.output_format != NULL && *conf.output_format == 'c')
+         output_csv (logger, holder);
       else
-        output_html (logger, holder); 
+         output_html (logger, holder);
       goto done;
    }
 

@@ -55,7 +55,7 @@ typedef struct GConf_
    char *ifile;
    char *ignore_host;
    char *log_format;
-   char *output_format; 
+   char *output_format;
    int bandwidth;
    int color_scheme;
    int list_agents;
