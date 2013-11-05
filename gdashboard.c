@@ -1044,13 +1044,13 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 }
 
 /* Geolocation data */
+#ifdef HAVE_LIBGEOIP
 static char *
 get_geoip_data (const char *data)
 {
    const char *location = NULL;
-
-#ifdef HAVE_LIBGEOIP
    const char *addr = data;
+
    /* Geolocation data */
    GeoIP *gi;
    gi = GeoIP_new (GEOIP_STANDARD);
@@ -1060,9 +1060,9 @@ get_geoip_data (const char *data)
       location = "Location Unknown";
    if (gi != NULL)
       GeoIP_delete (gi);
-#endif
    return (char *) location;
 }
+#endif
 
 /* add a host item to holder */
 static void
