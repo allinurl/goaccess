@@ -65,11 +65,6 @@ clean_output (FILE * fp, char *s)
           break;
        case ' ':
           fprintf (fp, "&nbsp;");
-       case ',':
-          fprintf (fp, "&#44;");
-          break;
-       case '\\':
-          fprintf (fp, "&#92;");
           break;
        default:
           fputc (*s, fp);
