@@ -664,7 +664,7 @@ int
 main (int argc, char *argv[])
 {
    char *loc_ctype;
-   int row, col, o, idx, quit = 0;
+   int row = 0, col = 0, o, idx, quit = 0;
 
    opterr = 0;
    while ((o = getopt (argc, argv, short_options)) != -1) {
