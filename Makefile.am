@@ -26,7 +26,13 @@ goaccess_SOURCES = \
    gmenu.h         \
    goaccess.h
 
-AM_CFLAGS = -g @GLIB2_CFLAGS@
+if DEBUG
+AM_CFLAGS = -O0 -g
+else
+AM_CFLAGS = -O2
+endif
+
+AM_CFLAGS += @GLIB2_CFLAGS@
 AM_CFLAGS += -Wno-long-long -Wall -W -Wnested-externs -Wformat=2
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare

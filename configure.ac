@@ -16,6 +16,15 @@ PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([*** glib2 not found!]))
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
+AC_ARG_ENABLE([debug],
+[  --enable-debug    Turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
+
 AC_ARG_ENABLE(geoip,--enable-geoip Enable GeoIP country lookup, USE_GEOIP="yes")
 AC_ARG_ENABLE(utf8,--enable-utf8 Enable UTF-8 support for wide characters, USE_UTF8="yes")
 
