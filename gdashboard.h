@@ -176,7 +176,7 @@ typedef struct GRawData_
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 GDashData *new_gdata (unsigned int size);
-GDash *new_gdash ();
+GDash *new_gdash (void);
 GHashTable *get_ht_by_module (GModule module);
 GHolder *new_gholder (unsigned int size);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
@@ -193,7 +193,7 @@ void free_holder (GHolder ** holder);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScrolling * scrolling);
 void load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
 void load_host_to_holder (GHolder * h, char *ip);
-void reset_find ();
+void reset_find (void);
 void reset_scroll_offsets (GScrolling * scrolling);
 void set_module_from_mouse_event (GScrolling *scrolling, GDash *dash, int y);
 /* *INDENT-ON* */

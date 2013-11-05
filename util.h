@@ -52,7 +52,8 @@ char *char_replace (char *str, char o, char n);
 char *replace_str (const char *str, const char *old, const char *new);
 char *clean_date (char *s);
 char *clean_month (char *s);
-char *convert_date (char *result, char *data, char *from, char *to, int size);
+char *convert_date (char *result, char *data, const char *from, const char *to,
+                    int size);
 char *filesize_str (unsigned long long log_size);
 char *int_to_str (int d);
 char *reverse_ip (char *str);

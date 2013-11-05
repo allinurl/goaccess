@@ -36,7 +36,7 @@
 #include "commons.h"
 
 void
-error_handler (const char *func, char *file, int line, char *msg)
+error_handler (const char *func, const char *file, int line, const char *msg)
 {
    (void) endwin ();
 

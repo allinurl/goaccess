@@ -56,7 +56,7 @@ void dns_resolver (char *addr);
 void gdns_free_queue (void);
 void gdns_init (void);
 void gdns_queue_free (void);
-void gdns_thread_create ();
+void gdns_thread_create (void);
 void gqueue_destroy (GDnsQueue * q);
 void gqueue_init (GDnsQueue * q, int capacity);
 

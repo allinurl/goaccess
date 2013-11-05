@@ -104,10 +104,10 @@ gqueue_enqueue (GDnsQueue * q, char *item)
 int
 gqueue_find (GDnsQueue * q, const char *item)
 {
+   int i;
    if (gqueue_empty (q))
       return 0;
 
-   int i;
    for (i = 0; i < q->size; i++) {
       if (strcmp (item, q->buffer[i]) == 0)
          return 1;
@@ -119,17 +119,18 @@ gqueue_find (GDnsQueue * q, const char *item)
 char *
 gqueue_dequeue (GDnsQueue * q)
 {
+   char *item;
    if (gqueue_empty (q))
       return NULL;
 
-   char *item = q->buffer[q->head];
+   item = q->buffer[q->head];
    q->head = (q->head + 1) % q->capacity;
    q->size--;
    return item;
 }
 
 /* get the corresponding host given an address */
-char *
+static char *
 reverse_host (const struct sockaddr *a, socklen_t length)
 {
    char h[H_SIZE];
@@ -146,15 +147,15 @@ reverse_host (const struct sockaddr *a, socklen_t length)
 char *
 reverse_ip (char *str)
 {
-   if (str == NULL || *str == '\0')
-      return NULL;
-
    union
    {
       struct sockaddr addr;
       struct sockaddr_in6 addr6;
       struct sockaddr_in addr4;
    } a;
+
+   if (str == NULL || *str == '\0')
+      return NULL;
 
    memset (&a, 0, sizeof (a));
    if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr)) {
@@ -181,7 +182,7 @@ dns_resolver (char *addr)
 }
 
 /* consumer */
-void
+static void
 dns_worker (void GO_UNUSED (*ptr_data))
 {
    char *ip = NULL, *host = NULL;
@@ -237,7 +238,7 @@ gdns_free_queue (void)
 
 /* create a dns thread */
 void
-gdns_thread_create ()
+gdns_thread_create (void)
 {
    pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
    pthread_detach (gdns_thread.thread);

@@ -80,19 +80,20 @@ set_conf_vars (int key, char *val)
 
 /* ###TODO: allow extra values for every key separated by a delimeter */
 int
-parse_conf_file ()
+parse_conf_file (void)
 {
+   char line[512];
    char *path = NULL, *user_home = NULL;
    char *val, *c;
-   int key = 0;
    FILE *file;
+   int key = 0;
 
    if (conf.iconfigfile[0] != '\0')
       path = alloc_string (conf.iconfigfile);
    else {
       user_home = getenv ("HOME");
       if (user_home == NULL)
-         user_home = "";
+         return 1;
 
       path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
       sprintf (path, "%s/.goaccessrc", user_home);
@@ -102,10 +103,9 @@ parse_conf_file ()
    /* could not open conf file, if so prompt conf dialog */
    if (file == NULL) {
       free (path);
-      return -1;
+      return 1;
    }
 
-   char line[512];
    while (fgets (line, sizeof line, file) != NULL) {
       unsigned int i;
       for (i = 0; i < ARRAY_SIZE (keywords); i++) {
@@ -114,7 +114,7 @@ parse_conf_file ()
       }
       if ((val = strchr (line, ' ')) == NULL) {
          free (path);
-         return -1;
+         return 1;
       }
       for (c = val; *c; c++) {
          /* get everything after the space */
@@ -130,8 +130,8 @@ parse_conf_file ()
 }
 
 /* write config key/value pair to goaccessrc */
-void
-write_conf_file ()
+int
+write_conf_file (void)
 {
    FILE *file;
    char *path = NULL, *user_home = NULL;
@@ -141,7 +141,7 @@ write_conf_file ()
    else {
       user_home = getenv ("HOME");
       if (user_home == NULL)
-         user_home = "";
+         return 1;
 
       path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
       sprintf (path, "%s/.goaccessrc", user_home);
@@ -151,7 +151,7 @@ write_conf_file ()
    /* no file available */
    if (file == NULL) {
       free (path);
-      return;
+      return 1;
    }
 
    /* color scheme */
@@ -175,11 +175,13 @@ write_conf_file ()
    if (conf.log_format)
       free (conf.log_format);
    free (path);
+
+   return 0;
 }
 
 /* return the index of the matched item, or -1 if no such item exists */
 size_t
-get_selected_format_idx ()
+get_selected_format_idx (void)
 {
    if (conf.log_format == NULL)
       return -1;

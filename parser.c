@@ -175,8 +175,9 @@ init_log (void)
 GLogItem *
 init_log_item (GLog * logger)
 {
+   GLogItem *log;
    logger->items = xmalloc (sizeof (GLogItem));
-   GLogItem *log = logger->items;
+   log = logger->items;
    memset (log, 0, sizeof *log);
 
    log->agent = NULL;
@@ -213,12 +214,12 @@ free_logger (GLogItem * log)
 static int
 process_request_meta (GHashTable * ht, char *key, unsigned long long size)
 {
-   if ((ht == NULL) || (key == NULL))
-      return (EINVAL);
-
    gpointer value_ptr;
    unsigned long long add_value;
    unsigned long long *ptr_value;
+
+   if ((ht == NULL) || (key == NULL))
+      return (EINVAL);
 
    value_ptr = g_hash_table_lookup (ht, key);
    if (value_ptr != NULL) {
@@ -283,8 +284,6 @@ spc_decode_url (char *url)
       }
    }
    *ptr = 0;
-   if (strlen (url) == (ptr - out)) {
-   }
    return trim_str (out);
 }
 
@@ -293,14 +292,15 @@ spc_decode_url (char *url)
 static int
 process_keyphrases (char *ref)
 {
+   char *r, *ptr, *p, *dec, *pch;
+
    if (!(strstr (ref, "http://www.google.")) &&
        !(strstr (ref, "http://webcache.googleusercontent.com/")) &&
        !(strstr (ref, "http://translate.googleusercontent.com/")))
-      return -1;
+      return 1;
 
-   char *r, *ptr, *p, *dec, *pch;
    if ((r = strstr (ref, "/+&")) != NULL)
-      r = "-";
+      return 1;
    else if ((r = strstr (ref, "/+")) != NULL)
       r += 2;
    else if ((r = strstr (ref, "q=cache:")) != NULL) {
@@ -314,7 +314,7 @@ process_keyphrases (char *ref)
             (r = strstr (ref, "%3Fq%3D")) != NULL)
       r += 7;
    else
-      return -1;
+      return 1;
    dec = spc_decode_url (r);
    if ((ptr = strstr (dec, "%26")) != NULL || (ptr = strchr (dec, '&')) != NULL)
       *ptr = '\0';
@@ -323,7 +323,7 @@ process_keyphrases (char *ref)
    if (p[0] == '\0') {
       if (dec != NULL)
          free (dec);
-      return -1;
+      return 1;
    }
    p = char_replace (p, '+', ' ');
    process_generic_data (ht_keyphrases, trim_str (dec));
@@ -337,13 +337,15 @@ process_keyphrases (char *ref)
 static int
 process_host_agents (char *host, char *agent)
 {
+   char *ptr_value, *tmp, *a;
    GHashTable *ht = ht_hosts_agents;
    gpointer value_ptr;
+   size_t len1, len2;
 
    if ((ht == NULL) || (host == NULL) || (agent == NULL))
       return (EINVAL);
 
-   char *ptr_value, *tmp, *a = spc_decode_url (agent);
+   a = spc_decode_url (agent);
 
    value_ptr = g_hash_table_lookup (ht, host);
    if (value_ptr != NULL) {
@@ -354,8 +356,8 @@ process_host_agents (char *host, char *agent)
          return 0;
       }
 
-      size_t len1 = strlen (ptr_value);
-      size_t len2 = strlen (a);
+      len1 = strlen (ptr_value);
+      len2 = strlen (a);
 
       tmp = xmalloc (len1 + len2 + 2);
       memcpy (tmp, ptr_value, len1);
@@ -377,11 +379,13 @@ process_host_agents (char *host, char *agent)
 static void
 process_referrers (char *referrer)
 {
+   char *ref;
+   char url[512] = "";
+
    if (referrer == NULL)
       return;
 
-   char *ref = spc_decode_url (referrer);
-   char url[512] = "";
+   ref = spc_decode_url (referrer);
    /* extract the host part, i.e., www.foo.com */
    if (sscanf (ref, "%*[^/]%*[/]%[^/]", url) == 1)
       process_generic_data (ht_referring_sites, url);
@@ -401,9 +405,6 @@ process_unique_data (char *host, char *date, char *agent)
    char *dup_key = NULL, *clean_key = NULL;
    char *browser_key = NULL;
    char *os_key = NULL;
-
-   if (agent == NULL)
-      agent = "-";
 
    snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, agent);
    (visitor_key)[sizeof (visitor_key) - 1] = '\0';
@@ -478,7 +479,9 @@ verify_static_content (char *req)
 static char *
 parse_req (char *line)
 {
-   char *reqs, *req_l = NULL, *req_r = NULL, *lookfor = NULL;
+   const char *lookfor = NULL;
+   char *reqs, *req_l = NULL, *req_r = NULL;
+   ptrdiff_t req_len;
 
    if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
        (lookfor = "GET ", req_l = strstr (line, lookfor)) != NULL ||
@@ -503,7 +506,7 @@ parse_req (char *line)
          return alloc_string ("-");
 
       req_l += strlen (lookfor);
-      ptrdiff_t req_len = req_r - req_l;
+      req_len = req_r - req_l;
 
       /* make sure we don't have some weird requests */
       if (req_len <= 0)
@@ -543,14 +546,16 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
               char *str)
 {
    const char *p;
+   double serve_secs;
+   int special = 0;
+   struct tm tm;
+   unsigned long long bandw, serve_time;
 
    if (str == NULL || *str == '\0')
       return 1;
 
-   struct tm tm;
    memset (&tm, 0, sizeof (tm));
 
-   int special = 0;
    /* iterate over the log format */
    for (p = fmt; *p; p++) {
       if (*p == '%') {
@@ -560,9 +565,9 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
       if (special && *p != '\0') {
          char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
          errno = 0;
-         unsigned long long bandw = 0;
-         unsigned long long serve_time = 0;
-         double serve_secs = 0;
+         bandw = 0;
+         serve_time = 0;
+         serve_secs = 0;
 
          switch (*p) {
              /* date */
@@ -717,6 +722,7 @@ static int
 process_log (GLog * logger, char *line, int test)
 {
    char buf[DATE_LEN];
+   GLogItem *log;
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
@@ -739,7 +745,7 @@ process_log (GLog * logger, char *line, int test)
 
    logger->process++;
 
-   GLogItem *log = init_log_item (logger);
+   log = init_log_item (logger);
    if (parse_format (log, conf.log_format, conf.date_format, line) == 1) {
       free_logger (log);
       logger->invalid++;
@@ -766,6 +772,9 @@ process_log (GLog * logger, char *line, int test)
    if (conf.ignore_host != NULL && strcmp (log->host, conf.ignore_host) == 0)
       return 0;
 
+   /* make sure agent is not null so it can be part of visitor_key */
+   if (log->agent == NULL)
+      log->agent = alloc_string ("-");
    /* process visitors, browsers, and OS */
    process_unique_data (log->host, buf, log->agent);
 

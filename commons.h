@@ -37,7 +37,7 @@ struct tm *now_tm;
 
 /* Processing time */
 extern time_t end_proc;
-extern time_t now;
+extern time_t timestamp;
 extern time_t start_proc;
 
 /* resizing */

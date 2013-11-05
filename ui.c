@@ -83,7 +83,7 @@ create_win (int h, int w, int y, int x)
 
 /* initialize curses colors */
 void
-init_colors ()
+init_colors (void)
 {
    use_default_colors ();
 
@@ -137,8 +137,8 @@ close_win (WINDOW * w)
 void
 generate_time (void)
 {
-   now = time (NULL);
-   now_tm = localtime (&now);
+   timestamp = time (NULL);
+   now_tm = localtime (&timestamp);
 }
 
 /* draw a generic header */
@@ -172,7 +172,7 @@ term_size (WINDOW * main_win)
    wmove (main_win, real_size_y, 0);
 }
 
-const char *
+static const char *
 module_to_label (GModule module)
 {
    static const char *modules[] = {
@@ -216,12 +216,36 @@ void
 display_general (WINDOW * win, char *ifile, int piping, int processed,
                  int invalid, unsigned long long bandwidth)
 {
-   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
-   int x_field = 2, x_value = 0;
    char *bw, *size, *log_file;
+   char *failed, *not_found, *process, *ref, *req;
+   char *static_files, *now, *visitors;
+
+   int x_field = 2, x_value = 0;
+   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
+
+   typedef struct Field_
+   {
+      const char *field;
+      char *value;              /* char due to log, bw, log_file */
+      int color;
+   } Field;
+
+   Field fields[] = {
+      {T_REQUESTS, NULL, COL_CYAN},
+      {T_UNIQUE_VIS, NULL, COL_CYAN},
+      {T_REFERRER, NULL, COL_CYAN},
+      {T_LOG, NULL, COL_CYAN},
+      {T_F_REQUESTS, NULL, COL_CYAN},
+      {T_UNIQUE_FIL, NULL, COL_CYAN},
+      {T_UNIQUE404, NULL, COL_CYAN},
+      {T_BW, NULL, COL_CYAN},
+      {T_GEN_TIME, NULL, COL_CYAN},
+      {T_STATIC_FIL, NULL, COL_CYAN},
+      {"", alloc_string (""), COL_CYAN},
+      {T_LOG_PATH, NULL, COL_YELLOW}
+   };
 
    werase (win);
-
    draw_header (win, T_HEAD, 0, 0, getmaxx (stdscr), 1);
 
    if (!piping && ifile != NULL) {
@@ -233,37 +257,28 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
    }
    bw = filesize_str ((float) bandwidth);
 
-   typedef struct Field_
-   {
-      char *field;
-      char *value;              /* char due to log, bw, log_file */
-      int color;
-   } Field;
-
    /* *INDENT-OFF* */
-   char *failed       = int_to_str (invalid);
-   char *not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
-   char *process      = int_to_str (processed);
-   char *ref          = int_to_str (g_hash_table_size (ht_referrers));
-   char *req          = int_to_str (g_hash_table_size (ht_requests));
-   char *static_files = int_to_str (g_hash_table_size (ht_requests_static));
-   char *time         = int_to_str (((int) end_proc - start_proc));
-   char *visitors     = int_to_str (g_hash_table_size (ht_unique_visitors));
+   failed       = int_to_str (invalid);
+   not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
+   process      = int_to_str (processed);
+   ref          = int_to_str (g_hash_table_size (ht_referrers));
+   req          = int_to_str (g_hash_table_size (ht_requests));
+   static_files = int_to_str (g_hash_table_size (ht_requests_static));
+   now          = int_to_str (((int) end_proc - start_proc));
+   visitors     = int_to_str (g_hash_table_size (ht_unique_visitors));
 
-   Field fields[] = {
-      {T_REQUESTS,   process,           COL_CYAN},
-      {T_UNIQUE_VIS, visitors,          COL_CYAN},
-      {T_REFERRER,   ref,               COL_CYAN},
-      {T_LOG,        size,              COL_CYAN},
-      {T_F_REQUESTS, failed,            COL_CYAN},
-      {T_UNIQUE_FIL, req,               COL_CYAN},
-      {T_UNIQUE404,  not_found,         COL_CYAN},
-      {T_BW,         bw,                COL_CYAN},
-      {T_GEN_TIME,   time,              COL_CYAN},
-      {T_STATIC_FIL, static_files,      COL_CYAN},
-      {"",           alloc_string (""), COL_CYAN},
-      {T_LOG_PATH,   log_file,          COL_YELLOW}
-   };
+   fields[0].value = process;
+   fields[1].value = visitors;
+   fields[2].value = ref;
+   fields[3].value = size;
+   fields[4].value = failed;
+   fields[5].value = req;
+   fields[6].value = not_found;
+   fields[7].value = bw;
+   fields[8].value = now;
+   fields[9].value = static_files;
+   fields[11].value = log_file;
+
    n = ARRAY_SIZE (fields);
 
    /* *INDENT-ON* */
@@ -307,14 +322,14 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
 
 /* implement basic frame work to build a field input */
 char *
-input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, char *str,
-              int enable_case, int *toggle_case)
+input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
+              const char *str, int enable_case, int *toggle_case)
 {
    char *s = xmalloc (max_width + 1), *tmp;
    size_t pos = 0, x = 0, quit = 1, c;
 
    /* window dimensions */
-   size_t size_x = 0, size_y = 0;
+   size_t size_x = 0, size_y = 0, i;
    getmaxyx (win, size_y, size_x);
    size_x -= 4;
 
@@ -433,7 +448,6 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, char *str,
                 pos++;
           }
       }
-      size_t i;
       tmp = xstrdup (&s[pos > 0 ? pos : 0]);
       tmp[MIN (strlen (tmp), size_x)] = '\0';
       for (i = strlen (tmp); i < size_x; i++)
@@ -461,15 +475,8 @@ ht_bw_str (GHashTable * ht, const char *key)
       return alloc_string ("-");
 }
 
-/* wrapper - get human-readable bandwidth given X bytes */
-char *
-bandwidth_string (unsigned long long bw)
-{
-   return filesize_str (bw);
-}
-
 /* allocate memory for a new instace of GAgents */
-GAgents *
+static GAgents *
 new_gagents (unsigned int n)
 {
    GAgents *agents = xcalloc (n, sizeof (GAgents));
@@ -510,15 +517,18 @@ split_agent_str (char *ptr_value, GAgents * agents, int max)
 void
 load_agent_list (WINDOW * main_win, char *addr)
 {
-   if (!conf.list_agents)
-      return;
-
+   char buf[256];
    char *ptr_value;
    GAgents *agents = NULL;
+   GMenu *menu;
    gpointer value_ptr = NULL;
    int c, quit = 1, delims = 0;
    int i, n = 0, alloc = 0;
    int y, x, list_h, list_w, menu_w, menu_h;
+   WINDOW *win;
+
+   if (!conf.list_agents)
+      return;
 
    getmaxyx (stdscr, y, x);
    list_h = y / 2;              /* list window - height */
@@ -536,12 +546,12 @@ load_agent_list (WINDOW * main_win, char *addr)
       alloc = split_agent_str (ptr_value, agents, menu_w);
    }
 
-   WINDOW *win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
+   win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    /* create a new instance of GMenu and make it selectable */
-   GMenu *menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
+   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
 
    /* add items to GMenu */
    menu->items = (GItem *) xcalloc (alloc, sizeof (GItem));
@@ -552,7 +562,6 @@ load_agent_list (WINDOW * main_win, char *addr)
    }
    post_gmenu (menu);
 
-   char buf[256];
    snprintf (buf, sizeof buf, "User Agents for %s", addr);
    draw_header (win, buf, 1, 1, list_w - 2, 1);
    mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
@@ -593,7 +602,7 @@ load_agent_list (WINDOW * main_win, char *addr)
 }
 
 /* render processing spinner */
-void
+static void
 ui_spinner (void *ptr_data)
 {
    GSpinner *spinner = (GSpinner *) ptr_data;
@@ -623,12 +632,13 @@ ui_spinner_create (GSpinner * spinner)
 
 /* allocate memory and initialize data */
 GSpinner *
-new_gspinner ()
+new_gspinner (void)
 {
    int y, x;
-   getmaxyx (stdscr, y, x);
+   GSpinner *spinner;
 
-   GSpinner *spinner = xcalloc (1, sizeof (GSpinner));
+   getmaxyx (stdscr, y, x);
+   spinner = xcalloc (1, sizeof (GSpinner));
 
    spinner->color = HIGHLIGHT;
    spinner->state = SPN_RUN;
@@ -649,10 +659,12 @@ verify_format (GLog * logger, GSpinner * spinner)
 {
    char *cstm_log, *cstm_date;
    int c, quit = 1;
-   size_t i, n;
+   size_t i, n, sel;
    int invalid = 1;
    int y, x, h = CONF_WIN_H, w = CONF_WIN_W;
    int w2 = w - 2;
+   WINDOW *win;
+   GMenu *menu;
 
    /* conf dialog menu options */
    const char *choices[] = {
@@ -666,13 +678,12 @@ verify_format (GLog * logger, GSpinner * spinner)
    n = ARRAY_SIZE (choices);
    getmaxyx (stdscr, y, x);
 
-   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    /* create a new instance of GMenu and make it selectable */
-   GMenu *menu =
-      new_gmenu (win, CONF_MENU_H, CONF_MENU_W, CONF_MENU_Y, CONF_MENU_X);
+   menu = new_gmenu (win, CONF_MENU_H, CONF_MENU_W, CONF_MENU_Y, CONF_MENU_X);
    menu->size = n;
    menu->selectable = 1;
 
@@ -680,7 +691,7 @@ verify_format (GLog * logger, GSpinner * spinner)
    menu->items = (GItem *) xcalloc (n, sizeof (GItem));
    for (i = 0; i < n; ++i) {
       menu->items[i].name = alloc_string (choices[i]);
-      size_t sel = get_selected_format_idx ();
+      sel = get_selected_format_idx ();
       menu->items[i].checked = sel == i ? 1 : 0;
    }
    post_gmenu (menu);
@@ -850,7 +861,7 @@ verify_format (GLog * logger, GSpinner * spinner)
 
 /* get selected scheme */
 static void
-scheme_chosen (char *name)
+scheme_chosen (const char *name)
 {
    if (strcmp ("Green/Original", name) == 0)
       conf.color_scheme = STD_GREEN;
@@ -863,12 +874,14 @@ scheme_chosen (char *name)
 void
 load_schemes_win (WINDOW * main_win)
 {
+   GMenu *menu;
+   WINDOW *win;
    int c, quit = 1;
    size_t i, n;
    int y, x, h = SCHEME_WIN_H, w = SCHEME_WIN_W;
    int w2 = w - 2;
 
-   char *choices[] = {
+   const char *choices[] = {
       "Monochrome/Default",
       "Green/Original"
    };
@@ -876,13 +889,14 @@ load_schemes_win (WINDOW * main_win)
    n = ARRAY_SIZE (choices);
    getmaxyx (stdscr, y, x);
 
-   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    /* create a new instance of GMenu and make it selectable */
-   GMenu *menu = new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y,
-                            SCHEME_MENU_X);
+   menu =
+      new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y,
+                 SCHEME_MENU_X);
    menu->size = n;
 
    /* add items to GMenu */
@@ -947,6 +961,9 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
    int i = 0, n = 0;
    int y, x, h = SORT_WIN_H, w = SORT_WIN_W;
    int w2 = w - 2;
+   WINDOW *win;
+   GMenu *menu;
+
    getmaxyx (stdscr, y, x);
 
    /* determine amount of sort choices */
@@ -960,13 +977,12 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
       n++;
    }
 
-   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    /* create a new instance of GMenu and make it selectable */
-   GMenu *menu =
-      new_gmenu (win, SORT_MENU_H, SORT_MENU_W, SORT_MENU_Y, SORT_MENU_X);
+   menu = new_gmenu (win, SORT_MENU_H, SORT_MENU_W, SORT_MENU_Y, SORT_MENU_X);
    menu->size = n;
    menu->selectable = 1;
 
@@ -1131,17 +1147,20 @@ load_help_popup (WINDOW * main_win)
    size_t i, n;
    int y, x, h = HELP_WIN_HEIGHT, w = HELP_WIN_WIDTH;
    int w2 = w - 2;
+   WINDOW *win;
+   GMenu *menu;
 
    n = ARRAY_SIZE (help_main);
    getmaxyx (stdscr, y, x);
 
-   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
    /* create a new instance of GMenu and make it selectable */
-   GMenu *menu = new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y,
-                            HELP_MENU_X);
+   menu =
+      new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y,
+                 HELP_MENU_X);
    menu->size = n;
 
    /* add items to GMenu */

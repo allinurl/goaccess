@@ -618,14 +618,17 @@ count_occurrences (const char *s1, char c)
    return n;
 }
 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 char *
-convert_date (char *result, char *data, char *from, char *to, int size)
+convert_date (char *result, char *data, const char *from, const char *to,
+              int size)
 {
    struct tm tm;
+   char *end;
 
    memset (&tm, 0, sizeof (tm));
 
-   char *end = strptime (data, from, &tm);
+   end = strptime (data, from, &tm);
    if (end == NULL || *end != '\0')
       return NULL;
    if (strftime (result, size, to, &tm) <= 0)
@@ -634,18 +637,21 @@ convert_date (char *result, char *data, char *from, char *to, int size)
    return result;
 }
 
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
+
 int
 invalid_ipaddr (char *str)
 {
-   if (str == NULL || *str == '\0')
-      return 1;
-
    union
    {
       struct sockaddr addr;
       struct sockaddr_in6 addr6;
       struct sockaddr_in addr4;
    } a;
+
+   if (str == NULL || *str == '\0')
+      return 1;
+
    memset (&a, 0, sizeof (a));
    if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr))
       return 0;
@@ -672,7 +678,8 @@ file_size (const char *filename)
 char *
 verify_os (const char *str, GOpeSysStr o_type)
 {
-   char *a, *b, *lookfor, *p;
+   char *a, *b, *p;
+   const char *lookfor;
    int space = 0;
    size_t i;
 
@@ -740,8 +747,6 @@ verify_os (const char *str, GOpeSysStr o_type)
             break;
       }
       *p = 0;
-      if (strlen (a) == (p - b)) {
-      }
 
       if (o_type == OPESYS)
          return alloc_string (b);
@@ -794,8 +799,6 @@ verify_browser (const char *str, GBrowserStr b_type)
             break;
       }
       *p = 0;
-      if (strlen (a) == (p - b)) {
-      }
 
       /* Opera +15 uses OPR/# */
       if ((strstr (b, "OPR")) != NULL) {
@@ -888,10 +891,11 @@ usecs_to_str (unsigned long long usec)
 char *
 clean_date (char *s)
 {
+   char *buffer;
    if ((s == NULL) || (*s == '\0'))
       return NULL;
 
-   char *buffer = xmalloc (strlen (s) + 1);
+   buffer = xmalloc (strlen (s) + 1);
    if (sscanf (s, "%11[^|]", buffer) != 1) {
       free (buffer);
       return NULL;
@@ -903,10 +907,11 @@ clean_date (char *s)
 char *
 clean_month (char *s)
 {
+   char *buffer;
    if ((s == NULL) || (*s == '\0'))
       return NULL;
 
-   char *buffer = xmalloc (strlen (s) + 1);
+   buffer = xmalloc (strlen (s) + 1);
    if (sscanf (s, "%6[^|]", buffer) != 1) {
       free (buffer);
       return NULL;
@@ -949,10 +954,11 @@ char_repeat (int n, char c)
 char *
 char_replace (char *str, char o, char n)
 {
+   char *p = str;
+
    if (str == NULL || *str == '\0')
       return str;
 
-   char *p = str;
    while ((p = strchr (p, o)) != NULL)
       *p++ = n;
 
