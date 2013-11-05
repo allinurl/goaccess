@@ -81,10 +81,10 @@ draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
 int
 post_gmenu (GMenu * menu)
 {
+   int i = 0, j = 0, k = 0, start, end, height, total, checked = 0;
    if (menu == NULL)
       return 1;
 
-   int i = 0, j = 0, k = 0, start, end, height, total;
    werase (menu->win);
 
    height = menu->h;
@@ -93,7 +93,7 @@ post_gmenu (GMenu * menu)
    end = height < total ? start + height : total;
    for (i = start; i < end; i++, j++) {
       k = i == menu->idx ? 1 : 0;
-      int checked = menu->items[i].checked ? 1 : 0;
+      checked = menu->items[i].checked ? 1 : 0;
       draw_menu_item (menu, menu->items[i].name, 0, j, menu->w, k, checked);
    }
    wrefresh (menu->win);

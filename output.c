@@ -455,7 +455,7 @@ print_html_footer (FILE * fp)
 }
 
 static void
-print_html_h2 (FILE * fp, char *title, char *id)
+print_html_h2 (FILE * fp, const char *title, const char *id)
 {
    if (id)
       fprintf (fp, "<h2 id=\"%s\">%s</h2>", id, title);
@@ -464,7 +464,7 @@ print_html_h2 (FILE * fp, char *title, char *id)
 }
 
 static void
-print_p (FILE * fp, char *paragraph)
+print_p (FILE * fp, const char *paragraph)
 {
    fprintf (fp, "<p>%s</p>", paragraph);
 }
@@ -524,9 +524,9 @@ static void
 print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
 {
    char *data, *name = NULL;
-   int hits;
    float percent;
    GSubItem *iter;
+   int hits;
 
    for (iter = sub_list->head; iter; iter = iter->next) {
       hits = iter->hits;
@@ -534,9 +534,8 @@ print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
       percent = get_percentage (process, hits);
       percent = percent < 0 ? 0 : percent;
 
-      char *format = "—&nbsp;%s";
-      name = xmalloc (snprintf (NULL, 0, format, data) + 1);
-      sprintf (name, format, data);
+      name = xmalloc (snprintf (NULL, 0, "—&nbsp;%s", data) + 1);
+      sprintf (name, "—&nbsp;%s", data);
 
       print_html_begin_tr (fp, 1);
       fprintf (fp, "<td>%d</td>", hits);
@@ -556,6 +555,7 @@ print_html_status (FILE * fp, GHolder * h, int process)
    float percent;
    int hits;
    int i;
+   GSubList *sub_list;
 
    if (h->idx == 0)
       return;
@@ -587,7 +587,7 @@ print_html_status (FILE * fp, GHolder * h, int process)
       fprintf (fp, "<td>%s</td>", data);
       print_html_end_tr (fp);
 
-      GSubList *sub_list = h->items[i].sub_list;
+      sub_list = h->items[i].sub_list;
       print_html_sub_status (fp, sub_list, process);
    }
    print_html_end_tbody (fp);
@@ -598,16 +598,15 @@ static void
 print_html_generic (FILE * fp, GHolder * h, int process)
 {
    char *data;
+   const char *desc = REFER_DESC;
+   const char *head = REFER_HEAD;
+   const char *id = REFER_ID;
    float percent;
-   int hits;
-   int i, until = 0;
+   int hits, i, until = 0;
 
    if (h->idx == 0)
       return;
 
-   char *head = REFER_HEAD;
-   char *id = REFER_ID;
-   char *desc = REFER_DESC;
    if (h->module == NOT_FOUND) {
       head = FOUND_HEAD;
       id = FOUND_ID;
@@ -675,9 +674,8 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      char *format = "`-&nbsp;%s";
-      name = xmalloc (snprintf (NULL, 0, format, data) + 1);
-      sprintf (name, format, data);
+      name = xmalloc (snprintf (NULL, 0, "`-&nbsp;%s", data) + 1);
+      sprintf (name, "`-&nbsp;%s", data);
 
       print_html_begin_tr (fp, 1);
       fprintf (fp, "<td>%d</td>", hits);
@@ -695,16 +693,16 @@ static void
 print_html_browser_os (FILE * fp, GHolder * h)
 {
    char *data;
-   int hits;
+   const char *desc = OPERA_DESC;
+   const char *head = OPERA_HEAD;
+   const char *id = OPERA_ID;
    float percent, l;
-   int i, max, process = g_hash_table_size (ht_unique_visitors);
+   GSubList *sub_list;
+   int hits, i, max, process = g_hash_table_size (ht_unique_visitors);
 
    if (h->idx == 0)
       return;
 
-   char *head = OPERA_HEAD;
-   char *id = OPERA_ID;
-   char *desc = OPERA_DESC;
    if (h->module == BROWSERS) {
       head = BROWS_HEAD;
       id = BROWS_ID;
@@ -757,7 +755,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
       fprintf (fp, "</td>");
       print_html_end_tr (fp);
 
-      GSubList *sub_list = h->items[i].sub_list;
+      sub_list = h->items[i].sub_list;
       print_html_sub_os (fp, sub_list, process);
    }
 
@@ -891,6 +889,9 @@ static void
 print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
 {
    char *data, *bandwidth, *usecs;
+   const char *desc = REQUE_DESC;
+   const char *head = REQUE_HEAD;
+   const char *id = REQUE_ID;
    float percent;
    int hits;
    int i, until = 0;
@@ -898,9 +899,6 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    if (h->idx == 0)
       return;
 
-   char *head = REQUE_HEAD;
-   char *id = REQUE_ID;
-   char *desc = REQUE_DESC;
    if (ht == ht_requests_static) {
       head = STATI_HEAD;
       id = STATI_ID;
@@ -971,14 +969,12 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
 static void
 print_html_visitors_report (FILE * fp, GHolder * h)
 {
-   char buf[DATE_LEN];
+   char *data, *bandwidth, buf[DATE_LEN];
+   float percent, l;
+   int hits, i, max, process = g_hash_table_size (ht_unique_visitors);
+
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
-
-   char *data, *bandwidth;
-   int hits;
-   float percent, l;
-   int i, max, process = g_hash_table_size (ht_unique_visitors);
 
    print_html_h2 (fp, VISIT_HEAD, VISIT_ID);
    print_p (fp, VISIT_DESC);
@@ -1047,7 +1043,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
 }
 
 static void
-print_html_summary_field (FILE * fp, int hits, char *field)
+print_html_summary_field (FILE * fp, int hits, const char *field)
 {
    fprintf (fp, "<td>%s</td><td>%d</td>", field, hits);
 }
@@ -1077,7 +1073,7 @@ print_html_summary (FILE * fp, GLog * logger)
 
    bw = filesize_str ((float) logger->resp_size);
    if (conf.ifile == NULL)
-      conf.ifile = "STDIN";
+      conf.ifile = (char *) "STDIN";
 
    fprintf (fp, "<td>%s</td><td>%s</td>", T_LOG, size);
    print_html_end_tr (fp);
@@ -1142,10 +1138,10 @@ print_pure_menu (FILE * fp, char *now)
 void
 output_html (GLog * logger, GHolder * holder)
 {
-   generate_time ();
-
    FILE *fp = stdout;
    char now[DATE_TIME];
+
+   generate_time ();
    strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
    print_html_header (fp, now);
@@ -1278,14 +1274,12 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
 static void
 print_csv_visitors (FILE * fp, GHolder * h)
 {
-   char buf[DATE_LEN];
+   char *data, buf[DATE_LEN];
+   float percent;
+   int hits, bw, i, process = g_hash_table_size (ht_unique_visitors);
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
-
-   char *data;
-   float percent;
-   int hits, bw, i, process = g_hash_table_size (ht_unique_visitors);
 
    for (i = 0; i < h->idx; i++) {
       hits = h->items[i].hits;
@@ -1335,7 +1329,7 @@ print_csv_summary (FILE * fp, GLog * logger)
             g_hash_table_size (ht_requests_static));
 
    if (conf.ifile == NULL)
-      conf.ifile = "STDIN";
+      conf.ifile = (char *) "STDIN";
 
    fprintf (fp, "\"general\",\"filename\",\"%s\"\r\n", conf.ifile);
 }

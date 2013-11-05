@@ -46,7 +46,6 @@
 
 /* *INDENT-OFF* */
 
-GHolder *holder = NULL;
 static GFind find_t;
 /* module's styles */
 static const GDashStyle module_style[TOTAL_MODULES] = {
@@ -66,7 +65,7 @@ static const GDashStyle module_style[TOTAL_MODULES] = {
 
 /* reset find indices */
 void
-reset_find ()
+reset_find (void)
 {
    if (find_t.pattern != NULL && *find_t.pattern != '\0')
       free (find_t.pattern);
@@ -81,7 +80,7 @@ reset_find ()
 
 /* allocate memory for dash */
 GDash *
-new_gdash ()
+new_gdash (void)
 {
    GDash *dash = xmalloc (sizeof (GDash));
    memset (dash, 0, sizeof *dash);
@@ -126,7 +125,7 @@ new_gholder (unsigned int size)
 }
 
 /* allocate memory for holder items */
-GHolderItem *
+static GHolderItem *
 new_gholder_item (unsigned int size)
 {
    GHolderItem *item = xcalloc (size, sizeof (GHolderItem));
@@ -134,7 +133,7 @@ new_gholder_item (unsigned int size)
 }
 
 /* allocate memory for a sub list */
-GSubList *
+static GSubList *
 new_gsublist (void)
 {
    GSubList *sub_list = xmalloc (sizeof (GSubList));
@@ -145,7 +144,7 @@ new_gsublist (void)
 }
 
 /* allocate memory for a sub list item */
-GSubItem *
+static GSubItem *
 new_gsubitem (GModule module, const char *data, int hits, unsigned long long bw)
 {
    GSubItem *sub_item = xmalloc (sizeof (GSubItem));
@@ -179,13 +178,13 @@ add_sub_item_back (GSubList * sub_list, GModule module, const char *data,
 static void
 delete_sub_list (GSubList * sub_list)
 {
+   GSubItem *item = item;
+   GSubItem *next = next;
+
    if (sub_list != NULL && sub_list->size == 0)
       goto clear;
    if (sub_list->size == 0)
       return;
-
-   GSubItem *item = item;
-   GSubItem *next = next;
 
    for (item = sub_list->head; item; item = next) {
       next = item->next;
@@ -201,11 +200,12 @@ delete_sub_list (GSubList * sub_list)
 void
 free_holder_by_module (GHolder ** holder, GModule module)
 {
+   GSubList *sub_list;
+   int j;
+
    if ((*holder) == NULL)
       return;
 
-   GSubList *sub_list;
-   int j;
    for (j = 0; j < (*holder)[module].holder_size; j++) {
       sub_list = (*holder)[module].items[j].sub_list;
       /* free the sub list */
@@ -224,11 +224,12 @@ free_holder_by_module (GHolder ** holder, GModule module)
 void
 free_holder (GHolder ** holder)
 {
+   GSubList *sub_list;
+   int i, j;
+
    if ((*holder) == NULL)
       return;
 
-   GSubList *sub_list;
-   int i, j;
    for (i = 0; i < TOTAL_MODULES; i++) {
       for (j = 0; j < (*holder)[i].holder_size; j++) {
          sub_list = (*holder)[i].items[j].sub_list;
@@ -245,8 +246,8 @@ free_holder (GHolder ** holder)
 }
 
 /* allocate memory for ht raw data */
-GRawData *
-new_grawdata ()
+static GRawData *
+new_grawdata (void)
 {
    GRawData *raw_data = xmalloc (sizeof (GRawData));
    memset (raw_data, 0, sizeof *raw_data);
@@ -255,7 +256,7 @@ new_grawdata ()
 }
 
 /* allocate memory for raw data items */
-GRawDataItem *
+static GRawDataItem *
 new_grawdata_item (unsigned int size)
 {
    GRawDataItem *item = xcalloc (size, sizeof (GRawDataItem));
@@ -263,7 +264,7 @@ new_grawdata_item (unsigned int size)
 }
 
 /* free memory allocated in raw data */
-void
+static void
 free_raw_data (GRawData * raw_data)
 {
    free (raw_data->items);
@@ -316,19 +317,19 @@ get_percentage (unsigned long long total, unsigned long long hit)
 static char *
 render_child_node (const char *data)
 {
-   if (data == NULL || *data == '\0')
-      return NULL;
-
-#ifdef HAVE_LIBNCURSESW
-   char *bend = "\xe2\x94\x9c";
-   char *horz = "\xe2\x94\x80";
-#else
-   char *bend = "|";
-   char *horz = "`-";
-#endif
-
    char *buf;
    int len = 0;
+
+#ifdef HAVE_LIBNCURSESW
+   const char *bend = "\xe2\x94\x9c";
+   const char *horz = "\xe2\x94\x80";
+#else
+   const char *bend = "|";
+   const char *horz = "`-";
+#endif
+
+   if (data == NULL || *data == '\0')
+      return NULL;
 
    len = snprintf (NULL, 0, " %s%s %s", bend, horz, data);
    buf = xmalloc (len + 3);
@@ -352,14 +353,14 @@ get_bars (int n, int max, int x)
 }
 
 /*get largest data's length */
-int
+static int
 get_max_data_len (GDashData * data, int size)
 {
-   int i, max = 0;
+   int i, max = 0, len;
    for (i = 0; i < size; i++) {
       if (data[i].data == NULL)
          continue;
-      int len = strlen (data[i].data);
+      len = strlen (data[i].data);
       if (len > max)
          max = len;
    }
@@ -367,7 +368,7 @@ get_max_data_len (GDashData * data, int size)
 }
 
 /*get largest hit's length */
-int
+static int
 get_max_hit_len (GDashData * data, int size)
 {
    int i, max = 0;
@@ -380,7 +381,7 @@ get_max_hit_len (GDashData * data, int size)
 }
 
 /* get largest hit */
-int
+static int
 get_max_hit (GDashData * data, int size)
 {
    int i, max = 0;
@@ -393,7 +394,7 @@ get_max_hit (GDashData * data, int size)
 }
 
 /* set item's percent in GDashData */
-float
+static float
 set_percent_data (GDashData * data, int n, int process)
 {
    float max = 0.0;
@@ -407,17 +408,19 @@ set_percent_data (GDashData * data, int n, int process)
 }
 
 /* render module's total */
-void
+static void
 render_total_label (WINDOW * win, GDashModule * module_data, int y)
 {
-   int win_h, win_w;
+   char *s;
+   int win_h, win_w, total, ht_size;
+
+   total = module_data->holder_size;
+   ht_size = module_data->ht_size;
+
+   s = xmalloc (snprintf (NULL, 0, "Total: %d/%d", total, ht_size) + 1);
    getmaxyx (win, win_h, win_w);
    win_h = win_h;
 
-   int total = module_data->holder_size;
-   int ht_size = module_data->ht_size;
-
-   char *s = xmalloc (snprintf (NULL, 0, "Total: %d/%d", total, ht_size) + 1);
    sprintf (s, "Total: %d/%d", total, ht_size);
 
    wattron (win, COLOR_PAIR (HIGHLIGHT));
@@ -427,7 +430,7 @@ render_total_label (WINDOW * win, GDashModule * module_data, int y)
 }
 
 /* render dashboard bars (graph) */
-void
+static void
 render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
@@ -456,7 +459,7 @@ render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 }
 
 /* render dashboard data */
-void
+static void
 render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
@@ -494,7 +497,7 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 }
 
 /* render dashboard bandwidth */
-void
+static void
 render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
                   int idx, int w, int selected)
 {
@@ -526,7 +529,7 @@ render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
 }
 
 /* render dashboard usecs */
-void
+static void
 render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x,
               int idx, int w, int selected)
 {
@@ -558,7 +561,7 @@ render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x,
 }
 
 /* render dashboard percent */
-void
+static void
 render_percent (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
                 int w, int selected)
 {
@@ -604,7 +607,7 @@ render_percent (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 }
 
 /* render dashboard hits */
-void
+static void
 render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
@@ -634,11 +637,11 @@ render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 }
 
 /* render dashboard content */
-void
+static void
 render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
                 int *total, GScrolling * scrolling)
 {
-   int expanded = 0, sel = 0, host_bars = 0;
+   int expanded = 0, sel = 0, host_bars = 0, size;
    int i, j, x = 0, w, h;
    GModule module = module_data->module;
 
@@ -654,7 +657,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
    if (scrolling->expanded && module == scrolling->current)
       expanded = 1;
 
-   int size = module_data->dash_size;
+   size = module_data->dash_size;
    for (i = *offset, j = 0; i < size; i++) {
       /* header */
       if ((i % size) == DASH_HEAD_POS) {
@@ -761,14 +764,13 @@ reset_scroll_offsets (GScrolling * scrolling)
 }
 
 /* compile the regular expression and see if it's valid */
-int
+static int
 regexp_init (regex_t * regex, const char *pattern)
 {
-   int y, x;
-   getmaxyx (stdscr, y, x);
-
+   int y, x, rc;
    char buf[REGEX_ERROR];
-   int rc;
+
+   getmaxyx (stdscr, y, x);
    rc = regcomp (regex, pattern, REG_EXTENDED | (find_t.icase ? REG_ICASE : 0));
    /* something went wrong */
    if (rc != 0) {
@@ -781,22 +783,22 @@ regexp_init (regex_t * regex, const char *pattern)
 }
 
 /* set search scrolling */
-void
+static void
 perform_find_dash_scroll (GScrolling * scrolling, GModule module)
 {
-   int *scroll, *offset;
+   int *scrll, *offset;
    int exp_size = DASH_EXPANDED - DASH_NON_DATA;
 
    /* reset scrolling offsets if we are changing module */
    if (scrolling->current != module)
       reset_scroll_offsets (scrolling);
 
-   scroll = &scrolling->module[module].scroll;
+   scrll = &scrolling->module[module].scroll;
    offset = &scrolling->module[module].offset;
 
-   (*scroll) = find_t.next_idx;
-   if (*scroll >= exp_size && *scroll >= *offset + exp_size)
-      (*offset) = (*scroll) < exp_size - 1 ? 0 : (*scroll) - exp_size + 1;
+   (*scrll) = find_t.next_idx;
+   if (*scrll >= exp_size && *scrll >= *offset + exp_size)
+      (*offset) = (*scrll) < exp_size - 1 ? 0 : (*scrll) - exp_size + 1;
 
    scrolling->current = module;
    scrolling->dash = module * DASH_COLLAPSED;
@@ -808,11 +810,11 @@ perform_find_dash_scroll (GScrolling * scrolling, GModule module)
 static int
 find_next_sub_item (GSubList * sub_list, regex_t * regex)
 {
-   if (sub_list == NULL)
-      goto out;
-
    GSubItem *iter;
    int i = 0, rc;
+
+   if (sub_list == NULL)
+      goto out;
 
    for (iter = sub_list->head; iter; iter = iter->next) {
       if (i >= find_t.next_sub_idx) {
@@ -905,10 +907,11 @@ render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
    int w = FIND_DLG_WIDTH;
    int h = FIND_DLG_HEIGHT;
    char *query = NULL;
+   WINDOW *win;
 
    getmaxyx (stdscr, y, x);
 
-   WINDOW *win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
    draw_header (win, FIND_HEAD, 1, 1, w - 2, 1);
@@ -1041,7 +1044,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 }
 
 /* Geolocation data */
-char *
+static char *
 get_geoip_data (const char *data)
 {
    const char *location = NULL;
@@ -1224,7 +1227,7 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module,
 }
 
 /* apply user defined sort */
-void
+static void
 sort_holder_items (GHolderItem * items, int size, GSort sort)
 {
    switch (sort.field) {
@@ -1257,7 +1260,7 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
 
 /* copy linked-list items to an array, sort, and move them back to the list */
 /* should be faster than sorting the list */
-void
+static void
 sort_sub_list (GHolder * h, GSort sort)
 {
    int i, j, k;
@@ -1387,7 +1390,7 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
 {
    char *data;
    int hits, i;
-   int size = 0;;
+   int size = 0;
    unsigned long long bw = 0;
 
    size = raw_data->size;

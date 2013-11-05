@@ -130,7 +130,7 @@ cmd_help (void)
 }
 
 static void
-house_keeping (GLog * logger, GDash * dash)
+house_keeping (void)
 {
    pthread_mutex_lock (&gdns_thread.mutex);
    active_gdns = 0;             /* kill dns pthread */
@@ -166,7 +166,7 @@ house_keeping (GLog * logger, GDash * dash)
 
 /* allocate memory for an instance of holder */
 static void
-allocate_holder_by_module (GHolder * h, GModule module)
+allocate_holder_by_module (GModule module)
 {
    GHashTable *ht;
    GRawData *raw_data;
@@ -203,7 +203,7 @@ allocate_holder (void)
 
 /* allocate memory for an instance of dashboard */
 static void
-allocate_data ()
+allocate_data (void)
 {
    int col_data = DASH_COLLAPSED - DASH_NON_DATA;
    int size = 0, ht_size = 0;
@@ -285,8 +285,8 @@ allocate_data ()
 }
 
 /* render all windows */
-void
-render_screens (GLog * logger)
+static void
+render_screens (void)
 {
    int row, col, chg = 0;
 
@@ -329,24 +329,24 @@ collapse_current_module (void)
       reset_scroll_offsets (&scrolling);
       free_dashboard (dash);
       allocate_data ();
-      render_screens (logger);
+      render_screens ();
    }
 }
 
 static void
-set_module_to (GLog * logger, GScrolling * scrolling, GModule module)
+set_module_to (GScrolling * scrll, GModule module)
 {
    /* reset expanded module */
    collapse_current_module ();
-   scrolling->current = module;
-   render_screens (logger);
+   scrll->current = module;
+   render_screens ();
 }
 
 static void
-get_keys (GLog * logger)
+get_keys (void)
 {
    int search;
-   int c, quit = 1, scroll, offset, ok_mouse;
+   int c, quit = 1, scrll, offset, ok_mouse;
    int *scroll_ptr, *offset_ptr;
    int exp_size = DASH_EXPANDED - DASH_NON_DATA;
    MEVENT event;
@@ -371,51 +371,51 @@ get_keys (GLog * logger)
        case '?':
        case 'h':
           load_help_popup (main_win);
-          render_screens (logger);
+          render_screens ();
           break;
        case 49:                /* 1 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, VISITORS);
+          set_module_to (&scrolling, VISITORS);
           break;
        case 50:                /* 2 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, REQUESTS);
+          set_module_to (&scrolling, REQUESTS);
           break;
        case 51:                /* 3 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, REQUESTS_STATIC);
+          set_module_to (&scrolling, REQUESTS_STATIC);
           break;
        case 52:                /* 4 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, NOT_FOUND);
+          set_module_to (&scrolling, NOT_FOUND);
           break;
        case 53:                /* 5 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, HOSTS);
+          set_module_to (&scrolling, HOSTS);
           break;
        case 54:                /* 6 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, OS);
+          set_module_to (&scrolling, OS);
           break;
        case 55:                /* 7 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, BROWSERS);
+          set_module_to (&scrolling, BROWSERS);
           break;
        case 56:                /* 8 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, REFERRERS);
+          set_module_to (&scrolling, REFERRERS);
           break;
        case 57:                /* 9 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, REFERRING_SITES);
+          set_module_to (&scrolling, REFERRING_SITES);
           break;
        case 48:                /* 0 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, KEYPHRASES);
+          set_module_to (&scrolling, KEYPHRASES);
           break;
        case 33:                /* Shift+1 */
           /* reset expanded module */
-          set_module_to (logger, &scrolling, STATUS_CODES);
+          set_module_to (&scrolling, STATUS_CODES);
           break;
        case 9:                 /* TAB */
           /* reset expanded module */
@@ -423,7 +423,7 @@ get_keys (GLog * logger)
           scrolling.current++;
           if (scrolling.current == TOTAL_MODULES)
              scrolling.current = 0;
-          render_screens (logger);
+          render_screens ();
           break;
        case 353:               /* Shift TAB */
           /* reset expanded module */
@@ -432,7 +432,7 @@ get_keys (GLog * logger)
              scrolling.current = TOTAL_MODULES - 1;
           else
              scrolling.current--;
-          render_screens (logger);
+          render_screens ();
           break;
        case 'g':               /* g = top */
           if (!scrolling.expanded)
@@ -447,11 +447,11 @@ get_keys (GLog * logger)
           if (!scrolling.expanded)
              scrolling.dash = dash->total_alloc - real_size_y;
           else {
-             scroll = offset = 0;
-             scroll = dash->module[scrolling.current].idx_data - 1;
-             if (scroll >= exp_size && scroll >= offset + exp_size)
-                offset = scroll < exp_size - 1 ? 0 : scroll - exp_size + 1;
-             scrolling.module[scrolling.current].scroll = scroll;
+             scrll = offset = 0;
+             scrll = dash->module[scrolling.current].idx_data - 1;
+             if (scrll >= exp_size && scrll >= offset + exp_size)
+                offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
+             scrolling.module[scrolling.current].scroll = scrll;
              scrolling.module[scrolling.current].offset = offset;
           }
           display_content (main_win, logger, dash, &scrolling);
@@ -476,7 +476,7 @@ get_keys (GLog * logger)
 
           free_holder_by_module (&holder, scrolling.current);
           free_dashboard (dash);
-          allocate_holder_by_module (holder, scrolling.current);
+          allocate_holder_by_module (scrolling.current);
           allocate_data ();
 
           display_content (main_win, logger, dash, &scrolling);
@@ -501,10 +501,10 @@ get_keys (GLog * logger)
 
                 free_holder_by_module (&holder, scrolling.current);
                 free_dashboard (dash);
-                allocate_holder_by_module (holder, scrolling.current);
+                allocate_holder_by_module (scrolling.current);
                 allocate_data ();
 
-                render_screens (logger);
+                render_screens ();
              }
           }
           break;
@@ -587,7 +587,7 @@ get_keys (GLog * logger)
           if (search == 0) {
              free_dashboard (dash);
              allocate_data ();
-             render_screens (logger);
+             render_screens ();
           }
           break;
        case '/':
@@ -599,14 +599,14 @@ get_keys (GLog * logger)
           if (search == 0) {
              free_dashboard (dash);
              allocate_data ();
-             render_screens (logger);
+             render_screens ();
           }
           break;
        case 99:                /* c */
           load_schemes_win (main_win);
           free_dashboard (dash);
           allocate_data ();
-          render_screens (logger);
+          render_screens ();
           break;
        case 115:               /* s */
           load_sort_win (main_win, scrolling.current, &sort[scrolling.current]);
@@ -617,7 +617,7 @@ get_keys (GLog * logger)
           free_dashboard (dash);
           allocate_holder ();
           allocate_data ();
-          render_screens (logger);
+          render_screens ();
           break;
        case 269:
        case KEY_RESIZE:
@@ -628,7 +628,7 @@ get_keys (GLog * logger)
           werase (stdscr);
           term_size (main_win);
           refresh ();
-          render_screens (logger);
+          render_screens ();
           break;
        default:
           if (logger->piping)
@@ -652,7 +652,7 @@ get_keys (GLog * logger)
              allocate_holder ();
              allocate_data ();
              term_size (main_win);
-             render_screens (logger);
+             render_screens ();
              usleep (200000);   /* 0.2 seconds */
           }
           break;
@@ -663,9 +663,8 @@ get_keys (GLog * logger)
 int
 main (int argc, char *argv[])
 {
-   extern char *optarg;
-   extern int optind, optopt, opterr;
-   int row, col, o, index, quit = 0;
+   char *loc_ctype;
+   int row, col, o, idx, quit = 0;
 
    opterr = 0;
    while ((o = getopt (argc, argv, short_options)) != -1) {
@@ -714,7 +713,7 @@ main (int argc, char *argv[])
       cmd_help ();
    if (conf.ifile == NULL && isatty (STDIN_FILENO))
       cmd_help ();
-   for (index = optind; index < argc; index++)
+   for (idx = optind; idx < argc; idx++)
       cmd_help ();
 
    /*
@@ -781,7 +780,7 @@ main (int argc, char *argv[])
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
 
-   char *loc_ctype = getenv ("LC_CTYPE");
+   loc_ctype = getenv ("LC_CTYPE");
    if (loc_ctype != NULL)
       setlocale (LC_CTYPE, loc_ctype);
    else if ((loc_ctype = getenv ("LC_ALL")))
@@ -868,8 +867,8 @@ main (int argc, char *argv[])
       gdns_thread_create ();
    }
 
-   render_screens (logger);
-   get_keys (logger);
+   render_screens ();
+   get_keys ();
 
    attroff (COLOR_PAIR (COL_WHITE));
 
@@ -878,7 +877,7 @@ main (int argc, char *argv[])
    endwin ();
  done:
    write_conf_file ();
-   house_keeping (logger, dash);
+   house_keeping ();
 
    return EXIT_SUCCESS;
 }

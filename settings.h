@@ -69,13 +69,13 @@ typedef struct GConf_
 
 char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);
-size_t get_selected_format_idx ();
+size_t get_selected_format_idx (void);
 
 extern GConf conf;
 extern char *tmp_log_format;
 extern char *tmp_date_format;
 
-int parse_conf_file ();
-void write_conf_file ();
+int parse_conf_file (void);
+int write_conf_file (void);
 
 #endif
