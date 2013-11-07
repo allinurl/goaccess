@@ -402,7 +402,7 @@ process_unique_data (char *host, char *date, char *agent)
    char *a = NULL;
    char *browser_key = NULL, *browser = NULL;
    char *opsys = NULL, *os_key = NULL;
-   char visitor_key[2048];
+   char visitor_key[UKEY_BUFFER];
 
    a = deblank (strdup (agent));
    snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
