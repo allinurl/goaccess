@@ -951,6 +951,7 @@ char_repeat (int n, char c)
    return dest;
 }
 
+/* replace old with new char */
 char *
 char_replace (char *str, char o, char n)
 {
@@ -963,4 +964,19 @@ char_replace (char *str, char o, char n)
       *p++ = n;
 
    return str;
+}
+
+/* strip blanks from a string */
+char *
+deblank (char *str)
+{
+   char *out = str, *put = str;
+
+   for (; *str != '\0'; ++str) {
+      if (*str != ' ')
+         *put++ = *str;
+   }
+   *put = '\0';
+
+   return out;
 }
