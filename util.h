@@ -49,13 +49,14 @@ typedef enum
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
-char *replace_str (const char *str, const char *old, const char *new);
 char *clean_date (char *s);
 char *clean_month (char *s);
 char *convert_date (char *result, char *data, const char *from, const char *to,
                     int size);
+char *deblank (char *str);
 char *filesize_str (unsigned long long log_size);
 char *int_to_str (int d);
+char *replace_str (const char *str, const char *old, const char *new);
 char *reverse_ip (char *str);
 char *secs_to_str (int secs);
 char *substring (const char *str, int begin, int len);

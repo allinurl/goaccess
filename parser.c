@@ -345,7 +345,7 @@ process_host_agents (char *host, char *agent)
    if ((ht == NULL) || (host == NULL) || (agent == NULL))
       return (EINVAL);
 
-   a = spc_decode_url (agent);
+   a = xstrdup (agent);
 
    value_ptr = g_hash_table_lookup (ht, host);
    if (value_ptr != NULL) {
@@ -399,28 +399,23 @@ process_referrers (char *referrer)
 static void
 process_unique_data (char *host, char *date, char *agent)
 {
+   char *a = NULL;
+   char *browser_key = NULL, *browser = NULL;
+   char *opsys = NULL, *os_key = NULL;
    char visitor_key[2048];
-   char *browser = NULL;
-   char *opsys = NULL;
-   char *dup_key = NULL, *clean_key = NULL;
-   char *browser_key = NULL;
-   char *os_key = NULL;
 
-   snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, agent);
+   a = deblank (strdup (agent));
+   snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
    (visitor_key)[sizeof (visitor_key) - 1] = '\0';
+   free (a);
 
-   /* insert agents that are part of a host */
-   if (conf.list_agents)
-      process_host_agents (host, agent);
-
-   /* process unique data  */
+   /*
+    * Check if the unique visitor key exists, if not,
+    * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS.
+    */
    if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
-      /* replace '+' in user-agent + with ' ' */
-      clean_key = spc_decode_url (visitor_key);
-      dup_key = char_replace (strdup (clean_key), '+', ' ');
-
-      browser_key = strdup (dup_key);
-      os_key = strdup (dup_key);
+      browser_key = strdup (agent);
+      os_key = strdup (agent);
 
       /* extract browser & OS from agent  */
       browser = verify_browser (browser_key, BROWSER);
@@ -450,10 +445,6 @@ process_unique_data (char *host, char *date, char *agent)
       free (os_key);
    if (opsys != NULL)
       free (opsys);
-   if (dup_key != NULL)
-      free (dup_key);
-   if (clean_key != NULL)
-      free (clean_key);
 }
 
 /* returns 1 if the request seems to be a static file */
@@ -653,10 +644,20 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              if (log->agent)
                 return 1;
              tkn = parse_string (&str, p[1]);
-             if (tkn == NULL)
-                tkn = alloc_string ("-");
-             if (tkn != NULL && *tkn == '\0') {
+             if (tkn != NULL && *tkn != '\0') {
+                /*
+                 * Make sure the user agent is decoded (i.e.: CloudFront)
+                 * and replace all '+' with ' ' (i.e.: w3c)
+                 */
+                log->agent = char_replace (spc_decode_url (tkn), '+', ' ');
                 free (tkn);
+                break;
+             } else if (tkn != NULL && *tkn == '\0') {
+                free (tkn);
+                tkn = alloc_string ("-");
+             }
+             /* must be null */
+             else {
                 tkn = alloc_string ("-");
              }
              log->agent = tkn;
@@ -772,11 +773,15 @@ process_log (GLog * logger, char *line, int test)
    if (conf.ignore_host != NULL && strcmp (log->host, conf.ignore_host) == 0)
       return 0;
 
-   /* make sure agent is not null so it can be part of visitor_key */
+   /* agent will be null in cases where %u is not specified */
    if (log->agent == NULL)
       log->agent = alloc_string ("-");
    /* process visitors, browsers, and OS */
    process_unique_data (log->host, buf, log->agent);
+
+   /* process agents that are part of a host */
+   if (conf.list_agents)
+      process_host_agents (log->host, log->agent);
 
    /* process 404s */
    if (!memcmp (log->status, "404", 3))
