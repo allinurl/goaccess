@@ -404,7 +404,7 @@ process_unique_data (char *host, char *date, char *agent)
    char *opsys = NULL, *os_key = NULL;
    char visitor_key[UKEY_BUFFER];
 
-   a = deblank (strdup (agent));
+   a = deblank (xstrdup (agent));
    snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
    (visitor_key)[sizeof (visitor_key) - 1] = '\0';
    free (a);
@@ -414,8 +414,8 @@ process_unique_data (char *host, char *date, char *agent)
     * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS.
     */
    if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
-      browser_key = strdup (agent);
-      os_key = strdup (agent);
+      browser_key = xstrdup (agent);
+      os_key = xstrdup (agent);
 
       /* extract browser & OS from agent  */
       browser = verify_browser (browser_key, BROWSER);
