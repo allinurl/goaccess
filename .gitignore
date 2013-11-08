@@ -1,7 +1,13 @@
 #custom section
 /INSTALL
 /config.h.in
-
+/config.log
+/config.status
+/stamp-h1
+/.deps
+/Makefile
+/config.h
+goaccess
 #merged from https://raw.github.com/github/gitignore/master/Autotools.gitignore
 # http://www.gnu.org/software/automake
 
