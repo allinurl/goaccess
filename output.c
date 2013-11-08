@@ -1372,35 +1372,35 @@ print_json_generic (FILE * fp, GHolder * holder, int process)
    GHolder *h;
    int i, j, hits;
 
-   fprintf (fp,"\t\"generic\": {\n");
+   fprintf (fp, "\t\"generic\": {\n");
    /* os, browsers, referrers, referring sites, keyphrases & status code report */
    for (i = 0; i < 6; i++) {
       switch (i) {
        case 0:
           process = g_hash_table_size (ht_unique_visitors);
           h = holder + OS;
-          fprintf (fp,"\t\t\"os\": [\n");
+          fprintf (fp, "\t\t\"os\": [\n");
           break;
        case 1:
           process = g_hash_table_size (ht_unique_visitors);
           h = holder + BROWSERS;
-          fprintf (fp,"\t\t\"browser\": [\n");
+          fprintf (fp, "\t\t\"browser\": [\n");
           break;
        case 2:
           h = holder + REFERRERS;
-          fprintf (fp,"\t\t\"ref\": [\n");
+          fprintf (fp, "\t\t\"ref\": [\n");
           break;
        case 3:
           h = holder + REFERRING_SITES;
-          fprintf (fp,"\t\t\"refsite\": [\n");
+          fprintf (fp, "\t\t\"refsite\": [\n");
           break;
        case 4:
           h = holder + KEYPHRASES;
-          fprintf (fp,"\t\t\"keyphrase\": [\n");
+          fprintf (fp, "\t\t\"keyphrase\": [\n");
           break;
        case 5:
           h = holder + STATUS_CODES;
-          fprintf (fp,"\t\t\"status\": [\n");
+          fprintf (fp, "\t\t\"status\": [\n");
           break;
       }
 
@@ -1410,20 +1410,22 @@ print_json_generic (FILE * fp, GHolder * holder, int process)
          percent = get_percentage (process, hits);
          percent = percent < 0 ? 0 : percent;
 
-         fprintf (fp, "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"data\": \"", hits, percent);
+         fprintf (fp,
+                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"data\": \"",
+                  hits, percent);
          escape_json_output (fp, data);
          fprintf (fp, "\"\n\t\t\t}");
-         if( j != h->idx-1)
+         if (j != h->idx - 1)
             fprintf (fp, ",\n");
          else
             fprintf (fp, "\n");
       }
-      if( i != 5)
-         fprintf (fp,"\t\t],\n");
+      if (i != 5)
+         fprintf (fp, "\t\t],\n");
       else
-         fprintf (fp,"\t\t]\n");
+         fprintf (fp, "\t\t]\n");
    }
-   fprintf (fp,"\t}");
+   fprintf (fp, "\t}");
 }
 
 /**
@@ -1439,24 +1441,24 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
    int i, j, hits;
    unsigned long long bw, usecs;
 
-   fprintf (fp,"\t\"complete\": {\n");
+   fprintf (fp, "\t\"complete\": {\n");
    for (i = 0; i < 4; i++) {
       switch (i) {
        case 0:
           h = holder + REQUESTS;
-          fprintf (fp,"\t\t\"req\": [\n");
+          fprintf (fp, "\t\t\"req\": [\n");
           break;
        case 1:
           h = holder + REQUESTS_STATIC;
-          fprintf (fp,"\t\t\"static\": [\n");
+          fprintf (fp, "\t\t\"static\": [\n");
           break;
        case 2:
           h = holder + NOT_FOUND;
-          fprintf (fp,"\t\t\"notfound\": [\n");
+          fprintf (fp, "\t\t\"notfound\": [\n");
           break;
        case 3:
           h = holder + HOSTS;
-          fprintf (fp,"\t\t\"host\": [\n");
+          fprintf (fp, "\t\t\"host\": [\n");
           break;
       }
 
@@ -1467,20 +1469,24 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          percent = percent < 0 ? 0 : percent;
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
-         fprintf (fp, "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url: \":\"", hits, percent);
+         fprintf (fp,
+                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url: \":\"",
+                  hits, percent);
          escape_cvs_output (fp, data);
-         fprintf (fp, "\",\n\t\t\t\t\"bytes\": \"%lld\",\n\t\t\t\t\"usecs\": \"%lld\"\n\t\t\t}", bw, usecs);
-         if( j != h->idx-1)
+         fprintf (fp,
+                  "\",\n\t\t\t\t\"bytes\": \"%lld\",\n\t\t\t\t\"usecs\": \"%lld\"\n\t\t\t}",
+                  bw, usecs);
+         if (j != h->idx - 1)
             fprintf (fp, ",\n");
          else
             fprintf (fp, "\n");
       }
-      if( i != 3)
-         fprintf (fp,"\t\t],\n");
+      if (i != 3)
+         fprintf (fp, "\t\t],\n");
       else
-         fprintf (fp,"\t\t]\n");
+         fprintf (fp, "\t\t]\n");
    }
-   fprintf (fp,"\t}");
+   fprintf (fp, "\t}");
 }
 
 /* generate JSON unique visitors stats */
@@ -1493,7 +1499,7 @@ print_json_visitors (FILE * fp, GHolder * h)
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
-   fprintf(fp,"\t\"visitors\": [\n");
+   fprintf (fp, "\t\"visitors\": [\n");
    for (i = 0; i < h->idx; i++) {
       hits = h->items[i].hits;
       data = h->items[i].data;
@@ -1501,14 +1507,15 @@ print_json_visitors (FILE * fp, GHolder * h)
       percent = percent < 0 ? 0 : percent;
       bw = h->items[i].bw;
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
-      fprintf (fp, "\t\t{\n\t\t\t\"hits\": \"%d\",\n\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\"date\": \"%s\",\n\t\t\t\"bytes\": \"%d\"\n\t\t}", hits,
-               percent, buf, bw);
-      if(i != h->idx-1)
-         fprintf (fp,",\n");
+      fprintf (fp,
+               "\t\t{\n\t\t\t\"hits\": \"%d\",\n\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\"date\": \"%s\",\n\t\t\t\"bytes\": \"%d\"\n\t\t}",
+               hits, percent, buf, bw);
+      if (i != h->idx - 1)
+         fprintf (fp, ",\n");
       else
-         fprintf (fp,"\n");
+         fprintf (fp, "\n");
    }
-   fprintf (fp,"\t]");
+   fprintf (fp, "\t]");
 }
 
 /* generate overview stats */
@@ -1527,16 +1534,14 @@ print_json_summary (FILE * fp, GLog * logger)
    fprintf (fp, "\t\t\"total_requests\": %d,\n", logger->process);
    fprintf (fp, "\t\t\"unique_visitors\": %d,\n",
             g_hash_table_size (ht_unique_visitors));
-   fprintf (fp, "\t\t\"referrers\": %d,\n",
-            g_hash_table_size (ht_referrers));
+   fprintf (fp, "\t\t\"referrers\": %d,\n", g_hash_table_size (ht_referrers));
 
    if (!logger->piping)
       log_size = file_size (conf.ifile);
 
    fprintf (fp, "\t\t\"log_size\": %jd,\n", (intmax_t) log_size);
    fprintf (fp, "\t\t\"failed_requests\": %d,\n", logger->invalid);
-   fprintf (fp, "\t\t\"unique_files\": %d,\n",
-            g_hash_table_size (ht_requests));
+   fprintf (fp, "\t\t\"unique_files\": %d,\n", g_hash_table_size (ht_requests));
    fprintf (fp, "\t\t\"unique_404\": %d,\n",
             g_hash_table_size (ht_not_found_requests));
 
@@ -1559,15 +1564,15 @@ void
 output_json (GLog * logger, GHolder * holder)
 {
    FILE *fp = stdout;
-   fprintf (fp,"{\n");
+   fprintf (fp, "{\n");
    print_json_summary (fp, logger);
-   fprintf (fp,",\n");
+   fprintf (fp, ",\n");
    print_json_visitors (fp, holder + VISITORS);
-   fprintf (fp,",\n");
+   fprintf (fp, ",\n");
    print_json_complete (fp, holder, logger->process);
-   fprintf (fp,",\n");
+   fprintf (fp, ",\n");
    print_json_generic (fp, holder, logger->process);
-   fprintf (fp,"\n}\n");
+   fprintf (fp, "\n}\n");
 
    fclose (fp);
 }
