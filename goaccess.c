@@ -110,7 +110,7 @@ cmd_help (void)
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
    printf
-      ("goaccess -f log_file [-c][-r][-m][-a][-o csv/json][-e IP_ADDRESS][-p CONFFILE]\n\n");
+      ("goaccess -f log_file [-c][-r][-m][-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
@@ -120,7 +120,8 @@ cmd_help (void)
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n");
-   printf (" -o <argument> - Output format. '-o csv' for CSV, '-o json' for JSON.\n");
+   printf
+      (" -o <argument> - Output format. '-o csv' for CSV, '-o json' for JSON.\n");
    printf (" -p <argument> - Custom configuration file.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
@@ -849,7 +850,8 @@ main (int argc, char *argv[])
       allocate_holder ();
       if (conf.output_format != NULL && strcmp ("csv", conf.output_format) == 0)
          output_csv (logger, holder);
-      else if (conf.output_format != NULL && strcmp ("json", conf.output_format) == 0)
+      else if (conf.output_format != NULL &&
+               strcmp ("json", conf.output_format) == 0)
          output_json (logger, holder);
       else
          output_html (logger, holder);
