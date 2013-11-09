@@ -771,6 +771,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
       print_html_sub_os (fp, sub_list, process);
    }
 
+   print_html_end_tbody (fp);
    print_html_end_table (fp);
 }
 
