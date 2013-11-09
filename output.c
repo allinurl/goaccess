@@ -1471,7 +1471,7 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
          fprintf (fp,
-                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url: \":\"",
+                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url\": \"",
                   hits, percent);
          escape_cvs_output (fp, data);
          fprintf (fp,
