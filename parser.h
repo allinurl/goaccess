@@ -33,14 +33,15 @@
 
 /* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_browsers;
+extern GHashTable *ht_countries;
 extern GHashTable *ht_date_bw;
 extern GHashTable *ht_file_bw;
 extern GHashTable *ht_file_serve_usecs;
-extern GHashTable *ht_host_serve_usecs;
 extern GHashTable *ht_host_bw;
 extern GHashTable *ht_hostnames;
 extern GHashTable *ht_hosts;
 extern GHashTable *ht_hosts_agents;
+extern GHashTable *ht_host_serve_usecs;
 extern GHashTable *ht_keyphrases;
 extern GHashTable *ht_monthly;
 extern GHashTable *ht_not_found_requests;

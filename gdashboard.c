@@ -59,6 +59,9 @@ static const GDashStyle module_style[TOTAL_MODULES] = {
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* REFERRERS       */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* REFERRING_SITES */
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* KEYPHRASES      */
+#ifdef HAVE_LIBGEOIP
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* GEO_LOCATION    */
+#endif
    {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* STATUS CODES    */
 };
 /* *INDENT-ON* */
@@ -1045,21 +1048,17 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 
 /* Geolocation data */
 #ifdef HAVE_LIBGEOIP
-static char *
+char *
 get_geoip_data (const char *data)
 {
    const char *location = NULL;
    const char *addr = data;
 
    /* Geolocation data */
-   GeoIP *gi;
-   gi = GeoIP_new (GEOIP_STANDARD);
-   if (gi != NULL)
-      location = GeoIP_country_name_by_name (gi, addr);
+   if (geo_location_data != NULL)
+      location = GeoIP_country_name_by_name (geo_location_data, addr);
    if (location == NULL)
       location = "Location Unknown";
-   if (gi != NULL)
-      GeoIP_delete (gi);
    return (char *) location;
 }
 #endif
@@ -1146,6 +1145,38 @@ add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
 }
 
 /* add a status code item to holder */
+#ifdef HAVE_LIBGEOIP
+static void
+add_geolocation_node (GHolder * h, GLocation * loc, char *data,
+                      unsigned long long bw)
+{
+   GSubList *sub_list;
+   int type_idx = -1;
+
+   type_idx = get_item_idx_in_holder (h, loc->continent);
+   if (type_idx == -1) {
+      h->items[h->idx].bw += bw;
+      h->items[h->idx].hits += loc->hits;
+      h->items[h->idx].data = xstrdup (loc->continent);
+
+      /* data (child) */
+      sub_list = new_gsublist ();
+      add_sub_item_back (sub_list, h->module, data, loc->hits, bw);
+      h->items[h->idx++].sub_list = sub_list;
+      h->sub_items_size++;
+   } else {
+      sub_list = h->items[type_idx].sub_list;
+      add_sub_item_back (sub_list, h->module, data, loc->hits, bw);
+
+      h->items[type_idx].sub_list = sub_list;
+      h->items[type_idx].bw += bw;
+      h->items[type_idx].hits += loc->hits;
+      h->sub_items_size++;
+   }
+}
+#endif
+
+/* add a status code item to holder */
 static void
 add_status_code_node (GHolder * h, int hits, char *data, unsigned long long bw)
 {
@@ -1218,7 +1249,11 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module,
          add_item_to_dash (&dash, h->items[j], module);
          if (scrolling->expanded && module == scrolling->current) {
             if (module == OS || module == BROWSERS || module == HOSTS ||
-                module == STATUS_CODES)
+                module == STATUS_CODES
+#ifdef HAVE_LIBGEOIP
+                || module == GEO_LOCATION
+#endif
+               )
                add_sub_item_to_dash (&dash, h->items[j], module, &i);
          }
          j++;
@@ -1327,6 +1362,11 @@ get_ht_by_module (GModule module)
     case KEYPHRASES:
        ht = ht_keyphrases;
        break;
+#ifdef HAVE_LIBGEOIP
+    case GEO_LOCATION:
+       ht = ht_countries;
+       break;
+#endif
     case STATUS_CODES:
        ht = ht_status_code;
        break;
@@ -1373,6 +1413,11 @@ get_ht_size_by_module (GModule module)
     case KEYPHRASES:
        ht = ht_keyphrases;
        break;
+#ifdef HAVE_LIBGEOIP
+    case GEO_LOCATION:
+       ht = ht_countries;
+       break;
+#endif
     case STATUS_CODES:
        ht = ht_status_code;
        break;
@@ -1402,21 +1447,29 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
 
    for (i = 0; i < h->holder_size; i++) {
       bw = raw_data->items[i].bw;
-      data = raw_data->items[i].data;
-      hits = raw_data->items[i].hits;
+      data = raw_data->items[i].key;
 
       switch (module) {
        case OS:
        case BROWSERS:
+          hits = GPOINTER_TO_INT (raw_data->items[i].value);
           add_os_browser_node (h, hits, data, bw);
           break;
        case HOSTS:
+          hits = GPOINTER_TO_INT (raw_data->items[i].value);
           add_host_node (h, hits, data, bw, raw_data->items[i].usecs);
           break;
        case STATUS_CODES:
+          hits = GPOINTER_TO_INT (raw_data->items[i].value);
           add_status_code_node (h, hits, data, bw);
           break;
+#ifdef HAVE_LIBGEOIP
+       case GEO_LOCATION:
+          add_geolocation_node (h, raw_data->items[i].value, data, 0);
+          break;
+#endif
        default:
+          hits = GPOINTER_TO_INT (raw_data->items[i].value);
           h->items[h->idx].bw = bw;
           h->items[h->idx].data = xstrdup (data);
           h->items[h->idx].hits = hits;
@@ -1443,18 +1496,28 @@ raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
    unsigned long long bw = 0;
    unsigned long long usecs = 0;
 
-   hits = GPOINTER_TO_INT (v);
-   data = (gchar *) k;
-   bw = get_bandwidth (data, raw_data->module);
+   switch (raw_data->module) {
+#ifdef HAVE_LIBGEOIP
+    case GEO_LOCATION:
+       data = (gchar *) k;
+       raw_data->items[raw_data->idx].key = data;
+       raw_data->items[raw_data->idx].value = v;
+       break;
+#endif
+    default:
+       hits = GPOINTER_TO_INT (v);
+       data = (gchar *) k;
+       bw = get_bandwidth (data, raw_data->module);
 
-   raw_data->items[raw_data->idx].bw = bw;
-   raw_data->items[raw_data->idx].data = data;
-   raw_data->items[raw_data->idx].hits = hits;
+       raw_data->items[raw_data->idx].bw = bw;
+       raw_data->items[raw_data->idx].key = data;
+       raw_data->items[raw_data->idx].value = v;
 
-   /* serve time in usecs */
-   if (conf.serve_usecs) {
-      usecs = get_serve_time (data, raw_data->module);
-      raw_data->items[raw_data->idx].usecs = usecs / hits;
+       /* serve time in usecs */
+       if (conf.serve_usecs) {
+          usecs = get_serve_time (data, raw_data->module);
+          raw_data->items[raw_data->idx].usecs = usecs / hits;
+       }
    }
 
    raw_data->idx++;

@@ -76,6 +76,9 @@
 #define KEYPH_HEAD "Keyphrases from Google's search engine"
 #define KEYPH_DESC "Top keyphrases - hits, percent"
 #define KEYPH_ID   "keyphrases"
+#define GEOLO_HEAD "Geo Location"
+#define GEOLO_DESC "Continent|Country - hits, percent"
+#define GEOLO_ID   "geolocation"
 
 typedef struct GDashStyle_
 {
@@ -160,8 +163,8 @@ typedef struct GHolder_
 
 typedef struct GRawDataItem_
 {
-   char *data;
-   int hits;
+   void *key;
+   void *value;
    unsigned long long bw;
    unsigned long long usecs;
 } GRawDataItem;
@@ -184,6 +187,9 @@ int get_item_idx_in_holder (GHolder * holder, const char *k);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
 unsigned int get_ht_size_by_module (GModule module);
+#ifdef HAVE_LIBGEOIP
+char *get_geoip_data (const char *data);
+#endif
 void *add_hostname_node (void *ptr_holder);
 void add_sub_item_back (GSubList * sub_list, GModule module, const char *data, int hits, unsigned long long bw);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScrolling * scrolling);

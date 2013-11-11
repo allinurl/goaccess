@@ -23,6 +23,8 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
+#define COUNTRY_LEN     48
+#define CONTINENT_LEN   48
 #define REGEX_ERROR 100
 #define DATE_LEN     12         /* date length */
 #define KB          1024
@@ -46,6 +48,12 @@ typedef enum
    OPESYS_TYPE
 } GOpeSysStr;
 
+typedef struct GLocation_
+{
+   char continent[CONTINENT_LEN];
+   int hits;
+} GLocation;
+
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
@@ -66,6 +74,7 @@ char *verify_browser (const char *str, GBrowserStr b_type);
 char *verify_os (const char *str, GOpeSysStr o_type);
 const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
+const char *get_continent_name_and_code (const char *continentid);
 int count_occurrences (const char *s1, char c);
 int intlen (int num);
 int invalid_ipaddr (char *str);
