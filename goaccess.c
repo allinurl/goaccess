@@ -299,7 +299,8 @@ allocate_data (void)
 
       ht_size = get_ht_size_by_module (module);
       size = ht_size > col_data ? col_data : ht_size;
-      if (scrolling.expanded && module == scrolling.current)
+      if ((size > MAX_CHOICES) ||
+          (scrolling.expanded && module == scrolling.current))
          size = MAX_CHOICES;
 
       dash->module[module].alloc_data = size;   /* data allocated  */
