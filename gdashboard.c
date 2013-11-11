@@ -1237,7 +1237,12 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module,
 
    alloc_size = dash->module[module].alloc_data;
    if (scrolling->expanded && module == scrolling->current) {
-      if (module == OS || module == BROWSERS || module == HOSTS)
+      if (module == OS || module == BROWSERS || module == HOSTS ||
+          module == STATUS_CODES
+#ifdef HAVE_LIBGEOIP
+          || module == GEO_LOCATION
+#endif
+         )
          alloc_size += h->sub_items_size;
    }
    dash->module[module].alloc_data = alloc_size;
@@ -1437,6 +1442,7 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
    int hits, i;
    int size = 0;
    unsigned long long bw = 0;
+   unsigned long long usecs = 0;
 
    size = raw_data->size;
    h->holder_size = size > MAX_CHOICES ? MAX_CHOICES : size;
@@ -1446,8 +1452,8 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
    h->items = new_gholder_item (h->holder_size);
 
    for (i = 0; i < h->holder_size; i++) {
-      bw = raw_data->items[i].bw;
       data = raw_data->items[i].key;
+      bw = get_bandwidth (data, module);
 
       switch (module) {
        case OS:
@@ -1457,7 +1463,12 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
           break;
        case HOSTS:
           hits = GPOINTER_TO_INT (raw_data->items[i].value);
-          add_host_node (h, hits, data, bw, raw_data->items[i].usecs);
+          /* serve time in usecs */
+          if (conf.serve_usecs) {
+             usecs = get_serve_time (data, module);
+             usecs = usecs / hits;
+          }
+          add_host_node (h, hits, data, bw, usecs);
           break;
        case STATUS_CODES:
           hits = GPOINTER_TO_INT (raw_data->items[i].value);
@@ -1470,17 +1481,26 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
 #endif
        default:
           hits = GPOINTER_TO_INT (raw_data->items[i].value);
+          /* serve time in usecs */
+          if (conf.serve_usecs) {
+             usecs = get_serve_time (data, module);
+             usecs = usecs / hits;
+          }
           h->items[h->idx].bw = bw;
           h->items[h->idx].data = xstrdup (data);
           h->items[h->idx].hits = hits;
           if (conf.serve_usecs)
-             h->items[h->idx].usecs = raw_data->items[i].usecs;
+             h->items[h->idx].usecs = usecs;
           h->idx++;
       }
    }
    sort_holder_items (h->items, h->idx, sort);
    /* HOSTS module does not have "real" sub items, thus we don't include it */
-   if (module == OS || module == BROWSERS || module == STATUS_CODES)
+   if (module == OS || module == BROWSERS || module == STATUS_CODES
+#ifdef HAVE_LIBGEOIP
+       || module == GEO_LOCATION
+#endif
+      )
       sort_sub_list (h, sort);
 
    free_raw_data (raw_data);
@@ -1490,35 +1510,9 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
 static void
 raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
 {
-   char *data;
    GRawData *raw_data = data_ptr;
-   int hits;
-   unsigned long long bw = 0;
-   unsigned long long usecs = 0;
-
-   switch (raw_data->module) {
-#ifdef HAVE_LIBGEOIP
-    case GEO_LOCATION:
-       data = (gchar *) k;
-       raw_data->items[raw_data->idx].key = data;
-       raw_data->items[raw_data->idx].value = v;
-       break;
-#endif
-    default:
-       hits = GPOINTER_TO_INT (v);
-       data = (gchar *) k;
-       bw = get_bandwidth (data, raw_data->module);
-
-       raw_data->items[raw_data->idx].bw = bw;
-       raw_data->items[raw_data->idx].key = data;
-       raw_data->items[raw_data->idx].value = v;
-
-       /* serve time in usecs */
-       if (conf.serve_usecs) {
-          usecs = get_serve_time (data, raw_data->module);
-          raw_data->items[raw_data->idx].usecs = usecs / hits;
-       }
-   }
+   raw_data->items[raw_data->idx].key = (gchar *) k;
+   raw_data->items[raw_data->idx].value = v;
 
    raw_data->idx++;
 }
