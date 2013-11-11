@@ -165,8 +165,6 @@ typedef struct GRawDataItem_
 {
    void *key;
    void *value;
-   unsigned long long bw;
-   unsigned long long usecs;
 } GRawDataItem;
 
 typedef struct GRawData_
