@@ -1473,7 +1473,7 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          fprintf (fp,
                   "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url\": \"",
                   hits, percent);
-         escape_cvs_output (fp, data);
+         escape_json_output (fp, data);
          fprintf (fp,
                   "\",\n\t\t\t\t\"bytes\": \"%lld\",\n\t\t\t\t\"usecs\": \"%lld\"\n\t\t\t}",
                   bw, usecs);
