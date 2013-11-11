@@ -130,14 +130,19 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf
-      ("goaccess -f log_file [-c][-r][-m][-g][-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
+   printf ("goaccess -f log_file [-c][-r][-m]");
+#ifdef HAVE_LIBGEOIP
+   printf ("[-g]");
+#endif
+   printf ("[-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
+#ifdef HAVE_LIBGEOIP
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
+#endif
    printf (" -a            - Enable a list of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
