@@ -1144,7 +1144,7 @@ add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
    free (type);
 }
 
-/* add a status code item to holder */
+/* add a geolocation item to holder */
 #ifdef HAVE_LIBGEOIP
 static void
 add_geolocation_node (GHolder * h, GLocation * loc, char *data,
