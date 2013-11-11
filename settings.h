@@ -58,6 +58,7 @@ typedef struct GConf_
    char *output_format;
    int bandwidth;
    int color_scheme;
+   int geo_db;
    int list_agents;
    int load_conf_dlg;
    int mouse_support;

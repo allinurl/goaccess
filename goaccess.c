@@ -52,7 +52,11 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
+#ifdef HAVE_LIBGEOIP
+static char short_options[] = "f:e:p:o:acrmg";
+#else
 static char short_options[] = "f:e:p:o:acrm";
+#endif
 
 GConf conf = { 0 };
 
@@ -74,28 +78,45 @@ static GSort sort[TOTAL_MODULES] = {
    {REFERRERS       , SORT_BY_HITS, SORT_DESC},
    {REFERRING_SITES , SORT_BY_HITS, SORT_DESC},
    {KEYPHRASES      , SORT_BY_HITS, SORT_DESC},
+#ifdef HAVE_LIBGEOIP
+   {GEO_LOCATION    , SORT_BY_HITS, SORT_DESC},
+#endif
    {STATUS_CODES    , SORT_BY_HITS, SORT_DESC},
 };
 
 static GScrolling scrolling = {
    {
-      {0, 0}, /* visitors   {scroll, offset} */
-      {0, 0}, /* requests   {scroll, offset} */
-      {0, 0}, /* req static {scroll, offset} */
-      {0, 0}, /* not found  {scroll, offset} */
-      {0, 0}, /* hosts      {scroll, offset} */
-      {0, 0}, /* os         {scroll, offset} */
-      {0, 0}, /* browsers   {scroll, offset} */
-      {0, 0}, /* status     {scroll, offset} */
-      {0, 0}, /* referrers  {scroll, offset} */
-      {0, 0}, /* ref sites  {scroll, offset} */
-      {0, 0}  /* keywords   {scroll, offset} */
+      {0, 0}, /* visitors    {scroll, offset} */
+      {0, 0}, /* requests    {scroll, offset} */
+      {0, 0}, /* req static  {scroll, offset} */
+      {0, 0}, /* not found   {scroll, offset} */
+      {0, 0}, /* hosts       {scroll, offset} */
+      {0, 0}, /* os          {scroll, offset} */
+      {0, 0}, /* browsers    {scroll, offset} */
+      {0, 0}, /* referrers   {scroll, offset} */
+      {0, 0}, /* ref sites   {scroll, offset} */
+      {0, 0}, /* keywords    {scroll, offset} */
+#ifdef HAVE_LIBGEOIP
+      {0, 0}, /* geolocation {scroll, offset} */
+#endif
+      {0, 0}, /* status      {scroll, offset} */
    },
    0,         /* current module */
    0,         /* main dashboard scroll */
    0,         /* expanded flag */
 };
 /* *INDENT-ON* */
+
+#ifdef HAVE_LIBGEOIP
+static void
+free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
+                GO_UNUSED gpointer user_data)
+{
+   GLocation *loc = old_value;
+   free (loc);
+}
+#endif
+
 /* free memory allocated by g_hash_table_new_full() function */
 static void
 free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
@@ -110,12 +131,13 @@ cmd_help (void)
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
    printf
-      ("goaccess -f log_file [-c][-r][-m][-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
+      ("goaccess -f log_file [-c][-r][-m][-g][-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
+   printf (" -g            - Standard GeoIP database for less memory usage.\n");
    printf (" -a            - Enable a list of User-Agents by host.\n");
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
@@ -144,13 +166,19 @@ house_keeping (void)
       free_dashboard (dash);
       reset_find ();
    }
+#ifdef HAVE_LIBGEOIP
+   if (geo_location_data != NULL)
+      GeoIP_delete (geo_location_data);
+   g_hash_table_foreach (ht_countries, free_countries, NULL);
+#endif
 
    free (logger);
+
    g_hash_table_destroy (ht_browsers);
+   g_hash_table_destroy (ht_countries);
    g_hash_table_destroy (ht_date_bw);
    g_hash_table_destroy (ht_file_bw);
    g_hash_table_destroy (ht_host_bw);
-
    g_hash_table_destroy (ht_hosts);
    g_hash_table_destroy (ht_keyphrases);
    g_hash_table_destroy (ht_monthly);
@@ -257,6 +285,12 @@ allocate_data (void)
           dash->module[module].head = KEYPH_HEAD;
           dash->module[module].desc = KEYPH_DESC;
           break;
+#ifdef HAVE_LIBGEOIP
+       case GEO_LOCATION:
+          dash->module[module].head = GEOLO_HEAD;
+          dash->module[module].desc = GEOLO_DESC;
+          break;
+#endif
        case STATUS_CODES:
           dash->module[module].head = CODES_HEAD;
           dash->module[module].desc = CODES_DESC;
@@ -416,8 +450,18 @@ get_keys (void)
           break;
        case 33:                /* Shift+1 */
           /* reset expanded module */
+#ifdef HAVE_LIBGEOIP
+          set_module_to (&scrolling, GEO_LOCATION);
+#else
+          set_module_to (&scrolling, STATUS_CODES);
+#endif
+          break;
+#ifdef HAVE_LIBGEOIP
+       case 64:                /* Shift+2 */
+          /* reset expanded module */
           set_module_to (&scrolling, STATUS_CODES);
           break;
+#endif
        case 9:                 /* TAB */
           /* reset expanded module */
           collapse_current_module ();
@@ -667,6 +711,10 @@ main (int argc, char *argv[])
    char *loc_ctype;
    int row = 0, col = 0, o, idx, quit = 0;
 
+#ifdef HAVE_LIBGEOIP
+   conf.geo_db = GEOIP_MEMORY_CACHE;
+#endif
+
    opterr = 0;
    while ((o = getopt (argc, argv, short_options)) != -1) {
       switch (o) {
@@ -678,6 +726,11 @@ main (int argc, char *argv[])
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             strerror (errno));
           break;
+#ifdef HAVE_LIBGEOIP
+       case 'g':
+          conf.geo_db = GEOIP_STANDARD;
+          break;
+#endif
        case 'e':
           conf.ignore_host = optarg;
           break;
@@ -756,6 +809,9 @@ main (int argc, char *argv[])
    ht_keyphrases =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) free_key_value, NULL);
+   ht_countries =
+      g_hash_table_new_full (g_str_hash, g_str_equal,
+                             (GDestroyNotify) free_key_value, NULL);
    ht_file_bw =
       g_hash_table_new_full (g_str_hash, g_str_equal,
                              (GDestroyNotify) g_free, g_free);
@@ -788,6 +844,11 @@ main (int argc, char *argv[])
       setlocale (LC_CTYPE, loc_ctype);
    else
       setlocale (LC_CTYPE, "");
+
+#ifdef HAVE_LIBGEOIP
+   /* Geolocation data */
+   geo_location_data = GeoIP_new (conf.geo_db);
+#endif
 
    parse_conf_file ();
 
