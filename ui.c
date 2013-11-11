@@ -56,6 +56,10 @@
 #include "settings.h"
 #include "util.h"
 
+#ifdef HAVE_LIBGEOIP
+GeoIP *geo_location_data;
+#endif
+
 static const GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
@@ -67,6 +71,9 @@ static const GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
+#ifdef HAVE_LIBGEOIP
+   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+#endif
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
 };
 
@@ -186,6 +193,9 @@ module_to_label (GModule module)
       "Referrers",
       "Referring Sites",
       "Keyphrases",
+#ifdef HAVE_LIBGEOIP
+      "Geo Location",
+#endif
       "Status Codes"
    };
 

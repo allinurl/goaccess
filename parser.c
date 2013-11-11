@@ -62,13 +62,14 @@
 /* *INDENT-OFF* */
 /* Definitions checked against declarations */
 GHashTable *ht_browsers               = NULL;
+GHashTable *ht_countries              = NULL;
 GHashTable *ht_date_bw                = NULL;
 GHashTable *ht_file_bw                = NULL;
 GHashTable *ht_file_serve_usecs       = NULL;
-GHashTable *ht_host_serve_usecs       = NULL;
 GHashTable *ht_host_bw                = NULL;
 GHashTable *ht_hostnames              = NULL;
 GHashTable *ht_hosts_agents           = NULL;
+GHashTable *ht_host_serve_usecs       = NULL;
 GHashTable *ht_hosts                  = NULL;
 GHashTable *ht_keyphrases             = NULL;
 GHashTable *ht_monthly                = NULL;
@@ -235,6 +236,33 @@ process_request_meta (GHashTable * ht, char *key, unsigned long long size)
 
    return 0;
 }
+
+/* process data based on the amount of requests */
+#ifdef HAVE_LIBGEOIP
+static int
+process_geolocation (GHashTable * ht, const char *country,
+                     const char *continent)
+{
+   GLocation *loc;
+   if ((ht == NULL))
+      return (EINVAL);
+
+   loc = g_hash_table_lookup (ht, country);
+   if (loc != NULL) {
+      loc->hits++;
+   } else {
+      loc = xcalloc (1, sizeof (GLocation));
+      strncpy (loc->continent, continent, CONTINENT_LEN);
+      loc->continent[CONTINENT_LEN - 1] = '\0';
+      loc->hits = 1;
+   }
+
+   /* replace the entry. old key will be freed by "free_key_value" */
+   g_hash_table_replace (ht, g_strdup (country), loc);
+
+   return 0;
+}
+#endif
 
 /* process data based on the amount of requests */
 static int
@@ -722,6 +750,12 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
 static int
 process_log (GLog * logger, char *line, int test)
 {
+#ifdef HAVE_LIBGEOIP
+   int geo_id = 0;
+   char location[COUNTRY_LEN];
+   char continent[CONTINENT_LEN];
+#endif
+
    char buf[DATE_LEN];
    GLogItem *log;
 
@@ -800,6 +834,16 @@ process_log (GLog * logger, char *line, int test)
    process_generic_data (ht_status_code, log->status);
    /* process hosts */
    process_generic_data (ht_hosts, log->host);
+
+#ifdef HAVE_LIBGEOIP
+   geo_id = GeoIP_id_by_name (geo_location_data, log->host);
+
+   sprintf (location, "%s %s", GeoIP_code_by_id (geo_id),
+            get_geoip_data (log->host));
+   sprintf (continent, "%s",
+            get_continent_name_and_code (GeoIP_continent_by_id (geo_id)));
+   process_geolocation (ht_countries, location, continent);
+#endif
 
    /* process bandwidth  */
    process_request_meta (ht_date_bw, buf, log->resp_size);

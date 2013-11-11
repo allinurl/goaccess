@@ -110,7 +110,11 @@
 
 #define HIGHLIGHT         1
 
+#ifdef HAVE_LIBGEOIP
+#define TOTAL_MODULES     12
+#else
 #define TOTAL_MODULES     11
+#endif
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -128,6 +132,9 @@ typedef enum MODULES
    REFERRERS,
    REFERRING_SITES,
    KEYPHRASES,
+#ifdef HAVE_LIBGEOIP
+   GEO_LOCATION,
+#endif
    STATUS_CODES
 } GModule;
 
@@ -209,6 +216,10 @@ typedef struct GSpinner_
       SPN_END
    } state;
 } GSpinner;
+
+#ifdef HAVE_LIBGEOIP
+extern GeoIP *geo_location_data;
+#endif
 
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);
