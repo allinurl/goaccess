@@ -532,6 +532,86 @@ print_html_end_tr (FILE * fp)
    fprintf (fp, "</tr>");
 }
 
+#ifdef HAVE_LIBGEOIP
+static void
+print_html_sub_geolocation (FILE * fp, GSubList * sub_list, int process)
+{
+   char *data, *name = NULL;
+   float percent;
+   GSubItem *iter;
+   int hits;
+
+   for (iter = sub_list->head; iter; iter = iter->next) {
+      hits = iter->hits;
+      data = (char *) iter->data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      name = xmalloc (snprintf (NULL, 0, "—&nbsp;%s", data) + 1);
+      sprintf (name, "—&nbsp;%s", data);
+
+      print_html_begin_tr (fp, 1);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
+
+      fprintf (fp, "<td>%s</td>", name);
+
+      print_html_end_tr (fp);
+      free (name);
+   }
+}
+#endif
+
+#ifdef HAVE_LIBGEOIP
+static void
+print_html_geolocation (FILE * fp, GHolder * h, int process)
+{
+   char *data;
+   float percent;
+   int hits;
+   int i;
+   GSubList *sub_list;
+
+   if (h->idx == 0)
+      return;
+
+   print_html_h2 (fp, GEOLO_HEAD, GEOLO_ID);
+   print_p (fp, GEOLO_DESC);
+   print_html_begin_table (fp);
+   print_html_begin_thead (fp);
+
+   fprintf (fp, "<tr>");
+   fprintf (fp, "<th>Hits</th>");
+   fprintf (fp, "<th>%%</th>");
+   fprintf (fp, "<th>");
+   fprintf (fp, "Location");
+   fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
+   fprintf (fp, "</th>");
+   fprintf (fp, "</tr>");
+
+   print_html_end_thead (fp);
+   print_html_begin_tbody (fp);
+
+   for (i = 0; i < h->idx; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      print_html_begin_tr (fp, 0);
+      fprintf (fp, "<td>%d</td>", hits);
+      fprintf (fp, "<td>%4.2f%%</td>", percent);
+      fprintf (fp, "<td>%s</td>", data);
+      print_html_end_tr (fp);
+
+      sub_list = h->items[i].sub_list;
+      print_html_sub_geolocation (fp, sub_list, process);
+   }
+   print_html_end_tbody (fp);
+   print_html_end_table (fp);
+}
+#endif
+
 static void
 print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
 {
@@ -1134,6 +1214,9 @@ print_pure_menu (FILE * fp, char *now)
    fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
    fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
    fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
+#ifdef HAVE_LIBGEOIP
+   fprintf (fp, "<li><a href=\"#%s\">Geo Location</a></li>", GEOLO_ID);
+#endif
    fprintf (fp, "<li><a href=\"#%s\">Status codes</a></li>", CODES_ID);
    fprintf (fp, "<li class=\"menu-item-divided\"></li>");
 
@@ -1174,6 +1257,9 @@ output_html (GLog * logger, GHolder * holder)
    print_html_generic (fp, holder + REFERRERS, logger->process);
    print_html_generic (fp, holder + REFERRING_SITES, logger->process);
    print_html_generic (fp, holder + KEYPHRASES, logger->process);
+#ifdef HAVE_LIBGEOIP
+   print_html_geolocation (fp, holder + GEO_LOCATION, logger->process);
+#endif
    print_html_status (fp, holder + STATUS_CODES, logger->process);
 
    print_html_footer (fp);
