@@ -1181,7 +1181,7 @@ print_html_summary (FILE * fp, GLog * logger)
 
    print_html_begin_tr (fp, 0);
    fprintf (fp, "<td>%s</td>", T_GEN_TIME);
-   fprintf (fp, "<td>%lu</td>", ((int) end_proc - start_proc));
+   fprintf (fp, "<td>%lu</td>", ((long long) end_proc - start_proc));
 
    print_html_summary_field (fp, g_hash_table_size (ht_requests_static),
                              T_STATIC_FIL);
@@ -1423,7 +1423,7 @@ print_csv_summary (FILE * fp, GLog * logger)
 
    fprintf (fp, "\"general\",\"bandwidth\",\"%lld\"\r\n", logger->resp_size);
    fprintf (fp, "\"general\",\"generation_time\",\"%lu\"\r\n",
-            ((int) end_proc - start_proc));
+            ((long long) end_proc - start_proc));
    fprintf (fp, "\"general\",\"static_files\",\"%d\"\r\n",
             g_hash_table_size (ht_requests_static));
 
@@ -1634,7 +1634,7 @@ print_json_summary (FILE * fp, GLog * logger)
 
    fprintf (fp, "\t\t\"bandwidth\": %lld,\n", logger->resp_size);
    fprintf (fp, "\t\t\"generation_time\": %lu,\n",
-            ((int) end_proc - start_proc));
+            ((long long) end_proc - start_proc));
    fprintf (fp, "\t\t\"static_files\": %d,\n",
             g_hash_table_size (ht_requests_static));
 
