@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "settings.h"
 
@@ -58,7 +59,8 @@ static const GPreConfDate dates = {
 static const GConfKeyword keywords[] = {
    {1, "color_scheme"},
    {2, "log_format"},
-   {3, "date_format"}
+   {3, "date_format"},
+   {4, "log_file"},
 };
 
 /* set config key/values pair */
@@ -74,6 +76,12 @@ set_conf_vars (int key, char *val)
        break;
     case 3:
        conf.date_format = alloc_string (val);
+       break;
+    case 4:
+       if (!isatty (STDIN_FILENO))      /* STDIN */
+          break;
+       if (conf.ifile == NULL || *conf.ifile == '\0')
+          conf.ifile = alloc_string (val);
        break;
    }
 }
@@ -165,9 +173,13 @@ write_conf_file (void)
 
    /* log format */
    if (tmp_log_format)
-      fprintf (file, "log_format %s", tmp_log_format);
+      fprintf (file, "log_format %s\n", tmp_log_format);
    else
-      fprintf (file, "log_format %s", conf.log_format);
+      fprintf (file, "log_format %s\n", conf.log_format);
+
+   /* set target log file */
+   if (conf.ifile)
+      fprintf (file, "log_file %s", conf.ifile);
 
    fclose (file);
    if (conf.date_format)

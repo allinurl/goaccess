@@ -53,9 +53,9 @@
 
 static WINDOW *header_win, *main_win;
 #ifdef HAVE_LIBGEOIP
-static char short_options[] = "f:e:p:o:acrmg";
+static char short_options[] = "f:e:p:o:acrmgh";
 #else
-static char short_options[] = "f:e:p:o:acrm";
+static char short_options[] = "f:e:p:o:acrmh";
 #endif
 
 GConf conf = { 0 };
@@ -130,7 +130,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess -f log_file [-c][-r][-m]");
+   printf ("goaccess -f log_file [-c][-r][-m][-h]");
 #ifdef HAVE_LIBGEOIP
    printf ("[-g]");
 #endif
@@ -140,6 +140,7 @@ cmd_help (void)
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
+   printf (" -h            - This help.\n");
 #ifdef HAVE_LIBGEOIP
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
 #endif
@@ -755,6 +756,9 @@ main (int argc, char *argv[])
        case 'm':
           conf.mouse_support = 1;
           break;
+       case 'h':
+          cmd_help ();
+          break;
        case '?':
           if (optopt == 'f' || optopt == 'e' || optopt == 'p' || optopt == 'o')
              fprintf (stderr, "Option -%c requires an argument.\n", optopt);
@@ -767,6 +771,9 @@ main (int argc, char *argv[])
           abort ();
       }
    }
+
+   parse_conf_file ();
+
    if (!isatty (STDOUT_FILENO))
       conf.output_html = 1;
    if (conf.ifile != NULL && !isatty (STDIN_FILENO))
@@ -855,8 +862,6 @@ main (int argc, char *argv[])
    /* Geolocation data */
    geo_location_data = GeoIP_new (conf.geo_db);
 #endif
-
-   parse_conf_file ();
 
    if (conf.output_html)
       goto out;
