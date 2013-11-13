@@ -820,9 +820,8 @@ process_log (GLog * logger, char *line, int test)
    /* process 404s */
    if (!memcmp (log->status, "404", 3))
       process_generic_data (ht_not_found_requests, log->req);
-
    /* process static files */
-   if (verify_static_content (log->req))
+   else if (verify_static_content (log->req))
       process_generic_data (ht_requests_static, log->req);
    /* process regular files */
    else
