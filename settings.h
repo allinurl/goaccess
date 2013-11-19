@@ -51,7 +51,7 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
    char *date_format;
-   char iconfigfile[_POSIX_PATH_MAX];
+   char *iconfigfile;
    char *ifile;
    char *ignore_host;
    char *log_format;

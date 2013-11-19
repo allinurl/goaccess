@@ -180,6 +180,10 @@ house_keeping (void)
 
    free (logger);
 
+   /* realpath() uses malloc */
+   if (conf.iconfigfile)
+      free (conf.iconfigfile);
+
    g_hash_table_destroy (ht_browsers);
    g_hash_table_destroy (ht_countries);
    g_hash_table_destroy (ht_date_bw);
@@ -722,6 +726,7 @@ main (int argc, char *argv[])
    conf.geo_db = GEOIP_MEMORY_CACHE;
 #endif
 
+   conf.iconfigfile = NULL;
    opterr = 0;
    while ((o = getopt (argc, argv, short_options)) != -1) {
       switch (o) {
@@ -729,7 +734,8 @@ main (int argc, char *argv[])
           conf.ifile = optarg;
           break;
        case 'p':
-          if (realpath (optarg, conf.iconfigfile) == 0)
+          conf.iconfigfile = realpath (optarg, NULL);
+          if (conf.iconfigfile == NULL)
              error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                             strerror (errno));
           break;

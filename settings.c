@@ -96,7 +96,7 @@ parse_conf_file (void)
    FILE *file;
    int key = 0;
 
-   if (conf.iconfigfile[0] != '\0')
+   if (conf.iconfigfile != NULL)
       path = alloc_string (conf.iconfigfile);
    else {
       user_home = getenv ("HOME");
@@ -144,7 +144,7 @@ write_conf_file (void)
    FILE *file;
    char *path = NULL, *user_home = NULL;
 
-   if (conf.iconfigfile[0] != '\0')
+   if (conf.iconfigfile != NULL)
       path = alloc_string (conf.iconfigfile);
    else {
       user_home = getenv ("HOME");
