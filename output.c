@@ -105,8 +105,8 @@ escape_json_output (FILE * fp, char *s)
        case '\\':
           fprintf (fp, "\\\\");
           break;
-        //TODO: escape \t \b \r \n and charcters less than U0020 if something breaks it again
-        //TODO: escape \\x?? to \\u00?? if necessary
+          //TODO: escape \t \b \r \n and charcters less than U0020 if something breaks it again
+          //TODO: escape \\x?? to \\u00?? if necessary
        default:
           fputc (*s, fp);
           break;
@@ -1455,72 +1455,98 @@ output_csv (GLog * logger, GHolder * holder)
    fclose (fp);
 }
 
+static void
+print_json_sub_os (FILE * fp, GSubList * sub_list, int process)
+{
+   char *data;
+   float percent;
+   GSubItem *iter;
+   int hits, i = 0;
+
+   fprintf (fp, ",\n\t\t\t\"items\": [\n");
+   for (iter = sub_list->head; iter; iter = iter->next) {
+      hits = iter->hits;
+      data = (char *) iter->data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      fprintf (fp, "\t\t\t\t{\n");
+      fprintf (fp, "\t\t\t\t\t\"hits\": \"%d\",\n", hits);
+      fprintf (fp, "\t\t\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
+      fprintf (fp, "\t\t\t\t\t\"data\": \"");
+      escape_json_output (fp, data);
+      fprintf (fp, "\"\n");
+      fprintf (fp, "\t\t\t\t}");
+
+      if (i != sub_list->size - 1)
+         fprintf (fp, ",\n");
+      else
+         fprintf (fp, "\n");
+      i++;
+   }
+   fprintf (fp, "\t\t\t]");
+}
+
 /**
  * Generate JSON on partial fields for the following modules:
  * OS, BROWSERS, REFERRERS, REFERRING_SITES, KEYPHRASES, STATUS_CODES
  */
 static void
-print_json_generic (FILE * fp, GHolder * holder, int process)
+print_json_generic (FILE * fp, const GHolder * h, int process)
 {
    char *data;
+   const char *id = NULL;
    float percent;
-   GHolder *h;
-   int i, j, hits;
+   int i, hits;
 
-   fprintf (fp, "\t\"generic\": {\n");
-   /* os, browsers, referrers, referring sites, keyphrases & status code report */
-   for (i = 0; i < 6; i++) {
-      switch (i) {
-       case 0:
-          process = g_hash_table_size (ht_unique_visitors);
-          h = holder + OS;
-          fprintf (fp, "\t\t\"os\": [\n");
-          break;
-       case 1:
-          process = g_hash_table_size (ht_unique_visitors);
-          h = holder + BROWSERS;
-          fprintf (fp, "\t\t\"browser\": [\n");
-          break;
-       case 2:
-          h = holder + REFERRERS;
-          fprintf (fp, "\t\t\"ref\": [\n");
-          break;
-       case 3:
-          h = holder + REFERRING_SITES;
-          fprintf (fp, "\t\t\"refsite\": [\n");
-          break;
-       case 4:
-          h = holder + KEYPHRASES;
-          fprintf (fp, "\t\t\"keyphrase\": [\n");
-          break;
-       case 5:
-          h = holder + STATUS_CODES;
-          fprintf (fp, "\t\t\"status\": [\n");
-          break;
-      }
 
-      for (j = 0; j < h->idx; j++) {
-         hits = h->items[j].hits;
-         data = h->items[j].data;
-         percent = get_percentage (process, hits);
-         percent = percent < 0 ? 0 : percent;
+   if (h->module == BROWSERS)
+      id = BROWS_ID;
+   else if (h->module == OS)
+      id = OPERA_ID;
+   else if (h->module == REFERRERS)
+      id = REFER_ID;
+   else if (h->module == REFERRING_SITES)
+      id = SITES_ID;
+   else if (h->module == KEYPHRASES)
+      id = KEYPH_ID;
+   else if (h->module == STATUS_CODES)
+      id = CODES_ID;
+#ifdef HAVE_LIBGEOIP
+   else if (h->module == GEO_LOCATION)
+      id = GEOLO_ID;
+#endif
 
-         fprintf (fp,
-                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"data\": \"",
-                  hits, percent);
-         escape_json_output (fp, data);
-         fprintf (fp, "\"\n\t\t\t}");
-         if (j != h->idx - 1)
-            fprintf (fp, ",\n");
-         else
-            fprintf (fp, "\n");
-      }
-      if (i != 5)
-         fprintf (fp, "\t\t],\n");
+   fprintf (fp, "\t\"%s\": [\n", id);
+
+   for (i = 0; i < h->idx; i++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      fprintf (fp, "\t\t{\n");
+      fprintf (fp, "\t\t\t\"hits\": \"%d\",\n", hits);
+      fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
+      fprintf (fp, "\t\t\t\"data\": \"");
+      escape_json_output (fp, data);
+      fprintf (fp, "\"");
+
+      if (h->module == OS || h->module == BROWSERS || h->module == STATUS_CODES
+#ifdef HAVE_LIBGEOIP
+          || h->module == GEO_LOCATION
+#endif
+         )
+         print_json_sub_os (fp, h->items[i].sub_list, process);
+
+      fprintf (fp, "\n\t\t}");
+
+      if (i != h->idx - 1)
+         fprintf (fp, ",\n");
       else
-         fprintf (fp, "\t\t]\n");
+         fprintf (fp, "\n");
    }
-   fprintf (fp, "\t}");
+   fprintf (fp, "\n\t]");
 }
 
 /**
@@ -1536,24 +1562,23 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
    int i, j, hits;
    unsigned long long bw, usecs;
 
-   fprintf (fp, "\t\"complete\": {\n");
    for (i = 0; i < 4; i++) {
       switch (i) {
        case 0:
           h = holder + REQUESTS;
-          fprintf (fp, "\t\t\"req\": [\n");
+          fprintf (fp, "\t\"%s\": [\n", REQUE_ID);
           break;
        case 1:
           h = holder + REQUESTS_STATIC;
-          fprintf (fp, "\t\t\"static\": [\n");
+          fprintf (fp, "\t\"%s\": [\n", STATI_ID);
           break;
        case 2:
           h = holder + NOT_FOUND;
-          fprintf (fp, "\t\t\"notfound\": [\n");
+          fprintf (fp, "\t\"%s\": [\n", FOUND_ID);
           break;
        case 3:
           h = holder + HOSTS;
-          fprintf (fp, "\t\t\"host\": [\n");
+          fprintf (fp, "\t\"%s\": [\n", HOSTS_ID);
           break;
       }
 
@@ -1564,24 +1589,27 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          percent = percent < 0 ? 0 : percent;
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
-         fprintf (fp,
-                  "\t\t\t{\n\t\t\t\t\"hits\": \"%d\",\n\t\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\t\"url\": \"",
-                  hits, percent);
+
+         fprintf (fp, "\t\t{\n");
+         fprintf (fp, "\t\t\t\"hits\": \"%d\",\n", hits);
+         fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
+         fprintf (fp, "\t\t\t\"data\": \"");
          escape_json_output (fp, data);
-         fprintf (fp,
-                  "\",\n\t\t\t\t\"bytes\": \"%lld\",\n\t\t\t\t\"usecs\": \"%lld\"\n\t\t\t}",
-                  bw, usecs);
+         fprintf (fp, "\",\n");
+         fprintf (fp, "\t\t\t\"bytes\": \"%lld\",\n", bw);
+         fprintf (fp, "\t\t\t\"time_served\": \"%lld\"\n", usecs);
+         fprintf (fp, "\t\t}");
+
          if (j != h->idx - 1)
             fprintf (fp, ",\n");
          else
             fprintf (fp, "\n");
       }
       if (i != 3)
-         fprintf (fp, "\t\t],\n");
+         fprintf (fp, "\t],\n");
       else
-         fprintf (fp, "\t\t]\n");
+         fprintf (fp, "\t]\n");
    }
-   fprintf (fp, "\t}");
 }
 
 /* generate JSON unique visitors stats */
@@ -1602,9 +1630,12 @@ print_json_visitors (FILE * fp, GHolder * h)
       percent = percent < 0 ? 0 : percent;
       bw = h->items[i].bw;
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
-      fprintf (fp,
-               "\t\t{\n\t\t\t\"hits\": \"%d\",\n\t\t\t\"percent\": \"%4.2f%%\",\n\t\t\t\"date\": \"%s\",\n\t\t\t\"bytes\": \"%d\"\n\t\t}",
-               hits, percent, buf, bw);
+      fprintf (fp, "\t\t{\n\t\t\t\"hits\": \"%d\",\n", hits);
+      fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
+      fprintf (fp, "\t\t\t\"date\": \"%s\",\n", buf);
+      fprintf (fp, "\t\t\t\"bytes\": \"%d\"\n", bw);
+      fprintf (fp, "\t\t}");
+
       if (i != h->idx - 1)
          fprintf (fp, ",\n");
       else
@@ -1659,15 +1690,43 @@ void
 output_json (GLog * logger, GHolder * holder)
 {
    FILE *fp = stdout;
-   fprintf (fp, "{\n");
+   fprintf (fp, "{\n");         /* open */
+
    print_json_summary (fp, logger);
    fprintf (fp, ",\n");
+
    print_json_visitors (fp, holder + VISITORS);
    fprintf (fp, ",\n");
+
    print_json_complete (fp, holder, logger->process);
    fprintf (fp, ",\n");
-   print_json_generic (fp, holder, logger->process);
-   fprintf (fp, "\n}\n");
+
+   print_json_generic (fp, holder + OS, logger->process);
+   fprintf (fp, ",\n");
+
+   print_json_generic (fp, holder + BROWSERS,
+                       g_hash_table_size (ht_unique_vis));
+   fprintf (fp, ",\n");
+
+   print_json_generic (fp, holder + REFERRERS,
+                       g_hash_table_size (ht_unique_vis));
+   fprintf (fp, ",\n");
+
+   print_json_generic (fp, holder + REFERRING_SITES, logger->process);
+   fprintf (fp, ",\n");
+
+   print_json_generic (fp, holder + KEYPHRASES, logger->process);
+   fprintf (fp, ",\n");
+
+#ifdef HAVE_LIBGEOIP
+   print_json_generic (fp, holder + GEO_LOCATION, logger->process);
+   fprintf (fp, ",\n");
+#endif
+
+   print_json_generic (fp, holder + STATUS_CODES, logger->process);
+   fprintf (fp, "\n");
+
+   fprintf (fp, "\n}\n");       /* close */
 
    fclose (fp);
 }
