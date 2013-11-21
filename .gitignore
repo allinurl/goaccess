@@ -43,3 +43,6 @@ Makefile.in
 *.exe
 *.out
 *.app
+
+# VIM
+*.*.swp
