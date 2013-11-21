@@ -99,14 +99,26 @@ escape_json_output (FILE * fp, char *s)
        case '"':
           fprintf (fp, "\\\"");
           break;
-       case '\'':
-          fprintf (fp, "\\\'");
-          break;
        case '\\':
           fprintf (fp, "\\\\");
           break;
-          //TODO: escape \t \b \r \n and charcters less than U0020 if something breaks it again
-          //TODO: escape \\x?? to \\u00?? if necessary
+          /* unusual to be on a log */
+       case '\b':
+          fprintf (fp, "\\\b");
+          break;
+       case '\f':
+          fprintf (fp, "\\\f");
+          break;
+       case '\n':
+          fprintf (fp, "\\\n");
+          break;
+       case '\r':
+          fprintf (fp, "\\\r");
+          break;
+       case '\t':
+          fprintf (fp, "\\\t");
+          break;
+          /* TODO: escape four-hex-digits, \u */
        default:
           fputc (*s, fp);
           break;
