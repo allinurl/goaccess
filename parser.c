@@ -485,6 +485,7 @@ verify_static_content (char *req)
       return 0;
    if (!memcmp (nul - 4, ".jpg", 4) || !memcmp (nul - 4, ".JPG", 4) ||
        !memcmp (nul - 4, ".png", 4) || !memcmp (nul - 4, ".PNG", 4) ||
+       !memcmp (nul - 4, ".pdf", 4) || !memcmp (nul - 4, ".PDF", 4) ||
        !memcmp (nul - 3, ".js", 3) || !memcmp (nul - 3, ".JS", 3) ||
        !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
        !memcmp (nul - 4, ".css", 4) || !memcmp (nul - 4, ".CSS", 4) ||
