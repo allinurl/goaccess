@@ -490,6 +490,7 @@ verify_static_content (char *req)
        !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
        !memcmp (nul - 4, ".css", 4) || !memcmp (nul - 4, ".CSS", 4) ||
        !memcmp (nul - 4, ".ico", 4) || !memcmp (nul - 4, ".ICO", 4) ||
+       !memcmp (nul - 4, ".txt", 4) || !memcmp (nul - 4, ".TXT", 4) ||
        !memcmp (nul - 4, ".swf", 4) || !memcmp (nul - 4, ".SWF", 4) ||
        !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 5, ".JPEG", 5))
       return 1;
