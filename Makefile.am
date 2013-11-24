@@ -1,30 +1,34 @@
 #AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = goaccess
 goaccess_SOURCES = \
-   output.c        \
-   output.h        \
-   settings.c      \
-   settings.h      \
-   error.c         \
-   error.h         \
-   xmalloc.c       \
-   xmalloc.h       \
    commons.c       \
    commons.h       \
-   goaccess.c      \
-   parser.c        \
-   parser.h        \
-   ui.c            \
-   ui.h            \
-   util.c          \
-   util.h          \
+   csv.c           \
+   csv.h           \
+   error.c         \
+   error.h         \
    gdashboard.c    \
    gdashboard.h    \
    gdns.c          \
    gdns.h          \
    gmenu.c         \
    gmenu.h         \
-   goaccess.h
+   goaccess.c      \
+   goaccess.h      \
+   json.c          \
+   json.h          \
+   output.c        \
+   output.h        \
+   parser.c        \
+   parser.h        \
+   settings.c      \
+   settings.h      \
+   ui.c            \
+   ui.h            \
+   util.c          \
+   util.h          \
+   xmalloc.c       \
+   xmalloc.h       
 
 if DEBUG
 AM_CFLAGS = -O0 -g
