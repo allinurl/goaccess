@@ -42,9 +42,11 @@
 #include <unistd.h>
 
 #include "commons.h"
+#include "csv.h"
 #include "error.h"
-#include "gdns.h"
 #include "gdashboard.h"
+#include "gdns.h"
+#include "json.h"
 #include "output.h"
 #include "parser.h"
 #include "settings.h"
