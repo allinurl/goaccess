@@ -52,9 +52,6 @@
 #define STATI_HEAD "Requested static files (e.g., png, js, css, etc.)"
 #define STATI_DESC "Top requested static files - hits, percent, [bandwidth, time served]"
 #define STATI_ID   "static_requests"
-#define REFER_HEAD "Referrers URLs"
-#define REFER_DESC "Top requested referrers - hits, percent"
-#define REFER_ID   "referrers"
 #define FOUND_HEAD "HTTP 404 not found URLs"
 #define FOUND_DESC "Top 404 not found URLs - hits, percent, [bandwidth, time served]"
 #define FOUND_ID   "not_found"
@@ -67,9 +64,9 @@
 #define HOSTS_HEAD "Hosts"
 #define HOSTS_DESC "Top hosts - hits, percent, [bandwidth, time served]"
 #define HOSTS_ID   "hosts"
-#define CODES_HEAD "HTTP status codes"
-#define CODES_DESC "Top HTTP status codes - hits, percent"
-#define CODES_ID   "status_codes"
+#define REFER_HEAD "Referrers URLs"
+#define REFER_DESC "Top requested referrers - hits, percent"
+#define REFER_ID   "referrers"
 #define SITES_HEAD "Referring Sites"
 #define SITES_DESC "Top referring sites - hits, percent"
 #define SITES_ID   "referring_sites"
@@ -79,6 +76,10 @@
 #define GEOLO_HEAD "Geo Location"
 #define GEOLO_DESC "Continent > Country - hits, percent"
 #define GEOLO_ID   "geolocation"
+#define CODES_HEAD "HTTP status codes"
+#define CODES_DESC "Top HTTP status codes - hits, percent"
+#define CODES_ID   "status_codes"
+#define GENER_ID   "general"
 
 typedef struct GDashStyle_
 {

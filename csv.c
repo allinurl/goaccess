@@ -184,8 +184,11 @@ print_csv_visitors (FILE * fp, GHolder * h)
       bw = h->items[i].bw;
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
-      fprintf (fp, "\"visitors\",\"%d\",\"%4.2f%%\",\"%s\",\"%d\"\r\n", hits,
-               percent, buf, bw);
+      fprintf (fp, "\"%s\",", VISIT_ID);
+      fprintf (fp, "\"%d\",", hits);
+      fprintf (fp, "\"%4.2f%%\",", percent);
+      fprintf (fp, "\"%s\",", buf);
+      fprintf (fp, "\"%d\"\r\n", bw);
    }
 }
 
@@ -200,33 +203,37 @@ print_csv_summary (FILE * fp, GLog * logger)
    strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
    /* general statistics info */
-   fprintf (fp, "\"general\",\"date_time\",\"%s\"\r\n", now);
-   fprintf (fp, "\"general\",\"total_requests\",\"%d\"\r\n", logger->process);
-   fprintf (fp, "\"general\",\"unique_visitors\",\"%d\"\r\n",
+   fprintf (fp, "\"%s\",\"date_time\",\"%s\"\r\n", GENER_ID, now);
+   fprintf (fp, "\"%s\",\"total_requests\",\"%d\"\r\n", GENER_ID,
+            logger->process);
+   fprintf (fp, "\"%s\",\"unique_visitors\",\"%d\"\r\n", GENER_ID,
             g_hash_table_size (ht_unique_visitors));
-   fprintf (fp, "\"general\",\"referrers\",\"%d\"\r\n",
+   fprintf (fp, "\"%s\",\"referrers\",\"%d\"\r\n", GENER_ID,
             g_hash_table_size (ht_referrers));
 
    if (!logger->piping)
       log_size = file_size (conf.ifile);
 
-   fprintf (fp, "\"general\",\"log_size\",\"%jd\"\r\n", (intmax_t) log_size);
-   fprintf (fp, "\"general\",\"failed_requests\",\"%d\"\r\n", logger->invalid);
-   fprintf (fp, "\"general\",\"unique_files\",\"%d\"\r\n",
+   fprintf (fp, "\"%s\",\"log_size\",\"%jd\"\r\n", GENER_ID,
+            (intmax_t) log_size);
+   fprintf (fp, "\"%s\",\"failed_requests\",\"%d\"\r\n", GENER_ID,
+            logger->invalid);
+   fprintf (fp, "\"%s\",\"unique_files\",\"%d\"\r\n", GENER_ID,
             g_hash_table_size (ht_requests));
-   fprintf (fp, "\"general\",\"unique_404\",\"%d\"\r\n",
+   fprintf (fp, "\"%s\",\"unique_404\",\"%d\"\r\n", GENER_ID,
             g_hash_table_size (ht_not_found_requests));
 
-   fprintf (fp, "\"general\",\"bandwidth\",\"%lld\"\r\n", logger->resp_size);
-   fprintf (fp, "\"general\",\"generation_time\",\"%llu\"\r\n",
+   fprintf (fp, "\"%s\",\"bandwidth\",\"%lld\"\r\n", GENER_ID,
+            logger->resp_size);
+   fprintf (fp, "\"%s\",\"generation_time\",\"%llu\"\r\n", GENER_ID,
             ((long long) end_proc - start_proc));
-   fprintf (fp, "\"general\",\"static_files\",\"%d\"\r\n",
+   fprintf (fp, "\"%s\",\"static_files\",\"%d\"\r\n", GENER_ID,
             g_hash_table_size (ht_requests_static));
 
    if (conf.ifile == NULL)
       conf.ifile = (char *) "STDIN";
 
-   fprintf (fp, "\"general\",\"filename\",\"%s\"\r\n", conf.ifile);
+   fprintf (fp, "\"%s\",\"filename\",\"%s\"\r\n", GENER_ID, conf.ifile);
 }
 
 /* entry point to generate a a csv report writing it to the fp */
