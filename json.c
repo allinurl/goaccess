@@ -245,7 +245,7 @@ print_json_visitors (FILE * fp, GHolder * h)
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
-   fprintf (fp, "\t\"visitors\": [\n");
+   fprintf (fp, "\t\"%s\": [\n", VISIT_ID);
    for (i = 0; i < h->idx; i++) {
       hits = h->items[i].hits;
       data = h->items[i].data;
@@ -277,7 +277,7 @@ print_json_summary (FILE * fp, GLog * logger)
    generate_time ();
    strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
-   fprintf (fp, "\t\"general\": {\n");
+   fprintf (fp, "\t\"%s\": {\n", GENER_ID);
    /* general statistics info */
    fprintf (fp, "\t\t\"date_time\": \"%s\",\n", now);
    fprintf (fp, "\t\t\"total_requests\": %d,\n", logger->process);
