@@ -66,7 +66,8 @@ escape_cvs_output (FILE * fp, char *s)
 static void
 print_csv_generic (FILE * fp, GHolder * holder, int process)
 {
-   char id[REF_LEN], *data;
+   char *data;
+   const char *id = NULL;
    float percent;
    GHolder *h;
    int i, j, hits;
@@ -77,28 +78,28 @@ print_csv_generic (FILE * fp, GHolder * holder, int process)
        case 0:
           process = g_hash_table_size (ht_unique_visitors);
           h = holder + OS;
-          strcpy (id, "os");
+          id = OPERA_ID;
           break;
        case 1:
           process = g_hash_table_size (ht_unique_visitors);
           h = holder + BROWSERS;
-          strcpy (id, "browser");
+          id = BROWS_ID;
           break;
        case 2:
           h = holder + REFERRERS;
-          strcpy (id, "ref");
+          id = REFER_ID;
           break;
        case 3:
           h = holder + REFERRING_SITES;
-          strcpy (id, "refsite");
+          id = SITES_ID;
           break;
        case 4:
           h = holder + KEYPHRASES;
-          strcpy (id, "keyphrase");
+          id = KEYPH_ID;
           break;
        case 5:
           h = holder + STATUS_CODES;
-          strcpy (id, "status");
+          id = CODES_ID;
           break;
       }
 
@@ -122,7 +123,8 @@ print_csv_generic (FILE * fp, GHolder * holder, int process)
 static void
 print_csv_complete (FILE * fp, GHolder * holder, int process)
 {
-   char id[REF_LEN], *data;
+   char *data;
+   const char *id = NULL;
    float percent;
    GHolder *h;
    int i, j, hits;
@@ -132,19 +134,19 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
       switch (i) {
        case 0:
           h = holder + REQUESTS;
-          strcpy (id, "req");
+          id = REQUE_ID;
           break;
        case 1:
           h = holder + REQUESTS_STATIC;
-          strcpy (id, "static");
+          id = STATI_ID;
           break;
        case 2:
           h = holder + NOT_FOUND;
-          strcpy (id, "notfound");
+          id = FOUND_ID;
           break;
        case 3:
           h = holder + HOSTS;
-          strcpy (id, "host");
+          id = HOSTS_ID;
           break;
       }
 
