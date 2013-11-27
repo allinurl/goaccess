@@ -122,7 +122,6 @@ print_json_generic (FILE * fp, const GHolder * h, int process)
    float percent;
    int i, hits;
 
-
    if (h->module == BROWSERS)
       id = BROWS_ID;
    else if (h->module == OS)
@@ -324,15 +323,14 @@ output_json (GLog * logger, GHolder * holder)
    print_json_complete (fp, holder, logger->process);
    fprintf (fp, ",\n");
 
-   print_json_generic (fp, holder + OS, logger->process);
+   print_json_generic (fp, holder + OS, g_hash_table_size (ht_unique_visitors));
    fprintf (fp, ",\n");
 
    print_json_generic (fp, holder + BROWSERS,
-                       g_hash_table_size (ht_unique_vis));
+                       g_hash_table_size (ht_unique_visitors));
    fprintf (fp, ",\n");
 
-   print_json_generic (fp, holder + REFERRERS,
-                       g_hash_table_size (ht_unique_vis));
+   print_json_generic (fp, holder + REFERRERS, logger->process);
    fprintf (fp, ",\n");
 
    print_json_generic (fp, holder + REFERRING_SITES, logger->process);
