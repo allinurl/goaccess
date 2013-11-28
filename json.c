@@ -302,7 +302,7 @@ print_json_summary (FILE * fp, GLog * logger)
    if (conf.ifile == NULL)
       conf.ifile = (char *) "STDIN";
 
-   fprintf (fp, "\t\t\"filename\": \"%s\"\n", conf.ifile);
+   fprintf (fp, "\t\t\"log_file\": \"%s\"\n", conf.ifile);
    fprintf (fp, "\t}");
 }
 
