@@ -136,6 +136,7 @@ cmd_help (void)
 #ifdef HAVE_LIBGEOIP
    printf ("[-g]");
 #endif
+   printf ("\n\t\t");
    printf ("[-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
