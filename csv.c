@@ -233,7 +233,7 @@ print_csv_summary (FILE * fp, GLog * logger)
    if (conf.ifile == NULL)
       conf.ifile = (char *) "STDIN";
 
-   fprintf (fp, "\"%s\",\"filename\",\"%s\"\r\n", GENER_ID, conf.ifile);
+   fprintf (fp, "\"%s\",\"log_file\",\"%s\"\r\n", GENER_ID, conf.ifile);
 }
 
 /* entry point to generate a a csv report writing it to the fp */
