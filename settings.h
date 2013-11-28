@@ -57,6 +57,7 @@ typedef struct GConf_
    int bandwidth;
    int color_scheme;
    int geo_db;
+   int ignore_qstr;
    int list_agents;
    int load_conf_dlg;
    int mouse_support;

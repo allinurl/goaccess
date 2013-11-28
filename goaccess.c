@@ -55,9 +55,9 @@
 
 static WINDOW *header_win, *main_win;
 #ifdef HAVE_LIBGEOIP
-static char short_options[] = "f:e:p:o:acrmgh";
+static char short_options[] = "f:e:p:o:acrmghq";
 #else
-static char short_options[] = "f:e:p:o:acrmh";
+static char short_options[] = "f:e:p:o:acrmhq";
 #endif
 
 GConf conf = { 0 };
@@ -132,7 +132,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess -f log_file [-c][-r][-m][-h]");
+   printf ("goaccess -f log_file [-c][-r][-m][-h][-q]");
 #ifdef HAVE_LIBGEOIP
    printf ("[-g]");
 #endif
@@ -142,7 +142,7 @@ cmd_help (void)
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
-   printf (" -h            - This help.\n");
+   printf (" -q            - Ignore request's query string.\n");
 #ifdef HAVE_LIBGEOIP
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
 #endif
@@ -150,9 +150,11 @@ cmd_help (void)
    printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -e <argument> - Exclude an IP from being counted under the\n");
    printf ("                 HOST module. Disabled by default.\n");
-   printf
-      (" -o <argument> - Output format. '-o csv' for CSV, '-o json' for JSON.\n");
-   printf (" -p <argument> - Custom configuration file.\n\n");
+   printf (" -o <argument> - Output format:\n");
+   printf ("                 '-o csv' for CSV.\n");
+   printf ("                 '-o json' for JSON.\n");
+   printf (" -p <argument> - Custom configuration file.\n");
+   printf (" -h            - This help.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
@@ -754,6 +756,9 @@ main (int argc, char *argv[])
           break;
        case 'c':
           conf.load_conf_dlg = 1;
+          break;
+       case 'q':
+          conf.ignore_qstr = 1;
           break;
        case 'o':
           conf.output_format = optarg;

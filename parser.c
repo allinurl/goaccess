@@ -758,6 +758,8 @@ process_log (GLog * logger, char *line, int test)
    char continent[CONTINENT_LEN];
 #endif
 
+   char *qmark = NULL;
+   int not_found = 0;           /* 404s */
    char buf[DATE_LEN];
    GLogItem *log;
 
@@ -819,8 +821,20 @@ process_log (GLog * logger, char *line, int test)
    if (conf.list_agents)
       process_host_agents (log->host, log->agent);
 
+   /* is this a 404? */
+   if (!memcmp (log->status, "404", 3)) {
+      not_found = 1;
+   }
+   /* check if we need to remove the request's query string */
+   else if (conf.ignore_qstr) {
+      if ((qmark = strchr (log->req, '?')) != NULL) {
+         if ((qmark - log->req) > 0)
+            *qmark = '\0';
+      }
+   }
+
    /* process 404s */
-   if (!memcmp (log->status, "404", 3))
+   if (not_found)
       process_generic_data (ht_not_found_requests, log->req);
    /* process static files */
    else if (verify_static_content (log->req))
