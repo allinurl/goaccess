@@ -79,7 +79,7 @@ escape_json_output (FILE * fp, char *s)
 }
 
 static void
-print_json_sub_os (FILE * fp, GSubList * sub_list, int process)
+print_json_sub_items (FILE * fp, GSubList * sub_list, int process)
 {
    char *data;
    float percent;
@@ -159,7 +159,7 @@ print_json_generic (FILE * fp, const GHolder * h, int process)
           || h->module == GEO_LOCATION
 #endif
          )
-         print_json_sub_os (fp, h->items[i].sub_list, process);
+         print_json_sub_items (fp, h->items[i].sub_list, process);
 
       fprintf (fp, "\n\t\t}");
 

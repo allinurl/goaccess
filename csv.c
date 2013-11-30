@@ -60,8 +60,8 @@ escape_cvs_output (FILE * fp, char *s)
 }
 
 static void
-print_csv_sub_item (FILE * fp, GSubList * sub_list, int process, const char *id,
-                    int *idx)
+print_csv_sub_items (FILE * fp, GSubList * sub_list, int process,
+                     const char *id, int *idx)
 {
    char *data;
    float percent;
@@ -137,7 +137,7 @@ print_csv_generic (FILE * fp, const GHolder * h, int process)
           || h->module == GEO_LOCATION
 #endif
          )
-         print_csv_sub_item (fp, h->items[i].sub_list, process, id, &idx);
+         print_csv_sub_items (fp, h->items[i].sub_list, process, id, &idx);
    }
 }
 
