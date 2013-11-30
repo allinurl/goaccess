@@ -733,8 +733,8 @@ print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
       l = get_percentage (process, hits);
       l = l < 1 ? 1 : l;
 
-      name = xmalloc (snprintf (NULL, 0, "`-&nbsp;%s", data) + 1);
-      sprintf (name, "`-&nbsp;%s", data);
+      name = xmalloc (snprintf (NULL, 0, "-&nbsp;%s", data) + 1);
+      sprintf (name, "—&nbsp;%s", data);
 
       print_html_begin_tr (fp, 1);
       fprintf (fp, "<td>%d</td>", hits);
