@@ -49,7 +49,7 @@ escape_cvs_output (FILE * fp, char *s)
    while (*s) {
       switch (*s) {
        case '"':
-          fprintf (fp, "\\\"");
+          fprintf (fp, "\"\"");
           break;
        default:
           fputc (*s, fp);
@@ -59,60 +59,85 @@ escape_cvs_output (FILE * fp, char *s)
    }
 }
 
+static void
+print_csv_sub_item (FILE * fp, GSubList * sub_list, int process, const char *id,
+                    int *idx)
+{
+   char *data;
+   float percent;
+   GSubItem *iter;
+   int hits, i = 0;
+
+   for (iter = sub_list->head; iter; iter = iter->next) {
+      hits = iter->hits;
+      data = (char *) iter->data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
+
+      fprintf (fp, "\"%d\",", i);       /* idx */
+      fprintf (fp, "\"%d\",", (*idx));  /* parent idx */
+      fprintf (fp, "\"%s\",", id);
+      fprintf (fp, "\"%d\",", hits);
+      fprintf (fp, "\"%4.2f%%\",", percent);
+      fprintf (fp, "\"");
+      escape_cvs_output (fp, data);
+      fprintf (fp, "\",");
+      fprintf (fp, "\r\n");     /* parent idx */
+      i++;
+   }
+}
+
 /**
  * Generate CSV on partial fields for the following modules:
  * OS, BROWSERS, REFERRERS, REFERRING_SITES, KEYPHRASES, STATUS_CODES
  */
 static void
-print_csv_generic (FILE * fp, GHolder * holder, int process)
+print_csv_generic (FILE * fp, const GHolder * h, int process)
 {
    char *data;
    const char *id = NULL;
    float percent;
-   GHolder *h;
-   int i, j, hits;
+   int i, idx, hits;
 
-   /* os, browsers, referrers, referring sites, keyphrases & status code report */
-   for (i = 0; i < 6; i++) {
-      switch (i) {
-       case 0:
-          process = g_hash_table_size (ht_unique_visitors);
-          h = holder + OS;
-          id = OPERA_ID;
-          break;
-       case 1:
-          process = g_hash_table_size (ht_unique_visitors);
-          h = holder + BROWSERS;
-          id = BROWS_ID;
-          break;
-       case 2:
-          h = holder + REFERRERS;
-          id = REFER_ID;
-          break;
-       case 3:
-          h = holder + REFERRING_SITES;
-          id = SITES_ID;
-          break;
-       case 4:
-          h = holder + KEYPHRASES;
-          id = KEYPH_ID;
-          break;
-       case 5:
-          h = holder + STATUS_CODES;
-          id = CODES_ID;
-          break;
-      }
+   if (h->module == BROWSERS)
+      id = BROWS_ID;
+   else if (h->module == OS)
+      id = OPERA_ID;
+   else if (h->module == REFERRERS)
+      id = REFER_ID;
+   else if (h->module == REFERRING_SITES)
+      id = SITES_ID;
+   else if (h->module == KEYPHRASES)
+      id = KEYPH_ID;
+   else if (h->module == STATUS_CODES)
+      id = CODES_ID;
+#ifdef HAVE_LIBGEOIP
+   else if (h->module == GEO_LOCATION)
+      id = GEOLO_ID;
+#endif
 
-      for (j = 0; j < h->idx; j++) {
-         hits = h->items[j].hits;
-         data = h->items[j].data;
-         percent = get_percentage (process, hits);
-         percent = percent < 0 ? 0 : percent;
+   for (i = 0, idx = 0; i < h->idx; i++, idx++) {
+      hits = h->items[i].hits;
+      data = h->items[i].data;
+      percent = get_percentage (process, hits);
+      percent = percent < 0 ? 0 : percent;
 
-         fprintf (fp, "\"%s\",\"%d\",\"%4.2f%%\",\"", id, hits, percent);
-         escape_cvs_output (fp, data);
-         fprintf (fp, "\"\r\n");
-      }
+      fprintf (fp, "\"%d\",", idx);     /* idx */
+      fprintf (fp, ",");        /* parent idx */
+      fprintf (fp, "\"%s\",", id);
+      fprintf (fp, "\"%d\",", hits);
+      fprintf (fp, "\"%4.2f%%\",", percent);
+      fprintf (fp, "\"");
+      escape_cvs_output (fp, data);
+      fprintf (fp, "\",");
+      fprintf (fp, "\r\n");     /* parent idx */
+
+      if (h->module == OS || h->module == BROWSERS || h->module == STATUS_CODES
+#ifdef HAVE_LIBGEOIP
+          || h->module == GEO_LOCATION
+#endif
+         )
+         print_csv_sub_item (fp, h->items[i].sub_list, process, id, &idx);
    }
 }
 
@@ -158,9 +183,16 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
 
-         fprintf (fp, "\"%s\",\"%d\",\"%4.2f%%\",\"", id, hits, percent);
+         fprintf (fp, "\"%d\",", j);    /* idx */
+         fprintf (fp, ",");     /* parent idx */
+         fprintf (fp, "\"%s\",", id);
+         fprintf (fp, "\"%d\",", hits);
+         fprintf (fp, "\"%4.2f%%\",", percent);
+         fprintf (fp, "\"");
          escape_cvs_output (fp, data);
-         fprintf (fp, "\",\"%lld\",\"%lld\"\r\n", bw, usecs);
+         fprintf (fp, "\",");
+         fprintf (fp, "\"%lld\",", bw);
+         fprintf (fp, "\"%lld\"\r\n", usecs);
       }
    }
 }
@@ -184,6 +216,8 @@ print_csv_visitors (FILE * fp, GHolder * h)
       bw = h->items[i].bw;
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
+      fprintf (fp, "\"%d\",", i);       /* idx */
+      fprintf (fp, ",");        /* parent idx */
       fprintf (fp, "\"%s\",", VISIT_ID);
       fprintf (fp, "\"%d\",", hits);
       fprintf (fp, "\"%4.2f%%\",", percent);
@@ -196,6 +230,7 @@ print_csv_visitors (FILE * fp, GHolder * h)
 static void
 print_csv_summary (FILE * fp, GLog * logger)
 {
+   int i = 0;
    off_t log_size = 0;
    char now[DATE_TIME];
 
@@ -203,37 +238,38 @@ print_csv_summary (FILE * fp, GLog * logger)
    strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
    /* general statistics info */
-   fprintf (fp, "\"%s\",\"date_time\",\"%s\"\r\n", GENER_ID, now);
-   fprintf (fp, "\"%s\",\"total_requests\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"date_time\",\"%s\"\r\n", i++, GENER_ID, now);
+   fprintf (fp, "\"%d\",,\"%s\",\"total_requests\",\"%d\"\r\n", i++, GENER_ID,
             logger->process);
-   fprintf (fp, "\"%s\",\"unique_visitors\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"unique_visitors\",\"%d\"\r\n", i++, GENER_ID,
             g_hash_table_size (ht_unique_visitors));
-   fprintf (fp, "\"%s\",\"referrers\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"referrers\",\"%d\"\r\n", i++, GENER_ID,
             g_hash_table_size (ht_referrers));
 
    if (!logger->piping)
       log_size = file_size (conf.ifile);
 
-   fprintf (fp, "\"%s\",\"log_size\",\"%jd\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"log_size\",\"%jd\"\r\n", i++, GENER_ID,
             (intmax_t) log_size);
-   fprintf (fp, "\"%s\",\"failed_requests\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"failed_requests\",\"%d\"\r\n", i++, GENER_ID,
             logger->invalid);
-   fprintf (fp, "\"%s\",\"unique_files\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"unique_files\",\"%d\"\r\n", i++, GENER_ID,
             g_hash_table_size (ht_requests));
-   fprintf (fp, "\"%s\",\"unique_404\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"unique_404\",\"%d\"\r\n", i++, GENER_ID,
             g_hash_table_size (ht_not_found_requests));
 
-   fprintf (fp, "\"%s\",\"bandwidth\",\"%lld\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"bandwidth\",\"%lld\"\r\n", i++, GENER_ID,
             logger->resp_size);
-   fprintf (fp, "\"%s\",\"generation_time\",\"%llu\"\r\n", GENER_ID,
-            ((long long) end_proc - start_proc));
-   fprintf (fp, "\"%s\",\"static_files\",\"%d\"\r\n", GENER_ID,
+   fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++,
+            GENER_ID, (long long) end_proc - start_proc);
+   fprintf (fp, "\"%d\",,\"%s\",\"static_files\",\"%d\"\r\n", i++, GENER_ID,
             g_hash_table_size (ht_requests_static));
 
    if (conf.ifile == NULL)
       conf.ifile = (char *) "STDIN";
 
-   fprintf (fp, "\"%s\",\"log_file\",\"%s\"\r\n", GENER_ID, conf.ifile);
+   fprintf (fp, "\"%d\",,\"%s\",\"log_file\",\"%s\"\r\n", i, GENER_ID,
+            conf.ifile);
 }
 
 /* entry point to generate a a csv report writing it to the fp */
@@ -245,7 +281,16 @@ output_csv (GLog * logger, GHolder * holder)
    print_csv_summary (fp, logger);
    print_csv_visitors (fp, holder + VISITORS);
    print_csv_complete (fp, holder, logger->process);
-   print_csv_generic (fp, holder, logger->process);
+   print_csv_generic (fp, holder + OS, g_hash_table_size (ht_unique_visitors));
+   print_csv_generic (fp, holder + BROWSERS,
+                      g_hash_table_size (ht_unique_visitors));
+   print_csv_generic (fp, holder + REFERRERS, logger->process);
+   print_csv_generic (fp, holder + REFERRING_SITES, logger->process);
+   print_csv_generic (fp, holder + KEYPHRASES, logger->process);
+#ifdef HAVE_LIBGEOIP
+   print_csv_generic (fp, holder + GEO_LOCATION, logger->process);
+#endif
+   print_csv_generic (fp, holder + STATUS_CODES, logger->process);
 
    fclose (fp);
 }
