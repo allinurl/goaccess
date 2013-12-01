@@ -1166,8 +1166,9 @@ print_pure_menu (FILE * fp, char *now)
 {
    fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
    fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
-   fprintf (fp,
-            "<a class=\"pure-menu-heading\" href=\"http://goaccess.prosoftcorp.com/\">GoAccess</a>");
+   fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", GO_WEBSITE);
+   fprintf (fp, "«./GoAccess»");
+   fprintf (fp, "</a>");
    fprintf (fp, "<ul>");
    fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
    fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
