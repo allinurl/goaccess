@@ -33,6 +33,7 @@
 #endif
 #define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"0.6.1"
+#define GO_WEBSITE 		"http://goaccess.prosoftcorp.com/"
 struct tm *now_tm;
 
 /* Processing time */
