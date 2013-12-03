@@ -717,7 +717,7 @@ print_html_generic (FILE * fp, GHolder * h, int process)
 }
 
 static void
-print_html_sub_os (FILE * fp, GSubList * sub_list, int process)
+print_html_sub_browser_os (FILE * fp, GSubList * sub_list, int process)
 {
    char *data, *name = NULL;
    int hits;
@@ -815,7 +815,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
       print_html_end_tr (fp);
 
       sub_list = h->items[i].sub_list;
-      print_html_sub_os (fp, sub_list, process);
+      print_html_sub_browser_os (fp, sub_list, process);
    }
 
    print_html_end_tbody (fp);
