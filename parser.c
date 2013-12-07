@@ -487,12 +487,18 @@ verify_static_content (char *req)
        !memcmp (nul - 4, ".png", 4) || !memcmp (nul - 4, ".PNG", 4) ||
        !memcmp (nul - 4, ".pdf", 4) || !memcmp (nul - 4, ".PDF", 4) ||
        !memcmp (nul - 3, ".js", 3) || !memcmp (nul - 3, ".JS", 3) ||
+       !memcmp (nul - 4, ".map", 4) || !memcmp (nul - 4, ".MAP", 4) ||
        !memcmp (nul - 4, ".gif", 4) || !memcmp (nul - 4, ".GIF", 4) ||
        !memcmp (nul - 4, ".css", 4) || !memcmp (nul - 4, ".CSS", 4) ||
        !memcmp (nul - 4, ".ico", 4) || !memcmp (nul - 4, ".ICO", 4) ||
        !memcmp (nul - 4, ".txt", 4) || !memcmp (nul - 4, ".TXT", 4) ||
        !memcmp (nul - 4, ".swf", 4) || !memcmp (nul - 4, ".SWF", 4) ||
-       !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 5, ".JPEG", 5))
+       !memcmp (nul - 5, ".jpeg", 5) || !memcmp (nul - 5, ".JPEG", 5) ||
+       !memcmp (nul - 5, ".woff", 5) || !memcmp (nul - 5, ".WOFF", 5) ||
+       !memcmp (nul - 4, ".eot", 4) || !memcmp (nul - 4, ".EOT", 4) ||
+       !memcmp (nul - 4, ".svg", 4) || !memcmp (nul - 4, ".SVG", 4) ||
+       !memcmp (nul - 4, ".ttf", 4) || !memcmp (nul - 4, ".TTF", 4) ||
+       !memcmp (nul - 4, ".dae", 4) || !memcmp (nul - 4, ".DAE", 4))
       return 1;
    return 0;
 }
