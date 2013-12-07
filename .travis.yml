@@ -1,0 +1,12 @@
+language: c
+compiler:
+        - clang
+        - gcc
+before_install:
+        - sudo apt-get update -qq
+        - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev
+install:
+        - autoreconf -fi
+        - ./configure --enable-geoip --enable-utf8
+        - make
+script: "echo done"
