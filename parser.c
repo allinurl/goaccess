@@ -244,7 +244,7 @@ process_geolocation (GHashTable * ht, const char *country,
                      const char *continent)
 {
    GLocation *loc;
-   if ((ht == NULL))
+   if (ht == NULL)
       return (EINVAL);
 
    loc = g_hash_table_lookup (ht, country);
