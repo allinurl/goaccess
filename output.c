@@ -738,7 +738,7 @@ print_html_sub_browser_os (FILE * fp, GSubList * sub_list, int process)
       print_html_begin_tr (fp, 1);
       fprintf (fp, "<td>%d</td>", hits);
       fprintf (fp, "<td>%4.2f%%</td>", percent);
-      fprintf (fp, "<td>%s</td>", name);
+      fprintf (fp, "<td  style=\"white-space:nowrap;\">%s</td>", name);
       fprintf (fp, "<td class=\"graph\">");
       fprintf (fp, "<div class=\"bar light\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
@@ -829,8 +829,13 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    char *data, *bandwidth, *usecs, *ag, *ptr_value;
    float percent, l;
    int hits;
-   int i, j, max, until = 0, delims = 0;
+   int i, j, max, until = 0, delims = 0, colspan = 7;
    size_t alloc = 0;
+
+#ifdef HAVE_LIBGEOIP
+   const char *location = NULL;
+   colspan = 8;
+#endif
 
    if (h->idx == 0)
       return;
@@ -847,6 +852,9 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    fprintf (fp, "<th>Bandwidth</th>");
    fprintf (fp, "<th>Time&nbsp;served</th>");
    fprintf (fp, "<th>IP</th>");
+#ifdef HAVE_LIBGEOIP
+   fprintf (fp, "<th>Country</th>");
+#endif
    fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
    fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
    fprintf (fp, "</th>");
@@ -895,6 +903,11 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       fprintf (fp, "</td>");
       fprintf (fp, "<td>%s</td>", data);
 
+#ifdef HAVE_LIBGEOIP
+      location = get_geoip_data (data);
+      fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", location);
+#endif
+
       fprintf (fp, "<td class=\"graph\">");
       fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);
       fprintf (fp, "</td>");
@@ -914,7 +927,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
          split_agent_str (ptr_value, agents, 300);
 
          fprintf (fp, "<tr class=\"agent-hide\">\n");
-         fprintf (fp, "<td colspan=\"7\">\n");
+         fprintf (fp, "<td colspan=\"%d\">\n", colspan);
          fprintf (fp, "<div>");
          fprintf (fp, "<table class=\"pure-table-striped\">");
 
