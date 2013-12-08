@@ -348,7 +348,7 @@ get_bars (int n, int max, int x)
    int w, h, len;
 
    getmaxyx (stdscr, h, w);
-   h = h;                       /* avoid lint warning */
+   (void) h;                    /* avoid lint warning */
 
    if ((len = (n * (w - x) / max)) < 1)
       len = 1;
@@ -422,7 +422,7 @@ render_total_label (WINDOW * win, GDashModule * module_data, int y)
 
    s = xmalloc (snprintf (NULL, 0, "Total: %d/%d", total, ht_size) + 1);
    getmaxyx (win, win_h, win_w);
-   win_h = win_h;
+   (void) win_h;
 
    sprintf (s, "Total: %d/%d", total, ht_size);
 
