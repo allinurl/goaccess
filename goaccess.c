@@ -55,9 +55,9 @@
 
 static WINDOW *header_win, *main_win;
 #ifdef HAVE_LIBGEOIP
-static char short_options[] = "f:e:p:o:acrmghq";
+static char short_options[] = "f:e:p:o:acrmghqd";
 #else
-static char short_options[] = "f:e:p:o:acrmhq";
+static char short_options[] = "f:e:p:o:acrmhqd";
 #endif
 
 GConf conf = { 0 };
@@ -132,7 +132,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess -f log_file [-c][-r][-m][-h][-q]");
+   printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d]");
 #ifdef HAVE_LIBGEOIP
    printf ("[-g]");
 #endif
@@ -141,7 +141,8 @@ cmd_help (void)
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
-   printf (" -r            - Disable IP resolver.\n");
+   printf (" -r            - Disable IP resolver on terminal output.\n");
+   printf (" -d            - Enable IP resolver on html output.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
    printf (" -q            - Ignore request's query string.\n");
 #ifdef HAVE_LIBGEOIP
@@ -766,6 +767,9 @@ main (int argc, char *argv[])
           break;
        case 'r':
           conf.skip_resolver = 1;
+          break;
+       case 'd':
+          conf.enable_html_resolver = 1;
           break;
        case 'm':
           conf.mouse_support = 1;
