@@ -829,7 +829,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    char *data, *bandwidth, *usecs, *ag, *ptr_value, *host;
    float percent, l;
    int hits;
-   int i, j, max, until = 0, delims = 0, colspan = 7;
+   int i, j, max, until = 0, delims = 0, colspan = 6;
    size_t alloc = 0;
 
 #ifdef HAVE_LIBGEOIP
@@ -850,7 +850,10 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
    fprintf (fp, "<th>Hits</th>");
    fprintf (fp, "<th>%%</th>");
    fprintf (fp, "<th>Bandwidth</th>");
-   fprintf (fp, "<th>Time&nbsp;served</th>");
+   if (conf.serve_usecs) {
+      colspan++;
+      fprintf (fp, "<th>Time&nbsp;served</th>");
+   }
    fprintf (fp, "<th>IP</th>");
 #ifdef HAVE_LIBGEOIP
    fprintf (fp, "<th>Country</th>");
@@ -902,10 +905,14 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       fprintf (fp, "</td>");
 
       /* usecs */
-      usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>");
-      clean_output (fp, usecs);
-      fprintf (fp, "</td>");
+      if (conf.serve_usecs) {
+         usecs = usecs_to_str (h->items[i].usecs);
+         fprintf (fp, "<td>");
+         clean_output (fp, usecs);
+         fprintf (fp, "</td>");
+         free (usecs);
+      }
+
       fprintf (fp, "<td>%s</td>", data);
 
 #ifdef HAVE_LIBGEOIP
@@ -960,7 +967,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
             free (agents[j].agents);
          free (agents);
       }
-      free (usecs);
+
       free (bandwidth);
    }
 
@@ -1001,7 +1008,8 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    fprintf (fp, "<th>Hits</th>");
    fprintf (fp, "<th>%%</th>");
    fprintf (fp, "<th>Bandwidth</th>");
-   fprintf (fp, "<th>Time&nbsp;served</th>");
+   if (conf.serve_usecs)
+      fprintf (fp, "<th>Time&nbsp;served</th>");
    fprintf (fp, "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span>");
    fprintf (fp, "</th>");
    fprintf (fp, "</tr>");
@@ -1029,10 +1037,13 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
       fprintf (fp, "</td>");
 
       /* usecs */
-      usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>");
-      clean_output (fp, usecs);
-      fprintf (fp, "</td>");
+      if (conf.serve_usecs) {
+         usecs = usecs_to_str (h->items[i].usecs);
+         fprintf (fp, "<td>");
+         clean_output (fp, usecs);
+         fprintf (fp, "</td>");
+         free (usecs);
+      }
 
       /* data */
       fprintf (fp, "<td>");
@@ -1041,7 +1052,6 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
 
       print_html_end_tr (fp);
 
-      free (usecs);
       free (bandwidth);
    }
 
