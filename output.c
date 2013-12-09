@@ -826,7 +826,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 {
    GAgents *agents;
 
-   char *data, *bandwidth, *usecs, *ag, *ptr_value;
+   char *data, *bandwidth, *usecs, *ag, *ptr_value, *host;
    float percent, l;
    int hits;
    int i, j, max, until = 0, delims = 0, colspan = 7;
@@ -834,7 +834,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 
 #ifdef HAVE_LIBGEOIP
    const char *location = NULL;
-   colspan = 8;
+   colspan++;
 #endif
 
    if (h->idx == 0)
@@ -855,6 +855,11 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 #ifdef HAVE_LIBGEOIP
    fprintf (fp, "<th>Country</th>");
 #endif
+   if (conf.enable_html_resolver) {
+      colspan++;
+      fprintf (fp, "<th>Hostname</th>");
+   }
+
    fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
    fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
    fprintf (fp, "</th>");
@@ -907,6 +912,12 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       location = get_geoip_data (data);
       fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", location);
 #endif
+
+      if (conf.enable_html_resolver) {
+         host = reverse_ip (data);
+         fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", host);
+         free (host);
+      }
 
       fprintf (fp, "<td class=\"graph\">");
       fprintf (fp, "<div class=\"bar\" style=\"width:%f%%\"></div>", l);

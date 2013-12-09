@@ -56,6 +56,7 @@ typedef struct GConf_
    char *output_format;
    int bandwidth;
    int color_scheme;
+   int enable_html_resolver;
    int geo_db;
    int ignore_qstr;
    int list_agents;
