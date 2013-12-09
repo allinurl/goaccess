@@ -1078,7 +1078,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
    fprintf (fp, "<th>Visitors</th>");
    fprintf (fp, "<th>%%</th>");
    fprintf (fp, "<th>Date</th>");
-   fprintf (fp, "<th>Size</th>");
+   fprintf (fp, "<th>Bandwidth</th>");
    fprintf (fp, "<th style=\"width:100%%;text-align:right;\">");
    fprintf (fp, "<span class=\"r\" onclick=\"t(this)\">◀</span>");
    fprintf (fp, "</th>");
