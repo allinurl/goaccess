@@ -218,8 +218,13 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          fprintf (fp, "\t\t\t\"data\": \"");
          escape_json_output (fp, data);
          fprintf (fp, "\",\n");
-         fprintf (fp, "\t\t\t\"bytes\": \"%lld\",\n", bw);
-         fprintf (fp, "\t\t\t\"time_served\": \"%lld\"\n", usecs);
+         fprintf (fp, "\t\t\t\"bytes\": \"%lld\"", bw);
+
+         if (conf.serve_usecs)
+            fprintf (fp, ",\n\t\t\t\"time_served\": \"%lld\"\n", usecs);
+         else
+            fprintf (fp, "\n");
+
          fprintf (fp, "\t\t}");
 
          if (j != h->idx - 1)
