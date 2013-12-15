@@ -27,7 +27,7 @@ outputs the data to the X terminal. Features include:
    * Different Color Schemes
    * Unlimited log file size
    * Custom log format
-   * Output statistics to a file.
+   * Output statistics to JSON, CSV or HTML.
 
 Nearly all web log formats...
 
