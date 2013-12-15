@@ -644,9 +644,10 @@ static void
 render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
                 int *total, GScrolling * scrolling)
 {
-   int expanded = 0, sel = 0, host_bars = 0, size;
-   int i, j, x = 0, w, h;
+   char *hd;
    GModule module = module_data->module;
+   int expanded = 0, sel = 0, host_bars = 0, size;
+   int i, k, j, x = 0, w, h;
 
    if (!conf.skip_resolver)
       host_bars = 1;
@@ -664,7 +665,13 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
    for (i = *offset, j = 0; i < size; i++) {
       /* header */
       if ((i % size) == DASH_HEAD_POS) {
-         draw_header (win, module_data->head, 0, (*y), w, 1);
+         k = module + 1;
+         hd = xmalloc (snprintf (NULL, 0, "%d - %s", k, module_data->head) + 1);
+         sprintf (hd, "%d - %s", k, module_data->head);
+
+         draw_header (win, hd, 0, (*y), w, 1);
+         free (hd);
+
          render_total_label (win, module_data, (*y));
          module_data->pos_y = (*y);
          (*y)++;
