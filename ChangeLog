@@ -1,3 +1,19 @@
+Changes to GoAccess 0.7 - Monday, December 15, 2013
+   * Added a command line option to ignore request query strings.
+   * Added additional compiler flags & fixed several warnings.
+   * Added additional static file extensions.
+   * Added country per IP to HOSTS module (HTML).
+   * Added DEBUG mode to Makefile & -O2 to default release.
+   * Added GEOLOCATION report, includes continents/countries.
+   * Added IP resolver to HTML output.
+   * Added module numbers to each module header.
+   * Added the ability to output JSON and CSV.
+   * Added Windows NT 6.3 (Win 8.1) to the list.
+   * Fixed buffer overflow issue with realpath.
+   * Fixed multiple compiler warnings.
+   * Properly split request line into the three request modules.
+   * Updated HTML report to HTML5 plus new CSS styles.
+
 Changes to GoAccess 0.6.1 - Monday, October 07, 2013
    * Added active module indication by name.
    * Added additional crawlers to the list.
