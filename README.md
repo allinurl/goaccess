@@ -20,9 +20,11 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 * Operating Systems
 * Browsers and Spiders
 * Hosts, Reverse DNS, IP Location
+* Geo Location - Continents/Countries
 * HTTP Status Codes
 * Referring Sites
 * Keyphrases
+* Ability to output JSON and CSV
 * Support for IPv6
 * Different Color Schemes
 * Unlimited log file size
@@ -33,7 +35,7 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 GoAccess allows any custom log format string. Predefined options include, but not limited to:
 
 * Common Log Format (CLF) Apache
-* Combined Log Format (XLF/ELF) Apache
+* Combined Log Format (XLF/ELF) Apache | Nginx
 * W3C format (IIS).
 * Amazon CloudFront (Download Distribution).
 * Apache virtual hosts
