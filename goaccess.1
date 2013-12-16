@@ -1,11 +1,11 @@
-.TH goaccess 1 "OCTOBER 2013" Linux "User Manuals"
+.TH goaccess 1 "DECEMBER 2013" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
 .B goaccess [-f
 .I input-file
 .B ]
-.I [-c] [-r][-m][-a][-e IP_ADDRESS][-p CONFFILE]
+.I [-c] [-r][-d][-m][-q][-o][-h][...]
 .SH DESCRIPTION
 .B goaccess
 is a free (GPL) real-time web log analyzer and interactive 
@@ -70,6 +70,10 @@ total requests. This module will display hits and percent.
 This module will report keyphrases used on Google search,
 Google cache, and Google translate. Hit totals are based on
 total requests. This module will display hits and percent.
+.IP "Geo Location"
+Determines where an IP address is geographically located. It
+outputs the continent and country. If it's unable to determine
+the country, location will be marked as unknown.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
 Hit totals are based on total requests. This module will
@@ -87,8 +91,17 @@ Enable a list of User-Agents for the selected host.
 Disables IP resolver
 .IP -m
 Enable mouse support on main dashboard.
+.IP -q
+Ignore request's query string.
+.IP -d
+Enable IP resolver on html|json output.
 .IP "-p conf file"
 Use a custom configuration file.
+.IP "-o output format"
+"-o csv" for CSV.
+"-o json" for JSON.
+.IP -h
+The help.
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format. 
 
@@ -181,17 +194,31 @@ The simplest and fastest usage would be:
 
 That will generate an interactive text-only output.
 
-To generate an HTML report:
-
-# goaccess -f access.log -a > report.html
-
 To generate full statistics we can run GoAccess as:
 
 # goaccess -f access.log -a
 
+To generate an HTML report:
+
+# goaccess -f access.log -a > report.html
+
+To generate a JSON file:
+
+# goaccess -f access.log -a -d -o json > report.json
+
+To generate a CSV file:
+
+# goaccess -f access.log -o csv > report.csv
+
 The 
 .I -a 
 flag indicates that we want to process an agent-list for every host parsed.
+
+The 
+.I -d 
+flag indicates that we want to enable the IP resolver on the HTML | JSON output.
+(It will take longer time to output since it has to resolve all queries.)
+
 The 
 .I -c 
 flag will prompt the date and log format configuration window. Only when
