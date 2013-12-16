@@ -132,12 +132,7 @@ cmd_help (void)
 {
    printf ("\nGoAccess - %s\n\n", GO_VERSION);
    printf ("Usage: ");
-   printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d]");
-#ifdef HAVE_LIBGEOIP
-   printf ("[-g]");
-#endif
-   printf ("\n\t\t");
-   printf ("[-a][-o csv|json][-e IP_ADDRESS][-p CONFFILE]\n\n");
+   printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
