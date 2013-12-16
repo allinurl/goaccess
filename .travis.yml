@@ -9,4 +9,7 @@ install:
         - autoreconf -fi
         - ./configure --enable-geoip --enable-utf8
         - make
+branches:
+ only:
+   - master 
 script: "echo done"
