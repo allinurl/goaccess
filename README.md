@@ -41,7 +41,7 @@ GoAccess allows any custom log format string. Predefined options include, but no
 * Apache virtual hosts
 
 ## Why GoAccess? ##
-The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an HTML report, by default it outputs to a terminal.
+The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an (HTML|JSON|CSV) report, by default it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
 
@@ -50,9 +50,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://downloads.sourceforge.net/project/goaccess/0.6.1/goaccess-0.6.1.tar.gz
-    $ tar -xzvf goaccess-0.6.1.tar.gz
-    $ cd goaccess-0.6.1/
+    $ wget http://downloads.sourceforge.net/project/goaccess/0.7/goaccess-0.7.tar.gz
+    $ tar -xzvf goaccess-0.7.tar.gz
+    $ cd goaccess-0.7/
     $ ./configure --enable-geoip --enable-utf8 
     $ make
     # make install
