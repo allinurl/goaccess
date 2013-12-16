@@ -142,7 +142,7 @@ cmd_help (void)
    printf (" -f <argument> - Path to input log file.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
    printf (" -r            - Disable IP resolver on terminal output.\n");
-   printf (" -d            - Enable IP resolver on html output.\n");
+   printf (" -d            - Enable IP resolver on html|json output.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
    printf (" -q            - Ignore request's query string.\n");
 #ifdef HAVE_LIBGEOIP

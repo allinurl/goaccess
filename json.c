@@ -178,7 +178,11 @@ print_json_generic (FILE * fp, const GHolder * h, int process)
 static void
 print_json_complete (FILE * fp, GHolder * holder, int process)
 {
-   char *data;
+#ifdef HAVE_LIBGEOIP
+   const char *location = NULL;
+#endif
+
+   char *data, *host;
    float percent;
    GHolder *h;
    int i, j, hits;
@@ -220,6 +224,21 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          fprintf (fp, "\",\n");
          fprintf (fp, "\t\t\t\"bytes\": \"%lld\"", bw);
 
+         if (h->module == HOSTS) {
+            if (conf.enable_html_resolver) {
+               host = reverse_ip (data);
+               fprintf (fp, ",\n\t\t\t\"host\": \"");
+               escape_json_output (fp, host);
+               fprintf (fp, "\"");
+               free (host);
+            }
+#ifdef HAVE_LIBGEOIP
+            location = get_geoip_data (data);
+            fprintf (fp, ",\n\t\t\t\"country\": \"");
+            escape_json_output (fp, (char *) location);
+            fprintf (fp, "\"");
+#endif
+         }
          if (conf.serve_usecs)
             fprintf (fp, ",\n\t\t\t\"time_served\": \"%lld\"\n", usecs);
          else
