@@ -20,9 +20,11 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 * Operating Systems
 * Browsers and Spiders
 * Hosts, Reverse DNS, IP Location
+* Geo Location - Continents/Countries
 * HTTP Status Codes
 * Referring Sites
 * Keyphrases
+* Ability to output JSON and CSV
 * Support for IPv6
 * Different Color Schemes
 * Unlimited log file size
@@ -33,13 +35,13 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 GoAccess allows any custom log format string. Predefined options include, but not limited to:
 
 * Common Log Format (CLF) Apache
-* Combined Log Format (XLF/ELF) Apache
+* Combined Log Format (XLF/ELF) Apache | Nginx
 * W3C format (IIS).
 * Amazon CloudFront (Download Distribution).
 * Apache virtual hosts
 
 ## Why GoAccess? ##
-The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an HTML report, by default it outputs to a terminal.
+The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an (HTML|JSON|CSV) report, by default it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
 
@@ -48,9 +50,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://downloads.sourceforge.net/project/goaccess/0.6.1/goaccess-0.6.1.tar.gz
-    $ tar -xzvf goaccess-0.6.1.tar.gz
-    $ cd goaccess-0.6.1/
+    $ wget http://downloads.sourceforge.net/project/goaccess/0.7/goaccess-0.7.tar.gz
+    $ tar -xzvf goaccess-0.7.tar.gz
+    $ cd goaccess-0.7/
     $ ./configure --enable-geoip --enable-utf8 
     $ make
     # make install
