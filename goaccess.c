@@ -135,23 +135,23 @@ cmd_help (void)
    printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
    printf (" -f <argument> - Path to input log file.\n");
+   printf (" -a            - Enable a list of user-agents by host.\n");
+   printf ("                 For faster parsing, don't enable this flag.\n");
    printf (" -c            - Prompt log/date configuration window.\n");
-   printf (" -r            - Disable IP resolver on terminal output.\n");
-   printf (" -d            - Enable IP resolver on html|json output.\n");
-   printf (" -m            - Enable mouse support on main dashboard.\n");
-   printf (" -q            - Ignore request's query string.\n");
+   printf (" -d            - Enable IP resolver on HTML|JSON output.\n");
+   printf (" -e <argument> - Exclude an IP from being counted under the\n");
+   printf ("                 HOST module. Disabled by default.\n");
 #ifdef HAVE_LIBGEOIP
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
 #endif
-   printf (" -a            - Enable a list of User-Agents by host.\n");
-   printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -e <argument> - Exclude an IP from being counted under the\n");
-   printf ("                 HOST module. Disabled by default.\n");
+   printf (" -h            - This help.\n");
+   printf (" -m            - Enable mouse support on main dashboard.\n");
    printf (" -o <argument> - Output format:\n");
    printf ("                 '-o csv' for CSV.\n");
    printf ("                 '-o json' for JSON.\n");
    printf (" -p <argument> - Custom configuration file.\n");
-   printf (" -h            - This help.\n\n");
+   printf (" -q            - Ignore request's query string.\n");
+   printf (" -r            - Disable IP resolver on terminal output.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
