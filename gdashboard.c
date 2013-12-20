@@ -649,7 +649,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
    int expanded = 0, sel = 0, host_bars = 0, size;
    int i, k, j, x = 0, w, h;
 
-   if (!conf.skip_resolver)
+   if (!conf.skip_term_resolver)
       host_bars = 1;
 
 #ifdef HAVE_LIBGEOIP

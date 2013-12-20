@@ -65,7 +65,7 @@ typedef struct GConf_
    int output_html;
    int serve_secs;
    int serve_usecs;
-   int skip_resolver;
+   int skip_term_resolver;
 } GConf;
 
 char *get_selected_date_str (size_t idx);
