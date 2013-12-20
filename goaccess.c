@@ -761,7 +761,7 @@ main (int argc, char *argv[])
           conf.output_format = optarg;
           break;
        case 'r':
-          conf.skip_resolver = 1;
+          conf.skip_term_resolver = 1;
           break;
        case 'd':
           conf.enable_html_resolver = 1;
@@ -951,7 +951,7 @@ main (int argc, char *argv[])
    allocate_holder ();
    allocate_data ();
 
-   if (!conf.skip_resolver) {
+   if (!conf.skip_term_resolver) {
       active_gdns = 1;
       gdns_thread_create ();
    }
