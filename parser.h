@@ -60,6 +60,9 @@ typedef struct GLogItem_
    char *date;
    char *host;
    char *ref;
+   char *method;
+   char *uri;
+   char *protocol;
    char *req;
    char *status;
    unsigned long long resp_size;
