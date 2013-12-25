@@ -185,6 +185,9 @@ init_log_item (GLog * logger)
    log->date = NULL;
    log->host = NULL;
    log->ref = NULL;
+   log->method = NULL;
+   log->uri = NULL;
+   log->protocol = NULL;
    log->req = NULL;
    log->status = NULL;
    log->resp_size = 0LL;
@@ -204,6 +207,12 @@ free_logger (GLogItem * log)
       free (log->host);
    if (log->ref != NULL)
       free (log->ref);
+   if (log->method != NULL)
+      free (log->method);
+   if (log->uri != NULL)
+      free (log->uri);
+   if (log->protocol != NULL)
+      free (log->protocol);
    if (log->req != NULL)
       free (log->req);
    if (log->status != NULL)
@@ -548,6 +557,38 @@ parse_req (char *line)
    return reqs;
 }
 
+static int
+invalid_method (char *token)
+{
+   const char *lookfor = NULL;
+
+   return !((lookfor = "OPTIONS", !memcmp (token, lookfor, 7)) ||
+            (lookfor = "GET", !memcmp (token, lookfor, 3)) ||
+            (lookfor = "HEAD", !memcmp (token, lookfor, 4)) ||
+            (lookfor = "POST", !memcmp (token, lookfor, 4)) ||
+            (lookfor = "PUT", !memcmp (token, lookfor, 3)) ||
+            (lookfor = "DELETE", !memcmp (token, lookfor, 6)) ||
+            (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
+            (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
+            (lookfor = "options", !memcmp (token, lookfor, 7)) ||
+            (lookfor = "get", !memcmp (token, lookfor, 3)) ||
+            (lookfor = "head", !memcmp (token, lookfor, 4)) ||
+            (lookfor = "post", !memcmp (token, lookfor, 4)) ||
+            (lookfor = "put", !memcmp (token, lookfor, 3)) ||
+            (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
+            (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
+            (lookfor = "connect", !memcmp (token, lookfor, 7)));
+}
+
+static int
+invalid_protocol (char *token)
+{
+   const char *lookfor = NULL;
+
+   return !((lookfor = "HTTP/1.0", !memcmp (token, lookfor, 8)) ||
+            (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)));
+}
+
 static char *
 parse_string (char **str, char end)
 {
@@ -624,7 +665,43 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->host = tkn;
              break;
+             /* method */
+          case 'm':
+             if (log->method)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             if (invalid_method (tkn)) {
+                free(tkn);
+                return 1;
+             }
+             log->method = tkn;
+             break;
+             /* uri */
+          case 'U':
+             if (log->uri)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             /*log->uri = parse_uri (tkn);*/
+             log->uri = tkn;
+             break;
              /* request */
+          case 'H':
+             if (log->protocol)
+                return 1;
+             tkn = parse_string (&str, p[1]);
+             if (tkn == NULL)
+                return 1;
+             if (invalid_protocol (tkn)) {
+                free(tkn);
+                return 1;
+             }
+             log->protocol = tkn;
+             break;
+             /* uri */
           case 'r':
              if (log->req)
                 return 1;
@@ -795,6 +872,13 @@ process_log (GLog * logger, char *line, int test)
       free_logger (log);
       logger->invalid++;
       return 0;
+   }
+
+   if ((log->req == NULL) && (log->method != NULL) && (log->uri != NULL) && (log->protocol != NULL)) {
+      size_t reqlen = strlen(log->method) + strlen(log->uri) + strlen(log->protocol) + 3;
+      log->req = xmalloc (reqlen);
+      memset(log->req, 0, reqlen);
+      sprintf(log->req, "%s %s %s", log->method, log->uri, log->protocol);
    }
 
    if (log->host == NULL || log->date == NULL || log->status == NULL ||
