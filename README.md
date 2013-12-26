@@ -10,26 +10,25 @@ More info at: http://goaccess.prosoftcorp.com/
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
 
-* General Statistics, bandwidth etc.
-* Time taken to serve the request _(useful to track pages that are slowing down your site)_
+* General Statistics, bandwidth, etc.
+* Time taken to serve the request (useful to track pages that are slowing down your site)
 * Top Visitors
 * Requested files
 * Requested static files, images, swf, js, etc.
-* Referrers URLs
 * 404 or Not Found
+* Hosts, Reverse DNS, IP Location
 * Operating Systems
 * Browsers and Spiders
-* Hosts, Reverse DNS, IP Location
+* Referring Sites
+* Referrers URLs
+* Keyphrases
 * Geo Location - Continents/Countries
 * HTTP Status Codes
-* Referring Sites
-* Keyphrases
 * Ability to output JSON and CSV
-* Support for IPv6
 * Different Color Schemes
+* Support for IPv6
 * Unlimited log file size
-* Custom log format
-* Output statistics to a file.
+* Output statistics to HTML. See [report](http://goaccess.prosoftcorp.com/goaccess_html_report.html).
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but not limited to:
@@ -41,7 +40,7 @@ GoAccess allows any custom log format string. Predefined options include, but no
 * Apache virtual hosts
 
 ## Why GoAccess? ##
-The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an (HTML|JSON|CSV) report, by default it outputs to a terminal.
+The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
 
