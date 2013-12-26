@@ -407,6 +407,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
           s[0] = '\0';
           pos = x = 0;
           break;
+       case 8:                 /* xterm-256color */
        case 127:
        case KEY_BACKSPACE:
           if (pos + x > 0) {
