@@ -70,18 +70,26 @@ Download, extract and compile GoAccess with:
 The simplest and fastest usage would be:
 
     # goaccess -f access.log
-    
 That will generate an interactive text-only output.
 
-To generate an HTML report:
-
-    # goaccess -f access.log -a > report.html
-    
 To generate full statistics we can run GoAccess as:
 
     # goaccess -f access.log -a
+To generate an HTML report:
 
-The `-a` flag indicates that we want to process an agent-list for every host parsed. The `-c` flag will prompt the date and log format configuration window. Only when curses is initialized.
+    # goaccess -f access.log -a > report.html
+To generate a JSON file:
+
+    # goaccess -f access.log -a -d -o json > report.json
+To generate a CSV file:
+
+    # goaccess -f access.log -o csv > report.csv
+
+The `-a` flag indicates that we want to process an agent-list for every host parsed.
+
+The `-d` flag indicates that we want to enable the IP resolver on the HTML | JSON output. (It will take longer time to output since it has to resolve all queries.)
+
+The `-c` flag will prompt the date and log format configuration window. Only when curses is initialized.
 
 Now if we want to add more flexibility to GoAccess, we can do a series of pipes. For instance:
 
