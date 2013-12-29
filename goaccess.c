@@ -55,9 +55,9 @@
 
 static WINDOW *header_win, *main_win;
 #ifdef HAVE_LIBGEOIP
-static char short_options[] = "f:e:p:o:acrmghqd";
+static char short_options[] = "f:e:p:o:acrmMghqd";
 #else
-static char short_options[] = "f:e:p:o:acrmhqd";
+static char short_options[] = "f:e:p:o:acrmMhqd";
 #endif
 
 GConf conf = { 0 };
@@ -146,6 +146,7 @@ cmd_help (void)
 #endif
    printf (" -h            - This help.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
+   printf (" -M            - Append HTTP method to the request if found.\n");
    printf (" -o <argument> - Output format:\n");
    printf ("                 '-o csv' for CSV.\n");
    printf ("                 '-o json' for JSON.\n");
@@ -768,6 +769,9 @@ main (int argc, char *argv[])
           break;
        case 'm':
           conf.mouse_support = 1;
+          break;
+       case 'M':
+          conf.include_method = 1;
           break;
        case 'h':
           cmd_help ();

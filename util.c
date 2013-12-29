@@ -1005,3 +1005,15 @@ deblank (char *str)
 
    return out;
 }
+
+void
+str_to_upper (char *str)
+{
+   if (str == NULL || *str == '\0')
+      return;
+
+   while (*str != '\0') {
+      *str = toupper (*str);
+      str++;
+   }
+}

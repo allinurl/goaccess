@@ -59,6 +59,7 @@ typedef struct GConf_
    int enable_html_resolver;
    int geo_db;
    int ignore_qstr;
+   int include_method;
    int list_agents;
    int load_conf_dlg;
    int mouse_support;
