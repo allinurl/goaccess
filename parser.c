@@ -481,6 +481,10 @@ process_unique_data (char *host, char *date, char *agent)
       free (opsys);
 }
 
+/**
+ * Append HTTP method to the request
+ * ###NOTE: the whole string will serve as a key
+ */
 static void
 append_method_to_request (char **req, const char *method)
 {
@@ -494,6 +498,28 @@ append_method_to_request (char **req, const char *method)
 
    s = xmalloc (snprintf (NULL, 0, "%s %s", method, *req) + 1);
    sprintf (s, "%s %s", method, *req);
+
+   free (*req);
+   *req = s;
+}
+
+/**
+ * Append HTTP protocol to the request
+ * ###NOTE: the whole string will serve as a key
+ */
+static void
+append_protocol_to_request (char **req, const char *protocol)
+{
+   char *s = NULL;
+
+   if (*req == NULL || **req == '\0')
+      return;
+
+   if (protocol == NULL || *protocol == '\0')
+      return;
+
+   s = xmalloc (snprintf (NULL, 0, "%s %s", protocol, *req) + 1);
+   sprintf (s, "%s %s", protocol, *req);
 
    free (*req);
    *req = s;
@@ -531,7 +557,8 @@ static char *
 parse_req (char *line)
 {
    const char *lookfor = NULL;
-   char *reqs, *req_l = NULL, *req_r = NULL, *method = NULL;
+   char *reqs, *req_l = NULL, *req_r = NULL;
+   char *method = NULL, *protocol = NULL;
    ptrdiff_t req_len;
 
    if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
@@ -567,11 +594,18 @@ parse_req (char *line)
       strncpy (reqs, req_l, req_len);
       reqs[req_len] = 0;
 
-      if (conf.include_method) {
+      if (conf.append_method) {
          method = trim_str (xstrdup (lookfor));
          str_to_upper (method);
          append_method_to_request (&reqs, method);
          free (method);
+      }
+
+      if (conf.append_protocol) {
+         protocol = xstrdup (++req_r);
+         str_to_upper (protocol);
+         append_protocol_to_request (&reqs, protocol);
+         free (protocol);
       }
    } else
       reqs = alloc_string (line);
@@ -895,10 +929,16 @@ process_log (GLog * logger, char *line, int test)
       return 0;
    }
 
-   /* include HTTP method to request */
-   if (log->req && log->method && conf.include_method) {
-      str_to_upper (log->method);
-      append_method_to_request (&log->req, log->method);
+   /* include HTTP method/protocol to request */
+   if (log->req) {
+      if (conf.append_method && log->method) {
+         str_to_upper (log->method);
+         append_method_to_request (&log->req, log->method);
+      }
+      if (conf.append_protocol && log->protocol) {
+         str_to_upper (log->protocol);
+         append_protocol_to_request (&log->req, log->protocol);
+      }
    }
 
    /* must have the following fields */
