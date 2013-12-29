@@ -186,7 +186,6 @@ init_log_item (GLog * logger)
    log->host = NULL;
    log->ref = NULL;
    log->method = NULL;
-   log->uri = NULL;
    log->protocol = NULL;
    log->req = NULL;
    log->status = NULL;
@@ -209,8 +208,6 @@ free_logger (GLogItem * log)
       free (log->ref);
    if (log->method != NULL)
       free (log->method);
-   if (log->uri != NULL)
-      free (log->uri);
    if (log->protocol != NULL)
       free (log->protocol);
    if (log->req != NULL)
@@ -484,6 +481,24 @@ process_unique_data (char *host, char *date, char *agent)
       free (opsys);
 }
 
+static void
+append_method_to_request (char **req, const char *method)
+{
+   char *s = NULL;
+
+   if (*req == NULL || **req == '\0')
+      return;
+
+   if (method == NULL || *method == '\0')
+      return;
+
+   s = xmalloc (snprintf (NULL, 0, "%s %s", method, *req) + 1);
+   sprintf (s, "%s %s", method, *req);
+
+   free (*req);
+   *req = s;
+}
+
 /* returns 1 if the request seems to be a static file */
 static int
 verify_static_content (char *req)
@@ -516,7 +531,7 @@ static char *
 parse_req (char *line)
 {
    const char *lookfor = NULL;
-   char *reqs, *req_l = NULL, *req_r = NULL;
+   char *reqs, *req_l = NULL, *req_r = NULL, *method = NULL;
    ptrdiff_t req_len;
 
    if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
@@ -550,7 +565,14 @@ parse_req (char *line)
 
       reqs = xmalloc (req_len + 1);
       strncpy (reqs, req_l, req_len);
-      (reqs)[req_len] = 0;
+      reqs[req_len] = 0;
+
+      if (conf.include_method) {
+         method = trim_str (xstrdup (lookfor));
+         str_to_upper (method);
+         append_method_to_request (&reqs, method);
+         free (method);
+      }
    } else
       reqs = alloc_string (line);
 
@@ -665,7 +687,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->host = tkn;
              break;
-             /* method */
+             /* request method */
           case 'm':
              if (log->method)
                 return 1;
@@ -673,22 +695,21 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              if (tkn == NULL)
                 return 1;
              if (invalid_method (tkn)) {
-                free(tkn);
+                free (tkn);
                 return 1;
              }
              log->method = tkn;
              break;
-             /* uri */
+             /* URL path requested, not including any query string */
           case 'U':
-             if (log->uri)
+             if (log->req)
                 return 1;
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             /*log->uri = parse_uri (tkn);*/
-             log->uri = tkn;
+             log->req = tkn;
              break;
-             /* request */
+             /* request protocol */
           case 'H':
              if (log->protocol)
                 return 1;
@@ -696,12 +717,12 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              if (tkn == NULL)
                 return 1;
              if (invalid_protocol (tkn)) {
-                free(tkn);
+                free (tkn);
                 return 1;
              }
              log->protocol = tkn;
              break;
-             /* uri */
+             /* request, including method + protocol */
           case 'r':
              if (log->req)
                 return 1;
@@ -874,13 +895,13 @@ process_log (GLog * logger, char *line, int test)
       return 0;
    }
 
-   if ((log->req == NULL) && (log->method != NULL) && (log->uri != NULL) && (log->protocol != NULL)) {
-      size_t reqlen = strlen(log->method) + strlen(log->uri) + strlen(log->protocol) + 3;
-      log->req = xmalloc (reqlen);
-      memset(log->req, 0, reqlen);
-      sprintf(log->req, "%s %s %s", log->method, log->uri, log->protocol);
+   /* include HTTP method to request */
+   if (log->req && log->method && conf.include_method) {
+      str_to_upper (log->method);
+      append_method_to_request (&log->req, log->method);
    }
 
+   /* must have the following fields */
    if (log->host == NULL || log->date == NULL || log->status == NULL ||
        log->req == NULL) {
       free_logger (log);

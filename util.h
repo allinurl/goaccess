@@ -72,12 +72,13 @@ char *trim_str (char *str);
 char *usecs_to_str (unsigned long long usec);
 char *verify_browser (const char *str, GBrowserStr b_type);
 char *verify_os (const char *str, GOpeSysStr o_type);
+const char *get_continent_name_and_code (const char *continentid);
 const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
-const char *get_continent_name_and_code (const char *continentid);
 int count_occurrences (const char *s1, char c);
 int intlen (int num);
 int invalid_ipaddr (char *str);
 off_t file_size (const char *filename);
+void str_to_upper (char *s);
 
 #endif
