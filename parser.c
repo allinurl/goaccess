@@ -614,7 +614,7 @@ parse_req (char *line)
 }
 
 static int
-invalid_method (char *token)
+invalid_method (const char *token)
 {
    const char *lookfor = NULL;
 
@@ -637,7 +637,7 @@ invalid_method (char *token)
 }
 
 static int
-invalid_protocol (char *token)
+invalid_protocol (const char *token)
 {
    const char *lookfor = NULL;
 
