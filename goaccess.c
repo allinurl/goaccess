@@ -55,9 +55,9 @@
 
 static WINDOW *header_win, *main_win;
 #ifdef HAVE_LIBGEOIP
-static char short_options[] = "f:e:p:o:acrmMghqd";
+static char short_options[] = "f:e:p:o:acrmMghHqd";
 #else
-static char short_options[] = "f:e:p:o:acrmMhqd";
+static char short_options[] = "f:e:p:o:acrmMhHqd";
 #endif
 
 GConf conf = { 0 };
@@ -145,6 +145,7 @@ cmd_help (void)
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
 #endif
    printf (" -h            - This help.\n");
+   printf (" -H            - Include the HTTP request protocol.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
    printf (" -M            - Append HTTP method to the request if found.\n");
    printf (" -o <argument> - Output format:\n");
@@ -771,10 +772,13 @@ main (int argc, char *argv[])
           conf.mouse_support = 1;
           break;
        case 'M':
-          conf.include_method = 1;
+          conf.append_method = 1;
           break;
        case 'h':
           cmd_help ();
+          break;
+       case 'H':
+          conf.append_protocol = 1;
           break;
        case '?':
           if (optopt == 'f' || optopt == 'e' || optopt == 'p' || optopt == 'o')
