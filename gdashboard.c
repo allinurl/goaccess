@@ -49,20 +49,20 @@
 static GFind find_t;
 /* module's styles */
 static const GDashStyle module_style[TOTAL_MODULES] = {
-   {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1},          /* VISITORS        */
-   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK},        /* REQUESTS        */
-   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK},        /* REQUESTS_STATIC */
-   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK,},       /* NOT FOUND       */
-   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, COL_WHITE, COL_BLACK}, /* HOSTS           */
-   {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1},                 /* OS              */
-   {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1},                 /* BROWSERS        */
-   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* REFERRERS       */
-   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* REFERRING_SITES */
-   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* KEYPHRASES      */
-#ifdef HAVE_LIBGEOIP
-   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* GEO_LOCATION    */
-#endif
-   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1},                      /* STATUS CODES    */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1, -1, -1},                 /* VISITORS        */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* REQUESTS        */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* REQUESTS_STATIC */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* NOT FOUND       */
+   {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, COL_WHITE, COL_BLACK, -1, -1},        /* HOSTS           */
+   {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1, -1, -1},                        /* OS              */
+   {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1, -1, -1},                        /* BROWSERS        */
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* REFERRERS       */
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* REFERRING_SITES */
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* KEYPHRASES      */
+   #ifdef HAVE_LIBGEOIP
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* GEO_LOCATION    */
+   #endif
+   {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* STATUS CODES    */
 };
 /* *INDENT-ON* */
 
@@ -499,6 +499,96 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
    free (data);
 }
 
+/* render dashboard usecs */
+static void
+render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
+               int w, int selected)
+{
+   const GDashStyle *style = module_style;
+   GModule module = module_data->module;
+
+   if (style[module].color_method == -1)
+      return;
+
+   if (selected) {
+      if (conf.color_scheme == STD_GREEN)
+         init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
+
+      wattron (win, COLOR_PAIR (HIGHLIGHT));
+      mvwhline (win, y, *x, ' ', w);
+      mvwprintw (win, y, *x, "%s", module_data->data[idx].method);
+      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+   } else {
+      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_method));
+      mvwprintw (win, y, *x, "%s", module_data->data[idx].method);
+      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_method));
+   }
+   *x += strlen (module_data->data[idx].method) + DASH_SPACE;
+}
+
+/* render dashboard usecs */
+static void
+render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
+                 int idx, int w, int selected)
+{
+   const GDashStyle *style = module_style;
+   GModule module = module_data->module;
+
+   if (style[module].color_protocol == -1)
+      return;
+
+   if (selected) {
+      if (conf.color_scheme == STD_GREEN)
+         init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
+
+      wattron (win, COLOR_PAIR (HIGHLIGHT));
+      mvwhline (win, y, *x, ' ', w);
+      mvwprintw (win, y, *x, "%s", module_data->data[idx].protocol);
+      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+   } else {
+      wattron (win, COLOR_PAIR (style[module].color_protocol));
+      mvwprintw (win, y, *x, "%s", module_data->data[idx].protocol);
+      wattroff (win, COLOR_PAIR (style[module].color_protocol));
+   }
+   *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
+}
+
+/* render dashboard usecs */
+static void
+render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
+              int w, int selected)
+{
+   const GDashStyle *style = module_style;
+   GModule module = module_data->module;
+
+   if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
+      goto inc;
+   if (style[module].color_usecs == -1)
+      return;
+
+   if (selected) {
+      if (conf.color_scheme == STD_GREEN)
+         init_pair (1, COLOR_BLACK, COLOR_GREEN);
+      else
+         init_pair (1, COLOR_BLACK, COLOR_WHITE);
+
+      wattron (win, COLOR_PAIR (HIGHLIGHT));
+      mvwhline (win, y, *x, ' ', w);
+      mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
+      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+   } else {
+      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
+      mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
+      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
+   }
+ inc:
+   *x += DASH_SRV_TM_LEN + DASH_SPACE;
+}
+
 /* render dashboard bandwidth */
 static void
 render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
@@ -529,38 +619,6 @@ render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
    }
  inc:
    *x += DASH_BW_LEN + DASH_SPACE;
-}
-
-/* render dashboard usecs */
-static void
-render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x,
-              int idx, int w, int selected)
-{
-   const GDashStyle *style = module_style;
-   GModule module = module_data->module;
-
-   if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-      goto inc;
-   if (style[module].color_usecs == -1)
-      return;
-
-   if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
-   } else {
-      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
-      mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
-      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
-   }
- inc:
-   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
 /* render dashboard percent */
@@ -697,6 +755,12 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
             /* render usecs if available */
             if (conf.serve_usecs)
                render_usecs (win, module_data, *y, &x, j, w, sel);
+            /* render request method if available */
+            if (conf.append_protocol)
+               render_protocol (win, module_data, *y, &x, j, w, sel);
+            /* render request method if available */
+            if (conf.append_method)
+               render_method (win, module_data, *y, &x, j, w, sel);
             render_data (win, module_data, *y, &x, j, w, sel);
 
             /* skip graph bars if module is expanded and we have sub nodes */
@@ -1151,6 +1215,28 @@ add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
    free (type);
 }
 
+static void
+add_request_node (GHolder * h, GRequest * request, const char *req_key,
+                  unsigned long long bw)
+{
+   unsigned long long usecs = 0;
+   /* serve time in usecs */
+   if (conf.serve_usecs) {
+      usecs = get_serve_time (req_key, h->module);
+      usecs = usecs / request->hits;
+   }
+   h->items[h->idx].bw = bw;
+   h->items[h->idx].data = xstrdup (request->request);
+   h->items[h->idx].hits = request->hits;
+   if (conf.append_method && request->method)
+      h->items[h->idx].method = request->method;
+   if (conf.append_protocol && request->protocol)
+      h->items[h->idx].protocol = request->protocol;
+   if (conf.serve_usecs)
+      h->items[h->idx].usecs = usecs;
+   h->idx++;
+}
+
 /* add a geolocation item to holder */
 #ifdef HAVE_LIBGEOIP
 static void
@@ -1226,6 +1312,10 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
    (*dash)->module[module].data[(*idx)].bw = item.bw;
    (*dash)->module[module].data[(*idx)].data = xstrdup (item.data);
    (*dash)->module[module].data[(*idx)].hits = item.hits;
+   if (conf.append_method && item.method)
+      (*dash)->module[module].data[(*idx)].method = item.method;
+   if (conf.append_protocol && item.protocol)
+      (*dash)->module[module].data[(*idx)].protocol = item.protocol;
    if (conf.serve_usecs) {
       (*dash)->module[module].data[(*idx)].usecs = item.usecs;
       (*dash)->module[module].data[(*idx)].serve_time =
@@ -1301,6 +1391,18 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
           qsort (items, size, sizeof (GHolderItem), cmp_usec_desc);
        else
           qsort (items, size, sizeof (GHolderItem), cmp_usec_asc);
+       break;
+    case SORT_BY_PROT:
+       if (sort.sort == SORT_DESC)
+          qsort (items, size, sizeof (GHolderItem), cmp_proto_desc);
+       else
+          qsort (items, size, sizeof (GHolderItem), cmp_proto_asc);
+       break;
+    case SORT_BY_MTHD:
+       if (sort.sort == SORT_DESC)
+          qsort (items, size, sizeof (GHolderItem), cmp_mthd_desc);
+       else
+          qsort (items, size, sizeof (GHolderItem), cmp_mthd_asc);
        break;
    }
 }
@@ -1463,6 +1565,11 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
       bw = get_bandwidth (data, module);
 
       switch (module) {
+       case REQUESTS:
+       case REQUESTS_STATIC:
+       case NOT_FOUND:
+          add_request_node (h, raw_data->items[i].value, data, bw);
+          break;
        case OS:
        case BROWSERS:
           hits = GPOINTER_TO_INT (raw_data->items[i].value);
@@ -1520,7 +1627,6 @@ raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
    GRawData *raw_data = data_ptr;
    raw_data->items[raw_data->idx].key = (gchar *) k;
    raw_data->items[raw_data->idx].value = v;
-
    raw_data->idx++;
 }
 
@@ -1537,10 +1643,25 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
    raw_data->items = new_grawdata_item (ht_size);
 
    g_hash_table_foreach (ht, (GHFunc) raw_data_iter, raw_data);
-   if (ht == ht_unique_vis)
-      qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_data_desc);
-   else
-      qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_num_desc);
+   switch (module) {
+    case VISITORS:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_data_desc);
+       break;
+    case REQUESTS:
+    case REQUESTS_STATIC:
+    case NOT_FOUND:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_req_num_desc);
+       break;
+    case GEO_LOCATION:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_geo_num_desc);
+       break;
+    default:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_num_desc);
+   }
 
    return raw_data;
 }

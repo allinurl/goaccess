@@ -102,6 +102,15 @@ cmp_data_desc (const void *a, const void *b)
    return strcmp (ib->data, ia->data);
 }
 
+/* sort raw data descending */
+int
+cmp_raw_data_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   return strcmp ((const char *) ib->key, (const char *) ia->key);
+}
+
 /* sort numeric descending */
 int
 cmp_num_desc (const void *a, const void *b)
@@ -109,6 +118,37 @@ cmp_num_desc (const void *a, const void *b)
    const GHolderItem *ia = a;
    const GHolderItem *ib = b;
    return (int) (ib->hits - ia->hits);
+}
+
+/* sort raw numeric descending */
+int
+cmp_raw_num_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   return (int) ((char *) ib->value - (char *) ia->value);
+}
+
+/* sort raw numeric descending */
+int
+cmp_raw_req_num_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   GRequest *areq = ia->value;
+   GRequest *breq = ib->value;
+   return (int) (breq->hits - areq->hits);
+}
+
+/* sort raw numeric descending */
+int
+cmp_raw_geo_num_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   GLocation *aloc = ia->value;
+   GLocation *bloc = ib->value;
+   return (int) (bloc->hits - aloc->hits);
 }
 
 /* sort numeric ascending */
@@ -154,6 +194,42 @@ cmp_usec_asc (const void *a, const void *b)
    const GHolderItem *ia = a;
    const GHolderItem *ib = b;
    return (unsigned long long) (ia->usecs - ib->usecs);
+}
+
+/* sort protocol ascending */
+int
+cmp_proto_asc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return strcmp (ia->protocol, ib->protocol);
+}
+
+/* sort protocol descending */
+int
+cmp_proto_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return strcmp (ib->protocol, ia->protocol);
+}
+
+/* sort method ascending */
+int
+cmp_mthd_asc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return strcmp (ia->method, ib->method);
+}
+
+/* sort method descending */
+int
+cmp_mthd_desc (const void *a, const void *b)
+{
+   const GHolderItem *ia = a;
+   const GHolderItem *ib = b;
+   return strcmp (ib->method, ia->method);
 }
 
 void
@@ -232,8 +308,9 @@ process_request_meta (GHashTable * ht, char *key, unsigned long long size)
    if (value_ptr != NULL) {
       ptr_value = (unsigned long long *) value_ptr;
       add_value = *ptr_value + size;
-   } else
+   } else {
       add_value = 0 + size;
+   }
 
    ptr_value = xmalloc (sizeof (unsigned long long));
    *ptr_value = add_value;
@@ -243,34 +320,66 @@ process_request_meta (GHashTable * ht, char *key, unsigned long long size)
    return 0;
 }
 
-/* process data based on the amount of requests */
+static int
+process_request (GHashTable * ht, const char *key, const GLogItem * log)
+{
+   GRequest *request;
+   if (ht == NULL)
+      return (EINVAL);
+
+   request = g_hash_table_lookup (ht, key);
+   if (request != NULL) {
+      request->hits++;
+   } else {
+      request = xcalloc (1, sizeof (GRequest));
+
+      if (conf.append_protocol && log->protocol) {
+         strncpy (request->protocol, log->protocol, REQ_PROTO_LEN);
+         request->protocol[REQ_PROTO_LEN - 1] = '\0';
+      }
+
+      if (conf.append_method && log->method) {
+         strncpy (request->method, log->method, REQ_METHOD_LEN);
+         request->method[REQ_METHOD_LEN - 1] = '\0';
+      }
+
+      request->request = alloc_string (log->req);
+      request->hits = 1;
+   }
+
+   /* replace the entry. old key will be freed by "free_requests" */
+   g_hash_table_replace (ht, g_strdup (key), request);
+
+   return 0;
+}
+
+/* store geolocation data into a hash table */
 #ifdef HAVE_LIBGEOIP
 static int
-process_geolocation (GHashTable * ht, const char *country,
-                     const char *continent)
+process_geolocation (GHashTable * ht, const char *cntry, const char *cont)
 {
    GLocation *loc;
    if (ht == NULL)
       return (EINVAL);
 
-   loc = g_hash_table_lookup (ht, country);
+   loc = g_hash_table_lookup (ht, cntry);
    if (loc != NULL) {
       loc->hits++;
    } else {
       loc = xcalloc (1, sizeof (GLocation));
-      strncpy (loc->continent, continent, CONTINENT_LEN);
+      strncpy (loc->continent, cont, CONTINENT_LEN);
       loc->continent[CONTINENT_LEN - 1] = '\0';
       loc->hits = 1;
    }
 
    /* replace the entry. old key will be freed by "free_key_value" */
-   g_hash_table_replace (ht, g_strdup (country), loc);
+   g_hash_table_replace (ht, g_strdup (cntry), loc);
 
    return 0;
 }
 #endif
 
-/* process data based on the amount of requests */
+/* store generic data into the given hash table */
 static int
 process_generic_data (GHashTable * ht, const char *key)
 {
@@ -486,21 +595,21 @@ process_unique_data (char *host, char *date, char *agent)
  * ###NOTE: the whole string will serve as a key
  */
 static void
-append_method_to_request (char **req, const char *method)
+append_method_to_request (char **key, const char *method)
 {
    char *s = NULL;
 
-   if (*req == NULL || **req == '\0')
+   if (*key == NULL || **key == '\0')
       return;
 
    if (method == NULL || *method == '\0')
       return;
 
-   s = xmalloc (snprintf (NULL, 0, "%s %s", method, *req) + 1);
-   sprintf (s, "%s %s", method, *req);
+   s = xmalloc (snprintf (NULL, 0, "%s %s", method, *key) + 1);
+   sprintf (s, "%s %s", method, *key);
 
-   free (*req);
-   *req = s;
+   free (*key);
+   *key = s;
 }
 
 /**
@@ -508,21 +617,21 @@ append_method_to_request (char **req, const char *method)
  * ###NOTE: the whole string will serve as a key
  */
 static void
-append_protocol_to_request (char **req, const char *protocol)
+append_protocol_to_request (char **key, const char *protocol)
 {
    char *s = NULL;
 
-   if (*req == NULL || **req == '\0')
+   if (*key == NULL || **key == '\0')
       return;
 
    if (protocol == NULL || *protocol == '\0')
       return;
 
-   s = xmalloc (snprintf (NULL, 0, "%s %s", protocol, *req) + 1);
-   sprintf (s, "%s %s", protocol, *req);
+   s = xmalloc (snprintf (NULL, 0, "%s %s", protocol, *key) + 1);
+   sprintf (s, "%s %s", protocol, *key);
 
-   free (*req);
-   *req = s;
+   free (*key);
+   *key = s;
 }
 
 /* returns 1 if the request seems to be a static file */
@@ -554,7 +663,7 @@ verify_static_content (char *req)
 }
 
 static char *
-parse_req (char *line)
+parse_req (char *line, GLogItem * log)
 {
    const char *lookfor = NULL;
    char *reqs, *req_l = NULL, *req_r = NULL;
@@ -597,15 +706,13 @@ parse_req (char *line)
       if (conf.append_method) {
          method = trim_str (xstrdup (lookfor));
          str_to_upper (method);
-         append_method_to_request (&reqs, method);
-         free (method);
+         log->method = method;
       }
 
       if (conf.append_protocol) {
          protocol = xstrdup (++req_r);
          str_to_upper (protocol);
-         append_protocol_to_request (&reqs, protocol);
-         free (protocol);
+         log->protocol = protocol;
       }
    } else
       reqs = alloc_string (line);
@@ -763,7 +870,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              tkn = parse_string (&str, p[1]);
              if (tkn == NULL)
                 return 1;
-             log->req = parse_req (tkn);
+             log->req = parse_req (tkn, log);
              free (tkn);
              break;
              /* Status Code */
@@ -896,10 +1003,10 @@ process_log (GLog * logger, char *line, int test)
    char continent[CONTINENT_LEN];
 #endif
 
-   char *qmark = NULL;
-   int not_found = 0;           /* 404s */
    char buf[DATE_LEN];
+   char *qmark = NULL, *req_key = NULL;
    GLogItem *log;
+   int not_found = 0;           /* 404s */
 
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
@@ -927,18 +1034,6 @@ process_log (GLog * logger, char *line, int test)
       free_logger (log);
       logger->invalid++;
       return 0;
-   }
-
-   /* include HTTP method/protocol to request */
-   if (log->req) {
-      if (conf.append_method && log->method) {
-         str_to_upper (log->method);
-         append_method_to_request (&log->req, log->method);
-      }
-      if (conf.append_protocol && log->protocol) {
-         str_to_upper (log->protocol);
-         append_protocol_to_request (&log->req, log->protocol);
-      }
    }
 
    /* must have the following fields */
@@ -984,15 +1079,26 @@ process_log (GLog * logger, char *line, int test)
       }
    }
 
+   req_key = xstrdup (log->req);
+   /* include HTTP method/protocol to request */
+   if (conf.append_method && log->method) {
+      str_to_upper (log->method);
+      append_method_to_request (&req_key, log->method);
+   }
+   if (conf.append_protocol && log->protocol) {
+      str_to_upper (log->protocol);
+      append_protocol_to_request (&req_key, log->protocol);
+   }
+
    /* process 404s */
    if (not_found)
-      process_generic_data (ht_not_found_requests, log->req);
+      process_request (ht_not_found_requests, req_key, log);
    /* process static files */
    else if (verify_static_content (log->req))
-      process_generic_data (ht_requests_static, log->req);
+      process_request (ht_requests_static, req_key, log);
    /* process regular files */
    else
-      process_generic_data (ht_requests, log->req);
+      process_request (ht_requests, req_key, log);
 
    /* process referrers */
    process_referrers (log->ref);
@@ -1013,16 +1119,17 @@ process_log (GLog * logger, char *line, int test)
 
    /* process bandwidth  */
    process_request_meta (ht_date_bw, buf, log->resp_size);
-   process_request_meta (ht_file_bw, log->req, log->resp_size);
+   process_request_meta (ht_file_bw, req_key, log->resp_size);
    process_request_meta (ht_host_bw, log->host, log->resp_size);
 
    /* process time taken to serve the request, in microseconds */
-   process_request_meta (ht_file_serve_usecs, log->req, log->serve_time);
+   process_request_meta (ht_file_serve_usecs, req_key, log->serve_time);
    process_request_meta (ht_host_serve_usecs, log->host, log->serve_time);
 
    logger->resp_size += log->resp_size;
 
    free_logger (log);
+   free (req_key);
    return 0;
 }
 

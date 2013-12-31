@@ -79,11 +79,12 @@
 #define SCHEME_WIN_H      8
 #define SCHEME_WIN_W      42
 
-#define SORT_MENU_H       4
+#define SORT_MAX_OPTS     7
+#define SORT_MENU_H       6
 #define SORT_MENU_W       38
 #define SORT_MENU_X       2
 #define SORT_MENU_Y       4
-#define SORT_WIN_H        11
+#define SORT_WIN_H        13
 #define SORT_WIN_W        42
 
 #define AGENTS_MENU_X     2
@@ -162,7 +163,7 @@ typedef struct GSortModule_
    int data;
    int bw;
    int usecs;
-   const char *choices[5];
+   const char *choices[SORT_MAX_OPTS];
 } GSortModule;
 
 typedef struct GSort_
@@ -174,6 +175,8 @@ typedef struct GSort_
       SORT_BY_DATA,
       SORT_BY_BW,
       SORT_BY_USEC,
+      SORT_BY_PROT,
+      SORT_BY_MTHD,
    } field;
    enum
    {

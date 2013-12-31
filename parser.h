@@ -26,6 +26,8 @@
 #define BW_HASHTABLES   3
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
+#define REQ_PROTO_LEN   9
+#define REQ_METHOD_LEN  8
 
 #ifdef HAVE_LIBGLIB_2_0
 #include <glib.h>
@@ -78,16 +80,32 @@ typedef struct GLog_
    GLogItem *items;
 } GLog;
 
+typedef struct GRequest_
+{
+   char method[REQ_METHOD_LEN];
+   char protocol[REQ_PROTO_LEN];
+   char *request;
+   int hits;
+} GRequest;
+
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
 int cmp_data_asc (const void *a, const void *b);
 int cmp_data_desc (const void *a, const void *b);
+int cmp_raw_data_desc (const void *a, const void *b);
 int cmp_num_desc (const void *a, const void *b);
+int cmp_raw_num_desc (const void *a, const void *b);
+int cmp_raw_req_num_desc (const void *a, const void *b);
+int cmp_raw_geo_num_desc (const void *a, const void *b);
 int cmp_num_asc (const void *a, const void *b);
 int cmp_bw_desc (const void *a, const void *b);
 int cmp_bw_asc (const void *a, const void *b);
 int cmp_usec_desc (const void *a, const void *b);
 int cmp_usec_asc (const void *a, const void *b);
+int cmp_proto_asc (const void *a, const void *b);
+int cmp_proto_desc (const void *a, const void *b);
+int cmp_mthd_asc (const void *a, const void *b);
+int cmp_mthd_desc (const void *a, const void *b);
 int parse_log (GLog ** logger, char *tail, int n);
 int test_format (GLog * logger);
 void reset_struct (GLog * logger);

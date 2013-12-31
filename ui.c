@@ -60,11 +60,12 @@
 GeoIP *geo_location_data;
 #endif
 
+/* *INDENT-OFF* */
 static const GSortModule module_sort[TOTAL_MODULES] = {
    {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
+   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
    {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
@@ -76,6 +77,7 @@ static const GSortModule module_sort[TOTAL_MODULES] = {
 #endif
    {1, 1, 0, 0, {"Hits", "Data", NULL}},
 };
+/* *INDENT-ON* */
 
 /* creation - ncurses' window handling */
 WINDOW *
@@ -968,23 +970,29 @@ load_schemes_win (WINDOW * main_win)
 void
 load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 {
+   GMenu *menu;
    int c, quit = 1;
-   int i = 0, n = 0;
+   int i = 0, k, n = 0;
+   int opts[SORT_MAX_OPTS];
    int y, x, h = SORT_WIN_H, w = SORT_WIN_W;
    int w2 = w - 2;
    WINDOW *win;
-   GMenu *menu;
 
    getmaxyx (stdscr, y, x);
 
    /* determine amount of sort choices */
-   for (i = 0; NULL != module_sort[module].choices[i]; i++) {
+   for (i = 0, k = 0; NULL != module_sort[module].choices[i]; i++) {
       const char *name = module_sort[module].choices[i];
       if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs &&
           !conf.serve_secs)
          continue;
       else if (strcmp ("Bandwidth", name) == 0 && !conf.bandwidth)
          continue;
+      else if (strcmp ("Protocol", name) == 0 && !conf.append_protocol)
+         continue;
+      else if (strcmp ("Method", name) == 0 && !conf.append_method)
+         continue;
+      opts[k++] = i;
       n++;
    }
 
@@ -999,10 +1007,10 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
    /* add items to GMenu */
    menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+
    /* set checked option and set index */
    for (i = 0; i < n; ++i) {
-      menu->items[i].name = alloc_string (module_sort[module].choices[i]);
-
+      menu->items[i].name = alloc_string (module_sort[module].choices[opts[i]]);
       if (sort->field == SORT_BY_HITS &&
           strcmp ("Hits", menu->items[i].name) == 0) {
          menu->items[i].checked = 1;
@@ -1017,6 +1025,14 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
          menu->idx = i;
       } else if (sort->field == SORT_BY_USEC &&
                  strcmp ("Time Served", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
+      } else if (sort->field == SORT_BY_PROT &&
+                 strcmp ("Protocol", menu->items[i].name) == 0) {
+         menu->items[i].checked = 1;
+         menu->idx = i;
+      } else if (sort->field == SORT_BY_MTHD &&
+                 strcmp ("Method", menu->items[i].name) == 0) {
          menu->items[i].checked = 1;
          menu->idx = i;
       }
@@ -1044,7 +1060,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           gmenu_driver (menu, REQ_UP);
           draw_header (win, "", 2, 3, SORT_MENU_W, 0);
           break;
-       case 9:                 /* TAB   */
+       case 9:                 /* TAB */
           /* ascending */
           if (sort->sort == SORT_ASC) {
              sort->sort = SORT_DESC;
@@ -1074,6 +1090,10 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
                 sort->field = SORT_BY_BW;
              else if (strcmp ("Time Served", menu->items[i].name) == 0)
                 sort->field = SORT_BY_USEC;
+             else if (strcmp ("Protocol", menu->items[i].name) == 0)
+                sort->field = SORT_BY_PROT;
+             else if (strcmp ("Method", menu->items[i].name) == 0)
+                sort->field = SORT_BY_MTHD;
              quit = 0;
              break;
           }
@@ -1085,6 +1105,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
       }
       wrefresh (win);
    }
+
    /* clean stuff up */
    for (i = 0; i < n; ++i)
       free (menu->items[i].name);
