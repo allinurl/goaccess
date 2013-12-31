@@ -89,18 +89,22 @@ typedef struct GDashStyle_
    const int color_percent;
    const int color_bars;
    const int color_usecs;
+   const int color_method;
+   const int color_protocol;
 } GDashStyle;
 
 typedef struct GDashData_
 {
-   char *serve_time;
    char *bandwidth;
    char *data;
+   char *method;
+   char *protocol;
+   char *serve_time;
    float percent;
    int hits;
+   short is_subitem;
    unsigned long long bw;
    unsigned long long usecs;
-   short is_subitem;
 } GDashData;
 
 typedef struct GDashModule_
@@ -147,10 +151,12 @@ typedef struct GSubList_
 typedef struct GHolderItem_
 {
    char *data;
+   char *method;
+   char *protocol;
+   GSubList *sub_list;
    int hits;
    unsigned long long bw;
    unsigned long long usecs;
-   GSubList *sub_list;
 } GHolderItem;
 
 typedef struct GHolder_
@@ -176,6 +182,10 @@ typedef struct GRawData_
    int size;            /* total num of items on ht */
 } GRawData;
 
+#ifdef HAVE_LIBGEOIP
+char *get_geoip_data (const char *data);
+#endif
+
 float get_percentage (unsigned long long total, unsigned long long hit);
 GDashData *new_gdata (unsigned int size);
 GDash *new_gdash (void);
@@ -186,9 +196,6 @@ int get_item_idx_in_holder (GHolder * holder, const char *k);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
 unsigned int get_ht_size_by_module (GModule module);
-#ifdef HAVE_LIBGEOIP
-char *get_geoip_data (const char *data);
-#endif
 void *add_hostname_node (void *ptr_holder);
 void add_sub_item_back (GSubList * sub_list, GModule module, const char *data, int hits, unsigned long long bw);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScrolling * scrolling);

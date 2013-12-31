@@ -119,6 +119,15 @@ free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
 }
 #endif
 
+static void
+free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
+               GO_UNUSED gpointer user_data)
+{
+   GRequest *req = old_value;
+   free (req->request);
+   free (req);
+}
+
 /* free memory allocated by g_hash_table_new_full() function */
 static void
 free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
@@ -180,6 +189,10 @@ house_keeping (void)
       GeoIP_delete (geo_location_data);
    g_hash_table_foreach (ht_countries, free_countries, NULL);
 #endif
+
+   g_hash_table_foreach (ht_requests, free_requests, NULL);
+   g_hash_table_foreach (ht_requests_static, free_requests, NULL);
+   g_hash_table_foreach (ht_not_found_requests, free_requests, NULL);
 
    free (logger);
 
