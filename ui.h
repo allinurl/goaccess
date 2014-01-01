@@ -157,15 +157,6 @@ typedef struct GFind_
    int icase;
 } GFind;
 
-typedef struct GSortModule_
-{
-   int hits;
-   int data;
-   int bw;
-   int usecs;
-   const char *choices[SORT_MAX_OPTS];
-} GSortModule;
-
 typedef struct GSort_
 {
    GModule module;

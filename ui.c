@@ -61,21 +61,21 @@ GeoIP *geo_location_data;
 #endif
 
 /* *INDENT-OFF* */
-static const GSortModule module_sort[TOTAL_MODULES] = {
-   {1, 1, 1, 0, {"Hits", "Data", "Bandwidth", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL}},
-   {1, 1, 1, 1, {"Hits", "Data", "Bandwidth", "Time Served", NULL}},
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+static const char *sort_choices[][SORT_MAX_OPTS] = {
+   {"Hits", "Data", "Bandwidth", NULL},
+   {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
+   {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
+   {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
+   {"Hits", "Data", "Bandwidth", "Time Served", NULL},
+   {"Hits", "Data", NULL},
+   {"Hits", "Data", NULL},
+   {"Hits", "Data", NULL},
+   {"Hits", "Data", NULL},
+   {"Hits", "Data", NULL},
 #ifdef HAVE_LIBGEOIP
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {"Hits", "Data", NULL},
 #endif
-   {1, 1, 0, 0, {"Hits", "Data", NULL}},
+   {"Hits", "Data", NULL},
 };
 /* *INDENT-ON* */
 
@@ -981,8 +981,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
    getmaxyx (stdscr, y, x);
 
    /* determine amount of sort choices */
-   for (i = 0, k = 0; NULL != module_sort[module].choices[i]; i++) {
-      const char *name = module_sort[module].choices[i];
+   for (i = 0, k = 0; NULL != sort_choices[module][i]; i++) {
+      const char *name = sort_choices[module][i];
       if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs &&
           !conf.serve_secs)
          continue;
@@ -1010,7 +1010,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
    /* set checked option and set index */
    for (i = 0; i < n; ++i) {
-      menu->items[i].name = alloc_string (module_sort[module].choices[opts[i]]);
+      menu->items[i].name = alloc_string (sort_choices[module][opts[i]]);
       if (sort->field == SORT_BY_HITS &&
           strcmp ("Hits", menu->items[i].name) == 0) {
          menu->items[i].checked = 1;
