@@ -1010,6 +1010,10 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
    fprintf (fp, "<th>Bandwidth</th>");
    if (conf.serve_usecs)
       fprintf (fp, "<th>Time&nbsp;served</th>");
+   if (conf.append_protocol)
+      fprintf (fp, "<th>Protocol</th>");
+   if (conf.append_method)
+      fprintf (fp, "<th>Method</th>");
    fprintf (fp, "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span>");
    fprintf (fp, "</th>");
    fprintf (fp, "</tr>");
@@ -1043,6 +1047,18 @@ print_html_request_report (FILE * fp, GHolder * h, GHashTable * ht, int process)
          clean_output (fp, usecs);
          fprintf (fp, "</td>");
          free (usecs);
+      }
+      /* protocol */
+      if (conf.append_protocol) {
+         fprintf (fp, "<td>");
+         clean_output (fp, h->items[i].protocol);
+         fprintf (fp, "</td>");
+      }
+      /* method */
+      if (conf.append_method) {
+         fprintf (fp, "<td>");
+         clean_output (fp, h->items[i].method);
+         fprintf (fp, "</td>");
       }
 
       /* data */
