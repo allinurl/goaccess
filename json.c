@@ -182,7 +182,7 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
    const char *location = NULL;
 #endif
 
-   char *data, *host;
+   char *data, *host, *method = NULL, *protocol = NULL;
    float percent;
    GHolder *h;
    int i, j, hits;
@@ -215,6 +215,8 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
          percent = percent < 0 ? 0 : percent;
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
+         method = h->items[j].method;
+         protocol = h->items[j].protocol;
 
          fprintf (fp, "\t\t{\n");
          fprintf (fp, "\t\t\t\"hits\": \"%d\",\n", hits);
@@ -240,11 +242,13 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
 #endif
          }
          if (conf.serve_usecs)
-            fprintf (fp, ",\n\t\t\t\"time_served\": \"%lld\"\n", usecs);
-         else
-            fprintf (fp, "\n");
+            fprintf (fp, ",\n\t\t\t\"time_served\": \"%lld\"", usecs);
+         if (conf.append_protocol && protocol)
+            fprintf (fp, ",\n\t\t\t\"protocol\": \"%s\"", protocol);
+         if (conf.append_method && method)
+            fprintf (fp, ",\n\t\t\t\"method\": \"%s\"", method);
 
-         fprintf (fp, "\t\t}");
+         fprintf (fp, "\n\t\t}");
 
          if (j != h->idx - 1)
             fprintf (fp, ",\n");
