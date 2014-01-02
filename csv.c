@@ -148,7 +148,7 @@ print_csv_generic (FILE * fp, const GHolder * h, int process)
 static void
 print_csv_complete (FILE * fp, GHolder * holder, int process)
 {
-   char *data;
+   char *data, *method = NULL, *protocol = NULL;
    const char *id = NULL;
    float percent;
    GHolder *h;
@@ -182,6 +182,8 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
          percent = percent < 0 ? 0 : percent;
          bw = h->items[j].bw;
          usecs = h->items[j].usecs;
+         method = h->items[j].method;
+         protocol = h->items[j].protocol;
 
          fprintf (fp, "\"%d\",", j);    /* idx */
          fprintf (fp, ",");     /* parent idx */
@@ -191,8 +193,15 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
          fprintf (fp, "\"");
          escape_cvs_output (fp, data);
          fprintf (fp, "\",");
-         fprintf (fp, "\"%lld\",", bw);
-         fprintf (fp, "\"%lld\"\r\n", usecs);
+         fprintf (fp, "\"%lld\"", bw);
+
+         if (conf.serve_usecs)
+            fprintf (fp, ",\"%lld\"", usecs);
+         if (conf.append_protocol && protocol)
+            fprintf (fp, ",\"%s\"", protocol);
+         if (conf.append_method && method)
+            fprintf (fp, ",\"%s\"", method);
+         fprintf (fp, "\r\n");
       }
    }
 }
