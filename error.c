@@ -68,6 +68,7 @@ dbg_log_close (void)
       fclose (log_file);
 }
 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 void
 dbg_fprintf (const char *fmt, ...)
 {
@@ -81,3 +82,4 @@ dbg_fprintf (const char *fmt, ...)
    fflush (log_file);
    va_end (args);
 }
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
