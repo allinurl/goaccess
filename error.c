@@ -34,7 +34,6 @@
 
 #include "error.h"
 #include "commons.h"
-#include "util.h"
 
 static FILE *log_file;
 
@@ -82,4 +81,5 @@ dbg_fprintf (const char *fmt, ...)
    fflush (log_file);
    va_end (args);
 }
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
