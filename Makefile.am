@@ -31,7 +31,7 @@ goaccess_SOURCES = \
    xmalloc.h       
 
 if DEBUG
-AM_CFLAGS = -O0 -g
+AM_CFLAGS = -DDEBUG -O0 -g
 else
 AM_CFLAGS = -O2
 endif

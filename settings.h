@@ -49,18 +49,19 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
    char *date_format;
+   char *debug_log;
    char *iconfigfile;
    char *ifile;
    char *ignore_host;
    char *log_format;
    char *output_format;
    int append_method;
+   int append_protocol;
    int bandwidth;
    int color_scheme;
    int enable_html_resolver;
    int geo_db;
    int ignore_qstr;
-   int append_protocol;
    int list_agents;
    int load_conf_dlg;
    int mouse_support;

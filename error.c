@@ -34,6 +34,9 @@
 
 #include "error.h"
 #include "commons.h"
+#include "util.h"
+
+static FILE *log_file;
 
 void
 error_handler (const char *func, const char *file, int line, const char *msg)
@@ -46,4 +49,35 @@ error_handler (const char *func, const char *file, int line, const char *msg)
    fprintf (stderr, "\nError occured at: %s - %s - %d", file, func, line);
    fprintf (stderr, "\nMessage: %s\n\n", msg);
    exit (EXIT_FAILURE);
+}
+
+void
+dbg_log_open (const char *path)
+{
+   if (path != NULL) {
+      log_file = fopen (path, "w");
+      if (log_file == NULL)
+         return;
+   }
+}
+
+void
+dbg_log_close (void)
+{
+   if (log_file != NULL)
+      fclose (log_file);
+}
+
+void
+dbg_fprintf (const char *fmt, ...)
+{
+   va_list args;
+
+   if (!log_file)
+      return;
+
+   va_start (args, fmt);
+   vfprintf (log_file, fmt, args);
+   fflush (log_file);
+   va_end (args);
 }
