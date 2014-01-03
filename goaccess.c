@@ -54,10 +54,19 @@
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
+
 #ifdef HAVE_LIBGEOIP
+#ifdef DEBUG
+static char short_options[] = "f:e:p:o:l:acrmMghHqd";
+#else
 static char short_options[] = "f:e:p:o:acrmMghHqd";
+#endif
+#else
+#ifdef DEBUG
+static char short_options[] = "f:e:p:o:l:acrmMhHqd";
 #else
 static char short_options[] = "f:e:p:o:acrmMhHqd";
+#endif
 #endif
 
 GConf conf = { 0 };
@@ -153,6 +162,9 @@ cmd_help (void)
 #ifdef HAVE_LIBGEOIP
    printf (" -g            - Standard GeoIP database for less memory usage.\n");
 #endif
+#ifdef DEBUG
+   printf (" -l            - Send all debug messages to the specified file.\n");
+#endif
    printf (" -h            - This help.\n");
    printf (" -H            - Include the HTTP request protocol.\n");
    printf (" -m            - Enable mouse support on main dashboard.\n");
@@ -217,6 +229,12 @@ house_keeping (void)
    g_hash_table_destroy (ht_status_code);
    g_hash_table_destroy (ht_unique_vis);
    g_hash_table_destroy (ht_unique_visitors);
+
+   if (conf.debug_log) {
+      LOG_DEBUG (("Bye.\n"));
+      dbg_log_close ();
+      free (conf.debug_log);
+   }
 }
 
 /* allocate memory for an instance of holder */
@@ -789,6 +807,10 @@ main (int argc, char *argv[])
           break;
        case 'h':
           cmd_help ();
+          break;
+       case 'l':
+          conf.debug_log = alloc_string (optarg);
+          dbg_log_open (conf.debug_log);
           break;
        case 'H':
           conf.append_protocol = 1;
