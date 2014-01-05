@@ -276,7 +276,7 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
    ref          = int_to_str (g_hash_table_size (ht_referrers));
    req          = int_to_str (g_hash_table_size (ht_requests));
    static_files = int_to_str (g_hash_table_size (ht_requests_static));
-   now          = int_to_str (((int) end_proc - start_proc));
+   now          = int_to_str (((long long) end_proc - start_proc));
    visitors     = int_to_str (g_hash_table_size (ht_unique_visitors));
 
    fields[0].value = process;
