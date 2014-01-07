@@ -954,7 +954,7 @@ out:
   logger->offset = logger->process;
 
   /* no valid entries to process from the log */
-  if ((logger->process == 0) || (logger->process == logger->invalid))
+  if ((logger->process == 0))
     FATAL ("Nothing valid to process.");
 
   /* init reverse lookup thread */
