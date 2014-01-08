@@ -61,27 +61,27 @@
 
 /* *INDENT-OFF* */
 /* Definitions checked against declarations */
-GHashTable *ht_browsers               = NULL;
-GHashTable *ht_countries              = NULL;
-GHashTable *ht_date_bw                = NULL;
-GHashTable *ht_file_bw                = NULL;
-GHashTable *ht_file_serve_usecs       = NULL;
-GHashTable *ht_host_bw                = NULL;
-GHashTable *ht_hostnames              = NULL;
-GHashTable *ht_hosts_agents           = NULL;
-GHashTable *ht_host_serve_usecs       = NULL;
-GHashTable *ht_hosts                  = NULL;
-GHashTable *ht_keyphrases             = NULL;
-GHashTable *ht_monthly                = NULL;
-GHashTable *ht_not_found_requests     = NULL;
-GHashTable *ht_os                     = NULL;
-GHashTable *ht_referrers              = NULL;
-GHashTable *ht_referring_sites        = NULL;
-GHashTable *ht_requests               = NULL;
-GHashTable *ht_requests_static        = NULL;
-GHashTable *ht_status_code            = NULL;
-GHashTable *ht_unique_visitors        = NULL;
-GHashTable *ht_unique_vis             = NULL;
+GHashTable *ht_browsers           = NULL;
+GHashTable *ht_countries          = NULL;
+GHashTable *ht_date_bw            = NULL;
+GHashTable *ht_file_bw            = NULL;
+GHashTable *ht_file_serve_usecs   = NULL;
+GHashTable *ht_host_bw            = NULL;
+GHashTable *ht_hostnames          = NULL;
+GHashTable *ht_hosts_agents       = NULL;
+GHashTable *ht_host_serve_usecs   = NULL;
+GHashTable *ht_hosts              = NULL;
+GHashTable *ht_keyphrases         = NULL;
+GHashTable *ht_monthly            = NULL;
+GHashTable *ht_not_found_requests = NULL;
+GHashTable *ht_os                 = NULL;
+GHashTable *ht_referrers          = NULL;
+GHashTable *ht_referring_sites    = NULL;
+GHashTable *ht_requests           = NULL;
+GHashTable *ht_requests_static    = NULL;
+GHashTable *ht_status_code        = NULL;
+GHashTable *ht_unique_visitors    = NULL;
+GHashTable *ht_unique_vis         = NULL;
 /* *INDENT-ON* */
 
 /* sort data ascending */
