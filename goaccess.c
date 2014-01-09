@@ -55,19 +55,14 @@
 
 static WINDOW *header_win, *main_win;
 
+static char short_options[] = "f:e:p:o:"
+#ifdef DEBUG
+   "l:"
+#endif
 #ifdef HAVE_LIBGEOIP
-#ifdef DEBUG
-static char short_options[] = "f:e:p:o:l:acrmMghHqd";
-#else
-static char short_options[] = "f:e:p:o:acrmMghHqd";
+   "g"
 #endif
-#else
-#ifdef DEBUG
-static char short_options[] = "f:e:p:o:l:acrmMhHqd";
-#else
-static char short_options[] = "f:e:p:o:acrmMhHqd";
-#endif
-#endif
+   "acrmMhHqd";
 
 GConf conf = { 0 };
 
