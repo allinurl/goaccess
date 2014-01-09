@@ -1654,10 +1654,12 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
        qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
               cmp_raw_req_num_desc);
        break;
+#ifdef HAVE_LIBGEOIP
     case GEO_LOCATION:
        qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
               cmp_raw_geo_num_desc);
        break;
+#endif
     default:
        qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
               cmp_raw_num_desc);
