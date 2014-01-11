@@ -194,7 +194,7 @@ cmd_help (void)
    printf ("Enable mouse support on main dashboard.\n");
    printf (" -M --http-method              ");
    printf ("Append HTTP method to the request if found.\n");
-   printf (" -o --output-format=html|json  ");
+   printf (" -o --output-format=csv|json  ");
    printf ("Output format:\n");
    printf ("                               ");
    printf ("'-o csv' for CSV.\n");
