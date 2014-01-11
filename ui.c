@@ -1,6 +1,6 @@
 /**
  * ui.c -- various curses interfaces
- * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -1118,7 +1118,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 }
 
 static const char *help_main[] = {
-   "Copyright (C) 2009-2013",
+   "Copyright (C) 2009-2014",
    "by Gerardo Orellana <goaccess@prosoftcorp.com>",
    "http://goaccess.prosoftcorp.com",
    "Released under the GNU GPL. See `man` page for more details",
