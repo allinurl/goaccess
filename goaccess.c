@@ -159,7 +159,6 @@ free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
    g_free (old_key);
 }
 
-/* *INDENT-OFF* */
 static void
 cmd_help (void)
 {
@@ -167,35 +166,53 @@ cmd_help (void)
    printf ("Usage: ");
    printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
-   printf (" -f <file>                     Path to input log file.\n");
-   printf (" -a --agent-list               Enable a list of user-agents by host.\n");
-   printf ("                               For faster parsing, don't enable this flag.\n");
-   printf (" -c --conf-dialog              Prompt log/date configuration window.\n");
-   printf (" -d --with-output-resolver     Enable IP resolver on HTML|JSON output.\n");
-   printf (" -e --exclude-ip=<IP>          Exclude an IP from being counted.\n");
+   printf (" -f <file>                     ");
+   printf ("Path to input log file.\n");
+   printf (" -a --agent-list               ");
+   printf ("Enable a list of user-agents by host.\n");
+   printf ("                               ");
+   printf ("For faster parsing, don't enable this flag.\n");
+   printf (" -c --conf-dialog              ");
+   printf ("Prompt log/date configuration window.\n");
+   printf (" -d --with-output-resolver     ");
+   printf ("Enable IP resolver on HTML|JSON output.\n");
+   printf (" -e --exclude-ip=<IP>          ");
+   printf ("Exclude an IP from being counted.\n");
 #ifdef HAVE_LIBGEOIP
-   printf (" -g --std-geoip                Standard GeoIP database for less memory usage.\n");
+   printf (" -g --std-geoip                ");
+   printf ("Standard GeoIP database for less memory usage.\n");
 #endif
 #ifdef DEBUG
-   printf (" -l --log-file                 Send all debug messages to the specified file.\n");
+   printf (" -l --log-file                 ");
+   printf ("Send all debug messages to the specified file.\n");
 #endif
-   printf (" -h --help                     This help.\n");
-   printf (" -H --http-protocol            Include the HTTP request protocol.\n");
-   printf (" -m --with-mouse               Enable mouse support on main dashboard.\n");
-   printf (" -M --http-method              Append HTTP method to the request if found.\n");
-   printf (" -o --output-format=html|json  Output format:\n");
-   printf ("                               '-o csv' for CSV.\n");
-   printf ("                               '-o json' for JSON.\n");
-   printf (" -p --conf-file=<file>         Custom configuration file.\n");
-   printf (" -q --no-query-string          Ignore request's query string.\n");
-   printf (" -r --no-term-resolver         Disable IP resolver on terminal output.\n\n");
+   printf (" -h --help                     ");
+   printf ("This help.\n");
+   printf (" -H --http-protocol            ");
+   printf ("Include the HTTP request protocol.\n");
+   printf (" -m --with-mouse               ");
+   printf ("Enable mouse support on main dashboard.\n");
+   printf (" -M --http-method              ");
+   printf ("Append HTTP method to the request if found.\n");
+   printf (" -o --output-format=html|json  ");
+   printf ("Output format:\n");
+   printf ("                               ");
+   printf ("'-o csv' for CSV.\n");
+   printf ("                               ");
+   printf ("'-o json' for JSON.\n");
+   printf (" -p --conf-file=<file>         ");
+   printf ("Custom configuration file.\n");
+   printf (" -q --no-query-string          ");
+   printf ("Ignore request's query string.\n");
+   printf (" -r --no-term-resolver         ");
+   printf ("Disable IP resolver on terminal output.\n\n");
+
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana");
    printf ("\n\n");
    exit (EXIT_FAILURE);
 }
-/* *INDENT-ON* */
 
 static void
 house_keeping (void)
