@@ -28,6 +28,7 @@
 #include <errno.h>
 #include <glib.h>
 #include <locale.h>
+#include <getopt.h>
 
 #if HAVE_CONFIG_H
 #include <config.h>
@@ -73,6 +74,24 @@ static GLog *logger;
 static GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
+struct option long_opts[] = {
+   {"agent-list"           , no_argument       , 0 , 'a'} , 
+   {"conf-dialog"          , no_argument       , 0 , 'c'} , 
+   {"with-output-resolver" , no_argument       , 0 , 'd'} , 
+   {"exclude-ip"           , required_argument , 0 , 'e'} , 
+   {"std-geip"             , no_argument       , 0 , 'g'} , 
+   {"log-file"             , required_argument , 0 , 'l'} , 
+   {"help"                 , no_argument       , 0 , 'h'} , 
+   {"http-protocol"        , no_argument       , 0 , 'H'} , 
+   {"with-mouse"           , no_argument       , 0 , 'm'} , 
+   {"http-method"          , no_argument       , 0 , 'M'} , 
+   {"output-format"        , required_argument , 0 , 'o'} , 
+   {"conf-file"            , required_argument , 0 , 'p'} , 
+   {"no-query-string"      , no_argument       , 0 , 'q'} , 
+   {"no-term-resolver"     , no_argument       , 0 , 'r'} , 
+   {0, 0, 0, 0}
+};
+
 static GSort sort[TOTAL_MODULES] = {
    {VISITORS        , SORT_BY_DATA, SORT_DESC},
    {REQUESTS        , SORT_BY_HITS, SORT_DESC},
@@ -147,29 +166,28 @@ cmd_help (void)
    printf ("Usage: ");
    printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
-   printf (" -f <argument> - Path to input log file.\n");
-   printf (" -a            - Enable a list of user-agents by host.\n");
-   printf ("                 For faster parsing, don't enable this flag.\n");
-   printf (" -c            - Prompt log/date configuration window.\n");
-   printf (" -d            - Enable IP resolver on HTML|JSON output.\n");
-   printf (" -e <argument> - Exclude an IP from being counted under the\n");
-   printf ("                 HOST module. Disabled by default.\n");
+   printf (" -f <file>                     Path to input log file.\n");
+   printf (" -a --agent-list               Enable a list of user-agents by host.\n");
+   printf ("                               For faster parsing, don't enable this flag.\n");
+   printf (" -c --conf-dialog              Prompt log/date configuration window.\n");
+   printf (" -d --with-output-resolver     Enable IP resolver on HTML|JSON output.\n");
+   printf (" -e --exclude-ip=<IP>          Exclude an IP from being counted.\n");
 #ifdef HAVE_LIBGEOIP
-   printf (" -g            - Standard GeoIP database for less memory usage.\n");
+   printf (" -g --std-geoip                Standard GeoIP database for less memory usage.\n");
 #endif
 #ifdef DEBUG
-   printf (" -l            - Send all debug messages to the specified file.\n");
+   printf (" -l --log-file                 Send all debug messages to the specified file.\n");
 #endif
-   printf (" -h            - This help.\n");
-   printf (" -H            - Include the HTTP request protocol.\n");
-   printf (" -m            - Enable mouse support on main dashboard.\n");
-   printf (" -M            - Append HTTP method to the request if found.\n");
-   printf (" -o <argument> - Output format:\n");
-   printf ("                 '-o csv' for CSV.\n");
-   printf ("                 '-o json' for JSON.\n");
-   printf (" -p <argument> - Custom configuration file.\n");
-   printf (" -q            - Ignore request's query string.\n");
-   printf (" -r            - Disable IP resolver on terminal output.\n\n");
+   printf (" -h --help                     This help.\n");
+   printf (" -H --http-protocol            Include the HTTP request protocol.\n");
+   printf (" -m --with-mouse               Enable mouse support on main dashboard.\n");
+   printf (" -M --http-method              Append HTTP method to the request if found.\n");
+   printf (" -o --output-format=html|json  Output format:\n");
+   printf ("                               '-o csv' for CSV.\n");
+   printf ("                               '-o json' for JSON.\n");
+   printf (" -p --conf-file=<file>         Custom configuration file.\n");
+   printf (" -q --no-query-string          Ignore request's query string.\n");
+   printf (" -r --no-term-resolver         Disable IP resolver on terminal output.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
    printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
@@ -749,15 +767,16 @@ int
 main (int argc, char *argv[])
 {
    char *loc_ctype;
-   int row = 0, col = 0, o, idx, quit = 0;
+   int row = 0, col = 0, o, idx = 0, quit = 0;
 
 #ifdef HAVE_LIBGEOIP
    conf.geo_db = GEOIP_MEMORY_CACHE;
 #endif
 
    conf.iconfigfile = NULL;
-   opterr = 0;
-   while ((o = getopt (argc, argv, short_options)) != -1) {
+   while ((o = getopt_long (argc, argv, short_options, long_opts, &idx))) {
+      if (-1 == o || EOF == o)
+         break;
       switch (o) {
        case 'f':
           conf.ifile = optarg;
@@ -788,6 +807,10 @@ main (int argc, char *argv[])
        case 'o':
           conf.output_format = optarg;
           break;
+       case 'l':
+          conf.debug_log = alloc_string (optarg);
+          dbg_log_open (conf.debug_log);
+          break;
        case 'r':
           conf.skip_term_resolver = 1;
           break;
@@ -803,20 +826,10 @@ main (int argc, char *argv[])
        case 'h':
           cmd_help ();
           break;
-       case 'l':
-          conf.debug_log = alloc_string (optarg);
-          dbg_log_open (conf.debug_log);
-          break;
        case 'H':
           conf.append_protocol = 1;
           break;
        case '?':
-          if (optopt == 'f' || optopt == 'e' || optopt == 'p' || optopt == 'o')
-             fprintf (stderr, "Option -%c requires an argument.\n", optopt);
-          else if (isprint (optopt))
-             fprintf (stderr, "Unknown option `-%c'.\n", optopt);
-          else
-             fprintf (stderr, "Unknown option character `\\x%x'.\n", optopt);
           return EXIT_FAILURE;
        default:
           abort ();
