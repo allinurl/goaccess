@@ -1,6 +1,6 @@
 /**
  * util.c -- a set of handy functions to help parsing
- * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or

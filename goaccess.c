@@ -1,6 +1,6 @@
 /**
  * goaccess.c -- main log analyzer
- * Copyright (C) 2009-2013 by Gerardo Orellana <goaccess@prosoftcorp.com>
+ * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
  * This program is free software; you can redistribute it and/or
@@ -190,7 +190,7 @@ cmd_help (void)
    printf (" -r --no-term-resolver         Disable IP resolver on terminal output.\n\n");
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
-   printf ("GoAccess Copyright (C) 2009-2013 GNU GPL'd, by Gerardo Orellana");
+   printf ("GoAccess Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana");
    printf ("\n\n");
    exit (EXIT_FAILURE);
 }
