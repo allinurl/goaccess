@@ -75,20 +75,20 @@ static GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
-   {"agent-list"           , no_argument       , 0 , 'a'} , 
-   {"conf-dialog"          , no_argument       , 0 , 'c'} , 
-   {"with-output-resolver" , no_argument       , 0 , 'd'} , 
-   {"exclude-ip"           , required_argument , 0 , 'e'} , 
-   {"std-geip"             , no_argument       , 0 , 'g'} , 
-   {"log-file"             , required_argument , 0 , 'l'} , 
-   {"help"                 , no_argument       , 0 , 'h'} , 
-   {"http-protocol"        , no_argument       , 0 , 'H'} , 
-   {"with-mouse"           , no_argument       , 0 , 'm'} , 
-   {"http-method"          , no_argument       , 0 , 'M'} , 
-   {"output-format"        , required_argument , 0 , 'o'} , 
-   {"conf-file"            , required_argument , 0 , 'p'} , 
-   {"no-query-string"      , no_argument       , 0 , 'q'} , 
-   {"no-term-resolver"     , no_argument       , 0 , 'r'} , 
+   {"agent-list"           , no_argument       , 0 , 'a'} ,
+   {"conf-dialog"          , no_argument       , 0 , 'c'} ,
+   {"with-output-resolver" , no_argument       , 0 , 'd'} ,
+   {"exclude-ip"           , required_argument , 0 , 'e'} ,
+   {"std-geip"             , no_argument       , 0 , 'g'} ,
+   {"log-file"             , required_argument , 0 , 'l'} ,
+   {"help"                 , no_argument       , 0 , 'h'} ,
+   {"http-protocol"        , no_argument       , 0 , 'H'} ,
+   {"with-mouse"           , no_argument       , 0 , 'm'} ,
+   {"http-method"          , no_argument       , 0 , 'M'} ,
+   {"output-format"        , required_argument , 0 , 'o'} ,
+   {"conf-file"            , required_argument , 0 , 'p'} ,
+   {"no-query-string"      , no_argument       , 0 , 'q'} ,
+   {"no-term-resolver"     , no_argument       , 0 , 'r'} ,
    {0, 0, 0, 0}
 };
 
@@ -159,6 +159,7 @@ free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
    g_free (old_key);
 }
 
+/* *INDENT-OFF* */
 static void
 cmd_help (void)
 {
@@ -194,6 +195,7 @@ cmd_help (void)
    printf ("\n\n");
    exit (EXIT_FAILURE);
 }
+/* *INDENT-ON* */
 
 static void
 house_keeping (void)
