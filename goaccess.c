@@ -832,7 +832,7 @@ main (int argc, char *argv[])
        case '?':
           return EXIT_FAILURE;
        default:
-          abort ();
+          return EXIT_FAILURE;
       }
    }
 
