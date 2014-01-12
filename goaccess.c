@@ -166,45 +166,45 @@ cmd_help (void)
    printf ("Usage: ");
    printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
    printf ("The following options can also be supplied to the command:\n\n");
-   printf (" -f <file>                     ");
+   printf (" -f <filename>                ");
    printf ("Path to input log file.\n");
-   printf (" -a --agent-list               ");
+   printf (" -a --agent-list              ");
    printf ("Enable a list of user-agents by host.\n");
-   printf ("                               ");
+   printf ("                              ");
    printf ("For faster parsing, don't enable this flag.\n");
-   printf (" -c --conf-dialog              ");
+   printf (" -c --conf-dialog             ");
    printf ("Prompt log/date configuration window.\n");
-   printf (" -d --with-output-resolver     ");
+   printf (" -d --with-output-resolver    ");
    printf ("Enable IP resolver on HTML|JSON output.\n");
-   printf (" -e --exclude-ip=<IP>          ");
+   printf (" -e --exclude-ip=<IP>         ");
    printf ("Exclude an IP from being counted.\n");
 #ifdef HAVE_LIBGEOIP
-   printf (" -g --std-geoip                ");
+   printf (" -g --std-geoip               ");
    printf ("Standard GeoIP database for less memory usage.\n");
 #endif
 #ifdef DEBUG
-   printf (" -l --log-file                 ");
+   printf (" -l --log-file=<filename>     ");
    printf ("Send all debug messages to the specified file.\n");
 #endif
-   printf (" -h --help                     ");
+   printf (" -h --help                    ");
    printf ("This help.\n");
-   printf (" -H --http-protocol            ");
-   printf ("Include the HTTP request protocol.\n");
-   printf (" -m --with-mouse               ");
+   printf (" -H --http-protocol           ");
+   printf ("Include HTTP request protocol if found.\n");
+   printf (" -m --with-mouse              ");
    printf ("Enable mouse support on main dashboard.\n");
-   printf (" -M --http-method              ");
-   printf ("Append HTTP method to the request if found.\n");
+   printf (" -M --http-method             ");
+   printf ("Include HTTP request method if found.\n");
    printf (" -o --output-format=csv|json  ");
    printf ("Output format:\n");
-   printf ("                               ");
+   printf ("                              ");
    printf ("'-o csv' for CSV.\n");
-   printf ("                               ");
+   printf ("                              ");
    printf ("'-o json' for JSON.\n");
-   printf (" -p --conf-file=<file>         ");
+   printf (" -p --conf-file=<filename>    ");
    printf ("Custom configuration file.\n");
-   printf (" -q --no-query-string          ");
+   printf (" -q --no-query-string         ");
    printf ("Ignore request's query string.\n");
-   printf (" -r --no-term-resolver         ");
+   printf (" -r --no-term-resolver        ");
    printf ("Disable IP resolver on terminal output.\n\n");
 
    printf ("Examples can be found by running `man goaccess`.\n\n");
