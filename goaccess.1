@@ -79,29 +79,53 @@ The values of the numeric status code to HTTP requests.
 Hit totals are based on total requests. This module will
 display hits and percent.
 .SH OPTIONS
-.IP "-f input-file"
+.TP
+\fB\-f <input-file>
 Path to input log file.
-.IP -c
-Prompt date and log format configuration window.
-.IP "-e ip address"
-Exclude an IP from being counted under the HOST module.
-.IP -a
+.TP
+\fB\-a \-\-agent-list
 Enable a list of user-agents for the selected host.
-.IP -r
-Disables IP resolver
-.IP -m
-Enable mouse support on main dashboard.
-.IP -q
-Ignore request's query string.
-.IP -d
+.TP
+\fB\-c \-\-conf-dialog
+Prompt date and log format configuration window.
+.TP
+\fB\-d \-\-with-output-resolver
 Enable IP resolver on html|json output.
-.IP "-p conf file"
-Use a custom configuration file.
-.IP "-o output format"
+.TP
+\fB\-e \-\-exclude-ip=IP
+Exclude an IP from being counted.
+.TP
+\fB\-g \-\-std-geoip
+Standard GeoIP database for less memory usage.
+.TP
+\fB\-l \-\-log-file=<filename>
+Send all debug messages to the specified file.
+.TP
+\fB\-h \-\-help
+The help.
+.TP
+\fB\-H \-\-http-protocol
+Include HTTP request protocol.
+.TP
+\fB\-m \-\-with-mouse
+Enable mouse support on main dashboard.
+.TP
+\fB\-M \-\-http-method
+Enable HTTP method to the request.
+.TP
+\fB\-o \-\-output-format=csv|json
+Output format:
 "-o csv" for CSV.
 "-o json" for JSON.
-.IP -h
-The help.
+.TP
+\fB\-p \-\-conf-file=<filename>
+Use a custom configuration file.
+.TP
+\fB\-q \-\-no-query-string
+Ignore request's query string.
+.TP
+\fB\-r \-\-no-term-resolver
+Disable IP resolver on terminal output.
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format. 
 
