@@ -372,7 +372,7 @@ process_geolocation (GHashTable * ht, const char *cntry, const char *cont)
       loc->hits = 1;
    }
 
-   /* replace the entry. old key will be freed by "free_key_value" */
+   /* replace the entry. old key will be freed by "free_countries" */
    g_hash_table_replace (ht, g_strdup (cntry), loc);
 
    return 0;
