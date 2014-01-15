@@ -33,7 +33,6 @@
 #include <glib.h>
 #endif
 
-/* to create a new hash value out of a key, which can be NULL */
 extern GHashTable *ht_browsers;
 extern GHashTable *ht_countries;
 extern GHashTable *ht_date_bw;
