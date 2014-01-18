@@ -34,7 +34,7 @@ fi
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
-CFLAGS="-pthread"
+CFLAGS="$CFLAGS -pthread"
 
 # Checks for libraries.
 AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
