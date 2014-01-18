@@ -499,7 +499,7 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
    free (data);
 }
 
-/* render dashboard usecs */
+/* render dashboard request method */
 static void
 render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
                int w, int selected)
@@ -528,7 +528,7 @@ render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
    *x += strlen (module_data->data[idx].method) + DASH_SPACE;
 }
 
-/* render dashboard usecs */
+/* render dashboard request protocol */
 static void
 render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
                  int idx, int w, int selected)
