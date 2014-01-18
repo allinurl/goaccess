@@ -1215,6 +1215,7 @@ add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
    free (type);
 }
 
+/* add request items (e.g., method, protocol, request) to holder */
 static void
 add_request_node (GHolder * h, GRequest * request, const char *req_key,
                   unsigned long long bw)
