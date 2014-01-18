@@ -24,15 +24,12 @@ AC_ARG_ENABLE(utf8,--enable-utf8 Enable UTF-8 support for wide characters, USE_U
 
 if test "$USE_GEOIP" = "yes"; then
    AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([libgeoip-dev is missing])])
-   CFLAGS="-lGeoIP"
 fi
 
 if test "$USE_UTF8" = "yes"; then
    AC_CHECK_LIB([ncursesw], [mvaddwstr], [], [AC_MSG_ERROR([libncursesw5-dev is missing])])
-   CFLAGS="-lncursesw"
 else
    AC_CHECK_LIB([ncurses], [refresh], [], [AC_MSG_ERROR([libncurses5-dev is missing])])
-   CFLAGS="-lncurses"
 fi
 
 # pthread
