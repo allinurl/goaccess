@@ -56,7 +56,6 @@ static const char *os[][2] = {
    {"Windows NT 5.01", "Windows"},
    {"Windows NT 5.0", "Windows"},
    {"Windows NT 4.0", "Windows"},
-   {"Windows 98;", "Windows"},
    {"Windows 98", "Windows"},
    {"Windows 95", "Windows"},
    {"Windows CE", "Windows"},
