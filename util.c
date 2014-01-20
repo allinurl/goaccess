@@ -84,7 +84,7 @@ static const char *os[][2] = {
    {"SunOS", "Others"},
    {"AmigaOS", "Others"},
    {"BlackBerry", "Others"},
-   {"Symbian OS", "Others"},
+   {"SymbianOS", "Others"},
    {"Xbox", "Others"},
    {"Nokia", "Others"},
    {"PlayStation", "Others"}
@@ -748,7 +748,8 @@ verify_os (const char *str, GOpeSysStr o_type)
       }
 
       /* parse android */
-      if ((lookfor = "Android", strstr (a, lookfor)) != NULL) {
+      if ((lookfor = "Android", strstr (a, lookfor)) != NULL ||
+          (lookfor = "SymbianOS", strstr (a, lookfor)) != NULL) {
          p = a;
          while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
             p++;
