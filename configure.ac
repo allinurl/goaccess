@@ -7,6 +7,10 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
 
+# Use empty CFLAGS by default so autoconf does not add
+# CFLAGS="-O2 -g"
+: ${CFLAGS=""}
+
 # Checks for programs.
 AC_PROG_CC
 PKG_PROG_PKG_CONFIG
