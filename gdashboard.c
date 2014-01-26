@@ -504,10 +504,14 @@ static void
 render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
                int w, int selected)
 {
+   const char *method = module_data->data[idx].method;
    const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (style[module].color_method == -1)
+      return;
+
+   if (method == NULL || *method == '\0')
       return;
 
    if (selected) {
@@ -518,11 +522,11 @@ render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%s", module_data->data[idx].method);
+      mvwprintw (win, y, *x, "%s", method);
       wattroff (win, COLOR_PAIR (HIGHLIGHT));
    } else {
       wattron (win, A_BOLD | COLOR_PAIR (style[module].color_method));
-      mvwprintw (win, y, *x, "%s", module_data->data[idx].method);
+      mvwprintw (win, y, *x, "%s", method);
       wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_method));
    }
    *x += strlen (module_data->data[idx].method) + DASH_SPACE;
@@ -533,10 +537,14 @@ static void
 render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
                  int idx, int w, int selected)
 {
+   const char *protocol = module_data->data[idx].protocol;
    const GDashStyle *style = module_style;
    GModule module = module_data->module;
 
    if (style[module].color_protocol == -1)
+      return;
+
+   if (protocol == NULL || *protocol == '\0')
       return;
 
    if (selected) {
@@ -547,11 +555,11 @@ render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
 
       wattron (win, COLOR_PAIR (HIGHLIGHT));
       mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%s", module_data->data[idx].protocol);
+      mvwprintw (win, y, *x, "%s", protocol);
       wattroff (win, COLOR_PAIR (HIGHLIGHT));
    } else {
       wattron (win, COLOR_PAIR (style[module].color_protocol));
-      mvwprintw (win, y, *x, "%s", module_data->data[idx].protocol);
+      mvwprintw (win, y, *x, "%s", protocol);
       wattroff (win, COLOR_PAIR (style[module].color_protocol));
    }
    *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
