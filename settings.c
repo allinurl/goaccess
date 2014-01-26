@@ -40,18 +40,18 @@ char *tmp_date_format = NULL;
 
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
-   "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",       /* CLF           */
-   "%h %^[%d:%^] \"%r\" %s %b",                     /* CLF w/ VHost  */
-   "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"", /* NCSA          */
-   "%^:%^ %h %^[%d:%^] \"%r\" %s %b",               /* NCSA w/ VHost */
-   "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R",  /* W3C           */
-   "%d %^ %^ %b %h %^ %^ %r %s %R %u %^"            /* CloudFront    */
+   "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",                  /* CLF        */
+   "%h %^[%d:%^] \"%r\" %s %b",                                /* CLF+VHost  */
+   "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",            /* NCSA       */
+   "%^:%^ %h %^[%d:%^] \"%r\" %s %b",                          /* NCSA+VHost */
+   "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R",             /* W3C        */
+   "%d\\t%^\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^" /* CloudFront */
 };
 
 static const GPreConfDate dates = {
    "%d/%b/%Y", /* Apache     */
    "%Y-%m-%d", /* W3C        */
-   "%m/%d/%Y"  /* CloudFront */
+   "%Y-%m-%d"  /* CloudFront */
 };
 /* *INDENT-ON* */
 

@@ -1011,14 +1011,6 @@ process_log (GLog * logger, char *line, int test)
    /* make compiler happy */
    memset (buf, 0, sizeof (buf));
 
-   if (conf.date_format == NULL || *conf.date_format == '\0')
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "No date format was found on your conf file.");
-
-   if (conf.log_format == NULL || *conf.log_format == '\0')
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "No log format was found on your conf file.");
-
    if ((line == NULL) || (*line == '\0')) {
       logger->invalid++;
       return 0;
@@ -1139,8 +1131,20 @@ parse_log (GLog ** logger, char *tail, int n)
 {
    FILE *fp = NULL;
 
-   char line[LINE_BUFFER];
+   char line[LINE_BUFFER], *log_fmt = NULL;
    int i = 0, test = -1 == n ? 0 : 1;
+
+   if (conf.date_format == NULL || *conf.date_format == '\0')
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "No date format was found on your conf file.");
+
+   if (conf.log_format == NULL || *conf.log_format == '\0')
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "No log format was found on your conf file.");
+
+   log_fmt = unescape_str (conf.log_format);
+   free (conf.log_format);
+   conf.log_format = log_fmt;
 
    if (tail != NULL) {
       if (process_log ((*logger), tail, test))
