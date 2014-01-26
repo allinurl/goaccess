@@ -1018,3 +1018,46 @@ str_to_upper (char *str)
       str++;
    }
 }
+
+/* returns unescaped malloc'd string */
+char *
+unescape_str (const char *src)
+{
+   const char *p = src;
+   char *dest, *q;
+
+   if (src == NULL || *src == '\0')
+      return NULL;
+
+   dest = xmalloc (strlen (src) + 1);
+   q = dest;
+
+   while (*p) {
+      if (*p == '\\') {
+         p++;
+         switch (*p) {
+          case '\0':
+             /* warning... */
+             goto out;
+          case 'n':
+             *q++ = '\n';
+             break;
+          case 'r':
+             *q++ = '\r';
+             break;
+          case 't':
+             *q++ = '\t';
+             break;
+          default:
+             *q++ = *p;
+             break;
+         }
+      } else
+         *q++ = *p;
+      p++;
+   }
+ out:
+   *q = 0;
+
+   return dest;
+}

@@ -72,6 +72,7 @@ char *trim_str (char *str);
 char *usecs_to_str (unsigned long long usec);
 char *verify_browser (const char *str, GBrowserStr b_type);
 char *verify_os (const char *str, GOpeSysStr o_type);
+char *unescape_str (const char *src);
 const char *get_continent_name_and_code (const char *continentid);
 const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
