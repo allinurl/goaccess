@@ -1023,8 +1023,8 @@ str_to_upper (char *str)
 char *
 unescape_str (const char *src)
 {
-   const char *p = src;
    char *dest, *q;
+   const char *p = src;
 
    if (src == NULL || *src == '\0')
       return NULL;
@@ -1059,5 +1059,53 @@ unescape_str (const char *src)
  out:
    *q = 0;
 
+   return dest;
+}
+
+/* returns escaped malloc'd string */
+char *
+escape_str (const char *src)
+{
+   char *dest, *q;
+   const unsigned char *p;
+
+   if (src == NULL || *src == '\0')
+      return NULL;
+
+   p = (unsigned char *) src;
+   q = dest = xmalloc (strlen (src) * 4 + 1);
+
+   while (*p) {
+      switch (*p) {
+       case '\\':
+          *q++ = '\\';
+          *q++ = '\\';
+          break;
+       case '\n':
+          *q++ = '\\';
+          *q++ = 'n';
+          break;
+       case '\r':
+          *q++ = '\\';
+          *q++ = 'r';
+          break;
+       case '\t':
+          *q++ = '\\';
+          *q++ = 't';
+          break;
+       default:
+          /* not ASCII */
+          if ((*p < ' ') || (*p >= 0177)) {
+             *q++ = '\\';
+             *q++ = '0' + (((*p) >> 6) & 07);
+             *q++ = '0' + (((*p) >> 3) & 07);
+             *q++ = '0' + ((*p) & 07);
+          } else
+             *q++ = *p;
+          break;
+      }
+      p++;
+   }
+   *q = 0;
    return dest;
 }
