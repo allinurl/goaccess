@@ -141,8 +141,8 @@ parse_conf_file (void)
 int
 write_conf_file (void)
 {
+   char *path = NULL, *user_home = NULL, *log_format = NULL;
    FILE *file;
-   char *path = NULL, *user_home = NULL;
 
    if (conf.iconfigfile != NULL)
       path = alloc_string (conf.iconfigfile);
@@ -171,11 +171,18 @@ write_conf_file (void)
    else
       fprintf (file, "date_format %s\n", conf.date_format);
 
+   if (tmp_date_format)
+      free (tmp_date_format);
+
    /* log format */
    if (tmp_log_format)
-      fprintf (file, "log_format %s\n", tmp_log_format);
+      log_format = tmp_log_format;
    else
-      fprintf (file, "log_format %s\n", conf.log_format);
+      log_format = escape_str (conf.log_format);
+   fprintf (file, "log_format %s\n", log_format);
+
+   if (log_format != NULL)
+      free (log_format);
 
    /* set target log file */
    if (conf.ifile)
