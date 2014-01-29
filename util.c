@@ -694,8 +694,7 @@ file_size (const char *filename)
    if (stat (filename, &st) == 0)
       return st.st_size;
 
-   fprintf (stderr, "Cannot determine size of %s: %s\n", filename,
-            strerror (errno));
+   LOG_DEBUG (("Can't determine size of %s: %s\n", filename, strerror (errno)));
 
    return -1;
 }
