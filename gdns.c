@@ -240,6 +240,10 @@ gdns_free_queue (void)
 void
 gdns_thread_create (void)
 {
-   pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
+   int thread =
+      pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
+   if (thread)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Return code from pthread_create(): %d", thread);
    pthread_detach (gdns_thread.thread);
 }
