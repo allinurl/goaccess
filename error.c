@@ -38,15 +38,25 @@
 static FILE *log_file;
 
 void
-error_handler (const char *func, const char *file, int line, const char *msg)
+error_handler (const char *func, const char *file, int line, const char *msg,
+               ...)
 {
+   va_list args;
+
    (void) endwin ();
 
    fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION,
             __DATE__, __TIME__);
    fprintf (stderr, "\nAn error has occurred");
    fprintf (stderr, "\nError occured at: %s - %s - %d", file, func, line);
-   fprintf (stderr, "\nMessage: %s\n\n", msg);
+   fprintf (stderr, "\nMessage: ");
+
+   va_start (args, msg);
+   vfprintf (stderr, msg, args);
+   va_end (args);
+
+   fprintf (stderr, "\n\n");
+
    exit (EXIT_FAILURE);
 }
 
