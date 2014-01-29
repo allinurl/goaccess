@@ -25,11 +25,10 @@
 #include "commons.h"
 #endif
 
-void error_handler (const char *func, const char *file, int line,
-                    const char *msg);
-
 void dbg_fprintf (const char *fmt, ...);
-void dbg_log_open (const char *file);
 void dbg_log_close (void);
+void dbg_log_open (const char *file);
+void error_handler (const char *func, const char *file, int line,
+                    const char *msg, ...);
 
 #endif
