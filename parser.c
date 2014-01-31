@@ -841,7 +841,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
              }
              log->method = tkn;
              break;
-             /* URL path requested, not including any query string */
+             /* request not including method or protocol */
           case 'U':
              if (log->req)
                 return 1;
