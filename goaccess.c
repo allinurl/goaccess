@@ -617,7 +617,8 @@ get_keys (void)
                 if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
                    break;
 
-                set_module_from_mouse_event (&scrolling, dash, event.y);
+                if (set_module_from_mouse_event (&scrolling, dash, event.y))
+                   break;
                 reset_scroll_offsets (&scrolling);
                 scrolling.expanded = 1;
 
