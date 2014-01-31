@@ -278,7 +278,7 @@ free_raw_data (GRawData * raw_data)
  * Determine which module should be expanded given the
  * current mouse position.
  */
-void
+int
 set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
 {
    int module = 0, i;
@@ -306,7 +306,11 @@ set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
    else if (module < 0)
       module = 0;
 
+   if ((int) scrolling->current == module)
+      return 1;
+
    scrolling->current = module;
+   return 0;
 }
 
 /* calculate hits percentage */
