@@ -593,6 +593,8 @@ get_keys (void)
                 load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
              break;
           }
+          if (scrolling.expanded)
+             break;
           reset_scroll_offsets (&scrolling);
           scrolling.expanded = 1;
 
