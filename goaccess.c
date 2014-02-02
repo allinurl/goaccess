@@ -77,18 +77,19 @@ static GSpinner *parsing_spinner;
 struct option long_opts[] = {
    {"agent-list"           , no_argument       , 0 , 'a'} ,
    {"conf-dialog"          , no_argument       , 0 , 'c'} ,
-   {"with-output-resolver" , no_argument       , 0 , 'd'} ,
-   {"exclude-ip"           , required_argument , 0 , 'e'} ,
-   {"std-geip"             , no_argument       , 0 , 'g'} ,
-   {"log-file"             , required_argument , 0 , 'l'} ,
-   {"help"                 , no_argument       , 0 , 'h'} ,
-   {"http-protocol"        , no_argument       , 0 , 'H'} ,
-   {"with-mouse"           , no_argument       , 0 , 'm'} ,
-   {"http-method"          , no_argument       , 0 , 'M'} ,
-   {"output-format"        , required_argument , 0 , 'o'} ,
    {"conf-file"            , required_argument , 0 , 'p'} ,
+   {"exclude-ip"           , required_argument , 0 , 'e'} ,
+   {"help"                 , no_argument       , 0 , 'h'} ,
+   {"http-method"          , no_argument       , 0 , 'M'} ,
+   {"http-protocol"        , no_argument       , 0 , 'H'} ,
+   {"log-file"             , required_argument , 0 , 'l'} ,
    {"no-query-string"      , no_argument       , 0 , 'q'} ,
    {"no-term-resolver"     , no_argument       , 0 , 'r'} ,
+   {"output-format"        , required_argument , 0 , 'o'} ,
+   {"real-os"              , no_argument       , 0 ,  0 } ,
+   {"std-geip"             , no_argument       , 0 , 'g'} ,
+   {"with-mouse"           , no_argument       , 0 , 'm'} ,
+   {"with-output-resolver" , no_argument       , 0 , 'd'} ,
    {0, 0, 0, 0}
 };
 
@@ -796,7 +797,7 @@ main (int argc, char *argv[])
 #endif
 
    conf.iconfigfile = NULL;
-   while ((o = getopt_long (argc, argv, short_options, long_opts, &idx))) {
+   while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
       if (-1 == o || EOF == o)
          break;
       switch (o) {
@@ -850,6 +851,10 @@ main (int argc, char *argv[])
           break;
        case 'H':
           conf.append_protocol = 1;
+          break;
+       case 0:
+          if (!strcmp ("real-os", long_opts[idx].name))
+             conf.real_os = 1;
           break;
        case '?':
           return EXIT_FAILURE;

@@ -41,8 +41,9 @@
 #include <netdb.h>
 #include <unistd.h>
 
-#include "util.h"
 #include "error.h"
+#include "settings.h"
+#include "util.h"
 #include "xmalloc.h"
 
 /* {"search string", "belongs to"} */
@@ -76,8 +77,7 @@ static const char *os[][2] = {
    {"iPod", "Macintosh"},
    {"iPhone", "Macintosh"},
    {"iTunes", "Macintosh"},
-   {"Mac OS X", "Macintosh"},
-   {"Mac OS", "Macintosh"},
+   {"OS X", "Macintosh"},
    {"FreeBSD", "BSD"},
    {"NetBSD", "BSD"},
    {"OpenBSD", "BSD"},
@@ -126,7 +126,7 @@ static const char *browsers[][2] = {
    {"midori", "Others"},
    {"Midori", "Others"},
    {"Firebird", "Others"},
-   /* Chrome has to go before Safari */
+
    {"Chrome", "Chrome"},
    {"Safari", "Safari"},
 
@@ -598,6 +598,33 @@ get_continent_name_and_code (const char *continentid)
 }
 #endif
 
+/* get Mac OS X Codename */
+static char *
+get_real_mac_osx (const char *osx)
+{
+   if (strstr (osx, "10.9"))
+      return alloc_string ("OS X Mavericks");
+   else if (strstr (osx, "10.8"))
+      return alloc_string ("OS X Mountain Lion");
+   else if (strstr (osx, "10.7"))
+      return alloc_string ("OS X Lion");
+   else if (strstr (osx, "10.6"))
+      return alloc_string ("OS X Snow Leopard");
+   else if (strstr (osx, "10.5"))
+      return alloc_string ("OS X Leopard");
+   else if (strstr (osx, "10.4"))
+      return alloc_string ("OS X Tiger");
+   else if (strstr (osx, "10.3"))
+      return alloc_string ("OS X Panther");
+   else if (strstr (osx, "10.2"))
+      return alloc_string ("Mac OS X Jaguar");
+   else if (strstr (osx, "10.1"))
+      return alloc_string ("OS X Puma");
+   else if (strstr (osx, "10.0"))
+      return alloc_string ("OS X Cheetah");
+   return alloc_string (osx);
+}
+
 /* helper functions */
 char *
 substring (const char *str, int begin, int len)
@@ -727,7 +754,7 @@ verify_os (const char *str, GOpeSysStr o_type)
       }
 
       /* parse mac os x */
-      if ((lookfor = "Mac OS X", strstr (a, lookfor)) != NULL) {
+      if ((lookfor = "OS X", strstr (a, lookfor)) != NULL) {
          p = a;
          while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
             if (*p == '_')
@@ -741,7 +768,7 @@ verify_os (const char *str, GOpeSysStr o_type)
          *p = 0;
 
          if (o_type == OPESYS)
-            return alloc_string (a);
+            return conf.real_os ? get_real_mac_osx (a) : alloc_string (a);
          else
             return alloc_string (os[i][1]);
       }
