@@ -37,6 +37,7 @@
 
 static FILE *log_file;
 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 void
 error_handler (const char *func, const char *file, int line, const char *msg,
                ...)
@@ -59,6 +60,8 @@ error_handler (const char *func, const char *file, int line, const char *msg,
 
    exit (EXIT_FAILURE);
 }
+
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 void
 dbg_log_open (const char *path)
