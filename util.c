@@ -617,7 +617,7 @@ get_real_mac_osx (const char *osx)
    else if (strstr (osx, "10.3"))
       return alloc_string ("OS X Panther");
    else if (strstr (osx, "10.2"))
-      return alloc_string ("Mac OS X Jaguar");
+      return alloc_string ("OS X Jaguar");
    else if (strstr (osx, "10.1"))
       return alloc_string ("OS X Puma");
    else if (strstr (osx, "10.0"))
