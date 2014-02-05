@@ -321,6 +321,30 @@ process_request_meta (GHashTable * ht, char *key, unsigned long long size)
 }
 
 static int
+process_opesys (GHashTable * ht, const char *key, const char *os_type)
+{
+   GOpeSys *opesys;
+   if (ht == NULL)
+      return (EINVAL);
+
+   opesys = g_hash_table_lookup (ht, key);
+   if (opesys != NULL) {
+      opesys->hits++;
+   } else {
+      opesys = xcalloc (1, sizeof (GOpeSys));
+
+      strncpy (opesys->os_type, os_type, OPESYS_TYPE_LEN);
+      opesys->os_type[OPESYS_TYPE_LEN - 1] = '\0';
+      opesys->hits = 1;
+   }
+
+   /* replace the entry. old key will be freed by "free_os" */
+   g_hash_table_replace (ht, g_strdup (key), opesys);
+
+   return 0;
+}
+
+static int
 process_request (GHashTable * ht, const char *key, const GLogItem * log)
 {
    GRequest *request;
@@ -546,6 +570,7 @@ process_unique_data (char *host, char *date, char *agent)
    char *browser_key = NULL, *browser = NULL;
    char *opsys = NULL, *os_key = NULL;
    char visitor_key[UKEY_BUFFER];
+   char optype[OPESYS_TYPE_LEN];
 
    a = deblank (xstrdup (agent));
    snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
@@ -562,13 +587,13 @@ process_unique_data (char *host, char *date, char *agent)
 
       /* extract browser & OS from agent  */
       browser = verify_browser (browser_key, BROWSER);
-      opsys = verify_os (os_key, OPESYS);
 
       if (browser != NULL)
          process_generic_data (ht_browsers, browser);
 
+      opsys = verify_os (os_key, optype);
       if (opsys != NULL)
-         process_generic_data (ht_os, opsys);
+         process_opesys (ht_os, opsys, optype);
 
       if ((date = strchr (visitor_key, '|')) != NULL) {
          char *tmp_date = NULL;

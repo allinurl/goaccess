@@ -23,18 +23,20 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-#define COUNTRY_LEN   48
-#define CONTINENT_LEN 48
-#define REGEX_ERROR   100
-#define DATE_LEN      12        /* date length */
-#define KB            1024
-#define MB            (KB * 1024)
-#define GB            (MB * 1024)
+#define OPESYS_TYPE_LEN 12
+#define BROWER_TYPE_LEN 12
+#define COUNTRY_LEN     48
+#define CONTINENT_LEN   48
+#define REGEX_ERROR     100
+#define DATE_LEN        12      /* date length */
+#define KB              1024
+#define MB              (KB * 1024)
+#define GB              (MB * 1024)
 
-#define MILS          1000ULL
-#define SECS          1000000ULL
-#define MINS          60000000ULL
-#define HOUR          3600000000ULL
+#define MILS            1000ULL
+#define SECS            1000000ULL
+#define MINS            60000000ULL
+#define HOUR            3600000000ULL
 
 typedef enum
 {
@@ -42,11 +44,11 @@ typedef enum
    BROWSER_TYPE
 } GBrowserStr;
 
-typedef enum
+typedef struct GOpeSys_
 {
-   OPESYS,
-   OPESYS_TYPE
-} GOpeSysStr;
+   char os_type[OPESYS_TYPE_LEN];
+   int hits;
+} GOpeSys;
 
 typedef struct GLocation_
 {
@@ -62,6 +64,7 @@ char *clean_month (char *s);
 char *convert_date (char *result, char *data, const char *from, const char *to,
                     int size);
 char *deblank (char *str);
+char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
 char *int_to_str (int d);
 char *replace_str (const char *str, const char *old, const char *new);
@@ -69,11 +72,10 @@ char *reverse_ip (char *str);
 char *secs_to_str (int secs);
 char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
+char *unescape_str (const char *src);
 char *usecs_to_str (unsigned long long usec);
 char *verify_browser (const char *str, GBrowserStr b_type);
-char *verify_os (const char *str, GOpeSysStr o_type);
-char *unescape_str (const char *src);
-char *escape_str (const char *src);
+char *verify_os (const char *str, char *os_type);
 const char *get_continent_name_and_code (const char *continentid);
 const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
