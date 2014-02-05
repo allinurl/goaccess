@@ -24,7 +24,11 @@
 #endif
 
 #ifdef HAVE_LIBNCURSESW
+#ifdef __FreeBSD__
+#include <ncurses.h>
+#else
 #include <ncursesw/curses.h>
+#endif
 #else
 #include <ncurses.h>
 #endif
