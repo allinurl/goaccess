@@ -144,6 +144,14 @@ free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
 #endif
 
 static void
+free_os (GO_UNUSED gpointer old_key, gpointer old_value,
+         GO_UNUSED gpointer user_data)
+{
+   GOpeSys *opesys = old_value;
+   free (opesys);
+}
+
+static void
 free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
                GO_UNUSED gpointer user_data)
 {
@@ -238,6 +246,8 @@ house_keeping (void)
    g_hash_table_foreach (ht_requests, free_requests, NULL);
    g_hash_table_foreach (ht_requests_static, free_requests, NULL);
    g_hash_table_foreach (ht_not_found_requests, free_requests, NULL);
+
+   g_hash_table_foreach (ht_os, free_os, NULL);
 
    free (logger);
 

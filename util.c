@@ -598,6 +598,27 @@ get_continent_name_and_code (const char *continentid)
 }
 #endif
 
+/* get Windows marketing name */
+static char *
+get_real_win (const char *win)
+{
+   if (strstr (win, "6.3"))
+      return alloc_string ("Windows 8.1");
+   else if (strstr (win, "6.2"))
+      return alloc_string ("Windows 8");
+   else if (strstr (win, "6.1"))
+      return alloc_string ("Windows 7");
+   else if (strstr (win, "6.0"))
+      return alloc_string ("Windows Vista");
+   else if (strstr (win, "5.2"))
+      return alloc_string ("Windows XP x64");
+   else if (strstr (win, "5.1"))
+      return alloc_string ("Windows XP");
+   else if (strstr (win, "5.0"))
+      return alloc_string ("Windows 2000");
+   return NULL;
+}
+
 /* get Mac OS X Codename */
 static char *
 get_real_mac_osx (const char *osx)
@@ -727,7 +748,7 @@ file_size (const char *filename)
 }
 
 char *
-verify_os (const char *str, GOpeSysStr o_type)
+verify_os (const char *str, char *os_type)
 {
    char *a, *b, *p;
    const char *lookfor;
@@ -735,22 +756,30 @@ verify_os (const char *str, GOpeSysStr o_type)
    size_t i;
 
    if (str == NULL || *str == '\0')
-      return (NULL);
+      return NULL;
 
    for (i = 0; i < ARRAY_SIZE (os); i++) {
       if ((a = strstr (str, os[i][0])) == NULL)
          continue;
 
+      /* windows */
+      if ((lookfor = "Windows", strstr (str, lookfor)) != NULL) {
+         strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+         os_type[OPESYS_TYPE_LEN - 1] = '\0';
+
+         return conf.real_os &&
+            (b = get_real_win (a)) ? b : alloc_string (os[i][0]);
+      }
+
       /* agents w/ space in between */
-      if ((lookfor = "Windows", strstr (str, lookfor)) != NULL ||
-          (lookfor = "iPhone OS", strstr (str, lookfor)) != NULL ||
+      if ((lookfor = "iPhone OS", strstr (str, lookfor)) != NULL ||
           (lookfor = "Red Hat", strstr (str, lookfor)) != NULL ||
           (lookfor = "Win", strstr (str, lookfor)) != NULL) {
 
-         if (o_type == OPESYS)
-            return alloc_string (os[i][0]);
-         else
-            return alloc_string (os[i][1]);
+         strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+         os_type[OPESYS_TYPE_LEN - 1] = '\0';
+
+         return alloc_string (os[i][0]);
       }
 
       /* parse mac os x */
@@ -767,10 +796,10 @@ verify_os (const char *str, GOpeSysStr o_type)
          }
          *p = 0;
 
-         if (o_type == OPESYS)
-            return conf.real_os ? get_real_mac_osx (a) : alloc_string (a);
-         else
-            return alloc_string (os[i][1]);
+         strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+         os_type[OPESYS_TYPE_LEN - 1] = '\0';
+
+         return conf.real_os ? get_real_mac_osx (a) : alloc_string (a);
       }
 
       /* parse android */
@@ -781,14 +810,14 @@ verify_os (const char *str, GOpeSysStr o_type)
             p++;
          *p = 0;
 
-         if (o_type == OPESYS)
-            return alloc_string (a);
-         else
-            return alloc_string (os[i][1]);
+         strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+         os_type[OPESYS_TYPE_LEN - 1] = '\0';
+
+         return alloc_string (a);
       }
 
       if (!(b = a))
-         return (NULL);
+         return NULL;
 
       /* all others */
       for (p = a; *p; p++) {
@@ -800,10 +829,14 @@ verify_os (const char *str, GOpeSysStr o_type)
       }
       *p = 0;
 
-      if (o_type == OPESYS)
-         return alloc_string (b);
-      return alloc_string (os[i][1]);
+      strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+      os_type[OPESYS_TYPE_LEN - 1] = '\0';
+
+      return alloc_string (b);
    }
+
+   strncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+   os_type[OPESYS_TYPE_LEN - 1] = '\0';
 
    return alloc_string ("Unknown");
 }
