@@ -214,7 +214,9 @@ cmd_help (void)
    printf (" -q --no-query-string         ");
    printf ("Ignore request's query string.\n");
    printf (" -r --no-term-resolver        ");
-   printf ("Disable IP resolver on terminal output.\n\n");
+   printf ("Disable IP resolver on terminal output.\n");
+   printf (" --real-os                    ");
+   printf ("Display real OS names. e.g, Windows XP, Snow Leopard.\n\n");
 
    printf ("Examples can be found by running `man goaccess`.\n\n");
    printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
