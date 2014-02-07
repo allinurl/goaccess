@@ -49,6 +49,7 @@
 /* {"search string", "belongs to"} */
 static const char *os[][2] = {
    {"Windows NT 6.3", "Windows"},
+   {"Windows NT 6.2; ARM", "Windows"},
    {"Windows NT 6.2", "Windows"},
    {"Windows NT 6.1", "Windows"},
    {"Windows NT 6.0", "Windows"},
@@ -604,6 +605,8 @@ get_real_win (const char *win)
 {
    if (strstr (win, "6.3"))
       return alloc_string ("Windows 8.1");
+   else if (strstr (win, "6.2; ARM"))
+      return alloc_string ("Windows RT");
    else if (strstr (win, "6.2"))
       return alloc_string ("Windows 8");
    else if (strstr (win, "6.1"))
