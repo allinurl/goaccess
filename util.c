@@ -842,23 +842,20 @@ verify_os (const char *str, char *os_type)
 }
 
 char *
-verify_browser (const char *str, GBrowserStr b_type)
+verify_browser (const char *str, char *browser_type)
 {
-   char *a;
-   char *b;
-   char *p;
-   char *ptr;
-   char *slash;
+   char *a, *b, *p, *ptr, *slash;
    size_t i;
 
    if (str == NULL || *str == '\0')
-      return (NULL);
+      return NULL;
 
    for (i = 0; i < ARRAY_SIZE (browsers); i++) {
       if ((a = strstr (str, browsers[i][0])) == NULL)
          continue;
+
       if (!(b = a))
-         return (NULL);
+         return NULL;
 
       ptr = a;
       /* Opera has the version number at the end */
@@ -888,17 +885,25 @@ verify_browser (const char *str, GBrowserStr b_type)
       /* Opera +15 uses OPR/# */
       if ((strstr (b, "OPR")) != NULL) {
          slash = strrchr (b, '/');
-         if ((slash != NULL)) {
+         if (slash != NULL) {
             char *val = xmalloc (snprintf (NULL, 0, "Opera %s", slash) + 1);
             sprintf (val, "Opera %s", slash);
+
+            strncpy (browser_type, "Opera", BROWSER_TYPE_LEN);
+            browser_type[BROWSER_TYPE_LEN - 1] = '\0';
+
             return val;
          }
       }
 
-      if (b_type == BROWSER)
-         return alloc_string (b);
-      return alloc_string (browsers[i][1]);
+      strncpy (browser_type, browsers[i][1], BROWSER_TYPE_LEN);
+      browser_type[BROWSER_TYPE_LEN - 1] = '\0';
+
+      return alloc_string (b);
    }
+
+   strncpy (browser_type, "Unknown", BROWSER_TYPE_LEN);
+   browser_type[BROWSER_TYPE_LEN - 1] = '\0';
 
    return alloc_string ("Unknown");
 }

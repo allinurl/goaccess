@@ -23,20 +23,20 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-#define OPESYS_TYPE_LEN 12
-#define BROWER_TYPE_LEN 12
-#define COUNTRY_LEN     48
-#define CONTINENT_LEN   48
-#define REGEX_ERROR     100
-#define DATE_LEN        12      /* date length */
-#define KB              1024
-#define MB              (KB * 1024)
-#define GB              (MB * 1024)
+#define OPESYS_TYPE_LEN  10
+#define BROWSER_TYPE_LEN 10
+#define COUNTRY_LEN      48
+#define CONTINENT_LEN    48
+#define REGEX_ERROR      100
+#define DATE_LEN         12     /* date length */
+#define KB               1024
+#define MB               (KB * 1024)
+#define GB               (MB * 1024)
 
-#define MILS            1000ULL
-#define SECS            1000000ULL
-#define MINS            60000000ULL
-#define HOUR            3600000000ULL
+#define MILS             1000ULL
+#define SECS             1000000ULL
+#define MINS             60000000ULL
+#define HOUR             3600000000ULL
 
 typedef enum
 {
@@ -49,6 +49,12 @@ typedef struct GOpeSys_
    char os_type[OPESYS_TYPE_LEN];
    int hits;
 } GOpeSys;
+
+typedef struct GBrowser_
+{
+   char browser_type[BROWSER_TYPE_LEN];
+   int hits;
+} GBrowser;
 
 typedef struct GLocation_
 {
@@ -74,7 +80,7 @@ char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *unescape_str (const char *src);
 char *usecs_to_str (unsigned long long usec);
-char *verify_browser (const char *str, GBrowserStr b_type);
+char *verify_browser (const char *str, char *browser_type);
 char *verify_os (const char *str, char *os_type);
 const char *get_continent_name_and_code (const char *continentid);
 const char *verify_status_code (char *str);

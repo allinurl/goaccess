@@ -152,6 +152,14 @@ free_os (GO_UNUSED gpointer old_key, gpointer old_value,
 }
 
 static void
+free_browser (GO_UNUSED gpointer old_key, gpointer old_value,
+              GO_UNUSED gpointer user_data)
+{
+   GBrowser *browser = old_value;
+   free (browser);
+}
+
+static void
 free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
                GO_UNUSED gpointer user_data)
 {
@@ -250,6 +258,7 @@ house_keeping (void)
    g_hash_table_foreach (ht_not_found_requests, free_requests, NULL);
 
    g_hash_table_foreach (ht_os, free_os, NULL);
+   g_hash_table_foreach (ht_browsers, free_browser, NULL);
 
    free (logger);
 

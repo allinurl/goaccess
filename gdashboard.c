@@ -1219,48 +1219,33 @@ add_os_node (GHolder * h, GOpeSys * opesys, char *data, unsigned long long bw)
    }
 }
 
-/* add a browser item to holder */
 static void
-add_os_browser_node (GHolder * h, int hits, char *data, unsigned long long bw)
+add_browser_node (GHolder * h, GBrowser * browser, char *data,
+                  unsigned long long bw)
 {
-   char *opsys = NULL, *type = NULL;
-   char optype[OPESYS_TYPE_LEN];
    GSubList *sub_list;
    int type_idx = -1;
 
-   if (h->module == OS) {
-      opsys = verify_os (data, optype);
-      if (opsys == NULL)
-         return;
-      type = optype;
-   } else {
-      type = verify_browser (data, BROWSER_TYPE);
-   }
-
-   type_idx = get_item_idx_in_holder (h, type);
+   type_idx = get_item_idx_in_holder (h, browser->browser_type);
    if (type_idx == -1) {
       h->items[h->idx].bw += bw;
-      h->items[h->idx].hits += hits;
-      h->items[h->idx].data = xstrdup (type);
+      h->items[h->idx].hits += browser->hits;
+      h->items[h->idx].data = xstrdup (browser->browser_type);
 
       /* data (child) */
       sub_list = new_gsublist ();
-      add_sub_item_back (sub_list, h->module, data, hits, bw);
+      add_sub_item_back (sub_list, h->module, data, browser->hits, bw);
       h->items[h->idx++].sub_list = sub_list;
       h->sub_items_size++;
    } else {
       sub_list = h->items[type_idx].sub_list;
-      add_sub_item_back (sub_list, h->module, data, hits, bw);
+      add_sub_item_back (sub_list, h->module, data, browser->hits, bw);
 
       h->items[type_idx].sub_list = sub_list;
       h->items[type_idx].bw += bw;
-      h->items[type_idx].hits += hits;
+      h->items[type_idx].hits += browser->hits;
       h->sub_items_size++;
    }
-   if (h->module == BROWSERS)
-      free (type);
-   if (h->module == OS)
-      free (opsys);
 }
 
 /* add request items (e.g., method, protocol, request) to holder */
@@ -1623,8 +1608,7 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
           add_os_node (h, raw_data->items[i].value, data, 0);
           break;
        case BROWSERS:
-          hits = GPOINTER_TO_INT (raw_data->items[i].value);
-          add_os_browser_node (h, hits, data, bw);
+          add_browser_node (h, raw_data->items[i].value, data, 0);
           break;
        case HOSTS:
           hits = GPOINTER_TO_INT (raw_data->items[i].value);
@@ -1704,6 +1688,12 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
     case NOT_FOUND:
        qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
               cmp_raw_req_num_desc);
+       break;
+    case OS:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
+       break;
+    case BROWSERS:
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_browser_num_desc);
        break;
 #ifdef HAVE_LIBGEOIP
     case GEO_LOCATION:
