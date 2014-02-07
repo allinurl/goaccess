@@ -1690,10 +1690,12 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
               cmp_raw_req_num_desc);
        break;
     case OS:
-       qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_os_num_desc);
        break;
     case BROWSERS:
-       qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_browser_num_desc);
+       qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+              cmp_raw_browser_num_desc);
        break;
 #ifdef HAVE_LIBGEOIP
     case GEO_LOCATION:
