@@ -146,6 +146,28 @@ cmp_raw_req_num_desc (const void *a, const void *b)
 
 /* sort raw numeric descending */
 int
+cmp_raw_os_num_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   GOpeSys *aos = ia->value;
+   GOpeSys *bos = ib->value;
+   return (int) (bos->hits - aos->hits);
+}
+
+/* sort raw numeric descending */
+int
+cmp_raw_browser_num_desc (const void *a, const void *b)
+{
+   const GRawDataItem *ia = a;
+   const GRawDataItem *ib = b;
+   GBrowser *abro = ia->value;
+   GBrowser *bbro = ib->value;
+   return (int) (bbro->hits - abro->hits);
+}
+
+/* sort raw numeric descending */
+int
 cmp_raw_geo_num_desc (const void *a, const void *b)
 {
    const GRawDataItem *ia = a;
@@ -336,14 +358,34 @@ process_opesys (GHashTable * ht, const char *key, const char *os_type)
       opesys->hits++;
    } else {
       opesys = xcalloc (1, sizeof (GOpeSys));
-
-      strncpy (opesys->os_type, os_type, OPESYS_TYPE_LEN);
-      opesys->os_type[OPESYS_TYPE_LEN - 1] = '\0';
+      strcpy (opesys->os_type, os_type);
       opesys->hits = 1;
    }
 
    /* replace the entry. old key will be freed by "free_os" */
    g_hash_table_replace (ht, g_strdup (key), opesys);
+
+   return 0;
+}
+
+static int
+process_browser (GHashTable * ht, const char *key, const char *browser_type)
+{
+   GBrowser *browser;
+   if (ht == NULL)
+      return (EINVAL);
+
+   browser = g_hash_table_lookup (ht, key);
+   if (browser != NULL) {
+      browser->hits++;
+   } else {
+      browser = xcalloc (1, sizeof (GBrowser));
+      strcpy (browser->browser_type, browser_type);
+      browser->hits = 1;
+   }
+
+   /* replace the entry. old key will be freed by "free_browser" */
+   g_hash_table_replace (ht, g_strdup (key), browser);
 
    return 0;
 }
@@ -572,9 +614,10 @@ process_unique_data (char *host, char *date, char *agent)
 {
    char *a = NULL;
    char *browser_key = NULL, *browser = NULL;
-   char *opsys = NULL, *os_key = NULL;
+   char *os_key = NULL, *opsys = NULL;
+
    char visitor_key[UKEY_BUFFER];
-   char optype[OPESYS_TYPE_LEN];
+   char os_type[OPESYS_TYPE_LEN], browser_type[BROWSER_TYPE_LEN];
 
    a = deblank (xstrdup (agent));
    snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
@@ -590,14 +633,13 @@ process_unique_data (char *host, char *date, char *agent)
       os_key = xstrdup (agent);
 
       /* extract browser & OS from agent  */
-      browser = verify_browser (browser_key, BROWSER);
-
+      browser = verify_browser (browser_key, browser_type);
       if (browser != NULL)
-         process_generic_data (ht_browsers, browser);
+         process_browser (ht_browsers, browser, browser_type);
 
-      opsys = verify_os (os_key, optype);
+      opsys = verify_os (os_key, os_type);
       if (opsys != NULL)
-         process_opesys (ht_os, opsys, optype);
+         process_opesys (ht_os, opsys, os_type);
 
       if ((date = strchr (visitor_key, '|')) != NULL) {
          char *tmp_date = NULL;
