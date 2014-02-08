@@ -429,10 +429,7 @@ render_total_label (WINDOW * win, GDashModule * module_data, int y)
    (void) win_h;
 
    sprintf (s, "Total: %d/%d", total, ht_size);
-
-   wattron (win, COLOR_PAIR (HIGHLIGHT));
-   mvwprintw (win, y, win_w - strlen (s) - 2, "%s", s);
-   wattroff (win, COLOR_PAIR (HIGHLIGHT));
+   draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, HIGHLIGHT);
    free (s);
 }
 
@@ -449,19 +446,10 @@ render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       return;
 
    bar = get_bars (module_data->data[idx].hits, module_data->max_hits, *x);
-   if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
+   if (selected)
+      draw_header (win, bar, "%s", y, *x, w, HIGHLIGHT);
+   else
       mvwprintw (win, y, *x, "%s", bar);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
-   } else {
-      mvwprintw (win, y, *x, "%s", bar);
-   }
    free (bar);
 }
 
@@ -471,7 +459,7 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
    char buf[DATE_LEN];
-   char *data;
+   char *data, *padded_data;
 
    const GDashStyle *style = module_style;
    GModule module = module_data->module;
@@ -481,18 +469,14 @@ render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-         mvwhline (win, y, 0, ' ', w);
-      else
-         mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : data);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      if (module_data->module == HOSTS && module_data->data[idx].is_subitem) {
+         padded_data = left_pad_str (data, *x);
+         draw_header (win, padded_data, "%s", y, 0, w, HIGHLIGHT);
+         free (padded_data);
+      } else {
+         draw_header (win, module == VISITORS ? buf : data, "%s", y, *x, w,
+                      HIGHLIGHT);
+      }
    } else {
       wattron (win, COLOR_PAIR (style[module].color_hits));
       mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : data);
@@ -519,15 +503,7 @@ render_method (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       return;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%s", method);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      draw_header (win, method, "%s", y, *x, w, HIGHLIGHT);
    } else {
       wattron (win, A_BOLD | COLOR_PAIR (style[module].color_method));
       mvwprintw (win, y, *x, "%s", method);
@@ -552,15 +528,7 @@ render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
       return;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%s", protocol);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      draw_header (win, protocol, "%s", y, *x, w, HIGHLIGHT);
    } else {
       wattron (win, COLOR_PAIR (style[module].color_protocol));
       mvwprintw (win, y, *x, "%s", protocol);
@@ -583,15 +551,8 @@ render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       return;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      draw_header (win, module_data->data[idx].serve_time, "%9s", y, *x, w,
+                   HIGHLIGHT);
    } else {
       wattron (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
       mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
@@ -615,15 +576,8 @@ render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
       return;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%11s", module_data->data[idx].bandwidth);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      draw_header (win, module_data->data[idx].bandwidth, "%11s", y, *x, w,
+                   HIGHLIGHT);
    } else {
       wattron (win, A_BOLD | COLOR_PAIR (style[module].color_bw));
       mvwprintw (win, y, *x, "%11s", module_data->data[idx].bandwidth);
@@ -651,15 +605,9 @@ render_percent (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
       max_hit = 1;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, *x, ' ', w);
-      mvwprintw (win, y, *x, "%.2f%%", module_data->data[idx].percent);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      char *percent = float_to_str (module_data->data[idx].percent);
+      draw_header (win, percent, "%s%%", y, *x, w, HIGHLIGHT);
+      free (percent);
    } else {
       wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
       if (max_hit)
@@ -685,21 +633,16 @@ render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
              int w, int selected)
 {
    const GDashStyle *style = module_style;
+   char *hits;
    GModule module = module_data->module;
 
    if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
       goto inc;
 
    if (selected) {
-      if (conf.color_scheme == STD_GREEN)
-         init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      else
-         init_pair (1, COLOR_BLACK, COLOR_WHITE);
-
-      wattron (win, COLOR_PAIR (HIGHLIGHT));
-      mvwhline (win, y, 0, ' ', w);
-      mvwprintw (win, y, *x, "%d", module_data->data[idx].hits);
-      wattroff (win, COLOR_PAIR (HIGHLIGHT));
+      hits = int_to_str (module_data->data[idx].hits);
+      draw_header (win, hits, "  %s", y, 0, w, HIGHLIGHT);
+      free (hits);
    } else {
       wattron (win, COLOR_PAIR (style[module].color_hits));
       mvwprintw (win, y, *x, "%d", module_data->data[idx].hits);
@@ -739,7 +682,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
          hd = xmalloc (snprintf (NULL, 0, "%d - %s", k, module_data->head) + 1);
          sprintf (hd, "%d - %s", k, module_data->head);
 
-         draw_header (win, hd, 0, (*y), w, 1);
+         draw_header (win, hd, " %s", (*y), 0, w, 1);
          free (hd);
 
          render_total_label (win, module_data, (*y));
@@ -748,7 +691,7 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
       }
       /* description */
       else if ((i % size) == DASH_DESC_POS)
-         draw_header (win, module_data->desc, 0, (*y)++, w, 2);
+         draw_header (win, module_data->desc, " %s", (*y)++, 0, w, 2);
       /* blank lines */
       else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1)
          (*y)++;
@@ -861,7 +804,7 @@ regexp_init (regex_t * regex, const char *pattern)
    /* something went wrong */
    if (rc != 0) {
       regerror (rc, regex, buf, sizeof (buf));
-      draw_header (stdscr, buf, 0, y - 1, x, WHITE_RED);
+      draw_header (stdscr, buf, "%s", y - 1, 0, x, WHITE_RED);
       refresh ();
       return 1;
    }
@@ -951,7 +894,7 @@ perform_next_find (GHolder * h, GScrolling * scrolling)
          rc = regexec (&regex, data, 0, NULL, 0);
          if (rc != 0 && rc != REG_NOMATCH) {
             regerror (rc, &regex, buf, sizeof (buf));
-            draw_header (stdscr, buf, 0, y - 1, x, WHITE_RED);
+            draw_header (stdscr, buf, "%s", y - 1, 0, x, WHITE_RED);
             refresh ();
             regfree (&regex);
             return 1;
@@ -1000,8 +943,8 @@ render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
    win = newwin (h, w, (y - h) / 2, (x - w) / 2);
    keypad (win, TRUE);
    wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
-   draw_header (win, FIND_HEAD, 1, 1, w - 2, 1);
-   draw_header (win, FIND_DESC, 1, 2, w - 2, 2);
+   draw_header (win, FIND_HEAD, " %s", 1, 1, w - 2, 1);
+   draw_header (win, FIND_DESC, " %s", 2, 1, w - 2, 2);
 
    find_t.icase = 0;
    query = input_string (win, 4, 2, w - 3, "", 1, &find_t.icase);

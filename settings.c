@@ -34,6 +34,7 @@
 #include "xmalloc.h"
 #include "gmenu.h"
 #include "util.h"
+#include "ui.h"
 
 char *tmp_log_format = NULL;
 char *tmp_date_format = NULL;
@@ -69,7 +70,12 @@ set_conf_vars (int key, char *val)
 {
    switch (key) {
     case 1:
-       conf.color_scheme = atoi (val);
+       if (!conf.no_color && atoi (val) == NO_COLOR)
+          conf.color_scheme = MONOCHROME;
+       else if (conf.no_color)
+          conf.color_scheme = NO_COLOR;
+       else
+          conf.color_scheme = atoi (val);
        break;
     case 2:
        conf.log_format = alloc_string (val);

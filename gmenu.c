@@ -60,21 +60,16 @@ static void
 draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
                 int checked)
 {
-   if (conf.color_scheme == STD_GREEN) {
-      init_pair (1, COLOR_BLACK, COLOR_GREEN);
-      init_pair (2, COLOR_BLACK, COLOR_CYAN);
-   } else {
-      init_pair (1, COLOR_BLACK, COLOR_WHITE);
-      init_pair (2, COLOR_WHITE, -1);
-   }
-   wattron (menu->win, COLOR_PAIR (color));
-   mvwhline (menu->win, y, x, ' ', w);
+   char check, *lbl = NULL;
    if (menu->selectable) {
-      char check = checked ? 'x' : ' ';
-      mvwprintw (menu->win, y, x, "[%c] %s", check, s);
-   } else
-      mvwprintw (menu->win, y, x, "%s", s);
-   wattroff (menu->win, COLOR_PAIR (color));
+      check = checked ? 'x' : ' ';
+      lbl = xmalloc (snprintf (NULL, 0, "[%c] %s", check, s) + 1);
+      sprintf (lbl, "[%c] %s", check, s);
+      draw_header (menu->win, lbl, "%s", y, x, w, color);
+      free (lbl);
+   } else {
+      draw_header (menu->win, s, "%s", y, x, w, color);
+   }
 }
 
 /* displays a menu to its associated window */
