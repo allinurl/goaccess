@@ -599,6 +599,32 @@ get_continent_name_and_code (const char *continentid)
 }
 #endif
 
+/* get Android Codename */
+static char *
+get_real_android (const char *droid)
+{
+   if (strstr (droid, "4.4"))
+      return alloc_string ("KitKat");
+   else if (strstr (droid, "4.3") || strstr (droid, "4.2") ||
+            strstr (droid, "4.1"))
+      return alloc_string ("Jelly Bean");
+   else if (strstr (droid, "4.0"))
+      return alloc_string ("Ice Cream Sandwich");
+   else if (strstr (droid, "3."))
+      return alloc_string ("Honeycomb");
+   else if (strstr (droid, "2.3"))
+      return alloc_string ("Gingerbread");
+   else if (strstr (droid, "2.2"))
+      return alloc_string ("Froyo");
+   else if (strstr (droid, "2.0") || strstr (droid, "2.1"))
+      return alloc_string ("Eclair");
+   else if (strstr (droid, "1.6"))
+      return alloc_string ("Donut");
+   else if (strstr (droid, "1.5"))
+      return alloc_string ("Cupcake");
+   return alloc_string (droid);
+}
+
 /* get Windows marketing name */
 static char *
 get_real_win (const char *win)
@@ -806,8 +832,7 @@ verify_os (const char *str, char *os_type)
       }
 
       /* parse android */
-      if ((lookfor = "Android", strstr (a, lookfor)) != NULL ||
-          (lookfor = "SymbianOS", strstr (a, lookfor)) != NULL) {
+      if ((lookfor = "Android", strstr (a, lookfor)) != NULL) {
          p = a;
          while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
             p++;
@@ -816,7 +841,7 @@ verify_os (const char *str, char *os_type)
          strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
          os_type[OPESYS_TYPE_LEN - 1] = '\0';
 
-         return alloc_string (a);
+         return conf.real_os ? get_real_android (a) : alloc_string (a);
       }
 
       if (!(b = a))
