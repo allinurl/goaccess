@@ -8,7 +8,6 @@ email goaccess@prosoftcorp.com.
 * General:
  - Have the ability to do a global deeper search.
  - It'd be nice to have data sliced based on virtual hosts. 
- - Ability to support terminals without colors.
  - Report the remote user portion %u.
  - Increase the performance when parsing the log file.
  - Add command-line parameters.
