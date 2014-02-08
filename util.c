@@ -1022,6 +1022,15 @@ int_to_str (int d)
    return s;
 }
 
+char *
+float_to_str (float d)
+{
+   char *s = xmalloc (snprintf (NULL, 0, "%.2f", d) + 1);
+   sprintf (s, "%.2f", d);
+
+   return s;
+}
+
 int
 intlen (int num)
 {
@@ -1084,6 +1093,18 @@ str_to_upper (char *str)
       *str = toupper (*str);
       str++;
    }
+}
+
+char *
+left_pad_str (const char *s, int indent)
+{
+   char *buf = NULL;
+
+   indent = strlen (s) + indent;
+   buf = xmalloc (snprintf (NULL, 0, "%*s", indent, s) + 1);
+   sprintf (buf, "%*s", indent, s);
+
+   return buf;
 }
 
 /* returns unescaped malloc'd string */

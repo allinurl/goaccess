@@ -65,6 +65,7 @@ typedef struct GConf_
    int list_agents;
    int load_conf_dlg;
    int mouse_support;
+   int no_color;
    int output_html;
    int real_os;
    int serve_secs;

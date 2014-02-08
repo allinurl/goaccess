@@ -65,6 +65,8 @@ typedef struct GLocation_
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
+char *float_to_str (float num);
+char *int_to_str (int num);
 char *clean_date (char *s);
 char *clean_month (char *s);
 char *convert_date (char *result, char *data, const char *from, const char *to,
@@ -73,6 +75,7 @@ char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
 char *int_to_str (int d);
+char *left_pad_str (const char *s, int indent);
 char *replace_str (const char *str, const char *old, const char *new);
 char *reverse_ip (char *str);
 char *secs_to_str (int secs);

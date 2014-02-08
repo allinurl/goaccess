@@ -87,6 +87,7 @@ struct option long_opts[] = {
    {"no-term-resolver"     , no_argument       , 0 , 'r'} ,
    {"output-format"        , required_argument , 0 , 'o'} ,
    {"real-os"              , no_argument       , 0 ,  0 } ,
+   {"no-color"             , no_argument       , 0 ,  0 } ,
    {"std-geip"             , no_argument       , 0 , 'g'} ,
    {"with-mouse"           , no_argument       , 0 , 'm'} ,
    {"with-output-resolver" , no_argument       , 0 , 'd'} ,
@@ -223,6 +224,8 @@ cmd_help (void)
    printf ("Ignore request's query string.\n");
    printf (" -r --no-term-resolver        ");
    printf ("Disable IP resolver on terminal output.\n");
+   printf (" --no-color                   ");
+   printf ("Disable colored output.\n");
    printf (" --real-os                    ");
    printf ("Display real OS names. e.g, Windows XP, Snow Leopard.\n\n");
 
@@ -430,7 +433,7 @@ render_screens (void)
    generate_time ();
    chg = logger->process - logger->offset;
 
-   draw_header (stdscr, "", 0, row - 1, col, 0);
+   draw_header (stdscr, "", "%s", row - 1, 0, col, 0);
    wattron (stdscr, COLOR_PAIR (COL_WHITE));
    mvaddstr (row - 1, 1, "[F1]Help [O]pen detail view");
    mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
@@ -750,6 +753,8 @@ get_keys (void)
           }
           break;
        case 99:                /* c */
+          if (conf.no_color)
+             break;
           load_schemes_win (main_win);
           free_dashboard (dash);
           allocate_data ();
@@ -876,6 +881,8 @@ main (int argc, char *argv[])
        case 0:
           if (!strcmp ("real-os", long_opts[idx].name))
              conf.real_os = 1;
+          if (!strcmp ("no-color", long_opts[idx].name))
+             conf.no_color = 1;
           break;
        case '?':
           return EXIT_FAILURE;
@@ -980,11 +987,14 @@ main (int argc, char *argv[])
 
    initscr ();
    clear ();
-   if (has_colors () == FALSE)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Your terminal does not support color");
    set_input_opts ();
-   start_color ();
+
+   if (conf.no_color || has_colors () == FALSE) {
+      conf.color_scheme = NO_COLOR;
+      conf.no_color = 1;
+   } else {
+      start_color ();
+   }
    init_colors ();
 
    attron (COLOR_PAIR (COL_WHITE));
@@ -1014,7 +1024,7 @@ main (int argc, char *argv[])
       refresh ();
       quit = verify_format (logger, parsing_spinner);
    } else if (!conf.output_html) {
-      draw_header (stdscr, "Parsing...", 0, row - 1, col, HIGHLIGHT);
+      draw_header (stdscr, "Parsing...", "%s", row - 1, 0, col, HIGHLIGHT);
       ui_spinner_create (parsing_spinner);
    }
 
