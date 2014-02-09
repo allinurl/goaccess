@@ -1,83 +1,64 @@
-.TH goaccess 1 "DECEMBER 2013" Linux "User Manuals"
+.TH goaccess 1 "FEBRUARY 2014" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
-.B goaccess [-f
-.I input-file
-.B ]
-.I [-c] [-r][-d][-m][-q][-o][-h][...]
+.LP
+.B goaccess [-f input-file][\-c][\-r][\-d][\-m][\-q][\-o][\-h][...]
 .SH DESCRIPTION
 .B goaccess
-is a free (GPL) real-time web log analyzer and interactive
-viewer that runs in a terminal in *nix systems.
-It provides fast and valuable HTTP statistics for system
-administrators that require a visual server report on the fly.
-First it will parse the web log file, then it will collect data
-from the parsed file and it will display it
-to the console or the X terminal. The collected information will be
-displayed to the user in a visual/interactive window.
-The collected information includes:
+is a free (GPL) real-time web log analyzer and interactive viewer that runs in a
+terminal in *nix systems. It provides fast and valuable HTTP statistics for
+system administrators that require a visual server report on the fly. GoAccess
+parses the specified web log file and outputs the data to the X terminal.
+Features include:
 
 .IP "General Statistics:"
-Total number of valid requests,
-Total number of invalid requests,
-Total time to analyze the data,
-Total unique visitors,
-Total unique requested files,
-Total unique static files
-.IR (css, ico, jpg, js, swf, gif, png)
-Total unique HTTP referrers (URLs),
-Total unique 404s
-.I (not found),
-Size of the parsed log file,
-Total bandwidth consumption.
+Number of valid requests, number of invalid requests, time to analyze the data,
+unique visitors, unique requested files, unique static files (css, ico, jpg, js,
+swf, gif, png) unique HTTP referrers (URLs), unique 404s (not found), size of
+the parsed log file, bandwidth consumption.
 .IP "Unique visitors:"
-HTTP requests having the same IP,
-same date and same agent will be
-considered a unique visit.
-.I (including crawlers).
+HTTP requests having the same IP, same date and same agent will be considered a
+unique visit. This includes crawlers.
 .IP "Requested files"
-Hit totals are based on total requests.
-This module will display hits, percent, [bandwidth, time served]
+Hit totals are based on total requests. This module will display hits, percent,
+bandwidth [time served], [protocol] and [method].
 .IP "Requested static files"
-Hit totals are based on total requests. Includes files such as:
-jpg, css, swf, js, gif, png etc. This module will display hits,
-percent, [bandwidth, time served]
+Hit totals are based on total requests. Includes files such as: jpg, css, swf,
+js, gif, png etc. This module will display hits, percent, bandwidth, [time
+served], [protocol] and [method].
 .IP "404 or Not Found"
-Hit totals are based on total requests. This module will display
-hits, percent, [bandwidth, time served]
+Hit totals are based on total requests. This module will display hits, percent,
+bandwidth, [time served], [protocol] and [method].
 .IP "Hosts"
-Hit totals are based on total requests. This module will display
-hits, percent, [bandwidth, time served]. The expanded module
-can display extra information such as reverse DNS and country.
-If -a is enabled, a list of user agents will be displayed.
+Hit totals are based on total requests. This module will display hits, percent,
+[bandwidth, time served]. The expanded module can display extra information such
+as reverse DNS and country. If -a is enabled, a list of user agents will be
+displayed by selecting the IP and hitting the return key.
 .IP "Operating Systems"
-Hit totals are based on unique visitors. This module will
-display hits and percent. The expanded module shows all available
-versions of the parent node.
+Hit totals are based on unique visitors. This module will display hits and
+percent. The expanded module shows all available versions of the parent node.
 .IP "Browsers"
-Hit totals are based on unique visitors. This module will
-display hits and percent. The expanded module shows all
-available versions of the parent node.
+Hit totals are based on unique visitors. This module will display hits and
+percent. The expanded module shows all available versions of the parent node.
 .IP "Referrers URLs"
-The URL where the request came from. Hit totals are based on
-total requests. This module will display hits and percent.
+The URL where the request came from. Hit totals are based on total requests.
+This module will display hits and percent.
 .IP "Referring Sites"
-This module will display only the host but not the whole URL.
-The URL where the request came from. Hit totals are based on
-total requests. This module will display hits and percent.
-.IP "Keyphrases"
-This module will report keyphrases used on Google search,
-Google cache, and Google translate. Hit totals are based on
-total requests. This module will display hits and percent.
-.IP "Geo Location"
-Determines where an IP address is geographically located. It
-outputs the continent and country. If it's unable to determine
-the country, location will be marked as unknown.
-.IP "HTTP Status Codes"
-The values of the numeric status code to HTTP requests.
-Hit totals are based on total requests. This module will
+This module will display only the host but not the whole URL. The URL where the
+request came from. Hit totals are based on total requests. This module will
 display hits and percent.
+.IP "Keyphrases"
+This module will report keyphrases used on Google search, Google cache, and
+Google translate. Hit totals are based on total requests. This module will
+display hits and percent.
+.IP "Geo Location"
+Determines where an IP address is geographically located. It outputs the
+continent and country. If it's unable to determine the country, location will be
+marked as unknown.
+.IP "HTTP Status Codes"
+The values of the numeric status code to HTTP requests. Hit totals are based on
+total requests. This module will display hits and percent.
 .SH OPTIONS
 .TP
 \fB\-f <input-file>
@@ -134,26 +115,24 @@ Disable colored output.
 Display real OS names. e.g, Windows XP, Snow Leopard.
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format.
-
-Predefined options include, Common Log Format (CLF),
-Combined Log Format (XLF/ELF), including virtual host,
-Amazon CloudFront (Download Distribution) and
+.P
+Predefined options include, Common Log Format (CLF), Combined Log Format
+(XLF/ELF), including virtual host, Amazon CloudFront (Download Distribution) and
 W3C format (IIS).
-
+.P
 GoAccess allows any custom format string as well.
-
+.P
 There are two ways to configure the log format.
 The easiest is to run GoAccess with
 .I -c
-to prompt a configuration window. Otherwise, it can be
-configured under ~/.goaccessrc.
+to prompt a configuration window. Otherwise, it can be configured under
+~/.goaccessrc.
 .IP "date_format"
 The
 .I date_format
-variable followed by a space, specifies the log format
-date containing any combination of regular characters
-and special format specifiers. They all begin with a
-percentage (%) sign. See http://linux.die.net/man/3/strftime
+variable followed by a space, specifies the log format date containing any
+combination of regular characters and special format specifiers. They all begin
+with a percentage (%) sign. See http://linux.die.net/man/3/strftime
 .IP "log_format"
 The
 .I log_format
@@ -165,9 +144,9 @@ variable.
 .IP %h
 host (the client IP address, either IPv4 or IPv6)
 .IP %r
-The request line from the client.
-This requires specific delimiters around the request (as single quotes, double quotes, or anything else) to be parsable.
-If not, we have to use a combination of special format specifiers as %m %U %H.
+The request line from the client. This requires specific delimiters around the
+request (as single quotes, double quotes, or anything else) to be parsable. If
+not, we have to use a combination of special format specifiers as %m %U %H.
 .IP %m
 The request method.
 .IP %U
@@ -227,89 +206,94 @@ Move to the first item or top of screen.
 Move to the last item or bottom of screen.
 .SH EXAMPLES
 The simplest and fastest usage would be:
-
+.IP
 # goaccess -f access.log
-
+.P
 That will generate an interactive text-only output.
-
+.P
 To generate full statistics we can run GoAccess as:
-
+.IP
 # goaccess -f access.log -a
-
+.P
 To generate an HTML report:
-
+.IP
 # goaccess -f access.log -a > report.html
-
+.P
 To generate a JSON file:
-
+.IP
 # goaccess -f access.log -a -d -o json > report.json
-
+.P
 To generate a CSV file:
-
+.IP
 # goaccess -f access.log -o csv > report.csv
-
+.P
 The
 .I -a
 flag indicates that we want to process an agent-list for every host parsed.
-
+.P
 The
 .I -d
 flag indicates that we want to enable the IP resolver on the HTML | JSON output.
 (It will take longer time to output since it has to resolve all queries.)
-
+.P
 The
 .I -c
 flag will prompt the date and log format configuration window. Only when
 curses is initialized.
-
+.P
 Now if we want to add more flexibility to GoAccess, we can do a series of  pipes.
 For instance:
-
+.P
 If we would like to process all
 .I access.log.*.gz
 we can do:
-
+.IP
 #  zcat access.log.*.gz | goaccess
-
+.P
 OR
-
+.IP
 #  zcat -f access.log* | goaccess
-
+.P
 Another useful pipe would be filtering dates out of the web log
-
+.P
 The following will get all HTTP requests starting on 05/Dec/2010 until
 the end of the file.
-
+.IP
 # sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -a
-
+.P
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
-
+.IP
 sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
-
+.P
 .I Note that this could take longer time to parse depending on the speed of sed.
-
+.P
+To exclude a list of virtual hosts you can do the following:
+.IP
+grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
+.P
 .B Also,
 it is worth pointing out that if we want to run GoAccess at lower priority, we
 can run it as:
-
+.IP
 # nice -n 19 goaccess -f access.log -a
-
+.P
 and if you don't want to install it on your server, you can still run it
 from your local machine:
-
+.IP
 # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
-
+.P
 .SH NOTES
-For now, each active window has a total of 300 items.
-Eventually this will be customizable.
-
-Piping a log to GoAccess will disable the real-time functionality.
-This is due to the portability issue on determining the actual size of STDIN.
-However, a future release *might* include this feature.
-
+For now, each active window has a total of 300 items. Eventually this will be
+customizable.
+.P
+Piping a log to GoAccess will disable the real-time functionality. This is due
+to the portability issue on determining the actual size of STDIN. However, a
+future release *might* include this feature.
 .SH BUGS
 If you think you have found a bug, please send me an email to
 .I goaccess@prosoftcorp.com
+or use the issue tracker in https://github.com/allinurl/goaccess/issues
 .SH AUTHOR
 Gerardo Orellana <goaccess@prosoftcorp.com>
-For more details about it, or new releases, please visit http://goaccess.prosoftcorp.com
+For more details about it, or new releases, please visit
+http://goaccess.prosoftcorp.com
