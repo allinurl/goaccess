@@ -57,12 +57,11 @@ AC_CHECK_TYPES([ptrdiff_t])
 # Checks for library functions.
 AC_FUNC_STRTOD
 AC_FUNC_FSEEKO
-AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol realpath])
+AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol realpath malloc])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
