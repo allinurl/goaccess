@@ -893,11 +893,13 @@ main (int argc, char *argv[])
 
    parse_conf_file ();
 
-   if (!isatty (STDOUT_FILENO))
+   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
       conf.output_html = 1;
-   if (conf.ifile != NULL && !isatty (STDIN_FILENO))
+   if (conf.ifile != NULL && !isatty (STDIN_FILENO) &&
+       conf.output_format == NULL)
       cmd_help ();
-   if (conf.ifile == NULL && isatty (STDIN_FILENO))
+   if (conf.ifile == NULL && isatty (STDIN_FILENO) &&
+       conf.output_format == NULL)
       cmd_help ();
    for (idx = optind; idx < argc; idx++)
       cmd_help ();
