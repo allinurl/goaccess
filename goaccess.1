@@ -136,7 +136,9 @@ with a percentage (%) sign. See http://linux.die.net/man/3/strftime
 .IP "log_format"
 The
 .I log_format
-variable followed by a space, specifies the log format string.
+variable followed by a space or 
+.I \\\\t
+, specifies the log format string.
 .IP %d
 date field matching the
 .I date_format
@@ -169,6 +171,22 @@ The time taken to serve the request, in seconds or milliseconds.
 %D will take priority over %T if both are used.
 .IP %^
 Ignore this field.
+.P
+GoAccess
+.I requires
+the following fields:
+.IP
+.I %h
+a valid IPv4/6
+.IP
+.I %d
+a valid date
+.IP
+.I %s 
+server status code
+.IP
+.I %r
+the request
 .SH INTERACTIVE MENU
 .IP "F1 or h"
 Main help.
