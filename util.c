@@ -148,7 +148,7 @@ static const char *browsers[][2] = {
    {"Baidu", "Crawlers"},
    {"Ezooms", "Crawlers"},
    {"Twitter", "Crawlers"},
-   {"Yahoo! Slurp", "Crawlers"},
+   {"Slurp", "Crawlers"},
    {"Yahoo", "Crawlers"},
    {"AhrefsBot", "Crawlers"},
    {"MJ12bot", "Crawlers"},
