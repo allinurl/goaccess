@@ -1,6 +1,8 @@
 Changes to GoAccess 0.7.1 - Monday, February 17, 2014
 
    * Added ability to get real OS names using --real-os. (Android, Windows, Mac)
+   * Added ability to log debug messages to a file.
+   * Added ability to parse tab-separated log format strings.
    * Added ability to support terminals without colors.
    * Added ability to turn off color output by using --no-color flag.
    * Added command line option to append HTTP method to request.
@@ -8,12 +10,11 @@ Changes to GoAccess 0.7.1 - Monday, February 17, 2014
    * Added long options to command-line.
    * Added missing Win 9x 4.90 (Windows Me) user-agent.
    * Added missing Windows RT user-agent.
-   * Added ability to log debug messages to a file.
-   * Added ability to parse tab-separated log format strings.
    * Ensure mouse click does not reset expanded module if it is the same.
    * Fixed Amazon CloudFront tab-separated log format.
    * Fixed "FreeBSD style" ncursesw built into system.
    * Fixed HTML report issue where data cell would not wrap.
+   * Fixed issue when isatty() could not find a valid file descriptor.
    * Fixed SymbianOS user-agent and retrieve its version.
 
 Changes to GoAccess 0.7 - Monday, December 15, 2013
