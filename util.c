@@ -99,6 +99,7 @@ static const char *browsers[][2] = {
    {"Avant Browser", "Others"},
    {"America Online Browser", "Others"},
    {"MSIE", "MSIE"},
+   {"Trident/7.0", "MSIE"},
    {"Flock", "Others"},
    {"Epiphany", "Others"},
    {"SeaMonkey", "Others"},
@@ -619,7 +620,7 @@ verify_browser (const char *str, char *browser_type)
       ptr = a;
 
       /* Opera +15 uses OPR/# */
-      if ((strstr (b, "OPR")) != NULL) {
+      if (strstr (b, "OPR") != NULL) {
          slash = strrchr (b, '/');
          if (slash != NULL) {
             char *val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
@@ -633,19 +634,27 @@ verify_browser (const char *str, char *browser_type)
       }
 
       /* Opera has the version number at the end */
-      if ((strstr (a, "Opera")) != NULL) {
+      if (strstr (a, "Opera") != NULL) {
          slash = strrchr (str, '/');
          if ((slash != NULL) && (a < slash))
             memmove (a + 5, slash, strlen (slash) + 1);
       }
 
-      /* MSIE needs additional code. sigh... */
-      if ((strstr (a, "MSIE")) != NULL || (strstr (a, "Ask")) != NULL) {
+      /* MSIE */
+      if (strstr (a, "MSIE") != NULL) {
          while (*ptr != ';' && *ptr != ')' && *ptr != '-' && *ptr != '\0') {
             if (*ptr == ' ')
                *ptr = '/';
             ptr++;
          }
+      }
+
+      /* IE11 */
+      if (strstr (a, "rv:11") != NULL && strstr (a, "Trident/7.0") != NULL) {
+         strncpy (browser_type, "MSIE", BROWSER_TYPE_LEN);
+         browser_type[BROWSER_TYPE_LEN - 1] = '\0';
+
+         return alloc_string ("MSIE/11.0");
       }
 
       /* everything else is parsed here */
