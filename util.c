@@ -621,8 +621,7 @@ verify_browser (const char *str, char *browser_type)
 
       /* Opera +15 uses OPR/# */
       if (strstr (b, "OPR") != NULL) {
-         slash = strrchr (b, '/');
-         if (slash != NULL) {
+         if ((slash = strrchr (b, '/')) != NULL) {
             char *val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
             sprintf (val, "Opera%s", slash);
 
@@ -635,8 +634,7 @@ verify_browser (const char *str, char *browser_type)
 
       /* Opera has the version number at the end */
       if (strstr (a, "Opera") != NULL) {
-         slash = strrchr (str, '/');
-         if ((slash != NULL) && (a < slash))
+         if ((slash = strrchr (b, '/')) != NULL && a < slash)
             memmove (a + 5, slash, strlen (slash) + 1);
       }
 
