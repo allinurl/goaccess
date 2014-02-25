@@ -896,7 +896,7 @@ main (int argc, char *argv[])
    if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
       conf.output_html = 1;
    if (conf.ifile != NULL && !isatty (STDIN_FILENO) &&
-       conf.output_format == NULL)
+      !conf.output_html)
       cmd_help ();
    if (conf.ifile == NULL && isatty (STDIN_FILENO) &&
        conf.output_format == NULL)
