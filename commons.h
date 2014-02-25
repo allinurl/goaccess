@@ -52,4 +52,79 @@ extern size_t term_w;
 #define LOG_DEBUG(x, ...) do { } while (0)
 #endif
 
+#ifdef HAVE_LIBGEOIP
+#define TOTAL_MODULES     12
+#else
+#define TOTAL_MODULES     11
+#endif
+
+typedef enum MODULES
+{
+   VISITORS,
+   REQUESTS,
+   REQUESTS_STATIC,
+   NOT_FOUND,
+   HOSTS,
+   OS,
+   BROWSERS,
+   REFERRERS,
+   REFERRING_SITES,
+   KEYPHRASES,
+#ifdef HAVE_LIBGEOIP
+   GEO_LOCATION,
+#endif
+   STATUS_CODES
+} GModule;
+
+typedef struct GSubItem_
+{
+   GModule module;
+   const char *data;
+   int hits;
+   unsigned long long bw;
+   struct GSubItem_ *prev;
+   struct GSubItem_ *next;
+} GSubItem;
+
+typedef struct GSubList_
+{
+   int size;
+   struct GSubItem_ *head;
+   struct GSubItem_ *tail;
+} GSubList;
+
+typedef struct GHolderItem_
+{
+   char *data;
+   char *method;
+   char *protocol;
+   GSubList *sub_list;
+   int hits;
+   unsigned long long bw;
+   unsigned long long usecs;
+} GHolderItem;
+
+typedef struct GHolder_
+{
+   GHolderItem *items;          /* data                             */
+   GModule module;              /* current module                   */
+   int idx;                     /* first level index                */
+   int holder_size;             /* total num of items (first level) */
+   int sub_items_size;          /* total number of sub items        */
+} GHolder;
+
+typedef struct GRawDataItem_
+{
+   void *key;
+   void *value;
+} GRawDataItem;
+
+typedef struct GRawData_
+{
+   GRawDataItem *items;         /* data                     */
+   GModule module;              /* current module           */
+   int idx;                     /* first level index        */
+   int size;                    /* total num of items on ht */
+} GRawData;
+
 #endif
