@@ -313,13 +313,6 @@ set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
    return 0;
 }
 
-/* calculate hits percentage */
-float
-get_percentage (unsigned long long total, unsigned long long hit)
-{
-   return ((float) (hit * 100) / (total));
-}
-
 /* render child nodes */
 static char *
 render_child_node (const char *data)
@@ -1071,23 +1064,6 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
       (*i)++;
    }
 }
-
-/* Geolocation data */
-#ifdef HAVE_LIBGEOIP
-char *
-get_geoip_data (const char *data)
-{
-   const char *location = NULL;
-   const char *addr = data;
-
-   /* Geolocation data */
-   if (geo_location_data != NULL)
-      location = GeoIP_country_name_by_name (geo_location_data, addr);
-   if (location == NULL)
-      location = "Location Unknown";
-   return (char *) location;
-}
-#endif
 
 /* add a host item to holder */
 static void

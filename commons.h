@@ -25,6 +25,10 @@
 #ifndef COMMONS_H_INCLUDED
 #define COMMONS_H_INCLUDED
 
+#ifdef HAVE_LIBGEOIP
+#include <GeoIP.h>
+#endif
+
 #include <time.h>
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
@@ -53,10 +57,12 @@ extern size_t term_w;
 #endif
 
 #ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES     12
+#define TOTAL_MODULES  12
 #else
-#define TOTAL_MODULES     11
+#define TOTAL_MODULES  11
 #endif
+
+#define DATE_TIME      20
 
 typedef enum MODULES
 {
@@ -126,5 +132,15 @@ typedef struct GRawData_
    int idx;                     /* first level index        */
    int size;                    /* total num of items on ht */
 } GRawData;
+
+#ifdef HAVE_LIBGEOIP
+extern GeoIP *geo_location_data;
+#endif
+
+#ifdef HAVE_LIBGEOIP
+char *get_geoip_data (const char *data);
+#endif
+
+float get_percentage (unsigned long long total, unsigned long long hit);
 
 #endif

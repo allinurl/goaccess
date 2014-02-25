@@ -94,10 +94,6 @@ typedef struct GDash_
    GDashModule module[TOTAL_MODULES];
 } GDash;
 
-#ifdef HAVE_LIBGEOIP
-char *get_geoip_data (const char *data);
-#endif
-
 float get_percentage (unsigned long long total, unsigned long long hit);
 GDashData *new_gdata (unsigned int size);
 GDash *new_gdash (void);

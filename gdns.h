@@ -24,8 +24,6 @@
 #define H_SIZE     256
 #define QUEUE_SIZE 400
 
-#include "gdashboard.h"
-
 typedef struct GDnsThread_
 {
    pthread_cond_t not_empty;

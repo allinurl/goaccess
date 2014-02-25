@@ -25,9 +25,8 @@
 #ifndef JSON_H_INCLUDED
 #define JSON_H_INCLUDED
 
-#include "gdashboard.h"
+#include "commons.h"
 #include "parser.h"
-#include "settings.h"
 
 void output_json (GLog * logger, GHolder * holder);
 

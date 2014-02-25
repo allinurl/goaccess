@@ -56,10 +56,6 @@
 #include "settings.h"
 #include "util.h"
 
-#ifdef HAVE_LIBGEOIP
-GeoIP *geo_location_data;
-#endif
-
 /* *INDENT-OFF* */
 static const char *sort_choices[][SORT_MAX_OPTS] = {
    {"Hits", "Data", "Bandwidth", NULL},

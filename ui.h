@@ -21,10 +21,6 @@
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
 
-#ifdef HAVE_LIBGEOIP
-#include <GeoIP.h>
-#endif
-
 #ifdef HAVE_LIBNCURSESW
 #ifdef __FreeBSD__
 #include <ncurses.h>
@@ -233,10 +229,6 @@ typedef struct GSpinner_
       SPN_END
    } state;
 } GSpinner;
-
-#ifdef HAVE_LIBGEOIP
-extern GeoIP *geo_location_data;
-#endif
 
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);

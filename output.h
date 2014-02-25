@@ -27,11 +27,9 @@
 
 #define OUTPUT_N  10
 #define REF_LEN   20
-#define DATE_TIME 20
 
-#include "gdashboard.h"
+#include "commons.h"
 #include "parser.h"
-#include "settings.h"
 
 void output_html (GLog * logger, GHolder * holder);
 
