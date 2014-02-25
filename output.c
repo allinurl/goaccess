@@ -37,10 +37,10 @@
 
 #include "commons.h"
 #include "error.h"
-#include "xmalloc.h"
+#include "settings.h"
 #include "ui.h"
-#include "gdashboard.h"
 #include "util.h"
+#include "xmalloc.h"
 
 /* sanitize output with html entities for special chars */
 static void

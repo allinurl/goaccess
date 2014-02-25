@@ -47,3 +47,31 @@ time_t start_proc;
 size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
+
+#ifdef HAVE_LIBGEOIP
+GeoIP *geo_location_data;
+#endif
+
+/* calculate hits percentage */
+float
+get_percentage (unsigned long long total, unsigned long long hit)
+{
+   return ((float) (hit * 100) / (total));
+}
+
+/* Geolocation data */
+#ifdef HAVE_LIBGEOIP
+char *
+get_geoip_data (const char *data)
+{
+   const char *location = NULL;
+   const char *addr = data;
+
+   /* Geolocation data */
+   if (geo_location_data != NULL)
+      location = GeoIP_country_name_by_name (geo_location_data, addr);
+   if (location == NULL)
+      location = "Location Unknown";
+   return (char *) location;
+}
+#endif

@@ -36,8 +36,7 @@
 
 #include "commons.h"
 #include "error.h"
-#include "gdashboard.h"
-#include "output.h"
+#include "settings.h"
 #include "ui.h"
 #include "util.h"
 #include "xmalloc.h"
