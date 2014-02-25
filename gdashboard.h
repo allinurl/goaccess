@@ -25,6 +25,7 @@
 #ifndef GDASHBOARD_H_INCLUDED
 #define GDASHBOARD_H_INCLUDED
 
+#include "commons.h"
 #include "ui.h"
 #include "parser.h"
 
@@ -92,57 +93,6 @@ typedef struct GDash_
    int total_alloc;
    GDashModule module[TOTAL_MODULES];
 } GDash;
-
-typedef struct GSubItem_
-{
-   GModule module;
-   const char *data;
-   int hits;
-   unsigned long long bw;
-   struct GSubItem_ *prev;
-   struct GSubItem_ *next;
-} GSubItem;
-
-typedef struct GSubList_
-{
-   int size;
-   struct GSubItem_ *head;
-   struct GSubItem_ *tail;
-} GSubList;
-
-typedef struct GHolderItem_
-{
-   char *data;
-   char *method;
-   char *protocol;
-   GSubList *sub_list;
-   int hits;
-   unsigned long long bw;
-   unsigned long long usecs;
-} GHolderItem;
-
-typedef struct GHolder_
-{
-   GHolderItem *items; /* data                             */
-   GModule module;     /* current module                   */
-   int idx;            /* first level index                */
-   int holder_size;    /* total num of items (first level) */
-   int sub_items_size; /* total number of sub items        */
-} GHolder;
-
-typedef struct GRawDataItem_
-{
-   void *key;
-   void *value;
-} GRawDataItem;
-
-typedef struct GRawData_
-{
-   GRawDataItem *items; /* data                     */
-   GModule module;      /* current module           */
-   int idx;             /* first level index        */
-   int size;            /* total num of items on ht */
-} GRawData;
 
 #ifdef HAVE_LIBGEOIP
 char *get_geoip_data (const char *data);

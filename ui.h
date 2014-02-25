@@ -156,33 +156,10 @@
 
 #define HIGHLIGHT         1
 
-#ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES     12
-#else
-#define TOTAL_MODULES     11
-#endif
-
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
+#include "commons.h"
 #include "parser.h"
-
-typedef enum MODULES
-{
-   VISITORS,
-   REQUESTS,
-   REQUESTS_STATIC,
-   NOT_FOUND,
-   HOSTS,
-   OS,
-   BROWSERS,
-   REFERRERS,
-   REFERRING_SITES,
-   KEYPHRASES,
-#ifdef HAVE_LIBGEOIP
-   GEO_LOCATION,
-#endif
-   STATUS_CODES
-} GModule;
 
 typedef enum SCHEMES
 {
