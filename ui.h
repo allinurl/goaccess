@@ -43,6 +43,7 @@
 #include <pthread.h>
 #endif
 
+/* overall stats */
 #define T_BW         "Bandwidth"
 #define T_F_REQUESTS "Failed Requests"
 #define T_GEN_TIME   "Generation Time"
@@ -56,6 +57,46 @@
 #define T_LOG_PATH   "Log File"
 #define T_UNIQUE_VIS "Unique Visitors"
 
+/* modules */
+#define VISIT_HEAD "Unique visitors per day - Including spiders"
+#define VISIT_DESC "Hits having the same IP, date and agent are a unique visit."
+#define VISIT_ID   "visitors"
+#define REQUE_HEAD "Requested files (Pages-URL)"
+#define REQUE_DESC "Top Requested Files sorted by hits - [time served] [protocol] [method]"
+#define REQUE_ID   "requests"
+#define STATI_HEAD "Requested static files (e.g., png, js, css, etc.)"
+#define STATI_DESC "Top Static Files sorted by hits - [time served] [protocol] [method]"
+#define STATI_ID   "static_requests"
+#define FOUND_HEAD "HTTP 404 Not Found URLs"
+#define FOUND_DESC "Top 404 Not Found URLs sorted by hits - [time served] [protocol] [method]"
+#define FOUND_ID   "not_found"
+#define HOSTS_HEAD "Hosts"
+#define HOSTS_DESC "Top Hosts sorted by hits - [bandwidth] [time served]"
+#define HOSTS_ID   "hosts"
+#define OPERA_HEAD "Operating Systems"
+#define OPERA_DESC "Top Operating Systems sorted by visitors"
+#define OPERA_ID   "os"
+#define BROWS_HEAD "Browsers"
+#define BROWS_DESC "Top Browsers sorted by visitors"
+#define BROWS_ID   "browsers"
+#define REFER_HEAD "Referrers URLs"
+#define REFER_DESC "Top Requested Referrers sorted by hits"
+#define REFER_ID   "referrers"
+#define SITES_HEAD "Referring Sites"
+#define SITES_DESC "Top Referring Sites sorted  by hits"
+#define SITES_ID   "referring_sites"
+#define KEYPH_HEAD "Keyphrases from Google's search engine"
+#define KEYPH_DESC "Top Keyphrases sorted by hits"
+#define KEYPH_ID   "keyphrases"
+#define GEOLO_HEAD "Geo Location"
+#define GEOLO_DESC "Continent > Country sorted by hits"
+#define GEOLO_ID   "geolocation"
+#define CODES_HEAD "HTTP Status Codes"
+#define CODES_DESC "Top HTTP Status Codes sorted by hits"
+#define CODES_ID   "status_codes"
+#define GENER_ID   "general"
+
+/* dialogs */
 #define FIND_HEAD    "Find pattern in all modules"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
 
