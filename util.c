@@ -41,9 +41,10 @@
 #include <netdb.h>
 #include <unistd.h>
 
+#include "util.h"
+
 #include "error.h"
 #include "settings.h"
-#include "util.h"
 #include "xmalloc.h"
 
 /* {"search string", "belongs to"} */

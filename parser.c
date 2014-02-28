@@ -58,10 +58,9 @@
 
 #include "commons.h"
 #include "error.h"
-#include "xmalloc.h"
-#include "gdashboard.h"
 #include "settings.h"
 #include "util.h"
+#include "xmalloc.h"
 
 /* *INDENT-OFF* */
 /* Definitions checked against declarations */
