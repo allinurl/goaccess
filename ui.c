@@ -49,12 +49,11 @@
 
 #include "commons.h"
 #include "error.h"
-#include "xmalloc.h"
 #include "gmenu.h"
-#include "goaccess.h"
 #include "parser.h"
 #include "settings.h"
 #include "util.h"
+#include "xmalloc.h"
 
 /* *INDENT-OFF* */
 static const char *sort_choices[][SORT_MAX_OPTS] = {

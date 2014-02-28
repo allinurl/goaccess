@@ -31,10 +31,9 @@
 
 #include "commons.h"
 #include "error.h"
-#include "xmalloc.h"
-#include "gmenu.h"
-#include "util.h"
 #include "ui.h"
+#include "util.h"
+#include "xmalloc.h"
 
 char *tmp_log_format = NULL;
 char *tmp_date_format = NULL;
