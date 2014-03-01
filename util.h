@@ -23,10 +23,6 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-#define OPESYS_TYPE_LEN  10
-#define BROWSER_TYPE_LEN 10
-#define COUNTRY_LEN      48
-#define CONTINENT_LEN    48
 #define REGEX_ERROR      100
 #define DATE_LEN         12     /* date length */
 #define KB               1024
@@ -37,24 +33,6 @@
 #define SECS             1000000ULL
 #define MINS             60000000ULL
 #define HOUR             3600000000ULL
-
-typedef struct GOpeSys_
-{
-  char os_type[OPESYS_TYPE_LEN];
-  int hits;
-} GOpeSys;
-
-typedef struct GBrowser_
-{
-  char browser_type[BROWSER_TYPE_LEN];
-  int hits;
-} GBrowser;
-
-typedef struct GLocation_
-{
-  char continent[CONTINENT_LEN];
-  int hits;
-} GLocation;
 
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
