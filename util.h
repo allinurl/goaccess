@@ -38,12 +38,6 @@
 #define MINS             60000000ULL
 #define HOUR             3600000000ULL
 
-typedef enum
-{
-  BROWSER,
-  BROWSER_TYPE
-} GBrowserStr;
-
 typedef struct GOpeSys_
 {
   char os_type[OPESYS_TYPE_LEN];
