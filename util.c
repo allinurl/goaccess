@@ -44,6 +44,7 @@
 #include "util.h"
 
 #include "error.h"
+#include "parser.h"
 #include "settings.h"
 #include "xmalloc.h"
 
