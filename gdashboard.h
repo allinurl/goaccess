@@ -46,52 +46,52 @@
 
 typedef struct GDashStyle_
 {
-   const int color_hits;
-   const int color_data;
-   const int color_bw;
-   const int color_percent;
-   const int color_bars;
-   const int color_usecs;
-   const int color_method;
-   const int color_protocol;
+  const int color_hits;
+  const int color_data;
+  const int color_bw;
+  const int color_percent;
+  const int color_bars;
+  const int color_usecs;
+  const int color_method;
+  const int color_protocol;
 } GDashStyle;
 
 typedef struct GDashData_
 {
-   char *bandwidth;
-   char *data;
-   char *method;
-   char *protocol;
-   char *serve_time;
-   float percent;
-   int hits;
-   short is_subitem;
-   unsigned long long bw;
-   unsigned long long usecs;
+  char *bandwidth;
+  char *data;
+  char *method;
+  char *protocol;
+  char *serve_time;
+  float percent;
+  int hits;
+  short is_subitem;
+  unsigned long long bw;
+  unsigned long long usecs;
 } GDashData;
 
 typedef struct GDashModule_
 {
-   GDashData *data;
-   GModule module;
-   const char *desc;
-   const char *head;
-   int alloc_data;  /* alloc data items */
-   int dash_size;   /* dashboard size   */
-   int data_len;
-   int hits_len;
-   int holder_size; /* hash table size  */
-   int ht_size;     /* hash table size  */
-   int idx_data;    /* idx data         */
-   int max_hits;
-   int perc_len;
-   unsigned short pos_y;
+  GDashData *data;
+  GModule module;
+  const char *desc;
+  const char *head;
+  int alloc_data;  /* alloc data items */
+  int dash_size;   /* dashboard size   */
+  int data_len;
+  int hits_len;
+  int holder_size; /* hash table size  */
+  int ht_size;     /* hash table size  */
+  int idx_data;    /* idx data         */
+  int max_hits;
+  int perc_len;
+  unsigned short pos_y;
 } GDashModule;
 
 typedef struct GDash_
 {
-   int total_alloc;
-   GDashModule module[TOTAL_MODULES];
+  int total_alloc;
+  GDashModule module[TOTAL_MODULES];
 } GDash;
 
 GDashData *new_gdata (unsigned int size);

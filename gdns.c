@@ -54,196 +54,196 @@ static GDnsQueue *gdns_queue;
 void
 gqueue_init (GDnsQueue * q, int capacity)
 {
-   q->head = 0;
-   q->tail = -1;
-   q->size = 0;
-   q->capacity = capacity;
+  q->head = 0;
+  q->tail = -1;
+  q->size = 0;
+  q->capacity = capacity;
 }
 
 /* get current size of queue */
 int
 gqueue_size (GDnsQueue * q)
 {
-   return q->size;
+  return q->size;
 }
 
 /* is the queue empty */
 int
 gqueue_empty (GDnsQueue * q)
 {
-   return q->size == 0;
+  return q->size == 0;
 }
 
 /* is the queue full */
 int
 gqueue_full (GDnsQueue * q)
 {
-   return q->size == q->capacity;
+  return q->size == q->capacity;
 }
 
 /* destroy queue */
 void
 gqueue_destroy (GDnsQueue * q)
 {
-   free (q);
+  free (q);
 }
 
 /* add item to the queue */
 int
 gqueue_enqueue (GDnsQueue * q, char *item)
 {
-   if (gqueue_full (q))
-      return -1;
+  if (gqueue_full (q))
+    return -1;
 
-   q->tail = (q->tail + 1) % q->capacity;
-   strcpy (q->buffer[q->tail], item);
-   q->size++;
-   return 0;
+  q->tail = (q->tail + 1) % q->capacity;
+  strcpy (q->buffer[q->tail], item);
+  q->size++;
+  return 0;
 }
 
 int
 gqueue_find (GDnsQueue * q, const char *item)
 {
-   int i;
-   if (gqueue_empty (q))
-      return 0;
+  int i;
+  if (gqueue_empty (q))
+    return 0;
 
-   for (i = 0; i < q->size; i++) {
-      if (strcmp (item, q->buffer[i]) == 0)
-         return 1;
-   }
-   return 0;
+  for (i = 0; i < q->size; i++) {
+    if (strcmp (item, q->buffer[i]) == 0)
+      return 1;
+  }
+  return 0;
 }
 
 /* remove an item from the queue */
 char *
 gqueue_dequeue (GDnsQueue * q)
 {
-   char *item;
-   if (gqueue_empty (q))
-      return NULL;
+  char *item;
+  if (gqueue_empty (q))
+    return NULL;
 
-   item = q->buffer[q->head];
-   q->head = (q->head + 1) % q->capacity;
-   q->size--;
-   return item;
+  item = q->buffer[q->head];
+  q->head = (q->head + 1) % q->capacity;
+  q->size--;
+  return item;
 }
 
 /* get the corresponding host given an address */
 static char *
 reverse_host (const struct sockaddr *a, socklen_t length)
 {
-   char h[H_SIZE];
-   int flags, st;
+  char h[H_SIZE];
+  int flags, st;
 
-   flags = NI_NAMEREQD;
-   st = getnameinfo (a, length, h, H_SIZE, NULL, 0, flags);
-   if (!st)
-      return alloc_string (h);
-   return alloc_string (gai_strerror (st));
+  flags = NI_NAMEREQD;
+  st = getnameinfo (a, length, h, H_SIZE, NULL, 0, flags);
+  if (!st)
+    return alloc_string (h);
+  return alloc_string (gai_strerror (st));
 }
 
 /* determine if IPv4 or IPv6 and resolve */
 char *
 reverse_ip (char *str)
 {
-   union
-   {
-      struct sockaddr addr;
-      struct sockaddr_in6 addr6;
-      struct sockaddr_in addr4;
-   } a;
+  union
+  {
+    struct sockaddr addr;
+    struct sockaddr_in6 addr6;
+    struct sockaddr_in addr4;
+  } a;
 
-   if (str == NULL || *str == '\0')
-      return NULL;
+  if (str == NULL || *str == '\0')
+    return NULL;
 
-   memset (&a, 0, sizeof (a));
-   if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr)) {
-      a.addr4.sin_family = AF_INET;
-      return reverse_host (&a.addr, sizeof (a.addr4));
-   } else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr)) {
-      a.addr6.sin6_family = AF_INET6;
-      return reverse_host (&a.addr, sizeof (a.addr6));
-   }
-   return NULL;
+  memset (&a, 0, sizeof (a));
+  if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr)) {
+    a.addr4.sin_family = AF_INET;
+    return reverse_host (&a.addr, sizeof (a.addr4));
+  } else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr)) {
+    a.addr6.sin6_family = AF_INET6;
+    return reverse_host (&a.addr, sizeof (a.addr6));
+  }
+  return NULL;
 }
 
 /* producer */
 void
 dns_resolver (char *addr)
 {
-   pthread_mutex_lock (&gdns_thread.mutex);
-   if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
-      g_hash_table_replace (ht_hostnames, g_strdup (addr), NULL);
-      gqueue_enqueue (gdns_queue, addr);
-      pthread_cond_broadcast (&gdns_thread.not_empty);
-   }
-   pthread_mutex_unlock (&gdns_thread.mutex);
+  pthread_mutex_lock (&gdns_thread.mutex);
+  if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
+    g_hash_table_replace (ht_hostnames, g_strdup (addr), NULL);
+    gqueue_enqueue (gdns_queue, addr);
+    pthread_cond_broadcast (&gdns_thread.not_empty);
+  }
+  pthread_mutex_unlock (&gdns_thread.mutex);
 }
 
 /* consumer */
 static void
 dns_worker (void GO_UNUSED (*ptr_data))
 {
-   char *ip = NULL, *host = NULL;
-   while (1) {
-      pthread_mutex_lock (&gdns_thread.mutex);
-      /* wait until an item has been added to the queue */
-      while (gqueue_empty (gdns_queue))
-         pthread_cond_wait (&gdns_thread.not_empty, &gdns_thread.mutex);
+  char *ip = NULL, *host = NULL;
+  while (1) {
+    pthread_mutex_lock (&gdns_thread.mutex);
+    /* wait until an item has been added to the queue */
+    while (gqueue_empty (gdns_queue))
+      pthread_cond_wait (&gdns_thread.not_empty, &gdns_thread.mutex);
 
-      ip = gqueue_dequeue (gdns_queue);
+    ip = gqueue_dequeue (gdns_queue);
 
-      pthread_mutex_unlock (&gdns_thread.mutex);
-      host = reverse_ip (ip);
-      pthread_mutex_lock (&gdns_thread.mutex);
+    pthread_mutex_unlock (&gdns_thread.mutex);
+    host = reverse_ip (ip);
+    pthread_mutex_lock (&gdns_thread.mutex);
 
-      if (!active_gdns) {
-         if (host)
-            free (host);
-         break;
-      }
+    if (!active_gdns) {
+      if (host)
+        free (host);
+      break;
+    }
 
-      if (host != NULL && active_gdns)
-         g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
+    if (host != NULL && active_gdns)
+      g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
 
-      pthread_cond_signal (&gdns_thread.not_full);
-      pthread_mutex_unlock (&gdns_thread.mutex);
-   }
+    pthread_cond_signal (&gdns_thread.not_full);
+    pthread_mutex_unlock (&gdns_thread.mutex);
+  }
 }
 
 /* init queue and dns thread */
 void
 gdns_init (void)
 {
-   gdns_queue = xmalloc (sizeof (GDnsQueue));
-   gqueue_init (gdns_queue, QUEUE_SIZE);
+  gdns_queue = xmalloc (sizeof (GDnsQueue));
+  gqueue_init (gdns_queue, QUEUE_SIZE);
 
-   if (pthread_cond_init (&(gdns_thread.not_empty), NULL))
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
+  if (pthread_cond_init (&(gdns_thread.not_empty), NULL))
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
 
-   if (pthread_cond_init (&(gdns_thread.not_full), NULL))
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
+  if (pthread_cond_init (&(gdns_thread.not_full), NULL))
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
 
-   if (pthread_mutex_init (&(gdns_thread.mutex), NULL))
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed mutex");
+  if (pthread_mutex_init (&(gdns_thread.mutex), NULL))
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed mutex");
 }
 
 /* destroy queue */
 void
 gdns_free_queue (void)
 {
-   gqueue_destroy (gdns_queue);
+  gqueue_destroy (gdns_queue);
 }
 
 /* create a dns thread */
 void
 gdns_thread_create (void)
 {
-   int thread =
-      pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
-   if (thread)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Return code from pthread_create(): %d", thread);
-   pthread_detach (gdns_thread.thread);
+  int thread =
+    pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
+  if (thread)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Return code from pthread_create(): %d", thread);
+  pthread_detach (gdns_thread.thread);
 }

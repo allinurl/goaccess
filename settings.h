@@ -24,53 +24,53 @@
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
-   const char *apache;
-   const char *w3c;
-   const char *cloudfront;
+  const char *apache;
+  const char *w3c;
+  const char *cloudfront;
 } GPreConfDate;
 
 /* predefined log formats */
 typedef struct GPreConfLog_
 {
-   const char *combined;
-   const char *common;
-   const char *vcombined;
-   const char *vcommon;
-   const char *w3c;
-   const char *cloudfront;
+  const char *combined;
+  const char *common;
+  const char *vcombined;
+  const char *vcommon;
+  const char *w3c;
+  const char *cloudfront;
 } GPreConfLog;
 
 typedef struct GConfKeyword_
 {
-   const unsigned short key_id;
-   const char *keyword;
+  const unsigned short key_id;
+  const char *keyword;
 } GConfKeyword;
 
 typedef struct GConf_
 {
-   char *date_format;
-   char *debug_log;
-   char *iconfigfile;
-   char *ifile;
-   char *ignore_host;
-   char *log_format;
-   char *output_format;
-   int append_method;
-   int append_protocol;
-   int bandwidth;
-   int color_scheme;
-   int enable_html_resolver;
-   int geo_db;
-   int ignore_qstr;
-   int list_agents;
-   int load_conf_dlg;
-   int mouse_support;
-   int no_color;
-   int output_html;
-   int real_os;
-   int serve_secs;
-   int serve_usecs;
-   int skip_term_resolver;
+  char *date_format;
+  char *debug_log;
+  char *iconfigfile;
+  char *ifile;
+  char *ignore_host;
+  char *log_format;
+  char *output_format;
+  int append_method;
+  int append_protocol;
+  int bandwidth;
+  int color_scheme;
+  int enable_html_resolver;
+  int geo_db;
+  int ignore_qstr;
+  int list_agents;
+  int load_conf_dlg;
+  int mouse_support;
+  int no_color;
+  int output_html;
+  int real_os;
+  int serve_secs;
+  int serve_usecs;
+  int skip_term_resolver;
 } GConf;
 
 char *get_selected_date_str (size_t idx);

@@ -40,26 +40,26 @@
 
 typedef enum
 {
-   BROWSER,
-   BROWSER_TYPE
+  BROWSER,
+  BROWSER_TYPE
 } GBrowserStr;
 
 typedef struct GOpeSys_
 {
-   char os_type[OPESYS_TYPE_LEN];
-   int hits;
+  char os_type[OPESYS_TYPE_LEN];
+  int hits;
 } GOpeSys;
 
 typedef struct GBrowser_
 {
-   char browser_type[BROWSER_TYPE_LEN];
-   int hits;
+  char browser_type[BROWSER_TYPE_LEN];
+  int hits;
 } GBrowser;
 
 typedef struct GLocation_
 {
-   char continent[CONTINENT_LEN];
-   int hits;
+  char continent[CONTINENT_LEN];
+  int hits;
 } GLocation;
 
 char *alloc_string (const char *str);

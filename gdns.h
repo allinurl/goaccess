@@ -26,19 +26,19 @@
 
 typedef struct GDnsThread_
 {
-   pthread_cond_t not_empty;
-   pthread_cond_t not_full;
-   pthread_mutex_t mutex;
-   pthread_t thread;
+  pthread_cond_t not_empty;
+  pthread_cond_t not_full;
+  pthread_mutex_t mutex;
+  pthread_t thread;
 } GDnsThread;
 
 typedef struct GDnsQueue_
 {
-   int head;
-   int tail;
-   int size;
-   int capacity;
-   char buffer[QUEUE_SIZE][H_SIZE];
+  int head;
+  int tail;
+  int size;
+  int capacity;
+  char buffer[QUEUE_SIZE][H_SIZE];
 } GDnsQueue;
 
 extern GDnsThread gdns_thread;

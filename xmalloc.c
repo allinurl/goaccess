@@ -33,51 +33,51 @@
 void *
 xmalloc (size_t size)
 {
-   void *ptr;
+  void *ptr;
 
-   if ((ptr = malloc (size)) == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to allocate memory - failed.");
+  if ((ptr = malloc (size)) == NULL)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to allocate memory - failed.");
 
-   return (ptr);
+  return (ptr);
 }
 
 char *
 xstrdup (const char *s)
 {
-   char *ptr;
-   size_t len;
+  char *ptr;
+  size_t len;
 
-   len = strlen (s) + 1;
-   ptr = xmalloc (len);
+  len = strlen (s) + 1;
+  ptr = xmalloc (len);
 
-   strncpy (ptr, s, len);
-   return (ptr);
+  strncpy (ptr, s, len);
+  return (ptr);
 }
 
 /* self-checking wrapper to calloc() */
 void *
 xcalloc (size_t nmemb, size_t size)
 {
-   void *ptr;
+  void *ptr;
 
-   if ((ptr = calloc (nmemb, size)) == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to calloc memory - failed.");
+  if ((ptr = calloc (nmemb, size)) == NULL)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to calloc memory - failed.");
 
-   return (ptr);
+  return (ptr);
 }
 
 /* self-checking wrapper to realloc() */
 void *
 xrealloc (void *oldptr, size_t nmemb, size_t size)
 {
-   size_t newsize = nmemb * size;
-   void *newptr;
+  size_t newsize = nmemb * size;
+  void *newptr;
 
-   if ((newptr = realloc (oldptr, newsize)) == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Unable to reallocate memory - failed");
+  if ((newptr = realloc (oldptr, newsize)) == NULL)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to reallocate memory - failed");
 
-   return (newptr);
+  return (newptr);
 }

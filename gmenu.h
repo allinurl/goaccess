@@ -37,9 +37,9 @@
 
 enum ACTION
 {
-   REQ_DOWN,
-   REQ_UP,
-   REQ_SEL
+  REQ_DOWN,
+  REQ_UP,
+  REQ_SEL
 };
 
 typedef struct GMenu_ GMenu;
@@ -47,26 +47,26 @@ typedef struct GItem_ GItem;
 
 struct GItem_
 {
-   char *name;
-   int checked;
+  char *name;
+  int checked;
 };
 
 struct GMenu_
 {
-   WINDOW *win;
+  WINDOW *win;
 
-   int count;
-   int size;
-   int idx;
-   int start;
-   int h;
-   int w;
-   int x;
-   int y;
-   unsigned short multiple;
-   unsigned short selectable;
-   unsigned short status;
-   GItem *items;
+  int count;
+  int size;
+  int idx;
+  int start;
+  int h;
+  int w;
+  int x;
+  int y;
+  unsigned short multiple;
+  unsigned short selectable;
+  unsigned short status;
+  GItem *items;
 };
 
 GMenu *new_gmenu (WINDOW * parent, int h, int w, int y, int x);

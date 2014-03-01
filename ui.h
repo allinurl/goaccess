@@ -159,75 +159,75 @@
 
 typedef enum SCHEMES
 {
-   NO_COLOR,
-   MONOCHROME,
-   STD_GREEN
+  NO_COLOR,
+  MONOCHROME,
+  STD_GREEN
 } GShemes;
 
 typedef struct GFind_
 {
-   GModule module;
-   char *pattern;
-   int next_idx;
-   int next_parent_idx;
-   int next_sub_idx;
-   int look_in_sub;
-   int done;
-   int icase;
+  GModule module;
+  char *pattern;
+  int next_idx;
+  int next_parent_idx;
+  int next_sub_idx;
+  int look_in_sub;
+  int done;
+  int icase;
 } GFind;
 
 typedef struct GSort_
 {
-   GModule module;
-   enum
-   {
-      SORT_BY_HITS,
-      SORT_BY_DATA,
-      SORT_BY_BW,
-      SORT_BY_USEC,
-      SORT_BY_PROT,
-      SORT_BY_MTHD,
-   } field;
-   enum
-   {
-      SORT_ASC,
-      SORT_DESC
-   } sort;
+  GModule module;
+  enum
+  {
+    SORT_BY_HITS,
+    SORT_BY_DATA,
+    SORT_BY_BW,
+    SORT_BY_USEC,
+    SORT_BY_PROT,
+    SORT_BY_MTHD,
+  } field;
+  enum
+  {
+    SORT_ASC,
+    SORT_DESC
+  } sort;
 } GSort;
 
 typedef struct GScrollModule_
 {
-   int scroll;
-   int offset;
+  int scroll;
+  int offset;
 } GScrollModule;
 
 typedef struct GScrolling_
 {
-   GScrollModule module[TOTAL_MODULES];
-   GModule current;
-   int dash;
-   int expanded;
+  GScrollModule module[TOTAL_MODULES];
+  GModule current;
+  int dash;
+  int expanded;
 } GScrolling;
 
 typedef struct GAgents_
 {
-   char *agents;
-   int size;
+  char *agents;
+  int size;
 } GAgents;
 
 typedef struct GSpinner_
 {
-   pthread_t thread;
-   pthread_mutex_t mutex;
-   WINDOW *win;
-   int y;
-   int x;
-   int color;
-   enum
-   {
-      SPN_RUN,
-      SPN_END
-   } state;
+  pthread_t thread;
+  pthread_mutex_t mutex;
+  WINDOW *win;
+  int y;
+  int x;
+  int color;
+  enum
+  {
+    SPN_RUN,
+    SPN_END
+  } state;
 } GSpinner;
 
 /* *INDENT-OFF* */

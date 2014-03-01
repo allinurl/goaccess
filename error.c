@@ -46,23 +46,23 @@ void
 error_handler (const char *func, const char *file, int line, const char *msg,
                ...)
 {
-   va_list args;
+  va_list args;
 
-   (void) endwin ();
+  (void) endwin ();
 
-   fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION,
-            __DATE__, __TIME__);
-   fprintf (stderr, "\nAn error has occurred");
-   fprintf (stderr, "\nError occured at: %s - %s - %d", file, func, line);
-   fprintf (stderr, "\nMessage: ");
+  fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION,
+           __DATE__, __TIME__);
+  fprintf (stderr, "\nAn error has occurred");
+  fprintf (stderr, "\nError occured at: %s - %s - %d", file, func, line);
+  fprintf (stderr, "\nMessage: ");
 
-   va_start (args, msg);
-   vfprintf (stderr, msg, args);
-   va_end (args);
+  va_start (args, msg);
+  vfprintf (stderr, msg, args);
+  va_end (args);
 
-   fprintf (stderr, "\n\n");
+  fprintf (stderr, "\n\n");
 
-   exit (EXIT_FAILURE);
+  exit (EXIT_FAILURE);
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
@@ -70,33 +70,33 @@ error_handler (const char *func, const char *file, int line, const char *msg,
 void
 dbg_log_open (const char *path)
 {
-   if (path != NULL) {
-      log_file = fopen (path, "w");
-      if (log_file == NULL)
-         return;
-   }
+  if (path != NULL) {
+    log_file = fopen (path, "w");
+    if (log_file == NULL)
+      return;
+  }
 }
 
 void
 dbg_log_close (void)
 {
-   if (log_file != NULL)
-      fclose (log_file);
+  if (log_file != NULL)
+    fclose (log_file);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 void
 dbg_fprintf (const char *fmt, ...)
 {
-   va_list args;
+  va_list args;
 
-   if (!log_file)
-      return;
+  if (!log_file)
+    return;
 
-   va_start (args, fmt);
-   vfprintf (log_file, fmt, args);
-   fflush (log_file);
-   va_end (args);
+  va_start (args, fmt);
+  vfprintf (log_file, fmt, args);
+  fflush (log_file);
+  va_end (args);
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
