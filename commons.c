@@ -56,7 +56,7 @@ GeoIP *geo_location_data;
 float
 get_percentage (unsigned long long total, unsigned long long hit)
 {
-   return ((float) (hit * 100) / (total));
+  return ((float) (hit * 100) / (total));
 }
 
 /* Geolocation data */
@@ -64,14 +64,14 @@ get_percentage (unsigned long long total, unsigned long long hit)
 char *
 get_geoip_data (const char *data)
 {
-   const char *location = NULL;
-   const char *addr = data;
+  const char *location = NULL;
+  const char *addr = data;
 
-   /* Geolocation data */
-   if (geo_location_data != NULL)
-      location = GeoIP_country_name_by_name (geo_location_data, addr);
-   if (location == NULL)
-      location = "Location Unknown";
-   return (char *) location;
+  /* Geolocation data */
+  if (geo_location_data != NULL)
+    location = GeoIP_country_name_by_name (geo_location_data, addr);
+  if (location == NULL)
+    location = "Location Unknown";
+  return (char *) location;
 }
 #endif

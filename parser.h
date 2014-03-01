@@ -57,34 +57,34 @@ extern GHashTable *ht_unique_visitors;
 
 typedef struct GLogItem_
 {
-   char *agent;
-   char *date;
-   char *host;
-   char *ref;
-   char *method;
-   char *protocol;
-   char *req;
-   char *status;
-   unsigned long long resp_size;
-   unsigned long long serve_time;
+  char *agent;
+  char *date;
+  char *host;
+  char *ref;
+  char *method;
+  char *protocol;
+  char *req;
+  char *status;
+  unsigned long long resp_size;
+  unsigned long long serve_time;
 } GLogItem;
 
 typedef struct GLog_
 {
-   unsigned int invalid;
-   unsigned int offset;
-   unsigned int process;
-   unsigned long long resp_size;
-   unsigned short piping;
-   GLogItem *items;
+  unsigned int invalid;
+  unsigned int offset;
+  unsigned int process;
+  unsigned long long resp_size;
+  unsigned short piping;
+  GLogItem *items;
 } GLog;
 
 typedef struct GRequest_
 {
-   char method[REQ_METHOD_LEN];
-   char protocol[REQ_PROTO_LEN];
-   char *request;
-   int hits;
+  char method[REQ_METHOD_LEN];
+  char protocol[REQ_PROTO_LEN];
+  char *request;
+  int hits;
 } GRequest;
 
 GLog *init_log (void);
