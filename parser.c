@@ -393,7 +393,7 @@ static int
 process_request (GHashTable * ht, const char *key, const GLogItem * log)
 {
   GRequest *request;
-  if (ht == NULL)
+  if ((ht == NULL) || (key == NULL))
     return (EINVAL);
 
   request = g_hash_table_lookup (ht, key);
@@ -1151,6 +1151,8 @@ process_log (GLog * logger, char *line, int test)
     str_to_upper (log->protocol);
     append_protocol_to_request (&req_key, log->protocol);
   }
+  if ((conf.append_method) || (conf.append_protocol))
+    req_key = deblank(req_key);
 
   /* process 404s */
   if (not_found)
