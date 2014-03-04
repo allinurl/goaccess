@@ -1152,7 +1152,7 @@ process_log (GLog * logger, char *line, int test)
     append_protocol_to_request (&req_key, log->protocol);
   }
   if ((conf.append_method) || (conf.append_protocol))
-    req_key = deblank(req_key);
+    req_key = deblank (req_key);
 
   /* process 404s */
   if (not_found)

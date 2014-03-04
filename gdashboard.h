@@ -99,7 +99,6 @@ GDash *new_gdash (void);
 GHashTable *get_ht_by_module (GModule module);
 GHolder *new_gholder (unsigned int size);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
-int get_item_idx_in_holder (GHolder * holder, const char *k);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
 int set_module_from_mouse_event (GScrolling *scrolling, GDash *dash, int y);

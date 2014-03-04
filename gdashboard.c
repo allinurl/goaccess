@@ -1022,7 +1022,7 @@ get_serve_time (const char *key, GModule module)
 
 /* iterate over holder and get the key index.
  * return -1 if not found */
-int
+static int
 get_item_idx_in_holder (GHolder * holder, const char *k)
 {
   int i;
