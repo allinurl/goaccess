@@ -85,7 +85,7 @@
 #define KEYPH_DESC "Top Keyphrases sorted by hits"
 #define KEYPH_ID   "keyphrases"
 #define GEOLO_HEAD "Geo Location"
-#define GEOLO_DESC "Continent > Country sorted by hits"
+#define GEOLO_DESC "Continent > Country sorted by visitors"
 #define GEOLO_ID   "geolocation"
 #define CODES_HEAD "HTTP Status Codes"
 #define CODES_DESC "Top HTTP Status Codes sorted by hits"

@@ -750,10 +750,13 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
       }
     }
 
-    /* Every module other than VISITORS, BROWSERS and OS
+    /* Every module other than VISITORS, GEO_LOCATION, BROWSERS and OS
      * will use total req as base
      */
     switch (i) {
+#ifdef HAVE_LIBGEOIP
+     case GEO_LOCATION:
+#endif
      case VISITORS:
      case BROWSERS:
      case OS:

@@ -611,6 +611,12 @@ process_referrers (char *referrer)
 static void
 process_unique_data (char *host, char *date, char *agent)
 {
+#ifdef HAVE_LIBGEOIP
+  int geo_id = 0;
+  char location[COUNTRY_LEN];
+  char continent[CONTINENT_LEN];
+#endif
+
   char *a = NULL;
   char *browser_key = NULL, *browser = NULL;
   char *os_key = NULL, *opsys = NULL;
@@ -639,6 +645,16 @@ process_unique_data (char *host, char *date, char *agent)
     opsys = verify_os (os_key, os_type);
     if (opsys != NULL)
       process_opesys (ht_os, opsys, os_type);
+
+#ifdef HAVE_LIBGEOIP
+    geo_id = GeoIP_id_by_name (geo_location_data, host);
+
+    sprintf (location, "%s %s", GeoIP_code_by_id (geo_id),
+             get_geoip_data (host));
+    sprintf (continent, "%s",
+             get_continent_name_and_code (GeoIP_continent_by_id (geo_id)));
+    process_geolocation (ht_countries, location, continent);
+#endif
 
     if ((date = strchr (visitor_key, '|')) != NULL) {
       char *tmp_date = NULL;
@@ -1067,12 +1083,6 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
 static int
 process_log (GLog * logger, char *line, int test)
 {
-#ifdef HAVE_LIBGEOIP
-  int geo_id = 0;
-  char location[COUNTRY_LEN];
-  char continent[CONTINENT_LEN];
-#endif
-
   char buf[DATE_LEN];
   char *qmark = NULL, *req_key = NULL;
   GLogItem *log;
@@ -1170,16 +1180,6 @@ process_log (GLog * logger, char *line, int test)
   process_generic_data (ht_status_code, log->status);
   /* process hosts */
   process_generic_data (ht_hosts, log->host);
-
-#ifdef HAVE_LIBGEOIP
-  geo_id = GeoIP_id_by_name (geo_location_data, log->host);
-
-  sprintf (location, "%s %s", GeoIP_code_by_id (geo_id),
-           get_geoip_data (log->host));
-  sprintf (continent, "%s",
-           get_continent_name_and_code (GeoIP_continent_by_id (geo_id)));
-  process_geolocation (ht_countries, location, continent);
-#endif
 
   /* process bandwidth  */
   process_request_meta (ht_date_bw, buf, log->resp_size);
