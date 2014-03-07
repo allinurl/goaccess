@@ -26,13 +26,6 @@
 #define BW_HASHTABLES   3
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
-#define REQ_PROTO_LEN   9
-#define REQ_METHOD_LEN  8
-
-#define OPESYS_TYPE_LEN  10
-#define BROWSER_TYPE_LEN 10
-#define COUNTRY_LEN      48
-#define CONTINENT_LEN    48
 
 #ifdef HAVE_LIBGLIB_2_0
 #include <glib.h>
@@ -83,32 +76,6 @@ typedef struct GLog_
   unsigned short piping;
   GLogItem *items;
 } GLog;
-
-typedef struct GRequest_
-{
-  char method[REQ_METHOD_LEN];
-  char protocol[REQ_PROTO_LEN];
-  char *request;
-  int hits;
-} GRequest;
-
-typedef struct GOpeSys_
-{
-  char os_type[OPESYS_TYPE_LEN];
-  int hits;
-} GOpeSys;
-
-typedef struct GBrowser_
-{
-  char browser_type[BROWSER_TYPE_LEN];
-  int hits;
-} GBrowser;
-
-typedef struct GLocation_
-{
-  char continent[CONTINENT_LEN];
-  int hits;
-} GLocation;
 
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);

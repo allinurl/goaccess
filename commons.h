@@ -57,12 +57,20 @@ extern size_t term_w;
 #endif
 
 #ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES  12
+#define TOTAL_MODULES    12
 #else
-#define TOTAL_MODULES  11
+#define TOTAL_MODULES    11
 #endif
 
-#define DATE_TIME      20
+#define DATE_TIME        20
+
+#define REQ_PROTO_LEN     9
+#define REQ_METHOD_LEN    8
+
+#define OPESYS_TYPE_LEN  10
+#define BROWSER_TYPE_LEN 10
+#define COUNTRY_LEN      48
+#define CONTINENT_LEN    48
 
 typedef enum MODULES
 {
@@ -132,6 +140,32 @@ typedef struct GRawData_
   int idx;                      /* first level index        */
   int size;                     /* total num of items on ht */
 } GRawData;
+
+typedef struct GRequest_
+{
+  char method[REQ_METHOD_LEN];
+  char protocol[REQ_PROTO_LEN];
+  char *request;
+  int hits;
+} GRequest;
+
+typedef struct GOpeSys_
+{
+  char os_type[OPESYS_TYPE_LEN];
+  int hits;
+} GOpeSys;
+
+typedef struct GBrowser_
+{
+  char browser_type[BROWSER_TYPE_LEN];
+  int hits;
+} GBrowser;
+
+typedef struct GLocation_
+{
+  char continent[CONTINENT_LEN];
+  int hits;
+} GLocation;
 
 #ifdef HAVE_LIBGEOIP
 extern GeoIP *geo_location_data;
