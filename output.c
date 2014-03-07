@@ -553,7 +553,7 @@ print_html_geolocation (FILE * fp, GHolder * h, int process)
   print_html_begin_thead (fp);
 
   fprintf (fp, "<tr>");
-  fprintf (fp, "<th>Hits</th>");
+  fprintf (fp, "<th>Visitors</th>");
   fprintf (fp, "<th>%%</th>");
   fprintf (fp, "<th>");
   fprintf (fp, "Location");
