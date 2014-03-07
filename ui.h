@@ -31,10 +31,6 @@
 #include <ncurses.h>
 #endif
 
-#ifdef HAVE_LIBGLIB_2_0
-#include <glib.h>
-#endif
-
 #ifdef HAVE_LIBPTHREAD
 #include <pthread.h>
 #endif

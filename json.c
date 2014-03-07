@@ -267,7 +267,7 @@ print_json_visitors (FILE * fp, GHolder * h)
 {
   char *data, buf[DATE_LEN];
   float percent;
-  int hits, bw, i, process = g_hash_table_size (ht_unique_visitors);
+  int hits, bw, i, process = get_ht_size (ht_unique_visitors);
 
   /* make compiler happy */
   memset (buf, 0, sizeof (buf));
@@ -308,23 +308,22 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"date_time\": \"%s\",\n", now);
   fprintf (fp, "\t\t\"total_requests\": %d,\n", logger->process);
   fprintf (fp, "\t\t\"unique_visitors\": %d,\n",
-           g_hash_table_size (ht_unique_visitors));
-  fprintf (fp, "\t\t\"referrers\": %d,\n", g_hash_table_size (ht_referrers));
+           get_ht_size (ht_unique_visitors));
+  fprintf (fp, "\t\t\"referrers\": %d,\n", get_ht_size (ht_referrers));
 
   if (!logger->piping)
     log_size = file_size (conf.ifile);
 
   fprintf (fp, "\t\t\"log_size\": %jd,\n", (intmax_t) log_size);
   fprintf (fp, "\t\t\"failed_requests\": %d,\n", logger->invalid);
-  fprintf (fp, "\t\t\"unique_files\": %d,\n", g_hash_table_size (ht_requests));
+  fprintf (fp, "\t\t\"unique_files\": %d,\n", get_ht_size (ht_requests));
   fprintf (fp, "\t\t\"unique_404\": %d,\n",
-           g_hash_table_size (ht_not_found_requests));
+           get_ht_size (ht_not_found_requests));
 
   fprintf (fp, "\t\t\"bandwidth\": %lld,\n", logger->resp_size);
   fprintf (fp, "\t\t\"generation_time\": %llu,\n",
            ((long long) end_proc - start_proc));
-  fprintf (fp, "\t\t\"static_files\": %d,\n",
-           g_hash_table_size (ht_requests_static));
+  fprintf (fp, "\t\t\"static_files\": %d,\n", get_ht_size (ht_requests_static));
 
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
@@ -350,11 +349,10 @@ output_json (GLog * logger, GHolder * holder)
   print_json_complete (fp, holder, logger->process);
   fprintf (fp, ",\n");
 
-  print_json_generic (fp, holder + OS, g_hash_table_size (ht_unique_visitors));
+  print_json_generic (fp, holder + OS, get_ht_size (ht_unique_visitors));
   fprintf (fp, ",\n");
 
-  print_json_generic (fp, holder + BROWSERS,
-                      g_hash_table_size (ht_unique_visitors));
+  print_json_generic (fp, holder + BROWSERS, get_ht_size (ht_unique_visitors));
   fprintf (fp, ",\n");
 
   print_json_generic (fp, holder + REFERRERS, logger->process);

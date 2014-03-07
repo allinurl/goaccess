@@ -29,6 +29,10 @@
 #include <GeoIP.h>
 #endif
 
+#ifdef HAVE_LIBGLIB_2_0
+#include <glib.h>
+#endif
+
 #include <time.h>
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
@@ -176,5 +180,6 @@ char *get_geoip_data (const char *data);
 #endif
 
 float get_percentage (unsigned long long total, unsigned long long hit);
+unsigned int get_ht_size (GHashTable * ht);
 
 #endif

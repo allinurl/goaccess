@@ -33,7 +33,9 @@
 #include <ncurses.h>
 #endif
 
+#ifdef HAVE_LIBGLIB_2_0
 #include <glib.h>
+#endif
 #include <time.h>
 
 #include "commons.h"
@@ -74,4 +76,11 @@ get_geoip_data (const char *data)
     location = "Location Unknown";
   return (char *) location;
 }
+
+unsigned int
+get_ht_size (GHashTable * ht)
+{
+  return g_hash_table_size (ht);
+}
+
 #endif

@@ -297,13 +297,13 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
 
   /* *INDENT-OFF* */
   failed       = int_to_str (invalid);
-  not_found    = int_to_str (g_hash_table_size (ht_not_found_requests));
+  not_found    = int_to_str (get_ht_size (ht_not_found_requests));
   process      = int_to_str (processed);
-  ref          = int_to_str (g_hash_table_size (ht_referrers));
-  req          = int_to_str (g_hash_table_size (ht_requests));
-  static_files = int_to_str (g_hash_table_size (ht_requests_static));
+  ref          = int_to_str (get_ht_size (ht_referrers));
+  req          = int_to_str (get_ht_size(ht_requests));
+  static_files = int_to_str (get_ht_size(ht_requests_static));
   now          = int_to_str (((long long) end_proc - start_proc));
-  visitors     = int_to_str (g_hash_table_size (ht_unique_visitors));
+  visitors     = int_to_str (get_ht_size(ht_unique_visitors));
 
   fields[0].value = process;
   fields[1].value = visitors;

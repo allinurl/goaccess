@@ -210,7 +210,7 @@ print_csv_visitors (FILE * fp, GHolder * h)
 {
   char *data, buf[DATE_LEN];
   float percent;
-  int hits, bw, i, process = g_hash_table_size (ht_unique_visitors);
+  int hits, bw, i, process = get_ht_size (ht_unique_visitors);
 
   /* make compiler happy */
   memset (buf, 0, sizeof (buf));
@@ -249,9 +249,9 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\"%d\",,\"%s\",\"total_requests\",\"%d\"\r\n", i++, GENER_ID,
            logger->process);
   fprintf (fp, "\"%d\",,\"%s\",\"unique_visitors\",\"%d\"\r\n", i++, GENER_ID,
-           g_hash_table_size (ht_unique_visitors));
+           get_ht_size (ht_unique_visitors));
   fprintf (fp, "\"%d\",,\"%s\",\"referrers\",\"%d\"\r\n", i++, GENER_ID,
-           g_hash_table_size (ht_referrers));
+           get_ht_size (ht_referrers));
 
   if (!logger->piping)
     log_size = file_size (conf.ifile);
@@ -261,16 +261,16 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\"%d\",,\"%s\",\"failed_requests\",\"%d\"\r\n", i++, GENER_ID,
            logger->invalid);
   fprintf (fp, "\"%d\",,\"%s\",\"unique_files\",\"%d\"\r\n", i++, GENER_ID,
-           g_hash_table_size (ht_requests));
+           get_ht_size (ht_requests));
   fprintf (fp, "\"%d\",,\"%s\",\"unique_404\",\"%d\"\r\n", i++, GENER_ID,
-           g_hash_table_size (ht_not_found_requests));
+           get_ht_size (ht_not_found_requests));
 
   fprintf (fp, "\"%d\",,\"%s\",\"bandwidth\",\"%lld\"\r\n", i++, GENER_ID,
            logger->resp_size);
-  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++,
-           GENER_ID, (long long) end_proc - start_proc);
+  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++, GENER_ID,
+           (long long) end_proc - start_proc);
   fprintf (fp, "\"%d\",,\"%s\",\"static_files\",\"%d\"\r\n", i++, GENER_ID,
-           g_hash_table_size (ht_requests_static));
+           get_ht_size (ht_requests_static));
 
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
@@ -288,9 +288,8 @@ output_csv (GLog * logger, GHolder * holder)
   print_csv_summary (fp, logger);
   print_csv_visitors (fp, holder + VISITORS);
   print_csv_complete (fp, holder, logger->process);
-  print_csv_generic (fp, holder + OS, g_hash_table_size (ht_unique_visitors));
-  print_csv_generic (fp, holder + BROWSERS,
-                     g_hash_table_size (ht_unique_visitors));
+  print_csv_generic (fp, holder + OS, get_ht_size (ht_unique_visitors));
+  print_csv_generic (fp, holder + BROWSERS, get_ht_size (ht_unique_visitors));
   print_csv_generic (fp, holder + REFERRERS, logger->process);
   print_csv_generic (fp, holder + REFERRING_SITES, logger->process);
   print_csv_generic (fp, holder + KEYPHRASES, logger->process);
