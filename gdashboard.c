@@ -760,7 +760,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
      case VISITORS:
      case BROWSERS:
      case OS:
-       process = g_hash_table_size (ht_unique_visitors);
+       process = get_ht_size (ht_unique_visitors);
        break;
      default:
        process = logger->process;
@@ -1493,7 +1493,7 @@ get_ht_size_by_module (GModule module)
      return 0;
   }
 
-  return g_hash_table_size (ht);
+  return get_ht_size (ht);
 }
 
 /* load raw hash table's data into holder */

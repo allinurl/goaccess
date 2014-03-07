@@ -761,7 +761,7 @@ print_html_browser_os (FILE * fp, GHolder * h)
   const char *id = OPERA_ID;
   float percent, l;
   GSubList *sub_list;
-  int hits, i, max, process = g_hash_table_size (ht_unique_visitors);
+  int hits, i, max, process = get_ht_size (ht_unique_visitors);
 
   if (h->idx == 0)
     return;
@@ -1085,7 +1085,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
 {
   char *data, *bandwidth, buf[DATE_LEN];
   float percent, l;
-  int hits, i, max, process = g_hash_table_size (ht_unique_visitors);
+  int hits, i, max, process = get_ht_size (ht_unique_visitors);
 
   /* make compiler happy */
   memset (buf, 0, sizeof (buf));
@@ -1174,9 +1174,8 @@ print_html_summary (FILE * fp, GLog * logger)
 
   print_html_begin_tr (fp, 0);
   print_html_summary_field (fp, logger->process, T_REQUESTS);
-  print_html_summary_field (fp, g_hash_table_size (ht_unique_visitors),
-                            T_UNIQUE_VIS);
-  print_html_summary_field (fp, g_hash_table_size (ht_referrers), T_REFERRER);
+  print_html_summary_field (fp, get_ht_size (ht_unique_visitors), T_UNIQUE_VIS);
+  print_html_summary_field (fp, get_ht_size (ht_referrers), T_REFERRER);
 
   if (!logger->piping) {
     log_size = file_size (conf.ifile);
@@ -1194,8 +1193,8 @@ print_html_summary (FILE * fp, GLog * logger)
 
   print_html_begin_tr (fp, 0);
   print_html_summary_field (fp, logger->invalid, T_F_REQUESTS);
-  print_html_summary_field (fp, g_hash_table_size (ht_requests), T_UNIQUE_FIL);
-  print_html_summary_field (fp, g_hash_table_size (ht_not_found_requests),
+  print_html_summary_field (fp, get_ht_size (ht_requests), T_UNIQUE_FIL);
+  print_html_summary_field (fp, get_ht_size (ht_not_found_requests),
                             T_UNIQUE404);
   fprintf (fp, "<td>%s</td><td>%s</td>", T_BW, bw);
   print_html_end_tr (fp);
@@ -1204,8 +1203,7 @@ print_html_summary (FILE * fp, GLog * logger)
   fprintf (fp, "<td>%s</td>", T_GEN_TIME);
   fprintf (fp, "<td>%llu</td>", ((long long) end_proc - start_proc));
 
-  print_html_summary_field (fp, g_hash_table_size (ht_requests_static),
-                            T_STATIC_FIL);
+  print_html_summary_field (fp, get_ht_size (ht_requests_static), T_STATIC_FIL);
   fprintf (fp, "<td colspan=\"4\">%s</td>", conf.ifile);
 
   print_html_end_tr (fp);
