@@ -75,7 +75,6 @@ GHashTable *ht_hosts_agents       = NULL;
 GHashTable *ht_host_serve_usecs   = NULL;
 GHashTable *ht_hosts              = NULL;
 GHashTable *ht_keyphrases         = NULL;
-GHashTable *ht_monthly            = NULL;
 GHashTable *ht_not_found_requests = NULL;
 GHashTable *ht_os                 = NULL;
 GHashTable *ht_referrers          = NULL;

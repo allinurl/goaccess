@@ -276,7 +276,6 @@ house_keeping (void)
   g_hash_table_destroy (ht_host_bw);
   g_hash_table_destroy (ht_hosts);
   g_hash_table_destroy (ht_keyphrases);
-  g_hash_table_destroy (ht_monthly);
   g_hash_table_destroy (ht_not_found_requests);
   g_hash_table_destroy (ht_os);
   g_hash_table_destroy (ht_referrers);
@@ -951,9 +950,6 @@ main (int argc, char *argv[])
     g_hash_table_new_full (g_str_hash, g_str_equal,
                            (GDestroyNotify) g_free, g_free);
   ht_date_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_monthly =
     g_hash_table_new_full (g_str_hash, g_str_equal,
                            (GDestroyNotify) g_free, g_free);
   ht_hosts_agents =

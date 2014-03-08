@@ -42,7 +42,6 @@ extern GHashTable *ht_hosts;
 extern GHashTable *ht_hosts_agents;
 extern GHashTable *ht_host_serve_usecs;
 extern GHashTable *ht_keyphrases;
-extern GHashTable *ht_monthly;
 extern GHashTable *ht_not_found_requests;
 extern GHashTable *ht_os;
 extern GHashTable *ht_referrers;
