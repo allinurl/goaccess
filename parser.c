@@ -256,6 +256,32 @@ cmp_mthd_desc (const void *a, const void *b)
   return strcmp (ib->method, ia->method);
 }
 
+/* allocate memory for ht raw data */
+GRawData *
+new_grawdata (void)
+{
+  GRawData *raw_data = xmalloc (sizeof (GRawData));
+  memset (raw_data, 0, sizeof *raw_data);
+
+  return raw_data;
+}
+
+/* allocate memory for raw data items */
+GRawDataItem *
+new_grawdata_item (unsigned int size)
+{
+  GRawDataItem *item = xcalloc (size, sizeof (GRawDataItem));
+  return item;
+}
+
+/* free memory allocated in raw data */
+void
+free_raw_data (GRawData * raw_data)
+{
+  free (raw_data->items);
+  free (raw_data);
+}
+
 void
 reset_struct (GLog * logger)
 {

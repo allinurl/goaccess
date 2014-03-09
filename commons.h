@@ -131,20 +131,6 @@ typedef struct GHolder_
   int sub_items_size;           /* total number of sub items        */
 } GHolder;
 
-typedef struct GRawDataItem_
-{
-  void *key;
-  void *value;
-} GRawDataItem;
-
-typedef struct GRawData_
-{
-  GRawDataItem *items;          /* data                     */
-  GModule module;               /* current module           */
-  int idx;                      /* first level index        */
-  int size;                     /* total num of items on ht */
-} GRawData;
-
 typedef struct GRequest_
 {
   char method[REQ_METHOD_LEN];
