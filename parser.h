@@ -31,6 +31,8 @@
 #include <glib.h>
 #endif
 
+#include "commons.h"
+
 extern GHashTable *ht_browsers;
 extern GHashTable *ht_countries;
 extern GHashTable *ht_date_bw;
@@ -76,8 +78,24 @@ typedef struct GLog_
   GLogItem *items;
 } GLog;
 
+typedef struct GRawDataItem_
+{
+  void *key;
+  void *value;
+} GRawDataItem;
+
+typedef struct GRawData_
+{
+  GRawDataItem *items;          /* data                     */
+  GModule module;               /* current module           */
+  int idx;                      /* first level index        */
+  int size;                     /* total num of items on ht */
+} GRawData;
+
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
+GRawDataItem *new_grawdata_item (unsigned int size);
+GRawData *new_grawdata (void);
 int cmp_bw_asc (const void *a, const void *b);
 int cmp_bw_desc (const void *a, const void *b);
 int cmp_data_asc (const void *a, const void *b);
@@ -98,6 +116,7 @@ int cmp_usec_asc (const void *a, const void *b);
 int cmp_usec_desc (const void *a, const void *b);
 int parse_log (GLog ** logger, char *tail, int n);
 int test_format (GLog * logger);
+void free_raw_data (GRawData * raw_data);
 void reset_struct (GLog * logger);
 
 #endif
