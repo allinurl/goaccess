@@ -427,15 +427,11 @@ process_request (GHashTable * ht, const char *key, const GLogItem * log)
   } else {
     request = xcalloc (1, sizeof (GRequest));
 
-    if (conf.append_protocol && log->protocol) {
-      strncpy (request->protocol, log->protocol, REQ_PROTO_LEN);
-      request->protocol[REQ_PROTO_LEN - 1] = '\0';
-    }
+    if (conf.append_protocol && log->protocol)
+      xstrncpy (request->protocol, log->protocol, REQ_PROTO_LEN);
 
-    if (conf.append_method && log->method) {
-      strncpy (request->method, log->method, REQ_METHOD_LEN);
-      request->method[REQ_METHOD_LEN - 1] = '\0';
-    }
+    if (conf.append_method && log->method)
+      xstrncpy (request->method, log->method, REQ_METHOD_LEN);
 
     request->request = alloc_string (log->req);
     request->hits = 1;
@@ -461,8 +457,7 @@ process_geolocation (GHashTable * ht, const char *cntry, const char *cont)
     loc->hits++;
   } else {
     loc = xcalloc (1, sizeof (GLocation));
-    strncpy (loc->continent, cont, CONTINENT_LEN);
-    loc->continent[CONTINENT_LEN - 1] = '\0';
+    xstrncpy (loc->continent, cont, CONTINENT_LEN);
     loc->hits = 1;
   }
 

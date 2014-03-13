@@ -538,9 +538,7 @@ verify_os (const char *str, char *os_type)
 
     /* windows */
     if ((lookfor = "Windows", strstr (str, lookfor)) != NULL) {
-      strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      os_type[OPESYS_TYPE_LEN - 1] = '\0';
-
+      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
       return conf.real_os &&
         (b = get_real_win (a)) ? b : alloc_string (os[i][0]);
     }
@@ -549,10 +547,7 @@ verify_os (const char *str, char *os_type)
     if ((lookfor = "iPhone OS", strstr (str, lookfor)) != NULL ||
         (lookfor = "Red Hat", strstr (str, lookfor)) != NULL ||
         (lookfor = "Win", strstr (str, lookfor)) != NULL) {
-
-      strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      os_type[OPESYS_TYPE_LEN - 1] = '\0';
-
+      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
       return alloc_string (os[i][0]);
     }
 
@@ -570,9 +565,7 @@ verify_os (const char *str, char *os_type)
       }
       *p = 0;
 
-      strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      os_type[OPESYS_TYPE_LEN - 1] = '\0';
-
+      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
       return conf.real_os ? get_real_mac_osx (a) : alloc_string (a);
     }
 
@@ -583,9 +576,7 @@ verify_os (const char *str, char *os_type)
         p++;
       *p = 0;
 
-      strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      os_type[OPESYS_TYPE_LEN - 1] = '\0';
-
+      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
       return conf.real_os ? get_real_android (a) : alloc_string (a);
     }
 
@@ -602,14 +593,11 @@ verify_os (const char *str, char *os_type)
     }
     *p = 0;
 
-    strncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-    os_type[OPESYS_TYPE_LEN - 1] = '\0';
-
+    xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
     return alloc_string (b);
   }
 
-  strncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
-  os_type[OPESYS_TYPE_LEN - 1] = '\0';
+  xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
 
   return alloc_string ("Unknown");
 }
@@ -638,9 +626,7 @@ verify_browser (const char *str, char *browser_type)
         char *val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
         sprintf (val, "Opera%s", slash);
 
-        strncpy (browser_type, "Opera", BROWSER_TYPE_LEN);
-        browser_type[BROWSER_TYPE_LEN - 1] = '\0';
-
+        xstrncpy (browser_type, "Opera", BROWSER_TYPE_LEN);
         return val;
       }
     }
@@ -662,9 +648,7 @@ verify_browser (const char *str, char *browser_type)
 
     /* IE11 */
     if (strstr (a, "rv:11") != NULL && strstr (a, "Trident/7.0") != NULL) {
-      strncpy (browser_type, "MSIE", BROWSER_TYPE_LEN);
-      browser_type[BROWSER_TYPE_LEN - 1] = '\0';
-
+      xstrncpy (browser_type, "MSIE", BROWSER_TYPE_LEN);
       return alloc_string ("MSIE/11.0");
     }
 
@@ -679,14 +663,11 @@ verify_browser (const char *str, char *browser_type)
     }
     *p = 0;
 
-    strncpy (browser_type, browsers[i][1], BROWSER_TYPE_LEN);
-    browser_type[BROWSER_TYPE_LEN - 1] = '\0';
-
+    xstrncpy (browser_type, browsers[i][1], BROWSER_TYPE_LEN);
     return alloc_string (b);
   }
 
-  strncpy (browser_type, "Unknown", BROWSER_TYPE_LEN);
-  browser_type[BROWSER_TYPE_LEN - 1] = '\0';
+  xstrncpy (browser_type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");
 }
