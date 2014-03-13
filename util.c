@@ -442,6 +442,17 @@ alloc_string (const char *str)
   return new;
 }
 
+void
+xstrncpy (char *dest, const char *source, const size_t dest_size)
+{
+  strncpy (dest, source, dest_size);
+  if (dest_size > 0) {
+    dest[dest_size - 1] = '\0';
+  } else {
+    dest[0] = '\0';
+  }
+}
+
 int
 count_occurrences (const char *s1, char c)
 {
