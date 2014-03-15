@@ -501,19 +501,6 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   return s;
 }
 
-/* get user-agent string for given key */
-char *
-ht_bw_str (GHashTable * ht, const char *key)
-{
-  gpointer value_ptr;
-
-  value_ptr = g_hash_table_lookup (ht, key);
-  if (value_ptr != NULL)
-    return filesize_str (*(unsigned long long *) value_ptr);
-  else
-    return alloc_string ("-");
-}
-
 /* allocate memory for a new instace of GAgents */
 static GAgents *
 new_gagents (unsigned int n)

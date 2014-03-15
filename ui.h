@@ -228,7 +228,6 @@ typedef struct GSpinner_
 
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);
-char *ht_bw_str (GHashTable * ht, const char *key);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
 GSpinner *new_gspinner (void);
 int split_agent_str (char *ptr_value, GAgents * agents, int max);
