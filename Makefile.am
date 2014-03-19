@@ -1,6 +1,8 @@
 #AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = goaccess
 goaccess_SOURCES = \
+   browsers.c      \
+   browsers.h      \
    commons.c       \
    commons.h       \
    csv.c           \
