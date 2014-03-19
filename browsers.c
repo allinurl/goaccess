@@ -1,5 +1,5 @@
 /**
- * browsers.c -- a set of handy functions to help parsing
+ * browsers.c -- functions for dealing with browsers 
  * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
