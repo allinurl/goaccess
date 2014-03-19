@@ -55,7 +55,6 @@ char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *unescape_str (const char *src);
 char *usecs_to_str (unsigned long long usec);
-char *verify_browser (const char *str, char *browser_type);
 char *verify_os (const char *str, char *os_type);
 const char *get_continent_name_and_code (const char *continentid);
 const char *verify_status_code (char *str);

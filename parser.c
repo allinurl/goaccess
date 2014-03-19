@@ -56,6 +56,7 @@
 
 #include "parser.h"
 
+#include "browsers.h"
 #include "commons.h"
 #include "error.h"
 #include "settings.h"
