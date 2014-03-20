@@ -19,6 +19,8 @@ goaccess_SOURCES = \
    goaccess.h      \
    json.c          \
    json.h          \
+   opesys.c        \
+   opesys.h        \
    output.c        \
    output.h        \
    parser.c        \
