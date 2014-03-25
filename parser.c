@@ -429,11 +429,14 @@ process_request (GHashTable * ht, const char *key, const GLogItem * log)
   } else {
     request = xcalloc (1, sizeof (GRequest));
 
-    if (conf.append_protocol && log->protocol)
+    if (conf.append_protocol && log->protocol) {
+      request->has_protocol = 1;
       xstrncpy (request->protocol, log->protocol, REQ_PROTO_LEN);
-
-    if (conf.append_method && log->method)
+    }
+    if (conf.append_method && log->method) {
+      request->has_method = 1;
       xstrncpy (request->method, log->method, REQ_METHOD_LEN);
+    }
 
     request->request = alloc_string (log->req);
     request->hits = 1;
