@@ -136,6 +136,8 @@ typedef struct GRequest_
   char method[REQ_METHOD_LEN];
   char protocol[REQ_PROTO_LEN];
   char *request;
+  int has_method;
+  int has_protocol;
   int hits;
 } GRequest;
 
