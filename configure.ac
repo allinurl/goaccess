@@ -65,3 +65,13 @@ AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memse
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
+
+cat << EOF
+
+Your build configuration:
+
+  CFLAGS = $CFLAGS
+  prefix: $prefix
+  version: $VERSION
+
+EOF
