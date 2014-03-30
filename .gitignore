@@ -46,3 +46,6 @@ Makefile.in
 
 # VIM
 *.*.swp
+
+# VIM
+*.log
