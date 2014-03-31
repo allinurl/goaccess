@@ -58,10 +58,9 @@ AC_CHECK_TYPES([ptrdiff_t])
 AC_FUNC_STRTOD
 AC_FUNC_FSEEKO
 AC_FUNC_MEMCMP
-AC_FUNC_REALLOC
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol realpath malloc])
+AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol realpath malloc realloc])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
