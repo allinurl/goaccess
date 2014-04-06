@@ -59,7 +59,16 @@ AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([netinet/in.h sys/socket.h arpa/inet.h locale.h netdb.h stdint.h stdlib.h string.h unistd.h stddef.h])
+AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([sys/socket.h])
+AC_CHECK_HEADERS([arpa/inet.h])
+AC_CHECK_HEADERS([locale.h])
+AC_CHECK_HEADERS([netdb.h])
+AC_CHECK_HEADERS([stdint.h])
+AC_CHECK_HEADERS([stdlib.h])
+AC_CHECK_HEADERS([string.h])
+AC_CHECK_HEADERS([unistd.h])
+AC_CHECK_HEADERS([stddef.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
@@ -74,7 +83,23 @@ AC_FUNC_FSEEKO
 AC_FUNC_MEMCMP
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([regcomp strtoull memmove floor gethostbyaddr gethostbyname memset setlocale strchr strdup strerror strrchr strstr strtol realpath malloc realloc])
+AC_CHECK_FUNCS([regcomp])
+AC_CHECK_FUNCS([strtoull])
+AC_CHECK_FUNCS([memmove])
+AC_CHECK_FUNCS([floor])
+AC_CHECK_FUNCS([gethostbyaddr])
+AC_CHECK_FUNCS([gethostbyname])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([setlocale])
+AC_CHECK_FUNCS([strchr])
+AC_CHECK_FUNCS([strdup])
+AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([strrchr])
+AC_CHECK_FUNCS([strstr])
+AC_CHECK_FUNCS([strtol])
+AC_CHECK_FUNCS([realpath])
+AC_CHECK_FUNCS([malloc])
+AC_CHECK_FUNCS([realloc])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
