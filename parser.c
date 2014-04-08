@@ -46,13 +46,20 @@
 #include <ncurses.h>
 #endif
 
+#include <arpa/inet.h>
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
-#include <arpa/inet.h>
+
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabinet.h"
+#elif HAVE_LIBGLIB_2_0
+#include "glibht.h"
+#endif
 
 #include "parser.h"
 
@@ -63,30 +70,6 @@
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
-
-/* *INDENT-OFF* */
-/* Definitions checked against declarations */
-GHashTable *ht_browsers           = NULL;
-GHashTable *ht_countries          = NULL;
-GHashTable *ht_date_bw            = NULL;
-GHashTable *ht_file_bw            = NULL;
-GHashTable *ht_file_serve_usecs   = NULL;
-GHashTable *ht_host_bw            = NULL;
-GHashTable *ht_hostnames          = NULL;
-GHashTable *ht_hosts_agents       = NULL;
-GHashTable *ht_host_serve_usecs   = NULL;
-GHashTable *ht_hosts              = NULL;
-GHashTable *ht_keyphrases         = NULL;
-GHashTable *ht_not_found_requests = NULL;
-GHashTable *ht_os                 = NULL;
-GHashTable *ht_referrers          = NULL;
-GHashTable *ht_referring_sites    = NULL;
-GHashTable *ht_requests           = NULL;
-GHashTable *ht_requests_static    = NULL;
-GHashTable *ht_status_code        = NULL;
-GHashTable *ht_unique_visitors    = NULL;
-GHashTable *ht_unique_vis         = NULL;
-/* *INDENT-ON* */
 
 /* sort data ascending */
 int
@@ -130,7 +113,7 @@ cmp_raw_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
-  return (int) ((char *) ib->value - (char *) ia->value);
+  return (int) (*(int *) ib->value - *(int *) ia->value);
 }
 
 /* sort raw numeric descending */
@@ -280,6 +263,15 @@ new_grawdata_item (unsigned int size)
 void
 free_raw_data (GRawData * raw_data)
 {
+#ifdef HAVE_LIBTOKYOCABINET
+  int i;
+  for (i = 0; i < raw_data->size; i++) {
+    if (raw_data->items[i].key != NULL)
+      free (raw_data->items[i].key);
+    if (raw_data->items[i].value != NULL)
+      free (raw_data->items[i].value);
+  }
+#endif
   free (raw_data->items);
   free (raw_data);
 }
@@ -295,215 +287,58 @@ reset_struct (GLog * logger)
 GLog *
 init_log (void)
 {
-  GLog *log = xmalloc (sizeof (GLog));
-  memset (log, 0, sizeof *log);
+  GLog *glog = xmalloc (sizeof (GLog));
+  memset (glog, 0, sizeof *glog);
 
-  return log;
+  return glog;
 }
 
 GLogItem *
 init_log_item (GLog * logger)
 {
-  GLogItem *log;
+  GLogItem *glog;
   logger->items = xmalloc (sizeof (GLogItem));
-  log = logger->items;
-  memset (log, 0, sizeof *log);
+  glog = logger->items;
+  memset (glog, 0, sizeof *glog);
 
-  log->agent = NULL;
-  log->date = NULL;
-  log->host = NULL;
-  log->ref = NULL;
-  log->method = NULL;
-  log->protocol = NULL;
-  log->req = NULL;
-  log->status = NULL;
-  log->resp_size = 0LL;
-  log->serve_time = 0;
+  glog->agent = NULL;
+  glog->date = NULL;
+  glog->host = NULL;
+  glog->ref = NULL;
+  glog->method = NULL;
+  glog->protocol = NULL;
+  glog->req = NULL;
+  glog->status = NULL;
+  glog->resp_size = 0LL;
+  glog->serve_time = 0;
 
-  return log;
+  return glog;
 }
 
 static void
-free_logger (GLogItem * log)
+free_logger (GLogItem * glog)
 {
-  if (log->agent != NULL)
-    free (log->agent);
-  if (log->date != NULL)
-    free (log->date);
-  if (log->host != NULL)
-    free (log->host);
-  if (log->ref != NULL)
-    free (log->ref);
-  if (log->method != NULL)
-    free (log->method);
-  if (log->protocol != NULL)
-    free (log->protocol);
-  if (log->req != NULL)
-    free (log->req);
-  if (log->status != NULL)
-    free (log->status);
-  free (log);
+  if (glog->agent != NULL)
+    free (glog->agent);
+  if (glog->date != NULL)
+    free (glog->date);
+  if (glog->host != NULL)
+    free (glog->host);
+  if (glog->ref != NULL)
+    free (glog->ref);
+  if (glog->method != NULL)
+    free (glog->method);
+  if (glog->protocol != NULL)
+    free (glog->protocol);
+  if (glog->req != NULL)
+    free (glog->req);
+  if (glog->status != NULL)
+    free (glog->status);
+  free (glog);
 }
 
-/* process bandwidth & time taken to serve the request */
-static int
-process_request_meta (GHashTable * ht, char *key, unsigned long long size)
-{
-  gpointer value_ptr;
-  unsigned long long add_value;
-  unsigned long long *ptr_value;
-
-  if ((ht == NULL) || (key == NULL))
-    return (EINVAL);
-
-  value_ptr = g_hash_table_lookup (ht, key);
-  if (value_ptr != NULL) {
-    ptr_value = (unsigned long long *) value_ptr;
-    add_value = *ptr_value + size;
-  } else {
-    add_value = 0 + size;
-  }
-
-  ptr_value = xmalloc (sizeof (unsigned long long));
-  *ptr_value = add_value;
-
-  g_hash_table_replace (ht, g_strdup (key), ptr_value);
-
-  return 0;
-}
-
-static int
-process_opesys (GHashTable * ht, const char *key, const char *os_type)
-{
-  GOpeSys *opesys;
-  if (ht == NULL)
-    return (EINVAL);
-
-  opesys = g_hash_table_lookup (ht, key);
-  if (opesys != NULL) {
-    opesys->hits++;
-  } else {
-    opesys = xcalloc (1, sizeof (GOpeSys));
-    strcpy (opesys->os_type, os_type);
-    opesys->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_os" */
-  g_hash_table_replace (ht, g_strdup (key), opesys);
-
-  return 0;
-}
-
-static int
-process_browser (GHashTable * ht, const char *key, const char *browser_type)
-{
-  GBrowser *browser;
-  if (ht == NULL)
-    return (EINVAL);
-
-  browser = g_hash_table_lookup (ht, key);
-  if (browser != NULL) {
-    browser->hits++;
-  } else {
-    browser = xcalloc (1, sizeof (GBrowser));
-    strcpy (browser->browser_type, browser_type);
-    browser->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_browser" */
-  g_hash_table_replace (ht, g_strdup (key), browser);
-
-  return 0;
-}
-
-static int
-process_request (GHashTable * ht, const char *key, const GLogItem * log)
-{
-  GRequest *request;
-  if ((ht == NULL) || (key == NULL))
-    return (EINVAL);
-
-  request = g_hash_table_lookup (ht, key);
-  if (request != NULL) {
-    request->hits++;
-  } else {
-    request = xcalloc (1, sizeof (GRequest));
-
-    if (conf.append_protocol && log->protocol) {
-      request->has_protocol = 1;
-      xstrncpy (request->protocol, log->protocol, REQ_PROTO_LEN);
-    }
-    if (conf.append_method && log->method) {
-      request->has_method = 1;
-      xstrncpy (request->method, log->method, REQ_METHOD_LEN);
-    }
-
-    request->request = alloc_string (log->req);
-    request->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_requests" */
-  g_hash_table_replace (ht, g_strdup (key), request);
-
-  return 0;
-}
-
-/* store geolocation data into a hash table */
-#ifdef HAVE_LIBGEOIP
-static int
-process_geolocation (GHashTable * ht, const char *cntry, const char *cont)
-{
-  GLocation *loc;
-  if (ht == NULL)
-    return (EINVAL);
-
-  loc = g_hash_table_lookup (ht, cntry);
-  if (loc != NULL) {
-    loc->hits++;
-  } else {
-    loc = xcalloc (1, sizeof (GLocation));
-    xstrncpy (loc->continent, cont, CONTINENT_LEN);
-    loc->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_countries" */
-  g_hash_table_replace (ht, g_strdup (cntry), loc);
-
-  return 0;
-}
-#endif
-
-/* store generic data into the given hash table */
-static int
-process_generic_data (GHashTable * ht, const char *key)
-{
-  int first = 0;
-
-  gint value_int;
-  gpointer value_ptr;
-
-  if ((ht == NULL) || (key == NULL))
-    return (EINVAL);
-
-  value_ptr = g_hash_table_lookup (ht, key);
-  if (value_ptr != NULL)
-    value_int = GPOINTER_TO_INT (value_ptr);
-  else {
-    value_int = 0;
-    first = 1;
-  }
-  value_int++;
-
-  /* replace the entry. old key will be freed by "free_key_value" */
-  g_hash_table_replace (ht, g_strdup (key), GINT_TO_POINTER (value_int));
-
-  return first ? KEY_NOT_FOUND : KEY_FOUND;
-}
-
-/** from oreillynet.com
-** with minor modifications **/
-#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? \
-                             ((x) - '0') : (toupper((x)) - 'A' + 10))
+#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') \
+                               : (toupper((x)) - 'A' + 10))
 static char *
 spc_decode_url (char *url)
 {
@@ -553,7 +388,8 @@ process_keyphrases (char *ref)
   else
     return 1;
   dec = spc_decode_url (r);
-  if ((ptr = strstr (dec, "%26")) != NULL || (ptr = strchr (dec, '&')) != NULL)
+  if ((ptr = strstr (dec, "%26")) != NULL
+      || (ptr = strchr (dec, '&')) != NULL)
     *ptr = '\0';
 
   p = dec;
@@ -567,48 +403,6 @@ process_keyphrases (char *ref)
   if (dec != NULL)
     free (dec);
 
-  return 0;
-}
-
-/* process host agent strings */
-static int
-process_host_agents (char *host, char *agent)
-{
-  char *ptr_value, *tmp, *a;
-  GHashTable *ht = ht_hosts_agents;
-  gpointer value_ptr;
-  size_t len1, len2;
-
-  if ((ht == NULL) || (host == NULL) || (agent == NULL))
-    return (EINVAL);
-
-  a = xstrdup (agent);
-
-  value_ptr = g_hash_table_lookup (ht, host);
-  if (value_ptr != NULL) {
-    ptr_value = (char *) value_ptr;
-    if (strstr (ptr_value, a)) {
-      if (a != NULL)
-        free (a);
-      return 0;
-    }
-
-    len1 = strlen (ptr_value);
-    len2 = strlen (a);
-
-    tmp = xmalloc (len1 + len2 + 2);
-    memcpy (tmp, ptr_value, len1);
-    tmp[len1] = '|';
-    /*
-     * NUL-terminated
-     */
-    memcpy (tmp + len1 + 1, a, len2 + 1);
-  } else
-    tmp = alloc_string (a);
-
-  g_hash_table_replace (ht, g_strdup (host), tmp);
-  if (a != NULL)
-    free (a);
   return 0;
 }
 
@@ -776,7 +570,7 @@ verify_static_content (char *req)
 }
 
 static char *
-parse_req (char *line, GLogItem * log)
+parse_req (char *line, GLogItem * glog)
 {
   const char *lookfor = NULL;
   char *reqs, *req_l = NULL, *req_r = NULL;
@@ -819,13 +613,13 @@ parse_req (char *line, GLogItem * log)
     if (conf.append_method) {
       method = trim_str (xstrdup (lookfor));
       str_to_upper (method);
-      log->method = method;
+      glog->method = method;
     }
 
     if (conf.append_protocol) {
       protocol = xstrdup (++req_r);
       str_to_upper (protocol);
-      log->protocol = protocol;
+      glog->protocol = protocol;
     }
   } else
     reqs = alloc_string (line);
@@ -886,7 +680,7 @@ parse_string (char **str, char end)
 }
 
 static int
-parse_format (GLogItem * log, const char *fmt, const char *date_format,
+parse_format (GLogItem * glog, const char *fmt, const char *date_format,
               char *str)
 {
   const char *p;
@@ -916,7 +710,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
       switch (*p) {
          /* date */
        case 'd':
-         if (log->date)
+         if (glog->date)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -926,11 +720,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            return 1;
          }
-         log->date = tkn;
+         glog->date = tkn;
          break;
          /* remote hostname (IP only) */
        case 'h':
-         if (log->host)
+         if (glog->host)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -939,11 +733,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            return 1;
          }
-         log->host = tkn;
+         glog->host = tkn;
          break;
          /* request method */
        case 'm':
-         if (log->method)
+         if (glog->method)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -952,20 +746,20 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            return 1;
          }
-         log->method = tkn;
+         glog->method = tkn;
          break;
          /* request not including method or protocol */
        case 'U':
-         if (log->req)
+         if (glog->req)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
            return 1;
-         log->req = tkn;
+         glog->req = tkn;
          break;
          /* request protocol */
        case 'H':
-         if (log->protocol)
+         if (glog->protocol)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -974,21 +768,21 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            return 1;
          }
-         log->protocol = tkn;
+         glog->protocol = tkn;
          break;
          /* request, including method + protocol */
        case 'r':
-         if (log->req)
+         if (glog->req)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
            return 1;
-         log->req = parse_req (tkn, log);
+         glog->req = parse_req (tkn, glog);
          free (tkn);
          break;
          /* Status Code */
        case 's':
-         if (log->status)
+         if (glog->status)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -998,11 +792,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            return 1;
          }
-         log->status = tkn;
+         glog->status = tkn;
          break;
          /* size of response in bytes - excluding HTTP headers */
        case 'b':
-         if (log->resp_size)
+         if (glog->resp_size)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -1010,13 +804,13 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
          bandw = strtol (tkn, &bEnd, 10);
          if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
            bandw = 0;
-         log->resp_size = bandw;
+         glog->resp_size = bandw;
          conf.bandwidth = 1;
          free (tkn);
          break;
          /* referrer */
        case 'R':
-         if (log->ref)
+         if (glog->ref)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -1025,11 +819,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            free (tkn);
            tkn = alloc_string ("-");
          }
-         log->ref = tkn;
+         glog->ref = tkn;
          break;
          /* user agent */
        case 'u':
-         if (log->agent)
+         if (glog->agent)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn != NULL && *tkn != '\0') {
@@ -1037,7 +831,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
             * Make sure the user agent is decoded (i.e.: CloudFront)
             * and replace all '+' with ' ' (i.e.: w3c)
             */
-           log->agent = char_replace (spc_decode_url (tkn), '+', ' ');
+           glog->agent = char_replace (spc_decode_url (tkn), '+', ' ');
            free (tkn);
            break;
          } else if (tkn != NULL && *tkn == '\0') {
@@ -1048,11 +842,11 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
          else {
            tkn = alloc_string ("-");
          }
-         log->agent = tkn;
+         glog->agent = tkn;
          break;
          /* time taken to serve the request, in seconds */
        case 'T':
-         if (log->serve_time)
+         if (glog->serve_time)
            return 1;
          /* ignore seconds if we have microseconds */
          if (strstr (fmt, "%D") != NULL)
@@ -1070,15 +864,15 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
            serve_secs = 0;
          /* convert it to microseconds */
          if (serve_secs > 0)
-           log->serve_time = serve_secs * SECS;
+           glog->serve_time = serve_secs * SECS;
          else
-           log->serve_time = 0;
+           glog->serve_time = 0;
          conf.serve_usecs = 1;
          free (tkn);
          break;
          /* time taken to serve the request, in microseconds */
        case 'D':
-         if (log->serve_time)
+         if (glog->serve_time)
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn == NULL)
@@ -1086,7 +880,7 @@ parse_format (GLogItem * log, const char *fmt, const char *date_format,
          serve_time = strtoull (tkn, &bEnd, 10);
          if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
            serve_time = 0;
-         log->serve_time = serve_time;
+         glog->serve_time = serve_time;
          conf.serve_usecs = 1;
          free (tkn);
          break;
@@ -1112,7 +906,7 @@ process_log (GLog * logger, char *line, int test)
 {
   char buf[DATE_LEN];
   char *qmark = NULL, *req_key = NULL;
-  GLogItem *log;
+  GLogItem *glog;
   int not_found = 0;            /* 404s */
 
   /* make compiler happy */
@@ -1128,98 +922,95 @@ process_log (GLog * logger, char *line, int test)
 
   logger->process++;
 
-  log = init_log_item (logger);
-  if (parse_format (log, conf.log_format, conf.date_format, line) == 1) {
-    free_logger (log);
+  glog = init_log_item (logger);
+  if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {
+    free_logger (glog);
     logger->invalid++;
     return 0;
   }
 
   /* must have the following fields */
-  if (log->host == NULL || log->date == NULL || log->status == NULL ||
-      log->req == NULL) {
-    free_logger (log);
+  if (glog->host == NULL || glog->date == NULL || glog->status == NULL
+      || glog->req == NULL) {
+    free_logger (glog);
     logger->invalid++;
     return 0;
   }
 
   if (test) {
-    free_logger (log);
+    free_logger (glog);
     return 0;
   }
 
-  convert_date (buf, log->date, conf.date_format, "%Y%m%d", DATE_LEN);
+  convert_date (buf, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
   if (buf == NULL)
     return 0;
 
   /* ignore host */
-  if (conf.ignore_host != NULL && strcmp (log->host, conf.ignore_host) == 0)
+  if (conf.ignore_host != NULL && strcmp (glog->host, conf.ignore_host) == 0)
     return 0;
 
   /* agent will be null in cases where %u is not specified */
-  if (log->agent == NULL)
-    log->agent = alloc_string ("-");
+  if (glog->agent == NULL)
+    glog->agent = alloc_string ("-");
   /* process visitors, browsers, and OS */
-  process_unique_data (log->host, buf, log->agent);
+  process_unique_data (glog->host, buf, glog->agent);
 
   /* process agents that are part of a host */
   if (conf.list_agents)
-    process_host_agents (log->host, log->agent);
+    process_host_agents (glog->host, glog->agent);
 
   /* is this a 404? */
-  if (!memcmp (log->status, "404", 3)) {
+  if (!memcmp (glog->status, "404", 3)) {
     not_found = 1;
   }
   /* check if we need to remove the request's query string */
   else if (conf.ignore_qstr) {
-    if ((qmark = strchr (log->req, '?')) != NULL) {
-      if ((qmark - log->req) > 0)
+    if ((qmark = strchr (glog->req, '?')) != NULL) {
+      if ((qmark - glog->req) > 0)
         *qmark = '\0';
     }
   }
 
-  req_key = xstrdup (log->req);
+  req_key = xstrdup (glog->req);
   /* include HTTP method/protocol to request */
-  if (conf.append_method && log->method) {
-    str_to_upper (log->method);
-    append_method_to_request (&req_key, log->method);
+  if (conf.append_method && glog->method) {
+    str_to_upper (glog->method);
+    append_method_to_request (&req_key, glog->method);
   }
-  if (conf.append_protocol && log->protocol) {
-    str_to_upper (log->protocol);
-    append_protocol_to_request (&req_key, log->protocol);
+  if (conf.append_protocol && glog->protocol) {
+    str_to_upper (glog->protocol);
+    append_protocol_to_request (&req_key, glog->protocol);
   }
   if ((conf.append_method) || (conf.append_protocol))
     req_key = deblank (req_key);
 
   /* process 404s */
   if (not_found)
-    process_request (ht_not_found_requests, req_key, log);
+    process_request (ht_not_found_requests, req_key, glog);
   /* process static files */
-  else if (verify_static_content (log->req))
-    process_request (ht_requests_static, req_key, log);
+  else if (verify_static_content (glog->req))
+    process_request (ht_requests_static, req_key, glog);
   /* process regular files */
   else
-    process_request (ht_requests, req_key, log);
+    process_request (ht_requests, req_key, glog);
 
   /* process referrers */
-  process_referrers (log->ref);
+  process_referrers (glog->ref);
   /* process status codes */
-  process_generic_data (ht_status_code, log->status);
+  process_generic_data (ht_status_code, glog->status);
   /* process hosts */
-  process_generic_data (ht_hosts, log->host);
-
+  process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
-  process_request_meta (ht_date_bw, buf, log->resp_size);
-  process_request_meta (ht_file_bw, req_key, log->resp_size);
-  process_request_meta (ht_host_bw, log->host, log->resp_size);
-
+  process_request_meta (ht_date_bw, buf, glog->resp_size);
+  process_request_meta (ht_file_bw, req_key, glog->resp_size);
+  process_request_meta (ht_host_bw, glog->host, glog->resp_size);
   /* process time taken to serve the request, in microseconds */
-  process_request_meta (ht_file_serve_usecs, req_key, log->serve_time);
-  process_request_meta (ht_host_serve_usecs, log->host, log->serve_time);
+  process_request_meta (ht_file_serve_usecs, req_key, glog->serve_time);
+  process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
+  logger->resp_size += glog->resp_size;
 
-  logger->resp_size += log->resp_size;
-
-  free_logger (log);
+  free_logger (glog);
   free (req_key);
   return 0;
 }

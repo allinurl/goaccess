@@ -29,10 +29,6 @@
 #include <GeoIP.h>
 #endif
 
-#ifdef HAVE_LIBGLIB_2_0
-#include <glib.h>
-#endif
-
 #include <time.h>
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
@@ -43,6 +39,9 @@
 #define GO_VERSION 		"0.7.1"
 #define GO_WEBSITE 		"http://goaccess.prosoftcorp.com/"
 struct tm *now_tm;
+
+#define INT_TO_PTR(i) ((void *) (long) (i))
+#define PTR_TO_INT(p) ((int) (long) (p))
 
 /* Processing time */
 extern time_t end_proc;
@@ -97,7 +96,7 @@ typedef enum MODULES
 typedef struct GSubItem_
 {
   GModule module;
-  const char *data;
+  char *data;
   int hits;
   unsigned long long bw;
   struct GSubItem_ *prev;
@@ -168,6 +167,5 @@ char *get_geoip_data (const char *data);
 #endif
 
 float get_percentage (unsigned long long total, unsigned long long hit);
-unsigned int get_ht_size (GHashTable * ht);
 
 #endif

@@ -47,6 +47,12 @@
 
 #include "ui.h"
 
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabinet.h"
+#elif HAVE_LIBGLIB_2_0
+#include "glibht.h"
+#endif
+
 #include "commons.h"
 #include "error.h"
 #include "gmenu.h"
@@ -149,8 +155,8 @@ generate_time (void)
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* draw a generic header */
 void
-draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
-             int color)
+draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x,
+             int w, int color)
 {
   char *buf = xmalloc (snprintf (NULL, 0, fmt, s) + 1);
   sprintf (buf, fmt, s);
@@ -440,7 +446,8 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
      case 127:
      case KEY_BACKSPACE:
        if (pos + x > 0) {
-         memmove (&s[(pos + x) - 1], &s[pos + x], (max_width - (pos + x)) + 1);
+         memmove (&s[(pos + x) - 1], &s[pos + x],
+                  (max_width - (pos + x)) + 1);
          if (pos <= 0)
            x--;
          else
@@ -547,10 +554,10 @@ load_agent_list (WINDOW * main_win, char *addr)
   char *ptr_value;
   GAgents *agents = NULL;
   GMenu *menu;
-  gpointer value_ptr = NULL;
   int c, quit = 1, delims = 0;
   int i, n = 0, alloc = 0;
   int y, x, list_h, list_w, menu_w, menu_h;
+  void *value_ptr = NULL;
   WINDOW *win;
 
   if (!conf.list_agents)
@@ -562,7 +569,12 @@ load_agent_list (WINDOW * main_win, char *addr)
   menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
   menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
 
+#ifdef HAVE_LIBTOKYOCABINET
+  value_ptr = tcbdbget2 (ht_hosts_agents, addr);
+#elif HAVE_LIBGLIB_2_0
   value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
+#endif
+
   if (value_ptr != NULL) {
     ptr_value = (char *) value_ptr;
     delims = count_occurrences (ptr_value, '|');
@@ -570,6 +582,9 @@ load_agent_list (WINDOW * main_win, char *addr)
     n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1;
     agents = new_gagents (n);
     alloc = split_agent_str (ptr_value, agents, menu_w);
+#ifdef HAVE_LIBTOKYOCABINET
+    free (value_ptr);
+#endif
   }
 
   win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
@@ -726,7 +741,8 @@ verify_format (GLog * logger, GSpinner * spinner)
   mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
 
   /* set log format from goaccessrc if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1);
+  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
+               1);
   if (conf.log_format) {
     tmp_log_format = alloc_string (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, conf.log_format);
@@ -854,7 +870,8 @@ verify_format (GLog * logger, GSpinner * spinner)
          /* valid data, reset logger & start parsing */
          else {
            reset_struct (logger);
-           draw_header (win, "Parsing...", "%s", 3, 2, CONF_MENU_W, BLACK_CYAN);
+           draw_header (win, "Parsing...", "%s", 3, 2, CONF_MENU_W,
+                        BLACK_CYAN);
 
            /* start spinner thread */
            spinner->win = win;
@@ -922,7 +939,8 @@ load_schemes_win (WINDOW * main_win)
 
   /* create a new instance of GMenu and make it selectable */
   menu =
-    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
+    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y,
+               SCHEME_MENU_X);
   menu->size = n;
 
   /* add items to GMenu */

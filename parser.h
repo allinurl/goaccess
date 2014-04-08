@@ -21,38 +21,13 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#define UKEY_BUFFER 	   2048
-#define LINE_BUFFER 	   4096
+#define UKEY_BUFFER 	  2048
+#define LINE_BUFFER 	  4096
 #define BW_HASHTABLES   3
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
 
-#ifdef HAVE_LIBGLIB_2_0
-#include <glib.h>
-#endif
-
 #include "commons.h"
-
-extern GHashTable *ht_browsers;
-extern GHashTable *ht_countries;
-extern GHashTable *ht_date_bw;
-extern GHashTable *ht_file_bw;
-extern GHashTable *ht_file_serve_usecs;
-extern GHashTable *ht_host_bw;
-extern GHashTable *ht_hostnames;
-extern GHashTable *ht_hosts;
-extern GHashTable *ht_hosts_agents;
-extern GHashTable *ht_host_serve_usecs;
-extern GHashTable *ht_keyphrases;
-extern GHashTable *ht_not_found_requests;
-extern GHashTable *ht_os;
-extern GHashTable *ht_referrers;
-extern GHashTable *ht_referring_sites;
-extern GHashTable *ht_requests;
-extern GHashTable *ht_requests_static;
-extern GHashTable *ht_status_code;
-extern GHashTable *ht_unique_vis;
-extern GHashTable *ht_unique_visitors;
 
 typedef struct GLogItem_
 {

@@ -35,6 +35,12 @@
 
 #include "csv.h"
 
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabinet.h"
+#elif HAVE_LIBGLIB_2_0
+#include "glibht.h"
+#endif
+
 #include "commons.h"
 #include "error.h"
 #include "ui.h"
@@ -267,8 +273,8 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   fprintf (fp, "\"%d\",,\"%s\",\"bandwidth\",\"%lld\"\r\n", i++, GENER_ID,
            logger->resp_size);
-  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++, GENER_ID,
-           (long long) end_proc - start_proc);
+  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++,
+           GENER_ID, (long long) end_proc - start_proc);
   fprintf (fp, "\"%d\",,\"%s\",\"static_files\",\"%d\"\r\n", i++, GENER_ID,
            get_ht_size (ht_requests_static));
 
