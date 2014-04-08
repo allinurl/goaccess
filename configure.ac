@@ -20,6 +20,13 @@ PKG_CHECK_MODULES(GLIB2, glib-2.0, [],
 AC_SUBST(GLIB2_CFLAGS)
 AC_SUBST(GLIB2_LIBS)
 
+# Checks for libraries.
+AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
+
+# pthread
+AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
+CFLAGS="$CFLAGS -pthread"
+
 # DEBUG
 AC_ARG_ENABLE(debug, [  --enable-debug   Create a debug build. Default is disabled],
   [debug="$enableval"], debug=no)
@@ -57,16 +64,9 @@ AC_ARG_ENABLE(tcb, [  --enable-tcb   Enable TokyoCabinet database. Default is di
 if test "$tcb" = "yes"; then
   AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
     [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
-  CFLAGS="$CFLAGS -ltokyocabinet -lz -lbz2 -lrt -lpthread -lc"
+  CFLAGS="$CFLAGS -ltokyocabinet -lz -lbz2 -lrt -lc"
 fi
 AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
-
-# pthread
-AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
-CFLAGS="$CFLAGS -pthread"
-
-# Checks for libraries.
-AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
 
 # Checks for header files.
 AC_HEADER_STDC
