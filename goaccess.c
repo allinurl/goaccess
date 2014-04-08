@@ -42,6 +42,12 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabinet.h"
+#elif HAVE_LIBGLIB_2_0
+#include "glibht.h"
+#endif
+
 #include "commons.h"
 #include "csv.h"
 #include "error.h"
@@ -134,49 +140,6 @@ static GScrolling scrolling = {
 };
 /* *INDENT-ON* */
 
-#ifdef HAVE_LIBGEOIP
-static void
-free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
-                GO_UNUSED gpointer user_data)
-{
-  GLocation *loc = old_value;
-  free (loc);
-}
-#endif
-
-static void
-free_os (GO_UNUSED gpointer old_key, gpointer old_value,
-         GO_UNUSED gpointer user_data)
-{
-  GOpeSys *opesys = old_value;
-  free (opesys);
-}
-
-static void
-free_browser (GO_UNUSED gpointer old_key, gpointer old_value,
-              GO_UNUSED gpointer user_data)
-{
-  GBrowser *browser = old_value;
-  free (browser);
-}
-
-static void
-free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
-               GO_UNUSED gpointer user_data)
-{
-  GRequest *req = old_value;
-  free (req->request);
-  free (req);
-}
-
-/* free memory allocated by g_hash_table_new_full() function */
-static void
-free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
-                GO_UNUSED gpointer user_data)
-{
-  g_free (old_key);
-}
-
 static void
 cmd_help (void)
 {
@@ -243,16 +206,56 @@ house_keeping (void)
   active_gdns = 0;              /* kill dns pthread */
   free_holder (&holder);
   gdns_free_queue ();
+
+#ifdef HAVE_LIBTOKYOCABINET
+  if (ht_hostnames != NULL)
+    tc_db_close (ht_hostnames, DB_HOSTNAMES);
+#elif HAVE_LIBGLIB_2_0
   g_hash_table_destroy (ht_hostnames);
+#endif
+
   pthread_mutex_unlock (&gdns_thread.mutex);
 
-  if (!conf.output_html) {
+  if (dash && !conf.output_html) {
     free_dashboard (dash);
     reset_find ();
   }
 #ifdef HAVE_LIBGEOIP
   if (geo_location_data != NULL)
     GeoIP_delete (geo_location_data);
+#endif
+
+#ifdef HAVE_LIBTOKYOCABINET
+
+  tc_db_foreach (ht_requests, free_requests, NULL);
+  tc_db_foreach (ht_requests_static, free_requests, NULL);
+  tc_db_foreach (ht_not_found_requests, free_requests, NULL);
+
+#ifdef HAVE_LIBGEOIP
+  tc_db_close (ht_countries, DB_COUNTRIES);
+#endif
+  tc_db_close (ht_browsers, DB_BROWSERS);
+  tc_db_close (ht_date_bw, DB_DATE_BW);
+  tc_db_close (ht_file_bw, DB_FILE_BW);
+  tc_db_close (ht_file_serve_usecs, DB_FILE_SERVE_USECS);
+  tc_db_close (ht_host_bw, DB_HOST_BW);
+  tc_db_close (ht_hosts, DB_HOSTS);
+  tc_db_close (ht_hosts_agents, DB_HOST_AGENTS);
+  tc_db_close (ht_host_serve_usecs, DB_HOST_SERVE_USECS);
+  tc_db_close (ht_keyphrases, DB_KEYPHRASES);
+  tc_db_close (ht_not_found_requests, DB_NOT_FOUND_REQUESTS);
+  tc_db_close (ht_os, DB_OS);
+  tc_db_close (ht_referrers, DB_REFERRERS);
+  tc_db_close (ht_referring_sites, DB_REFERRING_SITES);
+  tc_db_close (ht_requests, DB_REQUESTS);
+  tc_db_close (ht_requests_static, DB_REQUESTS_STATIC);
+  tc_db_close (ht_status_code, DB_STATUS_CODE);
+  tc_db_close (ht_unique_vis, DB_UNIQUE_VIS);
+  tc_db_close (ht_unique_visitors, DB_UNIQUE_VISITORS);
+
+#elif HAVE_LIBGLIB_2_0
+
+#ifdef HAVE_LIBGEOIP
   g_hash_table_foreach (ht_countries, free_countries, NULL);
 #endif
 
@@ -262,12 +265,6 @@ house_keeping (void)
 
   g_hash_table_foreach (ht_os, free_os, NULL);
   g_hash_table_foreach (ht_browsers, free_browser, NULL);
-
-  free (logger);
-
-  /* realpath() uses malloc */
-  if (conf.iconfigfile)
-    free (conf.iconfigfile);
 
   g_hash_table_destroy (ht_browsers);
   g_hash_table_destroy (ht_countries);
@@ -286,6 +283,14 @@ house_keeping (void)
   g_hash_table_destroy (ht_unique_vis);
   g_hash_table_destroy (ht_unique_visitors);
 
+#endif
+
+  free (logger);
+
+  /* realpath() uses malloc */
+  if (conf.iconfigfile)
+    free (conf.iconfigfile);
+
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
@@ -297,7 +302,12 @@ house_keeping (void)
 static void
 allocate_holder_by_module (GModule module)
 {
+#ifdef HAVE_LIBTOKYOCABINET
+  TCBDB *ht;
+#elif HAVE_LIBGLIB_2_0
   GHashTable *ht;
+#endif
+
   GRawData *raw_data;
   unsigned int ht_size = 0;
 
@@ -312,7 +322,12 @@ allocate_holder_by_module (GModule module)
 static void
 allocate_holder (void)
 {
+#ifdef HAVE_LIBTOKYOCABINET
+  TCBDB *ht;
+#elif HAVE_LIBGLIB_2_0
   GHashTable *ht;
+#endif
+
   GModule module;
   GRawData *raw_data;
   int i;
@@ -896,24 +911,86 @@ main (int argc, char *argv[])
     conf.output_html = 1;
   if (conf.ifile != NULL && !isatty (STDIN_FILENO) && !conf.output_html)
     cmd_help ();
-  if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL)
+  if (conf.ifile == NULL && isatty (STDIN_FILENO)
+      && conf.output_format == NULL)
     cmd_help ();
   for (idx = optind; idx < argc; idx++)
     cmd_help ();
 
-  /*
-   * initialize hash tables
-   */
+  /* Initialize hash tables */
+#ifdef HAVE_LIBTOKYOCABINET
+
+  ht_browsers = tc_db_create (DB_BROWSERS, TC_LCNUM, TC_NCNUM);
+  ht_countries = tc_db_create (DB_COUNTRIES, TC_LCNUM, TC_NCNUM);
+  ht_date_bw = tc_db_create (DB_DATE_BW, TC_LCNUM, TC_NCNUM);
+  ht_file_bw = tc_db_create (DB_FILE_BW, TC_LCNUM, TC_NCNUM);
+  ht_file_serve_usecs =
+    tc_db_create (DB_FILE_SERVE_USECS, TC_LCNUM, TC_NCNUM);
+  ht_host_bw = tc_db_create (DB_HOST_BW, TC_LCNUM, TC_NCNUM);
+  ht_hostnames = tc_db_create (DB_HOSTNAMES, TC_LCNUM, TC_NCNUM);
+  ht_hosts_agents = tc_db_create (DB_HOST_AGENTS, TC_LCNUM, TC_NCNUM);
+  ht_host_serve_usecs =
+    tc_db_create (DB_HOST_SERVE_USECS, TC_LCNUM, TC_NCNUM);
+  ht_hosts = tc_db_create (DB_HOSTS, TC_LCNUM, TC_NCNUM);
+  ht_keyphrases = tc_db_create (DB_KEYPHRASES, TC_LCNUM, TC_NCNUM);
+  ht_not_found_requests =
+    tc_db_create (DB_NOT_FOUND_REQUESTS, TC_LCNUM, TC_NCNUM);
+  ht_os = tc_db_create (DB_OS, TC_LCNUM, TC_NCNUM);
+  ht_referrers = tc_db_create (DB_REFERRERS, TC_LCNUM, TC_NCNUM);
+  ht_referring_sites = tc_db_create (DB_REFERRING_SITES, TC_LCNUM, TC_NCNUM);
+  ht_requests_static = tc_db_create (DB_REQUESTS_STATIC, TC_LCNUM, TC_NCNUM);
+  ht_requests = tc_db_create (DB_REQUESTS, TC_LCNUM, TC_NCNUM);
+  ht_status_code = tc_db_create (DB_STATUS_CODE, TC_LCNUM, TC_NCNUM);
+  ht_unique_visitors = tc_db_create (DB_UNIQUE_VISITORS, TC_LCNUM, TC_NCNUM);
+  ht_unique_vis = tc_db_create (DB_UNIQUE_VIS, TC_LCNUM, TC_NCNUM);
+
+#elif HAVE_LIBGLIB_2_0
+
   ht_unique_visitors =
     g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
+                           (GDestroyNotify) free_key_value, g_free);
   ht_referrers =
     g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
+                           (GDestroyNotify) free_key_value, g_free);
   ht_unique_vis =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_hosts =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_status_code =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_referring_sites =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_keyphrases =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_file_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_host_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_date_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_hosts_agents =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_hostnames =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_file_serve_usecs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_host_serve_usecs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  /* the following tables contain s structure as their value, thus we
+     use a special iterator to free its value */
+  ht_requests =
     g_hash_table_new_full (g_str_hash, g_str_equal,
                            (GDestroyNotify) free_key_value, NULL);
   ht_requests_static =
@@ -928,42 +1005,10 @@ main (int argc, char *argv[])
   ht_browsers =
     g_hash_table_new_full (g_str_hash, g_str_equal,
                            (GDestroyNotify) free_key_value, NULL);
-  ht_hosts =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_status_code =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_referring_sites =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_keyphrases =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
   ht_countries =
     g_hash_table_new_full (g_str_hash, g_str_equal,
                            (GDestroyNotify) free_key_value, NULL);
-  ht_file_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_host_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_date_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_hosts_agents =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_hostnames =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_file_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
-  ht_host_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) g_free, g_free);
+#endif
 
   loc_ctype = getenv ("LC_CTYPE");
   if (loc_ctype != NULL)
@@ -1040,8 +1085,8 @@ out:
     allocate_holder ();
     if (conf.output_format != NULL && strcmp ("csv", conf.output_format) == 0)
       output_csv (logger, holder);
-    else if (conf.output_format != NULL &&
-             strcmp ("json", conf.output_format) == 0)
+    else if (conf.output_format != NULL
+             && strcmp ("json", conf.output_format) == 0)
       output_json (logger, holder);
     else
       output_html (logger, holder);

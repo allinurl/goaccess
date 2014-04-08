@@ -208,7 +208,6 @@ verify_browser (const char *str, char *browser_type)
 
     if (!(b = a))
       return NULL;
-
     ptr = a;
 
     /* Opera +15 uses OPR/# */
@@ -221,13 +220,11 @@ verify_browser (const char *str, char *browser_type)
         return val;
       }
     }
-
     /* Opera has the version number at the end */
     if (strstr (a, "Opera") != NULL) {
       if ((slash = strrchr (b, '/')) != NULL && a < slash)
         memmove (a + 5, slash, strlen (slash) + 1);
     }
-
     /* MSIE */
     if (strstr (a, "MSIE") != NULL) {
       while (*ptr != ';' && *ptr != ')' && *ptr != '-' && *ptr != '\0') {
@@ -236,13 +233,11 @@ verify_browser (const char *str, char *browser_type)
         ptr++;
       }
     }
-
     /* IE11 */
     if (strstr (a, "rv:11") != NULL && strstr (a, "Trident/7.0") != NULL) {
       xstrncpy (browser_type, "MSIE", BROWSER_TYPE_LEN);
       return alloc_string ("MSIE/11.0");
     }
-
     /* everything else is parsed here */
     for (p = a; *p; p++) {
       if (isalnum (p[0]) || *p == '.' || *p == '/' || *p == '_' || *p == '-') {
@@ -257,7 +252,6 @@ verify_browser (const char *str, char *browser_type)
     xstrncpy (browser_type, browsers[i][1], BROWSER_TYPE_LEN);
     return alloc_string (b);
   }
-
   xstrncpy (browser_type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");

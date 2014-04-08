@@ -34,7 +34,7 @@ AC_ARG_ENABLE(geoip, [  --enable-geoip   Enable GeoIP country lookup. Default is
   [geoip="$enableval"], geoip=no)
 
 if test "$geoip" = "yes"; then
-  AC_CHECK_LIB([GeoIP], [GeoIP_new], [], 
+  AC_CHECK_LIB([GeoIP], [GeoIP_new], [],
     [AC_MSG_ERROR([*** Missing development files for the GeoIP library])])
 fi
 
@@ -49,6 +49,17 @@ else
   AC_CHECK_LIB([ncurses], [refresh], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncurses])])
 fi
+
+# Tokyo Cabinet
+AC_ARG_ENABLE(tcb, [  --enable-tcb   Enable TokyoCabinet database. Default is disabled],
+  [tcb="$enableval"], tcb=no)
+
+if test "$tcb" = "yes"; then
+  AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
+    [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
+  CFLAGS="$CFLAGS -ltokyocabinet -lz -lbz2 -lrt -lpthread -lc"
+fi
+AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])

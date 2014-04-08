@@ -32,7 +32,17 @@ goaccess_SOURCES = \
    util.c          \
    util.h          \
    xmalloc.c       \
-   xmalloc.h       
+   xmalloc.h
+
+if TCB
+goaccess_SOURCES += \
+   tcabinet.c       \
+   tcabinet.h
+else
+goaccess_SOURCES += \
+   glibht.c         \
+   glibht.h
+endif
 
 if DEBUG
 AM_CFLAGS = -DDEBUG -O0 -g

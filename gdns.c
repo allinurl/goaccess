@@ -24,6 +24,10 @@
 #include <sys/socket.h>
 #endif
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <pthread.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -40,6 +44,12 @@
 #include <unistd.h>
 
 #include "gdns.h"
+
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabinet.h"
+#elif HAVE_LIBGLIB_2_0
+#include "glibht.h"
+#endif
 
 #include "error.h"
 #include "xmalloc.h"
@@ -174,7 +184,9 @@ dns_resolver (char *addr)
 {
   pthread_mutex_lock (&gdns_thread.mutex);
   if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
+#ifndef HAVE_LIBTOKYOCABINET
     g_hash_table_replace (ht_hostnames, g_strdup (addr), NULL);
+#endif
     gqueue_enqueue (gdns_queue, addr);
     pthread_cond_broadcast (&gdns_thread.not_empty);
   }
@@ -186,6 +198,7 @@ static void
 dns_worker (void GO_UNUSED (*ptr_data))
 {
   char *ip = NULL, *host = NULL;
+
   while (1) {
     pthread_mutex_lock (&gdns_thread.mutex);
     /* wait until an item has been added to the queue */
@@ -203,9 +216,17 @@ dns_worker (void GO_UNUSED (*ptr_data))
         free (host);
       break;
     }
-
+#ifdef HAVE_LIBTOKYOCABINET
+    if (!tcbdbput2 (ht_hostnames, ip, host)) {
+      int ecode = tcbdbecode (ht_hostnames);
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     tcbdberrmsg (ecode));
+    }
+    free (host);
+#elif HAVE_LIBGLIB_2_0
     if (host != NULL && active_gdns)
       g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
+#endif
 
     pthread_cond_signal (&gdns_thread.not_full);
     pthread_mutex_unlock (&gdns_thread.mutex);

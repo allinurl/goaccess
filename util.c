@@ -90,13 +90,16 @@ static const char *codes[][2] = {
   {"413", "413 - Requested Entity Too Long"},
   {"414", "414 - Requested Filename Too Long"},
   {"415", "415 - Unsupported Media Type: Media type is not supported"},
-  {"416", "416 - Requested Range Not Satisfiable: Cannot supply that portion"},
+  {"416",
+   "416 - Requested Range Not Satisfiable: Cannot supply that portion"},
   {"417", "417 - Expectation Failed"},
   {"500", "500 - Internal Server Error"},
   {"501", "501 - Not Implemented"},
-  {"502", "502 - Bad Gateway: Received an invalid response from the upstream"},
+  {"502",
+   "502 - Bad Gateway: Received an invalid response from the upstream"},
   {"503", "503 - Service Unavailable: The server is currently unavailable"},
-  {"504", "504 - Gateway Timeout: The upstream server failed to send request"},
+  {"504",
+   "504 - Gateway Timeout: The upstream server failed to send request"},
   {"505", "505 - HTTP Version Not Supported"}
 };
 
@@ -231,7 +234,8 @@ file_size (const char *filename)
   if (stat (filename, &st) == 0)
     return st.st_size;
 
-  LOG_DEBUG (("Can't determine size of %s: %s\n", filename, strerror (errno)));
+  LOG_DEBUG (("Can't determine size of %s: %s\n", filename,
+              strerror (errno)));
 
   return -1;
 }

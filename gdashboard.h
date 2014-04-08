@@ -94,17 +94,14 @@ typedef struct GDash_
   GDashModule module[TOTAL_MODULES];
 } GDash;
 
-GDashData *new_gdata (unsigned int size);
+GDashData * new_gdata (uint32_t size);
 GDash *new_gdash (void);
-GHashTable *get_ht_by_module (GModule module);
-GHolder *new_gholder (unsigned int size);
-GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
+GHolder *new_gholder (uint32_t size);
 int perform_next_find (GHolder * h, GScrolling * scrolling);
 int render_find_dialog (WINDOW * main_win, GScrolling * scrolling);
 int set_module_from_mouse_event (GScrolling *scrolling, GDash *dash, int y);
-unsigned int get_ht_size_by_module (GModule module);
+uint32_t get_ht_size_by_module (GModule module);
 void *add_hostname_node (void *ptr_holder);
-void add_sub_item_back (GSubList * sub_list, GModule module, const char *data, int hits, unsigned long long bw);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScrolling * scrolling);
 void free_dashboard (GDash * dash);
 void free_holder_by_module (GHolder ** holder, GModule module);
