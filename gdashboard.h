@@ -25,8 +25,6 @@
 #ifndef GDASHBOARD_H_INCLUDED
 #define GDASHBOARD_H_INCLUDED
 
-#include <stdint.h>
-
 #include "commons.h"
 #include "ui.h"
 #include "parser.h"
