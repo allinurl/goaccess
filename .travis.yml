@@ -4,10 +4,12 @@ compiler:
         - gcc
 before_install:
         - sudo apt-get update -qq
-        - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev
+        - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev libtokyocabinet-dev
 install:
-        - autoreconf -fi
+        - autoreconf -fiv
         - ./configure --enable-geoip --enable-utf8
+        - make
+        - ./configure --enable-geoip --enable-utf8 --enable-tcb
         - make
 branches:
  only:
