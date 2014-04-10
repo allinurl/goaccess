@@ -100,10 +100,10 @@ else
      *** development files (libglib2.0-dev)])
   ])
 
-  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([glib needed]))
+  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([*** Missing development libraries for GLib]))
   AC_SUBST(GLIB2_CFLAGS)
   AC_SUBST(GLIB2_LIBS)
-  AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([glib needed])])
+  AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([*** Missing development libraries for GLib])])
 fi
 AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
 
