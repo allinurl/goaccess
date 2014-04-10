@@ -56,7 +56,24 @@ AC_ARG_ENABLE(tcb, [  --enable-tcb   Enable TokyoCabinet database. Default is di
 if test "$tcb" = "yes"; then
   AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
     [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
-  CFLAGS="$CFLAGS -ltokyocabinet -lz -lbz2 -lrt -lc"
+
+  AC_ARG_ENABLE([zlib], [  --disable-zlib   Build without ZLIB compression],
+    [zlib="$enableval"], zlib=yes)
+
+  if test "$zlib" = "yes"; then
+    AC_CHECK_LIB(z, gzread, [Z_FLAG=-lz], AC_MSG_ERROR([*** zlib is required]))
+    CFLAGS="$CFLAGS $Z_FLAG"
+  fi
+
+  AC_ARG_ENABLE([bzip], [  --disable-bzip   Build without BZIP2 compression],
+    [bz2="$enableval"], bz2=yes)
+
+  if test "$bz2" = "yes"; then
+    AC_CHECK_LIB(bz2, BZ2_bzopen, [BZ2_FLAG=-lbz2], AC_MSG_ERROR([*** BZIP2 is required]))
+    CFLAGS="$CFLAGS $BZ2_FLAG"
+  fi
+
+  CFLAGS="$CFLAGS -ltokyocabinet -lrt -lc"
 
 # GLib otherwise
 else
