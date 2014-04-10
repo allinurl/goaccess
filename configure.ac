@@ -147,6 +147,10 @@ else
 fi
 AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
 
+# Solaris
+AC_CHECK_LIB([socket], [socket])
+AC_CHECK_LIB([nsl], [gethostbyname])
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([netinet/in.h])
