@@ -39,7 +39,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
@@ -1031,7 +1031,7 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
     found = 1;
     hostname = (char *) value;
   }
-#elif HAVE_LIBGLIB_2_0
+#else
   found = g_hash_table_lookup_extended (ht_hostnames, ip, NULL, &value);
   if (found)
     hostname = xstrdup ((char *) value);
@@ -1339,7 +1339,7 @@ get_ht_size_by_module (GModule module)
 {
 #ifdef HAVE_LIBTOKYOCABINET
   TCBDB *ht;
-#elif HAVE_LIBGLIB_2_0
+#else
   GHashTable *ht;
 #endif
 

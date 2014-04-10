@@ -38,7 +38,6 @@
 #include <pthread.h>
 #include <ctype.h>
 
-#include <glib.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -49,7 +48,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
@@ -571,7 +570,7 @@ load_agent_list (WINDOW * main_win, char *addr)
 
 #ifdef HAVE_LIBTOKYOCABINET
   value_ptr = tcbdbget2 (ht_hosts_agents, addr);
-#elif HAVE_LIBGLIB_2_0
+#else
   value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
 #endif
 

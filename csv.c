@@ -24,7 +24,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <ctype.h>
-#include <glib.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +37,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
