@@ -98,9 +98,9 @@ else
      *** in your path, or set the PKG_CONFIG environment variable
      *** to the full path to pkg-config. Otherwise, reinstall glib2
      *** development files (libglib2.0-dev)])
-  ]);
+  ])
 
-  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([glib needed])])
+  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([glib needed]))
   AC_SUBST(GLIB2_CFLAGS)
   AC_SUBST(GLIB2_LIBS)
   AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([glib needed])])
