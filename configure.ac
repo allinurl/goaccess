@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.8], [goaccess@prosoftcorp.com], [], 
+AC_INIT([goaccess], [0.8], [goaccess@prosoftcorp.com], [],
   [http://goaccess.prosoftcorp.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([goaccess.c])
@@ -44,9 +44,49 @@ AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide 
 if test "$utf8" = "yes"; then
   AC_CHECK_LIB([ncursesw], [mvaddwstr], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncursesw])])
+
+  have_ncurses="yes"
+  AC_CHECK_HEADERS([ncursesw/ncurses.h],[have_ncurses=yes], [], [
+  #ifdef HAVE_NCURSESW_NCURSES_H
+  #include <ncursesw/ncurses.h>
+  #endif
+  ])
+
+  AC_CHECK_HEADERS([ncurses.h],[have_ncurses=yes], [], [
+  #ifdef HAVE_NCURSES_H
+  #include <ncurses.h>
+  #endif
+  ])
+
+  if test "$have_ncurses" != "yes"; then
+    AC_MSG_ERROR([Missing ncursesw header file])
+  fi
 else
   AC_CHECK_LIB([ncurses], [refresh], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncurses])])
+
+  have_ncurses="yes"
+  AC_CHECK_HEADERS([ncurses/ncurses.h],[have_ncurses=yes], [], [
+  #ifdef HAVE_NCURSES_NCURSES_H
+  #include <ncurses/ncurses.h>
+  #endif
+  ])
+
+  AC_CHECK_HEADERS([ncurses.h],[have_ncurses=yes], [], [
+  #ifdef HAVE_NCURSES_H
+  #include <ncurses.h>
+  #endif
+  ])
+
+  AC_CHECK_HEADERS([curses.h],[have_ncurses=yes], [], [
+  #ifdef HAVE_CURSES_H
+  #include <curses.h>
+  #endif
+  ])
+
+  if test "$have_ncurses" != "yes"; then
+    AC_MSG_ERROR([Missing ncursesw header file])
+  fi
 fi
 
 # Tokyo Cabinet

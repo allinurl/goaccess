@@ -74,6 +74,7 @@ tc_db_create (const char *dbname, int32_t lcnum, int32_t ncnum)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to set TCB cache");
 
+  tcbdbtune (bdb, 128, 256, 32749, 8, 10, BDBTBZIP);
   /* open the database */
   if (!tcbdbopen (bdb, dbname, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {
     ecode = tcbdbecode (bdb);
