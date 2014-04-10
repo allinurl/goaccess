@@ -9,7 +9,7 @@ install:
         - autoreconf -fiv
         - ./configure --enable-geoip --enable-utf8
         - make
-        - ./configure --enable-geoip --enable-utf8 --enable-tcb
+        - ./configure --enable-geoip --enable-utf8 --enable-tcb --disable-bzip --disable-zlib
         - make
 branches:
  only:
