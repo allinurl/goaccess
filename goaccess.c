@@ -26,7 +26,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
-#include <glib.h>
+
 #include <locale.h>
 #include <getopt.h>
 
@@ -44,7 +44,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
@@ -210,7 +210,7 @@ house_keeping (void)
 #ifdef HAVE_LIBTOKYOCABINET
   if (ht_hostnames != NULL)
     tc_db_close (ht_hostnames, DB_HOSTNAMES);
-#elif HAVE_LIBGLIB_2_0
+#else
   g_hash_table_destroy (ht_hostnames);
 #endif
 
@@ -253,7 +253,7 @@ house_keeping (void)
   tc_db_close (ht_unique_vis, DB_UNIQUE_VIS);
   tc_db_close (ht_unique_visitors, DB_UNIQUE_VISITORS);
 
-#elif HAVE_LIBGLIB_2_0
+#else
 
 #ifdef HAVE_LIBGEOIP
   g_hash_table_foreach (ht_countries, free_countries, NULL);
@@ -304,7 +304,7 @@ allocate_holder_by_module (GModule module)
 {
 #ifdef HAVE_LIBTOKYOCABINET
   TCBDB *ht;
-#elif HAVE_LIBGLIB_2_0
+#else
   GHashTable *ht;
 #endif
 
@@ -324,7 +324,7 @@ allocate_holder (void)
 {
 #ifdef HAVE_LIBTOKYOCABINET
   TCBDB *ht;
-#elif HAVE_LIBGLIB_2_0
+#else
   GHashTable *ht;
 #endif
 
@@ -944,7 +944,7 @@ main (int argc, char *argv[])
   ht_unique_visitors = tc_db_create (DB_UNIQUE_VISITORS, TC_LCNUM, TC_NCNUM);
   ht_unique_vis = tc_db_create (DB_UNIQUE_VIS, TC_LCNUM, TC_NCNUM);
 
-#elif HAVE_LIBGLIB_2_0
+#else
 
   ht_unique_visitors =
     g_hash_table_new_full (g_str_hash, g_str_equal,

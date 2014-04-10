@@ -57,7 +57,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 

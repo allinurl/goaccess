@@ -25,6 +25,7 @@
 #include <glib.h>
 #endif
 
+#include <stdint.h> 
 #include "parser.h"
 
 extern GHashTable *ht_browsers;

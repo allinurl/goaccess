@@ -47,7 +47,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
@@ -223,7 +223,7 @@ dns_worker (void GO_UNUSED (*ptr_data))
                      tcbdberrmsg (ecode));
     }
     free (host);
-#elif HAVE_LIBGLIB_2_0
+#else
     if (host != NULL && active_gdns)
       g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
 #endif

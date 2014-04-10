@@ -2,7 +2,8 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.61)
-AC_INIT([goaccess], [0.7.1], [goaccess@prosoftcorp.com])
+AC_INIT([goaccess], [0.8], [goaccess@prosoftcorp.com], [], 
+  [http://goaccess.prosoftcorp.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([goaccess.c])
 AC_CONFIG_HEADERS([config.h])
@@ -13,15 +14,6 @@ AC_CONFIG_HEADERS([config.h])
 
 # Checks for programs.
 AC_PROG_CC
-PKG_PROG_PKG_CONFIG
-
-PKG_CHECK_MODULES(GLIB2, glib-2.0, [],
-  AC_MSG_ERROR([*** Missing development files for the GLib library!]))
-AC_SUBST(GLIB2_CFLAGS)
-AC_SUBST(GLIB2_LIBS)
-
-# Checks for libraries.
-AC_CHECK_LIB([glib-2.0], [g_free], [], [AC_MSG_ERROR([glib-2.x is missing])])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
@@ -65,6 +57,36 @@ if test "$tcb" = "yes"; then
   AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
     [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
   CFLAGS="$CFLAGS -ltokyocabinet -lz -lbz2 -lrt -lc"
+
+# GLib otherwise
+else
+  # Check for pkg-config program, used for configuring some libraries.
+  m4_define_default([PKG_PROG_PKG_CONFIG],
+    [AC_MSG_CHECKING([pkg-config])
+    AC_MSG_RESULT([no])])
+
+  PKG_PROG_PKG_CONFIG
+
+  # If pkg-config autoconf support isn't installed, define its autoconf macro.
+  m4_define_default([PKG_CHECK_MODULES],
+    [AC_MSG_CHECKING([$1])
+    AC_MSG_RESULT([no])
+    $4])
+
+  AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
+
+  AS_IF([test "x$PKG_CONFIG" = "xno"],[
+     AC_MSG_ERROR([
+     *** pkg-config script could not be found. Make sure it is
+     *** in your path, or set the PKG_CONFIG environment variable
+     *** to the full path to pkg-config. Otherwise, reinstall glib2
+     *** development files (libglib2.0-dev)])
+  ]);
+
+  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([glib needed])])
+  AC_SUBST(GLIB2_CFLAGS)
+  AC_SUBST(GLIB2_LIBS)
+  AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([glib needed])])
 fi
 AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
 
@@ -121,6 +143,8 @@ Your build configuration:
 
   CFLAGS = $CFLAGS
   prefix: $prefix
+  package: $PACKAGE_NAME
   version: $VERSION
+  bugs: $PACKAGE_BUGREPORT
 
 EOF

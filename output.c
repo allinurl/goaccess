@@ -24,7 +24,6 @@
 #define _FILE_OFFSET_BITS 64
 
 #include <ctype.h>
-#include <glib.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -37,7 +36,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
-#elif HAVE_LIBGLIB_2_0
+#else
 #include "glibht.h"
 #endif
 
@@ -902,7 +901,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 
 #ifdef HAVE_LIBTOKYOCABINET
     ag = tcbdbget2 (ht_hosts_agents, data);
-#elif HAVE_LIBGLIB_2_0
+#else
     ag = g_hash_table_lookup (ht_hosts_agents, data);
 #endif
 
@@ -1001,7 +1000,7 @@ print_html_request_report (FILE * fp, GHolder * h, int process)
 {
 #ifdef HAVE_LIBTOKYOCABINET
   TCBDB *ht;
-#elif HAVE_LIBGLIB_2_0
+#else
   GHashTable *ht;
 #endif
 
