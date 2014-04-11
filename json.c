@@ -41,6 +41,7 @@
 
 #include "commons.h"
 #include "error.h"
+#include "gdns.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
