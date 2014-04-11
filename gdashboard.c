@@ -1002,8 +1002,8 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
 {
   GSubList *sub_list = new_gsublist ();
   char *ip = xstrdup (data), *hostname = NULL;
-  void *value;
   int found = 0;
+  void *value_ptr;
 
 #ifdef HAVE_LIBGEOIP
   const char *addr = data;
@@ -1026,15 +1026,15 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
 
   pthread_mutex_lock (&gdns_thread.mutex);
 #ifdef HAVE_LIBTOKYOCABINET
-  value = tcbdbget2 (ht_hostnames, ip);
-  if (value) {
+  value_ptr = tcbdbget2 (ht_hostnames, ip);
+  if (value_ptr) {
     found = 1;
-    hostname = (char *) value;
+    hostname = value_ptr;
   }
 #else
-  found = g_hash_table_lookup_extended (ht_hostnames, ip, NULL, &value);
-  if (found)
-    hostname = xstrdup ((char *) value);
+  found = g_hash_table_lookup_extended (ht_hostnames, ip, NULL, &value_ptr);
+  if (found && value_ptr)
+    hostname = xstrdup (value_ptr);
 #endif
   pthread_mutex_unlock (&gdns_thread.mutex);
 
