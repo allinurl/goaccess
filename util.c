@@ -263,17 +263,33 @@ verify_status_code (char *str)
 }
 
 char *
+ltrim (char *s)
+{
+  char *begin = s;
+
+  while (isspace (*begin))
+    ++begin;
+  memmove (s, begin, strlen (begin) + 1);
+
+  return s;
+}
+
+char *
+rtrim (char *s)
+{
+  char *end = s + strlen (s);
+
+  while ((end != s) && isspace (*(end - 1)))
+    --end;
+  *end = '\0';
+
+  return s;
+}
+
+char *
 trim_str (char *str)
 {
-  char *p;
-  if (!str)
-    return NULL;
-  if (!*str)
-    return str;
-  for (p = str + strlen (str) - 1; (p >= str) && isspace (*p); --p);
-  p[1] = '\0';
-
-  return str;
+  return rtrim (ltrim (str));
 }
 
 char *
