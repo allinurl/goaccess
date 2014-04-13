@@ -21,6 +21,9 @@
 #ifndef GOACCESS_H_INCLUDED
 #define GOACCESS_H_INCLUDED
 
+#include "ui.h"
+
+extern GSpinner *parsing_spinner;
 extern int active_gdns;         /* kill dns pthread flag */
 void render_screens (void);
 

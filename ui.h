@@ -49,6 +49,10 @@
 #define T_LOG_PATH   "Log File"
 #define T_UNIQUE_VIS "Unique Visitors"
 
+/* spinner label format */
+#define SPIN_LBL 50
+#define SPIN_FMT "%s [%'d] [%'lld/s]"
+
 /* modules */
 #define VISIT_HEAD "Unique visitors per day - Including spiders"
 #define VISIT_DESC "Hits having the same IP, date and agent are a unique visit."
@@ -213,12 +217,17 @@ typedef struct GAgents_
 
 typedef struct GSpinner_
 {
-  pthread_t thread;
-  pthread_mutex_t mutex;
-  WINDOW *win;
-  int y;
-  int x;
+  const char *label;
   int color;
+  int curses;
+  int spin_x;
+  int w;
+  int x;
+  int y;
+  pthread_mutex_t mutex;
+  pthread_t thread;
+  unsigned int *process;
+  WINDOW *win;
   enum
   {
     SPN_RUN,
@@ -230,6 +239,7 @@ typedef struct GSpinner_
 char *get_browser_type (char *line);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
 GSpinner *new_gspinner (void);
+void set_curses_spinner (GSpinner *spinner);
 int split_agent_str (char *ptr_value, GAgents * agents, int max);
 int verify_format (GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);

@@ -65,6 +65,7 @@
 
 #include "browsers.h"
 #include "commons.h"
+#include "goaccess.h"
 #include "error.h"
 #include "opesys.h"
 #include "settings.h"
@@ -917,10 +918,13 @@ process_log (GLog * logger, char *line, int test)
     return 0;
   }
 
+  /* ignore comments */
   if (*line == '#' || *line == '\n')
     return 0;
 
+  pthread_mutex_lock (&parsing_spinner->mutex);
   logger->process++;
+  pthread_mutex_unlock (&parsing_spinner->mutex);
 
   glog = init_log_item (logger);
   if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {

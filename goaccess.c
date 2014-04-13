@@ -77,7 +77,7 @@ int active_gdns = 0;
 static GDash *dash;
 static GHolder *holder;
 static GLog *logger;
-static GSpinner *parsing_spinner;
+GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
@@ -988,7 +988,8 @@ main (int argc, char *argv[])
   ht_host_serve_usecs =
     g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
                            g_free);
-  /* the following tables contain s structure as their value, thus we
+
+  /* The following tables contain s structure as their value, thus we
      use a special iterator to free its value */
   ht_requests =
     g_hash_table_new_full (g_str_hash, g_str_equal,
@@ -1017,14 +1018,21 @@ main (int argc, char *argv[])
     setlocale (LC_CTYPE, loc_ctype);
   else
     setlocale (LC_CTYPE, "");
+  setlocale (LC_NUMERIC, "");
 
 #ifdef HAVE_LIBGEOIP
   /* Geolocation data */
   geo_location_data = GeoIP_new (conf.geo_db);
 #endif
 
-  if (conf.output_html)
+  logger = init_log ();
+  parsing_spinner = new_gspinner ();
+  parsing_spinner->process = &logger->process;
+
+  if (conf.output_html) {
+    ui_spinner_create (parsing_spinner);
     goto out;
+  }
 
   initscr ();
   clear ();
@@ -1038,36 +1046,41 @@ main (int argc, char *argv[])
   }
   init_colors ();
 
+  /* init standard screen */
   attron (COLOR_PAIR (COL_WHITE));
   getmaxyx (stdscr, row, col);
   if (row < MIN_HEIGHT || col < MIN_WIDTH)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Minimum screen size - 0 columns by 7 lines");
 
+  /* init header screen */
   header_win = newwin (5, col, 0, 0);
   keypad (header_win, TRUE);
   if (header_win == NULL)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to allocate memory for header_win.");
 
+  /* init main screen */
   main_win = newwin (row - 7, col, 6, 0);
   keypad (main_win, TRUE);
   if (main_win == NULL)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to allocate memory for main_win.");
 
-  parsing_spinner = new_gspinner ();
-out:
+  set_curses_spinner (parsing_spinner);
 
-  logger = init_log ();
+  /* configuration dialog */
   if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)
       && !conf.output_html) {
     refresh ();
     quit = verify_format (logger, parsing_spinner);
-  } else if (!conf.output_html) {
-    draw_header (stdscr, "Parsing...", "%s", row - 1, 0, col, HIGHLIGHT);
+  }
+  /* straight parsing */
+  else if (!conf.output_html) {
     ui_spinner_create (parsing_spinner);
   }
+
+out:
 
   /* main processing event */
   time (&start_proc);
@@ -1078,16 +1091,22 @@ out:
 
   gdns_init ();
   logger->offset = logger->process;
+
+  /* STDOUT */
   if (conf.output_html) {
     /* no valid entries to process from the log */
     if ((logger->process == 0) || (logger->process == logger->invalid))
       goto done;
+
     allocate_holder ();
+    /* csv */
     if (conf.output_format != NULL && strcmp ("csv", conf.output_format) == 0)
       output_csv (logger, holder);
+    /* json */
     else if (conf.output_format != NULL
              && strcmp ("json", conf.output_format) == 0)
       output_json (logger, holder);
+    /* HTML */
     else
       output_html (logger, holder);
     goto done;

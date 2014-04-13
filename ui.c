@@ -645,21 +645,44 @@ load_agent_list (WINDOW * main_win, char *addr)
 static void
 ui_spinner (void *ptr_data)
 {
-  GSpinner *spinner = (GSpinner *) ptr_data;
+  GSpinner *sp = (GSpinner *) ptr_data;
+
   static char const spin_chars[] = "/-\\|";
+  char buf[SPIN_LBL];
+  long long tdiff = 0, psec = 0;
   int i = 0;
+  time_t begin;
+
+  time (&begin);
   while (1) {
-    pthread_mutex_lock (&spinner->mutex);
-    if (spinner->state == SPN_END)
+    pthread_mutex_lock (&sp->mutex);
+    if (sp->state == SPN_END)
       break;
-    wattron (spinner->win, COLOR_PAIR (spinner->color));
-    mvwaddch (spinner->win, spinner->y, spinner->x, spin_chars[i++ & 3]);
-    wattroff (spinner->win, COLOR_PAIR (spinner->color));
-    wrefresh (spinner->win);
-    pthread_mutex_unlock (&spinner->mutex);
+
+    tdiff = (long long) (time (NULL) - begin);
+    psec = tdiff >= 1 ? *(sp->process) / tdiff : 0;
+    snprintf (buf, sizeof buf, SPIN_FMT, sp->label, *(sp->process), psec);
+
+    /* CURSES */
+    if (sp->curses) {
+      /* label + metrics */
+      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color);
+
+      /* caret */
+      wattron (sp->win, COLOR_PAIR (sp->color));
+      mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[i++ & 3]);
+      wattroff (sp->win, COLOR_PAIR (sp->color));
+      wrefresh (sp->win);
+    }
+    /* STDOUT */
+    else {
+      fprintf (stderr, "%s\r", buf);
+    }
+
+    pthread_mutex_unlock (&sp->mutex);
     usleep (100000);
   }
-  free (spinner);
+  free (sp);
 }
 
 /* create spinner's thread */
@@ -671,20 +694,34 @@ ui_spinner_create (GSpinner * spinner)
 }
 
 /* allocate memory and initialize data */
+void
+set_curses_spinner (GSpinner * spinner)
+{
+  int y, x;
+  if (spinner == NULL)
+    return;
+
+  getmaxyx (stdscr, y, x);
+
+  spinner->color = HIGHLIGHT;
+  spinner->curses = 1;
+  spinner->win = stdscr;
+  spinner->x = 0;
+  spinner->w = x;
+  spinner->spin_x = x - 2;
+  spinner->y = y - 1;
+}
+
+/* allocate memory and initialize data */
 GSpinner *
 new_gspinner (void)
 {
-  int y, x;
   GSpinner *spinner;
 
-  getmaxyx (stdscr, y, x);
   spinner = xcalloc (1, sizeof (GSpinner));
-
-  spinner->color = HIGHLIGHT;
+  spinner->label = "Parsing...";
   spinner->state = SPN_RUN;
-  spinner->win = stdscr;
-  spinner->x = x - 2;
-  spinner->y = y - 1;
+  spinner->curses = 0;
 
   if (pthread_mutex_init (&(spinner->mutex), NULL))
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
@@ -858,8 +895,8 @@ verify_format (GLog * logger, GSpinner * spinner)
          /* test log against selected settings */
          if (test_format (logger)) {
            invalid = 1;
-           draw_header (win, "No valid hits. 'y' to continue anyway.",
-                        "%s", 3, 2, CONF_MENU_W, WHITE_RED);
+           draw_header (win, "No valid hits. 'y' to continue anyway.", "%s",
+                        3, 2, CONF_MENU_W, WHITE_RED);
            free (conf.date_format);
            free (conf.log_format);
 
@@ -869,13 +906,13 @@ verify_format (GLog * logger, GSpinner * spinner)
          /* valid data, reset logger & start parsing */
          else {
            reset_struct (logger);
-           draw_header (win, "Parsing...", "%s", 3, 2, CONF_MENU_W,
-                        BLACK_CYAN);
 
            /* start spinner thread */
            spinner->win = win;
            spinner->y = 3;
-           spinner->x = w - 4;
+           spinner->x = 2;
+           spinner->spin_x = CONF_MENU_W;
+           spinner->w = CONF_MENU_W;
            spinner->color = BLACK_CYAN;
            ui_spinner_create (spinner);
 
