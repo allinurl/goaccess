@@ -198,8 +198,7 @@ cmd_help (void)
   printf (" --cache-lcnum                ");
   printf ("Max number of leaf nodes to be cached. Default %d\n", TC_LCNUM);
   printf (" --cache-ncnum                ");
-  printf ("Max number of non-leaf nodes to be cached. Default %d\n",
-          TC_NCNUM);
+  printf ("Max number of non-leaf nodes to be cached. Default %d\n", TC_NCNUM);
   printf (" --tune-lmemb                 ");
   printf ("Number of members in each leaf page. Default %d\n", TC_LMEMB);
   printf (" --tune-nmemb                 ");

@@ -389,8 +389,7 @@ process_keyphrases (char *ref)
   else
     return 1;
   dec = spc_decode_url (r);
-  if ((ptr = strstr (dec, "%26")) != NULL
-      || (ptr = strchr (dec, '&')) != NULL)
+  if ((ptr = strstr (dec, "%26")) != NULL || (ptr = strchr (dec, '&')) != NULL)
     *ptr = '\0';
 
   p = dec;

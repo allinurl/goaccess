@@ -787,8 +787,7 @@ regexp_init (regex_t * regex, const char *pattern)
   char buf[REGEX_ERROR];
 
   getmaxyx (stdscr, y, x);
-  rc =
-    regcomp (regex, pattern, REG_EXTENDED | (find_t.icase ? REG_ICASE : 0));
+  rc = regcomp (regex, pattern, REG_EXTENDED | (find_t.icase ? REG_ICASE : 0));
   /* something went wrong */
   if (rc != 0) {
     regerror (rc, regex, buf, sizeof (buf));
@@ -984,8 +983,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
   for (iter = sub_list->head; iter; iter = iter->next) {
     entry = render_child_node (iter->data);
     if (entry) {
-      (*dash)->module[module].data[(*idx)].bandwidth =
-        filesize_str (iter->bw);
+      (*dash)->module[module].data[(*idx)].bandwidth = filesize_str (iter->bw);
       (*dash)->module[module].data[(*idx)].bw = iter->bw;
       (*dash)->module[module].data[(*idx)].data = xstrdup (entry);
       (*dash)->module[module].data[(*idx)].hits = iter->hits;
@@ -1211,8 +1209,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
     (*dash)->module[module].data[(*idx)].protocol = item.protocol;
   if (conf.serve_usecs) {
     (*dash)->module[module].data[(*idx)].usecs = item.usecs;
-    (*dash)->module[module].data[(*idx)].serve_time =
-      usecs_to_str (item.usecs);
+    (*dash)->module[module].data[(*idx)].serve_time = usecs_to_str (item.usecs);
   }
   (*idx)++;
 }

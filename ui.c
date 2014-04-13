@@ -445,8 +445,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
      case 127:
      case KEY_BACKSPACE:
        if (pos + x > 0) {
-         memmove (&s[(pos + x) - 1], &s[pos + x],
-                  (max_width - (pos + x)) + 1);
+         memmove (&s[(pos + x) - 1], &s[pos + x], (max_width - (pos + x)) + 1);
          if (pos <= 0)
            x--;
          else
@@ -777,8 +776,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
 
   /* set log format from goaccessrc if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
-               1);
+  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1);
   if (conf.log_format) {
     tmp_log_format = alloc_string (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, conf.log_format);
@@ -975,8 +973,7 @@ load_schemes_win (WINDOW * main_win)
 
   /* create a new instance of GMenu and make it selectable */
   menu =
-    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y,
-               SCHEME_MENU_X);
+    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
   menu->size = n;
 
   /* add items to GMenu */

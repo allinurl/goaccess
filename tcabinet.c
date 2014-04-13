@@ -517,8 +517,7 @@ parse_raw_data (TCBDB * bdb, int ht_size, GModule module)
   tc_db_foreach (bdb, data_iter_generic, raw_data);
   switch (module) {
    case VISITORS:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_data_desc);
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
      break;
    case REQUESTS:
    case REQUESTS_STATIC:
@@ -541,8 +540,7 @@ parse_raw_data (TCBDB * bdb, int ht_size, GModule module)
      break;
 #endif
    default:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_num_desc);
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
   }
 
   return raw_data;

@@ -329,8 +329,7 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"bandwidth\": %lld,\n", logger->resp_size);
   fprintf (fp, "\t\t\"generation_time\": %llu,\n",
            ((long long) end_proc - start_proc));
-  fprintf (fp, "\t\t\"static_files\": %d,\n",
-           get_ht_size (ht_requests_static));
+  fprintf (fp, "\t\t\"static_files\": %d,\n", get_ht_size (ht_requests_static));
 
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
@@ -359,8 +358,7 @@ output_json (GLog * logger, GHolder * holder)
   print_json_generic (fp, holder + OS, get_ht_size (ht_unique_visitors));
   fprintf (fp, ",\n");
 
-  print_json_generic (fp, holder + BROWSERS,
-                      get_ht_size (ht_unique_visitors));
+  print_json_generic (fp, holder + BROWSERS, get_ht_size (ht_unique_visitors));
   fprintf (fp, ",\n");
 
   print_json_generic (fp, holder + REFERRERS, logger->process);

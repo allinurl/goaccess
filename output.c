@@ -638,8 +638,7 @@ print_html_status (FILE * fp, GHolder * h, int process)
   fprintf (fp, "<tr>");
   fprintf (fp, "<th>Hits</th>");
   fprintf (fp, "<th>%%</th>");
-  fprintf (fp,
-           "<th>Code<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
+  fprintf (fp, "<th>Code<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
   fprintf (fp, "</tr>");
 
   print_html_end_thead (fp);
@@ -699,8 +698,7 @@ print_html_generic (FILE * fp, GHolder * h, int process)
   fprintf (fp, "<tr>");
   fprintf (fp, "<th>Hits</th>");
   fprintf (fp, "<th>%%</th>");
-  fprintf (fp,
-           "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
+  fprintf (fp, "<th>URL<span class=\"r\" onclick=\"t(this)\">◀</span></th>");
   fprintf (fp, "</tr>");
 
   print_html_end_thead (fp);
@@ -1198,8 +1196,7 @@ print_html_summary (FILE * fp, GLog * logger)
 
   print_html_begin_tr (fp, 0);
   print_html_summary_field (fp, logger->process, T_REQUESTS);
-  print_html_summary_field (fp, get_ht_size (ht_unique_visitors),
-                            T_UNIQUE_VIS);
+  print_html_summary_field (fp, get_ht_size (ht_unique_visitors), T_UNIQUE_VIS);
   print_html_summary_field (fp, get_ht_size (ht_referrers), T_REFERRER);
 
   if (!logger->piping) {
@@ -1228,8 +1225,7 @@ print_html_summary (FILE * fp, GLog * logger)
   fprintf (fp, "<td>%s</td>", T_GEN_TIME);
   fprintf (fp, "<td>%llu</td>", ((long long) end_proc - start_proc));
 
-  print_html_summary_field (fp, get_ht_size (ht_requests_static),
-                            T_STATIC_FIL);
+  print_html_summary_field (fp, get_ht_size (ht_requests_static), T_STATIC_FIL);
   fprintf (fp, "<td colspan=\"4\">%s</td>", conf.ifile);
 
   print_html_end_tr (fp);
@@ -1251,8 +1247,7 @@ print_pure_menu (FILE * fp, char *now)
   fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
   fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
   fprintf (fp, "<li><a href=\"#%s\">Requested files</a></li>", REQUE_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>",
-           STATI_ID);
+  fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>", STATI_ID);
   fprintf (fp, "<li><a href=\"#%s\">Not found URLs</a></li>", FOUND_ID);
   fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
   fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
