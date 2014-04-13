@@ -98,6 +98,7 @@ struct option long_opts[] = {
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBTOKYOCABINET
+  {"db-path"              , required_argument , 0 , 0   } ,
   {"cache-lcnum"          , required_argument , 0 , 0   } ,
   {"cache-ncnum"          , required_argument , 0 , 0   } ,
   {"tune-lmemb"           , required_argument , 0 , 0   } ,
@@ -195,6 +196,8 @@ cmd_help (void)
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
 #ifdef HAVE_LIBTOKYOCABINET
+  printf (" --db-path                    ");
+  printf ("Path of the database file. Default %s\n", TC_DBPATH);
   printf (" --cache-lcnum                ");
   printf ("Max number of leaf nodes to be cached. Default %d\n", TC_LCNUM);
   printf (" --cache-ncnum                ");
@@ -916,6 +919,9 @@ main (int argc, char *argv[])
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
          conf.no_color = 1;
+       /* specifies the path of the database file */
+       if (!strcmp ("db-path", long_opts[idx].name))
+         conf.db_path = optarg;
        /* specifies the maximum number of leaf nodes to be cached */
        if (!strcmp ("cache-lcnum", long_opts[idx].name))
          conf.cache_lcnum = atoi (optarg);

@@ -57,40 +57,65 @@ TCBDB *ht_status_code = NULL;
 TCBDB *ht_unique_vis = NULL;
 TCBDB *ht_unique_visitors = NULL;
 
+static char *
+tc_db_set_path (const char *dbname)
+{
+  char *path;
+
+  if (conf.db_path != NULL) {
+    path = xmalloc (snprintf (NULL, 0, "%s%s", conf.db_path, dbname) + 1);
+    sprintf (path, "%s%s", conf.db_path, dbname);
+  } else {
+    path = xmalloc (snprintf (NULL, 0, "%s%s", TC_DBPATH, dbname) + 1);
+    sprintf (path, "%s%s", TC_DBPATH, dbname);
+  }
+  return path;
+}
+
 /* Open the database handle */
 TCBDB *
 tc_db_create (const char *dbname)
 {
+  char *path = NULL;
   TCBDB *bdb;
   int ecode;
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
+
+  path = tc_db_set_path (dbname);
 
   bdb = tcbdbnew ();
 
   lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
   ncnum = conf.cache_ncnum > 0 ? conf.cache_ncnum : TC_NCNUM;
 
-  LOG_DEBUG (("%s\n", dbname));
+  LOG_DEBUG (("%s\n", path));
   LOG_DEBUG (("lcnum, ncnum: %d, %d\n", lcnum, ncnum));
 
   /* set the caching parameters of a B+ tree database object */
-  if (!tcbdbsetcache (bdb, lcnum, ncnum))
+  if (!tcbdbsetcache (bdb, lcnum, ncnum)) {
+    free (path);
+    LOG_DEBUG (("Unable to set TCB cache.\n\n"));
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to set TCB cache");
+  }
 
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
   nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
   bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
 
   LOG_DEBUG (("lmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
-
   tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, BDBTBZIP);
-  /* open the database */
-  if (!tcbdbopen (bdb, dbname, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {
+
+  /* attempt to open the database */
+  if (!tcbdbopen (bdb, path, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {
+    free (path);
     ecode = tcbdbecode (bdb);
+
+    LOG_DEBUG (("%s\n\n", tcbdberrmsg (ecode)));
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    tcbdberrmsg (ecode));
   }
+  free (path);
 
   return bdb;
 }

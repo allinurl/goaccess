@@ -73,6 +73,7 @@ typedef struct GConf_
   int skip_term_resolver;
 
   /* TokyoCabinet */
+  char *db_path;
   int cache_lcnum;
   int cache_ncnum;
   int tune_lmemb;
