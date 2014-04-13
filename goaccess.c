@@ -81,22 +81,29 @@ GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
-  {"agent-list"           , no_argument       , 0 , 'a'} ,
-  {"conf-dialog"          , no_argument       , 0 , 'c'} ,
-  {"conf-file"            , required_argument , 0 , 'p'} ,
-  {"exclude-ip"           , required_argument , 0 , 'e'} ,
-  {"help"                 , no_argument       , 0 , 'h'} ,
-  {"http-method"          , no_argument       , 0 , 'M'} ,
-  {"http-protocol"        , no_argument       , 0 , 'H'} ,
-  {"log-file"             , required_argument , 0 , 'l'} ,
-  {"no-query-string"      , no_argument       , 0 , 'q'} ,
-  {"no-term-resolver"     , no_argument       , 0 , 'r'} ,
-  {"output-format"        , required_argument , 0 , 'o'} ,
-  {"real-os"              , no_argument       , 0 ,  0 } ,
-  {"no-color"             , no_argument       , 0 ,  0 } ,
-  {"std-geip"             , no_argument       , 0 , 'g'} ,
-  {"with-mouse"           , no_argument       , 0 , 'm'} ,
-  {"with-output-resolver" , no_argument       , 0 , 'd'} ,
+  {"agent-list"           , no_argument       , 0 , 'a' } ,
+  {"conf-dialog"          , no_argument       , 0 , 'c' } ,
+  {"conf-file"            , required_argument , 0 , 'p' } ,
+  {"exclude-ip"           , required_argument , 0 , 'e' } ,
+  {"help"                 , no_argument       , 0 , 'h' } ,
+  {"http-method"          , no_argument       , 0 , 'M' } ,
+  {"http-protocol"        , no_argument       , 0 , 'H' } ,
+  {"log-file"             , required_argument , 0 , 'l' } ,
+  {"no-query-string"      , no_argument       , 0 , 'q' } ,
+  {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
+  {"output-format"        , required_argument , 0 , 'o' } ,
+  {"real-os"              , no_argument       , 0 , 0   } ,
+  {"no-color"             , no_argument       , 0 , 0   } ,
+  {"std-geip"             , no_argument       , 0 , 'g' } ,
+  {"with-mouse"           , no_argument       , 0 , 'm' } ,
+  {"with-output-resolver" , no_argument       , 0 , 'd' } ,
+#ifdef HAVE_LIBTOKYOCABINET
+  {"cache-lcnum"          , required_argument , 0 , 0   } ,
+  {"cache-ncnum"          , required_argument , 0 , 0   } ,
+  {"tune-lmemb"           , required_argument , 0 , 0   } ,
+  {"tune-nmemb"           , required_argument , 0 , 0   } ,
+  {"tune-bnum"            , required_argument , 0 , 0   } ,
+#endif
   {0, 0, 0, 0}
 };
 
@@ -187,6 +194,19 @@ cmd_help (void)
   printf ("Ignore request's query string.\n");
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
+#ifdef HAVE_LIBTOKYOCABINET
+  printf (" --cache-lcnum                ");
+  printf ("Max number of leaf nodes to be cached. Default %d\n", TC_LCNUM);
+  printf (" --cache-ncnum                ");
+  printf ("Max number of non-leaf nodes to be cached. Default %d\n",
+          TC_NCNUM);
+  printf (" --tune-lmemb                 ");
+  printf ("Number of members in each leaf page. Default %d\n", TC_LMEMB);
+  printf (" --tune-nmemb                 ");
+  printf ("Number of members in each non-leaf page. Default %d\n", TC_NMEMB);
+  printf (" --tune-bnum                  ");
+  printf ("Number of elements of the bucket array. Default %d\n", TC_BNUM);
+#endif
   printf (" --no-color                   ");
   printf ("Disable colored output.\n");
   printf (" --real-os                    ");
@@ -897,6 +917,21 @@ main (int argc, char *argv[])
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
          conf.no_color = 1;
+       /* specifies the maximum number of leaf nodes to be cached */
+       if (!strcmp ("cache-lcnum", long_opts[idx].name))
+         conf.cache_lcnum = atoi (optarg);
+       /* specifies the maximum number of non-leaf nodes to be cached */
+       if (!strcmp ("cache-ncnum", long_opts[idx].name))
+         conf.cache_ncnum = atoi (optarg);
+       /* number of members in each leaf page */
+       if (!strcmp ("tune-lmemb", long_opts[idx].name))
+         conf.tune_lmemb = atoi (optarg);
+       /* number of members in each non-leaf page */
+       if (!strcmp ("tune-nmemb", long_opts[idx].name))
+         conf.tune_nmemb = atoi (optarg);
+       /* number of elements of the bucket array */
+       if (!strcmp ("tune-bnum", long_opts[idx].name))
+         conf.tune_bnum = atoi (optarg);
        break;
      case '?':
        return EXIT_FAILURE;
@@ -920,29 +955,28 @@ main (int argc, char *argv[])
   /* Initialize hash tables */
 #ifdef HAVE_LIBTOKYOCABINET
 
-  ht_browsers = tc_db_create (DB_BROWSERS, TC_LCNUM, TC_NCNUM);
-  ht_countries = tc_db_create (DB_COUNTRIES, TC_LCNUM, TC_NCNUM);
-  ht_date_bw = tc_db_create (DB_DATE_BW, TC_LCNUM, TC_NCNUM);
-  ht_file_bw = tc_db_create (DB_FILE_BW, TC_LCNUM, TC_NCNUM);
-  ht_file_serve_usecs =
-    tc_db_create (DB_FILE_SERVE_USECS, TC_LCNUM, TC_NCNUM);
-  ht_host_bw = tc_db_create (DB_HOST_BW, TC_LCNUM, TC_NCNUM);
-  ht_hostnames = tc_db_create (DB_HOSTNAMES, TC_LCNUM, TC_NCNUM);
-  ht_hosts_agents = tc_db_create (DB_HOST_AGENTS, TC_LCNUM, TC_NCNUM);
-  ht_host_serve_usecs =
-    tc_db_create (DB_HOST_SERVE_USECS, TC_LCNUM, TC_NCNUM);
-  ht_hosts = tc_db_create (DB_HOSTS, TC_LCNUM, TC_NCNUM);
-  ht_keyphrases = tc_db_create (DB_KEYPHRASES, TC_LCNUM, TC_NCNUM);
-  ht_not_found_requests =
-    tc_db_create (DB_NOT_FOUND_REQUESTS, TC_LCNUM, TC_NCNUM);
-  ht_os = tc_db_create (DB_OS, TC_LCNUM, TC_NCNUM);
-  ht_referrers = tc_db_create (DB_REFERRERS, TC_LCNUM, TC_NCNUM);
-  ht_referring_sites = tc_db_create (DB_REFERRING_SITES, TC_LCNUM, TC_NCNUM);
-  ht_requests_static = tc_db_create (DB_REQUESTS_STATIC, TC_LCNUM, TC_NCNUM);
-  ht_requests = tc_db_create (DB_REQUESTS, TC_LCNUM, TC_NCNUM);
-  ht_status_code = tc_db_create (DB_STATUS_CODE, TC_LCNUM, TC_NCNUM);
-  ht_unique_visitors = tc_db_create (DB_UNIQUE_VISITORS, TC_LCNUM, TC_NCNUM);
-  ht_unique_vis = tc_db_create (DB_UNIQUE_VIS, TC_LCNUM, TC_NCNUM);
+/* *INDENT-OFF* */
+  ht_browsers           = tc_db_create (DB_BROWSERS);
+  ht_countries          = tc_db_create (DB_COUNTRIES);
+  ht_date_bw            = tc_db_create (DB_DATE_BW);
+  ht_file_bw            = tc_db_create (DB_FILE_BW);
+  ht_file_serve_usecs   = tc_db_create (DB_FILE_SERVE_USECS);
+  ht_host_bw            = tc_db_create (DB_HOST_BW);
+  ht_hostnames          = tc_db_create (DB_HOSTNAMES);
+  ht_hosts_agents       = tc_db_create (DB_HOST_AGENTS);
+  ht_host_serve_usecs   = tc_db_create (DB_HOST_SERVE_USECS);
+  ht_hosts              = tc_db_create (DB_HOSTS);
+  ht_keyphrases         = tc_db_create (DB_KEYPHRASES);
+  ht_not_found_requests = tc_db_create (DB_NOT_FOUND_REQUESTS);
+  ht_os                 = tc_db_create (DB_OS);
+  ht_referrers          = tc_db_create (DB_REFERRERS);
+  ht_referring_sites    = tc_db_create (DB_REFERRING_SITES);
+  ht_requests_static    = tc_db_create (DB_REQUESTS_STATIC);
+  ht_requests           = tc_db_create (DB_REQUESTS);
+  ht_status_code        = tc_db_create (DB_STATUS_CODE);
+  ht_unique_visitors    = tc_db_create (DB_UNIQUE_VISITORS);
+  ht_unique_vis         = tc_db_create (DB_UNIQUE_VIS);
+/* *INDENT-ON* */
 
 #else
 

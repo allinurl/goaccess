@@ -71,6 +71,13 @@ typedef struct GConf_
   int serve_secs;
   int serve_usecs;
   int skip_term_resolver;
+
+  /* TokyoCabinet */
+  int cache_lcnum;
+  int cache_ncnum;
+  int tune_lmemb;
+  int tune_nmemb;
+  int tune_bnum;
 } GConf;
 
 char *get_selected_date_str (size_t idx);

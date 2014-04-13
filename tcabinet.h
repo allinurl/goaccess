@@ -32,6 +32,9 @@
 
 #define TC_LCNUM 9000
 #define TC_NCNUM 3000
+#define TC_LMEMB 128
+#define TC_NMEMB 256
+#define TC_BNUM 32749
 
 #define DB_BROWSERS "/tmp/db_browsers.tcb"
 #define DB_COUNTRIES "/tmp/db_countries.tcb"
@@ -87,7 +90,7 @@ int process_request (TCBDB * bdb, const char *k, const GLogItem * log);
 int process_host_agents (char *host, char *agent);
 int tc_db_close (TCBDB * bdb, const char *dbname);
 TCBDB *get_ht_by_module (GModule module);
-TCBDB *tc_db_create (const char *dbname, int32_t lcnum, int32_t ncnum);
+TCBDB *tc_db_create (const char *dbname);
 uint64_t get_bandwidth (char *k, GModule module);
 uint64_t get_serve_time (const char *k, GModule module);
 unsigned int get_ht_size (TCBDB * bdb);

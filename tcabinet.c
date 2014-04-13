@@ -59,22 +59,32 @@ TCBDB *ht_unique_visitors = NULL;
 
 /* Open the database handle */
 TCBDB *
-tc_db_create (const char *dbname, int32_t lcnum, int32_t ncnum)
+tc_db_create (const char *dbname)
 {
   TCBDB *bdb;
   int ecode;
+  uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
 
   bdb = tcbdbnew ();
 
-  lcnum = lcnum > 0 ? lcnum : 1024;
-  ncnum = ncnum > 0 ? ncnum : 512;
+  lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
+  ncnum = conf.cache_ncnum > 0 ? conf.cache_ncnum : TC_NCNUM;
+
+  LOG_DEBUG (("%s\n", dbname));
+  LOG_DEBUG (("lcnum, ncnum: %d, %d\n", lcnum, ncnum));
 
   /* set the caching parameters of a B+ tree database object */
   if (!tcbdbsetcache (bdb, lcnum, ncnum))
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to set TCB cache");
 
-  tcbdbtune (bdb, 128, 256, 32749, 8, 10, BDBTBZIP);
+  lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
+  nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
+  bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
+
+  LOG_DEBUG (("lmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
+
+  tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, BDBTBZIP);
   /* open the database */
   if (!tcbdbopen (bdb, dbname, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {
     ecode = tcbdbecode (bdb);
