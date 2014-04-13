@@ -196,18 +196,18 @@ cmd_help (void)
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
 #ifdef HAVE_LIBTOKYOCABINET
-  printf (" --db-path                    ");
-  printf ("Path of the database file. Default %s\n", TC_DBPATH);
-  printf (" --cache-lcnum                ");
-  printf ("Max number of leaf nodes to be cached. Default %d\n", TC_LCNUM);
-  printf (" --cache-ncnum                ");
-  printf ("Max number of non-leaf nodes to be cached. Default %d\n", TC_NCNUM);
-  printf (" --tune-lmemb                 ");
-  printf ("Number of members in each leaf page. Default %d\n", TC_LMEMB);
-  printf (" --tune-nmemb                 ");
-  printf ("Number of members in each non-leaf page. Default %d\n", TC_NMEMB);
-  printf (" --tune-bnum                  ");
-  printf ("Number of elements of the bucket array. Default %d\n", TC_BNUM);
+  printf (" --db-path=<path>             ");
+  printf ("Path of the database file. [%s]\n", TC_DBPATH);
+  printf (" --cache-lcnum=<number>       ");
+  printf ("Max number of leaf nodes to be cached. [%d]\n", TC_LCNUM);
+  printf (" --cache-ncnum=<number>       ");
+  printf ("Max number of non-leaf nodes to be cached. [%d]\n", TC_NCNUM);
+  printf (" --tune-lmemb=<number>        ");
+  printf ("Number of members in each leaf page. [%d]\n", TC_LMEMB);
+  printf (" --tune-nmemb=<number>        ");
+  printf ("Number of members in each non-leaf page. [%d]\n", TC_NMEMB);
+  printf (" --tune-bnum=<number>         ");
+  printf ("Number of elements of the bucket array. [%d]\n", TC_BNUM);
 #endif
   printf (" --no-color                   ");
   printf ("Disable colored output.\n");
