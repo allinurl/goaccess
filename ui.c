@@ -568,7 +568,7 @@ load_agent_list (WINDOW * main_win, char *addr)
   menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
 
 #ifdef HAVE_LIBTOKYOCABINET
-  value_ptr = tcbdbget2 (ht_hosts_agents, addr);
+  value_ptr = tc_db_get_str (ht_hosts_agents, addr);
 #else
   value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
 #endif

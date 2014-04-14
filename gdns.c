@@ -217,11 +217,7 @@ dns_worker (void GO_UNUSED (*ptr_data))
       break;
     }
 #ifdef HAVE_LIBTOKYOCABINET
-    if (!tcbdbput2 (ht_hostnames, ip, host)) {
-      int ecode = tcbdbecode (ht_hostnames);
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     tcbdberrmsg (ecode));
-    }
+    tc_db_put_str (ht_hostnames, ip, host);
     free (host);
 #else
     if (host != NULL && active_gdns)

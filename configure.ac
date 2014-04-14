@@ -93,7 +93,16 @@ fi
 AC_ARG_ENABLE(tcb, [  --enable-tcb   Enable TokyoCabinet database. Default is disabled],
   [tcb="$enableval"], tcb=no)
 
-if test "$tcb" = "yes"; then
+WITH_TC=no
+if test "$tcb" = "memhash"; then
+  WITH_TC=yes
+  AC_DEFINE([TCB_MEMHASH], [1], ["Build using on-memory hash database"])
+elif test "$tcb" = "btree"; then
+  AC_DEFINE([TCB_BTREE], [1], ["Build using on-disk B+ Tree database"])
+  WITH_TC=yes
+fi
+
+if test "$WITH_TC" = "yes"; then
   AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
     [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
 
@@ -145,7 +154,15 @@ else
   AC_SUBST(GLIB2_LIBS)
   AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([*** Missing development libraries for GLib])])
 fi
-AM_CONDITIONAL([TCB], [test "x$tcb" = "xyes"])
+AM_CONDITIONAL([TCB], [test "$WITH_TC" = "yes"])
+
+if test "$tcb" = "memhash"; then
+  storage="On-memory Hash Database (Tokyo Cabinet)"
+elif test "$tcb" = "btree"; then
+  storage="On-disk B+ Tree Database (Tokyo Cabinet)"
+else
+  storage="On-memory Hash Database (GLib)"
+fi
 
 # Solaris
 AC_CHECK_LIB([socket], [socket])
@@ -203,6 +220,7 @@ cat << EOF
 Your build configuration:
 
   CFLAGS = $CFLAGS
+  storage: $storage
   prefix: $prefix
   package: $PACKAGE_NAME
   version: $VERSION

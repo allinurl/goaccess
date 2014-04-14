@@ -36,6 +36,8 @@
 #include "util.h"
 #include "xmalloc.h"
 
+#ifdef TCB_BTREE
+
 TCBDB *ht_browsers = NULL;
 TCBDB *ht_countries = NULL;
 TCBDB *ht_date_bw = NULL;
@@ -57,6 +59,32 @@ TCBDB *ht_status_code = NULL;
 TCBDB *ht_unique_vis = NULL;
 TCBDB *ht_unique_visitors = NULL;
 
+#else
+
+TCMDB *ht_browsers = NULL;
+TCMDB *ht_countries = NULL;
+TCMDB *ht_date_bw = NULL;
+TCMDB *ht_file_bw = NULL;
+TCMDB *ht_file_serve_usecs = NULL;
+TCMDB *ht_host_bw = NULL;
+TCMDB *ht_hostnames = NULL;
+TCMDB *ht_hosts = NULL;
+TCMDB *ht_host_serve_usecs = NULL;
+TCMDB *ht_keyphrases = NULL;
+TCMDB *ht_not_found_requests = NULL;
+TCMDB *ht_os = NULL;
+TCMDB *ht_hosts_agents = NULL;
+TCMDB *ht_referrers = NULL;
+TCMDB *ht_referring_sites = NULL;
+TCMDB *ht_requests = NULL;
+TCMDB *ht_requests_static = NULL;
+TCMDB *ht_status_code = NULL;
+TCMDB *ht_unique_vis = NULL;
+TCMDB *ht_unique_visitors = NULL;
+
+#endif
+
+#ifdef TCB_BTREE
 static char *
 tc_db_set_path (const char *dbname)
 {
@@ -71,13 +99,15 @@ tc_db_set_path (const char *dbname)
   }
   return path;
 }
+#endif
 
 /* Open the database handle */
-TCBDB *
+#ifdef TCB_BTREE
+static TCBDB *
 tc_db_create (const char *dbname)
 {
-  char *path = NULL;
   TCBDB *bdb;
+  char *path = NULL;
   int ecode;
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
 
@@ -119,11 +149,74 @@ tc_db_create (const char *dbname)
 
   return bdb;
 }
+#endif
+
+#ifdef TCB_MEMHASH
+static TCMDB *
+tc_ht_create (void)
+{
+  TCMDB *mdb = tcmdbnew ();
+  return mdb;
+}
+#endif
+
+/* Initialize TokyoCabinet storage */
+void
+init_storage (void)
+{
+/* *INDENT-OFF* */
+#ifdef TCB_BTREE
+  ht_browsers           = tc_db_create (DB_BROWSERS);
+  ht_countries          = tc_db_create (DB_COUNTRIES);
+  ht_date_bw            = tc_db_create (DB_DATE_BW);
+  ht_file_bw            = tc_db_create (DB_FILE_BW);
+  ht_file_serve_usecs   = tc_db_create (DB_FILE_SERVE_USECS);
+  ht_host_bw            = tc_db_create (DB_HOST_BW);
+  ht_hostnames          = tc_db_create (DB_HOSTNAMES);
+  ht_hosts_agents       = tc_db_create (DB_HOST_AGENTS);
+  ht_host_serve_usecs   = tc_db_create (DB_HOST_SERVE_USECS);
+  ht_hosts              = tc_db_create (DB_HOSTS);
+  ht_keyphrases         = tc_db_create (DB_KEYPHRASES);
+  ht_not_found_requests = tc_db_create (DB_NOT_FOUND_REQUESTS);
+  ht_os                 = tc_db_create (DB_OS);
+  ht_referrers          = tc_db_create (DB_REFERRERS);
+  ht_referring_sites    = tc_db_create (DB_REFERRING_SITES);
+  ht_requests_static    = tc_db_create (DB_REQUESTS_STATIC);
+  ht_requests           = tc_db_create (DB_REQUESTS);
+  ht_status_code        = tc_db_create (DB_STATUS_CODE);
+  ht_unique_visitors    = tc_db_create (DB_UNIQUE_VISITORS);
+  ht_unique_vis         = tc_db_create (DB_UNIQUE_VIS);
+#else
+  ht_browsers           = tc_ht_create ();
+  ht_countries          = tc_ht_create ();
+  ht_date_bw            = tc_ht_create ();
+  ht_file_bw            = tc_ht_create ();
+  ht_file_serve_usecs   = tc_ht_create ();
+  ht_host_bw            = tc_ht_create ();
+  ht_hostnames          = tc_ht_create ();
+  ht_hosts_agents       = tc_ht_create ();
+  ht_host_serve_usecs   = tc_ht_create ();
+  ht_hosts              = tc_ht_create ();
+  ht_keyphrases         = tc_ht_create ();
+  ht_not_found_requests = tc_ht_create ();
+  ht_os                 = tc_ht_create ();
+  ht_referrers          = tc_ht_create ();
+  ht_referring_sites    = tc_ht_create ();
+  ht_requests_static    = tc_ht_create ();
+  ht_requests           = tc_ht_create ();
+  ht_status_code        = tc_ht_create ();
+  ht_unique_visitors    = tc_ht_create ();
+  ht_unique_vis         = tc_ht_create ();
+#endif
+/* *INDENT-ON* */
+}
 
 /* Close the database handle */
+#ifdef TCB_BTREE
 int
-tc_db_close (TCBDB * bdb, const char *dbname)
+tc_db_close (void *db, const char *dbname)
 {
+  TCBDB *bdb = db;
   int ecode;
 
   if (bdb == NULL)
@@ -142,13 +235,27 @@ tc_db_close (TCBDB * bdb, const char *dbname)
 
   return 0;
 }
+#endif
 
+#ifdef TCB_MEMHASH
+int
+tc_db_close (void *db, GO_UNUSED const char *dbname)
+{
+  TCMDB *mdb = db;
+  if (mdb == NULL)
+    return 1;
+  tcmdbdel (mdb);
+  return 0;
+}
+#endif
+
+#ifdef TCB_BTREE
 /* Calls the given function for each of the key/value pairs */
 void
-tc_db_foreach (TCBDB * bdb,
-               void (*fp) (BDBCUR * cur, char *k, int s, void *u),
+tc_db_foreach (void *db, void (*fp) (BDBCUR * cur, char *k, int s, void *u),
                void *user_data)
 {
+  TCBDB *bdb = db;
   BDBCUR *cur;
   int ksize;
   char *key = NULL;
@@ -160,34 +267,130 @@ tc_db_foreach (TCBDB * bdb,
 
   tcbdbcurdel (cur);
 }
+#endif
+
+#ifdef TCB_MEMHASH
+/* Calls the given function for each of the key/value pairs */
+void
+tc_db_foreach (void *db, void (*fp) (TCMDB * m, char *k, int s, void *u),
+               void *user_data)
+{
+  TCMDB *mdb = db;
+  int ksize;
+  char *key = NULL;
+
+  tcmdbiterinit (mdb);
+  while ((key = tcmdbiternext (mdb, &ksize)) != NULL)
+    (*fp) (mdb, key, ksize, user_data);
+}
+#endif
 
 /* Return number of records of a hash database */
 unsigned int
-get_ht_size (TCBDB * bdb)
+get_ht_size (void *db)
 {
+#ifdef TCB_BTREE
+  TCBDB *bdb = db;
   if (bdb == NULL)
     return 0;
   return tcbdbrnum (bdb);
+#else
+  TCMDB *mdb = db;
+  if (mdb == NULL)
+    return 0;
+  return tcmdbrnum (mdb);
+#endif
+}
+
+/* Add an integer to a record */
+static int
+tc_db_add_int (void *db, const char *k)
+{
+#ifdef TCB_BTREE
+  TCBDB *bdb = db;
+  return tcbdbaddint (bdb, k, strlen (k), 1) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
+#else
+  TCMDB *mdb = db;
+  return tcmdbaddint (mdb, k, strlen (k), 1) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
+#endif
 }
 
 /* Store generic data into the given hash table */
 int
-process_generic_data (TCBDB * bdb, const char *k)
+process_generic_data (void *db, const char *k)
 {
-  return tcbdbaddint (bdb, k, strlen (k), 1) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
+  return tc_db_add_int (db, k);
+}
+
+static void *
+tc_db_get (void *db, const char *k)
+{
+  int sp = 0;
+#ifdef TCB_BTREE
+  TCBDB *bdb = db;
+  return tcbdbget (bdb, k, strlen (k), &sp);
+#else
+  TCMDB *mdb = db;
+  return tcmdbget (mdb, k, strlen (k), &sp);
+#endif
+}
+
+static void
+tc_db_put (void *db, const char *k, void *v, uint32_t v_size)
+{
+#ifdef TCB_BTREE
+  int ecode;
+  TCBDB *bdb = db;
+  if (!tcbdbput (bdb, k, strlen (k), v, v_size)) {
+    ecode = tcbdbecode (bdb);
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   tcbdberrmsg (ecode));
+  }
+#else
+  TCMDB *mdb = db;
+  tcmdbput (mdb, k, strlen (k), v, v_size);
+#endif
+}
+
+void *
+tc_db_get_str (void *db, const char *k)
+{
+#ifdef TCB_BTREE
+  TCBDB *bdb = db;
+  return tcbdbget2 (bdb, k);
+#else
+  TCMDB *mdb = db;
+  return tcmdbget2 (mdb, k);
+#endif
+}
+
+void
+tc_db_put_str (void *db, const char *k, const char *v)
+{
+#ifdef TCB_BTREE
+  int ecode;
+  TCBDB *bdb = db;
+  if (!tcbdbput2 (bdb, k, v)) {
+    ecode = tcbdbecode (bdb);
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   tcbdberrmsg (ecode));
+  }
+#else
+  TCMDB *mdb = db;
+  tcmdbput2 (mdb, k, v);
+#endif
 }
 
 int
-process_request (TCBDB * bdb, const char *k, const GLogItem * glog)
+process_request (void *db, const char *k, const GLogItem * glog)
 {
   GRequest *request;
-  int sp = 0, ecode;
   void *value;
 
-  if ((bdb == NULL) || (k == NULL))
+  if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((value = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((value = tc_db_get (db, k)) != NULL) {
     request = value;
     request->hits++;
   } else {
@@ -202,11 +405,7 @@ process_request (TCBDB * bdb, const char *k, const GLogItem * glog)
     request->hits = 1;
   }
 
-  if (!tcbdbput (bdb, k, strlen (k), request, sizeof (GRequest))) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put (db, k, request, sizeof (GRequest));
   if (request)
     free (request);
 
@@ -214,51 +413,41 @@ process_request (TCBDB * bdb, const char *k, const GLogItem * glog)
 }
 
 int
-process_request_meta (TCBDB * bdb, const char *k, uint64_t size)
+process_request_meta (void *db, const char *k, uint64_t size)
 {
-  int sp = 0, ecode;
   void *value;
   uint64_t add_value;
 
-  if ((bdb == NULL) || (k == NULL))
+  if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((value = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((value = tc_db_get (db, k)) != NULL) {
     add_value = (*(uint64_t *) value) + size;
   } else {
     add_value = 0 + size;
   }
-  if (!tcbdbput (bdb, k, strlen (k), &add_value, sizeof (uint64_t))) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put (db, k, &add_value, sizeof (uint64_t));
   free (value);
 
   return 0;
 }
 
 int
-process_opesys (TCBDB * bdb, const char *k, const char *os_type)
+process_opesys (void *db, const char *k, const char *os_type)
 {
   GOpeSys *opesys;
-  int sp = 0, ecode;
 
-  if ((bdb == NULL) || (k == NULL))
+  if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((opesys = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((opesys = tc_db_get (db, k)) != NULL) {
     opesys->hits++;
   } else {
     opesys = xcalloc (1, sizeof (GOpeSys));
     xstrncpy (opesys->os_type, os_type, OPESYS_TYPE_LEN);
     opesys->hits = 1;
   }
-  if (!tcbdbput (bdb, k, strlen (k), opesys, sizeof (GOpeSys))) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put (db, k, opesys, sizeof (GOpeSys));
   if (opesys)
     free (opesys);
 
@@ -266,26 +455,21 @@ process_opesys (TCBDB * bdb, const char *k, const char *os_type)
 }
 
 int
-process_browser (TCBDB * bdb, const char *k, const char *browser_type)
+process_browser (void *db, const char *k, const char *browser_type)
 {
   GBrowser *browser;
-  int sp = 0, ecode;
 
-  if ((bdb == NULL) || (k == NULL))
+  if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((browser = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((browser = tc_db_get (db, k)) != NULL) {
     browser->hits++;
   } else {
     browser = xcalloc (1, sizeof (GOpeSys));
     xstrncpy (browser->browser_type, browser_type, BROWSER_TYPE_LEN);
     browser->hits = 1;
   }
-  if (!tcbdbput (bdb, k, strlen (k), browser, sizeof (GBrowser))) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put (db, k, browser, sizeof (GBrowser));
   if (browser)
     free (browser);
 
@@ -293,26 +477,21 @@ process_browser (TCBDB * bdb, const char *k, const char *browser_type)
 }
 
 int
-process_geolocation (TCBDB * bdb, const char *cntry, const char *cont)
+process_geolocation (void *db, const char *cntry, const char *cont)
 {
   GLocation *location;
-  int sp = 0, ecode;
 
-  if ((bdb == NULL) || (cntry == NULL))
+  if ((db == NULL) || (cntry == NULL))
     return (EINVAL);
 
-  if ((location = tcbdbget (bdb, cntry, strlen (cntry), &sp)) != NULL) {
+  if ((location = tc_db_get (db, cntry)) != NULL) {
     location->hits++;
   } else {
     location = xcalloc (1, sizeof (GLocation));
     xstrncpy (location->continent, cont, CONTINENT_LEN);
     location->hits = 1;
   }
-  if (!tcbdbput (bdb, cntry, strlen (cntry), location, sizeof (GLocation))) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put (db, cntry, location, sizeof (GLocation));
   if (location)
     free (location);
 
@@ -323,18 +502,22 @@ process_geolocation (TCBDB * bdb, const char *cntry, const char *cont)
 int
 process_host_agents (char *host, char *agent)
 {
-  int ecode;
+#ifdef TCB_BTREE
+  TCBDB *db = ht_hosts_agents;
+#else
+  TCMDB *db = ht_hosts_agents;
+#endif
+
   char *ptr_value = NULL, *tmp = NULL, *a = NULL;
-  TCBDB *bdb = ht_hosts_agents;
   void *value_ptr;
   size_t len1, len2;
 
-  if ((bdb == NULL) || (host == NULL) || (agent == NULL))
+  if ((db == NULL) || (host == NULL) || (agent == NULL))
     return (EINVAL);
 
   a = xstrdup (agent);
 
-  if ((value_ptr = tcbdbget2 (bdb, host)) != NULL) {
+  if ((value_ptr = tc_db_get_str (db, host)) != NULL) {
     ptr_value = (char *) value_ptr;
     if (strstr (ptr_value, a)) {
       if (a != NULL)
@@ -352,11 +535,7 @@ process_host_agents (char *host, char *agent)
   } else
     tmp = alloc_string (a);
 
-  if (!tcbdbput2 (bdb, host, tmp)) {
-    ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
-  }
+  tc_db_put_str (db, host, tmp);
 
 out:
   if (a != NULL)
@@ -372,29 +551,33 @@ out:
 uint64_t
 get_serve_time (const char *k, GModule module)
 {
-  int sp = 0;
-  TCBDB *bdb = NULL;
+#ifdef TCB_BTREE
+  TCBDB *db = NULL;
+#else
+  TCMDB *db = NULL;
+#endif
+
   uint64_t serve_time = 0;
   void *value;
 
   /* serve time modules */
   switch (module) {
    case HOSTS:
-     bdb = ht_host_serve_usecs;
+     db = ht_host_serve_usecs;
      break;
    case REQUESTS:
    case REQUESTS_STATIC:
    case NOT_FOUND:
-     bdb = ht_file_serve_usecs;
+     db = ht_file_serve_usecs;
      break;
    default:
-     bdb = NULL;
+     db = NULL;
   }
 
-  if (bdb == NULL)
+  if (db == NULL)
     return 0;
 
-  if ((value = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((value = tc_db_get (db, k)) != NULL) {
     serve_time = (*(uint64_t *) value);
     free (value);
   }
@@ -405,32 +588,35 @@ get_serve_time (const char *k, GModule module)
 uint64_t
 get_bandwidth (char *k, GModule module)
 {
-  int sp = 0;
-  TCBDB *bdb = NULL;
+#ifdef TCB_BTREE
+  TCBDB *db = NULL;
+#else
+  TCMDB *db = NULL;
+#endif
   uint64_t bw = 0;
   void *value;
 
   /* bandwidth modules */
   switch (module) {
    case VISITORS:
-     bdb = ht_date_bw;
+     db = ht_date_bw;
      break;
    case REQUESTS:
    case REQUESTS_STATIC:
    case NOT_FOUND:
-     bdb = ht_file_bw;
+     db = ht_file_bw;
      break;
    case HOSTS:
-     bdb = ht_host_bw;
+     db = ht_host_bw;
      break;
    default:
-     bdb = NULL;
+     db = NULL;
   }
 
-  if (bdb == NULL)
+  if (db == NULL)
     return 0;
 
-  if ((value = tcbdbget (bdb, k, strlen (k), &sp)) != NULL) {
+  if ((value = tc_db_get (db, k)) != NULL) {
     bw = (*(uint64_t *) value);
     free (value);
   }
@@ -438,6 +624,7 @@ get_bandwidth (char *k, GModule module)
   return bw;
 }
 
+#ifdef TCB_BTREE
 TCBDB *
 get_ht_by_module (GModule module)
 {
@@ -488,12 +675,83 @@ get_ht_by_module (GModule module)
 
   return bdb;
 }
+#endif
+
+#ifdef TCB_MEMHASH
+TCMDB *
+get_ht_by_module (GModule module)
+{
+  TCMDB *mdb;
+
+  switch (module) {
+   case VISITORS:
+     mdb = ht_unique_vis;
+     break;
+   case REQUESTS:
+     mdb = ht_requests;
+     break;
+   case REQUESTS_STATIC:
+     mdb = ht_requests_static;
+     break;
+   case NOT_FOUND:
+     mdb = ht_not_found_requests;
+     break;
+   case HOSTS:
+     mdb = ht_hosts;
+     break;
+   case OS:
+     mdb = ht_os;
+     break;
+   case BROWSERS:
+     mdb = ht_browsers;
+     break;
+   case REFERRERS:
+     mdb = ht_referrers;
+     break;
+   case REFERRING_SITES:
+     mdb = ht_referring_sites;
+     break;
+   case KEYPHRASES:
+     mdb = ht_keyphrases;
+     break;
+#ifdef HAVE_LIBGEOIP
+   case GEO_LOCATION:
+     mdb = ht_countries;
+     break;
+#endif
+   case STATUS_CODES:
+     mdb = ht_status_code;
+     break;
+   default:
+     return NULL;
+  }
+
+  return mdb;
+}
+#endif
+
+static void
+free_req (GRequest * request)
+{
+  if (request->request)
+    free (request->request);
+  free (request);
+}
+
+static void
+set_raw_data (char *key, void *value, GRawData * raw_data)
+{
+  raw_data->items[raw_data->idx].key = key;
+  raw_data->items[raw_data->idx].value = value;
+  raw_data->idx++;
+}
 
 /* This function frees all the requests fields from GRequest.
  *
  * Note: we need to go over all of them before exiting the program
  * since TokyoCabinet keeps the same pointer at all times.
  */
+#ifdef TCB_BTREE
 void
 free_requests (BDBCUR * cur, char *key, GO_UNUSED int ksize,
                GO_UNUSED void *user_data)
@@ -502,15 +760,27 @@ free_requests (BDBCUR * cur, char *key, GO_UNUSED int ksize,
   int vsize = 0;
 
   request = tcbdbcurval (cur, &vsize);
-  if (request) {
-    if (request->request)
-      free (request->request);
-    free (request);
-  }
+  if (request)
+    free_req (request);
   free (key);
   tcbdbcurnext (cur);
 }
+#endif
 
+#ifdef TCB_MEMHASH
+void
+free_requests (TCMDB * mdb, char *key, GO_UNUSED int ksize,
+               GO_UNUSED void *user_data)
+{
+  GRequest *request;
+  request = tc_db_get (mdb, key);
+  if (request)
+    free_req (request);
+  free (key);
+}
+#endif
+
+#ifdef TCB_BTREE
 static void
 data_iter_generic (BDBCUR * cur, char *key, GO_UNUSED int ksize,
                    void *user_data)
@@ -520,16 +790,27 @@ data_iter_generic (BDBCUR * cur, char *key, GO_UNUSED int ksize,
   int vsize = 0;
 
   value = tcbdbcurval (cur, &vsize);
-  if (value) {
-    raw_data->items[raw_data->idx].key = key;
-    raw_data->items[raw_data->idx].value = value;
-    raw_data->idx++;
-  }
+  if (value)
+    set_raw_data (key, value, raw_data);
   tcbdbcurnext (cur);
 }
+#endif
+
+#ifdef TCB_MEMHASH
+static void
+data_iter_generic (TCMDB * mdb, char *key, GO_UNUSED int ksize, void *user_data)
+{
+  GRawData *raw_data = user_data;
+  void *value;
+
+  value = tc_db_get (mdb, key);
+  if (value)
+    set_raw_data (key, value, raw_data);
+}
+#endif
 
 GRawData *
-parse_raw_data (TCBDB * bdb, int ht_size, GModule module)
+parse_raw_data (void *db, int ht_size, GModule module)
 {
   GRawData *raw_data;
 
@@ -539,7 +820,7 @@ parse_raw_data (TCBDB * bdb, int ht_size, GModule module)
   raw_data->idx = 0;
   raw_data->items = new_grawdata_item (ht_size);
 
-  tc_db_foreach (bdb, data_iter_generic, raw_data);
+  tc_db_foreach (db, data_iter_generic, raw_data);
   switch (module) {
    case VISITORS:
      qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);

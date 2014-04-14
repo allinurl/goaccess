@@ -1024,7 +1024,7 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
 
   pthread_mutex_lock (&gdns_thread.mutex);
 #ifdef HAVE_LIBTOKYOCABINET
-  value_ptr = tcbdbget2 (ht_hostnames, ip);
+  value_ptr = tc_db_get_str (ht_hostnames, ip);
   if (value_ptr) {
     found = 1;
     hostname = value_ptr;
@@ -1334,8 +1334,10 @@ sort_sub_list (GHolder * h, GSort sort)
 uint32_t
 get_ht_size_by_module (GModule module)
 {
-#ifdef HAVE_LIBTOKYOCABINET
-  TCBDB *ht;
+#ifdef TCB_BTREE
+  TCBDB *ht = NULL;
+#elif TCB_MEMHASH
+  TCMDB *ht = NULL;
 #else
   GHashTable *ht;
 #endif

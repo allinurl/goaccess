@@ -899,7 +899,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
     l = l < 1 ? 1 : l;
 
 #ifdef HAVE_LIBTOKYOCABINET
-    ag = tcbdbget2 (ht_hosts_agents, data);
+    ag = tc_db_get_str (ht_hosts_agents, data);
 #else
     ag = g_hash_table_lookup (ht_hosts_agents, data);
 #endif
@@ -997,8 +997,10 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 static void
 print_html_request_report (FILE * fp, GHolder * h, int process)
 {
-#ifdef HAVE_LIBTOKYOCABINET
-  TCBDB *ht;
+#ifdef TCB_BTREE
+  TCBDB *ht = NULL;
+#elif TCB_MEMHASH
+  TCMDB *ht = NULL;
 #else
   GHashTable *ht;
 #endif

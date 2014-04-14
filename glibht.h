@@ -73,5 +73,6 @@ void free_os (GO_UNUSED gpointer old_key, gpointer old_value,
               GO_UNUSED gpointer user_data);
 void free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
                     GO_UNUSED gpointer user_data);
+void init_storage (void);
 
 #endif

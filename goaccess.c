@@ -97,7 +97,7 @@ struct option long_opts[] = {
   {"std-geip"             , no_argument       , 0 , 'g' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
-#ifdef HAVE_LIBTOKYOCABINET
+#ifdef TCB_BTREE
   {"db-path"              , required_argument , 0 , 0   } ,
   {"cache-lcnum"          , required_argument , 0 , 0   } ,
   {"cache-ncnum"          , required_argument , 0 , 0   } ,
@@ -195,7 +195,7 @@ cmd_help (void)
   printf ("Ignore request's query string.\n");
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
-#ifdef HAVE_LIBTOKYOCABINET
+#ifdef TCB_BTREE
   printf (" --db-path=<path>             ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
   printf (" --cache-lcnum=<number>       ");
@@ -229,12 +229,13 @@ house_keeping (void)
   free_holder (&holder);
   gdns_free_queue ();
 
+  if (ht_hostnames != NULL) {
 #ifdef HAVE_LIBTOKYOCABINET
-  if (ht_hostnames != NULL)
     tc_db_close (ht_hostnames, DB_HOSTNAMES);
 #else
-  g_hash_table_destroy (ht_hostnames);
+    g_hash_table_destroy (ht_hostnames);
 #endif
+  }
 
   pthread_mutex_unlock (&gdns_thread.mutex);
 
@@ -324,8 +325,10 @@ house_keeping (void)
 static void
 allocate_holder_by_module (GModule module)
 {
-#ifdef HAVE_LIBTOKYOCABINET
-  TCBDB *ht;
+#ifdef TCB_BTREE
+  TCBDB *ht = NULL;
+#elif TCB_MEMHASH
+  TCMDB *ht = NULL;
 #else
   GHashTable *ht;
 #endif
@@ -344,8 +347,10 @@ allocate_holder_by_module (GModule module)
 static void
 allocate_holder (void)
 {
-#ifdef HAVE_LIBTOKYOCABINET
-  TCBDB *ht;
+#ifdef TCB_BTREE
+  TCBDB *ht = NULL;
+#elif TCB_MEMHASH
+  TCMDB *ht = NULL;
 #else
   GHashTable *ht;
 #endif
@@ -958,97 +963,7 @@ main (int argc, char *argv[])
     cmd_help ();
 
   /* Initialize hash tables */
-#ifdef HAVE_LIBTOKYOCABINET
-
-/* *INDENT-OFF* */
-  ht_browsers           = tc_db_create (DB_BROWSERS);
-  ht_countries          = tc_db_create (DB_COUNTRIES);
-  ht_date_bw            = tc_db_create (DB_DATE_BW);
-  ht_file_bw            = tc_db_create (DB_FILE_BW);
-  ht_file_serve_usecs   = tc_db_create (DB_FILE_SERVE_USECS);
-  ht_host_bw            = tc_db_create (DB_HOST_BW);
-  ht_hostnames          = tc_db_create (DB_HOSTNAMES);
-  ht_hosts_agents       = tc_db_create (DB_HOST_AGENTS);
-  ht_host_serve_usecs   = tc_db_create (DB_HOST_SERVE_USECS);
-  ht_hosts              = tc_db_create (DB_HOSTS);
-  ht_keyphrases         = tc_db_create (DB_KEYPHRASES);
-  ht_not_found_requests = tc_db_create (DB_NOT_FOUND_REQUESTS);
-  ht_os                 = tc_db_create (DB_OS);
-  ht_referrers          = tc_db_create (DB_REFERRERS);
-  ht_referring_sites    = tc_db_create (DB_REFERRING_SITES);
-  ht_requests_static    = tc_db_create (DB_REQUESTS_STATIC);
-  ht_requests           = tc_db_create (DB_REQUESTS);
-  ht_status_code        = tc_db_create (DB_STATUS_CODE);
-  ht_unique_visitors    = tc_db_create (DB_UNIQUE_VISITORS);
-  ht_unique_vis         = tc_db_create (DB_UNIQUE_VIS);
-/* *INDENT-ON* */
-
-#else
-
-  ht_unique_visitors =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_referrers =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_unique_vis =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_hosts =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_status_code =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_referring_sites =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_keyphrases =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_file_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_host_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_date_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_hosts_agents =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_hostnames =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_file_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_host_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-
-  /* The following tables contain s structure as their value, thus we
-     use a special iterator to free its value */
-  ht_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_requests_static =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_not_found_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_os =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_browsers =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_countries =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-#endif
+  init_storage ();
 
   loc_ctype = getenv ("LC_CTYPE");
   if (loc_ctype != NULL)

@@ -62,6 +62,75 @@ GHashTable *ht_status_code = NULL;
 GHashTable *ht_unique_visitors = NULL;
 GHashTable *ht_unique_vis = NULL;
 
+/* Initialize GLib hash tables */
+void
+init_storage (void)
+{
+  ht_unique_visitors =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_referrers =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_unique_vis =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_hosts =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_status_code =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_referring_sites =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_keyphrases =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, g_free);
+  ht_file_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_host_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_date_bw =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_hosts_agents =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_hostnames =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_file_serve_usecs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+  ht_host_serve_usecs =
+    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
+                           g_free);
+
+  /* The following tables contain s structure as their value, thus we
+     use a special iterator to free its value */
+  ht_requests =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+  ht_requests_static =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+  ht_not_found_requests =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+  ht_os =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+  ht_browsers =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+  ht_countries =
+    g_hash_table_new_full (g_str_hash, g_str_equal,
+                           (GDestroyNotify) free_key_value, NULL);
+}
+
 void
 free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
                 GO_UNUSED gpointer user_data)
