@@ -921,9 +921,13 @@ process_log (GLog * logger, char *line, int test)
   if (*line == '#' || *line == '\n')
     return 0;
 
-  pthread_mutex_lock (&parsing_spinner->mutex);
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_lock (&parsing_spinner->mutex);
+
   logger->process++;
-  pthread_mutex_unlock (&parsing_spinner->mutex);
+
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_unlock (&parsing_spinner->mutex);
 
   glog = init_log_item (logger);
   if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {
