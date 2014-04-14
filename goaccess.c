@@ -99,6 +99,7 @@ struct option long_opts[] = {
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef TCB_BTREE
   {"db-path"              , required_argument , 0 , 0   } ,
+  {"xmmap"                , required_argument , 0 , 0   } ,
   {"cache-lcnum"          , required_argument , 0 , 0   } ,
   {"cache-ncnum"          , required_argument , 0 , 0   } ,
   {"tune-lmemb"           , required_argument , 0 , 0   } ,
@@ -198,6 +199,8 @@ cmd_help (void)
 #ifdef TCB_BTREE
   printf (" --db-path=<path>             ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
+  printf (" --xmmap=<number>             ");
+  printf ("Set the size in bytes of the extra mapped memory. [%d]\n", TC_MMAP);
   printf (" --cache-lcnum=<number>       ");
   printf ("Max number of leaf nodes to be cached. [%d]\n", TC_LCNUM);
   printf (" --cache-ncnum=<number>       ");
@@ -927,6 +930,9 @@ main (int argc, char *argv[])
        /* specifies the path of the database file */
        if (!strcmp ("db-path", long_opts[idx].name))
          conf.db_path = optarg;
+       /* set the size in bytes of the extra mapped memory */
+       if (!strcmp ("xmmap", long_opts[idx].name))
+         conf.xmmap = atoi (optarg);
        /* specifies the maximum number of leaf nodes to be cached */
        if (!strcmp ("cache-lcnum", long_opts[idx].name))
          conf.cache_lcnum = atoi (optarg);

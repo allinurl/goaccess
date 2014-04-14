@@ -30,6 +30,7 @@
 #include "commons.h"
 #include "parser.h"
 
+#define TC_MMAP  0
 #define TC_LCNUM 9000
 #define TC_NCNUM 3000
 #define TC_LMEMB 128

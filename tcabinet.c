@@ -129,11 +129,21 @@ tc_db_create (const char *dbname)
                    "Unable to set TCB cache");
   }
 
+  LOG_DEBUG (("xmmap: %d\n", conf.xmmap));
+  /* set the size of the extra mapped memory */
+  if (conf.xmmap > 0 && !tcbdbsetxmsiz (bdb, conf.xmmap)) {
+    free (path);
+    LOG_DEBUG (("Unable to set TCB xmmap.\n\n"));
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to set TCB xmmap");
+  }
+
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
   nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
   bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
 
   LOG_DEBUG (("lmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
+  /* set the tuning parameters */
   tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, BDBTBZIP);
 
   /* attempt to open the database */
