@@ -227,6 +227,7 @@ int
 tc_db_close (void *db, const char *dbname)
 {
   TCBDB *bdb = db;
+  char *path = NULL;
   int ecode;
 
   if (bdb == NULL)
@@ -240,8 +241,12 @@ tc_db_close (void *db, const char *dbname)
   }
   /* delete the object */
   tcbdbdel (bdb);
+
   /* remove database file */
-  tcremovelink (dbname);
+  path = tc_db_set_path (dbname);
+  if (!tcremovelink (path))
+    LOG_DEBUG (("Unable to remove DB: %s\n", path));
+  free (path);
 
   return 0;
 }
