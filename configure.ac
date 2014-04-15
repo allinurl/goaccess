@@ -110,7 +110,12 @@ if test "$WITH_TC" = "yes"; then
     [zlib="$enableval"], zlib=yes)
 
   if test "$zlib" = "yes"; then
-    AC_CHECK_LIB(z, gzread, [Z_FLAG=-lz], AC_MSG_ERROR([*** zlib is required]))
+    AC_CHECK_LIB(z, gzread, [Z_FLAG=-lz], AC_MSG_ERROR([
+      *** zlib is required. If zlib compression is not needed
+      *** you can use --disable-zlib.
+      *** Debian based distributions zlib1g-dev
+      *** Red Hat based distributions zlib-devel
+    ]))
     CFLAGS="$CFLAGS $Z_FLAG"
   fi
 
@@ -118,7 +123,12 @@ if test "$WITH_TC" = "yes"; then
     [bz2="$enableval"], bz2=yes)
 
   if test "$bz2" = "yes"; then
-    AC_CHECK_LIB(bz2, BZ2_bzopen, [BZ2_FLAG=-lbz2], AC_MSG_ERROR([*** BZIP2 is required]))
+    AC_CHECK_LIB(bz2, BZ2_bzopen, [BZ2_FLAG=-lbz2], AC_MSG_ERROR([
+      *** BZIP2 is required. If BZIP2 compression is not needed
+      *** you can use --disable-bzip.
+      *** Debian based distributions libbz2-dev
+      *** Red Hat based distributions bzip2-devel
+    ]))
     CFLAGS="$CFLAGS $BZ2_FLAG"
   fi
 
