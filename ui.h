@@ -256,6 +256,7 @@ void term_size (WINDOW * main_win);
 void ui_spinner_create (GSpinner * spinner);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
+void end_spinner (void);
 WINDOW *create_win (int h, int w, int y, int x);
 /* *INDENT-ON* */
 

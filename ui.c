@@ -55,6 +55,7 @@
 #include "commons.h"
 #include "error.h"
 #include "gmenu.h"
+#include "goaccess.h"
 #include "parser.h"
 #include "settings.h"
 #include "util.h"
@@ -149,6 +150,14 @@ generate_time (void)
 {
   timestamp = time (NULL);
   now_tm = localtime (&timestamp);
+}
+
+void
+end_spinner (void)
+{
+  pthread_mutex_lock (&parsing_spinner->mutex);
+  parsing_spinner->state = SPN_END;
+  pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"

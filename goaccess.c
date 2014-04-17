@@ -1065,6 +1065,7 @@ out:
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Error while processing file");
   time (&end_proc);
+  end_spinner ();
 
   gdns_init ();
   logger->offset = logger->process;
@@ -1086,13 +1087,9 @@ out:
     /* HTML */
     else
       output_html (logger, holder);
+
     goto done;
   }
-
-  pthread_mutex_lock (&parsing_spinner->mutex);
-  werase (parsing_spinner->win);
-  parsing_spinner->state = SPN_END;
-  pthread_mutex_unlock (&parsing_spinner->mutex);
 
   allocate_holder ();
   allocate_data ();
