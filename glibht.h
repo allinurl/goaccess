@@ -55,7 +55,8 @@ GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 int process_browser (GHashTable * ht, const char *key,
                      const char *browser_type);
 int process_generic_data (GHashTable * ht, const char *key);
-int process_geolocation (GHashTable * ht, const char *cntry, const char *cont);
+int process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
+                         const char *city);
 int process_host_agents (char *host, char *agent);
 int process_opesys (GHashTable * ht, const char *key, const char *os_type);
 int process_request (GHashTable * ht, const char *key, const GLogItem * glog);

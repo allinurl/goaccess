@@ -277,23 +277,26 @@ process_request (GHashTable * ht, const char *key, const GLogItem * glog)
 }
 
 int
-process_geolocation (GHashTable * ht, const char *cntry, const char *cont)
+process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
+                     const char *city)
 {
-  GLocation *loc;
+  GLocation *location;
   if (ht == NULL)
     return (EINVAL);
 
-  loc = g_hash_table_lookup (ht, cntry);
-  if (loc != NULL) {
-    loc->hits++;
+  location = g_hash_table_lookup (ht, ctry);
+  if (location != NULL) {
+    location->hits++;
   } else {
-    loc = xcalloc (1, sizeof (GLocation));
-    xstrncpy (loc->continent, cont, CONTINENT_LEN);
-    loc->hits = 1;
+    location = xcalloc (1, sizeof (GLocation));
+    xstrncpy (location->continent, cont, CONTINENT_LEN);
+    if (city[0] != '\0')
+      xstrncpy (location->city, city, CITY_LEN);
+    location->hits = 1;
   }
 
   /* replace the entry. old key will be freed by "free_countries" */
-  g_hash_table_replace (ht, g_strdup (cntry), loc);
+  g_hash_table_replace (ht, g_strdup (ctry), location);
 
   return 0;
 }
