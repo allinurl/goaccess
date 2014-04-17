@@ -103,30 +103,6 @@ static const char *codes[][2] = {
   {"505", "505 - HTTP Version Not Supported"}
 };
 
-#ifdef HAVE_LIBGEOIP
-/* get continent name concatenated with code */
-const char *
-get_continent_name_and_code (const char *continentid)
-{
-  if (memcmp (continentid, "NA", 2) == 0)
-    return "NA North America";
-  else if (memcmp (continentid, "OC", 2) == 0)
-    return "OC Oceania";
-  else if (memcmp (continentid, "EU", 2) == 0)
-    return "EU Europe";
-  else if (memcmp (continentid, "SA", 2) == 0)
-    return "SA South America";
-  else if (memcmp (continentid, "AF", 2) == 0)
-    return "AF Africa";
-  else if (memcmp (continentid, "AN", 2) == 0)
-    return "AN Antarctica";
-  else if (memcmp (continentid, "AS", 2) == 0)
-    return "AS Asia";
-  else
-    return "-- Location Unknown";
-}
-#endif
-
 /* helper functions */
 char *
 substring (const char *str, int begin, int len)

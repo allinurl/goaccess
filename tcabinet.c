@@ -492,21 +492,24 @@ process_browser (void *db, const char *k, const char *browser_type)
 }
 
 int
-process_geolocation (void *db, const char *cntry, const char *cont)
+process_geolocation (void *db, const char *ctry, const char *cont,
+                     const char *city)
 {
   GLocation *location;
 
-  if ((db == NULL) || (cntry == NULL))
+  if ((db == NULL) || (ctry == NULL))
     return (EINVAL);
 
-  if ((location = tc_db_get (db, cntry)) != NULL) {
+  if ((location = tc_db_get (db, ctry)) != NULL) {
     location->hits++;
   } else {
     location = xcalloc (1, sizeof (GLocation));
     xstrncpy (location->continent, cont, CONTINENT_LEN);
+    if (city[0] != '\0')
+      xstrncpy (location->city, city, CITY_LEN);
     location->hits = 1;
   }
-  tc_db_put (db, cntry, location, sizeof (GLocation));
+  tc_db_put (db, ctry, location, sizeof (GLocation));
   if (location)
     free (location);
 

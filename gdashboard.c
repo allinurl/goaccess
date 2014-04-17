@@ -31,10 +31,6 @@
 #include <sys/types.h>
 #include <regex.h>
 
-#ifdef HAVE_LIBGEOIP
-#  include <GeoIP.h>
-#endif
-
 #include "gdashboard.h"
 
 #ifdef HAVE_LIBTOKYOCABINET
@@ -1005,7 +1001,8 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
 
 #ifdef HAVE_LIBGEOIP
   const char *addr = data;
-  const char *location = NULL;
+  char country[COUNTRY_LEN] = "";
+  char city[CITY_LEN] = "";
 #endif
 
   h->items[h->idx].bw += bw;
@@ -1016,10 +1013,18 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
   h->items[h->idx].sub_list = sub_list;
 
 #ifdef HAVE_LIBGEOIP
-  location = get_geoip_data (addr);
-  add_sub_item_back (sub_list, h->module, xstrdup (location), hits, bw);
+  geoip_get_country (addr, country);
+  add_sub_item_back (sub_list, h->module, xstrdup (country), hits, bw);
   h->items[h->idx].sub_list = sub_list;
   h->sub_items_size++;
+
+  /* add city */
+  if (conf.geoip_city_data) {
+    geoip_get_city (addr, city);
+    add_sub_item_back (sub_list, h->module, xstrdup (city), hits, bw);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+  }
 #endif
 
   pthread_mutex_lock (&gdns_thread.mutex);

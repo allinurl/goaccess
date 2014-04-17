@@ -70,10 +70,11 @@ extern size_t term_w;
 #define REQ_PROTO_LEN     9
 #define REQ_METHOD_LEN    8
 
-#define OPESYS_TYPE_LEN  10
 #define BROWSER_TYPE_LEN 10
-#define COUNTRY_LEN      48
+#define CITY_LEN         28
 #define CONTINENT_LEN    48
+#define COUNTRY_LEN      48 + 3 /* Country + two-letter Code */
+#define OPESYS_TYPE_LEN  10
 
 typedef enum MODULES
 {
@@ -152,16 +153,20 @@ typedef struct GBrowser_
 
 typedef struct GLocation_
 {
+  char city[CITY_LEN];
   char continent[CONTINENT_LEN];
   int hits;
 } GLocation;
 
 #ifdef HAVE_LIBGEOIP
 extern GeoIP *geo_location_data;
-#endif
 
-#ifdef HAVE_LIBGEOIP
-char *get_geoip_data (const char *data);
+char *geoip_get_country_code (const char *ip);
+const char *get_continent_name_and_code (const char *continentid);
+GeoIP *geoip_open_db (const char *db);
+void geoip_get_city (const char *ip, char *location);
+void geoip_get_continent (const char *ip, char *location);
+void geoip_get_country (const char *ip, char *country);
 #endif
 
 float get_percentage (unsigned long long total, unsigned long long hit);

@@ -92,19 +92,22 @@ struct option long_opts[] = {
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
-  {"real-os"              , no_argument       , 0 , 0   } ,
-  {"no-color"             , no_argument       , 0 , 0   } ,
-  {"std-geip"             , no_argument       , 0 , 'g' } ,
+  {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"no-color"             , no_argument       , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
+#ifdef HAVE_LIBGEOIP
+  {"std-geoip"            , no_argument       , 0 , 'g' } ,
+  {"geoip-city-data"      , required_argument , 0 ,  0  } ,
+#endif
 #ifdef TCB_BTREE
-  {"db-path"              , required_argument , 0 , 0   } ,
-  {"xmmap"                , required_argument , 0 , 0   } ,
-  {"cache-lcnum"          , required_argument , 0 , 0   } ,
-  {"cache-ncnum"          , required_argument , 0 , 0   } ,
-  {"tune-lmemb"           , required_argument , 0 , 0   } ,
-  {"tune-nmemb"           , required_argument , 0 , 0   } ,
-  {"tune-bnum"            , required_argument , 0 , 0   } ,
+  {"db-path"              , required_argument , 0 ,  0  } ,
+  {"xmmap"                , required_argument , 0 ,  0  } ,
+  {"cache-lcnum"          , required_argument , 0 ,  0  } ,
+  {"cache-ncnum"          , required_argument , 0 ,  0  } ,
+  {"tune-lmemb"           , required_argument , 0 ,  0  } ,
+  {"tune-nmemb"           , required_argument , 0 ,  0  } ,
+  {"tune-bnum"            , required_argument , 0 ,  0  } ,
 #endif
   {0, 0, 0, 0}
 };
@@ -196,6 +199,10 @@ cmd_help (void)
   printf ("Ignore request's query string.\n");
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
+#ifdef HAVE_LIBGEOIP
+  printf (" --geoip-city-data=<path>     ");
+  printf ("Specify path to GeoIP City database file. i.e., GeoLiteCity.dat\n");
+#endif
 #ifdef TCB_BTREE
   printf (" --db-path=<path>             ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
@@ -923,10 +930,16 @@ main (int argc, char *argv[])
        conf.append_protocol = 1;
        break;
      case 0:
+
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
          conf.no_color = 1;
+
+       /* specifies the path of the GeoIP City database file */
+       if (!strcmp ("geoip-city-data", long_opts[idx].name))
+         conf.geoip_city_data = optarg;
+
        /* specifies the path of the database file */
        if (!strcmp ("db-path", long_opts[idx].name))
          conf.db_path = optarg;
@@ -981,8 +994,12 @@ main (int argc, char *argv[])
   setlocale (LC_NUMERIC, "");
 
 #ifdef HAVE_LIBGEOIP
-  /* Geolocation data */
-  geo_location_data = GeoIP_new (conf.geo_db);
+  /* Open custom GeoIP database */
+  if (conf.geoip_city_data != NULL)
+    geo_location_data = geoip_open_db (conf.geoip_city_data);
+  /* Fall back to legacy GeoIP database */
+  else
+    geo_location_data = GeoIP_new (conf.geo_db);
 #endif
 
   logger = init_log ();

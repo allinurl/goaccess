@@ -844,8 +844,8 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
   size_t alloc = 0;
 
 #ifdef HAVE_LIBGEOIP
-  const char *location = NULL;
-  colspan++;
+  char country[COUNTRY_LEN] = "";
+  char city[CITY_LEN] = "";
 #endif
 
   if (h->idx == 0)
@@ -868,6 +868,11 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
   fprintf (fp, "<th>IP</th>");
 #ifdef HAVE_LIBGEOIP
   fprintf (fp, "<th>Country</th>");
+  colspan++;
+  if (conf.geoip_city_data) {
+    fprintf (fp, "<th>City</th>");
+    colspan++;
+  }
 #endif
   if (conf.enable_html_resolver) {
     colspan++;
@@ -931,8 +936,12 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
     fprintf (fp, "<td>%s</td>", data);
 
 #ifdef HAVE_LIBGEOIP
-    location = get_geoip_data (data);
-    fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", location);
+    geoip_get_country (data, country);
+    fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", country);
+    if (conf.geoip_city_data) {
+      geoip_get_city (data, city);
+      fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", city);
+    }
 #endif
 
     if (conf.enable_html_resolver) {

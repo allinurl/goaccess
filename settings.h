@@ -50,6 +50,7 @@ typedef struct GConf_
 {
   char *date_format;
   char *debug_log;
+  char *geoip_city_data;
   char *iconfigfile;
   char *ifile;
   char *ignore_host;

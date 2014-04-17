@@ -431,9 +431,9 @@ static void
 process_unique_data (char *host, char *date, char *agent)
 {
 #ifdef HAVE_LIBGEOIP
-  int geo_id = 0;
-  char location[COUNTRY_LEN];
-  char continent[CONTINENT_LEN];
+  char city[CITY_LEN] = "";
+  char continent[CONTINENT_LEN] = "";
+  char country[COUNTRY_LEN] = "";
 #endif
 
   char *a = NULL;
@@ -467,13 +467,12 @@ process_unique_data (char *host, char *date, char *agent)
 
 #ifdef HAVE_LIBGEOIP
     if (geo_location_data != NULL) {
-      geo_id = GeoIP_id_by_name (geo_location_data, host);
+      if (conf.geoip_city_data)
+        geoip_get_city (host, city);
 
-      sprintf (location, "%s %s", GeoIP_code_by_id (geo_id),
-               get_geoip_data (host));
-      sprintf (continent, "%s",
-               get_continent_name_and_code (GeoIP_continent_by_id (geo_id)));
-      process_geolocation (ht_countries, location, continent);
+      geoip_get_country (host, country);
+      geoip_get_continent (host, continent);
+      process_geolocation (ht_countries, country, continent, city);
     }
 #endif
 

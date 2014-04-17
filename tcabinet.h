@@ -113,7 +113,8 @@ extern TCMDB *ht_unique_visitors;
 GRawData *parse_raw_data (void *db, int ht_size, GModule module);
 int process_browser (void *db, const char *k, const char *browser_type);
 int process_generic_data (void *db, const char *k);
-int process_geolocation (void *db, const char *cntry, const char *cont);
+int process_geolocation (void *db, const char *ctry, const char *cont,
+                         const char *city);
 int process_host_agents (char *host, char *agent);
 int process_opesys (void *db, const char *k, const char *os_type);
 int process_request_meta (void *db, const char *k, uint64_t size);
