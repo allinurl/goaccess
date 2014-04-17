@@ -1047,13 +1047,12 @@ main (int argc, char *argv[])
   set_curses_spinner (parsing_spinner);
 
   /* configuration dialog */
-  if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)
-      && !conf.output_html) {
+  if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)) {
     refresh ();
     quit = verify_format (logger, parsing_spinner);
   }
   /* straight parsing */
-  else if (!conf.output_html) {
+  else {
     ui_spinner_create (parsing_spinner);
   }
 
@@ -1077,12 +1076,11 @@ out:
       goto done;
 
     allocate_holder ();
-    /* csv */
-    if (conf.output_format != NULL && strcmp ("csv", conf.output_format) == 0)
+    /* CSV */
+    if (conf.output_format && strcmp ("csv", conf.output_format) == 0)
       output_csv (logger, holder);
-    /* json */
-    else if (conf.output_format != NULL
-             && strcmp ("json", conf.output_format) == 0)
+    /* JSON */
+    else if (conf.output_format && strcmp ("json", conf.output_format) == 0)
       output_json (logger, holder);
     /* HTML */
     else
