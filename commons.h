@@ -170,5 +170,6 @@ void geoip_get_country (const char *ip, char *country);
 #endif
 
 float get_percentage (unsigned long long total, unsigned long long hit);
+void display_storage (void);
 
 #endif

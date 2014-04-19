@@ -69,7 +69,7 @@ static char short_options[] = "f:e:p:o:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
-  "acrmMhHqd";
+  "acrmMhHqds";
 
 GConf conf = { 0 };
 
@@ -94,6 +94,7 @@ struct option long_opts[] = {
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"storage"              , no_argument       , 0 , 's' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBGEOIP
@@ -199,6 +200,8 @@ cmd_help (void)
   printf ("Ignore request's query string.\n");
   printf (" -r --no-term-resolver        ");
   printf ("Disable IP resolver on terminal output.\n");
+  printf (" -s --storage                 ");
+  printf ("Display current storage method. i.e., B+ Tree, Hash.\n");
 #ifdef HAVE_LIBGEOIP
   printf (" --geoip-city-data=<path>     ");
   printf ("Specify path to GeoIP City database file. i.e., GeoLiteCity.dat\n");
@@ -906,7 +909,6 @@ main (int argc, char *argv[])
        break;
      case 'o':
        conf.output_format = optarg;
-       break;
      case 'l':
        conf.debug_log = alloc_string (optarg);
        dbg_log_open (conf.debug_log);
@@ -962,6 +964,9 @@ main (int argc, char *argv[])
        if (!strcmp ("tune-bnum", long_opts[idx].name))
          conf.tune_bnum = atoi (optarg);
        break;
+     case 's':
+       display_storage ();
+       return EXIT_SUCCESS;
      case '?':
        return EXIT_FAILURE;
      default:

@@ -66,6 +66,18 @@ get_percentage (unsigned long long total, unsigned long long hit)
   return ((float) (hit * 100) / (total));
 }
 
+void
+display_storage (void)
+{
+#ifdef TCB_BTREE
+  fprintf (stdout, "Built using Tokyo Cabinet On-Disk B+ Tree.\n");
+#elif TCB_MEMHASH
+  fprintf (stdout, "Built using Tokyo Cabinet On-Memory Hash database.\n");
+#else
+  fprintf (stdout, "Built using GLib On-Memory Hash database.\n");
+#endif
+}
+
 /* Geolocation data */
 #ifdef HAVE_LIBGEOIP
 GeoIP *
