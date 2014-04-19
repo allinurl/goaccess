@@ -51,18 +51,61 @@ Download, extract and compile GoAccess with:
     $ wget http://downloads.sourceforge.net/project/goaccess/0.7.1/goaccess-0.7.1.tar.gz
     $ tar -xzvf goaccess-0.7.1.tar.gz
     $ cd goaccess-0.7.1/
-    $ ./configure --enable-geoip --enable-utf8 
+    $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
-    
+
 ### Build from GitHub (Development) ###
 
-    $ git clone https://github.com/allinurl/goaccess.git 
-    $ cd goaccess 
-    $ autoreconf -fi 
-    $ ./configure --enable-geoip --enable-utf8 
+    $ git clone https://github.com/allinurl/goaccess.git
+    $ cd goaccess
+    $ autoreconf -fi
+    $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
+
+## Distributions ##
+
+It is easiest to install GoAccess on Linux using the preferred package manager of your Linux distribution.
+
+Please note that not all distributions will have the lastest version of GoAccess available
+
+### Debian/Ubuntu ###
+
+    # apt-get install goaccess
+
+**NOTE:** this might not always give you the latest stable version. To make sure that you're running the latest stable version of GoAccess see alternative option below.
+
+#### GoAccess' Debian & Ubuntu repository ####
+
+    $ echo "deb http://deb.goaccess.prosoftcorp.com $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
+    $ wget -O - http://deb.goaccess.prosoftcorp.com/gnugpg.key | sudo apt-key add -
+    $ sudo apt-get update
+    $ sudo apt-get install goaccess
+
+This will get you the latest stable version of GoAccess.
+Architectures: `i386` `amd64` `armel`
+
+### Fedora ###
+
+    # yum install goaccess
+
+### Arch Linux ###
+
+    # pacman -S goaccess
+
+### Gentoo ###
+
+    # emerge net-analyzer/goaccess
+
+### OS X / Homebrew ###
+
+    # brew install goaccess
+
+### FreeBSD ###
+
+    # cd /usr/ports/sysutils/goaccess/ && make install clean
+    $ pkg_add -r goaccess
 
 ## Usage ##
 The simplest and fastest usage would be:
@@ -93,10 +136,10 @@ Now if we want to add more flexibility to GoAccess, we can do a series of pipes.
 
 If we would like to process all `access.log.*.gz` we can do:
 
-    # zcat access.log.*.gz | goaccess 
+    # zcat access.log.*.gz | goaccess
     OR
     # zcat -f access.log* | goaccess
-    
+
 Another useful pipe would be filtering dates out of the web log
 
 The following will get all HTTP requests starting on 05/Dec/2010 until the end of the file.
@@ -107,12 +150,11 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
 
-For more examples, please check GoAccess' man page: 
+For more examples, please check GoAccess' man page:
 http://goaccess.prosoftcorp.com/man
 
 ## Contributing ##
 
 Any help on GoAccess is welcome. Feel free to use the Github issue tracker and pull requests to discuss and submit code changes.
-
 
 Enjoy!
