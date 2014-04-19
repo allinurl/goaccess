@@ -21,6 +21,8 @@
 #ifndef SETTINGS_H_INCLUDED
 #define SETTINGS_H_INCLUDED
 
+#include <stdint.h>
+
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
