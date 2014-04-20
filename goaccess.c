@@ -95,6 +95,7 @@ struct option long_opts[] = {
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
+  {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBGEOIP
@@ -222,6 +223,8 @@ cmd_help (void)
   printf (" --tune-bnum=<number>         ");
   printf ("Number of elements of the bucket array. [%d]\n", TC_BNUM);
 #endif
+  printf (" --no-progress                ");
+  printf ("Disable progress metrics.\n");
   printf (" --no-color                   ");
   printf ("Disable colored output.\n");
   printf (" --real-os                    ");
@@ -937,6 +940,8 @@ main (int argc, char *argv[])
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
          conf.no_color = 1;
+       if (!strcmp ("no-progress", long_opts[idx].name))
+         conf.no_progress = 1;
 
        /* specifies the path of the GeoIP City database file */
        if (!strcmp ("geoip-city-data", long_opts[idx].name))

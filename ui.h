@@ -50,8 +50,9 @@
 #define T_UNIQUE_VIS "Unique Visitors"
 
 /* spinner label format */
+#define SPIN_FMT "%s"
+#define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50
-#define SPIN_FMT "%s [%'d] [%'lld/s]"
 
 /* modules */
 #define VISIT_HEAD "Unique visitors per day - Including spiders"

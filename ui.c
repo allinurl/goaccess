@@ -667,9 +667,13 @@ ui_spinner (void *ptr_data)
     if (sp->state == SPN_END)
       break;
 
-    tdiff = (long long) (time (NULL) - begin);
-    psec = tdiff >= 1 ? *(sp->process) / tdiff : 0;
-    snprintf (buf, sizeof buf, SPIN_FMT, sp->label, *(sp->process), psec);
+    if (conf.no_progress) {
+      snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
+    } else {
+      tdiff = (long long) (time (NULL) - begin);
+      psec = tdiff >= 1 ? *(sp->process) / tdiff : 0;
+      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->process), psec);
+    }
 
     /* CURSES */
     if (sp->curses) {
@@ -683,7 +687,7 @@ ui_spinner (void *ptr_data)
       wrefresh (sp->win);
     }
     /* STDOUT */
-    else {
+    else if (!conf.no_progress) {
       fprintf (stderr, "%s\r", buf);
     }
 
