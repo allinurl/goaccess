@@ -61,6 +61,10 @@
 #include "glibht.h"
 #endif
 
+#ifdef HAVE_LIBGEOIP
+#include "geolocation.h"
+#endif
+
 #include "parser.h"
 
 #include "browsers.h"
@@ -151,6 +155,7 @@ cmp_raw_browser_num_desc (const void *a, const void *b)
 }
 
 /* sort raw numeric descending */
+#ifdef HAVE_LIBGEOIP
 int
 cmp_raw_geo_num_desc (const void *a, const void *b)
 {
@@ -160,6 +165,7 @@ cmp_raw_geo_num_desc (const void *a, const void *b)
   GLocation *bloc = ib->value;
   return (int) (bloc->hits - aloc->hits);
 }
+#endif
 
 /* sort numeric ascending */
 int

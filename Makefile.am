@@ -44,6 +44,12 @@ goaccess_SOURCES += \
    glibht.h
 endif
 
+if GEOLOCATION
+goaccess_SOURCES += \
+   geolocation.c    \
+   geolocation.h
+endif
+
 if DEBUG
 AM_CFLAGS = -DDEBUG -O0 -g
 else

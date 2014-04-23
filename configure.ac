@@ -36,6 +36,7 @@ if test "$geoip" = "yes"; then
   AC_CHECK_LIB([GeoIP], [GeoIP_new], [],
     [AC_MSG_ERROR([*** Missing development files for the GeoIP library])])
 fi
+AM_CONDITIONAL([GEOLOCATION], [test "x$geoip" = "xyes"])
 
 # UTF8
 AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide characters],

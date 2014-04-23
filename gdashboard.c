@@ -39,6 +39,10 @@
 #include "glibht.h"
 #endif
 
+#ifdef HAVE_LIBGEOIP
+#include "geolocation.h"
+#endif
+
 #include "error.h"
 #include "xmalloc.h"
 #include "gdns.h"

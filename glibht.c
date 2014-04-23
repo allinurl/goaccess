@@ -34,6 +34,10 @@
 
 #include "glibht.h"
 
+#ifdef HAVE_LIBGEOIP
+#include "geolocation.h"
+#endif
+
 #include "error.h"
 #include "parser.h"
 #include "settings.h"
@@ -131,6 +135,7 @@ init_storage (void)
                            (GDestroyNotify) free_key_value, NULL);
 }
 
+#ifdef HAVE_LIBGEOIP
 void
 free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
                 GO_UNUSED gpointer user_data)
@@ -138,6 +143,7 @@ free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
   GLocation *loc = old_value;
   free (loc);
 }
+#endif
 
 void
 free_os (GO_UNUSED gpointer old_key, gpointer old_value,
@@ -276,6 +282,7 @@ process_request (GHashTable * ht, const char *key, const GLogItem * glog)
   return 0;
 }
 
+#ifdef HAVE_LIBGEOIP
 int
 process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
                      const char *city)
@@ -300,6 +307,7 @@ process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
 
   return 0;
 }
+#endif
 
 /* store generic data into the given hash table */
 int

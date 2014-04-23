@@ -29,6 +29,10 @@
 
 #include "tcabinet.h"
 
+#ifdef HAVE_LIBGEOIP
+#include "geolocation.h"
+#endif
+
 #include "commons.h"
 #include "error.h"
 #include "parser.h"
@@ -491,6 +495,7 @@ process_browser (void *db, const char *k, const char *browser_type)
   return 0;
 }
 
+#ifdef HAVE_LIBGEOIP
 int
 process_geolocation (void *db, const char *ctry, const char *cont,
                      const char *city)
@@ -515,6 +520,7 @@ process_geolocation (void *db, const char *ctry, const char *cont,
 
   return 0;
 }
+#endif
 
 /* process host agent strings */
 int
