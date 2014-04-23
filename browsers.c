@@ -72,6 +72,7 @@ static const char *browsers[][2] = {
   {"BlackBerry", "Others"},
   {"HUAWEI", "Others"},
   {"APT-HTTP", "Others"},
+  {"check_http", "Others"},
 
   /* Chrome has to go before Safari */
   {"Chrome", "Chrome"},
