@@ -85,6 +85,7 @@ set_conf_vars (int key, char *val)
    case 4:
      if (!isatty (STDIN_FILENO))        /* STDIN */
        break;
+     /* no file provided, use previously set log file path */
      if (conf.ifile == NULL || *conf.ifile == '\0')
        conf.ifile = alloc_string (val);
      break;
