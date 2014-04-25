@@ -783,8 +783,9 @@ parse_cmd_line (int argc, char **argv)
 int
 main (int argc, char *argv[])
 {
-  int row = 0, col = 0, quit = 0;
+  int quit = 0;
 
+  /* short + long options */
   parse_cmd_line (argc, argv);
 
   /* initialize storage */
@@ -801,17 +802,20 @@ main (int argc, char *argv[])
     geo_location_data = GeoIP_new (conf.geo_db);
 #endif
 
+  /* init logger */
   logger = init_log ();
+
+  /* init parsing spinner */
   parsing_spinner = new_gspinner ();
   parsing_spinner->process = &logger->process;
 
+  /* outputting to stdout */
   if (conf.output_html) {
     ui_spinner_create (parsing_spinner);
     goto out;
   }
 
-  initscr ();
-  clear ();
+  /* init curses */
   set_input_opts ();
 
   if (conf.no_color || has_colors () == FALSE) {
@@ -821,27 +825,7 @@ main (int argc, char *argv[])
     start_color ();
   }
   init_colors ();
-
-  /* init standard screen */
-  attron (COLOR_PAIR (COL_WHITE));
-  getmaxyx (stdscr, row, col);
-  if (row < MIN_HEIGHT || col < MIN_WIDTH)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Minimum screen size - 0 columns by 7 lines");
-
-  /* init header screen */
-  header_win = newwin (5, col, 0, 0);
-  keypad (header_win, TRUE);
-  if (header_win == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory for header_win.");
-
-  /* init main screen */
-  main_win = newwin (row - 7, col, 6, 0);
-  keypad (main_win, TRUE);
-  if (main_win == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory for main_win.");
+  init_windows (&header_win, &main_win);
 
   set_curses_spinner (parsing_spinner);
 
@@ -864,11 +848,12 @@ out:
                    "Error while processing file");
   time (&end_proc);
   end_spinner ();
-
-  gdns_init ();
   logger->offset = logger->process;
 
-  /* STDOUT */
+  /* init reverse lookup thread */
+  gdns_init ();
+
+  /* stdout */
   if (conf.output_html) {
     /* no valid entries to process from the log */
     if ((logger->process == 0) || (logger->process == logger->invalid))
@@ -884,7 +869,6 @@ out:
     /* HTML */
     else
       output_html (logger, holder);
-
     goto done;
   }
 

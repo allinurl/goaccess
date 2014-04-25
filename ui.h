@@ -240,24 +240,25 @@ typedef struct GSpinner_
 char *get_browser_type (char *line);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
 GSpinner *new_gspinner (void);
-void set_curses_spinner (GSpinner *spinner);
 int split_agent_str (char *ptr_value, GAgents * agents, int max);
 int verify_format (GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);
 void display_general (WINDOW * header_win, char *ifile, int piping, int process, int invalid, unsigned long long bandwidth);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color);
+void end_spinner (void);
 void generate_time (void);
 void init_colors (void);
+void init_windows (WINDOW ** header_win, WINDOW ** main_win);
 void load_agent_list (WINDOW * main_win, char *addr);
 void load_help_popup (WINDOW * main_win);
 void load_schemes_win (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
+void set_curses_spinner (GSpinner *spinner);
 void set_input_opts (void);
 void term_size (WINDOW * main_win);
 void ui_spinner_create (GSpinner * spinner);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
-void end_spinner (void);
 WINDOW *create_win (int h, int w, int y, int x);
 /* *INDENT-ON* */
 

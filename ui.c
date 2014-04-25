@@ -123,6 +123,8 @@ init_colors (void)
 void
 set_input_opts (void)
 {
+  initscr ();
+  clear ();
   noecho ();
   halfdelay (10);
   nonl ();
@@ -158,6 +160,33 @@ end_spinner (void)
   pthread_mutex_lock (&parsing_spinner->mutex);
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
+}
+
+void
+init_windows (WINDOW ** header_win, WINDOW ** main_win)
+{
+  int row = 0, col = 0;
+
+  /* init standard screen */
+  attron (COLOR_PAIR (COL_WHITE));
+  getmaxyx (stdscr, row, col);
+  if (row < MIN_HEIGHT || col < MIN_WIDTH)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Minimum screen size - 0 columns by 7 lines");
+
+  /* init header screen */
+  *header_win = newwin (5, col, 0, 0);
+  keypad (*header_win, TRUE);
+  if (*header_win == NULL)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to allocate memory for header_win.");
+
+  /* init main screen */
+  *main_win = newwin (row - 7, col, 6, 0);
+  keypad (*main_win, TRUE);
+  if (*main_win == NULL)
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Unable to allocate memory for main_win.");
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
