@@ -39,12 +39,13 @@ char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
 char *clean_date (char *s);
 char *clean_month (char *s);
-char *convert_date (char *result, char *data, const char *from,
-                    const char *to, int size);
+char *convert_date (char *result, char *data, const char *from, const char *to,
+                    int size);
 char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
 char *float_to_str (float num);
+char *get_home (void);
 char *int_to_str (int d);
 char *left_pad_str (const char *s, int indent);
 char *ltrim (char *s);

@@ -159,6 +159,21 @@ count_occurrences (const char *s1, char c)
   return n;
 }
 
+char *
+get_home (void)
+{
+  char *user_home = NULL, *path = NULL;
+
+  user_home = getenv ("HOME");
+  if (user_home == NULL)
+    return NULL;
+
+  path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
+  sprintf (path, "%s/.goaccessrc", user_home);
+
+  return path;
+}
+
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 char *
 convert_date (char *result, char *data, const char *from, const char *to,

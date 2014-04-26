@@ -96,26 +96,21 @@ set_conf_vars (int key, char *val)
 int
 parse_conf_file (void)
 {
-  char line[512];
-  char *path = NULL, *user_home = NULL;
-  char *val, *c;
+  char line[MAX_LINE_CONF + 1];
+  char *path = NULL, *val, *c;
   FILE *file;
   int key = 0;
 
   if (conf.iconfigfile != NULL)
     path = alloc_string (conf.iconfigfile);
-  else {
-    user_home = getenv ("HOME");
-    if (user_home == NULL)
-      return 1;
+  else
+    path = get_home ();
 
-    path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
-    sprintf (path, "%s/.goaccessrc", user_home);
-  }
-  file = fopen (path, "r");
+  if (path == NULL)
+    return 1;
 
   /* could not open conf file, if so prompt conf dialog */
-  if (file == NULL) {
+  if ((file = fopen (path, "r")) == NULL) {
     free (path);
     return 1;
   }
@@ -139,6 +134,7 @@ parse_conf_file (void)
     }
   }
   fclose (file);
+
   free (path);
   return 0;
 }

@@ -23,6 +23,8 @@
 
 #include <stdint.h>
 
+#define MAX_LINE_CONF 512
+
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
