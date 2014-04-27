@@ -44,11 +44,11 @@
 #endif
 
 #include "error.h"
-#include "xmalloc.h"
 #include "gdns.h"
 #include "parser.h"
 #include "settings.h"
 #include "util.h"
+#include "xmalloc.h"
 
 /* *INDENT-OFF* */
 

@@ -52,10 +52,9 @@
 #endif
 
 #include "error.h"
-#include "xmalloc.h"
 #include "goaccess.h"
-#include "parser.h"
 #include "util.h"
+#include "xmalloc.h"
 
 GDnsThread gdns_thread;
 static GDnsQueue *gdns_queue;
