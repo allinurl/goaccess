@@ -118,11 +118,12 @@ static GScrolling scrolling = {
 static void
 house_keeping (void)
 {
+  /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
-  active_gdns = 0;              /* kill dns pthread */
+  /* kill dns pthread */
+  active_gdns = 0;
   free_holder (&holder);
   gdns_free_queue ();
-
   if (ht_hostnames != NULL) {
 #ifdef HAVE_LIBTOKYOCABINET
     tc_db_close (ht_hostnames, DB_HOSTNAMES);
@@ -130,20 +131,22 @@ house_keeping (void)
     g_hash_table_destroy (ht_hostnames);
 #endif
   }
-
   pthread_mutex_unlock (&gdns_thread.mutex);
 
+  /* DASHBOARD */
   if (dash && !conf.output_html) {
     free_dashboard (dash);
     reset_find ();
   }
+
+  /* GEOLOCATION */
 #ifdef HAVE_LIBGEOIP
   if (geo_location_data != NULL)
     GeoIP_delete (geo_location_data);
 #endif
 
+  /* STORAGE */
 #ifdef HAVE_LIBTOKYOCABINET
-
   tc_db_foreach (ht_requests, free_requests, NULL);
   tc_db_foreach (ht_requests_static, free_requests, NULL);
   tc_db_foreach (ht_not_found_requests, free_requests, NULL);
@@ -169,13 +172,10 @@ house_keeping (void)
   tc_db_close (ht_status_code, DB_STATUS_CODE);
   tc_db_close (ht_unique_vis, DB_UNIQUE_VIS);
   tc_db_close (ht_unique_visitors, DB_UNIQUE_VISITORS);
-
 #else
-
 #ifdef HAVE_LIBGEOIP
   g_hash_table_foreach (ht_countries, free_countries, NULL);
 #endif
-
   g_hash_table_foreach (ht_requests, free_requests, NULL);
   g_hash_table_foreach (ht_requests_static, free_requests, NULL);
   g_hash_table_foreach (ht_not_found_requests, free_requests, NULL);
@@ -199,15 +199,14 @@ house_keeping (void)
   g_hash_table_destroy (ht_status_code);
   g_hash_table_destroy (ht_unique_vis);
   g_hash_table_destroy (ht_unique_visitors);
-
 #endif
 
+  /* LOGGER */
   free (logger);
 
-  /* realpath() uses malloc */
+  /* CONFIGURATION */
   if (conf.iconfigfile)
     free (conf.iconfigfile);
-
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
