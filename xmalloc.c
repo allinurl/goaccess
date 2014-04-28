@@ -70,12 +70,11 @@ xcalloc (size_t nmemb, size_t size)
 
 /* self-checking wrapper to realloc() */
 void *
-xrealloc (void *oldptr, size_t nmemb, size_t size)
+xrealloc (void *oldptr, size_t size)
 {
-  size_t newsize = nmemb * size;
   void *newptr;
 
-  if ((newptr = realloc (oldptr, newsize)) == NULL)
+  if ((newptr = realloc (oldptr, size)) == NULL)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Unable to reallocate memory - failed");
 
