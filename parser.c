@@ -1093,3 +1093,38 @@ test_format (GLog * logger)
     return 1;
   return 0;
 }
+
+/* sort raw data for the first run (default sort) */
+GRawData *
+sort_raw_data (GRawData * raw_data, GModule module, int ht_size)
+{
+  switch (module) {
+   case VISITORS:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
+     break;
+   case REQUESTS:
+   case REQUESTS_STATIC:
+   case NOT_FOUND:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+            cmp_raw_req_num_desc);
+     break;
+   case OS:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+            cmp_raw_os_num_desc);
+     break;
+   case BROWSERS:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+            cmp_raw_browser_num_desc);
+     break;
+#ifdef HAVE_LIBGEOIP
+   case GEO_LOCATION:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
+            cmp_raw_geo_num_desc);
+     break;
+#endif
+   default:
+     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
+  }
+
+  return raw_data;
+}

@@ -515,33 +515,7 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
   raw_data->items = new_grawdata_item (ht_size);
 
   g_hash_table_foreach (ht, (GHFunc) raw_data_iter, raw_data);
-  switch (module) {
-   case VISITORS:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_req_num_desc);
-     break;
-   case OS:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_os_num_desc);
-     break;
-   case BROWSERS:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_browser_num_desc);
-     break;
-#ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_geo_num_desc);
-     break;
-#endif
-   default:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
-  }
+  sort_raw_data (raw_data, module, ht_size);
 
   return raw_data;
 }

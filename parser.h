@@ -69,8 +69,9 @@ typedef struct GRawData_
 
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
-GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
+GRawData *sort_raw_data (GRawData * raw_data, GModule module, int ht_size);
+GRawDataItem *new_grawdata_item (unsigned int size);
 int cmp_bw_asc (const void *a, const void *b);
 int cmp_bw_desc (const void *a, const void *b);
 int cmp_data_asc (const void *a, const void *b);
