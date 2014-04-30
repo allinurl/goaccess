@@ -50,6 +50,7 @@ static char short_options[] = "f:e:p:o:"
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
+  {"log-file"             , required_argument , 0 , 'f' } ,
   {"agent-list"           , no_argument       , 0 , 'a' } ,
   {"conf-dialog"          , no_argument       , 0 , 'c' } ,
   {"conf-file"            , required_argument , 0 , 'p' } ,
@@ -57,7 +58,7 @@ struct option long_opts[] = {
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"http-method"          , no_argument       , 0 , 'M' } ,
   {"http-protocol"        , no_argument       , 0 , 'H' } ,
-  {"log-file"             , required_argument , 0 , 'l' } ,
+  {"debug-file"           , required_argument , 0 , 'l' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
@@ -91,7 +92,7 @@ cmd_help (void)
   printf ("Usage: ");
   printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
   printf ("The following options can also be supplied to the command:\n\n");
-  printf (" -f <filename>                ");
+  printf (" -f --log-file=<filename>     ");
   printf ("Path to input log file.\n");
   printf (" -a --agent-list              ");
   printf ("Enable a list of user-agents by host.\n");
@@ -108,7 +109,7 @@ cmd_help (void)
   printf ("Standard GeoIP database for less memory usage.\n");
 #endif
 #ifdef DEBUG
-  printf (" -l --log-file=<filename>     ");
+  printf (" -l --debug-file=<filename>   ");
   printf ("Send all debug messages to the specified file.\n");
 #endif
   printf (" -h --help                    ");
