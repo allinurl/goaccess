@@ -58,7 +58,9 @@ struct option long_opts[] = {
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"http-method"          , no_argument       , 0 , 'M' } ,
   {"http-protocol"        , no_argument       , 0 , 'H' } ,
+#ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
+#endif
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
