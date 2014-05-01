@@ -207,17 +207,17 @@ get_selected_format_idx (void)
   if (conf.log_format == NULL)
     return -1;
   if (strcmp (conf.log_format, logs.common) == 0)
-    return 0;
+    return COMMON;
   else if (strcmp (conf.log_format, logs.vcommon) == 0)
-    return 1;
+    return VCOMMON;
   else if (strcmp (conf.log_format, logs.combined) == 0)
-    return 2;
+    return COMBINED;
   else if (strcmp (conf.log_format, logs.vcombined) == 0)
-    return 3;
+    return VCOMBINED;
   else if (strcmp (conf.log_format, logs.w3c) == 0)
-    return 4;
+    return W3C;
   else if (strcmp (conf.log_format, logs.cloudfront) == 0)
-    return 5;
+    return CLOUDFRONT;
   else
     return -1;
 }
@@ -228,22 +228,22 @@ get_selected_format_str (size_t idx)
 {
   char *fmt = NULL;
   switch (idx) {
-   case 0:
+   case COMMON:
      fmt = alloc_string (logs.common);
      break;
-   case 1:
+   case VCOMMON:
      fmt = alloc_string (logs.vcommon);
      break;
-   case 2:
+   case COMBINED:
      fmt = alloc_string (logs.combined);
      break;
-   case 3:
+   case VCOMBINED:
      fmt = alloc_string (logs.vcombined);
      break;
-   case 4:
+   case W3C:
      fmt = alloc_string (logs.w3c);
      break;
-   case 5:
+   case CLOUDFRONT:
      fmt = alloc_string (logs.cloudfront);
      break;
   }
@@ -256,16 +256,16 @@ get_selected_date_str (size_t idx)
 {
   char *fmt = NULL;
   switch (idx) {
-   case 0:
-   case 1:
-   case 2:
-   case 3:
+   case COMMON:
+   case VCOMMON:
+   case COMBINED:
+   case VCOMBINED:
      fmt = alloc_string (dates.apache);
      break;
-   case 4:
+   case W3C:
      fmt = alloc_string (dates.w3c);
      break;
-   case 5:
+   case CLOUDFRONT:
      fmt = alloc_string (dates.cloudfront);
      break;
   }

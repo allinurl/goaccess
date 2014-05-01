@@ -25,6 +25,16 @@
 
 #define MAX_LINE_CONF 512
 
+typedef enum
+{
+  COMMON,
+  VCOMMON,
+  COMBINED,
+  VCOMBINED,
+  W3C,
+  CLOUDFRONT
+} LOGTYPE;
+
 /* predefined log dates */
 typedef struct GPreConfDate_
 {
