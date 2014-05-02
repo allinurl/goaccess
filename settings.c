@@ -137,12 +137,16 @@ parse_conf_file (int *argc, char ***argv)
     val = val + idx;
     val = trim_str (val);
 
+    if (strcmp ("false", val) == 0)
+      continue;
+
     /* set it as command line options */
     opt = xmalloc (snprintf (NULL, 0, "--%s", line) + 1);
     sprintf (opt, "--%s", line);
 
     append_to_argv (&nargc, &nargv, opt);
-    append_to_argv (&nargc, &nargv, xstrdup (val));
+    if (strcmp ("true", val) != 0)
+      append_to_argv (&nargc, &nargv, xstrdup (val));
   }
 
   *argc = nargc;
