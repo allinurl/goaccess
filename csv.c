@@ -127,7 +127,7 @@ print_csv_generic (FILE * fp, const GHolder * h, int process)
     percent = percent < 0 ? 0 : percent;
 
     fprintf (fp, "\"%d\",", idx);       /* idx */
-    fprintf (fp, ",");          /* parent idx */
+    fprintf (fp, ",");  /* parent idx */
     fprintf (fp, "\"%s\",", id);
     fprintf (fp, "\"%d\",", hits);
     fprintf (fp, "\"%4.2f%%\",", percent);
@@ -230,7 +230,7 @@ print_csv_visitors (FILE * fp, GHolder * h)
     convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
     fprintf (fp, "\"%d\",", i); /* idx */
-    fprintf (fp, ",");          /* parent idx */
+    fprintf (fp, ",");  /* parent idx */
     fprintf (fp, "\"%s\",", VISIT_ID);
     fprintf (fp, "\"%d\",", hits);
     fprintf (fp, "\"%4.2f%%\",", percent);

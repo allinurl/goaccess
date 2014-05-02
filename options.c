@@ -64,6 +64,9 @@ struct option long_opts[] = {
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
+  {"color-scheme"         , required_argument , 0 ,  0  } ,
+  {"date-format"          , required_argument , 0 ,  0  } ,
+  {"log-format"           , required_argument , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
@@ -171,6 +174,31 @@ cmd_help (void)
 }
 
 void
+read_conf_file_arg (int argc, char **argv)
+{
+  int o, idx = 0;
+
+  conf.iconfigfile = NULL;
+  while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
+    if (-1 == o || EOF == o)
+      break;
+    switch (o) {
+     case 'p':
+       conf.iconfigfile = realpath (optarg, NULL);
+       if (conf.iconfigfile == NULL)
+         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                        strerror (errno));
+       break;
+    }
+  }
+  for (idx = optind; idx < argc; idx++)
+    cmd_help ();
+
+  /* reset it to 1 */
+  optind = 1;
+}
+
+void
 read_option_args (int argc, char **argv)
 {
   int o, idx = 0;
@@ -179,13 +207,15 @@ read_option_args (int argc, char **argv)
   conf.geo_db = GEOIP_MEMORY_CACHE;
 #endif
 
-  conf.iconfigfile = NULL;
   while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
     if (-1 == o || EOF == o)
       break;
     switch (o) {
      case 'f':
-       conf.ifile = optarg;
+       conf.ifile = realpath (optarg, NULL);
+       if (conf.ifile == NULL)
+         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                        strerror (errno));
        break;
      case 'p':
        conf.iconfigfile = realpath (optarg, NULL);
@@ -213,7 +243,7 @@ read_option_args (int argc, char **argv)
      case 'o':
        conf.output_format = optarg;
      case 'l':
-       conf.debug_log = alloc_string (optarg);
+       conf.debug_log = optarg;
        dbg_log_open (conf.debug_log);
        break;
      case 'r':
@@ -235,6 +265,13 @@ read_option_args (int argc, char **argv)
        conf.append_protocol = 1;
        break;
      case 0:
+
+       if (!strcmp ("color-scheme", long_opts[idx].name))
+         conf.color_scheme = atoi (optarg);
+       if (!strcmp ("log-format", long_opts[idx].name))
+         conf.log_format = unescape_str (optarg);
+       if (!strcmp ("date-format", long_opts[idx].name))
+         conf.date_format = unescape_str (optarg);
 
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;

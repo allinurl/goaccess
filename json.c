@@ -356,7 +356,7 @@ void
 output_json (GLog * logger, GHolder * holder)
 {
   FILE *fp = stdout;
-  fprintf (fp, "{\n");          /* open */
+  fprintf (fp, "{\n");  /* open */
 
   print_json_summary (fp, logger);
   fprintf (fp, ",\n");

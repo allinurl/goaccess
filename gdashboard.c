@@ -81,7 +81,7 @@ reset_find (void)
 
   find_t.look_in_sub = 0;
   find_t.module = 0;
-  find_t.next_idx = 0;          /* next total index    */
+  find_t.next_idx = 0;  /* next total index    */
   find_t.next_parent_idx = 0;   /* next parent index   */
   find_t.next_sub_idx = 0;      /* next sub item index */
   find_t.pattern = NULL;
@@ -336,7 +336,7 @@ get_bars (int n, int max, int x)
   int w, h, len;
 
   getmaxyx (stdscr, h, w);
-  (void) h;                     /* avoid lint warning */
+  (void) h;     /* avoid lint warning */
 
   if ((len = (n * (w - x) / max)) < 1)
     len = 1;

@@ -61,6 +61,9 @@
 #include "util.h"
 #include "xmalloc.h"
 
+static char *log_format = NULL;
+static char *date_format = NULL;
+
 /* *INDENT-OFF* */
 static const char *sort_choices[][SORT_MAX_OPTS] = {
   {"Hits", "Data", "Bandwidth", NULL},
@@ -443,12 +446,12 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case 1:                   /* ^a   */
-     case 262:                 /* HOME */
+     case 1:   /* ^a   */
+     case 262: /* HOME */
        pos = x = 0;
        break;
      case 5:
-     case 360:                 /* END of line */
+     case 360: /* END of line */
        if (strlen (s) > size_x) {
          x = size_x;
          pos = strlen (s) - size_x;
@@ -457,14 +460,14 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
          x = strlen (s);
        }
        break;
-     case 7:                   /* ^g  */
-     case 27:                  /* ESC */
+     case 7:   /* ^g  */
+     case 27:  /* ESC */
        pos = x = 0;
        if (str && *str == '\0')
          s[0] = '\0';
        quit = 0;
        break;
-     case 9:                   /* TAB   */
+     case 9:   /* TAB   */
        if (!enable_case)
          break;
        *toggle_case = *toggle_case == 0 ? 1 : 0;
@@ -475,11 +478,11 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
          draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1,
                       size_x - 2, 2);
        break;
-     case 21:                  /* ^u */
+     case 21:  /* ^u */
        s[0] = '\0';
        pos = x = 0;
        break;
-     case 8:                   /* xterm-256color */
+     case 8:   /* xterm-256color */
      case 127:
      case KEY_BACKSPACE:
        if (pos + x > 0) {
@@ -600,8 +603,8 @@ load_agent_list (WINDOW * main_win, char *addr)
     return;
 
   getmaxyx (stdscr, y, x);
-  list_h = y / 2;               /* list window - height */
-  list_w = x - 4;               /* list window - width */
+  list_h = y / 2;       /* list window - height */
+  list_w = x - 4;       /* list window - width */
   menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
   menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
 
@@ -776,14 +779,15 @@ new_gspinner (void)
 int
 verify_format (GLog * logger, GSpinner * spinner)
 {
+  GMenu *menu;
+  WINDOW *win;
+
   char *cstm_log, *cstm_date;
   int c, quit = 1;
-  size_t i, n, sel;
   int invalid = 1;
   int y, x, h = CONF_WIN_H, w = CONF_WIN_W;
   int w2 = w - 2;
-  WINDOW *win;
-  GMenu *menu;
+  size_t i, n, sel;
 
   /* conf dialog menu options */
   const char *choices[] = {
@@ -821,20 +825,20 @@ verify_format (GLog * logger, GSpinner * spinner)
   /* set log format from goaccessrc if available */
   draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1);
   if (conf.log_format) {
-    tmp_log_format = alloc_string (conf.log_format);
+    log_format = xstrdup (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, conf.log_format);
-    free (conf.log_format);
-    conf.log_format = NULL;
+    if (conf.log_format)
+      free (conf.log_format);
   }
 
   /* set date format from goaccessrc if available */
   draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
                1);
   if (conf.date_format) {
-    tmp_date_format = alloc_string (conf.date_format);
+    date_format = xstrdup (conf.date_format);
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, conf.date_format);
-    free (conf.date_format);
-    conf.date_format = NULL;
+    if (conf.date_format)
+      free (conf.date_format);
   }
 
   wrefresh (win);
@@ -849,105 +853,98 @@ verify_format (GLog * logger, GSpinner * spinner)
        gmenu_driver (menu, REQ_UP);
        draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
        break;
-     case 32:                  /* space */
+     case 32:  /* space */
        gmenu_driver (menu, REQ_SEL);
-       if (tmp_log_format)
-         free (tmp_log_format);
 
-       if (tmp_date_format)
-         free (tmp_date_format);
+       if (date_format)
+         free (date_format);
+       if (log_format)
+         free (log_format);
 
        for (i = 0; i < n; ++i) {
          if (menu->items[i].checked != 1)
            continue;
 
-         tmp_log_format = get_selected_format_str (i);
-         tmp_date_format = get_selected_date_str (i);
-         draw_header (win, tmp_log_format, " %s", 12, 1, CONF_MENU_W, 0);
-         draw_header (win, tmp_date_format, " %s", 15, 1, CONF_MENU_W, 0);
+         date_format = get_selected_date_str (i);
+         log_format = get_selected_format_str (i);
+         draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0);
+         draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0);
          break;
        }
        break;
-     case 89:                  /* Y/y */
-     case 121:
-       if (tmp_log_format) {
-         conf.log_format = alloc_string (tmp_log_format);
-         quit = 0;
-       }
-       break;
-     case 99:                  /* c */
+     case 99:  /* c */
        /* clear top status bar */
        draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
        wmove (win, 12, 2);
 
        /* get input string */
-       cstm_log = input_string (win, 12, 2, 70, tmp_log_format, 0, 0);
+       cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
        if (cstm_log != NULL && *cstm_log != '\0') {
-         if (tmp_log_format)
-           free (tmp_log_format);
-         tmp_log_format = alloc_string (cstm_log);
+         if (log_format)
+           free (log_format);
+
+         log_format = alloc_string (cstm_log);
          free (cstm_log);
-       } else {
+       }
+       /* did not set an input string */
+       else {
          if (cstm_log)
            free (cstm_log);
-         if (tmp_log_format) {
-           free (tmp_log_format);
-           tmp_log_format = NULL;
+         if (log_format) {
+           free (log_format);
+           log_format = NULL;
          }
        }
        break;
-     case 100:                 /* d */
+     case 100: /* d */
        /* clear top status bar */
        draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
        wmove (win, 15, 0);
 
        /* get input string */
-       cstm_date = input_string (win, 15, 2, 14, tmp_date_format, 0, 0);
+       cstm_date = input_string (win, 15, 2, 14, date_format, 0, 0);
        if (cstm_date != NULL && *cstm_date != '\0') {
-         if (tmp_date_format)
-           free (tmp_date_format);
-         tmp_date_format = alloc_string (cstm_date);
+         if (date_format)
+           free (date_format);
+
+         date_format = alloc_string (cstm_date);
          free (cstm_date);
-       } else {
+       }
+       /* did not set an input string */
+       else {
          if (cstm_date)
            free (cstm_date);
-         if (tmp_date_format) {
-           free (tmp_date_format);
-           tmp_date_format = NULL;
+         if (date_format) {
+           free (date_format);
+           date_format = NULL;
          }
        }
        break;
-     case 274:                 /* F10 */
+     case 274: /* F10 */
      case 0x0a:
      case 0x0d:
      case KEY_ENTER:
        /* display status bar error messages */
-       if (tmp_date_format == NULL)
+       if (date_format == NULL)
          draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
                       WHITE_RED);
-       if (tmp_log_format == NULL)
+       if (log_format == NULL)
          draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
                       WHITE_RED);
 
-       if (tmp_log_format && tmp_date_format) {
-         conf.date_format = alloc_string (tmp_date_format);
-         conf.log_format = alloc_string (tmp_log_format);
+       if (date_format && log_format) {
+         conf.date_format = date_format;
+         conf.log_format = log_format;
 
          /* test log against selected settings */
          if (test_format (logger)) {
            invalid = 1;
-           draw_header (win, "No valid hits. 'y' to continue anyway.", "%s",
-                        3, 2, CONF_MENU_W, WHITE_RED);
-           free (conf.date_format);
-           free (conf.log_format);
-
-           conf.date_format = NULL;
-           conf.log_format = NULL;
+           draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
+                        WHITE_RED);
          }
          /* valid data, reset logger & start parsing */
          else {
            reset_struct (logger);
-
            /* start spinner thread */
            spinner->win = win;
            spinner->y = 3;
@@ -1167,7 +1164,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
        gmenu_driver (menu, REQ_UP);
        draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0);
        break;
-     case 9:                   /* TAB */
+     case 9:   /* TAB */
        /* ascending */
        if (sort->sort == SORT_ASC) {
          sort->sort = SORT_DESC;

@@ -21,6 +21,7 @@
 #ifndef OPTIONS_H_INCLUDED
 #define OPTIONS_H_INCLUDED
 
+void read_conf_file_arg (int argc, char **argv);
 void read_option_args (int argc, char **argv);
 void cmd_help (void);
 

@@ -106,7 +106,7 @@ extern GConf conf;
 extern char *tmp_log_format;
 extern char *tmp_date_format;
 
-int parse_conf_file (void);
-int write_conf_file (void);
+int parse_conf_file (int *argc, char ***argv);
+void free_cmd_args (void);
 
 #endif

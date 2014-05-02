@@ -210,8 +210,8 @@ house_keeping (void)
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
-    free (conf.debug_log);
   }
+  free_cmd_args ();
 }
 
 /* allocate memory for an instance of holder */
@@ -431,7 +431,7 @@ get_keys (void)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case 'q':                 /* quit */
+     case 'q': /* quit */
        if (!scrolling.expanded) {
          quit = 0;
          break;
@@ -444,47 +444,47 @@ get_keys (void)
        load_help_popup (main_win);
        render_screens ();
        break;
-     case 49:                  /* 1 */
+     case 49:  /* 1 */
        /* reset expanded module */
        set_module_to (&scrolling, VISITORS);
        break;
-     case 50:                  /* 2 */
+     case 50:  /* 2 */
        /* reset expanded module */
        set_module_to (&scrolling, REQUESTS);
        break;
-     case 51:                  /* 3 */
+     case 51:  /* 3 */
        /* reset expanded module */
        set_module_to (&scrolling, REQUESTS_STATIC);
        break;
-     case 52:                  /* 4 */
+     case 52:  /* 4 */
        /* reset expanded module */
        set_module_to (&scrolling, NOT_FOUND);
        break;
-     case 53:                  /* 5 */
+     case 53:  /* 5 */
        /* reset expanded module */
        set_module_to (&scrolling, HOSTS);
        break;
-     case 54:                  /* 6 */
+     case 54:  /* 6 */
        /* reset expanded module */
        set_module_to (&scrolling, OS);
        break;
-     case 55:                  /* 7 */
+     case 55:  /* 7 */
        /* reset expanded module */
        set_module_to (&scrolling, BROWSERS);
        break;
-     case 56:                  /* 8 */
+     case 56:  /* 8 */
        /* reset expanded module */
        set_module_to (&scrolling, REFERRERS);
        break;
-     case 57:                  /* 9 */
+     case 57:  /* 9 */
        /* reset expanded module */
        set_module_to (&scrolling, REFERRING_SITES);
        break;
-     case 48:                  /* 0 */
+     case 48:  /* 0 */
        /* reset expanded module */
        set_module_to (&scrolling, KEYPHRASES);
        break;
-     case 33:                  /* Shift+1 */
+     case 33:  /* Shift+1 */
        /* reset expanded module */
 #ifdef HAVE_LIBGEOIP
        set_module_to (&scrolling, GEO_LOCATION);
@@ -493,12 +493,12 @@ get_keys (void)
 #endif
        break;
 #ifdef HAVE_LIBGEOIP
-     case 64:                  /* Shift+2 */
+     case 64:  /* Shift+2 */
        /* reset expanded module */
        set_module_to (&scrolling, STATUS_CODES);
        break;
 #endif
-     case 9:                   /* TAB */
+     case 9:   /* TAB */
        /* reset expanded module */
        collapse_current_module ();
        scrolling.current++;
@@ -506,7 +506,7 @@ get_keys (void)
          scrolling.current = 0;
        render_screens ();
        break;
-     case 353:                 /* Shift TAB */
+     case 353: /* Shift TAB */
        /* reset expanded module */
        collapse_current_module ();
        if (scrolling.current == 0)
@@ -515,7 +515,7 @@ get_keys (void)
          scrolling.current--;
        render_screens ();
        break;
-     case 'g':                 /* g = top */
+     case 'g': /* g = top */
        if (!scrolling.expanded)
          scrolling.dash = 0;
        else {
@@ -524,7 +524,7 @@ get_keys (void)
        }
        display_content (main_win, logger, dash, &scrolling);
        break;
-     case 'G':                 /* G = down */
+     case 'G': /* G = down */
        if (!scrolling.expanded)
          scrolling.dash = dash->total_alloc - real_size_y;
        else {
@@ -541,9 +541,9 @@ get_keys (void)
      case KEY_RIGHT:
      case 0x0a:
      case 0x0d:
-     case 32:                  /* ENTER */
-     case 79:                  /* o */
-     case 111:                 /* O */
+     case 32:  /* ENTER */
+     case 79:  /* o */
+     case 111: /* O */
      case KEY_ENTER:
        if (scrolling.expanded && scrolling.current == HOSTS) {
          /* make sure we have a valid IP */
@@ -564,13 +564,13 @@ get_keys (void)
 
        display_content (main_win, logger, dash, &scrolling);
        break;
-     case KEY_DOWN:            /* scroll main dashboard */
+     case KEY_DOWN:    /* scroll main dashboard */
        if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
          scrolling.dash++;
          display_content (main_win, logger, dash, &scrolling);
        }
        break;
-     case KEY_MOUSE:           /* handles mouse events */
+     case KEY_MOUSE:   /* handles mouse events */
        ok_mouse = getmouse (&event);
        if (conf.mouse_support && ok_mouse == OK) {
          if (event.bstate & BUTTON1_CLICKED) {
@@ -592,7 +592,7 @@ get_keys (void)
          }
        }
        break;
-     case 106:                 /* j - DOWN expanded module */
+     case 106: /* j - DOWN expanded module */
        scroll_ptr = &scrolling.module[scrolling.current].scroll;
        offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -612,8 +612,8 @@ get_keys (void)
          display_content (main_win, logger, dash, &scrolling);
        }
        break;
-     case 2:                   /* ^ b - page up */
-     case 339:                 /* ^ PG UP */
+     case 2:   /* ^ b - page up */
+     case 339: /* ^ PG UP */
        scroll_ptr = &scrolling.module[scrolling.current].scroll;
        offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -630,8 +630,8 @@ get_keys (void)
          *offset_ptr = 0;
        display_content (main_win, logger, dash, &scrolling);
        break;
-     case 6:                   /* ^ f - page down */
-     case 338:                 /* ^ PG DOWN */
+     case 6:   /* ^ f - page down */
+     case 338: /* ^ PG DOWN */
        scroll_ptr = &scrolling.module[scrolling.current].scroll;
        offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -651,7 +651,7 @@ get_keys (void)
 
        display_content (main_win, logger, dash, &scrolling);
        break;
-     case 107:                 /* k - UP expanded module */
+     case 107: /* k - UP expanded module */
        scroll_ptr = &scrolling.module[scrolling.current].scroll;
        offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -686,7 +686,7 @@ get_keys (void)
          render_screens ();
        }
        break;
-     case 99:                  /* c */
+     case 99:  /* c */
        if (conf.no_color)
          break;
        load_schemes_win (main_win);
@@ -694,7 +694,7 @@ get_keys (void)
        allocate_data ();
        render_screens ();
        break;
-     case 115:                 /* s */
+     case 115: /* s */
        load_sort_win (main_win, scrolling.current, &sort[scrolling.current]);
        pthread_mutex_lock (&gdns_thread.mutex);
        free_holder (&holder);
@@ -769,7 +769,6 @@ static void
 parse_cmd_line (int argc, char **argv)
 {
   read_option_args (argc, argv);
-  parse_conf_file ();
 
   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
     conf.output_html = 1;
@@ -780,16 +779,16 @@ parse_cmd_line (int argc, char **argv)
 }
 
 int
-main (int argc, char *argv[])
+main (int argc, char **argv)
 {
   int quit = 0;
 
+  read_conf_file_arg (argc, argv);
+  parse_conf_file (&argc, &argv);
   /* short + long options */
   parse_cmd_line (argc, argv);
-
   /* initialize storage */
   init_storage ();
-
   set_locale ();
 
 #ifdef HAVE_LIBGEOIP
@@ -803,7 +802,6 @@ main (int argc, char *argv[])
 
   /* init logger */
   logger = init_log ();
-
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
   parsing_spinner->process = &logger->process;
@@ -816,7 +814,6 @@ main (int argc, char *argv[])
 
   /* init curses */
   set_input_opts ();
-
   if (conf.no_color || has_colors () == FALSE) {
     conf.color_scheme = NO_COLOR;
     conf.no_color = 1;
@@ -825,7 +822,6 @@ main (int argc, char *argv[])
   }
   init_colors ();
   init_windows (&header_win, &main_win);
-
   set_curses_spinner (parsing_spinner);
 
   /* configuration dialog */
@@ -851,7 +847,6 @@ out:
 
   /* init reverse lookup thread */
   gdns_init ();
-
   /* stdout */
   if (conf.output_html) {
     /* no valid entries to process from the log */
@@ -873,7 +868,6 @@ out:
 
   allocate_holder ();
   allocate_data ();
-
   if (!conf.skip_term_resolver) {
     active_gdns = 1;
     gdns_thread_create ();
@@ -883,12 +877,10 @@ out:
   get_keys ();
 
   attroff (COLOR_PAIR (COL_WHITE));
-
   /* restore tty modes and reset */
   /* terminal into non-visual mode */
   endwin ();
 done:
-  write_conf_file ();
   house_keeping ();
 
   return EXIT_SUCCESS;

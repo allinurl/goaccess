@@ -35,8 +35,8 @@
 #include "util.h"
 #include "xmalloc.h"
 
-char *tmp_log_format = NULL;
-char *tmp_date_format = NULL;
+static char **nargv;
+static int nargc = 0;
 
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
@@ -55,52 +55,47 @@ static const GPreConfDate dates = {
 };
 /* *INDENT-ON* */
 
-/* config file keywords */
-static const GConfKeyword keywords[] = {
-  {1, "color_scheme"},
-  {2, "log_format"},
-  {3, "date_format"},
-  {4, "log_file"},
-};
-
-/* set config key/values pair */
-static void
-set_conf_vars (int key, char *val)
+/* clean command line arguments */
+void
+free_cmd_args (void)
 {
-  switch (key) {
-   case 1:
-     if (!conf.no_color && atoi (val) == NO_COLOR)
-       conf.color_scheme = MONOCHROME;
-     else if (conf.no_color)
-       conf.color_scheme = NO_COLOR;
-     else
-       conf.color_scheme = atoi (val);
-     break;
-   case 2:
-     conf.log_format = alloc_string (val);
-     break;
-   case 3:
-     conf.date_format = alloc_string (val);
-     break;
-   case 4:
-     if (!isatty (STDIN_FILENO))        /* STDIN */
-       break;
-     /* no file provided, use previously set log file path */
-     if (conf.ifile == NULL || *conf.ifile == '\0')
-       conf.ifile = alloc_string (val);
-     break;
-  }
+  int i;
+  if (nargc == 0)
+    return;
+  for (i = 0; i < nargc; i++)
+    free (nargv[i]);
+  free (nargv);
 }
 
-/* ###TODO: allow extra values for every key separated by a delimeter */
+/* append extra value to argv */
+static void
+append_to_argv (int *argc, char ***argv, char *val)
+{
+  char **_argv = xrealloc (*argv, (*argc + 2) * sizeof (*_argv));
+  _argv[*argc] = val;
+  _argv[*argc + 1] = '\0';
+  (*argc)++;
+  *argv = _argv;
+}
+
+/* parses configuration file to feed getopt_long */
 int
-parse_conf_file (void)
+parse_conf_file (int *argc, char ***argv)
 {
   char line[MAX_LINE_CONF + 1];
-  char *path = NULL, *val, *c;
+  char *path = NULL, *val, *opt, *p;
   FILE *file;
-  int key = 0;
+  int i;
+  size_t idx;
 
+  /* assumes program name is on argv[0], though, it is not guaranteed */
+  append_to_argv (&nargc, &nargv, xstrdup ((char *) *argv[0]));
+
+  /* command line arguments */
+  for (i = 1; i < *argc; i++)
+    append_to_argv (&nargc, &nargv, xstrdup ((char *) (*argv)[i]));
+
+  /* determine which config file to open, default or custom */
   if (conf.iconfigfile != NULL)
     path = alloc_string (conf.iconfigfile);
   else
@@ -116,87 +111,46 @@ parse_conf_file (void)
   }
 
   while (fgets (line, sizeof line, file) != NULL) {
-    unsigned int i;
-    for (i = 0; i < ARRAY_SIZE (keywords); i++) {
-      if (strstr (line, keywords[i].keyword) != NULL)
-        key = keywords[i].key_id;
-    }
-    if ((val = strchr (line, ' ')) == NULL) {
-      free (path);
-      return 1;
-    }
-    for (c = val; *c; c++) {
-      /* get everything after the space */
-      if (!isspace (c[0])) {
-        set_conf_vars (key, trim_str (c));
-        break;
-      }
-    }
+    if (line[0] == '\n' || line[0] == '\r' || line[0] == '#')
+      continue;
+
+    /* key */
+    idx = strcspn (line, " \t");
+    if (strlen (line) == idx)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Invalid config key at line: %s", line);
+
+    /* make old config options backwards compatible by
+     * substituting underscores with dashes
+     */
+    while ((p = strpbrk (line, "_")) != NULL)
+      *p = '-';
+
+    line[idx] = '\0';
+
+    /* value */
+    val = line + (idx + 1);
+    idx = strspn (val, " \t");
+    if (strlen (line) == idx)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                     "Invalid config value at line: %s", line);
+    val = val + idx;
+    val = trim_str (val);
+
+    /* set it as command line options */
+    opt = xmalloc (snprintf (NULL, 0, "--%s", line) + 1);
+    sprintf (opt, "--%s", line);
+
+    append_to_argv (&nargc, &nargv, opt);
+    append_to_argv (&nargc, &nargv, xstrdup (val));
   }
+
+  *argc = nargc;
+  *argv = (char **) nargv;
+
   fclose (file);
 
   free (path);
-  return 0;
-}
-
-/* write config key/value pair to goaccessrc */
-int
-write_conf_file (void)
-{
-  char *path = NULL, *user_home = NULL, *log_format = NULL;
-  FILE *file;
-
-  if (conf.iconfigfile != NULL)
-    path = alloc_string (conf.iconfigfile);
-  else {
-    user_home = getenv ("HOME");
-    if (user_home == NULL)
-      return 1;
-
-    path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
-    sprintf (path, "%s/.goaccessrc", user_home);
-  }
-
-  file = fopen (path, "w");
-  /* no file available */
-  if (file == NULL) {
-    free (path);
-    return 1;
-  }
-
-  /* color scheme */
-  fprintf (file, "color_scheme %d\n", conf.color_scheme);
-
-  /* date format */
-  if (tmp_date_format)
-    fprintf (file, "date_format %s\n", tmp_date_format);
-  else
-    fprintf (file, "date_format %s\n", conf.date_format);
-
-  if (tmp_date_format)
-    free (tmp_date_format);
-
-  /* log format */
-  if (tmp_log_format)
-    log_format = tmp_log_format;
-  else
-    log_format = escape_str (conf.log_format);
-  fprintf (file, "log_format %s\n", log_format);
-
-  if (log_format != NULL)
-    free (log_format);
-
-  /* set target log file */
-  if (conf.ifile)
-    fprintf (file, "log_file %s", conf.ifile);
-
-  fclose (file);
-  if (conf.date_format)
-    free (conf.date_format);
-  if (conf.log_format)
-    free (conf.log_format);
-  free (path);
-
   return 0;
 }
 
