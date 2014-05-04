@@ -37,6 +37,9 @@
 #define TC_NMEMB 256
 #define TC_BNUM  32749
 #define TC_DBPATH "/tmp/"
+#define TC_ZLIB 1
+#define TC_BZ2  2
+
 
 /* B+ Tree - on-disk databases */
 #define DB_BROWSERS "db_browsers.tcb"

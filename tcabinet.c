@@ -113,7 +113,7 @@ tc_db_create (const char *dbname)
   TCBDB *bdb;
   char *path = NULL;
   int ecode;
-  uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
+  uint32_t lcnum, ncnum, lmemb, nmemb, bnum, flags;
 
   path = tc_db_set_path (dbname);
 
@@ -146,9 +146,20 @@ tc_db_create (const char *dbname)
   nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
   bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
 
-  LOG_DEBUG (("lmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
+  /* compression */
+  flags = BDBTLARGE;
+  LOG_DEBUG (("flags: BDBTLARGE"));
+  if (conf.compression == TC_BZ2) {
+    flags |= BDBTBZIP;
+    LOG_DEBUG ((" | BDBTBZIP"));
+  } else if (conf.compression == TC_ZLIB) {
+    flags |= BDBTDEFLATE;
+    LOG_DEBUG ((" | BDBTDEFLATE"));
+  }
+
+  LOG_DEBUG (("\nlmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
   /* set the tuning parameters */
-  tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, BDBTBZIP);
+  tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, flags);
 
   /* attempt to open the database */
   if (!tcbdbopen (bdb, path, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {

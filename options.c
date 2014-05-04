@@ -80,6 +80,7 @@ struct option long_opts[] = {
 #endif
 #ifdef TCB_BTREE
   {"db-path"              , required_argument , 0 ,  0  } ,
+  {"compression"          , required_argument , 0 ,  0  } ,
   {"xmmap"                , required_argument , 0 ,  0  } ,
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
   {"cache-ncnum"          , required_argument , 0 ,  0  } ,
@@ -159,6 +160,10 @@ cmd_help (void)
   printf ("Number of members in each non-leaf page. [%d]\n", TC_NMEMB);
   printf (" --tune-bnum=<number>         ");
   printf ("Number of elements of the bucket array. [%d]\n", TC_BNUM);
+#if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
+  printf (" --compression=<zlib|bz2>     ");
+  printf ("Specifies that each page is compressed with ZLIB|BZ2 encoding.\n");
+#endif
 #endif
   printf (" --no-progress                ");
   printf ("Disable progress metrics.\n");
@@ -307,6 +312,19 @@ read_option_args (int argc, char **argv)
        /* number of elements of the bucket array */
        if (!strcmp ("tune-bnum", long_opts[idx].name))
          conf.tune_bnum = atoi (optarg);
+
+       /* specifies that each page is compressed with X encoding */
+       if (!strcmp ("compression", long_opts[idx].name)) {
+#ifdef HAVE_ZLIB
+         if (!strcmp ("zlib", optarg))
+           conf.compression = TC_ZLIB;
+#endif
+#ifdef HAVE_BZ2
+         if (!strcmp ("bz2", optarg))
+           conf.compression = TC_BZ2;
+#endif
+       }
+
        break;
      case 's':
        display_storage ();

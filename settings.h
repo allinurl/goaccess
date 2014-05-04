@@ -97,6 +97,7 @@ typedef struct GConf_
   int tune_nmemb;
   int tune_bnum;
   int64_t xmmap;
+  int compression;
 } GConf;
 
 char *get_selected_date_str (size_t idx);

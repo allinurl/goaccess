@@ -117,6 +117,7 @@ if test "$WITH_TC" = "yes"; then
       *** Debian based distributions zlib1g-dev
       *** Red Hat based distributions zlib-devel
     ]))
+    AC_DEFINE([HAVE_ZLIB], [1], ["Build using ZLIB"])
     CFLAGS="$CFLAGS $Z_FLAG"
   fi
 
@@ -130,6 +131,7 @@ if test "$WITH_TC" = "yes"; then
       *** Debian based distributions libbz2-dev
       *** Red Hat based distributions bzip2-devel
     ]))
+    AC_DEFINE([HAVE_BZ2], [1], ["Build using BZ2"])
     CFLAGS="$CFLAGS $BZ2_FLAG"
   fi
 
