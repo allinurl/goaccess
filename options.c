@@ -215,10 +215,7 @@ read_option_args (int argc, char **argv)
       break;
     switch (o) {
      case 'f':
-       conf.ifile = realpath (optarg, NULL);
-       if (conf.ifile == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        strerror (errno));
+       conf.ifile = optarg;
        break;
      case 'p':
        /* ignore it */
