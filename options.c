@@ -192,6 +192,8 @@ verify_global_config (int argc, char **argv)
        if (!strcmp ("no-global-config", long_opts[idx].name))
          conf.load_global_config = 0;
        break;
+     case '?':
+       exit (EXIT_FAILURE);
     }
   }
   for (idx = optind; idx < argc; idx++)
