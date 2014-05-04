@@ -110,10 +110,6 @@ parse_conf_file (int *argc, char ***argv)
   /* assumes program name is on argv[0], though, it is not guaranteed */
   append_to_argv (&nargc, &nargv, xstrdup ((char *) *argv[0]));
 
-  /* command line arguments */
-  for (i = 1; i < *argc; i++)
-    append_to_argv (&nargc, &nargv, xstrdup ((char *) (*argv)[i]));
-
   /* determine which config file to open, default or custom */
   path = get_config_file_path ();
   if (path == NULL)
@@ -133,7 +129,7 @@ parse_conf_file (int *argc, char ***argv)
     idx = strcspn (line, " \t");
     if (strlen (line) == idx)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Invalid config key at line: %s", line);
+                     "Malformed config key at line: %s", line);
 
     /* make old config options backwards compatible by
      * substituting underscores with dashes
@@ -148,7 +144,7 @@ parse_conf_file (int *argc, char ***argv)
     idx = strspn (val, " \t");
     if (strlen (line) == idx)
       error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Invalid config value at line: %s", line);
+                     "Malformed config value at line: %s", line);
     val = val + idx;
     val = trim_str (val);
 
@@ -163,6 +159,10 @@ parse_conf_file (int *argc, char ***argv)
     if (strcmp ("true", val) != 0)
       append_to_argv (&nargc, &nargv, xstrdup (val));
   }
+
+  /* give priority to command line arguments */
+  for (i = 1; i < *argc; i++)
+    append_to_argv (&nargc, &nargv, xstrdup ((char *) (*argv)[i]));
 
   *argc = nargc;
   *argv = (char **) nargv;
