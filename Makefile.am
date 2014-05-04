@@ -1,5 +1,9 @@
 #AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = goaccess
+
+confdir = $(sysconfdir)
+dist_conf_DATA = config/goaccess.conf
+
 goaccess_SOURCES = \
    browsers.c      \
    browsers.h      \
@@ -53,9 +57,9 @@ goaccess_SOURCES += \
 endif
 
 if DEBUG
-AM_CFLAGS = -DDEBUG -O0 -g
+AM_CFLAGS = -DDEBUG -O0 -g -DSYSCONFDIR=\"$(sysconfdir)\"
 else
-AM_CFLAGS = -O2
+AM_CFLAGS = -O2 -DSYSCONFDIR=\"$(sysconfdir)\"
 endif
 
 AM_CFLAGS += @GLIB2_CFLAGS@

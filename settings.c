@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "settings.h"
 
@@ -54,6 +55,24 @@ static const GPreConfDate dates = {
   "%Y-%m-%d"  /* CloudFront */
 };
 /* *INDENT-ON* */
+
+static char *
+get_config_file_path (void)
+{
+  char *path = NULL;
+
+  /* determine which config file to open, default or custom */
+  if (conf.iconfigfile != NULL) {
+    path = realpath (conf.iconfigfile, NULL);
+    if (path == NULL)
+      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, strerror (errno));
+  } else if (conf.load_global_config)
+    path = get_global_config ();
+  else
+    path = get_home ();
+
+  return path;
+}
 
 /* clean command line arguments */
 void
@@ -96,18 +115,14 @@ parse_conf_file (int *argc, char ***argv)
     append_to_argv (&nargc, &nargv, xstrdup ((char *) (*argv)[i]));
 
   /* determine which config file to open, default or custom */
-  if (conf.iconfigfile != NULL)
-    path = alloc_string (conf.iconfigfile);
-  else
-    path = get_home ();
-
+  path = get_config_file_path ();
   if (path == NULL)
-    return 1;
+    return ENOENT;
 
   /* could not open conf file, if so prompt conf dialog */
   if ((file = fopen (path, "r")) == NULL) {
     free (path);
-    return 1;
+    return ENOENT;
   }
 
   while (fgets (line, sizeof line, file) != NULL) {

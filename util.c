@@ -174,6 +174,17 @@ get_home (void)
   return path;
 }
 
+char *
+get_global_config (void)
+{
+  char *path = NULL;
+
+  path = xmalloc (snprintf (NULL, 0, "%s/goaccess.conf", SYSCONFDIR) + 1);
+  sprintf (path, "%s/goaccess.conf", SYSCONFDIR);
+
+  return path;
+}
+
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 char *
 convert_date (char *result, char *data, const char *from, const char *to,

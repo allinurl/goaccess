@@ -205,8 +205,6 @@ house_keeping (void)
   free (logger);
 
   /* CONFIGURATION */
-  if (conf.iconfigfile)
-    free (conf.iconfigfile);
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
@@ -783,10 +781,10 @@ main (int argc, char **argv)
 {
   int quit = 0;
 
-  read_conf_file_arg (argc, argv);
+  verify_global_config (argc, argv);
   parse_conf_file (&argc, &argv);
-  /* short + long options */
   parse_cmd_line (argc, argv);
+
   /* initialize storage */
   init_storage ();
   set_locale ();

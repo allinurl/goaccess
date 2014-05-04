@@ -52,8 +52,8 @@ static char short_options[] = "f:e:p:o:"
 struct option long_opts[] = {
   {"log-file"             , required_argument , 0 , 'f' } ,
   {"agent-list"           , no_argument       , 0 , 'a' } ,
-  {"conf-dialog"          , no_argument       , 0 , 'c' } ,
-  {"conf-file"            , required_argument , 0 , 'p' } ,
+  {"config-dialog"        , no_argument       , 0 , 'c' } ,
+  {"config-file"          , required_argument , 0 , 'p' } ,
   {"exclude-ip"           , required_argument , 0 , 'e' } ,
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"http-method"          , no_argument       , 0 , 'M' } ,
@@ -69,6 +69,7 @@ struct option long_opts[] = {
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -103,7 +104,7 @@ cmd_help (void)
   printf ("Enable a list of user-agents by host.\n");
   printf ("                              ");
   printf ("For faster parsing, don't enable this flag.\n");
-  printf (" -c --conf-dialog             ");
+  printf (" -c --config-dialog           ");
   printf ("Prompt log/date configuration window.\n");
   printf (" -d --with-output-resolver    ");
   printf ("Enable IP resolver on HTML|JSON output.\n");
@@ -131,7 +132,7 @@ cmd_help (void)
   printf ("'-o csv' for CSV.\n");
   printf ("                              ");
   printf ("'-o json' for JSON.\n");
-  printf (" -p --conf-file=<filename>    ");
+  printf (" -p --config-file=<filename>  ");
   printf ("Custom configuration file.\n");
   printf (" -q --no-query-string         ");
   printf ("Ignore request's query string.\n");
@@ -174,20 +175,22 @@ cmd_help (void)
 }
 
 void
-read_conf_file_arg (int argc, char **argv)
+verify_global_config (int argc, char **argv)
 {
   int o, idx = 0;
 
-  conf.iconfigfile = NULL;
+  conf.load_global_config = 1;
   while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
     if (-1 == o || EOF == o)
       break;
+
     switch (o) {
      case 'p':
-       conf.iconfigfile = realpath (optarg, NULL);
-       if (conf.iconfigfile == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        strerror (errno));
+       conf.iconfigfile = optarg;
+       break;
+     case 0:
+       if (!strcmp ("no-global-config", long_opts[idx].name))
+         conf.load_global_config = 0;
        break;
     }
   }
@@ -218,10 +221,7 @@ read_option_args (int argc, char **argv)
                         strerror (errno));
        break;
      case 'p':
-       conf.iconfigfile = realpath (optarg, NULL);
-       if (conf.iconfigfile == NULL)
-         error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                        strerror (errno));
+       /* ignore it */
        break;
 #ifdef HAVE_LIBGEOIP
      case 'g':
@@ -265,6 +265,9 @@ read_option_args (int argc, char **argv)
        conf.append_protocol = 1;
        break;
      case 0:
+
+       if (!strcmp ("no-global-config", long_opts[idx].name))
+         break; /* ignore it */
 
        if (!strcmp ("color-scheme", long_opts[idx].name))
          conf.color_scheme = atoi (optarg);

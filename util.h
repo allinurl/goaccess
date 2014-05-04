@@ -45,6 +45,7 @@ char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
 char *float_to_str (float num);
+char *get_global_config (void);
 char *get_home (void);
 char *int_to_str (int d);
 char *left_pad_str (const char *s, int indent);
