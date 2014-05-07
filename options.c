@@ -167,6 +167,8 @@ cmd_help (void)
 #endif
   printf (" --no-progress                ");
   printf ("Disable progress metrics.\n");
+  printf (" --no-global-config           ");
+  printf ("Do not load the global configuration file.\n");
   printf (" --no-color                   ");
   printf ("Disable colored output.\n");
   printf (" --real-os                    ");
