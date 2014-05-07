@@ -825,8 +825,8 @@ verify_format (GLog * logger, GSpinner * spinner)
   /* set log format from goaccessrc if available */
   draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1);
   if (conf.log_format) {
-    log_format = xstrdup (conf.log_format);
-    mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, conf.log_format);
+    log_format = escape_str (conf.log_format);
+    mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
     if (conf.log_format)
       free (conf.log_format);
   }
@@ -835,8 +835,8 @@ verify_format (GLog * logger, GSpinner * spinner)
   draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
                1);
   if (conf.date_format) {
-    date_format = xstrdup (conf.date_format);
-    mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, conf.date_format);
+    date_format = escape_str (conf.date_format);
+    mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
     if (conf.date_format)
       free (conf.date_format);
   }
@@ -933,14 +933,17 @@ verify_format (GLog * logger, GSpinner * spinner)
                       WHITE_RED);
 
        if (date_format && log_format) {
-         conf.date_format = date_format;
-         conf.log_format = log_format;
+         conf.date_format = unescape_str (date_format);
+         conf.log_format = unescape_str (log_format);
 
          /* test log against selected settings */
          if (test_format (logger)) {
            invalid = 1;
            draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
                         WHITE_RED);
+
+           free (conf.log_format);
+           free (conf.date_format);
          }
          /* valid data, reset logger & start parsing */
          else {
