@@ -140,9 +140,9 @@ The following options can also be supplied to the command or specified in the co
 | `--no-global-config`           | Do not load the global configuration file.                                        |
 | `--no-color`                   | Disable colored output.                                                           |
 | `--real-os`                    | Display real OS names. e.g, Windows XP, Snow Leopard.                             |
-| `--color-scheme=<1,2>`         | Choose among color schemes: `1 => Default grey scheme`, `2 => Green scheme`       |
-| `--date-format="<dateformat>"` | Specify log date format.                                                          |
-| `--log-format="<logformat>"`   | Specify log format within double quotes. Inner quotes need to be escaped.         |
+| `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey scheme`, `2 => Green scheme`                    |
+| `--date-format=<dateformat>`   | Specify log date format.                                                          |
+| `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.                              |
 
 ## Usage ##
 
