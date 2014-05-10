@@ -113,7 +113,7 @@ The following options can also be supplied to the command or specified in the co
 | Command Line Option          | Description                                                                       |
 | -----------------------------|-----------------------------------------------------------------------------------|
 | `-f --log-file=<filename>`   | Path to input log file.                                                           |
-| `-a --agent-list`            | Enable a list of user-agents by host. For faster parsing, don't enable this flag. |
+| `-a --agent-list`            | Enable a list of user-agents by host. For faster parsing, don't enable this.      |
 | `-c --config-dialog`         | Prompt log/date configuration window.                                             |
 | `-d --with-output-resolver`  | Enable IP resolver on HTML|JSON output.                                           |
 | `-e --exclude-ip=<IP>`       | Exclude an IP from being counted.                                                 |
