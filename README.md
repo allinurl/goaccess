@@ -107,7 +107,45 @@ Architectures: `i386` `amd64` `armel`
     # cd /usr/ports/sysutils/goaccess/ && make install clean
     $ pkg_add -r goaccess
 
+## Command Line / Config Options ##
+The following options can also be supplied to the command or specified in the configuration file:
+
+| Command Line Option            | Description                                                                       |
+| -------------------------------|-----------------------------------------------------------------------------------|
+| `-f --log-file=<filename>`     | Path to input log file.                                                           |
+| `-a --agent-list`              | Enable a list of user-agents by host. For faster parsing, don't enable this.      |
+| `-c --config-dialog`           | Prompt log/date configuration window.                                             |
+| `-d --with-output-resolver`    | Enable IP resolver on HTML|JSON output.                                           |
+| `-e --exclude-ip=<IP>`         | Exclude an IP from being counted.                                                 |
+| `-g --std-geoip`               | Standard GeoIP database for less memory usage.                                    |
+| `-h --help`                    | This help.                                                                        |
+| `-H --http-protocol `          | Include HTTP request protocol if found.                                           |
+| `-m --with-mouse `             | Enable mouse support on main dashboard.                                           |
+| `-M --http-method`             | Include HTTP request method if found.                                             |
+| `-o --output-format=csv,json`  | Output format: `-o csv` for CSV.  `-o json` for JSON.                             |
+| `-p --config-file=<filename>`  | Custom configuration file.                                                        |
+| `-q --no-query-string`         | Ignore request's query string.                                                    |
+| `-r --no-term-resolver`        | Disable IP resolver on terminal output.                                           |
+| `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.                              |
+| `--geoip-city-data=<path>`     | Specify path to GeoIP City database file. i.e., GeoLiteCity.dat                   |
+| `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
+| `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
+| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [9000]                                     |
+| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [3000]                                 |
+| `--tune-lmemb=<number>`        | Number of members in each leaf page. [128]                                        |
+| `--tune-nmemb=<number>`        | Number of members in each non-leaf page. [256]                                    |
+| `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]                                   |
+| `--compression=<zlib,bz2>`     | Specifies that each page is compressed with ZLIB|BZ2 encoding.                    |
+| `--no-progress`                | Disable progress metrics.                                                         |
+| `--no-global-config`           | Do not load the global configuration file.                                        |
+| `--no-color`                   | Disable colored output.                                                           |
+| `--real-os`                    | Display real OS names. e.g, Windows XP, Snow Leopard.                             |
+| `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey scheme`, `2 => Green scheme`                    |
+| `--date-format=<dateformat>`   | Specify log date format.                                                          |
+| `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.                              |
+
 ## Usage ##
+
 The simplest and fastest usage would be:
 
     # goaccess -f access.log
