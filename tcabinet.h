@@ -40,7 +40,6 @@
 #define TC_ZLIB 1
 #define TC_BZ2  2
 
-
 /* B+ Tree - on-disk databases */
 #define DB_BROWSERS "db_browsers.tcb"
 #define DB_COUNTRIES "db_countries.tcb"
@@ -58,6 +57,9 @@
 #define DB_REFERRERS "db_referrers.tcb"
 #define DB_REFERRING_SITES "db_referring_sites.tcb"
 #define DB_REQUESTS "db_requests.tcb"
+#define DB_REQUEST_KEYS "db_request_keys.tcb"
+#define DB_REQUEST_METHODS "db_request_methods.tcb"
+#define DB_REQUEST_PROTOCOLS "db_request_protocols.tcb"
 #define DB_REQUESTS_STATIC "db_requests_static.tcb"
 #define DB_STATUS_CODE "db_status_code.tcb"
 #define DB_UNIQUE_VIS "db_unique_vis.tcb"
@@ -73,14 +75,17 @@ extern TCBDB *ht_file_serve_usecs;
 extern TCBDB *ht_host_bw;
 extern TCBDB *ht_hostnames;
 extern TCBDB *ht_hosts;
+extern TCBDB *ht_hosts_agents;
 extern TCBDB *ht_host_serve_usecs;
 extern TCBDB *ht_keyphrases;
 extern TCBDB *ht_not_found_requests;
 extern TCBDB *ht_os;
-extern TCBDB *ht_hosts_agents;
 extern TCBDB *ht_referrers;
 extern TCBDB *ht_referring_sites;
+extern TCBDB *ht_request_keys;
 extern TCBDB *ht_requests;
+extern TCBDB *ht_request_methods;
+extern TCBDB *ht_request_protocols;
 extern TCBDB *ht_requests_static;
 extern TCBDB *ht_status_code;
 extern TCBDB *ht_unique_vis;
@@ -96,14 +101,17 @@ extern TCMDB *ht_file_serve_usecs;
 extern TCMDB *ht_host_bw;
 extern TCMDB *ht_hostnames;
 extern TCMDB *ht_hosts;
+extern TCMDB *ht_hosts_agents;
 extern TCMDB *ht_host_serve_usecs;
 extern TCMDB *ht_keyphrases;
 extern TCMDB *ht_not_found_requests;
 extern TCMDB *ht_os;
-extern TCMDB *ht_hosts_agents;
 extern TCMDB *ht_referrers;
 extern TCMDB *ht_referring_sites;
+extern TCMDB *ht_request_keys;
 extern TCMDB *ht_requests;
+extern TCMDB *ht_request_methods;
+extern TCMDB *ht_request_protocols;
 extern TCMDB *ht_requests_static;
 extern TCMDB *ht_status_code;
 extern TCMDB *ht_unique_vis;
@@ -150,5 +158,6 @@ void free_key (BDBCUR * cur, char *key, GO_UNUSED int ksize,
 void init_storage (void);
 void *tc_db_get_str (void *db, const char *k);
 void tc_db_put_str (void *db, const char *k, const char *v);
+char *get_request_meta (const char *k, GReqMeta meta);
 
 #endif

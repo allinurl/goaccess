@@ -996,22 +996,28 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 
 /* add a host item to holder */
 static void
-add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
+add_host_node (GHolder * h, char *key, int hits)
 {
   GSubList *sub_list = new_gsublist ();
-  char *ip = xstrdup (data), *hostname = NULL;
+  char *ip = xstrdup (key), *hostname = NULL;
   int found = 0;
+  uint64_t bw = 0, usecs = 0;
   void *value_ptr;
 
 #ifdef HAVE_LIBGEOIP
-  const char *addr = data;
+  const char *addr = key;
   char country[COUNTRY_LEN] = "";
   char city[CITY_LEN] = "";
 #endif
 
+  /* serve time in usecs */
+  if (conf.serve_usecs)
+    usecs = get_serve_time (key, h->module) / hits;
+  bw = get_bandwidth (key, h->module);
+
   h->items[h->idx].bw += bw;
   h->items[h->idx].hits += hits;
-  h->items[h->idx].data = data;
+  h->items[h->idx].data = key;
   if (conf.serve_usecs)
     h->items[h->idx].usecs = usecs;
   h->items[h->idx].sub_list = sub_list;
@@ -1058,56 +1064,54 @@ add_host_node (GHolder * h, int hits, char *data, uint64_t bw, uint64_t usecs)
 }
 
 static void
-add_os_node (GHolder * h, GOpeSys * opesys, char *data, uint64_t bw)
+add_os_node (GHolder * h, char *key, GOpeSys * opesys)
 {
   GSubList *sub_list;
-  int type_idx = -1;
+  int type_idx = -1, bw = 0;
 
   type_idx = get_item_idx_in_holder (h, opesys->os_type);
   if (type_idx == -1) {
-    h->items[h->idx].bw += bw;
+    /*h->items[h->idx].bw += bw; */
     h->items[h->idx].hits += opesys->hits;
     h->items[h->idx].data = xstrdup (opesys->os_type);
 
     /* data (child) */
     sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, data, opesys->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, opesys->hits, bw);
     h->items[h->idx++].sub_list = sub_list;
     h->sub_items_size++;
   } else {
     sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, data, opesys->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, opesys->hits, bw);
 
     h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].bw += bw;
+    /*h->items[type_idx].bw += bw; */
     h->items[type_idx].hits += opesys->hits;
     h->sub_items_size++;
   }
 }
 
 static void
-add_browser_node (GHolder * h, GBrowser * browser, char *data, uint64_t bw)
+add_browser_node (GHolder * h, char *key, GBrowser * browser)
 {
   GSubList *sub_list;
-  int type_idx = -1;
+  int type_idx = -1, bw = 0;
 
   type_idx = get_item_idx_in_holder (h, browser->browser_type);
   if (type_idx == -1) {
-    h->items[h->idx].bw += bw;
     h->items[h->idx].hits += browser->hits;
     h->items[h->idx].data = xstrdup (browser->browser_type);
 
     /* data (child) */
     sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, data, browser->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, browser->hits, bw);
     h->items[h->idx++].sub_list = sub_list;
     h->sub_items_size++;
   } else {
     sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, data, browser->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, browser->hits, bw);
 
     h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].bw += bw;
     h->items[type_idx].hits += browser->hits;
     h->sub_items_size++;
   }
@@ -1115,50 +1119,63 @@ add_browser_node (GHolder * h, GBrowser * browser, char *data, uint64_t bw)
 
 /* add request items (e.g., method, protocol, request) to holder */
 static void
-add_request_node (GHolder * h, GRequest * request, char *key, uint64_t bw)
+add_request_node (GHolder * h, char *key, int hits)
 {
-  uint64_t usecs = 0;
-  /* serve time in usecs */
-  if (conf.serve_usecs) {
-    usecs = get_serve_time (key, h->module);
-    usecs = usecs / request->hits;
-  }
+  uint64_t usecs = 0, bw = 0;
+  char *request = NULL, *method = NULL, *protocol = NULL;
+
+  if (conf.serve_usecs)
+    usecs = get_serve_time (key, h->module) / hits;
+  bw = get_bandwidth (key, h->module);
+  request = get_request_meta (key, REQUEST);
+  method = get_request_meta (key, REQUEST_METHOD);
+  protocol = get_request_meta (key, REQUEST_PROTOCOL);
+
+  if (request == NULL)
+    return;
+
   h->items[h->idx].bw = bw;
-  h->items[h->idx].data = xstrdup (request->request);
-  h->items[h->idx].hits = request->hits;
-  if (conf.append_method && request->method)
-    h->items[h->idx].method = xstrdup (request->method);
-  if (conf.append_protocol && request->protocol)
-    h->items[h->idx].protocol = xstrdup (request->protocol);
+  h->items[h->idx].data = xstrdup (request);
+  h->items[h->idx].hits = hits;
+
+  if (conf.append_method && method)
+    h->items[h->idx].method = xstrdup (method);
+  if (conf.append_protocol && protocol)
+    h->items[h->idx].protocol = xstrdup (protocol);
   if (conf.serve_usecs)
     h->items[h->idx].usecs = usecs;
   h->idx++;
 
+  if (method)
+    free (method);
+  if (protocol)
+    free (protocol);
+  free (request);
   free (key);
 }
 
 /* add a geolocation item to holder */
 #ifdef HAVE_LIBGEOIP
 static void
-add_geolocation_node (GHolder * h, GLocation * loc, char *data, uint64_t bw)
+add_geolocation_node (GHolder * h, char *key, GLocation * loc)
 {
   GSubList *sub_list;
   int type_idx = -1;
+  uint64_t bw = 0;
 
   type_idx = get_item_idx_in_holder (h, loc->continent);
   if (type_idx == -1) {
-    h->items[h->idx].bw += bw;
     h->items[h->idx].hits += loc->hits;
     h->items[h->idx].data = xstrdup (loc->continent);
 
     /* data (child) */
     sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, data, loc->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, loc->hits, bw);
     h->items[h->idx++].sub_list = sub_list;
     h->sub_items_size++;
   } else {
     sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, data, loc->hits, bw);
+    add_sub_item_back (sub_list, h->module, key, loc->hits, bw);
 
     h->items[type_idx].sub_list = sub_list;
     h->items[type_idx].bw += bw;
@@ -1170,18 +1187,18 @@ add_geolocation_node (GHolder * h, GLocation * loc, char *data, uint64_t bw)
 
 /* add a status code item to holder */
 static void
-add_status_code_node (GHolder * h, int hits, char *data, uint64_t bw)
+add_status_code_node (GHolder * h, char *key, int hits)
 {
   GSubList *sub_list;
   const char *type = NULL, *status = NULL;
   int type_idx = -1;
+  uint64_t bw = 0;
 
-  type = verify_status_code_type (data);
-  status = verify_status_code (data);
+  type = verify_status_code_type (key);
+  status = verify_status_code (key);
 
   type_idx = get_item_idx_in_holder (h, type);
   if (type_idx == -1) {
-    h->items[h->idx].bw += bw;
     h->items[h->idx].hits += hits;
     h->items[h->idx].data = xstrdup (type);
 
@@ -1195,11 +1212,10 @@ add_status_code_node (GHolder * h, int hits, char *data, uint64_t bw)
     add_sub_item_back (sub_list, h->module, xstrdup (status), hits, bw);
 
     h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].bw += bw;
     h->items[type_idx].hits += hits;
     h->sub_items_size++;
   }
-  free (data);
+  free (key);
 }
 
 /* add a first level item to dashboard */
@@ -1407,7 +1423,7 @@ void
 load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
                      GSort sort)
 {
-  char *data;
+  char *key;
   int hits;
   int i, size = 0;
   uint64_t bw = 0;
@@ -1421,48 +1437,42 @@ load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
   h->items = new_gholder_item (h->holder_size);
 
   for (i = 0; i < h->holder_size; i++) {
-    data = xstrdup (raw_data->items[i].key);    /* key */
-    bw = get_bandwidth (data, module);
+    key = xstrdup (raw_data->items[i].key);     /* key */
 
     switch (module) {
      case REQUESTS:
      case REQUESTS_STATIC:
      case NOT_FOUND:
-       add_request_node (h, raw_data->items[i].value, data, bw);
+       hits = (*(int *) raw_data->items[i].value);
+       add_request_node (h, key, hits);
        break;
      case OS:
-       add_os_node (h, raw_data->items[i].value, data, 0);
+       add_os_node (h, key, raw_data->items[i].value);
        break;
      case BROWSERS:
-       add_browser_node (h, raw_data->items[i].value, data, 0);
+       add_browser_node (h, key, raw_data->items[i].value);
        break;
      case HOSTS:
        hits = (*(int *) raw_data->items[i].value);
-       /* serve time in usecs */
-       if (conf.serve_usecs) {
-         usecs = get_serve_time (data, module);
-         usecs = usecs / hits;
-       }
-       add_host_node (h, hits, data, bw, usecs);
+       add_host_node (h, key, hits);
        break;
      case STATUS_CODES:
        hits = (*(int *) raw_data->items[i].value);
-       add_status_code_node (h, hits, data, bw);
+       add_status_code_node (h, key, hits);
        break;
 #ifdef HAVE_LIBGEOIP
      case GEO_LOCATION:
-       add_geolocation_node (h, raw_data->items[i].value, data, 0);
+       add_geolocation_node (h, key, raw_data->items[i].value);
        break;
 #endif
      default:
+       bw = get_bandwidth (key, module);
        hits = (*(int *) raw_data->items[i].value);
        /* serve time in usecs */
-       if (conf.serve_usecs) {
-         usecs = get_serve_time (data, module);
-         usecs = usecs / hits;
-       }
+       if (conf.serve_usecs)
+         usecs = get_serve_time (key, module) / hits;
        h->items[h->idx].bw = bw;
-       h->items[h->idx].data = data;
+       h->items[h->idx].data = key;
        h->items[h->idx].hits = hits;
        if (conf.serve_usecs)
          h->items[h->idx].usecs = usecs;

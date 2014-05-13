@@ -44,12 +44,16 @@ extern GHashTable *ht_not_found_requests;
 extern GHashTable *ht_os;
 extern GHashTable *ht_referrers;
 extern GHashTable *ht_referring_sites;
+extern GHashTable *ht_request_keys;
+extern GHashTable *ht_request_methods;
+extern GHashTable *ht_request_protocols;
 extern GHashTable *ht_requests;
 extern GHashTable *ht_requests_static;
 extern GHashTable *ht_status_code;
 extern GHashTable *ht_unique_vis;
 extern GHashTable *ht_unique_visitors;
 
+char *get_request_meta (const char *k, GReqMeta meta);
 GHashTable *get_ht_by_module (GModule module);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 int process_browser (GHashTable * ht, const char *key,
@@ -72,8 +76,6 @@ void free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
                      GO_UNUSED gpointer user_data);
 void free_os (GO_UNUSED gpointer old_key, gpointer old_value,
               GO_UNUSED gpointer user_data);
-void free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
-                    GO_UNUSED gpointer user_data);
 void init_storage (void);
 
 #endif

@@ -49,19 +49,22 @@ TCBDB *ht_file_bw = NULL;
 TCBDB *ht_file_serve_usecs = NULL;
 TCBDB *ht_host_bw = NULL;
 TCBDB *ht_hostnames = NULL;
-TCBDB *ht_hosts = NULL;
+TCBDB *ht_hosts_agents = NULL;
 TCBDB *ht_host_serve_usecs = NULL;
+TCBDB *ht_hosts = NULL;
 TCBDB *ht_keyphrases = NULL;
 TCBDB *ht_not_found_requests = NULL;
 TCBDB *ht_os = NULL;
-TCBDB *ht_hosts_agents = NULL;
 TCBDB *ht_referrers = NULL;
 TCBDB *ht_referring_sites = NULL;
+TCBDB *ht_request_methods = NULL;
 TCBDB *ht_requests = NULL;
+TCBDB *ht_request_keys = NULL;
+TCBDB *ht_request_protocols = NULL;
 TCBDB *ht_requests_static = NULL;
 TCBDB *ht_status_code = NULL;
-TCBDB *ht_unique_vis = NULL;
 TCBDB *ht_unique_visitors = NULL;
+TCBDB *ht_unique_vis = NULL;
 
 #else
 
@@ -80,7 +83,10 @@ TCMDB *ht_os = NULL;
 TCMDB *ht_hosts_agents = NULL;
 TCMDB *ht_referrers = NULL;
 TCMDB *ht_referring_sites = NULL;
+TCMDB *ht_request_methods = NULL;
 TCMDB *ht_requests = NULL;
+TCMDB *ht_request_keys = NULL;
+TCMDB *ht_request_protocols = NULL;
 TCMDB *ht_requests_static = NULL;
 TCMDB *ht_status_code = NULL;
 TCMDB *ht_unique_vis = NULL;
@@ -206,8 +212,11 @@ init_storage (void)
   ht_os                 = tc_db_create (DB_OS);
   ht_referrers          = tc_db_create (DB_REFERRERS);
   ht_referring_sites    = tc_db_create (DB_REFERRING_SITES);
+  ht_request_methods    = tc_db_create (DB_REQUEST_METHODS);
+  ht_request_protocols  = tc_db_create (DB_REQUEST_PROTOCOLS);
   ht_requests_static    = tc_db_create (DB_REQUESTS_STATIC);
   ht_requests           = tc_db_create (DB_REQUESTS);
+  ht_request_keys       = tc_db_create (DB_REQUEST_KEYS);
   ht_status_code        = tc_db_create (DB_STATUS_CODE);
   ht_unique_visitors    = tc_db_create (DB_UNIQUE_VISITORS);
   ht_unique_vis         = tc_db_create (DB_UNIQUE_VIS);
@@ -227,8 +236,11 @@ init_storage (void)
   ht_os                 = tc_ht_create ();
   ht_referrers          = tc_ht_create ();
   ht_referring_sites    = tc_ht_create ();
+  ht_request_methods    = tc_ht_create ();
+  ht_request_protocols  = tc_ht_create ();
   ht_requests_static    = tc_ht_create ();
   ht_requests           = tc_ht_create ();
+  ht_request_keys       = tc_ht_create ();
   ht_status_code        = tc_ht_create ();
   ht_unique_visitors    = tc_ht_create ();
   ht_unique_vis         = tc_ht_create ();
@@ -414,30 +426,15 @@ tc_db_put_str (void *db, const char *k, const char *v)
 int
 process_request (void *db, const char *k, const GLogItem * glog)
 {
-  GRequest *request;
-  void *value;
-
   if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((value = tc_db_get (db, k)) != NULL) {
-    request = value;
-    request->hits++;
-  } else {
-    request = xcalloc (1, sizeof (GRequest));
-
-    if (conf.append_protocol && glog->protocol)
-      xstrncpy (request->protocol, glog->protocol, REQ_PROTO_LEN);
-    if (conf.append_method && glog->method)
-      xstrncpy (request->method, glog->method, REQ_METHOD_LEN);
-
-    request->request = alloc_string (glog->req);
-    request->hits = 1;
-  }
-
-  tc_db_put (db, k, request, sizeof (GRequest));
-  if (request)
-    free (request);
+  tc_db_add_int (db, k);
+  if (conf.append_protocol && glog->protocol)
+    tc_db_put_str (ht_request_protocols, k, glog->protocol);
+  if (conf.append_method && glog->method)
+    tc_db_put_str (ht_request_methods, k, glog->method);
+  tc_db_put_str (ht_request_keys, k, glog->req);
 
   return 0;
 }
@@ -659,6 +656,39 @@ get_bandwidth (char *k, GModule module)
   return bw;
 }
 
+char *
+get_request_meta (const char *k, GReqMeta meta)
+{
+#ifdef TCB_BTREE
+  TCBDB *db = NULL;
+#else
+  TCMDB *db = NULL;
+#endif
+  void *value;
+
+  switch (meta) {
+   case REQUEST:
+     db = ht_request_keys;
+     break;
+   case REQUEST_METHOD:
+     db = ht_request_methods;
+     break;
+   case REQUEST_PROTOCOL:
+     db = ht_request_protocols;
+     break;
+   default:
+     db = NULL;
+  }
+
+  if (db == NULL)
+    return 0;
+
+  if ((value = tc_db_get_str (db, k)) != NULL)
+    return (char *) value;
+
+  return alloc_string ("---");
+}
+
 #ifdef TCB_BTREE
 TCBDB *
 get_ht_by_module (GModule module)
@@ -766,54 +796,12 @@ get_ht_by_module (GModule module)
 #endif
 
 static void
-free_req (GRequest * request)
-{
-  if (request->request)
-    free (request->request);
-  free (request);
-}
-
-static void
 set_raw_data (char *key, void *value, GRawData * raw_data)
 {
   raw_data->items[raw_data->idx].key = key;
   raw_data->items[raw_data->idx].value = value;
   raw_data->idx++;
 }
-
-/* This function frees all the requests fields from GRequest.
- *
- * Note: we need to go over all of them before exiting the program
- * since TokyoCabinet keeps the same pointer at all times.
- */
-#ifdef TCB_BTREE
-void
-free_requests (BDBCUR * cur, char *key, GO_UNUSED int ksize,
-               GO_UNUSED void *user_data)
-{
-  GRequest *request;
-  int vsize = 0;
-
-  request = tcbdbcurval (cur, &vsize);
-  if (request)
-    free_req (request);
-  free (key);
-  tcbdbcurnext (cur);
-}
-#endif
-
-#ifdef TCB_MEMHASH
-void
-free_requests (TCMDB * mdb, char *key, GO_UNUSED int ksize,
-               GO_UNUSED void *user_data)
-{
-  GRequest *request;
-  request = tc_db_get (mdb, key);
-  if (request)
-    free_req (request);
-  free (key);
-}
-#endif
 
 #ifdef TCB_BTREE
 static void

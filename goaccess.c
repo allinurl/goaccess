@@ -147,10 +147,6 @@ house_keeping (void)
 
   /* STORAGE */
 #ifdef HAVE_LIBTOKYOCABINET
-  tc_db_foreach (ht_requests, free_requests, NULL);
-  tc_db_foreach (ht_requests_static, free_requests, NULL);
-  tc_db_foreach (ht_not_found_requests, free_requests, NULL);
-
 #ifdef HAVE_LIBGEOIP
   tc_db_close (ht_countries, DB_COUNTRIES);
 #endif
@@ -167,6 +163,9 @@ house_keeping (void)
   tc_db_close (ht_os, DB_OS);
   tc_db_close (ht_referrers, DB_REFERRERS);
   tc_db_close (ht_referring_sites, DB_REFERRING_SITES);
+  tc_db_close (ht_request_protocols, DB_REQUEST_PROTOCOLS);
+  tc_db_close (ht_request_methods, DB_REQUEST_METHODS);
+  tc_db_close (ht_request_keys, DB_REQUEST_KEYS);
   tc_db_close (ht_requests, DB_REQUESTS);
   tc_db_close (ht_requests_static, DB_REQUESTS_STATIC);
   tc_db_close (ht_status_code, DB_STATUS_CODE);
@@ -176,10 +175,6 @@ house_keeping (void)
 #ifdef HAVE_LIBGEOIP
   g_hash_table_foreach (ht_countries, free_countries, NULL);
 #endif
-  g_hash_table_foreach (ht_requests, free_requests, NULL);
-  g_hash_table_foreach (ht_requests_static, free_requests, NULL);
-  g_hash_table_foreach (ht_not_found_requests, free_requests, NULL);
-
   g_hash_table_foreach (ht_os, free_os, NULL);
   g_hash_table_foreach (ht_browsers, free_browser, NULL);
 
@@ -787,13 +782,14 @@ main (int argc, char **argv)
 
   /* initialize storage */
   init_storage ();
+  /* setup to use the current locale */
   set_locale ();
 
 #ifdef HAVE_LIBGEOIP
-  /* Open custom GeoIP database */
+  /* open custom GeoIP database */
   if (conf.geoip_city_data != NULL)
     geo_location_data = geoip_open_db (conf.geoip_city_data);
-  /* Fall back to legacy GeoIP database */
+  /* fall back to legacy GeoIP database */
   else
     geo_location_data = GeoIP_new (conf.geo_db);
 #endif

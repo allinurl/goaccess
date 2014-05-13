@@ -123,17 +123,6 @@ cmp_raw_num_desc (const void *a, const void *b)
 
 /* sort raw numeric descending */
 int
-cmp_raw_req_num_desc (const void *a, const void *b)
-{
-  const GRawDataItem *ia = a;
-  const GRawDataItem *ib = b;
-  GRequest *areq = ia->value;
-  GRequest *breq = ib->value;
-  return (int) (breq->hits - areq->hits);
-}
-
-/* sort raw numeric descending */
-int
 cmp_raw_os_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -1097,12 +1086,6 @@ sort_raw_data (GRawData * raw_data, GModule module, int ht_size)
   switch (module) {
    case VISITORS:
      qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     qsort (raw_data->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_req_num_desc);
      break;
    case OS:
      qsort (raw_data->items, ht_size, sizeof (GRawDataItem),

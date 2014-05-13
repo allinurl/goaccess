@@ -73,6 +73,13 @@ extern size_t term_w;
 #define BROWSER_TYPE_LEN 10
 #define OPESYS_TYPE_LEN  10
 
+typedef enum
+{
+  REQUEST,
+  REQUEST_METHOD,
+  REQUEST_PROTOCOL
+} GReqMeta;
+
 typedef enum MODULES
 {
   VISITORS,
@@ -127,14 +134,6 @@ typedef struct GHolder_
   int holder_size;              /* total num of items (first level) */
   int sub_items_size;           /* total number of sub items        */
 } GHolder;
-
-typedef struct GRequest_
-{
-  char method[REQ_METHOD_LEN];
-  char protocol[REQ_PROTO_LEN];
-  char *request;
-  int hits;
-} GRequest;
 
 typedef struct GOpeSys_
 {

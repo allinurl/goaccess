@@ -87,7 +87,6 @@ int cmp_raw_data_desc (const void *a, const void *b);
 int cmp_raw_geo_num_desc (const void *a, const void *b);
 int cmp_raw_num_desc (const void *a, const void *b);
 int cmp_raw_os_num_desc (const void *a, const void *b);
-int cmp_raw_req_num_desc (const void *a, const void *b);
 int cmp_usec_asc (const void *a, const void *b);
 int cmp_usec_desc (const void *a, const void *b);
 int parse_log (GLog ** logger, char *tail, int n);

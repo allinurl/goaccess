@@ -60,6 +60,9 @@ GHashTable *ht_not_found_requests = NULL;
 GHashTable *ht_os = NULL;
 GHashTable *ht_referrers = NULL;
 GHashTable *ht_referring_sites = NULL;
+GHashTable *ht_request_keys = NULL;
+GHashTable *ht_request_methods = NULL;
+GHashTable *ht_request_protocols = NULL;
 GHashTable *ht_requests = NULL;
 GHashTable *ht_requests_static = NULL;
 GHashTable *ht_status_code = NULL;
@@ -70,69 +73,48 @@ GHashTable *ht_unique_vis = NULL;
 void
 init_storage (void)
 {
-  ht_unique_visitors =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_referrers =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_unique_vis =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_hosts =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_status_code =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_referring_sites =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_keyphrases =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, g_free);
-  ht_file_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_host_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_date_bw =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_hosts_agents =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-  ht_hostnames =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
+  ht_date_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_file_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   ht_file_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_host_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_hostnames =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_hosts_agents =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   ht_host_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, (GDestroyNotify) g_free,
-                           g_free);
-
-  /* The following tables contain s structure as their value, thus we
-     use a special iterator to free its value */
-  ht_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_requests_static =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
   ht_not_found_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_os =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_browsers =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
-  ht_countries =
-    g_hash_table_new_full (g_str_hash, g_str_equal,
-                           (GDestroyNotify) free_key_value, NULL);
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_request_keys =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_request_methods =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_request_protocols =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_requests = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_requests_static =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  ht_keyphrases =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_referring_sites =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_status_code =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_hosts = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_unique_vis =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_referrers =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_unique_visitors =
+    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+
+  /* The following tables contain a structure as their value, thus we
+     use a special iterator to free its value */
+  ht_browsers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  ht_countries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  ht_os = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
 }
 
 #ifdef HAVE_LIBGEOIP
@@ -159,15 +141,6 @@ free_browser (GO_UNUSED gpointer old_key, gpointer old_value,
 {
   GBrowser *browser = old_value;
   free (browser);
-}
-
-void
-free_requests (GO_UNUSED gpointer old_key, gpointer old_value,
-               GO_UNUSED gpointer user_data)
-{
-  GRequest *req = old_value;
-  free (req->request);
-  free (req);
 }
 
 /* free memory allocated by g_hash_table_new_full() function */
@@ -254,30 +227,37 @@ process_browser (GHashTable * ht, const char *key, const char *browser_type)
   return 0;
 }
 
+static void
+process_request_protocol (const char *key, const char *protocol)
+{
+  g_hash_table_replace (ht_request_protocols, g_strdup (key),
+                        g_strdup (protocol));
+}
+
+static void
+process_request_method (const char *key, const char *method)
+{
+  g_hash_table_replace (ht_request_methods, g_strdup (key), g_strdup (method));
+}
+
+static void
+process_request_keys (const char *key, const char *request)
+{
+  g_hash_table_replace (ht_request_keys, g_strdup (key), g_strdup (request));
+}
+
 int
 process_request (GHashTable * ht, const char *key, const GLogItem * glog)
 {
-  GRequest *request;
   if ((ht == NULL) || (key == NULL))
     return (EINVAL);
 
-  request = g_hash_table_lookup (ht, key);
-  if (request != NULL) {
-    request->hits++;
-  } else {
-    request = xcalloc (1, sizeof (GRequest));
-
-    if (conf.append_protocol && glog->protocol)
-      xstrncpy (request->protocol, glog->protocol, REQ_PROTO_LEN);
-    if (conf.append_method && glog->method)
-      xstrncpy (request->method, glog->method, REQ_METHOD_LEN);
-
-    request->request = alloc_string (glog->req);
-    request->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_requests" */
-  g_hash_table_replace (ht, g_strdup (key), request);
+  process_generic_data (ht, key);
+  if (conf.append_protocol && glog->protocol)
+    process_request_protocol (key, glog->protocol);
+  if (conf.append_method && glog->method)
+    process_request_method (key, glog->method);
+  process_request_keys (key, glog->req);
 
   return 0;
 }
@@ -428,6 +408,36 @@ process_host_agents (char *host, char *agent)
   if (a != NULL)
     free (a);
   return 0;
+}
+
+char *
+get_request_meta (const char *k, GReqMeta meta)
+{
+  GHashTable *ht = NULL;
+  gpointer value_ptr;
+
+  switch (meta) {
+   case REQUEST:
+     ht = ht_request_keys;
+     break;
+   case REQUEST_METHOD:
+     ht = ht_request_methods;
+     break;
+   case REQUEST_PROTOCOL:
+     ht = ht_request_protocols;
+     break;
+   default:
+     ht = NULL;
+  }
+
+  if (ht == NULL)
+    return 0;
+
+  value_ptr = g_hash_table_lookup (ht, k);
+  if (value_ptr != NULL)
+    return xstrdup ((char *) value_ptr);
+
+  return alloc_string ("---");
 }
 
 uint64_t
