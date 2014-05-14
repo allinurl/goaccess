@@ -165,6 +165,12 @@ cmd_help (void)
   printf ("Specifies that each page is compressed with ZLIB|BZ2 encoding.\n");
 #endif
 #endif
+  printf (" --color-scheme=<1|2>         ");
+  printf ("Color schemes: 1 => Default grey scheme, 2 => Green scheme.\n");
+  printf (" --date-format=<dateformat>   ");
+  printf ("Specify log date format.\n");
+  printf (" --log-format=\"<logformat>\"   ");
+  printf ("Specify log format. Inner quotes need to be escaped.\n");
   printf (" --no-progress                ");
   printf ("Disable progress metrics.\n");
   printf (" --no-global-config           ");
