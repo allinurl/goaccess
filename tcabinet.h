@@ -31,8 +31,8 @@
 #include "parser.h"
 
 #define TC_MMAP  0
-#define TC_LCNUM 9000
-#define TC_NCNUM 3000
+#define TC_LCNUM 1024
+#define TC_NCNUM 512
 #define TC_LMEMB 128
 #define TC_NMEMB 256
 #define TC_BNUM  32749
