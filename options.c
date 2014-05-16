@@ -97,88 +97,102 @@ cmd_help (void)
 {
   printf ("\nGoAccess - %s\n\n", GO_VERSION);
   printf ("Usage: ");
-  printf ("goaccess -f log_file [-c][-r][-m][-h][-q][-d][...]\n\n");
+  printf ("goaccess [ options ... ] -f log_file [-c][-M][-H][-q][-d][...]\n");
   printf ("The following options can also be supplied to the command:\n\n");
-  printf (" -f --log-file=<filename>     ");
-  printf ("Path to input log file.\n");
-  printf (" -a --agent-list              ");
-  printf ("Enable a list of user-agents by host.\n");
-  printf ("                              ");
-  printf ("For faster parsing, don't enable this flag.\n");
-  printf (" -c --config-dialog           ");
+
+  /* Log & Date Format Options */
+  printf ("Log & Date Format Options\n\n");
+  printf ("  --date-format=<dateformat>  - ");
+  printf ("Specify log date format.\n");
+  printf ("  --log-format=<logformat>    - ");
+  printf ("Specify log format. Inner quotes need to be escaped.\n\n");
+
+  /* User Interface Options */
+  printf ("User Interface Options\n\n");
+  printf ("  -c --config-dialog           - ");
   printf ("Prompt log/date configuration window.\n");
-  printf (" -d --with-output-resolver    ");
-  printf ("Enable IP resolver on HTML|JSON output.\n");
-  printf (" -e --exclude-ip=<IP>         ");
-  printf ("Exclude an IP from being counted.\n");
-#ifdef HAVE_LIBGEOIP
-  printf (" -g --std-geoip               ");
-  printf ("Standard GeoIP database for less memory usage.\n");
-#endif
+  printf ("  --color-scheme=<1|2>         - ");
+  printf ("Color schemes: 1 => Default grey scheme, 2 => Green scheme.\n");
+  printf ("  --no-color                   - ");
+  printf ("Disable colored output.\n\n");
+
+  /* File Options */
+  printf ("File Options\n\n");
+  printf ("  -f --log-file=<filename>     - ");
+  printf ("Path to input log file.\n");
+  printf ("  -p --config-file=<filename>  - ");
+  printf ("Custom configuration file.\n");
 #ifdef DEBUG
-  printf (" -l --debug-file=<filename>   ");
+  printf ("  -l --debug-file=<filename>   - ");
   printf ("Send all debug messages to the specified file.\n");
 #endif
-  printf (" -h --help                    ");
-  printf ("This help.\n");
-  printf (" -H --http-protocol           ");
-  printf ("Include HTTP request protocol if found.\n");
-  printf (" -m --with-mouse              ");
-  printf ("Enable mouse support on main dashboard.\n");
-  printf (" -M --http-method             ");
+  printf ("  --no-global-config           - ");
+  printf ("Do not load the global configuration file.\n\n");
+
+  /* Parse Options */
+  printf ("Parse Options\n\n");
+  printf ("  -e --exclude-ip=<IP>         - ");
+  printf ("Exclude an IP from being counted.\n");
+  printf ("  -a --agent-list              - ");
+  printf ("Enable a list of user-agents by host.\n");
+  printf ("  -M --http-method             - ");
   printf ("Include HTTP request method if found.\n");
-  printf (" -o --output-format=csv|json  ");
-  printf ("Output format:\n");
-  printf ("                              ");
-  printf ("'-o csv' for CSV.\n");
-  printf ("                              ");
-  printf ("'-o json' for JSON.\n");
-  printf (" -p --config-file=<filename>  ");
-  printf ("Custom configuration file.\n");
-  printf (" -q --no-query-string         ");
+  printf ("  -H --http-protocol           - ");
+  printf ("Include HTTP request protocol if found.\n");
+  printf ("  -q --no-query-string         - ");
   printf ("Ignore request's query string.\n");
-  printf (" -r --no-term-resolver        ");
+  printf ("  -r --no-term-resolver        - ");
   printf ("Disable IP resolver on terminal output.\n");
-  printf (" -s --storage                 ");
-  printf ("Display current storage method. i.e., B+ Tree, Hash.\n");
+  printf ("  -o --output-format=csv|json  - ");
+  printf ("Output either a JSON or a CSV file.\n");
+  printf ("  -m --with-mouse              - ");
+  printf ("Enable mouse support on main dashboard.\n");
+  printf ("  -d --with-output-resolver    - ");
+  printf ("Enable IP resolver on HTML|JSON output.\n");
+  printf ("  --real-os                    - ");
+  printf ("Display real OS names. e.g, Windows XP, Snow Leopard.\n");
+  printf ("  --no-progress                - ");
+  printf ("Disable progress metrics.\n\n");
+
+  /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
-  printf (" --geoip-city-data=<path>     ");
-  printf ("Specify path to GeoIP City database file. i.e., GeoLiteCity.dat\n");
+  printf ("GeoIP Options\n\n");
+  printf ("  -g --std-geoip               - ");
+  printf ("Standard GeoIP database for less memory usage.\n");
+  printf ("  --geoip-city-data=<path>     - ");
+  printf
+    ("Specify path to GeoIP City database file. i.e., GeoLiteCity.dat\n\n");
 #endif
+
+  /* On-Disk Database Options */
 #ifdef TCB_BTREE
-  printf (" --db-path=<path>             ");
+  printf ("On-Disk Database Options\n\n");
+  printf ("  --db-path=<path>             - ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
-  printf (" --xmmap=<number>             ");
+  printf ("  --xmmap=<number>             - ");
   printf ("Set the size in bytes of the extra mapped memory. [%d]\n", TC_MMAP);
-  printf (" --cache-lcnum=<number>       ");
+  printf ("  --cache-lcnum=<number>       - ");
   printf ("Max number of leaf nodes to be cached. [%d]\n", TC_LCNUM);
-  printf (" --cache-ncnum=<number>       ");
+  printf ("  --cache-ncnum=<number>       - ");
   printf ("Max number of non-leaf nodes to be cached. [%d]\n", TC_NCNUM);
-  printf (" --tune-lmemb=<number>        ");
+  printf ("  --tune-lmemb=<number>        - ");
   printf ("Number of members in each leaf page. [%d]\n", TC_LMEMB);
-  printf (" --tune-nmemb=<number>        ");
+  printf ("  --tune-nmemb=<number>        - ");
   printf ("Number of members in each non-leaf page. [%d]\n", TC_NMEMB);
-  printf (" --tune-bnum=<number>         ");
+  printf ("  --tune-bnum=<number>         - ");
   printf ("Number of elements of the bucket array. [%d]\n", TC_BNUM);
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  printf (" --compression=<zlib|bz2>     ");
-  printf ("Specifies that each page is compressed with ZLIB|BZ2 encoding.\n");
+  printf ("  --compression=<zlib|bz2>     - ");
+  printf ("Specifies that each page is compressed with ZLIB|BZ2 encoding.\n\n");
 #endif
 #endif
-  printf (" --color-scheme=<1|2>         ");
-  printf ("Color schemes: 1 => Default grey scheme, 2 => Green scheme.\n");
-  printf (" --date-format=<dateformat>   ");
-  printf ("Specify log date format.\n");
-  printf (" --log-format=\"<logformat>\"   ");
-  printf ("Specify log format. Inner quotes need to be escaped.\n");
-  printf (" --no-progress                ");
-  printf ("Disable progress metrics.\n");
-  printf (" --no-global-config           ");
-  printf ("Do not load the global configuration file.\n");
-  printf (" --no-color                   ");
-  printf ("Disable colored output.\n");
-  printf (" --real-os                    ");
-  printf ("Display real OS names. e.g, Windows XP, Snow Leopard.\n\n");
+
+  /* Other Options */
+  printf ("Other Options\n\n");
+  printf ("  -h --help                    - ");
+  printf ("This help.\n");
+  printf ("  -s --storage                 - ");
+  printf ("Display current storage method. i.e., B+ Tree, Hash.\n\n");
 
   printf ("Examples can be found by running `man goaccess`.\n\n");
   printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
