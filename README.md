@@ -130,8 +130,8 @@ The following options can also be supplied to the command or specified in the co
 | `--geoip-city-data=<path>`     | Specify path to GeoIP City database file. i.e., GeoLiteCity.dat                   |
 | `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
 | `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
-| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [9000]                                     |
-| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [3000]                                 |
+| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [1024]                                     |
+| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [512]                                  |
 | `--tune-lmemb=<number>`        | Number of members in each leaf page. [128]                                        |
 | `--tune-nmemb=<number>`        | Number of members in each non-leaf page. [256]                                    |
 | `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]                                   |
