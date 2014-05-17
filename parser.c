@@ -1019,7 +1019,7 @@ process_log (GLog * logger, char *line, int test)
   process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
   logger->resp_size += glog->resp_size;
 #ifdef TCB_BTREE
-  tc_db_add_int (ht_general_stats, "bandwidth", glog->resp_size);
+  process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
 #endif
 
   free_logger (glog);

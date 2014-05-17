@@ -355,7 +355,7 @@ get_ht_size (void *db)
 }
 
 /* Add an integer to a record */
-int
+static int
 tc_db_add_int (void *db, const char *k, int n)
 {
 #ifdef TCB_BTREE
@@ -442,9 +442,28 @@ tc_db_get_int (void *db, const char *k)
   if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  if ((value = tc_db_get (db, k)) != NULL)
+  if ((value = tc_db_get (db, k)) != NULL) {
     num = (*(int *) value);
-  free (value);
+    free (value);
+  }
+
+  return num;
+}
+
+uint64_t
+tc_db_get_uint64 (void *db, const char *k)
+{
+  uint64_t num = 0;
+  void *value;
+
+  if ((db == NULL) || (k == NULL))
+    return (EINVAL);
+
+  if ((value = tc_db_get (db, k)) != NULL) {
+    num = (*(uint64_t *) value);
+    free (value);
+  }
+
   return num;
 }
 

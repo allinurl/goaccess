@@ -152,10 +152,10 @@ int process_host_agents (char *host, char *agent);
 int process_opesys (void *db, const char *k, const char *os_type);
 int process_request_meta (void *db, const char *k, uint64_t size);
 int process_request (void *db, const char *k, const GLogItem * glog);
-int tc_db_add_int (void *db, const char *k, int n);
 int tc_db_get_int (void *db, const char *k);
 uint64_t get_bandwidth (char *k, GModule module);
 uint64_t get_serve_time (const char *k, GModule module);
+uint64_t tc_db_get_uint64 (void *db, const char *k);
 unsigned int get_ht_size (void *db);
 void free_key (BDBCUR * cur, char *key, GO_UNUSED int ksize,
                GO_UNUSED void *user_data);
