@@ -256,7 +256,10 @@ gdns_free_queue (void)
 void
 gdns_thread_create (void)
 {
-  int thread =
+  int thread;
+
+  active_gdns = 1;
+  thread =
     pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
   if (thread)
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,

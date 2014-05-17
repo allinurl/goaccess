@@ -91,13 +91,15 @@ typedef struct GConf_
 
   /* TokyoCabinet */
   char *db_path;
+  int64_t xmmap;
   int cache_lcnum;
   int cache_ncnum;
+  int compression;
+  int keep_db_files;
+  int load_from_disk;
+  int tune_bnum;
   int tune_lmemb;
   int tune_nmemb;
-  int tune_bnum;
-  int64_t xmmap;
-  int compression;
 } GConf;
 
 char *get_selected_date_str (size_t idx);

@@ -79,6 +79,8 @@ struct option long_opts[] = {
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
 #endif
 #ifdef TCB_BTREE
+  {"keep-db-files"        , no_argument       , 0 ,  0  } ,
+  {"load-from-disk"       , no_argument       , 0 ,  0  } ,
   {"db-path"              , required_argument , 0 ,  0  } ,
   {"compression"          , required_argument , 0 ,  0  } ,
   {"xmmap"                , required_argument , 0 ,  0  } ,
@@ -112,7 +114,7 @@ cmd_help (void)
   printf ("  -c --config-dialog           - ");
   printf ("Prompt log/date configuration window.\n");
   printf ("  --color-scheme=<1|2>         - ");
-  printf ("Color schemes: 1 => Default grey scheme, 2 => Green scheme.\n");
+  printf ("Color schemes: 1 => Grey scheme, 2 => Green scheme.\n");
   printf ("  --no-color                   - ");
   printf ("Disable colored output.\n\n");
 
@@ -167,6 +169,10 @@ cmd_help (void)
   /* On-Disk Database Options */
 #ifdef TCB_BTREE
   printf ("On-Disk Database Options\n\n");
+  printf ("  --keep-db-files              - ");
+  printf ("Persist parsed data into disk.\n");
+  printf ("  --load-from-disk             - ");
+  printf ("Load previously stored data from disk.\n");
   printf ("  --db-path=<path>             - ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
   printf ("  --xmmap=<number>             - ");
@@ -312,6 +318,13 @@ read_option_args (int argc, char **argv)
        /* specifies the path of the GeoIP City database file */
        if (!strcmp ("geoip-city-data", long_opts[idx].name))
          conf.geoip_city_data = optarg;
+
+       /* load data from disk */
+       if (!strcmp ("load-from-disk", long_opts[idx].name))
+         conf.load_from_disk = 1;
+       /* keep database files */
+       if (!strcmp ("keep-db-files", long_opts[idx].name))
+         conf.keep_db_files = 1;
 
        /* specifies the path of the database file */
        if (!strcmp ("db-path", long_opts[idx].name))

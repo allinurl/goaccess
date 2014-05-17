@@ -767,6 +767,8 @@ new_gspinner (void)
   spinner->label = "Parsing...";
   spinner->state = SPN_RUN;
   spinner->curses = 0;
+  if (conf.load_from_disk)
+    conf.no_progress = 1;
 
   if (pthread_mutex_init (&(spinner->mutex), NULL))
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,

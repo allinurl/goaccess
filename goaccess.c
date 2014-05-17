@@ -150,22 +150,25 @@ house_keeping (void)
 #ifdef HAVE_LIBGEOIP
   tc_db_close (ht_countries, DB_COUNTRIES);
 #endif
+#ifdef TCB_BTREE
+  tc_db_close (ht_general_stats, DB_GENERAL_STATS);
+#endif
   tc_db_close (ht_browsers, DB_BROWSERS);
   tc_db_close (ht_date_bw, DB_DATE_BW);
   tc_db_close (ht_file_bw, DB_FILE_BW);
   tc_db_close (ht_file_serve_usecs, DB_FILE_SERVE_USECS);
   tc_db_close (ht_host_bw, DB_HOST_BW);
-  tc_db_close (ht_hosts, DB_HOSTS);
   tc_db_close (ht_hosts_agents, DB_HOST_AGENTS);
+  tc_db_close (ht_hosts, DB_HOSTS);
   tc_db_close (ht_host_serve_usecs, DB_HOST_SERVE_USECS);
   tc_db_close (ht_keyphrases, DB_KEYPHRASES);
   tc_db_close (ht_not_found_requests, DB_NOT_FOUND_REQUESTS);
   tc_db_close (ht_os, DB_OS);
   tc_db_close (ht_referrers, DB_REFERRERS);
   tc_db_close (ht_referring_sites, DB_REFERRING_SITES);
-  tc_db_close (ht_request_protocols, DB_REQUEST_PROTOCOLS);
-  tc_db_close (ht_request_methods, DB_REQUEST_METHODS);
   tc_db_close (ht_request_keys, DB_REQUEST_KEYS);
+  tc_db_close (ht_request_methods, DB_REQUEST_METHODS);
+  tc_db_close (ht_request_protocols, DB_REQUEST_PROTOCOLS);
   tc_db_close (ht_requests, DB_REQUESTS);
   tc_db_close (ht_requests_static, DB_REQUESTS_STATIC);
   tc_db_close (ht_status_code, DB_STATUS_CODE);
@@ -378,10 +381,6 @@ render_screens (void)
   update_active_module (header_win, scrolling.current);
 
   display_content (main_win, logger, dash, &scrolling);
-  /* no valid entries to process from the log */
-  if ((logger->process == 0) || (logger->process == logger->invalid))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Nothing valid to process.");
 }
 
 /* collapse the current expanded module */
@@ -744,6 +743,30 @@ get_keys (void)
 }
 
 static void
+set_general_stats (void)
+{
+  logger->process = logger->invalid = 0;
+#ifdef TCB_BTREE
+  logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests");
+  logger->process = tc_db_get_int (ht_general_stats, "total_requests");
+  logger->resp_size = tc_db_get_int (ht_general_stats, "bandwidth");
+#endif
+}
+
+#ifdef HAVE_LIBGEOIP
+static void
+init_geoip (void)
+{
+  /* open custom GeoIP database */
+  if (conf.geoip_city_data != NULL)
+    geo_location_data = geoip_open_db (conf.geoip_city_data);
+  /* fall back to legacy GeoIP database */
+  else
+    geo_location_data = GeoIP_new (conf.geo_db);
+}
+#endif
+
+static void
 set_locale (void)
 {
   char *loc_ctype;
@@ -776,6 +799,7 @@ main (int argc, char **argv)
 {
   int quit = 0;
 
+  /* command line/config options */
   verify_global_config (argc, argv);
   parse_conf_file (&argc, &argv);
   parse_cmd_line (argc, argv);
@@ -786,12 +810,7 @@ main (int argc, char **argv)
   set_locale ();
 
 #ifdef HAVE_LIBGEOIP
-  /* open custom GeoIP database */
-  if (conf.geoip_city_data != NULL)
-    geo_location_data = geoip_open_db (conf.geoip_city_data);
-  /* fall back to legacy GeoIP database */
-  else
-    geo_location_data = GeoIP_new (conf.geo_db);
+  init_geoip ();
 #endif
 
   /* init logger */
@@ -832,22 +851,28 @@ out:
 
   /* main processing event */
   time (&start_proc);
-  if (!quit && parse_log (&logger, NULL, -1))
+  if (conf.load_from_disk)
+    set_general_stats ();
+  else if (!quit && parse_log (&logger, NULL, -1))
     error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
                    "Error while processing file");
-  time (&end_proc);
-  end_spinner ();
+
   logger->offset = logger->process;
+
+  /* no valid entries to process from the log */
+  if ((logger->process == 0) || (logger->process == logger->invalid))
+    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
+                   "Nothing valid to process.");
 
   /* init reverse lookup thread */
   gdns_init ();
+  allocate_holder ();
+
+  end_spinner ();
+  time (&end_proc);
+
   /* stdout */
   if (conf.output_html) {
-    /* no valid entries to process from the log */
-    if ((logger->process == 0) || (logger->process == logger->invalid))
-      goto done;
-
-    allocate_holder ();
     /* CSV */
     if (conf.output_format && strcmp ("csv", conf.output_format) == 0)
       output_csv (logger, holder);
@@ -857,24 +882,22 @@ out:
     /* HTML */
     else
       output_html (logger, holder);
-    goto done;
   }
+  /* curses */
+  else {
+    allocate_data ();
+    if (!conf.skip_term_resolver)
+      gdns_thread_create ();
 
-  allocate_holder ();
-  allocate_data ();
-  if (!conf.skip_term_resolver) {
-    active_gdns = 1;
-    gdns_thread_create ();
+    render_screens ();
+    get_keys ();
+
+    attroff (COLOR_PAIR (COL_WHITE));
+    /* restore tty modes and reset
+     * terminal into non-visual mode */
+    endwin ();
   }
-
-  render_screens ();
-  get_keys ();
-
-  attroff (COLOR_PAIR (COL_WHITE));
-  /* restore tty modes and reset */
-  /* terminal into non-visual mode */
-  endwin ();
-done:
+  /* clean */
   house_keeping ();
 
   return EXIT_SUCCESS;

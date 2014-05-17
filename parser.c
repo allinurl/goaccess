@@ -898,9 +898,9 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
 static int
 process_log (GLog * logger, char *line, int test)
 {
+  GLogItem *glog;
   char buf[DATE_LEN];
   char *qmark = NULL, *req_key = NULL;
-  GLogItem *glog;
   int not_found = 0;            /* 404s */
 
   /* make compiler happy */
@@ -920,6 +920,10 @@ process_log (GLog * logger, char *line, int test)
 
   logger->process++;
 
+#ifdef TCB_BTREE
+  process_generic_data (ht_general_stats, "total_requests");
+#endif
+
   if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
     pthread_mutex_unlock (&parsing_spinner->mutex);
 
@@ -927,12 +931,16 @@ process_log (GLog * logger, char *line, int test)
   if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {
     free_logger (glog);
     logger->invalid++;
+
+#ifdef TCB_BTREE
+    process_generic_data (ht_general_stats, "failed_requests");
+#endif
     return 0;
   }
 
   /* must have the following fields */
-  if (glog->host == NULL || glog->date == NULL || glog->status == NULL
-      || glog->req == NULL) {
+  if (glog->host == NULL || glog->date == NULL || glog->status == NULL ||
+      glog->req == NULL) {
     free_logger (glog);
     logger->invalid++;
     return 0;
@@ -1010,6 +1018,9 @@ process_log (GLog * logger, char *line, int test)
   process_request_meta (ht_file_serve_usecs, req_key, glog->serve_time);
   process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
   logger->resp_size += glog->resp_size;
+#ifdef TCB_BTREE
+  tc_db_add_int (ht_general_stats, "bandwidth", glog->resp_size);
+#endif
 
   free_logger (glog);
   free (req_key);
@@ -1021,7 +1032,6 @@ int
 parse_log (GLog ** logger, char *tail, int n)
 {
   FILE *fp = NULL;
-
   char line[LINE_BUFFER];
   int i = 0, test = -1 == n ? 0 : 1;
 

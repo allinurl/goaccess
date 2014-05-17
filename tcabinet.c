@@ -47,6 +47,7 @@ TCBDB *ht_countries = NULL;
 TCBDB *ht_date_bw = NULL;
 TCBDB *ht_file_bw = NULL;
 TCBDB *ht_file_serve_usecs = NULL;
+TCBDB *ht_general_stats = NULL;
 TCBDB *ht_host_bw = NULL;
 TCBDB *ht_hostnames = NULL;
 TCBDB *ht_hosts_agents = NULL;
@@ -57,10 +58,10 @@ TCBDB *ht_not_found_requests = NULL;
 TCBDB *ht_os = NULL;
 TCBDB *ht_referrers = NULL;
 TCBDB *ht_referring_sites = NULL;
-TCBDB *ht_request_methods = NULL;
-TCBDB *ht_requests = NULL;
 TCBDB *ht_request_keys = NULL;
+TCBDB *ht_request_methods = NULL;
 TCBDB *ht_request_protocols = NULL;
+TCBDB *ht_requests = NULL;
 TCBDB *ht_requests_static = NULL;
 TCBDB *ht_status_code = NULL;
 TCBDB *ht_unique_visitors = NULL;
@@ -167,8 +168,13 @@ tc_db_create (const char *dbname)
   /* set the tuning parameters */
   tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, flags);
 
+  /* open flags */
+  flags = BDBOWRITER | BDBOCREAT;
+  if (!conf.load_from_disk)
+    flags |= BDBOTRUNC;
+
   /* attempt to open the database */
-  if (!tcbdbopen (bdb, path, BDBOWRITER | BDBOCREAT | BDBOTRUNC)) {
+  if (!tcbdbopen (bdb, path, flags)) {
     free (path);
     ecode = tcbdbecode (bdb);
 
@@ -202,6 +208,7 @@ init_storage (void)
   ht_date_bw            = tc_db_create (DB_DATE_BW);
   ht_file_bw            = tc_db_create (DB_FILE_BW);
   ht_file_serve_usecs   = tc_db_create (DB_FILE_SERVE_USECS);
+  ht_general_stats      = tc_db_create (DB_GENERAL_STATS);
   ht_host_bw            = tc_db_create (DB_HOST_BW);
   ht_hostnames          = tc_db_create (DB_HOSTNAMES);
   ht_hosts_agents       = tc_db_create (DB_HOST_AGENTS);
@@ -212,11 +219,11 @@ init_storage (void)
   ht_os                 = tc_db_create (DB_OS);
   ht_referrers          = tc_db_create (DB_REFERRERS);
   ht_referring_sites    = tc_db_create (DB_REFERRING_SITES);
+  ht_request_keys       = tc_db_create (DB_REQUEST_KEYS);
   ht_request_methods    = tc_db_create (DB_REQUEST_METHODS);
   ht_request_protocols  = tc_db_create (DB_REQUEST_PROTOCOLS);
   ht_requests_static    = tc_db_create (DB_REQUESTS_STATIC);
   ht_requests           = tc_db_create (DB_REQUESTS);
-  ht_request_keys       = tc_db_create (DB_REQUEST_KEYS);
   ht_status_code        = tc_db_create (DB_STATUS_CODE);
   ht_unique_visitors    = tc_db_create (DB_UNIQUE_VISITORS);
   ht_unique_vis         = tc_db_create (DB_UNIQUE_VIS);
@@ -268,6 +275,9 @@ tc_db_close (void *db, const char *dbname)
   }
   /* delete the object */
   tcbdbdel (bdb);
+
+  if (conf.keep_db_files || conf.load_from_disk)
+    return 0;
 
   /* remove database file */
   path = tc_db_set_path (dbname);
@@ -345,15 +355,15 @@ get_ht_size (void *db)
 }
 
 /* Add an integer to a record */
-static int
-tc_db_add_int (void *db, const char *k)
+int
+tc_db_add_int (void *db, const char *k, int n)
 {
 #ifdef TCB_BTREE
   TCBDB *bdb = db;
-  return tcbdbaddint (bdb, k, strlen (k), 1) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
+  return tcbdbaddint (bdb, k, strlen (k), n) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
 #else
   TCMDB *mdb = db;
-  return tcmdbaddint (mdb, k, strlen (k), 1) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
+  return tcmdbaddint (mdb, k, strlen (k), n) == 1 ? KEY_NOT_FOUND : KEY_FOUND;
 #endif
 }
 
@@ -361,7 +371,7 @@ tc_db_add_int (void *db, const char *k)
 int
 process_generic_data (void *db, const char *k)
 {
-  return tc_db_add_int (db, k);
+  return tc_db_add_int (db, k, 1);
 }
 
 static void *
@@ -424,12 +434,27 @@ tc_db_put_str (void *db, const char *k, const char *v)
 }
 
 int
+tc_db_get_int (void *db, const char *k)
+{
+  void *value;
+  int num = 0;
+
+  if ((db == NULL) || (k == NULL))
+    return (EINVAL);
+
+  if ((value = tc_db_get (db, k)) != NULL)
+    num = (*(int *) value);
+  free (value);
+  return num;
+}
+
+int
 process_request (void *db, const char *k, const GLogItem * glog)
 {
   if ((db == NULL) || (k == NULL))
     return (EINVAL);
 
-  tc_db_add_int (db, k);
+  process_generic_data (db, k);
   if (conf.append_protocol && glog->protocol)
     tc_db_put_str (ht_request_protocols, k, glog->protocol);
   if (conf.append_method && glog->method)
