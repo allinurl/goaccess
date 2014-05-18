@@ -750,6 +750,8 @@ set_general_stats (void)
   logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests");
   logger->process = tc_db_get_int (ht_general_stats, "total_requests");
   logger->resp_size = tc_db_get_uint64 (ht_general_stats, "bandwidth");
+  if (logger->resp_size > 0)
+    conf.bandwidth = 1;
 #endif
 }
 
