@@ -56,6 +56,23 @@ static const GPreConfDate dates = {
 };
 /* *INDENT-ON* */
 
+/* Ignore the following options */
+static const char *ignore_cmd_opts[] = {
+  "help",
+  "storage",
+};
+
+static int
+in_ignore_cmd_opts (const char *val)
+{
+  size_t i;
+  for (i = 0; i < ARRAY_SIZE (ignore_cmd_opts); i++) {
+    if (strstr (val, ignore_cmd_opts[i]) != NULL)
+      return 1;
+  }
+  return 0;
+}
+
 static char *
 get_config_file_path (void)
 {
@@ -138,6 +155,10 @@ parse_conf_file (int *argc, char ***argv)
       *p = '-';
 
     line[idx] = '\0';
+
+    /* Ignore the following options when reading the config file */
+    if (in_ignore_cmd_opts (line))
+      continue;
 
     /* value */
     val = line + (idx + 1);
