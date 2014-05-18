@@ -36,6 +36,7 @@ static const char *browsers[][2] = {
   /* browsers & offline browsers */
   {"Avant Browser", "Others"},
   {"America Online Browser", "Others"},
+  {"IEMobile", "MSIE"},
   {"MSIE", "MSIE"},
   {"Trident/7.0", "MSIE"},
   {"Flock", "Others"},
