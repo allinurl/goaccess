@@ -1092,8 +1092,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   /* determine amount of sort choices */
   for (i = 0, k = 0; NULL != sort_choices[module][i]; i++) {
     const char *name = sort_choices[module][i];
-    if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs &&
-        !conf.serve_secs)
+    if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs)
       continue;
     else if (strcmp ("Bandwidth", name) == 0 && !conf.bandwidth)
       continue;

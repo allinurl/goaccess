@@ -85,7 +85,6 @@ typedef struct GConf_
   int no_progress;
   int output_html;
   int real_os;
-  int serve_secs;
   int serve_usecs;
   int skip_term_resolver;
 
