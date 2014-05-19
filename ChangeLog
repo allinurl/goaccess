@@ -1,3 +1,30 @@
+Changes to GoAccess 0.8 - Tuesday, May 20, 2014
+  * Added APT-HTTP to the list of browsers.
+  * Added data persistence and ability to load data from disk.
+  * Added IE11 to the list of browsers.
+  * Added IEMobile to the list of browsers.
+  * Added multiple command line options.
+  * Added Nagios check_http to the list of browsers.
+  * Added parsing progress metrics - total requests / requests per second.
+  * Added the ability to parse a GeoLiteCity.dat to get the city given an IPv4.
+  * Change the way the configuration file is parsed.
+    This will parse all configuration options under ~/.goaccessrc or the
+    specified config file and will feed getopt_long with the extracted
+    key/value pairs. This also allows the ability to have comments on the config
+    file which won't be overwritten.
+  * Ensure autoconf determines the location of ncurses headers.
+  * Fixed issue where geo_location_data was NULL.
+  * Fixed issue where GoAccess did not run without a tty allocated to it.
+  * Fixed potential memory leak on --log-file realpath().
+  * Fixed Solaris build errors.
+  * Implemented an on-memory hash database using Tokyo Cabinet.
+    This implementation allows GoAccess not to rely on GLib's hash table
+    if one is needed.
+  * Implemented large file support using an on-disk B+ Tree database.
+    This implementation allows GoAccess not to hold everything in memory
+    but instead it uses an on-disk B+ Tree database.
+  * Trimmed leading and trailing whitespaces from keyphrases module.
+
 Changes to GoAccess 0.7.1 - Monday, February 17, 2014
 
    * Added ability to get real OS names using --real-os. (Android, Windows, Mac)
