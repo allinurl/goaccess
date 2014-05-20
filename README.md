@@ -48,9 +48,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://downloads.sourceforge.net/project/goaccess/0.7.1/goaccess-0.7.1.tar.gz
-    $ tar -xzvf goaccess-0.7.1.tar.gz
-    $ cd goaccess-0.7.1/
+    $ wget http://tar.goaccess.prosoftcorp.com/goaccess-0.8.tar.gz
+    $ tar -xzvf goaccess-0.8.tar.gz
+    $ cd goaccess-0.8/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
@@ -83,8 +83,7 @@ Please note that not all distributions will have the lastest version of GoAccess
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
-This will get you the latest stable version of GoAccess.
-Architectures: `i386` `amd64` `armel`
+***Important*** If APT complains about the public key not being available, "signatures couldn't be verified because the public key is not available", please download the new key.
 
 ### Fedora ###
 
