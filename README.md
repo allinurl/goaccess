@@ -22,10 +22,11 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 * Referring Sites
 * Referrers URLs
 * Keyphrases
-* Geo Location - Continents/Countries
+* Geo Location - Continent/Country/City
 * HTTP Status Codes
 * Ability to output JSON and CSV
 * Different Color Schemes
+* Support for large datasets and data persistence
 * Support for IPv6
 * Output statistics to HTML. See [report](http://goaccess.prosoftcorp.com/goaccess_html_report.html?src=gh).
 
