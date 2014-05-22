@@ -60,7 +60,7 @@ Download, extract and compile GoAccess with:
 
     $ git clone https://github.com/allinurl/goaccess.git
     $ cd goaccess
-    $ autoreconf -fi
+    $ autoreconf -fiv
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
