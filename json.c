@@ -81,19 +81,19 @@ escape_json_output (FILE * fp, char *s)
        fprintf (fp, "\\/");
        break;
      default:
-       if ((uint8_t)*s <= 0x1f) {
-         //CONTROL CHARACTERS (U+0000 through U+001F)
+       if ((uint8_t) * s <= 0x1f) {
+         /* Control characters (U+0000 through U+001F) */
          char buf[8];
-         snprintf(buf, sizeof buf, "\\u%04x", *s);
+         snprintf (buf, sizeof buf, "\\u%04x", *s);
          fprintf (fp, "%s", buf);
-       } else if ((uint8_t)*s == 0xe2 && (uint8_t)*(s + 1) == 0x80 &&
-                  (uint8_t)*(s + 2) == 0xa8) {
-         //LINE SEPARATOR (U+2028)
+       } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                  (uint8_t) * (s + 2) == 0xa8) {
+         /* Line separator (U+2028) */
          fprintf (fp, "\\u2028");
          s += 2;
-       } else if ((uint8_t)*s == 0xe2 && (uint8_t)*(s + 1) == 0x80 &&
-                  (uint8_t)*(s + 2) == 0xa9) {
-         //PARAGRAPH SEPARATOR (U+2019)
+       } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                  (uint8_t) * (s + 2) == 0xa9) {
+         /* Paragraph separator (U+2019) */
          fprintf (fp, "\\u2029");
          s += 2;
        } else {
