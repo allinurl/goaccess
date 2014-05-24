@@ -782,7 +782,6 @@ set_locale (void)
     setlocale (LC_CTYPE, loc_ctype);
   else
     setlocale (LC_CTYPE, "");
-  setlocale (LC_NUMERIC, "");
 }
 
 static void

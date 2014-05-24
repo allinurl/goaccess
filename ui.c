@@ -43,6 +43,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <locale.h>
 
 #include "ui.h"
 
@@ -699,6 +700,7 @@ ui_spinner (void *ptr_data)
     if (sp->state == SPN_END)
       break;
 
+    setlocale (LC_NUMERIC, "");
     if (conf.no_progress) {
       snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
     } else {
@@ -706,6 +708,7 @@ ui_spinner (void *ptr_data)
       psec = tdiff >= 1 ? *(sp->process) / tdiff : 0;
       snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->process), psec);
     }
+    setlocale (LC_NUMERIC, "POSIX");
 
     /* CURSES */
     if (sp->curses) {
