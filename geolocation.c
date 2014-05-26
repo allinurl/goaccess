@@ -63,11 +63,8 @@ geoip_open_db (const char *db)
 {
   GeoIP *geoip;
   geoip = GeoIP_open (db, GEOIP_INDEX_CACHE);
-  if (geoip == NULL) {
-    LOG_DEBUG (("Unable to open GeoIP City database: %s\n", db));
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to open GeoIP City database.");
-  }
+  if (geoip == NULL)
+    FATAL ("Unable to open GeoIP City database: %s\n", db);
   LOG_DEBUG (("Opened GeoIP City database: %s\n", db));
 
   return geoip;

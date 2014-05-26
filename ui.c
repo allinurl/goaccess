@@ -90,8 +90,7 @@ create_win (int h, int w, int y, int x)
 {
   WINDOW *win = newwin (h, w, y, x);
   if (win == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory for new WINDOW.");
+    FATAL ("Unable to allocate memory for new WINDOW.");
   return win;
 }
 
@@ -175,22 +174,19 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
   attron (COLOR_PAIR (COL_WHITE));
   getmaxyx (stdscr, row, col);
   if (row < MIN_HEIGHT || col < MIN_WIDTH)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Minimum screen size - 0 columns by 7 lines");
+    FATAL ("Minimum screen size - 0 columns by 7 lines");
 
   /* init header screen */
   *header_win = newwin (5, col, 0, 0);
   keypad (*header_win, TRUE);
   if (*header_win == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory for header_win.");
+    FATAL ("Unable to allocate memory for header_win.");
 
   /* init main screen */
   *main_win = newwin (row - 7, col, 6, 0);
   keypad (*main_win, TRUE);
   if (*main_win == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory for main_win.");
+    FATAL ("Unable to allocate memory for main_win.");
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
@@ -774,8 +770,7 @@ new_gspinner (void)
     conf.no_progress = 1;
 
   if (pthread_mutex_init (&(spinner->mutex), NULL))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Failed thread mutex");
+    FATAL ("Failed init thread mutex");
 
   return spinner;
 }

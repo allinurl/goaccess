@@ -82,7 +82,7 @@ get_config_file_path (void)
   if (conf.iconfigfile != NULL) {
     path = realpath (conf.iconfigfile, NULL);
     if (path == NULL)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, strerror (errno));
+      FATAL ("%s", strerror (errno));
   } else if (conf.load_global_config)
     path = get_global_config ();
   else
@@ -145,8 +145,7 @@ parse_conf_file (int *argc, char ***argv)
     /* key */
     idx = strcspn (line, " \t");
     if (strlen (line) == idx)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Malformed config key at line: %s", line);
+      FATAL ("Malformed config key at line: %s", line);
 
     /* make old config options backwards compatible by
      * substituting underscores with dashes
@@ -164,8 +163,7 @@ parse_conf_file (int *argc, char ***argv)
     val = line + (idx + 1);
     idx = strspn (val, " \t");
     if (strlen (line) == idx)
-      error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                     "Malformed config value at line: %s", line);
+      FATAL ("Malformed config value at line: %s", line);
     val = val + idx;
     val = trim_str (val);
 

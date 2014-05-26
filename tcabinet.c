@@ -135,18 +135,14 @@ tc_db_create (const char *dbname)
   /* set the caching parameters of a B+ tree database object */
   if (!tcbdbsetcache (bdb, lcnum, ncnum)) {
     free (path);
-    LOG_DEBUG (("Unable to set TCB cache.\n\n"));
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to set TCB cache");
+    FATAL ("Unable to set TCB cache");
   }
 
   LOG_DEBUG (("xmmap: %d\n", conf.xmmap));
   /* set the size of the extra mapped memory */
   if (conf.xmmap > 0 && !tcbdbsetxmsiz (bdb, conf.xmmap)) {
     free (path);
-    LOG_DEBUG (("Unable to set TCB xmmap.\n\n"));
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to set TCB xmmap");
+    FATAL ("Unable to set TCB xmmap.");
   }
 
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
@@ -178,9 +174,7 @@ tc_db_create (const char *dbname)
     free (path);
     ecode = tcbdbecode (bdb);
 
-    LOG_DEBUG (("%s\n\n", tcbdberrmsg (ecode)));
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
+    FATAL ("%s", tcbdberrmsg (ecode));
   }
   free (path);
 
@@ -270,8 +264,7 @@ tc_db_close (void *db, const char *dbname)
   /* close the database */
   if (!tcbdbclose (bdb)) {
     ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
+    FATAL ("%s", tcbdberrmsg (ecode));
   }
   /* delete the object */
   tcbdbdel (bdb);
@@ -395,8 +388,7 @@ tc_db_put (void *db, const char *k, void *v, uint32_t v_size)
   TCBDB *bdb = db;
   if (!tcbdbput (bdb, k, strlen (k), v, v_size)) {
     ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
+    FATAL ("%s", tcbdberrmsg (ecode));
   }
 #else
   TCMDB *mdb = db;
@@ -424,8 +416,7 @@ tc_db_put_str (void *db, const char *k, const char *v)
   TCBDB *bdb = db;
   if (!tcbdbput2 (bdb, k, v)) {
     ecode = tcbdbecode (bdb);
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   tcbdberrmsg (ecode));
+    FATAL ("%s", tcbdberrmsg (ecode));
   }
 #else
   TCMDB *mdb = db;

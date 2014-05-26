@@ -236,13 +236,13 @@ gdns_init (void)
   gqueue_init (gdns_queue, QUEUE_SIZE);
 
   if (pthread_cond_init (&(gdns_thread.not_empty), NULL))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
+    FATAL ("Failed init thread condition");
 
   if (pthread_cond_init (&(gdns_thread.not_full), NULL))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed cond");
+    FATAL ("Failed init thread condition");
 
   if (pthread_mutex_init (&(gdns_thread.mutex), NULL))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, "Failed mutex");
+    FATAL ("Failed init thread mutex");
 }
 
 /* destroy queue */
@@ -262,7 +262,6 @@ gdns_thread_create (void)
   thread =
     pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
   if (thread)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Return code from pthread_create(): %d", thread);
+    FATAL ("Return code from pthread_create(): %d", thread);
   pthread_detach (gdns_thread.thread);
 }
