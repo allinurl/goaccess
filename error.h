@@ -25,7 +25,18 @@
 #include "commons.h"
 #endif
 
+#ifdef HAVE_NCURSESW_NCURSES_H
+#include <ncursesw/ncurses.h>
+#elif HAVE_NCURSES_NCURSES_H
+#include <ncurses/ncurses.h>
+#elif HAVE_NCURSES_H
+#include <ncurses.h>
+#elif HAVE_CURSES_H
+#include <curses.h>
+#endif
+
 #define FATAL(fmt, ...) do {                                        \
+  (void) endwin ();                                                 \
   fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION, \
            __DATE__, __TIME__);                                     \
   fprintf (stderr, "\nFatal error has occurred");                   \
