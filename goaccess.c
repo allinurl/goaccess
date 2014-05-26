@@ -716,8 +716,7 @@ get_keys (void)
        /* file has changed */
        if (size2 != size1) {
          if (!(fp = fopen (conf.ifile, "r")))
-           error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                          "Unable to read log file.");
+           FATAL ("Unable to read log file.");
          if (!fseeko (fp, size1, SEEK_SET))
            while (fgets (buf, LINE_BUFFER, fp) != NULL)
              parse_log (&logger, buf, -1);
@@ -802,6 +801,7 @@ main (int argc, char **argv)
 {
   int quit = 0;
 
+
   /* command line/config options */
   verify_global_config (argc, argv);
   parse_conf_file (&argc, &argv);
@@ -857,15 +857,13 @@ out:
   if (conf.load_from_disk)
     set_general_stats ();
   else if (!quit && parse_log (&logger, NULL, -1))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Error while processing file");
+    FATAL ("Error while processing file");
 
   logger->offset = logger->process;
 
   /* no valid entries to process from the log */
   if ((logger->process == 0) || (logger->process == logger->invalid))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Nothing valid to process.");
+    FATAL ("Nothing valid to process.");
 
   /* init reverse lookup thread */
   gdns_init ();

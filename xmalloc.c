@@ -36,8 +36,7 @@ xmalloc (size_t size)
   void *ptr;
 
   if ((ptr = malloc (size)) == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to allocate memory - failed.");
+    FATAL ("Unable to allocate memory - failed.");
 
   return (ptr);
 }
@@ -62,8 +61,7 @@ xcalloc (size_t nmemb, size_t size)
   void *ptr;
 
   if ((ptr = calloc (nmemb, size)) == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to calloc memory - failed.");
+    FATAL ("Unable to calloc memory - failed.");
 
   return (ptr);
 }
@@ -75,8 +73,7 @@ xrealloc (void *oldptr, size_t size)
   void *newptr;
 
   if ((newptr = realloc (oldptr, size)) == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Unable to reallocate memory - failed");
+    FATAL ("Unable to reallocate memory - failed");
 
   return (newptr);
 }

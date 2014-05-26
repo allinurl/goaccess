@@ -1036,12 +1036,10 @@ parse_log (GLog ** logger, char *tail, int n)
   int i = 0, test = -1 == n ? 0 : 1;
 
   if (conf.date_format == NULL || *conf.date_format == '\0')
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "No date format was found on your conf file.");
+    FATAL ("No date format was found on your conf file.");
 
   if (conf.log_format == NULL || *conf.log_format == '\0')
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "No log format was found on your conf file.");
+    FATAL ("No log format was found on your conf file.");
 
   if (tail != NULL) {
     if (process_log ((*logger), tail, test))
@@ -1056,7 +1054,7 @@ parse_log (GLog ** logger, char *tail, int n)
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__, strerror (errno));
+    FATAL ("%s", strerror (errno));
 
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
     if (n >= 0 && i++ == n)
@@ -1081,8 +1079,7 @@ int
 test_format (GLog * logger)
 {
   if (parse_log (&logger, NULL, 20))
-    error_handler (__PRETTY_FUNCTION__, __FILE__, __LINE__,
-                   "Error while processing file");
+    FATAL ("Error while processing file");
 
   if ((logger->process == 0) || (logger->process == logger->invalid))
     return 1;

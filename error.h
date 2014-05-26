@@ -25,14 +25,15 @@
 #include "commons.h"
 #endif
 
-#define FATAL(x...) do {                                            \
+#define FATAL(fmt, ...) do {                                        \
   fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION, \
            __DATE__, __TIME__);                                     \
   fprintf (stderr, "\nFatal error has occurred");                   \
-  fprintf (stderr, "\nError occured at: %s - %s - %d", __FILE__,    \
+  fprintf (stderr, "\nError occured at: %s - %s - %d\n", __FILE__,  \
            __FUNCTION__, __LINE__);                                 \
-  fprintf (stderr, "\nMessage: %s\n\n", x);                         \
-  LOG_DEBUG (("\nFatal: %s\n\n", x));                               \
+  fprintf (stderr, fmt, ##__VA_ARGS__);                             \
+  fprintf (stderr, "\n\n");                                         \
+  LOG_DEBUG ((fmt, ##__VA_ARGS__));                                 \
   exit(EXIT_FAILURE);                                               \
 } while (0)
 
@@ -40,7 +41,5 @@
 void dbg_fprintf (const char *fmt, ...);
 void dbg_log_close (void);
 void dbg_log_open (const char *file);
-void error_handler (const char *func, const char *file, int line,
-                    const char *msg, ...);
 
 #endif
