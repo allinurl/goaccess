@@ -35,6 +35,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#if defined(__GLIBC__)
+#include <execinfo.h>
+#endif
 
 #include "error.h"
 #include "commons.h"
@@ -57,6 +60,31 @@ dbg_log_close (void)
   if (log_file != NULL)
     fclose (log_file);
 }
+
+#if defined(__GLIBC__)
+void
+sigsegv_handler (int sig)
+{
+  FILE *fp = stderr;
+  char **messages;
+  size_t size, i;
+  void *trace[TRACE_SIZE];
+
+  fprintf (fp, "\n=== GoAccess %s crashed by signal %d ===\n", GO_VERSION, sig);
+
+  size = backtrace (trace, TRACE_SIZE);
+  messages = backtrace_symbols (trace, size);
+
+  fprintf (fp, "\n-- STACK TRACE:\n\n");
+
+  for (i = 0; i < size; i++)
+    fprintf (fp, "\t%zu %s\n", i, messages[i]);
+
+  fprintf (fp, "\nPlease report the crash opening an issue on GitHub:");
+  fprintf (fp, "\nhttps://github.com/allinurl/goaccess/issues\n\n");
+  exit (EXIT_FAILURE);
+}
+#endif
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 void

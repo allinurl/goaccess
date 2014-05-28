@@ -35,6 +35,8 @@
 #include <curses.h>
 #endif
 
+#define TRACE_SIZE 128
+
 #define FATAL(fmt, ...) do {                                        \
   (void) endwin ();                                                 \
   fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION, \
@@ -52,5 +54,9 @@
 void dbg_fprintf (const char *fmt, ...);
 void dbg_log_close (void);
 void dbg_log_open (const char *file);
+
+#if defined(__GLIBC__)
+void sigsegv_handler (int sig);
+#endif
 
 #endif

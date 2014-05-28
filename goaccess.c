@@ -796,11 +796,27 @@ parse_cmd_line (int argc, char **argv)
     cmd_help ();
 }
 
+#if defined(__GLIBC__)
+void
+setup_signal_handlers (void)
+{
+  struct sigaction act;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  act.sa_handler = sigsegv_handler;
+
+  sigaction (SIGSEGV, &act, NULL);
+}
+#endif
+
 int
 main (int argc, char **argv)
 {
   int quit = 0;
 
+#if defined(__GLIBC__)
+  setup_signal_handlers ();
+#endif
 
   /* command line/config options */
   verify_global_config (argc, argv);
