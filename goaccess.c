@@ -40,6 +40,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabinet.h"
@@ -797,7 +798,7 @@ parse_cmd_line (int argc, char **argv)
 }
 
 #if defined(__GLIBC__)
-void
+static void
 setup_signal_handlers (void)
 {
   struct sigaction act;
