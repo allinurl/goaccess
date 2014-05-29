@@ -717,7 +717,7 @@ get_keys (void)
        /* file has changed */
        if (size2 != size1) {
          if (!(fp = fopen (conf.ifile, "r")))
-           FATAL ("Unable to read log file.");
+           FATAL ("Unable to read log file %s.", strerror (errno));
          if (!fseeko (fp, size1, SEEK_SET))
            while (fgets (buf, LINE_BUFFER, fp) != NULL)
              parse_log (&logger, buf, -1);
