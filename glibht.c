@@ -69,52 +69,42 @@ GHashTable *ht_status_code = NULL;
 GHashTable *ht_unique_visitors = NULL;
 GHashTable *ht_unique_vis = NULL;
 
+static GHashTable *
+new_ht (GDestroyNotify d1, GDestroyNotify d2)
+{
+  return g_hash_table_new_full (g_str_hash, g_str_equal, d1, d2);
+}
+
 /* Initialize GLib hash tables */
 void
 init_storage (void)
 {
-  ht_date_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_file_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_file_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_host_bw = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_hostnames =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_hosts_agents =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_host_serve_usecs =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_not_found_requests =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_request_keys =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_request_methods =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_request_protocols =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_requests = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_requests_static =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-
-  ht_keyphrases =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_referring_sites =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_status_code =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_hosts = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_unique_vis =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_referrers =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
-  ht_unique_visitors =
-    g_hash_table_new_full (g_str_hash, g_str_equal, g_free, g_free);
+  ht_date_bw = new_ht (g_free, g_free);
+  ht_file_bw = new_ht (g_free, g_free);
+  ht_file_serve_usecs = new_ht (g_free, g_free);
+  ht_host_bw = new_ht (g_free, g_free);
+  ht_hostnames = new_ht (g_free, g_free);
+  ht_hosts_agents = new_ht (g_free, g_free);
+  ht_host_serve_usecs = new_ht (g_free, g_free);
+  ht_not_found_requests = new_ht (g_free, g_free);
+  ht_request_keys = new_ht (g_free, g_free);
+  ht_request_methods = new_ht (g_free, g_free);
+  ht_request_protocols = new_ht (g_free, g_free);
+  ht_requests = new_ht (g_free, g_free);
+  ht_requests_static = new_ht (g_free, g_free);
+  ht_keyphrases = new_ht (g_free, g_free);
+  ht_referring_sites = new_ht (g_free, g_free);
+  ht_status_code = new_ht (g_free, g_free);
+  ht_hosts = new_ht (g_free, g_free);
+  ht_unique_vis = new_ht (g_free, g_free);
+  ht_referrers = new_ht (g_free, g_free);
+  ht_unique_visitors = new_ht (g_free, g_free);
 
   /* The following tables contain a structure as their value, thus we
      use a special iterator to free its value */
-  ht_browsers = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  ht_countries = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
-  ht_os = g_hash_table_new_full (g_str_hash, g_str_equal, g_free, NULL);
+  ht_browsers = new_ht (g_free, NULL);
+  ht_countries = new_ht (g_free, NULL);
+  ht_os = new_ht (g_free, NULL);
 }
 
 #ifdef HAVE_LIBGEOIP
