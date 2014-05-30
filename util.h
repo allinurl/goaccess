@@ -34,13 +34,14 @@
 #define MINS             60000000ULL
 #define HOUR             3600000000ULL
 
+/* *INDENT-OFF* */
+
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
 char *clean_date (char *s);
 char *clean_month (char *s);
-char *convert_date (char *result, char *data, const char *from, const char *to,
-                    int size);
+char *convert_date (char *result, char *data, const char *from, const char *to, int size);
 char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
@@ -65,5 +66,7 @@ int invalid_ipaddr (char *str);
 off_t file_size (const char *filename);
 void str_to_upper (char *s);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
+
+/* *INDENT-ON* */
 
 #endif
