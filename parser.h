@@ -67,6 +67,7 @@ typedef struct GRawData_
   int size;                     /* total num of items on ht */
 } GRawData;
 
+/* *INDENT-OFF* */
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
 GRawData *new_grawdata (void);
@@ -93,5 +94,6 @@ int parse_log (GLog ** logger, char *tail, int n);
 int test_format (GLog * logger);
 void free_raw_data (GRawData * raw_data);
 void reset_struct (GLog * logger);
+/* *INDENT-ON* */
 
 #endif

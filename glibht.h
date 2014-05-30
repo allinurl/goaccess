@@ -53,14 +53,14 @@ extern GHashTable *ht_status_code;
 extern GHashTable *ht_unique_vis;
 extern GHashTable *ht_unique_visitors;
 
+/* *INDENT-OFF* */
+
 char *get_request_meta (const char *k, GReqMeta meta);
 GHashTable *get_ht_by_module (GModule module);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
-int process_browser (GHashTable * ht, const char *key,
-                     const char *browser_type);
+int process_browser (GHashTable * ht, const char *key, const char *browser_type);
 int process_generic_data (GHashTable * ht, const char *key);
-int process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
-                         const char *city);
+int process_geolocation (GHashTable * ht, const char *ctry, const char *cont, const char *city);
 int process_host_agents (char *host, char *agent);
 int process_opesys (GHashTable * ht, const char *key, const char *os_type);
 int process_request (GHashTable * ht, const char *key, const GLogItem * glog);
@@ -68,14 +68,12 @@ int process_request_meta (GHashTable * ht, char *key, uint64_t size);
 uint32_t get_ht_size (GHashTable * ht);
 uint64_t get_bandwidth (const char *k, GModule module);
 uint64_t get_serve_time (const char *key, GModule module);
-void free_browser (GO_UNUSED gpointer old_key, gpointer old_value,
-                   GO_UNUSED gpointer user_data);
-void free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
-                     GO_UNUSED gpointer user_data);
-void free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
-                     GO_UNUSED gpointer user_data);
-void free_os (GO_UNUSED gpointer old_key, gpointer old_value,
-              GO_UNUSED gpointer user_data);
+void free_browser (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
+void free_countries (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
+void free_key_value (gpointer old_key, GO_UNUSED gpointer old_value, GO_UNUSED gpointer user_data);
+void free_os (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
 void init_storage (void);
+
+/* *INDENT-ON* */
 
 #endif
