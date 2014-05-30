@@ -352,6 +352,8 @@ spc_decode_url (char *url)
     }
   }
   *ptr = 0;
+  strip_newlines (out);
+
   return trim_str (out);
 }
 

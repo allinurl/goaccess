@@ -414,6 +414,18 @@ char_replace (char *str, char o, char n)
   return str;
 }
 
+void
+strip_newlines (char *str)
+{
+  char *src, *dst;
+  for (src = dst = str; *src != '\0'; src++) {
+    *dst = *src;
+    if (*dst != '\r' && *dst != '\n')
+      dst++;
+  }
+  *dst = '\0';
+}
+
 /* strip blanks from a string */
 char *
 deblank (char *str)
