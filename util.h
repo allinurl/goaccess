@@ -65,6 +65,7 @@ int intlen (int num);
 int invalid_ipaddr (char *str);
 off_t file_size (const char *filename);
 void str_to_upper (char *s);
+void strip_newlines (char *str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
 /* *INDENT-ON* */
