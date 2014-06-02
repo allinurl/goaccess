@@ -417,7 +417,7 @@ static void
 process_referrers (char *referrer)
 {
   char *ref;
-  char url[512] = "";
+  char url[REF_SITE_LEN] = "";
 
   if (referrer == NULL)
     return;
