@@ -26,6 +26,7 @@
 #define BW_HASHTABLES   3
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
+#define REF_SITE_LEN    512
 
 #include "commons.h"
 
