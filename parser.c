@@ -333,21 +333,24 @@ free_logger (GLogItem * glog)
   free (glog);
 }
 
-#define SPC_BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') \
-                               : (toupper((x)) - 'A' + 10))
+#define BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : \
+    (toupper((x)) - 'A' + 10))
+
 static char *
-spc_decode_url (char *url)
+decode_url (char *url)
 {
   char *out, *ptr;
   const char *c;
 
-  if (!(out = ptr = xstrdup (url)))
-    return 0;
+  if ((url == NULL) || (*url == '\0'))
+    return NULL;
+
+  out = ptr = xstrdup (url);
   for (c = url; *c; c++) {
     if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2]))
       *ptr++ = *c;
     else {
-      *ptr++ = (SPC_BASE16_TO_10 (c[1]) * 16) + (SPC_BASE16_TO_10 (c[2]));
+      *ptr++ = (BASE16_TO_10 (c[1]) * 16) + (BASE16_TO_10 (c[2]));
       c += 2;
     }
   }
@@ -357,48 +360,54 @@ spc_decode_url (char *url)
   return trim_str (out);
 }
 
-/* process keyphrases used on Google search, Google cache, and
- * Google translate. */
+/* Process keyphrases from Google search, cache, and translate.
+ * Note that the referer hasn't been decoded at the entry point
+ * since there could be '&' within the search query. */
 static int
 process_keyphrases (char *ref)
 {
-  char *r, *ptr, *p, *dec, *pch;
+  char *r, *ptr, *pch, *referer;
+  int encoded = 0;
 
   if (!(strstr (ref, "http://www.google.")) &&
       !(strstr (ref, "http://webcache.googleusercontent.com/")) &&
       !(strstr (ref, "http://translate.googleusercontent.com/")))
     return 1;
 
+  /* webcache.googleusercontent */
   if ((r = strstr (ref, "/+&")) != NULL)
     return 1;
+  /* webcache.googleusercontent */
   else if ((r = strstr (ref, "/+")) != NULL)
     r += 2;
+  /* webcache.googleusercontent */
   else if ((r = strstr (ref, "q=cache:")) != NULL) {
     pch = strchr (r, '+');
     if (pch)
       r += pch - r + 1;
-  } else if ((r = strstr (ref, "&q=")) != NULL ||
-             (r = strstr (ref, "?q=")) != NULL)
+  }
+  /* www.google.* or translate.googleusercontent */
+  else if ((r = strstr (ref, "&q=")) != NULL ||
+           (r = strstr (ref, "?q=")) != NULL)
     r += 3;
   else if ((r = strstr (ref, "%26q%3D")) != NULL ||
            (r = strstr (ref, "%3Fq%3D")) != NULL)
-    r += 7;
+    encoded = 1, r += 7;
   else
     return 1;
-  dec = spc_decode_url (r);
-  if ((ptr = strstr (dec, "%26")) != NULL || (ptr = strchr (dec, '&')) != NULL)
+
+  if (!encoded && (ptr = strchr (r, '&')) != NULL)
+    *ptr = '\0';
+  else if (encoded && (ptr = strstr (r, "%26")) != NULL)
     *ptr = '\0';
 
-  p = dec;
-  if (p[0] == '\0') {
-    if (dec != NULL)
-      free (dec);
+  referer = decode_url (r);
+  if (referer == NULL || *referer == '\0')
     return 1;
-  }
-  p = char_replace (p, '+', ' ');
-  process_generic_data (ht_keyphrases, trim_str (dec));
-  if (dec != NULL)
-    free (dec);
+
+  referer = char_replace (referer, '+', ' ');
+  process_generic_data (ht_keyphrases, trim_str (referer));
+  free (referer);
 
   return 0;
 }
@@ -413,12 +422,16 @@ process_referrers (char *referrer)
   if (referrer == NULL)
     return;
 
-  ref = spc_decode_url (referrer);
   /* extract the host part, i.e., www.foo.com */
-  if (sscanf (ref, "%*[^/]%*[/]%[^/]", url) == 1)
+  if (sscanf (referrer, "%*[^/]%*[/]%[^/]", url) == 1)
     process_generic_data (ht_referring_sites, url);
-  process_generic_data (ht_referrers, ref);
   process_keyphrases (referrer);
+
+  ref = decode_url (referrer);
+  if (ref == NULL || *ref == '\0')
+    return;
+
+  process_generic_data (ht_referrers, ref);
   free (ref);
 }
 
@@ -823,11 +836,9 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
            return 1;
          tkn = parse_string (&str, p[1]);
          if (tkn != NULL && *tkn != '\0') {
-           /*
-            * Make sure the user agent is decoded (i.e.: CloudFront)
-            * and replace all '+' with ' ' (i.e.: w3c)
-            */
-           glog->agent = char_replace (spc_decode_url (tkn), '+', ' ');
+           /* Make sure the user agent is decoded (i.e.: CloudFront)
+            * and replace all '+' with ' ' (i.e.: w3c) */
+           glog->agent = char_replace (decode_url (tkn), '+', ' ');
            free (tkn);
            break;
          } else if (tkn != NULL && *tkn == '\0') {
