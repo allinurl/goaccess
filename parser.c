@@ -582,7 +582,7 @@ static char *
 parse_req (char *line, GLogItem * glog)
 {
   const char *lookfor = NULL;
-  char *reqs, *req_l = NULL, *req_r = NULL;
+  char *req, *request, *req_l = NULL, *req_r = NULL;
   char *method = NULL, *protocol = NULL;
   ptrdiff_t req_len;
 
@@ -615,9 +615,9 @@ parse_req (char *line, GLogItem * glog)
     if (req_len <= 0)
       return alloc_string ("-");
 
-    reqs = xmalloc (req_len + 1);
-    strncpy (reqs, req_l, req_len);
-    reqs[req_len] = 0;
+    req = xmalloc (req_len + 1);
+    strncpy (req, req_l, req_len);
+    req[req_len] = 0;
 
     if (conf.append_method) {
       method = trim_str (xstrdup (lookfor));
@@ -631,9 +631,15 @@ parse_req (char *line, GLogItem * glog)
       glog->protocol = protocol;
     }
   } else
-    reqs = alloc_string (line);
+    req = alloc_string (line);
 
-  return reqs;
+  request = decode_url (req);
+  if (request != NULL && *request != '\0') {
+    free (req);
+    return request;
+  }
+
+  return req;
 }
 
 static int
@@ -762,9 +768,11 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
          if (glog->req)
            return 1;
          tkn = parse_string (&str, p[1]);
-         if (tkn == NULL)
+         if (tkn == NULL || *tkn == '\0')
            return 1;
-         glog->req = tkn;
+         if ((glog->req = decode_url (tkn)) == NULL)
+           return 1;
+         free (tkn);
          break;
          /* request protocol */
        case 'H':
