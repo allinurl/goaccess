@@ -107,14 +107,15 @@ cmd_help (void)
   printf ("  --date-format=<dateformat>  - ");
   printf ("Specify log date format.\n");
   printf ("  --log-format=<logformat>    - ");
-  printf ("Specify log format. Inner quotes need to be escaped.\n\n");
+  printf ("Specify log format. Inner quotes need\n");
+  printf ("\t\t\t        to be escaped.\n\n");
 
   /* User Interface Options */
   printf ("User Interface Options\n\n");
   printf ("  -c --config-dialog           - ");
   printf ("Prompt log/date configuration window.\n");
   printf ("  --color-scheme=<1|2>         - ");
-  printf ("Color schemes: 1 => Grey scheme, 2 => Green scheme.\n");
+  printf ("Color schemes: 1 => Grey, 2 => Green.\n");
   printf ("  --no-color                   - ");
   printf ("Disable colored output.\n\n");
 
@@ -126,10 +127,11 @@ cmd_help (void)
   printf ("Custom configuration file.\n");
 #ifdef DEBUG
   printf ("  -l --debug-file=<filename>   - ");
-  printf ("Send all debug messages to the specified file.\n");
+  printf ("Send all debug messages to the\n");
+  printf ("\t\t\t         specified file.\n");
 #endif
   printf ("  --no-global-config           - ");
-  printf ("Do not load the global configuration file.\n\n");
+  printf ("Don't load global configuration file.\n\n");
 
   /* Parse Options */
   printf ("Parse Options\n\n");
@@ -152,7 +154,8 @@ cmd_help (void)
   printf ("  -d --with-output-resolver    - ");
   printf ("Enable IP resolver on HTML|JSON output.\n");
   printf ("  --real-os                    - ");
-  printf ("Display real OS names. e.g, Windows XP, Snow Leopard.\n");
+  printf ("Display real OS names. e.g, Windows XP,\n");
+  printf ("\t\t\t         Snow Leopard.\n");
   printf ("  --no-progress                - ");
   printf ("Disable progress metrics.\n\n");
 
@@ -160,10 +163,11 @@ cmd_help (void)
 #ifdef HAVE_LIBGEOIP
   printf ("GeoIP Options\n\n");
   printf ("  -g --std-geoip               - ");
-  printf ("Standard GeoIP database for less memory usage.\n");
+  printf ("Standard GeoIP database for less memory\n");
+  printf ("\t\t\t         usage.\n");
   printf ("  --geoip-city-data=<path>     - ");
-  printf
-    ("Specify path to GeoIP City database file. i.e., GeoLiteCity.dat\n\n");
+  printf ("Specify path to GeoIP City database file.\n");
+  printf ("\t\t\t         i.e., GeoLiteCity.dat\n\n");
 #endif
 
   /* On-Disk Database Options */
@@ -176,7 +180,8 @@ cmd_help (void)
   printf ("  --db-path=<path>             - ");
   printf ("Path of the database file. [%s]\n", TC_DBPATH);
   printf ("  --xmmap=<number>             - ");
-  printf ("Set the size in bytes of the extra mapped memory. [%d]\n", TC_MMAP);
+  printf ("Set the size in bytes of the extra mapped\n");
+  printf ("\t\t\t         memory. [%d]\n", TC_MMAP);
   printf ("  --cache-lcnum=<number>       - ");
   printf ("Max number of leaf nodes to be cached. [%d]\n", TC_LCNUM);
   printf ("  --cache-ncnum=<number>       - ");
@@ -189,7 +194,8 @@ cmd_help (void)
   printf ("Number of elements of the bucket array. [%d]\n", TC_BNUM);
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
   printf ("  --compression=<zlib|bz2>     - ");
-  printf ("Specifies that each page is compressed with ZLIB|BZ2 encoding.\n\n");
+  printf ("Specifies that each page is compressed with\n");
+  printf ("\t\t\t         ZLIB|BZ2 encoding.\n\n");
 #endif
 #endif
 
@@ -198,7 +204,8 @@ cmd_help (void)
   printf ("  -h --help                    - ");
   printf ("This help.\n");
   printf ("  -s --storage                 - ");
-  printf ("Display current storage method. i.e., B+ Tree, Hash.\n\n");
+  printf ("Display current storage method.\n");
+  printf ("\t\t\t         i.e., B+ Tree, Hash.\n\n");
 
   printf ("Examples can be found by running `man goaccess`.\n\n");
   printf ("For more details visit: http://goaccess.prosoftcorp.com\n");
