@@ -181,8 +181,11 @@ cmd_help (void)
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.prosoftcorp.com\n"
   "GoAccess Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana"
-  "\n\n",
-  TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM);
+  "\n\n"
+#ifdef TCB_BTREE
+  , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
+#endif
+	);
   exit (EXIT_FAILURE);
 }
 /* *INDENT-ON* */
