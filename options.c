@@ -104,79 +104,79 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --date-format=<dateformat>  -  Specify log date format.\n"
-  "  --log-format=<logformat>    -  Specify log format. Inner quotes need\n"
-  "                                 to be escaped.\n\n"
+  "  --date-format=<dateformat>  - Specify log date format.\n"
+  "  --log-format=<logformat>    - Specify log format. Inner quotes need\n"
+  "                                to be escaped.\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
-  "  -c --config-dialog          -  Prompt log/date configuration window.\n"
-  "  --color-scheme=<1|2>        -  Color schemes: 1 => Grey, 2 => Green.\n"
-  "  --no-color                  -  Disable colored output.\n\n"
+  "  -c --config-dialog          - Prompt log/date configuration window.\n"
+  "  --color-scheme=<1|2>        - Color schemes: 1 => Grey, 2 => Green.\n"
+  "  --no-color                  - Disable colored output.\n\n"
 
   /* File Options */
   "File Options\n\n"
-  "  -f --log-file=<filename>    -  Path to input log file.\n"
-  "  -p --config-file=<filename> -  Custom configuration file.\n"
+  "  -f --log-file=<filename>    - Path to input log file.\n"
+  "  -p --config-file=<filename> - Custom configuration file.\n"
 #ifdef DEBUG
-  "  -l --debug-file=<filename>  -  Send all debug messages to the\n"
-  "                                 specified file.\n"
+  "  -l --debug-file=<filename>  - Send all debug messages to the\n"
+  "                                specified file.\n"
 #endif
-  "  --no-global-config          -  Don't load global configuration file.\n\n"
+  "  --no-global-config          - Don't load global configuration file.\n\n"
 
   /* Parse Options */
   "Parse Options\n\n"
-  "  -e --exclude-ip=<IP>        -  Exclude an IP from being counted.\n"
-  "  -a --agent-list             -  Enable a list of user-agents by host.\n"
-  "  -M --http-method            -  Include HTTP request method if found.\n"
-  "  -H --http-protocol          -  Include HTTP request protocol if found.\n"
-  "  -q --no-query-string        -  Ignore request's query string.\n"
-  "  -r --no-term-resolver       -  Disable IP resolver on terminal output.\n"
-  "  -o --output-format=csv|json -  Output either a JSON or a CSV file.\n"
-  "  -m --with-mouse             -  Enable mouse support on main dashboard.\n"
-  "  -d --with-output-resolver   -  Enable IP resolver on HTML|JSON output.\n"
-  "  --real-os                   -  Display real OS names. e.g, Windows XP,\n"
-  "                                 Snow Leopard.\n"
-  "  --no-progress               -  Disable progress metrics.\n\n"
+  "  -e --exclude-ip=<IP>        - Exclude an IP from being counted.\n"
+  "  -a --agent-list             - Enable a list of user-agents by host.\n"
+  "  -M --http-method            - Include HTTP request method if found.\n"
+  "  -H --http-protocol          - Include HTTP request protocol if found.\n"
+  "  -q --no-query-string        - Ignore request's query string.\n"
+  "  -r --no-term-resolver       - Disable IP resolver on terminal output.\n"
+  "  -o --output-format=csv|json - Output either a JSON or a CSV file.\n"
+  "  -m --with-mouse             - Enable mouse support on main dashboard.\n"
+  "  -d --with-output-resolver   - Enable IP resolver on HTML|JSON output.\n"
+  "  --real-os                   - Display real OS names. e.g, Windows XP,\n"
+  "                                Snow Leopard.\n"
+  "  --no-progress               - Disable progress metrics.\n\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
   "GeoIP Options\n\n"
-  "  -g --std-geoip              -  Standard GeoIP database for less memory\n"
-  "                                 usage.\n"
-  "  --geoip-city-data=<path>    -  Specify path to GeoIP City database\n"
-  "                                 file. i.e., GeoLiteCity.dat\n\n"
+  "  -g --std-geoip              - Standard GeoIP database for less memory\n"
+  "                                usage.\n"
+  "  --geoip-city-data=<path>    - Specify path to GeoIP City database\n"
+  "                                file. i.e., GeoLiteCity.dat\n\n"
 #endif
 
 /* On-Disk Database Options */
 #ifdef TCB_BTREE
   "On-Disk Database Options\n\n"
-  "  --keep-db-files              -  Persist parsed data into disk.\n"
-  "  --load-from-disk             -  Load previously stored data from disk.\n"
-  "  --db-path=<path>             -  Path of the database file. Default [%s]\n"
-  "  --xmmap=<number>             -  Set the size in bytes of the extra\n"
-  "                                  mapped memory. Default [%d]\n"
-  "  --cache-lcnum=<number>       -  Max number of leaf nodes to be cached.\n"
-  "                                  Default [%d]\n"
-  "  --cache-ncnum=<number>       -  Max number of non-leaf nodes to be cached.\n"
-  "                                  Default [%d]\n"
-  "  --tune-lmemb=<number>        -  Number of members in each leaf page.\n"
-  "                                  Default [%d]\n"
-  "  --tune-nmemb=<number>        -  Number of members in each non-leaf page.\n"
-  "                                  Default [%d]\n"
-  "  --tune-bnum=<number>         -  Number of elements of the bucket array.\n"
-  "                                  Default [%d]\n"
+  "  --keep-db-files             - Persist parsed data into disk.\n"
+  "  --load-from-disk            - Load previously stored data from disk.\n"
+  "  --db-path=<path>            - Path of the database file. Default [%s]\n"
+  "  --xmmap=<number>            - Set the size in bytes of the extra\n"
+  "                                mapped memory. Default [%d]\n"
+  "  --cache-lcnum=<number>      - Max number of leaf nodes to be cached.\n"
+  "                                Default [%d]\n"
+  "  --cache-ncnum=<number>      - Max number of non-leaf nodes to be cached.\n"
+  "                                Default [%d]\n"
+  "  --tune-lmemb=<number>       - Number of members in each leaf page.\n"
+  "                                Default [%d]\n"
+  "  --tune-nmemb=<number>       - Number of members in each non-leaf page.\n"
+  "                                Default [%d]\n"
+  "  --tune-bnum=<number>        - Number of elements of the bucket array.\n"
+  "                                Default [%d]\n"
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  "  --compression=<zlib|bz2>     -  Specifies that each page is compressed\n"
-  "                                  with ZLIB|BZ2 encoding.\n\n"
+  "  --compression=<zlib|bz2>    - Specifies that each page is compressed\n"
+  "                                with ZLIB|BZ2 encoding.\n\n"
 #endif
 #endif
 
 /* Other Options */
   "Other Options\n\n"
-  "  -h --help                    -  This help.\n"
-  "  -s --storage                 -  Display current storage method.\n"
-  "                                  i.e., B+ Tree, Hash.\n\n"
+  "  -h --help                   - This help.\n"
+  "  -s --storage                - Display current storage method.\n"
+  "                                i.e., B+ Tree, Hash.\n\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.prosoftcorp.com\n"
@@ -185,7 +185,7 @@ cmd_help (void)
 #ifdef TCB_BTREE
   , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
 #endif
-	);
+  );
   exit (EXIT_FAILURE);
 }
 /* *INDENT-ON* */
