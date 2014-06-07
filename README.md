@@ -3,9 +3,9 @@ GoAccess [![Build Status](https://secure.travis-ci.org/allinurl/goaccess.png?bra
 
 ## What is it? ##
 GoAccess is an open source **real-time web log analyzer** and interactive viewer that **runs in a terminal in *nix systems**. It provides fast and valuable HTTP statistics for system administrators that require a visual server report on the fly.
-More info at: [http://goaccess.prosoftcorp.com](http://goaccess.prosoftcorp.com/?src=gh).
+More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.prosoftcorp.com/images/goaccess_screenshot1M-03L.png?1400597651)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1400597651)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
@@ -28,7 +28,7 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 * Different Color Schemes
 * Support for large datasets and data persistence
 * Support for IPv6
-* Output statistics to HTML. See [report](http://goaccess.prosoftcorp.com/goaccess_html_report.html?src=gh).
+* Output statistics to HTML. See [report](http://goaccess.io/goaccess_html_report.html?src=gh).
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but not limited to:
@@ -49,7 +49,7 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.prosoftcorp.com/goaccess-0.8.tar.gz
+    $ wget http://tar.goaccess.io/goaccess-0.8.tar.gz
     $ tar -xzvf goaccess-0.8.tar.gz
     $ cd goaccess-0.8/
     $ ./configure --enable-geoip --enable-utf8
@@ -79,8 +79,8 @@ Please note that not all distributions will have the lastest version of GoAccess
 
 #### GoAccess' Debian & Ubuntu repository ####
 
-    $ echo "deb http://deb.goaccess.prosoftcorp.com $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
-    $ wget -O - http://deb.goaccess.prosoftcorp.com/gnugpg.key | sudo apt-key add -
+    $ echo "deb http://deb.goaccess.io $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
+    $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
@@ -189,7 +189,7 @@ To exclude a list of virtual hosts you can do the following:
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
 
 For more examples, please check GoAccess' man page:
-http://goaccess.prosoftcorp.com/man
+http://goaccess.io/man
 
 ## Contributing ##
 
