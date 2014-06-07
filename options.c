@@ -179,7 +179,7 @@ cmd_help (void)
   "                                i.e., B+ Tree, Hash.\n\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
-  "For more details visit: http://goaccess.prosoftcorp.com\n"
+  "For more details visit: http://goaccess.io\n"
   "GoAccess Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana"
   "\n\n"
 #ifdef TCB_BTREE

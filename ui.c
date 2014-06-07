@@ -1225,8 +1225,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
 static const char *help_main[] = {
   "Copyright (C) 2009-2014",
-  "by Gerardo Orellana <goaccess@prosoftcorp.com>",
-  "http://goaccess.prosoftcorp.com",
+  "by Gerardo Orellana <hello@goaccess.io>",
+  "http://goaccess.io",
   "Released under the GNU GPL. See `man` page for more details",
   "",
   "GoAccess is an open source real-time web log analyzer and",
@@ -1274,7 +1274,7 @@ static const char *help_main[] = {
   "GoAccess, such as generating time, visitors or hits.",
   "",
   "Feedback? Just shoot me an email to:",
-  "goaccess@prosoftcorp.com",
+  "hello@goaccess.io",
 };
 
 /* render help dialog */
