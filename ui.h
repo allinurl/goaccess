@@ -244,7 +244,7 @@ int split_agent_str (char *ptr_value, GAgents * agents, int max);
 int verify_format (GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);
 void display_general (WINDOW * header_win, char *ifile, int piping, int process, int invalid, unsigned long long bandwidth);
-void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color);
+void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color, int max_width);
 void end_spinner (void);
 void generate_time (void);
 void init_colors (void);

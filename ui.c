@@ -193,10 +193,17 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
 /* draw a generic header */
 void
 draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x,
-             int w, int color)
+             int w, int color, int max_width)
 {
-  char *buf = xmalloc (snprintf (NULL, 0, fmt, s) + 1);
-  sprintf (buf, fmt, s);
+  char *buf;
+  /* additional integer value for the width */
+  if (strchr (fmt, '*') != NULL && max_width > 0) {
+    buf = xmalloc (snprintf (NULL, 0, fmt, max_width, s) + 1);
+    sprintf (buf, fmt, max_width, s);
+  } else {
+    buf = xmalloc (snprintf (NULL, 0, fmt, s) + 1);
+    sprintf (buf, fmt, s);
+  }
 
   if (conf.color_scheme == STD_GREEN) {
     init_pair (1, COLOR_BLACK, COLOR_GREEN);
@@ -327,7 +334,7 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
   };
 
   werase (win);
-  draw_header (win, T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1);
+  draw_header (win, T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1, 0);
 
   if (!piping && ifile != NULL) {
     size = filesize_str (file_size (ifile));
@@ -433,8 +440,8 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
     s[0] = '\0';
 
   if (enable_case)
-    draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1, size_x - 2,
-                 2);
+    draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1, size_x - 2, 2,
+                 0);
 
   wmove (win, pos_y, pos_x + x);
   wrefresh (win);
@@ -470,10 +477,10 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
        *toggle_case = *toggle_case == 0 ? 1 : 0;
        if (*toggle_case)
          draw_header (win, "[ ] case sensitive", " %s", size_y - 2, 1,
-                      size_x - 2, 2);
+                      size_x - 2, 2, 0);
        else if (!*toggle_case)
          draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1,
-                      size_x - 2, 2);
+                      size_x - 2, 2, 0);
        break;
      case 21:  /* ^u */
        s[0] = '\0';
@@ -640,7 +647,7 @@ load_agent_list (WINDOW * main_win, char *addr)
   post_gmenu (menu);
 
   snprintf (buf, sizeof buf, "User Agents for %s", addr);
-  draw_header (win, buf, " %s", 1, 1, list_w - 2, 1);
+  draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0);
   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
 
   wrefresh (win);
@@ -649,11 +656,11 @@ load_agent_list (WINDOW * main_win, char *addr)
     switch (c) {
      case KEY_DOWN:
        gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        break;
      case KEY_UP:
        gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        break;
      case KEY_RESIZE:
      case 'q':
@@ -709,7 +716,7 @@ ui_spinner (void *ptr_data)
     /* CURSES */
     if (sp->curses) {
       /* label + metrics */
-      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color);
+      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color, 0);
 
       /* caret */
       wattron (sp->win, COLOR_PAIR (sp->color));
@@ -819,11 +826,12 @@ verify_format (GLog * logger, GSpinner * spinner)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2, 1);
+  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2, 1, 0);
   mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
 
   /* set log format from goaccessrc if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1);
+  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1,
+               0);
   if (conf.log_format) {
     log_format = escape_str (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
@@ -832,8 +840,8 @@ verify_format (GLog * logger, GSpinner * spinner)
   }
 
   /* set date format from goaccessrc if available */
-  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
-               1);
+  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2, 1,
+               0);
   if (conf.date_format) {
     date_format = escape_str (conf.date_format);
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
@@ -847,11 +855,11 @@ verify_format (GLog * logger, GSpinner * spinner)
     switch (c) {
      case KEY_DOWN:
        gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        break;
      case KEY_UP:
        gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        break;
      case 32:  /* space */
        gmenu_driver (menu, REQ_SEL);
@@ -867,14 +875,14 @@ verify_format (GLog * logger, GSpinner * spinner)
 
          date_format = get_selected_date_str (i);
          log_format = get_selected_format_str (i);
-         draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0);
-         draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0);
+         draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
+         draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0, 0);
          break;
        }
        break;
      case 99:  /* c */
        /* clear top status bar */
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        wmove (win, 12, 2);
 
        /* get input string */
@@ -898,7 +906,7 @@ verify_format (GLog * logger, GSpinner * spinner)
        break;
      case 100: /* d */
        /* clear top status bar */
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
        wmove (win, 15, 0);
 
        /* get input string */
@@ -927,10 +935,10 @@ verify_format (GLog * logger, GSpinner * spinner)
        /* display status bar error messages */
        if (date_format == NULL)
          draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
-                      WHITE_RED);
+                      WHITE_RED, 0);
        if (log_format == NULL)
          draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
-                      WHITE_RED);
+                      WHITE_RED, 0);
 
        if (date_format && log_format) {
          conf.date_format = unescape_str (date_format);
@@ -940,7 +948,7 @@ verify_format (GLog * logger, GSpinner * spinner)
          if (test_format (logger)) {
            invalid = 1;
            draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
-                        WHITE_RED);
+                        WHITE_RED, 0);
 
            free (conf.log_format);
            free (conf.date_format);
@@ -1027,7 +1035,7 @@ load_schemes_win (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Scheme Configuration", " %s", 1, 1, w2, 1);
+  draw_header (win, "Scheme Configuration", " %s", 1, 1, w2, 1, 0);
   mvwprintw (win, 2, 2, "[ENTER] to switch scheme");
 
   wrefresh (win);
@@ -1036,11 +1044,11 @@ load_schemes_win (WINDOW * main_win)
     switch (c) {
      case KEY_DOWN:
        gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
        break;
      case KEY_UP:
        gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
        break;
      case 32:
      case 0x0a:
@@ -1145,14 +1153,14 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Sort active module by", " %s", 1, 1, w2, 1);
+  draw_header (win, "Sort active module by", " %s", 1, 1, w2, 1, 0);
   mvwprintw (win, 2, 2, "[ENTER] to select field - [TAB] sort");
   if (sort->sort == SORT_ASC)
     draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
-                 SORT_WIN_W - 2, 2);
+                 SORT_WIN_W - 2, 2, 0);
   else
     draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
-                 SORT_WIN_W - 2, 2);
+                 SORT_WIN_W - 2, 2, 0);
 
   wrefresh (win);
   while (quit) {
@@ -1160,24 +1168,24 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     switch (c) {
      case KEY_DOWN:
        gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
        break;
      case KEY_UP:
        gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0);
+       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
        break;
      case 9:   /* TAB */
        /* ascending */
        if (sort->sort == SORT_ASC) {
          sort->sort = SORT_DESC;
          draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
-                      SORT_WIN_W - 2, 2);
+                      SORT_WIN_W - 2, 2, 0);
        }
        /* descending */
        else {
          sort->sort = SORT_ASC;
          draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
-                      SORT_WIN_W - 2, 2);
+                      SORT_WIN_W - 2, 2, 0);
        }
        break;
      case 32:
@@ -1309,7 +1317,7 @@ load_help_popup (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "GoAccess Quick Help", " %s", 1, 1, w2, 1);
+  draw_header (win, "GoAccess Quick Help", " %s", 1, 1, w2, 1, 0);
   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
 
   wrefresh (win);
@@ -1318,11 +1326,11 @@ load_help_popup (WINDOW * main_win)
     switch (c) {
      case KEY_DOWN:
        gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0);
+       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
        break;
      case KEY_UP:
        gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0);
+       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
        break;
      case KEY_RESIZE:
      case 'q':
