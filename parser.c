@@ -446,8 +446,7 @@ process_unique_data (char *host, char *date, char *agent)
   char country[COUNTRY_LEN] = "";
 #endif
 
-  char *a = NULL;
-  char *browser_key = NULL, *browser = NULL;
+  char *a = NULL, *browser_key = NULL, *browser = NULL;
   char *os_key = NULL, *opsys = NULL;
 
   char visitor_key[UKEY_BUFFER];
@@ -458,11 +457,10 @@ process_unique_data (char *host, char *date, char *agent)
   (visitor_key)[sizeof (visitor_key) - 1] = '\0';
   free (a);
 
-  /*
-   * Check if the unique visitor key exists, if not,
-   * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS.
-   */
+  /* Check if the unique visitor key exists, if not,
+   * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS. */
   if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
+    process_generic_data (ht_unique_vis, date);
     browser_key = xstrdup (agent);
     os_key = xstrdup (agent);
 
@@ -485,15 +483,6 @@ process_unique_data (char *host, char *date, char *agent)
       process_geolocation (ht_countries, country, continent, city);
     }
 #endif
-
-    if ((date = strchr (visitor_key, '|')) != NULL) {
-      char *tmp_date = NULL;
-      tmp_date = clean_date (++date);
-      if (tmp_date != NULL) {
-        process_generic_data (ht_unique_vis, tmp_date);
-        free (tmp_date);
-      }
-    }
   }
 
   if (browser != NULL)
