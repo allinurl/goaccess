@@ -24,6 +24,7 @@
 #include <stdint.h>
 
 #define MAX_LINE_CONF 512
+#define MAX_EXTENSIONS 64
 
 typedef enum
 {
@@ -70,6 +71,7 @@ typedef struct GConf_
   char *ignore_host;
   char *log_format;
   char *output_format;
+  char *static_files[MAX_EXTENSIONS];
   int append_method;
   int append_protocol;
   int bandwidth;
@@ -79,14 +81,16 @@ typedef struct GConf_
   int ignore_qstr;
   int list_agents;
   int load_conf_dlg;
+  int load_global_config;
   int mouse_support;
   int no_color;
-  int load_global_config;
   int no_progress;
   int output_html;
   int real_os;
   int serve_usecs;
   int skip_term_resolver;
+  int static_file_idx;
+  size_t static_file_max_len;
 
   /* TokyoCabinet */
   char *db_path;

@@ -61,6 +61,7 @@ struct option long_opts[] = {
 #ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
 #endif
+  {"static-file"          , required_argument , 0 ,  0  } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
@@ -137,6 +138,8 @@ cmd_help (void)
   "  -d --with-output-resolver   - Enable IP resolver on HTML|JSON output.\n"
   "  --real-os                   - Display real OS names. e.g, Windows XP,\n"
   "                                Snow Leopard.\n"
+  "  --static-file=<extension>   - Add static file extension. e.g.: .mp3\n"
+  "                                Extensions are case sensitive.\n"
   "  --no-progress               - Disable progress metrics.\n\n"
 
 /* GeoIP Options */
@@ -291,6 +294,11 @@ read_option_args (int argc, char **argv)
        if (!strcmp ("date-format", long_opts[idx].name))
          conf.date_format = unescape_str (optarg);
 
+       if (!strcmp ("static-file", long_opts[idx].name)) {
+         if (conf.static_file_max_len < strlen (optarg))
+           conf.static_file_max_len = strlen (optarg);
+         conf.static_files[conf.static_file_idx++] = optarg;
+       }
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
