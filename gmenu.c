@@ -65,10 +65,10 @@ draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
     check = checked ? 'x' : ' ';
     lbl = xmalloc (snprintf (NULL, 0, "[%c] %s", check, s) + 1);
     sprintf (lbl, "[%c] %s", check, s);
-    draw_header (menu->win, lbl, "%s", y, x, w, color);
+    draw_header (menu->win, lbl, "%s", y, x, w, color, 0);
     free (lbl);
   } else {
-    draw_header (menu->win, s, "%s", y, x, w, color);
+    draw_header (menu->win, s, "%s", y, x, w, color, 0);
   }
 }
 

@@ -364,7 +364,7 @@ render_screens (void)
   generate_time ();
   chg = logger->process - logger->offset;
 
-  draw_header (stdscr, "", "%s", row - 1, 0, col, 0);
+  draw_header (stdscr, "", "%s", row - 1, 0, col, 0, 0);
   wattron (stdscr, COLOR_PAIR (COL_WHITE));
   mvaddstr (row - 1, 1, "[F1]Help [O]pen detail view");
   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
