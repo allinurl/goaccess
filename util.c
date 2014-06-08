@@ -328,38 +328,6 @@ usecs_to_str (unsigned long long usec)
 }
 
 char *
-clean_date (char *s)
-{
-  char *buffer;
-  if ((s == NULL) || (*s == '\0'))
-    return NULL;
-
-  buffer = xmalloc (strlen (s) + 1);
-  if (sscanf (s, "%11[^|]", buffer) != 1) {
-    free (buffer);
-    return NULL;
-  }
-
-  return buffer;
-}
-
-char *
-clean_month (char *s)
-{
-  char *buffer;
-  if ((s == NULL) || (*s == '\0'))
-    return NULL;
-
-  buffer = xmalloc (strlen (s) + 1);
-  if (sscanf (s, "%6[^|]", buffer) != 1) {
-    free (buffer);
-    return NULL;
-  }
-
-  return buffer;
-}
-
-char *
 int_to_str (int d)
 {
   char *s = xmalloc (snprintf (NULL, 0, "%d", d) + 1);
