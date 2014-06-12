@@ -26,181 +26,181 @@ Changes to GoAccess 0.8 - Tuesday, May 20, 2014
 
 Changes to GoAccess 0.7.1 - Monday, February 17, 2014
 
-   * Added ability to get real OS names using --real-os. (Android, Windows, Mac)
-   * Added ability to log debug messages to a file.
-   * Added ability to parse tab-separated log format strings.
-   * Added ability to support terminals without colors.
-   * Added ability to turn off color output by using --no-color flag.
-   * Added command line option to append HTTP method to request.
-   * Added command line option to append HTTP protocol to request.
-   * Added long options to command-line.
-   * Added missing Win 9x 4.90 (Windows Me) user-agent.
-   * Added missing Windows RT user-agent.
-   * Ensure mouse click does not reset expanded module if it is the same.
-   * Fixed Amazon CloudFront tab-separated log format.
-   * Fixed "FreeBSD style" ncursesw built into system.
-   * Fixed HTML report issue where data cell would not wrap.
-   * Fixed issue when isatty() could not find a valid file descriptor.
-   * Fixed SymbianOS user-agent and retrieve its version.
+  * Added ability to get real OS names using --real-os. (Android, Windows, Mac)
+  * Added ability to log debug messages to a file.
+  * Added ability to parse tab-separated log format strings.
+  * Added ability to support terminals without colors.
+  * Added ability to turn off color output by using --no-color flag.
+  * Added command line option to append HTTP method to request.
+  * Added command line option to append HTTP protocol to request.
+  * Added long options to command-line.
+  * Added missing Win 9x 4.90 (Windows Me) user-agent.
+  * Added missing Windows RT user-agent.
+  * Ensure mouse click does not reset expanded module if it is the same.
+  * Fixed Amazon CloudFront tab-separated log format.
+  * Fixed "FreeBSD style" ncursesw built into system.
+  * Fixed HTML report issue where data cell would not wrap.
+  * Fixed issue when isatty() could not find a valid file descriptor.
+  * Fixed SymbianOS user-agent and retrieve its version.
 
 Changes to GoAccess 0.7 - Monday, December 15, 2013
 
-   * Added a command line option to ignore request query strings.
-   * Added additional compiler flags & fixed several warnings.
-   * Added additional static file extensions.
-   * Added country per IP to HOSTS module (HTML & JSON).
-   * Added DEBUG mode to Makefile & -O2 to default release.
-   * Added GEOLOCATION report to all outputs - includes continents/countries.
-   * Added IP resolver to HTML and JSON output.
-   * Added module numbers to each module header.
-   * Added the ability to output JSON and CSV.
-   * Added Windows NT 6.3 (Win 8.1) to the list.
-   * Fixed buffer overflow issue with realpath.
-   * New HTML report - HTML5 + CSS styles.
-   * Properly split request line into the three request modules.
+  * Added a command line option to ignore request query strings.
+  * Added additional compiler flags & fixed several warnings.
+  * Added additional static file extensions.
+  * Added country per IP to HOSTS module (HTML & JSON).
+  * Added DEBUG mode to Makefile & -O2 to default release.
+  * Added GEOLOCATION report to all outputs - includes continents/countries.
+  * Added IP resolver to HTML and JSON output.
+  * Added module numbers to each module header.
+  * Added the ability to output JSON and CSV.
+  * Added Windows NT 6.3 (Win 8.1) to the list.
+  * Fixed buffer overflow issue with realpath.
+  * New HTML report - HTML5 + CSS styles.
+  * Properly split request line into the three request modules.
 
 Changes to GoAccess 0.6.1 - Monday, October 07, 2013
 
-   * Added active module indication by name.
-   * Added additional crawlers to the list.
-   * Added custom configuration file option.
-   * Added human-readable string when unable to open log.
-   * Added missing include when compiling on OSX 10.6.
-   * Added optional mouse support to the main dashboard.
-   * Added the ability to select active module by number (keys).
-   * Added the rest of HTTP methods according to RFC2616.
-   * Changed referring site sscanf format to process multiple URLs.
-   * Changed the default color scheme to monochrome.
-   * Fixed issue where %T was not processing floating-point numbers.
-   * Fixed percentage issue for browsers and os modules.
-   * Fixed SIGSEGV when reading from stdin to stdout.
-   * Improved performance when expanding a module.
-   * Reduced memory consumption by decreasing number of dns threads.
-   * Removed ^UP/^DOWN due to a key mapping conflict.
+  * Added active module indication by name.
+  * Added additional crawlers to the list.
+  * Added custom configuration file option.
+  * Added human-readable string when unable to open log.
+  * Added missing include when compiling on OSX 10.6.
+  * Added optional mouse support to the main dashboard.
+  * Added the ability to select active module by number (keys).
+  * Added the rest of HTTP methods according to RFC2616.
+  * Changed referring site sscanf format to process multiple URLs.
+  * Changed the default color scheme to monochrome.
+  * Fixed issue where %T was not processing floating-point numbers.
+  * Fixed percentage issue for browsers and os modules.
+  * Fixed SIGSEGV when reading from stdin to stdout.
+  * Improved performance when expanding a module.
+  * Reduced memory consumption by decreasing number of dns threads.
+  * Removed ^UP/^DOWN due to a key mapping conflict.
 
 Changes to GoAccess 0.6 - Monday, July 15, 2013
 
-   * Moved away from the original pop-up UI to a new expandable dashboard allowing
-     data to be processed in real-time.
-   * Added the ability to search across the whole dashboard with the option to use
-     regular expressions.
-   * Added the ability to independently sort each module.
-   * Implemented the ability to parse the time taken to serve the request, in
-     microseconds and seconds.
-   * Added a predefined log format/date for the Amazon CloudFront (Download
-     Distribution).
-   * Config window now accepts [ENTER] to continue or F10.
-   * Added parsing/processing indicators.
-   * Updated the hosts module so it shows the reverse DNS as a sub node.
-   * Sanitized HTML output with html entities for special chars.
-   * Fixed issue where Opera +15 was identified as Chrome.
-   * Fixed a bunch of minor fixes and changes.
-   * Added and updated list of browsers and operating systems.
-   * Improved memory usage and better performance in general.
+  * Moved away from the original pop-up UI to a new expandable dashboard allowing
+    data to be processed in real-time.
+  * Added the ability to search across the whole dashboard with the option to use
+    regular expressions.
+  * Added the ability to independently sort each module.
+  * Implemented the ability to parse the time taken to serve the request, in
+    microseconds and seconds.
+  * Added a predefined log format/date for the Amazon CloudFront (Download
+    Distribution).
+  * Config window now accepts [ENTER] to continue or F10.
+  * Added parsing/processing indicators.
+  * Updated the hosts module so it shows the reverse DNS as a sub node.
+  * Sanitized HTML output with html entities for special chars.
+  * Fixed issue where Opera +15 was identified as Chrome.
+  * Fixed a bunch of minor fixes and changes.
+  * Added and updated list of browsers and operating systems.
+  * Improved memory usage and better performance in general.
 
 Changes to GoAccess 0.5 - Monday, June 04, 2012
 
-   * Added the ability to parse a custom format string.
-   * Added ability to output a full stats report to a file.
-   * Added support for IPv6
-   * Fixed issue on Opera agents where version was not recognized correctly.
-   * Fixed issue on empty Google query strings.
-   * Fixed google cache key-phrases.
-   * Added a new include sys/socket.h - BSD
-   * Added a key shortcut to scroll top/bottom.
-   * Fixed other minor fixes and changes.
+  * Added the ability to parse a custom format string.
+  * Added ability to output a full stats report to a file.
+  * Added support for IPv6
+  * Fixed issue on Opera agents where version was not recognized correctly.
+  * Fixed issue on empty Google query strings.
+  * Fixed google cache key-phrases.
+  * Added a new include sys/socket.h - BSD
+  * Added a key shortcut to scroll top/bottom.
+  * Fixed other minor fixes and changes.
 
 Changes to GoAccess 0.4.2 - Monday, January 03, 2011
 
-   * Fixed a minor bug when adding monthly totals on visitors subwin.
-   * UTF-8 support has been implemented. Now it should handle properly
-     wide-character/UTF-8. Run ./configure --enable-utf8
-   * Since GoAccess does not link to librt, -lrt has been removed. (OS X doesn't
+  * Fixed a minor bug when adding monthly totals on visitors subwin.
+  * UTF-8 support has been implemented. Now it should handle properly
+    wide-character/UTF-8. Run ./configure --enable-utf8
+  * Since GoAccess does not link to librt, -lrt has been removed. (OS X doesn't
      include librt)
 
 Changes to GoAccess 0.4.1 - Monday, December 13, 2010
 
-   * Ability to pass a flag to ./configure so GeoIP can be enabled if needed.
-   * More flexibility when resizing the terminal. Should work fine with the standard
-     80x24.
-   * Implemented a pipeline from stdin, so the input doesn't have to be only a file.
+  * Ability to pass a flag to ./configure so GeoIP can be enabled if needed.
+  * More flexibility when resizing the terminal. Should work fine with the standard
+    80x24.
+  * Implemented a pipeline from stdin, so the input doesn't have to be only a file.
 
 Changes to GoAccess 0.4 - Tuesday, November 30, 2010
 
-   * Rewrote hash tables iterative code to avoid the use of GHashTableIter, this way
-     it works with all GLib > 2.0.0.
-   * Implemented list of agents for specific hosts.
-   * Added graphs to the unique_visitors subwin.
-   * Various bug fixes and code cleanups (mainly in the subwin modules).
-   * Bandwidth per day, and host was implemented as well.
+  * Rewrote hash tables iterative code to avoid the use of GHashTableIter, this way
+    it works with all GLib > 2.0.0.
+  * Implemented list of agents for specific hosts.
+  * Added graphs to the unique_visitors subwin.
+  * Various bug fixes and code cleanups (mainly in the subwin modules).
+  * Bandwidth per day, and host was implemented as well.
 
 Changes to GoAccess 0.3.3 - Monday, September 27, 2010
 
-   * Fixed a request size parsing issue. Due to malformed syntax on the HTTP
-     protocol, bandwidth was reset to 0. Ex. "HEAD /" 400 20392
-   * Fixed a segfault when goaccess was executed without any options but with an
-     additional unknown argument.
-   * Tarball's filename was changed.
+  * Fixed a request size parsing issue. Due to malformed syntax on the HTTP
+    protocol, bandwidth was reset to 0. Ex. "HEAD /" 400 20392
+  * Fixed a segfault when goaccess was executed without any options but with an
+    additional unknown argument.
+  * Tarball's filename was changed.
 
 Changes to GoAccess 0.3.2 - Thursday, September 09, 2010
 
-   * Fixed an agent parsing issue. As a result, operating systems were not properly
-     counted.
+  * Fixed an agent parsing issue. As a result, operating systems were not properly
+    counted.
 
 Changes to GoAccess 0.3.1 - Friday, September 03, 2010
 
-    * Added a color scheme implementation
+  * Added a color scheme implementation
 
 Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
-    * Fixed invalid entries when parsing status codes
-    * Implemented a real support for LFS - Handles files larger than 2 GiB on 32-bit
-      systems
-    * Added a more detailed and comprehensive browser and os report
-    * Fixed a segmentation fault on pop-up window search if haystack was null
-    * Added bandwidth details for requested files
-    * Added percentage details on modules 2, 3, 4, 5, 10, 11
-    * Implemented support for 'vhost_combined' log format
-    * Fixed a potential segmentation fault when resizing main window
-    * Position of data/graphs will change depending on # of hits
-    * A counter for total requests since initial parse was implemented
-    * Code cleanups
+  * Fixed invalid entries when parsing status codes
+  * Implemented a real support for LFS - Handles files larger than 2 GiB on 32-bit
+    systems
+  * Added a more detailed and comprehensive browser and os report
+  * Fixed a segmentation fault on pop-up window search if haystack was null
+  * Added bandwidth details for requested files
+  * Added percentage details on modules 2, 3, 4, 5, 10, 11
+  * Implemented support for 'vhost_combined' log format
+  * Fixed a potential segmentation fault when resizing main window
+  * Position of data/graphs will change depending on # of hits
+  * A counter for total requests since initial parse was implemented
+  * Code cleanups
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
-    * Implemented real-time statistics (RTS). Data will be appended as the log file
-      grows. Equivalent to 'tail -f' on Unix systems
-    * Added a keyphrases report coming from Google search engine. This includes, raw,
-      cache, and translation queries.
-    * Implemented screen resize functionality
-    * Various small speed increases & code cleanup
-    * Fixed a memory leak when invalid entries were parsed
-    * Simplify the "process_unique_data" function
-    * Simplify creation of the "unique visitors" hash-key.
-    * Fix a potential buffer overflow.
+  * Implemented real-time statistics (RTS). Data will be appended as the log file
+    grows. Equivalent to 'tail -f' on Unix systems
+  * Added a keyphrases report coming from Google search engine. This includes, raw,
+    cache, and translation queries.
+  * Implemented screen resize functionality
+  * Various small speed increases & code cleanup
+  * Fixed a memory leak when invalid entries were parsed
+  * Simplify the "process_unique_data" function
+  * Simplify creation of the "unique visitors" hash-key.
+  * Fix a potential buffer overflow.
 
 Changes to GoAccess 0.1.2 - Monday, July 12 2010
 
-    * Fixed a segmentation fault when parsing logs with unusual request type. Ex.
-      "GET HTTP/1.1 HTTP/1.1"
+  * Fixed a segmentation fault when parsing logs with unusual request type. Ex.
+    "GET HTTP/1.1 HTTP/1.1"
 
 Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 
-    * Added an enhanced error handling
-    * Added Glibc LFS
-    * Added an extra macro on configure.ac to check against GHashTableIter.
-      ./configure might not check for glib 2.16 that introduced 'GHashTableIter'.
-    * Clean up code a little bit
-    * Fixed a segmentation fault when displaying the help text on x86_64.
-    * Fixed casts associated with "g_hash_table_iter_next".
-    * Fixed two format strings. (If the error was ever triggered, it'd most likely
-      lead to a segfault.)
-    * Fixed assignments in conditions. In case the assignment is actually intended,
-      put extra parenthesis around it. This will shut GCC (and others) up.
-    * Fixed comparison between signed and unsigned integer types.
-    * Fixed includes.
-    * Fixed function declarations.
+  * Added an enhanced error handling
+  * Added Glibc LFS
+  * Added an extra macro on configure.ac to check against GHashTableIter.
+    ./configure might not check for glib 2.16 that introduced 'GHashTableIter'.
+  * Clean up code a little bit
+  * Fixed a segmentation fault when displaying the help text on x86_64.
+  * Fixed casts associated with "g_hash_table_iter_next".
+  * Fixed two format strings. (If the error was ever triggered, it'd most likely
+    lead to a segfault.)
+  * Fixed assignments in conditions. In case the assignment is actually intended,
+    put extra parenthesis around it. This will shut GCC (and others) up.
+  * Fixed comparison between signed and unsigned integer types.
+  * Fixed includes.
+  * Fixed function declarations.
 
 Tuesday, July 06, 21:12:29 2010 Gerardo Orellana (goaccess at prosoftcorp.com)
 
-    * Initial release 0.1
+  * Initial release 0.1
