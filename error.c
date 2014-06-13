@@ -71,6 +71,7 @@ sigsegv_handler (int sig)
   size_t size, i;
   void *trace[TRACE_SIZE];
 
+  (void) endwin ();                                                 \
   fprintf (fp, "\n=== GoAccess %s crashed by signal %d ===\n", GO_VERSION, sig);
 
   size = backtrace (trace, TRACE_SIZE);
