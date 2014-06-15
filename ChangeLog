@@ -1,3 +1,15 @@
+Changes to GoAccess 0.8.1 - Monday, June 16, 2014
+
+  * Added ability to add/remove static files by extension through the config
+    file.
+  * Added ability to print backtrace on segmentation fault.
+  * Escaped JSON strings correctly according to [RFC4627].
+  * Fixed encoding issue when extracting keyphrases for some HTTP referers.
+  * Fixed issue where HTML bar graphs were not shown due to numeric locale.
+  * Fixed issue with URIs containing "\r?\n" thus breaking the corresponding
+    output.
+  * Make sure request string is URL decoded on all outputs.
+
 Changes to GoAccess 0.8 - Tuesday, May 20, 2014
 
   * Added APT-HTTP to the list of browsers.
