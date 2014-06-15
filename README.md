@@ -127,6 +127,7 @@ The following options can also be supplied to the command or specified in the co
 | `-q --no-query-string`         | Ignore request's query string.                                                    |
 | `-r --no-term-resolver`        | Disable IP resolver on terminal output.                                           |
 | `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.                              |
+| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Extensions are case sensitive.             |
 | `--geoip-city-data=<path>`     | Specify path to GeoIP City database file. i.e., GeoLiteCity.dat                   |
 | `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
 | `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
