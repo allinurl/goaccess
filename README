@@ -10,24 +10,23 @@ Features
 GoAccess parses the specified web log file and 
 outputs the data to the X terminal. Features include:
 
-   * General Statistics, bandwidth etc.
+   * General Statistics, bandwidth, etc.
    * Time taken to serve the request (useful to track pages that are slowing down your site)
    * Top Visitors
-   * Requested files
-   * Requested static files, images, swf, js, etc.
-   * Referrers URLs
+   * Requested files & static files
    * 404 or Not Found
+   * Hosts, Reverse DNS, IP Location
    * Operating Systems
    * Browsers and Spiders
-   * Hosts, Reverse DNS, IP Location
-   * HTTP Status Codes
-   * Referring Sites
+   * Referring Sites & URLs
    * Keyphrases
-   * Support for IPv6
+   * Geo Location - Continent/Country/City New
+   * HTTP Status Codes
+   * Ability to output JSON and CSV
    * Different Color Schemes
-   * Unlimited log file size
-   * Custom log format
-   * Output statistics to JSON, CSV or HTML.
+   * Support for large datasets and data persistence New
+   * Support for IPv6
+   * Output statistics to HTML. See report.
 
 Nearly all web log formats...
 
@@ -35,7 +34,7 @@ GoAccess allows any custom log format string.
 Predefined options include, but not limited to:
 
    * Common Log Format (CLF) Apache
-   * Combined Log Format (XLF/ELF) Apache
+   * Combined Log Format (XLF/ELF) Apache & Nginx
    * W3C format (IIS).
    * Amazon CloudFront (Download Distribution).
    * Apache virtual hosts
@@ -73,3 +72,5 @@ The user can make use of the following keys:
    * ^n^                   find position of the next occurrence
    * ^g^                   move to the first item or top of screen
    * ^G^                   move to the last item or bottom of screen
+
+Examples can be found by running `man goaccess`.

@@ -5,14 +5,3 @@ This is the TODO list for GoAccess.
 If you are interested in working on any of these, 
 email goaccess@prosoftcorp.com or better, open a new issue:
 https://github.com/allinurl/goaccess/issues
-
-* General:
- - Increase performance when parsing the log file.
- - Have the ability to do a global deeper search.
- - It'd be nice to have data sliced based on virtual hosts. 
- - Report the remote user portion %u.
- - Add command-line parameters.
- - Add more reports to it.
-
-* Documentation:
-  - Improve the manual, and other documentation etc.
