@@ -5,7 +5,7 @@ GoAccess [![Build Status](https://secure.travis-ci.org/allinurl/goaccess.png?bra
 GoAccess is an open source **real-time web log analyzer** and interactive viewer that **runs in a terminal in *nix systems**. It provides fast and valuable HTTP statistics for system administrators that require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1400597651)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1402891204)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
@@ -49,9 +49,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.8.tar.gz
-    $ tar -xzvf goaccess-0.8.tar.gz
-    $ cd goaccess-0.8/
+    $ wget http://tar.goaccess.io/goaccess-0.8.1.tar.gz
+    $ tar -xzvf goaccess-0.8.1.tar.gz
+    $ cd goaccess-0.8.1/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
