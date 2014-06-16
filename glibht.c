@@ -401,12 +401,12 @@ process_host_agents (char *host, char *agent)
 }
 
 char *
-get_request_meta (const char *k, GReqMeta meta)
+get_request_meta (const char *k, GReqMeta meta_req)
 {
   GHashTable *ht = NULL;
   gpointer value_ptr;
 
-  switch (meta) {
+  switch (meta_req) {
    case REQUEST:
      ht = ht_request_keys;
      break;

@@ -55,7 +55,7 @@ extern GHashTable *ht_unique_visitors;
 
 /* *INDENT-OFF* */
 
-char *get_request_meta (const char *k, GReqMeta meta);
+char * get_request_meta (const char *k, GReqMeta meta_req);
 GHashTable *get_ht_by_module (GModule module);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 int process_browser (GHashTable * ht, const char *key, const char *browser_type);

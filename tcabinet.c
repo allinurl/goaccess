@@ -692,7 +692,7 @@ get_bandwidth (char *k, GModule module)
 }
 
 char *
-get_request_meta (const char *k, GReqMeta meta)
+get_request_meta (const char *k, GReqMeta meta_req)
 {
 #ifdef TCB_BTREE
   TCBDB *db = NULL;
@@ -701,7 +701,7 @@ get_request_meta (const char *k, GReqMeta meta)
 #endif
   void *value;
 
-  switch (meta) {
+  switch (meta_req) {
    case REQUEST:
      db = ht_request_keys;
      break;

@@ -139,7 +139,7 @@ void free_requests (TCMDB * mdb, char *key, GO_UNUSED int ksize, GO_UNUSED void 
 void tc_db_foreach (void *db, void (*fp) (TCMDB * m, char *k, int s, void *u), void *user_data);
 #endif
 
-char *get_request_meta (const char *k, GReqMeta meta);
+char *get_request_meta (const char *k, GReqMeta meta_req);
 GRawData *parse_raw_data (void *db, int ht_size, GModule module);
 int process_browser (void *db, const char *k, const char *browser_type);
 int process_generic_data (void *db, const char *k);

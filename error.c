@@ -69,13 +69,13 @@ sigsegv_handler (int sig)
   FILE *fp = stderr;
   char **messages;
   size_t size, i;
-  void *trace[TRACE_SIZE];
+  void *trace_stack[TRACE_SIZE];
 
-  (void) endwin ();                                                 \
+  (void) endwin ();
   fprintf (fp, "\n=== GoAccess %s crashed by signal %d ===\n", GO_VERSION, sig);
 
-  size = backtrace (trace, TRACE_SIZE);
-  messages = backtrace_symbols (trace, size);
+  size = backtrace (trace_stack, TRACE_SIZE);
+  messages = backtrace_symbols (trace_stack, size);
 
   fprintf (fp, "\n-- STACK TRACE:\n\n");
 
