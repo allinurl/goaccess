@@ -2,13 +2,17 @@ GoAccess [![Build Status](https://secure.travis-ci.org/allinurl/goaccess.png?bra
 ========
 
 ## What is it? ##
-GoAccess is an open source **real-time web log analyzer** and interactive viewer that **runs in a terminal in *nix systems**. It provides fast and valuable HTTP statistics for system administrators that require a visual server report on the fly.
+GoAccess is an open source **real-time web log analyzer** and interactive
+viewer that **runs in a terminal in *nix systems**. It provides fast and
+valuable HTTP statistics for system administrators that require a visual server
+report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
 ![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1402891204)
 
 ## Features ##
-GoAccess parses the specified web log file and outputs the data to the X terminal. Features include:
+GoAccess parses the specified web log file and outputs the data to the X
+terminal. Features include:
 
 * General Statistics, bandwidth, etc.
 * Time taken to serve the request (useful to track pages that are slowing down your site)
@@ -31,7 +35,8 @@ GoAccess parses the specified web log file and outputs the data to the X termina
 * Output statistics to HTML. See [report](http://goaccess.io/goaccess_html_report.html?src=gh).
 
 ### Nearly all web log formats... ###
-GoAccess allows any custom log format string. Predefined options include, but not limited to:
+GoAccess allows any custom log format string. Predefined options include, but
+not limited to:
 
 * Common Log Format (CLF) Apache
 * Combined Log Format (XLF/ELF) Apache | Nginx
@@ -40,7 +45,10 @@ GoAccess allows any custom log format string. Predefined options include, but no
 * Apache virtual hosts
 
 ## Why GoAccess? ##
-The main idea behind GoAccess is being able to quickly analyze and view web server statistics in real time without having to generate an HTML report. Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default it outputs to a terminal.
+The main idea behind GoAccess is being able to quickly analyze and view web
+server statistics in real time without having to generate an HTML report.
+Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default
+it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
 
@@ -67,15 +75,19 @@ Download, extract and compile GoAccess with:
 
 ## Distributions ##
 
-It is easiest to install GoAccess on Linux using the preferred package manager of your Linux distribution.
+It is easiest to install GoAccess on Linux using the preferred package manager
+of your Linux distribution.
 
-Please note that not all distributions will have the lastest version of GoAccess available
+Please note that not all distributions will have the lastest version of
+GoAccess available
 
 ### Debian/Ubuntu ###
 
     # apt-get install goaccess
 
-**NOTE:** this might not always give you the latest stable version. To make sure that you're running the latest stable version of GoAccess see alternative option below.
+**NOTE:** this might not always give you the latest stable version. To make
+sure that you're running the latest stable version of GoAccess see alternative
+option below.
 
 #### GoAccess' Debian & Ubuntu repository ####
 
@@ -84,7 +96,9 @@ Please note that not all distributions will have the lastest version of GoAccess
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
-***Important*** If APT complains about the public key not being available, "signatures couldn't be verified because the public key is not available", please download the new key.
+***Important*** If APT complains about the public key not being available,
+"signatures couldn't be verified because the public key is not available",
+please re-download the key.
 
 ### Fedora ###
 
@@ -108,7 +122,8 @@ Please note that not all distributions will have the lastest version of GoAccess
     $ pkg_add -r goaccess
 
 ## Command Line / Config Options ##
-The following options can also be supplied to the command or specified in the configuration file:
+The following options can also be supplied to the command or specified in the
+configuration file:
 
 | Command Line Option            | Description                                                                       |
 | -------------------------------|-----------------------------------------------------------------------------------|
@@ -165,13 +180,18 @@ To generate a CSV file:
 
     # goaccess -f access.log -o csv > report.csv
 
-The `-a` flag indicates that we want to process an agent-list for every host parsed.
+The `-a` flag indicates that we want to process an agent-list for every host
+parsed.
 
-The `-d` flag indicates that we want to enable the IP resolver on the HTML | JSON output. (It will take longer time to output since it has to resolve all queries.)
+The `-d` flag indicates that we want to enable the IP resolver on the HTML |
+JSON output. (It will take longer time to output since it has to resolve all
+queries.)
 
-The `-c` flag will prompt the date and log format configuration window. Only when curses is initialized.
+The `-c` flag will prompt the date and log format configuration window. Only
+when curses is initialized.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of pipes. For instance:
+Now if we want to add more flexibility to GoAccess, we can do a series of
+pipes. For instance:
 
 If we would like to process all `access.log.*.gz` we can do:
 
@@ -181,7 +201,8 @@ If we would like to process all `access.log.*.gz` we can do:
 
 Another useful pipe would be filtering dates out of the web log
 
-The following will get all HTTP requests starting on 05/Dec/2010 until the end of the file.
+The following will get all HTTP requests starting on 05/Dec/2010 until the end
+of the file.
 
     # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
 
@@ -194,6 +215,7 @@ http://goaccess.io/man
 
 ## Contributing ##
 
-Any help on GoAccess is welcome. Feel free to use the Github issue tracker and pull requests to discuss and submit code changes.
+Any help on GoAccess is welcome. Feel free to use the Github issue tracker and
+pull requests to discuss and submit code changes.
 
 Enjoy!
