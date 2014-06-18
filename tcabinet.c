@@ -249,6 +249,38 @@ init_storage (void)
 /* *INDENT-ON* */
 }
 
+void
+free_storage (void)
+{
+#ifdef HAVE_LIBGEOIP
+  tc_db_close (ht_countries, DB_COUNTRIES);
+#endif
+#ifdef TCB_BTREE
+  tc_db_close (ht_general_stats, DB_GENERAL_STATS);
+#endif
+  tc_db_close (ht_browsers, DB_BROWSERS);
+  tc_db_close (ht_date_bw, DB_DATE_BW);
+  tc_db_close (ht_file_bw, DB_FILE_BW);
+  tc_db_close (ht_file_serve_usecs, DB_FILE_SERVE_USECS);
+  tc_db_close (ht_host_bw, DB_HOST_BW);
+  tc_db_close (ht_hosts_agents, DB_HOST_AGENTS);
+  tc_db_close (ht_hosts, DB_HOSTS);
+  tc_db_close (ht_host_serve_usecs, DB_HOST_SERVE_USECS);
+  tc_db_close (ht_keyphrases, DB_KEYPHRASES);
+  tc_db_close (ht_not_found_requests, DB_NOT_FOUND_REQUESTS);
+  tc_db_close (ht_os, DB_OS);
+  tc_db_close (ht_referrers, DB_REFERRERS);
+  tc_db_close (ht_referring_sites, DB_REFERRING_SITES);
+  tc_db_close (ht_request_keys, DB_REQUEST_KEYS);
+  tc_db_close (ht_request_methods, DB_REQUEST_METHODS);
+  tc_db_close (ht_request_protocols, DB_REQUEST_PROTOCOLS);
+  tc_db_close (ht_requests, DB_REQUESTS);
+  tc_db_close (ht_requests_static, DB_REQUESTS_STATIC);
+  tc_db_close (ht_status_code, DB_STATUS_CODE);
+  tc_db_close (ht_unique_vis, DB_UNIQUE_VIS);
+  tc_db_close (ht_unique_visitors, DB_UNIQUE_VISITORS);
+}
+
 /* Close the database handle */
 #ifdef TCB_BTREE
 int

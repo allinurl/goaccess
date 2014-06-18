@@ -55,9 +55,9 @@ extern GHashTable *ht_unique_visitors;
 
 /* *INDENT-OFF* */
 
-char * get_request_meta (const char *k, GReqMeta meta_req);
 GHashTable *get_ht_by_module (GModule module);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
+char *get_request_meta (const char *k, GReqMeta meta_req);
 int process_browser (GHashTable * ht, const char *key, const char *browser_type);
 int process_generic_data (GHashTable * ht, const char *key);
 int process_geolocation (GHashTable * ht, const char *ctry, const char *cont, const char *city);
@@ -72,6 +72,7 @@ void free_browser (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpo
 void free_countries (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
 void free_key_value (gpointer old_key, GO_UNUSED gpointer old_value, GO_UNUSED gpointer user_data);
 void free_os (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
+void free_storage (void);
 void init_storage (void);
 
 /* *INDENT-ON* */
