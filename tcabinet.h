@@ -139,23 +139,24 @@ void free_requests (TCMDB * mdb, char *key, GO_UNUSED int ksize, GO_UNUSED void 
 void tc_db_foreach (void *db, void (*fp) (TCMDB * m, char *k, int s, void *u), void *user_data);
 #endif
 
-char *get_request_meta (const char *k, GReqMeta meta_req);
 GRawData *parse_raw_data (void *db, int ht_size, GModule module);
+char *get_request_meta (const char *k, GReqMeta meta_req);
 int process_browser (void *db, const char *k, const char *browser_type);
 int process_generic_data (void *db, const char *k);
 int process_geolocation (void *db, const char *ctry, const char *cont, const char *city);
 int process_host_agents (char *host, char *agent);
 int process_opesys (void *db, const char *k, const char *os_type);
-int process_request_meta (void *db, const char *k, uint64_t size);
 int process_request (void *db, const char *k, const GLogItem * glog);
+int process_request_meta (void *db, const char *k, uint64_t size);
 int tc_db_get_int (void *db, const char *k);
 uint64_t get_bandwidth (char *k, GModule module);
 uint64_t get_serve_time (const char *k, GModule module);
 uint64_t tc_db_get_uint64 (void *db, const char *k);
 unsigned int get_ht_size (void *db);
-void free_key (BDBCUR * cur, char *key, GO_UNUSED int ksize, GO_UNUSED void *user_data);
-void init_storage (void);
 void *tc_db_get_str (void *db, const char *k);
+void free_key (BDBCUR * cur, char *key, GO_UNUSED int ksize, GO_UNUSED void *user_data);
+void free_storage (void);
+void init_storage (void);
 void tc_db_put_str (void *db, const char *k, const char *v);
 
 /* *INDENT-ON* */

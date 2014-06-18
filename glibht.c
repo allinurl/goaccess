@@ -107,6 +107,33 @@ init_storage (void)
   ht_os = new_ht (g_free, NULL);
 }
 
+void
+free_storage (void)
+{
+#ifdef HAVE_LIBGEOIP
+  g_hash_table_foreach (ht_countries, free_countries, NULL);
+#endif
+  g_hash_table_foreach (ht_os, free_os, NULL);
+  g_hash_table_foreach (ht_browsers, free_browser, NULL);
+
+  g_hash_table_destroy (ht_browsers);
+  g_hash_table_destroy (ht_countries);
+  g_hash_table_destroy (ht_date_bw);
+  g_hash_table_destroy (ht_file_bw);
+  g_hash_table_destroy (ht_host_bw);
+  g_hash_table_destroy (ht_hosts);
+  g_hash_table_destroy (ht_keyphrases);
+  g_hash_table_destroy (ht_not_found_requests);
+  g_hash_table_destroy (ht_os);
+  g_hash_table_destroy (ht_referrers);
+  g_hash_table_destroy (ht_referring_sites);
+  g_hash_table_destroy (ht_requests);
+  g_hash_table_destroy (ht_requests_static);
+  g_hash_table_destroy (ht_status_code);
+  g_hash_table_destroy (ht_unique_vis);
+  g_hash_table_destroy (ht_unique_visitors);
+}
+
 #ifdef HAVE_LIBGEOIP
 void
 free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
