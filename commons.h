@@ -149,5 +149,6 @@ typedef struct GBrowser_
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);
+void display_version (void);
 
 #endif

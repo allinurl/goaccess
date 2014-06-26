@@ -46,7 +46,7 @@ static char short_options[] = "f:e:p:o:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
-  "acrmMhHqds";
+  "acrmMhHqdsV";
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
@@ -58,6 +58,7 @@ struct option long_opts[] = {
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"http-method"          , no_argument       , 0 , 'M' } ,
   {"http-protocol"        , no_argument       , 0 , 'H' } ,
+  {"version"              , no_argument       , 0 , 'V' } ,
 #ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
 #endif
@@ -281,6 +282,10 @@ read_option_args (int argc, char **argv)
        break;
      case 'H':
        conf.append_protocol = 1;
+       break;
+     case 'V':
+       display_version ();
+       exit (EXIT_SUCCESS);
        break;
      case 0:
 
