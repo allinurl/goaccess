@@ -179,6 +179,7 @@ cmd_help (void)
 /* Other Options */
   "Other Options\n\n"
   "  -h --help                   - This help.\n"
+  "  -V --version                - Display version information and exit.\n"
   "  -s --storage                - Display current storage method.\n"
   "                                i.e., B+ Tree, Hash.\n\n"
 
