@@ -1311,7 +1311,8 @@ output_html (GLog * logger, GHolder * holder)
   print_html_generic (fp, holder + REFERRING_SITES, logger->process);
   print_html_generic (fp, holder + KEYPHRASES, logger->process);
 #ifdef HAVE_LIBGEOIP
-  print_html_geolocation (fp, holder + GEO_LOCATION, logger->process);
+  print_html_geolocation (fp, holder + GEO_LOCATION,
+                          get_ht_size (ht_unique_visitors));
 #endif
   print_html_status (fp, holder + STATUS_CODES, logger->process);
 
