@@ -401,7 +401,8 @@ output_json (GLog * logger, GHolder * holder)
   fprintf (fp, ",\n");
 
 #ifdef HAVE_LIBGEOIP
-  print_json_generic (fp, holder + GEO_LOCATION, logger->process);
+  print_json_generic (fp, holder + GEO_LOCATION,
+                      get_ht_size (ht_unique_visitors));
   fprintf (fp, ",\n");
 #endif
 

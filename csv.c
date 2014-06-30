@@ -300,7 +300,8 @@ output_csv (GLog * logger, GHolder * holder)
   print_csv_generic (fp, holder + REFERRING_SITES, logger->process);
   print_csv_generic (fp, holder + KEYPHRASES, logger->process);
 #ifdef HAVE_LIBGEOIP
-  print_csv_generic (fp, holder + GEO_LOCATION, logger->process);
+  print_csv_generic (fp, holder + GEO_LOCATION,
+                     get_ht_size (ht_unique_visitors));
 #endif
   print_csv_generic (fp, holder + STATUS_CODES, logger->process);
 
