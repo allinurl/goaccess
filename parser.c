@@ -577,6 +577,7 @@ parse_req (char *line, GLogItem * glog)
       (lookfor = "DELETE ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "TRACE ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "CONNECT ", req_l = strstr (line, lookfor)) != NULL ||
+      (lookfor = "PATCH", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "options ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "get ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL ||
@@ -584,8 +585,8 @@ parse_req (char *line, GLogItem * glog)
       (lookfor = "put ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "delete ", req_l = strstr (line, lookfor)) != NULL ||
       (lookfor = "trace ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL) {
-
+      (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL ||
+      (lookfor = "patch", req_l = strstr (line, lookfor)) != NULL) {
     /* didn't find it - weird  */
     if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
         (req_r = strstr (line, " HTTP/1.1")) == NULL)
@@ -638,6 +639,7 @@ invalid_method (const char *token)
            (lookfor = "DELETE", !memcmp (token, lookfor, 6)) ||
            (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
            (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
+           (lookfor = "PATCH", !memcmp (token, lookfor, 5)) ||
            (lookfor = "options", !memcmp (token, lookfor, 7)) ||
            (lookfor = "get", !memcmp (token, lookfor, 3)) ||
            (lookfor = "head", !memcmp (token, lookfor, 4)) ||
@@ -645,7 +647,8 @@ invalid_method (const char *token)
            (lookfor = "put", !memcmp (token, lookfor, 3)) ||
            (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
            (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
-           (lookfor = "connect", !memcmp (token, lookfor, 7)));
+           (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
+           (lookfor = "patch", !memcmp (token, lookfor, 5)));
 }
 
 static int
