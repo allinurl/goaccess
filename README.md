@@ -134,6 +134,7 @@ configuration file:
 | `-e --exclude-ip=<IP>`         | Exclude an IP from being counted.                                                 |
 | `-g --std-geoip`               | Standard GeoIP database for less memory usage.                                    |
 | `-h --help`                    | This help.                                                                        |
+| `-V --version`                 | Display version information and exit.                                             |
 | `-H --http-protocol `          | Include HTTP request protocol if found.                                           |
 | `-m --with-mouse `             | Enable mouse support on main dashboard.                                           |
 | `-M --http-method`             | Include HTTP request method if found.                                             |
