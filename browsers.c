@@ -61,7 +61,6 @@ static const char *browsers[][2] = {
   {"Camino", "Others"},
   {"Dillo", "Others"},
   {"Kazehakase", "Others"},
-  {"Iceape", "Others"},
   {"K-Meleon", "Others"},
   {"Galeon", "Others"},
   {"BrowserX", "Others"},
@@ -78,6 +77,13 @@ static const char *browsers[][2] = {
   /* Chrome has to go before Safari */
   {"Chrome", "Chrome"},
   {"Safari", "Safari"},
+  
+  {"Downcast", "Podcasts"},
+  {"gPodder", "Podcasts"},
+  {"Instacast", "Podcasts"},
+  {"iTunes", "Podcasts"},
+  {"Miro", "Podcasts"},
+  {"Pocket Casts", "Podcasts"},
 
   {"Flipboard", "Crawlers"},
   {"Feed", "Crawlers"},
