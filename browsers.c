@@ -48,7 +48,7 @@ static const char *browsers[][2] = {
   {"YaBrowser", "Others"},
   {"Firefox", "Firefox"},
   {"Opera Mini", "Opera"},
-  {"Opera Mobile", "Opera"},
+  {"Opera Mobi", "Opera"},
   {"Opera", "Opera"},
   {"OPR", "Opera"},
   {"OPiOS", "Opera"},
@@ -83,7 +83,7 @@ static const char *browsers[][2] = {
   {"Chrome", "Chrome"},
   {"CriOS", "Chrome"},
   {"Safari", "Safari"},
-  
+
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
   {"Instacast", "Podcasts"},
