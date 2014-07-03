@@ -74,10 +74,15 @@ static const char *browsers[][2] = {
   {"HUAWEI", "Others"},
   {"APT-HTTP", "Others"},
   {"check_http", "Others"},
+  {"UCBrowser", "Others"},
 
   /* Chrome has to go before Safari */
   {"Chrome", "Chrome"},
+  /* Android has to go after Chrome */
+  {"Dalvik", "Android"},
   {"Safari", "Safari"},
+  
+
 
   {"Flipboard", "Crawlers"},
   {"Feed", "Crawlers"},
@@ -168,7 +173,6 @@ static const char *browsers[][2] = {
   {"Crowsnest", "Crawlers"},
   {"CatchBot", "Crawlers"},
   {"Combine", "Crawlers"},
-  {"Dalvik", "Crawlers"},
   {"A6-Indexer", "Crawlers"},
   {"Altresium", "Crawlers"},
   {"AndroidDownloadManager", "Crawlers"},
