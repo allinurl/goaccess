@@ -51,6 +51,7 @@ static const char *browsers[][2] = {
   {"Opera Mobile", "Opera"},
   {"Opera", "Opera"},
   {"OPR", "Opera"},
+  {"CPiOS", "Opera"},
   {"Coast", "Opera"},
   {"Netscape", "Others"},
   {"Konqueror", "Others"},
