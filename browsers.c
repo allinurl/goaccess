@@ -96,7 +96,7 @@ static const char *browsers[][2] = {
   {"Akregator", "Feeds"},
   {"Liferea", "Feeds"},
   {"newsbeuter", "Feeds"},
-  {"RSSOwl", "Feeds"}
+  {"RSSOwl", "Feeds"},
   {"NetNewsWire", "Feeds"},
   {"Vienna", "Feeds"},
   {"Windows-RSS-Platform", "Feeds"},
@@ -112,7 +112,7 @@ static const char *browsers[][2] = {
   {"Bloglines", "Feeds"},
   {"Flipboard", "Feeds"},
   {"YandexBlogs", "Feeds"},
-  
+
   {"AdsBot-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
   {"Google", "Crawlers"},
