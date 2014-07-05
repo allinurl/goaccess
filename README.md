@@ -1,4 +1,4 @@
-GoAccess [![Build Status](https://secure.travis-ci.org/allinurl/goaccess.png?branch=master)](http://travis-ci.org/allinurl/goaccess)
+GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess)
 ========
 
 ## What is it? ##
