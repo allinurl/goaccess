@@ -84,6 +84,7 @@ static const char *browsers[][2] = {
   {"CriOS", "Chrome"},
   {"Safari", "Safari"},
 
+  /* Podcast fetchers */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
   {"Instacast", "Podcasts"},
@@ -91,8 +92,27 @@ static const char *browsers[][2] = {
   {"Miro", "Podcasts"},
   {"Pocket Casts", "Podcasts"},
 
-  {"Flipboard", "Crawlers"},
-  {"Feed", "Crawlers"},
+  /* Feed reader clients */
+  {"Akregator", "Feeds"},
+  {"Liferea", "Feeds"},
+  {"newsbeuter", "Feeds"},
+  {"RSSOwl", "Feeds"}
+  {"NetNewsWire", "Feeds"},
+  {"Vienna", "Feeds"},
+  {"Windows-RSS-Platform", "Feeds"},
+  {"FeedDemon", "Feeds"},
+  {"Thunderbird", "Feeds"},
+  {"Feedy", "Feeds"},
+  {"Apple-PubSub", "Feeds"},
+
+  /* Feed-reader-as-a-service */
+  {"NewsBlur", "Feeds"},
+  {"Netvibes", "Feeds"},
+  {"Feedly", "Feeds"},
+  {"Bloglines", "Feeds"},
+  {"Flipboard", "Feeds"},
+  {"YandexBlogs", "Feeds"},
+  
   {"AdsBot-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
   {"Google", "Crawlers"},
@@ -122,7 +142,6 @@ static const char *browsers[][2] = {
   {"GSLFbot", "Crawlers"},
   {"YodaoBot", "Crawlers"},
   {"AddThis", "Crawlers"},
-  {"Apple-PubSub", "Crawlers"},
   {"Purebot", "Crawlers"},
   {"ia_archiver", "Crawlers"},
   {"Wotbox", "Crawlers"},
