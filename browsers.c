@@ -97,6 +97,7 @@ static const char *browsers[][2] = {
   {"iTunes", "Podcasts"},
   {"Miro", "Podcasts"},
   {"Pocket Casts", "Podcasts"},
+  {"BashPodder", "Podcasts"},
 
   /* Feed reader clients */
   {"Akregator", "Feeds"},
