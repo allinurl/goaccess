@@ -1257,6 +1257,8 @@ static const char *help_main[] = {
   " ^q^             Quit the program, current window or module",
   " ^o^ or ^ENTER^  Expand selected module",
   " ^[Shift]0-9^    Set selected module to active",
+  " ^Up^ arrow      Scroll up main dashboard",
+  " ^Down^ arrow    Scroll down main dashboard",
   " ^j^             Scroll down within expanded module",
   " ^k^             Scroll up within expanded module",
   " ^c^             Set or change scheme color",
