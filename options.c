@@ -249,7 +249,7 @@ read_option_args (int argc, char **argv)
        break;
 #endif
      case 'e':
-       conf.ignore_host = optarg;
+       conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
        break;
      case 'a':
        conf.list_agents = 1;
