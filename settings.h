@@ -25,6 +25,7 @@
 
 #define MAX_LINE_CONF 512
 #define MAX_EXTENSIONS 64
+#define MAX_IGNORE_IPS 64
 
 typedef enum
 {
@@ -68,7 +69,7 @@ typedef struct GConf_
   char *geoip_city_data;
   char *iconfigfile;
   char *ifile;
-  char *ignore_host;
+  char *ignore_ips[MAX_IGNORE_IPS];
   char *log_format;
   char *output_format;
   char *static_files[MAX_EXTENSIONS];
@@ -78,6 +79,7 @@ typedef struct GConf_
   int color_scheme;
   int enable_html_resolver;
   int geo_db;
+  int ignore_ip_idx;
   int ignore_qstr;
   int list_agents;
   int load_conf_dlg;

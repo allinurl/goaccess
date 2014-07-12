@@ -35,6 +35,7 @@
 #define HOUR             3600000000ULL
 
 /* *INDENT-OFF* */
+#include <stdint.h>
 
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
@@ -61,7 +62,9 @@ const char *verify_status_code_type (const char *str);
 int count_occurrences (const char *s1, char c);
 int intlen (int num);
 int invalid_ipaddr (char *str);
+int ip_in_range (const char *ip);
 off_t file_size (const char *filename);
+uint32_t ip_to_binary (const char *ip);
 void strip_newlines (char *str);
 void str_to_upper (char *s);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);

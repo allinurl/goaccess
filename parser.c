@@ -963,7 +963,7 @@ process_log (GLog * logger, char *line, int test)
     return 0;
 
   /* ignore host */
-  if (conf.ignore_host != NULL && strcmp (glog->host, conf.ignore_host) == 0)
+  if (conf.ignore_ip_idx && ip_in_range (glog->host))
     return 0;
 
   /* agent will be null in cases where %u is not specified */

@@ -29,8 +29,9 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
@@ -158,6 +159,82 @@ count_occurrences (const char *s1, char c)
   } while (*(ptr++));
   return n;
 }
+
+static int
+within_range (const char *ip, const char *start, const char *end)
+{
+  union
+  {
+    struct in_addr addr4, start4, end4;
+    struct in6_addr addr6, start6, end6;
+  } a;
+
+  if (start == NULL || *start == '\0')
+    return 0;
+  if (end == NULL || *end == '\0')
+    return 0;
+  if (ip == NULL || *ip == '\0')
+    return 0;
+
+  /* IPv4 */
+  if (1 == inet_pton (AF_INET, ip, &a.addr4)) {
+    if (1 != inet_pton (AF_INET, start, &a.start4))
+      return 0;
+    if (1 != inet_pton (AF_INET, end, &a.end4))
+      return 0;
+
+    if (memcmp (&a.addr4, &a.start4, sizeof (a.addr4)) >= 0 &&
+        memcmp (&a.addr4, &a.end4, sizeof (a.addr4)) <= 0)
+      return 1;
+  }
+  /* IPv6 */
+  else if (1 == inet_pton (AF_INET6, ip, &a.addr6)) {
+    if (1 != inet_pton (AF_INET6, start, &a.start6))
+      return 0;
+    if (1 != inet_pton (AF_INET6, end, &a.end6))
+      return 0;
+
+    if (memcmp (&a.addr6, &a.start6, sizeof (a.addr6)) >= 0 &&
+        memcmp (&a.addr6, &a.end6, sizeof (a.addr6)) <= 0)
+      return 1;
+  }
+
+  return 0;
+}
+
+int
+ip_in_range (const char *ip)
+{
+  char *start = NULL, *end = NULL, *dash;
+  int i;
+
+  for (i = 0; i < conf.ignore_ip_idx; ++i) {
+    start = conf.ignore_ips[i];
+    if (start == NULL || *start == '\0')
+      continue;
+
+    /* split range */
+    if ((dash = strchr (start, '-')) != NULL) {
+      *dash = '\0';
+      end = dash + 1;
+    }
+
+    /* matches single IP */
+    if (end == NULL && start) {
+      if (strcmp (ip, start) == 0)
+        return 1;
+    }
+
+    /* within range */
+    if (start && end) {
+      if (within_range (ip, start, end))
+        return 1;
+    }
+  }
+
+  return 0;
+}
+
 
 char *
 get_home (void)
