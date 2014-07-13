@@ -169,6 +169,8 @@ within_range (const char *ip, const char *start, const char *end)
     struct in6_addr addr6, start6, end6;
   } a;
 
+  memset (&a, 0, sizeof (a));
+
   if (start == NULL || *start == '\0')
     return 0;
   if (end == NULL || *end == '\0')
