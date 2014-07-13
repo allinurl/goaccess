@@ -936,35 +936,31 @@ process_log (GLog * logger, char *line, int test)
 
   glog = init_log_item (logger);
   if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {
-    free_logger (glog);
     logger->invalid++;
 
 #ifdef TCB_BTREE
     process_generic_data (ht_general_stats, "failed_requests");
 #endif
-    return 0;
+    goto cleanup;
   }
 
   /* must have the following fields */
   if (glog->host == NULL || glog->date == NULL || glog->status == NULL ||
       glog->req == NULL) {
-    free_logger (glog);
     logger->invalid++;
-    return 0;
+    goto cleanup;
   }
 
-  if (test) {
-    free_logger (glog);
-    return 0;
-  }
+  if (test)
+    goto cleanup;
 
   convert_date (buf, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
   if (buf == NULL)
-    return 0;
+    goto cleanup;
 
   /* ignore host */
   if (conf.ignore_ip_idx && ip_in_range (glog->host))
-    return 0;
+    goto cleanup;
 
   /* agent will be null in cases where %u is not specified */
   if (glog->agent == NULL)
@@ -1029,8 +1025,11 @@ process_log (GLog * logger, char *line, int test)
   process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
 #endif
 
+cleanup:
   free_logger (glog);
-  free (req_key);
+  if (req_key != NULL)
+    free (req_key);
+
   return 0;
 }
 
