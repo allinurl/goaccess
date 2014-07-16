@@ -963,7 +963,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
     if (ag != NULL) {
       ptr_value = (char *) ag;
 
-      delims = count_occurrences (ptr_value, '|');
+      delims = count_matches (ptr_value, '|');
       /* round-up + padding */
       alloc = ((strlen (ptr_value) + 300 - 1) / 300) + delims + 1;
       agents = xmalloc (alloc * sizeof (GAgents));

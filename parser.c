@@ -661,11 +661,14 @@ invalid_protocol (const char *token)
 }
 
 static char *
-parse_string (char **str, char end)
+parse_string (char **str, char end, int cnt)
 {
+  int idx = 0;
   char *pch = *str, *p;
   do {
-    if (*pch == end || *pch == '\0') {
+    if (*pch == end)
+      idx++;
+    if ((*pch == end && cnt == idx) || *pch == '\0') {
       size_t len = (pch - *str + 1);
       p = xmalloc (len);
       memcpy (p, *str, (len - 1));
@@ -713,7 +716,9 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'd':
          if (glog->date)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         /* parse date format including dates containing spaces,
+          * i.e., syslog date format (Jul 15 20:10:56) */
+         tkn = parse_string (&str, p[1], count_matches (date_format, ' ') + 1);
          if (tkn == NULL)
            return 1;
          end = strptime (tkn, date_format, &tm);
@@ -727,7 +732,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'h':
          if (glog->host)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          if (invalid_ipaddr (tkn)) {
@@ -740,7 +745,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'm':
          if (glog->method)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          if (invalid_method (tkn)) {
@@ -753,7 +758,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'U':
          if (glog->req)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL || *tkn == '\0')
            return 1;
          if ((glog->req = decode_url (tkn)) == NULL)
@@ -764,7 +769,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'H':
          if (glog->protocol)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          if (invalid_protocol (tkn)) {
@@ -777,7 +782,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'r':
          if (glog->req)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          glog->req = parse_req (tkn, glog);
@@ -787,7 +792,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 's':
          if (glog->status)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          strtol (tkn, &sEnd, 10);
@@ -801,7 +806,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'b':
          if (glog->resp_size)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          bandw = strtol (tkn, &bEnd, 10);
@@ -815,7 +820,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'R':
          if (glog->ref)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            tkn = alloc_string ("-");
          if (tkn != NULL && *tkn == '\0') {
@@ -828,7 +833,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'u':
          if (glog->agent)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn != NULL && *tkn != '\0') {
            /* Make sure the user agent is decoded (i.e.: CloudFront)
             * and replace all '+' with ' ' (i.e.: w3c) */
@@ -853,7 +858,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
          if (strstr (fmt, "%D") != NULL)
            break;
 
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          if (strchr (tkn, '.') != NULL)
@@ -875,7 +880,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
        case 'D':
          if (glog->serve_time)
            return 1;
-         tkn = parse_string (&str, p[1]);
+         tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
          serve_time = strtoull (tkn, &bEnd, 10);

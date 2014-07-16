@@ -620,7 +620,7 @@ load_agent_list (WINDOW * main_win, char *addr)
 
   if (value_ptr != NULL) {
     ptr_value = (char *) value_ptr;
-    delims = count_occurrences (ptr_value, '|');
+    delims = count_matches (ptr_value, '|');
 
     n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1;
     agents = new_gagents (n);

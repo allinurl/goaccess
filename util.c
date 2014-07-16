@@ -149,7 +149,7 @@ xstrncpy (char *dest, const char *source, const size_t dest_size)
 }
 
 int
-count_occurrences (const char *s1, char c)
+count_matches (const char *s1, char c)
 {
   const char *ptr = s1;
   int n = 0;
@@ -274,9 +274,17 @@ convert_date (char *result, char *data, const char *from, const char *to,
 
   memset (&tm, 0, sizeof (tm));
 
+  timestamp = time (NULL);
+  now_tm = localtime (&timestamp);
+
   end = strptime (data, from, &tm);
   if (end == NULL || *end != '\0')
     return NULL;
+
+  /* use current year if not passed */
+  if (strpbrk (from, "Yy") == NULL)
+    tm.tm_year = now_tm->tm_year;
+
   if (strftime (result, size, to, &tm) <= 0)
     return NULL;
 
