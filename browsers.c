@@ -231,6 +231,14 @@ static const char *browsers[][2] = {
   {"PostRank", "Crawlers"},
   {"Image", "Crawlers"},
 
+  {"Pingdom.com", "Uptime"},
+  {"UptimeRobot", "Uptime"},
+  {"jetmon", "Uptime"},
+  {"NodeUptime", "Uptime"},
+  {"NewRelicPinger", "Uptime"},
+  {"StatusCake", "Uptime"},
+  {"internetVista", "Uptime"},
+
   {"Mozilla", "Others"}
 };
 
