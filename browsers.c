@@ -234,6 +234,17 @@ static const char *browsers[][2] = {
   {"Mozilla", "Others"}
 };
 
+int
+is_crawler (const char *agent)
+{
+  char browser_type[BROWSER_TYPE_LEN];
+  char *browser;
+  if ((browser = verify_browser (agent, browser_type)) != NULL)
+    free (browser);
+
+  return strcmp (browser_type, "Crawlers") == 0 ? 1 : 0;
+}
+
 char *
 verify_browser (const char *str, char *browser_type)
 {

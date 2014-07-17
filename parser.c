@@ -966,6 +966,9 @@ process_log (GLog * logger, char *line, int test)
   /* ignore host */
   if (conf.ignore_ip_idx && ip_in_range (glog->host))
     goto cleanup;
+  /* ignore crawlers */
+  if (conf.ignore_crawlers && is_crawler (glog->agent))
+    goto cleanup;
 
   /* agent will be null in cases where %u is not specified */
   if (glog->agent == NULL)

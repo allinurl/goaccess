@@ -50,7 +50,6 @@ static char short_options[] = "f:e:p:o:"
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
-  {"log-file"             , required_argument , 0 , 'f' } ,
   {"agent-list"           , no_argument       , 0 , 'a' } ,
   {"config-dialog"        , no_argument       , 0 , 'c' } ,
   {"config-file"          , required_argument , 0 , 'p' } ,
@@ -58,22 +57,24 @@ struct option long_opts[] = {
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"http-method"          , no_argument       , 0 , 'M' } ,
   {"http-protocol"        , no_argument       , 0 , 'H' } ,
+  {"log-file"             , required_argument , 0 , 'f' } ,
   {"version"              , no_argument       , 0 , 'V' } ,
 #ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
 #endif
-  {"static-file"          , required_argument , 0 ,  0  } ,
+  {"color-scheme"         , required_argument , 0 ,  0  } ,
+  {"date-format"          , required_argument , 0 ,  0  } ,
+  {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
+  {"log-format"           , required_argument , 0 ,  0  } ,
+  {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"no-global-config"     , no_argument       , 0 ,  0  } ,
+  {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
-  {"color-scheme"         , required_argument , 0 ,  0  } ,
-  {"date-format"          , required_argument , 0 ,  0  } ,
-  {"log-format"           , required_argument , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"no-color"             , no_argument       , 0 ,  0  } ,
-  {"no-global-config"     , no_argument       , 0 ,  0  } ,
+  {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
-  {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBGEOIP
@@ -142,6 +143,7 @@ cmd_help (void)
   "                                Snow Leopard.\n"
   "  --static-file=<extension>   - Add static file extension. e.g.: .mp3\n"
   "                                Extensions are case sensitive.\n"
+  "  --ignore-crawlers           - Ignore crawlers.\n"
   "  --no-progress               - Disable progress metrics.\n\n"
 
 /* GeoIP Options */
@@ -306,6 +308,8 @@ read_option_args (int argc, char **argv)
            conf.static_file_max_len = strlen (optarg);
          conf.static_files[conf.static_file_idx++] = optarg;
        }
+       if (!strcmp ("ignore-crawlers", long_opts[idx].name))
+         conf.ignore_crawlers = 1;
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))

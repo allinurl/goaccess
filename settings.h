@@ -79,6 +79,7 @@ typedef struct GConf_
   int color_scheme;
   int enable_html_resolver;
   int geo_db;
+  int ignore_crawlers;
   int ignore_ip_idx;
   int ignore_qstr;
   int list_agents;
