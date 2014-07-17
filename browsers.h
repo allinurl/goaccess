@@ -22,5 +22,6 @@
 #define BROWSERS_H_INCLUDED
 
 char *verify_browser (const char *str, char *browser_type);
+int is_crawler (const char *agent);
 
 #endif
