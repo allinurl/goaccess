@@ -131,7 +131,7 @@ configuration file:
 | `-a --agent-list`              | Enable a list of user-agents by host. For faster parsing, don't enable this.      |
 | `-c --config-dialog`           | Prompt log/date configuration window.                                             |
 | `-d --with-output-resolver`    | Enable IP resolver on HTML|JSON output.                                           |
-| `-e --exclude-ip=<IP>`         | Exclude an IP from being counted.                                                 |
+| `-e --exclude-ip=<IP>`         | Exclude one or multiple IPv4/v6 including IP ranges.                              |
 | `-g --std-geoip`               | Standard GeoIP database for less memory usage.                                    |
 | `-h --help`                    | This help.                                                                        |
 | `-V --version`                 | Display version information and exit.                                             |
