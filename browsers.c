@@ -36,7 +36,11 @@ static const char *browsers[][2] = {
   /* Internet Explorer */
   {"IEMobile", "MSIE"},
   {"MSIE", "MSIE"},
+  /* IE11 */
   {"Trident/7.0", "MSIE"},
+
+  /* Chrome has to go before Safari */
+  {"Chrome", "Chrome"},
 
   /* Others */
   {"APT-HTTP", "Others"},
@@ -95,8 +99,6 @@ static const char *browsers[][2] = {
   {"Origin", "Game Systems"},
   {"Raptr", "Game Systems"},
 
-  /* Chrome has to go before Safari */
-  {"Chrome", "Chrome"},
   {"CriOS", "Chrome"},
   {"Safari", "Safari"},
 
@@ -255,18 +257,19 @@ static const char *browsers[][2] = {
 int
 is_crawler (const char *agent)
 {
-  char browser_type[BROWSER_TYPE_LEN];
-  char *browser;
-  if ((browser = verify_browser (agent, browser_type)) != NULL)
+  char type[BROWSER_TYPE_LEN];
+  char *browser, *a = xstrdup (agent);
+  if ((browser = verify_browser (a, type)) != NULL)
     free (browser);
+  free (a);
 
-  return strcmp (browser_type, "Crawlers") == 0 ? 1 : 0;
+  return strcmp (type, "Crawlers") == 0 ? 1 : 0;
 }
 
 char *
-verify_browser (const char *str, char *browser_type)
+verify_browser (char *str, char *type)
 {
-  char *a, *b, *p, *ptr, *slash;
+  char *a, *ptr, *slash, *val;
   size_t i;
 
   if (str == NULL || *str == '\0')
@@ -276,53 +279,37 @@ verify_browser (const char *str, char *browser_type)
     if ((a = strstr (str, browsers[i][0])) == NULL)
       continue;
 
-    if (!(b = a))
-      return NULL;
-    ptr = a;
-
+    /* Internet Explorer 11 */
+    if (strstr (a, "rv:11") && strstr (a, "Trident/7.0")) {
+      xstrncpy (type, "MSIE", BROWSER_TYPE_LEN);
+      return alloc_string ("MSIE/11.0");
+    }
     /* Opera +15 uses OPR/# */
-    if (strstr (b, "OPR") != NULL) {
-      if ((slash = strrchr (b, '/')) != NULL) {
-        char *val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
+    if (strstr (a, "OPR") != NULL) {
+      if ((slash = strrchr (a, '/')) != NULL) {
+        val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
         sprintf (val, "Opera%s", slash);
+        xstrncpy (type, "Opera", BROWSER_TYPE_LEN);
 
-        xstrncpy (browser_type, "Opera", BROWSER_TYPE_LEN);
         return val;
       }
     }
     /* Opera has the version number at the end */
     if (strstr (a, "Opera") != NULL) {
-      if ((slash = strrchr (b, '/')) != NULL && a < slash)
+      if ((slash = strrchr (a, '/')) != NULL && a < slash)
         memmove (a + 5, slash, strlen (slash) + 1);
     }
-    /* MSIE */
     if (strstr (a, "MSIE") != NULL) {
-      while (*ptr != ';' && *ptr != ')' && *ptr != '-' && *ptr != '\0') {
-        if (*ptr == ' ')
-          *ptr = '/';
-        ptr++;
-      }
-    }
-    /* IE11 */
-    if (strstr (a, "rv:11") != NULL && strstr (a, "Trident/7.0") != NULL) {
-      xstrncpy (browser_type, "MSIE", BROWSER_TYPE_LEN);
-      return alloc_string ("MSIE/11.0");
-    }
-    /* everything else is parsed here */
-    for (p = a; *p; p++) {
-      if (isalnum (p[0]) || *p == '.' || *p == '/' || *p == '_' || *p == '-') {
-        a++;
-        continue;
-      } else {
-        break;
-      }
-    }
-    *p = 0;
+      if ((ptr = strpbrk (a, ";)-")) != NULL)
+        *ptr = '\0';
+      a = char_replace (a, ' ', '/');
+    } else if ((ptr = strpbrk (a, ";) ")) != NULL)
+      *ptr = '\0';
 
-    xstrncpy (browser_type, browsers[i][1], BROWSER_TYPE_LEN);
-    return alloc_string (b);
+    xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
+    return alloc_string (a);
   }
-  xstrncpy (browser_type, "Unknown", BROWSER_TYPE_LEN);
+  xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");
 }
