@@ -120,6 +120,15 @@ static const char *browsers[][2] = {
   {"NewsBlur", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
+  /* Game systems */
+  {"Xbox One", "Game systems"},
+  {"Xbox", "Game systems"},
+  {"PlayStation", "Game systems"},
+  {"NintendoBrowser", "Game systems"},
+  {"Steam GameOverlay", "Game systems"},
+  {"Origin", "Game systems"},
+  {"Raptr", "Game systems"},
+
   /* Crawlers/Bots */
   {"AdsBot-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
