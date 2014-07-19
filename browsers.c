@@ -85,6 +85,16 @@ static const char *browsers[][2] = {
   /* Mozilla Firefox */
   {"Firefox", "Firefox"},
 
+  /* Game systems: some of them are Safari-based,
+   * thus they need to go before Safari */
+  {"Xbox One", "Game Systems"},
+  {"Xbox", "Game Systems"},
+  {"PlayStation", "Game Systems"},
+  {"NintendoBrowser", "Game Systems"},
+  {"Steam GameOverlay", "Game Systems"},
+  {"Origin", "Game Systems"},
+  {"Raptr", "Game Systems"},
+
   /* Chrome has to go before Safari */
   {"Chrome", "Chrome"},
   {"CriOS", "Chrome"},
@@ -119,15 +129,6 @@ static const char *browsers[][2] = {
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
   {"YandexBlogs", "Feeds"},
-
-  /* Game systems */
-  {"Xbox One", "Game systems"},
-  {"Xbox", "Game systems"},
-  {"PlayStation", "Game systems"},
-  {"NintendoBrowser", "Game systems"},
-  {"Steam GameOverlay", "Game systems"},
-  {"Origin", "Game systems"},
-  {"Raptr", "Game systems"},
 
   /* Crawlers/Bots */
   {"AdsBot-Google", "Crawlers"},
