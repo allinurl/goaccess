@@ -160,8 +160,9 @@ Do not load the global configuration file. This directory should normally be
 /usr/local/etc, unless specified with
 .I --sysconfdir=/dir.
 .TP
-\fB\-e \-\-exclude-ip=<IP>
-Exclude an IP from being counted.
+\fB\-e \-\-exclude-ip=<IP|IP-range>
+Exclude one or multiple IPv4/6, includes IP ranges. i.e.,
+192.168.0.1-192.168.0.10
 .TP
 \fB\-a \-\-agent-list
 Enable a list of user-agents by host. For faster parsing, do not enable this
@@ -196,6 +197,9 @@ Display real OS names. e.g, Windows XP, Snow Leopard.
 Add static file extension. e.g.:
 .I .mp3
 Extensions are case sensitive.
+.TP
+\fB\-\-ignore-crawlers
+Ignore crawlers.
 .TP
 \fB\-\-no-progress
 Disable progress metrics [total requests/requests per second].
