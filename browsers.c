@@ -258,8 +258,12 @@ int
 is_crawler (const char *agent)
 {
   char type[BROWSER_TYPE_LEN];
-  char *browser, *a = xstrdup (agent);
-  if ((browser = verify_browser (a, type)) != NULL)
+  char *browser, *a;
+
+  if (agent == NULL || *agent == '\0')
+    return 0;
+
+  if ((a = xstrdup (agent), browser = verify_browser (a, type)) != NULL)
     free (browser);
   free (a);
 
