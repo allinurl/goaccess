@@ -39,6 +39,9 @@ static const char *browsers[][2] = {
   /* IE11 */
   {"Trident/7.0", "MSIE"},
 
+  /* based on Chromium */
+  {"YaBrowser", "Others"},
+  {"Flock", "Others"},
   /* Chrome has to go before Safari */
   {"Chrome", "Chrome"},
 
@@ -54,7 +57,6 @@ static const char *browsers[][2] = {
   {"ELinks", "Others"},
   {"Epiphany", "Others"},
   {"Firebird", "Others"},
-  {"Flock", "Others"},
   {"Galeon", "Others"},
   {"GranParadiso", "Others"},
   {"IBrowse", "Others"},
@@ -71,7 +73,6 @@ static const char *browsers[][2] = {
   {"SeaMonkey", "Others"},
   {"UCBrowser", "Others"},
   {"Wget", "Others"},
-  {"YaBrowser", "Others"},
   {"check_http", "Others"},
   {"curl", "Others"},
   {"midori", "Others"},
