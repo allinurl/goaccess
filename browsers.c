@@ -33,13 +33,16 @@
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
+  /* Based on Internet Explorer */
+  {"America Online Browser", "Others"},
+  {"Avant Browser", "Others"},
   /* Internet Explorer */
   {"IEMobile", "MSIE"},
   {"MSIE", "MSIE"},
   /* IE11 */
   {"Trident/7.0", "MSIE"},
 
-  /* based on Chromium */
+  /* Based on Chromium */
   {"YaBrowser", "Others"},
   {"Flock", "Others"},
   /* Chrome has to go before Safari */
@@ -47,11 +50,8 @@ static const char *browsers[][2] = {
 
   /* Others */
   {"APT-HTTP", "Others"},
-  {"America Online Browser", "Others"},
-  {"Avant Browser", "Others"},
   {"BlackBerry", "Others"},
   {"BrowserX", "Others"},
-  {"Camino", "Others"},
   {"Dalvik", "Others"},
   {"Dillo", "Others"},
   {"ELinks", "Others"},
@@ -60,7 +60,6 @@ static const char *browsers[][2] = {
   {"Galeon", "Others"},
   {"GranParadiso", "Others"},
   {"IBrowse", "Others"},
-  {"Iceweasel", "Others"},
   {"K-Meleon", "Others"},
   {"Kazehakase", "Others"},
   {"Konqueror", "Others"},
@@ -86,6 +85,9 @@ static const char *browsers[][2] = {
   {"OPiOS", "Opera"},
   {"Coast", "Opera"},
 
+  /* Based on Firefox */
+  {"Iceweasel", "Others"},
+  {"Camino", "Others"},
   /* Mozilla Firefox */
   {"Firefox", "Firefox"},
 
