@@ -42,6 +42,14 @@ static const char *browsers[][2] = {
   /* IE11 */
   {"Trident/7.0", "MSIE"},
 
+  /* Opera */
+  {"Opera Mini", "Opera"},
+  {"Opera Mobi", "Opera"},
+  {"Opera", "Opera"},
+  {"OPR", "Opera"},
+  {"OPiOS", "Opera"},
+  {"Coast", "Opera"},
+
   /* Based on Chromium */
   {"YaBrowser", "Others"},
   {"Flock", "Others"},
@@ -76,14 +84,6 @@ static const char *browsers[][2] = {
   {"curl", "Others"},
   {"midori", "Others"},
   {"w3m", "Others"},
-
-  /* Opera */
-  {"Opera Mini", "Opera"},
-  {"Opera Mobi", "Opera"},
-  {"Opera", "Opera"},
-  {"OPR", "Opera"},
-  {"OPiOS", "Opera"},
-  {"Coast", "Opera"},
 
   /* Based on Firefox */
   {"Iceweasel", "Others"},
