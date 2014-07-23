@@ -57,7 +57,6 @@ static const char *browsers[][2] = {
   {"Flock", "Others"},
   {"Galeon", "Others"},
   {"GranParadiso", "Others"},
-  {"HUAWEI", "Others"},
   {"IBrowse", "Others"},
   {"Iceweasel", "Others"},
   {"K-Meleon", "Others"},
