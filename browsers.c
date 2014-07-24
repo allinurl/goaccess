@@ -104,36 +104,6 @@ static const char *browsers[][2] = {
   {"CriOS", "Chrome"},
   {"Safari", "Safari"},
 
-  /* Podcast fetchers */
-  {"Downcast", "Podcasts"},
-  {"gPodder", "Podcasts"},
-  {"Instacast", "Podcasts"},
-  {"iTunes", "Podcasts"},
-  {"Miro", "Podcasts"},
-  {"Pocket Casts", "Podcasts"},
-  {"BashPodder", "Podcasts"},
-
-  /* Feed reader clients */
-  {"Akregator", "Feeds"},
-  {"Apple-PubSub", "Feeds"},
-  {"FeedDemon", "Feeds"},
-  {"Feedy", "Feeds"},
-  {"Liferea", "Feeds"},
-  {"NetNewsWire", "Feeds"},
-  {"RSSOwl", "Feeds"},
-  {"Thunderbird", "Feeds"},
-  {"Vienna", "Feeds"},
-  {"Windows-RSS-Platform", "Feeds"},
-  {"newsbeuter", "Feeds"},
-
-  /* Feed-reader-as-a-service */
-  {"Bloglines", "Feeds"},
-  {"Feedly", "Feeds"},
-  {"Flipboard", "Feeds"},
-  {"Netvibes", "Feeds"},
-  {"NewsBlur", "Feeds"},
-  {"YandexBlogs", "Feeds"},
-
   /* Crawlers/Bots */
   {"AdsBot-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
@@ -244,6 +214,36 @@ static const char *browsers[][2] = {
   {"nutch", "Crawlers"},
   {"PostRank", "Crawlers"},
   {"Image", "Crawlers"},
+
+  /* Podcast fetchers */
+  {"Downcast", "Podcasts"},
+  {"gPodder", "Podcasts"},
+  {"Instacast", "Podcasts"},
+  {"iTunes", "Podcasts"},
+  {"Miro", "Podcasts"},
+  {"Pocket Casts", "Podcasts"},
+  {"BashPodder", "Podcasts"},
+
+  /* Feed reader clients */
+  {"Akregator", "Feeds"},
+  {"Apple-PubSub", "Feeds"},
+  {"FeedDemon", "Feeds"},
+  {"Feedy", "Feeds"},
+  {"Liferea", "Feeds"},
+  {"NetNewsWire", "Feeds"},
+  {"RSSOwl", "Feeds"},
+  {"Thunderbird", "Feeds"},
+  {"Vienna", "Feeds"},
+  {"Windows-RSS-Platform", "Feeds"},
+  {"newsbeuter", "Feeds"},
+
+  /* Feed-reader-as-a-service */
+  {"Bloglines", "Feeds"},
+  {"Feedly", "Feeds"},
+  {"Flipboard", "Feeds"},
+  {"Netvibes", "Feeds"},
+  {"NewsBlur", "Feeds"},
+  {"YandexBlogs", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
   {"UptimeRobot", "Uptime"},
