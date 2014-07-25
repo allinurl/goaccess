@@ -75,7 +75,6 @@ static const char *os[][2] = {
   {"Sony", "Others"},
   {"Xbox", "Others"},
   {"Nokia", "Others"},
-  {"HUAWEI", "Others"},
   {"PlayStation", "Others"}
 };
 
