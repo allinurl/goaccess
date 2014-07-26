@@ -50,12 +50,6 @@ static const char *browsers[][2] = {
   {"OPiOS", "Opera"},
   {"Coast", "Opera"},
 
-  /* Based on Chromium */
-  {"YaBrowser", "Others"},
-  {"Flock", "Others"},
-  /* Chrome has to go before Safari */
-  {"Chrome", "Chrome"},
-
   /* Others */
   {"APT-HTTP", "Others"},
   {"Huawei", "Others"},
@@ -102,6 +96,12 @@ static const char *browsers[][2] = {
   {"Valve Steam", "Game Systems"},
   {"Origin", "Game Systems"},
   {"Raptr", "Game Systems"},
+
+  /* Based on Chromium */
+  {"YaBrowser", "Others"},
+  {"Flock", "Others"},
+  /* Chrome has to go before Safari */
+  {"Chrome", "Chrome"},
 
   {"CriOS", "Chrome"},
   {"Safari", "Safari"},
