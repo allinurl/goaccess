@@ -99,7 +99,7 @@ static const char *browsers[][2] = {
   {"Xbox", "Game Systems"},
   {"PlayStation", "Game Systems"},
   {"NintendoBrowser", "Game Systems"},
-  {"Steam GameOverlay", "Game Systems"},
+  {"Valve Steam", "Game Systems"},
   {"Origin", "Game Systems"},
   {"Raptr", "Game Systems"},
 
