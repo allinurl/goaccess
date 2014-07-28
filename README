@@ -53,24 +53,26 @@ Keys
 ----
 The user can make use of the following keys:
 
-   * ^F1^ or ^h^           [main help]
-   * ^F5^                  redraw [main window]
-   * ^q^                   quit the program, current window or module
-   * ^o^  or ^ENTER^       expand selected module
-   * ^0-9^ and ^Shift + 0^ set selected module to active
-   * ^j^                   scroll down within expanded module
-   * ^k^                   scroll up within expanded module
-   * ^c^                   set or change scheme color
-   " ^CTRL^ + ^f^          scroll forward one screen within
-   "                       active module
-   " ^CTRL^ + ^b^          scroll backward one screen within
-   "                       active module
-   * ^TAB^                 iterate modules (forward)
-   * ^SHIFT^ + ^TAB^       iterate modules (backward)
-   * ^s^                   sort options for current module
-   * ^/^                   search across all modules
-   * ^n^                   find position of the next occurrence
-   * ^g^                   move to the first item or top of screen
-   * ^G^                   move to the last item or bottom of screen
+   * ^F1^  or ^h^    Main help,
+   * ^F5^            Redraw [main window],
+   * ^q^             Quit the program, current window or module,
+   * ^o^ or ^ENTER^  Expand selected module,
+   * ^[Shift]0-9^    Set selected module to active,
+   * ^Up^ arrow      Scroll up main dashboard,
+   * ^Down^ arrow    Scroll down main dashboard,
+   * ^j^             Scroll down within expanded module,
+   * ^k^             Scroll up within expanded module,
+   * ^c^             Set or change scheme color,
+   * ^CTRL^ + ^f^    Scroll forward one screen within,
+   *                 active module,
+   * ^CTRL^ + ^b^    Scroll backward one screen within,
+   *                 active module,
+   * ^TAB^           Iterate modules (forward),
+   * ^SHIFT^ + ^TAB^ Iterate modules (backward),
+   * ^s^             Sort options for current module,
+   * ^/^             Search across all modules,
+   * ^n^             Find position of the next occurrence,
+   * ^g^             Move to the first item or top of screen,
+   * ^G^             Move to the last item or bottom of screen,
 
 Examples can be found by running `man goaccess`.
