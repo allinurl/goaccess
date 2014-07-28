@@ -81,6 +81,14 @@ static const char *browsers[][2] = {
   {"midori", "Others"},
   {"w3m", "Others"},
 
+  /* Feed-reader-as-a-service */
+  {"Bloglines", "Feeds"},
+  {"Feedly", "Feeds"},
+  {"Flipboard", "Feeds"},
+  {"Netvibes", "Feeds"},
+  {"NewsBlur", "Feeds"},
+  {"YandexBlogs", "Feeds"},
+
   /* Based on Firefox */
   {"Iceweasel", "Others"},
   {"Camino", "Others"},
@@ -238,14 +246,6 @@ static const char *browsers[][2] = {
   {"Vienna", "Feeds"},
   {"Windows-RSS-Platform", "Feeds"},
   {"newsbeuter", "Feeds"},
-
-  /* Feed-reader-as-a-service */
-  {"Bloglines", "Feeds"},
-  {"Feedly", "Feeds"},
-  {"Flipboard", "Feeds"},
-  {"Netvibes", "Feeds"},
-  {"NewsBlur", "Feeds"},
-  {"YandexBlogs", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
   {"UptimeRobot", "Uptime"},
