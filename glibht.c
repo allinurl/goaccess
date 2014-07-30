@@ -38,7 +38,9 @@
 #include "geolocation.h"
 #endif
 
+#include "browsers.h"
 #include "error.h"
+#include "opesys.h"
 #include "parser.h"
 #include "settings.h"
 #include "util.h"

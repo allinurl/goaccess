@@ -21,6 +21,14 @@
 #ifndef OPESYS_H_INCLUDED
 #define OPESYS_H_INCLUDED
 
+#define OPESYS_TYPE_LEN  10
+
+typedef struct GOpeSys_
+{
+  char os_type[OPESYS_TYPE_LEN];
+  int hits;
+} GOpeSys;
+
 char *verify_os (const char *str, char *os_type);
 
 #endif
