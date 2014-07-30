@@ -21,6 +21,14 @@
 #ifndef BROWSERS_H_INCLUDED
 #define BROWSERS_H_INCLUDED
 
+#define BROWSER_TYPE_LEN 13
+
+typedef struct GBrowser_
+{
+  char browser_type[BROWSER_TYPE_LEN];
+  int hits;
+} GBrowser;
+
 char *verify_browser (char *str, char *browser_type);
 int is_crawler (const char *agent);
 
