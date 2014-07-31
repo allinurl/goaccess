@@ -163,13 +163,8 @@ count_matches (const char *s1, char c)
 static int
 within_range (const char *ip, const char *start, const char *end)
 {
-  union
-  {
-    struct in_addr addr4, start4, end4;
-    struct in6_addr addr6, start6, end6;
-  } a;
-
-  memset (&a, 0, sizeof (a));
+  struct in6_addr addr6, start6, end6;
+  struct in_addr addr4, start4, end4;
 
   if (start == NULL || *start == '\0')
     return 0;
@@ -179,25 +174,23 @@ within_range (const char *ip, const char *start, const char *end)
     return 0;
 
   /* IPv4 */
-  if (1 == inet_pton (AF_INET, ip, &a.addr4)) {
-    if (1 != inet_pton (AF_INET, start, &a.start4))
+  if (1 == inet_pton (AF_INET, ip, &addr4)) {
+    if (1 != inet_pton (AF_INET, start, &start4))
       return 0;
-    if (1 != inet_pton (AF_INET, end, &a.end4))
+    if (1 != inet_pton (AF_INET, end, &end4))
       return 0;
-
-    if (memcmp (&a.addr4, &a.start4, sizeof (a.addr4)) >= 0 &&
-        memcmp (&a.addr4, &a.end4, sizeof (a.addr4)) <= 0)
+    if (memcmp (&addr4, &start4, sizeof (addr4)) >= 0 &&
+        memcmp (&addr4, &end4, sizeof (addr4)) <= 0)
       return 1;
   }
   /* IPv6 */
-  else if (1 == inet_pton (AF_INET6, ip, &a.addr6)) {
-    if (1 != inet_pton (AF_INET6, start, &a.start6))
+  else if (1 == inet_pton (AF_INET6, ip, &addr6)) {
+    if (1 != inet_pton (AF_INET6, start, &start6))
       return 0;
-    if (1 != inet_pton (AF_INET6, end, &a.end6))
+    if (1 != inet_pton (AF_INET6, end, &end6))
       return 0;
-
-    if (memcmp (&a.addr6, &a.start6, sizeof (a.addr6)) >= 0 &&
-        memcmp (&a.addr6, &a.end6, sizeof (a.addr6)) <= 0)
+    if (memcmp (&addr6, &start6, sizeof (addr6)) >= 0 &&
+        memcmp (&addr6, &end6, sizeof (addr6)) <= 0)
       return 1;
   }
 
@@ -208,13 +201,13 @@ int
 ip_in_range (const char *ip)
 {
   char *start = NULL, *end = NULL, *dash;
-  int i;
+  int i, status = 0;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
-    start = conf.ignore_ips[i];
-    if (start == NULL || *start == '\0')
+    if (conf.ignore_ips[i] == NULL || *conf.ignore_ips[i] == '\0')
       continue;
 
+    start = xstrdup (conf.ignore_ips[i]);
     /* split range */
     if ((dash = strchr (start, '-')) != NULL) {
       *dash = '\0';
@@ -223,18 +216,25 @@ ip_in_range (const char *ip)
 
     /* matches single IP */
     if (end == NULL && start) {
-      if (strcmp (ip, start) == 0)
-        return 1;
+      if (strcmp (ip, start) == 0) {
+        status = 1;
+        goto out;
+      }
     }
 
     /* within range */
     if (start && end) {
-      if (within_range (ip, start, end))
-        return 1;
+      if (within_range (ip, start, end)) {
+        status = 1;
+        goto out;
+      }
     }
   }
 
-  return 0;
+out:
+  free (start);
+
+  return status;
 }
 
 
