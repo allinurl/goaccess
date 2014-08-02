@@ -1,10 +1,10 @@
 Changes to GoAccess 0.8.3 - Monday, July 28, 2014
 
-	* Fixed SEGFAULT when parsing a CLF log format and using --ignore-crawlers.
-	* Fixed parsing conflict between some Opera browsers and Chrome.
-	* Fixed parsing of several feed readers that are Firefox/Safari-based.
-	* Fixed Steam detection.
-	* Added Huawei to the browser's list and removed it from the OS's list.
+  * Fixed SEGFAULT when parsing a CLF log format and using --ignore-crawlers.
+  * Fixed parsing conflict between some Opera browsers and Chrome.
+  * Fixed parsing of several feed readers that are Firefox/Safari-based.
+  * Fixed Steam detection.
+  * Added Huawei to the browser's list and removed it from the OS's list.
 
 Changes to GoAccess 0.8.2 - Monday, July 20, 2014
 
