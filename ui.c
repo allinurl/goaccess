@@ -301,12 +301,11 @@ update_active_module (WINDOW * header_win, GModule current)
 
 /* render general statistics */
 void
-display_general (WINDOW * win, char *ifile, int piping, int processed,
-                 int invalid, unsigned long long bandwidth)
+display_general (WINDOW * win, char *ifile, GLog * logger)
 {
   char *bw, *size, *log_file;
   char *failed, *not_found, *process, *ref, *req;
-  char *static_files, *now, *visitors;
+  char *static_files, *now, *visitors, *exclude_ip;
 
   int x_field = 2, x_value = 0;
   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
@@ -328,32 +327,33 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
     {T_UNIQUE404, NULL, COL_CYAN},
     {T_BW, NULL, COL_CYAN},
     {T_GEN_TIME, NULL, COL_CYAN},
+    {T_EXCLUDE_IP, NULL, COL_CYAN},
     {T_STATIC_FIL, NULL, COL_CYAN},
-    {"", alloc_string (""), COL_CYAN},
     {T_LOG_PATH, NULL, COL_YELLOW}
   };
 
   werase (win);
   draw_header (win, T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1, 0);
 
-  if (!piping && ifile != NULL) {
+  if (!logger->piping && ifile != NULL) {
     size = filesize_str (file_size (ifile));
     log_file = alloc_string (ifile);
   } else {
     size = alloc_string ("N/A");
     log_file = alloc_string ("STDIN");
   }
-  bw = filesize_str ((float) bandwidth);
+  bw = filesize_str ((float) logger->resp_size);
 
   /* *INDENT-OFF* */
-  failed       = int_to_str (invalid);
+  failed       = int_to_str (logger->invalid);
   not_found    = int_to_str (get_ht_size (ht_not_found_requests));
-  process      = int_to_str (processed);
+  process      = int_to_str (logger->process);
   ref          = int_to_str (get_ht_size (ht_referrers));
   req          = int_to_str (get_ht_size(ht_requests));
   static_files = int_to_str (get_ht_size(ht_requests_static));
   now          = int_to_str (((long long) end_proc - start_proc));
   visitors     = int_to_str (get_ht_size(ht_unique_visitors));
+  exclude_ip    = int_to_str (logger->exclude_ip);
 
   fields[0].value = process;
   fields[1].value = visitors;
@@ -364,7 +364,8 @@ display_general (WINDOW * win, char *ifile, int piping, int processed,
   fields[6].value = not_found;
   fields[7].value = bw;
   fields[8].value = now;
-  fields[9].value = static_files;
+  fields[9].value = exclude_ip;
+  fields[10].value = static_files;
   fields[11].value = log_file;
 
   n = ARRAY_SIZE (fields);

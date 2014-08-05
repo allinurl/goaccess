@@ -323,8 +323,7 @@ render_screens (void)
   refresh ();
 
   /* call general stats header */
-  display_general (header_win, conf.ifile, logger->piping, logger->process,
-                   logger->invalid, logger->resp_size);
+  display_general (header_win, conf.ifile, logger);
   wrefresh (header_win);
 
   /* display active label based on current module */
@@ -694,8 +693,9 @@ get_keys (void)
 static void
 set_general_stats (void)
 {
-  logger->process = logger->invalid = 0;
+  logger->process = logger->invalid = logger->exclude_ip = 0;
 #ifdef TCB_BTREE
+  logger->exclude_ip = tc_db_get_int (ht_general_stats, "exclude_ip");
   logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests");
   logger->process = tc_db_get_int (ht_general_stats, "total_requests");
   logger->resp_size = tc_db_get_uint64 (ht_general_stats, "bandwidth");

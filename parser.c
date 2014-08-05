@@ -964,8 +964,13 @@ process_log (GLog * logger, char *line, int test)
     goto cleanup;
 
   /* ignore host */
-  if (conf.ignore_ip_idx && ip_in_range (glog->host))
+  if (conf.ignore_ip_idx && ip_in_range (glog->host)) {
+    logger->exclude_ip++;
+#ifdef TCB_BTREE
+    process_generic_data (ht_general_stats, "exclude_ip");
+#endif
     goto cleanup;
+  }
   /* ignore crawlers */
   if (conf.ignore_crawlers && is_crawler (glog->agent))
     goto cleanup;
