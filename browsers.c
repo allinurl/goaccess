@@ -90,8 +90,9 @@ static const char *browsers[][2] = {
   {"YandexBlogs", "Feeds"},
 
   /* Based on Firefox */
-  {"Iceweasel", "Others"},
   {"Camino", "Others"},
+  /* Rebranded Firefox but is really unmodified Firefox (Debian trademark policy) */
+  {"Iceweasel", "Firefox"},
   /* Mozilla Firefox */
   {"Firefox", "Firefox"},
 
