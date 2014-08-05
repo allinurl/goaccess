@@ -46,6 +46,7 @@ typedef struct GLogItem_
 
 typedef struct GLog_
 {
+  unsigned int exclude_ip;
   unsigned int invalid;
   unsigned int offset;
   unsigned int process;

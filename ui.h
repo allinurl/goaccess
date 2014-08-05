@@ -37,16 +37,17 @@
 
 /* overall stats */
 #define T_BW         "Bandwidth"
+#define T_EXCLUDE_IP "Excl. IP Hits"
 #define T_F_REQUESTS "Failed Requests"
 #define T_GEN_TIME   "Generation Time"
 #define T_HEAD       "General Dashboard - Overall Analyzed Requests"
 #define T_LOG        "Log Size"
+#define T_LOG_PATH   "Log File"
 #define T_REFERRER   "Referrers"
 #define T_REQUESTS   "Total Requests"
 #define T_STATIC_FIL "Static Files"
 #define T_UNIQUE404  "Unique 404"
 #define T_UNIQUE_FIL "Unique Files"
-#define T_LOG_PATH   "Log File"
 #define T_UNIQUE_VIS "Unique Visitors"
 
 /* spinner label format */
@@ -243,7 +244,7 @@ GSpinner *new_gspinner (void);
 int split_agent_str (char *ptr_value, GAgents * agents, int max);
 int verify_format (GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);
-void display_general (WINDOW * header_win, char *ifile, int piping, int process, int invalid, unsigned long long bandwidth);
+void display_general (WINDOW * header_win, char *ifile, GLog *logger);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color, int max_width);
 void end_spinner (void);
 void generate_time (void);
