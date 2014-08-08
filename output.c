@@ -1240,8 +1240,9 @@ print_html_summary (FILE * fp, GLog * logger)
   fprintf (fp, "<td>%s</td>", T_GEN_TIME);
   fprintf (fp, "<td>%llu</td>", ((long long) end_proc - start_proc));
 
+  print_html_summary_field (fp, logger->exclude_ip, T_EXCLUDE_IP);
   print_html_summary_field (fp, get_ht_size (ht_requests_static), T_STATIC_FIL);
-  fprintf (fp, "<td colspan=\"4\">%s</td>", conf.ifile);
+  fprintf (fp, "<td colspan=\"2\">%s</td>", conf.ifile);
 
   print_html_end_tr (fp);
   print_html_end_tbody (fp);
