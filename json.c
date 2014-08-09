@@ -359,6 +359,7 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"bandwidth\": %lld,\n", logger->resp_size);
   fprintf (fp, "\t\t\"generation_time\": %llu,\n",
            ((long long) end_proc - start_proc));
+  fprintf (fp, "\t\t\"excluded_ip_hits\": %u,\n", logger->exclude_ip);
   fprintf (fp, "\t\t\"static_files\": %d,\n", get_ht_size (ht_requests_static));
 
   if (conf.ifile == NULL)
