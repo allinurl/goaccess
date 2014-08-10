@@ -273,8 +273,10 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   fprintf (fp, "\"%d\",,\"%s\",\"bandwidth\",\"%lld\"\r\n", i++, GENER_ID,
            logger->resp_size);
-  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++,
-           GENER_ID, (long long) end_proc - start_proc);
+  fprintf (fp, "\"%d\",,\"%s\",\"generation_time\",\"%llu\"\r\n", i++, GENER_ID,
+           (long long) end_proc - start_proc);
+  fprintf (fp, "\"%d\",,\"%s\",\"excluded_ip_hits\",\"%u\"\r\n", i++, GENER_ID,
+           logger->exclude_ip);
   fprintf (fp, "\"%d\",,\"%s\",\"static_files\",\"%d\"\r\n", i++, GENER_ID,
            get_ht_size (ht_requests_static));
 
