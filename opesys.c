@@ -34,6 +34,12 @@
 
 /* {"search string", "belongs to"} */
 static const char *os[][2] = {
+  {"Googlebot", "Unix-like"},
+  {"Windows Phone 8.1", "Windows"},
+  {"Windows Phone 8.0", "Windows"},
+  {"Xbox One", "Windows"},
+  {"Xbox", "Windows"},
+  {"Windows NT 6.3; ARM", "Windows"},
   {"Windows NT 6.3", "Windows"},
   {"Windows NT 6.2; ARM", "Windows"},
   {"Windows NT 6.2", "Windows"},
@@ -48,6 +54,7 @@ static const char *os[][2] = {
   {"Windows 98", "Windows"},
   {"Windows 95", "Windows"},
   {"Windows CE", "Windows"},
+  {"bingbot", "Windows"},
   {"Android", "Android"},
   {"Debian", "Linux"},
   {"Ubuntu", "Linux"},
@@ -65,17 +72,20 @@ static const char *os[][2] = {
   {"iPhone", "Macintosh"},
   {"iTunes", "Macintosh"},
   {"OS X", "Macintosh"},
+  {"PlayStation", "BSD"},
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
-  {"SunOS", "Others"},
-  {"AmigaOS", "Others"},
+  {"CrOS", "Chrome OS"},
+  {"SunOS", "Unix-like"},
+  {"QNX", "Unix-like"},
+  {"BB10", "Unix-like"},
   {"BlackBerry", "Others"},
-  {"SymbianOS", "Others"},
   {"Sony", "Others"},
-  {"Xbox", "Others"},
+  {"AmigaOS", "Others"},
+  {"SymbianOS", "Others"},
   {"Nokia", "Others"},
-  {"PlayStation", "Others"}
+  {"Nintendo", "Others"}
 };
 
 /* get Android Codename */
@@ -110,6 +120,8 @@ get_real_win (const char *win)
 {
   if (strstr (win, "6.3"))
     return alloc_string ("Windows 8.1");
+  else if (strstr (win, "6.3; ARM"))
+    return alloc_string ("Windows RT");
   else if (strstr (win, "6.2; ARM"))
     return alloc_string ("Windows RT");
   else if (strstr (win, "6.2"))
