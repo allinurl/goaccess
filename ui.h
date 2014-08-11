@@ -40,7 +40,7 @@
 #define T_EXCLUDE_IP "Excl. IP Hits"
 #define T_F_REQUESTS "Failed Requests"
 #define T_GEN_TIME   "Generation Time"
-#define T_HEAD       "General Dashboard - Overall Analyzed Requests"
+#define T_HEAD       "Dashboard - Overall Analyzed Requests"
 #define T_LOG        "Log Size"
 #define T_LOG_PATH   "Log File"
 #define T_REFERRER   "Referrers"
@@ -94,7 +94,6 @@
 #define CODES_ID   "status_codes"
 #define GENER_ID   "general"
 
-/* dialogs */
 #define FIND_HEAD    "Find pattern in all modules"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
 
@@ -104,6 +103,7 @@
 #define MAX_HEIGHT_FOOTER 1
 #define MAX_HEIGHT_HEADER 6
 
+/* CONFIG DIALOG */
 #define CONF_MENU_H       6
 #define CONF_MENU_W       48
 #define CONF_MENU_X       2
@@ -111,10 +111,12 @@
 #define CONF_WIN_H        17
 #define CONF_WIN_W        52
 
+/* FIND DIALOG */
 #define FIND_DLG_HEIGHT   8
 #define FIND_DLG_WIDTH    50
 #define FIND_MAX_MATCHES  1
 
+/* COLOR SCHEME DIALOG */
 #define SCHEME_MENU_H     2
 #define SCHEME_MENU_W     38
 #define SCHEME_MENU_X     2
@@ -122,6 +124,7 @@
 #define SCHEME_WIN_H      8
 #define SCHEME_WIN_W      42
 
+/* SORT DIALOG */
 #define SORT_MAX_OPTS     7
 #define SORT_MENU_H       6
 #define SORT_MENU_W       38
@@ -130,9 +133,11 @@
 #define SORT_WIN_H        13
 #define SORT_WIN_W        42
 
+/* AGENTS DIALOG */
 #define AGENTS_MENU_X     2
 #define AGENTS_MENU_Y     4
 
+/* HELP DIALOG */
 #define HELP_MENU_HEIGHT  12
 #define HELP_MENU_WIDTH   60
 #define HELP_MENU_X       2
@@ -140,6 +145,7 @@
 #define HELP_WIN_HEIGHT   17
 #define HELP_WIN_WIDTH    64
 
+/* COLORS */
 #define BLACK_CYAN        9
 #define BLACK_GREEN       8
 #define BLUE_GREEN        7
