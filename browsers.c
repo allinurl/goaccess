@@ -52,6 +52,7 @@ static const char *browsers[][2] = {
 
   /* Others */
   {"APT-HTTP", "Others"},
+  {"Apt-Cacher", "Others"},
   {"Huawei", "Others"},
   {"HUAWEI", "Others"},
   {"BlackBerry", "Others"},
