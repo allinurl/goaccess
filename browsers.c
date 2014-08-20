@@ -80,6 +80,7 @@ static const char *browsers[][2] = {
   {"curl", "Others"},
   {"midori", "Others"},
   {"w3m", "Others"},
+  {"Apache", "Others"},
 
   /* Feed-reader-as-a-service */
   {"Bloglines", "Feeds"},
@@ -91,7 +92,8 @@ static const char *browsers[][2] = {
 
   /* Based on Firefox */
   {"Camino", "Others"},
-  /* Rebranded Firefox but is really unmodified Firefox (Debian trademark policy) */
+  /* Rebranded Firefox but is really unmodified Firefox
+   * (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
   /* Mozilla Firefox */
   {"Firefox", "Firefox"},
