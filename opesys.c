@@ -86,7 +86,7 @@ static const char *os[][2] = {
   {"AmigaOS", "Others"},
   {"SymbianOS", "Others"},
   {"Nokia", "Others"},
-  {"Nintendo", "Others"}
+  {"Nintendo", "Others"},
   {"Apache", "Others"},
 };
 
