@@ -86,6 +86,7 @@ static const char *os[][2] = {
   {"SymbianOS", "Others"},
   {"Nokia", "Others"},
   {"Nintendo", "Others"}
+  {"Apache", "Others"},
 };
 
 /* get Android Codename */
