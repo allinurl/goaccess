@@ -212,7 +212,7 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
 
   char *data, *host, *method = NULL, *protocol = NULL;
   float percent;
-  GHolder *h;
+  GHolder *h = holder;
   int i, j, hits;
   unsigned long long bw, usecs;
 

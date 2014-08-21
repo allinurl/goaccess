@@ -155,7 +155,7 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
   char *data, *method = NULL, *protocol = NULL;
   const char *id = NULL;
   float percent;
-  GHolder *h;
+  GHolder *h = holder;
   int i, j, hits;
   unsigned long long bw, usecs;
 
