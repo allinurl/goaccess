@@ -36,6 +36,7 @@
 
 /* *INDENT-OFF* */
 #include <stdint.h>
+#include <sys/types.h>
 
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
