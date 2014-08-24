@@ -148,8 +148,7 @@ parse_conf_file (int *argc, char ***argv)
       FATAL ("Malformed config key at line: %s", line);
 
     /* make old config options backwards compatible by
-     * substituting underscores with dashes
-     */
+     * substituting underscores with dashes */
     while ((p = strpbrk (line, "_")) != NULL)
       *p = '-';
 
