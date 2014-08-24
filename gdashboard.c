@@ -1072,7 +1072,6 @@ add_os_node (GHolder * h, char *key, GOpeSys * opesys)
 
   type_idx = get_item_idx_in_holder (h, opesys->os_type);
   if (type_idx == -1) {
-    /*h->items[h->idx].bw += bw; */
     h->items[h->idx].hits += opesys->hits;
     h->items[h->idx].data = xstrdup (opesys->os_type);
 
@@ -1086,7 +1085,6 @@ add_os_node (GHolder * h, char *key, GOpeSys * opesys)
     add_sub_item_back (sub_list, h->module, key, opesys->hits, bw);
 
     h->items[type_idx].sub_list = sub_list;
-    /*h->items[type_idx].bw += bw; */
     h->items[type_idx].hits += opesys->hits;
     h->sub_items_size++;
   }
