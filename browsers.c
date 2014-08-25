@@ -77,6 +77,7 @@ static const char *browsers[][2] = {
   {"SeaMonkey", "Others"},
   {"UCBrowser", "Others"},
   {"Wget", "Others"},
+  {"libfetch", "Others"},
   {"check_http", "Others"},
   {"curl", "Others"},
   {"midori", "Others"},
