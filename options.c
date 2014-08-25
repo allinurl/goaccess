@@ -73,6 +73,7 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -144,6 +145,7 @@ cmd_help (void)
   "  --static-file=<extension>   - Add static file extension. e.g.: .mp3\n"
   "                                Extensions are case sensitive.\n"
   "  --ignore-crawlers           - Ignore crawlers.\n"
+  "  --444-as-404                - Treat non-standard status code 444 as 404.\n"
   "  --no-progress               - Disable progress metrics.\n\n"
 
 /* GeoIP Options */
@@ -308,6 +310,8 @@ read_option_args (int argc, char **argv)
            conf.static_file_max_len = strlen (optarg);
          conf.static_files[conf.static_file_idx++] = optarg;
        }
+       if (!strcmp ("444-as-404", long_opts[idx].name))
+         conf.code444_as_404 = 1;
        if (!strcmp ("ignore-crawlers", long_opts[idx].name))
          conf.ignore_crawlers = 1;
        if (!strcmp ("real-os", long_opts[idx].name))

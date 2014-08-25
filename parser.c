@@ -989,6 +989,10 @@ process_log (GLog * logger, char *line, int test)
   if (!memcmp (glog->status, "404", 3)) {
     not_found = 1;
   }
+  /* treat 444 as 404? */
+  else if (!memcmp (glog->status, "444", 3) && conf.code444_as_404) {
+    not_found = 1;
+  }
   /* check if we need to remove the request's query string */
   else if (conf.ignore_qstr) {
     if ((qmark = strchr (glog->req, '?')) != NULL) {
