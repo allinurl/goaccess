@@ -251,6 +251,7 @@ static const char *browsers[][2] = {
   {"Vienna", "Feeds"},
   {"Windows-RSS-Platform", "Feeds"},
   {"newsbeuter", "Feeds"},
+  {"Fever", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
   {"UptimeRobot", "Uptime"},
