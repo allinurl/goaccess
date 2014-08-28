@@ -145,7 +145,9 @@ get_real_win (const char *win)
 static char *
 get_real_mac_osx (const char *osx)
 {
-  if (strstr (osx, "10.9"))
+  if (strstr (osx, "10.10"))
+    return alloc_string ("OS X Yosemite");
+  else if (strstr (osx, "10.9"))
     return alloc_string ("OS X Mavericks");
   else if (strstr (osx, "10.8"))
     return alloc_string ("OS X Mountain Lion");
