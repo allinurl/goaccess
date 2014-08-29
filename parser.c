@@ -913,7 +913,7 @@ process_log (GLog * logger, char *line, int test)
   GLogItem *glog;
   char buf[DATE_LEN];
   char *qmark = NULL, *req_key = NULL;
-  int not_found = 0;            /* 404s */
+  int is404 = 0;
 
   /* make compiler happy */
   memset (buf, 0, sizeof (buf));
@@ -987,11 +987,11 @@ process_log (GLog * logger, char *line, int test)
 
   /* is this a 404? */
   if (!memcmp (glog->status, "404", 3)) {
-    not_found = 1;
+    is404 = 1;
   }
   /* treat 444 as 404? */
   else if (!memcmp (glog->status, "444", 3) && conf.code444_as_404) {
-    not_found = 1;
+    is404 = 1;
   }
   /* check if we need to remove the request's query string */
   else if (conf.ignore_qstr) {
@@ -1015,7 +1015,7 @@ process_log (GLog * logger, char *line, int test)
     req_key = deblank (req_key);
 
   /* process 404s */
-  if (not_found)
+  if (is404)
     process_request (ht_not_found_requests, req_key, glog);
   /* process static files */
   else if (verify_static_content (glog->req))
