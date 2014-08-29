@@ -242,7 +242,7 @@ get_home (void)
 
   user_home = getenv ("HOME");
   if (user_home == NULL)
-    FATAL("Unable to determine the HOME environment variable.");
+    FATAL ("Unable to determine the HOME environment variable.");
 
   path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
   sprintf (path, "%s/.goaccessrc", user_home);
