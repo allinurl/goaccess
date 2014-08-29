@@ -950,8 +950,7 @@ process_log (GLog * logger, char *line, int test)
   }
 
   /* must have the following fields */
-  if (glog->host == NULL || glog->date == NULL || glog->status == NULL ||
-      glog->req == NULL) {
+  if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
     logger->invalid++;
     goto cleanup;
   }
