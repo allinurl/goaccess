@@ -68,7 +68,6 @@
 #include "parser.h"
 
 #include "browsers.h"
-#include "commons.h"
 #include "goaccess.h"
 #include "error.h"
 #include "opesys.h"
