@@ -143,25 +143,25 @@ configuration file:
 | `-r --no-term-resolver`        | Disable IP resolver on terminal output.                                           |
 | `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.                              |
 | `-V --version`                 | Display version information and exit.                                             |
-| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Case sensitive.                            |
-| `--geoip-city-data=<path>`     | Specify path to GeoIP City database. i.e., GeoLiteCity.dat                        |
-| `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
-| `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
-| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [1024]                                     |
-| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [512]                                  |
-| `--tune-lmemb=<number>`        | Number of members in each leaf page. [128]                                        |
-| `--tune-nmemb=<number>`        | Number of members in each non-leaf page. [256]                                    |
-| `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]                                   |
-| `--compression=<zlib,bz2>`     | Specify that each page is compressed with ZLIB|BZ2 encoding.                      |
-| `--ignore-crawlers`            | Ignore crawlers.                                                                  |
 | `--444-as-404`                 | Treat non-standard status code 444 as 404.                                        |
+| `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey`, `2 => Green`.                                 |
+| `--date-format=<dateformat>`   | Specify log date format.                                                          |
+| `--geoip-city-data=<path>`     | Specify path to GeoIP City database. i.e., GeoLiteCity.dat                        |
+| `--ignore-crawlers`            | Ignore crawlers.                                                                  |
+| `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.                              |
 | `--no-color`                   | Disable colored output.                                                           |
 | `--no-global-config`           | Do not load the global configuration file.                                        |
 | `--no-progress`                | Disable progress metrics.                                                         |
 | `--real-os`                    | Display real OS names. e.g, Windows XP, Snow Leopard.                             |
-| `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey`, `2 => Green`                                  |
-| `--date-format=<dateformat>`   | Specify log date format.                                                          |
-| `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.                              |
+| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Case sensitive.                            |
+| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [1024]                                     |
+| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [512]                                  |
+| `--compression=<zlib,bz2>`     | Specify that each page is compressed with ZLIB|BZ2 encoding.                      |
+| `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
+| `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]                                   |
+| `--tune-lmemb=<number>`        | Number of members in each leaf page. [128]                                        |
+| `--tune-nmemb=<number>`        | Number of members in each non-leaf page. [256]                                    |
+| `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
 
 ## Usage ##
 
