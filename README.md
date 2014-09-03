@@ -127,7 +127,7 @@ configuration file:
 
 | Command Line Option            | Description                                                                       |
 | -------------------------------|-----------------------------------------------------------------------------------|
-| `-a --agent-list`              | Enable a list of user-agents by host. For faster parsing, don't enable this.      |
+| `-a --agent-list`              | Enable a list of user-agents by host.                                             |
 | `-c --config-dialog`           | Prompt log/date configuration window.                                             |
 | `-d --with-output-resolver`    | Enable IP resolver on HTML|JSON output.                                           |
 | `-e --exclude-ip=<IP>`         | Exclude one or multiple IPv4/v6 including IP ranges.                              |
@@ -143,7 +143,7 @@ configuration file:
 | `-r --no-term-resolver`        | Disable IP resolver on terminal output.                                           |
 | `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.                              |
 | `-V --version`                 | Display version information and exit.                                             |
-| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Extensions are case sensitive.             |
+| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Case sensitive.                            |
 | `--geoip-city-data=<path>`     | Specify path to GeoIP City database file. i.e., GeoLiteCity.dat                   |
 | `--db-path=<path>`             | Path of the database file. [/tmp/]                                                |
 | `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]                             |
