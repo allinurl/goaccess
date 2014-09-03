@@ -154,6 +154,7 @@ configuration file:
 | `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]                                   |
 | `--compression=<zlib,bz2>`     | Specify that each page is compressed with ZLIB|BZ2 encoding.                      |
 | `--ignore-crawlers`            | Ignore crawlers.                                                                  |
+| `--444-as-404`                 | Treat non-standard status code 444 as 404.                                        |
 | `--no-color`                   | Disable colored output.                                                           |
 | `--no-global-config`           | Do not load the global configuration file.                                        |
 | `--no-progress`                | Disable progress metrics.                                                         |
