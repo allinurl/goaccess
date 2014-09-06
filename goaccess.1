@@ -1,4 +1,4 @@
-.TH goaccess 1 "JULY 2014" Linux "User Manuals"
+.TH goaccess 1 "SEPTEMBER 2014" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -204,6 +204,9 @@ Ignore crawlers.
 \fB\-\-444-as-404
 Treat non-standard status code 444 as 404.
 .TP
+\fB\-\-4xx-to-unique-count
+Add 4xx client errors to the unique visitors count.
+.TP
 \fB\-\-no-progress
 Disable progress metrics [total requests/requests per second].
 .TP
@@ -343,7 +346,7 @@ The status code that the server sends back to the client.
 .IP %b
 The size of the object returned to the client.
 .IP %R
-The "Referer" HTTP request header.
+The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
 .IP %D
