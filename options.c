@@ -62,6 +62,8 @@ struct option long_opts[] = {
 #ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
 #endif
+  {"444-as-404"           , no_argument       , 0 ,  0  } ,
+  {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
@@ -73,7 +75,6 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -83,16 +84,16 @@ struct option long_opts[] = {
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
 #endif
 #ifdef TCB_BTREE
-  {"keep-db-files"        , no_argument       , 0 ,  0  } ,
-  {"load-from-disk"       , no_argument       , 0 ,  0  } ,
-  {"db-path"              , required_argument , 0 ,  0  } ,
-  {"compression"          , required_argument , 0 ,  0  } ,
-  {"xmmap"                , required_argument , 0 ,  0  } ,
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
   {"cache-ncnum"          , required_argument , 0 ,  0  } ,
+  {"compression"          , required_argument , 0 ,  0  } ,
+  {"db-path"              , required_argument , 0 ,  0  } ,
+  {"keep-db-files"        , no_argument       , 0 ,  0  } ,
+  {"load-from-disk"       , no_argument       , 0 ,  0  } ,
+  {"tune-bnum"            , required_argument , 0 ,  0  } ,
   {"tune-lmemb"           , required_argument , 0 ,  0  } ,
   {"tune-nmemb"           , required_argument , 0 ,  0  } ,
-  {"tune-bnum"            , required_argument , 0 ,  0  } ,
+  {"xmmap"                , required_argument , 0 ,  0  } ,
 #endif
   {0, 0, 0, 0}
 };
@@ -109,8 +110,8 @@ cmd_help (void)
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
   "  --date-format=<dateformat>  - Specify log date format.\n"
-  "  --log-format=<logformat>    - Specify log format. Inner quotes need\n"
-  "                                to be escaped.\n\n"
+  "  --log-format=<logformat>    - Specify log format. Inner quotes need to\n"
+  "                                be escaped.\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
@@ -132,29 +133,31 @@ cmd_help (void)
   "Parse Options\n\n"
   "  -a --agent-list             - Enable a list of user-agents by host.\n"
   "  -d --with-output-resolver   - Enable IP resolver on HTML|JSON output.\n"
+  "  -e --exclude-ip=<IP>        - Exclude one or multiple IPv4/6, includes\n"
+  "                                IP ranges. i.e., 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol          - Include HTTP request protocol if found.\n"
   "  -M --http-method            - Include HTTP request method if found.\n"
   "  -m --with-mouse             - Enable mouse support on main dashboard.\n"
   "  -o --output-format=csv|json - Output either a JSON or a CSV file.\n"
   "  -q --no-query-string        - Ignore request's query string.\n"
   "  -r --no-term-resolver       - Disable IP resolver on terminal output.\n"
-  "  -e --exclude-ip=<IP>        - Exclude one or multiple IPv4/6, includes\n"
-  "                                IP ranges. i.e., 192.168.0.1-192.168.0.10\n"
+  "  --444-as-404                - Treat non-standard status code 444 as 404.\n"
+  "  --4xx-to-unique-count       - Add 4xx client errors to the unique\n"
+  "                                visitors count.\n"
+  "  --ignore-crawlers           - Ignore crawlers.\n"
+  "  --no-progress               - Disable progress metrics.\n\n"
   "  --real-os                   - Display real OS names. e.g, Windows XP,\n"
   "                                Snow Leopard.\n"
   "  --static-file=<extension>   - Add static file extension. e.g.: .mp3\n"
   "                                Extensions are case sensitive.\n"
-  "  --ignore-crawlers           - Ignore crawlers.\n"
-  "  --444-as-404                - Treat non-standard status code 444 as 404.\n"
-  "  --no-progress               - Disable progress metrics.\n\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
   "GeoIP Options\n\n"
   "  -g --std-geoip              - Standard GeoIP database for less memory\n"
   "                                usage.\n"
-  "  --geoip-city-data=<path>    - Specify path to GeoIP City database\n"
-  "                                file. i.e., GeoLiteCity.dat\n\n"
+  "  --geoip-city-data=<path>    - Specify path to GeoIP City database file.\n"
+  "                                i.e., GeoLiteCity.dat\n\n"
 #endif
 
 /* On-Disk Database Options */
@@ -310,6 +313,8 @@ read_option_args (int argc, char **argv)
            conf.static_file_max_len = strlen (optarg);
          conf.static_files[conf.static_file_idx++] = optarg;
        }
+       if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
+         conf.client_err_to_unique_count = 1;
        if (!strcmp ("444-as-404", long_opts[idx].name))
          conf.code444_as_404 = 1;
        if (!strcmp ("ignore-crawlers", long_opts[idx].name))

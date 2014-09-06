@@ -976,8 +976,11 @@ process_log (GLog * logger, char *line, int test)
   /* agent will be null in cases where %u is not specified */
   if (glog->agent == NULL)
     glog->agent = alloc_string ("-");
+
   /* process visitors, browsers, and OS */
-  process_unique_data (glog->host, buf, glog->agent);
+  if ((conf.client_err_to_unique_count && glog->status[0] == '4') ||
+      glog->status[0] != '4')
+    process_unique_data (glog->host, buf, glog->agent);
 
   /* process agents that are part of a host */
   if (conf.list_agents)
