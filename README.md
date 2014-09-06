@@ -218,7 +218,8 @@ http://goaccess.io/man
 
 ## Contributing ##
 
-Any help on GoAccess is welcome. Feel free to use the Github issue tracker and
-pull requests to discuss and submit code changes.
+Any help on GoAccess is welcome. The most helpful way is to try it out and give
+feedback. Feel free to use the Github issue tracker and pull requests to
+discuss and submit code changes.
 
 Enjoy!
