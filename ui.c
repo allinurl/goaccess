@@ -279,8 +279,8 @@ update_active_module (WINDOW * header_win, GModule current)
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
 
-  char *lbl = xmalloc (snprintf (NULL, 0, "[Active Module: %s]", module) + 1);
-  sprintf (lbl, "[Active Module: %s]", module);
+  char *lbl = xmalloc (snprintf (NULL, 0, "[Active Panel: %s]", module) + 1);
+  sprintf (lbl, "[Active Panel: %s]", module);
 
   if (conf.color_scheme == NO_COLOR)
     wattron (header_win, A_REVERSE);
