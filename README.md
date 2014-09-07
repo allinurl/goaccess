@@ -38,11 +38,11 @@ terminal. Features include:
 GoAccess allows any custom log format string. Predefined options include, but
 not limited to:
 
-* Common Log Format (CLF) Apache
-* Combined Log Format (XLF/ELF) Apache | Nginx
-* W3C format (IIS).
 * Amazon CloudFront (Download Distribution).
 * Apache virtual hosts
+* Combined Log Format (XLF/ELF) Apache | Nginx
+* Common Log Format (CLF) Apache
+* W3C format (IIS).
 
 ## Why GoAccess? ##
 The main idea behind GoAccess is being able to quickly analyze and view web
@@ -89,7 +89,7 @@ GoAccess available
 sure that you're running the latest stable version of GoAccess see alternative
 option below.
 
-#### GoAccess' Debian & Ubuntu repository ####
+#### Official GoAccess Debian & Ubuntu repository ####
 
     $ echo "deb http://deb.goaccess.io $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list
     $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
@@ -144,6 +144,7 @@ configuration file:
 | `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.         |
 | `-V --version`                 | Display version information and exit.                        |
 | `--444-as-404`                 | Treat non-standard status code 444 as 404.                   |
+| `--4xx-to-unique-count`        | Add 4xx client errors to the unique visitors count.          |
 | `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey`, `2 => Green`.            |
 | `--date-format=<dateformat>`   | Specify log date format.                                     |
 | `--geoip-city-data=<path>`     | Specify path to GeoIP City database. i.e., GeoLiteCity.dat   |
