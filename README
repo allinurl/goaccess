@@ -33,11 +33,11 @@ Nearly all web log formats...
 GoAccess allows any custom log format string.
 Predefined options include, but not limited to:
 
-   * Common Log Format (CLF) Apache
-   * Combined Log Format (XLF/ELF) Apache & Nginx
-   * W3C format (IIS).
    * Amazon CloudFront (Download Distribution).
    * Apache virtual hosts
+   * Combined Log Format (XLF/ELF) Apache & Nginx
+   * Common Log Format (CLF) Apache
+   * W3C format (IIS).
 
 Why GoAccess?
 -------------
