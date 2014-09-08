@@ -8,7 +8,7 @@ valuable HTTP statistics for system administrators that require a visual server
 report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1406550836)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1410134479)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -57,9 +57,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.8.3.tar.gz
-    $ tar -xzvf goaccess-0.8.3.tar.gz
-    $ cd goaccess-0.8.3/
+    $ wget http://tar.goaccess.io/goaccess-0.8.4.tar.gz
+    $ tar -xzvf goaccess-0.8.4.tar.gz
+    $ cd goaccess-0.8.4/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
