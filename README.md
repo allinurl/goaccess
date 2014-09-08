@@ -121,6 +121,11 @@ please re-download the key.
     # cd /usr/ports/sysutils/goaccess/ && make install clean
     $ pkg_add -r goaccess
 
+### pkgsrc (NetBSD, SmartOS, ...) ###
+
+    # pkgin install goaccess
+
+
 ## Command Line / Config Options ##
 The following options can also be supplied to the command or specified in the
 configuration file:
