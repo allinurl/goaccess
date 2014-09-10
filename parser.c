@@ -956,7 +956,7 @@ static int
 process_date (GLogItem * glog, char *date)
 {
   /* make compiler happy */
-  memset (date, 0, sizeof (date));
+  memset (date, 0, sizeof *date);
   convert_date (date, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
   if (date == NULL)
     return 1;
