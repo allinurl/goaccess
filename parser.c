@@ -905,86 +905,137 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
   return 0;
 }
 
-/* process a line from the log and store it accordingly */
 static int
-process_log (GLog * logger, char *line, int test)
+valid_line (char *line)
 {
-  GLogItem *glog;
-  char buf[DATE_LEN];
-  char *qmark = NULL, *req_key = NULL;
-  int is404 = 0;
-
-  /* make compiler happy */
-  memset (buf, 0, sizeof (buf));
-
-  if ((line == NULL) || (*line == '\0')) {
-    logger->invalid++;
-    return 0;
-  }
-
+  /* invalid line */
+  if ((line == NULL) || (*line == '\0'))
+    return 1;
   /* ignore comments */
   if (*line == '#' || *line == '\n')
-    return 0;
+    return 1;
 
+  return 0;
+}
+
+static void
+lock_spinner (void)
+{
   if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
     pthread_mutex_lock (&parsing_spinner->mutex);
+}
 
+static void
+unlock_spinner (void)
+{
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_unlock (&parsing_spinner->mutex);
+}
+
+static void
+count_invalid (GLog * logger)
+{
+  logger->invalid++;
+#ifdef TCB_BTREE
+  process_generic_data (ht_general_stats, "failed_requests");
+#endif
+}
+
+static void
+count_process (GLog * logger)
+{
+  lock_spinner ();
   logger->process++;
-
 #ifdef TCB_BTREE
   process_generic_data (ht_general_stats, "total_requests");
 #endif
+  unlock_spinner ();
+}
 
-  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
-    pthread_mutex_unlock (&parsing_spinner->mutex);
+static int
+process_date (GLogItem * glog, char *date)
+{
+  /* make compiler happy */
+  memset (date, 0, sizeof (date));
+  convert_date (date, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
+  if (date == NULL)
+    return 1;
+  return 0;
+}
 
-  glog = init_log_item (logger);
-  if (parse_format (glog, conf.log_format, conf.date_format, line) == 1) {
-    logger->invalid++;
-
-#ifdef TCB_BTREE
-    process_generic_data (ht_general_stats, "failed_requests");
-#endif
-    goto cleanup;
-  }
-
-  /* must have the following fields */
-  if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
-    logger->invalid++;
-    goto cleanup;
-  }
-
-  if (test)
-    goto cleanup;
-
-  convert_date (buf, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
-  if (buf == NULL)
-    goto cleanup;
-
-  /* ignore host */
+static int
+exclude_ip (GLog * logger, GLogItem * glog)
+{
   if (conf.ignore_ip_idx && ip_in_range (glog->host)) {
     logger->exclude_ip++;
 #ifdef TCB_BTREE
     process_generic_data (ht_general_stats, "exclude_ip");
 #endif
+    return 0;
+  }
+  return 1;
+}
+
+static int
+exclude_crawler (GLogItem * glog)
+{
+  return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
+}
+
+/* process visitors, browsers, and OS */
+static void
+unique_data (GLogItem * glog, char *date)
+{
+  int uniq = conf.client_err_to_unique_count;
+  if (!glog->status || glog->status[0] != '4' ||
+      (uniq && glog->status[0] == '4'))
+    process_unique_data (glog->host, date, glog->agent);
+}
+
+/* process a line from the log and store it accordingly */
+static int
+process_log (GLog * logger, char *line, int test)
+{
+  GLogItem *glog;
+  char date[DATE_LEN];
+  char *qmark = NULL, *req_key = NULL;
+  int is404 = 0;
+
+  if (valid_line (line)) {
+    count_invalid (logger);
+    return 0;
+  }
+
+  count_process (logger);
+  glog = init_log_item (logger);
+  /* parse a line of log, and fill structure with appropriate values */
+  if (parse_format (glog, conf.log_format, conf.date_format, line)) {
+    count_invalid (logger);
     goto cleanup;
   }
-  /* ignore crawlers */
-  if (conf.ignore_crawlers && is_crawler (glog->agent))
-    goto cleanup;
 
+  /* must have the following fields */
+  if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
+    count_invalid (logger);
+    goto cleanup;
+  }
   /* agent will be null in cases where %u is not specified */
   if (glog->agent == NULL)
     glog->agent = alloc_string ("-");
 
-  /* process visitors, browsers, and OS */
-  if (!glog->status || glog->status[0] != '4' ||
-      (conf.client_err_to_unique_count && glog->status[0] == '4'))
-    process_unique_data (glog->host, buf, glog->agent);
+  /* testing log only */
+  if (test)
+    goto cleanup;
 
-  /* process agents that are part of a host */
-  if (conf.list_agents)
-    process_host_agents (glog->host, glog->agent);
+  if (process_date (glog, date)) {
+    count_invalid (logger);
+    goto cleanup;
+  }
+  /* ignore host or crawlers */
+  if (exclude_ip (logger, glog) == 0)
+    goto cleanup;
+  if (exclude_crawler (glog) == 0)
+    goto cleanup;
 
   /* is this a 404? */
   if (glog->status && !memcmp (glog->status, "404", 3))
@@ -1014,6 +1065,13 @@ process_log (GLog * logger, char *line, int test)
   if ((conf.append_method) || (conf.append_protocol))
     req_key = deblank (req_key);
 
+  unique_data (glog, date);
+  /* process agents that are part of a host */
+  if (conf.list_agents)
+    process_host_agents (glog->host, glog->agent);
+  /* process status codes */
+  if (glog->status)
+    process_generic_data (ht_status_code, glog->status);
   /* process 404s */
   if (is404)
     process_request (ht_not_found_requests, req_key, glog);
@@ -1026,18 +1084,17 @@ process_log (GLog * logger, char *line, int test)
 
   /* process referrers */
   process_referrers (glog->ref);
-  /* process status codes */
-  if (glog->status)
-    process_generic_data (ht_status_code, glog->status);
   /* process hosts */
   process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
-  process_request_meta (ht_date_bw, buf, glog->resp_size);
+  process_request_meta (ht_date_bw, date, glog->resp_size);
   process_request_meta (ht_file_bw, req_key, glog->resp_size);
   process_request_meta (ht_host_bw, glog->host, glog->resp_size);
+
   /* process time taken to serve the request, in microseconds */
   process_request_meta (ht_file_serve_usecs, req_key, glog->serve_time);
   process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
+
   logger->resp_size += glog->resp_size;
 #ifdef TCB_BTREE
   process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
