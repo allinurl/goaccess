@@ -978,8 +978,8 @@ process_log (GLog * logger, char *line, int test)
     glog->agent = alloc_string ("-");
 
   /* process visitors, browsers, and OS */
-  if ((conf.client_err_to_unique_count && glog->status[0] == '4') ||
-      glog->status[0] != '4')
+  if (!glog->status || glog->status[0] != '4' ||
+      (conf.client_err_to_unique_count && glog->status[0] == '4'))
     process_unique_data (glog->host, buf, glog->agent);
 
   /* process agents that are part of a host */
@@ -987,13 +987,12 @@ process_log (GLog * logger, char *line, int test)
     process_host_agents (glog->host, glog->agent);
 
   /* is this a 404? */
-  if (!memcmp (glog->status, "404", 3)) {
+  if (glog->status && !memcmp (glog->status, "404", 3))
     is404 = 1;
-  }
   /* treat 444 as 404? */
-  else if (!memcmp (glog->status, "444", 3) && conf.code444_as_404) {
+  else if (glog->status && !memcmp (glog->status, "444", 3) &&
+           conf.code444_as_404)
     is404 = 1;
-  }
   /* check if we need to remove the request's query string */
   else if (conf.ignore_qstr) {
     if ((qmark = strchr (glog->req, '?')) != NULL) {
@@ -1028,7 +1027,8 @@ process_log (GLog * logger, char *line, int test)
   /* process referrers */
   process_referrers (glog->ref);
   /* process status codes */
-  process_generic_data (ht_status_code, glog->status);
+  if (glog->status)
+    process_generic_data (ht_status_code, glog->status);
   /* process hosts */
   process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
