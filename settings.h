@@ -29,10 +29,10 @@
 
 typedef enum
 {
-  COMMON,
-  VCOMMON,
   COMBINED,
   VCOMBINED,
+  COMMON,
+  VCOMMON,
   W3C,
   CLOUDFRONT
 } LOGTYPE;
@@ -49,8 +49,8 @@ typedef struct GPreConfDate_
 typedef struct GPreConfLog_
 {
   const char *combined;
-  const char *common;
   const char *vcombined;
+  const char *common;
   const char *vcommon;
   const char *w3c;
   const char *cloudfront;
