@@ -799,10 +799,10 @@ verify_format (GLog * logger, GSpinner * spinner)
 
   /* conf dialog menu options */
   const char *choices[] = {
-    "Common Log Format (CLF)",
-    "Common Log Format (CLF) with Virtual Host",
     "NCSA Combined Log Format",
     "NCSA Combined Log Format with Virtual Host",
+    "Common Log Format (CLF)",
+    "Common Log Format (CLF) with Virtual Host",
     "W3C",
     "CloudFront (Download Distribution)"
   };
