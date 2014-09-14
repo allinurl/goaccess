@@ -1,3 +1,7 @@
+Changes to GoAccess 0.8.5 - Sunday, September 14, 2014
+
+  * Fixed SEGFAULT when parsing a malformed request that doesn't have HTTP status.
+
 Changes to GoAccess 0.8.4 - Monday, September 08, 2014
 
   * Added ability to handle nginx non-standard status code 444 as 404.
