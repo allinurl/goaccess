@@ -26,7 +26,6 @@
 #define OUTPUT_H_INCLUDED
 
 #define OUTPUT_N  10
-#define REF_LEN   20
 
 #include "commons.h"
 #include "parser.h"
