@@ -21,7 +21,7 @@
 #ifndef GDNS_H_INCLUDED
 #define GDNS_H_INCLUDED
 
-#define H_SIZE     256
+#define H_SIZE     1025
 #define QUEUE_SIZE 400
 
 typedef struct GDnsThread_
