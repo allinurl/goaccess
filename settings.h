@@ -26,6 +26,7 @@
 #define MAX_LINE_CONF 512
 #define MAX_EXTENSIONS 64
 #define MAX_IGNORE_IPS 64
+#define MAX_IGNORE_REF 64
 
 typedef enum
 {
@@ -70,6 +71,7 @@ typedef struct GConf_
   char *iconfigfile;
   char *ifile;
   char *ignore_ips[MAX_IGNORE_IPS];
+  char *ignore_referers[MAX_IGNORE_REF];
   char *log_format;
   char *output_format;
   char *static_files[MAX_EXTENSIONS];
@@ -84,6 +86,7 @@ typedef struct GConf_
   int ignore_crawlers;
   int ignore_ip_idx;
   int ignore_qstr;
+  int ignore_referer_idx;
   int list_agents;
   int load_conf_dlg;
   int load_global_config;

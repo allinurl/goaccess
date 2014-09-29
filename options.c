@@ -67,6 +67,7 @@ struct option long_opts[] = {
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
+  {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
@@ -145,6 +146,8 @@ cmd_help (void)
   "  --4xx-to-unique-count       - Add 4xx client errors to the unique\n"
   "                                visitors count.\n"
   "  --ignore-crawlers           - Ignore crawlers.\n"
+  "  --ignore-referer=<needle>  - Ignore a referer from being counted.\n"
+  "                                Wild cards are allowed. i.e., *.bing.com\n"
   "  --no-progress               - Disable progress metrics.\n\n"
   "  --real-os                   - Display real OS names. e.g, Windows XP,\n"
   "                                Snow Leopard.\n"
@@ -319,6 +322,8 @@ read_option_args (int argc, char **argv)
          conf.code444_as_404 = 1;
        if (!strcmp ("ignore-crawlers", long_opts[idx].name))
          conf.ignore_crawlers = 1;
+       if (!strcmp ("ignore-referer", long_opts[idx].name))
+         conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;
        if (!strcmp ("no-color", long_opts[idx].name))
