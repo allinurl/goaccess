@@ -157,6 +157,33 @@ count_matches (const char *s1, char c)
   return n;
 }
 
+int
+ignore_referer (const char *host)
+{
+  char *needle = NULL;
+  int i, ignore = 0;
+
+  if (conf.ignore_referer_idx == 0)
+    return 0;
+  if (host == NULL || *host == '\0')
+    return 0;
+
+  needle = xstrdup (host);
+  for (i = 0; i < conf.ignore_referer_idx; ++i) {
+    if (conf.ignore_referers[i] == NULL || *conf.ignore_referers[i] == '\0')
+      continue;
+
+    if (wc_match (conf.ignore_referers[i], needle)) {
+      ignore = 1;
+      goto out;
+    }
+  }
+out:
+  free (needle);
+
+  return ignore;
+}
+
 static int
 within_range (const char *ip, const char *start, const char *end)
 {
@@ -515,6 +542,23 @@ left_pad_str (const char *s, int indent)
   sprintf (buf, "%*s", indent, s);
 
   return buf;
+}
+
+int
+wc_match (char *wc, char *str)
+{
+  if (*wc == '\0' && *str == '\0')
+    return 1;
+
+  if (*wc == '*' && *(wc + 1) != '\0' && *str == '\0')
+    return 0;
+
+  if (*wc == '?' || *wc == *str)
+    return wc_match (wc + 1, str + 1);
+
+  if (*wc == '*')
+    return wc_match (wc + 1, str) || wc_match (wc, str + 1);
+  return 0;
 }
 
 /* returns unescaped malloc'd string */

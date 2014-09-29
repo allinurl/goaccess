@@ -40,6 +40,7 @@ typedef struct GLogItem_
   char *protocol;
   char *req;
   char *status;
+  char site[REF_SITE_LEN];
   unsigned long long resp_size;
   unsigned long long serve_time;
 } GLogItem;

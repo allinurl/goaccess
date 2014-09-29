@@ -307,6 +307,9 @@ init_log_item (GLog * logger)
   glog->resp_size = 0LL;
   glog->serve_time = 0;
 
+  strncpy (glog->site, "", REF_SITE_LEN);
+  glog->site[REF_SITE_LEN - 1] = '\0';
+
   return glog;
 }
 
@@ -411,19 +414,24 @@ process_keyphrases (char *ref)
   return 0;
 }
 
+/* extract the host part (i.e., www.google.com) from the referer */
+static int
+extract_referer_site (const char *referer, char *host)
+{
+  return (sscanf (referer, "%*[^/]%*[/]%[^/]", host) == 1);
+}
+
 /* process referer */
 static void
-process_referrers (char *referrer)
+process_referrers (char *referrer, char *site)
 {
   char *ref;
-  char url[REF_SITE_LEN] = "";
 
   if (referrer == NULL)
     return;
 
-  /* extract the host part, i.e., www.foo.com */
-  if (sscanf (referrer, "%*[^/]%*[/]%[^/]", url) == 1)
-    process_generic_data (ht_referring_sites, url);
+  if (site != NULL && *site != '\0')
+    process_generic_data (ht_referring_sites, site);
   process_keyphrases (referrer);
 
   ref = decode_url (referrer);
@@ -826,6 +834,8 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
            free (tkn);
            tkn = alloc_string ("-");
          }
+         if (strcmp (tkn, "-") != 0)
+           extract_referer_site (tkn, glog->site);
          glog->ref = tkn;
          break;
          /* user agent */
@@ -1036,6 +1046,8 @@ process_log (GLog * logger, char *line, int test)
     goto cleanup;
   if (exclude_crawler (glog) == 0)
     goto cleanup;
+  if (ignore_referer (glog->site))
+    goto cleanup;
 
   /* is this a 404? */
   if (glog->status && !memcmp (glog->status, "404", 3))
@@ -1083,7 +1095,7 @@ process_log (GLog * logger, char *line, int test)
     process_request (ht_requests, req_key, glog);
 
   /* process referrers */
-  process_referrers (glog->ref);
+  process_referrers (glog->ref, glog->site);
   /* process hosts */
   process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
