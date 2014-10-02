@@ -547,17 +547,24 @@ left_pad_str (const char *s, int indent)
 int
 wc_match (char *wc, char *str)
 {
-  if (*wc == '\0' && *str == '\0')
+  while (*wc && *str) {
+    if (*wc == '*') {
+      while (*wc && *wc == '*')
+        wc++;
+      if (!*wc)
+        return 1;
+
+      while (*str && *str != *wc)
+        str++;
+    } else if (*wc == '?' || *wc == *str) {
+      wc++;
+      str++;
+    } else {
+      break;
+    }
+  }
+  if (!*wc && !*str)
     return 1;
-
-  if (*wc == '*' && *(wc + 1) != '\0' && *str == '\0')
-    return 0;
-
-  if (*wc == '?' || *wc == *str)
-    return wc_match (wc + 1, str + 1);
-
-  if (*wc == '*')
-    return wc_match (wc + 1, str) || wc_match (wc, str + 1);
   return 0;
 }
 
