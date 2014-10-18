@@ -414,11 +414,40 @@ process_keyphrases (char *ref)
   return 0;
 }
 
-/* extract the host part (i.e., www.google.com) from the referer */
 static int
 extract_referer_site (const char *referer, char *host)
 {
-  return (sscanf (referer, "%*[^/]%*[/]%[^/]", host) == 1);
+  char *url, *begin, *end;
+  int len = 0;
+
+  if ((referer == NULL) || (*referer == '\0'))
+    return 1;
+
+  url = strdup (referer);
+  if ((begin = strstr (url, "//")) == NULL)
+    goto clean;
+
+  begin += 2;
+  if ((len = strlen (begin)) == 0)
+    goto clean;
+
+  if ((end = strchr (begin, '/')) != NULL)
+    len = end - begin;
+
+  if (len == 0)
+    goto clean;
+
+  if (len >= REF_SITE_LEN)
+    len = REF_SITE_LEN - 1;
+
+  memcpy (host, begin, len);
+  host[len] = '\0';
+  free (url);
+  return 0;
+clean:
+  free (url);
+
+  return 1;
 }
 
 /* process referer */
