@@ -414,6 +414,8 @@ process_keyphrases (char *ref)
   return 0;
 }
 
+/* parses a URI and extracts the *host* part from it
+ * i.e., //www.example.com/path?googleguy > www.example.com */
 static int
 extract_referer_site (const char *referer, char *host)
 {
