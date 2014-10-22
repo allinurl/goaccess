@@ -664,29 +664,31 @@ parse_req (char *line, GLogItem * glog)
   return req;
 }
 
-static int
-invalid_method (const char *token)
+static const char *
+extract_method (const char *token)
 {
   const char *lookfor = NULL;
 
-  return !((lookfor = "OPTIONS", !memcmp (token, lookfor, 7)) ||
-           (lookfor = "GET", !memcmp (token, lookfor, 3)) ||
-           (lookfor = "HEAD", !memcmp (token, lookfor, 4)) ||
-           (lookfor = "POST", !memcmp (token, lookfor, 4)) ||
-           (lookfor = "PUT", !memcmp (token, lookfor, 3)) ||
-           (lookfor = "DELETE", !memcmp (token, lookfor, 6)) ||
-           (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
-           (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
-           (lookfor = "PATCH", !memcmp (token, lookfor, 5)) ||
-           (lookfor = "options", !memcmp (token, lookfor, 7)) ||
-           (lookfor = "get", !memcmp (token, lookfor, 3)) ||
-           (lookfor = "head", !memcmp (token, lookfor, 4)) ||
-           (lookfor = "post", !memcmp (token, lookfor, 4)) ||
-           (lookfor = "put", !memcmp (token, lookfor, 3)) ||
-           (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
-           (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
-           (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
-           (lookfor = "patch", !memcmp (token, lookfor, 5)));
+  if ((lookfor = "OPTIONS", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "GET", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "HEAD", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "POST", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "PUT", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "DELETE", !memcmp (token, lookfor, 6)) ||
+      (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
+      (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "PATCH", !memcmp (token, lookfor, 5)) ||
+      (lookfor = "options", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "get", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "head", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "post", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "put", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
+      (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
+      (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "patch", !memcmp (token, lookfor, 5)))
+    return lookfor;
+  return NULL;
 }
 
 static int
@@ -786,7 +788,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
          tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
-         if (invalid_method (tkn)) {
+         if (!extract_method (tkn)) {
            free (tkn);
            return 1;
          }
