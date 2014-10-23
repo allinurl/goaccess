@@ -399,6 +399,9 @@ print_html_header (FILE * fp, char *now)
   ".pure-table td {"
   "    background-color: transparent"
   "}"
+  ".pure-table td.number {"
+  "    text-align: right"
+  "}"
   ".pure-table tbody tr:hover,"
   ".pure-table-striped tr:nth-child(2n-1) td {"
   "    background-color: #f2f2f2"
@@ -533,8 +536,8 @@ print_html_sub_geolocation (FILE * fp, GSubList * sub_list, int process)
     sprintf (name, "—&nbsp;%s", data);
 
     print_html_begin_tr (fp, 1);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
     fprintf (fp, "<td>%s</td>", name);
 
@@ -581,8 +584,8 @@ print_html_geolocation (FILE * fp, GHolder * h, int process)
     percent = percent < 0 ? 0 : percent;
 
     print_html_begin_tr (fp, 0);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
     fprintf (fp, "<td>%s</td>", data);
     print_html_end_tr (fp);
 
@@ -612,8 +615,8 @@ print_html_sub_status (FILE * fp, GSubList * sub_list, int process)
     sprintf (name, "—&nbsp;%s", data);
 
     print_html_begin_tr (fp, 1);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
     fprintf (fp, "<td>%s</td>", name);
 
@@ -655,8 +658,8 @@ print_html_status (FILE * fp, GHolder * h, int process)
     percent = percent < 0 ? 0 : percent;
 
     print_html_begin_tr (fp, 0);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
     fprintf (fp, "<td>%s</td>", data);
     print_html_end_tr (fp);
 
@@ -717,8 +720,8 @@ print_html_generic (FILE * fp, GHolder * h, int process)
 
     print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
 
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
     fprintf (fp, "<td>");
     clean_output (fp, data);
     fprintf (fp, "</td>");
@@ -751,8 +754,8 @@ print_html_sub_browser_os (FILE * fp, GSubList * sub_list, int process)
     sprintf (name, "—&nbsp;%s", data);
 
     print_html_begin_tr (fp, 1);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
     fprintf (fp, "<td  style=\"white-space:nowrap;\">%s</td>", name);
     fprintf (fp, "<td class=\"graph\">");
     fprintf (fp, "<div class=\"bar light\" style=\"width:%f%%\"></div>", l);
@@ -815,8 +818,8 @@ print_html_browser_os (FILE * fp, GHolder * h)
     l = l < 1 ? 1 : l;
 
     print_html_begin_tr (fp, 0);
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
     /* data */
     fprintf (fp, "<td>");
@@ -921,8 +924,8 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
       fprintf (fp, "<span class=\"s\">-</span>");
     fprintf (fp, "</td>");
 
-    fprintf (fp, "<td>%d</td>", hits);
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
     fprintf (fp, "<td>");
     clean_output (fp, bandwidth);
@@ -1074,18 +1077,18 @@ print_html_request_report (FILE * fp, GHolder * h, int process)
     print_html_begin_tr (fp, i > OUTPUT_N ? 1 : 0);
 
     /* hits */
-    fprintf (fp, "<td>%d</td>", hits);
+    fprintf (fp, "<td class='number'>%d</td>", hits);
     /* percent */
-    fprintf (fp, "<td>%4.2f%%</td>", percent);
+    fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
     /* bandwidth */
-    fprintf (fp, "<td>");
+    fprintf (fp, "<td class='number'>");
     clean_output (fp, bandwidth);
     fprintf (fp, "</td>");
 
     /* usecs */
     if (conf.serve_usecs) {
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>");
+      fprintf (fp, "<td class='number'>");
       clean_output (fp, usecs);
       fprintf (fp, "</td>");
       free (usecs);
@@ -1166,16 +1169,16 @@ print_html_visitors_report (FILE * fp, GHolder * h)
     /* hits */
     fprintf (fp, "<td>%d</td>", hits);
     if (hits == max)
-      fprintf (fp, "<td class=\"max\">%4.2f%%</td>", percent);
+      fprintf (fp, "<td class=\"max number\">%4.2f%%</td>", percent);
     else
-      fprintf (fp, "<td>%4.2f%%</td>", percent);
+      fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
     /* date */
     convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
     fprintf (fp, "<td>%s</td>", buf);
 
     /* bandwidth */
-    fprintf (fp, "<td>");
+    fprintf (fp, "<td class='number'>");
     clean_output (fp, bandwidth);
     fprintf (fp, "</td>");
 
@@ -1196,7 +1199,7 @@ print_html_visitors_report (FILE * fp, GHolder * h)
 static void
 print_html_summary_field (FILE * fp, int hits, const char *field)
 {
-  fprintf (fp, "<td>%s</td><td>%d</td>", field, hits);
+  fprintf (fp, "<td>%s</td><td class='number'>%d</td>", field, hits);
 }
 
 static void
