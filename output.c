@@ -927,14 +927,15 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
     fprintf (fp, "<td class='number'>%d</td>", hits);
     fprintf (fp, "<td class='number'>%4.2f%%</td>", percent);
 
-    fprintf (fp, "<td>");
+    /* bandwidth */
+    fprintf (fp, "<td class='number'>");
     clean_output (fp, bandwidth);
     fprintf (fp, "</td>");
 
     /* usecs */
     if (conf.serve_usecs) {
       usecs = usecs_to_str (h->items[i].usecs);
-      fprintf (fp, "<td>");
+      fprintf (fp, "<td class='number'>");
       clean_output (fp, usecs);
       fprintf (fp, "</td>");
       free (usecs);
