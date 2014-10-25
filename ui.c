@@ -29,7 +29,12 @@
 
 #define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
-#define _BSD_SOURCE
+#ifndef _BSD_SOURCE
+#define _BSD_SOURCE     /* include stuff from 4.3 BSD */
+#endif
+#ifndef _DEFAULT_SOURCE
+#define _DEFAULT_SOURCE
+#endif
 
 #if HAVE_CONFIG_H
 #include <config.h>
