@@ -604,7 +604,6 @@ parse_req (char *line, GLogItem * glog)
 {
   const char *lookfor = NULL;
   char *req, *request, *req_l = NULL, *req_r = NULL;
-  char *method = NULL, *protocol = NULL;
   ptrdiff_t req_len;
 
   if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
@@ -641,17 +640,11 @@ parse_req (char *line, GLogItem * glog)
     strncpy (req, req_l, req_len);
     req[req_len] = 0;
 
-    if (conf.append_method) {
-      method = trim_str (xstrdup (lookfor));
-      str_to_upper (method);
-      glog->method = method;
-    }
+    if (conf.append_method)
+      glog->method = strtoupper (trim_str (xstrdup (lookfor)));
 
-    if (conf.append_protocol) {
-      protocol = xstrdup (++req_r);
-      str_to_upper (protocol);
-      glog->protocol = protocol;
-    }
+    if (conf.append_protocol)
+      glog->protocol = strtoupper(xstrdup (++req_r));
   } else
     req = alloc_string (line);
 
@@ -1100,11 +1093,11 @@ process_log (GLog * logger, char *line, int test)
   req_key = xstrdup (glog->req);
   /* include HTTP method/protocol to request */
   if (conf.append_method && glog->method) {
-    str_to_upper (glog->method);
+    glog->method = strtoupper (glog->method);
     append_method_to_request (&req_key, glog->method);
   }
   if (conf.append_protocol && glog->protocol) {
-    str_to_upper (glog->protocol);
+    glog->protocol = strtoupper(glog->protocol);
     append_protocol_to_request (&req_key, glog->protocol);
   }
   if ((conf.append_method) || (conf.append_protocol))

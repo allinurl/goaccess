@@ -69,7 +69,7 @@ int wc_match(char *wc, char * str);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
 void strip_newlines (char *str);
-void str_to_upper (char *s);
+char* strtoupper(char* str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
 /* *INDENT-ON* */

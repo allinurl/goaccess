@@ -520,16 +520,17 @@ deblank (char *str)
   return out;
 }
 
-void
-str_to_upper (char *str)
-{
+char* strtoupper(char* str) {
+  char* p = str;
   if (str == NULL || *str == '\0')
-    return;
+    return str;
 
-  while (*str != '\0') {
-    *str = toupper (*str);
-    str++;
+  while (*p != '\0') {
+    *p = toupper(*p);
+    p++;
   }
+
+  return str;
 }
 
 char *
