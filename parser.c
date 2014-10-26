@@ -599,64 +599,6 @@ verify_static_content (char *req)
   return 0;
 }
 
-static char *
-parse_req (char *line, GLogItem * glog)
-{
-  const char *lookfor = NULL;
-  char *req, *request, *req_l = NULL, *req_r = NULL;
-  ptrdiff_t req_len;
-
-  if ((lookfor = "OPTIONS ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "GET ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "HEAD ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "POST ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "PUT ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "DELETE ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "TRACE ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "CONNECT ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "PATCH", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "options ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "get ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "head ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "post ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "put ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "delete ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "trace ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "connect ", req_l = strstr (line, lookfor)) != NULL ||
-      (lookfor = "patch", req_l = strstr (line, lookfor)) != NULL) {
-    /* didn't find it - weird  */
-    if ((req_r = strstr (line, " HTTP/1.0")) == NULL &&
-        (req_r = strstr (line, " HTTP/1.1")) == NULL)
-      return alloc_string ("-");
-
-    req_l += strlen (lookfor);
-    req_len = req_r - req_l;
-
-    /* make sure we don't have some weird requests */
-    if (req_len <= 0)
-      return alloc_string ("-");
-
-    req = xmalloc (req_len + 1);
-    strncpy (req, req_l, req_len);
-    req[req_len] = 0;
-
-    if (conf.append_method)
-      glog->method = strtoupper (trim_str (xstrdup (lookfor)));
-
-    if (conf.append_protocol)
-      glog->protocol = strtoupper(xstrdup (++req_r));
-  } else
-    req = alloc_string (line);
-
-  request = decode_url (req);
-  if (request != NULL && *request != '\0') {
-    free (req);
-    return request;
-  }
-
-  return req;
-}
-
 static const char *
 extract_method (const char *token)
 {
@@ -691,6 +633,50 @@ invalid_protocol (const char *token)
 
   return !((lookfor = "HTTP/1.0", !memcmp (token, lookfor, 8)) ||
            (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)));
+}
+
+static char *
+parse_req (char *line, char **method, char **protocol)
+{
+  char *req = NULL, *request = NULL, *proto = NULL, *dreq = NULL;
+  const char *meth;
+  ptrdiff_t rlen;
+
+  meth = extract_method (line);
+
+  /* couldn't find a method, so use the whole request line */
+  if (meth == NULL) {
+    request = xstrdup (line);
+  }
+  /* method found, attempt to parse request */
+  else {
+    req = line + strlen (meth);
+    if ((proto = strstr (line, " HTTP/1.0")) == NULL &&
+        (proto = strstr (line, " HTTP/1.1")) == NULL) {
+      return alloc_string ("-");
+    }
+
+    req++;
+    if ((rlen = proto - req) <= 0)
+      return alloc_string ("-");
+
+    request = xmalloc (rlen + 1);
+    strncpy (request, req, rlen);
+    request[rlen] = 0;
+
+    if (conf.append_method)
+      (*method) = strtoupper (xstrdup (meth));
+
+    if (conf.append_protocol)
+      (*protocol) = strtoupper (xstrdup (++proto));
+  }
+
+  if ((dreq = decode_url (request)) && dreq != '\0') {
+    free (request);
+    return dreq;
+  }
+
+  return request;
 }
 
 static char *
@@ -818,7 +804,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
          tkn = parse_string (&str, p[1], 1);
          if (tkn == NULL)
            return 1;
-         glog->req = parse_req (tkn, glog);
+         glog->req = parse_req (tkn, &glog->method, &glog->protocol);
          free (tkn);
          break;
          /* Status Code */
@@ -1097,7 +1083,7 @@ process_log (GLog * logger, char *line, int test)
     append_method_to_request (&req_key, glog->method);
   }
   if (conf.append_protocol && glog->protocol) {
-    glog->protocol = strtoupper(glog->protocol);
+    glog->protocol = strtoupper (glog->protocol);
     append_protocol_to_request (&req_key, glog->protocol);
   }
   if ((conf.append_method) || (conf.append_protocol))

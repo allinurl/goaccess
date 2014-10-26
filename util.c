@@ -520,13 +520,15 @@ deblank (char *str)
   return out;
 }
 
-char* strtoupper(char* str) {
-  char* p = str;
+char *
+strtoupper (char *str)
+{
+  char *p = str;
   if (str == NULL || *str == '\0')
     return str;
 
   while (*p != '\0') {
-    *p = toupper(*p);
+    *p = toupper (*p);
     p++;
   }
 
