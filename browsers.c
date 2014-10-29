@@ -318,8 +318,11 @@ verify_browser (char *str, char *type)
       if ((ptr = strpbrk (a, ";)-")) != NULL)
         *ptr = '\0';
       a = char_replace (a, ' ', '/');
-    } else if ((ptr = strpbrk (a, ";) ")) != NULL)
+    }
+    /* all others */
+    else if ((ptr = strpbrk (a, ";) ")) != NULL) {
       *ptr = '\0';
+    }
 
     xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
     return alloc_string (a);
