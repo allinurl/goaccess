@@ -174,8 +174,7 @@ char *
 verify_os (const char *str, char *os_type)
 {
   char *a, *b, *p;
-  const char *lookfor;
-  int space = 0;
+  int space = 0, spaces = 0;
   size_t i;
 
   if (str == NULL || *str == '\0')
@@ -185,21 +184,23 @@ verify_os (const char *str, char *os_type)
     if ((a = strstr (str, os[i][0])) == NULL)
       continue;
 
-    /* windows */
-    if ((lookfor = "Windows", strstr (str, lookfor)) != NULL) {
+    /* Windows */
+    if ((strstr (str, "Windows")) != NULL) {
       xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      return conf.real_os &&
-        (b = get_real_win (a)) ? b : alloc_string (os[i][0]);
+      return conf.real_os && (b = get_real_win (a)) ? b : xstrdup (os[i][0]);
     }
-    /* agents w/ space in between */
-    if ((lookfor = "iPhone OS", strstr (str, lookfor)) != NULL ||
-        (lookfor = "Red Hat", strstr (str, lookfor)) != NULL ||
-        (lookfor = "Win", strstr (str, lookfor)) != NULL) {
+    /* Android */
+    if ((strstr (a, "Android")) != NULL) {
+      p = a;
+      while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
+        p++;
+      *p = 0;
+
       xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      return alloc_string (os[i][0]);
+      return conf.real_os ? get_real_android (a) : xstrdup (a);
     }
-    /* parse mac os x */
-    if ((lookfor = "OS X", strstr (a, lookfor)) != NULL) {
+    /* Mac OS X */
+    if ((strstr (a, "OS X")) != NULL) {
       p = a;
       while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
         if (*p == '_')
@@ -213,32 +214,22 @@ verify_os (const char *str, char *os_type)
       *p = 0;
 
       xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      return conf.real_os ? get_real_mac_osx (a) : alloc_string (a);
+      return conf.real_os ? get_real_mac_osx (a) : xstrdup (a);
     }
-    /* parse android */
-    if ((lookfor = "Android", strstr (a, lookfor)) != NULL) {
-      p = a;
-      while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
-        p++;
-      *p = 0;
-
-      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-      return conf.real_os ? get_real_android (a) : alloc_string (a);
-    }
-    if (!(b = a))
-      return NULL;
     /* all others */
-    for (p = a; *p; p++) {
-      if (*p != ' ' && isalnum (p[0]) && *p != '\0') {
-        a++;
-        continue;
-      } else
+    spaces = count_matches (os[i][0], ' ');
+    p = a;
+    while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
+      if (*p == ' ')
+        space++;
+      if (space > spaces)
         break;
+      p++;
     }
     *p = 0;
 
     xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-    return alloc_string (b);
+    return alloc_string (a);
   }
   xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
 
