@@ -170,11 +170,62 @@ get_real_mac_osx (const char *osx)
   return alloc_string (osx);
 }
 
+static char *
+parse_others (char *agent, int spaces)
+{
+  char *p;
+  int space = 0;
+  p = agent;
+  while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
+    if (*p == ' ')
+      space++;
+    if (space > spaces)
+      break;
+    p++;
+  }
+  *p = 0;
+
+  return agent;
+}
+
+static char *
+parse_osx (char *agent)
+{
+  int space = 0;
+  char *p;
+
+  p = agent;
+  while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
+    if (*p == '_')
+      *p = '.';
+    if (*p == ' ')
+      space++;
+    if (space > 3)
+      break;
+    p++;
+  }
+  *p = 0;
+
+  return agent;
+}
+
+static char *
+parse_android (char *agent)
+{
+  char *p;
+  p = agent;
+  while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
+    p++;
+  *p = 0;
+
+  return agent;
+}
+
 char *
 verify_os (const char *str, char *os_type)
 {
-  char *a, *b, *p;
-  int space = 0, spaces = 0;
+  char *a, *b;
+  int spaces = 0;
   size_t i;
 
   if (str == NULL || *str == '\0')
@@ -184,52 +235,24 @@ verify_os (const char *str, char *os_type)
     if ((a = strstr (str, os[i][0])) == NULL)
       continue;
 
+    xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
     /* Windows */
     if ((strstr (str, "Windows")) != NULL) {
-      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
       return conf.real_os && (b = get_real_win (a)) ? b : xstrdup (os[i][0]);
     }
     /* Android */
     if ((strstr (a, "Android")) != NULL) {
-      p = a;
-      while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
-        p++;
-      *p = 0;
-
-      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+      a = parse_android (a);
       return conf.real_os ? get_real_android (a) : xstrdup (a);
     }
     /* Mac OS X */
     if ((strstr (a, "OS X")) != NULL) {
-      p = a;
-      while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
-        if (*p == '_')
-          *p = '.';
-        if (*p == ' ')
-          space++;
-        if (space > 3)
-          break;
-        p++;
-      }
-      *p = 0;
-
-      xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
+      a = parse_osx (a);
       return conf.real_os ? get_real_mac_osx (a) : xstrdup (a);
     }
     /* all others */
     spaces = count_matches (os[i][0], ' ');
-    p = a;
-    while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
-      if (*p == ' ')
-        space++;
-      if (space > spaces)
-        break;
-      p++;
-    }
-    *p = 0;
-
-    xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-    return alloc_string (a);
+    return alloc_string (parse_others (a, spaces));
   }
   xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
 
