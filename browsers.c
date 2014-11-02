@@ -294,9 +294,9 @@ verify_browser (char *str, char *type)
     if ((a = strstr (str, browsers[i][0])) == NULL)
       continue;
 
+    xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
     /* Internet Explorer 11 */
     if (strstr (a, "rv:11") && strstr (a, "Trident/7.0")) {
-      xstrncpy (type, "MSIE", BROWSER_TYPE_LEN);
       return alloc_string ("MSIE/11.0");
     }
     /* Opera +15 uses OPR/# */
@@ -304,8 +304,6 @@ verify_browser (char *str, char *type)
       if ((slash = strrchr (a, '/')) != NULL) {
         val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
         sprintf (val, "Opera%s", slash);
-        xstrncpy (type, "Opera", BROWSER_TYPE_LEN);
-
         return val;
       }
     }
@@ -324,7 +322,6 @@ verify_browser (char *str, char *type)
       *ptr = '\0';
     }
 
-    xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
     return alloc_string (a);
   }
   xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
