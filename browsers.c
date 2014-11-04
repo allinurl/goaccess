@@ -281,10 +281,20 @@ is_crawler (const char *agent)
   return strcmp (type, "Crawlers") == 0 ? 1 : 0;
 }
 
+/* Return the Opera 15 and Beyond */
+static char *
+parse_opera (char *token)
+{
+  char *val = xmalloc (snprintf (NULL, 0, "Opera%s", token) + 1);
+  sprintf (val, "Opera%s", token);
+
+  return val;
+}
+
 char *
 verify_browser (char *str, char *type)
 {
-  char *a, *ptr, *slash, *val;
+  char *a, *ptr, *slash;
   size_t i;
 
   if (str == NULL || *str == '\0')
@@ -300,18 +310,15 @@ verify_browser (char *str, char *type)
       return alloc_string ("MSIE/11.0");
     }
     /* Opera +15 uses OPR/# */
-    if (strstr (a, "OPR") != NULL) {
-      if ((slash = strrchr (a, '/')) != NULL) {
-        val = xmalloc (snprintf (NULL, 0, "Opera%s", slash) + 1);
-        sprintf (val, "Opera%s", slash);
-        return val;
-      }
+    if (strstr (a, "OPR") != NULL && (slash = strrchr (a, '/'))) {
+      return parse_opera (slash);
     }
     /* Opera has the version number at the end */
     if (strstr (a, "Opera") != NULL) {
       if ((slash = strrchr (a, '/')) != NULL && a < slash)
         memmove (a + 5, slash, strlen (slash) + 1);
     }
+    /* IE Old */
     if (strstr (a, "MSIE") != NULL) {
       if ((ptr = strpbrk (a, ";)-")) != NULL)
         *ptr = '\0';
