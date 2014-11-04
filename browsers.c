@@ -314,9 +314,8 @@ verify_browser (char *str, char *type)
       return parse_opera (slash);
     }
     /* Opera has the version number at the end */
-    if (strstr (a, "Opera") != NULL) {
-      if ((slash = strrchr (a, '/')) != NULL && a < slash)
-        memmove (a + 5, slash, strlen (slash) + 1);
+    if (strstr (a, "Opera") && (slash = strrchr (a, '/')) && a < slash) {
+      memmove (a + 5, slash, strlen (slash) + 1);
     }
     /* IE Old */
     if (strstr (a, "MSIE") != NULL) {
