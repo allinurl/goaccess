@@ -273,6 +273,7 @@ read_option_args (int argc, char **argv)
        break;
      case 'o':
        conf.output_format = optarg;
+      break;
      case 'l':
        conf.debug_log = optarg;
        dbg_log_open (conf.debug_log);
