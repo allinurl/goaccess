@@ -305,30 +305,49 @@ read_option_args (int argc, char **argv)
        if (!strcmp ("no-global-config", long_opts[idx].name))
          break; /* ignore it */
 
+       /* color scheme */
        if (!strcmp ("color-scheme", long_opts[idx].name))
          conf.color_scheme = atoi (optarg);
+
+       /* log format */
        if (!strcmp ("log-format", long_opts[idx].name))
          conf.log_format = unescape_str (optarg);
+
+       /* date format */
        if (!strcmp ("date-format", long_opts[idx].name))
          conf.date_format = unescape_str (optarg);
 
+       /* static file */
        if (!strcmp ("static-file", long_opts[idx].name)) {
          if (conf.static_file_max_len < strlen (optarg))
            conf.static_file_max_len = strlen (optarg);
          conf.static_files[conf.static_file_idx++] = optarg;
        }
+       /* 4xx to unique count */
        if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
          conf.client_err_to_unique_count = 1;
+
+       /* 444 as 404 */
        if (!strcmp ("444-as-404", long_opts[idx].name))
          conf.code444_as_404 = 1;
+
+       /* ignore crawlers */
        if (!strcmp ("ignore-crawlers", long_opts[idx].name))
          conf.ignore_crawlers = 1;
+
+       /* ignore referer */
        if (!strcmp ("ignore-referer", long_opts[idx].name))
          conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
+
+       /* real os */
        if (!strcmp ("real-os", long_opts[idx].name))
          conf.real_os = 1;
+
+       /* no color */
        if (!strcmp ("no-color", long_opts[idx].name))
          conf.no_color = 1;
+
+       /* no progress */
        if (!strcmp ("no-progress", long_opts[idx].name))
          conf.no_progress = 1;
 
@@ -339,6 +358,7 @@ read_option_args (int argc, char **argv)
        /* load data from disk */
        if (!strcmp ("load-from-disk", long_opts[idx].name))
          conf.load_from_disk = 1;
+
        /* keep database files */
        if (!strcmp ("keep-db-files", long_opts[idx].name))
          conf.keep_db_files = 1;
@@ -346,21 +366,27 @@ read_option_args (int argc, char **argv)
        /* specifies the path of the database file */
        if (!strcmp ("db-path", long_opts[idx].name))
          conf.db_path = optarg;
+
        /* set the size in bytes of the extra mapped memory */
        if (!strcmp ("xmmap", long_opts[idx].name))
          conf.xmmap = atoi (optarg);
+
        /* specifies the maximum number of leaf nodes to be cached */
        if (!strcmp ("cache-lcnum", long_opts[idx].name))
          conf.cache_lcnum = atoi (optarg);
+
        /* specifies the maximum number of non-leaf nodes to be cached */
        if (!strcmp ("cache-ncnum", long_opts[idx].name))
          conf.cache_ncnum = atoi (optarg);
+
        /* number of members in each leaf page */
        if (!strcmp ("tune-lmemb", long_opts[idx].name))
          conf.tune_lmemb = atoi (optarg);
+
        /* number of members in each non-leaf page */
        if (!strcmp ("tune-nmemb", long_opts[idx].name))
          conf.tune_nmemb = atoi (optarg);
+
        /* number of elements of the bucket array */
        if (!strcmp ("tune-bnum", long_opts[idx].name))
          conf.tune_bnum = atoi (optarg);
