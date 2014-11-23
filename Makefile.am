@@ -31,6 +31,8 @@ goaccess_SOURCES = \
    output.h        \
    parser.c        \
    parser.h        \
+   sort.c          \
+   sort.h          \
    settings.c      \
    settings.h      \
    ui.c            \

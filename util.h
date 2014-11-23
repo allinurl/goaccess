@@ -54,6 +54,7 @@ char *ltrim (char *s);
 char *replace_str (const char *str, const char *old, const char *new);
 char *rtrim (char *s);
 char *secs_to_str (int secs);
+char* strtoupper(char* str);
 char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *unescape_str (const char *src);
@@ -69,7 +70,6 @@ int wc_match(char *wc, char * str);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
 void strip_newlines (char *str);
-char* strtoupper(char* str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
 /* *INDENT-ON* */

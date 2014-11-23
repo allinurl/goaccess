@@ -49,6 +49,7 @@
 #include "opesys.h"
 #include "parser.h"
 #include "settings.h"
+#include "sort.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -1277,84 +1278,6 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module,
   }
 }
 
-/* apply user defined sort */
-static void
-sort_holder_items (GHolderItem * items, int size, GSort sort)
-{
-  switch (sort.field) {
-   case SORT_BY_HITS:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_num_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_num_asc);
-     break;
-   case SORT_BY_DATA:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_data_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_data_asc);
-     break;
-   case SORT_BY_BW:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_bw_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_bw_asc);
-     break;
-   case SORT_BY_USEC:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_usec_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_usec_asc);
-     break;
-   case SORT_BY_PROT:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_proto_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_proto_asc);
-     break;
-   case SORT_BY_MTHD:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_mthd_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_mthd_asc);
-     break;
-  }
-}
-
-/* Copy linked-list items to an array, sort, and move them back
- * to the list should be faster than sorting the list
- */
-static void
-sort_sub_list (GHolder * h, GSort sort)
-{
-  int i, j, k;
-  GHolderItem *arr_items;
-
-  for (i = 0; i < h->idx; i++) {
-    GSubList *sub_list = h->items[i].sub_list;
-    GSubItem *iter;
-    arr_items = new_gholder_item (sub_list->size);
-
-    /* copy items from the linked-list into an rray */
-    for (j = 0, iter = sub_list->head; iter; iter = iter->next) {
-      arr_items[j].data = xstrdup ((char *) iter->data);
-      arr_items[j++].hits = iter->hits;
-    }
-    sort_holder_items (arr_items, j, sort);
-    delete_sub_list (sub_list);
-
-    sub_list = new_gsublist ();
-    for (k = 0; k < j; k++) {
-      if (k > 0)
-        sub_list = h->items[i].sub_list;
-      add_sub_item_back (sub_list, h->module, arr_items[k].data,
-                         arr_items[k].hits, 0);
-      h->items[i].sub_list = sub_list;
-    }
-    free (arr_items);
-  }
-}
-
 uint32_t
 get_ht_size_by_module (GModule module)
 {
@@ -1410,6 +1333,40 @@ get_ht_size_by_module (GModule module)
   }
 
   return get_ht_size (ht);
+}
+
+/* Copy linked-list items to an array, sort, and move them back
+ * to the list should be faster than sorting the list
+ */
+void
+sort_sub_list (GHolder * h, GSort sort)
+{
+  int i, j, k;
+  GHolderItem *arr_items;
+
+  for (i = 0; i < h->idx; i++) {
+    GSubList *sub_list = h->items[i].sub_list;
+    GSubItem *iter;
+    arr_items = new_gholder_item (sub_list->size);
+
+    /* copy items from the linked-list into an rray */
+    for (j = 0, iter = sub_list->head; iter; iter = iter->next) {
+      arr_items[j].data = xstrdup ((char *) iter->data);
+      arr_items[j++].hits = iter->hits;
+    }
+    sort_holder_items (arr_items, j, sort);
+    delete_sub_list (sub_list);
+
+    sub_list = new_gsublist ();
+    for (k = 0; k < j; k++) {
+      if (k > 0)
+        sub_list = h->items[i].sub_list;
+      add_sub_item_back (sub_list, h->module, arr_items[k].data,
+                         arr_items[k].hits, 0);
+      h->items[i].sub_list = sub_list;
+    }
+    free (arr_items);
+  }
 }
 
 /* Load raw data into our holder structure.

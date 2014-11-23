@@ -143,7 +143,6 @@ float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);
 void display_version (void);
 int get_module_enum (const char *str);
-int get_sort_field_enum (const char *str);
-int get_sort_order_enum (const char *str);
+int str2enum (const GEnum map[], int len, const char *str);
 
 #endif

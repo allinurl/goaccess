@@ -125,7 +125,6 @@
 #define SCHEME_WIN_W      42
 
 /* SORT DIALOG */
-#define SORT_MAX_OPTS     7
 #define SORT_MENU_H       6
 #define SORT_MENU_W       38
 #define SORT_MENU_X       2
@@ -163,7 +162,7 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #include "commons.h"
-#include "parser.h"
+#include "sort.h"
 
 typedef enum SCHEMES
 {
@@ -171,22 +170,6 @@ typedef enum SCHEMES
   MONOCHROME,
   STD_GREEN
 } GShemes;
-
-typedef enum GSortField_
-{
-  SORT_BY_HITS,
-  SORT_BY_DATA,
-  SORT_BY_BW,
-  SORT_BY_USEC,
-  SORT_BY_PROT,
-  SORT_BY_MTHD,
-} GSortField;
-
-typedef enum GSortOrder_
-{
-  SORT_ASC,
-  SORT_DESC
-} GSortOrder;
 
 typedef struct GFind_
 {
@@ -199,13 +182,6 @@ typedef struct GFind_
   int done;
   int icase;
 } GFind;
-
-typedef struct GSort_
-{
-  GModule module;
-  GSortField field;
-  GSortOrder sort;
-} GSort;
 
 typedef struct GScrollModule_
 {
