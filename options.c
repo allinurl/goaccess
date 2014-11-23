@@ -69,6 +69,7 @@ struct option long_opts[] = {
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
+  {"sort-view"            , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
@@ -273,7 +274,7 @@ read_option_args (int argc, char **argv)
        break;
      case 'o':
        conf.output_format = optarg;
-      break;
+       break;
      case 'l':
        conf.debug_log = optarg;
        dbg_log_open (conf.debug_log);
@@ -338,6 +339,10 @@ read_option_args (int argc, char **argv)
        /* ignore referer */
        if (!strcmp ("ignore-referer", long_opts[idx].name))
          conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
+
+       /* sort view */
+       if (!strcmp ("sort-view", long_opts[idx].name))
+         conf.sort_views[conf.sort_view_idx++] = optarg;
 
        /* real os */
        if (!strcmp ("real-os", long_opts[idx].name))

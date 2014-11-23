@@ -160,6 +160,38 @@ house_keeping (void)
   free_cmd_args ();
 }
 
+static void
+set_initial_sort (const char *smod, const char *sfield, const char *sorder)
+{
+  int module, field, order;
+  if ((module = get_module_enum (smod)) == -1)
+    return;
+
+  if ((field = get_sort_field_enum (sfield)) == -1)
+    return;
+
+  if ((order = get_sort_order_enum (sorder)) == -1)
+    return;
+
+  sort[module].field = field;
+  sort[module].sort = order;
+}
+
+static void
+parse_initial_sort (void)
+{
+  int i;
+  char *view;
+  char module[9], field[8], order[5];
+  for (i = 0; i < conf.sort_view_idx; ++i) {
+    view = conf.sort_views[i];
+    if (sscanf (view, "%8[^','],%7[^','],%4s", module, field, order) != 3)
+      continue;
+    set_initial_sort (module, field, order);
+  }
+}
+
+
 /* allocate memory for an instance of holder */
 static void
 allocate_holder_by_module (GModule module)
@@ -179,7 +211,7 @@ allocate_holder_by_module (GModule module)
   ht = get_ht_by_module (module);
   ht_size = get_ht_size_by_module (module);
   raw_data = parse_raw_data (ht, ht_size, module);
-  load_data_to_holder (raw_data, holder + module, module, sort[module]);
+  load_holder_data (raw_data, holder + module, module, sort[module]);
 }
 
 /* allocate memory for an instance of holder */
@@ -207,7 +239,7 @@ allocate_holder (void)
     ht = get_ht_by_module (module);
     ht_size = get_ht_size_by_module (module);
     raw_data = parse_raw_data (ht, ht_size, module);
-    load_data_to_holder (raw_data, holder + module, module, sort[module]);
+    load_holder_data (raw_data, holder + module, module, sort[module]);
   }
 }
 
@@ -833,6 +865,7 @@ out:
 
   /* init reverse lookup thread */
   gdns_init ();
+  parse_initial_sort ();
   allocate_holder ();
 
   end_spinner ();

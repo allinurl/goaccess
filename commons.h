@@ -132,10 +132,18 @@ typedef struct GHolder_
   int sub_items_size;           /* total number of sub items        */
 } GHolder;
 
+typedef struct GEnum_
+{
+  const char *str;
+  int idx;
+} GEnum;
 
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);
 void display_version (void);
+int get_module_enum (const char *str);
+int get_sort_field_enum (const char *str);
+int get_sort_order_enum (const char *str);
 
 #endif

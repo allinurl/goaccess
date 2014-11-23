@@ -39,6 +39,7 @@
 #include "error.h"
 #include "settings.h"
 #include "util.h"
+#include "ui.h"
 
 /* processing time */
 time_t end_proc;
@@ -49,6 +50,37 @@ time_t start_proc;
 size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
+
+static GEnum MODULES[] = {
+  {"VISITORS", VISITORS},
+  {"REQUESTS", REQUESTS},
+  {"REQUESTS_STATIC", REQUESTS_STATIC},
+  {"NOT_FOUND", NOT_FOUND},
+  {"HOSTS", HOSTS},
+  {"OS", OS},
+  {"BROWSERS", BROWSERS},
+  {"REFERRERS", REFERRERS},
+  {"REFERRING_SITES", REFERRING_SITES},
+  {"KEYPHRASES", KEYPHRASES},
+#ifdef HAVE_LIBGEOIP
+  {"GEO_LOCATION", GEO_LOCATION},
+#endif
+  {"STATUS_CODES", STATUS_CODES},
+};
+
+static GEnum FIELD[] = {
+  {"BY_HITS", SORT_BY_HITS},
+  {"BY_DATA", SORT_BY_DATA},
+  {"BY_BW", SORT_BY_BW},
+  {"BY_USEC", SORT_BY_USEC},
+  {"BY_PROT", SORT_BY_PROT},
+  {"BY_MTHD", SORT_BY_MTHD},
+};
+
+static GEnum ORDER[] = {
+  {"ASC", SORT_ASC},
+  {"DESC", SORT_DESC},
+};
 
 /* calculate hits percentage */
 float
@@ -75,4 +107,35 @@ display_version (void)
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "For more details visit: http://goaccess.io\n");
   fprintf (stdout, "Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana\n");
+}
+
+static int
+str2enum (const GEnum map[], int len, const char *str)
+{
+  int i;
+
+  for (i = 0; i < len; ++i) {
+    if (!strcmp (str, map[i].str))
+      return map[i].idx;
+  }
+
+  return -1;
+}
+
+int
+get_module_enum (const char *str)
+{
+  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
+}
+
+int
+get_sort_field_enum (const char *str)
+{
+  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
+}
+
+int
+get_sort_order_enum (const char *str)
+{
+  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }

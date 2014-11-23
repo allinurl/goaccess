@@ -109,7 +109,7 @@ void free_dashboard (GDash * dash);
 void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScrolling * scrolling);
-void load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
+void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
 void load_host_to_holder (GHolder * h, char *ip);
 void reset_find (void);
 void reset_scroll_offsets (GScrolling * scrolling);
