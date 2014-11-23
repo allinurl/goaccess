@@ -63,7 +63,7 @@ geoip_open_db (const char *db)
 {
   GeoIP *geoip;
   geoip = GeoIP_open (db, GEOIP_INDEX_CACHE);
-  GeoIP_set_charset(geoip, GEOIP_CHARSET_UTF8);
+  GeoIP_set_charset (geoip, GEOIP_CHARSET_UTF8);
   if (geoip == NULL)
     FATAL ("Unable to open GeoIP City database: %s\n", db);
   LOG_DEBUG (("Opened GeoIP City database: %s\n", db));

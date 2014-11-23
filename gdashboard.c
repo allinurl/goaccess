@@ -1419,8 +1419,7 @@ get_ht_size_by_module (GModule module)
  * the holder structure.
  */
 void
-load_data_to_holder (GRawData * raw_data, GHolder * h, GModule module,
-                     GSort sort)
+load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort)
 {
   char *key;
   int hits;

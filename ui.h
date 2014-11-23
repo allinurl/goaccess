@@ -172,6 +172,22 @@ typedef enum SCHEMES
   STD_GREEN
 } GShemes;
 
+typedef enum GSortField_
+{
+  SORT_BY_HITS,
+  SORT_BY_DATA,
+  SORT_BY_BW,
+  SORT_BY_USEC,
+  SORT_BY_PROT,
+  SORT_BY_MTHD,
+} GSortField;
+
+typedef enum GSortOrder_
+{
+  SORT_ASC,
+  SORT_DESC
+} GSortOrder;
+
 typedef struct GFind_
 {
   GModule module;
@@ -187,20 +203,8 @@ typedef struct GFind_
 typedef struct GSort_
 {
   GModule module;
-  enum
-  {
-    SORT_BY_HITS,
-    SORT_BY_DATA,
-    SORT_BY_BW,
-    SORT_BY_USEC,
-    SORT_BY_PROT,
-    SORT_BY_MTHD,
-  } field;
-  enum
-  {
-    SORT_ASC,
-    SORT_DESC
-  } sort;
+  GSortField field;
+  GSortOrder sort;
 } GSort;
 
 typedef struct GScrollModule_

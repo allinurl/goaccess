@@ -1216,6 +1216,5 @@ sort_raw_data (GRawData * raw_data, GModule module, int ht_size)
    default:
      qsort (raw_data->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
   }
-
   return raw_data;
 }

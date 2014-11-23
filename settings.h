@@ -22,6 +22,7 @@
 #define SETTINGS_H_INCLUDED
 
 #include <stdint.h>
+#include <commons.h>
 
 #define MAX_LINE_CONF 512
 #define MAX_EXTENSIONS 64
@@ -70,6 +71,7 @@ typedef struct GConf_
   char *geoip_city_data;
   char *iconfigfile;
   char *ifile;
+  char *sort_views[TOTAL_MODULES];
   char *ignore_ips[MAX_IGNORE_IPS];
   char *ignore_referers[MAX_IGNORE_REF];
   char *log_format;
@@ -84,9 +86,7 @@ typedef struct GConf_
   int enable_html_resolver;
   int geo_db;
   int ignore_crawlers;
-  int ignore_ip_idx;
   int ignore_qstr;
-  int ignore_referer_idx;
   int list_agents;
   int load_conf_dlg;
   int load_global_config;
@@ -97,7 +97,12 @@ typedef struct GConf_
   int real_os;
   int serve_usecs;
   int skip_term_resolver;
+
+  int ignore_ip_idx;
+  int ignore_referer_idx;
+  int sort_view_idx;
   int static_file_idx;
+
   size_t static_file_max_len;
 
   /* TokyoCabinet */
