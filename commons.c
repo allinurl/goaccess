@@ -38,8 +38,8 @@
 #include "commons.h"
 #include "error.h"
 #include "settings.h"
+#include "sort.h"
 #include "util.h"
-#include "ui.h"
 
 /* processing time */
 time_t end_proc;
@@ -66,20 +66,6 @@ static GEnum MODULES[] = {
   {"GEO_LOCATION", GEO_LOCATION},
 #endif
   {"STATUS_CODES", STATUS_CODES},
-};
-
-static GEnum FIELD[] = {
-  {"BY_HITS", SORT_BY_HITS},
-  {"BY_DATA", SORT_BY_DATA},
-  {"BY_BW", SORT_BY_BW},
-  {"BY_USEC", SORT_BY_USEC},
-  {"BY_PROT", SORT_BY_PROT},
-  {"BY_MTHD", SORT_BY_MTHD},
-};
-
-static GEnum ORDER[] = {
-  {"ASC", SORT_ASC},
-  {"DESC", SORT_DESC},
 };
 
 /* calculate hits percentage */
@@ -109,7 +95,13 @@ display_version (void)
   fprintf (stdout, "Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana\n");
 }
 
-static int
+int
+get_module_enum (const char *str)
+{
+  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
+}
+
+int
 str2enum (const GEnum map[], int len, const char *str)
 {
   int i;
@@ -120,22 +112,4 @@ str2enum (const GEnum map[], int len, const char *str)
   }
 
   return -1;
-}
-
-int
-get_module_enum (const char *str)
-{
-  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
-}
-
-int
-get_sort_field_enum (const char *str)
-{
-  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
-}
-
-int
-get_sort_order_enum (const char *str)
-{
-  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }

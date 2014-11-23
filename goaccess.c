@@ -62,6 +62,7 @@
 #include "output.h"
 #include "parser.h"
 #include "settings.h"
+#include "sort.h"
 #include "ui.h"
 #include "util.h"
 
@@ -76,22 +77,6 @@ static GLog *logger;
 GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
-static GSort sort[TOTAL_MODULES] = {
-  {VISITORS        , SORT_BY_DATA, SORT_DESC},
-  {REQUESTS        , SORT_BY_HITS, SORT_DESC},
-  {REQUESTS_STATIC , SORT_BY_HITS, SORT_DESC},
-  {NOT_FOUND       , SORT_BY_HITS, SORT_DESC},
-  {HOSTS           , SORT_BY_HITS, SORT_DESC},
-  {OS              , SORT_BY_HITS, SORT_DESC},
-  {BROWSERS        , SORT_BY_HITS, SORT_DESC},
-  {REFERRERS       , SORT_BY_HITS, SORT_DESC},
-  {REFERRING_SITES , SORT_BY_HITS, SORT_DESC},
-  {KEYPHRASES      , SORT_BY_HITS, SORT_DESC},
-#ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , SORT_BY_HITS, SORT_DESC},
-#endif
-  {STATUS_CODES    , SORT_BY_HITS, SORT_DESC},
-};
 
 static GScrolling scrolling = {
   {
@@ -173,8 +158,8 @@ set_initial_sort (const char *smod, const char *sfield, const char *sorder)
   if ((order = get_sort_order_enum (sorder)) == -1)
     return;
 
-  sort[module].field = field;
-  sort[module].sort = order;
+  module_sort[module].field = field;
+  module_sort[module].sort = order;
 }
 
 static void
@@ -211,7 +196,7 @@ allocate_holder_by_module (GModule module)
   ht = get_ht_by_module (module);
   ht_size = get_ht_size_by_module (module);
   raw_data = parse_raw_data (ht, ht_size, module);
-  load_holder_data (raw_data, holder + module, module, sort[module]);
+  load_holder_data (raw_data, holder + module, module, module_sort[module]);
 }
 
 /* allocate memory for an instance of holder */
@@ -239,7 +224,7 @@ allocate_holder (void)
     ht = get_ht_by_module (module);
     ht_size = get_ht_size_by_module (module);
     raw_data = parse_raw_data (ht, ht_size, module);
-    load_holder_data (raw_data, holder + module, module, sort[module]);
+    load_holder_data (raw_data, holder + module, module, module_sort[module]);
   }
 }
 
@@ -668,7 +653,8 @@ get_keys (void)
        render_screens ();
        break;
      case 115: /* s */
-       load_sort_win (main_win, scrolling.current, &sort[scrolling.current]);
+       load_sort_win (main_win, scrolling.current,
+                      &module_sort[scrolling.current]);
        pthread_mutex_lock (&gdns_thread.mutex);
        free_holder (&holder);
        pthread_cond_broadcast (&gdns_thread.not_empty);

@@ -70,25 +70,6 @@
 static char *log_format = NULL;
 static char *date_format = NULL;
 
-/* *INDENT-OFF* */
-static const char *sort_choices[][SORT_MAX_OPTS] = {
-  {"Hits", "Data", "Bandwidth", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-#ifdef HAVE_LIBGEOIP
-  {"Hits", "Data", NULL},
-#endif
-  {"Hits", "Data", NULL},
-};
-/* *INDENT-ON* */
-
 /* creation - ncurses' window handling */
 WINDOW *
 create_win (int h, int w, int y, int x)
