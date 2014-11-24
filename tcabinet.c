@@ -39,6 +39,7 @@
 #include "opesys.h"
 #include "parser.h"
 #include "settings.h"
+#include "sort.h"
 #include "util.h"
 #include "xmalloc.h"
 
