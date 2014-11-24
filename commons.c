@@ -33,6 +33,7 @@
 #include <curses.h>
 #endif
 
+#include <string.h>
 #include <time.h>
 
 #include "commons.h"
