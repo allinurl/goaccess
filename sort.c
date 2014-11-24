@@ -29,29 +29,30 @@
 #include <getopt.h>
 #include <errno.h>
 
-#include "geolocation.h"
 #include "browsers.h"
+#include "geolocation.h"
 #include "opesys.h"
+#include "settings.h"
 #include "util.h"
 
 #include "sort.h"
 
 /* *INDENT-OFF* */
-const char *sort_choices[][SORT_MAX_OPTS] = {
-  {"Hits", "Data", "Bandwidth", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", "Protocol", "Method", NULL},
-  {"Hits", "Data", "Bandwidth", "Time Served", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
-  {"Hits", "Data", NULL},
+const int sort_choices[][SORT_MAX_OPTS] = {
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
 #ifdef HAVE_LIBGEOIP
-  {"Hits", "Data", NULL},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
 #endif
-  {"Hits", "Data", NULL},
+  {SORT_BY_HITS, SORT_BY_DATA, -1},
 };
 
 static GEnum FIELD[] = {
@@ -327,4 +328,27 @@ int
 get_sort_order_enum (const char *str)
 {
   return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
+}
+
+int
+can_sort_module (GModule module, int field)
+{
+  int i, can_sort = 0;
+  for (i = 0; -1 != sort_choices[module][i]; i++) {
+    if (sort_choices[module][i] != field)
+      continue;
+    if (SORT_BY_USEC == field && !conf.serve_usecs)
+      continue;
+    else if (SORT_BY_BW == field && !conf.bandwidth)
+      continue;
+    else if (SORT_BY_PROT == field && !conf.append_protocol)
+      continue;
+    else if (SORT_BY_MTHD == field && !conf.append_method)
+      continue;
+
+    can_sort = 1;
+    break;
+  }
+
+  return can_sort;
 }

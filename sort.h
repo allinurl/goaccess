@@ -54,7 +54,7 @@ typedef struct GSort_
 } GSort;
 
 extern GSort module_sort[TOTAL_MODULES];
-extern const char *sort_choices[][SORT_MAX_OPTS];;
+extern const int sort_choices[][SORT_MAX_OPTS];;
 
 #ifdef HAVE_LIBGEOIP
 int cmp_raw_geo_num_desc (const void *a, const void *b);
@@ -80,5 +80,6 @@ int get_sort_field_enum (const char *str);
 int get_sort_order_enum (const char *str);
 void sort_holder_items (GHolderItem * items, int size, GSort sort);
 void sort_sub_list (GHolder * h, GSort sort);
+int can_sort_module (GModule module, int field);
 
 #endif

@@ -158,6 +158,9 @@ set_initial_sort (const char *smod, const char *sfield, const char *sorder)
   if ((order = get_sort_order_enum (sorder)) == -1)
     return;
 
+  if (!can_sort_module (module, field))
+    return;
+
   module_sort[module].field = field;
   module_sort[module].sort = order;
 }
