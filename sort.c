@@ -29,8 +29,10 @@
 #include <getopt.h>
 #include <errno.h>
 
-#include "browsers.h"
+#ifdef HAVE_LIBGEOIP
 #include "geolocation.h"
+#endif
+#include "browsers.h"
 #include "opesys.h"
 #include "settings.h"
 #include "util.h"
