@@ -1073,9 +1073,9 @@ void
 load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 {
   GMenu *menu;
+  GSortField opts[SORT_MAX_OPTS];
   int c, quit = 1;
   int i = 0, k, n = 0;
-  int opts[SORT_MAX_OPTS];
   int y, x, h = SORT_WIN_H, w = SORT_WIN_W;
   int w2 = w - 2;
   WINDOW *win;
@@ -1083,17 +1083,17 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   getmaxyx (stdscr, y, x);
 
   /* determine amount of sort choices */
-  for (i = 0, k = 0; NULL != sort_choices[module][i]; i++) {
-    const char *name = sort_choices[module][i];
-    if (strcmp ("Time Served", name) == 0 && !conf.serve_usecs)
+  for (i = 0, k = 0; -1 != sort_choices[module][i]; i++) {
+    GSortField field = sort_choices[module][i];
+    if (SORT_BY_USEC == field && !conf.serve_usecs)
       continue;
-    else if (strcmp ("Bandwidth", name) == 0 && !conf.bandwidth)
+    else if (SORT_BY_BW == field && !conf.bandwidth)
       continue;
-    else if (strcmp ("Protocol", name) == 0 && !conf.append_protocol)
+    else if (SORT_BY_PROT == field && !conf.append_protocol)
       continue;
-    else if (strcmp ("Method", name) == 0 && !conf.append_method)
+    else if (SORT_BY_MTHD == field && !conf.append_method)
       continue;
-    opts[k++] = i;
+    opts[k++] = field;
     n++;
   }
 
@@ -1109,33 +1109,45 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   /* add items to GMenu */
   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
 
-  /* set checked option and set index */
+  /* set choices, checked option and index */
   for (i = 0; i < n; ++i) {
-    menu->items[i].name = alloc_string (sort_choices[module][opts[i]]);
-    if (sort->field == SORT_BY_HITS &&
-        strcmp ("Hits", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
-    } else if (sort->field == SORT_BY_DATA &&
-               strcmp ("Data", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
-    } else if (sort->field == SORT_BY_BW &&
-               strcmp ("Bandwidth", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
-    } else if (sort->field == SORT_BY_USEC &&
-               strcmp ("Time Served", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
-    } else if (sort->field == SORT_BY_PROT &&
-               strcmp ("Protocol", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
-    } else if (sort->field == SORT_BY_MTHD &&
-               strcmp ("Method", menu->items[i].name) == 0) {
-      menu->items[i].checked = 1;
-      menu->idx = i;
+    GSortField field = sort_choices[module][opts[i]];
+    if (SORT_BY_HITS == field) {
+      menu->items[i].name = alloc_string ("Hits");
+      if (sort->field == SORT_BY_HITS) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_DATA == field) {
+      menu->items[i].name = alloc_string ("Data");
+      if (sort->field == SORT_BY_DATA) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_BW == field) {
+      menu->items[i].name = alloc_string ("Bandwidth");
+      if (sort->field == SORT_BY_BW) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_USEC == field) {
+      menu->items[i].name = alloc_string ("Time Served");
+      if (sort->field == SORT_BY_USEC) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_PROT == field) {
+      menu->items[i].name = alloc_string ("Protocol");
+      if (sort->field == SORT_BY_PROT) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_MTHD == field) {
+      menu->items[i].name = alloc_string ("Method");
+      if (sort->field == SORT_BY_MTHD) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
     }
   }
   post_gmenu (menu);
