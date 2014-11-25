@@ -90,7 +90,7 @@ GSort module_sort[TOTAL_MODULES] = {
 /* *INDENT-ON* */
 
 /* sort data ascending */
-int
+static int
 cmp_data_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -99,7 +99,7 @@ cmp_data_asc (const void *a, const void *b)
 }
 
 /* sort data descending */
-int
+static int
 cmp_data_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -108,7 +108,7 @@ cmp_data_desc (const void *a, const void *b)
 }
 
 /* sort raw data descending */
-int
+static int
 cmp_raw_data_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -117,7 +117,7 @@ cmp_raw_data_desc (const void *a, const void *b)
 }
 
 /* sort numeric descending */
-int
+static int
 cmp_num_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -126,7 +126,7 @@ cmp_num_desc (const void *a, const void *b)
 }
 
 /* sort raw numeric descending */
-int
+static int
 cmp_raw_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -135,7 +135,7 @@ cmp_raw_num_desc (const void *a, const void *b)
 }
 
 /* sort raw numeric descending */
-int
+static int
 cmp_raw_os_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -146,7 +146,7 @@ cmp_raw_os_num_desc (const void *a, const void *b)
 }
 
 /* sort raw numeric descending */
-int
+static int
 cmp_raw_browser_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -158,7 +158,7 @@ cmp_raw_browser_num_desc (const void *a, const void *b)
 
 /* sort raw numeric descending */
 #ifdef HAVE_LIBGEOIP
-int
+static int
 cmp_raw_geo_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
@@ -170,7 +170,7 @@ cmp_raw_geo_num_desc (const void *a, const void *b)
 #endif
 
 /* sort numeric ascending */
-int
+static int
 cmp_num_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -179,7 +179,7 @@ cmp_num_asc (const void *a, const void *b)
 }
 
 /* sort bandwidth descending */
-int
+static int
 cmp_bw_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -188,7 +188,7 @@ cmp_bw_desc (const void *a, const void *b)
 }
 
 /* sort bandwidth ascending */
-int
+static int
 cmp_bw_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -197,7 +197,7 @@ cmp_bw_asc (const void *a, const void *b)
 }
 
 /* sort usec descending */
-int
+static int
 cmp_usec_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -206,7 +206,7 @@ cmp_usec_desc (const void *a, const void *b)
 }
 
 /* sort usec ascending */
-int
+static int
 cmp_usec_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -215,7 +215,7 @@ cmp_usec_asc (const void *a, const void *b)
 }
 
 /* sort protocol ascending */
-int
+static int
 cmp_proto_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -224,7 +224,7 @@ cmp_proto_asc (const void *a, const void *b)
 }
 
 /* sort protocol descending */
-int
+static int
 cmp_proto_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -233,7 +233,7 @@ cmp_proto_desc (const void *a, const void *b)
 }
 
 /* sort method ascending */
-int
+static int
 cmp_mthd_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
@@ -242,7 +242,7 @@ cmp_mthd_asc (const void *a, const void *b)
 }
 
 /* sort method descending */
-int
+static int
 cmp_mthd_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
