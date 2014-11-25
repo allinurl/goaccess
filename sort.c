@@ -250,29 +250,71 @@ cmp_mthd_desc (const void *a, const void *b)
   return strcmp (ib->method, ia->method);
 }
 
-/* sort raw data for the first run (default sort) */
-GRawData *
-sort_raw_data (GRawData * raw, GModule module, int ht_size)
+int
+get_sort_field_enum (const char *str)
 {
-  switch (module) {
-   case VISITORS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
-     break;
-   case OS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
-     break;
-   case BROWSERS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
-     break;
-#ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_geo_num_desc);
-     break;
-#endif
-   default:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
+  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
+}
+
+int
+get_sort_order_enum (const char *str)
+{
+  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
+}
+
+void
+set_initial_sort (const char *smod, const char *sfield, const char *ssort)
+{
+  int module, field, order;
+  if ((module = get_module_enum (smod)) == -1)
+    return;
+
+  if ((field = get_sort_field_enum (sfield)) == -1)
+    return;
+  if ((order = get_sort_order_enum (ssort)) == -1)
+    return;
+  if (!can_sort_module (module, field))
+    return;
+
+  module_sort[module].field = field;
+  module_sort[module].sort = order;
+}
+
+int
+can_sort_module (GModule module, int field)
+{
+  int i, can_sort = 0;
+  for (i = 0; -1 != sort_choices[module][i]; i++) {
+    if (sort_choices[module][i] != field)
+      continue;
+    if (SORT_BY_USEC == field && !conf.serve_usecs)
+      continue;
+    else if (SORT_BY_BW == field && !conf.bandwidth)
+      continue;
+    else if (SORT_BY_PROT == field && !conf.append_protocol)
+      continue;
+    else if (SORT_BY_MTHD == field && !conf.append_method)
+      continue;
+
+    can_sort = 1;
+    break;
   }
-  return raw;
+
+  return can_sort;
+}
+
+void
+parse_initial_sort (void)
+{
+  int i;
+  char *view;
+  char module[9], field[8], order[5];
+  for (i = 0; i < conf.sort_view_idx; ++i) {
+    view = conf.sort_views[i];
+    if (sscanf (view, "%8[^','],%7[^','],%4s", module, field, order) != 3)
+      continue;
+    set_initial_sort (module, field, order);
+  }
 }
 
 /* apply user defined sort */
@@ -319,57 +361,27 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
   }
 }
 
-void
-set_initial_sort (const char *smod, const char *sfield, const char *ssort)
+/* sort raw data for the first run (default sort) */
+GRawData *
+sort_raw_data (GRawData * raw, GModule module, int ht_size)
 {
-  int module, field, order;
-  if ((module = get_module_enum (smod)) == -1)
-    return;
-
-  if ((field = get_sort_field_enum (sfield)) == -1)
-    return;
-
-  if ((order = get_sort_order_enum (ssort)) == -1)
-    return;
-
-  if (!can_sort_module (module, field))
-    return;
-
-  module_sort[module].field = field;
-  module_sort[module].sort = order;
-}
-
-int
-can_sort_module (GModule module, int field)
-{
-  int i, can_sort = 0;
-  for (i = 0; -1 != sort_choices[module][i]; i++) {
-    if (sort_choices[module][i] != field)
-      continue;
-    if (SORT_BY_USEC == field && !conf.serve_usecs)
-      continue;
-    else if (SORT_BY_BW == field && !conf.bandwidth)
-      continue;
-    else if (SORT_BY_PROT == field && !conf.append_protocol)
-      continue;
-    else if (SORT_BY_MTHD == field && !conf.append_method)
-      continue;
-
-    can_sort = 1;
-    break;
+  switch (module) {
+   case VISITORS:
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
+     break;
+   case OS:
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
+     break;
+   case BROWSERS:
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
+     break;
+#ifdef HAVE_LIBGEOIP
+   case GEO_LOCATION:
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_geo_num_desc);
+     break;
+#endif
+   default:
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
   }
-
-  return can_sort;
-}
-
-int
-get_sort_field_enum (const char *str)
-{
-  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
-}
-
-int
-get_sort_order_enum (const char *str)
-{
-  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
+  return raw;
 }
