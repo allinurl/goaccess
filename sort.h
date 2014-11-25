@@ -29,6 +29,9 @@
 #include "parser.h"
 
 #define SORT_MAX_OPTS     7
+#define SORT_MODULE_LEN   9
+#define SORT_FIELD_LEN    8
+#define SORT_ORDER_LEN    5
 
 typedef enum GSortField_
 {
