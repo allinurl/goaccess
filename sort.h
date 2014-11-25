@@ -60,6 +60,7 @@ extern const int sort_choices[][SORT_MAX_OPTS];;
 int cmp_raw_geo_num_desc (const void *a, const void *b);
 #endif
 GRawData *sort_raw_data (GRawData * raw_data, GModule module, int ht_size);
+int can_sort_module (GModule module, int field);
 int cmp_bw_asc (const void *a, const void *b);
 int cmp_bw_desc (const void *a, const void *b);
 int cmp_data_asc (const void *a, const void *b);
@@ -78,8 +79,8 @@ int cmp_usec_asc (const void *a, const void *b);
 int cmp_usec_desc (const void *a, const void *b);
 int get_sort_field_enum (const char *str);
 int get_sort_order_enum (const char *str);
+void set_initial_sort (const char *smod, const char *sfield, const char *sorder);
 void sort_holder_items (GHolderItem * items, int size, GSort sort);
 void sort_sub_list (GHolder * h, GSort sort);
-int can_sort_module (GModule module, int field);
 
 #endif
