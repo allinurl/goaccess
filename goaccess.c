@@ -144,21 +144,6 @@ house_keeping (void)
   free_cmd_args ();
 }
 
-static void
-parse_initial_sort (void)
-{
-  int i;
-  char *view;
-  char module[9], field[8], order[5];
-  for (i = 0; i < conf.sort_view_idx; ++i) {
-    view = conf.sort_views[i];
-    if (sscanf (view, "%8[^','],%7[^','],%4s", module, field, order) != 3)
-      continue;
-    set_initial_sort (module, field, order);
-  }
-}
-
-
 /* allocate memory for an instance of holder */
 static void
 allocate_holder_by_module (GModule module)
