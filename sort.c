@@ -147,7 +147,7 @@ cmp_raw_os_num_desc (const void *a, const void *b)
 
 /* sort raw numeric descending */
 static int
-cmp_raw_browser_num_desc (const void *a, const void *b)
+cmp_raw_brow_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
@@ -262,8 +262,7 @@ sort_raw_data (GRawData * raw, GModule module, int ht_size)
      qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
      break;
    case BROWSERS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem),
-            cmp_raw_browser_num_desc);
+     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
      break;
 #ifdef HAVE_LIBGEOIP
    case GEO_LOCATION:
@@ -320,20 +319,8 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
   }
 }
 
-int
-get_sort_field_enum (const char *str)
-{
-  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
-}
-
-int
-get_sort_order_enum (const char *str)
-{
-  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
-}
-
 void
-set_initial_sort (const char *smod, const char *sfield, const char *sorder)
+set_initial_sort (const char *smod, const char *sfield, const char *ssort)
 {
   int module, field, order;
   if ((module = get_module_enum (smod)) == -1)
@@ -342,7 +329,7 @@ set_initial_sort (const char *smod, const char *sfield, const char *sorder)
   if ((field = get_sort_field_enum (sfield)) == -1)
     return;
 
-  if ((order = get_sort_order_enum (sorder)) == -1)
+  if ((order = get_sort_order_enum (ssort)) == -1)
     return;
 
   if (!can_sort_module (module, field))
@@ -373,4 +360,16 @@ can_sort_module (GModule module, int field)
   }
 
   return can_sort;
+}
+
+int
+get_sort_field_enum (const char *str)
+{
+  return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
+}
+
+int
+get_sort_order_enum (const char *str)
+{
+  return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }
