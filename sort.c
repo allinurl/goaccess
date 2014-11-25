@@ -332,6 +332,26 @@ get_sort_order_enum (const char *str)
   return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }
 
+void
+set_initial_sort (const char *smod, const char *sfield, const char *sorder)
+{
+  int module, field, order;
+  if ((module = get_module_enum (smod)) == -1)
+    return;
+
+  if ((field = get_sort_field_enum (sfield)) == -1)
+    return;
+
+  if ((order = get_sort_order_enum (sorder)) == -1)
+    return;
+
+  if (!can_sort_module (module, field))
+    return;
+
+  module_sort[module].field = field;
+  module_sort[module].sort = order;
+}
+
 int
 can_sort_module (GModule module, int field)
 {
