@@ -308,7 +308,7 @@ parse_initial_sort (void)
 {
   int i;
   char *view;
-  char module[9], field[8], order[5];
+  char module[SORT_MODULE_LEN], field[SORT_FIELD_LEN], order[SORT_ORDER_LEN];
   for (i = 0; i < conf.sort_view_idx; ++i) {
     view = conf.sort_views[i];
     if (sscanf (view, "%8[^','],%7[^','],%4s", module, field, order) != 3)
