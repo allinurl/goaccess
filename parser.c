@@ -908,11 +908,9 @@ process_log (GLog * logger, char *line, int test)
            conf.code444_as_404)
     is404 = 1;
   /* check if we need to remove the request's query string */
-  else if (conf.ignore_qstr) {
-    if ((qmark = strchr (glog->req, '?')) != NULL) {
-      if ((qmark - glog->req) > 0)
-        *qmark = '\0';
-    }
+  else if (conf.ignore_qstr && (qmark = strchr (glog->req, '?')) != NULL) {
+    if ((qmark - glog->req) > 0)
+      *qmark = '\0';
   }
 
   req_key = xstrdup (glog->req);
