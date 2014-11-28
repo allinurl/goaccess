@@ -853,14 +853,82 @@ unique_data (GLogItem * glog, char *date)
     process_unique_data (glog->host, date, glog->agent);
 }
 
+static void
+process_log (GLogItem * glog, char *date)
+{
+  char *qmark = NULL, *reqkey = NULL;
+  int is404 = 0;
+
+  /* is this a 404? */
+  if (glog->status && !memcmp (glog->status, "404", 3))
+    is404 = 1;
+  /* treat 444 as 404? */
+  else if (glog->status && !memcmp (glog->status, "444", 3) &&
+           conf.code444_as_404)
+    is404 = 1;
+  /* check if we need to remove the request's query string */
+  else if (conf.ignore_qstr && (qmark = strchr (glog->req, '?')) != NULL) {
+    if ((qmark - glog->req) > 0)
+      *qmark = '\0';
+  }
+
+  reqkey = xstrdup (glog->req);
+  /* include HTTP method/protocol to request */
+  if (conf.append_method && glog->method) {
+    glog->method = strtoupper (glog->method);
+    append_method_to_request (&reqkey, glog->method);
+  }
+  if (conf.append_protocol && glog->protocol) {
+    glog->protocol = strtoupper (glog->protocol);
+    append_protocol_to_request (&reqkey, glog->protocol);
+  }
+  if ((conf.append_method) || (conf.append_protocol))
+    reqkey = deblank (reqkey);
+
+  unique_data (glog, date);
+  /* process agents that are part of a host */
+  if (conf.list_agents)
+    process_host_agents (glog->host, glog->agent);
+  /* process status codes */
+  if (glog->status)
+    process_generic_data (ht_status_code, glog->status);
+  /* process 404s */
+  if (is404)
+    process_request (ht_not_found_requests, reqkey, glog);
+  /* process static files */
+  else if (verify_static_content (glog->req))
+    process_request (ht_requests_static, reqkey, glog);
+  /* process regular files */
+  else
+    process_request (ht_requests, reqkey, glog);
+
+  /* process referrers */
+  process_referrers (glog->ref, glog->site);
+  /* process hosts */
+  process_generic_data (ht_hosts, glog->host);
+  /* process bandwidth  */
+  process_request_meta (ht_date_bw, date, glog->resp_size);
+  process_request_meta (ht_file_bw, reqkey, glog->resp_size);
+  process_request_meta (ht_host_bw, glog->host, glog->resp_size);
+
+  /* process time taken to serve the request, in microseconds */
+  process_request_meta (ht_file_serve_usecs, reqkey, glog->serve_time);
+  process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
+
+#ifdef TCB_BTREE
+  process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
+#endif
+
+  if (reqkey != NULL)
+    free (reqkey);
+}
+
 /* process a line from the log and store it accordingly */
 static int
-process_log (GLog * logger, char *line, int test)
+pre_process_log (GLog * logger, char *line, int test)
 {
   GLogItem *glog;
   char date[DATE_LEN];
-  char *qmark = NULL, *req_key = NULL;
-  int is404 = 0;
 
   if (valid_line (line)) {
     count_invalid (logger);
@@ -900,71 +968,11 @@ process_log (GLog * logger, char *line, int test)
   if (ignore_referer (glog->site))
     goto cleanup;
 
-  /* is this a 404? */
-  if (glog->status && !memcmp (glog->status, "404", 3))
-    is404 = 1;
-  /* treat 444 as 404? */
-  else if (glog->status && !memcmp (glog->status, "444", 3) &&
-           conf.code444_as_404)
-    is404 = 1;
-  /* check if we need to remove the request's query string */
-  else if (conf.ignore_qstr && (qmark = strchr (glog->req, '?')) != NULL) {
-    if ((qmark - glog->req) > 0)
-      *qmark = '\0';
-  }
-
-  req_key = xstrdup (glog->req);
-  /* include HTTP method/protocol to request */
-  if (conf.append_method && glog->method) {
-    glog->method = strtoupper (glog->method);
-    append_method_to_request (&req_key, glog->method);
-  }
-  if (conf.append_protocol && glog->protocol) {
-    glog->protocol = strtoupper (glog->protocol);
-    append_protocol_to_request (&req_key, glog->protocol);
-  }
-  if ((conf.append_method) || (conf.append_protocol))
-    req_key = deblank (req_key);
-
-  unique_data (glog, date);
-  /* process agents that are part of a host */
-  if (conf.list_agents)
-    process_host_agents (glog->host, glog->agent);
-  /* process status codes */
-  if (glog->status)
-    process_generic_data (ht_status_code, glog->status);
-  /* process 404s */
-  if (is404)
-    process_request (ht_not_found_requests, req_key, glog);
-  /* process static files */
-  else if (verify_static_content (glog->req))
-    process_request (ht_requests_static, req_key, glog);
-  /* process regular files */
-  else
-    process_request (ht_requests, req_key, glog);
-
-  /* process referrers */
-  process_referrers (glog->ref, glog->site);
-  /* process hosts */
-  process_generic_data (ht_hosts, glog->host);
-  /* process bandwidth  */
-  process_request_meta (ht_date_bw, date, glog->resp_size);
-  process_request_meta (ht_file_bw, req_key, glog->resp_size);
-  process_request_meta (ht_host_bw, glog->host, glog->resp_size);
-
-  /* process time taken to serve the request, in microseconds */
-  process_request_meta (ht_file_serve_usecs, req_key, glog->serve_time);
-  process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
-
   logger->resp_size += glog->resp_size;
-#ifdef TCB_BTREE
-  process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
-#endif
+  process_log (glog, date);
 
 cleanup:
   free_logger (glog);
-  if (req_key != NULL)
-    free (req_key);
 
   return 0;
 }
@@ -984,7 +992,7 @@ parse_log (GLog ** logger, char *tail, int n)
     FATAL ("No log format was found on your conf file.");
 
   if (tail != NULL) {
-    if (process_log ((*logger), tail, test))
+    if (pre_process_log ((*logger), tail, test))
       return 1;
     return 0;
   }
@@ -1001,7 +1009,7 @@ parse_log (GLog ** logger, char *tail, int n)
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
     if (n >= 0 && i++ == n)
       break;
-    if (process_log ((*logger), line, test)) {
+    if (pre_process_log ((*logger), line, test)) {
       if (!(*logger)->piping)
         fclose (fp);
       return 1;
