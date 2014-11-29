@@ -748,15 +748,15 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
      * will use total req as base */
     switch (i) {
 #ifdef HAVE_LIBGEOIP
-     case GEO_LOCATION:
+    case GEO_LOCATION:
 #endif
-     case VISITORS:
-     case BROWSERS:
-     case OS:
-       process = get_ht_size (ht_unique_visitors);
-       break;
-     default:
-       process = logger->process;
+    case VISITORS:
+    case BROWSERS:
+    case OS:
+      process = get_ht_size (ht_unique_visitors);
+      break;
+    default:
+      process = logger->process;
     }
     max_percent = set_percent_data (dash->module[i].data, n, process);
     dash->module[i].module = i;
@@ -1290,46 +1290,46 @@ get_ht_size_by_module (GModule module)
 #endif
 
   switch (module) {
-   case VISITORS:
-     ht = ht_unique_vis;
-     break;
-   case REQUESTS:
-     ht = ht_requests;
-     break;
-   case REQUESTS_STATIC:
-     ht = ht_requests_static;
-     break;
-   case NOT_FOUND:
-     ht = ht_not_found_requests;
-     break;
-   case HOSTS:
-     ht = ht_hosts;
-     break;
-   case OS:
-     ht = ht_os;
-     break;
-   case BROWSERS:
-     ht = ht_browsers;
-     break;
-   case REFERRERS:
-     ht = ht_referrers;
-     break;
-   case REFERRING_SITES:
-     ht = ht_referring_sites;
-     break;
-   case KEYPHRASES:
-     ht = ht_keyphrases;
-     break;
+  case VISITORS:
+    ht = ht_unique_vis;
+    break;
+  case REQUESTS:
+    ht = ht_requests;
+    break;
+  case REQUESTS_STATIC:
+    ht = ht_requests_static;
+    break;
+  case NOT_FOUND:
+    ht = ht_not_found_requests;
+    break;
+  case HOSTS:
+    ht = ht_hosts;
+    break;
+  case OS:
+    ht = ht_os;
+    break;
+  case BROWSERS:
+    ht = ht_browsers;
+    break;
+  case REFERRERS:
+    ht = ht_referrers;
+    break;
+  case REFERRING_SITES:
+    ht = ht_referring_sites;
+    break;
+  case KEYPHRASES:
+    ht = ht_keyphrases;
+    break;
 #ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     ht = ht_countries;
-     break;
+  case GEO_LOCATION:
+    ht = ht_countries;
+    break;
 #endif
-   case STATUS_CODES:
-     ht = ht_status_code;
-     break;
-   default:
-     return 0;
+  case STATUS_CODES:
+    ht = ht_status_code;
+    break;
+  default:
+    return 0;
   }
 
   return get_ht_size (ht);
@@ -1395,43 +1395,43 @@ load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort)
     key = xstrdup (raw_data->items[i].key);     /* key */
 
     switch (module) {
-     case REQUESTS:
-     case REQUESTS_STATIC:
-     case NOT_FOUND:
-       hits = (*(int *) raw_data->items[i].value);
-       add_request_node (h, key, hits);
-       break;
-     case OS:
-       add_os_node (h, key, raw_data->items[i].value);
-       break;
-     case BROWSERS:
-       add_browser_node (h, key, raw_data->items[i].value);
-       break;
-     case HOSTS:
-       hits = (*(int *) raw_data->items[i].value);
-       add_host_node (h, key, hits);
-       break;
-     case STATUS_CODES:
-       hits = (*(int *) raw_data->items[i].value);
-       add_status_code_node (h, key, hits);
-       break;
+    case REQUESTS:
+    case REQUESTS_STATIC:
+    case NOT_FOUND:
+      hits = (*(int *) raw_data->items[i].value);
+      add_request_node (h, key, hits);
+      break;
+    case OS:
+      add_os_node (h, key, raw_data->items[i].value);
+      break;
+    case BROWSERS:
+      add_browser_node (h, key, raw_data->items[i].value);
+      break;
+    case HOSTS:
+      hits = (*(int *) raw_data->items[i].value);
+      add_host_node (h, key, hits);
+      break;
+    case STATUS_CODES:
+      hits = (*(int *) raw_data->items[i].value);
+      add_status_code_node (h, key, hits);
+      break;
 #ifdef HAVE_LIBGEOIP
-     case GEO_LOCATION:
-       add_geolocation_node (h, key, raw_data->items[i].value);
-       break;
+    case GEO_LOCATION:
+      add_geolocation_node (h, key, raw_data->items[i].value);
+      break;
 #endif
-     default:
-       bw = get_bandwidth (key, module);
-       hits = (*(int *) raw_data->items[i].value);
-       /* serve time in usecs */
-       if (conf.serve_usecs)
-         usecs = get_serve_time (key, module) / hits;
-       h->items[h->idx].bw = bw;
-       h->items[h->idx].data = key;
-       h->items[h->idx].hits = hits;
-       if (conf.serve_usecs)
-         h->items[h->idx].usecs = usecs;
-       h->idx++;
+    default:
+      bw = get_bandwidth (key, module);
+      hits = (*(int *) raw_data->items[i].value);
+      /* serve time in usecs */
+      if (conf.serve_usecs)
+        usecs = get_serve_time (key, module) / hits;
+      h->items[h->idx].bw = bw;
+      h->items[h->idx].data = key;
+      h->items[h->idx].hits = hits;
+      if (conf.serve_usecs)
+        h->items[h->idx].usecs = usecs;
+      h->idx++;
     }
   }
   sort_holder_items (h->items, h->idx, sort);

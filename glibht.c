@@ -343,46 +343,46 @@ get_ht_by_module (GModule module)
   GHashTable *ht;
 
   switch (module) {
-   case VISITORS:
-     ht = ht_unique_vis;
-     break;
-   case REQUESTS:
-     ht = ht_requests;
-     break;
-   case REQUESTS_STATIC:
-     ht = ht_requests_static;
-     break;
-   case NOT_FOUND:
-     ht = ht_not_found_requests;
-     break;
-   case HOSTS:
-     ht = ht_hosts;
-     break;
-   case OS:
-     ht = ht_os;
-     break;
-   case BROWSERS:
-     ht = ht_browsers;
-     break;
-   case REFERRERS:
-     ht = ht_referrers;
-     break;
-   case REFERRING_SITES:
-     ht = ht_referring_sites;
-     break;
-   case KEYPHRASES:
-     ht = ht_keyphrases;
-     break;
+  case VISITORS:
+    ht = ht_unique_vis;
+    break;
+  case REQUESTS:
+    ht = ht_requests;
+    break;
+  case REQUESTS_STATIC:
+    ht = ht_requests_static;
+    break;
+  case NOT_FOUND:
+    ht = ht_not_found_requests;
+    break;
+  case HOSTS:
+    ht = ht_hosts;
+    break;
+  case OS:
+    ht = ht_os;
+    break;
+  case BROWSERS:
+    ht = ht_browsers;
+    break;
+  case REFERRERS:
+    ht = ht_referrers;
+    break;
+  case REFERRING_SITES:
+    ht = ht_referring_sites;
+    break;
+  case KEYPHRASES:
+    ht = ht_keyphrases;
+    break;
 #ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     ht = ht_countries;
-     break;
+  case GEO_LOCATION:
+    ht = ht_countries;
+    break;
 #endif
-   case STATUS_CODES:
-     ht = ht_status_code;
-     break;
-   default:
-     return NULL;
+  case STATUS_CODES:
+    ht = ht_status_code;
+    break;
+  default:
+    return NULL;
   }
 
   return ht;
@@ -437,17 +437,17 @@ get_request_meta (const char *k, GReqMeta meta_req)
   gpointer value_ptr;
 
   switch (meta_req) {
-   case REQUEST:
-     ht = ht_request_keys;
-     break;
-   case REQUEST_METHOD:
-     ht = ht_request_methods;
-     break;
-   case REQUEST_PROTOCOL:
-     ht = ht_request_protocols;
-     break;
-   default:
-     ht = NULL;
+  case REQUEST:
+    ht = ht_request_keys;
+    break;
+  case REQUEST_METHOD:
+    ht = ht_request_methods;
+    break;
+  case REQUEST_PROTOCOL:
+    ht = ht_request_protocols;
+    break;
+  default:
+    ht = NULL;
   }
 
   if (ht == NULL)
@@ -468,19 +468,19 @@ get_bandwidth (const char *k, GModule module)
 
   /* bandwidth modules */
   switch (module) {
-   case VISITORS:
-     ht = ht_date_bw;
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     ht = ht_file_bw;
-     break;
-   case HOSTS:
-     ht = ht_host_bw;
-     break;
-   default:
-     ht = NULL;
+  case VISITORS:
+    ht = ht_date_bw;
+    break;
+  case REQUESTS:
+  case REQUESTS_STATIC:
+  case NOT_FOUND:
+    ht = ht_file_bw;
+    break;
+  case HOSTS:
+    ht = ht_host_bw;
+    break;
+  default:
+    ht = NULL;
   }
 
   if (ht == NULL)
@@ -501,16 +501,16 @@ get_serve_time (const char *key, GModule module)
   /* bandwidth modules */
   GHashTable *ht = NULL;
   switch (module) {
-   case HOSTS:
-     ht = ht_host_serve_usecs;
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     ht = ht_file_serve_usecs;
-     break;
-   default:
-     ht = NULL;
+  case HOSTS:
+    ht = ht_host_serve_usecs;
+    break;
+  case REQUESTS:
+  case REQUESTS_STATIC:
+  case NOT_FOUND:
+    ht = ht_file_serve_usecs;
+    break;
+  default:
+    ht = NULL;
   }
 
   if (ht == NULL)

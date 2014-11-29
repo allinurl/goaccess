@@ -322,42 +322,42 @@ void
 sort_holder_items (GHolderItem * items, int size, GSort sort)
 {
   switch (sort.field) {
-   case SORT_BY_HITS:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_num_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_num_asc);
-     break;
-   case SORT_BY_DATA:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_data_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_data_asc);
-     break;
-   case SORT_BY_BW:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_bw_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_bw_asc);
-     break;
-   case SORT_BY_USEC:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_usec_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_usec_asc);
-     break;
-   case SORT_BY_PROT:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_proto_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_proto_asc);
-     break;
-   case SORT_BY_MTHD:
-     if (sort.sort == SORT_DESC)
-       qsort (items, size, sizeof (GHolderItem), cmp_mthd_desc);
-     else
-       qsort (items, size, sizeof (GHolderItem), cmp_mthd_asc);
-     break;
+  case SORT_BY_HITS:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_num_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_num_asc);
+    break;
+  case SORT_BY_DATA:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_data_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_data_asc);
+    break;
+  case SORT_BY_BW:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_bw_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_bw_asc);
+    break;
+  case SORT_BY_USEC:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_usec_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_usec_asc);
+    break;
+  case SORT_BY_PROT:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_proto_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_proto_asc);
+    break;
+  case SORT_BY_MTHD:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_mthd_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_mthd_asc);
+    break;
   }
 }
 
@@ -366,22 +366,22 @@ GRawData *
 sort_raw_data (GRawData * raw, GModule module, int ht_size)
 {
   switch (module) {
-   case VISITORS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
-     break;
-   case OS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
-     break;
-   case BROWSERS:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
-     break;
+  case VISITORS:
+    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
+    break;
+  case OS:
+    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
+    break;
+  case BROWSERS:
+    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
+    break;
 #ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_geo_num_desc);
-     break;
+  case GEO_LOCATION:
+    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_geo_num_desc);
+    break;
 #endif
-   default:
-     qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
+  default:
+    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
   }
   return raw;
 }

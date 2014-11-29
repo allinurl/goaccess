@@ -664,16 +664,16 @@ get_serve_time (const char *k, GModule module)
 
   /* serve time modules */
   switch (module) {
-   case HOSTS:
-     db = ht_host_serve_usecs;
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     db = ht_file_serve_usecs;
-     break;
-   default:
-     db = NULL;
+  case HOSTS:
+    db = ht_host_serve_usecs;
+    break;
+  case REQUESTS:
+  case REQUESTS_STATIC:
+  case NOT_FOUND:
+    db = ht_file_serve_usecs;
+    break;
+  default:
+    db = NULL;
   }
 
   if (db == NULL)
@@ -700,19 +700,19 @@ get_bandwidth (char *k, GModule module)
 
   /* bandwidth modules */
   switch (module) {
-   case VISITORS:
-     db = ht_date_bw;
-     break;
-   case REQUESTS:
-   case REQUESTS_STATIC:
-   case NOT_FOUND:
-     db = ht_file_bw;
-     break;
-   case HOSTS:
-     db = ht_host_bw;
-     break;
-   default:
-     db = NULL;
+  case VISITORS:
+    db = ht_date_bw;
+    break;
+  case REQUESTS:
+  case REQUESTS_STATIC:
+  case NOT_FOUND:
+    db = ht_file_bw;
+    break;
+  case HOSTS:
+    db = ht_host_bw;
+    break;
+  default:
+    db = NULL;
   }
 
   if (db == NULL)
@@ -737,17 +737,17 @@ get_request_meta (const char *k, GReqMeta meta_req)
   void *value;
 
   switch (meta_req) {
-   case REQUEST:
-     db = ht_request_keys;
-     break;
-   case REQUEST_METHOD:
-     db = ht_request_methods;
-     break;
-   case REQUEST_PROTOCOL:
-     db = ht_request_protocols;
-     break;
-   default:
-     db = NULL;
+  case REQUEST:
+    db = ht_request_keys;
+    break;
+  case REQUEST_METHOD:
+    db = ht_request_methods;
+    break;
+  case REQUEST_PROTOCOL:
+    db = ht_request_protocols;
+    break;
+  default:
+    db = NULL;
   }
 
   if (db == NULL)
@@ -766,46 +766,46 @@ get_ht_by_module (GModule module)
   TCBDB *bdb;
 
   switch (module) {
-   case VISITORS:
-     bdb = ht_unique_vis;
-     break;
-   case REQUESTS:
-     bdb = ht_requests;
-     break;
-   case REQUESTS_STATIC:
-     bdb = ht_requests_static;
-     break;
-   case NOT_FOUND:
-     bdb = ht_not_found_requests;
-     break;
-   case HOSTS:
-     bdb = ht_hosts;
-     break;
-   case OS:
-     bdb = ht_os;
-     break;
-   case BROWSERS:
-     bdb = ht_browsers;
-     break;
-   case REFERRERS:
-     bdb = ht_referrers;
-     break;
-   case REFERRING_SITES:
-     bdb = ht_referring_sites;
-     break;
-   case KEYPHRASES:
-     bdb = ht_keyphrases;
-     break;
+  case VISITORS:
+    bdb = ht_unique_vis;
+    break;
+  case REQUESTS:
+    bdb = ht_requests;
+    break;
+  case REQUESTS_STATIC:
+    bdb = ht_requests_static;
+    break;
+  case NOT_FOUND:
+    bdb = ht_not_found_requests;
+    break;
+  case HOSTS:
+    bdb = ht_hosts;
+    break;
+  case OS:
+    bdb = ht_os;
+    break;
+  case BROWSERS:
+    bdb = ht_browsers;
+    break;
+  case REFERRERS:
+    bdb = ht_referrers;
+    break;
+  case REFERRING_SITES:
+    bdb = ht_referring_sites;
+    break;
+  case KEYPHRASES:
+    bdb = ht_keyphrases;
+    break;
 #ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     bdb = ht_countries;
-     break;
+  case GEO_LOCATION:
+    bdb = ht_countries;
+    break;
 #endif
-   case STATUS_CODES:
-     bdb = ht_status_code;
-     break;
-   default:
-     return NULL;
+  case STATUS_CODES:
+    bdb = ht_status_code;
+    break;
+  default:
+    return NULL;
   }
 
   return bdb;
@@ -819,46 +819,46 @@ get_ht_by_module (GModule module)
   TCMDB *mdb;
 
   switch (module) {
-   case VISITORS:
-     mdb = ht_unique_vis;
-     break;
-   case REQUESTS:
-     mdb = ht_requests;
-     break;
-   case REQUESTS_STATIC:
-     mdb = ht_requests_static;
-     break;
-   case NOT_FOUND:
-     mdb = ht_not_found_requests;
-     break;
-   case HOSTS:
-     mdb = ht_hosts;
-     break;
-   case OS:
-     mdb = ht_os;
-     break;
-   case BROWSERS:
-     mdb = ht_browsers;
-     break;
-   case REFERRERS:
-     mdb = ht_referrers;
-     break;
-   case REFERRING_SITES:
-     mdb = ht_referring_sites;
-     break;
-   case KEYPHRASES:
-     mdb = ht_keyphrases;
-     break;
+  case VISITORS:
+    mdb = ht_unique_vis;
+    break;
+  case REQUESTS:
+    mdb = ht_requests;
+    break;
+  case REQUESTS_STATIC:
+    mdb = ht_requests_static;
+    break;
+  case NOT_FOUND:
+    mdb = ht_not_found_requests;
+    break;
+  case HOSTS:
+    mdb = ht_hosts;
+    break;
+  case OS:
+    mdb = ht_os;
+    break;
+  case BROWSERS:
+    mdb = ht_browsers;
+    break;
+  case REFERRERS:
+    mdb = ht_referrers;
+    break;
+  case REFERRING_SITES:
+    mdb = ht_referring_sites;
+    break;
+  case KEYPHRASES:
+    mdb = ht_keyphrases;
+    break;
 #ifdef HAVE_LIBGEOIP
-   case GEO_LOCATION:
-     mdb = ht_countries;
-     break;
+  case GEO_LOCATION:
+    mdb = ht_countries;
+    break;
 #endif
-   case STATUS_CODES:
-     mdb = ht_status_code;
-     break;
-   default:
-     return NULL;
+  case STATUS_CODES:
+    mdb = ht_status_code;
+    break;
+  default:
+    return NULL;
   }
 
   return mdb;

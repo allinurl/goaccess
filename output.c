@@ -58,27 +58,27 @@ clean_output (FILE * fp, char *s)
 {
   while (*s) {
     switch (*s) {
-     case '\'':
-       fprintf (fp, "&#39;");
-       break;
-     case '"':
-       fprintf (fp, "&#34;");
-       break;
-     case '&':
-       fprintf (fp, "&amp;");
-       break;
-     case '<':
-       fprintf (fp, "&lt;");
-       break;
-     case '>':
-       fprintf (fp, "&gt;");
-       break;
-     case ' ':
-       fprintf (fp, "&nbsp;");
-       break;
-     default:
-       fputc (*s, fp);
-       break;
+    case '\'':
+      fprintf (fp, "&#39;");
+      break;
+    case '"':
+      fprintf (fp, "&#34;");
+      break;
+    case '&':
+      fprintf (fp, "&amp;");
+      break;
+    case '<':
+      fprintf (fp, "&lt;");
+      break;
+    case '>':
+      fprintf (fp, "&gt;");
+      break;
+    case ' ':
+      fprintf (fp, "&nbsp;");
+      break;
+    default:
+      fputc (*s, fp);
+      break;
     }
     s++;
   }

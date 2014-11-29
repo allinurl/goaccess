@@ -101,32 +101,32 @@ gmenu_driver (GMenu * menu, int c)
 {
   int i;
   switch (c) {
-   case REQ_DOWN:
-     if (menu->idx >= menu->size - 1)
-       break;
-     ++menu->idx;
-     if (menu->idx >= menu->h && menu->idx >= menu->start + menu->h)
-       menu->start++;
-     post_gmenu (menu);
-     break;
-   case REQ_UP:
-     if (menu->idx <= 0)
-       break;
-     --menu->idx;
-     if (menu->idx < menu->start)
-       --menu->start;
-     post_gmenu (menu);
-     break;
-   case REQ_SEL:
-     if (!menu->multiple) {
-       for (i = 0; i < menu->size; i++)
-         menu->items[i].checked = 0;
-     }
-     if (menu->items[menu->idx].checked)
-       menu->items[menu->idx].checked = 0;
-     else
-       menu->items[menu->idx].checked = 1;
-     post_gmenu (menu);
-     break;
+  case REQ_DOWN:
+    if (menu->idx >= menu->size - 1)
+      break;
+    ++menu->idx;
+    if (menu->idx >= menu->h && menu->idx >= menu->start + menu->h)
+      menu->start++;
+    post_gmenu (menu);
+    break;
+  case REQ_UP:
+    if (menu->idx <= 0)
+      break;
+    --menu->idx;
+    if (menu->idx < menu->start)
+      --menu->start;
+    post_gmenu (menu);
+    break;
+  case REQ_SEL:
+    if (!menu->multiple) {
+      for (i = 0; i < menu->size; i++)
+        menu->items[i].checked = 0;
+    }
+    if (menu->items[menu->idx].checked)
+      menu->items[menu->idx].checked = 0;
+    else
+      menu->items[menu->idx].checked = 1;
+    post_gmenu (menu);
+    break;
   }
 }
