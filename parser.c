@@ -814,12 +814,13 @@ count_process (GLog * logger)
 }
 
 static int
-process_date (GLogItem * glog, char *date)
+process_date (GLogItem * glog)
 {
   /* make compiler happy */
-  memset (date, 0, sizeof *date);
-  convert_date (date, glog->date, conf.date_format, "%Y%m%d", DATE_LEN);
-  if (date == NULL)
+  memset (glog->date_key, 0, sizeof *glog->date_key);
+  convert_date (glog->date_key, glog->date, conf.date_format, "%Y%m%d",
+                DATE_LEN);
+  if (glog->date_key == NULL)
     return 1;
   return 0;
 }
@@ -854,7 +855,7 @@ unique_data (GLogItem * glog, char *date)
 }
 
 static void
-process_log (GLogItem * glog, char *date)
+process_log (GLogItem * glog)
 {
   char *qmark = NULL, *reqkey = NULL;
   int is404 = 0;
@@ -885,7 +886,7 @@ process_log (GLogItem * glog, char *date)
   if ((conf.append_method) || (conf.append_protocol))
     reqkey = deblank (reqkey);
 
-  unique_data (glog, date);
+  unique_data (glog, glog->date_key);
   /* process agents that are part of a host */
   if (conf.list_agents)
     process_host_agents (glog->host, glog->agent);
@@ -907,7 +908,7 @@ process_log (GLogItem * glog, char *date)
   /* process hosts */
   process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
-  process_request_meta (ht_date_bw, date, glog->resp_size);
+  process_request_meta (ht_date_bw, glog->date_key, glog->resp_size);
   process_request_meta (ht_file_bw, reqkey, glog->resp_size);
   process_request_meta (ht_host_bw, glog->host, glog->resp_size);
 
@@ -928,7 +929,6 @@ static int
 pre_process_log (GLog * logger, char *line, int test)
 {
   GLogItem *glog;
-  char date[DATE_LEN];
 
   if (valid_line (line)) {
     count_invalid (logger);
@@ -956,7 +956,7 @@ pre_process_log (GLog * logger, char *line, int test)
   if (test)
     goto cleanup;
 
-  if (process_date (glog, date)) {
+  if (process_date (glog)) {
     count_invalid (logger);
     goto cleanup;
   }
@@ -969,7 +969,7 @@ pre_process_log (GLog * logger, char *line, int test)
     goto cleanup;
 
   logger->resp_size += glog->resp_size;
-  process_log (glog, date);
+  process_log (glog);
 
 cleanup:
   free_logger (glog);

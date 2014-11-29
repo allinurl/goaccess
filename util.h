@@ -24,7 +24,6 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 #define REGEX_ERROR      100
-#define DATE_LEN         12     /* date length */
 #define KB               1024
 #define MB               (KB * 1024)
 #define GB               (MB * 1024)
