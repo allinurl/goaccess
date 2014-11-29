@@ -171,6 +171,8 @@ free_logger (GLogItem * glog)
     free (glog->req);
   if (glog->status != NULL)
     free (glog->status);
+  if (glog->req_key != NULL)
+    free (glog->req_key);
   free (glog);
 }
 
@@ -857,7 +859,7 @@ unique_data (GLogItem * glog, char *date)
 static void
 process_log (GLogItem * glog)
 {
-  char *qmark = NULL, *reqkey = NULL;
+  char *qmark = NULL;
   int is404 = 0;
 
   /* is this a 404? */
@@ -873,18 +875,18 @@ process_log (GLogItem * glog)
       *qmark = '\0';
   }
 
-  reqkey = xstrdup (glog->req);
+  glog->req_key = xstrdup (glog->req);
   /* include HTTP method/protocol to request */
   if (conf.append_method && glog->method) {
     glog->method = strtoupper (glog->method);
-    append_method_to_request (&reqkey, glog->method);
+    append_method_to_request (&glog->req_key, glog->method);
   }
   if (conf.append_protocol && glog->protocol) {
     glog->protocol = strtoupper (glog->protocol);
-    append_protocol_to_request (&reqkey, glog->protocol);
+    append_protocol_to_request (&glog->req_key, glog->protocol);
   }
   if ((conf.append_method) || (conf.append_protocol))
-    reqkey = deblank (reqkey);
+    glog->req_key = deblank (glog->req_key);
 
   unique_data (glog, glog->date_key);
   /* process agents that are part of a host */
@@ -895,13 +897,13 @@ process_log (GLogItem * glog)
     process_generic_data (ht_status_code, glog->status);
   /* process 404s */
   if (is404)
-    process_request (ht_not_found_requests, reqkey, glog);
+    process_request (ht_not_found_requests, glog->req_key, glog);
   /* process static files */
   else if (verify_static_content (glog->req))
-    process_request (ht_requests_static, reqkey, glog);
+    process_request (ht_requests_static, glog->req_key, glog);
   /* process regular files */
   else
-    process_request (ht_requests, reqkey, glog);
+    process_request (ht_requests, glog->req_key, glog);
 
   /* process referrers */
   process_referrers (glog->ref, glog->site);
@@ -909,19 +911,16 @@ process_log (GLogItem * glog)
   process_generic_data (ht_hosts, glog->host);
   /* process bandwidth  */
   process_request_meta (ht_date_bw, glog->date_key, glog->resp_size);
-  process_request_meta (ht_file_bw, reqkey, glog->resp_size);
+  process_request_meta (ht_file_bw, glog->req_key, glog->resp_size);
   process_request_meta (ht_host_bw, glog->host, glog->resp_size);
 
   /* process time taken to serve the request, in microseconds */
-  process_request_meta (ht_file_serve_usecs, reqkey, glog->serve_time);
+  process_request_meta (ht_file_serve_usecs, glog->req_key, glog->serve_time);
   process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
 
 #ifdef TCB_BTREE
   process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
 #endif
-
-  if (reqkey != NULL)
-    free (reqkey);
 }
 
 /* process a line from the log and store it accordingly */
