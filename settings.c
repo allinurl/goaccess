@@ -219,24 +219,24 @@ get_selected_format_str (size_t idx)
 {
   char *fmt = NULL;
   switch (idx) {
-   case COMMON:
-     fmt = alloc_string (logs.common);
-     break;
-   case VCOMMON:
-     fmt = alloc_string (logs.vcommon);
-     break;
-   case COMBINED:
-     fmt = alloc_string (logs.combined);
-     break;
-   case VCOMBINED:
-     fmt = alloc_string (logs.vcombined);
-     break;
-   case W3C:
-     fmt = alloc_string (logs.w3c);
-     break;
-   case CLOUDFRONT:
-     fmt = alloc_string (logs.cloudfront);
-     break;
+  case COMMON:
+    fmt = alloc_string (logs.common);
+    break;
+  case VCOMMON:
+    fmt = alloc_string (logs.vcommon);
+    break;
+  case COMBINED:
+    fmt = alloc_string (logs.combined);
+    break;
+  case VCOMBINED:
+    fmt = alloc_string (logs.vcombined);
+    break;
+  case W3C:
+    fmt = alloc_string (logs.w3c);
+    break;
+  case CLOUDFRONT:
+    fmt = alloc_string (logs.cloudfront);
+    break;
   }
 
   return fmt;
@@ -247,18 +247,18 @@ get_selected_date_str (size_t idx)
 {
   char *fmt = NULL;
   switch (idx) {
-   case COMMON:
-   case VCOMMON:
-   case COMBINED:
-   case VCOMBINED:
-     fmt = alloc_string (dates.apache);
-     break;
-   case W3C:
-     fmt = alloc_string (dates.w3c);
-     break;
-   case CLOUDFRONT:
-     fmt = alloc_string (dates.cloudfront);
-     break;
+  case COMMON:
+  case VCOMMON:
+  case COMBINED:
+  case VCOMBINED:
+    fmt = alloc_string (dates.apache);
+    break;
+  case W3C:
+    fmt = alloc_string (dates.w3c);
+    break;
+  case CLOUDFRONT:
+    fmt = alloc_string (dates.cloudfront);
+    break;
   }
 
   return fmt;

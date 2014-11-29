@@ -52,12 +52,12 @@ escape_cvs_output (FILE * fp, char *s)
 {
   while (*s) {
     switch (*s) {
-     case '"':
-       fprintf (fp, "\"\"");
-       break;
-     default:
-       fputc (*s, fp);
-       break;
+    case '"':
+      fprintf (fp, "\"\"");
+      break;
+    default:
+      fputc (*s, fp);
+      break;
     }
     s++;
   }
@@ -161,22 +161,22 @@ print_csv_complete (FILE * fp, GHolder * holder, int process)
 
   for (i = 0; i < 4; i++) {
     switch (i) {
-     case 0:
-       h = holder + REQUESTS;
-       id = REQUE_ID;
-       break;
-     case 1:
-       h = holder + REQUESTS_STATIC;
-       id = STATI_ID;
-       break;
-     case 2:
-       h = holder + NOT_FOUND;
-       id = FOUND_ID;
-       break;
-     case 3:
-       h = holder + HOSTS;
-       id = HOSTS_ID;
-       break;
+    case 0:
+      h = holder + REQUESTS;
+      id = REQUE_ID;
+      break;
+    case 1:
+      h = holder + REQUESTS_STATIC;
+      id = STATI_ID;
+      break;
+    case 2:
+      h = holder + NOT_FOUND;
+      id = FOUND_ID;
+      break;
+    case 3:
+      h = holder + HOSTS;
+      id = HOSTS_ID;
+      break;
     }
 
     for (j = 0; j < h->idx; j++) {

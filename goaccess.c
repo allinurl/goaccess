@@ -210,56 +210,56 @@ allocate_data (void)
     module = i;
 
     switch (module) {
-     case VISITORS:
-       dash->module[module].head = VISIT_HEAD;
-       dash->module[module].desc = VISIT_DESC;
-       break;
-     case REQUESTS:
-       dash->module[module].head = REQUE_HEAD;
-       dash->module[module].desc = REQUE_DESC;
-       break;
-     case REQUESTS_STATIC:
-       dash->module[module].head = STATI_HEAD;
-       dash->module[module].desc = STATI_DESC;
-       break;
-     case NOT_FOUND:
-       dash->module[module].head = FOUND_HEAD;
-       dash->module[module].desc = FOUND_DESC;
-       break;
-     case HOSTS:
-       dash->module[module].head = HOSTS_HEAD;
-       dash->module[module].desc = HOSTS_DESC;
-       break;
-     case OS:
-       dash->module[module].head = OPERA_HEAD;
-       dash->module[module].desc = OPERA_DESC;
-       break;
-     case BROWSERS:
-       dash->module[module].head = BROWS_HEAD;
-       dash->module[module].desc = BROWS_DESC;
-       break;
-     case REFERRERS:
-       dash->module[module].head = REFER_HEAD;
-       dash->module[module].desc = REFER_DESC;
-       break;
-     case REFERRING_SITES:
-       dash->module[module].head = SITES_HEAD;
-       dash->module[module].desc = SITES_DESC;
-       break;
-     case KEYPHRASES:
-       dash->module[module].head = KEYPH_HEAD;
-       dash->module[module].desc = KEYPH_DESC;
-       break;
+    case VISITORS:
+      dash->module[module].head = VISIT_HEAD;
+      dash->module[module].desc = VISIT_DESC;
+      break;
+    case REQUESTS:
+      dash->module[module].head = REQUE_HEAD;
+      dash->module[module].desc = REQUE_DESC;
+      break;
+    case REQUESTS_STATIC:
+      dash->module[module].head = STATI_HEAD;
+      dash->module[module].desc = STATI_DESC;
+      break;
+    case NOT_FOUND:
+      dash->module[module].head = FOUND_HEAD;
+      dash->module[module].desc = FOUND_DESC;
+      break;
+    case HOSTS:
+      dash->module[module].head = HOSTS_HEAD;
+      dash->module[module].desc = HOSTS_DESC;
+      break;
+    case OS:
+      dash->module[module].head = OPERA_HEAD;
+      dash->module[module].desc = OPERA_DESC;
+      break;
+    case BROWSERS:
+      dash->module[module].head = BROWS_HEAD;
+      dash->module[module].desc = BROWS_DESC;
+      break;
+    case REFERRERS:
+      dash->module[module].head = REFER_HEAD;
+      dash->module[module].desc = REFER_DESC;
+      break;
+    case REFERRING_SITES:
+      dash->module[module].head = SITES_HEAD;
+      dash->module[module].desc = SITES_DESC;
+      break;
+    case KEYPHRASES:
+      dash->module[module].head = KEYPH_HEAD;
+      dash->module[module].desc = KEYPH_DESC;
+      break;
 #ifdef HAVE_LIBGEOIP
-     case GEO_LOCATION:
-       dash->module[module].head = GEOLO_HEAD;
-       dash->module[module].desc = GEOLO_DESC;
-       break;
+    case GEO_LOCATION:
+      dash->module[module].head = GEOLO_HEAD;
+      dash->module[module].desc = GEOLO_DESC;
+      break;
 #endif
-     case STATUS_CODES:
-       dash->module[module].head = CODES_HEAD;
-       dash->module[module].desc = CODES_DESC;
-       break;
+    case STATUS_CODES:
+      dash->module[module].head = CODES_HEAD;
+      dash->module[module].desc = CODES_DESC;
+      break;
     }
 
     ht_size = get_ht_size_by_module (module);
@@ -356,321 +356,321 @@ get_keys (void)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case 'q': /* quit */
-       if (!scrolling.expanded) {
-         quit = 0;
-         break;
-       }
-       collapse_current_module ();
-       break;
-     case KEY_F (1):
-     case '?':
-     case 'h':
-       load_help_popup (main_win);
-       render_screens ();
-       break;
-     case 49:  /* 1 */
-       /* reset expanded module */
-       set_module_to (&scrolling, VISITORS);
-       break;
-     case 50:  /* 2 */
-       /* reset expanded module */
-       set_module_to (&scrolling, REQUESTS);
-       break;
-     case 51:  /* 3 */
-       /* reset expanded module */
-       set_module_to (&scrolling, REQUESTS_STATIC);
-       break;
-     case 52:  /* 4 */
-       /* reset expanded module */
-       set_module_to (&scrolling, NOT_FOUND);
-       break;
-     case 53:  /* 5 */
-       /* reset expanded module */
-       set_module_to (&scrolling, HOSTS);
-       break;
-     case 54:  /* 6 */
-       /* reset expanded module */
-       set_module_to (&scrolling, OS);
-       break;
-     case 55:  /* 7 */
-       /* reset expanded module */
-       set_module_to (&scrolling, BROWSERS);
-       break;
-     case 56:  /* 8 */
-       /* reset expanded module */
-       set_module_to (&scrolling, REFERRERS);
-       break;
-     case 57:  /* 9 */
-       /* reset expanded module */
-       set_module_to (&scrolling, REFERRING_SITES);
-       break;
-     case 48:  /* 0 */
-       /* reset expanded module */
-       set_module_to (&scrolling, KEYPHRASES);
-       break;
-     case 33:  /* Shift+1 */
-       /* reset expanded module */
+    case 'q':  /* quit */
+      if (!scrolling.expanded) {
+        quit = 0;
+        break;
+      }
+      collapse_current_module ();
+      break;
+    case KEY_F (1):
+    case '?':
+    case 'h':
+      load_help_popup (main_win);
+      render_screens ();
+      break;
+    case 49:   /* 1 */
+      /* reset expanded module */
+      set_module_to (&scrolling, VISITORS);
+      break;
+    case 50:   /* 2 */
+      /* reset expanded module */
+      set_module_to (&scrolling, REQUESTS);
+      break;
+    case 51:   /* 3 */
+      /* reset expanded module */
+      set_module_to (&scrolling, REQUESTS_STATIC);
+      break;
+    case 52:   /* 4 */
+      /* reset expanded module */
+      set_module_to (&scrolling, NOT_FOUND);
+      break;
+    case 53:   /* 5 */
+      /* reset expanded module */
+      set_module_to (&scrolling, HOSTS);
+      break;
+    case 54:   /* 6 */
+      /* reset expanded module */
+      set_module_to (&scrolling, OS);
+      break;
+    case 55:   /* 7 */
+      /* reset expanded module */
+      set_module_to (&scrolling, BROWSERS);
+      break;
+    case 56:   /* 8 */
+      /* reset expanded module */
+      set_module_to (&scrolling, REFERRERS);
+      break;
+    case 57:   /* 9 */
+      /* reset expanded module */
+      set_module_to (&scrolling, REFERRING_SITES);
+      break;
+    case 48:   /* 0 */
+      /* reset expanded module */
+      set_module_to (&scrolling, KEYPHRASES);
+      break;
+    case 33:   /* Shift+1 */
+      /* reset expanded module */
 #ifdef HAVE_LIBGEOIP
-       set_module_to (&scrolling, GEO_LOCATION);
+      set_module_to (&scrolling, GEO_LOCATION);
 #else
-       set_module_to (&scrolling, STATUS_CODES);
+      set_module_to (&scrolling, STATUS_CODES);
 #endif
-       break;
+      break;
 #ifdef HAVE_LIBGEOIP
-     case 64:  /* Shift+2 */
-       /* reset expanded module */
-       set_module_to (&scrolling, STATUS_CODES);
-       break;
+    case 64:   /* Shift+2 */
+      /* reset expanded module */
+      set_module_to (&scrolling, STATUS_CODES);
+      break;
 #endif
-     case 9:   /* TAB */
-       /* reset expanded module */
-       collapse_current_module ();
-       scrolling.current++;
-       if (scrolling.current == TOTAL_MODULES)
-         scrolling.current = 0;
-       render_screens ();
-       break;
-     case 353: /* Shift TAB */
-       /* reset expanded module */
-       collapse_current_module ();
-       if (scrolling.current == 0)
-         scrolling.current = TOTAL_MODULES - 1;
-       else
-         scrolling.current--;
-       render_screens ();
-       break;
-     case 'g': /* g = top */
-       if (!scrolling.expanded)
-         scrolling.dash = 0;
-       else {
-         scrolling.module[scrolling.current].scroll = 0;
-         scrolling.module[scrolling.current].offset = 0;
-       }
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-     case 'G': /* G = down */
-       if (!scrolling.expanded)
-         scrolling.dash = dash->total_alloc - real_size_y;
-       else {
-         scrll = offset = 0;
-         scrll = dash->module[scrolling.current].idx_data - 1;
-         if (scrll >= exp_size && scrll >= offset + exp_size)
-           offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
-         scrolling.module[scrolling.current].scroll = scrll;
-         scrolling.module[scrolling.current].offset = offset;
-       }
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-       /* expand dashboard module */
-     case KEY_RIGHT:
-     case 0x0a:
-     case 0x0d:
-     case 32:  /* ENTER */
-     case 79:  /* o */
-     case 111: /* O */
-     case KEY_ENTER:
-       if (scrolling.expanded && scrolling.current == HOSTS) {
-         /* make sure we have a valid IP */
-         int sel = scrolling.module[scrolling.current].scroll;
-         if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
-           load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
-         break;
-       }
-       if (scrolling.expanded)
-         break;
-       reset_scroll_offsets (&scrolling);
-       scrolling.expanded = 1;
+    case 9:    /* TAB */
+      /* reset expanded module */
+      collapse_current_module ();
+      scrolling.current++;
+      if (scrolling.current == TOTAL_MODULES)
+        scrolling.current = 0;
+      render_screens ();
+      break;
+    case 353:  /* Shift TAB */
+      /* reset expanded module */
+      collapse_current_module ();
+      if (scrolling.current == 0)
+        scrolling.current = TOTAL_MODULES - 1;
+      else
+        scrolling.current--;
+      render_screens ();
+      break;
+    case 'g':  /* g = top */
+      if (!scrolling.expanded)
+        scrolling.dash = 0;
+      else {
+        scrolling.module[scrolling.current].scroll = 0;
+        scrolling.module[scrolling.current].offset = 0;
+      }
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+    case 'G':  /* G = down */
+      if (!scrolling.expanded)
+        scrolling.dash = dash->total_alloc - real_size_y;
+      else {
+        scrll = offset = 0;
+        scrll = dash->module[scrolling.current].idx_data - 1;
+        if (scrll >= exp_size && scrll >= offset + exp_size)
+          offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
+        scrolling.module[scrolling.current].scroll = scrll;
+        scrolling.module[scrolling.current].offset = offset;
+      }
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+      /* expand dashboard module */
+    case KEY_RIGHT:
+    case 0x0a:
+    case 0x0d:
+    case 32:   /* ENTER */
+    case 79:   /* o */
+    case 111:  /* O */
+    case KEY_ENTER:
+      if (scrolling.expanded && scrolling.current == HOSTS) {
+        /* make sure we have a valid IP */
+        int sel = scrolling.module[scrolling.current].scroll;
+        if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
+          load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+        break;
+      }
+      if (scrolling.expanded)
+        break;
+      reset_scroll_offsets (&scrolling);
+      scrolling.expanded = 1;
 
-       free_holder_by_module (&holder, scrolling.current);
-       free_dashboard (dash);
-       allocate_holder_by_module (scrolling.current);
-       allocate_data ();
+      free_holder_by_module (&holder, scrolling.current);
+      free_dashboard (dash);
+      allocate_holder_by_module (scrolling.current);
+      allocate_data ();
 
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-     case KEY_DOWN:    /* scroll main dashboard */
-       if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
-         scrolling.dash++;
-         display_content (main_win, logger, dash, &scrolling);
-       }
-       break;
-     case KEY_MOUSE:   /* handles mouse events */
-       ok_mouse = getmouse (&event);
-       if (conf.mouse_support && ok_mouse == OK) {
-         if (event.bstate & BUTTON1_CLICKED) {
-           /* ignore header/footer clicks */
-           if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
-             break;
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+    case KEY_DOWN:     /* scroll main dashboard */
+      if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
+        scrolling.dash++;
+        display_content (main_win, logger, dash, &scrolling);
+      }
+      break;
+    case KEY_MOUSE:    /* handles mouse events */
+      ok_mouse = getmouse (&event);
+      if (conf.mouse_support && ok_mouse == OK) {
+        if (event.bstate & BUTTON1_CLICKED) {
+          /* ignore header/footer clicks */
+          if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
+            break;
 
-           if (set_module_from_mouse_event (&scrolling, dash, event.y))
-             break;
-           reset_scroll_offsets (&scrolling);
-           scrolling.expanded = 1;
+          if (set_module_from_mouse_event (&scrolling, dash, event.y))
+            break;
+          reset_scroll_offsets (&scrolling);
+          scrolling.expanded = 1;
 
-           free_holder_by_module (&holder, scrolling.current);
-           free_dashboard (dash);
-           allocate_holder_by_module (scrolling.current);
-           allocate_data ();
+          free_holder_by_module (&holder, scrolling.current);
+          free_dashboard (dash);
+          allocate_holder_by_module (scrolling.current);
+          allocate_data ();
 
-           render_screens ();
-         }
-       }
-       break;
-     case 106: /* j - DOWN expanded module */
-       scroll_ptr = &scrolling.module[scrolling.current].scroll;
-       offset_ptr = &scrolling.module[scrolling.current].offset;
+          render_screens ();
+        }
+      }
+      break;
+    case 106:  /* j - DOWN expanded module */
+      scroll_ptr = &scrolling.module[scrolling.current].scroll;
+      offset_ptr = &scrolling.module[scrolling.current].offset;
 
-       if (!scrolling.expanded)
-         break;
-       if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
-         break;
-       ++(*scroll_ptr);
-       if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
-         ++(*offset_ptr);
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-       /* scroll up main_win */
-     case KEY_UP:
-       if (scrolling.dash > 0) {
-         scrolling.dash--;
-         display_content (main_win, logger, dash, &scrolling);
-       }
-       break;
-     case 2:   /* ^ b - page up */
-     case 339: /* ^ PG UP */
-       scroll_ptr = &scrolling.module[scrolling.current].scroll;
-       offset_ptr = &scrolling.module[scrolling.current].offset;
+      if (!scrolling.expanded)
+        break;
+      if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+        break;
+      ++(*scroll_ptr);
+      if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+        ++(*offset_ptr);
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+      /* scroll up main_win */
+    case KEY_UP:
+      if (scrolling.dash > 0) {
+        scrolling.dash--;
+        display_content (main_win, logger, dash, &scrolling);
+      }
+      break;
+    case 2:    /* ^ b - page up */
+    case 339:  /* ^ PG UP */
+      scroll_ptr = &scrolling.module[scrolling.current].scroll;
+      offset_ptr = &scrolling.module[scrolling.current].offset;
 
-       if (!scrolling.expanded)
-         break;
-       /* decrease scroll and offset by exp_size */
-       *scroll_ptr -= exp_size;
-       if (*scroll_ptr < 0)
-         *scroll_ptr = 0;
+      if (!scrolling.expanded)
+        break;
+      /* decrease scroll and offset by exp_size */
+      *scroll_ptr -= exp_size;
+      if (*scroll_ptr < 0)
+        *scroll_ptr = 0;
 
-       if (*scroll_ptr < *offset_ptr)
-         *offset_ptr -= exp_size;
-       if (*offset_ptr <= 0)
-         *offset_ptr = 0;
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-     case 6:   /* ^ f - page down */
-     case 338: /* ^ PG DOWN */
-       scroll_ptr = &scrolling.module[scrolling.current].scroll;
-       offset_ptr = &scrolling.module[scrolling.current].offset;
+      if (*scroll_ptr < *offset_ptr)
+        *offset_ptr -= exp_size;
+      if (*offset_ptr <= 0)
+        *offset_ptr = 0;
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+    case 6:    /* ^ f - page down */
+    case 338:  /* ^ PG DOWN */
+      scroll_ptr = &scrolling.module[scrolling.current].scroll;
+      offset_ptr = &scrolling.module[scrolling.current].offset;
 
-       if (!scrolling.expanded)
-         break;
+      if (!scrolling.expanded)
+        break;
 
-       *scroll_ptr += exp_size;
-       if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
-         *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
-       if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
-         *offset_ptr += exp_size;
-       if (*offset_ptr + exp_size >=
-           dash->module[scrolling.current].idx_data - 1)
-         *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
-       if (*scroll_ptr < exp_size - 1)
-         *offset_ptr = 0;
+      *scroll_ptr += exp_size;
+      if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+        *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
+      if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+        *offset_ptr += exp_size;
+      if (*offset_ptr + exp_size >=
+          dash->module[scrolling.current].idx_data - 1)
+        *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
+      if (*scroll_ptr < exp_size - 1)
+        *offset_ptr = 0;
 
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-     case 107: /* k - UP expanded module */
-       scroll_ptr = &scrolling.module[scrolling.current].scroll;
-       offset_ptr = &scrolling.module[scrolling.current].offset;
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+    case 107:  /* k - UP expanded module */
+      scroll_ptr = &scrolling.module[scrolling.current].scroll;
+      offset_ptr = &scrolling.module[scrolling.current].offset;
 
-       if (!scrolling.expanded)
-         break;
-       if (*scroll_ptr <= 0)
-         break;
-       --(*scroll_ptr);
-       if (*scroll_ptr < *offset_ptr)
-         --(*offset_ptr);
-       display_content (main_win, logger, dash, &scrolling);
-       break;
-     case 'n':
-       pthread_mutex_lock (&gdns_thread.mutex);
-       search = perform_next_find (holder, &scrolling);
-       pthread_mutex_unlock (&gdns_thread.mutex);
-       if (search == 0) {
-         free_dashboard (dash);
-         allocate_data ();
-         render_screens ();
-       }
-       break;
-     case '/':
-       if (render_find_dialog (main_win, &scrolling))
-         break;
-       pthread_mutex_lock (&gdns_thread.mutex);
-       search = perform_next_find (holder, &scrolling);
-       pthread_mutex_unlock (&gdns_thread.mutex);
-       if (search == 0) {
-         free_dashboard (dash);
-         allocate_data ();
-         render_screens ();
-       }
-       break;
-     case 99:  /* c */
-       if (conf.no_color)
-         break;
-       load_schemes_win (main_win);
-       free_dashboard (dash);
-       allocate_data ();
-       render_screens ();
-       break;
-     case 115: /* s */
-       load_sort_win (main_win, scrolling.current,
-                      &module_sort[scrolling.current]);
-       pthread_mutex_lock (&gdns_thread.mutex);
-       free_holder (&holder);
-       pthread_cond_broadcast (&gdns_thread.not_empty);
-       pthread_mutex_unlock (&gdns_thread.mutex);
-       free_dashboard (dash);
-       allocate_holder ();
-       allocate_data ();
-       render_screens ();
-       break;
-     case 269:
-     case KEY_RESIZE:
-       endwin ();
-       refresh ();
-       werase (header_win);
-       werase (main_win);
-       werase (stdscr);
-       term_size (main_win);
-       refresh ();
-       render_screens ();
-       break;
-     default:
-       if (logger->piping)
-         break;
-       size2 = file_size (conf.ifile);
+      if (!scrolling.expanded)
+        break;
+      if (*scroll_ptr <= 0)
+        break;
+      --(*scroll_ptr);
+      if (*scroll_ptr < *offset_ptr)
+        --(*offset_ptr);
+      display_content (main_win, logger, dash, &scrolling);
+      break;
+    case 'n':
+      pthread_mutex_lock (&gdns_thread.mutex);
+      search = perform_next_find (holder, &scrolling);
+      pthread_mutex_unlock (&gdns_thread.mutex);
+      if (search == 0) {
+        free_dashboard (dash);
+        allocate_data ();
+        render_screens ();
+      }
+      break;
+    case '/':
+      if (render_find_dialog (main_win, &scrolling))
+        break;
+      pthread_mutex_lock (&gdns_thread.mutex);
+      search = perform_next_find (holder, &scrolling);
+      pthread_mutex_unlock (&gdns_thread.mutex);
+      if (search == 0) {
+        free_dashboard (dash);
+        allocate_data ();
+        render_screens ();
+      }
+      break;
+    case 99:   /* c */
+      if (conf.no_color)
+        break;
+      load_schemes_win (main_win);
+      free_dashboard (dash);
+      allocate_data ();
+      render_screens ();
+      break;
+    case 115:  /* s */
+      load_sort_win (main_win, scrolling.current,
+                     &module_sort[scrolling.current]);
+      pthread_mutex_lock (&gdns_thread.mutex);
+      free_holder (&holder);
+      pthread_cond_broadcast (&gdns_thread.not_empty);
+      pthread_mutex_unlock (&gdns_thread.mutex);
+      free_dashboard (dash);
+      allocate_holder ();
+      allocate_data ();
+      render_screens ();
+      break;
+    case 269:
+    case KEY_RESIZE:
+      endwin ();
+      refresh ();
+      werase (header_win);
+      werase (main_win);
+      werase (stdscr);
+      term_size (main_win);
+      refresh ();
+      render_screens ();
+      break;
+    default:
+      if (logger->piping)
+        break;
+      size2 = file_size (conf.ifile);
 
-       /* file has changed */
-       if (size2 != size1) {
-         if (!(fp = fopen (conf.ifile, "r")))
-           FATAL ("Unable to read log file %s.", strerror (errno));
-         if (!fseeko (fp, size1, SEEK_SET))
-           while (fgets (buf, LINE_BUFFER, fp) != NULL)
-             parse_log (&logger, buf, -1);
-         fclose (fp);
+      /* file has changed */
+      if (size2 != size1) {
+        if (!(fp = fopen (conf.ifile, "r")))
+          FATAL ("Unable to read log file %s.", strerror (errno));
+        if (!fseeko (fp, size1, SEEK_SET))
+          while (fgets (buf, LINE_BUFFER, fp) != NULL)
+            parse_log (&logger, buf, -1);
+        fclose (fp);
 
-         size1 = size2;
-         pthread_mutex_lock (&gdns_thread.mutex);
-         free_holder (&holder);
-         pthread_cond_broadcast (&gdns_thread.not_empty);
-         pthread_mutex_unlock (&gdns_thread.mutex);
+        size1 = size2;
+        pthread_mutex_lock (&gdns_thread.mutex);
+        free_holder (&holder);
+        pthread_cond_broadcast (&gdns_thread.not_empty);
+        pthread_mutex_unlock (&gdns_thread.mutex);
 
-         free_dashboard (dash);
-         allocate_holder ();
-         allocate_data ();
+        free_dashboard (dash);
+        allocate_holder ();
+        allocate_data ();
 
-         term_size (main_win);
-         render_screens ();
-         usleep (200000);       /* 0.2 seconds */
-       }
-       break;
+        term_size (main_win);
+        render_screens ();
+        usleep (200000);        /* 0.2 seconds */
+      }
+      break;
     }
   }
 }

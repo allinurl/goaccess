@@ -218,15 +218,15 @@ verify_global_config (int argc, char **argv)
       break;
 
     switch (o) {
-     case 'p':
-       conf.iconfigfile = optarg;
-       break;
-     case 0:
-       if (!strcmp ("no-global-config", long_opts[idx].name))
-         conf.load_global_config = 0;
-       break;
-     case '?':
-       exit (EXIT_FAILURE);
+    case 'p':
+      conf.iconfigfile = optarg;
+      break;
+    case 0:
+      if (!strcmp ("no-global-config", long_opts[idx].name))
+        conf.load_global_config = 0;
+      break;
+    case '?':
+      exit (EXIT_FAILURE);
     }
   }
   for (idx = optind; idx < argc; idx++)
@@ -249,173 +249,173 @@ read_option_args (int argc, char **argv)
     if (-1 == o || EOF == o)
       break;
     switch (o) {
-     case 'f':
-       conf.ifile = optarg;
-       break;
-     case 'p':
-       /* ignore it */
-       break;
+    case 'f':
+      conf.ifile = optarg;
+      break;
+    case 'p':
+      /* ignore it */
+      break;
 #ifdef HAVE_LIBGEOIP
-     case 'g':
-       conf.geo_db = GEOIP_STANDARD;
-       break;
+    case 'g':
+      conf.geo_db = GEOIP_STANDARD;
+      break;
 #endif
-     case 'e':
-       conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
-       break;
-     case 'a':
-       conf.list_agents = 1;
-       break;
-     case 'c':
-       conf.load_conf_dlg = 1;
-       break;
-     case 'q':
-       conf.ignore_qstr = 1;
-       break;
-     case 'o':
-       conf.output_format = optarg;
-       break;
-     case 'l':
-       conf.debug_log = optarg;
-       dbg_log_open (conf.debug_log);
-       break;
-     case 'r':
-       conf.skip_term_resolver = 1;
-       break;
-     case 'd':
-       conf.enable_html_resolver = 1;
-       break;
-     case 'm':
-       conf.mouse_support = 1;
-       break;
-     case 'M':
-       conf.append_method = 1;
-       break;
-     case 'h':
-       cmd_help ();
-       break;
-     case 'H':
-       conf.append_protocol = 1;
-       break;
-     case 'V':
-       display_version ();
-       exit (EXIT_SUCCESS);
-       break;
-     case 0:
+    case 'e':
+      conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
+      break;
+    case 'a':
+      conf.list_agents = 1;
+      break;
+    case 'c':
+      conf.load_conf_dlg = 1;
+      break;
+    case 'q':
+      conf.ignore_qstr = 1;
+      break;
+    case 'o':
+      conf.output_format = optarg;
+      break;
+    case 'l':
+      conf.debug_log = optarg;
+      dbg_log_open (conf.debug_log);
+      break;
+    case 'r':
+      conf.skip_term_resolver = 1;
+      break;
+    case 'd':
+      conf.enable_html_resolver = 1;
+      break;
+    case 'm':
+      conf.mouse_support = 1;
+      break;
+    case 'M':
+      conf.append_method = 1;
+      break;
+    case 'h':
+      cmd_help ();
+      break;
+    case 'H':
+      conf.append_protocol = 1;
+      break;
+    case 'V':
+      display_version ();
+      exit (EXIT_SUCCESS);
+      break;
+    case 0:
 
-       if (!strcmp ("no-global-config", long_opts[idx].name))
-         break; /* ignore it */
+      if (!strcmp ("no-global-config", long_opts[idx].name))
+        break;  /* ignore it */
 
-       /* color scheme */
-       if (!strcmp ("color-scheme", long_opts[idx].name))
-         conf.color_scheme = atoi (optarg);
+      /* color scheme */
+      if (!strcmp ("color-scheme", long_opts[idx].name))
+        conf.color_scheme = atoi (optarg);
 
-       /* log format */
-       if (!strcmp ("log-format", long_opts[idx].name))
-         conf.log_format = unescape_str (optarg);
+      /* log format */
+      if (!strcmp ("log-format", long_opts[idx].name))
+        conf.log_format = unescape_str (optarg);
 
-       /* date format */
-       if (!strcmp ("date-format", long_opts[idx].name))
-         conf.date_format = unescape_str (optarg);
+      /* date format */
+      if (!strcmp ("date-format", long_opts[idx].name))
+        conf.date_format = unescape_str (optarg);
 
-       /* static file */
-       if (!strcmp ("static-file", long_opts[idx].name)) {
-         if (conf.static_file_max_len < strlen (optarg))
-           conf.static_file_max_len = strlen (optarg);
-         conf.static_files[conf.static_file_idx++] = optarg;
-       }
-       /* 4xx to unique count */
-       if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
-         conf.client_err_to_unique_count = 1;
+      /* static file */
+      if (!strcmp ("static-file", long_opts[idx].name)) {
+        if (conf.static_file_max_len < strlen (optarg))
+          conf.static_file_max_len = strlen (optarg);
+        conf.static_files[conf.static_file_idx++] = optarg;
+      }
+      /* 4xx to unique count */
+      if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
+        conf.client_err_to_unique_count = 1;
 
-       /* 444 as 404 */
-       if (!strcmp ("444-as-404", long_opts[idx].name))
-         conf.code444_as_404 = 1;
+      /* 444 as 404 */
+      if (!strcmp ("444-as-404", long_opts[idx].name))
+        conf.code444_as_404 = 1;
 
-       /* ignore crawlers */
-       if (!strcmp ("ignore-crawlers", long_opts[idx].name))
-         conf.ignore_crawlers = 1;
+      /* ignore crawlers */
+      if (!strcmp ("ignore-crawlers", long_opts[idx].name))
+        conf.ignore_crawlers = 1;
 
-       /* ignore referer */
-       if (!strcmp ("ignore-referer", long_opts[idx].name))
-         conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
+      /* ignore referer */
+      if (!strcmp ("ignore-referer", long_opts[idx].name))
+        conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
 
-       /* sort view */
-       if (!strcmp ("sort-view", long_opts[idx].name))
-         conf.sort_views[conf.sort_view_idx++] = optarg;
+      /* sort view */
+      if (!strcmp ("sort-view", long_opts[idx].name))
+        conf.sort_views[conf.sort_view_idx++] = optarg;
 
-       /* real os */
-       if (!strcmp ("real-os", long_opts[idx].name))
-         conf.real_os = 1;
+      /* real os */
+      if (!strcmp ("real-os", long_opts[idx].name))
+        conf.real_os = 1;
 
-       /* no color */
-       if (!strcmp ("no-color", long_opts[idx].name))
-         conf.no_color = 1;
+      /* no color */
+      if (!strcmp ("no-color", long_opts[idx].name))
+        conf.no_color = 1;
 
-       /* no progress */
-       if (!strcmp ("no-progress", long_opts[idx].name))
-         conf.no_progress = 1;
+      /* no progress */
+      if (!strcmp ("no-progress", long_opts[idx].name))
+        conf.no_progress = 1;
 
-       /* specifies the path of the GeoIP City database file */
-       if (!strcmp ("geoip-city-data", long_opts[idx].name))
-         conf.geoip_city_data = optarg;
+      /* specifies the path of the GeoIP City database file */
+      if (!strcmp ("geoip-city-data", long_opts[idx].name))
+        conf.geoip_city_data = optarg;
 
-       /* load data from disk */
-       if (!strcmp ("load-from-disk", long_opts[idx].name))
-         conf.load_from_disk = 1;
+      /* load data from disk */
+      if (!strcmp ("load-from-disk", long_opts[idx].name))
+        conf.load_from_disk = 1;
 
-       /* keep database files */
-       if (!strcmp ("keep-db-files", long_opts[idx].name))
-         conf.keep_db_files = 1;
+      /* keep database files */
+      if (!strcmp ("keep-db-files", long_opts[idx].name))
+        conf.keep_db_files = 1;
 
-       /* specifies the path of the database file */
-       if (!strcmp ("db-path", long_opts[idx].name))
-         conf.db_path = optarg;
+      /* specifies the path of the database file */
+      if (!strcmp ("db-path", long_opts[idx].name))
+        conf.db_path = optarg;
 
-       /* set the size in bytes of the extra mapped memory */
-       if (!strcmp ("xmmap", long_opts[idx].name))
-         conf.xmmap = atoi (optarg);
+      /* set the size in bytes of the extra mapped memory */
+      if (!strcmp ("xmmap", long_opts[idx].name))
+        conf.xmmap = atoi (optarg);
 
-       /* specifies the maximum number of leaf nodes to be cached */
-       if (!strcmp ("cache-lcnum", long_opts[idx].name))
-         conf.cache_lcnum = atoi (optarg);
+      /* specifies the maximum number of leaf nodes to be cached */
+      if (!strcmp ("cache-lcnum", long_opts[idx].name))
+        conf.cache_lcnum = atoi (optarg);
 
-       /* specifies the maximum number of non-leaf nodes to be cached */
-       if (!strcmp ("cache-ncnum", long_opts[idx].name))
-         conf.cache_ncnum = atoi (optarg);
+      /* specifies the maximum number of non-leaf nodes to be cached */
+      if (!strcmp ("cache-ncnum", long_opts[idx].name))
+        conf.cache_ncnum = atoi (optarg);
 
-       /* number of members in each leaf page */
-       if (!strcmp ("tune-lmemb", long_opts[idx].name))
-         conf.tune_lmemb = atoi (optarg);
+      /* number of members in each leaf page */
+      if (!strcmp ("tune-lmemb", long_opts[idx].name))
+        conf.tune_lmemb = atoi (optarg);
 
-       /* number of members in each non-leaf page */
-       if (!strcmp ("tune-nmemb", long_opts[idx].name))
-         conf.tune_nmemb = atoi (optarg);
+      /* number of members in each non-leaf page */
+      if (!strcmp ("tune-nmemb", long_opts[idx].name))
+        conf.tune_nmemb = atoi (optarg);
 
-       /* number of elements of the bucket array */
-       if (!strcmp ("tune-bnum", long_opts[idx].name))
-         conf.tune_bnum = atoi (optarg);
+      /* number of elements of the bucket array */
+      if (!strcmp ("tune-bnum", long_opts[idx].name))
+        conf.tune_bnum = atoi (optarg);
 
-       /* specifies that each page is compressed with X encoding */
-       if (!strcmp ("compression", long_opts[idx].name)) {
+      /* specifies that each page is compressed with X encoding */
+      if (!strcmp ("compression", long_opts[idx].name)) {
 #ifdef HAVE_ZLIB
-         if (!strcmp ("zlib", optarg))
-           conf.compression = TC_ZLIB;
+        if (!strcmp ("zlib", optarg))
+          conf.compression = TC_ZLIB;
 #endif
 #ifdef HAVE_BZ2
-         if (!strcmp ("bz2", optarg))
-           conf.compression = TC_BZ2;
+        if (!strcmp ("bz2", optarg))
+          conf.compression = TC_BZ2;
 #endif
-       }
+      }
 
-       break;
-     case 's':
-       display_storage ();
-       exit (EXIT_SUCCESS);
-     case '?':
-       exit (EXIT_FAILURE);
-     default:
-       exit (EXIT_FAILURE);
+      break;
+    case 's':
+      display_storage ();
+      exit (EXIT_SUCCESS);
+    case '?':
+      exit (EXIT_FAILURE);
+    default:
+      exit (EXIT_FAILURE);
     }
   }
 

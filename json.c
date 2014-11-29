@@ -56,50 +56,50 @@ escape_json_output (FILE * fp, char *s)
 {
   while (*s) {
     switch (*s) {
-     case '"':
-       fprintf (fp, "\\\"");
-       break;
-     case '\\':
-       fprintf (fp, "\\\\");
-       break;
-     case '\b':
-       fprintf (fp, "\\\b");
-       break;
-     case '\f':
-       fprintf (fp, "\\\f");
-       break;
-     case '\n':
-       fprintf (fp, "\\\n");
-       break;
-     case '\r':
-       fprintf (fp, "\\\r");
-       break;
-     case '\t':
-       fprintf (fp, "\\\t");
-       break;
-     case '/':
-       fprintf (fp, "\\/");
-       break;
-     default:
-       if ((uint8_t) * s <= 0x1f) {
-         /* Control characters (U+0000 through U+001F) */
-         char buf[8];
-         snprintf (buf, sizeof buf, "\\u%04x", *s);
-         fprintf (fp, "%s", buf);
-       } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                  (uint8_t) * (s + 2) == 0xa8) {
-         /* Line separator (U+2028) */
-         fprintf (fp, "\\u2028");
-         s += 2;
-       } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                  (uint8_t) * (s + 2) == 0xa9) {
-         /* Paragraph separator (U+2019) */
-         fprintf (fp, "\\u2029");
-         s += 2;
-       } else {
-         fputc (*s, fp);
-       }
-       break;
+    case '"':
+      fprintf (fp, "\\\"");
+      break;
+    case '\\':
+      fprintf (fp, "\\\\");
+      break;
+    case '\b':
+      fprintf (fp, "\\\b");
+      break;
+    case '\f':
+      fprintf (fp, "\\\f");
+      break;
+    case '\n':
+      fprintf (fp, "\\\n");
+      break;
+    case '\r':
+      fprintf (fp, "\\\r");
+      break;
+    case '\t':
+      fprintf (fp, "\\\t");
+      break;
+    case '/':
+      fprintf (fp, "\\/");
+      break;
+    default:
+      if ((uint8_t) * s <= 0x1f) {
+        /* Control characters (U+0000 through U+001F) */
+        char buf[8];
+        snprintf (buf, sizeof buf, "\\u%04x", *s);
+        fprintf (fp, "%s", buf);
+      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                 (uint8_t) * (s + 2) == 0xa8) {
+        /* Line separator (U+2028) */
+        fprintf (fp, "\\u2028");
+        s += 2;
+      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                 (uint8_t) * (s + 2) == 0xa9) {
+        /* Paragraph separator (U+2019) */
+        fprintf (fp, "\\u2029");
+        s += 2;
+      } else {
+        fputc (*s, fp);
+      }
+      break;
     }
     s++;
   }
@@ -218,22 +218,22 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
 
   for (i = 0; i < 4; i++) {
     switch (i) {
-     case 0:
-       h = holder + REQUESTS;
-       fprintf (fp, "\t\"%s\": [\n", REQUE_ID);
-       break;
-     case 1:
-       h = holder + REQUESTS_STATIC;
-       fprintf (fp, "\t\"%s\": [\n", STATI_ID);
-       break;
-     case 2:
-       h = holder + NOT_FOUND;
-       fprintf (fp, "\t\"%s\": [\n", FOUND_ID);
-       break;
-     case 3:
-       h = holder + HOSTS;
-       fprintf (fp, "\t\"%s\": [\n", HOSTS_ID);
-       break;
+    case 0:
+      h = holder + REQUESTS;
+      fprintf (fp, "\t\"%s\": [\n", REQUE_ID);
+      break;
+    case 1:
+      h = holder + REQUESTS_STATIC;
+      fprintf (fp, "\t\"%s\": [\n", STATI_ID);
+      break;
+    case 2:
+      h = holder + NOT_FOUND;
+      fprintf (fp, "\t\"%s\": [\n", FOUND_ID);
+      break;
+    case 3:
+      h = holder + HOSTS;
+      fprintf (fp, "\t\"%s\": [\n", HOSTS_ID);
+      break;
     }
 
     for (j = 0; j < h->idx; j++) {

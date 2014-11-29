@@ -437,92 +437,92 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case 1:   /* ^a   */
-     case 262: /* HOME */
-       pos = x = 0;
-       break;
-     case 5:
-     case 360: /* END of line */
-       if (strlen (s) > size_x) {
-         x = size_x;
-         pos = strlen (s) - size_x;
-       } else {
-         pos = 0;
-         x = strlen (s);
-       }
-       break;
-     case 7:   /* ^g  */
-     case 27:  /* ESC */
-       pos = x = 0;
-       if (str && *str == '\0')
-         s[0] = '\0';
-       quit = 0;
-       break;
-     case 9:   /* TAB   */
-       if (!enable_case)
-         break;
-       *toggle_case = *toggle_case == 0 ? 1 : 0;
-       if (*toggle_case)
-         draw_header (win, "[ ] case sensitive", " %s", size_y - 2, 1,
-                      size_x - 2, 2, 0);
-       else if (!*toggle_case)
-         draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1,
-                      size_x - 2, 2, 0);
-       break;
-     case 21:  /* ^u */
-       s[0] = '\0';
-       pos = x = 0;
-       break;
-     case 8:   /* xterm-256color */
-     case 127:
-     case KEY_BACKSPACE:
-       if (pos + x > 0) {
-         memmove (&s[(pos + x) - 1], &s[pos + x], (max_width - (pos + x)) + 1);
-         if (pos <= 0)
-           x--;
-         else
-           pos--;
-       }
-       break;
-     case KEY_LEFT:
-       if (x > 0)
-         x--;
-       else if (pos > 0)
-         pos--;
-       break;
-     case KEY_RIGHT:
-       if ((x + pos) < strlen (s)) {
-         if (x < size_x)
-           x++;
-         else
-           pos++;
-       }
-       break;
-     case 0x0a:
-     case 0x0d:
-     case KEY_ENTER:
-       quit = 0;
-       break;
-     default:
-       if (strlen (s) == max_width)
-         break;
-       if (!isprint (c))
-         break;
+    case 1:    /* ^a   */
+    case 262:  /* HOME */
+      pos = x = 0;
+      break;
+    case 5:
+    case 360:  /* END of line */
+      if (strlen (s) > size_x) {
+        x = size_x;
+        pos = strlen (s) - size_x;
+      } else {
+        pos = 0;
+        x = strlen (s);
+      }
+      break;
+    case 7:    /* ^g  */
+    case 27:   /* ESC */
+      pos = x = 0;
+      if (str && *str == '\0')
+        s[0] = '\0';
+      quit = 0;
+      break;
+    case 9:    /* TAB   */
+      if (!enable_case)
+        break;
+      *toggle_case = *toggle_case == 0 ? 1 : 0;
+      if (*toggle_case)
+        draw_header (win, "[ ] case sensitive", " %s", size_y - 2, 1,
+                     size_x - 2, 2, 0);
+      else if (!*toggle_case)
+        draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1,
+                     size_x - 2, 2, 0);
+      break;
+    case 21:   /* ^u */
+      s[0] = '\0';
+      pos = x = 0;
+      break;
+    case 8:    /* xterm-256color */
+    case 127:
+    case KEY_BACKSPACE:
+      if (pos + x > 0) {
+        memmove (&s[(pos + x) - 1], &s[pos + x], (max_width - (pos + x)) + 1);
+        if (pos <= 0)
+          x--;
+        else
+          pos--;
+      }
+      break;
+    case KEY_LEFT:
+      if (x > 0)
+        x--;
+      else if (pos > 0)
+        pos--;
+      break;
+    case KEY_RIGHT:
+      if ((x + pos) < strlen (s)) {
+        if (x < size_x)
+          x++;
+        else
+          pos++;
+      }
+      break;
+    case 0x0a:
+    case 0x0d:
+    case KEY_ENTER:
+      quit = 0;
+      break;
+    default:
+      if (strlen (s) == max_width)
+        break;
+      if (!isprint (c))
+        break;
 
-       if (strlen (s) == pos) {
-         s[pos + x] = c;
-         s[pos + x + 1] = '\0';
-         waddch (win, c);
-       } else {
-         memmove (&s[pos + x + 1], &s[pos + x], strlen (&s[pos + x]) + 1);
-         s[pos + x] = c;
-       }
-       if ((x + pos) < max_width) {
-         if (x < size_x)
-           x++;
-         else
-           pos++;
-       }
+      if (strlen (s) == pos) {
+        s[pos + x] = c;
+        s[pos + x + 1] = '\0';
+        waddch (win, c);
+      } else {
+        memmove (&s[pos + x + 1], &s[pos + x], strlen (&s[pos + x]) + 1);
+        s[pos + x] = c;
+      }
+      if ((x + pos) < max_width) {
+        if (x < size_x)
+          x++;
+        else
+          pos++;
+      }
     }
     tmp = xstrdup (&s[pos > 0 ? pos : 0]);
     tmp[MIN (strlen (tmp), size_x)] = '\0';
@@ -641,18 +641,18 @@ load_agent_list (WINDOW * main_win, char *addr)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case KEY_DOWN:
-       gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       break;
-     case KEY_UP:
-       gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       break;
-     case KEY_RESIZE:
-     case 'q':
-       quit = 0;
-       break;
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
     }
     wrefresh (win);
   }
@@ -840,127 +840,127 @@ verify_format (GLog * logger, GSpinner * spinner)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case KEY_DOWN:
-       gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       break;
-     case KEY_UP:
-       gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       break;
-     case 32:  /* space */
-       gmenu_driver (menu, REQ_SEL);
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case 32:   /* space */
+      gmenu_driver (menu, REQ_SEL);
 
-       if (date_format)
-         free (date_format);
-       if (log_format)
-         free (log_format);
+      if (date_format)
+        free (date_format);
+      if (log_format)
+        free (log_format);
 
-       for (i = 0; i < n; ++i) {
-         if (menu->items[i].checked != 1)
-           continue;
+      for (i = 0; i < n; ++i) {
+        if (menu->items[i].checked != 1)
+          continue;
 
-         date_format = get_selected_date_str (i);
-         log_format = get_selected_format_str (i);
-         draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
-         draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0, 0);
-         break;
-       }
-       break;
-     case 99:  /* c */
-       /* clear top status bar */
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       wmove (win, 12, 2);
+        date_format = get_selected_date_str (i);
+        log_format = get_selected_format_str (i);
+        draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
+        draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0, 0);
+        break;
+      }
+      break;
+    case 99:   /* c */
+      /* clear top status bar */
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      wmove (win, 12, 2);
 
-       /* get input string */
-       cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
-       if (cstm_log != NULL && *cstm_log != '\0') {
-         if (log_format)
-           free (log_format);
+      /* get input string */
+      cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
+      if (cstm_log != NULL && *cstm_log != '\0') {
+        if (log_format)
+          free (log_format);
 
-         log_format = alloc_string (cstm_log);
-         free (cstm_log);
-       }
-       /* did not set an input string */
-       else {
-         if (cstm_log)
-           free (cstm_log);
-         if (log_format) {
-           free (log_format);
-           log_format = NULL;
-         }
-       }
-       break;
-     case 100: /* d */
-       /* clear top status bar */
-       draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-       wmove (win, 15, 0);
+        log_format = alloc_string (cstm_log);
+        free (cstm_log);
+      }
+      /* did not set an input string */
+      else {
+        if (cstm_log)
+          free (cstm_log);
+        if (log_format) {
+          free (log_format);
+          log_format = NULL;
+        }
+      }
+      break;
+    case 100:  /* d */
+      /* clear top status bar */
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      wmove (win, 15, 0);
 
-       /* get input string */
-       cstm_date = input_string (win, 15, 2, 14, date_format, 0, 0);
-       if (cstm_date != NULL && *cstm_date != '\0') {
-         if (date_format)
-           free (date_format);
+      /* get input string */
+      cstm_date = input_string (win, 15, 2, 14, date_format, 0, 0);
+      if (cstm_date != NULL && *cstm_date != '\0') {
+        if (date_format)
+          free (date_format);
 
-         date_format = alloc_string (cstm_date);
-         free (cstm_date);
-       }
-       /* did not set an input string */
-       else {
-         if (cstm_date)
-           free (cstm_date);
-         if (date_format) {
-           free (date_format);
-           date_format = NULL;
-         }
-       }
-       break;
-     case 274: /* F10 */
-     case 0x0a:
-     case 0x0d:
-     case KEY_ENTER:
-       /* display status bar error messages */
-       if (date_format == NULL)
-         draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
-                      WHITE_RED, 0);
-       if (log_format == NULL)
-         draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
-                      WHITE_RED, 0);
+        date_format = alloc_string (cstm_date);
+        free (cstm_date);
+      }
+      /* did not set an input string */
+      else {
+        if (cstm_date)
+          free (cstm_date);
+        if (date_format) {
+          free (date_format);
+          date_format = NULL;
+        }
+      }
+      break;
+    case 274:  /* F10 */
+    case 0x0a:
+    case 0x0d:
+    case KEY_ENTER:
+      /* display status bar error messages */
+      if (date_format == NULL)
+        draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
+                     WHITE_RED, 0);
+      if (log_format == NULL)
+        draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
+                     WHITE_RED, 0);
 
-       if (date_format && log_format) {
-         conf.date_format = unescape_str (date_format);
-         conf.log_format = unescape_str (log_format);
+      if (date_format && log_format) {
+        conf.date_format = unescape_str (date_format);
+        conf.log_format = unescape_str (log_format);
 
-         /* test log against selected settings */
-         if (test_format (logger)) {
-           invalid = 1;
-           draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
-                        WHITE_RED, 0);
+        /* test log against selected settings */
+        if (test_format (logger)) {
+          invalid = 1;
+          draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
+                       WHITE_RED, 0);
 
-           free (conf.log_format);
-           free (conf.date_format);
-         }
-         /* valid data, reset logger & start parsing */
-         else {
-           reset_struct (logger);
-           /* start spinner thread */
-           spinner->win = win;
-           spinner->y = 3;
-           spinner->x = 2;
-           spinner->spin_x = CONF_MENU_W;
-           spinner->w = CONF_MENU_W;
-           spinner->color = BLACK_CYAN;
-           ui_spinner_create (spinner);
+          free (conf.log_format);
+          free (conf.date_format);
+        }
+        /* valid data, reset logger & start parsing */
+        else {
+          reset_struct (logger);
+          /* start spinner thread */
+          spinner->win = win;
+          spinner->y = 3;
+          spinner->x = 2;
+          spinner->spin_x = CONF_MENU_W;
+          spinner->w = CONF_MENU_W;
+          spinner->color = BLACK_CYAN;
+          ui_spinner_create (spinner);
 
-           invalid = 0;
-           quit = 0;
-         }
-       }
-       break;
-     case KEY_RESIZE:
-     case 'q':
-       quit = 0;
-       break;
+          invalid = 0;
+          quit = 0;
+        }
+      }
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
     }
     pthread_mutex_lock (&spinner->mutex);
     wrefresh (win);
@@ -1029,31 +1029,31 @@ load_schemes_win (WINDOW * main_win)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case KEY_DOWN:
-       gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
-       break;
-     case KEY_UP:
-       gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
-       break;
-     case 32:
-     case 0x0a:
-     case 0x0d:
-     case KEY_ENTER:
-       gmenu_driver (menu, REQ_SEL);
-       for (i = 0; i < n; ++i) {
-         if (menu->items[i].checked != 1)
-           continue;
-         scheme_chosen (choices[i]);
-         break;
-       }
-       quit = 0;
-       break;
-     case KEY_RESIZE:
-     case 'q':
-       quit = 0;
-       break;
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
+      break;
+    case 32:
+    case 0x0a:
+    case 0x0d:
+    case KEY_ENTER:
+      gmenu_driver (menu, REQ_SEL);
+      for (i = 0; i < n; ++i) {
+        if (menu->items[i].checked != 1)
+          continue;
+        scheme_chosen (choices[i]);
+        break;
+      }
+      quit = 0;
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
     }
     wrefresh (win);
   }
@@ -1165,56 +1165,56 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case KEY_DOWN:
-       gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
-       break;
-     case KEY_UP:
-       gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
-       break;
-     case 9:   /* TAB */
-       /* ascending */
-       if (sort->sort == SORT_ASC) {
-         sort->sort = SORT_DESC;
-         draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
-                      SORT_WIN_W - 2, 2, 0);
-       }
-       /* descending */
-       else {
-         sort->sort = SORT_ASC;
-         draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
-                      SORT_WIN_W - 2, 2, 0);
-       }
-       break;
-     case 32:
-     case 0x0a:
-     case 0x0d:
-     case KEY_ENTER:
-       gmenu_driver (menu, REQ_SEL);
-       for (i = 0; i < n; ++i) {
-         if (menu->items[i].checked != 1)
-           continue;
-         if (strcmp ("Hits", menu->items[i].name) == 0)
-           sort->field = SORT_BY_HITS;
-         else if (strcmp ("Data", menu->items[i].name) == 0)
-           sort->field = SORT_BY_DATA;
-         else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
-           sort->field = SORT_BY_BW;
-         else if (strcmp ("Time Served", menu->items[i].name) == 0)
-           sort->field = SORT_BY_USEC;
-         else if (strcmp ("Protocol", menu->items[i].name) == 0)
-           sort->field = SORT_BY_PROT;
-         else if (strcmp ("Method", menu->items[i].name) == 0)
-           sort->field = SORT_BY_MTHD;
-         quit = 0;
-         break;
-       }
-       break;
-     case KEY_RESIZE:
-     case 'q':
-       quit = 0;
-       break;
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
+      break;
+    case 9:    /* TAB */
+      /* ascending */
+      if (sort->sort == SORT_ASC) {
+        sort->sort = SORT_DESC;
+        draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
+                     SORT_WIN_W - 2, 2, 0);
+      }
+      /* descending */
+      else {
+        sort->sort = SORT_ASC;
+        draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
+                     SORT_WIN_W - 2, 2, 0);
+      }
+      break;
+    case 32:
+    case 0x0a:
+    case 0x0d:
+    case KEY_ENTER:
+      gmenu_driver (menu, REQ_SEL);
+      for (i = 0; i < n; ++i) {
+        if (menu->items[i].checked != 1)
+          continue;
+        if (strcmp ("Hits", menu->items[i].name) == 0)
+          sort->field = SORT_BY_HITS;
+        else if (strcmp ("Data", menu->items[i].name) == 0)
+          sort->field = SORT_BY_DATA;
+        else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
+          sort->field = SORT_BY_BW;
+        else if (strcmp ("Time Served", menu->items[i].name) == 0)
+          sort->field = SORT_BY_USEC;
+        else if (strcmp ("Protocol", menu->items[i].name) == 0)
+          sort->field = SORT_BY_PROT;
+        else if (strcmp ("Method", menu->items[i].name) == 0)
+          sort->field = SORT_BY_MTHD;
+        quit = 0;
+        break;
+      }
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
     }
     wrefresh (win);
   }
@@ -1325,18 +1325,18 @@ load_help_popup (WINDOW * main_win)
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
-     case KEY_DOWN:
-       gmenu_driver (menu, REQ_DOWN);
-       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
-       break;
-     case KEY_UP:
-       gmenu_driver (menu, REQ_UP);
-       draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
-       break;
-     case KEY_RESIZE:
-     case 'q':
-       quit = 0;
-       break;
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
     }
     wrefresh (win);
   }

@@ -588,21 +588,21 @@ unescape_str (const char *src)
     if (*p == '\\') {
       p++;
       switch (*p) {
-       case '\0':
-         /* warning... */
-         goto out;
-       case 'n':
-         *q++ = '\n';
-         break;
-       case 'r':
-         *q++ = '\r';
-         break;
-       case 't':
-         *q++ = '\t';
-         break;
-       default:
-         *q++ = *p;
-         break;
+      case '\0':
+        /* warning... */
+        goto out;
+      case 'n':
+        *q++ = '\n';
+        break;
+      case 'r':
+        *q++ = '\r';
+        break;
+      case 't':
+        *q++ = '\t';
+        break;
+      default:
+        *q++ = *p;
+        break;
       }
     } else
       *q++ = *p;
@@ -629,32 +629,32 @@ escape_str (const char *src)
 
   while (*p) {
     switch (*p) {
-     case '\\':
-       *q++ = '\\';
-       *q++ = '\\';
-       break;
-     case '\n':
-       *q++ = '\\';
-       *q++ = 'n';
-       break;
-     case '\r':
-       *q++ = '\\';
-       *q++ = 'r';
-       break;
-     case '\t':
-       *q++ = '\\';
-       *q++ = 't';
-       break;
-     default:
-       /* not ASCII */
-       if ((*p < ' ') || (*p >= 0177)) {
-         *q++ = '\\';
-         *q++ = '0' + (((*p) >> 6) & 07);
-         *q++ = '0' + (((*p) >> 3) & 07);
-         *q++ = '0' + ((*p) & 07);
-       } else
-         *q++ = *p;
-       break;
+    case '\\':
+      *q++ = '\\';
+      *q++ = '\\';
+      break;
+    case '\n':
+      *q++ = '\\';
+      *q++ = 'n';
+      break;
+    case '\r':
+      *q++ = '\\';
+      *q++ = 'r';
+      break;
+    case '\t':
+      *q++ = '\\';
+      *q++ = 't';
+      break;
+    default:
+      /* not ASCII */
+      if ((*p < ' ') || (*p >= 0177)) {
+        *q++ = '\\';
+        *q++ = '0' + (((*p) >> 6) & 07);
+        *q++ = '0' + (((*p) >> 3) & 07);
+        *q++ = '0' + ((*p) & 07);
+      } else
+        *q++ = *p;
+      break;
     }
     p++;
   }
