@@ -35,11 +35,12 @@ typedef struct GLogItem_
   char *agent;
   char *date;
   char *host;
-  char *ref;
   char *method;
   char *protocol;
+  char *ref;
   char *req;
   char *status;
+  char date_key[DATE_LEN];      /* Ymd */
   char site[REF_SITE_LEN];
   unsigned long long resp_size;
   unsigned long long serve_time;

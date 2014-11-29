@@ -66,6 +66,7 @@ extern size_t term_w;
 #endif
 
 #define DATE_TIME        20
+#define DATE_LEN         12     /* date length */
 
 #define REQ_PROTO_LEN     9
 #define REQ_METHOD_LEN    8
