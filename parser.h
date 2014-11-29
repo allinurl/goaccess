@@ -39,6 +39,7 @@ typedef struct GLogItem_
   char *protocol;
   char *ref;
   char *req;
+  char *req_key;
   char *status;
   char date_key[DATE_LEN];      /* Ymd */
   char site[REF_SITE_LEN];
