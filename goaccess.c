@@ -339,10 +339,39 @@ set_module_to (GScrolling * scrll, GModule module)
 }
 
 static void
+scroll_to_first_line (void)
+{
+  if (!scrolling.expanded)
+    scrolling.dash = 0;
+  else {
+    scrolling.module[scrolling.current].scroll = 0;
+    scrolling.module[scrolling.current].offset = 0;
+  }
+}
+
+static void
+scroll_to_last_line (void)
+{
+  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int scrll, offset;
+
+  if (!scrolling.expanded)
+    scrolling.dash = dash->total_alloc - real_size_y;
+  else {
+    scrll = offset = 0;
+    scrll = dash->module[scrolling.current].idx_data - 1;
+    if (scrll >= exp_size && scrll >= offset + exp_size)
+      offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
+    scrolling.module[scrolling.current].scroll = scrll;
+    scrolling.module[scrolling.current].offset = offset;
+  }
+}
+
+static void
 get_keys (void)
 {
   int search;
-  int c, quit = 1, scrll, offset, ok_mouse;
+  int c, quit = 1, ok_mouse;
   int *scroll_ptr, *offset_ptr;
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   MEVENT event;
@@ -441,25 +470,11 @@ get_keys (void)
       render_screens ();
       break;
     case 'g':  /* g = top */
-      if (!scrolling.expanded)
-        scrolling.dash = 0;
-      else {
-        scrolling.module[scrolling.current].scroll = 0;
-        scrolling.module[scrolling.current].offset = 0;
-      }
+      scroll_to_first_line ();
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 'G':  /* G = down */
-      if (!scrolling.expanded)
-        scrolling.dash = dash->total_alloc - real_size_y;
-      else {
-        scrll = offset = 0;
-        scrll = dash->module[scrolling.current].idx_data - 1;
-        if (scrll >= exp_size && scrll >= offset + exp_size)
-          offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
-        scrolling.module[scrolling.current].scroll = scrll;
-        scrolling.module[scrolling.current].offset = offset;
-      }
+      scroll_to_last_line ();
       display_content (main_win, logger, dash, &scrolling);
       break;
       /* expand dashboard module */
