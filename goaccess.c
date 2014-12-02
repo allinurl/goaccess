@@ -368,6 +368,29 @@ scroll_to_last_line (void)
 }
 
 static void
+expand_current_module (void)
+{
+  if (scrolling.expanded && scrolling.current == HOSTS) {
+    /* make sure we have a valid IP */
+    int sel = scrolling.module[scrolling.current].scroll;
+    if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
+      load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+    return;
+  }
+
+  if (scrolling.expanded)
+    return;
+
+  reset_scroll_offsets (&scrolling);
+  scrolling.expanded = 1;
+
+  free_holder_by_module (&holder, scrolling.current);
+  free_dashboard (dash);
+  allocate_holder_by_module (scrolling.current);
+  allocate_data ();
+}
+
+static void
 get_keys (void)
 {
   int search;
@@ -485,23 +508,7 @@ get_keys (void)
     case 79:   /* o */
     case 111:  /* O */
     case KEY_ENTER:
-      if (scrolling.expanded && scrolling.current == HOSTS) {
-        /* make sure we have a valid IP */
-        int sel = scrolling.module[scrolling.current].scroll;
-        if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
-          load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
-        break;
-      }
-      if (scrolling.expanded)
-        break;
-      reset_scroll_offsets (&scrolling);
-      scrolling.expanded = 1;
-
-      free_holder_by_module (&holder, scrolling.current);
-      free_dashboard (dash);
-      allocate_holder_by_module (scrolling.current);
-      allocate_data ();
-
+      expand_current_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
     case KEY_DOWN:     /* scroll main dashboard */
