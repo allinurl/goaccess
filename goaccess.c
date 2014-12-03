@@ -391,13 +391,41 @@ expand_current_module (void)
 }
 
 static void
+expand_on_mouse_click (void)
+{
+  int ok_mouse;
+  MEVENT event;
+  ok_mouse = getmouse (&event);
+  if (!conf.mouse_support || ok_mouse != OK)
+    return;
+
+  if (event.bstate & BUTTON1_CLICKED) {
+    /* ignore header/footer clicks */
+    if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
+      return;
+
+    if (set_module_from_mouse_event (&scrolling, dash, event.y))
+      return;
+
+    reset_scroll_offsets (&scrolling);
+    scrolling.expanded = 1;
+
+    free_holder_by_module (&holder, scrolling.current);
+    free_dashboard (dash);
+    allocate_holder_by_module (scrolling.current);
+    allocate_data ();
+
+    render_screens ();
+  }
+}
+
+static void
 get_keys (void)
 {
   int search;
-  int c, quit = 1, ok_mouse;
+  int c, quit = 1;
   int *scroll_ptr, *offset_ptr;
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
-  MEVENT event;
 
   char buf[LINE_BUFFER];
   FILE *fp = NULL;
@@ -518,26 +546,7 @@ get_keys (void)
       }
       break;
     case KEY_MOUSE:    /* handles mouse events */
-      ok_mouse = getmouse (&event);
-      if (conf.mouse_support && ok_mouse == OK) {
-        if (event.bstate & BUTTON1_CLICKED) {
-          /* ignore header/footer clicks */
-          if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
-            break;
-
-          if (set_module_from_mouse_event (&scrolling, dash, event.y))
-            break;
-          reset_scroll_offsets (&scrolling);
-          scrolling.expanded = 1;
-
-          free_holder_by_module (&holder, scrolling.current);
-          free_dashboard (dash);
-          allocate_holder_by_module (scrolling.current);
-          allocate_data ();
-
-          render_screens ();
-        }
-      }
+      expand_on_mouse_click ();
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_ptr = &scrolling.module[scrolling.current].scroll;
