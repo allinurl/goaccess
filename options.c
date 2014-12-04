@@ -136,7 +136,7 @@ cmd_help (void)
   "  -a --agent-list             - Enable a list of user-agents by host.\n"
   "  -d --with-output-resolver   - Enable IP resolver on HTML|JSON output.\n"
   "  -e --exclude-ip=<IP>        - Exclude one or multiple IPv4/6, includes\n"
-  "                                IP ranges. i.e., 192.168.0.1-192.168.0.10\n"
+  "                                IP ranges. e.g., 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol          - Include HTTP request protocol if found.\n"
   "  -M --http-method            - Include HTTP request method if found.\n"
   "  -m --with-mouse             - Enable mouse support on main dashboard.\n"
@@ -152,6 +152,9 @@ cmd_help (void)
   "  --no-progress               - Disable progress metrics.\n\n"
   "  --real-os                   - Display real OS names. e.g, Windows XP,\n"
   "                                Snow Leopard.\n"
+  "  --sort-view=MOD,FIELD,ORDER - Sort panel on initial load. For example:\n"
+  "                                --sort-view=VISITORS,BY_HITS,ASC\n"
+  "                                See manpage for a list of panels and fields.\n"
   "  --static-file=<extension>   - Add static file extension. e.g.: .mp3\n"
   "                                Extensions are case sensitive.\n"
 
@@ -193,7 +196,7 @@ cmd_help (void)
   "  -h --help                   - This help.\n"
   "  -V --version                - Display version information and exit.\n"
   "  -s --storage                - Display current storage method.\n"
-  "                                i.e., B+ Tree, Hash.\n\n"
+  "                                e.g., B+ Tree, Hash.\n\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.io\n"
