@@ -54,6 +54,7 @@
 void dbg_fprintf (const char *fmt, ...);
 void dbg_log_close (void);
 void dbg_log_open (const char *file);
+void set_signal_data (void *p);
 
 #if defined(__GLIBC__)
 void sigsegv_handler (int sig);

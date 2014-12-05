@@ -800,6 +800,8 @@ main (int argc, char **argv)
 
   /* init logger */
   logger = init_log ();
+  set_signal_data (logger);
+
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
   parsing_spinner->process = &logger->process;

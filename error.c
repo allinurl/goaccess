@@ -39,11 +39,15 @@
 #if defined(__GLIBC__)
 #include <execinfo.h>
 #endif
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "error.h"
 #include "commons.h"
+#include "parser.h"
 
 static FILE *log_file;
+static GLog *log_data;
 
 void
 dbg_log_open (const char *path)
@@ -62,28 +66,59 @@ dbg_log_close (void)
     fclose (log_file);
 }
 
+void
+set_signal_data (void *p)
+{
+  log_data = p;
+}
+
+static void
+dump_struct (FILE * fp)
+{
+  int pid = getpid ();
+  if (!log_data)
+    return;
+
+  fprintf (fp, "==%d== VALUES AT CRASH POINT\n", pid);
+  fprintf (fp, "==%d==\n", pid);
+  fprintf (fp, "==%d== Line number: %d\n", pid, log_data->process);
+  fprintf (fp, "==%d== Offset: %d\n", pid, log_data->offset);
+  fprintf (fp, "==%d== Invalid data: %d\n", pid, log_data->invalid);
+  fprintf (fp, "==%d== Piping: %d\n", pid, log_data->piping);
+  fprintf (fp, "==%d== Response size: %lld bytes\n", pid, log_data->resp_size);
+  fprintf (fp, "==%d==\n", pid);
+}
+
 #if defined(__GLIBC__)
 void
 sigsegv_handler (int sig)
 {
-  FILE *fp = stderr;
   char **messages;
+  FILE *fp = stderr;
+  int pid = getpid ();
   size_t size, i;
   void *trace_stack[TRACE_SIZE];
 
   (void) endwin ();
-  fprintf (fp, "\n=== GoAccess %s crashed by signal %d ===\n", GO_VERSION, sig);
+  fprintf (fp, "\n==%d== GoAccess %s crashed by Signal %d\n", pid, GO_VERSION,
+           sig);
+  fprintf (fp, "==%d==\n", pid);
+
+  dump_struct (fp);
 
   size = backtrace (trace_stack, TRACE_SIZE);
   messages = backtrace_symbols (trace_stack, size);
 
-  fprintf (fp, "\n-- STACK TRACE:\n\n");
+  fprintf (fp, "==%d== STACK TRACE:\n", pid);
+  fprintf (fp, "==%d==\n", pid);
 
   for (i = 0; i < size; i++)
-    fprintf (fp, "\t%zu %s\n", i, messages[i]);
+    fprintf (fp, "==%d== %zu %s\n", pid, i, messages[i]);
 
-  fprintf (fp, "\nPlease report the crash opening an issue on GitHub:");
-  fprintf (fp, "\nhttps://github.com/allinurl/goaccess/issues\n\n");
+  fprintf (fp, "==%d==\n", pid);
+  fprintf (fp, "==%d== Please report this by opening an issue on GitHub:\n",
+           pid);
+  fprintf (fp, "==%d== https://github.com/allinurl/goaccess/issues\n\n", pid);
   exit (EXIT_FAILURE);
 }
 #endif
