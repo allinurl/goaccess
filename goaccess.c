@@ -420,6 +420,23 @@ expand_on_mouse_click (void)
 }
 
 static void
+scroll_expanded_module (void)
+{
+  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int *scroll_ptr, *offset_ptr;
+  scroll_ptr = &scrolling.module[scrolling.current].scroll;
+  offset_ptr = &scrolling.module[scrolling.current].offset;
+
+  if (!scrolling.expanded)
+    return;
+  if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+    return;
+  ++(*scroll_ptr);
+  if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+    ++(*offset_ptr);
+}
+
+static void
 get_keys (void)
 {
   int search;
@@ -549,16 +566,7 @@ get_keys (void)
       expand_on_mouse_click ();
       break;
     case 106:  /* j - DOWN expanded module */
-      scroll_ptr = &scrolling.module[scrolling.current].scroll;
-      offset_ptr = &scrolling.module[scrolling.current].offset;
-
-      if (!scrolling.expanded)
-        break;
-      if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
-        break;
-      ++(*scroll_ptr);
-      if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
-        ++(*offset_ptr);
+      scroll_expanded_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
       /* scroll up main_win */
