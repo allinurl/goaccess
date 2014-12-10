@@ -420,10 +420,11 @@ expand_on_mouse_click (void)
 }
 
 static void
-scroll_expanded_module (void)
+scroll_down_expanded_module (void)
 {
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   int *scroll_ptr, *offset_ptr;
+
   scroll_ptr = &scrolling.module[scrolling.current].scroll;
   offset_ptr = &scrolling.module[scrolling.current].offset;
 
@@ -566,7 +567,7 @@ get_keys (void)
       expand_on_mouse_click ();
       break;
     case 106:  /* j - DOWN expanded module */
-      scroll_expanded_module ();
+      scroll_down_expanded_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
       /* scroll up main_win */
