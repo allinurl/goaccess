@@ -438,6 +438,12 @@ scroll_down_expanded_module (void)
 }
 
 static void
+scroll_up_expanded_module (void)
+{
+  scrolling.dash--;
+}
+
+static void
 get_keys (void)
 {
   int search;
@@ -573,7 +579,7 @@ get_keys (void)
       /* scroll up main_win */
     case KEY_UP:
       if (scrolling.dash > 0) {
-        scrolling.dash--;
+        scroll_up_expanded_module ();
         display_content (main_win, logger, dash, &scrolling);
       }
       break;
