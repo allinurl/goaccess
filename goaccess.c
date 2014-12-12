@@ -444,12 +444,56 @@ scroll_up_expanded_module (void)
 }
 
 static void
+page_up_module (void)
+{
+  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int *scroll_ptr, *offset_ptr;
+
+  scroll_ptr = &scrolling.module[scrolling.current].scroll;
+  offset_ptr = &scrolling.module[scrolling.current].offset;
+
+  if (!scrolling.expanded)
+    return;
+  /* decrease scroll and offset by exp_size */
+  *scroll_ptr -= exp_size;
+  if (*scroll_ptr < 0)
+    *scroll_ptr = 0;
+
+  if (*scroll_ptr < *offset_ptr)
+    *offset_ptr -= exp_size;
+  if (*offset_ptr <= 0)
+    *offset_ptr = 0;
+}
+
+static void
+page_down_module (void)
+{
+  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int *scroll_ptr, *offset_ptr;
+
+  scroll_ptr = &scrolling.module[scrolling.current].scroll;
+  offset_ptr = &scrolling.module[scrolling.current].offset;
+
+  if (!scrolling.expanded)
+    return;
+
+  *scroll_ptr += exp_size;
+  if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+    *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
+  if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+    *offset_ptr += exp_size;
+  if (*offset_ptr + exp_size >= dash->module[scrolling.current].idx_data - 1)
+    *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
+  if (*scroll_ptr < exp_size - 1)
+    *offset_ptr = 0;
+}
+
+static void
 get_keys (void)
 {
   int search;
   int c, quit = 1;
   int *scroll_ptr, *offset_ptr;
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
 
   char buf[LINE_BUFFER];
   FILE *fp = NULL;
@@ -585,41 +629,12 @@ get_keys (void)
       break;
     case 2:    /* ^ b - page up */
     case 339:  /* ^ PG UP */
-      scroll_ptr = &scrolling.module[scrolling.current].scroll;
-      offset_ptr = &scrolling.module[scrolling.current].offset;
-
-      if (!scrolling.expanded)
-        break;
-      /* decrease scroll and offset by exp_size */
-      *scroll_ptr -= exp_size;
-      if (*scroll_ptr < 0)
-        *scroll_ptr = 0;
-
-      if (*scroll_ptr < *offset_ptr)
-        *offset_ptr -= exp_size;
-      if (*offset_ptr <= 0)
-        *offset_ptr = 0;
+      page_up_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 6:    /* ^ f - page down */
     case 338:  /* ^ PG DOWN */
-      scroll_ptr = &scrolling.module[scrolling.current].scroll;
-      offset_ptr = &scrolling.module[scrolling.current].offset;
-
-      if (!scrolling.expanded)
-        break;
-
-      *scroll_ptr += exp_size;
-      if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
-        *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
-      if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
-        *offset_ptr += exp_size;
-      if (*offset_ptr + exp_size >=
-          dash->module[scrolling.current].idx_data - 1)
-        *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
-      if (*scroll_ptr < exp_size - 1)
-        *offset_ptr = 0;
-
+      page_down_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 107:  /* k - UP expanded module */
