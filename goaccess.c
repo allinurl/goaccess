@@ -489,11 +489,27 @@ page_down_module (void)
 }
 
 static void
+scroll_up_expanded_module (void)
+{
+  int *scroll_ptr, *offset_ptr;
+
+  scroll_ptr = &scrolling.module[scrolling.current].scroll;
+  offset_ptr = &scrolling.module[scrolling.current].offset;
+
+  if (!scrolling.expanded)
+    return;
+  if (*scroll_ptr <= 0)
+    return;
+  --(*scroll_ptr);
+  if (*scroll_ptr < *offset_ptr)
+    --(*offset_ptr);
+}
+
+static void
 get_keys (void)
 {
   int search;
   int c, quit = 1;
-  int *scroll_ptr, *offset_ptr;
 
   char buf[LINE_BUFFER];
   FILE *fp = NULL;
@@ -638,16 +654,7 @@ get_keys (void)
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 107:  /* k - UP expanded module */
-      scroll_ptr = &scrolling.module[scrolling.current].scroll;
-      offset_ptr = &scrolling.module[scrolling.current].offset;
-
-      if (!scrolling.expanded)
-        break;
-      if (*scroll_ptr <= 0)
-        break;
-      --(*scroll_ptr);
-      if (*scroll_ptr < *offset_ptr)
-        --(*offset_ptr);
+      scroll_up_expanded_module ();
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 'n':
