@@ -506,6 +506,23 @@ scroll_up_expanded_module (void)
 }
 
 static void
+render_search_dialog (int search)
+{
+  if (render_find_dialog (main_win, &scrolling))
+    return;
+
+  pthread_mutex_lock (&gdns_thread.mutex);
+  search = perform_next_find (holder, &scrolling);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+  if (search != 0)
+    return;
+
+  free_dashboard (dash);
+  allocate_data ();
+  render_screens ();
+}
+
+static void
 get_keys (void)
 {
   int search;
@@ -668,16 +685,7 @@ get_keys (void)
       }
       break;
     case '/':
-      if (render_find_dialog (main_win, &scrolling))
-        break;
-      pthread_mutex_lock (&gdns_thread.mutex);
-      search = perform_next_find (holder, &scrolling);
-      pthread_mutex_unlock (&gdns_thread.mutex);
-      if (search == 0) {
-        free_dashboard (dash);
-        allocate_data ();
-        render_screens ();
-      }
+      render_search_dialog (search);
       break;
     case 99:   /* c */
       if (conf.no_color)
