@@ -537,6 +537,20 @@ search_next_match (int search)
 }
 
 static void
+render_sort_dialog (void)
+{
+  load_sort_win (main_win, scrolling.current, &module_sort[scrolling.current]);
+  pthread_mutex_lock (&gdns_thread.mutex);
+  free_holder (&holder);
+  pthread_cond_broadcast (&gdns_thread.not_empty);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+  free_dashboard (dash);
+  allocate_holder ();
+  allocate_data ();
+  render_screens ();
+}
+
+static void
 get_keys (void)
 {
   int search = 0;
@@ -703,16 +717,7 @@ get_keys (void)
       render_screens ();
       break;
     case 115:  /* s */
-      load_sort_win (main_win, scrolling.current,
-                     &module_sort[scrolling.current]);
-      pthread_mutex_lock (&gdns_thread.mutex);
-      free_holder (&holder);
-      pthread_cond_broadcast (&gdns_thread.not_empty);
-      pthread_mutex_unlock (&gdns_thread.mutex);
-      free_dashboard (dash);
-      allocate_holder ();
-      allocate_data ();
-      render_screens ();
+      render_sort_dialog ();
       break;
     case 269:
     case KEY_RESIZE:
