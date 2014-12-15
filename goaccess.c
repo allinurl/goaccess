@@ -537,6 +537,44 @@ search_next_match (int search)
 }
 
 static void
+perform_tail_follow (uint64_t *size1)
+{
+  uint64_t size2 = 0;
+  char buf[LINE_BUFFER];
+  FILE *fp = NULL;
+
+  if (logger->piping)
+    return;
+
+  size2 = file_size (conf.ifile);
+
+  /* file hasn't changed */
+  if (size2 == *size1)
+    return;
+
+  if (!(fp = fopen (conf.ifile, "r")))
+    FATAL ("Unable to read log file %s.", strerror (errno));
+  if (!fseeko (fp, *size1, SEEK_SET))
+    while (fgets (buf, LINE_BUFFER, fp) != NULL)
+      parse_log (&logger, buf, -1);
+  fclose (fp);
+
+  *size1 = size2;
+  pthread_mutex_lock (&gdns_thread.mutex);
+  free_holder (&holder);
+  pthread_cond_broadcast (&gdns_thread.not_empty);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  free_dashboard (dash);
+  allocate_holder ();
+  allocate_data ();
+
+  term_size (main_win);
+  render_screens ();
+  usleep (200000);      /* 0.2 seconds */
+}
+
+static void
 window_resize (void)
 {
   endwin ();
@@ -568,13 +606,11 @@ get_keys (void)
 {
   int search = 0;
   int c, quit = 1;
-
-  char buf[LINE_BUFFER];
-  FILE *fp = NULL;
-  unsigned long long size1 = 0, size2 = 0;
+  uint64_t size1 = 0;
 
   if (!logger->piping)
     size1 = file_size (conf.ifile);
+
   while (quit) {
     c = wgetch (stdscr);
     switch (c) {
@@ -737,33 +773,7 @@ get_keys (void)
       window_resize ();
       break;
     default:
-      if (logger->piping)
-        break;
-      size2 = file_size (conf.ifile);
-
-      /* file has changed */
-      if (size2 != size1) {
-        if (!(fp = fopen (conf.ifile, "r")))
-          FATAL ("Unable to read log file %s.", strerror (errno));
-        if (!fseeko (fp, size1, SEEK_SET))
-          while (fgets (buf, LINE_BUFFER, fp) != NULL)
-            parse_log (&logger, buf, -1);
-        fclose (fp);
-
-        size1 = size2;
-        pthread_mutex_lock (&gdns_thread.mutex);
-        free_holder (&holder);
-        pthread_cond_broadcast (&gdns_thread.not_empty);
-        pthread_mutex_unlock (&gdns_thread.mutex);
-
-        free_dashboard (dash);
-        allocate_holder ();
-        allocate_data ();
-
-        term_size (main_win);
-        render_screens ();
-        usleep (200000);        /* 0.2 seconds */
-      }
+      perform_tail_follow (&size1);
       break;
     }
   }
