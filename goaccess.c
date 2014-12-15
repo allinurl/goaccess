@@ -537,6 +537,19 @@ search_next_match (int search)
 }
 
 static void
+window_resize (void)
+{
+  endwin ();
+  refresh ();
+  werase (header_win);
+  werase (main_win);
+  werase (stdscr);
+  term_size (main_win);
+  refresh ();
+  render_screens ();
+}
+
+static void
 render_sort_dialog (void)
 {
   load_sort_win (main_win, scrolling.current, &module_sort[scrolling.current]);
@@ -721,14 +734,7 @@ get_keys (void)
       break;
     case 269:
     case KEY_RESIZE:
-      endwin ();
-      refresh ();
-      werase (header_win);
-      werase (main_win);
-      werase (stdscr);
-      term_size (main_win);
-      refresh ();
-      render_screens ();
+      window_resize ();
       break;
     default:
       if (logger->piping)
