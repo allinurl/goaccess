@@ -523,9 +523,23 @@ render_search_dialog (int search)
 }
 
 static void
+search_next_match (int search)
+{
+  pthread_mutex_lock (&gdns_thread.mutex);
+  search = perform_next_find (holder, &scrolling);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+  if (search != 0)
+    return;
+
+  free_dashboard (dash);
+  allocate_data ();
+  render_screens ();
+}
+
+static void
 get_keys (void)
 {
-  int search;
+  int search = 0;
   int c, quit = 1;
 
   char buf[LINE_BUFFER];
@@ -675,14 +689,7 @@ get_keys (void)
       display_content (main_win, logger, dash, &scrolling);
       break;
     case 'n':
-      pthread_mutex_lock (&gdns_thread.mutex);
-      search = perform_next_find (holder, &scrolling);
-      pthread_mutex_unlock (&gdns_thread.mutex);
-      if (search == 0) {
-        free_dashboard (dash);
-        allocate_data ();
-        render_screens ();
-      }
+      search_next_match (search);
       break;
     case '/':
       render_search_dialog (search);
