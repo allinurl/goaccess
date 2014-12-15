@@ -438,7 +438,7 @@ scroll_down_expanded_module (void)
 }
 
 static void
-scroll_up_expanded_module (void)
+scroll_up_dashboard (void)
 {
   scrolling.dash--;
 }
@@ -623,7 +623,7 @@ get_keys (void)
       /* scroll up main_win */
     case KEY_UP:
       if (scrolling.dash > 0) {
-        scroll_up_expanded_module ();
+        scroll_up_dashboard ();
         display_content (main_win, logger, dash, &scrolling);
       }
       break;
