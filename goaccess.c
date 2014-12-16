@@ -537,7 +537,7 @@ search_next_match (int search)
 }
 
 static void
-perform_tail_follow (uint64_t *size1)
+perform_tail_follow (uint64_t * size1)
 {
   uint64_t size2 = 0;
   char buf[LINE_BUFFER];
@@ -572,6 +572,14 @@ perform_tail_follow (uint64_t *size1)
   term_size (main_win);
   render_screens ();
   usleep (200000);      /* 0.2 seconds */
+}
+
+static void
+next_module (void)
+{
+  scrolling.current++;
+  if (scrolling.current == TOTAL_MODULES)
+    scrolling.current = 0;
 }
 
 static void
@@ -684,9 +692,7 @@ get_keys (void)
     case 9:    /* TAB */
       /* reset expanded module */
       collapse_current_module ();
-      scrolling.current++;
-      if (scrolling.current == TOTAL_MODULES)
-        scrolling.current = 0;
+      next_module ();
       render_screens ();
       break;
     case 353:  /* Shift TAB */
