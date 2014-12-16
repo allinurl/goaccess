@@ -583,6 +583,15 @@ next_module (void)
 }
 
 static void
+previous_module (void)
+{
+  if (scrolling.current == 0)
+    scrolling.current = TOTAL_MODULES - 1;
+  else
+    scrolling.current--;
+}
+
+static void
 window_resize (void)
 {
   endwin ();
@@ -698,10 +707,7 @@ get_keys (void)
     case 353:  /* Shift TAB */
       /* reset expanded module */
       collapse_current_module ();
-      if (scrolling.current == 0)
-        scrolling.current = TOTAL_MODULES - 1;
-      else
-        scrolling.current--;
+      previous_module ();
       render_screens ();
       break;
     case 'g':  /* g = top */
