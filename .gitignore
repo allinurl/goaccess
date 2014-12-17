@@ -1,13 +1,15 @@
 #custom section
-/INSTALL
+config.status
 /.deps
+/INSTALL
 /Makefile
 src/config.h
 src/config.h.in
+src/config.h.in~
 src/config.log
 src/config.status
-src/config.h.in~
-/stamp-h1
+src/.deps/
+src/stamp-h1
 goaccess
 #merged from https://raw.github.com/github/gitignore/master/Autotools.gitignore
 # http://www.gnu.org/software/automake
