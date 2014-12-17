@@ -1,12 +1,13 @@
 #custom section
 /INSTALL
-/config.h.in
-/config.log
-/config.status
-/stamp-h1
 /.deps
 /Makefile
-/config.h
+src/config.h
+src/config.h.in
+src/config.log
+src/config.status
+src/config.h.in~
+/stamp-h1
 goaccess
 #merged from https://raw.github.com/github/gitignore/master/Autotools.gitignore
 # http://www.gnu.org/software/automake
@@ -23,15 +24,25 @@ Makefile.in
 /install-sh
 /missing
 
-#merged from https://raw.github.com/github/gitignore/master/C.gitignore
+# VIM
+*.*.swp
+*.log
+
 # Object files
 *.o
 *.ko
 *.obj
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
 
 # Libraries
 *.lib
 *.a
+*.la
+*.lo
 
 # Shared objects (inc. Windows DLLs)
 *.dll
@@ -43,9 +54,6 @@ Makefile.in
 *.exe
 *.out
 *.app
-
-# VIM
-*.*.swp
-
-# VIM
-*.log
+*.i*86
+*.x86_64
+*.hex
