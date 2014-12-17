@@ -5,57 +5,57 @@ confdir = $(sysconfdir)
 dist_conf_DATA = config/goaccess.conf
 
 goaccess_SOURCES = \
-   browsers.c      \
-   browsers.h      \
-   commons.c       \
-   commons.h       \
-   csv.c           \
-   csv.h           \
-   error.c         \
-   error.h         \
-   gdashboard.c    \
-   gdashboard.h    \
-   gdns.c          \
-   gdns.h          \
-   gmenu.c         \
-   gmenu.h         \
-   goaccess.c      \
-   goaccess.h      \
-   json.c          \
-   json.h          \
-   opesys.c        \
-   opesys.h        \
-   options.c       \
-   options.h       \
-   output.c        \
-   output.h        \
-   parser.c        \
-   parser.h        \
-   sort.c          \
-   sort.h          \
-   settings.c      \
-   settings.h      \
-   ui.c            \
-   ui.h            \
-   util.c          \
-   util.h          \
-   xmalloc.c       \
-   xmalloc.h
+   src/browsers.c      \
+   src/browsers.h      \
+   src/commons.c       \
+   src/commons.h       \
+   src/csv.c           \
+   src/csv.h           \
+   src/error.c         \
+   src/error.h         \
+   src/gdashboard.c    \
+   src/gdashboard.h    \
+   src/gdns.c          \
+   src/gdns.h          \
+   src/gmenu.c         \
+   src/gmenu.h         \
+   src/goaccess.c      \
+   src/goaccess.h      \
+   src/json.c          \
+   src/json.h          \
+   src/opesys.c        \
+   src/opesys.h        \
+   src/options.c       \
+   src/options.h       \
+   src/output.c        \
+   src/output.h        \
+   src/parser.c        \
+   src/parser.h        \
+   src/sort.c          \
+   src/sort.h          \
+   src/settings.c      \
+   src/settings.h      \
+   src/ui.c            \
+   src/ui.h            \
+   src/util.c          \
+   src/util.h          \
+   src/xmalloc.c       \
+   src/xmalloc.h
 
 if TCB
 goaccess_SOURCES += \
-   tcabinet.c       \
-   tcabinet.h
+   src/tcabinet.c       \
+   src/tcabinet.h
 else
 goaccess_SOURCES += \
-   glibht.c         \
-   glibht.h
+   src/glibht.c         \
+   src/glibht.h
 endif
 
 if GEOLOCATION
 goaccess_SOURCES += \
-   geolocation.c    \
-   geolocation.h
+   src/geolocation.c    \
+   src/geolocation.h
 endif
 
 if DEBUG

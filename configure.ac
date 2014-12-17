@@ -4,8 +4,8 @@
 AC_PREREQ(2.59)
 AC_INIT([goaccess], [0.8.5], [goaccess@prosoftcorp.com], [], [http://goaccess.io])
 AM_INIT_AUTOMAKE
-AC_CONFIG_SRCDIR([goaccess.c])
-AC_CONFIG_HEADERS([config.h])
+AC_CONFIG_SRCDIR([src/goaccess.c])
+AC_CONFIG_HEADERS([src/config.h])
 
 # Use empty CFLAGS by default so autoconf does not add
 # CFLAGS="-O2 -g"
