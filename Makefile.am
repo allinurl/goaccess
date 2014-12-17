@@ -1,5 +1,6 @@
 #AUTOMAKE_OPTIONS = foreign
 bin_PROGRAMS = goaccess
+AUTOMAKE_OPTIONS = subdir-objects
 
 confdir = $(sysconfdir)
 dist_conf_DATA = config/goaccess.conf
