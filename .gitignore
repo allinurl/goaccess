@@ -3,6 +3,7 @@ config.status
 /.deps
 /INSTALL
 /Makefile
+src/.dirstamp
 src/config.h
 src/config.h.in
 src/config.h.in~
