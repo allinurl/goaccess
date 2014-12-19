@@ -120,7 +120,9 @@ get_real_android (const char *droid)
 static char *
 get_real_win (const char *win)
 {
-  if (strstr (win, "6.3"))
+  if (strstr (win, "6.4"))
+    return alloc_string ("Windows 10");
+  else if (strstr (win, "6.3"))
     return alloc_string ("Windows 8.1");
   else if (strstr (win, "6.3; ARM"))
     return alloc_string ("Windows RT");
