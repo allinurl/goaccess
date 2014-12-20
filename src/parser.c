@@ -544,8 +544,7 @@ parse_string (char **str, char end, int cnt)
 }
 
 static int
-parse_format (GLogItem * glog, const char *fmt, const char *date_format,
-              char *str)
+parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
 {
   const char *p;
   double serve_secs;
@@ -559,7 +558,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
   memset (&tm, 0, sizeof (tm));
 
   /* iterate over the log format */
-  for (p = fmt; *p; p++) {
+  for (p = lfmt; *p; p++) {
     if (*p == '%') {
       special++;
       continue;
@@ -578,10 +577,10 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
           return 1;
         /* parse date format including dates containing spaces,
          * i.e., syslog date format (Jul 15 20:10:56) */
-        tkn = parse_string (&str, p[1], count_matches (date_format, ' ') + 1);
+        tkn = parse_string (&str, p[1], count_matches (dfmt, ' ') + 1);
         if (tkn == NULL)
           return 1;
-        end = strptime (tkn, date_format, &tm);
+        end = strptime (tkn, dfmt, &tm);
         if (end == NULL || *end != '\0') {
           free (tkn);
           return 1;
@@ -717,7 +716,7 @@ parse_format (GLogItem * glog, const char *fmt, const char *date_format,
         if (glog->serve_time)
           return 1;
         /* ignore seconds if we have microseconds */
-        if (strstr (fmt, "%D") != NULL)
+        if (strstr (lfmt, "%D") != NULL)
           break;
 
         tkn = parse_string (&str, p[1], 1);
