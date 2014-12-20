@@ -821,6 +821,36 @@ init_geoip (void)
 #endif
 
 static void
+standard_output (void)
+{
+  /* CSV */
+  if (conf.output_format && strcmp ("csv", conf.output_format) == 0)
+    output_csv (logger, holder);
+  /* JSON */
+  else if (conf.output_format && strcmp ("json", conf.output_format) == 0)
+    output_json (logger, holder);
+  /* HTML */
+  else
+    output_html (logger, holder);
+}
+
+static void
+curses_output (void)
+{
+  allocate_data ();
+  if (!conf.skip_term_resolver)
+    gdns_thread_create ();
+
+  render_screens ();
+  get_keys ();
+
+  attroff (COLOR_PAIR (COL_WHITE));
+  /* restore tty modes and reset
+   * terminal into non-visual mode */
+  endwin ();
+}
+
+static void
 set_locale (void)
 {
   char *loc_ctype;
@@ -943,31 +973,12 @@ out:
   time (&end_proc);
 
   /* stdout */
-  if (conf.output_html) {
-    /* CSV */
-    if (conf.output_format && strcmp ("csv", conf.output_format) == 0)
-      output_csv (logger, holder);
-    /* JSON */
-    else if (conf.output_format && strcmp ("json", conf.output_format) == 0)
-      output_json (logger, holder);
-    /* HTML */
-    else
-      output_html (logger, holder);
-  }
+  if (conf.output_html)
+    standard_output ();
   /* curses */
-  else {
-    allocate_data ();
-    if (!conf.skip_term_resolver)
-      gdns_thread_create ();
+  else
+    curses_output ();
 
-    render_screens ();
-    get_keys ();
-
-    attroff (COLOR_PAIR (COL_WHITE));
-    /* restore tty modes and reset
-     * terminal into non-visual mode */
-    endwin ();
-  }
   /* clean */
   house_keeping ();
 
