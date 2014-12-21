@@ -147,12 +147,12 @@ parse_conf_file (int *argc, char ***argv)
     if (strlen (line) == idx)
       FATAL ("Malformed config key at line: %s", line);
 
+    line[idx] = '\0';
+
     /* make old config options backwards compatible by
      * substituting underscores with dashes */
     while ((p = strpbrk (line, "_")) != NULL)
       *p = '-';
-
-    line[idx] = '\0';
 
     /* Ignore the following options when reading the config file */
     if (in_ignore_cmd_opts (line))
