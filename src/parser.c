@@ -179,25 +179,33 @@ free_logger (GLogItem * glog)
 #define BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : \
     (toupper((x)) - 'A' + 10))
 
-static char *
-decode_url (char *url)
+static void
+decode_hex (char *url, char *out)
 {
-  char *out, *ptr;
+  char *ptr;
   const char *c;
 
-  if ((url == NULL) || (*url == '\0'))
-    return NULL;
-
-  out = ptr = xstrdup (url);
-  for (c = url; *c; c++) {
-    if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2]))
+  for (c = url, ptr = out; *c; c++) {
+    if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2])) {
       *ptr++ = *c;
-    else {
+    } else {
       *ptr++ = (BASE16_TO_10 (c[1]) * 16) + (BASE16_TO_10 (c[2]));
       c += 2;
     }
   }
   *ptr = 0;
+}
+
+static char *
+decode_url (char *url)
+{
+  char *out;
+
+  if ((url == NULL) || (*url == '\0'))
+    return NULL;
+
+  out = xstrdup (url);
+  decode_hex (url, out);
   strip_newlines (out);
 
   return trim_str (out);
