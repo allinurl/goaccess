@@ -77,6 +77,7 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"double-decode"        , no_argument       , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -146,6 +147,7 @@ cmd_help (void)
   "  --444-as-404                   - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count          - Add 4xx client errors to the unique\n"
   "                                   visitors count.\n"
+  "  --double-decode                - Decode double-encoded values.\n"
   "  --ignore-crawlers              - Ignore crawlers.\n"
   "  --ignore-referer=<needle>      - Ignore a referer from being counted.\n"
   "                                   Wild cards are allowed. i.e., *.bing.com\n"
@@ -350,6 +352,10 @@ read_option_args (int argc, char **argv)
       /* real os */
       if (!strcmp ("real-os", long_opts[idx].name))
         conf.real_os = 1;
+
+      /* double decode */
+      if (!strcmp ("double-decode", long_opts[idx].name))
+        conf.double_decode = 1;
 
       /* no color */
       if (!strcmp ("no-color", long_opts[idx].name))
