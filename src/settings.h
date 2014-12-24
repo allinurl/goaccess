@@ -77,12 +77,14 @@ typedef struct GConf_
   char *log_format;
   char *output_format;
   char *static_files[MAX_EXTENSIONS];
+
   int append_method;
   int append_protocol;
   int bandwidth;
   int client_err_to_unique_count;
   int code444_as_404;
   int color_scheme;
+  int double_decode;
   int enable_html_resolver;
   int geo_db;
   int ignore_crawlers;
