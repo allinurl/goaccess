@@ -199,13 +199,15 @@ decode_hex (char *url, char *out)
 static char *
 decode_url (char *url)
 {
-  char *out;
+  char *out, *decoded;
 
   if ((url == NULL) || (*url == '\0'))
     return NULL;
 
-  out = xstrdup (url);
+  out = decoded = xstrdup (url);
   decode_hex (url, out);
+  if (conf.double_decode)
+    decode_hex (decoded, out);
   strip_newlines (out);
 
   return trim_str (out);
