@@ -153,6 +153,7 @@ configuration file:
 | `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey`, `2 => Green`.            |
 | `--date-format=<dateformat>`   | Specify log date format.                                     |
 | `--geoip-city-data=<path>`     | Specify path to GeoIP City database. i.e., GeoLiteCity.dat   |
+| `--double-decode`              | Decode double-encoded values.                                |
 | `--ignore-crawlers`            | Ignore crawlers.                                             |
 | `--ignore-referer=<referer>`   | Ignore referers from being counted. Wildcards allowed.       |
 | `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.         |
