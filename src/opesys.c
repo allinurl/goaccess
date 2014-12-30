@@ -39,6 +39,7 @@ static const char *os[][2] = {
   {"Windows Phone 8.0", "Windows"},
   {"Xbox One", "Windows"},
   {"Xbox", "Windows"},
+  {"Windows NT 6.4", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},
   {"Windows NT 6.3", "Windows"},
   {"Windows NT 6.2; ARM", "Windows"},
