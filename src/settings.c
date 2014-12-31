@@ -76,19 +76,36 @@ in_ignore_cmd_opts (const char *val)
 static char *
 get_config_file_path (void)
 {
-  char *path = NULL;
+  char *upath = NULL, *rpath = NULL;
 
   /* determine which config file to open, default or custom */
   if (conf.iconfigfile != NULL) {
-    path = realpath (conf.iconfigfile, NULL);
-    if (path == NULL)
-      FATAL ("%s", strerror (errno));
-  } else if (conf.load_global_config)
-    path = get_global_config ();
-  else
-    path = get_home ();
+    rpath = realpath (conf.iconfigfile, NULL);
+    if (rpath == NULL)
+      FATAL ("Unable to open the specified config file. %s", strerror (errno));
+  }
+  /* otherwise, fallback to global config file, or
+   * attempt to use the user's config file */
+  else {
+    /* global config file */
+    if (conf.load_global_config) {
+      upath = get_global_config ();
+      rpath = realpath (upath, NULL);
+      if (upath) {
+        free (upath);
+      }
+    }
+    /* user's config file */
+    if (rpath == NULL) {
+      upath = get_home ();
+      rpath = realpath (upath, NULL);
+      if (upath) {
+        free (upath);
+      }
+    }
+  }
 
-  return path;
+  return rpath;
 }
 
 /* clean command line arguments */
