@@ -25,6 +25,5 @@
 
 extern GSpinner *parsing_spinner;
 extern int active_gdns;         /* kill dns pthread flag */
-void render_screens (void);
 
 #endif
