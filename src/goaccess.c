@@ -180,13 +180,10 @@ allocate_holder (void)
 
   GModule module;
   GRawData *raw_data;
-  int i;
   unsigned int ht_size = 0;
 
   holder = new_gholder (TOTAL_MODULES);
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    module = i;
-
+  for (module = 0; module < TOTAL_MODULES; module++) {
     /* extract data from the corresponding hash table */
     ht = get_ht_by_module (module);
     ht_size = get_ht_size_by_module (module);
@@ -199,16 +196,12 @@ allocate_holder (void)
 static void
 allocate_data (void)
 {
+  GModule module;
   int col_data = DASH_COLLAPSED - DASH_NON_DATA;
   int size = 0, ht_size = 0;
 
-  int i;
-  GModule module;
-
   dash = new_gdash ();
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    module = i;
-
+  for (module = 0; module < TOTAL_MODULES; module++) {
     switch (module) {
     case VISITORS:
       dash->module[module].head = VISIT_HEAD;
