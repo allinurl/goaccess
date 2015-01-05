@@ -985,26 +985,14 @@ cleanup:
   return 0;
 }
 
-/* entry point to parse the log line by line */
-int
-parse_log (GLog ** logger, char *tail, int n)
+static int
+read_log (GLog ** logger, int n)
 {
   FILE *fp = NULL;
   char line[LINE_BUFFER];
   int i = 0, test = -1 == n ? 0 : 1;
 
-  if (conf.date_format == NULL || *conf.date_format == '\0')
-    FATAL ("No date format was found on your conf file.");
-
-  if (conf.log_format == NULL || *conf.log_format == '\0')
-    FATAL ("No log format was found on your conf file.");
-
-  if (tail != NULL) {
-    if (pre_process_log ((*logger), tail, test))
-      return 1;
-    return 0;
-  }
-
+  /* no log file, assume STDIN */
   if (conf.ifile == NULL) {
     fp = stdin;
     (*logger)->piping = 1;
@@ -1012,24 +1000,51 @@ parse_log (GLog ** logger, char *tail, int n)
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
-    FATAL ("%s", strerror (errno));
+    FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
     if (n >= 0 && i++ == n)
       break;
+
+    /* start processing log line */
     if (pre_process_log ((*logger), line, test)) {
       if (!(*logger)->piping)
         fclose (fp);
       return 1;
     }
   }
+
   /* definitely not portable! */
   if ((*logger)->piping)
     freopen ("/dev/tty", "r", stdin);
 
+  /* close log file if not a pipe */
   if (!(*logger)->piping)
     fclose (fp);
+
   return 0;
+}
+
+/* entry point to parse the log line by line */
+int
+parse_log (GLog ** logger, char *tail, int n)
+{
+  int test = -1 == n ? 0 : 1;
+
+  if (conf.date_format == NULL || *conf.date_format == '\0')
+    FATAL ("No date format was found on your conf file.");
+
+  if (conf.log_format == NULL || *conf.log_format == '\0')
+    FATAL ("No log format was found on your conf file.");
+
+  /* process tail data and return */
+  if (tail != NULL) {
+    if (pre_process_log ((*logger), tail, test))
+      return 1;
+    return 0;
+  }
+
+  return read_log (logger, n);
 }
 
 /* make sure we have valid hits */
