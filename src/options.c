@@ -119,6 +119,7 @@ cmd_help (void)
   /* User Interface Options */
   "User Interface Options\n\n"
   "  -c --config-dialog             - Prompt log/date configuration window.\n"
+  "  -m --with-mouse                - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>           - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --no-color                     - Disable colored output.\n\n"
 
@@ -140,7 +141,6 @@ cmd_help (void)
   "                                   IP ranges e.g. 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol             - Include HTTP request protocol if found.\n"
   "  -M --http-method               - Include HTTP request method if found.\n"
-  "  -m --with-mouse                - Enable mouse support on main dashboard.\n"
   "  -o --output-format=csv|json    - Output either a JSON or a CSV file.\n"
   "  -q --no-query-string           - Ignore request's query string.\n"
   "  -r --no-term-resolver          - Disable IP resolver on terminal output.\n"
