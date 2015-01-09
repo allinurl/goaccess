@@ -95,7 +95,9 @@ static const char *os[][2] = {
 static char *
 get_real_android (const char *droid)
 {
-  if (strstr (droid, "4.4"))
+  if (strstr (droid, "5.0"))
+    return alloc_string ("Lollipop");
+  else if (strstr (droid, "4.4"))
     return alloc_string ("KitKat");
   else if (strstr (droid, "4.3") || strstr (droid, "4.2") ||
            strstr (droid, "4.1"))
