@@ -361,13 +361,20 @@ scroll_to_last_line (void)
 }
 
 static void
+load_ip_agent_list (void)
+{
+  /* make sure we have a valid IP */
+  int sel = scrolling.module[scrolling.current].scroll;
+
+  if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
+    load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+}
+
+static void
 expand_current_module (void)
 {
   if (scrolling.expanded && scrolling.current == HOSTS) {
-    /* make sure we have a valid IP */
-    int sel = scrolling.module[scrolling.current].scroll;
-    if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
-      load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+    load_ip_agent_list ();
     return;
   }
 
