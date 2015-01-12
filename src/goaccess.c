@@ -313,13 +313,14 @@ render_screens (void)
 static void
 collapse_current_module (void)
 {
-  if (scrolling.expanded) {
-    scrolling.expanded = 0;
-    reset_scroll_offsets (&scrolling);
-    free_dashboard (dash);
-    allocate_data ();
-    render_screens ();
-  }
+  if (!scrolling.expanded)
+    return;
+
+  scrolling.expanded = 0;
+  reset_scroll_offsets (&scrolling);
+  free_dashboard (dash);
+  allocate_data ();
+  render_screens ();
 }
 
 static void
@@ -395,6 +396,7 @@ expand_on_mouse_click (void)
 {
   int ok_mouse;
   MEVENT event;
+
   ok_mouse = getmouse (&event);
   if (!conf.mouse_support || ok_mouse != OK)
     return;
