@@ -121,6 +121,7 @@ cmd_help (void)
   "  -c --config-dialog             - Prompt log/date configuration window.\n"
   "  -m --with-mouse                - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>           - Color schemes: 1 => Grey, 2 => Green.\n"
+  "  --no-progress                  - Disable progress metrics.\n"
   "  --no-color                     - Disable colored output.\n\n"
 
   /* File Options */
@@ -151,7 +152,6 @@ cmd_help (void)
   "  --ignore-crawlers              - Ignore crawlers.\n"
   "  --ignore-referer=<needle>      - Ignore a referer from being counted.\n"
   "                                   Wild cards are allowed. i.e., *.bing.com\n"
-  "  --no-progress                  - Disable progress metrics.\n\n"
   "  --real-os                      - Display real OS names. e.g, Windows XP,\n"
   "                                   Snow Leopard.\n"
   "  --sort-panel=PANEL,FIELD,ORDER - Sort panel on initial load. For example:\n"
@@ -164,7 +164,7 @@ cmd_help (void)
 #ifdef HAVE_LIBGEOIP
   "GeoIP Options\n\n"
   "  -g --std-geoip                 - Standard GeoIP database for less memory\n"
-  "                                   usage.\n"
+  "                                   consumption.\n"
   "  --geoip-city-data=<path>       - Specify path to GeoIP City database file.\n"
   "                                   i.e., GeoLiteCity.dat\n\n"
 #endif
