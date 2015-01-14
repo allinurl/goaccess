@@ -198,9 +198,20 @@ Write output to stdout given one of the following formats:
 Display real OS names. e.g, Windows XP, Snow Leopard.
 .TP
 \fB\-\-sort-view=<MOD,FIELD,ORDER>
-Sort panel on initial load. e.g.:
-.I --sort-view=VISITORS,BY_HITS,ASC
-See manpage for a list of panels and fields.
+Sort panel on initial load. Sort options are separated by comma.  Options are
+in the form: PANEL,FIELD,ORDER
+
+.I Available fields:
+  BY_HITS
+  BY_DATA
+  BY_BW
+  BY_USEC
+  BY_PROT
+  BY_MTHD
+
+.I Available orders:
+  ASC
+  DESC
 .TP
 \fB\-\-static-file=<extension>
 Add static file extension. e.g.:
