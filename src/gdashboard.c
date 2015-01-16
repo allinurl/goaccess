@@ -248,21 +248,22 @@ free_holder_by_module (GHolder ** holder, GModule module)
 void
 free_holder (GHolder ** holder)
 {
+  GModule module;
   GSubList *sub_list;
-  int i, j;
+  int j;
 
   if ((*holder) == NULL)
     return;
 
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    for (j = 0; j < (*holder)[i].holder_size; j++) {
-      sub_list = (*holder)[i].items[j].sub_list;
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    for (j = 0; j < (*holder)[module].holder_size; j++) {
+      sub_list = (*holder)[module].items[j].sub_list;
       /* free the sub list */
       if (sub_list != NULL)
         delete_sub_list (sub_list);
-      free_holder_data ((*holder)[i].items[j]);
+      free_holder_data ((*holder)[module].items[j]);
     }
-    free ((*holder)[i].items);
+    free ((*holder)[module].items);
   }
   free (*holder);
   (*holder) = NULL;
