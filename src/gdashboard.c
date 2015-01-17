@@ -213,6 +213,8 @@ clear:
 static void
 free_holder_data (GHolderItem item)
 {
+  if (item.sub_list != NULL)
+    delete_sub_list (item.sub_list);
   if (item.data != NULL)
     free (item.data);
   if (item.method != NULL)
@@ -225,17 +227,12 @@ free_holder_data (GHolderItem item)
 void
 free_holder_by_module (GHolder ** holder, GModule module)
 {
-  GSubList *sub_list;
   int j;
 
   if ((*holder) == NULL)
     return;
 
   for (j = 0; j < (*holder)[module].holder_size; j++) {
-    sub_list = (*holder)[module].items[j].sub_list;
-    /* free the sub list */
-    if (sub_list != NULL)
-      delete_sub_list (sub_list);
     free_holder_data ((*holder)[module].items[j]);
   }
   free ((*holder)[module].items);
@@ -249,7 +246,6 @@ void
 free_holder (GHolder ** holder)
 {
   GModule module;
-  GSubList *sub_list;
   int j;
 
   if ((*holder) == NULL)
@@ -257,10 +253,6 @@ free_holder (GHolder ** holder)
 
   for (module = 0; module < TOTAL_MODULES; module++) {
     for (j = 0; j < (*holder)[module].holder_size; j++) {
-      sub_list = (*holder)[module].items[j].sub_list;
-      /* free the sub list */
-      if (sub_list != NULL)
-        delete_sub_list (sub_list);
       free_holder_data ((*holder)[module].items[j]);
     }
     free ((*holder)[module].items);
