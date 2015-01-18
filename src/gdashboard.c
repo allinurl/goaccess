@@ -152,6 +152,7 @@ new_gsublist (void)
   sub_list->head = NULL;
   sub_list->tail = NULL;
   sub_list->size = 0;
+
   return sub_list;
 }
 
@@ -166,6 +167,7 @@ new_gsubitem (GModule module, char *data, int hits, uint64_t bw)
   sub_item->module = module;
   sub_item->prev = NULL;
   sub_item->next = NULL;
+
   return sub_item;
 }
 

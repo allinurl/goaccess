@@ -34,11 +34,7 @@
 
 /* {"search string", "belongs to"} */
 static const char *os[][2] = {
-  {"Googlebot", "Unix-like"},
-  {"Windows Phone 8.1", "Windows"},
-  {"Windows Phone 8.0", "Windows"},
-  {"Xbox One", "Windows"},
-  {"Xbox", "Windows"},
+  {"Android", "Android"},
   {"Windows NT 6.4", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},
   {"Windows NT 6.3", "Windows"},
@@ -56,8 +52,18 @@ static const char *os[][2] = {
   {"Windows 98", "Windows"},
   {"Windows 95", "Windows"},
   {"Windows CE", "Windows"},
+  {"Windows Phone 8.1", "Windows"},
+  {"Windows Phone 8.0", "Windows"},
+
+  {"Googlebot", "Unix-like"},
   {"bingbot", "Windows"},
-  {"Android", "Android"},
+
+  {"iPad", "Macintosh"},
+  {"iPod", "Macintosh"},
+  {"iPhone", "Macintosh"},
+  {"iTunes", "Macintosh"},
+  {"OS X", "Macintosh"},
+
   {"Debian", "Linux"},
   {"Ubuntu", "Linux"},
   {"Fedora", "Linux"},
@@ -69,19 +75,17 @@ static const char *os[][2] = {
   {"CentOS", "Linux"},
   {"PCLinuxOS", "Linux"},
   {"Linux", "Linux"},
-  {"iPad", "Macintosh"},
-  {"iPod", "Macintosh"},
-  {"iPhone", "Macintosh"},
-  {"iTunes", "Macintosh"},
-  {"OS X", "Macintosh"},
-  {"PlayStation", "BSD"},
+
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
+  {"PlayStation", "BSD"},
+
   {"CrOS", "Chrome OS"},
   {"SunOS", "Unix-like"},
   {"QNX", "Unix-like"},
   {"BB10", "Unix-like"},
+
   {"BlackBerry", "Others"},
   {"Sony", "Others"},
   {"AmigaOS", "Others"},
@@ -89,6 +93,8 @@ static const char *os[][2] = {
   {"Nokia", "Others"},
   {"Nintendo", "Others"},
   {"Apache", "Others"},
+  {"Xbox One", "Windows"},
+  {"Xbox", "Windows"},
 };
 
 /* get Android Codename */
