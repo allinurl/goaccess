@@ -144,6 +144,8 @@ cmd_help (void)
   "  -M --http-method               - Include HTTP request method if found.\n"
   "  -o --output-format=csv|json    - Output either a JSON or a CSV file.\n"
   "  -q --no-query-string           - Ignore request's query string.\n"
+  "                                   Removing the query string can greatly\n"
+  "                                   decrease memory consumption.\n"
   "  -r --no-term-resolver          - Disable IP resolver on terminal output.\n"
   "  --444-as-404                   - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count          - Add 4xx client errors to the unique\n"
