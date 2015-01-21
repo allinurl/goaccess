@@ -36,7 +36,7 @@
 GeoIP *geo_location_data;
 
 /* Get continent name concatenated with code */
-const char *
+static const char *
 get_continent_name_and_code (const char *continentid)
 {
   if (memcmp (continentid, "NA", 2) == 0)
@@ -87,16 +87,15 @@ geoip_get_country (const char *ip, char *location)
   const char *country = NULL, *code = NULL, *addr = ip;
   int geoid = 0;
 
-  /* Custom GeoIP database */
   if (conf.geoip_city_data != NULL && geo_location_data != NULL) {
+    /* Custom GeoIP database */
     rec = GeoIP_record_by_name (geo_location_data, addr);
     if (rec) {
       code = rec->country_code;
       country = rec->country_name;
     }
-  }
+  } else if (geo_location_data != NULL) {
   /* Legacy GeoIP database */
-  else if (geo_location_data != NULL) {
     geoid = GeoIP_id_by_name (geo_location_data, addr);
     country = GeoIP_country_name_by_name (geo_location_data, addr);
     code = GeoIP_code_by_id (geoid);
