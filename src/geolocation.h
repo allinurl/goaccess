@@ -42,7 +42,6 @@ typedef struct GLocation_
 
 extern GeoIP *geo_location_data;
 
-char *geoip_get_country_code (const char *ip);
 GeoIP *geoip_open_db (const char *db);
 void geoip_get_city (const char *ip, char *location);
 void geoip_get_continent (const char *ip, char *location);
