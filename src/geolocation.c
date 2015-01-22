@@ -62,7 +62,7 @@ GeoIP *
 geoip_open_db (const char *db)
 {
   GeoIP *geoip;
-  geoip = GeoIP_open (db, GEOIP_STANDARD);
+  geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
 
   if (geoip == NULL)
     FATAL ("Unable to open GeoIP database: %s\n", db);
