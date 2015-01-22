@@ -1012,6 +1012,7 @@ add_host_node (GHolder * h, char *key, int hits)
   void *value_ptr;
 
 #ifdef HAVE_LIBGEOIP
+  int type_ip = 0;
   const char *addr = key;
   char country[COUNTRY_LEN] = "";
   char city[CITY_LEN] = "";
@@ -1030,17 +1031,19 @@ add_host_node (GHolder * h, char *key, int hits)
   h->items[h->idx].sub_list = sub_list;
 
 #ifdef HAVE_LIBGEOIP
-  geoip_get_country (addr, country);
-  add_sub_item_back (sub_list, h->module, xstrdup (country), hits, bw);
-  h->items[h->idx].sub_list = sub_list;
-  h->sub_items_size++;
-
-  /* add city */
-  if (conf.geoip_city_data) {
-    geoip_get_city (addr, city);
-    add_sub_item_back (sub_list, h->module, xstrdup (city), hits, bw);
+  if (!invalid_ipaddr ((char *) addr, &type_ip)) {
+    geoip_get_country (addr, country, type_ip);
+    add_sub_item_back (sub_list, h->module, xstrdup (country), hits, bw);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
+
+    /* add city */
+    if (conf.geoip_database) {
+      geoip_get_city (addr, city, type_ip);
+      add_sub_item_back (sub_list, h->module, xstrdup (city), hits, bw);
+      h->items[h->idx].sub_list = sub_list;
+      h->sub_items_size++;
+    }
   }
 #endif
 

@@ -327,7 +327,7 @@ process_referrers (char *referrer, char *site)
 /* process data based on a unique key, this includes the following
  * modules, VISITORS, BROWSERS, OS */
 static void
-process_unique_data (char *host, char *date, char *agent)
+process_unique_data (GLogItem * glog)
 {
 #ifdef HAVE_LIBGEOIP
   char city[CITY_LEN] = "";
@@ -341,17 +341,18 @@ process_unique_data (char *host, char *date, char *agent)
   char visitor_key[UKEY_BUFFER];
   char os_type[OPESYS_TYPE_LEN], browser_type[BROWSER_TYPE_LEN];
 
-  a = deblank (xstrdup (agent));
-  snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", host, date, a);
+  a = deblank (xstrdup (glog->agent));
+  snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", glog->host,
+            glog->date_key, a);
   (visitor_key)[sizeof (visitor_key) - 1] = '\0';
   free (a);
 
   /* Check if the unique visitor key exists, if not,
    * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS. */
   if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
-    process_generic_data (ht_unique_vis, date);
-    browser_key = xstrdup (agent);
-    os_key = xstrdup (agent);
+    process_generic_data (ht_unique_vis, glog->date_key);
+    browser_key = xstrdup (glog->agent);
+    os_key = xstrdup (glog->agent);
 
     /* extract browser & OS from agent  */
     browser = verify_browser (browser_key, browser_type);
@@ -364,11 +365,11 @@ process_unique_data (char *host, char *date, char *agent)
 
 #ifdef HAVE_LIBGEOIP
     if (geo_location_data != NULL) {
-      if (conf.geoip_city_data)
-        geoip_get_city (host, city);
+      if (conf.geoip_database)
+        geoip_get_city (glog->host, city, glog->type_ip);
 
-      geoip_get_country (host, country);
-      geoip_get_continent (host, continent);
+      geoip_get_country (glog->host, country, glog->type_ip);
+      geoip_get_continent (glog->host, continent, glog->type_ip);
       process_geolocation (ht_countries, country, continent, city);
     }
 #endif
@@ -604,7 +605,7 @@ parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
         tkn = parse_string (&str, p[1], 1);
         if (tkn == NULL)
           return 1;
-        if (invalid_ipaddr (tkn)) {
+        if (invalid_ipaddr (tkn, &glog->type_ip)) {
           free (tkn);
           return 1;
         }
@@ -857,12 +858,12 @@ exclude_crawler (GLogItem * glog)
 
 /* process visitors, browsers, and OS */
 static void
-unique_data (GLogItem * glog, char *date)
+unique_data (GLogItem * glog)
 {
   int uniq = conf.client_err_to_unique_count;
   if (!glog->status || glog->status[0] != '4' ||
       (uniq && glog->status[0] == '4'))
-    process_unique_data (glog->host, date, glog->agent);
+    process_unique_data (glog);
 }
 
 static void
@@ -897,7 +898,7 @@ process_log (GLogItem * glog)
   if ((conf.append_method) || (conf.append_protocol))
     glog->req_key = deblank (glog->req_key);
 
-  unique_data (glog, glog->date_key);
+  unique_data (glog);
   /* process agents that are part of a host */
   if (conf.list_agents)
     process_host_agents (glog->host, glog->agent);

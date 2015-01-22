@@ -851,6 +851,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
   size_t alloc = 0;
 
 #ifdef HAVE_LIBGEOIP
+  int type_ip = 0;
   char country[COUNTRY_LEN] = "";
   char city[CITY_LEN] = "";
 #endif
@@ -876,7 +877,7 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
 #ifdef HAVE_LIBGEOIP
   fprintf (fp, "<th>Country</th>");
   colspan++;
-  if (conf.geoip_city_data) {
+  if (conf.geoip_database) {
     fprintf (fp, "<th>City</th>");
     colspan++;
   }
@@ -944,11 +945,16 @@ print_html_hosts (FILE * fp, GHolder * h, int process)
     fprintf (fp, "<td>%s</td>", data);
 
 #ifdef HAVE_LIBGEOIP
-    geoip_get_country (data, country);
-    fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", country);
-    if (conf.geoip_city_data) {
-      geoip_get_city (data, city);
-      fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", city);
+    memset (&country[0], 0, sizeof (country));
+    memset (&city[0], 0, sizeof (city));
+
+    if (!invalid_ipaddr (data, &type_ip)) {
+      geoip_get_country (data, country, type_ip);
+      fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", country);
+      if (conf.geoip_database) {
+        geoip_get_city (data, city, type_ip);
+        fprintf (fp, "<td style=\"white-space:nowrap;\">%s</td>", city);
+      }
     }
 #endif
 

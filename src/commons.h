@@ -73,6 +73,13 @@ extern size_t term_w;
 
 typedef enum
 {
+  TYPE_IPINV,
+  TYPE_IPV4,
+  TYPE_IPV6
+} GTypeIP;
+
+typedef enum
+{
   REQUEST,
   REQUEST_METHOD,
   REQUEST_PROTOCOL

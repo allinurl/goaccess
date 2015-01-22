@@ -29,9 +29,11 @@
 #include <GeoIP.h>
 #endif
 
-#define CITY_LEN         28
-#define CONTINENT_LEN    48
-#define COUNTRY_LEN      48 + 3 /* Country + two-letter Code */
+#include "commons.h"
+
+#define CITY_LEN       28
+#define CONTINENT_LEN  48
+#define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
 
 typedef struct GLocation_
 {
@@ -43,8 +45,8 @@ typedef struct GLocation_
 extern GeoIP *geo_location_data;
 
 GeoIP *geoip_open_db (const char *db);
-void geoip_get_city (const char *ip, char *location);
-void geoip_get_continent (const char *ip, char *location);
-void geoip_get_country (const char *ip, char *country);
+void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
+void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
+void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
 
 #endif

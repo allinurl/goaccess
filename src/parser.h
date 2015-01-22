@@ -45,6 +45,7 @@ typedef struct GLogItem_
   char site[REF_SITE_LEN];
   unsigned long long resp_size;
   unsigned long long serve_time;
+  int type_ip;
 } GLogItem;
 
 typedef struct GLog_

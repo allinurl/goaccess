@@ -364,10 +364,11 @@ scroll_to_last_line (void)
 static void
 load_ip_agent_list (void)
 {
+  int type_ip = 0;
   /* make sure we have a valid IP */
   int sel = scrolling.module[scrolling.current].scroll;
 
-  if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data))
+  if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data, &type_ip))
     load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
 }
 
@@ -813,9 +814,9 @@ set_general_stats (void)
 static void
 init_geoip (void)
 {
-  /* open custom GeoIP database */
-  if (conf.geoip_city_data != NULL)
-    geo_location_data = geoip_open_db (conf.geoip_city_data);
+  /* open custom city GeoIP database */
+  if (conf.geoip_database != NULL)
+    geo_location_data = geoip_open_db (conf.geoip_database);
   /* fall back to legacy GeoIP database */
   else
     geo_location_data = GeoIP_new (conf.geo_db);

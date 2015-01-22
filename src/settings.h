@@ -68,7 +68,7 @@ typedef struct GConf_
 {
   char *date_format;
   char *debug_log;
-  char *geoip_city_data;
+  char *geoip_database;
   char *iconfigfile;
   char *ifile;
   char *sort_views[TOTAL_MODULES];

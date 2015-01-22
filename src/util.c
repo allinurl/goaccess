@@ -318,7 +318,7 @@ convert_date (char *result, char *data, const char *from, const char *to,
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 int
-invalid_ipaddr (char *str)
+invalid_ipaddr (char *str, int *ipvx)
 {
   union
   {
@@ -327,14 +327,19 @@ invalid_ipaddr (char *str)
     struct sockaddr_in addr4;
   } a;
 
+  (*ipvx) = TYPE_IPINV;
   if (str == NULL || *str == '\0')
     return 1;
 
   memset (&a, 0, sizeof (a));
-  if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr))
+  if (1 == inet_pton (AF_INET, str, &a.addr4.sin_addr)) {
+    (*ipvx) = TYPE_IPV4;
     return 0;
-  else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr))
+  } else if (1 == inet_pton (AF_INET6, str, &a.addr6.sin6_addr)) {
+    (*ipvx) = TYPE_IPV6;
     return 0;
+  }
+
   return 1;
 }
 
