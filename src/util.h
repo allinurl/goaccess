@@ -63,7 +63,7 @@ const char *verify_status_code_type (const char *str);
 int count_matches (const char *s1, char c);
 int ignore_referer (const char *ref);
 int intlen (int num);
-int invalid_ipaddr (char *str);
+int invalid_ipaddr (char *str, int *ipvx);
 int ip_in_range (const char *ip);
 int wc_match(char *wc, char * str);
 off_t file_size (const char *filename);

@@ -84,6 +84,7 @@ struct option long_opts[] = {
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBGEOIP
   {"std-geoip"            , no_argument       , 0 , 'g' } ,
+  {"geoip-database"       , required_argument , 0 ,  0  } ,
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
 #endif
 #ifdef TCB_BTREE
@@ -167,8 +168,8 @@ cmd_help (void)
   "GeoIP Options\n\n"
   "  -g --std-geoip                 - Standard GeoIP database for less memory\n"
   "                                   consumption.\n"
-  "  --geoip-city-data=<path>       - Specify path to GeoIP City database file.\n"
-  "                                   i.e., GeoLiteCity.dat\n\n"
+  "  --geoip-database=<path>        - Specify path to GeoIP database file.\n"
+  "                                   i.e., GeoLiteCity.dat, GeoIPv6.dat ...\n\n"
 #endif
 
 /* On-Disk Database Options */
@@ -368,8 +369,9 @@ read_option_args (int argc, char **argv)
         conf.no_progress = 1;
 
       /* specifies the path of the GeoIP City database file */
-      if (!strcmp ("geoip-city-data", long_opts[idx].name))
-        conf.geoip_city_data = optarg;
+      if (!strcmp ("geoip-city-data", long_opts[idx].name) ||
+          !strcmp ("geoip-database", long_opts[idx].name))
+        conf.geoip_database = optarg;
 
       /* load data from disk */
       if (!strcmp ("load-from-disk", long_opts[idx].name))

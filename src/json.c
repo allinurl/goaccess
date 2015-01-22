@@ -206,6 +206,7 @@ static void
 print_json_complete (FILE * fp, GHolder * holder, int process)
 {
 #ifdef HAVE_LIBGEOIP
+  int type_ip = 0;
   char country[COUNTRY_LEN] = "";
   char city[CITY_LEN] = "";
 #endif
@@ -263,16 +264,21 @@ print_json_complete (FILE * fp, GHolder * holder, int process)
           free (host);
         }
 #ifdef HAVE_LIBGEOIP
-        geoip_get_country (data, country);
-        fprintf (fp, ",\n\t\t\t\"country\": \"");
-        escape_json_output (fp, country);
-        fprintf (fp, "\"");
+        memset (&country[0], 0, sizeof (country));
+        memset (&city[0], 0, sizeof (city));
 
-        if (conf.geoip_city_data) {
-          geoip_get_city (data, city);
-          fprintf (fp, ",\n\t\t\t\"city\": \"");
-          escape_json_output (fp, city);
+        if (!invalid_ipaddr (data, &type_ip)) {
+          geoip_get_country (data, country, type_ip);
+          fprintf (fp, ",\n\t\t\t\"country\": \"");
+          escape_json_output (fp, country);
           fprintf (fp, "\"");
+
+          if (conf.geoip_database) {
+            geoip_get_city (data, city, type_ip);
+            fprintf (fp, ",\n\t\t\t\"city\": \"");
+            escape_json_output (fp, city);
+            fprintf (fp, "\"");
+          }
         }
 #endif
       }
