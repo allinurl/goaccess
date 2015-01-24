@@ -97,7 +97,7 @@
 #define FIND_HEAD    "Find pattern in all modules"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
 
-#define MAX_CHOICES       300
+#define MAX_CHOICES       366
 #define MIN_HEIGHT        7
 #define MIN_WIDTH         0
 #define MAX_HEIGHT_FOOTER 1
