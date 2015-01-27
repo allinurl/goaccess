@@ -555,18 +555,215 @@ parse_string (char **str, char end, int cnt)
 }
 
 static int
+parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
+                 char **str, const char *p)
+{
+  char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
+  double serve_secs = 0.0;
+  struct tm tm;
+  unsigned long long bandw = 0, serve_time = 0;
+
+  errno = 0;
+  memset (&tm, 0, sizeof (tm));
+
+  switch (*p) {
+    /* date */
+  case 'd':
+    if (glog->date)
+      return 1;
+    /* parse date format including dates containing spaces,
+     * i.e., syslog date format (Jul 15 20:10:56) */
+    tkn = parse_string (&(*str), p[1], count_matches (dfmt, ' ') + 1);
+    if (tkn == NULL)
+      return 1;
+    end = strptime (tkn, dfmt, &tm);
+    if (end == NULL || *end != '\0') {
+      free (tkn);
+      return 1;
+    }
+    glog->date = tkn;
+    break;
+    /* remote hostname (IP only) */
+  case 'h':
+    if (glog->host)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    if (invalid_ipaddr (tkn, &glog->type_ip)) {
+      free (tkn);
+      return 1;
+    }
+    glog->host = tkn;
+    break;
+    /* request method */
+  case 'm':
+    if (glog->method)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    if (!extract_method (tkn)) {
+      free (tkn);
+      return 1;
+    }
+    glog->method = tkn;
+    break;
+    /* request not including method or protocol */
+  case 'U':
+    if (glog->req)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL || *tkn == '\0')
+      return 1;
+    if ((glog->req = decode_url (tkn)) == NULL)
+      return 1;
+    free (tkn);
+    break;
+    /* request protocol */
+  case 'H':
+    if (glog->protocol)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    if (invalid_protocol (tkn)) {
+      free (tkn);
+      return 1;
+    }
+    glog->protocol = tkn;
+    break;
+    /* request, including method + protocol */
+  case 'r':
+    if (glog->req)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    glog->req = parse_req (tkn, &glog->method, &glog->protocol);
+    free (tkn);
+    break;
+    /* Status Code */
+  case 's':
+    if (glog->status)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    strtol (tkn, &sEnd, 10);
+    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
+      free (tkn);
+      return 1;
+    }
+    glog->status = tkn;
+    break;
+    /* size of response in bytes - excluding HTTP headers */
+  case 'b':
+    if (glog->resp_size)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    bandw = strtol (tkn, &bEnd, 10);
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+      bandw = 0;
+    glog->resp_size = bandw;
+    conf.bandwidth = 1;
+    free (tkn);
+    break;
+    /* referrer */
+  case 'R':
+    if (glog->ref)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      tkn = alloc_string ("-");
+    if (tkn != NULL && *tkn == '\0') {
+      free (tkn);
+      tkn = alloc_string ("-");
+    }
+    if (strcmp (tkn, "-") != 0)
+      extract_referer_site (tkn, glog->site);
+    glog->ref = tkn;
+    break;
+    /* user agent */
+  case 'u':
+    if (glog->agent)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn != NULL && *tkn != '\0') {
+      /* Make sure the user agent is decoded (i.e.: CloudFront)
+       * and replace all '+' with ' ' (i.e.: w3c) */
+      glog->agent = char_replace (decode_url (tkn), '+', ' ');
+      free (tkn);
+      break;
+    } else if (tkn != NULL && *tkn == '\0') {
+      free (tkn);
+      tkn = alloc_string ("-");
+    }
+    /* must be null */
+    else {
+      tkn = alloc_string ("-");
+    }
+    glog->agent = tkn;
+    break;
+    /* time taken to serve the request, in seconds */
+  case 'T':
+    if (glog->serve_time)
+      return 1;
+    /* ignore seconds if we have microseconds */
+    if (strstr (lfmt, "%D") != NULL)
+      break;
+
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    if (strchr (tkn, '.') != NULL)
+      serve_secs = strtod (tkn, &bEnd);
+    else
+      serve_secs = strtoull (tkn, &bEnd, 10);
+
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+      serve_secs = 0;
+    /* convert it to microseconds */
+    if (serve_secs > 0)
+      glog->serve_time = serve_secs * SECS;
+    else
+      glog->serve_time = 0;
+    conf.serve_usecs = 1;
+    free (tkn);
+    break;
+    /* time taken to serve the request, in microseconds */
+  case 'D':
+    if (glog->serve_time)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    serve_time = strtoull (tkn, &bEnd, 10);
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+      serve_time = 0;
+    glog->serve_time = serve_time;
+    conf.serve_usecs = 1;
+    free (tkn);
+    break;
+    /* everything else skip it */
+  default:
+    if ((pch = strchr (*str, p[1])) != NULL)
+      *str += pch - *str;
+  }
+
+  return 0;
+}
+
+static int
 parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
 {
   const char *p;
-  double serve_secs;
   int special = 0;
-  struct tm tm;
-  unsigned long long bandw, serve_time;
 
   if (str == NULL || *str == '\0')
     return 1;
-
-  memset (&tm, 0, sizeof (tm));
 
   /* iterate over the log format */
   for (p = lfmt; *p; p++) {
@@ -574,207 +771,23 @@ parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
       special++;
       continue;
     }
+
     if (special && *p != '\0') {
-      char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
-      errno = 0;
-      bandw = 0;
-      serve_time = 0;
-      serve_secs = 0;
-
-      switch (*p) {
-        /* date */
-      case 'd':
-        if (glog->date)
-          return 1;
-        /* parse date format including dates containing spaces,
-         * i.e., syslog date format (Jul 15 20:10:56) */
-        tkn = parse_string (&str, p[1], count_matches (dfmt, ' ') + 1);
-        if (tkn == NULL)
-          return 1;
-        end = strptime (tkn, dfmt, &tm);
-        if (end == NULL || *end != '\0') {
-          free (tkn);
-          return 1;
-        }
-        glog->date = tkn;
-        break;
-        /* remote hostname (IP only) */
-      case 'h':
-        if (glog->host)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        if (invalid_ipaddr (tkn, &glog->type_ip)) {
-          free (tkn);
-          return 1;
-        }
-        glog->host = tkn;
-        break;
-        /* request method */
-      case 'm':
-        if (glog->method)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        if (!extract_method (tkn)) {
-          free (tkn);
-          return 1;
-        }
-        glog->method = tkn;
-        break;
-        /* request not including method or protocol */
-      case 'U':
-        if (glog->req)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL || *tkn == '\0')
-          return 1;
-        if ((glog->req = decode_url (tkn)) == NULL)
-          return 1;
-        free (tkn);
-        break;
-        /* request protocol */
-      case 'H':
-        if (glog->protocol)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        if (invalid_protocol (tkn)) {
-          free (tkn);
-          return 1;
-        }
-        glog->protocol = tkn;
-        break;
-        /* request, including method + protocol */
-      case 'r':
-        if (glog->req)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        glog->req = parse_req (tkn, &glog->method, &glog->protocol);
-        free (tkn);
-        break;
-        /* Status Code */
-      case 's':
-        if (glog->status)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        strtol (tkn, &sEnd, 10);
-        if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
-          free (tkn);
-          return 1;
-        }
-        glog->status = tkn;
-        break;
-        /* size of response in bytes - excluding HTTP headers */
-      case 'b':
-        if (glog->resp_size)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        bandw = strtol (tkn, &bEnd, 10);
-        if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
-          bandw = 0;
-        glog->resp_size = bandw;
-        conf.bandwidth = 1;
-        free (tkn);
-        break;
-        /* referrer */
-      case 'R':
-        if (glog->ref)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          tkn = alloc_string ("-");
-        if (tkn != NULL && *tkn == '\0') {
-          free (tkn);
-          tkn = alloc_string ("-");
-        }
-        if (strcmp (tkn, "-") != 0)
-          extract_referer_site (tkn, glog->site);
-        glog->ref = tkn;
-        break;
-        /* user agent */
-      case 'u':
-        if (glog->agent)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn != NULL && *tkn != '\0') {
-          /* Make sure the user agent is decoded (i.e.: CloudFront)
-           * and replace all '+' with ' ' (i.e.: w3c) */
-          glog->agent = char_replace (decode_url (tkn), '+', ' ');
-          free (tkn);
-          break;
-        } else if (tkn != NULL && *tkn == '\0') {
-          free (tkn);
-          tkn = alloc_string ("-");
-        }
-        /* must be null */
-        else {
-          tkn = alloc_string ("-");
-        }
-        glog->agent = tkn;
-        break;
-        /* time taken to serve the request, in seconds */
-      case 'T':
-        if (glog->serve_time)
-          return 1;
-        /* ignore seconds if we have microseconds */
-        if (strstr (lfmt, "%D") != NULL)
-          break;
-
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        if (strchr (tkn, '.') != NULL)
-          serve_secs = strtod (tkn, &bEnd);
-        else
-          serve_secs = strtoull (tkn, &bEnd, 10);
-
-        if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
-          serve_secs = 0;
-        /* convert it to microseconds */
-        if (serve_secs > 0)
-          glog->serve_time = serve_secs * SECS;
-        else
-          glog->serve_time = 0;
-        conf.serve_usecs = 1;
-        free (tkn);
-        break;
-        /* time taken to serve the request, in microseconds */
-      case 'D':
-        if (glog->serve_time)
-          return 1;
-        tkn = parse_string (&str, p[1], 1);
-        if (tkn == NULL)
-          return 1;
-        serve_time = strtoull (tkn, &bEnd, 10);
-        if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
-          serve_time = 0;
-        glog->serve_time = serve_time;
-        conf.serve_usecs = 1;
-        free (tkn);
-        break;
-        /* everything else skip it */
-      default:
-        if ((pch = strchr (str, p[1])) != NULL)
-          str += pch - str;
-      }
       if ((str == NULL) || (*str == '\0'))
         return 0;
+
+      /* attempt to parse format specifiers */
+      if (parse_specifier (glog, lfmt, dfmt, &str, p) == 1)
+        return 1;
+
       special = 0;
     } else if (special && isspace (p[0])) {
       return 1;
-    } else
+    } else {
       str++;
+    }
   }
+
   return 0;
 }
 
