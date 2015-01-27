@@ -771,7 +771,6 @@ parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
       special++;
       continue;
     }
-
     if (special && *p != '\0') {
       if ((str == NULL) || (*str == '\0'))
         return 0;
@@ -779,7 +778,6 @@ parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
       /* attempt to parse format specifiers */
       if (parse_specifier (glog, lfmt, dfmt, &str, p) == 1)
         return 1;
-
       special = 0;
     } else if (special && isspace (p[0])) {
       return 1;
