@@ -269,7 +269,8 @@ read_option_args (int argc, char **argv)
       break;
 #endif
     case 'e':
-      conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
+      if (conf.ignore_ip_idx < MAX_IGNORE_IPS)
+        conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
       break;
     case 'a':
       conf.list_agents = 1;
@@ -327,7 +328,8 @@ read_option_args (int argc, char **argv)
         conf.date_format = unescape_str (optarg);
 
       /* static file */
-      if (!strcmp ("static-file", long_opts[idx].name)) {
+      if (!strcmp ("static-file", long_opts[idx].name) &&
+          conf.static_file_idx < MAX_EXTENSIONS) {
         if (conf.static_file_max_len < strlen (optarg))
           conf.static_file_max_len = strlen (optarg);
         conf.static_files[conf.static_file_idx++] = optarg;
@@ -345,11 +347,13 @@ read_option_args (int argc, char **argv)
         conf.ignore_crawlers = 1;
 
       /* ignore referer */
-      if (!strcmp ("ignore-referer", long_opts[idx].name))
+      if (!strcmp ("ignore-referer", long_opts[idx].name) &&
+          conf.ignore_referer_idx < MAX_IGNORE_REF)
         conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
 
       /* sort view */
-      if (!strcmp ("sort-panel", long_opts[idx].name))
+      if (!strcmp ("sort-panel", long_opts[idx].name) &&
+          conf.sort_view_idx < TOTAL_MODULES)
         conf.sort_views[conf.sort_view_idx++] = optarg;
 
       /* real os */
