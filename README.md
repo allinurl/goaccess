@@ -130,47 +130,47 @@ please re-download the key.
 The following options can also be supplied to the command or specified in the
 configuration file:
 
-| Command Line Option            | Description                                                  |
-| -------------------------------|--------------------------------------------------------------|
-| `-a --agent-list`              | Enable a list of user-agents by host.                        |
-| `-c --config-dialog`           | Prompt log/date configuration window.                        |
-| `-d --with-output-resolver`    | Enable IP resolver on HTML|JSON output.                      |
-| `-e --exclude-ip=<IP>`         | Exclude one or multiple IPv4/v6 including IP ranges.         |
-| `-f --log-file=<filename>`     | Path to input log file.                                      |
-| `-g --std-geoip`               | Standard GeoIP database for less memory usage.               |
-| `-h --help`                    | This help.                                                   |
-| `-H --http-protocol `          | Include HTTP request protocol if found.                      |
-| `-M --http-method`             | Include HTTP request method if found.                        |
-| `-m --with-mouse `             | Enable mouse support on main dashboard.                      |
-| `-o --output-format=csv,json`  | Output format: `-o csv` for CSV.  `-o json` for JSON.        |
-| `-p --config-file=<filename>`  | Custom configuration file.                                   |
-| `-q --no-query-string`         | Ignore request's query string.                               |
-| `-r --no-term-resolver`        | Disable IP resolver on terminal output.                      |
-| `-s --storage`                 | Display current storage method. i.e., B+ Tree, Hash.         |
-| `-V --version`                 | Display version information and exit.                        |
-| `--444-as-404`                 | Treat non-standard status code 444 as 404.                   |
-| `--4xx-to-unique-count`        | Add 4xx client errors to the unique visitors count.          |
-| `--color-scheme=<1,2>`         | Color schemes: `1 => Default grey`, `2 => Green`.            |
-| `--date-format=<dateformat>`   | Specify log date format.                                     |
-| `--geoip-database=<path>`      | Specify path to GeoIP database v4/v6. i.e., GeoLiteCity.dat  |
-| `--double-decode`              | Decode double-encoded values.                                |
-| `--ignore-crawlers`            | Ignore crawlers.                                             |
-| `--ignore-referer=<referer>`   | Ignore referers from being counted. Wildcards allowed.       |
-| `--log-format="<logformat>"`   | Specify log format. Inner quotes need to be escaped.         |
-| `--no-color`                   | Disable colored output.                                      |
-| `--no-global-config`           | Do not load the global configuration file.                   |
-| `--no-progress`                | Disable progress metrics.                                    |
-| `--real-os`                    | Display real OS names. e.g, Windows XP, Snow Leopard.        |
-| `--sort-view=<MOD,FIELD,ORDER>`| Sort panel on initial load. See manpage for field options.   |
-| `--static-file=<extension>`    | Add static file extension. e.g.: .mp3, Case sensitive.       |
-| `--cache-lcnum=<number>`       | Max number of leaf nodes to be cached. [1024]                |
-| `--cache-ncnum=<number>`       | Max number of non-leaf nodes to be cached. [512]             |
-| `--compression=<zlib,bz2>`     | Specify that each page is compressed with ZLIB|BZ2 encoding. |
-| `--db-path=<path>`             | Path of the database file. [/tmp/]                           |
-| `--tune-bnum=<number>`         | Number of elements of the bucket array. [32749]              |
-| `--tune-lmemb=<number>`        | Number of members in each leaf page. [128]                   |
-| `--tune-nmemb=<number>`        | Number of members in each non-leaf page. [256]               |
-| `--xmmap=<number>`             | Set the size in bytes of the extra mapped memory. [0]        |
+| Command Line Option             | Description                                                  |
+| --------------------------------|--------------------------------------------------------------|
+| `-a --agent-list`               | Enable a list of user-agents by host.                        |
+| `-c --config-dialog`            | Prompt log/date configuration window.                        |
+| `-d --with-output-resolver`     | Enable IP resolver on HTML|JSON output.                      |
+| `-e --exclude-ip=<IP>`          | Exclude one or multiple IPv4/v6 including IP ranges.         |
+| `-f --log-file=<filename>`      | Path to input log file.                                      |
+| `-g --std-geoip`                | Standard GeoIP database for less memory usage.               |
+| `-h --help`                     | This help.                                                   |
+| `-H --http-protocol `           | Include HTTP request protocol if found.                      |
+| `-M --http-method`              | Include HTTP request method if found.                        |
+| `-m --with-mouse `              | Enable mouse support on main dashboard.                      |
+| `-o --output-format=csv,json`   | Output format: `-o csv` for CSV.  `-o json` for JSON.        |
+| `-p --config-file=<filename>`   | Custom configuration file.                                   |
+| `-q --no-query-string`          | Ignore request's query string.                               |
+| `-r --no-term-resolver`         | Disable IP resolver on terminal output.                      |
+| `-s --storage`                  | Display current storage method. i.e., B+ Tree, Hash.         |
+| `-V --version`                  | Display version information and exit.                        |
+| `--444-as-404`                  | Treat non-standard status code 444 as 404.                   |
+| `--4xx-to-unique-count`         | Add 4xx client errors to the unique visitors count.          |
+| `--color-scheme=<1,2>`          | Color schemes: `1 => Default grey`, `2 => Green`.            |
+| `--date-format=<dateformat>`    | Specify log date format.                                     |
+| `--geoip-database=<path>`       | Specify path to GeoIP database v4/v6. i.e., GeoLiteCity.dat  |
+| `--double-decode`               | Decode double-encoded values.                                |
+| `--ignore-crawlers`             | Ignore crawlers.                                             |
+| `--ignore-referer=<referer>`    | Ignore referers from being counted. Wildcards allowed.       |
+| `--log-format="<logformat>"`    | Specify log format. Inner quotes need to be escaped.         |
+| `--no-color`                    | Disable colored output.                                      |
+| `--no-global-config`            | Do not load the global configuration file.                   |
+| `--no-progress`                 | Disable progress metrics.                                    |
+| `--real-os`                     | Display real OS names. e.g, Windows XP, Snow Leopard.        |
+| `--sort-panel=<MOD,FIELD,ORDER>`| Sort panel on initial load. See manpage for field options.  |
+| `--static-file=<extension>`     | Add static file extension. e.g.: .mp3, Case sensitive.       |
+| `--cache-lcnum=<number>`        | Max number of leaf nodes to be cached. [1024]                |
+| `--cache-ncnum=<number>`        | Max number of non-leaf nodes to be cached. [512]             |
+| `--compression=<zlib,bz2>`      | Specify that each page is compressed with ZLIB|BZ2 encoding. |
+| `--db-path=<path>`              | Path of the database file. [/tmp/]                           |
+| `--tune-bnum=<number>`          | Number of elements of the bucket array. [32749]              |
+| `--tune-lmemb=<number>`         | Number of members in each leaf page. [128]                   |
+| `--tune-nmemb=<number>`         | Number of members in each non-leaf page. [256]               |
+| `--xmmap=<number>`              | Set the size in bytes of the extra mapped memory. [0]        |
 
 ## Usage ##
 
