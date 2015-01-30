@@ -125,6 +125,10 @@ please re-download the key.
 
     # pkgin install goaccess
 
+### Windows ###
+
+GoAccess can be used in Windows through Cygwin.
+
 
 ## Command Line / Config Options ##
 The following options can also be supplied to the command or specified in the
