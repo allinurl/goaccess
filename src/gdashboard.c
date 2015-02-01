@@ -731,18 +731,19 @@ void
 display_content (WINDOW * win, GLog * logger, GDash * dash,
                  GScrolling * scrolling)
 {
+  GModule module;
   float max_percent = 0.0;
-  int i, j, n = 0, process = 0;
+  int j, n = 0, process = 0;
 
   int y = 0, offset = 0, total = 0;
   int dash_scroll = scrolling->dash;
 
   werase (win);
 
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    n = dash->module[i].idx_data;
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    n = dash->module[module].idx_data;
     offset = 0;
-    for (j = 0; j < dash->module[i].dash_size; j++) {
+    for (j = 0; j < dash->module[module].dash_size; j++) {
       if (dash_scroll > total) {
         offset++;
         total++;
@@ -751,7 +752,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
 
     /* Every module other than VISITORS, GEO_LOCATION, BROWSERS and OS
      * will use total req as base */
-    switch (i) {
+    switch (module) {
 #ifdef HAVE_LIBGEOIP
     case GEO_LOCATION:
 #endif
@@ -763,14 +764,16 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
     default:
       process = logger->process;
     }
-    max_percent = set_percent_data (dash->module[i].data, n, process);
-    dash->module[i].module = i;
-    dash->module[i].max_hits = get_max_hit (dash->module[i].data, n);
-    dash->module[i].hits_len = get_max_hit_len (dash->module[i].data, n);
-    dash->module[i].data_len = get_max_data_len (dash->module[i].data, n);
-    dash->module[i].perc_len = intlen ((int) max_percent) + 4;
+    max_percent = set_percent_data (dash->module[module].data, n, process);
+    dash->module[module].module = module;
+    dash->module[module].max_hits = get_max_hit (dash->module[module].data, n);
+    dash->module[module].hits_len =
+      get_max_hit_len (dash->module[module].data, n);
+    dash->module[module].data_len =
+      get_max_data_len (dash->module[module].data, n);
+    dash->module[module].perc_len = intlen ((int) max_percent) + 4;
 
-    render_content (win, &dash->module[i], &y, &offset, &total, scrolling);
+    render_content (win, &dash->module[module], &y, &offset, &total, scrolling);
   }
   wrefresh (win);
 }
