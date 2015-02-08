@@ -165,7 +165,7 @@ configuration file:
 | `--no-global-config`               | Do not load the global configuration file.                   |
 | `--no-progress`                    | Disable progress metrics.                                    |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.        |
-| `--sort-panel=<PANEL,METRIC,ORDER>`| Sort panel on initial load. See manpage for field options.   |
+| `--sort-panel=<PANEL,METRIC,ORDER>`| Sort panel on initial load. See manpage for metrics.         |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.       |
 | `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                |
 | `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]             |
