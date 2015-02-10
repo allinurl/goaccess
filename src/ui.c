@@ -239,20 +239,19 @@ static const char *
 module_to_label (GModule module)
 {
   static const char *modules[] = {
-    "Visitors",
-    "Requests",
-    "Static Requests",
-    "Not Found",
-    "Hosts",
-    "OS",
-    "Browsers",
-    "Referrers",
-    "Referring Sites",
-    "Keyphrases",
+    VISIT_LABEL,
+    REQUE_LABEL,
+    STATI_LABEL,
+    FOUND_LABEL,
+    OPERA_LABEL,
+    BROWS_LABEL,
+    REFER_LABEL,
+    SITES_LABEL,
+    KEYPH_LABEL,
 #ifdef HAVE_LIBGEOIP
-    "Geo Location",
+    GEOLO_LABEL,
 #endif
-    "Status Codes"
+    CODES_LABEL
   };
 
   return modules[module];
