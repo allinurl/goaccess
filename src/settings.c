@@ -60,6 +60,7 @@ static const GPreConfDate dates = {
 static const char *ignore_cmd_opts[] = {
   "help",
   "storage",
+  "version",
 };
 
 static int
