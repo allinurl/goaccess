@@ -235,7 +235,7 @@ term_size (WINDOW * main_win)
   wmove (main_win, real_size_y, 0);
 }
 
-static const char *
+const char *
 module_to_label (GModule module)
 {
   static const char *modules[] = {
