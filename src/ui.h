@@ -250,6 +250,7 @@ typedef struct GSpinner_
 /* *INDENT-OFF* */
 char *get_browser_type (char *line);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
+const char *module_to_label (GModule module);
 GSpinner *new_gspinner (void);
 int split_agent_str (char *ptr_value, GAgents * agents, int max);
 int verify_format (GLog * logger, GSpinner * spinner);
