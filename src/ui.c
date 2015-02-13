@@ -243,6 +243,7 @@ module_to_label (GModule module)
     REQUE_LABEL,
     STATI_LABEL,
     FOUND_LABEL,
+    HOSTS_LABEL,
     OPERA_LABEL,
     BROWS_LABEL,
     REFER_LABEL,
