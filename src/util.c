@@ -58,14 +58,14 @@ static const char *code_type[][2] = {
 };
 
 static const char *codes[][2] = {
-  {"100", "100 - Continue: Server has received the request headers"},
+  {"100", "100 - Continue: Server received the initial part of the request"},
   {"101", "101 - Switching Protocols: Client asked to switch protocols"},
   {"200", "200 - OK: The request sent by the client was successful"},
   {"201", "201 - Created: The request has been fulfilled and created"},
   {"202", "202 - Accepted: The request has been accepted for processing"},
-  {"203", "203 - Non-Authoritative Information"},
-  {"204", "204 - No Content: Request is not returning any content"},
-  {"205", "205 - Reset Content: User-Agent should reset the document"},
+  {"203", "203 - Non-Authoritative Information: Response from a third party"},
+  {"204", "204 - No Content: Request did not return any content"},
+  {"205", "205 - Reset Content: Server asked the client to reset the document"},
   {"206", "206 - Partial Content: The partial GET has been successful"},
   {"300", "300 - Multiple Choices: Multiple options for the resource"},
   {"301", "301 - Moved Permanently: Resource has permanently moved"},
