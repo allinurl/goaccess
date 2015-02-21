@@ -136,7 +136,7 @@ configuration file:
 
 | Command Line Option                | Description                                                   |
 | -----------------------------------|---------------------------------------------------------------|
-| `-a --agent-list`                  |  Enable a list of user-agents by host.                        |
+| `-a --agent-list`                  | Enable a list of user-agents by host.                         |
 | `-c --config-dialog`               | Prompt log/date configuration window.                         |
 | `-d --with-output-resolver`        | Enable IP resolver on HTML|JSON output.                       |
 | `-e --exclude-ip=<IP>`             | Exclude one or multiple IPv4/v6 including IP ranges.          |
