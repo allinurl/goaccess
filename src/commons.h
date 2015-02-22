@@ -187,7 +187,7 @@ typedef struct GDataMap_
   int root;
 } GDataMap;
 
-inline float get_percentage (unsigned long long total, unsigned long long hit);
+float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);
 void display_version (void);
 int get_module_enum (const char *str);
