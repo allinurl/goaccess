@@ -103,8 +103,6 @@ static GScroll gscroll = {
 static void
 house_keeping (void)
 {
-  GModule module;
-
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
   /* kill dns pthread */
@@ -114,6 +112,7 @@ house_keeping (void)
 
   /* free uniqmap */
 #if defined(TCB_BTREE) || defined(TCB_MEMHASH)
+  GModule module;
   for (module = 0; module < TOTAL_MODULES; module++) {
     free_db_key (get_storage_metric (module, MTRC_UNIQMAP));
   }

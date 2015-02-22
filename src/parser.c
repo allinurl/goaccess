@@ -1138,7 +1138,7 @@ static char *
 gen_unique_req_key (GLogItem * glog)
 {
   char *key;
-  size_t s1, s2, s3;
+  size_t s1 = 0, s2 = 0, s3 = 0;
 
   /* nothing to do */
   if (!conf.append_method && !conf.append_protocol)
