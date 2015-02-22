@@ -355,7 +355,7 @@ ht_insert_nkey_nval (TCADB * adb, int nkey, int nval)
 {
   int sp = 0;
 
-  if ((adb == NULL))
+  if (adb == NULL)
     return (EINVAL);
 
   if (tcadbget (adb, &nkey, sizeof (int), &sp) != NULL)
@@ -381,7 +381,7 @@ ht_insert_agent (const char *key)
 int
 ht_insert_nodemap (TCADB * adb, int nkey, const char *value)
 {
-  if ((adb == NULL))
+  if (adb == NULL)
     return (EINVAL);
 
   tcadbput (adb, &nkey, sizeof (int), value, strlen (value));
@@ -420,7 +420,7 @@ ht_insert_num (TCADB * adb, int data_nkey)
   void *value_ptr;
   int add_value;
 
-  if ((adb == NULL))
+  if (adb == NULL)
     return (EINVAL);
 
   if ((value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp)) != NULL) {
@@ -442,7 +442,7 @@ ht_insert_cumulative (TCADB * adb, int data_nkey, uint64_t size)
   void *value_ptr;
   uint64_t add_value;
 
-  if ((adb == NULL))
+  if (adb == NULL)
     return (EINVAL);
 
   if ((value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp)) != NULL) {

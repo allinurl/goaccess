@@ -123,7 +123,7 @@ ht_insert_keymap (GHashTable * ht, const char *value)
   gpointer value_ptr;
   int nkey = 0, size = 0;
 
-  if ((ht == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
   value_ptr = g_hash_table_lookup (ht, value);
@@ -144,7 +144,7 @@ ht_insert_uniqmap (GHashTable * ht, char *uniq_key)
 {
   int nkey = 0, size = 0;
 
-  if ((ht == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
   if ((g_hash_table_lookup (ht, uniq_key)) != NULL)
@@ -162,7 +162,7 @@ ht_insert_uniqmap (GHashTable * ht, char *uniq_key)
 int
 ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval)
 {
-  if ((ht == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
   if ((g_hash_table_lookup (ht, &nkey)) != NULL)
@@ -188,7 +188,7 @@ ht_insert_agent (const char *key)
 int
 ht_insert_nodemap (GHashTable * ht, int nkey, const char *value)
 {
-  if ((ht == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
   g_hash_table_replace (ht, int2ptr (nkey), g_strdup (value));
