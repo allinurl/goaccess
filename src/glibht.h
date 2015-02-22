@@ -27,53 +27,36 @@
 
 #include <stdint.h>
 #include "parser.h"
+#include "gstorage.h"
 
-extern GHashTable *ht_browsers;
-extern GHashTable *ht_countries;
-extern GHashTable *ht_date_bw;
-extern GHashTable *ht_file_bw;
-extern GHashTable *ht_file_serve_usecs;
-extern GHashTable *ht_host_bw;
+/* tables for the whole app */
 extern GHashTable *ht_hostnames;
-extern GHashTable *ht_hosts;
 extern GHashTable *ht_hosts_agents;
-extern GHashTable *ht_host_serve_usecs;
-extern GHashTable *ht_keyphrases;
-extern GHashTable *ht_monthly;
-extern GHashTable *ht_not_found_requests;
-extern GHashTable *ht_os;
-extern GHashTable *ht_referrers;
-extern GHashTable *ht_referring_sites;
-extern GHashTable *ht_request_keys;
-extern GHashTable *ht_request_methods;
-extern GHashTable *ht_request_protocols;
-extern GHashTable *ht_requests;
-extern GHashTable *ht_requests_static;
-extern GHashTable *ht_status_code;
-extern GHashTable *ht_unique_vis;
-extern GHashTable *ht_unique_visitors;
+extern GHashTable *ht_unique_keys;
 
 /* *INDENT-OFF* */
 
-GHashTable *get_ht_by_module (GModule module);
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
-char *get_request_meta (const char *k, GReqMeta meta_req);
-int process_browser (GHashTable * ht, const char *key, const char *browser_type);
-int process_generic_data (GHashTable * ht, const char *key);
-int process_geolocation (GHashTable * ht, const char *ctry, const char *cont, const char *city);
+
+char *get_hostname (const char *host);
+char *get_node_from_key (int data_nkey, GModule module, GMetric metric);
+char *get_root_from_key (int root_nkey, GModule module);
+int get_num_from_key (int data_nkey, GModule module, GMetric metric);
 int process_host_agents (char *host, char *agent);
-int process_opesys (GHashTable * ht, const char *key, const char *os_type);
-int process_request (GHashTable * ht, const char *key, const GLogItem * glog);
-int process_request_meta (GHashTable * ht, char *key, uint64_t size);
+uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
 uint32_t get_ht_size (GHashTable * ht);
-uint64_t get_bandwidth (const char *k, GModule module);
-uint64_t get_serve_time (const char *key, GModule module);
-void free_browser (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
-void free_countries (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
-void free_key_value (gpointer old_key, GO_UNUSED gpointer old_value, GO_UNUSED gpointer user_data);
-void free_os (GO_UNUSED gpointer old_key, gpointer old_value, GO_UNUSED gpointer user_data);
-void free_storage (void);
+uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
 void init_storage (void);
+
+int ht_insert_agent(const char *key);
+int ht_insert_cumulative (GHashTable * ht, int data_nkey, uint64_t size);
+int ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey);
+int ht_insert_keymap(GHashTable *ht,  const char *value);
+int ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval);
+int ht_insert_nodemap (GHashTable * ht, int nkey, const char *value);
+int ht_insert_num (GHashTable * ht, int data_nkey);
+int ht_insert_uniqmap (GHashTable * ht, char *uniq_key);
+int ht_insert_unique_key (const char *key);
 
 /* *INDENT-ON* */
 

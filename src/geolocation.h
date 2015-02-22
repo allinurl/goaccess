@@ -48,5 +48,6 @@ GeoIP *geoip_open_db (const char *db);
 void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
+int set_geolocation (char *host, char *continent, char *country, char *city);
 
 #endif

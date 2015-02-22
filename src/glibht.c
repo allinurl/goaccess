@@ -41,134 +41,66 @@
 #include "browsers.h"
 #include "error.h"
 #include "opesys.h"
+#include "gstorage.h"
 #include "parser.h"
 #include "settings.h"
 #include "sort.h"
 #include "util.h"
 #include "xmalloc.h"
 
-GHashTable *ht_browsers = NULL;
-GHashTable *ht_countries = NULL;
-GHashTable *ht_date_bw = NULL;
-GHashTable *ht_file_bw = NULL;
-GHashTable *ht_file_serve_usecs = NULL;
-GHashTable *ht_host_bw = NULL;
+GStorage *ht_storage;
+
+/* tables for the whole app */
 GHashTable *ht_hostnames = NULL;
 GHashTable *ht_hosts_agents = NULL;
-GHashTable *ht_host_serve_usecs = NULL;
-GHashTable *ht_hosts = NULL;
-GHashTable *ht_keyphrases = NULL;
-GHashTable *ht_monthly = NULL;
-GHashTable *ht_not_found_requests = NULL;
-GHashTable *ht_os = NULL;
-GHashTable *ht_referrers = NULL;
-GHashTable *ht_referring_sites = NULL;
-GHashTable *ht_request_keys = NULL;
-GHashTable *ht_request_methods = NULL;
-GHashTable *ht_request_protocols = NULL;
-GHashTable *ht_requests = NULL;
-GHashTable *ht_requests_static = NULL;
-GHashTable *ht_status_code = NULL;
-GHashTable *ht_unique_visitors = NULL;
-GHashTable *ht_unique_vis = NULL;
+GHashTable *ht_unique_keys = NULL;
 
 static GHashTable *
-new_ht (GDestroyNotify d1, GDestroyNotify d2)
+new_str_ht (GDestroyNotify d1, GDestroyNotify d2)
 {
   return g_hash_table_new_full (g_str_hash, g_str_equal, d1, d2);
+}
+
+static GHashTable *
+new_int_ht (GDestroyNotify d1, GDestroyNotify d2)
+{
+  return g_hash_table_new_full (g_int_hash, g_int_equal, d1, d2);
+}
+
+static void
+init_tables (GModule module)
+{
+  ht_storage[module].module = module;
+  ht_storage[module].metrics = new_ht_metrics ();
+
+  /* Initialize metrics hash tables */
+  ht_storage[module].metrics->keymap = new_str_ht (g_free, g_free);
+  ht_storage[module].metrics->datamap = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->rootmap = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->uniqmap = new_str_ht (g_free, g_free);
+
+  ht_storage[module].metrics->hits = new_int_ht (g_free, NULL);
+  ht_storage[module].metrics->visitors = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->bw = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->time_served = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->methods = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->protocols = new_int_ht (g_free, g_free);
 }
 
 /* Initialize GLib hash tables */
 void
 init_storage (void)
 {
-  ht_date_bw = new_ht (g_free, g_free);
-  ht_file_bw = new_ht (g_free, g_free);
-  ht_file_serve_usecs = new_ht (g_free, g_free);
-  ht_host_bw = new_ht (g_free, g_free);
-  ht_hostnames = new_ht (g_free, g_free);
-  ht_hosts_agents = new_ht (g_free, g_free);
-  ht_host_serve_usecs = new_ht (g_free, g_free);
-  ht_not_found_requests = new_ht (g_free, g_free);
-  ht_request_keys = new_ht (g_free, g_free);
-  ht_request_methods = new_ht (g_free, g_free);
-  ht_request_protocols = new_ht (g_free, g_free);
-  ht_requests = new_ht (g_free, g_free);
-  ht_requests_static = new_ht (g_free, g_free);
-  ht_keyphrases = new_ht (g_free, g_free);
-  ht_referring_sites = new_ht (g_free, g_free);
-  ht_status_code = new_ht (g_free, g_free);
-  ht_hosts = new_ht (g_free, g_free);
-  ht_unique_vis = new_ht (g_free, g_free);
-  ht_referrers = new_ht (g_free, g_free);
-  ht_unique_visitors = new_ht (g_free, g_free);
+  GModule module;
 
-  /* The following tables contain a structure as their value, thus we
-     use a special iterator to free its value */
-  ht_browsers = new_ht (g_free, NULL);
-  ht_countries = new_ht (g_free, NULL);
-  ht_os = new_ht (g_free, NULL);
-}
+  ht_hostnames = new_str_ht (g_free, g_free);
+  ht_hosts_agents = new_str_ht (g_free, g_free);
+  ht_unique_keys = new_str_ht (g_free, g_free);
 
-void
-free_storage (void)
-{
-#ifdef HAVE_LIBGEOIP
-  g_hash_table_foreach (ht_countries, free_countries, NULL);
-#endif
-  g_hash_table_foreach (ht_os, free_os, NULL);
-  g_hash_table_foreach (ht_browsers, free_browser, NULL);
-
-  g_hash_table_destroy (ht_browsers);
-  g_hash_table_destroy (ht_countries);
-  g_hash_table_destroy (ht_date_bw);
-  g_hash_table_destroy (ht_file_bw);
-  g_hash_table_destroy (ht_host_bw);
-  g_hash_table_destroy (ht_hosts);
-  g_hash_table_destroy (ht_keyphrases);
-  g_hash_table_destroy (ht_not_found_requests);
-  g_hash_table_destroy (ht_os);
-  g_hash_table_destroy (ht_referrers);
-  g_hash_table_destroy (ht_referring_sites);
-  g_hash_table_destroy (ht_requests);
-  g_hash_table_destroy (ht_requests_static);
-  g_hash_table_destroy (ht_status_code);
-  g_hash_table_destroy (ht_unique_vis);
-  g_hash_table_destroy (ht_unique_visitors);
-}
-
-#ifdef HAVE_LIBGEOIP
-void
-free_countries (GO_UNUSED gpointer old_key, gpointer old_value,
-                GO_UNUSED gpointer user_data)
-{
-  GLocation *loc = old_value;
-  free (loc);
-}
-#endif
-
-void
-free_os (GO_UNUSED gpointer old_key, gpointer old_value,
-         GO_UNUSED gpointer user_data)
-{
-  GOpeSys *opesys = old_value;
-  free (opesys);
-}
-
-void
-free_browser (GO_UNUSED gpointer old_key, gpointer old_value,
-              GO_UNUSED gpointer user_data)
-{
-  GBrowser *browser = old_value;
-  free (browser);
-}
-
-/* free memory allocated by g_hash_table_new_full() function */
-void
-free_key_value (gpointer old_key, GO_UNUSED gpointer old_value,
-                GO_UNUSED gpointer user_data)
-{
-  g_free (old_key);
+  ht_storage = new_gstorage (TOTAL_MODULES);
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    init_tables (module);
+  }
 }
 
 uint32_t
@@ -177,307 +109,221 @@ get_ht_size (GHashTable * ht)
   return g_hash_table_size (ht);
 }
 
+uint32_t
+get_ht_size_by_metric (GModule module, GMetric metric)
+{
+  GHashTable *ht = get_storage_metric (module, metric);
+
+  return get_ht_size (ht);
+}
+
 int
-process_request_meta (GHashTable * ht, char *key, uint64_t size)
+ht_insert_keymap (GHashTable * ht, const char *value)
 {
   gpointer value_ptr;
-  uint64_t add_value;
-  uint64_t *ptr_value;
+  int nkey = 0, size = 0;
 
-  if ((ht == NULL) || (key == NULL))
+  if ((ht == NULL))
     return (EINVAL);
 
-  value_ptr = g_hash_table_lookup (ht, key);
-  if (value_ptr != NULL) {
-    ptr_value = (uint64_t *) value_ptr;
-    add_value = *ptr_value + size;
-  } else {
-    add_value = 0 + size;
-  }
+  value_ptr = g_hash_table_lookup (ht, value);
+  if (value_ptr != NULL)
+    return (*(int *) value_ptr);
 
-  ptr_value = xmalloc (sizeof (uint64_t));
-  *ptr_value = add_value;
+  size = get_ht_size (ht);
+  /* the auto increment value starts at SIZE (hash table) + 1 */
+  nkey = size > 0 ? size + 1 : 1;
 
-  g_hash_table_replace (ht, g_strdup (key), ptr_value);
+  g_hash_table_replace (ht, g_strdup (value), int2ptr (nkey));
+
+  return nkey;
+}
+
+int
+ht_insert_uniqmap (GHashTable * ht, char *uniq_key)
+{
+  int nkey = 0, size = 0;
+
+  if ((ht == NULL))
+    return (EINVAL);
+
+  if ((g_hash_table_lookup (ht, uniq_key)) != NULL)
+    return 0;
+
+  size = get_ht_size (ht);
+  /* the auto increment value starts at SIZE (hash table) + 1 */
+  nkey = size > 0 ? size + 1 : 1;
+
+  g_hash_table_replace (ht, uniq_key, int2ptr (nkey));
+
+  return nkey;
+}
+
+int
+ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval)
+{
+  if ((ht == NULL))
+    return (EINVAL);
+
+  if ((g_hash_table_lookup (ht, &nkey)) != NULL)
+    return 1;
+
+  g_hash_table_replace (ht, int2ptr (nkey), int2ptr (nval));
 
   return 0;
 }
 
 int
-process_opesys (GHashTable * ht, const char *key, const char *os_type)
+ht_insert_unique_key (const char *key)
 {
-  GOpeSys *opesys;
-  if (ht == NULL)
-    return (EINVAL);
-
-  opesys = g_hash_table_lookup (ht, key);
-  if (opesys != NULL) {
-    opesys->hits++;
-  } else {
-    opesys = xcalloc (1, sizeof (GOpeSys));
-    strcpy (opesys->os_type, os_type);
-    opesys->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_os" */
-  g_hash_table_replace (ht, g_strdup (key), opesys);
-
-  return 0;
+  return ht_insert_keymap (ht_unique_keys, key);
 }
 
 int
-process_browser (GHashTable * ht, const char *key, const char *browser_type)
+ht_insert_agent (const char *key)
 {
-  GBrowser *browser;
-  if (ht == NULL)
-    return (EINVAL);
-
-  browser = g_hash_table_lookup (ht, key);
-  if (browser != NULL) {
-    browser->hits++;
-  } else {
-    browser = xcalloc (1, sizeof (GBrowser));
-    strcpy (browser->browser_type, browser_type);
-    browser->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_browser" */
-  g_hash_table_replace (ht, g_strdup (key), browser);
-
-  return 0;
-}
-
-static void
-process_request_protocol (const char *key, const char *protocol)
-{
-  g_hash_table_replace (ht_request_protocols, g_strdup (key),
-                        g_strdup (protocol));
-}
-
-static void
-process_request_method (const char *key, const char *method)
-{
-  g_hash_table_replace (ht_request_methods, g_strdup (key), g_strdup (method));
-}
-
-static void
-process_request_keys (const char *key, const char *request)
-{
-  g_hash_table_replace (ht_request_keys, g_strdup (key), g_strdup (request));
+  return ht_insert_keymap (ht_hosts_agents, key);
 }
 
 int
-process_request (GHashTable * ht, const char *key, const GLogItem * glog)
+ht_insert_nodemap (GHashTable * ht, int nkey, const char *value)
 {
-  if ((ht == NULL) || (key == NULL))
+  if ((ht == NULL))
     return (EINVAL);
 
-  process_generic_data (ht, key);
-  if (conf.append_protocol && glog->protocol)
-    process_request_protocol (key, glog->protocol);
-  if (conf.append_method && glog->method)
-    process_request_method (key, glog->method);
-  process_request_keys (key, glog->req);
+  g_hash_table_replace (ht, int2ptr (nkey), g_strdup (value));
 
   return 0;
 }
-
-#ifdef HAVE_LIBGEOIP
-int
-process_geolocation (GHashTable * ht, const char *ctry, const char *cont,
-                     const char *city)
-{
-  GLocation *location;
-  if (ht == NULL)
-    return (EINVAL);
-
-  location = g_hash_table_lookup (ht, ctry);
-  if (location != NULL) {
-    location->hits++;
-  } else {
-    location = xcalloc (1, sizeof (GLocation));
-    xstrncpy (location->continent, cont, CONTINENT_LEN);
-    if (city[0] != '\0')
-      xstrncpy (location->city, city, CITY_LEN);
-    location->hits = 1;
-  }
-
-  /* replace the entry. old key will be freed by "free_countries" */
-  g_hash_table_replace (ht, g_strdup (ctry), location);
-
-  return 0;
-}
-#endif
 
 /* store generic data into the given hash table */
 int
-process_generic_data (GHashTable * ht, const char *key)
+ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
 {
-  gpointer value_ptr;
-  int add_value, first = 0;
-  int *ptr_value;
+  GDataMap *map;
 
-  if ((ht == NULL) || (key == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
-  value_ptr = g_hash_table_lookup (ht, key);
-  if (value_ptr != NULL) {
-    ptr_value = (int *) value_ptr;
-    add_value = *ptr_value + 1;
+  map = g_hash_table_lookup (ht, &data_nkey);
+  if (map != NULL) {
+    map->data++;
   } else {
-    first = add_value = 1;
+    map = xcalloc (1, sizeof (GDataMap));
+    map->data = 1;
+    map->root = root_nkey;
+    map->uniq = uniq_nkey;
   }
+  g_hash_table_replace (ht, int2ptr (data_nkey), map);
 
-  ptr_value = xmalloc (sizeof (int));
-  *ptr_value = add_value;
-
-  /* replace the entry. old key will be freed by "free_key_value" */
-  g_hash_table_replace (ht, g_strdup (key), ptr_value);
-
-  return first ? KEY_NOT_FOUND : KEY_FOUND;
+  return 0;
 }
 
-GHashTable *
-get_ht_by_module (GModule module)
-{
-  GHashTable *ht;
-
-  switch (module) {
-  case VISITORS:
-    ht = ht_unique_vis;
-    break;
-  case REQUESTS:
-    ht = ht_requests;
-    break;
-  case REQUESTS_STATIC:
-    ht = ht_requests_static;
-    break;
-  case NOT_FOUND:
-    ht = ht_not_found_requests;
-    break;
-  case HOSTS:
-    ht = ht_hosts;
-    break;
-  case OS:
-    ht = ht_os;
-    break;
-  case BROWSERS:
-    ht = ht_browsers;
-    break;
-  case REFERRERS:
-    ht = ht_referrers;
-    break;
-  case REFERRING_SITES:
-    ht = ht_referring_sites;
-    break;
-  case KEYPHRASES:
-    ht = ht_keyphrases;
-    break;
-#ifdef HAVE_LIBGEOIP
-  case GEO_LOCATION:
-    ht = ht_countries;
-    break;
-#endif
-  case STATUS_CODES:
-    ht = ht_status_code;
-    break;
-  default:
-    return NULL;
-  }
-
-  return ht;
-}
-
-/* process host agent strings */
 int
-process_host_agents (char *host, char *agent)
+ht_insert_num (GHashTable * ht, int data_nkey)
 {
-  char *ptr_value, *tmp, *a;
-  GHashTable *ht = ht_hosts_agents;
   gpointer value_ptr;
-  size_t len1, len2;
+  int add_value;
 
-  if ((ht == NULL) || (host == NULL) || (agent == NULL))
+  if (ht == NULL)
     return (EINVAL);
 
-  a = xstrdup (agent);
-
-  value_ptr = g_hash_table_lookup (ht, host);
+  value_ptr = g_hash_table_lookup (ht, &data_nkey);
   if (value_ptr != NULL) {
-    ptr_value = (char *) value_ptr;
-    if (strstr (ptr_value, a)) {
-      if (a != NULL)
-        free (a);
-      return 0;
-    }
+    add_value = (*(int *) value_ptr) + 1;
+  } else {
+    add_value = 1;
+  }
+  g_hash_table_replace (ht, int2ptr (data_nkey), int2ptr (add_value));
 
-    len1 = strlen (ptr_value);
-    len2 = strlen (a);
+  return 0;
+}
 
-    tmp = xmalloc (len1 + len2 + 2);
-    memcpy (tmp, ptr_value, len1);
-    tmp[len1] = '|';
-    /*
-     * NUL-terminated
-     */
-    memcpy (tmp + len1 + 1, a, len2 + 1);
-  } else
-    tmp = alloc_string (a);
+int
+ht_insert_cumulative (GHashTable * ht, int data_nkey, uint64_t size)
+{
+  gpointer value_ptr;
+  uint64_t add_value;
 
-  g_hash_table_replace (ht, g_strdup (host), tmp);
-  if (a != NULL)
-    free (a);
+  if (ht == NULL)
+    return (EINVAL);
+
+  value_ptr = g_hash_table_lookup (ht, &data_nkey);
+  if (value_ptr != NULL) {
+    add_value = (*(uint64_t *) value_ptr) + size;
+  } else {
+    add_value = 0 + size;
+  }
+  g_hash_table_replace (ht, int2ptr (data_nkey), uint642ptr (add_value));
+
   return 0;
 }
 
 char *
-get_request_meta (const char *k, GReqMeta meta_req)
+get_root_from_key (int root_nkey, GModule module)
 {
   GHashTable *ht = NULL;
   gpointer value_ptr;
 
-  switch (meta_req) {
-  case REQUEST:
-    ht = ht_request_keys;
-    break;
-  case REQUEST_METHOD:
-    ht = ht_request_methods;
-    break;
-  case REQUEST_PROTOCOL:
-    ht = ht_request_protocols;
-    break;
-  default:
-    ht = NULL;
-  }
-
+  ht = get_storage_metric (module, MTRC_ROOTMAP);
   if (ht == NULL)
-    return 0;
+    return NULL;
 
-  value_ptr = g_hash_table_lookup (ht, k);
+  value_ptr = g_hash_table_lookup (ht, &root_nkey);
   if (value_ptr != NULL)
     return xstrdup ((char *) value_ptr);
 
-  return alloc_string ("---");
+  return NULL;
+}
+
+char *
+get_node_from_key (int data_nkey, GModule module, GMetric metric)
+{
+  GHashTable *ht = NULL;
+  GStorageMetrics *metrics;
+  gpointer value_ptr;
+
+  metrics = get_storage_metrics_by_module (module);
+  /* bandwidth modules */
+  switch (metric) {
+  case MTRC_DATAMAP:
+    ht = metrics->datamap;
+    break;
+  case MTRC_METHODS:
+    ht = metrics->methods;
+    break;
+  case MTRC_PROTOCOLS:
+    ht = metrics->protocols;
+    break;
+  default:
+    ht = NULL;
+  }
+
+  if (ht == NULL)
+    return NULL;
+
+  value_ptr = g_hash_table_lookup (ht, &data_nkey);
+  if (value_ptr != NULL)
+    return xstrdup ((char *) value_ptr);
+
+  return NULL;
 }
 
 uint64_t
-get_bandwidth (const char *k, GModule module)
+get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
 {
   gpointer value_ptr;
   GHashTable *ht = NULL;
+  GStorageMetrics *metrics;
 
+  metrics = get_storage_metrics_by_module (module);
   /* bandwidth modules */
-  switch (module) {
-  case VISITORS:
-    ht = ht_date_bw;
+  switch (metric) {
+  case MTRC_BW:
+    ht = metrics->bw;
     break;
-  case REQUESTS:
-  case REQUESTS_STATIC:
-  case NOT_FOUND:
-    ht = ht_file_bw;
-    break;
-  case HOSTS:
-    ht = ht_host_bw;
+  case MTRC_TIME_SERVED:
+    ht = metrics->time_served;
     break;
   default:
     ht = NULL;
@@ -486,28 +332,27 @@ get_bandwidth (const char *k, GModule module)
   if (ht == NULL)
     return 0;
 
-  value_ptr = g_hash_table_lookup (ht, k);
+  value_ptr = g_hash_table_lookup (ht, &data_nkey);
   if (value_ptr != NULL)
     return (*(uint64_t *) value_ptr);
   return 0;
 }
 
-/* get time taken to serve the request, in microseconds for given key */
-uint64_t
-get_serve_time (const char *key, GModule module)
+int
+get_num_from_key (int data_nkey, GModule module, GMetric metric)
 {
   gpointer value_ptr;
-
-  /* bandwidth modules */
   GHashTable *ht = NULL;
-  switch (module) {
-  case HOSTS:
-    ht = ht_host_serve_usecs;
+  GStorageMetrics *metrics;
+
+  metrics = get_storage_metrics_by_module (module);
+  /* bandwidth modules */
+  switch (metric) {
+  case MTRC_HITS:
+    ht = metrics->hits;
     break;
-  case REQUESTS:
-  case REQUESTS_STATIC:
-  case NOT_FOUND:
-    ht = ht_file_serve_usecs;
+  case MTRC_VISITORS:
+    ht = metrics->visitors;
     break;
   default:
     ht = NULL;
@@ -516,18 +361,31 @@ get_serve_time (const char *key, GModule module)
   if (ht == NULL)
     return 0;
 
-  value_ptr = g_hash_table_lookup (ht, key);
+  value_ptr = g_hash_table_lookup (ht, &data_nkey);
   if (value_ptr != NULL)
-    return *(uint64_t *) value_ptr;
+    return (*(int *) value_ptr);
   return 0;
 }
+
+char *
+get_hostname (const char *host)
+{
+  int found;
+  void *value_ptr;
+
+  found = g_hash_table_lookup_extended (ht_hostnames, host, NULL, &value_ptr);
+  if (found && value_ptr)
+    return xstrdup (value_ptr);
+  return NULL;
+}
+
 
 /* iterate over the key/value pairs in the hash table */
 static void
 raw_data_iter (gpointer k, gpointer v, gpointer data_ptr)
 {
   GRawData *raw_data = data_ptr;
-  raw_data->items[raw_data->idx].key = (gchar *) k;
+  raw_data->items[raw_data->idx].key = k;
   raw_data->items[raw_data->idx].value = v;
   raw_data->idx++;
 }
@@ -545,7 +403,7 @@ parse_raw_data (GHashTable * ht, int ht_size, GModule module)
   raw_data->items = new_grawdata_item (ht_size);
 
   g_hash_table_foreach (ht, (GHFunc) raw_data_iter, raw_data);
-  sort_raw_data (raw_data, module, ht_size);
+  sort_raw_data (raw_data, ht_size);
 
   return raw_data;
 }

@@ -77,7 +77,7 @@ static GLog *logger;
 GSpinner *parsing_spinner;
 
 /* *INDENT-OFF* */
-static GScrolling scrolling = {
+static GScroll gscroll = {
   {
     {0, 0}, /* visitors    {scroll, offset} */
     {0, 0}, /* requests    {scroll, offset} */
@@ -103,19 +103,22 @@ static GScrolling scrolling = {
 static void
 house_keeping (void)
 {
+  GModule module;
+
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
   /* kill dns pthread */
   active_gdns = 0;
   free_holder (&holder);
   gdns_free_queue ();
-  if (ht_hostnames != NULL) {
-#ifdef HAVE_LIBTOKYOCABINET
-    tc_db_close (ht_hostnames, DB_HOSTNAMES);
-#else
-    g_hash_table_destroy (ht_hostnames);
-#endif
+
+  /* free uniqmap */
+#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    free_db_key (get_storage_metric (module, MTRC_UNIQMAP));
   }
+#endif
+
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   /* DASHBOARD */
@@ -129,9 +132,6 @@ house_keeping (void)
   if (geo_location_data != NULL)
     GeoIP_delete (geo_location_data);
 #endif
-
-  /* STORAGE */
-  free_storage ();
 
   /* LOGGER */
   free (logger);
@@ -148,10 +148,8 @@ house_keeping (void)
 static void
 allocate_holder_by_module (GModule module)
 {
-#ifdef TCB_BTREE
-  TCBDB *ht = NULL;
-#elif TCB_MEMHASH
-  TCMDB *ht = NULL;
+#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
+  TCADB *ht = NULL;
 #else
   GHashTable *ht;
 #endif
@@ -160,8 +158,8 @@ allocate_holder_by_module (GModule module)
   unsigned int ht_size = 0;
 
   /* extract data from the corresponding hash table */
-  ht = get_ht_by_module (module);
-  ht_size = get_ht_size_by_module (module);
+  ht = get_storage_metric (module, MTRC_HITS);
+  ht_size = get_ht_size (ht);
   raw_data = parse_raw_data (ht, ht_size, module);
   load_holder_data (raw_data, holder + module, module, module_sort[module]);
 }
@@ -170,10 +168,8 @@ allocate_holder_by_module (GModule module)
 static void
 allocate_holder (void)
 {
-#ifdef TCB_BTREE
-  TCBDB *ht = NULL;
-#elif TCB_MEMHASH
-  TCMDB *ht = NULL;
+#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
+  TCADB *ht = NULL;
 #else
   GHashTable *ht;
 #endif
@@ -184,9 +180,10 @@ allocate_holder (void)
 
   holder = new_gholder (TOTAL_MODULES);
   for (module = 0; module < TOTAL_MODULES; module++) {
-    /* extract data from the corresponding hash table */
-    ht = get_ht_by_module (module);
-    ht_size = get_ht_size_by_module (module);
+    /* extract data from the corresponding hits hash table */
+    ht = get_storage_metric (module, MTRC_HITS);
+
+    ht_size = get_ht_size (ht);
     raw_data = parse_raw_data (ht, ht_size, module);
     load_holder_data (raw_data, holder + module, module, module_sort[module]);
   }
@@ -198,7 +195,7 @@ allocate_data (void)
 {
   GModule module;
   int col_data = DASH_COLLAPSED - DASH_NON_DATA;
-  int size = 0, ht_size = 0;
+  int size = 0;
 
   dash = new_gdash ();
   for (module = 0; module < TOTAL_MODULES; module++) {
@@ -255,25 +252,23 @@ allocate_data (void)
       break;
     }
 
-    ht_size = get_ht_size_by_module (module);
-    size = ht_size > col_data ? col_data : ht_size;
-    if ((size > MAX_CHOICES) ||
-        (scrolling.expanded && module == scrolling.current))
+    size = holder[module].idx > col_data ? col_data : holder[module].idx;
+    if ((size > MAX_CHOICES) || (gscroll.expanded && module == gscroll.current))
       size = MAX_CHOICES;
 
     dash->module[module].alloc_data = size;     /* data allocated  */
-    dash->module[module].ht_size = ht_size;     /* hash table size */
+    dash->module[module].ht_size = holder[module].idx;  /* hash table size */
     dash->module[module].idx_data = 0;
     dash->module[module].pos_y = 0;
 
-    if (scrolling.expanded && module == scrolling.current)
+    if (gscroll.expanded && module == gscroll.current)
       dash->module[module].dash_size = DASH_EXPANDED;
     else
       dash->module[module].dash_size = DASH_COLLAPSED;
     dash->total_alloc += dash->module[module].dash_size;
 
     pthread_mutex_lock (&gdns_thread.mutex);
-    load_data_to_dash (&holder[module], dash, module, &scrolling);
+    load_data_to_dash (&holder[module], dash, module, &gscroll);
     pthread_mutex_unlock (&gdns_thread.mutex);
   }
 }
@@ -304,27 +299,27 @@ render_screens (void)
   wrefresh (header_win);
 
   /* display active label based on current module */
-  update_active_module (header_win, scrolling.current);
+  update_active_module (header_win, gscroll.current);
 
-  display_content (main_win, logger, dash, &scrolling);
+  display_content (main_win, logger, dash, &gscroll);
 }
 
 /* collapse the current expanded module */
 static void
 collapse_current_module (void)
 {
-  if (!scrolling.expanded)
+  if (!gscroll.expanded)
     return;
 
-  scrolling.expanded = 0;
-  reset_scroll_offsets (&scrolling);
+  gscroll.expanded = 0;
+  reset_scroll_offsets (&gscroll);
   free_dashboard (dash);
   allocate_data ();
   render_screens ();
 }
 
 static void
-set_module_to (GScrolling * scrll, GModule module)
+set_module_to (GScroll * scrll, GModule module)
 {
   /* reset expanded module */
   collapse_current_module ();
@@ -335,11 +330,11 @@ set_module_to (GScrolling * scrll, GModule module)
 static void
 scroll_to_first_line (void)
 {
-  if (!scrolling.expanded)
-    scrolling.dash = 0;
+  if (!gscroll.expanded)
+    gscroll.dash = 0;
   else {
-    scrolling.module[scrolling.current].scroll = 0;
-    scrolling.module[scrolling.current].offset = 0;
+    gscroll.module[gscroll.current].scroll = 0;
+    gscroll.module[gscroll.current].offset = 0;
   }
 }
 
@@ -349,15 +344,15 @@ scroll_to_last_line (void)
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   int scrll, offset;
 
-  if (!scrolling.expanded)
-    scrolling.dash = dash->total_alloc - real_size_y;
+  if (!gscroll.expanded)
+    gscroll.dash = dash->total_alloc - real_size_y;
   else {
     scrll = offset = 0;
-    scrll = dash->module[scrolling.current].idx_data - 1;
+    scrll = dash->module[gscroll.current].idx_data - 1;
     if (scrll >= exp_size && scrll >= offset + exp_size)
       offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
-    scrolling.module[scrolling.current].scroll = scrll;
-    scrolling.module[scrolling.current].offset = offset;
+    gscroll.module[gscroll.current].scroll = scrll;
+    gscroll.module[gscroll.current].offset = offset;
   }
 }
 
@@ -366,29 +361,30 @@ load_ip_agent_list (void)
 {
   int type_ip = 0;
   /* make sure we have a valid IP */
-  int sel = scrolling.module[scrolling.current].scroll;
+  int sel = gscroll.module[gscroll.current].scroll;
+  GDashData item = dash->module[HOSTS].data[sel];
 
-  if (!invalid_ipaddr (dash->module[HOSTS].data[sel].data, &type_ip))
-    load_agent_list (main_win, dash->module[HOSTS].data[sel].data);
+  if (!invalid_ipaddr (item.metrics->data, &type_ip))
+    load_agent_list (main_win, item.metrics->data);
 }
 
 static void
 expand_current_module (void)
 {
-  if (scrolling.expanded && scrolling.current == HOSTS) {
+  if (gscroll.expanded && gscroll.current == HOSTS) {
     load_ip_agent_list ();
     return;
   }
 
-  if (scrolling.expanded)
+  if (gscroll.expanded)
     return;
 
-  reset_scroll_offsets (&scrolling);
-  scrolling.expanded = 1;
+  reset_scroll_offsets (&gscroll);
+  gscroll.expanded = 1;
 
-  free_holder_by_module (&holder, scrolling.current);
+  free_holder_by_module (&holder, gscroll.current);
   free_dashboard (dash);
-  allocate_holder_by_module (scrolling.current);
+  allocate_holder_by_module (gscroll.current);
   allocate_data ();
 }
 
@@ -407,15 +403,15 @@ expand_on_mouse_click (void)
     if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
       return;
 
-    if (set_module_from_mouse_event (&scrolling, dash, event.y))
+    if (set_module_from_mouse_event (&gscroll, dash, event.y))
       return;
 
-    reset_scroll_offsets (&scrolling);
-    scrolling.expanded = 1;
+    reset_scroll_offsets (&gscroll);
+    gscroll.expanded = 1;
 
-    free_holder_by_module (&holder, scrolling.current);
+    free_holder_by_module (&holder, gscroll.current);
     free_dashboard (dash);
-    allocate_holder_by_module (scrolling.current);
+    allocate_holder_by_module (gscroll.current);
     allocate_data ();
 
     render_screens ();
@@ -428,12 +424,12 @@ scroll_down_expanded_module (void)
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   int *scroll_ptr, *offset_ptr;
 
-  scroll_ptr = &scrolling.module[scrolling.current].scroll;
-  offset_ptr = &scrolling.module[scrolling.current].offset;
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
 
-  if (!scrolling.expanded)
+  if (!gscroll.expanded)
     return;
-  if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
+  if (*scroll_ptr >= dash->module[gscroll.current].idx_data - 1)
     return;
   ++(*scroll_ptr);
   if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
@@ -443,7 +439,7 @@ scroll_down_expanded_module (void)
 static void
 scroll_up_dashboard (void)
 {
-  scrolling.dash--;
+  gscroll.dash--;
 }
 
 static void
@@ -452,10 +448,10 @@ page_up_module (void)
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   int *scroll_ptr, *offset_ptr;
 
-  scroll_ptr = &scrolling.module[scrolling.current].scroll;
-  offset_ptr = &scrolling.module[scrolling.current].offset;
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
 
-  if (!scrolling.expanded)
+  if (!gscroll.expanded)
     return;
   /* decrease scroll and offset by exp_size */
   *scroll_ptr -= exp_size;
@@ -474,19 +470,19 @@ page_down_module (void)
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
   int *scroll_ptr, *offset_ptr;
 
-  scroll_ptr = &scrolling.module[scrolling.current].scroll;
-  offset_ptr = &scrolling.module[scrolling.current].offset;
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
 
-  if (!scrolling.expanded)
+  if (!gscroll.expanded)
     return;
 
   *scroll_ptr += exp_size;
-  if (*scroll_ptr >= dash->module[scrolling.current].idx_data - 1)
-    *scroll_ptr = dash->module[scrolling.current].idx_data - 1;
+  if (*scroll_ptr >= dash->module[gscroll.current].idx_data - 1)
+    *scroll_ptr = dash->module[gscroll.current].idx_data - 1;
   if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
     *offset_ptr += exp_size;
-  if (*offset_ptr + exp_size >= dash->module[scrolling.current].idx_data - 1)
-    *offset_ptr = dash->module[scrolling.current].idx_data - exp_size;
+  if (*offset_ptr + exp_size >= dash->module[gscroll.current].idx_data - 1)
+    *offset_ptr = dash->module[gscroll.current].idx_data - exp_size;
   if (*scroll_ptr < exp_size - 1)
     *offset_ptr = 0;
 }
@@ -496,10 +492,10 @@ scroll_up_expanded_module (void)
 {
   int *scroll_ptr, *offset_ptr;
 
-  scroll_ptr = &scrolling.module[scrolling.current].scroll;
-  offset_ptr = &scrolling.module[scrolling.current].offset;
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
 
-  if (!scrolling.expanded)
+  if (!gscroll.expanded)
     return;
   if (*scroll_ptr <= 0)
     return;
@@ -511,11 +507,11 @@ scroll_up_expanded_module (void)
 static void
 render_search_dialog (int search)
 {
-  if (render_find_dialog (main_win, &scrolling))
+  if (render_find_dialog (main_win, &gscroll))
     return;
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  search = perform_next_find (holder, &scrolling);
+  search = perform_next_find (holder, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
   if (search != 0)
     return;
@@ -529,7 +525,7 @@ static void
 search_next_match (int search)
 {
   pthread_mutex_lock (&gdns_thread.mutex);
-  search = perform_next_find (holder, &scrolling);
+  search = perform_next_find (holder, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
   if (search != 0)
     return;
@@ -580,18 +576,18 @@ perform_tail_follow (uint64_t * size1)
 static void
 next_module (void)
 {
-  scrolling.current++;
-  if (scrolling.current == TOTAL_MODULES)
-    scrolling.current = 0;
+  gscroll.current++;
+  if (gscroll.current == TOTAL_MODULES)
+    gscroll.current = 0;
 }
 
 static void
 previous_module (void)
 {
-  if (scrolling.current == 0)
-    scrolling.current = TOTAL_MODULES - 1;
+  if (gscroll.current == 0)
+    gscroll.current = TOTAL_MODULES - 1;
   else
-    scrolling.current--;
+    gscroll.current--;
 }
 
 static void
@@ -610,7 +606,7 @@ window_resize (void)
 static void
 render_sort_dialog (void)
 {
-  load_sort_win (main_win, scrolling.current, &module_sort[scrolling.current]);
+  load_sort_win (main_win, gscroll.current, &module_sort[gscroll.current]);
   pthread_mutex_lock (&gdns_thread.mutex);
   free_holder (&holder);
   pthread_cond_broadcast (&gdns_thread.not_empty);
@@ -635,7 +631,7 @@ get_keys (void)
     c = wgetch (stdscr);
     switch (c) {
     case 'q':  /* quit */
-      if (!scrolling.expanded) {
+      if (!gscroll.expanded) {
         quit = 0;
         break;
       }
@@ -649,56 +645,56 @@ get_keys (void)
       break;
     case 49:   /* 1 */
       /* reset expanded module */
-      set_module_to (&scrolling, VISITORS);
+      set_module_to (&gscroll, VISITORS);
       break;
     case 50:   /* 2 */
       /* reset expanded module */
-      set_module_to (&scrolling, REQUESTS);
+      set_module_to (&gscroll, REQUESTS);
       break;
     case 51:   /* 3 */
       /* reset expanded module */
-      set_module_to (&scrolling, REQUESTS_STATIC);
+      set_module_to (&gscroll, REQUESTS_STATIC);
       break;
     case 52:   /* 4 */
       /* reset expanded module */
-      set_module_to (&scrolling, NOT_FOUND);
+      set_module_to (&gscroll, NOT_FOUND);
       break;
     case 53:   /* 5 */
       /* reset expanded module */
-      set_module_to (&scrolling, HOSTS);
+      set_module_to (&gscroll, HOSTS);
       break;
     case 54:   /* 6 */
       /* reset expanded module */
-      set_module_to (&scrolling, OS);
+      set_module_to (&gscroll, OS);
       break;
     case 55:   /* 7 */
       /* reset expanded module */
-      set_module_to (&scrolling, BROWSERS);
+      set_module_to (&gscroll, BROWSERS);
       break;
     case 56:   /* 8 */
       /* reset expanded module */
-      set_module_to (&scrolling, REFERRERS);
+      set_module_to (&gscroll, REFERRERS);
       break;
     case 57:   /* 9 */
       /* reset expanded module */
-      set_module_to (&scrolling, REFERRING_SITES);
+      set_module_to (&gscroll, REFERRING_SITES);
       break;
     case 48:   /* 0 */
       /* reset expanded module */
-      set_module_to (&scrolling, KEYPHRASES);
+      set_module_to (&gscroll, KEYPHRASES);
       break;
     case 33:   /* Shift+1 */
       /* reset expanded module */
 #ifdef HAVE_LIBGEOIP
-      set_module_to (&scrolling, GEO_LOCATION);
+      set_module_to (&gscroll, GEO_LOCATION);
 #else
-      set_module_to (&scrolling, STATUS_CODES);
+      set_module_to (&gscroll, STATUS_CODES);
 #endif
       break;
 #ifdef HAVE_LIBGEOIP
     case 64:   /* Shift+2 */
       /* reset expanded module */
-      set_module_to (&scrolling, STATUS_CODES);
+      set_module_to (&gscroll, STATUS_CODES);
       break;
 #endif
     case 9:    /* TAB */
@@ -715,11 +711,11 @@ get_keys (void)
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
     case 'G':  /* G = down */
       scroll_to_last_line ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
       /* expand dashboard module */
     case KEY_RIGHT:
@@ -730,12 +726,12 @@ get_keys (void)
     case 111:  /* O */
     case KEY_ENTER:
       expand_current_module ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
     case KEY_DOWN:     /* scroll main dashboard */
-      if ((scrolling.dash + real_size_y) < (unsigned) dash->total_alloc) {
-        scrolling.dash++;
-        display_content (main_win, logger, dash, &scrolling);
+      if ((gscroll.dash + real_size_y) < (unsigned) dash->total_alloc) {
+        gscroll.dash++;
+        display_content (main_win, logger, dash, &gscroll);
       }
       break;
     case KEY_MOUSE:    /* handles mouse events */
@@ -743,28 +739,28 @@ get_keys (void)
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_down_expanded_module ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
       /* scroll up main_win */
     case KEY_UP:
-      if (scrolling.dash > 0) {
+      if (gscroll.dash > 0) {
         scroll_up_dashboard ();
-        display_content (main_win, logger, dash, &scrolling);
+        display_content (main_win, logger, dash, &gscroll);
       }
       break;
     case 2:    /* ^ b - page up */
     case 339:  /* ^ PG UP */
       page_up_module ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
     case 6:    /* ^ f - page down */
     case 338:  /* ^ PG DOWN */
       page_down_module ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
     case 107:  /* k - UP expanded module */
       scroll_up_expanded_module ();
-      display_content (main_win, logger, dash, &scrolling);
+      display_content (main_win, logger, dash, &gscroll);
       break;
     case 'n':
       search_next_match (search);
@@ -799,14 +795,14 @@ set_general_stats (void)
 {
   logger->process = logger->invalid = logger->exclude_ip = 0;
 #ifdef TCB_BTREE
-  logger->exclude_ip = tc_db_get_int (ht_general_stats, "exclude_ip");
-  logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests");
-  logger->process = tc_db_get_int (ht_general_stats, "total_requests");
-  logger->resp_size = tc_db_get_uint64 (ht_general_stats, "bandwidth");
+  /*logger->exclude_ip = tc_db_get_int (ht_general_stats, "exclude_ip"); */
+  /*logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests"); */
+  /*logger->process = tc_db_get_int (ht_general_stats, "total_requests"); */
+  /*logger->resp_size = tc_db_get_uint64 (ht_general_stats, "bandwidth"); */
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
-  if (get_ht_size (ht_file_serve_usecs) > 0)
-    conf.serve_usecs = 1;
+  /*if (get_ht_size (ht_file_serve_usecs) > 0) */
+  /*conf.serve_usecs = 1; */
 #endif
 }
 

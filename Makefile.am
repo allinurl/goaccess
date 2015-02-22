@@ -22,6 +22,8 @@ goaccess_SOURCES = \
    src/gmenu.h         \
    src/goaccess.c      \
    src/goaccess.h      \
+   src/gstorage.c      \
+   src/gstorage.h      \
    src/json.c          \
    src/json.h          \
    src/opesys.c        \

@@ -95,7 +95,7 @@ cmp_data_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ia->data, ib->data);
+  return strcmp (ia->metrics->data, ib->metrics->data);
 }
 
 /* sort data descending */
@@ -104,16 +104,7 @@ cmp_data_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ib->data, ia->data);
-}
-
-/* sort raw data descending */
-static int
-cmp_raw_data_desc (const void *a, const void *b)
-{
-  const GRawDataItem *ia = a;
-  const GRawDataItem *ib = b;
-  return strcmp ((const char *) ib->key, (const char *) ia->key);
+  return strcmp (ib->metrics->data, ia->metrics->data);
 }
 
 /* sort numeric descending */
@@ -122,7 +113,7 @@ cmp_num_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ib->hits - ia->hits);
+  return (int) (ib->metrics->hits - ia->metrics->hits);
 }
 
 /* sort raw numeric descending */
@@ -131,43 +122,11 @@ cmp_raw_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
-  return (int) (*(int *) ib->value - *(int *) ia->value);
-}
+  GDataMap *amap = ia->value;
+  GDataMap *bmap = ib->value;
 
-/* sort raw numeric descending */
-static int
-cmp_raw_os_num_desc (const void *a, const void *b)
-{
-  const GRawDataItem *ia = a;
-  const GRawDataItem *ib = b;
-  GOpeSys *aos = ia->value;
-  GOpeSys *bos = ib->value;
-  return (int) (bos->hits - aos->hits);
+  return (int) (bmap->data - amap->data);
 }
-
-/* sort raw numeric descending */
-static int
-cmp_raw_brow_num_desc (const void *a, const void *b)
-{
-  const GRawDataItem *ia = a;
-  const GRawDataItem *ib = b;
-  GBrowser *abro = ia->value;
-  GBrowser *bbro = ib->value;
-  return (int) (bbro->hits - abro->hits);
-}
-
-/* sort raw numeric descending */
-#ifdef HAVE_LIBGEOIP
-static int
-cmp_raw_geo_num_desc (const void *a, const void *b)
-{
-  const GRawDataItem *ia = a;
-  const GRawDataItem *ib = b;
-  GLocation *aloc = ia->value;
-  GLocation *bloc = ib->value;
-  return (int) (bloc->hits - aloc->hits);
-}
-#endif
 
 /* sort numeric ascending */
 static int
@@ -175,7 +134,7 @@ cmp_num_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ia->hits - ib->hits);
+  return (int) (ia->metrics->hits - ib->metrics->hits);
 }
 
 /* sort bandwidth descending */
@@ -184,7 +143,7 @@ cmp_bw_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ib->bw - ia->bw);
+  return (unsigned long long) (ib->metrics->bw.nbw - ia->metrics->bw.nbw);
 }
 
 /* sort bandwidth ascending */
@@ -193,7 +152,7 @@ cmp_bw_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ia->bw - ib->bw);
+  return (unsigned long long) (ia->metrics->bw.nbw - ib->metrics->bw.nbw);
 }
 
 /* sort usec descending */
@@ -202,7 +161,7 @@ cmp_usec_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ib->usecs - ia->usecs);
+  return (unsigned long long) (ib->metrics->avgts.nts - ia->metrics->avgts.nts);
 }
 
 /* sort usec ascending */
@@ -211,7 +170,7 @@ cmp_usec_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ia->usecs - ib->usecs);
+  return (unsigned long long) (ia->metrics->avgts.nts - ib->metrics->avgts.nts);
 }
 
 /* sort protocol ascending */
@@ -220,7 +179,7 @@ cmp_proto_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ia->protocol, ib->protocol);
+  return strcmp (ia->metrics->protocol, ib->metrics->protocol);
 }
 
 /* sort protocol descending */
@@ -229,7 +188,7 @@ cmp_proto_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ib->protocol, ia->protocol);
+  return strcmp (ib->metrics->protocol, ia->metrics->protocol);
 }
 
 /* sort method ascending */
@@ -238,7 +197,7 @@ cmp_mthd_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ia->method, ib->method);
+  return strcmp (ia->metrics->method, ib->metrics->method);
 }
 
 /* sort method descending */
@@ -247,7 +206,7 @@ cmp_mthd_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return strcmp (ib->method, ia->method);
+  return strcmp (ib->metrics->method, ia->metrics->method);
 }
 
 int
@@ -363,25 +322,8 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
 
 /* sort raw data for the first run (default sort) */
 GRawData *
-sort_raw_data (GRawData * raw, GModule module, int ht_size)
+sort_raw_data (GRawData * raw, int ht_size)
 {
-  switch (module) {
-  case VISITORS:
-    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_data_desc);
-    break;
-  case OS:
-    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_os_num_desc);
-    break;
-  case BROWSERS:
-    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_brow_num_desc);
-    break;
-#ifdef HAVE_LIBGEOIP
-  case GEO_LOCATION:
-    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_geo_num_desc);
-    break;
-#endif
-  default:
-    qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
-  }
+  qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
   return raw;
 }

@@ -30,6 +30,24 @@
 #include "commons.h"
 #include "parser.h"
 
+
+typedef struct GOutput_
+{
+  GModule module;
+  void (*render) (FILE * fp, GHolder * h, int processed,
+                  const struct GOutput_ *);
+  int8_t visitors;
+  int8_t hits;
+  int8_t percent;
+  int8_t bw;
+  int8_t avgts;
+  int8_t protocol;
+  int8_t method;
+  int8_t data;
+  int8_t graph;
+  int8_t sub_graph;
+} GOutput;
+
 void output_html (GLog * logger, GHolder * holder);
 
 #endif

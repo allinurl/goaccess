@@ -53,27 +53,66 @@
 #include "util.h"
 #include "xmalloc.h"
 
+static void add_data_to_holder (GRawDataItem item, GHolder * h,
+                                const GPanel * panel);
+static void add_host_to_holder (GRawDataItem item, GHolder * h,
+                                const GPanel * panel);
+static void add_root_to_holder (GRawDataItem item, GHolder * h,
+                                const GPanel * panel);
+static void add_host_child_to_holder (GHolder * h);
+static void data_visitors (GHolder * h);
+
 /* *INDENT-OFF* */
 
 static GFind find_t;
 /* module's styles */
 static const GDashStyle module_style[TOTAL_MODULES] = {
-  {COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, -1, -1, -1},                 /* VISITORS        */
-  {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* REQUESTS        */
-  {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* REQUESTS_STATIC */
-  {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_BLACK, COL_WHITE}, /* NOT FOUND       */
-  {COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, COL_WHITE, COL_BLACK, -1, -1},        /* HOSTS           */
-  {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1, -1, -1},                        /* OS              */
-  {COL_WHITE, COL_WHITE, -1, COL_RED, COL_WHITE, -1, -1, -1},                        /* BROWSERS        */
-  {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* REFERRERS       */
-  {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* REFERRING_SITES */
-  {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* KEYPHRASES      */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        , /* VISITORS        */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} , /* REQUESTS        */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} , /* REQUESTS_STATIC */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} , /* NOT FOUND       */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , -1        , -1}        , /* HOSTS           */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE} , /* OS              */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        , /* BROWSERS        */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1        , -1        , -1}        , /* REFERRERS       */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1        , -1        , -1}        , /* REFERRING_SITES */
+  {COL_BLACK, COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1        , -1        , -1}        , /* KEYPHRASES      */
 #ifdef HAVE_LIBGEOIP
-  {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* GEO_LOCATION    */
+  {COL_BLACK, COL_WHITE , COL_WHITE , -1        , COL_BLACK , -1        , -1        , -1        , -1}        , /* GEO_LOCATION    */
 #endif
-  {COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},                             /* STATUS CODES    */
+  {COL_BLACK, COL_WHITE , COL_WHITE , -1        , COL_BLACK , -1        , -1        , -1        , -1}        , /* STATUS CODES    */
 };
+
+static GPanel paneling[] = {
+  {VISITORS        , add_data_to_holder, data_visitors} ,
+  {REQUESTS        , add_data_to_holder, NULL} ,
+  {REQUESTS_STATIC , add_data_to_holder, NULL} ,
+  {NOT_FOUND       , add_data_to_holder, NULL} ,
+  {HOSTS           , add_host_to_holder, add_host_child_to_holder} ,
+  {BROWSERS        , add_root_to_holder, NULL} ,
+  {OS              , add_root_to_holder, NULL} ,
+  {REFERRERS       , add_data_to_holder, NULL} ,
+  {REFERRING_SITES , add_data_to_holder, NULL} ,
+  {KEYPHRASES      , add_data_to_holder, NULL} ,
+#ifdef HAVE_LIBGEOIP
+  {GEO_LOCATION    , add_root_to_holder, NULL} ,
+#endif
+  {STATUS_CODES    , add_root_to_holder, NULL} ,
+};
+
 /* *INDENT-ON* */
+
+static GPanel *
+panel_lookup (GModule module)
+{
+  int i, num_panels = ARRAY_SIZE (paneling);
+
+  for (i = 0; i < num_panels; i++) {
+    if (paneling[i].module == module)
+      return &paneling[i];
+  }
+  return NULL;
+}
 
 /* reset find indices */
 void
@@ -106,7 +145,23 @@ GDashData *
 new_gdata (uint32_t size)
 {
   GDashData *data = xcalloc (size, sizeof (GDashData));
+
   return data;
+}
+
+static void
+free_dashboard_data (GDashData item)
+{
+  if (item.metrics == NULL)
+    return;
+
+  if (item.metrics->data)
+    free (item.metrics->data);
+  if (item.metrics->bw.sbw)
+    free (item.metrics->bw.sbw);
+  if (conf.serve_usecs && item.metrics->avgts.sts)
+    free (item.metrics->avgts.sts);
+  free (item.metrics);
 }
 
 /* free dash and its elements */
@@ -116,10 +171,7 @@ free_dashboard (GDash * dash)
   int i, j;
   for (i = 0; i < TOTAL_MODULES; i++) {
     for (j = 0; j < dash->module[i].alloc_data; j++) {
-      free (dash->module[i].data[j].data);
-      free (dash->module[i].data[j].bandwidth);
-      if (conf.serve_usecs)
-        free (dash->module[i].data[j].serve_time);
+      free_dashboard_data (dash->module[i].data[j]);
     }
     free (dash->module[i].data);
   }
@@ -141,6 +193,7 @@ static GHolderItem *
 new_gholder_item (uint32_t size)
 {
   GHolderItem *item = xcalloc (size, sizeof (GHolderItem));
+
   return item;
 }
 
@@ -158,12 +211,11 @@ new_gsublist (void)
 
 /* allocate memory for a sub list item */
 static GSubItem *
-new_gsubitem (GModule module, char *data, int hits, uint64_t bw)
+new_gsubitem (GModule module, GMetrics * nmetrics)
 {
   GSubItem *sub_item = xmalloc (sizeof (GSubItem));
-  sub_item->data = data;
-  sub_item->hits = hits;
-  sub_item->bw = bw;
+
+  sub_item->metrics = nmetrics;
   sub_item->module = module;
   sub_item->prev = NULL;
   sub_item->next = NULL;
@@ -173,10 +225,9 @@ new_gsubitem (GModule module, char *data, int hits, uint64_t bw)
 
 /* add an item to the end of a given sub list */
 static void
-add_sub_item_back (GSubList * sub_list, GModule module, char *data, int hits,
-                   uint64_t bw)
+add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics)
 {
-  GSubItem *sub_item = new_gsubitem (module, data, hits, bw);
+  GSubItem *sub_item = new_gsubitem (module, nmetrics);
   if (sub_list->tail) {
     sub_list->tail->next = sub_item;
     sub_item->prev = sub_list->tail;
@@ -202,7 +253,8 @@ delete_sub_list (GSubList * sub_list)
 
   for (item = sub_list->head; item; item = next) {
     next = item->next;
-    free (item->data);
+    free (item->metrics->data);
+    free (item->metrics);
     free (item);
   }
 clear:
@@ -217,12 +269,14 @@ free_holder_data (GHolderItem item)
 {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.data != NULL)
-    free (item.data);
-  if (item.method != NULL)
-    free (item.method);
-  if (item.protocol != NULL)
-    free (item.protocol);
+  if (item.metrics->data != NULL)
+    free (item.metrics->data);
+  if (item.metrics->method != NULL)
+    free (item.metrics->method);
+  if (item.metrics->protocol != NULL)
+    free (item.metrics->protocol);
+  if (item.metrics != NULL)
+    free (item.metrics);
 }
 
 /* free memory allocated in holder for specific module */
@@ -234,10 +288,11 @@ free_holder_by_module (GHolder ** holder, GModule module)
   if ((*holder) == NULL)
     return;
 
-  for (j = 0; j < (*holder)[module].holder_size; j++) {
+  for (j = 0; j < (*holder)[module].idx; j++) {
     free_holder_data ((*holder)[module].items[j]);
   }
   free ((*holder)[module].items);
+
   (*holder)[module].holder_size = 0;
   (*holder)[module].idx = 0;
   (*holder)[module].sub_items_size = 0;
@@ -254,7 +309,7 @@ free_holder (GHolder ** holder)
     return;
 
   for (module = 0; module < TOTAL_MODULES; module++) {
-    for (j = 0; j < (*holder)[module].holder_size; j++) {
+    for (j = 0; j < (*holder)[module].idx; j++) {
       free_holder_data ((*holder)[module].items[j]);
     }
     free ((*holder)[module].items);
@@ -263,30 +318,36 @@ free_holder (GHolder ** holder)
   (*holder) = NULL;
 }
 
+static GModule
+get_find_current_module (GDash * dash, int offset)
+{
+  GModule module;
+
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    /* set current module */
+    if (dash->module[module].pos_y == offset)
+      return module;
+    /* we went over by one module, set current - 1 */
+    if (dash->module[module].pos_y > offset)
+      return module - 1;
+  }
+
+  return 0;
+}
+
 /**
  * Determine which module should be expanded given the
  * current mouse position.
  */
 int
-set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
+set_module_from_mouse_event (GScroll * gscroll, GDash * dash, int y)
 {
-  int module = 0, i;
+  int module = 0;
   int offset = y - MAX_HEIGHT_HEADER - MAX_HEIGHT_FOOTER + 1;
-  if (scrolling->expanded) {
-    for (i = 0; i < TOTAL_MODULES; i++) {
-      /* set current module */
-      if (dash->module[i].pos_y == offset) {
-        module = i;
-        break;
-      }
-      /* we went over by one module, set current - 1 */
-      if (dash->module[i].pos_y > offset) {
-        module = i - 1;
-        break;
-      }
-    }
+  if (gscroll->expanded) {
+    module = get_find_current_module (dash, offset);
   } else {
-    offset += scrolling->dash;
+    offset += gscroll->dash;
     module = offset / DASH_COLLAPSED;
   }
 
@@ -295,10 +356,10 @@ set_module_from_mouse_event (GScrolling * scrolling, GDash * dash, int y)
   else if (module < 0)
     module = 0;
 
-  if ((int) scrolling->current == module)
+  if ((int) gscroll->current == module)
     return 1;
 
-  scrolling->current = module;
+  gscroll->current = module;
   return 0;
 }
 
@@ -341,15 +402,43 @@ get_bars (int n, int max, int x)
   return char_repeat (len, '|');
 }
 
+/*get largest method's length */
+static int
+get_max_method_len (GDashData * data, int size)
+{
+  int i, max = 0, len;
+  for (i = 0; i < size; i++) {
+    if (data[i].metrics->method == NULL)
+      continue;
+    len = strlen (data[i].metrics->method);
+    if (len > max)
+      max = len;
+  }
+  return max;
+}
+
 /*get largest data's length */
 static int
 get_max_data_len (GDashData * data, int size)
 {
   int i, max = 0, len;
   for (i = 0; i < size; i++) {
-    if (data[i].data == NULL)
+    if (data[i].metrics->data == NULL)
       continue;
-    len = strlen (data[i].data);
+    len = strlen (data[i].metrics->data);
+    if (len > max)
+      max = len;
+  }
+  return max;
+}
+
+/*get largest hit's length */
+static int
+get_max_visitor_len (GDashData * data, int size)
+{
+  int i, max = 0;
+  for (i = 0; i < size; i++) {
+    int len = intlen (data[i].metrics->visitors);
     if (len > max)
       max = len;
   }
@@ -362,7 +451,7 @@ get_max_hit_len (GDashData * data, int size)
 {
   int i, max = 0;
   for (i = 0; i < size; i++) {
-    int len = intlen (data[i].hits);
+    int len = intlen (data[i].metrics->hits);
     if (len > max)
       max = len;
   }
@@ -376,7 +465,7 @@ get_max_hit (GDashData * data, int size)
   int i, max = 0;
   for (i = 0; i < size; i++) {
     int cur = 0;
-    if ((cur = data[i].hits) > max)
+    if ((cur = data[i].metrics->hits) > max)
       max = cur;
   }
   return max;
@@ -389,22 +478,22 @@ set_percent_data (GDashData * data, int n, int process)
   float max = 0.0;
   int i;
   for (i = 0; i < n; i++) {
-    data[i].percent = get_percentage (process, data[i].hits);
-    if (data[i].percent > max)
-      max = data[i].percent;
+    data[i].metrics->percent = get_percentage (process, data[i].metrics->hits);
+    if (data[i].metrics->percent > max)
+      max = data[i].metrics->percent;
   }
   return max;
 }
 
 /* render module's total */
 static void
-render_total_label (WINDOW * win, GDashModule * module_data, int y)
+render_total_label (WINDOW * win, GDashModule * data, int y)
 {
   char *s;
   int win_h, win_w, total, ht_size;
 
-  total = module_data->holder_size;
-  ht_size = module_data->ht_size;
+  total = data->holder_size;
+  ht_size = data->ht_size;
 
   s = xmalloc (snprintf (NULL, 0, "Total: %d/%d", total, ht_size) + 1);
   getmaxyx (win, win_h, win_w);
@@ -417,18 +506,20 @@ render_total_label (WINDOW * win, GDashModule * module_data, int y)
 
 /* render dashboard bars (graph) */
 static void
-render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
-             int w, int selected)
+render_bars (GDashModule * data, GDashRender render, int *x)
 {
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
+
   char *bar;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
 
   if (style[module].color_bars == -1)
     return;
 
-  bar = get_bars (module_data->data[idx].hits, module_data->max_hits, *x);
-  if (selected)
+  bar = get_bars (data->data[idx].metrics->hits, data->max_hits, *x);
+  if (sel)
     draw_header (win, bar, "%s", y, *x, w, HIGHLIGHT, 0);
   else
     mvwprintw (win, y, *x, "%s", bar);
@@ -437,46 +528,51 @@ render_bars (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
 
 /* render dashboard data */
 static void
-render_data (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
-             int w, int selected)
+render_data (GDashModule * data, GDashRender render, int *x)
 {
-  char buf[DATE_LEN];
-  char *data, *padded_data;
-
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
 
-  data = substring (module_data->data[idx].data, 0, w - *x);
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+
+  char buf[DATE_LEN];
+  char *value, *padded_data;
+
+  value = substring (data->data[idx].metrics->data, 0, w - *x);
   if (module == VISITORS)
-    convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
+    convert_date (buf, value, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
 
-  if (selected) {
-    if (module_data->module == HOSTS && module_data->data[idx].is_subitem) {
-      padded_data = left_pad_str (data, *x);
+  if (sel) {
+    if (data->module == HOSTS && data->data[idx].is_subitem) {
+      padded_data = left_pad_str (value, *x);
       draw_header (win, padded_data, "%s", y, 0, w, HIGHLIGHT, 0);
       free (padded_data);
     } else {
-      draw_header (win, module == VISITORS ? buf : data, "%s", y, *x, w,
+      draw_header (win, module == VISITORS ? buf : value, "%s", y, *x, w,
                    HIGHLIGHT, 0);
     }
   } else {
     wattron (win, COLOR_PAIR (style[module].color_hits));
-    mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : data);
+    mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : value);
     wattroff (win, COLOR_PAIR (style[module].color_hits));
   }
-  *x += module == VISITORS ? DATE_LEN - 1 : module_data->data_len;
+
+  *x += module == VISITORS ? DATE_LEN - 1 : data->data_len;
   *x += DASH_SPACE;
-  free (data);
+  free (value);
 }
 
 /* render dashboard request method */
 static void
-render_method (WINDOW * win, GDashModule * module_data, int y, int *x,
-               int idx, int w, int selected)
+render_method (GDashModule * data, GDashRender render, int *x)
 {
-  const char *method = module_data->data[idx].method;
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
+
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *method = data->data[idx].metrics->method;
 
   if (style[module].color_method == -1)
     return;
@@ -484,24 +580,31 @@ render_method (WINDOW * win, GDashModule * module_data, int y, int *x,
   if (method == NULL || *method == '\0')
     return;
 
-  if (selected) {
+  /* selected state */
+  if (sel) {
     draw_header (win, method, "%s", y, *x, w, HIGHLIGHT, 0);
-  } else {
+  }
+  /* regular state */
+  else {
     wattron (win, A_BOLD | COLOR_PAIR (style[module].color_method));
     mvwprintw (win, y, *x, "%s", method);
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_method));
   }
-  *x += strlen (module_data->data[idx].method) + DASH_SPACE;
+
+  /**x += strlen (data->data[idx].metrics->method) + DASH_SPACE;*/
+  *x += data->method_len + DASH_SPACE;
 }
 
 /* render dashboard request protocol */
 static void
-render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
-                 int idx, int w, int selected)
+render_protocol (GDashModule * data, GDashRender render, int *x)
 {
-  const char *protocol = module_data->data[idx].protocol;
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
+
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *protocol = data->data[idx].metrics->protocol;
 
   if (style[module].color_protocol == -1)
     return;
@@ -509,133 +612,182 @@ render_protocol (WINDOW * win, GDashModule * module_data, int y, int *x,
   if (protocol == NULL || *protocol == '\0')
     return;
 
-  if (selected) {
+  /* selected state */
+  if (sel) {
     draw_header (win, protocol, "%s", y, *x, w, HIGHLIGHT, 0);
-  } else {
-    wattron (win, COLOR_PAIR (style[module].color_protocol));
-    mvwprintw (win, y, *x, "%s", protocol);
-    wattroff (win, COLOR_PAIR (style[module].color_protocol));
   }
+  /* regular state */
+  else {
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_protocol));
+    mvwprintw (win, y, *x, "%s", protocol);
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_protocol));
+  }
+
   *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
 }
 
 /* render dashboard usecs */
 static void
-render_usecs (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
-              int w, int selected)
+render_usecs (GDashModule * data, GDashRender render, int *x)
 {
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
 
-  if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-    goto inc;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *avgts = data->data[idx].metrics->avgts.sts;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
   if (style[module].color_usecs == -1)
     return;
 
-  if (selected) {
-    draw_header (win, module_data->data[idx].serve_time, "%9s", y, *x, w,
-                 HIGHLIGHT, 0);
-  } else {
+  /* selected state */
+  if (sel) {
+    draw_header (win, avgts, "%9s", y, *x, w, HIGHLIGHT, 0);
+  }
+  /* regular state */
+  else {
     wattron (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
-    mvwprintw (win, y, *x, "%9s", module_data->data[idx].serve_time);
+    mvwprintw (win, y, *x, "%9s", avgts);
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
   }
-inc:
+out:
+
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
 /* render dashboard bandwidth */
 static void
-render_bandwidth (WINDOW * win, GDashModule * module_data, int y, int *x,
-                  int idx, int w, int selected)
+render_bandwidth (GDashModule * data, GDashRender render, int *x)
 {
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
 
-  if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-    goto inc;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *bw = data->data[idx].metrics->bw.sbw;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
   if (style[module].color_bw == -1)
     return;
 
-  if (selected) {
-    draw_header (win, module_data->data[idx].bandwidth, "%11s", y, *x, w,
-                 HIGHLIGHT, 0);
-  } else {
+  /* selected state */
+  if (sel) {
+    draw_header (win, bw, "%11s", y, *x, w, HIGHLIGHT, 0);
+  }
+  /* regular state */
+  else {
     wattron (win, A_BOLD | COLOR_PAIR (style[module].color_bw));
-    mvwprintw (win, y, *x, "%11s", module_data->data[idx].bandwidth);
+    mvwprintw (win, y, *x, "%11s", bw);
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_bw));
   }
-inc:
+out:
+
   *x += DASH_BW_LEN + DASH_SPACE;
 }
 
 /* render dashboard percent */
 static void
-render_percent (WINDOW * win, GDashModule * module_data, int y, int *x,
-                int idx, int w, int selected)
+render_percent (GDashModule * data, GDashRender render, int *x)
 {
-  int max_hit = 0;
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
-  GModule module = module_data->module;
 
-  if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-    goto inc;
+  char *percent;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  int len = data->perc_len + 3;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
   if (style[module].color_percent == -1)
     return;
 
-  if (module_data->max_hits == module_data->data[idx].hits)
-    max_hit = 1;
-
-  if (selected) {
-    char *percent = float_to_str (module_data->data[idx].percent);
+  /* selected state */
+  if (sel) {
+    percent = float_to_str (data->data[idx].metrics->percent);
     draw_header (win, percent, "%s%%", y, *x, w, HIGHLIGHT, 0);
     free (percent);
-  } else {
+  }
+  /* regular state */
+  else {
     wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-    if (max_hit)
-      wattron (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
-    if (style[module].color_percent == COL_BLACK)
-      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-
-    mvwprintw (win, y, *x, "%.2f%%", module_data->data[idx].percent);
-
-    if (style[module].color_percent == COL_BLACK)
-      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-    if (max_hit)
-      wattroff (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
+    mvwprintw (win, y, *x, "%*.2f%%", len, data->data[idx].metrics->percent);
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
   }
-inc:
-  *x += module_data->perc_len + DASH_SPACE;
+out:
+
+  *x += len + 1 + DASH_SPACE;
 }
 
 /* render dashboard hits */
 static void
-render_hits (WINDOW * win, GDashModule * module_data, int y, int *x, int idx,
-             int w, int selected)
+render_hits (GDashModule * data, GDashRender render, int *x)
 {
+  WINDOW *win = render.win;
+  GModule module = data->module;
   const GDashStyle *style = module_style;
+
   char *hits;
-  GModule module = module_data->module;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  int len = data->hits_len;
 
-  if (module_data->module == HOSTS && module_data->data[idx].is_subitem)
-    goto inc;
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
 
-  if (selected) {
-    hits = int_to_str (module_data->data[idx].hits);
-    draw_header (win, hits, "  %s", y, 0, w, HIGHLIGHT, 0);
+  /* selected state */
+  if (sel) {
+    hits = int_to_str (data->data[idx].metrics->hits);
+    draw_header (win, hits, "%s", y, *x, w, HIGHLIGHT, 0);
     free (hits);
-  } else {
+  }
+  /* regular state */
+  else {
     wattron (win, COLOR_PAIR (style[module].color_hits));
-    mvwprintw (win, y, *x, "%d", module_data->data[idx].hits);
+    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
     wattroff (win, COLOR_PAIR (style[module].color_hits));
   }
-inc:
-  *x += module_data->hits_len + DASH_SPACE;
+out:
+
+  *x += len + DASH_SPACE;
+}
+
+/* render dashboard hits */
+static void
+render_visitors (GDashModule * data, GDashRender render, int *x)
+{
+  WINDOW *win = render.win;
+  GModule module = data->module;
+  const GDashStyle *style = module_style;
+
+  char *visitors;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  int len = data->visitors_len;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
+
+  /* selected state */
+  if (sel) {
+    visitors = int_to_str (data->data[idx].metrics->visitors);
+    draw_header (win, visitors, "  %s", y, 0, w, HIGHLIGHT, 0);
+    free (visitors);
+  }
+  /* regular state */
+  else {
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_visitors));
+    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->visitors);
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_visitors));
+  }
+out:
+
+  *x += len + DASH_SPACE;
 }
 
 static void
-render_header (WINDOW * win, GDashModule * module_data, int *y)
+render_header (WINDOW * win, GDashModule * data, int *y)
 {
   char *hd;
   int k, w, h;
@@ -643,26 +795,26 @@ render_header (WINDOW * win, GDashModule * module_data, int *y)
   getmaxyx (win, h, w);
   (void) h;
 
-  k = module_data->module + 1;
-  hd = xmalloc (snprintf (NULL, 0, "%d - %s", k, module_data->head) + 1);
-  sprintf (hd, "%d - %s", k, module_data->head);
+  k = data->module + 1;
+  hd = xmalloc (snprintf (NULL, 0, "%d - %s", k, data->head) + 1);
+  sprintf (hd, "%d - %s", k, data->head);
 
   draw_header (win, hd, " %s", (*y), 0, w, 1, 0);
   free (hd);
 
-  render_total_label (win, module_data, (*y));
-  module_data->pos_y = (*y);
+  render_total_label (win, data, (*y));
+  data->pos_y = (*y);
   (*y)++;
 }
 
-/* render dashboard content */
 static void
-render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
-                int *total, GScrolling * scrolling)
+render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
+                  GScroll * gscroll)
 {
-  GModule module = module_data->module;
-  int expanded = 0, sel = 0, host_bars = 0, size;
-  int i, j, x = 0, w, h;
+  GDashRender render;
+  GModule module = data->module;
+  int expanded = 0, sel = 0, host_bars = 0;
+  int x = 0, w, h;
 
   if (!conf.skip_term_resolver)
     host_bars = 1;
@@ -672,54 +824,79 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
 #endif
 
   getmaxyx (win, h, w);
+  (void) h;
 
-  if (scrolling->expanded && module == scrolling->current)
+  if (gscroll->expanded && module == gscroll->current)
     expanded = 1;
 
-  size = module_data->dash_size;
+  x = DASH_INIT_X;
+
+  if (j >= data->idx_data)
+    goto out;
+
+  sel = expanded && j == gscroll->module[module].scroll ? 1 : 0;
+
+  render.win = win;
+  render.y = *y;
+  render.w = w;
+  render.idx = j;
+  render.sel = sel;
+
+  render_hits (data, render, &x);
+  render_visitors (data, render, &x);
+  render_percent (data, render, &x);
+  render_bandwidth (data, render, &x);
+
+  /* render usecs if available */
+  if (conf.serve_usecs)
+    render_usecs (data, render, &x);
+  /* render request method if available */
+  if (conf.append_method)
+    render_method (data, render, &x);
+  /* render request protocol if available */
+  if (conf.append_protocol)
+    render_protocol (data, render, &x);
+  render_data (data, render, &x);
+
+  /* skip graph bars if module is expanded and we have sub nodes */
+  if (module == HOSTS && expanded && host_bars);
+  else
+    render_bars (data, render, &x);
+
+out:
+  (*y)++;
+}
+
+/* render dashboard content */
+static void
+render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
+                int *total, GScroll * gscroll)
+{
+  GModule module = data->module;
+  int i, j, size, h, w;
+
+  getmaxyx (win, h, w);
+
+  size = data->dash_size;
   for (i = *offset, j = 0; i < size; i++) {
     /* header */
-    if ((i % size) == DASH_HEAD_POS)
-      render_header (win, module_data, y);
-    /* description */
-    else if ((i % size) == DASH_DESC_POS)
-      draw_header (win, module_data->desc, " %s", (*y)++, 0, w, 2, 0);
-    /* blank lines */
-    else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1)
+    if ((i % size) == DASH_HEAD_POS) {
+      render_header (win, data, y);
+    } else if ((i % size) == DASH_DESC_POS) {
+      /* description */
+      draw_header (win, data->desc, " %s", (*y)++, 0, w, 2, 0);
+    } else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1) {
+      /* blank lines */
       (*y)++;
-    /* actual data */
-    else if ((i % size) >= DASH_DATA_POS || (i % size) <= size - 2) {
-      x = DASH_INIT_X;
+    } else if ((i % size) >= DASH_DATA_POS || (i % size) <= size - 2) {
       /* account for 2 lines at the header and 2 blank lines */
-      j = ((i % size) - DASH_DATA_POS) + scrolling->module[module].offset;
-
-      if (j < module_data->idx_data) {
-        sel = expanded && j == scrolling->module[module].scroll ? 1 : 0;
-        render_hits (win, module_data, *y, &x, j, w, sel);
-        render_percent (win, module_data, *y, &x, j, w, sel);
-        render_bandwidth (win, module_data, *y, &x, j, w, sel);
-
-        /* render usecs if available */
-        if (conf.serve_usecs)
-          render_usecs (win, module_data, *y, &x, j, w, sel);
-        /* render request method if available */
-        if (conf.append_protocol)
-          render_protocol (win, module_data, *y, &x, j, w, sel);
-        /* render request method if available */
-        if (conf.append_method)
-          render_method (win, module_data, *y, &x, j, w, sel);
-        render_data (win, module_data, *y, &x, j, w, sel);
-
-        /* skip graph bars if module is expanded and we have sub nodes */
-        if (module == HOSTS && expanded && host_bars);
-        else
-          render_bars (win, module_data, *y, &x, j, w, sel);
-      }
+      j = ((i % size) - DASH_DATA_POS) + gscroll->module[module].offset;
+      /* actual data */
+      render_data_line (win, data, y, j, gscroll);
+    } else {
+      /* everything else should be empty */
       (*y)++;
     }
-    /* everything else should be empty */
-    else
-      (*y)++;
     (*total)++;
     if (*y >= h)
       break;
@@ -728,15 +905,15 @@ render_content (WINDOW * win, GDashModule * module_data, int *y, int *offset,
 
 /* entry point to render dashboard */
 void
-display_content (WINDOW * win, GLog * logger, GDash * dash,
-                 GScrolling * scrolling)
+display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
 {
+  GDashData *idata;
   GModule module;
   float max_percent = 0.0;
   int j, n = 0, process = 0;
 
   int y = 0, offset = 0, total = 0;
-  int dash_scroll = scrolling->dash;
+  int dash_scroll = gscroll->dash;
 
   werase (win);
 
@@ -750,42 +927,31 @@ display_content (WINDOW * win, GLog * logger, GDash * dash,
       }
     }
 
-    /* Every module other than VISITORS, GEO_LOCATION, BROWSERS and OS
-     * will use total req as base */
-    switch (module) {
-#ifdef HAVE_LIBGEOIP
-    case GEO_LOCATION:
-#endif
-    case VISITORS:
-    case BROWSERS:
-    case OS:
-      process = get_ht_size (ht_unique_visitors);
-      break;
-    default:
-      process = logger->process;
-    }
-    max_percent = set_percent_data (dash->module[module].data, n, process);
-    dash->module[module].module = module;
-    dash->module[module].max_hits = get_max_hit (dash->module[module].data, n);
-    dash->module[module].hits_len =
-      get_max_hit_len (dash->module[module].data, n);
-    dash->module[module].data_len =
-      get_max_data_len (dash->module[module].data, n);
-    dash->module[module].perc_len = intlen ((int) max_percent) + 4;
+    idata = dash->module[module].data;
+    process = logger->process;
+    max_percent = set_percent_data (idata, n, process);
 
-    render_content (win, &dash->module[module], &y, &offset, &total, scrolling);
+    dash->module[module].module = module;
+    dash->module[module].method_len = get_max_method_len (idata, n);
+    dash->module[module].data_len = get_max_data_len (idata, n);
+    dash->module[module].hits_len = get_max_hit_len (idata, n);
+    dash->module[module].max_hits = get_max_hit (idata, n);
+    dash->module[module].perc_len = intlen ((int) max_percent);
+    dash->module[module].visitors_len = get_max_visitor_len (idata, n);
+
+    render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
   }
   wrefresh (win);
 }
 
 /* reset scroll and offset for each module */
 void
-reset_scroll_offsets (GScrolling * scrolling)
+reset_scroll_offsets (GScroll * gscroll)
 {
   int i;
   for (i = 0; i < TOTAL_MODULES; i++) {
-    scrolling->module[i].scroll = 0;
-    scrolling->module[i].offset = 0;
+    gscroll->module[i].scroll = 0;
+    gscroll->module[i].offset = 0;
   }
 }
 
@@ -808,27 +974,27 @@ regexp_init (regex_t * regex, const char *pattern)
   return 0;
 }
 
-/* set search scrolling */
+/* set search gscroll */
 static void
-perform_find_dash_scroll (GScrolling * scrolling, GModule module)
+perform_find_dash_scroll (GScroll * gscroll, GModule module)
 {
   int *scrll, *offset;
   int exp_size = DASH_EXPANDED - DASH_NON_DATA;
 
-  /* reset scrolling offsets if we are changing module */
-  if (scrolling->current != module)
-    reset_scroll_offsets (scrolling);
+  /* reset gscroll offsets if we are changing module */
+  if (gscroll->current != module)
+    reset_scroll_offsets (gscroll);
 
-  scrll = &scrolling->module[module].scroll;
-  offset = &scrolling->module[module].offset;
+  scrll = &gscroll->module[module].scroll;
+  offset = &gscroll->module[module].offset;
 
   (*scrll) = find_t.next_idx;
   if (*scrll >= exp_size && *scrll >= *offset + exp_size)
     (*offset) = (*scrll) < exp_size - 1 ? 0 : (*scrll) - exp_size + 1;
 
-  scrolling->current = module;
-  scrolling->dash = module * DASH_COLLAPSED;
-  scrolling->expanded = 1;
+  gscroll->current = module;
+  gscroll->dash = module * DASH_COLLAPSED;
+  gscroll->expanded = 1;
   find_t.module = module;
 }
 
@@ -844,7 +1010,7 @@ find_next_sub_item (GSubList * sub_list, regex_t * regex)
 
   for (iter = sub_list->head; iter; iter = iter->next) {
     if (i >= find_t.next_sub_idx) {
-      rc = regexec (regex, iter->data, 0, NULL, 0);
+      rc = regexec (regex, iter->metrics->data, 0, NULL, 0);
       if (rc == 0) {
         find_t.next_idx++;
         find_t.next_sub_idx = (1 + i);
@@ -864,7 +1030,7 @@ out:
 
 /* perform a forward search across all modules */
 int
-perform_next_find (GHolder * h, GScrolling * scrolling)
+perform_next_find (GHolder * h, GScroll * gscroll)
 {
   int y, x, j, n, rc;
   char buf[REGEX_ERROR];
@@ -886,7 +1052,7 @@ perform_next_find (GHolder * h, GScrolling * scrolling)
   for (module = find_t.module; module < TOTAL_MODULES; module++) {
     n = h[module].idx;
     for (j = find_t.next_parent_idx; j < n; j++, find_t.next_idx++) {
-      data = h[module].items[j].data;
+      data = h[module].items[j].metrics->data;
 
       rc = regexec (&regex, data, 0, NULL, 0);
       if (rc != 0 && rc != REG_NOMATCH) {
@@ -909,8 +1075,8 @@ perform_next_find (GHolder * h, GScrolling * scrolling)
     find_t.next_parent_idx = 0;
     find_t.next_sub_idx = 0;
     if (find_t.module != module) {
-      reset_scroll_offsets (scrolling);
-      scrolling->expanded = 0;
+      reset_scroll_offsets (gscroll);
+      gscroll->expanded = 0;
     }
     if (module == TOTAL_MODULES - 1) {
       find_t.module = 0;
@@ -919,7 +1085,7 @@ perform_next_find (GHolder * h, GScrolling * scrolling)
   }
 
 found:
-  perform_find_dash_scroll (scrolling, module);
+  perform_find_dash_scroll (gscroll, module);
 out:
   regfree (&regex);
   return 0;
@@ -927,7 +1093,7 @@ out:
 
 /* render find dialog */
 int
-render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
+render_find_dialog (WINDOW * main_win, GScroll * gscroll)
 {
   int y, x, valid = 1;
   int w = FIND_DLG_WIDTH;
@@ -946,7 +1112,7 @@ render_find_dialog (WINDOW * main_win, GScrolling * scrolling)
   find_t.icase = 0;
   query = input_string (win, 4, 2, w - 3, "", 1, &find_t.icase);
   if (query != NULL && *query != '\0') {
-    reset_scroll_offsets (scrolling);
+    reset_scroll_offsets (gscroll);
     reset_find ();
     find_t.pattern = xstrdup (query);
     valid = 0;
@@ -967,16 +1133,63 @@ get_item_idx_in_holder (GHolder * holder, const char *k)
 {
   int i;
   if (holder == NULL)
-    return -1;
+    return KEY_NOT_FOUND;
   if (holder->idx == 0)
-    return -1;
+    return KEY_NOT_FOUND;
+  if (k == NULL || *k == '\0')
+    return KEY_NOT_FOUND;
 
   for (i = 0; i < holder->idx; i++) {
-    if (strcmp (k, holder->items[i].data) == 0)
+    if (strcmp (k, holder->items[i].metrics->data) == 0)
       return i;
   }
 
-  return -1;
+  return KEY_NOT_FOUND;
+}
+
+
+/* Copy linked-list items to an array, sort, and move them back
+ * to the list. Should be faster than sorting the list */
+static void
+sort_sub_list (GHolder * h, GSort sort)
+{
+  GHolderItem *arr;
+  GSubItem *iter;
+  GSubList *sub_list;
+  int i, j, k;
+
+  /* iterate over root-level nodes */
+  for (i = 0; i < h->idx; i++) {
+    sub_list = h->items[i].sub_list;
+    if (sub_list == NULL)
+      continue;
+
+    arr = new_gholder_item (sub_list->size);
+
+    /* copy items from the linked-list into an array */
+    for (j = 0, iter = sub_list->head; iter; iter = iter->next, j++) {
+      arr[j].metrics = new_gmetrics ();
+
+      arr[j].metrics->bw.nbw = iter->metrics->bw.nbw;
+      arr[j].metrics->data = xstrdup (iter->metrics->data);
+      arr[j].metrics->hits = iter->metrics->hits;
+      arr[j].metrics->visitors = iter->metrics->visitors;
+      if (conf.serve_usecs)
+        arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
+    }
+    sort_holder_items (arr, j, sort);
+    delete_sub_list (sub_list);
+
+    sub_list = new_gsublist ();
+    for (k = 0; k < j; k++) {
+      if (k > 0)
+        sub_list = h->items[i].sub_list;
+
+      add_sub_item_back (sub_list, h->module, arr[k].metrics);
+      h->items[i].sub_list = sub_list;
+    }
+    free (arr);
+  }
 }
 
 /* add an item from a sub_list to the dashboard */
@@ -985,474 +1198,332 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
+  GDashData *idata;
 
   char *entry;
   int *idx;
   idx = &(*dash)->module[module].idx_data;
 
-  for (iter = sub_list->head; iter; iter = iter->next) {
-    entry = render_child_node (iter->data);
-    if (entry) {
-      (*dash)->module[module].data[(*idx)].bandwidth = filesize_str (iter->bw);
-      (*dash)->module[module].data[(*idx)].bw = iter->bw;
-      (*dash)->module[module].data[(*idx)].data = xstrdup (entry);
-      (*dash)->module[module].data[(*idx)].hits = iter->hits;
-      (*dash)->module[module].data[(*idx)++].is_subitem = 1;
-      free (entry);
-    }
-    (*i)++;
+  for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
+    entry = render_child_node (iter->metrics->data);
+    if (!entry)
+      continue;
+
+    idata = &(*dash)->module[module].data[(*idx)];
+    idata->metrics = new_gmetrics ();
+
+    idata->metrics->visitors = iter->metrics->visitors;
+    idata->metrics->bw.sbw = filesize_str (iter->metrics->bw.nbw);
+    idata->metrics->data = xstrdup (entry);
+    idata->metrics->hits = iter->metrics->hits;
+    if (conf.serve_usecs)
+      idata->metrics->avgts.sts = usecs_to_str (iter->metrics->avgts.nts);
+
+    idata->is_subitem = 1;
+    (*idx)++;
+    free (entry);
   }
-}
-
-/* add a host item to holder */
-static void
-add_host_node (GHolder * h, char *key, int hits)
-{
-  GSubList *sub_list = new_gsublist ();
-  char *ip = xstrdup (key), *hostname = NULL;
-  int found = 0;
-  uint64_t bw = 0, usecs = 0;
-  void *value_ptr;
-
-#ifdef HAVE_LIBGEOIP
-  int type_ip = 0;
-  const char *addr = key;
-  char country[COUNTRY_LEN] = "";
-  char city[CITY_LEN] = "";
-#endif
-
-  /* serve time in usecs */
-  if (conf.serve_usecs)
-    usecs = get_serve_time (key, h->module) / hits;
-  bw = get_bandwidth (key, h->module);
-
-  h->items[h->idx].bw += bw;
-  h->items[h->idx].hits += hits;
-  h->items[h->idx].data = key;
-  if (conf.serve_usecs)
-    h->items[h->idx].usecs = usecs;
-  h->items[h->idx].sub_list = sub_list;
-
-#ifdef HAVE_LIBGEOIP
-  if (!invalid_ipaddr ((char *) addr, &type_ip)) {
-    geoip_get_country (addr, country, type_ip);
-    add_sub_item_back (sub_list, h->module, xstrdup (country), hits, bw);
-    h->items[h->idx].sub_list = sub_list;
-    h->sub_items_size++;
-
-    /* add city */
-    if (conf.geoip_database) {
-      geoip_get_city (addr, city, type_ip);
-      add_sub_item_back (sub_list, h->module, xstrdup (city), hits, bw);
-      h->items[h->idx].sub_list = sub_list;
-      h->sub_items_size++;
-    }
-  }
-#endif
-
-  pthread_mutex_lock (&gdns_thread.mutex);
-#ifdef HAVE_LIBTOKYOCABINET
-  value_ptr = tc_db_get_str (ht_hostnames, ip);
-  if (value_ptr) {
-    found = 1;
-    hostname = value_ptr;
-  }
-#else
-  found = g_hash_table_lookup_extended (ht_hostnames, ip, NULL, &value_ptr);
-  if (found && value_ptr)
-    hostname = xstrdup (value_ptr);
-#endif
-  pthread_mutex_unlock (&gdns_thread.mutex);
-
-  if (!found) {
-    dns_resolver (ip);
-  } else if (hostname) {
-    add_sub_item_back (sub_list, h->module, hostname, hits, bw);
-    h->items[h->idx].sub_list = sub_list;
-    h->sub_items_size++;
-  }
-  free (ip);
-
-  h->idx++;
-}
-
-static void
-add_os_node (GHolder * h, char *key, GOpeSys * opesys)
-{
-  GSubList *sub_list;
-  int type_idx = -1, bw = 0;
-
-  type_idx = get_item_idx_in_holder (h, opesys->os_type);
-  if (type_idx == -1) {
-    h->items[h->idx].hits += opesys->hits;
-    h->items[h->idx].data = xstrdup (opesys->os_type);
-
-    /* data (child) */
-    sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, key, opesys->hits, bw);
-    h->items[h->idx++].sub_list = sub_list;
-    h->sub_items_size++;
-  } else {
-    sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, key, opesys->hits, bw);
-
-    h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].hits += opesys->hits;
-    h->sub_items_size++;
-  }
-}
-
-static void
-add_browser_node (GHolder * h, char *key, GBrowser * browser)
-{
-  GSubList *sub_list;
-  int type_idx = -1, bw = 0;
-
-  type_idx = get_item_idx_in_holder (h, browser->browser_type);
-  if (type_idx == -1) {
-    h->items[h->idx].hits += browser->hits;
-    h->items[h->idx].data = xstrdup (browser->browser_type);
-
-    /* data (child) */
-    sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, key, browser->hits, bw);
-    h->items[h->idx++].sub_list = sub_list;
-    h->sub_items_size++;
-  } else {
-    sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, key, browser->hits, bw);
-
-    h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].hits += browser->hits;
-    h->sub_items_size++;
-  }
-}
-
-/* add request items (e.g., method, protocol, request) to holder */
-static void
-add_request_node (GHolder * h, char *key, int hits)
-{
-  uint64_t usecs = 0, bw = 0;
-  char *request = NULL, *method = NULL, *protocol = NULL;
-
-  if (conf.serve_usecs)
-    usecs = get_serve_time (key, h->module) / hits;
-  bw = get_bandwidth (key, h->module);
-  request = get_request_meta (key, REQUEST);
-  method = get_request_meta (key, REQUEST_METHOD);
-  protocol = get_request_meta (key, REQUEST_PROTOCOL);
-
-  if (request == NULL)
-    return;
-
-  h->items[h->idx].bw = bw;
-  h->items[h->idx].data = xstrdup (request);
-  h->items[h->idx].hits = hits;
-
-  if (conf.append_method && method)
-    h->items[h->idx].method = xstrdup (method);
-  if (conf.append_protocol && protocol)
-    h->items[h->idx].protocol = xstrdup (protocol);
-  if (conf.serve_usecs)
-    h->items[h->idx].usecs = usecs;
-  h->idx++;
-
-  if (method)
-    free (method);
-  if (protocol)
-    free (protocol);
-  free (request);
-  free (key);
-}
-
-/* add a geolocation item to holder */
-#ifdef HAVE_LIBGEOIP
-static void
-add_geolocation_node (GHolder * h, char *key, GLocation * loc)
-{
-  GSubList *sub_list;
-  int type_idx = -1;
-  uint64_t bw = 0;
-
-  type_idx = get_item_idx_in_holder (h, loc->continent);
-  if (type_idx == -1) {
-    h->items[h->idx].hits += loc->hits;
-    h->items[h->idx].data = xstrdup (loc->continent);
-
-    /* data (child) */
-    sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, key, loc->hits, bw);
-    h->items[h->idx++].sub_list = sub_list;
-    h->sub_items_size++;
-  } else {
-    sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, key, loc->hits, bw);
-
-    h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].bw += bw;
-    h->items[type_idx].hits += loc->hits;
-    h->sub_items_size++;
-  }
-}
-#endif
-
-/* add a status code item to holder */
-static void
-add_status_code_node (GHolder * h, char *key, int hits)
-{
-  GSubList *sub_list;
-  const char *type = NULL, *status = NULL;
-  int type_idx = -1;
-  uint64_t bw = 0;
-
-  type = verify_status_code_type (key);
-  status = verify_status_code (key);
-
-  type_idx = get_item_idx_in_holder (h, type);
-  if (type_idx == -1) {
-    h->items[h->idx].hits += hits;
-    h->items[h->idx].data = xstrdup (type);
-
-    /* data (child) */
-    sub_list = new_gsublist ();
-    add_sub_item_back (sub_list, h->module, xstrdup (status), hits, bw);
-    h->items[h->idx++].sub_list = sub_list;
-    h->sub_items_size++;
-  } else {
-    sub_list = h->items[type_idx].sub_list;
-    add_sub_item_back (sub_list, h->module, xstrdup (status), hits, bw);
-
-    h->items[type_idx].sub_list = sub_list;
-    h->items[type_idx].hits += hits;
-    h->sub_items_size++;
-  }
-  free (key);
 }
 
 /* add a first level item to dashboard */
 static void
 add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
 {
+  GDashData *idata;
   int *idx = &(*dash)->module[module].idx_data;
 
-  (*dash)->module[module].data[(*idx)].bandwidth = filesize_str (item.bw);
-  (*dash)->module[module].data[(*idx)].bw = item.bw;
-  (*dash)->module[module].data[(*idx)].data = xstrdup (item.data);
-  (*dash)->module[module].data[(*idx)].hits = item.hits;
-  if (conf.append_method && item.method)
-    (*dash)->module[module].data[(*idx)].method = item.method;
-  if (conf.append_protocol && item.protocol)
-    (*dash)->module[module].data[(*idx)].protocol = item.protocol;
-  if (conf.serve_usecs) {
-    (*dash)->module[module].data[(*idx)].usecs = item.usecs;
-    (*dash)->module[module].data[(*idx)].serve_time = usecs_to_str (item.usecs);
-  }
+  idata = &(*dash)->module[module].data[(*idx)];
+  idata->metrics = new_gmetrics ();
+
+  idata->metrics->bw.sbw = filesize_str (item.metrics->bw.nbw);
+  idata->metrics->data = xstrdup (item.metrics->data);
+  idata->metrics->hits = item.metrics->hits;
+  idata->metrics->visitors = item.metrics->visitors;
+
+  if (conf.append_method && item.metrics->method)
+    idata->metrics->method = item.metrics->method;
+  if (conf.append_protocol && item.metrics->protocol)
+    idata->metrics->protocol = item.metrics->protocol;
+  if (conf.serve_usecs)
+    idata->metrics->avgts.sts = usecs_to_str (item.metrics->avgts.nts);
+
   (*idx)++;
 }
 
 /* load holder's data into dashboard */
 void
-load_data_to_dash (GHolder * h, GDash * dash, GModule module,
-                   GScrolling * scrolling)
+load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
 {
   int alloc_size = 0;
   int i, j;
 
   alloc_size = dash->module[module].alloc_data;
-  if (scrolling->expanded && module == scrolling->current) {
-    if (module == OS || module == BROWSERS || module == HOSTS ||
-        module == STATUS_CODES
-#ifdef HAVE_LIBGEOIP
-        || module == GEO_LOCATION
-#endif
-      )
-      alloc_size += h->sub_items_size;
-  }
+  if (gscroll->expanded && module == gscroll->current)
+    alloc_size += h->sub_items_size;
+
   dash->module[module].alloc_data = alloc_size;
   dash->module[module].data = new_gdata (alloc_size);
   dash->module[module].holder_size = h->holder_size;
 
   for (i = 0, j = 0; i < alloc_size; i++) {
-    if (j < dash->module[module].ht_size && h->items[j].data != NULL) {
-      add_item_to_dash (&dash, h->items[j], module);
-      if (scrolling->expanded && module == scrolling->current) {
-        if (module == OS || module == BROWSERS || module == HOSTS ||
-            module == STATUS_CODES
-#ifdef HAVE_LIBGEOIP
-            || module == GEO_LOCATION
-#endif
-          )
-          add_sub_item_to_dash (&dash, h->items[j], module, &i);
-      }
-      j++;
-    }
+    if (j >= dash->module[module].ht_size || h->items[j].metrics->data == NULL)
+      continue;
+
+    add_item_to_dash (&dash, h->items[j], module);
+    if (gscroll->expanded && module == gscroll->current && h->sub_items_size)
+      add_sub_item_to_dash (&dash, h->items[j], module, &i);
+    j++;
   }
 }
 
-uint32_t
-get_ht_size_by_module (GModule module)
+static void
+data_visitors (GHolder * h)
 {
-#ifdef TCB_BTREE
-  TCBDB *ht = NULL;
-#elif TCB_MEMHASH
-  TCMDB *ht = NULL;
-#else
-  GHashTable *ht;
-#endif
+  char date[DATE_LEN] = "";     /* Ymd */
+  char *datum = h->items[h->idx].metrics->data;
 
-  switch (module) {
-  case VISITORS:
-    ht = ht_unique_vis;
-    break;
-  case REQUESTS:
-    ht = ht_requests;
-    break;
-  case REQUESTS_STATIC:
-    ht = ht_requests_static;
-    break;
-  case NOT_FOUND:
-    ht = ht_not_found_requests;
-    break;
-  case HOSTS:
-    ht = ht_hosts;
-    break;
-  case OS:
-    ht = ht_os;
-    break;
-  case BROWSERS:
-    ht = ht_browsers;
-    break;
-  case REFERRERS:
-    ht = ht_referrers;
-    break;
-  case REFERRING_SITES:
-    ht = ht_referring_sites;
-    break;
-  case KEYPHRASES:
-    ht = ht_keyphrases;
-    break;
-#ifdef HAVE_LIBGEOIP
-  case GEO_LOCATION:
-    ht = ht_countries;
-    break;
-#endif
-  case STATUS_CODES:
-    ht = ht_status_code;
-    break;
-  default:
-    return 0;
+  /* make compiler happy */
+  memset (date, 0, sizeof *date);
+  convert_date (date, datum, conf.date_format, "%Y%m%d", DATE_LEN);
+  if (date != NULL) {
+    free (datum);
+    h->items[h->idx].metrics->data = xstrdup (date);
   }
-
-  return get_ht_size (ht);
 }
 
-/* Copy linked-list items to an array, sort, and move them back
- * to the list should be faster than sorting the list
- */
-void
-sort_sub_list (GHolder * h, GSort sort)
+static int
+set_host_child_metrics (char *data, GMetrics ** nmetrics)
 {
-  int i, j, k;
-  GHolderItem *arr_items;
+  GMetrics *metrics;
 
-  for (i = 0; i < h->idx; i++) {
-    GSubList *sub_list = h->items[i].sub_list;
-    GSubItem *iter;
-    arr_items = new_gholder_item (sub_list->size);
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (data);
+  *nmetrics = metrics;
 
-    /* copy items from the linked-list into an rray */
-    for (j = 0, iter = sub_list->head; iter; iter = iter->next) {
-      arr_items[j].data = xstrdup ((char *) iter->data);
-      arr_items[j++].hits = iter->hits;
-    }
-    sort_holder_items (arr_items, j, sort);
-    delete_sub_list (sub_list);
+  return 0;
+}
 
+#ifdef HAVE_LIBGEOIP
+static void
+set_host_geolocation (GHolder * h, GSubList * sub_list)
+{
+  GMetrics *nmetrics;
+  char city[CITY_LEN] = "";
+  char continent[CONTINENT_LEN] = "";
+  char country[COUNTRY_LEN] = "";
+
+  char *host = h->items[h->idx].metrics->data, *hostname = NULL;
+  /* add geolocation child nodes */
+  set_geolocation (host, continent, country, city);
+
+  /* country */
+  if (country[0] != '\0') {
+    set_host_child_metrics (country, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+  }
+
+  /* city */
+  if (city[0] != '\0') {
+    set_host_child_metrics (city, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+  }
+
+  /* hostname */
+  if (conf.enable_html_resolver) {
+    hostname = reverse_ip (host);
+    set_host_child_metrics (hostname, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+    free (hostname);
+  }
+}
+#endif
+
+static void
+add_host_child_to_holder (GHolder * h)
+{
+  GMetrics *nmetrics;
+  GSubList *sub_list = new_gsublist ();
+
+  char *host = h->items[h->idx].metrics->data;
+  char *hostname = NULL;
+  int n = h->sub_items_size;
+
+#ifdef HAVE_LIBGEOIP
+  /* add geolocation child nodes */
+  set_host_geolocation (h, sub_list);
+#endif
+
+  pthread_mutex_lock (&gdns_thread.mutex);
+  hostname = get_hostname (host);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  /* hostname */
+  if (!hostname) {
+    dns_resolver (host);
+  } else if (hostname) {
+    set_host_child_metrics (hostname, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+    free (hostname);
+  }
+
+  /* did not add any items */
+  if (n == h->sub_items_size)
+    free (sub_list);
+}
+
+static void
+add_host_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
+{
+  add_data_to_holder (item, h, panel);
+}
+
+static void
+add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
+{
+  GDataMap *map;
+  char *data = NULL, *method = NULL, *protocol = NULL;
+  int data_nkey = 0, visitors = 0;
+  uint64_t bw = 0, ts = 0;
+
+  data_nkey = (*(int *) item.key);
+  map = (GDataMap *) item.value;
+  if (map == NULL)
+    return;
+
+  if (!(data = (get_node_from_key (data_nkey, h->module, MTRC_DATAMAP))))
+    return;
+
+  bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
+  ts = get_cumulative_from_key (data_nkey, h->module, MTRC_TIME_SERVED);
+  visitors = get_num_from_key (data_nkey, h->module, MTRC_VISITORS);
+
+  h->items[h->idx].metrics = new_gmetrics ();
+  h->items[h->idx].metrics->hits = map->data;
+  h->items[h->idx].metrics->visitors = visitors;
+  h->items[h->idx].metrics->data = data;
+  h->items[h->idx].metrics->bw.nbw = bw;
+  h->items[h->idx].metrics->avgts.nts = ts / map->data;
+
+  if (conf.append_method) {
+    method = get_node_from_key (data_nkey, h->module, MTRC_METHODS);
+    h->items[h->idx].metrics->method = method;
+  }
+
+  if (conf.append_protocol) {
+    protocol = get_node_from_key (data_nkey, h->module, MTRC_PROTOCOLS);
+    h->items[h->idx].metrics->protocol = protocol;
+  }
+
+  if (panel->holder_callback)
+    panel->holder_callback (h);
+
+  h->idx++;
+}
+
+static int
+set_root_metrics (int data_nkey, GDataMap * map, GModule module,
+                  GMetrics ** nmetrics)
+{
+  GMetrics *metrics;
+  char *data = NULL;
+  uint64_t bw = 0, ts = 0;
+  int visitors = 0;
+
+  if (!(data = (get_node_from_key (data_nkey, module, MTRC_DATAMAP))))
+    return 1;
+
+  bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
+  ts = get_cumulative_from_key (data_nkey, module, MTRC_TIME_SERVED);
+  visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
+
+  metrics = new_gmetrics ();
+  metrics->avgts.nts = ts / map->data;
+  metrics->bw.nbw = bw;
+  metrics->data = data;
+  metrics->hits = map->data;
+  metrics->visitors = visitors;
+  *nmetrics = metrics;
+
+  return 0;
+}
+
+static void
+add_root_to_holder (GRawDataItem item, GHolder * h,
+                    GO_UNUSED const GPanel * panel)
+{
+  GDataMap *map;
+  GSubList *sub_list;
+  GMetrics *metrics, *nmetrics;
+  char *root = NULL;
+  int data_nkey = 0, root_idx = KEY_NOT_FOUND, idx = 0;
+
+  data_nkey = (*(int *) item.key);
+  map = (GDataMap *) item.value;
+  if (map == NULL)
+    return;
+
+  if (set_root_metrics (data_nkey, map, h->module, &nmetrics) == 1)
+    return;
+
+  if (!(root = (get_root_from_key (map->root, h->module))))
+    return;
+
+  /* add data as a child node into holder */
+  if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, root))) {
+    idx = h->idx;
     sub_list = new_gsublist ();
-    for (k = 0; k < j; k++) {
-      if (k > 0)
-        sub_list = h->items[i].sub_list;
-      add_sub_item_back (sub_list, h->module, arr_items[k].data,
-                         arr_items[k].hits, 0);
-      h->items[i].sub_list = sub_list;
-    }
-    free (arr_items);
+    metrics = new_gmetrics ();
+
+    h->items[idx].metrics = metrics;
+    h->items[idx].metrics->data = root;
+    h->idx++;
+  } else {
+    sub_list = h->items[root_idx].sub_list;
+    metrics = h->items[root_idx].metrics;
+
+    idx = root_idx;
+    free (root);
   }
+
+  add_sub_item_back (sub_list, h->module, nmetrics);
+  h->items[idx].sub_list = sub_list;
+
+  h->items[idx].metrics = metrics;
+  h->items[idx].metrics->avgts.nts = nmetrics->avgts.nts;
+  h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
+  h->items[idx].metrics->hits += nmetrics->hits;
+  h->items[idx].metrics->visitors += nmetrics->visitors;
+
+  h->sub_items_size++;
 }
 
-/* Load raw data into our holder structure.
- *
- * Note: the key from raw data needs to be allocated as well as
- * the pointer value since they are free'd after the data gets into
- * the holder structure.
- */
+/* Load raw data into our holder structure */
 void
 load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort)
 {
-  char *key;
-  int hits;
   int i, size = 0;
-  uint64_t bw = 0;
-  uint64_t usecs = 0;
+  const GPanel *panel = panel_lookup (module);
 
   size = raw_data->size;
   h->holder_size = size > MAX_CHOICES ? MAX_CHOICES : size;
-  h->idx = 0;
   h->module = module;
+  h->idx = 0;
   h->sub_items_size = 0;
   h->items = new_gholder_item (h->holder_size);
 
   for (i = 0; i < h->holder_size; i++) {
-    key = xstrdup (raw_data->items[i].key);     /* key */
-
-    switch (module) {
-    case REQUESTS:
-    case REQUESTS_STATIC:
-    case NOT_FOUND:
-      hits = (*(int *) raw_data->items[i].value);
-      add_request_node (h, key, hits);
-      break;
-    case OS:
-      add_os_node (h, key, raw_data->items[i].value);
-      break;
-    case BROWSERS:
-      add_browser_node (h, key, raw_data->items[i].value);
-      break;
-    case HOSTS:
-      hits = (*(int *) raw_data->items[i].value);
-      add_host_node (h, key, hits);
-      break;
-    case STATUS_CODES:
-      hits = (*(int *) raw_data->items[i].value);
-      add_status_code_node (h, key, hits);
-      break;
-#ifdef HAVE_LIBGEOIP
-    case GEO_LOCATION:
-      add_geolocation_node (h, key, raw_data->items[i].value);
-      break;
-#endif
-    default:
-      bw = get_bandwidth (key, module);
-      hits = (*(int *) raw_data->items[i].value);
-      /* serve time in usecs */
-      if (conf.serve_usecs)
-        usecs = get_serve_time (key, module) / hits;
-      h->items[h->idx].bw = bw;
-      h->items[h->idx].data = key;
-      h->items[h->idx].hits = hits;
-      if (conf.serve_usecs)
-        h->items[h->idx].usecs = usecs;
-      h->idx++;
-    }
+    panel->insert (raw_data->items[i], h, panel);
   }
   sort_holder_items (h->items, h->idx, sort);
-  /* HOSTS module does not have "real" sub items, thus we don't include it */
-  if (module == OS || module == BROWSERS || module == STATUS_CODES
-#ifdef HAVE_LIBGEOIP
-      || module == GEO_LOCATION
-#endif
-    )
+  if (h->sub_items_size)
     sort_sub_list (h, sort);
-
   free_raw_data (raw_data);
 }

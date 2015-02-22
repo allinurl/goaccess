@@ -32,6 +32,7 @@
 
 #include "error.h"
 #include "settings.h"
+#include "util.h"
 
 GeoIP *geo_location_data;
 
@@ -301,4 +302,23 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
       geoip_set_city_by_record (ip, location, TYPE_IPV6);
     break;
   }
+}
+
+int
+set_geolocation (char *host, char *continent, char *country, char *city)
+{
+  int type_ip = 0;
+
+  if (geo_location_data == NULL)
+    return 1;
+
+  if (invalid_ipaddr (host, &type_ip))
+    return 1;
+
+  geoip_get_country (host, country, type_ip);
+  geoip_get_continent (host, continent, type_ip);
+  if (conf.geoip_database)
+    geoip_get_city (host, city, type_ip);
+
+  return 0;
 }

@@ -51,6 +51,38 @@
 #include "util.h"
 #include "xmalloc.h"
 
+static void print_json_data (FILE * fp, GHolder * h, int processed);
+static void print_json_host_data (FILE * fp, GHolder * h, int processed);
+
+static GJSON paneling[] = {
+  {VISITORS, print_json_data},
+  {REQUESTS, print_json_data},
+  {REQUESTS_STATIC, print_json_data},
+  {NOT_FOUND, print_json_data},
+  {HOSTS, print_json_host_data},
+  {BROWSERS, print_json_data},
+  {OS, print_json_data},
+  {REFERRERS, print_json_data},
+  {REFERRING_SITES, print_json_data},
+  {KEYPHRASES, print_json_data},
+#ifdef HAVE_LIBGEOIP
+  {GEO_LOCATION, print_json_data},
+#endif
+  {STATUS_CODES, print_json_data},
+};
+
+static GJSON *
+panel_lookup (GModule module)
+{
+  int i, num_panels = ARRAY_SIZE (paneling);
+
+  for (i = 0; i < num_panels; i++) {
+    if (paneling[i].module == module)
+      return &paneling[i];
+  }
+  return NULL;
+}
+
 static void
 escape_json_output (FILE * fp, char *s)
 {
@@ -106,273 +138,119 @@ escape_json_output (FILE * fp, char *s)
 }
 
 static void
-print_json_sub_items (FILE * fp, GSubList * sub_list, int process)
+print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
 {
-  char *data;
-  float percent;
+  fprintf (fp, "%s\t\"hits\": %d,\n", sep, nmetrics->hits);
+  fprintf (fp, "%s\t\"visitors\": %d,\n", sep, nmetrics->visitors);
+  fprintf (fp, "%s\t\"percent\": %4.2f,\n", sep, nmetrics->percent);
+  fprintf (fp, "%s\t\"bytes\": %ld,\n", sep, nmetrics->bw.nbw);
+
+  if (conf.serve_usecs)
+    fprintf (fp, "%s\t\"time_served\": %ld,\n", sep, nmetrics->avgts.nts);
+
+  if (conf.append_method && nmetrics->method)
+    fprintf (fp, "%s\t\"method\": \"%s\",\n", sep, nmetrics->method);
+
+  if (conf.append_protocol && nmetrics->protocol)
+    fprintf (fp, "%s\t\"protocol\": \"%s\",\n", sep, nmetrics->protocol);
+
+  fprintf (fp, "%s\t\"data\": \"", sep);
+  escape_json_output (fp, nmetrics->data);
+  fprintf (fp, "\"");
+}
+
+static void
+print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
+{
   GSubItem *iter;
-  int hits, i = 0;
+  static const char *key[] = {
+    "country",
+    "city",
+  };
 
-  fprintf (fp, ",\n\t\t\t\"items\": [\n");
-  for (iter = sub_list->head; iter; iter = iter->next) {
-    hits = iter->hits;
-    data = (char *) iter->data;
-    percent = get_percentage (process, hits);
-    percent = percent < 0 ? 0 : percent;
+  int i;
+  if (sub_list == NULL)
+    return;
 
-    fprintf (fp, "\t\t\t\t{\n");
-    fprintf (fp, "\t\t\t\t\t\"hits\": \"%d\",\n", hits);
-    fprintf (fp, "\t\t\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
-    fprintf (fp, "\t\t\t\t\t\"data\": \"");
-    escape_json_output (fp, data);
-    fprintf (fp, "\"\n");
-    fprintf (fp, "\t\t\t\t}");
-
-    if (i != sub_list->size - 1)
-      fprintf (fp, ",\n");
-    else
-      fprintf (fp, "\n");
-    i++;
+  fprintf (fp, ",\n");
+  for (i = 0, iter = sub_list->head; iter; iter = iter->next, i++) {
+    fprintf (fp, "%s\t\"%s\": \"", sep, key[i]);
+    escape_json_output (fp, iter->metrics->data);
+    fprintf (fp, (i != sub_list->size - 1) ? "\",\n" : "\"");
   }
-  fprintf (fp, "\t\t\t]");
 }
 
-/**
- * Generate JSON on partial fields for the following modules:
- * OS, BROWSERS, REFERRERS, REFERRING_SITES, KEYPHRASES, STATUS_CODES
- */
 static void
-print_json_generic (FILE * fp, const GHolder * h, int process)
+print_json_host_data (FILE * fp, GHolder * h, int processed)
 {
-  char *data;
-  const char *id = NULL;
-  float percent;
-  int i, hits;
+  GMetrics *nmetrics;
+  char *sep = char_repeat (2, '\t');
+  int i;
 
-  if (h->module == BROWSERS)
-    id = BROWS_ID;
-  else if (h->module == OS)
-    id = OPERA_ID;
-  else if (h->module == REFERRERS)
-    id = REFER_ID;
-  else if (h->module == REFERRING_SITES)
-    id = SITES_ID;
-  else if (h->module == KEYPHRASES)
-    id = KEYPH_ID;
-  else if (h->module == STATUS_CODES)
-    id = CODES_ID;
-#ifdef HAVE_LIBGEOIP
-  else if (h->module == GEO_LOCATION)
-    id = GEOLO_ID;
-#endif
-
-  fprintf (fp, "\t\"%s\": [\n", id);
-
+  fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
   for (i = 0; i < h->idx; i++) {
-    hits = h->items[i].hits;
-    data = h->items[i].data;
-    percent = get_percentage (process, hits);
-    percent = percent < 0 ? 0 : percent;
+    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
 
-    fprintf (fp, "\t\t{\n");
-    fprintf (fp, "\t\t\t\"hits\": \"%d\",\n", hits);
-    fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
-    fprintf (fp, "\t\t\t\"data\": \"");
-    escape_json_output (fp, data);
-    fprintf (fp, "\"");
+    fprintf (fp, "%s{\n", sep);
+    print_json_block (fp, nmetrics, sep);
+    print_json_host_geo (fp, h->items[i].sub_list, sep);
+    fprintf (fp, (i != h->idx - 1) ? "\n%s},\n" : "\n%s}\n", sep);
 
-    if (h->module == OS || h->module == BROWSERS || h->module == STATUS_CODES
-#ifdef HAVE_LIBGEOIP
-        || h->module == GEO_LOCATION
-#endif
-      )
-      print_json_sub_items (fp, h->items[i].sub_list, process);
-
-    fprintf (fp, "\n\t\t}");
-
-    if (i != h->idx - 1)
-      fprintf (fp, ",\n");
-    else
-      fprintf (fp, "\n");
-  }
-  fprintf (fp, "\n\t]");
-}
-
-/**
- * Generate JSON on complete fields for the following modules:
- * REQUESTS, REQUESTS_STATIC, NOT_FOUND, HOSTS
- */
-static void
-print_json_complete (FILE * fp, GHolder * holder, int process)
-{
-#ifdef HAVE_LIBGEOIP
-  int type_ip = 0;
-  char country[COUNTRY_LEN] = "";
-  char city[CITY_LEN] = "";
-#endif
-
-  char *data, *host, *method = NULL, *protocol = NULL;
-  float percent;
-  GHolder *h = holder;
-  int i, j, hits;
-  unsigned long long bw, usecs;
-
-  for (i = 0; i < 4; i++) {
-    switch (i) {
-    case 0:
-      h = holder + REQUESTS;
-      fprintf (fp, "\t\"%s\": [\n", REQUE_ID);
-      break;
-    case 1:
-      h = holder + REQUESTS_STATIC;
-      fprintf (fp, "\t\"%s\": [\n", STATI_ID);
-      break;
-    case 2:
-      h = holder + NOT_FOUND;
-      fprintf (fp, "\t\"%s\": [\n", FOUND_ID);
-      break;
-    case 3:
-      h = holder + HOSTS;
-      fprintf (fp, "\t\"%s\": [\n", HOSTS_ID);
-      break;
-    }
-
-    for (j = 0; j < h->idx; j++) {
-      hits = h->items[j].hits;
-      data = h->items[j].data;
-      percent = get_percentage (process, hits);
-      percent = percent < 0 ? 0 : percent;
-      bw = h->items[j].bw;
-      usecs = h->items[j].usecs;
-      method = h->items[j].method;
-      protocol = h->items[j].protocol;
-
-      fprintf (fp, "\t\t{\n");
-      fprintf (fp, "\t\t\t\"hits\": \"%d\",\n", hits);
-      fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
-      fprintf (fp, "\t\t\t\"data\": \"");
-      escape_json_output (fp, data);
-      fprintf (fp, "\",\n");
-      fprintf (fp, "\t\t\t\"bytes\": \"%lld\"", bw);
-
-      if (h->module == HOSTS) {
-        if (conf.enable_html_resolver) {
-          host = reverse_ip (data);
-          fprintf (fp, ",\n\t\t\t\"host\": \"");
-          escape_json_output (fp, host);
-          fprintf (fp, "\"");
-          free (host);
-        }
-#ifdef HAVE_LIBGEOIP
-        memset (&country[0], 0, sizeof (country));
-        memset (&city[0], 0, sizeof (city));
-
-        if (!invalid_ipaddr (data, &type_ip)) {
-          geoip_get_country (data, country, type_ip);
-          fprintf (fp, ",\n\t\t\t\"country\": \"");
-          escape_json_output (fp, country);
-          fprintf (fp, "\"");
-
-          if (conf.geoip_database) {
-            geoip_get_city (data, city, type_ip);
-            fprintf (fp, ",\n\t\t\t\"city\": \"");
-            escape_json_output (fp, city);
-            fprintf (fp, "\"");
-          }
-        }
-#endif
-      }
-      if (conf.serve_usecs)
-        fprintf (fp, ",\n\t\t\t\"time_served\": \"%lld\"", usecs);
-      if (conf.append_protocol && protocol)
-        fprintf (fp, ",\n\t\t\t\"protocol\": \"%s\"", protocol);
-      if (conf.append_method && method)
-        fprintf (fp, ",\n\t\t\t\"method\": \"%s\"", method);
-
-      fprintf (fp, "\n\t\t}");
-
-      if (j != h->idx - 1)
-        fprintf (fp, ",\n");
-      else
-        fprintf (fp, "\n");
-    }
-    if (i != 3)
-      fprintf (fp, "\t],\n");
-    else
-      fprintf (fp, "\t]\n");
-  }
-}
-
-/* generate JSON unique visitors stats */
-static void
-print_json_visitors (FILE * fp, GHolder * h)
-{
-  char *data, buf[DATE_LEN];
-  float percent;
-  int hits, bw, i, process = get_ht_size (ht_unique_visitors);
-
-  /* make compiler happy */
-  memset (buf, 0, sizeof (buf));
-  fprintf (fp, "\t\"%s\": [\n", VISIT_ID);
-  for (i = 0; i < h->idx; i++) {
-    hits = h->items[i].hits;
-    data = h->items[i].data;
-    percent = get_percentage (process, hits);
-    percent = percent < 0 ? 0 : percent;
-    bw = h->items[i].bw;
-    convert_date (buf, data, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
-    fprintf (fp, "\t\t{\n\t\t\t\"hits\": \"%d\",\n", hits);
-    fprintf (fp, "\t\t\t\"percent\": \"%4.2f%%\",\n", percent);
-    fprintf (fp, "\t\t\t\"date\": \"%s\",\n", buf);
-    fprintf (fp, "\t\t\t\"bytes\": \"%d\"\n", bw);
-    fprintf (fp, "\t\t}");
-
-    if (i != h->idx - 1)
-      fprintf (fp, ",\n");
-    else
-      fprintf (fp, "\n");
+    free (nmetrics);
   }
   fprintf (fp, "\t]");
+
+  free (sep);
 }
 
-/* generate overview stats */
 static void
-print_json_summary (FILE * fp, GLog * logger)
+print_json_sub_items (FILE * fp, GHolder * h, int idx, int processed)
 {
-  off_t log_size = 0;
-  char now[DATE_TIME];
+  GMetrics *nmetrics;
+  GSubItem *iter;
+  GSubList *sub_list = h->items[idx].sub_list;
+  char *sep = char_repeat (3, '\t');
+  int i = 0;
 
-  generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
+  if (sub_list == NULL)
+    return;
 
-  fprintf (fp, "\t\"%s\": {\n", GENER_ID);
-  /* general statistics info */
-  fprintf (fp, "\t\t\"date_time\": \"%s\",\n", now);
-  fprintf (fp, "\t\t\"total_requests\": %d,\n", logger->process);
-  fprintf (fp, "\t\t\"unique_visitors\": %d,\n",
-           get_ht_size (ht_unique_visitors));
-  fprintf (fp, "\t\t\"referrers\": %d,\n", get_ht_size (ht_referrers));
+  fprintf (fp, ",\n%s\"items\": [\n", sep);
+  for (iter = sub_list->head; iter; iter = iter->next, i++) {
+    set_data_metrics (iter->metrics, &nmetrics, processed);
 
-  if (!logger->piping)
-    log_size = file_size (conf.ifile);
+    fprintf (fp, "%s{\n", sep);
+    print_json_block (fp, nmetrics, sep);
+    fprintf (fp, (i != sub_list->size - 1) ? "\n%s},\n" : "\n%s}\n", sep);
+    free (nmetrics);
+  }
+  fprintf (fp, "\t\t\t]");
 
-  fprintf (fp, "\t\t\"log_size\": %jd,\n", (intmax_t) log_size);
-  fprintf (fp, "\t\t\"failed_requests\": %d,\n", logger->invalid);
-  fprintf (fp, "\t\t\"unique_files\": %d,\n", get_ht_size (ht_requests));
-  fprintf (fp, "\t\t\"unique_404\": %d,\n",
-           get_ht_size (ht_not_found_requests));
+  free (sep);
+}
 
-  fprintf (fp, "\t\t\"bandwidth\": %lld,\n", logger->resp_size);
-  fprintf (fp, "\t\t\"generation_time\": %llu,\n",
-           ((long long) end_proc - start_proc));
-  fprintf (fp, "\t\t\"excluded_ip_hits\": %u,\n", logger->exclude_ip);
-  fprintf (fp, "\t\t\"static_files\": %d,\n", get_ht_size (ht_requests_static));
+static void
+print_json_data (FILE * fp, GHolder * h, int processed)
+{
+  GMetrics *nmetrics;
+  char *sep = char_repeat (2, '\t');
+  int i;
 
-  if (conf.ifile == NULL)
-    conf.ifile = (char *) "STDIN";
+  fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
+  for (i = 0; i < h->idx; i++) {
+    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
 
-  fprintf (fp, "\t\t\"log_file\": \"%s\"\n", conf.ifile);
-  fprintf (fp, "\t}");
+    fprintf (fp, "%s{\n", sep);
+    print_json_block (fp, nmetrics, sep);
+    if (h->sub_items_size)
+      print_json_sub_items (fp, h, i, processed);
+    fprintf (fp, (i != h->idx - 1) ? "\n%s},\n" : "\n%s}\n", sep);
+
+    free (nmetrics);
+  }
+  fprintf (fp, "\t]");
+
+  free (sep);
 }
 
 /* entry point to generate a a json report writing it to the fp */
@@ -380,43 +258,18 @@ print_json_summary (FILE * fp, GLog * logger)
 void
 output_json (GLog * logger, GHolder * holder)
 {
+  GModule module;
   FILE *fp = stdout;
-  fprintf (fp, "{\n");  /* open */
 
-  print_json_summary (fp, logger);
-  fprintf (fp, ",\n");
-
-  print_json_visitors (fp, holder + VISITORS);
-  fprintf (fp, ",\n");
-
-  print_json_complete (fp, holder, logger->process);
-  fprintf (fp, ",\n");
-
-  print_json_generic (fp, holder + OS, get_ht_size (ht_unique_visitors));
-  fprintf (fp, ",\n");
-
-  print_json_generic (fp, holder + BROWSERS, get_ht_size (ht_unique_visitors));
-  fprintf (fp, ",\n");
-
-  print_json_generic (fp, holder + REFERRERS, logger->process);
-  fprintf (fp, ",\n");
-
-  print_json_generic (fp, holder + REFERRING_SITES, logger->process);
-  fprintf (fp, ",\n");
-
-  print_json_generic (fp, holder + KEYPHRASES, logger->process);
-  fprintf (fp, ",\n");
-
-#ifdef HAVE_LIBGEOIP
-  print_json_generic (fp, holder + GEO_LOCATION,
-                      get_ht_size (ht_unique_visitors));
-  fprintf (fp, ",\n");
-#endif
-
-  print_json_generic (fp, holder + STATUS_CODES, logger->process);
-  fprintf (fp, "\n");
-
-  fprintf (fp, "\n}\n");        /* close */
+  fprintf (fp, "{\n");
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    const GJSON *panel = panel_lookup (module);
+    if (!panel)
+      continue;
+    panel->render (fp, holder + module, logger->process);
+    module != TOTAL_MODULES - 1 ? fprintf (fp, ",\n") : fprintf (fp, "\n");
+  }
+  fprintf (fp, "}");
 
   fclose (fp);
 }

@@ -75,6 +75,220 @@
 #include "util.h"
 #include "xmalloc.h"
 
+/* private prototypes */
+
+/* key/data generators for each module */
+static int gen_visitor_key (GKeyData * kdata, GLogItem * glog);
+static int gen_404_key (GKeyData * kdata, GLogItem * glog);
+static int gen_browser_key (GKeyData * kdata, GLogItem * glog);
+static int gen_host_key (GKeyData * kdata, GLogItem * glog);
+static int gen_keyphrase_key (GKeyData * kdata, GLogItem * glog);
+static int gen_os_key (GKeyData * kdata, GLogItem * glog);
+static int gen_referer_key (GKeyData * kdata, GLogItem * glog);
+static int gen_ref_site_key (GKeyData * kdata, GLogItem * glog);
+static int gen_request_key (GKeyData * kdata, GLogItem * glog);
+static int gen_static_request_key (GKeyData * kdata, GLogItem * glog);
+static int gen_status_code_key (GKeyData * kdata, GLogItem * glog);
+#ifdef HAVE_LIBGEOIP
+static int gen_geolocation_key (GKeyData * kdata, GLogItem * glog);
+#endif
+
+/* insertion routines */
+static void insert_data (int data_nkey, const char *data, GModule module);
+static void insert_root (int root_nkey, const char *root, GModule module);
+
+/* insertion metric routines */
+static void insert_hit (int data_nkey, int uniq_nkey, int root_nkey,
+                        GModule module);
+static void insert_visitor (int uniq_nkey, GModule module);
+static void insert_bw (int data_nkey, uint64_t size, GModule module);
+static void insert_time_served (int data_nkey, uint64_t ts, GModule module);
+static void insert_method (int data_nkey, const char *method, GModule module);
+static void insert_protocol (int data_nkey, const char *proto, GModule module);
+static void insert_agent (int data_nkey, int agent_nkey, GModule module);
+
+/* *INDENT-OFF* */
+static GParse paneling[] = {
+  {
+    VISITORS,
+    gen_visitor_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  }, {
+    REQUESTS,
+    gen_request_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    insert_method,
+    insert_protocol,
+    NULL,
+  }, {
+    REQUESTS_STATIC,
+    gen_static_request_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    insert_method,
+    insert_protocol,
+    NULL,
+  }, {
+    NOT_FOUND,
+    gen_404_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    insert_method,
+    insert_protocol,
+    NULL,
+  }, {
+    HOSTS,
+    gen_host_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    insert_agent,
+  }, {
+    OS,
+    gen_os_key,
+    insert_data,
+    insert_root,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    insert_method,
+    insert_protocol,
+    NULL,
+  }, {
+    BROWSERS,
+    gen_browser_key,
+    insert_data,
+    insert_root,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  }, {
+    REFERRERS,
+    gen_referer_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  }, {
+    REFERRING_SITES,
+    gen_ref_site_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  }, {
+    KEYPHRASES,
+    gen_keyphrase_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  },
+#ifdef HAVE_LIBGEOIP
+  {
+    GEO_LOCATION,
+    gen_geolocation_key,
+    insert_data,
+    insert_root,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  },
+#endif
+  {
+    STATUS_CODES,
+    gen_status_code_key,
+    insert_data,
+    insert_root,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  }
+};
+/* *INDENT-ON* */
+
+static void
+new_modulekey (GKeyData * kdata)
+{
+  GKeyData key = {
+    .data = NULL,
+    .data_key = NULL,
+    .data_nkey = 0,
+    .root = NULL,
+    .root_key = NULL,
+    .root_nkey = 0,
+    .uniq_key = NULL,
+    .uniq_nkey = 0,
+  };
+  *kdata = key;
+}
+
+static GParse *
+panel_lookup (GModule module)
+{
+  int i, num_panels = ARRAY_SIZE (paneling);
+
+  for (i = 0; i < num_panels; i++) {
+    if (paneling[i].module == module)
+      return &paneling[i];
+  }
+  return NULL;
+}
+
 /* allocate memory for ht raw data */
 GRawData *
 new_grawdata (void)
@@ -136,13 +350,23 @@ init_log_item (GLog * logger)
   memset (glog, 0, sizeof *glog);
 
   glog->agent = NULL;
+  glog->browser = NULL;
+  glog->continent = NULL;
+  glog->country = NULL;
   glog->date = NULL;
   glog->host = NULL;
-  glog->ref = NULL;
+  glog->keyphrase = NULL;
   glog->method = NULL;
+  glog->os = NULL;
   glog->protocol = NULL;
+  glog->ref = NULL;
+  glog->req_key = NULL;
   glog->req = NULL;
   glog->status = NULL;
+  glog->uniq_key = NULL;
+  glog->browser_type = NULL;
+  glog->os_type = NULL;
+
   glog->resp_size = 0LL;
   glog->serve_time = 0;
 
@@ -157,28 +381,43 @@ free_logger (GLogItem * glog)
 {
   if (glog->agent != NULL)
     free (glog->agent);
+  if (glog->browser != NULL)
+    free (glog->browser);
+  if (glog->browser_type != NULL)
+    free (glog->browser_type);
+  if (glog->continent != NULL)
+    free (glog->continent);
+  if (glog->country != NULL)
+    free (glog->country);
   if (glog->date != NULL)
     free (glog->date);
   if (glog->host != NULL)
     free (glog->host);
-  if (glog->ref != NULL)
-    free (glog->ref);
+  if (glog->keyphrase != NULL)
+    free (glog->keyphrase);
   if (glog->method != NULL)
     free (glog->method);
+  if (glog->os != NULL)
+    free (glog->os);
+  if (glog->os_type != NULL)
+    free (glog->os_type);
   if (glog->protocol != NULL)
     free (glog->protocol);
+  if (glog->ref != NULL)
+    free (glog->ref);
+  if (glog->req_key != NULL)
+    free (glog->req_key);
   if (glog->req != NULL)
     free (glog->req);
   if (glog->status != NULL)
     free (glog->status);
-  if (glog->req_key != NULL)
-    free (glog->req_key);
+  if (glog->uniq_key != NULL)
+    free (glog->uniq_key);
+
   free (glog);
 }
 
-#define BASE16_TO_10(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : \
-    (toupper((x)) - 'A' + 10))
-
+#define B16210(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((x)) - 'A' + 10))
 static void
 decode_hex (char *url, char *out)
 {
@@ -189,7 +428,7 @@ decode_hex (char *url, char *out)
     if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2])) {
       *ptr++ = *c;
     } else {
-      *ptr++ = (BASE16_TO_10 (c[1]) * 16) + (BASE16_TO_10 (c[2]));
+      *ptr++ = (B16210 (c[1]) * 16) + (B16210 (c[2]));
       c += 2;
     }
   }
@@ -217,7 +456,7 @@ decode_url (char *url)
  * Note that the referer hasn't been decoded at the entry point
  * since there could be '&' within the search query. */
 static int
-process_keyphrases (char *ref)
+extract_keyphrase (char *ref, char **keyphrase)
 {
   char *r, *ptr, *pch, *referer;
   int encoded = 0;
@@ -259,11 +498,25 @@ process_keyphrases (char *ref)
     return 1;
 
   referer = char_replace (referer, '+', ' ');
-  process_generic_data (ht_keyphrases, trim_str (referer));
-  free (referer);
+  *keyphrase = trim_str (referer);
 
   return 0;
 }
+
+#ifdef HAVE_LIBGEOIP
+static int
+extract_geolocation (GLogItem * glog, char *continent, char *country)
+{
+  if (geo_location_data == NULL)
+    return 1;
+
+  geoip_get_country (glog->host, country, glog->type_ip);
+  geoip_get_continent (glog->host, continent, glog->type_ip);
+
+  return 0;
+}
+#endif
+
 
 /* parses a URI and extracts the *host* part from it
  * i.e., //www.example.com/path?googleguy > www.example.com */
@@ -301,132 +554,6 @@ clean:
   free (url);
 
   return 1;
-}
-
-/* process referer */
-static void
-process_referrers (char *referrer, char *site)
-{
-  char *ref;
-
-  if (referrer == NULL)
-    return;
-
-  if (site != NULL && *site != '\0')
-    process_generic_data (ht_referring_sites, site);
-  process_keyphrases (referrer);
-
-  ref = decode_url (referrer);
-  if (ref == NULL || *ref == '\0')
-    return;
-
-  process_generic_data (ht_referrers, ref);
-  free (ref);
-}
-
-/* process data based on a unique key, this includes the following
- * modules, VISITORS, BROWSERS, OS */
-static void
-process_unique_data (GLogItem * glog)
-{
-#ifdef HAVE_LIBGEOIP
-  char city[CITY_LEN] = "";
-  char continent[CONTINENT_LEN] = "";
-  char country[COUNTRY_LEN] = "";
-#endif
-
-  char *a = NULL, *browser_key = NULL, *browser = NULL;
-  char *os_key = NULL, *opsys = NULL;
-
-  char visitor_key[UKEY_BUFFER];
-  char os_type[OPESYS_TYPE_LEN], browser_type[BROWSER_TYPE_LEN];
-
-  a = deblank (xstrdup (glog->agent));
-  snprintf (visitor_key, sizeof (visitor_key), "%s|%s|%s", glog->host,
-            glog->date_key, a);
-  (visitor_key)[sizeof (visitor_key) - 1] = '\0';
-  free (a);
-
-  /* Check if the unique visitor key exists, if not,
-   * process hit as unique visitor. Includes, BROWSERS, OSs, VISITORS. */
-  if (process_generic_data (ht_unique_visitors, visitor_key) == -1) {
-    process_generic_data (ht_unique_vis, glog->date_key);
-    browser_key = xstrdup (glog->agent);
-    os_key = xstrdup (glog->agent);
-
-    /* extract browser & OS from agent  */
-    browser = verify_browser (browser_key, browser_type);
-    if (browser != NULL)
-      process_browser (ht_browsers, browser, browser_type);
-
-    opsys = verify_os (os_key, os_type);
-    if (opsys != NULL)
-      process_opesys (ht_os, opsys, os_type);
-
-#ifdef HAVE_LIBGEOIP
-    if (geo_location_data != NULL) {
-      if (conf.geoip_database)
-        geoip_get_city (glog->host, city, glog->type_ip);
-
-      geoip_get_country (glog->host, country, glog->type_ip);
-      geoip_get_continent (glog->host, continent, glog->type_ip);
-      process_geolocation (ht_countries, country, continent, city);
-    }
-#endif
-  }
-
-  if (browser != NULL)
-    free (browser);
-  if (browser_key != NULL)
-    free (browser_key);
-  if (os_key != NULL)
-    free (os_key);
-  if (opsys != NULL)
-    free (opsys);
-}
-
-/**
- * Append HTTP method to the request
- * ###NOTE: the whole string will serve as a key
- */
-static void
-append_method_to_request (char **key, const char *method)
-{
-  char *s = NULL;
-
-  if (*key == NULL || **key == '\0')
-    return;
-
-  if (method == NULL || *method == '\0')
-    return;
-
-  s = xmalloc (snprintf (NULL, 0, "%s %s", method, *key) + 1);
-  sprintf (s, "%s %s", method, *key);
-
-  free (*key);
-  *key = s;
-}
-
-/**
- * Append HTTP protocol to the request
- * ###NOTE: the whole string will serve as a key
- */
-static void
-append_protocol_to_request (char **key, const char *protocol)
-{
-  char *s = NULL;
-
-  if (*key == NULL || **key == '\0')
-    return;
-
-  if (protocol == NULL || *protocol == '\0')
-    return;
-
-  s = xmalloc (snprintf (NULL, 0, "%s %s", protocol, *key) + 1);
-  sprintf (s, "%s %s", protocol, *key);
-
-  free (*key);
-  *key = s;
 }
 
 /* returns 1 if the request seems to be a static file */
@@ -558,10 +685,11 @@ static int
 parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
                  char **str, const char *p)
 {
+  struct tm tm;
+
   char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
   double serve_secs = 0.0;
-  struct tm tm;
-  unsigned long long bandw = 0, serve_time = 0;
+  uint64_t bandw = 0, serve_time = 0;
 
   errno = 0;
   memset (&tm, 0, sizeof (tm));
@@ -682,8 +810,10 @@ parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
       free (tkn);
       tkn = alloc_string ("-");
     }
-    if (strcmp (tkn, "-") != 0)
+    if (strcmp (tkn, "-") != 0) {
+      extract_keyphrase (tkn, &glog->keyphrase);
       extract_referer_site (tkn, glog->site);
+    }
     glog->ref = tkn;
     break;
     /* user agent */
@@ -820,9 +950,9 @@ static void
 count_invalid (GLog * logger)
 {
   logger->invalid++;
-#ifdef TCB_BTREE
-  process_generic_data (ht_general_stats, "failed_requests");
-#endif
+  /*#ifdef TCB_BTREE */
+  /*process_generic_data (ht_general_stats, "failed_requests"); */
+  /*#endif */
 }
 
 static void
@@ -830,22 +960,10 @@ count_process (GLog * logger)
 {
   lock_spinner ();
   logger->process++;
-#ifdef TCB_BTREE
-  process_generic_data (ht_general_stats, "total_requests");
-#endif
+  /*#ifdef TCB_BTREE */
+  /*process_generic_data (ht_general_stats, "total_requests"); */
+  /*#endif */
   unlock_spinner ();
-}
-
-static int
-process_date (GLogItem * glog)
-{
-  /* make compiler happy */
-  memset (glog->date_key, 0, sizeof *glog->date_key);
-  convert_date (glog->date_key, glog->date, conf.date_format, "%Y%m%d",
-                DATE_LEN);
-  if (glog->date_key == NULL)
-    return 1;
-  return 0;
 }
 
 static int
@@ -853,95 +971,490 @@ exclude_ip (GLog * logger, GLogItem * glog)
 {
   if (conf.ignore_ip_idx && ip_in_range (glog->host)) {
     logger->exclude_ip++;
-#ifdef TCB_BTREE
-    process_generic_data (ht_general_stats, "exclude_ip");
-#endif
+    /*#ifdef TCB_BTREE */
+    /*process_generic_data (ht_general_stats, "exclude_ip"); */
+    /*#endif */
     return 0;
   }
   return 1;
 }
 
-static int
+static inline int
 exclude_crawler (GLogItem * glog)
 {
   return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
 }
 
-/* process visitors, browsers, and OS */
-static void
-unique_data (GLogItem * glog)
+static inline int
+is_static (GLogItem * glog)
 {
-  int uniq = conf.client_err_to_unique_count;
-  if (!glog->status || glog->status[0] != '4' ||
-      (uniq && glog->status[0] == '4'))
-    process_unique_data (glog);
+  return verify_static_content (glog->req);
+}
+
+static int
+is_404 (GLogItem * glog)
+{
+  /* is this a 404? */
+  if (glog->status && !memcmp (glog->status, "404", 3))
+    return 1;
+  /* treat 444 as 404? */
+  else if (glog->status && !memcmp (glog->status, "444", 3) &&
+           conf.code444_as_404)
+    return 1;
+  return 0;
+}
+
+static int
+insert_keymap (const char *key, GModule module)
+{
+  GStorageMetrics *metrics;
+
+  metrics = get_storage_metrics_by_module (module);
+  return ht_insert_keymap (metrics->keymap, key);
+}
+
+static int
+insert_uniqmap (char *uniq_key, GModule module)
+{
+  GStorageMetrics *metrics;
+
+  metrics = get_storage_metrics_by_module (module);
+  return ht_insert_uniqmap (metrics->uniqmap, uniq_key);
+}
+
+static void
+insert_root (int root_nkey, const char *root, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_nodemap (metrics->rootmap, root_nkey, root);
+}
+
+static void
+insert_data (int nkey, const char *data, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_nodemap (metrics->datamap, nkey, data);
+}
+
+static void
+insert_hit (int data_nkey, int uniq_nkey, int root_nkey, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_hit (metrics->hits, data_nkey, uniq_nkey, root_nkey);
+}
+
+static void
+insert_visitor (int uniq_nkey, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_num (metrics->visitors, uniq_nkey);
+}
+
+static void
+insert_bw (int data_nkey, uint64_t size, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_cumulative (metrics->bw, data_nkey, size);
+}
+
+static void
+insert_time_served (int data_nkey, uint64_t ts, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_cumulative (metrics->time_served, data_nkey, ts);
+}
+
+static void
+insert_method (int nkey, const char *data, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_nodemap (metrics->methods, nkey, data ? data : "---");
+}
+
+static void
+insert_protocol (int nkey, const char *data, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_nodemap (metrics->protocols, nkey, data ? data : "---");
+}
+
+static void
+insert_agent (int data_nkey, int agent_nkey, GModule module)
+{
+  GStorageMetrics *metrics;
+  metrics = get_storage_metrics_by_module (module);
+
+  ht_insert_nkey_nval (metrics->agents, data_nkey, agent_nkey);
+}
+
+/* The following generates a unique key to identity unique visitors.
+ * The key is made out of the IP, date, and user agent.
+ * Note that for readability, doing a simple snprintf/sprintf should
+ * suffice, however, memcpy is the fastest solution */
+static char *
+get_uniq_visitor_key (GLogItem * glog)
+{
+  char *ua, *key;
+  size_t s1, s2, s3;
+
+  ua = deblank (xstrdup (glog->agent));
+
+  s1 = strlen (glog->host);
+  s2 = strlen (glog->date);
+  s3 = strlen (ua);
+
+  /* includes terminating null */
+  key = xmalloc (s1 + s2 + s3 + 3);
+
+  memcpy (key, glog->host, s1);
+
+  key[s1] = '|';
+  memcpy (key + s1 + 1, glog->date, s2 + 1);
+
+  key[s1 + s2 + 1] = '|';
+  memcpy (key + s1 + s2 + 2, ua, s3 + 1);
+
+  free (ua);
+  return key;
+}
+
+static char *
+gen_unique_req_key (GLogItem * glog)
+{
+  char *key;
+  size_t s1, s2, s3;
+
+  /* nothing to do */
+  if (!conf.append_method && !conf.append_protocol)
+    return xstrdup (glog->req);
+
+  /* still nothing to do */
+  if (!glog->method && !glog->protocol)
+    return xstrdup (glog->req);
+
+  s1 = strlen (glog->req);
+  if (glog->method)
+    s2 = strlen (glog->method);
+  if (glog->protocol)
+    s3 = strlen (glog->protocol);
+
+  /* includes terminating null */
+  key = xmalloc (s1 + s2 + s3 + 3);
+  /* append request */
+  memcpy (key, glog->req, s1);
+
+  if (glog->method) {
+    key[s1] = '|';
+    memcpy (key + s1 + 1, glog->method, s2 + 1);
+  }
+
+  if (glog->protocol) {
+    key[s1 + s2 + 1] = '|';
+    memcpy (key + s1 + s2 + 2, glog->protocol, s3 + 1);
+  }
+
+  return key;
+}
+
+static void
+get_kdata (GKeyData * kdata, char *data_key, char *data)
+{
+  /* inserted in keymap */
+  kdata->data_key = data_key;
+  /* inserted in datamap */
+  kdata->data = data;
+}
+
+static int
+gen_visitor_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->date)
+    return 1;
+
+  get_kdata (kdata, glog->date, glog->date);
+
+  return 0;
+}
+
+static int
+gen_req_key (GKeyData * kdata, GLogItem * glog)
+{
+  glog->req_key = gen_unique_req_key (glog);
+  get_kdata (kdata, glog->req_key, glog->req);
+
+  return 0;
+}
+
+static int
+gen_request_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->req || glog->is_404 || glog->is_static)
+    return 1;
+
+  return gen_req_key (kdata, glog);
+}
+
+static int
+gen_404_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (glog->req && glog->is_404)
+    return gen_req_key (kdata, glog);
+  return 1;
+}
+
+static int
+gen_static_request_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (glog->req && glog->is_static)
+    return gen_req_key (kdata, glog);
+  return 1;
+}
+
+static int
+gen_host_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->host)
+    return 1;
+
+  get_kdata (kdata, glog->host, glog->host);
+
+  return 0;
+}
+
+static int
+gen_browser_key (GKeyData * kdata, GLogItem * glog)
+{
+  char browser_type[BROWSER_TYPE_LEN] = "";
+
+  if (glog->agent == NULL || *glog->agent == '\0')
+    return 1;
+
+  glog->browser = verify_browser (glog->agent, browser_type);
+  glog->browser_type = xstrdup (browser_type);
+
+  /* e.g., Firefox 11.12 */
+  kdata->data = glog->browser;
+  kdata->data_key = glog->browser;
+
+  /* Firefox */
+  kdata->root = glog->browser_type;
+  kdata->root_key = glog->browser_type;
+
+  return 0;
+}
+
+static int
+gen_os_key (GKeyData * kdata, GLogItem * glog)
+{
+  char os_type[OPESYS_TYPE_LEN] = "";
+
+  if (glog->agent == NULL || *glog->agent == '\0')
+    return 1;
+
+  glog->os = verify_os (glog->agent, os_type);
+  glog->os_type = xstrdup (os_type);
+
+  /* e.g., Linux,Ubuntu 10.12 */
+  kdata->data = glog->os;
+  kdata->data_key = glog->os;
+
+  /* Linux */
+  kdata->root = glog->os_type;
+  kdata->root_key = glog->os_type;
+
+  return 0;
+}
+
+static int
+gen_referer_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->ref)
+    return 1;
+
+  get_kdata (kdata, glog->ref, glog->ref);
+
+  return 0;
+}
+
+static int
+gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (glog->site[0] == '\0')
+    return 1;
+
+  get_kdata (kdata, glog->site, glog->site);
+
+  return 0;
+}
+
+static int
+gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->keyphrase)
+    return 1;
+
+  get_kdata (kdata, glog->keyphrase, glog->keyphrase);
+
+  return 0;
+}
+
+#ifdef HAVE_LIBGEOIP
+static int
+gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
+{
+  char continent[CONTINENT_LEN] = "";
+  char country[COUNTRY_LEN] = "";
+
+  if (extract_geolocation (glog, continent, country) == 1)
+    return 1;
+
+  if (country[0] != '\0')
+    glog->country = xstrdup (country);
+
+  if (continent[0] != '\0')
+    glog->continent = xstrdup (continent);
+
+  kdata->data_key = glog->country;
+  kdata->data = glog->country;
+
+  kdata->root = glog->continent;
+  kdata->root_key = glog->continent;
+
+  return 0;
+}
+#endif
+
+static int
+gen_status_code_key (GKeyData * kdata, GLogItem * glog)
+{
+  const char *status = NULL, *type = NULL;
+
+  if (!glog->status)
+    return 1;
+
+  type = verify_status_code_type (glog->status);
+  status = verify_status_code (glog->status);
+
+  kdata->data = (char *) status;
+  kdata->data_key = (char *) status;
+
+  kdata->root = (char *) type;
+  kdata->root_key = (char *) type;
+
+  return 0;
+}
+
+static inline int
+include_uniq (GLogItem * glog)
+{
+  int u = conf.client_err_to_unique_count;
+
+  if (!glog->status || glog->status[0] != '4' || (u && glog->status[0] == '4'))
+    return 1;
+  return 0;
+}
+
+static void
+set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
+{
+  GModule module;
+  module = parse->module;
+
+  /* insert data */
+  parse->datamap (kdata->data_nkey, kdata->data, module);
+
+  /* insert root */
+  if (parse->rootmap)
+    parse->rootmap (kdata->root_nkey, kdata->root, module);
+  /* insert hits */
+  if (parse->hits)
+    parse->hits (kdata->data_nkey, kdata->uniq_nkey, kdata->root_nkey, module);
+  /* insert visitors */
+  if (parse->visitor && kdata->uniq_nkey != 0)
+    parse->visitor (kdata->data_nkey, module);
+  /* insert bandwidth */
+  if (parse->bw)
+    parse->bw (kdata->data_nkey, glog->resp_size, module);
+  /* insert averages time served */
+  if (parse->avgts)
+    parse->avgts (kdata->data_nkey, glog->serve_time, module);
+  /* insert method */
+  if (parse->method && conf.append_method)
+    parse->method (kdata->data_nkey, glog->method, module);
+  /* insert protocol */
+  if (parse->protocol && conf.append_protocol)
+    parse->protocol (kdata->data_nkey, glog->protocol, module);
+  /* insert agent */
+  if (parse->agent && conf.list_agents)
+    parse->agent (kdata->data_nkey, glog->agent_nkey, module);
+}
+
+static void
+map_log (GLogItem * glog, const GParse * parse, GModule module)
+{
+  GKeyData kdata;
+  char *uniq_key = NULL;
+
+  new_modulekey (&kdata);
+  if (parse->key_data (&kdata, glog) == 1)
+    return;
+
+  /* each module requires a data key/value */
+  if (parse->datamap && kdata.data_key)
+    kdata.data_nkey = insert_keymap (kdata.data_key, module);
+
+  /* each module contains a uniq visitor key/value */
+  if (parse->visitor && glog->uniq_key && include_uniq (glog)) {
+    uniq_key = ints_to_str (glog->uniq_nkey, kdata.data_nkey);
+    /* unique key already exists? */
+    if ((kdata.uniq_nkey = insert_uniqmap (uniq_key, module)) == 0)
+      free (uniq_key);
+  }
+
+  /* root keys are optional */
+  if (parse->rootmap && kdata.root_key)
+    kdata.root_nkey = insert_keymap (kdata.root_key, module);
+
+  /* each module requires a root key/value */
+  if (parse->datamap && kdata.data_key)
+    set_datamap (glog, &kdata, parse);
 }
 
 static void
 process_log (GLogItem * glog)
 {
-  char *qmark = NULL;
-  int is404 = 0;
+  GModule module;
 
-  /* is this a 404? */
-  if (glog->status && !memcmp (glog->status, "404", 3))
-    is404 = 1;
-  /* treat 444 as 404? */
-  else if (glog->status && !memcmp (glog->status, "444", 3) &&
-           conf.code444_as_404)
-    is404 = 1;
-  /* check if we need to remove the request's query string */
-  else if (conf.ignore_qstr && (qmark = strchr (glog->req, '?')) != NULL) {
-    if ((qmark - glog->req) > 0)
-      *qmark = '\0';
-  }
+  /* insert one unique visitor key per request to avoid the
+   * overhead of storing one key per module */
+  glog->uniq_nkey = ht_insert_unique_key (glog->uniq_key);
 
-  glog->req_key = xstrdup (glog->req);
-  /* include HTTP method/protocol to request */
-  if (conf.append_method && glog->method) {
-    glog->method = strtoupper (glog->method);
-    append_method_to_request (&glog->req_key, glog->method);
-  }
-  if (conf.append_protocol && glog->protocol) {
-    glog->protocol = strtoupper (glog->protocol);
-    append_protocol_to_request (&glog->req_key, glog->protocol);
-  }
-  if ((conf.append_method) || (conf.append_protocol))
-    glog->req_key = deblank (glog->req_key);
-
-  unique_data (glog);
-  /* process agents that are part of a host */
+  /* store unique user agents and retrieve its numeric key */
   if (conf.list_agents)
-    process_host_agents (glog->host, glog->agent);
-  /* process status codes */
-  if (glog->status)
-    process_generic_data (ht_status_code, glog->status);
-  /* process 404s */
-  if (is404)
-    process_request (ht_not_found_requests, glog->req_key, glog);
-  /* process static files */
-  else if (verify_static_content (glog->req))
-    process_request (ht_requests_static, glog->req_key, glog);
-  /* process regular files */
-  else
-    process_request (ht_requests, glog->req_key, glog);
+    glog->agent_nkey = ht_insert_agent (glog->agent);
 
-  /* process referrers */
-  process_referrers (glog->ref, glog->site);
-  /* process hosts */
-  process_generic_data (ht_hosts, glog->host);
-  /* process bandwidth  */
-  process_request_meta (ht_date_bw, glog->date_key, glog->resp_size);
-  process_request_meta (ht_file_bw, glog->req_key, glog->resp_size);
-  process_request_meta (ht_host_bw, glog->host, glog->resp_size);
-
-  /* process time taken to serve the request, in microseconds */
-  process_request_meta (ht_file_serve_usecs, glog->req_key, glog->serve_time);
-  process_request_meta (ht_host_serve_usecs, glog->host, glog->serve_time);
-
-#ifdef TCB_BTREE
-  process_request_meta (ht_general_stats, "bandwidth", glog->resp_size);
-#endif
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    const GParse *parse = panel_lookup (module);
+    if (!parse)
+      continue;
+    map_log (glog, parse, module);
+  }
 }
 
 /* process a line from the log and store it accordingly */
@@ -976,10 +1489,6 @@ pre_process_log (GLog * logger, char *line, int test)
   if (test)
     goto cleanup;
 
-  if (process_date (glog)) {
-    count_invalid (logger);
-    goto cleanup;
-  }
   /* ignore host or crawlers */
   if (exclude_ip (logger, glog) == 0)
     goto cleanup;
@@ -987,6 +1496,13 @@ pre_process_log (GLog * logger, char *line, int test)
     goto cleanup;
   if (ignore_referer (glog->site))
     goto cleanup;
+
+  if (is_404 (glog))
+    glog->is_404 = 1;
+  else if (is_static (glog))
+    glog->is_static = 1;
+
+  glog->uniq_key = get_uniq_visitor_key (glog);
 
   logger->resp_size += glog->resp_size;
   process_log (glog);

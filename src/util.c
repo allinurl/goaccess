@@ -297,7 +297,6 @@ convert_date (char *result, char *data, const char *from, const char *to,
   char *end;
 
   memset (&tm, 0, sizeof (tm));
-
   timestamp = time (NULL);
   now_tm = localtime (&timestamp);
 
@@ -448,6 +447,15 @@ int_to_str (int d)
 {
   char *s = xmalloc (snprintf (NULL, 0, "%d", d) + 1);
   sprintf (s, "%d", d);
+
+  return s;
+}
+
+char *
+ints_to_str (int a, int b)
+{
+  char *s = xmalloc (snprintf (NULL, 0, "%d%d", a, b) + 1);
+  sprintf (s, "%d%d", a, b);
 
   return s;
 }
