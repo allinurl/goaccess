@@ -346,6 +346,7 @@ ht_insert_uniqmap (TCADB * adb, char *uniq_key)
   nkey = size > 0 ? size + 1 : 1;
 
   tcadbput (adb, uniq_key, strlen (uniq_key), &nkey, sizeof (int));
+  free (uniq_key);
 
   return nkey;
 }

@@ -119,7 +119,7 @@ house_keeping (void)
   for (module = 0; module < TOTAL_MODULES; module++) {
     free_db_key (get_storage_metric (module, MTRC_UNIQMAP));
   }
-  free_storage();
+  free_storage ();
 #endif
 
   pthread_mutex_unlock (&gdns_thread.mutex);
