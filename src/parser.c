@@ -979,13 +979,13 @@ exclude_ip (GLog * logger, GLogItem * glog)
   return 1;
 }
 
-static inline int
+static int
 exclude_crawler (GLogItem * glog)
 {
   return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
 }
 
-static inline int
+static int
 is_static (GLogItem * glog)
 {
   return verify_static_content (glog->req);
@@ -1360,7 +1360,7 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
-static inline int
+static int
 include_uniq (GLogItem * glog)
 {
   int u = conf.client_err_to_unique_count;

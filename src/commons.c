@@ -70,7 +70,7 @@ static GEnum MODULES[] = {
 };
 
 /* calculate hits percentage */
-inline float
+float
 get_percentage (unsigned long long total, unsigned long long hit)
 {
   return ((float) (hit * 100) / (total));
