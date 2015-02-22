@@ -169,6 +169,7 @@
 #define HELP_WIN_WIDTH    64
 
 /* COLORS */
+#define COL_PURPLE        97
 #define BLACK_CYAN        9
 #define BLACK_GREEN       8
 #define BLUE_GREEN        7
@@ -213,13 +214,13 @@ typedef struct GScrollModule_
   int offset;
 } GScrollModule;
 
-typedef struct GScrolling_
+typedef struct GScroll_
 {
   GScrollModule module[TOTAL_MODULES];
   GModule current;
   int dash;
   int expanded;
-} GScrolling;
+} GScroll;
 
 typedef struct GAgents_
 {
@@ -271,7 +272,10 @@ void term_size (WINDOW * main_win);
 void ui_spinner_create (GSpinner * spinner);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
+
+const char *module_to_desc (GModule module);
+const char *module_to_head (GModule module);
+const char *module_to_id (GModule module);
 WINDOW *create_win (int h, int w, int y, int x);
 /* *INDENT-ON* */
-
 #endif

@@ -48,6 +48,7 @@ char *float_to_str (float num);
 char *get_global_config (void);
 char *get_home (void);
 char *int_to_str (int d);
+char *ints_to_str (int a, int b);
 char *left_pad_str (const char *s, int indent);
 char *ltrim (char *s);
 char *replace_str (const char *str, const char *old, const char *new);

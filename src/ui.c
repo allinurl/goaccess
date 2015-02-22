@@ -93,6 +93,7 @@ init_colors (void)
   else
     init_pair (COL_GREEN, COLOR_WHITE, -1);
 
+  init_pair (COL_PURPLE, 97, -1);
   init_pair (COL_RED, COLOR_RED, -1);
   init_pair (COL_BLACK, COLOR_BLACK, -1);
   init_pair (COL_CYAN, COLOR_CYAN, -1);
@@ -258,6 +259,75 @@ module_to_label (GModule module)
   return modules[module];
 }
 
+const char *
+module_to_id (GModule module)
+{
+  static const char *modules[] = {
+    VISIT_ID,
+    REQUE_ID,
+    STATI_ID,
+    FOUND_ID,
+    HOSTS_ID,
+    OPERA_ID,
+    BROWS_ID,
+    REFER_ID,
+    SITES_ID,
+    KEYPH_ID,
+#ifdef HAVE_LIBGEOIP
+    GEOLO_ID,
+#endif
+    CODES_ID
+  };
+
+  return modules[module];
+}
+
+const char *
+module_to_head (GModule module)
+{
+  static const char *modules[] = {
+    VISIT_HEAD,
+    REQUE_HEAD,
+    STATI_HEAD,
+    FOUND_HEAD,
+    HOSTS_HEAD,
+    OPERA_HEAD,
+    BROWS_HEAD,
+    REFER_HEAD,
+    SITES_HEAD,
+    KEYPH_HEAD,
+#ifdef HAVE_LIBGEOIP
+    GEOLO_HEAD,
+#endif
+    CODES_HEAD
+  };
+
+  return modules[module];
+}
+
+const char *
+module_to_desc (GModule module)
+{
+  static const char *modules[] = {
+    VISIT_DESC,
+    REQUE_DESC,
+    STATI_DESC,
+    FOUND_DESC,
+    HOSTS_DESC,
+    OPERA_DESC,
+    BROWS_DESC,
+    REFER_DESC,
+    SITES_DESC,
+    KEYPH_DESC,
+#ifdef HAVE_LIBGEOIP
+    GEOLO_DESC,
+#endif
+    CODES_DESC
+  };
+
+  return modules[module];
+}
+
 /* rerender header window to reflect active module */
 void
 update_active_module (WINDOW * header_win, GModule current)
@@ -330,16 +400,16 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   }
   bw = filesize_str ((float) logger->resp_size);
 
-  /* *INDENT-OFF* */
-  failed       = int_to_str (logger->invalid);
-  not_found    = int_to_str (get_ht_size (ht_not_found_requests));
-  process      = int_to_str (logger->process);
-  ref          = int_to_str (get_ht_size (ht_referrers));
-  req          = int_to_str (get_ht_size(ht_requests));
-  static_files = int_to_str (get_ht_size(ht_requests_static));
-  now          = int_to_str (((long long) end_proc - start_proc));
-  visitors     = int_to_str (get_ht_size(ht_unique_visitors));
-  exclude_ip    = int_to_str (logger->exclude_ip);
+  failed = int_to_str (logger->invalid);
+  not_found = int_to_str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP));
+  process = int_to_str (logger->process);
+  ref = int_to_str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP));
+  req = int_to_str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP));
+  static_files =
+    int_to_str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP));
+  now = int_to_str (((long long) end_proc - start_proc));
+  visitors = int_to_str (get_ht_size_by_metric (VISITORS, MTRC_DATAMAP));
+  exclude_ip = int_to_str (logger->exclude_ip);
 
   fields[0].value = process;
   fields[1].value = visitors;
@@ -356,7 +426,6 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
 
   n = ARRAY_SIZE (fields);
 
-  /* *INDENT-ON* */
   for (i = 0, y = 2; i < n; i++) {
     mod_val = i % 4;
     if (i > 0 && mod_val == 0) {
@@ -580,96 +649,91 @@ split_agent_str (char *ptr_value, GAgents * agents, int max)
 void
 load_agent_list (WINDOW * main_win, char *addr)
 {
-  char buf[256];
-  char *ptr_value;
-  GAgents *agents = NULL;
-  GMenu *menu;
-  int c, quit = 1, delims = 0;
-  int i, n = 0, alloc = 0;
-  int y, x, list_h, list_w, menu_w, menu_h;
-  void *value_ptr = NULL;
-  WINDOW *win;
+  /*char buf[256]; */
+  /*char *ptr_value; */
+  /*GAgents *agents = NULL; */
+  /*GMenu *menu; */
+  /*int c, quit = 1, delims = 0; */
+  /*int i, n = 0, alloc = 0; */
+  /*int y, x, list_h, list_w, menu_w, menu_h; */
+  /*void *value_ptr = NULL; */
+  /*WINDOW *win; */
 
-  if (!conf.list_agents)
-    return;
+  /*if (!conf.list_agents) */
+  /*return; */
 
-  getmaxyx (stdscr, y, x);
-  list_h = y / 2;       /* list window - height */
-  list_w = x - 4;       /* list window - width */
-  menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
-  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
+  /*getmaxyx (stdscr, y, x); */
+  /*list_h = y / 2;       *//* list window - height */
+  /*list_w = x - 4;       *//* list window - width */
+  /*menu_h = list_h - AGENTS_MENU_Y - 1;  *//* menu window - height */
+  /*menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      *//* menu window - width */
 
-#ifdef HAVE_LIBTOKYOCABINET
-  value_ptr = tc_db_get_str (ht_hosts_agents, addr);
-#else
-  value_ptr = g_hash_table_lookup (ht_hosts_agents, addr);
-#endif
+  /*#ifdef HAVE_LIBTOKYOCABINET */
+  /*value_ptr = tc_db_get_str (ht_hosts_agents, addr); */
+  /*#else */
+  /*value_ptr = g_hash_table_lookup (ht_hosts_agents, addr); */
+  /*#endif */
 
-  if (value_ptr != NULL) {
-    ptr_value = (char *) value_ptr;
-    delims = count_matches (ptr_value, '|');
+  /*if (value_ptr != NULL) { */
+  /*ptr_value = (char *) value_ptr; */
+  /*delims = count_matches (ptr_value, '|'); */
 
-    n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1;
-    agents = new_gagents (n);
-    alloc = split_agent_str (ptr_value, agents, menu_w);
-#ifdef HAVE_LIBTOKYOCABINET
-    free (value_ptr);
-#endif
-  }
+  /*n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1; */
+  /*agents = new_gagents (n); */
+  /*alloc = split_agent_str (ptr_value, agents, menu_w); */
+  /*#ifdef HAVE_LIBTOKYOCABINET */
+  /*free (value_ptr); */
+  /*#endif */
+  /*} */
 
-  win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
-  keypad (win, TRUE);
-  wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+  /*win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2); */
+  /*keypad (win, TRUE); */
+  /*wborder (win, '|', '|', '-', '-', '+', '+', '+', '+'); */
 
-  /* create a new instance of GMenu and make it selectable */
-  menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-
-  /* add items to GMenu */
-  menu->items = (GItem *) xcalloc (alloc, sizeof (GItem));
-  for (i = 0; i < alloc; ++i) {
-    menu->items[i].name = alloc_string (agents[i].agents);
-    menu->items[i].checked = 0;
-    menu->size++;
-  }
-  post_gmenu (menu);
-
-  snprintf (buf, sizeof buf, "User Agents for %s", addr);
-  draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0);
-  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
-
-  wrefresh (win);
-  while (quit) {
-    c = wgetch (stdscr);
-    switch (c) {
-    case KEY_DOWN:
-      gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-      break;
-    case KEY_UP:
-      gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
-      break;
-    case KEY_RESIZE:
-    case 'q':
-      quit = 0;
-      break;
-    }
-    wrefresh (win);
-  }
-  /* clean stuff up */
-  for (i = 0; i < alloc; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
-
-  for (i = 0; i < alloc; ++i)
-    free (agents[i].agents);
-  if (agents)
-    free (agents);
-
-  touchwin (main_win);
-  close_win (win);
-  wrefresh (main_win);
+   /**/ /* create a new instance of GMenu and make it selectable */
+    /*menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X); */
+     /**/       /* add items to GMenu */
+    /*menu->items = (GItem *) xcalloc (alloc, sizeof (GItem)); */
+    /*for (i = 0; i < alloc; ++i) { */
+    /*menu->items[i].name = alloc_string (agents[i].agents); */
+    /*menu->items[i].checked = 0; */
+    /*menu->size++; */
+    /*} */
+    /*post_gmenu (menu); */
+    /*snprintf (buf, sizeof buf, "User Agents for %s", addr); */
+    /*draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0); */
+    /*mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window"); */
+    /*wrefresh (win); */
+    /*while (quit) { */
+    /*c = wgetch (stdscr); */
+    /*switch (c) { */
+    /*case KEY_DOWN: */
+    /*gmenu_driver (menu, REQ_DOWN); */
+    /*draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0); */
+    /*break; */
+    /*case KEY_UP: */
+    /*gmenu_driver (menu, REQ_UP); */
+    /*draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0); */
+    /*break; */
+    /*case KEY_RESIZE: */
+    /*case 'q': */
+    /*quit = 0; */
+    /*break; */
+    /*} */
+    /*wrefresh (win); */
+    /*} */
+     /**/       /* clean stuff up */
+    /*for (i = 0; i < alloc; ++i) */
+    /*free (menu->items[i].name); */
+    /*free (menu->items); */
+    /*free (menu); */
+    /*for (i = 0; i < alloc; ++i) */
+    /*free (agents[i].agents); */
+    /*if (agents) */
+    /*free (agents); */
+    /*touchwin (main_win); */
+    /*close_win (win); */
+    /*wrefresh (main_win); */
 }
 
 /* render processing spinner */

@@ -30,6 +30,7 @@
 #endif
 
 #include <time.h>
+#include <stdint.h>
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
@@ -85,6 +86,21 @@ typedef enum
   REQUEST_PROTOCOL
 } GReqMeta;
 
+typedef enum METRICS
+{
+  MTRC_KEYMAP,
+  MTRC_ROOTMAP,
+  MTRC_DATAMAP,
+  MTRC_UNIQMAP,
+  MTRC_HITS,
+  MTRC_VISITORS,
+  MTRC_BW,
+  MTRC_TIME_SERVED,
+  MTRC_METHODS,
+  MTRC_PROTOCOLS,
+  MTRC_AGENTS,
+} GMetric;
+
 typedef enum MODULES
 {
   VISITORS,
@@ -103,12 +119,35 @@ typedef enum MODULES
   STATUS_CODES
 } GModule;
 
+typedef struct GMetrics
+{
+  char *data;
+  char *method;
+  char *protocol;
+
+  float percent;
+  int hits;
+  int visitors;
+  /* holder has a numeric value, while
+   * dashboard has a displayable string value */
+  union
+  {
+    char *sbw;
+    uint64_t nbw;
+  } bw;
+  /* holder has a numeric value, while
+   * dashboard has a displayable string value */
+  union
+  {
+    char *sts;
+    uint64_t nts;
+  } avgts;
+} GMetrics;
+
 typedef struct GSubItem_
 {
   GModule module;
-  char *data;
-  int hits;
-  unsigned long long bw;
+  GMetrics *metrics;
   struct GSubItem_ *prev;
   struct GSubItem_ *next;
 } GSubItem;
@@ -122,13 +161,8 @@ typedef struct GSubList_
 
 typedef struct GHolderItem_
 {
-  char *data;
-  char *method;
-  char *protocol;
   GSubList *sub_list;
-  int hits;
-  unsigned long long bw;
-  unsigned long long usecs;
+  GMetrics *metrics;
 } GHolderItem;
 
 typedef struct GHolder_
@@ -146,8 +180,14 @@ typedef struct GEnum_
   int idx;
 } GEnum;
 
+typedef struct GDataMap_
+{
+  int data;
+  int uniq;
+  int root;
+} GDataMap;
 
-float get_percentage (unsigned long long total, unsigned long long hit);
+inline float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);
 void display_version (void);
 int get_module_enum (const char *str);

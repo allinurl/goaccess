@@ -28,6 +28,12 @@
 #include "commons.h"
 #include "parser.h"
 
+typedef struct GJSON_
+{
+  GModule module;
+  void (*render) (FILE * fp, GHolder * h, int processed);
+} GJSON;
+
 void output_json (GLog * logger, GHolder * holder);
 
 #endif

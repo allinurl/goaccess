@@ -216,7 +216,7 @@ dns_worker (void GO_UNUSED (*ptr_data))
       break;
     }
 #ifdef HAVE_LIBTOKYOCABINET
-    tc_db_put_str (ht_hostnames, ip, host);
+    tcadbput2 (ht_hostnames, ip, host);
     free (host);
 #else
     if (host != NULL && active_gdns)
