@@ -57,27 +57,50 @@ typedef struct GStorageMetrics_
    */
   void *rootmap;
 
-  /* Maps numeric keys to actual key values (strings), e.g.,
-   * 1 -> 2
-   * 1 -> 10
+  /* Numeric key made from the unique key and the data key.
+   * Value is autoincremented.
+   * 10 -> 1
+   * 40 -> 2
    */
   void *uniqmap;
 
-  /* Key to hits map, e.g.,
-   * 1 -> hits:10934 , root: -1 ,
-   * 2 -> hits:3231  , root: -1 ,
-   * 3 -> hits:500   , root: 8  ,
-   * 4 -> hits:200   , root: 6  ,
-   * 5 -> hits:200   , root: 6  ,
-   * 7 -> 60233
+  /* Numeric key to a structure containing hits/root elements, e.g.,
+   * If root does not exist, it will have the value of 0
+   * 1 -> hits:10934 , root: 0 ,
+   * 2 -> hits:3231  , root: 0 ,
+   * 3 -> hits:500   , root: 8 ,
+   * 4 -> hits:200   , root: 6 ,
+   * 5 -> hits:200   , root: 6 ,
+   * 5 -> hits:2030  , root: 0 ,
    */
   void *hits;
 
   void *visitors;
+
+  /* Maps numeric data keys to bandwidth (in bytes).
+   * 1 -> 1024
+   * 2 -> 2048
+   */
   void *bw;
+
+  /* Maps numeric data keys to average time served (in usecs/msecs).
+   * 1 -> 187
+   * 2 -> 208
+   */
   void *time_served;
+
+  /* Maps numeric data keys to string values.
+   * 1 -> GET
+   * 2 -> POST
+   */
   void *methods;
+
+  /* Maps numeric data keys to string values.
+   * 1 -> HTTP/1.1
+   * 2 -> HTTP/1.0
+   */
   void *protocols;
+
   void *agents;
 } GStorageMetrics;
 
