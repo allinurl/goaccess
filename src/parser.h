@@ -121,8 +121,6 @@ typedef struct GParse_
   void (*method) (int data_nkey, const char *method, GModule module);
   void (*protocol) (int data_nkey, const char *proto, GModule module);
   void (*agent) (int data_nkey, int agent_nkey, GModule module);
-
-  void (*free) (GKeyData * kdata);
 } GParse;
 
 /* *INDENT-OFF* */
