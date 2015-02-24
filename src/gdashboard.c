@@ -1398,7 +1398,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   if (map == NULL)
     return;
 
-  if (!(data = (get_node_from_key (data_nkey, h->module, MTRC_DATAMAP))))
+  if (!(data = get_node_from_key (data_nkey, h->module, MTRC_DATAMAP)))
     return;
 
   bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
@@ -1437,7 +1437,7 @@ set_root_metrics (int data_nkey, GDataMap * map, GModule module,
   uint64_t bw = 0, ts = 0;
   int visitors = 0;
 
-  if (!(data = (get_node_from_key (data_nkey, module, MTRC_DATAMAP))))
+  if (!(data = get_node_from_key (data_nkey, module, MTRC_DATAMAP)))
     return 1;
 
   bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
