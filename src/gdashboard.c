@@ -708,7 +708,7 @@ render_percent (GDashModule * data, GDashRender render, int *x)
   /* selected state */
   if (sel) {
     percent = float_to_str (data->data[idx].metrics->percent);
-    draw_header (win, percent, "%s%%", y, *x, w, HIGHLIGHT, 0);
+    draw_header (win, percent, "%*s%%", y, *x, w, HIGHLIGHT, len);
     free (percent);
   }
   /* regular state */
@@ -740,7 +740,7 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   /* selected state */
   if (sel) {
     hits = int_to_str (data->data[idx].metrics->hits);
-    draw_header (win, hits, "%s", y, *x, w, HIGHLIGHT, 0);
+    draw_header (win, hits, "  %*s", y, 0, w, HIGHLIGHT, len);
     free (hits);
   }
   /* regular state */
@@ -772,7 +772,7 @@ render_visitors (GDashModule * data, GDashRender render, int *x)
   /* selected state */
   if (sel) {
     visitors = int_to_str (data->data[idx].metrics->visitors);
-    draw_header (win, visitors, "  %s", y, 0, w, HIGHLIGHT, 0);
+    draw_header (win, visitors, "%*s", y, *x, w, HIGHLIGHT, len);
     free (visitors);
   }
   /* regular state */
