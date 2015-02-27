@@ -476,6 +476,21 @@ get_root_from_key (int root_nkey, GModule module)
   return NULL;
 }
 
+static int
+get_int_from_int_key (TCADB * adb, int nkey)
+{
+  void *value_ptr;
+  int sp = 0, ret = 0;
+
+  value_ptr = tcadbget (adb, &nkey, sizeof (int), &sp);
+  if (value_ptr != NULL) {
+    ret = (*(int *) value_ptr);
+    free (value_ptr);
+  }
+
+  return ret;
+}
+
 char *
 get_node_from_key (int data_nkey, GModule module, GMetric metric)
 {
@@ -549,8 +564,6 @@ get_num_from_key (int data_nkey, GModule module, GMetric metric)
 {
   TCADB *adb = NULL;
   GStorageMetrics *metrics;
-  void *value_ptr;
-  int sp = 0, ret = 0;
 
   metrics = get_storage_metrics_by_module (module);
   /* bandwidth modules */
@@ -568,13 +581,7 @@ get_num_from_key (int data_nkey, GModule module, GMetric metric)
   if (adb == NULL)
     return 0;
 
-  value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp);
-  if (value_ptr != NULL) {
-    ret = (*(int *) value_ptr);
-    free (value_ptr);
-  }
-
-  return ret;
+  return get_int_from_int_key (adb, data_nkey);
 }
 
 char *
