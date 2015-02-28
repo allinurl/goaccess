@@ -207,8 +207,8 @@ ht_insert_str_from_int_key (GHashTable * ht, int nkey, const char *value)
   return 0;
 }
 
-int
-ht_inc_int_from_int_key (GHashTable * ht, int data_nkey)
+static int
+ht_inc_int_from_key (GHashTable * ht, void *key, int inc)
 {
   gpointer value_ptr;
   int add_value;
@@ -216,19 +216,19 @@ ht_inc_int_from_int_key (GHashTable * ht, int data_nkey)
   if (ht == NULL)
     return (EINVAL);
 
-  value_ptr = g_hash_table_lookup (ht, &data_nkey);
+  value_ptr = g_hash_table_lookup (ht, key);
   if (value_ptr != NULL) {
-    add_value = (*(int *) value_ptr) + 1;
+    add_value = (*(int *) value_ptr) + inc;
   } else {
-    add_value = 1;
+    add_value = 0 + inc;
   }
-  g_hash_table_replace (ht, int2ptr (data_nkey), int2ptr (add_value));
+  g_hash_table_replace (ht, key, int2ptr (add_value));
 
   return 0;
 }
 
-int
-ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t size)
+static int
+ht_inc_u64_from_key (GHashTable * ht, void *key, uint64_t inc)
 {
   gpointer value_ptr;
   uint64_t add_value;
@@ -236,15 +236,52 @@ ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t size)
   if (ht == NULL)
     return (EINVAL);
 
-  value_ptr = g_hash_table_lookup (ht, &data_nkey);
+  value_ptr = g_hash_table_lookup (ht, key);
   if (value_ptr != NULL) {
-    add_value = (*(uint64_t *) value_ptr) + size;
+    add_value = (*(uint64_t *) value_ptr) + inc;
   } else {
-    add_value = 0 + size;
+    add_value = 0 + inc;
   }
-  g_hash_table_replace (ht, int2ptr (data_nkey), uint642ptr (add_value));
+  g_hash_table_replace (ht, key, uint642ptr (add_value));
 
   return 0;
+}
+
+int
+ht_inc_int_from_int_key (GHashTable * ht, int data_nkey, int inc)
+{
+  int ret, *key;
+  if (ht == NULL)
+    return (EINVAL);
+
+  key = int2ptr (data_nkey);
+  if ((ret = ht_inc_int_from_key (ht, key, inc)) != 0)
+    free (key);
+
+  return ret;
+}
+
+int
+ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t inc)
+{
+  int ret, *key;
+  if (ht == NULL)
+    return (EINVAL);
+
+  key = int2ptr (data_nkey);
+  if ((ret = ht_inc_u64_from_key (ht, key, inc)) != 0)
+    free (key);
+
+  return ret;
+}
+
+int
+ht_inc_int_from_str_key (GHashTable * ht, char *key, int inc)
+{
+  if (ht == NULL)
+    return (EINVAL);
+
+  return ht_inc_int_from_key (ht, key, inc);
 }
 
 int
