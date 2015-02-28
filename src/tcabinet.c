@@ -471,6 +471,15 @@ ht_inc_int_from_str_key (TCADB * adb, const char *key, int inc)
 }
 
 int
+ht_inc_u64_from_str_key (TCADB * adb, const char *key, uint64_t inc)
+{
+  if (adb == NULL)
+    return (EINVAL);
+
+  return ht_inc_u64_from_key (adb, key, strlen (key), inc);
+}
+
+int
 ht_insert_unique_key (const char *key)
 {
   return ht_insert_keymap (ht_unique_keys, key);

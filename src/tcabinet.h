@@ -76,6 +76,7 @@ uint32_t get_ht_size (TCADB *adb);
 int ht_inc_int_from_int_key (TCADB * adb, int data_nkey, int inc);
 int ht_inc_int_from_str_key (TCADB * adb, const char *key, int inc);
 int ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc);
+int ht_inc_u64_from_str_key (TCADB * adb, const char *key, uint64_t inc);
 int ht_insert_agent (const char *key);
 int ht_insert_hit (TCADB *adb, int data_nkey, int uniq_nkey, int root_nkey);
 int ht_insert_keymap (TCADB * adb, const char *value);
