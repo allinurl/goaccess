@@ -173,29 +173,6 @@ ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval)
   return 0;
 }
 
-int
-ht_insert_unique_key (const char *key)
-{
-  return ht_insert_keymap (ht_unique_keys, key);
-}
-
-int
-ht_insert_agent (const char *key)
-{
-  return ht_insert_keymap (ht_hosts_agents, key);
-}
-
-int
-ht_insert_nodemap (GHashTable * ht, int nkey, const char *value)
-{
-  if (ht == NULL)
-    return (EINVAL);
-
-  g_hash_table_replace (ht, int2ptr (nkey), g_strdup (value));
-
-  return 0;
-}
-
 /* store generic data into the given hash table */
 int
 ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
@@ -220,7 +197,18 @@ ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
 }
 
 int
-ht_insert_num (GHashTable * ht, int data_nkey)
+ht_insert_str_from_int_key (GHashTable * ht, int nkey, const char *value)
+{
+  if (ht == NULL)
+    return (EINVAL);
+
+  g_hash_table_replace (ht, int2ptr (nkey), g_strdup (value));
+
+  return 0;
+}
+
+int
+ht_inc_int_from_int_key (GHashTable * ht, int data_nkey)
 {
   gpointer value_ptr;
   int add_value;
@@ -240,7 +228,7 @@ ht_insert_num (GHashTable * ht, int data_nkey)
 }
 
 int
-ht_insert_cumulative (GHashTable * ht, int data_nkey, uint64_t size)
+ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t size)
 {
   gpointer value_ptr;
   uint64_t add_value;
@@ -257,6 +245,18 @@ ht_insert_cumulative (GHashTable * ht, int data_nkey, uint64_t size)
   g_hash_table_replace (ht, int2ptr (data_nkey), uint642ptr (add_value));
 
   return 0;
+}
+
+int
+ht_insert_unique_key (const char *key)
+{
+  return ht_insert_keymap (ht_unique_keys, key);
+}
+
+int
+ht_insert_agent (const char *key)
+{
+  return ht_insert_keymap (ht_hosts_agents, key);
 }
 
 char *

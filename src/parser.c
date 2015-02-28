@@ -1028,7 +1028,7 @@ insert_root (int root_nkey, const char *root, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_nodemap (metrics->rootmap, root_nkey, root);
+  ht_insert_str_from_int_key (metrics->rootmap, root_nkey, root);
 }
 
 static void
@@ -1037,7 +1037,7 @@ insert_data (int nkey, const char *data, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_nodemap (metrics->datamap, nkey, data);
+  ht_insert_str_from_int_key (metrics->datamap, nkey, data);
 }
 
 static void
@@ -1055,7 +1055,7 @@ insert_visitor (int uniq_nkey, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_num (metrics->visitors, uniq_nkey);
+  ht_inc_int_from_int_key (metrics->visitors, uniq_nkey);
 }
 
 static void
@@ -1064,7 +1064,7 @@ insert_bw (int data_nkey, uint64_t size, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_cumulative (metrics->bw, data_nkey, size);
+  ht_inc_u64_from_int_key (metrics->bw, data_nkey, size);
 }
 
 static void
@@ -1073,7 +1073,7 @@ insert_time_served (int data_nkey, uint64_t ts, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_cumulative (metrics->time_served, data_nkey, ts);
+  ht_inc_u64_from_int_key (metrics->time_served, data_nkey, ts);
 }
 
 static void
@@ -1082,7 +1082,7 @@ insert_method (int nkey, const char *data, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_nodemap (metrics->methods, nkey, data ? data : "---");
+  ht_insert_str_from_int_key (metrics->methods, nkey, data ? data : "---");
 }
 
 static void
@@ -1091,7 +1091,7 @@ insert_protocol (int nkey, const char *data, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_nodemap (metrics->protocols, nkey, data ? data : "---");
+  ht_insert_str_from_int_key (metrics->protocols, nkey, data ? data : "---");
 }
 
 static void

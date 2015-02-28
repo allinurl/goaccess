@@ -49,12 +49,12 @@ uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
 void init_storage (void);
 
 int ht_insert_agent(const char *key);
-int ht_insert_cumulative (GHashTable * ht, int data_nkey, uint64_t size);
+int ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t size);
 int ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey);
 int ht_insert_keymap(GHashTable *ht,  const char *value);
 int ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval);
-int ht_insert_nodemap (GHashTable * ht, int nkey, const char *value);
-int ht_insert_num (GHashTable * ht, int data_nkey);
+int ht_insert_str_from_int_key (GHashTable * ht, int nkey, const char *value);
+int ht_inc_int_from_int_key (GHashTable * ht, int data_nkey);
 int ht_insert_uniqmap (GHashTable * ht, char *uniq_key);
 int ht_insert_unique_key (const char *key);
 
