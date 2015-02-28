@@ -947,6 +947,15 @@ unlock_spinner (void)
 }
 
 static void
+inc_resp_size (GLog * logger, uint64_t resp_size)
+{
+  logger->resp_size += resp_size;
+#ifdef TCB_BTREE
+  ht_inc_u64_from_str_key (ht_general_stats, "bandwidth", resp_size);
+#endif
+}
+
+static void
 count_invalid (GLog * logger, int test)
 {
   logger->invalid++;
@@ -1507,7 +1516,7 @@ pre_process_log (GLog * logger, char *line, int test)
 
   glog->uniq_key = get_uniq_visitor_key (glog);
 
-  logger->resp_size += glog->resp_size;
+  inc_resp_size (logger, glog->resp_size);
   process_log (glog);
 
 cleanup:
