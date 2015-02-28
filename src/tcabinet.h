@@ -73,13 +73,13 @@ extern TCADB *ht_unique_keys;
 uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
 uint32_t get_ht_size (TCADB *adb);
 
+int ht_inc_int_from_int_key (TCADB * adb, int data_nkey);
+int ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t size);
 int ht_insert_agent (const char *key);
-int ht_insert_cumulative (TCADB *adb, int data_nkey, uint64_t size);
 int ht_insert_hit (TCADB *adb, int data_nkey, int uniq_nkey, int root_nkey);
 int ht_insert_keymap (TCADB * adb, const char *value);
 int ht_insert_nkey_nval (TCADB * adb, int nkey, int nval);
-int ht_insert_nodemap (TCADB *adb, int nkey, const char *value);
-int ht_insert_num (TCADB *adb, int data_nkey);
+int ht_insert_str_from_int_key (TCADB *adb, int nkey, const char *value);
 int ht_insert_uniqmap (TCADB *adb, char *uniq_key);
 int ht_insert_unique_key (const char *key);
 

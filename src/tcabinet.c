@@ -368,29 +368,6 @@ ht_insert_nkey_nval (TCADB * adb, int nkey, int nval)
 }
 
 int
-ht_insert_unique_key (const char *key)
-{
-  return ht_insert_keymap (ht_unique_keys, key);
-}
-
-int
-ht_insert_agent (const char *key)
-{
-  return ht_insert_keymap (ht_hosts_agents, key);
-}
-
-int
-ht_insert_nodemap (TCADB * adb, int nkey, const char *value)
-{
-  if (adb == NULL)
-    return (EINVAL);
-
-  tcadbput (adb, &nkey, sizeof (int), value, strlen (value));
-
-  return 0;
-}
-
-int
 ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
 {
   int sp = 0;
@@ -415,7 +392,18 @@ ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
 }
 
 int
-ht_insert_num (TCADB * adb, int data_nkey)
+ht_insert_str_from_int_key (TCADB * adb, int nkey, const char *value)
+{
+  if (adb == NULL)
+    return (EINVAL);
+
+  tcadbput (adb, &nkey, sizeof (int), value, strlen (value));
+
+  return 0;
+}
+
+int
+ht_inc_int_from_int_key (TCADB * adb, int data_nkey)
 {
   int sp = 0;
   void *value_ptr;
@@ -437,7 +425,7 @@ ht_insert_num (TCADB * adb, int data_nkey)
 }
 
 int
-ht_insert_cumulative (TCADB * adb, int data_nkey, uint64_t size)
+ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t size)
 {
   int sp = 0;
   void *value_ptr;
@@ -456,6 +444,18 @@ ht_insert_cumulative (TCADB * adb, int data_nkey, uint64_t size)
   tcadbput (adb, &data_nkey, sizeof (data_nkey), &add_value, sizeof (uint64_t));
 
   return 0;
+}
+
+int
+ht_insert_unique_key (const char *key)
+{
+  return ht_insert_keymap (ht_unique_keys, key);
+}
+
+int
+ht_insert_agent (const char *key)
+{
+  return ht_insert_keymap (ht_hosts_agents, key);
 }
 
 char *
