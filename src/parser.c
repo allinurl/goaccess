@@ -947,33 +947,36 @@ unlock_spinner (void)
 }
 
 static void
-count_invalid (GLog * logger)
+count_invalid (GLog * logger, int test)
 {
   logger->invalid++;
-  /*#ifdef TCB_BTREE */
-  /*process_generic_data (ht_general_stats, "failed_requests"); */
-  /*#endif */
+#ifdef TCB_BTREE
+  if (!test)
+    ht_inc_int_from_str_key (ht_general_stats, "failed_requests", 1);
+#endif
 }
 
 static void
-count_process (GLog * logger)
+count_process (GLog * logger, int test)
 {
   lock_spinner ();
   logger->process++;
-  /*#ifdef TCB_BTREE */
-  /*process_generic_data (ht_general_stats, "total_requests"); */
-  /*#endif */
+#ifdef TCB_BTREE
+  if (!test)
+    ht_inc_int_from_str_key (ht_general_stats, "total_requests", 1);
+#endif
   unlock_spinner ();
 }
 
 static int
-exclude_ip (GLog * logger, GLogItem * glog)
+exclude_ip (GLog * logger, GLogItem * glog, int test)
 {
   if (conf.ignore_ip_idx && ip_in_range (glog->host)) {
     logger->exclude_ip++;
-    /*#ifdef TCB_BTREE */
-    /*process_generic_data (ht_general_stats, "exclude_ip"); */
-    /*#endif */
+#ifdef TCB_BTREE
+    if (!test)
+      ht_inc_int_from_str_key (ht_general_stats, "exclude_ip", 1);
+#endif
     return 0;
   }
   return 1;
@@ -1055,7 +1058,7 @@ insert_visitor (int uniq_nkey, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_inc_int_from_int_key (metrics->visitors, uniq_nkey);
+  ht_inc_int_from_int_key (metrics->visitors, uniq_nkey, 1);
 }
 
 static void
@@ -1464,21 +1467,21 @@ pre_process_log (GLog * logger, char *line, int test)
   GLogItem *glog;
 
   if (valid_line (line)) {
-    count_invalid (logger);
+    count_invalid (logger, test);
     return 0;
   }
 
-  count_process (logger);
+  count_process (logger, test);
   glog = init_log_item (logger);
   /* parse a line of log, and fill structure with appropriate values */
   if (parse_format (glog, conf.log_format, conf.date_format, line)) {
-    count_invalid (logger);
+    count_invalid (logger, test);
     goto cleanup;
   }
 
   /* must have the following fields */
   if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
-    count_invalid (logger);
+    count_invalid (logger, test);
     goto cleanup;
   }
   /* agent will be null in cases where %u is not specified */
@@ -1490,7 +1493,7 @@ pre_process_log (GLog * logger, char *line, int test)
     goto cleanup;
 
   /* ignore host or crawlers */
-  if (exclude_ip (logger, glog) == 0)
+  if (exclude_ip (logger, glog, test) == 0)
     goto cleanup;
   if (exclude_crawler (glog) == 0)
     goto cleanup;

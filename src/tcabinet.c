@@ -402,8 +402,8 @@ ht_insert_str_from_int_key (TCADB * adb, int nkey, const char *value)
   return 0;
 }
 
-int
-ht_inc_int_from_int_key (TCADB * adb, int data_nkey)
+static int
+ht_inc_int_from_key (TCADB * adb, const void *key, size_t ksize, int inc)
 {
   int sp = 0;
   void *value_ptr;
@@ -412,20 +412,20 @@ ht_inc_int_from_int_key (TCADB * adb, int data_nkey)
   if (adb == NULL)
     return (EINVAL);
 
-  if ((value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp)) != NULL) {
-    add_value = (*(int *) value_ptr) + 1;
+  if ((value_ptr = tcadbget (adb, key, ksize, &sp)) != NULL) {
+    add_value = (*(int *) value_ptr) + inc;
     free (value_ptr);
   } else {
-    add_value = 1;
+    add_value = 0 + inc;
   }
 
-  tcadbput (adb, &data_nkey, sizeof (data_nkey), &add_value, sizeof (uint64_t));
+  tcadbput (adb, key, ksize, &add_value, sizeof (int));
 
   return 0;
 }
 
-int
-ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t size)
+static int
+ht_inc_u64_from_key (TCADB * adb, const void *key, size_t ksize, uint64_t inc)
 {
   int sp = 0;
   void *value_ptr;
@@ -434,16 +434,43 @@ ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t size)
   if (adb == NULL)
     return (EINVAL);
 
-  if ((value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp)) != NULL) {
-    add_value = (*(int *) value_ptr) + size;
+  if ((value_ptr = tcadbget (adb, key, ksize, &sp)) != NULL) {
+    add_value = (*(uint64_t *) value_ptr) + inc;
     free (value_ptr);
   } else {
-    add_value = 0 + size;
+    add_value = 0 + inc;
   }
 
-  tcadbput (adb, &data_nkey, sizeof (data_nkey), &add_value, sizeof (uint64_t));
+  tcadbput (adb, key, ksize, &add_value, sizeof (uint64_t));
 
   return 0;
+}
+
+int
+ht_inc_int_from_int_key (TCADB * adb, int data_nkey, int inc)
+{
+  if (adb == NULL)
+    return (EINVAL);
+
+  return ht_inc_int_from_key (adb, &data_nkey, sizeof (data_nkey), inc);
+}
+
+int
+ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc)
+{
+  if (adb == NULL)
+    return (EINVAL);
+
+  return ht_inc_u64_from_key (adb, &data_nkey, sizeof (data_nkey), inc);
+}
+
+int
+ht_inc_int_from_str_key (TCADB * adb, const char *key, int inc)
+{
+  if (adb == NULL)
+    return (EINVAL);
+
+  return ht_inc_int_from_key (adb, key, strlen (key), inc);
 }
 
 int
@@ -485,6 +512,21 @@ get_int_from_int_key (TCADB * adb, int nkey)
   value_ptr = tcadbget (adb, &nkey, sizeof (int), &sp);
   if (value_ptr != NULL) {
     ret = (*(int *) value_ptr);
+    free (value_ptr);
+  }
+
+  return ret;
+}
+
+unsigned int
+get_uint_from_str_key (TCADB * adb, const char *key)
+{
+  void *value_ptr;
+  int sp = 0, ret = 0;
+
+  value_ptr = tcadbget (adb, key, strlen (key), &sp);
+  if (value_ptr != NULL) {
+    ret = (*(unsigned int *) value_ptr);
     free (value_ptr);
   }
 

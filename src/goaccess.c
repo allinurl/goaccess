@@ -798,10 +798,10 @@ set_general_stats (void)
 {
   logger->process = logger->invalid = logger->exclude_ip = 0;
 #ifdef TCB_BTREE
-  /*logger->exclude_ip = tc_db_get_int (ht_general_stats, "exclude_ip"); */
-  /*logger->invalid = tc_db_get_int (ht_general_stats, "failed_requests"); */
-  /*logger->process = tc_db_get_int (ht_general_stats, "total_requests"); */
-  /*logger->resp_size = tc_db_get_uint64 (ht_general_stats, "bandwidth"); */
+  logger->exclude_ip = get_uint_from_str_key (ht_general_stats, "exclude_ip");
+  logger->invalid = get_uint_from_str_key (ht_general_stats, "failed_requests");
+  logger->process = get_uint_from_str_key (ht_general_stats, "total_requests");
+  logger->resp_size = get_uint_from_str_key (ht_general_stats, "bandwidth");
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
   /*if (get_ht_size (ht_file_serve_usecs) > 0) */
