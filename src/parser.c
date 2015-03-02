@@ -962,6 +962,8 @@ count_invalid (GLog * logger, int test)
 #ifdef TCB_BTREE
   if (!test)
     ht_inc_int_from_str_key (ht_general_stats, "failed_requests", 1);
+#else
+  (void) test;
 #endif
 }
 
@@ -973,6 +975,8 @@ count_process (GLog * logger, int test)
 #ifdef TCB_BTREE
   if (!test)
     ht_inc_int_from_str_key (ht_general_stats, "total_requests", 1);
+#else
+  (void) test;
 #endif
   unlock_spinner ();
 }
@@ -985,6 +989,8 @@ exclude_ip (GLog * logger, GLogItem * glog, int test)
 #ifdef TCB_BTREE
     if (!test)
       ht_inc_int_from_str_key (ht_general_stats, "exclude_ip", 1);
+#else
+    (void) test;
 #endif
     return 0;
   }
