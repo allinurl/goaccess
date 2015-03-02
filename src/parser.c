@@ -1112,7 +1112,7 @@ insert_agent (int data_nkey, int agent_nkey, GModule module)
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_nkey_nval (metrics->agents, data_nkey, agent_nkey);
+  ht_insert_host_agent (metrics->agents, data_nkey, agent_nkey);
 }
 
 /* The following generates a unique key to identity unique visitors.
@@ -1457,9 +1457,12 @@ process_log (GLogItem * glog)
    * overhead of storing one key per module */
   glog->uniq_nkey = ht_insert_unique_key (glog->uniq_key);
 
-  /* store unique user agents and retrieve its numeric key */
-  if (conf.list_agents)
-    glog->agent_nkey = ht_insert_agent (glog->agent);
+  /* store unique user agents and retrieve its numeric key.  it maintains two
+   * maps, one for key -> value, and another map for value -> key*/
+  if (conf.list_agents) {
+    glog->agent_nkey = ht_insert_agent_key (glog->agent);
+    ht_insert_agent_val (glog->agent_nkey, glog->agent);
+  }
 
   for (module = 0; module < TOTAL_MODULES; module++) {
     const GParse *parse = panel_lookup (module);

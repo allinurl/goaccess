@@ -51,8 +51,9 @@
 GStorage *ht_storage;
 
 /* tables for the whole app */
+GHashTable *ht_agent_keys = NULL;
+GHashTable *ht_agent_vals = NULL;
 GHashTable *ht_hostnames = NULL;
-GHashTable *ht_hosts_agents = NULL;
 GHashTable *ht_unique_keys = NULL;
 
 static GHashTable *
@@ -85,6 +86,7 @@ init_tables (GModule module)
   ht_storage[module].metrics->time_served = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->methods = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->protocols = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->agents = new_int_ht (g_free, NULL);
 }
 
 /* Initialize GLib hash tables */
@@ -93,8 +95,9 @@ init_storage (void)
 {
   GModule module;
 
+  ht_agent_keys = new_str_ht (g_free, g_free);
+  ht_agent_vals = new_str_ht (g_free, g_free);
   ht_hostnames = new_str_ht (g_free, g_free);
-  ht_hosts_agents = new_str_ht (g_free, g_free);
   ht_unique_keys = new_str_ht (g_free, g_free);
 
   ht_storage = new_gstorage (TOTAL_MODULES);
@@ -196,6 +199,34 @@ ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
   return 0;
 }
 
+static int
+find_host_agent_in_list (void *data, void *needle)
+{
+  return (*(int *) data) == (*(int *) needle) ? 1 : 0;
+}
+
+int
+ht_insert_host_agent (GHashTable * ht, int data_nkey, int agent_nkey)
+{
+  GSLList *list, *match;
+
+  if (ht == NULL)
+    return (EINVAL);
+
+  list = g_hash_table_lookup (ht, &data_nkey);
+  if (list != NULL) {
+    if ((match = list_find (list, find_host_agent_in_list, &agent_nkey)))
+      goto out;
+    list = list_insert_prepend (list, int2ptr (agent_nkey));
+  } else {
+    list = list_create (int2ptr (agent_nkey));
+  }
+  g_hash_table_replace (ht, int2ptr (data_nkey), list);
+out:
+
+  return 0;
+}
+
 int
 ht_insert_str_from_int_key (GHashTable * ht, int nkey, const char *value)
 {
@@ -291,10 +322,77 @@ ht_insert_unique_key (const char *key)
 }
 
 int
-ht_insert_agent (const char *key)
+ht_insert_agent_key (const char *key)
 {
-  return ht_insert_keymap (ht_hosts_agents, key);
+  return ht_insert_keymap (ht_agent_keys, key);
 }
+
+int
+ht_insert_agent_val (int nkey, const char *key)
+{
+  return ht_insert_str_from_int_key (ht_agent_vals, nkey, key);
+}
+
+static int
+get_int_from_int_key (GHashTable * ht, int nkey)
+{
+  gpointer value_ptr;
+
+  if (ht == NULL)
+    return (EINVAL);
+
+  value_ptr = g_hash_table_lookup (ht, &nkey);
+  if (value_ptr != NULL)
+    return (*(int *) value_ptr);
+
+  return 0;
+}
+
+int
+get_int_from_str_key (GHashTable * ht, const char *key)
+{
+  gpointer value_ptr;
+
+  if (ht == NULL)
+    return (EINVAL);
+
+  value_ptr = g_hash_table_lookup (ht, key);
+  if (value_ptr != NULL)
+    return (*(int *) value_ptr);
+
+  return 0;
+}
+
+unsigned int
+get_uint_from_str_key (GHashTable * ht, const char *key)
+{
+  gpointer value_ptr;
+
+  if (ht == NULL)
+    return (EINVAL);
+
+  value_ptr = g_hash_table_lookup (ht, key);
+  if (value_ptr != NULL)
+    return (*(unsigned int *) value_ptr);
+
+  return 0;
+}
+
+char *
+get_str_from_int_key (GHashTable * ht, int nkey)
+{
+  gpointer value_ptr;
+
+  if (ht == NULL)
+    return NULL;
+
+  value_ptr = g_hash_table_lookup (ht, &nkey);
+  if (value_ptr != NULL)
+    return xstrdup ((char *) value_ptr);
+
+  return NULL;
+}
+
 
 char *
 get_root_from_key (int root_nkey, GModule module)
@@ -318,7 +416,6 @@ get_node_from_key (int data_nkey, GModule module, GMetric metric)
 {
   GHashTable *ht = NULL;
   GStorageMetrics *metrics;
-  gpointer value_ptr;
 
   metrics = get_storage_metrics_by_module (module);
   /* bandwidth modules */
@@ -339,11 +436,7 @@ get_node_from_key (int data_nkey, GModule module, GMetric metric)
   if (ht == NULL)
     return NULL;
 
-  value_ptr = g_hash_table_lookup (ht, &data_nkey);
-  if (value_ptr != NULL)
-    return xstrdup ((char *) value_ptr);
-
-  return NULL;
+  return get_str_from_int_key (ht, data_nkey);
 }
 
 uint64_t
@@ -378,7 +471,6 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
 int
 get_num_from_key (int data_nkey, GModule module, GMetric metric)
 {
-  gpointer value_ptr;
   GHashTable *ht = NULL;
   GStorageMetrics *metrics;
 
@@ -398,10 +490,7 @@ get_num_from_key (int data_nkey, GModule module, GMetric metric)
   if (ht == NULL)
     return 0;
 
-  value_ptr = g_hash_table_lookup (ht, &data_nkey);
-  if (value_ptr != NULL)
-    return (*(int *) value_ptr);
-  return 0;
+  return get_int_from_int_key (ht, data_nkey);
 }
 
 char *
@@ -416,6 +505,49 @@ get_hostname (const char *host)
   return NULL;
 }
 
+int
+get_int_from_keymap (const char *key, GModule module)
+{
+  GHashTable *ht = get_storage_metric (module, MTRC_KEYMAP);
+
+  return get_int_from_str_key (ht, key);
+}
+
+char *
+get_host_agent_val (int agent_nkey)
+{
+  return get_str_from_int_key (ht_agent_vals, agent_nkey);
+}
+
+void *
+get_host_agent_list (int data_nkey)
+{
+  GHashTable *ht;
+  void *list;
+
+  ht = get_storage_metric (HOSTS, MTRC_AGENTS);
+  if ((list = g_hash_table_lookup (ht, &data_nkey)))
+    return list;
+  return NULL;
+}
+
+static void
+free_agent_values (GO_UNUSED gpointer k, gpointer v,
+                   GO_UNUSED gpointer data_ptr)
+{
+  void *list = v;
+
+  if (list != NULL)
+    list_remove_nodes (list);
+}
+
+void
+free_agent_list (void)
+{
+  GHashTable *ht = get_storage_metric (HOSTS, MTRC_AGENTS);
+
+  g_hash_table_foreach (ht, (GHFunc) free_agent_values, NULL);
+}
 
 /* iterate over the key/value pairs in the hash table */
 static void

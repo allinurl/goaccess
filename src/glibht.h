@@ -30,23 +30,16 @@
 #include "gstorage.h"
 
 /* tables for the whole app */
+extern GHashTable *ht_agent_keys;
+extern GHashTable *ht_agent_vals;
 extern GHashTable *ht_hostnames;
-extern GHashTable *ht_hosts_agents;
 extern GHashTable *ht_unique_keys;
 
 /* *INDENT-OFF* */
-
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 
-char *get_hostname (const char *host);
-char *get_node_from_key (int data_nkey, GModule module, GMetric metric);
-char *get_root_from_key (int root_nkey, GModule module);
-int get_num_from_key (int data_nkey, GModule module, GMetric metric);
-int process_host_agents (char *host, char *agent);
 uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
 uint32_t get_ht_size (GHashTable * ht);
-uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
-void init_storage (void);
 
 int ht_inc_int_from_int_key (GHashTable * ht, int data_nkey, int inc);
 int ht_inc_int_from_str_key (GHashTable * ht, char *key, int inc);
@@ -58,6 +51,26 @@ int ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval);
 int ht_insert_str_from_int_key (GHashTable * ht, int nkey, const char *value);
 int ht_insert_uniqmap (GHashTable * ht, char *uniq_key);
 int ht_insert_unique_key (const char *key);
+int ht_insert_host_agent (GHashTable * ht, int data_nkey, int agent_nkey);
+int ht_insert_agent_key (const char *key);
+int ht_insert_agent_val (int nkey, const char *key);
+
+char *get_host_agent_val (int agent_nkey);
+char *get_hostname (const char *host);
+char *get_node_from_key (int data_nkey, GModule module, GMetric metric);
+char *get_root_from_key (int root_nkey, GModule module);
+char * get_str_from_int_key (GHashTable *ht, int nkey);
+int get_int_from_keymap (const char *key, GModule module);
+int get_int_from_str_key (GHashTable * ht, const char *key);
+int get_num_from_key (int data_nkey, GModule module, GMetric metric);
+int process_host_agents (char *host, char *agent);
+uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
+unsigned int get_uint_from_str_key (GHashTable *ht, const char *key);
+void *get_host_agent_list (int data_nkey);
+void init_storage (void);
+
+void free_agent_list (void);
+
 
 /* *INDENT-ON* */
 

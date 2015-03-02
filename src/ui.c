@@ -607,133 +607,114 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   return s;
 }
 
-/* allocate memory for a new instace of GAgents */
-static GAgents *
-new_gagents (unsigned int n)
+static int
+fill_host_agents_gmenu (void *val, void *user_data)
 {
-  GAgents *agents = xcalloc (n, sizeof (GAgents));
-  return agents;
+  GMenu *menu = user_data;
+  char *agent = get_host_agent_val ((*(int *) val));
+
+  if (agent == NULL)
+    return 1;
+
+  menu->items[menu->size].name = agent;
+  menu->items[menu->size].checked = 0;
+  menu->size++;
+
+  return 0;
 }
 
-/* split agent str if length > max or if '|' is found */
-int
-split_agent_str (char *ptr_value, GAgents * agents, int max)
+static int
+set_host_agents_gmenu (GMenu * menu, const char *addr)
 {
-  char *holder;
-  char *p = ptr_value;
-  int i = 0, offset = 0;
+  GSLList *list;
+  int data_nkey, count = 0;
 
-  agents[i].agents = xmalloc (max + 1);
-  holder = agents[i].agents;
+  data_nkey = get_int_from_keymap (addr, HOSTS);
+  if (data_nkey == 0)
+    return 1;
 
-  while (*p != '\0') {
-    /* add char to holder */
-    if (offset < max && *p != '|') {
-      *(holder++) = *(p++);
-      offset++;
-      continue;
-    }
-    /* split agent string since a delim was found */
-    else if (*p == '|')
-      (void) *p++;
-    offset = 0;
-    *holder = '\0';
-    agents[++i].agents = xmalloc (max + 1);
-    holder = agents[i].agents;
+  list = get_host_agent_list (data_nkey);
+  if (!list)
+    return 1;
+
+  if ((count = list_count (list)) == 0) {
+    free (list);
+    return 1;
   }
-  *holder = '\0';
-  return i + 1;
+
+  menu->items = (GItem *) xcalloc (count, sizeof (GItem));
+  list_foreach (list, fill_host_agents_gmenu, menu);
+
+#ifdef TCB_BTREE
+  free (list);
+#endif
+
+  return 0;
 }
+
 
 /* render a list of agents if available */
 void
 load_agent_list (WINDOW * main_win, char *addr)
 {
-  /*char buf[256]; */
-  /*char *ptr_value; */
-  /*GAgents *agents = NULL; */
-  /*GMenu *menu; */
-  /*int c, quit = 1, delims = 0; */
-  /*int i, n = 0, alloc = 0; */
-  /*int y, x, list_h, list_w, menu_w, menu_h; */
-  /*void *value_ptr = NULL; */
-  /*WINDOW *win; */
+  char buf[256];
+  GMenu *menu;
+  int c, quit = 1, i;
+  int y, x, list_h, list_w, menu_w, menu_h;
+  WINDOW *win;
 
-  /*if (!conf.list_agents) */
-  /*return; */
+  if (!conf.list_agents)
+    return;
 
-  /*getmaxyx (stdscr, y, x); */
-  /*list_h = y / 2;       *//* list window - height */
-  /*list_w = x - 4;       *//* list window - width */
-  /*menu_h = list_h - AGENTS_MENU_Y - 1;  *//* menu window - height */
-  /*menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      *//* menu window - width */
+  getmaxyx (stdscr, y, x);
+  list_h = y / 2;       /* list window - height */
+  list_w = x - 4;       /* list window - width */
+  menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
+  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
 
-  /*#ifdef HAVE_LIBTOKYOCABINET */
-  /*value_ptr = tc_db_get_str (ht_hosts_agents, addr); */
-  /*#else */
-  /*value_ptr = g_hash_table_lookup (ht_hosts_agents, addr); */
-  /*#endif */
+  win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
+  keypad (win, TRUE);
+  wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
-  /*if (value_ptr != NULL) { */
-  /*ptr_value = (char *) value_ptr; */
-  /*delims = count_matches (ptr_value, '|'); */
+  /* create a new instance of GMenu and make it selectable */
+  menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
+  if (set_host_agents_gmenu (menu, addr) == 1)
+    return;
 
-  /*n = ((strlen (ptr_value) + menu_w - 1) / menu_w) + delims + 1; */
-  /*agents = new_gagents (n); */
-  /*alloc = split_agent_str (ptr_value, agents, menu_w); */
-  /*#ifdef HAVE_LIBTOKYOCABINET */
-  /*free (value_ptr); */
-  /*#endif */
-  /*} */
+  post_gmenu (menu);
+  snprintf (buf, sizeof buf, "User Agents for %s", addr);
+  draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0);
+  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
+  wrefresh (win);
 
-  /*win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2); */
-  /*keypad (win, TRUE); */
-  /*wborder (win, '|', '|', '-', '-', '+', '+', '+', '+'); */
+  while (quit) {
+    c = wgetch (stdscr);
+    switch (c) {
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
+    }
+    wrefresh (win);
+  }
 
-   /**/ /* create a new instance of GMenu and make it selectable */
-    /*menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X); */
-     /**/       /* add items to GMenu */
-    /*menu->items = (GItem *) xcalloc (alloc, sizeof (GItem)); */
-    /*for (i = 0; i < alloc; ++i) { */
-    /*menu->items[i].name = alloc_string (agents[i].agents); */
-    /*menu->items[i].checked = 0; */
-    /*menu->size++; */
-    /*} */
-    /*post_gmenu (menu); */
-    /*snprintf (buf, sizeof buf, "User Agents for %s", addr); */
-    /*draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0); */
-    /*mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window"); */
-    /*wrefresh (win); */
-    /*while (quit) { */
-    /*c = wgetch (stdscr); */
-    /*switch (c) { */
-    /*case KEY_DOWN: */
-    /*gmenu_driver (menu, REQ_DOWN); */
-    /*draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0); */
-    /*break; */
-    /*case KEY_UP: */
-    /*gmenu_driver (menu, REQ_UP); */
-    /*draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0); */
-    /*break; */
-    /*case KEY_RESIZE: */
-    /*case 'q': */
-    /*quit = 0; */
-    /*break; */
-    /*} */
-    /*wrefresh (win); */
-    /*} */
-     /**/       /* clean stuff up */
-    /*for (i = 0; i < alloc; ++i) */
-    /*free (menu->items[i].name); */
-    /*free (menu->items); */
-    /*free (menu); */
-    /*for (i = 0; i < alloc; ++i) */
-    /*free (agents[i].agents); */
-    /*if (agents) */
-    /*free (agents); */
-    /*touchwin (main_win); */
-    /*close_win (win); */
-    /*wrefresh (main_win); */
+  /* clean stuff up */
+  for (i = 0; i < menu->size; ++i)
+    free (menu->items[i].name);
+  free (menu->items);
+  free (menu);
+
+  touchwin (main_win);
+  close_win (win);
+  wrefresh (main_win);
 }
 
 /* render processing spinner */

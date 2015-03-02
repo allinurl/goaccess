@@ -46,9 +46,10 @@
 GStorage *ht_storage;
 
 /* tables for the whole app */
+TCADB *ht_agent_keys = NULL;
+TCADB *ht_agent_vals = NULL;
 TCADB *ht_general_stats = NULL;
 TCADB *ht_hostnames = NULL;
-TCADB *ht_hosts_agents = NULL;
 TCADB *ht_unique_keys = NULL;
 
 static int
@@ -212,6 +213,8 @@ init_tables (GModule module)
     tc_db_create (get_dbname (DB_METHODS, module));
   ht_storage[module].metrics->protocols =
     tc_db_create (get_dbname (DB_PROTOCOLS, module));
+  ht_storage[module].metrics->agents =
+    tc_db_create (get_dbname (DB_AGENTS, module));
 }
 
 /* Initialize GLib hash tables */
@@ -220,9 +223,10 @@ init_storage (void)
 {
   GModule module;
 
+  ht_agent_keys = tc_db_create (get_dbname (DB_AGENT_KEYS, -1));
+  ht_agent_vals = tc_db_create (get_dbname (DB_AGENT_VALS, -1));
   ht_general_stats = tc_db_create (get_dbname (DB_GEN_STATS, -1));
   ht_hostnames = tc_db_create (get_dbname (DB_HOSTNAMES, -1));
-  ht_hosts_agents = tc_db_create (get_dbname (DB_HOST_AGENTS, -1));
   ht_unique_keys = tc_db_create (get_dbname (DB_UNIQUE_KEYS, -1));
 
   ht_storage = new_gstorage (TOTAL_MODULES);
@@ -269,6 +273,7 @@ free_tables (GStorageMetrics * metrics, GModule module)
   tc_db_close (metrics->time_served, get_dbname (DB_AVGTS, module));
   tc_db_close (metrics->methods, get_dbname (DB_METHODS, module));
   tc_db_close (metrics->protocols, get_dbname (DB_PROTOCOLS, module));
+  /*tc_db_close (metrics->agents, get_dbname (DB_AGENTS, module)); */
 }
 
 void
@@ -276,9 +281,10 @@ free_storage (void)
 {
   GModule module;
 
+  tc_db_close (ht_agent_keys, get_dbname (DB_AGENT_KEYS, -1));
+  tc_db_close (ht_agent_vals, get_dbname (DB_AGENT_VALS, -1));
   tc_db_close (ht_general_stats, get_dbname (DB_GEN_STATS, -1));
   tc_db_close (ht_hostnames, get_dbname (DB_HOSTNAMES, -1));
-  tc_db_close (ht_hosts_agents, get_dbname (DB_HOST_AGENTS, -1));
   tc_db_close (ht_unique_keys, get_dbname (DB_UNIQUE_KEYS, -1));
 
   for (module = 0; module < TOTAL_MODULES; ++module) {
@@ -388,6 +394,36 @@ ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
   return 0;
 }
 
+static int
+find_host_agent_in_list (void *data, void *needle)
+{
+  return (*(int *) data) == (*(int *) needle) ? 1 : 0;
+}
+
+int
+ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey)
+{
+  GSLList *list, *match;
+  int sp = 0;
+
+  if (adb == NULL)
+    return (EINVAL);
+
+  if ((list = tcadbget (adb, &data_nkey, sizeof (int), &sp)) != NULL) {
+    if ((match = list_find (list, find_host_agent_in_list, &agent_nkey)))
+      goto out;
+    list = list_insert_prepend (list, int2ptr (agent_nkey));
+  } else {
+    list = list_create (int2ptr (agent_nkey));
+  }
+  tcadbput (adb, &data_nkey, sizeof (int), list, sizeof (GSLList));
+out:
+
+  free (list);
+
+  return 0;
+}
+
 int
 ht_insert_str_from_int_key (TCADB * adb, int nkey, const char *value)
 {
@@ -486,9 +522,85 @@ ht_insert_unique_key (const char *key)
 }
 
 int
-ht_insert_agent (const char *key)
+ht_insert_agent_key (const char *key)
 {
-  return ht_insert_keymap (ht_hosts_agents, key);
+  return ht_insert_keymap (ht_agent_keys, key);
+}
+
+int
+ht_insert_agent_val (int nkey, const char *key)
+{
+  return ht_insert_str_from_int_key (ht_agent_vals, nkey, key);
+}
+
+static int
+get_int_from_int_key (TCADB * adb, int nkey)
+{
+  void *value_ptr;
+  int sp = 0, ret = 0;
+
+  if (adb == NULL)
+    return (EINVAL);
+
+  value_ptr = tcadbget (adb, &nkey, sizeof (int), &sp);
+  if (value_ptr != NULL) {
+    ret = (*(int *) value_ptr);
+    free (value_ptr);
+  }
+
+  return ret;
+}
+
+int
+get_int_from_str_key (TCADB * adb, const char *key)
+{
+  void *value_ptr;
+  int sp = 0, ret = 0;
+
+  if (adb == NULL)
+    return (EINVAL);
+
+  value_ptr = tcadbget (adb, key, strlen (key), &sp);
+  if (value_ptr != NULL) {
+    ret = (*(int *) value_ptr);
+    free (value_ptr);
+  }
+
+  return ret;
+}
+
+unsigned int
+get_uint_from_str_key (TCADB * adb, const char *key)
+{
+  void *value_ptr;
+  int sp = 0, ret = 0;
+
+  if (adb == NULL)
+    return (EINVAL);
+
+  value_ptr = tcadbget (adb, key, strlen (key), &sp);
+  if (value_ptr != NULL) {
+    ret = (*(unsigned int *) value_ptr);
+    free (value_ptr);
+  }
+
+  return ret;
+}
+
+char *
+get_str_from_int_key (TCADB * adb, int nkey)
+{
+  void *value_ptr;
+  int sp = 0;
+
+  if (adb == NULL)
+    return NULL;
+
+  value_ptr = tcadbget (adb, &nkey, sizeof (int), &sp);
+  if (value_ptr != NULL)
+    return (char *) value_ptr;
+
+  return NULL;
 }
 
 char *
@@ -509,43 +621,11 @@ get_root_from_key (int root_nkey, GModule module)
   return NULL;
 }
 
-static int
-get_int_from_int_key (TCADB * adb, int nkey)
-{
-  void *value_ptr;
-  int sp = 0, ret = 0;
-
-  value_ptr = tcadbget (adb, &nkey, sizeof (int), &sp);
-  if (value_ptr != NULL) {
-    ret = (*(int *) value_ptr);
-    free (value_ptr);
-  }
-
-  return ret;
-}
-
-unsigned int
-get_uint_from_str_key (TCADB * adb, const char *key)
-{
-  void *value_ptr;
-  int sp = 0, ret = 0;
-
-  value_ptr = tcadbget (adb, key, strlen (key), &sp);
-  if (value_ptr != NULL) {
-    ret = (*(unsigned int *) value_ptr);
-    free (value_ptr);
-  }
-
-  return ret;
-}
-
 char *
 get_node_from_key (int data_nkey, GModule module, GMetric metric)
 {
   TCADB *adb = NULL;
   GStorageMetrics *metrics;
-  void *value_ptr;
-  int sp = 0;
 
   metrics = get_storage_metrics_by_module (module);
   /* bandwidth modules */
@@ -566,11 +646,7 @@ get_node_from_key (int data_nkey, GModule module, GMetric metric)
   if (adb == NULL)
     return NULL;
 
-  value_ptr = tcadbget (adb, &data_nkey, sizeof (int), &sp);
-  if (value_ptr != NULL)
-    return (char *) value_ptr;
-
-  return NULL;
+  return get_str_from_int_key (adb, data_nkey);
 }
 
 uint64_t
@@ -643,6 +719,33 @@ get_hostname (const char *host)
   return NULL;
 }
 
+int
+get_int_from_keymap (const char *key, GModule module)
+{
+  TCADB *adb = get_storage_metric (module, MTRC_KEYMAP);
+
+  return get_int_from_str_key (adb, key);
+}
+
+char *
+get_host_agent_val (int agent_nkey)
+{
+  return get_str_from_int_key (ht_agent_vals, agent_nkey);
+}
+
+void *
+get_host_agent_list (int data_nkey)
+{
+  TCADB *adb;
+  void *list;
+  int sp = 0;
+
+  adb = get_storage_metric (HOSTS, MTRC_AGENTS);
+  if ((list = tcadbget (adb, &data_nkey, sizeof (data_nkey), &sp)))
+    return list;
+  return NULL;
+}
+
 /* Calls the given function for each of the key/value pairs */
 static void
 tc_db_foreach (void *db, void (*fp) (TCADB * m, void *k, int s, void *u),
@@ -669,10 +772,30 @@ free_key (TCADB * adb, void *key, int ksize, GO_UNUSED void *user_data)
   free (key);
 }
 
+static void
+free_agent_values (TCADB * adb, void *key, int ksize, GO_UNUSED void *user_data)
+{
+  void *list;
+  int sp = 0;
+
+  list = tcadbget (adb, key, ksize, &sp);
+  if (list)
+    list_remove_nodes (list);
+  free (key);
+}
+
 void
 free_db_key (TCADB * adb)
 {
   tc_db_foreach (adb, free_key, NULL);
+}
+
+void
+free_agent_list (void)
+{
+  TCADB *adb = get_storage_metric (HOSTS, MTRC_AGENTS);
+
+  tc_db_foreach (adb, free_agent_values, NULL);
 }
 
 static void
