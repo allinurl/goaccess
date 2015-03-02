@@ -130,6 +130,9 @@ house_keeping (void)
     reset_find ();
   }
 
+  if (conf.list_agents)
+    free_agent_list ();
+
   /* GEOLOCATION */
 #ifdef HAVE_LIBGEOIP
   if (geo_location_data != NULL)

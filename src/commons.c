@@ -41,6 +41,7 @@
 #include "settings.h"
 #include "sort.h"
 #include "util.h"
+#include "xmalloc.h"
 
 /* processing time */
 time_t end_proc;
@@ -113,4 +114,85 @@ str2enum (const GEnum map[], int len, const char *str)
   }
 
   return -1;
+}
+
+GSLList *
+list_create (void *data)
+{
+  GSLList *node = xmalloc (sizeof (GSLList));
+  node->data = data;
+  node->next = NULL;
+
+  return node;
+}
+
+GSLList *
+list_insert_append (GSLList * node, void *data)
+{
+  GSLList *newnode;
+  newnode = list_create (data);
+  newnode->next = node->next;
+  node->next = newnode;
+
+  return newnode;
+}
+
+GSLList *
+list_insert_prepend (GSLList * list, void *data)
+{
+  GSLList *newnode;
+  newnode = list_create (data);
+  newnode->next = list;
+
+  return newnode;
+}
+
+GSLList *
+list_find (GSLList * node, int (*func) (void *, void *), void *data)
+{
+  while (node) {
+    if (func (node->data, data) > 0)
+      return node;
+    node = node->next;
+  }
+
+  return NULL;
+}
+
+int
+list_remove_nodes (GSLList * list)
+{
+  GSLList *tmp;
+  while (list != NULL) {
+    tmp = list->next;
+    if (list->data)
+      free (list->data);
+    free (list);
+    list = tmp;
+  }
+
+  return 0;
+}
+
+int
+list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data)
+{
+  while (node) {
+    if (func (node->data, user_data) != 0)
+      return -1;
+    node = node->next;
+  }
+
+  return 0;
+}
+
+int
+list_count (GSLList * node)
+{
+  int count = 0;
+  while (node != 0) {
+    count++;
+    node = node->next;
+  }
+  return count;
 }
