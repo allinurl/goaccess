@@ -157,7 +157,7 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
   metrics->visitors = ometrics->visitors;
 
   if (conf.serve_usecs && ometrics->hits > 0)
-    metrics->avgts.nts = ometrics->avgts.nts / ometrics->hits;
+    metrics->avgts.nts = ometrics->avgts.nts;
 
   if (conf.append_method && ometrics->method)
     metrics->method = ometrics->method;
