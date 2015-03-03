@@ -258,12 +258,12 @@ allocate_data (void)
       break;
     }
 
-    size = holder[module].idx > col_data ? col_data : holder[module].idx;
-    if ((size > MAX_CHOICES) || (gscroll.expanded && module == gscroll.current))
+    size = holder[module].idx;
+    if ((size > MAX_CHOICES))
       size = MAX_CHOICES;
 
     dash->module[module].alloc_data = size;     /* data allocated  */
-    dash->module[module].ht_size = holder[module].idx;  /* hash table size */
+    dash->module[module].ht_size = holder[module].ht_size;      /* hash table size */
     dash->module[module].idx_data = 0;
     dash->module[module].pos_y = 0;
 

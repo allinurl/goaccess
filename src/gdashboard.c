@@ -1266,7 +1266,7 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
   dash->module[module].holder_size = h->holder_size;
 
   for (i = 0, j = 0; i < alloc_size; i++) {
-    if (j >= dash->module[module].ht_size || h->items[j].metrics->data == NULL)
+    if (h->items[j].metrics->data == NULL)
       continue;
 
     add_item_to_dash (&dash, h->items[j], module);
@@ -1514,8 +1514,9 @@ load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort)
 
   size = raw_data->size;
   h->holder_size = size > MAX_CHOICES ? MAX_CHOICES : size;
-  h->module = module;
+  h->ht_size = size;
   h->idx = 0;
+  h->module = module;
   h->sub_items_size = 0;
   h->items = new_gholder_item (h->holder_size);
 

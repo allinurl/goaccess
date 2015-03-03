@@ -167,11 +167,12 @@ typedef struct GHolderItem_
 
 typedef struct GHolder_
 {
-  GHolderItem *items;           /* data                             */
-  GModule module;               /* current module                   */
-  int idx;                      /* first level index                */
-  int holder_size;              /* total num of items (first level) */
-  int sub_items_size;           /* total number of sub items        */
+  GHolderItem *items;           /* items */
+  GModule module;               /* current module  */
+  int idx;                      /* index  */
+  int holder_size;              /* total number of allocated items */
+  int ht_size;                  /* total number of data items */
+  int sub_items_size;           /* total number of sub items  */
 } GHolder;
 
 typedef struct GEnum_
