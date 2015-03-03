@@ -1497,7 +1497,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
   h->items[idx].sub_list = sub_list;
 
   h->items[idx].metrics = metrics;
-  h->items[idx].metrics->avgts.nts = nmetrics->avgts.nts;
+  h->items[idx].metrics->avgts.nts += nmetrics->avgts.nts;
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;
