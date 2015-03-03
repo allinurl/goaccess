@@ -62,27 +62,27 @@ static void add_root_to_holder (GRawDataItem item, GHolder * h,
 static void add_host_child_to_holder (GHolder * h);
 static void data_visitors (GHolder * h);
 
-
 static GFind find_t;
-/* module's styles */
-static const GDashStyle module_style[TOTAL_MODULES] = {
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, COL_BLACK, -1, -1},  /* VISITORS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_WHITE, COL_BLACK}, /* REQUESTS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_WHITE, COL_BLACK}, /* REQUESTS_STATIC */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, COL_BLACK, COL_WHITE, COL_BLACK}, /* NOT FOUND */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, COL_WHITE, COL_BLACK, -1, -1},        /* HOSTS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, COL_BLACK, COL_BLACK, COL_WHITE},    /* OS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_RED, COL_WHITE, COL_BLACK, -1, -1},  /* BROWSERS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, -1, -1, -1},      /* REFERRERS */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, -1, -1, -1},      /* REFERRING_SITES */
-  {COL_BLACK, COL_WHITE, COL_WHITE, COL_BLACK, COL_BLACK, -1, -1, -1, -1},      /* KEYPHRASES */
-#ifdef HAVE_LIBGEOIP
-  {COL_BLACK, COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},     /* GEO_LOCATION */
-#endif
-  {COL_BLACK, COL_WHITE, COL_WHITE, -1, COL_BLACK, -1, -1, -1, -1},     /* STATUS CODES */
-};
 
 /* *INDENT-OFF* */
+/* module's styles */
+static const GDashStyle module_style[TOTAL_MODULES] = {
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+#ifdef HAVE_LIBGEOIP
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+#endif
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+};
+
 static GPanel paneling[] = {
   {VISITORS        , add_data_to_holder, data_visitors} ,
   {REQUESTS        , add_data_to_holder, NULL} ,
