@@ -361,7 +361,7 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
 {
   char *bw, *size, *log_file;
   char *failed, *not_found, *process, *ref, *req;
-  char *static_files, *now, *visitors, *exclude_ip;
+  char *sfiles, *now, *visitors, *exclude_ip;
 
   int x_field = 2, x_value = 0;
   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
@@ -405,10 +405,9 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   process = int_to_str (logger->process);
   ref = int_to_str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP));
   req = int_to_str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP));
-  static_files =
-    int_to_str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP));
+  sfiles = int_to_str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP));
   now = int_to_str (((long long) end_proc - start_proc));
-  visitors = int_to_str (get_ht_size_by_metric (VISITORS, MTRC_DATAMAP));
+  visitors = int_to_str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP));
   exclude_ip = int_to_str (logger->exclude_ip);
 
   fields[0].value = process;
@@ -421,7 +420,7 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   fields[7].value = bw;
   fields[8].value = now;
   fields[9].value = exclude_ip;
-  fields[10].value = static_files;
+  fields[10].value = sfiles;
   fields[11].value = log_file;
 
   n = ARRAY_SIZE (fields);
