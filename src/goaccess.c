@@ -259,8 +259,11 @@ allocate_data (void)
     }
 
     size = holder[module].idx;
-    if ((size > MAX_CHOICES))
-      size = MAX_CHOICES;
+    if (gscroll.expanded && module == gscroll.current) {
+      size = size > MAX_CHOICES ? MAX_CHOICES : holder[module].idx;
+    } else {
+      size = holder[module].idx > col_data ? col_data : holder[module].idx;
+    }
 
     dash->module[module].alloc_data = size;     /* data allocated  */
     dash->module[module].ht_size = holder[module].ht_size;      /* hash table size */
