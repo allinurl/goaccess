@@ -419,7 +419,7 @@ filesize_str (unsigned long long log_size)
   else if (log_size >= KB)
     snprintf (size, 12, "%.2f KiB", (double) (log_size) / KB);
   else
-    snprintf (size, 12, "%.1f  B", (double) (log_size));
+    snprintf (size, 12, "%.1f   B", (double) (log_size));
 
   return size;
 }
