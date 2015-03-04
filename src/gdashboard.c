@@ -749,13 +749,13 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   /* selected state */
   if (sel) {
     hits = int_to_str (data->data[idx].metrics->hits);
-    draw_header (win, hits, "  %*s", y, 0, w, HIGHLIGHT, len);
+    draw_header (win, hits, "  %s", y, 0, w, HIGHLIGHT, 0);
     free (hits);
   }
   /* regular state */
   else {
     wattron (win, COLOR_PAIR (style[module].color_hits));
-    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%d", data->data[idx].metrics->hits);
     wattroff (win, COLOR_PAIR (style[module].color_hits));
   }
 out:
