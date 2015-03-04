@@ -1204,6 +1204,9 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
   int *idx;
   idx = &(*dash)->module[module].idx_data;
 
+  if (sub_list == NULL)
+    return;
+
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
     entry = render_child_node (iter->metrics->data);
     if (!entry)
