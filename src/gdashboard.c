@@ -713,7 +713,17 @@ render_percent (GDashModule * data, GDashRender render, int *x)
   /* regular state */
   else {
     wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
+    if (data->max_hits == data->data[idx].metrics->hits)
+      wattron (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
+    if (style[module].color_percent == COL_BLACK)
+      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
+
     mvwprintw (win, y, *x, "%*.2f%%", len, data->data[idx].metrics->percent);
+
+    if (style[module].color_percent == COL_BLACK)
+      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
+    if (data->max_hits == data->data[idx].metrics->hits)
+      wattroff (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
   }
 out:
