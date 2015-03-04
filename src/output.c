@@ -313,8 +313,10 @@ print_html_header (FILE * fp, char *now)
   "    text-align: center"
   "}"
   ".max {"
-  "    color: #D20B2C;"
-  "    font-weight: 700;"
+  "    background: #f0ad4e;"
+  "    border-radius: 5px;"
+  "    color: #FFF;"
+  "    padding: 2px 5px;"
   "}"
   ".fr {"
   "    width:100%%;"
@@ -565,7 +567,7 @@ print_html_header (FILE * fp, char *now)
   ".pure-table td {"
   "    background-color: #FFF"
   "}"
-  ".pure-table td.number {"
+  ".pure-table td.num {"
   "    text-align: right"
   "}"
   ".pure-table .sub td {"
@@ -830,19 +832,22 @@ print_table_head (FILE * fp, GModule module)
 static void
 print_metric_hits (FILE * fp, GMetrics * nmetrics)
 {
-  fprintf (fp, "<td class='number'>%d</td>", nmetrics->hits);
+  fprintf (fp, "<td class='num'>%d</td>", nmetrics->hits);
 }
 
 static void
 print_metric_visitors (FILE * fp, GMetrics * nmetrics)
 {
-  fprintf (fp, "<td class='number'>%d</td>", nmetrics->visitors);
+  fprintf (fp, "<td class='num'>%d</td>", nmetrics->visitors);
 }
 
 static void
-print_metric_percent (FILE * fp, GMetrics * nmetrics)
+print_metric_percent (FILE * fp, GMetrics * nmetrics, int max)
 {
-  fprintf (fp, "<td class='number'>%4.2f%%</td>", nmetrics->percent);
+  fprintf (fp, "<td class='num'>");
+  fprintf (fp, "<span class='%s'>%4.2f%%</span>", (max ? "max" : ""),
+           nmetrics->percent);
+  fprintf (fp, "</td>");
 }
 
 static void
@@ -850,7 +855,7 @@ print_metric_bw (FILE * fp, GMetrics * nmetrics)
 {
   char *bw = filesize_str (nmetrics->bw.nbw);
 
-  fprintf (fp, "<td class='number'>");
+  fprintf (fp, "<td class='num'>");
   clean_output (fp, bw);
   fprintf (fp, "</td>");
 
@@ -865,7 +870,7 @@ print_metric_avgts (FILE * fp, GMetrics * nmetrics)
     return;
 
   ts = usecs_to_str (nmetrics->avgts.nts);
-  fprintf (fp, "<td class='number'>");
+  fprintf (fp, "<td class='num'>");
   clean_output (fp, ts);
   fprintf (fp, "</td>");
 
@@ -911,7 +916,7 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max, int sub,
   if (panel->hits)
     print_metric_hits (fp, nmetrics);
   if (panel->percent)
-    print_metric_percent (fp, nmetrics);
+    print_metric_percent (fp, nmetrics, max == nmetrics->hits);
   if (panel->bw)
     print_metric_bw (fp, nmetrics);
   if (panel->avgts)
