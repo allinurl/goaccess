@@ -591,7 +591,6 @@ render_method (GDashModule * data, GDashRender render, int *x)
     wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_method));
   }
 
-  /**x += strlen (data->data[idx].metrics->method) + DASH_SPACE;*/
   *x += data->method_len + DASH_SPACE;
 }
 
