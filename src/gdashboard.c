@@ -553,9 +553,9 @@ render_data (GDashModule * data, GDashRender render, int *x)
                    HIGHLIGHT, 0);
     }
   } else {
-    wattron (win, COLOR_PAIR (style[module].color_hits));
+    wattron (win, COLOR_PAIR (style[module].color_data));
     mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : value);
-    wattroff (win, COLOR_PAIR (style[module].color_hits));
+    wattroff (win, COLOR_PAIR (style[module].color_data));
   }
 
   *x += module == VISITORS ? DATE_LEN - 1 : data->data_len;
