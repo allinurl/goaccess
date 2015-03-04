@@ -1315,16 +1315,18 @@ set_host_child_metrics (char *data, GMetrics ** nmetrics)
   return 0;
 }
 
-#ifdef HAVE_LIBGEOIP
 static void
-set_host_geolocation (GHolder * h, GSubList * sub_list)
+set_host_sub_list (GHolder * h, GSubList * sub_list)
 {
   GMetrics *nmetrics;
+#ifdef HAVE_LIBGEOIP
   char city[CITY_LEN] = "";
   char continent[CONTINENT_LEN] = "";
   char country[COUNTRY_LEN] = "";
+#endif
 
   char *host = h->items[h->idx].metrics->data, *hostname = NULL;
+#ifdef HAVE_LIBGEOIP
   /* add geolocation child nodes */
   set_geolocation (host, continent, country, city);
 
@@ -1343,6 +1345,7 @@ set_host_geolocation (GHolder * h, GSubList * sub_list)
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
   }
+#endif
 
   /* hostname */
   if (conf.enable_html_resolver) {
@@ -1354,7 +1357,6 @@ set_host_geolocation (GHolder * h, GSubList * sub_list)
     free (hostname);
   }
 }
-#endif
 
 static void
 add_host_child_to_holder (GHolder * h)
@@ -1366,10 +1368,8 @@ add_host_child_to_holder (GHolder * h)
   char *hostname = NULL;
   int n = h->sub_items_size;
 
-#ifdef HAVE_LIBGEOIP
-  /* add geolocation child nodes */
-  set_host_geolocation (h, sub_list);
-#endif
+  /* add child nodes */
+  set_host_sub_list (h, sub_list);
 
   pthread_mutex_lock (&gdns_thread.mutex);
   hostname = get_hostname (host);
