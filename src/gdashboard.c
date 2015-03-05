@@ -1182,6 +1182,7 @@ sort_sub_list (GHolder * h, GSort sort)
       arr[j].metrics->bw.nbw = iter->metrics->bw.nbw;
       arr[j].metrics->data = xstrdup (iter->metrics->data);
       arr[j].metrics->hits = iter->metrics->hits;
+      arr[j].metrics->id = iter->metrics->id;
       arr[j].metrics->visitors = iter->metrics->visitors;
       if (conf.serve_usecs)
         arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
@@ -1304,12 +1305,13 @@ data_visitors (GHolder * h)
 }
 
 static int
-set_host_child_metrics (char *data, GMetrics ** nmetrics)
+set_host_child_metrics (char *data, uint8_t id, GMetrics ** nmetrics)
 {
   GMetrics *metrics;
 
   metrics = new_gmetrics ();
   metrics->data = xstrdup (data);
+  metrics->id = id;
   *nmetrics = metrics;
 
   return 0;
@@ -1332,7 +1334,7 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
 
   /* country */
   if (country[0] != '\0') {
-    set_host_child_metrics (country, &nmetrics);
+    set_host_child_metrics (country, MTRC_ID_COUNTRY, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
@@ -1340,7 +1342,7 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
 
   /* city */
   if (city[0] != '\0') {
-    set_host_child_metrics (city, &nmetrics);
+    set_host_child_metrics (city, MTRC_ID_CITY, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
@@ -1350,7 +1352,7 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
   /* hostname */
   if (conf.enable_html_resolver) {
     hostname = reverse_ip (host);
-    set_host_child_metrics (hostname, &nmetrics);
+    set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
@@ -1379,7 +1381,7 @@ add_host_child_to_holder (GHolder * h)
   if (!hostname) {
     dns_resolver (host);
   } else if (hostname) {
-    set_host_child_metrics (hostname, &nmetrics);
+    set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
