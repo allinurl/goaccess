@@ -166,6 +166,7 @@ print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
   static const char *key[] = {
     "country",
     "city",
+    "hostname",
   };
 
   int i;
@@ -174,7 +175,7 @@ print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
 
   fprintf (fp, ",\n");
   for (i = 0, iter = sub_list->head; iter; iter = iter->next, i++) {
-    fprintf (fp, "%s\t\"%s\": \"", sep, key[i]);
+    fprintf (fp, "%s\t\"%s\": \"", sep, key[iter->metrics->id]);
     escape_json_output (fp, iter->metrics->data);
     fprintf (fp, (i != sub_list->size - 1) ? "\",\n" : "\"");
   }

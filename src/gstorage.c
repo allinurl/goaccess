@@ -151,6 +151,7 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
 
   metrics = new_gmetrics ();
   metrics->bw.nbw = ometrics->bw.nbw;
+  metrics->id = ometrics->id;
   metrics->data = ometrics->data;
   metrics->hits = ometrics->hits;
   metrics->percent = percent < 0 ? 0 : percent;

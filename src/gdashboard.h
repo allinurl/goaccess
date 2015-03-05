@@ -46,6 +46,10 @@
 #define DASH_SRV_TM_LEN 9  /* max served time length */
 #define DASH_SPACE      1  /* space between data */
 
+#define MTRC_ID_COUNTRY  0
+#define MTRC_ID_CITY     1
+#define MTRC_ID_HOSTNAME 2
+
 typedef struct GDashStyle_
 {
   const int color_visitors;
