@@ -184,6 +184,7 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
 static void
 print_csv_summary (FILE * fp, GLog * logger)
 {
+  long long time = 0LL;
   int i = 0, total = 0;
   off_t log_size = 0;
   char now[DATE_TIME];
@@ -207,8 +208,8 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   /* generated time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
-  total = (long long) end_proc - start_proc;
-  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_GENTIME);
+  time = (long long) end_proc - start_proc;
+  fprintf (fp, fmt, i++, GENER_ID, time, OVERALL_GENTIME);
 
   /* visitors */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
