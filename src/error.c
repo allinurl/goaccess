@@ -116,8 +116,7 @@ sigsegv_handler (int sig)
     fprintf (fp, "==%d== %zu %s\n", pid, i, messages[i]);
 
   fprintf (fp, "==%d==\n", pid);
-  fprintf (fp, "==%d== Please report this by opening an issue on GitHub:\n",
-           pid);
+  fprintf (fp, "==%d== Please report it by opening an issue on GitHub:\n", pid);
   fprintf (fp, "==%d== https://github.com/allinurl/goaccess/issues\n\n", pid);
   exit (EXIT_FAILURE);
 }

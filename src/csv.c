@@ -179,6 +179,77 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
   }
 }
 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+/* general statistics info */
+static void
+print_csv_summary (FILE * fp, GLog * logger)
+{
+  int i = 0, total = 0;
+  off_t log_size = 0;
+  char now[DATE_TIME];
+  const char *fmt;
+
+  generate_time ();
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
+
+  /* generated date time */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
+  fprintf (fp, fmt, i++, GENER_ID, now, OVERALL_DATETIME);
+
+  /* total requests */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  total = logger->process;
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REQ);
+
+  /* invalid requests */
+  total = logger->invalid;
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
+
+  /* generated time */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
+  total = (long long) end_proc - start_proc;
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_GENTIME);
+
+  /* visitors */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VISITORS);
+
+  /* files */
+  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FILES);
+
+  /* excluded hits */
+  total = logger->exclude_ip;
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
+
+  /* referrers */
+  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REF);
+
+  /* not found */
+  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_NOTFOUND);
+
+  /* static files */
+  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_STATIC);
+
+  /* log size */
+  if (!logger->piping)
+    log_size = file_size (conf.ifile);
+  fprintf (fp, fmt, i++, GENER_ID, log_size, OVERALL_LOGSIZE);
+
+  /* log path */
+  if (conf.ifile == NULL)
+    conf.ifile = (char *) "STDIN";
+
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
+  fprintf (fp, fmt, i++, GENER_ID, conf.ifile, OVERALL_LOG);
+}
+
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
+
 /* entry point to generate a a csv report writing it to the fp */
 void
 output_csv (GLog * logger, GHolder * holder)
@@ -186,6 +257,7 @@ output_csv (GLog * logger, GHolder * holder)
   GModule module;
   FILE *fp = stdout;
 
+  print_csv_summary (fp, logger);
   for (module = 0; module < TOTAL_MODULES; module++) {
     const GCSV *panel = panel_lookup (module);
     if (!panel)
