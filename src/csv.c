@@ -242,6 +242,10 @@ print_csv_summary (FILE * fp, GLog * logger)
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) log_size, OVERALL_LOGSIZE);
 
+  /* bandwidth */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
+  fprintf (fp, fmt, i++, GENER_ID, logger->resp_size, OVERALL_BANDWIDTH);
+
   /* log path */
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
