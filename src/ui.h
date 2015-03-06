@@ -118,6 +118,21 @@
 
 #define GENER_ID   "general"
 
+/* overall statistics */
+#define OVERALL_DATETIME  "date_time"
+#define OVERALL_REQ       "total_requests"
+#define OVERALL_GENTIME   "generation_time"
+#define OVERALL_FAILED    "failed_requests"
+#define OVERALL_VISITORS  "unique_visitors"
+#define OVERALL_FILES     "unique_files"
+#define OVERALL_EXCL_HITS "excluded_hits"
+#define OVERALL_REF       "unique_referrers"
+#define OVERALL_NOTFOUND  "unique_not_found"
+#define OVERALL_STATIC    "unique_static_files"
+#define OVERALL_LOGSIZE   "log_size"
+#define OVERALL_BANDWIDTH "bandwidth"
+#define OVERALL_LOG       "log_path"
+
 #define FIND_HEAD    "Find pattern in all modules"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
 
