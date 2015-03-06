@@ -254,6 +254,76 @@ print_json_data (FILE * fp, GHolder * h, int processed)
   free (sep);
 }
 
+static void
+print_json_summary (FILE * fp, GLog * logger)
+{
+  long long time = 0LL;
+  int total = 0;
+  off_t log_size = 0;
+  char now[DATE_TIME];
+
+  generate_time ();
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
+
+  fprintf (fp, "\t\"%s\": {\n", GENER_ID);
+
+  /* generated date time */
+  fprintf (fp, "\t\t\"%s\": \"%s\",\n", OVERALL_DATETIME, now);
+
+  /* total requests */
+  total = logger->process;
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REQ, total);
+
+  /* invalid requests */
+  total = logger->invalid;
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FAILED, total);
+
+  /* generated time */
+  time = (long long) end_proc - start_proc;
+  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_GENTIME, time);
+
+  /* visitors */
+  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_VISITORS, total);
+
+  /* files */
+  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FILES, total);
+
+  /* excluded hits */
+  total = logger->exclude_ip;
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_EXCL_HITS, total);
+
+  /* referrers */
+  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REF, total);
+
+  /* not found */
+  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_NOTFOUND, total);
+
+  /* static files */
+  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_STATIC, total);
+
+  /* log size */
+  if (!logger->piping)
+    log_size = file_size (conf.ifile);
+  fprintf (fp, "\t\t\"%s\": %jd,\n", OVERALL_LOGSIZE, (intmax_t) log_size);
+
+  /* bandwidth */
+  fprintf (fp, "\t\t\"%s\": %lld,\n", OVERALL_BANDWIDTH, logger->resp_size);
+
+  /* log path */
+  if (conf.ifile == NULL)
+    conf.ifile = (char *) "STDIN";
+  fprintf (fp, "\t\t\"%s\": \"", OVERALL_LOG);
+  escape_json_output (fp, conf.ifile);
+  fprintf (fp, "\"\n");
+
+  fprintf (fp, "\t},\n");
+}
+
 /* entry point to generate a a json report writing it to the fp */
 /* follow the JSON style similar to http://developer.github.com/v3/ */
 void
@@ -263,6 +333,7 @@ output_json (GLog * logger, GHolder * holder)
   FILE *fp = stdout;
 
   fprintf (fp, "{\n");
+  print_json_summary (fp, logger);
   for (module = 0; module < TOTAL_MODULES; module++) {
     const GJSON *panel = panel_lookup (module);
     if (!panel)
