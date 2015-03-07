@@ -93,6 +93,7 @@ typedef struct GConf_
   int load_conf_dlg;
   int load_global_config;
   int mouse_support;
+  int no_csv_summary;
   int no_color;
   int no_progress;
   int output_html;

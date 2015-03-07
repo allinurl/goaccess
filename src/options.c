@@ -71,6 +71,7 @@ struct option long_opts[] = {
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
@@ -122,6 +123,7 @@ cmd_help (void)
   "  -c --config-dialog              - Prompt log/date configuration window.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
+  "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-color                      - Disable colored output.\n\n"
 
@@ -367,6 +369,10 @@ read_option_args (int argc, char **argv)
       /* no color */
       if (!strcmp ("no-color", long_opts[idx].name))
         conf.no_color = 1;
+
+      /* no csv summary */
+      if (!strcmp ("no-csv-summary", long_opts[idx].name))
+        conf.no_csv_summary = 1;
 
       /* no progress */
       if (!strcmp ("no-progress", long_opts[idx].name))

@@ -263,7 +263,9 @@ output_csv (GLog * logger, GHolder * holder)
   GModule module;
   FILE *fp = stdout;
 
-  print_csv_summary (fp, logger);
+  if (!conf.no_csv_summary)
+    print_csv_summary (fp, logger);
+
   for (module = 0; module < TOTAL_MODULES; module++) {
     const GCSV *panel = panel_lookup (module);
     if (!panel)
