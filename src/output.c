@@ -31,6 +31,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <inttypes.h>
+#include <locale.h>
 
 #include "output.h"
 
@@ -932,9 +933,11 @@ print_graph (FILE * fp, int max, int hits)
   float l = get_percentage (max, hits);
   l = l < 1 ? 1 : l;
 
+  setlocale (LC_NUMERIC, "POSIX");
   fprintf (fp, "<td class='graph'>");
   fprintf (fp, "<div class='bar' style='width:%f%%'></div>", l);
   fprintf (fp, "</td>\n");
+  setlocale (LC_NUMERIC, "");
 }
 
 static void
@@ -947,13 +950,13 @@ print_table_head (FILE * fp, GModule module)
 static void
 print_metric_hits (FILE * fp, GMetrics * nmetrics)
 {
-  fprintf (fp, "<td class='num'>%d</td>", nmetrics->hits);
+  fprintf (fp, "<td class='num'>%'d</td>", nmetrics->hits);
 }
 
 static void
 print_metric_visitors (FILE * fp, GMetrics * nmetrics)
 {
-  fprintf (fp, "<td class='num'>%d</td>", nmetrics->visitors);
+  fprintf (fp, "<td class='num'>%'d</td>", nmetrics->visitors);
 }
 
 static void
@@ -1316,6 +1319,7 @@ output_html (GLog * logger, GHolder * holder)
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
+  setlocale (LC_NUMERIC, "");
   print_html_header (fp, now);
   print_pure_menu (fp, now);
 
