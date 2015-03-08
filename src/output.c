@@ -582,6 +582,75 @@ print_html_header (FILE * fp, char *now)
   ".pure-table tr {"
   "    border-bottom: 1px solid #ddd;"
   "}"
+  ".grid {"
+  "    background: white;"
+  "    margin: 0 0 20px 0;"
+  "}"
+  ".grid * {"
+  "    -moz-box-sizing: border-box;"
+  "    -webkit-box-sizing: border-box;"
+  "    box-sizing: border-box;"
+  "}"
+  ".grid:after {"
+  "    content:\"\";"
+  "    display: table;"
+  "    clear: both;"
+  "}"
+  "[class*='col-'] {"
+  "    float: left;"
+  "    padding-right: 20px;"
+  "}"
+  ".grid[class*='col-']:last-of-type {"
+  "    padding-right: 0;"
+  "}"
+  ".col-1-3 {"
+  "    width: 33.33%%;"
+  "}"
+  ".col-1-2 {"
+  "    width: 50%%;"
+  "}"
+  ".col-1-4 {"
+  "    width: 25%%;"
+  "}"
+  ".col-1-6 {"
+  "    width: 16.6%%;"
+  "}"
+  ".col-1-8 {"
+  "    width: 12.5%%;"
+  "}"
+  ".grid-module {"
+  "    border-top: 1px solid #9ea7af;"
+  "}"
+  ".col-title {"
+  "    color: #4B4B4B;"
+  "    font-weight: 700;"
+  "    margin: 2px 0 10px;"
+  "    width: 100%%;"
+  "}"
+  ".label {"
+  "    background-color: #9D9D9D;"
+  "    border-radius: .25em;"
+  "    color: #fff;"
+  "    display: inline;"
+  "    font-weight: 700;"
+  "    line-height: 1;"
+  "    padding: .2em .6em .3em;"
+  "    text-align: center;"
+  "    vertical-align: baseline;"
+  "    white-space: nowrap;"
+  "}"
+  ".green {"
+  "    background: #5cb85c;"
+  "}"
+  ".red {"
+  "    background: #d9534f;"
+  "}"
+  ".trunc {"
+  "    width: 100%%;"
+  "    white-space: nowrap;"
+  "    overflow: hidden;"
+  "    text-overflow: ellipsis;"
+  "}"
   "@font-face {"
   "    font-family: 'icomoon';"
   "    src: url(data:application/font-woff;charset=utf-8;base64,%s) format('woff');"
@@ -809,6 +878,50 @@ static void
 print_html_end_tr (FILE * fp)
 {
   fprintf (fp, "</tr>");
+}
+
+static void
+print_html_end_div (FILE * fp)
+{
+  fprintf (fp, "</div>");
+}
+
+static void
+print_html_begin_grid (FILE * fp)
+{
+  fprintf (fp, "<div class='grid grid-pad'>");
+}
+
+static void
+print_html_begin_grid_col (FILE * fp, int size)
+{
+  fprintf (fp, "<div class='col-1-%d'>", size);
+}
+
+static void
+print_html_begin_grid_module (FILE * fp)
+{
+  fprintf (fp, "<div class='grid-module'>");
+}
+
+static void
+print_html_begin_col_wrap (FILE * fp, int size)
+{
+  print_html_begin_grid_col (fp, size);
+  print_html_begin_grid_module (fp);
+}
+
+static void
+print_html_end_col_wrap (FILE * fp)
+{
+  print_html_end_div (fp);
+  print_html_end_div (fp);
+}
+
+static void
+print_html_col_title (FILE * fp, const char *title)
+{
+  fprintf (fp, "<div class='col-title trunc'>%s</div>", title);
 }
 
 /* *indent-on* */
@@ -1081,6 +1194,117 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   print_html_end_table (fp);
 }
 
+static void
+print_html_summary (FILE * fp, GLog * logger)
+{
+  long long time = 0LL;
+  int total = 0;
+  off_t log_size = 0;
+  char *bw, *size;
+
+  print_html_h2 (fp, T_HEAD, GENER_ID);
+  print_html_begin_grid (fp);
+
+  /* total requests */
+  total = logger->process;
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_REQUESTS);
+  fprintf (fp, "<h3 class='label green'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* invalid requests */
+  total = logger->invalid;
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_FAILED);
+  fprintf (fp, "<h3 class='label red'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* generated time */
+  time = (long long) end_proc - start_proc;
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_GEN_TIME);
+  fprintf (fp, "<h3 class='label'>%llu secs</h3>", time);
+  print_html_end_col_wrap (fp);
+
+  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_UNIQUE_VIS);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* files */
+  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_UNIQUE_FIL);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* excluded hits */
+  total = logger->exclude_ip;
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_EXCLUDE_IP);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  print_html_end_div (fp);
+
+  print_html_begin_grid (fp);
+
+  /* referrers */
+  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_REFERRER);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* not found */
+  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_UNIQUE404);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  /* static files */
+  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_STATIC_FIL);
+  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  print_html_end_col_wrap (fp);
+
+  if (!logger->piping) {
+    log_size = file_size (conf.ifile);
+    size = filesize_str (log_size);
+  } else {
+    size = alloc_string ("N/A");
+  }
+
+  /* log size */
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_LOG);
+  fprintf (fp, "<h3 class='label'>%s</h3>", size);
+  print_html_end_col_wrap (fp);
+
+  /* bandwidth */
+  bw = filesize_str ((float) logger->resp_size);
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_BW);
+  fprintf (fp, "<h3 class='label'>%s</h3>", bw);
+  print_html_end_col_wrap (fp);
+
+  /* log path */
+  if (conf.ifile == NULL)
+    conf.ifile = (char *) "STDIN";
+  print_html_begin_col_wrap (fp, 6);
+  print_html_col_title (fp, T_LOG_PATH);
+  fprintf (fp, "<h3 class='trunc' style='color:#242424'>%s</h3>", conf.ifile);
+  print_html_end_col_wrap (fp);
+
+  print_html_end_div (fp);
+
+  free (bw);
+  free (size);
+}
+
 /* entry point to generate a report writing it to the fp */
 void
 output_html (GLog * logger, GHolder * holder)
@@ -1095,6 +1319,7 @@ output_html (GLog * logger, GHolder * holder)
   print_html_header (fp, now);
   print_pure_menu (fp, now);
 
+  print_html_summary (fp, logger);
   for (module = 0; module < TOTAL_MODULES; module++) {
     const GOutput *panel = panel_lookup (module);
     if (!panel)

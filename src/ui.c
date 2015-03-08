@@ -378,7 +378,7 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
     {T_UNIQUE_VIS, NULL, COL_CYAN},
     {T_REFERRER, NULL, COL_CYAN},
     {T_LOG, NULL, COL_CYAN},
-    {T_F_REQUESTS, NULL, COL_CYAN},
+    {T_FAILED, NULL, COL_CYAN},
     {T_UNIQUE_FIL, NULL, COL_CYAN},
     {T_UNIQUE404, NULL, COL_CYAN},
     {T_BW, NULL, COL_CYAN},
