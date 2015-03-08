@@ -36,19 +36,21 @@
 #endif
 
 /* overall stats */
-#define T_BW         "Bandwidth"
-#define T_EXCLUDE_IP "Excl. IP Hits"
-#define T_F_REQUESTS "Failed Requests"
-#define T_GEN_TIME   "Generation Time"
 #define T_HEAD       "Dashboard - Overall Analyzed Requests"
-#define T_LOG        "Log Size"
-#define T_LOG_PATH   "Log File"
-#define T_REFERRER   "Referrers"
+
+#define T_DATETIME   "Date/Time"
 #define T_REQUESTS   "Total Requests"
-#define T_STATIC_FIL "Static Files"
-#define T_UNIQUE404  "Unique 404"
-#define T_UNIQUE_FIL "Unique Files"
+#define T_GEN_TIME   "Generation Time"
+#define T_FAILED     "Failed Requests"
 #define T_UNIQUE_VIS "Unique Visitors"
+#define T_UNIQUE_FIL "Unique Files"
+#define T_EXCLUDE_IP "Excl. IP Hits"
+#define T_REFERRER   "Referrers"
+#define T_UNIQUE404  "Unique 404"
+#define T_STATIC_FIL "Static Files"
+#define T_LOG        "Log Size"
+#define T_BW         "Bandwidth"
+#define T_LOG_PATH   "Log File"
 
 /* spinner label format */
 #define SPIN_FMT "%s"
