@@ -331,27 +331,22 @@ print_html_header (FILE * fp, char *now)
   "    padding: 0 1.3em 1.3em 1.3em"
   "}"
   ".graph {"
-  "    height: 1.529411765em;"
   "    margin-bottom: .470588235em;"
   "    overflow: hidden;"
-  "    background-color: #e5e5e5;"
-  "    border-radius: .071428571em;"
   "    text-align: center;"
   "}"
   ".graph .bar {"
-  "    -moz-box-sizing: border-box;"
   "    -webkit-box-sizing: border-box;"
-  "    background-color: rgba(119, 119, 119, 0.71);"
-  "    border: 1px solid #FFF;"
+  "    -moz-box-sizing: border-box;"
+  "    background-color: rgba(119, 119, 119, 0.7);"
   "    border-radius: 4px;"
   "    box-sizing: border-box;"
-  "    color: #fff;"
-  "    float: left;"
-  "    height: 100%%;"
+  "    color: #ffffff;"
+  "    height: 17px;"
   "    width: 0;"
   "}"
   ".graph .light {"
-  "    background-color: #BBB"
+  "    background-color: rgba(119, 119, 119, 0.3);"
   "}"
   "#menu {"
   "    -webkit-overflow-scroll: touch;"
@@ -723,6 +718,19 @@ panel_lookup (GModule module)
 }
 
 static int
+get_max_visitor (GHolder * h)
+{
+  int i, max = 0;
+  for (i = 0; i < h->idx; i++) {
+    int cur = h->items[i].metrics->visitors;
+    if (cur > max)
+      max = cur;
+  }
+
+  return max;
+}
+
+static int
 get_max_hit (GHolder * h)
 {
   int i, max = 0;
@@ -928,14 +936,25 @@ print_html_col_title (FILE * fp, const char *title)
 /* *indent-on* */
 
 static void
-print_graph (FILE * fp, int max, int hits)
+print_graph (FILE * fp, int max_hit, int max_vis, int hits, int visitors)
 {
-  float l = get_percentage (max, hits);
-  l = l < 1 ? 1 : l;
+  float lh = get_percentage (max_hit, hits), lv = 0;
+  int h = 0;
+  lh = lh < 1 ? 1 : lh;
 
   setlocale (LC_NUMERIC, "POSIX");
   fprintf (fp, "<td class='graph'>");
-  fprintf (fp, "<div class='bar' style='width:%f%%'></div>", l);
+
+  h = max_vis ? 8 : 16;
+  fprintf (fp,
+           "<div title='Hits: %d%%' class='bar' style='width:%f%%;height:%dpx'></div>",
+           (int) lh, lh, h);
+  if (max_vis) {
+    lv = get_percentage (max_vis, visitors);
+    fprintf (fp,
+             "<div title='Visitors: %d%%' class='bar light' style='width:%f%%;height:%dpx'></div>",
+             (int) lv, lv, h);
+  }
   fprintf (fp, "</td>\n");
   setlocale (LC_NUMERIC, "");
 }
@@ -960,10 +979,10 @@ print_metric_visitors (FILE * fp, GMetrics * nmetrics)
 }
 
 static void
-print_metric_percent (FILE * fp, GMetrics * nmetrics, int max)
+print_metric_percent (FILE * fp, GMetrics * nmetrics, int max_hit)
 {
   fprintf (fp, "<td class='num'>");
-  fprintf (fp, "<span class='%s'>%4.2f%%</span>", (max ? "max" : ""),
+  fprintf (fp, "<span class='%s'>%4.2f%%</span>", (max_hit ? "max" : ""),
            nmetrics->percent);
   fprintf (fp, "</td>");
 }
@@ -1026,15 +1045,15 @@ print_metric_method (FILE * fp, GMetrics * nmetrics)
 }
 
 static void
-print_metrics (FILE * fp, GMetrics * nmetrics, int max, int sub,
-               const GOutput * panel)
+print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
+               int sub, const GOutput * panel)
 {
   if (panel->visitors)
     print_metric_visitors (fp, nmetrics);
   if (panel->hits)
     print_metric_hits (fp, nmetrics);
   if (panel->percent)
-    print_metric_percent (fp, nmetrics, max == nmetrics->hits);
+    print_metric_percent (fp, nmetrics, max_hit == nmetrics->hits);
   if (panel->bw)
     print_metric_bw (fp, nmetrics);
   if (panel->avgts)
@@ -1046,15 +1065,15 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max, int sub,
   if (panel->data)
     print_metric_data (fp, nmetrics);
 
-  if (panel->graph && max && !panel->sub_graph && sub)
+  if (panel->graph && max_hit && !panel->sub_graph && sub)
     fprintf (fp, "<td></td>");
-  else if (panel->graph && max)
-    print_graph (fp, max, nmetrics->hits);
+  else if (panel->graph && max_hit)
+    print_graph (fp, max_hit, max_vis, nmetrics->hits, nmetrics->visitors);
 }
 
 static void
-print_html_sub_items (FILE * fp, GHolder * h, int idx, int processed, int max,
-                      const GOutput * panel)
+print_html_sub_items (FILE * fp, GHolder * h, int idx, int processed,
+                      int max_hit, int max_vis, const GOutput * panel)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
@@ -1068,7 +1087,7 @@ print_html_sub_items (FILE * fp, GHolder * h, int idx, int processed, int max,
     set_data_metrics (iter->metrics, &nmetrics, processed);
 
     print_html_begin_tr (fp, 1, 1);
-    print_metrics (fp, nmetrics, max, 1, panel);
+    print_metrics (fp, nmetrics, max_hit, max_vis, 1, panel);
     print_html_end_tr (fp);
 
     free (nmetrics);
@@ -1076,8 +1095,8 @@ print_html_sub_items (FILE * fp, GHolder * h, int idx, int processed, int max,
 }
 
 static void
-print_html_data (FILE * fp, GHolder * h, int processed, int max,
-                 const GOutput * panel)
+print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
+                 int max_vis, const GOutput * panel)
 {
   GMetrics *nmetrics;
   int i;
@@ -1086,11 +1105,11 @@ print_html_data (FILE * fp, GHolder * h, int processed, int max,
     set_data_metrics (h->items[i].metrics, &nmetrics, processed);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
-    print_metrics (fp, nmetrics, max, 0, panel);
+    print_metrics (fp, nmetrics, max_hit, max_vis, 0, panel);
     print_html_end_tr (fp);
 
     if (h->sub_items_size)
-      print_html_sub_items (fp, h, i, processed, max, panel);
+      print_html_sub_items (fp, h, i, processed, max_hit, max_vis, panel);
 
     free (nmetrics);
   }
@@ -1100,7 +1119,7 @@ static void
 print_html_visitors (FILE * fp, GHolder * h, int processed,
                      const GOutput * panel)
 {
-  int max = 0;
+  int max_hit = 0, max_vis = 0;
 
   print_table_head (fp, h->module);
   print_html_begin_table (fp);
@@ -1121,8 +1140,9 @@ print_html_visitors (FILE * fp, GHolder * h, int processed,
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  max = get_max_hit (h);
-  print_html_data (fp, h, processed, max, panel);
+  max_hit = get_max_hit (h);
+  max_vis = get_max_visitor (h);
+  print_html_data (fp, h, processed, max_hit, max_vis, panel);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
@@ -1155,7 +1175,7 @@ print_html_requests (FILE * fp, GHolder * h, int processed,
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  print_html_data (fp, h, processed, 0, panel);
+  print_html_data (fp, h, processed, 0, 0, panel);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
@@ -1164,11 +1184,11 @@ print_html_requests (FILE * fp, GHolder * h, int processed,
 static void
 print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
 {
-  int max = 0;
+  int max_hit = 0;
   const char *lbl = module_to_label (h->module);
 
   if (panel->graph)
-    max = get_max_hit (h);
+    max_hit = get_max_hit (h);
 
   print_table_head (fp, h->module);
   print_html_begin_table (fp);
@@ -1181,9 +1201,9 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>Bandwidth</th>");
   if (conf.serve_usecs)
     fprintf (fp, "<th>Time&nbsp;served</th>");
-  if (max)
+  if (max_hit)
     fprintf (fp, "<th>%s</th>", lbl);
-  fprintf (fp, "<th class='%s'>%s", (max ? "fr" : ""), (max ? "" : lbl));
+  fprintf (fp, "<th class='%s'>%s", max_hit ? "fr" : "", max_hit ? "" : lbl);
   fprintf (fp, "<span class='r icon-expand' onclick='t(this)'>&#8199;</span>");
   fprintf (fp, "</th>");
   fprintf (fp, "</tr>");
@@ -1191,7 +1211,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  print_html_data (fp, h, processed, max, panel);
+  print_html_data (fp, h, processed, max_hit, 0, panel);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
