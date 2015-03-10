@@ -389,7 +389,7 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   };
 
   werase (win);
-  draw_header (win, T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1, 0);
+  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1, 0);
 
   if (!logger->piping && ifile != NULL) {
     size = filesize_str (file_size (ifile));
