@@ -1219,8 +1219,9 @@ print_html_visitors (FILE * fp, GHolder * h, int processed,
   if (conf.serve_usecs)
     fprintf (fp, "<th>Time&nbsp;served</th>");
   fprintf (fp, "<th>Date</th>");
-  fprintf (fp,
-           "<th class='fr'>&nbsp;<span class='r icon-expand' onclick='t(this)'></span></th>");
+  fprintf (fp, "<th class='fr'>&nbsp;");
+  fprintf (fp, "<span class='r icon-expand' onclick='t(this)'></span>");
+  fprintf (fp, "</th>");
   fprintf (fp, "</tr>");
 
   print_html_end_thead (fp);
@@ -1321,41 +1322,41 @@ print_html_summary (FILE * fp, GLog * logger)
   total = logger->process;
   print_html_begin_col_wrap (fp, 6, "green");
   print_html_col_title (fp, T_REQUESTS);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* invalid requests */
   total = logger->invalid;
   print_html_begin_col_wrap (fp, 6, "red");
   print_html_col_title (fp, T_FAILED);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* generated time */
   time = (long long) end_proc - start_proc;
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_GEN_TIME);
-  fprintf (fp, "<h3 class='label'>%llu secs</h3>", time);
+  fprintf (fp, "<h3 class='label trunc'>%llu secs</h3>", time);
   print_html_end_col_wrap (fp);
 
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_UNIQUE_VIS);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* files */
   total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_UNIQUE_FIL);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* excluded hits */
   total = logger->exclude_ip;
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_EXCLUDE_IP);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   print_html_end_div (fp);
@@ -1366,21 +1367,21 @@ print_html_summary (FILE * fp, GLog * logger)
   total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_REFERRER);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* not found */
   total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_UNIQUE404);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* static files */
   total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_STATIC_FIL);
-  fprintf (fp, "<h3 class='label'>%'d</h3>", total);
+  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   if (!logger->piping) {
@@ -1393,14 +1394,14 @@ print_html_summary (FILE * fp, GLog * logger)
   /* log size */
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_LOG);
-  fprintf (fp, "<h3 class='label'>%s</h3>", size);
+  fprintf (fp, "<h3 class='label trunc'>%s</h3>", size);
   print_html_end_col_wrap (fp);
 
   /* bandwidth */
   bw = filesize_str ((float) logger->resp_size);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_BW);
-  fprintf (fp, "<h3 class='label'>%s</h3>", bw);
+  fprintf (fp, "<h3 class='label trunc'>%s</h3>", bw);
   print_html_end_col_wrap (fp);
 
   /* log path */
