@@ -346,6 +346,7 @@ print_html_header (FILE * fp, char *now)
   "}"
   ".graph .light {"
   "    background-color: rgba(119, 119, 119, 0.3);"
+  "    margin-top: 1px;"
   "}"
   "#menu {"
   "    -webkit-overflow-scroll: touch;"
