@@ -331,15 +331,14 @@ print_html_header (FILE * fp, char *now)
   "    padding: 0 1.3em 1.3em 1.3em"
   "}"
   ".graph {"
-  "    margin-bottom: .470588235em;"
-  "    overflow: hidden;"
   "    text-align: center;"
   "}"
   ".graph .bar {"
   "    -webkit-box-sizing: border-box;"
   "    -moz-box-sizing: border-box;"
   "    background-color: rgba(119, 119, 119, 0.7);"
-  "    border-radius: 4px;"
+  "    border-bottom-right-radius: 3px;"
+  "    border-top-right-radius: 3px;"
   "    box-sizing: border-box;"
   "    color: #ffffff;"
   "    height: 17px;"
@@ -933,31 +932,36 @@ print_html_col_title (FILE * fp, const char *title)
   fprintf (fp, "<div class='col-title trunc'>%s</div>", title);
 }
 
-/* *indent-on* */
-
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 static void
 print_graph (FILE * fp, int max_hit, int max_vis, int hits, int visitors)
 {
+  const char *s, *c = "class='bar'";
   float lh = get_percentage (max_hit, hits), lv = 0;
   int h = 0;
-  lh = lh < 1 ? 1 : lh;
 
   setlocale (LC_NUMERIC, "POSIX");
   fprintf (fp, "<td class='graph'>");
 
   h = max_vis ? 8 : 16;
-  fprintf (fp,
-           "<div title='Hits: %d%%' class='bar' style='width:%f%%;height:%dpx'></div>",
-           (int) lh, lh, h);
+  lh = lh < 1 ? 1 : lh;
+
+  s = "<div title='Hits:%d%%' %s style='width:%f%%;height:%dpx'></div>";
+  fprintf (fp, s, (int) lh, c, lh, h);
+
   if (max_vis) {
+    c = "class='bar light'";
+    s = "<div title='Visitors: %d%%' %s style='width:%f%%;height:%dpx'></div>";
     lv = get_percentage (max_vis, visitors);
-    fprintf (fp,
-             "<div title='Visitors: %d%%' class='bar light' style='width:%f%%;height:%dpx'></div>",
-             (int) lv, lv, h);
+    lv = lv < 1 ? 1 : lv;
+    fprintf (fp, s, (int) lv, c, lv, h);
   }
+
   fprintf (fp, "</td>\n");
   setlocale (LC_NUMERIC, "");
 }
+
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 static void
 print_table_head (FILE * fp, GModule module)
@@ -1184,11 +1188,13 @@ print_html_requests (FILE * fp, GHolder * h, int processed,
 static void
 print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
 {
-  int max_hit = 0;
+  int max_hit = 0, max_vis = 0;
   const char *lbl = module_to_label (h->module);
 
-  if (panel->graph)
+  if (panel->graph) {
     max_hit = get_max_hit (h);
+    max_vis = get_max_visitor (h);
+  }
 
   print_table_head (fp, h->module);
   print_html_begin_table (fp);
@@ -1211,7 +1217,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  print_html_data (fp, h, processed, max_hit, 0, panel);
+  print_html_data (fp, h, processed, max_hit, max_vis, panel);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
