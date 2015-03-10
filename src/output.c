@@ -56,24 +56,23 @@
 /* *INDENT-OFF* */
 
 static void print_html_visitors (FILE * fp, GHolder * h, int processed, const GOutput * panel);
-static void print_html_requests (FILE * fp, GHolder * h, int processed, const GOutput * panel);
 static void print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel);
 
 static GOutput paneling[] = {
-  {VISITORS        , print_html_visitors , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1, 0} ,
-  {REQUESTS        , print_html_requests , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0, 0} ,
-  {REQUESTS_STATIC , print_html_requests , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0, 0} ,
-  {NOT_FOUND       , print_html_requests , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0, 0} ,
-  {HOSTS           , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1, 0} ,
-  {OS              , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1, 1} ,
-  {BROWSERS        , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1, 1} ,
-  {REFERRERS       , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0, 0} ,
-  {REFERRING_SITES , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0, 0} ,
-  {KEYPHRASES      , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0, 0} ,
+  {VISITORS        , print_html_visitors , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0},
+  {REQUESTS        , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+  {REQUESTS_STATIC , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+  {NOT_FOUND       , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
+  {HOSTS           , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0},
+  {OS              , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+  {BROWSERS        , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
+  {REFERRERS       , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
+  {REFERRING_SITES , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
+  {KEYPHRASES      , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0, 0} ,
+  {GEO_LOCATION    , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
 #endif
-  {STATUS_CODES    , print_html_common   , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0, 0} ,
+  {STATUS_CODES    , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
 };
 
 /* base64 icons */
@@ -1236,39 +1235,6 @@ print_html_visitors (FILE * fp, GHolder * h, int processed,
 }
 
 static void
-print_html_requests (FILE * fp, GHolder * h, int processed,
-                     const GOutput * panel)
-{
-  print_table_head (fp, h->module);
-  print_html_begin_table (fp);
-  print_html_begin_thead (fp);
-
-  fprintf (fp, "<tr>");
-  fprintf (fp, "<th>Visitors</th>");
-  fprintf (fp, "<th>Hits</th>");
-  fprintf (fp, "<th>%%</th>");
-  fprintf (fp, "<th>Bandwidth</th>");
-  if (conf.serve_usecs)
-    fprintf (fp, "<th>Time&nbsp;served</th>");
-  if (conf.append_protocol)
-    fprintf (fp, "<th>Protocol</th>");
-  if (conf.append_method)
-    fprintf (fp, "<th>Method</th>");
-  fprintf (fp, "<th>");
-  fprintf (fp, "Request <span class='r icon-expand' onclick='t(this)'></span>");
-  fprintf (fp, "</th>");
-  fprintf (fp, "</tr>");
-
-  print_html_end_thead (fp);
-  print_html_begin_tbody (fp);
-
-  print_html_data (fp, h, processed, 0, 0, panel);
-
-  print_html_end_tbody (fp);
-  print_html_end_table (fp);
-}
-
-static void
 print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
 {
   int max_hit = 0, max_vis = 0;
@@ -1288,8 +1254,14 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>Hits</th>");
   fprintf (fp, "<th>%%</th>");
   fprintf (fp, "<th>Bandwidth</th>");
+
   if (conf.serve_usecs)
     fprintf (fp, "<th>Time&nbsp;served</th>");
+  if (conf.append_protocol && panel->protocol)
+    fprintf (fp, "<th>Protocol</th>");
+  if (conf.append_method && panel->method)
+    fprintf (fp, "<th>Method</th>");
+
   if (max_hit)
     fprintf (fp, "<th>%s</th>", lbl);
   fprintf (fp, "<th class='%s'>%s", max_hit ? "fr" : "", max_hit ? "" : lbl);
