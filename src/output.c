@@ -1311,7 +1311,7 @@ print_html_summary (FILE * fp, GLog * logger)
   long long time = 0LL;
   int total = 0;
   off_t log_size = 0;
-  char *bw, *size, *color;
+  char *bw, *size;
 
   fprintf (fp, "<h1><i class='icon-dashboard'></i> %s</h1>", T_DASH);
   print_html_h2 (fp, T_HEAD, GENER_ID);
