@@ -36,7 +36,8 @@
 #endif
 
 /* overall stats */
-#define T_HEAD       "Dashboard - Overall Analyzed Requests"
+#define T_DASH       "Dashboard"
+#define T_HEAD       "Overall Analyzed Requests"
 
 #define T_DATETIME   "Date/Time"
 #define T_REQUESTS   "Total Requests"
