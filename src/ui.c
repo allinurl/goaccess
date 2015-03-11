@@ -651,7 +651,6 @@ set_host_agents_gmenu (GMenu * menu, const char *addr)
   return 0;
 }
 
-
 /* render a list of agents if available */
 void
 load_agent_list (WINDOW * main_win, char *addr)
