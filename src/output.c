@@ -55,24 +55,21 @@
 
 /* *INDENT-OFF* */
 
-static void print_html_visitors (FILE * fp, GHolder * h, int processed, const GOutput * panel);
-static void print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel);
-
 static GOutput paneling[] = {
-  {VISITORS        , print_html_visitors , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0},
-  {REQUESTS        , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-  {REQUESTS_STATIC , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-  {NOT_FOUND       , print_html_common   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0},
-  {HOSTS           , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0},
-  {OS              , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-  {BROWSERS        , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1},
-  {REFERRERS       , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
-  {REFERRING_SITES , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
-  {KEYPHRASES      , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
+  {VISITORS        , "Date" , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {REQUESTS        , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {REQUESTS_STATIC , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {NOT_FOUND       , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {HOSTS           , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {OS              , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {BROWSERS        , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {REFERRERS       , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {REFERRING_SITES , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {KEYPHRASES      , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
+  {GEO_LOCATION    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #endif
-  {STATUS_CODES    , print_html_common   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0},
+  {STATUS_CODES    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 };
 
 /* base64 icons */
@@ -1201,44 +1198,13 @@ print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
 }
 
 static void
-print_html_visitors (FILE * fp, GHolder * h, int processed,
-                     const GOutput * panel)
-{
-  int max_hit = 0, max_vis = 0;
-
-  print_table_head (fp, h->module);
-  print_html_begin_table (fp);
-  print_html_begin_thead (fp);
-
-  fprintf (fp, "<tr>");
-  fprintf (fp, "<th>Visitors</th>");
-  fprintf (fp, "<th>Hits</th>");
-  fprintf (fp, "<th>%%</th>");
-  fprintf (fp, "<th>Bandwidth</th>");
-  if (conf.serve_usecs)
-    fprintf (fp, "<th>Time&nbsp;served</th>");
-  fprintf (fp, "<th>Date</th>");
-  fprintf (fp, "<th class='fr'>&nbsp;");
-  fprintf (fp, "<span class='r icon-expand' onclick='t(this)'></span>");
-  fprintf (fp, "</th>");
-  fprintf (fp, "</tr>");
-
-  print_html_end_thead (fp);
-  print_html_begin_tbody (fp);
-
-  max_hit = get_max_hit (h);
-  max_vis = get_max_visitor (h);
-  print_html_data (fp, h, processed, max_hit, max_vis, panel);
-
-  print_html_end_tbody (fp);
-  print_html_end_table (fp);
-}
-
-static void
 print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
 {
   int max_hit = 0, max_vis = 0;
-  const char *lbl = module_to_label (h->module);
+  const char *lbl = panel->clabel;
+
+  if (!panel->clabel)
+    lbl = module_to_label (h->module);
 
   if (panel->graph) {
     max_hit = get_max_hit (h);
@@ -1410,7 +1376,7 @@ output_html (GLog * logger, GHolder * holder)
     const GOutput *panel = panel_lookup (module);
     if (!panel)
       continue;
-    panel->render (fp, holder + module, logger->process, panel);
+    print_html_common (fp, holder + module, logger->process, panel);
   }
 
   print_html_footer (fp);
