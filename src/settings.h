@@ -126,8 +126,6 @@ char *get_selected_format_str (size_t idx);
 size_t get_selected_format_idx (void);
 
 extern GConf conf;
-extern char *tmp_log_format;
-extern char *tmp_date_format;
 
 int parse_conf_file (int *argc, char ***argv);
 void free_cmd_args (void);
