@@ -1374,16 +1374,18 @@ print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
     set_data_metrics (h->items[i].metrics, &nmetrics, processed);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
+
     fprintf (fp, "<td>");
-    if (conf.list_agents || conf.list_agents) {
+    /* do we have child rows to expand */
+    if ((conf.list_agents) || (h->sub_items_size)) {
       fprintf (fp, "<a href='javascript:void(0);' onclick='a(this);'>");
       fprintf (fp, "<i class='icon-plus-square-o'></i>");
       fprintf (fp, "</a>");
     } else {
-
       fprintf (fp, "-");
     }
     fprintf (fp, "</td>");
+
     print_metrics (fp, nmetrics, max_hit, max_vis, 0, panel);
     print_html_end_tr (fp);
 
