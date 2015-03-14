@@ -622,8 +622,19 @@ fill_host_agents_gmenu (void *val, void *user_data)
   return 0;
 }
 
-static int
-set_host_agents_gmenu (GMenu * menu, const char *addr)
+static void
+load_host_agents_gmenu (void *list, void *user_data, int count)
+{
+  GSLList *lst = list;
+  GMenu *menu = user_data;
+
+  menu->items = (GItem *) xcalloc (count, sizeof (GItem));
+  list_foreach (lst, fill_host_agents_gmenu, menu);
+}
+
+int
+set_host_agents (const char *addr, void (*func) (void *, void *, int),
+                 void *arr)
 {
   GSLList *list;
   int data_nkey, count = 0;
@@ -641,8 +652,7 @@ set_host_agents_gmenu (GMenu * menu, const char *addr)
     return 1;
   }
 
-  menu->items = (GItem *) xcalloc (count, sizeof (GItem));
-  list_foreach (list, fill_host_agents_gmenu, menu);
+  func (list, arr, count);
 
 #ifdef TCB_BTREE
   free (list);
@@ -655,11 +665,12 @@ set_host_agents_gmenu (GMenu * menu, const char *addr)
 void
 load_agent_list (WINDOW * main_win, char *addr)
 {
-  char buf[256];
   GMenu *menu;
+  WINDOW *win;
+
+  char buf[256];
   int c, quit = 1, i;
   int y, x, list_h, list_w, menu_w, menu_h;
-  WINDOW *win;
 
   if (!conf.list_agents)
     return;
@@ -676,8 +687,8 @@ load_agent_list (WINDOW * main_win, char *addr)
 
   /* create a new instance of GMenu and make it selectable */
   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-  if (set_host_agents_gmenu (menu, addr) == 1)
-    return;
+  if (set_host_agents (addr, load_host_agents_gmenu, menu) == 1)
+    goto out;
 
   post_gmenu (menu);
   snprintf (buf, sizeof buf, "User Agents for %s", addr);
@@ -704,15 +715,18 @@ load_agent_list (WINDOW * main_win, char *addr)
     wrefresh (win);
   }
 
-  /* clean stuff up */
-  for (i = 0; i < menu->size; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
-
   touchwin (main_win);
   close_win (win);
   wrefresh (main_win);
+
+out:
+
+  /* clean stuff up */
+  for (i = 0; i < menu->size; ++i)
+    free (menu->items[i].name);
+  if (menu->items)
+    free (menu->items);
+  free (menu);
 }
 
 /* render processing spinner */

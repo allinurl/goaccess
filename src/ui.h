@@ -240,12 +240,6 @@ typedef struct GScroll_
   int expanded;
 } GScroll;
 
-typedef struct GAgents_
-{
-  char *agents;
-  int size;
-} GAgents;
-
 typedef struct GSpinner_
 {
   const char *label;
@@ -267,11 +261,16 @@ typedef struct GSpinner_
 } GSpinner;
 
 /* *INDENT-OFF* */
+GSpinner *new_gspinner (void);
+WINDOW *create_win (int h, int w, int y, int x);
+
 char *get_browser_type (char *line);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
+const char *module_to_desc (GModule module);
+const char *module_to_head (GModule module);
+const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
-GSpinner *new_gspinner (void);
-int split_agent_str (char *ptr_value, GAgents * agents, int max);
+int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
 int verify_format (GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);
 void display_general (WINDOW * header_win, char *ifile, GLog *logger);
@@ -291,9 +290,5 @@ void ui_spinner_create (GSpinner * spinner);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
 
-const char *module_to_desc (GModule module);
-const char *module_to_head (GModule module);
-const char *module_to_id (GModule module);
-WINDOW *create_win (int h, int w, int y, int x);
 /* *INDENT-ON* */
 #endif
