@@ -937,7 +937,6 @@ clean_output (FILE * fp, char *s)
 static void
 print_pure_menu (FILE * fp, char *now)
 {
-
   fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
   fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
   fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", GO_WEBSITE);
@@ -1094,9 +1093,8 @@ print_html_end_col_wrap (FILE * fp)
 static void
 print_html_col_title (FILE * fp, const char *title)
 {
-  fprintf (fp,
-           "<div class='col-title trunc'><i class='icon-bar-chart'></i> %s</div>",
-           title);
+  fprintf (fp, "<div class='col-title trunc'>");
+  fprintf (fp, "<i class='icon-bar-chart'></i> %s</div>", title);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
@@ -1113,9 +1111,13 @@ print_graph (FILE * fp, int max_hit, int max_vis, int hits, int visitors)
   h = max_vis ? 8 : 16;
   lh = lh < 1 ? 1 : lh;
 
-  s = "<div title='Hits:%d%%' %s style='width:%f%%;height:%dpx'></div>";
-  fprintf (fp, s, (int) lh, c, lh, h);
+  /* render hits graph */
+  if (max_hit) {
+    s = "<div title='Hits:%d%%' %s style='width:%f%%;height:%dpx'></div>";
+    fprintf (fp, s, (int) lh, c, lh, h);
+  }
 
+  /* render visitors graph */
   if (max_vis) {
     c = "class='bar light'";
     s = "<div title='Visitors: %d%%' %s style='width:%f%%;height:%dpx'></div>";
