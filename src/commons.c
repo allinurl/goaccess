@@ -197,3 +197,20 @@ list_count (GSLList * node)
   }
   return count;
 }
+
+GAgents *
+new_gagents (void)
+{
+  GAgents *agents = xmalloc (sizeof (GAgents));
+  memset (agents, 0, sizeof *agents);
+
+  return agents;
+}
+
+GAgentItem *
+new_gagent_item (uint32_t size)
+{
+  GAgentItem *item = xcalloc (size, sizeof (GAgentItem));
+
+  return item;
+}

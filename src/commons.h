@@ -191,12 +191,26 @@ typedef struct GDataMap_
   int root;
 } GDataMap;
 
+typedef struct GAgentItem_
+{
+  char *agent;
+} GAgentItem;
+
+typedef struct GAgents_
+{
+  int size;
+  struct GAgentItem_ *items;
+} GAgents;
+
 /* single linked-list */
 typedef struct GSLList_
 {
   void *data;
   struct GSLList_ *next;
 } GSLList;
+
+GAgents *new_gagents (void);
+GAgentItem *new_gagent_item (uint32_t size);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 void display_storage (void);

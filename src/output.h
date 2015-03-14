@@ -138,6 +138,8 @@
 typedef struct GOutput_
 {
   GModule module;
+  void (*render) (FILE * fp, GHolder * h, int processed, int max_hit,
+                  int max_vis, const struct GOutput_ *);
   const char *clabel;           /* column label */
   int8_t visitors;
   int8_t hits;
