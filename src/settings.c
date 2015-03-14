@@ -45,7 +45,7 @@ static const GPreConfLog logs = {
   "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",            /* NCSA + VHost */
   "%h %^[%d:%^] \"%r\" %s %b",                                /* CLF          */
   "%^:%^ %h %^[%d:%^] \"%r\" %s %b",                          /* CLF+VHost    */
-  "%d %^ %h %^ %^ %^ %^ %r %^ %s %b %^ %^ %u %R",             /* W3C          */
+  "%d %^ %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",             /* W3C          */
   "%d\\t%^\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^" /* CloudFront   */
 };
 
