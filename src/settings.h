@@ -40,6 +40,12 @@ typedef enum
 } LOGTYPE;
 
 /* predefined log dates */
+typedef struct GPreConfTime_
+{
+  const char *fmt24;
+} GPreConfTime;
+
+/* predefined log dates */
 typedef struct GPreConfDate_
 {
   const char *apache;
@@ -67,6 +73,7 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
   char *date_format;
+  char *time_format;
   char *debug_log;
   char *geoip_database;
   char *iconfigfile;
@@ -122,6 +129,7 @@ typedef struct GConf_
 } GConf;
 
 char *get_selected_date_str (size_t idx);
+char *get_selected_time_str (size_t idx);
 char *get_selected_format_str (size_t idx);
 size_t get_selected_format_idx (void);
 

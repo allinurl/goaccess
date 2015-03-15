@@ -61,9 +61,9 @@ extern size_t term_w;
 #endif
 
 #ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES    12
+#define TOTAL_MODULES    13
 #else
-#define TOTAL_MODULES    11
+#define TOTAL_MODULES    12
 #endif
 
 #define DATE_TIME        20
@@ -110,13 +110,14 @@ typedef enum MODULES
   HOSTS,
   OS,
   BROWSERS,
+  VISIT_TIMES,
   REFERRERS,
   REFERRING_SITES,
   KEYPHRASES,
 #ifdef HAVE_LIBGEOIP
   GEO_LOCATION,
 #endif
-  STATUS_CODES
+  STATUS_CODES,
 } GModule;
 
 typedef struct GMetrics

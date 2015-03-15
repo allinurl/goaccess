@@ -74,6 +74,11 @@
 #define STATI_ID    "static_requests"
 #define STATI_LABEL "Static Requests"
 
+#define VTIME_HEAD  "Time Distribution"
+#define VTIME_DESC  "Data sorted by time - [time served]"
+#define VTIME_ID    "visit_time"
+#define VTIME_LABEL "Time"
+
 #define FOUND_HEAD  "HTTP 404 Not Found URLs"
 #define FOUND_DESC  "Top 404 Not Found URLs sorted by hits - [time served] [protocol] [method]"
 #define FOUND_ID    "not_found"
@@ -150,7 +155,7 @@
 #define CONF_MENU_W       48
 #define CONF_MENU_X       2
 #define CONF_MENU_Y       4
-#define CONF_WIN_H        17
+#define CONF_WIN_H        20
 #define CONF_WIN_W        52
 
 /* FIND DIALOG */

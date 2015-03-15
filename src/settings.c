@@ -41,18 +41,22 @@ static int nargc = 0;
 
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
-  "%h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",                  /* NCSA         */
-  "%^:%^ %h %^[%d:%^] \"%r\" %s %b \"%R\" \"%u\"",            /* NCSA + VHost */
-  "%h %^[%d:%^] \"%r\" %s %b",                                /* CLF          */
-  "%^:%^ %h %^[%d:%^] \"%r\" %s %b",                          /* CLF+VHost    */
-  "%d %^ %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",             /* W3C          */
-  "%d\\t%^\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^" /* CloudFront   */
+  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                  /* NCSA         */
+  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",            /* NCSA + VHost */
+  "%h %^[%d:%t %^] \"%r\" %s %b",                                /* CLF          */
+  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b",                          /* CLF+VHost    */
+  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",             /* W3C          */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^" /* CloudFront   */
 };
 
 static const GPreConfDate dates = {
   "%d/%b/%Y", /* Apache     */
   "%Y-%m-%d", /* W3C        */
   "%Y-%m-%d"  /* CloudFront */
+};
+
+static const GPreConfTime times = {
+  "%H:%M:%S",
 };
 /* *INDENT-ON* */
 
@@ -276,6 +280,24 @@ get_selected_date_str (size_t idx)
     break;
   case CLOUDFRONT:
     fmt = alloc_string (dates.cloudfront);
+    break;
+  }
+
+  return fmt;
+}
+
+char *
+get_selected_time_str (size_t idx)
+{
+  char *fmt = NULL;
+  switch (idx) {
+  case COMMON:
+  case VCOMMON:
+  case COMBINED:
+  case VCOMBINED:
+  case W3C:
+  case CLOUDFRONT:
+    fmt = alloc_string (times.fmt24);
     break;
   }
 

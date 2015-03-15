@@ -67,6 +67,7 @@ static GOutput paneling[] = {
   {HOSTS           , print_html_host , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
   {OS              , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
   {BROWSERS        , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {VISIT_TIMES     , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
   {REFERRERS       , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
   {REFERRING_SITES , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
   {KEYPHRASES      , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
@@ -951,6 +952,7 @@ print_pure_menu (FILE * fp, char *now)
   fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
   fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
   fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
+  fprintf (fp, "<li><a href=\"#%s\">Time Distribution</a></li>", VTIME_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
   fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
