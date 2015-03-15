@@ -86,6 +86,7 @@ static GScroll gscroll = {
     {0, 0}, /* hosts       {scroll, offset} */
     {0, 0}, /* os          {scroll, offset} */
     {0, 0}, /* browsers    {scroll, offset} */
+    {0, 0}, /* visit times {scroll, offset} */
     {0, 0}, /* referrers   {scroll, offset} */
     {0, 0}, /* ref sites   {scroll, offset} */
     {0, 0}, /* keywords    {scroll, offset} */
@@ -233,6 +234,10 @@ allocate_data (void)
     case BROWSERS:
       dash->module[module].head = BROWS_HEAD;
       dash->module[module].desc = BROWS_DESC;
+      break;
+    case VISIT_TIMES:
+      dash->module[module].head = VTIME_HEAD;
+      dash->module[module].desc = VTIME_DESC;
       break;
     case REFERRERS:
       dash->module[module].head = REFER_HEAD;
@@ -682,17 +687,21 @@ get_keys (void)
       break;
     case 56:   /* 8 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRERS);
+      set_module_to (&gscroll, VISIT_TIMES);
       break;
     case 57:   /* 9 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRING_SITES);
+      set_module_to (&gscroll, REFERRERS);
       break;
     case 48:   /* 0 */
       /* reset expanded module */
+      set_module_to (&gscroll, REFERRING_SITES);
+      break;
+    case 33:   /* shift + 1 */
+      /* reset expanded module */
       set_module_to (&gscroll, KEYPHRASES);
       break;
-    case 33:   /* Shift+1 */
+    case 34:   /* Shift + 2 */
       /* reset expanded module */
 #ifdef HAVE_LIBGEOIP
       set_module_to (&gscroll, GEO_LOCATION);
@@ -701,7 +710,7 @@ get_keys (void)
 #endif
       break;
 #ifdef HAVE_LIBGEOIP
-    case 64:   /* Shift+2 */
+    case 35:   /* Shift + 3 */
       /* reset expanded module */
       set_module_to (&gscroll, STATUS_CODES);
       break;

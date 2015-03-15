@@ -66,6 +66,7 @@ struct option long_opts[] = {
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
+  {"time-format"          , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
@@ -114,13 +115,14 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --date-format=<dateformat>     - Specify log date format.\n"
+  "  --time-format=<timeformat>     - Specify log time format. e.g., %%H:%%M:%%S\n"
+  "  --date-format=<dateformat>     - Specify log date format. e.g., %%d/%%b/%%Y\n"
   "  --log-format=<logformat>       - Specify log format. Inner quotes need\n"
   "                                   to be escaped, or use single quotes.\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
-  "  -c --config-dialog              - Prompt log/date configuration window.\n"
+  "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
@@ -324,6 +326,10 @@ read_option_args (int argc, char **argv)
       /* log format */
       if (!strcmp ("log-format", long_opts[idx].name))
         conf.log_format = unescape_str (optarg);
+
+      /* time format */
+      if (!strcmp ("time-format", long_opts[idx].name))
+        conf.time_format = unescape_str (optarg);
 
       /* date format */
       if (!strcmp ("date-format", long_opts[idx].name))

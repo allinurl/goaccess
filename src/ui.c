@@ -67,8 +67,9 @@
 #include "util.h"
 #include "xmalloc.h"
 
-static char *log_format = NULL;
 static char *date_format = NULL;
+static char *log_format = NULL;
+static char *time_format = NULL;
 
 /* creation - ncurses' window handling */
 WINDOW *
@@ -247,13 +248,14 @@ module_to_label (GModule module)
     HOSTS_LABEL,
     OPERA_LABEL,
     BROWS_LABEL,
+    VTIME_LABEL,
     REFER_LABEL,
     SITES_LABEL,
     KEYPH_LABEL,
 #ifdef HAVE_LIBGEOIP
     GEOLO_LABEL,
 #endif
-    CODES_LABEL
+    CODES_LABEL,
   };
 
   return modules[module];
@@ -270,13 +272,14 @@ module_to_id (GModule module)
     HOSTS_ID,
     OPERA_ID,
     BROWS_ID,
+    VTIME_ID,
     REFER_ID,
     SITES_ID,
     KEYPH_ID,
 #ifdef HAVE_LIBGEOIP
     GEOLO_ID,
 #endif
-    CODES_ID
+    CODES_ID,
   };
 
   return modules[module];
@@ -293,13 +296,14 @@ module_to_head (GModule module)
     HOSTS_HEAD,
     OPERA_HEAD,
     BROWS_HEAD,
+    VTIME_HEAD,
     REFER_HEAD,
     SITES_HEAD,
     KEYPH_HEAD,
 #ifdef HAVE_LIBGEOIP
     GEOLO_HEAD,
 #endif
-    CODES_HEAD
+    CODES_HEAD,
   };
 
   return modules[module];
@@ -316,13 +320,14 @@ module_to_desc (GModule module)
     HOSTS_DESC,
     OPERA_DESC,
     BROWS_DESC,
+    VTIME_DESC,
     REFER_DESC,
     SITES_DESC,
     KEYPH_DESC,
 #ifdef HAVE_LIBGEOIP
     GEOLO_DESC,
 #endif
-    CODES_DESC
+    CODES_DESC,
   };
 
   return modules[module];
@@ -833,7 +838,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   GMenu *menu;
   WINDOW *win;
 
-  char *cstm_log, *cstm_date;
+  char *cstm_log, *cstm_date, *cstm_time;
   int c, quit = 1;
   int invalid = 1;
   int y, x, h = CONF_WIN_H, w = CONF_WIN_W;
@@ -893,6 +898,16 @@ verify_format (GLog * logger, GSpinner * spinner)
       free (conf.date_format);
   }
 
+  /* set time format from goaccessrc if available */
+  draw_header (win, "Time Format - [d] to add/edit format", " %s", 17, 1, w2, 1,
+               0);
+  if (conf.time_format) {
+    time_format = escape_str (conf.time_format);
+    mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
+    if (conf.time_format)
+      free (conf.time_format);
+  }
+
   wrefresh (win);
   while (quit) {
     c = wgetch (stdscr);
@@ -908,6 +923,8 @@ verify_format (GLog * logger, GSpinner * spinner)
     case 32:   /* space */
       gmenu_driver (menu, REQ_SEL);
 
+      if (time_format)
+        free (time_format);
       if (date_format)
         free (date_format);
       if (log_format)
@@ -919,8 +936,11 @@ verify_format (GLog * logger, GSpinner * spinner)
 
         date_format = get_selected_date_str (i);
         log_format = get_selected_format_str (i);
-        draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
+        time_format = get_selected_time_str (i);
+
         draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0, 0);
+        draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
+        draw_header (win, time_format, " %s", 18, 1, CONF_MENU_W, 0, 0);
         break;
       }
       break;
@@ -972,11 +992,38 @@ verify_format (GLog * logger, GSpinner * spinner)
         }
       }
       break;
+    case 116:  /* t */
+      /* clear top status bar */
+      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      wmove (win, 15, 0);
+
+      /* get input string */
+      cstm_time = input_string (win, 18, 2, 14, date_format, 0, 0);
+      if (cstm_time != NULL && *cstm_time != '\0') {
+        if (time_format)
+          free (time_format);
+
+        time_format = alloc_string (cstm_time);
+        free (cstm_time);
+      }
+      /* did not set an input string */
+      else {
+        if (cstm_time)
+          free (cstm_time);
+        if (time_format) {
+          free (time_format);
+          time_format = NULL;
+        }
+      }
+      break;
     case 274:  /* F10 */
     case 0x0a:
     case 0x0d:
     case KEY_ENTER:
       /* display status bar error messages */
+      if (time_format == NULL)
+        draw_header (win, "Select a time format.", "%s", 3, 2, CONF_MENU_W,
+                     WHITE_RED, 0);
       if (date_format == NULL)
         draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
                      WHITE_RED, 0);
@@ -984,7 +1031,8 @@ verify_format (GLog * logger, GSpinner * spinner)
         draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
                      WHITE_RED, 0);
 
-      if (date_format && log_format) {
+      if (date_format && log_format && time_format) {
+        conf.time_format = unescape_str (time_format);
         conf.date_format = unescape_str (date_format);
         conf.log_format = unescape_str (log_format);
 
@@ -996,6 +1044,7 @@ verify_format (GLog * logger, GSpinner * spinner)
 
           free (conf.log_format);
           free (conf.date_format);
+          free (conf.time_format);
         }
         /* valid data, reset logger & start parsing */
         else {

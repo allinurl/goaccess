@@ -74,6 +74,7 @@ static const GDashStyle module_style[TOTAL_MODULES] = {
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , -1        , -1}        ,
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE} ,
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
   {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
@@ -89,8 +90,9 @@ static GPanel paneling[] = {
   {REQUESTS_STATIC , add_data_to_holder, NULL} ,
   {NOT_FOUND       , add_data_to_holder, NULL} ,
   {HOSTS           , add_host_to_holder, add_host_child_to_holder} ,
-  {BROWSERS        , add_root_to_holder, NULL} ,
   {OS              , add_root_to_holder, NULL} ,
+  {BROWSERS        , add_root_to_holder, NULL} ,
+  {VISIT_TIMES     , add_data_to_holder, NULL} ,
   {REFERRERS       , add_data_to_holder, NULL} ,
   {REFERRING_SITES , add_data_to_holder, NULL} ,
   {KEYPHRASES      , add_data_to_holder, NULL} ,
@@ -98,6 +100,7 @@ static GPanel paneling[] = {
   {GEO_LOCATION    , add_root_to_holder, NULL} ,
 #endif
   {STATUS_CODES    , add_root_to_holder, NULL} ,
+  {VISIT_TIMES     , add_data_to_holder, NULL} ,
 };
 
 /* *INDENT-ON* */

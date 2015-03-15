@@ -89,6 +89,7 @@ static int gen_ref_site_key (GKeyData * kdata, GLogItem * glog);
 static int gen_request_key (GKeyData * kdata, GLogItem * glog);
 static int gen_static_request_key (GKeyData * kdata, GLogItem * glog);
 static int gen_status_code_key (GKeyData * kdata, GLogItem * glog);
+static int gen_visit_time_key (GKeyData * kdata, GLogItem * glog);
 #ifdef HAVE_LIBGEOIP
 static int gen_geolocation_key (GKeyData * kdata, GLogItem * glog);
 #endif
@@ -257,7 +258,19 @@ static GParse paneling[] = {
     NULL,
     NULL,
     NULL,
-  }
+  }, {
+    VISIT_TIMES,
+    gen_visit_time_key,
+    insert_data,
+    insert_root,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_time_served,
+    NULL,
+    NULL,
+    NULL,
+  },
 };
 /* *INDENT-ON* */
 
@@ -351,6 +364,7 @@ init_log_item (GLog * logger)
 
   glog->agent = NULL;
   glog->browser = NULL;
+  glog->browser_type = NULL;
   glog->continent = NULL;
   glog->country = NULL;
   glog->date = NULL;
@@ -358,14 +372,14 @@ init_log_item (GLog * logger)
   glog->keyphrase = NULL;
   glog->method = NULL;
   glog->os = NULL;
+  glog->os_type = NULL;
   glog->protocol = NULL;
   glog->ref = NULL;
   glog->req_key = NULL;
   glog->req = NULL;
   glog->status = NULL;
+  glog->time = NULL;
   glog->uniq_key = NULL;
-  glog->browser_type = NULL;
-  glog->os_type = NULL;
 
   glog->resp_size = 0LL;
   glog->serve_time = 0;
@@ -411,6 +425,8 @@ free_logger (GLogItem * glog)
     free (glog->req);
   if (glog->status != NULL)
     free (glog->status);
+  if (glog->time != NULL)
+    free (glog->time);
   if (glog->uniq_key != NULL)
     free (glog->uniq_key);
 
@@ -682,10 +698,12 @@ parse_string (char **str, char end, int cnt)
 }
 
 static int
-parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
-                 char **str, const char *p)
+parse_specifier (GLogItem * glog, char **str, const char *p)
 {
   struct tm tm;
+  const char *dfmt = conf.date_format;
+  const char *lfmt = conf.log_format;
+  const char *tfmt = conf.time_format;
 
   char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
   double serve_secs = 0.0;
@@ -710,6 +728,20 @@ parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
       return 1;
     }
     glog->date = tkn;
+    break;
+    /* time */
+  case 't':
+    if (glog->time)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    end = strptime (tkn, tfmt, &tm);
+    if (end == NULL || *end != '\0') {
+      free (tkn);
+      return 1;
+    }
+    glog->time = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -887,9 +919,10 @@ parse_specifier (GLogItem * glog, const char *lfmt, const char *dfmt,
 }
 
 static int
-parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
+parse_format (GLogItem * glog, char *str)
 {
   const char *p;
+  const char *lfmt = conf.log_format;
   int special = 0;
 
   if (str == NULL || *str == '\0')
@@ -906,7 +939,7 @@ parse_format (GLogItem * glog, const char *lfmt, const char *dfmt, char *str)
         return 0;
 
       /* attempt to parse format specifiers */
-      if (parse_specifier (glog, lfmt, dfmt, &str, p) == 1)
+      if (parse_specifier (glog, &str, p) == 1)
         return 1;
       special = 0;
     } else if (special && isspace (p[0])) {
@@ -1379,6 +1412,24 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
 }
 
 static int
+gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
+{
+  char *hmark = NULL;
+  if (!glog->time)
+    return 1;
+
+  if ((hmark = strchr (glog->time, ':')) == NULL)
+    return 1;
+
+  if ((hmark - glog->time) > 0)
+    *hmark = '\0';
+
+  get_kdata (kdata, glog->time, glog->time);
+
+  return 0;
+}
+
+static int
 include_uniq (GLogItem * glog)
 {
   int u = conf.client_err_to_unique_count;
@@ -1492,7 +1543,7 @@ pre_process_log (GLog * logger, char *line, int test)
   count_process (logger, test);
   glog = init_log_item (logger);
   /* parse a line of log, and fill structure with appropriate values */
-  if (parse_format (glog, conf.log_format, conf.date_format, line)) {
+  if (parse_format (glog, line)) {
     count_invalid (logger, test);
     goto cleanup;
   }
