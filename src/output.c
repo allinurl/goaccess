@@ -820,6 +820,9 @@ print_html_header (FILE * fp, char *now)
   ".grid .red{"
   "    border-top: 4px solid #d9534f;"
   "}"
+  ".grid .blue {"
+  "    border-top: 4px solid #5bc0de;"
+  "}"
   ".ua {"
   "    color: #777;"
   "}"
@@ -1499,7 +1502,7 @@ print_html_summary (FILE * fp, GLog * logger)
   print_html_end_col_wrap (fp);
 
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
-  print_html_begin_col_wrap (fp, 6, NULL);
+  print_html_begin_col_wrap (fp, 6, "blue");
   print_html_col_title (fp, T_UNIQUE_VIS);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
