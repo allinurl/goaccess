@@ -361,8 +361,8 @@ read_option_args (int argc, char **argv)
 
       /* sort view */
       if (!strcmp ("sort-panel", long_opts[idx].name) &&
-          conf.sort_view_idx < TOTAL_MODULES)
-        conf.sort_views[conf.sort_view_idx++] = optarg;
+          conf.sort_panel_idx < TOTAL_MODULES)
+        conf.sort_panels[conf.sort_panel_idx++] = optarg;
 
       /* real os */
       if (!strcmp ("real-os", long_opts[idx].name))
