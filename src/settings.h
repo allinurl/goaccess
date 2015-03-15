@@ -78,7 +78,7 @@ typedef struct GConf_
   char *geoip_database;
   char *iconfigfile;
   char *ifile;
-  char *sort_views[TOTAL_MODULES];
+  char *sort_panels[TOTAL_MODULES];
   char *ignore_ips[MAX_IGNORE_IPS];
   char *ignore_referers[MAX_IGNORE_REF];
   char *log_format;
@@ -110,7 +110,7 @@ typedef struct GConf_
 
   int ignore_ip_idx;
   int ignore_referer_idx;
-  int sort_view_idx;
+  int sort_panel_idx;
   int static_file_idx;
 
   size_t static_file_max_len;
