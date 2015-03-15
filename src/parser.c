@@ -262,7 +262,7 @@ static GParse paneling[] = {
     VISIT_TIMES,
     gen_visit_time_key,
     insert_data,
-    insert_root,
+    NULL,
     insert_hit,
     insert_visitor,
     insert_bw,
