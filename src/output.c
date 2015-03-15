@@ -1600,6 +1600,8 @@ output_html (GLog * logger, GHolder * holder)
     const GOutput *panel = panel_lookup (module);
     if (!panel)
       continue;
+    if (ignore_panel (module))
+      continue;
     print_html_common (fp, holder + module, logger->process, panel);
   }
 

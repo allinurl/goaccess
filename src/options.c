@@ -68,6 +68,7 @@ struct option long_opts[] = {
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
+  {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
@@ -115,10 +116,10 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --time-format=<timeformat>     - Specify log time format. e.g., %%H:%%M:%%S\n"
+  "  --log-format=<logformat>       - Specify log format. Inner quotes need to be\n"
+  "                                   escaped, or use single quotes.\n"
   "  --date-format=<dateformat>     - Specify log date format. e.g., %%d/%%b/%%Y\n"
-  "  --log-format=<logformat>       - Specify log format. Inner quotes need\n"
-  "                                   to be escaped, or use single quotes.\n\n"
+  "  --time-format=<timeformat>     - Specify log time format. e.g., %%H:%%M:%%S\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
@@ -157,6 +158,7 @@ cmd_help (void)
   "                                    visitors count.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
+  "  --ignore-panel=PANEL            - Ignore parsing the given panel.\n"
   "  --ignore-referer=<needle>       - Ignore a referer from being counted.\n"
   "                                    Wild cards are allowed. i.e., *.bing.com\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP,\n"
@@ -353,6 +355,11 @@ read_option_args (int argc, char **argv)
       /* ignore crawlers */
       if (!strcmp ("ignore-crawlers", long_opts[idx].name))
         conf.ignore_crawlers = 1;
+
+      /* ignore panel */
+      if (!strcmp ("ignore-panel", long_opts[idx].name) &&
+          conf.ignore_panel_idx < TOTAL_MODULES)
+        conf.ignore_panels[conf.ignore_panel_idx++] = optarg;
 
       /* ignore referer */
       if (!strcmp ("ignore-referer", long_opts[idx].name) &&

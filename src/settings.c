@@ -303,3 +303,20 @@ get_selected_time_str (size_t idx)
 
   return fmt;
 }
+
+int
+ignore_panel (GModule mod)
+{
+  int i;
+  int module;
+  char *view;
+  for (i = 0; i < conf.ignore_panel_idx; ++i) {
+    view = conf.ignore_panels[i];
+    if ((module = get_module_enum (view)) == -1)
+      continue;
+    if (mod == (unsigned int) module)
+      return 1;
+  }
+
+  return 0;
+}

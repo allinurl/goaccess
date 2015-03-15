@@ -271,6 +271,8 @@ output_csv (GLog * logger, GHolder * holder)
     const GCSV *panel = panel_lookup (module);
     if (!panel)
       continue;
+    if (ignore_panel (module))
+      continue;
     panel->render (fp, holder + module, logger->process);
   }
 
