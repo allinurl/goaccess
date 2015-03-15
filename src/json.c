@@ -339,6 +339,8 @@ output_json (GLog * logger, GHolder * holder)
     const GJSON *panel = panel_lookup (module);
     if (!panel)
       continue;
+    if (ignore_panel (module))
+      continue;
     panel->render (fp, holder + module, logger->process);
     module != TOTAL_MODULES - 1 ? fprintf (fp, ",\n") : fprintf (fp, "\n");
   }

@@ -81,6 +81,7 @@ typedef struct GConf_
   char *sort_panels[TOTAL_MODULES];
   char *ignore_ips[MAX_IGNORE_IPS];
   char *ignore_referers[MAX_IGNORE_REF];
+  char *ignore_panels[TOTAL_MODULES];
   char *log_format;
   char *output_format;
   char *static_files[MAX_EXTENSIONS];
@@ -109,6 +110,7 @@ typedef struct GConf_
   int skip_term_resolver;
 
   int ignore_ip_idx;
+  int ignore_panel_idx;
   int ignore_referer_idx;
   int sort_panel_idx;
   int static_file_idx;
@@ -136,6 +138,7 @@ size_t get_selected_format_idx (void);
 extern GConf conf;
 
 int parse_conf_file (int *argc, char ***argv);
+int ignore_panel (GModule mod);
 void free_cmd_args (void);
 
 #endif

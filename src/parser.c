@@ -1535,6 +1535,8 @@ process_log (GLogItem * glog)
     const GParse *parse = panel_lookup (module);
     if (!parse)
       continue;
+    if (ignore_panel (module))
+      continue;
     map_log (glog, parse, module);
   }
 }

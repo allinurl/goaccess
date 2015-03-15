@@ -206,6 +206,9 @@ allocate_data (void)
 
   dash = new_gdash ();
   for (module = 0; module < TOTAL_MODULES; module++) {
+    if (ignore_panel (module))
+      continue;
+
     switch (module) {
     case VISITORS:
       dash->module[module].head = VISIT_HEAD;
