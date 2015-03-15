@@ -980,6 +980,16 @@ unlock_spinner (void)
 }
 
 static void
+strip_qstring (char *req)
+{
+  char *qmark;
+  if ((qmark = strchr (req, '?')) != NULL) {
+    if ((qmark - req) > 0)
+      *qmark = '\0';
+  }
+}
+
+static void
 inc_resp_size (GLog * logger, uint64_t resp_size)
 {
   logger->resp_size += resp_size;
@@ -1573,6 +1583,9 @@ pre_process_log (GLog * logger, char *line, int test)
     glog->is_404 = 1;
   else if (is_static (glog))
     glog->is_static = 1;
+  /* check if we need to remove the request's query string */
+  else if (conf.ignore_qstr)
+    strip_qstring (glog->req);
 
   glog->uniq_key = get_uniq_visitor_key (glog);
 
