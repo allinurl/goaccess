@@ -1631,6 +1631,9 @@ parse_log (GLog ** logger, char *tail, int n)
 {
   int test = -1 == n ? 0 : 1;
 
+  if (conf.time_format == NULL || *conf.time_format == '\0')
+    FATAL ("No time format was found on your conf file.");
+
   if (conf.date_format == NULL || *conf.date_format == '\0')
     FATAL ("No date format was found on your conf file.");
 
