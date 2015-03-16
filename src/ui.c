@@ -729,8 +729,7 @@ out:
   /* clean stuff up */
   for (i = 0; i < menu->size; ++i)
     free (menu->items[i].name);
-  if (menu->items)
-    free (menu->items);
+  free (menu->items);
   free (menu);
 }
 
@@ -884,8 +883,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   if (conf.log_format) {
     log_format = escape_str (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
-    if (conf.log_format)
-      free (conf.log_format);
+    free (conf.log_format);
   }
 
   /* set date format from goaccessrc if available */
@@ -894,8 +892,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   if (conf.date_format) {
     date_format = escape_str (conf.date_format);
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
-    if (conf.date_format)
-      free (conf.date_format);
+    free (conf.date_format);
   }
 
   /* set time format from goaccessrc if available */
@@ -904,8 +901,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   if (conf.time_format) {
     time_format = escape_str (conf.time_format);
     mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
-    if (conf.time_format)
-      free (conf.time_format);
+    free (conf.time_format);
   }
 
   wrefresh (win);
@@ -923,12 +919,9 @@ verify_format (GLog * logger, GSpinner * spinner)
     case 32:   /* space */
       gmenu_driver (menu, REQ_SEL);
 
-      if (time_format)
-        free (time_format);
-      if (date_format)
-        free (date_format);
-      if (log_format)
-        free (log_format);
+      free (time_format);
+      free (date_format);
+      free (log_format);
 
       for (i = 0; i < n; ++i) {
         if (menu->items[i].checked != 1)
@@ -952,20 +945,16 @@ verify_format (GLog * logger, GSpinner * spinner)
       /* get input string */
       cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
       if (cstm_log != NULL && *cstm_log != '\0') {
-        if (log_format)
-          free (log_format);
+        free (log_format);
 
         log_format = alloc_string (cstm_log);
         free (cstm_log);
       }
       /* did not set an input string */
       else {
-        if (cstm_log)
-          free (cstm_log);
-        if (log_format) {
-          free (log_format);
-          log_format = NULL;
-        }
+        free (cstm_log);
+        free (log_format);
+        log_format = NULL;
       }
       break;
     case 100:  /* d */
@@ -976,20 +965,16 @@ verify_format (GLog * logger, GSpinner * spinner)
       /* get input string */
       cstm_date = input_string (win, 15, 2, 14, date_format, 0, 0);
       if (cstm_date != NULL && *cstm_date != '\0') {
-        if (date_format)
-          free (date_format);
+        free (date_format);
 
         date_format = alloc_string (cstm_date);
         free (cstm_date);
       }
       /* did not set an input string */
       else {
-        if (cstm_date)
-          free (cstm_date);
-        if (date_format) {
-          free (date_format);
-          date_format = NULL;
-        }
+        free (cstm_date);
+        free (date_format);
+        date_format = NULL;
       }
       break;
     case 116:  /* t */
@@ -1000,20 +985,16 @@ verify_format (GLog * logger, GSpinner * spinner)
       /* get input string */
       cstm_time = input_string (win, 18, 2, 14, date_format, 0, 0);
       if (cstm_time != NULL && *cstm_time != '\0') {
-        if (time_format)
-          free (time_format);
+        free (time_format);
 
         time_format = alloc_string (cstm_time);
         free (cstm_time);
       }
       /* did not set an input string */
       else {
-        if (cstm_time)
-          free (cstm_time);
-        if (time_format) {
-          free (time_format);
-          time_format = NULL;
-        }
+        free (cstm_time);
+        free (time_format);
+        time_format = NULL;
       }
       break;
     case 274:  /* F10 */

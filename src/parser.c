@@ -327,10 +327,8 @@ free_raw_data (GRawData * raw_data)
 #ifdef HAVE_LIBTOKYOCABINET
   int i;
   for (i = 0; i < raw_data->size; i++) {
-    if (raw_data->items[i].key != NULL)
-      free (raw_data->items[i].key);
-    if (raw_data->items[i].value != NULL)
-      free (raw_data->items[i].value);
+    free (raw_data->items[i].key);
+    free (raw_data->items[i].value);
   }
 #endif
   free (raw_data->items);
@@ -393,43 +391,24 @@ init_log_item (GLog * logger)
 static void
 free_logger (GLogItem * glog)
 {
-  if (glog->agent != NULL)
-    free (glog->agent);
-  if (glog->browser != NULL)
-    free (glog->browser);
-  if (glog->browser_type != NULL)
-    free (glog->browser_type);
-  if (glog->continent != NULL)
-    free (glog->continent);
-  if (glog->country != NULL)
-    free (glog->country);
-  if (glog->date != NULL)
-    free (glog->date);
-  if (glog->host != NULL)
-    free (glog->host);
-  if (glog->keyphrase != NULL)
-    free (glog->keyphrase);
-  if (glog->method != NULL)
-    free (glog->method);
-  if (glog->os != NULL)
-    free (glog->os);
-  if (glog->os_type != NULL)
-    free (glog->os_type);
-  if (glog->protocol != NULL)
-    free (glog->protocol);
-  if (glog->ref != NULL)
-    free (glog->ref);
-  if (glog->req_key != NULL)
-    free (glog->req_key);
-  if (glog->req != NULL)
-    free (glog->req);
-  if (glog->status != NULL)
-    free (glog->status);
-  if (glog->time != NULL)
-    free (glog->time);
-  if (glog->uniq_key != NULL)
-    free (glog->uniq_key);
-
+  free (glog->agent);
+  free (glog->browser);
+  free (glog->browser_type);
+  free (glog->continent);
+  free (glog->country);
+  free (glog->date);
+  free (glog->host);
+  free (glog->keyphrase);
+  free (glog->method);
+  free (glog->os);
+  free (glog->os_type);
+  free (glog->protocol);
+  free (glog->ref);
+  free (glog->req_key);
+  free (glog->req);
+  free (glog->status);
+  free (glog->time);
+  free (glog->uniq_key);
   free (glog);
 }
 

@@ -387,8 +387,7 @@ ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
     map->uniq = uniq_nkey;
   }
   tcadbput (adb, &data_nkey, sizeof (int), map, sizeof (GDataMap));
-  if (map)
-    free (map);
+  free (map);
 
   return 0;
 }
@@ -766,8 +765,7 @@ free_key (TCADB * adb, void *key, int ksize, GO_UNUSED void *user_data)
   int sp = 0;
 
   value = tcadbget (adb, key, ksize, &sp);
-  if (value)
-    free (value);
+  free (value);
   free (key);
 }
 

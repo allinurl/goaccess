@@ -1329,8 +1329,7 @@ out:
   /* clean stuff up */
   for (i = 0; i < agents->size; ++i)
     free (agents->items[i].agent);
-  if (agents->items)
-    free (agents->items);
+  free (agents->items);
   free (agents);
 }
 

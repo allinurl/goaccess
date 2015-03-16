@@ -167,8 +167,7 @@ list_remove_nodes (GSLList * list)
   GSLList *tmp;
   while (list != NULL) {
     tmp = list->next;
-    if (list->data)
-      free (list->data);
+    free (list->data);
     free (list);
     list = tmp;
   }

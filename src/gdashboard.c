@@ -158,11 +158,9 @@ free_dashboard_data (GDashData item)
   if (item.metrics == NULL)
     return;
 
-  if (item.metrics->data)
-    free (item.metrics->data);
-  if (item.metrics->bw.sbw)
-    free (item.metrics->bw.sbw);
-  if (conf.serve_usecs && item.metrics->avgts.sts)
+  free (item.metrics->data);
+  free (item.metrics->bw.sbw);
+  if (conf.serve_usecs)
     free (item.metrics->avgts.sts);
   free (item.metrics);
 }
@@ -272,14 +270,10 @@ free_holder_data (GHolderItem item)
 {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.metrics->data != NULL)
-    free (item.metrics->data);
-  if (item.metrics->method != NULL)
-    free (item.metrics->method);
-  if (item.metrics->protocol != NULL)
-    free (item.metrics->protocol);
-  if (item.metrics != NULL)
-    free (item.metrics);
+  free (item.metrics->data);
+  free (item.metrics->method);
+  free (item.metrics->protocol);
+  free (item.metrics);
 }
 
 /* free memory allocated in holder for specific module */
@@ -1129,8 +1123,7 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll)
     find_t.pattern = xstrdup (query);
     valid = 0;
   }
-  if (query != NULL)
-    free (query);
+  free (query);
   touchwin (main_win);
   close_win (win);
   wrefresh (main_win);
