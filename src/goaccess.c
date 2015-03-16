@@ -336,8 +336,23 @@ collapse_current_module (void)
 }
 
 static void
+disabled_panel_msg (GModule module)
+{
+  const char *lbl = module_to_label (module);
+  int row, col;
+
+  getmaxyx (stdscr, row, col);
+  draw_header (stdscr, lbl, "'%s' panel is disabled", row - 1, 0, col,
+               WHITE_RED, 0);
+}
+
+static void
 set_module_to (GScroll * scrll, GModule module)
 {
+  if (ignore_panel (module)) {
+    disabled_panel_msg (module);
+    return;
+  }
   /* reset expanded module */
   collapse_current_module ();
   scrll->current = module;
@@ -590,21 +605,35 @@ perform_tail_follow (uint64_t * size1)
   usleep (200000);      /* 0.2 seconds */
 }
 
-static void
+static int
 next_module (void)
 {
   gscroll.current++;
   if (gscroll.current == TOTAL_MODULES)
     gscroll.current = 0;
+
+  if (ignore_panel (gscroll.current)) {
+    disabled_panel_msg (gscroll.current);
+    return 1;
+  }
+
+  return 0;
 }
 
-static void
+static int
 previous_module (void)
 {
   if (gscroll.current == 0)
     gscroll.current = TOTAL_MODULES - 1;
   else
     gscroll.current--;
+
+  if (ignore_panel (gscroll.current)) {
+    disabled_panel_msg (gscroll.current);
+    return 1;
+  }
+
+  return 0;
 }
 
 static void
@@ -721,14 +750,14 @@ get_keys (void)
     case 9:    /* TAB */
       /* reset expanded module */
       collapse_current_module ();
-      next_module ();
-      render_screens ();
+      if (next_module () == 0)
+        render_screens ();
       break;
     case 353:  /* Shift TAB */
       /* reset expanded module */
       collapse_current_module ();
-      previous_module ();
-      render_screens ();
+      if (previous_module () == 0)
+        render_screens ();
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
