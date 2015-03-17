@@ -210,6 +210,7 @@ typedef struct GSLList_
   struct GSLList_ *next;
 } GSLList;
 
+/* *INDENT-OFF* */
 GAgents *new_gagents (void);
 GAgentItem *new_gagent_item (uint32_t size);
 
@@ -225,8 +226,9 @@ GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
 GSLList *list_insert_append (GSLList * node, void *data);
 GSLList *list_insert_prepend (GSLList * list, void *data);
 int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
+int list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data);
 int list_remove_nodes (GSLList * list);
+void format_date_visitors (GMetrics * metrics);
+/* *INDENT-ON* */
 
 #endif
