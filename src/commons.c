@@ -215,3 +215,18 @@ new_gagent_item (uint32_t size)
 
   return item;
 }
+
+void
+format_date_visitors (GMetrics * metrics)
+{
+  char date[DATE_LEN] = "";     /* Ymd */
+  char *datum = metrics->data;
+
+  /* make compiler happy */
+  memset (date, 0, sizeof *date);
+  convert_date (date, datum, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
+  if (date != NULL) {
+    free (datum);
+    metrics->data = xstrdup (date);
+  }
+}

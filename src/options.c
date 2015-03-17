@@ -326,15 +326,15 @@ read_option_args (int argc, char **argv)
         conf.color_scheme = atoi (optarg);
 
       /* log format */
-      if (!strcmp ("log-format", long_opts[idx].name))
+      if (!strcmp ("log-format", long_opts[idx].name) && !conf.log_format)
         conf.log_format = unescape_str (optarg);
 
       /* time format */
-      if (!strcmp ("time-format", long_opts[idx].name))
+      if (!strcmp ("time-format", long_opts[idx].name) && !conf.time_format)
         conf.time_format = unescape_str (optarg);
 
       /* date format */
-      if (!strcmp ("date-format", long_opts[idx].name))
+      if (!strcmp ("date-format", long_opts[idx].name) && !conf.date_format)
         conf.date_format = unescape_str (optarg);
 
       /* static file */

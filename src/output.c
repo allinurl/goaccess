@@ -57,24 +57,25 @@ static void print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
                              int max_vis, const GOutput * panel);
 static void print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
                              int max_vis, const GOutput * panel);
+static void fmt_date (GMetrics * metrics);
 
 /* *INDENT-OFF* */
 static GOutput paneling[] = {
-  {VISITORS        , print_html_data , "Date" , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {REQUESTS        , print_html_data , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {REQUESTS_STATIC , print_html_data , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {NOT_FOUND       , print_html_data , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {HOSTS           , print_html_host , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {OS              , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {BROWSERS        , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {VISIT_TIMES     , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {REFERRERS       , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {REFERRING_SITES , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {KEYPHRASES      , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {VISITORS        , print_html_data , fmt_date, "Date" , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {REQUESTS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {REQUESTS_STATIC , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {NOT_FOUND       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {HOSTS           , print_html_host , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {OS              , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {BROWSERS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {VISIT_TIMES     , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {REFERRERS       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {REFERRING_SITES , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {KEYPHRASES      , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {GEO_LOCATION    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #endif
-  {STATUS_CODES    , print_html_data , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {STATUS_CODES    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 };
 
 /* base64 icons */
@@ -1394,6 +1395,12 @@ print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
 }
 
 static void
+fmt_date (GMetrics * metrics)
+{
+  format_date_visitors (metrics);
+}
+
+static void
 print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
                  int max_vis, const GOutput * panel)
 {
@@ -1401,6 +1408,9 @@ print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
   int i;
 
   for (i = 0; i < h->idx; i++) {
+    if (panel->metrics_callback)
+      panel->metrics_callback (h->items[i].metrics);
+
     set_data_metrics (h->items[i].metrics, &nmetrics, processed);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
