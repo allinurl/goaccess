@@ -28,7 +28,7 @@
 #include "commons.h"
 #include "parser.h"
 
-#define SORT_MAX_OPTS     7
+#define SORT_MAX_OPTS     8
 #define SORT_MODULE_LEN   9
 #define SORT_FIELD_LEN    8
 #define SORT_ORDER_LEN    5
@@ -36,6 +36,7 @@
 typedef enum GSortField_
 {
   SORT_BY_HITS,
+  SORT_BY_VISITORS,
   SORT_BY_DATA,
   SORT_BY_BW,
   SORT_BY_USEC,

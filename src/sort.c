@@ -41,21 +41,21 @@
 
 /* *INDENT-OFF* */
 const int sort_choices[][SORT_MAX_OPTS] = {
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
 #ifdef HAVE_LIBGEOIP
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
 #endif
-  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_USEC, -1},
 };
 
 static GEnum FIELD[] = {
@@ -118,6 +118,33 @@ cmp_num_desc (const void *a, const void *b)
   return (int) (ib->metrics->hits - ia->metrics->hits);
 }
 
+/* sort numeric ascending */
+static int
+cmp_num_asc (const void *a, const void *b)
+{
+  const GHolderItem *ia = a;
+  const GHolderItem *ib = b;
+  return (int) (ia->metrics->hits - ib->metrics->hits);
+}
+
+/* sort numeric descending */
+static int
+cmp_vis_desc (const void *a, const void *b)
+{
+  const GHolderItem *ia = a;
+  const GHolderItem *ib = b;
+  return (int) (ib->metrics->visitors - ia->metrics->visitors);
+}
+
+/* sort numeric ascending */
+static int
+cmp_vis_asc (const void *a, const void *b)
+{
+  const GHolderItem *ia = a;
+  const GHolderItem *ib = b;
+  return (int) (ia->metrics->visitors - ib->metrics->visitors);
+}
+
 /* sort raw numeric descending */
 static int
 cmp_raw_num_desc (const void *a, const void *b)
@@ -128,15 +155,6 @@ cmp_raw_num_desc (const void *a, const void *b)
   GDataMap *bmap = ib->value;
 
   return (int) (bmap->data - amap->data);
-}
-
-/* sort numeric ascending */
-static int
-cmp_num_asc (const void *a, const void *b)
-{
-  const GHolderItem *ia = a;
-  const GHolderItem *ib = b;
-  return (int) (ia->metrics->hits - ib->metrics->hits);
 }
 
 /* sort bandwidth descending */
@@ -288,6 +306,12 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
       qsort (items, size, sizeof (GHolderItem), cmp_num_desc);
     else
       qsort (items, size, sizeof (GHolderItem), cmp_num_asc);
+    break;
+  case SORT_BY_VISITORS:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_vis_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_vis_asc);
     break;
   case SORT_BY_DATA:
     if (sort.sort == SORT_DESC)

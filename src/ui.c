@@ -1179,12 +1179,13 @@ void
 load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 {
   GMenu *menu;
+  WINDOW *win;
   GSortField opts[SORT_MAX_OPTS];
+
   int c, quit = 1;
   int i = 0, k, n = 0;
   int y, x, h = SORT_WIN_H, w = SORT_WIN_W;
   int w2 = w - 2;
-  WINDOW *win;
 
   getmaxyx (stdscr, y, x);
 
@@ -1221,6 +1222,12 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     if (SORT_BY_HITS == field) {
       menu->items[i].name = alloc_string ("Hits");
       if (sort->field == SORT_BY_HITS) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_VISITORS == field) {
+      menu->items[i].name = alloc_string ("Visitors");
+      if (sort->field == SORT_BY_VISITORS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
@@ -1303,6 +1310,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           continue;
         if (strcmp ("Hits", menu->items[i].name) == 0)
           sort->field = SORT_BY_HITS;
+        else if (strcmp ("Visitors", menu->items[i].name) == 0)
+          sort->field = SORT_BY_VISITORS;
         else if (strcmp ("Data", menu->items[i].name) == 0)
           sort->field = SORT_BY_DATA;
         else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
