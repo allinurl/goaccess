@@ -168,7 +168,7 @@ configuration file:
 | `--no-global-config`               | Do not load the global configuration file.                    |
 | `--no-progress`                    | Disable progress metrics.                                     |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
-| `--sort-panel=<PANEL,METRIC,ORDER>`| Sort panel on initial load. See manpage for metrics.          |
+| `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
 | `--time-format=<timeformat>`       | Specify log time format.                                      |
 | `--keep-db-files`                  | Persist parsed data into disk.                                |
