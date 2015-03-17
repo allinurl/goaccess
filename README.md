@@ -157,8 +157,10 @@ configuration file:
 | `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--double-decode`                  | Decode double-encoded values.                                 |
+| `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Specify path to GeoIP database v4/v6. i.e., GeoLiteCity.dat   |
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
+| `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
 | `--no-color`                       | Disable colored output.                                       |
@@ -168,6 +170,9 @@ configuration file:
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
 | `--sort-panel=<PANEL,METRIC,ORDER>`| Sort panel on initial load. See manpage for metrics.          |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
+| `--time-format=<timeformat>`       | Specify log time format.                                      |
+| `--keep-db-files`                  | Persist parsed data into disk.                                |
+| `--load-from-disk`                 | Load previously stored data from disk.                        |
 | `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                 |
 | `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]              |
 | `--compression=<zlib,bz2>`         | Specify that each page is compressed with ZLIB|BZ2 encoding.  |
