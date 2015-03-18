@@ -1,4 +1,4 @@
-.TH goaccess 1 "SEPTEMBER 2014" Linux "User Manuals"
+.TH goaccess 1 "MARCH 2015" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -17,48 +17,55 @@ Number of valid requests, number of invalid requests, time to analyze the data,
 unique visitors, unique requested files, unique static files (css, ico, jpg, js,
 swf, gif, png) unique HTTP referrers (URLs), unique 404s (not found), size of
 the parsed log file, bandwidth consumption.
-.IP "Unique visitors:"
-HTTP requests having the same IP, same date and same agent will be considered a
-unique visit. This includes crawlers.
+.IP "Unique visitors"
+This panel is listed by day with dates included. HTTP requests possessing the
+same IP, the same date, and the same agent are considered as a unique visit. It
+includes web crawlers/spiders.
 .IP "Requested files"
-Hit totals are based on total requests. This module will display hits, percent,
-bandwidth [time served], [protocol] and [method].
+Requested Files shows the most highly requested files on your web server. It
+shows hits, unique visitors, and percentage, along with the cumulative
+bandwidth, what protocol was used, and what request method was used. Optionally
+it can display the average time served.
 .IP "Requested static files"
-Hit totals are based on total requests. Includes files such as: jpg, css, swf,
-js, gif, png etc. This module will display hits, percent, bandwidth, [time
-served], [protocol] and [method].
+Lists the most frequently static files such as: jpg, css, swf, js, gif, and png
+file types, with the same metrics as the last module.
 .IP "404 or Not Found"
-Hit totals are based on total requests. This module will display hits, percent,
-bandwidth, [time served], [protocol] and [method].
+Listed like previous panels, containing the same metrics. This panel lists the
+top recurrent HTTP 404.
 .IP "Hosts"
-Hit totals are based on total requests. This module will display hits, percent,
-[bandwidth, time served]. The expanded module can display extra information such
-as reverse DNS and country. If -a is enabled, a list of user agents will be
-displayed by selecting the IP and hitting the return key.
+This panel has detailed information on the hosts themselves. It displays the
+same metrics as previous panels, such as number of hits, visitors, cumulative
+bandwidth, and time served. This is great to spot aggressive crawlers and
+identifying who's eating your bandwidth.
+
+Expanding the panel can display more information like such as host's reverse
+DNS lookup result, country of origin and city. If the -a argument is enabled, a
+list of user agents can be displayed by selecting the desired IP address, and
+then pressing ENTER.
+
 .IP "Operating Systems"
-Hit totals are based on unique visitors. This module will display hits and
-percent. The expanded module shows all available versions of the parent node.
+This panel will list Host's operating system. It attempts to provide the most
+specific version of each operating system.
 .IP "Browsers"
-Hit totals are based on unique visitors. This module will display hits and
-percent. The expanded module shows all available versions of the parent node.
+This panel will list Host's browsers. It attempts to provide the most specific
+version of each browser.
 .IP "Referrers URLs"
-The URL where the request came from. Hit totals are based on total requests.
-This module will display hits and percent.
+If the host in question accessed the site via another resource, or was
+linked/diverted to you from another host, the URL they were referred from will
+be provided here in this panel.
 .IP "Referring Sites"
-This module will display only the host but not the whole URL. The URL where the
-request came from. Hit totals are based on total requests. This module will
-display hits and percent.
+This panel will display only the host part but not the whole URL. The URL
+where the request came from.
 .IP "Keyphrases"
-This module will report keyphrases used on Google search, Google cache, and
-Google translate. Hit totals are based on total requests. This module will
-display hits and percent.
+It reports keyphrases used on Google search, Google cache, and Google translate
+that have lead to your web server. At present this only supports Google and no
+other search engines. By default this panel is disabled. See `--ignore-panel`
+in your configuration file to enable it.
 .IP "Geo Location"
 Determines where an IP address is geographically located. It outputs the
-continent and country. If it's unable to determine the country, location will be
-marked as unknown. It needs to be compiled with GeoLocation support.
+continent and country. It needs to be compiled with GeoLocation support.
 .IP "HTTP Status Codes"
-The values of the numeric status code to HTTP requests. Hit totals are based on
-total requests. This module will display hits and percent.
+The values of the numeric status code to HTTP requests.
 .SH STORAGE
 .P
 There are three storage options that can be used with GoAccess. Choosing one
@@ -112,13 +119,16 @@ Disable bzip2 compression on B+ Tree database.
 The following options can be supplied via the command line or the long options
 through the configuration file.
 .TP
+\fB\-\-time-format=<timeformat>
+The time_format variable followed by a space, specifies the log format time
+containing any combination of regular characters and special format specifiers.
+They all begin with a percentage (%) sign. See `man strftime`.
+.I %T or %H:%M:%S.
+.TP
 \fB\-\-date-format=<dateformat>
 The date_format variable followed by a space, specifies the log format date
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
-
-Note that there is no need to use time specifiers since they are not used by
-GoAccess. It's recommended to use only date specifiers, i.e.,
 .I %Y-%m-%d.
 .TP
 \fB\-\-log-format=<logformat>
@@ -223,6 +233,25 @@ Decode double-encoded values. This includes, user-agent, request, and referer.
 .TP
 \fB\-\-ignore-crawlers
 Ignore crawlers from being counted.
+.TP
+\fB\-\-ignore-panel=PANEL
+Ignore parsing and displaying the given panel.
+
+.I Available panels:
+  VISITORS,
+  REQUESTS,
+  REQUESTS_STATIC,
+  NOT_FOUND,
+  HOSTS,
+  OS,
+  BROWSERS,
+  VISIT_TIMES,
+  REFERRERS,
+  REFERRING_SITES,
+  KEYPHRASES,
+  GEO_LOCATION,
+  STATUS_CODES,
+
 .TP
 \fB\-\-ignore-referer=<referer>
 Ignore referers from being counted. Wildcards allowed. e.g.,
@@ -341,15 +370,19 @@ The easiest is to run GoAccess with
 .I -c
 to prompt a configuration window. Otherwise, it can be configured under
 ~/.goaccessrc.
+.IP "time_format"
+The
+.I time_format
+variable followed by a space, specifies the log format time
+containing any combination of regular characters and special format specifiers.
+They all begin with a percentage (%) sign. See `man strftime`.
+.I %T or %H:%M:%S.
 .IP "date_format"
 The
 .I date_format
 variable followed by a space, specifies the log format date containing any
 combination of regular characters and special format specifiers. They all begin
-with a percentage (%) sign. See http://linux.die.net/man/3/strftime
-
-Note that there is no need to use time specifiers since they are not used by
-GoAccess. It's recommended to use only date specifiers, i.e.,
+with a percentage (%) sign. See http://linux.die.net/man/3/strftime e.g.,
 .I %Y-%m-%d.
 .IP "log_format"
 The
@@ -357,6 +390,10 @@ The
 variable followed by a space or
 .I \\\\t
 , specifies the log format string.
+.IP %t
+time field matching the
+.I time_format
+variable.
 .IP %d
 date field matching the
 .I date_format
@@ -516,7 +553,7 @@ from your local machine:
 # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
 .P
 .SH NOTES
-For now, each active window has a total of 300 items. Eventually this will be
+For now, each active window has a total of 366 items. Eventually this will be
 customizable.
 .P
 Piping a log to GoAccess will disable the real-time functionality. This is due
@@ -527,6 +564,6 @@ If you think you have found a bug, please send me an email to
 .I goaccess@prosoftcorp.com
 or use the issue tracker in https://github.com/allinurl/goaccess/issues
 .SH AUTHOR
-Gerardo Orellana <goaccess@prosoftcorp.com>
+Gerardo Orellana <hello@goaccess.io>
 For more details about it, or new releases, please visit
-http://goaccess.prosoftcorp.com
+http://goaccess.io
