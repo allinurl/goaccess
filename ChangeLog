@@ -1,3 +1,44 @@
+Changes to GoAccess 0.9 - Wednesday, March 18, 2015
+
+  * Added ability to double decode an HTTP referer and agent.
+  * Added ability to sort views through the command line on initial load.
+  * Added additional data values to the backtrace report.
+  * Added additional graph to represent the visitors metric on the HTML output.
+  * Added AM_PROG_CC_C_O to configure.ac
+  * Added 'Android Lollipop' to the list of operating systems.
+  * Added 'average time served' metric to all panels.
+  * Added 'bandwidth' metric to all panels.
+  * Added command line option to disable summary metrics on the CSV output.
+  * Added numeric formatting to the HTML output to improve readability.
+  * Added request method specifier to the default W3C log format.
+  * Added support for GeoIP Country IPv6 and GeoIP City IPv6 through --geoip-database.
+  * Added the ability to ignore parsing and displaying given panel(s).
+  * Added the ability to ignore referer sites from being counted.
+    A good case scenario is to ignore own domains. i.e., owndomain.tld
+    This also allows ignoring hosts using wildcards.
+    For instance, *.mydomain.tld or www.mydomain.* or www?.mydomain.tld
+  * Added time/hour distribution module. e.g., 00-23.
+  * Added 'visitors' metrics to all panels.
+  * Added Windows 10 (v6.4) to the real windows user agents.
+  * Changed AC_PREREQ macro version so it builds on old versions of autoconf.
+  * Changed GEOIP database load to GEOIP_MEMORY_CACHE for faster lookups.
+  * Changed maximum number of choices to display per panel to 366 fron 300.
+  * Ensure config file is read from home dir if unable to open it from %sysconfdir% path.
+  * Fixed array overflows when exceeding MAX_* limits on command line options.
+  * Fixed a SEGFAULT where sscanf could not handle special chars within the referer.
+  * Fixed character encoding on geolocation output (ISO-8859 to UTF8).
+  * Fixed issue on wild cards containing '?' at the end of the string.
+  * Fixed issue where a 'Nothing valid to process' error was triggered when the
+    number of invalid hits was equal to the number of valid hits.
+  * Fixed issue where outputting to a file left a zero-byte file in pwd.
+  * Improved parsing of operating systems.
+  * Refactored log parser so it allows with ease the addition of new modules. This
+    also attempts to decouple the core functionality from the rendering functions.
+    It also gives the flexibility to add children metrics to root metrics for any
+    module. e.g., Request A was visited by IP1, IP2, IP3, etc.
+  * Restyled HTML output.
+
+
 Changes to GoAccess 0.8.5 - Sunday, September 14, 2014
 
   * Fixed SEGFAULT when parsing a malformed request that doesn't have HTTP status.
