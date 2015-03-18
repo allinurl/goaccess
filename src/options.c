@@ -158,7 +158,7 @@ cmd_help (void)
   "                                    visitors count.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
-  "  --ignore-panel=PANEL            - Ignore parsing the given panel.\n"
+  "  --ignore-panel=PANEL            - Ignore parsing/displaying the given panel.\n"
   "  --ignore-referer=<needle>       - Ignore a referer from being counted.\n"
   "                                    Wild cards are allowed. i.e., *.bing.com\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP,\n"
