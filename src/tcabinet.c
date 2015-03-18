@@ -273,6 +273,7 @@ free_tables (GStorageMetrics * metrics, GModule module)
   tc_db_close (metrics->time_served, get_dbname (DB_AVGTS, module));
   tc_db_close (metrics->methods, get_dbname (DB_METHODS, module));
   tc_db_close (metrics->protocols, get_dbname (DB_PROTOCOLS, module));
+  tc_db_close (metrics->agents, get_dbname (DB_AGENTS, module));
 }
 
 void
