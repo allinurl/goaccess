@@ -13,59 +13,67 @@ parses the specified web log file and outputs the data to the X terminal.
 Features include:
 
 .IP "General Statistics:"
-Number of valid requests, number of invalid requests, time to analyze the data,
-unique visitors, unique requested files, unique static files (css, ico, jpg, js,
-swf, gif, png) unique HTTP referrers (URLs), unique 404s (not found), size of
-the parsed log file, bandwidth consumption.
+This panel gives a summary of several metrics, some of them are: number of
+valid and invalid requests, time taken to analyze the data set, unique
+visitors, requested files, static files (CSS, ICO, JPG, etc) HTTP referrers,
+404s, size of the parsed log file and bandwidth consumption.
 .IP "Unique visitors"
-This panel is listed by day with dates included. HTTP requests possessing the
-same IP, the same date, and the same agent are considered as a unique visit. It
-includes web crawlers/spiders.
+This panel shows metrics such as hits, unique visitors and cumulative
+bandwidth per date. HTTP requests containing the same IP, the same date, and
+the same user agent are considered a unique visitor. It includes web
+crawlers/spiders.
 .IP "Requested files"
-Requested Files shows the most highly requested files on your web server. It
+This panel displays the most highly requested files on your web server. It
 shows hits, unique visitors, and percentage, along with the cumulative
-bandwidth, what protocol was used, and what request method was used. Optionally
-it can display the average time served.
+bandwidth, protocol, and the request method used.
 .IP "Requested static files"
-Lists the most frequently static files such as: jpg, css, swf, js, gif, and png
-file types, with the same metrics as the last module.
+Lists the most frequently static files such as: JPG, CSS, SWF, JS, GIF, and PNG
+file types, along with the same metrics as the last module. Additional static
+files can be added to the configuration file.
 .IP "404 or Not Found"
 Listed like previous panels, containing the same metrics. This panel lists the
-top recurrent HTTP 404.
+top recurrent HTTP 404s.
 .IP "Hosts"
 This panel has detailed information on the hosts themselves. It displays the
 same metrics as previous panels, such as number of hits, visitors, cumulative
-bandwidth, and time served. This is great to spot aggressive crawlers and
-identifying who's eating your bandwidth.
+bandwidth. This is great to spot aggressive crawlers and identifying who's
+eating your bandwidth.
 
-Expanding the panel can display more information like such as host's reverse
-DNS lookup result, country of origin and city. If the -a argument is enabled, a
-list of user agents can be displayed by selecting the desired IP address, and
-then pressing ENTER.
-
+Expanding the panel can display more information such as host's reverse DNS
+lookup result, country of origin and city. If the
+.I -a
+argument is enabled, a list of user agents can be displayed by selecting the
+desired IP address, and then pressing ENTER.
 .IP "Operating Systems"
-This panel will list Host's operating system. It attempts to provide the most
-specific version of each operating system.
+This panel will report which operating system the host used when it hit the
+server. It attempts to provide the most specific version of each operating
+system.
 .IP "Browsers"
-This panel will list Host's browsers. It attempts to provide the most specific
-version of each browser.
+This panel will report which browser the host used when it hit the server. It
+attempts to provide the most specific version of each browser.
 .IP "Referrers URLs"
 If the host in question accessed the site via another resource, or was
 linked/diverted to you from another host, the URL they were referred from will
-be provided here in this panel.
+be provided in this panel.
 .IP "Referring Sites"
-This panel will display only the host part but not the whole URL. The URL
-where the request came from.
+This panel will display only the host part but not the whole URL. The URL where
+the request came from.
 .IP "Keyphrases"
 It reports keyphrases used on Google search, Google cache, and Google translate
-that have lead to your web server. At present this only supports Google and no
-other search engines. By default this panel is disabled. See `--ignore-panel`
-in your configuration file to enable it.
+that have lead to your web server. At present, it only supports Google search
+queries. By default this panel is disabled. See `--ignore-panel` in your
+configuration file to enable it.
 .IP "Geo Location"
-Determines where an IP address is geographically located. It outputs the
-continent and country. It needs to be compiled with GeoLocation support.
+Determines where an IP address is geographically located. Stats are broken down
+by continent and country. It needs to be compiled with GeoLocation support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
+
+.P
+.I NOTE:
+Optionally and if configured, all panels can display the average time taken to
+serve the request.
+
 .SH STORAGE
 .P
 There are three storage options that can be used with GoAccess. Choosing one
@@ -213,6 +221,7 @@ in the form: PANEL,METRIC,ORDER
 
 .I Available metrics:
   BY_HITS
+  BY_VISITORS
   BY_DATA
   BY_BW
   BY_USEC
@@ -369,7 +378,7 @@ There are two ways to configure the log format.
 The easiest is to run GoAccess with
 .I -c
 to prompt a configuration window. Otherwise, it can be configured under
-~/.goaccessrc.
+~/.goaccessrc or the %sysconfdir%.
 .IP "time_format"
 The
 .I time_format
@@ -382,7 +391,7 @@ The
 .I date_format
 variable followed by a space, specifies the log format date containing any
 combination of regular characters and special format specifiers. They all begin
-with a percentage (%) sign. See http://linux.die.net/man/3/strftime e.g.,
+with a percentage (%) sign. See `man strftime`. e.g.,
 .I %Y-%m-%d.
 .IP "log_format"
 The
