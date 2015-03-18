@@ -1604,7 +1604,7 @@ static int
 read_log (GLog ** logger, int n)
 {
   FILE *fp = NULL;
-  char line[LINE_BUFFER];
+  char line[LINE_BUFFER] = "";
   int i = 0, test = -1 == n ? 0 : 1;
 
   /* no log file, assume STDIN */
