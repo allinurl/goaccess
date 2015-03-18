@@ -108,6 +108,9 @@ house_keeping (void)
   GModule module;
 #endif
 
+  if (conf.list_agents)
+    free_agent_list ();
+
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
   /* kill dns pthread */
@@ -130,9 +133,6 @@ house_keeping (void)
     free_dashboard (dash);
     reset_find ();
   }
-
-  if (conf.list_agents)
-    free_agent_list ();
 
   /* GEOLOCATION */
 #ifdef HAVE_LIBGEOIP
