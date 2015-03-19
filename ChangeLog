@@ -1,4 +1,4 @@
-Changes to GoAccess 0.9 - Wednesday, March 18, 2015
+Changes to GoAccess 0.9 - Thursday, March 19, 2015
 
   * Added ability to double decode an HTTP referer and agent.
   * Added ability to sort views through the command line on initial load.
