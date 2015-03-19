@@ -144,10 +144,11 @@ print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
   fprintf (fp, "%s\t\"hits\": %d,\n", sep, nmetrics->hits);
   fprintf (fp, "%s\t\"visitors\": %d,\n", sep, nmetrics->visitors);
   fprintf (fp, "%s\t\"percent\": %4.2f,\n", sep, nmetrics->percent);
-  fprintf (fp, "%s\t\"bytes\": %ld,\n", sep, nmetrics->bw.nbw);
+  fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
 
   if (conf.serve_usecs)
-    fprintf (fp, "%s\t\"time_served\": %ld,\n", sep, nmetrics->avgts.nts);
+    fprintf (fp, "%s\t\"time_served\": %lld,\n", sep,
+             (long long) nmetrics->avgts.nts);
 
   if (conf.append_method && nmetrics->method)
     fprintf (fp, "%s\t\"method\": \"%s\",\n", sep, nmetrics->method);
@@ -258,7 +259,7 @@ print_json_data (FILE * fp, GHolder * h, int processed)
 static void
 print_json_summary (FILE * fp, GLog * logger)
 {
-  long long time = 0LL;
+  long long t = 0LL;
   int total = 0;
   off_t log_size = 0;
   char now[DATE_TIME];
@@ -280,8 +281,8 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FAILED, total);
 
   /* generated time */
-  time = (long long) end_proc - start_proc;
-  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_GENTIME, time);
+  t = (long long) end_proc - start_proc;
+  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_GENTIME, t);
 
   /* visitors */
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);

@@ -118,10 +118,10 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
     fprintf (fp, "\"%d\",", iter->metrics->hits);
     fprintf (fp, "\"%d\",", iter->metrics->visitors);
     fprintf (fp, "\"%4.2f%%\",", percent);
-    fprintf (fp, "\"%ld\",", iter->metrics->bw.nbw);
+    fprintf (fp, "\"%lld\",", (long long) iter->metrics->bw.nbw);
 
     if (conf.serve_usecs)
-      fprintf (fp, "\"%ld\"", iter->metrics->avgts.nts);
+      fprintf (fp, "\"%lld\"", (long long) iter->metrics->avgts.nts);
     fprintf (fp, ",");
 
     if (conf.append_method && iter->metrics->method)
@@ -155,10 +155,10 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
     fprintf (fp, "\"%d\",", nmetrics->hits);
     fprintf (fp, "\"%d\",", nmetrics->visitors);
     fprintf (fp, "\"%4.2f%%\",", nmetrics->percent);
-    fprintf (fp, "\"%ld\",", nmetrics->bw.nbw);
+    fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
 
     if (conf.serve_usecs)
-      fprintf (fp, "\"%ld\"", nmetrics->avgts.nts);
+      fprintf (fp, "\"%lld\"", (long long) nmetrics->avgts.nts);
     fprintf (fp, ",");
 
     if (conf.append_method && nmetrics->method)
@@ -185,7 +185,7 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
 static void
 print_csv_summary (FILE * fp, GLog * logger)
 {
-  long long time = 0LL;
+  long long t = 0LL;
   int i = 0, total = 0;
   off_t log_size = 0;
   char now[DATE_TIME];
@@ -209,8 +209,8 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   /* generated time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
-  time = (long long) end_proc - start_proc;
-  fprintf (fp, fmt, i++, GENER_ID, time, OVERALL_GENTIME);
+  t = (long long) end_proc - start_proc;
+  fprintf (fp, fmt, i++, GENER_ID, t, OVERALL_GENTIME);
 
   /* visitors */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
