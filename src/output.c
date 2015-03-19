@@ -1477,7 +1477,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
 static void
 print_html_summary (FILE * fp, GLog * logger)
 {
-  long long time = 0LL;
+  long long t = 0LL;
   int total = 0;
   off_t log_size = 0;
   char *bw, *size;
@@ -1501,10 +1501,10 @@ print_html_summary (FILE * fp, GLog * logger)
   print_html_end_col_wrap (fp);
 
   /* generated time */
-  time = (long long) end_proc - start_proc;
+  t = (long long) end_proc - start_proc;
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_GEN_TIME);
-  fprintf (fp, "<h3 class='label trunc'>%llu secs</h3>", time);
+  fprintf (fp, "<h3 class='label trunc'>%llu secs</h3>", t);
   print_html_end_col_wrap (fp);
 
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
