@@ -8,7 +8,7 @@ valuable HTTP statistics for system administrators that require a visual server
 report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?1410701965)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?20150319)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -27,12 +27,13 @@ terminal. Features include:
 * Referrers URLs
 * Keyphrases
 * Geo Location - Continent/Country/City
+* Visitors Time Distribution
 * HTTP Status Codes
 * Ability to output JSON and CSV
 * Different Color Schemes
 * Support for large datasets and data persistence
 * Support for IPv6
-* Output statistics to HTML. See [report](http://goaccess.io/goaccess_html_report.html?src=gh).
+* Output statistics to HTML. See [**report**](http://goaccess.io/goaccess_html_report.html?src=gh).
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
@@ -57,9 +58,9 @@ GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.8.5.tar.gz
-    $ tar -xzvf goaccess-0.8.5.tar.gz
-    $ cd goaccess-0.8.5/
+    $ wget http://tar.goaccess.io/goaccess-0.9.tar.gz
+    $ tar -xzvf goaccess-0.9.tar.gz
+    $ cd goaccess-0.9/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
