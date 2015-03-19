@@ -8,7 +8,7 @@ valuable HTTP statistics for system administrators that require a visual server
 report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?20150319)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?20150319120000)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
