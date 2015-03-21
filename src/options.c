@@ -116,10 +116,10 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --log-format=<logformat>       - Specify log format. Inner quotes need to be\n"
-  "                                   escaped, or use single quotes.\n"
-  "  --date-format=<dateformat>     - Specify log date format. e.g., %%d/%%b/%%Y\n"
-  "  --time-format=<timeformat>     - Specify log time format. e.g., %%H:%%M:%%S\n\n"
+  "  --log-format=<logformat>        - Specify log format. Inner quotes need to be\n"
+  "                                    escaped, or use single quotes.\n"
+  "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
+  "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
@@ -204,10 +204,10 @@ cmd_help (void)
 
 /* Other Options */
   "Other Options\n\n"
-  "  -h --help                      - This help.\n"
-  "  -V --version                   - Display version information and exit.\n"
-  "  -s --storage                   - Display current storage method.\n"
-  "                                   e.g., B+ Tree, Hash.\n\n"
+  "  -h --help                       - This help.\n"
+  "  -V --version                    - Display version information and exit.\n"
+  "  -s --storage                    - Display current storage method.\n"
+  "                                    e.g., B+ Tree, Hash.\n\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.io\n"
