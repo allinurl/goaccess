@@ -58,9 +58,10 @@ static const char *os[][2] = {
   {"Googlebot", "Unix-like"},
   {"bingbot", "Windows"},
 
-  {"iPad", "Macintosh"},
-  {"iPod", "Macintosh"},
-  {"iPhone", "Macintosh"},
+  {"iPad", "iOS"},
+  {"iPod", "iOS"},
+  {"iPhone", "iOS"},
+  {"AppleTV", "iOS"},
   {"iTunes", "Macintosh"},
   {"OS X", "Macintosh"},
 
