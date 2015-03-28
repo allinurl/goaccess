@@ -955,7 +955,8 @@ print_pure_menu (FILE * fp, char *now)
   fprintf (fp, "<li><a href=\"#%s\">Time Distribution</a></li>", VTIME_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
+  if (!ignore_panel (KEYPHRASES))
+    fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
 #ifdef HAVE_LIBGEOIP
   fprintf (fp, "<li><a href=\"#%s\">Geo Location</a></li>", GEOLO_ID);
 #endif
