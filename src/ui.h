@@ -141,7 +141,7 @@
 #define OVERALL_BANDWIDTH "bandwidth"
 #define OVERALL_LOG       "log_path"
 
-#define FIND_HEAD    "Find pattern in all modules"
+#define FIND_HEAD    "Find pattern in all views"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
 
 #define MAX_CHOICES       366
