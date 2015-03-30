@@ -58,7 +58,7 @@ typedef struct GStorageMetrics_
   void *rootmap;
 
   /* Numeric key made from the unique key and the data key.
-   * Value is autoincremented.
+   * Value is auto incremented.
    * 10 -> 1
    * 40 -> 2
    */
@@ -101,7 +101,13 @@ typedef struct GStorageMetrics_
    */
   void *protocols;
 
+  /* Maps numeric unique user-agent keys to the
+   * corresponding numeric value.
+   * 1 -> 3
+   * 2 -> 4
+   */
   void *agents;
+
 } GStorageMetrics;
 
 typedef struct GStorage_
