@@ -75,6 +75,12 @@ typedef struct GStorageMetrics_
    */
   void *hits;
 
+  /* Maps a string key made from the numeric key of the IP/date/UA and the
+   * numeric key from the data field of each module to numeric autoincremented
+   * keys. e.g., 14 -> unique key concatenated with 4 -> data key
+   * "14" -> 1
+   * "15" -> 2
+   */
   void *visitors;
 
   /* Maps numeric data keys to bandwidth (in bytes).
