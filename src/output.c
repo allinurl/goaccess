@@ -398,11 +398,11 @@ print_html_header (FILE * fp, char *now)
 {
   fprintf (fp, "<!DOCTYPE html>\n");
   fprintf (fp, "<html lang='en'><head>\n");
-  fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
   fprintf (fp, "<meta charset='UTF-8' />");
-  fprintf (fp, "<meta name='robots' content='noindex, nofollow' />");
   fprintf (fp, "<meta http-equiv='X-UA-Compatible' content='IE=edge'>");
   fprintf (fp, "<meta name='viewport' content='width=device-width, initial-scale=1'>");
+  fprintf (fp, "<meta name='robots' content='noindex, nofollow' />");
+  fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
 
   fprintf (fp, "<script type=\"text/javascript\">\n");
   fprintf (fp, "function t(c){for(var b=c.parentNode.parentNode.parentNode");
