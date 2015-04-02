@@ -57,10 +57,11 @@ typedef struct GStorageMetrics_
    */
   void *rootmap;
 
-  /* Numeric key made from the unique key and the data key.
-   * Value is auto incremented.
-   * 10 -> 1
-   * 40 -> 2
+  /* Maps a string key made from the numeric key of the IP/date/UA and the
+   * numeric key from the data field of each module to numeric autoincremented
+   * keys. e.g., 14 -> unique key (concatenated) with 4 -> data key
+   * "14" -> 1
+   * "15" -> 2
    */
   void *uniqmap;
 
@@ -75,11 +76,10 @@ typedef struct GStorageMetrics_
    */
   void *hits;
 
-  /* Maps a string key made from the numeric key of the IP/date/UA and the
-   * numeric key from the data field of each module to numeric autoincremented
-   * keys. e.g., 14 -> unique key concatenated with 4 -> data key
-   * "14" -> 1
-   * "15" -> 2
+  /* Maps numeric keys made from the uniqmap store to autoincremented values
+   * (counter).
+   * 10 -> 100
+   * 40 -> 56
    */
   void *visitors;
 
