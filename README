@@ -1,18 +1,18 @@
 What is it?
 -------------
-GoAccess is an open source real-time web log analyzer 
-and interactive viewer that runs in a terminal in *nix systems. 
-It provides fast and valuable HTTP statistics for system 
+GoAccess is an open source real-time web log analyzer
+and interactive viewer that runs in a terminal in *nix systems.
+It provides fast and valuable HTTP statistics for system
 administrators that require a visual server report on the fly.
 
 Features
 -------------------------------
-GoAccess parses the specified web log file and 
+GoAccess parses the specified web log file and
 outputs the data to the X terminal. Features include:
 
-   * General Statistics, bandwidth, etc.
+   * General statistics, bandwidth, etc.
    * Time taken to serve the request (useful to track pages that are slowing down your site)
-   * Top Visitors
+   * Top visitors
    * Requested files & static files
    * 404 or Not Found
    * Hosts, Reverse DNS, IP Location
@@ -20,13 +20,15 @@ outputs the data to the X terminal. Features include:
    * Browsers and Spiders
    * Referring Sites & URLs
    * Keyphrases
-   * Geo Location - Continent/Country/City New
+   * Geo Location - Continent/Country/City
+   * Visitors Time Distribution
    * HTTP Status Codes
    * Ability to output JSON and CSV
    * Different Color Schemes
-   * Support for large datasets and data persistence New
+   * Support for large datasets + data persistence
    * Support for IPv6
-   * Output statistics to HTML. See report.
+   * Output statistics to HTML. See report
+   * and more...
 
 Nearly all web log formats...
 
@@ -41,10 +43,10 @@ Predefined options include, but not limited to:
 
 Why GoAccess?
 -------------
-The main idea behind GoAccess is being able to quickly 
-analyze and view web server statistics in real time 
-without having to generate an HTML report. 
-Although it is possible to generate an HTML report, 
+The main idea behind GoAccess is being able to quickly
+analyze and view web server statistics in real time
+without having to generate an HTML report.
+Although it is possible to generate an HTML report,
 by default it outputs to a terminal.
 
 You can see it more as a monitor command tool than anything else.
