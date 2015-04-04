@@ -152,6 +152,10 @@ databases since data has to be committed to disk. However, using an SSD greatly
 increases the performance. You may also use this storage method if you need
 data persistence to quickly load statistics at a later date.
 
+#### Tokyo Cabinet On-Memory Hash Database ####
+
+Although this may vary across different systems, in general the on-memory hash
+database should perform slightly better than GLib Hash Tables.
 
 ## Command Line / Config Options ##
 The following options can also be supplied to the command or specified in the
@@ -171,7 +175,7 @@ configuration file:
 | `-m --with-mouse `                 | Enable mouse support on main dashboard.                       |
 | `-o --output-format=csv,json`      | Output format: `-o csv` for CSV.  `-o json` for JSON.         |
 | `-p --config-file=<filename>`      | Custom configuration file.                                    |
-| `-q --no-query-string`             | Remove request's query string. Can greatly reduce mem usage.  |
+| `-q --no-query-string`             | Remove request's query string. Can reduce mem usage.          |
 | `-r --no-term-resolver`            | Disable IP resolver on terminal output.                       |
 | `-s --storage`                     | Display current storage method. i.e., B+ Tree, Hash.          |
 | `-V --version`                     | Display version information and exit.                         |
@@ -181,7 +185,7 @@ configuration file:
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
-| `--geoip-database=<path>`          | Specify path to GeoIP database v4/v6. i.e., GeoLiteCity.dat   |
+| `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
@@ -198,17 +202,12 @@ configuration file:
 | `--load-from-disk`                 | Load previously stored data from disk.                        |
 | `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                 |
 | `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]              |
-| `--compression=<zlib,bz2>`         | Specify that each page is compressed with ZLIB|BZ2 encoding.  |
+| `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
 | `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
 | `--tune-bnum=<number>`             | Number of elements of the bucket array. [32749]               |
 | `--tune-lmemb=<number>`            | Number of members in each leaf page. [128]                    |
 | `--tune-nmemb=<number>`            | Number of members in each non-leaf page. [256]                |
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
-
-#### Tokyo Cabinet On-Memory Hash Database ####
-
-Although this may vary across different systems, in general the on-memory hash
-database should perform slightly better than GLib Hash Tables.
 
 ## Usage ##
 
