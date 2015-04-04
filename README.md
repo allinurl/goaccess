@@ -82,7 +82,7 @@ of your Linux distribution.
 Please note that not all distributions will have the lastest version of
 GoAccess available
 
-### Debian/Ubuntu ###
+#### Debian/Ubuntu ####
 
     # apt-get install goaccess
 
@@ -101,32 +101,32 @@ option below.
 "signatures couldn't be verified because the public key is not available",
 please re-download the key.
 
-### Fedora ###
+#### Fedora ####
 
     # yum install goaccess
 
-### Arch Linux ###
+#### Arch Linux ####
 
     # pacman -S goaccess
 
-### Gentoo ###
+#### Gentoo ####
 
     # emerge net-analyzer/goaccess
 
-### OS X / Homebrew ###
+#### OS X / Homebrew ####
 
     # brew install goaccess
 
-### FreeBSD ###
+#### FreeBSD ####
 
     # cd /usr/ports/sysutils/goaccess/ && make install clean
     $ pkg_add -r goaccess
 
-### pkgsrc (NetBSD, Solaris, SmartOS, ...) ###
+#### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
 
     # pkgin install goaccess
 
-### Windows ###
+#### Windows ####
 
 GoAccess can be used in Windows through Cygwin.
 
