@@ -183,6 +183,33 @@ configuration file:
 | `--tune-nmemb=<number>`            | Number of members in each non-leaf page. [256]                |
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
+## Storage ##
+
+There are three storage options that can be used with GoAccess. Choosing one
+will depend on your environment and needs.
+
+#### GLib Hash Tables ####
+
+On-memory storage provides better performance at the cost of limiting the
+dataset size to the amount of available physical memory. By default GoAccess
+uses GLib Hash Tables. If your dataset can fit in memory, then this will
+perform fine. It has average memory usage and pretty good performance. For
+better performance with memory trade-off see Tokyo Cabinet on-memory hash
+database.
+
+#### Tokyo Cabinet On-Disk B+ Tree ####
+
+Use this storage method for large datasets where it is not possible to fit
+everything in memory. The B+ tree database is slower than any of the hash
+databases since data has to be committed to disk. However, using an SSD greatly
+increases the performance. You may also use this storage method if you need
+data persistence to quickly load statistics at a later date.
+
+#### Tokyo Cabinet On-Memory Hash Database ####
+
+Although this may vary across different systems, in general the on-memory hash
+database should perform slightly better than GLib Hash Tables.
+
 ## Usage ##
 
 The simplest and fastest usage would be:
