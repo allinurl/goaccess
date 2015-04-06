@@ -23,15 +23,15 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
-#define REGEX_ERROR      100
-#define KB               1024
-#define MB               (KB * 1024)
-#define GB               (MB * 1024)
+#define REGEX_ERROR 100
+#define KB          1024
+#define MB          (KB * 1024)
+#define GB          (MB * 1024)
 
-#define MILS             1000ULL
-#define SECS             1000000ULL
-#define MINS             60000000ULL
-#define HOUR             3600000000ULL
+#define MILS        1000ULL
+#define SECS        1000000ULL
+#define MINS        60000000ULL
+#define HOUR        3600000000ULL
 
 /* *INDENT-OFF* */
 #include <stdint.h>

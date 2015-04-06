@@ -1581,13 +1581,14 @@ pre_process_log (GLog * logger, char *line, int test)
   if (ignore_referer (glog->site))
     goto cleanup;
 
+  /* check if we need to remove the request's query string */
+  if (conf.ignore_qstr)
+    strip_qstring (glog->req);
+
   if (is_404 (glog))
     glog->is_404 = 1;
   else if (is_static (glog))
     glog->is_static = 1;
-  /* check if we need to remove the request's query string */
-  else if (conf.ignore_qstr)
-    strip_qstring (glog->req);
 
   glog->uniq_key = get_uniq_visitor_key (glog);
 
