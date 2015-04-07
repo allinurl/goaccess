@@ -115,7 +115,11 @@ cmp_num_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ib->metrics->hits - ia->metrics->hits);
+
+  int va = ia->metrics->hits;
+  int vb = ib->metrics->hits;
+
+  return (va < vb) - (va > vb);
 }
 
 /* sort numeric ascending */
@@ -124,7 +128,11 @@ cmp_num_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ia->metrics->hits - ib->metrics->hits);
+
+  int va = ia->metrics->hits;
+  int vb = ib->metrics->hits;
+
+  return (va > vb) - (va < vb);
 }
 
 /* sort numeric descending */
@@ -133,7 +141,11 @@ cmp_vis_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ib->metrics->visitors - ia->metrics->visitors);
+
+  int va = ia->metrics->visitors;
+  int vb = ib->metrics->visitors;
+
+  return (va < vb) - (va > vb);
 }
 
 /* sort numeric ascending */
@@ -142,7 +154,11 @@ cmp_vis_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (int) (ia->metrics->visitors - ib->metrics->visitors);
+
+  int va = ia->metrics->visitors;
+  int vb = ib->metrics->visitors;
+
+  return (va > vb) - (va < vb);
 }
 
 /* sort raw numeric descending */
@@ -151,10 +167,14 @@ cmp_raw_num_desc (const void *a, const void *b)
 {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
+
   GDataMap *amap = ia->value;
   GDataMap *bmap = ib->value;
 
-  return (int) (bmap->data - amap->data);
+  int va = amap->data;
+  int vb = bmap->data;
+
+  return (va < vb) - (va > vb);
 }
 
 /* sort bandwidth descending */
@@ -163,7 +183,11 @@ cmp_bw_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ib->metrics->bw.nbw - ia->metrics->bw.nbw);
+
+  uint64_t va = ia->metrics->bw.nbw;
+  uint64_t vb = ib->metrics->bw.nbw;
+
+  return (va < vb) - (va > vb);
 }
 
 /* sort bandwidth ascending */
@@ -172,7 +196,11 @@ cmp_bw_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ia->metrics->bw.nbw - ib->metrics->bw.nbw);
+
+  uint64_t va = ia->metrics->bw.nbw;
+  uint64_t vb = ib->metrics->bw.nbw;
+
+  return (va > vb) - (va < vb);
 }
 
 /* sort usec descending */
@@ -181,7 +209,11 @@ cmp_usec_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ib->metrics->avgts.nts - ia->metrics->avgts.nts);
+
+  uint64_t va = ia->metrics->avgts.nts;
+  uint64_t vb = ib->metrics->avgts.nts;
+
+  return (va < vb) - (va > vb);
 }
 
 /* sort usec ascending */
@@ -190,7 +222,11 @@ cmp_usec_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
-  return (unsigned long long) (ia->metrics->avgts.nts - ib->metrics->avgts.nts);
+
+  uint64_t va = ia->metrics->avgts.nts;
+  uint64_t vb = ib->metrics->avgts.nts;
+
+  return (va > vb) - (va < vb);
 }
 
 /* sort protocol ascending */
