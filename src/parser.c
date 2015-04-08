@@ -1301,12 +1301,14 @@ gen_host_key (GKeyData * kdata, GLogItem * glog)
 static int
 gen_browser_key (GKeyData * kdata, GLogItem * glog)
 {
+  char *agent = NULL;
   char browser_type[BROWSER_TYPE_LEN] = "";
 
   if (glog->agent == NULL || *glog->agent == '\0')
     return 1;
 
-  glog->browser = verify_browser (glog->agent, browser_type);
+  agent = xstrdup (glog->agent);
+  glog->browser = verify_browser (agent, browser_type);
   glog->browser_type = xstrdup (browser_type);
 
   /* e.g., Firefox 11.12 */
@@ -1317,18 +1319,22 @@ gen_browser_key (GKeyData * kdata, GLogItem * glog)
   kdata->root = glog->browser_type;
   kdata->root_key = glog->browser_type;
 
+  free (agent);
+
   return 0;
 }
 
 static int
 gen_os_key (GKeyData * kdata, GLogItem * glog)
 {
+  char *agent = NULL;
   char os_type[OPESYS_TYPE_LEN] = "";
 
   if (glog->agent == NULL || *glog->agent == '\0')
     return 1;
 
-  glog->os = verify_os (glog->agent, os_type);
+  agent = xstrdup (glog->agent);
+  glog->os = verify_os (agent, os_type);
   glog->os_type = xstrdup (os_type);
 
   /* e.g., Linux,Ubuntu 10.12 */
@@ -1338,6 +1344,8 @@ gen_os_key (GKeyData * kdata, GLogItem * glog)
   /* Linux */
   kdata->root = glog->os_type;
   kdata->root_key = glog->os_type;
+
+  free (agent);
 
   return 0;
 }
