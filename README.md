@@ -97,10 +97,6 @@ option below.
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
-***Important*** If APT complains about the public key not being available,
-"signatures couldn't be verified because the public key is not available",
-please re-download the key.
-
 #### Fedora ####
 
     # yum install goaccess
