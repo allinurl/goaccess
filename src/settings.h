@@ -28,6 +28,7 @@
 #define MAX_EXTENSIONS 64
 #define MAX_IGNORE_IPS 64
 #define MAX_IGNORE_REF 64
+#define NO_CONFIG_FILE "No config file used"
 
 typedef enum
 {
