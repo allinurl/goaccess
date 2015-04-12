@@ -224,10 +224,11 @@ within_range (const char *ip, const char *start, const char *end)
 int
 ip_in_range (const char *ip)
 {
-  char *start = NULL, *end = NULL, *dash;
+  char *start = NULL, *end, *dash;
   int i, status = 0;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
+    end = NULL;
     if (conf.ignore_ips[i] == NULL || *conf.ignore_ips[i] == '\0')
       continue;
 
