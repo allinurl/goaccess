@@ -225,7 +225,7 @@ int
 ip_in_range (const char *ip)
 {
   char *start = NULL, *end, *dash;
-  int i, status = 0;
+  int i;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
     end = NULL;
@@ -242,24 +242,21 @@ ip_in_range (const char *ip)
     /* matches single IP */
     if (end == NULL && start) {
       if (strcmp (ip, start) == 0) {
-        status = 1;
-        goto out;
+        free (start);
+        return 1;
       }
     }
-
     /* within range */
-    if (start && end) {
+    else if (start && end) {
       if (within_range (ip, start, end)) {
-        status = 1;
-        goto out;
+        free (start);
+        return 1;
       }
     }
+    free (start);
   }
 
-out:
-  free (start);
-
-  return status;
+  return 0;
 }
 
 
