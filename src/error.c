@@ -72,6 +72,7 @@ set_signal_data (void *p)
   log_data = p;
 }
 
+#if defined(__GLIBC__)
 static void
 dump_struct (FILE * fp)
 {
@@ -89,7 +90,6 @@ dump_struct (FILE * fp)
   fprintf (fp, "==%d==\n", pid);
 }
 
-#if defined(__GLIBC__)
 void
 sigsegv_handler (int sig)
 {
