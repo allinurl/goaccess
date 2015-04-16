@@ -67,7 +67,9 @@ else
 AM_CFLAGS = -O2 -DSYSCONFDIR=\"$(sysconfdir)\"
 endif
 
+if WITH_RDYNAMIC
 AM_LDFLAGS = -rdynamic
+endif
 
 AM_CFLAGS += @GLIB2_CFLAGS@
 AM_CFLAGS += -Wno-long-long -Wall -W -Wnested-externs -Wformat=2
