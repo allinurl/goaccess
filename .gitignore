@@ -1,5 +1,7 @@
 #custom section
 config.status
+config.guess
+config.sub
 /.deps
 /INSTALL
 /Makefile
