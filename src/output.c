@@ -941,7 +941,7 @@ print_pure_menu (FILE * fp, char *now)
   fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
   fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
   fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", GO_WEBSITE);
-  fprintf (fp, "<img src='data:image/png;base64,%s'/>", GO_LOGO);
+  fprintf (fp, "<img src='data:image/png;base64,%s' alt='goaccess'/>", GO_LOGO);
   fprintf (fp, "</a>");
   fprintf (fp, "<ul>");
   fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
