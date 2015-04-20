@@ -217,7 +217,7 @@ init_tables (GModule module)
     tc_db_create (get_dbname (DB_AGENTS, module));
 }
 
-/* Initialize GLib hash tables */
+/* Initialize Tokyo Cabinet storage tables */
 void
 init_storage (void)
 {
