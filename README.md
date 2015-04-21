@@ -235,8 +235,9 @@ queries.)
 The `-c` flag will prompt the date and log format configuration window. Only
 when curses is initialized.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance:
+Filtering can be done through the use of pipes. For instance, using grep to
+filter specific data and then pipe the output into GoAccess. This adds a great
+amount of flexibility to what GoAccess can display. For example:
 
 If we would like to process all `access.log.*.gz` we can do:
 
