@@ -1346,7 +1346,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 }
 
 static const char *help_main[] = {
-  "Copyright (C) 2009-2014",
+  "Copyright (C) 2009-2015",
   "by Gerardo Orellana <hello@goaccess.io>",
   "http://goaccess.io",
   "Released under the GNU GPL. See `man` page for more details",
