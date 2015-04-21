@@ -54,7 +54,7 @@ it outputs to a terminal.
 You can see it more as a monitor command tool than anything else.
 
 ## Installation ##
-GoAccess can be compiled and used on Linux, OSX, OpenBSD, NetBSD, FreeBSD.
+GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
