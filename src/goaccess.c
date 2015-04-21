@@ -851,8 +851,6 @@ set_general_stats (void)
   logger->resp_size = get_uint_from_str_key (ht_general_stats, "bandwidth");
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
-  /*if (get_ht_size (ht_file_serve_usecs) > 0) */
-  /*conf.serve_usecs = 1; */
 #endif
 }
 
