@@ -154,8 +154,9 @@ Although this may vary across different systems, in general the on-memory hash
 database should perform slightly better than GLib Hash Tables.
 
 ## Command Line / Config Options ##
-The following options can also be supplied to the command or specified in the
-configuration file:
+The following options can be supplied to the command or specified in the
+configuration file. If specified in the configuration file, long options need
+to be used without prepending `--`.
 
 | Command Line Option                | Description                                                   |
 | -----------------------------------|---------------------------------------------------------------|
