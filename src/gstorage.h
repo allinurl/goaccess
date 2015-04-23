@@ -59,7 +59,7 @@ typedef struct GStorageMetrics_
 
   /* Maps a string key made from the numeric key of the IP/date/UA and the
    * numeric key from the data field of each module to numeric autoincremented
-   * keys. e.g., 14 -> unique key (concatenated) with 4 -> data key
+   * values. e.g., 1 -> unique visitor key (concatenated) with 4 -> data key = 14
    * "14" -> 1
    * "15" -> 2
    */
