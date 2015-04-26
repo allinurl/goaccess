@@ -20,7 +20,7 @@ visitors, requested files, static files (CSS, ICO, JPG, etc) HTTP referrers,
 .IP "Unique visitors"
 This panel shows metrics such as hits, unique visitors and cumulative
 bandwidth per date. HTTP requests containing the same IP, the same date, and
-the same user agent are considered a unique visitor. It includes web
+the same user agent are considered a unique visitor. By default, it includes web
 crawlers/spiders.
 .IP "Requested files"
 This panel displays the most highly requested files on your web server. It
@@ -54,7 +54,8 @@ attempts to provide the most specific version of each browser.
 .IP "Referrers URLs"
 If the host in question accessed the site via another resource, or was
 linked/diverted to you from another host, the URL they were referred from will
-be provided in this panel.
+be provided in this panel. See command line option to ignore specific
+referrers.
 .IP "Referring Sites"
 This panel will display only the host part but not the whole URL. The URL where
 the request came from.
@@ -64,8 +65,9 @@ that have lead to your web server. At present, it only supports Google search
 queries. By default this panel is disabled. See `--ignore-panel` in your
 configuration file to enable it.
 .IP "Geo Location"
-Determines where an IP address is geographically located. Stats are broken down
-by continent and country. It needs to be compiled with GeoLocation support.
+Determines where an IP address is geographically located. Statistics are broken
+down by continent and country. It needs to be compiled with GeoLocation
+support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
 
