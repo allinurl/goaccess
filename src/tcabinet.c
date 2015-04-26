@@ -69,7 +69,6 @@ tc_db_get_params (char *params, const char *path)
   int len = 0;
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
 
-  LOG_DEBUG (("%s\n", path));
   /* copy path name to buffer */
   len += snprintf (params + len, DB_PARAMS - len, "%s", path);
 
@@ -80,14 +79,11 @@ tc_db_get_params (char *params, const char *path)
   ncnum = conf.cache_ncnum > 0 ? conf.cache_ncnum : TC_NCNUM;
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "ncnum", ncnum);
 
-  LOG_DEBUG (("lcnum, ncnum: %d, %d\n", lcnum, ncnum));
-
   /* set the size of the extra mapped memory */
   if (conf.xmmap > 0)
     len +=
       snprintf (params + len, DB_PARAMS - len, "#%s=%ld", "xmsiz",
                 (long) conf.xmmap);
-  LOG_DEBUG (("xmmap: %d\n", conf.xmmap));
 
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "lmemb", lmemb);
@@ -98,24 +94,22 @@ tc_db_get_params (char *params, const char *path)
   bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "bnum", bnum);
 
-  LOG_DEBUG (("\nlmemb, nmemb, bnum: %d, %d, %d\n\n", lmemb, nmemb, bnum));
-
   /* compression */
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%c", "opts", 'l');
-  LOG_DEBUG (("flags: BDBTLARGE"));
 
   if (conf.compression == TC_BZ2) {
     len += snprintf (params + len, DB_PARAMS - len, "%c", 'b');
-    LOG_DEBUG ((" | BDBTBZIP"));
   } else if (conf.compression == TC_ZLIB) {
     len += snprintf (params + len, DB_PARAMS - len, "%c", 'd');
-    LOG_DEBUG ((" | BDBTDEFLATE"));
   }
 
   /* open flags */
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%s", "mode", "wc");
   if (!conf.load_from_disk)
     len += snprintf (params + len, DB_PARAMS - len, "%c", 't');
+
+  LOG_DEBUG (("%s\n", path));
+  LOG_DEBUG (("params: %s\n", params));
 }
 #endif
 
