@@ -799,8 +799,9 @@ out:
 }
 
 static void
-render_header (WINDOW * win, GDashModule * data, int *y)
+render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 {
+  char ind;
   char *hd;
   int k, w, h;
 
@@ -808,8 +809,9 @@ render_header (WINDOW * win, GDashModule * data, int *y)
   (void) h;
 
   k = data->module + 1;
-  hd = xmalloc (snprintf (NULL, 0, "%d - %s", k, data->head) + 1);
-  sprintf (hd, "%d - %s", k, data->head);
+  ind = cur_module == data->module ? '>' : ' ';
+  hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
+  sprintf (hd, "%c %d - %s", ind, k, data->head);
 
   draw_header (win, hd, " %s", (*y), 0, w, 1, 0);
   free (hd);
@@ -893,7 +895,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
   for (i = *offset, j = 0; i < size; i++) {
     /* header */
     if ((i % size) == DASH_HEAD_POS) {
-      render_header (win, data, y);
+      render_header (win, data, gscroll->current, y);
     } else if ((i % size) == DASH_DESC_POS) {
       /* description */
       draw_header (win, data->desc, " %s", (*y)++, 0, w, 2, 0);
