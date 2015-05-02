@@ -813,7 +813,7 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
   hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
   sprintf (hd, "%c %d - %s", ind, k, data->head);
 
-  draw_header (win, hd, " %s", (*y), 0, w, 1, 0);
+  draw_header (win, hd, " %s", (*y), 0, w, HIGHLIGHT, 0);
   free (hd);
 
   render_total_label (win, data, (*y));
