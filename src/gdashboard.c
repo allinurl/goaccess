@@ -490,7 +490,7 @@ set_percent_data (GDashData * data, int n, int process)
 
 /* render module's total */
 static void
-render_total_label (WINDOW * win, GDashModule * data, int y)
+render_total_label (WINDOW * win, GDashModule * data, int y, int color)
 {
   char *s;
   int win_h, win_w, total, ht_size;
@@ -503,7 +503,7 @@ render_total_label (WINDOW * win, GDashModule * data, int y)
   (void) win_h;
 
   sprintf (s, "Total: %d/%d", total, ht_size);
-  draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, HIGHLIGHT, 0);
+  draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, color, 0);
   free (s);
 }
 
@@ -803,20 +803,22 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 {
   char ind;
   char *hd;
-  int k, w, h;
+  int k, w, h, color;
 
   getmaxyx (win, h, w);
   (void) h;
 
   k = data->module + 1;
   ind = cur_module == data->module ? '>' : ' ';
+  color = cur_module == data->module &&
+    conf.hl_header ? YELLOW_BLACK : HIGHLIGHT;
   hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
   sprintf (hd, "%c %d - %s", ind, k, data->head);
 
-  draw_header (win, hd, " %s", (*y), 0, w, HIGHLIGHT, 0);
+  draw_header (win, hd, " %s", (*y), 0, w, color, 0);
   free (hd);
 
-  render_total_label (win, data, (*y));
+  render_total_label (win, data, (*y), color);
   data->pos_y = (*y);
   (*y)++;
 }

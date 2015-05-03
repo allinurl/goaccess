@@ -192,17 +192,19 @@
 #define HELP_WIN_WIDTH    64
 
 /* COLORS */
-#define COL_PURPLE        97
-#define BLACK_CYAN        9
-#define BLACK_GREEN       8
-#define BLUE_GREEN        7
-#define COL_BLACK         4
-#define COL_BLUE          1
-#define COL_CYAN          5
-#define COL_GREEN         11
-#define COL_RED           3
 #define COL_WHITE         0
+#define COL_BLUE          1
+#define COL_RED           3
+#define COL_BLACK         4
+#define COL_CYAN          5
 #define COL_YELLOW        6
+#define COL_GREEN         11
+#define COL_PURPLE        97
+
+#define YELLOW_BLACK      12
+#define BLUE_GREEN        7
+#define BLACK_GREEN       8
+#define BLACK_CYAN        9
 #define WHITE_RED         10
 
 #define HIGHLIGHT         1
