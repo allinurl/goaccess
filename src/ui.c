@@ -99,6 +99,7 @@ init_colors (void)
   init_pair (COL_BLACK, COLOR_BLACK, -1);
   init_pair (COL_CYAN, COLOR_CYAN, -1);
   init_pair (COL_YELLOW, COLOR_YELLOW, -1);
+  init_pair (YELLOW_BLACK, COLOR_BLACK, COLOR_YELLOW);
 
   if (conf.color_scheme == STD_GREEN)
     init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);

@@ -46,12 +46,13 @@ static char short_options[] = "f:e:p:o:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
-  "acrmMhHqdsV";
+  "acirmMhHqdsV";
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
   {"agent-list"           , no_argument       , 0 , 'a' } ,
   {"config-dialog"        , no_argument       , 0 , 'c' } ,
+  {"hl-header"            , no_argument       , 0 , 'i' } ,
   {"config-file"          , required_argument , 0 , 'p' } ,
   {"exclude-ip"           , required_argument , 0 , 'e' } ,
   {"help"                 , no_argument       , 0 , 'h' } ,
@@ -124,6 +125,7 @@ cmd_help (void)
   /* User Interface Options */
   "User Interface Options\n\n"
   "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
+  "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
@@ -283,6 +285,9 @@ read_option_args (int argc, char **argv)
       break;
     case 'c':
       conf.load_conf_dlg = 1;
+      break;
+    case 'i':
+      conf.hl_header = 1;
       break;
     case 'q':
       conf.ignore_qstr = 1;
