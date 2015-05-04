@@ -152,52 +152,51 @@ for tab-delimited, specifies the log format string.
 Note that if there are spaces within the format, the string needs to be
 enclosed in double quotes. Inner quotes need to be escaped.
 .TP
+\fB\-a \-\-agent-list
+Enable a list of user-agents by host. For faster parsing, do not enable this
+flag.
+.TP
 \fB\-c \-\-config-dialog
 Prompt log/date configuration window on program start.
 .TP
-\fB\-\-color-scheme<1|2>
-Choose among color schemes.
-.I 1
-for the default grey scheme.
-.I 2
-for the green scheme.
-.TP
-\fB\-\-no-color
-Turn off colored output. This is the  default output on terminals that do not
-support colors.
-.TP
-\fB\-f \-\-log-file=<logfile>
-Specify the path to the input log file. If set in the config file, it will take
-priority over -f from the command line.
-.TP
-\fB\-\-debug-file=<debugfile>
-Send all debug messages to the specified file. Needs to be configured with
---enable-debug
-.TP
-\fB\-\-config-file=<configfile>
-Specify a custom configuration file to use. If set, it will take priority over
-the global configuration file (if any).
-.TP
-\fB\-\-no-global-config
-Do not load the global configuration file. This directory should normally be
-/usr/local/etc, unless specified with
-.I --sysconfdir=/dir.
+\fB\-d \-\-with-output-resolver
+Enable IP resolver on HTML|JSON output.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
 Exclude one or multiple IPv4/6, includes IP ranges. i.e.,
 192.168.0.1-192.168.0.10
 .TP
-\fB\-a \-\-agent-list
-Enable a list of user-agents by host. For faster parsing, do not enable this
-flag.
+\fB\-f \-\-log-file=<logfile>
+Specify the path to the input log file. If set in the config file, it will take
+priority over -f from the command line.
+.TP
+\fB\-g \-\-std-geoip
+Standard GeoIP database for less memory usage.
+.TP
+\fB\-h \-\-help
+The help.
+.TP
+\fB\-H \-\-http-protocol
+Include HTTP request protocol if found. This will create a request key
+containing the request protocol + the actual request.
 .TP
 \fB\-M \-\-http-method
 Include HTTP request method if found. This will create a request key containing
 the request method + the actual request.
 .TP
-\fB\-H \-\-http-protocol
-Include HTTP request protocol if found. This will create a request key
-containing the request protocol + the actual request.
+\fB\-m \-\-with-mouse
+Enable mouse support on main dashboard.
+.TP
+\fB\-o \-\-output-format=<json|csv>
+Write output to stdout given one of the following formats:
+.I csv
+: Comma-separated values (CSV)
+.I json
+: JSON (JavaScript Object Notation)
+.TP
+\fB\-p \-\-config-file=<configfile>
+Specify a custom configuration file to use. If set, it will take priority over
+the global configuration file (if any).
 .TP
 \fB\-q \-\-no-query-string
 Ignore request's query string. i.e.,  www.google.com/page.htm?query =>
@@ -210,12 +209,31 @@ on timestamped requests.
 \fB\-r \-\-no-term-resolver
 Disable IP resolver on terminal output.
 .TP
-\fB\-o \-\-output-format=<json|csv>
-Write output to stdout given one of the following formats:
-.I csv
-: Comma-separated values (CSV)
-.I json
-: JSON (JavaScript Object Notation)
+\fB\-s \-\-storage
+Display current storage method. i.e., B+ Tree, Hash.
+.TP
+\fB\-V \-\-version
+Display version information and exit.
+.TP
+\fB\-\-color-scheme<1|2>
+Choose among color schemes.
+.I 1
+for the default grey scheme.
+.I 2
+for the green scheme.
+.TP
+\fB\-\-no-color
+Turn off colored output. This is the  default output on terminals that do not
+support colors.
+.TP
+\fB\-\-debug-file=<debugfile>
+Send all debug messages to the specified file. Needs to be configured with
+--enable-debug
+.TP
+\fB\-\-no-global-config
+Do not load the global configuration file. This directory should normally be
+/usr/local/etc, unless specified with
+.I --sysconfdir=/dir.
 .TP
 \fB\-\-real-os
 Display real OS names. e.g, Windows XP, Snow Leopard.
@@ -282,15 +300,6 @@ Add 4xx client errors to the unique visitors count.
 .TP
 \fB\-\-no-progress
 Disable progress metrics [total requests/requests per second].
-.TP
-\fB\-m \-\-with-mouse
-Enable mouse support on main dashboard.
-.TP
-\fB\-d \-\-with-output-resolver
-Enable IP resolver on HTML|JSON output.
-.TP
-\fB\-g \-\-std-geoip
-Standard GeoIP database for less memory usage.
 .TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat. File needs to be
@@ -361,15 +370,6 @@ Only if configured with --enable-tcb=btree
 Specifies that each page is compressed with ZLIB|BZ2 encoding.
 
 Only if configured with --enable-tcb=btree
-.TP
-\fB\-h \-\-help
-The help.
-.TP
-\fB\-V \-\-version
-Display version information and exit.
-.TP
-\fB\-s \-\-storage
-Display current storage method. i.e., B+ Tree, Hash.
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format.
 .P
