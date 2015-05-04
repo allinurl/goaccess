@@ -168,6 +168,7 @@ to be used without prepending `--`.
 | `-g --std-geoip`                   | Standard GeoIP database for less memory usage.                |
 | `-h --help`                        | This help.                                                    |
 | `-H --http-protocol `              | Include HTTP request protocol if found.                       |
+| `-i --hl-header`                   | Color highlight active panel.                                 |
 | `-M --http-method`                 | Include HTTP request method if found.                         |
 | `-m --with-mouse `                 | Enable mouse support on main dashboard.                       |
 | `-o --output-format=csv,json`      | Output format: `-o csv` for CSV.  `-o json` for JSON.         |
