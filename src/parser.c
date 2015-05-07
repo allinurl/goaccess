@@ -871,10 +871,8 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     break;
     /* time taken to serve the request, in seconds */
   case 'T':
+    /* ignore it if we already have served time */
     if (glog->serve_time)
-      return 1;
-    /* ignore seconds if we have microseconds */
-    if (strstr (lfmt, "%D") != NULL)
       break;
 
     tkn = parse_string (&(*str), p[1], 1);
@@ -897,8 +895,10 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     break;
     /* time taken to serve the request, in microseconds */
   case 'D':
+    /* ignore it if we already have served time */
     if (glog->serve_time)
-      return 1;
+      break;
+
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
