@@ -702,7 +702,6 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
 {
   struct tm tm;
   const char *dfmt = conf.date_format;
-  const char *lfmt = conf.log_format;
   const char *tfmt = conf.time_format;
 
   char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
