@@ -1,4 +1,6 @@
 Changes to GoAccess 0.9.1 - TBD
+  * Split iOS devices from Mac OS X.
+  * Removed keyphrases menu item from HTML output.
 
 Changes to GoAccess 0.9 - Thursday, March 19, 2015
 
