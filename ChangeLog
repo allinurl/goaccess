@@ -1,4 +1,5 @@
 Changes to GoAccess 0.9.1 - TBD
+
   * Split iOS devices from Mac OS X.
   * Removed keyphrases menu item from HTML output.
   * Fixed issue where requests show up in the wrong view even when --no-query-string is used.
@@ -13,6 +14,7 @@ Changes to GoAccess 0.9.1 - TBD
   * Ensure goaccess image has an alt attribute on the HTML output for valid HTML5.
   * Ensure there is a character indicator to see which panel is active.
   * Added the ability to highlight active panel.
+  * Added Applebot to the list of web crawlers.
 
 Changes to GoAccess 0.9 - Thursday, March 19, 2015
 
