@@ -1,20 +1,20 @@
 Changes to GoAccess 0.9.1 - TBD
 
-  * Split iOS devices from Mac OS X.
-  * Removed keyphrases menu item from HTML output.
-  * Fixed issue where requests show up in the wrong view even when --no-query-string is used.
-  * Fixed overflows on sort comparison functions.
-  * Fixed issue where some browsers were not recognized or marked as 'unknown'.
-  * Ensure the config file path is displayed when something goes wrong (FATAL).
-  * Fixed issue where a single IP did not get exclud after an IP range.
-  *  Fixed memory leak when excluding an IP range.
-  * Ensure dump_struct is used only if using __GLIBC__.
-  * Fixed Cygwin compile issue attempting to use -rdynamic.
   * Added additional Nginx-specific status codes.
-  * Ensure goaccess image has an alt attribute on the HTML output for valid HTML5.
-  * Ensure there is a character indicator to see which panel is active.
-  * Added the ability to highlight active panel through --hl-header.
   * Added Applebot to the list of web crawlers.
+  * Added the ability to highlight active panel through --hl-header.
+  * Ensure dump_struct is used only if using __GLIBC__.
+  * Ensure goaccess image has an alt attribute on the HTML output for valid HTML5.
+  * Ensure the config file path is displayed when something goes wrong (FATAL).
+  * Ensure there is a character indicator to see which panel is active.
+  * Fixed Cygwin compile issue attempting to use -rdynamic.
+  * Fixed issue where a single IP did not get exclud after an IP range.
+  * Fixed issue where requests show up in the wrong view even when --no-query-string is used.
+  * Fixed issue where some browsers were not recognized or marked as 'unknown'.
+  * Fixed memory leak when excluding an IP range.
+  * Fixed overflows on sort comparison functions.
+  * Removed keyphrases menu item from HTML output.
+  * Split iOS devices from Mac OS X.
 
 Changes to GoAccess 0.9 - Thursday, March 19, 2015
 
