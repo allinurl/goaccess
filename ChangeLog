@@ -13,7 +13,7 @@ Changes to GoAccess 0.9.1 - TBD
   * Added additional Nginx-specific status codes.
   * Ensure goaccess image has an alt attribute on the HTML output for valid HTML5.
   * Ensure there is a character indicator to see which panel is active.
-  * Added the ability to highlight active panel.
+  * Added the ability to highlight active panel through --hl-header.
   * Added Applebot to the list of web crawlers.
 
 Changes to GoAccess 0.9 - Thursday, March 19, 2015
