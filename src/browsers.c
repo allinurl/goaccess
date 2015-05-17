@@ -41,6 +41,8 @@ static const char *browsers[][2] = {
   {"MSIE", "MSIE"},
   /* IE11 */
   {"Trident/7.0", "MSIE"},
+  /* Microsoft Edge */
+  {"Edge", "MSIE"},
 
   /* Opera */
   {"Opera Mini", "Opera"},
