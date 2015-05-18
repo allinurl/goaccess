@@ -2,6 +2,7 @@ Changes to GoAccess 0.9.1 - TBD
 
   * Added additional Nginx-specific status codes.
   * Added Applebot to the list of web crawlers.
+  * Added Microsoft Edge to the list of browsers.
   * Added the ability to highlight active panel through --hl-header.
   * Ensure dump_struct is used only if using __GLIBC__.
   * Ensure goaccess image has an alt attribute on the HTML output for valid HTML5.
