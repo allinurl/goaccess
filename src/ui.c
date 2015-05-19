@@ -900,7 +900,7 @@ verify_format (GLog * logger, GSpinner * spinner)
   }
 
   /* set time format from goaccessrc if available */
-  draw_header (win, "Time Format - [d] to add/edit format", " %s", 17, 1, w2, 1,
+  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2, 1,
                0);
   if (conf.time_format) {
     time_format = escape_str (conf.time_format);
