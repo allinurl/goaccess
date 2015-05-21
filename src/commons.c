@@ -96,7 +96,7 @@ display_version (void)
 {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "For more details visit: http://goaccess.io\n");
-  fprintf (stdout, "Copyright (C) 2009-2014 GNU GPL'd, by Gerardo Orellana\n");
+  fprintf (stdout, "Copyright (C) 2009-2015 GNU GPL'd, by Gerardo Orellana\n");
 }
 
 int
