@@ -122,6 +122,11 @@ option below.
 
     # pkgin install goaccess
 
+#### OpenBSD ####
+
+    # cd /usr/ports/www/goaccess && make install clean
+    # pkg_add goaccess
+
 #### Windows ####
 
 GoAccess can be used in Windows through Cygwin.
