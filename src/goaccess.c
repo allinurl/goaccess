@@ -991,7 +991,7 @@ main (int argc, char **argv)
   /* configuration dialog */
   if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)) {
     refresh ();
-    quit = verify_format (logger, parsing_spinner);
+    quit = render_confdlg (logger, parsing_spinner);
   }
   /* straight parsing */
   else {
