@@ -638,6 +638,39 @@ load_host_agents_gmenu (void *list, void *user_data, int count)
   list_foreach (lst, fill_host_agents_gmenu, menu);
 }
 
+#ifdef TCB_BTREE
+int
+set_host_agents (const char *addr, void (*func) (void *, void *, int),
+                 void *arr)
+{
+  TCLIST *tclist;
+  GSLList *list;
+  int data_nkey, count = 0;
+
+  data_nkey = get_int_from_keymap (addr, HOSTS);
+  if (data_nkey == 0)
+    return 1;
+
+  tclist = get_host_agent_list (data_nkey);
+  if (!tclist)
+    return 1;
+
+  list = tclist_to_gsllist (tclist);
+  if ((count = list_count (list)) == 0) {
+    free (list);
+    return 1;
+  }
+
+  func (list, arr, count);
+
+  list_remove_nodes (list);
+  tclistdel (tclist);
+
+  return 0;
+}
+#endif
+
+#ifndef TCB_BTREE
 int
 set_host_agents (const char *addr, void (*func) (void *, void *, int),
                  void *arr)
@@ -660,12 +693,14 @@ set_host_agents (const char *addr, void (*func) (void *, void *, int),
 
   func (list, arr, count);
 
-#ifdef TCB_BTREE
+#ifdef TCB_MEMHASH
+  /*list_remove_nodes (list); */
   free (list);
 #endif
 
   return 0;
 }
+#endif
 
 /* render a list of agents if available */
 void

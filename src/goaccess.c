@@ -108,8 +108,10 @@ house_keeping (void)
   GModule module;
 #endif
 
+#ifndef TCB_BTREE
   if (conf.list_agents)
     free_agent_list ();
+#endif
 
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
