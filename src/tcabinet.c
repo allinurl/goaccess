@@ -61,8 +61,25 @@ tc_adb_open (TCADB * adb, const char *params)
   return 0;
 }
 
-/* set database parameters */
 #ifdef TCB_BTREE
+static char *
+tc_db_set_path (const char *dbname, int module)
+{
+  char *path;
+
+  if (conf.db_path != NULL) {
+    path =
+      xmalloc (snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1);
+    sprintf (path, "%s%dm%s", conf.db_path, module, dbname);
+  } else {
+    path =
+      xmalloc (snprintf (NULL, 0, "%s%dm%s", TC_DBPATH, module, dbname) + 1);
+    sprintf (path, "%s%dm%s", TC_DBPATH, module, dbname);
+  }
+  return path;
+}
+
+/* set database parameters */
 static void
 tc_db_get_params (char *params, const char *path)
 {
@@ -111,10 +128,119 @@ tc_db_get_params (char *params, const char *path)
   LOG_DEBUG (("%s\n", path));
   LOG_DEBUG (("params: %s\n", params));
 }
+
+/* Open the database handle */
+static TCBDB *
+tc_bdb_create (const char *dbname, int module)
+{
+  TCBDB *bdb;
+  char *path = NULL;
+  int ecode;
+  uint32_t lcnum, ncnum, lmemb, nmemb, bnum, flags;
+
+  path = tc_db_set_path (dbname, module);
+  bdb = tcbdbnew ();
+
+  lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
+  ncnum = conf.cache_ncnum > 0 ? conf.cache_ncnum : TC_NCNUM;
+
+  /* set the caching parameters of a B+ tree database object */
+  if (!tcbdbsetcache (bdb, lcnum, ncnum)) {
+    free (path);
+    FATAL ("Unable to set TCB cache");
+  }
+
+  /* set the size of the extra mapped memory */
+  if (conf.xmmap > 0 && !tcbdbsetxmsiz (bdb, conf.xmmap)) {
+    free (path);
+    FATAL ("Unable to set TCB xmmap.");
+  }
+
+  lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
+  nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
+  bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
+
+  /* compression */
+  flags = BDBTLARGE;
+  if (conf.compression == TC_BZ2) {
+    flags |= BDBTBZIP;
+  } else if (conf.compression == TC_ZLIB) {
+    flags |= BDBTDEFLATE;
+  }
+
+  /* set the tuning parameters */
+  tcbdbtune (bdb, lmemb, nmemb, bnum, 8, 10, flags);
+
+  /* open flags */
+  flags = BDBOWRITER | BDBOCREAT;
+  if (!conf.load_from_disk)
+    flags |= BDBOTRUNC;
+
+  /* attempt to open the database */
+  if (!tcbdbopen (bdb, path, flags)) {
+    free (path);
+    ecode = tcbdbecode (bdb);
+
+    FATAL ("%s", tcbdberrmsg (ecode));
+  }
+  free (path);
+
+  return bdb;
+}
+
+/* Close the database handle */
+static int
+tc_bdb_close (void *db, char *dbname)
+{
+  TCBDB *bdb = db;
+  int ecode;
+
+  if (bdb == NULL)
+    return 1;
+
+  /* close the database */
+  if (!tcbdbclose (bdb)) {
+    ecode = tcbdbecode (bdb);
+    FATAL ("%s", tcbdberrmsg (ecode));
+  }
+  /* delete the object */
+  tcbdbdel (bdb);
+
+  /* remove database file */
+  if (!conf.keep_db_files && !conf.load_from_disk && !tcremovelink (dbname))
+    LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
+  free (dbname);
+
+  return 0;
+}
 #endif
 
+/* Close the database handle */
+static int
+tc_db_close (TCADB * adb, char *dbname)
+{
+  if (adb == NULL)
+    return 1;
+
+  /* close the database */
+  if (!tcadbclose (adb))
+    FATAL ("Unable to close DB: %s", dbname);
+
+  /* delete the object */
+  tcadbdel (adb);
+
+#ifdef TCB_BTREE
+  /* remove database file */
+  if (!conf.keep_db_files && !conf.load_from_disk && !tcremovelink (dbname))
+    LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
+#endif
+  free (dbname);
+
+  return 0;
+}
+
 static TCADB *
-tc_db_create (char *path)
+tc_adb_create (char *path)
 {
   char params[DB_PARAMS] = "";
   TCADB *adb = tcadbnew ();
@@ -136,25 +262,6 @@ tc_db_create (char *path)
 
   return adb;
 }
-
-#ifdef TCB_BTREE
-static char *
-tc_db_set_path (const char *dbname, int module)
-{
-  char *path;
-
-  if (conf.db_path != NULL) {
-    path =
-      xmalloc (snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1);
-    sprintf (path, "%s%dm%s", conf.db_path, module, dbname);
-  } else {
-    path =
-      xmalloc (snprintf (NULL, 0, "%s%dm%s", TC_DBPATH, module, dbname) + 1);
-    sprintf (path, "%s%dm%s", TC_DBPATH, module, dbname);
-  }
-  return path;
-}
-#endif
 
 static char *
 get_dbname (const char *dbname, int module)
@@ -189,26 +296,32 @@ init_tables (GModule module)
 
   /* Initialize metrics hash tables */
   ht_storage[module].metrics->keymap =
-    tc_db_create (get_dbname (DB_KEYMAP, module));
+    tc_adb_create (get_dbname (DB_KEYMAP, module));
   ht_storage[module].metrics->datamap =
-    tc_db_create (get_dbname (DB_DATAMAP, module));
+    tc_adb_create (get_dbname (DB_DATAMAP, module));
   ht_storage[module].metrics->rootmap =
-    tc_db_create (get_dbname (DB_ROOTMAP, module));
+    tc_adb_create (get_dbname (DB_ROOTMAP, module));
   ht_storage[module].metrics->uniqmap =
-    tc_db_create (get_dbname (DB_UNIQMAP, module));
+    tc_adb_create (get_dbname (DB_UNIQMAP, module));
   ht_storage[module].metrics->hits =
-    tc_db_create (get_dbname (DB_HITS, module));
+    tc_adb_create (get_dbname (DB_HITS, module));
   ht_storage[module].metrics->visitors =
-    tc_db_create (get_dbname (DB_VISITORS, module));
-  ht_storage[module].metrics->bw = tc_db_create (get_dbname (DB_BW, module));
+    tc_adb_create (get_dbname (DB_VISITORS, module));
+  ht_storage[module].metrics->bw = tc_adb_create (get_dbname (DB_BW, module));
   ht_storage[module].metrics->time_served =
-    tc_db_create (get_dbname (DB_AVGTS, module));
+    tc_adb_create (get_dbname (DB_AVGTS, module));
   ht_storage[module].metrics->methods =
-    tc_db_create (get_dbname (DB_METHODS, module));
+    tc_adb_create (get_dbname (DB_METHODS, module));
   ht_storage[module].metrics->protocols =
-    tc_db_create (get_dbname (DB_PROTOCOLS, module));
+    tc_adb_create (get_dbname (DB_PROTOCOLS, module));
+#ifdef TCB_MEMHASH
   ht_storage[module].metrics->agents =
-    tc_db_create (get_dbname (DB_AGENTS, module));
+    tc_adb_create (get_dbname (DB_AGENTS, module));
+#endif
+#ifdef TCB_BTREE
+  /* allow for duplicate keys */
+  ht_storage[module].metrics->agents = tc_bdb_create (DB_AGENTS, module);
+#endif
 }
 
 /* Initialize Tokyo Cabinet storage tables */
@@ -217,40 +330,16 @@ init_storage (void)
 {
   GModule module;
 
-  ht_agent_keys = tc_db_create (get_dbname (DB_AGENT_KEYS, -1));
-  ht_agent_vals = tc_db_create (get_dbname (DB_AGENT_VALS, -1));
-  ht_general_stats = tc_db_create (get_dbname (DB_GEN_STATS, -1));
-  ht_hostnames = tc_db_create (get_dbname (DB_HOSTNAMES, -1));
-  ht_unique_keys = tc_db_create (get_dbname (DB_UNIQUE_KEYS, -1));
+  ht_agent_keys = tc_adb_create (get_dbname (DB_AGENT_KEYS, -1));
+  ht_agent_vals = tc_adb_create (get_dbname (DB_AGENT_VALS, -1));
+  ht_general_stats = tc_adb_create (get_dbname (DB_GEN_STATS, -1));
+  ht_hostnames = tc_adb_create (get_dbname (DB_HOSTNAMES, -1));
+  ht_unique_keys = tc_adb_create (get_dbname (DB_UNIQUE_KEYS, -1));
 
   ht_storage = new_gstorage (TOTAL_MODULES);
   for (module = 0; module < TOTAL_MODULES; ++module) {
     init_tables (module);
   }
-}
-
-/* Close the database handle */
-static int
-tc_db_close (TCADB * adb, char *dbname)
-{
-  if (adb == NULL)
-    return 1;
-
-  /* close the database */
-  if (!tcadbclose (adb))
-    FATAL ("Unable to close DB: %s", dbname);
-
-  /* delete the object */
-  tcadbdel (adb);
-
-#ifdef TCB_BTREE
-  /* remove database file */
-  if (!conf.keep_db_files && !conf.load_from_disk && !tcremovelink (dbname))
-    LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
-#endif
-  free (dbname);
-
-  return 0;
 }
 
 static void
@@ -267,7 +356,12 @@ free_tables (GStorageMetrics * metrics, GModule module)
   tc_db_close (metrics->time_served, get_dbname (DB_AVGTS, module));
   tc_db_close (metrics->methods, get_dbname (DB_METHODS, module));
   tc_db_close (metrics->protocols, get_dbname (DB_PROTOCOLS, module));
+#ifdef TCB_MEMHASH
   tc_db_close (metrics->agents, get_dbname (DB_AGENTS, module));
+#endif
+#ifdef TCB_BTREE
+  tc_bdb_close (metrics->agents, get_dbname (DB_AGENTS, module));
+#endif
 }
 
 void
@@ -394,6 +488,7 @@ find_host_agent_in_list (void *data, void *needle)
   return (*(int *) data) == (*(int *) needle) ? 1 : 0;
 }
 
+#ifdef TCB_MEMHASH
 int
 ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey)
 {
@@ -412,11 +507,53 @@ ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey)
   }
   tcadbput (adb, &data_nkey, sizeof (int), list, sizeof (GSLList));
 out:
-
   free (list);
 
   return 0;
 }
+#endif
+
+#ifdef TCB_BTREE
+static int
+is_value_in_tclist (TCLIST * tclist, void *value)
+{
+  int i, sz;
+  int *val;
+
+  if (!tclist)
+    return 0;
+
+  for (i = 0; i < tclistnum (tclist); ++i) {
+    val = (int *) tclistval (tclist, i, &sz);
+    if (find_host_agent_in_list (value, val))
+      return 1;
+  }
+
+  return 0;
+}
+
+int
+ht_insert_host_agent (TCBDB * bdb, int data_nkey, int agent_nkey)
+{
+  TCLIST *list;
+  int in_list = 0;
+
+  if (bdb == NULL)
+    return (EINVAL);
+
+  if ((list = tcbdbget4 (bdb, &data_nkey, sizeof (int))) != NULL) {
+    if (is_value_in_tclist (list, &agent_nkey))
+      in_list = 1;
+    tclistdel (list);
+  }
+
+  if (!in_list &&
+      tcbdbputdup (bdb, &data_nkey, sizeof (int), &agent_nkey, sizeof (int)))
+    return 0;
+
+  return 1;
+}
+#endif
 
 int
 ht_insert_str_from_int_key (TCADB * adb, int nkey, const char *value)
@@ -727,16 +864,48 @@ get_host_agent_val (int agent_nkey)
   return get_str_from_int_key (ht_agent_vals, agent_nkey);
 }
 
+GSLList *
+tclist_to_gsllist (TCLIST * tclist)
+{
+  GSLList *list = NULL;
+  int i, sz;
+  int *val;
+
+  for (i = 0; i < tclistnum (tclist); ++i) {
+    val = (int *) tclistval (tclist, i, &sz);
+    if (list == NULL)
+      list = list_create (int2ptr (*val));
+    else
+      list = list_insert_prepend (list, int2ptr (*val));
+  }
+
+  return list;
+}
+
 void *
 get_host_agent_list (int data_nkey)
 {
-  TCADB *adb;
+#ifdef TCB_MEMHASH
+  TCADB *db;
   void *list;
   int sp = 0;
+#endif
+#ifdef TCB_BTREE
+  TCBDB *db;
+  TCLIST *tclist;
+#endif
 
-  adb = get_storage_metric (HOSTS, MTRC_AGENTS);
-  if ((list = tcadbget (adb, &data_nkey, sizeof (data_nkey), &sp)))
+  db = get_storage_metric (HOSTS, MTRC_AGENTS);
+#ifdef TCB_MEMHASH
+  if ((list = tcadbget (db, &data_nkey, sizeof (data_nkey), &sp)))
     return list;
+#endif
+#ifdef TCB_BTREE
+  if ((tclist = tcbdbget4 (db, &data_nkey, sizeof (int))) != NULL) {
+    return tclist;
+  }
+#endif
+
   return NULL;
 }
 

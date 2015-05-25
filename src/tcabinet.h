@@ -44,9 +44,9 @@
 #define DB_PARAMS 256
 
 /* B+ Tree - on-disk databases */
-#define DB_GEN_STATS   "db_gen_stats.tcb"
 #define DB_AGENT_KEYS  "db_agent_keys.tcb"
 #define DB_AGENT_VALS  "db_agent_vals.tcb"
+#define DB_GEN_STATS   "db_gen_stats.tcb"
 #define DB_HOSTNAMES   "db_hostnames.tcb"
 #define DB_UNIQUE_KEYS "db_unique_keys.tcb"
 
@@ -77,6 +77,7 @@ GRawData *parse_raw_data (void *db, int ht_size, GModule module);
 uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
 uint32_t get_ht_size (TCADB *adb);
 
+int agent_list_to_store(void);
 int ht_inc_int_from_int_key (TCADB * adb, int data_nkey, int inc);
 int ht_inc_int_from_str_key (TCADB * adb, const char *key, int inc);
 int ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc);
@@ -84,7 +85,6 @@ int ht_inc_u64_from_str_key (TCADB * adb, const char *key, uint64_t inc);
 int ht_insert_agent_key (const char *key);
 int ht_insert_agent_val(int nkey, const char *key);
 int ht_insert_hit (TCADB *adb, int data_nkey, int uniq_nkey, int root_nkey);
-int ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey);
 int ht_insert_keymap (TCADB * adb, const char *value);
 int ht_insert_nkey_nval (TCADB * adb, int nkey, int nval);
 int ht_insert_str_from_int_key (TCADB *adb, int nkey, const char *value);
@@ -107,6 +107,14 @@ void free_agent_list(void);
 void free_db_key (TCADB *adb);
 void free_storage (void);
 void init_storage (void);
+
+#ifdef TCB_MEMHASH
+int ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey);
+#endif
+#ifdef TCB_BTREE
+int ht_insert_host_agent (TCBDB * bdb, int data_nkey, int agent_nkey);
+#endif
+GSLList * tclist_to_gsllist (TCLIST * tclist);
 
 /* *INDENT-ON* */
 
