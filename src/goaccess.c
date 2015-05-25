@@ -845,6 +845,8 @@ get_keys (void)
 static void
 set_general_stats (void)
 {
+  verify_formats ();
+
   logger->process = logger->invalid = logger->exclude_ip = 0;
 #ifdef TCB_BTREE
   logger->exclude_ip = get_uint_from_str_key (ht_general_stats, "exclude_ip");

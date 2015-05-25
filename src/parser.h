@@ -123,16 +123,14 @@ typedef struct GParse_
   void (*agent) (int data_nkey, int agent_nkey, GModule module);
 } GParse;
 
-/* *INDENT-OFF* */
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
-GRawData *new_grawdata (void);
 GRawDataItem *new_grawdata_item (unsigned int size);
+GRawData *new_grawdata (void);
 int parse_log (GLog ** logger, char *tail, int n);
 int test_format (GLog * logger);
 void free_raw_data (GRawData * raw_data);
 void reset_struct (GLog * logger);
-
-/* *INDENT-ON* */
+void verify_formats (void);
 
 #endif

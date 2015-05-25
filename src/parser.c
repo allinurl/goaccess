@@ -1648,12 +1648,9 @@ read_log (GLog ** logger, int n)
   return 0;
 }
 
-/* entry point to parse the log line by line */
-int
-parse_log (GLog ** logger, char *tail, int n)
+void
+verify_formats (void)
 {
-  int test = -1 == n ? 0 : 1;
-
   if (conf.time_format == NULL || *conf.time_format == '\0')
     FATAL ("No time format was found on your conf file.");
 
@@ -1662,6 +1659,15 @@ parse_log (GLog ** logger, char *tail, int n)
 
   if (conf.log_format == NULL || *conf.log_format == '\0')
     FATAL ("No log format was found on your conf file.");
+}
+
+/* entry point to parse the log line by line */
+int
+parse_log (GLog ** logger, char *tail, int n)
+{
+  int test = -1 == n ? 0 : 1;
+
+  verify_formats ();
 
   /* process tail data and return */
   if (tail != NULL) {
