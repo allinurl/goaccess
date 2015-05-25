@@ -869,7 +869,7 @@ new_gspinner (void)
 
 /* render config log date/format dialog */
 int
-verify_format (GLog * logger, GSpinner * spinner)
+render_confdlg (GLog * logger, GSpinner * spinner)
 {
   GMenu *menu;
   WINDOW *win;

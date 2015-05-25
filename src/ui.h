@@ -278,7 +278,7 @@ const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
 int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
-int verify_format (GLog * logger, GSpinner * spinner);
+int render_confdlg(GLog * logger, GSpinner * spinner);
 void close_win (WINDOW * w);
 void display_general (WINDOW * header_win, char *ifile, GLog *logger);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color, int max_width);
