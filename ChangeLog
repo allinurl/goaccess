@@ -14,6 +14,7 @@ Changes to GoAccess 0.9.1 - TBD
   * Fixed issue where some browsers were not recognized or marked as 'unknown'.
   * Fixed memory leak when excluding an IP range.
   * Fixed overflows on sort comparison functions.
+  * Fixed segfault when using on-disk storage and loading persisted data with -a.
   * Removed keyphrases menu item from HTML output.
   * Split iOS devices from Mac OS X.
 
