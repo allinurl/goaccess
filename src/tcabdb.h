@@ -22,8 +22,8 @@
 #include <config.h>
 #endif
 
-#ifndef TCABINET_H_INCLUDED
-#define TCABINET_H_INCLUDED
+#ifndef TCABDB_H_INCLUDED
+#define TCABDB_H_INCLUDED
 
 #include <tcadb.h>
 

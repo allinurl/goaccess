@@ -1,5 +1,5 @@
 /**
- * tcabinet.c -- Tokyo Cabinet database functions
+ * tcabdb.c -- Tokyo Cabinet database functions
  * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
@@ -27,7 +27,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "tcabinet.h"
+#include "tcabdb.h"
 
 #ifdef HAVE_LIBGEOIP
 #include "geolocation.h"

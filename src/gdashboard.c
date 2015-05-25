@@ -34,7 +34,7 @@
 #include "gdashboard.h"
 
 #ifdef HAVE_LIBTOKYOCABINET
-#include "tcabinet.h"
+#include "tcabdb.h"
 #else
 #include "glibht.h"
 #endif
