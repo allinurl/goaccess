@@ -48,7 +48,9 @@ goaccess_SOURCES = \
 if TCB
 goaccess_SOURCES += \
    src/tcabdb.c     \
-   src/tcabdb.h
+   src/tcabdb.h     \
+   src/tcbtdb.c     \
+   src/tcbtdb.h
 else
 goaccess_SOURCES += \
    src/glibht.c     \

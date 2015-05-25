@@ -57,6 +57,7 @@
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
+#include "tcbtdb.h"
 #else
 #include "glibht.h"
 #endif

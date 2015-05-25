@@ -31,38 +31,7 @@
 #include "gstorage.h"
 #include "parser.h"
 
-#define TC_MMAP  0
-#define TC_LCNUM 1024
-#define TC_NCNUM 512
-#define TC_LMEMB 128
-#define TC_NMEMB 256
-#define TC_BNUM  32749
-#define TC_DBPATH "/tmp/"
-#define TC_ZLIB 1
-#define TC_BZ2  2
-
 #define DB_PARAMS 256
-
-/* B+ Tree - on-disk databases */
-#define DB_AGENT_KEYS  "db_agent_keys.tcb"
-#define DB_AGENT_VALS  "db_agent_vals.tcb"
-#define DB_GEN_STATS   "db_gen_stats.tcb"
-#define DB_HOSTNAMES   "db_hostnames.tcb"
-#define DB_UNIQUE_KEYS "db_unique_keys.tcb"
-
-#define DB_KEYMAP    "db_keymap.tcb"
-#define DB_DATAMAP   "db_datamap.tcb"
-#define DB_ROOTMAP   "db_rootmap.tcb"
-#define DB_UNIQMAP   "db_uniqmap.tcb"
-#define DB_VISITORS  "db_visitors.tcb"
-#define DB_HITS      "db_hits.tcb"
-#define DB_BW        "db_bw.tcb"
-#define DB_AVGTS     "db_avgts.tcb"
-#define DB_METHODS   "db_methods.tcb"
-#define DB_PROTOCOLS "db_protocols.tcb"
-#define DB_AGENTS    "db_agents.tcb"
-
-#define INT_TO_POINTER(i) ((void *) (long) (i))
 
 /* tables for the whole app */
 extern TCADB *ht_agent_keys;
@@ -78,6 +47,7 @@ uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
 uint32_t get_ht_size (TCADB *adb);
 
 int agent_list_to_store(void);
+int find_host_agent_in_list (void *data, void *needle);
 int ht_inc_int_from_int_key (TCADB * adb, int data_nkey, int inc);
 int ht_inc_int_from_str_key (TCADB * adb, const char *key, int inc);
 int ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc);
@@ -110,9 +80,6 @@ void init_storage (void);
 
 #ifdef TCB_MEMHASH
 int ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey);
-#endif
-#ifdef TCB_BTREE
-int ht_insert_host_agent (TCBDB * bdb, int data_nkey, int agent_nkey);
 #endif
 GSLList * tclist_to_gsllist (TCLIST * tclist);
 
