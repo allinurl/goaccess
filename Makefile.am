@@ -47,17 +47,17 @@ goaccess_SOURCES = \
 
 if TCB
 goaccess_SOURCES += \
-   src/tcabinet.c       \
-   src/tcabinet.h
+   src/tcabdb.c     \
+   src/tcabdb.h
 else
 goaccess_SOURCES += \
-   src/glibht.c         \
+   src/glibht.c     \
    src/glibht.h
 endif
 
 if GEOLOCATION
-goaccess_SOURCES += \
-   src/geolocation.c    \
+goaccess_SOURCES +=  \
+   src/geolocation.c \
    src/geolocation.h
 endif
 

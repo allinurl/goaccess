@@ -30,7 +30,7 @@
 #include <errno.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
-#include "tcabinet.h"
+#include "tcabdb.h"
 #endif
 
 #include "options.h"
