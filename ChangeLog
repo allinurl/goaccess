@@ -9,7 +9,7 @@ Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
   * Ensure the config file path is displayed when something goes wrong (FATAL).
   * Ensure there is a character indicator to see which panel is active.
   * Fixed Cygwin compile issue attempting to use -rdynamic.
-  * Fixed issue where a single IP did not get exclud after an IP range.
+  * Fixed issue where a single IP did not get exclude after an IP range.
   * Fixed issue where requests show up in the wrong view even when --no-query-string is used.
   * Fixed issue where some browsers were not recognized or marked as 'unknown'.
   * Fixed memory leak when excluding an IP range.
