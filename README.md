@@ -252,6 +252,8 @@ If we would like to process all `access.log.*.gz` we can do:
     OR
     # zcat -f access.log* | goaccess
 
+(On Mac OS X, use `gunzip -c` instead of `zcat`).
+
 Another useful pipe would be filtering dates out of the web log
 
 The following will get all HTTP requests starting on 05/Dec/2010 until the end
