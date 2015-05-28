@@ -118,14 +118,14 @@ option below.
     # cd /usr/ports/sysutils/goaccess/ && make install clean
     $ pkg_add -r goaccess
 
-#### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
-
-    # pkgin install goaccess
-
 #### OpenBSD ####
 
     # cd /usr/ports/www/goaccess && make install clean
     # pkg_add goaccess
+
+#### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
+
+    # pkgin install goaccess
 
 #### Windows ####
 
