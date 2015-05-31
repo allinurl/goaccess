@@ -72,7 +72,6 @@
 #include "goaccess.h"
 #include "error.h"
 #include "opesys.h"
-#include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
 
