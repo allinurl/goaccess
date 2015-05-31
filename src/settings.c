@@ -30,9 +30,7 @@
 
 #include "settings.h"
 
-#include "commons.h"
 #include "error.h"
-#include "ui.h"
 #include "util.h"
 #include "xmalloc.h"
 
