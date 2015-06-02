@@ -422,6 +422,8 @@ print_html_header (FILE * fp, char *now)
 
   fprintf (fp, "</script>\n");
 
+  fprintf (fp, "<script type=\"text/javascript\" src=\"https://cdnjs.cloudflare.com/ajax/libs/sortable/0.6.0/js/sortable.min.js \"></script>\n");
+
   fprintf (fp, "<style type=\"text/css\">");
   fprintf (fp,
   "html {"
@@ -759,6 +761,45 @@ print_html_header (FILE * fp, char *now)
   ".pure-table thead tr {"
   "    border: 1px solid rgb(52, 58, 69);"
   "}"
+  "table[data-sortable] th:not([data-sortable=\"false\"]) {"
+  "  -webkit-user-select: none;"
+  "  -moz-user-select: none;"
+  "  -ms-user-select: none;"
+  "  -o-user-select: none;"
+  "  user-select: none;"
+  "  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);"
+  "  -webkit-touch-callout: none;"
+  "  cursor: pointer;"
+  "}"
+  ""
+  "table[data-sortable] th:after {"
+  "  content: \"\";"
+  "  visibility: hidden;"
+  "  display: inline-block;"
+  "  vertical-align: inherit;"
+  "  height: 0;"
+  "  width: 0;"
+  "  border-width: 5px;"
+  "  border-style: solid;"
+  "  border-color: transparent;"
+  "  margin-right: 1px;"
+  "  margin-left: 10px;"
+  "  float: right;"
+  "}"
+  ""
+  "table[data-sortable] th[data-sorted=\"true\"]:after {"
+  "  visibility: visible;"
+  "}"
+  ""
+  "table[data-sortable] th[data-sorted-direction=\"descending\"]:after {"
+  "  border-top-color: inherit;"
+  "  margin-top: 4px;"
+  "}"
+  ""
+  "table[data-sortable] th[data-sorted-direction=\"ascending\"]:after {"
+  "  border-bottom-color: inherit;"
+  "  margin-top: 3px;"
+  "}"
   ".grid {"
   "    background: white;"
   "    margin: 0 0 10px 0;"
@@ -1001,7 +1042,7 @@ print_p (FILE * fp, const char *paragraph)
 static void
 print_html_begin_table (FILE * fp)
 {
-  fprintf (fp, "<table class=\"pure-table\">\n");
+  fprintf (fp, "<table class=\"pure-table\" data-sortable>\n");
 }
 
 static void
