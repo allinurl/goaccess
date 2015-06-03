@@ -116,7 +116,7 @@ option below.
 #### FreeBSD ####
 
     # cd /usr/ports/sysutils/goaccess/ && make install clean
-    $ pkg_add -r goaccess
+    # pkg install sysutils/goaccess
 
 #### OpenBSD ####
 
