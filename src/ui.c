@@ -58,12 +58,9 @@
 #include "glibht.h"
 #endif
 
-#include "commons.h"
 #include "error.h"
 #include "gmenu.h"
 #include "goaccess.h"
-#include "parser.h"
-#include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
 
