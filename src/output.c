@@ -41,13 +41,6 @@
 #include "glibht.h"
 #endif
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
-#endif
-
-#include "commons.h"
-#include "error.h"
-#include "gdns.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
