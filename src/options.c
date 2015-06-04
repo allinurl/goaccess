@@ -37,7 +37,6 @@
 #include "options.h"
 
 #include "error.h"
-#include "settings.h"
 #include "util.h"
 
 static char short_options[] = "f:e:p:o:"
