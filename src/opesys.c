@@ -27,7 +27,6 @@
 
 #include "opesys.h"
 
-#include "error.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
