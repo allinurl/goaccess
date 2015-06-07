@@ -25,7 +25,6 @@
 #ifndef JSON_H_INCLUDED
 #define JSON_H_INCLUDED
 
-#include "commons.h"
 #include "parser.h"
 
 typedef struct GJSON_
