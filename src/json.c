@@ -39,17 +39,9 @@
 #include "glibht.h"
 #endif
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
-#endif
-
-#include "commons.h"
-#include "error.h"
-#include "gdns.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
-#include "xmalloc.h"
 
 static void print_json_data (FILE * fp, GHolder * h, int processed);
 static void print_json_host_data (FILE * fp, GHolder * h, int processed);
