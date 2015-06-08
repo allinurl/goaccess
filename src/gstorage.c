@@ -28,9 +28,7 @@
 
 #include "gstorage.h"
 
-#include "commons.h"
 #include "error.h"
-#include "settings.h"
 #include "xmalloc.h"
 
 GStorage *
