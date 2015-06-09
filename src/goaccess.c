@@ -52,7 +52,6 @@
 #include "geolocation.h"
 #endif
 
-#include "commons.h"
 #include "csv.h"
 #include "error.h"
 #include "gdashboard.h"
@@ -60,10 +59,6 @@
 #include "json.h"
 #include "options.h"
 #include "output.h"
-#include "parser.h"
-#include "settings.h"
-#include "sort.h"
-#include "ui.h"
 #include "util.h"
 
 static WINDOW *header_win, *main_win;
