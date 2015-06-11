@@ -26,10 +26,7 @@
 
 #include "gmenu.h"
 
-#include "error.h"
 #include "xmalloc.h"
-#include "settings.h"
-#include "util.h"
 #include "ui.h"
 
 /* allocate memory for a new GMenu instance */
