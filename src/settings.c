@@ -207,6 +207,9 @@ parse_conf_file (int *argc, char ***argv)
 
   fclose (file);
 
+  if (conf.iconfigfile == NULL)
+    conf.iconfigfile = xstrdup (path);
+
   free (path);
   return 0;
 }
