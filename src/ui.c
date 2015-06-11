@@ -68,16 +68,6 @@ static char *date_format = NULL;
 static char *log_format = NULL;
 static char *time_format = NULL;
 
-/* creation - ncurses' window handling */
-WINDOW *
-create_win (int h, int w, int y, int x)
-{
-  WINDOW *win = newwin (h, w, y, x);
-  if (win == NULL)
-    FATAL ("Unable to allocate memory for new WINDOW.");
-  return win;
-}
-
 /* initialize curses colors */
 void
 init_colors (void)
