@@ -208,7 +208,8 @@ allocate_data (void)
 
     switch (module) {
     case VISITORS:
-      dash->module[module].head = VISIT_HEAD;
+      dash->module[module].head =
+        (!conf.ignore_crawlers ? VISIT_HEAD INCLUDE_BOTS : VISIT_HEAD);
       dash->module[module].desc = VISIT_DESC;
       break;
     case REQUESTS:
