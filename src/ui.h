@@ -58,8 +58,10 @@
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50
 
+#define INCLUDE_BOTS " - Including spiders"
+
 /* modules */
-#define VISIT_HEAD  "Unique visitors per day - Including spiders"
+#define VISIT_HEAD  "Unique visitors per day"
 #define VISIT_DESC  "Hits having the same IP, date and agent are a unique visit."
 #define VISIT_ID    "visitors"
 #define VISIT_LABEL "Visitors"
