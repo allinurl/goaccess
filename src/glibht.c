@@ -34,18 +34,7 @@
 
 #include "glibht.h"
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
-#endif
-
-#include "browsers.h"
-#include "error.h"
-#include "opesys.h"
-#include "gstorage.h"
-#include "parser.h"
-#include "settings.h"
 #include "sort.h"
-#include "util.h"
 #include "xmalloc.h"
 
 GStorage *ht_storage;
