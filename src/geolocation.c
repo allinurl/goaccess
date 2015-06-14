@@ -31,7 +31,6 @@
 #include "geolocation.h"
 
 #include "error.h"
-#include "settings.h"
 #include "util.h"
 
 GeoIP *geo_location_data;

@@ -95,6 +95,43 @@ init_storage (void)
   }
 }
 
+static void
+free_tables (GStorageMetrics * metrics)
+{
+  /* Initialize metrics hash tables */
+  g_hash_table_destroy (metrics->keymap);
+  g_hash_table_destroy (metrics->datamap);
+  g_hash_table_destroy (metrics->rootmap);
+  g_hash_table_destroy (metrics->uniqmap);
+  g_hash_table_destroy (metrics->hits);
+  g_hash_table_destroy (metrics->visitors);
+  g_hash_table_destroy (metrics->bw);
+  g_hash_table_destroy (metrics->time_served );
+  g_hash_table_destroy (metrics->methods);
+  g_hash_table_destroy (metrics->protocols);
+  /*#ifdef TCB_MEMHASH*/
+  /*tc_db_close (metrics->agents, get_dbname (DB_AGENTS, module));*/
+  /*#endif*/
+  /*#ifdef TCB_BTREE*/
+  /*tc_bdb_close (metrics->agents, get_dbname (DB_AGENTS, module));*/
+  /*#endif*/
+}
+
+void
+free_storage (void)
+{
+  GModule module;
+
+  g_hash_table_destroy (ht_agent_keys);
+  g_hash_table_destroy (ht_agent_vals);
+  g_hash_table_destroy (ht_hostnames);
+  g_hash_table_destroy (ht_unique_keys);
+
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    free_tables (ht_storage[module].metrics);
+  }
+}
+
 uint32_t
 get_ht_size (GHashTable * ht)
 {
