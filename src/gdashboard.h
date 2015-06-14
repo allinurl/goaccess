@@ -27,9 +27,7 @@
 
 #include <stdint.h>
 
-#include "commons.h"
 #include "ui.h"
-#include "parser.h"
 
 /* *INDENT-OFF* */
 #define DASH_HEAD_POS   0  /* header line pos */
