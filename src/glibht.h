@@ -66,11 +66,11 @@ int get_num_from_key (int data_nkey, GModule module, GMetric metric);
 int process_host_agents (char *host, char *agent);
 uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
 unsigned int get_uint_from_str_key (GHashTable *ht, const char *key);
+void free_storage (void);
 void *get_host_agent_list (int data_nkey);
 void init_storage (void);
 
 void free_agent_list (void);
-
 
 /* *INDENT-ON* */
 
