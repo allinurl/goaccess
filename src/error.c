@@ -43,7 +43,6 @@
 #include <unistd.h>
 
 #include "error.h"
-#include "commons.h"
 #include "parser.h"
 
 static FILE *log_file;
