@@ -41,13 +41,8 @@
 #include "glibht.h"
 #endif
 
-#include "commons.h"
-#include "error.h"
-#include "gdashboard.h"
-#include "gstorage.h"
 #include "ui.h"
 #include "util.h"
-#include "xmalloc.h"
 
 static void print_csv_data (FILE * fp, GHolder * h, int processed);
 
