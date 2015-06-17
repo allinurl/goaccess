@@ -26,7 +26,6 @@
 #define CSV_H_INCLUDED
 
 #include <stdio.h>
-#include "commons.h"
 #include "parser.h"
 #include "settings.h"
 
