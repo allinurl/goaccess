@@ -38,7 +38,6 @@
 #include <time.h>
 
 #include "commons.h"
-#include "settings.h"
 #include "sort.h"
 #include "util.h"
 #include "xmalloc.h"
