@@ -23,8 +23,9 @@
 #include <config.h>
 #endif
 
-#include <string.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #include "commons.h"
