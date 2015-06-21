@@ -7,6 +7,10 @@ before_install:
         - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev libtokyocabinet-dev
 install:
         - autoreconf -fiv
+        - ./configure
+        - make
+        - make distclean
+        - autoreconf -fiv
         - ./configure --enable-geoip --enable-utf8
         - make
         - make distclean
