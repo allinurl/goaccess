@@ -35,6 +35,7 @@
 
 #include "error.h"
 #include "sort.h"
+#include "util.h"
 #include "xmalloc.h"
 
 GStorage *ht_storage;
