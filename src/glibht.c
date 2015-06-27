@@ -109,12 +109,7 @@ free_tables (GStorageMetrics * metrics)
   g_hash_table_destroy (metrics->time_served );
   g_hash_table_destroy (metrics->methods);
   g_hash_table_destroy (metrics->protocols);
-  /*#ifdef TCB_MEMHASH*/
-  /*tc_db_close (metrics->agents, get_dbname (DB_AGENTS, module));*/
-  /*#endif*/
-  /*#ifdef TCB_BTREE*/
-  /*tc_bdb_close (metrics->agents, get_dbname (DB_AGENTS, module));*/
-  /*#endif*/
+  g_hash_table_destroy (metrics->agents);
 }
 
 void
