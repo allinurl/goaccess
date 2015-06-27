@@ -858,7 +858,27 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     }
     glog->agent = tkn;
     break;
-    /* time taken to serve the request, in seconds */
+    /* time taken to serve the request, in milliseconds as a decimal number */
+  case 'L':
+    /* ignore it if we already have served time */
+    if (glog->serve_time)
+      break;
+
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    serve_secs = strtoull (tkn, &bEnd, 10);
+
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+      serve_secs = 0;
+    /* convert it to microseconds */
+    glog->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
+
+    conf.serve_usecs = 1;       /* flag */
+    free (tkn);
+    break;
+    /* time taken to serve the request, in seconds with a milliseconds
+     * resolution */
   case 'T':
     /* ignore it if we already have served time */
     if (glog->serve_time)
@@ -875,11 +895,9 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_secs = 0;
     /* convert it to microseconds */
-    if (serve_secs > 0)
-      glog->serve_time = serve_secs * SECS;
-    else
-      glog->serve_time = 0;
-    conf.serve_usecs = 1;
+    glog->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
+
+    conf.serve_usecs = 1;       /* flag */
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -895,7 +913,8 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_time = 0;
     glog->serve_time = serve_time;
-    conf.serve_usecs = 1;
+
+    conf.serve_usecs = 1;       /* flag */
     free (tkn);
     break;
     /* everything else skip it */
