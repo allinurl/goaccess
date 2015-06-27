@@ -57,6 +57,14 @@ new_int_ht (GDestroyNotify d1, GDestroyNotify d2)
   return g_hash_table_new_full (g_int_hash, g_int_equal, d1, d2);
 }
 
+void
+free_hits (GO_UNUSED gpointer old_key, gpointer old_value,
+           GO_UNUSED gpointer user_data)
+{
+  GDataMap *map = old_value;
+  free (map);
+}
+
 static void
 init_tables (GModule module)
 {
@@ -98,6 +106,8 @@ init_storage (void)
 static void
 free_tables (GStorageMetrics * metrics)
 {
+  g_hash_table_foreach (metrics->hits, free_hits, NULL);
+
   /* Initialize metrics hash tables */
   g_hash_table_destroy (metrics->keymap);
   g_hash_table_destroy (metrics->datamap);
@@ -106,7 +116,7 @@ free_tables (GStorageMetrics * metrics)
   g_hash_table_destroy (metrics->hits);
   g_hash_table_destroy (metrics->visitors);
   g_hash_table_destroy (metrics->bw);
-  g_hash_table_destroy (metrics->time_served );
+  g_hash_table_destroy (metrics->time_served);
   g_hash_table_destroy (metrics->methods);
   g_hash_table_destroy (metrics->protocols);
   g_hash_table_destroy (metrics->agents);
