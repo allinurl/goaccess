@@ -31,6 +31,16 @@
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
+  /* Game systems: most of them are based of major browsers,
+   * thus they need to go before. */
+  {"Xbox One", "Game Systems"},
+  {"Xbox", "Game Systems"},
+  {"PlayStation", "Game Systems"},
+  {"NintendoBrowser", "Game Systems"},
+  {"Valve Steam", "Game Systems"},
+  {"Origin", "Game Systems"},
+  {"Raptr", "Game Systems"},
+
   /* Based on Internet Explorer */
   {"America Online Browser", "Others"},
   {"Avant Browser", "Others"},
@@ -99,16 +109,6 @@ static const char *browsers[][2] = {
   {"Iceweasel", "Firefox"},
   /* Mozilla Firefox */
   {"Firefox", "Firefox"},
-
-  /* Game systems: some of them are Safari-based,
-   * thus they need to go before Safari */
-  {"Xbox One", "Game Systems"},
-  {"Xbox", "Game Systems"},
-  {"PlayStation", "Game Systems"},
-  {"NintendoBrowser", "Game Systems"},
-  {"Valve Steam", "Game Systems"},
-  {"Origin", "Game Systems"},
-  {"Raptr", "Game Systems"},
 
   /* Based on Chromium */
   {"YaBrowser", "Others"},
