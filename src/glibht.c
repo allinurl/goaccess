@@ -57,7 +57,7 @@ new_int_ht (GDestroyNotify d1, GDestroyNotify d2)
   return g_hash_table_new_full (g_int_hash, g_int_equal, d1, d2);
 }
 
-void
+static void
 free_hits (GO_UNUSED gpointer old_key, gpointer old_value,
            GO_UNUSED gpointer user_data)
 {
