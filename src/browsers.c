@@ -296,7 +296,7 @@ parse_opera (char *token)
 char *
 verify_browser (char *str, char *type)
 {
-  char *a, *ptr, *slash;
+  char *a, *b, *ptr, *slash;
   size_t i;
 
   if (str == NULL || *str == '\0')
@@ -305,6 +305,13 @@ verify_browser (char *str, char *type)
   for (i = 0; i < ARRAY_SIZE (browsers); i++) {
     if ((a = strstr (str, browsers[i][0])) == NULL)
       continue;
+
+    /* check if there is a space char in the token string, that way strpbrk
+     * does not stop at the first space within the token string */
+    if ((strchr (browsers[i][0], ' ')) != NULL && (b = strchr (a, ' ')) != NULL)
+      b++;
+    else
+      b = a;
 
     xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
     /* Internet Explorer 11 */
@@ -326,7 +333,7 @@ verify_browser (char *str, char *type)
       a = char_replace (a, ' ', '/');
     }
     /* all others */
-    else if ((ptr = strpbrk (a, ";) ")) != NULL) {
+    else if ((ptr = strpbrk (b, ";) ")) != NULL) {
       *ptr = '\0';
     }
 
