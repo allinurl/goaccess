@@ -74,18 +74,19 @@ typedef struct GConfKeyword_
 typedef struct GConf_
 {
   char *date_format;
-  char *time_format;
   char *debug_log;
   char *geoip_database;
+  char *html_report_title;
   char *iconfigfile;
   char *ifile;
-  char *sort_panels[TOTAL_MODULES];
   char *ignore_ips[MAX_IGNORE_IPS];
-  char *ignore_referers[MAX_IGNORE_REF];
   char *ignore_panels[TOTAL_MODULES];
+  char *ignore_referers[MAX_IGNORE_REF];
   char *log_format;
   char *output_format;
+  char *sort_panels[TOTAL_MODULES];
   char *static_files[MAX_EXTENSIONS];
+  char *time_format;
 
   int append_method;
   int append_protocol;

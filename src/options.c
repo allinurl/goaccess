@@ -73,6 +73,7 @@ struct option long_opts[] = {
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
+  {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
@@ -128,9 +129,10 @@ cmd_help (void)
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
+  "  --html-report-title=<title>     - Set HTML report page title and header.\n"
+  "  --no-color                      - Disable colored output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
-  "  --no-progress                   - Disable progress metrics.\n"
-  "  --no-color                      - Disable colored output.\n\n"
+  "  --no-progress                   - Disable progress metrics.\n\n"
 
   /* File Options */
   "File Options\n\n"
@@ -352,6 +354,10 @@ read_option_args (int argc, char **argv)
       /* 4xx to unique count */
       if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
         conf.client_err_to_unique_count = 1;
+
+      /* html report title */
+      if (!strcmp ("html-report-title", long_opts[idx].name))
+        conf.html_report_title = optarg;
 
       /* 444 as 404 */
       if (!strcmp ("444-as-404", long_opts[idx].name))

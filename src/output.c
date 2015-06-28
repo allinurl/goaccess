@@ -386,6 +386,58 @@ unsigned char icons[] = {
   0x31, 0x34, 0x36, 0x22, 0x3b, 0x0a, 0x7d, 0x0a
 };
 
+/* sanitize output with html entities for special chars */
+static void
+clean_output (FILE * fp, char *s)
+{
+  while (*s) {
+    switch (*s) {
+    case '\'':
+      fprintf (fp, "&#39;");
+      break;
+    case '"':
+      fprintf (fp, "&#34;");
+      break;
+    case '&':
+      fprintf (fp, "&amp;");
+      break;
+    case '<':
+      fprintf (fp, "&lt;");
+      break;
+    case '>':
+      fprintf (fp, "&gt;");
+      break;
+    case ' ':
+      fprintf (fp, "&nbsp;");
+      break;
+    default:
+      fputc (*s, fp);
+      break;
+    }
+    s++;
+  }
+}
+
+static void
+print_html_title (FILE *fp, char *now)
+{
+  const char *title = conf.html_report_title ? conf.html_report_title : REP_TITLE;
+
+  fprintf (fp, "<title>");
+  clean_output (fp, (char *) title);
+  fprintf (fp, " - %s</title>\n", now);
+}
+
+static void
+print_html_page_header(FILE *fp)
+{
+  const char *header = conf.html_report_title ? conf.html_report_title : T_DASH;
+
+  fprintf (fp, "<h1><i class='icon-dashboard'></i> ");
+  clean_output (fp, (char *) header);
+  fprintf (fp, "</h1>\n");
+}
+
 static void
 print_html_header (FILE * fp, char *now)
 {
@@ -395,7 +447,7 @@ print_html_header (FILE * fp, char *now)
   fprintf (fp, "<meta http-equiv='X-UA-Compatible' content='IE=edge'>");
   fprintf (fp, "<meta name='viewport' content='width=device-width, initial-scale=1'>");
   fprintf (fp, "<meta name='robots' content='noindex, nofollow' />");
-  fprintf (fp, "<title>Server Statistics - %s</title>\n", now);
+  print_html_title(fp, now);
 
   fprintf (fp, "<script type=\"text/javascript\">\n");
   fprintf (fp, "function t(c){for(var b=c.parentNode.parentNode.parentNode");
@@ -894,39 +946,6 @@ get_max_hit (GHolder * h)
 
   return max;
 }
-
-/* sanitize output with html entities for special chars */
-static void
-clean_output (FILE * fp, char *s)
-{
-  while (*s) {
-    switch (*s) {
-    case '\'':
-      fprintf (fp, "&#39;");
-      break;
-    case '"':
-      fprintf (fp, "&#34;");
-      break;
-    case '&':
-      fprintf (fp, "&amp;");
-      break;
-    case '<':
-      fprintf (fp, "&lt;");
-      break;
-    case '>':
-      fprintf (fp, "&gt;");
-      break;
-    case ' ':
-      fprintf (fp, "&nbsp;");
-      break;
-    default:
-      fputc (*s, fp);
-      break;
-    }
-    s++;
-  }
-}
-
 
 static void
 print_pure_menu (FILE * fp, char *now)
@@ -1476,7 +1495,7 @@ print_html_summary (FILE * fp, GLog * logger)
   off_t log_size = 0;
   char *bw, *size;
 
-  fprintf (fp, "<h1><i class='icon-dashboard'></i> %s</h1>", T_DASH);
+  print_html_page_header (fp);
   print_html_h2 (fp, T_HEAD, GENER_ID);
   print_html_begin_grid (fp);
 
