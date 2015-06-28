@@ -26,6 +26,7 @@
 #define OUTPUT_H_INCLUDED
 
 #define OUTPUT_N  10
+#define REP_TITLE "Server Statistics"
 
 #include "commons.h"
 #include "parser.h"
