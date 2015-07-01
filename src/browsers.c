@@ -221,6 +221,7 @@ static const char *browsers[][2] = {
   {"Embedly", "Crawlers"},
   {"envolk", "Crawlers"},
   {"libwww-perl", "Crawlers"},
+  {"Ruby", "Crawlers"},
   {"python", "Crawlers"},
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
