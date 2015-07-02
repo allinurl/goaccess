@@ -19,15 +19,10 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-/*
- * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
- * correctly.
- */
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
-#define _XOPEN_SOURCE 700
 #define STDIN_FILENO  0
 #ifndef _BSD_SOURCE
 #define _BSD_SOURCE     /* include stuff from 4.3 BSD */
