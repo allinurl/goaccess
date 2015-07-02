@@ -290,29 +290,41 @@ get_global_config (void)
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
+int
+str_to_time (const char *str, const char *fmt, struct tm *tm)
+{
+  char *end = NULL;
+
+  if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
+    return 1;
+
+  end = strptime (str, fmt, tm);
+  if (end == NULL || *end != '\0')
+    return 1;
+
+  return 0;
+}
+
 char *
-convert_date (char *result, char *data, const char *from, const char *to,
-              int size)
+convert_date (char *res, char *data, const char *from, const char *to, int size)
 {
   struct tm tm;
-  char *end;
 
   memset (&tm, 0, sizeof (tm));
   timestamp = time (NULL);
   now_tm = localtime (&timestamp);
 
-  end = strptime (data, from, &tm);
-  if (end == NULL || *end != '\0')
+  if (str_to_time (data, from, &tm) != 0)
     return NULL;
 
   /* use current year if not passed */
   if (strpbrk (from, "Yy") == NULL)
     tm.tm_year = now_tm->tm_year;
 
-  if (strftime (result, size, to, &tm) <= 0)
+  if (strftime (res, size, to, &tm) <= 0)
     return NULL;
 
-  return result;
+  return res;
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"

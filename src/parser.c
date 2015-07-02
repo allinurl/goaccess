@@ -694,7 +694,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
 
-  char *pch, *sEnd, *bEnd, *tkn = NULL, *end = NULL;
+  char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
 
@@ -711,8 +711,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     tkn = parse_string (&(*str), p[1], count_matches (dfmt, ' ') + 1);
     if (tkn == NULL)
       return 1;
-    end = strptime (tkn, dfmt, &tm);
-    if (end == NULL || *end != '\0') {
+    if (str_to_time (tkn, dfmt, &tm) != 0) {
       free (tkn);
       return 1;
     }
@@ -725,8 +724,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    end = strptime (tkn, tfmt, &tm);
-    if (end == NULL || *end != '\0') {
+    if (str_to_time (tkn, tfmt, &tm) != 0) {
       free (tkn);
       return 1;
     }
