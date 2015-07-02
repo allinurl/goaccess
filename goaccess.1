@@ -439,9 +439,12 @@ The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
 .IP %D
-The time taken to serve the request, in microseconds.
+The time taken to serve the request, in microseconds as a decimal number.
 .IP %T
-The time taken to serve the request, in seconds or milliseconds.
+The time taken to serve the request, in seconds with milliseconds resolution.
+.IP %L
+The time taken to serve the request, in milliseconds as a decimal number.
+.IP
 .I Note:
 %D will take priority over %T if both are used.
 .IP %^
