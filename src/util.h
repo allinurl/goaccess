@@ -36,11 +36,12 @@
 /* *INDENT-OFF* */
 #include <stdint.h>
 #include <sys/types.h>
+#include <time.h>
 
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
-char *convert_date (char *result, char *data, const char *from, const char *to, int size);
+char *convert_date (char *res, char *data, const char *from, const char *to, int size);
 char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
@@ -66,6 +67,7 @@ int ignore_referer (const char *ref);
 int intlen (int num);
 int invalid_ipaddr (char *str, int *ipvx);
 int ip_in_range (const char *ip);
+int str_to_time (const char *str, const char *fmt, struct tm *tm);
 int wc_match(char *wc, char * str);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
