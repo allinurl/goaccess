@@ -446,7 +446,8 @@ The time taken to serve the request, in seconds with milliseconds resolution.
 The time taken to serve the request, in milliseconds as a decimal number.
 .IP
 .I Note:
-%D will take priority over %T if both are used.
+If multiple time served specifiers are used at the same time, the first option
+specified in the format string will take priority over the other specifiers.
 .IP %^
 Ignore this field.
 .P
