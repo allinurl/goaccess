@@ -1016,7 +1016,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       wmove (win, 15, 0);
 
       /* get input string */
-      cstm_time = input_string (win, 18, 2, 14, date_format, 0, 0);
+      cstm_time = input_string (win, 18, 2, 14, time_format, 0, 0);
       if (cstm_time != NULL && *cstm_time != '\0') {
         if (time_format)
           free (time_format);
