@@ -68,6 +68,7 @@ extern size_t term_w;
 
 #define DATE_TIME        20
 #define DATE_LEN         12     /* date length */
+#define HOUR_LEN          3     /* hour length */
 
 #define REQ_PROTO_LEN     9
 #define REQ_METHOD_LEN    8
@@ -215,10 +216,11 @@ GAgents *new_gagents (void);
 GAgentItem *new_gagent_item (uint32_t size);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
+int get_module_enum (const char *str);
+int has_timestamp (const char *fmt);
+int str2enum (const GEnum map[], int len, const char *str);
 void display_storage (void);
 void display_version (void);
-int get_module_enum (const char *str);
-int str2enum (const GEnum map[], int len, const char *str);
 
 /* single linked-list */
 GSLList *list_create (void *data);

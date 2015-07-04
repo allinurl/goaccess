@@ -730,6 +730,20 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     }
     glog->time = tkn;
     break;
+    /* date/time as decimal, i.e., timestamps, ms/us  */
+  case 'x':
+    if (glog->time && glog->date)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL)
+      return 1;
+    if (str_to_time (tkn, tfmt, &tm) != 0) {
+      free (tkn);
+      return 1;
+    }
+    glog->date = xstrdup (tkn);
+    glog->time = tkn;
+    break;
     /* remote hostname (IP only) */
   case 'h':
     if (glog->host)
@@ -1439,16 +1453,28 @@ static int
 gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
 {
   char *hmark = NULL;
+  char hour[HOUR_LEN] = "";     /* %H */
   if (!glog->time)
     return 1;
 
-  if ((hmark = strchr (glog->time, ':')) == NULL)
-    return 1;
+  /* if not a timestamp, then it must be a string containing the hour.
+   * this is faster than actual date conversion */
+  if (!has_timestamp (conf.time_format) && (hmark = strchr (glog->time, ':'))) {
+    if ((hmark - glog->time) > 0)
+      *hmark = '\0';
+    get_kdata (kdata, glog->time, glog->time);
+    return 0;
+  }
 
-  if ((hmark - glog->time) > 0)
-    *hmark = '\0';
-
-  get_kdata (kdata, glog->time, glog->time);
+  /* otherwise it attempts to convert the date given a time format,
+   * though this is slower */
+  memset (hour, 0, sizeof *hour);
+  convert_date (hour, glog->time, conf.time_format, "%H", HOUR_LEN);
+  if (hour != NULL && hour != '\0') {
+    free (glog->time);
+    glog->time = xstrdup (hour);
+    get_kdata (kdata, glog->time, glog->time);
+  }
 
   return 0;
 }
