@@ -218,3 +218,11 @@ format_date_visitors (GMetrics * metrics)
     metrics->data = xstrdup (date);
   }
 }
+
+int
+has_timestamp (const char *fmt)
+{
+  if (strcmp ("%s", fmt) == 0)
+    return 1;
+  return 0;
+}
