@@ -28,15 +28,15 @@ typedef struct GStorageMetrics_
   /* Maps keys (string) to numeric values (integer).
    * This mitigates the issue of having multiple stores
    * with the same string key, and therefore, avoids unnecessary
-   * memory usage (for most cases).
-   * HEAD|/index.php   -> 1
-   * POST|/index.php   -> 2
-   * POST|Windows XP   -> 3
-   * POST|Ubuntu 10.10 -> 4
-   * GET|Ubuntu 10.10  -> 5
-   * Linux             -> 6
-   * 26/Dec/2014       -> 7
-   * Windows           -> 8
+   * memory usage (in most cases).
+   * HEAD|/index.php  -> 1
+   * POST|/index.php  -> 2
+   * Windows XP       -> 3
+   * Ubuntu 10.10     -> 4
+   * GET|Ubuntu 10.10 -> 5
+   * Linux            -> 6
+   * 26/Dec/2014      -> 7
+   * Windows          -> 8
    */
   void *keymap;
 
