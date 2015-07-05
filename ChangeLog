@@ -1,3 +1,18 @@
+Changes to GoAccess 0.9.2 - Monday, July 06, 2015
+
+  * Added ability to fully parse browsers that contain spaces within a token.
+  * Added multiple user agents to the list of browsers.
+  * Added the ability to handle time served in milliseconds as a decimal number `%L`.
+  * Added the ability to parse a timestamp in microseconds.
+  * Added the ability to parse Google Cloud Storage access logs.
+  * Added the ability to set a custom title and header in the HTML report.
+  * Added '%x' as timestamp log-format specifier.
+  * Ensure agents' hash table is destroyed upon exiting the program.
+  * Ensure 'Game Systems' are processed correctly.
+  * Ensure visitors panel header is updated depending if crawlers are parsed or not.
+  * Fixed issue where the date value was set as time value  in the config dialog.
+  * Fixed memory leak in the hits metrics when using the in-memory storage (GLib).
+
 Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
 
   * Added additional Nginx-specific status codes.
