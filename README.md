@@ -15,7 +15,7 @@ GoAccess parses the specified web log file and outputs the data to the X
 terminal. Features include:
 
 * General Statistics, bandwidth, etc.
-* Time taken to serve the request (useful to track pages that are slowing down your site)
+* Time taken to serve the request (_useful to track pages that are slowing down your site_)
 * Top Visitors
 * Requested files
 * Requested static files, images, swf, js, etc.
@@ -48,8 +48,8 @@ not limited to:
 
 ## Why GoAccess? ##
 The main idea behind GoAccess is being able to quickly analyze and view web
-server statistics in real time without having to generate an HTML report (great
-if you want to do a quick analysis of your access log via SSH).
+server statistics in real time without having to generate an HTML report (_great
+if you want to do a quick analysis of your access log via SSH_).
 
 Although it is possible to generate an HTML, JSON, CSV report, by default it
 outputs to a terminal.
