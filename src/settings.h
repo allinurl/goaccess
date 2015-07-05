@@ -53,7 +53,6 @@ typedef struct GPreConfDate_
 {
   const char *apache;
   const char *w3c;
-  const char *cloudfront;
   const char *usec;
 } GPreConfDate;
 
