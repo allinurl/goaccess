@@ -41,7 +41,6 @@
 char *alloc_string (const char *str);
 char *char_repeat (int n, char c);
 char *char_replace (char *str, char o, char n);
-char *convert_date (char *res, char *data, const char *from, const char *to, int size);
 char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
@@ -62,6 +61,7 @@ char *unescape_str (const char *src);
 char *usecs_to_str (unsigned long long usec);
 const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
+int convert_date (char *res, char *data, const char *from, const char *to, int size);
 int count_matches (const char *s1, char c);
 int ignore_referer (const char *ref);
 int intlen (int num);

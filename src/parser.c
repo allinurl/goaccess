@@ -1469,12 +1469,15 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  convert_date (hour, glog->time, conf.time_format, "%H", HOUR_LEN);
-  if (hour != NULL && hour != '\0') {
-    free (glog->time);
-    glog->time = xstrdup (hour);
-    get_kdata (kdata, glog->time, glog->time);
-  }
+  if (convert_date (hour, glog->time, conf.time_format, "%H", HOUR_LEN) != 0)
+    return 1;
+
+  if (hour == NULL || hour == '\0')
+    return 1;
+
+  free (glog->time);
+  glog->time = xstrdup (hour);
+  get_kdata (kdata, glog->time, glog->time);
 
   return 0;
 }
