@@ -293,10 +293,29 @@ get_global_config (void)
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm)
 {
-  char *end = NULL;
+  char *end = NULL, *sEnd = NULL;
+  unsigned long long usecs = 0;
 
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
+
+  /* check if char string needs to be convert from microseconds */
+  if (strcmp ("%f", fmt) == 0) {
+    errno = 0;
+    tm->tm_year = 1970 - 1900;
+    tm->tm_mday = 1;
+
+    usecs = strtoull (str, &sEnd, 10);
+    if (str == sEnd || *sEnd != '\0' || errno == ERANGE)
+      return 1;
+
+    tm->tm_sec = usecs / SECS;
+    tm->tm_isdst = -1;
+    if (mktime (tm) == -1)
+      return 1;
+
+    return 0;
+  }
 
   end = strptime (str, fmt, tm);
   if (end == NULL || *end != '\0')
