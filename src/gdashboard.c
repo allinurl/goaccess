@@ -43,6 +43,7 @@
 #include "geolocation.h"
 #endif
 
+#include "error.h"
 #include "gdns.h"
 #include "settings.h"
 #include "util.h"
@@ -538,8 +539,13 @@ render_data (GDashModule * data, GDashRender render, int *x)
   char *value, *padded_data;
 
   value = substring (data->data[idx].metrics->data, 0, w - *x);
-  if (module == VISITORS)
-    convert_date (buf, value, "%Y%m%d", "%d/%b/%Y", DATE_LEN);
+  if (module == VISITORS) {
+    /* verify we have a valid date conversion */
+    if (convert_date (buf, value, "%Y%m%d", "%d/%b/%Y", DATE_LEN) != 0) {
+      LOG_DEBUG (("invalid date: %s", value));
+      xstrncpy (buf, "---", 4);
+    }
+  }
 
   if (sel) {
     if (data->module == HOSTS && data->data[idx].is_subitem) {
@@ -1297,13 +1303,17 @@ data_visitors (GHolder * h)
   char date[DATE_LEN] = "";     /* Ymd */
   char *datum = h->items[h->idx].metrics->data;
 
-  /* make compiler happy */
   memset (date, 0, sizeof *date);
-  convert_date (date, datum, conf.date_format, "%Y%m%d", DATE_LEN);
-  if (date != NULL) {
+  /* verify we have a valid date conversion */
+  if (convert_date (date, datum, conf.date_format, "%Y%m%d", DATE_LEN) == 0) {
     free (datum);
     h->items[h->idx].metrics->data = xstrdup (date);
+    return;
   }
+  LOG_DEBUG (("invalid date: %s", datum));
+
+  free (datum);
+  h->items[h->idx].metrics->data = xstrdup ("---");
 }
 
 static int

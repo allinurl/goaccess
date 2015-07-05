@@ -324,7 +324,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
   return 0;
 }
 
-char *
+int
 convert_date (char *res, char *data, const char *from, const char *to, int size)
 {
   struct tm tm;
@@ -334,16 +334,16 @@ convert_date (char *res, char *data, const char *from, const char *to, int size)
   now_tm = localtime (&timestamp);
 
   if (str_to_time (data, from, &tm) != 0)
-    return NULL;
+    return 1;
 
   /* if not a timestamp, use current year if not passed */
   if (!has_timestamp (from) && strpbrk (from, "Yy") == NULL)
     tm.tm_year = now_tm->tm_year;
 
   if (strftime (res, size, to, &tm) <= 0)
-    return NULL;
+    return 1;
 
-  return res;
+  return 0;
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
