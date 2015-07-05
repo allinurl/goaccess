@@ -43,15 +43,18 @@ not limited to:
 * Apache virtual hosts
 * Combined Log Format (XLF/ELF) Apache | Nginx
 * Common Log Format (CLF) Apache
+* Google Cloud Storage.
 * W3C format (IIS).
 
 ## Why GoAccess? ##
 The main idea behind GoAccess is being able to quickly analyze and view web
-server statistics in real time without having to generate an HTML report.
-Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default
-it outputs to a terminal.
+server statistics in real time without having to generate an HTML report (great
+if you want to do a quick analysis of your access log via SSH).
 
-You can see it more as a monitor command tool than anything else.
+Although it is possible to generate an HTML, JSON, CSV report, by default it
+outputs to a terminal.
+
+You can see it more of a monitor command tool than anything else.
 
 ## Installation ##
 GoAccess can be compiled and used on *nix systems.
