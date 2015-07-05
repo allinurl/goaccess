@@ -39,22 +39,25 @@ static int nargc = 0;
 
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
-  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                  /* NCSA         */
-  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",            /* NCSA + VHost */
-  "%h %^[%d:%t %^] \"%r\" %s %b",                                /* CLF          */
-  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b",                          /* CLF+VHost    */
-  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",             /* W3C          */
-  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^" /* CloudFront   */
+  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA          */
+  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
+  "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF           */
+  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost     */
+  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C           */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront    */
+  "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
 };
 
 static const GPreConfDate dates = {
   "%d/%b/%Y", /* Apache     */
   "%Y-%m-%d", /* W3C        */
-  "%Y-%m-%d"  /* CloudFront */
+  "%Y-%m-%d", /* CloudFront */
+  "%f",       /* Cloud Storage*/
 };
 
 static const GPreConfTime times = {
   "%H:%M:%S",
+  "%f",       /* Cloud Storage*/
 };
 /* *INDENT-ON* */
 
@@ -232,6 +235,8 @@ get_selected_format_idx (void)
     return W3C;
   else if (strcmp (conf.log_format, logs.cloudfront) == 0)
     return CLOUDFRONT;
+  else if (strcmp (conf.log_format, logs.cloudstorage) == 0)
+    return CLOUDSTORAGE;
   else
     return -1;
 }
@@ -260,6 +265,9 @@ get_selected_format_str (size_t idx)
   case CLOUDFRONT:
     fmt = alloc_string (logs.cloudfront);
     break;
+  case CLOUDSTORAGE:
+    fmt = alloc_string (logs.cloudstorage);
+    break;
   }
 
   return fmt;
@@ -282,6 +290,9 @@ get_selected_date_str (size_t idx)
   case CLOUDFRONT:
     fmt = alloc_string (dates.cloudfront);
     break;
+  case CLOUDSTORAGE:
+    fmt = alloc_string (dates.usec);
+    break;
   }
 
   return fmt;
@@ -299,6 +310,9 @@ get_selected_time_str (size_t idx)
   case W3C:
   case CLOUDFRONT:
     fmt = alloc_string (times.fmt24);
+    break;
+  case CLOUDSTORAGE:
+    fmt = alloc_string (times.usec);
     break;
   }
 
