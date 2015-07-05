@@ -29,7 +29,7 @@ terminal. Features include:
 * Geo Location - Continent/Country/City
 * Visitors Time Distribution
 * HTTP Status Codes
-* Ability to output JSON and CSV
+* Ability to output `HTML`, `JSON` and `CSV`
 * Different Color Schemes
 * Support for large datasets and data persistence
 * Support for IPv6
@@ -51,7 +51,7 @@ The main idea behind GoAccess is being able to quickly analyze and view web
 server statistics in real time without having to generate an HTML report (_great
 if you want to do a quick analysis of your access log via SSH_).
 
-Although it is possible to generate an HTML, JSON, CSV report, by default it
+Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default it
 outputs to a terminal.
 
 You can see it more of a monitor command tool than anything else.
