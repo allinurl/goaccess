@@ -870,7 +870,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     "Common Log Format (CLF)",
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
-    "CloudFront (Download Distribution)"
+    "CloudFront (Download Distribution)",
+    "Google Cloud Storage"
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);
