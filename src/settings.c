@@ -51,7 +51,6 @@ static const GPreConfLog logs = {
 static const GPreConfDate dates = {
   "%d/%b/%Y", /* Apache     */
   "%Y-%m-%d", /* W3C        */
-  "%Y-%m-%d", /* CloudFront */
   "%f",       /* Cloud Storage*/
 };
 
@@ -284,11 +283,9 @@ get_selected_date_str (size_t idx)
   case VCOMBINED:
     fmt = alloc_string (dates.apache);
     break;
+  case CLOUDFRONT:
   case W3C:
     fmt = alloc_string (dates.w3c);
-    break;
-  case CLOUDFRONT:
-    fmt = alloc_string (dates.cloudfront);
     break;
   case CLOUDSTORAGE:
     fmt = alloc_string (dates.usec);
