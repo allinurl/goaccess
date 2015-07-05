@@ -380,8 +380,8 @@ Only if configured with --enable-tcb=btree
 GoAccess can parse virtually any web log format.
 .P
 Predefined options include, Common Log Format (CLF), Combined Log Format
-(XLF/ELF), including virtual host, Amazon CloudFront (Download Distribution) and
-W3C format (IIS).
+(XLF/ELF), including virtual host, Amazon CloudFront (Download Distribution),
+Google Cloud Storage and W3C format (IIS).
 .P
 GoAccess allows any custom format string as well.
 .P
@@ -397,6 +397,14 @@ variable followed by a space, specifies the log format time
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %T or %H:%M:%S.
+.IP
+.I Note:
+If a timestamp is given in microseconds,
+.I
+%f
+must be used as
+.I
+time_format
 .IP "date_format"
 The
 .I date_format
@@ -404,12 +412,27 @@ variable followed by a space, specifies the log format date containing any
 combination of regular characters and special format specifiers. They all begin
 with a percentage (%) sign. See `man strftime`. e.g.,
 .I %Y-%m-%d.
+.IP
+.I Note:
+If a timestamp is given in microseconds,
+.I
+%f
+must be used as
+.I
+date_format
 .IP "log_format"
 The
 .I log_format
 variable followed by a space or
 .I \\\\t
 , specifies the log format string.
+.IP %x
+A date and time field matching the
+.I time_format
+and
+.I date_format
+variables. This is used when a timestamp is given instead of the date and time
+being in two separated variables.
 .IP %t
 time field matching the
 .I time_format
