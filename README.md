@@ -89,9 +89,9 @@ GoAccess available
 
     # apt-get install goaccess
 
-**NOTE:** this might not always give you the latest stable version. To make
-sure that you're running the latest stable version of GoAccess see alternative
-option below.
+**NOTE:** It is likely this will install an outdated version of GoAccess. To
+make sure that you're running the latest stable version of GoAccess see
+alternative option below.
 
 #### Official GoAccess Debian & Ubuntu repository ####
 
