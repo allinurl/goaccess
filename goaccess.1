@@ -137,12 +137,22 @@ The time_format variable followed by a space, specifies the log format time
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %T or %H:%M:%S.
+
+Note that if a timestamp is given in microseconds,
+.I
+%f
+must be used as time-format
 .TP
 \fB\-\-date-format=<dateformat>
 The date_format variable followed by a space, specifies the log format date
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %Y-%m-%d.
+
+Note that if a timestamp is given in microseconds,
+.I
+%f
+must be used as date-format
 .TP
 \fB\-\-log-format=<logformat>
 The log_format variable followed by a space or
