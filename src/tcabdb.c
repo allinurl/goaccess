@@ -149,7 +149,7 @@ init_tables (GModule module)
   ht_storage[module].metrics->visitors =
     tc_adb_create (get_dbname (DB_VISITORS, module));
   ht_storage[module].metrics->bw = tc_adb_create (get_dbname (DB_BW, module));
-  ht_storage[module].metrics->time_served =
+  ht_storage[module].metrics->avgts =
     tc_adb_create (get_dbname (DB_AVGTS, module));
   ht_storage[module].metrics->methods =
     tc_adb_create (get_dbname (DB_METHODS, module));
@@ -194,7 +194,7 @@ free_tables (GStorageMetrics * metrics, GModule module)
   tc_db_close (metrics->hits, get_dbname (DB_HITS, module));
   tc_db_close (metrics->visitors, get_dbname (DB_VISITORS, module));
   tc_db_close (metrics->bw, get_dbname (DB_BW, module));
-  tc_db_close (metrics->time_served, get_dbname (DB_AVGTS, module));
+  tc_db_close (metrics->avgts, get_dbname (DB_AVGTS, module));
   tc_db_close (metrics->methods, get_dbname (DB_METHODS, module));
   tc_db_close (metrics->protocols, get_dbname (DB_PROTOCOLS, module));
 #ifdef TCB_MEMHASH
@@ -594,8 +594,8 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
   case MTRC_BW:
     adb = metrics->bw;
     break;
-  case MTRC_TIME_SERVED:
-    adb = metrics->time_served;
+  case MTRC_AVGTS:
+    adb = metrics->avgts;
     break;
   default:
     adb = NULL;

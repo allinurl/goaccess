@@ -63,7 +63,7 @@ new_ht_metrics (void)
   metrics->hits = NULL;
   metrics->visitors = NULL;
   metrics->bw = NULL;
-  metrics->time_served = NULL;
+  metrics->avgts = NULL;
   metrics->protocols = NULL;
   metrics->methods = NULL;
   metrics->agents = NULL;
@@ -122,8 +122,8 @@ get_storage_metric_by_module (GModule module, GMetric metric)
   case MTRC_BW:
     ht = metrics->bw;
     break;
-  case MTRC_TIME_SERVED:
-    ht = metrics->time_served;
+  case MTRC_AVGTS:
+    ht = metrics->avgts;
     break;
   case MTRC_METHODS:
     ht = metrics->methods;

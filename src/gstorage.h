@@ -93,7 +93,7 @@ typedef struct GStorageMetrics_
    * 1 -> 187
    * 2 -> 208
    */
-  void *time_served;
+  void *avgts;
 
   /* Maps numeric data keys to string values.
    * 1 -> GET
