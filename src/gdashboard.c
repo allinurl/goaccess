@@ -1428,7 +1428,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
     return;
 
   bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
-  ts = get_cumulative_from_key (data_nkey, h->module, MTRC_TIME_SERVED);
+  ts = get_cumulative_from_key (data_nkey, h->module, MTRC_AVGTS);
   visitors = get_num_from_key (data_nkey, h->module, MTRC_VISITORS);
 
   h->items[h->idx].metrics = new_gmetrics ();
@@ -1467,7 +1467,7 @@ set_root_metrics (int data_nkey, GDataMap * map, GModule module,
     return 1;
 
   bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
-  ts = get_cumulative_from_key (data_nkey, module, MTRC_TIME_SERVED);
+  ts = get_cumulative_from_key (data_nkey, module, MTRC_AVGTS);
   visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
 
   metrics = new_gmetrics ();

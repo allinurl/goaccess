@@ -80,7 +80,7 @@ init_tables (GModule module)
   ht_storage[module].metrics->hits = new_int_ht (g_free, NULL);
   ht_storage[module].metrics->visitors = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->bw = new_int_ht (g_free, g_free);
-  ht_storage[module].metrics->time_served = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->avgts = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->methods = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->protocols = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->agents = new_int_ht (g_free, NULL);
@@ -116,7 +116,7 @@ free_tables (GStorageMetrics * metrics)
   g_hash_table_destroy (metrics->hits);
   g_hash_table_destroy (metrics->visitors);
   g_hash_table_destroy (metrics->bw);
-  g_hash_table_destroy (metrics->time_served);
+  g_hash_table_destroy (metrics->avgts);
   g_hash_table_destroy (metrics->methods);
   g_hash_table_destroy (metrics->protocols);
   g_hash_table_destroy (metrics->agents);
@@ -483,8 +483,8 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
   case MTRC_BW:
     ht = metrics->bw;
     break;
-  case MTRC_TIME_SERVED:
-    ht = metrics->time_served;
+  case MTRC_AVGTS:
+    ht = metrics->avgts;
     break;
   default:
     ht = NULL;
