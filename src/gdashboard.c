@@ -642,7 +642,7 @@ render_avgts (GDashModule * data, GDashRender render, int *x)
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_usecs == -1)
+  if (style[module].color_avgts == -1)
     return;
 
   /* selected state */
@@ -651,9 +651,9 @@ render_avgts (GDashModule * data, GDashRender render, int *x)
   }
   /* regular state */
   else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
     mvwprintw (win, y, *x, "%9s", avgts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_usecs));
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
   }
 out:
 
