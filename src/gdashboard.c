@@ -629,9 +629,9 @@ render_protocol (GDashModule * data, GDashRender render, int *x)
   *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
 }
 
-/* render dashboard usecs */
+/* render dashboard averages time served */
 static void
-render_usecs (GDashModule * data, GDashRender render, int *x)
+render_avgts (GDashModule * data, GDashRender render, int *x)
 {
   WINDOW *win = render.win;
   GModule module = data->module;
@@ -866,7 +866,7 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
 
   /* render usecs if available */
   if (conf.serve_usecs)
-    render_usecs (data, render, &x);
+    render_avgts (data, render, &x);
   /* render request method if available */
   if (conf.append_method)
     render_method (data, render, &x);
