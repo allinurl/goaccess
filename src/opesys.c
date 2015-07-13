@@ -34,7 +34,7 @@
 /* {"search string", "belongs to"} */
 static const char *os[][2] = {
   {"Android", "Android"},
-  {"Windows NT 6.4", "Windows"},
+  {"Windows NT 10.0", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},
   {"Windows NT 6.3", "Windows"},
   {"Windows NT 6.2; ARM", "Windows"},
@@ -130,7 +130,7 @@ get_real_android (const char *droid)
 static char *
 get_real_win (const char *win)
 {
-  if (strstr (win, "6.4"))
+  if (strstr (win, "10.0"))
     return alloc_string ("Windows 10");
   else if (strstr (win, "6.3"))
     return alloc_string ("Windows 8.1");
