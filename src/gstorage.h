@@ -95,6 +95,9 @@ typedef struct GStorageMetrics_
    */
   void *avgts;
 
+  /* Slowest running requests */
+  void *maxts;
+
   /* Maps numeric data keys to string values.
    * 1 -> GET
    * 2 -> POST

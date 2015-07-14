@@ -97,6 +97,7 @@ typedef enum METRICS
   MTRC_VISITORS,
   MTRC_BW,
   MTRC_AVGTS,
+  MTRC_MAXTS,
   MTRC_METHODS,
   MTRC_PROTOCOLS,
   MTRC_AGENTS,
@@ -147,6 +148,14 @@ typedef struct GMetrics
     char *sts;
     uint64_t nts;
   } avgts;
+
+  /* holder has a numeric value, while
+   * dashboard has a displayable string value */
+  union
+  {
+    char *sts;
+    uint64_t nts;
+  } maxts;
 } GMetrics;
 
 typedef struct GSubItem_

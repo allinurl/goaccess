@@ -148,6 +148,7 @@ typedef struct GOutput_
   int8_t percent;
   int8_t bw;
   int8_t avgts;
+  int8_t maxts;
   int8_t protocol;
   int8_t method;
   int8_t data;

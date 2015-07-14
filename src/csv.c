@@ -115,9 +115,10 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
     fprintf (fp, "\"%4.2f%%\",", percent);
     fprintf (fp, "\"%lld\",", (long long) iter->metrics->bw.nbw);
 
-    if (conf.serve_usecs)
-      fprintf (fp, "\"%lld\"", (long long) iter->metrics->avgts.nts);
-    fprintf (fp, ",");
+    if (conf.serve_usecs) {
+      fprintf (fp, "\"%lld\",", (long long) iter->metrics->avgts.nts);
+      fprintf (fp, "\"%lld\",", (long long) iter->metrics->maxts.nts);
+    }
 
     if (conf.append_method && iter->metrics->method)
       fprintf (fp, "\"%s\"", iter->metrics->method);
@@ -152,9 +153,10 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
     fprintf (fp, "\"%4.2f%%\",", nmetrics->percent);
     fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
 
-    if (conf.serve_usecs)
-      fprintf (fp, "\"%lld\"", (long long) nmetrics->avgts.nts);
-    fprintf (fp, ",");
+    if (conf.serve_usecs) {
+      fprintf (fp, "\"%lld\",", (long long) nmetrics->avgts.nts);
+      fprintf (fp, "\"%lld\",", (long long) nmetrics->maxts.nts);
+    }
 
     if (conf.append_method && nmetrics->method)
       fprintf (fp, "\"%s\"", nmetrics->method);

@@ -125,6 +125,9 @@ get_storage_metric_by_module (GModule module, GMetric metric)
   case MTRC_AVGTS:
     ht = metrics->avgts;
     break;
+  case MTRC_MAXTS:
+    ht = metrics->maxts;
+    break;
   case MTRC_METHODS:
     ht = metrics->methods;
     break;
@@ -155,8 +158,10 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
   metrics->percent = percent < 0 ? 0 : percent;
   metrics->visitors = ometrics->visitors;
 
-  if (conf.serve_usecs && ometrics->hits > 0)
+  if (conf.serve_usecs && ometrics->hits > 0) {
     metrics->avgts.nts = ometrics->avgts.nts;
+    metrics->maxts.nts = ometrics->maxts.nts;
+  }
 
   if (conf.append_method && ometrics->method)
     metrics->method = ometrics->method;

@@ -60,6 +60,7 @@ int ht_insert_nkey_nval (TCADB * adb, int nkey, int nval);
 int ht_insert_str_from_int_key (TCADB *adb, int nkey, const char *value);
 int ht_insert_uniqmap (TCADB *adb, char *uniq_key);
 int ht_insert_unique_key (const char *key);
+int ht_max_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t newval);
 
 char *get_host_agent_val (int agent_nkey);
 char *get_hostname (const char *host);

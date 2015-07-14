@@ -160,6 +160,8 @@ free_dashboard_data (GDashData item)
     free (item.metrics->bw.sbw);
   if (conf.serve_usecs && item.metrics->avgts.sts)
     free (item.metrics->avgts.sts);
+  if (conf.serve_usecs && item.metrics->maxts.sts)
+    free (item.metrics->maxts.sts);
   free (item.metrics);
 }
 
@@ -660,6 +662,37 @@ out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
+/* render dashboard averages time served */
+static void
+render_maxts (GDashModule * data, GDashRender render, int *x)
+{
+  WINDOW *win = render.win;
+  GModule module = data->module;
+  const GDashStyle *style = module_style;
+
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *maxts = data->data[idx].metrics->maxts.sts;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
+  if (style[module].color_avgts == -1)
+    return;
+
+  /* selected state */
+  if (sel) {
+    draw_header (win, maxts, "%9s", y, *x, w, HIGHLIGHT, 0);
+  }
+  /* regular state */
+  else {
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
+    mvwprintw (win, y, *x, "%9s", maxts);
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
+  }
+out:
+
+  *x += DASH_SRV_TM_LEN + DASH_SPACE;
+}
+
 /* render dashboard bandwidth */
 static void
 render_bandwidth (GDashModule * data, GDashRender render, int *x)
@@ -865,8 +898,10 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render_bandwidth (data, render, &x);
 
   /* render usecs if available */
-  if (conf.serve_usecs)
+  if (conf.serve_usecs) {
     render_avgts (data, render, &x);
+    render_maxts (data, render, &x);
+  }
   /* render request method if available */
   if (conf.append_method)
     render_method (data, render, &x);
@@ -1192,8 +1227,10 @@ sort_sub_list (GHolder * h, GSort sort)
       arr[j].metrics->hits = iter->metrics->hits;
       arr[j].metrics->id = iter->metrics->id;
       arr[j].metrics->visitors = iter->metrics->visitors;
-      if (conf.serve_usecs)
+      if (conf.serve_usecs) {
         arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
+        arr[j].metrics->maxts.nts = iter->metrics->maxts.nts;
+      }
     }
     sort_holder_items (arr, j, sort);
     delete_sub_list (sub_list);
@@ -1237,8 +1274,10 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
     idata->metrics->bw.sbw = filesize_str (iter->metrics->bw.nbw);
     idata->metrics->data = xstrdup (entry);
     idata->metrics->hits = iter->metrics->hits;
-    if (conf.serve_usecs)
+    if (conf.serve_usecs) {
       idata->metrics->avgts.sts = usecs_to_str (iter->metrics->avgts.nts);
+      idata->metrics->maxts.sts = usecs_to_str (iter->metrics->maxts.nts);
+    }
 
     idata->is_subitem = 1;
     (*idx)++;
@@ -1265,8 +1304,10 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
     idata->metrics->method = item.metrics->method;
   if (conf.append_protocol && item.metrics->protocol)
     idata->metrics->protocol = item.metrics->protocol;
-  if (conf.serve_usecs)
+  if (conf.serve_usecs) {
     idata->metrics->avgts.sts = usecs_to_str (item.metrics->avgts.nts);
+    idata->metrics->maxts.sts = usecs_to_str (item.metrics->maxts.nts);
+  }
 
   (*idx)++;
 }
@@ -1417,7 +1458,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   GDataMap *map;
   char *data = NULL, *method = NULL, *protocol = NULL;
   int data_nkey = 0, visitors = 0;
-  uint64_t bw = 0, ts = 0;
+  uint64_t bw = 0, avgts = 0, maxts = 0;
 
   data_nkey = (*(int *) item.key);
   map = (GDataMap *) item.value;
@@ -1428,7 +1469,8 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
     return;
 
   bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
-  ts = get_cumulative_from_key (data_nkey, h->module, MTRC_AVGTS);
+  avgts = get_cumulative_from_key (data_nkey, h->module, MTRC_AVGTS);
+  maxts = get_cumulative_from_key (data_nkey, h->module, MTRC_MAXTS);
   visitors = get_num_from_key (data_nkey, h->module, MTRC_VISITORS);
 
   h->items[h->idx].metrics = new_gmetrics ();
@@ -1436,7 +1478,8 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->data = data;
   h->items[h->idx].metrics->bw.nbw = bw;
-  h->items[h->idx].metrics->avgts.nts = ts / map->data;
+  h->items[h->idx].metrics->avgts.nts = avgts / map->data;
+  h->items[h->idx].metrics->maxts.nts = maxts;
 
   if (conf.append_method) {
     method = get_node_from_key (data_nkey, h->module, MTRC_METHODS);
@@ -1460,18 +1503,20 @@ set_root_metrics (int data_nkey, GDataMap * map, GModule module,
 {
   GMetrics *metrics;
   char *data = NULL;
-  uint64_t bw = 0, ts = 0;
+  uint64_t bw = 0, avgts = 0, maxts = 0;
   int visitors = 0;
 
   if (!(data = get_node_from_key (data_nkey, module, MTRC_DATAMAP)))
     return 1;
 
   bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
-  ts = get_cumulative_from_key (data_nkey, module, MTRC_AVGTS);
+  avgts = get_cumulative_from_key (data_nkey, module, MTRC_AVGTS);
+  maxts = get_cumulative_from_key (data_nkey, module, MTRC_MAXTS);
   visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
 
   metrics = new_gmetrics ();
-  metrics->avgts.nts = ts / map->data;
+  metrics->avgts.nts = avgts / map->data;
+  metrics->maxts.nts = maxts;
   metrics->bw.nbw = bw;
   metrics->data = data;
   metrics->hits = map->data;
@@ -1524,6 +1569,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
 
   h->items[idx].metrics = metrics;
   h->items[idx].metrics->avgts.nts += nmetrics->avgts.nts;
+  h->items[idx].metrics->maxts.nts += nmetrics->maxts.nts;
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;

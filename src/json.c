@@ -138,9 +138,12 @@ print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
   fprintf (fp, "%s\t\"percent\": %4.2f,\n", sep, nmetrics->percent);
   fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
 
-  if (conf.serve_usecs)
-    fprintf (fp, "%s\t\"time_served\": %lld,\n", sep,
+  if (conf.serve_usecs) {
+    fprintf (fp, "%s\t\"avgts\": %lld,\n", sep,
              (long long) nmetrics->avgts.nts);
+    fprintf (fp, "%s\t\"maxts\": %lld,\n", sep,
+             (long long) nmetrics->maxts.nts);
+  }
 
   if (conf.append_method && nmetrics->method)
     fprintf (fp, "%s\t\"method\": \"%s\",\n", sep, nmetrics->method);
