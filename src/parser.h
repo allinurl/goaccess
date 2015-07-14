@@ -118,6 +118,7 @@ typedef struct GParse_
   void (*visitor) (int uniq_nkey, GModule module);
   void (*bw) (int data_nkey, uint64_t size, GModule module);
   void (*avgts) (int data_nkey, uint64_t ts, GModule module);
+  void (*maxts) (int data_nkey, uint64_t ts, GModule module);
   void (*method) (int data_nkey, const char *method, GModule module);
   void (*protocol) (int data_nkey, const char *proto, GModule module);
   void (*agent) (int data_nkey, int agent_nkey, GModule module);

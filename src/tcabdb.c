@@ -151,6 +151,8 @@ init_tables (GModule module)
   ht_storage[module].metrics->bw = tc_adb_create (get_dbname (DB_BW, module));
   ht_storage[module].metrics->avgts =
     tc_adb_create (get_dbname (DB_AVGTS, module));
+  ht_storage[module].metrics->maxts =
+    tc_adb_create (get_dbname (DB_MAXTS, module));
   ht_storage[module].metrics->methods =
     tc_adb_create (get_dbname (DB_METHODS, module));
   ht_storage[module].metrics->protocols =
@@ -195,6 +197,7 @@ free_tables (GStorageMetrics * metrics, GModule module)
   tc_db_close (metrics->visitors, get_dbname (DB_VISITORS, module));
   tc_db_close (metrics->bw, get_dbname (DB_BW, module));
   tc_db_close (metrics->avgts, get_dbname (DB_AVGTS, module));
+  tc_db_close (metrics->maxts, get_dbname (DB_MAXTS, module));
   tc_db_close (metrics->methods, get_dbname (DB_METHODS, module));
   tc_db_close (metrics->protocols, get_dbname (DB_PROTOCOLS, module));
 #ifdef TCB_MEMHASH
@@ -419,6 +422,27 @@ ht_inc_int_from_int_key (TCADB * adb, int data_nkey, int inc)
 }
 
 int
+ht_max_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t newval)
+{
+  int sp = 0;
+  void *value_ptr;
+  uint64_t curval = 0;
+
+  if (adb == NULL)
+    return (EINVAL);
+
+  if ((value_ptr = tcadbget (adb, &data_nkey, sizeof (data_nkey), &sp)) != NULL) {
+    curval = (*(uint64_t *) value_ptr);
+    free (value_ptr);
+  }
+
+  if (curval < newval)
+    tcadbput (adb, &data_nkey, sizeof (data_nkey), &newval, sizeof (uint64_t));
+
+  return 0;
+}
+
+int
 ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc)
 {
   if (adb == NULL)
@@ -596,6 +620,9 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
     break;
   case MTRC_AVGTS:
     adb = metrics->avgts;
+    break;
+  case MTRC_MAXTS:
+    adb = metrics->maxts;
     break;
   default:
     adb = NULL;

@@ -81,6 +81,7 @@ init_tables (GModule module)
   ht_storage[module].metrics->visitors = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->bw = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->avgts = new_int_ht (g_free, g_free);
+  ht_storage[module].metrics->maxts = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->methods = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->protocols = new_int_ht (g_free, g_free);
   ht_storage[module].metrics->agents = new_int_ht (g_free, NULL);
@@ -117,6 +118,7 @@ free_tables (GStorageMetrics * metrics)
   g_hash_table_destroy (metrics->visitors);
   g_hash_table_destroy (metrics->bw);
   g_hash_table_destroy (metrics->avgts);
+  g_hash_table_destroy (metrics->maxts);
   g_hash_table_destroy (metrics->methods);
   g_hash_table_destroy (metrics->protocols);
   g_hash_table_destroy (metrics->agents);
@@ -338,6 +340,30 @@ ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t inc)
 }
 
 int
+ht_max_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t newval)
+{
+  gpointer value_ptr;
+  int *key;
+  uint64_t curval = 0;
+
+  if (ht == NULL)
+    return (EINVAL);
+
+  key = int2ptr (data_nkey);
+  value_ptr = g_hash_table_lookup (ht, key);
+  if (value_ptr != NULL)
+    curval = (*(uint64_t *) value_ptr);
+
+  if (curval < newval) {
+    g_hash_table_replace (ht, key, uint642ptr (newval));
+  } else {
+    free (key);
+  }
+
+  return 0;
+}
+
+int
 ht_inc_int_from_str_key (GHashTable * ht, char *key, int inc)
 {
   if (ht == NULL)
@@ -485,6 +511,9 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
     break;
   case MTRC_AVGTS:
     ht = metrics->avgts;
+    break;
+  case MTRC_MAXTS:
+    ht = metrics->maxts;
     break;
   default:
     ht = NULL;

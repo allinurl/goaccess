@@ -54,21 +54,21 @@ static void fmt_date (GMetrics * metrics);
 
 /* *INDENT-OFF* */
 static GOutput paneling[] = {
-  {VISITORS        , print_html_data , fmt_date, "Date" , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {REQUESTS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {REQUESTS_STATIC , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {NOT_FOUND       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {HOSTS           , print_html_host , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {OS              , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {BROWSERS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {VISIT_TIMES     , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {REFERRERS       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {REFERRING_SITES , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {KEYPHRASES      , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {VISITORS        , print_html_data , fmt_date, "Date" , 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {REQUESTS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {REQUESTS_STATIC , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {NOT_FOUND       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
+  {HOSTS           , print_html_host , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
+  {OS              , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {BROWSERS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {VISIT_TIMES     , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
+  {REFERRERS       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {REFERRING_SITES , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {KEYPHRASES      , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {GEO_LOCATION    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 #endif
-  {STATUS_CODES    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {STATUS_CODES    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
 };
 
 /* base64 icons */
@@ -784,6 +784,7 @@ print_html_header (FILE * fp, char *now)
   "    text-align: left;"
   "    text-shadow: 0px -1px 0px #000;"
   "    vertical-align: bottom;"
+  "    white-space: nowrap;"
   "}"
   ".pure-table td {"
   "    background-color: #FFF"
@@ -1190,16 +1191,31 @@ print_metric_bw (FILE * fp, GMetrics * nmetrics)
 static void
 print_metric_avgts (FILE * fp, GMetrics * nmetrics)
 {
-  char *ts = NULL;
+  char *avgts = NULL;
   if (!conf.serve_usecs)
     return;
 
-  ts = usecs_to_str (nmetrics->avgts.nts);
+  avgts = usecs_to_str (nmetrics->avgts.nts);
   fprintf (fp, "<td class='num'>");
-  clean_output (fp, ts);
+  clean_output (fp, avgts);
   fprintf (fp, "</td>");
 
-  free (ts);
+  free (avgts);
+}
+
+static void
+print_metric_maxts (FILE * fp, GMetrics * nmetrics)
+{
+  char *maxts = NULL;
+  if (!conf.serve_usecs)
+    return;
+
+  maxts = usecs_to_str (nmetrics->maxts.nts);
+  fprintf (fp, "<td class='num'>");
+  clean_output (fp, maxts);
+  fprintf (fp, "</td>");
+
+  free (maxts);
 }
 
 static void
@@ -1246,6 +1262,8 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
     print_metric_bw (fp, nmetrics);
   if (panel->avgts)
     print_metric_avgts (fp, nmetrics);
+  if (panel->maxts)
+    print_metric_maxts (fp, nmetrics);
   if (panel->protocol)
     print_metric_protocol (fp, nmetrics);
   if (panel->method)
@@ -1377,7 +1395,12 @@ print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
                  int max_vis, const GOutput * panel)
 {
   GMetrics *nmetrics;
-  int i, cspan = panel->avgts && conf.serve_usecs ? 6 : 5;
+  int i, cspan = 5;
+
+  if (panel->avgts && conf.serve_usecs)
+    cspan++;
+  if (panel->maxts && conf.serve_usecs)
+    cspan++;
 
   for (i = 0; i < h->idx; i++) {
     set_data_metrics (h->items[i].metrics, &nmetrics, processed);
@@ -1464,8 +1487,10 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>%%</th>");
   fprintf (fp, "<th>Bandwidth</th>");
 
-  if (conf.serve_usecs)
-    fprintf (fp, "<th>Time&nbsp;served</th>");
+  if (conf.serve_usecs) {
+    fprintf (fp, "<th>Avg. T.S.</th>");
+    fprintf (fp, "<th>Max. T.S.</th>");
+  }
   if (conf.append_protocol && panel->protocol)
     fprintf (fp, "<th>Protocol</th>");
   if (conf.append_method && panel->method)
