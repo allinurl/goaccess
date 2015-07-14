@@ -31,6 +31,9 @@
 #include "util.h"
 #include "xmalloc.h"
 
+/* ###NOTE: The size of the list is proportional to the run time,
+ * which makes this pretty slow */
+
 /* {"search string", "belongs to"} */
 static const char *os[][2] = {
   {"Android", "Android"},
