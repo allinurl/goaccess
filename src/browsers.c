@@ -29,6 +29,9 @@
 #include "error.h"
 #include "xmalloc.h"
 
+/* ###NOTE: The size of the list is proportional to the run time,
+ * which makes this pretty slow */
+
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
   /* Game systems: most of them are based of major browsers,
