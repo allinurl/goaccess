@@ -1263,7 +1263,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
         menu->idx = i;
       }
     } else if (SORT_BY_USEC == field) {
-      menu->items[i].name = alloc_string ("Time Served");
+      menu->items[i].name = alloc_string ("Avg. Time Served");
       if (sort->field == SORT_BY_USEC) {
         menu->items[i].checked = 1;
         menu->idx = i;
@@ -1335,7 +1335,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           sort->field = SORT_BY_DATA;
         else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
           sort->field = SORT_BY_BW;
-        else if (strcmp ("Time Served", menu->items[i].name) == 0)
+        else if (strcmp ("Avg. Time Served", menu->items[i].name) == 0)
           sort->field = SORT_BY_USEC;
         else if (strcmp ("Protocol", menu->items[i].name) == 0)
           sort->field = SORT_BY_PROT;
