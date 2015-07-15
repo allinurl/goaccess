@@ -54,13 +54,13 @@ const int sort_choices[][SORT_MAX_OPTS] = {
 };
 
 static GEnum FIELD[] = {
-  {"BY_HITS" , SORT_BY_HITS } ,
-  {"BY_VISITORS"  , SORT_BY_VISITORS } ,
-  {"BY_DATA" , SORT_BY_DATA } ,
-  {"BY_BW"   , SORT_BY_BW } ,
-  {"BY_USEC" , SORT_BY_AVGTS } ,
-  {"BY_PROT" , SORT_BY_PROT } ,
-  {"BY_MTHD" , SORT_BY_MTHD } ,
+  {"BY_HITS"     , SORT_BY_HITS     } ,
+  {"BY_VISITORS" , SORT_BY_VISITORS } ,
+  {"BY_DATA"     , SORT_BY_DATA     } ,
+  {"BY_BW"       , SORT_BY_BW       } ,
+  {"BY_AVGTS"    , SORT_BY_AVGTS    } ,
+  {"BY_PROT"     , SORT_BY_PROT     } ,
+  {"BY_MTHD"     , SORT_BY_MTHD     } ,
 };
 
 static GEnum ORDER[] = {
