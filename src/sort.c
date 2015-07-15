@@ -36,21 +36,21 @@
 
 /* *INDENT-OFF* */
 const int sort_choices[][SORT_MAX_OPTS] = {
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, SORT_BY_PROT, SORT_BY_MTHD, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
 #ifdef HAVE_LIBGEOIP
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
 #endif
-  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, -1},
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_MAXTS, -1},
 };
 
 static GEnum FIELD[] = {
@@ -59,6 +59,7 @@ static GEnum FIELD[] = {
   {"BY_DATA"     , SORT_BY_DATA     } ,
   {"BY_BW"       , SORT_BY_BW       } ,
   {"BY_AVGTS"    , SORT_BY_AVGTS    } ,
+  {"BY_MAXTS"    , SORT_BY_MAXTS    } ,
   {"BY_PROT"     , SORT_BY_PROT     } ,
   {"BY_MTHD"     , SORT_BY_MTHD     } ,
 };
@@ -225,6 +226,32 @@ cmp_avgts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
+/* sort usec descending */
+static int
+cmp_maxts_desc (const void *a, const void *b)
+{
+  const GHolderItem *ia = a;
+  const GHolderItem *ib = b;
+
+  uint64_t va = ia->metrics->maxts.nts;
+  uint64_t vb = ib->metrics->maxts.nts;
+
+  return (va < vb) - (va > vb);
+}
+
+/* sort usec ascending */
+static int
+cmp_maxts_asc (const void *a, const void *b)
+{
+  const GHolderItem *ia = a;
+  const GHolderItem *ib = b;
+
+  uint64_t va = ia->metrics->maxts.nts;
+  uint64_t vb = ib->metrics->maxts.nts;
+
+  return (va > vb) - (va < vb);
+}
+
 /* sort protocol ascending */
 static int
 cmp_proto_asc (const void *a, const void *b)
@@ -300,6 +327,8 @@ can_sort_module (GModule module, int field)
       continue;
     if (SORT_BY_AVGTS == field && !conf.serve_usecs)
       continue;
+    if (SORT_BY_MAXTS == field && !conf.serve_usecs)
+      continue;
     else if (SORT_BY_BW == field && !conf.bandwidth)
       continue;
     else if (SORT_BY_PROT == field && !conf.append_protocol)
@@ -362,6 +391,12 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
       qsort (items, size, sizeof (GHolderItem), cmp_avgts_desc);
     else
       qsort (items, size, sizeof (GHolderItem), cmp_avgts_asc);
+    break;
+  case SORT_BY_MAXTS:
+    if (sort.sort == SORT_DESC)
+      qsort (items, size, sizeof (GHolderItem), cmp_maxts_desc);
+    else
+      qsort (items, size, sizeof (GHolderItem), cmp_maxts_asc);
     break;
   case SORT_BY_PROT:
     if (sort.sort == SORT_DESC)

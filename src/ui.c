@@ -1213,6 +1213,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     GSortField field = sort_choices[module][i];
     if (SORT_BY_AVGTS == field && !conf.serve_usecs)
       continue;
+    else if (SORT_BY_MAXTS == field && !conf.bandwidth)
+      continue;
     else if (SORT_BY_BW == field && !conf.bandwidth)
       continue;
     else if (SORT_BY_PROT == field && !conf.append_protocol)
@@ -1265,6 +1267,12 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     } else if (SORT_BY_AVGTS == field) {
       menu->items[i].name = alloc_string ("Avg. Time Served");
       if (sort->field == SORT_BY_AVGTS) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
+    } else if (SORT_BY_MAXTS == field) {
+      menu->items[i].name = alloc_string ("Max. Time Served");
+      if (sort->field == SORT_BY_MAXTS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
@@ -1337,6 +1345,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           sort->field = SORT_BY_BW;
         else if (strcmp ("Avg. Time Served", menu->items[i].name) == 0)
           sort->field = SORT_BY_AVGTS;
+        else if (strcmp ("Max. Time Served", menu->items[i].name) == 0)
+          sort->field = SORT_BY_MAXTS;
         else if (strcmp ("Protocol", menu->items[i].name) == 0)
           sort->field = SORT_BY_PROT;
         else if (strcmp ("Method", menu->items[i].name) == 0)
