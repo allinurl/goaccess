@@ -201,7 +201,7 @@ cmp_bw_asc (const void *a, const void *b)
 
 /* sort usec descending */
 static int
-cmp_usec_desc (const void *a, const void *b)
+cmp_avgts_desc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
@@ -214,7 +214,7 @@ cmp_usec_desc (const void *a, const void *b)
 
 /* sort usec ascending */
 static int
-cmp_usec_asc (const void *a, const void *b)
+cmp_avgts_asc (const void *a, const void *b)
 {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
@@ -359,9 +359,9 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
     break;
   case SORT_BY_AVGTS:
     if (sort.sort == SORT_DESC)
-      qsort (items, size, sizeof (GHolderItem), cmp_usec_desc);
+      qsort (items, size, sizeof (GHolderItem), cmp_avgts_desc);
     else
-      qsort (items, size, sizeof (GHolderItem), cmp_usec_asc);
+      qsort (items, size, sizeof (GHolderItem), cmp_avgts_asc);
     break;
   case SORT_BY_PROT:
     if (sort.sort == SORT_DESC)
