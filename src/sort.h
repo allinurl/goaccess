@@ -39,7 +39,7 @@ typedef enum GSortField_
   SORT_BY_VISITORS,
   SORT_BY_DATA,
   SORT_BY_BW,
-  SORT_BY_USEC,
+  SORT_BY_AVGTS,
   SORT_BY_PROT,
   SORT_BY_MTHD,
 } GSortField;
