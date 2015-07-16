@@ -33,7 +33,7 @@
 #define DASH_HEAD_POS   0  /* header line pos */
 #define DASH_DESC_POS   1  /* description line pos */
 #define DASH_EMPTY_POS  2  /* empty line pos */
-#define DASH_DATA_POS   3  /* empty line pos */
+#define DASH_DATA_POS   3  /* data line pos */
 
 #define DASH_COLLAPSED  11 /* total lines per module */
 #define DASH_EXPANDED   32 /* total lines when expanded */
