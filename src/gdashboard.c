@@ -63,21 +63,21 @@ static GFind find_t;
 /* *INDENT-OFF* */
 /* module's styles */
 static const GDashStyle module_style[TOTAL_MODULES] = {
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , COL_BLACK , COL_WHITE} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
 #ifdef HAVE_LIBGEOIP
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
 #endif
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
 };
 
 static GPanel paneling[] = {
@@ -675,7 +675,7 @@ render_maxts (GDashModule * data, GDashRender render, int *x)
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_avgts == -1)
+  if (style[module].color_maxts == -1)
     return;
 
   /* selected state */
@@ -684,9 +684,9 @@ render_maxts (GDashModule * data, GDashRender render, int *x)
   }
   /* regular state */
   else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_maxts));
     mvwprintw (win, y, *x, "%9s", maxts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_maxts));
   }
 out:
 
