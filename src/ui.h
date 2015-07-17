@@ -35,7 +35,14 @@
 #include <pthread.h>
 #endif
 
-/* overall stats */
+/* Global UI defaults */
+#define MAX_CHOICES       366
+#define MIN_HEIGHT        7
+#define MIN_WIDTH         0
+#define MAX_HEIGHT_FOOTER 1
+#define MAX_HEIGHT_HEADER 6
+
+/* Overall Stats Labels */
 #define T_DASH       "Dashboard"
 #define T_HEAD       "Overall Analyzed Requests"
 
@@ -53,14 +60,14 @@
 #define T_BW         "Bandwidth"
 #define T_LOG_PATH   "Log File"
 
-/* spinner label format */
+/* Spinner Label Format */
 #define SPIN_FMT "%s"
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50
 
 #define INCLUDE_BOTS " - Including spiders"
 
-/* modules */
+/* Module Labels and Descriptions */
 #define VISIT_HEAD  "Unique visitors per day"
 #define VISIT_DESC  "Hits having the same IP, date and agent are a unique visit."
 #define VISIT_ID    "visitors"
@@ -128,7 +135,7 @@
 
 #define GENER_ID   "general"
 
-/* overall statistics */
+/* Overall Statistics CSV/JSON Keys */
 #define OVERALL_DATETIME  "date_time"
 #define OVERALL_REQ       "total_requests"
 #define OVERALL_GENTIME   "generation_time"
@@ -143,14 +150,9 @@
 #define OVERALL_BANDWIDTH "bandwidth"
 #define OVERALL_LOG       "log_path"
 
+/* Find Labels */
 #define FIND_HEAD    "Find pattern in all views"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
-
-#define MAX_CHOICES       366
-#define MIN_HEIGHT        7
-#define MIN_WIDTH         0
-#define MAX_HEIGHT_FOOTER 1
-#define MAX_HEIGHT_HEADER 6
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
@@ -211,6 +213,7 @@
 
 #define HIGHLIGHT         1
 
+/* Convenient macros */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
 #include "commons.h"
