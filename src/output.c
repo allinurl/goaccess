@@ -1482,19 +1482,19 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   if (h->module == HOSTS)
     fprintf (fp, "<th>-</th>");
 
-  fprintf (fp, "<th>Visitors</th>");
-  fprintf (fp, "<th>Hits</th>");
+  fprintf (fp, "<th>%s</th>", MTRC_VISITORS_LBL);
+  fprintf (fp, "<th>%s</th>", MTRC_HITS_LBL);
   fprintf (fp, "<th>%%</th>");
-  fprintf (fp, "<th>Bandwidth</th>");
+  fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
 
   if (conf.serve_usecs) {
-    fprintf (fp, "<th>Avg. T.S.</th>");
-    fprintf (fp, "<th>Max. T.S.</th>");
+    fprintf (fp, "<th>%s</th>", MTRC_AVGTS_LBL);
+    fprintf (fp, "<th>%s</th>", MTRC_MAXTS_LBL);
   }
   if (conf.append_protocol && panel->protocol)
-    fprintf (fp, "<th>Protocol</th>");
+    fprintf (fp, "<th>%s</th>", MTRC_PROTOCOLS_LBL);
   if (conf.append_method && panel->method)
-    fprintf (fp, "<th>Method</th>");
+    fprintf (fp, "<th>%s</th>", MTRC_METHODS_LBL);
 
   if (max_hit)
     fprintf (fp, "<th>%s</th>", lbl);

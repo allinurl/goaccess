@@ -150,6 +150,19 @@
 #define OVERALL_BANDWIDTH "bandwidth"
 #define OVERALL_LOG       "log_path"
 
+/* Metric Labels */
+#define MTRC_HITS_LBL            "Hits"
+#define MTRC_VISITORS_LBL        "Visitors"
+#define MTRC_VISITORS_SHORT_LBL  "Vis."
+#define MTRC_BW_LBL              "Bandwidth"
+#define MTRC_AVGTS_LBL           "Avg. T.S."
+#define MTRC_MAXTS_LBL           "Max. T.S."
+#define MTRC_METHODS_LBL         "Method"
+#define MTRC_METHODS_SHORT_LBL   "Mtd"
+#define MTRC_PROTOCOLS_LBL       "Protocol"
+#define MTRC_PROTOCOLS_SHORT_LBL "Proto"
+#define MTRC_DATA_LBL            "Data"
+
 /* Find Labels */
 #define FIND_HEAD    "Find pattern in all views"
 #define FIND_DESC    "Regex allowed - ^g to cancel - TAB switch case"
