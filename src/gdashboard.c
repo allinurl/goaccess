@@ -443,6 +443,10 @@ get_max_visitor_len (GDashData * data, int size)
     if (len > max)
       max = len;
   }
+
+  if (max < COLUMN_VIS_LEN)
+    max = COLUMN_VIS_LEN;
+
   return max;
 }
 
@@ -456,6 +460,10 @@ get_max_hit_len (GDashData * data, int size)
     if (len > max)
       max = len;
   }
+
+  if (max < COLUMN_HITS_LEN)
+    max = COLUMN_HITS_LEN;
+
   return max;
 }
 
@@ -470,6 +478,12 @@ get_max_hit (GDashData * data, int size)
       max = cur;
   }
   return max;
+}
+
+static int
+get_max_perc_len (int max_percent)
+{
+  return intlen ((int) max_percent);
 }
 
 /* set item's percent in GDashData */
@@ -792,7 +806,7 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   /* regular state */
   else {
     wattron (win, COLOR_PAIR (style[module].color_hits));
-    mvwprintw (win, y, *x, "%d", data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
     wattroff (win, COLOR_PAIR (style[module].color_hits));
   }
 out:
@@ -897,7 +911,7 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render_percent (data, render, &x);
   render_bandwidth (data, render, &x);
 
-  /* render usecs if available */
+  /* render avgts and maxts if available */
   if (conf.serve_usecs) {
     render_avgts (data, render, &x);
     render_maxts (data, render, &x);
@@ -919,6 +933,60 @@ out:
   (*y)++;
 }
 
+static void
+print_horizontal_dash (WINDOW * win, int y, int x, int len)
+{
+  mvwprintw (win, y, x, "%.*s", len, "----------------");
+}
+
+static void
+print_col (WINDOW * win, int y, int *x, int len, const char *fmt,
+           const char *str)
+{
+  mvwprintw (win, y, *x, fmt, str);
+  print_horizontal_dash (win, y + 1, *x, len);
+  *x += len + DASH_SPACE;
+}
+
+static void
+render_cols (WINDOW * win, GDashModule * data, int *y)
+{
+  GModule module = data->module;
+  const GDashStyle *style = module_style;
+  int x = DASH_INIT_X;
+
+  if (data->idx_data == 0)
+    return;
+
+  if (style[module].color_hits != -1)
+    print_col (win, *y, &x, data->hits_len, "%s", MTRC_HITS_LBL);
+
+  if (style[module].color_visitors != -1)
+    print_col (win, *y, &x, data->visitors_len, "%s", MTRC_VISITORS_SHORT_LBL);
+
+  if (style[module].color_percent != -1)
+    print_col (win, *y, &x, data->perc_len + 4, "%s", "%");
+
+  if (style[module].color_bw != -1)
+    print_col (win, *y, &x, DASH_BW_LEN, "%s", MTRC_BW_LBL);
+
+  if (style[module].color_avgts != -1 && conf.serve_usecs)
+    print_col (win, *y, &x, DASH_SRV_TM_LEN, "%s", MTRC_AVGTS_LBL);
+
+  if (style[module].color_maxts != -1 && conf.serve_usecs)
+    print_col (win, *y, &x, DASH_SRV_TM_LEN, "%s", MTRC_MAXTS_LBL);
+
+  if (style[module].color_method != -1 && conf.append_method)
+    print_col (win, *y, &x, data->method_len, "%s", MTRC_METHODS_SHORT_LBL);
+
+  if (style[module].color_protocol != -1 && conf.append_protocol)
+    print_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
+
+  if (style[module].color_data != -1)
+    print_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
+}
+
+
 /* render dashboard content */
 static void
 render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
@@ -928,17 +996,22 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
   int i, j, size, h, w;
 
   getmaxyx (win, h, w);
+  (void) w;
 
   size = data->dash_size;
   for (i = *offset, j = 0; i < size; i++) {
     /* header */
     if ((i % size) == DASH_HEAD_POS) {
       render_header (win, data, gscroll->current, y);
-    } else if ((i % size) == DASH_DESC_POS) {
-      /* description */
-      draw_header (win, data->desc, " %s", (*y)++, 0, w, 2, 0);
+    } else if ((i % size) == DASH_DASHES_POS) {
+      /* account for already printed dash lines under columns */
+      (*y)++;
     } else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1) {
       /* blank lines */
+      (*y)++;
+    } else if ((i % size) == DASH_COLS_POS) {
+      /* column headers lines */
+      render_cols (win, data, y);
       (*y)++;
     } else if ((i % size) >= DASH_DATA_POS || (i % size) <= size - 2) {
       /* account for 2 lines at the header and 2 blank lines */
@@ -988,7 +1061,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
     dash->module[module].data_len = get_max_data_len (idata, n);
     dash->module[module].hits_len = get_max_hit_len (idata, n);
     dash->module[module].max_hits = get_max_hit (idata, n);
-    dash->module[module].perc_len = intlen ((int) max_percent);
+    dash->module[module].perc_len = get_max_perc_len (max_percent);
     dash->module[module].visitors_len = get_max_visitor_len (idata, n);
 
     render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
