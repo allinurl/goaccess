@@ -338,16 +338,25 @@ get_find_current_module (GDash * dash, int offset)
 
 /* Get the number of rows that a collapsed dashboard panel contains */
 int
-get_num_collapsed_data_rows(void)
+get_num_collapsed_data_rows (void)
 {
-  return DASH_COLLAPSED - DASH_NON_DATA;
+  int size = DASH_COLLAPSED - DASH_NON_DATA;
+  return conf.no_column_names ? size + DASH_COL_ROWS : size;
 }
 
 /* Get the number of rows that the expanded dashboard panel contains */
 int
-get_num_expanded_data_rows(void)
+get_num_expanded_data_rows (void)
 {
-  return DASH_EXPANDED - DASH_NON_DATA;
+  int size = DASH_EXPANDED - DASH_NON_DATA;
+  return conf.no_column_names ? size + DASH_COL_ROWS : size;
+}
+
+/* Get the Y position where data rows start */
+static int
+get_data_pos_rows (void)
+{
+  return conf.no_column_names ? DASH_DATA_POS - DASH_COL_ROWS : DASH_DATA_POS;
 }
 
 /**
@@ -458,7 +467,7 @@ get_max_visitor_len (GDashData * data, int size)
       max = len;
   }
 
-  if (max < COLUMN_VIS_LEN)
+  if (!conf.no_column_names && max < COLUMN_VIS_LEN)
     max = COLUMN_VIS_LEN;
 
   return max;
@@ -475,7 +484,7 @@ get_max_hit_len (GDashData * data, int size)
       max = len;
   }
 
-  if (max < COLUMN_HITS_LEN)
+  if (!conf.no_column_names && max < COLUMN_HITS_LEN)
     max = COLUMN_HITS_LEN;
 
   return max;
@@ -978,7 +987,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
   const GDashStyle *style = module_style;
   int x = DASH_INIT_X;
 
-  if (data->idx_data == 0)
+  if (data->idx_data == 0 || conf.no_column_names)
     return;
 
   if (style[module].color_hits != -1)
@@ -1016,7 +1025,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
                 int *total, GScroll * gscroll)
 {
   GModule module = data->module;
-  int i, j, size, h, w;
+  int i, j, size, h, w, data_pos = get_data_pos_rows ();
 
   getmaxyx (win, h, w);
   (void) w;
@@ -1026,19 +1035,19 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
     /* header */
     if ((i % size) == DASH_HEAD_POS) {
       render_header (win, data, gscroll->current, y);
-    } else if ((i % size) == DASH_DASHES_POS) {
+    } else if ((i % size) == DASH_DASHES_POS && !conf.no_column_names) {
       /* account for already printed dash lines under columns */
       (*y)++;
     } else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1) {
       /* blank lines */
       (*y)++;
-    } else if ((i % size) == DASH_COLS_POS) {
+    } else if ((i % size) == DASH_COLS_POS && !conf.no_column_names) {
       /* column headers lines */
       render_cols (win, data, y);
       (*y)++;
-    } else if ((i % size) >= DASH_DATA_POS || (i % size) <= size - 2) {
+    } else if ((i % size) >= data_pos || (i % size) <= size - 2) {
       /* account for 2 lines at the header and 2 blank lines */
-      j = ((i % size) - DASH_DATA_POS) + gscroll->module[module].offset;
+      j = ((i % size) - data_pos) + gscroll->module[module].offset;
       /* actual data */
       render_data_line (win, data, y, j, gscroll);
     } else {
@@ -1127,7 +1136,7 @@ static void
 perform_find_dash_scroll (GScroll * gscroll, GModule module)
 {
   int *scrll, *offset;
-  int exp_size = get_num_expanded_data_rows();
+  int exp_size = get_num_expanded_data_rows ();
 
   /* reset gscroll offsets if we are changing module */
   if (gscroll->current != module)

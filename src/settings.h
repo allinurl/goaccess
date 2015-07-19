@@ -108,6 +108,7 @@ typedef struct GConf_
   int load_global_config;
   int mouse_support;
   int no_color;
+  int no_column_names;
   int no_csv_summary;
   int no_progress;
   int output_html;

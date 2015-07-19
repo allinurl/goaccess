@@ -30,27 +30,29 @@
 #include "ui.h"
 
 /* *INDENT-OFF* */
-#define DASH_HEAD_POS    0  /* header line pos */
-#define DASH_EMPTY_POS   1  /* empty line pos */
-#define DASH_COLS_POS    2  /* empty line pos */
-#define DASH_DASHES_POS  3  /* empty line pos */
-#define DASH_DATA_POS    4  /* data line pos */
+#define DASH_HEAD_POS    0 /* header line pos */
+#define DASH_EMPTY_POS   1 /* empty line pos */
+#define DASH_COLS_POS    2 /* empty line pos */
+#define DASH_DASHES_POS  3 /* empty line pos */
+#define DASH_DATA_POS    4 /* data line pos */
 
-#define DASH_COLLAPSED  12 /* total lines per module */
-#define DASH_EXPANDED   32 /* total lines when expanded */
-#define DASH_NON_DATA   5  /* items without stats */
+#define DASH_NON_DATA    5  /* items without stats */
+#define DASH_COL_ROWS    2  /* number of rows for column values + dashed lines */
 
-#define DASH_INIT_X     1  /* x-axis offset */
-#define DASH_BW_LEN     11 /* max bandwidth length */
-#define DASH_SRV_TM_LEN 9  /* max served time length */
-#define DASH_SPACE      1  /* space between data */
+#define DASH_COLLAPSED   12 /* total lines per module */
+#define DASH_EXPANDED    32 /* total lines when expanded */
+
+#define DASH_INIT_X      1  /* x-axis offset */
+#define DASH_BW_LEN      11 /* max bandwidth length */
+#define DASH_SRV_TM_LEN  9  /* max served time length */
+#define DASH_SPACE       1  /* space between data */
 
 #define MTRC_ID_COUNTRY  0
 #define MTRC_ID_CITY     1
 #define MTRC_ID_HOSTNAME 2
 
-#define COLUMN_HITS_LEN 4
-#define COLUMN_VIS_LEN  4
+#define COLUMN_HITS_LEN  4
+#define COLUMN_VIS_LEN   4
 
 typedef struct GDashStyle_
 {
