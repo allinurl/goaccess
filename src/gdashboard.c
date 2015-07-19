@@ -1127,7 +1127,7 @@ static void
 perform_find_dash_scroll (GScroll * gscroll, GModule module)
 {
   int *scrll, *offset;
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int exp_size = get_num_expanded_data_rows();
 
   /* reset gscroll offsets if we are changing module */
   if (gscroll->current != module)
