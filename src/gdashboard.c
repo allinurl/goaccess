@@ -940,10 +940,19 @@ print_horizontal_dash (WINDOW * win, int y, int x, int len)
 }
 
 static void
-print_col (WINDOW * win, int y, int *x, int len, const char *fmt,
-           const char *str)
+lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
+            const char *str)
 {
   mvwprintw (win, y, *x, fmt, str);
+  print_horizontal_dash (win, y + 1, *x, len);
+  *x += len + DASH_SPACE;
+}
+
+static void
+rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
+            const char *str)
+{
+  mvwprintw (win, y, *x, fmt, len, str);
   print_horizontal_dash (win, y + 1, *x, len);
   *x += len + DASH_SPACE;
 }
@@ -959,33 +968,33 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
     return;
 
   if (style[module].color_hits != -1)
-    print_col (win, *y, &x, data->hits_len, "%s", MTRC_HITS_LBL);
+    rprint_col (win, *y, &x, data->hits_len, "%*s", MTRC_HITS_LBL);
 
   if (style[module].color_visitors != -1)
-    print_col (win, *y, &x, data->visitors_len, "%s", MTRC_VISITORS_SHORT_LBL);
+    rprint_col (win, *y, &x, data->visitors_len, "%*s",
+                MTRC_VISITORS_SHORT_LBL);
 
   if (style[module].color_percent != -1)
-    print_col (win, *y, &x, data->perc_len + 4, "%s", "%");
+    rprint_col (win, *y, &x, data->perc_len + 4, "%*s", "%");
 
   if (style[module].color_bw != -1)
-    print_col (win, *y, &x, DASH_BW_LEN, "%s", MTRC_BW_LBL);
+    rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
 
   if (style[module].color_avgts != -1 && conf.serve_usecs)
-    print_col (win, *y, &x, DASH_SRV_TM_LEN, "%s", MTRC_AVGTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
 
   if (style[module].color_maxts != -1 && conf.serve_usecs)
-    print_col (win, *y, &x, DASH_SRV_TM_LEN, "%s", MTRC_MAXTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
 
   if (style[module].color_method != -1 && conf.append_method)
-    print_col (win, *y, &x, data->method_len, "%s", MTRC_METHODS_SHORT_LBL);
+    lprint_col (win, *y, &x, data->method_len, "%s", MTRC_METHODS_SHORT_LBL);
 
   if (style[module].color_protocol != -1 && conf.append_protocol)
-    print_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
+    lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
 
   if (style[module].color_data != -1)
-    print_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
+    lprint_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
 }
-
 
 /* render dashboard content */
 static void
