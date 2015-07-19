@@ -198,7 +198,7 @@ static void
 allocate_data (void)
 {
   GModule module;
-  int col_data = DASH_COLLAPSED - DASH_NON_DATA;
+  int col_data = get_num_collapsed_data_rows();
   int size = 0;
 
   dash = new_gdash ();
@@ -358,7 +358,7 @@ scroll_to_first_line (void)
 static void
 scroll_to_last_line (void)
 {
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int exp_size = get_num_expanded_data_rows();
   int scrll, offset;
 
   if (!gscroll.expanded)
@@ -438,7 +438,7 @@ expand_on_mouse_click (void)
 static void
 scroll_down_expanded_module (void)
 {
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int exp_size = get_num_expanded_data_rows();
   int *scroll_ptr, *offset_ptr;
 
   scroll_ptr = &gscroll.module[gscroll.current].scroll;
@@ -462,7 +462,7 @@ scroll_up_dashboard (void)
 static void
 page_up_module (void)
 {
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int exp_size = get_num_expanded_data_rows();
   int *scroll_ptr, *offset_ptr;
 
   scroll_ptr = &gscroll.module[gscroll.current].scroll;
@@ -484,7 +484,7 @@ page_up_module (void)
 static void
 page_down_module (void)
 {
-  int exp_size = DASH_EXPANDED - DASH_NON_DATA;
+  int exp_size = get_num_expanded_data_rows();
   int *scroll_ptr, *offset_ptr;
 
   scroll_ptr = &gscroll.module[gscroll.current].scroll;

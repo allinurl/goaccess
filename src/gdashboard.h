@@ -118,6 +118,8 @@ typedef struct GPanel_
 GDashData * new_gdata (uint32_t size);
 GDash *new_gdash (void);
 GHolder *new_gholder (uint32_t size);
+int get_num_collapsed_data_rows(void);
+int get_num_expanded_data_rows(void);
 int perform_next_find (GHolder * h, GScroll * scroll);
 int render_find_dialog (WINDOW * main_win, GScroll * scroll);
 int set_module_from_mouse_event (GScroll *scroll, GDash *dash, int y);

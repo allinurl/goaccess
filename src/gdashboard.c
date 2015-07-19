@@ -336,6 +336,20 @@ get_find_current_module (GDash * dash, int offset)
   return 0;
 }
 
+/* Get the number of rows that a collapsed dashboard panel contains */
+int
+get_num_collapsed_data_rows(void)
+{
+  return DASH_COLLAPSED - DASH_NON_DATA;
+}
+
+/* Get the number of rows that the expanded dashboard panel contains */
+int
+get_num_expanded_data_rows(void)
+{
+  return DASH_EXPANDED - DASH_NON_DATA;
+}
+
 /**
  * Determine which module should be expanded given the
  * current mouse position.
