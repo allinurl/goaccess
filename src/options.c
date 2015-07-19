@@ -67,14 +67,14 @@ struct option long_opts[] = {
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
-  {"time-format"          , required_argument , 0 ,  0  } ,
+  {"double-decode"        , no_argument       , 0 ,  0  } ,
+  {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
-  {"sort-panel"           , required_argument , 0 ,  0  } ,
-  {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
@@ -82,9 +82,10 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"double-decode"        , no_argument       , 0 ,  0  } ,
+  {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
+  {"time-format"          , required_argument , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
 #ifdef HAVE_LIBGEOIP
@@ -131,6 +132,7 @@ cmd_help (void)
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --no-color                      - Disable colored output.\n"
+  "  --no-column-names               - Don't write column names in term output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
   "  --no-progress                   - Disable progress metrics.\n\n"
 
@@ -393,6 +395,10 @@ read_option_args (int argc, char **argv)
       /* no color */
       if (!strcmp ("no-color", long_opts[idx].name))
         conf.no_color = 1;
+
+      /* no columns */
+      if (!strcmp ("no-column-names", long_opts[idx].name))
+        conf.no_column_names = 1;
 
       /* no csv summary */
       if (!strcmp ("no-csv-summary", long_opts[idx].name))
