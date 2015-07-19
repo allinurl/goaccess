@@ -85,7 +85,6 @@ typedef struct GDashModule_
 {
   GDashData *data;
   GModule module;
-  const char *desc;
   const char *head;
 
   int alloc_data;  /* alloc data items */
