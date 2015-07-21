@@ -823,7 +823,7 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   /* selected state */
   if (sel) {
     hits = int_to_str (data->data[idx].metrics->hits);
-    draw_header (win, hits, "  %s", y, 0, w, HIGHLIGHT, 0);
+    draw_header (win, hits, "%*s", y, *x, w, HIGHLIGHT, len);
     free (hits);
   }
   /* regular state */
