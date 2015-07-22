@@ -139,6 +139,8 @@ print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
   fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
 
   if (conf.serve_usecs) {
+    fprintf (fp, "%s\t\"avgts\": %lld,\n", sep,
+             (long long) nmetrics->avgts.nts);
     fprintf (fp, "%s\t\"cumts\": %lld,\n", sep,
              (long long) nmetrics->cumts.nts);
     fprintf (fp, "%s\t\"maxts\": %lld,\n", sep,

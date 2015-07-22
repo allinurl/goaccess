@@ -134,6 +134,7 @@ typedef struct GMetrics
   float percent;
   int hits;
   int visitors;
+
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
   union
@@ -141,6 +142,15 @@ typedef struct GMetrics
     char *sbw;
     uint64_t nbw;
   } bw;
+
+  /* holder has a numeric value, while
+   * dashboard has a displayable string value */
+  union
+  {
+    char *sts;
+    uint64_t nts;
+  } avgts;
+
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
   union

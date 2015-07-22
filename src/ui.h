@@ -155,6 +155,7 @@
 #define MTRC_VISITORS_LBL        "Visitors"
 #define MTRC_VISITORS_SHORT_LBL  "Vis."
 #define MTRC_BW_LBL              "Bandwidth"
+#define MTRC_AVGTS_LBL           "Avg. T.S."
 #define MTRC_CUMTS_LBL           "Cum. T.S."
 #define MTRC_MAXTS_LBL           "Max. T.S."
 #define MTRC_METHODS_LBL         "Method"
