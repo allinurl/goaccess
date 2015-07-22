@@ -460,7 +460,9 @@ char *
 usecs_to_str (unsigned long long usec)
 {
   char *size = (char *) xmalloc (sizeof (char) * 11);
-  if (usec >= HOUR)
+  if (usec >= DAY)
+    snprintf (size, 11, "%.2f  d", (double) (usec) / DAY);
+  else if (usec >= HOUR)
     snprintf (size, 11, "%.2f hr", (double) (usec) / HOUR);
   else if (usec >= MINS)
     snprintf (size, 11, "%.2f mn", (double) (usec) / MINS);

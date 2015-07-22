@@ -32,6 +32,7 @@
 #define SECS        1000000ULL
 #define MINS        60000000ULL
 #define HOUR        3600000000ULL
+#define DAY         86400000000ULL
 
 /* *INDENT-OFF* */
 #include <stdint.h>
