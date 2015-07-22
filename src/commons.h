@@ -96,7 +96,7 @@ typedef enum METRICS
   MTRC_HITS,
   MTRC_VISITORS,
   MTRC_BW,
-  MTRC_AVGTS,
+  MTRC_CUMTS,
   MTRC_MAXTS,
   MTRC_METHODS,
   MTRC_PROTOCOLS,
@@ -147,7 +147,7 @@ typedef struct GMetrics
   {
     char *sts;
     uint64_t nts;
-  } avgts;
+  } cumts;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */

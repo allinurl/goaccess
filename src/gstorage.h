@@ -93,7 +93,7 @@ typedef struct GStorageMetrics_
    * 1 -> 187
    * 2 -> 208
    */
-  void *avgts;
+  void *cumts;
 
   /* Slowest running requests */
   void *maxts;

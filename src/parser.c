@@ -93,7 +93,7 @@ static void insert_hit (int data_nkey, int uniq_nkey, int root_nkey,
                         GModule module);
 static void insert_visitor (int uniq_nkey, GModule module);
 static void insert_bw (int data_nkey, uint64_t size, GModule module);
-static void insert_avgts (int data_nkey, uint64_t ts, GModule module);
+static void insert_cumts (int data_nkey, uint64_t ts, GModule module);
 static void insert_maxts (int data_nkey, uint64_t ts, GModule module);
 static void insert_method (int data_nkey, const char *method, GModule module);
 static void insert_protocol (int data_nkey, const char *proto, GModule module);
@@ -109,7 +109,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -122,7 +122,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     insert_method,
     insert_protocol,
@@ -135,7 +135,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     insert_method,
     insert_protocol,
@@ -148,7 +148,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     insert_method,
     insert_protocol,
@@ -161,7 +161,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -174,7 +174,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     insert_method,
     insert_protocol,
@@ -187,7 +187,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -200,7 +200,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -213,7 +213,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -226,7 +226,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -241,7 +241,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -256,7 +256,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -269,7 +269,7 @@ static GParse paneling[] = {
     insert_hit,
     insert_visitor,
     insert_bw,
-    insert_avgts,
+    insert_cumts,
     insert_maxts,
     NULL,
     NULL,
@@ -1163,12 +1163,12 @@ insert_bw (int data_nkey, uint64_t size, GModule module)
 }
 
 static void
-insert_avgts (int data_nkey, uint64_t ts, GModule module)
+insert_cumts (int data_nkey, uint64_t ts, GModule module)
 {
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_inc_u64_from_int_key (metrics->avgts, data_nkey, ts);
+  ht_inc_u64_from_int_key (metrics->cumts, data_nkey, ts);
 }
 
 static void
@@ -1537,8 +1537,8 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
   if (parse->bw)
     parse->bw (kdata->data_nkey, glog->resp_size, module);
   /* insert averages time served */
-  if (parse->avgts)
-    parse->avgts (kdata->data_nkey, glog->serve_time, module);
+  if (parse->cumts)
+    parse->cumts (kdata->data_nkey, glog->serve_time, module);
   /* insert averages time served */
   if (parse->maxts)
     parse->maxts (kdata->data_nkey, glog->serve_time, module);

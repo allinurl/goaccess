@@ -158,8 +158,8 @@ free_dashboard_data (GDashData item)
     free (item.metrics->data);
   if (item.metrics->bw.sbw)
     free (item.metrics->bw.sbw);
-  if (conf.serve_usecs && item.metrics->avgts.sts)
-    free (item.metrics->avgts.sts);
+  if (conf.serve_usecs && item.metrics->cumts.sts)
+    free (item.metrics->cumts.sts);
   if (conf.serve_usecs && item.metrics->maxts.sts)
     free (item.metrics->maxts.sts);
   free (item.metrics);
@@ -670,29 +670,29 @@ render_protocol (GDashModule * data, GDashRender render, int *x)
 
 /* render dashboard averages time served */
 static void
-render_avgts (GDashModule * data, GDashRender render, int *x)
+render_cumts (GDashModule * data, GDashRender render, int *x)
 {
   WINDOW *win = render.win;
   GModule module = data->module;
   const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
-  char *avgts = data->data[idx].metrics->avgts.sts;
+  char *cumts = data->data[idx].metrics->cumts.sts;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_avgts == -1)
+  if (style[module].color_cumts == -1)
     return;
 
   /* selected state */
   if (sel) {
-    draw_header (win, avgts, "%9s", y, *x, w, HIGHLIGHT, 0);
+    draw_header (win, cumts, "%9s", y, *x, w, HIGHLIGHT, 0);
   }
   /* regular state */
   else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
-    mvwprintw (win, y, *x, "%9s", avgts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_avgts));
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    mvwprintw (win, y, *x, "%9s", cumts);
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
   }
 out:
 
@@ -934,9 +934,9 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render_percent (data, render, &x);
   render_bandwidth (data, render, &x);
 
-  /* render avgts and maxts if available */
+  /* render cumts and maxts if available */
   if (conf.serve_usecs) {
-    render_avgts (data, render, &x);
+    render_cumts (data, render, &x);
     render_maxts (data, render, &x);
   }
   /* render request method if available */
@@ -1003,8 +1003,8 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
   if (style[module].color_bw != -1)
     rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
 
-  if (style[module].color_avgts != -1 && conf.serve_usecs)
-    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
+  if (style[module].color_cumts != -1 && conf.serve_usecs)
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_CUMTS_LBL);
 
   if (style[module].color_maxts != -1 && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
@@ -1333,7 +1333,7 @@ sort_sub_list (GHolder * h, GSort sort)
       arr[j].metrics->id = iter->metrics->id;
       arr[j].metrics->visitors = iter->metrics->visitors;
       if (conf.serve_usecs) {
-        arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
+        arr[j].metrics->cumts.nts = iter->metrics->cumts.nts;
         arr[j].metrics->maxts.nts = iter->metrics->maxts.nts;
       }
     }
@@ -1380,7 +1380,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
     idata->metrics->data = xstrdup (entry);
     idata->metrics->hits = iter->metrics->hits;
     if (conf.serve_usecs) {
-      idata->metrics->avgts.sts = usecs_to_str (iter->metrics->avgts.nts);
+      idata->metrics->cumts.sts = usecs_to_str (iter->metrics->cumts.nts);
       idata->metrics->maxts.sts = usecs_to_str (iter->metrics->maxts.nts);
     }
 
@@ -1410,7 +1410,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
   if (conf.append_protocol && item.metrics->protocol)
     idata->metrics->protocol = item.metrics->protocol;
   if (conf.serve_usecs) {
-    idata->metrics->avgts.sts = usecs_to_str (item.metrics->avgts.nts);
+    idata->metrics->cumts.sts = usecs_to_str (item.metrics->cumts.nts);
     idata->metrics->maxts.sts = usecs_to_str (item.metrics->maxts.nts);
   }
 
@@ -1563,7 +1563,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   GDataMap *map;
   char *data = NULL, *method = NULL, *protocol = NULL;
   int data_nkey = 0, visitors = 0;
-  uint64_t bw = 0, avgts = 0, maxts = 0;
+  uint64_t bw = 0, cumts = 0, maxts = 0;
 
   data_nkey = (*(int *) item.key);
   map = (GDataMap *) item.value;
@@ -1574,7 +1574,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
     return;
 
   bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
-  avgts = get_cumulative_from_key (data_nkey, h->module, MTRC_AVGTS);
+  cumts = get_cumulative_from_key (data_nkey, h->module, MTRC_CUMTS);
   maxts = get_cumulative_from_key (data_nkey, h->module, MTRC_MAXTS);
   visitors = get_num_from_key (data_nkey, h->module, MTRC_VISITORS);
 
@@ -1583,7 +1583,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->data = data;
   h->items[h->idx].metrics->bw.nbw = bw;
-  h->items[h->idx].metrics->avgts.nts = avgts / map->data;
+  h->items[h->idx].metrics->cumts.nts = cumts;
   h->items[h->idx].metrics->maxts.nts = maxts;
 
   if (conf.append_method) {
@@ -1608,19 +1608,19 @@ set_root_metrics (int data_nkey, GDataMap * map, GModule module,
 {
   GMetrics *metrics;
   char *data = NULL;
-  uint64_t bw = 0, avgts = 0, maxts = 0;
+  uint64_t bw = 0, cumts = 0, maxts = 0;
   int visitors = 0;
 
   if (!(data = get_node_from_key (data_nkey, module, MTRC_DATAMAP)))
     return 1;
 
   bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
-  avgts = get_cumulative_from_key (data_nkey, module, MTRC_AVGTS);
+  cumts = get_cumulative_from_key (data_nkey, module, MTRC_CUMTS);
   maxts = get_cumulative_from_key (data_nkey, module, MTRC_MAXTS);
   visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
 
   metrics = new_gmetrics ();
-  metrics->avgts.nts = avgts / map->data;
+  metrics->cumts.nts = cumts;
   metrics->maxts.nts = maxts;
   metrics->bw.nbw = bw;
   metrics->data = data;
@@ -1673,7 +1673,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
   h->items[idx].sub_list = sub_list;
 
   h->items[idx].metrics = metrics;
-  h->items[idx].metrics->avgts.nts += nmetrics->avgts.nts;
+  h->items[idx].metrics->cumts.nts += nmetrics->cumts.nts;
   h->items[idx].metrics->maxts.nts += nmetrics->maxts.nts;
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
