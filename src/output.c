@@ -1507,6 +1507,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
 
   if (conf.serve_usecs) {
+    fprintf (fp, "<th>%s</th>", MTRC_AVGTS_LBL);
     fprintf (fp, "<th>%s</th>", MTRC_CUMTS_LBL);
     fprintf (fp, "<th>%s</th>", MTRC_MAXTS_LBL);
   }
