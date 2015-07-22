@@ -1264,6 +1264,12 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
         menu->items[i].checked = 1;
         menu->idx = i;
       }
+    } else if (SORT_BY_AVGTS == field) {
+      menu->items[i].name = alloc_string ("Avg. Time Served");
+      if (sort->field == SORT_BY_AVGTS) {
+        menu->items[i].checked = 1;
+        menu->idx = i;
+      }
     } else if (SORT_BY_CUMTS == field) {
       menu->items[i].name = alloc_string ("Cum. Time Served");
       if (sort->field == SORT_BY_CUMTS) {
@@ -1343,6 +1349,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           sort->field = SORT_BY_DATA;
         else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
           sort->field = SORT_BY_BW;
+        else if (strcmp ("Avg. Time Served", menu->items[i].name) == 0)
+          sort->field = SORT_BY_AVGTS;
         else if (strcmp ("Cum. Time Served", menu->items[i].name) == 0)
           sort->field = SORT_BY_CUMTS;
         else if (strcmp ("Max. Time Served", menu->items[i].name) == 0)

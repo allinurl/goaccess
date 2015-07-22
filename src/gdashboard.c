@@ -63,21 +63,21 @@ static GFind find_t;
 /* *INDENT-OFF* */
 /* module's styles */
 static const GDashStyle module_style[TOTAL_MODULES] = {
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
 #ifdef HAVE_LIBGEOIP
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
 #endif
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK , COL_BLACK , -1        , -1}        ,
+  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
 };
 
 static GPanel paneling[] = {
@@ -158,6 +158,8 @@ free_dashboard_data (GDashData item)
     free (item.metrics->data);
   if (item.metrics->bw.sbw)
     free (item.metrics->bw.sbw);
+  if (conf.serve_usecs && item.metrics->avgts.sts)
+    free (item.metrics->avgts.sts);
   if (conf.serve_usecs && item.metrics->cumts.sts)
     free (item.metrics->cumts.sts);
   if (conf.serve_usecs && item.metrics->maxts.sts)
@@ -670,6 +672,37 @@ render_protocol (GDashModule * data, GDashRender render, int *x)
 
 /* render dashboard averages time served */
 static void
+render_avgts (GDashModule * data, GDashRender render, int *x)
+{
+  WINDOW *win = render.win;
+  GModule module = data->module;
+  const GDashStyle *style = module_style;
+
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  char *avgts = data->data[idx].metrics->avgts.sts;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
+  if (style[module].color_cumts == -1)
+    return;
+
+  /* selected state */
+  if (sel) {
+    draw_header (win, avgts, "%9s", y, *x, w, HIGHLIGHT, 0);
+  }
+  /* regular state */
+  else {
+    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    mvwprintw (win, y, *x, "%9s", avgts);
+    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+  }
+out:
+
+  *x += DASH_SRV_TM_LEN + DASH_SPACE;
+}
+
+/* render dashboard averages time served */
+static void
 render_cumts (GDashModule * data, GDashRender render, int *x)
 {
   WINDOW *win = render.win;
@@ -934,8 +967,9 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render_percent (data, render, &x);
   render_bandwidth (data, render, &x);
 
-  /* render cumts and maxts if available */
+  /* render avgts, cumts and maxts if available */
   if (conf.serve_usecs) {
+    render_avgts (data, render, &x);
     render_cumts (data, render, &x);
     render_maxts (data, render, &x);
   }
@@ -1002,6 +1036,9 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
 
   if (style[module].color_bw != -1)
     rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
+
+  if (style[module].color_cumts != -1 && conf.serve_usecs)
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
 
   if (style[module].color_cumts != -1 && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_CUMTS_LBL);
@@ -1333,6 +1370,7 @@ sort_sub_list (GHolder * h, GSort sort)
       arr[j].metrics->id = iter->metrics->id;
       arr[j].metrics->visitors = iter->metrics->visitors;
       if (conf.serve_usecs) {
+        arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
         arr[j].metrics->cumts.nts = iter->metrics->cumts.nts;
         arr[j].metrics->maxts.nts = iter->metrics->maxts.nts;
       }
@@ -1380,6 +1418,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
     idata->metrics->data = xstrdup (entry);
     idata->metrics->hits = iter->metrics->hits;
     if (conf.serve_usecs) {
+      idata->metrics->avgts.sts = usecs_to_str (iter->metrics->avgts.nts);
       idata->metrics->cumts.sts = usecs_to_str (iter->metrics->cumts.nts);
       idata->metrics->maxts.sts = usecs_to_str (iter->metrics->maxts.nts);
     }
@@ -1410,6 +1449,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
   if (conf.append_protocol && item.metrics->protocol)
     idata->metrics->protocol = item.metrics->protocol;
   if (conf.serve_usecs) {
+    idata->metrics->avgts.sts = usecs_to_str (item.metrics->avgts.nts);
     idata->metrics->cumts.sts = usecs_to_str (item.metrics->cumts.nts);
     idata->metrics->maxts.sts = usecs_to_str (item.metrics->maxts.nts);
   }
@@ -1583,6 +1623,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->data = data;
   h->items[h->idx].metrics->bw.nbw = bw;
+  h->items[h->idx].metrics->avgts.nts = cumts / map->data;;
   h->items[h->idx].metrics->cumts.nts = cumts;
   h->items[h->idx].metrics->maxts.nts = maxts;
 
@@ -1620,6 +1661,7 @@ set_root_metrics (int data_nkey, GDataMap * map, GModule module,
   visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
 
   metrics = new_gmetrics ();
+  metrics->avgts.nts = cumts / map->data;
   metrics->cumts.nts = cumts;
   metrics->maxts.nts = maxts;
   metrics->bw.nbw = bw;
@@ -1673,6 +1715,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
   h->items[idx].sub_list = sub_list;
 
   h->items[idx].metrics = metrics;
+  h->items[idx].metrics->avgts.nts += nmetrics->avgts.nts;
   h->items[idx].metrics->cumts.nts += nmetrics->cumts.nts;
   h->items[idx].metrics->maxts.nts += nmetrics->maxts.nts;
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
