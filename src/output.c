@@ -1189,18 +1189,18 @@ print_metric_bw (FILE * fp, GMetrics * nmetrics)
 }
 
 static void
-print_metric_avgts (FILE * fp, GMetrics * nmetrics)
+print_metric_cumts (FILE * fp, GMetrics * nmetrics)
 {
-  char *avgts = NULL;
+  char *cumts = NULL;
   if (!conf.serve_usecs)
     return;
 
-  avgts = usecs_to_str (nmetrics->avgts.nts);
+  cumts = usecs_to_str (nmetrics->cumts.nts);
   fprintf (fp, "<td class='num'>");
-  clean_output (fp, avgts);
+  clean_output (fp, cumts);
   fprintf (fp, "</td>");
 
-  free (avgts);
+  free (cumts);
 }
 
 static void
@@ -1260,8 +1260,8 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
     print_metric_percent (fp, nmetrics, max_hit == nmetrics->hits);
   if (panel->bw)
     print_metric_bw (fp, nmetrics);
-  if (panel->avgts)
-    print_metric_avgts (fp, nmetrics);
+  if (panel->cumts)
+    print_metric_cumts (fp, nmetrics);
   if (panel->maxts)
     print_metric_maxts (fp, nmetrics);
   if (panel->protocol)
@@ -1397,7 +1397,7 @@ print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
   GMetrics *nmetrics;
   int i, cspan = 5;
 
-  if (panel->avgts && conf.serve_usecs)
+  if (panel->cumts && conf.serve_usecs)
     cspan++;
   if (panel->maxts && conf.serve_usecs)
     cspan++;
@@ -1488,7 +1488,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
 
   if (conf.serve_usecs) {
-    fprintf (fp, "<th>%s</th>", MTRC_AVGTS_LBL);
+    fprintf (fp, "<th>%s</th>", MTRC_CUMTS_LBL);
     fprintf (fp, "<th>%s</th>", MTRC_MAXTS_LBL);
   }
   if (conf.append_protocol && panel->protocol)

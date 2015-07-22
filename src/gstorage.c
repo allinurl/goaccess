@@ -63,7 +63,7 @@ new_ht_metrics (void)
   metrics->hits = NULL;
   metrics->visitors = NULL;
   metrics->bw = NULL;
-  metrics->avgts = NULL;
+  metrics->cumts = NULL;
   metrics->protocols = NULL;
   metrics->methods = NULL;
   metrics->agents = NULL;
@@ -122,8 +122,8 @@ get_storage_metric_by_module (GModule module, GMetric metric)
   case MTRC_BW:
     ht = metrics->bw;
     break;
-  case MTRC_AVGTS:
-    ht = metrics->avgts;
+  case MTRC_CUMTS:
+    ht = metrics->cumts;
     break;
   case MTRC_MAXTS:
     ht = metrics->maxts;
@@ -159,7 +159,7 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
   metrics->visitors = ometrics->visitors;
 
   if (conf.serve_usecs && ometrics->hits > 0) {
-    metrics->avgts.nts = ometrics->avgts.nts;
+    metrics->cumts.nts = ometrics->cumts.nts;
     metrics->maxts.nts = ometrics->maxts.nts;
   }
 

@@ -62,7 +62,7 @@ typedef struct GDashStyle_
   const int color_bw;
   const int color_percent;
   const int color_bars;
-  const int color_avgts;
+  const int color_cumts;
   const int color_maxts;
   const int color_method;
   const int color_protocol;

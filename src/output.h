@@ -147,7 +147,7 @@ typedef struct GOutput_
   int8_t hits;
   int8_t percent;
   int8_t bw;
-  int8_t avgts;
+  int8_t cumts;
   int8_t maxts;
   int8_t protocol;
   int8_t method;
