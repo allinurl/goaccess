@@ -64,6 +64,7 @@ new_ht_metrics (void)
   metrics->visitors = NULL;
   metrics->bw = NULL;
   metrics->cumts = NULL;
+  metrics->maxts = NULL;
   metrics->protocols = NULL;
   metrics->methods = NULL;
   metrics->agents = NULL;
@@ -159,6 +160,7 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
   metrics->visitors = ometrics->visitors;
 
   if (conf.serve_usecs && ometrics->hits > 0) {
+    metrics->avgts.nts = ometrics->avgts.nts;
     metrics->cumts.nts = ometrics->cumts.nts;
     metrics->maxts.nts = ometrics->maxts.nts;
   }
