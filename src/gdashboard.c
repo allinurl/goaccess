@@ -965,7 +965,10 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render_hits (data, render, &x);
   render_visitors (data, render, &x);
   render_percent (data, render, &x);
-  render_bandwidth (data, render, &x);
+
+  /* render bandwidth if available */
+  if (conf.bandwidth)
+    render_bandwidth (data, render, &x);
 
   /* render avgts, cumts and maxts if available */
   if (conf.serve_usecs) {
@@ -1034,7 +1037,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
   if (style[module].color_percent != -1)
     rprint_col (win, *y, &x, data->perc_len + 4, "%*s", "%");
 
-  if (style[module].color_bw != -1)
+  if (style[module].color_bw != -1 && conf.bandwidth)
     rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
 
   if (style[module].color_cumts != -1 && conf.serve_usecs)

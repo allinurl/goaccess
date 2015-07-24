@@ -113,7 +113,9 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
     fprintf (fp, "\"%d\",", iter->metrics->hits);
     fprintf (fp, "\"%d\",", iter->metrics->visitors);
     fprintf (fp, "\"%4.2f%%\",", percent);
-    fprintf (fp, "\"%lld\",", (long long) iter->metrics->bw.nbw);
+
+    if (conf.bandwidth)
+      fprintf (fp, "\"%lld\",", (long long) iter->metrics->bw.nbw);
 
     if (conf.serve_usecs) {
       fprintf (fp, "\"%lld\",", (long long) iter->metrics->avgts.nts);
@@ -152,7 +154,9 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
     fprintf (fp, "\"%d\",", nmetrics->hits);
     fprintf (fp, "\"%d\",", nmetrics->visitors);
     fprintf (fp, "\"%4.2f%%\",", nmetrics->percent);
-    fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
+
+    if (conf.bandwidth)
+      fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
 
     if (conf.serve_usecs) {
       fprintf (fp, "\"%lld\",", (long long) nmetrics->avgts.nts);
