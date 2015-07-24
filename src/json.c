@@ -136,7 +136,9 @@ print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
   fprintf (fp, "%s\t\"hits\": %d,\n", sep, nmetrics->hits);
   fprintf (fp, "%s\t\"visitors\": %d,\n", sep, nmetrics->visitors);
   fprintf (fp, "%s\t\"percent\": %4.2f,\n", sep, nmetrics->percent);
-  fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
+
+  if (conf.bandwidth)
+    fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
 
   if (conf.serve_usecs) {
     fprintf (fp, "%s\t\"avgts\": %lld,\n", sep,

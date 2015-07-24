@@ -1179,8 +1179,11 @@ print_metric_percent (FILE * fp, GMetrics * nmetrics, int max_hit)
 static void
 print_metric_bw (FILE * fp, GMetrics * nmetrics)
 {
-  char *bw = filesize_str (nmetrics->bw.nbw);
+  char *bw = NULL;
+  if (!conf.bandwidth)
+    return;
 
+  bw = filesize_str (nmetrics->bw.nbw);
   fprintf (fp, "<td class='num'>");
   clean_output (fp, bw);
   fprintf (fp, "</td>");
@@ -1504,8 +1507,9 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   fprintf (fp, "<th>%s</th>", MTRC_VISITORS_LBL);
   fprintf (fp, "<th>%s</th>", MTRC_HITS_LBL);
   fprintf (fp, "<th>%%</th>");
-  fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
 
+  if (conf.bandwidth)
+    fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
   if (conf.serve_usecs) {
     fprintf (fp, "<th>%s</th>", MTRC_AVGTS_LBL);
     fprintf (fp, "<th>%s</th>", MTRC_CUMTS_LBL);
