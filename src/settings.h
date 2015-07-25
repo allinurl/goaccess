@@ -88,8 +88,8 @@ typedef struct GConf_
   char *log_format;
   char *output_format;
   char *sort_panels[TOTAL_MODULES];
-  char *static_files[MAX_EXTENSIONS];
   char *time_format;
+  const char *static_files[MAX_EXTENSIONS];
 
   int append_method;
   int append_protocol;
@@ -144,8 +144,9 @@ size_t get_selected_format_idx (void);
 
 extern GConf conf;
 
-int parse_conf_file (int *argc, char ***argv);
 int ignore_panel (GModule mod);
+int parse_conf_file (int *argc, char ***argv);
 void free_cmd_args (void);
+void set_default_static_files (void);
 
 #endif
