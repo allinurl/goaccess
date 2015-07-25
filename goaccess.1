@@ -461,10 +461,19 @@ host (the client IP address, either IPv4 or IPv6)
 The request line from the client. This requires specific delimiters around the
 request (as single quotes, double quotes, or anything else) to be parsable. If
 not, we have to use a combination of special format specifiers as %m %U %H.
+.IP %q
+The query string.
 .IP %m
 The request method.
 .IP %U
-The URL path requested (including any query string).
+The URL path requested.
+
+.I Note:
+If the query string is in %U, there is no need to use
+.I %q.
+However, if the URL path, does not include any query string, you may use
+.I %q
+and the query string will be appended to the request.
 .IP %H
 The request protocol.
 .IP %s
