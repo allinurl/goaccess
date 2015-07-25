@@ -111,6 +111,58 @@ get_config_file_path (void)
   return rpath;
 }
 
+/* Use predefined static files when no config file is used */
+void
+set_default_static_files (void)
+{
+  size_t i;
+  const char *exts[] = {
+    ".css",
+    ".CSS",
+    ".dae",
+    ".DAE",
+    ".eot",
+    ".EOT",
+    ".gif",
+    ".GIF",
+    ".ico",
+    ".ICO",
+    ".jpeg",
+    ".JPEG",
+    ".jpg",
+    ".JPG",
+    ".js",
+    ".JS",
+    ".map",
+    ".MAP",
+    ".mp3",
+    ".MP3",
+    ".pdf",
+    ".PDF",
+    ".png",
+    ".PNG",
+    ".svg",
+    ".SVG",
+    ".swf",
+    ".SWF",
+    ".ttf",
+    ".TTF",
+    ".txt",
+    ".TXT",
+    ".woff",
+    ".WOFF",
+  };
+
+  if (conf.static_file_idx > 0)
+    return;
+
+  for (i = 0; i < ARRAY_SIZE (exts); i++) {
+    if (conf.static_file_max_len < strlen (exts[i]))
+      conf.static_file_max_len = strlen (exts[i]);
+    conf.static_files[conf.static_file_idx++] = exts[i];
+  }
+}
+
 /* clean command line arguments */
 void
 free_cmd_args (void)

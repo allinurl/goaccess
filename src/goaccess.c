@@ -909,6 +909,8 @@ parse_cmd_line (int argc, char **argv)
     cmd_help ();
   if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL)
     cmd_help ();
+
+  set_default_static_files ();
 }
 
 #if defined(__GLIBC__)

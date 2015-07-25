@@ -580,7 +580,8 @@ clean:
 static int
 verify_static_content (char *req)
 {
-  char *nul = req + strlen (req), *ext = NULL;
+  char *nul = req + strlen (req);
+  const char *ext = NULL;
   int elen = 0, i;
 
   if (strlen (req) < conf.static_file_max_len)
