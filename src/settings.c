@@ -88,25 +88,23 @@ get_config_file_path (void)
     rpath = realpath (conf.iconfigfile, NULL);
     if (rpath == NULL)
       FATAL ("Unable to open the specified config file. %s", strerror (errno));
+    return rpath;
   }
+
   /* otherwise, fallback to global config file, or
    * attempt to use the user's config file */
-  else {
-    /* global config file */
-    if (conf.load_global_config) {
-      upath = get_global_config ();
-      rpath = realpath (upath, NULL);
-      if (upath) {
-        free (upath);
-      }
+  if (conf.load_global_config) {
+    upath = get_global_config ();
+    rpath = realpath (upath, NULL);
+    if (upath) {
+      free (upath);
     }
-    /* user's config file */
-    if (rpath == NULL) {
-      upath = get_home ();
-      rpath = realpath (upath, NULL);
-      if (upath) {
-        free (upath);
-      }
+  }
+  if (rpath == NULL) {
+    upath = get_home ();
+    rpath = realpath (upath, NULL);
+    if (upath) {
+      free (upath);
     }
   }
 
