@@ -378,6 +378,7 @@ init_log_item (GLog * logger)
   glog->os = NULL;
   glog->os_type = NULL;
   glog->protocol = NULL;
+  glog->qstr = NULL;
   glog->ref = NULL;
   glog->req_key = NULL;
   glog->req = NULL;
@@ -421,6 +422,8 @@ free_logger (GLogItem * glog)
     free (glog->os_type);
   if (glog->protocol != NULL)
     free (glog->protocol);
+  if (glog->qstr != NULL)
+    free (glog->qstr);
   if (glog->ref != NULL)
     free (glog->ref);
   if (glog->req_key != NULL)
@@ -793,6 +796,17 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     if (tkn == NULL || *tkn == '\0')
       return 1;
     if ((glog->req = decode_url (tkn)) == NULL)
+      return 1;
+    free (tkn);
+    break;
+    /* query string alone, e.g., ?param=goaccess&tbm=shop */
+  case 'q':
+    if (glog->qstr)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL || *tkn == '\0')
+      return 1;
+    if ((glog->qstr = decode_url (tkn)) == NULL)
       return 1;
     free (tkn);
     break;
@@ -1277,6 +1291,25 @@ gen_unique_req_key (GLogItem * glog)
   return key;
 }
 
+/* Append the query string to the request, and therefore, it modifies the
+ * original glog->req */
+static void
+append_query_string (char **req, const char *qstr)
+{
+  char *r;
+  size_t s1, s2;
+
+  s1 = strlen (*req);
+  s2 = strlen (qstr);
+
+  r = xmalloc (s1 + s2 + 2);
+  memcpy (r, *req, s1);
+  memcpy (r + s1, qstr, s2 + 1);
+
+  free (*req);
+  *req = r;
+}
+
 static void
 get_kdata (GKeyData * kdata, char *data_key, char *data)
 {
@@ -1301,6 +1334,9 @@ static int
 gen_req_key (GKeyData * kdata, GLogItem * glog)
 {
   glog->req_key = gen_unique_req_key (glog);
+  if (glog->req && glog->qstr)
+    append_query_string (&glog->req, glog->qstr);
+
   get_kdata (kdata, glog->req_key, glog->req);
 
   return 0;

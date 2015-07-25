@@ -43,6 +43,7 @@ typedef struct GLogItem_
   char *os;
   char *os_type;
   char *protocol;
+  char *qstr;
   char *ref;
   char *req;
   char *req_key;
