@@ -198,6 +198,7 @@ to be used without prepending `--`.
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
 | `--no-color`                       | Disable colored output.                                       |
+| `--no-column-names`                | Don't write column names in term output.                      |
 | `--no-csv-summary`                 | Disable summary metrics on the CSV output.                    |
 | `--no-global-config`               | Do not load the global configuration file.                    |
 | `--no-progress`                    | Disable progress metrics.                                     |
