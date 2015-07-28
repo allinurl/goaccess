@@ -28,10 +28,12 @@
 #include "commons.h"
 #include "parser.h"
 
-#define SORT_MAX_OPTS     10
-#define SORT_MODULE_LEN   9
-#define SORT_FIELD_LEN    8
-#define SORT_ORDER_LEN    5
+#define SORT_MAX_OPTS   10
+
+/* See GEnum for mapping */
+#define SORT_FIELD_LEN  11 + 1  /* longest metric name */
+#define SORT_MODULE_LEN 15 + 1  /* longest module name */
+#define SORT_ORDER_LEN   4 + 1
 
 typedef enum GSortField_
 {
