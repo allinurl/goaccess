@@ -903,10 +903,13 @@ parse_cmd_line (int argc, char **argv)
 {
   read_option_args (argc, argv);
 
+  /* Not outputting to a terminal */
   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
     conf.output_html = 1;
+  /* Log piped, and a file is in used */
   if (conf.ifile != NULL && !isatty (STDIN_FILENO) && !conf.output_html)
     cmd_help ();
+  /* No data piped and no file was used */
   if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL)
     cmd_help ();
 
