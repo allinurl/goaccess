@@ -72,7 +72,7 @@ tc_db_close (TCADB * adb, char *dbname)
 
 #ifdef TCB_BTREE
   /* remove database file */
-  if (!conf.keep_db_files && !conf.load_from_disk && !tcremovelink (dbname))
+  if (!conf.keep_db_files && !tcremovelink (dbname))
     LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
 #endif
   free (dbname);

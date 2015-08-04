@@ -44,6 +44,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <time.h>
+#include <unistd.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
@@ -1714,8 +1715,14 @@ read_log (GLog ** logger, int n)
   char line[LINE_BUFFER] = "";
   int i = 0, test = -1 == n ? 0 : 1;
 
-  /* no log file, assume STDIN */
-  if (conf.ifile == NULL) {
+  /* no data piped, no log passed, load from disk only then */
+  if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
+    (*logger)->load_from_disk_only = 1;
+    return 0;
+  }
+
+  /* no log passed, but data piped */
+  if (!isatty (STDIN_FILENO) && !conf.ifile) {
     fp = stdin;
     (*logger)->piping = 1;
   }
@@ -1784,6 +1791,11 @@ test_format (GLog * logger)
 {
   if (parse_log (&logger, NULL, 20))
     FATAL ("Error while processing file");
+
+  /* it did not process any records, and since we're loading the dataset from
+   * disk, then it is safe to assume is right */
+  if (logger->load_from_disk_only)
+    return 0;
 
   if ((logger->process == 0) || (logger->process == logger->invalid))
     return 1;
