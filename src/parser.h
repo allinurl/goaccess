@@ -71,6 +71,7 @@ typedef struct GLog_
   unsigned int process;
   unsigned long long resp_size;
   unsigned short piping;
+  unsigned short load_from_disk_only;
   GLogItem *items;
 } GLog;
 

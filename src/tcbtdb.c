@@ -59,6 +59,7 @@ void
 tc_db_get_params (char *params, const char *path)
 {
   int len = 0;
+  long xmmap = conf.xmmap;
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
 
   /* copy path name to buffer */
@@ -72,10 +73,8 @@ tc_db_get_params (char *params, const char *path)
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "ncnum", ncnum);
 
   /* set the size of the extra mapped memory */
-  if (conf.xmmap > 0)
-    len +=
-      snprintf (params + len, DB_PARAMS - len, "#%s=%ld", "xmsiz",
-                (long) conf.xmmap);
+  if (xmmap > 0)
+    len += snprintf (params + len, DB_PARAMS - len, "#%s=%ld", "xmsiz", xmmap);
 
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "lmemb", lmemb);
@@ -95,8 +94,9 @@ tc_db_get_params (char *params, const char *path)
     len += snprintf (params + len, DB_PARAMS - len, "%c", 'd');
   }
 
-  /* open flags */
+  /* open flags. create a new database if not exist, otherwise read it */
   len += snprintf (params + len, DB_PARAMS - len, "#%s=%s", "mode", "wc");
+  /* if not loading from disk, truncate regardless if a db file exists */
   if (!conf.load_from_disk)
     len += snprintf (params + len, DB_PARAMS - len, "%c", 't');
 
@@ -182,7 +182,7 @@ tc_bdb_close (void *db, char *dbname)
   tcbdbdel (bdb);
 
   /* remove database file */
-  if (!conf.keep_db_files && !conf.load_from_disk && !tcremovelink (dbname))
+  if (!conf.keep_db_files && !tcremovelink (dbname))
     LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
   free (dbname);
 

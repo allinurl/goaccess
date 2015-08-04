@@ -559,7 +559,7 @@ perform_tail_follow (uint64_t * size1)
   char buf[LINE_BUFFER];
   FILE *fp = NULL;
 
-  if (logger->piping)
+  if (logger->piping || logger->load_from_disk_only)
     return;
 
   size2 = file_size (conf.ifile);
@@ -655,7 +655,7 @@ get_keys (void)
   int c, quit = 1;
   uint64_t size1 = 0;
 
-  if (!logger->piping)
+  if (!logger->piping && !logger->load_from_disk_only)
     size1 = file_size (conf.ifile);
 
   while (quit) {
@@ -906,11 +906,11 @@ parse_cmd_line (int argc, char **argv)
   /* Not outputting to a terminal */
   if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
     conf.output_html = 1;
-  /* Log piped, and a file is in used */
-  if (conf.ifile != NULL && !isatty (STDIN_FILENO) && !conf.output_html)
+  /* Log piped, and log file passed */
+  if (conf.ifile && !isatty (STDIN_FILENO) && !conf.output_html)
     cmd_help ();
-  /* No data piped and no file was used */
-  if (conf.ifile == NULL && isatty (STDIN_FILENO) && conf.output_format == NULL)
+  /* No data piped, no file was used and not loading from disk */
+  if (!conf.ifile && isatty (STDIN_FILENO) && !conf.load_from_disk)
     cmd_help ();
 
   set_default_static_files ();
@@ -994,7 +994,7 @@ out:
   time (&start_proc);
   if (conf.load_from_disk)
     set_general_stats ();
-  else if (!quit && parse_log (&logger, NULL, -1))
+  if (!quit && parse_log (&logger, NULL, -1))
     FATAL ("Error while processing file");
 
   logger->offset = logger->process;
