@@ -871,7 +871,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
     "CloudFront (Download Distribution)",
-    "Google Cloud Storage"
+    "Google Cloud Storage",
+    "AWS Elastic Load Balancing (HTTP/S)"
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);

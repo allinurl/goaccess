@@ -39,6 +39,7 @@ typedef enum
   W3C,
   CLOUDFRONT,
   CLOUDSTORAGE,
+  AWSELB,
 } LOGTYPE;
 
 /* predefined log dates */
@@ -66,6 +67,7 @@ typedef struct GPreConfLog_
   const char *w3c;
   const char *cloudfront;
   const char *cloudstorage;
+  const char *awselb;
 } GPreConfLog;
 
 typedef struct GConfKeyword_

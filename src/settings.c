@@ -46,6 +46,7 @@ static const GPreConfLog logs = {
   "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C           */
   "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront    */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
+  "%dT%t.%^ %^ %h:%^ %^ %T %^ %^ %^ %s %^ %b \"%r\" \"%u\"",    /* AWS Elastic Load Balancing */
 };
 
 static const GPreConfDate dates = {
@@ -286,6 +287,8 @@ get_selected_format_idx (void)
     return CLOUDFRONT;
   else if (strcmp (conf.log_format, logs.cloudstorage) == 0)
     return CLOUDSTORAGE;
+  else if (strcmp (conf.log_format, logs.awselb) == 0)
+    return AWSELB;
   else
     return -1;
 }
@@ -317,6 +320,9 @@ get_selected_format_str (size_t idx)
   case CLOUDSTORAGE:
     fmt = alloc_string (logs.cloudstorage);
     break;
+  case AWSELB:
+    fmt = alloc_string (logs.awselb);
+    break;
   }
 
   return fmt;
@@ -333,6 +339,7 @@ get_selected_date_str (size_t idx)
   case VCOMBINED:
     fmt = alloc_string (dates.apache);
     break;
+  case AWSELB:
   case CLOUDFRONT:
   case W3C:
     fmt = alloc_string (dates.w3c);
@@ -350,12 +357,13 @@ get_selected_time_str (size_t idx)
 {
   char *fmt = NULL;
   switch (idx) {
-  case COMMON:
-  case VCOMMON:
-  case COMBINED:
-  case VCOMBINED:
-  case W3C:
+  case AWSELB:
   case CLOUDFRONT:
+  case COMBINED:
+  case COMMON:
+  case VCOMBINED:
+  case VCOMMON:
+  case W3C:
     fmt = alloc_string (times.fmt24);
     break;
   case CLOUDSTORAGE:
