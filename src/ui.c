@@ -76,7 +76,6 @@ init_colors (void)
   else
     init_pair (COL_GREEN, COLOR_WHITE, -1);
 
-  init_pair (COL_PURPLE, 97, -1);
   init_pair (COL_RED, COLOR_RED, -1);
   init_pair (COL_BLACK, COLOR_BLACK, -1);
   init_pair (COL_CYAN, COLOR_CYAN, -1);
