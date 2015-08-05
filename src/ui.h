@@ -217,7 +217,6 @@
 #define COL_CYAN          5
 #define COL_YELLOW        6
 #define COL_GREEN         11
-#define COL_PURPLE        97
 
 #define YELLOW_BLACK      12
 #define BLUE_GREEN        7
