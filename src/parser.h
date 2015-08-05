@@ -26,6 +26,7 @@
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
 #define REF_SITE_LEN    512
+#define NUM_TESTS       20
 
 #include "commons.h"
 

@@ -1789,7 +1789,7 @@ parse_log (GLog ** logger, char *tail, int n)
 int
 test_format (GLog * logger)
 {
-  if (parse_log (&logger, NULL, 20))
+  if (parse_log (&logger, NULL, NUM_TESTS))
     FATAL ("Error while processing file");
 
   /* it did not process any records, and since we're loading the dataset from
