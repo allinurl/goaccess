@@ -101,7 +101,12 @@ static const char *codes[][2] = {
   {"502", "502 - Bad Gateway: Received an invalid response from the upstream"},
   {"503", "503 - Service Unavailable: The server is currently unavailable"},
   {"504", "504 - Gateway Timeout: The upstream server failed to send request"},
-  {"505", "505 - HTTP Version Not Supported"}
+  {"505", "505 - HTTP Version Not Supported"},
+  {"520", "520 - CloudFlare - Web server is returning an unknown error"},
+  {"521", "521 - CloudFlare - Web server is down"},
+  {"522", "522 - CloudFlare - Connection timed out"},
+  {"523", "523 - CloudFlare - Origin is unreachable"},
+  {"524", "524 - CloudFlare - A timeout occured"}
 };
 
 /* helper functions */
