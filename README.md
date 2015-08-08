@@ -31,6 +31,7 @@ terminal. Features include:
 * HTTP Status Codes
 * Ability to output `HTML`, `JSON` and `CSV`
 * Different Color Schemes
+* Incremental log processing
 * Support for large datasets and data persistence
 * Support for IPv6
 * Output statistics to HTML. See [**report**](http://goaccess.io/goaccess_html_report.html?src=gh).
