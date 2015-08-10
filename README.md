@@ -41,10 +41,11 @@ GoAccess allows any custom log format string. Predefined options include, but
 not limited to:
 
 * Amazon CloudFront (Download Distribution).
-* Apache virtual hosts
+* AWS Elastic Load Balancing
 * Combined Log Format (XLF/ELF) Apache | Nginx
 * Common Log Format (CLF) Apache
 * Google Cloud Storage.
+* Apache virtual hosts
 * W3C format (IIS).
 
 ## Why GoAccess? ##
