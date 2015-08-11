@@ -390,6 +390,19 @@ Only if configured with --enable-tcb=btree
 Specifies that each page is compressed with ZLIB|BZ2 encoding.
 
 Only if configured with --enable-tcb=btree
+
+.TP
+Processing Logs Incrementally
+
+GoAccess has the ability to process logs incrementally through the on-disk
+B+Tree database. It works in the following way:
+
+A data set must be persisted first with --keep-db-files, then the same data set
+can be loaded with --load-from-disk. If new data is passed (piped or through a
+log file), it will append it to the original data set. To preserve the data at
+all times, --keep-db-files must be used. If --load-from-disk is used without
+--keep-db-files, database files will be deleted upon closing the program.
+
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format.
 .P
