@@ -41,16 +41,18 @@ char *
 tc_db_set_path (const char *dbname, int module)
 {
   char *path;
+  int cx;
 
   if (conf.db_path != NULL) {
-    path =
-      xmalloc (snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1);
+    cx = snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1;
+    path = xmalloc (cx);
     sprintf (path, "%s%dm%s", conf.db_path, module, dbname);
   } else {
-    path =
-      xmalloc (snprintf (NULL, 0, "%s%dm%s", TC_DBPATH, module, dbname) + 1);
+    cx = snprintf (NULL, 0, "%s%dm%s", TC_DBPATH, module, dbname) + 1;
+    path = xmalloc (cx);
     sprintf (path, "%s%dm%s", TC_DBPATH, module, dbname);
   }
+
   return path;
 }
 
