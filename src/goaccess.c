@@ -289,7 +289,7 @@ render_screens (void)
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, 0, 0);
   wattron (stdscr, COLOR_PAIR (COL_WHITE));
-  mvaddstr (row - 1, 1, "[F1]Help [O]pen detail view");
+  mvaddstr (row - 1, 1, "[F1]Help [Enter] Exp. Panel");
   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
   mvaddstr (row - 1, col - 21, "[Q]uit GoAccess");
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
