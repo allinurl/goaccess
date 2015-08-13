@@ -246,8 +246,8 @@ add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics)
 static void
 delete_sub_list (GSubList * sub_list)
 {
-  GSubItem *item = item;
-  GSubItem *next = next;
+  GSubItem *item = NULL;
+  GSubItem *next = NULL;
 
   if (sub_list != NULL && sub_list->size == 0)
     goto clear;
