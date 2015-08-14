@@ -71,7 +71,7 @@ dump_struct (FILE * fp)
 
   fprintf (fp, "==%d== VALUES AT CRASH POINT\n", pid);
   fprintf (fp, "==%d==\n", pid);
-  fprintf (fp, "==%d== Line number: %d\n", pid, log_data->process);
+  fprintf (fp, "==%d== Line number: %u\n", pid, log_data->process);
   fprintf (fp, "==%d== Offset: %d\n", pid, log_data->offset);
   fprintf (fp, "==%d== Invalid data: %d\n", pid, log_data->invalid);
   fprintf (fp, "==%d== Piping: %d\n", pid, log_data->piping);
