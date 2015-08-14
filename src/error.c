@@ -73,7 +73,7 @@ dump_struct (FILE * fp)
   fprintf (fp, "==%d==\n", pid);
   fprintf (fp, "==%d== Line number: %u\n", pid, log_data->process);
   fprintf (fp, "==%d== Offset: %u\n", pid, log_data->offset);
-  fprintf (fp, "==%d== Invalid data: %d\n", pid, log_data->invalid);
+  fprintf (fp, "==%d== Invalid data: %u\n", pid, log_data->invalid);
   fprintf (fp, "==%d== Piping: %d\n", pid, log_data->piping);
   fprintf (fp, "==%d== Response size: %llu bytes\n", pid, log_data->resp_size);
   fprintf (fp, "==%d==\n", pid);
