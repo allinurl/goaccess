@@ -281,7 +281,7 @@ print_json_summary (FILE * fp, GLog * logger)
 
   /* generated time */
   t = (long long) end_proc - start_proc;
-  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_GENTIME, t);
+  fprintf (fp, "\t\t\"%s\": %lld,\n", OVERALL_GENTIME, t);
 
   /* visitors */
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
