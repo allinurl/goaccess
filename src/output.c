@@ -1566,7 +1566,7 @@ print_html_summary (FILE * fp, GLog * logger)
   t = (long long) end_proc - start_proc;
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_GEN_TIME);
-  fprintf (fp, "<h3 class='label trunc'>%llu secs</h3>", t);
+  fprintf (fp, "<h3 class='label trunc'>%lld secs</h3>", t);
   print_html_end_col_wrap (fp);
 
   total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
