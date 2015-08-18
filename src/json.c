@@ -313,7 +313,7 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %jd,\n", OVERALL_LOGSIZE, (intmax_t) log_size);
 
   /* bandwidth */
-  fprintf (fp, "\t\t\"%s\": %lld,\n", OVERALL_BANDWIDTH, logger->resp_size);
+  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_BANDWIDTH, logger->resp_size);
 
   /* log path */
   if (conf.ifile == NULL)
