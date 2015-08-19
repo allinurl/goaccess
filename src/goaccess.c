@@ -359,12 +359,11 @@ static void
 scroll_to_last_line (void)
 {
   int exp_size = get_num_expanded_data_rows ();
-  int scrll, offset;
+  int scrll = 0, offset = 0;
 
   if (!gscroll.expanded)
     gscroll.dash = dash->total_alloc - real_size_y;
   else {
-    scrll = offset = 0;
     scrll = dash->module[gscroll.current].idx_data - 1;
     if (scrll >= exp_size && scrll >= offset + exp_size)
       offset = scrll < exp_size - 1 ? 0 : scrll - exp_size + 1;
