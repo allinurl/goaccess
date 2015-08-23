@@ -23,6 +23,7 @@
 
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
+#define BUFFMT      8
 #define REGEX_ERROR 100
 #define KB          1024
 #define MB          (KB * 1024)
@@ -45,11 +46,11 @@ char *char_replace (char *str, char o, char n);
 char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
-char *float_to_str (float num);
+char *float2str (float d, int width);
 char *get_global_config (void);
 char *get_home (void);
 char *ints_to_str (int a, int b);
-char *int_to_str (int d);
+char *int2str (int d, int width);
 char *left_pad_str (const char *s, int indent);
 char *ltrim (char *s);
 char *replace_str (const char *str, const char *old, const char *new);

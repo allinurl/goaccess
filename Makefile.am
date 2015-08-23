@@ -8,6 +8,8 @@ dist_conf_DATA = config/goaccess.conf
 goaccess_SOURCES = \
    src/browsers.c      \
    src/browsers.h      \
+   src/color.c         \
+   src/color.h         \
    src/commons.c       \
    src/commons.h       \
    src/csv.c           \

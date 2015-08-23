@@ -110,14 +110,7 @@ typedef struct GDash_
   GDashModule module[TOTAL_MODULES];
 } GDash;
 
-typedef struct GPanel_
-{
-  GModule module;
-  void (*insert) (GRawDataItem item, GHolder *h, const struct GPanel_ *);
-  void (*holder_callback) (GHolder *h);
-  void (*lookup) (GRawDataItem item);
-} GPanel;
-
+/* Function Prototypes */
 GDashData * new_gdata (uint32_t size);
 GDash *new_gdash (void);
 GHolder *new_gholder (uint32_t size);
@@ -137,6 +130,7 @@ void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort s
 void load_host_to_holder (GHolder * h, char *ip);
 void reset_find (void);
 void reset_scroll_offsets (GScroll * scroll);
+
 /* *INDENT-ON* */
 
 #endif

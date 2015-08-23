@@ -482,10 +482,10 @@ usecs_to_str (unsigned long long usec)
 }
 
 char *
-int_to_str (int d)
+int2str (int d, int width)
 {
-  char *s = xmalloc (snprintf (NULL, 0, "%d", d) + 1);
-  sprintf (s, "%d", d);
+  char *s = xmalloc (snprintf (NULL, 0, "%*d", width, d) + 1);
+  sprintf (s, "%*d", width, d);
 
   return s;
 }
@@ -500,10 +500,10 @@ ints_to_str (int a, int b)
 }
 
 char *
-float_to_str (float d)
+float2str (float d, int width)
 {
-  char *s = xmalloc (snprintf (NULL, 0, "%.2f", d) + 1);
-  sprintf (s, "%.2f", d);
+  char *s = xmalloc (snprintf (NULL, 0, "%*.2f", width, d) + 1);
+  sprintf (s, "%*.2f", width, d);
 
   return s;
 }

@@ -46,29 +46,38 @@
 #include "util.h"
 #include "xmalloc.h"
 
-static void print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
-                             int max_vis, const GOutput * panel);
-static void print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
-                             int max_vis, const GOutput * panel);
+typedef struct GPanel_
+{
+  GModule module;
+  void (*render) (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
+                  const struct GPanel_ *, const struct GOutput_ *);
+  void (*metrics_callback) (GMetrics * metrics);
+  const char *clabel;           /* column label */
+} GPanel;
+
+static void print_html_data (FILE * fp, GHolder * h, int total, int max_hit,
+                             int max_vis, const GPanel *, const GOutput *);
+static void print_html_host (FILE * fp, GHolder * h, int total, int max_hit,
+                             int max_vis, const GPanel *, const GOutput *);
 static void fmt_date (GMetrics * metrics);
 
 /* *INDENT-OFF* */
-static GOutput paneling[] = {
-  {VISITORS        , print_html_data , fmt_date, "Date" , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {REQUESTS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {REQUESTS_STATIC , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {NOT_FOUND       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0} ,
-  {HOSTS           , print_html_host , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 0} ,
-  {OS              , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {BROWSERS        , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {VISIT_TIMES     , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1} ,
-  {REFERRERS       , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {REFERRING_SITES , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
-  {KEYPHRASES      , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+static GPanel paneling[] = {
+  {VISITORS        , print_html_data , fmt_date, "Date"} ,
+  {REQUESTS        , print_html_data , NULL    , NULL  } ,
+  {REQUESTS_STATIC , print_html_data , NULL    , NULL  } ,
+  {NOT_FOUND       , print_html_data , NULL    , NULL  } ,
+  {HOSTS           , print_html_host , NULL    , NULL  } ,
+  {OS              , print_html_data , NULL    , NULL  } ,
+  {BROWSERS        , print_html_data , NULL    , NULL  } ,
+  {VISIT_TIMES     , print_html_data , NULL    , NULL  } ,
+  {REFERRERS       , print_html_data , NULL    , NULL  } ,
+  {REFERRING_SITES , print_html_data , NULL    , NULL  } ,
+  {KEYPHRASES      , print_html_data , NULL    , NULL  } ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {GEO_LOCATION    , print_html_data , NULL    , NULL  } ,
 #endif
-  {STATUS_CODES    , print_html_data , NULL    , NULL   , 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 0, 0} ,
+  {STATUS_CODES    , print_html_data , NULL    , NULL  } ,
 };
 
 /* base64 icons */
@@ -910,7 +919,7 @@ print_html_header (FILE * fp, char *now)
 
 /* *INDENT-ON* */
 
-static GOutput *
+static GPanel *
 panel_lookup (GModule module)
 {
   int i, num_panels = ARRAY_SIZE (paneling);
@@ -1268,38 +1277,38 @@ print_metric_method (FILE * fp, GMetrics * nmetrics)
 
 static void
 print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
-               int sub, const GOutput * panel)
+               int sub, const GOutput * output)
 {
-  if (panel->visitors)
+  if (output->visitors)
     print_metric_visitors (fp, nmetrics);
-  if (panel->hits)
+  if (output->hits)
     print_metric_hits (fp, nmetrics);
-  if (panel->percent)
+  if (output->percent)
     print_metric_percent (fp, nmetrics, max_hit == nmetrics->hits);
-  if (panel->bw)
+  if (output->bw)
     print_metric_bw (fp, nmetrics);
-  if (panel->avgts)
+  if (output->avgts)
     print_metric_avgts (fp, nmetrics);
-  if (panel->cumts)
+  if (output->cumts)
     print_metric_cumts (fp, nmetrics);
-  if (panel->maxts)
+  if (output->maxts)
     print_metric_maxts (fp, nmetrics);
-  if (panel->protocol)
+  if (output->protocol)
     print_metric_protocol (fp, nmetrics);
-  if (panel->method)
+  if (output->method)
     print_metric_method (fp, nmetrics);
-  if (panel->data)
+  if (output->data)
     print_metric_data (fp, nmetrics);
 
-  if (panel->graph && max_hit && !panel->sub_graph && sub)
+  if (output->graph && max_hit && !output->sub_graph && sub)
     fprintf (fp, "<td></td>");
-  else if (panel->graph && max_hit)
+  else if (output->graph && max_hit)
     print_graph (fp, max_hit, max_vis, nmetrics->hits, nmetrics->visitors);
 }
 
 static void
-print_subitems (FILE * fp, GHolder * h, int idx, int processed, int max_hit,
-                int max_vis, const GOutput * panel)
+print_subitems (FILE * fp, GHolder * h, int idx, int total, int max_hit,
+                int max_vis, const GOutput * output)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
@@ -1310,10 +1319,10 @@ print_subitems (FILE * fp, GHolder * h, int idx, int processed, int max_hit,
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    set_data_metrics (iter->metrics, &nmetrics, processed);
+    set_data_metrics (iter->metrics, &nmetrics, total);
 
     print_html_begin_tr (fp, 1, 1);
-    print_metrics (fp, nmetrics, max_hit, max_vis, 1, panel);
+    print_metrics (fp, nmetrics, max_hit, max_vis, 1, output);
     print_html_end_tr (fp);
 
     free (nmetrics);
@@ -1411,21 +1420,21 @@ print_host_sub (FILE * fp, GHolder * h, int idx, int cspan)
 }
 
 static void
-print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
-                 int max_vis, const GOutput * panel)
+print_html_host (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
+                 GO_UNUSED const GPanel * panel, const GOutput * output)
 {
   GMetrics *nmetrics;
   int i, cspan = 5;
 
-  if (panel->avgts && conf.serve_usecs)
+  if (output->avgts && conf.serve_usecs)
     cspan++;
-  if (panel->cumts && conf.serve_usecs)
+  if (output->cumts && conf.serve_usecs)
     cspan++;
-  if (panel->maxts && conf.serve_usecs)
+  if (output->maxts && conf.serve_usecs)
     cspan++;
 
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
+    set_data_metrics (h->items[i].metrics, &nmetrics, total);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
 
@@ -1440,7 +1449,7 @@ print_html_host (FILE * fp, GHolder * h, int processed, int max_hit,
     }
     fprintf (fp, "</td>");
 
-    print_metrics (fp, nmetrics, max_hit, max_vis, 0, panel);
+    print_metrics (fp, nmetrics, max_hit, max_vis, 0, output);
     print_html_end_tr (fp);
 
     if (h->sub_items_size)
@@ -1459,8 +1468,8 @@ fmt_date (GMetrics * metrics)
 }
 
 static void
-print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
-                 int max_vis, const GOutput * panel)
+print_html_data (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
+                 const GPanel * panel, const GOutput * output)
 {
   GMetrics *nmetrics;
   int i;
@@ -1469,21 +1478,22 @@ print_html_data (FILE * fp, GHolder * h, int processed, int max_hit,
     if (panel->metrics_callback)
       panel->metrics_callback (h->items[i].metrics);
 
-    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
+    set_data_metrics (h->items[i].metrics, &nmetrics, total);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
-    print_metrics (fp, nmetrics, max_hit, max_vis, 0, panel);
+    print_metrics (fp, nmetrics, max_hit, max_vis, 0, output);
     print_html_end_tr (fp);
 
     if (h->sub_items_size)
-      print_subitems (fp, h, i, processed, max_hit, max_vis, panel);
+      print_subitems (fp, h, i, total, max_hit, max_vis, output);
 
     free (nmetrics);
   }
 }
 
 static void
-print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
+print_html_common (FILE * fp, GHolder * h, int total, const GPanel * panel,
+                   const GOutput * output)
 {
   int max_hit = 0, max_vis = 0;
   const char *lbl = panel->clabel;
@@ -1491,7 +1501,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   if (!panel->clabel)
     lbl = module_to_label (h->module);
 
-  if (panel->graph) {
+  if (output->graph) {
     max_hit = get_max_hit (h);
     max_vis = get_max_visitor (h);
   }
@@ -1515,9 +1525,9 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
     fprintf (fp, "<th>%s</th>", MTRC_CUMTS_LBL);
     fprintf (fp, "<th>%s</th>", MTRC_MAXTS_LBL);
   }
-  if (conf.append_protocol && panel->protocol)
+  if (conf.append_protocol && output->protocol)
     fprintf (fp, "<th>%s</th>", MTRC_PROTOCOLS_LBL);
-  if (conf.append_method && panel->method)
+  if (conf.append_method && output->method)
     fprintf (fp, "<th>%s</th>", MTRC_METHODS_LBL);
 
   if (max_hit)
@@ -1530,7 +1540,7 @@ print_html_common (FILE * fp, GHolder * h, int processed, const GOutput * panel)
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  panel->render (fp, h, processed, max_hit, max_vis, panel);
+  panel->render (fp, h, total, max_hit, max_vis, panel, output);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
@@ -1652,9 +1662,11 @@ print_html_summary (FILE * fp, GLog * logger)
 void
 output_html (GLog * logger, GHolder * holder)
 {
+  FILE *fp = stdout;
   GModule module;
   char now[DATE_TIME];
-  FILE *fp = stdout;
+  const GOutput *output;
+  const GPanel *panel;
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
@@ -1665,12 +1677,13 @@ output_html (GLog * logger, GHolder * holder)
 
   print_html_summary (fp, logger);
   for (module = 0; module < TOTAL_MODULES; module++) {
-    const GOutput *panel = panel_lookup (module);
+    panel = panel_lookup (module);
+    output = output_lookup (module);
     if (!panel)
       continue;
     if (ignore_panel (module))
       continue;
-    print_html_common (fp, holder + module, logger->process, panel);
+    print_html_common (fp, holder + module, logger->process, panel, output);
   }
 
   print_html_footer (fp);

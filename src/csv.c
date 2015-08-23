@@ -44,9 +44,15 @@
 #include "ui.h"
 #include "util.h"
 
+typedef struct GPanel_
+{
+  GModule module;
+  void (*render) (FILE * fp, GHolder * h, int processed);
+} GPanel;
+
 static void print_csv_data (FILE * fp, GHolder * h, int processed);
 
-static GCSV paneling[] = {
+static GPanel paneling[] = {
   {VISITORS, print_csv_data},
   {REQUESTS, print_csv_data},
   {REQUESTS_STATIC, print_csv_data},
@@ -64,7 +70,7 @@ static GCSV paneling[] = {
   {STATUS_CODES, print_csv_data},
 };
 
-static GCSV *
+static GPanel *
 panel_lookup (GModule module)
 {
   int i, num_panels = ARRAY_SIZE (paneling);
@@ -271,7 +277,7 @@ output_csv (GLog * logger, GHolder * holder)
     print_csv_summary (fp, logger);
 
   for (module = 0; module < TOTAL_MODULES; module++) {
-    const GCSV *panel = panel_lookup (module);
+    const GPanel *panel = panel_lookup (module);
     if (!panel)
       continue;
     if (ignore_panel (module))

@@ -136,27 +136,6 @@
  "TavyPO8yx3FaCCFvaq2f6+rq+kT+u+OUKVOwb98+zJ07d6LWum7nzp1bL7vsMmzYsGHswo9hDP9R" \
  "8H8BM/XVggoDbGIAAAAASUVORK5CYII="
 
-typedef struct GOutput_
-{
-  GModule module;
-  void (*render) (FILE * fp, GHolder * h, int processed, int max_hit,
-                  int max_vis, const struct GOutput_ *);
-  void (*metrics_callback) (GMetrics * metrics);
-  const char *clabel;           /* column label */
-  int8_t visitors;
-  int8_t hits;
-  int8_t percent;
-  int8_t bw;
-  int8_t avgts;
-  int8_t cumts;
-  int8_t maxts;
-  int8_t protocol;
-  int8_t method;
-  int8_t data;
-  int8_t graph;
-  int8_t sub_graph;
-} GOutput;
-
 void output_html (GLog * logger, GHolder * holder);
 
 #endif
