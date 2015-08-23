@@ -65,6 +65,7 @@ struct option long_opts[] = {
 #endif
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
+  {"color"                , required_argument , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"double-decode"        , no_argument       , 0 ,  0  } ,
@@ -129,6 +130,7 @@ cmd_help (void)
   "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
+  "  --color=<bg:fg[,attrs|PANEL]>   - Specify custom colors.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --no-color                      - Disable colored output.\n"
@@ -329,6 +331,11 @@ read_option_args (int argc, char **argv)
 
       if (!strcmp ("no-global-config", long_opts[idx].name))
         break;  /* ignore it */
+
+      /* colors */
+      if (!strcmp ("color", long_opts[idx].name) &&
+          conf.color_idx < MAX_CUSTOM_COLORS)
+        conf.colors[conf.color_idx++] = optarg;
 
       /* color scheme */
       if (!strcmp ("color-scheme", long_opts[idx].name))

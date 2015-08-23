@@ -53,15 +53,58 @@
 #include "glibht.h"
 #endif
 
+#include "color.h"
 #include "error.h"
 #include "gmenu.h"
 #include "goaccess.h"
 #include "util.h"
 #include "xmalloc.h"
 
+/* *INDENT-OFF* */
+static GOutput outputting[] = {
+  {VISITORS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 0} ,
+  {REQUESTS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
+  {REQUESTS_STATIC , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
+  {NOT_FOUND       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
+  {HOSTS           , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 0} ,
+  {OS              , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
+  {BROWSERS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
+  {VISIT_TIMES     , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
+  {REFERRERS       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {REFERRING_SITES , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+#ifdef HAVE_LIBGEOIP
+  {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+#endif
+  {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+};
+/* *INDENT-ON* */
+
 static char *date_format = NULL;
 static char *log_format = NULL;
 static char *time_format = NULL;
+
+typedef struct Field_
+{
+  const char *field;
+  /* char due to log, bw, log_file */
+  char *value;
+  GColors *(*colorlbl) (void);
+  GColors *(*colorval) (void);
+} Field;
+
+/* Determine which metrics to output given a module */
+GOutput *
+output_lookup (GModule module)
+{
+  int i, num_panels = ARRAY_SIZE (outputting);
+
+  for (i = 0; i < num_panels; i++) {
+    if (outputting[i].module == module)
+      return &outputting[i];
+  }
+  return NULL;
+}
 
 /* initialize curses colors */
 void
@@ -69,27 +112,10 @@ init_colors (void)
 {
   /* use default foreground/background colors */
   use_default_colors ();
+  /* parse custom colors and initialize them */
+  set_colors ();
 
-  init_pair (COL_BLUE, COLOR_BLUE, -1);
-  if (conf.color_scheme == STD_GREEN)
-    init_pair (COL_GREEN, COLOR_GREEN, -1);
-  else
-    init_pair (COL_GREEN, COLOR_WHITE, -1);
-
-  init_pair (COL_RED, COLOR_RED, -1);
-  init_pair (COL_BLACK, COLOR_BLACK, -1);
-  init_pair (COL_CYAN, COLOR_CYAN, -1);
-  init_pair (COL_YELLOW, COLOR_YELLOW, -1);
-  init_pair (YELLOW_BLACK, COLOR_BLACK, COLOR_YELLOW);
-
-  if (conf.color_scheme == STD_GREEN)
-    init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_GREEN);
-  else
-    init_pair (BLUE_GREEN, COLOR_BLUE, COLOR_WHITE);
-
-  init_pair (BLACK_GREEN, COLOR_BLACK, COLOR_GREEN);
-  init_pair (BLACK_CYAN, COLOR_BLACK, COLOR_CYAN);
-  init_pair (WHITE_RED, COLOR_WHITE, COLOR_RED);
+  init_pair (COLOR_NORMAL, COLOR_WHITE, -1);
 }
 
 /* creation - ncurses' window handling */
@@ -138,10 +164,11 @@ end_spinner (void)
 void
 init_windows (WINDOW ** header_win, WINDOW ** main_win)
 {
+  GColors *color = get_color (COLOR_BG);
   int row = 0, col = 0;
 
   /* init standard screen */
-  attron (COLOR_PAIR (COL_WHITE));
+  attron (COLOR_PAIR (COLOR_NORMAL));
   getmaxyx (stdscr, row, col);
   if (row < MIN_HEIGHT || col < MIN_WIDTH)
     FATAL ("Minimum screen size - 0 columns by 7 lines");
@@ -157,52 +184,30 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
   keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
+
+  /* background colors */
+  wbkgd (*main_win, COLOR_PAIR (color->pair->idx));
+  wbkgd (*header_win, COLOR_PAIR (color->pair->idx));
+  wbkgd (stdscr, COLOR_PAIR (color->pair->idx));
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* draw a generic header */
 void
-draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x,
-             int w, int color, int max_width)
+draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
+             GColors * (*func) (void))
 {
+  GColors *color = (*func) ();
   char *buf;
-  /* additional integer value for the width */
-  if (strchr (fmt, '*') != NULL && max_width > 0) {
-    buf = xmalloc (snprintf (NULL, 0, fmt, max_width, s) + 1);
-    sprintf (buf, fmt, max_width, s);
-  } else {
-    buf = xmalloc (snprintf (NULL, 0, fmt, s) + 1);
-    sprintf (buf, fmt, s);
-  }
 
-  if (conf.color_scheme == STD_GREEN) {
-    init_pair (1, COLOR_BLACK, COLOR_GREEN);
-    init_pair (2, COLOR_BLACK, COLOR_CYAN);
-    wattron (win, COLOR_PAIR (color));
-  } else if (conf.color_scheme == MONOCHROME) {
-    init_pair (1, COLOR_BLACK, COLOR_WHITE);
-    init_pair (2, COLOR_WHITE, -1);
-    wattron (win, COLOR_PAIR (color));
-  } else {
-    if (color == 1)
-      wattron (win, A_REVERSE);
-    else if (color == 2)
-      wattron (win, A_NORMAL);
-  }
+  buf = xmalloc (snprintf (NULL, 0, fmt, s) + 1);
+  sprintf (buf, fmt, s);
 
+  wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwhline (win, y, x, ' ', w);
   mvwaddnstr (win, y, x, buf, w);
+  wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
 
-  if (conf.color_scheme == STD_GREEN)
-    wattroff (win, COLOR_PAIR (color));
-  else if (conf.color_scheme == MONOCHROME)
-    wattroff (win, COLOR_PAIR (color));
-  else {
-    if (color == 1)
-      wattroff (win, A_REVERSE);
-    else if (color == 2)
-      wattroff (win, A_NORMAL);
-  }
   free (buf);
 }
 
@@ -319,64 +324,72 @@ module_to_desc (GModule module)
 void
 update_active_module (WINDOW * header_win, GModule current)
 {
+  GColors *color = get_color (COLOR_ACTIVE_LABEL);
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
 
   char *lbl = xmalloc (snprintf (NULL, 0, "[Active Panel: %s]", module) + 1);
   sprintf (lbl, "[Active Panel: %s]", module);
 
-  if (conf.color_scheme == NO_COLOR)
-    wattron (header_win, A_REVERSE);
-  else
-    wattron (header_win, COLOR_PAIR (BLUE_GREEN));
-
   wmove (header_win, 0, 30);
-  mvwprintw (header_win, 0, col - strlen (lbl) - 1, "%s", lbl);
 
-  if (conf.color_scheme == NO_COLOR)
-    wattroff (header_win, A_REVERSE);
-  else
-    wattroff (header_win, COLOR_PAIR (BLUE_GREEN));
+  wattron (header_win, color->attr | COLOR_PAIR (color->pair->idx));
+  mvwprintw (header_win, 0, col - strlen (lbl) - 1, "%s", lbl);
+  wattroff (header_win, color->attr | COLOR_PAIR (color->pair->idx));
+
   wrefresh (header_win);
 
   free (lbl);
+}
+
+static void
+render_overall_field (WINDOW * win, const char *s, int y, int x,
+                      GColors * color)
+{
+  wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
+  mvwprintw (win, y, x, "%s", s);
+  wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
+}
+
+static void
+render_overall_value (WINDOW * win, const char *s, int y, int x,
+                      GColors * color)
+{
+  wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
+  mvwprintw (win, y, x, "%s", s);
+  wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
 }
 
 /* render general statistics */
 void
 display_general (WINDOW * win, char *ifile, GLog * logger)
 {
+  GColors *color = NULL;
   char *bw, *size, *log_file;
   char *failed, *not_found, *process, *ref, *req;
   char *sfiles, *now, *visitors, *exclude_ip;
 
+  int col = getmaxx (stdscr);
   int x_field = 2, x_value = 0;
   size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
 
-  typedef struct Field_
-  {
-    const char *field;
-    char *value;                /* char due to log, bw, log_file */
-    int color;
-  } Field;
-
   Field fields[] = {
-    {T_REQUESTS, NULL, COL_CYAN},
-    {T_UNIQUE_VIS, NULL, COL_CYAN},
-    {T_REFERRER, NULL, COL_CYAN},
-    {T_LOG, NULL, COL_CYAN},
-    {T_FAILED, NULL, COL_CYAN},
-    {T_UNIQUE_FIL, NULL, COL_CYAN},
-    {T_UNIQUE404, NULL, COL_CYAN},
-    {T_BW, NULL, COL_CYAN},
-    {T_GEN_TIME, NULL, COL_CYAN},
-    {T_EXCLUDE_IP, NULL, COL_CYAN},
-    {T_STATIC_FIL, NULL, COL_CYAN},
-    {T_LOG_PATH, NULL, COL_YELLOW}
+    {T_REQUESTS, NULL, color_overall_lbls, color_overall_vals},
+    {T_UNIQUE_VIS, NULL, color_overall_lbls, color_overall_vals},
+    {T_REFERRER, NULL, color_overall_lbls, color_overall_vals},
+    {T_LOG, NULL, color_overall_lbls, color_overall_vals},
+    {T_FAILED, NULL, color_overall_lbls, color_overall_vals},
+    {T_UNIQUE_FIL, NULL, color_overall_lbls, color_overall_vals},
+    {T_UNIQUE404, NULL, color_overall_lbls, color_overall_vals},
+    {T_BW, NULL, color_overall_lbls, color_overall_vals},
+    {T_GEN_TIME, NULL, color_overall_lbls, color_overall_vals},
+    {T_EXCLUDE_IP, NULL, color_overall_lbls, color_overall_vals},
+    {T_STATIC_FIL, NULL, color_overall_lbls, color_overall_vals},
+    {T_LOG_PATH, NULL, color_overall_lbls, color_overall_path}
   };
 
   werase (win);
-  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, getmaxx (stdscr), 1, 0);
+  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, col, color_panel_header);
 
   if (!logger->piping && ifile != NULL) {
     size = filesize_str (file_size (ifile));
@@ -387,15 +400,15 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   }
   bw = filesize_str ((float) logger->resp_size);
 
-  failed = int_to_str (logger->invalid);
-  not_found = int_to_str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP));
-  process = int_to_str (logger->process);
-  ref = int_to_str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP));
-  req = int_to_str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP));
-  sfiles = int_to_str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP));
-  now = int_to_str (((long long) end_proc - start_proc));
-  visitors = int_to_str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP));
-  exclude_ip = int_to_str (logger->exclude_ip);
+  failed = int2str (logger->invalid, 0);
+  not_found = int2str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP), 0);
+  process = int2str (logger->process, 0);
+  ref = int2str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP), 0);
+  req = int2str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP), 0);
+  sfiles = int2str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP), 0);
+  now = int2str (((long long) end_proc - start_proc), 0);
+  visitors = int2str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP), 0);
+  exclude_ip = int2str (logger->exclude_ip, 0);
 
   fields[0].value = process;
   fields[1].value = visitors;
@@ -423,7 +436,9 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
     }
 
     x_field += max_field;
-    mvwprintw (win, y, x_field, "%s", fields[i].field);
+
+    color = (*fields[i].colorlbl) ();
+    render_overall_field (win, fields[i].field, y, x_field, color);
 
     max_field = 0;
     for (j = 0; j < n; j++) {
@@ -441,9 +456,8 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
     x_value = max_field + x_field + 1;
     max_field += max_value + 2;
 
-    wattron (win, A_BOLD | COLOR_PAIR (fields[i].color));
-    mvwprintw (win, y, x_value, "%s", fields[i].value);
-    wattroff (win, A_BOLD | COLOR_PAIR (fields[i].color));
+    color = (*fields[i].colorval) ();
+    render_overall_value (win, fields[i].value, y, x_value, color);
   }
   for (i = 0; i < n; i++) {
     free (fields[i].value);
@@ -456,16 +470,14 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
               const char *str, int enable_case, int *toggle_case)
 {
   char *s = xmalloc (max_width + 1), *tmp;
-  size_t pos = 0, x = 0, quit = 1, c;
+  size_t i, c, pos = 0, x = 0, quit = 1, len = 0, size_x = 0, size_y = 0;
 
-  /* window dimensions */
-  size_t size_x = 0, size_y = 0, i;
   getmaxyx (win, size_y, size_x);
   size_x -= 4;
 
   /* are we setting a default string */
   if (str) {
-    size_t len = MIN (max_width, strlen (str));
+    len = MIN (max_width, strlen (str));
     memcpy (s, str, len);
     s[len] = '\0';
 
@@ -476,14 +488,15 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
       tmp[size_x] = '\0';
       mvwprintw (win, pos_y, pos_x, "%s", tmp);
       free (tmp);
-    } else
+    } else {
       mvwprintw (win, pos_y, pos_x, "%s", s);
-  } else
+    }
+  } else {
     s[0] = '\0';
+  }
 
   if (enable_case)
-    draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1, size_x - 2, 2,
-                 0);
+    mvwprintw (win, size_y - 2, 1, " %s", CSENSITIVE);
 
   wmove (win, pos_y, pos_x + x);
   wrefresh (win);
@@ -518,11 +531,9 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
         break;
       *toggle_case = *toggle_case == 0 ? 1 : 0;
       if (*toggle_case)
-        draw_header (win, "[ ] case sensitive", " %s", size_y - 2, 1,
-                     size_x - 2, 2, 0);
+        mvwprintw (win, size_y - 2, 1, " %s", CISENSITIVE);
       else if (!*toggle_case)
-        draw_header (win, "[x] case sensitive", " %s", size_y - 2, 1,
-                     size_x - 2, 2, 0);
+        mvwprintw (win, size_y - 2, 1, " %s", CSENSITIVE);
       break;
     case 21:   /* ^u */
       s[0] = '\0';
@@ -714,7 +725,7 @@ load_agent_list (WINDOW * main_win, char *addr)
 
   post_gmenu (menu);
   snprintf (buf, sizeof buf, "User Agents for %s", addr);
-  draw_header (win, buf, " %s", 1, 1, list_w - 2, 1, 0);
+  draw_header (win, buf, " %s", 1, 1, list_w - 2, color_panel_header);
   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
   wrefresh (win);
 
@@ -723,11 +734,9 @@ load_agent_list (WINDOW * main_win, char *addr)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
       break;
     case KEY_RESIZE:
     case 'q':
@@ -756,12 +765,16 @@ static void
 ui_spinner (void *ptr_data)
 {
   GSpinner *sp = (GSpinner *) ptr_data;
+  GColors *color = NULL;
 
   static char const spin_chars[] = "/-\\|";
   char buf[SPIN_LBL];
-  long long tdiff = 0, psec = 0;
   int i = 0;
+  long long tdiff = 0, psec = 0;
   time_t begin;
+
+  if (sp->curses)
+    color = (*sp->color) ();
 
   time (&begin);
   while (1) {
@@ -779,19 +792,16 @@ ui_spinner (void *ptr_data)
     }
     setlocale (LC_NUMERIC, "POSIX");
 
-    /* CURSES */
     if (sp->curses) {
-      /* label + metrics */
-      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color, 0);
-
+      /* CURSES */
+      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color);
       /* caret */
-      wattron (sp->win, COLOR_PAIR (sp->color));
+      wattron (sp->win, COLOR_PAIR (color->pair->idx));
       mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[i++ & 3]);
-      wattroff (sp->win, COLOR_PAIR (sp->color));
+      wattroff (sp->win, COLOR_PAIR (color->pair->idx));
       wrefresh (sp->win);
-    }
-    /* STDOUT */
-    else if (!conf.no_progress) {
+    } else if (!conf.no_progress) {
+      /* STDOUT */
       fprintf (stderr, "%s\r", buf);
     }
 
@@ -820,7 +830,7 @@ set_curses_spinner (GSpinner * spinner)
 
   getmaxyx (stdscr, y, x);
 
-  spinner->color = HIGHLIGHT;
+  spinner->color = color_progress;
   spinner->curses = 1;
   spinner->win = stdscr;
   spinner->x = 0;
@@ -848,6 +858,12 @@ new_gspinner (void)
   return spinner;
 }
 
+static void
+clear_confdlg_status_bar (WINDOW * win)
+{
+  draw_header (win, "", "%s", 3, 2, CONF_MENU_W, color_default);
+}
+
 /* render config log date/format dialog */
 int
 render_confdlg (GLog * logger, GSpinner * spinner)
@@ -856,9 +872,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
   WINDOW *win;
 
   char *cstm_log, *cstm_date, *cstm_time;
-  int c, quit = 1;
-  int invalid = 1;
-  int y, x, h = CONF_WIN_H, w = CONF_WIN_W;
+  int c, quit = 1, invalid = 1, y, x, h = CONF_WIN_H, w = CONF_WIN_W;
   int w2 = w - 2;
   size_t i, n, sel;
 
@@ -894,12 +908,13 @@ render_confdlg (GLog * logger, GSpinner * spinner)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2, 1, 0);
+  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
+               color_panel_header);
   mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
 
   /* set log format from goaccessrc if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2, 1,
-               0);
+  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
+               color_panel_header);
   if (conf.log_format) {
     log_format = escape_str (conf.log_format);
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
@@ -908,8 +923,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
   }
 
   /* set date format from goaccessrc if available */
-  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2, 1,
-               0);
+  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
+               color_panel_header);
   if (conf.date_format) {
     date_format = escape_str (conf.date_format);
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
@@ -918,8 +933,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
   }
 
   /* set time format from goaccessrc if available */
-  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2, 1,
-               0);
+  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2,
+               color_panel_header);
   if (conf.time_format) {
     time_format = escape_str (conf.time_format);
     mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
@@ -933,11 +948,11 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      clear_confdlg_status_bar (win);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      clear_confdlg_status_bar (win);
       break;
     case 32:   /* space */
       gmenu_driver (menu, REQ_SEL);
@@ -957,15 +972,15 @@ render_confdlg (GLog * logger, GSpinner * spinner)
         log_format = get_selected_format_str (i);
         time_format = get_selected_time_str (i);
 
-        draw_header (win, log_format, " %s", 12, 1, CONF_MENU_W, 0, 0);
-        draw_header (win, date_format, " %s", 15, 1, CONF_MENU_W, 0, 0);
-        draw_header (win, time_format, " %s", 18, 1, CONF_MENU_W, 0, 0);
+        mvwprintw (win, 12, 1, " %s", log_format);
+        mvwprintw (win, 15, 1, " %s", date_format);
+        mvwprintw (win, 18, 1, " %s", time_format);
         break;
       }
       break;
     case 99:   /* c */
       /* clear top status bar */
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      clear_confdlg_status_bar (win);
       wmove (win, 12, 2);
 
       /* get input string */
@@ -989,7 +1004,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       break;
     case 100:  /* d */
       /* clear top status bar */
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      clear_confdlg_status_bar (win);
       wmove (win, 15, 0);
 
       /* get input string */
@@ -1013,7 +1028,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       break;
     case 116:  /* t */
       /* clear top status bar */
-      draw_header (win, "", "%s", 3, 2, CONF_MENU_W, 0, 0);
+      clear_confdlg_status_bar (win);
       wmove (win, 15, 0);
 
       /* get input string */
@@ -1041,14 +1056,14 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     case KEY_ENTER:
       /* display status bar error messages */
       if (time_format == NULL)
-        draw_header (win, "Select a time format.", "%s", 3, 2, CONF_MENU_W,
-                     WHITE_RED, 0);
+        draw_header (win, "Select a time format.", " %s", 3, 2, CONF_MENU_W,
+                     color_error);
       if (date_format == NULL)
-        draw_header (win, "Select a date format.", "%s", 3, 2, CONF_MENU_W,
-                     WHITE_RED, 0);
+        draw_header (win, "Select a date format.", " %s", 3, 2, CONF_MENU_W,
+                     color_error);
       if (log_format == NULL)
-        draw_header (win, "Select a log format.", "%s", 3, 2, CONF_MENU_W,
-                     WHITE_RED, 0);
+        draw_header (win, "Select a log format.", " %s", 3, 2, CONF_MENU_W,
+                     color_error);
 
       if (date_format && log_format && time_format) {
         conf.time_format = unescape_str (time_format);
@@ -1058,8 +1073,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
         /* test log against selected settings */
         if (test_format (logger)) {
           invalid = 1;
-          draw_header (win, "No valid hits.", "%s", 3, 2, CONF_MENU_W,
-                       WHITE_RED, 0);
+          draw_header (win, "No valid hits.", " %s", 3, 2, CONF_MENU_W,
+                       color_error);
 
           free (conf.log_format);
           free (conf.date_format);
@@ -1074,7 +1089,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
           spinner->x = 2;
           spinner->spin_x = CONF_MENU_W;
           spinner->w = CONF_MENU_W;
-          spinner->color = BLACK_CYAN;
+          spinner->color = color_progress;
           ui_spinner_create (spinner);
 
           invalid = 0;
@@ -1104,6 +1119,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
 static void
 scheme_chosen (const char *name)
 {
+  free_color_lists ();
   if (strcmp ("Green/Original", name) == 0)
     conf.color_scheme = STD_GREEN;
   else if (strcmp ("Monochrome/Default", name) == 0)
@@ -1147,7 +1163,8 @@ load_schemes_win (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Scheme Configuration", " %s", 1, 1, w2, 1, 0);
+  draw_header (win, "Scheme Configuration", " %s", 1, 1, w2,
+               color_panel_header);
   mvwprintw (win, 2, 2, "[ENTER] to switch scheme");
 
   wrefresh (win);
@@ -1156,11 +1173,9 @@ load_schemes_win (WINDOW * main_win)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, SCHEME_MENU_W, 0, 0);
       break;
     case 32:
     case 0x0a:
@@ -1298,14 +1313,13 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Sort active module by", " %s", 1, 1, w2, 1, 0);
+  draw_header (win, "Sort active module by", " %s", 1, 1, w2,
+               color_panel_header);
   mvwprintw (win, 2, 2, "[ENTER] to select field - [TAB] sort");
   if (sort->sort == SORT_ASC)
-    draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
-                 SORT_WIN_W - 2, 2, 0);
+    mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_ASC_SEL);
   else
-    draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
-                 SORT_WIN_W - 2, 2, 0);
+    mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_DESC_SEL);
 
   wrefresh (win);
   while (quit) {
@@ -1313,24 +1327,19 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, SORT_MENU_W, 0, 0);
       break;
     case 9:    /* TAB */
-      /* ascending */
       if (sort->sort == SORT_ASC) {
+        /* ascending */
         sort->sort = SORT_DESC;
-        draw_header (win, "[ ] ASC [x] DESC", " %s", SORT_WIN_H - 2, 1,
-                     SORT_WIN_W - 2, 2, 0);
-      }
-      /* descending */
-      else {
+        mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_DESC_SEL);
+      } else {
+        /* descending */
         sort->sort = SORT_ASC;
-        draw_header (win, "[x] ASC [ ] DESC", " %s", SORT_WIN_H - 2, 1,
-                     SORT_WIN_W - 2, 2, 0);
+        mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_ASC_SEL);
       }
       break;
     case 32:
@@ -1470,7 +1479,7 @@ load_help_popup (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "GoAccess Quick Help", " %s", 1, 1, w2, 1, 0);
+  draw_header (win, "GoAccess Quick Help", " %s", 1, 1, w2, color_panel_header);
   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
 
   wrefresh (win);
@@ -1479,11 +1488,9 @@ load_help_popup (WINDOW * main_win)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      draw_header (win, "", "%s", 3, 2, HELP_MENU_WIDTH, 0, 0);
       break;
     case KEY_RESIZE:
     case 'q':

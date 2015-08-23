@@ -145,6 +145,9 @@ house_keeping (void)
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
   }
+  /* free colors */
+  free_color_lists ();
+  /* free cmd arguments */
   free_cmd_args ();
 }
 
@@ -279,6 +282,7 @@ allocate_data (void)
 static void
 render_screens (void)
 {
+  GColors *color = get_color (COLOR_DEFAULT);
   int row, col, chg = 0;
 
   getmaxyx (stdscr, row, col);
@@ -287,13 +291,15 @@ render_screens (void)
   generate_time ();
   chg = logger->process - logger->offset;
 
-  draw_header (stdscr, "", "%s", row - 1, 0, col, 0, 0);
-  wattron (stdscr, COLOR_PAIR (COL_WHITE));
+  draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
+
+  wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, "[F1]Help [Enter] Exp. Panel");
   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
   mvaddstr (row - 1, col - 21, "[Q]uit GoAccess");
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
-  wattroff (stdscr, COLOR_PAIR (COL_WHITE));
+  wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
+
   refresh ();
 
   /* call general stats header */
@@ -328,7 +334,7 @@ disabled_panel_msg (GModule module)
 
   getmaxyx (stdscr, row, col);
   draw_header (stdscr, lbl, "'%s' panel is disabled", row - 1, 0, col,
-               WHITE_RED, 0);
+               color_error);
 }
 
 static void
@@ -877,7 +883,7 @@ curses_output (void)
   render_screens ();
   get_keys ();
 
-  attroff (COLOR_PAIR (COL_WHITE));
+  attroff (COLOR_PAIR (COLOR_NORMAL));
   /* restore tty modes and reset
    * terminal into non-visual mode */
   endwin ();

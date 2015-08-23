@@ -29,12 +29,6 @@
 #include "parser.h"
 #include "settings.h"
 
-typedef struct GCSV_
-{
-  GModule module;
-  void (*render) (FILE * fp, GHolder * h, int processed);
-} GCSV;
-
 void output_csv (GLog * logger, GHolder * holder);
 
 #endif

@@ -24,10 +24,11 @@
 #include <stdint.h>
 #include "commons.h"
 
-#define MAX_LINE_CONF 512
-#define MAX_EXTENSIONS 64
-#define MAX_IGNORE_IPS 64
-#define MAX_IGNORE_REF 64
+#define MAX_LINE_CONF     512
+#define MAX_EXTENSIONS     64
+#define MAX_IGNORE_IPS     64
+#define MAX_IGNORE_REF     64
+#define MAX_CUSTOM_COLORS  64
 #define NO_CONFIG_FILE "No config file used"
 
 typedef enum
@@ -92,6 +93,7 @@ typedef struct GConf_
   char *sort_panels[TOTAL_MODULES];
   char *time_format;
   const char *static_files[MAX_EXTENSIONS];
+  const char *colors[MAX_CUSTOM_COLORS];
 
   int append_method;
   int append_protocol;
@@ -118,6 +120,7 @@ typedef struct GConf_
   int serve_usecs;
   int skip_term_resolver;
 
+  int color_idx;
   int ignore_ip_idx;
   int ignore_panel_idx;
   int ignore_referer_idx;

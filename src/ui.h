@@ -196,6 +196,8 @@
 #define SORT_MENU_Y       4
 #define SORT_WIN_H        13
 #define SORT_WIN_W        42
+#define SORT_ASC_SEL      "[x] ASC [ ] DESC"
+#define SORT_DESC_SEL     "[ ] ASC [x] DESC"
 
 /* AGENTS DIALOG */
 #define AGENTS_MENU_X     2
@@ -209,35 +211,15 @@
 #define HELP_WIN_HEIGHT   17
 #define HELP_WIN_WIDTH    64
 
-/* COLORS */
-#define COL_WHITE         0
-#define COL_BLUE          1
-#define COL_RED           3
-#define COL_BLACK         4
-#define COL_CYAN          5
-#define COL_YELLOW        6
-#define COL_GREEN         11
-
-#define YELLOW_BLACK      12
-#define BLUE_GREEN        7
-#define BLACK_GREEN       8
-#define BLACK_CYAN        9
-#define WHITE_RED         10
-
-#define HIGHLIGHT         1
+#define CSENSITIVE    "[x] case sensitive"
+#define CISENSITIVE    "[ ] case sensitive"
 
 /* Convenient macros */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
+#include "color.h"
 #include "commons.h"
 #include "sort.h"
-
-typedef enum SCHEMES
-{
-  NO_COLOR,
-  MONOCHROME,
-  STD_GREEN
-} GShemes;
 
 typedef struct GFind_
 {
@@ -268,7 +250,7 @@ typedef struct GScroll_
 typedef struct GSpinner_
 {
   const char *label;
-  int color;
+  GColors *(*color) (void);
   int curses;
   int spin_x;
   int w;
@@ -285,7 +267,27 @@ typedef struct GSpinner_
   } state;
 } GSpinner;
 
+/* Controls metric output.
+ * i.e., which metrics it should display */
+typedef struct GOutput_
+{
+  GModule module;
+  int8_t visitors;
+  int8_t hits;
+  int8_t percent;
+  int8_t bw;
+  int8_t avgts;
+  int8_t cumts;
+  int8_t maxts;
+  int8_t protocol;
+  int8_t method;
+  int8_t data;
+  int8_t graph;
+  int8_t sub_graph;
+} GOutput;
+
 /* *INDENT-OFF* */
+GOutput *output_lookup (GModule module);
 GSpinner *new_gspinner (void);
 
 char *get_browser_type (char *line);
@@ -294,11 +296,11 @@ const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
-int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
 int render_confdlg(GLog * logger, GSpinner * spinner);
+int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
 void close_win (WINDOW * w);
 void display_general (WINDOW * header_win, char *ifile, GLog *logger);
-void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, int color, int max_width);
+void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
 void generate_time (void);
 void init_colors (void);

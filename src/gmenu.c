@@ -54,18 +54,19 @@ new_gmenu (WINDOW * parent, int h, int w, int y, int x)
 
 /* render an actual menu item */
 static void
-draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
-                int checked)
+draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int checked,
+                GColors * (*func) (void))
 {
   char check, *lbl = NULL;
+
   if (menu->selectable) {
     check = checked ? 'x' : ' ';
     lbl = xmalloc (snprintf (NULL, 0, "[%c] %s", check, s) + 1);
     sprintf (lbl, "[%c] %s", check, s);
-    draw_header (menu->win, lbl, "%s", y, x, w, color, 0);
+    draw_header (menu->win, lbl, "%s", y, x, w, (*func));
     free (lbl);
   } else {
-    draw_header (menu->win, s, "%s", y, x, w, color, 0);
+    draw_header (menu->win, s, "%s", y, x, w, (*func));
   }
 }
 
@@ -73,7 +74,9 @@ draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int color,
 int
 post_gmenu (GMenu * menu)
 {
-  int i = 0, j = 0, k = 0, start, end, height, total, checked = 0;
+  GColors *(*func) (void);
+  int i = 0, j = 0, start, end, height, total, checked = 0;
+
   if (menu == NULL)
     return 1;
 
@@ -83,12 +86,14 @@ post_gmenu (GMenu * menu)
   start = menu->start;
   total = menu->size;
   end = height < total ? start + height : total;
+
   for (i = start; i < end; i++, j++) {
-    k = i == menu->idx ? 1 : 0;
+    func = i == menu->idx ? color_selected : color_default;
     checked = menu->items[i].checked ? 1 : 0;
-    draw_menu_item (menu, menu->items[i].name, 0, j, menu->w, k, checked);
+    draw_menu_item (menu, menu->items[i].name, 0, j, menu->w, checked, func);
   }
   wrefresh (menu->win);
+
   return 0;
 }
 
@@ -97,6 +102,7 @@ void
 gmenu_driver (GMenu * menu, int c)
 {
   int i;
+
   switch (c) {
   case REQ_DOWN:
     if (menu->idx >= menu->size - 1)

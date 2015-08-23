@@ -44,10 +44,19 @@
 #endif
 
 #include "error.h"
+#include "color.h"
 #include "gdns.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
+
+typedef struct GPanel_
+{
+  GModule module;
+  void (*insert) (GRawDataItem item, GHolder * h, const struct GPanel_ *);
+  void (*holder_callback) (GHolder * h);
+  void (*lookup) (GRawDataItem item);
+} GPanel;
 
 static void add_data_to_holder (GRawDataItem item, GHolder * h,
                                 const GPanel * panel);
@@ -61,25 +70,6 @@ static void data_visitors (GHolder * h);
 static GFind find_t;
 
 /* *INDENT-OFF* */
-/* module's styles */
-static const GDashStyle module_style[TOTAL_MODULES] = {
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK} ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_RED   , COL_WHITE , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-#ifdef HAVE_LIBGEOIP
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-#endif
-  {COL_BLACK , COL_WHITE , COL_WHITE , COL_BLACK , COL_BLACK , -1        , COL_BLACK ,COL_BLACK , COL_BLACK , -1        , -1}        ,
-};
-
 static GPanel paneling[] = {
   {VISITORS        , add_data_to_holder, data_visitors} ,
   {REQUESTS        , add_data_to_holder, NULL} ,
@@ -527,7 +517,8 @@ set_percent_data (GDashData * data, int n, int process)
 
 /* render module's total */
 static void
-render_total_label (WINDOW * win, GDashModule * data, int y, int color)
+render_total_label (WINDOW * win, GDashModule * data, int y,
+                    GColors * (*func) (void))
 {
   char *s;
   int win_h, win_w, total, ht_size;
@@ -540,7 +531,7 @@ render_total_label (WINDOW * win, GDashModule * data, int y, int color)
   (void) win_h;
 
   sprintf (s, "Total: %d/%d", total, ht_size);
-  draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, color, 0);
+  draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, func);
   free (s);
 }
 
@@ -548,62 +539,69 @@ render_total_label (WINDOW * win, GDashModule * data, int y, int color)
 static void
 render_bars (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color (COLOR_BARS);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
-
   char *bar;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
 
-  if (style[module].color_bars == -1)
-    return;
-
   bar = get_bars (data->data[idx].metrics->hits, data->max_hits, *x);
   if (sel)
-    draw_header (win, bar, "%s", y, *x, w, HIGHLIGHT, 0);
-  else
+    draw_header (win, bar, "%s", y, *x, w, color_selected);
+  else {
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%s", bar);
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
+  }
   free (bar);
+}
+
+static void
+render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
+{
+  char *padded_data;
+
+  padded_data = left_pad_str (value, x);
+  draw_header (win, padded_data, "%s", render.y, 0, render.w, color_selected);
+  free (padded_data);
+}
+
+static void
+get_visitors_date (char *buf, const char *value)
+{
+  /* verify we have a valid date conversion */
+  if (convert_date (buf, (char *) value, "%Y%m%d", "%d/%b/%Y", DATE_LEN) != 0) {
+    LOG_DEBUG (("invalid date: %s", value));
+    xstrncpy (buf, "---", 4);
+  }
 }
 
 /* render dashboard data */
 static void
 render_data (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_DATA, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
-
-  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
 
   char buf[DATE_LEN];
-  char *value, *padded_data;
+  char *value;
+  int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
 
   value = substring (data->data[idx].metrics->data, 0, w - *x);
-  if (module == VISITORS) {
-    /* verify we have a valid date conversion */
-    if (convert_date (buf, value, "%Y%m%d", "%d/%b/%Y", DATE_LEN) != 0) {
-      LOG_DEBUG (("invalid date: %s", value));
-      xstrncpy (buf, "---", 4);
-    }
-  }
+  if (data->module == VISITORS)
+    get_visitors_date (buf, value);
 
-  if (sel) {
-    if (data->module == HOSTS && data->data[idx].is_subitem) {
-      padded_data = left_pad_str (value, *x);
-      draw_header (win, padded_data, "%s", y, 0, w, HIGHLIGHT, 0);
-      free (padded_data);
-    } else {
-      draw_header (win, module == VISITORS ? buf : value, "%s", y, *x, w,
-                   HIGHLIGHT, 0);
-    }
+  if (sel && data->module == HOSTS && data->data[idx].is_subitem) {
+    render_data_hosts (win, render, value, *x);
+  } else if (sel) {
+    draw_header (win, data->module == VISITORS ? buf : value, "%s", y, *x, w,
+                 color_selected);
   } else {
-    wattron (win, COLOR_PAIR (style[module].color_data));
-    mvwprintw (win, y, *x, "%s", module == VISITORS ? buf : value);
-    wattroff (win, COLOR_PAIR (style[module].color_data));
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
+    mvwprintw (win, y, *x, "%s", data->module == VISITORS ? buf : value);
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
-  *x += module == VISITORS ? DATE_LEN - 1 : data->data_len;
+  *x += data->module == VISITORS ? DATE_LEN - 1 : data->data_len;
   *x += DASH_SPACE;
   free (value);
 }
@@ -612,28 +610,23 @@ render_data (GDashModule * data, GDashRender render, int *x)
 static void
 render_method (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_MTHD, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *method = data->data[idx].metrics->method;
 
-  if (style[module].color_method == -1)
-    return;
-
   if (method == NULL || *method == '\0')
     return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, method, "%s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_method));
+    /* selected state */
+    draw_header (win, method, "%s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%s", method);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_method));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
   *x += data->method_len + DASH_SPACE;
@@ -641,30 +634,25 @@ render_method (GDashModule * data, GDashRender render, int *x)
 
 /* render dashboard request protocol */
 static void
-render_protocol (GDashModule * data, GDashRender render, int *x)
+render_proto (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_PROT, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *protocol = data->data[idx].metrics->protocol;
 
-  if (style[module].color_protocol == -1)
-    return;
-
   if (protocol == NULL || *protocol == '\0')
     return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, protocol, "%s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_protocol));
+    /* selected state */
+    draw_header (win, protocol, "%s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%s", protocol);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_protocol));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
   *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
@@ -674,30 +662,26 @@ render_protocol (GDashModule * data, GDashRender render, int *x)
 static void
 render_avgts (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_AVGTS, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *avgts = data->data[idx].metrics->avgts.sts;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_cumts == -1)
-    return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, avgts, "%9s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    /* selected state */
+    draw_header (win, avgts, "%9s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%9s", avgts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
@@ -705,30 +689,26 @@ out:
 static void
 render_cumts (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_CUMTS, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *cumts = data->data[idx].metrics->cumts.sts;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_cumts == -1)
-    return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, cumts, "%9s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    /* selected state */
+    draw_header (win, cumts, "%9s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%9s", cumts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_cumts));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
@@ -736,61 +716,53 @@ out:
 static void
 render_maxts (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_MAXTS, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *maxts = data->data[idx].metrics->maxts.sts;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_maxts == -1)
-    return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, maxts, "%9s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_maxts));
+    /* selected state */
+    draw_header (win, maxts, "%9s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%9s", maxts);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_maxts));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
 /* render dashboard bandwidth */
 static void
-render_bandwidth (GDashModule * data, GDashRender render, int *x)
+render_bw (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_BW, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
   char *bw = data->data[idx].metrics->bw.sbw;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_bw == -1)
-    return;
 
-  /* selected state */
   if (sel) {
-    draw_header (win, bw, "%11s", y, *x, w, HIGHLIGHT, 0);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_bw));
+    /* selected state */
+    draw_header (win, bw, "%11s", y, *x, w, color_selected);
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%11s", bw);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_bw));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += DASH_BW_LEN + DASH_SPACE;
 }
 
@@ -798,9 +770,9 @@ out:
 static void
 render_percent (GDashModule * data, GDashRender render, int *x)
 {
+  GColorItem item = COLOR_MTRC_PERC;
+  GColors *color;
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   char *percent;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
@@ -808,33 +780,24 @@ render_percent (GDashModule * data, GDashRender render, int *x)
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-  if (style[module].color_percent == -1)
-    return;
 
-  /* selected state */
+  if (data->max_hits == data->data[idx].metrics->hits)
+    item = COLOR_MTRC_PERC_MAX;
+  color = get_color_by_item_module (item, data->module);
+
   if (sel) {
-    percent = float_to_str (data->data[idx].metrics->percent);
-    draw_header (win, percent, "%*s%%", y, *x, w, HIGHLIGHT, len);
+    /* selected state */
+    percent = float2str (data->data[idx].metrics->percent, len);
+    draw_header (win, percent, "%s%%", y, *x, w, color_selected);
     free (percent);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-    if (data->max_hits == data->data[idx].metrics->hits)
-      wattron (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
-    if (style[module].color_percent == COL_BLACK)
-      wattron (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%*.2f%%", len, data->data[idx].metrics->percent);
-
-    if (style[module].color_percent == COL_BLACK)
-      wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
-    if (data->max_hits == data->data[idx].metrics->hits)
-      wattroff (win, A_BOLD | COLOR_PAIR (COL_YELLOW));
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_percent));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += len + 1 + DASH_SPACE;
 }
 
@@ -842,9 +805,8 @@ out:
 static void
 render_hits (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_HITS, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   char *hits;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
@@ -853,20 +815,19 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
 
-  /* selected state */
   if (sel) {
-    hits = int_to_str (data->data[idx].metrics->hits);
-    draw_header (win, hits, "%*s", y, *x, w, HIGHLIGHT, len);
+    /* selected state */
+    hits = int2str (data->data[idx].metrics->hits, len);
+    draw_header (win, hits, " %s", y, 0, w, color_selected);
     free (hits);
-  }
-  /* regular state */
-  else {
-    wattron (win, COLOR_PAIR (style[module].color_hits));
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
-    wattroff (win, COLOR_PAIR (style[module].color_hits));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += len + DASH_SPACE;
 }
 
@@ -874,9 +835,8 @@ out:
 static void
 render_visitors (GDashModule * data, GDashRender render, int *x)
 {
+  GColors *color = get_color_by_item_module (COLOR_MTRC_VISITORS, data->module);
   WINDOW *win = render.win;
-  GModule module = data->module;
-  const GDashStyle *style = module_style;
 
   char *visitors;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
@@ -885,46 +845,91 @@ render_visitors (GDashModule * data, GDashRender render, int *x)
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
 
-  /* selected state */
   if (sel) {
-    visitors = int_to_str (data->data[idx].metrics->visitors);
-    draw_header (win, visitors, "%*s", y, *x, w, HIGHLIGHT, len);
+    /* selected state */
+    visitors = int2str (data->data[idx].metrics->visitors, len);
+    draw_header (win, visitors, "%s", y, *x, w, color_selected);
     free (visitors);
-  }
-  /* regular state */
-  else {
-    wattron (win, A_BOLD | COLOR_PAIR (style[module].color_visitors));
+  } else {
+    /* regular state */
+    wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->visitors);
-    wattroff (win, A_BOLD | COLOR_PAIR (style[module].color_visitors));
+    wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
-out:
 
+out:
   *x += len + DASH_SPACE;
 }
 
 static void
 render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 {
+  GColors *(*func) (void);
   char ind;
   char *hd;
-  int k, w, h, color;
+  int k, w, h;
 
   getmaxyx (win, h, w);
   (void) h;
 
   k = data->module + 1;
   ind = cur_module == data->module ? '>' : ' ';
-  color = cur_module == data->module &&
-    conf.hl_header ? YELLOW_BLACK : HIGHLIGHT;
+  func = cur_module == data->module &&
+    conf.hl_header ? color_panel_active : color_panel_header;
   hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
   sprintf (hd, "%c %d - %s", ind, k, data->head);
 
-  draw_header (win, hd, " %s", (*y), 0, w, color, 0);
+  draw_header (win, hd, " %s", (*y), 0, w, func);
   free (hd);
 
-  render_total_label (win, data, (*y), color);
+  render_total_label (win, data, (*y), func);
   data->pos_y = (*y);
   (*y)++;
+}
+
+static void
+render_metrics (GDashModule * data, GDashRender render, int expanded)
+{
+  int host_bars = !conf.skip_term_resolver ? 1 : 0, x = DASH_INIT_X;
+  GModule module = data->module;
+  const GOutput *output = output_lookup (module);
+
+#ifdef HAVE_LIBGEOIP
+  host_bars = 1;
+#endif
+
+  /* basic metrics */
+  if (output->hits)
+    render_hits (data, render, &x);
+  if (output->visitors)
+    render_visitors (data, render, &x);
+  if (output->percent)
+    render_percent (data, render, &x);
+
+  /* render bandwidth if available */
+  if (conf.bandwidth && output->bw)
+    render_bw (data, render, &x);
+
+  /* render avgts, cumts and maxts if available */
+  if (output->avgts && conf.serve_usecs)
+    render_avgts (data, render, &x);
+  if (output->cumts && conf.serve_usecs)
+    render_cumts (data, render, &x);
+  if (output->maxts && conf.serve_usecs)
+    render_maxts (data, render, &x);
+
+  /* render request method if available */
+  if (output->method && conf.append_method)
+    render_method (data, render, &x);
+  /* render request protocol if available */
+  if (output->protocol && conf.append_protocol)
+    render_proto (data, render, &x);
+  if (output->data)
+    render_data (data, render, &x);
+
+  /* skip graph bars if module is expanded and we have sub nodes */
+  if (output->graph || (output->sub_graph && expanded))
+    render_bars (data, render, &x);
 }
 
 static void
@@ -933,23 +938,14 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
 {
   GDashRender render;
   GModule module = data->module;
-  int expanded = 0, sel = 0, host_bars = 0;
-  int x = 0, w, h;
-
-  if (!conf.skip_term_resolver)
-    host_bars = 1;
-
-#ifdef HAVE_LIBGEOIP
-  host_bars = 1;
-#endif
+  int expanded = 0, sel = 0;
+  int w, h;
 
   getmaxyx (win, h, w);
   (void) h;
 
   if (gscroll->expanded && module == gscroll->current)
     expanded = 1;
-
-  x = DASH_INIT_X;
 
   if (j >= data->idx_data)
     goto out;
@@ -962,32 +958,7 @@ render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
   render.idx = j;
   render.sel = sel;
 
-  render_hits (data, render, &x);
-  render_visitors (data, render, &x);
-  render_percent (data, render, &x);
-
-  /* render bandwidth if available */
-  if (conf.bandwidth)
-    render_bandwidth (data, render, &x);
-
-  /* render avgts, cumts and maxts if available */
-  if (conf.serve_usecs) {
-    render_avgts (data, render, &x);
-    render_cumts (data, render, &x);
-    render_maxts (data, render, &x);
-  }
-  /* render request method if available */
-  if (conf.append_method)
-    render_method (data, render, &x);
-  /* render request protocol if available */
-  if (conf.append_protocol)
-    render_protocol (data, render, &x);
-  render_data (data, render, &x);
-
-  /* skip graph bars if module is expanded and we have sub nodes */
-  if (module == HOSTS && expanded && host_bars);
-  else
-    render_bars (data, render, &x);
+  render_metrics (data, render, expanded);
 
 out:
   (*y)++;
@@ -1003,8 +974,13 @@ static void
 lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
             const char *str)
 {
+  GColors *color = get_color (COLOR_PANEL_COLS);
+
+  wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, *x, fmt, str);
   print_horizontal_dash (win, y + 1, *x, len);
+  wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
+
   *x += len + DASH_SPACE;
 }
 
@@ -1012,8 +988,13 @@ static void
 rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
             const char *str)
 {
+  GColors *color = get_color (COLOR_PANEL_COLS);
+
+  wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, *x, fmt, len, str);
   print_horizontal_dash (win, y + 1, *x, len);
+  wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
+
   *x += len + DASH_SPACE;
 }
 
@@ -1021,41 +1002,41 @@ static void
 render_cols (WINDOW * win, GDashModule * data, int *y)
 {
   GModule module = data->module;
-  const GDashStyle *style = module_style;
+  const GOutput *output = output_lookup (module);
   int x = DASH_INIT_X;
 
   if (data->idx_data == 0 || conf.no_column_names)
     return;
 
-  if (style[module].color_hits != -1)
+  if (output->hits)
     rprint_col (win, *y, &x, data->hits_len, "%*s", MTRC_HITS_LBL);
 
-  if (style[module].color_visitors != -1)
+  if (output->visitors)
     rprint_col (win, *y, &x, data->visitors_len, "%*s",
                 MTRC_VISITORS_SHORT_LBL);
 
-  if (style[module].color_percent != -1)
+  if (output->percent)
     rprint_col (win, *y, &x, data->perc_len + 4, "%*s", "%");
 
-  if (style[module].color_bw != -1 && conf.bandwidth)
+  if (output->bw && conf.bandwidth)
     rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
 
-  if (style[module].color_cumts != -1 && conf.serve_usecs)
+  if (output->avgts && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
 
-  if (style[module].color_cumts != -1 && conf.serve_usecs)
+  if (output->cumts && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_CUMTS_LBL);
 
-  if (style[module].color_maxts != -1 && conf.serve_usecs)
+  if (output->maxts && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
 
-  if (style[module].color_method != -1 && conf.append_method)
+  if (output->method && conf.append_method)
     lprint_col (win, *y, &x, data->method_len, "%s", MTRC_METHODS_SHORT_LBL);
 
-  if (style[module].color_protocol != -1 && conf.append_protocol)
+  if (output->protocol && conf.append_protocol)
     lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
 
-  if (style[module].color_data != -1)
+  if (output->data - 1)
     lprint_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
 }
 
@@ -1164,7 +1145,7 @@ regexp_init (regex_t * regex, const char *pattern)
   /* something went wrong */
   if (rc != 0) {
     regerror (rc, regex, buf, sizeof (buf));
-    draw_header (stdscr, buf, "%s", y - 1, 0, x, WHITE_RED, 0);
+    draw_header (stdscr, buf, "%s", y - 1, 0, x, color_error);
     refresh ();
     return 1;
   }
@@ -1254,7 +1235,7 @@ perform_next_find (GHolder * h, GScroll * gscroll)
       rc = regexec (&regex, data, 0, NULL, 0);
       if (rc != 0 && rc != REG_NOMATCH) {
         regerror (rc, &regex, buf, sizeof (buf));
-        draw_header (stdscr, buf, "%s", y - 1, 0, x, WHITE_RED, 0);
+        draw_header (stdscr, buf, "%s", y - 1, 0, x, color_error);
         refresh ();
         regfree (&regex);
         return 1;
@@ -1303,8 +1284,8 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll)
   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
   keypad (win, TRUE);
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
-  draw_header (win, FIND_HEAD, " %s", 1, 1, w - 2, 1, 0);
-  draw_header (win, FIND_DESC, " %s", 2, 1, w - 2, 2, 0);
+  draw_header (win, FIND_HEAD, " %s", 1, 1, w - 2, color_panel_header);
+  mvwprintw (win, 2, 1, " %s", FIND_DESC);
 
   find_t.icase = 0;
   query = input_string (win, 4, 2, w - 3, "", 1, &find_t.icase);

@@ -43,10 +43,16 @@
 #include "ui.h"
 #include "util.h"
 
+typedef struct GPanel_
+{
+  GModule module;
+  void (*render) (FILE * fp, GHolder * h, int processed);
+} GPanel;
+
 static void print_json_data (FILE * fp, GHolder * h, int processed);
 static void print_json_host_data (FILE * fp, GHolder * h, int processed);
 
-static GJSON paneling[] = {
+static GPanel paneling[] = {
   {VISITORS, print_json_data},
   {REQUESTS, print_json_data},
   {REQUESTS_STATIC, print_json_data},
@@ -64,7 +70,7 @@ static GJSON paneling[] = {
   {STATUS_CODES, print_json_data},
 };
 
-static GJSON *
+static GPanel *
 panel_lookup (GModule module)
 {
   int i, num_panels = ARRAY_SIZE (paneling);
@@ -336,7 +342,7 @@ output_json (GLog * logger, GHolder * holder)
   fprintf (fp, "{\n");
   print_json_summary (fp, logger);
   for (module = 0; module < TOTAL_MODULES; module++) {
-    const GJSON *panel = panel_lookup (module);
+    const GPanel *panel = panel_lookup (module);
     if (!panel)
       continue;
     if (ignore_panel (module))
