@@ -890,13 +890,9 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 static void
 render_metrics (GDashModule * data, GDashRender render, int expanded)
 {
-  int host_bars = !conf.skip_term_resolver ? 1 : 0, x = DASH_INIT_X;
+  int x = DASH_INIT_X;
   GModule module = data->module;
   const GOutput *output = output_lookup (module);
-
-#ifdef HAVE_LIBGEOIP
-  host_bars = 1;
-#endif
 
   /* basic metrics */
   if (output->hits)
@@ -928,7 +924,7 @@ render_metrics (GDashModule * data, GDashRender render, int expanded)
     render_data (data, render, &x);
 
   /* skip graph bars if module is expanded and we have sub nodes */
-  if (output->graph || (output->sub_graph && expanded))
+  if ((output->graph && !expanded) || (output->sub_graph && expanded))
     render_bars (data, render, &x);
 }
 
