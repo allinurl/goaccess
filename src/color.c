@@ -257,6 +257,7 @@ static GColorPair *
 new_gcolorpair (void)
 {
   GColorPair *pair = xcalloc (1, sizeof (GColorPair));
+  pair->idx = 1; /* must be between 1 and COLOR_PAIRS-1 */
 
   return pair;
 }
