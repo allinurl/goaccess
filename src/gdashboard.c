@@ -888,6 +888,21 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 }
 
 static void
+render_description (WINDOW * win, GDashModule * data, int *y)
+{
+  int w, h;
+
+  getmaxyx (win, h, w);
+  (void) h;
+
+  draw_header (win, data->desc, " %s", (*y), 0, w, color_panel_desc);
+
+  data->pos_y = (*y);
+  (*y)++;
+  (*y)++;       /* add empty line underneath description */
+}
+
+static void
 render_metrics (GDashModule * data, GDashRender render, int expanded)
 {
   int x = DASH_INIT_X;
@@ -1052,11 +1067,14 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
     /* header */
     if ((i % size) == DASH_HEAD_POS) {
       render_header (win, data, gscroll->current, y);
-    } else if ((i % size) == DASH_DASHES_POS && !conf.no_column_names) {
-      /* account for already printed dash lines under columns */
-      (*y)++;
+    } else if ((i % size) == DASH_EMPTY_POS && conf.no_column_names) {
+      /* if no column names, print panel description */
+      render_description (win, data, y);
     } else if ((i % size) == DASH_EMPTY_POS || (i % size) == size - 1) {
       /* blank lines */
+      (*y)++;
+    } else if ((i % size) == DASH_DASHES_POS && !conf.no_column_names) {
+      /* account for already printed dash lines under columns */
       (*y)++;
     } else if ((i % size) == DASH_COLS_POS && !conf.no_column_names) {
       /* column headers lines */

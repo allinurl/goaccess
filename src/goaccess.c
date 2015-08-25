@@ -213,44 +213,57 @@ allocate_data (void)
     case VISITORS:
       dash->module[module].head =
         (!conf.ignore_crawlers ? VISIT_HEAD INCLUDE_BOTS : VISIT_HEAD);
+      dash->module[module].desc = VISIT_DESC;
       break;
     case REQUESTS:
       dash->module[module].head = REQUE_HEAD;
+      dash->module[module].desc = REQUE_DESC;
       break;
     case REQUESTS_STATIC:
       dash->module[module].head = STATI_HEAD;
+      dash->module[module].desc = STATI_DESC;
       break;
     case NOT_FOUND:
       dash->module[module].head = FOUND_HEAD;
+      dash->module[module].desc = FOUND_DESC;
       break;
     case HOSTS:
       dash->module[module].head = HOSTS_HEAD;
+      dash->module[module].desc = HOSTS_DESC;
       break;
     case OS:
       dash->module[module].head = OPERA_HEAD;
+      dash->module[module].desc = OPERA_DESC;
       break;
     case BROWSERS:
       dash->module[module].head = BROWS_HEAD;
+      dash->module[module].desc = BROWS_DESC;
       break;
     case VISIT_TIMES:
       dash->module[module].head = VTIME_HEAD;
+      dash->module[module].desc = VTIME_DESC;
       break;
     case REFERRERS:
       dash->module[module].head = REFER_HEAD;
+      dash->module[module].desc = REFER_DESC;
       break;
     case REFERRING_SITES:
       dash->module[module].head = SITES_HEAD;
+      dash->module[module].desc = SITES_DESC;
       break;
     case KEYPHRASES:
       dash->module[module].head = KEYPH_HEAD;
+      dash->module[module].desc = KEYPH_DESC;
       break;
 #ifdef HAVE_LIBGEOIP
     case GEO_LOCATION:
       dash->module[module].head = GEOLO_HEAD;
+      dash->module[module].desc = GEOLO_DESC;
       break;
 #endif
     case STATUS_CODES:
       dash->module[module].head = CODES_HEAD;
+      dash->module[module].desc = CODES_DESC;
       break;
     }
 
