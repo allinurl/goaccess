@@ -22,7 +22,6 @@
 #define COLOR_H_INCLUDED
 
 #define MAX_COLOR_ATTRS 6
-#define NORMAL_DEFAULT 0
 
 typedef enum CSTM_COLORS
 {
