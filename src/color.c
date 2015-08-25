@@ -59,6 +59,7 @@ static GEnum CSTM_COLORS[] = {
   {"COLOR_SELECTED"      , COLOR_SELECTED}      ,
   {"COLOR_PANEL_ACTIVE"  , COLOR_PANEL_ACTIVE}  ,
   {"COLOR_PANEL_HEADER"  , COLOR_PANEL_HEADER}  ,
+  {"COLOR_PANEL_DESC"    , COLOR_PANEL_DESC}  ,
   {"COLOR_OVERALL_LBLS"  , COLOR_OVERALL_LBLS}  ,
   {"COLOR_OVERALL_VALS"  , COLOR_OVERALL_VALS}  ,
   {"COLOR_OVERALL_PATH"  , COLOR_OVERALL_PATH}  ,
@@ -94,6 +95,7 @@ static const char *colors256_mono[] = {
   "COLOR_SELECTED      color7:color8",
   "COLOR_PANEL_ACTIVE  color0:color3",
   "COLOR_PANEL_HEADER  color0:color7",
+  "COLOR_PANEL_DESC    color7:color-1",
   "COLOR_OVERALL_LBLS  color7:color-1 bold",
   "COLOR_OVERALL_VALS  color6:color-1 bold",
   "COLOR_OVERALL_PATH  color3:color-1",
@@ -129,6 +131,7 @@ static const char *colors256_green[] = {
   "COLOR_SELECTED      color7:color8",
   "COLOR_PANEL_ACTIVE  color0:color3",
   "COLOR_PANEL_HEADER  color0:color35",
+  "COLOR_PANEL_DESC    color7:color-1",
   "COLOR_OVERALL_LBLS  color7:color-1 bold",
   "COLOR_OVERALL_VALS  color6:color-1 bold",
   "COLOR_OVERALL_PATH  color3:color-1",
@@ -164,6 +167,7 @@ static const char *colors8_mono[] = {
   "COLOR_SELECTED      color0:color7",
   "COLOR_PANEL_ACTIVE  color0:color3",
   "COLOR_PANEL_HEADER  color0:color7",
+  "COLOR_PANEL_DESC    color7:color-1",
   "COLOR_OVERALL_LBLS  color7:color-1 bold",
   "COLOR_OVERALL_VALS  color6:color-1",
   "COLOR_OVERALL_PATH  color3:color-1",
@@ -199,6 +203,7 @@ static const char *colors8_green[] = {
   "COLOR_SELECTED      color0:color7",
   "COLOR_PANEL_ACTIVE  color0:color3",
   "COLOR_PANEL_HEADER  color0:color2",
+  "COLOR_PANEL_DESC    color7:color-1",
   "COLOR_OVERALL_LBLS  color7:color-1 bold",
   "COLOR_OVERALL_VALS  color6:color-1",
   "COLOR_OVERALL_PATH  color3:color-1",
@@ -226,6 +231,7 @@ static const char *nocolors[] = {
   "COLOR_SELECTED      color0:color-1 reverse",
   "COLOR_PANEL_ACTIVE  color0:color-1 reverse",
   "COLOR_PANEL_HEADER  color0:color-1 reverse",
+  "COLOR_PANEL_DESC    color0:color-1",
   "COLOR_OVERALL_LBLS  color0:color-1",
   "COLOR_OVERALL_VALS  color0:color-1",
   "COLOR_OVERALL_PATH  color0:color-1",
@@ -288,6 +294,12 @@ GColors *
 color_panel_header (void)
 {
   return get_color (COLOR_PANEL_HEADER);
+}
+
+GColors *
+color_panel_desc (void)
+{
+  return get_color (COLOR_PANEL_DESC);
 }
 
 GColors *

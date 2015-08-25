@@ -44,6 +44,7 @@ typedef enum CSTM_COLORS
   COLOR_SELECTED,
   COLOR_PANEL_ACTIVE,
   COLOR_PANEL_HEADER,
+  COLOR_PANEL_DESC,
   COLOR_OVERALL_LBLS,
   COLOR_OVERALL_VALS,
   COLOR_OVERALL_PATH,
@@ -85,12 +86,13 @@ GColors *color_overall_lbls (void);
 GColors *color_overall_path (void);
 GColors *color_overall_vals (void);
 GColors *color_panel_active (void);
+GColors *color_panel_desc (void);
 GColors *color_panel_header (void);
 GColors *color_progress (void);
 GColors *color_selected (void);
 GColors *get_color_by_item_module (GColorItem item, GModule module);
 GColors *get_color (GColorItem item);
-void set_colors (void);
 void free_color_lists (void);
+void set_colors (void);
 
 #endif // for #ifndef COLOR_H

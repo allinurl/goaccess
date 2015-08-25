@@ -89,6 +89,7 @@ typedef struct GDashModule_
   GDashData *data;
   GModule module;
   const char *head;
+  const char *desc;
 
   int alloc_data;  /* alloc data items */
   int dash_size;   /* dashboard size   */
