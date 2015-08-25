@@ -78,8 +78,6 @@ typedef struct GColors_
   short module;
 } GColors;
 
-extern GSLList *color_list;
-
 GColors *color_default (void);
 GColors *color_error (void);
 GColors *color_overall_lbls (void);
