@@ -182,11 +182,11 @@
 #define FIND_MAX_MATCHES  1
 
 /* COLOR SCHEME DIALOG */
-#define SCHEME_MENU_H     2
+#define SCHEME_MENU_H     4
 #define SCHEME_MENU_W     38
 #define SCHEME_MENU_X     2
 #define SCHEME_MENU_Y     4
-#define SCHEME_WIN_H      8
+#define SCHEME_WIN_H      10
 #define SCHEME_WIN_W      42
 
 /* SORT DIALOG */
@@ -303,7 +303,7 @@ void display_general (WINDOW * header_win, char *ifile, GLog *logger);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
 void generate_time (void);
-void init_colors (void);
+void init_colors (int force);
 void init_windows (WINDOW ** header_win, WINDOW ** main_win);
 void load_agent_list (WINDOW * main_win, char *addr);
 void load_help_popup (WINDOW * main_win);

@@ -147,6 +147,7 @@ house_keeping (void)
   }
   /* free colors */
   free_color_lists ();
+  /*free_normal_color (); */
   /* free cmd arguments */
   free_cmd_args ();
 }
@@ -896,7 +897,6 @@ curses_output (void)
   render_screens ();
   get_keys ();
 
-  attroff (COLOR_PAIR (COLOR_NORMAL));
   /* restore tty modes and reset
    * terminal into non-visual mode */
   endwin ();
@@ -992,7 +992,7 @@ main (int argc, char **argv)
   } else {
     start_color ();
   }
-  init_colors ();
+  init_colors (0);
   init_windows (&header_win, &main_win);
   set_curses_spinner (parsing_spinner);
 
