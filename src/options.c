@@ -130,7 +130,7 @@ cmd_help (void)
   "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
-  "  --color=<bg:fg[,attrs|PANEL]>   - Specify custom colors.\n"
+  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors.\n"
   "                                    See manpage for more details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
