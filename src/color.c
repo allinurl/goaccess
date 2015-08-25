@@ -257,7 +257,9 @@ static GColorPair *
 new_gcolorpair (void)
 {
   GColorPair *pair = xcalloc (1, sizeof (GColorPair));
-  pair->idx = 1; /* must be between 1 and COLOR_PAIRS-1 */
+  /* Must be between 2 and COLOR_PAIRS-1.
+   * Starts at 2 since COLOR_NORMAL has already been set */
+  pair->idx = 2;
 
   return pair;
 }
@@ -271,6 +273,25 @@ free_color_lists (void)
     list_remove_nodes (color_list);
   color_list = NULL;
   pair_list = NULL;
+}
+
+void
+set_normal_color (void)
+{
+  GColorPair *pair = new_gcolorpair ();
+  GColors *color = new_gcolors ();
+
+  pair->idx = 1;
+  pair->fg = COLOR_WHITE;
+  pair->bg = -1;
+
+  color->pair = pair;
+  color->item = COLOR_NORMAL;
+
+  pair_list = list_create (pair);
+  color_list = list_create (color);
+
+  init_pair (pair->idx, pair->fg, pair->bg);
 }
 
 GColors *
@@ -498,10 +519,17 @@ find_color_item_module_in_list (void *data, void *needle)
 GColors *
 get_color (GColorItem item)
 {
+  GColorItem normal = COLOR_NORMAL;
   GSLList *match = NULL;
+
   if ((match = list_find (color_list, find_color_item_in_list, &item)))
     return (GColors *) match->data;
-  return NULL;
+
+  if ((match = list_find (color_list, find_color_item_in_list, &normal)))
+    return (GColors *) match->data;
+
+  /* should not get here */
+  FATAL ("Unable to find color item %d", item);
 }
 
 GColors *
@@ -518,12 +546,9 @@ get_color_by_item_module (GColorItem item, GModule module)
     color = match->data;
 
   /* attempt to find color by item (fallback) */
-  if (!color && (match = list_find (color_list, find_color_item_in_list, &item)))
-    color = match->data;
+  if (!color)
+    color = get_color (item);
   free (needle);
-
-  if (color == NULL)
-    FATAL ("Unable to find color item %d, and module %d", item, module);
 
   return color;
 }
@@ -582,7 +607,7 @@ parse_color (char *line)
     free (pair);
     pair = (GColorPair *) match->data;
   } else {
-    pair->idx = list_count (pair_list);
+    pair->idx += list_count (pair_list);
     pair_list = list_insert_prepend (pair_list, pair);
   }
   color->pair = pair;
@@ -636,9 +661,9 @@ add_default_colors (void)
 }
 
 void
-set_colors (void)
+set_colors (int force)
 {
-  if (conf.color_idx > 0)
+  if (conf.color_idx > 0 && !force)
     parse_colors (conf.colors, conf.color_idx);
   else
     add_default_colors ();

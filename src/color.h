@@ -90,7 +90,9 @@ GColors *color_progress (void);
 GColors *color_selected (void);
 GColors *get_color_by_item_module (GColorItem item, GModule module);
 GColors *get_color (GColorItem item);
+GColors *get_color_normal (void);
 void free_color_lists (void);
-void set_colors (void);
+void set_colors (int force);
+void set_normal_color (void);
 
 #endif // for #ifndef COLOR_H

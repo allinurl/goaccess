@@ -108,14 +108,14 @@ output_lookup (GModule module)
 
 /* initialize curses colors */
 void
-init_colors (void)
+init_colors (int force)
 {
   /* use default foreground/background colors */
   use_default_colors ();
-  /* parse custom colors and initialize them */
-  set_colors ();
-
-  init_pair (COLOR_NORMAL, COLOR_WHITE, -1);
+  /* first set a default normal color */
+  set_normal_color ();
+  /* then parse custom colors and initialize them */
+  set_colors (force);
 }
 
 /* creation - ncurses' window handling */
@@ -168,7 +168,6 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
   int row = 0, col = 0;
 
   /* init standard screen */
-  attron (COLOR_PAIR (COLOR_NORMAL));
   getmaxyx (stdscr, row, col);
   if (row < MIN_HEIGHT || col < MIN_WIDTH)
     FATAL ("Minimum screen size - 0 columns by 7 lines");
@@ -1119,12 +1118,19 @@ render_confdlg (GLog * logger, GSpinner * spinner)
 static void
 scheme_chosen (const char *name)
 {
+  int force = 0;
+
   free_color_lists ();
-  if (strcmp ("Green/Original", name) == 0)
+  if (strcmp ("Green/Original", name) == 0) {
     conf.color_scheme = STD_GREEN;
-  else if (strcmp ("Monochrome/Default", name) == 0)
+    force = 1;
+  } else if (strcmp ("Monochrome/Default", name) == 0) {
     conf.color_scheme = MONOCHROME;
-  init_colors ();
+    force = 1;
+  } else if (strcmp ("Custom Scheme", name) == 0) {
+    force = 0;
+  }
+  init_colors (force);
 }
 
 /* render schemes dialog */
@@ -1138,9 +1144,11 @@ load_schemes_win (WINDOW * main_win)
   int y, x, h = SCHEME_WIN_H, w = SCHEME_WIN_W;
   int w2 = w - 2;
 
+  /* ###NOTE: 'Custom Scheme' needs to go at the end */
   const char *choices[] = {
     "Monochrome/Default",
-    "Green/Original"
+    "Green/Original",
+    "Custom Scheme"
   };
 
   n = ARRAY_SIZE (choices);
@@ -1153,7 +1161,8 @@ load_schemes_win (WINDOW * main_win)
   /* create a new instance of GMenu and make it selectable */
   menu =
     new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
-  menu->size = n;
+  /* remove custom color option if no custom scheme used */
+  menu->size = conf.color_idx == 0 ? n - 1 : n;
 
   /* add items to GMenu */
   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
