@@ -239,6 +239,56 @@ for the green scheme.
 Turn off colored output. This is the  default output on terminals that do not
 support colors.
 .TP
+\fB\-\-\-color=<bg:fg[attrs, PANEL]>
+Specify custom colors for the terminal output.
+
+.I Color Syntax
+  DEFINITION space/tab colorFG#:colorBG# [attributes,PANEL]
+
+ FG# = foreground color [-1...255] (-1 = default term color)
+ BG# = background color [-1...255] (-1 = default term color)
+
+Optionally, it is possible to apply color attributes (multiple attributes are
+comma separated), such as:
+.I bold,
+.I underline,
+.I normal,
+.I reverse,
+.I blink
+
+If desired, it is possible to apply custom colors per panel, that is, a metric
+in the REQUESTS panel can be of color A, while the same metric in the BROWSERS
+panel can be of color B.
+
+.I Available color definitions:
+  COLOR_MTRC_HITS
+  COLOR_MTRC_VISITORS
+  COLOR_MTRC_DATA
+  COLOR_MTRC_BW
+  COLOR_MTRC_AVGTS
+  COLOR_MTRC_CUMTS
+  COLOR_MTRC_MAXTS
+  COLOR_MTRC_PROT
+  COLOR_MTRC_MTHD
+  COLOR_MTRC_PERC
+  COLOR_MTRC_PERC_MAX
+  COLOR_PANEL_COLS
+  COLOR_BARS
+  COLOR_ERROR
+  COLOR_SELECTED
+  COLOR_PANEL_ACTIVE
+  COLOR_PANEL_HEADER
+  COLOR_PANEL_DESC
+  COLOR_OVERALL_LBLS
+  COLOR_OVERALL_VALS
+  COLOR_OVERALL_PATH
+  COLOR_ACTIVE_LABEL
+  COLOR_BG
+  COLOR_DEFAULT
+  COLOR_PROGRESS
+
+See configuration file for a sample color scheme.
+.TP
 \fB\-\-no-column-names
 Don't write column names in the terminal output. By default, it displays column
 names for each available metric in every panel.
