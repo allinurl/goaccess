@@ -646,18 +646,18 @@ parse_colors (const char *colors[], size_t n)
 static void
 add_default_colors (void)
 {
-  if (COLORS > 16 && conf.color_scheme == MONOCHROME)
-    parse_colors (colors256_mono, ARRAY_SIZE (colors256_mono));
-  if (COLORS > 16 && conf.color_scheme == STD_GREEN)
-    parse_colors (colors256_green, ARRAY_SIZE (colors256_green));
-
-  if (COLORS >= 8 && COLORS <= 16 && conf.color_scheme == MONOCHROME)
-    parse_colors (colors8_mono, ARRAY_SIZE (colors8_mono));
-  if (COLORS == 8 && COLORS <= 16 && conf.color_scheme == STD_GREEN)
-    parse_colors (colors8_green, ARRAY_SIZE (colors8_green));
-
   if (COLORS < 8)
     parse_colors (nocolors, ARRAY_SIZE (nocolors));
+
+  if (COLORS == 8 && COLORS <= 16 && conf.color_scheme == STD_GREEN)
+    parse_colors (colors8_green, ARRAY_SIZE (colors8_green));
+  else if (COLORS >= 8 && COLORS <= 16)
+    parse_colors (colors8_mono, ARRAY_SIZE (colors8_mono));
+
+  if (COLORS > 16 && conf.color_scheme == STD_GREEN)
+    parse_colors (colors256_green, ARRAY_SIZE (colors256_green));
+  else if (COLORS > 16)
+    parse_colors (colors256_mono, ARRAY_SIZE (colors256_mono));
 }
 
 void
