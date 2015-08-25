@@ -817,13 +817,13 @@ render_hits (GDashModule * data, GDashRender render, int *x)
 
   if (sel) {
     /* selected state */
-    hits = int2str (data->data[idx].metrics->hits, len);
+    hits = int2str (data->data[idx].metrics->hits, 0);
     draw_header (win, hits, " %s", y, 0, w, color_selected);
     free (hits);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%d", data->data[idx].metrics->hits);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -1020,7 +1020,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
     return;
 
   if (output->hits)
-    rprint_col (win, *y, &x, data->hits_len, "%*s", MTRC_HITS_LBL);
+    lprint_col (win, *y, &x, data->hits_len, "%s", MTRC_HITS_LBL);
 
   if (output->visitors)
     rprint_col (win, *y, &x, data->visitors_len, "%*s",
