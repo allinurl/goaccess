@@ -1047,7 +1047,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
   if (output->protocol && conf.append_protocol)
     lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
 
-  if (output->data - 1)
+  if (output->data)
     lprint_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
 }
 
