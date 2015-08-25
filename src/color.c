@@ -37,7 +37,7 @@
 #include "util.h"
 #include "xmalloc.h"
 
-GSLList *color_list = NULL;
+static GSLList *color_list = NULL;
 static GSLList *pair_list = NULL;
 
 /* *INDENT-OFF* */
@@ -518,8 +518,7 @@ get_color_by_item_module (GColorItem item, GModule module)
     color = match->data;
 
   /* attempt to find color by item (fallback) */
-  if (!color &&
-      (match = list_find (color_list, find_color_item_in_list, &item)))
+  if (!color && (match = list_find (color_list, find_color_item_in_list, &item)))
     color = match->data;
   free (needle);
 
