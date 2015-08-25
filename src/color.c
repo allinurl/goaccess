@@ -368,7 +368,7 @@ parse_bg_fg_color (GColorPair * pair, const char *value)
   char *bgcolor, *fgcolor;
   int ret = 0;
 
-  if (sscanf (value, "%m[^:]:%ms", &fgcolor, &bgcolor) != 2)
+  if (sscanf (value, "%9m[^:]:%9ms", &fgcolor, &bgcolor) != 2)
     return 1;
 
   if ((pair->bg = extract_color (bgcolor)) == -2)
