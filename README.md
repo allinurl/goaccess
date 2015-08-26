@@ -16,6 +16,7 @@ terminal. Features include:
 
 * General Statistics, bandwidth, etc.
 * Time taken to serve the request (_useful to track pages that are slowing down your site_)
+* Metrics for cumulative, average and slowest running requests
 * Top Visitors
 * Requested files
 * Requested static files, images, swf, js, etc.
@@ -30,7 +31,7 @@ terminal. Features include:
 * Visitors Time Distribution
 * HTTP Status Codes
 * Ability to output `HTML`, `JSON` and `CSV`
-* Different Color Schemes
+* Tailor GoAccess to suit your own color taste/schemes
 * Incremental log processing
 * Support for large datasets and data persistence
 * Support for IPv6
@@ -63,9 +64,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.9.2.tar.gz
-    $ tar -xzvf goaccess-0.9.2.tar.gz
-    $ cd goaccess-0.9.2/
+    $ wget http://tar.goaccess.io/goaccess-0.9.3.tar.gz
+    $ tar -xzvf goaccess-0.9.3.tar.gz
+    $ cd goaccess-0.9.3/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
@@ -190,6 +191,7 @@ to be used without prepending `--`.
 | `--444-as-404`                     | Treat non-standard status code 444 as 404.                    |
 | `--4xx-to-unique-count`            | Add 4xx client errors to the unique visitors count.           |
 | `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
+| `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
