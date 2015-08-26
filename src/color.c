@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
-#include <term.h>
 
 #include "color.h"
 
