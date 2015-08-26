@@ -1,4 +1,24 @@
-Changes to GoAccess 0.9.3 - TBD
+Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
+
+  - Added the ability to set custom colors on the terminal output.
+  - Added the ability to process logs incrementally.
+  - Added a default color palette (Monokai) to the config file.
+  - Added column headers for every enabled metric on each panel.
+  - Added cumulative time served metric.
+  - Added maximum time served metric (slowest running requests).
+  - Added the ability to parse the query string specifier '%q' from a log file.
+  - Added CloudFlare status codes.
+  - Added command option to disable column name metrics --no-column-names.
+  - Added AWS Elastic Load Balancing to the list of predefined log/date/time
+    formats.
+  - Added DragonFly BSD to the list of OSs.
+  - Added Slackbot to the list of crawlers/browsers.
+  - Disabled REFERRERS by default.
+  - Ensure bandwidth metric is displayed only if the %b specifier is parsed.
+  - Fixed issue where the '--sort-panel' option wouldn't sort certain panels.
+  - Fixed several compiler warnings.
+  - Set predefined static files when no config file is used.
+  - Updated Windows 10 user agent from 6.4 (wrong) to 10.0.(actual)
 
 Changes to GoAccess 0.9.2 - Monday, July 06, 2015
 
