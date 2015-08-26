@@ -1,4 +1,4 @@
-.TH goaccess 1 "MAY 2015" Linux "User Manuals"
+.TH goaccess 1 "AUGUST 2015" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -51,11 +51,16 @@ system.
 .IP "Browsers"
 This panel will report which browser the host used when it hit the server. It
 attempts to provide the most specific version of each browser.
+.IP "Visit Times"
+This panel will display an hourly report. This option displays 24 data points,
+one for each hour of the day.
 .IP "Referrers URLs"
 If the host in question accessed the site via another resource, or was
 linked/diverted to you from another host, the URL they were referred from will
 be provided in this panel. See command line option to ignore specific
 referrers.
+.I disabled
+by default.
 .IP "Referring Sites"
 This panel will display only the host part but not the whole URL. The URL where
 the request came from.
@@ -64,6 +69,8 @@ It reports keyphrases used on Google search, Google cache, and Google translate
 that have lead to your web server. At present, it only supports Google search
 queries. By default this panel is disabled. See `--ignore-panel` in your
 configuration file to enable it.
+.I disabled
+by default.
 .IP "Geo Location"
 Determines where an IP address is geographically located. Statistics are broken
 down by continent and country. It needs to be compiled with GeoLocation
