@@ -10,37 +10,41 @@ Features
 GoAccess parses the specified web log file and
 outputs the data to the X terminal. Features include:
 
-  * General statistics, bandwidth, etc.
-  * Time taken to serve the request (useful to track pages that are slowing down your site)
-  * Top visitors
-  * Requested files & static files
-  * 404 or Not Found
-  * Hosts, Reverse DNS, IP Location
-  * Operating Systems
-  * Browsers and Spiders
-  * Referring Sites & URLs
-  * Keyphrases
-  * Geo Location - Continent/Country/City
-  * Visitors Time Distribution
-  * HTTP Status Codes
-  * Ability to output JSON and CSV
-  * Different Color Schemes
-  * Support for large datasets + data persistence
-  * Support for IPv6
-  * Output statistics to HTML. See report
-  * and more...
+ * General Statistics, bandwidth, etc.
+ * Time taken to serve the request (useful to track pages that are slowing down your site)
+ * Metrics for cumulative, average and slowest running requests
+ * Top Visitors
+ * Requested files
+ * Requested static files, images, swf, js, etc.
+ * 404 or Not Found
+ * Hosts, Reverse DNS, IP Location
+ * Operating Systems
+ * Browsers and Spiders
+ * Referring Sites
+ * Referrers URLs
+ * Keyphrases
+ * Geo Location - Continent/Country/City
+ * Visitors Time Distribution
+ * HTTP Status Codes
+ * Ability to output HTML, JSON and CSV
+ * Tailor GoAccess to suit your own color taste/schemes
+ * Incremental log processing
+ * Support for large datasets and data persistence
+ * Support for IPv6
 
 Nearly all web log formats...
 
 GoAccess allows any custom log format string.
 Predefined options include, but not limited to:
 
-  * Amazon CloudFront (Download Distribution).
-  * Google Cloud Storage
-  * Apache virtual hosts
-  * Combined Log Format (XLF/ELF) Apache & Nginx
-  * Common Log Format (CLF) Apache
-  * W3C format (IIS).
+ * Amazon CloudFront (Download Distribution).
+ * AWS Elastic Load Balancing
+ * Combined Log Format (XLF/ELF) Apache | Nginx
+ * Common Log Format (CLF) Apache
+ * Google Cloud Storage.
+ * Apache virtual hosts
+ * W3C format (IIS).
+
 
 Why GoAccess?
 -------------
