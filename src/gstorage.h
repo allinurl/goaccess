@@ -89,13 +89,16 @@ typedef struct GStorageMetrics_
    */
   void *bw;
 
-  /* Maps numeric data keys to average time served (in usecs/msecs).
+  /* Maps numeric data keys to cumulative time served (in usecs/msecs).
    * 1 -> 187
    * 2 -> 208
    */
   void *cumts;
 
-  /* Slowest running requests */
+  /* Maps numeric data keys to max time served (in usecs/msecs).
+   * 1 -> 1287
+   * 2 -> 2308
+   */
   void *maxts;
 
   /* Maps numeric data keys to string values.
