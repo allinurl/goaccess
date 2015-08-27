@@ -386,7 +386,7 @@ extract_color (char *color)
 static int
 parse_bg_fg_color (GColorPair * pair, const char *value)
 {
-  char bgcolor[COLOR_STR_LEN] = {0}, fgcolor[COLOR_STR_LEN] = {0};
+  char bgcolor[COLOR_STR_LEN] = "", fgcolor[COLOR_STR_LEN] = "";
   int ret = 0;
 
   if (sscanf (value, "%8[^:]:%8[^ ]", fgcolor, bgcolor) != 2)
