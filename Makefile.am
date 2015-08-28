@@ -82,5 +82,4 @@ AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
 AM_CFLAGS += -Wredundant-decls -Wbad-function-cast -Winline -Wcast-align -Wextra
 AM_CFLAGS += -Wdeclaration-after-statement -Wno-missing-field-initializers
 
-goaccess_LDADD = -lm
 dist_man_MANS = goaccess.1
