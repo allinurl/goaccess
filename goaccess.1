@@ -180,8 +180,14 @@ Prompt log/date configuration window on program start.
 Enable IP resolver on HTML|JSON output.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
-Exclude one or multiple IPv4/6, includes IP ranges. i.e.,
-192.168.0.1-192.168.0.10
+Exclude an IPv4 or IPv6 from being counted.
+Ranges can be included as well using a dash in between the IPs (start-end).
+
+.I Examples:
+  exclude-ip 127.0.0.1
+  exclude-ip 192.168.0.1-192.168.0.100
+  exclude-ip ::1
+  exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
 .TP
 \fB\-f \-\-log-file=<logfile>
 Specify the path to the input log file. If set in the config file, it will take
