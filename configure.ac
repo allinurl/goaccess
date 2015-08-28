@@ -241,11 +241,12 @@ cat << EOF
 
 Your build configuration:
 
-  CFLAGS = $CFLAGS
-  storage: $storage
-  prefix: $prefix
-  package: $PACKAGE_NAME
-  version: $VERSION
-  bugs: $PACKAGE_BUGREPORT
+  Prefix:         $prefix
+  Package:        $PACKAGE_NAME
+  Version:        $VERSION
+  Storage method: $storage
+  Compiler flags: $CFLAGS
+  Linker flags:   $LIBS $LDFLAGS
+  Bugs:           $PACKAGE_BUGREPORT
 
 EOF
