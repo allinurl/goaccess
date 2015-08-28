@@ -17,7 +17,7 @@ AM_PROG_CC_C_O
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
-CFLAGS="-pthread"
+CFLAGS="$CFLAGS -pthread"
 
 # DEBUG
 AC_ARG_ENABLE(debug, [  --enable-debug   Create a debug build. Default is disabled],
