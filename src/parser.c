@@ -706,6 +706,19 @@ parse_string (char **str, char end, int cnt)
   return NULL;
 }
 
+static void
+find_alpha (char **str)
+{
+  char *s = *str;
+  while (*s) {
+    if (isspace (*s))
+      s++;
+    else
+      break;
+  }
+  *str += s - *str;
+}
+
 static int
 parse_specifier (GLogItem * glog, char **str, const char *p)
 {
@@ -958,6 +971,10 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
 
     conf.serve_usecs = 1;       /* flag */
     free (tkn);
+    break;
+    /* move forward through str until not a space */
+  case '~':
+    find_alpha (&(*str));
     break;
     /* everything else skip it */
   default:
