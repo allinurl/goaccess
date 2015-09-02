@@ -65,6 +65,7 @@ struct option long_opts[] = {
 #endif
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
+  {"all-static-files"     , no_argument       , 0 ,  0  } ,
   {"color"                , required_argument , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
@@ -165,6 +166,7 @@ cmd_help (void)
   "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique\n"
   "                                    visitors count.\n"
+  "  --all-static-files              - Include static files with a query string.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=PANEL            - Ignore parsing/displaying the given panel.\n"
@@ -372,6 +374,10 @@ read_option_args (int argc, char **argv)
       /* 444 as 404 */
       if (!strcmp ("444-as-404", long_opts[idx].name))
         conf.code444_as_404 = 1;
+
+      /* all static files */
+      if (!strcmp ("all-static-files", long_opts[idx].name))
+        conf.all_static_files = 1;
 
       /* ignore crawlers */
       if (!strcmp ("ignore-crawlers", long_opts[idx].name))

@@ -95,6 +95,7 @@ typedef struct GConf_
   const char *static_files[MAX_EXTENSIONS];
   const char *colors[MAX_CUSTOM_COLORS];
 
+  int all_static_files;
   int append_method;
   int append_protocol;
   int bandwidth;
