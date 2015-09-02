@@ -38,12 +38,13 @@
 #include <pthread.h>
 #include <ctype.h>
 
+#include <errno.h>
+#include <locale.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
-#include <locale.h>
 
 #include "ui.h"
 
@@ -129,7 +130,8 @@ set_input_opts (void)
   nonl ();
   intrflush (stdscr, FALSE);
   keypad (stdscr, TRUE);
-  curs_set (0);
+  if (curs_set (0) == ERR)
+    LOG_DEBUG (("Unable to change cursor: %s\n", strerror (errno)));
 
   if (conf.mouse_support)
     mousemask (BUTTON1_CLICKED, NULL);
