@@ -585,7 +585,7 @@ static int
 verify_static_content (char *req)
 {
   char *nul = req + strlen (req);
-  const char *ext = NULL;
+  const char *ext = NULL, *pch = NULL;
   int elen = 0, i;
 
   if (strlen (req) < conf.static_file_max_len)
@@ -597,9 +597,18 @@ verify_static_content (char *req)
       continue;
 
     elen = strlen (ext);
+    if (conf.all_static_files && (pch = strchr (req, '?')) != NULL &&
+        pch - req > elen) {
+      pch -= elen;
+      if (0 == strncmp (ext, pch, elen))
+        return 1;
+      continue;
+    }
+
     if (!memcmp (nul - elen, ext, elen))
       return 1;
   }
+
   return 0;
 }
 
