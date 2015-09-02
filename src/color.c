@@ -659,6 +659,7 @@ add_default_colors (void)
 void
 set_colors (int force)
 {
+  errno = 0;
   if (conf.color_idx > 0 && !force)
     parse_colors (conf.colors, conf.color_idx);
   else
