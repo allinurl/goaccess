@@ -63,7 +63,9 @@
 
 static WINDOW *header_win, *main_win;
 
-GConf conf = { 0 };
+GConf conf = {
+  .hl_header = 1
+};
 
 int active_gdns = 0;
 static GDash *dash;
