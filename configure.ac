@@ -31,9 +31,11 @@ AM_CONDITIONAL([DEBUG], [test "x$debug" = "xyes"])
 # Handle rdynamic only on systems using GNU ld
 AC_CANONICAL_HOST
 AC_MSG_CHECKING([whether to build with rdynamic for GNU ld])
-AS_CASE([$host_os],
-        [*darwin*|*cygwin*|*aix*|*mingw*], [with_rdyanimc=no],
-        [with_rdyanimc=yes])
+with_rdyanimc=yes
+case "$host_os" in
+  *darwin*|*cygwin*|*aix*|*mingw*) with_rdyanimc=no
+  ;;
+esac
 AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
