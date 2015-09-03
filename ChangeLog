@@ -4,6 +4,8 @@ Changes to GoAccess 0.9.4 - TBD, 2015
     Invalid bg/fg color pairs)
   - Added '%~' specifier to move forward through a log string until a non-space
     char is found.
+  - Added the ability to parse static files containing a query string
+    `--all-static-files`.
   - Added the ability to parse native Squid access.log format.
   - Fixed a few issues in the configuration script.
 
