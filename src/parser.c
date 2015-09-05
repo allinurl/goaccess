@@ -1574,7 +1574,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   if (convert_date (hour, glog->time, conf.time_format, "%H", HOUR_LEN) != 0)
     return 1;
 
-  if (hour == NULL || hour == '\0')
+  if (hour == '\0')
     return 1;
 
   free (glog->time);
