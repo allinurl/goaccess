@@ -503,12 +503,12 @@ get_max_perc_len (int max_percent)
 
 /* set item's percent in GDashData */
 static float
-set_percent_data (GDashData * data, int n, int process)
+set_percent_data (GDashData * data, int n, int valid)
 {
   float max = 0.0;
   int i;
   for (i = 0; i < n; i++) {
-    data[i].metrics->percent = get_percentage (process, data[i].metrics->hits);
+    data[i].metrics->percent = get_percentage (valid, data[i].metrics->hits);
     if (data[i].metrics->percent > max)
       max = data[i].metrics->percent;
   }
@@ -1102,7 +1102,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
   GDashData *idata;
   GModule module;
   float max_percent = 0.0;
-  int j, n = 0, process = 0;
+  int j, n = 0, valid = 0;
 
   int y = 0, offset = 0, total = 0;
   int dash_scroll = gscroll->dash;
@@ -1120,8 +1120,8 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
     }
 
     idata = dash->module[module].data;
-    process = logger->process;
-    max_percent = set_percent_data (idata, n, process);
+    valid = logger->valid;
+    max_percent = set_percent_data (idata, n, valid);
 
     dash->module[module].module = module;
     dash->module[module].method_len = get_max_method_len (idata, n);

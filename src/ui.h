@@ -37,10 +37,10 @@
 
 /* Global UI defaults */
 #define MAX_CHOICES       366
-#define MIN_HEIGHT        7
+#define MIN_HEIGHT        8
 #define MIN_WIDTH         0
 #define MAX_HEIGHT_FOOTER 1
-#define MAX_HEIGHT_HEADER 6
+#define MAX_HEIGHT_HEADER 7
 
 /* Overall Stats Labels */
 #define T_DASH       "Dashboard"
@@ -48,8 +48,9 @@
 
 #define T_DATETIME   "Date/Time"
 #define T_REQUESTS   "Total Requests"
-#define T_GEN_TIME   "Generation Time"
+#define T_GEN_TIME   "Processed Time"
 #define T_FAILED     "Failed Requests"
+#define T_VALID      "Valid Requests"
 #define T_UNIQUE_VIS "Unique Visitors"
 #define T_UNIQUE_FIL "Unique Files"
 #define T_EXCLUDE_IP "Excl. IP Hits"
@@ -138,6 +139,7 @@
 /* Overall Statistics CSV/JSON Keys */
 #define OVERALL_DATETIME  "date_time"
 #define OVERALL_REQ       "total_requests"
+#define OVERALL_VALID     "valid_requests"
 #define OVERALL_GENTIME   "generation_time"
 #define OVERALL_FAILED    "failed_requests"
 #define OVERALL_VISITORS  "unique_visitors"
@@ -258,7 +260,7 @@ typedef struct GSpinner_
   int y;
   pthread_mutex_t mutex;
   pthread_t thread;
-  unsigned int *process;
+  unsigned int *processed;
   WINDOW *win;
   enum
   {

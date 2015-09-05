@@ -46,11 +46,11 @@
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, int processed);
+  void (*render) (FILE * fp, GHolder * h, int valid);
 } GPanel;
 
-static void print_json_data (FILE * fp, GHolder * h, int processed);
-static void print_json_host_data (FILE * fp, GHolder * h, int processed);
+static void print_json_data (FILE * fp, GHolder * h, int valid);
+static void print_json_host_data (FILE * fp, GHolder * h, int valid);
 
 static GPanel paneling[] = {
   {VISITORS, print_json_data},
@@ -189,7 +189,7 @@ print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
 }
 
 static void
-print_json_host_data (FILE * fp, GHolder * h, int processed)
+print_json_host_data (FILE * fp, GHolder * h, int valid)
 {
   GMetrics *nmetrics;
   char *sep = char_repeat (2, '\t');
@@ -197,7 +197,7 @@ print_json_host_data (FILE * fp, GHolder * h, int processed)
 
   fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
+    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
 
     fprintf (fp, "%s{\n", sep);
     print_json_block (fp, nmetrics, sep);
@@ -212,7 +212,7 @@ print_json_host_data (FILE * fp, GHolder * h, int processed)
 }
 
 static void
-print_json_sub_items (FILE * fp, GHolder * h, int idx, int processed)
+print_json_sub_items (FILE * fp, GHolder * h, int idx, int valid)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
@@ -225,7 +225,7 @@ print_json_sub_items (FILE * fp, GHolder * h, int idx, int processed)
 
   fprintf (fp, ",\n%s\"items\": [\n", sep);
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    set_data_metrics (iter->metrics, &nmetrics, processed);
+    set_data_metrics (iter->metrics, &nmetrics, valid);
 
     fprintf (fp, "%s{\n", sep);
     print_json_block (fp, nmetrics, sep);
@@ -238,7 +238,7 @@ print_json_sub_items (FILE * fp, GHolder * h, int idx, int processed)
 }
 
 static void
-print_json_data (FILE * fp, GHolder * h, int processed)
+print_json_data (FILE * fp, GHolder * h, int valid)
 {
   GMetrics *nmetrics;
   char *sep = char_repeat (2, '\t');
@@ -246,12 +246,12 @@ print_json_data (FILE * fp, GHolder * h, int processed)
 
   fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
+    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
 
     fprintf (fp, "%s{\n", sep);
     print_json_block (fp, nmetrics, sep);
     if (h->sub_items_size)
-      print_json_sub_items (fp, h, i, processed);
+      print_json_sub_items (fp, h, i, valid);
     fprintf (fp, (i != h->idx - 1) ? "\n%s},\n" : "\n%s}\n", sep);
 
     free (nmetrics);
@@ -278,8 +278,12 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": \"%s\",\n", OVERALL_DATETIME, now);
 
   /* total requests */
-  total = logger->process;
+  total = logger->processed;
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REQ, total);
+
+  /* valid requests */
+  total = logger->valid;
+  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_VALID, total);
 
   /* invalid requests */
   total = logger->invalid;
@@ -298,7 +302,7 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FILES, total);
 
   /* excluded hits */
-  total = logger->exclude_ip;
+  total = logger->excluded_ip;
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_EXCL_HITS, total);
 
   /* referrers */
@@ -347,7 +351,7 @@ output_json (GLog * logger, GHolder * holder)
       continue;
     if (ignore_panel (module))
       continue;
-    panel->render (fp, holder + module, logger->process);
+    panel->render (fp, holder + module, logger->valid);
     module != TOTAL_MODULES - 1 ? fprintf (fp, ",\n") : fprintf (fp, "\n");
   }
   fprintf (fp, "}");

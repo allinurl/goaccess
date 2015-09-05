@@ -66,13 +66,14 @@ typedef struct GLogItem_
 
 typedef struct GLog_
 {
-  unsigned int exclude_ip;
+  unsigned int excluded_ip;
   unsigned int invalid;
   unsigned int offset;
-  unsigned int process;
+  unsigned int processed;
+  unsigned int valid;
   unsigned long long resp_size;
-  unsigned short piping;
   unsigned short load_from_disk_only;
+  unsigned short piping;
   GLogItem *items;
 } GLog;
 
