@@ -190,8 +190,9 @@ to be used without prepending `--`.
 | `-V --version`                     | Display version information and exit.                         |
 | `--444-as-404`                     | Treat non-standard status code 444 as 404.                    |
 | `--4xx-to-unique-count`            | Add 4xx client errors to the unique visitors count.           |
-| `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
+| `--all-static-files`               | Include static files that contain a query string.             |
 | `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
+| `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
