@@ -446,41 +446,17 @@ get_str_bandwidth (GLog * logger)
   return filesize_str ((float) logger->resp_size);
 }
 
-/* render general statistics */
-void
-display_general (WINDOW * win, char *ifile, GLog * logger)
+/* render overall statistics */
+static void
+render_overall_statistics (WINDOW * win, Field fields[], size_t n)
 {
   GColors *color = NULL;
-  GColors *(*colorlbl) (void) = color_overall_lbls;
-  GColors *(*colorpth) (void) = color_overall_path;
-  GColors *(*colorval) (void) = color_overall_vals;
+  int x_field = 2, x_value = 0;
+  size_t i, j, k, max_field = 0, max_value = 0, mod_val, y;
 
-  int col = getmaxx (stdscr), x_field = 2, x_value = 0;
-  size_t n, i, j, k, max_field = 0, max_value = 0, mod_val, y;
-
-  Field fields[] = {
-    {T_REQUESTS, get_str_processed_reqs (logger), colorlbl, colorval, 0},
-    {T_UNIQUE_VIS, get_str_visitors (), colorlbl, colorval, 0},
-    {T_UNIQUE_FIL, get_str_reqs (), colorlbl, colorval, 0},
-    {T_REFERRER, get_str_ref_reqs (), colorlbl, colorval, 0},
-    {T_VALID, get_str_valid_reqs (logger), colorlbl, colorval, 0},
-    {T_GEN_TIME, get_str_proctime (), colorlbl, colorval, 0},
-    {T_STATIC_FIL, get_str_static_reqs (), colorlbl, colorval, 0},
-    {T_LOG, get_str_filesize (logger, ifile), colorlbl, colorval, 0},
-    {T_FAILED, get_str_failed_reqs (logger), colorlbl, colorval, 0},
-    {T_EXCLUDE_IP, get_str_excluded_ips (logger), colorlbl, colorval, 0},
-    {T_UNIQUE404, get_str_notfound_reqs (), colorlbl, colorval, 0},
-    {T_BW, get_str_bandwidth (logger), colorlbl, colorval, 0},
-    {T_LOG_PATH, get_str_logfile (logger, ifile), colorlbl, colorpth, 1}
-  };
-
-  werase (win);
-  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, col, color_panel_header);
-
-  n = ARRAY_SIZE (fields);
   for (i = 0, k = 0, y = 2; i < n; i++) {
-    /* every 4 columns */
-    mod_val = k % 4;
+    /* new line every OVERALL_NUM_COLS */
+    mod_val = k % OVERALL_NUM_COLS;
 
     /* reset position & length and increment row */
     if (k > 0 && mod_val == 0) {
@@ -499,24 +475,62 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
     max_field = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].field);
-      if (j % 4 == mod_val && len > max_field && !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_field &&
+          !fields[j].oneliner)
         max_field = len;
     }
     /* get max length of value in the same column */
     max_value = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].value);
-      if (j % 4 == mod_val && len > max_value && !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_value &&
+          !fields[j].oneliner)
         max_value = len;
     }
+
     /* spacers */
     x_value = max_field + x_field + 1;
     max_field += max_value + 2;
 
     color = (*fields[i].colorval) ();
     render_overall_value (win, fields[i].value, y, x_value, color);
-    k += fields[i].oneliner ? 4 : 1;
+    k += fields[i].oneliner ? OVERALL_NUM_COLS : 1;
   }
+}
+
+void
+display_general (WINDOW * win, char *ifile, GLog * logger)
+{
+  GColors *(*colorlbl) (void) = color_overall_lbls;
+  GColors *(*colorpth) (void) = color_overall_path;
+  GColors *(*colorval) (void) = color_overall_vals;
+
+  int col = getmaxx (stdscr);
+  size_t n, i;
+
+  /* *INDENT-OFF* */
+  Field fields[] = {
+    {T_REQUESTS   , get_str_processed_reqs (logger)  , colorlbl , colorval , 0},
+    {T_UNIQUE_VIS , get_str_visitors ()              , colorlbl , colorval , 0},
+    {T_UNIQUE_FIL , get_str_reqs ()                  , colorlbl , colorval , 0},
+    {T_REFERRER   , get_str_ref_reqs ()              , colorlbl , colorval , 0},
+    {T_VALID      , get_str_valid_reqs (logger)      , colorlbl , colorval , 0},
+    {T_GEN_TIME   , get_str_proctime ()              , colorlbl , colorval , 0},
+    {T_STATIC_FIL , get_str_static_reqs ()           , colorlbl , colorval , 0},
+    {T_LOG        , get_str_filesize (logger, ifile) , colorlbl , colorval , 0},
+    {T_FAILED     , get_str_failed_reqs (logger)     , colorlbl , colorval , 0},
+    {T_EXCLUDE_IP , get_str_excluded_ips (logger)    , colorlbl , colorval , 0},
+    {T_UNIQUE404  , get_str_notfound_reqs ()         , colorlbl , colorval , 0},
+    {T_BW         , get_str_bandwidth (logger)       , colorlbl , colorval , 0},
+    {T_LOG_PATH   , get_str_logfile (logger, ifile)  , colorlbl , colorpth , 1}
+  };
+  /* *INDENT-ON* */
+
+  werase (win);
+  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, col, color_panel_header);
+
+  n = ARRAY_SIZE (fields);
+  render_overall_statistics (win, fields, n);
 
   for (i = 0; i < n; i++) {
     free (fields[i].value);

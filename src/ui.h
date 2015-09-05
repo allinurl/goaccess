@@ -41,6 +41,7 @@
 #define MIN_WIDTH         0
 #define MAX_HEIGHT_FOOTER 1
 #define MAX_HEIGHT_HEADER 7
+#define OVERALL_NUM_COLS  4
 
 /* Overall Stats Labels */
 #define T_DASH       "Dashboard"
