@@ -92,6 +92,7 @@ typedef struct Field_
   char *value;
   GColors *(*colorlbl) (void);
   GColors *(*colorval) (void);
+  short oneliner;
 } Field;
 
 /* Determine which metrics to output given a module */
@@ -175,13 +176,13 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
     FATAL ("Minimum screen size - 0 columns by 7 lines");
 
   /* init header screen */
-  *header_win = newwin (5, col, 0, 0);
+  *header_win = newwin (6, col, 0, 0);
   keypad (*header_win, TRUE);
   if (*header_win == NULL)
     FATAL ("Unable to allocate memory for header_win.");
 
   /* init main screen */
-  *main_win = newwin (row - 7, col, 6, 0);
+  *main_win = newwin (row - 8, col, 7, 0);
   keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
@@ -361,105 +362,162 @@ render_overall_value (WINDOW * win, const char *s, int y, int x,
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
 }
 
+static char *
+get_str_excluded_ips (GLog * logger)
+{
+  return int2str (logger->excluded_ip, 0);
+}
+
+static char *
+get_str_failed_reqs (GLog * logger)
+{
+  return int2str (logger->invalid, 0);
+}
+
+static char *
+get_str_processed_reqs (GLog * logger)
+{
+  return int2str (logger->processed, 0);
+}
+
+static char *
+get_str_valid_reqs (GLog * logger)
+{
+  return int2str (logger->valid, 0);
+}
+
+static char *
+get_str_notfound_reqs (void)
+{
+  return int2str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP), 0);
+}
+
+static char *
+get_str_ref_reqs (void)
+{
+  return int2str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP), 0);
+}
+
+static char *
+get_str_reqs (void)
+{
+  return int2str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP), 0);
+}
+
+static char *
+get_str_static_reqs (void)
+{
+  return int2str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP), 0);
+}
+
+static char *
+get_str_visitors (void)
+{
+  return int2str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP), 0);
+}
+
+static char *
+get_str_proctime (void)
+{
+  return int2str (((long long) end_proc - start_proc), 0);
+}
+
+static char *
+get_str_filesize (GLog * logger, const char *ifile)
+{
+  if (!logger->piping && ifile != NULL)
+    return filesize_str (file_size (ifile));
+  else
+    return alloc_string ("N/A");
+}
+
+static char *
+get_str_logfile (GLog * logger, const char *ifile)
+{
+  if (!logger->piping && ifile != NULL)
+    return alloc_string (ifile);
+  else
+    return alloc_string ("STDIN");
+}
+
+static char *
+get_str_bandwidth (GLog * logger)
+{
+  return filesize_str ((float) logger->resp_size);
+}
+
 /* render general statistics */
 void
 display_general (WINDOW * win, char *ifile, GLog * logger)
 {
   GColors *color = NULL;
-  char *bw, *size, *log_file;
-  char *failed, *not_found, *process, *ref, *req;
-  char *sfiles, *now, *visitors, *exclude_ip;
+  GColors *(*colorlbl) (void) = color_overall_lbls;
+  GColors *(*colorpth) (void) = color_overall_path;
+  GColors *(*colorval) (void) = color_overall_vals;
 
-  int col = getmaxx (stdscr);
-  int x_field = 2, x_value = 0;
-  size_t n, i, j, max_field = 0, max_value = 0, mod_val, y;
+  int col = getmaxx (stdscr), x_field = 2, x_value = 0;
+  size_t n, i, j, k, max_field = 0, max_value = 0, mod_val, y;
 
   Field fields[] = {
-    {T_REQUESTS, NULL, color_overall_lbls, color_overall_vals},
-    {T_UNIQUE_VIS, NULL, color_overall_lbls, color_overall_vals},
-    {T_REFERRER, NULL, color_overall_lbls, color_overall_vals},
-    {T_LOG, NULL, color_overall_lbls, color_overall_vals},
-    {T_FAILED, NULL, color_overall_lbls, color_overall_vals},
-    {T_UNIQUE_FIL, NULL, color_overall_lbls, color_overall_vals},
-    {T_UNIQUE404, NULL, color_overall_lbls, color_overall_vals},
-    {T_BW, NULL, color_overall_lbls, color_overall_vals},
-    {T_GEN_TIME, NULL, color_overall_lbls, color_overall_vals},
-    {T_EXCLUDE_IP, NULL, color_overall_lbls, color_overall_vals},
-    {T_STATIC_FIL, NULL, color_overall_lbls, color_overall_vals},
-    {T_LOG_PATH, NULL, color_overall_lbls, color_overall_path}
+    {T_REQUESTS, get_str_processed_reqs (logger), colorlbl, colorval, 0},
+    {T_UNIQUE_VIS, get_str_visitors (), colorlbl, colorval, 0},
+    {T_UNIQUE_FIL, get_str_reqs (), colorlbl, colorval, 0},
+    {T_REFERRER, get_str_ref_reqs (), colorlbl, colorval, 0},
+    {T_VALID, get_str_valid_reqs (logger), colorlbl, colorval, 0},
+    {T_GEN_TIME, get_str_proctime (), colorlbl, colorval, 0},
+    {T_STATIC_FIL, get_str_static_reqs (), colorlbl, colorval, 0},
+    {T_LOG, get_str_filesize (logger, ifile), colorlbl, colorval, 0},
+    {T_FAILED, get_str_failed_reqs (logger), colorlbl, colorval, 0},
+    {T_EXCLUDE_IP, get_str_excluded_ips (logger), colorlbl, colorval, 0},
+    {T_UNIQUE404, get_str_notfound_reqs (), colorlbl, colorval, 0},
+    {T_BW, get_str_bandwidth (logger), colorlbl, colorval, 0},
+    {T_LOG_PATH, get_str_logfile (logger, ifile), colorlbl, colorpth, 1}
   };
 
   werase (win);
   draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, col, color_panel_header);
 
-  if (!logger->piping && ifile != NULL) {
-    size = filesize_str (file_size (ifile));
-    log_file = alloc_string (ifile);
-  } else {
-    size = alloc_string ("N/A");
-    log_file = alloc_string ("STDIN");
-  }
-  bw = filesize_str ((float) logger->resp_size);
-
-  failed = int2str (logger->invalid, 0);
-  not_found = int2str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP), 0);
-  process = int2str (logger->process, 0);
-  ref = int2str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP), 0);
-  req = int2str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP), 0);
-  sfiles = int2str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP), 0);
-  now = int2str (((long long) end_proc - start_proc), 0);
-  visitors = int2str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP), 0);
-  exclude_ip = int2str (logger->exclude_ip, 0);
-
-  fields[0].value = process;
-  fields[1].value = visitors;
-  fields[2].value = ref;
-  fields[3].value = size;
-  fields[4].value = failed;
-  fields[5].value = req;
-  fields[6].value = not_found;
-  fields[7].value = bw;
-  fields[8].value = now;
-  fields[9].value = exclude_ip;
-  fields[10].value = sfiles;
-  fields[11].value = log_file;
-
   n = ARRAY_SIZE (fields);
+  for (i = 0, k = 0, y = 2; i < n; i++) {
+    /* every 4 columns */
+    mod_val = k % 4;
 
-  for (i = 0, y = 2; i < n; i++) {
-    mod_val = i % 4;
-    if (i > 0 && mod_val == 0) {
-      max_field = 0;
-      max_value = 0;
-      x_field = 2;
-      x_value = 2;
+    /* reset position & length and increment row */
+    if (k > 0 && mod_val == 0) {
+      max_value = max_field = 0;
+      x_value = x_field = 2;
       y++;
     }
 
+    /* x pos = max length of field */
     x_field += max_field;
 
     color = (*fields[i].colorlbl) ();
     render_overall_field (win, fields[i].field, y, x_field, color);
 
+    /* get max length of field in the same column */
     max_field = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].field);
-      if (j % 4 == mod_val && len > max_field)
+      if (j % 4 == mod_val && len > max_field && !fields[j].oneliner)
         max_field = len;
     }
-
+    /* get max length of value in the same column */
     max_value = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].value);
-      if (j % 4 == mod_val && len > max_value)
+      if (j % 4 == mod_val && len > max_value && !fields[j].oneliner)
         max_value = len;
     }
+    /* spacers */
     x_value = max_field + x_field + 1;
     max_field += max_value + 2;
 
     color = (*fields[i].colorval) ();
     render_overall_value (win, fields[i].value, y, x_value, color);
+    k += fields[i].oneliner ? 4 : 1;
   }
+
   for (i = 0; i < n; i++) {
     free (fields[i].value);
   }
@@ -788,8 +846,8 @@ ui_spinner (void *ptr_data)
       snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
     } else {
       tdiff = (long long) (time (NULL) - begin);
-      psec = tdiff >= 1 ? *(sp->process) / tdiff : 0;
-      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->process), psec);
+      psec = tdiff >= 1 ? *(sp->processed) / tdiff : 0;
+      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->processed), psec);
     }
     setlocale (LC_NUMERIC, "POSIX");
 

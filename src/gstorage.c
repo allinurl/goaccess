@@ -146,10 +146,10 @@ get_storage_metric_by_module (GModule module, GMetric metric)
 }
 
 void
-set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed)
+set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int valid)
 {
   GMetrics *metrics;
-  float percent = get_percentage (processed, ometrics->hits);
+  float percent = get_percentage (valid, ometrics->hits);
 
   metrics = new_gmetrics ();
   metrics->bw.nbw = ometrics->bw.nbw;

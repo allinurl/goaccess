@@ -47,10 +47,10 @@
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, int processed);
+  void (*render) (FILE * fp, GHolder * h, int valid);
 } GPanel;
 
-static void print_csv_data (FILE * fp, GHolder * h, int processed);
+static void print_csv_data (FILE * fp, GHolder * h, int valid);
 
 static GPanel paneling[] = {
   {VISITORS, print_csv_data},
@@ -99,7 +99,7 @@ escape_cvs_output (FILE * fp, char *s)
 }
 
 static void
-print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
+print_csv_sub_items (FILE * fp, GHolder * h, int idx, int valid)
 {
   GSubList *sub_list = h->items[idx].sub_list;
   GSubItem *iter;
@@ -110,7 +110,7 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    percent = get_percentage (processed, iter->metrics->hits);
+    percent = get_percentage (valid, iter->metrics->hits);
     percent = percent < 0 ? 0 : percent;
 
     fprintf (fp, "\"%d\",", i); /* idx */
@@ -146,13 +146,13 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int processed)
 
 /* generate CSV unique visitors stats */
 static void
-print_csv_data (FILE * fp, GHolder * h, int processed)
+print_csv_data (FILE * fp, GHolder * h, int valid)
 {
   GMetrics *nmetrics;
   int i;
 
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, processed);
+    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
 
     fprintf (fp, "\"%d\",", i); /* idx */
     fprintf (fp, ",");  /* no parent */
@@ -183,7 +183,7 @@ print_csv_data (FILE * fp, GHolder * h, int processed)
     fprintf (fp, "\"\r\n");
 
     if (h->sub_items_size)
-      print_csv_sub_items (fp, h, i, processed);
+      print_csv_sub_items (fp, h, i, valid);
 
     free (nmetrics);
   }
@@ -209,8 +209,13 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   /* total requests */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = logger->process;
+  total = logger->processed;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REQ);
+
+  /* valid requests */
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  total = logger->valid;
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VALID);
 
   /* invalid requests */
   total = logger->invalid;
@@ -231,7 +236,7 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FILES);
 
   /* excluded hits */
-  total = logger->exclude_ip;
+  total = logger->excluded_ip;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
 
   /* referrers */
@@ -282,7 +287,7 @@ output_csv (GLog * logger, GHolder * holder)
       continue;
     if (ignore_panel (module))
       continue;
-    panel->render (fp, holder + module, logger->process);
+    panel->render (fp, holder + module, logger->valid);
   }
 
   fclose (fp);

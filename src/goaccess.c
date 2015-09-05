@@ -305,7 +305,7 @@ render_screens (void)
   term_size (main_win);
 
   generate_time ();
-  chg = logger->process - logger->offset;
+  chg = logger->processed - logger->offset;
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
@@ -851,12 +851,14 @@ set_general_stats (void)
 {
   verify_formats ();
 
-  logger->process = logger->invalid = logger->exclude_ip = 0;
+  logger->valid = logger->processed = logger->invalid = logger->excluded_ip = 0;
 #ifdef TCB_BTREE
-  logger->exclude_ip = get_uint_from_str_key (ht_general_stats, "exclude_ip");
+  logger->excluded_ip = get_uint_from_str_key (ht_general_stats, "excluded_ip");
   logger->invalid = get_uint_from_str_key (ht_general_stats, "failed_requests");
-  logger->process = get_uint_from_str_key (ht_general_stats, "total_requests");
+  logger->processed =
+    get_uint_from_str_key (ht_general_stats, "total_requests");
   logger->resp_size = get_uint_from_str_key (ht_general_stats, "bandwidth");
+  logger->valid = get_uint_from_str_key (ht_general_stats, "valid_requests");
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
 #endif
@@ -978,7 +980,7 @@ main (int argc, char **argv)
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
-  parsing_spinner->process = &logger->process;
+  parsing_spinner->processed = &logger->processed;
 
   /* outputting to stdout */
   if (conf.output_html) {
@@ -1017,10 +1019,10 @@ out:
   if (!quit && parse_log (&logger, NULL, -1))
     FATAL ("Error while processing file");
 
-  logger->offset = logger->process;
+  logger->offset = logger->processed;
 
   /* no valid entries to process from the log */
-  if (logger->process == 0)
+  if (logger->valid == 0)
     FATAL ("Nothing valid to process.");
 
   /* init reverse lookup thread */

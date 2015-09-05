@@ -1550,7 +1550,7 @@ static void
 print_html_summary (FILE * fp, GLog * logger)
 {
   long long t = 0LL;
-  int total = 0;
+  int total = 0, valid = 0;
   off_t log_size = 0;
   char *bw, *size;
 
@@ -1559,10 +1559,11 @@ print_html_summary (FILE * fp, GLog * logger)
   print_html_begin_grid (fp);
 
   /* total requests */
-  total = logger->process;
+  total = logger->processed;
+  valid = logger->valid;
   print_html_begin_col_wrap (fp, 6, "green");
-  print_html_col_title (fp, T_REQUESTS);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
+  print_html_col_title (fp, T_VALID " / " T_REQUESTS);
+  fprintf (fp, "<h3 class='label trunc'>%'d / %'d</h3>", valid, total);
   print_html_end_col_wrap (fp);
 
   /* invalid requests */
@@ -1593,7 +1594,7 @@ print_html_summary (FILE * fp, GLog * logger)
   print_html_end_col_wrap (fp);
 
   /* excluded hits */
-  total = logger->exclude_ip;
+  total = logger->excluded_ip;
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_EXCLUDE_IP);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
@@ -1683,7 +1684,7 @@ output_html (GLog * logger, GHolder * holder)
       continue;
     if (ignore_panel (module))
       continue;
-    print_html_common (fp, holder + module, logger->process, panel, output);
+    print_html_common (fp, holder + module, logger->processed, panel, output);
   }
 
   print_html_footer (fp);
