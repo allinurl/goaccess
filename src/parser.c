@@ -1702,28 +1702,28 @@ pre_process_log (GLog * logger, char *line, int test)
 
   count_process (logger, test);
   glog = init_log_item (logger);
-/* parse a line of log, and fill structure with appropriate values */
+  /* parse a line of log, and fill structure with appropriate values */
   if (parse_format (glog, line)) {
     count_invalid (logger, test);
     goto cleanup;
   }
 
-/* must have the following fields */
+  /* must have the following fields */
   if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
     count_invalid (logger, test);
     goto cleanup;
   }
-/* agent will be null in cases where %u is not specified */
+  /* agent will be null in cases where %u is not specified */
   if (glog->agent == NULL)
     glog->agent = alloc_string ("-");
 
-/* testing log only */
+  /* testing log only */
   if (test) {
     count_valid (logger, test);
     goto cleanup;
   }
 
-/* ignore host or crawlers */
+  /* ignore host or crawlers */
   if (excluded_ip (logger, glog, test) == 0)
     goto cleanup;
   if (exclude_crawler (glog) == 0)
@@ -1731,7 +1731,7 @@ pre_process_log (GLog * logger, char *line, int test)
   if (ignore_referer (glog->site))
     goto cleanup;
 
-/* check if we need to remove the request's query string */
+  /* check if we need to remove the request's query string */
   if (conf.ignore_qstr)
     strip_qstring (glog->req);
 
