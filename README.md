@@ -201,6 +201,7 @@ to be used without prepending `--`.
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
+| `--invalid-requests=<filename>`    | Log invalid requests to the specified file.                   |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
 | `--no-color`                       | Disable colored output.                                       |
 | `--no-column-names`                | Don't write column names in term output.                      |
