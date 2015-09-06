@@ -88,12 +88,13 @@ typedef struct GConf_
   char *ignore_ips[MAX_IGNORE_IPS];
   char *ignore_panels[TOTAL_MODULES];
   char *ignore_referers[MAX_IGNORE_REF];
+  char *invalid_requests_log;
   char *log_format;
   char *output_format;
   char *sort_panels[TOTAL_MODULES];
   char *time_format;
-  const char *static_files[MAX_EXTENSIONS];
   const char *colors[MAX_CUSTOM_COLORS];
+  const char *static_files[MAX_EXTENSIONS];
 
   int all_static_files;
   int append_method;

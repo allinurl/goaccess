@@ -142,11 +142,18 @@ house_keeping (void)
   /* LOGGER */
   free (logger);
 
+  /* INVALID REQUESTS */
+  if (conf.invalid_requests_log) {
+    LOG_DEBUG (("Closing invalid requests log.\n"));
+    invalid_log_close ();
+  }
+
   /* CONFIGURATION */
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
   }
+
   /* free colors */
   free_color_lists ();
   /*free_normal_color (); */
