@@ -1,12 +1,13 @@
 Changes to GoAccess 0.9.4 - TBD, 2015
 
-  - Fixed inability to parse color due to a missing POSIX extension. (ERR:
-    Invalid bg/fg color pairs)
+  - Fixed inability to parse color due to a missing POSIX extension.
+    ERR: Invalid bg/fg color pairs
   - Added '%~' specifier to move forward through a log string until a non-space
     char is found.
   - Added the ability to parse static files containing a query string
     `--all-static-files`.
   - Added the ability to parse native Squid access.log format.
+  - Added additional overall metric - total valid requests.
   - Fixed a few issues in the configuration script.
 
 Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
