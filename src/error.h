@@ -57,6 +57,9 @@
 void dbg_fprintf (const char *fmt, ...);
 void dbg_log_close (void);
 void dbg_log_open (const char *file);
+void invalid_fprintf (const char *fmt, ...);
+void invalid_log_close (void);
+void invalid_log_open (const char *path);
 void set_signal_data (void *p);
 
 #if defined(__GLIBC__)

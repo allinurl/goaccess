@@ -1076,7 +1076,7 @@ inc_resp_size (GLog * logger, uint64_t resp_size)
 }
 
 static void
-count_invalid (GLog * logger, int test)
+count_invalid (GLog * logger, const char *line, int test)
 {
   logger->invalid++;
 #ifdef TCB_BTREE
@@ -1085,6 +1085,8 @@ count_invalid (GLog * logger, int test)
 #else
   (void) test;
 #endif
+  if (conf.invalid_requests_log)
+    LOG_INVALID (("%s", line));
 }
 
 static void
@@ -1696,7 +1698,7 @@ pre_process_log (GLog * logger, char *line, int test)
   GLogItem *glog;
 
   if (valid_line (line)) {
-    count_invalid (logger, test);
+    count_invalid (logger, line, test);
     return 0;
   }
 
@@ -1704,13 +1706,13 @@ pre_process_log (GLog * logger, char *line, int test)
   glog = init_log_item (logger);
   /* parse a line of log, and fill structure with appropriate values */
   if (parse_format (glog, line)) {
-    count_invalid (logger, test);
+    count_invalid (logger, line, test);
     goto cleanup;
   }
 
   /* must have the following fields */
   if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
-    count_invalid (logger, test);
+    count_invalid (logger, line, test);
     goto cleanup;
   }
   /* agent will be null in cases where %u is not specified */

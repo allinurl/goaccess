@@ -60,6 +60,9 @@ extern size_t term_w;
 #define LOG_DEBUG(x, ...) do { } while (0)
 #endif
 
+/* invalid requests log */
+#define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
+
 #ifdef HAVE_LIBGEOIP
 #define TOTAL_MODULES    13
 #else

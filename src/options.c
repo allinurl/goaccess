@@ -63,6 +63,7 @@ struct option long_opts[] = {
 #ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
 #endif
+  {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
   {"all-static-files"     , no_argument       , 0 ,  0  } ,
@@ -148,6 +149,7 @@ cmd_help (void)
   "  -l --debug-file=<filename>      - Send all debug messages to the\n"
   "                                    specified file.\n"
 #endif
+  "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n\n"
 
   /* Parse Options */
@@ -355,6 +357,12 @@ read_option_args (int argc, char **argv)
       /* date format */
       if (!strcmp ("date-format", long_opts[idx].name) && !conf.date_format)
         conf.date_format = unescape_str (optarg);
+
+      /* invalid requests */
+      if (!strcmp ("invalid-requests", long_opts[idx].name)) {
+        conf.invalid_requests_log = optarg;
+        invalid_log_open (conf.invalid_requests_log);
+      }
 
       /* static file */
       if (!strcmp ("static-file", long_opts[idx].name) &&

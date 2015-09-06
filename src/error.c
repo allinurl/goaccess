@@ -37,6 +37,7 @@
 
 static FILE *log_file;
 static GLog *log_data;
+static FILE *log_invalid;
 
 void
 dbg_log_open (const char *path)
@@ -53,6 +54,23 @@ dbg_log_close (void)
 {
   if (log_file != NULL)
     fclose (log_file);
+}
+
+void
+invalid_log_open (const char *path)
+{
+  if (path != NULL) {
+    log_invalid = fopen (path, "w");
+    if (log_invalid == NULL)
+      return;
+  }
+}
+
+void
+invalid_log_close (void)
+{
+  if (log_invalid != NULL)
+    fclose (log_invalid);
 }
 
 void
@@ -123,6 +141,20 @@ dbg_fprintf (const char *fmt, ...)
   va_start (args, fmt);
   vfprintf (log_file, fmt, args);
   fflush (log_file);
+  va_end (args);
+}
+
+void
+invalid_fprintf (const char *fmt, ...)
+{
+  va_list args;
+
+  if (!log_invalid)
+    return;
+
+  va_start (args, fmt);
+  vfprintf (log_invalid, fmt, args);
+  fflush (log_invalid);
   va_end (args);
 }
 
