@@ -156,7 +156,6 @@ house_keeping (void)
 
   /* free colors */
   free_color_lists ();
-  /*free_normal_color (); */
   /* free cmd arguments */
   free_cmd_args ();
 }
