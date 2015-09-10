@@ -643,7 +643,7 @@ extract_method (const char *token)
 static int
 invalid_protocol (const char *token)
 {
-  const char *lookfor = NULL;
+  const char *lookfor;
 
   return !((lookfor = "HTTP/1.0", !memcmp (token, lookfor, 8)) ||
            (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)));
