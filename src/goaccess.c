@@ -184,24 +184,11 @@ allocate_holder_by_module (GModule module)
 static void
 allocate_holder (void)
 {
-#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
-  TCADB *ht = NULL;
-#else
-  GHashTable *ht;
-#endif
-
   GModule module;
-  GRawData *raw_data;
-  unsigned int ht_size = 0;
 
   holder = new_gholder (TOTAL_MODULES);
   for (module = 0; module < TOTAL_MODULES; module++) {
-    /* extract data from the corresponding hits hash table */
-    ht = get_storage_metric (module, MTRC_HITS);
-
-    ht_size = get_ht_size (ht);
-    raw_data = parse_raw_data (ht, ht_size, module);
-    load_holder_data (raw_data, holder + module, module, module_sort[module]);
+    allocate_holder_by_module(module);
   }
 }
 
