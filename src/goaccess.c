@@ -188,7 +188,7 @@ allocate_holder (void)
 
   holder = new_gholder (TOTAL_MODULES);
   for (module = 0; module < TOTAL_MODULES; module++) {
-    allocate_holder_by_module(module);
+    allocate_holder_by_module (module);
   }
 }
 
