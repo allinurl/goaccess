@@ -1,5 +1,5 @@
 /**
- * gmenu.c -- goaccess main dashboard
+ * gdashboard.c -- goaccess main dashboard
  * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
