@@ -1684,7 +1684,7 @@ output_html (GLog * logger, GHolder * holder)
       continue;
     if (ignore_panel (module))
       continue;
-    print_html_common (fp, holder + module, logger->processed, panel, output);
+    print_html_common (fp, holder + module, logger->valid, panel, output);
   }
 
   print_html_footer (fp);
