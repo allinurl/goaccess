@@ -56,6 +56,7 @@
 #include "error.h"
 #include "gdashboard.h"
 #include "gdns.h"
+#include "gholder.h"
 #include "json.h"
 #include "options.h"
 #include "output.h"

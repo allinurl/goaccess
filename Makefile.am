@@ -20,6 +20,8 @@ goaccess_SOURCES = \
    src/gdashboard.h    \
    src/gdns.c          \
    src/gdns.h          \
+   src/gholder.c       \
+   src/gholder.h       \
    src/gmenu.c         \
    src/gmenu.h         \
    src/goaccess.c      \
