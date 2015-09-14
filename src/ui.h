@@ -36,7 +36,6 @@
 #endif
 
 /* Global UI defaults */
-#define MAX_CHOICES       366
 #define MIN_HEIGHT        8
 #define MIN_WIDTH         0
 #define MAX_HEIGHT_FOOTER 1

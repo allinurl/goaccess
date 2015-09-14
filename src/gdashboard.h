@@ -47,10 +47,6 @@
 #define DASH_SRV_TM_LEN  9  /* max served time length */
 #define DASH_SPACE       1  /* space between data */
 
-#define MTRC_ID_COUNTRY  0
-#define MTRC_ID_CITY     1
-#define MTRC_ID_HOSTNAME 2
-
 #define COLUMN_HITS_LEN  4
 #define COLUMN_VIS_LEN   4
 
@@ -114,21 +110,15 @@ typedef struct GDash_
 /* Function Prototypes */
 GDashData * new_gdata (uint32_t size);
 GDash *new_gdash (void);
-GHolder *new_gholder (uint32_t size);
 int get_num_collapsed_data_rows(void);
 int get_num_expanded_data_rows(void);
 int perform_next_find (GHolder * h, GScroll * scroll);
 int render_find_dialog (WINDOW * main_win, GScroll * scroll);
 int set_module_from_mouse_event (GScroll *scroll, GDash *dash, int y);
 uint32_t get_ht_size_by_module (GModule module);
-void *add_hostname_node (void *ptr_holder);
 void display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * scroll);
 void free_dashboard (GDash * dash);
-void free_holder_by_module (GHolder ** holder, GModule module);
-void free_holder (GHolder ** holder);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * scroll);
-void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
-void load_host_to_holder (GHolder * h, char *ip);
 void reset_find (void);
 void reset_scroll_offsets (GScroll * scroll);
 
