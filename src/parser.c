@@ -1140,6 +1140,23 @@ exclude_crawler (GLogItem * glog)
 }
 
 static int
+ignore_line (GLog * logger, GLogItem * glog, int test)
+{
+  if (excluded_ip (logger, glog, test) == 0)
+    return 1;
+  if (exclude_crawler (glog) == 0)
+    return 1;
+  if (ignore_referer (glog->site))
+    return 1;
+
+  /* check if we need to remove the request's query string */
+  if (conf.ignore_qstr)
+    strip_qstring (glog->req);
+
+  return 0;
+}
+
+static int
 is_static (GLogItem * glog)
 {
   return verify_static_content (glog->req);
@@ -1725,17 +1742,9 @@ pre_process_log (GLog * logger, char *line, int test)
     goto cleanup;
   }
 
-  /* ignore host or crawlers */
-  if (excluded_ip (logger, glog, test) == 0)
+  /* ignore line */
+  if (ignore_line (logger, glog, test))
     goto cleanup;
-  if (exclude_crawler (glog) == 0)
-    goto cleanup;
-  if (ignore_referer (glog->site))
-    goto cleanup;
-
-  /* check if we need to remove the request's query string */
-  if (conf.ignore_qstr)
-    strip_qstring (glog->req);
 
   if (is_404 (glog))
     glog->is_404 = 1;
