@@ -855,6 +855,8 @@ set_general_stats (void)
   logger->valid = get_uint_from_str_key (ht_general_stats, "valid_requests");
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
+  if (get_uint_from_str_key (ht_general_stats, "serve_usecs"))
+    conf.serve_usecs = 1;
 #endif
 }
 
