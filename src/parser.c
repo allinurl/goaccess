@@ -640,6 +640,18 @@ extract_method (const char *token)
   return NULL;
 }
 
+static void
+contains_usecs (void)
+{
+  if (conf.serve_usecs)
+    return;
+
+#ifdef TCB_BTREE
+  ht_inc_int_from_str_key (ht_general_stats, "serve_usecs", 1);
+#endif
+  conf.serve_usecs = 1; /* flag */
+}
+
 static int
 invalid_protocol (const char *token)
 {
@@ -939,7 +951,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     /* convert it to microseconds */
     glog->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
-    conf.serve_usecs = 1;       /* flag */
+    contains_usecs ();  /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in seconds with a milliseconds
@@ -962,7 +974,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     /* convert it to microseconds */
     glog->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
-    conf.serve_usecs = 1;       /* flag */
+    contains_usecs ();  /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -979,7 +991,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       serve_time = 0;
     glog->serve_time = serve_time;
 
-    conf.serve_usecs = 1;       /* flag */
+    contains_usecs ();  /* set flag */
     free (tkn);
     break;
     /* move forward through str until not a space */
