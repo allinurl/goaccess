@@ -257,7 +257,8 @@ ht_insert_keymap (TCADB * adb, const char *value)
   /* the auto increment value starts at SIZE (hash table) + 1 */
   nkey = size > 0 ? size + 1 : 1;
 
-  tcadbput (adb, value, strlen (value), &nkey, sizeof (int));
+  if (!tcadbput (adb, value, strlen (value), &nkey, sizeof (int)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
 
   return nkey;
 }
@@ -280,7 +281,9 @@ ht_insert_uniqmap (TCADB * adb, char *uniq_key)
   /* the auto increment value starts at SIZE (hash table) + 1 */
   nkey = size > 0 ? size + 1 : 1;
 
-  tcadbput (adb, uniq_key, strlen (uniq_key), &nkey, sizeof (int));
+  if (!tcadbput (adb, uniq_key, strlen (uniq_key), &nkey, sizeof (int)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
+
   free (uniq_key);
 
   return nkey;
@@ -297,7 +300,8 @@ ht_insert_nkey_nval (TCADB * adb, int nkey, int nval)
   if (tcadbget (adb, &nkey, sizeof (int), &sp) != NULL)
     return 1;
 
-  tcadbput (adb, &nkey, sizeof (int), &nval, sizeof (int));
+  if (!tcadbput (adb, &nkey, sizeof (int), &nval, sizeof (int)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
 }
@@ -319,7 +323,9 @@ ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
     map->root = root_nkey;
     map->uniq = uniq_nkey;
   }
-  tcadbput (adb, &data_nkey, sizeof (int), map, sizeof (GDataMap));
+  if (!tcadbput (adb, &data_nkey, sizeof (int), map, sizeof (GDataMap)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
+
   if (map)
     free (map);
 
@@ -349,7 +355,10 @@ ht_insert_host_agent (TCADB * adb, int data_nkey, int agent_nkey)
   } else {
     list = list_create (int2ptr (agent_nkey));
   }
-  tcadbput (adb, &data_nkey, sizeof (int), list, sizeof (GSLList));
+
+  if (!tcadbput (adb, &data_nkey, sizeof (int), list, sizeof (GSLList)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
+
 out:
   free (list);
 
@@ -363,7 +372,8 @@ ht_insert_str_from_int_key (TCADB * adb, int nkey, const char *value)
   if (adb == NULL)
     return (EINVAL);
 
-  tcadbput (adb, &nkey, sizeof (int), value, strlen (value));
+  if (!tcadbput (adb, &nkey, sizeof (int), value, strlen (value)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
 }
@@ -385,7 +395,8 @@ ht_inc_int_from_key (TCADB * adb, const void *key, size_t ksize, int inc)
     add_value = 0 + inc;
   }
 
-  tcadbput (adb, key, ksize, &add_value, sizeof (int));
+  if (!tcadbput (adb, key, ksize, &add_value, sizeof (int)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
 }
@@ -407,7 +418,8 @@ ht_inc_u64_from_key (TCADB * adb, const void *key, size_t ksize, uint64_t inc)
     add_value = 0 + inc;
   }
 
-  tcadbput (adb, key, ksize, &add_value, sizeof (uint64_t));
+  if (!tcadbput (adb, key, ksize, &add_value, sizeof (uint64_t)))
+    LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
 }
