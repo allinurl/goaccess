@@ -39,10 +39,7 @@
 #include "error.h"
 #include "util.h"
 
-static char short_options[] = "f:e:p:o:"
-#ifdef DEBUG
-  "l:"
-#endif
+static char short_options[] = "f:e:p:o:l:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
@@ -60,9 +57,7 @@ struct option long_opts[] = {
   {"http-protocol"        , no_argument       , 0 , 'H' } ,
   {"log-file"             , required_argument , 0 , 'f' } ,
   {"version"              , no_argument       , 0 , 'V' } ,
-#ifdef DEBUG
   {"debug-file"           , required_argument , 0 , 'l' } ,
-#endif
   {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
@@ -145,10 +140,8 @@ cmd_help (void)
   "File Options\n\n"
   "  -f --log-file=<filename>        - Path to input log file.\n"
   "  -p --config-file=<filename>     - Custom configuration file.\n"
-#ifdef DEBUG
   "  -l --debug-file=<filename>      - Send all debug messages to the\n"
   "                                    specified file.\n"
-#endif
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n\n"
 
