@@ -54,11 +54,7 @@ extern size_t real_size_y;
 extern size_t term_h;
 extern size_t term_w;
 
-#ifdef DEBUG
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
-#else
-#define LOG_DEBUG(x, ...) do { } while (0)
-#endif
 
 /* invalid requests log */
 #define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
