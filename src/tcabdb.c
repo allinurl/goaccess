@@ -831,7 +831,10 @@ parse_raw_data (void *db, int ht_size, GModule module)
   raw_data->items = new_grawdata_item (ht_size);
 
   tc_db_foreach (db, data_iter_generic, raw_data);
-  sort_raw_data (raw_data, ht_size);
+  sort_raw_data (raw_data, raw_data->idx);
+
+  if (raw_data->idx != ht_size)
+    LOG_DEBUG (("idx: %d!=ht size: %d - %d\n", raw_data->idx, ht_size, module));
 
   return raw_data;
 }
