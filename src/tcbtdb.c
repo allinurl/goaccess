@@ -56,6 +56,19 @@ tc_db_set_path (const char *dbname, int module)
   return path;
 }
 
+static int
+set_dbparam (char *params, int len, const char *fmt, ...)
+{
+  int n;
+  va_list args;
+
+  va_start (args, fmt);
+  n = vsnprintf (params + len, DB_PARAMS, fmt, args);
+  va_end (args);
+
+  return n;
+}
+
 /* set database parameters */
 void
 tc_db_get_params (char *params, const char *path)
@@ -65,42 +78,43 @@ tc_db_get_params (char *params, const char *path)
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum;
 
   /* copy path name to buffer */
-  len += snprintf (params + len, DB_PARAMS - len, "%s", path);
+  len += set_dbparam (params, len, "%s", path);
+  /*len += snprintf (params + len, DB_PARAMS - len, "%s", path); */
 
   /* caching parameters of a B+ tree database object */
   lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "lcnum", lcnum);
+  len += set_dbparam (params, len, "#%s=%d", "lcnum", lcnum);
 
   ncnum = conf.cache_ncnum > 0 ? conf.cache_ncnum : TC_NCNUM;
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "ncnum", ncnum);
+  len += set_dbparam (params, len, "#%s=%d", "ncnum", ncnum);
 
   /* set the size of the extra mapped memory */
   if (xmmap > 0)
-    len += snprintf (params + len, DB_PARAMS - len, "#%s=%ld", "xmsiz", xmmap);
+    len += set_dbparam (params, len, "#%s=%ld", "xmsiz", xmmap);
 
   lmemb = conf.tune_lmemb > 0 ? conf.tune_lmemb : TC_LMEMB;
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "lmemb", lmemb);
+  len += set_dbparam (params, len, "#%s=%d", "lmemb", lmemb);
 
   nmemb = conf.tune_nmemb > 0 ? conf.tune_nmemb : TC_NMEMB;
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "nmemb", nmemb);
+  len += set_dbparam (params, len, "#%s=%d", "nmemb", nmemb);
 
   bnum = conf.tune_bnum > 0 ? conf.tune_bnum : TC_BNUM;
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%d", "bnum", bnum);
+  len += set_dbparam (params, len, "#%s=%d", "bnum", bnum);
 
   /* compression */
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%c", "opts", 'l');
+  len += set_dbparam (params, len, "#%s=%c", "opts", 'l');
 
   if (conf.compression == TC_BZ2) {
-    len += snprintf (params + len, DB_PARAMS - len, "%c", 'b');
+    len += set_dbparam (params, len, "%c", 'b');
   } else if (conf.compression == TC_ZLIB) {
-    len += snprintf (params + len, DB_PARAMS - len, "%c", 'd');
+    len += set_dbparam (params, len, "%c", 'd');
   }
 
   /* open flags. create a new database if not exist, otherwise read it */
-  len += snprintf (params + len, DB_PARAMS - len, "#%s=%s", "mode", "wc");
+  len += set_dbparam (params, len, "#%s=%s", "mode", "wc");
   /* if not loading from disk, truncate regardless if a db file exists */
   if (!conf.load_from_disk)
-    len += snprintf (params + len, DB_PARAMS - len, "%c", 't');
+    len += set_dbparam (params, len, "%c", 't');
 
   LOG_DEBUG (("%s\n", path));
   LOG_DEBUG (("params: %s\n", params));
