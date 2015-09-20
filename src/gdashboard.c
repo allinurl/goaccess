@@ -152,6 +152,12 @@ get_data_pos_rows (void)
   return conf.no_column_names ? DASH_DATA_POS - DASH_COL_ROWS : DASH_DATA_POS;
 }
 
+static int
+get_xpos (void)
+{
+  return DASH_INIT_X;
+}
+
 /* Determine which module should be expanded given the
  * current mouse position. */
 int
@@ -704,7 +710,7 @@ render_description (WINDOW * win, GDashModule * data, int *y)
 static void
 render_metrics (GDashModule * data, GDashRender render, int expanded)
 {
-  int x = DASH_INIT_X;
+  int x = get_xpos ();
   GModule module = data->module;
   const GOutput *output = output_lookup (module);
 
@@ -813,7 +819,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
 {
   GModule module = data->module;
   const GOutput *output = output_lookup (module);
-  int x = DASH_INIT_X;
+  int x = get_xpos ();
 
   if (data->idx_data == 0 || conf.no_column_names)
     return;
