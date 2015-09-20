@@ -146,7 +146,14 @@ if test "$WITH_TC" = "yes"; then
     CFLAGS="$CFLAGS $BZ2_FLAG"
   fi
 
-  CFLAGS="$CFLAGS -ltokyocabinet -lrt -lc"
+  case "$host_os" in
+    *darwin*)
+       CFLAGS="$CFLAGS -ltokyocabinet -lc"
+    ;;
+    *)
+       CFLAGS="$CFLAGS -ltokyocabinet -lrt -lc"
+    ;;
+  esac
 
 # GLib otherwise
 else
