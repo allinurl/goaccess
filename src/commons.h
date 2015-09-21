@@ -125,7 +125,7 @@ typedef enum MODULES
 
 typedef struct GMetrics
 {
-  /* metric id can be used to identified
+  /* metric id can be used to identify
    * a specific data field */
   uint8_t id;
   char *data;
