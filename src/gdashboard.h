@@ -50,21 +50,6 @@
 #define COLUMN_HITS_LEN  4
 #define COLUMN_VIS_LEN   4
 
-typedef struct GDashStyle_
-{
-  const int color_visitors;
-  const int color_hits;
-  const int color_data;
-  const int color_bw;
-  const int color_percent;
-  const int color_bars;
-  const int color_avgts;
-  const int color_cumts;
-  const int color_maxts;
-  const int color_method;
-  const int color_protocol;
-} GDashStyle;
-
 typedef struct GDashRender_
 {
   WINDOW *win;
