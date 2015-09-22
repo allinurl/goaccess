@@ -627,6 +627,16 @@ extract_method (const char *token)
       (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
       (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
       (lookfor = "PATCH", !memcmp (token, lookfor, 5)) ||
+      (lookfor = "options", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "get", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "head", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "post", !memcmp (token, lookfor, 4)) ||
+      (lookfor = "put", !memcmp (token, lookfor, 3)) ||
+      (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
+      (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
+      (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
+      (lookfor = "patch", !memcmp (token, lookfor, 5)) ||
+      /* WebDAV */
       (lookfor = "PROPFIND", !memcmp (token, lookfor, 8)) ||
       (lookfor = "PROPPATCH", !memcmp (token, lookfor, 9)) ||
       (lookfor = "MKCOL", !memcmp (token, lookfor, 5)) ||
@@ -646,15 +656,6 @@ extract_method (const char *token)
       (lookfor = "BASELINE-CONTROL", !memcmp (token, lookfor, 16)) ||
       (lookfor = "MKACTIVITY", !memcmp (token, lookfor, 10)) ||
       (lookfor = "ORDERPATCH", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "options", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "get", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "head", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "post", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "put", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "patch", !memcmp (token, lookfor, 5)) ||
       (lookfor = "propfind", !memcmp (token, lookfor, 8)) ||
       (lookfor = "propwatch", !memcmp (token, lookfor, 9)) ||
       (lookfor = "mkcol", !memcmp (token, lookfor, 5)) ||
