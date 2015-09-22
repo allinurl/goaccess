@@ -673,7 +673,7 @@ extract_method (const char *token)
       (lookfor = "merge", !memcmp (token, lookfor, 5)) ||
       (lookfor = "baseline-control", !memcmp (token, lookfor, 16)) ||
       (lookfor = "mkactivity", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "orderpatch", !memcmp (token, lookfor, 10)) )
+      (lookfor = "orderpatch", !memcmp (token, lookfor, 10)))
     return lookfor;
   return NULL;
 }
