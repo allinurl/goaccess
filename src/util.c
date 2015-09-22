@@ -65,6 +65,8 @@ static const char *codes[][2] = {
   {"204", "204 - No Content: Request did not return any content"},
   {"205", "205 - Reset Content: Server asked the client to reset the document"},
   {"206", "206 - Partial Content: The partial GET has been successful"},
+  {"207", "207 - Multi-Status: WebDAV; RFC 4918"},
+  {"208", "208 - Already Reported: WebDAV; RFC 5842"},
   {"300", "300 - Multiple Choices: Multiple options for the resource"},
   {"301", "301 - Moved Permanently: Resource has permanently moved"},
   {"302", "302 - Moved Temporarily (redirect)"},
