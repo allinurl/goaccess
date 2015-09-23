@@ -23,6 +23,22 @@
 
 #include "commons.h"
 
+typedef enum GSMetric_
+{
+  MTRC_KEYMAP,
+  MTRC_ROOTMAP,
+  MTRC_DATAMAP,
+  MTRC_UNIQMAP,
+  MTRC_HITS,
+  MTRC_VISITORS,
+  MTRC_BW,
+  MTRC_CUMTS,
+  MTRC_MAXTS,
+  MTRC_METHODS,
+  MTRC_PROTOCOLS,
+  MTRC_AGENTS,
+} GSMetric;
+
 typedef struct GStorageMetrics_
 {
   /* Maps keys (string) to numeric values (integer).
@@ -136,9 +152,8 @@ GStorageMetrics *new_ht_metrics (void);
 GStorage *new_gstorage (uint32_t size);
 int *int2ptr (int val);
 uint64_t *uint642ptr (uint64_t val);
-void *get_storage_metric_by_module (GModule module, GMetric metric);
-void *get_storage_metric (GModule module, GMetric metric);
-void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
-                       int processed);
+void *get_storage_metric_by_module (GModule module, GSMetric metric);
+void *get_storage_metric (GModule module, GSMetric metric);
+void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int processed);
 
 #endif // for #ifndef GSTORAGE_H

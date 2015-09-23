@@ -146,7 +146,7 @@ get_ht_size (GHashTable * ht)
 }
 
 uint32_t
-get_ht_size_by_metric (GModule module, GMetric metric)
+get_ht_size_by_metric (GModule module, GSMetric metric)
 {
   GHashTable *ht = get_storage_metric (module, metric);
 
@@ -469,7 +469,7 @@ get_root_from_key (int root_nkey, GModule module)
 }
 
 char *
-get_node_from_key (int data_nkey, GModule module, GMetric metric)
+get_node_from_key (int data_nkey, GModule module, GSMetric metric)
 {
   GHashTable *ht = NULL;
   GStorageMetrics *metrics;
@@ -497,7 +497,7 @@ get_node_from_key (int data_nkey, GModule module, GMetric metric)
 }
 
 uint64_t
-get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
+get_cumulative_from_key (int data_nkey, GModule module, GSMetric metric)
 {
   gpointer value_ptr;
   GHashTable *ht = NULL;
@@ -529,7 +529,7 @@ get_cumulative_from_key (int data_nkey, GModule module, GMetric metric)
 }
 
 int
-get_num_from_key (int data_nkey, GModule module, GMetric metric)
+get_num_from_key (int data_nkey, GModule module, GSMetric metric)
 {
   GHashTable *ht = NULL;
   GStorageMetrics *metrics;

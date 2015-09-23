@@ -38,7 +38,7 @@ extern GHashTable *ht_unique_keys;
 /* *INDENT-OFF* */
 GRawData *parse_raw_data (GHashTable * ht, int ht_size, GModule module);
 
-uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
+uint32_t get_ht_size_by_metric (GModule module, GSMetric metric);
 uint32_t get_ht_size (GHashTable * ht);
 
 int ht_inc_int_from_int_key (GHashTable * ht, int data_nkey, int inc);
@@ -58,14 +58,14 @@ int ht_max_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t newval);
 
 char *get_host_agent_val (int agent_nkey);
 char *get_hostname (const char *host);
-char *get_node_from_key (int data_nkey, GModule module, GMetric metric);
+char *get_node_from_key (int data_nkey, GModule module, GSMetric metric);
 char *get_root_from_key (int root_nkey, GModule module);
 char * get_str_from_int_key (GHashTable *ht, int nkey);
 int get_int_from_keymap (const char *key, GModule module);
 int get_int_from_str_key (GHashTable * ht, const char *key);
-int get_num_from_key (int data_nkey, GModule module, GMetric metric);
+int get_num_from_key (int data_nkey, GModule module, GSMetric metric);
 int process_host_agents (char *host, char *agent);
-uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
+uint64_t get_cumulative_from_key (int data_nkey, GModule module, GSMetric metric);
 unsigned int get_uint_from_str_key (GHashTable *ht, const char *key);
 void free_storage (void);
 void *get_host_agent_list (int data_nkey);
