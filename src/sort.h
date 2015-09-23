@@ -35,6 +35,7 @@
 #define SORT_MODULE_LEN 15 + 1  /* longest module name */
 #define SORT_ORDER_LEN   4 + 1
 
+/* Enumerated sorting metrics */
 typedef enum GSortField_
 {
   SORT_BY_HITS,
@@ -48,12 +49,14 @@ typedef enum GSortField_
   SORT_BY_MTHD,
 } GSortField;
 
+/* Enumerated sorting order */
 typedef enum GSortOrder_
 {
   SORT_ASC,
   SORT_DESC
 } GSortOrder;
 
+/* Sorting of each panel, metric and order */
 typedef struct GSort_
 {
   GModule module;

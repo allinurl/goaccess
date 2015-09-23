@@ -223,6 +223,7 @@
 #include "commons.h"
 #include "sort.h"
 
+/* Curses dashboard find */
 typedef struct GFind_
 {
   GModule module;
@@ -235,12 +236,14 @@ typedef struct GFind_
   int icase;
 } GFind;
 
+/* Each panel contains its own scrolling and offset */
 typedef struct GScrollModule_
 {
   int scroll;
   int offset;
 } GScrollModule;
 
+/* Curses Scrolling */
 typedef struct GScroll_
 {
   GScrollModule module[TOTAL_MODULES];
@@ -249,6 +252,7 @@ typedef struct GScroll_
   int expanded;
 } GScroll;
 
+/* Spinner or Progress Indicator */
 typedef struct GSpinner_
 {
   const char *label;

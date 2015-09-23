@@ -74,6 +74,7 @@ extern size_t term_w;
 #define REQ_PROTO_LEN     9
 #define REQ_METHOD_LEN    8
 
+/* Type of IP */
 typedef enum
 {
   TYPE_IPINV,
@@ -88,6 +89,7 @@ typedef enum
   REQUEST_PROTOCOL
 } GReqMeta;
 
+/* Type of Modules */
 typedef enum MODULES
 {
   VISITORS,
@@ -107,6 +109,7 @@ typedef enum MODULES
   STATUS_CODES,
 } GModule;
 
+/* Metrics within GHolder or GDashData */
 typedef struct GMetrics
 {
   /* metric id can be used to identify
@@ -153,6 +156,7 @@ typedef struct GMetrics
   } maxts;
 } GMetrics;
 
+/* Holder sub item */
 typedef struct GSubItem_
 {
   GModule module;
@@ -161,6 +165,7 @@ typedef struct GSubItem_
   struct GSubItem_ *next;
 } GSubItem;
 
+/* Double linked-list of sub items */
 typedef struct GSubList_
 {
   int size;
@@ -168,12 +173,14 @@ typedef struct GSubList_
   struct GSubItem_ *tail;
 } GSubList;
 
+/* Holder item */
 typedef struct GHolderItem_
 {
   GSubList *sub_list;
   GMetrics *metrics;
 } GHolderItem;
 
+/* Holder of GRawData */
 typedef struct GHolder_
 {
   GHolderItem *items;           /* items */
@@ -184,12 +191,14 @@ typedef struct GHolder_
   int sub_items_size;           /* total number of sub items  */
 } GHolder;
 
+/* Enum-to-string */
 typedef struct GEnum_
 {
   const char *str;
   int idx;
 } GEnum;
 
+/* A metric can contain a root/data/uniq node id */
 typedef struct GDataMap_
 {
   int data;
@@ -208,7 +217,7 @@ typedef struct GAgents_
   struct GAgentItem_ *items;
 } GAgents;
 
-/* single linked-list */
+/* Generic Single linked-list */
 typedef struct GSLList_
 {
   void *data;

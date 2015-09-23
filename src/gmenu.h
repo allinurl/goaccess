@@ -45,12 +45,14 @@ enum ACTION
 typedef struct GMenu_ GMenu;
 typedef struct GItem_ GItem;
 
+/* Menu Item */
 struct GItem_
 {
   char *name;
   int checked;
 };
 
+/* Menu Panel */
 struct GMenu_
 {
   WINDOW *win;

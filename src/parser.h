@@ -30,6 +30,7 @@
 
 #include "commons.h"
 
+/* Log properties. Note: This is per line parsed */
 typedef struct GLogItem_
 {
   char *agent;
@@ -64,6 +65,7 @@ typedef struct GLogItem_
   int agent_nkey;
 } GLogItem;
 
+/* Overall parsed log properties */
 typedef struct GLog_
 {
   unsigned int excluded_ip;
@@ -77,12 +79,14 @@ typedef struct GLog_
   GLogItem *items;
 } GLog;
 
+/* Raw Data extracted from table stores */
 typedef struct GRawDataItem_
 {
   void *key;
   void *value;
 } GRawDataItem;
 
+/* Raw Data per module */
 typedef struct GRawData_
 {
   GRawDataItem *items;          /* data */

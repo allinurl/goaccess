@@ -50,6 +50,7 @@
 #define COLUMN_HITS_LEN  4
 #define COLUMN_VIS_LEN   4
 
+/* Render holder */
 typedef struct GDashRender_
 {
   WINDOW *win;
@@ -59,12 +60,14 @@ typedef struct GDashRender_
   int sel;
 } GDashRender;
 
+/* Dashboard panel item */
 typedef struct GDashData_
 {
   GMetrics *metrics;
   short is_subitem;
 } GDashData;
 
+/* Dashboard panel */
 typedef struct GDashModule_
 {
   GDashData *data;
@@ -86,6 +89,7 @@ typedef struct GDashModule_
   unsigned short pos_y;
 } GDashModule;
 
+/* Dashboard */
 typedef struct GDash_
 {
   int total_alloc;
