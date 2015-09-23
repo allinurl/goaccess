@@ -95,7 +95,7 @@ uint642ptr (uint64_t val)
 }
 
 void *
-get_storage_metric_by_module (GModule module, GMetric metric)
+get_storage_metric_by_module (GModule module, GSMetric metric)
 {
   void *ht;
   GStorageMetrics *metrics;
@@ -175,7 +175,7 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int valid)
 }
 
 void *
-get_storage_metric (GModule module, GMetric metric)
+get_storage_metric (GModule module, GSMetric metric)
 {
   return get_storage_metric_by_module (module, metric);
 }

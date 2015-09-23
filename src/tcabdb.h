@@ -43,7 +43,7 @@ extern TCADB *ht_unique_keys;
 /* *INDENT-OFF* */
 GRawData *parse_raw_data (void *db, int ht_size, GModule module);
 
-uint32_t get_ht_size_by_metric (GModule module, GMetric metric);
+uint32_t get_ht_size_by_metric (GModule module, GSMetric metric);
 uint32_t get_ht_size (TCADB *adb);
 
 int agent_list_to_store(void);
@@ -64,13 +64,13 @@ int ht_max_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t newval);
 
 char *get_host_agent_val (int agent_nkey);
 char *get_hostname (const char *host);
-char *get_node_from_key (int data_nkey, GModule module, GMetric metric);
+char *get_node_from_key (int data_nkey, GModule module, GSMetric metric);
 char *get_root_from_key (int root_nkey, GModule module);
 char *get_str_from_int_key (TCADB *adb, int nkey);
 int get_int_from_keymap (const char * key, GModule module);
 int get_int_from_str_key (TCADB *adb, const char *key);
-int get_num_from_key (int data_nkey, GModule module, GMetric metric);
-uint64_t get_cumulative_from_key (int data_nkey, GModule module, GMetric metric);
+int get_num_from_key (int data_nkey, GModule module, GSMetric metric);
+uint64_t get_cumulative_from_key (int data_nkey, GModule module, GSMetric metric);
 unsigned int get_uint_from_str_key (TCADB * adb, const char *key);
 void *get_host_agent_list(int agent_nkey);
 
