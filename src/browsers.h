@@ -23,6 +23,7 @@
 
 #define BROWSER_TYPE_LEN 13
 
+/* Each Browser contains the number of hits and the Browser's type */
 typedef struct GBrowser_
 {
   char browser_type[BROWSER_TYPE_LEN];

@@ -77,6 +77,7 @@ typedef struct GConfKeyword_
   const char *keyword;
 } GConfKeyword;
 
+/* All configuration properties */
 typedef struct GConf_
 {
   char *date_format;
