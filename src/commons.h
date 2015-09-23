@@ -82,13 +82,6 @@ typedef enum
   TYPE_IPV6
 } GTypeIP;
 
-typedef enum
-{
-  REQUEST,
-  REQUEST_METHOD,
-  REQUEST_PROTOCOL
-} GReqMeta;
-
 /* Type of Modules */
 typedef enum MODULES
 {
