@@ -71,12 +71,6 @@ typedef struct GPreConfLog_
   const char *awselb;
 } GPreConfLog;
 
-typedef struct GConfKeyword_
-{
-  const unsigned short key_id;
-  const char *keyword;
-} GConfKeyword;
-
 /* All configuration properties */
 typedef struct GConf_
 {
