@@ -31,7 +31,6 @@
 
 #include "color.h"
 
-#include "commons.h"
 #include "error.h"
 #include "util.h"
 #include "xmalloc.h"
