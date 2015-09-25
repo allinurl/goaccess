@@ -26,7 +26,6 @@
 #include "browsers.h"
 
 #include "util.h"
-#include "error.h"
 #include "xmalloc.h"
 
 /* ###NOTE: The size of the list is proportional to the run time,
