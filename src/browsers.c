@@ -106,12 +106,19 @@ static const char *browsers[][2] = {
   {"NewsBlur", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
+  /* Google crawlers (some based on Chrome,
+   * therefore up on the list) */
+  {"Googlebot", "Crawlers"},
+  {"AdsBot-Google", "Crawlers"},
+  {"AppEngine-Google", "Crawlers"},
+  {"Mediapartners-Google", "Crawlers"},
+  {"Google", "Crawlers"},
+
   /* Based on Firefox */
   {"Camino", "Others"},
   /* Rebranded Firefox but is really unmodified
    * Firefox (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
-  /* Mozilla Firefox */
   {"Firefox", "Firefox"},
 
   /* Based on Chromium */
@@ -124,10 +131,6 @@ static const char *browsers[][2] = {
   {"Safari", "Safari"},
 
   /* Crawlers/Bots */
-  {"AdsBot-Google", "Crawlers"},
-  {"Mediapartners-Google", "Crawlers"},
-  {"AppEngine-Google", "Crawlers"},
-  {"Google", "Crawlers"},
   {"bingbot", "Crawlers"},
   {"msnbot", "Crawlers"},
   {"Yandex", "Crawlers"},
