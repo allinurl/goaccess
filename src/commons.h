@@ -41,9 +41,6 @@
 #define GO_WEBSITE 		"http://goaccess.io/"
 struct tm *now_tm;
 
-#define INT_TO_PTR(i) ((void *) (long) (i))
-#define PTR_TO_INT(p) ((int) (long) (p))
-
 /* Processing time */
 extern time_t end_proc;
 extern time_t timestamp;
