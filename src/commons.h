@@ -69,7 +69,6 @@ extern size_t term_w;
 #define HOUR_LEN          3     /* hour length */
 
 #define REQ_PROTO_LEN     9
-#define REQ_METHOD_LEN    8
 
 /* Type of IP */
 typedef enum
