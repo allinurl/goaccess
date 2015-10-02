@@ -30,7 +30,7 @@ terminal. Features include:
 * Geo Location - Continent/Country/City
 * Visitors Time Distribution
 * HTTP Status Codes
-* Ability to output `HTML`, `JSON` and `CSV`
+* Ability to output **`HTML`**, **`JSON`** and **`CSV`**
 * Tailor GoAccess to suit your own color taste/schemes
 * Incremental log processing
 * Support for large datasets and data persistence
