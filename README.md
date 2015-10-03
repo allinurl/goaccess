@@ -30,7 +30,10 @@ terminal. Features include:
 * Geo Location - Continent/Country/City
 * Visitors Time Distribution
 * HTTP Status Codes
-* Ability to output **`HTML`**, **`JSON`** and **`CSV`**
+* Ability to output
+ [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
+ [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
+ [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
 * Tailor GoAccess to suit your own color taste/schemes
 * Incremental log processing
 * Support for large datasets and data persistence
