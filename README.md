@@ -57,8 +57,11 @@ The main idea behind GoAccess is being able to quickly analyze and view web
 server statistics in real time without having to generate an HTML report (_great
 if you want to do a quick analysis of your access log via SSH_).
 
-Although it is possible to generate an `HTML`, `JSON`, `CSV` report, by default it
-outputs to a terminal.
+Although it is possible to generate an
+ [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
+ [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
+ [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
+report, by default it outputs to a terminal.
 
 You can see it more of a monitor command tool than anything else.
 
