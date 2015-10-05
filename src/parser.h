@@ -22,7 +22,6 @@
 #define PARSER_H_INCLUDED
 
 #define LINE_BUFFER 	  4096
-#define BW_HASHTABLES   3
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
 #define REF_SITE_LEN    512
