@@ -311,7 +311,7 @@ panel_lookup (GModule module)
 GRawData *
 new_grawdata (void)
 {
-  GRawData *raw_data = xmalloc (sizeof (GRawData));
+  GRawData *raw_data = xmalloc (sizeof (*raw_data));
   memset (raw_data, 0, sizeof *raw_data);
 
   return raw_data;
@@ -321,7 +321,7 @@ new_grawdata (void)
 GRawDataItem *
 new_grawdata_item (unsigned int size)
 {
-  GRawDataItem *item = xcalloc (size, sizeof (GRawDataItem));
+  GRawDataItem *item = xcalloc (size, sizeof (*item));
   return item;
 }
 

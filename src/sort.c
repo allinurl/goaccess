@@ -459,6 +459,6 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
 GRawData *
 sort_raw_data (GRawData * raw, int ht_size)
 {
-  qsort (raw->items, ht_size, sizeof (GRawDataItem), cmp_raw_num_desc);
+  qsort (raw->items, ht_size, sizeof *(raw->items), cmp_raw_num_desc);
   return raw;
 }
