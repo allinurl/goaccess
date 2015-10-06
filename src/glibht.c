@@ -34,6 +34,7 @@
 
 #include "glibht.h"
 
+#include "error.h"
 #include "sort.h"
 #include "xmalloc.h"
 
