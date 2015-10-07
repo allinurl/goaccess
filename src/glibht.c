@@ -212,7 +212,7 @@ ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval)
 
 /* store generic data into the given hash table */
 int
-ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
+ht_insert_hit (GHashTable * ht, int data_nkey, int root_nkey)
 {
   GDataMap *map;
 
@@ -226,7 +226,6 @@ ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey)
     map = xcalloc (1, sizeof (GDataMap));
     map->data = 1;
     map->root = root_nkey;
-    map->uniq = uniq_nkey;
   }
   g_hash_table_replace (ht, int2ptr (data_nkey), map);
 

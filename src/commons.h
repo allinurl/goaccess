@@ -191,7 +191,6 @@ typedef struct GEnum_
 typedef struct GDataMap_
 {
   int data;
-  int uniq;
   int root;
 } GDataMap;
 
