@@ -54,7 +54,7 @@ int ht_inc_u64_from_int_key (TCADB * adb, int data_nkey, uint64_t inc);
 int ht_inc_u64_from_str_key (TCADB * adb, const char *key, uint64_t inc);
 int ht_insert_agent_key (const char *key);
 int ht_insert_agent_val(int nkey, const char *key);
-int ht_insert_hit (TCADB *adb, int data_nkey, int uniq_nkey, int root_nkey);
+int ht_insert_hit (TCADB *adb, int data_nkey, int root_nkey);
 int ht_insert_keymap (TCADB * adb, const char *value);
 int ht_insert_nkey_nval (TCADB * adb, int nkey, int nval);
 int ht_insert_str_from_int_key (TCADB *adb, int nkey, const char *value);

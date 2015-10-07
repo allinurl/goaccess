@@ -307,7 +307,7 @@ ht_insert_nkey_nval (TCADB * adb, int nkey, int nval)
 }
 
 int
-ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
+ht_insert_hit (TCADB * adb, int data_nkey, int root_nkey)
 {
   int sp = 0;
   GDataMap *map;
@@ -321,7 +321,6 @@ ht_insert_hit (TCADB * adb, int data_nkey, int uniq_nkey, int root_nkey)
     map = xcalloc (1, sizeof (GDataMap));
     map->data = 1;
     map->root = root_nkey;
-    map->uniq = uniq_nkey;
   }
   if (!tcadbput (adb, &data_nkey, sizeof (int), map, sizeof (GDataMap)))
     LOG_DEBUG (("Unable to tcadbput\n"));

@@ -90,8 +90,7 @@ static void insert_data (int data_nkey, const char *data, GModule module);
 static void insert_root (int root_nkey, const char *root, GModule module);
 
 /* insertion metric routines */
-static void insert_hit (int data_nkey, int uniq_nkey, int root_nkey,
-                        GModule module);
+static void insert_hit (int data_nkey, int root_nkey, GModule module);
 static void insert_visitor (int uniq_nkey, GModule module);
 static void insert_bw (int data_nkey, uint64_t size, GModule module);
 static void insert_cumts (int data_nkey, uint64_t ts, GModule module);
@@ -1263,12 +1262,12 @@ insert_data (int nkey, const char *data, GModule module)
 }
 
 static void
-insert_hit (int data_nkey, int uniq_nkey, int root_nkey, GModule module)
+insert_hit (int data_nkey, int root_nkey, GModule module)
 {
   GStorageMetrics *metrics;
   metrics = get_storage_metrics_by_module (module);
 
-  ht_insert_hit (metrics->hits, data_nkey, uniq_nkey, root_nkey);
+  ht_insert_hit (metrics->hits, data_nkey, root_nkey);
 }
 
 static void
@@ -1678,7 +1677,7 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
     parse->rootmap (kdata->root_nkey, kdata->root, module);
   /* insert hits */
   if (parse->hits)
-    parse->hits (kdata->data_nkey, kdata->uniq_nkey, kdata->root_nkey, module);
+    parse->hits (kdata->data_nkey, kdata->root_nkey, module);
   /* insert visitors */
   if (parse->visitor && kdata->uniq_nkey != 0)
     parse->visitor (kdata->data_nkey, module);

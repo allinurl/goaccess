@@ -47,7 +47,7 @@ int ht_inc_u64_from_int_key (GHashTable * ht, int data_nkey, uint64_t inc);
 int ht_insert_agent(const char *key);
 int ht_insert_agent_key (const char *key);
 int ht_insert_agent_val (int nkey, const char *key);
-int ht_insert_hit (GHashTable * ht, int data_nkey, int uniq_nkey, int root_nkey);
+int ht_insert_hit (GHashTable * ht, int data_nkey, int root_nkey);
 int ht_insert_host_agent (GHashTable * ht, int data_nkey, int agent_nkey);
 int ht_insert_keymap(GHashTable *ht,  const char *value);
 int ht_insert_nkey_nval (GHashTable * ht, int nkey, int nval);
