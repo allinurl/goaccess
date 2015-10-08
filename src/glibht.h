@@ -60,7 +60,7 @@ char *get_host_agent_val (int agent_nkey);
 char *get_hostname (const char *host);
 char *get_node_from_key (int data_nkey, GModule module, GSMetric metric);
 char *get_root_from_key (int root_nkey, GModule module);
-char * get_str_from_int_key (GHashTable *ht, int nkey);
+char *get_str_from_int_key (GHashTable *ht, int nkey);
 int get_int_from_keymap (const char *key, GModule module);
 int get_int_from_str_key (GHashTable * ht, const char *key);
 int get_num_from_key (int data_nkey, GModule module, GSMetric metric);

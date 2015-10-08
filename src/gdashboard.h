@@ -97,7 +97,7 @@ typedef struct GDash_
 } GDash;
 
 /* Function Prototypes */
-GDashData * new_gdata (uint32_t size);
+GDashData *new_gdata (uint32_t size);
 GDash *new_gdash (void);
 int get_num_collapsed_data_rows(void);
 int get_num_expanded_data_rows(void);
