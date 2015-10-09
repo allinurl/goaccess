@@ -1019,7 +1019,7 @@ out:
 
   /* no valid entries to process from the log */
   if (logger->valid == 0)
-    FATAL ("Nothing valid to process.");
+    FATAL ("Nothing valid to process. Verify your date/time/log format.");
 
   /* init reverse lookup thread */
   gdns_init ();
