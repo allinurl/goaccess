@@ -716,6 +716,9 @@ exports, and as an expandable panel in the HTML report (upper-right corner).
 Piping a log to GoAccess will disable the real-time functionality. This is due
 to the portability issue on determining the actual size of STDIN. However, a
 future release *might* include this feature.
+.P
+A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
+requests with the same IP, date, and user agent are considered a unique visit.
 .SH BUGS
 If you think you have found a bug, please send me an email to
 .I goaccess@prosoftcorp.com
