@@ -1,3 +1,5 @@
+Changes to GoAccess 0.9.5 - TBD 
+
 Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
 
   - Fixed inability to parse color due to a missing POSIX extension. ERR:
