@@ -31,14 +31,9 @@
 
 #include "gdashboard.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "glibht.h"
-#endif
-
-#include "error.h"
 #include "color.h"
+#include "error.h"
+#include "gstorage.h"
 #include "util.h"
 #include "xmalloc.h"
 

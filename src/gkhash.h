@@ -18,20 +18,26 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
-#if HAVE_CONFIG_H
-#include <config.h>
-#endif
+#ifndef GKHASH_H_INCLUDED
+#define GKHASH_H_INCLUDED
 
-#ifndef TCABDB_H_INCLUDED
-#define TCABDB_H_INCLUDED
-
-#include <tcadb.h>
-
-#include "commons.h"
-#include "gstorage.h"
+#include <stdint.h>
 #include "parser.h"
+#include "gstorage.h"
+#include "khash.h"
 
-#define DB_PARAMS 256
+/* int keys, int payload */
+KHASH_MAP_INIT_INT (ii32, int);
+/* int keys, string payload */
+KHASH_MAP_INIT_INT (is32, char *);
+/* int keys, uint64_t payload */
+KHASH_MAP_INIT_INT (iu64, uint64_t);
+/* string keys, int payload */
+KHASH_MAP_INIT_STR (si32, int);
+/* string keys, string payload */
+KHASH_MAP_INIT_STR (ss32, char *);
+/* int keys, GSLList payload */
+KHASH_MAP_INIT_INT (igsl, GSLList *);
 
 /* Metrics Storage */
 
@@ -138,23 +144,46 @@
 /*khash_t(i32) *agents;*/
 
 /* Enumerated Storage Metrics */
-typedef struct GTCStorageMetric_
+typedef enum GSMetricType_
+{
+  /* int key - int val */
+  MTRC_TYPE_II32,
+  /* int key - string val */
+  MTRC_TYPE_IS32,
+  /* int key - uint64_t val */
+  MTRC_TYPE_IU64,
+  /* string key - int val */
+  MTRC_TYPE_SI32,
+  /* string key - string val */
+  MTRC_TYPE_SS32,
+  /* int key - GSLList val */
+  MTRC_TYPE_IGSL,
+} GSMetricType;
+
+typedef struct GKHashMetric_
 {
   GSMetric metric;
-  const char *dbname;
-  void *store;
-} GTCStorageMetric;
+  GSMetricType type;
+  union
+  {
+    khash_t (ii32) * ii32;
+    khash_t (is32) * is32;
+    khash_t (iu64) * iu64;
+    khash_t (si32) * si32;
+    khash_t (ss32) * ss32;
+    khash_t (igsl) * igsl;
+  };
+} GKHashMetric;
 
 /* Data Storage per module */
-typedef struct GTCStorage_
+typedef struct GKHashStorage_
 {
   GModule module;
-  GTCStorageMetric metrics[GSMTRC_TOTAL];
-} GTCStorage;
+  GKHashMetric metrics[GSMTRC_TOTAL];
+} GKHashStorage;
 
 void init_storage (void);
 void free_storage (void);
-void free_agent_list (void);
 
 int ht_insert_unique_key (const char *key);
 int ht_insert_agent_key (const char *key);
@@ -174,8 +203,6 @@ int ht_insert_method (GModule module, int key, const char *value);
 int ht_insert_protocol (GModule module, int key, const char *value);
 int ht_insert_agent (GModule module, int key, int value);
 int ht_insert_hostname (const char *ip, const char *host);
-int ht_insert_genstats (const char *key, int inc);
-int ht_insert_genstats_bw (const char *key, uint64_t inc);
 
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_uniqmap (GModule module);
@@ -189,17 +216,11 @@ char *ht_get_root (GModule module, int key);
 int ht_get_keymap (GModule module, const char *key);
 int ht_get_uniqmap (GModule module, const char *key);
 int ht_get_visitors (GModule module, int key);
-uint32_t ht_get_genstats (const char *key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
 uint64_t ht_get_maxts (GModule module, int key);
-
-GSLList *tclist_to_gsllist (TCLIST * tclist);
 GSLList *ht_get_host_agent_list (GModule module, int key);
-TCLIST *ht_get_host_agent_tclist (GModule module, int key);
 
 GRawData *parse_raw_data (GModule module);
 
-/* *INDENT-ON* */
-
-#endif
+#endif // for #ifndef GKHASH_H

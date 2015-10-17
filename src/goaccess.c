@@ -45,7 +45,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #ifdef HAVE_LIBGEOIP
@@ -102,11 +102,8 @@ static GScroll gscroll = {
 static void
 house_keeping (void)
 {
-#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
-  GModule module;
-#endif
-
-#ifndef TCB_BTREE
+#ifdef TCB_MEMHASH
+  /* free malloc'd int values on the agent list */
   if (conf.list_agents)
     free_agent_list ();
 #endif
@@ -120,9 +117,9 @@ house_keeping (void)
 
   /* free uniqmap */
 #if defined(TCB_BTREE) || defined(TCB_MEMHASH)
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    free_db_key (get_storage_metric (module, MTRC_UNIQMAP));
-  }
+  /*for (module = 0; module < TOTAL_MODULES; module++) { */
+  /*free_db_key (get_storage_metric (module, MTRC_UNIQMAP)); */
+  /*} */
 #endif
   free_storage ();
 
@@ -165,19 +162,15 @@ house_keeping (void)
 static void
 allocate_holder_by_module (GModule module)
 {
-#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
-  TCADB *ht = NULL;
-#else
-  GHashTable *ht;
-#endif
-
   GRawData *raw_data;
-  unsigned int ht_size = 0;
 
   /* extract data from the corresponding hash table */
-  ht = get_storage_metric (module, MTRC_HITS);
-  ht_size = get_ht_size (ht);
-  raw_data = parse_raw_data (ht, ht_size, module);
+  raw_data = parse_raw_data (module);
+  if (!raw_data) {
+    LOG_DEBUG (("raw data is NULL for module: %d.\n", module));
+    return;
+  }
+
   load_holder_data (raw_data, holder + module, module, module_sort[module]);
 }
 
@@ -847,15 +840,14 @@ set_general_stats (void)
 
   logger->valid = logger->processed = logger->invalid = logger->excluded_ip = 0;
 #ifdef TCB_BTREE
-  logger->excluded_ip = get_uint_from_str_key (ht_general_stats, "excluded_ip");
-  logger->invalid = get_uint_from_str_key (ht_general_stats, "failed_requests");
-  logger->processed =
-    get_uint_from_str_key (ht_general_stats, "total_requests");
-  logger->resp_size = get_uint_from_str_key (ht_general_stats, "bandwidth");
-  logger->valid = get_uint_from_str_key (ht_general_stats, "valid_requests");
+  logger->excluded_ip = ht_get_genstats ("excluded_ip");
+  logger->invalid = ht_get_genstats ("failed_requests");
+  logger->processed = ht_get_genstats ("total_requests");
+  logger->resp_size = ht_get_genstats ("bandwidth");
+  logger->valid = ht_get_genstats ("valid_requests");
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
-  if (get_uint_from_str_key (ht_general_stats, "serve_usecs"))
+  if (ht_get_genstats ("serve_usecs"))
     conf.serve_usecs = 1;
 #endif
 }

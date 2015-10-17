@@ -31,51 +31,12 @@
 #include "error.h"
 #include "xmalloc.h"
 
-GStorage *
-new_gstorage (uint32_t size)
-{
-  GStorage *store = xcalloc (size, sizeof (GStorage));
-  return store;
-}
-
 GMetrics *
 new_gmetrics (void)
 {
   GMetrics *metrics = xcalloc (1, sizeof (GMetrics));
 
   return metrics;
-}
-
-GStorageMetrics *
-new_ht_metrics (void)
-{
-  GStorageMetrics *metrics = xmalloc (sizeof (GStorageMetrics));
-
-  memset (metrics, 0, sizeof *metrics);
-
-  /* maps */
-  metrics->keymap = NULL;
-  metrics->datamap = NULL;
-  metrics->rootmap = NULL;
-  metrics->uniqmap = NULL;
-
-  /* metrics */
-  metrics->hits = NULL;
-  metrics->visitors = NULL;
-  metrics->bw = NULL;
-  metrics->cumts = NULL;
-  metrics->maxts = NULL;
-  metrics->protocols = NULL;
-  metrics->methods = NULL;
-  metrics->agents = NULL;
-
-  return metrics;
-}
-
-GStorageMetrics *
-get_storage_metrics_by_module (GModule module)
-{
-  return ht_storage[module].metrics;
 }
 
 int *
@@ -92,57 +53,6 @@ uint642ptr (uint64_t val)
   uint64_t *ptr = xmalloc (sizeof (uint64_t));
   *ptr = val;
   return ptr;
-}
-
-void *
-get_storage_metric_by_module (GModule module, GSMetric metric)
-{
-  void *ht;
-  GStorageMetrics *metrics;
-
-  metrics = get_storage_metrics_by_module (module);
-  switch (metric) {
-  case MTRC_KEYMAP:
-    ht = metrics->keymap;
-    break;
-  case MTRC_ROOTMAP:
-    ht = metrics->rootmap;
-    break;
-  case MTRC_DATAMAP:
-    ht = metrics->datamap;
-    break;
-  case MTRC_UNIQMAP:
-    ht = metrics->uniqmap;
-    break;
-  case MTRC_HITS:
-    ht = metrics->hits;
-    break;
-  case MTRC_VISITORS:
-    ht = metrics->visitors;
-    break;
-  case MTRC_BW:
-    ht = metrics->bw;
-    break;
-  case MTRC_CUMTS:
-    ht = metrics->cumts;
-    break;
-  case MTRC_MAXTS:
-    ht = metrics->maxts;
-    break;
-  case MTRC_METHODS:
-    ht = metrics->methods;
-    break;
-  case MTRC_PROTOCOLS:
-    ht = metrics->protocols;
-    break;
-  case MTRC_AGENTS:
-    ht = metrics->agents;
-    break;
-  default:
-    ht = NULL;
-  }
-
-  return ht;
 }
 
 void
@@ -172,10 +82,4 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int valid)
     metrics->protocol = ometrics->protocol;
 
   *nmetrics = metrics;
-}
-
-void *
-get_storage_metric (GModule module, GSMetric metric)
-{
-  return get_storage_metric_by_module (module, metric);
 }

@@ -27,12 +27,6 @@
 #include "commons.h"
 #include "sort.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "glibht.h"
-#endif
-
 /* Function Prototypes */
 GHolder *new_gholder (uint32_t size);
 void *add_hostname_node (void *ptr_holder);

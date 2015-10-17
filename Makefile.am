@@ -57,8 +57,9 @@ goaccess_SOURCES += \
    src/tcbtdb.h
 else
 goaccess_SOURCES += \
-   src/glibht.c     \
-   src/glibht.h
+   src/khash.h      \
+   src/gkhash.c     \
+   src/gkhash.h
 endif
 
 if GEOLOCATION
@@ -77,7 +78,6 @@ if WITH_RDYNAMIC
 AM_LDFLAGS = -rdynamic
 endif
 
-AM_CFLAGS += @GLIB2_CFLAGS@
 AM_CFLAGS += -Wno-long-long -Wall -W -Wnested-externs -Wformat=2
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare

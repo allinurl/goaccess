@@ -50,7 +50,7 @@
 #include "tcabdb.h"
 #include "tcbtdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #ifdef HAVE_LIBGEOIP
@@ -87,10 +87,10 @@ static int gen_geolocation_key (GKeyData * kdata, GLogItem * glog);
 
 /* insertion routines */
 static void insert_data (int data_nkey, const char *data, GModule module);
-static void insert_root (int root_nkey, const char *root, GModule module);
+static void insert_rootmap (int root_nkey, const char *root, GModule module);
 
 /* insertion metric routines */
-static void insert_hit (int data_nkey, int root_nkey, GModule module);
+static void insert_hit (int data_nkey, GModule module);
 static void insert_visitor (int uniq_nkey, GModule module);
 static void insert_bw (int data_nkey, uint64_t size, GModule module);
 static void insert_cumts (int data_nkey, uint64_t ts, GModule module);
@@ -170,7 +170,7 @@ static GParse paneling[] = {
     OS,
     gen_os_key,
     insert_data,
-    insert_root,
+    insert_rootmap,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -183,7 +183,7 @@ static GParse paneling[] = {
     BROWSERS,
     gen_browser_key,
     insert_data,
-    insert_root,
+    insert_rootmap,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -237,7 +237,7 @@ static GParse paneling[] = {
     GEO_LOCATION,
     gen_geolocation_key,
     insert_data,
-    insert_root,
+    insert_rootmap,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -252,7 +252,7 @@ static GParse paneling[] = {
     STATUS_CODES,
     gen_status_code_key,
     insert_data,
-    insert_root,
+    insert_rootmap,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -328,15 +328,15 @@ new_grawdata_item (unsigned int size)
 void
 free_raw_data (GRawData * raw_data)
 {
-#ifdef HAVE_LIBTOKYOCABINET
-  int i;
-  for (i = 0; i < raw_data->size; i++) {
-    if (raw_data->items[i].key != NULL)
-      free (raw_data->items[i].key);
-    if (raw_data->items[i].value != NULL)
-      free (raw_data->items[i].value);
-  }
-#endif
+//#ifdef HAVE_LIBTOKYOCABINET
+//  int i;
+//  for (i = 0; i < raw_data->size; i++) {
+//    if (raw_data->items[i].key != NULL)
+//      free (raw_data->items[i].key);
+//    if (raw_data->items[i].value != NULL)
+//      free (raw_data->items[i].value);
+//  }
+//#endif
   free (raw_data->items);
   free (raw_data);
 }
@@ -685,7 +685,7 @@ contains_usecs (void)
     return;
 
 #ifdef TCB_BTREE
-  ht_inc_int_from_str_key (ht_general_stats, "serve_usecs", 1);
+  ht_insert_genstats ("serve_usecs", 1);
 #endif
   conf.serve_usecs = 1; /* flag */
 }
@@ -1121,7 +1121,7 @@ inc_resp_size (GLog * logger, uint64_t resp_size)
 {
   logger->resp_size += resp_size;
 #ifdef TCB_BTREE
-  ht_inc_u64_from_str_key (ht_general_stats, "bandwidth", resp_size);
+  ht_insert_genstats_bw ("bandwidth", resp_size);
 #endif
 }
 
@@ -1131,7 +1131,7 @@ count_invalid (GLog * logger, const char *line, int test)
   logger->invalid++;
 #ifdef TCB_BTREE
   if (!test)
-    ht_inc_int_from_str_key (ht_general_stats, "failed_requests", 1);
+    ht_insert_genstats ("failed_requests", 1);
 #else
   (void) test;
 #endif
@@ -1146,7 +1146,7 @@ count_valid (GLog * logger, int test)
   logger->valid++;
 #ifdef TCB_BTREE
   if (!test)
-    ht_inc_int_from_str_key (ht_general_stats, "valid_requests", 1);
+    ht_insert_genstats ("valid_requests", 1);
 #else
   (void) test;
 #endif
@@ -1160,7 +1160,7 @@ count_process (GLog * logger, int test)
   logger->processed++;
 #ifdef TCB_BTREE
   if (!test)
-    ht_inc_int_from_str_key (ht_general_stats, "total_requests", 1);
+    ht_insert_genstats ("total_requests", 1);
 #else
   (void) test;
 #endif
@@ -1174,7 +1174,7 @@ excluded_ip (GLog * logger, GLogItem * glog, int test)
     logger->excluded_ip++;
 #ifdef TCB_BTREE
     if (!test)
-      ht_inc_int_from_str_key (ht_general_stats, "excluded_ip", 1);
+      ht_insert_genstats ("excluded_ip", 1);
 #else
     (void) test;
 #endif
@@ -1226,111 +1226,81 @@ is_404 (GLogItem * glog)
 }
 
 static int
-insert_keymap (const char *key, GModule module)
+insert_keymap (char *key, GModule module)
 {
-  GStorageMetrics *metrics;
-
-  metrics = get_storage_metrics_by_module (module);
-  return ht_insert_keymap (metrics->keymap, key);
-}
-
-static int
-insert_uniqmap (char *uniq_key, GModule module)
-{
-  GStorageMetrics *metrics;
-
-  metrics = get_storage_metrics_by_module (module);
-  return ht_insert_uniqmap (metrics->uniqmap, uniq_key);
-}
-
-static void
-insert_root (int root_nkey, const char *root, GModule module)
-{
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_insert_str_from_int_key (metrics->rootmap, root_nkey, root);
+  return ht_insert_keymap (module, key);
 }
 
 static void
 insert_data (int nkey, const char *data, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
+  ht_insert_datamap (module, nkey, data);
+}
 
-  ht_insert_str_from_int_key (metrics->datamap, nkey, data);
+static int
+insert_uniqmap (char *uniq_key, GModule module)
+{
+  return ht_insert_uniqmap (module, uniq_key);
 }
 
 static void
-insert_hit (int data_nkey, int root_nkey, GModule module)
+insert_rootmap (int root_nkey, const char *root, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
+  ht_insert_rootmap (module, root_nkey, root);
+}
 
-  ht_insert_hit (metrics->hits, data_nkey, root_nkey);
+static void
+insert_root (int data_nkey, int root_nkey, GModule module)
+{
+  ht_insert_root (module, data_nkey, root_nkey);
+}
+
+static void
+insert_hit (int data_nkey, GModule module)
+{
+  ht_insert_hits (module, data_nkey, 1);
 }
 
 static void
 insert_visitor (int uniq_nkey, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_inc_int_from_int_key (metrics->visitors, uniq_nkey, 1);
+  ht_insert_visitor (module, uniq_nkey, 1);
 }
 
 static void
 insert_bw (int data_nkey, uint64_t size, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_inc_u64_from_int_key (metrics->bw, data_nkey, size);
+  ht_insert_bw (module, data_nkey, size);
 }
 
 static void
 insert_cumts (int data_nkey, uint64_t ts, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_inc_u64_from_int_key (metrics->cumts, data_nkey, ts);
+  ht_insert_cumts (module, data_nkey, ts);
 }
 
 static void
 insert_maxts (int data_nkey, uint64_t ts, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_max_u64_from_int_key (metrics->maxts, data_nkey, ts);
+  ht_insert_maxts (module, data_nkey, ts);
 }
 
 static void
 insert_method (int nkey, const char *data, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_insert_str_from_int_key (metrics->methods, nkey, data ? data : "---");
+  ht_insert_method (module, nkey, data ? data : "---");
 }
 
 static void
 insert_protocol (int nkey, const char *data, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_insert_str_from_int_key (metrics->protocols, nkey, data ? data : "---");
+  ht_insert_protocol (module, nkey, data ? data : "---");
 }
 
 static void
 insert_agent (int data_nkey, int agent_nkey, GModule module)
 {
-  GStorageMetrics *metrics;
-  metrics = get_storage_metrics_by_module (module);
-
-  ht_insert_host_agent (metrics->agents, data_nkey, agent_nkey);
+  ht_insert_agent (module, data_nkey, agent_nkey);
 }
 
 /* The following generates a unique key to identity unique visitors.
@@ -1672,12 +1642,14 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
   /* insert data */
   parse->datamap (kdata->data_nkey, kdata->data, module);
 
-  /* insert root */
-  if (parse->rootmap)
+  /* insert rootmap and root-data map */
+  if (parse->rootmap) {
     parse->rootmap (kdata->root_nkey, kdata->root, module);
+    insert_root (kdata->data_nkey, kdata->root_nkey, module);
+  }
   /* insert hits */
   if (parse->hits)
-    parse->hits (kdata->data_nkey, kdata->root_nkey, module);
+    parse->hits (kdata->data_nkey, module);
   /* insert visitors */
   if (parse->visitor && kdata->uniq_nkey != 0)
     parse->visitor (kdata->data_nkey, module);
@@ -1719,8 +1691,8 @@ map_log (GLogItem * glog, const GParse * parse, GModule module)
   if (parse->visitor && glog->uniq_key && include_uniq (glog)) {
     uniq_key = ints_to_str (glog->uniq_nkey, kdata.data_nkey);
     /* unique key already exists? */
-    if ((kdata.uniq_nkey = insert_uniqmap (uniq_key, module)) == 0)
-      free (uniq_key);
+    kdata.uniq_nkey = insert_uniqmap (uniq_key, module);
+    free (uniq_key);
   }
 
   /* root keys are optional */
@@ -1737,15 +1709,19 @@ process_log (GLogItem * glog)
 {
   GModule module;
 
-  /* insert one unique visitor key per request to avoid the
+  /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
   glog->uniq_nkey = ht_insert_unique_key (glog->uniq_key);
 
-  /* store unique user agents and retrieve its numeric key.  it maintains two
-   * maps, one for key -> value, and another map for value -> key*/
+  /* If we need to store user agents per IP, then we store them and retrieve
+   * its numeric key.
+   * It maintains two maps, one for key -> value, and another
+   * map for value -> key*/
   if (conf.list_agents) {
+    /* insert UA key and get a numeric value */
     glog->agent_nkey = ht_insert_agent_key (glog->agent);
-    ht_insert_agent_val (glog->agent_nkey, glog->agent);
+    /* insert a numeric key and map it to a UA string */
+    ht_insert_agent_value (glog->agent_nkey, glog->agent);
   }
 
   for (module = 0; module < TOTAL_MODULES; module++) {

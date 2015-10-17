@@ -38,7 +38,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #include "ui.h"
@@ -228,11 +228,11 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   /* visitors */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  total = ht_get_size_uniqmap (VISITORS);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VISITORS);
 
   /* files */
-  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FILES);
 
   /* excluded hits */
@@ -240,15 +240,15 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
 
   /* referrers */
-  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REFERRERS);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REF);
 
   /* not found */
-  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  total = ht_get_size_datamap (NOT_FOUND);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_NOTFOUND);
 
   /* static files */
-  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS_STATIC);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_STATIC);
 
   /* log size */
@@ -271,7 +271,7 @@ print_csv_summary (FILE * fp, GLog * logger)
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
-/* entry point to generate a a csv report writing it to the fp */
+/* Entry point to generate a a csv report writing it to the fp */
 void
 output_csv (GLog * logger, GHolder * holder)
 {

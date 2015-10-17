@@ -53,6 +53,7 @@
 #define DB_ROOTMAP   "db_rootmap.tcb"
 #define DB_UNIQMAP   "db_uniqmap.tcb"
 #define DB_VISITORS  "db_visitors.tcb"
+#define DB_ROOT      "db_root.tcb"
 #define DB_HITS      "db_hits.tcb"
 #define DB_BW        "db_bw.tcb"
 #define DB_CUMTS     "db_cumts.tcb"
@@ -62,14 +63,14 @@
 #define DB_AGENTS    "db_agents.tcb"
 
 /* *INDENT-OFF* */
-TCBDB * tc_bdb_create (const char *dbname, int module);
+TCBDB *tc_bdb_create (const char *dbname, int module);
 
-char * tc_db_set_path (const char *dbname, int module);
+char *tc_db_set_path (const char *dbname, int module);
 int tc_bdb_close (void *db, char *dbname);
 void tc_db_get_params (char *params, const char *path);
 
 #ifdef TCB_BTREE
-int ht_insert_host_agent (TCBDB * bdb, int data_nkey, int agent_nkey);
+int ins_igsl (void *hash, int key, int value);
 #endif
 /* *INDENT-ON* */
 
