@@ -81,8 +81,8 @@ typedef struct GLog_
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_
 {
-  void *key;
-  void *value;
+  int key;
+  int value;
 } GRawDataItem;
 
 /* Raw Data per module */
@@ -121,7 +121,7 @@ typedef struct GParse_
   void (*rootmap) (int root_nkey, const char *root, GModule module);
 
   /* metrics */
-  void (*hits) (int data_nkey, int root_nkey, GModule module);
+  void (*hits) (int data_nkey, GModule module);
   void (*visitor) (int uniq_nkey, GModule module);
   void (*bw) (int data_nkey, uint64_t size, GModule module);
   void (*cumts) (int data_nkey, uint64_t ts, GModule module);

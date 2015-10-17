@@ -51,7 +51,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #include "color.h"
@@ -389,31 +389,31 @@ get_str_valid_reqs (GLog * logger)
 static char *
 get_str_notfound_reqs (void)
 {
-  return int2str (get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP), 0);
+  return int2str (ht_get_size_datamap (NOT_FOUND), 0);
 }
 
 static char *
 get_str_ref_reqs (void)
 {
-  return int2str (get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP), 0);
+  return int2str (ht_get_size_datamap (REFERRERS), 0);
 }
 
 static char *
 get_str_reqs (void)
 {
-  return int2str (get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP), 0);
+  return int2str (ht_get_size_datamap (REQUESTS), 0);
 }
 
 static char *
 get_str_static_reqs (void)
 {
-  return int2str (get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP), 0);
+  return int2str (ht_get_size_datamap (REQUESTS_STATIC), 0);
 }
 
 static char *
 get_str_visitors (void)
 {
-  return int2str (get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP), 0);
+  return int2str (ht_get_size_uniqmap (VISITORS), 0);
 }
 
 static char *
@@ -681,7 +681,7 @@ static int
 fill_host_agents_gmenu (void *val, void *user_data)
 {
   GMenu *menu = user_data;
-  char *agent = get_host_agent_val ((*(int *) val));
+  char *agent = ht_get_host_agent_val ((*(int *) val));
 
   if (agent == NULL)
     return 1;
@@ -710,13 +710,13 @@ set_host_agents (const char *addr, void (*func) (void *, void *, int),
 {
   TCLIST *tclist;
   GSLList *list;
-  int data_nkey, count = 0;
+  int key, count = 0;
 
-  data_nkey = get_int_from_keymap (addr, HOSTS);
-  if (data_nkey == 0)
+  key = ht_get_keymap (HOSTS, addr);
+  if (key == 0)
     return 1;
 
-  tclist = get_host_agent_list (data_nkey);
+  tclist = ht_get_host_agent_tclist (HOSTS, key);
   if (!tclist)
     return 1;
 
@@ -743,11 +743,11 @@ set_host_agents (const char *addr, void (*func) (void *, void *, int),
   GSLList *list;
   int data_nkey, count = 0;
 
-  data_nkey = get_int_from_keymap (addr, HOSTS);
+  data_nkey = ht_get_keymap (HOSTS, addr);
   if (data_nkey == 0)
     return 1;
 
-  list = get_host_agent_list (data_nkey);
+  list = ht_get_host_agent_list (HOSTS, data_nkey);
   if (!list)
     return 1;
 
@@ -759,7 +759,6 @@ set_host_agents (const char *addr, void (*func) (void *, void *, int),
   func (list, arr, count);
 
 #ifdef TCB_MEMHASH
-  /*list_remove_nodes (list); */
   free (list);
 #endif
 

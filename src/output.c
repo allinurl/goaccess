@@ -38,7 +38,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #include "settings.h"
@@ -1333,7 +1333,7 @@ static int
 fill_host_agents (void *val, void *user_data)
 {
   GAgents *agents = user_data;
-  char *agent = get_host_agent_val ((*(int *) val));
+  char *agent = ht_get_host_agent_val ((*(int *) val));
 
   if (agent == NULL)
     return 1;
@@ -1580,14 +1580,14 @@ print_html_summary (FILE * fp, GLog * logger)
   fprintf (fp, "<h3 class='label trunc'>%lld secs</h3>", t);
   print_html_end_col_wrap (fp);
 
-  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  total = ht_get_size_uniqmap (VISITORS);
   print_html_begin_col_wrap (fp, 6, "blue");
   print_html_col_title (fp, T_UNIQUE_VIS);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* files */
-  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_UNIQUE_FIL);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
@@ -1605,21 +1605,21 @@ print_html_summary (FILE * fp, GLog * logger)
   print_html_begin_grid (fp);
 
   /* referrers */
-  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REFERRERS);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_REFERRER);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* not found */
-  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  total = ht_get_size_datamap (NOT_FOUND);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_UNIQUE404);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
   /* static files */
-  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS_STATIC);
   print_html_begin_col_wrap (fp, 6, NULL);
   print_html_col_title (fp, T_STATIC_FIL);
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);

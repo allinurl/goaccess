@@ -24,11 +24,17 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "gholder.h"
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabdb.h"
+#else
+#include "gkhash.h"
+#endif
 
 #ifdef HAVE_LIBGEOIP
 #include "geolocation.h"
 #endif
+
+#include "gholder.h"
 
 #include "error.h"
 #include "gdns.h"
@@ -71,7 +77,6 @@ static GPanel paneling[] = {
   {STATUS_CODES    , add_root_to_holder, NULL} ,
   {VISIT_TIMES     , add_data_to_holder, NULL} ,
 };
-
 /* *INDENT-ON* */
 
 static GPanel *
@@ -376,7 +381,7 @@ add_host_child_to_holder (GHolder * h)
   GMetrics *nmetrics;
   GSubList *sub_list = new_gsublist ();
 
-  char *host = h->items[h->idx].metrics->data;
+  char *ip = h->items[h->idx].metrics->data;
   char *hostname = NULL;
   int n = h->sub_items_size;
 
@@ -384,12 +389,12 @@ add_host_child_to_holder (GHolder * h)
   set_host_sub_list (h, sub_list);
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  hostname = get_hostname (host);
+  hostname = ht_get_hostname (ip);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
-  /* hostname */
+  /* determine if we have the IP's hostname */
   if (!hostname) {
-    dns_resolver (host);
+    dns_resolver (ip);
   } else if (hostname) {
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
@@ -412,40 +417,34 @@ add_host_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
 static void
 add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
 {
-  GDataMap *map;
   char *data = NULL, *method = NULL, *protocol = NULL;
-  int data_nkey = 0, visitors = 0;
+  int visitors = 0;
   uint64_t bw = 0, cumts = 0, maxts = 0;
 
-  data_nkey = (*(int *) item.key);
-  map = (GDataMap *) item.value;
-  if (map == NULL)
+  if (!(data = ht_get_datamap (h->module, item.key)))
     return;
 
-  if (!(data = get_node_from_key (data_nkey, h->module, MTRC_DATAMAP)))
-    return;
-
-  bw = get_cumulative_from_key (data_nkey, h->module, MTRC_BW);
-  cumts = get_cumulative_from_key (data_nkey, h->module, MTRC_CUMTS);
-  maxts = get_cumulative_from_key (data_nkey, h->module, MTRC_MAXTS);
-  visitors = get_num_from_key (data_nkey, h->module, MTRC_VISITORS);
+  bw = ht_get_bw (h->module, item.key);
+  cumts = ht_get_cumts (h->module, item.key);
+  maxts = ht_get_maxts (h->module, item.key);
+  visitors = ht_get_visitors (h->module, item.key);
 
   h->items[h->idx].metrics = new_gmetrics ();
-  h->items[h->idx].metrics->hits = map->data;
+  h->items[h->idx].metrics->hits = item.value;
   h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->data = data;
   h->items[h->idx].metrics->bw.nbw = bw;
-  h->items[h->idx].metrics->avgts.nts = cumts / map->data;;
+  h->items[h->idx].metrics->avgts.nts = cumts / item.value;
   h->items[h->idx].metrics->cumts.nts = cumts;
   h->items[h->idx].metrics->maxts.nts = maxts;
 
   if (conf.append_method) {
-    method = get_node_from_key (data_nkey, h->module, MTRC_METHODS);
+    method = ht_get_method (h->module, item.key);
     h->items[h->idx].metrics->method = method;
   }
 
   if (conf.append_protocol) {
-    protocol = get_node_from_key (data_nkey, h->module, MTRC_PROTOCOLS);
+    protocol = ht_get_protocol (h->module, item.key);
     h->items[h->idx].metrics->protocol = protocol;
   }
 
@@ -456,29 +455,28 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
 }
 
 static int
-set_root_metrics (int data_nkey, GDataMap * map, GModule module,
-                  GMetrics ** nmetrics)
+set_root_metrics (int key, int hits, GModule module, GMetrics ** nmetrics)
 {
   GMetrics *metrics;
   char *data = NULL;
   uint64_t bw = 0, cumts = 0, maxts = 0;
   int visitors = 0;
 
-  if (!(data = get_node_from_key (data_nkey, module, MTRC_DATAMAP)))
+  if (!(data = ht_get_datamap (module, key)))
     return 1;
 
-  bw = get_cumulative_from_key (data_nkey, module, MTRC_BW);
-  cumts = get_cumulative_from_key (data_nkey, module, MTRC_CUMTS);
-  maxts = get_cumulative_from_key (data_nkey, module, MTRC_MAXTS);
-  visitors = get_num_from_key (data_nkey, module, MTRC_VISITORS);
+  bw = ht_get_bw (module, key);
+  cumts = ht_get_cumts (module, key);
+  maxts = ht_get_maxts (module, key);
+  visitors = ht_get_visitors (module, key);
 
   metrics = new_gmetrics ();
-  metrics->avgts.nts = cumts / map->data;
+  metrics->avgts.nts = cumts / hits;
   metrics->cumts.nts = cumts;
   metrics->maxts.nts = maxts;
   metrics->bw.nbw = bw;
   metrics->data = data;
-  metrics->hits = map->data;
+  metrics->hits = hits;
   metrics->visitors = visitors;
   *nmetrics = metrics;
 
@@ -489,21 +487,15 @@ static void
 add_root_to_holder (GRawDataItem item, GHolder * h,
                     GO_UNUSED const GPanel * panel)
 {
-  GDataMap *map;
   GSubList *sub_list;
   GMetrics *metrics, *nmetrics;
   char *root = NULL;
-  int data_nkey = 0, root_idx = KEY_NOT_FOUND, idx = 0;
+  int root_idx = KEY_NOT_FOUND, idx = 0;
 
-  data_nkey = (*(int *) item.key);
-  map = (GDataMap *) item.value;
-  if (map == NULL)
+  if (set_root_metrics (item.key, item.value, h->module, &nmetrics) == 1)
     return;
 
-  if (set_root_metrics (data_nkey, map, h->module, &nmetrics) == 1)
-    return;
-
-  if (!(root = (get_root_from_key (map->root, h->module))))
+  if (!(root = (ht_get_root (h->module, item.key))))
     return;
 
   /* add data as a child node into holder */

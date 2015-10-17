@@ -1,5 +1,5 @@
 /**
- * tcabdb.c -- Tokyo Cabinet database functions
+ * gkhash.c -- default hash table functions
  * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
  * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
  *
@@ -19,19 +19,16 @@
  * Visit http://goaccess.prosoftcorp.com for new releases.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <errno.h>
-#include <tcutil.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
-#include <stdint.h>
 #include <string.h>
 
-#include "tcabdb.h"
-#include "tcbtdb.h"
-
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
-#endif
+#include "gkhash.h"
 
 #include "error.h"
 #include "sort.h"
@@ -39,145 +36,193 @@
 #include "xmalloc.h"
 
 /* Hash tables storage */
-static GTCStorage *tc_storage;
+static GKHashStorage *gkh_storage;
 
-/* tables for the whole app */
-static TCADB *ht_agent_keys = NULL;
-static TCADB *ht_agent_vals = NULL;
-static TCADB *ht_general_stats = NULL;
-static TCADB *ht_hostnames = NULL;
-static TCADB *ht_unique_keys = NULL;
+/* *INDENT-OFF* */
+/* Hash tables used across the whole app */
+static khash_t (is32) *ht_agent_vals  = NULL;
+static khash_t (si32) *ht_agent_keys  = NULL;
+static khash_t (si32) *ht_unique_keys = NULL;
+static khash_t (ss32) *ht_hostnames   = NULL;
+/* *INDENT-ON* */
 
 /* Instantiate a new store */
-static GTCStorage *
-new_tcstorage (uint32_t size)
+static GKHashStorage *
+new_gkhstorage (uint32_t size)
 {
-  GTCStorage *storage = xcalloc (size, sizeof (GTCStorage));
+  GKHashStorage *storage = xcalloc (size, sizeof (GKHashStorage));
   return storage;
 }
 
-/* Open a concrete database */
-static int
-tc_adb_open (TCADB * adb, const char *params)
+/* Initialize a new int key - int value hash table */
+static
+khash_t (ii32) *
+new_ii32_ht (void)
 {
-  /* attempt to open the database */
-  if (!tcadbopen (adb, params))
-    return 1;
-  return 0;
+  khash_t (ii32) * h = kh_init (ii32);
+  return h;
 }
 
-/* Close the database handle */
-static int
-tc_db_close (TCADB * adb, char *dbname)
+/* Initialize a new int key - string value hash table */
+static
+khash_t (is32) *
+new_is32_ht (void)
 {
-  if (adb == NULL)
-    return 1;
-
-  /* close the database */
-  if (!tcadbclose (adb))
-    FATAL ("Unable to close DB: %s", dbname);
-
-  /* delete the object */
-  tcadbdel (adb);
-
-#ifdef TCB_BTREE
-  /* remove database file */
-  if (!conf.keep_db_files && !tcremovelink (dbname))
-    LOG_DEBUG (("Unable to remove DB: %s\n", dbname));
-#endif
-  free (dbname);
-
-  return 0;
+  khash_t (is32) * h = kh_init (is32);
+  return h;
 }
 
-/* Setup a database given the file path and open it up */
-static TCADB *
-tc_adb_create (char *path)
+/* Initialize a new int key - uint64_t value hash table */
+static
+khash_t (iu64) *
+new_iu64_ht (void)
 {
-  char params[DB_PARAMS] = "";
-  TCADB *adb = tcadbnew ();
+  khash_t (iu64) * h = kh_init (iu64);
+  return h;
+}
 
-#ifdef TCB_MEMHASH
-  xstrncpy (params, path, DB_PARAMS);
-#endif
-#ifdef TCB_BTREE
-  tc_db_get_params (params, path);
-#endif
+/* Initialize a new string key - int value hash table */
+static
+khash_t (si32) *
+new_si32_ht (void)
+{
+  khash_t (si32) * h = kh_init (si32);
+  return h;
+}
 
-  if (tc_adb_open (adb, params)) {
-    free (path);
-    LOG_DEBUG (("params: %s", params));
-    FATAL ("Unable to open an abstract database: %s", params);
+/* Initialize a new string key - string value hash table */
+static
+khash_t (ss32) *
+new_ss32_ht (void)
+{
+  khash_t (ss32) * h = kh_init (ss32);
+  return h;
+}
+
+/* Initialize a new int key - int value hash table */
+static
+khash_t (igsl) *
+new_igsl_ht (void)
+{
+  khash_t (igsl) * h = kh_init (igsl);
+  return h;
+}
+
+/* Destroys both the hash structure and the keys for a
+ * string key - int value hash */
+static void
+des_si32_free (khash_t (si32) * hash)
+{
+  khint_t k;
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k)) {
+      free ((char *) kh_key (hash, k));
+    }
   }
 
-  free (path);
-
-  return adb;
+  kh_destroy (si32, hash);
 }
 
-/* Get the file path for the given a database name */
-static char *
-get_dbname (const char *dbname, int module)
+/* Destroys both the hash structure and its string values */
+static void
+des_is32_free (khash_t (is32) * hash)
 {
-  char *path = NULL;
-#ifdef TCB_MEMHASH
-  (void) dbname;
-  (void) module;
-  path = alloc_string ("*");
-#endif
+  khint_t k;
+  if (!hash)
+    return;
 
-#ifdef TCB_BTREE
-  char *db = NULL;
-  path = tc_db_set_path (dbname, module);
-
-  if (module >= 0) {
-    db = xmalloc (snprintf (NULL, 0, "%s", path) + 1);
-    sprintf (db, "%s", path);
-    free (path);
-    return db;
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k)) {
+      free ((char *) kh_value (hash, k));
+    }
   }
-#endif
 
-  return path;
+  kh_destroy (is32, hash);
+}
+
+/* Destroys both the hash structure and its string
+ * keys and string values */
+static void
+des_ss32_free (khash_t (ss32) * hash)
+{
+  khint_t k;
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k)) {
+      free ((char *) kh_key (hash, k));
+      free ((char *) kh_value (hash, k));
+    }
+  }
+
+  kh_destroy (ss32, hash);
+}
+
+/* Destroys the hash structure */
+static void
+des_ii32 (khash_t (ii32) * hash)
+{
+  if (!hash)
+    return;
+  kh_destroy (ii32, hash);
+}
+
+/* Destroys both the hash structure and its GSLList
+ * values */
+static void
+des_igsl_free (khash_t (igsl) * hash)
+{
+  khint_t k;
+  void *list = NULL;
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k) && (list = kh_value (hash, k))) {
+      list_remove_nodes (list);
+    }
+  }
+
+  kh_destroy (igsl, hash);
+}
+
+/* Destroys the hash structure */
+static void
+des_iu64 (khash_t (iu64) * hash)
+{
+  if (!hash)
+    return;
+  kh_destroy (iu64, hash);
 }
 
 /* Initialize map & metric hashes */
 static void
 init_tables (GModule module)
 {
-  GTCStorageMetric mtrc;
   int n = 0, i;
-
-  GTCStorageMetric metrics[] = {
-    {MTRC_KEYMAP, DB_KEYMAP, NULL},
-    {MTRC_ROOTMAP, DB_ROOTMAP, NULL},
-    {MTRC_DATAMAP, DB_DATAMAP, NULL},
-    {MTRC_UNIQMAP, DB_UNIQMAP, NULL},
-    {MTRC_ROOT, DB_ROOT, NULL},
-    {MTRC_HITS, DB_HITS, NULL},
-    {MTRC_VISITORS, DB_VISITORS, NULL},
-    {MTRC_BW, DB_BW, NULL},
-    {MTRC_CUMTS, DB_CUMTS, NULL},
-    {MTRC_MAXTS, DB_MAXTS, NULL},
-    {MTRC_METHODS, DB_METHODS, NULL},
-    {MTRC_PROTOCOLS, DB_PROTOCOLS, NULL},
-    {MTRC_AGENTS, DB_AGENTS, NULL},
+  GKHashMetric metrics[] = {
+    {MTRC_KEYMAP, MTRC_TYPE_SI32,.si32 = new_si32_ht ()},
+    {MTRC_ROOTMAP, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
+    {MTRC_DATAMAP, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
+    {MTRC_UNIQMAP, MTRC_TYPE_SI32,.si32 = new_si32_ht ()},
+    {MTRC_ROOT, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
+    {MTRC_HITS, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
+    {MTRC_VISITORS, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
+    {MTRC_BW, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
+    {MTRC_CUMTS, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
+    {MTRC_MAXTS, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
+    {MTRC_METHODS, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
+    {MTRC_PROTOCOLS, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
+    {MTRC_AGENTS, MTRC_TYPE_IGSL,.igsl = new_igsl_ht ()},
   };
 
   n = ARRAY_SIZE (metrics);
   for (i = 0; i < n; i++) {
-    mtrc = metrics[i];
-#ifdef TCB_MEMHASH
-    mtrc.store = tc_adb_create (get_dbname (mtrc.dbname, module));
-#endif
-#ifdef TCB_BTREE
-    /* allow for duplicate keys */
-    if (mtrc.metric == MTRC_AGENTS)
-      mtrc.store = tc_bdb_create (DB_AGENTS, module);
-    else
-      mtrc.store = tc_adb_create (get_dbname (mtrc.dbname, module));
-#endif
-    tc_storage[module].metrics[i] = mtrc;
+    gkh_storage[module].metrics[i] = metrics[i];
   }
 }
 
@@ -188,15 +233,14 @@ init_storage (void)
   GModule module;
 
   /* Hashes used across the whole app (not per module) */
-  ht_agent_keys = tc_adb_create (get_dbname (DB_AGENT_KEYS, -1));
-  ht_agent_vals = tc_adb_create (get_dbname (DB_AGENT_VALS, -1));
-  ht_general_stats = tc_adb_create (get_dbname (DB_GEN_STATS, -1));
-  ht_hostnames = tc_adb_create (get_dbname (DB_HOSTNAMES, -1));
-  ht_unique_keys = tc_adb_create (get_dbname (DB_UNIQUE_KEYS, -1));
+  ht_agent_keys = (khash_t (si32) *) new_si32_ht ();
+  ht_agent_vals = (khash_t (is32) *) new_is32_ht ();
+  ht_hostnames = (khash_t (ss32) *) new_ss32_ht ();
+  ht_unique_keys = (khash_t (si32) *) new_si32_ht ();
 
-  tc_storage = new_tcstorage (TOTAL_MODULES);
+  gkh_storage = new_gkhstorage (TOTAL_MODULES);
   for (module = 0; module < TOTAL_MODULES; ++module) {
-    tc_storage[module].module = module;
+    gkh_storage[module].module = module;
     init_tables (module);
   }
 }
@@ -206,19 +250,31 @@ static void
 free_metrics (GModule module)
 {
   int i;
-  GTCStorageMetric mtrc;
+  GKHashMetric mtrc;
 
   for (i = 0; i < GSMTRC_TOTAL; i++) {
-    mtrc = tc_storage[module].metrics[i];
-#ifdef TCB_MEMHASH
-    tc_db_close (mtrc.store, get_dbname (mtrc.dbname, module));
-#endif
-#ifdef TCB_BTREE
-    if (mtrc.metric == MTRC_AGENTS)
-      tc_bdb_close (mtrc.store, get_dbname (mtrc.dbname, module));
-    else
-      tc_db_close (mtrc.store, get_dbname (mtrc.dbname, module));
-#endif
+    mtrc = gkh_storage[module].metrics[i];
+    /* Determine the hash structure type */
+    switch (mtrc.type) {
+    case MTRC_TYPE_II32:
+      des_ii32 (mtrc.ii32);
+      break;
+    case MTRC_TYPE_IS32:
+      des_is32_free (mtrc.is32);
+      break;
+    case MTRC_TYPE_IU64:
+      des_iu64 (mtrc.iu64);
+      break;
+    case MTRC_TYPE_SI32:
+      des_si32_free (mtrc.si32);
+      break;
+    case MTRC_TYPE_SS32:
+      des_ss32_free (mtrc.ss32);
+      break;
+    case MTRC_TYPE_IGSL:
+      des_igsl_free (mtrc.igsl);
+      break;
+    }
   }
 }
 
@@ -228,21 +284,14 @@ free_storage (void)
 {
   GModule module;
 
-  tc_db_close (ht_agent_keys, get_dbname (DB_AGENT_KEYS, -1));
-  tc_db_close (ht_agent_vals, get_dbname (DB_AGENT_VALS, -1));
-  tc_db_close (ht_general_stats, get_dbname (DB_GEN_STATS, -1));
-  tc_db_close (ht_hostnames, get_dbname (DB_HOSTNAMES, -1));
-  tc_db_close (ht_unique_keys, get_dbname (DB_UNIQUE_KEYS, -1));
+  des_is32_free (ht_agent_vals);
+  des_si32_free (ht_agent_keys);
+  des_si32_free (ht_unique_keys);
+  des_ss32_free (ht_hostnames);
 
   for (module = 0; module < TOTAL_MODULES; ++module) {
     free_metrics (module);
   }
-}
-
-static uint32_t
-ht_get_size (TCADB * adb)
-{
-  return tcadbrnum (adb);
 }
 
 /* Given a module and a metric, get the hash table
@@ -254,14 +303,37 @@ get_hash (GModule module, GSMetric metric)
 {
   void *hash = NULL;
   int i;
-  GTCStorageMetric mtrc;
+  GKHashMetric mtrc;
 
   for (i = 0; i < GSMTRC_TOTAL; i++) {
-    mtrc = tc_storage[module].metrics[i];
+    if (hash != NULL)
+      break;
+
+    mtrc = gkh_storage[module].metrics[i];
     if (mtrc.metric != metric)
       continue;
-    hash = mtrc.store;
-    break;
+
+    /* Determine the hash structure type */
+    switch (mtrc.type) {
+    case MTRC_TYPE_II32:
+      hash = mtrc.ii32;
+      break;
+    case MTRC_TYPE_IS32:
+      hash = mtrc.is32;
+      break;
+    case MTRC_TYPE_IU64:
+      hash = mtrc.iu64;
+      break;
+    case MTRC_TYPE_SI32:
+      hash = mtrc.si32;
+      break;
+    case MTRC_TYPE_SS32:
+      hash = mtrc.ss32;
+      break;
+    case MTRC_TYPE_IGSL:
+      hash = mtrc.igsl;
+      break;
+    }
   }
 
   return hash;
@@ -273,14 +345,24 @@ get_hash (GModule module, GSMetric metric)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_si32 (void *hash, const char *key, int value)
+ins_si32 (khash_t (si32) * hash, const char *key, int value)
 {
+  khint_t k;
+  int ret;
+  char *dupkey = NULL;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, key, strlen (key), &value, sizeof (int)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  dupkey = xstrdup (key);
+  k = kh_put (si32, hash, dupkey, &ret);
+  /* operation failed, or key exists */
+  if (ret == -1 || ret == 0) {
+    free (dupkey);
+    return -1;
+  }
+
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -291,14 +373,19 @@ ins_si32 (void *hash, const char *key, int value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_is32 (void *hash, int key, const char *value)
+ins_is32 (khash_t (is32) * hash, int key, const char *value)
 {
+  khint_t k;
+  int ret;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (int), value, strlen (value)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  k = kh_put (is32, hash, key, &ret);
+  if (ret == -1 || ret == 0)
+    return -1;
+
+  kh_val (hash, k) = xstrdup (value);
 
   return 0;
 }
@@ -309,14 +396,24 @@ ins_is32 (void *hash, int key, const char *value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_ss32 (void *hash, const char *key, const char *value)
+ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value)
 {
+  khint_t k;
+  int ret;
+  char *dupkey = NULL;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput2 (hash, key, value))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  dupkey = xstrdup (key);
+  k = kh_put (ss32, hash, dupkey, &ret);
+  /* operation failed, or key exists */
+  if (ret == -1 || ret == 0) {
+    free (dupkey);
+    return -1;
+  }
+
+  kh_val (hash, k) = xstrdup (value);
 
   return 0;
 }
@@ -327,14 +424,19 @@ ins_ss32 (void *hash, const char *key, const char *value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_ii32 (void *hash, int key, int value)
+ins_ii32 (khash_t (ii32) * hash, int key, int value)
 {
+  khint_t k;
+  int ret;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (int), &value, sizeof (int)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  k = kh_put (ii32, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -345,14 +447,19 @@ ins_ii32 (void *hash, int key, int value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_iu64 (void *hash, int key, uint64_t value)
+ins_iu64 (khash_t (iu64) * hash, int key, uint64_t value)
 {
+  khint_t k;
+  int ret;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (uint64_t), &value, sizeof (uint64_t)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  k = kh_put (iu64, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -363,14 +470,24 @@ ins_iu64 (void *hash, int key, uint64_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-inc_ii32 (void *hash, int key, int inc)
+inc_ii32 (khash_t (ii32) * hash, int key, int inc)
 {
+  khint_t k;
+  int ret, value = inc;
+
   if (!hash)
     return -1;
 
-  /* if key exists in the database, it is incremented */
-  if (tcadbaddint (hash, &key, sizeof (int), inc) == INT_MIN)
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  k = kh_get (ii32, hash, key);
+  /* key found, increment current value by the given `inc` */
+  if (k != kh_end (hash))
+    value = kh_val (hash, k) + inc;
+
+  k = kh_put (ii32, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -381,73 +498,25 @@ inc_ii32 (void *hash, int key, int inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-inc_iu64 (void *hash, int key, uint64_t inc)
+inc_iu64 (khash_t (iu64) * hash, int key, uint64_t inc)
 {
-  int sp;
+  khint_t k;
+  int ret;
   uint64_t value = inc;
-  void *ptr;
 
   if (!hash)
     return -1;
 
-  if ((ptr = tcadbget (hash, &key, sizeof (uint64_t), &sp)) != NULL) {
-    value = (*(uint64_t *) ptr) + inc;
-    free (ptr);
-  }
+  k = kh_get (iu64, hash, key);
+  /* key found, increment current value by the given `inc` */
+  if (k != kh_end (hash))
+    value = (uint64_t) kh_val (hash, k) + inc;
 
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (uint64_t), &value, sizeof (uint64_t)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
-
-  return 0;
-}
-
-/* Insert a string key and auto increment its value.
- *
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-static int
-inc_si32 (void *hash, const char *key, int inc)
-{
-  int value = inc;
-  void *ptr;
-
-  if (!hash)
+  k = kh_put (iu64, hash, key, &ret);
+  if (ret == -1)
     return -1;
 
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
-    value = (*(int *) ptr) + inc;
-    free (ptr);
-  }
-
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, key, strlen (key), &value, sizeof (int)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
-
-  return 0;
-}
-
-/* Insert a string key and auto increment by uint64_t value.
- *
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-static int
-inc_su64 (void *hash, const char *key, uint64_t inc)
-{
-  uint64_t value = inc;
-  void *ptr;
-
-  if (!hash)
-    return -1;
-
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
-    value = (*(uint64_t *) ptr) + inc;
-    free (ptr);
-  }
-
-  /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, key, strlen (key), &value, sizeof (uint64_t)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -457,14 +526,14 @@ inc_su64 (void *hash, const char *key, uint64_t inc)
  * On error, -1 is returned.
  * On success the value of the key inserted is returned */
 static int
-ins_si32_ai (void *hash, const char *key)
+ins_si32_ai (khash_t (si32) * hash, const char *key)
 {
   int size = 0, value = 0;
 
   if (!hash)
     return -1;
 
-  size = ht_get_size (hash);
+  size = kh_size (hash);
   /* the auto increment value starts at SIZE (hash table) + 1 */
   value = size > 0 ? size + 1 : 1;
 
@@ -473,8 +542,6 @@ ins_si32_ai (void *hash, const char *key)
 
   return value;
 }
-
-#ifdef TCB_MEMHASH
 
 /* Compare if the given needle is in the haystack
  *
@@ -491,76 +558,52 @@ find_int_key_in_list (void *data, void *needle)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_igsl (void *hash, int key, int value)
+ins_igsl (khash_t (igsl) * hash, int key, int value)
 {
+  khint_t k;
   GSLList *list, *match;
-  int sp;
+  int ret;
 
   if (!hash)
     return -1;
 
+  k = kh_get (igsl, hash, key);
   /* key found, check if key exists within the list */
-  if ((list = tcadbget (hash, &key, sizeof (int), &sp)) != NULL) {
+  if (k != kh_end (hash) && (list = kh_val (hash, k))) {
     if ((match = list_find (list, find_int_key_in_list, &value)))
-      goto out;
+      return 0;
     list = list_insert_prepend (list, int2ptr (value));
   } else {
     list = list_create (int2ptr (value));
   }
 
-  if (!tcadbput (hash, &key, sizeof (int), list, sizeof (GSLList)))
-    LOG_DEBUG (("Unable to tcadbput\n"));
-out:
-  free (list);
+  k = kh_put (igsl, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+
+  kh_val (hash, k) = list;
 
   return 0;
 }
-
-#endif
 
 /* Get the int value of a given string key.
  *
  * On error, -1 is returned.
  * On success the int value for the given key is returned */
 static int
-get_si32 (void *hash, const char *key)
+get_si32 (khash_t (si32) * hash, const char *key)
 {
-  int ret = 0;
-  void *ptr;
+  khint_t k;
 
   if (!hash)
     return -1;
 
+  k = kh_get (si32, hash, key);
   /* key found, return current value */
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
-    ret = (*(int *) ptr);
-    free (ptr);
-    return ret;
-  }
+  if (k != kh_end (hash))
+    return kh_val (hash, k);
 
   return -1;
-}
-
-/* Get the unsigned int value of a given string key.
- *
- * On error, -1 is returned.
- * On success the int value for the given key is returned */
-static uint32_t
-get_sui32 (void *hash, const char *key)
-{
-  int ret = 0;
-  void *ptr;
-  if (!hash)
-    return 0;
-
-  /* key found, return current value */
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
-    ret = (*(uint32_t *) ptr);
-    free (ptr);
-    return ret;
-  }
-
-  return 0;
 }
 
 /* Get the string value of a given int key.
@@ -568,16 +611,18 @@ get_sui32 (void *hash, const char *key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
-get_is32 (void *hash, int key)
+get_is32 (khash_t (is32) * hash, int key)
 {
-  int sp;
+  khint_t k;
   char *value = NULL;
 
   if (!hash)
     return NULL;
 
-  if ((value = tcadbget (hash, &key, sizeof (int), &sp)) != NULL)
-    return value;
+  k = kh_get (is32, hash, key);
+  /* key found, return current value */
+  if (k != kh_end (hash) && (value = kh_val (hash, k)))
+    return xstrdup (value);
 
   return NULL;
 }
@@ -587,15 +632,18 @@ get_is32 (void *hash, int key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
-get_ss32 (void *hash, const char *key)
+get_ss32 (khash_t (ss32) * hash, const char *key)
 {
+  khint_t k;
   char *value = NULL;
 
   if (!hash)
     return NULL;
 
-  if ((value = tcadbget2 (hash, key)) != NULL)
-    return value;
+  k = kh_get (ss32, hash, key);
+  /* key found, return current value */
+  if (k != kh_end (hash) && (value = kh_val (hash, k)))
+    return xstrdup (value);
 
   return NULL;
 }
@@ -606,20 +654,18 @@ get_ss32 (void *hash, const char *key)
  * On error, -1 is returned.
  * On success the int value for the given key is returned */
 static int
-get_ii32 (void *hash, int key)
+get_ii32 (khash_t (ii32) * hash, int key)
 {
-  int sp, ret = 0;
-  void *ptr = 0;
+  khint_t k;
+  int value = 0;
 
   if (!hash)
     return -1;
 
+  k = kh_get (ii32, hash, key);
   /* key found, return current value */
-  if ((ptr = tcadbget (hash, &key, sizeof (int), &sp)) != NULL) {
-    ret = (*(int *) ptr);
-    free (ptr);
-    return ret;
-  }
+  if (k != kh_end (hash) && (value = kh_val (hash, k)))
+    return value;
 
   return 0;
 }
@@ -629,21 +675,18 @@ get_ii32 (void *hash, int key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 static uint64_t
-get_iu64 (void *hash, int key)
+get_iu64 (khash_t (iu64) * hash, int key)
 {
-  int sp;
-  uint64_t ret = 0;
-  void *ptr = 0;
+  khint_t k;
+  uint64_t value = 0;
 
   if (!hash)
-    return -1;
+    return 0;
 
+  k = kh_get (iu64, hash, key);
   /* key found, return current value */
-  if ((ptr = tcadbget (hash, &key, sizeof (uint64_t), &sp)) != NULL) {
-    ret = (*(uint64_t *) ptr);
-    free (ptr);
-    return ret;
-  }
+  if (k != kh_end (hash) && (value = kh_val (hash, k)))
+    return value;
 
   return 0;
 }
@@ -653,35 +696,17 @@ get_iu64 (void *hash, int key)
  * On error, or if key is not found, NULL is returned.
  * On success the GSLList value for the given key is returned */
 static GSLList *
-get_igsl (void *hash, int key)
+get_igsl (khash_t (igsl) * hash, int key)
 {
-  int sp;
+  khint_t k;
   GSLList *list = NULL;
 
   if (!hash)
     return NULL;
 
+  k = kh_get (igsl, hash, key);
   /* key found, return current value */
-  if ((list = tcadbget (hash, &key, sizeof (int), &sp)) != NULL)
-    return list;
-
-  return NULL;
-}
-
-/* Get the TCLIST value of a given int key.
- *
- * On error, or if key is not found, NULL is returned.
- * On success the GSLList value for the given key is returned */
-static TCLIST *
-get_itcli (void *hash, int key)
-{
-  TCLIST *list = NULL;
-
-  if (!hash)
-    return NULL;
-
-  /* key found, return current value */
-  if ((list = tcbdbget4 (hash, &key, sizeof (int))) != NULL)
+  if (k != kh_end (hash) && (list = kh_val (hash, k)))
     return list;
 
   return NULL;
@@ -697,7 +722,7 @@ int
 ht_insert_unique_key (const char *key)
 {
   int value = -1;
-  void *hash = ht_unique_keys;
+  khash_t (si32) * hash = ht_unique_keys;
 
   if (!hash)
     return -1;
@@ -717,7 +742,7 @@ int
 ht_insert_agent_key (const char *key)
 {
   int value = -1;
-  void *hash = ht_agent_keys;
+  khash_t (si32) * hash = ht_agent_keys;
 
   if (!hash)
     return -1;
@@ -735,7 +760,7 @@ ht_insert_agent_key (const char *key)
 int
 ht_insert_agent_value (int key, const char *value)
 {
-  void *hash = ht_agent_vals;
+  khash_t (is32) * hash = ht_agent_vals;
 
   if (!hash)
     return -1;
@@ -752,7 +777,7 @@ int
 ht_insert_keymap (GModule module, const char *key)
 {
   int value = -1;
-  void *hash = get_hash (module, MTRC_KEYMAP);
+  khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
 
   if (!hash)
     return -1;
@@ -770,7 +795,7 @@ ht_insert_keymap (GModule module, const char *key)
 int
 ht_insert_datamap (GModule module, int key, const char *value)
 {
-  void *hash = get_hash (module, MTRC_DATAMAP);
+  khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
     return -1;
@@ -785,7 +810,7 @@ ht_insert_datamap (GModule module, int key, const char *value)
 int
 ht_insert_rootmap (GModule module, int key, const char *value)
 {
-  void *hash = get_hash (module, MTRC_ROOTMAP);
+  khash_t (is32) * hash = get_hash (module, MTRC_ROOTMAP);
 
   if (!hash)
     return -1;
@@ -802,7 +827,7 @@ int
 ht_insert_uniqmap (GModule module, const char *key)
 {
   int value = -1;
-  void *hash = get_hash (module, MTRC_UNIQMAP);
+  khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
     return -1;
@@ -820,7 +845,7 @@ ht_insert_uniqmap (GModule module, const char *key)
 int
 ht_insert_root (GModule module, int key, int value)
 {
-  void *hash = get_hash (module, MTRC_ROOT);
+  khash_t (ii32) * hash = get_hash (module, MTRC_ROOT);
 
   if (!hash)
     return -1;
@@ -835,7 +860,7 @@ ht_insert_root (GModule module, int key, int value)
 int
 ht_insert_hits (GModule module, int key, int inc)
 {
-  void *hash = get_hash (module, MTRC_HITS);
+  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
 
   if (!hash)
     return -1;
@@ -850,7 +875,7 @@ ht_insert_hits (GModule module, int key, int inc)
 int
 ht_insert_visitor (GModule module, int key, int inc)
 {
-  void *hash = get_hash (module, MTRC_VISITORS);
+  khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
 
   if (!hash)
     return -1;
@@ -865,7 +890,7 @@ ht_insert_visitor (GModule module, int key, int inc)
 int
 ht_insert_bw (GModule module, int key, uint64_t inc)
 {
-  void *hash = get_hash (module, MTRC_BW);
+  khash_t (iu64) * hash = get_hash (module, MTRC_BW);
 
   if (!hash)
     return -1;
@@ -880,7 +905,7 @@ ht_insert_bw (GModule module, int key, uint64_t inc)
 int
 ht_insert_cumts (GModule module, int key, uint64_t inc)
 {
-  void *hash = get_hash (module, MTRC_CUMTS);
+  khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
 
   if (!hash)
     return -1;
@@ -897,7 +922,7 @@ int
 ht_insert_maxts (GModule module, int key, uint64_t value)
 {
   uint64_t curvalue = 0;
-  void *hash = get_hash (module, MTRC_MAXTS);
+  khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
 
   if (!hash)
     return -1;
@@ -915,7 +940,7 @@ ht_insert_maxts (GModule module, int key, uint64_t value)
 int
 ht_insert_method (GModule module, int key, const char *value)
 {
-  void *hash = get_hash (module, MTRC_METHODS);
+  khash_t (is32) * hash = get_hash (module, MTRC_METHODS);
 
   if (!hash)
     return -1;
@@ -930,7 +955,7 @@ ht_insert_method (GModule module, int key, const char *value)
 int
 ht_insert_protocol (GModule module, int key, const char *value)
 {
-  void *hash = get_hash (module, MTRC_PROTOCOLS);
+  khash_t (is32) * hash = get_hash (module, MTRC_PROTOCOLS);
 
   if (!hash)
     return -1;
@@ -945,7 +970,7 @@ ht_insert_protocol (GModule module, int key, const char *value)
 int
 ht_insert_agent (GModule module, int key, int value)
 {
-  void *hash = get_hash (module, MTRC_AGENTS);
+  khash_t (igsl) * hash = get_hash (module, MTRC_AGENTS);
 
   if (!hash)
     return -1;
@@ -960,42 +985,12 @@ ht_insert_agent (GModule module, int key, int value)
 int
 ht_insert_hostname (const char *ip, const char *host)
 {
-  void *hash = ht_hostnames;
+  khash_t (ss32) * hash = ht_hostnames;
 
   if (!hash)
     return -1;
 
   return ins_ss32 (hash, ip, host);
-}
-
-/* Increases a general stats counter int from a string key.
- *
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-int
-ht_insert_genstats (const char *key, int inc)
-{
-  void *hash = ht_general_stats;
-
-  if (!hash)
-    return -1;
-
-  return inc_si32 (hash, key, inc);
-}
-
-/* Increases a general stats counter uint64_t from a string key.
- *
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-int
-ht_insert_genstats_bw (const char *key, uint64_t inc)
-{
-  void *hash = ht_general_stats;
-
-  if (!hash)
-    return -1;
-
-  return inc_su64 (hash, key, inc);
 }
 
 /* Get the number of elements in a datamap.
@@ -1004,12 +999,12 @@ ht_insert_genstats_bw (const char *key, uint64_t inc)
 uint32_t
 ht_get_size_datamap (GModule module)
 {
-  void *hash = get_hash (module, MTRC_DATAMAP);
+  khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
     return -1;
 
-  return ht_get_size (hash);
+  return kh_size (hash);
 }
 
 /* Get the number of elements in a uniqmap.
@@ -1019,12 +1014,12 @@ ht_get_size_datamap (GModule module)
 uint32_t
 ht_get_size_uniqmap (GModule module)
 {
-  void *hash = get_hash (module, MTRC_UNIQMAP);
+  khash_t (is32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
-    return -1;
+    return 0;
 
-  return ht_get_size (hash);
+  return kh_size (hash);
 }
 
 /* Get the string data value of a given int key.
@@ -1034,7 +1029,7 @@ ht_get_size_uniqmap (GModule module)
 char *
 ht_get_datamap (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_DATAMAP);
+  khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
     return NULL;
@@ -1049,7 +1044,7 @@ ht_get_datamap (GModule module, int key)
 int
 ht_get_keymap (GModule module, const char *key)
 {
-  void *hash = get_hash (module, MTRC_KEYMAP);
+  khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
 
   if (!hash)
     return -1;
@@ -1064,27 +1059,12 @@ ht_get_keymap (GModule module, const char *key)
 int
 ht_get_uniqmap (GModule module, const char *key)
 {
-  void *hash = get_hash (module, MTRC_UNIQMAP);
+  khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
     return -1;
 
   return get_si32 (hash, key);
-}
-
-/* Get the int value from ht_get_genstats given a string key.
- *
- * On error, -1 is returned.
- * On success the unsigned int value for the given key is returned */
-uint32_t
-ht_get_genstats (const char *key)
-{
-  void *hash = ht_get_genstats;
-
-  if (!hash)
-    return -1;
-
-  return get_sui32 (hash, key);
 }
 
 /* Get the string root from MTRC_ROOTMAP given an int data key.
@@ -1095,8 +1075,8 @@ char *
 ht_get_root (GModule module, int key)
 {
   int root_key = 0;
-  void *hashroot = get_hash (module, MTRC_ROOT);
-  void *hashrootmap = get_hash (module, MTRC_ROOTMAP);
+  khash_t (ii32) * hashroot = get_hash (module, MTRC_ROOT);
+  khash_t (is32) * hashrootmap = get_hash (module, MTRC_ROOTMAP);
 
   if (!hashroot || !hashrootmap)
     return NULL;
@@ -1116,7 +1096,7 @@ ht_get_root (GModule module, int key)
 int
 ht_get_visitors (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_VISITORS);
+  khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
 
   if (!hash)
     return -1;
@@ -1131,7 +1111,7 @@ ht_get_visitors (GModule module, int key)
 uint64_t
 ht_get_bw (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_BW);
+  khash_t (iu64) * hash = get_hash (module, MTRC_BW);
 
   if (!hash)
     return 0;
@@ -1146,7 +1126,7 @@ ht_get_bw (GModule module, int key)
 uint64_t
 ht_get_cumts (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_CUMTS);
+  khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
 
   if (!hash)
     return 0;
@@ -1161,7 +1141,7 @@ ht_get_cumts (GModule module, int key)
 uint64_t
 ht_get_maxts (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_MAXTS);
+  khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
 
   if (!hash)
     return 0;
@@ -1176,18 +1156,7 @@ ht_get_maxts (GModule module, int key)
 char *
 ht_get_method (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_METHODS);
-
-  if (!hash)
-    return NULL;
-
-  return get_is32 (hash, key);
-}
-
-char *
-ht_get_protocol (GModule module, int key)
-{
-  void *hash = get_hash (module, MTRC_PROTOCOLS);
+  khash_t (is32) * hash = get_hash (module, MTRC_METHODS);
 
   if (!hash)
     return NULL;
@@ -1200,9 +1169,24 @@ ht_get_protocol (GModule module, int key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
+ht_get_protocol (GModule module, int key)
+{
+  khash_t (is32) * hash = get_hash (module, MTRC_PROTOCOLS);
+
+  if (!hash)
+    return NULL;
+
+  return get_is32 (hash, key);
+}
+
+/* Get the string value from ht_hostnames given a string key (IP).
+ *
+ * On error, NULL is returned.
+ * On success the string value for the given key is returned */
+char *
 ht_get_hostname (const char *host)
 {
-  void *hash = ht_hostnames;
+  khash_t (ss32) * hash = ht_hostnames;
 
   if (!hash)
     return NULL;
@@ -1217,7 +1201,7 @@ ht_get_hostname (const char *host)
 char *
 ht_get_host_agent_val (int key)
 {
-  void *hash = ht_agent_vals;
+  khash_t (is32) * hash = ht_agent_vals;
 
   if (!hash)
     return NULL;
@@ -1232,113 +1216,12 @@ ht_get_host_agent_val (int key)
 GSLList *
 ht_get_host_agent_list (GModule module, int key)
 {
-  void *hash = get_hash (module, MTRC_AGENTS);
+  khash_t (igsl) * hash = get_hash (module, MTRC_AGENTS);
   GSLList *list;
 
   if ((list = get_igsl (hash, key)))
     return list;
   return NULL;
-}
-
-/* Get the list value from MTRC_AGENTS given an int key.
- *
- * On error, or if key is not found, NULL is returned.
- * On success the TCLIST value for the given key is returned */
-TCLIST *
-ht_get_host_agent_tclist (GModule module, int key)
-{
-  void *hash = get_hash (module, MTRC_AGENTS);
-  TCLIST *list;
-
-  if ((list = get_itcli (hash, key)))
-    return list;
-  return NULL;
-}
-
-/* Insert the values from a TCLIST into a GSLList.
- *
- * On success the GSLList is returned */
-GSLList *
-tclist_to_gsllist (TCLIST * tclist)
-{
-  GSLList *list = NULL;
-  int i, sz;
-  int *val;
-
-  for (i = 0; i < tclistnum (tclist); ++i) {
-    val = (int *) tclistval (tclist, i, &sz);
-    if (list == NULL)
-      list = list_create (int2ptr (*val));
-    else
-      list = list_insert_prepend (list, int2ptr (*val));
-  }
-
-  return list;
-}
-
-/* Calls the given function for each of the key/value pairs */
-static void
-tc_db_foreach (void *db, void (*fp) (TCADB * m, void *k, int s, void *u),
-               void *user_data)
-{
-  TCADB *adb = db;
-  int ksize = 0;
-  void *key;
-
-  tcadbiterinit (adb);
-  while ((key = tcadbiternext (adb, &ksize)) != NULL) {
-    (*fp) (adb, key, ksize, user_data);
-    free (key);
-  }
-}
-
-/* Free the key/value pair */
-static void
-free_agent_values (TCADB * adb, void *key, int ksize, GO_UNUSED void *user_data)
-{
-  void *list;
-  int sp = 0;
-
-  list = tcadbget (adb, key, ksize, &sp);
-  if (list)
-    list_remove_nodes (list);
-}
-
-/* Iterate over the each key/value pair under MTRC_AGENTS and free the and the
- * list of values */
-void
-free_agent_list (void)
-{
-  void *hash = get_hash (HOSTS, MTRC_AGENTS);
-  if (!hash)
-    return;
-
-  tc_db_foreach (hash, free_agent_values, NULL);
-}
-
-/* For each key/value pair stored in MTRC_HITS, assign the key/value to a
- * GRawDataItem */
-static void
-set_raw_data (void *key, void *value, GRawData * raw_data)
-{
-  raw_data->items[raw_data->idx].key = (*(int *) key);
-  raw_data->items[raw_data->idx].value = (*(int *) value);
-  raw_data->idx++;
-}
-
-/* Get the value stored in MTRC_HITS */
-static void
-data_iter_generic (TCADB * adb, void *key, int ksize, void *user_data)
-{
-  GRawData *raw_data = user_data;
-  void *value;
-  int sp = 0;
-
-  value = tcadbget (adb, key, ksize, &sp);
-  if (value) {
-    set_raw_data (key, value, raw_data);
-    free (value);
-  }
 }
 
 /* Store the key/value pairs from a hash table into raw_data and sorts the the
@@ -1350,9 +1233,10 @@ GRawData *
 parse_raw_data (GModule module)
 {
   GRawData *raw_data;
+  khiter_t key;
   uint32_t ht_size = 0;
 
-  void *hash = get_hash (module, MTRC_HITS);
+  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
 
   if (!hash)
     return NULL;
@@ -1360,10 +1244,17 @@ parse_raw_data (GModule module)
   raw_data = new_grawdata ();
   raw_data->idx = 0;
   raw_data->module = module;
-  raw_data->size = ht_size = ht_get_size (hash);
+  raw_data->size = ht_size = kh_size (hash);
   raw_data->items = new_grawdata_item (ht_size);
 
-  tc_db_foreach (hash, data_iter_generic, raw_data);
+  for (key = kh_begin (hash); key != kh_end (hash); ++key) {
+    if (!kh_exist (hash, key))
+      continue;
+
+    raw_data->items[raw_data->idx].key = kh_key (hash, key);
+    raw_data->items[raw_data->idx].value = kh_value (hash, key);
+    raw_data->idx++;
+  }
 
   sort_raw_data (raw_data, raw_data->idx);
 

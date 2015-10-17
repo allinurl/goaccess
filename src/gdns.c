@@ -48,7 +48,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #include "error.h"
@@ -182,10 +182,9 @@ void
 dns_resolver (char *addr)
 {
   pthread_mutex_lock (&gdns_thread.mutex);
+  /* queue is not full and the IP address is not in the queue */
   if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
-#ifndef HAVE_LIBTOKYOCABINET
-    g_hash_table_replace (ht_hostnames, g_strdup (addr), NULL);
-#endif
+    /* add the IP to the queue */
     gqueue_enqueue (gdns_queue, addr);
     pthread_cond_broadcast (&gdns_thread.not_empty);
   }
@@ -215,13 +214,12 @@ dns_worker (void GO_UNUSED (*ptr_data))
         free (host);
       break;
     }
-#ifdef HAVE_LIBTOKYOCABINET
-    tcadbput2 (ht_hostnames, ip, host);
-    free (host);
-#else
-    if (host != NULL && active_gdns)
-      g_hash_table_replace (ht_hostnames, g_strdup (ip), host);
-#endif
+
+    /* insert the corresponding IP -> hostname map */
+    if (host != NULL && active_gdns) {
+      ht_insert_hostname (ip, host);
+      free (host);
+    }
 
     pthread_cond_signal (&gdns_thread.not_full);
     pthread_mutex_unlock (&gdns_thread.mutex);

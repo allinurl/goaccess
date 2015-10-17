@@ -36,7 +36,7 @@
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
 #else
-#include "glibht.h"
+#include "gkhash.h"
 #endif
 
 #include "settings.h"
@@ -294,11 +294,11 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %lld,\n", OVERALL_GENTIME, t);
 
   /* visitors */
-  total = get_ht_size_by_metric (VISITORS, MTRC_UNIQMAP);
+  total = ht_get_size_uniqmap (VISITORS);
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_VISITORS, total);
 
   /* files */
-  total = get_ht_size_by_metric (REQUESTS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS);
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FILES, total);
 
   /* excluded hits */
@@ -306,15 +306,15 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_EXCL_HITS, total);
 
   /* referrers */
-  total = get_ht_size_by_metric (REFERRERS, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REFERRERS);
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REF, total);
 
   /* not found */
-  total = get_ht_size_by_metric (NOT_FOUND, MTRC_DATAMAP);
+  total = ht_get_size_datamap (NOT_FOUND);
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_NOTFOUND, total);
 
   /* static files */
-  total = get_ht_size_by_metric (REQUESTS_STATIC, MTRC_DATAMAP);
+  total = ht_get_size_datamap (REQUESTS_STATIC);
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_STATIC, total);
 
   /* log size */

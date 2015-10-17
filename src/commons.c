@@ -76,7 +76,7 @@ display_storage (void)
 #elif TCB_MEMHASH
   fprintf (stdout, "Built using Tokyo Cabinet On-Memory Hash database.\n");
 #else
-  fprintf (stdout, "Built using GLib On-Memory Hash database.\n");
+  fprintf (stdout, "Built using the default On-Memory Hash database.\n");
 #endif
 }
 

@@ -206,6 +206,12 @@ tc_bdb_close (void *db, char *dbname)
 }
 
 static int
+find_int_key_in_list (void *data, void *needle)
+{
+  return (*(int *) data) == (*(int *) needle) ? 1 : 0;
+}
+
+static int
 is_value_in_tclist (TCLIST * tclist, void *value)
 {
   int i, sz;
@@ -216,32 +222,35 @@ is_value_in_tclist (TCLIST * tclist, void *value)
 
   for (i = 0; i < tclistnum (tclist); ++i) {
     val = (int *) tclistval (tclist, i, &sz);
-    if (find_host_agent_in_list (value, val))
+    if (find_int_key_in_list (value, val))
       return 1;
   }
 
   return 0;
 }
 
+/* Insert a string key and the corresponding string value.
+ * Note: If the key exists, the value is not replaced.
+ * Return -1 if the operation failed, otherwise 0. */
 int
-ht_insert_host_agent (TCBDB * bdb, int data_nkey, int agent_nkey)
+ins_igsl (void *hash, int key, int value)
 {
   TCLIST *list;
   int in_list = 0;
 
-  if (bdb == NULL)
-    return (EINVAL);
+  if (!hash)
+    return -1;
 
-  if ((list = tcbdbget4 (bdb, &data_nkey, sizeof (int))) != NULL) {
-    if (is_value_in_tclist (list, &agent_nkey))
+  /* key found, check if key exists within the list */
+  if ((list = tcbdbget4 (hash, &key, sizeof (int))) != NULL) {
+    if (is_value_in_tclist (list, &value))
       in_list = 1;
     tclistdel (list);
   }
-
-  if (!in_list &&
-      tcbdbputdup (bdb, &data_nkey, sizeof (int), &agent_nkey, sizeof (int)))
+  /* if not on the list, add it */
+  if (!in_list && tcbdbputdup (hash, &key, sizeof (int), &value, sizeof (int)))
     return 0;
 
-  return 1;
+  return -1;
 }
 #endif

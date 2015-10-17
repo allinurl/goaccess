@@ -154,36 +154,6 @@ if test "$WITH_TC" = "yes"; then
        CFLAGS="$CFLAGS -ltokyocabinet -lrt -lc"
     ;;
   esac
-
-# GLib otherwise
-else
-  # Check for pkg-config program, used for configuring some libraries.
-  m4_define_default([PKG_PROG_PKG_CONFIG],
-    [AC_MSG_CHECKING([pkg-config])
-    AC_MSG_RESULT([no])])
-
-  PKG_PROG_PKG_CONFIG
-
-  # If pkg-config autoconf support isn't installed, define its autoconf macro.
-  m4_define_default([PKG_CHECK_MODULES],
-    [AC_MSG_CHECKING([$1])
-    AC_MSG_RESULT([no])
-    $4])
-
-  AC_PATH_PROG([PKG_CONFIG], [pkg-config], [no])
-
-  AS_IF([test "x$PKG_CONFIG" = "xno"],[
-     AC_MSG_ERROR([
-     *** pkg-config script could not be found. Make sure it is
-     *** in your path, or set the PKG_CONFIG environment variable
-     *** to the full path to pkg-config. Otherwise, reinstall glib2
-     *** development files (libglib2.0-dev)])
-  ])
-
-  PKG_CHECK_MODULES(GLIB2, glib-2.0, [], AC_MSG_ERROR([*** Missing development libraries for GLib]))
-  AC_SUBST(GLIB2_CFLAGS)
-  AC_SUBST(GLIB2_LIBS)
-  AC_CHECK_LIB([glib-2.0], [g_list_append], [], [AC_MSG_ERROR([*** Missing development libraries for GLib])])
 fi
 AM_CONDITIONAL([TCB], [test "$WITH_TC" = "yes"])
 
@@ -192,7 +162,7 @@ if test "$tcb" = "memhash"; then
 elif test "$tcb" = "btree"; then
   storage="On-disk B+ Tree Database (Tokyo Cabinet)"
 else
-  storage="On-memory Hash Database (GLib)"
+  storage="On-memory Hash Database (Default)"
 fi
 
 # Solaris

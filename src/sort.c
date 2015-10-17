@@ -164,20 +164,11 @@ cmp_vis_asc (const void *a, const void *b)
 static int
 cmp_raw_num_desc (const void *a, const void *b)
 {
-  int va = 0, vb = 0;
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  GDataMap *amap = ia->value;
-  GDataMap *bmap = ib->value;
-
-  if (!amap || !bmap) {
-    LOG_DEBUG (("Unable to sort raw num, NULL GDataMap value\n"));
-    return 0;
-  }
-
-  va = amap->data;
-  vb = bmap->data;
+  int va = ia->value;
+  int vb = ib->value;
 
   return (va < vb) - (va > vb);
 }
