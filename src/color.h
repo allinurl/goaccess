@@ -23,6 +23,7 @@
 
 #define COLOR_STR_LEN 9
 
+/* Color Items/Fields */
 typedef enum CSTM_COLORS
 {
   COLOR_NORMAL,
@@ -53,6 +54,7 @@ typedef enum CSTM_COLORS
   COLOR_PROGRESS,
 } GColorItem;
 
+/* Default Color Schemes */
 typedef enum SCHEMES
 {
   NO_COLOR,
@@ -62,6 +64,7 @@ typedef enum SCHEMES
 
 #include "commons.h"
 
+/* Each color properties */
 typedef struct GColorPair_
 {
   short idx;
@@ -69,6 +72,7 @@ typedef struct GColorPair_
   short bg;
 } GColorPair;
 
+/* Color */
 typedef struct GColors_
 {
   GColorItem item;
