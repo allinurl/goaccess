@@ -171,47 +171,60 @@ AC_CHECK_LIB([nsl], [gethostbyname])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([netinet/in.h])
-AC_CHECK_HEADERS([sys/socket.h])
 AC_CHECK_HEADERS([arpa/inet.h])
+AC_CHECK_HEADERS([inttypes.h])
+AC_CHECK_HEADERS([limits.h])
 AC_CHECK_HEADERS([locale.h])
 AC_CHECK_HEADERS([netdb.h])
+AC_CHECK_HEADERS([netinet/in.h])
+AC_CHECK_HEADERS([stddef.h])
 AC_CHECK_HEADERS([stdint.h])
 AC_CHECK_HEADERS([stdlib.h])
 AC_CHECK_HEADERS([string.h])
+AC_CHECK_HEADERS([strings.h])
+AC_CHECK_HEADERS([sys/socket.h])
 AC_CHECK_HEADERS([unistd.h])
-AC_CHECK_HEADERS([stddef.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_C_CONST
+AC_CHECK_TYPES([ptrdiff_t])
+AC_STRUCT_TM
+AC_TYPE_INT64_T
+AC_TYPE_INT8_T
 AC_TYPE_OFF_T
 AC_TYPE_SIZE_T
-AC_STRUCT_TM
-AC_CHECK_TYPES([ptrdiff_t])
+AC_TYPE_UINT32_T
+AC_TYPE_UINT64_T
+AC_TYPE_UINT8_T
 
 # Checks for library functions.
-AC_FUNC_STRTOD
 AC_FUNC_FSEEKO
 AC_FUNC_MEMCMP
+AC_FUNC_MKTIME
 AC_FUNC_STAT
 AC_FUNC_STRFTIME
-AC_CHECK_FUNCS([regcomp])
-AC_CHECK_FUNCS([strtoull])
-AC_CHECK_FUNCS([memmove])
+AC_FUNC_STRTOD
 AC_CHECK_FUNCS([floor])
 AC_CHECK_FUNCS([gethostbyaddr])
 AC_CHECK_FUNCS([gethostbyname])
+AC_CHECK_FUNCS([malloc])
+AC_CHECK_FUNCS([memmove])
 AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([realloc])
+AC_CHECK_FUNCS([realpath])
+AC_CHECK_FUNCS([regcomp])
 AC_CHECK_FUNCS([setlocale])
 AC_CHECK_FUNCS([strchr])
+AC_CHECK_FUNCS([strcspn])
 AC_CHECK_FUNCS([strdup])
 AC_CHECK_FUNCS([strerror])
+AC_CHECK_FUNCS([strncasecmp])
+AC_CHECK_FUNCS([strpbrk])
 AC_CHECK_FUNCS([strrchr])
+AC_CHECK_FUNCS([strspn])
 AC_CHECK_FUNCS([strstr])
 AC_CHECK_FUNCS([strtol])
-AC_CHECK_FUNCS([realpath])
-AC_CHECK_FUNCS([malloc])
-AC_CHECK_FUNCS([realloc])
+AC_CHECK_FUNCS([strtoull])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
