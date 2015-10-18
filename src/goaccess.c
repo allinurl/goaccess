@@ -1009,7 +1009,12 @@ out:
 
   logger->offset = logger->processed;
 
-  /* no valid entries to process from the log */
+  /* If parser.c, process_log() did not parse any lines from the
+   * provided dataset, then display a message that no valid entries
+   * were parsed.
+   *
+   * If it gets to this point, usually the log/date/time format did
+   * not match the log entries. */
   if (logger->valid == 0)
     FATAL ("Nothing valid to process. Verify your date/time/log format.");
 
