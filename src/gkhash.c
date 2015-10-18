@@ -205,19 +205,19 @@ init_tables (GModule module)
 {
   int n = 0, i;
   GKHashMetric metrics[] = {
-    {MTRC_KEYMAP, MTRC_TYPE_SI32,.si32 = new_si32_ht ()},
-    {MTRC_ROOTMAP, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
-    {MTRC_DATAMAP, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
-    {MTRC_UNIQMAP, MTRC_TYPE_SI32,.si32 = new_si32_ht ()},
-    {MTRC_ROOT, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
-    {MTRC_HITS, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
-    {MTRC_VISITORS, MTRC_TYPE_II32,.ii32 = new_ii32_ht ()},
-    {MTRC_BW, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
-    {MTRC_CUMTS, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
-    {MTRC_MAXTS, MTRC_TYPE_IU64,.iu64 = new_iu64_ht ()},
-    {MTRC_METHODS, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
-    {MTRC_PROTOCOLS, MTRC_TYPE_IS32,.is32 = new_is32_ht ()},
-    {MTRC_AGENTS, MTRC_TYPE_IGSL,.igsl = new_igsl_ht ()},
+    {MTRC_KEYMAP, MTRC_TYPE_SI32, {.si32 = new_si32_ht ()}},
+    {MTRC_ROOTMAP, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
+    {MTRC_DATAMAP, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
+    {MTRC_UNIQMAP, MTRC_TYPE_SI32, {.si32 = new_si32_ht ()}},
+    {MTRC_ROOT, MTRC_TYPE_II32, {.ii32 = new_ii32_ht ()}},
+    {MTRC_HITS, MTRC_TYPE_II32, {.ii32 = new_ii32_ht ()}},
+    {MTRC_VISITORS, MTRC_TYPE_II32, {.ii32 = new_ii32_ht ()}},
+    {MTRC_BW, MTRC_TYPE_IU64, {.iu64 = new_iu64_ht ()}},
+    {MTRC_CUMTS, MTRC_TYPE_IU64, {.iu64 = new_iu64_ht ()}},
+    {MTRC_MAXTS, MTRC_TYPE_IU64, {.iu64 = new_iu64_ht ()}},
+    {MTRC_METHODS, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
+    {MTRC_PROTOCOLS, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
+    {MTRC_AGENTS, MTRC_TYPE_IGSL, {.igsl = new_igsl_ht ()}},
   };
 
   n = ARRAY_SIZE (metrics);
