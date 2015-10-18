@@ -448,8 +448,8 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
 
 /* sort raw data for the first run (default sort) */
 GRawData *
-sort_raw_data (GRawData * raw, int ht_size)
+sort_raw_data (GRawData * raw_data, int ht_size)
 {
-  qsort (raw->items, ht_size, sizeof *(raw->items), cmp_raw_num_desc);
-  return raw;
+  qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_num_desc);
+  return raw_data;
 }
