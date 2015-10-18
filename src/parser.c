@@ -1798,6 +1798,12 @@ read_log (GLog ** logger, int n)
   char line[LINE_BUFFER] = "";
   int i = 0, test = -1 == n ? 0 : 1;
 
+  /* no data piped, no log passed, load from disk only then */
+  if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
+    (*logger)->load_from_disk_only = 1;
+    return 0;
+  }
+
   /* no log passed, but data piped */
   if (!isatty (STDIN_FILENO) && !conf.ifile) {
     fp = stdin;
@@ -1856,12 +1862,6 @@ parse_log (GLog ** logger, char *tail, int n)
   if (tail != NULL) {
     if (pre_process_log ((*logger), tail, test))
       return 1;
-    return 0;
-  }
-
-  /* no data piped, no log passed, load from disk only then */
-  if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
-    (*logger)->load_from_disk_only = 1;
     return 0;
   }
 
