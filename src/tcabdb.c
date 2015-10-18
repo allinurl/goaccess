@@ -351,7 +351,7 @@ ins_iu64 (void *hash, int key, uint64_t value)
     return -1;
 
   /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (uint64_t), &value, sizeof (uint64_t)))
+  if (!tcadbput (hash, &key, sizeof (int), &value, sizeof (uint64_t)))
     LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
@@ -390,13 +390,13 @@ inc_iu64 (void *hash, int key, uint64_t inc)
   if (!hash)
     return -1;
 
-  if ((ptr = tcadbget (hash, &key, sizeof (uint64_t), &sp)) != NULL) {
+  if ((ptr = tcadbget (hash, &key, sizeof (int), &sp)) != NULL) {
     value = (*(uint64_t *) ptr) + inc;
     free (ptr);
   }
 
   /* if key exists in the database, it is overwritten */
-  if (!tcadbput (hash, &key, sizeof (uint64_t), &value, sizeof (uint64_t)))
+  if (!tcadbput (hash, &key, sizeof (int), &value, sizeof (uint64_t)))
     LOG_DEBUG (("Unable to tcadbput\n"));
 
   return 0;
@@ -636,10 +636,10 @@ get_iu64 (void *hash, int key)
   void *ptr = 0;
 
   if (!hash)
-    return -1;
+    return 0;
 
   /* key found, return current value */
-  if ((ptr = tcadbget (hash, &key, sizeof (uint64_t), &sp)) != NULL) {
+  if ((ptr = tcadbget (hash, &key, sizeof (int), &sp)) != NULL) {
     ret = (*(uint64_t *) ptr);
     free (ptr);
     return ret;
