@@ -696,7 +696,8 @@ invalid_protocol (const char *token)
   const char *lookfor;
 
   return !((lookfor = "HTTP/1.0", !memcmp (token, lookfor, 8)) ||
-           (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)));
+           (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)) ||
+           (lookfor = "HTTP/2", !memcmp (token, lookfor, 6)));
 }
 
 static char *
@@ -716,7 +717,8 @@ parse_req (char *line, char **method, char **protocol)
   else {
     req = line + strlen (meth);
     if ((proto = strstr (line, " HTTP/1.0")) == NULL &&
-        (proto = strstr (line, " HTTP/1.1")) == NULL) {
+        (proto = strstr (line, " HTTP/1.1")) == NULL &&
+        (proto = strstr (line, " HTTP/2")) == NULL) {
       return alloc_string ("-");
     }
 
