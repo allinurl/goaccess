@@ -49,6 +49,17 @@ if test "$geoip" = "yes"; then
 fi
 AM_CONDITIONAL([GEOLOCATION], [test "x$geoip" = "xyes"])
 
+# GNU getline / POSIX.1-2008
+AC_ARG_WITH(getline, [  --with-getline Build using GNU getline.],
+  [with_getline=$withval], [with_getline=no])
+
+if test "$with_getline" = "yes"; then
+  AC_CHECK_FUNCS([getline],
+    AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.]),
+    [AC_MSG_ERROR([*** GNU getline not found. Do not use --with-getline for std read.])]
+  )
+fi
+
 # UTF8
 AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide characters],
   [utf8="$enableval"], utf8=no)
@@ -233,12 +244,13 @@ cat << EOF
 
 Your build configuration:
 
-  Prefix:         $prefix
-  Package:        $PACKAGE_NAME
-  Version:        $VERSION
-  Storage method: $storage
-  Compiler flags: $CFLAGS
-  Linker flags:   $LIBS $LDFLAGS
-  Bugs:           $PACKAGE_BUGREPORT
+  Prefix         : $prefix
+  Package        : $PACKAGE_NAME
+  Version        : $VERSION
+  Storage method : $storage
+  GNU getline    : $with_getline
+  Compiler flags : $CFLAGS
+  Linker flags   : $LIBS $LDFLAGS
+  Bugs           : $PACKAGE_BUGREPORT
 
 EOF
