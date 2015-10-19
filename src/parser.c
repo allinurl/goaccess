@@ -1792,11 +1792,30 @@ cleanup:
 }
 
 static int
-read_log (GLog ** logger, int n)
+read_line (FILE * fp, int lines2test, GLog ** logger)
+{
+  char line[LINE_BUFFER] = "";
+  int i = 0, test = -1 == lines2test ? 0 : 1;
+
+  while (fgets (line, LINE_BUFFER, fp) != NULL) {
+    if (lines2test >= 0 && i++ == lines2test)
+      break;
+
+    /* start processing log line */
+    if (pre_process_log ((*logger), line, test)) {
+      if (!(*logger)->piping)
+        fclose (fp);
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
+static int
+read_log (GLog ** logger, int lines2test)
 {
   FILE *fp = NULL;
-  char line[LINE_BUFFER] = "";
-  int i = 0, test = -1 == n ? 0 : 1;
 
   /* no data piped, no log passed, load from disk only then */
   if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
@@ -1814,17 +1833,9 @@ read_log (GLog ** logger, int n)
   if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
-  while (fgets (line, LINE_BUFFER, fp) != NULL) {
-    if (n >= 0 && i++ == n)
-      break;
-
-    /* start processing log line */
-    if (pre_process_log ((*logger), line, test)) {
-      if (!(*logger)->piping)
-        fclose (fp);
-      return 1;
-    }
-  }
+  /* read line by line */
+  if (read_line (fp, lines2test, logger))
+    return 1;
 
   /* definitely not portable! */
   if ((*logger)->piping)
@@ -1852,9 +1863,9 @@ verify_formats (void)
 
 /* entry point to parse the log line by line */
 int
-parse_log (GLog ** logger, char *tail, int n)
+parse_log (GLog ** logger, char *tail, int lines2test)
 {
-  int test = -1 == n ? 0 : 1;
+  int test = -1 == lines2test ? 0 : 1;
 
   verify_formats ();
 
@@ -1865,7 +1876,7 @@ parse_log (GLog ** logger, char *tail, int n)
     return 0;
   }
 
-  return read_log (logger, n);
+  return read_log (logger, lines2test);
 }
 
 /* make sure we have valid hits */
