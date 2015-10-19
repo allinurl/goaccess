@@ -1791,6 +1791,7 @@ cleanup:
   return 0;
 }
 
+#ifndef WITH_GETLINE
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
 {
@@ -1811,6 +1812,34 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 
   return 0;
 }
+#endif
+
+#ifdef WITH_GETLINE
+static int
+read_line (FILE * fp, int lines2test, GLog ** logger)
+{
+  char *line = NULL;
+  size_t len = 0;
+  ssize_t read;
+  int i = 0, test = -1 == lines2test ? 0 : 1;
+
+  while ((read = getline (&line, &len, fp)) != -1) {
+    if (lines2test >= 0 && i++ == lines2test)
+      break;
+
+    /* start processing log line */
+    if (pre_process_log ((*logger), line, test)) {
+      if (!(*logger)->piping)
+        fclose (fp);
+      free (line);
+      return 1;
+    }
+  }
+  free (line);
+
+  return 0;
+}
+#endif
 
 static int
 read_log (GLog ** logger, int lines2test)
