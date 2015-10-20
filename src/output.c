@@ -559,8 +559,6 @@ print_html_header (FILE * fp, char *now)
   "    -webkit-box-sizing: border-box;"
   "    -moz-box-sizing: border-box;"
   "    background-color: rgba(119, 119, 119, 0.7);"
-  "    border-bottom-right-radius: 3px;"
-  "    border-top-right-radius: 3px;"
   "    box-sizing: border-box;"
   "    color: #ffffff;"
   "    height: 17px;"
