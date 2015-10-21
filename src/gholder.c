@@ -75,7 +75,6 @@ static GPanel paneling[] = {
   {GEO_LOCATION    , add_root_to_holder, NULL} ,
 #endif
   {STATUS_CODES    , add_root_to_holder, NULL} ,
-  {VISIT_TIMES     , add_data_to_holder, NULL} ,
 };
 /* *INDENT-ON* */
 
