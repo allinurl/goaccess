@@ -318,7 +318,7 @@ print_json_summary (FILE * fp, GLog * logger)
   fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_STATIC, total);
 
   /* log size */
-  if (!logger->piping)
+  if (!logger->piping && conf.ifile)
     log_size = file_size (conf.ifile);
   fprintf (fp, "\t\t\"%s\": %jd,\n", OVERALL_LOGSIZE, (intmax_t) log_size);
 

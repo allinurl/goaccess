@@ -1623,7 +1623,7 @@ print_html_summary (FILE * fp, GLog * logger)
   fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
   print_html_end_col_wrap (fp);
 
-  if (!logger->piping) {
+  if (!logger->piping && conf.ifile) {
     log_size = file_size (conf.ifile);
     size = filesize_str (log_size);
   } else {
