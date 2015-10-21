@@ -252,7 +252,7 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_STATIC);
 
   /* log size */
-  if (!logger->piping)
+  if (!logger->piping && conf.ifile)
     log_size = file_size (conf.ifile);
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) log_size, OVERALL_LOGSIZE);
