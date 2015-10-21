@@ -23,7 +23,11 @@ install:
         - make
         - make distclean
         - autoreconf -fiv
-        - ./configure
+        - ./configure --enable-tcb=memhash --disable-bzip --disable-zlib
+        - make
+        - make distclean
+        - autoreconf -fiv
+        - ./configure --enable-tcb=btree --disable-bzip --disable-zlib
         - make
 branches:
  only:
