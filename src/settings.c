@@ -379,7 +379,7 @@ ignore_panel (GModule mod)
 {
   int i;
   int module;
-  char *view;
+  const char *view;
   for (i = 0; i < conf.ignore_panel_idx; ++i) {
     view = conf.ignore_panels[i];
     if ((module = get_module_enum (view)) == -1)

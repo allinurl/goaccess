@@ -81,7 +81,7 @@ typedef struct GConf_
   char *iconfigfile;
   char *ifile;
   char *ignore_ips[MAX_IGNORE_IPS];
-  char *ignore_panels[TOTAL_MODULES];
+  const char *ignore_panels[TOTAL_MODULES];
   char *ignore_referers[MAX_IGNORE_REF];
   char *invalid_requests_log;
   char *log_format;
