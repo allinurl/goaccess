@@ -61,6 +61,7 @@ static GPanel paneling[] = {
   {OS, print_csv_data},
   {BROWSERS, print_csv_data},
   {VISIT_TIMES, print_csv_data},
+  {VIRTUAL_HOSTS, print_csv_data},
   {REFERRERS, print_csv_data},
   {REFERRING_SITES, print_csv_data},
   {KEYPHRASES, print_csv_data},

@@ -51,6 +51,7 @@ typedef struct GLogItem_
   char *status;
   char *time;
   char *uniq_key;
+  char *vhost;
 
   char site[REF_SITE_LEN];
 

@@ -59,9 +59,9 @@ extern size_t term_w;
 #define MAX_CHOICES      366
 
 #ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES    13
+#define TOTAL_MODULES    14
 #else
-#define TOTAL_MODULES    12
+#define TOTAL_MODULES    13
 #endif
 
 #define DATE_TIME        20
@@ -89,6 +89,7 @@ typedef enum MODULES
   OS,
   BROWSERS,
   VISIT_TIMES,
+  VIRTUAL_HOSTS,
   REFERRERS,
   REFERRING_SITES,
   KEYPHRASES,
