@@ -41,6 +41,7 @@
 #include "gkhash.h"
 #endif
 
+#include "error.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
@@ -400,6 +401,11 @@ unsigned char icons[] = {
 static void
 clean_output (FILE * fp, char *s)
 {
+  if (!s) {
+    LOG_DEBUG (("NULL data on clean_output.\n"));
+    return;
+  }
+
   while (*s) {
     switch (*s) {
     case '\'':
@@ -1255,7 +1261,7 @@ print_metric_data (FILE * fp, GMetrics * nmetrics)
 static void
 print_metric_protocol (FILE * fp, GMetrics * nmetrics)
 {
-  if (!conf.append_protocol)
+  if (!conf.append_protocol && nmetrics->protocol)
     return;
 
   fprintf (fp, "<td>");
@@ -1266,7 +1272,7 @@ print_metric_protocol (FILE * fp, GMetrics * nmetrics)
 static void
 print_metric_method (FILE * fp, GMetrics * nmetrics)
 {
-  if (!conf.append_method)
+  if (!conf.append_method && nmetrics->method)
     return;
 
   fprintf (fp, "<td>");
