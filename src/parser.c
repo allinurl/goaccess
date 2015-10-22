@@ -75,6 +75,7 @@ static int gen_browser_key (GKeyData * kdata, GLogItem * glog);
 static int gen_host_key (GKeyData * kdata, GLogItem * glog);
 static int gen_keyphrase_key (GKeyData * kdata, GLogItem * glog);
 static int gen_os_key (GKeyData * kdata, GLogItem * glog);
+static int gen_vhost_key (GKeyData * kdata, GLogItem * glog);
 static int gen_referer_key (GKeyData * kdata, GLogItem * glog);
 static int gen_ref_site_key (GKeyData * kdata, GLogItem * glog);
 static int gen_request_key (GKeyData * kdata, GLogItem * glog);
@@ -274,6 +275,19 @@ static GParse paneling[] = {
     NULL,
     NULL,
     NULL,
+  }, {
+    VIRTUAL_HOSTS,
+    gen_vhost_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
   },
 };
 /* *INDENT-ON* */
@@ -386,6 +400,7 @@ init_log_item (GLog * logger)
   glog->status = NULL;
   glog->time = NULL;
   glog->uniq_key = NULL;
+  glog->vhost = NULL;
 
   glog->resp_size = 0LL;
   glog->serve_time = 0;
@@ -437,6 +452,8 @@ free_logger (GLogItem * glog)
     free (glog->time);
   if (glog->uniq_key != NULL)
     free (glog->uniq_key);
+  if (glog->vhost != NULL)
+    free (glog->vhost);
 
   free (glog);
 }
@@ -837,6 +854,15 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     }
     glog->date = xstrdup (tkn);
     glog->time = tkn;
+    break;
+    /* Virtual Host */
+  case 'v':
+    if (glog->vhost)
+      return 1;
+    tkn = parse_string (&(*str), p[1], 1);
+    if (tkn == NULL || *tkn == '\0')
+      return 1;
+    glog->vhost = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -1448,6 +1474,17 @@ gen_static_request_key (GKeyData * kdata, GLogItem * glog)
   if (glog->req && glog->is_static)
     return gen_req_key (kdata, glog);
   return 1;
+}
+
+static int
+gen_vhost_key (GKeyData * kdata, GLogItem * glog)
+{
+  if (!glog->vhost)
+    return 1;
+
+  get_kdata (kdata, glog->vhost, glog->vhost);
+
+  return 0;
 }
 
 static int

@@ -89,6 +89,11 @@
 #define VTIME_ID    "visit_time"
 #define VTIME_LABEL "Time"
 
+#define VHOST_HEAD  "Virtual Hosts"
+#define VHOST_DESC  "Data sorted by hits [, avgts, cumts, maxts]"
+#define VHOST_ID    "vhosts"
+#define VHOST_LABEL "Virtual Hosts"
+
 #define FOUND_HEAD  "HTTP 404 Not Found URLs"
 #define FOUND_DESC  "Top 404 Not Found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define FOUND_ID    "not_found"

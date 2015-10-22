@@ -233,6 +233,10 @@ allocate_data (void)
       dash->module[module].head = VTIME_HEAD;
       dash->module[module].desc = VTIME_DESC;
       break;
+    case VIRTUAL_HOSTS:
+      dash->module[module].head = VHOST_HEAD;
+      dash->module[module].desc = VHOST_DESC;
+      break;
     case REFERRERS:
       dash->module[module].head = REFER_HEAD;
       dash->module[module].desc = REFER_DESC;
@@ -716,17 +720,21 @@ get_keys (void)
       break;
     case 57:   /* 9 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRERS);
+      set_module_to (&gscroll, VIRTUAL_HOSTS);
       break;
     case 48:   /* 0 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRING_SITES);
+      set_module_to (&gscroll, REFERRERS);
       break;
     case 33:   /* shift + 1 */
       /* reset expanded module */
+      set_module_to (&gscroll, REFERRING_SITES);
+      break;
+    case 34:   /* shift + 2 */
+      /* reset expanded module */
       set_module_to (&gscroll, KEYPHRASES);
       break;
-    case 34:   /* Shift + 2 */
+    case 35:   /* Shift + 3 */
       /* reset expanded module */
 #ifdef HAVE_LIBGEOIP
       set_module_to (&gscroll, GEO_LOCATION);
@@ -735,7 +743,7 @@ get_keys (void)
 #endif
       break;
 #ifdef HAVE_LIBGEOIP
-    case 35:   /* Shift + 3 */
+    case 36:   /* Shift + 4 */
       /* reset expanded module */
       set_module_to (&gscroll, STATUS_CODES);
       break;
