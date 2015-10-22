@@ -342,15 +342,6 @@ new_grawdata_item (unsigned int size)
 void
 free_raw_data (GRawData * raw_data)
 {
-//#ifdef HAVE_LIBTOKYOCABINET
-//  int i;
-//  for (i = 0; i < raw_data->size; i++) {
-//    if (raw_data->items[i].key != NULL)
-//      free (raw_data->items[i].key);
-//    if (raw_data->items[i].value != NULL)
-//      free (raw_data->items[i].value);
-//  }
-//#endif
   free (raw_data->items);
   free (raw_data);
 }
