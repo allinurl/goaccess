@@ -40,9 +40,9 @@ static int nargc = 0;
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
   "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA          */
-  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
+  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
   "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF           */
-  "%^:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost     */
+  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost     */
   "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C           */
   "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront    */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
