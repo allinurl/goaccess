@@ -1315,7 +1315,9 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
     GSortField field = sort_choices[module][i];
     if (SORT_BY_CUMTS == field && !conf.serve_usecs)
       continue;
-    else if (SORT_BY_MAXTS == field && !conf.bandwidth)
+    else if (SORT_BY_MAXTS == field && !conf.serve_usecs)
+      continue;
+    else if (SORT_BY_AVGTS == field && !conf.serve_usecs)
       continue;
     else if (SORT_BY_BW == field && !conf.bandwidth)
       continue;
