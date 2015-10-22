@@ -87,13 +87,11 @@ serve the request.
 There are three storage options that can be used with GoAccess. Choosing one
 will depend on your environment and needs.
 .TP
-GLib Hash Tables
-On-memory storage provides better performance at the cost of limiting the
+Default Hash Tables
+In-memory storage provides better performance at the cost of limiting the
 dataset size to the amount of available physical memory. By default GoAccess
-uses GLib Hash Tables. If your dataset can fit in memory, then this will
-perform fine. It has average memory usage and pretty good performance. For
-better performance with memory trade-off see Tokyo Cabinet on-memory hash
-database.
+uses in-memory hash tables. If your dataset can fit in memory, then this will
+perform fine. It has very good memory usage and pretty good performance.
 .TP
 Tokyo Cabinet On-Disk B+ Tree
 Use this storage method for large datasets where it is not possible to fit
@@ -102,9 +100,9 @@ databases since data has to be committed to disk. However, using an SSD greatly
 increases the performance. You may also use this storage method if you need
 data persistence to quickly load statistics at a later date.
 .TP
-Tokyo Cabinet On-Memory Hash Database
-Although this may vary across different systems, in general the on-memory hash
-database should perform slightly better than GLib Hash Tables.
+Tokyo Cabinet In-memory Hash Database
+An alternative to the default hash tables. It uses generic typing and thus it's
+performance in terms of memory and speed is average.
 .SH CONFIGURATION
 .P
 Multiple options can be used to configure GoAccess. For a complete up-to-date
@@ -132,6 +130,10 @@ Disable zlib compression on B+ Tree database.
 .TP
 \fB\-\-disable-bzip
 Disable bzip2 compression on B+ Tree database.
+.TP
+\fB\-\-with-getline
+Use GNU getline() to parse full line requests instead of a fixed size buffer of
+4096.
 .SH OPTIONS
 .P
 The following options can be supplied to the command or specified in the
@@ -309,8 +311,7 @@ names for each available metric in every panel.
 Set HTML report page title and header.
 .TP
 \fB\-\-debug-file=<debugfile>
-Send all debug messages to the specified file. Needs to be configured with
---enable-debug
+Send all debug messages to the specified file.
 .TP
 \fB\-\-invalid-requests=<filename>
 Log invalid requests to the specified file.
@@ -366,6 +367,7 @@ Ignore parsing and displaying the given panel.
   OS,
   BROWSERS,
   VISIT_TIMES,
+  VIRTUAL_HOSTS,
   REFERRERS,
   REFERRING_SITES,
   KEYPHRASES,
@@ -536,6 +538,8 @@ variable.
 date field matching the
 .I date_format
 variable.
+.IP %v
+The canonical Server Name of the server serving the request (Virtual Host).
 .IP %h
 host (the client IP address, either IPv4 or IPv6)
 .IP %r
