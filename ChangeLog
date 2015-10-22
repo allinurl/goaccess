@@ -1,12 +1,14 @@
 Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
 
-  - Added major performance improvements to the default storage when parsing
-    and storing data (~%44 less memory, ~37% faster).
-  - Added OS X 'El Capitan'.
+  - Added major performance improvements to the default storage when parsing and
+    storing data (~%44 less memory, ~37% faster).
+  - Added the ability to parse virtual hosts and a new panel to display metrics
+    per virtual host.
+  - Added the ability to parse HTTP/2 requests.
   - Added the ability to use GNU getline() to parse full line requests.
   - Added the ability to output debug info if a log file is specified, even
     without `--enable-debug`.
-  - Added the ability to parse HTTP/2 requests.
+  - Added OS X 'El Capitan'.
   - Added WebDav HTTP methods and HTTP status from RFC 2518 and  RFC 3253.
   - Fixed detection of some Googlebots.
   - Fixed issue where time served metrics were not shown when loading persisted
@@ -15,8 +17,8 @@ Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
   - Fixed percentage on the HTML output when excluding IPs.
   - Removed GLib dependency and refactored storage functionality. By removing
     this dependency, GoAccess is able to store data in a more efficient manner,
-    for instance, it avoids storing integer data as void* (generic typing),
-    thus greatly improving memory consumption for integers.
+    for instance, it avoids storing integer data as void* (generic typing), thus
+    greatly improving memory consumption for integers.
 
 Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
 
