@@ -1217,6 +1217,15 @@ exclude_crawler (GLogItem * glog)
   return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
 }
 
+/* Perform some additional tasks to panels before they are being parsed. */
+static void
+verify_panels (void)
+{
+  /* Remove virtual host panel if no '%v' within log format */
+  if (!strstr (conf.log_format, "%v") || conf.ignore_panel_idx >= TOTAL_MODULES)
+    conf.ignore_panels[conf.ignore_panel_idx++] = "VIRTUAL_HOSTS";
+}
+
 static int
 ignore_line (GLog * logger, GLogItem * glog, int test)
 {
@@ -1933,7 +1942,11 @@ parse_log (GLog ** logger, char *tail, int lines2test)
 {
   int test = -1 == lines2test ? 0 : 1;
 
+  /* verify that we have the required formats */
   verify_formats ();
+
+  /* perform some additional checks before parsing panels */
+  verify_panels ();
 
   /* process tail data and return */
   if (tail != NULL) {
