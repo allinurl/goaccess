@@ -30,6 +30,7 @@ terminal. Features include:
 * Geo Location - Continent/Country/City
 * Visitors Time Distribution
 * HTTP Status Codes
+* Metrics per Virtual Host
 * Ability to output
  [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
  [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
@@ -37,7 +38,7 @@ terminal. Features include:
 * Tailor GoAccess to suit your own color taste/schemes
 * Incremental log processing
 * Support for large datasets and data persistence
-* Support for IPv6
+* Support for HTTP/2 & IPv6
 * Output statistics to HTML. See [**report**](http://goaccess.io/goaccess_html_report.html?src=gh).
 
 ### Nearly all web log formats... ###
@@ -70,9 +71,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.9.4.tar.gz
-    $ tar -xzvf goaccess-0.9.4.tar.gz
-    $ cd goaccess-0.9.4/
+    $ wget http://tar.goaccess.io/goaccess-0.9.5.tar.gz
+    $ tar -xzvf goaccess-0.9.5.tar.gz
+    $ cd goaccess-0.9.5/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
@@ -148,14 +149,12 @@ GoAccess can be used in Windows through Cygwin.
 There are three storage options that can be used with GoAccess. Choosing one
 will depend on your environment and needs.
 
-#### GLib Hash Tables ####
+#### Default Hash Tables ####
 
-On-memory storage provides better performance at the cost of limiting the
+In-memory storage provides better performance at the cost of limiting the
 dataset size to the amount of available physical memory. By default GoAccess
-uses GLib Hash Tables. If your dataset can fit in memory, then this will
-perform fine. It has average memory usage and pretty good performance. For
-better performance with memory trade-off see Tokyo Cabinet on-memory hash
-database.
+uses in-memory hash tables. If your dataset can fit in memory, then this will
+perform fine. It has very good memory usage and pretty good performance.
 
 #### Tokyo Cabinet On-Disk B+ Tree ####
 
@@ -167,8 +166,8 @@ data persistence to quickly load statistics at a later date.
 
 #### Tokyo Cabinet On-Memory Hash Database ####
 
-Although this may vary across different systems, in general the on-memory hash
-database should perform slightly better than GLib Hash Tables.
+An alternative to the default hash tables. It uses generic typing and thus it's
+performance in terms of memory and speed is average.
 
 ## Command Line / Config Options ##
 The following options can be supplied to the command or specified in the
