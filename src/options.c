@@ -390,8 +390,10 @@ read_option_args (int argc, char **argv)
 
       /* ignore panel */
       if (!strcmp ("ignore-panel", long_opts[idx].name) &&
-          conf.ignore_panel_idx < TOTAL_MODULES)
-        conf.ignore_panels[conf.ignore_panel_idx++] = optarg;
+          conf.ignore_panel_idx < TOTAL_MODULES) {
+        if (!str_inarray (optarg, conf.ignore_panels, conf.ignore_panel_idx))
+          conf.ignore_panels[conf.ignore_panel_idx++] = optarg;
+      }
 
       /* ignore referer */
       if (!strcmp ("ignore-referer", long_opts[idx].name) &&

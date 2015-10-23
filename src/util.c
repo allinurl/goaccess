@@ -417,6 +417,17 @@ verify_status_code (char *str)
   return "Unknown";
 }
 
+int
+str_inarray (const char *s, const char *arr[], int size)
+{
+  int i;
+  for (i = 0; i < size; i++) {
+    if (strcmp (arr[i], s) == 0)
+      return 1;
+  }
+  return 0;
+}
+
 char *
 ltrim (char *s)
 {
