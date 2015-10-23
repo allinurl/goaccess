@@ -44,6 +44,7 @@ size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
 
+/* String modules to enumerated modules */
 static GEnum MODULES[] = {
   {"VISITORS", VISITORS},
   {"REQUESTS", REQUESTS},
@@ -63,13 +64,16 @@ static GEnum MODULES[] = {
   {"STATUS_CODES", STATUS_CODES},
 };
 
-/* calculate hits percentage */
+/* Calculate a percentage.
+ *
+ * The percentage is returned. */
 float
 get_percentage (unsigned long long total, unsigned long long hit)
 {
   return ((float) (hit * 100) / (total));
 }
 
+/* Display the storage being used. */
 void
 display_storage (void)
 {
@@ -97,6 +101,7 @@ display_default_config_file (void)
   }
 }
 
+/* Display the current version. */
 void
 display_version (void)
 {
@@ -105,12 +110,10 @@ display_version (void)
   fprintf (stdout, "Copyright (C) 2009-2015 GNU GPL'd, by Gerardo Orellana\n");
 }
 
-int
-get_module_enum (const char *str)
-{
-  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
-}
-
+/* Get the enumerated value given a string.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated module value is returned. */
 int
 str2enum (const GEnum map[], int len, const char *str)
 {
@@ -124,6 +127,20 @@ str2enum (const GEnum map[], int len, const char *str)
   return -1;
 }
 
+/* Get the enumerated module value given a module string.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated module value is returned. */
+int
+get_module_enum (const char *str)
+{
+  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
+}
+
+/* Instantiate a new Single linked-list node.
+ *
+ * On error, aborts if node can't be malloc'd.
+ * On success, the GSLList node. */
 GSLList *
 list_create (void *data)
 {
@@ -134,6 +151,10 @@ list_create (void *data)
   return node;
 }
 
+/* Create and insert a node after a given node.
+ *
+ * On error, aborts if node can't be malloc'd.
+ * On success, the newly created node. */
 GSLList *
 list_insert_append (GSLList * node, void *data)
 {
@@ -145,6 +166,10 @@ list_insert_append (GSLList * node, void *data)
   return newnode;
 }
 
+/* Create and insert a node in front of the list.
+ *
+ * On error, aborts if node can't be malloc'd.
+ * On success, the newly created node. */
 GSLList *
 list_insert_prepend (GSLList * list, void *data)
 {
@@ -155,6 +180,10 @@ list_insert_prepend (GSLList * list, void *data)
   return newnode;
 }
 
+/* Find a node given a pointer to a function that compares them.
+ *
+ * If comparison fails, NULL is returned.
+ * On success, the existing node is returned. */
 GSLList *
 list_find (GSLList * node, int (*func) (void *, void *), void *data)
 {
@@ -167,6 +196,9 @@ list_find (GSLList * node, int (*func) (void *, void *), void *data)
   return NULL;
 }
 
+/* Remove all nodes from the list.
+ *
+ * On success, 0 is returned. */
 int
 list_remove_nodes (GSLList * list)
 {
@@ -182,6 +214,10 @@ list_remove_nodes (GSLList * list)
   return 0;
 }
 
+/* Iterate over the single linked-list and call function pointer.
+ *
+ * If function pointer does not return 0, -1 is returned.
+ * On success, 0 is returned. */
 int
 list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data)
 {
@@ -194,6 +230,9 @@ list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data)
   return 0;
 }
 
+/* Count the number of elements on the linked-list.
+ *
+ * On success, the number of elements is returned. */
 int
 list_count (GSLList * node)
 {
@@ -205,6 +244,9 @@ list_count (GSLList * node)
   return count;
 }
 
+/* Instantiate a new GAgents structure.
+ *
+ * On success, the newly malloc'd structure is returned. */
 GAgents *
 new_gagents (void)
 {
@@ -214,6 +256,9 @@ new_gagents (void)
   return agents;
 }
 
+/* Instantiate a new GAgentItem structure.
+ *
+ * On success, the newly malloc'd structure is returned. */
 GAgentItem *
 new_gagent_item (uint32_t size)
 {
@@ -222,6 +267,11 @@ new_gagent_item (uint32_t size)
   return item;
 }
 
+/* Convert a raw date %Y%m%d format to a human readable format %d/%b/%Y.
+ * It frees the current value and assign the new formatted date.
+ *
+ * On error, it assigns `---` as placeholder.
+ * On success, new formatted date is assigned. */
 void
 format_date_visitors (GMetrics * metrics)
 {
@@ -241,6 +291,10 @@ format_date_visitors (GMetrics * metrics)
   metrics->data = xstrdup ("---");
 }
 
+/* Determine if the given date format is a timestamp.
+ *
+ * On error, 0 is returned.
+ * On success, 1 is returned. */
 int
 has_timestamp (const char *fmt)
 {
