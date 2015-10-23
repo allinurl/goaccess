@@ -83,6 +83,7 @@ struct option long_opts[] = {
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
+  {"dcf"                  , no_argument       , 0 ,  0  } ,
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
@@ -214,7 +215,9 @@ cmd_help (void)
   "  -h --help                       - This help.\n"
   "  -V --version                    - Display version information and exit.\n"
   "  -s --storage                    - Display current storage method.\n"
-  "                                    e.g., B+ Tree, Hash.\n\n"
+  "                                    e.g., B+ Tree, Hash.\n"
+  "  --dcf                           - Display the path of the default config\n"
+  "                                    file when `-p` is not used.\n\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.io\n"
@@ -475,6 +478,12 @@ read_option_args (int argc, char **argv)
         if (!strcmp ("bz2", optarg))
           conf.compression = TC_BZ2;
 #endif
+      }
+
+      /* default config file --dwf */
+      if (!strcmp ("dcf", long_opts[idx].name)) {
+        display_default_config_file ();
+        exit (EXIT_SUCCESS);
       }
 
       break;

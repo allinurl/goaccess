@@ -30,6 +30,7 @@
 
 #include "commons.h"
 #include "error.h"
+#include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -79,6 +80,21 @@ display_storage (void)
 #else
   fprintf (stdout, "Built using the default On-Memory Hash database.\n");
 #endif
+}
+
+/* Display the path of the default configuration file when `-p` is not used */
+void
+display_default_config_file (void)
+{
+  char *path = get_config_file_path ();
+
+  if (!path) {
+    fprintf (stdout, "No default config file found.\n");
+    fprintf (stdout, "You may specify one with `-p /path/goaccess.conf`\n");
+  } else {
+    fprintf (stdout, "%s\n", path);
+    free (path);
+  }
 }
 
 void
