@@ -115,12 +115,6 @@ house_keeping (void)
   free_holder (&holder);
   gdns_free_queue ();
 
-  /* free uniqmap */
-#if defined(TCB_BTREE) || defined(TCB_MEMHASH)
-  /*for (module = 0; module < TOTAL_MODULES; module++) { */
-  /*free_db_key (get_storage_metric (module, MTRC_UNIQMAP)); */
-  /*} */
-#endif
   free_storage ();
 
   pthread_mutex_unlock (&gdns_thread.mutex);
