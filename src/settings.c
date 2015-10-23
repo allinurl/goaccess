@@ -79,7 +79,7 @@ in_ignore_cmd_opts (const char *val)
   return 0;
 }
 
-static char *
+char *
 get_config_file_path (void)
 {
   char *upath = NULL, *rpath = NULL;
