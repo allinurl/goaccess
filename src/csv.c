@@ -44,6 +44,7 @@
 #include "ui.h"
 #include "util.h"
 
+/* Panel output */
 typedef struct GPanel_
 {
   GModule module;
@@ -52,6 +53,7 @@ typedef struct GPanel_
 
 static void print_csv_data (FILE * fp, GHolder * h, int valid);
 
+/* A function pointer for each panel */
 static GPanel paneling[] = {
   {VISITORS, print_csv_data},
   {REQUESTS, print_csv_data},
@@ -71,6 +73,10 @@ static GPanel paneling[] = {
   {STATUS_CODES, print_csv_data},
 };
 
+/* Get a panel from the GPanel structure given a module.
+ *
+ * On error, or if not found, NULL is returned.
+ * On success, the panel value is returned. */
 static GPanel *
 panel_lookup (GModule module)
 {
@@ -83,6 +89,7 @@ panel_lookup (GModule module)
   return NULL;
 }
 
+/* Iterate over the string and escape CSV output. */
 static void
 escape_cvs_output (FILE * fp, char *s)
 {
@@ -99,6 +106,10 @@ escape_cvs_output (FILE * fp, char *s)
   }
 }
 
+/* Output a sublist (double linked-list) items for a particular parent node.
+ *
+ * On error, it exits early.
+ * On success, outputs item value. */
 static void
 print_csv_sub_items (FILE * fp, GHolder * h, int idx, int valid)
 {
@@ -145,7 +156,7 @@ print_csv_sub_items (FILE * fp, GHolder * h, int idx, int valid)
   }
 }
 
-/* generate CSV unique visitors stats */
+/* Output first-level items. */
 static void
 print_csv_data (FILE * fp, GHolder * h, int valid)
 {
@@ -191,7 +202,7 @@ print_csv_data (FILE * fp, GHolder * h, int valid)
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
-/* general statistics info */
+/* Output general statistics information. */
 static void
 print_csv_summary (FILE * fp, GLog * logger)
 {
