@@ -29,6 +29,7 @@
 #define MAX_IGNORE_IPS     64
 #define MAX_IGNORE_REF     64
 #define MAX_CUSTOM_COLORS  64
+#define MAX_IGNORE_STATUS  64
 #define NO_CONFIG_FILE "No config file used"
 
 typedef enum
@@ -81,7 +82,6 @@ typedef struct GConf_
   char *iconfigfile;
   char *ifile;
   char *ignore_ips[MAX_IGNORE_IPS];
-  const char *ignore_panels[TOTAL_MODULES];
   char *ignore_referers[MAX_IGNORE_REF];
   char *invalid_requests_log;
   char *log_format;
@@ -89,6 +89,8 @@ typedef struct GConf_
   char *sort_panels[TOTAL_MODULES];
   char *time_format;
   const char *colors[MAX_CUSTOM_COLORS];
+  const char *ignore_panels[TOTAL_MODULES];
+  const char *ignore_status[MAX_IGNORE_STATUS];
   const char *static_files[MAX_EXTENSIONS];
 
   int all_static_files;
@@ -121,6 +123,7 @@ typedef struct GConf_
   int ignore_ip_idx;
   int ignore_panel_idx;
   int ignore_referer_idx;
+  int ignore_status_idx;
   int sort_panel_idx;
   int static_file_idx;
 
