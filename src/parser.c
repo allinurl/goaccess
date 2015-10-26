@@ -1223,9 +1223,13 @@ ignore_status_code (const char *status)
 static void
 verify_panels (void)
 {
+  int ignore_panel_idx = conf.ignore_panel_idx;
+
   /* Remove virtual host panel if no '%v' within log format */
-  if (!strstr (conf.log_format, "%v") || conf.ignore_panel_idx >= TOTAL_MODULES)
-    conf.ignore_panels[conf.ignore_panel_idx++] = "VIRTUAL_HOSTS";
+  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
+    if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
+      conf.ignore_panels[conf.ignore_panel_idx++] = "VIRTUAL_HOSTS";
+  }
 }
 
 static int
