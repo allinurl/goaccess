@@ -29,6 +29,7 @@ terminal. Features include:
 * Visitors Time Distribution
 * HTTP Status Codes
 * Metrics per Virtual Host
+* Ability to output
  [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
  [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
  [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
