@@ -69,6 +69,7 @@ struct option long_opts[] = {
   {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
+  {"ignore-status"        , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
@@ -118,33 +119,40 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --log-format=<logformat>        - Specify log format. Inner quotes need to be\n"
-  "                                    escaped, or use single quotes.\n"
-  "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
-  "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n\n"
+  "  --log-format=<logformat>        - Specify log format. Inner quotes need to\n"
+  "                                    be escaped, or use single quotes.\n"
+  "  --date-format=<dateformat>      - Specify log date format. e.g.,\n"
+  "                                    %%d/%%b/%%Y\n"
+  "  --time-format=<timeformat>      - Specify log time format. e.g.,\n"
+  "                                    %%H:%%M:%%S\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
-  "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
+  "  -c --config-dialog              - Prompt log/date/time configuration\n"
+  "                                    window.\n"
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
-  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors.\n"
-  "                                    See manpage for more details and options.\n"
+  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for\n"
+  "                                    more details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --no-color                      - Disable colored output.\n"
-  "  --no-column-names               - Don't write column names in term output.\n"
-  "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
+  "  --no-column-names               - Don't write column names in term\n"
+  "                                    output.\n"
+  "  --no-csv-summary                - Disable summary metrics on the CSV\n"
+  "                                    output.\n"
   "  --no-progress                   - Disable progress metrics.\n\n"
 
   /* File Options */
   "File Options\n\n"
   "  -f --log-file=<filename>        - Path to input log file.\n"
+  "  -l --debug-file=<filename>      - Send all debug messages to the specified\n"
+  "                                    file.\n"
   "  -p --config-file=<filename>     - Custom configuration file.\n"
-  "  -l --debug-file=<filename>      - Send all debug messages to the\n"
-  "                                    specified file.\n"
-  "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
-  "  --no-global-config              - Don't load global configuration file.\n\n"
+  "  --invalid-requests=<filename>   - Log invalid requests to the specified\n"
+  "                                    file.\n"
+  "  --no-global-config              - Don't load global configuration\n"
+  "                                    file.\n\n"
 
   /* Parse Options */
   "Parse Options\n\n"
@@ -155,26 +163,29 @@ cmd_help (void)
   "  -H --http-protocol              - Include HTTP request protocol if found.\n"
   "  -M --http-method                - Include HTTP request method if found.\n"
   "  -o --output-format=csv|json     - Output either a JSON or a CSV file.\n"
-  "  -q --no-query-string            - Ignore request's query string.\n"
-  "                                    Removing the query string can greatly\n"
-  "                                    decrease memory consumption.\n"
+  "  -q --no-query-string            - Ignore request's query string. Removing\n"
+  "                                    the query string can greatly decrease\n"
+  "                                    memory consumption.\n"
   "  -r --no-term-resolver           - Disable IP resolver on terminal output.\n"
-  "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
+  "  --444-as-404                    - Treat non-standard status code 444 as\n"
+  "                                    404.\n"
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique\n"
   "                                    visitors count.\n"
-  "  --all-static-files              - Include static files with a query string.\n"
+  "  --all-static-files              - Include static files with a query\n"
+  "                                    string.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
-  "  --ignore-panel=PANEL            - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<needle>       - Ignore a referer from being counted.\n"
+  "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
+  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted.\n"
   "                                    Wild cards are allowed. i.e., *.bing.com\n"
+  "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP,\n"
   "                                    Snow Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
-  "                                    --sort-panel=VISITORS,BY_HITS,ASC\n"
-  "                                    See manpage for a list of panels/fields.\n"
-  "  --static-file=<extension>       - Add static file extension. e.g.: .mp3\n"
-  "                                    Extensions are case sensitive.\n"
+  "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
+  "                                    manpage for a list of panels/fields.\n"
+  "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
+  "                                    Extensions are case sensitive.\n\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
@@ -189,24 +200,25 @@ cmd_help (void)
 #ifdef TCB_BTREE
   "On-Disk Database Options\n\n"
   "  --keep-db-files                 - Persist parsed data into disk.\n"
-  "  --load-from-disk                - Load previously stored data from disk.\n"
+  "  --load-from-disk                - Load previously stored data from\n"
+  "                                    disk.\n"
   "  --db-path=<path>                - Path of the database file.\n"
   "                                    Default [%s]\n"
   "  --xmmap=<number>                - Set the size in bytes of the extra\n"
   "                                    mapped memory. Default [%d]\n"
-  "  --cache-lcnum=<number>          - Max number of leaf nodes to be cached.\n"
-  "                                    Default [%d]\n"
-  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be cached.\n"
-  "                                    Default [%d]\n"
+  "  --cache-lcnum=<number>          - Max number of leaf nodes to be\n"
+  "                                    cached. Default [%d]\n"
+  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be\n"
+  "                                    cached. Default [%d]\n"
   "  --tune-lmemb=<number>           - Number of members in each leaf page.\n"
   "                                    Default [%d]\n"
-  "  --tune-nmemb=<number>           - Number of members in each non-leaf page.\n"
-  "                                    Default [%d]\n"
-  "  --tune-bnum=<number>            - Number of elements of the bucket array.\n"
-  "                                    Default [%d]\n"
+  "  --tune-nmemb=<number>           - Number of members in each non-leaf\n"
+  "                                    page. Default [%d]\n"
+  "  --tune-bnum=<number>            - Number of elements of the bucket\n"
+  "                                    array. Default [%d]\n"
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  "  --compression=<zlib|bz2>        - Specifies that each page is compressed\n"
-  "                                    with ZLIB|BZ2 encoding.\n\n"
+  "  --compression=<zlib|bz2>        - Specifies that each page is\n"
+  "                                    compressed with ZLIB|BZ2 encoding.\n\n"
 #endif
 #endif
 
@@ -214,8 +226,8 @@ cmd_help (void)
   "Other Options\n\n"
   "  -h --help                       - This help.\n"
   "  -V --version                    - Display version information and exit.\n"
-  "  -s --storage                    - Display current storage method.\n"
-  "                                    e.g., B+ Tree, Hash.\n"
+  "  -s --storage                    - Display current storage method. e.g., B+\n"
+  "                                    Tree, Hash.\n"
   "  --dcf                           - Display the path of the default config\n"
   "                                    file when `-p` is not used.\n\n"
 
@@ -387,6 +399,13 @@ read_option_args (int argc, char **argv)
       /* ignore crawlers */
       if (!strcmp ("ignore-crawlers", long_opts[idx].name))
         conf.ignore_crawlers = 1;
+
+      /* ignore status code */
+      if (!strcmp ("ignore-status", long_opts[idx].name) &&
+          conf.ignore_status_idx < MAX_IGNORE_STATUS) {
+        if (!str_inarray (optarg, conf.ignore_status, conf.ignore_status_idx))
+          conf.ignore_status[conf.ignore_status_idx++] = optarg;
+      }
 
       /* ignore panel */
       if (!strcmp ("ignore-panel", long_opts[idx].name) &&

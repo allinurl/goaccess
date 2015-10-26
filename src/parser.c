@@ -1208,6 +1208,17 @@ exclude_crawler (GLogItem * glog)
   return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
 }
 
+static int
+ignore_status_code (const char *status)
+{
+  if (conf.ignore_status_idx == 0)
+    return 0;
+
+  if (str_inarray (status, conf.ignore_status, conf.ignore_status_idx))
+    return 1;
+  return 0;
+}
+
 /* Perform some additional tasks to panels before they are being parsed. */
 static void
 verify_panels (void)
@@ -1225,6 +1236,8 @@ ignore_line (GLog * logger, GLogItem * glog, int test)
   if (exclude_crawler (glog) == 0)
     return 1;
   if (ignore_referer (glog->site))
+    return 1;
+  if (ignore_status_code (glog->status))
     return 1;
 
   /* check if we need to remove the request's query string */
