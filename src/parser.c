@@ -1950,12 +1950,6 @@ parse_log (GLog ** logger, char *tail, int lines2test)
 {
   int test = -1 == lines2test ? 0 : 1;
 
-  /* verify that we have the required formats */
-  verify_formats ();
-
-  /* perform some additional checks before parsing panels */
-  verify_panels ();
-
   /* process tail data and return */
   if (tail != NULL) {
     if (pre_process_log ((*logger), tail, test))
@@ -1963,6 +1957,13 @@ parse_log (GLog ** logger, char *tail, int lines2test)
     return 0;
   }
 
+  /* verify that we have the required formats */
+  verify_formats ();
+
+  /* perform some additional checks before parsing panels */
+  verify_panels ();
+
+  /* the first run */
   return read_log (logger, lines2test);
 }
 
