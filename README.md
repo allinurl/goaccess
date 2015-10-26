@@ -14,24 +14,21 @@ More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 GoAccess parses the specified web log file and outputs the data to the X
 terminal. Features include:
 
-* General Statistics, bandwidth, etc.
-* Time taken to serve the request (_useful to track pages that are slowing down your site_)
+* General statistics, bandwidth, etc.
+* Time taken to serve the request (useful to track pages that are slowing down your site)
 * Metrics for cumulative, average and slowest running requests
-* Top Visitors
-* Requested files
-* Requested static files, images, swf, js, etc.
+* Top visitors
+* Requested files & static files
 * 404 or Not Found
 * Hosts, Reverse DNS, IP Location
 * Operating Systems
 * Browsers and Spiders
-* Referring Sites
-* Referrers URLs
+* Referring Sites & URLs
 * Keyphrases
 * Geo Location - Continent/Country/City
 * Visitors Time Distribution
 * HTTP Status Codes
 * Metrics per Virtual Host
-* Ability to output
  [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
  [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
  [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
@@ -199,6 +196,7 @@ to be used without prepending `--`.
 | `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
 | `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
+| `--dcf`                            | Display the path of the default config file.                  |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
@@ -206,6 +204,7 @@ to be used without prepending `--`.
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
+| `--ignore-status=<CODE>`           | Ignore parsing the given status code(s).                      |
 | `--invalid-requests=<filename>`    | Log invalid requests to the specified file.                   |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
 | `--no-color`                       | Disable colored output.                                       |
