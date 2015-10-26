@@ -37,7 +37,7 @@
 #define __attribute__(x) /**/
 #endif
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"0.9.5"
+#define GO_VERSION 		"0.9.6"
 #define GO_WEBSITE 		"http://goaccess.io/"
 struct tm *now_tm;
 
