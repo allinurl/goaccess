@@ -1,4 +1,4 @@
-Changes to GoAccess 0.9.6 - Tuesday, October 26, 2015
+Changes to GoAccess 0.9.6 - Tuesday, October 27, 2015
 
   - Fixed segfault when appending data to a log (follow) without virtualhosts.
   - Added command line option `--dcf` to view the default config file path.
