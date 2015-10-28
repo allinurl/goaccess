@@ -39,6 +39,7 @@ static FILE *log_file;
 static GLog *log_data;
 static FILE *log_invalid;
 
+/* Open a debug file whose name is specified in the given path. */
 void
 dbg_log_open (const char *path)
 {
@@ -49,6 +50,7 @@ dbg_log_open (const char *path)
   }
 }
 
+/* Close the debug file. */
 void
 dbg_log_close (void)
 {
@@ -56,6 +58,8 @@ dbg_log_close (void)
     fclose (log_file);
 }
 
+/* Open the invalid requests log file whose name is specified in the
+ * given path. */
 void
 invalid_log_open (const char *path)
 {
@@ -66,6 +70,7 @@ invalid_log_open (const char *path)
   }
 }
 
+/* Close the invalid requests log file. */
 void
 invalid_log_close (void)
 {
@@ -73,6 +78,7 @@ invalid_log_close (void)
     fclose (log_invalid);
 }
 
+/* Set current overall parsed log data. */
 void
 set_signal_data (void *p)
 {
@@ -80,6 +86,8 @@ set_signal_data (void *p)
 }
 
 #if defined(__GLIBC__)
+/* Dump to the standard output the values of the overall parsed log
+ * data. */
 static void
 dump_struct (FILE * fp)
 {
@@ -97,6 +105,7 @@ dump_struct (FILE * fp)
   fprintf (fp, "==%d==\n", pid);
 }
 
+/* Custom SIGSEGV handler. */
 void
 sigsegv_handler (int sig)
 {
@@ -130,6 +139,7 @@ sigsegv_handler (int sig)
 #endif
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
+/* Write formatted debug log data to the logfile. */
 void
 dbg_fprintf (const char *fmt, ...)
 {
@@ -144,6 +154,7 @@ dbg_fprintf (const char *fmt, ...)
   va_end (args);
 }
 
+/* Write formatted invalid requests log data to the logfile. */
 void
 invalid_fprintf (const char *fmt, ...)
 {
