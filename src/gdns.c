@@ -59,7 +59,7 @@
 GDnsThread gdns_thread;
 static GDnsQueue *gdns_queue;
 
-/* initialize queue */
+/* Initialize the queue. */
 void
 gqueue_init (GDnsQueue * q, int capacity)
 {
@@ -69,35 +69,44 @@ gqueue_init (GDnsQueue * q, int capacity)
   q->capacity = capacity;
 }
 
-/* get current size of queue */
+/* Get the current size of queue.
+ *
+ * Returns the size of the queue. */
 int
 gqueue_size (GDnsQueue * q)
 {
   return q->size;
 }
 
-/* is the queue empty */
+/* Determine if the queue is empty.
+ *
+ * Returns true if empty, otherwise false. */
 int
 gqueue_empty (GDnsQueue * q)
 {
   return q->size == 0;
 }
 
-/* is the queue full */
+/* Determine if the queue is full.
+ *
+ * Returns true if full, otherwise false. */
 int
 gqueue_full (GDnsQueue * q)
 {
   return q->size == q->capacity;
 }
 
-/* destroy queue */
+/* Free the queue. */
 void
 gqueue_destroy (GDnsQueue * q)
 {
   free (q);
 }
 
-/* add item to the queue */
+/* Add at the end of the queue a string item.
+ *
+ * If the queue is full, -1 is returned.
+ * If added to the queue, 0 is returned. */
 int
 gqueue_enqueue (GDnsQueue * q, char *item)
 {
@@ -110,6 +119,10 @@ gqueue_enqueue (GDnsQueue * q, char *item)
   return 0;
 }
 
+/* Find a string item in the queue.
+ *
+ * If the queue is empty, or the item is not in the queue, 0 is returned.
+ * If found, 1 is returned. */
 int
 gqueue_find (GDnsQueue * q, const char *item)
 {
@@ -124,7 +137,10 @@ gqueue_find (GDnsQueue * q, const char *item)
   return 0;
 }
 
-/* remove an item from the queue */
+/* Remove a string item from the head of the queue.
+ *
+ * If the queue is empty, NULL is returned.
+ * If removed, the string item is returned. */
 char *
 gqueue_dequeue (GDnsQueue * q)
 {
@@ -138,7 +154,10 @@ gqueue_dequeue (GDnsQueue * q)
   return item;
 }
 
-/* get the corresponding host given an address */
+/* Get the corresponding hostname given an IP address.
+ *
+ * On error, a string error message is returned.
+ * On success, a malloc'd hostname is returned. */
 static char *
 reverse_host (const struct sockaddr *a, socklen_t length)
 {
@@ -152,7 +171,10 @@ reverse_host (const struct sockaddr *a, socklen_t length)
   return alloc_string (gai_strerror (st));
 }
 
-/* determine if IPv4 or IPv6 and resolve */
+/* Determine if IPv4 or IPv6 and resolve.
+ *
+ * On error, NULL is returned.
+ * On success, a malloc'd hostname is returned. */
 char *
 reverse_ip (char *str)
 {
@@ -177,7 +199,7 @@ reverse_ip (char *str)
   return NULL;
 }
 
-/* producer */
+/* Producer - Resolve an IP address and add it to the queue. */
 void
 dns_resolver (char *addr)
 {
@@ -191,7 +213,8 @@ dns_resolver (char *addr)
   pthread_mutex_unlock (&gdns_thread.mutex);
 }
 
-/* consumer */
+/* Consumer - Once an IP has been resolved, add it to dwithe hostnames
+ * hash structure. */
 static void
 dns_worker (void GO_UNUSED (*ptr_data))
 {
@@ -226,7 +249,7 @@ dns_worker (void GO_UNUSED (*ptr_data))
   }
 }
 
-/* init queue and dns thread */
+/* Initialize queue and dns thread */
 void
 gdns_init (void)
 {
@@ -243,14 +266,14 @@ gdns_init (void)
     FATAL ("Failed init thread mutex");
 }
 
-/* destroy queue */
+/* Destroy (free) queue */
 void
 gdns_free_queue (void)
 {
   gqueue_destroy (gdns_queue);
 }
 
-/* create a dns thread */
+/* Create a DNS thread and make it active */
 void
 gdns_thread_create (void)
 {
