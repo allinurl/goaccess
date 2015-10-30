@@ -980,6 +980,8 @@ print_pure_menu (FILE * fp, char *now)
   fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
   fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
   fprintf (fp, "<li><a href=\"#%s\">Time Distribution</a></li>", VTIME_ID);
+  if (!ignore_panel (VIRTUAL_HOSTS))
+    fprintf (fp, "<li><a href=\"#%s\">Virtual Hosts</a></li>", VHOST_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
   fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
   if (!ignore_panel (KEYPHRASES))
