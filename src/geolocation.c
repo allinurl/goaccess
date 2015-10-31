@@ -35,7 +35,10 @@
 
 GeoIP *geo_location_data;
 
-/* Get continent name concatenated with code */
+/* Get continent name concatenated with code.
+ *
+ * If continent not found, "Unknown" is returned.
+ * On success, the continent code & name is returned . */
 static const char *
 get_continent_name_and_code (const char *continentid)
 {
@@ -57,7 +60,10 @@ get_continent_name_and_code (const char *continentid)
     return "-- Location Unknown";
 }
 
-/* Geolocation data */
+/* Open the given GeoLocation database and set its charset.
+ *
+ * On error, it aborts.
+ * On success, a new geolocation structure is returned. */
 GeoIP *
 geoip_open_db (const char *db)
 {
@@ -73,6 +79,8 @@ geoip_open_db (const char *db)
   return geoip;
 }
 
+/* Compose a string with the country name and code and store it in the
+ * given buffer. */
 static void
 geoip_set_country (const char *country, const char *code, char *loc)
 {
@@ -82,6 +90,8 @@ geoip_set_country (const char *country, const char *code, char *loc)
     sprintf (loc, "%s", "Country Unknown");
 }
 
+/* Compose a string with the city name and state/region and store it
+ * in the given buffer. */
 static void
 geoip_set_city (const char *city, const char *region, char *loc)
 {
@@ -89,6 +99,8 @@ geoip_set_city (const char *city, const char *region, char *loc)
            region ? region : "N/A Region");
 }
 
+/* Compose a string with the continent name and store it in the given
+ * buffer. */
 static void
 geoip_set_continent (const char *continent, char *loc)
 {
@@ -98,6 +110,11 @@ geoip_set_continent (const char *continent, char *loc)
     sprintf (loc, "%s", "Continent Unknown");
 }
 
+/* Get detailed information found in the GeoIP Database about the
+ * given IPv4 or IPv6.
+ *
+ * On error, NULL is returned
+ * On success, GeoIPRecord structure is returned */
 static GeoIPRecord *
 get_geoip_record (const char *addr, GTypeIP type_ip)
 {
@@ -111,6 +128,8 @@ get_geoip_record (const char *addr, GTypeIP type_ip)
   return rec;
 }
 
+/* Set country data by record into the given `location` buffer based
+ * on the IP version. */
 static void
 geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -132,6 +151,10 @@ geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
+/* Get the GeoIP location id by name.
+ *
+ * On error, 0 is returned
+ * On success, the GeoIP location id is returned */
 static int
 geoip_get_geoid (const char *addr, GTypeIP type_ip)
 {
@@ -145,6 +168,10 @@ geoip_get_geoid (const char *addr, GTypeIP type_ip)
   return geoid;
 }
 
+/* Get the country name by GeoIP location id.
+ *
+ * On error, NULL is returned
+ * On success, the country name is returned */
 static const char *
 geoip_get_country_by_geoid (const char *addr, GTypeIP type_ip)
 {
@@ -158,6 +185,8 @@ geoip_get_country_by_geoid (const char *addr, GTypeIP type_ip)
   return country;
 }
 
+/* Set country data by geoid into the given `location` buffer based on
+ * the IP version. */
 static void
 geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -169,11 +198,14 @@ geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
 
   geoid = geoip_get_geoid (addr, type_ip);
   country = geoip_get_country_by_geoid (addr, type_ip);
+  /* return two letter country code */
   code = GeoIP_code_by_id (geoid);
 
   geoip_set_country (country, code, location);
 }
 
+/* Set country data by geoid or record into the given `location` buffer
+ * based on the IP version and currently used database edition.  */
 void
 geoip_get_country (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -201,6 +233,8 @@ geoip_get_country (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
+/* Set continent data by record into the given `location` buffer based
+ * on the IP version. */
 static void
 geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -220,6 +254,8 @@ geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
+/* Set continent data by geoid into the given `location` buffer based
+ * on the IP version. */
 static void
 geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -234,7 +270,8 @@ geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   geoip_set_continent (continent, location);
 }
 
-
+/* Set continent data by geoid or record into the given `location` buffer
+ * based on the IP version and currently used database edition.  */
 void
 geoip_get_continent (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -262,6 +299,8 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
+/* Set city data by record into the given `location` buffer based on
+ * the IP version.  */
 static void
 geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -280,7 +319,9 @@ geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
-/* Custom GeoIP database - i.e., GeoLiteCity.dat */
+/* Set city data by geoid or record into the given `location` buffer
+ * based on the IP version and currently used database edition.
+ * It uses the custom GeoIP database - i.e., GeoLiteCity.dat */
 void
 geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
 {
@@ -303,6 +344,11 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
   }
 }
 
+/* Entry point to set GeoIP location into the corresponding buffers,
+ * (continent, country, city).
+ *
+ * On error, 1 is returned
+ * On success, buffers are set and 0 is returned */
 int
 set_geolocation (char *host, char *continent, char *country, char *city)
 {
