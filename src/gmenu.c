@@ -29,7 +29,9 @@
 #include "xmalloc.h"
 #include "ui.h"
 
-/* allocate memory for a new GMenu instance */
+/* Allocate memory for a new GMenu instance.
+ *
+ * On success, the newly allocated GMenu is returned . */
 GMenu *
 new_gmenu (WINDOW * parent, int h, int w, int y, int x)
 {
@@ -52,7 +54,7 @@ new_gmenu (WINDOW * parent, int h, int w, int y, int x)
   return menu;
 }
 
-/* render an actual menu item */
+/* Render actual menu item */
 static void
 draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int checked,
                 GColors * (*func) (void))
@@ -70,7 +72,11 @@ draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int checked,
   }
 }
 
-/* displays a menu to its associated window */
+/* Displays a menu to its associated window.
+ *
+ * On error, 1 is returned.
+ * On success, the newly created menu is added to the window and 0 is
+ * returned. */
 int
 post_gmenu (GMenu * menu)
 {
@@ -97,7 +103,7 @@ post_gmenu (GMenu * menu)
   return 0;
 }
 
-/* main work horse of the menu system processing input events */
+/* Main work horse of the menu system processing input events */
 void
 gmenu_driver (GMenu * menu, int c)
 {
