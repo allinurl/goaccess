@@ -39,7 +39,7 @@
 
 static GFind find_t;
 
-/* reset find indices */
+/* Reset find indices */
 void
 reset_find (void)
 {
@@ -54,7 +54,9 @@ reset_find (void)
   find_t.pattern = NULL;
 }
 
-/* allocate memory for dash */
+/* Allocate memory for a new GDash instance.
+ *
+ * On success, the newly allocated GDash is returned . */
 GDash *
 new_gdash (void)
 {
@@ -65,7 +67,9 @@ new_gdash (void)
   return dash;
 }
 
-/* allocate memory for dash elements */
+/* Allocate memory for a new GDashData instance.
+ *
+ * On success, the newly allocated GDashData is returned . */
 GDashData *
 new_gdata (uint32_t size)
 {
