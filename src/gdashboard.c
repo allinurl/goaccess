@@ -78,6 +78,8 @@ new_gdata (uint32_t size)
   return data;
 }
 
+/* Free memory allocated for a GDashData instance. Includes malloc'd
+ * strings. */
 static void
 free_dashboard_data (GDashData item)
 {
@@ -97,7 +99,8 @@ free_dashboard_data (GDashData item)
   free (item.metrics);
 }
 
-/* free dash and its elements */
+/* Free memory allocated for a GDash instance, and nested structure
+ * data. */
 void
 free_dashboard (GDash * dash)
 {
@@ -111,6 +114,11 @@ free_dashboard (GDash * dash)
   free (dash);
 }
 
+/* Get the current panel/module given the `Y` offset (position) in the
+ * terminal dashboard.
+ *
+ * If not found, 0 is returned.
+ * If found, the module number is returned . */
 static GModule
 get_find_current_module (GDash * dash, int offset)
 {
@@ -128,37 +136,57 @@ get_find_current_module (GDash * dash, int offset)
   return 0;
 }
 
-/* Get the number of rows that a collapsed dashboard panel contains */
+/* Get the number of rows that a collapsed dashboard panel contains.
+ *
+ * On success, the number of rows is returned. */
 int
 get_num_collapsed_data_rows (void)
 {
+  /* The default number of rows is fixed */
   int size = DASH_COLLAPSED - DASH_NON_DATA;
+  /* If no column names, then add the number of rows occupied by the
+   * column values to the default number */
   return conf.no_column_names ? size + DASH_COL_ROWS : size;
 }
 
-/* Get the number of rows that the expanded dashboard panel contains */
+/* Get the number of rows that an expanded dashboard panel contains.
+ *
+ * On success, the number of rows is returned. */
 int
 get_num_expanded_data_rows (void)
 {
+  /* The default number of rows is fixed */
   int size = DASH_EXPANDED - DASH_NON_DATA;
+  /* If no column names, then add the number of rows occupied by the
+   * column values to the default number */
   return conf.no_column_names ? size + DASH_COL_ROWS : size;
 }
 
-/* Get the Y position where data rows start */
+/* Get the Y position of the terminal dashboard where data rows
+ * (metrics) start.
+ *
+ * On success, the Y position is returned. */
 static int
 get_data_pos_rows (void)
 {
   return conf.no_column_names ? DASH_DATA_POS - DASH_COL_ROWS : DASH_DATA_POS;
 }
 
+/* Get the initial X position of the terminal dashboard where metrics
+ * and data columns start.
+ *
+ * On success, the X position is returned. */
 static int
 get_xpos (void)
 {
   return DASH_INIT_X;
 }
 
-/* Determine which module should be expanded given the
- * current mouse position. */
+/* Determine which module should be expanded given the current mouse
+ * position.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 set_module_from_mouse_event (GScroll * gscroll, GDash * dash, int y)
 {
@@ -183,13 +211,17 @@ set_module_from_mouse_event (GScroll * gscroll, GDash * dash, int y)
   return 0;
 }
 
-/* render child nodes */
+/* Allocate a new string for a sub item on the terminal dashboard.
+ *
+ * On error, NULL is returned.
+ * On success, the newly allocated string is returned. */
 static char *
 render_child_node (const char *data)
 {
   char *buf;
   int len = 0;
 
+  /* chars to use based on encoding used */
 #ifdef HAVE_LIBNCURSESW
   const char *bend = "\xe2\x94\x9c";
   const char *horz = "\xe2\x94\x80";
@@ -208,7 +240,10 @@ render_child_node (const char *data)
   return buf;
 }
 
-/* get a string of bars given current hits, maximum hit & xpos */
+/* Get a string of bars given current hits, maximum hit & xpos.
+ *
+ * On success, the newly allocated string representing the chart is
+ * returned. */
 static char *
 get_bars (int n, int max, int x)
 {
@@ -222,7 +257,10 @@ get_bars (int n, int max, int x)
   return char_repeat (len, '|');
 }
 
-/*get largest method's length */
+/* Get longest method.
+ *
+ * On error, 0 is returned.
+ * On success, longest malloc'd method is returned. */
 static int
 get_max_method_len (GDashData * data, int size)
 {
@@ -237,7 +275,10 @@ get_max_method_len (GDashData * data, int size)
   return max;
 }
 
-/*get largest data's length */
+/* Get longest data metric.
+ *
+ * On error, 0 is returned.
+ * On success, longest malloc'd data metric is returned. */
 static int
 get_max_data_len (GDashData * data, int size)
 {
@@ -252,7 +293,10 @@ get_max_data_len (GDashData * data, int size)
   return max;
 }
 
-/*get largest hit's length */
+/* Get largest visitor metric (length of the integer).
+ *
+ * On error, 0 is returned.
+ * On success, length of visitors metric is returned. */
 static int
 get_max_visitor_len (GDashData * data, int size)
 {
@@ -263,13 +307,18 @@ get_max_visitor_len (GDashData * data, int size)
       max = len;
   }
 
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
   if (!conf.no_column_names && max < COLUMN_VIS_LEN)
     max = COLUMN_VIS_LEN;
 
   return max;
 }
 
-/*get largest hit's length */
+/* Get largest hits metric (length of the integer).
+ *
+ * On error, 0 is returned.
+ * On success, length of hits metric is returned. */
 static int
 get_max_hit_len (GDashData * data, int size)
 {
@@ -280,13 +329,18 @@ get_max_hit_len (GDashData * data, int size)
       max = len;
   }
 
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
   if (!conf.no_column_names && max < COLUMN_HITS_LEN)
     max = COLUMN_HITS_LEN;
 
   return max;
 }
 
-/* get largest hit */
+/* Get largest hits metric.
+ *
+ * On error, 0 is returned.
+ * On success, largest hits metric is returned. */
 static int
 get_max_hit (GDashData * data, int size)
 {
@@ -299,6 +353,9 @@ get_max_hit (GDashData * data, int size)
   return max;
 }
 
+/* Get the percent integer length.
+ *
+ * On success, length of the percent is returned. */
 static int
 get_max_perc_len (int max_percent)
 {
