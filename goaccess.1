@@ -710,6 +710,16 @@ sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
 .I Note:
 this could take longer time to parse depending on the speed of sed.
 .P
+To parse specific pages, e.g., page views, html, htm, php, etc. within a request:
+.IP
+# awk '$7~/\.html|\.htm|\.php/' access.log | goaccess
+.P
+Note, $7 is the request field for the common and combined log format, (without
+Virtual Host), if your log includes Virtual Host, then you probably want to use
+$8 instead. It's best to check which field you are shooting for, e.g.:
+.IP
+# tail -10 access.log | awk '{print $8}'
+.P
 To exclude a list of virtual hosts you can do the following:
 .IP
 grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
