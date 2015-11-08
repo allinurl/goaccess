@@ -48,10 +48,10 @@
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, int valid);
+  void (*render) (FILE * fp, GHolder * h, GPercTotals totals);
 } GPanel;
 
-static void print_csv_data (FILE * fp, GHolder * h, int valid);
+static void print_csv_data (FILE * fp, GHolder * h, GPercTotals totals);
 
 /* A function pointer for each panel */
 static GPanel paneling[] = {
@@ -106,96 +106,97 @@ escape_cvs_output (FILE * fp, char *s)
   }
 }
 
+/* Output metrics.
+ *
+ * On success, outputs item value. */
+static void
+print_csv_metric_block (FILE * fp, GMetrics * nmetrics)
+{
+  /* basic metrics */
+  fprintf (fp, "\"%d\",", nmetrics->hits);
+  fprintf (fp, "\"%4.2f%%\",", nmetrics->hits_perc);
+  fprintf (fp, "\"%d\",", nmetrics->visitors);
+  fprintf (fp, "\"%4.2f%%\",", nmetrics->visitors_perc);
+
+  /* bandwidth */
+  if (conf.bandwidth) {
+    fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
+    fprintf (fp, "\"%4.2f%%\",", nmetrics->bw_perc);
+  }
+
+  /* time served metrics */
+  if (conf.serve_usecs) {
+    fprintf (fp, "\"%lld\",", (long long) nmetrics->avgts.nts);
+    fprintf (fp, "\"%lld\",", (long long) nmetrics->cumts.nts);
+    fprintf (fp, "\"%lld\",", (long long) nmetrics->maxts.nts);
+  }
+
+  /* request method */
+  if (conf.append_method && nmetrics->method)
+    fprintf (fp, "\"%s\"", nmetrics->method);
+  fprintf (fp, ",");
+
+  /* request protocol */
+  if (conf.append_protocol && nmetrics->protocol)
+    fprintf (fp, "\"%s\"", nmetrics->protocol);
+  fprintf (fp, ",");
+
+  /* data field */
+  fprintf (fp, "\"");
+  escape_cvs_output (fp, nmetrics->data);
+  fprintf (fp, "\"\r\n");
+}
+
 /* Output a sublist (double linked-list) items for a particular parent node.
  *
  * On error, it exits early.
  * On success, outputs item value. */
 static void
-print_csv_sub_items (FILE * fp, GHolder * h, int idx, int valid)
+print_csv_sub_items (FILE * fp, GHolder * h, int idx, GPercTotals totals)
 {
+  GMetrics *nmetrics;
   GSubList *sub_list = h->items[idx].sub_list;
   GSubItem *iter;
-  float percent;
+
   int i = 0;
 
   if (sub_list == NULL)
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    percent = get_percentage (valid, iter->metrics->hits);
-    percent = percent < 0 ? 0 : percent;
+    set_data_metrics (iter->metrics, &nmetrics, totals);
 
     fprintf (fp, "\"%d\",", i); /* idx */
     fprintf (fp, "\"%d\",", idx);       /* parent idx */
     fprintf (fp, "\"%s\",", module_to_id (h->module));
-    fprintf (fp, "\"%d\",", iter->metrics->hits);
-    fprintf (fp, "\"%d\",", iter->metrics->visitors);
-    fprintf (fp, "\"%4.2f%%\",", percent);
 
-    if (conf.bandwidth)
-      fprintf (fp, "\"%lld\",", (long long) iter->metrics->bw.nbw);
-
-    if (conf.serve_usecs) {
-      fprintf (fp, "\"%lld\",", (long long) iter->metrics->avgts.nts);
-      fprintf (fp, "\"%lld\",", (long long) iter->metrics->cumts.nts);
-      fprintf (fp, "\"%lld\",", (long long) iter->metrics->maxts.nts);
-    }
-
-    if (conf.append_method && iter->metrics->method)
-      fprintf (fp, "\"%s\"", iter->metrics->method);
-    fprintf (fp, ",");
-
-    if (conf.append_protocol && iter->metrics->protocol)
-      fprintf (fp, "\"%s\"", iter->metrics->protocol);
-    fprintf (fp, ",");
-
-    fprintf (fp, "\"");
-    escape_cvs_output (fp, iter->metrics->data);
-    fprintf (fp, "\",");
-    fprintf (fp, "\r\n");       /* parent idx */
+    /* output metrics */
+    print_csv_metric_block (fp, nmetrics);
+    free (nmetrics);
   }
 }
 
-/* Output first-level items. */
+/* Output first-level items.
+ *
+ * On success, outputs item value. */
 static void
-print_csv_data (FILE * fp, GHolder * h, int valid)
+print_csv_data (FILE * fp, GHolder * h, GPercTotals totals)
 {
   GMetrics *nmetrics;
   int i;
 
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
+    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     fprintf (fp, "\"%d\",", i); /* idx */
     fprintf (fp, ",");  /* no parent */
     fprintf (fp, "\"%s\",", module_to_id (h->module));
-    fprintf (fp, "\"%d\",", nmetrics->hits);
-    fprintf (fp, "\"%d\",", nmetrics->visitors);
-    fprintf (fp, "\"%4.2f%%\",", nmetrics->percent);
 
-    if (conf.bandwidth)
-      fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
-
-    if (conf.serve_usecs) {
-      fprintf (fp, "\"%lld\",", (long long) nmetrics->avgts.nts);
-      fprintf (fp, "\"%lld\",", (long long) nmetrics->cumts.nts);
-      fprintf (fp, "\"%lld\",", (long long) nmetrics->maxts.nts);
-    }
-
-    if (conf.append_method && nmetrics->method)
-      fprintf (fp, "\"%s\"", nmetrics->method);
-    fprintf (fp, ",");
-
-    if (conf.append_protocol && nmetrics->protocol)
-      fprintf (fp, "\"%s\"", nmetrics->protocol);
-    fprintf (fp, ",");
-
-    fprintf (fp, "\"");
-    escape_cvs_output (fp, nmetrics->data);
-    fprintf (fp, "\"\r\n");
+    /* output metrics */
+    print_csv_metric_block (fp, nmetrics);
 
     if (h->sub_items_size)
-      print_csv_sub_items (fp, h, i, valid);
+      print_csv_sub_items (fp, h, i, totals);
 
     free (nmetrics);
   }
@@ -292,6 +293,12 @@ output_csv (GLog * logger, GHolder * holder)
   const GPanel *panel = NULL;
   size_t idx = 0;
 
+  GPercTotals totals = {
+    .hits = logger->valid,
+    .visitors = ht_get_size_uniqmap (VISITORS),
+    .bw = logger->resp_size,
+  };
+
   if (!conf.no_csv_summary)
     print_csv_summary (fp, logger);
 
@@ -300,7 +307,7 @@ output_csv (GLog * logger, GHolder * holder)
 
     if (!(panel = panel_lookup (module)))
       continue;
-    panel->render (fp, holder + module, logger->valid);
+    panel->render (fp, holder + module, totals);
   }
 
   fclose (fp);

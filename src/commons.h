@@ -95,6 +95,15 @@ typedef enum MODULES
   STATUS_CODES,
 } GModule;
 
+/* Metric totals. These are metrics that have a percent value and are
+ * calculated values. */
+typedef struct GPercTotals_
+{
+  int hits;                     /* total valid hits */
+  int visitors;                 /* total visitors */
+  uint64_t bw;                  /* total bandwidth */
+} GPercTotals;
+
 /* Metrics within GHolder or GDashData */
 typedef struct GMetrics
 {
@@ -105,7 +114,10 @@ typedef struct GMetrics
   char *method;
   char *protocol;
 
-  float percent;
+  float hits_perc;
+  float visitors_perc;
+  float bw_perc;
+
   int hits;
   int visitors;
 
