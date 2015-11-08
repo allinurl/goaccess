@@ -46,11 +46,12 @@
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, int valid);
+  void (*render) (FILE * fp, GHolder * h, GPercTotals totals);
 } GPanel;
 
-static void print_json_data (FILE * fp, GHolder * h, int valid);
-static void print_json_host_data (FILE * fp, GHolder * h, int valid);
+static int nlines = 1;          /* number of new lines (applicable fields) */
+static void print_json_data (FILE * fp, GHolder * h, GPercTotals totals);
+static void print_json_host_data (FILE * fp, GHolder * h, GPercTotals totals);
 
 static GPanel paneling[] = {
   {VISITORS, print_json_data},
@@ -138,38 +139,235 @@ escape_json_output (FILE * fp, char *s)
 }
 
 static void
-print_json_block (FILE * fp, GMetrics * nmetrics, char *sep)
+pjson (FILE * fp, const char *fmt, ...)
 {
-  fprintf (fp, "%s\t\"hits\": %d,\n", sep, nmetrics->hits);
-  fprintf (fp, "%s\t\"visitors\": %d,\n", sep, nmetrics->visitors);
-  fprintf (fp, "%s\t\"percent\": %4.2f,\n", sep, nmetrics->percent);
+  va_list args;
 
-  if (conf.bandwidth)
-    fprintf (fp, "%s\t\"bytes\": %lld,\n", sep, (long long) nmetrics->bw.nbw);
-
-  if (conf.serve_usecs) {
-    fprintf (fp, "%s\t\"avgts\": %lld,\n", sep,
-             (long long) nmetrics->avgts.nts);
-    fprintf (fp, "%s\t\"cumts\": %lld,\n", sep,
-             (long long) nmetrics->cumts.nts);
-    fprintf (fp, "%s\t\"maxts\": %lld,\n", sep,
-             (long long) nmetrics->maxts.nts);
-  }
-
-  if (conf.append_method && nmetrics->method)
-    fprintf (fp, "%s\t\"method\": \"%s\",\n", sep, nmetrics->method);
-
-  if (conf.append_protocol && nmetrics->protocol)
-    fprintf (fp, "%s\t\"protocol\": \"%s\",\n", sep, nmetrics->protocol);
-
-  fprintf (fp, "%s\t\"data\": \"", sep);
-  escape_json_output (fp, nmetrics->data);
-  fprintf (fp, "\"");
+  va_start (args, fmt);
+  vfprintf (fp, fmt, args);
+  va_end (args);
 }
 
 static void
-print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
+poverall_datetime (FILE * fp, int isp)
 {
+  char now[DATE_TIME];
+
+  generate_time ();
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
+
+  pjson (fp, "%.*s\"%s\": \"%s\",%.*s", isp, TAB, OVERALL_DATETIME, now, nlines,
+         NL);
+}
+
+static void
+poverall_requests (FILE * fp, GLog * logger, int isp)
+{
+  int total = logger->processed;
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_REQ, total, nlines, NL);
+}
+
+static void
+poverall_valid_reqs (FILE * fp, GLog * logger, int isp)
+{
+  int total = logger->valid;
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_VALID, total, nlines, NL);
+}
+
+static void
+poverall_invalid_reqs (FILE * fp, GLog * logger, int isp)
+{
+  int total = logger->invalid;
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_FAILED, total, nlines,
+         NL);
+}
+
+static void
+poverall_processed_time (FILE * fp, int isp)
+{
+  long long t = (long long) end_proc - start_proc;
+  pjson (fp, "%.*s\"%s\": %lld,%.*s", isp, TAB, OVERALL_GENTIME, t, nlines, NL);
+}
+
+static void
+poverall_visitors (FILE * fp, int isp)
+{
+  int total = ht_get_size_uniqmap (VISITORS);
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_VISITORS, total, nlines,
+         NL);
+}
+
+static void
+poverall_files (FILE * fp, int isp)
+{
+  int total = ht_get_size_datamap (REQUESTS);
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_FILES, total, nlines, NL);
+}
+
+static void
+poverall_excluded (FILE * fp, GLog * logger, int isp)
+{
+  int total = logger->excluded_ip;
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_EXCL_HITS, total, nlines,
+         NL);
+}
+
+static void
+poverall_refs (FILE * fp, int isp)
+{
+  int total = ht_get_size_datamap (REFERRERS);
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_REF, total, nlines, NL);
+}
+
+static void
+poverall_notfound (FILE * fp, int isp)
+{
+  int total = ht_get_size_datamap (NOT_FOUND);
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_NOTFOUND, total, nlines,
+         NL);
+}
+
+static void
+poverall_static_files (FILE * fp, int isp)
+{
+  int total = ht_get_size_datamap (REQUESTS_STATIC);
+  pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, OVERALL_STATIC, total, nlines,
+         NL);
+}
+
+static void
+poverall_log_size (FILE * fp, GLog * logger, int isp)
+{
+  off_t log_size = 0;
+
+  if (!logger->piping && conf.ifile)
+    log_size = file_size (conf.ifile);
+  pjson (fp, "%.*s\"%s\": %jd,%.*s", isp, TAB, OVERALL_LOGSIZE,
+         (intmax_t) log_size, nlines, NL);
+}
+
+static void
+poverall_bandwidth (FILE * fp, GLog * logger, int isp)
+{
+  pjson (fp, "%.*s\"%s\": %llu,%.*s", isp, TAB, OVERALL_BANDWIDTH,
+         logger->resp_size, nlines, NL);
+}
+
+static void
+poverall_log (FILE * fp, int isp)
+{
+  if (conf.ifile == NULL)
+    conf.ifile = (char *) "STDIN";
+  pjson (fp, "%.*s\"%s\": \"", isp, TAB, OVERALL_LOG);
+  escape_json_output (fp, conf.ifile);
+  pjson (fp, "\"%.*s", nlines, NL);
+}
+
+static void
+phits (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  /* print hits */
+  pjson (fp, "%.*s\"hits\": %d,%.*s", sp, TAB, nmetrics->hits, nlines, NL);
+  /* print hits percent */
+  pjson (fp, "%.*s\"hits_percent\": %4.2f,%.*s", sp, TAB, nmetrics->hits_perc,
+         nlines, NL);
+}
+
+static void
+pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  /* print visitors */
+  pjson (fp, "%.*s\"visitors\": %d,%.*s", sp, TAB, nmetrics->visitors, nlines,
+         NL);
+  /* print visitors percent */
+  pjson (fp, "%.*s\"visitors_percent\": %4.2f,%.*s", sp, TAB,
+         nmetrics->visitors_perc, nlines, NL);
+}
+
+static void
+pbw (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  if (!conf.bandwidth)
+    return;
+
+  pjson (fp, "%.*s\"bytes\": %lld,%.*s", sp, TAB, nmetrics->bw.nbw, nlines, NL);
+  pjson (fp, "%.*s\"bytes_percent\": %4.2f,%.*s", sp, TAB, nmetrics->bw_perc,
+         nlines, NL);
+}
+
+static void
+pavgts (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  if (!conf.serve_usecs)
+    return;
+  pjson (fp, "%.*s\"avgts\": %lld,%.*s", sp, TAB,
+         (long long) nmetrics->avgts.nts, nlines, NL);
+}
+
+static void
+pcumts (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  if (!conf.serve_usecs)
+    return;
+  pjson (fp, "%.*s\"cumts\": %lld,%.*s", sp, TAB,
+         (long long) nmetrics->cumts.nts, nlines, NL);
+}
+
+static void
+pmaxts (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  if (!conf.serve_usecs)
+    return;
+  pjson (fp, "%.*s\"maxts\": %lld,%.*s", sp, TAB,
+         (long long) nmetrics->maxts.nts, nlines, NL);
+}
+
+static void
+pmethod (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  /* request method */
+  if (conf.append_method && nmetrics->method) {
+    pjson (fp, "%.*s\"method\": \"%s\",%.*s", sp, TAB, nmetrics->method, nlines,
+           NL);
+  }
+}
+
+static void
+pprotocol (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  /* request protocol */
+  if (conf.append_protocol && nmetrics->protocol) {
+    pjson (fp, "%.*s\"protocol\": \"%s\",%.*s", sp, TAB, nmetrics->protocol,
+           nlines, NL);
+  }
+}
+
+static void
+print_json_block (FILE * fp, GMetrics * nmetrics, int sp)
+{
+  /* print hits */
+  phits (fp, nmetrics, sp);
+  /* print visitors */
+  pvisitors (fp, nmetrics, sp);
+  /* print bandwidth */
+  pbw (fp, nmetrics, sp);
+  /* print time served metrics */
+  pavgts (fp, nmetrics, sp);
+  pcumts (fp, nmetrics, sp);
+  pmaxts (fp, nmetrics, sp);
+  /* print protocol/method */
+  pmethod (fp, nmetrics, sp);
+  pprotocol (fp, nmetrics, sp);
+  /* data metric */
+  pjson (fp, "%.*s\"data\": \"", sp, TAB);
+  escape_json_output (fp, nmetrics->data);
+  pjson (fp, "\"");
+}
+
+static void
+print_json_host_geo (FILE * fp, GSubList * sub_list, int sp)
+{
+  int i;
   GSubItem *iter;
   static const char *key[] = {
     "country",
@@ -177,163 +375,129 @@ print_json_host_geo (FILE * fp, GSubList * sub_list, char *sep)
     "hostname",
   };
 
-  int i;
   if (sub_list == NULL)
     return;
 
-  fprintf (fp, ",\n");
+  pjson (fp, ",%.*s", nlines, NL);
+
+  /* Iterate over child properties (country, city, etc) and print them out */
   for (i = 0, iter = sub_list->head; iter; iter = iter->next, i++) {
-    fprintf (fp, "%s\t\"%s\": \"", sep, key[iter->metrics->id]);
+    pjson (fp, "%.*s\"%s\": \"", sp, TAB, key[iter->metrics->id]);
     escape_json_output (fp, iter->metrics->data);
-    fprintf (fp, (i != sub_list->size - 1) ? "\",\n" : "\"");
+    pjson (fp, (i != sub_list->size - 1) ? "\",%.*s" : "\"", nlines, NL);
   }
 }
 
 static void
-print_json_host_data (FILE * fp, GHolder * h, int valid)
+print_json_host_data (FILE * fp, GHolder * h, GPercTotals totals)
 {
   GMetrics *nmetrics;
-  char *sep = char_repeat (2, '\t');
   int i;
+  int sp = 1, isp = 2, iisp = 3;
 
-  fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
+  pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, module_to_id (h->module), nlines,
+         NL);
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
+    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
-    fprintf (fp, "%s{\n", sep);
-    print_json_block (fp, nmetrics, sep);
-    print_json_host_geo (fp, h->items[i].sub_list, sep);
-    fprintf (fp, (i != h->idx - 1) ? "\n%s},\n" : "\n%s}\n", sep);
+    pjson (fp, "%.*s{%.*s", isp, TAB, nlines, NL);
+    print_json_block (fp, nmetrics, iisp);
+    print_json_host_geo (fp, h->items[i].sub_list, iisp);
+    pjson (fp, (i != h->idx - 1) ? "%.*s%.*s},%.*s" : "%.*s%.*s}%.*s", nlines,
+           NL, isp, TAB, nlines, NL);
 
     free (nmetrics);
   }
-  fprintf (fp, "\t]");
-
-  free (sep);
+  pjson (fp, "%.*s]", sp, TAB);
 }
 
 static void
-print_json_sub_items (FILE * fp, GHolder * h, int idx, int valid)
+print_json_sub_items (FILE * fp, GHolder * h, int idx, int iisp,
+                      GPercTotals totals)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
   GSubList *sub_list = h->items[idx].sub_list;
-  char *sep = char_repeat (3, '\t');
   int i = 0;
+  int iiisp = iisp + 1, iiiisp = iiisp + 1;
 
   if (sub_list == NULL)
     return;
 
-  fprintf (fp, ",\n%s\"items\": [\n", sep);
+  pjson (fp, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    set_data_metrics (iter->metrics, &nmetrics, valid);
+    set_data_metrics (iter->metrics, &nmetrics, totals);
 
-    fprintf (fp, "%s{\n", sep);
-    print_json_block (fp, nmetrics, sep);
-    fprintf (fp, (i != sub_list->size - 1) ? "\n%s},\n" : "\n%s}\n", sep);
+    pjson (fp, "%.*s{%.*s", iiisp, TAB, nlines, NL);
+    print_json_block (fp, nmetrics, iiiisp);
+    pjson (fp, (i != sub_list->size - 1) ? "%.*s%.*s},%.*s" : "%.*s%.*s}%.*s",
+           nlines, NL, iiisp, TAB, nlines, NL);
     free (nmetrics);
   }
-  fprintf (fp, "\t\t\t]");
-
-  free (sep);
+  pjson (fp, "%.*s]", iisp, TAB);
 }
 
 static void
-print_json_data (FILE * fp, GHolder * h, int valid)
+print_json_data (FILE * fp, GHolder * h, GPercTotals totals)
 {
   GMetrics *nmetrics;
-  char *sep = char_repeat (2, '\t');
   int i;
+  int sp = 1, isp = 2, iisp = 3;
 
-  fprintf (fp, "\t\"%s\": [\n", module_to_id (h->module));
+  pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, module_to_id (h->module), nlines,
+         NL);
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, valid);
+    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
-    fprintf (fp, "%s{\n", sep);
-    print_json_block (fp, nmetrics, sep);
+    pjson (fp, "%.*s{%.*s", isp, TAB, nlines, NL);
+    print_json_block (fp, nmetrics, iisp);
+
     if (h->sub_items_size)
-      print_json_sub_items (fp, h, i, valid);
-    fprintf (fp, (i != h->idx - 1) ? "\n%s},\n" : "\n%s}\n", sep);
+      print_json_sub_items (fp, h, i, iisp, totals);
+
+    pjson (fp, (i != h->idx - 1) ? "%.*s%.*s},%.*s" : "%.*s%.*s}%.*s", nlines,
+           NL, isp, TAB, nlines, NL);
 
     free (nmetrics);
   }
-  fprintf (fp, "\t]");
-
-  free (sep);
+  pjson (fp, "%.*s]", sp, TAB);
 }
 
 static void
 print_json_summary (FILE * fp, GLog * logger)
 {
-  long long t = 0LL;
-  int total = 0;
-  off_t log_size = 0;
-  char now[DATE_TIME];
+  int sp = 1, isp = 2;
 
-  generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
-
-  fprintf (fp, "\t\"%s\": {\n", GENER_ID);
-
+  pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, GENER_ID, nlines, NL);
   /* generated date time */
-  fprintf (fp, "\t\t\"%s\": \"%s\",\n", OVERALL_DATETIME, now);
-
+  poverall_datetime (fp, isp);
   /* total requests */
-  total = logger->processed;
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REQ, total);
-
+  poverall_requests (fp, logger, isp);
   /* valid requests */
-  total = logger->valid;
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_VALID, total);
-
+  poverall_valid_reqs (fp, logger, isp);
   /* invalid requests */
-  total = logger->invalid;
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FAILED, total);
-
+  poverall_invalid_reqs (fp, logger, isp);
   /* generated time */
-  t = (long long) end_proc - start_proc;
-  fprintf (fp, "\t\t\"%s\": %lld,\n", OVERALL_GENTIME, t);
-
+  poverall_processed_time (fp, isp);
   /* visitors */
-  total = ht_get_size_uniqmap (VISITORS);
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_VISITORS, total);
-
+  poverall_visitors (fp, isp);
   /* files */
-  total = ht_get_size_datamap (REQUESTS);
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_FILES, total);
-
+  poverall_files (fp, isp);
   /* excluded hits */
-  total = logger->excluded_ip;
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_EXCL_HITS, total);
-
+  poverall_excluded (fp, logger, isp);
   /* referrers */
-  total = ht_get_size_datamap (REFERRERS);
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_REF, total);
-
+  poverall_refs (fp, isp);
   /* not found */
-  total = ht_get_size_datamap (NOT_FOUND);
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_NOTFOUND, total);
-
+  poverall_notfound (fp, isp);
   /* static files */
-  total = ht_get_size_datamap (REQUESTS_STATIC);
-  fprintf (fp, "\t\t\"%s\": %d,\n", OVERALL_STATIC, total);
-
+  poverall_static_files (fp, isp);
   /* log size */
-  if (!logger->piping && conf.ifile)
-    log_size = file_size (conf.ifile);
-  fprintf (fp, "\t\t\"%s\": %jd,\n", OVERALL_LOGSIZE, (intmax_t) log_size);
-
+  poverall_log_size (fp, logger, isp);
   /* bandwidth */
-  fprintf (fp, "\t\t\"%s\": %llu,\n", OVERALL_BANDWIDTH, logger->resp_size);
-
+  poverall_bandwidth (fp, logger, isp);
   /* log path */
-  if (conf.ifile == NULL)
-    conf.ifile = (char *) "STDIN";
-  fprintf (fp, "\t\t\"%s\": \"", OVERALL_LOG);
-  escape_json_output (fp, conf.ifile);
-  fprintf (fp, "\"\n");
-
-  fprintf (fp, "\t},\n");
+  poverall_log (fp, isp);
+  pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
 /* entry point to generate a a json report writing it to the fp */
@@ -346,7 +510,13 @@ output_json (GLog * logger, GHolder * holder)
   const GPanel *panel = NULL;
   size_t idx = 0;
 
-  fprintf (fp, "{\n");
+  GPercTotals totals = {
+    .hits = logger->valid,
+    .visitors = ht_get_size_uniqmap (VISITORS),
+    .bw = logger->resp_size,
+  };
+
+  pjson (fp, "{%.*s", nlines, NL);
   print_json_summary (fp, logger);
 
   FOREACH_MODULE (idx, module_list) {
@@ -355,8 +525,8 @@ output_json (GLog * logger, GHolder * holder)
     if (!(panel = panel_lookup (module)))
       continue;
 
-    panel->render (fp, holder + module, logger->valid);
-    module != TOTAL_MODULES - 1 ? fprintf (fp, ",\n") : fprintf (fp, "\n");
+    panel->render (fp, holder + module, totals);
+    pjson (fp, (module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }
 
   fprintf (fp, "}");
