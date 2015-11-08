@@ -1046,7 +1046,7 @@ ht_get_size_uniqmap (GModule module)
   void *hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
-    return -1;
+    return 0;
 
   return ht_get_size (hash);
 }
