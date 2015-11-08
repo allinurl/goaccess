@@ -52,6 +52,6 @@ uint64_t *uint642ptr (uint64_t val);
 void *get_storage_metric_by_module (GModule module, GSMetric metric);
 void *get_storage_metric (GModule module, GSMetric metric);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
-                       int processed);
+                       GPercTotals totals);
 
 #endif // for #ifndef GSTORAGE_H
