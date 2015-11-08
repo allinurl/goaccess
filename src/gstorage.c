@@ -66,32 +66,51 @@ uint642ptr (uint64_t val)
   return ptr;
 }
 
-/* Wrapper to set metric data into a new GMetrics destination buffer. */
+/* Set numeric metrics for each request given raw data.
+ *
+ * On success, numeric metrics are set into the given structure. */
 void
-set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int valid)
+set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals)
 {
   GMetrics *metrics;
-  float percent = get_percentage (valid, ometrics->hits);
+
+  /* determine percentages for certain fields */
+  float hits_perc = get_percentage (totals.hits, ometrics->hits);
+  float visitors_perc = get_percentage (totals.visitors, ometrics->visitors);
+  float bw_perc = get_percentage (totals.bw, ometrics->bw.nbw);
 
   metrics = new_gmetrics ();
-  metrics->bw.nbw = ometrics->bw.nbw;
+
+  /* basic fields */
   metrics->id = ometrics->id;
-  metrics->data = ometrics->data;
   metrics->hits = ometrics->hits;
-  metrics->percent = percent < 0 ? 0 : percent;
   metrics->visitors = ometrics->visitors;
 
+  /* percentage fields */
+  metrics->hits_perc = hits_perc < 0 ? 0 : hits_perc;
+  metrics->bw_perc = bw_perc < 0 ? 0 : bw_perc;
+  metrics->visitors_perc = visitors_perc < 0 ? 0 : visitors_perc;
+
+  /* bandwidth field */
+  metrics->bw.nbw = ometrics->bw.nbw;
+
+  /* time served fields */
   if (conf.serve_usecs && ometrics->hits > 0) {
     metrics->avgts.nts = ometrics->avgts.nts;
     metrics->cumts.nts = ometrics->cumts.nts;
     metrics->maxts.nts = ometrics->maxts.nts;
   }
 
+  /* protocol field */
   if (conf.append_method && ometrics->method)
     metrics->method = ometrics->method;
 
+  /* method field */
   if (conf.append_method && ometrics->protocol)
     metrics->protocol = ometrics->protocol;
+
+  /* data field */
+  metrics->data = ometrics->data;
 
   *nmetrics = metrics;
 }
