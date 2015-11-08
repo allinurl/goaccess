@@ -25,6 +25,9 @@
 #ifndef JSON_H_INCLUDED
 #define JSON_H_INCLUDED
 
+#define TAB "\t\t\t\t\t\t\t\t\t\t\t"
+#define NL "\n\n\n"
+
 #include "parser.h"
 
 void output_json (GLog * logger, GHolder * holder);

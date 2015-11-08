@@ -50,16 +50,18 @@
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
-                  const struct GPanel_ *, const struct GOutput_ *);
+  void (*render) (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
+                  int max_vis, const struct GPanel_ *, const struct GOutput_ *);
   void (*metrics_callback) (GMetrics * metrics);
   const char *clabel;           /* column label */
 } GPanel;
 
-static void print_html_data (FILE * fp, GHolder * h, int total, int max_hit,
-                             int max_vis, const GPanel *, const GOutput *);
-static void print_html_host (FILE * fp, GHolder * h, int total, int max_hit,
-                             int max_vis, const GPanel *, const GOutput *);
+static void print_html_data (FILE * fp, GHolder * h, GPercTotals totals,
+                             int max_hit, int max_vis, const GPanel *,
+                             const GOutput *);
+static void print_html_host (FILE * fp, GHolder * h, GPercTotals totals,
+                             int max_hit, int max_vis, const GPanel *,
+                             const GOutput *);
 static void fmt_date (GMetrics * metrics);
 
 /* *INDENT-OFF* */
@@ -1184,11 +1186,11 @@ print_metric_visitors (FILE * fp, GMetrics * nmetrics)
 }
 
 static void
-print_metric_percent (FILE * fp, GMetrics * nmetrics, int max_hit)
+print_metric_hits_percent (FILE * fp, GMetrics * nmetrics, int max_hit)
 {
   fprintf (fp, "<td class='num'>");
   fprintf (fp, "<span class='%s'>%4.2f%%</span>", (max_hit ? "max" : ""),
-           nmetrics->percent);
+           nmetrics->hits_perc);
   fprintf (fp, "</td>");
 }
 
@@ -1291,7 +1293,7 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
   if (output->hits)
     print_metric_hits (fp, nmetrics);
   if (output->percent)
-    print_metric_percent (fp, nmetrics, max_hit == nmetrics->hits);
+    print_metric_hits_percent (fp, nmetrics, max_hit == nmetrics->hits);
   if (output->bw)
     print_metric_bw (fp, nmetrics);
   if (output->avgts)
@@ -1314,8 +1316,8 @@ print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
 }
 
 static void
-print_subitems (FILE * fp, GHolder * h, int idx, int total, int max_hit,
-                int max_vis, const GOutput * output)
+print_subitems (FILE * fp, GHolder * h, int idx, GPercTotals totals,
+                int max_hit, int max_vis, const GOutput * output)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
@@ -1326,7 +1328,7 @@ print_subitems (FILE * fp, GHolder * h, int idx, int total, int max_hit,
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    set_data_metrics (iter->metrics, &nmetrics, total);
+    set_data_metrics (iter->metrics, &nmetrics, totals);
 
     print_html_begin_tr (fp, 1, 1);
     print_metrics (fp, nmetrics, max_hit, max_vis, 1, output);
@@ -1427,8 +1429,9 @@ print_host_sub (FILE * fp, GHolder * h, int idx, int cspan)
 }
 
 static void
-print_html_host (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
-                 GO_UNUSED const GPanel * panel, const GOutput * output)
+print_html_host (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
+                 int max_vis, GO_UNUSED const GPanel * panel,
+                 const GOutput * output)
 {
   GMetrics *nmetrics;
   int i, cspan = 5;
@@ -1441,7 +1444,7 @@ print_html_host (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
     cspan++;
 
   for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, total);
+    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
 
@@ -1475,8 +1478,8 @@ fmt_date (GMetrics * metrics)
 }
 
 static void
-print_html_data (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
-                 const GPanel * panel, const GOutput * output)
+print_html_data (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
+                 int max_vis, const GPanel * panel, const GOutput * output)
 {
   GMetrics *nmetrics;
   int i;
@@ -1485,22 +1488,22 @@ print_html_data (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
     if (panel->metrics_callback)
       panel->metrics_callback (h->items[i].metrics);
 
-    set_data_metrics (h->items[i].metrics, &nmetrics, total);
+    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     print_html_begin_tr (fp, (i > OUTPUT_N), 0);
     print_metrics (fp, nmetrics, max_hit, max_vis, 0, output);
     print_html_end_tr (fp);
 
     if (h->sub_items_size)
-      print_subitems (fp, h, i, total, max_hit, max_vis, output);
+      print_subitems (fp, h, i, totals, max_hit, max_vis, output);
 
     free (nmetrics);
   }
 }
 
 static void
-print_html_common (FILE * fp, GHolder * h, int total, const GPanel * panel,
-                   const GOutput * output)
+print_html_common (FILE * fp, GHolder * h, GPercTotals totals,
+                   const GPanel * panel, const GOutput * output)
 {
   int max_hit = 0, max_vis = 0;
   const char *lbl = panel->clabel;
@@ -1547,7 +1550,7 @@ print_html_common (FILE * fp, GHolder * h, int total, const GPanel * panel,
   print_html_end_thead (fp);
   print_html_begin_tbody (fp);
 
-  panel->render (fp, h, total, max_hit, max_vis, panel, output);
+  panel->render (fp, h, totals, max_hit, max_vis, panel, output);
 
   print_html_end_tbody (fp);
   print_html_end_table (fp);
@@ -1676,6 +1679,12 @@ output_html (GLog * logger, GHolder * holder)
   const GOutput *output;
   const GPanel *panel;
 
+  GPercTotals totals = {
+    .hits = logger->valid,
+    .visitors = ht_get_size_uniqmap (VISITORS),
+    .bw = logger->resp_size,
+  };
+
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
@@ -1691,7 +1700,7 @@ output_html (GLog * logger, GHolder * holder)
       continue;
     if (ignore_panel (module))
       continue;
-    print_html_common (fp, holder + module, logger->valid, panel, output);
+    print_html_common (fp, holder + module, totals, panel, output);
   }
 
   print_html_footer (fp);

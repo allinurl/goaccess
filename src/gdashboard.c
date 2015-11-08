@@ -362,16 +362,19 @@ get_max_perc_len (int max_percent)
   return intlen ((int) max_percent);
 }
 
-/* set item's percent in GDashData */
+/* Get the maximum hits percent value.
+ *
+ * On error, 0 is returned.
+ * On success, maximum hits percent is returned. */
 static float
-set_percent_data (GDashData * data, int n, int valid)
+get_max_hits_percent (GDashData * data, int n, int valid)
 {
   float max = 0.0;
   int i;
   for (i = 0; i < n; i++) {
-    data[i].metrics->percent = get_percentage (valid, data[i].metrics->hits);
-    if (data[i].metrics->percent > max)
-      max = data[i].metrics->percent;
+    data[i].metrics->hits_perc = get_percentage (valid, data[i].metrics->hits);
+    if (data[i].metrics->hits_perc > max)
+      max = data[i].metrics->hits_perc;
   }
   return max;
 }
@@ -629,7 +632,7 @@ out:
 
 /* render dashboard percent */
 static void
-render_percent (GDashModule * data, GDashRender render, int *x)
+render_hits_percent (GDashModule * data, GDashRender render, int *x)
 {
   GColorItem item = COLOR_MTRC_PERC;
   GColors *color;
@@ -648,13 +651,13 @@ render_percent (GDashModule * data, GDashRender render, int *x)
 
   if (sel) {
     /* selected state */
-    percent = float2str (data->data[idx].metrics->percent, len);
+    percent = float2str (data->data[idx].metrics->hits_perc, len);
     draw_header (win, percent, "%s%%", y, *x, w, color_selected);
     free (percent);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*.2f%%", len, data->data[idx].metrics->percent);
+    mvwprintw (win, y, *x, "%*.2f%%", len, data->data[idx].metrics->hits_perc);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -776,7 +779,7 @@ render_metrics (GDashModule * data, GDashRender render, int expanded)
   if (output->visitors)
     render_visitors (data, render, &x);
   if (output->percent)
-    render_percent (data, render, &x);
+    render_hits_percent (data, render, &x);
 
   /* render bandwidth if available */
   if (conf.bandwidth && output->bw)
@@ -962,8 +965,8 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
 {
   GDashData *idata;
   GModule module;
-  float max_percent = 0.0;
-  int j, n = 0, valid = 0;
+  float max_hit_percent = 0.0;
+  int j, n = 0;
 
   int y = 0, offset = 0, total = 0;
   int dash_scroll = gscroll->dash;
@@ -979,18 +982,23 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
         total++;
       }
     }
-
+    /* module's data (metrics) */
     idata = dash->module[module].data;
-    valid = logger->valid;
-    max_percent = set_percent_data (idata, n, valid);
 
+    /* used module */
     dash->module[module].module = module;
+
+    max_hit_percent = get_max_hits_percent (idata, n, logger->valid);
+
+    /* integer length */
+    dash->module[module].hits_len = get_max_hit_len (idata, n);
+    dash->module[module].visitors_len = get_max_visitor_len (idata, n);
+    dash->module[module].perc_len = get_max_perc_len (max_hit_percent);
     dash->module[module].method_len = get_max_method_len (idata, n);
     dash->module[module].data_len = get_max_data_len (idata, n);
-    dash->module[module].hits_len = get_max_hit_len (idata, n);
+
+    /* maximum value */
     dash->module[module].max_hits = get_max_hit (idata, n);
-    dash->module[module].perc_len = get_max_perc_len (max_percent);
-    dash->module[module].visitors_len = get_max_visitor_len (idata, n);
 
     render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
   }

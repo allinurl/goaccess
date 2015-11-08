@@ -75,17 +75,21 @@ typedef struct GDashModule_
   const char *head;
   const char *desc;
 
-  int alloc_data;  /* alloc data items */
-  int dash_size;   /* dashboard size   */
-  int data_len;
+  int alloc_data;  /* malloc'd data items */
+  int dash_size;   /* dashboard size */
+  int holder_size; /* holder size (ht size || MAX_CHOICES)  */
+  int ht_size;     /* ht size  */
+  int idx_data;    /* idx data */
+
+  /* integer length */
   int hits_len;
-  int holder_size; /* hash table size  */
-  int ht_size;     /* hash table size  */
-  int idx_data;    /* idx data         */
-  int max_hits;
-  int method_len;
-  int perc_len;
   int visitors_len;
+  int perc_len;
+  int method_len;
+  int data_len;
+  /* maximum value */
+  int max_hits;
+
   unsigned short pos_y;
 } GDashModule;
 
