@@ -266,33 +266,47 @@ poverall_log (FILE * fp, int isp)
 static void
 phits (FILE * fp, GMetrics * nmetrics, int sp)
 {
+  int isp = sp + 1;
+
+  pjson (fp, "%.*s\"hits\": {%.*s", sp, TAB, nlines, NL);
   /* print hits */
-  pjson (fp, "%.*s\"hits\": %d,%.*s", sp, TAB, nmetrics->hits, nlines, NL);
+  pjson (fp, "%.*s\"count\": %d,%.*s", isp, TAB, nmetrics->hits, nlines, NL);
   /* print hits percent */
-  pjson (fp, "%.*s\"hits_percent\": %4.2f,%.*s", sp, TAB, nmetrics->hits_perc,
+  pjson (fp, "%.*s\"percent\": %4.2f%.*s", isp, TAB, nmetrics->hits_perc,
          nlines, NL);
+  pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
 static void
 pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
 {
+  int isp = sp + 1;
+
+  pjson (fp, "%.*s\"visitors\": {%.*s", sp, TAB, nlines, NL);
   /* print visitors */
-  pjson (fp, "%.*s\"visitors\": %d,%.*s", sp, TAB, nmetrics->visitors, nlines,
+  pjson (fp, "%.*s\"count\": %d,%.*s", isp, TAB, nmetrics->visitors, nlines,
          NL);
   /* print visitors percent */
-  pjson (fp, "%.*s\"visitors_percent\": %4.2f,%.*s", sp, TAB,
-         nmetrics->visitors_perc, nlines, NL);
+  pjson (fp, "%.*s\"percent\": %4.2f%.*s", isp, TAB, nmetrics->visitors_perc,
+         nlines, NL);
+  pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
 static void
 pbw (FILE * fp, GMetrics * nmetrics, int sp)
 {
+  int isp = sp + 1;
+
   if (!conf.bandwidth)
     return;
 
-  pjson (fp, "%.*s\"bytes\": %lld,%.*s", sp, TAB, nmetrics->bw.nbw, nlines, NL);
-  pjson (fp, "%.*s\"bytes_percent\": %4.2f,%.*s", sp, TAB, nmetrics->bw_perc,
-         nlines, NL);
+  pjson (fp, "%.*s\"bytes\": {%.*s", sp, TAB, nlines, NL);
+  /* print bandwidth */
+  pjson (fp, "%.*s\"count\": %d,%.*s", isp, TAB, nmetrics->bw.nbw, nlines, NL);
+  /* print bandwidth percent */
+  pjson (fp, "%.*s\"percent\": %4.2f%.*s", isp, TAB, nmetrics->bw_perc, nlines,
+         NL);
+  pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
 static void
