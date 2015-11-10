@@ -49,7 +49,7 @@ typedef struct GPanel_
   void (*render) (FILE * fp, GHolder * h, GPercTotals totals);
 } GPanel;
 
-static int nlines = 1;          /* number of new lines (applicable fields) */
+static int nlines = 0;          /* number of new lines (applicable fields) */
 static void print_json_data (FILE * fp, GHolder * h, GPercTotals totals);
 static void print_json_host_data (FILE * fp, GHolder * h, GPercTotals totals);
 
@@ -266,7 +266,11 @@ poverall_log (FILE * fp, int isp)
 static void
 phits (FILE * fp, GMetrics * nmetrics, int sp)
 {
-  int isp = sp + 1;
+  int isp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
   pjson (fp, "%.*s\"hits\": {%.*s", sp, TAB, nlines, NL);
   /* print hits */
@@ -280,7 +284,11 @@ phits (FILE * fp, GMetrics * nmetrics, int sp)
 static void
 pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
 {
-  int isp = sp + 1;
+  int isp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
   pjson (fp, "%.*s\"visitors\": {%.*s", sp, TAB, nlines, NL);
   /* print visitors */
@@ -295,7 +303,11 @@ pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
 static void
 pbw (FILE * fp, GMetrics * nmetrics, int sp)
 {
-  int isp = sp + 1;
+  int isp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
   if (!conf.bandwidth)
     return;
@@ -381,8 +393,8 @@ print_json_block (FILE * fp, GMetrics * nmetrics, int sp)
 static void
 print_json_host_geo (FILE * fp, GSubList * sub_list, int sp)
 {
-  int i;
   GSubItem *iter;
+  int i;
   static const char *key[] = {
     "country",
     "city",
@@ -407,7 +419,11 @@ print_json_host_data (FILE * fp, GHolder * h, GPercTotals totals)
 {
   GMetrics *nmetrics;
   int i;
-  int sp = 1, isp = 2, iisp = 3;
+  int sp = 0, isp = 0, iisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1, isp = 2, iisp = 3;
 
   pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, module_to_id (h->module), nlines,
          NL);
@@ -433,7 +449,11 @@ print_json_sub_items (FILE * fp, GHolder * h, int idx, int iisp,
   GSubItem *iter;
   GSubList *sub_list = h->items[idx].sub_list;
   int i = 0;
-  int iiisp = iisp + 1, iiiisp = iiisp + 1;
+  int iiisp = 0, iiiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iiisp = iisp + 1, iiiisp = iiisp + 1;
 
   if (sub_list == NULL)
     return;
@@ -456,7 +476,11 @@ print_json_data (FILE * fp, GHolder * h, GPercTotals totals)
 {
   GMetrics *nmetrics;
   int i;
-  int sp = 1, isp = 2, iisp = 3;
+  int sp = 0, isp = 0, iisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1, isp = 2, iisp = 3;
 
   pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, module_to_id (h->module), nlines,
          NL);
@@ -480,7 +504,11 @@ print_json_data (FILE * fp, GHolder * h, GPercTotals totals)
 static void
 print_json_summary (FILE * fp, GLog * logger)
 {
-  int sp = 1, isp = 2;
+  int sp = 0, isp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1, isp = 2;
 
   pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, GENER_ID, nlines, NL);
   /* generated date time */
@@ -529,6 +557,10 @@ output_json (GLog * logger, GHolder * holder)
     .visitors = ht_get_size_uniqmap (VISITORS),
     .bw = logger->resp_size,
   };
+
+  /* use new lines to prettify output */
+  if (conf.json_pretty_print)
+    nlines = 1;
 
   pjson (fp, "{%.*s", nlines, NL);
   print_json_summary (fp, logger);
