@@ -75,6 +75,7 @@ struct option long_opts[] = {
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
+  {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
@@ -136,6 +137,7 @@ cmd_help (void)
   "                                    more details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
+  "  --json-pretty-print             - Use tabs in returned data to format it.\n"
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term\n"
   "                                    output.\n"
@@ -443,6 +445,10 @@ read_option_args (int argc, char **argv)
       /* no csv summary */
       if (!strcmp ("no-csv-summary", long_opts[idx].name))
         conf.no_csv_summary = 1;
+
+      /* json pretty print */
+      if (!strcmp ("json-pretty-print", long_opts[idx].name))
+        conf.json_pretty_print = 1;
 
       /* no progress */
       if (!strcmp ("no-progress", long_opts[idx].name))
