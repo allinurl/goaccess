@@ -1002,7 +1002,7 @@ ht_get_size_datamap (GModule module)
   khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
-    return -1;
+    return 0;
 
   return kh_size (hash);
 }
