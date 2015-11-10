@@ -117,6 +117,7 @@ typedef struct GConf_
   int no_color;
   int no_column_names;
   int no_csv_summary;
+  int json_pretty_print;
   int no_progress;
   int no_tab_scroll;
   int output_html;
