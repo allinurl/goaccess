@@ -463,7 +463,7 @@ pprotocol (FILE * fp, GMetrics * nmetrics, int sp)
 static void
 print_open_panel_attr (FILE * fp, const char *attr, int sp)
 {
-  pjson (fp, "%.*s\"%s\": [{%.*s", sp, TAB, attr, nlines, NL);
+  pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
 }
 
 /* Close the array of objects.
@@ -472,7 +472,7 @@ print_open_panel_attr (FILE * fp, const char *attr, int sp)
 static void
 print_close_panel_attr (FILE * fp, int sp)
 {
-  pjson (fp, "%.*s}]", sp, TAB);
+  pjson (fp, "%.*s}", sp, TAB);
 }
 
 /* Output the metadata key as an object.
