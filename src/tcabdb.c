@@ -163,6 +163,7 @@ init_tables (GModule module)
     {MTRC_METHODS   , DB_METHODS   , NULL} ,
     {MTRC_PROTOCOLS , DB_PROTOCOLS , NULL} ,
     {MTRC_AGENTS    , DB_AGENTS    , NULL} ,
+    {MTRC_METADATA  , DB_METADATA  , NULL},
   };
   /* *INDENT-ON* */
 
@@ -549,7 +550,7 @@ get_si32 (void *hash, const char *key)
 
 /* Get the unsigned int value of a given string key.
  *
- * On error, -1 is returned.
+ * On error, 0 is returned.
  * On success the int value for the given key is returned */
 static uint32_t
 get_sui32 (void *hash, const char *key)
@@ -1026,6 +1027,22 @@ ht_insert_genstats_bw (const char *key, uint64_t inc)
   return inc_su64 (hash, key, inc);
 }
 
+/* Insert meta data counters from a string key.
+ *
+ * On error, -1 is returned.
+ * On success 0 is returned */
+int
+ht_insert_meta_data (GModule module, const char *key, uint64_t value)
+{
+  void *hash = get_hash (module, MTRC_METADATA);
+
+  if (!hash)
+    return -1;
+
+  return inc_su64 (hash, key, value);
+}
+
+
 /* Get the number of elements in a datamap.
  *
  * Return -1 if the operation fails, else number of elements. */
@@ -1281,6 +1298,20 @@ ht_get_host_agent_list (GModule module, int key)
   if ((list = get_igsl (hash, key)))
     return list;
   return NULL;
+}
+
+/* Get the meta data uint64_t from MTRC_METADATA given a string key.
+ *
+ * On error, or if key is not found, 0 is returned.
+ * On success the uint64_t value for the given key is returned */
+uint64_t
+ht_get_meta_data (GModule module, const char *key)
+{
+  void *hash = get_hash (module, MTRC_METADATA);
+  if (!hash)
+    return 0;
+
+  return get_su64 (hash, key);
 }
 
 /* Get the list value from MTRC_AGENTS given an int key.

@@ -176,12 +176,13 @@ int ht_insert_agent (GModule module, int key, int value);
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_genstats (const char *key, int inc);
 int ht_insert_genstats_bw (const char *key, uint64_t inc);
+int ht_insert_meta_data (GModule module, const char *key, uint64_t value);
 
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_uniqmap (GModule module);
 
-char *ht_get_host_agent_val (int key);
 char *ht_get_datamap (GModule module, int key);
+char *ht_get_host_agent_val (int key);
 char *ht_get_hostname (const char *host);
 char *ht_get_method (GModule module, int key);
 char *ht_get_protocol (GModule module, int key);
@@ -193,7 +194,9 @@ uint32_t ht_get_genstats (const char *key);
 uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
+uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_maxts (GModule module, int key);
+uint64_t ht_get_meta_data (GModule module, const char *key);
 
 GSLList *tclist_to_gsllist (TCLIST * tclist);
 GSLList *ht_get_host_agent_list (GModule module, int key);

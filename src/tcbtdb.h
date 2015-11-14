@@ -61,6 +61,7 @@
 #define DB_METHODS   "db_methods.tcb"
 #define DB_PROTOCOLS "db_protocols.tcb"
 #define DB_AGENTS    "db_agents.tcb"
+#define DB_METADATA  "db_metadata.tcb"
 
 /* *INDENT-OFF* */
 TCBDB *tc_bdb_create (const char *dbname, int module);
