@@ -24,7 +24,7 @@
 #include "commons.h"
 
 /* Total number of storage metrics (GSMetric) */
-#define GSMTRC_TOTAL 13
+#define GSMTRC_TOTAL 14
 
 /* Enumerated Storage Metrics */
 typedef enum GSMetric_
@@ -42,6 +42,7 @@ typedef enum GSMetric_
   MTRC_METHODS,
   MTRC_PROTOCOLS,
   MTRC_AGENTS,
+  MTRC_METADATA,
 } GSMetric;
 
 GMetrics *new_gmetrics (void);
