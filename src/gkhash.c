@@ -108,6 +108,15 @@ new_igsl_ht (void)
   return h;
 }
 
+/* Initialize a new int key - uint64_t value hash table */
+static
+khash_t (su64) *
+new_su64_ht (void)
+{
+  khash_t (su64) * h = kh_init (su64);
+  return h;
+}
+
 /* Destroys both the hash structure and the keys for a
  * string key - int value hash */
 static void
@@ -190,6 +199,17 @@ des_igsl_free (khash_t (igsl) * hash)
   kh_destroy (igsl, hash);
 }
 
+/* Destroys both the hash structure and the keys for a
+ * string key - uint64_t value hash */
+static void
+des_su64_free (khash_t (su64) * hash)
+{
+  if (!hash)
+    return;
+
+  kh_destroy (su64, hash);
+}
+
 /* Destroys the hash structure */
 static void
 des_iu64 (khash_t (iu64) * hash)
@@ -218,6 +238,7 @@ init_tables (GModule module)
     {MTRC_METHODS, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
     {MTRC_PROTOCOLS, MTRC_TYPE_IS32, {.is32 = new_is32_ht ()}},
     {MTRC_AGENTS, MTRC_TYPE_IGSL, {.igsl = new_igsl_ht ()}},
+    {MTRC_METADATA, MTRC_TYPE_SU64, {.su64 = new_su64_ht ()}},
   };
 
   n = ARRAY_SIZE (metrics);
@@ -273,6 +294,9 @@ free_metrics (GModule module)
       break;
     case MTRC_TYPE_IGSL:
       des_igsl_free (mtrc.igsl);
+      break;
+    case MTRC_TYPE_SU64:
+      des_su64_free (mtrc.su64);
       break;
     }
   }
@@ -332,6 +356,9 @@ get_hash (GModule module, GSMetric metric)
       break;
     case MTRC_TYPE_IGSL:
       hash = mtrc.igsl;
+      break;
+    case MTRC_TYPE_SU64:
+      hash = mtrc.su64;
       break;
     }
   }
@@ -468,7 +495,7 @@ ins_iu64 (khash_t (iu64) * hash, int key, uint64_t value)
  * Note: If the key exists, its value is increased by the given inc.
  *
  * On error, -1 is returned.
- * On success 0 is returned */
+ * On success the inserted value is returned */
 static int
 inc_ii32 (khash_t (ii32) * hash, int key, int inc)
 {
@@ -486,6 +513,36 @@ inc_ii32 (khash_t (ii32) * hash, int key, int inc)
   k = kh_put (ii32, hash, key, &ret);
   if (ret == -1)
     return -1;
+
+  kh_val (hash, k) = value;
+
+  return value;
+}
+
+/* Increase a uint64_t value given a string key.
+ *
+ * On error, -1 is returned.
+ * On success 0 is returned */
+static int
+inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc)
+{
+  khint_t k;
+  int ret;
+  uint64_t value = inc;
+
+  if (!hash)
+    return -1;
+
+  k = kh_get (su64, hash, key);
+  /* key not found, set new value to the given `inc` */
+  if (k == kh_end (hash)) {
+    k = kh_put (su64, hash, key, &ret);
+    /* operation failed */
+    if (ret == -1)
+      return -1;
+  } else {
+    value = kh_val (hash, k) + inc;
+  }
 
   kh_val (hash, k) = value;
 
@@ -712,6 +769,27 @@ get_igsl (khash_t (igsl) * hash, int key)
   return NULL;
 }
 
+/* Get the uint64_t value of a given string key.
+ *
+ * On error, or if key is not found, 0 is returned.
+ * On success the uint64_t value for the given key is returned */
+static uint64_t
+get_su64 (khash_t (su64) * hash, const char *key)
+{
+  khint_t k;
+  uint64_t val = 0;
+
+  if (!hash)
+    return 0;
+
+  k = kh_get (su64, hash, key);
+  /* key found, return current value */
+  if (k != kh_end (hash) && (val = kh_val (hash, k)))
+    return val;
+
+  return 0;
+}
+
 /* Insert a unique visitor key string (IP/DATE/UA), mapped to an auto
  * incremented value.
  *
@@ -853,10 +931,25 @@ ht_insert_root (GModule module, int key, int value)
   return ins_ii32 (hash, key, value);
 }
 
-/* Increases hits counter from an int key.
+/* Insert meta data counters from a string key.
  *
  * On error, -1 is returned.
  * On success 0 is returned */
+int
+ht_insert_meta_data (GModule module, const char *key, uint64_t value)
+{
+  khash_t (su64) * hash = get_hash (module, MTRC_METADATA);
+
+  if (!hash)
+    return -1;
+
+  return inc_su64 (hash, key, value);
+}
+
+/* Increases hits counter from an int key.
+ *
+ * On error, -1 is returned.
+ * On success the inserted value is returned */
 int
 ht_insert_hits (GModule module, int key, int inc)
 {
@@ -871,7 +964,7 @@ ht_insert_hits (GModule module, int key, int inc)
 /* Increases visitors counter from an int key.
  *
  * On error, -1 is returned.
- * On success 0 is returned */
+ * On success the inserted value is returned */
 int
 ht_insert_visitor (GModule module, int key, int inc)
 {
@@ -1222,6 +1315,18 @@ ht_get_host_agent_list (GModule module, int key)
   if ((list = get_igsl (hash, key)))
     return list;
   return NULL;
+}
+
+/* Get the meta data uint64_t from MTRC_METADATA given a string key.
+ *
+ * On error, or if key is not found, 0 is returned.
+ * On success the uint64_t value for the given key is returned */
+uint64_t
+ht_get_meta_data (GModule module, const char *key)
+{
+  khash_t (su64) * hash = get_hash (module, MTRC_METADATA);
+
+  return get_su64 (hash, key);
 }
 
 /* Store the key/value pairs from a hash table into raw_data and sorts the the

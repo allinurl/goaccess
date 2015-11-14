@@ -38,6 +38,8 @@ KHASH_MAP_INIT_STR (si32, int);
 KHASH_MAP_INIT_STR (ss32, char *);
 /* int keys, GSLList payload */
 KHASH_MAP_INIT_INT (igsl, GSLList *);
+/* string keys, uint64_t payload */
+KHASH_MAP_INIT_STR (su64, uint64_t);
 
 /* Metrics Storage */
 
@@ -158,6 +160,8 @@ typedef enum GSMetricType_
   MTRC_TYPE_SS32,
   /* int key - GSLList val */
   MTRC_TYPE_IGSL,
+  /* string key - uint64_t val */
+  MTRC_TYPE_SU64,
 } GSMetricType;
 
 typedef struct GKHashMetric_
@@ -172,6 +176,7 @@ typedef struct GKHashMetric_
     khash_t (si32) * si32;
     khash_t (ss32) * ss32;
     khash_t (igsl) * igsl;
+    khash_t (su64) * su64;
   };
 } GKHashMetric;
 
@@ -203,12 +208,13 @@ int ht_insert_method (GModule module, int key, const char *value);
 int ht_insert_protocol (GModule module, int key, const char *value);
 int ht_insert_agent (GModule module, int key, int value);
 int ht_insert_hostname (const char *ip, const char *host);
+int ht_insert_meta_data (GModule module, const char *key, uint64_t value);
 
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_uniqmap (GModule module);
 
-char *ht_get_host_agent_val (int key);
 char *ht_get_datamap (GModule module, int key);
+char *ht_get_host_agent_val (int key);
 char *ht_get_hostname (const char *host);
 char *ht_get_method (GModule module, int key);
 char *ht_get_protocol (GModule module, int key);
@@ -219,6 +225,7 @@ int ht_get_visitors (GModule module, int key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
 uint64_t ht_get_maxts (GModule module, int key);
+uint64_t ht_get_meta_data (GModule module, const char *key);
 GSLList *ht_get_host_agent_list (GModule module, int key);
 
 GRawData *parse_raw_data (GModule module);

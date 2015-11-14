@@ -1304,30 +1304,35 @@ static void
 insert_hit (int data_nkey, GModule module)
 {
   ht_insert_hits (module, data_nkey, 1);
+  ht_insert_meta_data (module, "hits", 1);
 }
 
 static void
 insert_visitor (int uniq_nkey, GModule module)
 {
   ht_insert_visitor (module, uniq_nkey, 1);
+  ht_insert_meta_data (module, "visitors", 1);
 }
 
 static void
 insert_bw (int data_nkey, uint64_t size, GModule module)
 {
   ht_insert_bw (module, data_nkey, size);
+  ht_insert_meta_data (module, "bytes", size);
 }
 
 static void
 insert_cumts (int data_nkey, uint64_t ts, GModule module)
 {
   ht_insert_cumts (module, data_nkey, ts);
+  ht_insert_meta_data (module, "cumts", ts);
 }
 
 static void
 insert_maxts (int data_nkey, uint64_t ts, GModule module)
 {
   ht_insert_maxts (module, data_nkey, ts);
+  ht_insert_meta_data (module, "maxts", ts);
 }
 
 static void
