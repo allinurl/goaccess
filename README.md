@@ -209,7 +209,7 @@ to be used without prepending `--`.
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
 | `--ignore-status=<CODE>`           | Ignore parsing the given status code(s).                      |
 | `--invalid-requests=<filename>`    | Log invalid requests to the specified file.                   |
-| `--json-pretty-print`              | Use tabs in returned data to format it.                       |
+| `--json-pretty-print`              | Format JSON output using tabs and newlines.                   |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
 | `--no-color`                       | Disable colored output.                                       |
 | `--no-column-names`                | Don't write column names in term output.                      |
