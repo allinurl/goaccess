@@ -571,7 +571,7 @@ get_sui32 (void *hash, const char *key)
 static uint64_t
 get_su64 (void *hash, const char *key)
 {
-  int ret = 0;
+  uint64_t ret = 0;
   void *ptr;
   if (!hash)
     return 0;
