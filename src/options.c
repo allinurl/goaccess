@@ -138,7 +138,7 @@ cmd_help (void)
   "                                    more details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
-  "  --json-pretty-print             - Use tabs in returned data to format it.\n"
+  "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term\n"
   "                                    output.\n"
