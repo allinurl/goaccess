@@ -332,7 +332,8 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
 }
 
 int
-convert_date (char *res, char *data, const char *from, const char *to, int size)
+convert_date (char *res, const char *data, const char *from, const char *to,
+              int size)
 {
   struct tm tm;
 
