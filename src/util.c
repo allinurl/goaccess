@@ -296,6 +296,24 @@ get_global_config (void)
   return path;
 }
 
+/* A self-checking wrapper to convert_date().
+ *
+ * On error, a newly malloc'd '---' string is returned.
+ * On success, a malloc'd 'Ymd' date is returned. */
+char *
+get_visitors_date (const char *odate, const char *from, const char *to)
+{
+  char date[DATE_LEN] = "";     /* Ymd */
+
+  memset (date, 0, sizeof *date);
+  /* verify we have a valid date conversion */
+  if (convert_date (date, odate, from, to, DATE_LEN) == 0)
+    return xstrdup (date);
+
+  LOG_DEBUG (("invalid date: %s", odate));
+  return xstrdup ("---");
+}
+
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm)

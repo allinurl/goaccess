@@ -1461,7 +1461,7 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
   /* Need to convert timestamps so they are stored in the hash structure
    * as an actual date */
   if (has_timestamp (conf.date_format)) {
-    date = get_visitors_date (glog->date);
+    date = get_visitors_date (glog->date, conf.date_format, "%Y%m%d");
     free (glog->date);
     glog->date = date;
   }
