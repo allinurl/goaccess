@@ -49,6 +49,7 @@ char *filesize_str (unsigned long long log_size);
 char *float2str (float d, int width);
 char *get_global_config (void);
 char *get_home (void);
+char *get_visitors_date (const char *odate, const char *from, const char *to);
 char *int2str (int d, int width);
 char *ints_to_str (int a, int b);
 char *left_pad_str (const char *s, int indent);

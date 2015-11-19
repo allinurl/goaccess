@@ -233,8 +233,6 @@ GSLList *list_insert_prepend (GSLList * list, void *data);
 int list_count (GSLList * list);
 int list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data);
 int list_remove_nodes (GSLList * list);
-void format_date_visitors (GMetrics * metrics);
-char *get_visitors_date  (const char *odate);
 /* *INDENT-ON* */
 
 #endif

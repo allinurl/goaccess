@@ -1471,7 +1471,9 @@ print_html_host (FILE * fp, GHolder * h, int total, int max_hit, int max_vis,
 static void
 fmt_date (GMetrics * metrics)
 {
-  format_date_visitors (metrics);
+  char *date = get_visitors_date (metrics->data, "%Y%m%d", "%d/%b/%Y");
+  free (metrics->data);
+  metrics->data = date;
 }
 
 static void

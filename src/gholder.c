@@ -311,7 +311,7 @@ data_visitors (GHolder * h)
 
   /* verify we have a valid date conversion */
   datum = h->items[h->idx].metrics->data;
-  date = get_visitors_date (datum);
+  date = get_visitors_date (datum, conf.date_format, "%Y%m%d");
   free (datum);
 
   h->items[h->idx].metrics->data = date;
