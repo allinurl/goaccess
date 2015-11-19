@@ -303,20 +303,18 @@ sort_sub_list (GHolder * h, GSort sort)
 static void
 data_visitors (GHolder * h)
 {
-  char date[DATE_LEN] = "";     /* Ymd */
-  char *datum = h->items[h->idx].metrics->data;
+  char *date = NULL, *datum = NULL;
 
-  memset (date, 0, sizeof *date);
-  /* verify we have a valid date conversion */
-  if (convert_date (date, datum, conf.date_format, "%Y%m%d", DATE_LEN) == 0) {
-    free (datum);
-    h->items[h->idx].metrics->data = xstrdup (date);
+  /* date is already in the 'Ymd' format, no need for additional conversion */
+  if (has_timestamp (conf.date_format))
     return;
-  }
-  LOG_DEBUG (("invalid date: %s", datum));
 
+  /* verify we have a valid date conversion */
+  datum = h->items[h->idx].metrics->data;
+  date = get_visitors_date (datum);
   free (datum);
-  h->items[h->idx].metrics->data = xstrdup ("---");
+
+  h->items[h->idx].metrics->data = date;
 }
 
 static int

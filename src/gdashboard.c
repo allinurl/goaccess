@@ -430,7 +430,7 @@ render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
 }
 
 static void
-get_visitors_date (char *buf, const char *value)
+set_visitors_date (char *buf, const char *value)
 {
   /* verify we have a valid date conversion */
   if (convert_date (buf, (char *) value, "%Y%m%d", "%d/%b/%Y", DATE_LEN) != 0) {
@@ -452,7 +452,7 @@ render_data (GDashModule * data, GDashRender render, int *x)
 
   value = substring (data->data[idx].metrics->data, 0, w - *x);
   if (data->module == VISITORS)
-    get_visitors_date (buf, value);
+    set_visitors_date (buf, value);
 
   if (sel && data->module == HOSTS && data->data[idx].is_subitem) {
     render_data_hosts (win, render, value, *x);
