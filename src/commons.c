@@ -267,30 +267,6 @@ new_gagent_item (uint32_t size)
   return item;
 }
 
-/* Convert a raw date %Y%m%d format to a human readable format %d/%b/%Y.
- * It frees the current value and assign the new formatted date.
- *
- * On error, it assigns `---` as placeholder.
- * On success, new formatted date is assigned. */
-void
-format_date_visitors (GMetrics * metrics)
-{
-  char date[DATE_LEN] = "";     /* Ymd */
-  char *datum = metrics->data;
-
-  memset (date, 0, sizeof *date);
-  /* verify we have a valid date conversion */
-  if (convert_date (date, datum, "%Y%m%d", "%d/%b/%Y", DATE_LEN) == 0) {
-    free (datum);
-    metrics->data = xstrdup (date);
-    return;
-  }
-  LOG_DEBUG (("invalid date: %s", datum));
-
-  free (datum);
-  metrics->data = xstrdup ("---");
-}
-
 /* Determine if the given date format is a timestamp.
  *
  * On error, 0 is returned.
@@ -301,22 +277,4 @@ has_timestamp (const char *fmt)
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
     return 1;
   return 0;
-}
-
-/* Convert a given date from the configuration date format to 'Ymd'.
- *
- * On error, a newly malloc'd '---' string is returned.
- * On success, a malloc'd 'Ymd' date is returned. */
-char *
-get_visitors_date (const char *odate)
-{
-  char date[DATE_LEN] = "";     /* Ymd */
-
-  memset (date, 0, sizeof *date);
-  /* verify we have a valid date conversion */
-  if (convert_date (date, odate, conf.date_format, "%Y%m%d", DATE_LEN) == 0)
-    return xstrdup (date);
-
-  LOG_DEBUG (("invalid date: %s", odate));
-  return xstrdup ("---");
 }
