@@ -1448,8 +1448,18 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
+  char *date = NULL;
+
   if (!glog->date)
     return 1;
+
+  /* Need to convert timestamps so they are stored in the hash structure
+   * as an actual date */
+  if (has_timestamp (conf.date_format)) {
+    date = get_visitors_date (glog->date);
+    free (glog->date);
+    glog->date = date;
+  }
 
   get_kdata (kdata, glog->date, glog->date);
 

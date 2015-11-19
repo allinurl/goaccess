@@ -298,7 +298,25 @@ format_date_visitors (GMetrics * metrics)
 int
 has_timestamp (const char *fmt)
 {
-  if (strcmp ("%s", fmt) == 0)
+  if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
     return 1;
   return 0;
+}
+
+/* Convert a given date from the configuration date format to 'Ymd'.
+ *
+ * On error, a newly malloc'd '---' string is returned.
+ * On success, a malloc'd 'Ymd' date is returned. */
+char *
+get_visitors_date (const char *odate)
+{
+  char date[DATE_LEN] = "";     /* Ymd */
+
+  memset (date, 0, sizeof *date);
+  /* verify we have a valid date conversion */
+  if (convert_date (date, odate, conf.date_format, "%Y%m%d", DATE_LEN) == 0)
+    return xstrdup (date);
+
+  LOG_DEBUG (("invalid date: %s", odate));
+  return xstrdup ("---");
 }
