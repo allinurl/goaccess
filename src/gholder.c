@@ -79,6 +79,10 @@ static GPanel paneling[] = {
 };
 /* *INDENT-ON* */
 
+/* Get a panel from the GPanel structure given a module.
+ *
+ * On error, or if not found, NULL is returned.
+ * On success, the panel value is returned. */
 static GPanel *
 panel_lookup (GModule module)
 {
