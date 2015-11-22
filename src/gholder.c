@@ -95,7 +95,9 @@ panel_lookup (GModule module)
   return NULL;
 }
 
-/* allocate memory for holder */
+/* Allocate memory for a new GHolder instance.
+ *
+ * On success, the newly allocated GHolder is returned . */
 GHolder *
 new_gholder (uint32_t size)
 {
