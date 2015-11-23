@@ -107,7 +107,9 @@ new_gholder (uint32_t size)
   return holder;
 }
 
-/* allocate memory for holder items */
+/* Allocate memory for a new GHolderItem instance.
+ *
+ * On success, the newly allocated GHolderItem is returned . */
 static GHolderItem *
 new_gholder_item (uint32_t size)
 {
@@ -116,7 +118,9 @@ new_gholder_item (uint32_t size)
   return item;
 }
 
-/* allocate memory for a sub list */
+/* Allocate memory for a new double linked-list GSubList instance.
+ *
+ * On success, the newly allocated GSubList is returned . */
 static GSubList *
 new_gsublist (void)
 {
@@ -128,7 +132,9 @@ new_gsublist (void)
   return sub_list;
 }
 
-/* allocate memory for a sub list item */
+/* Allocate memory for a new double linked-list GSubItem node.
+ *
+ * On success, the newly allocated GSubItem is returned . */
 static GSubItem *
 new_gsubitem (GModule module, GMetrics * nmetrics)
 {
@@ -142,7 +148,7 @@ new_gsubitem (GModule module, GMetrics * nmetrics)
   return sub_item;
 }
 
-/* add an item to the end of a given sub list */
+/* Add an item to the end of a given sub list. */
 static void
 add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics)
 {
@@ -158,7 +164,7 @@ add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics)
   sub_list->size++;
 }
 
-/* delete entire given sub list */
+/* Delete the entire given sub list */
 static void
 delete_sub_list (GSubList * sub_list)
 {
