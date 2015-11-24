@@ -592,6 +592,75 @@ get_su64 (void *hash, const char *key)
   return 0;
 }
 
+/* Iterate over all the key/value pairs for the given hash structure
+ * and set the maximum and minimum values found on an integer key and
+ * integer value.
+ *
+ * Note: This are expensive calls since it has to iterate over all
+ * key-value pairs
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+static void
+get_ii32_min_max (void *hash, int *min, int *max)
+{
+  int curvalue = 0, i = 0, ksize = 0, sp = 0;
+  void *key, *ptr;
+
+  tcadbiterinit (hash);
+  while ((key = tcadbiternext (hash, &ksize)) != NULL) {
+    if ((ptr = tcadbget (hash, key, ksize, &sp)) == NULL) {
+      free (key);
+      continue;
+    }
+
+    curvalue = (*(int *) ptr);
+    if (i++ == 0)
+      *min = curvalue;
+    if (curvalue > *max)
+      *max = curvalue;
+    if (curvalue < *min)
+      *min = curvalue;
+    free (key);
+    free (ptr);
+  }
+}
+
+/* Iterate over all the key/value pairs for the given hash structure
+ * and set the maximum and minimum values found on an integer key and
+ * a uint64_t value.
+ *
+ * Note: This are expensive calls since it has to iterate over all
+ * key-value pairs
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+static void
+get_iu64_min_max (void *hash, uint64_t * min, uint64_t * max)
+{
+  int i = 0, ksize = 0, sp = 0;
+  uint64_t curvalue = 0;
+  void *key, *ptr;
+
+  tcadbiterinit (hash);
+  while ((key = tcadbiternext (hash, &ksize)) != NULL) {
+    if ((ptr = tcadbget (hash, key, ksize, &sp)) == NULL) {
+      free (key);
+      continue;
+    }
+
+    curvalue = (*(uint64_t *) ptr);
+    if (i++ == 0)
+      *min = curvalue;
+    if (curvalue > *max)
+      *max = curvalue;
+    if (curvalue < *min)
+      *min = curvalue;
+    free (key);
+    free (ptr);
+  }
+}
+
 /* Get the string value of a given int key.
  *
  * On error, NULL is returned.
@@ -735,6 +804,86 @@ ht_insert_unique_key (const char *key)
     return value;
 
   return ins_si32_ai (hash, key);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * integer value found on the MTRC_VISITORS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_hits_min_max (GModule module, int *min, int *max)
+{
+  void *hash = get_hash (module, MTRC_HITS);
+
+  if (!hash)
+    return;
+
+  get_ii32_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * integer value found on the MTRC_VISITORS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_visitors_min_max (GModule module, int *min, int *max)
+{
+  void *hash = get_hash (module, MTRC_VISITORS);
+
+  if (!hash)
+    return;
+
+  get_ii32_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_BW hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  void *hash = get_hash (module, MTRC_BW);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_CUMTS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  void *hash = get_hash (module, MTRC_CUMTS);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_MAXTS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  void *hash = get_hash (module, MTRC_MAXTS);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
 }
 
 /* Insert a user agent key string, mapped to an auto incremented value.
