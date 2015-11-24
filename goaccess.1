@@ -344,7 +344,9 @@ the form: PANEL,METRIC,ORDER
   BY_VISITORS
   BY_DATA
   BY_BW
-  BY_USEC
+  BY_AVGTS
+  BY_CUMTS
+  BY_MAXTS
   BY_PROT
   BY_MTHD
 
@@ -374,20 +376,20 @@ status codes, use this option multiple times.
 Ignore parsing and displaying the given panel.
 
 .I Available panels:
-  VISITORS,
-  REQUESTS,
-  REQUESTS_STATIC,
-  NOT_FOUND,
-  HOSTS,
-  OS,
-  BROWSERS,
-  VISIT_TIMES,
-  VIRTUAL_HOSTS,
-  REFERRERS,
-  REFERRING_SITES,
-  KEYPHRASES,
-  GEO_LOCATION,
-  STATUS_CODES,
+  VISITORS
+  REQUESTS
+  REQUESTS_STATIC
+  NOT_FOUND
+  HOSTS
+  OS
+  BROWSERS
+  VISIT_TIMES
+  VIRTUAL_HOSTS
+  REFERRERS
+  REFERRING_SITES
+  KEYPHRASES
+  GEO_LOCATION
+  STATUS_CODES
 
 .TP
 \fB\-\-ignore-referer=<referer>
