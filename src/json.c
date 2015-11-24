@@ -544,14 +544,19 @@ pmeta_data_hits (FILE * fp, GModule module, int sp)
 {
   int isp = 0;
   uint64_t count = ht_get_meta_data (module, "hits");
+  int max = 0, min = 0;
+
+  ht_get_hits_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   pjson (fp, "%.*s\"hits\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld%.*s", isp, TAB, (long long) count, nlines,
+  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
          NL);
+  pjson (fp, "%.*s\"max\": %d,%.*s", isp, TAB, max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %d%.*s", isp, TAB, min, nlines, NL);
   pjson (fp, "%.*s}%.*s", sp, TAB, nlines, NL);
 }
 
@@ -564,14 +569,19 @@ pmeta_data_visitors (FILE * fp, GModule module, int sp)
 {
   int isp = 0;
   uint64_t count = ht_get_meta_data (module, "visitors");
+  int max = 0, min = 0;
+
+  ht_get_visitors_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   pjson (fp, "%.*s\"visitors\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld%.*s", isp, TAB, (long long) count, nlines,
+  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
          NL);
+  pjson (fp, "%.*s\"max\": %d,%.*s", isp, TAB, max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %d%.*s", isp, TAB, min, nlines, NL);
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
@@ -584,9 +594,12 @@ pmeta_data_bw (FILE * fp, GModule module, int sp)
 {
   int isp = 0;
   uint64_t count = 0;
+  uint64_t max = 0, min = 0;
 
   if (!conf.bandwidth)
     return;
+
+  ht_get_bw_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -594,8 +607,10 @@ pmeta_data_bw (FILE * fp, GModule module, int sp)
 
   count = ht_get_meta_data (module, "bytes");
   pjson (fp, "%.*s\"bytes\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld%.*s", isp, TAB, (long long) count, nlines,
+  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
          NL);
+  pjson (fp, "%.*s\"max\": %lld,%.*s", isp, TAB, (long long) max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %lld%.*s", isp, TAB, (long long) min, nlines, NL);
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
@@ -634,10 +649,12 @@ static void
 pmeta_data_cumts (FILE * fp, GModule module, int sp)
 {
   int isp = 0;
-  uint64_t count = 0;
+  uint64_t count = 0, max = 0, min = 0;
 
   if (!conf.serve_usecs)
     return;
+
+  ht_get_cumts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -645,8 +662,10 @@ pmeta_data_cumts (FILE * fp, GModule module, int sp)
 
   count = ht_get_meta_data (module, "cumts");
   pjson (fp, "%.*s\"cumts\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld%.*s", isp, TAB, (long long) count, nlines,
+  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
          NL);
+  pjson (fp, "%.*s\"max\": %lld,%.*s", isp, TAB, (long long) max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %lld%.*s", isp, TAB, (long long) min, nlines, NL);
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
@@ -658,10 +677,12 @@ static void
 pmeta_data_maxts (FILE * fp, GModule module, int sp)
 {
   int isp = 0;
-  uint64_t count = 0;
+  uint64_t count = 0, max = 0, min = 0;
 
   if (!conf.serve_usecs)
     return;
+
+  ht_get_maxts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -669,8 +690,10 @@ pmeta_data_maxts (FILE * fp, GModule module, int sp)
 
   count = ht_get_meta_data (module, "maxts");
   pjson (fp, "%.*s\"maxts\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld%.*s", isp, TAB, (long long) count, nlines,
+  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
          NL);
+  pjson (fp, "%.*s\"max\": %lld,%.*s", isp, TAB, (long long) max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %lld%.*s", isp, TAB, (long long) min, nlines, NL);
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
