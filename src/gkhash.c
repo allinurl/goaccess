@@ -790,6 +790,65 @@ get_su64 (khash_t (su64) * hash, const char *key)
   return 0;
 }
 
+/* Iterate over all the key/value pairs for the given hash structure
+ * and set the maximum and minimum values found on an integer key and
+ * integer value.
+ *
+ * Note: This are expensive calls since it has to iterate over all
+ * key-value pairs
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+static void
+get_ii32_min_max (khash_t (ii32) * hash, int *min, int *max)
+{
+  khint_t k;
+  int curvalue = 0, i;
+
+  for (i = 0, k = kh_begin (hash); k != kh_end (hash); ++k) {
+    if (!kh_exist (hash, k))
+      continue;
+
+    curvalue = kh_value (hash, k);
+    if (i++ == 0)
+      *min = curvalue;
+    if (curvalue > *max)
+      *max = curvalue;
+    if (curvalue < *min)
+      *min = curvalue;
+  }
+}
+
+/* Iterate over all the key/value pairs for the given hash structure
+ * and set the maximum and minimum values found on an integer key and
+ * a uint64_t value.
+ *
+ * Note: This are expensive calls since it has to iterate over all
+ * key-value pairs
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+static void
+get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max)
+{
+  khint_t k;
+  uint64_t curvalue = 0;
+  int i;
+
+  for (i = 0, k = kh_begin (hash); k != kh_end (hash); ++k) {
+    if (!kh_exist (hash, k))
+      continue;
+
+    curvalue = kh_value (hash, k);
+    if (i++ == 0)
+      *min = curvalue;
+    if (curvalue > *max)
+      *max = curvalue;
+    if (curvalue < *min)
+      *min = curvalue;
+  }
+}
+
 /* Insert a unique visitor key string (IP/DATE/UA), mapped to an auto
  * incremented value.
  *
@@ -1327,6 +1386,86 @@ ht_get_meta_data (GModule module, const char *key)
   khash_t (su64) * hash = get_hash (module, MTRC_METADATA);
 
   return get_su64 (hash, key);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * integer value found on the MTRC_VISITORS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_hits_min_max (GModule module, int *min, int *max)
+{
+  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
+
+  if (!hash)
+    return;
+
+  get_ii32_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * integer value found on the MTRC_VISITORS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_visitors_min_max (GModule module, int *min, int *max)
+{
+  khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
+
+  if (!hash)
+    return;
+
+  get_ii32_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_BW hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  khash_t (iu64) * hash = get_hash (module, MTRC_BW);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_CUMTS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
+}
+
+/* Set the maximum and minimum values found on an integer key and
+ * a uint64_t value found on the MTRC_MAXTS hash structure.
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+void
+ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
+{
+  khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
+
+  if (!hash)
+    return;
+
+  get_iu64_min_max (hash, min, max);
 }
 
 /* Store the key/value pairs from a hash table into raw_data and sorts the the

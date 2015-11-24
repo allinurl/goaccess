@@ -196,6 +196,11 @@ uint64_t ht_get_cumts (GModule module, int key);
 uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_maxts (GModule module, int key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
+void ht_get_hits_min_max (GModule module, int *min, int *max);
+void ht_get_visitors_min_max (GModule module, int *min, int *max);
+void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
+void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
+void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 
 GSLList *tclist_to_gsllist (TCLIST * tclist);
 GSLList *ht_get_host_agent_list (GModule module, int key);
