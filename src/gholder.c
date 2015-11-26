@@ -164,7 +164,7 @@ add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics)
   sub_list->size++;
 }
 
-/* Delete the entire given sub list */
+/* Delete the entire given sub list. */
 static void
 delete_sub_list (GSubList * sub_list)
 {
@@ -188,7 +188,7 @@ clear:
   free (sub_list);
 }
 
-/* dynamically allocated holder fields */
+/* Free malloc'd holder fields. */
 static void
 free_holder_data (GHolderItem item)
 {
@@ -204,7 +204,7 @@ free_holder_data (GHolderItem item)
     free (item.metrics);
 }
 
-/* free memory allocated in holder for specific module */
+/* Free all memory allocated in holder for a given module. */
 void
 free_holder_by_module (GHolder ** holder, GModule module)
 {
@@ -223,7 +223,7 @@ free_holder_by_module (GHolder ** holder, GModule module)
   (*holder)[module].sub_items_size = 0;
 }
 
-/* free memory allocated in holder */
+/* Free all memory allocated in holder for all modules. */
 void
 free_holder (GHolder ** holder)
 {
@@ -243,8 +243,10 @@ free_holder (GHolder ** holder)
   (*holder) = NULL;
 }
 
-/* iterate over holder and get the key index.
- * return -1 if not found */
+/* Iterate over holder and get the key index.
+ *
+ * If the key does not exist, -1 is returned.
+ * On success, the key in holder is returned . */
 static int
 get_item_idx_in_holder (GHolder * holder, const char *k)
 {
@@ -264,8 +266,8 @@ get_item_idx_in_holder (GHolder * holder, const char *k)
   return KEY_NOT_FOUND;
 }
 
-/* Copy linked-list items to an array, sort, and move them back
- * to the list. Should be faster than sorting the list */
+/* Copy linked-list items to an array, sort, and move them back to the
+ * list. Should be faster than sorting the list */
 static void
 sort_sub_list (GHolder * h, GSort sort)
 {
@@ -312,6 +314,10 @@ sort_sub_list (GHolder * h, GSort sort)
   }
 }
 
+/* Format the visitors date and replace the current holder value.
+ *
+ * If the given date is a timestamp, then return.
+ * On success, the holder value is replaced with a formatted date. */
 static void
 data_visitors (GHolder * h)
 {
@@ -329,6 +335,9 @@ data_visitors (GHolder * h)
   h->items[h->idx].metrics->data = date;
 }
 
+/* Set the data metric field for the host panel.
+ *
+ * On success, the data field/metric is set. */
 static int
 set_host_child_metrics (char *data, uint8_t id, GMetrics ** nmetrics)
 {
@@ -342,6 +351,9 @@ set_host_child_metrics (char *data, uint8_t id, GMetrics ** nmetrics)
   return 0;
 }
 
+/* Set host panel data, including sub items.
+ *
+ * On success, the host panel data is set. */
 static void
 set_host_sub_list (GHolder * h, GSubList * sub_list)
 {
@@ -385,6 +397,9 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
   }
 }
 
+/* Set host panel data, including sub items.
+ *
+ * On success, the host panel data is set. */
 static void
 add_host_child_to_holder (GHolder * h)
 {
@@ -418,12 +433,15 @@ add_host_child_to_holder (GHolder * h)
     free (sub_list);
 }
 
+/* A wrapper to hold host panel data, including sub items. */
 static void
 add_host_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
 {
   add_data_to_holder (item, h, panel);
 }
 
+/* Set all panel data. This will set data for panels that do not
+ * contain sub items. A function pointer is used for post data set. */
 static void
 add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
 {
@@ -464,6 +482,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel)
   h->idx++;
 }
 
+/* Set all root panel data. This will set the root nodes. */
 static int
 set_root_metrics (int key, int hits, GModule module, GMetrics ** nmetrics)
 {
@@ -493,6 +512,7 @@ set_root_metrics (int key, int hits, GModule module, GMetrics ** nmetrics)
   return 0;
 }
 
+/* Set all root panel data, including sub list items. */
 static void
 add_root_to_holder (GRawDataItem item, GHolder * h,
                     GO_UNUSED const GPanel * panel)
