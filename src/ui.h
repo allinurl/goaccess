@@ -79,7 +79,7 @@
 #define REQUE_ID    "requests"
 #define REQUE_LABEL "Requests"
 
-#define STATI_HEAD  "Top static requests (e.g. jpg, png, js, css..)"
+#define STATI_HEAD  "Top static requests"
 #define STATI_DESC  "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define STATI_ID    "static_requests"
 #define STATI_LABEL "Static Requests"
