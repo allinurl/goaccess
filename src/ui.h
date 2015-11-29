@@ -74,12 +74,12 @@
 #define VISIT_ID    "visitors"
 #define VISIT_LABEL "Visitors"
 
-#define REQUE_HEAD  "Top requests (URLs)"
+#define REQUE_HEAD  "Requested Files (URLs)"
 #define REQUE_DESC  "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define REQUE_ID    "requests"
 #define REQUE_LABEL "Requests"
 
-#define STATI_HEAD  "Top static requests"
+#define STATI_HEAD  "Static Requests"
 #define STATI_DESC  "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define STATI_ID    "static_requests"
 #define STATI_LABEL "Static Requests"
@@ -94,12 +94,12 @@
 #define VHOST_ID    "vhosts"
 #define VHOST_LABEL "Virtual Hosts"
 
-#define FOUND_HEAD  "HTTP 404 Not Found URLs"
+#define FOUND_HEAD  "Not Found URI (404s)"
 #define FOUND_DESC  "Top 404 Not Found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define FOUND_ID    "not_found"
 #define FOUND_LABEL "Not Found"
 
-#define HOSTS_HEAD  "Visitor hostnames and IPs"
+#define HOSTS_HEAD  "Visitor Hostnames and IPs"
 #define HOSTS_DESC  "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 #define HOSTS_ID    "hosts"
 #define HOSTS_LABEL "Hosts"
