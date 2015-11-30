@@ -158,7 +158,7 @@ escape_json_output (FILE * fp, char *s)
 /* A wrapper function to output a formatted string.
  *
  * On success, data is outputted. */
-static void
+void
 pjson (FILE * fp, const char *fmt, ...)
 {
   va_list args;
@@ -460,7 +460,7 @@ pprotocol (FILE * fp, GMetrics * nmetrics, int sp)
 /* Output the panel name as an array of objects.
  *
  * On success, data is outputted. */
-static void
+void
 print_open_panel_attr (FILE * fp, const char *attr, int sp)
 {
   pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
@@ -469,10 +469,10 @@ print_open_panel_attr (FILE * fp, const char *attr, int sp)
 /* Close the array of objects.
  *
  * On success, data is outputted. */
-static void
-print_close_panel_attr (FILE * fp, int sp)
+void
+print_close_panel_attr (FILE * fp, int sp, char comma)
 {
-  pjson (fp, "%.*s}", sp, TAB);
+  pjson (fp, "%.*s}%c", sp, TAB, comma);
 }
 
 /* Output the metadata key as an object.
@@ -518,7 +518,7 @@ print_close_data_attr (FILE * fp, int isp)
 /* Output the open block item object.
  *
  * On success, data is outputted. */
-static void
+void
 print_open_block_attr (FILE * fp, int iisp)
 {
   /* open data metric block */
@@ -528,7 +528,7 @@ print_open_block_attr (FILE * fp, int iisp)
 /* Close the block item object.
  *
  * On success, data is outputted. */
-static void
+void
 print_close_block_attr (FILE * fp, int iisp, char comma)
 {
   /* close data block */
@@ -850,7 +850,7 @@ print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
   /* output panel data */
   print_data_metrics (fp, h, totals, sp, panel);
   /* output close panel attribute */
-  print_close_panel_attr (fp, sp);
+  print_close_panel_attr (fp, sp, ' ');
 }
 
 /* Output overall data. */
@@ -895,12 +895,10 @@ print_json_summary (FILE * fp, GLog * logger)
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
-/* Entry point to generate a a json report writing it to the fp */
-void
-output_json (GLog * logger, GHolder * holder)
+static void
+init_json_output (FILE * fp, GLog * logger, GHolder * holder)
 {
   GModule module;
-  FILE *fp = stdout;
   const GPanel *panel = NULL;
   size_t idx = 0;
 
@@ -910,10 +908,6 @@ output_json (GLog * logger, GHolder * holder)
     .bw = logger->resp_size,
   };
 
-  /* use new lines to prettify output */
-  if (conf.json_pretty_print)
-    nlines = 1;
-
   pjson (fp, "{%.*s", nlines, NL);
   print_json_summary (fp, logger);
 
@@ -922,11 +916,38 @@ output_json (GLog * logger, GHolder * holder)
 
     if (!(panel = panel_lookup (module)))
       continue;
-
     panel->render (fp, holder + module, totals, panel);
     pjson (fp, (module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }
+
   pjson (fp, "}");
+}
+
+char *
+get_json (GLog * logger, GHolder * holder)
+{
+  FILE *out;
+  char *buf;
+  size_t size;
+
+  out = open_memstream (&buf, &size);
+  init_json_output (out, logger, holder);
+  fflush (out);
+  fclose (out);
+
+  return buf;
+}
+
+/* Entry point to generate a a json report writing it to the fp */
+void
+output_json (GLog * logger, GHolder * holder)
+{
+  FILE *fp = stdout;
+
+  /* use new lines to prettify output */
+  if (conf.json_pretty_print)
+    nlines = 1;
+  init_json_output (fp, logger, holder);
 
   fclose (fp);
 }
