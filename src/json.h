@@ -30,6 +30,13 @@
 
 #include "parser.h"
 
+char *get_json (GLog * logger, GHolder * holder);
+
 void output_json (GLog * logger, GHolder * holder);
+void pjson (FILE * fp, const char *fmt, ...);
+void print_close_block_attr (FILE * fp, int iisp, char comma);
+void print_close_panel_attr (FILE * fp, int sp, char comma);
+void print_open_block_attr (FILE * fp, int iisp);
+void print_open_panel_attr (FILE * fp, const char *attr, int sp);
 
 #endif
