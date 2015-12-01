@@ -895,6 +895,7 @@ print_json_summary (FILE * fp, GLog * logger)
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
+/* Iterate over all panels and generate json output. */
 static void
 init_json_output (FILE * fp, GLog * logger, GHolder * holder)
 {
@@ -923,6 +924,9 @@ init_json_output (FILE * fp, GLog * logger, GHolder * holder)
   pjson (fp, "}");
 }
 
+/* Open and write to a dynamically sized output buffer.
+ *
+ * On success, the newly allocated buffer is returned . */
 char *
 get_json (GLog * logger, GHolder * holder)
 {
@@ -938,7 +942,7 @@ get_json (GLog * logger, GHolder * holder)
   return buf;
 }
 
-/* Entry point to generate a a json report writing it to the fp */
+/* Entry point to generate a json report writing it to the fp */
 void
 output_json (GLog * logger, GHolder * holder)
 {
