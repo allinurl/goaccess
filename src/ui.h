@@ -94,8 +94,8 @@
 #define VHOST_ID    "vhosts"
 #define VHOST_LABEL "Virtual Hosts"
 
-#define FOUND_HEAD  "Not Found URI (404s)"
-#define FOUND_DESC  "Top 404 Not Found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+#define FOUND_HEAD  "Not Found URLs (404s)"
+#define FOUND_DESC  "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define FOUND_ID    "not_found"
 #define FOUND_LABEL "Not Found"
 
