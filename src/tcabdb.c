@@ -148,21 +148,23 @@ init_tables (GModule module)
   GTCStorageMetric mtrc;
   int n = 0, i;
 
+  /* *INDENT-OFF* */
   GTCStorageMetric metrics[] = {
-    {MTRC_KEYMAP, DB_KEYMAP, NULL},
-    {MTRC_ROOTMAP, DB_ROOTMAP, NULL},
-    {MTRC_DATAMAP, DB_DATAMAP, NULL},
-    {MTRC_UNIQMAP, DB_UNIQMAP, NULL},
-    {MTRC_ROOT, DB_ROOT, NULL},
-    {MTRC_HITS, DB_HITS, NULL},
-    {MTRC_VISITORS, DB_VISITORS, NULL},
-    {MTRC_BW, DB_BW, NULL},
-    {MTRC_CUMTS, DB_CUMTS, NULL},
-    {MTRC_MAXTS, DB_MAXTS, NULL},
-    {MTRC_METHODS, DB_METHODS, NULL},
-    {MTRC_PROTOCOLS, DB_PROTOCOLS, NULL},
-    {MTRC_AGENTS, DB_AGENTS, NULL},
+    {MTRC_KEYMAP    , DB_KEYMAP    , NULL} ,
+    {MTRC_ROOTMAP   , DB_ROOTMAP   , NULL} ,
+    {MTRC_DATAMAP   , DB_DATAMAP   , NULL} ,
+    {MTRC_UNIQMAP   , DB_UNIQMAP   , NULL} ,
+    {MTRC_ROOT      , DB_ROOT      , NULL} ,
+    {MTRC_HITS      , DB_HITS      , NULL} ,
+    {MTRC_VISITORS  , DB_VISITORS  , NULL} ,
+    {MTRC_BW        , DB_BW        , NULL} ,
+    {MTRC_CUMTS     , DB_CUMTS     , NULL} ,
+    {MTRC_MAXTS     , DB_MAXTS     , NULL} ,
+    {MTRC_METHODS   , DB_METHODS   , NULL} ,
+    {MTRC_PROTOCOLS , DB_PROTOCOLS , NULL} ,
+    {MTRC_AGENTS    , DB_AGENTS    , NULL} ,
   };
+  /* *INDENT-ON* */
 
   n = ARRAY_SIZE (metrics);
   for (i = 0; i < n; i++) {
