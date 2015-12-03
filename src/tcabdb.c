@@ -163,7 +163,7 @@ init_tables (GModule module)
     {MTRC_METHODS   , DB_METHODS   , NULL} ,
     {MTRC_PROTOCOLS , DB_PROTOCOLS , NULL} ,
     {MTRC_AGENTS    , DB_AGENTS    , NULL} ,
-    {MTRC_METADATA  , DB_METADATA  , NULL},
+    {MTRC_METADATA  , DB_METADATA  , NULL} ,
   };
   /* *INDENT-ON* */
 
