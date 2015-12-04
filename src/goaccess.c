@@ -841,17 +841,20 @@ set_general_stats (void)
   verify_formats ();
 
   logger->valid = logger->processed = logger->invalid = logger->excluded_ip = 0;
+
 #ifdef TCB_BTREE
   logger->excluded_ip = ht_get_genstats ("excluded_ip");
   logger->invalid = ht_get_genstats ("failed_requests");
   logger->processed = ht_get_genstats ("total_requests");
   logger->resp_size = ht_get_genstats ("bandwidth");
   logger->valid = ht_get_genstats ("valid_requests");
+
   if (logger->resp_size > 0)
     conf.bandwidth = 1;
   if (ht_get_genstats ("serve_usecs"))
     conf.serve_usecs = 1;
 #endif
+
 }
 
 #ifdef HAVE_LIBGEOIP
