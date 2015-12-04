@@ -1076,7 +1076,7 @@ ht_get_uniqmap (GModule module, const char *key)
 
 /* Get the int value from ht_general_stats given a string key.
  *
- * On error, -1 is returned.
+ * On error, 0 is returned.
  * On success the unsigned int value for the given key is returned */
 uint32_t
 ht_get_genstats (const char *key)
@@ -1084,7 +1084,7 @@ ht_get_genstats (const char *key)
   void *hash = ht_general_stats;
 
   if (!hash)
-    return -1;
+    return 0;
 
   return get_sui32 (hash, key);
 }
