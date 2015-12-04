@@ -190,6 +190,7 @@ int ht_get_keymap (GModule module, const char *key);
 int ht_get_uniqmap (GModule module, const char *key);
 int ht_get_visitors (GModule module, int key);
 uint32_t ht_get_genstats (const char *key);
+uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
 uint64_t ht_get_maxts (GModule module, int key);
