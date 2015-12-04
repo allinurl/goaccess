@@ -846,7 +846,7 @@ set_general_stats (void)
   logger->excluded_ip = ht_get_genstats ("excluded_ip");
   logger->invalid = ht_get_genstats ("failed_requests");
   logger->processed = ht_get_genstats ("total_requests");
-  logger->resp_size = ht_get_genstats ("bandwidth");
+  logger->resp_size = ht_get_genstats_bw ("bandwidth");
   logger->valid = ht_get_genstats ("valid_requests");
 
   if (logger->resp_size > 0)

@@ -565,6 +565,28 @@ get_sui32 (void *hash, const char *key)
   return 0;
 }
 
+/* Get the uint64_t value of a given string key.
+ *
+ * On error, 0 is returned.
+ * On success the int value for the given key is returned */
+static uint64_t
+get_su64 (void *hash, const char *key)
+{
+  uint64_t ret = 0;
+  void *ptr;
+  if (!hash)
+    return 0;
+
+  /* key found, return current value */
+  if ((ptr = tcadbget2 (hash, key)) != NULL) {
+    ret = (*(uint64_t *) ptr);
+    free (ptr);
+    return ret;
+  }
+
+  return 0;
+}
+
 /* Get the string value of a given int key.
  *
  * On error, NULL is returned.
@@ -1087,6 +1109,21 @@ ht_get_genstats (const char *key)
     return 0;
 
   return get_sui32 (hash, key);
+}
+
+/* Get the uint64_t value from ht_general_stats given a string key.
+ *
+ * On error, 0 is returned.
+ * On success the unsigned int value for the given key is returned */
+uint64_t
+ht_get_genstats_bw (const char *key)
+{
+  void *hash = ht_general_stats;
+
+  if (!hash)
+    return 0;
+
+  return get_su64 (hash, key);
 }
 
 /* Get the string root from MTRC_ROOTMAP given an int data key.
