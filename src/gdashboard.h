@@ -30,25 +30,26 @@
 #include "ui.h"
 
 /* *INDENT-OFF* */
-#define DASH_HEAD_POS    0 /* header line pos */
-#define DASH_EMPTY_POS   1 /* empty line pos */
-#define DASH_COLS_POS    2 /* empty line pos */
-#define DASH_DASHES_POS  3 /* empty line pos */
-#define DASH_DATA_POS    4 /* data line pos */
+#define DASH_HEAD_POS    0  /* position of header line */
+#define DASH_EMPTY_POS   1  /* empty line position */
+#define DASH_COLS_POS    2  /* position of column names */
+#define DASH_DASHES_POS  3  /* position of dashes under column names */
+#define DASH_DATA_POS    4  /* data line position */
 
-#define DASH_NON_DATA    5  /* items without stats */
+#define DASH_NON_DATA    5  /* number of rows without data stats */
 #define DASH_COL_ROWS    2  /* number of rows for column values + dashed lines */
 
-#define DASH_COLLAPSED   12 /* total lines per module */
-#define DASH_EXPANDED    32 /* total lines when expanded */
+#define DASH_COLLAPSED   12 /* number of rows per panel (collapsed) */
+#define DASH_EXPANDED    32 /* number of rows per panel (expanded) */
 
-#define DASH_INIT_X      1  /* x-axis offset */
-#define DASH_BW_LEN      11 /* max bandwidth length */
-#define DASH_SRV_TM_LEN  9  /* max served time length */
-#define DASH_SPACE       1  /* space between data */
+#define DASH_INIT_X      1  /* start position (x-axis) */
 
-#define COLUMN_HITS_LEN  4
-#define COLUMN_VIS_LEN   4
+#define DASH_BW_LEN      11 /* max bandwidth string length, e.g., 151.69 MiB */
+#define DASH_SRV_TM_LEN  9  /* max time served length, e.g., 483.00 us */
+#define DASH_SPACE       1  /* space between columns (metrics) */
+
+#define COLUMN_HITS_LEN  4  /* column header name length */
+#define COLUMN_VIS_LEN   4  /* column header name length */
 
 /* Render holder */
 typedef struct GDashRender_
