@@ -99,7 +99,8 @@ static GScroll gscroll = {
 };
 /* *INDENT-ON* */
 
-static void
+/* Free malloc'd data across the whole program */ .
+  static void
 house_keeping (void)
 {
 #ifdef TCB_MEMHASH
@@ -152,7 +153,8 @@ house_keeping (void)
   free_cmd_args ();
 }
 
-/* allocate memory for an instance of holder */
+/* Extract data from the given module hash structure and allocate +
+ * load data from the hash table into an instance of GHolder */
 static void
 allocate_holder_by_module (GModule module)
 {
@@ -168,7 +170,8 @@ allocate_holder_by_module (GModule module)
   load_holder_data (raw_data, holder + module, module, module_sort[module]);
 }
 
-/* allocate memory for an instance of holder */
+/* Iterate over all modules/panels and extract data from hash
+ * structures and load it into an instance of GHolder */
 static void
 allocate_holder (void)
 {
@@ -180,7 +183,8 @@ allocate_holder (void)
   }
 }
 
-/* allocate memory for an instance of dashboard */
+/* Iterate over all modules/panels and extract data from the modules
+ * GHolder structure and load it into the terminal dashboard */
 static void
 allocate_data (void)
 {
@@ -279,7 +283,7 @@ allocate_data (void)
   }
 }
 
-/* render all windows */
+/* A wrapper to render all windows within the dashboard. */
 static void
 render_screens (void)
 {
@@ -313,7 +317,7 @@ render_screens (void)
   display_content (main_win, logger, dash, &gscroll);
 }
 
-/* collapse the current expanded module */
+/* Collapse the current expanded module */
 static void
 collapse_current_module (void)
 {
@@ -327,6 +331,8 @@ collapse_current_module (void)
   render_screens ();
 }
 
+/* Display message a the bottom of the terminal dashboard that panel
+ * is disabled */
 static void
 disabled_panel_msg (GModule module)
 {
@@ -338,6 +344,7 @@ disabled_panel_msg (GModule module)
                color_error);
 }
 
+/* Set the current module/panel */
 static void
 set_module_to (GScroll * scrll, GModule module)
 {
@@ -351,6 +358,7 @@ set_module_to (GScroll * scrll, GModule module)
   render_screens ();
 }
 
+/* Scroll expanded panel to the top */
 static void
 scroll_to_first_line (void)
 {
@@ -362,6 +370,7 @@ scroll_to_first_line (void)
   }
 }
 
+/* Scroll expanded panel to the last row */
 static void
 scroll_to_last_line (void)
 {
@@ -379,6 +388,7 @@ scroll_to_last_line (void)
   }
 }
 
+/* Load the user-agent window given the selected IP */
 static void
 load_ip_agent_list (void)
 {
@@ -391,6 +401,7 @@ load_ip_agent_list (void)
     load_agent_list (main_win, item.metrics->data);
 }
 
+/* Expand the selected module */
 static void
 expand_current_module (void)
 {
@@ -399,6 +410,7 @@ expand_current_module (void)
     return;
   }
 
+  /* expanded, nothing to do... */
   if (gscroll.expanded)
     return;
 
@@ -411,6 +423,7 @@ expand_current_module (void)
   allocate_data ();
 }
 
+/* Expand the clicked module */
 static void
 expand_on_mouse_click (void)
 {
