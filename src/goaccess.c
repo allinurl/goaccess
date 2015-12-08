@@ -99,7 +99,7 @@ static GScroll gscroll = {
 };
 /* *INDENT-ON* */
 
-/* Free malloc'd data across the whole program */ .
+/* Free malloc'd data across the whole program */
   static void
 house_keeping (void)
 {
