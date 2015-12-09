@@ -100,7 +100,7 @@ static GScroll gscroll = {
 /* *INDENT-ON* */
 
 /* Free malloc'd data across the whole program */
-  static void
+static void
 house_keeping (void)
 {
 #ifdef TCB_MEMHASH
@@ -358,7 +358,7 @@ set_module_to (GScroll * scrll, GModule module)
   render_screens ();
 }
 
-/* Scroll expanded panel to the top */
+/* Scroll expanded module or terminal dashboard to the top */
 static void
 scroll_to_first_line (void)
 {
@@ -370,7 +370,7 @@ scroll_to_first_line (void)
   }
 }
 
-/* Scroll expanded panel to the last row */
+/* Scroll expanded module or terminal dashboard to the last row */
 static void
 scroll_to_last_line (void)
 {
@@ -423,7 +423,7 @@ expand_current_module (void)
   allocate_data ();
 }
 
-/* Expand the clicked module */
+/* Expand the clicked module/panel */
 static void
 expand_on_mouse_click (void)
 {
@@ -454,6 +454,7 @@ expand_on_mouse_click (void)
   }
 }
 
+/* Scroll dowm expanded module to the last row */
 static void
 scroll_down_expanded_module (void)
 {
@@ -472,12 +473,32 @@ scroll_down_expanded_module (void)
     ++(*offset_ptr);
 }
 
+/* Scroll up expanded module */
+static void
+scroll_up_expanded_module (void)
+{
+  int *scroll_ptr, *offset_ptr;
+
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
+
+  if (!gscroll.expanded)
+    return;
+  if (*scroll_ptr <= 0)
+    return;
+  --(*scroll_ptr);
+  if (*scroll_ptr < *offset_ptr)
+    --(*offset_ptr);
+}
+
+/* Scroll up terminal dashboard */
 static void
 scroll_up_dashboard (void)
 {
   gscroll.dash--;
 }
 
+/* Page up expanded module */
 static void
 page_up_module (void)
 {
@@ -500,6 +521,7 @@ page_up_module (void)
     *offset_ptr = 0;
 }
 
+/* Page down expanded module */
 static void
 page_down_module (void)
 {
@@ -523,23 +545,8 @@ page_down_module (void)
     *offset_ptr = 0;
 }
 
-static void
-scroll_up_expanded_module (void)
-{
-  int *scroll_ptr, *offset_ptr;
-
-  scroll_ptr = &gscroll.module[gscroll.current].scroll;
-  offset_ptr = &gscroll.module[gscroll.current].offset;
-
-  if (!gscroll.expanded)
-    return;
-  if (*scroll_ptr <= 0)
-    return;
-  --(*scroll_ptr);
-  if (*scroll_ptr < *offset_ptr)
-    --(*offset_ptr);
-}
-
+/* Create a new find dialog window and render it. Upon closing the
+ * window, dashboard is refreshed. */
 static void
 render_search_dialog (int search)
 {
@@ -557,6 +564,7 @@ render_search_dialog (int search)
   render_screens ();
 }
 
+/* Search for the next occurrence within the dashboard structure */
 static void
 search_next_match (int search)
 {
@@ -571,6 +579,7 @@ search_next_match (int search)
   render_screens ();
 }
 
+/* Process appended log data and update dashboard screen */
 static void
 perform_tail_follow (uint64_t * size1)
 {
@@ -609,6 +618,7 @@ perform_tail_follow (uint64_t * size1)
   usleep (200000);      /* 0.2 seconds */
 }
 
+/* Iterate over available panels and advance the panel pointer. */
 static int
 next_module (void)
 {
@@ -624,6 +634,7 @@ next_module (void)
   return 0;
 }
 
+/* Iterate over available panels and rewind the panel pointer. */
 static int
 previous_module (void)
 {
@@ -640,6 +651,7 @@ previous_module (void)
   return 0;
 }
 
+/* Perform several curses operations upon resizing the terminal. */
 static void
 window_resize (void)
 {
@@ -653,6 +665,8 @@ window_resize (void)
   render_screens ();
 }
 
+/* Create a new sort dialog window and render it. Upon closing the
+ * window, dashboard is refreshed. */
 static void
 render_sort_dialog (void)
 {
@@ -667,6 +681,7 @@ render_sort_dialog (void)
   render_screens ();
 }
 
+/* Interfacing with the keyboard */
 static void
 get_keys (void)
 {
@@ -848,6 +863,8 @@ get_keys (void)
   }
 }
 
+/* Set general/overall statistics when loading data from the on-disk
+ * storage. i.e., --load-from-disk */
 static void
 set_general_stats (void)
 {
@@ -870,6 +887,7 @@ set_general_stats (void)
 
 }
 
+/* Set up and open GeoIP database */
 #ifdef HAVE_LIBGEOIP
 static void
 init_geoip (void)
@@ -883,6 +901,7 @@ init_geoip (void)
 }
 #endif
 
+/* Determine the type of output, i.e., JSON, CSV, HTML */
 static void
 standard_output (void)
 {
@@ -897,6 +916,7 @@ standard_output (void)
     output_html (logger, holder);
 }
 
+/* Output to a terminal */
 static void
 curses_output (void)
 {
@@ -912,6 +932,7 @@ curses_output (void)
   endwin ();
 }
 
+/* Set locale */
 static void
 set_locale (void)
 {
@@ -926,6 +947,8 @@ set_locale (void)
     setlocale (LC_CTYPE, "");
 }
 
+/* Determine if we are getting data from the stdin, and where are we
+ * outputting to, then process command line options. */
 static void
 parse_cmd_line (int argc, char **argv)
 {
@@ -944,6 +967,7 @@ parse_cmd_line (int argc, char **argv)
   set_default_static_files ();
 }
 
+/* Set up signal handlers. */
 #if defined(__GLIBC__)
 static void
 setup_signal_handlers (void)
@@ -957,6 +981,7 @@ setup_signal_handlers (void)
 }
 #endif
 
+/* Where all begins... */
 int
 main (int argc, char **argv)
 {
