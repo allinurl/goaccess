@@ -31,6 +31,9 @@
 #include "error.h"
 #include "xmalloc.h"
 
+/* Allocate memory for a new GMetrics instance.
+ *
+ * On success, the newly allocated GMetrics is returned . */
 GMetrics *
 new_gmetrics (void)
 {
@@ -39,22 +42,31 @@ new_gmetrics (void)
   return metrics;
 }
 
+/* Allocate space off the heap to store an int.
+ *
+ * On success, the newly allocated pointer is returned . */
 int *
 int2ptr (int val)
 {
   int *ptr = xmalloc (sizeof (int));
   *ptr = val;
+
   return ptr;
 }
 
+/* Allocate space off the heap to store a uint64_t.
+ *
+ * On success, the newly allocated pointer is returned . */
 uint64_t *
 uint642ptr (uint64_t val)
 {
   uint64_t *ptr = xmalloc (sizeof (uint64_t));
   *ptr = val;
+
   return ptr;
 }
 
+/* Wrapper to set metric data into a new GMetrics destination buffer. */
 void
 set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, int valid)
 {
