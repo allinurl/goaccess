@@ -277,6 +277,10 @@ of the file.
 
     # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
 
+or using relative dates such as yesterdays or tomorrows day:
+
+    # sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a
+
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a
