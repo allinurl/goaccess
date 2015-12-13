@@ -49,6 +49,7 @@ not limited to:
 * Common Log Format (CLF) Apache
 * Google Cloud Storage.
 * Apache virtual hosts
+* Squid Native Format.
 * W3C format (IIS).
 
 ## Why GoAccess? ##
