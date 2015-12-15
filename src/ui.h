@@ -177,11 +177,11 @@
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
-#define CONF_MENU_W       48
+#define CONF_MENU_W       57
 #define CONF_MENU_X       2
 #define CONF_MENU_Y       4
 #define CONF_WIN_H        20
-#define CONF_WIN_W        52
+#define CONF_WIN_W        61
 
 /* FIND DIALOG */
 #define FIND_DLG_HEIGHT   8
