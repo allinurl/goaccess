@@ -936,9 +936,9 @@ new_gspinner (void)
 }
 
 static void
-clear_confdlg_status_bar (WINDOW * win)
+clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
 {
-  draw_header (win, "", "%s", 3, 2, CONF_MENU_W, color_default);
+  draw_header (win, "", "%s", y, x, w, color_default);
 }
 
 /* render config log date/format dialog */
@@ -960,6 +960,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     "Common Log Format (CLF)",
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
+    "Squid Native Format",
     "CloudFront (Download Distribution)",
     "Google Cloud Storage",
     "AWS Elastic Load Balancing (HTTP/S)"
@@ -1025,14 +1026,17 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     switch (c) {
     case KEY_DOWN:
       gmenu_driver (menu, REQ_DOWN);
-      clear_confdlg_status_bar (win);
+      clear_confdlg_status_bar (win, 3, 2, CONF_MENU_W);
       break;
     case KEY_UP:
       gmenu_driver (menu, REQ_UP);
-      clear_confdlg_status_bar (win);
+      clear_confdlg_status_bar (win, 3, 2, CONF_MENU_W);
       break;
     case 32:   /* space */
       gmenu_driver (menu, REQ_SEL);
+      clear_confdlg_status_bar (win, 12, 1, CONF_MENU_W);
+      clear_confdlg_status_bar (win, 15, 1, CONF_MENU_W);
+      clear_confdlg_status_bar (win, 18, 1, CONF_MENU_W);
 
       if (time_format)
         free (time_format);
@@ -1057,7 +1061,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       break;
     case 99:   /* c */
       /* clear top status bar */
-      clear_confdlg_status_bar (win);
+      clear_confdlg_status_bar (win, 3, 2, CONF_MENU_W);
       wmove (win, 12, 2);
 
       /* get input string */
@@ -1081,7 +1085,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       break;
     case 100:  /* d */
       /* clear top status bar */
-      clear_confdlg_status_bar (win);
+      clear_confdlg_status_bar (win, 3, 2, CONF_MENU_W);
       wmove (win, 15, 0);
 
       /* get input string */
@@ -1105,7 +1109,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       break;
     case 116:  /* t */
       /* clear top status bar */
-      clear_confdlg_status_bar (win);
+      clear_confdlg_status_bar (win, 3, 2, CONF_MENU_W);
       wmove (win, 15, 0);
 
       /* get input string */
