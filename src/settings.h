@@ -39,16 +39,18 @@ typedef enum
   COMMON,
   VCOMMON,
   W3C,
+  SQUID,
   CLOUDFRONT,
   CLOUDSTORAGE,
   AWSELB,
 } LOGTYPE;
 
-/* predefined log dates */
+/* predefined log times */
 typedef struct GPreConfTime_
 {
   const char *fmt24;
   const char *usec;
+  const char *sec;
 } GPreConfTime;
 
 /* predefined log dates */
@@ -57,6 +59,7 @@ typedef struct GPreConfDate_
   const char *apache;
   const char *w3c;
   const char *usec;
+  const char *sec;
 } GPreConfDate;
 
 /* predefined log formats */
@@ -70,6 +73,7 @@ typedef struct GPreConfLog_
   const char *cloudfront;
   const char *cloudstorage;
   const char *awselb;
+  const char *squid;
 } GPreConfLog;
 
 /* All configuration properties */
