@@ -39,25 +39,28 @@ static int nargc = 0;
 
 /* *INDENT-OFF* */
 static const GPreConfLog logs = {
-  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA          */
+  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA */
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
-  "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF           */
-  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost     */
-  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C           */
-  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront    */
+  "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
+  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
+  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%dT%t.%^ %^ %h:%^ %^ %T %^ %^ %^ %s %^ %b \"%r\" \"%u\"",    /* AWS Elastic Load Balancing */
-};
-
-static const GPreConfDate dates = {
-  "%d/%b/%Y", /* Apache     */
-  "%Y-%m-%d", /* W3C        */
-  "%f",       /* Cloud Storage*/
+  "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
 };
 
 static const GPreConfTime times = {
   "%H:%M:%S",
-  "%f",       /* Cloud Storage*/
+  "%f",       /* Cloud Storage (usec) */
+  "%s",       /* Squid (sec) */
+};
+
+static const GPreConfDate dates = {
+  "%d/%b/%Y", /* Apache */
+  "%Y-%m-%d", /* W3C */
+  "%f",       /* Cloud Storage (usec) */
+  "%s",       /* Squid (sec) */
 };
 /* *INDENT-ON* */
 
@@ -289,6 +292,8 @@ get_selected_format_idx (void)
     return CLOUDSTORAGE;
   else if (strcmp (conf.log_format, logs.awselb) == 0)
     return AWSELB;
+  else if (strcmp (conf.log_format, logs.squid) == 0)
+    return SQUID;
   else
     return -1;
 }
@@ -323,6 +328,9 @@ get_selected_format_str (size_t idx)
   case AWSELB:
     fmt = alloc_string (logs.awselb);
     break;
+  case SQUID:
+    fmt = alloc_string (logs.squid);
+    break;
   }
 
   return fmt;
@@ -347,6 +355,9 @@ get_selected_date_str (size_t idx)
   case CLOUDSTORAGE:
     fmt = alloc_string (dates.usec);
     break;
+  case SQUID:
+    fmt = alloc_string (dates.sec);
+    break;
   }
 
   return fmt;
@@ -368,6 +379,9 @@ get_selected_time_str (size_t idx)
     break;
   case CLOUDSTORAGE:
     fmt = alloc_string (times.usec);
+    break;
+  case SQUID:
+    fmt = alloc_string (times.sec);
     break;
   }
 
