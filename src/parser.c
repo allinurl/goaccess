@@ -754,25 +754,37 @@ parse_req (char *line, char **method, char **protocol)
 }
 
 static char *
+parsed_string (const char *pch, char **str)
+{
+  char *p;
+  size_t len = (pch - *str + 1);
+
+  p = xmalloc (len);
+  memcpy (p, *str, (len - 1));
+  p[len - 1] = '\0';
+  *str += len - 1;
+
+  return trim_str (p);
+}
+
+static char *
 parse_string (char **str, char end, int cnt)
 {
   int idx = 0;
-  char *pch = *str, *p;
+  char *pch = *str;
+
   do {
+    /* match number of delims */
     if (*pch == end)
       idx++;
-    if ((*pch == end && cnt == idx) || *pch == '\0') {
-      size_t len = (pch - *str + 1);
-      p = xmalloc (len);
-      memcpy (p, *str, (len - 1));
-      p[len - 1] = '\0';
-      *str += len - 1;
-      return trim_str (p);
-    }
+    /* delim found, parse string then */
+    if ((*pch == end && cnt == idx) || *pch == '\0')
+      return parsed_string (pch, str);
     /* advance to the first unescaped delim */
     if (*pch == '\\')
       pch++;
   } while (*pch++);
+
   return NULL;
 }
 
