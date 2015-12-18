@@ -1,3 +1,11 @@
+Changes to GoAccess 0.9.7 - TBD
+
+  - Added Squid native log format to the config file.
+  - Fixed int overflow when getting total bandwidth using the on-disk storage.
+  - Fixed issue where a timestamp was stored as date under the visitors panel.
+  - Fixed issue where config dialog fields were not cleared out on select.
+  - Fixed issue where "Virtual Hosts" menu item was not shown the HTML sidebar.
+
 Changes to GoAccess 0.9.6 - Tuesday, October 27, 2015
 
   - Fixed segfault when appending data to a log (follow) without virtualhosts.
