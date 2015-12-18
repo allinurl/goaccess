@@ -199,6 +199,7 @@ to be used without prepending `--`.
 | `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--dcf`                            | Display the path of the default config file.                  |
+| `--debug-file=<path>`              | Send all debug messages to the specified file.                |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
