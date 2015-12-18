@@ -362,7 +362,9 @@ get_max_perc_len (int max_percent)
   return intlen ((int) max_percent);
 }
 
-/* set item's percent in GDashData */
+/* Set hits percent in GDashData and return max percent
+ *
+ * On success, hits percent is set and maximum percent is returned. */
 static float
 set_percent_data (GDashData * data, int n, int valid)
 {
