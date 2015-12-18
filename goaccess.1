@@ -706,9 +706,13 @@ the end of the file.
 .IP
 # sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -a
 .P
+or using relative dates such as yesterdays or tomorrows day:
+.IP
+# sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a
+.P
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 .IP
-sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
+# sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
 .P
 .I Note:
 this could take longer time to parse depending on the speed of sed.
@@ -725,7 +729,7 @@ $8 instead. It's best to check which field you are shooting for, e.g.:
 .P
 To exclude a list of virtual hosts you can do the following:
 .IP
-grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
+# grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
 .P
 .B Also,
 it is worth pointing out that if we want to run GoAccess at lower priority, we
