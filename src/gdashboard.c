@@ -378,7 +378,7 @@ set_percent_data (GDashData * data, int n, int valid)
   return max;
 }
 
-/* render module's total */
+/* Render the 'total' label on each panel */
 static void
 render_total_label (WINDOW * win, GDashModule * data, int y,
                     GColors * (*func) (void))
@@ -398,7 +398,7 @@ render_total_label (WINDOW * win, GDashModule * data, int y,
   free (s);
 }
 
-/* render dashboard bars (graph) */
+/* Render panel bar graph */
 static void
 render_bars (GDashModule * data, GDashRender render, int *x)
 {
@@ -418,6 +418,7 @@ render_bars (GDashModule * data, GDashRender render, int *x)
   free (bar);
 }
 
+/* Render host's panel selected row */
 static void
 render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
 {
