@@ -429,6 +429,10 @@ render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
   free (padded_data);
 }
 
+/* Set panel's date on the given buffer
+ *
+ * On error, '---' placeholder is set into the buffer.
+ * On success, data is set on the given buffer. */
 static void
 set_visitors_date (char *buf, const char *value)
 {
