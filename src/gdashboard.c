@@ -443,7 +443,7 @@ set_visitors_date (char *buf, const char *value)
   }
 }
 
-/* render dashboard data */
+/* Render the data metric for each panel */
 static void
 render_data (GDashModule * data, GDashRender render, int *x)
 {
@@ -474,7 +474,10 @@ render_data (GDashModule * data, GDashRender render, int *x)
   free (value);
 }
 
-/* render dashboard request method */
+/* Render the method metric for each panel
+ *
+ * On error, no method is rendered and it returns.
+ * On success, method is rendered. */
 static void
 render_method (GDashModule * data, GDashRender render, int *x)
 {
@@ -500,7 +503,10 @@ render_method (GDashModule * data, GDashRender render, int *x)
   *x += data->method_len + DASH_SPACE;
 }
 
-/* render dashboard request protocol */
+/* Render the protocol metric for each panel
+ *
+ * On error, no protocol is rendered and it returns.
+ * On success, protocol is rendered. */
 static void
 render_proto (GDashModule * data, GDashRender render, int *x)
 {
@@ -526,7 +532,7 @@ render_proto (GDashModule * data, GDashRender render, int *x)
   *x += REQ_PROTO_LEN - 1 + DASH_SPACE;
 }
 
-/* render dashboard averages time served */
+/* Render the average time served metric for each panel */
 static void
 render_avgts (GDashModule * data, GDashRender render, int *x)
 {
@@ -553,7 +559,7 @@ out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
-/* render dashboard averages time served */
+/* Render the cumulative time served metric for each panel */
 static void
 render_cumts (GDashModule * data, GDashRender render, int *x)
 {
@@ -580,7 +586,7 @@ out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
-/* render dashboard averages time served */
+/* Render the maximum time served metric for each panel */
 static void
 render_maxts (GDashModule * data, GDashRender render, int *x)
 {
@@ -607,7 +613,7 @@ out:
   *x += DASH_SRV_TM_LEN + DASH_SPACE;
 }
 
-/* render dashboard bandwidth */
+/* Render the bandwidth metric for each panel */
 static void
 render_bw (GDashModule * data, GDashRender render, int *x)
 {
@@ -634,7 +640,7 @@ out:
   *x += DASH_BW_LEN + DASH_SPACE;
 }
 
-/* render dashboard percent */
+/* Render the percent metric for each panel */
 static void
 render_percent (GDashModule * data, GDashRender render, int *x)
 {
@@ -669,7 +675,7 @@ out:
   *x += len + 1 + DASH_SPACE;
 }
 
-/* render dashboard hits */
+/* Render the hits metric for each panel */
 static void
 render_hits (GDashModule * data, GDashRender render, int *x)
 {
@@ -699,7 +705,7 @@ out:
   *x += len + DASH_SPACE;
 }
 
-/* render dashboard hits */
+/* Render the visitors metric for each panel */
 static void
 render_visitors (GDashModule * data, GDashRender render, int *x)
 {
