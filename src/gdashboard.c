@@ -735,6 +735,7 @@ out:
   *x += len + DASH_SPACE;
 }
 
+/* Render the header row for each panel */
 static void
 render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
 {
@@ -761,6 +762,7 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y)
   (*y)++;
 }
 
+/* Render the description row for each panel */
 static void
 render_description (WINDOW * win, GDashModule * data, int *y)
 {
