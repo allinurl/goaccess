@@ -778,6 +778,8 @@ render_description (WINDOW * win, GDashModule * data, int *y)
   (*y)++;       /* add empty line underneath description */
 }
 
+/* Render available metrics per panel.
+ * ###TODO: Have the abilitity to display metrics in specific order */
 static void
 render_metrics (GDashModule * data, GDashRender render, int expanded)
 {
@@ -819,6 +821,7 @@ render_metrics (GDashModule * data, GDashRender render, int expanded)
     render_bars (data, render, &x);
 }
 
+/* Render a dashboard row. */
 static void
 render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
                   GScroll * gscroll)
@@ -851,6 +854,7 @@ out:
   (*y)++;
 }
 
+/* Render a dashed line underneath the metric label. */
 static void
 print_horizontal_dash (WINDOW * win, int y, int x, int len)
 {
