@@ -861,6 +861,7 @@ print_horizontal_dash (WINDOW * win, int y, int x, int len)
   mvwprintw (win, y, x, "%.*s", len, "----------------");
 }
 
+/* Render left-aligned column label. */
 static void
 lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
             const char *str)
@@ -875,6 +876,7 @@ lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
   *x += len + DASH_SPACE;
 }
 
+/* Render right-aligned column label. */
 static void
 rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
             const char *str)
@@ -889,6 +891,8 @@ rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
   *x += len + DASH_SPACE;
 }
 
+/* Render column names for available metrics.
+ * ###TODO: Have the abilitity to display metrics in specific order */
 static void
 render_cols (WINDOW * win, GDashModule * data, int *y)
 {
