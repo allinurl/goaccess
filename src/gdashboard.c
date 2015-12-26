@@ -935,7 +935,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
     lprint_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
 }
 
-/* render dashboard content */
+/* Iterate over all dashboard data and render its content. */
 static void
 render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
                 int *total, GScroll * gscroll)
@@ -979,7 +979,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
   }
 }
 
-/* entry point to render dashboard */
+/* Entry point to render the terminal dashboard. */
 void
 display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
 {
@@ -1020,7 +1020,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
   wrefresh (win);
 }
 
-/* reset scroll and offset for each module */
+/* Reset the scroll and offset fields for each panel/module. */
 void
 reset_scroll_offsets (GScroll * gscroll)
 {
@@ -1031,7 +1031,10 @@ reset_scroll_offsets (GScroll * gscroll)
   }
 }
 
-/* compile the regular expression and see if it's valid */
+/* Compile the regular expression and see if it's valid.
+ *
+ * If unable to compile, an error as described in <regex.h>.
+ * Upon successful completion, function returns 0. */
 static int
 regexp_init (regex_t * regex, const char *pattern)
 {
@@ -1050,7 +1053,7 @@ regexp_init (regex_t * regex, const char *pattern)
   return 0;
 }
 
-/* set search gscroll */
+/* Set the dashboard scroll and offset based on the search index. */
 static void
 perform_find_dash_scroll (GScroll * gscroll, GModule module)
 {
@@ -1074,7 +1077,10 @@ perform_find_dash_scroll (GScroll * gscroll, GModule module)
   find_t.module = module;
 }
 
-/* find item within the given sub_list */
+/* Find the searched item within the given sub list.
+ *
+ * If not found, the GFind structure is reset and 1 is returned.
+ * If found, a GFind structure is set and 0 is returned. */
 static int
 find_next_sub_item (GSubList * sub_list, regex_t * regex)
 {
