@@ -1110,7 +1110,10 @@ out:
   return 1;
 }
 
-/* perform a forward search across all modules */
+/* Perform a forward search across all modules.
+ *
+ * On error or if not found, 1 is returned.
+ * On success or if found, a GFind structure is set and 0 is returned. */
 int
 perform_next_find (GHolder * h, GScroll * gscroll)
 {
@@ -1173,7 +1176,10 @@ out:
   return 0;
 }
 
-/* render find dialog */
+/* Render a find dialog.
+ *
+ * On error or if no query is set, 1 is returned.
+ * On success, the dialog is rendered and 0 is returned. */
 int
 render_find_dialog (WINDOW * main_win, GScroll * gscroll)
 {
