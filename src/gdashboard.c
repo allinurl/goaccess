@@ -1214,7 +1214,10 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll)
   return valid;
 }
 
-/* add an item from a sub_list to the dashboard */
+/* Add an item from a sub list to the dashboard.
+ *
+ * If no items on the sub list, the function returns.
+ * On success, sub list data is set into the dashboard structure. */
 static void
 add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 {
@@ -1253,7 +1256,9 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
   }
 }
 
-/* add a first level item to dashboard */
+/* Add a first level item to dashboard.
+ *
+ * On success, data is set into the dashboard structure. */
 static void
 add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
 {
