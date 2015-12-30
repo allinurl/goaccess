@@ -1286,7 +1286,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
   (*idx)++;
 }
 
-/* load holder's data into dashboard */
+/* Load holder's data into the dashboard structure. */
 void
 load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
 {
