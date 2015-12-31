@@ -302,6 +302,13 @@ parse_opera (char *token)
   return val;
 }
 
+/* Given a user agent, determine the browser used.
+ *
+ * ###NOTE: The size of the list is proportional to the run time,
+ * which makes this pretty slow
+ *
+ * On error, NULL is returned.
+ * On success, a malloc'd  string containing the browser is returned. */
 char *
 verify_browser (char *str, char *type)
 {
