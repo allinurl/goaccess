@@ -276,6 +276,10 @@ static const char *browsers[][2] = {
   {"Mozilla", "Others"}
 };
 
+/* Determine if the user-agent is a crawler.
+ *
+ * On error or is not a crawler, 0 is returned.
+ * If it is a crawler, 1 is returned . */
 int
 is_crawler (const char *agent)
 {
