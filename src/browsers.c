@@ -296,7 +296,9 @@ is_crawler (const char *agent)
   return strcmp (type, "Crawlers") == 0 ? 1 : 0;
 }
 
-/* Return the Opera 15 and Beyond */
+/* Return the Opera 15 and beyond.
+ *
+ * On success, the opera string and version is returned. */
 static char *
 parse_opera (char *token)
 {
