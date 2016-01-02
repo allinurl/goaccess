@@ -239,6 +239,13 @@ parse_android (char *agent)
   return agent;
 }
 
+/* Given a user agent, determine the operating system used.
+ *
+ * ###NOTE: The size of the list is proportional to the run time,
+ * which makes this pretty slow
+ *
+ * On error, NULL is returned.
+ * On success, a malloc'd  string containing the OS is returned. */
 char *
 verify_os (const char *str, char *os_type)
 {
