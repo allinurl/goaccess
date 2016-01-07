@@ -162,7 +162,7 @@ cmp_vis_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* sort raw numeric descending */
+/* Sort raw numeric descending */
 static int
 cmp_raw_num_desc (const void *a, const void *b)
 {
@@ -175,7 +175,7 @@ cmp_raw_num_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* sort bandwidth descending */
+/* Sort bandwidth descending */
 static int
 cmp_bw_desc (const void *a, const void *b)
 {
