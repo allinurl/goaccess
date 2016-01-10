@@ -240,7 +240,7 @@ cmp_cumts_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* sort usec ascending */
+/* Sort usec ascending */
 static int
 cmp_cumts_asc (const void *a, const void *b)
 {
@@ -253,7 +253,7 @@ cmp_cumts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* sort usec descending */
+/* Sort usec descending */
 static int
 cmp_maxts_desc (const void *a, const void *b)
 {
