@@ -266,7 +266,7 @@ cmp_maxts_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* sort usec ascending */
+/* Sort usec ascending */
 static int
 cmp_maxts_asc (const void *a, const void *b)
 {
@@ -279,7 +279,7 @@ cmp_maxts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* sort protocol ascending */
+/* Sort protocol ascending */
 static int
 cmp_proto_asc (const void *a, const void *b)
 {
