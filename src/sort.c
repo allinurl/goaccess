@@ -288,7 +288,7 @@ cmp_proto_asc (const void *a, const void *b)
   return strcmp (ia->metrics->protocol, ib->metrics->protocol);
 }
 
-/* sort protocol descending */
+/* Sort protocol descending */
 static int
 cmp_proto_desc (const void *a, const void *b)
 {
@@ -297,7 +297,7 @@ cmp_proto_desc (const void *a, const void *b)
   return strcmp (ib->metrics->protocol, ia->metrics->protocol);
 }
 
-/* sort method ascending */
+/* Sort method ascending */
 static int
 cmp_mthd_asc (const void *a, const void *b)
 {
