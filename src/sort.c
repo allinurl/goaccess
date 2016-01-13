@@ -306,7 +306,7 @@ cmp_mthd_asc (const void *a, const void *b)
   return strcmp (ia->metrics->method, ib->metrics->method);
 }
 
-/* sort method descending */
+/* Sort method descending */
 static int
 cmp_mthd_desc (const void *a, const void *b)
 {
