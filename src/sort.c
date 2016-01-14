@@ -386,7 +386,7 @@ parse_initial_sort (void)
   }
 }
 
-/* apply user defined sort */
+/* Apply user defined sort */
 void
 sort_holder_items (GHolderItem * items, int size, GSort sort)
 {
@@ -448,7 +448,7 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
   }
 }
 
-/* sort raw data for the first run (default sort) */
+/* Sort raw data for the first run (default sort) */
 GRawData *
 sort_raw_data (GRawData * raw_data, int ht_size)
 {
