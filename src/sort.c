@@ -92,7 +92,7 @@ GSort module_sort[TOTAL_MODULES] = {
 };
 /* *INDENT-ON* */
 
-/* Sort data ascending */
+/* Sort 'data' metric ascending */
 static int
 cmp_data_asc (const void *a, const void *b)
 {
@@ -101,7 +101,7 @@ cmp_data_asc (const void *a, const void *b)
   return strcmp (ia->metrics->data, ib->metrics->data);
 }
 
-/* Sort data descending */
+/* Sort 'data' metric descending */
 static int
 cmp_data_desc (const void *a, const void *b)
 {
