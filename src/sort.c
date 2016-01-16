@@ -110,7 +110,7 @@ cmp_data_desc (const void *a, const void *b)
   return strcmp (ib->metrics->data, ia->metrics->data);
 }
 
-/* Sort numeric descending */
+/* Sort 'hits' metric descending */
 static int
 cmp_num_desc (const void *a, const void *b)
 {
@@ -123,7 +123,7 @@ cmp_num_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* Sort numeric ascending */
+/* Sort 'hits' metric ascending */
 static int
 cmp_num_asc (const void *a, const void *b)
 {
