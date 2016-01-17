@@ -136,7 +136,7 @@ cmp_num_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* Sort numeric descending */
+/* Sort 'visitors' metric descending */
 static int
 cmp_vis_desc (const void *a, const void *b)
 {
@@ -149,7 +149,7 @@ cmp_vis_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* Sort numeric ascending */
+/* Sort 'visitors' metric ascending */
 static int
 cmp_vis_asc (const void *a, const void *b)
 {
