@@ -1263,7 +1263,7 @@ print_metric_data (FILE * fp, GMetrics * nmetrics)
 static void
 print_metric_protocol (FILE * fp, GMetrics * nmetrics)
 {
-  if (!conf.append_protocol && nmetrics->protocol)
+  if (!conf.append_protocol || !nmetrics->protocol)
     return;
 
   fprintf (fp, "<td>");
@@ -1274,7 +1274,7 @@ print_metric_protocol (FILE * fp, GMetrics * nmetrics)
 static void
 print_metric_method (FILE * fp, GMetrics * nmetrics)
 {
-  if (!conf.append_method && nmetrics->method)
+  if (!conf.append_method || !nmetrics->method)
     return;
 
   fprintf (fp, "<td>");
