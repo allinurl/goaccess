@@ -959,7 +959,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    bandw = strtol (tkn, &bEnd, 10);
+    bandw = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
     glog->resp_size = bandw;
