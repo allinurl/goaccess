@@ -227,7 +227,7 @@ cmp_avgts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* Sort usec descending */
+/* Sort 'cumts' metric descending */
 static int
 cmp_cumts_desc (const void *a, const void *b)
 {
@@ -240,7 +240,7 @@ cmp_cumts_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* Sort usec ascending */
+/* Sort 'cumts' metric ascending */
 static int
 cmp_cumts_asc (const void *a, const void *b)
 {
