@@ -253,7 +253,7 @@ cmp_cumts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* Sort usec descending */
+/* Sort 'maxts' metric descending */
 static int
 cmp_maxts_desc (const void *a, const void *b)
 {
@@ -266,7 +266,7 @@ cmp_maxts_desc (const void *a, const void *b)
   return (va < vb) - (va > vb);
 }
 
-/* Sort usec ascending */
+/* Sort 'maxts' metric ascending */
 static int
 cmp_maxts_asc (const void *a, const void *b)
 {
@@ -279,7 +279,7 @@ cmp_maxts_asc (const void *a, const void *b)
   return (va > vb) - (va < vb);
 }
 
-/* Sort protocol ascending */
+/* Sort 'protocol' metric ascending */
 static int
 cmp_proto_asc (const void *a, const void *b)
 {
@@ -288,7 +288,7 @@ cmp_proto_asc (const void *a, const void *b)
   return strcmp (ia->metrics->protocol, ib->metrics->protocol);
 }
 
-/* Sort protocol descending */
+/* Sort 'protocol' metric descending */
 static int
 cmp_proto_desc (const void *a, const void *b)
 {
@@ -297,7 +297,7 @@ cmp_proto_desc (const void *a, const void *b)
   return strcmp (ib->metrics->protocol, ia->metrics->protocol);
 }
 
-/* Sort method ascending */
+/* Sort 'method' metric ascending */
 static int
 cmp_mthd_asc (const void *a, const void *b)
 {
@@ -306,7 +306,7 @@ cmp_mthd_asc (const void *a, const void *b)
   return strcmp (ia->metrics->method, ib->metrics->method);
 }
 
-/* Sort method descending */
+/* Sort 'method' metric descending */
 static int
 cmp_mthd_desc (const void *a, const void *b)
 {
@@ -315,18 +315,30 @@ cmp_mthd_desc (const void *a, const void *b)
   return strcmp (ib->metrics->method, ia->metrics->method);
 }
 
+/* Given a string sort field, get the enum field value.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated field value is returned. */
 int
 get_sort_field_enum (const char *str)
 {
   return str2enum (FIELD, ARRAY_SIZE (FIELD), str);
 }
 
+/* Given a string sort order, get the enum order value.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated order value is returned. */
 int
 get_sort_order_enum (const char *str)
 {
   return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }
 
+/* Set the initial metric sort per module/panel.
+ *
+ * On error, function returns.
+ * On success, panel metrics are sorted. */
 void
 set_initial_sort (const char *smod, const char *sfield, const char *ssort)
 {
@@ -345,6 +357,10 @@ set_initial_sort (const char *smod, const char *sfield, const char *ssort)
   module_sort[module].sort = order;
 }
 
+/* Determine if module/panel metric can be sorted.
+ *
+ * On error or if metric can't be sorted, 0 is returned.
+ * On success, 1 is returned. */
 int
 can_sort_module (GModule module, int field)
 {
@@ -372,6 +388,10 @@ can_sort_module (GModule module, int field)
   return can_sort;
 }
 
+/* Parse all initial sort options from the config file.
+ *
+ * On error, function returns.
+ * On success, panel metrics are sorted. */
 void
 parse_initial_sort (void)
 {
@@ -448,7 +468,9 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
   }
 }
 
-/* Sort raw data for the first run (default sort) */
+/* Sort raw data in a descending order for the first run (default sort)
+ *
+ * On success, raw data sorted in a descending order. */
 GRawData *
 sort_raw_data (GRawData * raw_data, int ht_size)
 {
