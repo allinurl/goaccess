@@ -292,6 +292,7 @@ static GParse paneling[] = {
 };
 /* *INDENT-ON* */
 
+/* Initialize a new GKeyData instance */
 static void
 new_modulekey (GKeyData * kdata)
 {
@@ -308,6 +309,10 @@ new_modulekey (GKeyData * kdata)
   *kdata = key;
 }
 
+/* Get a panel from the GParse structure given a module.
+ *
+ * On error, or if not found, NULL is returned.
+ * On success, the panel value is returned. */
 static GParse *
 panel_lookup (GModule module)
 {
@@ -320,7 +325,9 @@ panel_lookup (GModule module)
   return NULL;
 }
 
-/* allocate memory for ht raw data */
+/* Allocate memory for a new GRawData instance.
+ *
+ * On success, the newly allocated GRawData is returned . */
 GRawData *
 new_grawdata (void)
 {
@@ -330,7 +337,9 @@ new_grawdata (void)
   return raw_data;
 }
 
-/* allocate memory for raw data items */
+/* Allocate memory for a new GRawDataItem instance.
+ *
+ * On success, the newly allocated GRawDataItem is returned . */
 GRawDataItem *
 new_grawdata_item (unsigned int size)
 {
@@ -338,7 +347,7 @@ new_grawdata_item (unsigned int size)
   return item;
 }
 
-/* free memory allocated in raw data */
+/* Free memory allocated for a GRawData and GRawDataItem instance. */
 void
 free_raw_data (GRawData * raw_data)
 {
@@ -346,6 +355,7 @@ free_raw_data (GRawData * raw_data)
   free (raw_data);
 }
 
+/* Reset an instance of GLog structure. */
 void
 reset_struct (GLog * logger)
 {
@@ -364,6 +374,9 @@ init_log (void)
   return glog;
 }
 
+/* Initialize a new GLogItem instance.
+ *
+ * On success, the new GLogItem instance is returned. */
 GLogItem *
 init_log_item (GLog * logger)
 {
