@@ -365,6 +365,9 @@ reset_struct (GLog * logger)
   logger->valid = 0;
 }
 
+/* Allocate memory for a new GLog instance.
+ *
+ * On success, the newly allocated GLog is returned . */
 GLog *
 init_log (void)
 {
@@ -415,6 +418,7 @@ init_log_item (GLog * logger)
   return glog;
 }
 
+/* Free all members of a GLogItem */
 static void
 free_logger (GLogItem * glog)
 {
@@ -462,6 +466,9 @@ free_logger (GLogItem * glog)
   free (glog);
 }
 
+/* Decodes the given URL-encoded string.
+ *
+ * On success, the decoded string is assigned to the output buffer. */
 #define B16210(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((x)) - 'A' + 10))
 static void
 decode_hex (char *url, char *out)
@@ -480,6 +487,10 @@ decode_hex (char *url, char *out)
   *ptr = 0;
 }
 
+/* Entry point to decode the given URL-encoded string.
+ *
+ * On success, the decoded trimmed string is assigned to the output
+ * buffer. */
 static char *
 decode_url (char *url)
 {
@@ -490,6 +501,7 @@ decode_url (char *url)
 
   out = decoded = xstrdup (url);
   decode_hex (url, out);
+  /* double encoded URL? */
   if (conf.double_decode)
     decode_hex (decoded, out);
   strip_newlines (out);
