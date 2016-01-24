@@ -41,9 +41,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <strings.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <time.h>
 #include <unistd.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
@@ -511,7 +511,10 @@ decode_url (char *url)
 
 /* Process keyphrases from Google search, cache, and translate.
  * Note that the referer hasn't been decoded at the entry point
- * since there could be '&' within the search query. */
+ * since there could be '&' within the search query.
+ *
+ * On error, 1 is returned.
+ * On success, the extracted keyphrase is assigned and 0 is returned. */
 static int
 extract_keyphrase (char *ref, char **keyphrase)
 {
@@ -561,6 +564,11 @@ extract_keyphrase (char *ref, char **keyphrase)
 }
 
 #ifdef HAVE_LIBGEOIP
+/* Extract geolocation for the given host.
+ *
+ * On error, 1 is returned.
+ * On success, the extracted continent and country are set and 0 is
+ * returned. */
 static int
 extract_geolocation (GLogItem * glog, char *continent, char *country)
 {
