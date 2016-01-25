@@ -583,8 +583,11 @@ extract_geolocation (GLogItem * glog, char *continent, char *country)
 #endif
 
 
-/* parses a URI and extracts the *host* part from it
- * i.e., //www.example.com/path?googleguy > www.example.com */
+/* Parse a URI and extracts the *host* part from it
+ * i.e., //www.example.com/path?googleguy > www.example.com
+ *
+ * On error, 1 is returned.
+ * On success, the extracted referer is set and 0 is returned. */
 static int
 extract_referer_site (const char *referer, char *host)
 {
