@@ -624,7 +624,10 @@ clean:
   return 1;
 }
 
-/* returns 1 if the request seems to be a static file */
+/* Determine if the given request is static (e.g., jpg, css, js, etc).
+ *
+ * On error, or if not static, 0 is returned.
+ * On success, the 1 is returned. */
 static int
 verify_static_content (char *req)
 {
@@ -644,12 +647,12 @@ verify_static_content (char *req)
     if (conf.all_static_files && (pch = strchr (req, '?')) != NULL &&
         pch - req > elen) {
       pch -= elen;
-      if (0 == strncmp (ext, pch, elen))
+      if (0 == strncasecmp (ext, pch, elen))
         return 1;
       continue;
     }
 
-    if (!memcmp (nul - elen, ext, elen))
+    if (!strncasecmp (nul - elen, ext, elen))
       return 1;
   }
 
