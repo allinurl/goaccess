@@ -659,6 +659,10 @@ verify_static_content (char *req)
   return 0;
 }
 
+/* Extract the HTTP method.
+ *
+ * On error, or if not found, NULL is returned.
+ * On success, the HTTP method is returned. */
 static const char *
 extract_method (const char *token)
 {
