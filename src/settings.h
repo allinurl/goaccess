@@ -25,7 +25,7 @@
 #include "commons.h"
 
 #define MAX_LINE_CONF     512
-#define MAX_EXTENSIONS     64
+#define MAX_EXTENSIONS    128
 #define MAX_IGNORE_IPS     64
 #define MAX_IGNORE_REF     64
 #define MAX_CUSTOM_COLORS  64
