@@ -756,6 +756,11 @@ invalid_protocol (const char *token)
            (lookfor = "HTTP/2", !memcmp (token, lookfor, 6)));
 }
 
+/* Parse a request containing the method and protocol.
+ *
+ * On error, or unable to parse, NULL is returned.
+ * On success, the HTTP request is returned and the method and
+ * protocol are assigned to the corresponding buffers. */
 static char *
 parse_req (char *line, char **method, char **protocol)
 {
