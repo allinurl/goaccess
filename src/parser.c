@@ -729,6 +729,7 @@ extract_method (const char *token)
   return NULL;
 }
 
+/* Determine if time-served data was stored on-disk. */
 static void
 contains_usecs (void)
 {
@@ -741,6 +742,10 @@ contains_usecs (void)
   conf.serve_usecs = 1; /* flag */
 }
 
+/* Determine if the given token is a valid HTTP protocol.
+ *
+ * If not valid, 1 is returned.
+ * If valid, 0 is returned. */
 static int
 invalid_protocol (const char *token)
 {
