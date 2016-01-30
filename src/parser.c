@@ -806,6 +806,9 @@ parse_req (char *line, char **method, char **protocol)
   return request;
 }
 
+/* Extract and malloc a token given the parsed rule.
+ *
+ * On success, the malloc'd token is returned. */
 static char *
 parsed_string (const char *pch, char **str)
 {
@@ -820,6 +823,10 @@ parsed_string (const char *pch, char **str)
   return trim_str (p);
 }
 
+/* Find and extract a token given a log format rule.
+ *
+ * On error, or unable to parse it, NULL is returned.
+ * On success, the malloc'd token is returned. */
 static char *
 parse_string (char **str, char end, int cnt)
 {
