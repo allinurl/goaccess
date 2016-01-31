@@ -848,6 +848,8 @@ parse_string (char **str, char end, int cnt)
   return NULL;
 }
 
+/* Move forward through the log string until a non-space (!isspace)
+ * char is found. */
 static void
 find_alpha (char **str)
 {
@@ -861,6 +863,10 @@ find_alpha (char **str)
   *str += s - *str;
 }
 
+/* Parse the log string given log format rule.
+ *
+ * On error, or unable to parse it, 1 is returned.
+ * On success, the malloc'd token is assigned to a GLogItem member. */
 static int
 parse_specifier (GLogItem * glog, char **str, const char *p)
 {
