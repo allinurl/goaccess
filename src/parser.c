@@ -1142,6 +1142,11 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
   return 0;
 }
 
+/* Iterate over the given log format.
+ *
+ * On error, or unable to parse it, 1 is returned.
+ * On success, the malloc'd token is assigned to a GLogItem member and
+ * 0 is returned. */
 static int
 parse_format (GLogItem * glog, char *str)
 {
@@ -1176,6 +1181,10 @@ parse_format (GLogItem * glog, char *str)
   return 0;
 }
 
+/* Determine if the log string is valid and if it's not a comment.
+ *
+ * On error, or invalid, 1 is returned.
+ * On success, or valid line, 0 is returned. */
 static int
 valid_line (char *line)
 {
@@ -1189,6 +1198,7 @@ valid_line (char *line)
   return 0;
 }
 
+/* Determine if we need to lock the mutex. */
 static void
 lock_spinner (void)
 {
@@ -1196,6 +1206,7 @@ lock_spinner (void)
     pthread_mutex_lock (&parsing_spinner->mutex);
 }
 
+/* Determine if we need to unlock the mutex. */
 static void
 unlock_spinner (void)
 {
@@ -1203,6 +1214,8 @@ unlock_spinner (void)
     pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
+/* Ignore request's query string. e.g.,
+ * /index.php?timestamp=1454385289 */
 static void
 strip_qstring (char *req)
 {
