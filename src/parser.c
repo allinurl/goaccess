@@ -1226,6 +1226,7 @@ strip_qstring (char *req)
   }
 }
 
+/* Increment the overall bandwidth. */
 static void
 inc_resp_size (GLog * logger, uint64_t resp_size)
 {
@@ -1235,6 +1236,7 @@ inc_resp_size (GLog * logger, uint64_t resp_size)
 #endif
 }
 
+/* Keep track of all invalid log strings. */
 static void
 count_invalid (GLog * logger, const char *line, int test)
 {
@@ -1249,6 +1251,7 @@ count_invalid (GLog * logger, const char *line, int test)
     LOG_INVALID (("%s", line));
 }
 
+/* Keep track of all valid log strings. */
 static void
 count_valid (GLog * logger, int test)
 {
@@ -1263,6 +1266,7 @@ count_valid (GLog * logger, int test)
   unlock_spinner ();
 }
 
+/* Keep track of all valid and processed log strings. */
 static void
 count_process (GLog * logger, int test)
 {
@@ -1277,6 +1281,10 @@ count_process (GLog * logger, int test)
   unlock_spinner ();
 }
 
+/* Keep track of all excluded log strings (IPs).
+ *
+ * If IP not range, 1 is returned.
+ * If IP is excluded, 0 is returned. */
 static int
 excluded_ip (GLog * logger, GLogItem * glog, int test)
 {
