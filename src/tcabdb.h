@@ -98,44 +98,44 @@
  * 10 -> 100
  * 40 -> 56
  */
-/*khash_t(i32) *visitors;*/
+/*khash_t(ii32) MTRC_VISITORS */
 
 /* Maps numeric data keys to bandwidth (in bytes).
  * 1 -> 1024
  * 2 -> 2048
  */
-/*khash_t(i32) *bw;*/
+/*khash_t(iu64) MTRC_BW */
 
 /* Maps numeric data keys to cumulative time served (in usecs/msecs).
  * 1 -> 187
  * 2 -> 208
  */
-/*khash_t(i32) *cumts;*/
+/*khash_t(iu64) MTRC_CUMTS */
 
 /* Maps numeric data keys to max time served (in usecs/msecs).
  * 1 -> 1287
  * 2 -> 2308
  */
-/*khash_t(i32) *maxts;*/
+/*khash_t(iu64) MTRC_MAXTS */
 
 /* Maps numeric data keys to string values.
  * 1 -> GET
  * 2 -> POST
  */
-/*khash_t(i32) *methods;*/
+/*khash_t(is32) MTRC_METHODS */
 
 /* Maps numeric data keys to string values.
  * 1 -> HTTP/1.1
  * 2 -> HTTP/1.0
  */
-/*khash_t(i32) *protocols;*/
+/*khash_t(is32) MTRC_PROTOCOLS */
 
 /* Maps numeric unique user-agent keys to the
  * corresponding numeric value.
  * 1 -> 3
  * 2 -> 4
  */
-/*khash_t(i32) *agents;*/
+/*khash_t(igsl) MTRC_AGENTS */
 
 /* Enumerated Storage Metrics */
 typedef struct GTCStorageMetric_
