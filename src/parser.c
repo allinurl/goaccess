@@ -1301,6 +1301,10 @@ excluded_ip (GLog * logger, GLogItem * glog, int test)
   return 1;
 }
 
+/* Determine if the request is from a robot or spider.
+ *
+ * If not from a robot, 1 is returned.
+ * If from a robot, 0 is returned. */
 static int
 exclude_crawler (GLogItem * glog)
 {
