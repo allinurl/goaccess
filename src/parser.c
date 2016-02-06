@@ -1311,6 +1311,11 @@ exclude_crawler (GLogItem * glog)
   return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
 }
 
+/* Determine if the request of the given status code needs to be
+ * ignored.
+ *
+ * If the status code is not within the ignore-array, 0 is returned.
+ * If the status code is within the ignore-array, 1 is returned. */
 static int
 ignore_status_code (const char *status)
 {
