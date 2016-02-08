@@ -1327,7 +1327,8 @@ ignore_status_code (const char *status)
   return 0;
 }
 
-/* Perform some additional tasks to panels before they are being parsed. */
+/* Perform some additional tasks to panels before they are being
+ * parsed. */
 static void
 verify_panels (void)
 {
@@ -1340,6 +1341,10 @@ verify_panels (void)
   }
 }
 
+/* A wrapper function to determine if a log line needs to be ignored.
+ *
+ * If the request line is not ignored, 0 is returned.
+ * If the request line is ignored, 1 is returned. */
 static int
 ignore_line (GLog * logger, GLogItem * glog, int test)
 {
