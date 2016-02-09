@@ -301,7 +301,11 @@ Note, `$7` is the request field for the common and combined log format,
 want to use `$8` instead. It's best to check which field you are shooting for,
 e.g.:
 
-    tail -10 access.log | awk '{print $8}'
+    # tail -10 access.log | awk '{print $8}'
+
+Or to parse a specific status code, e.g., 500 (Internal Server Error):
+
+    # awk '$9~/500/' access.log | goaccess
 
 For more examples, please check GoAccess' man page:
 http://goaccess.io/man
