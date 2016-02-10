@@ -67,10 +67,10 @@ set_dbparam (char *params, int len, const char *fmt, ...)
   va_end (args);
 
   if (n < 0) {
-    // XXX log error
     n = 0;
+    LOG_DEBUG (("Output error is encountered on set_dbparam\n"));
   } else if (n >= DB_PARAMS - len) {
-    // XXX log truncation
+    LOG_DEBUG (("Output truncated on set_dbparam\n"));
     n = DB_PARAMS - len;
   }
 
