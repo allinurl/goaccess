@@ -63,8 +63,16 @@ set_dbparam (char *params, int len, const char *fmt, ...)
   va_list args;
 
   va_start (args, fmt);
-  n = vsnprintf (params + len, DB_PARAMS, fmt, args);
+  n = vsnprintf (params + len, DB_PARAMS - len, fmt, args);
   va_end (args);
+
+  if (n < 0) {
+    // XXX log error
+    n = 0;
+  } else if (n >= DB_PARAMS - len) {
+    // XXX log truncation
+    n = DB_PARAMS - len;
+  }
 
   return n;
 }
@@ -79,7 +87,6 @@ tc_db_get_params (char *params, const char *path)
 
   /* copy path name to buffer */
   len += set_dbparam (params, len, "%s", path);
-  /*len += snprintf (params + len, DB_PARAMS - len, "%s", path); */
 
   /* caching parameters of a B+ tree database object */
   lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
