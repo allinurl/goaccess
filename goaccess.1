@@ -730,6 +730,10 @@ $8 instead. It's best to check which field you are shooting for, e.g.:
 .IP
 # tail -10 access.log | awk '{print $8}'
 .P
+Or to parse a specific status code, e.g., 500 (Internal Server Error):
+.IP
+# awk '$9~/500/' access.log | goaccess
+.P
 To exclude a list of virtual hosts you can do the following:
 .IP
 # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
