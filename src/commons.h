@@ -220,9 +220,10 @@ GAgentItem *new_gagent_item (uint32_t size);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_module_enum (const char *str);
 int has_timestamp (const char *fmt);
+int ignore_panel (GModule mod);
 int str2enum (const GEnum map[], int len, const char *str);
-void display_storage (void);
 void display_default_config_file (void);
+void display_storage (void);
 void display_version (void);
 
 /* single linked-list */
