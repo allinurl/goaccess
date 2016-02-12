@@ -1364,12 +1364,20 @@ ignore_line (GLog * logger, GLogItem * glog, int test)
   return 0;
 }
 
+/* A wrapper function to determine if the request is static.
+ *
+ * If the request is not static, 0 is returned.
+ * If the request is static, 1 is returned. */
 static int
 is_static (GLogItem * glog)
 {
   return verify_static_content (glog->req);
 }
 
+/* Determine if the request status code is a 404.
+ *
+ * If the request is not a 404, 0 is returned.
+ * If the request is a 404, 1 is returned. */
 static int
 is_404 (GLogItem * glog)
 {
@@ -1383,24 +1391,37 @@ is_404 (GLogItem * glog)
   return 0;
 }
 
+/* A wrapper function to insert a keymap string key.
+ *
+ * If the given key exists, its value is returned.
+ * On error, -1 is returned.
+ * On success the value of the key inserted is returned */
 static int
 insert_keymap (char *key, GModule module)
 {
   return ht_insert_keymap (module, key);
 }
 
+/* A wrapper function to insert a datamap int key and string value. */
 static void
 insert_data (int nkey, const char *data, GModule module)
 {
   ht_insert_datamap (module, nkey, data);
 }
 
+/* A wrapper function to insert a uniqmap string key.
+ *
+ * If the given key exists, 0 is returned.
+ * On error, -1 is returned.
+ * On success the value of the key inserted is returned */
 static int
 insert_uniqmap (char *uniq_key, GModule module)
 {
   return ht_insert_uniqmap (module, uniq_key);
 }
 
+/* A wrapper function to insert a rootmap int key from the keymap
+ * store mapped to its string value. */
 static void
 insert_rootmap (int root_nkey, const char *root, GModule module)
 {
