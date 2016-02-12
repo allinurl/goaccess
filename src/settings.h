@@ -154,7 +154,6 @@ size_t get_selected_format_idx (void);
 extern GConf conf;
 
 char *get_config_file_path (void);
-int ignore_panel (GModule mod);
 int parse_conf_file (int *argc, char ***argv);
 void free_cmd_args (void);
 void set_default_static_files (void);

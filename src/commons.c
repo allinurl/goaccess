@@ -44,26 +44,6 @@ size_t real_size_y = 0;
 size_t term_h = 0;
 size_t term_w = 0;
 
-/* String modules to enumerated modules */
-static GEnum MODULES[] = {
-  {"VISITORS", VISITORS},
-  {"REQUESTS", REQUESTS},
-  {"REQUESTS_STATIC", REQUESTS_STATIC},
-  {"NOT_FOUND", NOT_FOUND},
-  {"HOSTS", HOSTS},
-  {"OS", OS},
-  {"BROWSERS", BROWSERS},
-  {"VISIT_TIMES", VISIT_TIMES},
-  {"VIRTUAL_HOSTS", VIRTUAL_HOSTS},
-  {"REFERRERS", REFERRERS},
-  {"REFERRING_SITES", REFERRING_SITES},
-  {"KEYPHRASES", KEYPHRASES},
-#ifdef HAVE_LIBGEOIP
-  {"GEO_LOCATION", GEO_LOCATION},
-#endif
-  {"STATUS_CODES", STATUS_CODES},
-};
-
 /* Calculate a percentage.
  *
  * The percentage is returned. */
@@ -134,7 +114,27 @@ str2enum (const GEnum map[], int len, const char *str)
 int
 get_module_enum (const char *str)
 {
-  return str2enum (MODULES, ARRAY_SIZE (MODULES), str);
+  /* String modules to enumerated modules */
+  GEnum enum_modules[] = {
+    {"VISITORS", VISITORS},
+    {"REQUESTS", REQUESTS},
+    {"REQUESTS_STATIC", REQUESTS_STATIC},
+    {"NOT_FOUND", NOT_FOUND},
+    {"HOSTS", HOSTS},
+    {"OS", OS},
+    {"BROWSERS", BROWSERS},
+    {"VISIT_TIMES", VISIT_TIMES},
+    {"VIRTUAL_HOSTS", VIRTUAL_HOSTS},
+    {"REFERRERS", REFERRERS},
+    {"REFERRING_SITES", REFERRING_SITES},
+    {"KEYPHRASES", KEYPHRASES},
+#ifdef HAVE_LIBGEOIP
+    {"GEO_LOCATION", GEO_LOCATION},
+#endif
+    {"STATUS_CODES", STATUS_CODES},
+  };
+
+  return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
 }
 
 /* Instantiate a new Single linked-list node.
@@ -276,5 +276,23 @@ has_timestamp (const char *fmt)
 {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
     return 1;
+  return 0;
+}
+
+/* Determine if the given module is set to be ignored.
+ *
+ * If ignored, 1 is returned, else 0 is returned. */
+int
+ignore_panel (GModule mod)
+{
+  int i, module;
+
+  for (i = 0; i < conf.ignore_panel_idx; ++i) {
+    if ((module = get_module_enum (conf.ignore_panels[i])) == -1)
+      continue;
+    if (mod == (unsigned int) module)
+      return 1;
+  }
+
   return 0;
 }
