@@ -36,6 +36,7 @@
 #if !__GNUC__
 #define __attribute__(x) /**/
 #endif
+
 #define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"0.9.7"
 #define GO_WEBSITE 		"http://goaccess.io/"
@@ -51,23 +52,29 @@ extern size_t real_size_y;
 extern size_t term_h;
 extern size_t term_w;
 
+/* debug log */
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
-
 /* invalid requests log */
 #define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
 
-#define MAX_CHOICES      366
-
+/* total number of modules */
 #ifdef HAVE_LIBGEOIP
 #define TOTAL_MODULES    14
 #else
 #define TOTAL_MODULES    13
 #endif
 
-#define DATE_TIME        20
-#define DATE_LEN         12     /* date length */
-#define HOUR_LEN          3     /* hour length */
+/* maximum number of items within a panel */
+#define MAX_CHOICES      366
 
+/* date and time length */
+#define DATE_TIME        20
+/* date length */
+#define DATE_LEN         12
+/* hour length */
+#define HOUR_LEN          3
+
+/* maximum protocol string length */
 #define REQ_PROTO_LEN     9
 
 /* Type of IP */
