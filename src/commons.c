@@ -41,8 +41,6 @@ time_t start_proc;
 
 /* resizing/scheme */
 size_t real_size_y = 0;
-size_t term_h = 0;
-size_t term_w = 0;
 
 /* Calculate a percentage.
  *

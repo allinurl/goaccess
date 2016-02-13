@@ -49,8 +49,6 @@ extern time_t start_proc;
 
 /* resizing */
 extern size_t real_size_y;
-extern size_t term_h;
-extern size_t term_w;
 
 /* debug log */
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
