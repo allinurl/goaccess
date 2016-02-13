@@ -218,15 +218,15 @@ draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
 
 /* determine the actual size of the main window */
 void
-term_size (WINDOW * main_win)
+term_size (WINDOW * main_win, int *main_win_height)
 {
   int term_h = 0, term_w = 0;
 
   getmaxyx (stdscr, term_h, term_w);
 
-  real_size_y = term_h - (MAX_HEIGHT_HEADER + MAX_HEIGHT_FOOTER);
-  wresize (main_win, real_size_y, term_w);
-  wmove (main_win, real_size_y, 0);
+  *main_win_height = term_h - (MAX_HEIGHT_HEADER + MAX_HEIGHT_FOOTER);
+  wresize (main_win, *main_win_height, term_w);
+  wmove (main_win, *main_win_height, 0);
 }
 
 const char *

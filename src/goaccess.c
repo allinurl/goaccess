@@ -69,6 +69,8 @@ GConf conf = {
 };
 
 int active_gdns = 0;
+
+static int main_win_height = 0;
 static GDash *dash;
 static GHolder *holder;
 static GLog *logger;
@@ -291,7 +293,7 @@ render_screens (void)
   int row, col, chg = 0;
 
   getmaxyx (stdscr, row, col);
-  term_size (main_win);
+  term_size (main_win, &main_win_height);
 
   generate_time ();
   chg = logger->processed - logger->offset;
@@ -378,7 +380,7 @@ scroll_to_last_line (void)
   int scrll = 0, offset = 0;
 
   if (!gscroll.expanded)
-    gscroll.dash = dash->total_alloc - real_size_y;
+    gscroll.dash = dash->total_alloc - main_win_height;
   else {
     scrll = dash->module[gscroll.current].idx_data - 1;
     if (scrll >= exp_size && scrll >= offset + exp_size)
@@ -613,7 +615,7 @@ perform_tail_follow (uint64_t * size1)
   allocate_holder ();
   allocate_data ();
 
-  term_size (main_win);
+  term_size (main_win, &main_win_height);
   render_screens ();
   usleep (200000);      /* 0.2 seconds */
 }
@@ -660,7 +662,7 @@ window_resize (void)
   werase (header_win);
   werase (main_win);
   werase (stdscr);
-  term_size (main_win);
+  term_size (main_win, &main_win_height);
   refresh ();
   render_screens ();
 }
@@ -802,7 +804,7 @@ get_keys (void)
       display_content (main_win, logger, dash, &gscroll);
       break;
     case KEY_DOWN:     /* scroll main dashboard */
-      if ((gscroll.dash + real_size_y) < (unsigned) dash->total_alloc) {
+      if ((gscroll.dash + main_win_height) < dash->total_alloc) {
         gscroll.dash++;
         display_content (main_win, logger, dash, &gscroll);
       }

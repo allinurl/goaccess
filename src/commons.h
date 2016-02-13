@@ -47,9 +47,6 @@ extern time_t end_proc;
 extern time_t timestamp;
 extern time_t start_proc;
 
-/* resizing */
-extern size_t real_size_y;
-
 /* debug log */
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
 /* invalid requests log */

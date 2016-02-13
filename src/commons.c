@@ -39,9 +39,6 @@ time_t end_proc;
 time_t timestamp;
 time_t start_proc;
 
-/* resizing/scheme */
-size_t real_size_y = 0;
-
 /* Calculate a percentage.
  *
  * The percentage is returned. */
