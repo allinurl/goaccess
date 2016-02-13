@@ -220,6 +220,8 @@ draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
 void
 term_size (WINDOW * main_win)
 {
+  int term_h = 0, term_w = 0;
+
   getmaxyx (stdscr, term_h, term_w);
 
   real_size_y = term_h - (MAX_HEIGHT_HEADER + MAX_HEIGHT_FOOTER);
