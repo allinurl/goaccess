@@ -425,6 +425,28 @@ expand_current_module (void)
   allocate_data ();
 }
 
+/* Expand the clicked module/panel given the Y event coordinate. */
+static void
+expand_module_from_ypos(int y)
+{
+  /* ignore header/footer clicks */
+  if (y < MAX_HEIGHT_HEADER || y == LINES - 1)
+    return;
+
+  if (set_module_from_mouse_event (&gscroll, dash, y))
+    return;
+
+  reset_scroll_offsets (&gscroll);
+  gscroll.expanded = 1;
+
+  free_holder_by_module (&holder, gscroll.current);
+  free_dashboard (dash);
+  allocate_holder_by_module (gscroll.current);
+  allocate_data ();
+
+  render_screens ();
+}
+
 /* Expand the clicked module/panel */
 static void
 expand_on_mouse_click (void)
@@ -436,24 +458,8 @@ expand_on_mouse_click (void)
   if (!conf.mouse_support || ok_mouse != OK)
     return;
 
-  if (event.bstate & BUTTON1_CLICKED) {
-    /* ignore header/footer clicks */
-    if (event.y < MAX_HEIGHT_HEADER || event.y == LINES - 1)
-      return;
-
-    if (set_module_from_mouse_event (&gscroll, dash, event.y))
-      return;
-
-    reset_scroll_offsets (&gscroll);
-    gscroll.expanded = 1;
-
-    free_holder_by_module (&holder, gscroll.current);
-    free_dashboard (dash);
-    allocate_holder_by_module (gscroll.current);
-    allocate_data ();
-
-    render_screens ();
-  }
+  if (event.bstate & BUTTON1_CLICKED)
+    expand_module_from_ypos(event.y);
 }
 
 /* Scroll dowm expanded module to the last row */
