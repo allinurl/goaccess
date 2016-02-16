@@ -343,18 +343,22 @@ output_json (GLog * logger, GHolder * holder)
 {
   GModule module;
   FILE *fp = stdout;
+  const GPanel *panel = NULL;
+  size_t idx = 0;
 
   fprintf (fp, "{\n");
   print_json_summary (fp, logger);
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    const GPanel *panel = panel_lookup (module);
-    if (!panel)
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
+    if (!(panel = panel_lookup (module)))
       continue;
-    if (ignore_panel (module))
-      continue;
+
     panel->render (fp, holder + module, logger->valid);
     module != TOTAL_MODULES - 1 ? fprintf (fp, ",\n") : fprintf (fp, "\n");
   }
+
   fprintf (fp, "}");
 
   fclose (fp);

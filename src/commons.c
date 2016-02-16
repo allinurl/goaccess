@@ -39,6 +39,9 @@ time_t end_proc;
 time_t timestamp;
 time_t start_proc;
 
+/* list of available modules/panels */
+int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
+
 /* Calculate a percentage.
  *
  * The percentage is returned. */
@@ -285,9 +288,116 @@ ignore_panel (GModule mod)
   for (i = 0; i < conf.ignore_panel_idx; ++i) {
     if ((module = get_module_enum (conf.ignore_panels[i])) == -1)
       continue;
-    if (mod == (unsigned int) module)
+    if (mod == (unsigned int) module) {
       return 1;
+    }
   }
 
   return 0;
+}
+
+/* Get the number of available modules/panels.
+ *
+ * The number of modules available is returned. */
+uint32_t
+get_num_modules (void)
+{
+  size_t idx = 0;
+  uint32_t num = 0;
+
+  FOREACH_MODULE (idx, module_list) {
+    num++;
+  }
+
+  return num;
+}
+
+/* Get the index from the module_list given a module.
+ *
+ * If the module is not within the array, -1 is returned.
+ * If the module is within the array, the index is returned. */
+int
+get_module_index (int module)
+{
+  size_t idx = 0;
+
+  FOREACH_MODULE (idx, module_list) {
+    if (module_list[idx] == module)
+      return idx;
+  }
+
+  return -1;
+}
+
+/* Remove the given module from the module_list array.
+ *
+ * If the module is not within the array, 1 is returned.
+ * If the module is within the array, it is removed from the array and
+ * 0 is returned. */
+int
+remove_module (GModule module)
+{
+  int index = get_module_index (module);
+  if (index == -1)
+    return 1;
+
+  if (index < TOTAL_MODULES - 1)
+    memmove (&module_list[index], &module_list[index + 1],
+             ((TOTAL_MODULES - 1) - index) * sizeof (module_list[0]));
+  module_list[TOTAL_MODULES - 1] = -1;
+
+  return 0;
+}
+
+/* Find the next module given the current module.
+ *
+ * The next available module in the array is returned. */
+int
+get_next_module (GModule module)
+{
+  int next = get_module_index (module) + 1;
+
+  if (next == TOTAL_MODULES || module_list[next] == -1)
+    return module_list[0];
+
+  return module_list[next];
+}
+
+/* Find the previous module given the current module.
+ *
+ * The previous available module in the array is returned. */
+int
+get_prev_module (GModule module)
+{
+  int i;
+  int next = get_module_index (module) - 1;
+
+  if (next >= 0 && module_list[next] != -1)
+    return module_list[next];
+
+  for (i = TOTAL_MODULES - 1; i >= 0; i--) {
+    if (module_list[i] != -1) {
+      return module_list[i];
+    }
+  }
+
+  return 0;
+}
+
+/* Build an array of available modules (ignores listed panels). */
+void
+init_modules (void)
+{
+  GModule module;
+  int i;
+
+  /* init - terminating with -1 */
+  for (module = 0; module < TOTAL_MODULES; ++module)
+    module_list[module] = -1;
+
+  for (i = 0, module = 0; module < TOTAL_MODULES; ++module) {
+    if (!ignore_panel (module)) {
+      module_list[i++] = module;
+    }
+  }
 }

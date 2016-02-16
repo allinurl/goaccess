@@ -289,15 +289,16 @@ output_csv (GLog * logger, GHolder * holder)
 {
   GModule module;
   FILE *fp = stdout;
+  const GPanel *panel = NULL;
+  size_t idx = 0;
 
   if (!conf.no_csv_summary)
     print_csv_summary (fp, logger);
 
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    const GPanel *panel = panel_lookup (module);
-    if (!panel)
-      continue;
-    if (ignore_panel (module))
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
+    if (!(panel = panel_lookup (module)))
       continue;
     panel->render (fp, holder + module, logger->valid);
   }

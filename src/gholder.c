@@ -229,11 +229,14 @@ free_holder (GHolder ** holder)
 {
   GModule module;
   int j;
+  size_t idx = 0;
 
   if ((*holder) == NULL)
     return;
 
-  for (module = 0; module < TOTAL_MODULES; module++) {
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     for (j = 0; j < (*holder)[module].idx; j++) {
       free_holder_data ((*holder)[module].items[j]);
     }

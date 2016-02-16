@@ -188,6 +188,7 @@ void
 init_storage (void)
 {
   GModule module;
+  size_t idx = 0;
 
   /* Hashes used across the whole app (not per module) */
   ht_agent_keys = tc_adb_create (get_dbname (DB_AGENT_KEYS, -1));
@@ -197,7 +198,10 @@ init_storage (void)
   ht_unique_keys = tc_adb_create (get_dbname (DB_UNIQUE_KEYS, -1));
 
   tc_storage = new_tcstorage (TOTAL_MODULES);
-  for (module = 0; module < TOTAL_MODULES; ++module) {
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     tc_storage[module].module = module;
     init_tables (module);
   }
@@ -228,7 +232,7 @@ free_metrics (GModule module)
 void
 free_storage (void)
 {
-  GModule module;
+  size_t idx = 0;
 
   tc_db_close (ht_agent_keys, get_dbname (DB_AGENT_KEYS, -1));
   tc_db_close (ht_agent_vals, get_dbname (DB_AGENT_VALS, -1));
@@ -236,8 +240,8 @@ free_storage (void)
   tc_db_close (ht_hostnames, get_dbname (DB_HOSTNAMES, -1));
   tc_db_close (ht_unique_keys, get_dbname (DB_UNIQUE_KEYS, -1));
 
-  for (module = 0; module < TOTAL_MODULES; ++module) {
-    free_metrics (module);
+  FOREACH_MODULE (idx, module_list) {
+    free_metrics (module_list[idx]);
   }
 }
 

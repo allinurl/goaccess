@@ -1337,7 +1337,7 @@ verify_panels (void)
   /* Remove virtual host panel if no '%v' within log format */
   if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
     if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
-      conf.ignore_panels[conf.ignore_panel_idx++] = "VIRTUAL_HOSTS";
+      remove_module (VIRTUAL_HOSTS);
   }
 }
 
@@ -1908,6 +1908,8 @@ static void
 process_log (GLogItem * glog)
 {
   GModule module;
+  const GParse *parse = NULL;
+  size_t idx = 0;
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
@@ -1924,11 +1926,9 @@ process_log (GLogItem * glog)
     ht_insert_agent_value (glog->agent_nkey, glog->agent);
   }
 
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    const GParse *parse = panel_lookup (module);
-    if (!parse)
-      continue;
-    if (ignore_panel (module))
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    if (!(parse = panel_lookup (module)))
       continue;
     map_log (glog, parse, module);
   }
