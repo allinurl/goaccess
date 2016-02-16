@@ -231,6 +231,7 @@ void
 init_storage (void)
 {
   GModule module;
+  size_t idx = 0;
 
   /* Hashes used across the whole app (not per module) */
   ht_agent_keys = (khash_t (si32) *) new_si32_ht ();
@@ -239,7 +240,9 @@ init_storage (void)
   ht_unique_keys = (khash_t (si32) *) new_si32_ht ();
 
   gkh_storage = new_gkhstorage (TOTAL_MODULES);
-  for (module = 0; module < TOTAL_MODULES; ++module) {
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     gkh_storage[module].module = module;
     init_tables (module);
   }
@@ -282,15 +285,15 @@ free_metrics (GModule module)
 void
 free_storage (void)
 {
-  GModule module;
+  size_t idx = 0;
 
   des_is32_free (ht_agent_vals);
   des_si32_free (ht_agent_keys);
   des_si32_free (ht_unique_keys);
   des_ss32_free (ht_hostnames);
 
-  for (module = 0; module < TOTAL_MODULES; ++module) {
-    free_metrics (module);
+  FOREACH_MODULE (idx, module_list) {
+    free_metrics (module_list[idx]);
   }
 }
 

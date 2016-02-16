@@ -104,12 +104,16 @@ free_dashboard_data (GDashData item)
 void
 free_dashboard (GDash * dash)
 {
-  int i, j;
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    for (j = 0; j < dash->module[i].alloc_data; j++) {
-      free_dashboard_data (dash->module[i].data[j]);
+  GModule module;
+  int j;
+  size_t idx = 0;
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    for (j = 0; j < dash->module[module].alloc_data; j++) {
+      free_dashboard_data (dash->module[module].data[j]);
     }
-    free (dash->module[i].data);
+    free (dash->module[module].data);
   }
   free (dash);
 }
@@ -123,8 +127,11 @@ static GModule
 get_find_current_module (GDash * dash, int offset)
 {
   GModule module;
+  size_t idx = 0;
 
-  for (module = 0; module < TOTAL_MODULES; module++) {
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     /* set current module */
     if (dash->module[module].pos_y == offset)
       return module;
@@ -987,13 +994,16 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
   GModule module;
   float max_percent = 0.0;
   int j, n = 0, valid = 0;
+  size_t idx = 0;
 
   int y = 0, offset = 0, total = 0;
   int dash_scroll = gscroll->dash;
 
   werase (win);
 
-  for (module = 0; module < TOTAL_MODULES; module++) {
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     n = dash->module[module].idx_data;
     offset = 0;
     for (j = 0; j < dash->module[module].dash_size; j++) {
@@ -1117,12 +1127,12 @@ out:
 int
 perform_next_find (GHolder * h, GScroll * gscroll)
 {
-  int y, x, j, n, rc;
-  char buf[REGEX_ERROR];
-  char *data;
-  regex_t regex;
   GModule module;
   GSubList *sub_list;
+  regex_t regex;
+  char buf[REGEX_ERROR], *data;
+  int y, x, j, n, rc;
+  size_t idx = 0;
 
   getmaxyx (stdscr, y, x);
 
@@ -1134,7 +1144,10 @@ perform_next_find (GHolder * h, GScroll * gscroll)
     return 1;
 
   /* use last find_t.module and start search */
-  for (module = find_t.module; module < TOTAL_MODULES; module++) {
+  idx = find_t.module;
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
     n = h[module].idx;
     for (j = find_t.next_parent_idx; j < n; j++, find_t.next_idx++) {
       data = h[module].items[j].metrics->data;

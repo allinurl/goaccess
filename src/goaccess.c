@@ -177,11 +177,11 @@ allocate_holder_by_module (GModule module)
 static void
 allocate_holder (void)
 {
-  GModule module;
+  size_t idx = 0;
 
   holder = new_gholder (TOTAL_MODULES);
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    allocate_holder_by_module (module);
+  FOREACH_MODULE (idx, module_list) {
+    allocate_holder_by_module (module_list[idx]);
   }
 }
 
@@ -193,11 +193,11 @@ allocate_data (void)
   GModule module;
   int col_data = get_num_collapsed_data_rows ();
   int size = 0;
+  size_t idx = 0;
 
   dash = new_gdash ();
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    if (ignore_panel (module))
-      continue;
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
 
     switch (module) {
     case VISITORS:
@@ -350,7 +350,7 @@ disabled_panel_msg (GModule module)
 static void
 set_module_to (GScroll * scrll, GModule module)
 {
-  if (ignore_panel (module)) {
+  if (get_module_index (module) == -1) {
     disabled_panel_msg (module);
     return;
   }
@@ -427,7 +427,7 @@ expand_current_module (void)
 
 /* Expand the clicked module/panel given the Y event coordinate. */
 static void
-expand_module_from_ypos(int y)
+expand_module_from_ypos (int y)
 {
   /* ignore header/footer clicks */
   if (y < MAX_HEIGHT_HEADER || y == LINES - 1)
@@ -459,7 +459,7 @@ expand_on_mouse_click (void)
     return;
 
   if (event.bstate & BUTTON1_CLICKED)
-    expand_module_from_ypos(event.y);
+    expand_module_from_ypos (event.y);
 }
 
 /* Scroll dowm expanded module to the last row */
@@ -630,15 +630,7 @@ perform_tail_follow (uint64_t * size1)
 static int
 next_module (void)
 {
-  gscroll.current++;
-  if (gscroll.current == TOTAL_MODULES)
-    gscroll.current = 0;
-
-  if (ignore_panel (gscroll.current)) {
-    disabled_panel_msg (gscroll.current);
-    return 1;
-  }
-
+  gscroll.current = get_next_module (gscroll.current);
   return 0;
 }
 
@@ -646,16 +638,7 @@ next_module (void)
 static int
 previous_module (void)
 {
-  if (gscroll.current == 0)
-    gscroll.current = TOTAL_MODULES - 1;
-  else
-    gscroll.current--;
-
-  if (ignore_panel (gscroll.current)) {
-    disabled_panel_msg (gscroll.current);
-    return 1;
-  }
-
+  gscroll.current = get_prev_module (gscroll.current);
   return 0;
 }
 
@@ -1004,6 +987,8 @@ main (int argc, char **argv)
   parse_conf_file (&argc, &argv);
   parse_cmd_line (argc, argv);
 
+  /* initialize modules */
+  init_modules ();
   /* initialize storage */
   init_storage ();
   /* setup to use the current locale */

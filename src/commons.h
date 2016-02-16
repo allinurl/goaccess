@@ -36,16 +36,10 @@
 #if !__GNUC__
 #define __attribute__(x) /**/
 #endif
-
 #define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"0.9.7"
 #define GO_WEBSITE 		"http://goaccess.io/"
 struct tm *now_tm;
-
-/* Processing time */
-extern time_t end_proc;
-extern time_t timestamp;
-extern time_t start_proc;
 
 /* debug log */
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
@@ -215,18 +209,35 @@ typedef struct GSLList_
   struct GSLList_ *next;
 } GSLList;
 
+#define FOREACH_MODULE(item, array) \
+  for (item = item; (item < ARRAY_SIZE(array)) && array[item] != -1; ++item)
+
+/* Processing time */
+extern time_t end_proc;
+extern time_t timestamp;
+extern time_t start_proc;
+
+/* list of available modules/panels */
+extern int module_list[TOTAL_MODULES];
+
 /* *INDENT-OFF* */
 GAgents *new_gagents (void);
 GAgentItem *new_gagent_item (uint32_t size);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_module_enum (const char *str);
+int get_module_index (int module);
+int get_next_module(GModule module);
+int get_prev_module(GModule module);
 int has_timestamp (const char *fmt);
 int ignore_panel (GModule mod);
+int remove_module(GModule module);
 int str2enum (const GEnum map[], int len, const char *str);
+uint32_t get_num_modules(void);
 void display_default_config_file (void);
 void display_storage (void);
 void display_version (void);
+void init_modules (void);
 
 /* single linked-list */
 GSLList *list_create (void *data);

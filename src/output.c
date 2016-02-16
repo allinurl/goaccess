@@ -1672,11 +1672,12 @@ print_html_summary (FILE * fp, GLog * logger)
 void
 output_html (GLog * logger, GHolder * holder)
 {
-  FILE *fp = stdout;
   GModule module;
+  FILE *fp = stdout;
   char now[DATE_TIME];
   const GOutput *output;
   const GPanel *panel;
+  size_t idx = 0;
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
@@ -1686,13 +1687,14 @@ output_html (GLog * logger, GHolder * holder)
   print_pure_menu (fp, now);
 
   print_html_summary (fp, logger);
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    panel = panel_lookup (module);
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
+    if (!(panel = panel_lookup (module)))
+      continue;
+
     output = output_lookup (module);
-    if (!panel)
-      continue;
-    if (ignore_panel (module))
-      continue;
     print_html_common (fp, holder + module, logger->valid, panel, output);
   }
 
