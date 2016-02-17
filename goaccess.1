@@ -1,4 +1,4 @@
-.TH goaccess 1 "DECEMBER 2015" Linux "User Manuals"
+.TH goaccess 1 "FEBRUARY 2016" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -146,7 +146,7 @@ configuration file. If specified in the configuration file, long options need
 to be used without prepending --.
 .TP
 \fB\-\-time-format=<timeformat>
-The time_format variable followed by a space, specifies the log format time
+The time-format variable followed by a space, specifies the log format time
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %T or %H:%M:%S.
@@ -157,7 +157,7 @@ Note that if a timestamp is given in microseconds,
 must be used as time-format
 .TP
 \fB\-\-date-format=<dateformat>
-The date_format variable followed by a space, specifies the log format date
+The date-format variable followed by a space, specifies the log format date
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %Y-%m-%d.
@@ -168,7 +168,7 @@ Note that if a timestamp is given in microseconds,
 must be used as date-format
 .TP
 \fB\-\-log-format=<logformat>
-The log_format variable followed by a space or
+The log-format variable followed by a space or
 .I \\\\t
 for tab-delimited, specifies the log format string.
 
@@ -504,9 +504,9 @@ The easiest is to run GoAccess with
 .I -c
 to prompt a configuration window. Otherwise, it can be configured under
 ~/.goaccessrc or the %sysconfdir%.
-.IP "time_format"
+.IP "time-format"
 The
-.I time_format
+.I time-format
 variable followed by a space, specifies the log format time
 containing any combination of regular characters and special format specifiers.
 They all begin with a percentage (%) sign. See `man strftime`.
@@ -518,10 +518,10 @@ If a timestamp is given in microseconds,
 %f
 must be used as
 .I
-time_format
-.IP "date_format"
+time-format
+.IP "date-format"
 The
-.I date_format
+.I date-format
 variable followed by a space, specifies the log format date containing any
 combination of regular characters and special format specifiers. They all begin
 with a percentage (%) sign. See `man strftime`. e.g.,
@@ -533,27 +533,27 @@ If a timestamp is given in microseconds,
 %f
 must be used as
 .I
-date_format
-.IP "log_format"
+date-format
+.IP "log-format"
 The
-.I log_format
+.I log-format
 variable followed by a space or
 .I \\\\t
 , specifies the log format string.
 .IP %x
 A date and time field matching the
-.I time_format
+.I time-format
 and
-.I date_format
+.I date-format
 variables. This is used when a timestamp is given instead of the date and time
 being in two separated variables.
 .IP %t
 time field matching the
-.I time_format
+.I time-format
 variable.
 .IP %d
 date field matching the
-.I date_format
+.I date-format
 variable.
 .IP %v
 The canonical Server Name of the server serving the request (Virtual Host).
