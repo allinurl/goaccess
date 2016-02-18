@@ -631,6 +631,8 @@ static int
 next_module (void)
 {
   gscroll.current = get_next_module (gscroll.current);
+  gscroll.dash = get_module_index (gscroll.current) * DASH_COLLAPSED;
+
   return 0;
 }
 
@@ -639,6 +641,8 @@ static int
 previous_module (void)
 {
   gscroll.current = get_prev_module (gscroll.current);
+  gscroll.dash = get_module_index (gscroll.current) * DASH_COLLAPSED;
+
   return 0;
 }
 
