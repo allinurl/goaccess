@@ -118,6 +118,7 @@ typedef struct GConf_
   int no_column_names;
   int no_csv_summary;
   int no_progress;
+  int no_tab_scroll;
   int output_html;
   int real_os;
   int serve_usecs;

@@ -73,6 +73,7 @@ struct option long_opts[] = {
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
+  {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
@@ -141,7 +142,8 @@ cmd_help (void)
   "                                    output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV\n"
   "                                    output.\n"
-  "  --no-progress                   - Disable progress metrics.\n\n"
+  "  --no-progress                   - Disable progress metrics.\n"
+  "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n\n"
 
   /* File Options */
   "File Options\n\n"
@@ -447,6 +449,10 @@ read_option_args (int argc, char **argv)
       /* no progress */
       if (!strcmp ("no-progress", long_opts[idx].name))
         conf.no_progress = 1;
+
+      /* no tab scroll */
+      if (!strcmp ("no-tab-scroll", long_opts[idx].name))
+        conf.no_tab_scroll = 1;
 
       /* specifies the path of the GeoIP City database file */
       if (!strcmp ("geoip-city-data", long_opts[idx].name) ||
