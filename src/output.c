@@ -27,11 +27,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
-#include <inttypes.h>
-#include <locale.h>
 
 #include "output.h"
 
@@ -42,362 +37,75 @@
 #endif
 
 #include "error.h"
+#include "json.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
 #include "xmalloc.h"
 
-typedef struct GPanel_
-{
-  GModule module;
-  void (*render) (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
-                  int max_vis, const struct GPanel_ *, const struct GOutput_ *);
-  void (*metrics_callback) (GMetrics * metrics);
-  const char *clabel;           /* column label */
-} GPanel;
+#include "tpls.h"
+#include "bootstrapcss.h"
+#include "c3css.h"
+#include "appcss.h"
+#include "c3js.h"
+#include "d3js.h"
+#include "hoganjs.h"
+#include "appjs.h"
 
-static void print_html_data (FILE * fp, GHolder * h, GPercTotals totals,
-                             int max_hit, int max_vis, const GPanel *,
-                             const GOutput *);
-static void print_html_host (FILE * fp, GHolder * h, GPercTotals totals,
-                             int max_hit, int max_vis, const GPanel *,
-                             const GOutput *);
-static void fmt_date (GMetrics * metrics);
+static void hits_visitors_plot (FILE * fp, int isp);
+static void hits_plot (FILE * fp, int isp);
+static void hits_bw_plot (FILE * fp, int isp);
 
 /* *INDENT-OFF* */
-static GPanel paneling[] = {
-  {VISITORS        , print_html_data , fmt_date, "Date"} ,
-  {REQUESTS        , print_html_data , NULL    , NULL  } ,
-  {REQUESTS_STATIC , print_html_data , NULL    , NULL  } ,
-  {NOT_FOUND       , print_html_data , NULL    , NULL  } ,
-  {HOSTS           , print_html_host , NULL    , NULL  } ,
-  {OS              , print_html_data , NULL    , NULL  } ,
-  {BROWSERS        , print_html_data , NULL    , NULL  } ,
-  {VISIT_TIMES     , print_html_data , NULL    , NULL  } ,
-  {VIRTUAL_HOSTS   , print_html_data , NULL    , NULL  } ,
-  {REFERRERS       , print_html_data , NULL    , NULL  } ,
-  {REFERRING_SITES , print_html_data , NULL    , NULL  } ,
-  {KEYPHRASES      , print_html_data , NULL    , NULL  } ,
+static GHTML htmldef[] = {
+  {VISITORS        , CHART_AREASPLINE , 1 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
+  {REQUESTS        , CHART_NONE       , 0 , 1} ,
+  {REQUESTS_STATIC , CHART_NONE       , 0 , 1} ,
+  {NOT_FOUND       , CHART_NONE       , 0 , 1} ,
+  {HOSTS           , CHART_NONE       , 0 , 1} ,
+  {OS              , CHART_VBAR       , 0 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
+  {BROWSERS        , CHART_VBAR       , 0 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
+  {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
+  {VIRTUAL_HOSTS   , CHART_NONE       , 0 , 1} ,
+  {REFERRERS       , CHART_NONE       , 0 , 1} ,
+  {REFERRING_SITES , CHART_NONE       , 0 , 1} ,
+  {KEYPHRASES      , CHART_NONE       , 0 , 1} ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , print_html_data , NULL    , NULL  } ,
+  {GEO_LOCATION    , CHART_NONE       , 0 , 1} ,
 #endif
-  {STATUS_CODES    , print_html_data , NULL    , NULL  } ,
+  {STATUS_CODES    , CHART_NONE       , 0 , 1} ,
 };
+/* *INDENT-ON* */
 
-/* base64 icons */
-unsigned char icons[] = {
-  0x40, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x66, 0x61, 0x63, 0x65, 0x20, 0x7b,
-  0x0a, 0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x66, 0x61, 0x6d, 0x69, 0x6c,
-  0x79, 0x3a, 0x20, 0x27, 0x69, 0x63, 0x6f, 0x6d, 0x6f, 0x6f, 0x6e, 0x27,
-  0x3b, 0x0a, 0x09, 0x73, 0x72, 0x63, 0x3a, 0x20, 0x75, 0x72, 0x6c, 0x28,
-  0x64, 0x61, 0x74, 0x61, 0x3a, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61,
-  0x74, 0x69, 0x6f, 0x6e, 0x2f, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x77, 0x6f,
-  0x66, 0x66, 0x3b, 0x63, 0x68, 0x61, 0x72, 0x73, 0x65, 0x74, 0x3d, 0x75,
-  0x74, 0x66, 0x2d, 0x38, 0x3b, 0x62, 0x61, 0x73, 0x65, 0x36, 0x34, 0x2c,
-  0x64, 0x30, 0x39, 0x47, 0x52, 0x67, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x6a, 0x67, 0x41, 0x41, 0x73, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x43, 0x4a, 0x51, 0x41, 0x41, 0x51, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x42, 0x50,
-  0x55, 0x79, 0x38, 0x79, 0x41, 0x41, 0x41, 0x42, 0x43, 0x41, 0x41, 0x41,
-  0x41, 0x47, 0x41, 0x41, 0x41, 0x41, 0x42, 0x67, 0x44, 0x78, 0x49, 0x4f,
-  0x63, 0x47, 0x4e, 0x74, 0x59, 0x58, 0x41, 0x41, 0x41, 0x41, 0x46, 0x6f,
-  0x41, 0x41, 0x41, 0x41, 0x62, 0x41, 0x41, 0x41, 0x41, 0x47, 0x7a, 0x77,
-  0x33, 0x73, 0x51, 0x76, 0x5a, 0x32, 0x46, 0x7a, 0x63, 0x41, 0x41, 0x41,
-  0x41, 0x64, 0x51, 0x41, 0x41, 0x41, 0x41, 0x49, 0x41, 0x41, 0x41, 0x41,
-  0x43, 0x41, 0x41, 0x41, 0x41, 0x42, 0x42, 0x6e, 0x62, 0x48, 0x6c, 0x6d,
-  0x41, 0x41, 0x41, 0x42, 0x33, 0x41, 0x41, 0x41, 0x42, 0x4f, 0x41, 0x41,
-  0x41, 0x41, 0x54, 0x67, 0x58, 0x72, 0x4c, 0x63, 0x58, 0x47, 0x68, 0x6c,
-  0x59, 0x57, 0x51, 0x41, 0x41, 0x41, 0x61, 0x38, 0x41, 0x41, 0x41, 0x41,
-  0x4e, 0x67, 0x41, 0x41, 0x41, 0x44, 0x59, 0x47, 0x42, 0x41, 0x4f, 0x54,
-  0x61, 0x47, 0x68, 0x6c, 0x59, 0x51, 0x41, 0x41, 0x42, 0x76, 0x51, 0x41,
-  0x41, 0x41, 0x41, 0x6b, 0x41, 0x41, 0x41, 0x41, 0x4a, 0x41, 0x68, 0x55,
-  0x42, 0x46, 0x31, 0x6f, 0x62, 0x58, 0x52, 0x34, 0x41, 0x41, 0x41, 0x48,
-  0x47, 0x41, 0x41, 0x41, 0x41, 0x43, 0x67, 0x41, 0x41, 0x41, 0x41, 0x6f,
-  0x47, 0x70, 0x49, 0x41, 0x42, 0x32, 0x78, 0x76, 0x59, 0x32, 0x45, 0x41,
-  0x41, 0x41, 0x64, 0x41, 0x41, 0x41, 0x41, 0x41, 0x46, 0x67, 0x41, 0x41,
-  0x41, 0x42, 0x59, 0x46, 0x52, 0x67, 0x50, 0x4d, 0x62, 0x57, 0x46, 0x34,
-  0x63, 0x41, 0x41, 0x41, 0x42, 0x31, 0x67, 0x41, 0x41, 0x41, 0x41, 0x67,
-  0x41, 0x41, 0x41, 0x41, 0x49, 0x41, 0x41, 0x53, 0x41, 0x49, 0x78, 0x75,
-  0x59, 0x57, 0x31, 0x6c, 0x41, 0x41, 0x41, 0x48, 0x65, 0x41, 0x41, 0x41,
-  0x41, 0x55, 0x55, 0x41, 0x41, 0x41, 0x46, 0x46, 0x56, 0x78, 0x6d, 0x6d,
-  0x37, 0x6e, 0x42, 0x76, 0x63, 0x33, 0x51, 0x41, 0x41, 0x41, 0x6a, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x49, 0x41, 0x41, 0x41, 0x41, 0x43, 0x41, 0x41,
-  0x41, 0x77, 0x41, 0x41, 0x41, 0x41, 0x4d, 0x45, 0x41, 0x41, 0x47, 0x51,
-  0x41, 0x41, 0x55, 0x41, 0x41, 0x41, 0x4b, 0x5a, 0x41, 0x73, 0x77, 0x41,
-  0x41, 0x41, 0x43, 0x50, 0x41, 0x70, 0x6b, 0x43, 0x7a, 0x41, 0x41, 0x41,
-  0x41, 0x65, 0x73, 0x41, 0x4d, 0x77, 0x45, 0x4a, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x52, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x51, 0x41, 0x41, 0x41, 0x38, 0x55, 0x59, 0x44,
-  0x77, 0x50, 0x2f, 0x41, 0x41, 0x45, 0x41, 0x44, 0x77, 0x41, 0x42, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x51, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x49, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x67, 0x41, 0x41, 0x41, 0x41, 0x4d, 0x41,
-  0x41, 0x41, 0x41, 0x55, 0x41, 0x41, 0x4d, 0x41, 0x41, 0x51, 0x41, 0x41,
-  0x41, 0x42, 0x51, 0x41, 0x42, 0x41, 0x42, 0x59, 0x41, 0x41, 0x41, 0x41,
-  0x45, 0x67, 0x41, 0x51, 0x41, 0x41, 0x4d, 0x41, 0x41, 0x67, 0x41, 0x42,
-  0x41, 0x43, 0x44, 0x77, 0x5a, 0x76, 0x43, 0x41, 0x38, 0x4f, 0x54, 0x77,
-  0x2f, 0x76, 0x46, 0x47, 0x2f, 0x2f, 0x33, 0x2f, 0x2f, 0x77, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x49, 0x50, 0x42, 0x6c, 0x38, 0x49, 0x44, 0x77,
-  0x35, 0x50, 0x44, 0x2b, 0x38, 0x55, 0x62, 0x2f, 0x2f, 0x66, 0x2f, 0x2f,
-  0x41, 0x41, 0x48, 0x2f, 0x34, 0x77, 0x2b, 0x66, 0x44, 0x34, 0x59, 0x50,
-  0x49, 0x77, 0x38, 0x4b, 0x44, 0x73, 0x4d, 0x41, 0x41, 0x77, 0x41, 0x42,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x45, 0x41, 0x41, 0x66, 0x2f, 0x2f, 0x41, 0x41, 0x38, 0x41,
-  0x41, 0x51, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x49, 0x41, 0x41, 0x44, 0x63, 0x35, 0x41, 0x51, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x67, 0x41, 0x41, 0x4e, 0x7a, 0x6b, 0x42,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x45, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x43, 0x41, 0x41, 0x41, 0x33,
-  0x4f, 0x51, 0x45, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x67, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x44, 0x62, 0x67, 0x4e, 0x75, 0x41, 0x42, 0x38, 0x41,
-  0x50, 0x77, 0x41, 0x41, 0x41, 0x52, 0x51, 0x50, 0x41, 0x52, 0x63, 0x57,
-  0x46, 0x52, 0x51, 0x48, 0x42, 0x69, 0x4d, 0x68, 0x49, 0x69, 0x63, 0x6d,
-  0x4e, 0x52, 0x45, 0x30, 0x4e, 0x7a, 0x59, 0x7a, 0x4d, 0x68, 0x38, 0x42,
-  0x4e, 0x7a, 0x59, 0x7a, 0x4d, 0x68, 0x38, 0x42, 0x46, 0x68, 0x55, 0x42,
-  0x45, 0x52, 0x51, 0x48, 0x42, 0x69, 0x4d, 0x69, 0x4c, 0x77, 0x45, 0x48,
-  0x42, 0x69, 0x4d, 0x69, 0x4c, 0x77, 0x45, 0x6d, 0x4e, 0x54, 0x51, 0x2f,
-  0x41, 0x53, 0x63, 0x6d, 0x4e, 0x54, 0x51, 0x33, 0x4e, 0x6a, 0x4d, 0x68,
-  0x4d, 0x68, 0x63, 0x57, 0x46, 0x51, 0x47, 0x76, 0x42, 0x62, 0x35, 0x53,
-  0x43, 0x77, 0x73, 0x4c, 0x44, 0x76, 0x38, 0x41, 0x44, 0x77, 0x73, 0x4c,
-  0x43, 0x77, 0x73, 0x50, 0x44, 0x67, 0x74, 0x54, 0x76, 0x51, 0x59, 0x48,
-  0x43, 0x41, 0x5a, 0x42, 0x42, 0x51, 0x47, 0x2f, 0x43, 0x77, 0x73, 0x50,
-  0x44, 0x77, 0x74, 0x53, 0x76, 0x67, 0x55, 0x49, 0x42, 0x77, 0x5a, 0x42,
-  0x42, 0x67, 0x61, 0x2b, 0x55, 0x77, 0x6f, 0x4b, 0x43, 0x77, 0x38, 0x42,
-  0x41, 0x41, 0x38, 0x4c, 0x43, 0x77, 0x46, 0x62, 0x42, 0x77, 0x61, 0x39,
-  0x55, 0x77, 0x73, 0x4f, 0x44, 0x77, 0x73, 0x4c, 0x43, 0x77, 0x73, 0x50,
-  0x41, 0x51, 0x41, 0x4f, 0x43, 0x77, 0x73, 0x4c, 0x55, 0x72, 0x34, 0x46,
-  0x42, 0x55, 0x45, 0x47, 0x43, 0x41, 0x48, 0x75, 0x2f, 0x77, 0x41, 0x50,
-  0x43, 0x77, 0x6f, 0x4b, 0x55, 0x37, 0x34, 0x47, 0x42, 0x6b, 0x45, 0x47,
-  0x42, 0x77, 0x67, 0x46, 0x76, 0x6c, 0x49, 0x4c, 0x44, 0x77, 0x38, 0x4c,
-  0x43, 0x77, 0x73, 0x4c, 0x44, 0x77, 0x41, 0x43, 0x41, 0x41, 0x63, 0x41,
-  0x42, 0x77, 0x4e, 0x6d, 0x41, 0x32, 0x59, 0x41, 0x48, 0x77, 0x41, 0x2f,
-  0x41, 0x41, 0x41, 0x42, 0x45, 0x52, 0x51, 0x48, 0x42, 0x69, 0x4d, 0x69,
-  0x4c, 0x77, 0x45, 0x48, 0x42, 0x69, 0x4d, 0x69, 0x4c, 0x77, 0x45, 0x6d,
-  0x4e, 0x54, 0x51, 0x2f, 0x41, 0x53, 0x63, 0x6d, 0x4e, 0x54, 0x51, 0x33,
-  0x4e, 0x6a, 0x4d, 0x68, 0x4d, 0x68, 0x63, 0x57, 0x46, 0x51, 0x45, 0x55,
-  0x44, 0x77, 0x45, 0x58, 0x46, 0x68, 0x55, 0x55, 0x42, 0x77, 0x59, 0x6a,
-  0x49, 0x53, 0x49, 0x6e, 0x4a, 0x6a, 0x55, 0x52, 0x4e, 0x44, 0x63, 0x32,
-  0x4d, 0x7a, 0x49, 0x66, 0x41, 0x54, 0x63, 0x32, 0x4d, 0x7a, 0x49, 0x66,
-  0x41, 0x52, 0x59, 0x56, 0x41, 0x62, 0x63, 0x4c, 0x43, 0x77, 0x38, 0x50,
-  0x43, 0x6c, 0x4f, 0x39, 0x42, 0x67, 0x67, 0x48, 0x42, 0x6b, 0x45, 0x47,
-  0x42, 0x72, 0x35, 0x53, 0x43, 0x77, 0x73, 0x4b, 0x44, 0x77, 0x45, 0x41,
-  0x44, 0x77, 0x73, 0x4c, 0x41, 0x61, 0x38, 0x46, 0x76, 0x6c, 0x49, 0x4c,
-  0x43, 0x77, 0x73, 0x50, 0x2f, 0x77, 0x41, 0x4f, 0x43, 0x77, 0x73, 0x4c,
-  0x43, 0x77, 0x34, 0x50, 0x43, 0x31, 0x4b, 0x2b, 0x42, 0x67, 0x63, 0x49,
-  0x42, 0x55, 0x49, 0x46, 0x41, 0x5a, 0x4c, 0x2f, 0x41, 0x41, 0x38, 0x4b,
-  0x43, 0x77, 0x74, 0x53, 0x76, 0x67, 0x59, 0x47, 0x51, 0x51, 0x59, 0x48,
-  0x43, 0x41, 0x61, 0x39, 0x55, 0x77, 0x6f, 0x50, 0x44, 0x77, 0x73, 0x4c,
-  0x43, 0x77, 0x73, 0x50, 0x41, 0x59, 0x41, 0x48, 0x42, 0x72, 0x35, 0x53,
-  0x43, 0x77, 0x38, 0x4f, 0x43, 0x77, 0x73, 0x4c, 0x43, 0x77, 0x34, 0x42,
-  0x41, 0x41, 0x38, 0x4c, 0x43, 0x77, 0x74, 0x53, 0x76, 0x67, 0x55, 0x46,
-  0x51, 0x67, 0x55, 0x49, 0x41, 0x41, 0x55, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x42, 0x4a, 0x49, 0x44, 0x62, 0x67, 0x41, 0x45, 0x41, 0x41, 0x6b, 0x41,
-  0x45, 0x41, 0x41, 0x56, 0x41, 0x42, 0x6f, 0x41, 0x41, 0x41, 0x45, 0x52,
-  0x49, 0x78, 0x45, 0x7a, 0x45, 0x78, 0x45, 0x6a, 0x45, 0x54, 0x4d, 0x42,
-  0x46, 0x53, 0x45, 0x52, 0x4d, 0x78, 0x45, 0x68, 0x41, 0x52, 0x45, 0x6a,
-  0x45, 0x54, 0x4d, 0x33, 0x45, 0x53, 0x4d, 0x52, 0x4d, 0x77, 0x46, 0x75,
-  0x6b, 0x35, 0x50, 0x62, 0x6b, 0x70, 0x49, 0x43, 0x53, 0x66, 0x74, 0x75,
-  0x53, 0x51, 0x52, 0x4a, 0x2f, 0x70, 0x4f, 0x54, 0x6b, 0x39, 0x75, 0x53,
-  0x6b, 0x67, 0x47, 0x33, 0x2f, 0x74, 0x73, 0x42, 0x4a, 0x51, 0x45, 0x6b,
-  0x2f, 0x62, 0x63, 0x43, 0x53, 0x66, 0x31, 0x75, 0x53, 0x51, 0x4e, 0x75,
-  0x2f, 0x4e, 0x73, 0x43, 0x41, 0x50, 0x35, 0x4a, 0x41, 0x62, 0x66, 0x63,
-  0x2f, 0x57, 0x30, 0x43, 0x6b, 0x77, 0x41, 0x48, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x51, 0x41, 0x41, 0x79, 0x55, 0x41, 0x45, 0x41, 0x41, 0x68,
-  0x41, 0x44, 0x77, 0x41, 0x54, 0x51, 0x42, 0x65, 0x41, 0x47, 0x38, 0x41,
-  0x69, 0x51, 0x41, 0x41, 0x45, 0x7a, 0x51, 0x6e, 0x4a, 0x69, 0x4d, 0x69,
-  0x42, 0x77, 0x59, 0x56, 0x46, 0x42, 0x63, 0x57, 0x4d, 0x7a, 0x49, 0x33,
-  0x4e, 0x6a, 0x55, 0x54, 0x4e, 0x43, 0x63, 0x6d, 0x49, 0x79, 0x49, 0x48,
-  0x42, 0x68, 0x55, 0x55, 0x46, 0x78, 0x59, 0x7a, 0x4d, 0x6a, 0x63, 0x32,
-  0x4e, 0x52, 0x4d, 0x33, 0x4e, 0x69, 0x63, 0x6d, 0x4a, 0x79, 0x59, 0x48,
-  0x42, 0x67, 0x38, 0x42, 0x42, 0x67, 0x63, 0x47, 0x42, 0x77, 0x59, 0x58,
-  0x46, 0x68, 0x63, 0x57, 0x4e, 0x7a, 0x59, 0x33, 0x4e, 0x69, 0x63, 0x6d,
-  0x4a, 0x79, 0x55, 0x30, 0x4a, 0x79, 0x59, 0x6a, 0x49, 0x67, 0x63, 0x47,
-  0x46, 0x52, 0x51, 0x58, 0x46, 0x6a, 0x4d, 0x79, 0x4e, 0x7a, 0x59, 0x31,
-  0x41, 0x54, 0x51, 0x6e, 0x4a, 0x69, 0x4d, 0x69, 0x42, 0x77, 0x59, 0x56,
-  0x46, 0x42, 0x63, 0x57, 0x4d, 0x7a, 0x49, 0x33, 0x4e, 0x6a, 0x55, 0x46,
-  0x4e, 0x43, 0x63, 0x6d, 0x49, 0x79, 0x49, 0x48, 0x42, 0x68, 0x55, 0x55,
-  0x46, 0x78, 0x59, 0x7a, 0x4d, 0x6a, 0x63, 0x32, 0x4e, 0x52, 0x4d, 0x55,
-  0x42, 0x77, 0x59, 0x6a, 0x49, 0x53, 0x49, 0x6e, 0x4a, 0x6a, 0x55, 0x30,
-  0x4e, 0x7a, 0x59, 0x33, 0x4e, 0x6a, 0x63, 0x32, 0x4d, 0x7a, 0x49, 0x58,
-  0x46, 0x68, 0x63, 0x57, 0x46, 0x78, 0x59, 0x56, 0x32, 0x78, 0x55, 0x56,
-  0x48, 0x78, 0x34, 0x56, 0x46, 0x68, 0x59, 0x56, 0x48, 0x68, 0x38, 0x56,
-  0x46, 0x57, 0x34, 0x56, 0x46, 0x68, 0x34, 0x65, 0x46, 0x68, 0x55, 0x56,
-  0x46, 0x68, 0x34, 0x65, 0x46, 0x68, 0x58, 0x31, 0x4f, 0x51, 0x51, 0x49,
-  0x43, 0x41, 0x34, 0x4f, 0x44, 0x51, 0x30, 0x45, 0x4f, 0x69, 0x49, 0x62,
-  0x47, 0x77, 0x6b, 0x4d, 0x46, 0x78, 0x63, 0x73, 0x4c, 0x43, 0x63, 0x6f,
-  0x43, 0x77, 0x6b, 0x4d, 0x44, 0x52, 0x77, 0x42, 0x65, 0x52, 0x59, 0x56,
-  0x48, 0x68, 0x38, 0x56, 0x46, 0x52, 0x55, 0x56, 0x48, 0x78, 0x34, 0x56,
-  0x46, 0x76, 0x36, 0x53, 0x46, 0x52, 0x59, 0x65, 0x48, 0x68, 0x59, 0x56,
-  0x46, 0x52, 0x59, 0x65, 0x48, 0x68, 0x59, 0x56, 0x41, 0x51, 0x41, 0x56,
-  0x46, 0x68, 0x34, 0x65, 0x46, 0x68, 0x55, 0x56, 0x46, 0x68, 0x34, 0x65,
-  0x46, 0x68, 0x57, 0x33, 0x55, 0x51, 0x6f, 0x55, 0x2f, 0x4e, 0x34, 0x55,
-  0x43, 0x6c, 0x45, 0x70, 0x4b, 0x45, 0x56, 0x45, 0x58, 0x31, 0x39, 0x6f,
-  0x61, 0x46, 0x39, 0x66, 0x52, 0x45, 0x55, 0x6f, 0x4b, 0x51, 0x45, 0x6c,
-  0x48, 0x68, 0x55, 0x57, 0x46, 0x68, 0x55, 0x65, 0x48, 0x78, 0x55, 0x57,
-  0x46, 0x68, 0x55, 0x66, 0x41, 0x51, 0x41, 0x65, 0x46, 0x52, 0x59, 0x57,
-  0x46, 0x52, 0x34, 0x66, 0x46, 0x52, 0x59, 0x57, 0x46, 0x52, 0x2f, 0x2b,
-  0x37, 0x64, 0x6f, 0x50, 0x44, 0x51, 0x30, 0x45, 0x42, 0x41, 0x67, 0x49,
-  0x44, 0x39, 0x6f, 0x44, 0x46, 0x68, 0x59, 0x69, 0x4c, 0x43, 0x67, 0x6e,
-  0x43, 0x77, 0x77, 0x58, 0x46, 0x79, 0x77, 0x69, 0x49, 0x53, 0x41, 0x55,
-  0x45, 0x78, 0x34, 0x56, 0x46, 0x68, 0x59, 0x56, 0x48, 0x68, 0x38, 0x56,
-  0x46, 0x68, 0x59, 0x56, 0x48, 0x77, 0x46, 0x74, 0x48, 0x78, 0x55, 0x56,
-  0x46, 0x52, 0x55, 0x66, 0x48, 0x68, 0x55, 0x57, 0x46, 0x68, 0x55, 0x65,
-  0x62, 0x52, 0x34, 0x56, 0x46, 0x68, 0x59, 0x56, 0x48, 0x68, 0x38, 0x56,
-  0x46, 0x68, 0x59, 0x56, 0x48, 0x2f, 0x38, 0x41, 0x6c, 0x6e, 0x34, 0x52,
-  0x45, 0x58, 0x36, 0x57, 0x61, 0x46, 0x35, 0x66, 0x52, 0x55, 0x51, 0x70,
-  0x4b, 0x53, 0x6b, 0x70, 0x52, 0x45, 0x56, 0x66, 0x58, 0x6d, 0x67, 0x41,
-  0x41, 0x67, 0x41, 0x41, 0x41, 0x41, 0x41, 0x44, 0x62, 0x67, 0x4e, 0x75,
-  0x41, 0x43, 0x77, 0x41, 0x51, 0x51, 0x41, 0x41, 0x41, 0x54, 0x55, 0x30,
-  0x4a, 0x79, 0x59, 0x72, 0x41, 0x54, 0x55, 0x30, 0x4a, 0x79, 0x59, 0x72,
-  0x41, 0x53, 0x49, 0x48, 0x42, 0x68, 0x30, 0x42, 0x49, 0x79, 0x49, 0x48,
-  0x42, 0x68, 0x30, 0x42, 0x46, 0x42, 0x63, 0x57, 0x4f, 0x77, 0x45, 0x56,
-  0x46, 0x42, 0x63, 0x57, 0x4f, 0x77, 0x45, 0x79, 0x4e, 0x7a, 0x59, 0x39,
-  0x41, 0x54, 0x4d, 0x79, 0x4e, 0x7a, 0x59, 0x31, 0x45, 0x78, 0x45, 0x55,
-  0x42, 0x77, 0x59, 0x6a, 0x49, 0x53, 0x49, 0x6e, 0x4a, 0x6a, 0x55, 0x52,
-  0x4e, 0x44, 0x63, 0x32, 0x4d, 0x79, 0x45, 0x79, 0x46, 0x78, 0x59, 0x56,
-  0x41, 0x74, 0x73, 0x4b, 0x43, 0x77, 0x2b, 0x33, 0x43, 0x77, 0x73, 0x50,
-  0x53, 0x51, 0x38, 0x4b, 0x43, 0x37, 0x63, 0x50, 0x43, 0x77, 0x73, 0x4c,
-  0x43, 0x77, 0x2b, 0x33, 0x43, 0x77, 0x6f, 0x50, 0x53, 0x51, 0x38, 0x4c,
-  0x43, 0x37, 0x63, 0x50, 0x43, 0x77, 0x71, 0x54, 0x4d, 0x54, 0x42, 0x45,
-  0x2f, 0x64, 0x78, 0x45, 0x4d, 0x54, 0x41, 0x77, 0x4d, 0x55, 0x51, 0x43,
-  0x4a, 0x45, 0x51, 0x77, 0x4d, 0x51, 0x47, 0x53, 0x53, 0x51, 0x38, 0x4c,
-  0x43, 0x37, 0x63, 0x50, 0x43, 0x77, 0x6f, 0x4b, 0x43, 0x77, 0x2b, 0x33,
-  0x43, 0x77, 0x73, 0x50, 0x53, 0x51, 0x38, 0x4b, 0x43, 0x37, 0x63, 0x50,
-  0x43, 0x77, 0x73, 0x4c, 0x43, 0x77, 0x2b, 0x33, 0x43, 0x77, 0x6f, 0x50,
-  0x41, 0x54, 0x66, 0x39, 0x33, 0x45, 0x51, 0x78, 0x4d, 0x44, 0x41, 0x78,
-  0x52, 0x41, 0x49, 0x6b, 0x52, 0x44, 0x41, 0x78, 0x4d, 0x54, 0x42, 0x45,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x49, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x32, 0x34, 0x44, 0x62, 0x67, 0x41, 0x55, 0x41, 0x43, 0x6b, 0x41,
-  0x41, 0x41, 0x45, 0x31, 0x4e, 0x43, 0x63, 0x6d, 0x49, 0x79, 0x45, 0x69,
-  0x42, 0x77, 0x59, 0x64, 0x41, 0x52, 0x51, 0x58, 0x46, 0x6a, 0x4d, 0x68,
-  0x4d, 0x6a, 0x63, 0x32, 0x4e, 0x52, 0x4d, 0x52, 0x46, 0x41, 0x63, 0x47,
-  0x49, 0x79, 0x45, 0x69, 0x4a, 0x79, 0x59, 0x31, 0x45, 0x54, 0x51, 0x33,
-  0x4e, 0x6a, 0x4d, 0x68, 0x4d, 0x68, 0x63, 0x57, 0x46, 0x51, 0x4c, 0x62,
-  0x43, 0x67, 0x73, 0x50, 0x2f, 0x67, 0x41, 0x50, 0x43, 0x77, 0x73, 0x4c,
-  0x43, 0x77, 0x38, 0x43, 0x41, 0x41, 0x38, 0x4c, 0x43, 0x70, 0x4d, 0x78,
-  0x4d, 0x45, 0x54, 0x39, 0x33, 0x45, 0x51, 0x78, 0x4d, 0x44, 0x41, 0x78,
-  0x52, 0x41, 0x49, 0x6b, 0x52, 0x44, 0x41, 0x78, 0x41, 0x5a, 0x4a, 0x4a,
-  0x44, 0x77, 0x73, 0x4c, 0x43, 0x77, 0x73, 0x50, 0x53, 0x51, 0x38, 0x4b,
-  0x43, 0x77, 0x73, 0x4b, 0x44, 0x77, 0x45, 0x33, 0x2f, 0x64, 0x78, 0x45,
-  0x4d, 0x54, 0x41, 0x77, 0x4d, 0x55, 0x51, 0x43, 0x4a, 0x45, 0x51, 0x77,
-  0x4d, 0x54, 0x45, 0x77, 0x52, 0x41, 0x41, 0x41, 0x41, 0x51, 0x41, 0x41,
-  0x41, 0x41, 0x45, 0x41, 0x41, 0x48, 0x59, 0x78, 0x4e, 0x74, 0x5a, 0x66,
-  0x44, 0x7a, 0x7a, 0x31, 0x41, 0x41, 0x73, 0x45, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x44, 0x52, 0x4b, 0x64, 0x2b, 0x55, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x4e, 0x45, 0x70, 0x33, 0x35, 0x51, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x42, 0x4a, 0x49, 0x44, 0x62, 0x67, 0x41, 0x41, 0x41, 0x41, 0x67, 0x41,
-  0x41, 0x67, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x42,
-  0x41, 0x41, 0x41, 0x44, 0x77, 0x50, 0x2f, 0x41, 0x41, 0x41, 0x41, 0x45,
-  0x6b, 0x67, 0x41, 0x41, 0x41, 0x41, 0x41, 0x45, 0x6b, 0x67, 0x41, 0x42,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x43, 0x67, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x49, 0x41, 0x41, 0x41, 0x41, 0x45, 0x41, 0x41, 0x41, 0x41,
-  0x42, 0x41, 0x41, 0x41, 0x42, 0x77, 0x53, 0x53, 0x41, 0x41, 0x41, 0x45,
-  0x41, 0x41, 0x41, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x51, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x6f, 0x41,
-  0x46, 0x41, 0x41, 0x65, 0x41, 0x48, 0x77, 0x41, 0x32, 0x67, 0x45, 0x4d,
-  0x41, 0x64, 0x51, 0x43, 0x4d, 0x41, 0x4a, 0x77, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x51, 0x41, 0x41, 0x41, 0x41, 0x6f, 0x41, 0x69, 0x67, 0x41, 0x48,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x43, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x34, 0x41,
-  0x72, 0x67, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x42,
-  0x41, 0x41, 0x34, 0x41, 0x41, 0x41, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x43, 0x41, 0x41, 0x34, 0x41, 0x52, 0x77, 0x41, 0x42,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x44, 0x41, 0x41, 0x34, 0x41,
-  0x4a, 0x41, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x45,
-  0x41, 0x41, 0x34, 0x41, 0x56, 0x51, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x46, 0x41, 0x42, 0x59, 0x41, 0x44, 0x67, 0x41, 0x42,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x47, 0x41, 0x41, 0x63, 0x41,
-  0x4d, 0x67, 0x41, 0x42, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x4b,
-  0x41, 0x44, 0x51, 0x41, 0x59, 0x77, 0x41, 0x44, 0x41, 0x41, 0x45, 0x45,
-  0x43, 0x51, 0x41, 0x42, 0x41, 0x41, 0x34, 0x41, 0x41, 0x41, 0x41, 0x44,
-  0x41, 0x41, 0x45, 0x45, 0x43, 0x51, 0x41, 0x43, 0x41, 0x41, 0x34, 0x41,
-  0x52, 0x77, 0x41, 0x44, 0x41, 0x41, 0x45, 0x45, 0x43, 0x51, 0x41, 0x44,
-  0x41, 0x41, 0x34, 0x41, 0x4a, 0x41, 0x41, 0x44, 0x41, 0x41, 0x45, 0x45,
-  0x43, 0x51, 0x41, 0x45, 0x41, 0x41, 0x34, 0x41, 0x56, 0x51, 0x41, 0x44,
-  0x41, 0x41, 0x45, 0x45, 0x43, 0x51, 0x41, 0x46, 0x41, 0x42, 0x59, 0x41,
-  0x44, 0x67, 0x41, 0x44, 0x41, 0x41, 0x45, 0x45, 0x43, 0x51, 0x41, 0x47,
-  0x41, 0x41, 0x34, 0x41, 0x4f, 0x51, 0x41, 0x44, 0x41, 0x41, 0x45, 0x45,
-  0x43, 0x51, 0x41, 0x4b, 0x41, 0x44, 0x51, 0x41, 0x59, 0x77, 0x42, 0x70,
-  0x41, 0x47, 0x4d, 0x41, 0x62, 0x77, 0x42, 0x74, 0x41, 0x47, 0x38, 0x41,
-  0x62, 0x77, 0x42, 0x75, 0x41, 0x46, 0x59, 0x41, 0x5a, 0x51, 0x42, 0x79,
-  0x41, 0x48, 0x4d, 0x41, 0x61, 0x51, 0x42, 0x76, 0x41, 0x47, 0x34, 0x41,
-  0x49, 0x41, 0x41, 0x78, 0x41, 0x43, 0x34, 0x41, 0x4d, 0x41, 0x42, 0x70,
-  0x41, 0x47, 0x4d, 0x41, 0x62, 0x77, 0x42, 0x74, 0x41, 0x47, 0x38, 0x41,
-  0x62, 0x77, 0x42, 0x75, 0x61, 0x57, 0x4e, 0x76, 0x62, 0x57, 0x39, 0x76,
-  0x62, 0x67, 0x42, 0x70, 0x41, 0x47, 0x4d, 0x41, 0x62, 0x77, 0x42, 0x74,
-  0x41, 0x47, 0x38, 0x41, 0x62, 0x77, 0x42, 0x75, 0x41, 0x46, 0x49, 0x41,
-  0x5a, 0x51, 0x42, 0x6e, 0x41, 0x48, 0x55, 0x41, 0x62, 0x41, 0x42, 0x68,
-  0x41, 0x48, 0x49, 0x41, 0x61, 0x51, 0x42, 0x6a, 0x41, 0x47, 0x38, 0x41,
-  0x62, 0x51, 0x42, 0x76, 0x41, 0x47, 0x38, 0x41, 0x62, 0x67, 0x42, 0x47,
-  0x41, 0x47, 0x38, 0x41, 0x62, 0x67, 0x42, 0x30, 0x41, 0x43, 0x41, 0x41,
-  0x5a, 0x77, 0x42, 0x6c, 0x41, 0x47, 0x34, 0x41, 0x5a, 0x51, 0x42, 0x79,
-  0x41, 0x47, 0x45, 0x41, 0x64, 0x41, 0x42, 0x6c, 0x41, 0x47, 0x51, 0x41,
-  0x49, 0x41, 0x42, 0x69, 0x41, 0x48, 0x6b, 0x41, 0x49, 0x41, 0x42, 0x4a,
-  0x41, 0x47, 0x4d, 0x41, 0x62, 0x77, 0x42, 0x4e, 0x41, 0x47, 0x38, 0x41,
-  0x62, 0x77, 0x42, 0x75, 0x41, 0x43, 0x34, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x77, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x41,
-  0x41, 0x41, 0x41, 0x41, 0x41, 0x41, 0x3d, 0x3d, 0x29, 0x20, 0x66, 0x6f,
-  0x72, 0x6d, 0x61, 0x74, 0x28, 0x27, 0x77, 0x6f, 0x66, 0x66, 0x27, 0x29,
-  0x3b, 0x0a, 0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x77, 0x65, 0x69, 0x67,
-  0x68, 0x74, 0x3a, 0x20, 0x6e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x3b, 0x0a,
-  0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x73, 0x74, 0x79, 0x6c, 0x65, 0x3a,
-  0x20, 0x6e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x3b, 0x0a, 0x7d, 0x0a, 0x5b,
-  0x63, 0x6c, 0x61, 0x73, 0x73, 0x5e, 0x3d, 0x22, 0x69, 0x63, 0x6f, 0x6e,
-  0x2d, 0x22, 0x5d, 0x2c, 0x20, 0x5b, 0x63, 0x6c, 0x61, 0x73, 0x73, 0x2a,
-  0x3d, 0x22, 0x20, 0x69, 0x63, 0x6f, 0x6e, 0x2d, 0x22, 0x5d, 0x20, 0x7b,
-  0x0a, 0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x66, 0x61, 0x6d, 0x69, 0x6c,
-  0x79, 0x3a, 0x20, 0x27, 0x69, 0x63, 0x6f, 0x6d, 0x6f, 0x6f, 0x6e, 0x27,
-  0x3b, 0x0a, 0x09, 0x73, 0x70, 0x65, 0x61, 0x6b, 0x3a, 0x20, 0x6e, 0x6f,
-  0x6e, 0x65, 0x3b, 0x0a, 0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x73, 0x74,
-  0x79, 0x6c, 0x65, 0x3a, 0x20, 0x6e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x3b,
-  0x0a, 0x09, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x77, 0x65, 0x69, 0x67, 0x68,
-  0x74, 0x3a, 0x20, 0x6e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x3b, 0x0a, 0x09,
-  0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x76, 0x61, 0x72, 0x69, 0x61, 0x6e, 0x74,
-  0x3a, 0x20, 0x6e, 0x6f, 0x72, 0x6d, 0x61, 0x6c, 0x3b, 0x0a, 0x09, 0x74,
-  0x65, 0x78, 0x74, 0x2d, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x66, 0x6f, 0x72,
-  0x6d, 0x3a, 0x20, 0x6e, 0x6f, 0x6e, 0x65, 0x3b, 0x0a, 0x09, 0x6c, 0x69,
-  0x6e, 0x65, 0x2d, 0x68, 0x65, 0x69, 0x67, 0x68, 0x74, 0x3a, 0x20, 0x31,
-  0x3b, 0x0a, 0x09, 0x2d, 0x77, 0x65, 0x62, 0x6b, 0x69, 0x74, 0x2d, 0x66,
-  0x6f, 0x6e, 0x74, 0x2d, 0x73, 0x6d, 0x6f, 0x6f, 0x74, 0x68, 0x69, 0x6e,
-  0x67, 0x3a, 0x20, 0x61, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x69, 0x61, 0x73,
-  0x65, 0x64, 0x3b, 0x0a, 0x09, 0x2d, 0x6d, 0x6f, 0x7a, 0x2d, 0x6f, 0x73,
-  0x78, 0x2d, 0x66, 0x6f, 0x6e, 0x74, 0x2d, 0x73, 0x6d, 0x6f, 0x6f, 0x74,
-  0x68, 0x69, 0x6e, 0x67, 0x3a, 0x20, 0x67, 0x72, 0x61, 0x79, 0x73, 0x63,
-  0x61, 0x6c, 0x65, 0x3b, 0x0a, 0x7d, 0x0a, 0x2e, 0x69, 0x63, 0x6f, 0x6e,
-  0x2d, 0x65, 0x78, 0x70, 0x61, 0x6e, 0x64, 0x3a, 0x62, 0x65, 0x66, 0x6f,
-  0x72, 0x65, 0x20, 0x7b, 0x0a, 0x09, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e,
-  0x74, 0x3a, 0x20, 0x22, 0x5c, 0x66, 0x30, 0x36, 0x35, 0x22, 0x3b, 0x0a,
-  0x7d, 0x0a, 0x2e, 0x69, 0x63, 0x6f, 0x6e, 0x2d, 0x63, 0x6f, 0x6d, 0x70,
-  0x72, 0x65, 0x73, 0x73, 0x3a, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0x20,
-  0x7b, 0x0a, 0x09, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x3a, 0x20,
-  0x22, 0x5c, 0x66, 0x30, 0x36, 0x36, 0x22, 0x3b, 0x0a, 0x7d, 0x0a, 0x2e,
-  0x69, 0x63, 0x6f, 0x6e, 0x2d, 0x62, 0x61, 0x72, 0x2d, 0x63, 0x68, 0x61,
-  0x72, 0x74, 0x3a, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0x20, 0x7b, 0x0a,
-  0x09, 0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x3a, 0x20, 0x22, 0x5c,
-  0x66, 0x30, 0x38, 0x30, 0x22, 0x3b, 0x0a, 0x7d, 0x0a, 0x2e, 0x69, 0x63,
-  0x6f, 0x6e, 0x2d, 0x64, 0x61, 0x73, 0x68, 0x62, 0x6f, 0x61, 0x72, 0x64,
-  0x3a, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0x20, 0x7b, 0x0a, 0x09, 0x63,
-  0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x3a, 0x20, 0x22, 0x5c, 0x66, 0x30,
-  0x65, 0x34, 0x22, 0x3b, 0x0a, 0x7d, 0x0a, 0x2e, 0x69, 0x63, 0x6f, 0x6e,
-  0x2d, 0x70, 0x6c, 0x75, 0x73, 0x2d, 0x73, 0x71, 0x75, 0x61, 0x72, 0x65,
-  0x3a, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0x20, 0x7b, 0x0a, 0x09, 0x63,
-  0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x3a, 0x20, 0x22, 0x5c, 0x66, 0x30,
-  0x66, 0x65, 0x22, 0x3b, 0x0a, 0x7d, 0x0a, 0x2e, 0x69, 0x63, 0x6f, 0x6e,
-  0x2d, 0x6d, 0x69, 0x6e, 0x75, 0x73, 0x2d, 0x73, 0x71, 0x75, 0x61, 0x72,
-  0x65, 0x3a, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0x20, 0x7b, 0x0a, 0x09,
-  0x63, 0x6f, 0x6e, 0x74, 0x65, 0x6e, 0x74, 0x3a, 0x20, 0x22, 0x5c, 0x66,
-  0x31, 0x34, 0x36, 0x22, 0x3b, 0x0a, 0x7d, 0x0a
-};
+/* number of new lines (applicable fields) */
+static int nlines = 0;
+
+static const char *
+chart2str (GChartType type)
+{
+  static const char *strings[] = { "null", "bar", "area-spline" };
+  return strings[type];
+}
+
+static GHTML *
+panel_lookup (GModule module)
+{
+  int i, num_panels = ARRAY_SIZE (htmldef);
+
+  for (i = 0; i < num_panels; i++) {
+    if (htmldef[i].module == module)
+      return &htmldef[i];
+  }
+  return NULL;
+}
 
 /* sanitize output with html entities for special chars */
 static void
@@ -437,1278 +145,747 @@ clean_output (FILE * fp, char *s)
 }
 
 static void
-print_html_title (FILE *fp, char *now)
+print_html_title (FILE * fp, char *now)
 {
-  const char *title = conf.html_report_title ? conf.html_report_title : REP_TITLE;
+  const char *title =
+    conf.html_report_title ? conf.html_report_title : REP_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, (char *) title);
-  fprintf (fp, " - %s</title>\n", now);
+  fprintf (fp, " - %s</title>", now);
 }
 
-static void
-print_html_page_header(FILE *fp)
-{
-  const char *header = conf.html_report_title ? conf.html_report_title : T_DASH;
-
-  fprintf (fp, "<h1><i class='icon-dashboard'></i> ");
-  clean_output (fp, (char *) header);
-  fprintf (fp, "</h1>\n");
-}
-
+/* *INDENT-OFF* */
 static void
 print_html_header (FILE * fp, char *now)
 {
-  fprintf (fp, "<!DOCTYPE html>\n");
-  fprintf (fp, "<html lang='en'><head>\n");
-  fprintf (fp, "<meta charset='UTF-8' />");
-  fprintf (fp, "<meta http-equiv='X-UA-Compatible' content='IE=edge'>");
-  fprintf (fp, "<meta name='viewport' content='width=device-width, initial-scale=1'>");
-  fprintf (fp, "<meta name='robots' content='noindex, nofollow' />");
-  print_html_title(fp, now);
-
-  fprintf (fp, "<script type=\"text/javascript\">\n");
-  fprintf (fp, "function t(c){for(var b=c.parentNode.parentNode.parentNode");
-  fprintf (fp, ".parentNode.getElementsByTagName('tr'),a=0;a<b.length;a++)");
-  fprintf (fp, "b[a].classList.contains('hide')?(b[a].classList.add('show'),");
-  fprintf (fp, "b[a].classList.remove('hide'),c.classList.remove('icon-expand'),");
-  fprintf (fp, "c.classList.add('icon-compress')):b[a].classList.contains('show')&&");
-  fprintf (fp, "(b[a].classList.add('hide'),b[a].classList.remove('show'),");
-  fprintf (fp, "c.classList.remove('icon-compress'),c.classList.add('icon-expand'))};");
-
-  fprintf (fp, "function a(b){for(var a=b.parentNode.parentNode,a=ne(a,'tr');a&&-1!=");
-  fprintf (fp, "a.className.indexOf('sub');)-1!=a.className.indexOf('agent')?(");
-  fprintf (fp, "b.firstChild.className='icon-minus-square',a.className='sub'):");
-  fprintf (fp, "(b.firstChild.className='icon-plus-square',a.className='agent sub'),");
-  fprintf (fp, "a=ne(a,'tr')}function ne(b,a){a=a.toUpperCase();for(b=b.nextSibling;");
-  fprintf (fp, "b&&b.tagName!==a;)b=b.nextSibling;return b};");
-
-  fprintf (fp, "</script>\n");
-
-  fprintf (fp, "<style type=\"text/css\">");
   fprintf (fp,
-  "html {"
-  "  font-size: 100%%;"
-  "  -ms-text-size-adjust: 100%%;"
-  "  -webkit-text-size-adjust: 100%%;"
-  "}"
-  "html {"
-  "  font-family: sans-serif"
-  "}"
-  "body {"
-  "  font-size: 80%%;"
-  "  color: #777;"
-  "  margin: 0;"
-  "}"
-  "a:focus {"
-  "  outline: thin dotted"
-  "}"
-  "a:active,"
-  "a:hover {"
-  "  outline: 0"
-  "}"
-  "p {"
-  "  margin: 0 0 1em 0"
-  "}"
-  "ul {"
-  "  margin: 1em 0"
-  "}"
-  "ul {"
-  "  padding: 0 0 0 40px"
-  "}"
-  "table {"
-  "  border-collapse: collapse;"
-  "  border-spacing: 0;"
-  "}"
-  "h1 {"
-  "  color: rgb(36, 36, 36);"
-  "}"
-  "h2 {"
-  "  font-weight: 700;"
-  "  color: #4b4b4b;"
-  "  font-size: 1.2em;"
-  "  margin: .83em 0 .20em 0;"
-  "}"
-  ".agent,"
-  ".hide {"
-  "  display: none"
-  "}"
-  ".r,"
-  ".s {"
-  "  cursor: pointer"
-  "}"
-  ".r {"
-  "  float: right"
-  "}"
-  ".left {"
-  "  text-align: left;"
-  "}"
-  ".graph,"
-  "thead th {"
-  "  text-align: center"
-  "}"
-  ".max {"
-  "  background: #f0ad4e;"
-  "  border-radius: 5px;"
-  "  color: #FFF;"
-  "  padding: 2px 5px;"
-  "}"
-  ".fr {"
-  "  width:100%%;"
-  "  text-align:right;"
-  "}"
-  "#layout {"
-  "  padding-left: 225px;"
-  "  left: 0;"
-  "}"
-  ".l-box {"
-  "  padding: 0 1.3em 1.3em 1.3em"
-  "}"
-  ".graph .bar {"
-  "  -webkit-box-sizing: border-box;"
-  "  -moz-box-sizing: border-box;"
-  "  background-color: rgba(119, 119, 119, 0.7);"
-  "  box-sizing: border-box;"
-  "  color: #ffffff;"
-  "  height: 17px;"
-  "  width: 0;"
-  "}"
-  ".graph .light {"
-  "  background-color: rgba(119, 119, 119, 0.3);"
-  "  margin-top: 1px;"
-  "}"
-  "#menu {"
-  "  -webkit-overflow-scroll: touch;"
-  "  -webkit-transition: left 0.75s, -webkit-transform 0.75s;"
-  "  background: #242424;"
-  "  border-right: 1px solid #3E444C;"
-  "  bottom: 0;"
-  "  box-shadow: inset 0 0 90px #000;"
-  "  left: 225px;"
-  "  margin-left: -225px;"
-  "  outline: 1px solid #101214;"
-  "  overflow-y: auto;"
-  "  position: fixed;"
-  "  text-shadow: 0px -1px 0px #000;"
-  "  top: 0;"
-  "  transition: left 0.75s, -webkit-transform 0.75s, transform 0.75s;"
-  "  width: 225px;"
-  "  z-index: 1000;"
-  "}"
-  "#menu a {"
-  "  border: 0;"
-  "  border-bottom: 1px solid #111;"
-  "  box-shadow: 0 1px 0 #383838;"
-  "  color: #999;"
-  "  padding: .6em 0 .6em .6em;"
-  "  white-space: normal;"
-  "}"
-  "#menu p {"
-  "  color: #eee;"
-  "  font-size: 85%%;"
-  "  padding: .6em;"
-  "  text-shadow: 0 -1px 0 #000;"
-  "}"
-  "#menu .pure-menu-open {"
-  "  background: transparent;"
-  "  border: 0;"
-  "}"
-  "#menu .pure-menu ul {"
-  "  border: 0;"
-  "  background: transparent;"
-  "}"
-  "#menu .pure-menu li a:hover,"
-  "#menu .pure-menu li a:focus {"
-  "  background: #333"
-  "}"
-  "#menu .pure-menu-heading:hover,"
-  "#menu .pure-menu-heading:focus {"
-  "  color: #999"
-  "}"
-  "#menu .pure-menu-heading {"
-  "  color: #FFF;"
-  "  font-size: 110%%;"
-  "  font-weight: bold;"
-  "}"
-  ".pure-u {"
-  "  display: inline-block;"
-  "  *display: inline;"
-  "  zoom: 1;"
-  "  letter-spacing: normal;"
-  "  word-spacing: normal;"
-  "  vertical-align: top;"
-  "  text-rendering: auto;"
-  "}"
-  ".pure-u-1 {"
-  "  display: inline-block;"
-  "  *display: inline;"
-  "  zoom: 1;"
-  "  letter-spacing: normal;"
-  "  word-spacing: normal;"
-  "  vertical-align: top;"
-  "  text-rendering: auto;"
-  "}"
-  ".pure-u-1 {"
-  "  width: 100%%"
-  "}"
-  ".pure-g-r {"
-  "  letter-spacing: -.31em;"
-  "  *letter-spacing: normal;"
-  "  *word-spacing: -.43em;"
-  "  font-family: sans-serif;"
-  "  display: -webkit-flex;"
-  "  -webkit-flex-flow: row wrap;"
-  "  display: -ms-flexbox;"
-  "  -ms-flex-flow: row wrap;"
-  "}"
-  ".pure-g-r {"
-  "  word-spacing: -.43em"
-  "}"
-  ".pure-g-r [class *=pure-u] {"
-  "  font-family: sans-serif"
-  "}"
-  "@media (max-width:480px) { "
-  "  .pure-g-r>.pure-u,"
-  "  .pure-g-r>[class *=pure-u-] {"
-  "    width: 100%%"
-  "  }"
-  "}"
-  "@media (max-width:767px) { "
-  "  .pure-g-r>.pure-u,"
-  "  .pure-g-r>[class *=pure-u-] {"
-  "    width: 100%%"
-  "  }"
-  "}"
-  ".pure-menu ul {"
-  "  position: absolute;"
-  "  visibility: hidden;"
-  "}"
-  ".pure-menu.pure-menu-open {"
-  "  visibility: visible;"
-  "  z-index: 2;"
-  "  width: 100%%;"
-  "}"
-  ".pure-menu ul {"
-  "  left: -10000px;"
-  "  list-style: none;"
-  "  margin: 0;"
-  "  padding: 0;"
-  "  top: -10000px;"
-  "  z-index: 1;"
-  "}"
-  ".pure-menu>ul {"
-  "  position: relative"
-  "}"
-  ".pure-menu-open>ul {"
-  "  left: 0;"
-  "  top: 0;"
-  "  visibility: visible;"
-  "}"
-  ".pure-menu-open>ul:focus {"
-  "  outline: 0"
-  "}"
-  ".pure-menu li {"
-  "  position: relative"
-  "}"
-  ".pure-menu a,"
-  ".pure-menu .pure-menu-heading {"
-  "  display: block;"
-  "  color: inherit;"
-  "  line-height: 1.5em;"
-  "  padding: 5px 20px;"
-  "  text-decoration: none;"
-  "  white-space: nowrap;"
-  "}"
-  ".pure-menu li a {"
-  "  padding: 5px 20px"
-  "}"
-  ".pure-menu.pure-menu-open {"
-  "  background: #fff;"
-  "  border: 1px solid #b7b7b7;"
-  "}"
-  ".pure-menu a {"
-  "  border: 1px solid transparent;"
-  "  border-left: 0;"
-  "  border-right: 0;"
-  "}"
-  ".pure-menu a {"
-  "  color: #777"
-  "}"
-  ".pure-menu li a:hover,"
-  ".pure-menu li a:focus {"
-  "  background: #eee"
-  "}"
-  ".pure-menu .pure-menu-heading {"
-  "  color: #565d64;"
-  "  font-size: 90%%;"
-  "  margin-top: .5em;"
-  "  border-bottom-width: 1px;"
-  "  border-bottom-style: solid;"
-  "  border-bottom-color: #dfdfdf;"
-  "}"
-  ".pure-table {"
-  "  animation: float 5s infinite;"
-  "  border: 1px solid #cbcbcb;"
-  "  border-collapse: collapse;"
-  "  border-spacing: 0;"
-  "  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);"
-  "  empty-cells: show;"
-  "  border-radius:3px;"
-  "}"
-  ".pure-table a {"
-  "  color:#242424;"
-  "  outline: 0;"
-  "  text-decoration: none;"
-  "}"
-  ".pure-table td {"
-  "  border-left: 1px solid #cbcbcb;"
-  "}"
-  ".pure-table td,"
-  ".pure-table th {"
-  "  font-size: inherit;"
-  "  margin: 0;"
-  "  overflow: visible;"
-  "  padding: 6px 12px;"
-  "}"
-  ".pure-table th:last-child {"
-  "  padding-right: 0;"
-  "}"
-  ".pure-table th:last-child span {"
-  "  margin: 1px 5px 0 15px;"
-  "}"
-  ".pure-table thead th {"
-  "  border-bottom:4px solid #9ea7af;"
-  "  border-right: 1px solid #343a45;"
-  "}"
-  ".pure-table tbody th {"
-  "  background:rgb(242, 242, 242);"
-  "  border-left:1px solid rgb(203, 203, 203);"
-  "}"
-  ".pure-table td:first-child,"
-  ".pure-table th:first-child {"
-  "  border-left-width: 0"
-  "}"
-  ".pure-table td:last-child {"
-  "  white-space: normal;"
-  "  width: auto;"
-  "  word-break: break-all;"
-  "  word-wrap: break-word;"
-  "}"
-  ".pure-table thead {"
-  "  background: #242424;"
-  "  color: #FFF;"
-  "  text-align: left;"
-  "  text-shadow: 0px -1px 0px #000;"
-  "  vertical-align: bottom;"
-  "  white-space: nowrap;"
-  "}"
-  ".pure-table td {"
-  "  background-color: #FFF"
-  "}"
-  ".pure-table td.num {"
-  "  text-align: right"
-  "}"
-  ".pure-table .sub td {"
-  "  background-color: #F2F2F2;"
-  "}"
-  ".pure-table tbody tr:hover,"
-  ".pure-table-striped tr:nth-child(2n-1) td {"
-  "  background-color: #f4f4f4"
-  "}"
-  ".pure-table tr {"
-  "  border-bottom: 1px solid #ddd;"
-  "}"
-  ".pure-table thead tr {"
-  "  border: 1px solid rgb(52, 58, 69);"
-  "}"
-  ".grid {"
-  "  background: white;"
-  "  margin: 0 0 10px 0;"
-  "}"
-  ".grid * {"
-  "  -moz-box-sizing: border-box;"
-  "  -webkit-box-sizing: border-box;"
-  "  box-sizing: border-box;"
-  "}"
-  ".grid:after {"
-  "  content:\"\";"
-  "  display: table;"
-  "  clear: both;"
-  "}"
-  "[class*='col-'] {"
-  "  float: left;"
-  "  padding-right: 20px;"
-  "}"
-  ".grid[class*='col-']:last-of-type {"
-  "  padding-right: 0;"
-  "}"
-  ".col-1-3 {"
-  "  width: 33.33%%;"
-  "}"
-  ".col-1-2 {"
-  "  width: 50%%;"
-  "}"
-  ".col-1-4 {"
-  "  width: 25%%;"
-  "}"
-  ".col-1-6 {"
-  "  width: 16.6%%;"
-  "}"
-  ".col-1-8 {"
-  "  width: 12.5%%;"
-  "}"
-  ".grid-module {"
-  "  background: #F1F1F1;"
-  "  border-top: 4px solid #9E9E9E;"
-  "  color: rgb(36, 36, 36);"
-  "  font-weight: normal;"
-  "  padding: 7px;"
-  "}"
-  ".col-title {"
-  "  color: rgb(36, 36, 36);"
-  "  font-size: 85%%;"
-  "  text-shadow: 1px 1px 0 #FFF;"
-  "  width: 100%%;"
-  "}"
-  ".label {"
-  "  color: rgb(36, 36, 36);"
-  "  font-size: 19px;"
-  "  margin: 0;"
-  "  text-shadow: 1px 1px 0 #FFF;"
-  "}"
-  ".grid .green {"
-  "  border-top: 4px solid #5cb85c;"
-  "}"
-  ".grid .red{"
-  "  border-top: 4px solid #d9534f;"
-  "}"
-  ".grid .blue {"
-  "  border-top: 4px solid #5bc0de;"
-  "}"
-  ".trunc {"
-  "  width: 100%%;"
-  "  white-space: nowrap;"
-  "  overflow: hidden;"
-  "  text-overflow: ellipsis;"
-  "}"
-  "@media (max-width: 974px) {"
-  "  #layout {"
-  "    position: relative;"
-  "    padding-left: 0;"
-  "  }"
-  "  #layout.active {"
-  "    position: relative;"
-  "    left: 200px;"
-  "  }"
-  "  #layout.active #menu {"
-  "    left: 200px;"
-  "    width: 200px;"
-  "  }"
-  "  #menu {"
-  "    left: 0"
-  "  }"
-  "  .pure-menu-link {"
-  "    position: fixed;"
-  "    left: 0;"
-  "    display: block;"
-  "  }"
-  "  #layout.active .pure-menu-link {"
-  "    left: 200px"
-  "  }"
-  "}%s", icons);
+  "<!DOCTYPE html>"
+  "<html>"
+  "<head>"
+  "<meta charset='UTF-8' />"
+  "<meta http-equiv='X-UA-Compatible' content='IE=edge'>"
+  "<meta name='viewport' content='width=device-width, initial-scale=1'>"
+  "<meta name='robots' content='noindex, nofollow' />");
 
-  fprintf (fp, "</style>\n");
-  fprintf (fp, "</head>\n");
-  fprintf (fp, "<body>\n");
+  print_html_title (fp, now);
 
-  fprintf (fp, "<div class=\"pure-g-r\" id=\"layout\">");
-}
+  fprintf (fp, "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>");
+  fprintf (fp, "<style>%s</style>", bootstrap_css);
+  fprintf (fp, "<style>%s</style>", c3_css);
+  fprintf (fp, "<style>%s</style>", app_css);
 
-/* *INDENT-ON* */
+  fprintf (fp,
+  "</head>"
+  "<body>");
 
-static GPanel *
-panel_lookup (GModule module)
-{
-  int i, num_panels = ARRAY_SIZE (paneling);
-
-  for (i = 0; i < num_panels; i++) {
-    if (paneling[i].module == module)
-      return &paneling[i];
-  }
-  return NULL;
-}
-
-static int
-get_max_visitor (GHolder * h)
-{
-  int i, max = 0;
-  for (i = 0; i < h->idx; i++) {
-    int cur = h->items[i].metrics->visitors;
-    if (cur > max)
-      max = cur;
-  }
-
-  return max;
-}
-
-static int
-get_max_hit (GHolder * h)
-{
-  int i, max = 0;
-  for (i = 0; i < h->idx; i++) {
-    int cur = h->items[i].metrics->hits;
-    if (cur > max)
-      max = cur;
-  }
-
-  return max;
+  fprintf (fp, "%s", tpls);
 }
 
 static void
-print_pure_menu (FILE * fp, char *now)
+print_html_body (FILE * fp)
 {
-  fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
-  fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
-  fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", GO_WEBSITE);
-  fprintf (fp, "<img src='data:image/png;base64,%s' alt='goaccess'/>", GO_LOGO);
-  fprintf (fp, "</a>");
-  fprintf (fp, "<ul>");
-  fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
-  fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Requested files</a></li>", REQUE_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Requested static files</a></li>", STATI_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Not found URLs</a></li>", FOUND_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Hosts</a></li>", HOSTS_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Operating Systems</a></li>", OPERA_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Browsers</a></li>", BROWS_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Time Distribution</a></li>", VTIME_ID);
-  if (!ignore_panel (VIRTUAL_HOSTS))
-    fprintf (fp, "<li><a href=\"#%s\">Virtual Hosts</a></li>", VHOST_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Referrers URLs</a></li>", REFER_ID);
-  fprintf (fp, "<li><a href=\"#%s\">Referring sites</a></li>", SITES_ID);
-  if (!ignore_panel (KEYPHRASES))
-    fprintf (fp, "<li><a href=\"#%s\">Keyphrases</a></li>", KEYPH_ID);
-#ifdef HAVE_LIBGEOIP
-  fprintf (fp, "<li><a href=\"#%s\">Geo Location</a></li>", GEOLO_ID);
-#endif
-  fprintf (fp, "<li><a href=\"#%s\">Status codes</a></li>", CODES_ID);
-  fprintf (fp, "<li class=\"menu-item-divided\"></li>");
+  fprintf (fp,
+  "<nav class='hidden-xs hidden-sm'>"
+  "<div class='icon fa fa-bars'></div>"
+  "<div class='panel-nav'></div>"
+  "</nav>"
 
-  fprintf (fp, "</ul>");
-  fprintf (fp, "<p>Generated by<br />GoAccess %s<br />—<br />%s</p>",
-           GO_VERSION, now);
-  fprintf (fp, "</div>");
-  fprintf (fp, "</div> <!-- menu -->");
-
-  fprintf (fp, "<div id=\"main\" class=\"pure-u-1\">");
-  fprintf (fp, "<div class=\"l-box\">");
+  "<div class='container'>"
+  "<div class='row row-offcanvas row-offcanvas-right'>"
+  "<div class='col-md-12'>"
+  "<div class='page-header clearfix'>"
+  "<div class='pull-right'>"
+  "<h4>"
+  "<span class='label label-info'>"
+  "Last Updated: 2015-12-12 12:12:12"
+  "</span>"
+  "</h4>"
+  "</div>"
+  "<h1><i class='fa fa-tachometer'></i> Dashboard</h1>"
+  "</div>"
+  "<div class='wrap-general'></div>"
+  "<div class='wrap-panels'></div>"
+  "</div>"
+  "</div>"
+  "</div>");
 }
 
 static void
 print_html_footer (FILE * fp)
 {
-  fprintf (fp, "</div> <!-- l-box -->\n");
-  fprintf (fp, "</div> <!-- main -->\n");
-  fprintf (fp, "</div> <!-- layout -->\n");
-  fprintf (fp, "</body>\n");
+  fprintf (fp, "<script>%s</script>", c3_js);
+  fprintf (fp, "<script>%s</script>", d3_js);
+  fprintf (fp, "<script>%s</script>", hogan_js);
+  fprintf (fp, "<script>%s</script>", app_js);
+
+  fprintf (fp, "</body>");
   fprintf (fp, "</html>");
 }
+/* *INDENT-ON* */
 
 static void
-print_html_h2 (FILE * fp, const char *title, const char *id)
+print_c3_single_yaxis_data (FILE * fp, const char *y1, int isp)
 {
-  if (id)
-    fprintf (fp, "<h2 id=\"%s\">%s</h2>", id, title);
-  else
-    fprintf (fp, "<h2>%s</h2>", title);
+  int iisp = 0, iiisp = 0, iiiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
+
+  /* open data object */
+  pjson (fp, "%.*s\"data\": {%.*s", iisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"keys\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"x\": \"data\",%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"value\": [\"%s\"]%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"axes\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"%s\": \"y\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
+
+  /* close data object */
+  pjson (fp, "%.*s},%.*s", iisp, TAB, nlines, NL);
 }
 
 static void
-print_p (FILE * fp, const char *paragraph)
+print_c3_axis_tick (FILE * fp, const char *fn, int iiiisp)
 {
-  fprintf (fp, "<p>%s</p>", paragraph);
+  pjson (fp, "%.*s\"tick\": {%.*s", iiiisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"format\": function (x) {");
+  pjson (fp, "return GoAccess.format(x, '%s');", fn);
+  pjson (fp, "}%.*s", iiiisp, TAB, fn, nlines, NL);
+
+  pjson (fp, "%.*s},%.*s", iiiisp, TAB, nlines, NL);
 }
 
 static void
-print_html_begin_table (FILE * fp)
+print_c3_single_yaxis_axis (FILE * fp, const char *y1, const char *fn1, int isp)
 {
-  fprintf (fp, "<table class=\"pure-table\">\n");
+  int iisp = 0, iiisp = 0, iiiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
+
+  pjson (fp, "%.*s\"axis\": {%.*s", iisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"y\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  print_c3_axis_tick (fp, fn1, iiiisp);
+  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s}%.*s", iisp, TAB, nlines, NL);
 }
 
 static void
-print_html_end_table (FILE * fp)
+print_c3_dual_yaxis_data (FILE * fp, const char *y1, const char *y2, int isp)
 {
-  fprintf (fp, "</table>\n");
+  int iisp = 0, iiisp = 0, iiiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
+
+  /* open data object */
+  pjson (fp, "%.*s\"data\": {%.*s", iisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"keys\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"x\": \"data\",%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"value\": [\"%s\",\"%s\"]%.*s", iiiisp, TAB, y1, y2, nlines,
+         NL);
+  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"axes\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"%s\": \"y\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s\"%s\": \"y2\"%.*s", iiiisp, TAB, y2, nlines, NL);
+  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
+
+  /* close data object */
+  pjson (fp, "%.*s},%.*s", iisp, TAB, nlines, NL);
 }
 
 static void
-print_html_begin_thead (FILE * fp)
+print_c3_dual_yaxis_axis (FILE * fp, const char *y1, const char *y2,
+                          const char *fn1, const char *fn2, int isp)
 {
-  fprintf (fp, "<thead>\n");
+  int iisp = 0, iiisp = 0, iiiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
+
+  /* open axis object */
+  pjson (fp, "%.*s\"axis\": {%.*s", iisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"y\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  print_c3_axis_tick (fp, fn1, iiiisp);
+  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"y2\": {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"show\": true,%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y2, nlines, NL);
+  print_c3_axis_tick (fp, fn2, iiiisp);
+  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
+
+  /* close axis object */
+  pjson (fp, "%.*s}%.*s", iisp, TAB, nlines, NL);
+}
+
+/* Output C3.js hits/visitors plot definitions. */
+static void
+hits_visitors_plot (FILE * fp, int isp)
+{
+  pjson (fp, "%.*s\"label\": \"Hits/Visitors\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"className\": \"hits-visitors\",%.*s", isp, TAB, nlines, NL);
+
+  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+  print_c3_dual_yaxis_data (fp, "hits", "visitors", isp);
+  print_c3_dual_yaxis_axis (fp, "Hits", "Visitors", "numeric", "numeric", isp);
+  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
+}
+
+/* Output C3.js bandwidth plot definitions. */
+static void
+hits_bw_plot (FILE * fp, int isp)
+{
+  pjson (fp, "%.*s\"label\": \"Bandwidth\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"className\": \"bandwidth\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+
+  print_c3_single_yaxis_data (fp, "bytes", isp);
+  print_c3_single_yaxis_axis (fp, "Bytes", "bytes", isp);
+
+  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
+}
+
+/* Output C3.js bandwidth plot definitions. */
+static void
+hits_plot (FILE * fp, int isp)
+{
+  pjson (fp, "%.*s\"label\": \"Hits\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"className\": \"hits\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+
+  print_c3_single_yaxis_data (fp, "hits", isp);
+  print_c3_single_yaxis_axis (fp, "Hits", "numeric", isp);
+
+  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
+}
+
+/* Output the items key as an array.
+ *
+ * On success, data is outputted. */
+static void
+print_open_metrics_attr (FILE * fp, int isp)
+{
+  /* open data metric data */
+  pjson (fp, "%.*s\"items\": [%.*s", isp, TAB, nlines, NL);
+}
+
+/* Close the metrics array.
+ *
+ * On success, data is outputted. */
+static void
+print_close_metrics_attr (FILE * fp, int isp)
+{
+  /* close data data */
+  pjson (fp, "%.*s]%.*s", isp, TAB, nlines, NL);
+}
+
+/* Output the metrics key as an array.
+ *
+ * On success, data is outputted. */
+static void
+print_open_items_attr (FILE * fp, int isp)
+{
+  /* open data metric data */
+  pjson (fp, "%.*s\"items\": {%.*s", isp, TAB, nlines, NL);
+}
+
+/* Close the metrics array.
+ *
+ * On success, data is outputted. */
+static void
+print_close_items_attr (FILE * fp, int isp)
+{
+  /* close data data */
+  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
 }
 
 static void
-print_html_end_thead (FILE * fp)
+print_json_data (FILE * fp, GLog * logger, GHolder * holder)
 {
-  fprintf (fp, "</thead>\n");
+  char *json = NULL;
+
+  if ((json = get_json (logger, holder)) == NULL)
+    return;
+
+  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, "var json_data=%s", json);
+  fprintf (fp, "</script>");
+
+  free (json);
 }
 
 static void
-print_html_begin_tbody (FILE * fp)
+print_def_metric (FILE * fp, const GDefMetric def, int isp)
 {
-  fprintf (fp, "<tbody>\n");
+  int iisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1;
+
+  if (def.cname)
+    pjson (fp, "%.*s\"className\": \"%s\",%.*s", iisp, TAB, def.cname, nlines,
+           NL);
+  if (def.meta)
+    pjson (fp, "%.*s\"meta\": \"%s\",%.*s", iisp, TAB, def.meta, nlines, NL);
+  if (def.vtype)
+    pjson (fp, "%.*s\"valueType\": \"%s\",%.*s", iisp, TAB, def.vtype, nlines,
+           NL);
+  if (def.key)
+    pjson (fp, "%.*s\"key\": \"%s\",%.*s", iisp, TAB, def.key, nlines, NL);
+  if (def.lbl)
+    pjson (fp, "%.*s\"label\": \"%s\"%.*s", iisp, TAB, def.lbl, nlines, NL);
 }
 
 static void
-print_html_end_tbody (FILE * fp)
+print_def_block (FILE * fp, const GDefMetric def, int isp, int last)
 {
-  fprintf (fp, "</tbody>\n");
+  print_open_block_attr (fp, isp);
+  print_def_metric (fp, def, isp);
+  print_close_block_attr (fp, isp, !last ? ',' : ' ');
 }
 
 static void
-print_html_begin_agent_tr (FILE * fp)
+print_def_overall_requests (FILE * fp, int sp)
 {
-  fprintf (fp, "<tr class='agent sub'>");
+  GDefMetric def = {
+    .lbl = T_REQUESTS,
+    .vtype = "numeric",
+    .cname = "black"
+  };
+  print_open_panel_attr (fp, OVERALL_REQ, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_begin_tr (FILE * fp, int hide, int sub)
+print_def_overall_valid_reqs (FILE * fp, int sp)
 {
-  if (hide)
-    fprintf (fp, "<tr class='hide %s'>", (sub ? "sub" : "root"));
-  else
-    fprintf (fp, "<tr class='%s'>", (sub ? "sub" : "root"));
+  GDefMetric def = {
+    .lbl = T_VALID,
+    .vtype = "numeric",
+    .cname = "green"
+  };
+  print_open_panel_attr (fp, OVERALL_VALID, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_end_tr (FILE * fp)
+print_def_overall_invalid_reqs (FILE * fp, int sp)
 {
-  fprintf (fp, "</tr>");
+  GDefMetric def = {
+    .lbl = T_FAILED,
+    .vtype = "numeric",
+    .cname = "red"
+  };
+  print_open_panel_attr (fp, OVERALL_FAILED, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_end_div (FILE * fp)
+print_def_overall_processed_time (FILE * fp, int sp)
 {
-  fprintf (fp, "</div>");
+  GDefMetric def = {
+    .lbl = T_GEN_TIME,
+    .vtype = "numeric",
+    .cname = "gray"
+  };
+  print_open_panel_attr (fp, OVERALL_GENTIME, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_begin_grid (FILE * fp)
+print_def_overall_visitors (FILE * fp, int sp)
 {
-  fprintf (fp, "<div class='grid grid-pad'>");
+  GDefMetric def = {
+    .lbl = T_UNIQUE_VIS,
+    .vtype = "numeric",
+    .cname = "blue"
+  };
+  print_open_panel_attr (fp, OVERALL_VISITORS, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_begin_grid_col (FILE * fp, int size)
+print_def_overall_files (FILE * fp, int sp)
 {
-  fprintf (fp, "<div class='col-1-%d'>", size);
+  GDefMetric def = {
+    .lbl = T_UNIQUE_FIL,
+    .vtype = "numeric",
+  };
+  print_open_panel_attr (fp, OVERALL_FILES, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_begin_grid_module (FILE * fp, const char *color)
+print_def_overall_excluded (FILE * fp, int sp)
 {
-  fprintf (fp, "<div class='grid-module %s'>", color);
+  GDefMetric def = {
+    .lbl = T_EXCLUDE_IP,
+    .vtype = "numeric",
+  };
+  print_open_panel_attr (fp, OVERALL_EXCL_HITS, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_begin_col_wrap (FILE * fp, int size, const char *color)
+print_def_overall_refs (FILE * fp, int sp)
 {
-  print_html_begin_grid_col (fp, size);
-  print_html_begin_grid_module (fp, color);
+  GDefMetric def = {
+    .lbl = T_REFERRER,
+    .vtype = "numeric",
+  };
+  print_open_panel_attr (fp, OVERALL_REF, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_end_col_wrap (FILE * fp)
+print_def_overall_notfound (FILE * fp, int sp)
 {
-  print_html_end_div (fp);
-  print_html_end_div (fp);
+  GDefMetric def = {
+    .lbl = T_UNIQUE404,
+    .vtype = "numeric",
+  };
+  print_open_panel_attr (fp, OVERALL_NOTFOUND, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_html_col_title (FILE * fp, const char *title)
+print_def_overall_static_files (FILE * fp, int sp)
 {
-  fprintf (fp, "<div class='col-title trunc'>");
-  fprintf (fp, "<i class='icon-bar-chart'></i> %s</div>", title);
-}
-
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-static void
-print_graph (FILE * fp, int max_hit, int max_vis, int hits, int visitors)
-{
-  const char *s, *c = "class='bar'";
-  float lh = get_percentage (max_hit, hits), lv = 0;
-  int h = 0;
-
-  setlocale (LC_NUMERIC, "POSIX");
-  fprintf (fp, "<td class='graph'>");
-
-  h = max_vis ? 8 : 16;
-  lh = lh < 1 ? 1 : lh;
-
-  /* render hits graph */
-  if (max_hit) {
-    s = "<div title='Hits:%d%%' %s style='width:%f%%;height:%dpx'></div>";
-    fprintf (fp, s, (int) lh, c, lh, h);
-  }
-
-  /* render visitors graph */
-  if (max_vis) {
-    c = "class='bar light'";
-    s = "<div title='Visitors: %d%%' %s style='width:%f%%;height:%dpx'></div>";
-    lv = get_percentage (max_vis, visitors);
-    lv = lv < 1 ? 1 : lv;
-    fprintf (fp, s, (int) lv, c, lv, h);
-  }
-
-  fprintf (fp, "</td>\n");
-  setlocale (LC_NUMERIC, "");
-}
-
-#pragma GCC diagnostic warning "-Wformat-nonliteral"
-
-static void
-print_table_head (FILE * fp, GModule module)
-{
-  print_html_h2 (fp, module_to_head (module), module_to_id (module));
-  print_p (fp, module_to_desc (module));
+  GDefMetric def = {
+    .lbl = T_STATIC_FIL,
+    .vtype = "numeric",
+  };
+  print_open_panel_attr (fp, OVERALL_STATIC, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_metric_hits (FILE * fp, GMetrics * nmetrics)
+print_def_overall_log_size (FILE * fp, int sp)
 {
-  fprintf (fp, "<td class='num'>%'d</td>", nmetrics->hits);
+  GDefMetric def = {
+    .lbl = T_LOG,
+    .vtype = "bytes",
+  };
+  print_open_panel_attr (fp, OVERALL_LOGSIZE, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ',');
 }
 
 static void
-print_metric_visitors (FILE * fp, GMetrics * nmetrics)
+print_def_overall_bandwidth (FILE * fp, int sp)
 {
-  fprintf (fp, "<td class='num'>%'d</td>", nmetrics->visitors);
+  GDefMetric def = {
+    .lbl = T_BW,
+    .vtype = "bytes",
+  };
+  print_open_panel_attr (fp, OVERALL_BANDWIDTH, sp);
+  print_def_metric (fp, def, sp);
+  print_close_panel_attr (fp, sp, ' ');
 }
 
 static void
-print_metric_hits_percent (FILE * fp, GMetrics * nmetrics, int max_hit)
+print_def_hits (FILE * fp, int isp)
 {
-  fprintf (fp, "<td class='num'>");
-  fprintf (fp, "<span class='%s'>%4.2f%%</span>", (max_hit ? "max" : ""),
-           nmetrics->hits_perc);
-  fprintf (fp, "</td>");
+  GDefMetric def = {
+    .key = "hits",
+    .lbl = MTRC_HITS_LBL,
+    .vtype = "numeric",
+    .meta = "count"
+  };
+  print_def_block (fp, def, isp, 0);
 }
 
 static void
-print_metric_bw (FILE * fp, GMetrics * nmetrics)
+print_def_visitors (FILE * fp, int isp)
 {
-  char *bw = NULL;
+  GDefMetric def = {
+    .key = "visitors",
+    .lbl = MTRC_VISITORS_LBL,
+    .vtype = "numeric",
+    .meta = "count"
+  };
+  print_def_block (fp, def, isp, 0);
+}
+
+static void
+print_def_bw (FILE * fp, int isp)
+{
+  GDefMetric def = {
+    .key = "bytes",
+    .lbl = MTRC_BW_LBL,
+    .vtype = "bytes",
+    .meta = "count"
+  };
+
   if (!conf.bandwidth)
     return;
-
-  bw = filesize_str (nmetrics->bw.nbw);
-  fprintf (fp, "<td class='num'>");
-  clean_output (fp, bw);
-  fprintf (fp, "</td>");
-
-  free (bw);
+  print_def_block (fp, def, isp, 0);
 }
 
 static void
-print_metric_avgts (FILE * fp, GMetrics * nmetrics)
+print_def_avgts (FILE * fp, int isp)
 {
-  char *avgts = NULL;
+  GDefMetric def = {
+    .key = "avgts",
+    .lbl = MTRC_AVGTS_LBL,
+    .vtype = "utime",
+    .meta = "avg"
+  };
+
   if (!conf.serve_usecs)
     return;
-
-  avgts = usecs_to_str (nmetrics->avgts.nts);
-  fprintf (fp, "<td class='num'>");
-  clean_output (fp, avgts);
-  fprintf (fp, "</td>");
-
-  free (avgts);
+  print_def_block (fp, def, isp, 0);
 }
 
 static void
-print_metric_cumts (FILE * fp, GMetrics * nmetrics)
+print_def_cumts (FILE * fp, int isp)
 {
-  char *cumts = NULL;
+  GDefMetric def = {
+    .key = "cumts",
+    .lbl = MTRC_CUMTS_LBL,
+    .vtype = "utime",
+    .meta = "count"
+  };
+
   if (!conf.serve_usecs)
     return;
-
-  cumts = usecs_to_str (nmetrics->cumts.nts);
-  fprintf (fp, "<td class='num'>");
-  clean_output (fp, cumts);
-  fprintf (fp, "</td>");
-
-  free (cumts);
+  print_def_block (fp, def, isp, 0);
 }
 
 static void
-print_metric_maxts (FILE * fp, GMetrics * nmetrics)
+print_def_maxts (FILE * fp, int isp)
 {
-  char *maxts = NULL;
+  GDefMetric def = {
+    .key = "maxts",
+    .lbl = MTRC_MAXTS_LBL,
+    .vtype = "utime",
+    .meta = "count"
+  };
+
   if (!conf.serve_usecs)
     return;
-
-  maxts = usecs_to_str (nmetrics->maxts.nts);
-  fprintf (fp, "<td class='num'>");
-  clean_output (fp, maxts);
-  fprintf (fp, "</td>");
-
-  free (maxts);
+  print_def_block (fp, def, isp, 0);
 }
 
 static void
-print_metric_data (FILE * fp, GMetrics * nmetrics)
+print_def_data (FILE * fp, int isp)
 {
-  fprintf (fp, "<td>");
-  clean_output (fp, nmetrics->data);
-  fprintf (fp, "</td>");
-}
+  GDefMetric def = {
+    .key = "data",
+    .lbl = MTRC_DATA_LBL,
+    .vtype = "string",
+    .cname = "trunc"
+  };
 
-static void
-print_metric_protocol (FILE * fp, GMetrics * nmetrics)
-{
-  if (!conf.append_protocol || !nmetrics->protocol)
+  if (!conf.serve_usecs)
     return;
-
-  fprintf (fp, "<td>");
-  clean_output (fp, nmetrics->protocol);
-  fprintf (fp, "</td>");
-}
-
-static void
-print_metric_method (FILE * fp, GMetrics * nmetrics)
-{
-  if (!conf.append_method || !nmetrics->method)
-    return;
-
-  fprintf (fp, "<td>");
-  clean_output (fp, nmetrics->method);
-  fprintf (fp, "</td>");
-}
-
-static void
-print_metrics (FILE * fp, GMetrics * nmetrics, int max_hit, int max_vis,
-               int sub, const GOutput * output)
-{
-  if (output->visitors)
-    print_metric_visitors (fp, nmetrics);
-  if (output->hits)
-    print_metric_hits (fp, nmetrics);
-  if (output->percent)
-    print_metric_hits_percent (fp, nmetrics, max_hit == nmetrics->hits);
-  if (output->bw)
-    print_metric_bw (fp, nmetrics);
-  if (output->avgts)
-    print_metric_avgts (fp, nmetrics);
-  if (output->cumts)
-    print_metric_cumts (fp, nmetrics);
-  if (output->maxts)
-    print_metric_maxts (fp, nmetrics);
-  if (output->protocol)
-    print_metric_protocol (fp, nmetrics);
-  if (output->method)
-    print_metric_method (fp, nmetrics);
-  if (output->data)
-    print_metric_data (fp, nmetrics);
-
-  if (output->graph && max_hit && !output->sub_graph && sub)
-    fprintf (fp, "<td></td>");
-  else if (output->graph && max_hit)
-    print_graph (fp, max_hit, max_vis, nmetrics->hits, nmetrics->visitors);
-}
-
-static void
-print_subitems (FILE * fp, GHolder * h, int idx, GPercTotals totals,
-                int max_hit, int max_vis, const GOutput * output)
-{
-  GMetrics *nmetrics;
-  GSubItem *iter;
-  GSubList *sub_list = h->items[idx].sub_list;
-  int i = 0;
-
-  if (sub_list == NULL)
-    return;
-
-  for (iter = sub_list->head; iter; iter = iter->next, i++) {
-    set_data_metrics (iter->metrics, &nmetrics, totals);
-
-    print_html_begin_tr (fp, 1, 1);
-    print_metrics (fp, nmetrics, max_hit, max_vis, 1, output);
-    print_html_end_tr (fp);
-
-    free (nmetrics);
-  }
+  print_def_block (fp, def, isp, 1);
 }
 
 static int
-fill_host_agents (void *val, void *user_data)
+count_plot_fp (const GHTML * def)
 {
-  GAgents *agents = user_data;
-  char *agent = ht_get_host_agent_val ((*(int *) val));
-
-  if (agent == NULL)
-    return 1;
-
-  agents->items[agents->size].agent = agent;
-  agents->size++;
-
-  return 0;
+  int i = 0;
+  for (i = 0; def->plot[i].plot != 0; ++i);
+  return i;
 }
 
 static void
-load_host_agents (void *list, void *user_data, int count)
+print_def_plot (FILE * fp, const GHTML * def, int isp)
 {
-  GSLList *lst = list;
-  GAgents *agents = user_data;
+  int i, n = count_plot_fp (def);
 
-  agents->items = xcalloc (count, sizeof (GAgentItem));
-  list_foreach (lst, fill_host_agents, agents);
-}
+  pjson (fp, "%.*s\"plot\": [%.*s", isp, TAB, nlines, NL);
 
-static void
-print_agents (FILE * fp, GHolder * h, int idx, int cspan)
-{
-  GAgents *agents = new_gagents ();
-  const char *addr = h->items[idx].metrics->data;
-  int i, n = 0;
-
-  if (set_host_agents (addr, load_host_agents, agents) == 1)
-    goto out;
-  if (agents->size == 0)
-    goto out;
-
-  print_html_begin_agent_tr (fp);
-  fprintf (fp, "<td colspan='2'></td>");
-  fprintf (fp, "<th colspan='%d' class='left'>UA - %s</th>", cspan, addr);
-  print_html_end_tr (fp);
-
-  n = agents->size > 10 ? 10 : agents->size;
   for (i = 0; i < n; ++i) {
-    print_html_begin_agent_tr (fp);
-    fprintf (fp, "<td colspan='2'></td>");
-    fprintf (fp, "<td colspan='%d'>", cspan);
-    fprintf (fp, "<div>");
-
-    clean_output (fp, agents->items[i].agent);
-
-    fprintf (fp, "</div>");
-    fprintf (fp, "</td>");
-    print_html_end_tr (fp);
+    pjson (fp, "%.*s\{%.*s", isp, TAB, nlines, NL);
+    def->plot[i].plot (fp, isp);
+    pjson (fp, (i != n - 1) ? "%.*s},%.*s" : "%.*s}%.*s", isp, TAB, nlines, NL);
   }
 
-out:
-
-  /* clean stuff up */
-  for (i = 0; i < agents->size; ++i)
-    free (agents->items[i].agent);
-  if (agents->items)
-    free (agents->items);
-  free (agents);
+  pjson (fp, "%.*s],%.*s", isp, TAB, nlines, NL);
 }
 
 static void
-print_host_sub (FILE * fp, GHolder * h, int idx, int cspan)
+print_def_metrics (FILE * fp, int isp)
 {
-  GSubItem *iter;
-  GSubList *sub_list = h->items[idx].sub_list;
+  /* open metrics block */
+  print_open_metrics_attr (fp, isp);
 
-  if (sub_list == NULL)
-    return;
+  print_def_hits (fp, isp);
+  print_def_visitors (fp, isp);
+  print_def_bw (fp, isp);
+  print_def_avgts (fp, isp);
+  print_def_cumts (fp, isp);
+  print_def_maxts (fp, isp);
+  print_def_data (fp, isp);
 
-  print_html_begin_agent_tr (fp);
-  fprintf (fp, "<td colspan='2'></td>");
-  fprintf (fp, "<th class='left' colspan='%d'>Location/Hostname</th>", cspan);
-  print_html_end_tr (fp);
-
-  for (iter = sub_list->head; iter; iter = iter->next) {
-    print_html_begin_agent_tr (fp);
-    fprintf (fp, "<td colspan='2'></td>");
-    fprintf (fp, "<td colspan='%d'><div>", cspan);
-    clean_output (fp, iter->metrics->data);
-    fprintf (fp, "</div></td>");
-    print_html_end_tr (fp);
-  }
+  /* close metrics block */
+  print_close_metrics_attr (fp, isp);
 }
 
 static void
-print_html_host (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
-                 int max_vis, GO_UNUSED const GPanel * panel,
-                 const GOutput * output)
+print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
 {
-  GMetrics *nmetrics;
-  int i, cspan = 5;
+  int isp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
-  if (output->avgts && conf.serve_usecs)
-    cspan++;
-  if (output->cumts && conf.serve_usecs)
-    cspan++;
-  if (output->maxts && conf.serve_usecs)
-    cspan++;
-
-  for (i = 0; i < h->idx; i++) {
-    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
-
-    print_html_begin_tr (fp, (i > OUTPUT_N), 0);
-
-    fprintf (fp, "<td>");
-    /* do we have child rows to expand */
-    if ((conf.list_agents) || (h->sub_items_size)) {
-      fprintf (fp, "<a href='javascript:void(0);' onclick='a(this);'>");
-      fprintf (fp, "<i class='ua icon-plus-square'></i>");
-      fprintf (fp, "</a>");
-    } else {
-      fprintf (fp, "-");
-    }
-    fprintf (fp, "</td>");
-
-    print_metrics (fp, nmetrics, max_hit, max_vis, 0, output);
-    print_html_end_tr (fp);
-
-    if (h->sub_items_size)
-      print_host_sub (fp, h, i, cspan);
-    if (conf.list_agents)
-      print_agents (fp, h, i, cspan);
-
-    free (nmetrics);
-  }
+  pjson (fp, "%.*s\"head\": \"%s\",%.*s", isp, TAB, head, nlines, NL);
+  pjson (fp, "%.*s\"desc\": \"%s\",%.*s", isp, TAB, desc, nlines, NL);
 }
 
 static void
-fmt_date (GMetrics * metrics)
+print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 {
-  char *date = get_visitors_date (metrics->data, "%Y%m%d", "%d/%b/%Y");
-  free (metrics->data);
-  metrics->data = date;
+  int isp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  print_def_meta (fp, module_to_head (def->module),
+                  module_to_desc (def->module), sp);
+  pjson (fp, "%.*s\"id\": \"%s\",%.*s", isp, TAB, module_to_id (def->module),
+         nlines, NL);
+  pjson (fp, "%.*s\"table\": %d,%.*s", isp, TAB, def->table, nlines, NL);
+
+  if (def->chart_type) {
+    pjson (fp, "%.*s\"chartType\": \"%s\",%.*s", isp, TAB,
+           chart2str (def->chart_type), nlines, NL);
+    pjson (fp, "%.*s\"chartReverse\": %d,%.*s", isp, TAB, def->chart_reverse,
+           nlines, NL);
+  }
+
+  print_def_plot (fp, def, isp);
+  print_def_metrics (fp, isp);
 }
 
 static void
-print_html_data (FILE * fp, GHolder * h, GPercTotals totals, int max_hit,
-                 int max_vis, const GPanel * panel, const GOutput * output)
+print_json_def (FILE * fp, const GHTML * def)
 {
-  GMetrics *nmetrics;
-  int i;
+  int sp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1;
 
-  for (i = 0; i < h->idx; i++) {
-    if (panel->metrics_callback)
-      panel->metrics_callback (h->items[i].metrics);
+  /* output open panel attribute */
+  print_open_panel_attr (fp, module_to_id (def->module), sp);
+  /* output panel data definitions */
+  print_panel_def_meta (fp, def, sp);
+  /* output close panel attribute */
+  print_close_panel_attr (fp, sp, ' ');
 
-    set_data_metrics (h->items[i].metrics, &nmetrics, totals);
-
-    print_html_begin_tr (fp, (i > OUTPUT_N), 0);
-    print_metrics (fp, nmetrics, max_hit, max_vis, 0, output);
-    print_html_end_tr (fp);
-
-    if (h->sub_items_size)
-      print_subitems (fp, h, i, totals, max_hit, max_vis, output);
-
-    free (nmetrics);
-  }
+  pjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
 }
 
 static void
-print_html_common (FILE * fp, GHolder * h, GPercTotals totals,
-                   const GPanel * panel, const GOutput * output)
+print_def_summary (FILE * fp, int sp)
 {
-  int max_hit = 0, max_vis = 0;
-  const char *lbl = panel->clabel;
+  /* open metrics block */
+  print_open_items_attr (fp, sp);
 
-  if (!panel->clabel)
-    lbl = module_to_label (h->module);
+  print_def_overall_requests (fp, sp);
+  print_def_overall_valid_reqs (fp, sp);
+  print_def_overall_invalid_reqs (fp, sp);
+  print_def_overall_processed_time (fp, sp);
+  print_def_overall_visitors (fp, sp);
+  print_def_overall_files (fp, sp);
+  print_def_overall_excluded (fp, sp);
+  print_def_overall_refs (fp, sp);
+  print_def_overall_notfound (fp, sp);
+  print_def_overall_static_files (fp, sp);
+  print_def_overall_log_size (fp, sp);
+  print_def_overall_bandwidth (fp, sp);
 
-  if (output->graph) {
-    max_hit = get_max_hit (h);
-    max_vis = get_max_visitor (h);
-  }
-
-  print_table_head (fp, h->module);
-  print_html_begin_table (fp);
-  print_html_begin_thead (fp);
-
-  fprintf (fp, "<tr>");
-  if (h->module == HOSTS)
-    fprintf (fp, "<th>-</th>");
-
-  fprintf (fp, "<th>%s</th>", MTRC_VISITORS_LBL);
-  fprintf (fp, "<th>%s</th>", MTRC_HITS_LBL);
-  fprintf (fp, "<th>%%</th>");
-
-  if (conf.bandwidth)
-    fprintf (fp, "<th>%s</th>", MTRC_BW_LBL);
-  if (conf.serve_usecs) {
-    fprintf (fp, "<th>%s</th>", MTRC_AVGTS_LBL);
-    fprintf (fp, "<th>%s</th>", MTRC_CUMTS_LBL);
-    fprintf (fp, "<th>%s</th>", MTRC_MAXTS_LBL);
-  }
-  if (conf.append_protocol && output->protocol)
-    fprintf (fp, "<th>%s</th>", MTRC_PROTOCOLS_LBL);
-  if (conf.append_method && output->method)
-    fprintf (fp, "<th>%s</th>", MTRC_METHODS_LBL);
-
-  if (max_hit)
-    fprintf (fp, "<th>%s</th>", lbl);
-  fprintf (fp, "<th class='%s'>%s", max_hit ? "fr" : "", max_hit ? "" : lbl);
-  fprintf (fp, "<span class='r icon-expand' onclick='t(this)'>&#8199;</span>");
-  fprintf (fp, "</th>");
-  fprintf (fp, "</tr>");
-
-  print_html_end_thead (fp);
-  print_html_begin_tbody (fp);
-
-  panel->render (fp, h, totals, max_hit, max_vis, panel, output);
-
-  print_html_end_tbody (fp);
-  print_html_end_table (fp);
+  /* close metrics block */
+  print_close_items_attr (fp, sp);
 }
 
 static void
-print_html_summary (FILE * fp, GLog * logger, GHolder * holder)
+print_json_def_summary (FILE * fp, GHolder * holder)
 {
-  long long t = 0LL;
-  int total = 0, valid = 0;
-  off_t log_size = 0;
-  char *bw, *size, *head;
+  char *head = NULL;
+  int sp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1;
 
   head = get_overall_header (holder);
-  print_html_page_header (fp);
-  print_html_h2 (fp, head, GENER_ID);
-  print_html_begin_grid (fp);
+  /* output open panel attribute */
+  print_open_panel_attr (fp, GENER_ID, sp);
+  print_def_meta (fp, head, "", sp);
+  print_def_summary (fp, sp);
+  /* output close panel attribute */
+  print_close_panel_attr (fp, sp, ',');
   free (head);
+}
 
-  /* total requests */
-  total = logger->processed;
-  valid = logger->valid;
-  print_html_begin_col_wrap (fp, 6, "green");
-  print_html_col_title (fp, T_VALID " / " T_REQUESTS);
-  fprintf (fp, "<h3 class='label trunc'>%'d / %'d</h3>", valid, total);
-  print_html_end_col_wrap (fp);
+static void
+print_json_defs (FILE * fp, GHolder * holder)
+{
+  GModule module;
+  const GHTML *def;
 
-  /* invalid requests */
-  total = logger->invalid;
-  print_html_begin_col_wrap (fp, 6, "red");
-  print_html_col_title (fp, T_FAILED);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
+  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, "var user_interface=");
+  pjson (fp, "{%.*s", nlines, NL);
 
-  /* generated time */
-  t = (long long) end_proc - start_proc;
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_GEN_TIME);
-  fprintf (fp, "<h3 class='label trunc'>%lld secs</h3>", t);
-  print_html_end_col_wrap (fp);
-
-  total = ht_get_size_uniqmap (VISITORS);
-  print_html_begin_col_wrap (fp, 6, "blue");
-  print_html_col_title (fp, T_UNIQUE_VIS);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  /* files */
-  total = ht_get_size_datamap (REQUESTS);
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_UNIQUE_FIL);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  /* excluded hits */
-  total = logger->excluded_ip;
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_EXCLUDE_IP);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  print_html_end_div (fp);
-
-  print_html_begin_grid (fp);
-
-  /* referrers */
-  total = ht_get_size_datamap (REFERRERS);
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_REFERRER);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  /* not found */
-  total = ht_get_size_datamap (NOT_FOUND);
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_UNIQUE404);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  /* static files */
-  total = ht_get_size_datamap (REQUESTS_STATIC);
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_STATIC_FIL);
-  fprintf (fp, "<h3 class='label trunc'>%'d</h3>", total);
-  print_html_end_col_wrap (fp);
-
-  if (!logger->piping && conf.ifile) {
-    log_size = file_size (conf.ifile);
-    size = filesize_str (log_size);
-  } else {
-    size = alloc_string ("N/A");
+  print_json_def_summary (fp, holder);
+  for (module = 0; module < TOTAL_MODULES; module++) {
+    if ((def = panel_lookup (module)) && !ignore_panel (module)) {
+      print_json_def (fp, def);
+    }
   }
+  pjson (fp, "}");
 
-  /* log size */
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_LOG);
-  fprintf (fp, "<h3 class='label trunc'>%s</h3>", size);
-  print_html_end_col_wrap (fp);
-
-  /* bandwidth */
-  bw = filesize_str ((float) logger->resp_size);
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_BW);
-  fprintf (fp, "<h3 class='label trunc'>%s</h3>", bw);
-  print_html_end_col_wrap (fp);
-
-  /* log path */
-  if (conf.ifile == NULL)
-    conf.ifile = (char *) "STDIN";
-  print_html_begin_col_wrap (fp, 6, NULL);
-  print_html_col_title (fp, T_LOG_PATH);
-  fprintf (fp, "<h3 class='label trunc'>%s</h3>", conf.ifile);
-  print_html_end_col_wrap (fp);
-
-  print_html_end_div (fp);
-
-  free (bw);
-  free (size);
+  fprintf (fp, "</script>");
 }
 
 /* entry point to generate a report writing it to the fp */
 void
 output_html (GLog * logger, GHolder * holder)
 {
-  GModule module;
   FILE *fp = stdout;
   char now[DATE_TIME];
-  const GOutput *output;
-  const GPanel *panel;
-  size_t idx = 0;
 
-  GPercTotals totals = {
-    .hits = logger->valid,
-    .visitors = ht_get_size_uniqmap (VISITORS),
-    .bw = logger->resp_size,
-  };
+  /* use new lines to prettify output */
+  if (conf.json_pretty_print)
+    nlines = 1;
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
-  setlocale (LC_NUMERIC, "");
   print_html_header (fp, now);
-  print_pure_menu (fp, now);
-
-  print_html_summary (fp, logger, holder);
-
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
-
-    if (!(panel = panel_lookup (module)))
-      continue;
-
-    output = output_lookup (module);
-    print_html_common (fp, holder + module, totals, panel, output);
-  }
-
+  print_json_defs (fp, holder);
+  print_json_data (fp, logger, holder);
+  print_html_body (fp);
   print_html_footer (fp);
 
   fclose (fp);
