@@ -194,7 +194,6 @@ uint32_t ht_get_genstats (const char *key);
 uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
-uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_maxts (GModule module, int key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 void ht_get_hits_min_max (GModule module, int *min, int *max);
