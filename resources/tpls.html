@@ -1,0 +1,128 @@
+<!-- TPL General  -->
+<script id="tpl-general" type="text/template">
+	<h3><i class="fa fa-angle-double-right"></i> {{head}}<br><small>{{desc}}</small></h3>
+	<div class="wrap-general-items"></div>
+</script>
+
+<!-- TPL General Items -->
+<script id="tpl-general-items" type="text/template">
+	<div class="col-md-2">
+		<div class="grid-module {{#className}}{{className}}{{/className}}{{^className}}gray{{/className}}">
+			<div class="col-title">
+				<i class="fa fa-bar-chart"></i> {{#label}}{{label}}{{/label}}
+			</div>
+			<h3 class="" style="padding-top: 0;">{{value}}</h3>
+		</div>
+	</div>
+</script>
+
+<!-- TPL Panel Table -->
+<script id="tpl-table-row" type="text/template">
+	{{#rows}}
+		<tr class="{{#subitem}}active{{/subitem}}">
+			<td class="row-idx text-right">{{idx}}</td>
+			{{#cells}}
+				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}><span class="value">{{value}}</span>{{#percent}}<span class="percent"> ({{percent}})</span>{{/percent}}</td>
+			{{/cells}}
+		</tr>
+	{{/rows}}
+</script>
+
+<!-- TPL Panel Table Meta -->
+<script id="tpl-table-row-meta" type="text/template">
+	{{#row}}
+		<tr>
+			<td class=""></td>
+			{{#cells}}
+				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+					{{#value}}
+					<h4 class="value"><span title="{{title}}">{{value}}</span>{{#max}}<br><small>Max: {{max}}</small>{{/max}}{{#min}}<br><small>Min: {{min}}</small>{{/min}}</h4>
+					{{/value}}
+				</td>
+			{{/cells}}
+		</tr>
+	{{/row}}
+</script>
+
+<!-- TPL Panel -->
+<script id="tpl-panel" type="text/template">
+	<div class="row">
+		<div class="col-md-12">
+			<div class="form-group clearfix">
+				<h3 class="pull-left" id="{{id}}"><i class="fa fa-angle-double-right"></i> {{head}}<br><small>{{desc}}</small></h3>
+				{{#plot.length}}
+				<div class="panel-plot-wrap pull-right">
+					<div class="dropdown">
+						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+							Plot Metric <span class="caret"></span>
+						</button>
+						<ul class="dropdown-menu dropdown-menu-right">
+							{{#plot}}
+							<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}">{{label}}</a></li>
+							{{/plot}}
+						</ul>
+					</div>
+				</div>
+				{{/plot.length}}
+			</div>
+		</div>
+	</div>
+	{{#chartType}}
+	{{#plot.length}}
+	<div class="row">
+		<div class="col-md-12">
+			<div id="chart-{{id}}"></div>
+		</div>
+	</div>
+	{{/plot.length}}
+	{{/chartType}}
+	{{#table}}
+	<div class="row clearfix">
+		<div class="col-md-12">
+			<div class="table-responsive">
+				<table class="table table-condensed table-hover table-{{id}}">
+					<thead>
+						<tr>
+							<th class=""></th>
+							{{#items}}
+								<th class="{{valueType}}">{{label}}</th>
+							{{/items}}
+						</tr>
+					</thead>
+					<tbody class="tbody-meta">
+					</tbody>
+					<tbody class="tbody-data">
+					</tbody>
+				</table>
+			</div>
+
+			<ul class="pagination pagination-sm pull-left">
+				<li>
+					<a class="panel-prev" href="javascript:void(0);" aria-label="Previous" data-panel="{{id}}">
+						<i class="fa fa-chevron-left"></i>
+					</a>
+				</li>
+				<li>
+					<a class="panel-next" href="javascript:void(0);" aria-label="Next" data-panel="{{id}}">
+						<i class="fa fa-chevron-right"></i>
+					</a>
+				</li>
+			</ul>
+			{{#expandable}}
+				<button type="button" class="btn btn-default pull-right panel-expand" data-panel="{{id}}" data-state="collapsed">
+					<i class="fa fa-plus"></i> Expand
+				</button>
+			{{/expandable}}
+		</div>
+	</div>
+	{{/table}}
+</script>
+
+<script id="tpl-panel-nav" type="text/template">
+	<ul>
+		<li><a href="#">Overall Analyzed Requests</a></li>
+		{{#nav}}
+		<li><a href="#{{key}}">{{head}}</a></li>
+		{{/nav}}
+	</ul>
+</script>
