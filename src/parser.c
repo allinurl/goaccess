@@ -1428,18 +1428,22 @@ insert_rootmap (int root_nkey, const char *root, GModule module)
   ht_insert_rootmap (module, root_nkey, root);
 }
 
+/* A wrapper function to insert a data int key mapped to the
+ * corresponding int root key. */
 static void
 insert_root (int data_nkey, int root_nkey, GModule module)
 {
   ht_insert_root (module, data_nkey, root_nkey);
 }
 
+/* A wrapper function to increase hits counter from an int key. */
 static void
 insert_hit (int data_nkey, GModule module)
 {
   ht_insert_hits (module, data_nkey, 1);
 }
 
+/* A wrapper function to increase visitors counter from an int key. */
 static void
 insert_visitor (int uniq_nkey, GModule module)
 {
