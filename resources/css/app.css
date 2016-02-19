@@ -1,0 +1,245 @@
+/* GLOBAL */
+html,
+body {
+    overflow-x: hidden; /* Prevent scroll on narrow devices */
+    background: #f0f0f0;
+}
+body {
+
+}
+h1 {
+    font-weight: bold;
+    letter-spacing: -3px;
+}
+h3 {
+    letter-spacing: -1px
+}
+.container {
+    background: #FFF
+}
+.page-header {
+	margin: 25px 0 20px;
+}
+.page-header h1 {
+	margin: 0;
+}
+.pagination {
+	margin: 5px 0;
+}
+
+/* NAVIGATION */
+nav {
+    border-right: 3px solid #5bc0de;
+    -webkit-transition: left .7s;
+    transition: left .7s;
+    background: #1C1C1C;
+    height: 100%;
+    left: -236px;
+    position: fixed;
+    top: 0;
+    width: 300px;
+    z-index: 2;
+}
+nav header {
+    margin: 40px 20px 30px
+}
+nav header a {
+    font-size: 2.7em;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: rgba(240,240,240,.7);
+}
+nav header a:hover {
+    color: #eee
+}
+nav:hover {
+    left: 0
+}
+nav:hover ~ #content {
+    opacity: .3
+}
+nav:hover .icon {
+    opacity: 0
+}
+nav .icon {
+    width: 32px;
+    height: 32px;
+    float: right;
+    margin: 30px 16px 0 0;
+    font-size: 36px;
+    text-align: center;
+    line-height: 32px;
+    color: #9E9E9E;
+    transition: opacity .7s;
+    -webkit-transition: opacity .7s;
+}
+nav li a {
+    border-left: 3px solid transparent;
+    color: rgba(200,200,200,.5);
+    display: block;
+	font-size: smaller;
+    padding: 9px 20px;
+	text-transform: uppercase;
+}
+nav li a:before {
+    content: '';
+    width: 0;
+    height: 0;
+    display: inline-block;
+    margin: 3px 0 0 -20px;
+    border: 8px solid transparent;
+}
+nav li a:hover {
+    background: rgba(0,0,0,.1);
+    border-color: #1b9;
+    color: #eee;
+}
+nav li a:hover:before {
+    border-left-color: #1b9
+}
+nav ul {
+    padding-left: 0;
+    list-style: none;
+}
+/* Navigation  -- Icon */
+nav a,
+nav a:hover {
+    text-decoration: none
+}
+
+/* CONTAINER */
+@media screen and (max-width: 767px) {
+    .row-offcanvas {
+        position: relative;
+        -webkit-transition: all .25s ease-out;
+        -o-transition: all .25s ease-out;
+        transition: all .25s ease-out;
+    }
+    .row-offcanvas-right {
+        right: 0
+    }
+    .row-offcanvas-left {
+        left: 0
+    }
+    .row-offcanvas-right
+      .sidebar-offcanvas {
+        right: -50%;
+        /* 6 columns */
+    }
+    .row-offcanvas-left
+      .sidebar-offcanvas {
+        left: -50%;
+        /* 6 columns */
+    }
+    .row-offcanvas-right.active {
+        right: 50%;
+        /* 6 columns */
+    }
+    .row-offcanvas-left.active {
+        left: 50%;
+        /* 6 columns */
+    }
+    .sidebar-offcanvas {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        /* 6 columns */
+    }
+}
+
+@media (min-width: 768px) {
+    .container {
+        width:750px
+    }
+}
+
+@media (min-width: 1120px) {
+    .container {
+        width:970px
+    }
+}
+
+@media (min-width: 1320px) {
+    .container {
+        width:1170px
+    }
+}
+
+/* PANEL STYLES */
+.wrap-panels {
+	margin-top: 20px;
+}
+.wrap-panels table thead tr th {
+	text-align: right;
+}
+.wrap-panels table .string {
+	text-align: left;
+}
+.wrap-panels .percent {
+	color: #898989;
+}
+.wrap-panels table td, table th {
+	white-space: nowrap;
+	overflow: hidden;
+}
+.wrap-panels table .tbody-meta tr {
+	background-color: #f8f8f8;
+	text-shadow: 1px 1px 0 #FFF;
+}
+.wrap-panels table .tbody-meta small {
+	font-size: 65%;
+}
+.wrap-panels table .tbody-data td {
+	border-right: 1px solid #F1F1F1;
+	font-size: smaller;
+}
+.wrap-panels table .tbody-data td:last-child {
+	border-right: none;
+}
+.wrap-panels table .tbody-data td.row-idx {
+	color: #898989;
+}
+
+/* GENERAL */
+.panel-plot-wrap {
+    position: relative;
+    top: 18px;
+}
+.col-title {
+    font-size: 85%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 1px 1px 0 #FFF;
+    white-space: nowrap;
+    width: 100%;
+}
+.grid-module {
+    background: #F1F1F1;
+    color: rgb(36, 36, 36);
+    font-weight: normal;
+    margin-top: 5px;
+    padding: 7px;
+}
+.grid-module h3 {
+    font-size: 20px;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+.green {
+    border-top: 4px solid #5cb85c
+}
+.red {
+    border-top: 4px solid #d9534f
+}
+.blue {
+    border-top: 4px solid #5bc0de
+}
+.gray {
+    border-top: 4px solid #9E9E9E
+}
+.black {
+    border-top: 4px solid #1C1C1C
+}
