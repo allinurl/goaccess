@@ -354,6 +354,7 @@ set_module_to (GScroll * scrll, GModule module)
     disabled_panel_msg (module);
     return;
   }
+
   /* reset expanded module */
   collapse_current_module ();
   scrll->current = module;
@@ -630,7 +631,12 @@ perform_tail_follow (uint64_t * size1)
 static int
 next_module (void)
 {
-  gscroll.current = get_next_module (gscroll.current);
+  int next = -1;
+
+  if ((next = get_next_module (gscroll.current)) == -1)
+    return 1;
+
+  gscroll.current = next;
   if (!conf.no_tab_scroll)
     gscroll.dash = get_module_index (gscroll.current) * DASH_COLLAPSED;
 
@@ -641,7 +647,12 @@ next_module (void)
 static int
 previous_module (void)
 {
-  gscroll.current = get_prev_module (gscroll.current);
+  int prev = -1;
+
+  if ((prev = get_prev_module (gscroll.current)) == -1)
+    return 1;
+
+  gscroll.current = prev;
   if (!conf.no_tab_scroll)
     gscroll.dash = get_module_index (gscroll.current) * DASH_COLLAPSED;
 
@@ -993,8 +1004,8 @@ main (int argc, char **argv)
   parse_conf_file (&argc, &argv);
   parse_cmd_line (argc, argv);
 
-  /* initialize modules */
-  init_modules ();
+  /* initialize modules and set first */
+  gscroll.current = init_modules ();
   /* initialize storage */
   init_storage ();
   /* setup to use the current locale */
