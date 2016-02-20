@@ -1153,25 +1153,35 @@ perform_next_find (GHolder * h, GScroll * gscroll)
       data = h[module].items[j].metrics->data;
 
       rc = regexec (&regex, data, 0, NULL, 0);
+      /* error matching against the precompiled pattern buffer */
       if (rc != 0 && rc != REG_NOMATCH) {
         regerror (rc, &regex, buf, sizeof (buf));
         draw_header (stdscr, buf, "%s", y - 1, 0, x, color_error);
         refresh ();
         regfree (&regex);
         return 1;
-      } else if (rc == 0 && !find_t.look_in_sub) {
+      }
+      /* a match was found (data level) */
+      else if (rc == 0 && !find_t.look_in_sub) {
         find_t.look_in_sub = 1;
-        goto found;
-      } else {
+        perform_find_dash_scroll (gscroll, module);
+        break;
+      }
+      /* look at sub list nodes */
+      else {
         sub_list = h[module].items[j].sub_list;
-        if (find_next_sub_item (sub_list, &regex) == 0)
-          goto found;
+        if (find_next_sub_item (sub_list, &regex) == 0) {
+          perform_find_dash_scroll (gscroll, module);
+          break;
+        }
       }
     }
+
     /* reset find */
     find_t.next_idx = 0;
     find_t.next_parent_idx = 0;
     find_t.next_sub_idx = 0;
+
     if (find_t.module != module) {
       reset_scroll_offsets (gscroll);
       gscroll->expanded = 0;
@@ -1182,8 +1192,6 @@ perform_next_find (GHolder * h, GScroll * gscroll)
     }
   }
 
-found:
-  perform_find_dash_scroll (gscroll, module);
 out:
   regfree (&regex);
   return 0;

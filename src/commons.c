@@ -384,8 +384,11 @@ get_prev_module (GModule module)
   return 0;
 }
 
-/* Build an array of available modules (ignores listed panels). */
-void
+/* Build an array of available modules (ignores listed panels).
+ *
+ * If there are no modules enabled, 0 is returned.
+ * On success, the first enabled module is returned. */
+int
 init_modules (void)
 {
   GModule module;
@@ -400,4 +403,6 @@ init_modules (void)
       module_list[i++] = module;
     }
   }
+
+  return module_list[0] > -1 ? module_list[0] : 0;
 }

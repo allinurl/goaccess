@@ -226,18 +226,20 @@ GAgentItem *new_gagent_item (uint32_t size);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_module_enum (const char *str);
+int has_timestamp (const char *fmt);
+int str2enum (const GEnum map[], int len, const char *str);
+
 int get_module_index (int module);
 int get_next_module(GModule module);
 int get_prev_module(GModule module);
-int has_timestamp (const char *fmt);
 int ignore_panel (GModule mod);
+int init_modules (void);
 int remove_module(GModule module);
-int str2enum (const GEnum map[], int len, const char *str);
 uint32_t get_num_modules(void);
+
 void display_default_config_file (void);
 void display_storage (void);
 void display_version (void);
-void init_modules (void);
 
 /* single linked-list */
 GSLList *list_create (void *data);
