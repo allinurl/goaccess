@@ -355,6 +355,10 @@ set_module_to (GScroll * scrll, GModule module)
     return;
   }
 
+  /* scroll to panel */
+  if (!conf.no_tab_scroll)
+    gscroll.dash = get_module_index (module) * DASH_COLLAPSED;
+
   /* reset expanded module */
   collapse_current_module ();
   scrll->current = module;
