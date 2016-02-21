@@ -1211,7 +1211,7 @@ print_metric_bw (FILE * fp, GMetrics * nmetrics)
   if (!conf.bandwidth)
     return;
 
-  bw = filesize_str (nmetrics->bw.nbw);
+  bw = filesize_str_dumb (nmetrics->bw.nbw);
   fprintf (fp, "<td class='num'>");
   clean_output (fp, bw);
   fprintf (fp, "</td>");
