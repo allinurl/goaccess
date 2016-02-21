@@ -465,8 +465,12 @@ print_html_header (FILE * fp, char *now)
   fprintf (fp, "<meta name='robots' content='noindex, nofollow' />");
   print_html_title(fp, now);
 
+  fprintf (fp, "<!-- load jQuery and tablesorter scripts for sorting tables -->\n");
+  fprintf (fp, "<script src=\"https://code.jquery.com/jquery-2.2.0.min.js\"></script>\n");
+  fprintf (fp, "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.25.4/js/jquery.tablesorter.min.js\"></script>\n");
+
   fprintf (fp, "<script type=\"text/javascript\">\n");
-  fprintf (fp, "function t(c){for(var b=c.parentNode.parentNode.parentNode");
+  fprintf (fp, "function t(c){for(var b=c.parentNode.parentNode.parentNode.parentNode");
   fprintf (fp, ".parentNode.getElementsByTagName('tr'),a=0;a<b.length;a++)");
   fprintf (fp, "b[a].classList.contains('hide')?(b[a].classList.add('show'),");
   fprintf (fp, "b[a].classList.remove('hide'),c.classList.remove('icon-expand'),");
@@ -480,6 +484,14 @@ print_html_header (FILE * fp, char *now)
   fprintf (fp, "(b.firstChild.className='icon-plus-square',a.className='agent sub'),");
   fprintf (fp, "a=ne(a,'tr')}function ne(b,a){a=a.toUpperCase();for(b=b.nextSibling;");
   fprintf (fp, "b&&b.tagName!==a;)b=b.nextSibling;return b};");
+
+  fprintf (fp, "<!-- after loading HTML - turn on sorting tables  -->\n");
+  fprintf (fp, "$(document).ready(function(){\n");
+  fprintf (fp, "    var tables = document.getElementsByTagName(\"TABLE\");\n");
+  fprintf (fp, "    for (var i=tables.length-1; i>=0 ; i-=1)\n");
+  fprintf (fp, "        $(tables[i]).tablesorter();\n");
+  fprintf (fp, "    }\n");
+  fprintf (fp, ");\n");
 
   fprintf (fp, "</script>\n");
 
@@ -1030,7 +1042,7 @@ print_p (FILE * fp, const char *paragraph)
 static void
 print_html_begin_table (FILE * fp)
 {
-  fprintf (fp, "<table class=\"pure-table\">\n");
+  fprintf (fp, "<table class=\"pure-table  tablesorter\">\n");
 }
 
 static void
