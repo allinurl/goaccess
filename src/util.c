@@ -494,6 +494,15 @@ filesize_str (unsigned long long log_size)
 }
 
 char *
+filesize_str_dump (unsigned long long log_size)
+{
+  char *size = (char *) xmalloc (sizeof (char) * 12);
+    snprintf (size, 12, "%.0f", (double) (log_size));
+
+  return size;
+}
+
+char *
 usecs_to_str (unsigned long long usec)
 {
   char *size = (char *) xmalloc (sizeof (char) * 11);
