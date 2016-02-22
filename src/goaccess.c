@@ -310,7 +310,7 @@ render_screens (void)
   refresh ();
 
   /* call general stats header */
-  display_general (header_win, conf.ifile, logger);
+  display_general (header_win, logger, holder);
   wrefresh (header_win);
 
   /* display active label based on current module */

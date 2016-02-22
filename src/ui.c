@@ -453,6 +453,54 @@ get_str_bandwidth (GLog * logger)
   return filesize_str ((float) logger->resp_size);
 }
 
+static char **
+get_visitors_dates (GHolder * h)
+{
+  char **dates = malloc (sizeof (char *) * h->holder_size);
+  int i;
+
+  for (i = 0; i < h->idx; i++) {
+    dates[i] = h->items[i].metrics->data;
+  }
+  qsort (dates, h->holder_size, sizeof (char *), strcmp_asc);
+
+  return dates;
+}
+
+char *
+get_overall_header (GHolder * h)
+{
+  const char *head = T_DASH " - " T_HEAD;
+  char *hd = NULL, *start = NULL, *end = NULL, **dates = NULL;
+
+  if (h->idx == 0)
+    return xstrdup (head);
+
+  dates = get_visitors_dates (h + VISITORS);
+
+  start = get_visitors_date (dates[0], "%Y%m%d", conf.date_format);
+  end = get_visitors_date (dates[h->idx - 1], "%Y%m%d", conf.date_format);
+
+  hd = xmalloc (snprintf (NULL, 0, "%s (%s - %s)", head, start, end) + 1);
+  sprintf (hd, "%s (%s - %s)", head, start, end);
+
+  free (dates);
+  free (end);
+  free (start);
+
+  return hd;
+}
+
+static void
+render_overall_header (WINDOW * win, GHolder * h)
+{
+  char *hd = get_overall_header (h);
+  int col = getmaxx (stdscr);
+
+  draw_header (win, hd, " %s", 0, 0, col, color_panel_header);
+  free (hd);
+}
+
 /* render overall statistics */
 static void
 render_overall_statistics (WINDOW * win, Field fields[], size_t n)
@@ -506,13 +554,13 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n)
 }
 
 void
-display_general (WINDOW * win, char *ifile, GLog * logger)
+display_general (WINDOW * win, GLog * logger, GHolder * h)
 {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
 
-  int col = getmaxx (stdscr);
+  char *ifile = conf.ifile;
   size_t n, i;
 
   /* *INDENT-OFF* */
@@ -534,7 +582,7 @@ display_general (WINDOW * win, char *ifile, GLog * logger)
   /* *INDENT-ON* */
 
   werase (win);
-  draw_header (win, T_DASH " - " T_HEAD, " %s", 0, 0, col, color_panel_header);
+  render_overall_header (win, h);
 
   n = ARRAY_SIZE (fields);
   render_overall_statistics (win, fields, n);

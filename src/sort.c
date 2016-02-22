@@ -92,6 +92,13 @@ GSort module_sort[TOTAL_MODULES] = {
 };
 /* *INDENT-ON* */
 
+/* Sort an array of strings ascending */
+int
+strcmp_asc (const void *a, const void *b)
+{
+  return strcmp (*((char **) a), *((char **) b));
+}
+
 /* Sort 'data' metric ascending */
 static int
 cmp_data_asc (const void *a, const void *b)
