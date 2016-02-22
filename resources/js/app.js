@@ -92,6 +92,19 @@ var GoAccess = (function() {
 		return panel ? AppUIData[panel] : AppUIData;
 	}
 
+	/**
+	 * A panel must exist in AppData and in AppUIData. Furthermore it must not have an
+	 * empty id to marked as valid.
+	 * @param  {string}  panel Name of panel
+	 * @return {Boolean}       Validity of panel
+	 */
+	function isPanelValid(panel) {
+		if(!AppUIData.hasOwnProperty(panel) || !AppData.hasOwnProperty(panel) || !AppUIData[panel].id)
+			return true;
+		else
+			return false;
+	}
+
 	function renderGeneral() {
 		var ui = getUIData('general');
 		var data = getData('general');
@@ -213,14 +226,14 @@ var GoAccess = (function() {
 		var ui = getUIData();
 
 		var nav = [];
-		for (var x in ui) {
-			if (!ui.hasOwnProperty(x) || !ui[x].id)
+		for (var panel in ui) {
+			if (isPanelValid(panel))
 				continue;
 			nav.push({
-				'key': x,
-				'head': ui[x].head,
+				'key': panel,
+				'head': ui[panel].head,
 			});
-			renderPanel(x, ui[x]);
+			renderPanel(panel, ui[panel]);
 		}
 		renderNav(nav);
 		ePanelHandlers();
@@ -567,7 +580,7 @@ var GoAccess = (function() {
 		var ui = getUIData();
 
 		for (var panel in ui) {
-			if (!ui.hasOwnProperty(panel) || !ui[panel].id)
+			if (isPanelValid(panel))
 				continue;
 
 			var uiItems = ui[panel].items;
@@ -591,7 +604,7 @@ var GoAccess = (function() {
 		AppData = (options || {}).data;;
 
 		for (var panel in AppUIData) {
-			if (!AppUIData.hasOwnProperty(panel) || !AppUIData[panel].id)
+			if (isPanelValid(panel))
 				continue;
 			setUIOpts(panel, AppUIData[panel]);
 		}
