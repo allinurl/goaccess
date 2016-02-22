@@ -209,11 +209,18 @@ var GoAccess = (function() {
 		});
 	}
 
-	function renderPanel(x, ui) {
+	function renderPanel(panel, ui) {
 		var template = $('#tpl-panel').innerHTML;
 		var box = document.createElement('div');
-		box.id = 'panel-' + x;
+		box.id = 'panel-' + panel;
 		box.innerHTML = Hogan.compile(template).render(ui);
+
+		// remove pagination if it's not needed
+		if(ui['totalItems'] <= AppPrefs['perPage']) {
+			var pagination = box.getElementsByClassName('pagination');
+			pagination[0].parentNode.removeChild(pagination[0]);
+		}
+		
 		$('.wrap-panels').appendChild(box);
 	}
 
