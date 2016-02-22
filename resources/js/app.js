@@ -298,7 +298,40 @@ var GoAccess = (function() {
 		};
 		merge(def, ui.plot[0].c3.axis);
 
+		// TODO: it's dirty to overwrite the formater
+		def.y.tick.format = d3.format("s");
+
 		return def;
+	}
+
+	function c3Tooltip() {
+		var tooltip = {
+			format: {
+				value:
+					function (value, ratio, id) {
+						switch(id) {
+							case 'bytes':
+								return fmtValue(value, 'bytes');
+							case 'visitors':
+							case 'hits':
+								return d3.format('s')(value);
+							default:
+								return value;
+						}
+					},
+				name:
+					function (name, ratio, id, index) {
+						switch(id) {
+							case 'bytes':
+								return 'Traffic';
+							default:
+								return name;
+						}
+					}
+			}
+		}
+
+		return tooltip;
 	}
 
 	function renderAreaSpline(panel, ui, dataset) {
@@ -308,6 +341,7 @@ var GoAccess = (function() {
 			grid: c3Grid(),
 			color: c3Palette(),
 			axis: c3axis(panel),
+			tooltip: c3Tooltip(),
 			size: {
 				height: 180
 			}
@@ -321,6 +355,7 @@ var GoAccess = (function() {
 			data: c3Data(dataset, ui, 'bar'),
 			grid: c3Grid(),
 			color: c3Palette(),
+			tooltip: c3Tooltip(),
 			axis: {
 				x: {
 					type: 'category',
@@ -328,6 +363,9 @@ var GoAccess = (function() {
 				},
 				y: {
 					label: 'Hits',
+					tick: {
+						format: d3.format('s')
+					}
 				},
 				y2: {
 					show: true,
