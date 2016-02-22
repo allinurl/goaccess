@@ -302,6 +302,7 @@ GOutput *output_lookup (GModule module);
 GSpinner *new_gspinner (void);
 
 char *get_browser_type (char *line);
+char *get_overall_header (GHolder *h);
 char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
 const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
@@ -310,7 +311,7 @@ const char *module_to_label (GModule module);
 int render_confdlg(GLog * logger, GSpinner * spinner);
 int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
 void close_win (WINDOW * w);
-void display_general (WINDOW * header_win, char *ifile, GLog *logger);
+void display_general (WINDOW * win, GLog * logger, GHolder *h);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
 void generate_time (void);

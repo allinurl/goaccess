@@ -1556,16 +1556,18 @@ print_html_common (FILE * fp, GHolder * h, int total, const GPanel * panel,
 }
 
 static void
-print_html_summary (FILE * fp, GLog * logger)
+print_html_summary (FILE * fp, GLog * logger, GHolder * holder)
 {
   long long t = 0LL;
   int total = 0, valid = 0;
   off_t log_size = 0;
-  char *bw, *size;
+  char *bw, *size, *head;
 
+  head = get_overall_header (holder);
   print_html_page_header (fp);
-  print_html_h2 (fp, T_HEAD, GENER_ID);
+  print_html_h2 (fp, head, GENER_ID);
   print_html_begin_grid (fp);
+  free (head);
 
   /* total requests */
   total = logger->processed;
@@ -1686,7 +1688,7 @@ output_html (GLog * logger, GHolder * holder)
   print_html_header (fp, now);
   print_pure_menu (fp, now);
 
-  print_html_summary (fp, logger);
+  print_html_summary (fp, logger, holder);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];

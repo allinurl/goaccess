@@ -74,5 +74,6 @@ int get_sort_order_enum (const char *str);
 void parse_initial_sort (void);
 void set_initial_sort (const char *smod, const char *sfield, const char *ssort);
 void sort_holder_items (GHolderItem * items, int size, GSort sort);
+int strcmp_asc (const void *a, const void *b);
 
 #endif
