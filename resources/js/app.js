@@ -209,11 +209,20 @@ var GoAccess = (function() {
 		});
 	}
 
-	function renderPanel(x, ui) {
+	function renderPanel(panel, ui) {
 		var template = $('#tpl-panel').innerHTML;
 		var box = document.createElement('div');
-		box.id = 'panel-' + x;
+		box.id = 'panel-' + panel;
 		box.innerHTML = Hogan.compile(template).render(ui);
+
+		var pagination = box.getElementsByClassName('pagination');
+		pagination[0].getElementsByClassName('panel-prev')[0].parentNode.className = 'disabled';
+
+		// remove pagination if it's not needed
+		if(ui['totalItems'] <= AppPrefs['perPage']) {
+			pagination[0].parentNode.removeChild(pagination[0]);
+		}
+
 		$('.wrap-panels').appendChild(box);
 	}
 
@@ -421,7 +430,7 @@ var GoAccess = (function() {
 	}
 
 	function getTotalPages(dataItems) {
-		return Math.ceil(dataItems.length / AppPrefs.perPage)
+		return Math.ceil(dataItems.length / AppPrefs.perPage);
 	}
 
 	function getPage(panel, dataItems, page) {
@@ -569,9 +578,24 @@ var GoAccess = (function() {
 	function renderTable(panel, page, expanded) {
 		var dataItems = getData(panel).data;
 		var ui = getUIData(panel);
+		var panelHtml = $('#panel-' + panel);
+
 		if (ui.expanded) {
 			dataItems = getAllDataItems(panel);
 		}
+
+		// enable all pagination buttons
+		panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = '';
+		panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = '';
+
+		// diable pagination next button if last page is reached
+		if(page >= getTotalPages(dataItems))
+			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = 'disabled';
+
+		// disable pagination prev button if first page is reached
+		if(page <= 1)
+			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = 'disabled';
+
 
 		renderDataRows(panel, ui.items, dataItems, page);
 	}
