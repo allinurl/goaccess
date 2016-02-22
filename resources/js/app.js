@@ -584,18 +584,19 @@ var GoAccess = (function() {
 			dataItems = getAllDataItems(panel);
 		}
 
-		// enable all pagination buttons
-		panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = '';
-		panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = '';
+		if(panelHtml.getElementsByClassName('pagination')[0]) {
+			// enable all pagination buttons
+			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = '';
+			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = '';
 
-		// diable pagination next button if last page is reached
-		if(page >= getTotalPages(dataItems))
-			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = 'disabled';
+			// diable pagination next button if last page is reached
+			if(page >= getTotalPages(dataItems))
+				panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = 'disabled';
 
-		// disable pagination prev button if first page is reached
-		if(page <= 1)
-			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = 'disabled';
-
+			// disable pagination prev button if first page is reached
+			if(page <= 1)
+				panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = 'disabled';
+		}
 
 		renderDataRows(panel, ui.items, dataItems, page);
 	}
