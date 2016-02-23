@@ -81,7 +81,9 @@ static GHTML htmldef[] = {
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , CHART_NONE       , 0 , 1} ,
 #endif
-  {STATUS_CODES    , CHART_NONE       , 0 , 1} ,
+  {STATUS_CODES    , CHART_VBAR       , 0 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
 };
 /* *INDENT-ON* */
 
@@ -703,8 +705,6 @@ print_def_data (FILE * fp, int isp)
     .cname = "trunc"
   };
 
-  if (!conf.serve_usecs)
-    return;
   print_def_block (fp, def, isp, 1);
 }
 
