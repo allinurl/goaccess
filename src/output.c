@@ -185,7 +185,7 @@ print_html_header (FILE * fp, char *now)
 }
 
 static void
-print_html_body (FILE * fp)
+print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
   "<nav class='hidden-xs hidden-sm'>"
@@ -200,7 +200,7 @@ print_html_body (FILE * fp)
   "<div class='pull-right'>"
   "<h4>"
   "<span class='label label-info'>"
-  "Last Updated: 2015-12-12 12:12:12"
+  "Last Updated: %s"
   "</span>"
   "</h4>"
   "</div>"
@@ -210,7 +210,7 @@ print_html_body (FILE * fp)
   "<div class='wrap-panels'></div>"
   "</div>"
   "</div>"
-  "</div>");
+  "</div>", now);
 }
 
 static void
@@ -647,6 +647,7 @@ print_def_bw (FILE * fp, int isp)
 
   if (!conf.bandwidth)
     return;
+
   print_def_block (fp, def, isp, 0);
 }
 
@@ -662,6 +663,7 @@ print_def_avgts (FILE * fp, int isp)
 
   if (!conf.serve_usecs)
     return;
+
   print_def_block (fp, def, isp, 0);
 }
 
@@ -677,6 +679,7 @@ print_def_cumts (FILE * fp, int isp)
 
   if (!conf.serve_usecs)
     return;
+
   print_def_block (fp, def, isp, 0);
 }
 
@@ -692,6 +695,36 @@ print_def_maxts (FILE * fp, int isp)
 
   if (!conf.serve_usecs)
     return;
+  print_def_block (fp, def, isp, 0);
+}
+
+static void
+print_def_method (FILE * fp, int isp)
+{
+  GDefMetric def = {
+    .key = "method",
+    .lbl = MTRC_METHODS_LBL,
+    .vtype = "string",
+  };
+
+  if (!conf.append_method)
+    return;
+
+  print_def_block (fp, def, isp, 0);
+}
+
+static void
+print_def_protocol (FILE * fp, int isp)
+{
+  GDefMetric def = {
+    .key = "protocol",
+    .lbl = MTRC_PROTOCOLS_LBL,
+    .vtype = "string",
+  };
+
+  if (!conf.append_protocol)
+    return;
+
   print_def_block (fp, def, isp, 0);
 }
 
@@ -733,8 +766,10 @@ print_def_plot (FILE * fp, const GHTML * def, int isp)
 }
 
 static void
-print_def_metrics (FILE * fp, int isp)
+print_def_metrics (FILE * fp, const GHTML * def, int isp)
 {
+  const GOutput *output = output_lookup (def->module);
+
   /* open metrics block */
   print_open_metrics_attr (fp, isp);
 
@@ -744,6 +779,12 @@ print_def_metrics (FILE * fp, int isp)
   print_def_avgts (fp, isp);
   print_def_cumts (fp, isp);
   print_def_maxts (fp, isp);
+
+  if (output->method)
+    print_def_method (fp, isp);
+  if (output->protocol)
+    print_def_protocol (fp, isp);
+
   print_def_data (fp, isp);
 
   /* close metrics block */
@@ -772,6 +813,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 
   print_def_meta (fp, module_to_head (def->module),
                   module_to_desc (def->module), sp);
+
   pjson (fp, "%.*s\"id\": \"%s\",%.*s", isp, TAB, module_to_id (def->module),
          nlines, NL);
   pjson (fp, "%.*s\"table\": %d,%.*s", isp, TAB, def->table, nlines, NL);
@@ -784,7 +826,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
   }
 
   print_def_plot (fp, def, isp);
-  print_def_metrics (fp, isp);
+  print_def_metrics (fp, def, isp);
 }
 
 static void
@@ -883,9 +925,11 @@ output_html (GLog * logger, GHolder * holder)
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
   print_html_header (fp, now);
+
   print_json_defs (fp, holder);
   print_json_data (fp, logger, holder);
-  print_html_body (fp);
+
+  print_html_body (fp, now);
   print_html_footer (fp);
 
   fclose (fp);
