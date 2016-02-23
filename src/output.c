@@ -850,16 +850,16 @@ print_json_def_summary (FILE * fp, GHolder * holder)
 static void
 print_json_defs (FILE * fp, GHolder * holder)
 {
-  GModule module;
   const GHTML *def;
+  size_t idx = 0;
 
   fprintf (fp, "<script type='text/javascript'>");
   fprintf (fp, "var user_interface=");
   pjson (fp, "{%.*s", nlines, NL);
 
   print_json_def_summary (fp, holder);
-  for (module = 0; module < TOTAL_MODULES; module++) {
-    if ((def = panel_lookup (module)) && !ignore_panel (module)) {
+  FOREACH_MODULE (idx, module_list) {
+    if ((def = panel_lookup (module_list[idx]))) {
       print_json_def (fp, def);
     }
   }
