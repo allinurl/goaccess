@@ -236,15 +236,15 @@ print_c3_single_yaxis_data (FILE * fp, const char *y1, int isp)
     iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
 
   /* open data object */
-  pjson (fp, "%.*s\"data\": {%.*s", iisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'data': {%.*s", iisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"keys\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"x\": \"data\",%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"value\": [\"%s\"]%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s'keys': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'x': 'data',%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'value': ['%s']%.*s", iiiisp, TAB, y1, nlines, NL);
   pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"axes\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"%s\": \"y\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s'axes': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'%s': 'y',%.*s", iiiisp, TAB, y1, nlines, NL);
   pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
 
   /* close data object */
@@ -254,9 +254,9 @@ print_c3_single_yaxis_data (FILE * fp, const char *y1, int isp)
 static void
 print_c3_axis_tick (FILE * fp, const char *fn, int iiiisp)
 {
-  pjson (fp, "%.*s\"tick\": {%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'tick': {%.*s", iiiisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"format\": function (x) {");
+  pjson (fp, "%.*s'format': function (x) {");
   pjson (fp, "return GoAccess.format(x, '%s');", fn);
   pjson (fp, "}%.*s", iiiisp, TAB, fn, nlines, NL);
 
@@ -272,9 +272,9 @@ print_c3_single_yaxis_axis (FILE * fp, const char *y1, const char *fn1, int isp)
   if (conf.json_pretty_print)
     iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
 
-  pjson (fp, "%.*s\"axis\": {%.*s", iisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"y\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s'axis': {%.*s", iisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'y': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y1, nlines, NL);
   print_c3_axis_tick (fp, fn1, iiiisp);
   pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
   pjson (fp, "%.*s}%.*s", iisp, TAB, nlines, NL);
@@ -290,17 +290,16 @@ print_c3_dual_yaxis_data (FILE * fp, const char *y1, const char *y2, int isp)
     iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
 
   /* open data object */
-  pjson (fp, "%.*s\"data\": {%.*s", iisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'data': {%.*s", iisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"keys\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"x\": \"data\",%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"value\": [\"%s\",\"%s\"]%.*s", iiiisp, TAB, y1, y2, nlines,
-         NL);
+  pjson (fp, "%.*s'keys': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'x': 'data',%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'value': ['%s','%s']%.*s", iiiisp, TAB, y1, y2, nlines, NL);
   pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"axes\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"%s\": \"y\",%.*s", iiiisp, TAB, y1, nlines, NL);
-  pjson (fp, "%.*s\"%s\": \"y2\"%.*s", iiiisp, TAB, y2, nlines, NL);
+  pjson (fp, "%.*s'axes': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'%s': 'y',%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s'%s': 'y2'%.*s", iiiisp, TAB, y2, nlines, NL);
   pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
 
   /* close data object */
@@ -318,16 +317,16 @@ print_c3_dual_yaxis_axis (FILE * fp, const char *y1, const char *y2,
     iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
 
   /* open axis object */
-  pjson (fp, "%.*s\"axis\": {%.*s", iisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'axis': {%.*s", iisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"y\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y1, nlines, NL);
+  pjson (fp, "%.*s'y': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y1, nlines, NL);
   print_c3_axis_tick (fp, fn1, iiiisp);
   pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"y2\": {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"show\": true,%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"label\": \"%s\",%.*s", iiiisp, TAB, y2, nlines, NL);
+  pjson (fp, "%.*s'y2': {%.*s", iiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'show': true,%.*s", iiiisp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y2, nlines, NL);
   print_c3_axis_tick (fp, fn2, iiiisp);
   pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
 
@@ -339,10 +338,10 @@ print_c3_dual_yaxis_axis (FILE * fp, const char *y1, const char *y2,
 static void
 hits_visitors_plot (FILE * fp, int isp)
 {
-  pjson (fp, "%.*s\"label\": \"Hits/Visitors\",%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"className\": \"hits-visitors\",%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': 'Hits/Visitors',%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'className': 'hits-visitors',%.*s", isp, TAB, nlines, NL);
 
-  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
   print_c3_dual_yaxis_data (fp, "hits", "visitors", isp);
   print_c3_dual_yaxis_axis (fp, "Hits", "Visitors", "numeric", "numeric", isp);
   pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
@@ -352,9 +351,9 @@ hits_visitors_plot (FILE * fp, int isp)
 static void
 hits_bw_plot (FILE * fp, int isp)
 {
-  pjson (fp, "%.*s\"label\": \"Bandwidth\",%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"className\": \"bandwidth\",%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': 'Bandwidth',%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'className': 'bandwidth',%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
 
   print_c3_single_yaxis_data (fp, "bytes", isp);
   print_c3_single_yaxis_axis (fp, "Bytes", "bytes", isp);
@@ -366,9 +365,9 @@ hits_bw_plot (FILE * fp, int isp)
 static void
 hits_plot (FILE * fp, int isp)
 {
-  pjson (fp, "%.*s\"label\": \"Hits\",%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"className\": \"hits\",%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"c3\": {%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'label': 'Hits',%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'className': 'hits',%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
 
   print_c3_single_yaxis_data (fp, "hits", isp);
   print_c3_single_yaxis_axis (fp, "Hits", "numeric", isp);
@@ -383,7 +382,7 @@ static void
 print_open_metrics_attr (FILE * fp, int isp)
 {
   /* open data metric data */
-  pjson (fp, "%.*s\"items\": [%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'items': [%.*s", isp, TAB, nlines, NL);
 }
 
 /* Close the metrics array.
@@ -403,7 +402,7 @@ static void
 print_open_items_attr (FILE * fp, int isp)
 {
   /* open data metric data */
-  pjson (fp, "%.*s\"items\": {%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'items': {%.*s", isp, TAB, nlines, NL);
 }
 
 /* Close the metrics array.
@@ -441,17 +440,15 @@ print_def_metric (FILE * fp, const GDefMetric def, int isp)
     iisp = isp + 1;
 
   if (def.cname)
-    pjson (fp, "%.*s\"className\": \"%s\",%.*s", iisp, TAB, def.cname, nlines,
-           NL);
+    pjson (fp, "%.*s'className': '%s',%.*s", iisp, TAB, def.cname, nlines, NL);
   if (def.meta)
-    pjson (fp, "%.*s\"meta\": \"%s\",%.*s", iisp, TAB, def.meta, nlines, NL);
+    pjson (fp, "%.*s'meta': '%s',%.*s", iisp, TAB, def.meta, nlines, NL);
   if (def.vtype)
-    pjson (fp, "%.*s\"valueType\": \"%s\",%.*s", iisp, TAB, def.vtype, nlines,
-           NL);
+    pjson (fp, "%.*s'valueType': '%s',%.*s", iisp, TAB, def.vtype, nlines, NL);
   if (def.key)
-    pjson (fp, "%.*s\"key\": \"%s\",%.*s", iisp, TAB, def.key, nlines, NL);
+    pjson (fp, "%.*s'key': '%s',%.*s", iisp, TAB, def.key, nlines, NL);
   if (def.lbl)
-    pjson (fp, "%.*s\"label\": \"%s\"%.*s", iisp, TAB, def.lbl, nlines, NL);
+    pjson (fp, "%.*s'label': '%s'%.*s", iisp, TAB, def.lbl, nlines, NL);
 }
 
 static void
@@ -754,7 +751,7 @@ print_def_plot (FILE * fp, const GHTML * def, int isp)
 {
   int i, n = count_plot_fp (def);
 
-  pjson (fp, "%.*s\"plot\": [%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s'plot': [%.*s", isp, TAB, nlines, NL);
 
   for (i = 0; i < n; ++i) {
     pjson (fp, "%.*s\{%.*s", isp, TAB, nlines, NL);
@@ -799,8 +796,8 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  pjson (fp, "%.*s\"head\": \"%s\",%.*s", isp, TAB, head, nlines, NL);
-  pjson (fp, "%.*s\"desc\": \"%s\",%.*s", isp, TAB, desc, nlines, NL);
+  pjson (fp, "%.*s'head': '%s',%.*s", isp, TAB, head, nlines, NL);
+  pjson (fp, "%.*s'desc': '%s',%.*s", isp, TAB, desc, nlines, NL);
 }
 
 static void
@@ -814,14 +811,14 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
   print_def_meta (fp, module_to_head (def->module),
                   module_to_desc (def->module), sp);
 
-  pjson (fp, "%.*s\"id\": \"%s\",%.*s", isp, TAB, module_to_id (def->module),
+  pjson (fp, "%.*s'id': '%s',%.*s", isp, TAB, module_to_id (def->module),
          nlines, NL);
-  pjson (fp, "%.*s\"table\": %d,%.*s", isp, TAB, def->table, nlines, NL);
+  pjson (fp, "%.*s'table': %d,%.*s", isp, TAB, def->table, nlines, NL);
 
   if (def->chart_type) {
-    pjson (fp, "%.*s\"chartType\": \"%s\",%.*s", isp, TAB,
+    pjson (fp, "%.*s'chartType': '%s',%.*s", isp, TAB,
            chart2str (def->chart_type), nlines, NL);
-    pjson (fp, "%.*s\"chartReverse\": %d,%.*s", isp, TAB, def->chart_reverse,
+    pjson (fp, "%.*s'chartReverse': %d,%.*s", isp, TAB, def->chart_reverse,
            nlines, NL);
   }
 
