@@ -301,6 +301,9 @@ module_to_head (GModule module)
     CODES_HEAD,
   };
 
+  if (!conf.ignore_crawlers)
+    modules[VISITORS] = VISIT_HEAD INCLUDE_BOTS;
+
   return modules[module];
 }
 
