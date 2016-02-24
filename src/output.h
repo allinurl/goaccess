@@ -49,6 +49,7 @@ typedef struct GDefMetric_
   const char *vtype;
   const char *meta;
   const char *cname;
+  const char *cwidth;
 } GDefMetric;
 
 typedef struct GHTMLPlot_
