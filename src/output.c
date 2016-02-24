@@ -441,6 +441,8 @@ print_def_metric (FILE * fp, const GDefMetric def, int isp)
 
   if (def.cname)
     pjson (fp, "%.*s'className': '%s',%.*s", iisp, TAB, def.cname, nlines, NL);
+  if (def.cwidth)
+    pjson (fp, "%.*s'colWidth': '%s',%.*s", iisp, TAB, def.cwidth, nlines, NL);
   if (def.meta)
     pjson (fp, "%.*s'meta': '%s',%.*s", iisp, TAB, def.meta, nlines, NL);
   if (def.vtype)
@@ -615,7 +617,8 @@ print_def_hits (FILE * fp, int isp)
     .key = "hits",
     .lbl = MTRC_HITS_LBL,
     .vtype = "numeric",
-    .meta = "count"
+    .meta = "count",
+    .cwidth = "14%",
   };
   print_def_block (fp, def, isp, 0);
 }
@@ -627,7 +630,8 @@ print_def_visitors (FILE * fp, int isp)
     .key = "visitors",
     .lbl = MTRC_VISITORS_LBL,
     .vtype = "numeric",
-    .meta = "count"
+    .meta = "count",
+    .cwidth = "13%",
   };
   print_def_block (fp, def, isp, 0);
 }
@@ -639,7 +643,8 @@ print_def_bw (FILE * fp, int isp)
     .key = "bytes",
     .lbl = MTRC_BW_LBL,
     .vtype = "bytes",
-    .meta = "count"
+    .meta = "count",
+    .cwidth = "13%",
   };
 
   if (!conf.bandwidth)
@@ -655,7 +660,8 @@ print_def_avgts (FILE * fp, int isp)
     .key = "avgts",
     .lbl = MTRC_AVGTS_LBL,
     .vtype = "utime",
-    .meta = "avg"
+    .meta = "avg",
+    .cwidth = "10%",
   };
 
   if (!conf.serve_usecs)
@@ -671,7 +677,8 @@ print_def_cumts (FILE * fp, int isp)
     .key = "cumts",
     .lbl = MTRC_CUMTS_LBL,
     .vtype = "utime",
-    .meta = "count"
+    .meta = "count",
+    .cwidth = "10%",
   };
 
   if (!conf.serve_usecs)
@@ -687,7 +694,8 @@ print_def_maxts (FILE * fp, int isp)
     .key = "maxts",
     .lbl = MTRC_MAXTS_LBL,
     .vtype = "utime",
-    .meta = "count"
+    .meta = "count",
+    .cwidth = "10%",
   };
 
   if (!conf.serve_usecs)
@@ -702,6 +710,7 @@ print_def_method (FILE * fp, int isp)
     .key = "method",
     .lbl = MTRC_METHODS_LBL,
     .vtype = "string",
+    .cwidth = "8%",
   };
 
   if (!conf.append_method)
@@ -717,6 +726,7 @@ print_def_protocol (FILE * fp, int isp)
     .key = "protocol",
     .lbl = MTRC_PROTOCOLS_LBL,
     .vtype = "string",
+    .cwidth = "8%",
   };
 
   if (!conf.append_protocol)
@@ -732,7 +742,8 @@ print_def_data (FILE * fp, int isp)
     .key = "data",
     .lbl = MTRC_DATA_LBL,
     .vtype = "string",
-    .cname = "trunc"
+    .cname = "trunc",
+    .cwidth = "100%",
   };
 
   print_def_block (fp, def, isp, 1);

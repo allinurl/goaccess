@@ -81,9 +81,15 @@
 		<div class="col-md-12">
 			<div class="table-responsive">
 				<table class="table table-condensed table-hover table-{{id}}">
+					<colgroup>
+						<col style="width: 4%;">
+						{{#items}}
+							<col style="width:{{colWidth}}">
+						{{/items}}
+					</colgroup>
 					<thead>
 						<tr>
-							<th class=""></th>
+							<th class="">#</th>
 							{{#items}}
 								<th class="{{valueType}}">{{label}}</th>
 							{{/items}}
