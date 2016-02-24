@@ -618,7 +618,7 @@ print_def_hits (FILE * fp, int isp)
     .lbl = MTRC_HITS_LBL,
     .vtype = "numeric",
     .meta = "count",
-    .cwidth = "14%",
+    .cwidth = "13%",
   };
   print_def_block (fp, def, isp, 0);
 }
@@ -710,7 +710,7 @@ print_def_method (FILE * fp, int isp)
     .key = "method",
     .lbl = MTRC_METHODS_LBL,
     .vtype = "string",
-    .cwidth = "8%",
+    .cwidth = "6%",
   };
 
   if (!conf.append_method)
@@ -726,7 +726,7 @@ print_def_protocol (FILE * fp, int isp)
     .key = "protocol",
     .lbl = MTRC_PROTOCOLS_LBL,
     .vtype = "string",
-    .cwidth = "8%",
+    .cwidth = "7%",
   };
 
   if (!conf.append_protocol)
