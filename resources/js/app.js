@@ -9,16 +9,19 @@ var GoAccess = (function() {
 		};
 
 	// Helpers
+	// Syntactic sugar
 	function $(selector) {
 		return document.querySelector(selector);
 	}
 
+	// Add all attributes of n to o
 	function merge(o, n) {
 		for (var attrname in n) {
 			o[attrname] = n[attrname];
 		}
 	}
 
+	// Syntactic sugar & execute callback
 	function $$(selector, callback) {
 		var elems = document.querySelectorAll(selector);
 		for (var i = 0; i < elems.length; ++i) {
@@ -27,6 +30,7 @@ var GoAccess = (function() {
 		}
 	}
 
+	// Format bytes to human readable
 	function formatBytes(bytes, decimals) {
 		if (bytes == 0) return '0 Byte';
 		var k = 1024;
@@ -36,10 +40,12 @@ var GoAccess = (function() {
 		return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
 	}
 
+	// Validate number
 	function isNumeric(n) {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	}
 
+	// Format microseconds to human readable
 	function utime2str(usec) {
 		if (usec >= 864E8)
 			return ((usec) / 864E8).toFixed(2) + ' d';
@@ -54,6 +60,7 @@ var GoAccess = (function() {
 		return (usec).toFixed(2) + ' us';
 	}
 
+	// Format field value to human readable
 	function fmtValue(value, valueType) {
 		var val = 0;
 		if (!valueType)
@@ -84,10 +91,12 @@ var GoAccess = (function() {
 		return value == 0 ? String(val) : val;
 	}
 
+	// Get JSON data for the given panel
 	function getData(panel) {
 		return panel ? AppData[panel] : AppData;
 	}
 
+	// Get user interface definition for the given panel
 	function getUIData(panel) {
 		return panel ? AppUIData[panel] : AppUIData;
 	}
@@ -99,12 +108,13 @@ var GoAccess = (function() {
 	 * @return {Boolean}       Validity of panel
 	 */
 	function isPanelValid(panel) {
-		if(!AppUIData.hasOwnProperty(panel) || !AppData.hasOwnProperty(panel) || !AppUIData[panel].id)
+		if (!AppUIData.hasOwnProperty(panel) || !AppData.hasOwnProperty(panel) || !AppUIData[panel].id)
 			return true;
 		else
 			return false;
 	}
 
+	// Render general/overall analyzed requests.
 	function renderGeneral() {
 		var ui = getUIData('general');
 		var data = getData('general');
@@ -117,11 +127,12 @@ var GoAccess = (function() {
 		var template = $('#tpl-general-items').innerHTML;
 		var wrap = $('.wrap-general-items');
 
+		// Iterate over general data object
 		for (var x in data) {
 			if (!data.hasOwnProperty(x) || !ui.items.hasOwnProperty(x))
 				continue;
 
-			// create a new row bootstrap row every 6 elements
+			// create a new bootstrap row every 6 elements
 			if (i % 6 == 0) {
 				var row = document.createElement('div');
 				row.setAttribute('class', 'row');
@@ -139,24 +150,26 @@ var GoAccess = (function() {
 		}
 	}
 
+	// Redraw a chart upon selecting a metric.
 	function redrawChart(targ) {
 		var plot = targ.getAttribute('data-plot');
 		var panel = targ.getAttribute('data-panel');
 		var ui = getUIData(panel);
 		var plotUI = ui.plot;
 
+		// Iterate over plot user interface definition
 		for (var x in plotUI) {
 			if (!plotUI.hasOwnProperty(x) || plotUI[x].className != plot)
 				continue;
 
 			var chart = AppCharts[panel];
 
+			// Extract data for the selected panel and process it
 			var data = processChartData(getData(panel).data);
 			if (ui.chartReverse)
 				data = data.reverse();
 
 			var p = plotUI[x].c3;
-			console.log(p)
 			p['data']['json'] = data;
 			p['data']['unload'] = chart.json;
 
@@ -167,6 +180,8 @@ var GoAccess = (function() {
 		}
 	}
 
+	// Set panel to either expanded or not expanded within the panel
+	// definition.
 	function setPanelExpanded(panel, targ) {
 		var ui = getUIData(panel);
 		if (targ.getAttribute('data-state') == 'collapsed')
@@ -175,6 +190,7 @@ var GoAccess = (function() {
 			ui['expanded'] = false;
 	}
 
+	// Panel event handlers.
 	function ePanelHandlers() {
 		var _self = this;
 		var plotOpts = document.querySelectorAll('[data-plot]');
@@ -209,6 +225,7 @@ var GoAccess = (function() {
 		});
 	}
 
+	// Render the given panel given a user interface definition.
 	function renderPanel(panel, ui) {
 		var template = $('#tpl-panel').innerHTML;
 		var box = document.createElement('div');
@@ -218,19 +235,20 @@ var GoAccess = (function() {
 		var pagination = box.getElementsByClassName('pagination');
 		pagination[0].getElementsByClassName('panel-prev')[0].parentNode.className = 'disabled';
 
-		// remove pagination if it's not needed
-		if(ui['totalItems'] <= AppPrefs['perPage']) {
+		// Remove pagination if it's not needed
+		if (ui['totalItems'] <= AppPrefs['perPage'])
 			pagination[0].parentNode.removeChild(pagination[0]);
-		}
 
 		$('.wrap-panels').appendChild(box);
 	}
 
+	// Render left-hand side navigation given the available panels.
 	function renderNav(nav) {
 		var template = $('#tpl-panel-nav').innerHTML;
 		$('.panel-nav').innerHTML = Hogan.compile(template).render({nav: nav});
 	}
 
+	// Iterate over all available panels and render each.
 	function renderPanels() {
 		var ui = getUIData();
 
@@ -238,16 +256,19 @@ var GoAccess = (function() {
 		for (var panel in ui) {
 			if (isPanelValid(panel))
 				continue;
+			// Push panel to our navigation array
 			nav.push({
 				'key': panel,
 				'head': ui[panel].head,
 			});
+			// Render panel given a user interface definition
 			renderPanel(panel, ui[panel]);
 		}
 		renderNav(nav);
 		ePanelHandlers();
 	}
 
+	// Set C3 data to plot
 	function c3Data(dataset, ui, type) {
 		return {
 			json: dataset,
@@ -257,6 +278,7 @@ var GoAccess = (function() {
 		};
 	}
 
+	// Set a default C3 palette
 	function c3Palette() {
 		return {
 			'pattern': [
@@ -272,6 +294,7 @@ var GoAccess = (function() {
 		};
 	}
 
+	// Set default C3 grid lines. Display X and Y axis by default.
 	function c3Grid() {
 		return {
 			'x': {
@@ -283,6 +306,7 @@ var GoAccess = (function() {
 		};
 	}
 
+	// Set default C3 X axis and set a default number of max elements.
 	function c3axis(panel) {
 		var ui = getUIData(panel);
 		var def = {
@@ -296,6 +320,7 @@ var GoAccess = (function() {
 				}
 			}
 		};
+		// Merge object with panel c3 axis definition.
 		merge(def, ui.plot[0].c3.axis);
 
 		// TODO: it's dirty to overwrite the formater
@@ -304,36 +329,37 @@ var GoAccess = (function() {
 		return def;
 	}
 
+	// Set default C3 tooltip. It also applies formatting given the data type.
 	function c3Tooltip() {
 		var tooltip = {
 			format: {
-				value:
-					function (value, ratio, id) {
-						switch(id) {
-							case 'bytes':
-								return fmtValue(value, 'bytes');
-							case 'visitors':
-							case 'hits':
-								return d3.format('s')(value);
-							default:
-								return value;
-						}
-					},
-				name:
-					function (name, ratio, id, index) {
-						switch(id) {
-							case 'bytes':
-								return 'Traffic';
-							default:
-								return name;
-						}
+				value: function (value, ratio, id) {
+					switch (id) {
+					case 'bytes':
+						return fmtValue(value, 'bytes');
+					case 'visitors':
+					case 'hits':
+						return d3.format('s')(value);
+					default:
+						return value;
 					}
+				},
+				name: function (name, ratio, id, index) {
+					switch (id) {
+					case 'bytes':
+						return 'Traffic';
+					default:
+						return name;
+					}
+				}
 			}
-		}
+		};
 
 		return tooltip;
 	}
 
+	// Set default C3 chart to area spline and apply panel user interface
+	// definition and load data.
 	function renderAreaSpline(panel, ui, dataset) {
 		var chart = c3.generate({
 			bindto: '#chart-' + panel,
@@ -349,6 +375,8 @@ var GoAccess = (function() {
 		AppCharts[panel] = chart;
 	}
 
+	// Set default C3 chart to bar and apply panel user interface definition
+	// and load data.
 	function renderBar(panel, ui, dataset) {
 		var chart = c3.generate({
 			bindto: '#chart-' + panel,
@@ -379,26 +407,22 @@ var GoAccess = (function() {
 		AppCharts[panel] = chart;
 	}
 
-	function processChartData(data) {
-		var out = [];
-		for (var i = 0; i < data.length; ++i) {
-			out.push(extractCount(data[i]));
-		}
-		return out;
-	}
-
+	// Render all charts for the applicable panels.
 	function renderCharts() {
 		var ui = getUIData();
 		for (var panel in ui) {
 			if (!ui.hasOwnProperty(panel))
 				continue;
+			// Ensure it has a chartType property and has C3 definitions
 			if (!ui[panel].chartType || !ui[panel].plot.length)
 				continue;
 
+			// Grab the data for the selected panel
 			var data = processChartData(getData(panel).data);
 			if (ui[panel].chartReverse)
 				data = data.reverse();
 
+			// Render given its type
 			switch (ui[panel].chartType) {
 			case 'area-spline':
 				renderAreaSpline(panel, ui[panel], data);
@@ -410,10 +434,15 @@ var GoAccess = (function() {
 		}
 	};
 
-	function getCount(item) {
-		if (typeof item == 'object' && 'count' in item)
-			return item.count;
-		return item;
+	// Extract an array of objects that C3 can consume to process the chart.
+	// e.g., o = Object {hits: 37402, visitors: 6949, bytes: 505881789, avgts:
+	// 118609, cumts: 4436224010…}
+	function processChartData(data) {
+		var out = [];
+		for (var i = 0; i < data.length; ++i) {
+			out.push(extractCount(data[i]));
+		}
+		return out;
 	}
 
 	function getPercent(item) {
@@ -422,6 +451,15 @@ var GoAccess = (function() {
 		return null;
 	}
 
+	// Attempts to extract the count from either an object or the actual value.
+	// e.g., item = Object {count: 14351, percent: 5.79} OR item = 4824825140
+	function getCount(item) {
+		if (typeof item == 'object' && 'count' in item)
+			return item.count;
+		return item;
+	}
+
+	// Iterate over the item properties and and extract the count value.
 	function extractCount(item) {
 		var o = {};
 		for (var prop in item) {
@@ -430,7 +468,10 @@ var GoAccess = (function() {
 		return o;
 	}
 
-	function getTableCell(ui, value) {
+	// Return an object that can be consumed by the table template given a user
+	// interface definition and a cell value object.
+	// e.g., value = Object {count: 14351, percent: 5.79}
+	function getTableCell(panel, ui, value) {
 		var className = ui.className || '';
 		className += ui.valueType != 'string' ? 'text-right' : '';
 		return {
@@ -440,16 +481,15 @@ var GoAccess = (function() {
 		};
 	}
 
-	function getCells(panel, uiItem, dataItem) {
-		// Iterate over the properties of each row and determine its type
-		return getTableCell(uiItem, dataItem);
-	}
-
+	// Iterate over user interface definition properties
 	function iterUIItems(panel, uiItems, dataItems, callback) {
 		var out = [];
 		for (var i = 0; i < uiItems.length; ++i) {
 			var uiItem = uiItems[i];
+			// Data for the current user interface property.
+			// e.g., dataItem = Object {count: 13949, percent: 5.63}
 			var dataItem = dataItems[uiItem.key];
+			// Apply the callback and push return data to output array
 			if (callback && typeof callback == 'function') {
 				var ret = callback.call(this, panel, uiItem, dataItem);
 				if (ret) out.push(ret);
@@ -458,19 +498,25 @@ var GoAccess = (function() {
 		return out;
 	}
 
+	// Get current panel page
 	function getCurPage(panel) {
 		return getUIData(panel).curPage || 0;
 	}
 
+	// Page offset.
+	// e.g., Return Value: 11, curPage: 2
 	function pageOffSet(panel) {
 		var curPage = getUIData(panel).curPage || 0;
 		return ((curPage - 1) * AppPrefs.perPage);
 	}
 
+	// Get total number of pages given the number of items on array
 	function getTotalPages(dataItems) {
 		return Math.ceil(dataItems.length / AppPrefs.perPage);
 	}
 
+	// Get a shallow copy of a portion of the given data array and the current
+	// page.
 	function getPage(panel, dataItems, page) {
 		var ui = getUIData(panel);
 		var totalPages = getTotalPages(dataItems);
@@ -486,16 +532,19 @@ var GoAccess = (function() {
 		return dataItems.slice(start, end);
 	}
 
+	// Get previous page
 	function prevPage(panel) {
 		var curPage = getUIData(panel).curPage || 0;
 		return curPage - 1;
 	}
 
+	// Get next page
 	function nextPage(panel) {
 		var curPage = getUIData(panel).curPage || 0;
 		return curPage + 1;
 	}
 
+	// Render each data row into the table
 	function renderRows(panel, uiItems, dataItems) {
 		var rows = [];
 
@@ -515,13 +564,14 @@ var GoAccess = (function() {
 				'subitem': dataItems[i].subitem,
 				'className': '',
 				'idx': i + pageOffSet(panel),
-				'cells': iterUIItems(panel, uiItems, dataItems[i], getCells)
+				'cells': iterUIItems(panel, uiItems, dataItems[i], getTableCell)
 			});
 		}
 
 		return rows;
 	}
 
+	// Entry point to render all data rows into the table
 	function renderDataRows(panel, uiItems, dataItems, page) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-data');
@@ -539,12 +589,16 @@ var GoAccess = (function() {
 		});
 	}
 
+	// Get the meta data value for the given user interface key
 	function getMetaValue(ui, value) {
 		if ('meta' in ui)
 			return value[ui.meta];
 		return null;
 	}
 
+	// Return an object that can be consumed by the table template given a user
+	// interface definition and a meta value object.
+	// e.g., value = Object {count: 22953, max: 15, min: 10}
 	function getMetaCell(ui, value) {
 		var val = getMetaValue(ui, value);
 		var max = (value || {}).max;
@@ -561,6 +615,8 @@ var GoAccess = (function() {
 		}
 	}
 
+	// Iterate over all meta rows and render its data above each data column
+	// i.e., "table header"
 	function renderMetaRow(panel, uiItems) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-meta');
@@ -583,6 +639,7 @@ var GoAccess = (function() {
 		});
 	}
 
+	// Set general user interface options
 	function setUIOpts(panel, ui) {
 		var dataItems = getData(panel).data;
 
@@ -593,6 +650,8 @@ var GoAccess = (function() {
 		ui['totalItems'] = dataItems.length;
 	}
 
+
+	// Iterate over all data sub items. e.g., Ubuntu, Arch, etc.
 	function getAllDataItems(panel) {
 		var data = JSON.parse(JSON.stringify(getData(panel)));
 		var dataItems = data.data.slice(),
@@ -613,32 +672,36 @@ var GoAccess = (function() {
 		return out;
 	}
 
+	// Render a table for the given panel.
 	function renderTable(panel, page, expanded) {
 		var dataItems = getData(panel).data;
 		var ui = getUIData(panel);
 		var panelHtml = $('#panel-' + panel);
 
-		if (ui.expanded) {
+		// data items for an expanded panel
+		if (ui.expanded)
 			dataItems = getAllDataItems(panel);
-		}
 
-		if(panelHtml.getElementsByClassName('pagination')[0]) {
-			// enable all pagination buttons
+		if (panelHtml.getElementsByClassName('pagination')[0]) {
+			// Enable all pagination buttons
 			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = '';
 			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = '';
 
-			// diable pagination next button if last page is reached
-			if(page >= getTotalPages(dataItems))
+			// Diable pagination next button if last page is reached
+			if (page >= getTotalPages(dataItems))
 				panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = 'disabled';
 
-			// disable pagination prev button if first page is reached
-			if(page <= 1)
+			// Disable pagination prev button if first page is reached
+			if (page <= 1)
 				panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = 'disabled';
 		}
 
+		// Render data rows
 		renderDataRows(panel, ui.items, dataItems, page);
 	}
 
+	// Iterate over all panels and determine which ones should contain a data
+	// table.
 	function renderTables() {
 		var ui = getUIData();
 
@@ -646,15 +709,20 @@ var GoAccess = (function() {
 			if (isPanelValid(panel))
 				continue;
 
+			// panel's user interface definition
 			var uiItems = ui[panel].items;
+			// panel's data
 			var data = getData(panel);
+			// render meta data
 			if (data.hasOwnProperty('metadata'))
 				renderMetaRow(panel, uiItems);
+			// render actual data
 			if (data.hasOwnProperty('data'))
 				renderDataRows(panel, uiItems, data.data, 0);
 		}
 	}
 
+	// Attempt to render the layout (if applicable)
 	function render() {
 		renderGeneral();
 		renderPanels();
@@ -662,6 +730,7 @@ var GoAccess = (function() {
 		renderTables();
 	}
 
+	// App initialization i.e., set some basic stuff
 	function initialize(options) {
 		AppUIData = (options || {}).uidata;;
 		AppData = (options || {}).data;;
