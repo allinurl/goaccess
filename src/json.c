@@ -388,7 +388,8 @@ pbw (FILE * fp, GMetrics * nmetrics, int sp)
 
   pjson (fp, "%.*s\"bytes\": {%.*s", sp, TAB, nlines, NL);
   /* print bandwidth */
-  pjson (fp, "%.*s\"count\": %d,%.*s", isp, TAB, nmetrics->bw.nbw, nlines, NL);
+  pjson (fp, "%.*s\"count\": %" PRIu64 ",%.*s", isp, TAB, nmetrics->bw.nbw,
+         nlines, NL);
   /* print bandwidth percent */
   pjson (fp, "%.*s\"percent\": %4.2f%.*s", isp, TAB, nmetrics->bw_perc, nlines,
          NL);
@@ -607,10 +608,9 @@ pmeta_data_bw (FILE * fp, GModule module, int sp)
 
   count = ht_get_meta_data (module, "bytes");
   pjson (fp, "%.*s\"bytes\": {%.*s", sp, TAB, nlines, NL);
-  pjson (fp, "%.*s\"count\": %lld,%.*s", isp, TAB, (long long) count, nlines,
-         NL);
-  pjson (fp, "%.*s\"max\": %lld,%.*s", isp, TAB, (long long) max, nlines, NL);
-  pjson (fp, "%.*s\"min\": %lld%.*s", isp, TAB, (long long) min, nlines, NL);
+  pjson (fp, "%.*s\"count\": %" PRIu64 ",%.*s", isp, TAB, count, nlines, NL);
+  pjson (fp, "%.*s\"max\": %" PRIu64 ",%.*s", isp, TAB, max, nlines, NL);
+  pjson (fp, "%.*s\"min\": %" PRIu64 "%.*s", isp, TAB, min, nlines, NL);
   pjson (fp, "%.*s},%.*s", sp, TAB, nlines, NL);
 }
 
