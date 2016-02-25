@@ -473,7 +473,7 @@ get_visitors_dates (GHolder * h)
 char *
 get_overall_header (GHolder * h)
 {
-  const char *head = T_DASH " - " T_HEAD;
+  const char *head = conf.output_html ? T_HEAD : T_DASH " - " T_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL, **dates = NULL;
 
   if (h->idx == 0)
