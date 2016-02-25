@@ -814,12 +814,12 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
 static void
 print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 {
-  const char *head = module_to_head (def->module);
-  const char *desc = module_to_desc (def->module);
-  const char *id = module_to_id (def->module);
   const char *chart = chart2str (def->chart_type);
+  const char *desc = module_to_desc (def->module);
+  const char *head = module_to_head (def->module);
+  const char *id = module_to_id (def->module);
 
-  int isp = 0, reverse = def->chart_reverse;;
+  int isp = 0, rev = def->chart_reverse;;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
@@ -831,7 +831,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 
   if (def->chart_type) {
     pjson (fp, "%.*s'chartType': '%s',%.*s", isp, TAB, chart, nlines, NL);
-    pjson (fp, "%.*s'chartReverse': %d,%.*s", isp, TAB, reverse, nlines, NL);
+    pjson (fp, "%.*s'chartReverse': %d,%.*s", isp, TAB, rev, nlines, NL);
   }
 
   print_def_plot (fp, def, isp);
