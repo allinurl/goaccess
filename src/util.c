@@ -47,6 +47,7 @@
 #include "error.h"
 #include "xmalloc.h"
 
+/* HTTP status codes categories */
 static const char *code_type[][2] = {
   {"1", "1xx Informational"},
   {"2", "2xx Success"},
@@ -55,6 +56,7 @@ static const char *code_type[][2] = {
   {"5", "5xx Server Error"},
 };
 
+/* HTTP status codes */
 static const char *codes[][2] = {
   {"100", "100 - Continue: Server received the initial part of the request"},
   {"101", "101 - Switching Protocols: Client asked to switch protocols"},
@@ -111,7 +113,10 @@ static const char *codes[][2] = {
   {"524", "524 - CloudFlare - A timeout occured"}
 };
 
-/* helper functions */
+/* Return part of a string
+ *
+ * On error NULL is returned.
+ * On success the extracted part of string is returned */
 char *
 substring (const char *str, int begin, int len)
 {
@@ -136,6 +141,9 @@ substring (const char *str, int begin, int len)
   return buffer;
 }
 
+/* A pointer to the allocated memory of the new string
+ *
+ * On success, a pointer to a new string is returned */
 char *
 alloc_string (const char *str)
 {
@@ -144,6 +152,8 @@ alloc_string (const char *str)
   return new;
 }
 
+/* A wrapper function to copy the first num characters of source to
+ * destination. */
 void
 xstrncpy (char *dest, const char *source, const size_t dest_size)
 {
@@ -155,6 +165,10 @@ xstrncpy (char *dest, const char *source, const size_t dest_size)
   }
 }
 
+/* Count the number of matches on the string `s1` given a character `c`
+ *
+ * If the character is not found, 0 is returned
+ * On success, the number of characters found */
 int
 count_matches (const char *s1, char c)
 {
@@ -167,6 +181,11 @@ count_matches (const char *s1, char c)
   return n;
 }
 
+/* Determine if the given host needs to be ignored given the list of
+ * referrers to ignore.
+ *
+ * On error, or the referrer is not found, 0 is returned
+ * On success, or if the host needs to be ignored, 1 is returned */
 int
 ignore_referer (const char *host)
 {
@@ -194,6 +213,10 @@ out:
   return ignore;
 }
 
+/* Determine if the given ip is within a range of IPs.
+ *
+ * On error, or not within the range, 0 is returned
+ * On success, or if within the range, 1 is returned */
 static int
 within_range (const char *ip, const char *start, const char *end)
 {
@@ -231,6 +254,11 @@ within_range (const char *ip, const char *start, const char *end)
   return 0;
 }
 
+/* Determine if the given IP needs to be ignored given the list of IPs
+ * to ignore.
+ *
+ * On error, or not within the range, 0 is returned
+ * On success, or if within the range, 1 is returned */
 int
 ip_in_range (const char *ip)
 {
@@ -268,7 +296,6 @@ ip_in_range (const char *ip)
 
   return 0;
 }
-
 
 char *
 get_home (void)
