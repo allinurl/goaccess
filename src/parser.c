@@ -1443,25 +1443,32 @@ insert_hit (int data_nkey, GModule module)
   ht_insert_hits (module, data_nkey, 1);
 }
 
-/* A wrapper function to increase visitors counter from an int key. */
+/* A wrapper function to increase visitors counter from an int
+ * key. */
 static void
 insert_visitor (int uniq_nkey, GModule module)
 {
   ht_insert_visitor (module, uniq_nkey, 1);
 }
 
+/* A wrapper function to increases bandwidth counter from an int
+ * key. */
 static void
 insert_bw (int data_nkey, uint64_t size, GModule module)
 {
   ht_insert_bw (module, data_nkey, size);
 }
 
+/* A wrapper call to increases cumulative time served counter
+ * from an int key. */
 static void
 insert_cumts (int data_nkey, uint64_t ts, GModule module)
 {
   ht_insert_cumts (module, data_nkey, ts);
 }
 
+/* A wrapper call to insert the maximum time served counter from
+ * an int key. */
 static void
 insert_maxts (int data_nkey, uint64_t ts, GModule module)
 {
@@ -1474,12 +1481,16 @@ insert_method (int nkey, const char *data, GModule module)
   ht_insert_method (module, nkey, data ? data : "---");
 }
 
+/* A wrapper call to insert a method given an int key and string
+ * value. */
 static void
 insert_protocol (int nkey, const char *data, GModule module)
 {
   ht_insert_protocol (module, nkey, data ? data : "---");
 }
 
+/* A wrapper call to insert an agent for a hostname given an int
+ * key and int value.  */
 static void
 insert_agent (int data_nkey, int agent_nkey, GModule module)
 {
@@ -1489,7 +1500,9 @@ insert_agent (int data_nkey, int agent_nkey, GModule module)
 /* The following generates a unique key to identity unique visitors.
  * The key is made out of the IP, date, and user agent.
  * Note that for readability, doing a simple snprintf/sprintf should
- * suffice, however, memcpy is the fastest solution */
+ * suffice, however, memcpy is the fastest solution
+ *
+ * On success the new unique visitor key is returned */
 static char *
 get_uniq_visitor_key (GLogItem * glog)
 {
