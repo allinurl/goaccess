@@ -17,6 +17,9 @@ h3 {
 .container {
     background: #FFF
 }
+.row-offcanvas {
+	margin-bottom: 20px;
+}
 .page-header {
 	margin: 25px 0 20px;
 }
