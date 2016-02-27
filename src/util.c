@@ -446,7 +446,10 @@ invalid_ipaddr (char *str, int *ipvx)
   return 1;
 }
 
-/* off_t becomes 64 bit aware */
+/* Get information about the filename.
+ *
+ * On error, -1 is returned.
+ * On success, the file size of the given filename. */
 off_t
 file_size (const char *filename)
 {
@@ -460,6 +463,11 @@ file_size (const char *filename)
   return -1;
 }
 
+/* Determine if the given status code is within the list of status
+ * codes and find out the status type/category.
+ *
+ * If not found, "Unknown" is returned.
+ * On success, the status code type/category is returned. */
 const char *
 verify_status_code_type (const char *str)
 {
@@ -471,6 +479,11 @@ verify_status_code_type (const char *str)
   return "Unknown";
 }
 
+/* Determine if the given status code is within the list of status
+ * codes.
+ *
+ * If not found, "Unknown" is returned.
+ * On success, the status code is returned. */
 const char *
 verify_status_code (char *str)
 {
@@ -482,6 +495,10 @@ verify_status_code (char *str)
   return "Unknown";
 }
 
+/* Checks if the given string is within the given array.
+ *
+ * If not found, 0 is returned.
+ * On success, 1 is returned. */
 int
 str_inarray (const char *s, const char *arr[], int size)
 {
@@ -493,6 +510,10 @@ str_inarray (const char *s, const char *arr[], int size)
   return 0;
 }
 
+/* Strip whitespace from the beginning of a string.
+ *
+ * On success, a string with whitespace stripped from the beginning of
+ * the string is returned. */
 char *
 ltrim (char *s)
 {
@@ -505,6 +526,10 @@ ltrim (char *s)
   return s;
 }
 
+/* Strip whitespace from the end of a string.
+ *
+ * On success, a string with whitespace stripped from the end of the
+ * string is returned. */
 char *
 rtrim (char *s)
 {
@@ -517,12 +542,19 @@ rtrim (char *s)
   return s;
 }
 
+/* Strip whitespace from the beginning and end of the string.
+ *
+ * On success, the trimmed string is returned. */
 char *
 trim_str (char *str)
 {
   return rtrim (ltrim (str));
 }
 
+/* Convert the file size in bytes to a human readable format.
+ *
+ * On error, the original size of the string in bytes is returned.
+ * On success, the file size in a human readable format is returned. */
 char *
 filesize_str (unsigned long long log_size)
 {
@@ -539,6 +571,10 @@ filesize_str (unsigned long long log_size)
   return size;
 }
 
+/* Convert microseconds to a human readable format.
+ *
+ * On error, a malloc'd string in microseconds is returned.
+ * On success, the time in a human readable format is returned. */
 char *
 usecs_to_str (unsigned long long usec)
 {
