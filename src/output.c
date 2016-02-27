@@ -736,12 +736,12 @@ print_def_protocol (FILE * fp, int isp)
 }
 
 static void
-print_def_data (FILE * fp, int isp)
+print_def_data (FILE * fp, GModule module, int isp)
 {
   GDefMetric def = {
     .key = "data",
     .lbl = MTRC_DATA_LBL,
-    .vtype = "string",
+    .vtype = module == VISITORS ? "date" : "string",
     .cname = "trunc",
     .cwidth = "100%",
   };
@@ -793,7 +793,7 @@ print_def_metrics (FILE * fp, const GHTML * def, int isp)
   if (output->protocol)
     print_def_protocol (fp, isp);
 
-  print_def_data (fp, isp);
+  print_def_data (fp, def->module, isp);
 
   /* close metrics block */
   print_close_metrics_attr (fp, isp);

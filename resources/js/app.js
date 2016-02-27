@@ -60,6 +60,13 @@ var GoAccess = (function() {
 		return (usec).toFixed(2) + ' us';
 	}
 
+	function formatDate(value) {
+		var months = ["Jan", "Feb", "Ma", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+		var d = parseInt(value);
+		d = new Date(d / 1E4, (d % 1E4 / 100) - 1, d % 100);
+		return ('0' + d.getDate()).slice(-2) + '/' + months[d.getMonth()] + '/' + d.getFullYear();
+	}
+
 	// Format field value to human readable
 	function fmtValue(value, valueType) {
 		var val = 0;
@@ -83,6 +90,9 @@ var GoAccess = (function() {
 			break;
 		case 'utime':
 			val = utime2str(value);
+			break;
+		case 'date':
+			val = formatDate(value);
 			break;
 		default:
 			val = value;
