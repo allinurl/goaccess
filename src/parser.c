@@ -1530,6 +1530,13 @@ get_uniq_visitor_key (GLogItem * glog)
   return key;
 }
 
+/* The following generates a unique key to identity unique requests.
+ * The key is made out of the actual request, and if available, the
+ * method and the protocol.  Note that for readability, doing a simple
+ * snprintf/sprintf should suffice, however, memcpy is the fastest
+ * solution
+ *
+ * On success the new unique request key is returned */
 static char *
 gen_unique_req_key (GLogItem * glog)
 {
@@ -1568,8 +1575,8 @@ gen_unique_req_key (GLogItem * glog)
   return key;
 }
 
-/* Append the query string to the request, and therefore, it modifies the
- * original glog->req */
+/* Append the query string to the request, and therefore, it modifies
+ * the original glog->req */
 static void
 append_query_string (char **req, const char *qstr)
 {
@@ -1587,6 +1594,8 @@ append_query_string (char **req, const char *qstr)
   *req = r;
 }
 
+/* A wrapper to assign the given data key and the data item to the key
+ * data structure */
 static void
 get_kdata (GKeyData * kdata, char *data_key, char *data)
 {
@@ -1596,6 +1605,12 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
   kdata->data = data;
 }
 
+/* Generate a unique key for the visitors panel from the given glog
+ * structure and assign it to out key data structure.
+ *
+ * On error, or if no date is found, 1 is returned.
+ * On success, the date key is assigned to our key data structure.
+ */
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1617,6 +1632,12 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate a unique key for the requests panel from the given glog
+ * structure and assign it to out key data structure.
+ *
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_req_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1629,6 +1650,12 @@ gen_req_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is static or a 404, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_request_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1638,6 +1665,12 @@ gen_request_key (GKeyData * kdata, GLogItem * glog)
   return gen_req_key (kdata, glog);
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is not a 404, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_404_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1646,6 +1679,12 @@ gen_404_key (GKeyData * kdata, GLogItem * glog)
   return 1;
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is not a static request, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_static_request_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1654,6 +1693,12 @@ gen_static_request_key (GKeyData * kdata, GLogItem * glog)
   return 1;
 }
 
+/* A wrapper to generate a unique key for the virtual host panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated vhost key is assigned to our key data
+ * structure.
+ */
 static int
 gen_vhost_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1665,6 +1710,12 @@ gen_vhost_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the hosts panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated host key is assigned to our key data
+ * structure.
+ */
 static int
 gen_host_key (GKeyData * kdata, GLogItem * glog)
 {
