@@ -595,6 +595,10 @@ usecs_to_str (unsigned long long usec)
   return size;
 }
 
+/* Convert the given int to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
 char *
 int2str (int d, int width)
 {
@@ -604,6 +608,9 @@ int2str (int d, int width)
   return s;
 }
 
+/* Convert two integers to a string (concatenated).
+ *
+ * On success, the given numbers as a string are returned. */
 char *
 ints_to_str (int a, int b)
 {
@@ -613,6 +620,10 @@ ints_to_str (int a, int b)
   return s;
 }
 
+/* Convert the given float to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
 char *
 float2str (float d, int width)
 {
@@ -622,6 +633,9 @@ float2str (float d, int width)
   return s;
 }
 
+/* Determine the length of an integer (number of digits).
+ *
+ * On success, the length of the number is returned. */
 int
 intlen (int num)
 {
@@ -634,6 +648,9 @@ intlen (int num)
   return l;
 }
 
+/* Allocate a new string and fill it with the given character.
+ *
+ * On success, the newly allocated string is returned. */
 char *
 char_repeat (int n, char c)
 {
@@ -644,7 +661,11 @@ char_repeat (int n, char c)
   return dest;
 }
 
-/* replace old with new char */
+/* Replace all occurrences of the given char with the replacement
+ * char.
+ *
+ * On error the original string is returned.
+ * On success, a string with the replaced values is returned. */
 char *
 char_replace (char *str, char o, char n)
 {
@@ -659,6 +680,9 @@ char_replace (char *str, char o, char n)
   return str;
 }
 
+/* Remove all occurrences of a new line.
+ *
+ * On success, a string with the replaced new lines is returned. */
 void
 strip_newlines (char *str)
 {
@@ -671,7 +695,9 @@ strip_newlines (char *str)
   *dst = '\0';
 }
 
-/* strip blanks from a string */
+/* Strip blanks from a string.
+ *
+ * On success, a string without whitespace is returned. */
 char *
 deblank (char *str)
 {
@@ -686,6 +712,10 @@ deblank (char *str)
   return out;
 }
 
+/* Make a string uppercase.
+ *
+ * On error the original string is returned.
+ * On success, the uppercased string is returned. */
 char *
 strtoupper (char *str)
 {
@@ -701,6 +731,9 @@ strtoupper (char *str)
   return str;
 }
 
+/* Left-pad a string with n amount of spaces.
+ *
+ * On success, a left-padded string is returned. */
 char *
 left_pad_str (const char *s, int indent)
 {
@@ -713,6 +746,10 @@ left_pad_str (const char *s, int indent)
   return buf;
 }
 
+/* String matching where one string contains wildcard characters.
+ *
+ * If no match found, 1 is returned.
+ * If match found, 0 is returned. */
 int
 wc_match (char *wc, char *str)
 {
@@ -737,50 +774,11 @@ wc_match (char *wc, char *str)
   return 0;
 }
 
-/* returns unescaped malloc'd string */
-char *
-unescape_str (const char *src)
-{
-  char *dest, *q;
-  const char *p = src;
-
-  if (src == NULL || *src == '\0')
-    return NULL;
-
-  dest = xmalloc (strlen (src) + 1);
-  q = dest;
-
-  while (*p) {
-    if (*p == '\\') {
-      p++;
-      switch (*p) {
-      case '\0':
-        /* warning... */
-        goto out;
-      case 'n':
-        *q++ = '\n';
-        break;
-      case 'r':
-        *q++ = '\r';
-        break;
-      case 't':
-        *q++ = '\t';
-        break;
-      default:
-        *q++ = *p;
-        break;
-      }
-    } else
-      *q++ = *p;
-    p++;
-  }
-out:
-  *q = 0;
-
-  return dest;
-}
-
-/* returns escaped malloc'd string */
+/* Escapes the special characters, e.g., '\n', '\r', '\t', '\'
+ * in the string source by inserting a '\' before them.
+ *
+ * On error NULL is returned.
+ * On success the escaped string is returned */
 char *
 escape_str (const char *src)
 {
@@ -825,5 +823,51 @@ escape_str (const char *src)
     p++;
   }
   *q = 0;
+  return dest;
+}
+
+/* Get an unescaped malloc'd string
+ *
+ * On error NULL is returned.
+ * On success the unescaped string is returned */
+char *
+unescape_str (const char *src)
+{
+  char *dest, *q;
+  const char *p = src;
+
+  if (src == NULL || *src == '\0')
+    return NULL;
+
+  dest = xmalloc (strlen (src) + 1);
+  q = dest;
+
+  while (*p) {
+    if (*p == '\\') {
+      p++;
+      switch (*p) {
+      case '\0':
+        /* warning... */
+        goto out;
+      case 'n':
+        *q++ = '\n';
+        break;
+      case 'r':
+        *q++ = '\r';
+        break;
+      case 't':
+        *q++ = '\t';
+        break;
+      default:
+        *q++ = *p;
+        break;
+      }
+    } else
+      *q++ = *p;
+    p++;
+  }
+out:
+  *q = 0;
+
   return dest;
 }
