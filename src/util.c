@@ -297,6 +297,10 @@ ip_in_range (const char *ip)
   return 0;
 }
 
+/* Search the environment HOME variable and append GoAccess' config file.
+ *
+ * On error, it outputs an error message and the program terminates.
+ * On success, the path of HOME and the config file is returned. */
 char *
 get_home (void)
 {
@@ -312,6 +316,9 @@ get_home (void)
   return path;
 }
 
+/* Get the path to the global config file.
+ *
+ * On success, the path of the global config file is returned. */
 char *
 get_global_config (void)
 {
@@ -341,6 +348,10 @@ get_visitors_date (const char *odate, const char *from, const char *to)
   return xstrdup ("---");
 }
 
+/* Format the given date/time according the given format.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm)
@@ -351,7 +362,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
 
-  /* check if char string needs to be convert from microseconds */
+  /* check if char string needs to be converted from microseconds */
   if (strcmp ("%f", fmt) == 0) {
     errno = 0;
     tm->tm_year = 1970 - 1900;
@@ -376,6 +387,10 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
   return 0;
 }
 
+/* Convert a date from one format to another and store inot the given buffer.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 convert_date (char *res, const char *data, const char *from, const char *to,
               int size)
@@ -401,6 +416,10 @@ convert_date (char *res, const char *data, const char *from, const char *to,
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
+/* Determine if the given IP is a valid IPv4/IPv6 address.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 invalid_ipaddr (char *str, int *ipvx)
 {
