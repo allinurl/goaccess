@@ -1165,14 +1165,14 @@ perform_next_find (GHolder * h, GScroll * gscroll)
       else if (rc == 0 && !find_t.look_in_sub) {
         find_t.look_in_sub = 1;
         perform_find_dash_scroll (gscroll, module);
-        break;
+        goto out;
       }
       /* look at sub list nodes */
       else {
         sub_list = h[module].items[j].sub_list;
         if (find_next_sub_item (sub_list, &regex) == 0) {
           perform_find_dash_scroll (gscroll, module);
-          break;
+          goto out;
         }
       }
     }
