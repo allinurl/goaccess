@@ -1082,7 +1082,7 @@ perform_find_dash_scroll (GScroll * gscroll, GModule module)
     (*offset) = (*scrll) < exp_size - 1 ? 0 : (*scrll) - exp_size + 1;
 
   gscroll->current = module;
-  gscroll->dash = module * DASH_COLLAPSED;
+  gscroll->dash = get_module_index (module) * DASH_COLLAPSED;
   gscroll->expanded = 1;
   find_t.module = module;
 }
