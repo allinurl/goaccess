@@ -1035,7 +1035,7 @@ void
 reset_scroll_offsets (GScroll * gscroll)
 {
   GModule module;
-  size_t idx;
+  size_t idx = 0;
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
