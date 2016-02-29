@@ -215,6 +215,7 @@ to be used without prepending `--`.
 | `--no-csv-summary`                 | Disable summary metrics on the CSV output.                    |
 | `--no-global-config`               | Do not load the global configuration file.                    |
 | `--no-progress`                    | Disable progress metrics.                                     |
+| `--no-tab-scroll`                  | Disable scrolling through panels on TAB.                      |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
 | `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
