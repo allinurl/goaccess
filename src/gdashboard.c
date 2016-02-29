@@ -1034,10 +1034,14 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
 void
 reset_scroll_offsets (GScroll * gscroll)
 {
-  int i;
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    gscroll->module[i].scroll = 0;
-    gscroll->module[i].offset = 0;
+  GModule module;
+  size_t idx;
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
+    gscroll->module[module].scroll = 0;
+    gscroll->module[module].offset = 0;
   }
 }
 
