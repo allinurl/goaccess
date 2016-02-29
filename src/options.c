@@ -110,6 +110,7 @@ struct option long_opts[] = {
   {0, 0, 0, 0}
 };
 
+/* Command line help. */
 void
 cmd_help (void)
 {
@@ -247,6 +248,8 @@ cmd_help (void)
 }
 /* *INDENT-ON* */
 
+/* Determine if the '--no-global-config' command line option needs to be
+ * enabled or not. */
 void
 verify_global_config (int argc, char **argv)
 {
@@ -276,6 +279,7 @@ verify_global_config (int argc, char **argv)
   optind = 1;
 }
 
+/* Read the user's supplied command line options. */
 void
 read_option_args (int argc, char **argv)
 {

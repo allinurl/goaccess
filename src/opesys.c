@@ -102,7 +102,11 @@ static const char *os[][2] = {
   {"Xbox", "Windows"},
 };
 
-/* get Android Codename */
+/* Get the Android code name (if applicable).
+ *
+ * On error, the given name is allocated and returned.
+ * On success, the matching Android codename is allocated and
+ * returned. */
 static char *
 get_real_android (const char *droid)
 {
@@ -132,7 +136,11 @@ get_real_android (const char *droid)
   return alloc_string (droid);
 }
 
-/* get Windows marketing name */
+/* Get the Windows marketing name (if applicable).
+ *
+ * On error, the given name is allocated and returned.
+ * On success, the matching Windows marketing name is allocated and
+ * returned. */
 static char *
 get_real_win (const char *win)
 {
@@ -159,7 +167,11 @@ get_real_win (const char *win)
   return NULL;
 }
 
-/* get Mac OS X Codename */
+/* Get the Mac OS X code name (if applicable).
+ *
+ * On error, the given name is allocated and returned.
+ * On success, the matching Mac OS X codename is allocated and
+ * returned. */
 static char *
 get_real_mac_osx (const char *osx)
 {
@@ -190,12 +202,17 @@ get_real_mac_osx (const char *osx)
   return alloc_string (osx);
 }
 
+/* Parse all other operating systems.
+ *
+ * On error, the given name is returned.
+ * On success, the parsed OS is returned. */
 static char *
 parse_others (char *agent, int spaces)
 {
   char *p;
   int space = 0;
   p = agent;
+  /* assume the following chars are within the given agent */
   while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
     if (*p == ' ')
       space++;
@@ -208,6 +225,10 @@ parse_others (char *agent, int spaces)
   return agent;
 }
 
+/* Parse a Mac OS X string.
+ *
+ * On error, the given name is returned.
+ * On success, the parsed Mac OS X is returned. */
 static char *
 parse_osx (char *agent)
 {
@@ -215,6 +236,7 @@ parse_osx (char *agent)
   char *p;
 
   p = agent;
+  /* assume the following chars are within the given agent */
   while (*p != ';' && *p != ')' && *p != '(' && *p != '\0') {
     if (*p == '_')
       *p = '.';
@@ -229,11 +251,16 @@ parse_osx (char *agent)
   return agent;
 }
 
+/* Parse an Android string.
+ *
+ * On error, the given name is returned.
+ * On success, the parsed Android is returned. */
 static char *
 parse_android (char *agent)
 {
   char *p;
   p = agent;
+  /* assume the following chars are within the given agent */
   while (*p != ';' && *p != ')' && *p != '(' && *p != '\0')
     p++;
   *p = 0;

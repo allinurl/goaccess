@@ -71,6 +71,10 @@ static const char *ignore_cmd_opts[] = {
   "version",
 };
 
+/* Determine if the given command line option needs to be ignored.
+ *
+ * If needs to be ignored, 1 is returned.
+ * If not within the list of ignored command line options, 0 is returned. */
 static int
 in_ignore_cmd_opts (const char *val)
 {
@@ -82,6 +86,13 @@ in_ignore_cmd_opts (const char *val)
   return 0;
 }
 
+/* Get the location of the configuration file.
+ *
+ * By default, it attempts to read it from the user supplied path, else it will
+ * try to open the global config file path (sysconfdir) or from the HOME
+ * environment variable (~/.goaccessrc).
+ *
+ * On success, the path to the configuration file is returned. */
 char *
 get_config_file_path (void)
 {
@@ -115,7 +126,7 @@ get_config_file_path (void)
   return rpath;
 }
 
-/* Use predefined static files when no config file is used */
+/* Use predefined static files when no config file is used. */
 void
 set_default_static_files (void)
 {
@@ -167,7 +178,7 @@ set_default_static_files (void)
   }
 }
 
-/* clean command line arguments */
+/* Clean malloc'd command line arguments. */
 void
 free_cmd_args (void)
 {
@@ -179,7 +190,7 @@ free_cmd_args (void)
   free (nargv);
 }
 
-/* append extra value to argv */
+/* Append extra value to argv */
 static void
 append_to_argv (int *argc, char ***argv, char *val)
 {
@@ -190,7 +201,11 @@ append_to_argv (int *argc, char ***argv, char *val)
   *argv = _argv;
 }
 
-/* parses configuration file to feed getopt_long */
+/* Parses the configuration file to feed getopt_long.
+ *
+ * On error, ENOENT error code is returned.
+ * On success, 0 is returned and config file enabled options are appended to
+ * argv. */
 int
 parse_conf_file (int *argc, char ***argv)
 {
@@ -270,7 +285,11 @@ parse_conf_file (int *argc, char ***argv)
   return 0;
 }
 
-/* return the index of the matched item, or -1 if no such item exists */
+/* Determine the selected log format from the config file or command line
+ * option.
+ *
+ * On error, -1 is returned.
+ * On success, the index of the matched item is returned. */
 size_t
 get_selected_format_idx (void)
 {
@@ -298,7 +317,11 @@ get_selected_format_idx (void)
     return -1;
 }
 
-/* return the string of the matched item, or NULL if no such item exists */
+/* Determine the selected log format from the config file or command line
+ * option.
+ *
+ * On error, NULL is returned.
+ * On success, an allocated string containing the log format is returned. */
 char *
 get_selected_format_str (size_t idx)
 {
@@ -336,6 +359,11 @@ get_selected_format_str (size_t idx)
   return fmt;
 }
 
+/* Determine the selected date format from the config file or command line
+ * option.
+ *
+ * On error, NULL is returned.
+ * On success, an allocated string containing the date format is returned. */
 char *
 get_selected_date_str (size_t idx)
 {
@@ -363,6 +391,11 @@ get_selected_date_str (size_t idx)
   return fmt;
 }
 
+/* Determine the selected time format from the config file or command line
+ * option.
+ *
+ * On error, NULL is returned.
+ * On success, an allocated string containing the time format is returned. */
 char *
 get_selected_time_str (size_t idx)
 {
