@@ -47,6 +47,7 @@
 #include "error.h"
 #include "xmalloc.h"
 
+/* HTTP status codes categories */
 static const char *code_type[][2] = {
   {"1", "1xx Informational"},
   {"2", "2xx Success"},
@@ -55,6 +56,7 @@ static const char *code_type[][2] = {
   {"5", "5xx Server Error"},
 };
 
+/* HTTP status codes */
 static const char *codes[][2] = {
   {"100", "100 - Continue: Server received the initial part of the request"},
   {"101", "101 - Switching Protocols: Client asked to switch protocols"},
@@ -111,7 +113,10 @@ static const char *codes[][2] = {
   {"524", "524 - CloudFlare - A timeout occured"}
 };
 
-/* helper functions */
+/* Return part of a string
+ *
+ * On error NULL is returned.
+ * On success the extracted part of string is returned */
 char *
 substring (const char *str, int begin, int len)
 {
@@ -136,6 +141,9 @@ substring (const char *str, int begin, int len)
   return buffer;
 }
 
+/* A pointer to the allocated memory of the new string
+ *
+ * On success, a pointer to a new string is returned */
 char *
 alloc_string (const char *str)
 {
@@ -144,6 +152,8 @@ alloc_string (const char *str)
   return new;
 }
 
+/* A wrapper function to copy the first num characters of source to
+ * destination. */
 void
 xstrncpy (char *dest, const char *source, const size_t dest_size)
 {
@@ -155,6 +165,10 @@ xstrncpy (char *dest, const char *source, const size_t dest_size)
   }
 }
 
+/* Count the number of matches on the string `s1` given a character `c`
+ *
+ * If the character is not found, 0 is returned
+ * On success, the number of characters found */
 int
 count_matches (const char *s1, char c)
 {
@@ -167,6 +181,11 @@ count_matches (const char *s1, char c)
   return n;
 }
 
+/* Determine if the given host needs to be ignored given the list of
+ * referrers to ignore.
+ *
+ * On error, or the referrer is not found, 0 is returned
+ * On success, or if the host needs to be ignored, 1 is returned */
 int
 ignore_referer (const char *host)
 {
@@ -194,6 +213,10 @@ out:
   return ignore;
 }
 
+/* Determine if the given ip is within a range of IPs.
+ *
+ * On error, or not within the range, 0 is returned
+ * On success, or if within the range, 1 is returned */
 static int
 within_range (const char *ip, const char *start, const char *end)
 {
@@ -231,6 +254,11 @@ within_range (const char *ip, const char *start, const char *end)
   return 0;
 }
 
+/* Determine if the given IP needs to be ignored given the list of IPs
+ * to ignore.
+ *
+ * On error, or not within the range, 0 is returned
+ * On success, or if within the range, 1 is returned */
 int
 ip_in_range (const char *ip)
 {
@@ -269,7 +297,10 @@ ip_in_range (const char *ip)
   return 0;
 }
 
-
+/* Search the environment HOME variable and append GoAccess' config file.
+ *
+ * On error, it outputs an error message and the program terminates.
+ * On success, the path of HOME and the config file is returned. */
 char *
 get_home (void)
 {
@@ -285,6 +316,9 @@ get_home (void)
   return path;
 }
 
+/* Get the path to the global config file.
+ *
+ * On success, the path of the global config file is returned. */
 char *
 get_global_config (void)
 {
@@ -314,6 +348,10 @@ get_visitors_date (const char *odate, const char *from, const char *to)
   return xstrdup ("---");
 }
 
+/* Format the given date/time according the given format.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm)
@@ -324,7 +362,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
 
-  /* check if char string needs to be convert from microseconds */
+  /* check if char string needs to be converted from microseconds */
   if (strcmp ("%f", fmt) == 0) {
     errno = 0;
     tm->tm_year = 1970 - 1900;
@@ -349,6 +387,10 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
   return 0;
 }
 
+/* Convert a date from one format to another and store inot the given buffer.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 convert_date (char *res, const char *data, const char *from, const char *to,
               int size)
@@ -374,6 +416,10 @@ convert_date (char *res, const char *data, const char *from, const char *to,
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
+/* Determine if the given IP is a valid IPv4/IPv6 address.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 invalid_ipaddr (char *str, int *ipvx)
 {
@@ -400,7 +446,10 @@ invalid_ipaddr (char *str, int *ipvx)
   return 1;
 }
 
-/* off_t becomes 64 bit aware */
+/* Get information about the filename.
+ *
+ * On error, -1 is returned.
+ * On success, the file size of the given filename. */
 off_t
 file_size (const char *filename)
 {
@@ -414,6 +463,11 @@ file_size (const char *filename)
   return -1;
 }
 
+/* Determine if the given status code is within the list of status
+ * codes and find out the status type/category.
+ *
+ * If not found, "Unknown" is returned.
+ * On success, the status code type/category is returned. */
 const char *
 verify_status_code_type (const char *str)
 {
@@ -425,6 +479,11 @@ verify_status_code_type (const char *str)
   return "Unknown";
 }
 
+/* Determine if the given status code is within the list of status
+ * codes.
+ *
+ * If not found, "Unknown" is returned.
+ * On success, the status code is returned. */
 const char *
 verify_status_code (char *str)
 {
@@ -436,6 +495,10 @@ verify_status_code (char *str)
   return "Unknown";
 }
 
+/* Checks if the given string is within the given array.
+ *
+ * If not found, 0 is returned.
+ * On success, 1 is returned. */
 int
 str_inarray (const char *s, const char *arr[], int size)
 {
@@ -447,6 +510,10 @@ str_inarray (const char *s, const char *arr[], int size)
   return 0;
 }
 
+/* Strip whitespace from the beginning of a string.
+ *
+ * On success, a string with whitespace stripped from the beginning of
+ * the string is returned. */
 char *
 ltrim (char *s)
 {
@@ -459,6 +526,10 @@ ltrim (char *s)
   return s;
 }
 
+/* Strip whitespace from the end of a string.
+ *
+ * On success, a string with whitespace stripped from the end of the
+ * string is returned. */
 char *
 rtrim (char *s)
 {
@@ -471,12 +542,19 @@ rtrim (char *s)
   return s;
 }
 
+/* Strip whitespace from the beginning and end of the string.
+ *
+ * On success, the trimmed string is returned. */
 char *
 trim_str (char *str)
 {
   return rtrim (ltrim (str));
 }
 
+/* Convert the file size in bytes to a human readable format.
+ *
+ * On error, the original size of the string in bytes is returned.
+ * On success, the file size in a human readable format is returned. */
 char *
 filesize_str (unsigned long long log_size)
 {
@@ -493,6 +571,10 @@ filesize_str (unsigned long long log_size)
   return size;
 }
 
+/* Convert microseconds to a human readable format.
+ *
+ * On error, a malloc'd string in microseconds is returned.
+ * On success, the time in a human readable format is returned. */
 char *
 usecs_to_str (unsigned long long usec)
 {
@@ -513,6 +595,10 @@ usecs_to_str (unsigned long long usec)
   return size;
 }
 
+/* Convert the given int to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
 char *
 int2str (int d, int width)
 {
@@ -522,6 +608,9 @@ int2str (int d, int width)
   return s;
 }
 
+/* Convert two integers to a string (concatenated).
+ *
+ * On success, the given numbers as a string are returned. */
 char *
 ints_to_str (int a, int b)
 {
@@ -531,6 +620,10 @@ ints_to_str (int a, int b)
   return s;
 }
 
+/* Convert the given float to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
 char *
 float2str (float d, int width)
 {
@@ -540,6 +633,9 @@ float2str (float d, int width)
   return s;
 }
 
+/* Determine the length of an integer (number of digits).
+ *
+ * On success, the length of the number is returned. */
 int
 intlen (int num)
 {
@@ -552,6 +648,9 @@ intlen (int num)
   return l;
 }
 
+/* Allocate a new string and fill it with the given character.
+ *
+ * On success, the newly allocated string is returned. */
 char *
 char_repeat (int n, char c)
 {
@@ -562,7 +661,11 @@ char_repeat (int n, char c)
   return dest;
 }
 
-/* replace old with new char */
+/* Replace all occurrences of the given char with the replacement
+ * char.
+ *
+ * On error the original string is returned.
+ * On success, a string with the replaced values is returned. */
 char *
 char_replace (char *str, char o, char n)
 {
@@ -577,6 +680,9 @@ char_replace (char *str, char o, char n)
   return str;
 }
 
+/* Remove all occurrences of a new line.
+ *
+ * On success, a string with the replaced new lines is returned. */
 void
 strip_newlines (char *str)
 {
@@ -589,7 +695,9 @@ strip_newlines (char *str)
   *dst = '\0';
 }
 
-/* strip blanks from a string */
+/* Strip blanks from a string.
+ *
+ * On success, a string without whitespace is returned. */
 char *
 deblank (char *str)
 {
@@ -604,6 +712,10 @@ deblank (char *str)
   return out;
 }
 
+/* Make a string uppercase.
+ *
+ * On error the original string is returned.
+ * On success, the uppercased string is returned. */
 char *
 strtoupper (char *str)
 {
@@ -619,6 +731,9 @@ strtoupper (char *str)
   return str;
 }
 
+/* Left-pad a string with n amount of spaces.
+ *
+ * On success, a left-padded string is returned. */
 char *
 left_pad_str (const char *s, int indent)
 {
@@ -631,6 +746,10 @@ left_pad_str (const char *s, int indent)
   return buf;
 }
 
+/* String matching where one string contains wildcard characters.
+ *
+ * If no match found, 1 is returned.
+ * If match found, 0 is returned. */
 int
 wc_match (char *wc, char *str)
 {
@@ -655,50 +774,11 @@ wc_match (char *wc, char *str)
   return 0;
 }
 
-/* returns unescaped malloc'd string */
-char *
-unescape_str (const char *src)
-{
-  char *dest, *q;
-  const char *p = src;
-
-  if (src == NULL || *src == '\0')
-    return NULL;
-
-  dest = xmalloc (strlen (src) + 1);
-  q = dest;
-
-  while (*p) {
-    if (*p == '\\') {
-      p++;
-      switch (*p) {
-      case '\0':
-        /* warning... */
-        goto out;
-      case 'n':
-        *q++ = '\n';
-        break;
-      case 'r':
-        *q++ = '\r';
-        break;
-      case 't':
-        *q++ = '\t';
-        break;
-      default:
-        *q++ = *p;
-        break;
-      }
-    } else
-      *q++ = *p;
-    p++;
-  }
-out:
-  *q = 0;
-
-  return dest;
-}
-
-/* returns escaped malloc'd string */
+/* Escapes the special characters, e.g., '\n', '\r', '\t', '\'
+ * in the string source by inserting a '\' before them.
+ *
+ * On error NULL is returned.
+ * On success the escaped string is returned */
 char *
 escape_str (const char *src)
 {
@@ -743,5 +823,51 @@ escape_str (const char *src)
     p++;
   }
   *q = 0;
+  return dest;
+}
+
+/* Get an unescaped malloc'd string
+ *
+ * On error NULL is returned.
+ * On success the unescaped string is returned */
+char *
+unescape_str (const char *src)
+{
+  char *dest, *q;
+  const char *p = src;
+
+  if (src == NULL || *src == '\0')
+    return NULL;
+
+  dest = xmalloc (strlen (src) + 1);
+  q = dest;
+
+  while (*p) {
+    if (*p == '\\') {
+      p++;
+      switch (*p) {
+      case '\0':
+        /* warning... */
+        goto out;
+      case 'n':
+        *q++ = '\n';
+        break;
+      case 'r':
+        *q++ = '\r';
+        break;
+      case 't':
+        *q++ = '\t';
+        break;
+      default:
+        *q++ = *p;
+        break;
+      }
+    } else
+      *q++ = *p;
+    p++;
+  }
+out:
+  *q = 0;
+
   return dest;
 }

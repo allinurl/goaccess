@@ -1040,10 +1040,14 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
 void
 reset_scroll_offsets (GScroll * gscroll)
 {
-  int i;
-  for (i = 0; i < TOTAL_MODULES; i++) {
-    gscroll->module[i].scroll = 0;
-    gscroll->module[i].offset = 0;
+  GModule module;
+  size_t idx = 0;
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+
+    gscroll->module[module].scroll = 0;
+    gscroll->module[module].offset = 0;
   }
 }
 
@@ -1088,7 +1092,7 @@ perform_find_dash_scroll (GScroll * gscroll, GModule module)
     (*offset) = (*scrll) < exp_size - 1 ? 0 : (*scrll) - exp_size + 1;
 
   gscroll->current = module;
-  gscroll->dash = module * DASH_COLLAPSED;
+  gscroll->dash = get_module_index (module) * DASH_COLLAPSED;
   gscroll->expanded = 1;
   find_t.module = module;
 }
@@ -1171,14 +1175,14 @@ perform_next_find (GHolder * h, GScroll * gscroll)
       else if (rc == 0 && !find_t.look_in_sub) {
         find_t.look_in_sub = 1;
         perform_find_dash_scroll (gscroll, module);
-        break;
+        goto out;
       }
       /* look at sub list nodes */
       else {
         sub_list = h[module].items[j].sub_list;
         if (find_next_sub_item (sub_list, &regex) == 0) {
           perform_find_dash_scroll (gscroll, module);
-          break;
+          goto out;
         }
       }
     }

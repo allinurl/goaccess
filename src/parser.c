@@ -1444,7 +1444,8 @@ insert_hit (int data_nkey, GModule module)
   ht_insert_meta_data (module, "hits", 1);
 }
 
-/* A wrapper function to increase visitors counter from an int key. */
+/* A wrapper function to increase visitors counter from an int
+ * key. */
 static void
 insert_visitor (int uniq_nkey, GModule module)
 {
@@ -1452,6 +1453,8 @@ insert_visitor (int uniq_nkey, GModule module)
   ht_insert_meta_data (module, "visitors", 1);
 }
 
+/* A wrapper function to increases bandwidth counter from an int
+ * key. */
 static void
 insert_bw (int data_nkey, uint64_t size, GModule module)
 {
@@ -1459,6 +1462,8 @@ insert_bw (int data_nkey, uint64_t size, GModule module)
   ht_insert_meta_data (module, "bytes", size);
 }
 
+/* A wrapper call to increases cumulative time served counter
+ * from an int key. */
 static void
 insert_cumts (int data_nkey, uint64_t ts, GModule module)
 {
@@ -1466,6 +1471,8 @@ insert_cumts (int data_nkey, uint64_t ts, GModule module)
   ht_insert_meta_data (module, "cumts", ts);
 }
 
+/* A wrapper call to insert the maximum time served counter from
+ * an int key. */
 static void
 insert_maxts (int data_nkey, uint64_t ts, GModule module)
 {
@@ -1479,12 +1486,16 @@ insert_method (int nkey, const char *data, GModule module)
   ht_insert_method (module, nkey, data ? data : "---");
 }
 
+/* A wrapper call to insert a method given an int key and string
+ * value. */
 static void
 insert_protocol (int nkey, const char *data, GModule module)
 {
   ht_insert_protocol (module, nkey, data ? data : "---");
 }
 
+/* A wrapper call to insert an agent for a hostname given an int
+ * key and int value.  */
 static void
 insert_agent (int data_nkey, int agent_nkey, GModule module)
 {
@@ -1494,7 +1505,9 @@ insert_agent (int data_nkey, int agent_nkey, GModule module)
 /* The following generates a unique key to identity unique visitors.
  * The key is made out of the IP, date, and user agent.
  * Note that for readability, doing a simple snprintf/sprintf should
- * suffice, however, memcpy is the fastest solution */
+ * suffice, however, memcpy is the fastest solution
+ *
+ * On success the new unique visitor key is returned */
 static char *
 get_uniq_visitor_key (GLogItem * glog)
 {
@@ -1522,6 +1535,13 @@ get_uniq_visitor_key (GLogItem * glog)
   return key;
 }
 
+/* The following generates a unique key to identity unique requests.
+ * The key is made out of the actual request, and if available, the
+ * method and the protocol.  Note that for readability, doing a simple
+ * snprintf/sprintf should suffice, however, memcpy is the fastest
+ * solution
+ *
+ * On success the new unique request key is returned */
 static char *
 gen_unique_req_key (GLogItem * glog)
 {
@@ -1560,8 +1580,8 @@ gen_unique_req_key (GLogItem * glog)
   return key;
 }
 
-/* Append the query string to the request, and therefore, it modifies the
- * original glog->req */
+/* Append the query string to the request, and therefore, it modifies
+ * the original glog->req */
 static void
 append_query_string (char **req, const char *qstr)
 {
@@ -1579,6 +1599,8 @@ append_query_string (char **req, const char *qstr)
   *req = r;
 }
 
+/* A wrapper to assign the given data key and the data item to the key
+ * data structure */
 static void
 get_kdata (GKeyData * kdata, char *data_key, char *data)
 {
@@ -1588,6 +1610,12 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
   kdata->data = data;
 }
 
+/* Generate a unique key for the visitors panel from the given glog
+ * structure and assign it to out key data structure.
+ *
+ * On error, or if no date is found, 1 is returned.
+ * On success, the date key is assigned to our key data structure.
+ */
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1609,6 +1637,12 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate a unique key for the requests panel from the given glog
+ * structure and assign it to out key data structure.
+ *
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_req_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1621,6 +1655,12 @@ gen_req_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is static or a 404, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure.
+ */
 static int
 gen_request_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1630,6 +1670,11 @@ gen_request_key (GKeyData * kdata, GLogItem * glog)
   return gen_req_key (kdata, glog);
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is not a 404, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure. */
 static int
 gen_404_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1638,6 +1683,11 @@ gen_404_key (GKeyData * kdata, GLogItem * glog)
   return 1;
 }
 
+/* A wrapper to generate a unique key for the request panel.
+ *
+ * On error, or if the request is not a static request, 1 is returned.
+ * On success, the generated request key is assigned to our key data
+ * structure. */
 static int
 gen_static_request_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1646,6 +1696,11 @@ gen_static_request_key (GKeyData * kdata, GLogItem * glog)
   return 1;
 }
 
+/* A wrapper to generate a unique key for the virtual host panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated vhost key is assigned to our key data
+ * structure. */
 static int
 gen_vhost_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1657,6 +1712,11 @@ gen_vhost_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the hosts panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated host key is assigned to our key data
+ * structure. */
 static int
 gen_host_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1668,6 +1728,12 @@ gen_host_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate a browser unique key for the browser's panel given a user
+ * agent and assign the browser type/category as a root element.
+ *
+ * On error, 1 is returned.
+ * On success, the generated browser key is assigned to our key data
+ * structure. */
 static int
 gen_browser_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1694,6 +1760,12 @@ gen_browser_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate an operating system unique key for the OS' panel given a
+ * user agent and assign the OS type/category as a root element.
+ *
+ * On error, 1 is returned.
+ * On success, the generated OS key is assigned to our key data
+ * structure. */
 static int
 gen_os_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1720,6 +1792,11 @@ gen_os_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the referrers panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated referrer key is assigned to our key data
+ * structure. */
 static int
 gen_referer_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1731,6 +1808,11 @@ gen_referer_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the referring sites panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated referring site key is assigned to our key data
+ * structure. */
 static int
 gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1742,6 +1824,11 @@ gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the keyphrases panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated keyphrase key is assigned to our key data
+ * structure. */
 static int
 gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1753,6 +1840,11 @@ gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the geolocation panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated geolocation key is assigned to our key
+ * data structure. */
 #ifdef HAVE_LIBGEOIP
 static int
 gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
@@ -1779,6 +1871,11 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
 }
 #endif
 
+/* A wrapper to generate a unique key for the status code panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated status code key is assigned to our key
+ * data structure. */
 static int
 gen_status_code_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1799,6 +1896,11 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the time distribution panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated time key is assigned to our key data
+ * structure. */
 static int
 gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1832,6 +1934,9 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Determine if 404s need to be added to the unique visitors count.
+ *
+ * If it needs to be added, 0 is returned else 1 is returned. */
 static int
 include_uniq (GLogItem * glog)
 {
@@ -1842,6 +1947,7 @@ include_uniq (GLogItem * glog)
   return 0;
 }
 
+/* Determine which data metrics need to be set and set them. */
 static void
 set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
 {
@@ -1882,6 +1988,7 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
     parse->agent (kdata->data_nkey, glog->agent_nkey, module);
 }
 
+/* Set data mapping and metrics. */
 static void
 map_log (GLogItem * glog, const GParse * parse, GModule module)
 {
@@ -1913,6 +2020,8 @@ map_log (GLogItem * glog, const GParse * parse, GModule module)
     set_datamap (glog, &kdata, parse);
 }
 
+/* Process a log line and set the data into the corresponding data
+ * structure. */
 static void
 process_log (GLogItem * glog)
 {
@@ -1943,7 +2052,11 @@ process_log (GLogItem * glog)
   }
 }
 
-/* process a line from the log and store it accordingly */
+/* Process a line from the log and store it accordingly taking into
+ * account multiple parsing options prior to setting data into the
+ * corresponding data structure.
+ *
+ * On success, 0 is returned */
 static int
 pre_process_log (GLog * logger, char *line, int test)
 {
@@ -1998,6 +2111,11 @@ cleanup:
   return 0;
 }
 
+/* Iterate over the log and read line by line (uses a buffer of fixed
+ * size).
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
@@ -2021,6 +2139,11 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 }
 #endif
 
+/* Iterate over the log and read line by line (use GNU get_line to
+ * parse the whole line).
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
@@ -2048,6 +2171,10 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 }
 #endif
 
+/* Read the given log line by line and process its data.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 static int
 read_log (GLog ** logger, int lines2test)
 {
@@ -2084,6 +2211,8 @@ read_log (GLog ** logger, int lines2test)
   return 0;
 }
 
+/* Determine if the log/date/time were set, otherwise exit the program
+ * execution. */
 void
 verify_formats (void)
 {
@@ -2097,7 +2226,10 @@ verify_formats (void)
     FATAL ("No log format was found on your conf file.");
 }
 
-/* entry point to parse the log line by line */
+/* Entry point to parse the log line by line.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 parse_log (GLog ** logger, char *tail, int lines2test)
 {
@@ -2120,7 +2252,10 @@ parse_log (GLog ** logger, char *tail, int lines2test)
   return read_log (logger, lines2test);
 }
 
-/* make sure we have valid hits */
+/* Ensure we have valid hits
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 test_format (GLog * logger)
 {

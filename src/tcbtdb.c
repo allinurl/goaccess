@@ -37,6 +37,10 @@
 #include "xmalloc.h"
 
 #ifdef TCB_BTREE
+
+/* Get the on-disk databases path.
+ *
+ * On success, the databases path string is returned. */
 char *
 tc_db_set_path (const char *dbname, int module)
 {
@@ -56,6 +60,11 @@ tc_db_set_path (const char *dbname, int module)
   return path;
 }
 
+/* Set the given database parameter into the parameters buffer.
+ *
+ * On error, a negative number is returned.
+ * On success, the number of characters that would have been written is
+ * returned. */
 static int
 set_dbparam (char *params, int len, const char *fmt, ...)
 {
@@ -77,7 +86,7 @@ set_dbparam (char *params, int len, const char *fmt, ...)
   return n;
 }
 
-/* set database parameters */
+/* Set the on-disk database parameters from enabled options in the config file. */
 void
 tc_db_get_params (char *params, const char *path)
 {
@@ -127,7 +136,10 @@ tc_db_get_params (char *params, const char *path)
   LOG_DEBUG (("params: %s\n", params));
 }
 
-/* Open the database handle */
+/* Open the database handle.
+ *
+ * On error, the program will exit.
+ * On success, the opened on-disk database is returned. */
 TCBDB *
 tc_bdb_create (const char *dbname, int module)
 {
@@ -186,7 +198,10 @@ tc_bdb_create (const char *dbname, int module)
   return bdb;
 }
 
-/* Close the database handle */
+/* Close the database handle.
+ *
+ * On error, 1 is returned.
+ * On success or the database is closed, 0 is returned. */
 int
 tc_bdb_close (void *db, char *dbname)
 {
@@ -212,12 +227,19 @@ tc_bdb_close (void *db, char *dbname)
   return 0;
 }
 
+/* Compare the given integer value with one in the list object.
+ *
+ * If values are the equal, 1 is returned else 0 is returned. */
 static int
 find_int_key_in_list (void *data, void *needle)
 {
   return (*(int *) data) == (*(int *) needle) ? 1 : 0;
 }
 
+/* Iterate over the list object and compare the current value with the given
+ * value.
+ *
+ * If the value exists, 1 is returned else 0 is returned. */
 static int
 is_value_in_tclist (TCLIST * tclist, void *value)
 {
@@ -238,7 +260,9 @@ is_value_in_tclist (TCLIST * tclist, void *value)
 
 /* Insert a string key and the corresponding string value.
  * Note: If the key exists, the value is not replaced.
- * Return -1 if the operation failed, otherwise 0. */
+ *
+ * On error, or if found, 1 is returned.
+ * On success, or if not in the list, 0 is returned. */
 int
 ins_igsl (void *hash, int key, int value)
 {
