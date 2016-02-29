@@ -1669,8 +1669,7 @@ gen_request_key (GKeyData * kdata, GLogItem * glog)
  *
  * On error, or if the request is not a 404, 1 is returned.
  * On success, the generated request key is assigned to our key data
- * structure.
- */
+ * structure. */
 static int
 gen_404_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1683,8 +1682,7 @@ gen_404_key (GKeyData * kdata, GLogItem * glog)
  *
  * On error, or if the request is not a static request, 1 is returned.
  * On success, the generated request key is assigned to our key data
- * structure.
- */
+ * structure. */
 static int
 gen_static_request_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1697,8 +1695,7 @@ gen_static_request_key (GKeyData * kdata, GLogItem * glog)
  *
  * On error, 1 is returned.
  * On success, the generated vhost key is assigned to our key data
- * structure.
- */
+ * structure. */
 static int
 gen_vhost_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1714,8 +1711,7 @@ gen_vhost_key (GKeyData * kdata, GLogItem * glog)
  *
  * On error, 1 is returned.
  * On success, the generated host key is assigned to our key data
- * structure.
- */
+ * structure. */
 static int
 gen_host_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1727,6 +1723,12 @@ gen_host_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate a browser unique key for the browser's panel given a user
+ * agent and assign the browser type/category as a root element.
+ *
+ * On error, 1 is returned.
+ * On success, the generated browser key is assigned to our key data
+ * structure. */
 static int
 gen_browser_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1753,6 +1755,12 @@ gen_browser_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Generate an operating system unique key for the OS' panel given a
+ * user agent and assign the OS type/category as a root element.
+ *
+ * On error, 1 is returned.
+ * On success, the generated OS key is assigned to our key data
+ * structure. */
 static int
 gen_os_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1779,6 +1787,11 @@ gen_os_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the referrers panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated referrer key is assigned to our key data
+ * structure. */
 static int
 gen_referer_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1790,6 +1803,11 @@ gen_referer_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the referring sites panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated referring site key is assigned to our key data
+ * structure. */
 static int
 gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1801,6 +1819,11 @@ gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the keyphrases panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated keyphrase key is assigned to our key data
+ * structure. */
 static int
 gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1812,6 +1835,11 @@ gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the geolocation panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated geolocation key is assigned to our key
+ * data structure. */
 #ifdef HAVE_LIBGEOIP
 static int
 gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
@@ -1838,6 +1866,11 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
 }
 #endif
 
+/* A wrapper to generate a unique key for the status code panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated status code key is assigned to our key
+ * data structure. */
 static int
 gen_status_code_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1858,6 +1891,11 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the time distribution panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated time key is assigned to our key data
+ * structure. */
 static int
 gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
 {
@@ -1891,6 +1929,9 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Determine if 404s need to be added to the unique visitors count.
+ *
+ * If it needs to be added, 0 is returned else 1 is returned. */
 static int
 include_uniq (GLogItem * glog)
 {
@@ -1901,6 +1942,7 @@ include_uniq (GLogItem * glog)
   return 0;
 }
 
+/* Determine which data metrics need to be set and set them. */
 static void
 set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
 {
@@ -1941,6 +1983,7 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
     parse->agent (kdata->data_nkey, glog->agent_nkey, module);
 }
 
+/* Set data mapping and metrics. */
 static void
 map_log (GLogItem * glog, const GParse * parse, GModule module)
 {
@@ -1972,6 +2015,8 @@ map_log (GLogItem * glog, const GParse * parse, GModule module)
     set_datamap (glog, &kdata, parse);
 }
 
+/* Process a log line and set the data into the corresponding data
+ * structure. */
 static void
 process_log (GLogItem * glog)
 {
@@ -2002,7 +2047,11 @@ process_log (GLogItem * glog)
   }
 }
 
-/* process a line from the log and store it accordingly */
+/* Process a line from the log and store it accordingly taking into
+ * account multiple parsing options prior to setting data into the
+ * corresponding data structure.
+ *
+ * On success, 0 is returned */
 static int
 pre_process_log (GLog * logger, char *line, int test)
 {
@@ -2057,6 +2106,11 @@ cleanup:
   return 0;
 }
 
+/* Iterate over the log and read line by line (uses a buffer of fixed
+ * size).
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
@@ -2080,6 +2134,11 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 }
 #endif
 
+/* Iterate over the log and read line by line (use GNU get_line to
+ * parse the whole line).
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
@@ -2107,6 +2166,10 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 }
 #endif
 
+/* Read the given log line by line and process its data.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 static int
 read_log (GLog ** logger, int lines2test)
 {
@@ -2143,6 +2206,8 @@ read_log (GLog ** logger, int lines2test)
   return 0;
 }
 
+/* Determine if the log/date/time were set, otherwise exit the program
+ * execution. */
 void
 verify_formats (void)
 {
@@ -2156,7 +2221,10 @@ verify_formats (void)
     FATAL ("No log format was found on your conf file.");
 }
 
-/* entry point to parse the log line by line */
+/* Entry point to parse the log line by line.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 parse_log (GLog ** logger, char *tail, int lines2test)
 {
@@ -2179,7 +2247,10 @@ parse_log (GLog ** logger, char *tail, int lines2test)
   return read_log (logger, lines2test);
 }
 
-/* make sure we have valid hits */
+/* Ensure we have valid hits
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 int
 test_format (GLog * logger)
 {
