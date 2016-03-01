@@ -337,13 +337,13 @@ get_module_index (int module)
 int
 remove_module (GModule module)
 {
-  int index = get_module_index (module);
-  if (index == -1)
+  int idx = get_module_index (module);
+  if (idx == -1)
     return 1;
 
-  if (index < TOTAL_MODULES - 1)
-    memmove (&module_list[index], &module_list[index + 1],
-             ((TOTAL_MODULES - 1) - index) * sizeof (module_list[0]));
+  if (idx < TOTAL_MODULES - 1)
+    memmove (&module_list[idx], &module_list[idx + 1],
+             ((TOTAL_MODULES - 1) - idx) * sizeof (module_list[0]));
   module_list[TOTAL_MODULES - 1] = -1;
 
   return 0;
