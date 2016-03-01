@@ -1,3 +1,16 @@
+Changes to GoAccess 0.9.8 - Monday, February 29, 2016
+
+  - Added a more complete list of static extensions to the config file.
+  - Added Android 6.0 Marshmallow to the list of OSs.
+  - Added the ability to scroll through panels on TAB with option to disable it
+    --no-tab-scroll.
+  - Added the first and last log dates to the overall statistics panel.
+  - Ensure GoAccess links correctly against libtinfo.
+  - Ensure static content is case-insensitive verified.
+  - Fixed bandwidth overflow issue (numbers > 2GB on non-x86_64 arch).
+  - Fixed broken HTML layout when html-method/protocol is missing in config file.
+  - Refactored parsing and display of available modules/panels.
+
 Changes to GoAccess 0.9.7 - Monday, December 21, 2015
 
   - Added Squid native log format to the config file.
