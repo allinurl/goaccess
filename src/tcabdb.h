@@ -49,7 +49,7 @@
  * 26/Dec/2014      -> 7
  * Windows          -> 8
  */
-/*khash_t(si32) MTRC_KEYMAP */
+/* MTRC_KEYMAP */
 
 /* Maps integer keys of root elements from the keymap hash
  * to actual string values.
@@ -57,7 +57,7 @@
  * 6 -> Linux
  * 8 -> Windows
  */
-/*khash_t(is32) MTRC_ROOTMAP */
+/* MTRC_ROOTMAP */
 
 /* Maps integer keys of data elements from the keymap hash
  * to actual string values.
@@ -69,7 +69,7 @@
  * 5 -> Ubuntu 10.10
  * 7 -> 26/Dec/2014
  */
-/*khash_t(is32) MTRC_DATAMAP */
+/* MTRC_DATAMAP */
 
 /* Maps a string key made from the integer key of the
  * IP/date/UA and the integer key from the data field of
@@ -80,7 +80,7 @@
  * "14" -> 1
  * "15" -> 2
  */
-/*khash_t(si32) MTRC_UNIQMAP */
+/* MTRC_UNIQMAP */
 
 /* Maps integer key from the keymap hash to the number of
  * hits.
@@ -91,51 +91,51 @@
  * 4 -> 201
  * 5 -> 206
  */
-/*khash_t(ii32) MTRC_HITS */
+/* MTRC_HITS */
 
 /* Maps numeric keys made from the uniqmap store to autoincremented values
  * (counter).
  * 10 -> 100
  * 40 -> 56
  */
-/*khash_t(ii32) MTRC_VISITORS */
+/* MTRC_VISITORS */
 
 /* Maps numeric data keys to bandwidth (in bytes).
  * 1 -> 1024
  * 2 -> 2048
  */
-/*khash_t(iu64) MTRC_BW */
+/* MTRC_BW */
 
 /* Maps numeric data keys to cumulative time served (in usecs/msecs).
  * 1 -> 187
  * 2 -> 208
  */
-/*khash_t(iu64) MTRC_CUMTS */
+/* MTRC_CUMTS */
 
 /* Maps numeric data keys to max time served (in usecs/msecs).
  * 1 -> 1287
  * 2 -> 2308
  */
-/*khash_t(iu64) MTRC_MAXTS */
+/* MTRC_MAXTS */
 
 /* Maps numeric data keys to string values.
  * 1 -> GET
  * 2 -> POST
  */
-/*khash_t(is32) MTRC_METHODS */
+/* MTRC_METHODS */
 
 /* Maps numeric data keys to string values.
  * 1 -> HTTP/1.1
  * 2 -> HTTP/1.0
  */
-/*khash_t(is32) MTRC_PROTOCOLS */
+/* MTRC_PROTOCOLS */
 
 /* Maps numeric unique user-agent keys to the
  * corresponding numeric value.
  * 1 -> 3
  * 2 -> 4
  */
-/*khash_t(igsl) MTRC_AGENTS */
+/* MTRC_AGENTS */
 
 /* Enumerated Storage Metrics */
 typedef struct GTCStorageMetric_
