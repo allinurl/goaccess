@@ -278,8 +278,8 @@ Note: On Mac OS X, use gunzip -c instead of zcat.
 
 Another useful pipe would be filtering dates out of the web log
 
-The following will get all HTTP requests starting on 05/Dec/2010 until the end
-of the file.
+The following will get all HTTP requests starting on `05/Dec/2010` until the
+end of the file.
 
     # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
 
@@ -295,7 +295,7 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
 Assuming your log contains the virtual host field. For instance:
 
-    vhost.com:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop HTTP/1.1" 200 615 "-" "Googlebot-Image/1.0"
+    vhost.io:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop HTTP/1.1" 200 615 "-" "Googlebot-Image/1.0"
 
 And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to
@@ -331,8 +331,8 @@ priority, we can run it as:
 
     # nice -n 19 goaccess -f access.log -a
 
-and if you don't want to install it on your server, you can still run it
-from your local machine:
+and if you don't want to install it on your server, you can still run it from
+your local machine:
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
 
