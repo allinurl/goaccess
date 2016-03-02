@@ -232,7 +232,7 @@ to be used without prepending `--`.
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
 ## Usage ##
-#### Different Outputs ####
+##### Different Outputs #####
 
 To output to a terminal and generate an interactive report:
 
@@ -260,7 +260,7 @@ queries.)
 The `-c` flag will prompt the date and log format configuration window. Only
 when curses is initialized.
 
-#### Multiple Log Files ####
+##### Multiple Log Files #####
 
 Filtering can be done through the use of pipes. For instance, using grep to
 filter specific data and then pipe the output into GoAccess. This adds a great
@@ -274,7 +274,7 @@ If we would like to process all `access.log.*.gz` we can do one of the following
 
 Note: On Mac OS X, use gunzip -c instead of zcat.
 
-#### Working with Dates ####
+##### Working with Dates #####
 
 Another useful pipe would be filtering dates out of the web log
 
@@ -291,11 +291,11 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a
 
-#### Virtual Hosts ####
+##### Virtual Hosts #####
 
 Assuming your log contains the virtual host field. For instance:
 
-    vhost.com:80 10.131.40.139 - - [02/Mar/2016:08:14:04 -0600] "GET /shop/bag-p-20 HTTP/1.1" 200 6715 "-" "Apache (internal dummy connection)"
+    vhost.com:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop/ HTTP/1.1" 200 6715 "-" "Googlebot-Image/1.0"
 
 And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to
@@ -306,7 +306,7 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
 
-#### Files & Status Codes ####
+##### Files & Status Codes #####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
@@ -324,7 +324,7 @@ Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
     # awk '$9~/500/' access.log | goaccess
 
-#### Server ####
+##### Server #####
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
