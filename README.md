@@ -295,7 +295,7 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
 Assuming your log contains the virtual host field. For instance:
 
-    vhost.com:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop/ HTTP/1.1" 200 6715 "-" "Googlebot-Image/1.0"
+    vhost.com:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop HTTP/1.1" 200 615 "-" "Googlebot-Image/1.0"
 
 And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to
