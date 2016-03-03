@@ -1641,9 +1641,9 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 static int
 gen_req_key (GKeyData * kdata, GLogItem * glog)
 {
-  glog->req_key = gen_unique_req_key (glog);
   if (glog->req && glog->qstr)
     append_query_string (&glog->req, glog->qstr);
+  glog->req_key = gen_unique_req_key (glog);
 
   get_kdata (kdata, glog->req_key, glog->req);
 
