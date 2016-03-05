@@ -1643,7 +1643,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
 /* Help menu data (F1/h). */
 static const char *help_main[] = {
-  "Copyright (C) 2009-2015",
+  "Copyright (C) 2009-2016",
   "by Gerardo Orellana <hello@goaccess.io>",
   "http://goaccess.io",
   "Released under the GNU GPL. See `man` page for more details",
