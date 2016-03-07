@@ -653,65 +653,61 @@ Move to the first item or top of screen.
 .IP "G"
 Move to the last item or bottom of screen.
 .SH EXAMPLES
-The simplest and fastest usage would be:
+
+.SS
+DIFFERENT OUTPUTS
+.P
+To output to a terminal and generate an interactive report:
 .IP
 # goaccess -f access.log
-.P
-That will generate an interactive text-only output.
-.P
-To generate an interactive text-only output and enable a list of user-agents by
-host:
-.IP
-# goaccess -f access.log -a
 .P
 To generate an HTML report:
 .IP
 # goaccess -f access.log -a > report.html
 .P
-To generate a JSON file:
+To generate a JSON report:
 .IP
 # goaccess -f access.log -a -d -o json > report.json
 .P
 To generate a CSV file:
 .IP
-# goaccess -f access.log -o csv > report.csv
-.P
-The
+# goaccess -f access.log --no-csv-summary -o csv > report.csv
+.IP \[bu] 3
 .I -a
 flag indicates that we want to process an agent-list for every host parsed.
-.P
-The
+.IP \[bu]
 .I -d
-flag indicates that we want to enable the IP resolver on the HTML | JSON output.
-(It will take longer time to output since it has to resolve all queries.)
-.P
-The
+flag indicates that we want to enable the IP resolver on the HTML|JSON output.
+(It will take longer time to output since it has to resolve all queries)
+.IP \[bu]
 .I -c
-flag will prompt the date and log format configuration window. Only when
-curses is initialized.
+flag will prompt the date and log format configuration window. Only when curses
+is initialized.
+.SS
+MULTIPLE LOG FILES
 .P
-Filtering can be done through the use of pipes. For instance, using grep to
-filter specific data and then pipe the output into GoAccess. This adds a great
-amount of flexibility to what GoAccess can display. For example:
+Now if we want to add more flexibility to GoAccess, we can do a series of
+pipes. For instance:
 .P
 If we would like to process all
 .I access.log.*.gz
-we can do:
+we can do one of the following:
 .IP
-#  zcat access.log.*.gz | goaccess
-.P
-OR
+# zcat -f access.log* | goaccess
 .IP
-#  zcat -f access.log* | goaccess
+# zcat access.log.*.gz | goaccess
 .P
-(On Mac OS X, use `gunzip -c` instead of `zcat`).
+.I Note:
+On Mac OS X, use gunzip -c instead of zcat.
+.SS
+WORKING WITH DATES
 .P
 Another useful pipe would be filtering dates out of the web log
 .P
-The following will get all HTTP requests starting on 05/Dec/2010 until
-the end of the file.
+The following will get all HTTP requests starting on 05/Dec/2010 until the end
+of the file.
 .IP
-# sed -n '/05\\/Dec\\/2010/,$ p' access.log | goaccess -a
+# sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
 .P
 or using relative dates such as yesterdays or tomorrows day:
 .IP
@@ -719,37 +715,53 @@ or using relative dates such as yesterdays or tomorrows day:
 .P
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 .IP
-# sed -n '/5\\/Nov\\/2010/,/5\\/Dec\\/2010/ p' access.log | goaccess -a
+# sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a
+.SS
+VIRTUAL HOSTS
 .P
-.I Note:
-this could take longer time to parse depending on the speed of sed.
+Assuming your log contains the virtual host field. For instance:
+.IP
+vhost.com:80 10.131.40.139 - - [02/Mar/2016:08:14:04 -0600] "GET /shop/bag-p-20
+HTTP/1.1" 200 6715 "-" "Apache (internal dummy connection)"
 .P
-To parse specific pages, e.g., page views, html, htm, php, etc. within a request:
+And you would like to append the virtual host to the request in order to see
+which virtual host the top urls belong to
+.IP
+awk '$8=$1$8' access.log | goaccess -a
+.P
+To exclude a list of virtual hosts you can do the following:
+.IP
+# grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
+.SS
+FILES & STATUS CODES
+.P
+To parse specific pages, e.g., page views, html, htm, php, etc. within a
+request:
 .IP
 # awk '$7~/\.html|\.htm|\.php/' access.log | goaccess
 .P
-Note, $7 is the request field for the common and combined log format, (without
-Virtual Host), if your log includes Virtual Host, then you probably want to use
-$8 instead. It's best to check which field you are shooting for, e.g.:
+Note,
+.I $7
+is the request field for the common and combined log format, (without Virtual
+Host), if your log includes Virtual Host, then you probably want to use
+.I $8
+instead. It's best to check which field you are shooting for, e.g.:
 .IP
 # tail -10 access.log | awk '{print $8}'
 .P
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 .IP
 # awk '$9~/500/' access.log | goaccess
+.SS
+SERVER
 .P
-To exclude a list of virtual hosts you can do the following:
-.IP
-# grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
-.P
-.B Also,
-it is worth pointing out that if we want to run GoAccess at lower priority, we
-can run it as:
+Also, it is worth pointing out that if we want to run GoAccess at lower
+priority, we can run it as:
 .IP
 # nice -n 19 goaccess -f access.log -a
 .P
-and if you don't want to install it on your server, you can still run it
-from your local machine:
+and if you don't want to install it on your server, you can still run it from
+your local machine:
 .IP
 # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
 .P
