@@ -236,7 +236,7 @@ cmd_help (void)
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.io\n"
-  "GoAccess Copyright (C) 2009-2015 GNU GPL'd, by Gerardo Orellana"
+  "GoAccess Copyright (C) 2009-2016 GNU GPL'd, by Gerardo Orellana"
   "\n\n"
 #ifdef TCB_BTREE
   , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
