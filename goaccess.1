@@ -482,18 +482,6 @@ Specifies that each page is compressed with ZLIB|BZ2 encoding.
 
 Only if configured with --enable-tcb=btree
 
-.TP
-Processing Logs Incrementally
-
-GoAccess has the ability to process logs incrementally through the on-disk
-B+Tree database. It works in the following way:
-
-A data set must be persisted first with --keep-db-files, then the same data set
-can be loaded with --load-from-disk. If new data is passed (piped or through a
-log file), it will append it to the original data set. To preserve the data at
-all times, --keep-db-files must be used. If --load-from-disk is used without
---keep-db-files, database files will be deleted upon closing the program.
-
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format.
 .P
@@ -752,6 +740,47 @@ instead. It's best to check which field you are shooting for, e.g.:
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 .IP
 # awk '$9~/500/' access.log | goaccess
+.SS
+INCREMENTAL LOG PROCESSING
+.P
+GoAccess has the ability to process logs incrementally through the on-disk
+B+Tree database. It works in the following way:
+
+.nr step 1 1
+.IP \n[step] 3
+A data set must be persisted first with
+.I --keep-db-files,
+then the same data set can be loaded with
+.I --load-from-disk.
+.IP \n+[step]
+If new data is passed (piped or through a log file), it will append it to the
+original data set.
+.IP \n+[step]
+To preserve the data at all times,
+.I --keep-db-files
+must be used.
+.IP \n+[step]
+If
+.I --load-from-disk
+is used without
+.I --keep-db-files,
+database files will be deleted upon closing the program.
+.P
+For instance:
+.IP
+// last month access log
+.br
+goaccess -f access.log.1 --keep-db-files
+.P
+then, load it with
+.IP
+// append this month access log, and preserve new data
+.br
+goaccess -f access.log --load-from-disk --keep-db-files
+.P
+To read persisted data only (without parsing new data)
+.IP
+goaccess --load-from-disk --keep-db-files
 .SS
 SERVER
 .P
