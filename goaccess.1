@@ -741,6 +741,18 @@ Or to parse a specific status code, e.g., 500 (Internal Server Error):
 .IP
 # awk '$9~/500/' access.log | goaccess
 .SS
+SERVER
+.P
+Also, it is worth pointing out that if we want to run GoAccess at lower
+priority, we can run it as:
+.IP
+# nice -n 19 goaccess -f access.log -a
+.P
+and if you don't want to install it on your server, you can still run it from
+your local machine:
+.IP
+# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
+.SS
 INCREMENTAL LOG PROCESSING
 .P
 GoAccess has the ability to process logs incrementally through the on-disk
@@ -781,18 +793,6 @@ goaccess -f access.log --load-from-disk --keep-db-files
 To read persisted data only (without parsing new data)
 .IP
 goaccess --load-from-disk --keep-db-files
-.SS
-SERVER
-.P
-Also, it is worth pointing out that if we want to run GoAccess at lower
-priority, we can run it as:
-.IP
-# nice -n 19 goaccess -f access.log -a
-.P
-and if you don't want to install it on your server, you can still run it from
-your local machine:
-.IP
-# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
 .P
 .SH NOTES
 For now, each active window has a total of 366 items. Eventually this will be
