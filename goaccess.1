@@ -419,15 +419,17 @@ downloaded from maxmind.com. IPv4 and IPv6 files are supported as well.
 `--geoip-city-data` is an alias of `--geoip-database`.
 .TP
 \fB\-\-keep-db-files
-Persist parsed data into disk. This should be set to the first dataset prior to
-use `load-from-disk`. Setting it to false will delete all database files when
-exiting the program.
+Persist parsed data into disk. If database files exist, files will be
+overwritten. This should be set to the first dataset. Setting it to false will
+delete all database files when exiting the program. See examples below.
 
 Only if configured with --enable-tcb=btree
 .TP
 \fB\-\-load-from-disk
-Load previously stored data from disk. Database files need to exist. See
-.I keep-db-files.
+Load previously stored data from disk. If reading persisted data only, the
+database files need to exist. See
+.I keep-db-files
+and examples below.
 
 Only if configured with --enable-tcb=btree
 .TP
