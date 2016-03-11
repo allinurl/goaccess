@@ -1,21 +1,30 @@
 /**
- * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
- * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
+ *    ______      ___
+ *   / ____/___  /   | _____________  __________
+ *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
+ * / /_/ / /_/ / ___ / /__/ /__/  __(__  |__  )
+ * \____/\____/_/  |_\___/\___/\___/____/____/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * The MIT License (MIT)
+ * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * A copy of the GNU General Public License is attached to this
- * source distribution for its full text.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * Visit http://goaccess.prosoftcorp.com for new releases.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #if HAVE_CONFIG_H
@@ -49,7 +58,7 @@
  * 26/Dec/2014      -> 7
  * Windows          -> 8
  */
-/*khash_t(si32) MTRC_KEYMAP */
+/* MTRC_KEYMAP */
 
 /* Maps integer keys of root elements from the keymap hash
  * to actual string values.
@@ -57,7 +66,7 @@
  * 6 -> Linux
  * 8 -> Windows
  */
-/*khash_t(is32) MTRC_ROOTMAP */
+/* MTRC_ROOTMAP */
 
 /* Maps integer keys of data elements from the keymap hash
  * to actual string values.
@@ -69,7 +78,7 @@
  * 5 -> Ubuntu 10.10
  * 7 -> 26/Dec/2014
  */
-/*khash_t(is32) MTRC_DATAMAP */
+/* MTRC_DATAMAP */
 
 /* Maps a string key made from the integer key of the
  * IP/date/UA and the integer key from the data field of
@@ -80,7 +89,7 @@
  * "14" -> 1
  * "15" -> 2
  */
-/*khash_t(si32) MTRC_UNIQMAP */
+/* MTRC_UNIQMAP */
 
 /* Maps integer key from the keymap hash to the number of
  * hits.
@@ -91,51 +100,51 @@
  * 4 -> 201
  * 5 -> 206
  */
-/*khash_t(ii32) MTRC_HITS */
+/* MTRC_HITS */
 
 /* Maps numeric keys made from the uniqmap store to autoincremented values
  * (counter).
  * 10 -> 100
  * 40 -> 56
  */
-/*khash_t(ii32) MTRC_VISITORS */
+/* MTRC_VISITORS */
 
 /* Maps numeric data keys to bandwidth (in bytes).
  * 1 -> 1024
  * 2 -> 2048
  */
-/*khash_t(iu64) MTRC_BW */
+/* MTRC_BW */
 
 /* Maps numeric data keys to cumulative time served (in usecs/msecs).
  * 1 -> 187
  * 2 -> 208
  */
-/*khash_t(iu64) MTRC_CUMTS */
+/* MTRC_CUMTS */
 
 /* Maps numeric data keys to max time served (in usecs/msecs).
  * 1 -> 1287
  * 2 -> 2308
  */
-/*khash_t(iu64) MTRC_MAXTS */
+/* MTRC_MAXTS */
 
 /* Maps numeric data keys to string values.
  * 1 -> GET
  * 2 -> POST
  */
-/*khash_t(is32) MTRC_METHODS */
+/* MTRC_METHODS */
 
 /* Maps numeric data keys to string values.
  * 1 -> HTTP/1.1
  * 2 -> HTTP/1.0
  */
-/*khash_t(is32) MTRC_PROTOCOLS */
+/* MTRC_PROTOCOLS */
 
 /* Maps numeric unique user-agent keys to the
  * corresponding numeric value.
  * 1 -> 3
  * 2 -> 4
  */
-/*khash_t(igsl) MTRC_AGENTS */
+/* MTRC_AGENTS */
 
 /* Enumerated Storage Metrics */
 typedef struct GTCStorageMetric_
