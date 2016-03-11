@@ -1,22 +1,31 @@
 /**
  * commons.c -- holds different data types
- * Copyright (C) 2009-2014 by Gerardo Orellana <goaccess@prosoftcorp.com>
- * GoAccess - An Ncurses apache weblog analyzer & interactive viewer
+ *    ______      ___
+ *   / ____/___  /   | _____________  __________
+ *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
+ * / /_/ / /_/ / ___ / /__/ /__/  __(__  |__  )
+ * \____/\____/_/  |_\___/\___/\___/____/____/
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of
- * the License, or (at your option) any later version.
+ * The MIT License (MIT)
+ * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * A copy of the GNU General Public License is attached to this
- * source distribution for its full text.
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
  *
- * Visit http://goaccess.prosoftcorp.com for new releases.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
  */
 
 #if HAVE_CONFIG_H
@@ -85,7 +94,7 @@ display_version (void)
 {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "For more details visit: http://goaccess.io\n");
-  fprintf (stdout, "Copyright (C) 2009-2016 GNU GPL'd, by Gerardo Orellana\n");
+  fprintf (stdout, "Copyright (C) 2009-2016 by Gerardo Orellana\n");
 }
 
 /* Get the enumerated value given a string.
