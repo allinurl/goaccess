@@ -42,17 +42,18 @@
 char *get_json (GLog * logger, GHolder * holder);
 
 void output_json (GLog * logger, GHolder * holder);
-void pjson (FILE * fp, const char *fmt, ...);
+void set_json_nlines (int nl);
 
-void pskeyfval (FILE * fp, const char *key, float val, int isp, int last);
-void pskeyival (FILE * fp, const char *key, int val, int isp, int last);
-void pskeysval (FILE * fp, const char *key, const char *val, int isp, int last);
-void pskeyu64val (FILE * fp, const char *key, uint64_t val, int isp, int last);
+void pskeyfval (FILE * fp, const char *key, float val, int sp, int last);
+void pskeyival (FILE * fp, const char *key, int val, int sp, int last);
+void pskeysval (FILE * fp, const char *key, const char *val, int sp, int last);
+void pskeyu64val (FILE * fp, const char *key, uint64_t val, int sp, int last);
 
+void pclose_arr (FILE * fp, int sp, int last);
 void pclose_obj (FILE * fp, int iisp, int last);
-void popen_obj_attr (FILE * fp, const char *attr, int isp);
+void pjson (FILE * fp, const char *fmt, ...);
+void popen_arr_attr (FILE * fp, const char *attr, int sp);
+void popen_obj_attr (FILE * fp, const char *attr, int sp);
 void popen_obj (FILE * fp, int iisp);
-void pclose_arr (FILE * fp, int isp, int last);
-void popen_arr_attr (FILE * fp, const char *attr, int isp);
 
 #endif

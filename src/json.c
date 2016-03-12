@@ -165,6 +165,13 @@ escape_json_output (FILE * fp, char *s)
   }
 }
 
+/* Set number of new lines when --json-pretty-print is used. */
+void
+set_json_nlines (int nl)
+{
+  nlines = nl;
+}
+
 /* A wrapper function to output a formatted string.
  *
  * On success, data is outputted. */
@@ -182,48 +189,48 @@ pjson (FILE * fp, const char *fmt, ...)
  *
  * On success, data is outputted. */
 void
-pskeysval (FILE * fp, const char *key, const char *val, int isp, int last)
+pskeysval (FILE * fp, const char *key, const char *val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": \"%s\",%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": \"%s\",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": \"%s\"%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
 }
 
 /* Output a JSON string key, int value pair.
  *
  * On success, data is outputted. */
 void
-pskeyival (FILE * fp, const char *key, int val, int isp, int last)
+pskeyival (FILE * fp, const char *key, int val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %d,%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %d,%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %d%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %d", sp, TAB, key, val);
 }
 
 /* Output a JSON string key, uint64_t value pair.
  *
  * On success, data is outputted. */
 void
-pskeyu64val (FILE * fp, const char *key, uint64_t val, int isp, int last)
+pskeyu64val (FILE * fp, const char *key, uint64_t val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %" PRIu64 ",%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %" PRIu64 ",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %" PRIu64 "%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %" PRIu64 "", sp, TAB, key, val);
 }
 
 /* Output a JSON string key, int value pair.
  *
  * On success, data is outputted. */
 void
-pskeyfval (FILE * fp, const char *key, float val, int isp, int last)
+pskeyfval (FILE * fp, const char *key, float val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %4.2f,%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %4.2f,%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %4.2f%.*s", isp, TAB, key, val, nlines, NL);
+    pjson (fp, "%.*s\"%s\": %4.2f", sp, TAB, key, val);
 }
 
 /* Output the open block item object.
@@ -240,10 +247,10 @@ popen_obj (FILE * fp, int iisp)
  *
  * On success, data is outputted. */
 void
-popen_obj_attr (FILE * fp, const char *attr, int isp)
+popen_obj_attr (FILE * fp, const char *attr, int sp)
 {
   /* open object attribute */
-  pjson (fp, "%.*s\"%s\": {%.*s", isp, TAB, attr, nlines, NL);
+  pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
 }
 
 /* Close JSON object.
@@ -255,79 +262,79 @@ pclose_obj (FILE * fp, int iisp, int last)
   if (!last)
     pjson (fp, "%.*s%.*s},%.*s", nlines, NL, iisp, TAB, nlines, NL);
   else
-    pjson (fp, "%.*s%.*s}%.*s", nlines, NL, iisp, TAB, nlines, NL);
+    pjson (fp, "%.*s%.*s}", nlines, NL, iisp, TAB);
 }
 
 /* Output a JSON open array attribute.
  *
  * On success, data is outputted. */
 void
-popen_arr_attr (FILE * fp, const char *attr, int isp)
+popen_arr_attr (FILE * fp, const char *attr, int sp)
 {
   /* open object attribute */
-  pjson (fp, "%.*s\"%s\": [%.*s", isp, TAB, attr, nlines, NL);
+  pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, attr, nlines, NL);
 }
 
 /* Close the data array.
  *
  * On success, data is outputted. */
 void
-pclose_arr (FILE * fp, int isp, int last)
+pclose_arr (FILE * fp, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s%.*s],%.*s", nlines, NL, isp, TAB, nlines, NL);
+    pjson (fp, "%.*s%.*s],%.*s", nlines, NL, sp, TAB, nlines, NL);
   else
-    pjson (fp, "%.*s%.*s]%.*s", nlines, NL, isp, TAB, nlines, NL);
+    pjson (fp, "%.*s%.*s]", nlines, NL, sp, TAB);
 }
 
 /* Output date and time for the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_datetime (FILE * fp, int isp)
+poverall_datetime (FILE * fp, int sp)
 {
   char now[DATE_TIME];
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
-  pskeysval (fp, OVERALL_DATETIME, now, isp, 0);
+  pskeysval (fp, OVERALL_DATETIME, now, sp, 0);
 }
 
 /* Output date and time for the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_requests (FILE * fp, GLog * logger, int isp)
+poverall_requests (FILE * fp, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_REQ, logger->processed, isp, 0);
+  pskeyival (fp, OVERALL_REQ, logger->processed, sp, 0);
 }
 
 /* Output the number of valid requests under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_valid_reqs (FILE * fp, GLog * logger, int isp)
+poverall_valid_reqs (FILE * fp, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_VALID, logger->valid, isp, 0);
+  pskeyival (fp, OVERALL_VALID, logger->valid, sp, 0);
 }
 
 /* Output the number of invalid requests under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_invalid_reqs (FILE * fp, GLog * logger, int isp)
+poverall_invalid_reqs (FILE * fp, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_FAILED, logger->invalid, isp, 0);
+  pskeyival (fp, OVERALL_FAILED, logger->invalid, sp, 0);
 }
 
 /* Output the total processed time under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_processed_time (FILE * fp, int isp)
+poverall_processed_time (FILE * fp, int sp)
 {
-  pskeyu64val (fp, OVERALL_GENTIME, end_proc - start_proc, isp, 0);
+  pskeyu64val (fp, OVERALL_GENTIME, end_proc - start_proc, sp, 0);
 }
 
 /* Output the total number of unique visitors under the overall
@@ -335,18 +342,18 @@ poverall_processed_time (FILE * fp, int isp)
  *
  * On success, data is outputted. */
 static void
-poverall_visitors (FILE * fp, int isp)
+poverall_visitors (FILE * fp, int sp)
 {
-  pskeyival (fp, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), isp, 0);
+  pskeyival (fp, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), sp, 0);
 }
 
 /* Output the total number of unique files under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_files (FILE * fp, int isp)
+poverall_files (FILE * fp, int sp)
 {
-  pskeyival (fp, OVERALL_FILES, ht_get_size_datamap (REQUESTS), isp, 0);
+  pskeyival (fp, OVERALL_FILES, ht_get_size_datamap (REQUESTS), sp, 0);
 }
 
 /* Output the total number of excluded requests under the overall
@@ -354,27 +361,27 @@ poverall_files (FILE * fp, int isp)
  *
  * On success, data is outputted. */
 static void
-poverall_excluded (FILE * fp, GLog * logger, int isp)
+poverall_excluded (FILE * fp, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_EXCL_HITS, logger->excluded_ip, isp, 0);
+  pskeyival (fp, OVERALL_EXCL_HITS, logger->excluded_ip, sp, 0);
 }
 
 /* Output the number of referrers under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_refs (FILE * fp, int isp)
+poverall_refs (FILE * fp, int sp)
 {
-  pskeyival (fp, OVERALL_REF, ht_get_size_datamap (REFERRERS), isp, 0);
+  pskeyival (fp, OVERALL_REF, ht_get_size_datamap (REFERRERS), sp, 0);
 }
 
 /* Output the number of not found (404s) under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_notfound (FILE * fp, int isp)
+poverall_notfound (FILE * fp, int sp)
 {
-  pskeyival (fp, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), isp, 0);
+  pskeyival (fp, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), sp, 0);
 }
 
 /* Output the number of static files (jpg, pdf, etc) under the overall
@@ -382,23 +389,23 @@ poverall_notfound (FILE * fp, int isp)
  *
  * On success, data is outputted. */
 static void
-poverall_static_files (FILE * fp, int isp)
+poverall_static_files (FILE * fp, int sp)
 {
-  pskeyival (fp, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), isp, 0);
+  pskeyival (fp, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
 }
 
 /* Output the size of the log being parsed under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_log_size (FILE * fp, GLog * logger, int isp)
+poverall_log_size (FILE * fp, GLog * logger, int sp)
 {
   off_t log_size = 0;
 
   if (!logger->piping && conf.ifile)
     log_size = file_size (conf.ifile);
 
-  pjson (fp, "%.*s\"%s\": %jd,%.*s", isp, TAB, OVERALL_LOGSIZE,
+  pjson (fp, "%.*s\"%s\": %jd,%.*s", sp, TAB, OVERALL_LOGSIZE,
          (intmax_t) log_size, nlines, NL);
 }
 
@@ -406,23 +413,23 @@ poverall_log_size (FILE * fp, GLog * logger, int isp)
  *
  * On success, data is outputted. */
 static void
-poverall_bandwidth (FILE * fp, GLog * logger, int isp)
+poverall_bandwidth (FILE * fp, GLog * logger, int sp)
 {
-  pskeyu64val (fp, OVERALL_BANDWIDTH, logger->resp_size, isp, 0);
+  pskeyu64val (fp, OVERALL_BANDWIDTH, logger->resp_size, sp, 0);
 }
 
 /* Output the path of the log being parsed under the overall object.
  *
  * On success, data is outputted. */
 static void
-poverall_log (FILE * fp, int isp)
+poverall_log (FILE * fp, int sp)
 {
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
 
-  pjson (fp, "%.*s\"%s\": \"", isp, TAB, OVERALL_LOG);
+  pjson (fp, "%.*s\"%s\": \"", sp, TAB, OVERALL_LOG);
   escape_json_output (fp, conf.ifile);
-  pjson (fp, "\"%.*s", nlines, NL);
+  pjson (fp, "\"");
 }
 
 /* Output hits data.
@@ -765,7 +772,7 @@ print_json_sub_items (FILE * fp, GSubList * sl, GPercTotals totals, int iisp)
 
     popen_obj (fp, iiisp);
     print_json_block (fp, nmetrics, iiiisp);
-    pclose_obj (fp, iiiisp, (i == sl->size - 1));
+    pclose_obj (fp, iiisp, (i == sl->size - 1));
     free (nmetrics);
   }
   pclose_arr (fp, iisp, 1);
