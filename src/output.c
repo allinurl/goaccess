@@ -520,7 +520,7 @@ print_def_overall_bandwidth (FILE * fp, int sp)
   };
   popen_obj_attr (fp, OVERALL_BANDWIDTH, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  pclose_obj (fp, sp, 1);
 }
 
 static void
@@ -831,7 +831,7 @@ print_json_defs (FILE * fp, GHolder * holder)
   size_t idx = 0;
 
   fprintf (fp, "<script type='text/javascript'>");
-  fprintf (fp, "var user_interface=\n");
+  fprintf (fp, "var user_interface=");
   popen_obj (fp, 0);
 
   print_json_def_summary (fp, holder);
