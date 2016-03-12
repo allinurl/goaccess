@@ -525,7 +525,7 @@ pmaxts (FILE * fp, GMetrics * nmetrics, int sp)
 {
   if (!conf.serve_usecs)
     return;
-  pskeyu64val (fp, "cumts", nmetrics->maxts.nts, sp, 0);
+  pskeyu64val (fp, "maxts", nmetrics->maxts.nts, sp, 0);
 }
 
 /* Output request method data.
