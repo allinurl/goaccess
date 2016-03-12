@@ -59,8 +59,8 @@
 #include "hoganjs.h"
 #include "appjs.h"
 
-static void hits_visitors_plot (FILE * fp, int isp);
-static void hits_bw_plot (FILE * fp, int isp);
+static void hits_visitors_plot (FILE * fp, int sp);
+static void hits_bw_plot (FILE * fp, int sp);
 
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
@@ -247,31 +247,31 @@ get_chartdef_cnt (GChart * chart)
 }
 
 static void
-print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int isp)
+print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
 {
   GChartDef def = { 0 };
-  int iiisp = 0;
   size_t i = 0, j = 0, cnt = 0;
+  int isp = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
-    iiisp = isp + 2;
+    isp = sp + 1;
 
   for (i = 0; i < n; ++i) {
     cnt = get_chartdef_cnt (chart + i);
 
-    popen_obj_attr (fp, chart[i].key, iiisp);
+    popen_obj_attr (fp, chart[i].key, sp);
     for (j = 0; j < cnt; ++j) {
       def = chart[i].def[j];
-      pskeysval (fp, def.key, def.value, iiisp, j == cnt - 1);
+      pskeysval (fp, def.key, def.value, isp, j == cnt - 1);
     }
-    pclose_obj (fp, isp, (i == n - 1));
+    pclose_obj (fp, sp, (i == n - 1));
   }
 }
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_plot (FILE * fp, int isp)
+hits_visitors_plot (FILE * fp, int sp)
 {
   /* *INDENT-OFF* */
   GChart chart[] = {
@@ -284,11 +284,10 @@ hits_visitors_plot (FILE * fp, int isp)
   };
   /* *INDENT-ON* */
 
-  int iisp = 0;
-
+  int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
-    iisp = isp + 1;
+    isp = sp + 1, iisp = sp + 2;
 
   pskeysval (fp, "label", "Hits/Visitors", isp, 0);
   pskeysval (fp, "className", "hits-visitors", isp, 0);
@@ -296,14 +295,14 @@ hits_visitors_plot (FILE * fp, int isp)
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);
   /* print chart definitions */
-  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), isp);
+  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
   /* close D3 */
-  pclose_obj (fp, iisp, 1);
+  pclose_obj (fp, isp, 1);
 }
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_plot (FILE * fp, int isp)
+hits_bw_plot (FILE * fp, int sp)
 {
   /* *INDENT-OFF* */
   GChart chart[] = {
@@ -313,11 +312,10 @@ hits_bw_plot (FILE * fp, int isp)
   };
   /* *INDENT-ON* */
 
-  int iisp = 0;
-
+  int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
-    iisp = isp + 1;
+    isp = sp + 1, iisp = sp + 2;
 
   pskeysval (fp, "label", "Bandwidth", isp, 0);
   pskeysval (fp, "className", "bandwidth", isp, 0);
@@ -325,48 +323,8 @@ hits_bw_plot (FILE * fp, int isp)
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);
   /* print chart definitions */
-  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), isp);
+  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
   /* close D3 */
-  pclose_obj (fp, iisp, 1);
-}
-
-/* Output the items key as an array.
- *
- * On success, data is outputted. */
-static void
-print_open_metrics_attr (FILE * fp, int isp)
-{
-  /* open data metric data */
-  popen_arr_attr (fp, "items", isp);
-}
-
-/* Close the metrics array.
- *
- * On success, data is outputted. */
-static void
-print_close_metrics_attr (FILE * fp, int isp)
-{
-  /* close data data */
-  pclose_arr (fp, isp, 1);
-}
-
-/* Output the metrics key as an array.
- *
- * On success, data is outputted. */
-static void
-print_open_items_attr (FILE * fp, int isp)
-{
-  /* open data metric data */
-  popen_obj_attr (fp, "items", isp);
-}
-
-/* Close the metrics array.
- *
- * On success, data is outputted. */
-static void
-print_close_items_attr (FILE * fp, int isp)
-{
-  /* close data data */
   pclose_obj (fp, isp, 1);
 }
 
@@ -386,34 +344,34 @@ print_json_data (FILE * fp, GLog * logger, GHolder * holder)
 }
 
 static void
-print_def_metric (FILE * fp, const GDefMetric def, int isp)
+print_def_metric (FILE * fp, const GDefMetric def, int sp)
 {
-  int iisp = 0;
+  int isp = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
-    iisp = isp + 1;
+    isp = sp + 1;
 
   if (def.cname)
-    pskeysval (fp, "className", def.cname, iisp, 0);
+    pskeysval (fp, "className", def.cname, isp, 0);
   if (def.cwidth)
-    pskeysval (fp, "colWidth", def.cwidth, iisp, 0);
+    pskeysval (fp, "colWidth", def.cwidth, isp, 0);
   if (def.meta)
-    pskeysval (fp, "meta", def.meta, iisp, 0);
+    pskeysval (fp, "meta", def.meta, isp, 0);
   if (def.vtype)
-    pskeysval (fp, "valueType", def.vtype, iisp, 0);
+    pskeysval (fp, "valueType", def.vtype, isp, 0);
   if (def.key)
-    pskeysval (fp, "key", def.key, iisp, 0);
+    pskeysval (fp, "key", def.key, isp, 0);
   if (def.lbl)
-    pskeysval (fp, "label", def.lbl, iisp, 1);
+    pskeysval (fp, "label", def.lbl, isp, 1);
 }
 
 static void
-print_def_block (FILE * fp, const GDefMetric def, int isp, int last)
+print_def_block (FILE * fp, const GDefMetric def, int sp, int last)
 {
-  popen_obj (fp, isp);
-  print_def_metric (fp, def, isp);
-  pclose_obj (fp, isp, last);
+  popen_obj (fp, sp);
+  print_def_metric (fp, def, sp);
+  pclose_obj (fp, sp, last);
 }
 
 static void
@@ -566,7 +524,7 @@ print_def_overall_bandwidth (FILE * fp, int sp)
 }
 
 static void
-print_def_hits (FILE * fp, int isp)
+print_def_hits (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "hits",
@@ -575,11 +533,11 @@ print_def_hits (FILE * fp, int isp)
     .meta = "count",
     .cwidth = "13%",
   };
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_visitors (FILE * fp, int isp)
+print_def_visitors (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "visitors",
@@ -588,11 +546,11 @@ print_def_visitors (FILE * fp, int isp)
     .meta = "count",
     .cwidth = "13%",
   };
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_bw (FILE * fp, int isp)
+print_def_bw (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "bytes",
@@ -605,11 +563,11 @@ print_def_bw (FILE * fp, int isp)
   if (!conf.bandwidth)
     return;
 
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_avgts (FILE * fp, int isp)
+print_def_avgts (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "avgts",
@@ -622,11 +580,11 @@ print_def_avgts (FILE * fp, int isp)
   if (!conf.serve_usecs)
     return;
 
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_cumts (FILE * fp, int isp)
+print_def_cumts (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "cumts",
@@ -639,11 +597,11 @@ print_def_cumts (FILE * fp, int isp)
   if (!conf.serve_usecs)
     return;
 
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_maxts (FILE * fp, int isp)
+print_def_maxts (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "maxts",
@@ -655,11 +613,11 @@ print_def_maxts (FILE * fp, int isp)
 
   if (!conf.serve_usecs)
     return;
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_method (FILE * fp, int isp)
+print_def_method (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "method",
@@ -671,11 +629,11 @@ print_def_method (FILE * fp, int isp)
   if (!conf.append_method)
     return;
 
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_protocol (FILE * fp, int isp)
+print_def_protocol (FILE * fp, int sp)
 {
   GDefMetric def = {
     .key = "protocol",
@@ -687,11 +645,11 @@ print_def_protocol (FILE * fp, int isp)
   if (!conf.append_protocol)
     return;
 
-  print_def_block (fp, def, isp, 0);
+  print_def_block (fp, def, sp, 0);
 }
 
 static void
-print_def_data (FILE * fp, GModule module, int isp)
+print_def_data (FILE * fp, GModule module, int sp)
 {
   GDefMetric def = {
     .key = "data",
@@ -701,7 +659,7 @@ print_def_data (FILE * fp, GModule module, int isp)
     .cwidth = "100%",
   };
 
-  print_def_block (fp, def, isp, 1);
+  print_def_block (fp, def, sp, 1);
 }
 
 static int
@@ -713,11 +671,14 @@ count_plot_fp (const GHTML * def)
 }
 
 static void
-print_def_plot (FILE * fp, const GHTML * def, int isp)
+print_def_plot (FILE * fp, const GHTML * def, int sp)
 {
-  int i, n = count_plot_fp (def);
+  int i, isp = 0, n = count_plot_fp (def);
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
-  popen_arr_attr (fp, "plot", isp);
+  popen_arr_attr (fp, "plot", sp);
 
   for (i = 0; i < n; ++i) {
     popen_obj (fp, isp);
@@ -725,16 +686,20 @@ print_def_plot (FILE * fp, const GHTML * def, int isp)
     pclose_obj (fp, isp, (i == n - 1));
   }
 
-  pclose_arr (fp, isp, 0);
+  pclose_arr (fp, sp, 0);
 }
 
 static void
-print_def_metrics (FILE * fp, const GHTML * def, int isp)
+print_def_metrics (FILE * fp, const GHTML * def, int sp)
 {
   const GOutput *output = output_lookup (def->module);
+  int isp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
 
-  /* open metrics block */
-  print_open_metrics_attr (fp, isp);
+  /* open data metric data */
+  popen_arr_attr (fp, "items", sp);
 
   print_def_hits (fp, isp);
   print_def_visitors (fp, isp);
@@ -751,7 +716,7 @@ print_def_metrics (FILE * fp, const GHTML * def, int isp)
   print_def_data (fp, def->module, isp);
 
   /* close metrics block */
-  print_close_metrics_attr (fp, isp);
+  pclose_arr (fp, sp, 1);
 }
 
 static void
@@ -774,7 +739,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
   const char *head = module_to_head (def->module);
   const char *id = module_to_id (def->module);
 
-  int isp = 0, rev = def->chart_reverse;;
+  int isp = 0, rev = def->chart_reverse;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
@@ -814,24 +779,29 @@ print_json_def (FILE * fp, const GHTML * def)
 static void
 print_def_summary (FILE * fp, int sp)
 {
-  /* open metrics block */
-  print_open_items_attr (fp, sp);
+  int isp = 0, iisp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1, iisp = sp + 2;
 
-  print_def_overall_requests (fp, sp);
-  print_def_overall_valid_reqs (fp, sp);
-  print_def_overall_invalid_reqs (fp, sp);
-  print_def_overall_processed_time (fp, sp);
-  print_def_overall_visitors (fp, sp);
-  print_def_overall_files (fp, sp);
-  print_def_overall_excluded (fp, sp);
-  print_def_overall_refs (fp, sp);
-  print_def_overall_notfound (fp, sp);
-  print_def_overall_static_files (fp, sp);
-  print_def_overall_log_size (fp, sp);
-  print_def_overall_bandwidth (fp, sp);
+  /* open metrics block */
+  popen_obj_attr (fp, "items", isp);
+
+  print_def_overall_requests (fp, iisp);
+  print_def_overall_valid_reqs (fp, iisp);
+  print_def_overall_invalid_reqs (fp, iisp);
+  print_def_overall_processed_time (fp, iisp);
+  print_def_overall_visitors (fp, iisp);
+  print_def_overall_files (fp, iisp);
+  print_def_overall_excluded (fp, iisp);
+  print_def_overall_refs (fp, iisp);
+  print_def_overall_notfound (fp, iisp);
+  print_def_overall_static_files (fp, iisp);
+  print_def_overall_log_size (fp, iisp);
+  print_def_overall_bandwidth (fp, iisp);
 
   /* close metrics block */
-  print_close_items_attr (fp, sp);
+  pclose_obj (fp, isp, 1);
 }
 
 static void
@@ -839,6 +809,7 @@ print_json_def_summary (FILE * fp, GHolder * holder)
 {
   char *head = NULL;
   int sp = 0;
+
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     sp = 1;
@@ -860,7 +831,7 @@ print_json_defs (FILE * fp, GHolder * holder)
   size_t idx = 0;
 
   fprintf (fp, "<script type='text/javascript'>");
-  fprintf (fp, "var user_interface=");
+  fprintf (fp, "var user_interface=\n");
   popen_obj (fp, 0);
 
   print_json_def_summary (fp, holder);
@@ -885,6 +856,7 @@ output_html (GLog * logger, GHolder * holder)
   /* use new lines to prettify output */
   if (conf.json_pretty_print)
     nlines = 1;
+  set_json_nlines (nlines);
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);

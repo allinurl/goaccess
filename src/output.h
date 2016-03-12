@@ -76,7 +76,7 @@ typedef struct GDefMetric_
 
 typedef struct GHTMLPlot_
 {
-  void (*plot) (FILE * fp, int isp);
+  void (*plot) (FILE * fp, int sp);
 } GHTMLPlot;
 /* Controls HTML output. */
 typedef struct GHTML_
