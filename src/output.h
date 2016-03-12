@@ -34,8 +34,7 @@
 #ifndef OUTPUT_H_INCLUDED
 #define OUTPUT_H_INCLUDED
 
-#define OUTPUT_N  10
-#define MAX_PLOTS 5
+#define MAX_PLOTS 5     /* number of metrics we can plot */
 
 #define REP_TITLE "Server Statistics"
 
@@ -49,6 +48,20 @@ typedef enum GChartType_
   CHART_VBAR,
   CHART_AREASPLINE,
 } GChartType;
+
+/* Chart JS */
+typedef struct GChartDef_
+{
+  const char *key;
+  const char *value;
+} GChartDef;
+
+/* Chart JS */
+typedef struct GChart_
+{
+  const char *key;
+  GChartDef *def;
+} GChart;
 
 /* Metric definition . */
 typedef struct GDefMetric_

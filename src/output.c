@@ -54,15 +54,12 @@
 
 #include "tpls.h"
 #include "bootstrapcss.h"
-#include "c3css.h"
 #include "appcss.h"
-#include "c3js.h"
 #include "d3js.h"
 #include "hoganjs.h"
 #include "appjs.h"
 
 static void hits_visitors_plot (FILE * fp, int isp);
-static void hits_plot (FILE * fp, int isp);
 static void hits_bw_plot (FILE * fp, int isp);
 
 /* *INDENT-OFF* */
@@ -73,11 +70,13 @@ static GHTML htmldef[] = {
   {REQUESTS        , CHART_NONE       , 0 , 1} ,
   {REQUESTS_STATIC , CHART_NONE       , 0 , 1} ,
   {NOT_FOUND       , CHART_NONE       , 0 , 1} ,
-  {HOSTS           , CHART_NONE       , 0 , 1} ,
-  {OS              , CHART_VBAR       , 0 , 1, {
+  {HOSTS           , CHART_AREASPLINE , 0 , 1, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {BROWSERS        , CHART_VBAR       , 0 , 1, {
+  {OS              , CHART_VBAR 	    , 0 , 1, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
+  {BROWSERS        , CHART_VBAR 	    , 0 , 1, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
   {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, {
@@ -90,7 +89,7 @@ static GHTML htmldef[] = {
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , CHART_NONE       , 0 , 1} ,
 #endif
-  {STATUS_CODES    , CHART_VBAR       , 0 , 1, {
+  {STATUS_CODES    , CHART_VBAR 	  , 0 , 1, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
 };
@@ -183,7 +182,6 @@ print_html_header (FILE * fp, char *now)
 
   fprintf (fp, "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>");
   fprintf (fp, "<style>%s</style>", bootstrap_css);
-  fprintf (fp, "<style>%s</style>", c3_css);
   fprintf (fp, "<style>%s</style>", app_css);
 
   fprintf (fp,
@@ -225,7 +223,6 @@ print_html_body (FILE * fp, const char *now)
 static void
 print_html_footer (FILE * fp)
 {
-  fprintf (fp, "<script>%s</script>", c3_js);
   fprintf (fp, "<script>%s</script>", d3_js);
   fprintf (fp, "<script>%s</script>", hogan_js);
   fprintf (fp, "<script>%s</script>", app_js);
@@ -235,153 +232,95 @@ print_html_footer (FILE * fp)
 }
 /* *INDENT-ON* */
 
-static void
-print_c3_single_yaxis_data (FILE * fp, const char *y1, int isp)
+static const GChartDef ChartDefStopper = { NULL, NULL };
+
+static int
+get_chartdef_cnt (GChart * chart)
 {
-  int iisp = 0, iiisp = 0, iiiisp = 0;
+  GChartDef *def = chart->def;
+
+  while (memcmp (def, &ChartDefStopper, sizeof ChartDefStopper)) {
+    ++def;
+  }
+
+  return def - chart->def;
+}
+
+static void
+print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int isp)
+{
+  GChartDef def = { 0 };
+  int iiisp = 0;
+  size_t i = 0, j = 0, cnt = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
-    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
+    iiisp = isp + 2;
 
-  /* open data object */
-  pjson (fp, "%.*s'data': {%.*s", iisp, TAB, nlines, NL);
+  for (i = 0; i < n; ++i) {
+    cnt = get_chartdef_cnt (chart + i);
 
-  pjson (fp, "%.*s'keys': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'x': 'data',%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'value': ['%s']%.*s", iiiisp, TAB, y1, nlines, NL);
-  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'axes': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'%s': 'y',%.*s", iiiisp, TAB, y1, nlines, NL);
-  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
-
-  /* close data object */
-  pjson (fp, "%.*s},%.*s", iisp, TAB, nlines, NL);
+    print_open_obj_attr (fp, chart[i].key, iiisp);
+    for (j = 0; j < cnt; ++j) {
+      def = chart[i].def[j];
+      print_keyval (fp, def.key, def.value, iiisp, j != cnt - 1 ? ',' : ' ');
+    }
+    print_close_obj (fp, isp, i != n - 1 ? ',' : ' ');
+  }
 }
 
-static void
-print_c3_axis_tick (FILE * fp, const char *fn, int iiiisp)
-{
-  pjson (fp, "%.*s'tick': {%.*s", iiiisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'format': function (x) {");
-  pjson (fp, "return GoAccess.format(x, '%s');", fn);
-  pjson (fp, "}%.*s", iiiisp, TAB, fn, nlines, NL);
-
-  pjson (fp, "%.*s},%.*s", iiiisp, TAB, nlines, NL);
-}
-
-static void
-print_c3_single_yaxis_axis (FILE * fp, const char *y1, const char *fn1, int isp)
-{
-  int iisp = 0, iiisp = 0, iiiisp = 0;
-
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
-
-  pjson (fp, "%.*s'axis': {%.*s", iisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'y': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y1, nlines, NL);
-  print_c3_axis_tick (fp, fn1, iiiisp);
-  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s}%.*s", iisp, TAB, nlines, NL);
-}
-
-static void
-print_c3_dual_yaxis_data (FILE * fp, const char *y1, const char *y2, int isp)
-{
-  int iisp = 0, iiisp = 0, iiiisp = 0;
-
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
-
-  /* open data object */
-  pjson (fp, "%.*s'data': {%.*s", iisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'keys': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'x': 'data',%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'value': ['%s','%s']%.*s", iiiisp, TAB, y1, y2, nlines, NL);
-  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'axes': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'%s': 'y',%.*s", iiiisp, TAB, y1, nlines, NL);
-  pjson (fp, "%.*s'%s': 'y2'%.*s", iiiisp, TAB, y2, nlines, NL);
-  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
-
-  /* close data object */
-  pjson (fp, "%.*s},%.*s", iisp, TAB, nlines, NL);
-}
-
-static void
-print_c3_dual_yaxis_axis (FILE * fp, const char *y1, const char *y2,
-                          const char *fn1, const char *fn2, int isp)
-{
-  int iisp = 0, iiisp = 0, iiiisp = 0;
-
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    iisp = isp + 1, iiisp = isp + 2, iiiisp = isp + 3;
-
-  /* open axis object */
-  pjson (fp, "%.*s'axis': {%.*s", iisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'y': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y1, nlines, NL);
-  print_c3_axis_tick (fp, fn1, iiiisp);
-  pjson (fp, "%.*s},%.*s", iiisp, TAB, nlines, NL);
-
-  pjson (fp, "%.*s'y2': {%.*s", iiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'show': true,%.*s", iiiisp, TAB, nlines, NL);
-  pjson (fp, "%.*s'label': '%s',%.*s", iiiisp, TAB, y2, nlines, NL);
-  print_c3_axis_tick (fp, fn2, iiiisp);
-  pjson (fp, "%.*s}%.*s", iiisp, TAB, nlines, NL);
-
-  /* close axis object */
-  pjson (fp, "%.*s}%.*s", iisp, TAB, nlines, NL);
-}
-
-/* Output C3.js hits/visitors plot definitions. */
+/* Output D3.js hits/visitors plot definitions. */
 static void
 hits_visitors_plot (FILE * fp, int isp)
 {
-  pjson (fp, "%.*s'label': 'Hits/Visitors',%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s'className': 'hits-visitors',%.*s", isp, TAB, nlines, NL);
+  GChart chart[] = {
+    {"y0", (GChartDef[]){{"key", "hits"}, {"label", "Hits"}, ChartDefStopper}},
+    {"y1",
+     (GChartDef[]){{"key", "visitors"}, {"label", "Visitors"},
+                   ChartDefStopper}},
+  };
 
-  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
-  print_c3_dual_yaxis_data (fp, "hits", "visitors", isp);
-  print_c3_dual_yaxis_axis (fp, "Hits", "Visitors", "numeric", "numeric", isp);
-  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
+  int iisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1;
+
+  print_keyval (fp, "label", "Hits/Visitors", isp, ',');
+  print_keyval (fp, "className", "hits-visitors", isp, ',');
+
+  /* D3.js data */
+  print_open_obj_attr (fp, "d3", isp);
+  /* print chart definitions */
+  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), isp);
+  /* close D3 */
+  print_close_obj (fp, iisp, ' ');
 }
 
 /* Output C3.js bandwidth plot definitions. */
 static void
 hits_bw_plot (FILE * fp, int isp)
 {
-  pjson (fp, "%.*s'label': 'Bandwidth',%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s'className': 'bandwidth',%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
+  GChart chart[] = {
+    {"y0",
+     (GChartDef[]){{"key", "bytes"}, {"label", "Bandwidth"}, ChartDefStopper}},
+  };
 
-  print_c3_single_yaxis_data (fp, "bytes", isp);
-  print_c3_single_yaxis_axis (fp, "Bytes", "bytes", isp);
+  int iisp = 0;
 
-  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
-}
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iisp = isp + 1;
 
-/* Output C3.js bandwidth plot definitions. */
-static void
-hits_plot (FILE * fp, int isp)
-{
-  pjson (fp, "%.*s'label': 'Hits',%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s'className': 'hits',%.*s", isp, TAB, nlines, NL);
-  pjson (fp, "%.*s'c3': {%.*s", isp, TAB, nlines, NL);
+  print_keyval (fp, "label", "Bandwidth", isp, ',');
+  print_keyval (fp, "className", "bandwidth", isp, ',');
 
-  print_c3_single_yaxis_data (fp, "hits", isp);
-  print_c3_single_yaxis_axis (fp, "Hits", "numeric", isp);
-
-  pjson (fp, "%.*s}%.*s", isp, TAB, nlines, NL);
+  /* D3.js data */
+  print_open_obj_attr (fp, "d3", isp);
+  /* print chart definitions */
+  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), isp);
+  /* close D3 */
+  print_close_obj (fp, iisp, ' ');
 }
 
 /* Output the items key as an array.
@@ -465,9 +404,9 @@ print_def_metric (FILE * fp, const GDefMetric def, int isp)
 static void
 print_def_block (FILE * fp, const GDefMetric def, int isp, int last)
 {
-  print_open_block_attr (fp, isp);
+  print_open_obj (fp, isp);
   print_def_metric (fp, def, isp);
-  print_close_block_attr (fp, isp, !last ? ',' : ' ');
+  print_close_obj (fp, isp, !last ? ',' : ' ');
 }
 
 static void

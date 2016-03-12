@@ -1,10 +1,8 @@
 var GoAccess = (function() {
-	'use strict';
-
 	var AppCharts = {}, // holds all rendered charts
 		AppUIData = {}, // holds panel definitions
-		AppData   = {}, // hold raw data
-		AppPrefs  = {
+		AppData = {}, // hold raw data
+		AppPrefs = {
 			'perPage': 11, // panel rows per page
 		};
 
@@ -14,19 +12,19 @@ var GoAccess = (function() {
 		return document.querySelector(selector);
 	}
 
-	// Add all attributes of n to o
-	function merge(o, n) {
-		for (var attrname in n) {
-			o[attrname] = n[attrname];
-		}
-	}
-
 	// Syntactic sugar & execute callback
 	function $$(selector, callback) {
 		var elems = document.querySelectorAll(selector);
 		for (var i = 0; i < elems.length; ++i) {
 			if (callback && typeof callback == 'function')
 				callback.call(this, elems[i]);
+		}
+	}
+
+	// Add all attributes of n to o
+	function merge(o, n) {
+		for (var attrname in n) {
+			o[attrname] = n[attrname];
 		}
 	}
 
@@ -172,20 +170,13 @@ var GoAccess = (function() {
 			if (!plotUI.hasOwnProperty(x) || plotUI[x].className != plot)
 				continue;
 
-			var chart = AppCharts[panel];
-
 			// Extract data for the selected panel and process it
 			var data = processChartData(getData(panel).data);
 			if (ui.chartReverse)
 				data = data.reverse();
 
-			var p = plotUI[x].c3;
-			p['data']['json'] = data;
-			p['data']['unload'] = chart.json;
-
-			chart.axis.labels(p.axis);
-			chart.load(p.data);
-
+			d3.select('#chart-' + panel).select('svg').remove();
+			renderAreaSpline(panel, plotUI[x], data);
 			break;
 		}
 	}
@@ -255,7 +246,9 @@ var GoAccess = (function() {
 	// Render left-hand side navigation given the available panels.
 	function renderNav(nav) {
 		var template = $('#tpl-panel-nav').innerHTML;
-		$('.panel-nav').innerHTML = Hogan.compile(template).render({nav: nav});
+		$('.panel-nav').innerHTML = Hogan.compile(template).render({
+			nav: nav
+		});
 	}
 
 	// Iterate over all available panels and render each.
@@ -278,142 +271,82 @@ var GoAccess = (function() {
 		ePanelHandlers();
 	}
 
-	// Set C3 data to plot
-	function c3Data(dataset, ui, type) {
-		return {
-			json: dataset,
-			keys: ui.plot.length ? ui.plot[0].c3.data.keys : {},
-			axes: ui.plot.length ? ui.plot[0].c3.data.axes : {},
-			type: type,
-		};
-	}
+	// Set default C3 chart to area spline and apply panel user interface
+	// definition and load data.
+	function renderAreaSpline(panel, plotData, data) {
+		// data.forEach(function(d) {
+		// 	var date = new Date(d.data / 1E4 , (d.data % 1E4 / 100) - 1, d.data % 100);
+		// 	d.data = d3.time.format('%d/%b/%Y')(date);
+		// });
 
-	// Set a default C3 palette
-	function c3Palette() {
-		return {
-			'pattern': [
-				'#447FB3',
-				'#FF6854',
-				'#42C966',
-				'#FFB854',
-				'#E29A36',
-				'#FF8373',
-				'#69A3D7',
-				'#28A94A'
-			]
-		};
-	}
+		var dualYaxis = plotData['d3']['y1'];
+		var chart = AreaChart(dualYaxis)
+			.width($("#chart-" + panel).offsetWidth)
+			.height(170)
+			.labels({
+				y0: plotData['d3']['y0'].label,
+				y1: dualYaxis ? plotData['d3']['y1'].label : ''
+			})
+			.x(function(d) {
+				return d.data;;
+			})
+			.y0(function(d) {
+				return +d[plotData['d3']['y0']['key']];
+			});
 
-	// Set default C3 grid lines. Display X and Y axis by default.
-	function c3Grid() {
-		return {
-			'x': {
-				'show': true
-			},
-			'y': {
-				'show': true
-			},
-		};
-	}
+		dualYaxis && chart.y1(function(d) {
+			return +d[plotData['d3']['y1']['key']];
+		});
 
-	// Set default C3 X axis and set a default number of max elements.
-	function c3axis(panel) {
-		var ui = getUIData(panel);
-		var def = {
-			x: {
-				type: 'category',
-				label: panel,
-				tick: {
-					culling: {
-						max: 10
-					}
-				}
-			}
-		};
-		// Merge object with panel c3 axis definition.
-		merge(def, ui.plot[0].c3.axis);
+		d3.select("#chart-" + panel)
+			.datum(data)
+			.call(chart)
+			.append("div").attr("class", "chart-tooltip-wrap");
 
-		// TODO: it's dirty to overwrite the formater
-		def.y.tick.format = d3.format("s");
+		// Update the data for #example1, without appending another <svg> element
+		// var a = setInterval(function () {
+		// 	data.push({'data': '20101219', 'hits': 30000, 'visitors': 2300});
+		// 	d3.select("#chart-" + panel)
+		// 		.datum(data)
+		// 		.call(chart);
+		// 	clearInterval(a)
+		// }, 5000);
 
-		return def;
-	}
-
-	// Set default C3 tooltip. It also applies formatting given the data type.
-	function c3Tooltip() {
-		var tooltip = {
-			format: {
-				value: function (value, ratio, id) {
-					switch (id) {
-					case 'bytes':
-						return fmtValue(value, 'bytes');
-					case 'visitors':
-					case 'hits':
-						return d3.format('s')(value);
-					default:
-						return value;
-					}
-				},
-				name: function (name, ratio, id, index) {
-					switch (id) {
-					case 'bytes':
-						return 'Traffic';
-					default:
-						return name;
-					}
-				}
-			}
-		};
-
-		return tooltip;
+		AppCharts[panel] = chart;
 	}
 
 	// Set default C3 chart to area spline and apply panel user interface
 	// definition and load data.
-	function renderAreaSpline(panel, ui, dataset) {
-		var chart = c3.generate({
-			bindto: '#chart-' + panel,
-			data: c3Data(dataset, ui, 'area-spline'),
-			grid: c3Grid(),
-			color: c3Palette(),
-			axis: c3axis(panel),
-			tooltip: c3Tooltip(),
-			size: {
-				height: 180
-			}
-		});
-		AppCharts[panel] = chart;
-	}
+	function renderVBar(panel, plotData, data) {
+		// data.forEach(function(d) {
+		// 	var date = new Date(d.data / 1E4 , (d.data % 1E4 / 100) - 1, d.data % 100);
+		// 	d.data = d3.time.format('%d/%b/%Y')(date);
+		// });
 
-	// Set default C3 chart to bar and apply panel user interface definition
-	// and load data.
-	function renderBar(panel, ui, dataset) {
-		var chart = c3.generate({
-			bindto: '#chart-' + panel,
-			data: c3Data(dataset, ui, 'bar'),
-			grid: c3Grid(),
-			color: c3Palette(),
-			tooltip: c3Tooltip(),
-			axis: {
-				x: {
-					type: 'category',
-					label: panel,
-				},
-				y: {
-					label: 'Hits',
-					tick: {
-						format: d3.format('s')
-					}
-				},
-				y2: {
-					show: true,
-					label: 'Visitors',
-				}
-			},
-			size: {
-				height: 180
-			}
+		var dualYaxis = plotData['d3']['y1'];
+		var chart = BarChart(dualYaxis)
+			.width($("#chart-" + panel).offsetWidth)
+			.height(170)
+			.labels({
+				y0: plotData['d3']['y0'].label,
+				y1: dualYaxis ? plotData['d3']['y1'].label : ''
+			})
+			.x(function(d) {
+				return d.data;;
+			})
+			.y0(function(d) {
+				return +d[plotData['d3']['y0']['key']];
+			});
+
+		dualYaxis && chart.y1(function(d) {
+			return +d[plotData['d3']['y1']['key']];
 		});
+
+		d3.select("#chart-" + panel)
+			.datum(data)
+			.call(chart)
+			.append("div").attr("class", "chart-tooltip-wrap");
+
 		AppCharts[panel] = chart;
 	}
 
@@ -435,13 +368,21 @@ var GoAccess = (function() {
 			// Render given its type
 			switch (ui[panel].chartType) {
 			case 'area-spline':
-				renderAreaSpline(panel, ui[panel], data);
+				renderAreaSpline(panel, ui[panel].plot[0], data);
 				break;
 			case 'bar':
-				renderBar(panel, ui[panel], data);
+				renderVBar(panel, ui[panel].plot[0], data);
 				break;
 			};
 		}
+
+		// Resize charts
+		d3.select(window).on('resize', function () {
+			Object.keys(AppCharts).forEach(function(panel) {
+				d3.select("#chart-" + panel)
+					.call(AppCharts[panel].width($("#chart-" + panel).offsetWidth));
+			});
+		});
 	};
 
 	// Extract an array of objects that C3 can consume to process the chart.
@@ -568,7 +509,8 @@ var GoAccess = (function() {
 			});
 		}
 
-		// Iterate over all data items within the given panel
+		// Iterate over all data items for the given panel and generate a table
+		// row per date item.
 		for (var i = 0; i < dataItems.length; i++) {
 			rows.push({
 				'subitem': dataItems[i].subitem,
@@ -694,16 +636,16 @@ var GoAccess = (function() {
 
 		if (panelHtml.getElementsByClassName('pagination')[0]) {
 			// Enable all pagination buttons
-			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = '';
-			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = '';
+			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className = '';
+			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className = '';
 
 			// Diable pagination next button if last page is reached
 			if (page >= getTotalPages(dataItems))
-				panelHtml.getElementsByClassName('panel-next')[0].parentNode.className  = 'disabled';
+				panelHtml.getElementsByClassName('panel-next')[0].parentNode.className = 'disabled';
 
 			// Disable pagination prev button if first page is reached
 			if (page <= 1)
-				panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className  = 'disabled';
+				panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className = 'disabled';
 		}
 
 		// Render data rows
@@ -761,8 +703,876 @@ var GoAccess = (function() {
 	};
 })();
 
+function AreaChart(dualYaxis) {
+	var margin = {
+			top    : 10,
+			right  : 50,
+			bottom : 40,
+			left   : 50
+		},
+		width = 760,
+		height = 170,
+		nTicks = 10;
+	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
+
+	var	xValue = function(d) {
+			return d[0];
+		},
+		yValue0 = function(d) {
+			return d[1];
+		},
+		yValue1 = function(d) {
+			return d[2];
+		};
+
+	var xScale = d3.scale.ordinal();
+	var yScale0 = d3.scale.linear().nice();
+	var yScale1 = d3.scale.linear().nice();
+
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+
+	var yAxis0 = d3.svg.axis()
+		.scale(yScale0)
+		.orient("left")
+		.ticks(10, "s");
+
+	var yAxis1 = d3.svg.axis()
+		.scale(yScale1)
+		.orient("right")
+		.ticks(10, "s");
+
+	var xGrid = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+
+	var yGrid = d3.svg.axis()
+		.scale(yScale0)
+		.orient("left")
+		.ticks(10, "s");
+
+	var area0 = d3.svg.area()
+		.interpolate('cardinal')
+		.x(X)
+		.y(Y0);
+	var area1 = d3.svg.area()
+		.interpolate('cardinal')
+		.x(X)
+		.y(Y1);
+
+	var line0 = d3.svg.line()
+		.interpolate('cardinal')
+		.x(X)
+		.y(Y0);
+	var line1 = d3.svg.line()
+		.interpolate('cardinal')
+		.x(X)
+		.y(Y1);
+
+	// The x-accessor for the path generator; xScale ∘ xValue.
+	function X(d) {
+		return xScale(d[0]);
+	}
+
+	// The x-accessor for the path generator; yScale0 yValue0.
+	function Y0(d) {
+		return yScale0(d[1]);
+	}
+
+	// The x-accessor for the path generator; yScale0 yValue0.
+	function Y1(d) {
+		return yScale1(d[2]);
+	}
+
+	function innerW() {
+		return width - margin.left - margin.right;
+	}
+
+	function innerH() {
+		return height - margin.top - margin.bottom;
+	}
+
+	function getXTicks(data) {
+		if (data.length < nTicks)
+			return xScale.domain();
+
+		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function(d) {
+			return xScale.domain()[d];
+		});
+	}
+
+	// Convert data to standard representation greedily;
+	// this is needed for nondeterministic accessors.
+	function mapData(data) {
+		var _datum = function(d, i) {
+			var datum = [xValue.call(data, d, i), yValue0.call(data, d, i)];
+			dualYaxis && datum.push(yValue1.call(data, d, i));
+			return datum;
+		};
+		return data.map(function(d, i) {
+			return _datum(d, i);
+		});
+	}
+
+	function updateScales(data) {
+		// Update the x-scale.
+		xScale.domain(data.map(function(d) {
+			return d[0];
+		}))
+		.rangePoints([0, innerW()], 1);
+
+		// Update the y-scale.
+		yScale0.domain([0, d3.max(data, function(d) {
+			return d[1];
+		})])
+		.range([innerH(), 0]);
+
+		// Update the y-scale.
+		dualYaxis && yScale1.domain([0, d3.max(data, function(d) {
+			return d[2];
+		})])
+		.range([innerH(), 0]);
+	}
+
+	function setLegendLabels(svg) {
+		// Legend Color
+		var rect = svg.selectAll('rect.legend.y0').data([null]);
+		rect.enter().append("rect")
+			.attr("class", "legend y0")
+			.attr("y", (height - 15));
+		rect
+			.attr("x", (width / 2) - 100);
+
+		// Legend Labels
+		var text = svg.selectAll('text.legend.y0').data([null]);
+		text.enter().append("text")
+			.attr("class", "legend y0")
+			.attr("y", (height - 6));
+		text
+			.attr("x", (width / 2) - 85)
+			.text(labels.y0);
+
+		if (!dualYaxis)
+			return;
+
+		// Legend Labels
+		rect = svg.selectAll('rect.legend.y1').data([null]);
+		rect.enter().append("rect")
+			.attr("class", "legend y1")
+			.attr("y", (height - 15));
+		rect
+			.attr("x", (width / 2));
+
+		// Legend Labels
+		text = svg.selectAll('text.legend.y1').data([null]);
+		text.enter().append("text")
+			.attr("class", "legend y1")
+			.attr("y", (height - 6));
+		text
+			.attr("x", (width / 2) + 15)
+			.text(labels.y1);
+	}
+
+	function setAxisLabels(svg) {
+		// Labels
+		svg.selectAll('text.axis-label.y0').data([null])
+			.enter().append("text")
+			.attr("class", "axis-label y0")
+			.attr("y", 6)
+			.attr("x", -10)
+			.attr("dy", ".75em")
+			.text(labels.y0);
+
+		if (!dualYaxis)
+			return;
+
+		// Labels
+		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
+		tEnter.enter().append("text")
+			.attr("class", "axis-label y1")
+			.attr("x", -10)
+			.attr("dy", ".75em")
+			.text(labels.y1);
+		dualYaxis && tEnter
+			.attr("y", width - 15)
+	}
+
+	function createSkeleton(svg) {
+		// Otherwise, create the skeletal chart.
+		var gEnter = svg.enter().append("svg").append("g");
+
+		// Lines
+		gEnter.append("path")
+			.attr("class", "line line0");
+		dualYaxis && gEnter.append("path")
+			.attr("class", "line line1");
+
+		// Areas
+		gEnter.append("path")
+			.attr("class", "area area0");
+		dualYaxis && gEnter.append("path")
+			.attr("class", "area area1");
+
+		// Points
+		gEnter.append("g")
+			.attr("class", "points y0");
+		dualYaxis && gEnter.append("g")
+			.attr("class", "points y1");
+
+		// Grid
+		gEnter.append("g")
+			.attr("class", "x grid");
+		gEnter.append("g")
+			.attr("class", "y grid");
+
+		// Axis
+		gEnter.append("g")
+			.attr("class", "x axis");
+		gEnter.append("g")
+			.attr("class", "y0 axis");
+		dualYaxis && gEnter.append("g")
+			.attr("class", "y1 axis");
+
+		// Rects
+		gEnter.append("g")
+			.attr("class", "rects");
+
+		setAxisLabels(svg);
+		setLegendLabels(svg);
+
+		// Mouseover line
+		gEnter.append("line")
+			.attr("y2", innerH())
+			.attr("y1", 0)
+			.attr("class", "indicator");
+	}
+
+	// Update the area path and lines.
+	function addAreaLines(g) {
+		// Update the area path.
+		g.select(".area0").attr("d", area0.y0(yScale0.range()[0]));
+		// Update the line path.
+		g.select(".line0").attr("d", line0);
+
+		if (!dualYaxis)
+			return;
+
+		// Update the area path.
+		g.select(".area1").attr("d", area1.y1(yScale1.range()[0]));
+		// Update the line path.
+		g.select(".line1").attr("d", line1);
+	}
+
+	// Update chart points
+	function addPoints(g, data) {
+		var points = g.select('g.points.y0').selectAll('circle.point')
+			.data(data);
+		points
+			.enter()
+			.append('svg:circle')
+			.attr('r', 2.5)
+			.attr('class', 'point');
+		points
+			.attr('cx', function(d) { return xScale(d[0]) })
+			.attr('cy', function(d) { return yScale0(d[1]) })
+		// remove elements
+		points.exit().remove();
+
+		if (!dualYaxis)
+			return;
+
+		points = g.select('g.points.y1').selectAll('circle.point')
+			.data(data);
+		points
+			.enter()
+			.append('svg:circle')
+			.attr('r', 2.5)
+			.attr('class', 'point');
+		points
+			.attr('cx', function(d) { return xScale(d[0]) })
+			.attr('cy', function(d) { return yScale1(d[2]) })
+		// remove elements
+		points.exit().remove();
+	}
+
+	function addAxis(g, data) {
+		// Update the x-axis.
+		g.select(".x.axis")
+			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+			.call(xAxis
+				.tickValues(getXTicks(data))
+			 );
+		// Update the y0-axis.
+		g.select(".y0.axis")
+			.call(yAxis0);
+
+		if (!dualYaxis)
+			return;
+
+		// Update the y1-axis.
+		g.select(".y1.axis")
+			.attr("transform", "translate(" + innerW() + ", 0)")
+			.call(yAxis1);
+	}
+
+	// Update the X-Y grid.
+	function addGrid(g, data) {
+		g.select(".x.grid")
+			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+			.call(xGrid
+				.tickValues(getXTicks(data))
+				.tickSize(-innerH(), 0, 0)
+				.tickFormat("")
+			);
+
+		g.select(".y.grid")
+			.call(yGrid
+				.tickSize(-innerW(), 0, 0)
+				.tickFormat("")
+			);
+	}
+
+	function formatTooltip(d, i) {
+		var template = d3.select('#tpl-chart-tooltip').html();
+		return Hogan.compile(template).render({
+			'data': d
+		});
+	}
+
+	function mouseover(_self, selection, data, idx) {
+		var tooltip = selection.select(".chart-tooltip-wrap");
+		tooltip.html(formatTooltip(data, idx))
+			.style('left', (xScale(data[0])) + 'px')
+			.style('top',  (d3.mouse(_self)[1] + 10) + "px")
+			.style('display', 'block');
+
+		selection.select("line.indicator")
+			.style("display", "block")
+			.attr("transform", "translate(" + xScale(data[0]) + "," + 0 + ")");
+	}
+
+	function mouseout(selection, g) {
+		var tooltip = selection.select(".chart-tooltip-wrap");
+		tooltip.style('display', 'none');
+
+		g.select("line.indicator").style("display", "none");
+	}
+
+	function addRects(selection, g, data) {
+		var w = (innerW() / data.length);
+
+		var rects = g.select("g.rects").selectAll("rect")
+			.data(data);
+		rects
+			.enter()
+			.append('svg:rect')
+			.attr('height', innerH())
+			.attr('class', 'point');
+		rects
+			.attr('width', d3.functor(w))
+			.attr('x', function(d, i) { return (w * i); })
+			.attr('y', 0)
+			.on('mousemove', function(d, i) {
+				mouseover(this, selection, d, i);
+			})
+			.on('mouseleave', function(d, i) {
+				mouseout(selection, g);
+			});
+		// remove elements
+		rects.exit().remove();
+	}
+
+	function chart(selection) {
+		selection.each(function(data) {
+			// normalize data
+			data = mapData(data);
+			// updates X-Y scales
+			updateScales(data);
+
+			// Select the svg element, if it exists.
+			var svg = d3.select(this).selectAll("svg").data([data]);
+			createSkeleton(svg);
+
+			// Update the outer dimensions.
+			svg.attr({
+				"width": width,
+				"height": height
+			});
+
+			// Update the inner dimensions.
+			var g = svg.select("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// Add grid
+			addGrid(g, data);
+			// Add chart lines and areas
+			addAreaLines(g);
+			// Add chart points
+			addPoints(g, data);
+			// Add axis
+			addAxis(g, data);
+			// Add rects
+			addRects(selection, g, data);
+		});
+	}
+
+	chart.labels = function(_) {
+		if (!arguments.length) return labels;
+		labels = _;
+		return chart;
+	};
+
+	chart.margin = function(_) {
+		if (!arguments.length) return margin;
+		margin = _;
+		return chart;
+	};
+
+	chart.width = function(_) {
+		if (!arguments.length) return width;
+		width = _;
+		return chart;
+	};
+
+	chart.height = function(_) {
+		if (!arguments.length) return height;
+		height = _;
+		return chart;
+	};
+
+	chart.x = function(_) {
+		if (!arguments.length) return xValue;
+		xValue = _;
+		return chart;
+	};
+
+	chart.y0 = function(_) {
+		if (!arguments.length) return yValue0;
+		yValue0 = _;
+		return chart;
+	};
+
+	chart.y1 = function(_) {
+		if (!arguments.length) return yValue1;
+		yValue1 = _;
+		return chart;
+	};
+
+	return chart;
+}
+
+function BarChart(dualYaxis) {
+	var margin = {
+			top    : 10,
+			right  : 50,
+			bottom : 40,
+			left   : 50
+		},
+		width = 760,
+		height = 170,
+		nTicks = 10;
+	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
+
+	var	xValue = function(d) {
+			return d[0];
+		},
+		yValue0 = function(d) {
+			return d[1];
+		},
+		yValue1 = function(d) {
+			return d[2];
+		};
+
+	var xScale = d3.scale.ordinal();
+	var yScale0 = d3.scale.linear().nice();
+	var yScale1 = d3.scale.linear().nice();
+
+	var xAxis = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+
+	var yAxis0 = d3.svg.axis()
+		.scale(yScale0)
+		.orient("left")
+		.ticks(10, "s");
+
+	var yAxis1 = d3.svg.axis()
+		.scale(yScale1)
+		.orient("right")
+		.ticks(10, "s");
+
+	var xGrid = d3.svg.axis()
+		.scale(xScale)
+		.orient("bottom");
+
+	var yGrid = d3.svg.axis()
+		.scale(yScale0)
+		.orient("left")
+		.ticks(10, "s");
+
+	// The x-accessor for the path generator; xScale ∘ xValue.
+	function X(d) {
+		return xScale(d[0]);
+	}
+
+	// The x-accessor for the path generator; yScale0 yValue0.
+	function Y0(d) {
+		return yScale0(d[1]);
+	}
+
+	// The x-accessor for the path generator; yScale0 yValue0.
+	function Y1(d) {
+		return yScale1(d[2]);
+	}
+
+	function innerW() {
+		return width - margin.left - margin.right;
+	}
+
+	function innerH() {
+		return height - margin.top - margin.bottom;
+	}
+
+	function getXTicks(data) {
+		if (data.length < nTicks)
+			return xScale.domain();
+
+		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function(d) {
+			return xScale.domain()[d];
+		});
+	}
+
+	// Convert data to standard representation greedily;
+	// this is needed for nondeterministic accessors.
+	function mapData(data) {
+		var _datum = function(d, i) {
+			var datum = [xValue.call(data, d, i), yValue0.call(data, d, i)];
+			dualYaxis && datum.push(yValue1.call(data, d, i));
+			return datum;
+		};
+		return data.map(function(d, i) {
+			return _datum(d, i);
+		});
+	}
+
+	function updateScales(data) {
+		// Update the x-scale.
+		xScale.domain(data.map(function(d) {
+			return d[0];
+		}))
+		.rangeRoundBands([0, innerW()], .1);
+
+		// Update the y-scale.
+		yScale0.domain([0, d3.max(data, function(d) {
+			return d[1];
+		})])
+		.range([innerH(), 0]);
+
+		// Update the y-scale.
+		dualYaxis && yScale1.domain([0, d3.max(data, function(d) {
+			return d[2];
+		})])
+		.range([innerH(), 0]);
+	}
+
+	function setLegendLabels(svg) {
+		// Legend Color
+		var rect = svg.selectAll('rect.legend.y0').data([null]);
+		rect.enter().append("rect")
+			.attr("class", "legend y0")
+			.attr("y", (height - 15));
+		rect
+			.attr("x", (width / 2) - 100);
+
+		// Legend Labels
+		var text = svg.selectAll('text.legend.y0').data([null]);
+		text.enter().append("text")
+			.attr("class", "legend y0")
+			.attr("y", (height - 6));
+		text
+			.attr("x", (width / 2) - 85)
+			.text(labels.y0);
+
+		if (!dualYaxis)
+			return;
+
+		// Legend Labels
+		rect = svg.selectAll('rect.legend.y1').data([null]);
+		rect.enter().append("rect")
+			.attr("class", "legend y1")
+			.attr("y", (height - 15));
+		rect
+			.attr("x", (width / 2));
+
+		// Legend Labels
+		text = svg.selectAll('text.legend.y1').data([null]);
+		text.enter().append("text")
+			.attr("class", "legend y1")
+			.attr("y", (height - 6));
+		text
+			.attr("x", (width / 2) + 15)
+			.text(labels.y1);
+	}
+
+	function setAxisLabels(svg) {
+		// Labels
+		svg.selectAll('text.axis-label.y0').data([null])
+			.enter().append("text")
+			.attr("class", "axis-label y0")
+			.attr("y", 6)
+			.attr("x", -10)
+			.attr("dy", ".75em")
+			.text(labels.y0);
+
+		if (!dualYaxis)
+			return;
+
+		// Labels
+		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
+		tEnter.enter().append("text")
+			.attr("class", "axis-label y1")
+			.attr("x", -10)
+			.attr("dy", ".75em")
+			.text(labels.y1);
+		dualYaxis && tEnter
+			.attr("y", width - 15)
+	}
+
+	function createSkeleton(svg) {
+		// Otherwise, create the skeletal chart.
+		var gEnter = svg.enter().append("svg").append("g");
+
+		// Grid
+		gEnter.append("g")
+			.attr("class", "x grid");
+		gEnter.append("g")
+			.attr("class", "y grid");
+
+		// Axis
+		gEnter.append("g")
+			.attr("class", "x axis");
+		gEnter.append("g")
+			.attr("class", "y0 axis");
+		dualYaxis && gEnter.append("g")
+			.attr("class", "y1 axis");
+
+		// Bars
+		gEnter.append("g")
+			.attr("class", "bars y0");
+		dualYaxis && gEnter.append("g")
+			.attr("class", "bars y1");
+
+		// Rects
+		gEnter.append("g")
+			.attr("class", "rects");
+
+		setAxisLabels(svg);
+		setLegendLabels(svg);
+
+		// Mouseover line
+		gEnter.append("line")
+			.attr("y2", innerH())
+			.attr("y1", 0)
+			.attr("class", "indicator");
+	}
+
+	// Update the area path and lines.
+	function addBars(g, data) {
+		var bars = g.select('g.bars.y0').selectAll('rect.bar')
+			.data(data);
+		bars
+			.enter()
+			.append('svg:rect')
+			.attr('class', 'bar');
+		bars
+			.attr('width', xScale.rangeBand() / 2)
+			.attr('height', function(d) { return innerH() - yScale0(d[1]) })
+			.attr('x', function(d) { return xScale(d[0]) })
+			.attr('y', function(d) { return yScale0(d[1]) });
+		// remove elements
+		bars.exit().remove();
+
+		if (!dualYaxis)
+			return;
+
+		var bars = g.select('g.bars.y1').selectAll('rect.bar')
+			.data(data);
+		bars
+			.enter()
+			.append('svg:rect')
+			.attr('class', 'bar');
+		bars
+			.attr('width', xScale.rangeBand() / 2)
+			.attr('height', function(d) { return innerH() - yScale1(d[2]) })
+			.attr('x', function(d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
+			.attr('y', function(d) { return yScale1(d[2]) });
+		// remove elements
+		bars.exit().remove();
+	}
+
+	function addAxis(g, data) {
+		// Update the x-axis.
+		g.select(".x.axis")
+			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+			.call(xAxis
+				.tickValues(getXTicks(data))
+			 );
+		// Update the y0-axis.
+		g.select(".y0.axis")
+			.call(yAxis0);
+
+		if (!dualYaxis)
+			return;
+
+		// Update the y1-axis.
+		g.select(".y1.axis")
+			.attr("transform", "translate(" + innerW() + ", 0)")
+			.call(yAxis1);
+	}
+
+	// Update the X-Y grid.
+	function addGrid(g, data) {
+		g.select(".x.grid")
+			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+			.call(xGrid
+				.tickValues(getXTicks(data))
+				.tickSize(-innerH(), 0, 0)
+				.tickFormat("")
+			);
+
+		g.select(".y.grid")
+			.call(yGrid
+				.tickSize(-innerW(), 0, 0)
+				.tickFormat("")
+			);
+	}
+
+	function formatTooltip(d, i) {
+		var template = d3.select('#tpl-chart-tooltip').html();
+		return Hogan.compile(template).render({
+			'data': d
+		});
+	}
+
+	function mouseover(_self, selection, data, idx) {
+		var tooltip = selection.select(".chart-tooltip-wrap");
+		tooltip.html(formatTooltip(data, idx))
+			.style('left', (xScale(data[0])) + 'px')
+			.style('top',  (d3.mouse(_self)[1] + 10) + "px")
+			.style('display', 'block');
+
+		selection.select("line.indicator")
+			.style("display", "block")
+			.attr("transform", "translate(" + xScale(data[0]) + "," + 0 + ")");
+	}
+
+	function mouseout(selection, g) {
+		var tooltip = selection.select(".chart-tooltip-wrap");
+		tooltip.style('display', 'none');
+
+		g.select("line.indicator").style("display", "none");
+	}
+
+	function addRects(selection, g, data) {
+		var w = (innerW() / data.length);
+
+		var rects = g.select("g.rects").selectAll("rect")
+			.data(data);
+		rects
+			.enter()
+			.append('svg:rect')
+			.attr('height', innerH())
+			.attr('class', 'point');
+		rects
+			.attr('width', d3.functor(w))
+			.attr('x', function(d, i) { return (w * i); })
+			.attr('y', 0)
+			.on('mousemove', function(d, i) {
+				mouseover(this, selection, d, i);
+			})
+			.on('mouseleave', function(d, i) {
+				mouseout(selection, g);
+			});
+		// remove elements
+		rects.exit().remove();
+	}
+
+	function chart(selection) {
+		selection.each(function(data) {
+			// normalize data
+			data = mapData(data);
+			// updates X-Y scales
+			updateScales(data);
+
+			// Select the svg element, if it exists.
+			var svg = d3.select(this).selectAll("svg").data([data]);
+			createSkeleton(svg);
+
+			// Update the outer dimensions.
+			svg.attr({
+				"width": width,
+				"height": height
+			});
+
+			// Update the inner dimensions.
+			var g = svg.select("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// Add grid
+			addGrid(g, data);
+			// Add axis
+			addAxis(g, data);
+			// Add chart lines and areas
+			addBars(g, data);
+			// Add rects
+			addRects(selection, g, data);
+		});
+	}
+
+	chart.labels = function(_) {
+		if (!arguments.length) return labels;
+		labels = _;
+		return chart;
+	};
+
+	chart.width = function(_) {
+		if (!arguments.length) return width;
+		width = _;
+		return chart;
+	};
+
+	chart.height = function(_) {
+		if (!arguments.length) return height;
+		height = _;
+		return chart;
+	};
+
+	chart.x = function(_) {
+		if (!arguments.length) return xValue;
+		xValue = _;
+		return chart;
+	};
+
+	chart.y0 = function(_) {
+		if (!arguments.length) return yValue0;
+		yValue0 = _;
+		return chart;
+	};
+
+	chart.y1 = function(_) {
+		if (!arguments.length) return yValue1;
+		yValue1 = _;
+		return chart;
+	};
+
+	return chart;
+}
+
 // Init app
-window.onload = function () {
+window.onload = function() {
+	'use strict';
+
 	GoAccess.start({
 		'uidata': user_interface,
 		'data': json_data

@@ -8,9 +8,7 @@ bin2c_SOURCES = src/bin2c.c
 BUILT_SOURCES =   \
   tpls.h          \
   bootstrapcss.h  \
-  c3css.h         \
   appcss.h        \
-  c3js.h          \
   d3js.h          \
   hoganjs.h       \
   appjs.h
@@ -18,9 +16,7 @@ BUILT_SOURCES =   \
 CLEANFILES =          \
   src/tpls.h          \
   src/bootstrapcss.h  \
-  src/c3css.h         \
   src/appcss.h        \
-  src/c3js.h          \
   src/d3js.h          \
   src/hoganjs.h       \
   src/appjs.h
@@ -31,15 +27,9 @@ tpls.h: bin2c$(EXEEXT) resources/tpls.html
 # Bootstrap
 bootstrapcss.h: bin2c$(EXEEXT) resources/css/bootstrap.min.css
 	./bin2c resources/css/bootstrap.min.css src/bootstrapcss.h bootstrap_css
-# C3.css
-c3css.h: bin2c$(EXEEXT) resources/css/c3.min.css
-	./bin2c resources/css/c3.min.css src/c3css.h c3_css
 # App.css
 appcss.h: bin2c$(EXEEXT) resources/css/app.css
 	./bin2c resources/css/app.css src/appcss.h app_css
-# C3.js
-c3js.h: bin2c$(EXEEXT) resources/js/c3.min.js
-	./bin2c resources/js/c3.min.js src/c3js.h c3_js
 # D3.js
 d3js.h: bin2c$(EXEEXT) resources/js/d3.v3.min.js
 	./bin2c resources/js/d3.v3.min.js src/d3js.h d3_js
