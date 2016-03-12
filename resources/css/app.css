@@ -30,6 +30,148 @@ h3 {
 	margin: 5px 0;
 }
 
+/* CHARTS */
+.chart-wrap {
+	position: relative;
+}
+svg {
+	background-color: #fff;
+	display: block;
+}
+.axis path {
+	fill: transparent;
+	stroke: black;
+	shape-rendering: crispEdges;
+	stroke-width: 1;
+}
+.grid.y .tick line,
+.grid.x .tick line {
+	shape-rendering: crispEdges;
+	stroke: #999;
+	stroke-dasharray: 3 3;
+	stroke-width: 1;
+}
+.axis.x .tick line,
+.axis.y0 .tick line,
+.axis.y1 .tick line,
+.grid.y .tick:first-child line {
+	stroke: black;
+	stroke-width: 1;
+	shape-rendering: crispEdges;
+}
+.rects rect {
+	fill: transparent;
+}
+.area {
+	opacity: 0.2;
+}
+.area0 {
+	fill: #447FB3;
+}
+.area1 {
+	fill: #FF6854;
+}
+.line0 {
+	fill: transparent;
+	stroke: #447FB3;
+	stroke-width: 1;
+}
+.line1 {
+	fill: transparent;
+	stroke: #FF6854;
+	stroke-width: 1;
+}
+line.indicator {
+	fill: transparent;
+	pointer-events: none;
+	shape-rendering: crispEdges;
+	stroke: #999;
+	stroke-width: 1;
+}
+.points {
+	stroke: transparent;
+}
+.points.y0,
+.bars.y0 .bar {
+	fill: #447FB3;
+}
+.points.y1,
+.bars.y1 .bar {
+	fill: #FF6854;
+}
+.axis text,
+.axis-label,
+text.legend {
+  font: 10px sans-serif;
+}
+.axis-label.y0,
+.axis-label.y1 {
+	text-anchor: end;
+	transform: rotate(-90deg);
+}
+rect.legend {
+	height: 10px;
+	width: 10px;
+}
+rect.legend.y0 {
+	fill: #447FB3;
+}
+rect.legend.y1 {
+	fill: #FF6854;
+}
+
+/* CHART TOOLTIP */
+.chart-tooltip-wrap {
+	display: none;
+	left: 0;
+	pointer-events: none;
+	position: absolute;
+	top: 10px;
+	z-index: 10;
+}
+
+.chart-tooltip {
+	-moz-box-shadow: 7px 7px 12px -9px #777777;
+	-webkit-box-shadow: 7px 7px 12px -9px #777777;
+	background-color: #fff;
+	border-collapse: collapse;
+	border-spacing: 0;
+	box-shadow: 7px 7px 12px -9px #777777;
+	empty-cells: show;
+	opacity: 0.9;
+}
+
+.chart-tooltip tr {
+	border: 1px solid #CCC;
+}
+
+.chart-tooltip th {
+	background-color: #aaa;
+	color: #FFF;
+	font-size: 14px;
+	padding: 2px 5px;
+	text-align: left;
+}
+
+.chart-tooltip td {
+	background-color: #fff;
+	border-left: 1px dotted #999;
+	font-size: 13px;
+	padding: 3px 6px;
+}
+
+.chart-tooltip td > span {
+	display: inline-block;
+	height: 10px;
+	margin-right: 6px;
+	width: 10px;
+}
+
+.chart-tooltip td.value {
+	text-align: right;
+}
+
+
 /* NAVIGATION */
 nav {
     border-right: 3px solid #5bc0de;
@@ -83,6 +225,9 @@ nav li a {
 	font-size: smaller;
     padding: 9px 20px;
 	text-transform: uppercase;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }
 nav li a:before {
     content: '';
@@ -94,7 +239,7 @@ nav li a:before {
 }
 nav li a:hover {
     background: rgba(0,0,0,.1);
-    border-color: #1b9;
+    border-color: #5cb85c;
     color: #eee;
 }
 nav li a:hover:before {

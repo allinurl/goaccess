@@ -71,7 +71,7 @@
 	{{#plot.length}}
 	<div class="row">
 		<div class="col-md-12">
-			<div id="chart-{{id}}"></div>
+			<div id="chart-{{id}}" class="chart-wrap"></div>
 		</div>
 	</div>
 	{{/plot.length}}
@@ -131,4 +131,24 @@
 		<li><a href="#{{key}}">{{head}}</a></li>
 		{{/nav}}
 	</ul>
+</script>
+
+<script id="tpl-chart-tooltip" type="text/template">
+	<table class="chart-tooltip">
+		<tbody>
+			<tr>
+				<th colspan="2">{{data.0}}</th>
+			</tr>
+			<tr>
+				<td class="name"><span style="background-color:#447FB3"></span>hits</td>
+				<td class="value">{{data.1}}</td>
+			</tr>
+			{{#data.2}}
+			<tr>
+				<td class="name"><span style="background-color:#FF6854"></span>visitors</td>
+				<td class="value">{{data.2}}</td>
+			</tr>
+			{{/data.2}}
+		</tbody>
+	</table>
 </script>

@@ -519,18 +519,18 @@ print_open_data_attr (FILE * fp, int isp)
 /* Close the data array.
  *
  * On success, data is outputted. */
-static void
-print_close_data_attr (FILE * fp, int isp)
+void
+print_close_arr (FILE * fp, int isp, char comma)
 {
   /* close data data */
-  pjson (fp, "%.*s]%.*s", isp, TAB, nlines, NL);
+  pjson (fp, "%.*s]%c%.*s", isp, TAB, comma, nlines, NL);
 }
 
 /* Output the open block item object.
  *
  * On success, data is outputted. */
 void
-print_open_block_attr (FILE * fp, int iisp)
+print_open_obj (FILE * fp, int iisp)
 {
   /* open data metric block */
   pjson (fp, "%.*s{%.*s", iisp, TAB, nlines, NL);
@@ -540,10 +540,29 @@ print_open_block_attr (FILE * fp, int iisp)
  *
  * On success, data is outputted. */
 void
-print_close_block_attr (FILE * fp, int iisp, char comma)
+print_close_obj (FILE * fp, int iisp, char comma)
 {
   /* close data block */
   pjson (fp, "%.*s%.*s}%c%.*s", nlines, NL, iisp, TAB, comma, nlines, NL);
+}
+
+/* Output a JSON open object attribute.
+ *
+ * On success, data is outputted. */
+void
+print_open_obj_attr (FILE * fp, const char *attr, int isp)
+{
+  /* open object attribute */
+  pjson (fp, "%.*s\"%s\": {%.*s", isp, TAB, attr, nlines, NL);
+}
+
+/* Output a JSON a key/value pair.
+ *
+ * On success, data is outputted. */
+void
+print_keyval (FILE * fp, const char *key, const char *val, int isp, char comma)
+{
+  pjson (fp, "%.*s\"%s\": \"%s\"%c%.*s", isp, TAB, key, val, comma, nlines, NL);
 }
 
 /* Output the hits meta data object.
@@ -828,7 +847,7 @@ print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
     set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     /* open data metric block */
-    print_open_block_attr (fp, iisp);
+    print_open_obj (fp, iisp);
     /* output data metric block */
     print_json_block (fp, nmetrics, iiisp);
     /* if there are children notes, spit them out */
@@ -836,11 +855,11 @@ print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
       panel->subitems (fp, h->items[i].sub_list, totals, iiisp);
     /* close data metric block */
     comma = (i != h->idx - 1) ? ',' : ' ';
-    print_close_block_attr (fp, iisp, comma);
+    print_close_obj (fp, iisp, comma);
 
     free (nmetrics);
   }
-  print_close_data_attr (fp, isp);
+  print_close_arr (fp, isp, ' ');
 }
 
 /* Entry point to ouput data metrics per panel. */
