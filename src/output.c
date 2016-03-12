@@ -273,12 +273,16 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int isp)
 static void
 hits_visitors_plot (FILE * fp, int isp)
 {
+  /* *INDENT-OFF* */
   GChart chart[] = {
-    {"y0", (GChartDef[]){{"key", "hits"}, {"label", "Hits"}, ChartDefStopper}},
-    {"y1",
-     (GChartDef[]){{"key", "visitors"}, {"label", "Visitors"},
-                   ChartDefStopper}},
+    {"y0", (GChartDef[]) {
+      {"key", "hits"}, {"label", "Hits"}, ChartDefStopper
+    }},
+    {"y1", (GChartDef[]) {
+      {"key", "visitors"}, {"label", "Visitors"}, ChartDefStopper
+    }},
   };
+  /* *INDENT-ON* */
 
   int iisp = 0;
 
@@ -301,10 +305,13 @@ hits_visitors_plot (FILE * fp, int isp)
 static void
 hits_bw_plot (FILE * fp, int isp)
 {
+  /* *INDENT-OFF* */
   GChart chart[] = {
-    {"y0",
-     (GChartDef[]){{"key", "bytes"}, {"label", "Bandwidth"}, ChartDefStopper}},
+    {"y0", (GChartDef[]) {
+      {"key", "bytes"}, {"label", "Bandwidth"}, ChartDefStopper
+    }},
   };
+  /* *INDENT-ON* */
 
   int iisp = 0;
 
