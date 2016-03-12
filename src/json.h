@@ -43,13 +43,16 @@ char *get_json (GLog * logger, GHolder * holder);
 
 void output_json (GLog * logger, GHolder * holder);
 void pjson (FILE * fp, const char *fmt, ...);
-void print_close_arr (FILE * fp, int isp, char comma);
-void print_close_obj (FILE * fp, int iisp, char comma);
-void print_close_panel_attr (FILE * fp, int sp, char comma);
-void print_keyval (FILE * fp, const char *key, const char *val, int isp,
-                   char comma);
-void print_open_obj_attr (FILE * fp, const char *attr, int isp);
-void print_open_obj (FILE * fp, int iisp);
-void print_open_panel_attr (FILE * fp, const char *attr, int sp);
+
+void pskeyfval (FILE * fp, const char *key, float val, int isp, int last);
+void pskeyival (FILE * fp, const char *key, int val, int isp, int last);
+void pskeysval (FILE * fp, const char *key, const char *val, int isp, int last);
+void pskeyu64val (FILE * fp, const char *key, uint64_t val, int isp, int last);
+
+void pclose_obj (FILE * fp, int iisp, int last);
+void popen_obj_attr (FILE * fp, const char *attr, int isp);
+void popen_obj (FILE * fp, int iisp);
+void pclose_arr (FILE * fp, int isp, int last);
+void popen_arr_attr (FILE * fp, const char *attr, int isp);
 
 #endif
