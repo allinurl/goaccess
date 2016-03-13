@@ -319,6 +319,7 @@ nav a:hover {
 }
 .wrap-panels table thead tr th {
 	text-align: right;
+	border-bottom-width: 1px
 }
 .wrap-panels table .string {
 	text-align: left;
@@ -346,6 +347,9 @@ nav a:hover {
 }
 .wrap-panels table .tbody-data td.row-idx {
 	color: #898989;
+}
+.wrap-panels table>tbody+tbody {
+	border-top-width: 1px
 }
 
 /* GENERAL */
