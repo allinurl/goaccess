@@ -29,13 +29,14 @@ var GoAccess = (function() {
 	}
 
 	// Format bytes to human readable
-	function formatBytes(bytes, decimals) {
-		if (bytes == 0) return '0 Byte';
+	function formatBytes(bytes, decimals, numOnly) {
+		if (bytes == 0)
+			return numOnly ? 0 : '0 Byte';
 		var k = 1024;
 		var dm = decimals + 1 || 3;
 		var sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
-		return (bytes / Math.pow(k, i)).toPrecision(dm) + ' ' + sizes[i];
+		return (bytes / Math.pow(k, i)).toPrecision(dm) + (numOnly ? '' : (' ' + sizes[i]));
 	}
 
 	// Validate number
@@ -196,30 +197,30 @@ var GoAccess = (function() {
 		var _self = this;
 		var plotOpts = document.querySelectorAll('[data-plot]');
 
-		$$('.panel-next', function(item) {
-			item.onclick = function(e) {
+		$$('.panel-next', function (item) {
+			item.onclick = function (e) {
 				var panel = e.currentTarget.getAttribute('data-panel');
 				renderTable(panel, nextPage(panel))
 			};
 		});
 
-		$$('.panel-prev', function(item) {
-			item.onclick = function(e) {
+		$$('.panel-prev', function (item) {
+			item.onclick = function (e) {
 				var panel = e.currentTarget.getAttribute('data-panel');
 				renderTable(panel, prevPage(panel))
 			};
 		});
 
-		$$('.panel-expand', function(item) {
-			item.onclick = function(e) {
+		$$('.panel-expand', function (item) {
+			item.onclick = function (e) {
 				var panel = e.currentTarget.getAttribute('data-panel');
 				setPanelExpanded(panel, e.currentTarget);
 				renderTable(panel, getCurPage(panel))
 			};
 		});
 
-		$$('[data-plot]', function(item) {
-			item.onclick = function(e) {
+		$$('[data-plot]', function (item) {
+			item.onclick = function (e) {
 				var targ = e.currentTarget;
 				redrawChart(targ);
 			};
@@ -274,27 +275,27 @@ var GoAccess = (function() {
 	// Set default C3 chart to area spline and apply panel user interface
 	// definition and load data.
 	function renderAreaSpline(panel, plotData, data) {
-		// data.forEach(function(d) {
-		// 	var date = new Date(d.data / 1E4 , (d.data % 1E4 / 100) - 1, d.data % 100);
-		// 	d.data = d3.time.format('%d/%b/%Y')(date);
-		// });
-
 		var dualYaxis = plotData['d3']['y1'];
 		var chart = AreaChart(dualYaxis)
-			.width($("#chart-" + panel).offsetWidth)
-			.height(170)
 			.labels({
 				y0: plotData['d3']['y0'].label,
 				y1: dualYaxis ? plotData['d3']['y1'].label : ''
 			})
-			.x(function(d) {
+			.x(function (d) {
 				return d.data;;
 			})
-			.y0(function(d) {
+			.y0(function (d) {
 				return +d[plotData['d3']['y0']['key']];
+			})
+			.width($("#chart-" + panel).offsetWidth)
+			.height(175)
+			.format({
+				x: ((plotData.d3 || {}).x || {}).format,
+				y0: ((plotData.d3 || {}).y0 || {}).format,
+				y1: ((plotData.d3 || {}).y1 || {}).format,
 			});
 
-		dualYaxis && chart.y1(function(d) {
+		dualYaxis && chart.y1(function (d) {
 			return +d[plotData['d3']['y1']['key']];
 		});
 
@@ -303,42 +304,33 @@ var GoAccess = (function() {
 			.call(chart)
 			.append("div").attr("class", "chart-tooltip-wrap");
 
-		// Update the data for #example1, without appending another <svg> element
-		// var a = setInterval(function () {
-		// 	data.push({'data': '20101219', 'hits': 30000, 'visitors': 2300});
-		// 	d3.select("#chart-" + panel)
-		// 		.datum(data)
-		// 		.call(chart);
-		// 	clearInterval(a)
-		// }, 5000);
-
 		AppCharts[panel] = chart;
 	}
 
 	// Set default C3 chart to area spline and apply panel user interface
 	// definition and load data.
 	function renderVBar(panel, plotData, data) {
-		// data.forEach(function(d) {
-		// 	var date = new Date(d.data / 1E4 , (d.data % 1E4 / 100) - 1, d.data % 100);
-		// 	d.data = d3.time.format('%d/%b/%Y')(date);
-		// });
-
 		var dualYaxis = plotData['d3']['y1'];
 		var chart = BarChart(dualYaxis)
-			.width($("#chart-" + panel).offsetWidth)
-			.height(170)
 			.labels({
 				y0: plotData['d3']['y0'].label,
 				y1: dualYaxis ? plotData['d3']['y1'].label : ''
 			})
-			.x(function(d) {
+			.x(function (d) {
 				return d.data;;
 			})
-			.y0(function(d) {
+			.y0(function (d) {
 				return +d[plotData['d3']['y0']['key']];
+			})
+			.width($("#chart-" + panel).offsetWidth)
+			.height(175)
+			.format({
+				x: ((plotData.d3 || {}).x || {}).format,
+				y0: ((plotData.d3 || {}).y0 || {}).format,
+				y1: ((plotData.d3 || {}).y1 || {}).format,
 			});
 
-		dualYaxis && chart.y1(function(d) {
+		dualYaxis && chart.y1(function (d) {
 			return +d[plotData['d3']['y1']['key']];
 		});
 
@@ -378,7 +370,7 @@ var GoAccess = (function() {
 
 		// Resize charts
 		d3.select(window).on('resize', function () {
-			Object.keys(AppCharts).forEach(function(panel) {
+			Object.keys(AppCharts).forEach(function (panel) {
 				d3.select("#chart-" + panel)
 					.call(AppCharts[panel].width($("#chart-" + panel).offsetWidth));
 			});
@@ -563,7 +555,7 @@ var GoAccess = (function() {
 			'title': ui.meta,
 			'max': max != undefined ? fmtValue(max, ui.valueType) : null,
 			'min': min != undefined ? fmtValue(min, ui.valueType) : null,
-			'value': val ? fmtValue(val, ui.valueType) : null
+			'value': val != undefined ? fmtValue(val, ui.valueType) : null
 		}
 	}
 
@@ -705,7 +697,7 @@ var GoAccess = (function() {
 
 function AreaChart(dualYaxis) {
 	var margin = {
-			top    : 10,
+			top    : 20,
 			right  : 50,
 			bottom : 40,
 			left   : 50
@@ -714,14 +706,15 @@ function AreaChart(dualYaxis) {
 		height = 170,
 		nTicks = 10;
 	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
+	var format = { x: null, y0: null, y1: null};
 
-	var	xValue = function(d) {
+	var	xValue = function (d) {
 			return d[0];
 		},
-		yValue0 = function(d) {
+		yValue0 = function (d) {
 			return d[1];
 		},
-		yValue1 = function(d) {
+		yValue1 = function (d) {
 			return d[2];
 		};
 
@@ -736,12 +729,20 @@ function AreaChart(dualYaxis) {
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
 		.orient("left")
-		.ticks(10, "s");
+		.tickFormat(function (d) {
+			if (format.y0)
+				return GoAccess.format(d, format.y0);
+			return d3.format('.2s')(d);
+		});
 
 	var yAxis1 = d3.svg.axis()
 		.scale(yScale1)
 		.orient("right")
-		.ticks(10, "s");
+		.tickFormat(function (d) {
+			if (format.y1)
+				return GoAccess.format(d, format.y1);
+			return d3.format('.2s')(d);
+		});
 
 	var xGrid = d3.svg.axis()
 		.scale(xScale)
@@ -749,8 +750,7 @@ function AreaChart(dualYaxis) {
 
 	var yGrid = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left")
-		.ticks(10, "s");
+		.orient("left");
 
 	var area0 = d3.svg.area()
 		.interpolate('cardinal')
@@ -797,39 +797,44 @@ function AreaChart(dualYaxis) {
 		if (data.length < nTicks)
 			return xScale.domain();
 
-		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function(d) {
+		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function (d) {
 			return xScale.domain()[d];
 		});
+	}
+
+	function getYTicks(scale) {
+		var domain = scale.domain();
+		return d3.range(domain[0], domain[1], Math.ceil(domain[1] / nTicks));
 	}
 
 	// Convert data to standard representation greedily;
 	// this is needed for nondeterministic accessors.
 	function mapData(data) {
-		var _datum = function(d, i) {
+		var _datum = function (d, i) {
 			var datum = [xValue.call(data, d, i), yValue0.call(data, d, i)];
 			dualYaxis && datum.push(yValue1.call(data, d, i));
 			return datum;
 		};
-		return data.map(function(d, i) {
+		return data.map(function (d, i) {
 			return _datum(d, i);
 		});
 	}
 
 	function updateScales(data) {
 		// Update the x-scale.
-		xScale.domain(data.map(function(d) {
+		xScale.domain(data.map(function (d) {
 			return d[0];
 		}))
 		.rangePoints([0, innerW()], 1);
 
 		// Update the y-scale.
-		yScale0.domain([0, d3.max(data, function(d) {
+		yScale0.domain([0, d3.max(data, function (d) {
 			return d[1];
 		})])
 		.range([innerH(), 0]);
 
 		// Update the y-scale.
-		dualYaxis && yScale1.domain([0, d3.max(data, function(d) {
+		dualYaxis && yScale1.domain([0, d3.max(data, function (d) {
 			return d[2];
 		})])
 		.range([innerH(), 0]);
@@ -879,9 +884,8 @@ function AreaChart(dualYaxis) {
 		svg.selectAll('text.axis-label.y0').data([null])
 			.enter().append("text")
 			.attr("class", "axis-label y0")
-			.attr("y", 6)
-			.attr("x", -10)
-			.attr("dy", ".75em")
+			.attr("y", 10)
+			.attr("x", 50)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -891,11 +895,10 @@ function AreaChart(dualYaxis) {
 		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
 		tEnter.enter().append("text")
 			.attr("class", "axis-label y1")
-			.attr("x", -10)
-			.attr("dy", ".75em")
+			.attr("y", 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr("y", width - 15)
+			.attr("x", width - 25)
 	}
 
 	function createSkeleton(svg) {
@@ -974,8 +977,8 @@ function AreaChart(dualYaxis) {
 			.attr('r', 2.5)
 			.attr('class', 'point');
 		points
-			.attr('cx', function(d) { return xScale(d[0]) })
-			.attr('cy', function(d) { return yScale0(d[1]) })
+			.attr('cx', function (d) { return xScale(d[0]) })
+			.attr('cy', function (d) { return yScale0(d[1]) })
 		// remove elements
 		points.exit().remove();
 
@@ -990,8 +993,8 @@ function AreaChart(dualYaxis) {
 			.attr('r', 2.5)
 			.attr('class', 'point');
 		points
-			.attr('cx', function(d) { return xScale(d[0]) })
-			.attr('cy', function(d) { return yScale1(d[2]) })
+			.attr('cx', function (d) { return xScale(d[0]) })
+			.attr('cy', function (d) { return yScale1(d[2]) })
 		// remove elements
 		points.exit().remove();
 	}
@@ -1005,7 +1008,9 @@ function AreaChart(dualYaxis) {
 			 );
 		// Update the y0-axis.
 		g.select(".y0.axis")
-			.call(yAxis0);
+			.call(yAxis0
+				.tickValues(getYTicks(yScale0))
+			);
 
 		if (!dualYaxis)
 			return;
@@ -1013,7 +1018,9 @@ function AreaChart(dualYaxis) {
 		// Update the y1-axis.
 		g.select(".y1.axis")
 			.attr("transform", "translate(" + innerW() + ", 0)")
-			.call(yAxis1);
+			.call(yAxis1
+				.tickValues(getYTicks(yScale1))
+			);
 	}
 
 	// Update the X-Y grid.
@@ -1028,12 +1035,19 @@ function AreaChart(dualYaxis) {
 
 		g.select(".y.grid")
 			.call(yGrid
+				.tickValues(getYTicks(yScale0))
 				.tickSize(-innerW(), 0, 0)
 				.tickFormat("")
 			);
 	}
 
-	function formatTooltip(d, i) {
+	function formatTooltip(data, i) {
+		var d = data.slice(0);
+
+		d[0] = (format.x) ? GoAccess.format(d[0], format.x) : d[0];
+		d[1] = (format.y0) ? GoAccess.format(d[1], format.y0) : d3.format(',')(d[1]);
+		dualYaxis && (d[2] = (format.y1) ? GoAccess.format(d[2], format.y1) : d3.format(',')(d[2]));
+
 		var template = d3.select('#tpl-chart-tooltip').html();
 		return Hogan.compile(template).render({
 			'data': d
@@ -1071,12 +1085,12 @@ function AreaChart(dualYaxis) {
 			.attr('class', 'point');
 		rects
 			.attr('width', d3.functor(w))
-			.attr('x', function(d, i) { return (w * i); })
+			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
-			.on('mousemove', function(d, i) {
+			.on('mousemove', function (d, i) {
 				mouseover(this, selection, d, i);
 			})
-			.on('mouseleave', function(d, i) {
+			.on('mouseleave', function (d, i) {
 				mouseout(selection, g);
 			});
 		// remove elements
@@ -1084,7 +1098,7 @@ function AreaChart(dualYaxis) {
 	}
 
 	function chart(selection) {
-		selection.each(function(data) {
+		selection.each(function (data) {
 			// normalize data
 			data = mapData(data);
 			// updates X-Y scales
@@ -1117,43 +1131,49 @@ function AreaChart(dualYaxis) {
 		});
 	}
 
-	chart.labels = function(_) {
+	chart.format = function (_) {
+		if (!arguments.length) return format;
+		format = _;
+		return chart;
+	};
+
+	chart.labels = function (_) {
 		if (!arguments.length) return labels;
 		labels = _;
 		return chart;
 	};
 
-	chart.margin = function(_) {
+	chart.margin = function (_) {
 		if (!arguments.length) return margin;
 		margin = _;
 		return chart;
 	};
 
-	chart.width = function(_) {
+	chart.width = function (_) {
 		if (!arguments.length) return width;
 		width = _;
 		return chart;
 	};
 
-	chart.height = function(_) {
+	chart.height = function (_) {
 		if (!arguments.length) return height;
 		height = _;
 		return chart;
 	};
 
-	chart.x = function(_) {
+	chart.x = function (_) {
 		if (!arguments.length) return xValue;
 		xValue = _;
 		return chart;
 	};
 
-	chart.y0 = function(_) {
+	chart.y0 = function (_) {
 		if (!arguments.length) return yValue0;
 		yValue0 = _;
 		return chart;
 	};
 
-	chart.y1 = function(_) {
+	chart.y1 = function (_) {
 		if (!arguments.length) return yValue1;
 		yValue1 = _;
 		return chart;
@@ -1164,7 +1184,7 @@ function AreaChart(dualYaxis) {
 
 function BarChart(dualYaxis) {
 	var margin = {
-			top    : 10,
+			top    : 20,
 			right  : 50,
 			bottom : 40,
 			left   : 50
@@ -1173,14 +1193,15 @@ function BarChart(dualYaxis) {
 		height = 170,
 		nTicks = 10;
 	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
+	var format = { x: null, y0: null, y1: null};
 
-	var	xValue = function(d) {
+	var	xValue = function (d) {
 			return d[0];
 		},
-		yValue0 = function(d) {
+		yValue0 = function (d) {
 			return d[1];
 		},
-		yValue1 = function(d) {
+		yValue1 = function (d) {
 			return d[2];
 		};
 
@@ -1195,12 +1216,20 @@ function BarChart(dualYaxis) {
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
 		.orient("left")
-		.ticks(10, "s");
+		.tickFormat(function (d) {
+			if (format.y1)
+				return GoAccess.format(d, format.y1);
+			return d3.format('.2s')(d);
+		});
 
 	var yAxis1 = d3.svg.axis()
 		.scale(yScale1)
 		.orient("right")
-		.ticks(10, "s");
+		.tickFormat(function (d) {
+			if (format.y1)
+				return GoAccess.format(d, format.y1);
+			return d3.format('.2s')(d);
+		});
 
 	var xGrid = d3.svg.axis()
 		.scale(xScale)
@@ -1208,8 +1237,7 @@ function BarChart(dualYaxis) {
 
 	var yGrid = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left")
-		.ticks(10, "s");
+		.orient("left");
 
 	// The x-accessor for the path generator; xScale ∘ xValue.
 	function X(d) {
@@ -1238,39 +1266,44 @@ function BarChart(dualYaxis) {
 		if (data.length < nTicks)
 			return xScale.domain();
 
-		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function(d) {
+		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function (d) {
 			return xScale.domain()[d];
 		});
+	}
+
+	function getYTicks(scale) {
+		var domain = scale.domain();
+		return d3.range(domain[0], domain[1], Math.ceil(domain[1] / nTicks));
 	}
 
 	// Convert data to standard representation greedily;
 	// this is needed for nondeterministic accessors.
 	function mapData(data) {
-		var _datum = function(d, i) {
+		var _datum = function (d, i) {
 			var datum = [xValue.call(data, d, i), yValue0.call(data, d, i)];
 			dualYaxis && datum.push(yValue1.call(data, d, i));
 			return datum;
 		};
-		return data.map(function(d, i) {
+		return data.map(function (d, i) {
 			return _datum(d, i);
 		});
 	}
 
 	function updateScales(data) {
 		// Update the x-scale.
-		xScale.domain(data.map(function(d) {
+		xScale.domain(data.map(function (d) {
 			return d[0];
 		}))
 		.rangeRoundBands([0, innerW()], .1);
 
 		// Update the y-scale.
-		yScale0.domain([0, d3.max(data, function(d) {
+		yScale0.domain([0, d3.max(data, function (d) {
 			return d[1];
 		})])
 		.range([innerH(), 0]);
 
 		// Update the y-scale.
-		dualYaxis && yScale1.domain([0, d3.max(data, function(d) {
+		dualYaxis && yScale1.domain([0, d3.max(data, function (d) {
 			return d[2];
 		})])
 		.range([innerH(), 0]);
@@ -1320,9 +1353,8 @@ function BarChart(dualYaxis) {
 		svg.selectAll('text.axis-label.y0').data([null])
 			.enter().append("text")
 			.attr("class", "axis-label y0")
-			.attr("y", 6)
-			.attr("x", -10)
-			.attr("dy", ".75em")
+			.attr("y", 10)
+			.attr("x", 50)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -1332,11 +1364,10 @@ function BarChart(dualYaxis) {
 		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
 		tEnter.enter().append("text")
 			.attr("class", "axis-label y1")
-			.attr("x", -10)
-			.attr("dy", ".75em")
+			.attr("y", 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr("y", width - 15)
+			.attr("x", width - 25)
 	}
 
 	function createSkeleton(svg) {
@@ -1387,9 +1418,9 @@ function BarChart(dualYaxis) {
 			.attr('class', 'bar');
 		bars
 			.attr('width', xScale.rangeBand() / 2)
-			.attr('height', function(d) { return innerH() - yScale0(d[1]) })
-			.attr('x', function(d) { return xScale(d[0]) })
-			.attr('y', function(d) { return yScale0(d[1]) });
+			.attr('height', function (d) { return innerH() - yScale0(d[1]) })
+			.attr('x', function (d) { return xScale(d[0]) })
+			.attr('y', function (d) { return yScale0(d[1]) });
 		// remove elements
 		bars.exit().remove();
 
@@ -1404,9 +1435,9 @@ function BarChart(dualYaxis) {
 			.attr('class', 'bar');
 		bars
 			.attr('width', xScale.rangeBand() / 2)
-			.attr('height', function(d) { return innerH() - yScale1(d[2]) })
-			.attr('x', function(d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
-			.attr('y', function(d) { return yScale1(d[2]) });
+			.attr('height', function (d) { return innerH() - yScale1(d[2]) })
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
+			.attr('y', function (d) { return yScale1(d[2]) });
 		// remove elements
 		bars.exit().remove();
 	}
@@ -1420,7 +1451,9 @@ function BarChart(dualYaxis) {
 			 );
 		// Update the y0-axis.
 		g.select(".y0.axis")
-			.call(yAxis0);
+			.call(yAxis0
+				.tickValues(getYTicks(yScale0))
+			);
 
 		if (!dualYaxis)
 			return;
@@ -1428,7 +1461,9 @@ function BarChart(dualYaxis) {
 		// Update the y1-axis.
 		g.select(".y1.axis")
 			.attr("transform", "translate(" + innerW() + ", 0)")
-			.call(yAxis1);
+			.call(yAxis1
+				.tickValues(getYTicks(yScale1))
+			);
 	}
 
 	// Update the X-Y grid.
@@ -1443,12 +1478,19 @@ function BarChart(dualYaxis) {
 
 		g.select(".y.grid")
 			.call(yGrid
+				.tickValues(getYTicks(yScale0))
 				.tickSize(-innerW(), 0, 0)
 				.tickFormat("")
 			);
 	}
 
-	function formatTooltip(d, i) {
+	function formatTooltip(data, i) {
+		var d = data.slice(0);
+
+		d[0] = (format.x) ? GoAccess.format(d[0], format.x) : d[0];
+		d[1] = (format.y0) ? GoAccess.format(d[1], format.y0) : d3.format(',')(d[1]);
+		dualYaxis && (d[2] = (format.y1) ? GoAccess.format(d[2], format.y1) : d3.format(',')(d[2]));
+
 		var template = d3.select('#tpl-chart-tooltip').html();
 		return Hogan.compile(template).render({
 			'data': d
@@ -1486,12 +1528,12 @@ function BarChart(dualYaxis) {
 			.attr('class', 'point');
 		rects
 			.attr('width', d3.functor(w))
-			.attr('x', function(d, i) { return (w * i); })
+			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
-			.on('mousemove', function(d, i) {
+			.on('mousemove', function (d, i) {
 				mouseover(this, selection, d, i);
 			})
-			.on('mouseleave', function(d, i) {
+			.on('mouseleave', function (d, i) {
 				mouseout(selection, g);
 			});
 		// remove elements
@@ -1499,7 +1541,7 @@ function BarChart(dualYaxis) {
 	}
 
 	function chart(selection) {
-		selection.each(function(data) {
+		selection.each(function (data) {
 			// normalize data
 			data = mapData(data);
 			// updates X-Y scales
@@ -1530,37 +1572,43 @@ function BarChart(dualYaxis) {
 		});
 	}
 
-	chart.labels = function(_) {
+	chart.format = function (_) {
+		if (!arguments.length) return format;
+		format = _;
+		return chart;
+	};
+
+	chart.labels = function (_) {
 		if (!arguments.length) return labels;
 		labels = _;
 		return chart;
 	};
 
-	chart.width = function(_) {
+	chart.width = function (_) {
 		if (!arguments.length) return width;
 		width = _;
 		return chart;
 	};
 
-	chart.height = function(_) {
+	chart.height = function (_) {
 		if (!arguments.length) return height;
 		height = _;
 		return chart;
 	};
 
-	chart.x = function(_) {
+	chart.x = function (_) {
 		if (!arguments.length) return xValue;
 		xValue = _;
 		return chart;
 	};
 
-	chart.y0 = function(_) {
+	chart.y0 = function (_) {
 		if (!arguments.length) return yValue0;
 		yValue0 = _;
 		return chart;
 	};
 
-	chart.y1 = function(_) {
+	chart.y1 = function (_) {
 		if (!arguments.length) return yValue1;
 		yValue1 = _;
 		return chart;
@@ -1570,7 +1618,7 @@ function BarChart(dualYaxis) {
 }
 
 // Init app
-window.onload = function() {
+window.onload = function () {
 	'use strict';
 
 	GoAccess.start({
