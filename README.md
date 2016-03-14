@@ -337,6 +337,33 @@ your local machine:
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
 
+##### Incremental Log Processing #####
+
+GoAccess has the ability to process logs incrementally through the on-disk
+B+Tree database. It works in the following way:
+
+1. A data set must be persisted first with `--keep-db-files`, then the same
+data set can be loaded with `--load-from-disk`.
+2. If new data is passed (piped or through a log file), it will append it to
+the original data set.
+3. To preserve the data at all times, `--keep-db-files` must be used.
+4. If `--load-from-disk` is used without `--keep-db-files`, database files will
+be deleted upon closing the program.
+
+###### Examples ######
+
+    // last month access log
+    # goaccess -f access.log.1 --keep-db-files
+
+then, load it with
+
+    // append this month access log, and preserve new data
+    # goaccess -f access.log --load-from-disk --keep-db-files
+
+To read persisted data only (without parsing new data)
+
+    # goaccess --load-from-disk --keep-db-files
+
 ## Contributing ##
 
 Any help on GoAccess is welcome. The most helpful way is to try it out and give
