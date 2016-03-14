@@ -107,7 +107,6 @@ text.legend {
 .axis-label.y0,
 .axis-label.y1 {
 	text-anchor: end;
-	transform: rotate(-90deg);
 }
 rect.legend {
 	height: 10px;

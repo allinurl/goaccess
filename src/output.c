@@ -307,7 +307,7 @@ hits_bw_plot (FILE * fp, int sp)
   /* *INDENT-OFF* */
   GChart chart[] = {
     {"y0", (GChartDef[]) {
-      {"key", "bytes"}, {"label", "Bandwidth"}, ChartDefStopper
+      {"key", "bytes"}, {"label", "Bandwidth"}, {"format", "bytes"}, ChartDefStopper
     }},
   };
   /* *INDENT-ON* */
