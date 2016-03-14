@@ -969,12 +969,14 @@ function AreaChart(dualYaxis) {
 
 	// Update chart points
 	function addPoints(g, data) {
+		var radius = data.length > 100 ? 1 : 2.5;
+
 		var points = g.select('g.points.y0').selectAll('circle.point')
 			.data(data);
 		points
 			.enter()
 			.append('svg:circle')
-			.attr('r', 2.5)
+			.attr('r', radius)
 			.attr('class', 'point');
 		points
 			.attr('cx', function (d) { return xScale(d[0]) })
@@ -990,7 +992,7 @@ function AreaChart(dualYaxis) {
 		points
 			.enter()
 			.append('svg:circle')
-			.attr('r', 2.5)
+			.attr('r', radius)
 			.attr('class', 'point');
 		points
 			.attr('cx', function (d) { return xScale(d[0]) })
