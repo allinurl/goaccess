@@ -24,7 +24,7 @@ outputs the data to the X terminal. Features include:
  * Geo Location - Continent/Country/City
  * Visitors Time Distribution
  * HTTP Status Codes
- * Metrics per Virtual Host New
+ * Metrics per Virtual Host
  * Ability to output JSON and CSV
  * Tailor GoAccess to suit your own color taste/schemes
  * Incremental log processing
