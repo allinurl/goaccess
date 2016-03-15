@@ -80,7 +80,7 @@
 	<div class="row clearfix">
 		<div class="col-md-12">
 			<div class="table-responsive">
-				<table class="table table-condensed table-hover table-{{id}}">
+				<table class="table table-condensed table-striped table-{{id}}">
 					<colgroup>
 						<col style="width: 4%;">
 						{{#items}}
@@ -103,7 +103,7 @@
 			</div>
 
 			<ul class="pagination pagination-sm pull-left">
-				<li>
+				<li class="disabled">
 					<a class="panel-prev" href="javascript:void(0);" aria-label="Previous" data-panel="{{id}}">
 						<i class="fa fa-chevron-left"></i>
 					</a>
@@ -114,11 +114,6 @@
 					</a>
 				</li>
 			</ul>
-			{{#expandable}}
-				<button type="button" class="btn btn-default pull-right panel-expand" data-panel="{{id}}" data-state="collapsed">
-					<i class="fa fa-plus"></i> Expand
-				</button>
-			{{/expandable}}
 		</div>
 	</div>
 	{{/table}}
