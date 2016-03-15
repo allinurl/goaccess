@@ -60,7 +60,7 @@
 #define COLUMN_HITS_LEN  4  /* column header name length */
 #define COLUMN_VIS_LEN   4  /* column header name length */
 
-/* Render holder */
+/* Common render data line fields */
 typedef struct GDashRender_
 {
   WINDOW *win;
