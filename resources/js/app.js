@@ -1,4 +1,5 @@
 'use strict';
+
 // Syntactic sugar
 function $(selector) {
 	return document.querySelector(selector);
@@ -1618,11 +1619,6 @@ function BarChart(dualYaxis) {
 
 // Init app
 window.onload = function () {
-	// Syntactic sugar
-	function $(selector) {
-		return document.querySelector(selector);
-	}
-
 	GoAccess.initialize({
 		'uiData': user_interface,
 		'panelData': json_data
