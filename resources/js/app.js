@@ -1,3 +1,4 @@
+'use strict';
 // Syntactic sugar
 function $(selector) {
 	return document.querySelector(selector);
@@ -1617,8 +1618,6 @@ function BarChart(dualYaxis) {
 
 // Init app
 window.onload = function () {
-	'use strict';
-
 	// Syntactic sugar
 	function $(selector) {
 		return document.querySelector(selector);
