@@ -1,35 +1,56 @@
-var GoAccess = (function() {
-	var AppCharts = {}, // holds all rendered charts
-		AppUIData = {}, // holds panel definitions
-		AppData = {}, // hold raw data
-		AppPrefs = {
+// Syntactic sugar
+function $(selector) {
+	return document.querySelector(selector);
+}
+
+// Syntactic sugar & execute callback
+function $$(selector, callback) {
+	var elems = document.querySelectorAll(selector);
+	for (var i = 0; i < elems.length; ++i) {
+		if (callback && typeof callback == 'function')
+			callback.call(this, elems[i]);
+	}
+}
+
+// global namespace
+window.GoAccess = window.GoAccess || {
+	initialize: function (options) {
+		this.opts = options;
+
+		this.AppCharts = {}; // holds all rendered charts
+		this.AppUIData = (this.opts || {}).uiData || {};    // holds panel definitions
+		this.AppData   = (this.opts || {}).panelData || {}; // hold raw data
+		this.AppPrefs = {
 			'perPage': 11, // panel rows per page
 		};
+	},
 
-	// Helpers
-	// Syntactic sugar
-	function $(selector) {
-		return document.querySelector(selector);
-	}
+	getPrefs: function () {
+		return this.AppPrefs;
+	},
 
-	// Syntactic sugar & execute callback
-	function $$(selector, callback) {
-		var elems = document.querySelectorAll(selector);
-		for (var i = 0; i < elems.length; ++i) {
-			if (callback && typeof callback == 'function')
-				callback.call(this, elems[i]);
-		}
+	getPanelData: function (panel) {
+		return panel ? this.AppData[panel] : this.AppData;
+	},
+
+	getPanelUI: function (panel) {
+		return panel ? this.AppUIData[panel] : this.AppUIData;
 	}
+};
+
+// HELPERS
+GoAccess.Common = {
+	months: ["Jan", "Feb", "Ma", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"],
 
 	// Add all attributes of n to o
-	function merge(o, n) {
+	merge: function (o, n) {
 		for (var attrname in n) {
 			o[attrname] = n[attrname];
 		}
-	}
+	},
 
 	// Format bytes to human readable
-	function formatBytes(bytes, decimals, numOnly) {
+	formatBytes: function (bytes, decimals, numOnly) {
 		if (bytes == 0)
 			return numOnly ? 0 : '0 Byte';
 		var k = 1024;
@@ -37,15 +58,15 @@ var GoAccess = (function() {
 		var sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
 		return (bytes / Math.pow(k, i)).toPrecision(dm) + (numOnly ? '' : (' ' + sizes[i]));
-	}
+	},
 
 	// Validate number
-	function isNumeric(n) {
+	isNumeric: function (n) {
 		return !isNaN(parseFloat(n)) && isFinite(n);
-	}
+	},
 
 	// Format microseconds to human readable
-	function utime2str(usec) {
+	utime2str: function (usec) {
 		if (usec >= 864E8)
 			return ((usec) / 864E8).toFixed(2) + ' d';
 		else if (usec >= 36E8)
@@ -57,113 +78,235 @@ var GoAccess = (function() {
 		else if (usec >= 1E3)
 			return ((usec) / 1E3).toFixed(2) + ' ms';
 		return (usec).toFixed(2) + ' us';
-	}
+	},
 
-	function formatDate(value) {
-		var months = ["Jan", "Feb", "Ma", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	// Format date from 20120124 to 24/Jan/2012
+	formatDate: function (value) {
 		var d = parseInt(value);
 		d = new Date(d / 1E4, (d % 1E4 / 100) - 1, d % 100);
-		return ('0' + d.getDate()).slice(-2) + '/' + months[d.getMonth()] + '/' + d.getFullYear();
-	}
+		return ('0' + d.getDate()).slice(-2) + '/' + this.months[d.getMonth()] + '/' + d.getFullYear();
+	},
 
 	// Format field value to human readable
-	function fmtValue(value, valueType) {
+	fmtValue: function (value, valueType) {
 		var val = 0;
 		if (!valueType)
 			val = value;
 
 		switch (valueType) {
-		case 'numeric':
-			if (isNumeric(value))
-				val = value.toLocaleString();
+		case 'utime':
+			val = this.utime2str(value);
 			break;
-		case 'time':
-			if (isNumeric(value))
+		case 'date':
+			val = this.formatDate(value);
+			break;
+		case 'numeric':
+			if (this.isNumeric(value))
 				val = value.toLocaleString();
 			break;
 		case 'bytes':
-			val = formatBytes(value);
+			val = this.formatBytes(value);
 			break;
 		case 'percent':
 			val = value.toFixed(2) + '%';
 			break;
-		case 'utime':
-			val = utime2str(value);
-			break;
-		case 'date':
-			val = formatDate(value);
+		case 'time':
+			if (this.isNumeric(value))
+				val = value.toLocaleString();
 			break;
 		default:
 			val = value;
 		};
 
 		return value == 0 ? String(val) : val;
-	}
+	},
 
-	// Get JSON data for the given panel
-	function getData(panel) {
-		return panel ? AppData[panel] : AppData;
-	}
+	isPanelValid: function (panel) {
+		var data = GoAccess.getPanelData(), ui = GoAccess.getPanelUI();
+		return (!ui.hasOwnProperty(panel) || !data.hasOwnProperty(panel) || !ui[panel].id);
+	},
 
-	// Get user interface definition for the given panel
-	function getUIData(panel) {
-		return panel ? AppUIData[panel] : AppUIData;
-	}
+	// Attempts to extract the count from either an object or the actual value.
+	// e.g., item = Object {count: 14351, percent: 5.79} OR item = 4824825140
+	getCount: function (item) {
+		if (typeof item == 'object' && 'count' in item)
+			return item.count;
+		return item;
+	},
 
-	/**
-	 * A panel must exist in AppData and in AppUIData. Furthermore it must not have an
-	 * empty id to marked as valid.
-	 * @param  {string}  panel Name of panel
-	 * @return {Boolean}       Validity of panel
-	 */
-	function isPanelValid(panel) {
-		if (!AppUIData.hasOwnProperty(panel) || !AppData.hasOwnProperty(panel) || !AppUIData[panel].id)
-			return true;
-		else
-			return false;
-	}
+	getPercent: function (item) {
+		if (typeof item == 'object' && 'percent' in item)
+			return this.fmtValue(item.percent, 'percent');
+		return null;
+	},
+};
 
-	// Render general/overall analyzed requests.
-	function renderGeneral() {
-		var ui = getUIData('general');
-		var data = getData('general');
+// OVERALL STATS
+GoAccess.OverallStats = {
+	template: $('#tpl-general-items').innerHTML,
 
-		// General section wrapper
+	// Render general section wrapper
+	renderWrapper: function (ui) {
 		var template = $('#tpl-general').innerHTML;
 		$('.wrap-general').innerHTML = Hogan.compile(template).render(ui);
+	},
 
-		var i = 0;
-		var template = $('#tpl-general-items').innerHTML;
+	// Render each overall stats box
+	renderBox: function (data, ui, row, x, idx) {
 		var wrap = $('.wrap-general-items');
+
+		// create a new bootstrap row every 6 elements
+		if (idx % 6 == 0) {
+			row = document.createElement('div');
+			row.setAttribute('class', 'row');
+			wrap.appendChild(row);
+		}
+
+		var box = document.createElement('div');
+		box.innerHTML = Hogan.compile(this.template).render({
+			'className': ui.items[x].className,
+			'label': ui.items[x].label,
+			'value': GoAccess.Common.fmtValue(data[x], ui.items[x].valueType),
+		});
+		row.appendChild(box);
+
+		return row;
+	},
+
+	// Render overall stats
+	renderData: function (data, ui) {
+		var idx = 0, row = null;
 
 		// Iterate over general data object
 		for (var x in data) {
 			if (!data.hasOwnProperty(x) || !ui.items.hasOwnProperty(x))
 				continue;
-
-			// create a new bootstrap row every 6 elements
-			if (i % 6 == 0) {
-				var row = document.createElement('div');
-				row.setAttribute('class', 'row');
-				wrap.appendChild(row);
-			}
-
-			var box = document.createElement('div');
-			box.innerHTML = Hogan.compile(template).render({
-				'className': ui.items[x].className,
-				'label': ui.items[x].label,
-				'value': fmtValue(data[x], ui.items[x].valueType),
-			});
-			row.appendChild(box);
-			i++;
+			row = this.renderBox(data, ui, row, x, idx);
+			idx++;
 		}
+	},
+
+	// Render general/overall analyzed requests.
+	initialize: function () {
+		var ui = GoAccess.getPanelUI('general');
+		var data = GoAccess.getPanelData('general'), i = 0;
+
+		this.renderWrapper(ui);
+		this.renderData(data, ui);
 	}
+};
+
+// RENDER PANELS
+GoAccess.Nav = {
+	// Render left-hand side navigation given the available panels.
+	renderNav: function (nav) {
+		var template = $('#tpl-panel-nav').innerHTML;
+		$('.panel-nav').innerHTML = Hogan.compile(template).render({
+			nav: nav
+		});
+	},
+
+	// Iterate over all available panels and render each.
+	initialize: function () {
+		var ui = GoAccess.getPanelUI();
+
+		var nav = [];
+		for (var panel in ui) {
+			if (GoAccess.Common.isPanelValid(panel))
+				continue;
+			// Push valid panels to our navigation array
+			nav.push({
+				'key': panel,
+				'head': ui[panel].head,
+			});
+		}
+		this.renderNav(nav);
+	}
+};
+
+// RENDER PANELS
+GoAccess.Panels = {
+	template: $('#tpl-panel').innerHTML,
+
+	enablePrev: function (panel) {
+		var pagination = '#panel-' + panel + ' .pagination a';
+		$(pagination + '.panel-prev').parentNode.classList.remove('disabled');
+	},
+
+	disablePrev: function (panel) {
+		var pagination = '#panel-' + panel + ' .pagination a';
+		$(pagination + '.panel-prev').parentNode.classList.add('disabled');
+	},
+
+	enableNext: function (panel) {
+		var pagination = '#panel-' + panel + ' .pagination a';
+		$(pagination + '.panel-next').parentNode.classList.remove('disabled');
+	},
+
+	disableNext: function (panel) {
+		var pagination = '#panel-' + panel + ' .pagination a';
+		$(pagination + '.panel-next').parentNode.classList.add('disabled');
+	},
+
+	enablePagination: function (panel) {
+		this.enablePrev(panel);
+		this.enableNext(panel);
+	},
+
+	disablePagination: function (panel) {
+		this.disablePrev(panel);
+		this.disableNext(panel);
+	},
+
+	// Render the given panel given a user interface definition.
+	renderPanel: function (panel, ui) {
+		var data = GoAccess.getPanelData(panel);
+
+		var box = document.createElement('div');
+		box.id = 'panel-' + panel;
+		box.innerHTML = Hogan.compile(this.template).render(ui);
+		$('.wrap-panels').appendChild(box);
+
+		// Remove pagination if not enough data for the given panel
+		if (data.data.length <= GoAccess.getPrefs()['perPage']) {
+			this.disablePagination(panel);
+		}
+	},
+
+	// Iterate over all available panels and render each panel
+	// structure.
+	renderPanels: function () {
+		var ui = GoAccess.getPanelUI();
+		for (var panel in ui) {
+			if (GoAccess.Common.isPanelValid(panel))
+				continue;
+			// Render panel given a user interface definition
+			this.renderPanel(panel, ui[panel]);
+		}
+	},
+
+	initialize: function () {
+		this.renderPanels();
+	}
+};
+
+// Render Charts
+GoAccess.Charts = {
+	events: function () {
+		var _this = this;
+		$$('[data-plot]', function (item) {
+			item.onclick = function (e) {
+				var targ = e.currentTarget;
+				_this.redrawChart(targ);
+			};
+		});
+	},
 
 	// Redraw a chart upon selecting a metric.
-	function redrawChart(targ) {
+	redrawChart: function (targ) {
 		var plot = targ.getAttribute('data-plot');
 		var panel = targ.getAttribute('data-panel');
-		var ui = getUIData(panel);
+		var ui = GoAccess.getPanelUI(panel);
 		var plotUI = ui.plot;
 
 		// Iterate over plot user interface definition
@@ -172,109 +315,37 @@ var GoAccess = (function() {
 				continue;
 
 			// Extract data for the selected panel and process it
-			var data = processChartData(getData(panel).data);
+			var data = this.processChartData(GoAccess.getPanelData(panel).data);
 			if (ui.chartReverse)
 				data = data.reverse();
 
 			d3.select('#chart-' + panel).select('svg').remove();
-			renderAreaSpline(panel, plotUI[x], data);
+			this.renderAreaSpline(panel, plotUI[x], data);
 			break;
 		}
-	}
+	},
 
-	// Set panel to either expanded or not expanded within the panel
-	// definition.
-	function setPanelExpanded(panel, targ) {
-		var ui = getUIData(panel);
-		if (targ.getAttribute('data-state') == 'collapsed')
-			ui['expanded'] = true;
-		else
-			ui['expanded'] = false;
-	}
+	// Iterate over the item properties and and extract the count value.
+	extractCount: function (item) {
+		var o = {};
+		for (var prop in item)
+			o[prop] = GoAccess.Common.getCount(item[prop]);
+		return o;
+	},
 
-	// Panel event handlers.
-	function ePanelHandlers() {
-		var _self = this;
-		var plotOpts = document.querySelectorAll('[data-plot]');
+	// Extract an array of objects that D3 can consume to process the chart.
+	// e.g., o = Object {hits: 37402, visitors: 6949, bytes:
+	// 505881789, avgts: 118609, cumts: 4436224010…}
+	processChartData: function (data) {
+		var out = [];
+		for (var i = 0; i < data.length; ++i)
+			out.push(this.extractCount(data[i]));
+		return out;
+	},
 
-		$$('.panel-next', function (item) {
-			item.onclick = function (e) {
-				var panel = e.currentTarget.getAttribute('data-panel');
-				renderTable(panel, nextPage(panel))
-			};
-		});
-
-		$$('.panel-prev', function (item) {
-			item.onclick = function (e) {
-				var panel = e.currentTarget.getAttribute('data-panel');
-				renderTable(panel, prevPage(panel))
-			};
-		});
-
-		$$('.panel-expand', function (item) {
-			item.onclick = function (e) {
-				var panel = e.currentTarget.getAttribute('data-panel');
-				setPanelExpanded(panel, e.currentTarget);
-				renderTable(panel, getCurPage(panel))
-			};
-		});
-
-		$$('[data-plot]', function (item) {
-			item.onclick = function (e) {
-				var targ = e.currentTarget;
-				redrawChart(targ);
-			};
-		});
-	}
-
-	// Render the given panel given a user interface definition.
-	function renderPanel(panel, ui) {
-		var template = $('#tpl-panel').innerHTML;
-		var box = document.createElement('div');
-		box.id = 'panel-' + panel;
-		box.innerHTML = Hogan.compile(template).render(ui);
-
-		var pagination = box.getElementsByClassName('pagination');
-		pagination[0].getElementsByClassName('panel-prev')[0].parentNode.className = 'disabled';
-
-		// Remove pagination if it's not needed
-		if (ui['totalItems'] <= AppPrefs['perPage'])
-			pagination[0].parentNode.removeChild(pagination[0]);
-
-		$('.wrap-panels').appendChild(box);
-	}
-
-	// Render left-hand side navigation given the available panels.
-	function renderNav(nav) {
-		var template = $('#tpl-panel-nav').innerHTML;
-		$('.panel-nav').innerHTML = Hogan.compile(template).render({
-			nav: nav
-		});
-	}
-
-	// Iterate over all available panels and render each.
-	function renderPanels() {
-		var ui = getUIData();
-
-		var nav = [];
-		for (var panel in ui) {
-			if (isPanelValid(panel))
-				continue;
-			// Push panel to our navigation array
-			nav.push({
-				'key': panel,
-				'head': ui[panel].head,
-			});
-			// Render panel given a user interface definition
-			renderPanel(panel, ui[panel]);
-		}
-		renderNav(nav);
-		ePanelHandlers();
-	}
-
-	// Set default C3 chart to area spline and apply panel user interface
-	// definition and load data.
-	function renderAreaSpline(panel, plotData, data) {
+	// Set default D3 chart to area spline and apply panel user
+	// interface definition and load data.
+	renderAreaSpline: function (panel, plotData, data) {
 		var dualYaxis = plotData['d3']['y1'];
 		var chart = AreaChart(dualYaxis)
 			.labels({
@@ -304,12 +375,12 @@ var GoAccess = (function() {
 			.call(chart)
 			.append("div").attr("class", "chart-tooltip-wrap");
 
-		AppCharts[panel] = chart;
-	}
+		GoAccess.AppCharts[panel] = chart;
+	},
 
-	// Set default C3 chart to area spline and apply panel user interface
-	// definition and load data.
-	function renderVBar(panel, plotData, data) {
+	// Set default C3 chart to area spline and apply panel user
+	// interface definition and load data.
+	renderVBar: function (panel, plotData, data) {
 		var dualYaxis = plotData['d3']['y1'];
 		var chart = BarChart(dualYaxis)
 			.labels({
@@ -339,12 +410,11 @@ var GoAccess = (function() {
 			.call(chart)
 			.append("div").attr("class", "chart-tooltip-wrap");
 
-		AppCharts[panel] = chart;
-	}
+		GoAccess.AppCharts[panel] = chart;
+	},
 
 	// Render all charts for the applicable panels.
-	function renderCharts() {
-		var ui = getUIData();
+	renderCharts: function (ui) {
 		for (var panel in ui) {
 			if (!ui.hasOwnProperty(panel))
 				continue;
@@ -353,79 +423,146 @@ var GoAccess = (function() {
 				continue;
 
 			// Grab the data for the selected panel
-			var data = processChartData(getData(panel).data);
+			var data = this.processChartData(GoAccess.getPanelData(panel).data);
 			if (ui[panel].chartReverse)
 				data = data.reverse();
 
 			// Render given its type
 			switch (ui[panel].chartType) {
 			case 'area-spline':
-				renderAreaSpline(panel, ui[panel].plot[0], data);
+				this.renderAreaSpline(panel, ui[panel].plot[0], data);
 				break;
 			case 'bar':
-				renderVBar(panel, ui[panel].plot[0], data);
+				this.renderVBar(panel, ui[panel].plot[0], data);
 				break;
 			};
 		}
+	},
+
+	initialize: function () {
+		this.renderCharts(GoAccess.getPanelUI());
 
 		// Resize charts
 		d3.select(window).on('resize', function () {
-			Object.keys(AppCharts).forEach(function (panel) {
+			Object.keys(GoAccess.AppCharts).forEach(function (panel) {
 				d3.select("#chart-" + panel)
-					.call(AppCharts[panel].width($("#chart-" + panel).offsetWidth));
+					.call(GoAccess.AppCharts[panel].width($("#chart-" + panel).offsetWidth));
 			});
 		});
-	};
-
-	// Extract an array of objects that C3 can consume to process the chart.
-	// e.g., o = Object {hits: 37402, visitors: 6949, bytes: 505881789, avgts:
-	// 118609, cumts: 4436224010…}
-	function processChartData(data) {
-		var out = [];
-		for (var i = 0; i < data.length; ++i) {
-			out.push(extractCount(data[i]));
-		}
-		return out;
+		this.events();
 	}
+};
 
-	function getPercent(item) {
-		if (typeof item == 'object' && 'percent' in item)
-			return fmtValue(item.percent, 'percent');
+GoAccess.Tables = {
+	events: function () {
+		var _this = this;
+		$$('.panel-next', function (item) {
+			item.onclick = function (e) {
+				var panel = e.currentTarget.getAttribute('data-panel');
+				_this.renderTable(panel, _this.nextPage(panel))
+			};
+		});
+
+		$$('.panel-prev', function (item) {
+			item.onclick = function (e) {
+				var panel = e.currentTarget.getAttribute('data-panel');
+				_this.renderTable(panel, _this.prevPage(panel))
+			};
+		});
+	},
+
+	// Get current panel page
+	getCurPage: function (panel) {
+		return GoAccess.getPanelUI(panel).curPage || 0;
+	},
+
+	// Page offset.
+	// e.g., Return Value: 11, curPage: 2
+	pageOffSet: function (panel) {
+		var curPage = GoAccess.getPanelUI(panel).curPage || 0;
+		return ((curPage - 1) * GoAccess.getPrefs().perPage);
+	},
+
+	// Get total number of pages given the number of items on array
+	getTotalPages: function (dataItems) {
+		return Math.ceil(dataItems.length / GoAccess.getPrefs().perPage);
+	},
+
+	// Get a shallow copy of a portion of the given data array and the
+	// current page.
+	getPage: function (panel, dataItems, page) {
+		var ui = GoAccess.getPanelUI(panel);
+		var totalPages = this.getTotalPages(dataItems);
+		if (page < 1)
+			page = 1;
+		if (page > totalPages)
+			page = totalPages;
+
+		ui.curPage = page;
+		var start = this.pageOffSet(panel);
+		var end = start + GoAccess.getPrefs().perPage;
+
+		return dataItems.slice(start, end);
+	},
+
+	// Get previous page
+	prevPage: function (panel) {
+		var curPage = GoAccess.getPanelUI(panel).curPage || 0;
+		return curPage - 1;
+	},
+
+	// Get next page
+	nextPage: function (panel) {
+		var curPage = GoAccess.getPanelUI(panel).curPage || 0;
+		return curPage + 1;
+	},
+
+	getMetaValue: function (ui, value) {
+		if ('meta' in ui)
+			return value[ui.meta];
 		return null;
-	}
+	},
 
-	// Attempts to extract the count from either an object or the actual value.
-	// e.g., item = Object {count: 14351, percent: 5.79} OR item = 4824825140
-	function getCount(item) {
-		if (typeof item == 'object' && 'count' in item)
-			return item.count;
-		return item;
-	}
+	getMetaCell: function (ui, value) {
+		var val = this.getMetaValue(ui, value);
+		var max = (value || {}).max;
+		var min = (value || {}).min;
 
-	// Iterate over the item properties and and extract the count value.
-	function extractCount(item) {
-		var o = {};
-		for (var prop in item) {
-			o[prop] = getCount(item[prop]);
-		}
-		return o;
-	}
-
-	// Return an object that can be consumed by the table template given a user
-	// interface definition and a cell value object.
-	// e.g., value = Object {count: 14351, percent: 5.79}
-	function getTableCell(panel, ui, value) {
 		var className = ui.className || '';
 		className += ui.valueType != 'string' ? 'text-right' : '';
 		return {
 			'className': className,
-			'percent': getPercent(value),
-			'value': fmtValue(getCount(value), ui.valueType)
-		};
-	}
+			'max'      : max != undefined ? GoAccess.Common.fmtValue(max, ui.valueType) : null,
+			'min'      : min != undefined ? GoAccess.Common.fmtValue(min, ui.valueType) : null,
+			'value'    : val != undefined ? GoAccess.Common.fmtValue(val, ui.valueType) : null,
+			'title'    : ui.meta,
+		}
+	},
+
+	renderMetaRow: function (panel, uiItems) {
+		// find the table to set
+		var table = $('.table-' + panel + ' tbody.tbody-meta');
+		if (!table)
+			return;
+
+		var cells = [];
+		var data = GoAccess.getPanelData(panel).metadata;
+		for (var i = 0; i < uiItems.length; ++i) {
+			var item = uiItems[i];
+			var value = data[item.key];
+			cells.push(this.getMetaCell(item, value))
+		}
+
+		var template = $('#tpl-table-row-meta').innerHTML;
+		table.innerHTML = Hogan.compile(template).render({
+			row: [{
+				'cells': cells
+			}]
+		});
+	},
 
 	// Iterate over user interface definition properties
-	function iterUIItems(panel, uiItems, dataItems, callback) {
+	iterUIItems: function (panel, uiItems, dataItems, callback) {
 		var out = [];
 		for (var i = 0; i < uiItems.length; ++i) {
 			var uiItem = uiItems[i];
@@ -439,58 +576,24 @@ var GoAccess = (function() {
 			}
 		}
 		return out;
-	}
+	},
 
-	// Get current panel page
-	function getCurPage(panel) {
-		return getUIData(panel).curPage || 0;
-	}
+	// Return an object that can be consumed by the table template given a user
+	// interface definition and a cell value object.
+	// e.g., value = Object {count: 14351, percent: 5.79}
+	getTableCell: function (panel, ui, value) {
+		var className = ui.className || '';
+		className += ui.valueType != 'string' ? 'text-right' : '';
+		return {
+			'className': className,
+			'percent': GoAccess.Common.getPercent(value),
+			'value': GoAccess.Common.fmtValue(GoAccess.Common.getCount(value), ui.valueType)
+		};
+	},
 
-	// Page offset.
-	// e.g., Return Value: 11, curPage: 2
-	function pageOffSet(panel) {
-		var curPage = getUIData(panel).curPage || 0;
-		return ((curPage - 1) * AppPrefs.perPage);
-	}
-
-	// Get total number of pages given the number of items on array
-	function getTotalPages(dataItems) {
-		return Math.ceil(dataItems.length / AppPrefs.perPage);
-	}
-
-	// Get a shallow copy of a portion of the given data array and the current
-	// page.
-	function getPage(panel, dataItems, page) {
-		var ui = getUIData(panel);
-		var totalPages = getTotalPages(dataItems);
-		if (page < 1)
-			page = 1;
-		if (page > totalPages)
-			page = totalPages;
-
-		ui.curPage = page;
-		var start = pageOffSet(panel);
-		var end = start + AppPrefs.perPage;
-
-		return dataItems.slice(start, end);
-	}
-
-	// Get previous page
-	function prevPage(panel) {
-		var curPage = getUIData(panel).curPage || 0;
-		return curPage - 1;
-	}
-
-	// Get next page
-	function nextPage(panel) {
-		var curPage = getUIData(panel).curPage || 0;
-		return curPage + 1;
-	}
-
-	// Render each data row into the table
-	function renderRows(panel, uiItems, dataItems) {
+	renderRows: function (panel, uiItems, dataItems) {
 		var rows = [];
-
+		// no data rows
 		if (dataItems.length == 0 && uiItems.length) {
 			rows.push({
 				cells: [{
@@ -501,29 +604,30 @@ var GoAccess = (function() {
 			});
 		}
 
-		// Iterate over all data items for the given panel and generate a table
-		// row per date item.
+		// Iterate over all data items for the given panel and
+		// generate a table row per date item.
+		var callback = this.getTableCell.bind(this);
 		for (var i = 0; i < dataItems.length; i++) {
 			rows.push({
 				'subitem': dataItems[i].subitem,
 				'className': '',
-				'idx': i + pageOffSet(panel),
-				'cells': iterUIItems(panel, uiItems, dataItems[i], getTableCell)
+				'idx': i + this.pageOffSet(panel),
+				'cells': this.iterUIItems(panel, uiItems, dataItems[i], callback)
 			});
 		}
 
 		return rows;
-	}
+	},
 
 	// Entry point to render all data rows into the table
-	function renderDataRows(panel, uiItems, dataItems, page) {
+	renderDataRows: function (panel, uiItems, dataItems, page) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-data');
 		if (!table)
 			return;
 
-		var dataItems = getPage(panel, dataItems, page);
-		var rows = renderRows(panel, uiItems, dataItems);
+		var dataItems = this.getPage(panel, dataItems, page);
+		var rows = this.renderRows(panel, uiItems, dataItems);
 		if (rows.length == 0)
 			return;
 
@@ -531,169 +635,61 @@ var GoAccess = (function() {
 		table.innerHTML = Hogan.compile(template).render({
 			rows: rows
 		});
-	}
+	},
 
-	// Get the meta data value for the given user interface key
-	function getMetaValue(ui, value) {
-		if ('meta' in ui)
-			return value[ui.meta];
-		return null;
-	}
-
-	// Return an object that can be consumed by the table template given a user
-	// interface definition and a meta value object.
-	// e.g., value = Object {count: 22953, max: 15, min: 10}
-	function getMetaCell(ui, value) {
-		var val = getMetaValue(ui, value);
-		var max = (value || {}).max;
-		var min = (value || {}).min;
-
-		var className = ui.className || '';
-		className += ui.valueType != 'string' ? 'text-right' : '';
-		return {
-			'className': className,
-			'title': ui.meta,
-			'max': max != undefined ? fmtValue(max, ui.valueType) : null,
-			'min': min != undefined ? fmtValue(min, ui.valueType) : null,
-			'value': val != undefined ? fmtValue(val, ui.valueType) : null
-		}
-	}
-
-	// Iterate over all meta rows and render its data above each data column
-	// i.e., "table header"
-	function renderMetaRow(panel, uiItems) {
-		// find the table to set
-		var table = $('.table-' + panel + ' tbody.tbody-meta');
-		if (!table)
-			return;
-
-		var cells = [];
-		var data = getData(panel).metadata;
-		for (var i = 0; i < uiItems.length; ++i) {
-			var item = uiItems[i];
-			var value = data[item.key];
-			cells.push(getMetaCell(item, value))
-		}
-
-		var template = $('#tpl-table-row-meta').innerHTML;
-		table.innerHTML = Hogan.compile(template).render({
-			row: [{
-				'cells': cells
-			}]
-		});
-	}
-
-	// Set general user interface options
-	function setUIOpts(panel, ui) {
-		var dataItems = getData(panel).data;
-
-		// expandable panel?
-		ui['expandable'] = dataItems.length && dataItems[0].items ? true : false;
-		// pagination
-		ui['curPage'] = 0;
-		ui['totalItems'] = dataItems.length;
-	}
-
-
-	// Iterate over all data sub items. e.g., Ubuntu, Arch, etc.
-	function getAllDataItems(panel) {
-		var data = JSON.parse(JSON.stringify(getData(panel)));
-		var dataItems = data.data.slice(),
-			out = [];
-
-		for (var i = 0; i < dataItems.length; ++i) {
-			out.push(dataItems[i]);
-
-			var items = dataItems[i].items.slice();
-			for (var j = 0; j < items.length; ++j) {
-				var subitem = items[j];
-				subitem['subitem'] = true;
-				out.push(subitem);
-			}
-			delete out[i].items;
-		}
-
-		return out;
-	}
-
-	// Render a table for the given panel.
-	function renderTable(panel, page, expanded) {
-		var dataItems = getData(panel).data;
-		var ui = getUIData(panel);
-		var panelHtml = $('#panel-' + panel);
-
-		// data items for an expanded panel
-		if (ui.expanded)
-			dataItems = getAllDataItems(panel);
-
-		if (panelHtml.getElementsByClassName('pagination')[0]) {
-			// Enable all pagination buttons
-			panelHtml.getElementsByClassName('panel-next')[0].parentNode.className = '';
-			panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className = '';
-
-			// Diable pagination next button if last page is reached
-			if (page >= getTotalPages(dataItems))
-				panelHtml.getElementsByClassName('panel-next')[0].parentNode.className = 'disabled';
-
-			// Disable pagination prev button if first page is reached
-			if (page <= 1)
-				panelHtml.getElementsByClassName('panel-prev')[0].parentNode.className = 'disabled';
-		}
-
-		// Render data rows
-		renderDataRows(panel, ui.items, dataItems, page);
-	}
-
-	// Iterate over all panels and determine which ones should contain a data
-	// table.
-	function renderTables() {
-		var ui = getUIData();
-
+	// Iterate over all panels and determine which ones should contain
+	// a data table.
+	renderTables: function () {
+		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (isPanelValid(panel))
+			if (GoAccess.Common.isPanelValid(panel))
 				continue;
 
 			// panel's user interface definition
 			var uiItems = ui[panel].items;
 			// panel's data
-			var data = getData(panel);
+			var data = GoAccess.getPanelData(panel);
 			// render meta data
 			if (data.hasOwnProperty('metadata'))
-				renderMetaRow(panel, uiItems);
+				this.renderMetaRow(panel, uiItems);
 			// render actual data
-			if (data.hasOwnProperty('data'))
-				renderDataRows(panel, uiItems, data.data, 0);
+			if (data.hasOwnProperty('data')) {
+				this.renderDataRows(panel, uiItems, data.data, 0);
+			}
 		}
+	},
+
+	renderTable: function (panel, page, expanded) {
+		var dataItems = GoAccess.getPanelData(panel).data;
+		var ui = GoAccess.getPanelUI(panel);
+
+		GoAccess.Panels.enablePagination(panel);
+		// Diable pagination next button if last page is reached
+		if (page >= this.getTotalPages(dataItems))
+			GoAccess.Panels.disableNext(panel);
+		if (page <= 1)
+			GoAccess.Panels.disablePrev(panel);
+
+		// Render data rows
+		this.renderDataRows(panel, ui.items, dataItems, page);
+	},
+
+	initialize: function () {
+		this.renderTables();
+		this.events();
+	},
+};
+
+// Main App
+GoAccess.App = {
+	initialize: function () {
+		GoAccess.Nav.initialize();
+		GoAccess.OverallStats.initialize();
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
 	}
-
-	// Attempt to render the layout (if applicable)
-	function render() {
-		renderGeneral();
-		renderPanels();
-		renderCharts();
-		renderTables();
-	}
-
-	// App initialization i.e., set some basic stuff
-	function initialize(options) {
-		AppUIData = (options || {}).uidata;;
-		AppData = (options || {}).data;;
-
-		for (var panel in AppUIData) {
-			if (isPanelValid(panel))
-				continue;
-			setUIOpts(panel, AppUIData[panel]);
-		}
-
-		render();
-	}
-
-	// Public functions
-	return {
-		start: initialize,
-		format: fmtValue,
-	};
-})();
+};
 
 function AreaChart(dualYaxis) {
 	var margin = {
@@ -731,7 +727,7 @@ function AreaChart(dualYaxis) {
 		.orient("left")
 		.tickFormat(function (d) {
 			if (format.y0)
-				return GoAccess.format(d, format.y0);
+				return GoAccess.Common.fmtValue(d, format.y0);
 			return d3.format('.2s')(d);
 		});
 
@@ -740,7 +736,7 @@ function AreaChart(dualYaxis) {
 		.orient("right")
 		.tickFormat(function (d) {
 			if (format.y1)
-				return GoAccess.format(d, format.y1);
+				return GoAccess.Common.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
@@ -1046,9 +1042,9 @@ function AreaChart(dualYaxis) {
 	function formatTooltip(data, i) {
 		var d = data.slice(0);
 
-		d[0] = (format.x) ? GoAccess.format(d[0], format.x) : d[0];
-		d[1] = (format.y0) ? GoAccess.format(d[1], format.y0) : d3.format(',')(d[1]);
-		dualYaxis && (d[2] = (format.y1) ? GoAccess.format(d[2], format.y1) : d3.format(',')(d[2]));
+		d[0] = (format.x) ? GoAccess.Common.fmtValue(d[0], format.x) : d[0];
+		d[1] = (format.y0) ? GoAccess.Common.fmtValue(d[1], format.y0) : d3.format(',')(d[1]);
+		dualYaxis && (d[2] = (format.y1) ? GoAccess.Common.fmtValue(d[2], format.y1) : d3.format(',')(d[2]));
 
 		var template = d3.select('#tpl-chart-tooltip').html();
 		return Hogan.compile(template).render({
@@ -1220,7 +1216,7 @@ function BarChart(dualYaxis) {
 		.orient("left")
 		.tickFormat(function (d) {
 			if (format.y1)
-				return GoAccess.format(d, format.y1);
+				return GoAccess.Common.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
@@ -1229,7 +1225,7 @@ function BarChart(dualYaxis) {
 		.orient("right")
 		.tickFormat(function (d) {
 			if (format.y1)
-				return GoAccess.format(d, format.y1);
+				return GoAccess.Common.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
@@ -1489,9 +1485,9 @@ function BarChart(dualYaxis) {
 	function formatTooltip(data, i) {
 		var d = data.slice(0);
 
-		d[0] = (format.x) ? GoAccess.format(d[0], format.x) : d[0];
-		d[1] = (format.y0) ? GoAccess.format(d[1], format.y0) : d3.format(',')(d[1]);
-		dualYaxis && (d[2] = (format.y1) ? GoAccess.format(d[2], format.y1) : d3.format(',')(d[2]));
+		d[0] = (format.x) ? GoAccess.Common.fmtValue(d[0], format.x) : d[0];
+		d[1] = (format.y0) ? GoAccess.Common.fmtValue(d[1], format.y0) : d3.format(',')(d[1]);
+		dualYaxis && (d[2] = (format.y1) ? GoAccess.Common.fmtValue(d[2], format.y1) : d3.format(',')(d[2]));
 
 		var template = d3.select('#tpl-chart-tooltip').html();
 		return Hogan.compile(template).render({
@@ -1623,10 +1619,16 @@ function BarChart(dualYaxis) {
 window.onload = function () {
 	'use strict';
 
-	GoAccess.start({
-		'uidata': user_interface,
-		'data': json_data
+	// Syntactic sugar
+	function $(selector) {
+		return document.querySelector(selector);
+	}
+
+	GoAccess.initialize({
+		'uiData': user_interface,
+		'panelData': json_data
 	});
+	GoAccess.App.initialize();
 
 	/*!
 	 * Bootstrap without jQuery v0.6.1 for Bootstrap 3
