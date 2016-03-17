@@ -85,7 +85,8 @@ typedef struct GHTML_
   GChartType chart_type;
   int8_t chart_reverse;
   int8_t table;
-  GHTMLPlot plot[MAX_PLOTS];
+  void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
+  GHTMLPlot chart[MAX_PLOTS];
 } GHTML;
 
 void output_html (GLog * logger, GHolder * holder);

@@ -62,34 +62,37 @@
 static void hits_visitors_plot (FILE * fp, int sp);
 static void hits_bw_plot (FILE * fp, int sp);
 
+static void print_metrics (FILE * fp, const GHTML * def, int sp);
+static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
+
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
-  {VISITORS        , CHART_AREASPLINE , 1 , 1, {
+  {VISITORS        , CHART_AREASPLINE , 1 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {REQUESTS        , CHART_NONE       , 0 , 1} ,
-  {REQUESTS_STATIC , CHART_NONE       , 0 , 1} ,
-  {NOT_FOUND       , CHART_NONE       , 0 , 1} ,
-  {HOSTS           , CHART_AREASPLINE , 0 , 1, {
+  {REQUESTS        , CHART_NONE       , 0 , 1, print_metrics } ,
+  {REQUESTS_STATIC , CHART_NONE       , 0 , 1, print_metrics } ,
+  {NOT_FOUND       , CHART_NONE       , 0 , 1, print_metrics } ,
+  {HOSTS           , CHART_AREASPLINE , 0 , 1, print_host_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {OS              , CHART_VBAR 	    , 0 , 1, {
+  {OS              , CHART_VBAR 	    , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {BROWSERS        , CHART_VBAR 	    , 0 , 1, {
+  {BROWSERS        , CHART_VBAR 	    , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, {
+  {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {VIRTUAL_HOSTS   , CHART_NONE       , 0 , 1} ,
-  {REFERRERS       , CHART_NONE       , 0 , 1} ,
-  {REFERRING_SITES , CHART_NONE       , 0 , 1} ,
-  {KEYPHRASES      , CHART_NONE       , 0 , 1} ,
+  {VIRTUAL_HOSTS   , CHART_NONE       , 0 , 1, print_metrics } ,
+  {REFERRERS       , CHART_NONE       , 0 , 1, print_metrics } ,
+  {REFERRING_SITES , CHART_NONE       , 0 , 1, print_metrics } ,
+  {KEYPHRASES      , CHART_NONE       , 0 , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , CHART_NONE       , 0 , 1} ,
+  {GEO_LOCATION    , CHART_NONE       , 0 , 1, print_metrics } ,
 #endif
-  {STATUS_CODES    , CHART_VBAR 	  , 0 , 1, {
+  {STATUS_CODES    , CHART_VBAR 	    , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
 };
@@ -531,7 +534,7 @@ print_def_hits (FILE * fp, int sp)
     .lbl = MTRC_HITS_LBL,
     .vtype = "numeric",
     .meta = "count",
-    .cwidth = "13%",
+    .cwidth = "12%",
   };
   print_def_block (fp, def, sp, 0);
 }
@@ -544,7 +547,7 @@ print_def_visitors (FILE * fp, int sp)
     .lbl = MTRC_VISITORS_LBL,
     .vtype = "numeric",
     .meta = "count",
-    .cwidth = "13%",
+    .cwidth = "12%",
   };
   print_def_block (fp, def, sp, 0);
 }
@@ -557,7 +560,7 @@ print_def_bw (FILE * fp, int sp)
     .lbl = MTRC_BW_LBL,
     .vtype = "bytes",
     .meta = "count",
-    .cwidth = "13%",
+    .cwidth = "12%",
   };
 
   if (!conf.bandwidth)
@@ -574,7 +577,7 @@ print_def_avgts (FILE * fp, int sp)
     .lbl = MTRC_AVGTS_LBL,
     .vtype = "utime",
     .meta = "avg",
-    .cwidth = "10%",
+    .cwidth = "8%",
   };
 
   if (!conf.serve_usecs)
@@ -591,7 +594,7 @@ print_def_cumts (FILE * fp, int sp)
     .lbl = MTRC_CUMTS_LBL,
     .vtype = "utime",
     .meta = "count",
-    .cwidth = "10%",
+    .cwidth = "8%",
   };
 
   if (!conf.serve_usecs)
@@ -608,7 +611,7 @@ print_def_maxts (FILE * fp, int sp)
     .lbl = MTRC_MAXTS_LBL,
     .vtype = "utime",
     .meta = "count",
-    .cwidth = "10%",
+    .cwidth = "8%",
   };
 
   if (!conf.serve_usecs)
@@ -649,6 +652,52 @@ print_def_protocol (FILE * fp, int sp)
 }
 
 static void
+print_def_city (FILE * fp, int sp)
+{
+  GDefMetric def = {
+    .key = "city",
+    .lbl = MTRC_CITY_LBL,
+    .vtype = "string",
+  };
+
+  if (!conf.has_geocity)
+    return;
+
+  print_def_block (fp, def, sp, 0);
+}
+
+static void
+print_def_country (FILE * fp, int sp)
+{
+  GDefMetric def = {
+    .key = "country",
+    .lbl = MTRC_COUNTRY_LBL,
+    .vtype = "string",
+  };
+
+  if (!conf.has_geocountry)
+    return;
+
+  print_def_block (fp, def, sp, 0);
+}
+
+static void
+print_def_hostname (FILE * fp, int sp)
+{
+  GDefMetric def = {
+    .key = "hostname",
+    .lbl = MTRC_HOSTNAME_LBL,
+    .vtype = "string",
+    .cname = "light",
+  };
+
+  if (!conf.enable_html_resolver)
+    return;
+
+  print_def_block (fp, def, sp, 0);
+}
+
+static void
 print_def_data (FILE * fp, GModule module, int sp)
 {
   GDefMetric def = {
@@ -666,7 +715,7 @@ static int
 count_plot_fp (const GHTML * def)
 {
   int i = 0;
-  for (i = 0; def->plot[i].plot != 0; ++i);
+  for (i = 0; def->chart[i].plot != 0; ++i);
   return i;
 }
 
@@ -682,7 +731,7 @@ print_def_plot (FILE * fp, const GHTML * def, int sp)
 
   for (i = 0; i < n; ++i) {
     popen_obj (fp, isp);
-    def->plot[i].plot (fp, isp);
+    def->chart[i].plot (fp, isp);
     pclose_obj (fp, isp, (i == n - 1));
   }
 
@@ -690,9 +739,52 @@ print_def_plot (FILE * fp, const GHTML * def, int sp)
 }
 
 static void
-print_def_metrics (FILE * fp, const GHTML * def, int sp)
+print_host_metrics (FILE * fp, const GHTML * def, int sp)
 {
   const GOutput *output = output_lookup (def->module);
+
+  print_def_hits (fp, sp);
+  print_def_visitors (fp, sp);
+  print_def_bw (fp, sp);
+  print_def_avgts (fp, sp);
+  print_def_cumts (fp, sp);
+  print_def_maxts (fp, sp);
+
+  if (output->method)
+    print_def_method (fp, sp);
+  if (output->protocol)
+    print_def_protocol (fp, sp);
+
+  print_def_city (fp, sp);
+  print_def_country (fp, sp);
+  print_def_hostname (fp, sp);
+
+  print_def_data (fp, def->module, sp);
+}
+
+static void
+print_metrics (FILE * fp, const GHTML * def, int sp)
+{
+  const GOutput *output = output_lookup (def->module);
+
+  print_def_hits (fp, sp);
+  print_def_visitors (fp, sp);
+  print_def_bw (fp, sp);
+  print_def_avgts (fp, sp);
+  print_def_cumts (fp, sp);
+  print_def_maxts (fp, sp);
+
+  if (output->method)
+    print_def_method (fp, sp);
+  if (output->protocol)
+    print_def_protocol (fp, sp);
+
+  print_def_data (fp, def->module, sp);
+}
+
+static void
+print_def_metrics (FILE * fp, const GHTML * def, int sp)
+{
   int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -700,21 +792,8 @@ print_def_metrics (FILE * fp, const GHTML * def, int sp)
 
   /* open data metric data */
   popen_arr_attr (fp, "items", sp);
-
-  print_def_hits (fp, isp);
-  print_def_visitors (fp, isp);
-  print_def_bw (fp, isp);
-  print_def_avgts (fp, isp);
-  print_def_cumts (fp, isp);
-  print_def_maxts (fp, isp);
-
-  if (output->method)
-    print_def_method (fp, isp);
-  if (output->protocol)
-    print_def_protocol (fp, isp);
-
-  print_def_data (fp, def->module, isp);
-
+  /* definition metrics */
+  def->metrics (fp, def, isp);
   /* close metrics block */
   pclose_arr (fp, sp, 1);
 }
