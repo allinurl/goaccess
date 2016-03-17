@@ -88,7 +88,7 @@ typedef struct GDashModule_
   int alloc_data;  /* number of data items allocated. */
                    /* e.g., MAX_CHOICES or holder size */
   int dash_size;   /* dashboard size   */
-  int data_len;
+  int data_len;    /* the length of the data string */
   int hits_len;
   int holder_size; /* hash table size  */
   int ht_size;     /* hash table size  */
