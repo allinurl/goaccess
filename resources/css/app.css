@@ -316,35 +316,52 @@ nav a:hover {
 .wrap-panels {
 	margin-top: 20px;
 }
+
+/* PANEL TABLES */
+.wrap-panels table.table-borderless tbody tr td,
+.wrap-panels table.table-borderless tbody tr th,
+.wrap-panels table.table-borderless thead tr th {
+    border: none;
+}
 .wrap-panels table thead tr th {
 	text-align: right;
 	border-bottom-width: 1px
 }
-.wrap-panels table .string {
+.wrap-panels table .string,
+.wrap-panels table .date {
 	text-align: left;
 }
-.wrap-panels .percent {
+.wrap-panels table .percent {
 	color: #898989;
 }
-.wrap-panels table td, table th {
+.wrap-panels table td,
+.wrap-panels table th {
 	white-space: nowrap;
 	overflow: hidden;
 }
-.wrap-panels table .tbody-meta tr {
-	background-color: #f8f8f8;
-	text-shadow: 1px 1px 0 #FFF;
+/* thead meta */
+.wrap-panels table tbody.tbody-meta {
+	border-top: 1px solid #C7C7C7;
+	border-bottom: 1px solid #C7C7C7;
 }
-.wrap-panels table .tbody-meta small {
+.wrap-panels table tbody.tbody-meta tr {
+    background-color: #f8f8f8;
+    background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
+    background-image: -o-linear-gradient(top,#f8f8f8,#f1f1f1);
+    color: #222;
+}
+.wrap-panels table tbody.tbody-meta small {
 	font-size: 65%;
 }
-.wrap-panels table .tbody-data td {
+/* thead data */
+.wrap-panels table tbody.tbody-data tr td {
 	border-right: 1px solid #F1F1F1;
 	font-size: smaller;
 }
-.wrap-panels table .tbody-data td:last-child {
+.wrap-panels table tbody.tbody-data td:last-child {
 	border-right: none;
 }
-.wrap-panels table .tbody-data td.row-idx {
+.wrap-panels table tbody.tbody-data td.row-idx {
 	color: #898989;
 }
 .wrap-panels table>tbody+tbody {
