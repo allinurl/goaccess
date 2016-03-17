@@ -110,6 +110,8 @@ typedef struct GConf_
   int append_method;
   int append_protocol;
   int bandwidth;
+  int has_geocity;
+  int has_geocountry;
   int client_err_to_unique_count;
   int code444_as_404;
   int color_scheme;

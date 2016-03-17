@@ -387,6 +387,9 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
+
+    /* flag only */
+    conf.has_geocountry = 1;
   }
 
   /* city */
@@ -395,6 +398,9 @@ set_host_sub_list (GHolder * h, GSubList * sub_list)
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
+
+    /* flag only */
+    conf.has_geocity = 1;
   }
 #endif
 

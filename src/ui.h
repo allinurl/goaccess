@@ -178,6 +178,9 @@
 #define MTRC_METHODS_SHORT_LBL   "Mtd"
 #define MTRC_PROTOCOLS_LBL       "Protocol"
 #define MTRC_PROTOCOLS_SHORT_LBL "Proto"
+#define MTRC_CITY_LBL            "City"
+#define MTRC_COUNTRY_LBL         "Country"
+#define MTRC_HOSTNAME_LBL        "Hostname"
 #define MTRC_DATA_LBL            "Data"
 
 /* Find Labels */
