@@ -89,7 +89,7 @@ typedef struct GDashModule_
                    /* e.g., MAX_CHOICES or holder size */
   int dash_size;   /* dashboard size   */
   int data_len;    /* the length of the data string */
-  int hits_len;
+  int hits_len;    /* the length of the hits int. e.g., 102 => 3 */
   int holder_size; /* hash table size  */
   int ht_size;     /* hash table size  */
   int idx_data;    /* idx data         */
