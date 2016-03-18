@@ -260,9 +260,21 @@ GoAccess.Panels = {
 		this.disableNext(panel);
 	},
 
+	hasSubItems: function (ui, data) {
+		for (var i = 0, len = data.length; i < len; ++i) {
+			if (!data[i].items)
+				return (ui['hasSubItems'] = false);
+			if (data[i].items.length) {
+				return (ui['hasSubItems'] = true);
+			}
+		}
+		return false;
+	},
+
 	// Render the given panel given a user interface definition.
 	renderPanel: function (panel, ui) {
 		var data = GoAccess.getPanelData(panel);
+		this.hasSubItems(ui, data.data);
 
 		var box = document.createElement('div');
 		box.id = 'panel-' + panel;
@@ -292,7 +304,7 @@ GoAccess.Panels = {
 	}
 };
 
-// Render Charts
+// RENDER CHARTS
 GoAccess.Charts = {
 	events: function () {
 		var _this = this;
@@ -455,6 +467,7 @@ GoAccess.Charts = {
 	}
 };
 
+// RENDER TABLES
 GoAccess.Tables = {
 	events: function () {
 		var _this = this;
@@ -471,6 +484,26 @@ GoAccess.Tables = {
 				_this.renderTable(panel, _this.prevPage(panel))
 			};
 		});
+
+		$$('.row-collapsed.clickable', function (item) {
+			item.onclick = function (e) {
+				_this.toggleRow(e.currentTarget);
+			};
+		});
+	},
+
+	// Toggle children rows
+	toggleRow: function (ele) {
+		var cell = ele;
+		cell.classList.toggle('row-expanded')
+		var row = cell.parentNode;
+		while (row = row.nextSibling) {
+			if (row.tagName != 'TR')
+				continue;
+			if (row.className.indexOf('parent') != -1)
+				break;
+			row.classList.toggle('hide');
+		}
 	},
 
 	// Get current panel page
@@ -541,13 +574,13 @@ GoAccess.Tables = {
 		}
 	},
 
-	renderMetaRow: function (panel, uiItems) {
+	renderMetaRow: function (panel, ui) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-meta');
 		if (!table)
 			return;
 
-		var cells = [];
+		var cells = [], uiItems = ui.items;
 		var data = GoAccess.getPanelData(panel).metadata;
 		for (var i = 0; i < uiItems.length; ++i) {
 			var item = uiItems[i];
@@ -558,6 +591,7 @@ GoAccess.Tables = {
 		var template = $('#tpl-table-row-meta').innerHTML;
 		table.innerHTML = Hogan.compile(template).render({
 			row: [{
+				'hasSubItems': ui.hasSubItems,
 				'cells': cells
 			}]
 		});
@@ -593,14 +627,29 @@ GoAccess.Tables = {
 		};
 	},
 
-	renderRows: function (panel, uiItems, dataItems) {
-		var rows = [];
+	// Given a data item object, set all the row cells and return a
+	// table row that the template can consume.
+	renderRow: function (panel, callback, ui, dataItem, idx, subItem, parentId) {
+		var shadeParent = ((!subItem && idx % 2 != 0) ? 'shaded' : '');
+		var shadeChild = ((parentId % 2 != 0) ? 'shaded' : '');
+		return {
+			'idx'         : !subItem && (String(idx + this.pageOffSet(panel))),
+			'parentId'    : subItem ? String(parentId) : '',
+			'className'   : subItem ? 'child hide ' + shadeChild : 'parent ' + shadeParent,
+			'cells'       : this.iterUIItems(panel, ui.items, dataItem, callback),
+			'hasSubItems' : ui.hasSubItems,
+			'items'       : dataItem.items ? dataItem.items.length : 0,
+		};
+	},
+
+	renderRows: function (rows, panel, ui, dataItems, subItem, parentId) {
+		subItem = subItem || false;
 		// no data rows
-		if (dataItems.length == 0 && uiItems.length) {
+		if (dataItems.length == 0 && ui.items.length) {
 			rows.push({
 				cells: [{
 					className: 'text-center',
-					colspan: uiItems.length + 1,
+					colspan: ui.items.length + 1,
 					value: 'No data on this panel.'
 				}]
 			});
@@ -609,27 +658,25 @@ GoAccess.Tables = {
 		// Iterate over all data items for the given panel and
 		// generate a table row per date item.
 		var callback = this.getTableCell.bind(this);
-		for (var i = 0; i < dataItems.length; i++) {
-			rows.push({
-				'subitem': dataItems[i].subitem,
-				'className': '',
-				'idx': i + this.pageOffSet(panel),
-				'cells': this.iterUIItems(panel, uiItems, dataItems[i], callback)
-			});
+		for (var i = 0; i < dataItems.length; ++i) {
+			var dataItem = dataItems[i];
+			rows.push(this.renderRow(panel, callback, ui, dataItem, i, subItem, parentId));
+			if (dataItem.items && dataItem.items.length) {
+				this.renderRows(rows, panel, ui, dataItem.items, true, i);
+			}
 		}
-
-		return rows;
 	},
 
 	// Entry point to render all data rows into the table
-	renderDataRows: function (panel, uiItems, dataItems, page) {
+	renderDataRows: function (panel, ui, dataItems, page) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-data');
 		if (!table)
 			return;
 
 		var dataItems = this.getPage(panel, dataItems, page);
-		var rows = this.renderRows(panel, uiItems, dataItems);
+		var rows = [];
+		this.renderRows(rows, panel, ui, dataItems);
 		if (rows.length == 0)
 			return;
 
@@ -647,16 +694,14 @@ GoAccess.Tables = {
 			if (GoAccess.Common.isPanelValid(panel))
 				continue;
 
-			// panel's user interface definition
-			var uiItems = ui[panel].items;
 			// panel's data
 			var data = GoAccess.getPanelData(panel);
 			// render meta data
 			if (data.hasOwnProperty('metadata'))
-				this.renderMetaRow(panel, uiItems);
+				this.renderMetaRow(panel, ui[panel]);
 			// render actual data
 			if (data.hasOwnProperty('data')) {
-				this.renderDataRows(panel, uiItems, data.data, 0);
+				this.renderDataRows(panel, ui[panel], data.data, 0);
 			}
 		}
 	},
@@ -673,7 +718,7 @@ GoAccess.Tables = {
 			GoAccess.Panels.disablePrev(panel);
 
 		// Render data rows
-		this.renderDataRows(panel, ui.items, dataItems, page);
+		this.renderDataRows(panel, ui, dataItems, page);
 	},
 
 	initialize: function () {
