@@ -76,10 +76,10 @@ static GHTML htmldef[] = {
   {HOSTS           , CHART_AREASPLINE , 0 , 1, print_host_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {OS              , CHART_VBAR 	    , 0 , 1, print_metrics, {
+  {OS              , CHART_VBAR 	  , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
-  {BROWSERS        , CHART_VBAR 	    , 0 , 1, print_metrics, {
+  {BROWSERS        , CHART_VBAR 	  , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
   {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, print_metrics, {
@@ -90,9 +90,11 @@ static GHTML htmldef[] = {
   {REFERRING_SITES , CHART_NONE       , 0 , 1, print_metrics } ,
   {KEYPHRASES      , CHART_NONE       , 0 , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , CHART_NONE       , 0 , 1, print_metrics } ,
+  {GEO_LOCATION    , CHART_VBAR       , 0 , 1, print_metrics, {
+      {hits_visitors_plot}, {hits_bw_plot}
+  }},
 #endif
-  {STATUS_CODES    , CHART_VBAR 	    , 0 , 1, print_metrics, {
+  {STATUS_CODES    , CHART_VBAR 	  , 0 , 1, print_metrics, {
       {hits_visitors_plot}, {hits_bw_plot}
   }},
 };
