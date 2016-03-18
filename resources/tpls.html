@@ -19,10 +19,20 @@
 <!-- TPL Panel Table -->
 <script id="tpl-table-row" type="text/template">
 	{{#rows}}
-		<tr class="{{#subitem}}active{{/subitem}}">
-			<td class="row-idx text-right">{{idx}}</td>
+		<tr class="{{#className}}{{className}}{{/className}}" {{#parentId}}data-pid="{{parentId}}"{{/parentId}}>
+			{{#hasSubItems}}
+			<td class="row-collapsed text-center {{#items}}clickable{{/items}}">
+				{{#items}}<i class="fa"></i>{{/items}}
+				{{^items}}</i>{{/items}}
+			</td>
+			{{/hasSubItems}}
+			<td class="row-idx text-right">
+				{{#idx}}{{idx}}{{/idx}}
+			</td>
 			{{#cells}}
-				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}><span class="value">{{value}}</span>{{#percent}}<span class="percent"> ({{percent}})</span>{{/percent}}</td>
+				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+					<span class="value">{{value}}</span>{{#percent}}<span class="percent"> ({{percent}})</span>{{/percent}}
+				</td>
 			{{/cells}}
 		</tr>
 	{{/rows}}
@@ -32,6 +42,9 @@
 <script id="tpl-table-row-meta" type="text/template">
 	{{#row}}
 		<tr>
+			{{#hasSubItems}}
+			<td class=""></td>
+			{{/hasSubItems}}
 			<td class=""></td>
 			{{#cells}}
 				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
@@ -80,16 +93,22 @@
 	<div class="row clearfix">
 		<div class="col-md-12">
 			<div class="table-responsive">
-				<table class="table table-striped table-borderless table-{{id}}">
+				<table class="table table-borderless table-{{id}}">
 					<colgroup>
-						<col style="width: 3%;">
+						{{#hasSubItems}}
+						<col style="width: 2%;"> <!-- right-caret -->
+						{{/hasSubItems}}
+						<col style="width: 3%;"> <!-- row # -->
 						{{#items}}
 							<col style="width:{{colWidth}}">
 						{{/items}}
 					</colgroup>
 					<thead>
 						<tr>
-							<th class="">#</th>
+							{{#hasSubItems}}
+							<th></th>
+							{{/hasSubItems}}
+							<th>#</th>
 							{{#items}}
 								<th class="{{valueType}}">{{label}}</th>
 							{{/items}}

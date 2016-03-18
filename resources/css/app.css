@@ -29,6 +29,9 @@ h3 {
 .pagination {
 	margin: 5px 0;
 }
+.clickable {
+	cursor: pointer;
+}
 
 /* CHARTS */
 .chart-wrap {
@@ -345,9 +348,7 @@ nav a:hover {
 	border-bottom: 1px solid #C7C7C7;
 }
 .wrap-panels table tbody.tbody-meta tr {
-    background-color: #f8f8f8;
-    background-image: linear-gradient(top,#f8f8f8,#f1f1f1);
-    background-image: -o-linear-gradient(top,#f8f8f8,#f1f1f1);
+    background-color: #F1F1F1;
     color: #222;
 }
 .wrap-panels table tbody.tbody-meta small {
@@ -367,6 +368,25 @@ nav a:hover {
 .wrap-panels table>tbody+tbody {
 	border-top-width: 1px
 }
+.wrap-panels table tbody.tbody-data tr.shaded {
+	background-color: #F7F7F7;
+}
+.wrap-panels table tbody.tbody-data tr.{
+	background-color: #F7F7F7;
+}
+.wrap-panels table tbody.tbody-data tr.child td:nth-child(1),
+.wrap-panels table tbody.tbody-data tr.child td:nth-child(2) {
+	border-right:none;
+}
+.row-collapsed i:after {
+	content: "\f0da";
+}
+.row-expanded i:after {
+    color: inherit;
+	content: "\f0d7";
+    font-family:'FontAwesome';
+}
+
 
 /* GENERAL */
 .panel-plot-wrap {
