@@ -316,6 +316,20 @@ GoAccess.Charts = {
 		});
 	},
 
+	renderChart: function (panel, chart, data) {
+		// remove popup
+		d3.select('#chart-' + panel + '>.chart-tooltip-wrap')
+			.remove();
+		// remove svg
+		d3.select('#chart-' + panel).select('svg')
+			.remove();
+		// add chart to the document
+		d3.select("#chart-" + panel)
+			.datum(data)
+			.call(chart)
+			.append("div").attr("class", "chart-tooltip-wrap");
+	},
+
 	// Redraw a chart upon selecting a metric.
 	redrawChart: function (targ) {
 		var plot = targ.getAttribute('data-plot');
@@ -330,11 +344,12 @@ GoAccess.Charts = {
 
 			// Extract data for the selected panel and process it
 			var data = this.processChartData(GoAccess.getPanelData(panel).data);
-			if (ui.chartReverse)
-				data = data.reverse();
+			ui.chartReverse && (data = data.reverse());
 
-			d3.select('#chart-' + panel).select('svg').remove();
-			this.renderAreaSpline(panel, plotUI[x], data);
+			var chart = this.getAreaSpline(panel, plotUI[x], data);
+			this.renderChart(panel, chart, data);
+
+			GoAccess.AppCharts[panel] = chart;
 			break;
 		}
 	},
@@ -357,72 +372,78 @@ GoAccess.Charts = {
 		return out;
 	},
 
-	// Set default D3 chart to area spline and apply panel user
-	// interface definition and load data.
-	renderAreaSpline: function (panel, plotData, data) {
+	getAreaSpline: function (panel, plotData, data) {
 		var dualYaxis = plotData['d3']['y1'];
+
 		var chart = AreaChart(dualYaxis)
-			.labels({
-				y0: plotData['d3']['y0'].label,
-				y1: dualYaxis ? plotData['d3']['y1'].label : ''
-			})
-			.x(function (d) {
-				return d.data;;
-			})
-			.y0(function (d) {
-				return +d[plotData['d3']['y0']['key']];
-			})
-			.width($("#chart-" + panel).offsetWidth)
-			.height(175)
-			.format({
-				x: ((plotData.d3 || {}).x || {}).format,
-				y0: ((plotData.d3 || {}).y0 || {}).format,
-				y1: ((plotData.d3 || {}).y1 || {}).format,
-			});
+		.labels({
+			y0: plotData['d3']['y0'].label,
+			y1: dualYaxis ? plotData['d3']['y1'].label : ''
+		})
+		.x(function (d) {
+			return d.data;;
+		})
+		.y0(function (d) {
+			return +d[plotData['d3']['y0']['key']];
+		})
+		.width($("#chart-" + panel).offsetWidth)
+		.height(175)
+		.format({
+			x: ((plotData.d3 || {}).x || {}).format,
+			y0: ((plotData.d3 || {}).y0 || {}).format,
+			y1: ((plotData.d3 || {}).y1 || {}).format,
+		});
 
 		dualYaxis && chart.y1(function (d) {
 			return +d[plotData['d3']['y1']['key']];
 		});
 
-		d3.select("#chart-" + panel)
-			.datum(data)
-			.call(chart)
-			.append("div").attr("class", "chart-tooltip-wrap");
+		return chart;
+	},
+
+	// Set default D3 chart to area spline and apply panel user
+	// interface definition and load data.
+	renderAreaSpline: function (panel, plotData, data) {
+		var chart = this.getAreaSpline(panel, plotData, data);
+		this.renderChart(panel, chart, data);
 
 		GoAccess.AppCharts[panel] = chart;
+	},
+
+	getVBar: function (panel, plotData, data) {
+		var dualYaxis = plotData['d3']['y1'];
+
+		var chart = BarChart(dualYaxis)
+		.labels({
+			y0: plotData['d3']['y0'].label,
+			y1: dualYaxis ? plotData['d3']['y1'].label : ''
+		})
+		.x(function (d) {
+			return d.data;;
+		})
+		.y0(function (d) {
+			return +d[plotData['d3']['y0']['key']];
+		})
+		.width($("#chart-" + panel).offsetWidth)
+		.height(175)
+		.format({
+			x: ((plotData.d3 || {}).x || {}).format,
+			y0: ((plotData.d3 || {}).y0 || {}).format,
+			y1: ((plotData.d3 || {}).y1 || {}).format,
+		});
+
+		dualYaxis && chart.y1(function (d) {
+			return +d[plotData['d3']['y1']['key']];
+		});
+
+		return chart;
 	},
 
 	// Set default C3 chart to area spline and apply panel user
 	// interface definition and load data.
 	renderVBar: function (panel, plotData, data) {
-		var dualYaxis = plotData['d3']['y1'];
-		var chart = BarChart(dualYaxis)
-			.labels({
-				y0: plotData['d3']['y0'].label,
-				y1: dualYaxis ? plotData['d3']['y1'].label : ''
-			})
-			.x(function (d) {
-				return d.data;;
-			})
-			.y0(function (d) {
-				return +d[plotData['d3']['y0']['key']];
-			})
-			.width($("#chart-" + panel).offsetWidth)
-			.height(175)
-			.format({
-				x: ((plotData.d3 || {}).x || {}).format,
-				y0: ((plotData.d3 || {}).y0 || {}).format,
-				y1: ((plotData.d3 || {}).y1 || {}).format,
-			});
-
-		dualYaxis && chart.y1(function (d) {
-			return +d[plotData['d3']['y1']['key']];
-		});
-
-		d3.select("#chart-" + panel)
-			.datum(data)
-			.call(chart)
-			.append("div").attr("class", "chart-tooltip-wrap");
+		var chart = this.getVBar(panel, plotData, data);
+		this.renderChart(panel, chart, data);
 
 		GoAccess.AppCharts[panel] = chart;
 	},
@@ -767,11 +788,11 @@ function AreaChart(dualYaxis) {
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
-		.orient("bottom");
+		.orient('bottom');
 
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left")
+		.orient('left')
 		.tickFormat(function (d) {
 			if (format.y0)
 				return GoAccess.Common.fmtValue(d, format.y0);
@@ -780,7 +801,7 @@ function AreaChart(dualYaxis) {
 
 	var yAxis1 = d3.svg.axis()
 		.scale(yScale1)
-		.orient("right")
+		.orient('right')
 		.tickFormat(function (d) {
 			if (format.y1)
 				return GoAccess.Common.fmtValue(d, format.y1);
@@ -789,11 +810,11 @@ function AreaChart(dualYaxis) {
 
 	var xGrid = d3.svg.axis()
 		.scale(xScale)
-		.orient("bottom");
+		.orient('bottom');
 
 	var yGrid = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left");
+		.orient('left');
 
 	var area0 = d3.svg.area()
 		.interpolate('cardinal')
@@ -886,19 +907,19 @@ function AreaChart(dualYaxis) {
 	function setLegendLabels(svg) {
 		// Legend Color
 		var rect = svg.selectAll('rect.legend.y0').data([null]);
-		rect.enter().append("rect")
-			.attr("class", "legend y0")
-			.attr("y", (height - 15));
+		rect.enter().append('rect')
+			.attr('class', 'legend y0')
+			.attr('y', (height - 15));
 		rect
-			.attr("x", (width / 2) - 100);
+			.attr('x', (width / 2) - 100);
 
 		// Legend Labels
 		var text = svg.selectAll('text.legend.y0').data([null]);
-		text.enter().append("text")
-			.attr("class", "legend y0")
-			.attr("y", (height - 6));
+		text.enter().append('text')
+			.attr('class', 'legend y0')
+			.attr('y', (height - 6));
 		text
-			.attr("x", (width / 2) - 85)
+			.attr('x', (width / 2) - 85)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -906,29 +927,29 @@ function AreaChart(dualYaxis) {
 
 		// Legend Labels
 		rect = svg.selectAll('rect.legend.y1').data([null]);
-		rect.enter().append("rect")
-			.attr("class", "legend y1")
-			.attr("y", (height - 15));
+		rect.enter().append('rect')
+			.attr('class', 'legend y1')
+			.attr('y', (height - 15));
 		rect
-			.attr("x", (width / 2));
+			.attr('x', (width / 2));
 
 		// Legend Labels
 		text = svg.selectAll('text.legend.y1').data([null]);
-		text.enter().append("text")
-			.attr("class", "legend y1")
-			.attr("y", (height - 6));
+		text.enter().append('text')
+			.attr('class', 'legend y1')
+			.attr('y', (height - 6));
 		text
-			.attr("x", (width / 2) + 15)
+			.attr('x', (width / 2) + 15)
 			.text(labels.y1);
 	}
 
 	function setAxisLabels(svg) {
 		// Labels
 		svg.selectAll('text.axis-label.y0').data([null])
-			.enter().append("text")
-			.attr("class", "axis-label y0")
-			.attr("y", 10)
-			.attr("x", 50)
+			.enter().append('text')
+			.attr('class', 'axis-label y0')
+			.attr('y', 10)
+			.attr('x', 50)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -936,78 +957,94 @@ function AreaChart(dualYaxis) {
 
 		// Labels
 		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
-		tEnter.enter().append("text")
-			.attr("class", "axis-label y1")
-			.attr("y", 10)
+		tEnter.enter().append('text')
+			.attr('class', 'axis-label y1')
+			.attr('y', 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr("x", width - 25)
+			.attr('x', width - 25)
 	}
 
 	function createSkeleton(svg) {
 		// Otherwise, create the skeletal chart.
-		var gEnter = svg.enter().append("svg").append("g");
+		var gEnter = svg.enter().append('svg').append('g');
 
 		// Lines
-		gEnter.append("path")
-			.attr("class", "line line0");
-		dualYaxis && gEnter.append("path")
-			.attr("class", "line line1");
+		gEnter.append('path')
+			.attr('class', 'line line0');
+		dualYaxis && gEnter.append('path')
+			.attr('class', 'line line1');
 
 		// Areas
-		gEnter.append("path")
-			.attr("class", "area area0");
-		dualYaxis && gEnter.append("path")
-			.attr("class", "area area1");
+		gEnter.append('path')
+			.attr('class', 'area area0');
+		dualYaxis && gEnter.append('path')
+			.attr('class', 'area area1');
 
 		// Points
-		gEnter.append("g")
-			.attr("class", "points y0");
-		dualYaxis && gEnter.append("g")
-			.attr("class", "points y1");
+		gEnter.append('g')
+			.attr('class', 'points y0');
+		dualYaxis && gEnter.append('g')
+			.attr('class', 'points y1');
 
 		// Grid
-		gEnter.append("g")
-			.attr("class", "x grid");
-		gEnter.append("g")
-			.attr("class", "y grid");
+		gEnter.append('g')
+			.attr('class', 'x grid');
+		gEnter.append('g')
+			.attr('class', 'y grid');
 
 		// Axis
-		gEnter.append("g")
-			.attr("class", "x axis");
-		gEnter.append("g")
-			.attr("class", "y0 axis");
-		dualYaxis && gEnter.append("g")
-			.attr("class", "y1 axis");
+		gEnter.append('g')
+			.attr('class', 'x axis');
+		gEnter.append('g')
+			.attr('class', 'y0 axis');
+		dualYaxis && gEnter.append('g')
+			.attr('class', 'y1 axis');
 
 		// Rects
-		gEnter.append("g")
-			.attr("class", "rects");
+		gEnter.append('g')
+			.attr('class', 'rects');
 
 		setAxisLabels(svg);
 		setLegendLabels(svg);
 
 		// Mouseover line
-		gEnter.append("line")
-			.attr("y2", innerH())
-			.attr("y1", 0)
-			.attr("class", "indicator");
+		gEnter.append('line')
+			.attr('y2', innerH())
+			.attr('y1', 0)
+			.attr('class', 'indicator');
+	}
+
+	function lineTransition(line) {
+		var totalLength = line.node().getTotalLength();
+
+		line.attr('stroke-dasharray', totalLength + ' ' + totalLength)
+			.attr('stroke-dashoffset', totalLength)
+			.transition()
+			.duration(2000)
+			.ease('linear')
+			.attr('stroke-dashoffset', 0);
 	}
 
 	// Update the area path and lines.
 	function addAreaLines(g) {
 		// Update the area path.
-		g.select(".area0").attr("d", area0.y0(yScale0.range()[0]));
+		g.select('.area0').attr('d', area0.y0(yScale0.range()[0]));
+
 		// Update the line path.
-		g.select(".line0").attr("d", line0);
+		var line = g.select('.line0');
+		line.attr('d', line0);
+		lineTransition(line);
 
 		if (!dualYaxis)
 			return;
 
 		// Update the area path.
-		g.select(".area1").attr("d", area1.y1(yScale1.range()[0]));
+		g.select('.area1').attr('d', area1.y1(yScale1.range()[0]));
 		// Update the line path.
-		g.select(".line1").attr("d", line1);
+		line = g.select('.line1');
+		line.attr('d', line1);
+		lineTransition(line);
 	}
 
 	// Update chart points
@@ -1046,13 +1083,13 @@ function AreaChart(dualYaxis) {
 
 	function addAxis(g, data) {
 		// Update the x-axis.
-		g.select(".x.axis")
-			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+		g.select('.x.axis')
+			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xAxis
 				.tickValues(getXTicks(data))
 			 );
 		// Update the y0-axis.
-		g.select(".y0.axis")
+		g.select('.y0.axis')
 			.call(yAxis0
 				.tickValues(getYTicks(yScale0))
 			);
@@ -1061,8 +1098,8 @@ function AreaChart(dualYaxis) {
 			return;
 
 		// Update the y1-axis.
-		g.select(".y1.axis")
-			.attr("transform", "translate(" + innerW() + ", 0)")
+		g.select('.y1.axis')
+			.attr('transform', 'translate(' + innerW() + ', 0)')
 			.call(yAxis1
 				.tickValues(getYTicks(yScale1))
 			);
@@ -1070,19 +1107,19 @@ function AreaChart(dualYaxis) {
 
 	// Update the X-Y grid.
 	function addGrid(g, data) {
-		g.select(".x.grid")
-			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+		g.select('.x.grid')
+			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xGrid
 				.tickValues(getXTicks(data))
 				.tickSize(-innerH(), 0, 0)
-				.tickFormat("")
+				.tickFormat('')
 			);
 
-		g.select(".y.grid")
+		g.select('.y.grid')
 			.call(yGrid
 				.tickValues(getYTicks(yScale0))
 				.tickSize(-innerW(), 0, 0)
-				.tickFormat("")
+				.tickFormat('')
 			);
 	}
 
@@ -1100,28 +1137,28 @@ function AreaChart(dualYaxis) {
 	}
 
 	function mouseover(_self, selection, data, idx) {
-		var tooltip = selection.select(".chart-tooltip-wrap");
+		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data, idx))
 			.style('left', (xScale(data[0])) + 'px')
-			.style('top',  (d3.mouse(_self)[1] + 10) + "px")
+			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
 			.style('display', 'block');
 
-		selection.select("line.indicator")
-			.style("display", "block")
-			.attr("transform", "translate(" + xScale(data[0]) + "," + 0 + ")");
+		selection.select('line.indicator')
+			.style('display', 'block')
+			.attr('transform', 'translate(' + xScale(data[0]) + ',' + 0 + ')');
 	}
 
 	function mouseout(selection, g) {
-		var tooltip = selection.select(".chart-tooltip-wrap");
+		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.style('display', 'none');
 
-		g.select("line.indicator").style("display", "none");
+		g.select('line.indicator').style('display', 'none');
 	}
 
 	function addRects(selection, g, data) {
 		var w = (innerW() / data.length);
 
-		var rects = g.select("g.rects").selectAll("rect")
+		var rects = g.select('g.rects').selectAll('rect')
 			.data(data);
 		rects
 			.enter()
@@ -1150,18 +1187,18 @@ function AreaChart(dualYaxis) {
 			updateScales(data);
 
 			// Select the svg element, if it exists.
-			var svg = d3.select(this).selectAll("svg").data([data]);
+			var svg = d3.select(this).selectAll('svg').data([data]);
 			createSkeleton(svg);
 
 			// Update the outer dimensions.
 			svg.attr({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 
 			// Update the inner dimensions.
-			var g = svg.select("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			var g = svg.select('g')
+				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 			// Add grid
 			addGrid(g, data);
@@ -1256,11 +1293,11 @@ function BarChart(dualYaxis) {
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
-		.orient("bottom");
+		.orient('bottom');
 
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left")
+		.orient('left')
 		.tickFormat(function (d) {
 			if (format.y1)
 				return GoAccess.Common.fmtValue(d, format.y1);
@@ -1269,7 +1306,7 @@ function BarChart(dualYaxis) {
 
 	var yAxis1 = d3.svg.axis()
 		.scale(yScale1)
-		.orient("right")
+		.orient('right')
 		.tickFormat(function (d) {
 			if (format.y1)
 				return GoAccess.Common.fmtValue(d, format.y1);
@@ -1278,11 +1315,11 @@ function BarChart(dualYaxis) {
 
 	var xGrid = d3.svg.axis()
 		.scale(xScale)
-		.orient("bottom");
+		.orient('bottom');
 
 	var yGrid = d3.svg.axis()
 		.scale(yScale0)
-		.orient("left");
+		.orient('left');
 
 	// The x-accessor for the path generator; xScale ∘ xValue.
 	function X(d) {
@@ -1357,19 +1394,19 @@ function BarChart(dualYaxis) {
 	function setLegendLabels(svg) {
 		// Legend Color
 		var rect = svg.selectAll('rect.legend.y0').data([null]);
-		rect.enter().append("rect")
-			.attr("class", "legend y0")
-			.attr("y", (height - 15));
+		rect.enter().append('rect')
+			.attr('class', 'legend y0')
+			.attr('y', (height - 15));
 		rect
-			.attr("x", (width / 2) - 100);
+			.attr('x', (width / 2) - 100);
 
 		// Legend Labels
 		var text = svg.selectAll('text.legend.y0').data([null]);
-		text.enter().append("text")
-			.attr("class", "legend y0")
-			.attr("y", (height - 6));
+		text.enter().append('text')
+			.attr('class', 'legend y0')
+			.attr('y', (height - 6));
 		text
-			.attr("x", (width / 2) - 85)
+			.attr('x', (width / 2) - 85)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -1377,29 +1414,29 @@ function BarChart(dualYaxis) {
 
 		// Legend Labels
 		rect = svg.selectAll('rect.legend.y1').data([null]);
-		rect.enter().append("rect")
-			.attr("class", "legend y1")
-			.attr("y", (height - 15));
+		rect.enter().append('rect')
+			.attr('class', 'legend y1')
+			.attr('y', (height - 15));
 		rect
-			.attr("x", (width / 2));
+			.attr('x', (width / 2));
 
 		// Legend Labels
 		text = svg.selectAll('text.legend.y1').data([null]);
-		text.enter().append("text")
-			.attr("class", "legend y1")
-			.attr("y", (height - 6));
+		text.enter().append('text')
+			.attr('class', 'legend y1')
+			.attr('y', (height - 6));
 		text
-			.attr("x", (width / 2) + 15)
+			.attr('x', (width / 2) + 15)
 			.text(labels.y1);
 	}
 
 	function setAxisLabels(svg) {
 		// Labels
 		svg.selectAll('text.axis-label.y0').data([null])
-			.enter().append("text")
-			.attr("class", "axis-label y0")
-			.attr("y", 10)
-			.attr("x", 50)
+			.enter().append('text')
+			.attr('class', 'axis-label y0')
+			.attr('y', 10)
+			.attr('x', 50)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -1407,50 +1444,50 @@ function BarChart(dualYaxis) {
 
 		// Labels
 		var tEnter = svg.selectAll('text.axis-label.y1').data([null]);
-		tEnter.enter().append("text")
-			.attr("class", "axis-label y1")
-			.attr("y", 10)
+		tEnter.enter().append('text')
+			.attr('class', 'axis-label y1')
+			.attr('y', 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr("x", width - 25)
+			.attr('x', width - 25)
 	}
 
 	function createSkeleton(svg) {
 		// Otherwise, create the skeletal chart.
-		var gEnter = svg.enter().append("svg").append("g");
+		var gEnter = svg.enter().append('svg').append('g');
 
 		// Grid
-		gEnter.append("g")
-			.attr("class", "x grid");
-		gEnter.append("g")
-			.attr("class", "y grid");
+		gEnter.append('g')
+			.attr('class', 'x grid');
+		gEnter.append('g')
+			.attr('class', 'y grid');
 
 		// Axis
-		gEnter.append("g")
-			.attr("class", "x axis");
-		gEnter.append("g")
-			.attr("class", "y0 axis");
-		dualYaxis && gEnter.append("g")
-			.attr("class", "y1 axis");
+		gEnter.append('g')
+			.attr('class', 'x axis');
+		gEnter.append('g')
+			.attr('class', 'y0 axis');
+		dualYaxis && gEnter.append('g')
+			.attr('class', 'y1 axis');
 
 		// Bars
-		gEnter.append("g")
-			.attr("class", "bars y0");
-		dualYaxis && gEnter.append("g")
-			.attr("class", "bars y1");
+		gEnter.append('g')
+			.attr('class', 'bars y0');
+		dualYaxis && gEnter.append('g')
+			.attr('class', 'bars y1');
 
 		// Rects
-		gEnter.append("g")
-			.attr("class", "rects");
+		gEnter.append('g')
+			.attr('class', 'rects');
 
 		setAxisLabels(svg);
 		setLegendLabels(svg);
 
 		// Mouseover line
-		gEnter.append("line")
-			.attr("y2", innerH())
-			.attr("y1", 0)
-			.attr("class", "indicator");
+		gEnter.append('line')
+			.attr('y2', innerH())
+			.attr('y1', 0)
+			.attr('class', 'indicator');
 	}
 
 	// Update the area path and lines.
@@ -1489,13 +1526,13 @@ function BarChart(dualYaxis) {
 
 	function addAxis(g, data) {
 		// Update the x-axis.
-		g.select(".x.axis")
-			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+		g.select('.x.axis')
+			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xAxis
 				.tickValues(getXTicks(data))
 			 );
 		// Update the y0-axis.
-		g.select(".y0.axis")
+		g.select('.y0.axis')
 			.call(yAxis0
 				.tickValues(getYTicks(yScale0))
 			);
@@ -1504,8 +1541,8 @@ function BarChart(dualYaxis) {
 			return;
 
 		// Update the y1-axis.
-		g.select(".y1.axis")
-			.attr("transform", "translate(" + innerW() + ", 0)")
+		g.select('.y1.axis')
+			.attr('transform', 'translate(' + innerW() + ', 0)')
 			.call(yAxis1
 				.tickValues(getYTicks(yScale1))
 			);
@@ -1513,19 +1550,19 @@ function BarChart(dualYaxis) {
 
 	// Update the X-Y grid.
 	function addGrid(g, data) {
-		g.select(".x.grid")
-			.attr("transform", "translate(0," + yScale0.range()[0] + ")")
+		g.select('.x.grid')
+			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xGrid
 				.tickValues(getXTicks(data))
 				.tickSize(-innerH(), 0, 0)
-				.tickFormat("")
+				.tickFormat('')
 			);
 
-		g.select(".y.grid")
+		g.select('.y.grid')
 			.call(yGrid
 				.tickValues(getYTicks(yScale0))
 				.tickSize(-innerW(), 0, 0)
-				.tickFormat("")
+				.tickFormat('')
 			);
 	}
 
@@ -1543,28 +1580,28 @@ function BarChart(dualYaxis) {
 	}
 
 	function mouseover(_self, selection, data, idx) {
-		var tooltip = selection.select(".chart-tooltip-wrap");
+		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data, idx))
 			.style('left', (xScale(data[0])) + 'px')
-			.style('top',  (d3.mouse(_self)[1] + 10) + "px")
+			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
 			.style('display', 'block');
 
-		selection.select("line.indicator")
-			.style("display", "block")
-			.attr("transform", "translate(" + xScale(data[0]) + "," + 0 + ")");
+		selection.select('line.indicator')
+			.style('display', 'block')
+			.attr('transform', 'translate(' + xScale(data[0]) + ',' + 0 + ')');
 	}
 
 	function mouseout(selection, g) {
-		var tooltip = selection.select(".chart-tooltip-wrap");
+		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.style('display', 'none');
 
-		g.select("line.indicator").style("display", "none");
+		g.select('line.indicator').style('display', 'none');
 	}
 
 	function addRects(selection, g, data) {
 		var w = (innerW() / data.length);
 
-		var rects = g.select("g.rects").selectAll("rect")
+		var rects = g.select('g.rects').selectAll('rect')
 			.data(data);
 		rects
 			.enter()
@@ -1593,18 +1630,18 @@ function BarChart(dualYaxis) {
 			updateScales(data);
 
 			// Select the svg element, if it exists.
-			var svg = d3.select(this).selectAll("svg").data([data]);
+			var svg = d3.select(this).selectAll('svg').data([data]);
 			createSkeleton(svg);
 
 			// Update the outer dimensions.
 			svg.attr({
-				"width": width,
-				"height": height
+				'width': width,
+				'height': height
 			});
 
 			// Update the inner dimensions.
-			var g = svg.select("g")
-				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+			var g = svg.select('g')
+				.attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
 			// Add grid
 			addGrid(g, data);
