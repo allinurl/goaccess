@@ -76,14 +76,14 @@ typedef struct GDefMetric_
 
 typedef struct GHTMLPlot_
 {
-  void (*plot) (FILE * fp, int sp);
+  GChartType chart_type;
+  int8_t chart_reverse;
+  void (*plot) (FILE * fp, const struct GHTMLPlot_ plot, int sp);
 } GHTMLPlot;
 /* Controls HTML output. */
 typedef struct GHTML_
 {
   GModule module;
-  GChartType chart_type;
-  int8_t chart_reverse;
   int8_t table;
   void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
   GHTMLPlot chart[MAX_PLOTS];

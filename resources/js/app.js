@@ -27,6 +27,10 @@ window.GoAccess = window.GoAccess || {
 		};
 	},
 
+	getPanelUI: function (panel) {
+		return panel ? this.AppUIData[panel] : this.AppUIData;
+	},
+
 	getPrefs: function () {
 		return this.AppPrefs;
 	},
@@ -34,10 +38,6 @@ window.GoAccess = window.GoAccess || {
 	getPanelData: function (panel) {
 		return panel ? this.AppData[panel] : this.AppData;
 	},
-
-	getPanelUI: function (panel) {
-		return panel ? this.AppUIData[panel] : this.AppUIData;
-	}
 };
 
 // HELPERS
@@ -46,9 +46,15 @@ GoAccess.Common = {
 
 	// Add all attributes of n to o
 	merge: function (o, n) {
-		for (var attrname in n) {
-			o[attrname] = n[attrname];
+		var obj = {}, i = 0, il = arguments.length, key;
+		for (; i < il; i++) {
+			for (key in arguments[i]) {
+				if (arguments[i].hasOwnProperty(key)) {
+					obj[key] = arguments[i][key];
+				}
+			}
 		}
+		return obj;
 	},
 
 	// Format bytes to human readable
@@ -330,6 +336,16 @@ GoAccess.Charts = {
 			.append("div").attr("class", "chart-tooltip-wrap");
 	},
 
+	drawPlot: function (panel, plotUI, data) {
+		var chart = this.getChart(panel, plotUI, data);
+		if (!chart)
+			return;
+
+		this.renderChart(panel, chart, data);
+		GoAccess.AppCharts[panel] = null;
+		GoAccess.AppCharts[panel] = chart;
+	},
+
 	// Redraw a chart upon selecting a metric.
 	redrawChart: function (targ) {
 		var plot = targ.getAttribute('data-plot');
@@ -345,11 +361,7 @@ GoAccess.Charts = {
 			// Extract data for the selected panel and process it
 			var data = this.processChartData(GoAccess.getPanelData(panel).data);
 			ui.chartReverse && (data = data.reverse());
-
-			var chart = this.getAreaSpline(panel, plotUI[x], data);
-			this.renderChart(panel, chart, data);
-
-			GoAccess.AppCharts[panel] = chart;
+			this.drawPlot(panel, plotUI[x], data);
 			break;
 		}
 	},
@@ -372,105 +384,102 @@ GoAccess.Charts = {
 		return out;
 	},
 
-	getAreaSpline: function (panel, plotData, data) {
-		var dualYaxis = plotData['d3']['y1'];
+	getAreaSpline: function (panel, plotUI, data) {
+		var dualYaxis = plotUI['d3']['y1'];
 
 		var chart = AreaChart(dualYaxis)
 		.labels({
-			y0: plotData['d3']['y0'].label,
-			y1: dualYaxis ? plotData['d3']['y1'].label : ''
+			y0: plotUI['d3']['y0'].label,
+			y1: dualYaxis ? plotUI['d3']['y1'].label : ''
 		})
 		.x(function (d) {
 			return d.data;;
 		})
 		.y0(function (d) {
-			return +d[plotData['d3']['y0']['key']];
+			return +d[plotUI['d3']['y0']['key']];
 		})
 		.width($("#chart-" + panel).offsetWidth)
 		.height(175)
 		.format({
-			x: ((plotData.d3 || {}).x || {}).format,
-			y0: ((plotData.d3 || {}).y0 || {}).format,
-			y1: ((plotData.d3 || {}).y1 || {}).format,
-		});
+			x: ((plotUI.d3 || {}).x || {}).format,
+			y0: ((plotUI.d3 || {}).y0 || {}).format,
+			y1: ((plotUI.d3 || {}).y1 || {}).format,
+		})
+		.opts(plotUI);
 
 		dualYaxis && chart.y1(function (d) {
-			return +d[plotData['d3']['y1']['key']];
+			return +d[plotUI['d3']['y1']['key']];
 		});
 
 		return chart;
 	},
 
-	// Set default D3 chart to area spline and apply panel user
-	// interface definition and load data.
-	renderAreaSpline: function (panel, plotData, data) {
-		var chart = this.getAreaSpline(panel, plotData, data);
-		this.renderChart(panel, chart, data);
-
-		GoAccess.AppCharts[panel] = chart;
-	},
-
-	getVBar: function (panel, plotData, data) {
-		var dualYaxis = plotData['d3']['y1'];
+	getVBar: function (panel, plotUI, data) {
+		var dualYaxis = plotUI['d3']['y1'];
 
 		var chart = BarChart(dualYaxis)
 		.labels({
-			y0: plotData['d3']['y0'].label,
-			y1: dualYaxis ? plotData['d3']['y1'].label : ''
+			y0: plotUI['d3']['y0'].label,
+			y1: dualYaxis ? plotUI['d3']['y1'].label : ''
 		})
 		.x(function (d) {
 			return d.data;;
 		})
 		.y0(function (d) {
-			return +d[plotData['d3']['y0']['key']];
+			return +d[plotUI['d3']['y0']['key']];
 		})
 		.width($("#chart-" + panel).offsetWidth)
 		.height(175)
 		.format({
-			x: ((plotData.d3 || {}).x || {}).format,
-			y0: ((plotData.d3 || {}).y0 || {}).format,
-			y1: ((plotData.d3 || {}).y1 || {}).format,
-		});
+			x: ((plotUI.d3 || {}).x || {}).format,
+			y0: ((plotUI.d3 || {}).y0 || {}).format,
+			y1: ((plotUI.d3 || {}).y1 || {}).format,
+		})
+		.opts(plotUI);
 
 		dualYaxis && chart.y1(function (d) {
-			return +d[plotData['d3']['y1']['key']];
+			return +d[plotUI['d3']['y1']['key']];
 		});
 
 		return chart;
 	},
 
-	// Set default C3 chart to area spline and apply panel user
-	// interface definition and load data.
-	renderVBar: function (panel, plotData, data) {
-		var chart = this.getVBar(panel, plotData, data);
-		this.renderChart(panel, chart, data);
+	getChart: function (panel, plotUI, data) {
+		var chart = null;
+		// Render given its type
+		switch (plotUI.chartType) {
+		case 'area-spline':
+			chart = this.getAreaSpline(panel, plotUI, data);
+			break;
+		case 'bar':
+			chart = this.getVBar(panel, plotUI, data);
+			break;
+		};
 
-		GoAccess.AppCharts[panel] = chart;
+		return chart;
 	},
 
 	// Render all charts for the applicable panels.
 	renderCharts: function (ui) {
+		var plotUI = null, chart = null;
 		for (var panel in ui) {
 			if (!ui.hasOwnProperty(panel))
 				continue;
-			// Ensure it has a chartType property and has C3 definitions
-			if (!ui[panel].chartType || !ui[panel].plot.length)
+			// Ensure it has a plot definitions
+			if (!ui[panel].plot || !ui[panel].plot.length)
 				continue;
 
+			plotUI = ui[panel].plot[0];
 			// Grab the data for the selected panel
 			var data = this.processChartData(GoAccess.getPanelData(panel).data);
-			if (ui[panel].chartReverse)
+			if (plotUI.chartReverse)
 				data = data.reverse();
 
-			// Render given its type
-			switch (ui[panel].chartType) {
-			case 'area-spline':
-				this.renderAreaSpline(panel, ui[panel].plot[0], data);
-				break;
-			case 'bar':
-				this.renderVBar(panel, ui[panel].plot[0], data);
-				break;
-			};
+			if (!(chart = this.getChart(panel, plotUI, data)))
+				continue;
+
+			this.renderChart(panel, chart, data);
+			GoAccess.AppCharts[panel] = chart;
 		}
 	},
 
@@ -490,6 +499,8 @@ GoAccess.Charts = {
 
 // RENDER TABLES
 GoAccess.Tables = {
+	chartData: {}, // holds all panel sub items data that feeds the chart
+
 	events: function () {
 		var _this = this;
 		$$('.panel-next', function (item) {
@@ -513,18 +524,58 @@ GoAccess.Tables = {
 		});
 	},
 
+
+	getSubItemsData: function () {
+		var out = [];
+		for (var x in this.chartData) {
+			if (!this.chartData.hasOwnProperty(x))
+				continue;
+			out = out.concat(this.chartData[x]);
+		}
+		return out;
+	},
+
+	addChartData: function (panel, index) {
+		var data = GoAccess.getPanelData(panel).data, out = [];
+		if (!data[index] || !data[index].items)
+			return out;
+		this.chartData[index] = data[index]['items'];
+
+		return this.getSubItemsData();
+	},
+
+	removeChartData: function (panel, index) {
+		if (this.chartData.hasOwnProperty(index))
+			delete this.chartData[index];
+
+		if (Object.keys(this.chartData).length == 0)
+			return GoAccess.getPanelData(panel).data;
+
+		return this.getSubItemsData();
+	},
+
 	// Toggle children rows
 	toggleRow: function (ele) {
-		var cell = ele;
-		cell.classList.toggle('row-expanded')
+		var cell = ele, hide = false;
 		var row = cell.parentNode;
+		var pid = row.getAttribute('data-pid'), panel = row.getAttribute('data-panel');
+		var plotUI = GoAccess.AppCharts[panel].opts();
+
+		cell.classList.toggle('row-expanded')
 		while (row = row.nextSibling) {
 			if (row.tagName != 'TR')
 				continue;
 			if (row.className.indexOf('parent') != -1)
 				break;
-			row.classList.toggle('hide');
+			hide = row.classList.toggle('hide');
 		}
+
+		var data = [];
+		if (!hide)
+			data = GoAccess.Charts.processChartData(this.addChartData(panel, pid));
+		else
+			data = GoAccess.Charts.processChartData(this.removeChartData(panel, pid));
+		GoAccess.Charts.drawPlot(panel, plotUI, data);
 	},
 
 	// Get current panel page
@@ -654,6 +705,7 @@ GoAccess.Tables = {
 		var shadeParent = ((!subItem && idx % 2 != 0) ? 'shaded' : '');
 		var shadeChild = ((parentId % 2 != 0) ? 'shaded' : '');
 		return {
+			'panel'       : panel,
 			'idx'         : !subItem && (String(idx + this.pageOffSet(panel))),
 			'parentId'    : subItem ? String(parentId) : '',
 			'className'   : subItem ? 'child hide ' + shadeChild : 'parent ' + shadeParent,
@@ -760,6 +812,7 @@ GoAccess.App = {
 };
 
 function AreaChart(dualYaxis) {
+	var opts = {};
 	var margin = {
 			top    : 20,
 			right  : 50,
@@ -1213,6 +1266,12 @@ function AreaChart(dualYaxis) {
 		});
 	}
 
+	chart.opts = function (_) {
+		if (!arguments.length) return opts;
+		opts = _;
+		return chart;
+	};
+
 	chart.format = function (_) {
 		if (!arguments.length) return format;
 		format = _;
@@ -1265,6 +1324,7 @@ function AreaChart(dualYaxis) {
 }
 
 function BarChart(dualYaxis) {
+	var opts = {};
 	var margin = {
 			top    : 20,
 			right  : 50,
@@ -1653,6 +1713,12 @@ function BarChart(dualYaxis) {
 			addRects(selection, g, data);
 		});
 	}
+
+	chart.opts = function (_) {
+		if (!arguments.length) return opts;
+		opts = _;
+		return chart;
+	};
 
 	chart.format = function (_) {
 		if (!arguments.length) return format;
