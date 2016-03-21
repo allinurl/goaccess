@@ -19,7 +19,7 @@
 <!-- TPL Panel Table -->
 <script id="tpl-table-row" type="text/template">
 	{{#rows}}
-		<tr class="{{#className}}{{className}}{{/className}}" {{#parentId}}data-pid="{{parentId}}"{{/parentId}}>
+		<tr class="{{#className}}{{className}}{{/className}}" {{#idx}}data-pid="{{idx}}"{{/idx}} data-panel="{{panel}}">
 			{{#hasSubItems}}
 			<td class="row-collapsed text-center {{#items}}clickable{{/items}}">
 				{{#items}}<i class="fa"></i>{{/items}}
@@ -80,15 +80,13 @@
 			</div>
 		</div>
 	</div>
-	{{#chartType}}
-	{{#plot.length}}
+	{{#plot}}
 	<div class="row">
 		<div class="col-md-12">
 			<div id="chart-{{id}}" class="chart-wrap"></div>
 		</div>
 	</div>
-	{{/plot.length}}
-	{{/chartType}}
+	{{/plot}}
 	{{#table}}
 	<div class="row clearfix">
 		<div class="col-md-12">

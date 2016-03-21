@@ -59,43 +59,50 @@
 #include "hoganjs.h"
 #include "appjs.h"
 
-static void hits_visitors_plot (FILE * fp, int sp);
-static void hits_bw_plot (FILE * fp, int sp);
+static void hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp);
+static void hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp);
 
 static void print_metrics (FILE * fp, const GHTML * def, int sp);
 static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
-  {VISITORS        , CHART_AREASPLINE , 1 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {VISITORS       , 1, print_metrics, {
+    {CHART_AREASPLINE, 1, hits_visitors_plot},
+    {CHART_AREASPLINE, 1, hits_bw_plot},
   }},
-  {REQUESTS        , CHART_NONE       , 0 , 1, print_metrics } ,
-  {REQUESTS_STATIC , CHART_NONE       , 0 , 1, print_metrics } ,
-  {NOT_FOUND       , CHART_NONE       , 0 , 1, print_metrics } ,
-  {HOSTS           , CHART_AREASPLINE , 0 , 1, print_host_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {REQUESTS        , 1, print_metrics } ,
+  {REQUESTS_STATIC , 1, print_metrics } ,
+  {NOT_FOUND       , 1, print_metrics } ,
+  {HOSTS           , 1, print_host_metrics, {
+    {CHART_AREASPLINE, 0, hits_visitors_plot},
+    {CHART_AREASPLINE, 0, hits_bw_plot},
   }},
-  {OS              , CHART_VBAR       , 0 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {OS              , 1, print_metrics, {
+    {CHART_VBAR, 0, hits_visitors_plot},
+    {CHART_VBAR, 0, hits_bw_plot},
   }},
-  {BROWSERS        , CHART_VBAR       , 0 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {BROWSERS        , 1, print_metrics, {
+    {CHART_VBAR, 0, hits_visitors_plot},
+    {CHART_VBAR, 0, hits_bw_plot},
   }},
-  {VISIT_TIMES     , CHART_AREASPLINE , 0 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {VISIT_TIMES     , 1, print_metrics, {
+    {CHART_AREASPLINE, 0, hits_visitors_plot},
+    {CHART_AREASPLINE, 0, hits_bw_plot},
   }},
-  {VIRTUAL_HOSTS   , CHART_NONE       , 0 , 1, print_metrics } ,
-  {REFERRERS       , CHART_NONE       , 0 , 1, print_metrics } ,
-  {REFERRING_SITES , CHART_NONE       , 0 , 1, print_metrics } ,
-  {KEYPHRASES      , CHART_NONE       , 0 , 1, print_metrics } ,
+  {VIRTUAL_HOSTS   , 1, print_metrics } ,
+  {REFERRERS       , 1, print_metrics } ,
+  {REFERRING_SITES , 1, print_metrics } ,
+  {KEYPHRASES      , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , CHART_VBAR       , 0 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {GEO_LOCATION    , 1, print_metrics, {
+    {CHART_VBAR, 0, hits_visitors_plot},
+    {CHART_VBAR, 0, hits_bw_plot},
   }},
 #endif
-  {STATUS_CODES    , CHART_VBAR       , 0 , 1, print_metrics, {
-      {hits_visitors_plot}, {hits_bw_plot}
+  {STATUS_CODES    , 1, print_metrics, {
+    {CHART_VBAR, 0, hits_visitors_plot},
+    {CHART_VBAR, 0, hits_bw_plot},
   }},
 };
 /* *INDENT-ON* */
@@ -276,7 +283,7 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_plot (FILE * fp, int sp)
+hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
 {
   /* *INDENT-OFF* */
   GChart chart[] = {
@@ -297,6 +304,9 @@ hits_visitors_plot (FILE * fp, int sp)
   pskeysval (fp, "label", "Hits/Visitors", isp, 0);
   pskeysval (fp, "className", "hits-visitors", isp, 0);
 
+  pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
+  pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);
   /* print chart definitions */
@@ -307,7 +317,7 @@ hits_visitors_plot (FILE * fp, int sp)
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_plot (FILE * fp, int sp)
+hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
 {
   /* *INDENT-OFF* */
   GChart chart[] = {
@@ -324,6 +334,9 @@ hits_bw_plot (FILE * fp, int sp)
 
   pskeysval (fp, "label", "Bandwidth", isp, 0);
   pskeysval (fp, "className", "bandwidth", isp, 0);
+
+  pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
+  pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
 
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);
@@ -733,7 +746,7 @@ print_def_plot (FILE * fp, const GHTML * def, int sp)
 
   for (i = 0; i < n; ++i) {
     popen_obj (fp, isp);
-    def->chart[i].plot (fp, isp);
+    def->chart[i].plot (fp, def->chart[i], isp);
     pclose_obj (fp, isp, (i == n - 1));
   }
 
@@ -815,12 +828,11 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
 static void
 print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 {
-  const char *chart = chart2str (def->chart_type);
   const char *desc = module_to_desc (def->module);
   const char *head = module_to_head (def->module);
   const char *id = module_to_id (def->module);
 
-  int isp = 0, rev = def->chart_reverse;
+  int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
@@ -829,11 +841,6 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 
   pskeysval (fp, "id", id, isp, 0);
   pskeyival (fp, "table", def->table, isp, 0);
-
-  if (def->chart_type) {
-    pskeysval (fp, "chartType", chart, isp, 0);
-    pskeyival (fp, "chartReverse", rev, isp, 0);
-  }
 
   print_def_plot (fp, def, isp);
   print_def_metrics (fp, def, isp);
