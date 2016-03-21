@@ -67,7 +67,7 @@ AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide 
 if test "$utf8" = "yes"; then
   AC_CHECK_LIB([ncursesw], [mvaddwstr], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncursesw])])
-  AC_SEARCH_LIBS([stdscr], [tinfow], ,[AC_MSG_ERROR([Cannot find a library providing stdscr])])
+  AC_SEARCH_LIBS([tputs], [tinfow], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
 
   have_ncurses="yes"
   AC_CHECK_HEADERS([ncursesw/ncurses.h],[have_ncurses=yes], [], [
@@ -88,7 +88,7 @@ if test "$utf8" = "yes"; then
 else
   AC_CHECK_LIB([ncurses], [refresh], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncurses])])
-  AC_SEARCH_LIBS([stdscr], [tinfo], ,[AC_MSG_ERROR([Cannot find a library providing stdscr])])
+  AC_SEARCH_LIBS([tputs], [tinfo], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
 
   have_ncurses="yes"
   AC_CHECK_HEADERS([ncurses/ncurses.h],[have_ncurses=yes], [], [
