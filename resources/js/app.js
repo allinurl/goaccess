@@ -1590,6 +1590,8 @@ function BarChart(dualYaxis) {
 			.attr('class', 'bar');
 		bars
 			.attr('width', xScale.rangeBand() / 2)
+			.transition().delay(function (d, i) { return i * 20; })
+			.duration(20)
 			.attr('height', function (d) { return innerH() - yScale0(d[1]) })
 			.attr('x', function (d) { return xScale(d[0]) })
 			.attr('y', function (d) { return yScale0(d[1]) });
@@ -1607,6 +1609,8 @@ function BarChart(dualYaxis) {
 			.attr('class', 'bar');
 		bars
 			.attr('width', xScale.rangeBand() / 2)
+			.transition().delay(function (d, i) { return i * 20; })
+			.duration(20)
 			.attr('height', function (d) { return innerH() - yScale1(d[2]) })
 			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
 			.attr('y', function (d) { return yScale1(d[2]) });
