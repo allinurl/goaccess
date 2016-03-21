@@ -910,11 +910,24 @@ function AreaChart(dualYaxis) {
 		return height - margin.top - margin.bottom;
 	}
 
+	function trunc(text, width, padding) {
+		text.each(function() {
+			var self = d3.select(this),
+				textLength = self.node().getComputedTextLength(),
+				text = self.text();
+			while (textLength > (width - 2 * padding) && text.length > 0) {
+				text = text.slice(0, -1);
+				self.text(text + '...');
+				textLength = self.node().getComputedTextLength();
+			}
+		})
+	}
+
 	function getXTicks(data) {
 		if (data.length < nTicks)
 			return xScale.domain();
 
-		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function (d) {
+		return d3.range(0, data.length, Math.ceil(data.length / nTicks)).map(function (d) {
 			return xScale.domain()[d];
 		});
 	}
@@ -1135,12 +1148,16 @@ function AreaChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
+		var xTicks = getXTicks(data);
 		// Update the x-axis.
 		g.select('.x.axis')
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xAxis
-				.tickValues(getXTicks(data))
-			 );
+				.tickValues(xTicks)
+			 )
+			.selectAll(".tick text")
+			.call(trunc, (innerW() / xTicks.length), 5);
+
 		// Update the y0-axis.
 		g.select('.y0.axis')
 			.call(yAxis0
@@ -1404,11 +1421,24 @@ function BarChart(dualYaxis) {
 		return height - margin.top - margin.bottom;
 	}
 
+	function trunc(text, width, padding) {
+		text.each(function() {
+			var self = d3.select(this),
+				textLength = self.node().getComputedTextLength(),
+				text = self.text();
+			while (textLength > (width - 2 * padding) && text.length > 0) {
+				text = text.slice(0, -1);
+				self.text(text + '...');
+				textLength = self.node().getComputedTextLength();
+			}
+		})
+	}
+
 	function getXTicks(data) {
 		if (data.length < nTicks)
 			return xScale.domain();
 
-		return d3.range(0, data.length, Math.round(data.length / nTicks)).map(function (d) {
+		return d3.range(0, data.length, Math.ceil(data.length / nTicks)).map(function (d) {
 			return xScale.domain()[d];
 		});
 	}
@@ -1585,12 +1615,16 @@ function BarChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
+		var xTicks = getXTicks(data);
 		// Update the x-axis.
 		g.select('.x.axis')
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xAxis
-				.tickValues(getXTicks(data))
-			 );
+				.tickValues(xTicks)
+			 )
+			.selectAll(".tick text")
+			.call(trunc, (innerW() / xTicks.length), 5);
+
 		// Update the y0-axis.
 		g.select('.y0.axis')
 			.call(yAxis0
