@@ -1678,15 +1678,16 @@ function BarChart(dualYaxis) {
 	}
 
 	function mouseover(_self, selection, data, idx) {
+		var left = xScale(data[0]) + (xScale.rangeBand() / 2);
 		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data, idx))
-			.style('left', (xScale(data[0])) + 'px')
+			.style('left', left + 'px')
 			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
 			.style('display', 'block');
 
 		selection.select('line.indicator')
 			.style('display', 'block')
-			.attr('transform', 'translate(' + xScale(data[0]) + ',' + 0 + ')');
+			.attr('transform', 'translate(' + left + ',' + 0 + ')');
 	}
 
 	function mouseout(selection, g) {
