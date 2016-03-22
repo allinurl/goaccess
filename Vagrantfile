@@ -2,7 +2,7 @@ $prepare = <<SCRIPT
 # repo for libgeoip
 add-apt-repository -y ppa:maxmind/ppa
 apt-get update
-apt-get install -y git autoconf libncursesw5-dev libgeoip1 libgeoip-dev geoip-bin
+apt-get install -y git autoconf libncursesw5-dev libgeoip-dev
 echo "cd /vagrant && autoreconf -fiv && ./configure --enable-geoip --enable-utf8 && make && make install" > /usr/local/bin/build-goaccess
 chmod +x /usr/local/bin/build-goaccess
 # create command to build goaccess
