@@ -190,12 +190,12 @@ typedef struct GHolderItem_
 /* Holder of GRawData */
 typedef struct GHolder_
 {
-  GHolderItem *items;           /* items */
+  GHolderItem *items;           /* holder items */
   GModule module;               /* current module  */
-  int idx;                      /* index  */
-  int holder_size;              /* total number of allocated items */
-  int ht_size;                  /* total number of data items */
-  int sub_items_size;           /* total number of sub items  */
+  int idx;                      /* holder index  */
+  int holder_size;              /* number of allocated items */
+  int ht_size;                  /* size of the hash table/store */
+  int sub_items_size;           /* number of sub items  */
 } GHolder;
 
 /* Enum-to-string */

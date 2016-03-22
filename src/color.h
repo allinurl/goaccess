@@ -76,18 +76,18 @@ typedef enum SCHEMES
 /* Each color properties */
 typedef struct GColorPair_
 {
-  short idx;
-  short fg;
-  short bg;
+  short idx;                    /* color pair index identifier */
+  short fg;                     /* foreground color */
+  short bg;                     /* background color */
 } GColorPair;
 
 /* Color */
 typedef struct GColors_
 {
-  GColorItem item;
-  GColorPair *pair;
-  int attr;
-  short module;
+  GColorItem item;              /* screen item */
+  GColorPair *pair;             /* color pair */
+  int attr;                     /* color attributes, e.g., bold */
+  short module;                 /* panel */
 } GColors;
 
 GColors *color_default (void);
