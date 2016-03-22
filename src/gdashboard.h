@@ -60,7 +60,7 @@
 #define COLUMN_HITS_LEN  4  /* column header name length */
 #define COLUMN_VIS_LEN   4  /* column header name length */
 
-/* Render holder */
+/* Common render data line fields */
 typedef struct GDashRender_
 {
   WINDOW *win;
@@ -80,33 +80,30 @@ typedef struct GDashData_
 /* Dashboard panel */
 typedef struct GDashModule_
 {
-  GDashData *data;
-  GModule module;
-  const char *head;
-  const char *desc;
+  GDashData *data;      /* data metrics */
+  GModule module;       /* module */
+  const char *head;     /* panel header */
+  const char *desc;     /* panel description */
 
-  int alloc_data;  /* malloc'd data items */
-  int dash_size;   /* dashboard size */
-  int holder_size; /* holder size (ht size || MAX_CHOICES)  */
-  int ht_size;     /* ht size  */
-  int idx_data;    /* idx data */
-
-  /* integer length */
-  int hits_len;
-  int visitors_len;
-  int perc_len;
-  int method_len;
-  int data_len;
-  /* maximum value */
-  int max_hits;
-
-  unsigned short pos_y;
+  int alloc_data;       /* number of data items allocated. */
+                        /* e.g., MAX_CHOICES or holder size */
+  int dash_size;        /* dashboard size */
+  int data_len;         /* data's maximum length */
+  int hits_len;         /* hits's maximum length. e.g., 102 => 3 */
+  int holder_size;      /* hash table size  */
+  int ht_size;          /* hash table size  */
+  int idx_data;         /* idx data */
+  int max_hits;         /* the maximum number of hits */
+  int method_len;       /* method's maximum length */
+  int perc_len;         /* percent's maximum length */
+  int visitors_len;     /* visitor's maximum length */
+  unsigned short pos_y; /* dashboard current Y position */
 } GDashModule;
 
 /* Dashboard */
 typedef struct GDash_
 {
-  int total_alloc;
+  int total_alloc; /* number of allocated dashboard lines */
   GDashModule module[TOTAL_MODULES];
 } GDash;
 
