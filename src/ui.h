@@ -73,7 +73,7 @@
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
-#define SPIN_LBL 50
+#define SPIN_LBL 50     /* max length of the progress spinner */
 
 #define INCLUDE_BOTS " - Including spiders"
 
