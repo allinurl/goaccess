@@ -45,8 +45,8 @@
 #endif
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8
-#define MIN_WIDTH         0
+#define MIN_HEIGHT        8     /* minimum window height */
+#define MIN_WIDTH         0     /* minimum window width */
 #define MAX_HEIGHT_FOOTER 1
 #define MAX_HEIGHT_HEADER 7
 #define OVERALL_NUM_COLS  4
