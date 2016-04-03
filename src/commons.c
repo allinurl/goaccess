@@ -221,6 +221,26 @@ list_remove_nodes (GSLList * list)
   return 0;
 }
 
+/* Remove the given node from the list.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
+int
+list_remove_node (GSLList * list, GSLList * node)
+{
+  while (list->next && list->next != node)
+    list = list->next;
+
+  if (list->next) {
+    list->next = node->next;
+    if (node->data)
+      free (node->data);
+    free (node);
+    return 0;
+  }
+  return 1;
+}
+
 /* Iterate over the single linked-list and call function pointer.
  *
  * If function pointer does not return 0, -1 is returned.
