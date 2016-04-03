@@ -269,11 +269,11 @@ amount of flexibility to what GoAccess can display. For example:
 
 If we would like to process all `access.log.*.gz` we can do one of the following:
 
-    # zcat access.log.*.gz | goaccess
-
     # zcat -f access.log* | goaccess
 
-Note: On Mac OS X, use gunzip -c instead of zcat.
+    # zcat access.log.*.gz | goaccess
+
+Note: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
 ##### Working with Dates #####
 

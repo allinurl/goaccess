@@ -40,8 +40,8 @@
 
 #include "commons.h"
 
-#define CITY_LEN       28
-#define CONTINENT_LEN  48
+#define CITY_LEN       28       /* max string length for a city */
+#define CONTINENT_LEN  48       /* max string length for a country */
 #define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
 
 typedef struct GLocation_

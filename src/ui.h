@@ -305,8 +305,8 @@ typedef struct GOutput_
   int8_t protocol;
   int8_t method;
   int8_t data;
-  int8_t graph;
-  int8_t sub_graph;
+  int8_t graph;                 /* display bars when collapsed */
+  int8_t sub_graph;             /* display bars upon expanding it */
 } GOutput;
 
 /* *INDENT-OFF* */
