@@ -49,7 +49,7 @@
 #define MIN_WIDTH         0     /* minimum window width */
 #define MAX_HEIGHT_FOOTER 1     /* height of the footer window */
 #define MAX_HEIGHT_HEADER 7     /* height of the header window */
-#define OVERALL_NUM_COLS  4
+#define OVERALL_NUM_COLS  4     /* number of columns on the overall stats win */
 
 /* Overall Stats Labels */
 #define T_DASH       "Dashboard"
