@@ -157,8 +157,8 @@ typedef struct GConf_
 } GConf;
 
 char *get_selected_date_str (size_t idx);
-char *get_selected_time_str (size_t idx);
 char *get_selected_format_str (size_t idx);
+char *get_selected_time_str (size_t idx);
 size_t get_selected_format_idx (void);
 
 extern GConf conf;
