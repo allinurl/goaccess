@@ -161,36 +161,36 @@ typedef struct GTCStorage_
   GTCStorageMetric metrics[GSMTRC_TOTAL];
 } GTCStorage;
 
-void init_storage (void);
-void free_storage (void);
 void free_agent_list (void);
+void free_storage (void);
+void init_storage (void);
 
-int ht_insert_unique_key (const char *key);
 int ht_insert_agent_key (const char *key);
 int ht_insert_agent_value (int key, const char *value);
+int ht_insert_unique_key (const char *key);
 
-int ht_insert_keymap (GModule module, const char *key);
-int ht_insert_datamap (GModule module, int key, const char *value);
-int ht_insert_rootmap (GModule module, int key, const char *value);
-int ht_insert_uniqmap (GModule module, const char *key);
-int ht_insert_root (GModule module, int key, int value);
-int ht_insert_hits (GModule module, int key, int inc);
-int ht_insert_visitor (GModule module, int key, int inc);
+int ht_insert_agent (GModule module, int key, int value);
 int ht_insert_bw (GModule module, int key, uint64_t inc);
 int ht_insert_cumts (GModule module, int key, uint64_t inc);
+int ht_insert_datamap (GModule module, int key, const char *value);
+int ht_insert_genstats_bw (const char *key, uint64_t inc);
+int ht_insert_genstats (const char *key, int inc);
+int ht_insert_hits (GModule module, int key, int inc);
+int ht_insert_hostname (const char *ip, const char *host);
+int ht_insert_keymap (GModule module, const char *key);
 int ht_insert_maxts (GModule module, int key, uint64_t value);
 int ht_insert_method (GModule module, int key, const char *value);
 int ht_insert_protocol (GModule module, int key, const char *value);
-int ht_insert_agent (GModule module, int key, int value);
-int ht_insert_hostname (const char *ip, const char *host);
-int ht_insert_genstats (const char *key, int inc);
-int ht_insert_genstats_bw (const char *key, uint64_t inc);
+int ht_insert_root (GModule module, int key, int value);
+int ht_insert_rootmap (GModule module, int key, const char *value);
+int ht_insert_uniqmap (GModule module, const char *key);
+int ht_insert_visitor (GModule module, int key, int inc);
 
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_uniqmap (GModule module);
 
-char *ht_get_host_agent_val (int key);
 char *ht_get_datamap (GModule module, int key);
+char *ht_get_host_agent_val (int key);
 char *ht_get_hostname (const char *host);
 char *ht_get_method (GModule module, int key);
 char *ht_get_protocol (GModule module, int key);
@@ -199,9 +199,9 @@ int ht_get_keymap (GModule module, const char *key);
 int ht_get_uniqmap (GModule module, const char *key);
 int ht_get_visitors (GModule module, int key);
 uint32_t ht_get_genstats (const char *key);
-uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_bw (GModule module, int key);
 uint64_t ht_get_cumts (GModule module, int key);
+uint64_t ht_get_genstats_bw (const char *key);
 uint64_t ht_get_maxts (GModule module, int key);
 
 GSLList *tclist_to_gsllist (TCLIST * tclist);
