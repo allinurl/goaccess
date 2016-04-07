@@ -230,8 +230,8 @@ extern time_t start_proc;
 extern int module_list[TOTAL_MODULES];
 
 /* *INDENT-OFF* */
-GAgents *new_gagents (void);
 GAgentItem *new_gagent_item (uint32_t size);
+GAgents *new_gagents (void);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_module_enum (const char *str);
