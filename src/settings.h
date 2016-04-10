@@ -88,23 +88,23 @@ typedef struct GPreConfLog_
 /* All configuration properties */
 typedef struct GConf_
 {
-  char *date_format;
-  char *debug_log;
-  char *geoip_database;
-  char *html_report_title;
-  char *iconfigfile;
-  char *ifile;
-  char *ignore_ips[MAX_IGNORE_IPS];
-  char *ignore_referers[MAX_IGNORE_REF];
-  char *invalid_requests_log;
-  char *log_format;
-  char *output_format;
-  char *sort_panels[TOTAL_MODULES];
-  char *time_format;
-  const char *colors[MAX_CUSTOM_COLORS];
-  const char *ignore_panels[TOTAL_MODULES];
-  const char *ignore_status[MAX_IGNORE_STATUS];
-  const char *static_files[MAX_EXTENSIONS];
+  char *date_format;            /* date format */
+  char *debug_log;              /* debug log path */
+  char *geoip_database;         /* geoip db path */
+  char *html_report_title;      /* report title */
+  char *iconfigfile;            /* config file path */
+  char *ifile;                  /* log file */
+  char *ignore_ips[MAX_IGNORE_IPS];     /* array of ips to ignore */
+  char *ignore_referers[MAX_IGNORE_REF];        /* referrers to ignore */
+  char *invalid_requests_log;   /* invalid lines log path */
+  char *log_format;             /* log format */
+  char *output_format;          /* output format, e.g., HTML, JSON */
+  char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
+  char *time_format;            /* time format */
+  const char *colors[MAX_CUSTOM_COLORS];        /* colors */
+  const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
+  const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
+  const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
   int all_static_files;
   int append_method;
