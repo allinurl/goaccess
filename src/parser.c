@@ -532,7 +532,10 @@ extract_keyphrase (char *ref, char **keyphrase)
 
   if (!(strstr (ref, "http://www.google.")) &&
       !(strstr (ref, "http://webcache.googleusercontent.com/")) &&
-      !(strstr (ref, "http://translate.googleusercontent.com/")))
+      !(strstr (ref, "http://translate.googleusercontent.com/")) &&
+      !(strstr (ref, "https://www.google.")) &&
+      !(strstr (ref, "https://webcache.googleusercontent.com/")) &&
+      !(strstr (ref, "https://translate.googleusercontent.com/")))
     return 1;
 
   /* webcache.googleusercontent */
