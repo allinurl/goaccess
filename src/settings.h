@@ -106,20 +106,20 @@ typedef struct GConf_
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
-  int all_static_files;
-  int append_method;
-  int append_protocol;
-  int bandwidth;
-  int client_err_to_unique_count;
-  int code444_as_404;
-  int color_scheme;
-  int double_decode;
-  int enable_html_resolver;
-  int geo_db;
-  int hl_header;
-  int ignore_crawlers;
-  int ignore_qstr;
-  int list_agents;
+  int all_static_files;         /* parse all static files */
+  int append_method;            /* append method to the req key */
+  int append_protocol;          /* append protocol to the req key */
+  int bandwidth;                /* is there bandwidth within the req line */
+  int client_err_to_unique_count;       /* count 400s as visitors */
+  int code444_as_404;           /* 444 as 404s? */
+  int color_scheme;             /* color scheme */
+  int double_decode;            /* need to double decode */
+  int enable_html_resolver;     /* html/json/csv resolver */
+  int geo_db;                   /* legacy geoip db */
+  int hl_header;                /* highlight header on term */
+  int ignore_crawlers;          /* ignore crawlers */
+  int ignore_qstr;              /* ignore query string */
+  int list_agents;              /* show list of agents per host */
   int load_conf_dlg;
   int load_global_config;
   int mouse_support;
