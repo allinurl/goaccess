@@ -125,13 +125,13 @@ typedef struct GConf_
   int mouse_support;            /* add curses mouse support */
   int no_color;                 /* no terminal colors */
   int no_column_names;          /* don't show col names on termnal */
-  int no_csv_summary;
-  int no_progress;
-  int no_tab_scroll;
-  int output_html;
-  int real_os;
-  int serve_usecs;
-  int skip_term_resolver;
+  int no_csv_summary;           /* don't show overall metrics */
+  int no_progress;              /* disable progress metrics */
+  int no_tab_scroll;            /* don't scroll dashboard on tab */
+  int output_html;              /* outputting to stdout */
+  int real_os;                  /* show real OSs */
+  int serve_usecs;              /* is there time served within req line */
+  int skip_term_resolver;       /* no terminal resolver */
 
   int color_idx;
   int ignore_ip_idx;
