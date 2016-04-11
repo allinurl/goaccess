@@ -120,11 +120,11 @@ typedef struct GConf_
   int ignore_crawlers;          /* ignore crawlers */
   int ignore_qstr;              /* ignore query string */
   int list_agents;              /* show list of agents per host */
-  int load_conf_dlg;
-  int load_global_config;
-  int mouse_support;
-  int no_color;
-  int no_column_names;
+  int load_conf_dlg;            /* load curses config dialog */
+  int load_global_config;       /* use global config file */
+  int mouse_support;            /* add curses mouse support */
+  int no_color;                 /* no terminal colors */
+  int no_column_names;          /* don't show col names on termnal */
   int no_csv_summary;
   int no_progress;
   int no_tab_scroll;
