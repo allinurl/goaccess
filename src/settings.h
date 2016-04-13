@@ -133,13 +133,13 @@ typedef struct GConf_
   int serve_usecs;              /* is there time served within req line */
   int skip_term_resolver;       /* no terminal resolver */
 
-  int color_idx;
-  int ignore_ip_idx;
-  int ignore_panel_idx;
-  int ignore_referer_idx;
-  int ignore_status_idx;
-  int sort_panel_idx;
-  int static_file_idx;
+  int color_idx;                /* colors index */
+  int ignore_ip_idx;            /* ignored ips index */
+  int ignore_panel_idx;         /* ignored panels index */
+  int ignore_referer_idx;       /* ignored referrers index */
+  int ignore_status_idx;        /* ignore status index */
+  int sort_panel_idx;           /* sort panel index */
+  int static_file_idx;          /* static extensions index */
 
   size_t static_file_max_len;
 
