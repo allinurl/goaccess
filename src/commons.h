@@ -211,7 +211,7 @@ typedef struct GAgents_
   struct GAgentItem_ *items;
 } GAgents;
 
-/* Generic Single linked-list */
+/* Generic Singly linked-list */
 typedef struct GSLList_
 {
   void *data;
@@ -250,7 +250,7 @@ void display_default_config_file (void);
 void display_storage (void);
 void display_version (void);
 
-/* single linked-list */
+/* singly linked-list */
 GSLList *list_create (void *data);
 GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
 GSLList *list_insert_append (GSLList * node, void *data);
