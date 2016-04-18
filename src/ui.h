@@ -45,11 +45,11 @@
 #endif
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8
-#define MIN_WIDTH         0
-#define MAX_HEIGHT_FOOTER 1
-#define MAX_HEIGHT_HEADER 7
-#define OVERALL_NUM_COLS  4
+#define MIN_HEIGHT        8     /* minimum window height */
+#define MIN_WIDTH         0     /* minimum window width */
+#define MAX_HEIGHT_FOOTER 1     /* height of the footer window */
+#define MAX_HEIGHT_HEADER 7     /* height of the header window */
+#define OVERALL_NUM_COLS  4     /* number of columns on the overall stats win */
 
 /* Overall Stats Labels */
 #define T_DASH       "Dashboard"
@@ -73,7 +73,7 @@
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
-#define SPIN_LBL 50
+#define SPIN_LBL 50     /* max length of the progress spinner */
 
 #define INCLUDE_BOTS " - Including spiders"
 

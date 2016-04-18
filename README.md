@@ -1,4 +1,4 @@
-GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess)
+GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v0.9.8)](http://goaccess.io)
 ========
 
 ## What is it? ##
