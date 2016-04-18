@@ -223,7 +223,7 @@ typedef struct GAgents_
   struct GAgentItem_ *items;
 } GAgents;
 
-/* Generic Single linked-list */
+/* Generic Singly linked-list */
 typedef struct GSLList_
 {
   void *data;
@@ -242,8 +242,8 @@ extern time_t start_proc;
 extern int module_list[TOTAL_MODULES];
 
 /* *INDENT-OFF* */
-GAgents *new_gagents (void);
 GAgentItem *new_gagent_item (uint32_t size);
+GAgents *new_gagents (void);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_module_enum (const char *str);
@@ -262,7 +262,7 @@ void display_default_config_file (void);
 void display_storage (void);
 void display_version (void);
 
-/* single linked-list */
+/* singly linked-list */
 GSLList *list_create (void *data);
 GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
 GSLList *list_insert_append (GSLList * node, void *data);

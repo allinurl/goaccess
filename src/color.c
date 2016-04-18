@@ -285,7 +285,7 @@ free_color_lists (void)
 }
 
 /* Set a default color - COLOR_NORMAL, this will be used if
- * no colors are supposed by the terminal */
+ * no colors are supported by the terminal */
 void
 set_normal_color (void)
 {

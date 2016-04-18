@@ -30,11 +30,11 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#define LINE_BUFFER 	  4096
+#define LINE_BUFFER 	  4096  /* read at most this num of chars */
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
-#define REF_SITE_LEN    512
-#define NUM_TESTS       20
+#define REF_SITE_LEN    512     /* maximum length of a referring site */
+#define NUM_TESTS       20      /* test this many lines from the log */
 
 #include "commons.h"
 

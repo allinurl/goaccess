@@ -144,7 +144,7 @@ get_module_enum (const char *str)
   return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
 }
 
-/* Instantiate a new Single linked-list node.
+/* Instantiate a new Singly linked-list node.
  *
  * On error, aborts if node can't be malloc'd.
  * On success, the GSLList node. */
@@ -241,7 +241,7 @@ list_remove_node (GSLList * list, GSLList * node)
   return 1;
 }
 
-/* Iterate over the single linked-list and call function pointer.
+/* Iterate over the singly linked-list and call function pointer.
  *
  * If function pointer does not return 0, -1 is returned.
  * On success, 0 is returned. */
