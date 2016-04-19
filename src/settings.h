@@ -144,16 +144,16 @@ typedef struct GConf_
   size_t static_file_max_len;
 
   /* TokyoCabinet */
-  char *db_path;
-  int64_t xmmap;
-  int cache_lcnum;
-  int cache_ncnum;
-  int compression;
-  int keep_db_files;
-  int load_from_disk;
-  int tune_bnum;
-  int tune_lmemb;
-  int tune_nmemb;
+  char *db_path;                /* db path to files */
+  int64_t xmmap;                /* size of the extra mapped memory */
+  int cache_lcnum;              /* max num of leaf nodes to cache */
+  int cache_ncnum;              /* max num of non-leaf nodes to cache */
+  int compression;              /* deflate or BZIP2 */
+  int keep_db_files;            /* persist parsed data into disk */
+  int load_from_disk;           /* load stored data */
+  int tune_bnum;                /* num of elems of the bucket array */
+  int tune_lmemb;               /* num of memb in each leaf page */
+  int tune_nmemb;               /* num of memb in each non-leaf page */
 } GConf;
 
 char *get_selected_date_str (size_t idx);
