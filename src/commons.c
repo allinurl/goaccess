@@ -226,16 +226,18 @@ list_remove_nodes (GSLList * list)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-list_remove_node (GSLList * list, GSLList * node)
+list_remove_node (GSLList ** list, GSLList * node)
 {
-  while (list->next && list->next != node)
-    list = list->next;
+  GSLList **current = list, *next = NULL;
+  for (; *current; current = &(*current)->next) {
+    if ((*current) != node)
+      continue;
 
-  if (list->next) {
-    list->next = node->next;
-    if (node->data)
-      free (node->data);
-    free (node);
+    next = (*current)->next;
+    if ((*current)->data)
+      free ((*current)->data);
+    free (*current);
+    *current = next;
     return 0;
   }
   return 1;
