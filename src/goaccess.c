@@ -194,44 +194,52 @@ allocate_holder (void)
   }
 }
 
-/* Iterate over all modules/panels and extract data from the modules
- * GHolder structure and load it into the terminal dashboard */
+/* Extract data from the modules GHolder structure and load it into
+ * the terminal dashboard */
+static void
+allocate_data_by_module (GModule module, int col_data)
+{
+  int size = 0;
+
+  dash->module[module].head = module_to_head (module);
+  dash->module[module].desc = module_to_desc (module);
+
+  size = holder[module].idx;
+  if (gscroll.expanded && module == gscroll.current) {
+    size = size > MAX_CHOICES ? MAX_CHOICES : holder[module].idx;
+  } else {
+    size = holder[module].idx > col_data ? col_data : holder[module].idx;
+  }
+
+  dash->module[module].alloc_data = size;       /* data allocated  */
+  dash->module[module].ht_size = holder[module].ht_size;        /* hash table size */
+  dash->module[module].idx_data = 0;
+  dash->module[module].pos_y = 0;
+
+  if (gscroll.expanded && module == gscroll.current)
+    dash->module[module].dash_size = DASH_EXPANDED;
+  else
+    dash->module[module].dash_size = DASH_COLLAPSED;
+  dash->total_alloc += dash->module[module].dash_size;
+
+  pthread_mutex_lock (&gdns_thread.mutex);
+  load_data_to_dash (&holder[module], dash, module, &gscroll);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+}
+
+/* Iterate over all modules/panels and extract data from GHolder
+ * structure and load it into the terminal dashboard */
 static void
 allocate_data (void)
 {
   GModule module;
   int col_data = get_num_collapsed_data_rows ();
-  int size = 0;
   size_t idx = 0;
 
   dash = new_gdash ();
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
-
-    dash->module[module].head = module_to_head (module);
-    dash->module[module].desc = module_to_desc (module);
-
-    size = holder[module].idx;
-    if (gscroll.expanded && module == gscroll.current) {
-      size = size > MAX_CHOICES ? MAX_CHOICES : holder[module].idx;
-    } else {
-      size = holder[module].idx > col_data ? col_data : holder[module].idx;
-    }
-
-    dash->module[module].alloc_data = size;     /* data allocated  */
-    dash->module[module].ht_size = holder[module].ht_size;      /* hash table size */
-    dash->module[module].idx_data = 0;
-    dash->module[module].pos_y = 0;
-
-    if (gscroll.expanded && module == gscroll.current)
-      dash->module[module].dash_size = DASH_EXPANDED;
-    else
-      dash->module[module].dash_size = DASH_COLLAPSED;
-    dash->total_alloc += dash->module[module].dash_size;
-
-    pthread_mutex_lock (&gdns_thread.mutex);
-    load_data_to_dash (&holder[module], dash, module, &gscroll);
-    pthread_mutex_unlock (&gdns_thread.mutex);
+    allocate_data_by_module (module, col_data);
   }
 }
 
