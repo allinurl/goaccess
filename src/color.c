@@ -41,6 +41,7 @@
 #include "color.h"
 
 #include "error.h"
+#include "gslist.h"
 #include "util.h"
 #include "xmalloc.h"
 

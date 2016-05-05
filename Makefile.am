@@ -64,6 +64,8 @@ goaccess_SOURCES = \
    src/gmenu.h         \
    src/goaccess.c      \
    src/goaccess.h      \
+   src/gslist.c        \
+   src/gslist.h        \
    src/gstorage.c      \
    src/gstorage.h      \
    src/json.c          \
@@ -76,10 +78,10 @@ goaccess_SOURCES = \
    src/output.h        \
    src/parser.c        \
    src/parser.h        \
-   src/sort.c          \
-   src/sort.h          \
    src/settings.c      \
    src/settings.h      \
+   src/sort.c          \
+   src/sort.h          \
    src/ui.c            \
    src/ui.h            \
    src/util.c          \

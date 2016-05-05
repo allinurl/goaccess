@@ -31,9 +31,11 @@
 #define GKHASH_H_INCLUDED
 
 #include <stdint.h>
-#include "parser.h"
+
+#include "gslist.h"
 #include "gstorage.h"
 #include "khash.h"
+#include "parser.h"
 
 /* int keys, int payload */
 KHASH_MAP_INIT_INT (ii32, int);
