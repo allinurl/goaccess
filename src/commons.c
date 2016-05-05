@@ -57,7 +57,7 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 float
 get_percentage (unsigned long long total, unsigned long long hit)
 {
-  return ((float) (hit * 100) / (total));
+  return (total == 0 ? 0 : ((float) (hit * 100) / (total)));
 }
 
 /* Display the storage being used. */
