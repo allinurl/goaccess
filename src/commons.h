@@ -223,13 +223,6 @@ typedef struct GAgents_
   struct GAgentItem_ *items;
 } GAgents;
 
-/* Generic Singly linked-list */
-typedef struct GSLList_
-{
-  void *data;
-  struct GSLList_ *next;
-} GSLList;
-
 #define FOREACH_MODULE(item, array) \
   for (item = item; (item < ARRAY_SIZE(array)) && array[item] != -1; ++item)
 
@@ -261,16 +254,6 @@ uint32_t get_num_modules(void);
 void display_default_config_file (void);
 void display_storage (void);
 void display_version (void);
-
-/* singly linked-list */
-GSLList *list_create (void *data);
-GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
-GSLList *list_insert_append (GSLList * node, void *data);
-GSLList *list_insert_prepend (GSLList * list, void *data);
-int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data);
-int list_remove_node (GSLList * list, GSLList * node);
-int list_remove_nodes (GSLList * list);
 /* *INDENT-ON* */
 
 #endif
