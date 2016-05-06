@@ -550,7 +550,24 @@ search_next_match (int search)
   render_screens ();
 }
 
-/* Process appended log data and update dashboard screen */
+/* Update holder structure and dashboard screen */
+static void
+tail_term (void)
+{
+  pthread_mutex_lock (&gdns_thread.mutex);
+  free_holder (&holder);
+  pthread_cond_broadcast (&gdns_thread.not_empty);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  free_dashboard (dash);
+  allocate_holder ();
+  allocate_data ();
+
+  term_size (main_win, &main_win_height);
+  render_screens ();
+}
+
+/* Process appended log data */
 static void
 perform_tail_follow (uint64_t * size1)
 {
@@ -575,17 +592,7 @@ perform_tail_follow (uint64_t * size1)
   fclose (fp);
 
   *size1 = size2;
-  pthread_mutex_lock (&gdns_thread.mutex);
-  free_holder (&holder);
-  pthread_cond_broadcast (&gdns_thread.not_empty);
-  pthread_mutex_unlock (&gdns_thread.mutex);
-
-  free_dashboard (dash);
-  allocate_holder ();
-  allocate_data ();
-
-  term_size (main_win, &main_win_height);
-  render_screens ();
+  tail_term ();
   usleep (200000);      /* 0.2 seconds */
 }
 
