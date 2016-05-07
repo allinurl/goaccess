@@ -131,6 +131,7 @@ static const char *browsers[][2] = {
   {"Firefox", "Firefox"},
 
   /* Based on Chromium */
+  {"Vivaldi", "Others"},
   {"YaBrowser", "Others"},
   {"Flock", "Others"},
   /* Chrome has to go before Safari */
