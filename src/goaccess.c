@@ -648,10 +648,12 @@ static void
 render_sort_dialog (void)
 {
   load_sort_win (main_win, gscroll.current, &module_sort[gscroll.current]);
+
   pthread_mutex_lock (&gdns_thread.mutex);
   free_holder (&holder);
   pthread_cond_broadcast (&gdns_thread.not_empty);
   pthread_mutex_unlock (&gdns_thread.mutex);
+
   free_dashboard (dash);
   allocate_holder ();
   allocate_data ();
