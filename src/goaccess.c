@@ -946,6 +946,31 @@ parse_cmd_line (int argc, char **argv)
   set_default_static_files ();
 }
 
+/* Initialize various types of data. */
+static void
+initializer (void)
+{
+  /* initialize modules and set first */
+  gscroll.current = init_modules ();
+  /* initialize storage */
+  init_storage ();
+  /* setup to use the current locale */
+  set_locale ();
+
+#ifdef HAVE_LIBGEOIP
+  init_geoip ();
+#endif
+
+  /* init logger */
+  logger = init_log ();
+  set_signal_data (logger);
+
+  /* init parsing spinner */
+  parsing_spinner = new_gspinner ();
+  parsing_spinner->processed = &logger->processed;
+}
+
+/* Set up curses. */
 static void
 set_curses (int *quit)
 {
@@ -1000,24 +1025,7 @@ main (int argc, char **argv)
   parse_conf_file (&argc, &argv);
   parse_cmd_line (argc, argv);
 
-  /* initialize modules and set first */
-  gscroll.current = init_modules ();
-  /* initialize storage */
-  init_storage ();
-  /* setup to use the current locale */
-  set_locale ();
-
-#ifdef HAVE_LIBGEOIP
-  init_geoip ();
-#endif
-
-  /* init logger */
-  logger = init_log ();
-  set_signal_data (logger);
-
-  /* init parsing spinner */
-  parsing_spinner = new_gspinner ();
-  parsing_spinner->processed = &logger->processed;
+  initializer ();
 
   /* outputting to stdout */
   if (conf.output_html) {
