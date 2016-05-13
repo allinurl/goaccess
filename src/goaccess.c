@@ -970,6 +970,12 @@ initializer (void)
   parsing_spinner->processed = &logger->processed;
 }
 
+static void
+set_standard_output (void)
+{
+  ui_spinner_create (parsing_spinner);
+}
+
 /* Set up curses. */
 static void
 set_curses (int *quit)
@@ -1028,14 +1034,11 @@ main (int argc, char **argv)
   initializer ();
 
   /* outputting to stdout */
-  if (conf.output_html) {
-    ui_spinner_create (parsing_spinner);
-    goto out;
-  }
-  /* init curses */
-  set_curses (&quit);
-
-out:
+  if (conf.output_html)
+    set_standard_output ();
+  else
+    /* init curses */
+    set_curses (&quit);
 
   /* main processing event */
   time (&start_proc);
