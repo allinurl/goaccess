@@ -946,6 +946,31 @@ parse_cmd_line (int argc, char **argv)
   set_default_static_files ();
 }
 
+static void
+set_curses (int *quit)
+{
+  set_input_opts ();
+  if (conf.no_color || has_colors () == FALSE) {
+    conf.color_scheme = NO_COLOR;
+    conf.no_color = 1;
+  } else {
+    start_color ();
+  }
+  init_colors (0);
+  init_windows (&header_win, &main_win);
+  set_curses_spinner (parsing_spinner);
+
+  /* configuration dialog */
+  if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)) {
+    refresh ();
+    *quit = render_confdlg (logger, parsing_spinner);
+  }
+  /* straight parsing */
+  else {
+    ui_spinner_create (parsing_spinner);
+  }
+}
+
 /* Set up signal handlers. */
 #if defined(__GLIBC__)
 static void
@@ -999,28 +1024,8 @@ main (int argc, char **argv)
     ui_spinner_create (parsing_spinner);
     goto out;
   }
-
   /* init curses */
-  set_input_opts ();
-  if (conf.no_color || has_colors () == FALSE) {
-    conf.color_scheme = NO_COLOR;
-    conf.no_color = 1;
-  } else {
-    start_color ();
-  }
-  init_colors (0);
-  init_windows (&header_win, &main_win);
-  set_curses_spinner (parsing_spinner);
-
-  /* configuration dialog */
-  if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)) {
-    refresh ();
-    quit = render_confdlg (logger, parsing_spinner);
-  }
-  /* straight parsing */
-  else {
-    ui_spinner_create (parsing_spinner);
-  }
+  set_curses (&quit);
 
 out:
 
