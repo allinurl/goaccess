@@ -1033,11 +1033,11 @@ main (int argc, char **argv)
 
   initializer ();
 
-  /* outputting to stdout */
+  /* set stdout */
   if (conf.output_html)
     set_standard_output ();
+  /* set curses */
   else
-    /* init curses */
     set_curses (&quit);
 
   /* main processing event */
