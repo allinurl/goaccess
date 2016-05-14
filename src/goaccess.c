@@ -139,8 +139,10 @@ house_keeping (void)
 
   /* GEOLOCATION */
 #ifdef HAVE_LIBGEOIP
-  if (geo_location_data != NULL)
+  if (geo_location_data != NULL) {
     GeoIP_delete (geo_location_data);
+    GeoIP_cleanup ();
+  }
 #endif
 
   /* LOGGER */
