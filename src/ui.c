@@ -1043,8 +1043,8 @@ ui_spinner (void *ptr_data)
     pthread_mutex_unlock (&sp->mutex);
     usleep (100000);
   }
-  sp = NULL;
   free (sp);
+  sp = NULL;
 }
 
 /* Create the processing spinner's thread */
