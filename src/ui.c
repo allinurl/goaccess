@@ -212,6 +212,7 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
   wbkgd (*main_win, COLOR_PAIR (color->pair->idx));
   wbkgd (*header_win, COLOR_PAIR (color->pair->idx));
   wbkgd (stdscr, COLOR_PAIR (color->pair->idx));
+  wrefresh (*main_win);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
