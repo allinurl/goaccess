@@ -304,6 +304,7 @@ free_storage (void)
   FOREACH_MODULE (idx, module_list) {
     free_metrics (module_list[idx]);
   }
+  free (gkh_storage);
 }
 
 /* Given a module and a metric, get the hash table
