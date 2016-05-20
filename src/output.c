@@ -208,7 +208,7 @@ print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
   "<nav class='hidden-xs hidden-sm'>"
-  "<div class='icon fa fa-bars'></div>"
+  "<div class='nav-bars fa fa-bars'></div>"
   "<div class='panel-nav'></div>"
   "</nav>"
 

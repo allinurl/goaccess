@@ -199,16 +199,16 @@ nav header a {
 nav header a:hover {
     color: #eee
 }
-nav:hover {
-    left: 0
+nav.active {
+    left: 0;
 }
 nav:hover ~ #content {
     opacity: .3
 }
-nav:hover .icon {
-    opacity: 0
+nav.active .nav-bars {
+    opacity: 0;
 }
-nav .icon {
+nav .nav-bars {
     width: 32px;
     height: 32px;
     float: right;
