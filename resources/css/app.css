@@ -231,21 +231,10 @@ nav li a {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-nav li a:before {
-    content: '';
-    width: 0;
-    height: 0;
-    display: inline-block;
-    margin: 3px 0 0 -20px;
-    border: 8px solid transparent;
-}
 nav li a:hover {
     background: rgba(0,0,0,.1);
-    border-color: #5cb85c;
+    border-color: #5BC0DE;
     color: #eee;
-}
-nav li a:hover:before {
-    border-left-color: #1b9
 }
 nav ul {
     padding-left: 0;
