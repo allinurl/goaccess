@@ -206,6 +206,22 @@ GoAccess.OverallStats = {
 
 // RENDER PANELS
 GoAccess.Nav = {
+	events: function () {
+		var _this = this;
+		$$('.nav-bars', function (item) {
+			item.onclick = function (e) {
+				e.stopPropagation();
+				$('nav').classList.toggle('active');
+			};
+		});
+		$$('body', function (item) {
+			item.onclick = function (e) {
+				if (!e.currentTarget.classList.contains('.nav-bars'))
+					$('nav').classList.remove('active');
+			};
+		});
+	},
+
 	// Render left-hand side navigation given the available panels.
 	renderNav: function (nav) {
 		var template = $('#tpl-panel-nav').innerHTML;
@@ -229,6 +245,7 @@ GoAccess.Nav = {
 			});
 		}
 		this.renderNav(nav);
+		this.events();
 	}
 };
 
