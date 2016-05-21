@@ -221,7 +221,7 @@ parse_conf_file (int *argc, char ***argv)
   char line[MAX_LINE_CONF + 1];
   char *path = NULL, *val, *opt, *p;
   FILE *file;
-  int i;
+  int i, n = 0;
   size_t idx;
 
   /* assumes program name is on argv[0], though, it is not guaranteed */
@@ -239,13 +239,16 @@ parse_conf_file (int *argc, char ***argv)
   }
 
   while (fgets (line, sizeof line, file) != NULL) {
+    while (line[0] == ' ' || line[0] == '\t')
+      memmove (line, line + 1, strlen (line));
+    n++;
     if (line[0] == '\n' || line[0] == '\r' || line[0] == '#')
       continue;
 
     /* key */
     idx = strcspn (line, " \t");
     if (strlen (line) == idx)
-      FATAL ("Malformed config key at line: %s", line);
+      FATAL ("Malformed config key at line: %d", n);
 
     line[idx] = '\0';
 
@@ -262,7 +265,7 @@ parse_conf_file (int *argc, char ***argv)
     val = line + (idx + 1);
     idx = strspn (val, " \t");
     if (strlen (line) == idx)
-      FATAL ("Malformed config value at line: %s", line);
+      FATAL ("Malformed config value at line: %d", n);
     val = val + idx;
     val = trim_str (val);
 
