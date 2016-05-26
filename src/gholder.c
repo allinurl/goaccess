@@ -571,9 +571,10 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;
-  h->items[idx].metrics->maxts.nts += nmetrics->maxts.nts;
   h->items[idx].metrics->avgts.nts =
     h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;
+  if (nmetrics->maxts.nts > h->items[idx].metrics->maxts.nts)
+    h->items[idx].metrics->maxts.nts = nmetrics->maxts.nts;
 
   h->sub_items_size++;
 }
