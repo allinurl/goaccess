@@ -1,4 +1,5 @@
 /**
+ * base64.c -- A basic base64 encode implementation
  *    _______       _______            __        __
  *   / ____/ |     / / ___/____  _____/ /_____  / /_
  *  / / __ | | /| / /\__ \/ __ \/ ___/ //_/ _ \/ __/
@@ -27,25 +28,53 @@
  * SOFTWARE.
  */
 
-#ifndef GSLIST_H_INCLUDED
-#define GSLIST_H_INCLUDED
+#include <stdlib.h>
+#include <string.h>
 
-/* Generic Single linked-list */
-typedef struct GSLList_
+#include "base64.h"
+
+/* Encodes the given data with base64..
+ *
+ * On success, the encoded nul-terminated data, as a string is returned. */
+char *
+base64_encode (const void *buf, size_t size)
 {
-  void *data;
-  struct GSLList_ *next;
-} GSLList;
+  static const char base64[] =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-/* single linked-list */
-GSLList *list_create (void *data);
-GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
-GSLList *list_insert_append (GSLList * node, void *data);
-GSLList *list_insert_prepend (GSLList * list, void *data);
-int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
-int list_remove_node (GSLList ** list, GSLList * node);
-int list_remove_nodes (GSLList * list);
+  char *str = (char *) malloc ((size + 3) * 4 / 3 + 1);
 
-#endif // for #ifndef GSLIST_H
+  char *p = str;
+  const unsigned char *q = (const unsigned char *) buf;
+  size_t i = 0;
+
+  while (i < size) {
+    int c = q[i++];
+    c *= 256;
+    if (i < size)
+      c += q[i];
+    i++;
+
+    c *= 256;
+    if (i < size)
+      c += q[i];
+    i++;
+
+    *p++ = base64[(c & 0x00fc0000) >> 18];
+    *p++ = base64[(c & 0x0003f000) >> 12];
+
+    if (i > size + 1)
+      *p++ = '=';
+    else
+      *p++ = base64[(c & 0x00000fc0) >> 6];
+
+    if (i > size)
+      *p++ = '=';
+    else
+      *p++ = base64[c & 0x0000003f];
+  }
+
+  *p = 0;
+
+  return str;
+}

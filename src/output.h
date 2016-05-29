@@ -77,8 +77,8 @@ typedef struct GDefMetric_
 typedef struct GHTMLPlot_
 {
   GChartType chart_type;
-  int8_t chart_reverse;
   void (*plot) (FILE * fp, const struct GHTMLPlot_ plot, int sp);
+  int8_t chart_reverse;
 } GHTMLPlot;
 /* Controls HTML output. */
 typedef struct GHTML_

@@ -51,6 +51,15 @@ time_t start_proc;
 /* list of available modules/panels */
 int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 
+/* Get number of items per panel to parse.
+ *
+ * The number of items per panel is returned. */
+int
+get_max_choices (void)
+{
+  return conf.real_time_html ? MAX_CHOICES_RT : MAX_CHOICES;
+}
+
 /* Calculate a percentage.
  *
  * The percentage is returned. */

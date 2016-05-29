@@ -46,6 +46,7 @@
 #endif
 
 #include "error.h"
+#include "gwsocket.h"
 #include "json.h"
 #include "settings.h"
 #include "ui.h"
@@ -54,9 +55,11 @@
 
 #include "tpls.h"
 #include "bootstrapcss.h"
+#include "facss.h"
 #include "appcss.h"
 #include "d3js.h"
 #include "hoganjs.h"
+#include "chartsjs.h"
 #include "appjs.h"
 
 static void hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp);
@@ -68,27 +71,27 @@ static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
   {VISITORS       , 1, print_metrics, {
-    {CHART_AREASPLINE, 1, hits_visitors_plot},
-    {CHART_AREASPLINE, 1, hits_bw_plot},
+    {CHART_AREASPLINE, hits_visitors_plot, 1} ,
+    {CHART_AREASPLINE, hits_bw_plot, 1} ,
   }},
   {REQUESTS        , 1, print_metrics } ,
   {REQUESTS_STATIC , 1, print_metrics } ,
   {NOT_FOUND       , 1, print_metrics } ,
   {HOSTS           , 1, print_host_metrics, {
-    {CHART_AREASPLINE, 0, hits_visitors_plot},
-    {CHART_AREASPLINE, 0, hits_bw_plot},
+    {CHART_VBAR, hits_visitors_plot, 0},
+    {CHART_VBAR, hits_bw_plot, 0},
   }},
   {OS              , 1, print_metrics, {
-    {CHART_VBAR, 0, hits_visitors_plot},
-    {CHART_VBAR, 0, hits_bw_plot},
+    {CHART_VBAR, hits_visitors_plot, 0},
+    {CHART_VBAR, hits_bw_plot, 0},
   }},
   {BROWSERS        , 1, print_metrics, {
-    {CHART_VBAR, 0, hits_visitors_plot},
-    {CHART_VBAR, 0, hits_bw_plot},
+    {CHART_VBAR, hits_visitors_plot, 0},
+    {CHART_VBAR, hits_bw_plot, 0},
   }},
   {VISIT_TIMES     , 1, print_metrics, {
-    {CHART_AREASPLINE, 0, hits_visitors_plot},
-    {CHART_AREASPLINE, 0, hits_bw_plot},
+    {CHART_AREASPLINE, hits_visitors_plot, 0},
+    {CHART_AREASPLINE, hits_bw_plot, 0},
   }},
   {VIRTUAL_HOSTS   , 1, print_metrics } ,
   {REFERRERS       , 1, print_metrics } ,
@@ -96,13 +99,13 @@ static GHTML htmldef[] = {
   {KEYPHRASES      , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , 1, print_metrics, {
-    {CHART_VBAR, 0, hits_visitors_plot},
-    {CHART_VBAR, 0, hits_bw_plot},
+    {CHART_VBAR, hits_visitors_plot, 0},
+    {CHART_VBAR, hits_bw_plot, 0},
   }},
 #endif
   {STATUS_CODES    , 1, print_metrics, {
-    {CHART_VBAR, 0, hits_visitors_plot},
-    {CHART_VBAR, 0, hits_bw_plot},
+    {CHART_VBAR, hits_visitors_plot, 0},
+    {CHART_VBAR, hits_bw_plot, 0},
   }},
 };
 /* *INDENT-ON* */
@@ -192,44 +195,51 @@ print_html_header (FILE * fp, char *now)
 
   print_html_title (fp, now);
 
-  fprintf (fp, "<link rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>");
+  fprintf (fp, "<style>%s</style>", fa_css);
   fprintf (fp, "<style>%s</style>", bootstrap_css);
   fprintf (fp, "<style>%s</style>", app_css);
 
   fprintf (fp,
   "</head>"
   "<body>");
-
-  fprintf (fp, "%s", tpls);
 }
 
 static void
 print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
-  "<nav class='hidden-xs hidden-sm'>"
-  "<div class='nav-bars fa fa-bars'></div>"
-  "<div class='panel-nav'></div>"
+  "<nav class='hidden-xs hidden-sm hide'>"
   "</nav>"
 
-  "<div class='container'>"
+  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
+  "<div class='container hide'>"
   "<div class='row row-offcanvas row-offcanvas-right'>"
   "<div class='col-md-12'>"
   "<div class='page-header clearfix'>"
   "<div class='pull-right'>"
   "<h4>"
   "<span class='label label-info'>"
-  "Last Updated: %s"
+  "Last Updated: <span class='last-updated'>%s</span>"
   "</span>"
   "</h4>"
   "</div>"
-  "<h1><i class='fa fa-tachometer'></i> Dashboard</h1>"
+  "<h1>"
+  "<span class='hidden-xs hidden-sm'>"
+  "<i class='fa fa-tachometer'></i> Dashboard"
+  "</span>"
+  "<span class='visible-xs visible-sm'>"
+  "<i class='fa fa-bars nav-minibars'></i>"
+  "<i class='fa fa-circle nav-ws-status mini'></i>"
+  "</span>"
+  "</h1>"
+  "<div class='report-title'>%s</div>"
   "</div>"
   "<div class='wrap-general'></div>"
   "<div class='wrap-panels'></div>"
   "</div>"
   "</div>"
-  "</div>", now);
+  "</div>", now, conf.html_report_title ? conf.html_report_title : "");
+  fprintf (fp, "%s", tpls);
 }
 
 static void
@@ -238,6 +248,7 @@ print_html_footer (FILE * fp)
   fprintf (fp, "<script>%s</script>", d3_js);
   fprintf (fp, "<script>%s</script>", hogan_js);
   fprintf (fp, "<script>%s</script>", app_js);
+  fprintf (fp, "<script>%s</script>", charts_js);
 
   fprintf (fp, "</body>");
   fprintf (fp, "</html>");
@@ -303,7 +314,6 @@ hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
 
   pskeysval (fp, "label", "Hits/Visitors", isp, 0);
   pskeysval (fp, "className", "hits-visitors", isp, 0);
-
   pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
   pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
 
@@ -334,7 +344,6 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
 
   pskeysval (fp, "label", "Bandwidth", isp, 0);
   pskeysval (fp, "className", "bandwidth", isp, 0);
-
   pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
   pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
 
@@ -359,6 +368,28 @@ print_json_data (FILE * fp, GLog * logger, GHolder * holder)
   fprintf (fp, "</script>");
 
   free (json);
+}
+
+static void
+print_conn_def (FILE * fp)
+{
+  int sp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp += 1;
+
+  if (!conf.real_time_html)
+    return;
+
+  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, "var connection = ");
+
+  popen_obj (fp, sp);
+  pskeysval (fp, "url", (conf.ws_url ? conf.ws_url : "localhost"), sp, 0);
+  pskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 1);
+  pclose_obj (fp, sp, 1);
+
+  fprintf (fp, "</script>");
 }
 
 static void
@@ -826,6 +857,23 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
 }
 
 static void
+print_def_sort (FILE * fp, const GHTML * def, int sp)
+{
+  GSort sort = module_sort[def->module];
+  int isp = 0;
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  /* output open sort attribute */
+  popen_obj_attr (fp, "sort", sp);
+  pskeysval (fp, "field", get_sort_field_key (sort.field), isp, 0);
+  pskeysval (fp, "order", get_sort_order_str (sort.sort), isp, 1);
+  /* output close sort attribute */
+  pclose_obj (fp, sp, 0);
+}
+
+static void
 print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 {
   const char *desc = module_to_desc (def->module);
@@ -842,6 +890,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
   pskeysval (fp, "id", id, isp, 0);
   pskeyival (fp, "table", def->table, isp, 0);
 
+  print_def_sort (fp, def, isp);
   print_def_plot (fp, def, isp);
   print_def_metrics (fp, def, isp);
 }
@@ -951,10 +1000,11 @@ output_html (GLog * logger, GHolder * holder)
 
   print_html_header (fp, now);
 
+  print_html_body (fp, now);
   print_json_defs (fp, holder);
   print_json_data (fp, logger, holder);
+  print_conn_def (fp);
 
-  print_html_body (fp, now);
   print_html_footer (fp);
 
   fclose (fp);

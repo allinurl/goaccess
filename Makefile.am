@@ -8,17 +8,21 @@ bin2c_SOURCES = src/bin2c.c
 BUILT_SOURCES =   \
   tpls.h          \
   bootstrapcss.h  \
+  facss.h         \
   appcss.h        \
   d3js.h          \
   hoganjs.h       \
+  chartsjs.h      \
   appjs.h
 
 CLEANFILES =          \
   src/tpls.h          \
   src/bootstrapcss.h  \
+  src/facss.h         \
   src/appcss.h        \
   src/d3js.h          \
   src/hoganjs.h       \
+  src/chartsjs.h      \
   src/appjs.h
 
 # Tpls
@@ -27,6 +31,9 @@ tpls.h: bin2c$(EXEEXT) resources/tpls.html
 # Bootstrap
 bootstrapcss.h: bin2c$(EXEEXT) resources/css/bootstrap.min.css
 	./bin2c resources/css/bootstrap.min.css src/bootstrapcss.h bootstrap_css
+# Font Awesome
+facss.h: bin2c$(EXEEXT) resources/css/fa.min.css
+	./bin2c resources/css/fa.min.css src/facss.h fa_css
 # App.css
 appcss.h: bin2c$(EXEEXT) resources/css/app.css
 	./bin2c resources/css/app.css src/appcss.h app_css
@@ -36,6 +43,9 @@ d3js.h: bin2c$(EXEEXT) resources/js/d3.v3.min.js
 # Hogan.js
 hoganjs.h: bin2c$(EXEEXT) resources/js/hogan.min.js
 	./bin2c resources/js/hogan.min.js src/hoganjs.h hogan_js
+# Charts.js
+chartsjs.h: bin2c$(EXEEXT) resources/js/charts.js
+	./bin2c resources/js/charts.js src/chartsjs.h charts_js
 # App.js
 appjs.h: bin2c$(EXEEXT) resources/js/app.js
 	./bin2c resources/js/app.js src/appjs.h app_js
@@ -44,6 +54,8 @@ confdir = $(sysconfdir)
 dist_conf_DATA = config/goaccess.conf
 
 goaccess_SOURCES = \
+   src/base64.c        \
+   src/base64.h        \
    src/browsers.c      \
    src/browsers.h      \
    src/color.c         \
@@ -68,8 +80,12 @@ goaccess_SOURCES = \
    src/gslist.h        \
    src/gstorage.c      \
    src/gstorage.h      \
+   src/gwsocket.c      \
+   src/gwsocket.h      \
    src/json.c          \
    src/json.h          \
+   src/log.c           \
+   src/log.h           \
    src/opesys.c        \
    src/opesys.h        \
    src/options.c       \
@@ -80,12 +96,16 @@ goaccess_SOURCES = \
    src/parser.h        \
    src/settings.c      \
    src/settings.h      \
+   src/sha1.c          \
+   src/sha1.h          \
    src/sort.c          \
    src/sort.h          \
    src/ui.c            \
    src/ui.h            \
    src/util.c          \
    src/util.h          \
+   src/websocket.c     \
+   src/websocket.h     \
    src/xmalloc.c       \
    src/xmalloc.h
 

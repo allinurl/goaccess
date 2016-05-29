@@ -101,6 +101,10 @@ typedef struct GConf_
   char *output_format;          /* output format, e.g., HTML, JSON */
   char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
   char *time_format;            /* time format */
+  char *ws_url;                 /* WebSocket URL */
+  char *addr;                   /* IP address to bind to */
+  char *origin;                 /* WebSocket origin */
+  char *port;                   /* port to use */
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
@@ -109,7 +113,6 @@ typedef struct GConf_
   int all_static_files;         /* parse all static files */
   int append_method;            /* append method to the req key */
   int append_protocol;          /* append protocol to the req key */
-  int bandwidth;                /* is there bandwidth within the req line */
   int client_err_to_unique_count;       /* count 400s as visitors */
   int code444_as_404;           /* 444 as 404s? */
   int color_scheme;             /* color scheme */
@@ -130,11 +133,16 @@ typedef struct GConf_
   int no_tab_scroll;            /* don't scroll dashboard on tab */
   int output_html;              /* outputting to stdout */
   int real_os;                  /* show real OSs */
-  int serve_usecs;              /* is there time served within req line */
+  int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
+  int json_pretty_print;
+
+  int bandwidth;                /* is there bandwidth within the req line */
   int has_geocity;
   int has_geocountry;
-  int json_pretty_print;
+  int serve_usecs;              /* is there time served within req line */
+  int tailing_mode;             /* in tailing-mode? */
+  int stop_processing;          /* stop all processing */
 
   int color_idx;                /* colors index */
   int ignore_ip_idx;            /* ignored ips index */

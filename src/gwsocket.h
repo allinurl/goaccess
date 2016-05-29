@@ -27,25 +27,14 @@
  * SOFTWARE.
  */
 
-#ifndef GSLIST_H_INCLUDED
-#define GSLIST_H_INCLUDED
+#ifndef GWSOCKET_H_INCLUDED
+#define GWSOCKET_H_INCLUDED
 
-/* Generic Single linked-list */
-typedef struct GSLList_
-{
-  void *data;
-  struct GSLList_ *next;
-} GSLList;
+#define GW_VERSION "0.1"
 
-/* single linked-list */
-GSLList *list_create (void *data);
-GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
-GSLList *list_insert_append (GSLList * node, void *data);
-GSLList *list_insert_prepend (GSLList * list, void *data);
-int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
-int list_remove_node (GSLList ** list, GSLList * node);
-int list_remove_nodes (GSLList * list);
+int broadcast_holder (int fd, const char *buf, int len);
+int setup_ws_server (void);
+void stop_ws_server (void);
+int open_fifo (void);
 
-#endif // for #ifndef GSLIST_H
+#endif // for #ifndef GWSOCKET_H

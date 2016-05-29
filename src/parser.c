@@ -2139,6 +2139,8 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
   int i = 0, test = -1 == lines2test ? 0 : 1;
 
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
+    if (conf.stop_processing)
+      break;
     if (lines2test >= 0 && i++ == lines2test)
       break;
 
@@ -2169,6 +2171,8 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
   int i = 0, test = -1 == lines2test ? 0 : 1;
 
   while ((read = getline (&line, &len, fp)) != -1) {
+    if (conf.stop_processing)
+      break;
     if (lines2test >= 0 && i++ == lines2test)
       break;
 

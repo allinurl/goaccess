@@ -583,11 +583,11 @@ add_root_to_holder (GRawDataItem item, GHolder * h,
 void
 load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort)
 {
-  int i, size = 0;
+  int i, size = 0, max_choices = get_max_choices ();
   const GPanel *panel = panel_lookup (module);
 
   size = raw_data->size;
-  h->holder_size = size > MAX_CHOICES ? MAX_CHOICES : size;
+  h->holder_size = size > max_choices ? max_choices : size;
   h->ht_size = size;
   h->idx = 0;
   h->module = module;

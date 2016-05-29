@@ -278,6 +278,35 @@ init_storage (void)
   }
 }
 
+static void
+free_metric_type (GKHashMetric mtrc)
+{
+  /* Determine the hash structure type */
+  switch (mtrc.type) {
+  case MTRC_TYPE_II32:
+    des_ii32 (mtrc.ii32);
+    break;
+  case MTRC_TYPE_IS32:
+    des_is32_free (mtrc.is32);
+    break;
+  case MTRC_TYPE_IU64:
+    des_iu64 (mtrc.iu64);
+    break;
+  case MTRC_TYPE_SI32:
+    des_si32_free (mtrc.si32);
+    break;
+  case MTRC_TYPE_SS32:
+    des_ss32_free (mtrc.ss32);
+    break;
+  case MTRC_TYPE_IGSL:
+    des_igsl_free (mtrc.igsl);
+    break;
+  case MTRC_TYPE_SU64:
+    des_su64_free (mtrc.su64);
+    break;
+  }
+}
+
 /* Destroys the hash structure allocated metrics */
 static void
 free_metrics (GModule module)
@@ -287,30 +316,7 @@ free_metrics (GModule module)
 
   for (i = 0; i < GSMTRC_TOTAL; i++) {
     mtrc = gkh_storage[module].metrics[i];
-    /* Determine the hash structure type */
-    switch (mtrc.type) {
-    case MTRC_TYPE_II32:
-      des_ii32 (mtrc.ii32);
-      break;
-    case MTRC_TYPE_IS32:
-      des_is32_free (mtrc.is32);
-      break;
-    case MTRC_TYPE_IU64:
-      des_iu64 (mtrc.iu64);
-      break;
-    case MTRC_TYPE_SI32:
-      des_si32_free (mtrc.si32);
-      break;
-    case MTRC_TYPE_SS32:
-      des_ss32_free (mtrc.ss32);
-      break;
-    case MTRC_TYPE_IGSL:
-      des_igsl_free (mtrc.igsl);
-      break;
-    case MTRC_TYPE_SU64:
-      des_su64_free (mtrc.su64);
-      break;
-    }
+    free_metric_type (mtrc);
   }
 }
 
@@ -1481,22 +1487,11 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
   get_iu64_min_max (hash, min, max);
 }
 
-/* Store the key/value pairs from a hash table into raw_data and sorts the the
- * hits structure.
- *
- * On error, NULL is returned.
- * On success the GRawData sorted is returned */
-GRawData *
-parse_raw_data (GModule module)
+static GRawData *
+init_new_raw_data (GModule module, khash_t (ii32) * hash)
 {
   GRawData *raw_data;
-  khiter_t key;
   uint32_t ht_size = 0;
-
-  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
-
-  if (!hash)
-    return NULL;
 
   raw_data = new_grawdata ();
   raw_data->idx = 0;
@@ -1504,6 +1499,25 @@ parse_raw_data (GModule module)
   raw_data->size = ht_size = kh_size (hash);
   raw_data->items = new_grawdata_item (ht_size);
 
+  return raw_data;
+}
+
+/* Store the key/value pairs from a hash table into raw_data and sorts
+ * the the hits structure.
+ *
+ * On error, NULL is returned.
+ * On success the GRawData sorted is returned */
+static GRawData *
+parse_raw_init_data (GModule module)
+{
+  GRawData *raw_data;
+  khiter_t key;
+
+  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
+  if (!hash)
+    return NULL;
+
+  raw_data = init_new_raw_data (module, hash);
   for (key = kh_begin (hash); key != kh_end (hash); ++key) {
     if (!kh_exist (hash, key))
       continue;
@@ -1516,4 +1530,15 @@ parse_raw_data (GModule module)
   sort_raw_data (raw_data, raw_data->idx);
 
   return raw_data;
+}
+
+/* Entry point to and determine if we are storing the initial dataset
+ * or if we are in tailing mode.
+ *
+ * On error, NULL is returned.
+ * On success the GRawData sorted is returned */
+GRawData *
+parse_raw_data (GModule module)
+{
+  return parse_raw_init_data (module);
 }
