@@ -92,6 +92,10 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"real-time-html"       , no_argument       , 0 ,  0  } ,
+  {"addr"                 , required_argument , 0 ,  0  } ,
+  {"ws-url"               , required_argument , 0 ,  0  } ,
+  {"port"                 , required_argument , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
@@ -156,6 +160,15 @@ cmd_help (void)
   "                                    output.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n\n"
+
+  /* Server Options */
+  "Server Options\n\n"
+  "  --addr=<addr>                   - Specify IP address to bind server to.\n"
+  "  --origin=<addr>                 - Ensure clients send the specified origin\n"
+  "                                    header upon the WebSocket handshake.\n"
+  "  --port=<port>                   - Specify the port to use.\n"
+  "  --real-time-html                - Enable real-time HTML output.\n"
+  "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n\n"
 
   /* File Options */
   "File Options\n\n"
@@ -444,6 +457,31 @@ read_option_args (int argc, char **argv)
       /* real os */
       if (!strcmp ("real-os", long_opts[idx].name))
         conf.real_os = 1;
+
+      /* real time HTML */
+      if (!strcmp ("real-time-html", long_opts[idx].name))
+        conf.real_time_html = 1;
+
+      /* address to bind to */
+      if (!strcmp ("ws-url", long_opts[idx].name))
+        conf.ws_url = optarg;
+
+      /* address to bind to */
+      if (!strcmp ("addr", long_opts[idx].name))
+        conf.addr = optarg;
+
+      /* WebSocket origin */
+      if (!strcmp ("origin", long_opts[idx].name))
+        conf.origin = optarg;
+
+      /* port to use */
+      if (!strcmp ("port", long_opts[idx].name)) {
+        int port = strtol (optarg, NULL, 10);
+        if (port < 0 || port > 65535)
+          LOG_DEBUG (("Invalid port."));
+        else
+          conf.port = optarg;
+      }
 
       /* double decode */
       if (!strcmp ("double-decode", long_opts[idx].name))

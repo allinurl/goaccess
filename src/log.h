@@ -27,25 +27,31 @@
  * SOFTWARE.
  */
 
-#ifndef GSLIST_H_INCLUDED
-#define GSLIST_H_INCLUDED
+#ifndef ERROR_H_INCLUDED
+#define ERROR_H_INCLUDED
 
-/* Generic Single linked-list */
-typedef struct GSLList_
-{
-  void *data;
-  struct GSLList_ *next;
-} GSLList;
+#define FATAL(fmt, ...) do {                                                  \
+  fprintf (stderr, "\nFatal error has occurred");                             \
+  fprintf (stderr, "\nError occured at: %s - %s - %d\n", __FILE__,            \
+           __FUNCTION__, __LINE__);                                           \
+  fprintf (stderr, fmt, ##__VA_ARGS__);                                       \
+  fprintf (stderr, "\n\n");                                                   \
+  exit(EXIT_FAILURE);                                                         \
+} while (0)
 
-/* single linked-list */
-GSLList *list_create (void *data);
-GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
-GSLList *list_insert_append (GSLList * node, void *data);
-GSLList *list_insert_prepend (GSLList * list, void *data);
-int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
-int list_remove_node (GSLList ** list, GSLList * node);
-int list_remove_nodes (GSLList * list);
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
 
-#endif // for #ifndef GSLIST_H
+#define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
+/* access requests log */
+#define ACCESS_LOG(x, ...) do { access_fprintf x; } while (0)
+
+int access_log_open (const char *path);
+void access_fprintf (const char *fmt, ...);
+void access_log_close (void);
+void dbg_printf (const char *fmt, ...);
+
+#endif // for #ifndef ERROR_H

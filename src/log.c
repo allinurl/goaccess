@@ -1,4 +1,5 @@
 /**
+ * error.c -- error handling.
  *    _______       _______            __        __
  *   / ____/ |     / / ___/____  _____/ /_____  / /_
  *  / / __ | | /| / /\__ \/ __ \/ ___/ //_/ _ \/ __/
@@ -27,25 +28,65 @@
  * SOFTWARE.
  */
 
-#ifndef GSLIST_H_INCLUDED
-#define GSLIST_H_INCLUDED
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include <unistd.h>
 
-/* Generic Single linked-list */
-typedef struct GSLList_
+#include "log.h"
+#include "xmalloc.h"
+
+static FILE *log_file;
+
+/* Open a access file whose name is specified in the given path. */
+int
+access_log_open (const char *path)
 {
-  void *data;
-  struct GSLList_ *next;
-} GSLList;
+  if (path == NULL)
+    return 0;
 
-/* single linked-list */
-GSLList *list_create (void *data);
-GSLList *list_find (GSLList * node, int (*func) (void *, void *), void *data);
-GSLList *list_insert_append (GSLList * node, void *data);
-GSLList *list_insert_prepend (GSLList * list, void *data);
-int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
-int list_remove_node (GSLList ** list, GSLList * node);
-int list_remove_nodes (GSLList * list);
+  if (access (path, F_OK) != -1)
+    log_file = fopen (path, "a");
+  else
+    log_file = fopen (path, "w");
+  if (log_file == NULL)
+    return 1;
 
-#endif // for #ifndef GSLIST_H
+  return 0;
+}
+
+/* Close the access log file. */
+void
+access_log_close (void)
+{
+  if (log_file != NULL)
+    fclose (log_file);
+}
+
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+/* Debug otuput */
+void
+dbg_printf (const char *fmt, ...)
+{
+  va_list args;
+  va_start (args, fmt);
+  vfprintf (stderr, fmt, args);
+  va_end (args);
+}
+
+/* Write formatted access log data to the logfile. */
+void
+access_fprintf (const char *fmt, ...)
+{
+  va_list args;
+
+  if (!log_file)
+    return;
+
+  va_start (args, fmt);
+  vfprintf (log_file, fmt, args);
+  fflush (log_file);
+  va_end (args);
+}
+
+#pragma GCC diagnostic warning "-Wformat-nonliteral"

@@ -66,24 +66,26 @@
 #include "gdashboard.h"
 #include "gdns.h"
 #include "gholder.h"
+#include "gwsocket.h"
 #include "json.h"
 #include "options.h"
 #include "output.h"
 #include "util.h"
 
-static WINDOW *header_win, *main_win;
-
 GConf conf = {
   .hl_header = 1
 };
 
+GSpinner *parsing_spinner;
 int active_gdns = 0;
 
-static int main_win_height = 0;
 static GDash *dash;
 static GHolder *holder;
 static GLog *logger;
-GSpinner *parsing_spinner;
+static sigset_t oldset;
+static WINDOW *header_win, *main_win;
+
+static int main_win_height = 0;
 
 /* *INDENT-OFF* */
 static GScroll gscroll = {
@@ -114,6 +116,11 @@ static GScroll gscroll = {
 static void
 house_keeping (void)
 {
+  /* restore tty modes and reset
+   * terminal into non-visual mode */
+  if (!conf.output_html)
+    endwin ();
+
 #ifdef TCB_MEMHASH
   /* free malloc'd int values on the agent list */
   if (conf.list_agents)
@@ -160,10 +167,13 @@ house_keeping (void)
     dbg_log_close ();
   }
 
+  /* clear spinner */
+  free (parsing_spinner);
   /* free colors */
   free_color_lists ();
   /* free cmd arguments */
   free_cmd_args ();
+
 }
 
 /* Extract data from the given module hash structure and allocate +
@@ -201,14 +211,14 @@ allocate_holder (void)
 static void
 allocate_data_by_module (GModule module, int col_data)
 {
-  int size = 0;
+  int size = 0, max_choices = get_max_choices ();
 
   dash->module[module].head = module_to_head (module);
   dash->module[module].desc = module_to_desc (module);
 
   size = holder[module].idx;
   if (gscroll.expanded && module == gscroll.current) {
-    size = size > MAX_CHOICES ? MAX_CHOICES : holder[module].idx;
+    size = size > max_choices ? max_choices : holder[module].idx;
   } else {
     size = holder[module].idx > col_data ? col_data : holder[module].idx;
   }
@@ -569,9 +579,28 @@ tail_term (void)
   render_screens ();
 }
 
+static void
+tail_html (int fdfifo)
+{
+  char *json = NULL;
+
+  pthread_mutex_lock (&gdns_thread.mutex);
+  free_holder (&holder);
+  pthread_cond_broadcast (&gdns_thread.not_empty);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  allocate_holder ();
+
+  if ((json = get_json (logger, holder)) == NULL)
+    return;
+
+  broadcast_holder (fdfifo, json, strlen (json));
+  free (json);
+}
+
 /* Process appended log data */
 static void
-perform_tail_follow (uint64_t * size1)
+perform_tail_follow (uint64_t * size1, int fdfifo)
 {
   uint64_t size2 = 0;
   char buf[LINE_BUFFER];
@@ -594,8 +623,41 @@ perform_tail_follow (uint64_t * size1)
   fclose (fp);
 
   *size1 = size2;
-  tail_term ();
+
+  if (!conf.output_html)
+    tail_term ();
+  else
+    tail_html (fdfifo);
+
   usleep (200000);      /* 0.2 seconds */
+}
+
+static void
+process_html (void)
+{
+  int fdfifo;
+  uint64_t size1 = 0;
+
+  /* render report */
+  output_html (logger, holder);
+  /* not real time? */
+  if (!conf.real_time_html)
+    return;
+  /* ignore piping or loading from disk */
+  if (logger->piping || logger->load_from_disk_only)
+    return;
+  /* open fifo for write */
+  if ((fdfifo = open_fifo ()) == -1)
+    return;
+
+  size1 = file_size (conf.ifile);
+  while (1) {
+    if (conf.stop_processing)
+      break;
+    perform_tail_follow (&size1, fdfifo);       /* 0.2 secs */
+    usleep (800000);    /* 0.8 secs */
+  }
+  close (fdfifo);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -674,6 +736,8 @@ get_keys (void)
     size1 = file_size (conf.ifile);
 
   while (quit) {
+    if (conf.stop_processing)
+      break;
     c = wgetch (stdscr);
     switch (c) {
     case 'q':  /* quit */
@@ -838,7 +902,7 @@ get_keys (void)
       window_resize ();
       break;
     default:
-      perform_tail_follow (&size1);
+      perform_tail_follow (&size1, -1);
       break;
     }
   }
@@ -894,7 +958,7 @@ standard_output (void)
     output_json (logger, holder);
   /* HTML */
   else
-    output_html (logger, holder);
+    process_html ();
 }
 
 /* Output to a terminal */
@@ -907,10 +971,6 @@ curses_output (void)
 
   render_screens ();
   get_keys ();
-
-  /* restore tty modes and reset
-   * terminal into non-visual mode */
-  endwin ();
 }
 
 /* Set locale */
@@ -948,6 +1008,67 @@ parse_cmd_line (int argc, char **argv)
   set_default_static_files ();
 }
 
+/* Set up signal handlers. */
+static void
+setup_signal_handlers (void)
+{
+  struct sigaction act;
+
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+  act.sa_handler = sigsegv_handler;
+
+  sigaction (SIGSEGV, &act, NULL);
+}
+
+static void
+handle_signal_action (int sig_number)
+{
+  switch (sig_number) {
+  case SIGTERM:
+  case SIGINT:
+    fprintf (stderr, "SIGINT caught!");
+
+    stop_ws_server ();
+    conf.stop_processing = 1;
+    break;
+  case SIGPIPE:
+    fprintf (stderr, "SIGPIPE caught!");
+    /* ignore it */
+    break;
+  }
+}
+
+static void
+setup_thread_signals (void)
+{
+  struct sigaction act;
+
+  act.sa_handler = handle_signal_action;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+
+  sigaction (SIGINT, &act, NULL);
+  sigaction (SIGPIPE, &act, NULL);
+  sigaction (SIGTERM, &act, NULL);
+
+  /* Restore old signal mask for the main thread */
+  pthread_sigmask (SIG_SETMASK, &oldset, NULL);
+}
+
+static void
+block_thread_signals (void)
+{
+  /* Avoid threads catching SIGINT/SIGPIPE/SIGTERM and handle them in
+   * main thread */
+  sigset_t sigset;
+  sigemptyset (&sigset);
+  sigaddset (&sigset, SIGINT);
+  sigaddset (&sigset, SIGPIPE);
+  sigaddset (&sigset, SIGTERM);
+  pthread_sigmask (SIG_BLOCK, &sigset, &oldset);
+}
+
 /* Initialize various types of data. */
 static void
 initializer (void)
@@ -975,6 +1096,11 @@ initializer (void)
 static void
 set_standard_output (void)
 {
+  /* Spawn WS server thread */
+  if (conf.real_time_html)
+    setup_ws_server ();
+  setup_thread_signals ();
+  /* Spawn progress spinner thread */
   ui_spinner_create (parsing_spinner);
 }
 
@@ -982,6 +1108,7 @@ set_standard_output (void)
 static void
 set_curses (int *quit)
 {
+  setup_thread_signals ();
   set_input_opts ();
   if (conf.no_color || has_colors () == FALSE) {
     conf.color_scheme = NO_COLOR;
@@ -1004,29 +1131,14 @@ set_curses (int *quit)
   }
 }
 
-/* Set up signal handlers. */
-#if defined(__GLIBC__)
-static void
-setup_signal_handlers (void)
-{
-  struct sigaction act;
-  sigemptyset (&act.sa_mask);
-  act.sa_flags = 0;
-  act.sa_handler = sigsegv_handler;
-
-  sigaction (SIGSEGV, &act, NULL);
-}
-#endif
-
 /* Where all begins... */
 int
 main (int argc, char **argv)
 {
   int quit = 0;
 
-#if defined(__GLIBC__)
+  block_thread_signals ();
   setup_signal_handlers ();
-#endif
 
   /* command line/config options */
   verify_global_config (argc, argv);
@@ -1048,6 +1160,8 @@ main (int argc, char **argv)
     set_general_stats ();
   if (!quit && parse_log (&logger, NULL, -1))
     FATAL ("Error while processing file");
+  if (conf.stop_processing)
+    goto clean;
 
   logger->offset = logger->processed;
 
@@ -1076,6 +1190,7 @@ main (int argc, char **argv)
     curses_output ();
 
   /* clean */
+clean:
   house_keeping ();
 
   return EXIT_SUCCESS;

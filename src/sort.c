@@ -351,6 +351,45 @@ get_sort_order_enum (const char *str)
   return str2enum (ORDER, ARRAY_SIZE (ORDER), str);
 }
 
+/* Given a GSortOrder enum value, return the corresponding string.
+ *
+ * The string corresponding to the enumerated order value is returned. */
+const char *
+get_sort_order_str (GSortOrder order)
+{
+  return ORDER[order].str;
+}
+
+/* Given a GSortField enum value, return the corresponding string.
+ *
+ * The string corresponding to the enumerated field value is returned. */
+const char *
+get_sort_field_str (GSortField field)
+{
+  return FIELD[field].str;
+}
+
+/* Given a GSortField enum value, return the corresponding key.
+ *
+ * The key corresponding to the enumerated field value is returned. */
+const char *
+get_sort_field_key (GSortField field)
+{
+  static const char *field2key[][2] = {
+    {"BY_HITS", "hits"},
+    {"BY_VISITORS", "visitors"},
+    {"BY_DATA", "data"},
+    {"BY_BW", "bytes"},
+    {"BY_AVGTS", "avgts"},
+    {"BY_CUMTS", "cumts"},
+    {"BY_MAXTS", "maxts"},
+    {"BY_PROT", "protocol"},
+    {"BY_MTHD", "method"},
+  };
+
+  return field2key[field][1];
+}
+
 /* Set the initial metric sort per module/panel.
  *
  * On error, function returns.

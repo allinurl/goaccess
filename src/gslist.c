@@ -6,7 +6,6 @@
  * / /_/ / | |/ |/ /___/ / /_/ / /__/ ,< /  __/ /_
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
- *
  * The MIT License (MIT)
  * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
  *

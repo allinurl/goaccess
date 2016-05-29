@@ -64,6 +64,7 @@ struct tm *now_tm;
 
 /* maximum number of items within a panel */
 #define MAX_CHOICES      366
+#define MAX_CHOICES_RT    50
 
 /* date and time length */
 #define DATE_TIME        20
@@ -239,6 +240,7 @@ GAgentItem *new_gagent_item (uint32_t size);
 GAgents *new_gagents (void);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
+int get_max_choices (void);
 int get_module_enum (const char *str);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
