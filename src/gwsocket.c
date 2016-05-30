@@ -41,8 +41,8 @@
 #include "gwsocket.h"
 
 #include "commons.h"
+#include "error.h"
 #include "json.h"
-#include "log.h"
 #include "parser.h"
 #include "settings.h"
 #include "websocket.h"

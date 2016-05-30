@@ -48,8 +48,8 @@
 #include "websocket.h"
 
 #include "base64.h"
+#include "error.h"
 #include "gslist.h"
-#include "log.h"
 #include "sha1.h"
 #include "xmalloc.h"
 

@@ -84,8 +84,6 @@ goaccess_SOURCES = \
    src/gwsocket.h      \
    src/json.c          \
    src/json.h          \
-   src/log.c           \
-   src/log.h           \
    src/opesys.c        \
    src/opesys.h        \
    src/options.c       \

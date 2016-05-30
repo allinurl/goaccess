@@ -62,6 +62,20 @@
   exit(EXIT_FAILURE);                                                         \
 } while (0)
 
+#ifdef DEBUG
+#define DEBUG_TEST 1
+#else
+#define DEBUG_TEST 0
+#endif
+
+#define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
+/* access requests log */
+#define ACCESS_LOG(x, ...) do { access_fprintf x; } while (0)
+
+int access_log_open (const char *path);
+void access_fprintf (const char *fmt, ...);
+void access_log_close (void);
+void dbg_printf (const char *fmt, ...);
 
 void dbg_fprintf (const char *fmt, ...);
 void dbg_log_close (void);
