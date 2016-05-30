@@ -92,6 +92,7 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"time-dist-spec"       , required_argument , 0 ,  0  } ,
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"addr"                 , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
@@ -201,6 +202,8 @@ cmd_help (void)
   "  --all-static-files              - Include static files with a query\n"
   "                                    string.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
+  "  --time-dist-spec=<spec>         - Time Distribution specificity. Values are,\n"
+  "                                    `hour` (default), or `min`.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
   "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted.\n"
@@ -486,6 +489,11 @@ read_option_args (int argc, char **argv)
       /* double decode */
       if (!strcmp ("double-decode", long_opts[idx].name))
         conf.double_decode = 1;
+
+      /* time distribution specificity */
+      if (!strcmp ("time-dist-spec", long_opts[idx].name) &&
+          !strcmp (optarg, "min"))
+        conf.time_dist_min = 1;
 
       /* no color */
       if (!strcmp ("no-color", long_opts[idx].name))

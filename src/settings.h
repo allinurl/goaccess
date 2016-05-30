@@ -135,6 +135,7 @@ typedef struct GConf_
   int real_os;                  /* show real OSs */
   int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
+  int time_dist_min;            /* time distribution specificity to mins */
   int json_pretty_print;
 
   int bandwidth;                /* is there bandwidth within the req line */
