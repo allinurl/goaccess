@@ -187,6 +187,15 @@ set_default_static_files (void)
   }
 }
 
+/* Clean malloc'd log/date/time escaped formats. */
+void
+free_formats (void)
+{
+  free (conf.date_format);
+  free (conf.log_format);
+  free (conf.time_format);
+}
+
 /* Clean malloc'd command line arguments. */
 void
 free_cmd_args (void)

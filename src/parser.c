@@ -2239,17 +2239,19 @@ read_log (GLog ** logger, int lines2test)
 
 /* Determine if the log/date/time were set, otherwise exit the program
  * execution. */
-void
+const char *
 verify_formats (void)
 {
   if (conf.time_format == NULL || *conf.time_format == '\0')
-    FATAL ("No time format was found on your conf file.");
+    return "No time format was found on your conf file.";
 
   if (conf.date_format == NULL || *conf.date_format == '\0')
-    FATAL ("No date format was found on your conf file.");
+    return "No date format was found on your conf file.";
 
   if (conf.log_format == NULL || *conf.log_format == '\0')
-    FATAL ("No log format was found on your conf file.");
+    return "No log format was found on your conf file.";
+
+  return NULL;
 }
 
 /* Entry point to parse the log line by line.
@@ -2259,6 +2261,7 @@ verify_formats (void)
 int
 parse_log (GLog ** logger, char *tail, int lines2test)
 {
+  const char *err_log = NULL;
   int test = -1 == lines2test ? 0 : 1;
 
   /* process tail data and return */
@@ -2269,7 +2272,8 @@ parse_log (GLog ** logger, char *tail, int lines2test)
   }
 
   /* verify that we have the required formats */
-  verify_formats ();
+  if ((err_log = verify_formats ()))
+    FATAL ("%s", err_log);
 
   /* the first run */
   return read_log (logger, lines2test);
