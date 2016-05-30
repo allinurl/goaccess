@@ -129,11 +129,14 @@ house_keeping (void)
 
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
+
   /* kill dns pthread */
   active_gdns = 0;
+  /* clear holder structure */
   free_holder (&holder);
+  /* clear reverse dns queue */
   gdns_free_queue ();
-
+  /* clear the whole storage */
   free_storage ();
 
   pthread_mutex_unlock (&gdns_thread.mutex);
@@ -173,7 +176,6 @@ house_keeping (void)
   free_color_lists ();
   /* free cmd arguments */
   free_cmd_args ();
-
 }
 
 /* Extract data from the given module hash structure and allocate +
