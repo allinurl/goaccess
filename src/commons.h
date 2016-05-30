@@ -72,6 +72,8 @@ struct tm *now_tm;
 #define DATE_LEN         12
 /* hour length */
 #define HOUR_LEN          3
+/* hour + ':' + min length */
+#define HRMI_LEN      4 + 2
 
 /* maximum protocol string length */
 #define REQ_PROTO_LEN     9

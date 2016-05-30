@@ -1911,6 +1911,25 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
   return 0;
 }
 
+/* Given a time string containing at least %H:%M, extract either the
+ * tenth of a minute or an hour.
+ *
+ * On error, the given string is not modified.
+ * On success, the conf specificity is extracted. */
+static void
+parse_time_specificity_string (char *hmark, char *time)
+{
+  /* tenth of a minute specificity - e.g., 18:2 */
+  if (conf.time_dist_min && hmark[1] != '\0') {
+    hmark[2] = '\0';
+    return;
+  }
+
+  /* hour specificity (default) */
+  if ((hmark - time) > 0)
+    *hmark = '\0';
+}
+
 /* A wrapper to generate a unique key for the time distribution panel.
  *
  * On error, 1 is returned.
@@ -1920,15 +1939,14 @@ static int
 gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
 {
   char *hmark = NULL;
-  char hour[HOUR_LEN] = "";     /* %H */
+  char hour[HRMI_LEN] = "";     /* %H:%M */
   if (!glog->time)
     return 1;
 
   /* if not a timestamp, then it must be a string containing the hour.
    * this is faster than actual date conversion */
   if (!has_timestamp (conf.time_format) && (hmark = strchr (glog->time, ':'))) {
-    if ((hmark - glog->time) > 0)
-      *hmark = '\0';
+    parse_time_specificity_string (hmark, glog->time);
     get_kdata (kdata, glog->time, glog->time);
     return 0;
   }
@@ -1936,11 +1954,14 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, glog->time, conf.time_format, "%H", HOUR_LEN) != 0)
+  if (convert_date (hour, glog->time, conf.time_format, "%H:%M", HRMI_LEN) != 0)
     return 1;
 
   if (hour == '\0')
     return 1;
+
+  if ((hmark = strchr (hour, ':')))
+    parse_time_specificity_string (hmark, hour);
 
   free (glog->time);
   glog->time = xstrdup (hour);
