@@ -331,6 +331,9 @@ free_storage (void)
   des_si32_free (ht_unique_keys);
   des_ss32_free (ht_hostnames);
 
+  if (!gkh_storage)
+    return;
+
   FOREACH_MODULE (idx, module_list) {
     free_metrics (module_list[idx]);
   }

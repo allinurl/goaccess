@@ -254,6 +254,7 @@ int ignore_panel (GModule mod);
 int init_modules (void);
 int remove_module(GModule module);
 uint32_t get_num_modules(void);
+void verify_panels (void);
 
 void display_default_config_file (void);
 void display_storage (void);
