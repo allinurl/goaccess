@@ -44,9 +44,10 @@
 #include "error.h"
 #include "parser.h"
 
+static FILE *access_log;
 static FILE *log_file;
-static GLog *log_data;
 static FILE *log_invalid;
+static GLog *log_data;
 
 /* Open a debug file whose name is specified in the given path. */
 void
@@ -92,6 +93,31 @@ void
 set_signal_data (void *p)
 {
   log_data = p;
+}
+
+/* Open a access file whose name is specified in the given path. */
+int
+access_log_open (const char *path)
+{
+  if (path == NULL)
+    return 0;
+
+  if (access (path, F_OK) != -1)
+    access_log = fopen (path, "a");
+  else
+    access_log = fopen (path, "w");
+  if (access_log == NULL)
+    return 1;
+
+  return 0;
+}
+
+/* Close the access log file. */
+void
+access_log_close (void)
+{
+  if (access_log != NULL)
+    fclose (access_log);
 }
 
 #if defined(__GLIBC__)
@@ -175,6 +201,31 @@ invalid_fprintf (const char *fmt, ...)
   va_start (args, fmt);
   vfprintf (log_invalid, fmt, args);
   fflush (log_invalid);
+  va_end (args);
+}
+
+/* Debug otuput */
+void
+dbg_printf (const char *fmt, ...)
+{
+  va_list args;
+  va_start (args, fmt);
+  vfprintf (stderr, fmt, args);
+  va_end (args);
+}
+
+/* Write formatted access log data to the logfile. */
+void
+access_fprintf (const char *fmt, ...)
+{
+  va_list args;
+
+  if (!access_log)
+    return;
+
+  va_start (args, fmt);
+  vfprintf (access_log, fmt, args);
+  fflush (access_log);
   va_end (args);
 }
 
