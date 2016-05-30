@@ -605,9 +605,15 @@ tail_html (int fdfifo)
 static void
 perform_tail_follow (uint64_t * size1, int fdfifo)
 {
-  uint64_t size2 = 0;
-  char buf[LINE_BUFFER];
   FILE *fp = NULL;
+  uint64_t size2 = 0;
+
+#ifdef WITH_GETLINE
+  char *buf = NULL;
+  size_t len = 0;
+#else
+  char buf[LINE_BUFFER];
+#endif
 
   if (logger->piping || logger->load_from_disk_only)
     return;
@@ -621,7 +627,11 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   if (!(fp = fopen (conf.ifile, "r")))
     FATAL ("Unable to read log file %s.", strerror (errno));
   if (!fseeko (fp, *size1, SEEK_SET))
+#ifdef WITH_GETLINE
+    while (getline (&buf, &len, fp) != -1)
+#else
     while (fgets (buf, LINE_BUFFER, fp) != NULL)
+#endif
       parse_log (&logger, buf, -1);
   fclose (fp);
 
@@ -1133,7 +1143,7 @@ set_curses (int *quit)
   set_curses_spinner (parsing_spinner);
 
   /* Display configuration dialog if missing formats and not piping data in */
-  if (isatty (STDIN_FILENO) && (verify_formats() || conf.load_conf_dlg)) {
+  if (isatty (STDIN_FILENO) && (verify_formats () || conf.load_conf_dlg)) {
     refresh ();
     *quit = render_confdlg (logger, parsing_spinner);
   }
