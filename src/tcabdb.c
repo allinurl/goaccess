@@ -244,6 +244,9 @@ free_storage (void)
 {
   size_t idx = 0;
 
+  if (!tc_storage)
+    return;
+
   tc_db_close (ht_agent_keys, get_dbname (DB_AGENT_KEYS, -1));
   tc_db_close (ht_agent_vals, get_dbname (DB_AGENT_VALS, -1));
   tc_db_close (ht_general_stats, get_dbname (DB_GEN_STATS, -1));
@@ -271,6 +274,9 @@ get_hash (GModule module, GSMetric metric)
   void *hash = NULL;
   int i;
   GTCStorageMetric mtrc;
+
+  if (!tc_storage)
+    return NULL;
 
   for (i = 0; i < GSMTRC_TOTAL; i++) {
     mtrc = tc_storage[module].metrics[i];

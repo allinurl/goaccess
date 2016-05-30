@@ -295,6 +295,23 @@ get_prev_module (GModule module)
   return 0;
 }
 
+/* Perform some additional tasks to panels before they are being
+ * parsed. */
+void
+verify_panels (void)
+{
+  int ignore_panel_idx = conf.ignore_panel_idx;
+
+  /* Remove virtual host panel if no '%v' within log format */
+  if (!conf.log_format)
+    return;
+
+  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
+    if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
+      remove_module (VIRTUAL_HOSTS);
+  }
+}
+
 /* Build an array of available modules (ignores listed panels).
  *
  * If there are no modules enabled, 0 is returned.

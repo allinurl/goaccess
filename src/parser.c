@@ -1336,20 +1336,6 @@ ignore_status_code (const char *status)
   return 0;
 }
 
-/* Perform some additional tasks to panels before they are being
- * parsed. */
-static void
-verify_panels (void)
-{
-  int ignore_panel_idx = conf.ignore_panel_idx;
-
-  /* Remove virtual host panel if no '%v' within log format */
-  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
-    if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
-      remove_module (VIRTUAL_HOSTS);
-  }
-}
-
 /* A wrapper function to determine if a log line needs to be ignored.
  *
  * If the request line is not ignored, 0 is returned.
@@ -2284,9 +2270,6 @@ parse_log (GLog ** logger, char *tail, int lines2test)
 
   /* verify that we have the required formats */
   verify_formats ();
-
-  /* perform some additional checks before parsing panels */
-  verify_panels ();
 
   /* the first run */
   return read_log (logger, lines2test);

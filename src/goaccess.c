@@ -932,6 +932,20 @@ set_general_stats (void)
 
 }
 
+/* Execute the following calls right before we start the main
+ * processing/parsing loop */
+static void
+init_processing (void)
+{
+  /* perform some additional checks before parsing panels */
+  verify_panels ();
+  /* initialize storage */
+  init_storage ();
+  if (conf.load_from_disk) {
+    set_general_stats ();
+  }
+}
+
 /* Set up and open GeoIP database */
 #ifdef HAVE_LIBGEOIP
 static void
@@ -1075,8 +1089,6 @@ initializer (void)
 {
   /* initialize modules and set first */
   gscroll.current = init_modules ();
-  /* initialize storage */
-  init_storage ();
   /* setup to use the current locale */
   set_locale ();
 
@@ -1154,11 +1166,14 @@ main (int argc, char **argv)
   else
     set_curses (&quit);
 
+  /* no log/date/time format set */
+  if (quit)
+    goto clean;
+
+  init_processing ();
   /* main processing event */
   time (&start_proc);
-  if (conf.load_from_disk)
-    set_general_stats ();
-  if (!quit && parse_log (&logger, NULL, -1))
+  if (parse_log (&logger, NULL, -1))
     FATAL ("Error while processing file");
   if (conf.stop_processing)
     goto clean;
