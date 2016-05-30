@@ -165,6 +165,7 @@ house_keeping (void)
   }
 
   /* CONFIGURATION */
+  free_formats ();
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
@@ -915,8 +916,6 @@ get_keys (void)
 static void
 set_general_stats (void)
 {
-  verify_formats ();
-
   logger->valid = logger->processed = logger->invalid = logger->excluded_ip = 0;
 
 #ifdef TCB_BTREE
@@ -931,7 +930,6 @@ set_general_stats (void)
   if (ht_get_genstats ("serve_usecs"))
     conf.serve_usecs = 1;
 #endif
-
 }
 
 /* Execute the following calls right before we start the main
@@ -1134,8 +1132,8 @@ set_curses (int *quit)
   init_windows (&header_win, &main_win);
   set_curses_spinner (parsing_spinner);
 
-  /* configuration dialog */
-  if (isatty (STDIN_FILENO) && (conf.log_format == NULL || conf.load_conf_dlg)) {
+  /* Display configuration dialog if missing formats and not piping data in */
+  if (isatty (STDIN_FILENO) && (verify_formats() || conf.load_conf_dlg)) {
     refresh ();
     *quit = render_confdlg (logger, parsing_spinner);
   }

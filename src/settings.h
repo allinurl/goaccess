@@ -178,6 +178,7 @@ extern GConf conf;
 char *get_config_file_path (void);
 int parse_conf_file (int *argc, char ***argv);
 void free_cmd_args (void);
+void free_formats (void);
 void set_default_static_files (void);
 
 #endif

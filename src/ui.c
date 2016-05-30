@@ -92,10 +92,6 @@ static GOutput outputting[] = {
 };
 /* *INDENT-ON* */
 
-static char *date_format = NULL;
-static char *log_format = NULL;
-static char *time_format = NULL;
-
 /* Structure to display overall statistics */
 typedef struct Field_
 {
@@ -1102,6 +1098,75 @@ clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
   draw_header (win, "", "%s", y, x, w, color_default);
 }
 
+static void
+draw_formats (WINDOW * win, int w2)
+{
+  char *date_format = NULL, *log_format = NULL, *time_format = NULL;
+
+  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
+               color_panel_header);
+  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
+
+  /* set log format from config file if available */
+  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
+               color_panel_header);
+  if (conf.log_format) {
+    log_format = escape_str (conf.log_format);
+    mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
+
+    free (log_format);
+  }
+
+  /* set log format from config file if available */
+  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
+               color_panel_header);
+  if (conf.date_format) {
+    date_format = escape_str (conf.date_format);
+    mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
+
+    free (date_format);
+  }
+
+  /* set log format from config file if available */
+  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2,
+               color_panel_header);
+  if (conf.time_format) {
+    time_format = escape_str (conf.time_format);
+    mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
+
+    free (time_format);
+  }
+}
+
+static const char *
+set_formats (char *date_format, char *log_format, char *time_format)
+{
+  /* display status bar error messages */
+  if (!time_format && !conf.time_format)
+    return "Select a time format.";
+  if (!date_format && !conf.date_format)
+    return "Select a date format.";
+  if (!log_format && !conf.log_format)
+    return "Select a log format.";
+
+  if (time_format) {
+    free (conf.time_format);
+    conf.time_format = unescape_str (time_format);
+  }
+
+  if (date_format) {
+    free (conf.date_format);
+    conf.date_format = unescape_str (date_format);
+  }
+
+  if (log_format) {
+    free (conf.log_format);
+    conf.log_format = unescape_str (log_format);
+  }
+
+  return NULL;
+}
+
 /* Render the config log date/format dialog.
  *
  * On error, or if the selected format is invalid, 1 is returned.
@@ -1112,6 +1177,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
   GMenu *menu;
   WINDOW *win;
 
+  const char *log_err = NULL;
+  char *date_format = NULL, *log_format = NULL, *time_format = NULL;
   char *cstm_log, *cstm_date, *cstm_time;
   int c, quit = 1, invalid = 1, y, x, h = CONF_WIN_H, w = CONF_WIN_W;
   int w2 = w - 2;
@@ -1149,40 +1216,7 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     menu->items[i].checked = sel == i ? 1 : 0;
   }
   post_gmenu (menu);
-
-  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
-               color_panel_header);
-  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
-
-  /* set log format from goaccessrc if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
-               color_panel_header);
-  if (conf.log_format) {
-    log_format = escape_str (conf.log_format);
-    mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
-    if (conf.log_format)
-      free (conf.log_format);
-  }
-
-  /* set date format from goaccessrc if available */
-  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
-               color_panel_header);
-  if (conf.date_format) {
-    date_format = escape_str (conf.date_format);
-    mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
-    if (conf.date_format)
-      free (conf.date_format);
-  }
-
-  /* set time format from goaccessrc if available */
-  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2,
-               color_panel_header);
-  if (conf.time_format) {
-    time_format = escape_str (conf.time_format);
-    mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
-    if (conf.time_format)
-      free (conf.time_format);
-  }
+  draw_formats (win, w2);
 
   wrefresh (win);
   while (quit) {
@@ -1299,31 +1333,15 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     case 0x0a:
     case 0x0d:
     case KEY_ENTER:
-      /* display status bar error messages */
-      if (time_format == NULL)
-        draw_header (win, "Select a time format.", " %s", 3, 2, CONF_MENU_W,
-                     color_error);
-      if (date_format == NULL)
-        draw_header (win, "Select a date format.", " %s", 3, 2, CONF_MENU_W,
-                     color_error);
-      if (log_format == NULL)
-        draw_header (win, "Select a log format.", " %s", 3, 2, CONF_MENU_W,
-                     color_error);
+      if ((log_err = set_formats (date_format, log_format, time_format)))
+        draw_header (win, log_err, " %s", 3, 2, CONF_MENU_W, color_error);
 
-      if (date_format && log_format && time_format) {
-        conf.time_format = unescape_str (time_format);
-        conf.date_format = unescape_str (date_format);
-        conf.log_format = unescape_str (log_format);
-
+      if (!log_err) {
         /* test log against selected settings */
         if (test_format (logger)) {
           invalid = 1;
           draw_header (win, "No valid hits.", " %s", 3, 2, CONF_MENU_W,
                        color_error);
-
-          free (conf.log_format);
-          free (conf.date_format);
-          free (conf.time_format);
         }
         /* valid data, reset logger & start parsing */
         else {
@@ -1347,10 +1365,16 @@ render_confdlg (GLog * logger, GSpinner * spinner)
       quit = 0;
       break;
     }
+
     pthread_mutex_lock (&spinner->mutex);
     wrefresh (win);
     pthread_mutex_unlock (&spinner->mutex);
   }
+
+  free (time_format);
+  free (date_format);
+  free (log_format);
+
   /* clean stuff up */
   for (i = 0; i < n; ++i)
     free (menu->items[i].name);
