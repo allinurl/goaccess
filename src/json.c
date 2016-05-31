@@ -58,7 +58,8 @@ typedef struct GPanel_
   GModule module;
   void (*render) (FILE * fp, GHolder * h, GPercTotals totals,
                   const struct GPanel_ *);
-  void (*subitems) (FILE * fp, GSubList * sl, GPercTotals totals, int iisp);
+  void (*subitems) (FILE * fp, GHolderItem * item, GPercTotals totals,
+                    int iisp);
 } GPanel;
 
 /* number of new lines (applicable fields) */
@@ -66,10 +67,10 @@ static int nlines = 0;
 
 static void print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
                              const struct GPanel_ *);
-static void print_json_sub_items (FILE * fp, GSubList * sl, GPercTotals totals,
-                                  int iisp);
-static void print_json_host_geo (FILE * fp, GSubList * sl, GPercTotals totals,
-                                 int iisp);
+static void print_json_host_geo (FILE * fp, GHolderItem * item,
+                                 GPercTotals totals, int iisp);
+static void print_json_sub_items (FILE * fp, GHolderItem * item,
+                                  GPercTotals totals, int iisp);
 
 /* *INDENT-OFF* */
 static GPanel paneling[] = {
@@ -751,12 +752,76 @@ print_json_block (FILE * fp, GMetrics * nmetrics, int sp)
   pjson (fp, "\"");
 }
 
+/* Add the given user agent value into our array of GAgents.
+ *
+ * On error, 1 is returned.
+ * On success, the user agent is added to the array and 0 is returned. */
+static int
+fill_host_agents (void *val, void *user_data)
+{
+  GAgents *agents = user_data;
+  char *agent = ht_get_host_agent_val ((*(int *) val));
+
+  if (agent == NULL)
+    return 1;
+
+  agents->items[agents->size].agent = agent;
+  agents->size++;
+
+  return 0;
+}
+
+/* Iterate over the list of agents */
+static void
+load_host_agents (void *list, void *user_data, GO_UNUSED int count)
+{
+  GSLList *lst = list;
+  GAgents *agents = user_data;
+
+  agents->items = new_gagent_item (count);
+  list_foreach (lst, fill_host_agents, agents);
+}
+
+/* A wrapper function to ouput an array of user agents for each host. */
+static void
+process_host_agents (FILE * fp, GHolderItem * item, int iisp)
+{
+  GAgents *agents = new_gagents ();
+  int i, n = 0, iiisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    iiisp = iisp + 1;
+
+  if (set_host_agents (item->metrics->data, load_host_agents, agents) == 1)
+    return;
+
+  pjson (fp, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
+
+  n = agents->size > 10 ? 10 : agents->size;
+  for (i = 0; i < n; ++i) {
+    pjson (fp, "%.*s\"", iiisp, TAB);
+    escape_json_output (fp, agents->items[i].agent);
+    if (i == n - 1)
+      pjson (fp, "\"");
+    else
+      pjson (fp, "\",%.*s", nlines, NL);
+  }
+
+  pclose_arr (fp, iisp, 1);
+
+  /* clean stuff up */
+  free_agents_array (agents);
+}
+
 /* A wrapper function to ouput children nodes. */
 static void
-print_json_sub_items (FILE * fp, GSubList * sl, GPercTotals totals, int iisp)
+print_json_sub_items (FILE * fp, GHolderItem * item, GPercTotals totals,
+                      int iisp)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
+  GSubList *sl = item->sub_list;
   int i = 0, iiisp = 0, iiiisp = 0;
 
   /* use tabs to prettify output */
@@ -780,11 +845,12 @@ print_json_sub_items (FILE * fp, GSubList * sl, GPercTotals totals, int iisp)
 
 /* Ouput Geolocation data and the IP's hostname. */
 static void
-print_json_host_geo (FILE * fp, GSubList * sl, GO_UNUSED GPercTotals totals,
-                     int iisp)
+print_json_host_geo (FILE * fp, GHolderItem * item,
+                     GO_UNUSED GPercTotals totals, int iisp)
 {
-  int i;
   GSubItem *iter;
+  GSubList *sl = item->sub_list;
+  int i;
   static const char *key[] = {
     "country",
     "city",
@@ -802,6 +868,10 @@ print_json_host_geo (FILE * fp, GSubList * sl, GO_UNUSED GPercTotals totals,
     escape_json_output (fp, iter->metrics->data);
     pjson (fp, (i != sl->size - 1) ? "\",%.*s" : "\"", nlines, NL);
   }
+
+  /* print list of user agents */
+  if (conf.list_agents)
+    process_host_agents (fp, item, iisp);
 }
 
 /* Ouput data and determine if there are children nodes. */
@@ -827,7 +897,7 @@ print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
     print_json_block (fp, nmetrics, iiisp);
     /* if there are children notes, spit them out */
     if (panel->subitems && h->sub_items_size)
-      panel->subitems (fp, h->items[i].sub_list, totals, iiisp);
+      panel->subitems (fp, h->items + i, totals, iiisp);
     /* close data metric block */
     pclose_obj (fp, iisp, (i == h->idx - 1));
 

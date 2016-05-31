@@ -848,12 +848,14 @@ GoAccess.Tables = {
 		var plotUI = GoAccess.AppCharts[panel].opts();
 
 		hide = this.toggleExpanded(panel, key);
+		this.renderTable(panel, this.getCurPage(panel));
+		if (!plotUI.redrawOnExpand)
+			return;
+
 		if (!hide)
 			data = GoAccess.Charts.processChartData(this.addChartData(panel, key));
 		else
 			data = GoAccess.Charts.processChartData(this.removeChartData(panel, key));
-
-		this.renderTable(panel, this.getCurPage(panel));
 		GoAccess.Charts.drawPlot(panel, plotUI, data);
 	},
 
@@ -963,7 +965,7 @@ GoAccess.Tables = {
 	// Return an object that can be consumed by the table template given a user
 	// interface definition and a cell value object.
 	// e.g., value = Object {count: 14351, percent: 5.79}
-	getTableCell: function (panel, ui, value) {
+	getObjectCell: function (panel, ui, value) {
 		var className = ui.className || '';
 		className += ui.valueType != 'string' ? 'text-right' : '';
 		return {
@@ -982,12 +984,12 @@ GoAccess.Tables = {
 			'panel'       : panel,
 			'idx'         : !subItem && (String(idx + this.pageOffSet(panel))),
 			'key'         : !subItem ? GoAccess.Util.hashCode(dataItem.data) : '',
+			'expanded'    : !subItem && expanded,
 			'parentId'    : subItem ? String(parentId) : '',
 			'className'   : subItem ? 'child ' + shadeChild : 'parent ' + shadeParent,
-			'cells'       : this.iterUIItems(panel, ui.items, dataItem, callback),
 			'hasSubItems' : ui.hasSubItems,
-			'expanded'    : !subItem && expanded,
 			'items'       : dataItem.items ? dataItem.items.length : 0,
+			'cells'       : callback.call(this),
 		};
 	},
 
@@ -1006,10 +1008,26 @@ GoAccess.Tables = {
 
 		// Iterate over all data items for the given panel and
 		// generate a table row per date item.
-		var callback = this.getTableCell.bind(this);
+		var cellcb = null;
 		for (var i = 0; i < dataItems.length; ++i) {
-			var dataItem = dataItems[i], expanded = this.isExpanded(panel, GoAccess.Util.hashCode(dataItem.data));
-			rows.push(this.renderRow(panel, callback, ui, dataItem, i, subItem, parentId, expanded));
+			var dataItem = dataItems[i], data = null, expanded = false;
+			switch(typeof dataItem) {
+			case 'string':
+				data = dataItem;
+				cellcb = function () {
+					return {
+						'colspan': ui.items.length + 1,
+						'value': data
+					}
+				};
+				break;
+			default:
+				data = dataItem.data;
+				cellcb = this.iterUIItems.bind(this, panel, ui.items, dataItem, this.getObjectCell.bind(this));
+			}
+
+			expanded = this.isExpanded(panel, GoAccess.Util.hashCode(data));
+			rows.push(this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded));
 			if (dataItem.items && dataItem.items.length && expanded) {
 				this.renderRows(rows, panel, ui, dataItem.items, true, i, expanded);
 			}

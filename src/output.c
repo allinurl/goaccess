@@ -71,27 +71,27 @@ static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
   {VISITORS       , 1, print_metrics, {
-    {CHART_AREASPLINE, hits_visitors_plot, 1} ,
-    {CHART_AREASPLINE, hits_bw_plot, 1} ,
+    {CHART_AREASPLINE, hits_visitors_plot, 1, 1} ,
+    {CHART_AREASPLINE, hits_bw_plot, 1, 1} ,
   }},
   {REQUESTS        , 1, print_metrics } ,
   {REQUESTS_STATIC , 1, print_metrics } ,
   {NOT_FOUND       , 1, print_metrics } ,
   {HOSTS           , 1, print_host_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0},
-    {CHART_VBAR, hits_bw_plot, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
   }},
   {OS              , 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0},
-    {CHART_VBAR, hits_bw_plot, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 1},
+    {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
   {BROWSERS        , 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0},
-    {CHART_VBAR, hits_bw_plot, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 1},
+    {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
   {VISIT_TIMES     , 1, print_metrics, {
-    {CHART_AREASPLINE, hits_visitors_plot, 0},
-    {CHART_AREASPLINE, hits_bw_plot, 0},
+    {CHART_AREASPLINE, hits_visitors_plot, 0, 1},
+    {CHART_AREASPLINE, hits_bw_plot, 0, 1},
   }},
   {VIRTUAL_HOSTS   , 1, print_metrics } ,
   {REFERRERS       , 1, print_metrics } ,
@@ -99,13 +99,13 @@ static GHTML htmldef[] = {
   {KEYPHRASES      , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0},
-    {CHART_VBAR, hits_bw_plot, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 1},
+    {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
 #endif
   {STATUS_CODES    , 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0},
-    {CHART_VBAR, hits_bw_plot, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 1},
+    {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
 };
 /* *INDENT-ON* */
@@ -316,6 +316,7 @@ hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
   pskeysval (fp, "className", "hits-visitors", isp, 0);
   pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
   pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+  pskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
 
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);
@@ -346,6 +347,7 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
   pskeysval (fp, "className", "bandwidth", isp, 0);
   pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
   pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+  pskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
 
   /* D3.js data */
   popen_obj_attr (fp, "d3", isp);

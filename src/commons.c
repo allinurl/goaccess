@@ -176,6 +176,23 @@ new_gagent_item (uint32_t size)
   return item;
 }
 
+/* Clean the array of agents. */
+void
+free_agents_array (GAgents * agents)
+{
+  int i;
+
+  if (agents == NULL)
+    return;
+
+  /* clean stuff up */
+  for (i = 0; i < agents->size; ++i)
+    free (agents->items[i].agent);
+  if (agents->items)
+    free (agents->items);
+  free (agents);
+}
+
 /* Determine if the given date format is a timestamp.
  *
  * On error, 0 is returned.
