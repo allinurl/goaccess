@@ -79,6 +79,7 @@ typedef struct GHTMLPlot_
   GChartType chart_type;
   void (*plot) (FILE * fp, const struct GHTMLPlot_ plot, int sp);
   int8_t chart_reverse;
+  int8_t redraw_expand;
 } GHTMLPlot;
 /* Controls HTML output. */
 typedef struct GHTML_

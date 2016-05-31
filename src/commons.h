@@ -240,6 +240,7 @@ extern int module_list[TOTAL_MODULES];
 /* *INDENT-OFF* */
 GAgentItem *new_gagent_item (uint32_t size);
 GAgents *new_gagents (void);
+void free_agents_array (GAgents *agents);
 
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
