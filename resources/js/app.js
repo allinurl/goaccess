@@ -769,6 +769,13 @@ GoAccess.Tables = {
 			}.bind(this);
 		}.bind(this));
 
+		$$('.expandable>td', function (item) {
+			item.onclick = function (e) {
+				if (!window.getSelection().toString())
+					this.toggleRow(e.currentTarget);
+			}.bind(this);
+		}.bind(this));
+
 		$$('.row-expandable.clickable', function (item) {
 			item.onclick = function (e) {
 				this.toggleRow(e.currentTarget);

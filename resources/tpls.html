@@ -20,7 +20,7 @@
 <!-- TPL Panel Table -->
 <script id="tpl-table-row" type="text/template">
 	{{#rows}}
-		<tr class="{{#className}}{{className}}{{/className}}" {{#idx}}data-pid="{{idx}}"{{/idx}} data-panel="{{panel}}" {{#key}}data-key="{{key}}"{{/key}}>
+		<tr class="{{#className}}{{className}}{{/className}} {{#hasSubItems}}{{#items}}expandable{{/items}}{{/hasSubItems}}" {{#idx}}data-pid="{{idx}}"{{/idx}} data-panel="{{panel}}" {{#key}}data-key="{{key}}"{{/key}}>
 			{{#hasSubItems}}
 			<td class="row-expandable text-center {{#items}}clickable{{/items}}">
 				{{#items}}<i class="fa {{#expanded}}fa-caret-down{{/expanded}}{{^expanded}}fa fa-caret-right{{/expanded}}"></i>{{/items}}
