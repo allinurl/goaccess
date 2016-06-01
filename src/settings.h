@@ -41,7 +41,7 @@
 #define MAX_IGNORE_STATUS  64
 #define NO_CONFIG_FILE "No config file used"
 
-typedef enum
+typedef enum LOGTYPE
 {
   COMBINED,
   VCOMBINED,
@@ -52,7 +52,7 @@ typedef enum
   CLOUDFRONT,
   CLOUDSTORAGE,
   AWSELB,
-} LOGTYPE;
+} GLogType;
 
 /* predefined log times */
 typedef struct GPreConfTime_
@@ -174,6 +174,9 @@ char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);
 char *get_selected_time_str (size_t idx);
 size_t get_selected_format_idx (void);
+void set_date_format_str (const char *optarg);
+void set_log_format_str (const char *optarg);
+void set_time_format_str (const char *optarg);
 
 extern GConf conf;
 
