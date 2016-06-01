@@ -58,7 +58,7 @@ typedef struct GPanel_
   GModule module;
   void (*render) (FILE * fp, GHolder * h, GPercTotals totals,
                   const struct GPanel_ *);
-  void (*subitems) (FILE * fp, GHolderItem * item, GPercTotals totals,
+  void (*subitems) (FILE * fp, GHolderItem * item, GPercTotals totals, int size,
                     int iisp);
 } GPanel;
 
@@ -67,10 +67,10 @@ static int nlines = 0;
 
 static void print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
                              const struct GPanel_ *);
-static void print_json_host_geo (FILE * fp, GHolderItem * item,
-                                 GPercTotals totals, int iisp);
+static void print_json_host_items (FILE * fp, GHolderItem * item,
+                                   GPercTotals totals, int size, int iisp);
 static void print_json_sub_items (FILE * fp, GHolderItem * item,
-                                  GPercTotals totals, int iisp);
+                                  GPercTotals totals, int size, int iisp);
 
 /* *INDENT-OFF* */
 static GPanel paneling[] = {
@@ -78,7 +78,7 @@ static GPanel paneling[] = {
   {REQUESTS            , print_json_data , NULL } ,
   {REQUESTS_STATIC     , print_json_data , NULL } ,
   {NOT_FOUND           , print_json_data , NULL } ,
-  {HOSTS               , print_json_data , print_json_host_geo  } ,
+  {HOSTS               , print_json_data , print_json_host_items } ,
   {OS                  , print_json_data , print_json_sub_items } ,
   {BROWSERS            , print_json_data , print_json_sub_items } ,
   {VISIT_TIMES         , print_json_data , NULL } ,
@@ -817,12 +817,16 @@ process_host_agents (FILE * fp, GHolderItem * item, int iisp)
 /* A wrapper function to ouput children nodes. */
 static void
 print_json_sub_items (FILE * fp, GHolderItem * item, GPercTotals totals,
-                      int iisp)
+                      int size, int iisp)
 {
   GMetrics *nmetrics;
   GSubItem *iter;
   GSubList *sl = item->sub_list;
   int i = 0, iiisp = 0, iiiisp = 0;
+
+  /* no sub items, nothing to output */
+  if (size == 0)
+    return;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -843,22 +847,17 @@ print_json_sub_items (FILE * fp, GHolderItem * item, GPercTotals totals,
   pclose_arr (fp, iisp, 1);
 }
 
-/* Ouput Geolocation data and the IP's hostname. */
+/* A wrapper function to ouput geolocation fields for the given host. */
 static void
-print_json_host_geo (FILE * fp, GHolderItem * item,
-                     GO_UNUSED GPercTotals totals, int iisp)
+print_json_host_geo (FILE * fp, GSubList * sl, int iisp)
 {
   GSubItem *iter;
-  GSubList *sl = item->sub_list;
   int i;
   static const char *key[] = {
     "country",
     "city",
     "hostname",
   };
-
-  if (sl == NULL)
-    return;
 
   pjson (fp, ",%.*s", nlines, NL);
 
@@ -868,6 +867,17 @@ print_json_host_geo (FILE * fp, GHolderItem * item,
     escape_json_output (fp, iter->metrics->data);
     pjson (fp, (i != sl->size - 1) ? "\",%.*s" : "\"", nlines, NL);
   }
+}
+
+/* Ouput Geolocation data and the IP's hostname. */
+static void
+print_json_host_items (FILE * fp, GHolderItem * item, GPercTotals totals,
+                       int size, int iisp)
+{
+  (void) totals;
+  /* print geolocation fields */
+  if (size > 0 && item->sub_list != NULL)
+    print_json_host_geo (fp, item->sub_list, iisp);
 
   /* print list of user agents */
   if (conf.list_agents)
@@ -895,9 +905,9 @@ print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
     popen_obj (fp, iisp);
     /* output data metric block */
     print_json_block (fp, nmetrics, iiisp);
-    /* if there are children notes, spit them out */
-    if (panel->subitems && h->sub_items_size)
-      panel->subitems (fp, h->items + i, totals, iiisp);
+    /* if there are children nodes, spit them out */
+    if (panel->subitems)
+      panel->subitems (fp, h->items + i, totals, h->sub_items_size, iiisp);
     /* close data metric block */
     pclose_obj (fp, iisp, (i == h->idx - 1));
 
