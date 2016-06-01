@@ -290,6 +290,12 @@ GoAccess.Nav = {
 			$('nav').classList.remove('active');
 		}.bind(this);
 
+		$$('.export-json', function (item) {
+			item.onclick = function (e) {
+				this.downloadJSON(e);
+			}.bind(this);
+		}.bind(this));
+
 		$$('.theme-bright', function (item) {
 			item.onclick = function (e) {
 				this.setTheme('bright');
@@ -313,6 +319,13 @@ GoAccess.Nav = {
 				this.setPerPage(e);
 			}.bind(this);
 		}.bind(this));
+	},
+
+	downloadJSON: function (e) {
+		var targ = e.currentTarget;
+		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(GoAccess.getPanelData()));
+		targ.href = 'data:' + data;
+		targ.download = 'goaccess-' + +new Date() + '.json';
 	},
 
 	setTheme: function (theme) {
