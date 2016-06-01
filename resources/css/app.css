@@ -27,7 +27,8 @@ h3 {
 .pagination {
 	margin: 5px 0;
 }
-.clickable {
+.clickable,
+.expandable>td {
 	cursor: pointer;
 }
 .spinner {
