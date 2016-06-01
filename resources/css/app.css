@@ -344,7 +344,7 @@ nav h3 {
 	padding: 5px 10px;
 }
 .perpage-wrap a.active {
-    background: rgba(91, 192, 222, 0.63);
+    background: rgba(255, 255, 255, 0.15);
 	color: white;
 }
 .panel-plot-wrap {
