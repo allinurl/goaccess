@@ -44,7 +44,7 @@
 #include <curses.h>
 #endif
 
-#include <settings.h>
+#include "settings.h"
 
 #define TRACE_SIZE 128
 
