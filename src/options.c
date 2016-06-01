@@ -80,6 +80,7 @@ struct option long_opts[] = {
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-status"        , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
+  {"enable-panel"         , required_argument , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
@@ -202,8 +203,7 @@ cmd_help (void)
   "  --all-static-files              - Include static files with a query\n"
   "                                    string.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
-  "  --time-dist-spec=<spec>         - Time Distribution specificity. Values are,\n"
-  "                                    `hour` (default), or `min`.\n"
+  "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
   "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted.\n"
@@ -215,7 +215,9 @@ cmd_help (void)
   "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
   "                                    manpage for a list of panels/fields.\n"
   "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
-  "                                    Extensions are case sensitive.\n\n"
+  "                                    Extensions are case sensitive.\n"
+  "  --time-dist-spec=<spec>         - Time Distribution specificity. Values are,\n"
+  "                                    `hour` (default), or `min`.\n\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
@@ -428,6 +430,13 @@ read_option_args (int argc, char **argv)
       /* all static files */
       if (!strcmp ("all-static-files", long_opts[idx].name))
         conf.all_static_files = 1;
+
+      /* enable panel */
+      if (!strcmp ("enable-panel", long_opts[idx].name) &&
+          conf.enable_panel_idx < TOTAL_MODULES) {
+        if (!str_inarray (optarg, conf.enable_panels, conf.enable_panel_idx))
+          conf.enable_panels[conf.enable_panel_idx++] = optarg;
+      }
 
       /* ignore crawlers */
       if (!strcmp ("ignore-crawlers", long_opts[idx].name))

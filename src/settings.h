@@ -106,6 +106,7 @@ typedef struct GConf_
   char *origin;                 /* WebSocket origin */
   char *port;                   /* port to use */
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
+  const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
@@ -146,6 +147,7 @@ typedef struct GConf_
   int stop_processing;          /* stop all processing */
 
   int color_idx;                /* colors index */
+  int enable_panel_idx;         /* enable panels index */
   int ignore_ip_idx;            /* ignored ips index */
   int ignore_panel_idx;         /* ignored panels index */
   int ignore_referer_idx;       /* ignored referrers index */

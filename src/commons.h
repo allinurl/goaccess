@@ -248,6 +248,7 @@ int get_module_enum (const char *str);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
 
+int enable_panel (GModule mod);
 int get_module_index (int module);
 int get_next_module(GModule module);
 int get_prev_module(GModule module);

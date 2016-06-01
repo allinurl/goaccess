@@ -205,6 +205,25 @@ has_timestamp (const char *fmt)
   return 0;
 }
 
+/* Determine if the given module is set to be enabled.
+ *
+ * If enabled, 1 is returned, else 0 is returned. */
+int
+enable_panel (GModule mod)
+{
+  int i, module;
+
+  for (i = 0; i < conf.enable_panel_idx; ++i) {
+    if ((module = get_module_enum (conf.enable_panels[i])) == -1)
+      continue;
+    if (mod == (unsigned int) module) {
+      return 1;
+    }
+  }
+
+  return 0;
+}
+
 /* Determine if the given module is set to be ignored.
  *
  * If ignored, 1 is returned, else 0 is returned. */
@@ -313,7 +332,10 @@ get_prev_module (GModule module)
 }
 
 /* Perform some additional tasks to panels before they are being
- * parsed. */
+ * parsed.
+ *
+ * Note: This overwrites --enable-panel since it assumes there's
+ * truly nothing to do with the panel */
 void
 verify_panels (void)
 {
@@ -344,7 +366,7 @@ init_modules (void)
     module_list[module] = -1;
 
   for (i = 0, module = 0; module < TOTAL_MODULES; ++module) {
-    if (!ignore_panel (module)) {
+    if (!ignore_panel (module) || enable_panel (module)) {
       module_list[i++] = module;
     }
   }
