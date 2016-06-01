@@ -392,15 +392,15 @@ read_option_args (int argc, char **argv)
 
       /* log format */
       if (!strcmp ("log-format", long_opts[idx].name) && !conf.log_format)
-        conf.log_format = unescape_str (optarg);
+        set_log_format_str (optarg);
 
       /* time format */
-      if (!strcmp ("time-format", long_opts[idx].name) && !conf.time_format)
-        conf.time_format = unescape_str (optarg);
+      if (!strcmp ("time-format", long_opts[idx].name))
+        set_time_format_str (optarg);
 
       /* date format */
-      if (!strcmp ("date-format", long_opts[idx].name) && !conf.date_format)
-        conf.date_format = unescape_str (optarg);
+      if (!strcmp ("date-format", long_opts[idx].name))
+        set_date_format_str (optarg);
 
       /* invalid requests */
       if (!strcmp ("invalid-requests", long_opts[idx].name)) {

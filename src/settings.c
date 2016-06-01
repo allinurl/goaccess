@@ -47,6 +47,18 @@ static char **nargv;
 static int nargc = 0;
 
 /* *INDENT-OFF* */
+static GEnum LOGTYPE[] = {
+  {"COMBINED"     , COMBINED}     ,
+  {"VCOMBINED"    , VCOMBINED}    ,
+  {"COMMON"       , COMMON}       ,
+  {"VCOMMON"      , VCOMMON}      ,
+  {"W3C"          , W3C}          ,
+  {"SQUID"        , SQUID}        ,
+  {"CLOUDFRONT"   , CLOUDFRONT}   ,
+  {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
+  {"AWSELB"       , AWSELB}       ,
+};
+
 static const GPreConfLog logs = {
   "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA */
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
@@ -306,6 +318,16 @@ parse_conf_file (int *argc, char ***argv)
   return 0;
 }
 
+/* Get the enumerated log format given its equivalent format string.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated format is returned. */
+static int
+get_log_format_item_enum (const char *str)
+{
+  return str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
+}
+
 /* Determine the selected log format from the config file or command line
  * option.
  *
@@ -440,4 +462,87 @@ get_selected_time_str (size_t idx)
   }
 
   return fmt;
+}
+
+/* Attempt to set the date format given a command line option argument. The
+ * supplied optarg can be either an actual format string or the enumerated
+ * value such as VCOMBINED */
+void
+set_date_format_str (const char *optarg)
+{
+  char *fmt = NULL;
+  int type = get_log_format_item_enum (optarg);
+
+  /* free date format if it was previously set by set_log_format_str() */
+  if (conf.date_format)
+    free (conf.date_format);
+
+  /* type not found, use whatever was given by the user then */
+  if (type == -1) {
+    conf.date_format = unescape_str (optarg);
+    return;
+  }
+
+  /* attempt to get the format string by the enum value */
+  if ((fmt = get_selected_date_str (type)) == NULL) {
+    LOG_DEBUG (("Unable to set date format from enum: %s\n", optarg));
+    return;
+  }
+
+  conf.date_format = fmt;
+}
+
+/* Attempt to set the time format given a command line option argument. The
+ * supplied optarg can be either an actual format string or the enumerated
+ * value such as VCOMBINED */
+void
+set_time_format_str (const char *optarg)
+{
+  char *fmt = NULL;
+  int type = get_log_format_item_enum (optarg);
+
+  /* free time format if it was previously set by set_log_format_str() */
+  if (conf.time_format)
+    free (conf.time_format);
+
+  /* type not found, use whatever was given by the user then */
+  if (type == -1) {
+    conf.time_format = unescape_str (optarg);
+    return;
+  }
+
+  /* attempt to get the format string by the enum value */
+  if ((fmt = get_selected_time_str (type)) == NULL) {
+    LOG_DEBUG (("Unable to set time format from enum: %s\n", optarg));
+    return;
+  }
+
+  conf.time_format = fmt;
+}
+
+/* Attempt to set the log format given a command line option argument. The
+ * supplied optarg can be either an actual format string or the enumerated
+ * value such as VCOMBINED */
+void
+set_log_format_str (const char *optarg)
+{
+  char *fmt = NULL;
+  int type = get_log_format_item_enum (optarg);
+
+  /* type not found, use whatever was given by the user then */
+  if (type == -1) {
+    conf.log_format = unescape_str (optarg);
+    return;
+  }
+
+  /* attempt to get the format string by the enum value */
+  if ((fmt = get_selected_format_str (type)) == NULL) {
+    LOG_DEBUG (("Unable to set log format from enum: %s\n", optarg));
+    return;
+  }
+
+  conf.log_format = fmt;
+  /* assume we are using the default date/time formats */
+  conf.time_format = get_selected_time_str (type);
+  conf.date_format = get_selected_date_str (type);
 }
