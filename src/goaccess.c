@@ -977,13 +977,13 @@ standard_output (void)
   char *csv = NULL, *json = NULL, *html = NULL;
 
   /* CSV */
-  if (find_output_type (&csv, "csv") == 0)
+  if (find_output_type (&csv, "csv", 1) == 0)
     output_csv (logger, holder, csv);
   /* JSON */
-  if (find_output_type (&json, "json") == 0)
+  if (find_output_type (&json, "json", 1) == 0)
     output_json (logger, holder, json);
   /* HTML */
-  if (find_output_type (&html, "html") == 0 || conf.output_format_idx == 0)
+  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
     process_html (html);
 
   free (csv);
@@ -1125,8 +1125,14 @@ initializer (void)
 static void
 set_standard_output (void)
 {
+  int html = 0;
+
+  /* HTML */
+  if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
+    html = 1;
+
   /* Spawn WS server thread */
-  if (conf.real_time_html)
+  if (html && conf.real_time_html)
     setup_ws_server ();
   setup_thread_signals ();
   /* Spawn progress spinner thread */

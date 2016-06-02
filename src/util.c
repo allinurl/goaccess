@@ -309,9 +309,10 @@ ip_in_range (const char *ip)
 /* Searches the array of output formats for the given extension value.
  *
  * If not found, 1 is returned.
- * On success, the given filename is assigned and 0 is returned. */
+ * On success, the given filename is malloc'd and assigned and 0 is
+ * returned. */
 int
-find_output_type (char **filename, const char *ext)
+find_output_type (char **filename, const char *ext, int alloc)
 {
   int i;
   const char *dot = NULL;
@@ -323,7 +324,8 @@ find_output_type (char **filename, const char *ext)
 
     if ((dot = strrchr (conf.output_formats[i], '.')) != NULL &&
         strcmp (dot + 1, ext) == 0) {
-      *filename = xstrdup (conf.output_formats[i]);
+      if (alloc)
+        *filename = xstrdup (conf.output_formats[i]);
       return 0;
     }
   }
@@ -331,7 +333,8 @@ find_output_type (char **filename, const char *ext)
   return 1;
 }
 
-/* Search the environment HOME variable and append GoAccess' config file.
+/* Search the environment HOME variable and append GoAccess' config
+ * file.
  *
  * On error, it outputs an error message and the program terminates.
  * On success, the path of HOME and the config file is returned. */
