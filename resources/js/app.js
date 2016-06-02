@@ -1036,7 +1036,7 @@ GoAccess.Tables = {
 				data = dataItem;
 				cellcb = function () {
 					return {
-						'colspan': ui.items.length + 1,
+						'colspan': ui.items.length,
 						'value': data
 					}
 				};
