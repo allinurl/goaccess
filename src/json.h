@@ -41,7 +41,7 @@
 
 char *get_json (GLog * logger, GHolder * holder);
 
-void output_json (GLog * logger, GHolder * holder);
+void output_json (GLog * logger, GHolder * holder, const char *filename);
 void set_json_nlines (int nl);
 
 void pskeyfval (FILE * fp, const char *key, float val, int sp, int last);

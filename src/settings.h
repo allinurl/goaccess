@@ -39,6 +39,7 @@
 #define MAX_IGNORE_REF     64
 #define MAX_CUSTOM_COLORS  64
 #define MAX_IGNORE_STATUS  64
+#define MAX_OUTFORMATS      3
 #define NO_CONFIG_FILE "No config file used"
 
 typedef enum LOGTYPE
@@ -98,7 +99,6 @@ typedef struct GConf_
   char *ignore_referers[MAX_IGNORE_REF];        /* referrers to ignore */
   char *invalid_requests_log;   /* invalid lines log path */
   char *log_format;             /* log format */
-  char *output_format;          /* output format, e.g., HTML, JSON */
   char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
   char *time_format;            /* time format */
   char *ws_url;                 /* WebSocket URL */
@@ -110,6 +110,7 @@ typedef struct GConf_
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
+  const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g., HTML */
 
   int all_static_files;         /* parse all static files */
   int append_method;            /* append method to the req key */
@@ -132,7 +133,7 @@ typedef struct GConf_
   int no_csv_summary;           /* don't show overall metrics */
   int no_progress;              /* disable progress metrics */
   int no_tab_scroll;            /* don't scroll dashboard on tab */
-  int output_html;              /* outputting to stdout */
+  int output_stdout;            /* outputting to stdout */
   int real_os;                  /* show real OSs */
   int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
@@ -152,6 +153,7 @@ typedef struct GConf_
   int ignore_panel_idx;         /* ignored panels index */
   int ignore_referer_idx;       /* ignored referrers index */
   int ignore_status_idx;        /* ignore status index */
+  int output_format_idx;        /* output format index */
   int sort_panel_idx;           /* sort panel index */
   int static_file_idx;          /* static extensions index */
 

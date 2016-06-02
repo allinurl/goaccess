@@ -348,7 +348,8 @@ read_option_args (int argc, char **argv)
       conf.ignore_qstr = 1;
       break;
     case 'o':
-      conf.output_format = optarg;
+      if (conf.output_format_idx < MAX_OUTFORMATS)
+        conf.output_formats[conf.output_format_idx++] = optarg;
       break;
     case 'l':
       conf.debug_log = optarg;

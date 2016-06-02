@@ -118,7 +118,7 @@ house_keeping (void)
 {
   /* restore tty modes and reset
    * terminal into non-visual mode */
-  if (!conf.output_html)
+  if (!conf.output_stdout)
     endwin ();
 
 #ifdef TCB_MEMHASH
@@ -142,7 +142,7 @@ house_keeping (void)
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   /* DASHBOARD */
-  if (dash && !conf.output_html) {
+  if (dash && !conf.output_stdout) {
     free_dashboard (dash);
     reset_find ();
   }
@@ -637,7 +637,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
 
   *size1 = size2;
 
-  if (!conf.output_html)
+  if (!conf.output_stdout)
     tail_term ();
   else
     tail_html (fdfifo);
@@ -646,13 +646,13 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
 }
 
 static void
-process_html (void)
+process_html (const char *filename)
 {
   int fdfifo;
   uint64_t size1 = 0;
 
   /* render report */
-  output_html (logger, holder);
+  output_html (logger, holder, filename);
   /* not real time? */
   if (!conf.real_time_html)
     return;
@@ -974,15 +974,21 @@ init_geoip (void)
 static void
 standard_output (void)
 {
+  char *csv = NULL, *json = NULL, *html = NULL;
+
   /* CSV */
-  if (conf.output_format && strcmp ("csv", conf.output_format) == 0)
-    output_csv (logger, holder);
+  if (find_output_type (&csv, "csv") == 0)
+    output_csv (logger, holder, csv);
   /* JSON */
-  else if (conf.output_format && strcmp ("json", conf.output_format) == 0)
-    output_json (logger, holder);
+  if (find_output_type (&json, "json") == 0)
+    output_json (logger, holder, json);
   /* HTML */
-  else
-    process_html ();
+  if (find_output_type (&html, "html") == 0 || conf.output_format_idx == 0)
+    process_html (html);
+
+  free (csv);
+  free (html);
+  free (json);
 }
 
 /* Output to a terminal */
@@ -1019,11 +1025,12 @@ parse_cmd_line (int argc, char **argv)
 {
   read_option_args (argc, argv);
 
-  /* Not outputting to a terminal */
-  if (!isatty (STDOUT_FILENO) || conf.output_format != NULL)
-    conf.output_html = 1;
+  /* For backwards compatibility, check if we are not outputting to a
+   * terminal or if an output format was supplied */
+  if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
+    conf.output_stdout = 1;
   /* Log piped, and log file passed */
-  if (conf.ifile && !isatty (STDIN_FILENO) && !conf.output_html)
+  if (conf.ifile && !isatty (STDIN_FILENO) && !conf.output_stdout)
     cmd_help ();
   /* No data piped, no file was used and not loading from disk */
   if (!conf.ifile && isatty (STDIN_FILENO) && !conf.load_from_disk)
@@ -1170,7 +1177,7 @@ main (int argc, char **argv)
   initializer ();
 
   /* set stdout */
-  if (conf.output_html)
+  if (conf.output_stdout)
     set_standard_output ();
   /* set curses */
   else
@@ -1208,7 +1215,7 @@ main (int argc, char **argv)
   time (&end_proc);
 
   /* stdout */
-  if (conf.output_html)
+  if (conf.output_stdout)
     standard_output ();
   /* curses */
   else

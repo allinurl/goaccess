@@ -306,6 +306,31 @@ ip_in_range (const char *ip)
   return 0;
 }
 
+/* Searches the array of output formats for the given extension value.
+ *
+ * If not found, 1 is returned.
+ * On success, the given filename is assigned and 0 is returned. */
+int
+find_output_type (char **filename, const char *ext)
+{
+  int i;
+  const char *dot = NULL;
+
+  for (i = 0; i < conf.output_format_idx; ++i) {
+    /* for backwards compatibility. i.e., -o json  */
+    if (strcmp (conf.output_formats[i], ext) == 0)
+      return 0;
+
+    if ((dot = strrchr (conf.output_formats[i], '.')) != NULL &&
+        strcmp (dot + 1, ext) == 0) {
+      *filename = xstrdup (conf.output_formats[i]);
+      return 0;
+    }
+  }
+
+  return 1;
+}
+
 /* Search the environment HOME variable and append GoAccess' config file.
  *
  * On error, it outputs an error message and the program terminates.
