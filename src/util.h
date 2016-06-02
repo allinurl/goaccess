@@ -74,7 +74,7 @@ const char *verify_status_code (char *str);
 const char *verify_status_code_type (const char *str);
 int convert_date (char *res, const char *data, const char *from, const char *to, int size);
 int count_matches (const char *s1, char c);
-int find_output_type (char **filename, const char *ext);
+int find_output_type (char **filename, const char *ext, int alloc);
 int ignore_referer (const char *ref);
 int intlen (int num);
 int invalid_ipaddr (char *str, int *ipvx);
