@@ -1027,9 +1027,14 @@ get_json (GLog * logger, GHolder * holder)
 
 /* Entry point to generate a json report writing it to the fp */
 void
-output_json (GLog * logger, GHolder * holder)
+output_json (GLog * logger, GHolder * holder, const char *filename)
 {
-  FILE *fp = stdout;
+  FILE *fp;
+
+  if (filename != NULL)
+    fp = fopen (filename, "w");
+  else
+    fp = stdout;
 
   /* use new lines to prettify output */
   if (conf.json_pretty_print)

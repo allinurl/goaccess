@@ -295,10 +295,10 @@ print_csv_summary (FILE * fp, GLog * logger)
 
 /* Entry point to generate a a csv report writing it to the fp */
 void
-output_csv (GLog * logger, GHolder * holder)
+output_csv (GLog * logger, GHolder * holder, const char *filename)
 {
   GModule module;
-  FILE *fp = stdout;
+  FILE *fp;
   const GPanel *panel = NULL;
   size_t idx = 0;
 
@@ -307,6 +307,11 @@ output_csv (GLog * logger, GHolder * holder)
     .visitors = ht_get_size_uniqmap (VISITORS),
     .bw = logger->resp_size,
   };
+
+  if (filename != NULL)
+    fp = fopen (filename, "w");
+  else
+    fp = stdout;
 
   if (!conf.no_csv_summary)
     print_csv_summary (fp, logger);

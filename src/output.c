@@ -987,10 +987,15 @@ print_json_defs (FILE * fp, GHolder * holder)
 
 /* entry point to generate a report writing it to the fp */
 void
-output_html (GLog * logger, GHolder * holder)
+output_html (GLog * logger, GHolder * holder, const char *filename)
 {
-  FILE *fp = stdout;
+  FILE *fp;
   char now[DATE_TIME];
+
+  if (filename != NULL)
+    fp = fopen (filename, "w");
+  else
+    fp = stdout;
 
   /* use new lines to prettify output */
   if (conf.json_pretty_print)

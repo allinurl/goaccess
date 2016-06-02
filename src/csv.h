@@ -38,6 +38,6 @@
 #include "parser.h"
 #include "settings.h"
 
-void output_csv (GLog * logger, GHolder * holder);
+void output_csv (GLog * logger, GHolder * holder, const char *filename);
 
 #endif
