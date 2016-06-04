@@ -256,6 +256,7 @@ free_storage (void)
   FOREACH_MODULE (idx, module_list) {
     free_metrics (module_list[idx]);
   }
+  free (tc_storage);
 }
 
 static uint32_t
