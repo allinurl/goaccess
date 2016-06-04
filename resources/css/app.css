@@ -526,6 +526,12 @@ rect.legend {
 .chart-tooltip td.value {
 	text-align: right;
 }
+.chart-tooltip .blue {
+	background-color: #007BC3;
+}
+.chart-tooltip .red {
+	background-color: #FF303E;
+}
 
 /* DARK THEME */
 .dark h1 {

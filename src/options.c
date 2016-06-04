@@ -93,7 +93,8 @@ struct option long_opts[] = {
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"time-dist-spec"       , required_argument , 0 ,  0  } ,
+  {"date-spec"            , required_argument , 0 ,  0  } ,
+  {"hour-spec"            , required_argument , 0 ,  0  } ,
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"addr"                 , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
@@ -105,12 +106,12 @@ struct option long_opts[] = {
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
-#ifdef HAVE_LIBGEOIP
+  #ifdef HAVE_LIBGEOIP
   {"std-geoip"            , no_argument       , 0 , 'g' } ,
   {"geoip-database"       , required_argument , 0 ,  0  } ,
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
-#endif
-#ifdef TCB_BTREE
+  #endif
+  #ifdef TCB_BTREE
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
   {"cache-ncnum"          , required_argument , 0 ,  0  } ,
   {"compression"          , required_argument , 0 ,  0  } ,
@@ -137,40 +138,36 @@ cmd_help (void)
 
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
-  "  --log-format=<logformat>        - Specify log format. Inner quotes need to\n"
-  "                                    be escaped, or use single quotes.\n"
-  "  --date-format=<dateformat>      - Specify log date format. e.g.,\n"
-  "                                    %%d/%%b/%%Y\n"
-  "  --time-format=<timeformat>      - Specify log time format. e.g.,\n"
-  "                                    %%H:%%M:%%S\n\n"
+  "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
+  "  --log-format=<logformat>        - Specify log format. Inner quotes need to be\n"
+  "                                    escaped, or use single quotes.\n"
+  "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n\n"
 
   /* User Interface Options */
   "User Interface Options\n\n"
-  "  -c --config-dialog              - Prompt log/date/time configuration\n"
-  "                                    window.\n"
+  "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
-  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for\n"
-  "                                    more details and options.\n"
+  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for more\n"
+  "                                    details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
   "  --no-color                      - Disable colored output.\n"
-  "  --no-column-names               - Don't write column names in term\n"
-  "                                    output.\n"
-  "  --no-csv-summary                - Disable summary metrics on the CSV\n"
-  "                                    output.\n"
+  "  --no-column-names               - Don't write column names in term output.\n"
+  "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
   "  --no-progress                   - Disable progress metrics.\n"
-  "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n\n"
+  "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
 
   /* Server Options */
   "Server Options\n\n"
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
-  "  --origin=<addr>                 - Ensure clients send the specified origin\n"
-  "                                    header upon the WebSocket handshake.\n"
+  "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
+  "                                    upon the WebSocket handshake.\n"
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
-  "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n\n"
+  "  --ws-url=<url>                  - URL to which the WebSocket server\n"
+  "                                    responds.\n\n"
 
   /* File Options */
   "File Options\n\n"
@@ -178,79 +175,75 @@ cmd_help (void)
   "  -l --debug-file=<filename>      - Send all debug messages to the specified\n"
   "                                    file.\n"
   "  -p --config-file=<filename>     - Custom configuration file.\n"
-  "  --invalid-requests=<filename>   - Log invalid requests to the specified\n"
-  "                                    file.\n"
-  "  --no-global-config              - Don't load global configuration\n"
-  "                                    file.\n\n"
+  "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
+  "  --no-global-config              - Don't load global configuration file.\n"
 
   /* Parse Options */
   "Parse Options\n\n"
   "  -a --agent-list                 - Enable a list of user-agents by host.\n"
   "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
-  "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows\n"
-  "                                    IP ranges e.g. 192.168.0.1-192.168.0.10\n"
+  "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
+  "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol              - Include HTTP request protocol if found.\n"
   "  -M --http-method                - Include HTTP request method if found.\n"
   "  -o --output-format=csv|json     - Output either a JSON or a CSV file.\n"
-  "  -q --no-query-string            - Ignore request's query string. Removing\n"
-  "                                    the query string can greatly decrease\n"
-  "                                    memory consumption.\n"
+  "  -q --no-query-string            - Ignore request's query string. Removing the\n"
+  "                                    query string can greatly decrease memory\n"
+  "                                    consumption.\n"
   "  -r --no-term-resolver           - Disable IP resolver on terminal output.\n"
-  "  --444-as-404                    - Treat non-standard status code 444 as\n"
-  "                                    404.\n"
-  "  --4xx-to-unique-count           - Add 4xx client errors to the unique\n"
-  "                                    visitors count.\n"
-  "  --all-static-files              - Include static files with a query\n"
-  "                                    string.\n"
+  "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
+  "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
+  "                                    count.\n"
+  "  --all-static-files              - Include static files with a query string.\n"
+  "  --date-spec=<spec>              - Date specificity. Possible values: `hr`\n"
+  "                                    (default), or `min`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
+  "  --hour-spec=<spec>              - Hour specificity. Possible values: `hr`\n"
+  "                                    (default), or `min` (tenth of a min).\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted.\n"
-  "                                    Wild cards are allowed. i.e., *.bing.com\n"
+  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
+  "                                    are allowed. i.e., *.bing.com\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
-  "  --real-os                       - Display real OS names. e.g, Windows XP,\n"
-  "                                    Snow Leopard.\n"
+  "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
+  "                                    Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
   "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
   "                                    manpage for a list of panels/fields.\n"
   "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
-  "                                    Extensions are case sensitive.\n"
-  "  --time-dist-spec=<spec>         - Time Distribution specificity. Values are,\n"
-  "                                    `hour` (default), or `min`.\n\n"
+  "                                    Extensions are case sensitive.\n\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
   "GeoIP Options\n\n"
   "  -g --std-geoip                  - Standard GeoIP database for less memory\n"
   "                                    consumption.\n"
-  "  --geoip-database=<path>         - Specify path to GeoIP database file.\n"
-  "                                    i.e., GeoLiteCity.dat, GeoIPv6.dat ...\n\n"
+  "  --geoip-database=<path>         - Specify path to GeoIP database file. i.e.,\n"
+  "                                    GeoLiteCity.dat, GeoIPv6.dat ...\n\n"
 #endif
 
 /* On-Disk Database Options */
 #ifdef TCB_BTREE
   "On-Disk Database Options\n\n"
   "  --keep-db-files                 - Persist parsed data into disk.\n"
-  "  --load-from-disk                - Load previously stored data from\n"
-  "                                    disk.\n"
-  "  --db-path=<path>                - Path of the database file.\n"
-  "                                    Default [%s]\n"
-  "  --xmmap=<number>                - Set the size in bytes of the extra\n"
-  "                                    mapped memory. Default [%d]\n"
-  "  --cache-lcnum=<number>          - Max number of leaf nodes to be\n"
-  "                                    cached. Default [%d]\n"
-  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be\n"
-  "                                    cached. Default [%d]\n"
-  "  --tune-lmemb=<number>           - Number of members in each leaf page.\n"
+  "  --load-from-disk                - Load previously stored data from disk.\n"
+  "  --db-path=<path>                - Path of the database file. Default [%s]\n"
+  "  --cache-lcnum=<number>          - Max number of leaf nodes to be cached. Default\n"
+  "                                    [%d]\n"
+  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be cached.\n"
   "                                    Default [%d]\n"
-  "  --tune-nmemb=<number>           - Number of members in each non-leaf\n"
-  "                                    page. Default [%d]\n"
-  "  --tune-bnum=<number>            - Number of elements of the bucket\n"
-  "                                    array. Default [%d]\n"
+  "  --tune-bnum=<number>            - Number of elements of the bucket array. Default\n"
+  "                                    [%d]\n"
+  "  --tune-lmemb=<number>           - Number of members in each leaf page. Default\n"
+  "                                    [%d]\n"
+  "  --tune-nmemb=<number>           - Number of members in each non-leaf page.\n"
+  "                                    Default [%d]\n"
+  "  --xmmap=<number>                - Set the size in bytes of the extra mapped\n"
+  "                                    memory. Default [%d]\n"
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  "  --compression=<zlib|bz2>        - Specifies that each page is\n"
-  "                                    compressed with ZLIB|BZ2 encoding.\n\n"
+  "  --compression=<zlib|bz2>        - Specifies that each page is compressed with\n"
+  "                                    ZLIB|BZ2 encoding.\n\n"
 #endif
 #endif
 
@@ -500,10 +493,17 @@ read_option_args (int argc, char **argv)
       if (!strcmp ("double-decode", long_opts[idx].name))
         conf.double_decode = 1;
 
-      /* time distribution specificity */
-      if (!strcmp ("time-dist-spec", long_opts[idx].name) &&
-          !strcmp (optarg, "min"))
-        conf.time_dist_min = 1;
+      /* hour specificity */
+      if (!strcmp ("hour-spec", long_opts[idx].name) && !strcmp (optarg, "min"))
+        conf.time_dist_spec_min = 1;
+
+      /* date specificity */
+      if (!strcmp ("date-spec", long_opts[idx].name)) {
+        if (!strcmp (optarg, "hr"))
+          conf.date_spec_hr = 1;
+        if (!strcmp (optarg, "min"))
+          conf.date_spec_min = 1;
+      }
 
       /* no color */
       if (!strcmp ("no-color", long_opts[idx].name))

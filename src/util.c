@@ -374,11 +374,11 @@ get_global_config (void)
 char *
 get_visitors_date (const char *odate, const char *from, const char *to)
 {
-  char date[DATE_LEN] = "";     /* Ymd */
+  char date[DATE_TIME] = "";    /* Ymd */
 
   memset (date, 0, sizeof *date);
   /* verify we have a valid date conversion */
-  if (convert_date (date, odate, from, to, DATE_LEN) == 0)
+  if (convert_date (date, odate, from, to, DATE_TIME) == 0)
     return xstrdup (date);
 
   LOG_DEBUG (("invalid date: %s", odate));

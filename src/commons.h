@@ -64,16 +64,19 @@ struct tm *now_tm;
 
 /* maximum number of items within a panel */
 #define MAX_CHOICES      366
+/* real-time */
 #define MAX_CHOICES_RT    50
 
-/* date and time length */
-#define DATE_TIME        20
-/* date length */
-#define DATE_LEN         12
-/* hour length */
-#define HOUR_LEN          3
-/* hour + ':' + min length */
-#define HRMI_LEN      4 + 2
+/* date and time length - e.g., 2016/12/12 12:12:12*/
+#define DATE_TIME     19 + 1
+/* date length -  e.g., 2016/12/12 */
+#define DATE_LEN      10 + 1
+/* hour + ':' + min length - e.g., 12:12 */
+#define HRMI_LEN   4 + 1 + 1
+
+#define YR_FMT "%Y"
+#define MO_FMT "%M"
+#define DT_FMT "%d"
 
 /* maximum protocol string length */
 #define REQ_PROTO_LEN     9
