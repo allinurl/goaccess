@@ -120,7 +120,6 @@ access_log_close (void)
     fclose (access_log);
 }
 
-#if defined(__GLIBC__)
 /* Dump to the standard output the values of the overall parsed log
  * data. */
 static void
@@ -144,19 +143,23 @@ dump_struct (FILE * fp)
 void
 sigsegv_handler (int sig)
 {
-  char **messages;
   FILE *fp = stderr;
   int pid = getpid ();
+
+#if defined(__GLIBC__)
+  char **messages;
   size_t size, i;
   void *trace_stack[TRACE_SIZE];
+#endif
 
   (void) endwin ();
-  fprintf (fp, "\n==%d== GoAccess %s crashed by Signal %d\n", pid, GO_VERSION,
-           sig);
+  fprintf (fp, "\n");
+  fprintf (fp, "==%d== GoAccess %s crashed by Sig %d\n", pid, GO_VERSION, sig);
   fprintf (fp, "==%d==\n", pid);
 
   dump_struct (fp);
 
+#if defined(__GLIBC__)
   size = backtrace (trace_stack, TRACE_SIZE);
   messages = backtrace_symbols (trace_stack, size);
 
@@ -165,13 +168,13 @@ sigsegv_handler (int sig)
 
   for (i = 0; i < size; i++)
     fprintf (fp, "==%d== %zu %s\n", pid, i, messages[i]);
+#endif
 
   fprintf (fp, "==%d==\n", pid);
   fprintf (fp, "==%d== Please report it by opening an issue on GitHub:\n", pid);
   fprintf (fp, "==%d== https://github.com/allinurl/goaccess/issues\n\n", pid);
   exit (EXIT_FAILURE);
 }
-#endif
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Write formatted debug log data to the logfile. */

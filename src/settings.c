@@ -566,10 +566,10 @@ set_spec_date_format (void)
  * argument. The supplied optarg can be either an actual format string
  * or the enumerated value such as VCOMBINED */
 void
-set_date_format_str (const char *optarg)
+set_date_format_str (const char *oarg)
 {
   char *fmt = NULL;
-  int type = get_log_format_item_enum (optarg);
+  int type = get_log_format_item_enum (oarg);
 
   /* free date format if it was previously set by set_log_format_str() */
   if (conf.date_format)
@@ -577,13 +577,13 @@ set_date_format_str (const char *optarg)
 
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
-    conf.date_format = unescape_str (optarg);
+    conf.date_format = unescape_str (oarg);
     return;
   }
 
   /* attempt to get the format string by the enum value */
   if ((fmt = get_selected_date_str (type)) == NULL) {
-    LOG_DEBUG (("Unable to set date format from enum: %s\n", optarg));
+    LOG_DEBUG (("Unable to set date format from enum: %s\n", oarg));
     return;
   }
 
@@ -594,10 +594,10 @@ set_date_format_str (const char *optarg)
  * argument. The supplied optarg can be either an actual format string
  * or the enumerated value such as VCOMBINED */
 void
-set_time_format_str (const char *optarg)
+set_time_format_str (const char *oarg)
 {
   char *fmt = NULL;
-  int type = get_log_format_item_enum (optarg);
+  int type = get_log_format_item_enum (oarg);
 
   /* free time format if it was previously set by set_log_format_str() */
   if (conf.time_format)
@@ -605,13 +605,13 @@ set_time_format_str (const char *optarg)
 
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
-    conf.time_format = unescape_str (optarg);
+    conf.time_format = unescape_str (oarg);
     return;
   }
 
   /* attempt to get the format string by the enum value */
   if ((fmt = get_selected_time_str (type)) == NULL) {
-    LOG_DEBUG (("Unable to set time format from enum: %s\n", optarg));
+    LOG_DEBUG (("Unable to set time format from enum: %s\n", oarg));
     return;
   }
 
@@ -622,20 +622,20 @@ set_time_format_str (const char *optarg)
  * The supplied optarg can be either an actual format string or the
  * enumerated value such as VCOMBINED */
 void
-set_log_format_str (const char *optarg)
+set_log_format_str (const char *oarg)
 {
   char *fmt = NULL;
-  int type = get_log_format_item_enum (optarg);
+  int type = get_log_format_item_enum (oarg);
 
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
-    conf.log_format = unescape_str (optarg);
+    conf.log_format = unescape_str (oarg);
     return;
   }
 
   /* attempt to get the format string by the enum value */
   if ((fmt = get_selected_format_str (type)) == NULL) {
-    LOG_DEBUG (("Unable to set log format from enum: %s\n", optarg));
+    LOG_DEBUG (("Unable to set log format from enum: %s\n", oarg));
     return;
   }
 

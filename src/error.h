@@ -84,9 +84,6 @@ void invalid_fprintf (const char *fmt, ...);
 void invalid_log_close (void);
 void invalid_log_open (const char *path);
 void set_signal_data (void *p);
-
-#if defined(__GLIBC__)
 void sigsegv_handler (int sig);
-#endif
 
 #endif

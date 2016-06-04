@@ -170,10 +170,9 @@ clean_output (FILE * fp, char *s)
 }
 
 static void
-print_html_title (FILE * fp, char *now)
+print_html_title (FILE * fp, const char *now)
 {
-  const char *title =
-    conf.html_report_title ? conf.html_report_title : REP_TITLE;
+  const char *title = conf.html_report_title ? conf.html_report_title : REP_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, (char *) title);
@@ -182,7 +181,7 @@ print_html_title (FILE * fp, char *now)
 
 /* *INDENT-OFF* */
 static void
-print_html_header (FILE * fp, char *now)
+print_html_header (FILE * fp, const char *now)
 {
   fprintf (fp,
   "<!DOCTYPE html>"
