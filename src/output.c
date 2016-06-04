@@ -172,7 +172,8 @@ clean_output (FILE * fp, char *s)
 static void
 print_html_title (FILE * fp, const char *now)
 {
-  const char *title = conf.html_report_title ? conf.html_report_title : REP_TITLE;
+  const char *title =
+    conf.html_report_title ? conf.html_report_title : REP_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, (char *) title);
@@ -341,6 +342,9 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1, iisp = sp + 2;
+
+  if (!conf.bandwidth)
+    return;
 
   pskeysval (fp, "label", "Bandwidth", isp, 0);
   pskeysval (fp, "className", "bandwidth", isp, 0);
