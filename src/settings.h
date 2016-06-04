@@ -139,7 +139,7 @@ typedef struct GConf_
   int real_os;                  /* show real OSs */
   int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
-  int time_dist_spec_min;       /* time distribution specificity - min */
+  int hour_spec_min;            /* hour specificity - min */
   int date_spec_hr;             /* date specificity - hour */
   int date_spec_min;            /* date specificity - min */
   int json_pretty_print;
