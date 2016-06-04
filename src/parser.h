@@ -145,7 +145,6 @@ GLog *init_log (void);
 GLogItem *init_log_item (GLog * logger);
 GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
-const char *verify_formats (void);
 int parse_log (GLog ** logger, char *tail, int n);
 int test_format (GLog * logger);
 void free_raw_data (GRawData * raw_data);

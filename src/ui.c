@@ -553,6 +553,7 @@ get_visitors_dates (GHolder * h)
 char *
 get_overall_header (GHolder * h)
 {
+  const char *sndfmt = conf.spec_num_date_format;
   const char *head = conf.output_stdout ? T_HEAD : T_DASH " - " T_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL, **dates = NULL;
 
@@ -561,8 +562,9 @@ get_overall_header (GHolder * h)
 
   dates = get_visitors_dates (h + VISITORS);
 
-  start = get_visitors_date (dates[0], "%Y%m%d", conf.date_format);
-  end = get_visitors_date (dates[h->idx - 1], "%Y%m%d", conf.date_format);
+  /* just display the actual dates - no specificity */
+  start = get_visitors_date (dates[0], sndfmt, "%d/%b/%Y");
+  end = get_visitors_date (dates[h->idx - 1], sndfmt, "%d/%b/%Y");
 
   hd = xmalloc (snprintf (NULL, 0, "%s (%s - %s)", head, start, end) + 1);
   sprintf (hd, "%s (%s - %s)", head, start, end);

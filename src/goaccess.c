@@ -951,9 +951,10 @@ init_processing (void)
   verify_panels ();
   /* initialize storage */
   init_storage ();
-  if (conf.load_from_disk) {
+  if (conf.load_from_disk)
     set_general_stats ();
-  }
+  /* date specificity format */
+  set_spec_date_format ();
 }
 
 /* Set up and open GeoIP database */

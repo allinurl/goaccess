@@ -334,14 +334,16 @@ static void
 data_visitors (GHolder * h)
 {
   char *date = NULL, *datum = NULL;
+  const char *sdfmt = conf.spec_date_format;
+  const char *sndfmt = conf.spec_num_date_format;
 
   /* date is already in the 'Ymd' format, no need for additional conversion */
-  if (has_timestamp (conf.date_format))
-    return;
+  /*if (has_timestamp (conf.date_format)) */
+  /*return; */
 
   /* verify we have a valid date conversion */
   datum = h->items[h->idx].metrics->data;
-  date = get_visitors_date (datum, conf.date_format, "%Y%m%d");
+  date = get_visitors_date (datum, sdfmt, sndfmt);
   free (datum);
 
   h->items[h->idx].metrics->data = date;

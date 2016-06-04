@@ -205,6 +205,8 @@ free_formats (void)
 {
   free (conf.date_format);
   free (conf.log_format);
+  free (conf.spec_date_format);
+  free (conf.spec_num_date_format);
   free (conf.time_format);
 }
 
@@ -464,9 +466,105 @@ get_selected_time_str (size_t idx)
   return fmt;
 }
 
-/* Attempt to set the date format given a command line option argument. The
- * supplied optarg can be either an actual format string or the enumerated
- * value such as VCOMBINED */
+/* Determine if the log/date/time were set, otherwise exit the program
+ * execution. */
+const char *
+verify_formats (void)
+{
+  if (conf.time_format == NULL || *conf.time_format == '\0')
+    return "No time format was found on your conf file.";
+
+  if (conf.date_format == NULL || *conf.date_format == '\0')
+    return "No date format was found on your conf file.";
+
+  if (conf.log_format == NULL || *conf.log_format == '\0')
+    return "No log format was found on your conf file.";
+
+  return NULL;
+}
+
+/* A wrapper function to concat the given specificity to the date
+ * format. */
+static char *
+append_spec_date_format (const char *date_format, const char *spec_format)
+{
+  char *s = xmalloc (snprintf (NULL, 0, "%s:%s", date_format, spec_format) + 1);
+  sprintf (s, "%s:%s", date_format, spec_format);
+
+  return s;
+}
+
+/* In order to properly sort the dates, we normalize them as numeric
+ * values such as 20161203. We attempt to determine which specifies
+ * were set in the spec_date_format and create a numeric date format
+ * %Y%m%d out of it including the date specificity. */
+static void
+set_spec_num_date_format (void)
+{
+  char *fmt = NULL, *buf = NULL, *pr = NULL, *pw = NULL;
+  int special = 0, buflen = 0, fmtlen = 0;
+
+  fmt = xstrdup (conf.spec_date_format);
+  pr = fmt;
+  pw = fmt;
+  /* iterate over the spec_date_format and clean unwanted chars */
+  while (*pr) {
+    *pw = *pr++;
+    if (*pw == '%' || special) {
+      special = !special;
+      pw++;
+    }
+  }
+  *pw = '\0';
+
+  fmtlen = strlen (fmt) + 1;
+  buf = xcalloc (fmtlen, sizeof (char));
+
+  if (strpbrk (fmt, "Yy"))
+    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%Y");
+  if (strpbrk (fmt, "bmB"))
+    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%m");
+  if (strpbrk (fmt, "de"))
+    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%d");
+  if (strpbrk (fmt, "H"))
+    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%H");
+  if (strpbrk (fmt, "M"))
+    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%M");
+
+  conf.spec_num_date_format = buf;
+  free (fmt);
+}
+
+/* If specificity is supplied, then determine which value we need to
+ * append to the date format. */
+void
+set_spec_date_format (void)
+{
+  const char *df = conf.date_format;
+  const char *tf = conf.time_format;
+
+  if (verify_formats ())
+    return;
+
+  if (has_timestamp (conf.date_format))
+    df = "%d/%b/%Y";
+
+  if (conf.date_spec_hr && (strstr (tf, "%H") || strstr (tf, "%T")))
+    conf.spec_date_format = append_spec_date_format (df, "%H");
+  else if (conf.date_spec_min && (strstr (tf, "%M") || strstr (tf, "%T")))
+    conf.spec_date_format = append_spec_date_format (df, "%H:%M");
+  else {
+    conf.date_spec_hr = 0;
+    conf.date_spec_min = 0;
+    conf.spec_date_format = xstrdup (df);
+  }
+
+  set_spec_num_date_format ();
+}
+
+/* Attempt to set the date format given a command line option
+ * argument. The supplied optarg can be either an actual format string
+ * or the enumerated value such as VCOMBINED */
 void
 set_date_format_str (const char *optarg)
 {
@@ -492,9 +590,9 @@ set_date_format_str (const char *optarg)
   conf.date_format = fmt;
 }
 
-/* Attempt to set the time format given a command line option argument. The
- * supplied optarg can be either an actual format string or the enumerated
- * value such as VCOMBINED */
+/* Attempt to set the time format given a command line option
+ * argument. The supplied optarg can be either an actual format string
+ * or the enumerated value such as VCOMBINED */
 void
 set_time_format_str (const char *optarg)
 {
@@ -520,9 +618,9 @@ set_time_format_str (const char *optarg)
   conf.time_format = fmt;
 }
 
-/* Attempt to set the log format given a command line option argument. The
- * supplied optarg can be either an actual format string or the enumerated
- * value such as VCOMBINED */
+/* Attempt to set the log format given a command line option argument.
+ * The supplied optarg can be either an actual format string or the
+ * enumerated value such as VCOMBINED */
 void
 set_log_format_str (const char *optarg)
 {

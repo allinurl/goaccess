@@ -125,10 +125,16 @@ GoAccess.Util = {
 	},
 
 	// Format date from 20120124 to 24/Jan/2012
-	formatDate: function (value) {
-		var d = parseInt(value);
-		d = new Date(d / 1E4, (d % 1E4 / 100) - 1, d % 100);
-		return ('0' + d.getDate()).slice(-2) + '/' + this.months[d.getMonth()] + '/' + d.getFullYear();
+	formatDate: function (str) {
+		var y = str.substr(0,4), m = str.substr(4,2) - 1, d = str.substr(6,2),
+			h = str.substr(8,2) || 0, i = str.substr(10, 2)  || 0, s = str.substr(12, 2) || 0;
+		var date = new Date(y,m,d,h,i,s);
+
+		var out = ('0' + date.getDate()).slice(-2) + '/' + this.months[date.getMonth()] + '/' + date.getFullYear();
+		10 <= str.length && (out += ":" + h);
+		12 <= str.length && (out += ":" + i);
+		14 <= str.length && (out += ":" + s);
+		return out;
 	},
 
 	// Format field value to human readable

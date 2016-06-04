@@ -448,16 +448,15 @@ render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
 
 /* Set panel's date on the given buffer
  *
- * On error, '---' placeholder is set into the buffer.
- * On success, data is set on the given buffer. */
-static void
-set_visitors_date (char *buf, const char *value)
+ * On error, '---' placeholder is returned.
+ * On success, the formatted date is returned. */
+static char *
+set_visitors_date (const char *value)
 {
-  /* verify we have a valid date conversion */
-  if (convert_date (buf, (char *) value, "%Y%m%d", "%d/%b/%Y", DATE_LEN) != 0) {
-    LOG_DEBUG (("invalid date: %s", value));
-    xstrncpy (buf, "---", 4);
-  }
+  const char *sdfmt = conf.spec_date_format;
+  const char *sndfmt = conf.spec_num_date_format;
+
+  return get_visitors_date (value, sndfmt, sdfmt);
 }
 
 /* Render the data metric for each panel */
@@ -467,28 +466,31 @@ render_data (GDashModule * data, GDashRender render, int *x)
   GColors *color = get_color_by_item_module (COLOR_MTRC_DATA, data->module);
   WINDOW *win = render.win;
 
-  char buf[DATE_LEN];
-  char *value;
+  char *date = NULL, *value = NULL, *buf = NULL;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
+  int date_len = 0;
 
   value = substring (data->data[idx].metrics->data, 0, w - *x);
-  if (data->module == VISITORS)
-    set_visitors_date (buf, value);
+  if (data->module == VISITORS) {
+    date = set_visitors_date (value);
+    date_len = strlen (date);
+  }
 
   if (sel && data->module == HOSTS && data->data[idx].is_subitem) {
     render_data_hosts (win, render, value, *x);
   } else if (sel) {
-    draw_header (win, data->module == VISITORS ? buf : value, "%s", y, *x, w,
-                 color_selected);
+    buf = data->module == VISITORS ? date : value;
+    draw_header (win, buf, "%s", y, *x, w, color_selected);
   } else {
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%s", data->module == VISITORS ? buf : value);
+    mvwprintw (win, y, *x, "%s", data->module == VISITORS ? date : value);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
-  *x += data->module == VISITORS ? DATE_LEN - 1 : data->data_len;
+  *x += data->module == VISITORS ? date_len : data->data_len;
   *x += DASH_SPACE;
   free (value);
+  free (date);
 }
 
 /* Render the method metric for each panel

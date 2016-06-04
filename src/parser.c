@@ -1611,6 +1611,42 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
   kdata->data = data;
 }
 
+/* Generate a visitor's key given the date specificity. For instance,
+ * if the specificity if set to minutes, then a generated key would
+ * look like: 03/Jan/2016:09:26 */
+static void
+set_spec_visitor_key (const char *time, char **date)
+{
+  size_t dlen = 0, tlen = 0;
+  char *key = NULL, *tkey = NULL, *pch = NULL;
+
+  /* No date specificity, assume only date then */
+  if (!conf.date_spec_hr && !conf.date_spec_min)
+    return;
+
+  tkey = xstrdup (time);
+  pch = strchr (tkey, ':');
+  if (conf.date_spec_hr && pch) {
+    if ((pch - tkey) > 0)
+      *pch = '\0';
+  } else if (conf.date_spec_min && pch && (pch = strpbrk (pch + 1, ":\0"))) {
+    if ((pch - tkey) > 0)
+      *pch = '\0';
+  }
+
+  dlen = strlen (*date);
+  tlen = strlen (tkey);
+
+  key = xmalloc (dlen + tlen + 2);
+  memcpy (key, *date, dlen);
+  key[dlen] = ':';
+  memcpy (key + dlen + 1, tkey, tlen + 1);
+
+  free (*date);
+  free (tkey);
+  *date = key;
+}
+
 /* Generate a unique key for the visitors panel from the given glog
  * structure and assign it to out key data structure.
  *
@@ -1620,18 +1656,25 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
-  char *date = NULL;
+  char *date = NULL, *time = NULL;
 
-  if (!glog->date)
+  if (!glog->date || !glog->time)
     return 1;
 
-  /* Need to convert timestamps so they are stored in the hash structure
-   * as an actual date */
+  /* Unfortunately, we need to convert timestamps so they are stored in
+   * the hash structure as actual dates/keys - this slows it down */
   if (has_timestamp (conf.date_format)) {
-    date = get_visitors_date (glog->date, conf.date_format, "%Y%m%d");
+    date = get_visitors_date (glog->date, conf.date_format, "%d/%b/%Y");
+    time = get_visitors_date (glog->time, conf.time_format, "%T");
+
     free (glog->date);
+    free (glog->time);
+
     glog->date = date;
+    glog->time = time;
   }
+
+  set_spec_visitor_key (glog->time, &glog->date);
 
   get_kdata (kdata, glog->date, glog->date);
 
@@ -1906,7 +1949,7 @@ static void
 parse_time_specificity_string (char *hmark, char *time)
 {
   /* tenth of a minute specificity - e.g., 18:2 */
-  if (conf.time_dist_min && hmark[1] != '\0') {
+  if (conf.time_dist_spec_min && hmark[1] != '\0') {
     hmark[2] = '\0';
     return;
   }
@@ -2235,23 +2278,6 @@ read_log (GLog ** logger, int lines2test)
     fclose (fp);
 
   return 0;
-}
-
-/* Determine if the log/date/time were set, otherwise exit the program
- * execution. */
-const char *
-verify_formats (void)
-{
-  if (conf.time_format == NULL || *conf.time_format == '\0')
-    return "No time format was found on your conf file.";
-
-  if (conf.date_format == NULL || *conf.date_format == '\0')
-    return "No date format was found on your conf file.";
-
-  if (conf.log_format == NULL || *conf.log_format == '\0')
-    return "No log format was found on your conf file.";
-
-  return NULL;
 }
 
 /* Entry point to parse the log line by line.

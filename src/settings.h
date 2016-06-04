@@ -101,6 +101,8 @@ typedef struct GConf_
   char *log_format;             /* log format */
   char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
   char *time_format;            /* time format */
+  char *spec_date_format;       /* date format w/ specificity */
+  char *spec_num_date_format;   /* numeric date format w/ specificity */
   char *ws_url;                 /* WebSocket URL */
   char *addr;                   /* IP address to bind to */
   char *origin;                 /* WebSocket origin */
@@ -109,8 +111,8 @@ typedef struct GConf_
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
-  const char *static_files[MAX_EXTENSIONS];     /* static extensions */
   const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g., HTML */
+  const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
   int all_static_files;         /* parse all static files */
   int append_method;            /* append method to the req key */
@@ -137,7 +139,9 @@ typedef struct GConf_
   int real_os;                  /* show real OSs */
   int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
-  int time_dist_min;            /* time distribution specificity to mins */
+  int time_dist_spec_min;       /* time distribution specificity - min */
+  int date_spec_hr;             /* date specificity - hour */
+  int date_spec_min;            /* date specificity - min */
   int json_pretty_print;
 
   int bandwidth;                /* is there bandwidth within the req line */
@@ -175,9 +179,11 @@ typedef struct GConf_
 char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);
 char *get_selected_time_str (size_t idx);
+const char *verify_formats (void);
 size_t get_selected_format_idx (void);
 void set_date_format_str (const char *optarg);
 void set_log_format_str (const char *optarg);
+void set_spec_date_format (void);
 void set_time_format_str (const char *optarg);
 
 extern GConf conf;
