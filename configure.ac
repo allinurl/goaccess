@@ -142,7 +142,7 @@ if test "$WITH_TC" = "yes"; then
       *** Red Hat based distributions zlib-devel
     ]))
     AC_DEFINE([HAVE_ZLIB], [1], ["Build using ZLIB"])
-    CFLAGS="$CFLAGS $Z_FLAG"
+    LDFLAGS="$LDFLAGS $Z_FLAG"
   fi
 
   AC_ARG_ENABLE([bzip], [  --disable-bzip   Build without BZIP2 compression],
@@ -156,15 +156,15 @@ if test "$WITH_TC" = "yes"; then
       *** Red Hat based distributions bzip2-devel
     ]))
     AC_DEFINE([HAVE_BZ2], [1], ["Build using BZ2"])
-    CFLAGS="$CFLAGS $BZ2_FLAG"
+    LDFLAGS="$LDFLAGS $BZ2_FLAG"
   fi
 
   case "$host_os" in
-    *darwin*)
-       CFLAGS="$CFLAGS -ltokyocabinet -lc"
+    *darwin*|*bsd*)
+       LDFLAGS="$LDFLAGS -ltokyocabinet -lc"
     ;;
     *)
-       CFLAGS="$CFLAGS -ltokyocabinet -lrt -lc"
+       LDFLAGS="$LDFLAGS -ltokyocabinet -lrt -lc"
     ;;
   esac
 fi
