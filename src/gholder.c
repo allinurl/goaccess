@@ -326,7 +326,9 @@ sort_sub_list (GHolder * h, GSort sort)
   }
 }
 
-/* Format the visitors date and replace the current holder value.
+/* Format the visitors date from conf.spec_date_format, e.g., %d/%b/%Y
+ * to conf.spec_num_date_format, e.g., Ymd and replace the current
+ * holder value.
  *
  * If the given date is a timestamp, then return.
  * On success, the holder value is replaced with a formatted date. */
@@ -336,10 +338,6 @@ data_visitors (GHolder * h)
   char *date = NULL, *datum = NULL;
   const char *sdfmt = conf.spec_date_format;
   const char *sndfmt = conf.spec_num_date_format;
-
-  /* date is already in the 'Ymd' format, no need for additional conversion */
-  /*if (has_timestamp (conf.date_format)) */
-  /*return; */
 
   /* verify we have a valid date conversion */
   datum = h->items[h->idx].metrics->data;
