@@ -149,7 +149,7 @@ endif
 AM_CFLAGS += -Wno-long-long -Wall -W -Wnested-externs -Wformat=2
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
-AM_CFLAGS += -Wredundant-decls -Wbad-function-cast -Winline -Wcast-align -Wextra
+AM_CFLAGS += -Wbad-function-cast -Winline -Wcast-align -Wextra
 AM_CFLAGS += -Wdeclaration-after-statement -Wno-missing-field-initializers
 
 dist_man_MANS = goaccess.1
