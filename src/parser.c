@@ -1949,7 +1949,7 @@ static void
 parse_time_specificity_string (char *hmark, char *ftime)
 {
   /* tenth of a minute specificity - e.g., 18:2 */
-  if (conf.time_dist_spec_min && hmark[1] != '\0') {
+  if (conf.hour_spec_min && hmark[1] != '\0') {
     hmark[2] = '\0';
     return;
   }

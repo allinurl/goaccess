@@ -495,7 +495,7 @@ read_option_args (int argc, char **argv)
 
       /* hour specificity */
       if (!strcmp ("hour-spec", long_opts[idx].name) && !strcmp (optarg, "min"))
-        conf.time_dist_spec_min = 1;
+        conf.hour_spec_min = 1;
 
       /* date specificity */
       if (!strcmp ("date-spec", long_opts[idx].name)) {
