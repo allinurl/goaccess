@@ -639,8 +639,9 @@ set_log_format_str (const char *optarg)
     return;
   }
 
-  conf.log_format = fmt;
+  conf.log_format = unescape_str (fmt);
   /* assume we are using the default date/time formats */
   conf.time_format = get_selected_time_str (type);
   conf.date_format = get_selected_date_str (type);
+  free (fmt);
 }
