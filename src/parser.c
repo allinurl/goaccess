@@ -1615,7 +1615,7 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
  * if the specificity if set to minutes, then a generated key would
  * look like: 03/Jan/2016:09:26 */
 static void
-set_spec_visitor_key (const char *time, char **date)
+set_spec_visitor_key (const char *ftime, char **fdate)
 {
   size_t dlen = 0, tlen = 0;
   char *key = NULL, *tkey = NULL, *pch = NULL;
@@ -1624,7 +1624,7 @@ set_spec_visitor_key (const char *time, char **date)
   if (!conf.date_spec_hr && !conf.date_spec_min)
     return;
 
-  tkey = xstrdup (time);
+  tkey = xstrdup (ftime);
   pch = strchr (tkey, ':');
   if (conf.date_spec_hr && pch) {
     if ((pch - tkey) > 0)
@@ -1634,17 +1634,17 @@ set_spec_visitor_key (const char *time, char **date)
       *pch = '\0';
   }
 
-  dlen = strlen (*date);
+  dlen = strlen (*fdate);
   tlen = strlen (tkey);
 
   key = xmalloc (dlen + tlen + 2);
-  memcpy (key, *date, dlen);
+  memcpy (key, *fdate, dlen);
   key[dlen] = ':';
   memcpy (key + dlen + 1, tkey, tlen + 1);
 
-  free (*date);
+  free (*fdate);
   free (tkey);
-  *date = key;
+  *fdate = key;
 }
 
 /* Generate a unique key for the visitors panel from the given glog
@@ -1656,7 +1656,7 @@ set_spec_visitor_key (const char *time, char **date)
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
-  char *date = NULL, *time = NULL;
+  char *fdate = NULL, *ftime = NULL;
 
   if (!glog->date || !glog->time)
     return 1;
@@ -1664,14 +1664,14 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
   /* Unfortunately, we need to convert timestamps so they are stored in
    * the hash structure as actual dates/keys - this slows it down */
   if (has_timestamp (conf.date_format)) {
-    date = get_visitors_date (glog->date, conf.date_format, "%d/%b/%Y");
-    time = get_visitors_date (glog->time, conf.time_format, "%T");
+    fdate = get_visitors_date (glog->date, conf.date_format, "%d/%b/%Y");
+    ftime = get_visitors_date (glog->time, conf.time_format, "%T");
 
     free (glog->date);
     free (glog->time);
 
-    glog->date = date;
-    glog->time = time;
+    glog->date = fdate;
+    glog->time = ftime;
   }
 
   set_spec_visitor_key (glog->time, &glog->date);
@@ -1946,7 +1946,7 @@ gen_status_code_key (GKeyData * kdata, GLogItem * glog)
  * On error, the given string is not modified.
  * On success, the conf specificity is extracted. */
 static void
-parse_time_specificity_string (char *hmark, char *time)
+parse_time_specificity_string (char *hmark, char *ftime)
 {
   /* tenth of a minute specificity - e.g., 18:2 */
   if (conf.time_dist_spec_min && hmark[1] != '\0') {
@@ -1955,7 +1955,7 @@ parse_time_specificity_string (char *hmark, char *time)
   }
 
   /* hour specificity (default) */
-  if ((hmark - time) > 0)
+  if ((hmark - ftime) > 0)
     *hmark = '\0';
 }
 
