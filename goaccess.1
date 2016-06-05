@@ -1,4 +1,4 @@
-.TH goaccess 1 "APRIL 2016" Linux "User Manuals"
+.TH goaccess 1 "JUNE 2016" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -6,9 +6,14 @@ goaccess \- fast web log analyzer and interactive viewer.
 .B goaccess [-f input-file][\-c][\-r][\-d][\-m][\-q][\-o][\-h][...]
 .SH DESCRIPTION
 .B goaccess
-is an open source real-time web log analyzer and interactive viewer that runs
-in a terminal in *nix systems. It provides fast and valuable HTTP statistics
-for system administrators that require a visual server report on the fly.
+GoAccess is an open source real-time web log analyzer and interactive viewer that runs in a
+.I terminal
+in *nix systems or through your
+.I browser.
+.P
+It provides fast and valuable HTTP statistics for system administrators that
+require a visual server report on the fly.
+.P
 GoAccess parses the specified web log file and outputs the data to the X
 terminal.  Features include:
 
@@ -22,6 +27,11 @@ This panel shows metrics such as hits, unique visitors and cumulative
 bandwidth per date. HTTP requests containing the same IP, the same date, and
 the same user agent are considered a unique visitor. By default, it includes web
 crawlers/spiders.
+.IP
+Optionally, date specificity can be set to the hour level using
+.I --date-spec=hr
+which will display dates such as 05/Jun/2016:16. This is great if you want to
+track your daily traffic at the hour level.
 .IP "Requested files"
 This panel displays the most highly requested files on your web server. It
 shows hits, unique visitors, and percentage, along with the cumulative
@@ -53,6 +63,11 @@ attempts to provide the most specific version of each browser.
 .IP "Visit Times"
 This panel will display an hourly report. This option displays 24 data points,
 one for each hour of the day.
+.IP
+Optionally, hour specificity can be set to the tenth of a minute level using
+.I --hour-spec=min
+which will display hours as 16:4 This is great if you want to spot peaks of
+traffic on your server.
 .IP "Virtual Hosts"
 This panel will display all the different virtual hosts parsed from the access
 log. This panel is displayed if
@@ -146,21 +161,24 @@ to be used without prepending --.
 .TP
 \fB\-\-time-format=<timeformat>
 The time-format variable followed by a space, specifies the log format time
-containing any combination of regular characters and special format specifiers.
+containing either a name of a predefined format (see options below) or any
+combination of regular characters and special format specifiers.
+.IP
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %T or %H:%M:%S.
-
+.IP
 Note that if a timestamp is given in microseconds,
-.I
-%f
+.I %f
 must be used as time-format
 .TP
 \fB\-\-date-format=<dateformat>
-The date-format variable followed by a space, specifies the log format date
-containing any combination of regular characters and special format specifiers.
+The date-format variable followed by a space, specifies the log format time
+containing either a name of a predefined format (see options below) or any
+combination of regular characters and special format specifiers.
+.IP
 They all begin with a percentage (%) sign. See `man strftime`.
 .I %Y-%m-%d.
-
+.IP
 Note that if a timestamp is given in microseconds,
 .I
 %f
@@ -172,7 +190,22 @@ The log-format variable followed by a space or
 for tab-delimited, specifies the log format string.
 
 Note that if there are spaces within the format, the string needs to be
-enclosed in double quotes. Inner quotes need to be escaped.
+enclosed in single/double quotes. Inner quotes need to be escaped.
+.IP
+In addition to specifying the raw log/date/time formats, for simplicity, any of
+the following predefined log format names can be supplied to the
+log/date/time-format variables. GoAccess can also handle one predefined name in
+one variable and another predefined name in another variable.
+.IP
+  COMBINED     - Combined Log Format,
+  VCOMBINED    - Combined Log Format with Virtual Host,
+  COMMON       - Common Log Format,
+  VCOMMON      - Common Log Format with Virtual Host,
+  W3C          - W3C Extended Log File Format,
+  SQUID        - Native Squid Log Format,
+  CLOUDFRONT   - Amazon CloudFront Web Distribution,
+  CLOUDSTORAGE - Google Cloud Storage,
+  AWSELB       - Amazon Elastic Load Balancing,
 .TP
 \fB\-a \-\-agent-list
 Enable a list of user-agents by host. For faster parsing, do not enable this
@@ -181,32 +214,28 @@ flag.
 \fB\-c \-\-config-dialog
 Prompt log/date configuration window on program start.
 .TP
-\fB\-d \-\-with-output-resolver
-Enable IP resolver on HTML|JSON output.
+\fB\-p \-\-config-file=<configfile>
+Specify a custom configuration file to use. If set, it will take priority over
+the global configuration file (if any).
+.TP
+\fB\-\-debug-file=<debugfile>
+Send all debug messages to the specified file.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
 Exclude an IPv4 or IPv6 from being counted.
 Ranges can be included as well using a dash in between the IPs (start-end).
-
+.IP
 .I Examples:
   exclude-ip 127.0.0.1
   exclude-ip 192.168.0.1-192.168.0.100
   exclude-ip ::1
   exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
 .TP
-\fB\-f \-\-log-file=<logfile>
-Specify the path to the input log file. If set in the config file, it will take
-priority over -f from the command line.
-.TP
 \fB\-g \-\-std-geoip
 Standard GeoIP database for less memory usage.
 .TP
 \fB\-h \-\-help
 The help.
-.TP
-\fB\-H \-\-http-protocol
-Include HTTP request protocol if found. This will create a request key
-containing the request protocol + the actual request.
 .TP
 \fB\-i \-\-hl-header
 Color highlight active panel.
@@ -215,27 +244,18 @@ Color highlight active panel.
 Include HTTP request method if found. This will create a request key containing
 the request method + the actual request.
 .TP
-\fB\-m \-\-with-mouse
-Enable mouse support on main dashboard.
+\fB\-H \-\-http-protocol
+Include HTTP request protocol if found. This will create a request key
+containing the request protocol + the actual request.
 .TP
-\fB\-\-no-csv-summary
-Disable summary metrics on the CSV output.
-.TP
-\fB\-o \-\-output-format=<json|csv>
-Write output to stdout given one of the following formats:
-.I csv
-: Comma-separated values (CSV)
-.I json
-: JSON (JavaScript Object Notation)
-.TP
-\fB\-p \-\-config-file=<configfile>
-Specify a custom configuration file to use. If set, it will take priority over
-the global configuration file (if any).
+\fB\-f \-\-log-file=<logfile>
+Specify the path to the input log file. If set in the config file, it will take
+priority over -f from the command line.
 .TP
 \fB\-q \-\-no-query-string
 Ignore request's query string. i.e.,  www.google.com/page.htm?query =>
 www.google.com/page.htm.
-
+.IP
 .I Note:
 Removing the query string can greatly decrease memory consumption, especially
 on timestamped requests.
@@ -243,29 +263,37 @@ on timestamped requests.
 \fB\-r \-\-no-term-resolver
 Disable IP resolver on terminal output.
 .TP
+\fB\-o \-\-output-format=<path/file.[json|csv|html]>
+Write output to stdout given one of the following files and the corresponding
+extension for the output format:
+.IP
+  /path/file.csv  - Comma-separated values (CSV)
+  /path/file.json - JSON (JavaScript Object Notation)
+  /path/file.html - HTML
+.TP
 \fB\-s \-\-storage
 Display current storage method. i.e., B+ Tree, Hash.
-.TP
-\fB\-\-dcf
-Display the path of the default config file when `-p` is not used.
 .TP
 \fB\-V \-\-version
 Display version information and exit.
 .TP
-\fB\-\-color-scheme<1|2>
-Choose among color schemes.
-.I 1
-for the default grey scheme.
-.I 2
-for the green scheme.
+\fB\-m \-\-with-mouse
+Enable mouse support on main dashboard.
 .TP
-\fB\-\-no-color
-Turn off colored output. This is the  default output on terminals that do not
-support colors.
+\fB\-d \-\-with-output-resolver
+Enable IP resolver on HTML|JSON output.
 .TP
-\fB\-\-no-tab-scroll
-Disable scrolling through panels when TAB is pressed or when a panel is
-selected using a numeric key.
+\fB\-\-444-as-404
+Treat non-standard status code 444 as 404.
+.TP
+\fB\-\-4xx-to-unique-count
+Add 4xx client errors to the unique visitors count.
+.TP
+\fB\-\-addr
+Specify IP address to bind server to. Otherwise it bind to 0.0.0.0.
+.TP
+\fB\-\-all-static-files
+Include static files that contain a query string.
 .TP
 \fB\-\-\-color=<fg:bg[attrs, PANEL]>
 Specify custom colors for the terminal output.
@@ -317,70 +345,30 @@ panel can be of color B.
 
 See configuration file for a sample color scheme.
 .TP
-\fB\-\-no-column-names
-Don't write column names in the terminal output. By default, it displays column
-names for each available metric in every panel.
+\fB\-\-color-scheme<1|2>
+Choose among color schemes.
+.I 1
+for the default grey scheme.
+.I 2
+for the green scheme.
 .TP
-\fB\-\-html-report-title=<title>
-Set HTML report page title and header.
+\fB\-\-date-spec=<date|hr>
+Set the date specificity to either date (default) or hr to display hours
+appended to the date.
+.IP
+This is used in the visitors panel. It's useful for tracking visitors at the
+hour level. For instance, an hour specificity would yield to display traffic as
+18/Dec/2010:19
 .TP
-\fB\-\-debug-file=<debugfile>
-Send all debug messages to the specified file.
-.TP
-\fB\-\-invalid-requests=<filename>
-Log invalid requests to the specified file.
-.TP
-\fB\-\-json-pretty-print
-Format JSON output using tabs and newlines.
-.TP
-\fB\-\-no-global-config
-Do not load the global configuration file. This directory should normally be
-/usr/local/etc, unless specified with
-.I --sysconfdir=/dir.
-.TP
-\fB\-\-real-os
-Display real OS names. e.g, Windows XP, Snow Leopard.
-.TP
-\fB\-\-sort-panel=<PANEL,FIELD,ORDER>
-Sort panel on initial load. Sort options are separated by comma. Options are in
-the form: PANEL,METRIC,ORDER
-
-.I Available metrics:
-  BY_HITS     - Sort by hits
-  BY_VISITORS - Sort by unique visitors
-  BY_DATA     - Sort by data
-  BY_BW       - Sort by bandwidth
-  BY_AVGTS    - Sort by average time served
-  BY_CUMTS    - Sort by cumulative time served
-  BY_MAXTS    - Sort by maximum time served
-  BY_PROT     - Sort by http protocol
-  BY_MTHD     - Sort by http method
-
-.I Available orders:
-  ASC
-  DESC
-.TP
-\fB\-\-static-file=<extension>
-Add static file extension. e.g.:
-.I .mp3
-Extensions are case sensitive.
-.TP
-\fB\-\-all-static-files
-Include static files that contain a query string.
+\fB\-\-dcf
+Display the path of the default config file when `-p` is not used.
 .TP
 \fB\-\-double-decode
 Decode double-encoded values. This includes, user-agent, request, and referer.
 .TP
-\fB\-\-ignore-crawlers
-Ignore crawlers from being counted.
-.TP
-\fB\-\-ignore-status=<CODE>
-Ignore parsing and displaying one or multiple status code(s). For multiple
-status codes, use this option multiple times.
-.TP
-\fB\-\-ignore-panel=<PANEL>
-Ignore parsing and displaying the given panel.
-
+\fB\-\-enable-panel=<PANEL>
+Enable parsing and displaying the given panel.
+.IP
 .I Available panels:
   VISITORS
   REQUESTS
@@ -396,7 +384,44 @@ Ignore parsing and displaying the given panel.
   KEYPHRASES
   GEO_LOCATION
   STATUS_CODES
-
+.TP
+\fB\-\-hour-spec=<hr|min>
+Set the time specificity to either hour (default) or min to display the tenth
+of a minute appended to the hour.
+.IP
+This is used in the time distribution panel. It's useful for tracking peaks of
+traffic on your server at specific times.
+.TP
+\fB\-\-html-custom-css=<path.css>
+Specifies a custom CSS file path to load in the HTML report.
+.TP
+\fB\-\-html-custom-js=<path.js>
+Specifies a custom JS file path to load in the HTML report.
+.TP
+\fB\-\-html-report-title=<title>
+Set HTML report page title and header.
+.TP
+\fB\-\-ignore-crawlers
+Ignore crawlers from being counted.
+.TP
+\fB\-\-ignore-panel=<PANEL>
+Ignore parsing and displaying the given panel.
+.IP
+.I Available panels:
+  VISITORS
+  REQUESTS
+  REQUESTS_STATIC
+  NOT_FOUND
+  HOSTS
+  OS
+  BROWSERS
+  VISIT_TIMES
+  VIRTUAL_HOSTS
+  REFERRERS
+  REFERRING_SITES
+  KEYPHRASES
+  GEO_LOCATION
+  STATUS_CODES
 .TP
 \fB\-\-ignore-referer=<referer>
 Ignore referers from being counted. Wildcards allowed. e.g.,
@@ -405,14 +430,86 @@ Ignore referers from being counted. Wildcards allowed. e.g.,
 .I
 ww?.domain.*
 .TP
-\fB\-\-444-as-404
-Treat non-standard status code 444 as 404.
+\fB\-\-ignore-status=<CODE>
+Ignore parsing and displaying one or multiple status code(s). For multiple
+status codes, use this option multiple times.
 .TP
-\fB\-\-4xx-to-unique-count
-Add 4xx client errors to the unique visitors count.
+\fB\-\-invalid-requests=<filename>
+Log invalid requests to the specified file.
+.TP
+\fB\-\-json-pretty-print
+Format JSON output using tabs and newlines.
+.IP
+.I Note:
+This is not recommended when outputting a real-time HTML report since the
+WebSocket payload will much much larger.
+.TP
+\fB\-\-no-color
+Turn off colored output. This is the  default output on terminals that do not
+support colors.
+.TP
+\fB\-\-no-column-names
+Don't write column names in the terminal output. By default, it displays column
+names for each available metric in every panel.
+.TP
+\fB\-\-no-csv-summary
+Disable summary metrics on the CSV output.
+.TP
+\fB\-\-no-global-config
+Do not load the global configuration file. This directory should normally be
+/usr/local/etc, unless specified with
+.I --sysconfdir=/dir.
 .TP
 \fB\-\-no-progress
 Disable progress metrics [total requests/requests per second].
+.TP
+\fB\-\-no-tab-scroll
+Disable scrolling through panels when TAB is pressed or when a panel is
+selected using a numeric key.
+.TP
+\fB\-\-port=<port>
+Specify the port to use. By default GoAccess listens on port 7890 for the
+WebSocket server.
+.TP
+\fB\-\-port=<port>
+Specify the port to use.
+.TP
+\fB\-\-real-os
+Display real OS names. e.g, Windows XP, Snow Leopard.
+.TP
+\fB\-\-real-time-html
+Enable real-time HTML output.
+.IP
+GoAccess uses its own WebSocket server to push the data from the server to the
+client. See http://gwsocket.io for more details how the WebSocket server works.
+.TP
+\fB\-\-sort-panel=<PANEL,FIELD,ORDER>
+Sort panel on initial load. Sort options are separated by comma. Options are in
+the form: PANEL,METRIC,ORDER
+.IP
+.I Available metrics:
+  BY_HITS     - Sort by hits
+  BY_VISITORS - Sort by unique visitors
+  BY_DATA     - Sort by data
+  BY_BW       - Sort by bandwidth
+  BY_AVGTS    - Sort by average time served
+  BY_CUMTS    - Sort by cumulative time served
+  BY_MAXTS    - Sort by maximum time served
+  BY_PROT     - Sort by http protocol
+  BY_MTHD     - Sort by http method
+.IP
+.I Available orders:
+  ASC
+  DESC
+.TP
+\fB\-\-ws-url=<url>
+URL to which the WebSocket server responds. This is the URL supplied to the
+WebSocket constructor on the client side.
+.TP
+\fB\-\-static-file=<extension>
+Add static file extension. e.g.:
+.I .mp3
+Extensions are case sensitive.
 .TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat. File needs to be
@@ -655,15 +752,15 @@ To output to a terminal and generate an interactive report:
 .P
 To generate an HTML report:
 .IP
-# goaccess -f access.log -a > report.html
+# goaccess -f access.log -a -o report.html
 .P
 To generate a JSON report:
 .IP
-# goaccess -f access.log -a -d -o json > report.json
+# goaccess -f access.log -a -d -o report.json
 .P
 To generate a CSV file:
 .IP
-# goaccess -f access.log --no-csv-summary -o csv > report.csv
+# goaccess -f access.log --no-csv-summary -o report.csv
 .IP \[bu] 3
 .I -a
 flag indicates that we want to process an agent-list for every host parsed.
@@ -675,6 +772,31 @@ flag indicates that we want to enable the IP resolver on the HTML|JSON output.
 .I -c
 flag will prompt the date and log format configuration window. Only when curses
 is initialized.
+.SS
+REAL TIME HTML OUTPUT
+.P
+GoAccess has the ability the output real-time data in the HTML report. You can
+even email the HTML file since it is composed of a single file with no external
+file dependencies, how neat is that!
+.P
+To output an HTML report and set the WebSocket server to listen on port 7890
+and localhost.
+.IP
+# goaccess -f access.log -o report.html --real-time-html
+.P
+If GoAccess is running on a specific host, you can specify the URL to which to
+connect.
+.IP
+# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io
+.P
+To use a different port other than 7890, you can specify it as:
+.IP
+# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
+.P
+And to bind the WebSocket server to a different interface other than 0.0.0.0,
+you can specify it as:
+.IP
+# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
 .SS
 MULTIPLE LOG FILES
 .P
