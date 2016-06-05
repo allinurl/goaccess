@@ -198,6 +198,9 @@ print_html_header (FILE * fp, const char *now)
   fprintf (fp, "<style>%s</style>", fa_css);
   fprintf (fp, "<style>%s</style>", bootstrap_css);
   fprintf (fp, "<style>%s</style>", app_css);
+  /* load custom CSS file, if any */
+  if (conf.html_custom_css)
+    fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
 
   fprintf (fp,
   "</head>"
@@ -249,6 +252,10 @@ print_html_footer (FILE * fp)
   fprintf (fp, "<script>%s</script>", hogan_js);
   fprintf (fp, "<script>%s</script>", app_js);
   fprintf (fp, "<script>%s</script>", charts_js);
+
+  /* load custom JS file, if any */
+  if (conf.html_custom_js)
+    fprintf (fp, "<script src='%s'></script>", conf.html_custom_js);
 
   fprintf (fp, "</body>");
   fprintf (fp, "</html>");
