@@ -629,6 +629,15 @@ GoAccess.Charts = {
 		return out;
 	},
 
+	findUIItem: function (panel, key) {
+		var items = GoAccess.getPanelUI(panel).items, o = {};
+		for (var i = 0; i < items.length; ++i) {
+			if (items[i].key == key)
+				return items[i];
+		}
+		return null;
+	},
+
 	getAreaSpline: function (panel, plotUI, data) {
 		var dualYaxis = plotUI['d3']['y1'];
 
@@ -646,7 +655,7 @@ GoAccess.Charts = {
 		.width($("#chart-" + panel).offsetWidth)
 		.height(175)
 		.format({
-			x: ((plotUI.d3 || {}).x || {}).format,
+			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
 			y0: ((plotUI.d3 || {}).y0 || {}).format,
 			y1: ((plotUI.d3 || {}).y1 || {}).format,
 		})
@@ -676,7 +685,7 @@ GoAccess.Charts = {
 		.width($("#chart-" + panel).offsetWidth)
 		.height(175)
 		.format({
-			x: ((plotUI.d3 || {}).x || {}).format,
+			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
 			y0: ((plotUI.d3 || {}).y0 || {}).format,
 			y1: ((plotUI.d3 || {}).y1 || {}).format,
 		})
