@@ -190,6 +190,34 @@ count_matches (const char *s1, char c)
   return n;
 }
 
+/* String matching where one string contains wildcard characters.
+ *
+ * If no match found, 1 is returned.
+ * If match found, 0 is returned. */
+static int
+wc_match (const char *wc, char *str)
+{
+  while (*wc && *str) {
+    if (*wc == '*') {
+      while (*wc && *wc == '*')
+        wc++;
+      if (!*wc)
+        return 1;
+
+      while (*str && *str != *wc)
+        str++;
+    } else if (*wc == '?' || *wc == *str) {
+      wc++;
+      str++;
+    } else {
+      break;
+    }
+  }
+  if (!*wc && !*str)
+    return 1;
+  return 0;
+}
+
 /* Determine if the given host needs to be ignored given the list of
  * referrers to ignore.
  *
@@ -781,34 +809,6 @@ left_pad_str (const char *s, int indent)
   sprintf (buf, "%*s", indent, s);
 
   return buf;
-}
-
-/* String matching where one string contains wildcard characters.
- *
- * If no match found, 1 is returned.
- * If match found, 0 is returned. */
-int
-wc_match (char *wc, char *str)
-{
-  while (*wc && *str) {
-    if (*wc == '*') {
-      while (*wc && *wc == '*')
-        wc++;
-      if (!*wc)
-        return 1;
-
-      while (*str && *str != *wc)
-        str++;
-    } else if (*wc == '?' || *wc == *str) {
-      wc++;
-      str++;
-    } else {
-      break;
-    }
-  }
-  if (!*wc && !*str)
-    return 1;
-  return 0;
 }
 
 /* Escapes the special characters, e.g., '\n', '\r', '\t', '\'
