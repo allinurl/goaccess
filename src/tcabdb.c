@@ -1333,6 +1333,22 @@ ht_get_root (GModule module, int key)
   return get_is32 (hashrootmap, root_key);
 }
 
+/* Get the int visitors value from MTRC_HITS given an int key.
+ *
+ * If key is not found, 0 is returned.
+ * On error, -1 is returned.
+ * On success the int value for the given key is returned */
+int
+ht_get_hits (GModule module, int key)
+{
+  void *hash = get_hash (module, MTRC_HITS);
+
+  if (!hash)
+    return -1;
+
+  return get_ii32 (hash, key);
+}
+
 /* Get the int visitors value from MTRC_VISITORS given an int key.
  *
  * If key is not found, 0 is returned.
@@ -1555,13 +1571,33 @@ free_agent_list (void)
   tc_db_foreach (hash, free_agent_values, NULL);
 }
 
-/* For each key/value pair stored in MTRC_HITS, assign the key/value to a
- * GRawDataItem */
+/* A wrapper to initialize a raw data structure.
+ *
+ * On success a GRawData structure is returned. */
+static GRawData *
+init_new_raw_data (GModule module, uint32_t ht_size)
+{
+  GRawData *raw_data;
+
+  raw_data = new_grawdata ();
+  raw_data->idx = 0;
+  raw_data->module = module;
+  raw_data->size = ht_size;
+  raw_data->items = new_grawdata_item (ht_size);
+
+  return raw_data;
+}
+
+/* For each key/value pair stored in MTRC_HITS/MTRC_DATAMAP, assign the
+ * key/value to a GRawDataItem */
 static void
 set_raw_data (void *key, void *value, GRawData * raw_data)
 {
   raw_data->items[raw_data->idx].key = (*(int *) key);
-  raw_data->items[raw_data->idx].value = (*(int *) value);
+  if (raw_data->type == STRING)
+    raw_data->items[raw_data->idx].value.svalue = xstrdup ((char *) value);
+  else
+    raw_data->items[raw_data->idx].value.ivalue = (*(int *) value);
   raw_data->idx++;
 }
 
@@ -1580,8 +1616,8 @@ data_iter_generic (TCADB * adb, void *key, int ksize, void *user_data)
   }
 }
 
-/* Store the key/value pairs from a hash table into raw_data and sorts the the
- * hits structure.
+/* Entry point to load the raw data from the data store into our
+ * GRawData structure.
  *
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
@@ -1589,22 +1625,29 @@ GRawData *
 parse_raw_data (GModule module)
 {
   GRawData *raw_data;
+  GRawDataType type;
   uint32_t ht_size = 0;
+  void *hash = NULL;
 
-  void *hash = get_hash (module, MTRC_HITS);
+  switch (module) {
+  case VISITORS:
+    hash = get_hash (module, MTRC_DATAMAP);
+    type = STRING;
+    break;
+  default:
+    hash = get_hash (module, MTRC_HITS);
+    type = INTEGER;
+  }
 
   if (!hash)
     return NULL;
 
-  raw_data = new_grawdata ();
-  raw_data->idx = 0;
-  raw_data->module = module;
-  raw_data->size = ht_size = ht_get_size (hash);
-  raw_data->items = new_grawdata_item (ht_size);
+  ht_size = ht_get_size (hash);
+  raw_data = init_new_raw_data (module, ht_size);
+  raw_data->type = type;
 
   tc_db_foreach (hash, data_iter_generic, raw_data);
-
-  sort_raw_data (raw_data, raw_data->idx);
+  sort_raw_num_data (raw_data, raw_data->idx);
 
   return raw_data;
 }

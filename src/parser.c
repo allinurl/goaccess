@@ -872,6 +872,26 @@ find_alpha (char **str)
   *str += s - *str;
 }
 
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
+/* Format the the broken-down time tm to a numeric date format.
+ *
+ * On error, or unable to format the given tm, 1 is returned.
+ * On success, a malloc'd format is returned. */
+static int
+set_date (char **fdate, struct tm tm)
+{
+  char buf[DATE_LEN] = "";      /* Ymd */
+
+  memset (buf, 0, sizeof (buf));
+  if (strftime (buf, DATE_LEN, conf.date_num_format, &tm) <= 0)
+    return 1;
+  *fdate = xstrdup (buf);
+
+  return 0;
+}
+
+#pragma GCC diagnostic warning "-Wformat-nonliteral"
+
 /* Parse the log string given log format rule.
  *
  * On error, or unable to parse it, 1 is returned.
@@ -900,11 +920,11 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     tkn = parse_string (&(*str), p[1], count_matches (dfmt, ' ') + 1);
     if (tkn == NULL)
       return 1;
-    if (str_to_time (tkn, dfmt, &tm) != 0) {
+    if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&glog->date, tm) != 0) {
       free (tkn);
       return 1;
     }
-    glog->date = tkn;
+    free (tkn);
     break;
     /* time */
   case 't':
@@ -926,11 +946,10 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    if (str_to_time (tkn, tfmt, &tm) != 0) {
+    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&glog->date, tm) != 0) {
       free (tkn);
       return 1;
     }
-    glog->date = xstrdup (tkn);
     glog->time = tkn;
     break;
     /* Virtual Host */
@@ -1615,14 +1634,10 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
  * if the specificity if set to minutes, then a generated key would
  * look like: 03/Jan/2016:09:26 */
 static void
-set_spec_visitor_key (const char *ftime, char **fdate)
+set_spec_visitor_key (char **fdate, const char *ftime)
 {
   size_t dlen = 0, tlen = 0;
-  char *key = NULL, *tkey = NULL, *pch = NULL;
-
-  /* No date specificity, assume only date then */
-  if (!conf.date_spec_hr && !conf.date_spec_min)
-    return;
+  char *key = NULL, *tkey = NULL, *pch = NULL, *src;
 
   tkey = xstrdup (ftime);
   pch = strchr (tkey, ':');
@@ -1632,15 +1647,16 @@ set_spec_visitor_key (const char *ftime, char **fdate)
   } else if (conf.date_spec_min && pch && (pch = strpbrk (pch + 1, ":\0"))) {
     if ((pch - tkey) > 0)
       *pch = '\0';
+    for (src = tkey + 2; *src != '\0'; *src = *(src + 1), ++src);
+    *src = '\0';
   }
 
   dlen = strlen (*fdate);
   tlen = strlen (tkey);
 
-  key = xmalloc (dlen + tlen + 2);
+  key = xmalloc (dlen + tlen + 1);
   memcpy (key, *fdate, dlen);
-  key[dlen] = ':';
-  memcpy (key + dlen + 1, tkey, tlen + 1);
+  memcpy (key + dlen, tkey, tlen + 1);
 
   free (*fdate);
   free (tkey);
@@ -1656,25 +1672,12 @@ set_spec_visitor_key (const char *ftime, char **fdate)
 static int
 gen_visitor_key (GKeyData * kdata, GLogItem * glog)
 {
-  char *fdate = NULL, *ftime = NULL;
-
   if (!glog->date || !glog->time)
     return 1;
 
-  /* Unfortunately, we need to convert timestamps so they are stored in
-   * the hash structure as actual dates/keys - this slows it down */
-  if (has_timestamp (conf.date_format)) {
-    fdate = get_visitors_date (glog->date, conf.date_format, "%d/%b/%Y");
-    ftime = get_visitors_date (glog->time, conf.time_format, "%T");
-
-    free (glog->date);
-    free (glog->time);
-
-    glog->date = fdate;
-    glog->time = ftime;
-  }
-
-  set_spec_visitor_key (glog->time, &glog->date);
+  /* Append time specificity to date */
+  if (conf.date_spec_hr || conf.date_spec_min)
+    set_spec_visitor_key (&glog->date, glog->time);
 
   get_kdata (kdata, glog->date, glog->date);
 
