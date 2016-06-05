@@ -1143,6 +1143,8 @@ set_standard_output (void)
 static void
 set_curses (int *quit)
 {
+  const char *err_log = NULL;
+
   setup_thread_signals ();
   set_input_opts ();
   if (conf.no_color || has_colors () == FALSE) {
@@ -1159,6 +1161,10 @@ set_curses (int *quit)
   if (isatty (STDIN_FILENO) && (verify_formats () || conf.load_conf_dlg)) {
     refresh ();
     *quit = render_confdlg (logger, parsing_spinner);
+  }
+  /* Piping data in without log/date/time format */
+  else if (!isatty (STDIN_FILENO) && (err_log = verify_formats ())) {
+    FATAL ("%s", err_log);
   }
   /* straight parsing */
   else {
