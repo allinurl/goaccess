@@ -299,6 +299,221 @@ verify_global_config (int argc, char **argv)
   optind = 1;
 }
 
+/* Parse command line long options. */
+static void
+parse_long_opt (const char *name, const char *oarg)
+{
+  if (!strcmp ("no-global-config", name))
+    return;
+
+  /* colors */
+  if (!strcmp ("color", name) && conf.color_idx < MAX_CUSTOM_COLORS)
+    conf.colors[conf.color_idx++] = oarg;
+
+  /* color scheme */
+  if (!strcmp ("color-scheme", name))
+    conf.color_scheme = atoi (oarg);
+
+  /* log format */
+  if (!strcmp ("log-format", name) && !conf.log_format)
+    set_log_format_str (oarg);
+
+  /* time format */
+  if (!strcmp ("time-format", name))
+    set_time_format_str (oarg);
+
+  /* date format */
+  if (!strcmp ("date-format", name))
+    set_date_format_str (oarg);
+
+  /* invalid requests */
+  if (!strcmp ("invalid-requests", name)) {
+    conf.invalid_requests_log = oarg;
+    invalid_log_open (conf.invalid_requests_log);
+  }
+
+  /* static file */
+  if (!strcmp ("static-file", name) && conf.static_file_idx < MAX_EXTENSIONS) {
+    if (conf.static_file_max_len < strlen (oarg))
+      conf.static_file_max_len = strlen (oarg);
+    conf.static_files[conf.static_file_idx++] = oarg;
+  }
+  /* 4xx to unique count */
+  if (!strcmp ("4xx-to-unique-count", name))
+    conf.client_err_to_unique_count = 1;
+
+  /* html report title */
+  if (!strcmp ("html-report-title", name))
+    conf.html_report_title = oarg;
+
+  /* 444 as 404 */
+  if (!strcmp ("444-as-404", name))
+    conf.code444_as_404 = 1;
+
+  /* all static files */
+  if (!strcmp ("all-static-files", name))
+    conf.all_static_files = 1;
+
+  /* enable panel */
+  if (!strcmp ("enable-panel", name) && conf.enable_panel_idx < TOTAL_MODULES) {
+    if (!str_inarray (oarg, conf.enable_panels, conf.enable_panel_idx))
+      conf.enable_panels[conf.enable_panel_idx++] = oarg;
+  }
+
+  /* ignore crawlers */
+  if (!strcmp ("ignore-crawlers", name))
+    conf.ignore_crawlers = 1;
+
+  /* ignore status code */
+  if (!strcmp ("ignore-status", name) &&
+      conf.ignore_status_idx < MAX_IGNORE_STATUS) {
+    if (!str_inarray (oarg, conf.ignore_status, conf.ignore_status_idx))
+      conf.ignore_status[conf.ignore_status_idx++] = oarg;
+  }
+
+  /* ignore panel */
+  if (!strcmp ("ignore-panel", name) && conf.ignore_panel_idx < TOTAL_MODULES) {
+    if (!str_inarray (oarg, conf.ignore_panels, conf.ignore_panel_idx))
+      conf.ignore_panels[conf.ignore_panel_idx++] = oarg;
+  }
+
+  /* ignore referer */
+  if (!strcmp ("ignore-referer", name) &&
+      conf.ignore_referer_idx < MAX_IGNORE_REF)
+    conf.ignore_referers[conf.ignore_referer_idx++] = oarg;
+
+  /* sort view */
+  if (!strcmp ("sort-panel", name) && conf.sort_panel_idx < TOTAL_MODULES)
+    conf.sort_panels[conf.sort_panel_idx++] = oarg;
+
+  /* real os */
+  if (!strcmp ("real-os", name))
+    conf.real_os = 1;
+
+  /* real time HTML */
+  if (!strcmp ("real-time-html", name))
+    conf.real_time_html = 1;
+
+  /* address to bind to */
+  if (!strcmp ("ws-url", name))
+    conf.ws_url = oarg;
+
+  /* address to bind to */
+  if (!strcmp ("addr", name))
+    conf.addr = oarg;
+
+  /* WebSocket origin */
+  if (!strcmp ("origin", name))
+    conf.origin = oarg;
+
+  /* port to use */
+  if (!strcmp ("port", name)) {
+    int port = strtol (oarg, NULL, 10);
+    if (port < 0 || port > 65535)
+      LOG_DEBUG (("Invalid port."));
+    else
+      conf.port = oarg;
+  }
+
+  /* double decode */
+  if (!strcmp ("double-decode", name))
+    conf.double_decode = 1;
+
+  /* hour specificity */
+  if (!strcmp ("hour-spec", name) && !strcmp (oarg, "min"))
+    conf.hour_spec_min = 1;
+
+  /* date specificity */
+  if (!strcmp ("date-spec", name)) {
+    if (!strcmp (oarg, "hr"))
+      conf.date_spec_hr = 1;
+    if (!strcmp (oarg, "min"))
+      conf.date_spec_min = 1;
+  }
+
+  /* no color */
+  if (!strcmp ("no-color", name))
+    conf.no_color = 1;
+
+  /* no columns */
+  if (!strcmp ("no-column-names", name))
+    conf.no_column_names = 1;
+
+  /* no csv summary */
+  if (!strcmp ("no-csv-summary", name))
+    conf.no_csv_summary = 1;
+
+  /* json pretty print */
+  if (!strcmp ("json-pretty-print", name))
+    conf.json_pretty_print = 1;
+
+  /* no progress */
+  if (!strcmp ("no-progress", name))
+    conf.no_progress = 1;
+
+  /* no tab scroll */
+  if (!strcmp ("no-tab-scroll", name))
+    conf.no_tab_scroll = 1;
+
+  /* specifies the path of the GeoIP City database file */
+  if (!strcmp ("geoip-city-data", name) || !strcmp ("geoip-database", name))
+    conf.geoip_database = oarg;
+
+  /* load data from disk */
+  if (!strcmp ("load-from-disk", name))
+    conf.load_from_disk = 1;
+
+  /* keep database files */
+  if (!strcmp ("keep-db-files", name))
+    conf.keep_db_files = 1;
+
+  /* specifies the path of the database file */
+  if (!strcmp ("db-path", name))
+    conf.db_path = oarg;
+
+  /* set the size in bytes of the extra mapped memory */
+  if (!strcmp ("xmmap", name))
+    conf.xmmap = atoi (oarg);
+
+  /* specifies the maximum number of leaf nodes to be cached */
+  if (!strcmp ("cache-lcnum", name))
+    conf.cache_lcnum = atoi (oarg);
+
+  /* specifies the maximum number of non-leaf nodes to be cached */
+  if (!strcmp ("cache-ncnum", name))
+    conf.cache_ncnum = atoi (oarg);
+
+  /* number of members in each leaf page */
+  if (!strcmp ("tune-lmemb", name))
+    conf.tune_lmemb = atoi (oarg);
+
+  /* number of members in each non-leaf page */
+  if (!strcmp ("tune-nmemb", name))
+    conf.tune_nmemb = atoi (oarg);
+
+  /* number of elements of the bucket array */
+  if (!strcmp ("tune-bnum", name))
+    conf.tune_bnum = atoi (oarg);
+
+  /* specifies that each page is compressed with X encoding */
+  if (!strcmp ("compression", name)) {
+#ifdef HAVE_ZLIB
+    if (!strcmp ("zlib", oarg))
+      conf.compression = TC_ZLIB;
+#endif
+#ifdef HAVE_BZ2
+    if (!strcmp ("bz2", oarg))
+      conf.compression = TC_BZ2;
+#endif
+  }
+
+  /* default config file --dwf */
+  if (!strcmp ("dcf", name)) {
+    display_default_config_file ();
+    exit (EXIT_SUCCESS);
+  }
+}
+
 /* Read the user's supplied command line options. */
 void
 read_option_args (int argc, char **argv)
@@ -371,223 +586,7 @@ read_option_args (int argc, char **argv)
       exit (EXIT_SUCCESS);
       break;
     case 0:
-
-      if (!strcmp ("no-global-config", long_opts[idx].name))
-        break;  /* ignore it */
-
-      /* colors */
-      if (!strcmp ("color", long_opts[idx].name) &&
-          conf.color_idx < MAX_CUSTOM_COLORS)
-        conf.colors[conf.color_idx++] = optarg;
-
-      /* color scheme */
-      if (!strcmp ("color-scheme", long_opts[idx].name))
-        conf.color_scheme = atoi (optarg);
-
-      /* log format */
-      if (!strcmp ("log-format", long_opts[idx].name) && !conf.log_format)
-        set_log_format_str (optarg);
-
-      /* time format */
-      if (!strcmp ("time-format", long_opts[idx].name))
-        set_time_format_str (optarg);
-
-      /* date format */
-      if (!strcmp ("date-format", long_opts[idx].name))
-        set_date_format_str (optarg);
-
-      /* invalid requests */
-      if (!strcmp ("invalid-requests", long_opts[idx].name)) {
-        conf.invalid_requests_log = optarg;
-        invalid_log_open (conf.invalid_requests_log);
-      }
-
-      /* static file */
-      if (!strcmp ("static-file", long_opts[idx].name) &&
-          conf.static_file_idx < MAX_EXTENSIONS) {
-        if (conf.static_file_max_len < strlen (optarg))
-          conf.static_file_max_len = strlen (optarg);
-        conf.static_files[conf.static_file_idx++] = optarg;
-      }
-      /* 4xx to unique count */
-      if (!strcmp ("4xx-to-unique-count", long_opts[idx].name))
-        conf.client_err_to_unique_count = 1;
-
-      /* html report title */
-      if (!strcmp ("html-report-title", long_opts[idx].name))
-        conf.html_report_title = optarg;
-
-      /* 444 as 404 */
-      if (!strcmp ("444-as-404", long_opts[idx].name))
-        conf.code444_as_404 = 1;
-
-      /* all static files */
-      if (!strcmp ("all-static-files", long_opts[idx].name))
-        conf.all_static_files = 1;
-
-      /* enable panel */
-      if (!strcmp ("enable-panel", long_opts[idx].name) &&
-          conf.enable_panel_idx < TOTAL_MODULES) {
-        if (!str_inarray (optarg, conf.enable_panels, conf.enable_panel_idx))
-          conf.enable_panels[conf.enable_panel_idx++] = optarg;
-      }
-
-      /* ignore crawlers */
-      if (!strcmp ("ignore-crawlers", long_opts[idx].name))
-        conf.ignore_crawlers = 1;
-
-      /* ignore status code */
-      if (!strcmp ("ignore-status", long_opts[idx].name) &&
-          conf.ignore_status_idx < MAX_IGNORE_STATUS) {
-        if (!str_inarray (optarg, conf.ignore_status, conf.ignore_status_idx))
-          conf.ignore_status[conf.ignore_status_idx++] = optarg;
-      }
-
-      /* ignore panel */
-      if (!strcmp ("ignore-panel", long_opts[idx].name) &&
-          conf.ignore_panel_idx < TOTAL_MODULES) {
-        if (!str_inarray (optarg, conf.ignore_panels, conf.ignore_panel_idx))
-          conf.ignore_panels[conf.ignore_panel_idx++] = optarg;
-      }
-
-      /* ignore referer */
-      if (!strcmp ("ignore-referer", long_opts[idx].name) &&
-          conf.ignore_referer_idx < MAX_IGNORE_REF)
-        conf.ignore_referers[conf.ignore_referer_idx++] = optarg;
-
-      /* sort view */
-      if (!strcmp ("sort-panel", long_opts[idx].name) &&
-          conf.sort_panel_idx < TOTAL_MODULES)
-        conf.sort_panels[conf.sort_panel_idx++] = optarg;
-
-      /* real os */
-      if (!strcmp ("real-os", long_opts[idx].name))
-        conf.real_os = 1;
-
-      /* real time HTML */
-      if (!strcmp ("real-time-html", long_opts[idx].name))
-        conf.real_time_html = 1;
-
-      /* address to bind to */
-      if (!strcmp ("ws-url", long_opts[idx].name))
-        conf.ws_url = optarg;
-
-      /* address to bind to */
-      if (!strcmp ("addr", long_opts[idx].name))
-        conf.addr = optarg;
-
-      /* WebSocket origin */
-      if (!strcmp ("origin", long_opts[idx].name))
-        conf.origin = optarg;
-
-      /* port to use */
-      if (!strcmp ("port", long_opts[idx].name)) {
-        int port = strtol (optarg, NULL, 10);
-        if (port < 0 || port > 65535)
-          LOG_DEBUG (("Invalid port."));
-        else
-          conf.port = optarg;
-      }
-
-      /* double decode */
-      if (!strcmp ("double-decode", long_opts[idx].name))
-        conf.double_decode = 1;
-
-      /* hour specificity */
-      if (!strcmp ("hour-spec", long_opts[idx].name) && !strcmp (optarg, "min"))
-        conf.hour_spec_min = 1;
-
-      /* date specificity */
-      if (!strcmp ("date-spec", long_opts[idx].name)) {
-        if (!strcmp (optarg, "hr"))
-          conf.date_spec_hr = 1;
-        if (!strcmp (optarg, "min"))
-          conf.date_spec_min = 1;
-      }
-
-      /* no color */
-      if (!strcmp ("no-color", long_opts[idx].name))
-        conf.no_color = 1;
-
-      /* no columns */
-      if (!strcmp ("no-column-names", long_opts[idx].name))
-        conf.no_column_names = 1;
-
-      /* no csv summary */
-      if (!strcmp ("no-csv-summary", long_opts[idx].name))
-        conf.no_csv_summary = 1;
-
-      /* json pretty print */
-      if (!strcmp ("json-pretty-print", long_opts[idx].name))
-        conf.json_pretty_print = 1;
-
-      /* no progress */
-      if (!strcmp ("no-progress", long_opts[idx].name))
-        conf.no_progress = 1;
-
-      /* no tab scroll */
-      if (!strcmp ("no-tab-scroll", long_opts[idx].name))
-        conf.no_tab_scroll = 1;
-
-      /* specifies the path of the GeoIP City database file */
-      if (!strcmp ("geoip-city-data", long_opts[idx].name) ||
-          !strcmp ("geoip-database", long_opts[idx].name))
-        conf.geoip_database = optarg;
-
-      /* load data from disk */
-      if (!strcmp ("load-from-disk", long_opts[idx].name))
-        conf.load_from_disk = 1;
-
-      /* keep database files */
-      if (!strcmp ("keep-db-files", long_opts[idx].name))
-        conf.keep_db_files = 1;
-
-      /* specifies the path of the database file */
-      if (!strcmp ("db-path", long_opts[idx].name))
-        conf.db_path = optarg;
-
-      /* set the size in bytes of the extra mapped memory */
-      if (!strcmp ("xmmap", long_opts[idx].name))
-        conf.xmmap = atoi (optarg);
-
-      /* specifies the maximum number of leaf nodes to be cached */
-      if (!strcmp ("cache-lcnum", long_opts[idx].name))
-        conf.cache_lcnum = atoi (optarg);
-
-      /* specifies the maximum number of non-leaf nodes to be cached */
-      if (!strcmp ("cache-ncnum", long_opts[idx].name))
-        conf.cache_ncnum = atoi (optarg);
-
-      /* number of members in each leaf page */
-      if (!strcmp ("tune-lmemb", long_opts[idx].name))
-        conf.tune_lmemb = atoi (optarg);
-
-      /* number of members in each non-leaf page */
-      if (!strcmp ("tune-nmemb", long_opts[idx].name))
-        conf.tune_nmemb = atoi (optarg);
-
-      /* number of elements of the bucket array */
-      if (!strcmp ("tune-bnum", long_opts[idx].name))
-        conf.tune_bnum = atoi (optarg);
-
-      /* specifies that each page is compressed with X encoding */
-      if (!strcmp ("compression", long_opts[idx].name)) {
-#ifdef HAVE_ZLIB
-        if (!strcmp ("zlib", optarg))
-          conf.compression = TC_ZLIB;
-#endif
-#ifdef HAVE_BZ2
-        if (!strcmp ("bz2", optarg))
-          conf.compression = TC_BZ2;
-#endif
-      }
-
-      /* default config file --dwf */
-      if (!strcmp ("dcf", long_opts[idx].name)) {
-        display_default_config_file ();
-        exit (EXIT_SUCCESS);
-      }
-
+      parse_long_opt (long_opts[idx].name, optarg);
       break;
     case 's':
       display_storage ();

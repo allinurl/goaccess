@@ -86,100 +86,104 @@ typedef struct GPreConfLog_
   const char *squid;
 } GPreConfLog;
 
+/* *INDENT-OFF* */
 /* All configuration properties */
 typedef struct GConf_
 {
-  char *date_format;            /* date format */
-  char *date_num_format;        /* numeric date format %Y%m%d */
-  char *time_format;            /* time format as given by the user */
-  char *spec_date_time_format;  /* date format w/ specificity */
-  char *spec_date_time_num_format;      /* numeric date format w/ specificity */
-
-  char *debug_log;              /* debug log path */
-  char *geoip_database;         /* geoip db path */
-  char *html_report_title;      /* report title */
-  char *iconfigfile;            /* config file path */
-  char *ifile;                  /* log file */
-  char *ignore_ips[MAX_IGNORE_IPS];     /* array of ips to ignore */
-  char *ignore_referers[MAX_IGNORE_REF];        /* referrers to ignore */
-  char *invalid_requests_log;   /* invalid lines log path */
-  char *log_format;             /* log format */
-  char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
-
-  char *ws_url;                 /* WebSocket URL */
-  char *addr;                   /* IP address to bind to */
-  char *origin;                 /* WebSocket origin */
-  char *port;                   /* port to use */
-
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
+  const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
+  const char *ignore_referers[MAX_IGNORE_REF];  /* referrers to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
-  const char *output_formats[MAX_OUTFORMATS];   /* output format                , e.g. , HTML */
+  const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g. , HTML */
+  const char *sort_panels[TOTAL_MODULES];       /* sorting options for each panel */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
-  int all_static_files;         /* parse all static files */
-  int append_method;            /* append method to the req key */
-  int append_protocol;          /* append protocol to the req key */
-  int client_err_to_unique_count;       /* count 400s as visitors */
-  int code444_as_404;           /* 444 as 404s? */
-  int color_scheme;             /* color scheme */
-  int double_decode;            /* need to double decode */
-  int enable_html_resolver;     /* html/json/csv resolver */
-  int geo_db;                   /* legacy geoip db */
-  int hl_header;                /* highlight header on term */
-  int ignore_crawlers;          /* ignore crawlers */
-  int ignore_qstr;              /* ignore query string */
-  int list_agents;              /* show list of agents per host */
-  int load_conf_dlg;            /* load curses config dialog */
-  int load_global_config;       /* use global config file */
-  int mouse_support;            /* add curses mouse support */
-  int no_color;                 /* no terminal colors */
-  int no_column_names;          /* don't show col names on termnal */
-  int no_csv_summary;           /* don't show overall metrics */
-  int no_progress;              /* disable progress metrics */
-  int no_tab_scroll;            /* don't scroll dashboard on tab */
-  int output_stdout;            /* outputting to stdout */
-  int real_os;                  /* show real OSs */
-  int real_time_html;           /* enable real-time HTML output */
-  int skip_term_resolver;       /* no terminal resolver */
+  char *date_format;                /* date format */
+  char *date_num_format;            /* numeric date format %Y%m%d */
+  char *time_format;                /* time format as given by the user */
+  char *spec_date_time_format;      /* date format w/ specificity */
+  char *spec_date_time_num_format;  /* numeric date format w/ specificity */
+  char *log_format;                 /* log format */
+
+  char *ifile;                      /* log file */
+
+  const char *debug_log;            /* debug log path */
+  const char *geoip_database;       /* geoip db path */
+  const char *html_report_title;    /* report title */
+  const char *iconfigfile;          /* config file path */
+  const char *invalid_requests_log; /* invalid lines log path */
+
+  const char *ws_url;               /* WebSocket URL */
+  const char *addr;                 /* IP address to bind to */
+  const char *origin;               /* WebSocket origin */
+  const char *port;                 /* port to use */
+
+
+  int all_static_files;             /* parse all static files */
+  int append_method;                /* append method to the req key */
+  int append_protocol;              /* append protocol to the req key */
+  int client_err_to_unique_count;   /* count 400s as visitors */
+  int code444_as_404;               /* 444 as 404s? */
+  int color_scheme;                 /* color scheme */
+  int double_decode;                /* need to double decode */
+  int enable_html_resolver;         /* html/json/csv resolver */
+  int geo_db;                       /* legacy geoip db */
+  int hl_header;                    /* highlight header on term */
+  int ignore_crawlers;              /* ignore crawlers */
+  int ignore_qstr;                  /* ignore query string */
+  int list_agents;                  /* show list of agents per host */
+  int load_conf_dlg;                /* load curses config dialog */
+  int load_global_config;           /* use global config file */
+  int mouse_support;                /* add curses mouse support */
+  int no_color;                     /* no terminal colors */
+  int no_column_names;              /* don't show col names on termnal */
+  int no_csv_summary;               /* don't show overall metrics */
+  int no_progress;                  /* disable progress metrics */
+  int no_tab_scroll;                /* don't scroll dashboard on tab */
+  int output_stdout;                /* outputting to stdout */
+  int real_os;                      /* show real OSs */
+  int real_time_html;               /* enable real-time HTML output */
+  int skip_term_resolver;           /* no terminal resolver */
   int json_pretty_print;
 
-  int hour_spec_min;            /* hour specificity - min */
-  int date_spec_hr;             /* date specificity - hour */
-  int date_spec_min;            /* date specificity - min */
+  int hour_spec_min;                /* hour specificity - min */
+  int date_spec_hr;                 /* date specificity - hour */
+  int date_spec_min;                /* date specificity - min */
 
-  int bandwidth;                /* is there bandwidth within the req line */
+  int bandwidth;                    /* is there bandwidth within the req line */
   int has_geocity;
   int has_geocountry;
-  int serve_usecs;              /* is there time served within req line */
-  int tailing_mode;             /* in tailing-mode? */
-  int stop_processing;          /* stop all processing */
+  int serve_usecs;                  /* is there time served within req line */
+  int tailing_mode;                 /* in tailing-mode? */
+  int stop_processing;              /* stop all processing */
 
-  int color_idx;                /* colors index */
-  int enable_panel_idx;         /* enable panels index */
-  int ignore_ip_idx;            /* ignored ips index */
-  int ignore_panel_idx;         /* ignored panels index */
-  int ignore_referer_idx;       /* ignored referrers index */
-  int ignore_status_idx;        /* ignore status index */
-  int output_format_idx;        /* output format index */
-  int sort_panel_idx;           /* sort panel index */
-  int static_file_idx;          /* static extensions index */
+  int color_idx;                    /* colors index */
+  int enable_panel_idx;             /* enable panels index */
+  int ignore_ip_idx;                /* ignored ips index */
+  int ignore_panel_idx;             /* ignored panels index */
+  int ignore_referer_idx;           /* ignored referrers index */
+  int ignore_status_idx;            /* ignore status index */
+  int output_format_idx;            /* output format index */
+  int sort_panel_idx;               /* sort panel index */
+  int static_file_idx;              /* static extensions index */
 
   size_t static_file_max_len;
 
-  /* TokyoCabinet */
-  char *db_path;                /* db path to files */
-  int64_t xmmap;                /* size of the extra mapped memory */
-  int cache_lcnum;              /* max num of leaf nodes to cache */
-  int cache_ncnum;              /* max num of non-leaf nodes to cache */
-  int compression;              /* deflate or BZIP2 */
-  int keep_db_files;            /* persist parsed data into disk */
-  int load_from_disk;           /* load stored data */
-  int tune_bnum;                /* num of elems of the bucket array */
-  int tune_lmemb;               /* num of memb in each leaf page */
-  int tune_nmemb;               /* num of memb in each non-leaf page */
+                                    /* TokyoCabinet */
+  const char *db_path;              /* db path to files */
+  int64_t xmmap;                    /* size of the extra mapped memory */
+  int cache_lcnum;                  /* max num of leaf nodes to cache */
+  int cache_ncnum;                  /* max num of non-leaf nodes to cache */
+  int compression;                  /* deflate or BZIP2 */
+  int keep_db_files;                /* persist parsed data into disk */
+  int load_from_disk;               /* load stored data */
+  int tune_bnum;                    /* num of elems of the bucket array */
+  int tune_lmemb;                   /* num of memb in each leaf page */
+  int tune_nmemb;                   /* num of memb in each non-leaf page */
 } GConf;
+/* *INDENT-ON* */
 
 char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);

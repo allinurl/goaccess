@@ -81,7 +81,6 @@ int invalid_ipaddr (char *str, int *ipvx);
 int ip_in_range (const char *ip);
 int str_inarray (const char *s, const char *arr[], int size);
 int str_to_time (const char *str, const char *fmt, struct tm *tm);
-int wc_match(char *wc, char *str);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
 void strip_newlines (char *str);
