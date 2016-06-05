@@ -203,7 +203,9 @@ to be used without prepending `--`.
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
-| `--html-report-title`              | Set HTML report page title and header.                        |
+| `--html-report-title=<title>`      | Set HTML report page title and header.                        |
+| `--html-report-image=<url>`        | Set URL for custom logo in HTML report page.                  |
+| `--html-report-link=<url>`         | Set target URL for logo link in HTML report page.             |
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
 | `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
@@ -241,11 +243,11 @@ To output to a terminal and generate an interactive report:
 To generate an HTML report:
 
     # goaccess -f access.log -a > report.html
-    
+
 To generate a JSON report:
 
     # goaccess -f access.log -a -d -o json > report.json
-    
+
 To generate a CSV file:
 
     # goaccess -f access.log --no-csv-summary -o csv > report.csv

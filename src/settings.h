@@ -92,6 +92,8 @@ typedef struct GConf_
   char *debug_log;              /* debug log path */
   char *geoip_database;         /* geoip db path */
   char *html_report_title;      /* report title */
+  char *html_report_image;      /* report logo image */
+  char *html_report_link;       /* report logo link */
   char *iconfigfile;            /* config file path */
   char *ifile;                  /* log file */
   char *ignore_ips[MAX_IGNORE_IPS];     /* array of ips to ignore */

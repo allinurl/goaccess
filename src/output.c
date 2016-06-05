@@ -637,6 +637,10 @@ print_html_header (FILE * fp, char *now)
   "  font-size: 110%%;"
   "  font-weight: bold;"
   "}"
+  "#menu .pure-menu-heading img {"
+  "  width: 85%;"
+  "  margin: 2px 6px"
+  "}"
   ".pure-u {"
   "  display: inline-block;"
   "  *display: inline;"
@@ -972,13 +976,29 @@ get_max_hit (GHolder * h)
 }
 
 static void
+print_image_link (FILE *fp)
+{
+  const char *link = conf.html_report_link ? conf.html_report_link : GO_WEBSITE;
+
+  fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", link);
+
+  if (conf.html_report_image) {
+    fprintf (fp, "<img src='%s'/>", conf.html_report_image);
+  } else {
+    fprintf (fp, "<img src='data:image/png;base64,%s' alt='goaccess'/>", GO_LOGO);
+  }
+
+  fprintf (fp, "</a>");
+}
+
+static void
 print_pure_menu (FILE * fp, char *now)
 {
   fprintf (fp, "<div id=\"menu\" class=\"pure-u\">");
   fprintf (fp, "<div class=\"pure-menu pure-menu-open\">");
-  fprintf (fp, "<a class=\"pure-menu-heading\" href=\"%s\">", GO_WEBSITE);
-  fprintf (fp, "<img src='data:image/png;base64,%s' alt='goaccess'/>", GO_LOGO);
-  fprintf (fp, "</a>");
+
+  print_image_link(fp);
+
   fprintf (fp, "<ul>");
   fprintf (fp, "<li><a href=\"#\">Overall</a></li>");
   fprintf (fp, "<li><a href=\"#%s\">Unique visitors</a></li>", VISIT_ID);
