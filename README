@@ -1,62 +1,71 @@
 What is it?
 -------------
-GoAccess is an open source real-time web log analyzer
-and interactive viewer that runs in a terminal in *nix systems.
-It provides fast and valuable HTTP statistics for system
-administrators that require a visual server report on the fly.
+GoAccess is an open source real-time web log analyzer and interactive viewer
+that runs in a terminal in *nix systems or through your browser.
+
+It provides fast and valuable HTTP statistics for system administrators that
+require a visual server report on the fly.
 
 Features
 -------------------------------
 GoAccess parses the specified web log file and
 outputs the data to the X terminal. Features include:
 
- * General statistics, bandwidth, etc.
- * Time taken to serve the request (useful to track pages that are slowing down your site)
- * Metrics for cumulative, average and slowest running requests
- * Top visitors
- * Requested files & static files
- * 404 or Not Found
- * Hosts, Reverse DNS, IP Location
- * Operating Systems
- * Browsers and Spiders
- * Referring Sites & URLs
- * Keyphrases
- * Geo Location - Continent/Country/City
- * Visitors Time Distribution
- * HTTP Status Codes
- * Metrics per Virtual Host
- * Ability to output JSON and CSV
- * Tailor GoAccess to suit your own color taste/schemes
- * Incremental log processing
- * Support for large datasets + data persistence
- * Support for HTTP/2 & IPv6
- * and more...
+  * Completely Real Time
+    All panels and metrics are timed to be updated every 200 ms on the terminal
+    output and every second on the HTML output.
 
-Nearly all web log formats...
+  * No configuration needed
+    You can just run it against your access log file, pick the log format and
+    let GoAccess parse the access log and show you the stats.
 
-GoAccess allows any custom log format string.
-Predefined options include, but not limited to:
+  * Track Application Response Time
+    Track the time taken to serve the request. Extremely useful if you want to
+    track pages that are slowing down your site.
 
- * Amazon CloudFront (Download Distribution).
- * AWS Elastic Load Balancing
- * Combined Log Format (XLF/ELF) Apache | Nginx
- * Common Log Format (CLF) Apache
- * Google Cloud Storage.
- * Apache virtual hosts
- * Squid Native Format.
- * W3C format (IIS).
+  * Nearly All Web Log Formats
+    GoAccess allows any custom log format string. Predefined options include,
+    Apache, Nginx, Amazon S3, Elastic Load Balancing, CloudFront, etc
+
+  * Incremental Log Processing
+    Need data persistence? GoAccess has the ability to process logs incrementally
+    through the on-disk B+Tree database.
+
+  * Only one dependency
+    GoAccess is written in C. To run it, you only need ncurses as a dependency.
+    That's it. It even has its own Web Socket server -  http://gwsocket.io/.
+
+  * Visitors
+    Determine the amount of hits, visitors, bandwidth, and metrics for slowest
+    running requests by the hour, or date.
+
+  *  Metrics per Virtual Host
+    Have multiple Virtual Hosts (Server Blocks)? A panel that displays which
+    virtual host is consuming most of the web server resources.
+
+  * Color Scheme Customizable
+    Tailor GoAccess to suit your own color taste/schemes. Either through the
+    terminal, or by simply updating the stylesheet on the HTML output.
+
+  * Support for large datasets
+    GoAccess features an on-disk B+Tree storage for large datasets where it is not
+    possible to fit everything in memory.
+
+  * and more... visit https://goaccess.io for more details.
 
 
 Why GoAccess?
 -------------
 The main idea behind GoAccess is being able to quickly analyze and view web
-server statistics in real time without having to generate an HTML report (great
-if you want to do a quick analysis of your access log via SSH).
+server statistics in real time without needing to generate an HTML report
+(great if you want to do a quick analysis of your access log via SSH).
 
 Although it is possible to generate an HTML, JSON, CSV report, by default it
-outputs to a terminal.
+outputs to a terminal. You can see it more of a monitor command tool than
+anything else.
 
-You can see it more of a monitor command tool than anything else.
+Or if you are simply concerned about third party analytics tools using JS
+trackers.
 
 Keys
 ----
