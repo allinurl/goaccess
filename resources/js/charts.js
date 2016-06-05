@@ -30,7 +30,12 @@ function AreaChart(dualYaxis) {
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
-		.orient('bottom');
+		.orient('bottom')
+		.tickFormat(function (d) {
+			if (format.x)
+				return GoAccess.Util.fmtValue(d, format.x);
+			return d;
+		});
 
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
@@ -587,7 +592,12 @@ function BarChart(dualYaxis) {
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
-		.orient('bottom');
+		.orient('bottom')
+		.tickFormat(function (d) {
+			if (format.x)
+				return GoAccess.Util.fmtValue(d, format.x);
+			return d;
+		});
 
 	var yAxis0 = d3.svg.axis()
 		.scale(yScale0)
