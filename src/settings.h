@@ -90,6 +90,7 @@ typedef struct GPreConfLog_
 /* All configuration properties */
 typedef struct GConf_
 {
+  /* Array options */
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
@@ -100,6 +101,7 @@ typedef struct GConf_
   const char *sort_panels[TOTAL_MODULES];       /* sorting options for each panel */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
+  /* Log/date/time formats */
   char *date_format;                /* date format */
   char *date_num_format;            /* numeric date format %Y%m%d */
   char *time_format;                /* time format as given by the user */
@@ -114,13 +116,16 @@ typedef struct GConf_
   const char *html_report_title;    /* report title */
   const char *iconfigfile;          /* config file path */
   const char *invalid_requests_log; /* invalid lines log path */
+  const char *html_custom_css;      /* custom CSS */
+  const char *html_custom_js;       /* custom JS */
 
+  /* HTML real-time */
   const char *ws_url;               /* WebSocket URL */
   const char *addr;                 /* IP address to bind to */
   const char *origin;               /* WebSocket origin */
   const char *port;                 /* port to use */
 
-
+  /* User flags */
   int all_static_files;             /* parse all static files */
   int append_method;                /* append method to the req key */
   int append_protocol;              /* append protocol to the req key */
@@ -148,17 +153,18 @@ typedef struct GConf_
   int skip_term_resolver;           /* no terminal resolver */
   int json_pretty_print;
 
+  /* Internal flags */
   int hour_spec_min;                /* hour specificity - min */
   int date_spec_hr;                 /* date specificity - hour */
   int date_spec_min;                /* date specificity - min */
-
   int bandwidth;                    /* is there bandwidth within the req line */
-  int has_geocity;
-  int has_geocountry;
   int serve_usecs;                  /* is there time served within req line */
   int tailing_mode;                 /* in tailing-mode? */
   int stop_processing;              /* stop all processing */
+  int has_geocity;
+  int has_geocountry;
 
+  /* Array indices */
   int color_idx;                    /* colors index */
   int enable_panel_idx;             /* enable panels index */
   int ignore_ip_idx;                /* ignored ips index */
@@ -171,7 +177,7 @@ typedef struct GConf_
 
   size_t static_file_max_len;
 
-                                    /* TokyoCabinet */
+  /* TokyoCabinet */
   const char *db_path;              /* db path to files */
   int64_t xmmap;                    /* size of the extra mapped memory */
   int cache_lcnum;                  /* max num of leaf nodes to cache */

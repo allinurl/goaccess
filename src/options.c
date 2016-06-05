@@ -56,56 +56,58 @@ static char short_options[] = "f:e:p:o:l:"
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
-  {"agent-list"           , no_argument       , 0 , 'a' } ,
-  {"config-dialog"        , no_argument       , 0 , 'c' } ,
-  {"hl-header"            , no_argument       , 0 , 'i' } ,
-  {"config-file"          , required_argument , 0 , 'p' } ,
-  {"exclude-ip"           , required_argument , 0 , 'e' } ,
-  {"help"                 , no_argument       , 0 , 'h' } ,
-  {"http-method"          , no_argument       , 0 , 'M' } ,
-  {"http-protocol"        , no_argument       , 0 , 'H' } ,
-  {"log-file"             , required_argument , 0 , 'f' } ,
-  {"version"              , no_argument       , 0 , 'V' } ,
-  {"debug-file"           , required_argument , 0 , 'l' } ,
-  {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
+  {"addr"                 , required_argument , 0 ,  0  } ,
+  {"agent-list"           , no_argument       , 0 , 'a' } ,
   {"all-static-files"     , no_argument       , 0 ,  0  } ,
   {"color"                , required_argument , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
+  {"config-dialog"        , no_argument       , 0 , 'c' } ,
+  {"config-file"          , required_argument , 0 , 'p' } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
+  {"date-spec"            , required_argument , 0 ,  0  } ,
+  {"dcf"                  , no_argument       , 0 ,  0  } ,
+  {"debug-file"           , required_argument , 0 , 'l' } ,
   {"double-decode"        , no_argument       , 0 ,  0  } ,
+  {"enable-panel"         , required_argument , 0 ,  0  } ,
+  {"exclude-ip"           , required_argument , 0 , 'e' } ,
+  {"help"                 , no_argument       , 0 , 'h' } ,
+  {"hl-header"            , no_argument       , 0 , 'i' } ,
+  {"hour-spec"            , required_argument , 0 ,  0  } ,
+  {"html-custom-css"      , required_argument , 0 ,  0  } ,
+  {"html-custom-js"       , required_argument , 0 ,  0  } ,
   {"html-report-title"    , required_argument , 0 ,  0  } ,
+  {"http-method"          , no_argument       , 0 , 'M' } ,
+  {"http-protocol"        , no_argument       , 0 , 'H' } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
-  {"ignore-status"        , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
-  {"enable-panel"         , required_argument , 0 ,  0  } ,
+  {"ignore-status"        , required_argument , 0 ,  0  } ,
+  {"invalid-requests"     , required_argument , 0 ,  0  } ,
+  {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
+  {"log-file"             , required_argument , 0 , 'f' } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
-  {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
-  {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
+  {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
-  {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"date-spec"            , required_argument , 0 ,  0  } ,
-  {"hour-spec"            , required_argument , 0 ,  0  } ,
-  {"real-time-html"       , no_argument       , 0 ,  0  } ,
-  {"addr"                 , required_argument , 0 ,  0  } ,
-  {"ws-url"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
+  {"real-os"              , no_argument       , 0 ,  0  } ,
+  {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
   {"storage"              , no_argument       , 0 , 's' } ,
-  {"dcf"                  , no_argument       , 0 ,  0  } ,
   {"time-format"          , required_argument , 0 ,  0  } ,
+  {"version"              , no_argument       , 0 , 'V' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
+  {"ws-url"               , required_argument , 0 ,  0  } ,
   #ifdef HAVE_LIBGEOIP
   {"std-geoip"            , no_argument       , 0 , 'g' } ,
   {"geoip-database"       , required_argument , 0 ,  0  } ,
@@ -151,6 +153,8 @@ cmd_help (void)
   "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for more\n"
   "                                    details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
+  "  --html-custom-css=<path.css>    - Specify a custom CSS file in the HTML report.\n"
+  "  --html-custom-js=<path.js>      - Specify a custom JS file in the HTML report.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
   "  --no-color                      - Disable colored output.\n"
@@ -345,6 +349,14 @@ parse_long_opt (const char *name, const char *oarg)
   /* html report title */
   if (!strcmp ("html-report-title", name))
     conf.html_report_title = oarg;
+
+  /* html custom CSS */
+  if (!strcmp ("html-custom-css", name))
+    conf.html_custom_css = oarg;
+
+  /* html custom JS */
+  if (!strcmp ("html-custom-js", name))
+    conf.html_custom_js = oarg;
 
   /* 444 as 404 */
   if (!strcmp ("444-as-404", name))
