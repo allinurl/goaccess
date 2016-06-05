@@ -76,6 +76,8 @@ struct option long_opts[] = {
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"double-decode"        , no_argument       , 0 ,  0  } ,
   {"html-report-title"    , required_argument , 0 ,  0  } ,
+  {"html-report-image"    , required_argument , 0 ,  0  } ,
+  {"html-report-link"     , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-status"        , required_argument , 0 ,  0  } ,
@@ -147,6 +149,8 @@ cmd_help (void)
   "                                    more details and options.\n"
   "  --color-scheme=<1|2>            - Color schemes: 1 => Grey, 2 => Green.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
+  "  --html-report-image=<url>       - Set URL for custom logo on HTML report page.\n"
+  "  --html-report-link=<url>        - Set target URL for logo link on HTML report page.\n"
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term\n"
   "                                    output.\n"
@@ -402,6 +406,14 @@ read_option_args (int argc, char **argv)
       /* html report title */
       if (!strcmp ("html-report-title", long_opts[idx].name))
         conf.html_report_title = optarg;
+
+      /* html report logo image */
+      if (!strcmp ("html-report-image", long_opts[idx].name))
+        conf.html_report_image = optarg;
+
+      /* html report logo link */
+      if (!strcmp ("html-report-link", long_opts[idx].name))
+        conf.html_report_link = optarg;
 
       /* 444 as 404 */
       if (!strcmp ("444-as-404", long_opts[idx].name))
