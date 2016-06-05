@@ -90,6 +90,11 @@ typedef struct GPreConfLog_
 typedef struct GConf_
 {
   char *date_format;            /* date format */
+  char *date_num_format;        /* numeric date format %Y%m%d */
+  char *time_format;            /* time format as given by the user */
+  char *spec_date_time_format;  /* date format w/ specificity */
+  char *spec_date_time_num_format;      /* numeric date format w/ specificity */
+
   char *debug_log;              /* debug log path */
   char *geoip_database;         /* geoip db path */
   char *html_report_title;      /* report title */
@@ -100,18 +105,17 @@ typedef struct GConf_
   char *invalid_requests_log;   /* invalid lines log path */
   char *log_format;             /* log format */
   char *sort_panels[TOTAL_MODULES];     /* sorting options for each panel */
-  char *time_format;            /* time format */
-  char *spec_date_format;       /* date format w/ specificity */
-  char *spec_num_date_format;   /* numeric date format w/ specificity */
+
   char *ws_url;                 /* WebSocket URL */
   char *addr;                   /* IP address to bind to */
   char *origin;                 /* WebSocket origin */
   char *port;                   /* port to use */
+
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
-  const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g., HTML */
+  const char *output_formats[MAX_OUTFORMATS];   /* output format                , e.g. , HTML */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
   int all_static_files;         /* parse all static files */
@@ -139,10 +143,11 @@ typedef struct GConf_
   int real_os;                  /* show real OSs */
   int real_time_html;           /* enable real-time HTML output */
   int skip_term_resolver;       /* no terminal resolver */
+  int json_pretty_print;
+
   int hour_spec_min;            /* hour specificity - min */
   int date_spec_hr;             /* date specificity - hour */
   int date_spec_min;            /* date specificity - min */
-  int json_pretty_print;
 
   int bandwidth;                /* is there bandwidth within the req line */
   int has_geocity;

@@ -553,7 +553,7 @@ get_visitors_dates (GHolder * h)
 char *
 get_overall_header (GHolder * h)
 {
-  const char *sndfmt = conf.spec_num_date_format;
+  const char *sndfmt = conf.spec_date_time_num_format;
   const char *head = conf.output_stdout ? T_HEAD : T_DASH " - " T_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL, **dates = NULL;
 
@@ -1165,6 +1165,8 @@ set_formats (char *date_format, char *log_format, char *time_format)
     free (conf.log_format);
     conf.log_format = unescape_str (log_format);
   }
+
+  set_spec_date_format ();
 
   return NULL;
 }

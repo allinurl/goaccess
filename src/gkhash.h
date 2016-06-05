@@ -231,6 +231,7 @@ char *ht_get_method (GModule module, int key);
 char *ht_get_protocol (GModule module, int key);
 char *ht_get_root (GModule module, int key);
 GSLList *ht_get_host_agent_list (GModule module, int key);
+int ht_get_hits (GModule module, int key);
 int ht_get_keymap (GModule module, const char *key);
 int ht_get_uniqmap (GModule module, const char *key);
 int ht_get_visitors (GModule module, int key);

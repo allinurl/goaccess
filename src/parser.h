@@ -88,11 +88,22 @@ typedef struct GLog_
   GLogItem *items;
 } GLog;
 
+
+typedef enum
+{
+  INTEGER,
+  STRING
+} GRawDataType;
+
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_
 {
   int key;
-  int value;
+  union
+  {
+    char *svalue;
+    int ivalue;
+  } value;
 } GRawDataItem;
 
 /* Raw Data per module */
@@ -100,6 +111,7 @@ typedef struct GRawData_
 {
   GRawDataItem *items;          /* data */
   GModule module;               /* current module */
+  GRawDataType type;            /* raw data items type */
   int idx;                      /* first level index */
   int size;                     /* total num of items on ht */
 } GRawData;

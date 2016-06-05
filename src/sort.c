@@ -185,10 +185,20 @@ cmp_raw_num_desc (const void *a, const void *b)
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  int va = ia->value;
-  int vb = ib->value;
+  int va = ia->value.ivalue;
+  int vb = ib->value.ivalue;
 
   return (va < vb) - (va > vb);
+}
+
+/* Sort GRawDataItem value descending */
+static int
+cmp_raw_str_desc (const void *a, const void *b)
+{
+  const GRawDataItem *ia = a;
+  const GRawDataItem *ib = b;
+
+  return strcmp (ib->value.svalue, ia->value.svalue);
 }
 
 /* Sort 'bandwidth' metric descending */
@@ -523,12 +533,23 @@ sort_holder_items (GHolderItem * items, int size, GSort sort)
   }
 }
 
-/* Sort raw data in a descending order for the first run (default sort)
+/* Sort raw numeric data in a descending order for the first run
+ * (default sort)
  *
  * On success, raw data sorted in a descending order. */
 GRawData *
-sort_raw_data (GRawData * raw_data, int ht_size)
+sort_raw_num_data (GRawData * raw_data, int ht_size)
 {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_num_desc);
+  return raw_data;
+}
+
+/* Sort raw string data in a descending order for the first run.
+ *
+ * On success, raw data sorted in a descending order. */
+GRawData *
+sort_raw_str_data (GRawData * raw_data, int ht_size)
+{
+  qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_str_desc);
   return raw_data;
 }

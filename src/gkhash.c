@@ -1278,6 +1278,22 @@ ht_get_visitors (GModule module, int key)
   return get_ii32 (hash, key);
 }
 
+/* Get the int visitors value from MTRC_VISITORS given an int key.
+ *
+ * If key is not found, 0 is returned.
+ * On error, -1 is returned.
+ * On success the int value for the given key is returned */
+int
+ht_get_hits (GModule module, int key)
+{
+  khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
+
+  if (!hash)
+    return -1;
+
+  return get_ii32 (hash, key);
+}
+
 /* Get the uint64_t value from MTRC_BW given an int key.
  *
  * On error, or if key is not found, 0 is returned.
@@ -1490,58 +1506,106 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
   get_iu64_min_max (hash, min, max);
 }
 
+/* A wrapper to initialize a raw data structure.
+ *
+ * On success a GRawData structure is returned. */
 static GRawData *
-init_new_raw_data (GModule module, khash_t (ii32) * hash)
+init_new_raw_data (GModule module, uint32_t ht_size)
 {
   GRawData *raw_data;
-  uint32_t ht_size = 0;
 
   raw_data = new_grawdata ();
   raw_data->idx = 0;
   raw_data->module = module;
-  raw_data->size = ht_size = kh_size (hash);
+  raw_data->size = ht_size;
   raw_data->items = new_grawdata_item (ht_size);
 
   return raw_data;
 }
 
 /* Store the key/value pairs from a hash table into raw_data and sorts
- * the the hits structure.
+ * the hits (numeric) value.
  *
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
 static GRawData *
-parse_raw_init_data (GModule module)
+parse_raw_num_data (GModule module)
 {
   GRawData *raw_data;
   khiter_t key;
+  uint32_t ht_size = 0;
 
   khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
   if (!hash)
     return NULL;
 
-  raw_data = init_new_raw_data (module, hash);
+  ht_size = kh_size (hash);
+  raw_data = init_new_raw_data (module, ht_size);
+  raw_data->type = INTEGER;
   for (key = kh_begin (hash); key != kh_end (hash); ++key) {
     if (!kh_exist (hash, key))
       continue;
 
     raw_data->items[raw_data->idx].key = kh_key (hash, key);
-    raw_data->items[raw_data->idx].value = kh_value (hash, key);
+    raw_data->items[raw_data->idx].value.ivalue = kh_value (hash, key);
     raw_data->idx++;
   }
 
-  sort_raw_data (raw_data, raw_data->idx);
+  sort_raw_num_data (raw_data, raw_data->idx);
 
   return raw_data;
 }
 
-/* Entry point to and determine if we are storing the initial dataset
- * or if we are in tailing mode.
+/* Store the key/value pairs from a hash table into raw_data and sorts
+ * the data (string) value.
+ *
+ * On error, NULL is returned.
+ * On success the GRawData sorted is returned */
+static GRawData *
+parse_raw_str_data (GModule module)
+{
+  GRawData *raw_data;
+  khiter_t key;
+  uint32_t ht_size = 0;
+
+  khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
+  if (!hash)
+    return NULL;
+
+  ht_size = kh_size (hash);
+  raw_data = init_new_raw_data (module, ht_size);
+  raw_data->type = STRING;
+  for (key = kh_begin (hash); key != kh_end (hash); ++key) {
+    if (!kh_exist (hash, key))
+      continue;
+
+    raw_data->items[raw_data->idx].key = kh_key (hash, key);
+    raw_data->items[raw_data->idx].value.svalue =
+      xstrdup (kh_value (hash, key));
+    raw_data->idx++;
+  }
+
+  sort_raw_str_data (raw_data, raw_data->idx);
+
+  return raw_data;
+}
+
+/* Entry point to load the raw data from the data store into our
+ * GRawData structure.
  *
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
 GRawData *
 parse_raw_data (GModule module)
 {
-  return parse_raw_init_data (module);
+  GRawData *raw_data;
+
+  switch (module) {
+  case VISITORS:
+    raw_data = parse_raw_str_data (module);
+    break;
+  default:
+    raw_data = parse_raw_num_data (module);
+  }
+  return raw_data;
 }

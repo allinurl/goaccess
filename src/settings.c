@@ -203,10 +203,11 @@ set_default_static_files (void)
 void
 free_formats (void)
 {
-  free (conf.date_format);
   free (conf.log_format);
-  free (conf.spec_date_format);
-  free (conf.spec_num_date_format);
+  free (conf.date_format);
+  free (conf.date_num_format);
+  free (conf.spec_date_time_format);
+  free (conf.spec_date_time_num_format);
   free (conf.time_format);
 }
 
@@ -488,26 +489,30 @@ verify_formats (void)
 static char *
 append_spec_date_format (const char *date_format, const char *spec_format)
 {
-  char *s = xmalloc (snprintf (NULL, 0, "%s:%s", date_format, spec_format) + 1);
-  sprintf (s, "%s:%s", date_format, spec_format);
+  char *s = xmalloc (snprintf (NULL, 0, "%s%s", date_format, spec_format) + 1);
+  sprintf (s, "%s%s", date_format, spec_format);
 
   return s;
 }
 
-/* In order to properly sort the dates, we normalize them as numeric
- * values such as 20161203. We attempt to determine which specifies
- * were set in the spec_date_format and create a numeric date format
- * %Y%m%d out of it including the date specificity. */
-static void
-set_spec_num_date_format (void)
+/* Iterate over the given format and clean unwanted chars and keep all
+ * date/time specifiers such as %b%Y%d%M%S.
+ *
+ * On error NULL is returned.
+ * On success, a clean format containing only date/time specifiers is
+ * returned. */
+static char *
+clean_date_time_format (const char *format)
 {
-  char *fmt = NULL, *buf = NULL, *pr = NULL, *pw = NULL;
-  int special = 0, buflen = 0, fmtlen = 0;
+  char *fmt = NULL, *pr = NULL, *pw = NULL;
+  int special = 0;
 
-  fmt = xstrdup (conf.spec_date_format);
+  if (format == NULL || *format == '\0')
+    return NULL;
+
+  fmt = xstrdup (format);
   pr = fmt;
   pw = fmt;
-  /* iterate over the spec_date_format and clean unwanted chars */
   while (*pr) {
     *pw = *pr++;
     if (*pw == '%' || special) {
@@ -517,22 +522,130 @@ set_spec_num_date_format (void)
   }
   *pw = '\0';
 
-  fmtlen = strlen (fmt) + 1;
-  buf = xcalloc (fmtlen, sizeof (char));
+  return fmt;
+}
 
-  if (strpbrk (fmt, "Yy"))
-    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%Y");
-  if (strpbrk (fmt, "bmB"))
-    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%m");
-  if (strpbrk (fmt, "de"))
-    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%d");
-  if (strpbrk (fmt, "H"))
-    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%H");
-  if (strpbrk (fmt, "M"))
-    buflen += snprintf (buf + buflen, fmtlen - buflen, "%%M");
+/* A wrapper to extract time specifiers from a time format.
+ *
+ * On error NULL is returned.
+ * On success, a clean format containing only time specifiers is
+ * returned. */
+static char *
+set_format_time (void)
+{
+  char *ftime = NULL;
 
-  conf.spec_num_date_format = buf;
-  free (fmt);
+  if (has_timestamp (conf.date_format))
+    ftime = xstrdup ("%H%M%S");
+  else
+    ftime = clean_date_time_format (conf.time_format);
+
+  return ftime;
+}
+
+/* A wrapper to extract date specifiers from a date format.
+ *
+ * On error NULL is returned.
+ * On success, a clean format containing only date specifiers is
+ * returned. */
+static char *
+set_format_date (void)
+{
+  char *fdate = NULL;
+
+  if (has_timestamp (conf.date_format))
+    fdate = xstrdup ("%Y%m%d");
+  else
+    fdate = clean_date_time_format (conf.date_format);
+
+  return fdate;
+}
+
+/* Once we have a numeric date format, we attempt to read the time
+ * format and construct a date_time numeric specificity format (if any
+ * specificity is given). The result may look like Ymd[HM].
+ *
+ * On success, the numeric date time specificity format is set. */
+static void
+set_spec_date_time_num_format (void)
+{
+  char *buf = NULL, *tf = set_format_time ();
+  const char *df = conf.date_num_format;
+
+  if (!df || !tf)
+    return;
+
+  if (conf.date_spec_hr && strchr (tf, 'H'))
+    buf = append_spec_date_format (df, "%H");
+  else if (conf.date_spec_min && strchr (tf, 'M'))
+    buf = append_spec_date_format (df, "%H%M");
+  else
+    buf = xstrdup (df);
+
+  conf.spec_date_time_num_format = buf;
+  free (tf);
+}
+
+/* Set a human readable specificity date and time format.
+ *
+ * On success, the human readable date time specificity format is set. */
+static void
+set_spec_date_time_format (void)
+{
+  char *buf = NULL;
+  const char *fmt = conf.spec_date_time_num_format;
+  int buflen = 0, flen = 0;
+
+  if (!fmt)
+    return;
+
+  flen = (strlen (fmt) * 2) + 1;
+  buf = xcalloc (flen, sizeof (char));
+
+  if (strchr (fmt, 'd'))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%d/");
+  if (strchr (fmt, 'm'))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%b/");
+  if (strchr (fmt, 'Y'))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
+  if (strchr (fmt, 'H'))
+    buflen += snprintf (buf + buflen, flen - buflen, ":%%H");
+  if (strchr (fmt, 'M'))
+    buflen += snprintf (buf + buflen, flen - buflen, ":%%M");
+
+  conf.spec_date_time_format = buf;
+}
+
+/* Normalize the date format from the date format given by the user to
+ * Ymd so it can be sorted out properly afterwards.
+ *
+ * On error or unable to determine the format, 1 is returned.
+ * On success, the numeric date format as Ymd is set and 0 is
+ * returned. */
+static int
+set_date_num_format (void)
+{
+  char *fdate = NULL, *buf = NULL;
+  int buflen = 0, flen = 0;
+
+  fdate = set_format_date ();
+  if (!fdate)
+    return 1;
+
+  flen = strlen (fdate) + 1;
+  buf = xcalloc (flen, sizeof (char));
+
+  if (strpbrk (fdate, "Yy"))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
+  if (strpbrk (fdate, "bmB"))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%m");
+  if (strpbrk (fdate, "de"))
+    buflen += snprintf (buf + buflen, flen - buflen, "%%d");
+
+  conf.date_num_format = buf;
+  free (fdate);
+
+  return buflen == 0 ? 1 : 0;
 }
 
 /* If specificity is supplied, then determine which value we need to
@@ -540,26 +653,20 @@ set_spec_num_date_format (void)
 void
 set_spec_date_format (void)
 {
-  const char *df = conf.date_format;
-  const char *tf = conf.time_format;
-
   if (verify_formats ())
     return;
 
-  if (has_timestamp (conf.date_format))
-    df = "%d/%b/%Y";
+  if (conf.date_num_format)
+    free (conf.date_num_format);
+  if (conf.spec_date_time_format)
+    free (conf.spec_date_time_format);
+  if (conf.spec_date_time_num_format)
+    free (conf.spec_date_time_num_format);
 
-  if (conf.date_spec_hr && (strstr (tf, "%H") || strstr (tf, "%T")))
-    conf.spec_date_format = append_spec_date_format (df, "%H");
-  else if (conf.date_spec_min && (strstr (tf, "%M") || strstr (tf, "%T")))
-    conf.spec_date_format = append_spec_date_format (df, "%H:%M");
-  else {
-    conf.date_spec_hr = 0;
-    conf.date_spec_min = 0;
-    conf.spec_date_format = xstrdup (df);
+  if (set_date_num_format () == 0) {
+    set_spec_date_time_num_format ();
+    set_spec_date_time_format ();
   }
-
-  set_spec_num_date_format ();
 }
 
 /* Attempt to set the date format given a command line option

@@ -71,6 +71,8 @@ struct tm *now_tm;
 #define DATE_TIME     19 + 1
 /* date length -  e.g., 2016/12/12 */
 #define DATE_LEN      10 + 1
+/* date length -  e.g., 12:12:12 */
+#define TIME_LEN       8 + 1
 /* hour + ':' + min length - e.g., 12:12 */
 #define HRMI_LEN   4 + 1 + 1
 

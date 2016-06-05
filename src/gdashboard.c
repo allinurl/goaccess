@@ -453,10 +453,8 @@ render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
 static char *
 set_visitors_date (const char *value)
 {
-  const char *sdfmt = conf.spec_date_format;
-  const char *sndfmt = conf.spec_num_date_format;
-
-  return get_visitors_date (value, sndfmt, sdfmt);
+  return get_visitors_date (value, conf.spec_date_time_num_format,
+                            conf.spec_date_time_format);
 }
 
 /* Render the data metric for each panel */
