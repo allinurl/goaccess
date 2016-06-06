@@ -165,6 +165,7 @@ cmd_help (void)
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
+  "\n"
 
   /* Server Options */
   "Server Options\n\n"
@@ -173,8 +174,8 @@ cmd_help (void)
   "                                    upon the WebSocket handshake.\n"
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
-  "  --ws-url=<url>                  - URL to which the WebSocket server\n"
-  "                                    responds.\n\n"
+  "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
+  "\n"
 
   /* File Options */
   "File Options\n\n"
@@ -184,6 +185,7 @@ cmd_help (void)
   "  -p --config-file=<filename>     - Custom configuration file.\n"
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n"
+  "\n"
 
   /* Parse Options */
   "Parse Options\n\n"
@@ -219,7 +221,8 @@ cmd_help (void)
   "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
   "                                    manpage for a list of panels/fields.\n"
   "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
-  "                                    Extensions are case sensitive.\n\n"
+  "                                    Extensions are case sensitive.\n"
+  "\n"
 
 /* GeoIP Options */
 #ifdef HAVE_LIBGEOIP
@@ -227,7 +230,8 @@ cmd_help (void)
   "  -g --std-geoip                  - Standard GeoIP database for less memory\n"
   "                                    consumption.\n"
   "  --geoip-database=<path>         - Specify path to GeoIP database file. i.e.,\n"
-  "                                    GeoLiteCity.dat, GeoIPv6.dat ...\n\n"
+  "                                    GeoLiteCity.dat, GeoIPv6.dat ...\n"
+  "\n"
 #endif
 
 /* On-Disk Database Options */
@@ -250,7 +254,8 @@ cmd_help (void)
   "                                    memory. Default [%d]\n"
 #if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
   "  --compression=<zlib|bz2>        - Specifies that each page is compressed with\n"
-  "                                    ZLIB|BZ2 encoding.\n\n"
+  "                                    ZLIB|BZ2 encoding.\n"
+  "\n"
 #endif
 #endif
 
@@ -261,7 +266,8 @@ cmd_help (void)
   "  -s --storage                    - Display current storage method. e.g., B+\n"
   "                                    Tree, Hash.\n"
   "  --dcf                           - Display the path of the default config\n"
-  "                                    file when `-p` is not used.\n\n"
+  "                                    file when `-p` is not used.\n"
+  "\n"
 
   "Examples can be found by running `man goaccess`.\n\n"
   "For more details visit: http://goaccess.io\n"
