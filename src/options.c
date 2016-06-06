@@ -105,6 +105,7 @@ struct option long_opts[] = {
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
   {"origin"               , no_argument       , 0 ,  0  } ,
+  {"output"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
@@ -195,7 +196,7 @@ cmd_help (void)
   "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol              - Include HTTP request protocol if found.\n"
   "  -M --http-method                - Include HTTP request method if found.\n"
-  "  -o --output-format=csv|json     - Output either a JSON or a CSV file.\n"
+  "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
   "  -q --no-query-string            - Ignore request's query string. Removing the\n"
   "                                    query string can greatly decrease memory\n"
   "                                    consumption.\n"
@@ -406,6 +407,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* sort view */
   if (!strcmp ("sort-panel", name) && conf.sort_panel_idx < TOTAL_MODULES)
     conf.sort_panels[conf.sort_panel_idx++] = oarg;
+
+  /* output file */
+  if (!strcmp ("output", name) && conf.output_format_idx < MAX_OUTFORMATS)
+    conf.output_formats[conf.output_format_idx++] = optarg;
 
   /* real os */
   if (!strcmp ("real-os", name))
