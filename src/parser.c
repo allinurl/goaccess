@@ -1631,25 +1631,17 @@ get_kdata (GKeyData * kdata, char *data_key, char *data)
 }
 
 /* Generate a visitor's key given the date specificity. For instance,
- * if the specificity if set to minutes, then a generated key would
- * look like: 03/Jan/2016:09:26 */
+ * if the specificity if set to hours, then a generated key would
+ * look like: 03/Jan/2016:09 */
 static void
 set_spec_visitor_key (char **fdate, const char *ftime)
 {
   size_t dlen = 0, tlen = 0;
-  char *key = NULL, *tkey = NULL, *pch = NULL, *src;
+  char *key = NULL, *tkey = NULL, *pch = NULL;
 
   tkey = xstrdup (ftime);
-  pch = strchr (tkey, ':');
-  if (conf.date_spec_hr && pch) {
-    if ((pch - tkey) > 0)
-      *pch = '\0';
-  } else if (conf.date_spec_min && pch && (pch = strpbrk (pch + 1, ":\0"))) {
-    if ((pch - tkey) > 0)
-      *pch = '\0';
-    for (src = tkey + 2; *src != '\0'; *src = *(src + 1), ++src);
-    *src = '\0';
-  }
+  if (conf.date_spec_hr && (pch = strchr (tkey, ':')) && (pch - tkey) > 0)
+    *pch = '\0';
 
   dlen = strlen (*fdate);
   tlen = strlen (tkey);
@@ -1676,7 +1668,7 @@ gen_visitor_key (GKeyData * kdata, GLogItem * glog)
     return 1;
 
   /* Append time specificity to date */
-  if (conf.date_spec_hr || conf.date_spec_min)
+  if (conf.date_spec_hr)
     set_spec_visitor_key (&glog->date, glog->time);
 
   get_kdata (kdata, glog->date, glog->date);

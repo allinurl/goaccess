@@ -156,7 +156,6 @@ typedef struct GConf_
   /* Internal flags */
   int hour_spec_min;                /* hour specificity - min */
   int date_spec_hr;                 /* date specificity - hour */
-  int date_spec_min;                /* date specificity - min */
   int bandwidth;                    /* is there bandwidth within the req line */
   int serve_usecs;                  /* is there time served within req line */
   int tailing_mode;                 /* in tailing-mode? */

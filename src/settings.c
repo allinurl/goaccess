@@ -577,8 +577,6 @@ set_spec_date_time_num_format (void)
 
   if (conf.date_spec_hr && strchr (tf, 'H'))
     buf = append_spec_date_format (df, "%H");
-  else if (conf.date_spec_min && strchr (tf, 'M'))
-    buf = append_spec_date_format (df, "%H%M");
   else
     buf = xstrdup (df);
 
@@ -610,8 +608,6 @@ set_spec_date_time_format (void)
     buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
   if (strchr (fmt, 'H'))
     buflen += snprintf (buf + buflen, flen - buflen, ":%%H");
-  if (strchr (fmt, 'M'))
-    buflen += snprintf (buf + buflen, flen - buflen, ":%%M");
 
   conf.spec_date_time_format = buf;
 }
