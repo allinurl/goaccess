@@ -439,12 +439,8 @@ parse_long_opt (const char *name, const char *oarg)
     conf.hour_spec_min = 1;
 
   /* date specificity */
-  if (!strcmp ("date-spec", name)) {
-    if (!strcmp (oarg, "hr"))
-      conf.date_spec_hr = 1;
-    if (!strcmp (oarg, "min"))
-      conf.date_spec_min = 1;
-  }
+  if (!strcmp ("date-spec", name) && !strcmp (oarg, "hr"))
+    conf.date_spec_hr = 1;
 
   /* no color */
   if (!strcmp ("no-color", name))
