@@ -178,13 +178,25 @@ end_spinner (void)
   pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
+/* Set background colors to all windows. */
+void
+set_wbkgd (WINDOW * main_win, WINDOW * header_win)
+{
+  GColors *color = get_color (COLOR_BG);
+
+  /* background colors */
+  wbkgd (main_win, COLOR_PAIR (color->pair->idx));
+  wbkgd (header_win, COLOR_PAIR (color->pair->idx));
+  wbkgd (stdscr, COLOR_PAIR (color->pair->idx));
+  wrefresh (main_win);
+}
+
 /* Creates and the new terminal windows and set basic properties to
  * each of them. e.g., background color, enable the reading of
  * function keys. */
 void
 init_windows (WINDOW ** header_win, WINDOW ** main_win)
 {
-  GColors *color = get_color (COLOR_BG);
   int row = 0, col = 0;
 
   /* init standard screen */
@@ -203,12 +215,7 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
   keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
-
-  /* background colors */
-  wbkgd (*main_win, COLOR_PAIR (color->pair->idx));
-  wbkgd (*header_win, COLOR_PAIR (color->pair->idx));
-  wbkgd (stdscr, COLOR_PAIR (color->pair->idx));
-  wrefresh (*main_win);
+  set_wbkgd (*main_win, *header_win);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
@@ -1396,16 +1403,43 @@ scheme_chosen (const char *name)
   int force = 0;
 
   free_color_lists ();
-  if (strcmp ("Green/Original", name) == 0) {
+  if (strcmp ("Green", name) == 0) {
     conf.color_scheme = STD_GREEN;
     force = 1;
-  } else if (strcmp ("Monochrome/Default", name) == 0) {
+  } else if (strcmp ("Monochrome", name) == 0) {
     conf.color_scheme = MONOCHROME;
+    force = 1;
+  } else if (strcmp ("Monokai", name) == 0) {
+    conf.color_scheme = MONOKAI;
     force = 1;
   } else if (strcmp ("Custom Scheme", name) == 0) {
     force = 0;
   }
   init_colors (force);
+}
+
+static const char **
+get_color_schemes (size_t * size)
+{
+  const char *choices[] = {
+    "Monokai",
+    "Monochrome",
+    "Green",
+    "Custom Scheme"
+  };
+  int i, j, n = ARRAY_SIZE (choices);
+  const char **opts = xmalloc (sizeof (char *) * n);
+
+  for (i = 0, j = 0; i < n; ++i) {
+    if (!conf.color_idx && !strcmp ("Custom Scheme", choices[i]))
+      continue;
+    if (COLORS < 256 && !strcmp ("Monokai", choices[i]))
+      continue;
+    opts[j++] = choices[i];
+  }
+  *size = j;
+
+  return opts;
 }
 
 /* Render the schemes dialog. */
@@ -1415,18 +1449,11 @@ load_schemes_win (WINDOW * main_win)
   GMenu *menu;
   WINDOW *win;
   int c, quit = 1;
-  size_t i, n;
+  size_t i, n = 0;
   int y, x, h = SCHEME_WIN_H, w = SCHEME_WIN_W;
   int w2 = w - 2;
+  const char **choices = get_color_schemes (&n);
 
-  /* ###NOTE: 'Custom Scheme' needs to go at the end */
-  const char *choices[] = {
-    "Monochrome/Default",
-    "Green/Original",
-    "Custom Scheme"
-  };
-
-  n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);
 
   win = newwin (h, w, (y - h) / 2, (x - w) / 2);
@@ -1437,7 +1464,7 @@ load_schemes_win (WINDOW * main_win)
   menu =
     new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
   /* remove custom color option if no custom scheme used */
-  menu->size = conf.color_idx == 0 ? n - 1 : n;
+  menu->size = n;
 
   /* add items to GMenu */
   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
@@ -1486,6 +1513,7 @@ load_schemes_win (WINDOW * main_win)
     free (menu->items[i].name);
   free (menu->items);
   free (menu);
+  free (choices);
 
   touchwin (main_win);
   close_win (win);

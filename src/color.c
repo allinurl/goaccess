@@ -149,6 +149,42 @@ static const char *colors256_green[] = {
   "COLOR_PROGRESS      color0:color6",
 };
 
+static const char *colors256_monokai[] = {
+  "COLOR_MTRC_HITS     color197:color-1",
+  "COLOR_MTRC_VISITORS color148:color-1",
+  "COLOR_MTRC_DATA     color7:color-1",
+  "COLOR_MTRC_BW       color81:color-1",
+  "COLOR_MTRC_AVGTS    color247:color-1",
+  "COLOR_MTRC_CUMTS    color95:color-1",
+  "COLOR_MTRC_MAXTS    color186:color-1",
+  "COLOR_MTRC_PROT     color141:color-1",
+  "COLOR_MTRC_MTHD     color81:color-1",
+  "COLOR_MTRC_PERC     color186:color-1",
+  "COLOR_MTRC_PERC     color186:color-1 VISITORS",
+  "COLOR_MTRC_PERC     color186:color-1 OS",
+  "COLOR_MTRC_PERC     color186:color-1 BROWSERS",
+  "COLOR_MTRC_PERC     color186:color-1 VISIT_TIMES",
+  "COLOR_MTRC_PERC_MAX color208:color-1",
+  "COLOR_MTRC_PERC_MAX color208:color-1 VISITORS",
+  "COLOR_MTRC_PERC_MAX color208:color-1 OS",
+  "COLOR_MTRC_PERC_MAX color208:color-1 BROWSERS",
+  "COLOR_MTRC_PERC_MAX color208:color-1 VISIT_TIMES",
+  "COLOR_PANEL_COLS    color242:color-1",
+  "COLOR_BARS          color186:color-1",
+  "COLOR_ERROR         color231:color197",
+  "COLOR_SELECTED      color0:color215",
+  "COLOR_PANEL_ACTIVE  color7:color240",
+  "COLOR_PANEL_HEADER  color7:color237",
+  "COLOR_PANEL_DESC    color242:color-1",
+  "COLOR_OVERALL_LBLS  color251:color-1",
+  "COLOR_OVERALL_VALS  color148:color-1",
+  "COLOR_OVERALL_PATH  color186:color-1",
+  "COLOR_ACTIVE_LABEL  color7:color237",
+  "COLOR_BG            color7:color-1",
+  "COLOR_DEFAULT       color7:color-1",
+  "COLOR_PROGRESS      color7:color141",
+};
+
 static const char *colors8_mono[] = {
   "COLOR_MTRC_HITS     color7:color-1",
   "COLOR_MTRC_VISITORS color0:color-1 bold",
@@ -726,18 +762,29 @@ parse_colors (const char *colors[], size_t n)
 static void
 add_default_colors (void)
 {
+  /* no colors */
   if (COLORS < 8)
     parse_colors (nocolors, ARRAY_SIZE (nocolors));
 
-  if (COLORS == 8 && COLORS <= 16 && conf.color_scheme == STD_GREEN)
-    parse_colors (colors8_green, ARRAY_SIZE (colors8_green));
-  else if (COLORS >= 8 && COLORS <= 16)
-    parse_colors (colors8_mono, ARRAY_SIZE (colors8_mono));
+  /* 256 colors, and no color scheme set or set to monokai */
+  if (COLORS == 256 && (!conf.color_scheme || conf.color_scheme == MONOKAI))
+    parse_colors (colors256_monokai, ARRAY_SIZE (colors256_monokai));
+  /* otherwise use 16 colors scheme */
+  else if (COLORS > 16) {
+    if (conf.color_scheme == STD_GREEN)
+      parse_colors (colors256_green, ARRAY_SIZE (colors256_green));
+    else
+      parse_colors (colors256_mono, ARRAY_SIZE (colors256_mono));
+  }
 
-  if (COLORS > 16 && conf.color_scheme == STD_GREEN)
-    parse_colors (colors256_green, ARRAY_SIZE (colors256_green));
-  else if (COLORS > 16)
-    parse_colors (colors256_mono, ARRAY_SIZE (colors256_mono));
+  /* 8 colors */
+  if (COLORS >= 8 && COLORS <= 16) {
+    if (conf.color_scheme == STD_GREEN)
+      parse_colors (colors8_green, ARRAY_SIZE (colors8_green));
+    else
+      parse_colors (colors8_mono, ARRAY_SIZE (colors8_mono));
+  }
+
 }
 
 /* Entry point to parse color definitions or use default colors */

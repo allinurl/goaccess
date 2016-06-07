@@ -68,7 +68,8 @@ typedef enum SCHEMES
 {
   NO_COLOR,
   MONOCHROME,
-  STD_GREEN
+  STD_GREEN,
+  MONOKAI,
 } GShemes;
 
 #include "commons.h"
