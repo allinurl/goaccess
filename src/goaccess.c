@@ -73,6 +73,8 @@
 #include "util.h"
 
 GConf conf = {
+  .append_method = 1,
+  .append_protocol = 1,
   .hl_header = 1
 };
 
