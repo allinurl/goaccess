@@ -341,10 +341,12 @@ GoAccess.Nav = {
 		$('html').className = '';
 		switch(theme) {
 		case 'darkGray':
-			$('html').classList.add('dark', 'gray');
+			$('html').classList.add('dark');
+			$('html').classList.add('gray');
 			break;
 		case 'darkBlue':
-			$('html').classList.add('dark', 'blue');
+			$('html').classList.add('dark');
+			$('html').classList.add('blue');
 			break;
 		}
 		GoAccess.AppPrefs['theme'] = theme;
