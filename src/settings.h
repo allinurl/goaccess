@@ -135,6 +135,7 @@ typedef struct GConf_
   int double_decode;                /* need to double decode */
   int enable_html_resolver;         /* html/json/csv resolver */
   int geo_db;                       /* legacy geoip db */
+  int max_items;                    /* max number of items to output */
   int hl_header;                    /* highlight header on term */
   int ignore_crawlers;              /* ignore crawlers */
   int ignore_qstr;                  /* ignore query string */
