@@ -38,12 +38,13 @@ h3 {
 	position: absolute;
 }
 .powered {
+	bottom: 170px;
 	color: #9E9E9E;
-    bottom: 100px;
-    font-size: smaller;
-    position: absolute;
-    right: -70px;
-    transform: rotate(-90deg);
+	font-size: smaller;
+	position: absolute;
+	right: 20px;
+	transform-origin: 100% 0;
+	transform: rotate(-90deg);
 }
 .powered a {
 	color: #636363;
