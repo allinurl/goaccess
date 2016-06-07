@@ -444,6 +444,14 @@ Format JSON output using tabs and newlines.
 This is not recommended when outputting a real-time HTML report since the
 WebSocket payload will much much larger.
 .TP
+\fB\-\-max-items=<number>
+The maximum number of items to display per panel. The maximum can be a number
+between 1 and n.
+.IP
+.I Note:
+Only the CSV and JSON output allow a maximum number greater than the default
+value of 366 (or 50 in the real-time HTML output) items per panel.
+.TP
 \fB\-\-no-color
 Turn off colored output. This is the  default output on terminals that do not
 support colors.
@@ -924,9 +932,11 @@ To read persisted data only (without parsing new data)
 goaccess --load-from-disk --keep-db-files
 .P
 .SH NOTES
-For now, each active window has a total of 366 items. Eventually this will be
-customizable. These 366 items are all available by default in the CSV and JSON
-exports, and as an expandable panel in the HTML report (upper-right corner).
+Each active panel has a total of 366 items or 50 in the real-time HTML report.
+The number of items is customizable using
+.I max-items
+However, only the CSV and JSON output allow a maximum number greater than the
+default value of 366 items per panel.
 .P
 Piping a log to GoAccess will disable the real-time functionality. This is due
 to the portability issue on determining the actual size of STDIN. However, a
