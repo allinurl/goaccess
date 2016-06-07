@@ -168,9 +168,9 @@ escape_json_output (FILE * fp, char *s)
 
 /* Set number of new lines when --json-pretty-print is used. */
 void
-set_json_nlines (int nl)
+set_json_nlines (int newline)
 {
-  nlines = nl;
+  nlines = newline;
 }
 
 /* A wrapper function to output a formatted string.
