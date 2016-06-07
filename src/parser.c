@@ -1559,36 +1559,40 @@ get_uniq_visitor_key (GLogItem * glog)
 static char *
 gen_unique_req_key (GLogItem * glog)
 {
-  char *key;
-  size_t s1 = 0, s2 = 0, s3 = 0;
+  char *key = NULL;
+  size_t s1 = 0, s2 = 0, s3 = 0, nul = 1, sep = 0;
 
   /* nothing to do */
   if (!conf.append_method && !conf.append_protocol)
     return xstrdup (glog->req);
-
   /* still nothing to do */
   if (!glog->method && !glog->protocol)
     return xstrdup (glog->req);
 
   s1 = strlen (glog->req);
-  if (glog->method)
+  if (glog->method && conf.append_method) {
     s2 = strlen (glog->method);
-  if (glog->protocol)
+    nul++;
+  }
+  if (glog->protocol && conf.append_protocol) {
     s3 = strlen (glog->protocol);
+    nul++;
+  }
 
   /* includes terminating null */
-  key = xmalloc (s1 + s2 + s3 + 3);
+  key = xmalloc (s1 + s2 + s3 + nul);
   /* append request */
   memcpy (key, glog->req, s1);
 
-  if (glog->method) {
+  if (glog->method && conf.append_method) {
     key[s1] = '|';
-    memcpy (key + s1 + 1, glog->method, s2 + 1);
+    sep++;
+    memcpy (key + s1 + sep, glog->method, s2 + 1);
   }
-
-  if (glog->protocol) {
-    key[s1 + s2 + 1] = '|';
-    memcpy (key + s1 + s2 + 2, glog->protocol, s3 + 1);
+  if (glog->protocol && conf.append_protocol) {
+    key[s1 + s2 + sep] = '|';
+    sep++;
+    memcpy (key + s1 + s2 + sep, glog->protocol, s3 + 1);
   }
 
   return key;

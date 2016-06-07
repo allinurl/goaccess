@@ -66,8 +66,8 @@ struct option long_opts[] = {
 #endif
   {"help"                 , no_argument       , 0 , 'h' } ,
   {"hl-header"            , no_argument       , 0 , 'i' } ,
-  {"http-method"          , no_argument       , 0 , 'M' } ,
-  {"http-protocol"        , no_argument       , 0 , 'H' } ,
+  {"http-method"          , required_argument , 0 , 'M' } ,
+  {"http-protocol"        , required_argument , 0 , 'H' } ,
   {"log-file"             , required_argument , 0 , 'f' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
@@ -197,8 +197,8 @@ cmd_help (void)
   "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
   "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
   "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
-  "  -H --http-protocol              - Include HTTP request protocol if found.\n"
-  "  -M --http-method                - Include HTTP request method if found.\n"
+  "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
+  "  -M --http-method=<yes|no>       - Set/unser HTTP request method if found.\n"
   "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
   "  -q --no-query-string            - Ignore request's query string. Removing the\n"
   "                                    query string can greatly decrease memory\n"
@@ -608,13 +608,19 @@ read_option_args (int argc, char **argv)
       conf.mouse_support = 1;
       break;
     case 'M':
-      conf.append_method = 1;
+      if (strcmp ("no", optarg) == 0)
+        conf.append_method = 0;
+      else
+        conf.append_method = 1;
       break;
     case 'h':
       cmd_help ();
       break;
     case 'H':
-      conf.append_protocol = 1;
+      if (strcmp ("no", optarg) == 0)
+        conf.append_protocol = 0;
+      else
+        conf.append_protocol = 1;
       break;
     case 'V':
       display_version ();
