@@ -110,19 +110,19 @@ nav .nav-gears {
 }
 nav .nav-ws-status,
 .nav-ws-status.mini {
-    color: #6A6A6A;
+	color: #6A6A6A;
 	cursor: help;
 	display: none;
-    font-size: 12px;
+	font-size: 12px;
 }
 nav .nav-ws-status {
-    left: 25px;
+	left: 25px;
 	top: 125px;
 }
 .nav-ws-status.mini {
-    top: 14px;
-    left: 40px;
-    position: absolute;
+	top: 14px;
+	left: 40px;
+	position: absolute;
 }
 .nav-ws-status.connected {
 	color: #5DB56A;
@@ -324,15 +324,15 @@ nav h3 {
 	position: relative;
 }
 .report-title {
-    background: #FFF;
-    border-radius: 4px;
-    bottom: -10px;
-    color: #9E9E9E;
-    font-size: small;
-    padding: 0 10px;
+	background: #FFF;
+	border-radius: 4px;
+	bottom: -10px;
+	color: #9E9E9E;
+	font-size: small;
+	padding: 0 10px;
 	position: absolute;
-    right: 0;
-    z-index: 1;
+	right: 0;
+	z-index: 1;
 }
 .perpage-wrap {
 	margin: 0px 25px;
@@ -345,7 +345,7 @@ nav h3 {
 	padding: 5px 10px;
 }
 .perpage-wrap a.active {
-    background: rgba(255, 255, 255, 0.15);
+	background: rgba(255, 255, 255, 0.15);
 	color: white;
 }
 .panel-plot-wrap {
@@ -377,16 +377,16 @@ nav h3 {
 	width: 100%;
 }
 .grid-module.black {
-    border-top: 4px solid #0F1214;
+	border-top: 4px solid #0F1214;
 }
 .grid-module.gray {
 	border-top: 4px solid #9E9E9E;
 }
 .grid-module.red {
-    border-top: 4px solid #FF303E;
+	border-top: 4px solid #FF303E;
 }
 .grid-module.blue{
-    border-top: 4px solid #00D4E1;
+	border-top: 4px solid #00D4E1;
 }
 .grid-module.green {
 	border-top: 4px solid #5DB56A;
@@ -769,7 +769,7 @@ html.dark.gray,
 	background-color: #303030;
 }
 .dark.gray .report-title {
-    background: #303030;
+	background: #303030;
 }
 
 /* DARK CHARTS */
@@ -826,5 +826,5 @@ html.dark.gray,
 	background-color: #1c1c1c;
 }
 .dark .chart-tooltip tr {
-    border: 1px solid #363737;
+	border: 1px solid #363737;
 }
