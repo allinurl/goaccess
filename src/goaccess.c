@@ -905,6 +905,7 @@ get_keys (void)
       load_schemes_win (main_win);
       free_dashboard (dash);
       allocate_data ();
+      set_wbkgd (main_win, header_win);
       render_screens ();
       break;
     case 115:  /* s */
