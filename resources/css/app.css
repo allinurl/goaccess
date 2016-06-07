@@ -586,10 +586,10 @@ html.dark.blue,
 .dark.blue div.wrap-panels > div {
 	background: #1F2328;
 	border-top: 1px solid #3B444C;
+	box-shadow: 0px 0px 0px 1px #0F1214;
 	color: #EEE;
-	outline: 1px solid #0F1214;
-	padding: 0 10px;
 	margin-top: 10px;
+	padding: 0 10px;
 }
 .dark.blue .wrap-panels table tbody.tbody-meta {
 	border-top: 1px solid #3B444C;
@@ -688,10 +688,10 @@ html.dark.gray,
 .dark.gray div.wrap-panels > div {
 	background: #1C1C1C;
 	border-top: 1px solid #363737;
+	box-shadow: 0px 0px 0px 1px #0F1214;
 	color: #EEE;
-	outline: 1px solid #0F1214;
-	padding: 0 10px;
 	margin-top: 10px;
+	padding: 0 10px;
 }
 .dark.gray .wrap-panels table tbody.tbody-meta {
 	border-top: 1px solid #363737;
