@@ -1271,9 +1271,13 @@ window.onload = function () {
 	function closeDropdown(event) {
 		event = event || window.event;
 		var evTarget = event.currentTarget || event.srcElement;
-		evTarget.parentElement.classList.remove('open');
 
-		// Trigger the click event on the target if it not opening another menu
+		// hacky but FF needs it
+		window.setTimeout(function () {
+			evTarget.parentElement.classList.remove('open');
+		}, 150);
+
+		// Trigger the click event on the target if not opening another menu
 		if (event.relatedTarget && event.relatedTarget.getAttribute('data-toggle') !== 'dropdown') {
 			event.relatedTarget.click();
 		}
