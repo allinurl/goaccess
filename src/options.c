@@ -98,6 +98,7 @@ struct option long_opts[] = {
   {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
+  {"max-items"            , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
@@ -161,6 +162,8 @@ cmd_help (void)
   "  --html-custom-js=<path.js>      - Specify a custom JS file in the HTML report.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
+  "  --max-items                     - Maximum number of items to show per panel.\n"
+  "                                    See man page for limits.\n"
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
@@ -452,6 +455,16 @@ parse_long_opt (const char *name, const char *oarg)
   /* date specificity */
   if (!strcmp ("date-spec", name) && !strcmp (oarg, "hr"))
     conf.date_spec_hr = 1;
+
+  /* max items */
+  if (!strcmp ("max-items", name)) {
+    char *sEnd;
+    int max = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      conf.max_items = 1;
+    else
+      conf.max_items = max;
+  }
 
   /* no color */
   if (!strcmp ("no-color", name))

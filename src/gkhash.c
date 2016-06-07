@@ -1582,8 +1582,7 @@ parse_raw_str_data (GModule module)
       continue;
 
     raw_data->items[raw_data->idx].key = kh_key (hash, key);
-    raw_data->items[raw_data->idx].value.svalue =
-      xstrdup (kh_value (hash, key));
+    raw_data->items[raw_data->idx].value.svalue = kh_value (hash, key);
     raw_data->idx++;
   }
 

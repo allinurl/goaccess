@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 
 #include "commons.h"
 #include "error.h"
@@ -57,7 +58,39 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 int
 get_max_choices (void)
 {
-  return conf.real_time_html ? MAX_CHOICES_RT : MAX_CHOICES;
+  char *csv = NULL, *json = NULL, *html = NULL;
+  int max = MAX_CHOICES;
+
+  /* no max choices, return defaults */
+  if (conf.max_items <= 0)
+    return conf.real_time_html ? MAX_CHOICES_RT : MAX_CHOICES;
+
+  /* TERM */
+  if (!conf.output_stdout)
+    return conf.max_items > MAX_CHOICES ? MAX_CHOICES : conf.max_items;
+
+  /* REAL-TIME STDOUT */
+  /* real time HTML, display max rt choices */
+  if (conf.real_time_html)
+    return conf.max_items > MAX_CHOICES_RT ? MAX_CHOICES_RT : conf.max_items;
+
+  /* STDOUT */
+  /* CSV - allow n amount of choices */
+  if (find_output_type (&csv, "csv", 1) == 0)
+    max = conf.max_items;
+  /* JSON - allow n amount of choices */
+  if (find_output_type (&json, "json", 1) == 0 && conf.max_items > 0)
+    max = conf.max_items;
+  /* HTML - takes priority on cases where multiple outputs were given */
+  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0 ||
+      !isatty (STDOUT_FILENO))
+    max = conf.max_items > MAX_CHOICES ? MAX_CHOICES : conf.max_items;
+
+  free (csv);
+  free (html);
+  free (json);
+
+  return max;
 }
 
 /* Calculate a percentage.

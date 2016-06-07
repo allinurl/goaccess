@@ -443,7 +443,7 @@ set_data_hits_keys (GModule module, GRawDataItem item, GRawDataType type,
   } else if (type == STRING) {
     if (!(*hits = ht_get_hits (module, item.key)))
       return 1;
-    *data = item.value.svalue;
+    *data = xstrdup (item.value.svalue);
   }
   return 0;
 }
