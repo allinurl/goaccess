@@ -978,13 +978,27 @@ print_json_summary (FILE * fp, GLog * logger)
   pclose_obj (fp, sp, 0);
 }
 
+/* Get the number of available panels.
+ *
+ * On success, the total number of available panels is returned . */
+static int
+num_panels (void)
+{
+  size_t idx = 0, npanels = 0;
+
+  FOREACH_MODULE (idx, module_list)
+    npanels++;
+
+  return npanels;
+}
+
 /* Iterate over all panels and generate json output. */
 static void
 init_json_output (FILE * fp, GLog * logger, GHolder * holder)
 {
   GModule module;
   const GPanel *panel = NULL;
-  size_t idx = 0;
+  size_t idx = 0, npanels = num_panels ();
 
   GPercTotals totals = {
     .hits = logger->valid,
@@ -1001,7 +1015,7 @@ init_json_output (FILE * fp, GLog * logger, GHolder * holder)
     if (!(panel = panel_lookup (module)))
       continue;
     panel->render (fp, holder + module, totals, panel);
-    pjson (fp, (module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
+    pjson (fp, (module != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }
 
   pclose_obj (fp, 0, 1);
