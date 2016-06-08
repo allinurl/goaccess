@@ -356,10 +356,31 @@ new_grawdata_item (unsigned int size)
   return item;
 }
 
+#ifdef HAVE_LIBTOKYOCABINET
+/* This is due to an additional allocation on tokyo's value
+ * retrieval :( on tcadbget()  */
+static void
+free_raw_data_str_value (GRawData * raw_data)
+{
+  int i = 0;
+  char *str = NULL;
+
+  for (i = 0; i < raw_data->size; ++i) {
+    str = raw_data->items[i].value.svalue;
+    if (str)
+      free (str);
+  }
+}
+#endif
+
 /* Free memory allocated for a GRawData and GRawDataItem instance. */
 void
 free_raw_data (GRawData * raw_data)
 {
+#ifdef HAVE_LIBTOKYOCABINET
+  if (raw_data->type == STRING)
+    free_raw_data_str_value (raw_data);
+#endif
   free (raw_data->items);
   free (raw_data);
 }
