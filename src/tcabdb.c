@@ -1595,7 +1595,7 @@ set_raw_data (void *key, void *value, GRawData * raw_data)
 {
   raw_data->items[raw_data->idx].key = (*(int *) key);
   if (raw_data->type == STRING)
-    raw_data->items[raw_data->idx].value.svalue = xstrdup ((char *) value);
+    raw_data->items[raw_data->idx].value.svalue = (char *) value;
   else
     raw_data->items[raw_data->idx].value.ivalue = (*(int *) value);
   raw_data->idx++;
@@ -1612,7 +1612,8 @@ data_iter_generic (TCADB * adb, void *key, int ksize, void *user_data)
   value = tcadbget (adb, key, ksize, &sp);
   if (value) {
     set_raw_data (key, value, raw_data);
-    free (value);
+    if (raw_data->type != STRING)
+      free (value);
   }
 }
 
