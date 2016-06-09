@@ -3,41 +3,57 @@ GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=mas
 
 ## What is it? ##
 GoAccess is an open source **real-time web log analyzer** and interactive
-viewer that **runs in a terminal in *nix systems**. It provides fast and
-valuable HTTP statistics for system administrators that require a visual server
-report on the fly.
+viewer that **runs in a terminal in *nix systems** or through your browser. It
+provides fast and valuable HTTP statistics for system administrators that
+require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess_screenshot1M-03L.png?20160229220000)
+![GoAccess Main Dashboard](http://dev.goaccess.io/images/goaccess-real-time-term-gh.png?20160608220001)
+![GoAccess Main Dashboard](http://dev.goaccess.io/images/goaccess-real-time-html-gh.png?20160608220001)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
 terminal. Features include:
 
-* General statistics, bandwidth, etc.
-* Time taken to serve the request (useful to track pages that are slowing down your site)
-* Metrics for cumulative, average and slowest running requests
-* Top visitors
-* Requested files & static files
-* 404 or Not Found
-* Hosts, Reverse DNS, IP Location
-* Operating Systems
-* Browsers and Spiders
-* Referring Sites & URLs
-* Keyphrases
-* Geo Location - Continent/Country/City
-* Visitors Time Distribution
-* HTTP Status Codes
-* Metrics per Virtual Host
-* Ability to output
- [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
- [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
- [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
-* Tailor GoAccess to suit your own color taste/schemes
-* Incremental log processing
-* Support for large datasets and data persistence
-* Support for HTTP/2 & IPv6
-* Output statistics to HTML. See [**report**](http://goaccess.io/goaccess_html_report.html?src=gh).
+* **Completely Real Time**
+  All panels and metrics are timed to be updated every 200 ms on the terminal
+  output and every second on the HTML output.
+
+* **No configuration needed**
+  You can just run it against your access log file, pick the log format and 
+  let GoAccess parse the access log and show you the stats.
+
+* **Track Application Response Time**
+  Track the time taken to serve the request. Extremely useful if you want to
+  track pages that are slowing down your site.
+
+* **Nearly All Web Log Formats**
+  GoAccess allows any custom log format string. Predefined options include,
+  Apache, Nginx, Amazon S3, Elastic Load Balancing, CloudFront, etc 
+
+* **Incremental Log Processing**
+  Need data persistence? GoAccess has the ability to process logs incrementally
+  through the on-disk B+Tree database.
+
+* **Only one dependency**
+  GoAccess is written in C. To run it, you only need ncurses as a dependency.
+  That's it. It even has its own Web Socket server -  http://gwsocket.io/.
+
+* **Visitors**
+  Determine the amount of hits, visitors, bandwidth, and metrics for slowest
+  running requests by the hour, or date.
+
+* **Metrics per Virtual Host**
+  Have multiple Virtual Hosts (Server Blocks)? A panel that displays which
+  virtual host is consuming most of the web server resources.
+
+* **Color Scheme Customizable**
+  Tailor GoAccess to suit your own color taste/schemes. Either through the 
+  terminal, or by simply applying the stylesheet on the HTML output.
+
+* **Support for large datasets**
+  GoAccess features an on-disk B+Tree storage for large datasets where it is not 
+  possible to fit everything in memory.
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
@@ -70,9 +86,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-0.9.8.tar.gz
-    $ tar -xzvf goaccess-0.9.8.tar.gz
-    $ cd goaccess-0.9.8/
+    $ wget http://tar.goaccess.io/goaccess-1.0.tar.gz
+    $ tar -xzvf goaccess-1.0.tar.gz
+    $ cd goaccess-1.0/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
@@ -182,11 +198,11 @@ to be used without prepending `--`.
 | `-f --log-file=<filename>`         | Path to input log file.                                       |
 | `-g --std-geoip`                   | Standard GeoIP database for less memory usage.                |
 | `-h --help`                        | This help.                                                    |
-| `-H --http-protocol `              | Include HTTP request protocol if found.                       |
+| `-H --http-protocol=<yes|no>`      | Set/unset HTTP request protocol if found.                     |
 | `-i --hl-header`                   | Color highlight active panel.                                 |
-| `-M --http-method`                 | Include HTTP request method if found.                         |
+| `-M --http-method=<yes|no>`        | Set/unset HTTP request method if found.                       |
 | `-m --with-mouse `                 | Enable mouse support on main dashboard.                       |
-| `-o --output-format=csv,json`      | Output format: `-o csv` for CSV.  `-o json` for JSON.         |
+| `-o --output=<file.[html|csv|json>`| Output either an HTML, JSON or a CSV file.                    |
 | `-p --config-file=<filename>`      | Custom configuration file.                                    |
 | `-q --no-query-string`             | Remove request's query string. Can reduce mem usage.          |
 | `-r --no-term-resolver`            | Disable IP resolver on terminal output.                       |
@@ -194,15 +210,25 @@ to be used without prepending `--`.
 | `-V --version`                     | Display version information and exit.                         |
 | `--444-as-404`                     | Treat non-standard status code 444 as 404.                    |
 | `--4xx-to-unique-count`            | Add 4xx client errors to the unique visitors count.           |
+| `--addr=<addr>`                    | Specify IP address to bind server to.                         |
 | `--all-static-files`               | Include static files that contain a query string.             |
+| `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                 |
+| `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]              |
 | `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
-| `--color-scheme=<1,2>`             | Color schemes: `1 => Default grey`, `2 => Green`.             |
+| `--color-scheme=<1|2|3>`           | Schemes: 1 => Grey, 2 => Green, 3 => Monokai.                 |
+| `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
+| `--date-spec=<date|hr>`            | Date specificity (date default).                              |
+| `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
 | `--dcf`                            | Display the path of the default config file.                  |
 | `--debug-file=<path>`              | Send all debug messages to the specified file.                |
 | `--double-decode`                  | Decode double-encoded values.                                 |
+| `--enable-panel=<PANEL>`           | Enable parsing and displaying the given panel.                |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
+| `--hour-spec=<hr|min>`             | Hour specificity (hr default).                                |
+| `--html-custom-css=<path.css>`     | Specify a custom CSS file in the HTML report.                 |
+| `--html-custom-js=<path.js>`       | Specify a custom JS file in the HTML report.                  |
 | `--html-report-title`              | Set HTML report page title and header.                        |
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
@@ -210,26 +236,27 @@ to be used without prepending `--`.
 | `--ignore-status=<CODE>`           | Ignore parsing the given status code(s).                      |
 | `--invalid-requests=<filename>`    | Log invalid requests to the specified file.                   |
 | `--json-pretty-print`              | Format JSON output using tabs and newlines.                   |
+| `--keep-db-files`                  | Persist parsed data into disk.                                |
+| `--load-from-disk`                 | Load previously stored data from disk.                        |
 | `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
+| `--max-items`                      | Maximum number of items to show per panel.                    |
 | `--no-color`                       | Disable colored output.                                       |
 | `--no-column-names`                | Don't write column names in term output.                      |
 | `--no-csv-summary`                 | Disable summary metrics on the CSV output.                    |
 | `--no-global-config`               | Do not load the global configuration file.                    |
 | `--no-progress`                    | Disable progress metrics.                                     |
 | `--no-tab-scroll`                  | Disable scrolling through panels on TAB.                      |
+| `--origin=<url>`                   | Ensure clients send stated origin header on WS handshake.     |
+| `--port=<port>`                    | Specify the port to use.                                      |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
+| `--real-time-html`                 | Enable real-time HTML output.                                 |
 | `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
 | `--time-format=<timeformat>`       | Specify log time format.                                      |
-| `--keep-db-files`                  | Persist parsed data into disk.                                |
-| `--load-from-disk`                 | Load previously stored data from disk.                        |
-| `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                 |
-| `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]              |
-| `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
-| `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
 | `--tune-bnum=<number>`             | Number of elements of the bucket array. [32749]               |
 | `--tune-lmemb=<number>`            | Number of members in each leaf page. [128]                    |
 | `--tune-nmemb=<number>`            | Number of members in each non-leaf page. [256]                |
+| `--ws-url=<url>`                   | URL to which the WebSocket server responds.                   |
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
 ## Usage ##
@@ -274,6 +301,31 @@ If we would like to process all `access.log.*.gz` we can do one of the following
     # zcat access.log.*.gz | goaccess
 
 Note: On Mac OS X, use `gunzip -c` instead of `zcat`.
+
+##### Real Time HTML Output #####
+
+GoAccess has the ability the output real-time data in the HTML report. You can
+even email the HTML file since it is composed of a single file with no external
+file dependencies, how neat is that!
+
+To output an HTML report and set the WebSocket server to listen on port 7890
+and localhost.
+
+    # goaccess -f access.log -o report.html --real-time-html
+
+If GoAccess is running on a specific host, you can specify the URL to which to
+connect.
+
+    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io
+
+To use a different port other than 7890, you can specify it as:
+
+    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
+
+And to bind the WebSocket server to a different interface other than 0.0.0.0,
+you can specify it as:
+
+    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
 
 ##### Working with Dates #####
 
