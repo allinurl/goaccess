@@ -34,6 +34,7 @@
 
 #include <ctype.h>
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -50,6 +51,7 @@
 #include "gkhash.h"
 #endif
 
+#include "error.h"
 #include "ui.h"
 #include "util.h"
 
@@ -312,6 +314,9 @@ output_csv (GLog * logger, GHolder * holder, const char *filename)
     fp = fopen (filename, "w");
   else
     fp = stdout;
+
+  if (!fp)
+    FATAL ("Unable to open CSV file: %s.", strerror (errno));
 
   if (!conf.no_csv_summary)
     print_csv_summary (fp, logger);
