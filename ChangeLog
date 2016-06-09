@@ -10,7 +10,6 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Added option to specify time distribution specificity.
   - Added --output=<file.[html|csv|json]> as a shortcut to --output-format.
   - Added the ability to download a JSON file from the HTML report.
-  - Added the ability to output multiple formats in one run
   - Added the ability to output multiple formats on a single log parse.
   - Added the ability to output pretty json using --json-pretty-print.
   - Added the ability to set the date specificity in hours.
