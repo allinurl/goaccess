@@ -32,6 +32,7 @@
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
 
+#include <errno.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -1006,6 +1007,9 @@ output_html (GLog * logger, GHolder * holder, const char *filename)
     fp = fopen (filename, "w");
   else
     fp = stdout;
+
+  if (!fp)
+    FATAL ("Unable to open HTML file: %s.", strerror (errno));
 
   /* use new lines to prettify output */
   if (conf.json_pretty_print)
