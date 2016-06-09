@@ -105,7 +105,7 @@ struct option long_opts[] = {
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
-  {"origin"               , no_argument       , 0 ,  0  } ,
+  {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
