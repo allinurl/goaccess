@@ -251,7 +251,8 @@ static const char *browsers[][2] = {
   {"nutch", "Crawlers"},
   {"PostRank", "Crawlers"},
   {"Image", "Crawlers"},
-
+  {"keybase-proofs", "Crawlers"},
+  
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
@@ -282,6 +283,7 @@ static const char *browsers[][2] = {
   {"NewRelicPinger", "Uptime"},
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
+  {"Server Density Service Monitoring v2", "Uptime"},
 
   {"Mozilla", "Others"}
 };
