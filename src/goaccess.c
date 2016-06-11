@@ -635,6 +635,9 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
     while (fgets (buf, LINE_BUFFER, fp) != NULL)
 #endif
       parse_log (&logger, buf, -1);
+#ifdef WITH_GETLINE
+  free (buf);
+#endif
   fclose (fp);
 
   *size1 = size2;
