@@ -74,7 +74,7 @@ server statistics in real time without having to generate an HTML report (_great
 if you want to do a quick analysis of your access log via SSH_).
 
 Although it is possible to generate an
- [**`HTML`**](http://goaccess.io/goaccess_html_report.html?src=gh),
+ [**`HTML`**](http://rt.goaccess.io/?src=gh),
  [**`JSON`**](http://goaccess.io/goaccess_json_report.json?src=gh) and
  [**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh)
 report, by default it outputs to a terminal.
