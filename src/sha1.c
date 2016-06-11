@@ -23,7 +23,7 @@ A million repetitions of "a"
 
 #include "sha1.h"
 
-void SHA1Transform (u_int32_t state[5], u_int8_t buffer[64]);
+void SHA1Transform (uint32_t state[5], uint8_t buffer[64]);
 
 #define rol(value, bits) (((value) << (bits)) | ((value) >> (32 - (bits))))
 
@@ -49,17 +49,17 @@ void SHA1Transform (u_int32_t state[5], u_int8_t buffer[64]);
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
 void
-SHA1Transform (u_int32_t state[5], u_int8_t buffer[64])
+SHA1Transform (uint32_t state[5], uint8_t buffer[64])
 {
-  u_int32_t a, b, c, d, e;
+  uint32_t a, b, c, d, e;
   typedef union
   {
-    u_int8_t c[64];
-    u_int32_t l[16];
+    uint8_t c[64];
+    uint32_t l[16];
   } CHAR64LONG16;
   CHAR64LONG16 *block;
 #ifdef SHA1HANDSOFF
-  static u_int8_t workspace[64];
+  static uint8_t workspace[64];
   block = (CHAR64LONG16 *) workspace;
   memcpy (block, buffer, 64);
 #else
@@ -181,7 +181,7 @@ SHA1Init (SHA1_CTX * context)
 /* Run your data through this. */
 
 void
-SHA1Update (SHA1_CTX * context, u_int8_t * data, unsigned int len)
+SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len)
 {
   unsigned int i, j;
 
@@ -205,22 +205,22 @@ SHA1Update (SHA1_CTX * context, u_int8_t * data, unsigned int len)
 /* Add padding and return the message digest. */
 
 void
-SHA1Final (u_int8_t digest[20], SHA1_CTX * context)
+SHA1Final (uint8_t digest[20], SHA1_CTX * context)
 {
-  u_int32_t i, j;
-  u_int8_t finalcount[8];
+  uint32_t i, j;
+  uint8_t finalcount[8];
 
   for (i = 0; i < 8; i++) {
-    finalcount[i] = (u_int8_t) ((context->count[(i >= 4 ? 0 : 1)]
+    finalcount[i] = (uint8_t) ((context->count[(i >= 4 ? 0 : 1)]
                                  >> ((3 - (i & 3)) * 8)) & 255);        /* Endian independent */
   }
-  SHA1Update (context, (u_int8_t *) "\200", 1);
+  SHA1Update (context, (uint8_t *) "\200", 1);
   while ((context->count[0] & 504) != 448) {
-    SHA1Update (context, (u_int8_t *) "\0", 1);
+    SHA1Update (context, (uint8_t *) "\0", 1);
   }
   SHA1Update (context, finalcount, 8);  /* Should cause a SHA1Transform() */
   for (i = 0; i < 20; i++) {
-    digest[i] = (u_int8_t)
+    digest[i] = (uint8_t)
       ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
   }
   /* Wipe variables */
