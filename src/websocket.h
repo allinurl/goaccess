@@ -34,7 +34,7 @@
 #include <limits.h>
 #include <sys/select.h>
 
-#if defined(__linux__) || defined(__CYGWIN__)
+#if defined(__linux__) || defined(__CYGWIN__) || defined (__sun__)
 #  include <endian.h>
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/endian.h>
