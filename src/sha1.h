@@ -2,6 +2,7 @@
 #define SHA1_H_INCLUDED
 
 #include <sys/types.h>
+#include <stdint.h>
 
 // From http://www.mirrors.wiretapped.net/security/cryptography/hashes/sha1/sha1.c
 
