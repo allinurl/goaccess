@@ -698,63 +698,63 @@ extract_method (const char *token)
 {
   const char *lookfor = NULL;
 
-  if ((lookfor = "OPTIONS", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "GET", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "HEAD", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "POST", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "PUT", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "DELETE", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "TRACE", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "CONNECT", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "PATCH", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "options", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "get", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "head", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "post", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "put", !memcmp (token, lookfor, 3)) ||
-      (lookfor = "delete", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "trace", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "connect", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "patch", !memcmp (token, lookfor, 5)) ||
+  if ((lookfor = "OPTIONS", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "GET", !strncmp (token, lookfor, 3)) ||
+      (lookfor = "HEAD", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "POST", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "PUT", !strncmp (token, lookfor, 3)) ||
+      (lookfor = "DELETE", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "TRACE", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "CONNECT", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "PATCH", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "options", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "get", !strncmp (token, lookfor, 3)) ||
+      (lookfor = "head", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "post", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "put", !strncmp (token, lookfor, 3)) ||
+      (lookfor = "delete", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "trace", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "connect", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "patch", !strncmp (token, lookfor, 5)) ||
       /* WebDAV */
-      (lookfor = "PROPFIND", !memcmp (token, lookfor, 8)) ||
-      (lookfor = "PROPPATCH", !memcmp (token, lookfor, 9)) ||
-      (lookfor = "MKCOL", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "COPY", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "MOVE", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "LOCK", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "UNLOCK", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "VERSION-CONTROL", !memcmp (token, lookfor, 15)) ||
-      (lookfor = "REPORT", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "CHECKOUT", !memcmp (token, lookfor, 8)) ||
-      (lookfor = "CHECKIN", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "UNCHECKOUT", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "MKWORKSPACE", !memcmp (token, lookfor, 11)) ||
-      (lookfor = "UPDATE", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "LABEL", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "MERGE", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "BASELINE-CONTROL", !memcmp (token, lookfor, 16)) ||
-      (lookfor = "MKACTIVITY", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "ORDERPATCH", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "propfind", !memcmp (token, lookfor, 8)) ||
-      (lookfor = "propwatch", !memcmp (token, lookfor, 9)) ||
-      (lookfor = "mkcol", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "copy", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "move", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "lock", !memcmp (token, lookfor, 4)) ||
-      (lookfor = "unlock", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "version-control", !memcmp (token, lookfor, 15)) ||
-      (lookfor = "report", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "checkout", !memcmp (token, lookfor, 8)) ||
-      (lookfor = "checkin", !memcmp (token, lookfor, 7)) ||
-      (lookfor = "uncheckout", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "mkworkspace", !memcmp (token, lookfor, 11)) ||
-      (lookfor = "update", !memcmp (token, lookfor, 6)) ||
-      (lookfor = "label", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "merge", !memcmp (token, lookfor, 5)) ||
-      (lookfor = "baseline-control", !memcmp (token, lookfor, 16)) ||
-      (lookfor = "mkactivity", !memcmp (token, lookfor, 10)) ||
-      (lookfor = "orderpatch", !memcmp (token, lookfor, 10)))
+      (lookfor = "PROPFIND", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "PROPPATCH", !strncmp (token, lookfor, 9)) ||
+      (lookfor = "MKCOL", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "COPY", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "MOVE", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "LOCK", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "UNLOCK", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "VERSION-CONTROL", !strncmp (token, lookfor, 15)) ||
+      (lookfor = "REPORT", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "CHECKOUT", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "CHECKIN", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "UNCHECKOUT", !strncmp (token, lookfor, 10)) ||
+      (lookfor = "MKWORKSPACE", !strncmp (token, lookfor, 11)) ||
+      (lookfor = "UPDATE", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "LABEL", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "MERGE", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "BASELINE-CONTROL", !strncmp (token, lookfor, 16)) ||
+      (lookfor = "MKACTIVITY", !strncmp (token, lookfor, 10)) ||
+      (lookfor = "ORDERPATCH", !strncmp (token, lookfor, 10)) ||
+      (lookfor = "propfind", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "propwatch", !strncmp (token, lookfor, 9)) ||
+      (lookfor = "mkcol", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "copy", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "move", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "lock", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "unlock", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "version-control", !strncmp (token, lookfor, 15)) ||
+      (lookfor = "report", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "checkout", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "checkin", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "uncheckout", !strncmp (token, lookfor, 10)) ||
+      (lookfor = "mkworkspace", !strncmp (token, lookfor, 11)) ||
+      (lookfor = "update", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "label", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "merge", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "baseline-control", !strncmp (token, lookfor, 16)) ||
+      (lookfor = "mkactivity", !strncmp (token, lookfor, 10)) ||
+      (lookfor = "orderpatch", !strncmp (token, lookfor, 10)))
     return lookfor;
   return NULL;
 }
@@ -781,9 +781,9 @@ invalid_protocol (const char *token)
 {
   const char *lookfor;
 
-  return !((lookfor = "HTTP/1.0", !memcmp (token, lookfor, 8)) ||
-           (lookfor = "HTTP/1.1", !memcmp (token, lookfor, 8)) ||
-           (lookfor = "HTTP/2", !memcmp (token, lookfor, 6)));
+  return !((lookfor = "HTTP/1.0", !strncmp (token, lookfor, 8)) ||
+           (lookfor = "HTTP/1.1", !strncmp (token, lookfor, 8)) ||
+           (lookfor = "HTTP/2", !strncmp (token, lookfor, 6)));
 }
 
 /* Parse a request containing the method and protocol.
