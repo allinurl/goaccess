@@ -212,7 +212,7 @@ SHA1Final (uint8_t digest[20], SHA1_CTX * context)
 
   for (i = 0; i < 8; i++) {
     finalcount[i] = (uint8_t) ((context->count[(i >= 4 ? 0 : 1)]
-                                 >> ((3 - (i & 3)) * 8)) & 255);        /* Endian independent */
+                                >> ((3 - (i & 3)) * 8)) & 255); /* Endian independent */
   }
   SHA1Update (context, (uint8_t *) "\200", 1);
   while ((context->count[0] & 504) != 448) {
