@@ -2237,10 +2237,9 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
 {
   char *line = NULL;
   size_t len = 0;
-  ssize_t read;
   int i = 0, test = -1 == lines2test ? 0 : 1;
 
-  while ((read = getline (&line, &len, fp)) != -1) {
+  while (getline (&line, &len, fp) != -1) {
     if (conf.stop_processing)
       break;
     if (lines2test >= 0 && i++ == lines2test)
