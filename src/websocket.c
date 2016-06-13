@@ -347,6 +347,8 @@ ws_free_header_fields (WSHeaders * headers)
     free (headers->ws_resp);
   if (headers->ws_sock_ver)
     free (headers->ws_sock_ver);
+  if (headers->referer)
+    free (headers->referer);
 }
 
 /* Clear the client's sent queue and its data. */
