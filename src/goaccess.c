@@ -615,7 +615,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   char *buf = NULL;
   size_t len = LINE_BUFFER;
 #else
-  char buf[LINE_BUFFER];
+  char buf[LINE_BUFFER] = { 0 };
 #endif
 
   if (logger->piping || logger->load_from_disk_only)
