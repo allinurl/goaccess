@@ -349,6 +349,27 @@ ws_free_header_fields (WSHeaders * headers)
     free (headers->ws_sock_ver);
 }
 
+/* Clear the client's sent queue and its data. */
+static void
+ws_clear_queue (WSClient * client)
+{
+  WSQueue **queue = &client->sockqueue;
+  if (!(*queue))
+    return;
+
+  if ((*queue)->queued)
+    free ((*queue)->queued);
+  (*queue)->queued = NULL;
+  (*queue)->qlen = 0;
+
+  free ((*queue));
+  (*queue) = NULL;
+
+  /* done sending, close connection */
+  if ((client->status & WS_CLOSE) && (client->status & WS_SENDING))
+    client->status = WS_CLOSE;
+}
+
 /* Free all HTTP handshake headers and structure. */
 static void
 ws_clear_handshake_headers (WSHeaders * headers)
@@ -384,6 +405,8 @@ ws_remove_dangling_clients (void *value, void *user_data)
 
   if (client->headers)
     ws_clear_handshake_headers (client->headers);
+  if (client->sockqueue)
+    ws_clear_queue (client);
 
   return 0;
 }
@@ -793,27 +816,6 @@ ws_respond_data (WSClient * client, const char *buffer, int len)
     ws_queue_sockbuf (client, buffer, len, bytes);
 
   return bytes;
-}
-
-/* Clear the client's sent queue and its data. */
-static void
-ws_clear_queue (WSClient * client)
-{
-  WSQueue **queue = &client->sockqueue;
-  if (!(*queue))
-    return;
-
-  if ((*queue)->queued)
-    free ((*queue)->queued);
-  (*queue)->queued = NULL;
-  (*queue)->qlen = 0;
-
-  free ((*queue));
-  (*queue) = NULL;
-
-  /* done sending, close connection */
-  if ((client->status & WS_CLOSE) && (client->status & WS_SENDING))
-    client->status = WS_CLOSE;
 }
 
 /* Attempt to send the queued up client's data to the given socket.
