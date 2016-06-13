@@ -612,7 +612,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   uint64_t size2 = 0;
 
 #ifdef WITH_GETLINE
-  char *buf = xcalloc (LINE_BUFFER, sizeof (char));
+  char *buf = NULL;
   size_t len = LINE_BUFFER;
 #else
   char buf[LINE_BUFFER];
@@ -629,13 +629,16 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
 
   if (!(fp = fopen (conf.ifile, "r")))
     FATAL ("Unable to read log file %s.", strerror (errno));
-  if (!fseeko (fp, *size1, SEEK_SET))
+
+  if (!fseeko (fp, *size1, SEEK_SET)) {
 #ifdef WITH_GETLINE
+    buf = xcalloc (LINE_BUFFER, sizeof (char));
     while (getline (&buf, &len, fp) != -1)
 #else
     while (fgets (buf, LINE_BUFFER, fp) != NULL)
 #endif
       parse_log (&logger, buf, -1);
+  }
 #ifdef WITH_GETLINE
   free (buf);
 #endif
