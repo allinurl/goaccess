@@ -2205,7 +2205,7 @@ cleanup:
 static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
 {
-  char line[LINE_BUFFER] = "";
+  char line[LINE_BUFFER] = { 0 };
   int i = 0, test = -1 == lines2test ? 0 : 1;
 
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
