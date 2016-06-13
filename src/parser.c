@@ -2236,9 +2236,10 @@ static int
 read_line (FILE * fp, int lines2test, GLog ** logger)
 {
   char *line = NULL;
-  size_t len = 0;
+  size_t len = LINE_BUFFER;
   int i = 0, test = -1 == lines2test ? 0 : 1;
 
+  line = xcalloc (LINE_BUFFER, sizeof (*line));
   while (getline (&line, &len, fp) != -1) {
     if (conf.stop_processing)
       break;

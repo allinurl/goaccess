@@ -71,6 +71,7 @@
 #include "options.h"
 #include "output.h"
 #include "util.h"
+#include "xmalloc.h"
 
 GConf conf = {
   .append_method = 1,
@@ -611,8 +612,8 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   uint64_t size2 = 0;
 
 #ifdef WITH_GETLINE
-  char *buf = NULL;
-  size_t len = 0;
+  char *buf = xcalloc (LINE_BUFFER, sizeof (char));
+  size_t len = LINE_BUFFER;
 #else
   char buf[LINE_BUFFER];
 #endif
