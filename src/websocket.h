@@ -36,6 +36,20 @@
 
 #if defined(__linux__) || defined(__CYGWIN__) || defined (__sun__)
 #  include <endian.h>
+#if ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 9))
+#if defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN)
+#  include <arpa/inet.h>
+#  define htobe16(x) htons(x)
+#  define htobe64(x) (((uint64_t)htonl(((uint32_t)(((uint64_t)(x)) >> 32)))) | \
+   (((uint64_t)htonl(((uint32_t)(x)))) << 32))
+#  define be16toh(x) ntohs(x)
+#  define be32toh(x) ntohl(x)
+#  define be64toh(x) (((uint64_t)ntohl(((uint32_t)(((uint64_t)(x)) >> 32)))) | \
+   (((uint64_t)ntohl(((uint32_t)(x)))) << 32))
+#else
+#  error Byte Order not supported!
+#endif
+#endif
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/endian.h>
 #elif defined(__OpenBSD__)
