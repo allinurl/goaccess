@@ -1771,7 +1771,7 @@ handle_writes (int conn, WSEState * state, WSServer * server)
 
   ws_respond (client, NULL, 0); /* buffered data */
   if (client->sockqueue == NULL)
-    FD_ZERO (&state->wfds);
+    FD_CLR (client->listener, &state->wfds);
 
   /* An error ocurred while sending data or while reading data but still
    * waiting from the last send() from the server to the client.  e.g.,
