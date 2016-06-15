@@ -78,6 +78,7 @@ static const uint8_t utf8d[] = {
 };
 /* *INDENT-ON* */
 
+static WSEState fdstate;
 static WSConfig wsconfig = { 0 };
 
 /* Determine if the given string is valid UTF-8.
@@ -796,7 +797,7 @@ ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes)
   queue->qlen = len - bytes;
   client->sockqueue = queue;
 
-  FD_SET (client->listener, &(client->state->wfds));
+  FD_SET (client->listener, &fdstate.wfds);
   client->status |= WS_SENDING;
 }
 
@@ -1661,8 +1662,7 @@ read_client_data (WSClient * client, WSServer * server)
 
 /* Handle a tcp close connection. */
 static void
-handle_tcp_close (int conn, WSClient * client, WSServer * server,
-                  WSEState * state)
+handle_tcp_close (int conn, WSClient * client, WSServer * server)
 {
   /* upon close, call onclose() callback */
   if (server->onclose && wsconfig.strict && !wsconfig.echomode)
@@ -1688,26 +1688,25 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server,
   ws_close (conn);
 
   /* remove the FDs from their sets */
-  FD_CLR (conn, &state->master);
-  FD_CLR (conn, &state->wfds);
+  FD_CLR (conn, &fdstate.master);
+  FD_CLR (conn, &fdstate.wfds);
 }
 
 /* Handle a tcp read close connection. */
 static void
-handle_read_close (int conn, WSClient * client, WSServer * server,
-                   WSEState * state)
+handle_read_close (int conn, WSClient * client, WSServer * server)
 {
   if (client->status & WS_SENDING) {
-    FD_ZERO (&state->rfds);
+    FD_ZERO (&fdstate.rfds);
     server->closing = 1;
     return;
   }
-  handle_tcp_close (conn, client, server, state);
+  handle_tcp_close (conn, client, server);
 }
 
 /* Handle a new socket connection. */
 static void
-handle_accept (int listener, int *maxfd, WSEState * state, WSServer * server)
+handle_accept (int listener, int *maxfd, WSServer * server)
 {
   WSClient *client = NULL;
   int newfd;
@@ -1717,25 +1716,24 @@ handle_accept (int listener, int *maxfd, WSEState * state, WSServer * server)
     return;
 
   client = ws_get_client_from_list (newfd, &server->colist);
-  client->state = state;
 
   if (newfd > FD_SETSIZE - 1) {
     LOG (("Too busy: %d %s.\n", newfd, client->remote_ip));
 
     http_error (client, WS_TOO_BUSY_STR);
-    handle_read_close (newfd, client, server, state);
+    handle_read_close (newfd, client, server);
     return;
   }
 
   LOG (("Accepted: %d %s\n", newfd, client->remote_ip));
-  FD_SET (newfd, &state->master);       /* add listener to master */
+  FD_SET (newfd, &fdstate.master);      /* add listener to master */
   if (newfd > *maxfd)
     *maxfd = newfd;
 }
 
 /* Handle a tcp read. */
 static void
-handle_reads (int conn, WSEState * state, WSServer * server)
+handle_reads (int conn, WSServer * server)
 {
   WSClient *client = NULL;
 
@@ -1748,21 +1746,20 @@ handle_reads (int conn, WSEState * state, WSServer * server)
   read_client_data (client, server);
   /* An error ocurred while reading data or connection closed */
   if ((client->status & WS_CLOSE)) {
-    handle_read_close (conn, client, server, state);
+    handle_read_close (conn, client, server);
   }
 }
 
 /* Handle a tcp write close connection. */
 static void
-handle_write_close (int conn, WSClient * client, WSServer * server,
-                    WSEState * state)
+handle_write_close (int conn, WSClient * client, WSServer * server)
 {
-  handle_tcp_close (conn, client, server, state);
+  handle_tcp_close (conn, client, server);
 }
 
 /* Handle a tcp write. */
 static void
-handle_writes (int conn, WSEState * state, WSServer * server)
+handle_writes (int conn, WSServer * server)
 {
   WSClient *client = NULL;
 
@@ -1771,29 +1768,28 @@ handle_writes (int conn, WSEState * state, WSServer * server)
 
   ws_respond (client, NULL, 0); /* buffered data */
   if (client->sockqueue == NULL)
-    FD_CLR (client->listener, &state->wfds);
+    FD_CLR (client->listener, &fdstate.wfds);
 
   /* An error ocurred while sending data or while reading data but still
    * waiting from the last send() from the server to the client.  e.g.,
    * sending status code */
   if ((client->status & WS_CLOSE) && !(client->status & WS_SENDING))
-    handle_write_close (conn, client, server, state);
+    handle_write_close (conn, client, server);
 }
 
 /* Handle reads/writes on a TCP connection. */
 static void
-ws_listen (int listener, int *maxfd, int conn, WSEState * state,
-           WSServer * server)
+ws_listen (int listener, int *maxfd, int conn, WSServer * server)
 {
   /* handle new connections */
-  if (FD_ISSET (conn, &state->rfds) && conn == listener)
-    handle_accept (listener, maxfd, state, server);
+  if (FD_ISSET (conn, &fdstate.rfds) && conn == listener)
+    handle_accept (listener, maxfd, server);
   /* handle data from a client */
-  else if (FD_ISSET (conn, &state->rfds) && conn != listener)
-    handle_reads (conn, state, server);
+  else if (FD_ISSET (conn, &fdstate.rfds) && conn != listener)
+    handle_reads (conn, server);
   /* handle sending data to a client */
-  else if (FD_ISSET (conn, &state->wfds) && conn != listener)
-    handle_writes (conn, state, server);
+  else if (FD_ISSET (conn, &fdstate.wfds) && conn != listener)
+    handle_writes (conn, server);
 }
 
 /* Create named pipe (FIFO) with the given pipe name.
@@ -1827,7 +1823,7 @@ ws_openfifo_in (WSPipeIn * pipein)
   /* we should be able to open it at as reader */
   if ((pipein->fd = open (wsconfig.pipein, O_RDWR | O_NONBLOCK)) < 0)
     FATAL ("Unable to open fifo in: %s.", strerror (errno));
-  FD_SET (pipein->fd, &pipein->state->master);
+  FD_SET (pipein->fd, &fdstate.master);
 
   return pipein->fd;
 }
@@ -1849,7 +1845,7 @@ ws_openfifo_out (WSPipeOut * pipeout)
   pipeout->fd = status;
 
   if (status != -1)
-    FD_SET (pipeout->fd, &pipeout->state->master);
+    FD_SET (pipeout->fd, &fdstate.master);
 
   return status;
 }
@@ -1857,13 +1853,10 @@ ws_openfifo_out (WSPipeOut * pipeout)
 /* Set a new named pipe for incoming messages and one for outgoing
  * messages from the client. */
 static void
-ws_fifo (WSServer * server, WSEState * state)
+ws_fifo (WSServer * server)
 {
   wsconfig.pipein = wsconfig.pipein ? wsconfig.pipein : WS_PIPEIN;
   wsconfig.pipeout = wsconfig.pipeout ? wsconfig.pipeout : WS_PIPEOUT;
-
-  server->pipeout->state = state;
-  server->pipein->state = state;
 
   ws_openfifo_in (server->pipein);
   ws_openfifo_out (server->pipeout);
@@ -1905,7 +1898,7 @@ ws_realloc_fifobuf (WSPipeOut * pipeout, const char *buf, int len)
     close (pipeout->fd);
     clear_fifo_queue (pipeout);
 
-    FD_CLR (pipeout->fd, &pipeout->state->master);
+    FD_CLR (pipeout->fd, &fdstate.master);
     ws_openfifo_out (pipeout);
     return 1;
   }
@@ -1932,7 +1925,7 @@ ws_queue_fifobuf (WSPipeOut * pipeout, const char *buffer, int len, int bytes)
   memcpy ((*queue)->queued, buffer + bytes, len - bytes);
   (*queue)->qlen = len - bytes;
 
-  FD_SET (pipeout->fd, &(pipeout->state->wfds));
+  FD_SET (pipeout->fd, &fdstate.wfds);
 }
 
 /* Attmpt to send the given buffer to the given outgoing FIFO.
@@ -1951,7 +1944,7 @@ ws_write_fifo_data (WSPipeOut * pipeout, char *buffer, int len)
    * do so, then let it be -1 and try on the next attempt to write. */
   if (bytes == -1 && errno == EPIPE) {
     close (pipeout->fd);
-    FD_CLR (pipeout->fd, &pipeout->state->master);
+    FD_CLR (pipeout->fd, &fdstate.master);
     ws_openfifo_out (pipeout);
     return bytes;
   }
@@ -1979,7 +1972,7 @@ ws_write_fifo_cache (WSPipeOut * pipeout)
    * do so, then let it be -1 and try on the next attempt to write. */
   if (bytes == -1 && errno == EPIPE) {
     close (pipeout->fd);
-    FD_CLR (pipeout->fd, &pipeout->state->master);
+    FD_CLR (pipeout->fd, &fdstate.master);
     ws_openfifo_out (pipeout);
     return bytes;
   }
@@ -2018,7 +2011,7 @@ ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len)
   }
 
   if (pipeout->fifoqueue == NULL)
-    FD_ZERO (&pipeout->state->wfds);
+    FD_ZERO (&fdstate.wfds);
 
   return bytes;
 }
@@ -2287,13 +2280,13 @@ ws_socket (int *listener)
 /* Handle incoming messages through a pipe (let gwsocket be the
  * reader) and outgoing messages through the pipe (writer). */
 static void
-ws_fifos (WSServer * server, WSPipeIn * pi, WSPipeOut * po, WSEState * state)
+ws_fifos (WSServer * server, WSPipeIn * pi, WSPipeOut * po)
 {
   /* handle data via fifo */
-  if (pi->fd != -1 && FD_ISSET (pi->fd, &state->rfds))
+  if (pi->fd != -1 && FD_ISSET (pi->fd, &fdstate.rfds))
     handle_fifo (server);
   /* handle data via fifo */
-  if (po->fd != -1 && FD_ISSET (po->fd, &state->wfds))
+  if (po->fd != -1 && FD_ISSET (po->fd, &fdstate.wfds))
     ws_write_fifo (po, NULL, 0);
 }
 
@@ -2302,31 +2295,30 @@ ws_fifos (WSServer * server, WSPipeIn * pi, WSPipeOut * po, WSEState * state)
 void
 ws_start (WSServer * server)
 {
-  WSEState state;
   WSPipeIn *pipein = server->pipein;
   WSPipeOut *pipeout = server->pipeout;
   int listener = 0, maxfd = 0, conn = 0;
 
-  memset (&state, 0, sizeof state);
-  FD_ZERO (&state.master);
-  FD_ZERO (&state.rfds);
-  FD_ZERO (&state.wfds);
+  memset (&fdstate, 0, sizeof fdstate);
+  FD_ZERO (&fdstate.master);
+  FD_ZERO (&fdstate.rfds);
+  FD_ZERO (&fdstate.wfds);
 
-  ws_fifo (server, &state);
+  ws_fifo (server);
   ws_socket (&listener);
 
-  FD_SET (server->self_pipe[0], &state.master);
-  FD_SET (listener, &state.master);
+  FD_SET (server->self_pipe[0], &fdstate.master);
+  FD_SET (listener, &fdstate.master);
   maxfd = listener;
 
   while (1) {
-    FD_ZERO (&state.rfds);
+    FD_ZERO (&fdstate.rfds);
     if (!server->closing)
-      state.rfds = state.master;
+      fdstate.rfds = fdstate.master;
 
     /* yep, wait patiently */
     /* should it be using epoll/kqueue? will see... */
-    if (select (maxfd + 1, &state.rfds, &state.wfds, NULL, NULL) == -1) {
+    if (select (maxfd + 1, &fdstate.rfds, &fdstate.wfds, NULL, NULL) == -1) {
       switch (errno) {
       case EINTR:
         break;
@@ -2335,17 +2327,17 @@ ws_start (WSServer * server)
       }
     }
     /* handle self-pipe trick */
-    if (FD_ISSET (server->self_pipe[0], &(state.rfds)))
+    if (FD_ISSET (server->self_pipe[0], &fdstate.rfds))
       break;
 
     /* iterate over existing connections */
     for (conn = 0; conn <= maxfd; ++conn) {
       if (conn != pipein->fd && conn != pipeout->fd) {
-        ws_listen (listener, &maxfd, conn, &state, server);
+        ws_listen (listener, &maxfd, conn, server);
       }
     }
     /* handle FIFOs */
-    ws_fifos (server, pipein, pipeout, &state);
+    ws_fifos (server, pipein, pipeout);
   }
 }
 
