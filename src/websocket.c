@@ -2312,6 +2312,9 @@ ws_start (WSServer * server)
   maxfd = listener;
 
   while (1) {
+    FD_ZERO (&fdstate.wfds);
+    fdstate.wfds = fdstate.master;
+
     FD_ZERO (&fdstate.rfds);
     if (!server->closing)
       fdstate.rfds = fdstate.master;
