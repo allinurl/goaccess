@@ -74,6 +74,7 @@
 #  error Platform not supported!
 #endif
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
 #include "gslist.h"
 
 #define WS_PIPEIN "/tmp/wspipein.fifo"
@@ -244,6 +245,7 @@ typedef struct WSPipeOut_
   int fd;                       /* named pipe FD */
   WSEState *state;              /* FDs states */
   WSQueue *fifoqueue;           /* FIFO out queue */
+  WSStatus status;              /* connection status */
 } WSPipeOut;
 
 /* Config OOptions */
