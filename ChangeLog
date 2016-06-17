@@ -1,3 +1,18 @@
+Changes to GoAccess 1.0.1 - Friday, June 17, 2016
+
+  - Added Android version number along with the codename when using --real-os,
+    e.g., 'Lollipop 5.1'.
+  - Added some missing headers and function checks to configure.ac.
+  - Fixed build issues on systems running GLIBC older than 2.9, such as RHEL <= 5.
+  - Fixed a regression where it wouldn't allow abbreviated date and time formats
+    such as %F or %T.
+  - Fixed issue where it wouldn't send the whole buffer to a socket causing the
+    real-time-html WebSocket server to progressively consume a lot more memory.
+  - Fixed memory leak when using getline and follow mode enabled.
+  - Fixed some buffer initialization issues on read_line() and
+    perform_tail_follow().
+  - Fixed uint types in sha1 files.
+
 Changes to GoAccess 1.0 - Thursday, June 09, 2016
 
   - Added a complete real-time functionality to the HTML output.
