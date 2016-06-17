@@ -525,6 +525,19 @@ clean_date_time_format (const char *format)
   return fmt;
 }
 
+/* Determine if the given specifier character is an abbreviated type
+ * of date.
+ *
+ * If it is, 1 is returned, otherwise, 0 is returned. */
+static int
+is_date_abbreviated (const char *fdate)
+{
+  if (strpbrk (fdate, "cDF"))
+    return 1;
+
+  return 0;
+}
+
 /* A wrapper to extract time specifiers from a time format.
  *
  * On error NULL is returned.
@@ -535,7 +548,7 @@ set_format_time (void)
 {
   char *ftime = NULL;
 
-  if (has_timestamp (conf.date_format))
+  if (has_timestamp (conf.date_format) || !strcmp ("%T", conf.time_format))
     ftime = xstrdup ("%H%M%S");
   else
     ftime = clean_date_time_format (conf.time_format);
@@ -627,6 +640,12 @@ set_date_num_format (void)
   fdate = set_format_date ();
   if (!fdate)
     return 1;
+
+  if (is_date_abbreviated (fdate)) {
+    free (fdate);
+    conf.date_num_format = xstrdup ("%Y%m%d");
+    return 0;
+  }
 
   flen = strlen (fdate) + 1;
   buf = xcalloc (flen, sizeof (char));
