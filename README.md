@@ -313,8 +313,8 @@ and localhost.
 
     # goaccess -f access.log -o report.html --real-time-html
 
-If GoAccess is running on a specific host, you can specify the URL to which to
-connect.
+If GoAccess is running and parsing logs on a specific host, you can specify the
+URL to which the client's browser will connect to.
 
     # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io
 
@@ -322,8 +322,8 @@ To use a different port other than 7890, you can specify it as:
 
     # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
 
-And to bind the WebSocket server to a different interface other than 0.0.0.0,
-you can specify it as:
+And to bind the WebSocket server to a different address other than 0.0.0.0, you
+can specify it as:
 
     # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
 
