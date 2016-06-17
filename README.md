@@ -8,8 +8,8 @@ provides fast and valuable HTTP statistics for system administrators that
 require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20160608220001)
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess-real-time-html-gh.png?20160608220001)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20160617000000)
+![GoAccess Main Dashboard](http://goaccess.io/images/goaccess-real-time-html-gh.png?20160617000000)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -86,9 +86,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-1.0.tar.gz
-    $ tar -xzvf goaccess-1.0.tar.gz
-    $ cd goaccess-1.0/
+    $ wget http://tar.goaccess.io/goaccess-1.0.1.tar.gz
+    $ tar -xzvf goaccess-1.0.1.tar.gz
+    $ cd goaccess-1.0.1/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
