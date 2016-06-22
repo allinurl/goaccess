@@ -53,7 +53,7 @@ window.GoAccess = window.GoAccess || {
 	},
 
 	setWebSocket: function (wsConn) {
-		var str = String(wsConn.url + ':' + wsConn.port);
+		var str = wsConn.url.indexOf(':') != -1 ? wsConn.url : String(wsConn.url + ':' + wsConn.port);
 		var socket = new WebSocket('ws://' + str);
 		socket.onopen = function (event) {
 			GoAccess.Nav.WSOpen();
