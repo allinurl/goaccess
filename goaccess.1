@@ -513,13 +513,19 @@ the form: PANEL,METRIC,ORDER
   ASC
   DESC
 .TP
-\fB\-\-ws-url=<url>
+\fB\-\-ws-url=<url[:port]>
 URL to which the WebSocket server responds. This is the URL supplied to the
 WebSocket constructor on the client side.
 .IP
-By default, it will attempt to
-connect to localhost. If GoAccess is running on a remote server, the host of
-the remote server should be specified here.
+If GoAccess is running behind a proxy, you could set the client side
+to connect to a different port by specifying the host followed by a
+colon and the port. e.g.,
+.I goaccess.io:9999
+.IP
+By default, it will attempt to connect to localhost. If GoAccess is
+running on a remote server, the host of the remote server should be
+specified here. Also, make sure it is a valid host and NOT an http
+address.
 .TP
 \fB\-\-static-file=<extension>
 Add static file extension. e.g.:
