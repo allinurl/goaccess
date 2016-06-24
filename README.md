@@ -8,7 +8,7 @@ provides fast and valuable HTTP statistics for system administrators that
 require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
-![GoAccess Main Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20160617000000)
+[![GoAccess Terminal Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20160617000000)](https://goaccess.io/)
 [![GoAccess HTML Dashboard](http://goaccess.io/images/goaccess-real-time-html-gh.png?20160617000000)](http://rt.goaccess.io/?src=gh)
 
 ## Features ##
