@@ -291,12 +291,12 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
   for (i = 0; i < n; ++i) {
     cnt = get_chartdef_cnt (chart + i);
 
-    popen_obj_attr (fp, chart[i].key, sp);
+    fpopen_obj_attr (fp, chart[i].key, sp);
     for (j = 0; j < cnt; ++j) {
       def = chart[i].def[j];
-      pskeysval (fp, def.key, def.value, isp, j == cnt - 1);
+      fpskeysval (fp, def.key, def.value, isp, j == cnt - 1);
     }
-    pclose_obj (fp, sp, (i == n - 1));
+    fpclose_obj (fp, sp, (i == n - 1));
   }
 }
 
@@ -320,18 +320,18 @@ hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1, iisp = sp + 2;
 
-  pskeysval (fp, "label", "Hits/Visitors", isp, 0);
-  pskeysval (fp, "className", "hits-visitors", isp, 0);
-  pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
-  pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
-  pskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
+  fpskeysval (fp, "label", "Hits/Visitors", isp, 0);
+  fpskeysval (fp, "className", "hits-visitors", isp, 0);
+  fpskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
+  fpskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+  fpskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
 
   /* D3.js data */
-  popen_obj_attr (fp, "d3", isp);
+  fpopen_obj_attr (fp, "d3", isp);
   /* print chart definitions */
   print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
   /* close D3 */
-  pclose_obj (fp, isp, 1);
+  fpclose_obj (fp, isp, 1);
 }
 
 /* Output C3.js bandwidth plot definitions. */
@@ -354,18 +354,18 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
   if (!conf.bandwidth)
     return;
 
-  pskeysval (fp, "label", "Bandwidth", isp, 0);
-  pskeysval (fp, "className", "bandwidth", isp, 0);
-  pskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
-  pskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
-  pskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
+  fpskeysval (fp, "label", "Bandwidth", isp, 0);
+  fpskeysval (fp, "className", "bandwidth", isp, 0);
+  fpskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
+  fpskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+  fpskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
 
   /* D3.js data */
-  popen_obj_attr (fp, "d3", isp);
+  fpopen_obj_attr (fp, "d3", isp);
   /* print chart definitions */
   print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
   /* close D3 */
-  pclose_obj (fp, isp, 1);
+  fpclose_obj (fp, isp, 1);
 }
 
 static void
@@ -397,10 +397,10 @@ print_conn_def (FILE * fp)
   fprintf (fp, "<script type='text/javascript'>");
   fprintf (fp, "var connection = ");
 
-  popen_obj (fp, sp);
-  pskeysval (fp, "url", (conf.ws_url ? conf.ws_url : "localhost"), sp, 0);
-  pskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 1);
-  pclose_obj (fp, sp, 1);
+  fpopen_obj (fp, sp);
+  fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : "localhost"), sp, 0);
+  fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 1);
+  fpclose_obj (fp, sp, 1);
 
   fprintf (fp, "</script>");
 }
@@ -415,25 +415,25 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp)
     isp = sp + 1;
 
   if (def.cname)
-    pskeysval (fp, "className", def.cname, isp, 0);
+    fpskeysval (fp, "className", def.cname, isp, 0);
   if (def.cwidth)
-    pskeysval (fp, "colWidth", def.cwidth, isp, 0);
+    fpskeysval (fp, "colWidth", def.cwidth, isp, 0);
   if (def.meta)
-    pskeysval (fp, "meta", def.meta, isp, 0);
+    fpskeysval (fp, "meta", def.meta, isp, 0);
   if (def.vtype)
-    pskeysval (fp, "valueType", def.vtype, isp, 0);
+    fpskeysval (fp, "valueType", def.vtype, isp, 0);
   if (def.key)
-    pskeysval (fp, "key", def.key, isp, 0);
+    fpskeysval (fp, "key", def.key, isp, 0);
   if (def.lbl)
-    pskeysval (fp, "label", def.lbl, isp, 1);
+    fpskeysval (fp, "label", def.lbl, isp, 1);
 }
 
 static void
 print_def_block (FILE * fp, const GDefMetric def, int sp, int last)
 {
-  popen_obj (fp, sp);
+  fpopen_obj (fp, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, last);
+  fpclose_obj (fp, sp, last);
 }
 
 static void
@@ -444,9 +444,9 @@ print_def_overall_requests (FILE * fp, int sp)
     .vtype = "numeric",
     .cname = "black"
   };
-  popen_obj_attr (fp, OVERALL_REQ, sp);
+  fpopen_obj_attr (fp, OVERALL_REQ, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -457,9 +457,9 @@ print_def_overall_valid_reqs (FILE * fp, int sp)
     .vtype = "numeric",
     .cname = "green"
   };
-  popen_obj_attr (fp, OVERALL_VALID, sp);
+  fpopen_obj_attr (fp, OVERALL_VALID, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -470,9 +470,9 @@ print_def_overall_invalid_reqs (FILE * fp, int sp)
     .vtype = "numeric",
     .cname = "red"
   };
-  popen_obj_attr (fp, OVERALL_FAILED, sp);
+  fpopen_obj_attr (fp, OVERALL_FAILED, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -483,9 +483,9 @@ print_def_overall_processed_time (FILE * fp, int sp)
     .vtype = "numeric",
     .cname = "gray"
   };
-  popen_obj_attr (fp, OVERALL_GENTIME, sp);
+  fpopen_obj_attr (fp, OVERALL_GENTIME, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -496,9 +496,9 @@ print_def_overall_visitors (FILE * fp, int sp)
     .vtype = "numeric",
     .cname = "blue"
   };
-  popen_obj_attr (fp, OVERALL_VISITORS, sp);
+  fpopen_obj_attr (fp, OVERALL_VISITORS, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -508,9 +508,9 @@ print_def_overall_files (FILE * fp, int sp)
     .lbl = T_UNIQUE_FIL,
     .vtype = "numeric",
   };
-  popen_obj_attr (fp, OVERALL_FILES, sp);
+  fpopen_obj_attr (fp, OVERALL_FILES, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -520,9 +520,9 @@ print_def_overall_excluded (FILE * fp, int sp)
     .lbl = T_EXCLUDE_IP,
     .vtype = "numeric",
   };
-  popen_obj_attr (fp, OVERALL_EXCL_HITS, sp);
+  fpopen_obj_attr (fp, OVERALL_EXCL_HITS, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -532,9 +532,9 @@ print_def_overall_refs (FILE * fp, int sp)
     .lbl = T_REFERRER,
     .vtype = "numeric",
   };
-  popen_obj_attr (fp, OVERALL_REF, sp);
+  fpopen_obj_attr (fp, OVERALL_REF, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -544,9 +544,9 @@ print_def_overall_notfound (FILE * fp, int sp)
     .lbl = T_UNIQUE404,
     .vtype = "numeric",
   };
-  popen_obj_attr (fp, OVERALL_NOTFOUND, sp);
+  fpopen_obj_attr (fp, OVERALL_NOTFOUND, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -556,9 +556,9 @@ print_def_overall_static_files (FILE * fp, int sp)
     .lbl = T_STATIC_FIL,
     .vtype = "numeric",
   };
-  popen_obj_attr (fp, OVERALL_STATIC, sp);
+  fpopen_obj_attr (fp, OVERALL_STATIC, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -568,9 +568,9 @@ print_def_overall_log_size (FILE * fp, int sp)
     .lbl = T_LOG,
     .vtype = "bytes",
   };
-  popen_obj_attr (fp, OVERALL_LOGSIZE, sp);
+  fpopen_obj_attr (fp, OVERALL_LOGSIZE, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -580,9 +580,9 @@ print_def_overall_bandwidth (FILE * fp, int sp)
     .lbl = T_BW,
     .vtype = "bytes",
   };
-  popen_obj_attr (fp, OVERALL_BANDWIDTH, sp);
+  fpopen_obj_attr (fp, OVERALL_BANDWIDTH, sp);
   print_def_metric (fp, def, sp);
-  pclose_obj (fp, sp, 1);
+  fpclose_obj (fp, sp, 1);
 }
 
 static void
@@ -786,15 +786,15 @@ print_def_plot (FILE * fp, const GHTML * def, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_arr_attr (fp, "plot", sp);
+  fpopen_arr_attr (fp, "plot", sp);
 
   for (i = 0; i < n; ++i) {
-    popen_obj (fp, isp);
+    fpopen_obj (fp, isp);
     def->chart[i].plot (fp, def->chart[i], isp);
-    pclose_obj (fp, isp, (i == n - 1));
+    fpclose_obj (fp, isp, (i == n - 1));
   }
 
-  pclose_arr (fp, sp, 0);
+  fpclose_arr (fp, sp, 0);
 }
 
 static void
@@ -850,11 +850,11 @@ print_def_metrics (FILE * fp, const GHTML * def, int sp)
     isp = sp + 1;
 
   /* open data metric data */
-  popen_arr_attr (fp, "items", sp);
+  fpopen_arr_attr (fp, "items", sp);
   /* definition metrics */
   def->metrics (fp, def, isp);
   /* close metrics block */
-  pclose_arr (fp, sp, 1);
+  fpclose_arr (fp, sp, 1);
 }
 
 static void
@@ -865,8 +865,8 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  pskeysval (fp, "head", head, isp, 0);
-  pskeysval (fp, "desc", desc, isp, 0);
+  fpskeysval (fp, "head", head, isp, 0);
+  fpskeysval (fp, "desc", desc, isp, 0);
 }
 
 static void
@@ -879,11 +879,11 @@ print_def_sort (FILE * fp, const GHTML * def, int sp)
     isp = sp + 1;
 
   /* output open sort attribute */
-  popen_obj_attr (fp, "sort", sp);
-  pskeysval (fp, "field", get_sort_field_key (sort.field), isp, 0);
-  pskeysval (fp, "order", get_sort_order_str (sort.sort), isp, 1);
+  fpopen_obj_attr (fp, "sort", sp);
+  fpskeysval (fp, "field", get_sort_field_key (sort.field), isp, 0);
+  fpskeysval (fp, "order", get_sort_order_str (sort.sort), isp, 1);
   /* output close sort attribute */
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
 }
 
 static void
@@ -900,8 +900,8 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 
   print_def_meta (fp, head, desc, sp);
 
-  pskeysval (fp, "id", id, isp, 0);
-  pskeyival (fp, "table", def->table, isp, 0);
+  fpskeysval (fp, "id", id, isp, 0);
+  fpskeyival (fp, "table", def->table, isp, 0);
 
   print_def_sort (fp, def, isp);
   print_def_plot (fp, def, isp);
@@ -917,13 +917,14 @@ print_json_def (FILE * fp, const GHTML * def)
     sp = 1;
 
   /* output open panel attribute */
-  popen_obj_attr (fp, module_to_id (def->module), sp);
+  fpopen_obj_attr (fp, module_to_id (def->module), sp);
   /* output panel data definitions */
   print_panel_def_meta (fp, def, sp);
   /* output close panel attribute */
-  pclose_obj (fp, sp, 1);
+  fpclose_obj (fp, sp, 1);
 
-  pjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
+  fpjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines,
+          NL);
 }
 
 static void
@@ -935,7 +936,7 @@ print_def_summary (FILE * fp, int sp)
     isp = sp + 1, iisp = sp + 2;
 
   /* open metrics block */
-  popen_obj_attr (fp, "items", isp);
+  fpopen_obj_attr (fp, "items", isp);
 
   print_def_overall_requests (fp, iisp);
   print_def_overall_valid_reqs (fp, iisp);
@@ -951,7 +952,7 @@ print_def_summary (FILE * fp, int sp)
   print_def_overall_bandwidth (fp, iisp);
 
   /* close metrics block */
-  pclose_obj (fp, isp, 1);
+  fpclose_obj (fp, isp, 1);
 }
 
 static void
@@ -966,11 +967,11 @@ print_json_def_summary (FILE * fp, GHolder * holder)
 
   head = get_overall_header (holder);
   /* output open panel attribute */
-  popen_obj_attr (fp, GENER_ID, sp);
+  fpopen_obj_attr (fp, GENER_ID, sp);
   print_def_meta (fp, head, "", sp);
   print_def_summary (fp, sp);
   /* output close panel attribute */
-  pclose_obj (fp, sp, 0);
+  fpclose_obj (fp, sp, 0);
   free (head);
 }
 
@@ -982,7 +983,7 @@ print_json_defs (FILE * fp, GHolder * holder)
 
   fprintf (fp, "<script type='text/javascript'>");
   fprintf (fp, "var user_interface=");
-  popen_obj (fp, 0);
+  fpopen_obj (fp, 0);
 
   print_json_def_summary (fp, holder);
   FOREACH_MODULE (idx, module_list) {
@@ -991,7 +992,7 @@ print_json_defs (FILE * fp, GHolder * holder)
     }
   }
 
-  pclose_obj (fp, 0, 1);
+  fpclose_obj (fp, 0, 1);
 
   fprintf (fp, "</script>");
 }
