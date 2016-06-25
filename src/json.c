@@ -54,24 +54,25 @@
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
+#include "xmalloc.h"
 
 typedef struct GPanel_
 {
   GModule module;
-  void (*render) (FILE * fp, GHolder * h, GPercTotals totals,
+  void (*render) (GJSON * json, GHolder * h, GPercTotals totals,
                   const struct GPanel_ *);
-  void (*subitems) (FILE * fp, GHolderItem * item, GPercTotals totals, int size,
-                    int iisp);
+  void (*subitems) (GJSON * json, GHolderItem * item, GPercTotals totals,
+                    int size, int iisp);
 } GPanel;
 
 /* number of new lines (applicable fields) */
 static int nlines = 0;
 
-static void print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
+static void print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
                              const struct GPanel_ *);
-static void print_json_host_items (FILE * fp, GHolderItem * item,
+static void print_json_host_items (GJSON * json, GHolderItem * item,
                                    GPercTotals totals, int size, int iisp);
-static void print_json_sub_items (FILE * fp, GHolderItem * item,
+static void print_json_sub_items (GJSON * json, GHolderItem * item,
                                   GPercTotals totals, int size, int iisp);
 
 /* *INDENT-OFF* */
@@ -111,61 +112,26 @@ panel_lookup (GModule module)
   return NULL;
 }
 
-/* Escape and output valid JSON.
+/* Allocate memory for a new GJSON instance.
  *
- * On success, escaped JSON data is outputted. */
-static void
-escape_json_output (FILE * fp, char *s)
+ * On success, the newly allocated GJSON is returned . */
+static GJSON *
+new_gjson (void)
 {
-  while (*s) {
-    switch (*s) {
-    case '"':
-      fprintf (fp, "\\\"");
-      break;
-    case '\\':
-      fprintf (fp, "\\\\");
-      break;
-    case '\b':
-      fprintf (fp, "\\\b");
-      break;
-    case '\f':
-      fprintf (fp, "\\\f");
-      break;
-    case '\n':
-      fprintf (fp, "\\\n");
-      break;
-    case '\r':
-      fprintf (fp, "\\\r");
-      break;
-    case '\t':
-      fprintf (fp, "\\\t");
-      break;
-    case '/':
-      fprintf (fp, "\\/");
-      break;
-    default:
-      if ((uint8_t) * s <= 0x1f) {
-        /* Control characters (U+0000 through U+001F) */
-        char buf[8];
-        snprintf (buf, sizeof buf, "\\u%04x", *s);
-        fprintf (fp, "%s", buf);
-      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                 (uint8_t) * (s + 2) == 0xa8) {
-        /* Line separator (U+2028) */
-        fprintf (fp, "\\u2028");
-        s += 2;
-      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                 (uint8_t) * (s + 2) == 0xa9) {
-        /* Paragraph separator (U+2019) */
-        fprintf (fp, "\\u2029");
-        s += 2;
-      } else {
-        fputc (*s, fp);
-      }
-      break;
-    }
-    s++;
-  }
+  GJSON *json = xcalloc (1, sizeof (GJSON));
+
+  return json;
+}
+
+/* Free malloc'd GJSON resources. */
+static void
+free_json (GJSON * json)
+{
+  if (!json)
+    return;
+
+  free (json->buf);
+  free (json);
 }
 
 /* Set number of new lines when --json-pretty-print is used. */
@@ -175,11 +141,66 @@ set_json_nlines (int newline)
   nlines = newline;
 }
 
-/* A wrapper function to output a formatted string.
+/* Make sure that we have enough storage to write "len" bytes at the
+ * current offset. */
+static void
+set_json_buffer (GJSON * json, int len)
+{
+  char *tmp = NULL;
+  /* Maintain a null byte at the end of the buffer */
+  size_t need = json->offset + len + 1, newlen = 0;
+
+  if (need <= json->size)
+    return;
+
+  if (json->size == 0) {
+    newlen = INIT_BUF_SIZE;
+  } else {
+    newlen = json->size;
+    newlen += newlen / 2;       /* resize by 3/2 */
+  }
+
+  if (newlen < need)
+    newlen = need;
+
+  tmp = realloc (json->buf, newlen);
+  if (tmp == NULL) {
+    free_json (json);
+    FATAL (("Unable to realloc JSON buffer.\n"));
+  }
+  json->buf = tmp;
+  json->size = newlen;
+}
+
+/* A wrapper function to write a formatted string and expand the
+ * buffer if necessary.
+ *
+ * On success, data is outputted. */
+static void
+pjson (GJSON * json, const char *fmt, ...)
+{
+  int len = 0;
+  va_list args;
+
+  va_start (args, fmt);
+  if ((len = vsnprintf (NULL, 0, fmt, args)) < 0)
+    FATAL (("Unable to write JSON formatted data.\n"));
+  va_end (args);
+
+  /* malloc/realloc buffer as needed */
+  set_json_buffer (json, len);
+
+  va_start (args, fmt); /* restart args */
+  vsprintf (json->buf + json->offset, fmt, args);
+  va_end (args);
+  json->offset += len;
+}
+
+/* A wrapper function to output a formatted string to a file pointer.
  *
  * On success, data is outputted. */
 void
-pjson (FILE * fp, const char *fmt, ...)
+fpjson (FILE * fp, const char *fmt, ...)
 {
   va_list args;
 
@@ -188,258 +209,342 @@ pjson (FILE * fp, const char *fmt, ...)
   va_end (args);
 }
 
-/* Output a JSON a key/value pair.
+/* Escape and write to a buffer valid JSON.
  *
- * On success, data is outputted. */
-void
-pskeysval (FILE * fp, const char *key, const char *val, int sp, int last)
+ * On success, escaped JSON data is outputted. */
+static void
+escape_json_output (GJSON * json, char *s)
 {
-  if (!last)
-    pjson (fp, "%.*s\"%s\": \"%s\",%.*s", sp, TAB, key, val, nlines, NL);
-  else
-    pjson (fp, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
+  while (*s) {
+    switch (*s) {
+    case '"':
+      pjson (json, "\\\"");
+      break;
+    case '\\':
+      pjson (json, "\\\\");
+      break;
+    case '\b':
+      pjson (json, "\\\b");
+      break;
+    case '\f':
+      pjson (json, "\\\f");
+      break;
+    case '\n':
+      pjson (json, "\\\n");
+      break;
+    case '\r':
+      pjson (json, "\\\r");
+      break;
+    case '\t':
+      pjson (json, "\\\t");
+      break;
+    case '/':
+      pjson (json, "\\/");
+      break;
+    default:
+      if ((uint8_t) * s <= 0x1f) {
+        /* Control characters (U+0000 through U+001F) */
+        char buf[8];
+        snprintf (buf, sizeof buf, "\\u%04x", *s);
+        pjson (json, "%s", buf);
+      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                 (uint8_t) * (s + 2) == 0xa8) {
+        /* Line separator (U+2028) */
+        pjson (json, "\\u2028");
+        s += 2;
+      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
+                 (uint8_t) * (s + 2) == 0xa9) {
+        /* Paragraph separator (U+2019) */
+        pjson (json, "\\u2029");
+        s += 2;
+      } else {
+        char buf[2];
+        snprintf (buf, sizeof buf, "%c", *s);
+        pjson (json, "%s", buf);
+      }
+      break;
+    }
+    s++;
+  }
 }
 
-/* Output a JSON string key, int value pair.
- *
- * On success, data is outputted. */
-void
-pskeyival (FILE * fp, const char *key, int val, int sp, int last)
+/* Write to a buffer a JSON a key/value pair. */
+static void
+pskeysval (GJSON * json, const char *key, const char *val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %d,%.*s", sp, TAB, key, val, nlines, NL);
+    pjson (json, "%.*s\"%s\": \"%s\",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %d", sp, TAB, key, val);
+    pjson (json, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
 }
 
-/* Output a JSON string key, uint64_t value pair.
- *
- * On success, data is outputted. */
+/* Output a JSON a key/value pair. */
 void
-pskeyu64val (FILE * fp, const char *key, uint64_t val, int sp, int last)
+fpskeysval (FILE * fp, const char *key, const char *val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %" PRIu64 ",%.*s", sp, TAB, key, val, nlines, NL);
+    fpjson (fp, "%.*s\"%s\": \"%s\",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %" PRIu64 "", sp, TAB, key, val);
+    fpjson (fp, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
 }
 
-/* Output a JSON string key, int value pair.
- *
- * On success, data is outputted. */
-void
-pskeyfval (FILE * fp, const char *key, float val, int sp, int last)
+/* Write to a buffer a JSON string key, int value pair. */
+static void
+pskeyival (GJSON * json, const char *key, int val, int sp, int last)
 {
   if (!last)
-    pjson (fp, "%.*s\"%s\": %4.2f,%.*s", sp, TAB, key, val, nlines, NL);
+    pjson (json, "%.*s\"%s\": %d,%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (fp, "%.*s\"%s\": %4.2f", sp, TAB, key, val);
+    pjson (json, "%.*s\"%s\": %d", sp, TAB, key, val);
 }
 
-/* Output the open block item object.
- *
- * On success, data is outputted. */
+/* Output a JSON string key, int value pair. */
 void
-popen_obj (FILE * fp, int iisp)
+fpskeyival (FILE * fp, const char *key, int val, int sp, int last)
+{
+  if (!last)
+    fpjson (fp, "%.*s\"%s\": %d,%.*s", sp, TAB, key, val, nlines, NL);
+  else
+    fpjson (fp, "%.*s\"%s\": %d", sp, TAB, key, val);
+}
+
+/* Write to a buffer a JSON string key, uint64_t value pair. */
+static void
+pskeyu64val (GJSON * json, const char *key, uint64_t val, int sp, int last)
+{
+  if (!last)
+    pjson (json, "%.*s\"%s\": %" PRIu64 ",%.*s", sp, TAB, key, val, nlines, NL);
+  else
+    pjson (json, "%.*s\"%s\": %" PRIu64 "", sp, TAB, key, val);
+}
+
+/* Write to a buffer a JSON string key, int value pair. */
+static void
+pskeyfval (GJSON * json, const char *key, float val, int sp, int last)
+{
+  if (!last)
+    pjson (json, "%.*s\"%s\": %4.2f,%.*s", sp, TAB, key, val, nlines, NL);
+  else
+    pjson (json, "%.*s\"%s\": %4.2f", sp, TAB, key, val);
+}
+
+/* Write to a buffer the open block item object. */
+static void
+popen_obj (GJSON * json, int iisp)
 {
   /* open data metric block */
-  pjson (fp, "%.*s{%.*s", iisp, TAB, nlines, NL);
+  pjson (json, "%.*s{%.*s", iisp, TAB, nlines, NL);
 }
 
-/* Output a JSON open object attribute.
- *
- * On success, data is outputted. */
+/* Output the open block item object. */
 void
-popen_obj_attr (FILE * fp, const char *attr, int sp)
+fpopen_obj (FILE * fp, int iisp)
 {
-  /* open object attribute */
-  pjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
+  /* open data metric block */
+  fpjson (fp, "%.*s{%.*s", iisp, TAB, nlines, NL);
 }
 
-/* Close JSON object.
- *
- * On success, data is outputted. */
-void
-pclose_obj (FILE * fp, int iisp, int last)
-{
-  if (!last)
-    pjson (fp, "%.*s%.*s},%.*s", nlines, NL, iisp, TAB, nlines, NL);
-  else
-    pjson (fp, "%.*s%.*s}", nlines, NL, iisp, TAB);
-}
-
-/* Output a JSON open array attribute.
- *
- * On success, data is outputted. */
-void
-popen_arr_attr (FILE * fp, const char *attr, int sp)
-{
-  /* open object attribute */
-  pjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, attr, nlines, NL);
-}
-
-/* Close the data array.
- *
- * On success, data is outputted. */
-void
-pclose_arr (FILE * fp, int sp, int last)
-{
-  if (!last)
-    pjson (fp, "%.*s%.*s],%.*s", nlines, NL, sp, TAB, nlines, NL);
-  else
-    pjson (fp, "%.*s%.*s]", nlines, NL, sp, TAB);
-}
-
-/* Output date and time for the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer a JSON open object attribute. */
 static void
-poverall_datetime (FILE * fp, int sp)
+popen_obj_attr (GJSON * json, const char *attr, int sp)
+{
+  /* open object attribute */
+  pjson (json, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
+}
+
+/* Output a JSON open object attribute. */
+void
+fpopen_obj_attr (FILE * fp, const char *attr, int sp)
+{
+  /* open object attribute */
+  fpjson (fp, "%.*s\"%s\": {%.*s", sp, TAB, attr, nlines, NL);
+}
+
+/* Close JSON object. */
+static void
+pclose_obj (GJSON * json, int iisp, int last)
+{
+  if (!last)
+    pjson (json, "%.*s%.*s},%.*s", nlines, NL, iisp, TAB, nlines, NL);
+  else
+    pjson (json, "%.*s%.*s}", nlines, NL, iisp, TAB);
+}
+
+/* Close JSON object. */
+void
+fpclose_obj (FILE * fp, int iisp, int last)
+{
+  if (!last)
+    fpjson (fp, "%.*s%.*s},%.*s", nlines, NL, iisp, TAB, nlines, NL);
+  else
+    fpjson (fp, "%.*s%.*s}", nlines, NL, iisp, TAB);
+}
+
+/* Write to a buffer a JSON open array attribute. */
+static void
+popen_arr_attr (GJSON * json, const char *attr, int sp)
+{
+  /* open object attribute */
+  pjson (json, "%.*s\"%s\": [%.*s", sp, TAB, attr, nlines, NL);
+}
+
+/* Output a JSON open array attribute. */
+void
+fpopen_arr_attr (FILE * fp, const char *attr, int sp)
+{
+  /* open object attribute */
+  fpjson (fp, "%.*s\"%s\": [%.*s", sp, TAB, attr, nlines, NL);
+}
+
+/* Close the data array. */
+static void
+pclose_arr (GJSON * json, int sp, int last)
+{
+  if (!last)
+    pjson (json, "%.*s%.*s],%.*s", nlines, NL, sp, TAB, nlines, NL);
+  else
+    pjson (json, "%.*s%.*s]", nlines, NL, sp, TAB);
+}
+
+/* Close the data array. */
+void
+fpclose_arr (FILE * fp, int sp, int last)
+{
+  if (!last)
+    fpjson (fp, "%.*s%.*s],%.*s", nlines, NL, sp, TAB, nlines, NL);
+  else
+    fpjson (fp, "%.*s%.*s]", nlines, NL, sp, TAB);
+}
+
+/* Write to a buffer the date and time for the overall object. */
+static void
+poverall_datetime (GJSON * json, int sp)
 {
   char now[DATE_TIME];
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
-  pskeysval (fp, OVERALL_DATETIME, now, sp, 0);
+  pskeysval (json, OVERALL_DATETIME, now, sp, 0);
 }
 
-/* Output date and time for the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer date and time for the overall object. */
 static void
-poverall_requests (FILE * fp, GLog * logger, int sp)
+poverall_requests (GJSON * json, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_REQ, logger->processed, sp, 0);
+  pskeyival (json, OVERALL_REQ, logger->processed, sp, 0);
 }
 
-/* Output the number of valid requests under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the number of valid requests under the overall
+ * object. */
 static void
-poverall_valid_reqs (FILE * fp, GLog * logger, int sp)
+poverall_valid_reqs (GJSON * json, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_VALID, logger->valid, sp, 0);
+  pskeyival (json, OVERALL_VALID, logger->valid, sp, 0);
 }
 
-/* Output the number of invalid requests under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the number of invalid requests under the overall
+ * object. */
 static void
-poverall_invalid_reqs (FILE * fp, GLog * logger, int sp)
+poverall_invalid_reqs (GJSON * json, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_FAILED, logger->invalid, sp, 0);
+  pskeyival (json, OVERALL_FAILED, logger->invalid, sp, 0);
 }
 
-/* Output the total processed time under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the total processed time under the overall
+ * object. */
 static void
-poverall_processed_time (FILE * fp, int sp)
+poverall_processed_time (GJSON * json, int sp)
 {
-  pskeyu64val (fp, OVERALL_GENTIME, end_proc - start_proc, sp, 0);
+  pskeyu64val (json, OVERALL_GENTIME, end_proc - start_proc, sp, 0);
 }
 
-/* Output the total number of unique visitors under the overall
- * object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the total number of unique visitors under the
+ * overall object. */
 static void
-poverall_visitors (FILE * fp, int sp)
+poverall_visitors (GJSON * json, int sp)
 {
-  pskeyival (fp, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), sp, 0);
+  pskeyival (json, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), sp, 0);
 }
 
-/* Output the total number of unique files under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the total number of unique files under the
+ * overall object. */
 static void
-poverall_files (FILE * fp, int sp)
+poverall_files (GJSON * json, int sp)
 {
-  pskeyival (fp, OVERALL_FILES, ht_get_size_datamap (REQUESTS), sp, 0);
+  pskeyival (json, OVERALL_FILES, ht_get_size_datamap (REQUESTS), sp, 0);
 }
 
-/* Output the total number of excluded requests under the overall
- * object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the total number of excluded requests under the
+ * overall object. */
 static void
-poverall_excluded (FILE * fp, GLog * logger, int sp)
+poverall_excluded (GJSON * json, GLog * logger, int sp)
 {
-  pskeyival (fp, OVERALL_EXCL_HITS, logger->excluded_ip, sp, 0);
+  pskeyival (json, OVERALL_EXCL_HITS, logger->excluded_ip, sp, 0);
 }
 
-/* Output the number of referrers under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the number of referrers under the overall object. */
 static void
-poverall_refs (FILE * fp, int sp)
+poverall_refs (GJSON * json, int sp)
 {
-  pskeyival (fp, OVERALL_REF, ht_get_size_datamap (REFERRERS), sp, 0);
+  pskeyival (json, OVERALL_REF, ht_get_size_datamap (REFERRERS), sp, 0);
 }
 
-/* Output the number of not found (404s) under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the number of not found (404s) under the overall
+ * object. */
 static void
-poverall_notfound (FILE * fp, int sp)
+poverall_notfound (GJSON * json, int sp)
 {
-  pskeyival (fp, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), sp, 0);
+  pskeyival (json, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), sp, 0);
 }
 
-/* Output the number of static files (jpg, pdf, etc) under the overall
- * object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the number of static files (jpg, pdf, etc) under
+ * the overall object. */
 static void
-poverall_static_files (FILE * fp, int sp)
+poverall_static_files (GJSON * json, int sp)
 {
-  pskeyival (fp, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
+  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp,
+             0);
 }
 
-/* Output the size of the log being parsed under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the size of the log being parsed under the
+ * overall object. */
 static void
-poverall_log_size (FILE * fp, GLog * logger, int sp)
+poverall_log_size (GJSON * json, GLog * logger, int sp)
 {
   off_t log_size = 0;
 
   if (!logger->piping && conf.ifile)
     log_size = file_size (conf.ifile);
 
-  pjson (fp, "%.*s\"%s\": %jd,%.*s", sp, TAB, OVERALL_LOGSIZE,
+  pjson (json, "%.*s\"%s\": %jd,%.*s", sp, TAB, OVERALL_LOGSIZE,
          (intmax_t) log_size, nlines, NL);
 }
 
-/* Output the total bandwidth consumed under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the total bandwidth consumed under the overall
+ * object. */
 static void
-poverall_bandwidth (FILE * fp, GLog * logger, int sp)
+poverall_bandwidth (GJSON * json, GLog * logger, int sp)
 {
-  pskeyu64val (fp, OVERALL_BANDWIDTH, logger->resp_size, sp, 0);
+  pskeyu64val (json, OVERALL_BANDWIDTH, logger->resp_size, sp, 0);
 }
 
-/* Output the path of the log being parsed under the overall object.
- *
- * On success, data is outputted. */
+/* Write to a buffer the path of the log being parsed under the
+ * overall object. */
 static void
-poverall_log (FILE * fp, int sp)
+poverall_log (GJSON * json, int sp)
 {
   if (conf.ifile == NULL)
     conf.ifile = (char *) "STDIN";
 
-  pjson (fp, "%.*s\"%s\": \"", sp, TAB, OVERALL_LOG);
-  escape_json_output (fp, conf.ifile);
-  pjson (fp, "\"");
+  pjson (json, "%.*s\"%s\": \"", sp, TAB, OVERALL_LOG);
+  escape_json_output (json, conf.ifile);
+  pjson (json, "\"");
 }
 
-/* Output hits data.
- *
- * On success, data is outputted. */
+/* Write to a buffer hits data. */
 static void
-phits (FILE * fp, GMetrics * nmetrics, int sp)
+phits (GJSON * json, GMetrics * nmetrics, int sp)
 {
   int isp = 0;
 
@@ -447,19 +552,17 @@ phits (FILE * fp, GMetrics * nmetrics, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "hits", sp);
+  popen_obj_attr (json, "hits", sp);
   /* print hits */
-  pskeyival (fp, "count", nmetrics->hits, isp, 0);
+  pskeyival (json, "count", nmetrics->hits, isp, 0);
   /* print hits percent */
-  pskeyfval (fp, "percent", nmetrics->hits_perc, isp, 1);
-  pclose_obj (fp, sp, 0);
+  pskeyfval (json, "percent", nmetrics->hits_perc, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output visitors data.
- *
- * On success, data is outputted. */
+/* Write to a buffer visitors data. */
 static void
-pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
+pvisitors (GJSON * json, GMetrics * nmetrics, int sp)
 {
   int isp = 0;
 
@@ -467,19 +570,17 @@ pvisitors (FILE * fp, GMetrics * nmetrics, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "visitors", sp);
+  popen_obj_attr (json, "visitors", sp);
   /* print visitors */
-  pskeyival (fp, "count", nmetrics->visitors, isp, 0);
+  pskeyival (json, "count", nmetrics->visitors, isp, 0);
   /* print visitors percent */
-  pskeyfval (fp, "percent", nmetrics->visitors_perc, isp, 1);
-  pclose_obj (fp, sp, 0);
+  pskeyfval (json, "percent", nmetrics->visitors_perc, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output bandwidth data.
- *
- * On success, data is outputted. */
+/* Write to a buffer bandwidth data. */
 static void
-pbw (FILE * fp, GMetrics * nmetrics, int sp)
+pbw (GJSON * json, GMetrics * nmetrics, int sp)
 {
   int isp = 0;
 
@@ -490,77 +591,64 @@ pbw (FILE * fp, GMetrics * nmetrics, int sp)
   if (!conf.bandwidth)
     return;
 
-  popen_obj_attr (fp, "bytes", sp);
+  popen_obj_attr (json, "bytes", sp);
   /* print bandwidth */
-  pskeyu64val (fp, "count", nmetrics->bw.nbw, isp, 0);
+  pskeyu64val (json, "count", nmetrics->bw.nbw, isp, 0);
   /* print bandwidth percent */
-  pskeyfval (fp, "percent", nmetrics->bw_perc, isp, 1);
-  pclose_obj (fp, sp, 0);
+  pskeyfval (json, "percent", nmetrics->bw_perc, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output average time served data.
- *
- * On success, data is outputted. */
+/* Write to a buffer average time served data. */
 static void
-pavgts (FILE * fp, GMetrics * nmetrics, int sp)
+pavgts (GJSON * json, GMetrics * nmetrics, int sp)
 {
   if (!conf.serve_usecs)
     return;
-  pskeyu64val (fp, "avgts", nmetrics->avgts.nts, sp, 0);
+  pskeyu64val (json, "avgts", nmetrics->avgts.nts, sp, 0);
 }
 
-/* Output cumulative time served data.
- *
- * On success, data is outputted. */
+/* Write to a buffer cumulative time served data. */
 static void
-pcumts (FILE * fp, GMetrics * nmetrics, int sp)
+pcumts (GJSON * json, GMetrics * nmetrics, int sp)
 {
   if (!conf.serve_usecs)
     return;
-  pskeyu64val (fp, "cumts", nmetrics->cumts.nts, sp, 0);
+  pskeyu64val (json, "cumts", nmetrics->cumts.nts, sp, 0);
 }
 
-/* Output maximum time served data.
- *
- * On success, data is outputted. */
+/* Write to a buffer maximum time served data. */
 static void
-pmaxts (FILE * fp, GMetrics * nmetrics, int sp)
+pmaxts (GJSON * json, GMetrics * nmetrics, int sp)
 {
   if (!conf.serve_usecs)
     return;
-  pskeyu64val (fp, "maxts", nmetrics->maxts.nts, sp, 0);
+  pskeyu64val (json, "maxts", nmetrics->maxts.nts, sp, 0);
 }
 
-/* Output request method data.
-i *
- * On success, data is outputted. */
+/* Write to a buffer request method data. */
 static void
-pmethod (FILE * fp, GMetrics * nmetrics, int sp)
+pmethod (GJSON * json, GMetrics * nmetrics, int sp)
 {
   /* request method */
   if (conf.append_method && nmetrics->method) {
-    pskeysval (fp, "method", nmetrics->method, sp, 0);
+    pskeysval (json, "method", nmetrics->method, sp, 0);
   }
 }
 
-/* Output protocol method data.
- *
- * On success, data is outputted. */
+/* Write to a buffer protocol method data. */
 static void
-pprotocol (FILE * fp, GMetrics * nmetrics, int sp)
+pprotocol (GJSON * json, GMetrics * nmetrics, int sp)
 {
   /* request protocol */
   if (conf.append_protocol && nmetrics->protocol) {
-    pskeysval (fp, "protocol", nmetrics->protocol, sp, 0);
+    pskeysval (json, "protocol", nmetrics->protocol, sp, 0);
   }
 }
 
-/* Output the hits meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the hits meta data object. */
 static void
-pmeta_data_hits (FILE * fp, GModule module, int sp)
+pmeta_data_hits (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   int max = 0, min = 0;
@@ -571,19 +659,16 @@ pmeta_data_hits (FILE * fp, GModule module, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "hits", sp);
-  pskeyu64val (fp, "count", ht_get_meta_data (module, "hits"), isp, 0);
-  pskeyival (fp, "max", max, isp, 0);
-  pskeyival (fp, "min", min, isp, 1);
-  pclose_obj (fp, sp, 1);
+  popen_obj_attr (json, "hits", sp);
+  pskeyu64val (json, "count", ht_get_meta_data (module, "hits"), isp, 0);
+  pskeyival (json, "max", max, isp, 0);
+  pskeyival (json, "min", min, isp, 1);
+  pclose_obj (json, sp, 1);
 }
 
-/* Output the visitors meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the visitors meta data object. */
 static void
-pmeta_data_visitors (FILE * fp, GModule module, int sp)
+pmeta_data_visitors (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   int max = 0, min = 0;
@@ -594,19 +679,16 @@ pmeta_data_visitors (FILE * fp, GModule module, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "visitors", sp);
-  pskeyu64val (fp, "count", ht_get_meta_data (module, "visitors"), isp, 0);
-  pskeyival (fp, "max", max, isp, 0);
-  pskeyival (fp, "min", min, isp, 1);
-  pclose_obj (fp, sp, 0);
+  popen_obj_attr (json, "visitors", sp);
+  pskeyu64val (json, "count", ht_get_meta_data (module, "visitors"), isp, 0);
+  pskeyival (json, "max", max, isp, 0);
+  pskeyival (json, "min", min, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output the bytes meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the bytes meta data object. */
 static void
-pmeta_data_bw (FILE * fp, GModule module, int sp)
+pmeta_data_bw (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   uint64_t max = 0, min = 0;
@@ -620,19 +702,17 @@ pmeta_data_bw (FILE * fp, GModule module, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "bytes", sp);
-  pskeyu64val (fp, "count", ht_get_meta_data (module, "bytes"), isp, 0);
-  pskeyu64val (fp, "max", max, isp, 0);
-  pskeyu64val (fp, "min", min, isp, 1);
-  pclose_obj (fp, sp, 0);
+  popen_obj_attr (json, "bytes", sp);
+  pskeyu64val (json, "count", ht_get_meta_data (module, "bytes"), isp, 0);
+  pskeyu64val (json, "max", max, isp, 0);
+  pskeyu64val (json, "min", min, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output the average of the average time served meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the average of the average time served meta data
+ * object. */
 static void
-pmeta_data_avgts (FILE * fp, GModule module, int sp)
+pmeta_data_avgts (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   uint64_t avg = 0, hits = 0, cumts = 0;
@@ -649,17 +729,14 @@ pmeta_data_avgts (FILE * fp, GModule module, int sp)
   if (hits > 0)
     avg = cumts / hits;
 
-  popen_obj_attr (fp, "avgts", sp);
-  pskeyu64val (fp, "avg", avg, isp, 1);
-  pclose_obj (fp, sp, 0);
+  popen_obj_attr (json, "avgts", sp);
+  pskeyu64val (json, "avg", avg, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output the cumulative time served meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the cumulative time served meta data object. */
 static void
-pmeta_data_cumts (FILE * fp, GModule module, int sp)
+pmeta_data_cumts (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   uint64_t max = 0, min = 0;
@@ -673,20 +750,16 @@ pmeta_data_cumts (FILE * fp, GModule module, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-
-  popen_obj_attr (fp, "cumts", sp);
-  pskeyu64val (fp, "count", ht_get_meta_data (module, "cumts"), isp, 0);
-  pskeyu64val (fp, "max", max, isp, 0);
-  pskeyu64val (fp, "min", min, isp, 1);
-  pclose_obj (fp, sp, 0);
+  popen_obj_attr (json, "cumts", sp);
+  pskeyu64val (json, "count", ht_get_meta_data (module, "cumts"), isp, 0);
+  pskeyu64val (json, "max", max, isp, 0);
+  pskeyu64val (json, "min", min, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
-/* Output the maximum time served meta data object.
- *
- * If no metadata found, it simply returns.
- * On success, meta data is outputted. */
+/* Write to a buffer the maximum time served meta data object. */
 static void
-pmeta_data_maxts (FILE * fp, GModule module, int sp)
+pmeta_data_maxts (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
   uint64_t max = 0, min = 0;
@@ -700,58 +773,58 @@ pmeta_data_maxts (FILE * fp, GModule module, int sp)
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  popen_obj_attr (fp, "maxts", sp);
-  pskeyu64val (fp, "count", ht_get_meta_data (module, "maxts"), isp, 0);
-  pskeyu64val (fp, "max", max, isp, 0);
-  pskeyu64val (fp, "min", min, isp, 1);
-  pclose_obj (fp, sp, 0);
+  popen_obj_attr (json, "maxts", sp);
+  pskeyu64val (json, "count", ht_get_meta_data (module, "maxts"), isp, 0);
+  pskeyu64val (json, "max", max, isp, 0);
+  pskeyu64val (json, "min", min, isp, 1);
+  pclose_obj (json, sp, 0);
 }
 
 /* Entry point to output panel's metadata. */
 static void
-print_meta_data (FILE * fp, GHolder * h, int sp)
+print_meta_data (GJSON * json, GHolder * h, int sp)
 {
   int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1, iisp = sp + 2;
 
-  popen_obj_attr (fp, "metadata", isp);
+  popen_obj_attr (json, "metadata", isp);
 
-  pmeta_data_avgts (fp, h->module, iisp);
-  pmeta_data_cumts (fp, h->module, iisp);
-  pmeta_data_maxts (fp, h->module, iisp);
-  pmeta_data_bw (fp, h->module, iisp);
-  pmeta_data_visitors (fp, h->module, iisp);
-  pmeta_data_hits (fp, h->module, iisp);
+  pmeta_data_avgts (json, h->module, iisp);
+  pmeta_data_cumts (json, h->module, iisp);
+  pmeta_data_maxts (json, h->module, iisp);
+  pmeta_data_bw (json, h->module, iisp);
+  pmeta_data_visitors (json, h->module, iisp);
+  pmeta_data_hits (json, h->module, iisp);
 
-  pclose_obj (fp, isp, 0);
+  pclose_obj (json, isp, 0);
 }
 
 /* A wrapper function to ouput data metrics per panel. */
 static void
-print_json_block (FILE * fp, GMetrics * nmetrics, int sp)
+print_json_block (GJSON * json, GMetrics * nmetrics, int sp)
 {
   /* print hits */
-  phits (fp, nmetrics, sp);
+  phits (json, nmetrics, sp);
   /* print visitors */
-  pvisitors (fp, nmetrics, sp);
+  pvisitors (json, nmetrics, sp);
   /* print bandwidth */
-  pbw (fp, nmetrics, sp);
+  pbw (json, nmetrics, sp);
 
   /* print time served metrics */
-  pavgts (fp, nmetrics, sp);
-  pcumts (fp, nmetrics, sp);
-  pmaxts (fp, nmetrics, sp);
+  pavgts (json, nmetrics, sp);
+  pcumts (json, nmetrics, sp);
+  pmaxts (json, nmetrics, sp);
 
   /* print protocol/method */
-  pmethod (fp, nmetrics, sp);
-  pprotocol (fp, nmetrics, sp);
+  pmethod (json, nmetrics, sp);
+  pprotocol (json, nmetrics, sp);
 
   /* data metric */
-  pjson (fp, "%.*s\"data\": \"", sp, TAB);
-  escape_json_output (fp, nmetrics->data);
-  pjson (fp, "\"");
+  pjson (json, "%.*s\"data\": \"", sp, TAB);
+  escape_json_output (json, nmetrics->data);
+  pjson (json, "\"");
 }
 
 /* Add the given user agent value into our array of GAgents.
@@ -786,7 +859,7 @@ load_host_agents (void *list, void *user_data, GO_UNUSED int count)
 
 /* A wrapper function to ouput an array of user agents for each host. */
 static void
-process_host_agents (FILE * fp, GHolderItem * item, int iisp)
+process_host_agents (GJSON * json, GHolderItem * item, int iisp)
 {
   GAgents *agents = new_gagents ();
   int i, n = 0, iiisp = 0;
@@ -798,19 +871,19 @@ process_host_agents (FILE * fp, GHolderItem * item, int iisp)
   if (set_host_agents (item->metrics->data, load_host_agents, agents) == 1)
     return;
 
-  pjson (fp, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
+  pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
 
   n = agents->size > 10 ? 10 : agents->size;
   for (i = 0; i < n; ++i) {
-    pjson (fp, "%.*s\"", iiisp, TAB);
-    escape_json_output (fp, agents->items[i].agent);
+    pjson (json, "%.*s\"", iiisp, TAB);
+    escape_json_output (json, agents->items[i].agent);
     if (i == n - 1)
-      pjson (fp, "\"");
+      pjson (json, "\"");
     else
-      pjson (fp, "\",%.*s", nlines, NL);
+      pjson (json, "\",%.*s", nlines, NL);
   }
 
-  pclose_arr (fp, iisp, 1);
+  pclose_arr (json, iisp, 1);
 
   /* clean stuff up */
   free_agents_array (agents);
@@ -818,7 +891,7 @@ process_host_agents (FILE * fp, GHolderItem * item, int iisp)
 
 /* A wrapper function to ouput children nodes. */
 static void
-print_json_sub_items (FILE * fp, GHolderItem * item, GPercTotals totals,
+print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals,
                       int size, int iisp)
 {
   GMetrics *nmetrics;
@@ -837,21 +910,21 @@ print_json_sub_items (FILE * fp, GHolderItem * item, GPercTotals totals,
   if (sl == NULL)
     return;
 
-  pjson (fp, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
+  pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
   for (iter = sl->head; iter; iter = iter->next, i++) {
     set_data_metrics (iter->metrics, &nmetrics, totals);
 
-    popen_obj (fp, iiisp);
-    print_json_block (fp, nmetrics, iiiisp);
-    pclose_obj (fp, iiisp, (i == sl->size - 1));
+    popen_obj (json, iiisp);
+    print_json_block (json, nmetrics, iiiisp);
+    pclose_obj (json, iiisp, (i == sl->size - 1));
     free (nmetrics);
   }
-  pclose_arr (fp, iisp, 1);
+  pclose_arr (json, iisp, 1);
 }
 
 /* A wrapper function to ouput geolocation fields for the given host. */
 static void
-print_json_host_geo (FILE * fp, GSubList * sl, int iisp)
+print_json_host_geo (GJSON * json, GSubList * sl, int iisp)
 {
   GSubItem *iter;
   int i;
@@ -861,34 +934,34 @@ print_json_host_geo (FILE * fp, GSubList * sl, int iisp)
     "hostname",
   };
 
-  pjson (fp, ",%.*s", nlines, NL);
+  pjson (json, ",%.*s", nlines, NL);
 
   /* Iterate over child properties (country, city, etc) and print them out */
   for (i = 0, iter = sl->head; iter; iter = iter->next, i++) {
-    pjson (fp, "%.*s\"%s\": \"", iisp, TAB, key[iter->metrics->id]);
-    escape_json_output (fp, iter->metrics->data);
-    pjson (fp, (i != sl->size - 1) ? "\",%.*s" : "\"", nlines, NL);
+    pjson (json, "%.*s\"%s\": \"", iisp, TAB, key[iter->metrics->id]);
+    escape_json_output (json, iter->metrics->data);
+    pjson (json, (i != sl->size - 1) ? "\",%.*s" : "\"", nlines, NL);
   }
 }
 
 /* Ouput Geolocation data and the IP's hostname. */
 static void
-print_json_host_items (FILE * fp, GHolderItem * item, GPercTotals totals,
+print_json_host_items (GJSON * json, GHolderItem * item, GPercTotals totals,
                        int size, int iisp)
 {
   (void) totals;
   /* print geolocation fields */
   if (size > 0 && item->sub_list != NULL)
-    print_json_host_geo (fp, item->sub_list, iisp);
+    print_json_host_geo (json, item->sub_list, iisp);
 
   /* print list of user agents */
   if (conf.list_agents)
-    process_host_agents (fp, item, iisp);
+    process_host_agents (json, item, iisp);
 }
 
 /* Ouput data and determine if there are children nodes. */
 static void
-print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
+print_data_metrics (GJSON * json, GHolder * h, GPercTotals totals, int sp,
                     const struct GPanel_ *panel)
 {
   GMetrics *nmetrics;
@@ -898,29 +971,29 @@ print_data_metrics (FILE * fp, GHolder * h, GPercTotals totals, int sp,
   if (conf.json_pretty_print)
     isp = sp + 1, iisp = sp + 2, iiisp = sp + 3;
 
-  popen_arr_attr (fp, "data", isp);
+  popen_arr_attr (json, "data", isp);
   /* output data metrics */
   for (i = 0; i < h->idx; i++) {
     set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     /* open data metric block */
-    popen_obj (fp, iisp);
+    popen_obj (json, iisp);
     /* output data metric block */
-    print_json_block (fp, nmetrics, iiisp);
+    print_json_block (json, nmetrics, iiisp);
     /* if there are children nodes, spit them out */
     if (panel->subitems)
-      panel->subitems (fp, h->items + i, totals, h->sub_items_size, iiisp);
+      panel->subitems (json, h->items + i, totals, h->sub_items_size, iiisp);
     /* close data metric block */
-    pclose_obj (fp, iisp, (i == h->idx - 1));
+    pclose_obj (json, iisp, (i == h->idx - 1));
 
     free (nmetrics);
   }
-  pclose_arr (fp, isp, 1);
+  pclose_arr (json, isp, 1);
 }
 
 /* Entry point to ouput data metrics per panel. */
 static void
-print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
+print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
                  const struct GPanel_ *panel)
 {
   int sp = 0;
@@ -929,13 +1002,13 @@ print_json_data (FILE * fp, GHolder * h, GPercTotals totals,
     sp = 1;
 
   /* output open panel attribute */
-  popen_obj_attr (fp, module_to_id (h->module), sp);
+  popen_obj_attr (json, module_to_id (h->module), sp);
   /* output panel metadata */
-  print_meta_data (fp, h, sp);
+  print_meta_data (json, h, sp);
   /* output panel data */
-  print_data_metrics (fp, h, totals, sp, panel);
+  print_data_metrics (json, h, totals, sp, panel);
   /* output close panel attribute */
-  pclose_obj (fp, sp, 1);
+  pclose_obj (json, sp, 1);
 }
 
 /* Get the number of available panels.
@@ -952,9 +1025,9 @@ num_panels (void)
   return npanels;
 }
 
-/* Output overall data. */
+/* Write to a buffer overall data. */
 static void
-print_json_summary (FILE * fp, GLog * logger)
+print_json_summary (GJSON * json, GLog * logger)
 {
   int sp = 0, isp = 0;
 
@@ -962,42 +1035,43 @@ print_json_summary (FILE * fp, GLog * logger)
   if (conf.json_pretty_print)
     sp = 1, isp = 2;
 
-  popen_obj_attr (fp, GENER_ID, sp);
+  popen_obj_attr (json, GENER_ID, sp);
   /* generated date time */
-  poverall_datetime (fp, isp);
+  poverall_datetime (json, isp);
   /* total requests */
-  poverall_requests (fp, logger, isp);
+  poverall_requests (json, logger, isp);
   /* valid requests */
-  poverall_valid_reqs (fp, logger, isp);
+  poverall_valid_reqs (json, logger, isp);
   /* invalid requests */
-  poverall_invalid_reqs (fp, logger, isp);
+  poverall_invalid_reqs (json, logger, isp);
   /* generated time */
-  poverall_processed_time (fp, isp);
+  poverall_processed_time (json, isp);
   /* visitors */
-  poverall_visitors (fp, isp);
+  poverall_visitors (json, isp);
   /* files */
-  poverall_files (fp, isp);
+  poverall_files (json, isp);
   /* excluded hits */
-  poverall_excluded (fp, logger, isp);
+  poverall_excluded (json, logger, isp);
   /* referrers */
-  poverall_refs (fp, isp);
+  poverall_refs (json, isp);
   /* not found */
-  poverall_notfound (fp, isp);
+  poverall_notfound (json, isp);
   /* static files */
-  poverall_static_files (fp, isp);
+  poverall_static_files (json, isp);
   /* log size */
-  poverall_log_size (fp, logger, isp);
+  poverall_log_size (json, logger, isp);
   /* bandwidth */
-  poverall_bandwidth (fp, logger, isp);
+  poverall_bandwidth (json, logger, isp);
   /* log path */
-  poverall_log (fp, isp);
-  pclose_obj (fp, sp, num_panels () > 0 ? 0 : 1);
+  poverall_log (json, isp);
+  pclose_obj (json, sp, num_panels () > 0 ? 0 : 1);
 }
 
 /* Iterate over all panels and generate json output. */
-static void
-init_json_output (FILE * fp, GLog * logger, GHolder * holder)
+static GJSON *
+init_json_output (GLog * logger, GHolder * holder)
 {
+  GJSON *json = NULL;
   GModule module;
   const GPanel *panel = NULL;
   size_t idx = 0, npanels = num_panels (), cnt = 0;
@@ -1008,19 +1082,23 @@ init_json_output (FILE * fp, GLog * logger, GHolder * holder)
     .bw = logger->resp_size,
   };
 
-  popen_obj (fp, 0);
-  print_json_summary (fp, logger);
+  json = new_gjson ();
+
+  popen_obj (json, 0);
+  print_json_summary (json, logger);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
     if (!(panel = panel_lookup (module)))
       continue;
-    panel->render (fp, holder + module, totals, panel);
-    pjson (fp, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
+    panel->render (json, holder + module, totals, panel);
+    pjson (json, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }
 
-  pclose_obj (fp, 0, 1);
+  pclose_obj (json, 0, 1);
+
+  return json;
 }
 
 /* Open and write to a dynamically sized output buffer.
@@ -1029,14 +1107,13 @@ init_json_output (FILE * fp, GLog * logger, GHolder * holder)
 char *
 get_json (GLog * logger, GHolder * holder)
 {
-  FILE *out;
+  GJSON *json = NULL;
   char *buf;
-  size_t size;
 
-  out = open_memstream (&buf, &size);
-  init_json_output (out, logger, holder);
-  fflush (out);
-  fclose (out);
+  if ((json = init_json_output (logger, holder)) && json->size > 0) {
+    buf = xstrdup (json->buf);
+    free_json (json);
+  }
 
   return buf;
 }
@@ -1045,6 +1122,7 @@ get_json (GLog * logger, GHolder * holder)
 void
 output_json (GLog * logger, GHolder * holder, const char *filename)
 {
+  GJSON *json = NULL;
   FILE *fp;
 
   if (filename != NULL)
@@ -1058,7 +1136,12 @@ output_json (GLog * logger, GHolder * holder, const char *filename)
   /* use new lines to prettify output */
   if (conf.json_pretty_print)
     nlines = 1;
-  init_json_output (fp, logger, holder);
+
+  /* spit it out */
+  if ((json = init_json_output (logger, holder)) && json->size > 0) {
+    fprintf (fp, "%s", json->buf);
+    free_json (json);
+  }
 
   fclose (fp);
 }

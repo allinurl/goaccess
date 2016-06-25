@@ -36,24 +36,30 @@
 
 #define TAB "\t\t\t\t\t\t\t\t\t\t\t"
 #define NL "\n\n\n"
+#define INIT_BUF_SIZE 1024
 
 #include "parser.h"
+
+typedef struct GJSON_
+{
+  char *buf;                    /* pointer to buffer */
+  size_t size;                  /* size of malloc'd buffer */
+  size_t offset;                /* current write offset */
+} GJSON;
 
 char *get_json (GLog * logger, GHolder * holder);
 
 void output_json (GLog * logger, GHolder * holder, const char *filename);
 void set_json_nlines (int nl);
 
-void pskeyfval (FILE * fp, const char *key, float val, int sp, int last);
-void pskeyival (FILE * fp, const char *key, int val, int sp, int last);
-void pskeysval (FILE * fp, const char *key, const char *val, int sp, int last);
-void pskeyu64val (FILE * fp, const char *key, uint64_t val, int sp, int last);
+void fpskeyival (FILE * fp, const char *key, int val, int sp, int last);
+void fpskeysval (FILE * fp, const char *key, const char *val, int sp, int last);
 
-void pclose_arr (FILE * fp, int sp, int last);
-void pclose_obj (FILE * fp, int iisp, int last);
-void pjson (FILE * fp, const char *fmt, ...);
-void popen_arr_attr (FILE * fp, const char *attr, int sp);
-void popen_obj_attr (FILE * fp, const char *attr, int sp);
-void popen_obj (FILE * fp, int iisp);
+void fpclose_arr (FILE * fp, int sp, int last);
+void fpclose_obj (FILE * fp, int iisp, int last);
+void fpjson (FILE * fp, const char *fmt, ...);
+void fpopen_arr_attr (FILE * fp, const char *attr, int sp);
+void fpopen_obj_attr (FILE * fp, const char *attr, int sp);
+void fpopen_obj (FILE * fp, int iisp);
 
 #endif
