@@ -114,6 +114,9 @@ static GHTML htmldef[] = {
 /* number of new lines (applicable fields) */
 static int nlines = 0;
 
+/* Get the chart type for the JSON definition.
+ *
+ * On success, the chart type string is returned. */
 static const char *
 chart2str (GChartType type)
 {
@@ -121,6 +124,10 @@ chart2str (GChartType type)
   return strings[type];
 }
 
+/* Get panel output data for the given module.
+ *
+ * If not found, NULL is returned.
+ * On success, panel data is returned . */
 static GHTML *
 panel_lookup (GModule module)
 {
@@ -133,7 +140,7 @@ panel_lookup (GModule module)
   return NULL;
 }
 
-/* sanitize output with html entities for special chars */
+/* Sanitize output with html entities for special chars */
 static void
 clean_output (FILE * fp, char *s)
 {
@@ -170,6 +177,7 @@ clean_output (FILE * fp, char *s)
   }
 }
 
+/* Set the HTML document title and the generated date/time */
 static void
 print_html_title (FILE * fp, const char *now)
 {
@@ -182,6 +190,7 @@ print_html_title (FILE * fp, const char *now)
 }
 
 /* *INDENT-OFF* */
+/* Output all the document head elements. */
 static void
 print_html_header (FILE * fp, const char *now)
 {
@@ -208,6 +217,7 @@ print_html_header (FILE * fp, const char *now)
   "<body>");
 }
 
+/* Output all structural elements of the HTML document. */
 static void
 print_html_body (FILE * fp, const char *now)
 {
@@ -246,6 +256,8 @@ print_html_body (FILE * fp, const char *now)
   fprintf (fp, "%s", tpls);
 }
 
+/* Output all the document footer elements such as script and closing
+ * tags. */
 static void
 print_html_footer (FILE * fp)
 {
@@ -265,6 +277,9 @@ print_html_footer (FILE * fp)
 
 static const GChartDef ChartDefStopper = { NULL, NULL };
 
+/* Get the number of chart definitions per panel.
+ *
+ * The number of chart definitions is returned . */
 static int
 get_chartdef_cnt (GChart * chart)
 {
@@ -277,6 +292,7 @@ get_chartdef_cnt (GChart * chart)
   return def - chart->def;
 }
 
+/* Output the given JSON chart definition for the given panel. */
 static void
 print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
 {
@@ -368,6 +384,7 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
   fpclose_obj (fp, isp, 1);
 }
 
+/* Output JSON data definitions. */
 static void
 print_json_data (FILE * fp, GLog * logger, GHolder * holder)
 {
@@ -383,6 +400,7 @@ print_json_data (FILE * fp, GLog * logger, GHolder * holder)
   free (json);
 }
 
+/* Output WebSocket connection definition. */
 static void
 print_conn_def (FILE * fp)
 {
@@ -405,6 +423,7 @@ print_conn_def (FILE * fp)
   fprintf (fp, "</script>");
 }
 
+/* Output JSON per panel metric definitions. */
 static void
 print_def_metric (FILE * fp, const GDefMetric def, int sp)
 {
@@ -428,6 +447,7 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp)
     fpskeysval (fp, "label", def.lbl, isp, 1);
 }
 
+/* Output JSON metric definition block. */
 static void
 print_def_block (FILE * fp, const GDefMetric def, int sp, int last)
 {
@@ -436,6 +456,7 @@ print_def_block (FILE * fp, const GDefMetric def, int sp, int last)
   fpclose_obj (fp, sp, last);
 }
 
+/* Output JSON overall requests definition block. */
 static void
 print_def_overall_requests (FILE * fp, int sp)
 {
@@ -449,6 +470,7 @@ print_def_overall_requests (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall valid requests definition block. */
 static void
 print_def_overall_valid_reqs (FILE * fp, int sp)
 {
@@ -462,6 +484,7 @@ print_def_overall_valid_reqs (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall invalid requests definition block. */
 static void
 print_def_overall_invalid_reqs (FILE * fp, int sp)
 {
@@ -475,6 +498,7 @@ print_def_overall_invalid_reqs (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON process time definition block. */
 static void
 print_def_overall_processed_time (FILE * fp, int sp)
 {
@@ -488,6 +512,7 @@ print_def_overall_processed_time (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall visitors definition block. */
 static void
 print_def_overall_visitors (FILE * fp, int sp)
 {
@@ -501,6 +526,7 @@ print_def_overall_visitors (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall files definition block. */
 static void
 print_def_overall_files (FILE * fp, int sp)
 {
@@ -513,6 +539,7 @@ print_def_overall_files (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall excluded requests definition block. */
 static void
 print_def_overall_excluded (FILE * fp, int sp)
 {
@@ -525,6 +552,7 @@ print_def_overall_excluded (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall referrers definition block. */
 static void
 print_def_overall_refs (FILE * fp, int sp)
 {
@@ -537,6 +565,7 @@ print_def_overall_refs (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall not found definition block. */
 static void
 print_def_overall_notfound (FILE * fp, int sp)
 {
@@ -549,6 +578,7 @@ print_def_overall_notfound (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall static files definition block. */
 static void
 print_def_overall_static_files (FILE * fp, int sp)
 {
@@ -561,6 +591,7 @@ print_def_overall_static_files (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON log size definition block. */
 static void
 print_def_overall_log_size (FILE * fp, int sp)
 {
@@ -573,6 +604,7 @@ print_def_overall_log_size (FILE * fp, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output JSON overall bandwidth definition block. */
 static void
 print_def_overall_bandwidth (FILE * fp, int sp)
 {
@@ -585,6 +617,7 @@ print_def_overall_bandwidth (FILE * fp, int sp)
   fpclose_obj (fp, sp, 1);
 }
 
+/* Output JSON hits definition block. */
 static void
 print_def_hits (FILE * fp, int sp)
 {
@@ -598,6 +631,7 @@ print_def_hits (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON visitors definition block. */
 static void
 print_def_visitors (FILE * fp, int sp)
 {
@@ -611,6 +645,7 @@ print_def_visitors (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON bandwidth definition block. */
 static void
 print_def_bw (FILE * fp, int sp)
 {
@@ -628,6 +663,7 @@ print_def_bw (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON Avg. T.S. definition block. */
 static void
 print_def_avgts (FILE * fp, int sp)
 {
@@ -645,6 +681,7 @@ print_def_avgts (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON Cum. T.S. definition block. */
 static void
 print_def_cumts (FILE * fp, int sp)
 {
@@ -662,6 +699,7 @@ print_def_cumts (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON Max. T.S. definition block. */
 static void
 print_def_maxts (FILE * fp, int sp)
 {
@@ -678,6 +716,7 @@ print_def_maxts (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON method definition block. */
 static void
 print_def_method (FILE * fp, int sp)
 {
@@ -694,6 +733,7 @@ print_def_method (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON protocol definition block. */
 static void
 print_def_protocol (FILE * fp, int sp)
 {
@@ -710,6 +750,7 @@ print_def_protocol (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON city definition block. */
 static void
 print_def_city (FILE * fp, int sp)
 {
@@ -725,6 +766,7 @@ print_def_city (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON country definition block. */
 static void
 print_def_country (FILE * fp, int sp)
 {
@@ -740,6 +782,7 @@ print_def_country (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON hostname definition block. */
 static void
 print_def_hostname (FILE * fp, int sp)
 {
@@ -756,6 +799,7 @@ print_def_hostname (FILE * fp, int sp)
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON data definition block. */
 static void
 print_def_data (FILE * fp, GModule module, int sp)
 {
@@ -770,6 +814,9 @@ print_def_data (FILE * fp, GModule module, int sp)
   print_def_block (fp, def, sp, 1);
 }
 
+/* Get the number of plots for the given panel definition.
+ *
+ * The number of plots for the given panel is returned. */
 static int
 count_plot_fp (const GHTML * def)
 {
@@ -778,6 +825,7 @@ count_plot_fp (const GHTML * def)
   return i;
 }
 
+/* Entry function to output JSON plot definition block. */
 static void
 print_def_plot (FILE * fp, const GHTML * def, int sp)
 {
@@ -797,6 +845,7 @@ print_def_plot (FILE * fp, const GHTML * def, int sp)
   fpclose_arr (fp, sp, 0);
 }
 
+/* Output JSON host panel definitions. */
 static void
 print_host_metrics (FILE * fp, const GHTML * def, int sp)
 {
@@ -821,6 +870,7 @@ print_host_metrics (FILE * fp, const GHTML * def, int sp)
   print_def_data (fp, def->module, sp);
 }
 
+/* Output JSON panel definitions. */
 static void
 print_metrics (FILE * fp, const GHTML * def, int sp)
 {
@@ -841,6 +891,7 @@ print_metrics (FILE * fp, const GHTML * def, int sp)
   print_def_data (fp, def->module, sp);
 }
 
+/* Entry point to output JSON metric definitions. */
 static void
 print_def_metrics (FILE * fp, const GHTML * def, int sp)
 {
@@ -857,6 +908,7 @@ print_def_metrics (FILE * fp, const GHTML * def, int sp)
   fpclose_arr (fp, sp, 1);
 }
 
+/* Output panel header and description metadata definitions. */
 static void
 print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
 {
@@ -869,6 +921,7 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp)
   fpskeysval (fp, "desc", desc, isp, 0);
 }
 
+/* Output panel sort metadata definitions. */
 static void
 print_def_sort (FILE * fp, const GHTML * def, int sp)
 {
@@ -886,6 +939,7 @@ print_def_sort (FILE * fp, const GHTML * def, int sp)
   fpclose_obj (fp, sp, 0);
 }
 
+/* Output panel metadata definitions. */
 static void
 print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
 {
@@ -908,6 +962,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp)
   print_def_metrics (fp, def, isp);
 }
 
+/* Output definitions for the given panel. */
 static void
 print_json_def (FILE * fp, const GHTML * def)
 {
@@ -927,6 +982,7 @@ print_json_def (FILE * fp, const GHTML * def)
           NL);
 }
 
+/* Output overall definitions. */
 static void
 print_def_summary (FILE * fp, int sp)
 {
@@ -955,6 +1011,7 @@ print_def_summary (FILE * fp, int sp)
   fpclose_obj (fp, isp, 1);
 }
 
+/* Output definitions for the given panel. */
 static void
 print_json_def_summary (FILE * fp, GHolder * holder)
 {
@@ -975,6 +1032,7 @@ print_json_def_summary (FILE * fp, GHolder * holder)
   free (head);
 }
 
+/* Entry point to output definitions for all panels. */
 static void
 print_json_defs (FILE * fp, GHolder * holder)
 {
