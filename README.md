@@ -71,8 +71,8 @@ not limited to:
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
 is to quickly analyze and view web server statistics in real time without
-needing to use your browser (great if you want to do a quick analysis of your
-access log via SSH, or if you simply love working in the terminal).
+needing to use your browser (_great if you want to do a quick analysis of your
+access log via SSH, or if you simply love working in the terminal_).
 
 While the terminal output is the default output, it has the capability to
 generate a complete real-time [**`HTML`**](http://rt.goaccess.io/?src=gh)
