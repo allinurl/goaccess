@@ -1108,7 +1108,7 @@ char *
 get_json (GLog * logger, GHolder * holder)
 {
   GJSON *json = NULL;
-  char *buf;
+  char *buf = NULL;
 
   if ((json = init_json_output (logger, holder)) && json->size > 0) {
     buf = xstrdup (json->buf);
