@@ -34,7 +34,7 @@
 #include <limits.h>
 #include <sys/select.h>
 
-#if defined(__linux__) || defined(__CYGWIN__) || defined (__sun__)
+#if defined(__linux__) || defined(__CYGWIN__)
 #  include <endian.h>
 #if ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 9))
 #if defined(__BYTE_ORDER) && (__BYTE_ORDER == __LITTLE_ENDIAN)
@@ -50,6 +50,13 @@
 #  error Byte Order not supported!
 #endif
 #endif
+#elif defined(__sun__)
+#  include <sys/byteorder.h>
+#  define htobe16(x) BE_16(x)
+#  define htobe64(x) BE_64(x)
+#  define be16toh(x) BE_IN16(x)
+#  define be32toh(x) BE_IN32(x)
+#  define be64toh(x) BE_IN64(x)
 #elif defined(__FreeBSD__) || defined(__NetBSD__)
 #  include <sys/endian.h>
 #elif defined(__OpenBSD__)

@@ -292,6 +292,7 @@ print_csv_summary (FILE * fp, GLog * logger)
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, conf.ifile, OVERALL_LOG);
 }
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Entry point to generate a a csv report writing it to the fp */

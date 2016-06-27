@@ -209,6 +209,7 @@ fpjson (FILE * fp, const char *fmt, ...)
   vfprintf (fp, fmt, args);
   va_end (args);
 }
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Escape and write to a buffer valid JSON.
