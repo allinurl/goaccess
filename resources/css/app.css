@@ -536,13 +536,12 @@ rect.legend {
 
 /* DARK THEME */
 .dark h1 {
-	color: #9E9E9E;
+	color: rgba(255, 255, 255, 0.6);
 }
 .dark h3,
 .dark h4,
 .dark h5 {
-	color: #7D7F80;
-	text-shadow: #000 0px 1px 0px;
+	color: rgba(255,255,255,0.4);
 }
 .dark .table-responsive {
 	border: none;
@@ -556,6 +555,9 @@ rect.legend {
 }
 .dark .wrap-panels table tbody.tbody-data tr td {
 	border-right: none;
+}
+.dark .wrap-panels table.table-hover>tbody.tbody-data>tr:hover {
+	background-color: rgba(255, 255, 255, 0.08);
 }
 .dark .col-title {
 	color: #F7F7F7;
@@ -598,9 +600,6 @@ html.dark.blue,
 }
 .dark.blue .wrap-panels table tbody.tbody-data tr.shaded {
 	background-color: #181B1F;
-}
-.dark.blue .wrap-panels table.table-hover>tbody.tbody-data>tr:hover {
-	background-color: #252B30;
 }
 .dark.blue .gray {
 	border-top: 4px solid #3B444C;
@@ -700,9 +699,6 @@ html.dark.gray,
 }
 .dark.gray .wrap-panels table tbody.tbody-data tr.shaded {
 	background-color: rgba(48, 48, 48, 0.48);
-}
-.dark.gray .wrap-panels table.table-hover>tbody.tbody-data>tr:hover {
-	background-color: #171717;
 }
 .dark.gray .gray {
 	border-top: 4px solid #303030;
