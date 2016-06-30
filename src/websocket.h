@@ -94,9 +94,10 @@
 #define CRLF "\r\n"
 #define SHA_DIGEST_LENGTH     20
 
-#define WS_MAX_FRM_SZ         1048576   /* 1 MiB */
-/* packet header is 2 unit32_t : type, size */
+/* packet header is 3 unit32_t : type, size, listener */
 #define HDR_SIZE              3 * 4
+#define WS_MAX_FRM_SZ         1048576   /* 1 MiB max frame size */
+#define WS_THROTTLE_THLD      2097152   /* 2 MiB throttle threshold */
 
 #define WS_MAGIC_STR "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_PAYLOAD_EXT16      126
@@ -126,6 +127,7 @@ typedef enum WSSTATUS
   WS_CLOSE = (1 << 1),
   WS_READING = (1 << 2),
   WS_SENDING = (1 << 3),
+  WS_THROTTLING = (1 << 4),
 } WSStatus;
 
 typedef enum WSOPCODE
