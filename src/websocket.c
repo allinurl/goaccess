@@ -369,7 +369,9 @@ ws_clear_queue (WSClient * client)
   free ((*queue));
   (*queue) = NULL;
 
-  /* done sending, close connection */
+  /* done sending the whole queue, stop throttling */
+  client->status &= ~WS_THROTTLING;
+  /* done sending, close connection if set to close */
   if ((client->status & WS_CLOSE) && (client->status & WS_SENDING))
     client->status = WS_CLOSE;
 }
@@ -864,6 +866,11 @@ ws_realloc_send_buf (WSClient * client, const char *buf, int len)
   memcpy (queue->queued + queue->qlen, buf, len);
   queue->qlen += len;
 
+  /* client probably  too slow, so stop queueing until everything is
+   * sent */
+  if (queue->qlen == WS_THROTTLE_THLD)
+    client->status |= WS_THROTTLING;
+
   return 0;
 }
 
@@ -879,8 +886,10 @@ ws_respond (WSClient * client, const char *buffer, int len)
   /* attempt to send the whole buffer buffer */
   if (client->sockqueue == NULL)
     bytes = ws_respond_data (client, buffer, len);
-  /* buffer not empty, just append new data */
-  else if (client->sockqueue != NULL && buffer != NULL) {
+  /* buffer not empty, just append new data iff we're not throttling the
+   * client */
+  else if (client->sockqueue != NULL && buffer != NULL &&
+           !(client->status & WS_THROTTLING)) {
     if (ws_realloc_send_buf (client, buffer, len) == 1)
       return bytes;
   }
