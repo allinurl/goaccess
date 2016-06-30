@@ -1019,7 +1019,7 @@ GoAccess.Tables = {
 		var shadeChild = ((parentId % 2 != 0) ? 'shaded' : '');
 		return {
 			'panel'       : panel,
-			'idx'         : !subItem && (String(idx + this.pageOffSet(panel))),
+			'idx'         : !subItem && (String((idx + 1) + this.pageOffSet(panel))),
 			'key'         : !subItem ? GoAccess.Util.hashCode(dataItem.data) : '',
 			'expanded'    : !subItem && expanded,
 			'parentId'    : subItem ? String(parentId) : '',
