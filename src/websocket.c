@@ -868,7 +868,7 @@ ws_realloc_send_buf (WSClient * client, const char *buf, int len)
 
   /* client probably  too slow, so stop queueing until everything is
    * sent */
-  if (queue->qlen == WS_THROTTLE_THLD)
+  if (queue->qlen >= WS_THROTTLE_THLD)
     client->status |= WS_THROTTLING;
 
   return 0;
