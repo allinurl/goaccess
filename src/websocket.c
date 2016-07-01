@@ -837,6 +837,9 @@ ws_respond_cache (WSClient * client)
   if (bytes == -1 && errno == EPIPE)
     return ws_set_status (client, WS_ERR | WS_CLOSE, bytes);
 
+  if (bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+    return bytes;
+
   if (chop_nchars (queue->queued, bytes, queue->qlen) == 0)
     ws_clear_queue (client);
   else
