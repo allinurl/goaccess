@@ -56,16 +56,15 @@ outputs the data to the X terminal. Features include:
 
 Why GoAccess?
 -------------
-The main idea behind GoAccess is being able to quickly analyze and view web
-server statistics in real time without needing to generate an HTML report
-(great if you want to do a quick analysis of your access log via SSH).
+GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
+is to quickly analyze and view web server statistics in real time without
+needing to use your browser (great if you want to do a quick analysis of your
+access log via SSH, or if you simply love working in the terminal).
 
-Although it is possible to generate an HTML, JSON, CSV report, by default it
-outputs to a terminal. You can see it more of a monitor command tool than
-anything else.
+While the terminal output is the default output, it has the capability to
+generate a complete real-time HTML report, as well as a JSON, and CSV report.
 
-Or if you are simply concerned about third party analytics tools using JS
-trackers.
+You can see it more of a monitor command tool than anything else.
 
 Keys
 ----
