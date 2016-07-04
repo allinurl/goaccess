@@ -826,7 +826,7 @@ function BarChart(dualYaxis) {
 			.attr('height', 0)
 			.transition()
 			.delay(function (d, i) { return i / data.length * 1000; })
-			.duration(200)
+			.duration(500)
 			.attr('y', function (d, i) { return yScale0(d[1]); })
 			.attr('height', function (d, i) { return innerH() - yScale0(d[1]); });
 		// update
@@ -852,7 +852,7 @@ function BarChart(dualYaxis) {
 			.attr('height', 0)
 			.transition()
 			.delay(function (d, i) { return i / data.length * 1000; })
-			.duration(200)
+			.duration(500)
 			.attr('y', function (d, i) { return yScale1(d[2]); })
 			.attr('height', function (d, i) { return innerH() - yScale1(d[2]); });
 		// update
