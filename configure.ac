@@ -65,7 +65,14 @@ AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide 
   [utf8="$enableval"], utf8=no)
 
 if test "$utf8" = "yes"; then
-  AC_CHECK_LIB([ncursesw], [mvaddwstr], [],
+  libncursesw=ncursesw
+  # Simply called libncurses on OS X
+  case "$host_os" in
+    *darwin*) libncursesw=ncurses
+    ;;
+  esac
+
+  AC_CHECK_LIB([$libncursesw], [mvaddwstr], [],
     [AC_MSG_ERROR([*** Missing development libraries for ncursesw])])
   AC_SEARCH_LIBS([tputs], [tinfow], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
 
