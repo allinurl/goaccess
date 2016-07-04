@@ -303,7 +303,6 @@ function AreaChart(dualYaxis) {
 				return pathLen(d3.select(this)) + ' ' + pathLen(d3.select(this))
 			})
 			.duration(2000)
-			.ease('linear')
 			.attr('stroke-dashoffset', 0);
 		// remove elements
 		path.exit().remove();
