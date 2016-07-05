@@ -178,11 +178,11 @@ fi
 AM_CONDITIONAL([TCB], [test "$WITH_TC" = "yes"])
 
 if test "$tcb" = "memhash"; then
-  storage="On-memory Hash Database (Tokyo Cabinet)"
+  storage="In-memory Hash Database (Tokyo Cabinet)"
 elif test "$tcb" = "btree"; then
   storage="On-disk B+ Tree Database (Tokyo Cabinet)"
 else
-  storage="On-memory Hash Database (Default)"
+  storage="In-memory Hash Database (Default)"
 fi
 
 # Solaris
