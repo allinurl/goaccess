@@ -73,11 +73,12 @@ if test "$utf8" = "yes"; then
   esac
 
   AC_CHECK_LIB([$libncursesw], [mvaddwstr], [],
-    [AC_MSG_ERROR([*** Missing development libraries for ncursesw])])
+      [AC_MSG_ERROR([*** Missing development libraries for ncursesw])])
   AC_SEARCH_LIBS([tputs], [tinfow], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
+  AC_DEFINE([HAVE_LIBNCURSESW], [1], ["ncursesw is present."])
 
   have_ncurses="yes"
-  AC_CHECK_HEADERS([ncursesw/ncurses.h],[have_ncurses=yes], [], [
+  AC_CHECK_HEADERS([$libncursesw/ncurses.h],[have_ncurses=yes], [], [
   #ifdef HAVE_NCURSESW_NCURSES_H
   #include <ncursesw/ncurses.h>
   #endif
