@@ -151,6 +151,10 @@ alternative option below.
     # cd /usr/ports/www/goaccess && make install clean
     # pkg_add goaccess
 
+#### OpenIndiana ####
+
+    # pkg install goaccess
+
 #### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
 
     # pkgin install goaccess
