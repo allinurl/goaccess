@@ -1025,7 +1025,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL || *tkn == '\0')
-      return 1;
+      return 0;
     if ((glog->qstr = decode_url (tkn)) == NULL)
       return 1;
     free (tkn);
