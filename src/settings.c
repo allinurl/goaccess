@@ -64,7 +64,7 @@ static const GPreConfLog logs = {
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
   "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
-  "%d %t %h %^ %^ %^ %m %r %^ %s %b %^ %^ %u %R",               /* W3C */
+  "%d %t %h %^ %^ %^ %m %U %^ %s %b %^ %^ %u %R",               /* W3C */
   "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%dT%t.%^ %^ %h:%^ %^ %T %^ %^ %^ %s %^ %b \"%r\" \"%u\"",    /* AWS Elastic Load Balancing */
