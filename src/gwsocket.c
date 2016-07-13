@@ -52,6 +52,10 @@ static pthread_t gws_thread;
 static pthread_mutex_t gws_mutex;
 static WSServer *server = NULL;
 
+/* Write the JSON data to a pipe.
+ *
+ * If unable to write bytes, -1 is returned.
+ * On success, the number of written bytes is returned . */
 static int
 write_holder (int fd, const char *buf, int len)
 {
@@ -71,6 +75,10 @@ write_holder (int fd, const char *buf, int len)
   return i;
 }
 
+/* Pack the JSON data into a network byte order and write it to a
+ * pipe.
+ *
+ * On success, 0 is returned . */
 int
 broadcast_holder (int fd, const char *buf, int len)
 {
@@ -90,6 +98,10 @@ broadcast_holder (int fd, const char *buf, int len)
   return 0;
 }
 
+/* Open the named pipe where the websocket server reads from.
+ *
+ * If unable to open, -1 is returned.
+ * On success, return the new file descriptor is returned . */
 int
 open_fifo (void)
 {
@@ -102,6 +114,7 @@ open_fifo (void)
   return fdfifo;
 }
 
+/* Set the self-pipe trick to handle select(2). */
 static void
 set_self_pipe (void)
 {
@@ -114,6 +127,7 @@ set_self_pipe (void)
   set_nonblocking (server->self_pipe[1]);
 }
 
+/* Close the WebSocket server and clean up. */
 void
 stop_ws_server (void)
 {
@@ -128,6 +142,7 @@ stop_ws_server (void)
   pthread_join (gws_thread, NULL);
 }
 
+/* Start the WebSocket server and initialize default options. */
 static void
 start_server (void)
 {
@@ -149,6 +164,7 @@ start_server (void)
   ws_stop (server);
 }
 
+/* Setup and start the WebSocket thread. */
 int
 setup_ws_server (void)
 {
