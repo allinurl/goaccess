@@ -119,7 +119,9 @@ static const char *os[][2] = {
 static char *
 get_real_android (const char *droid)
 {
-  if (strstr (droid, "6.0"))
+  if (strstr (droid, "6.0.1"))
+    return alloc_string ("Marshmallow 6.0.1");
+  else if (strstr (droid, "6.0"))
     return alloc_string ("Marshmallow 6.0");
   else if (strstr (droid, "5.1"))
     return alloc_string ("Lollipop 5.1");
