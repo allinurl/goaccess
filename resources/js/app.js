@@ -30,8 +30,10 @@ window.GoAccess = window.GoAccess || {
 			'perPage': 10,
 		};
 
-		var ls = JSON.parse(localStorage.getItem('AppPrefs'));
-		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
+		if (GoAccess.Util.hasLocalStorage()) {
+			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
+			this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
+		}
 		if (Object.keys(this.AppWSConn).length)
 			this.setWebSocket(this.AppWSConn);
 	},
@@ -45,7 +47,9 @@ window.GoAccess = window.GoAccess || {
 	},
 
 	setPrefs: function () {
-		localStorage.setItem('AppPrefs', JSON.stringify(GoAccess.getPrefs()));
+		if (GoAccess.Util.hasLocalStorage()) {
+			localStorage.setItem('AppPrefs', JSON.stringify(GoAccess.getPrefs()));
+		}
 	},
 
 	getPanelData: function (panel) {
@@ -218,6 +222,16 @@ GoAccess.Util = {
 			}
 		}
 		return o;
+	},
+
+	hasLocalStorage: function () {
+		try {
+			localStorage.setItem('test', 'test');
+			localStorage.removeItem('test');
+			return true;
+		} catch(e) {
+			return false;
+		}
 	},
 };
 
