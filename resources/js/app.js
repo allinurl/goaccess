@@ -26,7 +26,7 @@ window.GoAccess = window.GoAccess || {
 		this.AppData   = (this.opts || {}).panelData || {}; // hold raw data
 		this.AppWSConn = (this.opts || {}).wsConnection || {}; // WebSocket connection
 		this.AppPrefs  = {
-			'theme': 'darkGray',
+			'theme': 'darkBlue',
 			'perPage': 10,
 		};
 
