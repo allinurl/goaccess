@@ -48,7 +48,7 @@
 #include "error.h"
 #include "util.h"
 
-static char short_options[] = "f:e:p:o:l:"
+static char short_options[] = "f:e:p:o:l:H:M:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
