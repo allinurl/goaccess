@@ -971,6 +971,9 @@ ws_error (WSClient * client, unsigned short code, const char *err)
   return ws_send_frame (client, WS_OPCODE_CLOSE, buf, len);
 }
 
+/* Log hit to the access log.
+ *
+ * On success, the hit/entry is logged. */
 static void
 access_log (WSClient * client, int status_code)
 {
