@@ -205,10 +205,14 @@ geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   if (geo_location_data == NULL)
     return;
 
-  geoid = geoip_get_geoid (addr, type_ip);
-  country = geoip_get_country_by_geoid (addr, type_ip);
+  if (!(country = geoip_get_country_by_geoid (addr, type_ip)))
+    return;
+
   /* return two letter country code */
-  code = GeoIP_code_by_id (geoid);
+  if (!(geoid = geoip_get_geoid (addr, type_ip)))
+    return;
+  if (!(code = GeoIP_code_by_id (geoid)))
+    return;
 
   geoip_set_country (country, code, location);
 }
@@ -274,8 +278,10 @@ geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   if (geo_location_data == NULL)
     return;
 
-  geoid = geoip_get_geoid (addr, type_ip);
-  continent = GeoIP_continent_by_id (geoid);
+  if (!(geoid = geoip_get_geoid (addr, type_ip)))
+    return;
+  if (!(continent = GeoIP_continent_by_id (geoid)))
+    return;
   geoip_set_continent (continent, location);
 }
 
