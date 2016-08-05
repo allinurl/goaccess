@@ -1205,7 +1205,8 @@ render_confdlg (GLog * logger, GSpinner * spinner)
     "Squid Native Format",
     "CloudFront (Download Distribution)",
     "Google Cloud Storage",
-    "AWS Elastic Load Balancing (HTTP/S)"
+    "AWS Elastic Load Balancing (HTTP/S)",
+    "AWS Simple Storage Service (S3)",
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);

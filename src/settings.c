@@ -57,6 +57,7 @@ static GEnum LOGTYPE[] = {
   {"CLOUDFRONT"   , CLOUDFRONT}   ,
   {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
   {"AWSELB"       , AWSELB}       ,
+  {"AWSS3"        , AWSS3}        ,
 };
 
 static const GPreConfLog logs = {
@@ -69,6 +70,7 @@ static const GPreConfLog logs = {
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%dT%t.%^ %^ %h:%^ %^ %T %^ %^ %^ %s %^ %b \"%r\" \"%u\"",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
+  "%^[%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"",   /* Amazon S3 */
 };
 
 static const GPreConfTime times = {
@@ -359,6 +361,8 @@ get_selected_format_idx (void)
     return AWSELB;
   else if (strcmp (conf.log_format, logs.squid) == 0)
     return SQUID;
+  else if (strcmp (conf.log_format, logs.awss3) == 0)
+    return AWSS3;
   else
     return -1;
 }
@@ -400,6 +404,9 @@ get_selected_format_str (size_t idx)
   case SQUID:
     fmt = alloc_string (logs.squid);
     break;
+  case AWSS3:
+    fmt = alloc_string (logs.awss3);
+    break;
   }
 
   return fmt;
@@ -419,6 +426,7 @@ get_selected_date_str (size_t idx)
   case VCOMMON:
   case COMBINED:
   case VCOMBINED:
+  case AWSS3:
     fmt = alloc_string (dates.apache);
     break;
   case AWSELB:
@@ -454,6 +462,7 @@ get_selected_time_str (size_t idx)
   case VCOMBINED:
   case VCOMMON:
   case W3C:
+  case AWSS3:
     fmt = alloc_string (times.fmt24);
     break;
   case CLOUDSTORAGE:

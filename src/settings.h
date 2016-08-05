@@ -53,6 +53,7 @@ typedef enum LOGTYPE
   CLOUDFRONT,
   CLOUDSTORAGE,
   AWSELB,
+  AWSS3,
 } GLogType;
 
 /* predefined log times */
@@ -84,6 +85,7 @@ typedef struct GPreConfLog_
   const char *cloudstorage;
   const char *awselb;
   const char *squid;
+  const char *awss3;
 } GPreConfLog;
 
 /* *INDENT-OFF* */
