@@ -19,7 +19,7 @@ terminal.  Features include:
 
 .IP "General Statistics:"
 This panel gives a summary of several metrics, some of them are: number of
-valid and invalid requests, time taken to analyze the data set, unique
+valid and invalid requests, time taken to analyze the dataset, unique
 visitors, requested files, static files (CSS, ICO, JPG, etc) HTTP referrers,
 404s, size of the parsed log file and bandwidth consumption.
 .IP "Unique visitors"
@@ -910,13 +910,13 @@ B+Tree database. It works in the following way:
 
 .nr step 1 1
 .IP \n[step] 3
-A data set must be persisted first with
+A dataset must be persisted first with
 .I --keep-db-files,
-then the same data set can be loaded with
+then the same dataset can be loaded with
 .I --load-from-disk.
 .IP \n+[step]
 If new data is passed (piped or through a log file), it will append it to the
-original data set.
+original dataset.
 .IP \n+[step]
 To preserve the data at all times,
 .I --keep-db-files
