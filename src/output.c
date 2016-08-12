@@ -179,20 +179,20 @@ clean_output (FILE * fp, char *s)
 
 /* Set the HTML document title and the generated date/time */
 static void
-print_html_title (FILE * fp, const char *now)
+print_html_title (FILE * fp)
 {
   const char *title =
     conf.html_report_title ? conf.html_report_title : REP_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, (char *) title);
-  fprintf (fp, " - %s</title>", now);
+  fprintf (fp, "</title>");
 }
 
 /* *INDENT-OFF* */
 /* Output all the document head elements. */
 static void
-print_html_header (FILE * fp, const char *now)
+print_html_header (FILE * fp)
 {
   fprintf (fp,
   "<!DOCTYPE html>"
@@ -203,7 +203,7 @@ print_html_header (FILE * fp, const char *now)
   "<meta name='viewport' content='width=device-width, initial-scale=1'>"
   "<meta name='robots' content='noindex, nofollow' />");
 
-  print_html_title (fp, now);
+  print_html_title (fp);
 
   fprintf (fp, "<style>%s</style>", fa_css);
   fprintf (fp, "<style>%s</style>", bootstrap_css);
@@ -1078,7 +1078,7 @@ output_html (GLog * logger, GHolder * holder, const char *filename)
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
 
-  print_html_header (fp, now);
+  print_html_header (fp);
 
   print_html_body (fp, now);
   print_json_defs (fp, holder);
