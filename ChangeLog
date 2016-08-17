@@ -452,18 +452,18 @@ Changes to GoAccess 0.3.1 - Friday, September 03, 2010
 
 Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
+  - Added a counter for total requests since initial parse was implemented
+  - Added a more detailed and comprehensive browser and os report
+  - Added bandwidth details for requested files
+  - Added percentage details on modules 2, 3, 4, 5, 10, 11
+  - Code cleanups
+  - Fixed a potential segmentation fault when resizing main window
+  - Fixed a segmentation fault on pop-up window search if haystack was null
   - Fixed invalid entries when parsing status codes
   - Implemented a real support for LFS - Handles files larger than 2 GiB on
     32-bit systems
-  - Added a more detailed and comprehensive browser and os report
-  - Fixed a segmentation fault on pop-up window search if haystack was null
-  - Added bandwidth details for requested files
-  - Added percentage details on modules 2, 3, 4, 5, 10, 11
   - Implemented support for 'vhost_combined' log format
-  - Fixed a potential segmentation fault when resizing main window
   - Position of data/graphs will change depending on # of hits
-  - A counter for total requests since initial parse was implemented
-  - Code cleanups
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
