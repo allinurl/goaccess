@@ -467,16 +467,16 @@ Changes to GoAccess 0.3 - Sunday, August 29, 2010
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
-  - Implemented real-time statistics (RTS). Data will be appended as the log file
-    grows. Equivalent to 'tail -f' on Unix systems
   - Added a keyphrases report coming from Google search engine. This includes,
     raw, cache, and translation queries.
-  - Implemented screen resize functionality
-  - Various small speed increases & code cleanup
   - Fixed a memory leak when invalid entries were parsed
-  - Simplify the "process_unique_data" function
-  - Simplify creation of the "unique visitors" hash-key.
-  - Fix a potential buffer overflow.
+  - Fixed a potential buffer overflow.
+  - Implemented real-time statistics (RTS). Data will be appended as the log
+    file grows. Equivalent to 'tail -f' on Unix systems
+  - Implemented screen resize functionality
+  - Simpliflied creation of the "unique visitors" hash-key.
+  - Simpliflied the "process_unique_data" function
+  - Various small speed increases & code cleanup
 
 Changes to GoAccess 0.1.2 - Monday, July 12 2010
 
