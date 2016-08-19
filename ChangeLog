@@ -486,19 +486,19 @@ Changes to GoAccess 0.1.2 - Monday, July 12 2010
 Changes to GoAccess 0.1.1 - Saturday, July 10 2010
 
   - Added an enhanced error handling
-  - Added Glibc LFS
   - Added an extra macro on configure.ac to check against GHashTableIter.
     ./configure might not check for glib 2.16 that introduced 'GHashTableIter'.
-  - Clean up code a little bit
+  - Added Glibc LFS
+  - Cleaned up code a little bit
   - Fixed a segmentation fault when displaying the help text on x86_64.
-  - Fixed casts associated with "g_hash_table_iter_next".
-  - Fixed two format strings. (If the error was ever triggered, it'd most likely
-    lead to a segfault.)
-  - Fixed assignments in conditions. In case the assignment is actually intended,
+  - Fixed assignments in conditions. In case the assignment is actually intended
     put extra parenthesis around it. This will shut GCC (and others) up.
+  - Fixed casts associated with "g_hash_table_iter_next".
   - Fixed comparison between signed and unsigned integer types.
-  - Fixed includes.
   - Fixed function declarations.
+  - Fixed includes.
+  - Fixed two format strings. (If the error was ever triggered, it'd most
+    likely lead to a segfault.)
 
 Tuesday, July 06, 21:12:29 2010 Gerardo Orellana (goaccess at prosoftcorp.com)
 
