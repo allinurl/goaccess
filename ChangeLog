@@ -410,9 +410,9 @@ Changes to GoAccess 0.5 - Monday, June 04, 2012
 
 Changes to GoAccess 0.4.2 - Monday, January 03, 2011
 
+  - Added UTF-8 support. Now it should handle properly wide-character/UTF-8.
+    Run ./configure --enable-utf8
   - Fixed a minor bug when adding monthly totals on visitors subwin.
-  - UTF-8 support has been implemented. Now it should handle properly
-    wide-character/UTF-8. Run ./configure --enable-utf8
   - Since GoAccess does not link to librt, -lrt has been removed. (OS X doesn't
     include librt)
 
