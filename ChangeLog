@@ -378,23 +378,23 @@ Changes to GoAccess 0.6.1 - Monday, October 07, 2013
 
 Changes to GoAccess 0.6 - Monday, July 15, 2013
 
-  - Moved away from the original pop-up UI to a new expandable dashboard allowing
-    data to be processed in real-time.
-  - Added the ability to search across the whole dashboard with the option to use
-    regular expressions.
-  - Added the ability to independently sort each module.
-  - Implemented the ability to parse the time taken to serve the request, in
-    microseconds and seconds.
+  - Added and updated list of browsers and operating systems.
   - Added a predefined log format/date for the Amazon CloudFront (Download
     Distribution).
-  - Config window now accepts [ENTER] to continue or F10.
   - Added parsing/processing indicators.
-  - Updated the hosts module so it shows the reverse DNS as a sub node.
-  - Sanitized HTML output with html entities for special chars.
-  - Fixed issue where Opera +15 was identified as Chrome.
+  - Added the ability to independently sort each module.
+  - Added the ability to search across the whole dashboard with the option to
+    use regular expressions.
+  - Config window now accepts [ENTER] to continue or F10.
   - Fixed a bunch of minor fixes and changes.
-  - Added and updated list of browsers and operating systems.
+  - Fixed issue where Opera +15 was identified as Chrome.
+  - Implemented the ability to parse the time taken to serve the request, in
+    microseconds and seconds.
   - Improved memory usage and better performance in general.
+  - Moved away from the original pop-up UI to a new expandable dashboard
+    allowing data to be processed in real-time.
+  - Sanitized HTML output with html entities for special chars.
+  - Updated the hosts module so it shows the reverse DNS as a sub node.
 
 Changes to GoAccess 0.5 - Monday, June 04, 2012
 
