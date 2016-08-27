@@ -1114,7 +1114,7 @@ draw_formats (WINDOW * win, int w2)
 
   draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
                color_panel_header);
-  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed");
+  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed - [q] to quit");
 
   /* set log format from config file if available */
   draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
