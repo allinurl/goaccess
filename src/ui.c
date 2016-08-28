@@ -1477,7 +1477,7 @@ load_schemes_win (WINDOW * main_win)
 
   draw_header (win, "Scheme Configuration", " %s", 1, 1, w2,
                color_panel_header);
-  mvwprintw (win, 2, 2, "[ENTER] to switch scheme");
+  mvwprintw (win, 2, 2, "[ENTER] to use scheme - [q] to quit");
 
   wrefresh (win);
   while (quit) {
