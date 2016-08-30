@@ -1114,7 +1114,7 @@ draw_formats (WINDOW * win, int w2)
 
   draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
                color_panel_header);
-  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed - [q] to quit");
+  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed - [q]uit");
 
   /* set log format from config file if available */
   draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
@@ -1477,7 +1477,7 @@ load_schemes_win (WINDOW * main_win)
 
   draw_header (win, "Scheme Configuration", " %s", 1, 1, w2,
                color_panel_header);
-  mvwprintw (win, 2, 2, "[ENTER] to use scheme - [q] to quit");
+  mvwprintw (win, 2, 2, "[ENTER] to use scheme - [q]uit");
 
   wrefresh (win);
   while (quit) {
@@ -1630,7 +1630,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
   draw_header (win, "Sort active module by", " %s", 1, 1, w2,
                color_panel_header);
-  mvwprintw (win, 2, 2, "[ENTER] to select field - [TAB] sort");
+  mvwprintw (win, 2, 2, "[ENTER] select - [TAB] sort - [q]uit");
+
   if (sort->sort == SORT_ASC)
     mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_ASC_SEL);
   else
