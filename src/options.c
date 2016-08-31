@@ -105,6 +105,7 @@ struct option long_opts[] = {
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
+  {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
@@ -169,6 +170,7 @@ cmd_help (void)
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
+  "  --no-html-last-updated          - Hide HTML last updated field.\n"
   "\n"
 
   /* Server Options */
@@ -489,6 +491,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* no tab scroll */
   if (!strcmp ("no-tab-scroll", name))
     conf.no_tab_scroll = 1;
+
+  /* no html last updated field */
+  if (!strcmp ("no-html-last-updated", name))
+    conf.no_html_last_updated = 1;
 
   /* specifies the path of the GeoIP City database file */
   if (!strcmp ("geoip-city-data", name) || !strcmp ("geoip-database", name))
