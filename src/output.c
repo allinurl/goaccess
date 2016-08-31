@@ -232,7 +232,7 @@ print_html_body (FILE * fp, const char *now)
   "<div class='page-header clearfix'>"
   "<div class='pull-right'>"
   "<h4>"
-  "<span class='label label-info'>"
+  "<span class='label label-info' style='display:%s'>"
   "Last Updated: <span class='last-updated'>%s</span>"
   "</span>"
   "</h4>"
@@ -245,14 +245,16 @@ print_html_body (FILE * fp, const char *now)
   "<i class='fa fa-bars nav-minibars'></i>"
   "<i class='fa fa-circle nav-ws-status mini'></i>"
   "</span>"
-  "</h1>"
+  "</h1>", conf.no_html_last_updated ? "none" : "block", now);
+
+  fprintf (fp,
   "<div class='report-title'>%s</div>"
   "</div>"
   "<div class='wrap-general'></div>"
   "<div class='wrap-panels'></div>"
   "</div>"
   "</div>"
-  "</div>", now, conf.html_report_title ? conf.html_report_title : "");
+  "</div>", conf.html_report_title ? conf.html_report_title : "");
   fprintf (fp, "%s", tpls);
 }
 

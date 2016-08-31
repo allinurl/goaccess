@@ -150,6 +150,7 @@ typedef struct GConf_
   int no_csv_summary;               /* don't show overall metrics */
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
+  int no_html_last_updated;         /* don't show HTML last updated field */
   int output_stdout;                /* outputting to stdout */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
