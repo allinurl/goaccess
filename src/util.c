@@ -623,7 +623,7 @@ trim_str (char *str)
 char *
 filesize_str (unsigned long long log_size)
 {
-  char *size = (char *) xmalloc (sizeof (char) * 12);
+  char *size = xmalloc (sizeof (char) * 12);
   if (log_size >= TIB)
     snprintf (size, 12, "%.2f TiB", (double) (log_size) / TIB);
   else if (log_size >= GIB)
@@ -645,7 +645,7 @@ filesize_str (unsigned long long log_size)
 char *
 usecs_to_str (unsigned long long usec)
 {
-  char *size = (char *) xmalloc (sizeof (char) * 11);
+  char *size = xmalloc (sizeof (char) * 11);
   if (usec >= DAY)
     snprintf (size, 11, "%.2f  d", (double) (usec) / DAY);
   else if (usec >= HOUR)
