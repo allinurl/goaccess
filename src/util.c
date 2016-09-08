@@ -624,12 +624,14 @@ char *
 filesize_str (unsigned long long log_size)
 {
   char *size = (char *) xmalloc (sizeof (char) * 12);
-  if (log_size >= GB)
-    snprintf (size, 12, "%.2f GiB", (double) (log_size) / GB);
-  else if (log_size >= MB)
-    snprintf (size, 12, "%.2f MiB", (double) (log_size) / MB);
-  else if (log_size >= KB)
-    snprintf (size, 12, "%.2f KiB", (double) (log_size) / KB);
+  if (log_size >= TIB)
+    snprintf (size, 12, "%.2f TiB", (double) (log_size) / TIB);
+  else if (log_size >= GIB)
+    snprintf (size, 12, "%.2f GiB", (double) (log_size) / GIB);
+  else if (log_size >= MIB)
+    snprintf (size, 12, "%.2f MiB", (double) (log_size) / MIB);
+  else if (log_size >= KIB)
+    snprintf (size, 12, "%.2f KiB", (double) (log_size) / KIB);
   else
     snprintf (size, 12, "%.1f   B", (double) (log_size));
 

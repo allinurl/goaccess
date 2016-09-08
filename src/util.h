@@ -33,9 +33,11 @@
 #define ARRAY_SIZE(a) (sizeof(a) / sizeof(a[0]))
 
 #define REGEX_ERROR 100
-#define KB          1024
-#define MB          (KB * 1024)
-#define GB          (MB * 1024)
+
+#define KIB 1024
+#define MIB 1048576
+#define GIB 1073741824
+#define TIB 1099511627776LL
 
 #define MILS        1000ULL
 #define SECS        1000000ULL
