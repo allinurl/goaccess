@@ -260,7 +260,7 @@ to be used without prepending `--`.
 | `--tune-bnum=<number>`             | Number of elements of the bucket array. [32749]               |
 | `--tune-lmemb=<number>`            | Number of members in each leaf page. [128]                    |
 | `--tune-nmemb=<number>`            | Number of members in each non-leaf page. [256]                |
-| `--ws-url=<url>`                   | URL to which the WebSocket server responds.                   |
+| `--ws-url=<[scheme://]url[:port]>` | URL to which the WebSocket server responds.                   |
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
 ## Usage ##
