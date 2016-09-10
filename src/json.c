@@ -238,7 +238,7 @@ escape_json_other (GJSON * json, char **s)
   }
 }
 
-/* Escape and write to a buffer valid JSON.
+/* Escape and write to a valid JSON buffer.
  *
  * On success, escaped JSON data is outputted. */
 static void
