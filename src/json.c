@@ -212,6 +212,32 @@ fpjson (FILE * fp, const char *fmt, ...)
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
+/* Escape all other characters accordingly. */
+static void
+escape_json_other (GJSON * json, char **s)
+{
+  if ((uint8_t) ** s <= 0x1f) {
+    /* Control characters (U+0000 through U+001F) */
+    char buf[8];
+    snprintf (buf, sizeof buf, "\\u%04x", **s);
+    pjson (json, "%s", buf);
+  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 &&
+             (uint8_t) * (*s + 2) == 0xa8) {
+    /* Line separator (U+2028) - 0xE2 0x80 0xA8 */
+    pjson (json, "\\u2028");
+    *s += 2;
+  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 &&
+             (uint8_t) * (*s + 2) == 0xa9) {
+    /* Paragraph separator (U+2019) - 0xE2 0x80 0xA9 */
+    pjson (json, "\\u2029");
+    *s += 2;
+  } else {
+    char buf[2];
+    snprintf (buf, sizeof buf, "%c", **s);
+    pjson (json, "%s", buf);
+  }
+}
+
 /* Escape and write to a buffer valid JSON.
  *
  * On success, escaped JSON data is outputted. */
@@ -269,26 +295,7 @@ escape_json_output (GJSON * json, char *s)
       pjson (json, "\\/");
       break;
     default:
-      if ((uint8_t) * s <= 0x1f) {
-        /* Control characters (U+0000 through U+001F) */
-        char buf[8];
-        snprintf (buf, sizeof buf, "\\u%04x", *s);
-        pjson (json, "%s", buf);
-      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                 (uint8_t) * (s + 2) == 0xa8) {
-        /* Line separator (U+2028) */
-        pjson (json, "\\u2028");
-        s += 2;
-      } else if ((uint8_t) * s == 0xe2 && (uint8_t) * (s + 1) == 0x80 &&
-                 (uint8_t) * (s + 2) == 0xa9) {
-        /* Paragraph separator (U+2019) */
-        pjson (json, "\\u2029");
-        s += 2;
-      } else {
-        char buf[2];
-        snprintf (buf, sizeof buf, "%c", *s);
-        pjson (json, "%s", buf);
-      }
+      escape_json_other (json, &s);
       break;
     }
     s++;
