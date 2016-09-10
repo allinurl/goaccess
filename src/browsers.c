@@ -105,6 +105,7 @@ static const char *browsers[][2] = {
   {"curl", "Others"},
   {"midori", "Others"},
   {"w3m", "Others"},
+  {"MicroMessenger", "Others"},
   {"Apache", "Others"},
 
   /* Feed-reader-as-a-service */
