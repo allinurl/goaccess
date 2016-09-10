@@ -220,6 +220,30 @@ escape_json_output (GJSON * json, char *s)
 {
   while (*s) {
     switch (*s) {
+      /* Since JSON data is bootstrapped into the HTML document of a report,
+       * then we perform the following four translations in case weird stuff
+       * is put into the document.
+       *
+       * Note: The following scenario assumes that the user manually makes
+       * the HTML report a PHP file (GoAccess doesn't allow the creation of a
+       * PHP file):
+       *
+       * /index.html<?php eval(base_decode('iZWNobyAiPGgxPkhFTExPPC9oMT4iOw=='));?>
+       */
+    case '\'':
+      pjson (json, "&#39;");
+      break;
+    case '&':
+      pjson (json, "&amp;");
+      break;
+    case '<':
+      pjson (json, "&lt;");
+      break;
+    case '>':
+      pjson (json, "&gt;");
+      break;
+
+      /* These are required JSON special characters that need to be escaped. */
     case '"':
       pjson (json, "\\\"");
       break;
