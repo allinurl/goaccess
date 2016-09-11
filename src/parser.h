@@ -88,7 +88,7 @@ typedef struct GLog_
   GLogItem *items;
 } GLog;
 
-
+/* Raw data field type */
 typedef enum
 {
   INTEGER,
