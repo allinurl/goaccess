@@ -90,6 +90,6 @@ typedef struct GHTML_
   GHTMLPlot chart[MAX_PLOTS];
 } GHTML;
 
-void output_html (GLog * logger, GHolder * holder, const char *filename);
+void output_html (GLog * glog, GHolder * holder, const char *filename);
 
 #endif

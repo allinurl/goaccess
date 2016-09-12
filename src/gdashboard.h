@@ -116,7 +116,7 @@ int perform_next_find (GHolder * h, GScroll * scroll);
 int render_find_dialog (WINDOW * main_win, GScroll * scroll);
 int set_module_from_mouse_event (GScroll *scroll, GDash *dash, int y);
 uint32_t get_ht_size_by_module (GModule module);
-void display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * scroll);
+void display_content (WINDOW * win, GLog * glog, GDash * dash, GScroll * scroll);
 void free_dashboard (GDash * dash);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * scroll);
 void reset_find (void);

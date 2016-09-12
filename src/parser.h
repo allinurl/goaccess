@@ -136,7 +136,7 @@ typedef struct GKeyData_
 typedef struct GParse_
 {
   GModule module;
-  int (*key_data) (GKeyData * kdata, GLogItem * glog);
+  int (*key_data) (GKeyData * kdata, GLogItem * logitem);
 
   /* data field */
   void (*datamap) (int data_nkey, const char *data, GModule module);
@@ -154,12 +154,12 @@ typedef struct GParse_
 } GParse;
 
 GLog *init_log (void);
-GLogItem *init_log_item (GLog * logger);
+GLogItem *init_log_item (GLog * glog);
 GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
-int parse_log (GLog ** logger, char *tail, int n);
-int test_format (GLog * logger);
+int parse_log (GLog ** glog, char *tail, int n);
+int test_format (GLog * glog);
 void free_raw_data (GRawData * raw_data);
-void reset_struct (GLog * logger);
+void reset_struct (GLog * glog);
 
 #endif

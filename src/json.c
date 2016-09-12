@@ -464,25 +464,25 @@ poverall_datetime (GJSON * json, int sp)
 
 /* Write to a buffer date and time for the overall object. */
 static void
-poverall_requests (GJSON * json, GLog * logger, int sp)
+poverall_requests (GJSON * json, GLog * glog, int sp)
 {
-  pskeyival (json, OVERALL_REQ, logger->processed, sp, 0);
+  pskeyival (json, OVERALL_REQ, glog->processed, sp, 0);
 }
 
 /* Write to a buffer the number of valid requests under the overall
  * object. */
 static void
-poverall_valid_reqs (GJSON * json, GLog * logger, int sp)
+poverall_valid_reqs (GJSON * json, GLog * glog, int sp)
 {
-  pskeyival (json, OVERALL_VALID, logger->valid, sp, 0);
+  pskeyival (json, OVERALL_VALID, glog->valid, sp, 0);
 }
 
 /* Write to a buffer the number of invalid requests under the overall
  * object. */
 static void
-poverall_invalid_reqs (GJSON * json, GLog * logger, int sp)
+poverall_invalid_reqs (GJSON * json, GLog * glog, int sp)
 {
-  pskeyival (json, OVERALL_FAILED, logger->invalid, sp, 0);
+  pskeyival (json, OVERALL_FAILED, glog->invalid, sp, 0);
 }
 
 /* Write to a buffer the total processed time under the overall
@@ -512,9 +512,9 @@ poverall_files (GJSON * json, int sp)
 /* Write to a buffer the total number of excluded requests under the
  * overall object. */
 static void
-poverall_excluded (GJSON * json, GLog * logger, int sp)
+poverall_excluded (GJSON * json, GLog * glog, int sp)
 {
-  pskeyival (json, OVERALL_EXCL_HITS, logger->excluded_ip, sp, 0);
+  pskeyival (json, OVERALL_EXCL_HITS, glog->excluded_ip, sp, 0);
 }
 
 /* Write to a buffer the number of referrers under the overall object. */
@@ -544,11 +544,11 @@ poverall_static_files (GJSON * json, int sp)
 /* Write to a buffer the size of the log being parsed under the
  * overall object. */
 static void
-poverall_log_size (GJSON * json, GLog * logger, int sp)
+poverall_log_size (GJSON * json, GLog * glog, int sp)
 {
   off_t log_size = 0;
 
-  if (!logger->piping && conf.ifile)
+  if (!glog->piping && conf.ifile)
     log_size = file_size (conf.ifile);
 
   pjson (json, "%.*s\"%s\": %jd,%.*s", sp, TAB, OVERALL_LOGSIZE,
@@ -558,9 +558,9 @@ poverall_log_size (GJSON * json, GLog * logger, int sp)
 /* Write to a buffer the total bandwidth consumed under the overall
  * object. */
 static void
-poverall_bandwidth (GJSON * json, GLog * logger, int sp)
+poverall_bandwidth (GJSON * json, GLog * glog, int sp)
 {
-  pskeyu64val (json, OVERALL_BANDWIDTH, logger->resp_size, sp, 0);
+  pskeyu64val (json, OVERALL_BANDWIDTH, glog->resp_size, sp, 0);
 }
 
 /* Write to a buffer the path of the log being parsed under the
@@ -1061,7 +1061,7 @@ num_panels (void)
 
 /* Write to a buffer overall data. */
 static void
-print_json_summary (GJSON * json, GLog * logger)
+print_json_summary (GJSON * json, GLog * glog)
 {
   int sp = 0, isp = 0;
 
@@ -1073,11 +1073,11 @@ print_json_summary (GJSON * json, GLog * logger)
   /* generated date time */
   poverall_datetime (json, isp);
   /* total requests */
-  poverall_requests (json, logger, isp);
+  poverall_requests (json, glog, isp);
   /* valid requests */
-  poverall_valid_reqs (json, logger, isp);
+  poverall_valid_reqs (json, glog, isp);
   /* invalid requests */
-  poverall_invalid_reqs (json, logger, isp);
+  poverall_invalid_reqs (json, glog, isp);
   /* generated time */
   poverall_processed_time (json, isp);
   /* visitors */
@@ -1085,7 +1085,7 @@ print_json_summary (GJSON * json, GLog * logger)
   /* files */
   poverall_files (json, isp);
   /* excluded hits */
-  poverall_excluded (json, logger, isp);
+  poverall_excluded (json, glog, isp);
   /* referrers */
   poverall_refs (json, isp);
   /* not found */
@@ -1093,9 +1093,9 @@ print_json_summary (GJSON * json, GLog * logger)
   /* static files */
   poverall_static_files (json, isp);
   /* log size */
-  poverall_log_size (json, logger, isp);
+  poverall_log_size (json, glog, isp);
   /* bandwidth */
-  poverall_bandwidth (json, logger, isp);
+  poverall_bandwidth (json, glog, isp);
   /* log path */
   poverall_log (json, isp);
   pclose_obj (json, sp, num_panels () > 0 ? 0 : 1);
@@ -1103,7 +1103,7 @@ print_json_summary (GJSON * json, GLog * logger)
 
 /* Iterate over all panels and generate json output. */
 static GJSON *
-init_json_output (GLog * logger, GHolder * holder)
+init_json_output (GLog * glog, GHolder * holder)
 {
   GJSON *json = NULL;
   GModule module;
@@ -1111,15 +1111,15 @@ init_json_output (GLog * logger, GHolder * holder)
   size_t idx = 0, npanels = num_panels (), cnt = 0;
 
   GPercTotals totals = {
-    .hits = logger->valid,
+    .hits = glog->valid,
     .visitors = ht_get_size_uniqmap (VISITORS),
-    .bw = logger->resp_size,
+    .bw = glog->resp_size,
   };
 
   json = new_gjson ();
 
   popen_obj (json, 0);
-  print_json_summary (json, logger);
+  print_json_summary (json, glog);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
@@ -1139,12 +1139,12 @@ init_json_output (GLog * logger, GHolder * holder)
  *
  * On success, the newly allocated buffer is returned . */
 char *
-get_json (GLog * logger, GHolder * holder)
+get_json (GLog * glog, GHolder * holder)
 {
   GJSON *json = NULL;
   char *buf = NULL;
 
-  if ((json = init_json_output (logger, holder)) && json->size > 0) {
+  if ((json = init_json_output (glog, holder)) && json->size > 0) {
     buf = xstrdup (json->buf);
     free_json (json);
   }
@@ -1154,7 +1154,7 @@ get_json (GLog * logger, GHolder * holder)
 
 /* Entry point to generate a json report writing it to the fp */
 void
-output_json (GLog * logger, GHolder * holder, const char *filename)
+output_json (GLog * glog, GHolder * holder, const char *filename)
 {
   GJSON *json = NULL;
   FILE *fp;
@@ -1172,7 +1172,7 @@ output_json (GLog * logger, GHolder * holder, const char *filename)
     nlines = 1;
 
   /* spit it out */
-  if ((json = init_json_output (logger, holder)) && json->size > 0) {
+  if ((json = init_json_output (glog, holder)) && json->size > 0) {
     fprintf (fp, "%s", json->buf);
     free_json (json);
   }

@@ -998,7 +998,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
 
 /* Entry point to render the terminal dashboard. */
 void
-display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
+display_content (WINDOW * win, GLog * glog, GDash * dash, GScroll * gscroll)
 {
   GDashData *idata;
   GModule module;
@@ -1028,7 +1028,7 @@ display_content (WINDOW * win, GLog * logger, GDash * dash, GScroll * gscroll)
     /* used module */
     dash->module[module].module = module;
 
-    max_hit_percent = get_max_hits_percent (idata, n, logger->valid);
+    max_hit_percent = get_max_hits_percent (idata, n, glog->valid);
 
     /* integer length */
     dash->module[module].hits_len = get_max_hit_len (idata, n);
