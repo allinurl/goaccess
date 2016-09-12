@@ -277,7 +277,7 @@ render_screens (void)
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
-  mvaddstr (row - 1, 1, "[h] Help [Enter] Exp. Panel");
+  mvaddstr (row - 1, 1, "[?] Help [Enter] Exp. Panel");
   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
   mvaddstr (row - 1, col - 21, "[Q]uit GoAccess");
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
