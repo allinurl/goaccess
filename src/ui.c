@@ -415,36 +415,36 @@ render_overall_value (WINDOW * win, const char *s, int y, int x,
  *
  * On success, the number of excluded ips as a string is returned. */
 static char *
-get_str_excluded_ips (GLog * logger)
+get_str_excluded_ips (GLog * glog)
 {
-  return int2str (logger->excluded_ip, 0);
+  return int2str (glog->excluded_ip, 0);
 }
 
 /* Convert the number of failed requests to a string.
  *
  * On success, the number of failed requests as a string is returned. */
 static char *
-get_str_failed_reqs (GLog * logger)
+get_str_failed_reqs (GLog * glog)
 {
-  return int2str (logger->invalid, 0);
+  return int2str (glog->invalid, 0);
 }
 
 /* Convert the number of processed requests to a string.
  *
  * On success, the number of processed requests as a string is returned. */
 static char *
-get_str_processed_reqs (GLog * logger)
+get_str_processed_reqs (GLog * glog)
 {
-  return int2str (logger->processed, 0);
+  return int2str (glog->processed, 0);
 }
 
 /* Convert the number of valid requests to a string.
  *
  * On success, the number of valid requests as a string is returned. */
 static char *
-get_str_valid_reqs (GLog * logger)
+get_str_valid_reqs (GLog * glog)
 {
-  return int2str (logger->valid, 0);
+  return int2str (glog->valid, 0);
 }
 
 /* Convert the number of not found requests to a string.
@@ -507,9 +507,9 @@ get_str_proctime (void)
  *
  * On success, the log file size as a string is returned. */
 static char *
-get_str_filesize (GLog * logger, const char *ifile)
+get_str_filesize (GLog * glog, const char *ifile)
 {
-  if (!logger->piping && ifile != NULL)
+  if (!glog->piping && ifile != NULL)
     return filesize_str (file_size (ifile));
   else
     return alloc_string ("N/A");
@@ -519,9 +519,9 @@ get_str_filesize (GLog * logger, const char *ifile)
  *
  * On success, the log file path as a string is returned. */
 static char *
-get_str_logfile (GLog * logger, const char *ifile)
+get_str_logfile (GLog * glog, const char *ifile)
 {
-  if (!logger->piping && ifile != NULL)
+  if (!glog->piping && ifile != NULL)
     return alloc_string (ifile);
   else
     return alloc_string ("STDIN");
@@ -531,9 +531,9 @@ get_str_logfile (GLog * logger, const char *ifile)
  *
  * On success, the bandwidth as a string is returned. */
 static char *
-get_str_bandwidth (GLog * logger)
+get_str_bandwidth (GLog * glog)
 {
-  return filesize_str ((float) logger->resp_size);
+  return filesize_str ((float) glog->resp_size);
 }
 
 /* Iterate over the visitors module and sort date in an ascending
@@ -649,7 +649,7 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n)
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW * win, GLog * logger, GHolder * h)
+display_general (WINDOW * win, GLog * glog, GHolder * h)
 {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
@@ -660,19 +660,19 @@ display_general (WINDOW * win, GLog * logger, GHolder * h)
 
   /* *INDENT-OFF* */
   Field fields[] = {
-    {T_REQUESTS   , get_str_processed_reqs (logger)  , colorlbl , colorval , 0},
-    {T_UNIQUE_VIS , get_str_visitors ()              , colorlbl , colorval , 0},
-    {T_UNIQUE_FIL , get_str_reqs ()                  , colorlbl , colorval , 0},
-    {T_REFERRER   , get_str_ref_reqs ()              , colorlbl , colorval , 0},
-    {T_VALID      , get_str_valid_reqs (logger)      , colorlbl , colorval , 0},
-    {T_GEN_TIME   , get_str_proctime ()              , colorlbl , colorval , 0},
-    {T_STATIC_FIL , get_str_static_reqs ()           , colorlbl , colorval , 0},
-    {T_LOG        , get_str_filesize (logger, ifile) , colorlbl , colorval , 0},
-    {T_FAILED     , get_str_failed_reqs (logger)     , colorlbl , colorval , 0},
-    {T_EXCLUDE_IP , get_str_excluded_ips (logger)    , colorlbl , colorval , 0},
-    {T_UNIQUE404  , get_str_notfound_reqs ()         , colorlbl , colorval , 0},
-    {T_BW         , get_str_bandwidth (logger)       , colorlbl , colorval , 0},
-    {T_LOG_PATH   , get_str_logfile (logger, ifile)  , colorlbl , colorpth , 1}
+    {T_REQUESTS   , get_str_processed_reqs (glog)  , colorlbl , colorval , 0} ,
+    {T_UNIQUE_VIS , get_str_visitors ()            , colorlbl , colorval , 0} ,
+    {T_UNIQUE_FIL , get_str_reqs ()                , colorlbl , colorval , 0} ,
+    {T_REFERRER   , get_str_ref_reqs ()            , colorlbl , colorval , 0} ,
+    {T_VALID      , get_str_valid_reqs (glog)      , colorlbl , colorval , 0} ,
+    {T_GEN_TIME   , get_str_proctime ()            , colorlbl , colorval , 0} ,
+    {T_STATIC_FIL , get_str_static_reqs ()         , colorlbl , colorval , 0} ,
+    {T_LOG        , get_str_filesize (glog, ifile) , colorlbl , colorval , 0} ,
+    {T_FAILED     , get_str_failed_reqs (glog)     , colorlbl , colorval , 0} ,
+    {T_EXCLUDE_IP , get_str_excluded_ips (glog)    , colorlbl , colorval , 0} ,
+    {T_UNIQUE404  , get_str_notfound_reqs ()       , colorlbl , colorval , 0} ,
+    {T_BW         , get_str_bandwidth (glog)       , colorlbl , colorval , 0} ,
+    {T_LOG_PATH   , get_str_logfile (glog, ifile)  , colorlbl , colorpth , 1}
   };
   /* *INDENT-ON* */
 
@@ -1183,7 +1183,7 @@ set_formats (char *date_format, char *log_format, char *time_format)
  * On error, or if the selected format is invalid, 1 is returned.
  * On success, 0 is returned. */
 int
-render_confdlg (GLog * logger, GSpinner * spinner)
+render_confdlg (GLog * glog, GSpinner * spinner)
 {
   GMenu *menu;
   WINDOW *win;
@@ -1350,14 +1350,14 @@ render_confdlg (GLog * logger, GSpinner * spinner)
 
       if (!log_err) {
         /* test log against selected settings */
-        if (test_format (logger)) {
+        if (test_format (glog)) {
           invalid = 1;
           draw_header (win, "No valid hits.", " %s", 3, 2, CONF_MENU_W,
                        color_error);
         }
-        /* valid data, reset logger & start parsing */
+        /* valid data, reset glog & start parsing */
         else {
-          reset_struct (logger);
+          reset_struct (glog);
           /* start spinner thread */
           spinner->win = win;
           spinner->y = 3;

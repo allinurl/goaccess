@@ -216,7 +216,7 @@ print_csv_data (FILE * fp, GHolder * h, GPercTotals totals)
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Output general statistics information. */
 static void
-print_csv_summary (FILE * fp, GLog * logger)
+print_csv_summary (FILE * fp, GLog * glog)
 {
   long long t = 0LL;
   int i = 0, total = 0;
@@ -233,16 +233,16 @@ print_csv_summary (FILE * fp, GLog * logger)
 
   /* total requests */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = logger->processed;
+  total = glog->processed;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REQ);
 
   /* valid requests */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = logger->valid;
+  total = glog->valid;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VALID);
 
   /* invalid requests */
-  total = logger->invalid;
+  total = glog->invalid;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
 
   /* generated time */
@@ -260,7 +260,7 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FILES);
 
   /* excluded hits */
-  total = logger->excluded_ip;
+  total = glog->excluded_ip;
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
 
   /* referrers */
@@ -276,14 +276,14 @@ print_csv_summary (FILE * fp, GLog * logger)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_STATIC);
 
   /* log size */
-  if (!logger->piping && conf.ifile)
+  if (!glog->piping && conf.ifile)
     log_size = file_size (conf.ifile);
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) log_size, OVERALL_LOGSIZE);
 
   /* bandwidth */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
-  fprintf (fp, fmt, i++, GENER_ID, logger->resp_size, OVERALL_BANDWIDTH);
+  fprintf (fp, fmt, i++, GENER_ID, glog->resp_size, OVERALL_BANDWIDTH);
 
   /* log path */
   if (conf.ifile == NULL)
@@ -297,7 +297,7 @@ print_csv_summary (FILE * fp, GLog * logger)
 
 /* Entry point to generate a a csv report writing it to the fp */
 void
-output_csv (GLog * logger, GHolder * holder, const char *filename)
+output_csv (GLog * glog, GHolder * holder, const char *filename)
 {
   GModule module;
   FILE *fp;
@@ -305,9 +305,9 @@ output_csv (GLog * logger, GHolder * holder, const char *filename)
   size_t idx = 0;
 
   GPercTotals totals = {
-    .hits = logger->valid,
+    .hits = glog->valid,
     .visitors = ht_get_size_uniqmap (VISITORS),
-    .bw = logger->resp_size,
+    .bw = glog->resp_size,
   };
 
   if (filename != NULL)
@@ -319,7 +319,7 @@ output_csv (GLog * logger, GHolder * holder, const char *filename)
     FATAL ("Unable to open CSV file: %s.", strerror (errno));
 
   if (!conf.no_csv_summary)
-    print_csv_summary (fp, logger);
+    print_csv_summary (fp, glog);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];

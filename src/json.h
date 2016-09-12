@@ -47,9 +47,9 @@ typedef struct GJSON_
   size_t offset;                /* current write offset */
 } GJSON;
 
-char *get_json (GLog * logger, GHolder * holder);
+char *get_json (GLog * glog, GHolder * holder);
 
-void output_json (GLog * logger, GHolder * holder, const char *filename);
+void output_json (GLog * glog, GHolder * holder, const char *filename);
 void set_json_nlines (int nl);
 
 void fpskeyival (FILE * fp, const char *key, int val, int sp, int last);

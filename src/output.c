@@ -388,11 +388,11 @@ hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE * fp, GLog * logger, GHolder * holder)
+print_json_data (FILE * fp, GLog * glog, GHolder * holder)
 {
   char *json = NULL;
 
-  if ((json = get_json (logger, holder)) == NULL)
+  if ((json = get_json (glog, holder)) == NULL)
     return;
 
   fprintf (fp, "<script type='text/javascript'>");
@@ -1059,7 +1059,7 @@ print_json_defs (FILE * fp, GHolder * holder)
 
 /* entry point to generate a report writing it to the fp */
 void
-output_html (GLog * logger, GHolder * holder, const char *filename)
+output_html (GLog * glog, GHolder * holder, const char *filename)
 {
   FILE *fp;
   char now[DATE_TIME];
@@ -1084,7 +1084,7 @@ output_html (GLog * logger, GHolder * holder, const char *filename)
 
   print_html_body (fp, now);
   print_json_defs (fp, holder);
-  print_json_data (fp, logger, holder);
+  print_json_data (fp, glog, holder);
   print_conn_def (fp);
 
   print_html_footer (fp);

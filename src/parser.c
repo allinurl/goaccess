@@ -78,21 +78,21 @@
 /* private prototypes */
 
 /* key/data generators for each module */
-static int gen_visitor_key (GKeyData * kdata, GLogItem * glog);
-static int gen_404_key (GKeyData * kdata, GLogItem * glog);
-static int gen_browser_key (GKeyData * kdata, GLogItem * glog);
-static int gen_host_key (GKeyData * kdata, GLogItem * glog);
-static int gen_keyphrase_key (GKeyData * kdata, GLogItem * glog);
-static int gen_os_key (GKeyData * kdata, GLogItem * glog);
-static int gen_vhost_key (GKeyData * kdata, GLogItem * glog);
-static int gen_referer_key (GKeyData * kdata, GLogItem * glog);
-static int gen_ref_site_key (GKeyData * kdata, GLogItem * glog);
-static int gen_request_key (GKeyData * kdata, GLogItem * glog);
-static int gen_static_request_key (GKeyData * kdata, GLogItem * glog);
-static int gen_status_code_key (GKeyData * kdata, GLogItem * glog);
-static int gen_visit_time_key (GKeyData * kdata, GLogItem * glog);
+static int gen_visitor_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_404_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_browser_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_host_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_os_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_vhost_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_referer_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_ref_site_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_request_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_static_request_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_status_code_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_visit_time_key (GKeyData * kdata, GLogItem * logitem);
 #ifdef HAVE_LIBGEOIP
-static int gen_geolocation_key (GKeyData * kdata, GLogItem * glog);
+static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
 #endif
 
 /* insertion routines */
@@ -387,12 +387,12 @@ free_raw_data (GRawData * raw_data)
 
 /* Reset an instance of GLog structure. */
 void
-reset_struct (GLog * logger)
+reset_struct (GLog * glog)
 {
-  logger->invalid = 0;
-  logger->processed = 0;
-  logger->resp_size = 0LL;
-  logger->valid = 0;
+  glog->invalid = 0;
+  glog->processed = 0;
+  glog->resp_size = 0LL;
+  glog->valid = 0;
 }
 
 /* Allocate memory for a new GLog instance.
@@ -401,99 +401,99 @@ reset_struct (GLog * logger)
 GLog *
 init_log (void)
 {
-  GLog *glog = xmalloc (sizeof (GLog));
-  memset (glog, 0, sizeof *glog);
+  GLog *logitem = xmalloc (sizeof (GLog));
+  memset (logitem, 0, sizeof *logitem);
 
-  return glog;
+  return logitem;
 }
 
 /* Initialize a new GLogItem instance.
  *
  * On success, the new GLogItem instance is returned. */
 GLogItem *
-init_log_item (GLog * logger)
+init_log_item (GLog * glog)
 {
-  GLogItem *glog;
-  logger->items = xmalloc (sizeof (GLogItem));
-  glog = logger->items;
-  memset (glog, 0, sizeof *glog);
+  GLogItem *logitem;
+  glog->items = xmalloc (sizeof (GLogItem));
+  logitem = glog->items;
+  memset (logitem, 0, sizeof *logitem);
 
-  glog->agent = NULL;
-  glog->browser = NULL;
-  glog->browser_type = NULL;
-  glog->continent = NULL;
-  glog->country = NULL;
-  glog->date = NULL;
-  glog->host = NULL;
-  glog->keyphrase = NULL;
-  glog->method = NULL;
-  glog->os = NULL;
-  glog->os_type = NULL;
-  glog->protocol = NULL;
-  glog->qstr = NULL;
-  glog->ref = NULL;
-  glog->req_key = NULL;
-  glog->req = NULL;
-  glog->status = NULL;
-  glog->time = NULL;
-  glog->uniq_key = NULL;
-  glog->vhost = NULL;
+  logitem->agent = NULL;
+  logitem->browser = NULL;
+  logitem->browser_type = NULL;
+  logitem->continent = NULL;
+  logitem->country = NULL;
+  logitem->date = NULL;
+  logitem->host = NULL;
+  logitem->keyphrase = NULL;
+  logitem->method = NULL;
+  logitem->os = NULL;
+  logitem->os_type = NULL;
+  logitem->protocol = NULL;
+  logitem->qstr = NULL;
+  logitem->ref = NULL;
+  logitem->req_key = NULL;
+  logitem->req = NULL;
+  logitem->status = NULL;
+  logitem->time = NULL;
+  logitem->uniq_key = NULL;
+  logitem->vhost = NULL;
 
-  glog->resp_size = 0LL;
-  glog->serve_time = 0;
+  logitem->resp_size = 0LL;
+  logitem->serve_time = 0;
 
-  strncpy (glog->site, "", REF_SITE_LEN);
-  glog->site[REF_SITE_LEN - 1] = '\0';
+  strncpy (logitem->site, "", REF_SITE_LEN);
+  logitem->site[REF_SITE_LEN - 1] = '\0';
 
-  return glog;
+  return logitem;
 }
 
 /* Free all members of a GLogItem */
 static void
-free_logger (GLogItem * glog)
+free_glog (GLogItem * logitem)
 {
-  if (glog->agent != NULL)
-    free (glog->agent);
-  if (glog->browser != NULL)
-    free (glog->browser);
-  if (glog->browser_type != NULL)
-    free (glog->browser_type);
-  if (glog->continent != NULL)
-    free (glog->continent);
-  if (glog->country != NULL)
-    free (glog->country);
-  if (glog->date != NULL)
-    free (glog->date);
-  if (glog->host != NULL)
-    free (glog->host);
-  if (glog->keyphrase != NULL)
-    free (glog->keyphrase);
-  if (glog->method != NULL)
-    free (glog->method);
-  if (glog->os != NULL)
-    free (glog->os);
-  if (glog->os_type != NULL)
-    free (glog->os_type);
-  if (glog->protocol != NULL)
-    free (glog->protocol);
-  if (glog->qstr != NULL)
-    free (glog->qstr);
-  if (glog->ref != NULL)
-    free (glog->ref);
-  if (glog->req_key != NULL)
-    free (glog->req_key);
-  if (glog->req != NULL)
-    free (glog->req);
-  if (glog->status != NULL)
-    free (glog->status);
-  if (glog->time != NULL)
-    free (glog->time);
-  if (glog->uniq_key != NULL)
-    free (glog->uniq_key);
-  if (glog->vhost != NULL)
-    free (glog->vhost);
+  if (logitem->agent != NULL)
+    free (logitem->agent);
+  if (logitem->browser != NULL)
+    free (logitem->browser);
+  if (logitem->browser_type != NULL)
+    free (logitem->browser_type);
+  if (logitem->continent != NULL)
+    free (logitem->continent);
+  if (logitem->country != NULL)
+    free (logitem->country);
+  if (logitem->date != NULL)
+    free (logitem->date);
+  if (logitem->host != NULL)
+    free (logitem->host);
+  if (logitem->keyphrase != NULL)
+    free (logitem->keyphrase);
+  if (logitem->method != NULL)
+    free (logitem->method);
+  if (logitem->os != NULL)
+    free (logitem->os);
+  if (logitem->os_type != NULL)
+    free (logitem->os_type);
+  if (logitem->protocol != NULL)
+    free (logitem->protocol);
+  if (logitem->qstr != NULL)
+    free (logitem->qstr);
+  if (logitem->ref != NULL)
+    free (logitem->ref);
+  if (logitem->req_key != NULL)
+    free (logitem->req_key);
+  if (logitem->req != NULL)
+    free (logitem->req);
+  if (logitem->status != NULL)
+    free (logitem->status);
+  if (logitem->time != NULL)
+    free (logitem->time);
+  if (logitem->uniq_key != NULL)
+    free (logitem->uniq_key);
+  if (logitem->vhost != NULL)
+    free (logitem->vhost);
 
-  free (glog);
+  free (logitem);
 }
 
 /* Decodes the given URL-encoded string.
@@ -600,13 +600,13 @@ extract_keyphrase (char *ref, char **keyphrase)
  * On success, the extracted continent and country are set and 0 is
  * returned. */
 static int
-extract_geolocation (GLogItem * glog, char *continent, char *country)
+extract_geolocation (GLogItem * logitem, char *continent, char *country)
 {
   if (geo_location_data == NULL)
     return 1;
 
-  geoip_get_country (glog->host, country, glog->type_ip);
-  geoip_get_continent (glog->host, continent, glog->type_ip);
+  geoip_get_country (logitem->host, country, logitem->type_ip);
+  geoip_get_continent (logitem->host, continent, logitem->type_ip);
 
   return 0;
 }
@@ -918,7 +918,7 @@ set_date (char **fdate, struct tm tm)
  * On error, or unable to parse it, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem member. */
 static int
-parse_specifier (GLogItem * glog, char **str, const char *p)
+parse_specifier (GLogItem * logitem, char **str, const char *p)
 {
   struct tm tm;
   const char *dfmt = conf.date_format;
@@ -934,14 +934,14 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
   switch (*p) {
     /* date */
   case 'd':
-    if (glog->date)
+    if (logitem->date)
       return 1;
     /* parse date format including dates containing spaces,
      * i.e., syslog date format (Jul 15 20:10:56) */
     tkn = parse_string (&(*str), p[1], count_matches (dfmt, ' ') + 1);
     if (tkn == NULL)
       return 1;
-    if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&glog->date, tm) != 0) {
+    if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
       free (tkn);
       return 1;
     }
@@ -949,7 +949,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     break;
     /* time */
   case 't':
-    if (glog->time)
+    if (logitem->time)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -958,46 +958,46 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       free (tkn);
       return 1;
     }
-    glog->time = tkn;
+    logitem->time = tkn;
     break;
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
-    if (glog->time && glog->date)
+    if (logitem->time && logitem->date)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&glog->date, tm) != 0) {
+    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
       free (tkn);
       return 1;
     }
-    glog->time = tkn;
+    logitem->time = tkn;
     break;
     /* Virtual Host */
   case 'v':
-    if (glog->vhost)
+    if (logitem->vhost)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL || *tkn == '\0')
       return 1;
-    glog->vhost = tkn;
+    logitem->vhost = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
-    if (glog->host)
+    if (logitem->host)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    if (invalid_ipaddr (tkn, &glog->type_ip)) {
+    if (invalid_ipaddr (tkn, &logitem->type_ip)) {
       free (tkn);
       return 1;
     }
-    glog->host = tkn;
+    logitem->host = tkn;
     break;
     /* request method */
   case 'm':
-    if (glog->method)
+    if (logitem->method)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -1006,33 +1006,33 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       free (tkn);
       return 1;
     }
-    glog->method = tkn;
+    logitem->method = tkn;
     break;
     /* request not including method or protocol */
   case 'U':
-    if (glog->req)
+    if (logitem->req)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL || *tkn == '\0')
       return 1;
-    if ((glog->req = decode_url (tkn)) == NULL)
+    if ((logitem->req = decode_url (tkn)) == NULL)
       return 1;
     free (tkn);
     break;
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
   case 'q':
-    if (glog->qstr)
+    if (logitem->qstr)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL || *tkn == '\0')
       return 0;
-    if ((glog->qstr = decode_url (tkn)) == NULL)
+    if ((logitem->qstr = decode_url (tkn)) == NULL)
       return 1;
     free (tkn);
     break;
     /* request protocol */
   case 'H':
-    if (glog->protocol)
+    if (logitem->protocol)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -1041,21 +1041,21 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       free (tkn);
       return 1;
     }
-    glog->protocol = tkn;
+    logitem->protocol = tkn;
     break;
     /* request, including method + protocol */
   case 'r':
-    if (glog->req)
+    if (logitem->req)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
       return 1;
-    glog->req = parse_req (tkn, &glog->method, &glog->protocol);
+    logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
     free (tkn);
     break;
     /* Status Code */
   case 's':
-    if (glog->status)
+    if (logitem->status)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -1065,11 +1065,11 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       free (tkn);
       return 1;
     }
-    glog->status = tkn;
+    logitem->status = tkn;
     break;
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
-    if (glog->resp_size)
+    if (logitem->resp_size)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -1077,13 +1077,13 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     bandw = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
-    glog->resp_size = bandw;
+    logitem->resp_size = bandw;
     conf.bandwidth = 1;
     free (tkn);
     break;
     /* referrer */
   case 'R':
-    if (glog->ref)
+    if (logitem->ref)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn == NULL)
@@ -1093,20 +1093,20 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
       tkn = alloc_string ("-");
     }
     if (strcmp (tkn, "-") != 0) {
-      extract_keyphrase (tkn, &glog->keyphrase);
-      extract_referer_site (tkn, glog->site);
+      extract_keyphrase (tkn, &logitem->keyphrase);
+      extract_referer_site (tkn, logitem->site);
     }
-    glog->ref = tkn;
+    logitem->ref = tkn;
     break;
     /* user agent */
   case 'u':
-    if (glog->agent)
+    if (logitem->agent)
       return 1;
     tkn = parse_string (&(*str), p[1], 1);
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront)
        * and replace all '+' with ' ' (i.e.: w3c) */
-      glog->agent = char_replace (decode_url (tkn), '+', ' ');
+      logitem->agent = char_replace (decode_url (tkn), '+', ' ');
       free (tkn);
       break;
     } else if (tkn != NULL && *tkn == '\0') {
@@ -1117,12 +1117,12 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     else {
       tkn = alloc_string ("-");
     }
-    glog->agent = tkn;
+    logitem->agent = tkn;
     break;
     /* time taken to serve the request, in milliseconds as a decimal number */
   case 'L':
     /* ignore it if we already have served time */
-    if (glog->serve_time)
+    if (logitem->serve_time)
       break;
 
     tkn = parse_string (&(*str), p[1], 1);
@@ -1133,7 +1133,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_secs = 0;
     /* convert it to microseconds */
-    glog->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
+    logitem->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
     contains_usecs ();  /* set flag */
     free (tkn);
@@ -1142,7 +1142,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
      * resolution */
   case 'T':
     /* ignore it if we already have served time */
-    if (glog->serve_time)
+    if (logitem->serve_time)
       break;
 
     tkn = parse_string (&(*str), p[1], 1);
@@ -1156,7 +1156,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_secs = 0;
     /* convert it to microseconds */
-    glog->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
+    logitem->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
     contains_usecs ();  /* set flag */
     free (tkn);
@@ -1164,7 +1164,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     /* time taken to serve the request, in microseconds */
   case 'D':
     /* ignore it if we already have served time */
-    if (glog->serve_time)
+    if (logitem->serve_time)
       break;
 
     tkn = parse_string (&(*str), p[1], 1);
@@ -1173,7 +1173,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
     serve_time = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_time = 0;
-    glog->serve_time = serve_time;
+    logitem->serve_time = serve_time;
 
     contains_usecs ();  /* set flag */
     free (tkn);
@@ -1197,7 +1197,7 @@ parse_specifier (GLogItem * glog, char **str, const char *p)
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem * glog, char *str)
+parse_format (GLogItem * logitem, char *str)
 {
   const char *p;
   const char *lfmt = conf.log_format;
@@ -1217,7 +1217,7 @@ parse_format (GLogItem * glog, char *str)
         return 0;
 
       /* attempt to parse format specifiers */
-      if (parse_specifier (glog, &str, p) == 1)
+      if (parse_specifier (logitem, &str, p) == 1)
         return 1;
       special = 0;
     } else if (special && isspace (p[0])) {
@@ -1277,9 +1277,9 @@ strip_qstring (char *req)
 
 /* Increment the overall bandwidth. */
 static void
-inc_resp_size (GLog * logger, uint64_t resp_size)
+inc_resp_size (GLog * glog, uint64_t resp_size)
 {
-  logger->resp_size += resp_size;
+  glog->resp_size += resp_size;
 #ifdef TCB_BTREE
   ht_insert_genstats_bw ("bandwidth", resp_size);
 #endif
@@ -1287,9 +1287,9 @@ inc_resp_size (GLog * logger, uint64_t resp_size)
 
 /* Keep track of all invalid log strings. */
 static void
-count_invalid (GLog * logger, const char *line, int test)
+count_invalid (GLog * glog, const char *line, int test)
 {
-  logger->invalid++;
+  glog->invalid++;
 #ifdef TCB_BTREE
   if (!test)
     ht_insert_genstats ("failed_requests", 1);
@@ -1302,10 +1302,10 @@ count_invalid (GLog * logger, const char *line, int test)
 
 /* Keep track of all valid log strings. */
 static void
-count_valid (GLog * logger, int test)
+count_valid (GLog * glog, int test)
 {
   lock_spinner ();
-  logger->valid++;
+  glog->valid++;
 #ifdef TCB_BTREE
   if (!test)
     ht_insert_genstats ("valid_requests", 1);
@@ -1317,10 +1317,10 @@ count_valid (GLog * logger, int test)
 
 /* Keep track of all valid and processed log strings. */
 static void
-count_process (GLog * logger, int test)
+count_process (GLog * glog, int test)
 {
   lock_spinner ();
-  logger->processed++;
+  glog->processed++;
 #ifdef TCB_BTREE
   if (!test)
     ht_insert_genstats ("total_requests", 1);
@@ -1335,10 +1335,10 @@ count_process (GLog * logger, int test)
  * If IP not range, 1 is returned.
  * If IP is excluded, 0 is returned. */
 static int
-excluded_ip (GLog * logger, GLogItem * glog, int test)
+excluded_ip (GLog * glog, GLogItem * logitem, int test)
 {
-  if (conf.ignore_ip_idx && ip_in_range (glog->host)) {
-    logger->excluded_ip++;
+  if (conf.ignore_ip_idx && ip_in_range (logitem->host)) {
+    glog->excluded_ip++;
 #ifdef TCB_BTREE
     if (!test)
       ht_insert_genstats ("excluded_ip", 1);
@@ -1355,9 +1355,9 @@ excluded_ip (GLog * logger, GLogItem * glog, int test)
  * If not from a robot, 1 is returned.
  * If from a robot, 0 is returned. */
 static int
-exclude_crawler (GLogItem * glog)
+exclude_crawler (GLogItem * logitem)
 {
-  return conf.ignore_crawlers && is_crawler (glog->agent) ? 0 : 1;
+  return conf.ignore_crawlers && is_crawler (logitem->agent) ? 0 : 1;
 }
 
 /* Determine if the request of the given status code needs to be
@@ -1381,20 +1381,20 @@ ignore_status_code (const char *status)
  * If the request line is not ignored, 0 is returned.
  * If the request line is ignored, 1 is returned. */
 static int
-ignore_line (GLog * logger, GLogItem * glog, int test)
+ignore_line (GLog * glog, GLogItem * logitem, int test)
 {
-  if (excluded_ip (logger, glog, test) == 0)
+  if (excluded_ip (glog, logitem, test) == 0)
     return 1;
-  if (exclude_crawler (glog) == 0)
+  if (exclude_crawler (logitem) == 0)
     return 1;
-  if (ignore_referer (glog->site))
+  if (ignore_referer (logitem->site))
     return 1;
-  if (ignore_status_code (glog->status))
+  if (ignore_status_code (logitem->status))
     return 1;
 
   /* check if we need to remove the request's query string */
   if (conf.ignore_qstr)
-    strip_qstring (glog->req);
+    strip_qstring (logitem->req);
 
   return 0;
 }
@@ -1404,9 +1404,9 @@ ignore_line (GLog * logger, GLogItem * glog, int test)
  * If the request is not static, 0 is returned.
  * If the request is static, 1 is returned. */
 static int
-is_static (GLogItem * glog)
+is_static (GLogItem * logitem)
 {
-  return verify_static_content (glog->req);
+  return verify_static_content (logitem->req);
 }
 
 /* Determine if the request status code is a 404.
@@ -1414,13 +1414,13 @@ is_static (GLogItem * glog)
  * If the request is not a 404, 0 is returned.
  * If the request is a 404, 1 is returned. */
 static int
-is_404 (GLogItem * glog)
+is_404 (GLogItem * logitem)
 {
   /* is this a 404? */
-  if (glog->status && !memcmp (glog->status, "404", 3))
+  if (logitem->status && !memcmp (logitem->status, "404", 3))
     return 1;
   /* treat 444 as 404? */
-  else if (glog->status && !memcmp (glog->status, "444", 3) &&
+  else if (logitem->status && !memcmp (logitem->status, "444", 3) &&
            conf.code444_as_404)
     return 1;
   return 0;
@@ -1544,24 +1544,24 @@ insert_agent (int data_nkey, int agent_nkey, GModule module)
  *
  * On success the new unique visitor key is returned */
 static char *
-get_uniq_visitor_key (GLogItem * glog)
+get_uniq_visitor_key (GLogItem * logitem)
 {
   char *ua, *key;
   size_t s1, s2, s3;
 
-  ua = deblank (xstrdup (glog->agent));
+  ua = deblank (xstrdup (logitem->agent));
 
-  s1 = strlen (glog->host);
-  s2 = strlen (glog->date);
+  s1 = strlen (logitem->host);
+  s2 = strlen (logitem->date);
   s3 = strlen (ua);
 
   /* includes terminating null */
   key = xmalloc (s1 + s2 + s3 + 3);
 
-  memcpy (key, glog->host, s1);
+  memcpy (key, logitem->host, s1);
 
   key[s1] = '|';
-  memcpy (key + s1 + 1, glog->date, s2 + 1);
+  memcpy (key + s1 + 1, logitem->date, s2 + 1);
 
   key[s1 + s2 + 1] = '|';
   memcpy (key + s1 + s2 + 2, ua, s3 + 1);
@@ -1578,49 +1578,49 @@ get_uniq_visitor_key (GLogItem * glog)
  *
  * On success the new unique request key is returned */
 static char *
-gen_unique_req_key (GLogItem * glog)
+gen_unique_req_key (GLogItem * logitem)
 {
   char *key = NULL;
   size_t s1 = 0, s2 = 0, s3 = 0, nul = 1, sep = 0;
 
   /* nothing to do */
   if (!conf.append_method && !conf.append_protocol)
-    return xstrdup (glog->req);
+    return xstrdup (logitem->req);
   /* still nothing to do */
-  if (!glog->method && !glog->protocol)
-    return xstrdup (glog->req);
+  if (!logitem->method && !logitem->protocol)
+    return xstrdup (logitem->req);
 
-  s1 = strlen (glog->req);
-  if (glog->method && conf.append_method) {
-    s2 = strlen (glog->method);
+  s1 = strlen (logitem->req);
+  if (logitem->method && conf.append_method) {
+    s2 = strlen (logitem->method);
     nul++;
   }
-  if (glog->protocol && conf.append_protocol) {
-    s3 = strlen (glog->protocol);
+  if (logitem->protocol && conf.append_protocol) {
+    s3 = strlen (logitem->protocol);
     nul++;
   }
 
   /* includes terminating null */
   key = xmalloc (s1 + s2 + s3 + nul);
   /* append request */
-  memcpy (key, glog->req, s1);
+  memcpy (key, logitem->req, s1);
 
-  if (glog->method && conf.append_method) {
+  if (logitem->method && conf.append_method) {
     key[s1] = '|';
     sep++;
-    memcpy (key + s1 + sep, glog->method, s2 + 1);
+    memcpy (key + s1 + sep, logitem->method, s2 + 1);
   }
-  if (glog->protocol && conf.append_protocol) {
+  if (logitem->protocol && conf.append_protocol) {
     key[s1 + s2 + sep] = '|';
     sep++;
-    memcpy (key + s1 + s2 + sep, glog->protocol, s3 + 1);
+    memcpy (key + s1 + s2 + sep, logitem->protocol, s3 + 1);
   }
 
   return key;
 }
 
 /* Append the query string to the request, and therefore, it modifies
- * the original glog->req */
+ * the original logitem->req */
 static void
 append_query_string (char **req, const char *qstr)
 {
@@ -1680,41 +1680,41 @@ set_spec_visitor_key (char **fdate, const char *ftime)
   *fdate = key;
 }
 
-/* Generate a unique key for the visitors panel from the given glog
+/* Generate a unique key for the visitors panel from the given logitem
  * structure and assign it to out key data structure.
  *
  * On error, or if no date is found, 1 is returned.
  * On success, the date key is assigned to our key data structure.
  */
 static int
-gen_visitor_key (GKeyData * kdata, GLogItem * glog)
+gen_visitor_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->date || !glog->time)
+  if (!logitem->date || !logitem->time)
     return 1;
 
   /* Append time specificity to date */
   if (conf.date_spec_hr)
-    set_spec_visitor_key (&glog->date, glog->time);
+    set_spec_visitor_key (&logitem->date, logitem->time);
 
-  get_kdata (kdata, glog->date, glog->date);
+  get_kdata (kdata, logitem->date, logitem->date);
 
   return 0;
 }
 
-/* Generate a unique key for the requests panel from the given glog
+/* Generate a unique key for the requests panel from the given logitem
  * structure and assign it to out key data structure.
  *
  * On success, the generated request key is assigned to our key data
  * structure.
  */
 static int
-gen_req_key (GKeyData * kdata, GLogItem * glog)
+gen_req_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (glog->req && glog->qstr)
-    append_query_string (&glog->req, glog->qstr);
-  glog->req_key = gen_unique_req_key (glog);
+  if (logitem->req && logitem->qstr)
+    append_query_string (&logitem->req, logitem->qstr);
+  logitem->req_key = gen_unique_req_key (logitem);
 
-  get_kdata (kdata, glog->req_key, glog->req);
+  get_kdata (kdata, logitem->req_key, logitem->req);
 
   return 0;
 }
@@ -1726,12 +1726,12 @@ gen_req_key (GKeyData * kdata, GLogItem * glog)
  * structure.
  */
 static int
-gen_request_key (GKeyData * kdata, GLogItem * glog)
+gen_request_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->req || glog->is_404 || glog->is_static)
+  if (!logitem->req || logitem->is_404 || logitem->is_static)
     return 1;
 
-  return gen_req_key (kdata, glog);
+  return gen_req_key (kdata, logitem);
 }
 
 /* A wrapper to generate a unique key for the request panel.
@@ -1740,10 +1740,10 @@ gen_request_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated request key is assigned to our key data
  * structure. */
 static int
-gen_404_key (GKeyData * kdata, GLogItem * glog)
+gen_404_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (glog->req && glog->is_404)
-    return gen_req_key (kdata, glog);
+  if (logitem->req && logitem->is_404)
+    return gen_req_key (kdata, logitem);
   return 1;
 }
 
@@ -1753,10 +1753,10 @@ gen_404_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated request key is assigned to our key data
  * structure. */
 static int
-gen_static_request_key (GKeyData * kdata, GLogItem * glog)
+gen_static_request_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (glog->req && glog->is_static)
-    return gen_req_key (kdata, glog);
+  if (logitem->req && logitem->is_static)
+    return gen_req_key (kdata, logitem);
   return 1;
 }
 
@@ -1766,12 +1766,12 @@ gen_static_request_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated vhost key is assigned to our key data
  * structure. */
 static int
-gen_vhost_key (GKeyData * kdata, GLogItem * glog)
+gen_vhost_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->vhost)
+  if (!logitem->vhost)
     return 1;
 
-  get_kdata (kdata, glog->vhost, glog->vhost);
+  get_kdata (kdata, logitem->vhost, logitem->vhost);
 
   return 0;
 }
@@ -1782,12 +1782,12 @@ gen_vhost_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated host key is assigned to our key data
  * structure. */
 static int
-gen_host_key (GKeyData * kdata, GLogItem * glog)
+gen_host_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->host)
+  if (!logitem->host)
     return 1;
 
-  get_kdata (kdata, glog->host, glog->host);
+  get_kdata (kdata, logitem->host, logitem->host);
 
   return 0;
 }
@@ -1799,25 +1799,25 @@ gen_host_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated browser key is assigned to our key data
  * structure. */
 static int
-gen_browser_key (GKeyData * kdata, GLogItem * glog)
+gen_browser_key (GKeyData * kdata, GLogItem * logitem)
 {
   char *agent = NULL;
   char browser_type[BROWSER_TYPE_LEN] = "";
 
-  if (glog->agent == NULL || *glog->agent == '\0')
+  if (logitem->agent == NULL || *logitem->agent == '\0')
     return 1;
 
-  agent = xstrdup (glog->agent);
-  glog->browser = verify_browser (agent, browser_type);
-  glog->browser_type = xstrdup (browser_type);
+  agent = xstrdup (logitem->agent);
+  logitem->browser = verify_browser (agent, browser_type);
+  logitem->browser_type = xstrdup (browser_type);
 
   /* e.g., Firefox 11.12 */
-  kdata->data = glog->browser;
-  kdata->data_key = glog->browser;
+  kdata->data = logitem->browser;
+  kdata->data_key = logitem->browser;
 
   /* Firefox */
-  kdata->root = glog->browser_type;
-  kdata->root_key = glog->browser_type;
+  kdata->root = logitem->browser_type;
+  kdata->root_key = logitem->browser_type;
 
   free (agent);
 
@@ -1831,25 +1831,25 @@ gen_browser_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated OS key is assigned to our key data
  * structure. */
 static int
-gen_os_key (GKeyData * kdata, GLogItem * glog)
+gen_os_key (GKeyData * kdata, GLogItem * logitem)
 {
   char *agent = NULL;
   char os_type[OPESYS_TYPE_LEN] = "";
 
-  if (glog->agent == NULL || *glog->agent == '\0')
+  if (logitem->agent == NULL || *logitem->agent == '\0')
     return 1;
 
-  agent = xstrdup (glog->agent);
-  glog->os = verify_os (agent, os_type);
-  glog->os_type = xstrdup (os_type);
+  agent = xstrdup (logitem->agent);
+  logitem->os = verify_os (agent, os_type);
+  logitem->os_type = xstrdup (os_type);
 
   /* e.g., Linux,Ubuntu 10.12 */
-  kdata->data = glog->os;
-  kdata->data_key = glog->os;
+  kdata->data = logitem->os;
+  kdata->data_key = logitem->os;
 
   /* Linux */
-  kdata->root = glog->os_type;
-  kdata->root_key = glog->os_type;
+  kdata->root = logitem->os_type;
+  kdata->root_key = logitem->os_type;
 
   free (agent);
 
@@ -1862,12 +1862,12 @@ gen_os_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated referrer key is assigned to our key data
  * structure. */
 static int
-gen_referer_key (GKeyData * kdata, GLogItem * glog)
+gen_referer_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->ref)
+  if (!logitem->ref)
     return 1;
 
-  get_kdata (kdata, glog->ref, glog->ref);
+  get_kdata (kdata, logitem->ref, logitem->ref);
 
   return 0;
 }
@@ -1878,12 +1878,12 @@ gen_referer_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated referring site key is assigned to our key data
  * structure. */
 static int
-gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
+gen_ref_site_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (glog->site[0] == '\0')
+  if (logitem->site[0] == '\0')
     return 1;
 
-  get_kdata (kdata, glog->site, glog->site);
+  get_kdata (kdata, logitem->site, logitem->site);
 
   return 0;
 }
@@ -1894,12 +1894,12 @@ gen_ref_site_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated keyphrase key is assigned to our key data
  * structure. */
 static int
-gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
+gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem)
 {
-  if (!glog->keyphrase)
+  if (!logitem->keyphrase)
     return 1;
 
-  get_kdata (kdata, glog->keyphrase, glog->keyphrase);
+  get_kdata (kdata, logitem->keyphrase, logitem->keyphrase);
 
   return 0;
 }
@@ -1911,25 +1911,25 @@ gen_keyphrase_key (GKeyData * kdata, GLogItem * glog)
  * data structure. */
 #ifdef HAVE_LIBGEOIP
 static int
-gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
+gen_geolocation_key (GKeyData * kdata, GLogItem * logitem)
 {
   char continent[CONTINENT_LEN] = "";
   char country[COUNTRY_LEN] = "";
 
-  if (extract_geolocation (glog, continent, country) == 1)
+  if (extract_geolocation (logitem, continent, country) == 1)
     return 1;
 
   if (country[0] != '\0')
-    glog->country = xstrdup (country);
+    logitem->country = xstrdup (country);
 
   if (continent[0] != '\0')
-    glog->continent = xstrdup (continent);
+    logitem->continent = xstrdup (continent);
 
-  kdata->data_key = glog->country;
-  kdata->data = glog->country;
+  kdata->data_key = logitem->country;
+  kdata->data = logitem->country;
 
-  kdata->root = glog->continent;
-  kdata->root_key = glog->continent;
+  kdata->root = logitem->continent;
+  kdata->root_key = logitem->continent;
 
   return 0;
 }
@@ -1941,15 +1941,15 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * glog)
  * On success, the generated status code key is assigned to our key
  * data structure. */
 static int
-gen_status_code_key (GKeyData * kdata, GLogItem * glog)
+gen_status_code_key (GKeyData * kdata, GLogItem * logitem)
 {
   const char *status = NULL, *type = NULL;
 
-  if (!glog->status)
+  if (!logitem->status)
     return 1;
 
-  type = verify_status_code_type (glog->status);
-  status = verify_status_code (glog->status);
+  type = verify_status_code_type (logitem->status);
+  status = verify_status_code (logitem->status);
 
   kdata->data = (char *) status;
   kdata->data_key = (char *) status;
@@ -1985,25 +1985,27 @@ parse_time_specificity_string (char *hmark, char *ftime)
  * On success, the generated time key is assigned to our key data
  * structure. */
 static int
-gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
+gen_visit_time_key (GKeyData * kdata, GLogItem * logitem)
 {
   char *hmark = NULL;
   char hour[HRMI_LEN] = "";     /* %H:%M */
-  if (!glog->time)
+  if (!logitem->time)
     return 1;
 
   /* if not a timestamp, then it must be a string containing the hour.
    * this is faster than actual date conversion */
-  if (!has_timestamp (conf.time_format) && (hmark = strchr (glog->time, ':'))) {
-    parse_time_specificity_string (hmark, glog->time);
-    get_kdata (kdata, glog->time, glog->time);
+  if (!has_timestamp (conf.time_format) &&
+      (hmark = strchr (logitem->time, ':'))) {
+    parse_time_specificity_string (hmark, logitem->time);
+    get_kdata (kdata, logitem->time, logitem->time);
     return 0;
   }
 
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, glog->time, conf.time_format, "%H:%M", HRMI_LEN) != 0)
+  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) !=
+      0)
     return 1;
 
   if (hour == '\0')
@@ -2012,9 +2014,9 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
   if ((hmark = strchr (hour, ':')))
     parse_time_specificity_string (hmark, hour);
 
-  free (glog->time);
-  glog->time = xstrdup (hour);
-  get_kdata (kdata, glog->time, glog->time);
+  free (logitem->time);
+  logitem->time = xstrdup (hour);
+  get_kdata (kdata, logitem->time, logitem->time);
 
   return 0;
 }
@@ -2023,18 +2025,19 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * glog)
  *
  * If it needs to be added, 0 is returned else 1 is returned. */
 static int
-include_uniq (GLogItem * glog)
+include_uniq (GLogItem * logitem)
 {
   int u = conf.client_err_to_unique_count;
 
-  if (!glog->status || glog->status[0] != '4' || (u && glog->status[0] == '4'))
+  if (!logitem->status || logitem->status[0] != '4' ||
+      (u && logitem->status[0] == '4'))
     return 1;
   return 0;
 }
 
 /* Determine which data metrics need to be set and set them. */
 static void
-set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
+set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse)
 {
   GModule module;
   module = parse->module;
@@ -2055,33 +2058,33 @@ set_datamap (GLogItem * glog, GKeyData * kdata, const GParse * parse)
     parse->visitor (kdata->data_nkey, module);
   /* insert bandwidth */
   if (parse->bw)
-    parse->bw (kdata->data_nkey, glog->resp_size, module);
+    parse->bw (kdata->data_nkey, logitem->resp_size, module);
   /* insert averages time served */
   if (parse->cumts)
-    parse->cumts (kdata->data_nkey, glog->serve_time, module);
+    parse->cumts (kdata->data_nkey, logitem->serve_time, module);
   /* insert averages time served */
   if (parse->maxts)
-    parse->maxts (kdata->data_nkey, glog->serve_time, module);
+    parse->maxts (kdata->data_nkey, logitem->serve_time, module);
   /* insert method */
   if (parse->method && conf.append_method)
-    parse->method (kdata->data_nkey, glog->method, module);
+    parse->method (kdata->data_nkey, logitem->method, module);
   /* insert protocol */
   if (parse->protocol && conf.append_protocol)
-    parse->protocol (kdata->data_nkey, glog->protocol, module);
+    parse->protocol (kdata->data_nkey, logitem->protocol, module);
   /* insert agent */
   if (parse->agent && conf.list_agents)
-    parse->agent (kdata->data_nkey, glog->agent_nkey, module);
+    parse->agent (kdata->data_nkey, logitem->agent_nkey, module);
 }
 
 /* Set data mapping and metrics. */
 static void
-map_log (GLogItem * glog, const GParse * parse, GModule module)
+map_log (GLogItem * logitem, const GParse * parse, GModule module)
 {
   GKeyData kdata;
   char *uniq_key = NULL;
 
   new_modulekey (&kdata);
-  if (parse->key_data (&kdata, glog) == 1)
+  if (parse->key_data (&kdata, logitem) == 1)
     return;
 
   /* each module requires a data key/value */
@@ -2089,8 +2092,8 @@ map_log (GLogItem * glog, const GParse * parse, GModule module)
     kdata.data_nkey = insert_keymap (kdata.data_key, module);
 
   /* each module contains a uniq visitor key/value */
-  if (parse->visitor && glog->uniq_key && include_uniq (glog)) {
-    uniq_key = ints_to_str (glog->uniq_nkey, kdata.data_nkey);
+  if (parse->visitor && logitem->uniq_key && include_uniq (logitem)) {
+    uniq_key = ints_to_str (logitem->uniq_nkey, kdata.data_nkey);
     /* unique key already exists? */
     kdata.uniq_nkey = insert_uniqmap (uniq_key, module);
     free (uniq_key);
@@ -2102,13 +2105,13 @@ map_log (GLogItem * glog, const GParse * parse, GModule module)
 
   /* each module requires a root key/value */
   if (parse->datamap && kdata.data_key)
-    set_datamap (glog, &kdata, parse);
+    set_datamap (logitem, &kdata, parse);
 }
 
 /* Process a log line and set the data into the corresponding data
  * structure. */
 static void
-process_log (GLogItem * glog)
+process_log (GLogItem * logitem)
 {
   GModule module;
   const GParse *parse = NULL;
@@ -2116,7 +2119,7 @@ process_log (GLogItem * glog)
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
-  glog->uniq_nkey = ht_insert_unique_key (glog->uniq_key);
+  logitem->uniq_nkey = ht_insert_unique_key (logitem->uniq_key);
 
   /* If we need to store user agents per IP, then we store them and retrieve
    * its numeric key.
@@ -2124,16 +2127,16 @@ process_log (GLogItem * glog)
    * map for value -> key*/
   if (conf.list_agents) {
     /* insert UA key and get a numeric value */
-    glog->agent_nkey = ht_insert_agent_key (glog->agent);
+    logitem->agent_nkey = ht_insert_agent_key (logitem->agent);
     /* insert a numeric key and map it to a UA string */
-    ht_insert_agent_value (glog->agent_nkey, glog->agent);
+    ht_insert_agent_value (logitem->agent_nkey, logitem->agent);
   }
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
     if (!(parse = panel_lookup (module)))
       continue;
-    map_log (glog, parse, module);
+    map_log (logitem, parse, module);
   }
 }
 
@@ -2143,55 +2146,55 @@ process_log (GLogItem * glog)
  *
  * On success, 0 is returned */
 static int
-pre_process_log (GLog * logger, char *line, int test)
+pre_process_log (GLog * glog, char *line, int test)
 {
-  GLogItem *glog;
+  GLogItem *logitem;
 
   if (valid_line (line)) {
-    count_invalid (logger, line, test);
+    count_invalid (glog, line, test);
     return 0;
   }
 
-  count_process (logger, test);
-  glog = init_log_item (logger);
+  count_process (glog, test);
+  logitem = init_log_item (glog);
   /* parse a line of log, and fill structure with appropriate values */
-  if (parse_format (glog, line)) {
-    count_invalid (logger, line, test);
+  if (parse_format (logitem, line)) {
+    count_invalid (glog, line, test);
     goto cleanup;
   }
 
   /* must have the following fields */
-  if (glog->host == NULL || glog->date == NULL || glog->req == NULL) {
-    count_invalid (logger, line, test);
+  if (logitem->host == NULL || logitem->date == NULL || logitem->req == NULL) {
+    count_invalid (glog, line, test);
     goto cleanup;
   }
   /* agent will be null in cases where %u is not specified */
-  if (glog->agent == NULL)
-    glog->agent = alloc_string ("-");
+  if (logitem->agent == NULL)
+    logitem->agent = alloc_string ("-");
 
   /* testing log only */
   if (test) {
-    count_valid (logger, test);
+    count_valid (glog, test);
     goto cleanup;
   }
 
   /* ignore line */
-  if (ignore_line (logger, glog, test))
+  if (ignore_line (glog, logitem, test))
     goto cleanup;
 
-  if (is_404 (glog))
-    glog->is_404 = 1;
-  else if (is_static (glog))
-    glog->is_static = 1;
+  if (is_404 (logitem))
+    logitem->is_404 = 1;
+  else if (is_static (logitem))
+    logitem->is_static = 1;
 
-  glog->uniq_key = get_uniq_visitor_key (glog);
+  logitem->uniq_key = get_uniq_visitor_key (logitem);
 
-  inc_resp_size (logger, glog->resp_size);
-  process_log (glog);
-  count_valid (logger, test);
+  inc_resp_size (glog, logitem->resp_size);
+  process_log (logitem);
+  count_valid (glog, test);
 
 cleanup:
-  free_logger (glog);
+  free_glog (logitem);
 
   return 0;
 }
@@ -2203,7 +2206,7 @@ cleanup:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_line (FILE * fp, int lines2test, GLog ** logger)
+read_line (FILE * fp, int lines2test, GLog ** glog)
 {
   char line[LINE_BUFFER] = { 0 };
   int i = 0, test = -1 == lines2test ? 0 : 1;
@@ -2215,8 +2218,8 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
       break;
 
     /* start processing log line */
-    if (pre_process_log ((*logger), line, test)) {
-      if (!(*logger)->piping)
+    if (pre_process_log ((*glog), line, test)) {
+      if (!(*glog)->piping)
         fclose (fp);
       return 1;
     }
@@ -2233,7 +2236,7 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_line (FILE * fp, int lines2test, GLog ** logger)
+read_line (FILE * fp, int lines2test, GLog ** glog)
 {
   char *line = NULL;
   size_t len = LINE_BUFFER;
@@ -2247,8 +2250,8 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
       break;
 
     /* start processing log line */
-    if (pre_process_log ((*logger), line, test)) {
-      if (!(*logger)->piping)
+    if (pre_process_log ((*glog), line, test)) {
+      if (!(*glog)->piping)
         fclose (fp);
       free (line);
       return 1;
@@ -2265,36 +2268,36 @@ read_line (FILE * fp, int lines2test, GLog ** logger)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-read_log (GLog ** logger, int lines2test)
+read_log (GLog ** glog, int lines2test)
 {
   FILE *fp = NULL;
 
   /* no data piped, no log passed, load from disk only then */
   if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
-    (*logger)->load_from_disk_only = 1;
+    (*glog)->load_from_disk_only = 1;
     return 0;
   }
 
   /* no log passed, but data piped */
   if (!isatty (STDIN_FILENO) && !conf.ifile) {
     fp = stdin;
-    (*logger)->piping = 1;
+    (*glog)->piping = 1;
   }
 
   /* make sure we can open the log (if not reading from stdin) */
-  if (!(*logger)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
+  if (!(*glog)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* read line by line */
-  if (read_line (fp, lines2test, logger))
+  if (read_line (fp, lines2test, glog))
     return 1;
 
   /* definitely not portable! */
-  if ((*logger)->piping)
+  if ((*glog)->piping)
     freopen ("/dev/tty", "r", stdin);
 
   /* close log file if not a pipe */
-  if (!(*logger)->piping)
+  if (!(*glog)->piping)
     fclose (fp);
 
   return 0;
@@ -2305,14 +2308,14 @@ read_log (GLog ** logger, int lines2test)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-parse_log (GLog ** logger, char *tail, int lines2test)
+parse_log (GLog ** glog, char *tail, int lines2test)
 {
   const char *err_log = NULL;
   int test = -1 == lines2test ? 0 : 1;
 
   /* process tail data and return */
   if (tail != NULL) {
-    if (pre_process_log ((*logger), tail, test))
+    if (pre_process_log ((*glog), tail, test))
       return 1;
     return 0;
   }
@@ -2322,7 +2325,7 @@ parse_log (GLog ** logger, char *tail, int lines2test)
     FATAL ("%s", err_log);
 
   /* the first run */
-  return read_log (logger, lines2test);
+  return read_log (glog, lines2test);
 }
 
 /* Ensure we have valid hits
@@ -2330,17 +2333,17 @@ parse_log (GLog ** logger, char *tail, int lines2test)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-test_format (GLog * logger)
+test_format (GLog * glog)
 {
-  if (parse_log (&logger, NULL, NUM_TESTS))
+  if (parse_log (&glog, NULL, NUM_TESTS))
     FATAL ("Error while processing file");
 
   /* it did not process any records, and since we're loading the dataset from
    * disk, then it is safe to assume is right */
-  if (logger->load_from_disk_only)
+  if (glog->load_from_disk_only)
     return 0;
 
-  if (logger->valid == 0)
+  if (glog->valid == 0)
     return 1;
   return 0;
 }

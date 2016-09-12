@@ -84,7 +84,7 @@ int active_gdns = 0;
 
 static GDash *dash;
 static GHolder *holder;
-static GLog *logger;
+static GLog *glog;
 static sigset_t oldset;
 static WINDOW *header_win, *main_win;
 
@@ -159,7 +159,7 @@ house_keeping (void)
 #endif
 
   /* LOGGER */
-  free (logger);
+  free (glog);
 
   /* INVALID REQUESTS */
   if (conf.invalid_requests_log) {
@@ -272,7 +272,7 @@ render_screens (void)
   term_size (main_win, &main_win_height);
 
   generate_time ();
-  chg = logger->processed - logger->offset;
+  chg = glog->processed - glog->offset;
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
@@ -286,13 +286,13 @@ render_screens (void)
   refresh ();
 
   /* call general stats header */
-  display_general (header_win, logger, holder);
+  display_general (header_win, glog, holder);
   wrefresh (header_win);
 
   /* display active label based on current module */
   update_active_module (header_win, gscroll.current);
 
-  display_content (main_win, logger, dash, &gscroll);
+  display_content (main_win, glog, dash, &gscroll);
 }
 
 /* Collapse the current expanded module */
@@ -597,7 +597,7 @@ tail_html (int fdfifo)
 
   allocate_holder ();
 
-  if ((json = get_json (logger, holder)) == NULL)
+  if ((json = get_json (glog, holder)) == NULL)
     return;
 
   broadcast_holder (fdfifo, json, strlen (json));
@@ -618,7 +618,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   char buf[LINE_BUFFER] = { 0 };
 #endif
 
-  if (logger->piping || logger->load_from_disk_only)
+  if (glog->piping || glog->load_from_disk_only)
     return;
 
   size2 = file_size (conf.ifile);
@@ -637,7 +637,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
 #else
     while (fgets (buf, LINE_BUFFER, fp) != NULL)
 #endif
-      parse_log (&logger, buf, -1);
+      parse_log (&glog, buf, -1);
   }
 #ifdef WITH_GETLINE
   free (buf);
@@ -661,12 +661,12 @@ process_html (const char *filename)
   uint64_t size1 = 0;
 
   /* render report */
-  output_html (logger, holder, filename);
+  output_html (glog, holder, filename);
   /* not real time? */
   if (!conf.real_time_html)
     return;
   /* ignore piping or loading from disk */
-  if (logger->piping || logger->load_from_disk_only)
+  if (glog->piping || glog->load_from_disk_only)
     return;
   /* open fifo for write */
   if ((fdfifo = open_fifo ()) == -1)
@@ -754,7 +754,7 @@ get_keys (void)
   int c, quit = 1;
   uint64_t size1 = 0;
 
-  if (!logger->piping && !logger->load_from_disk_only)
+  if (!glog->piping && !glog->load_from_disk_only)
     size1 = file_size (conf.ifile);
 
   while (quit) {
@@ -851,11 +851,11 @@ get_keys (void)
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
     case 'G':  /* G = down */
       scroll_to_last_line ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
       /* expand dashboard module */
     case KEY_RIGHT:
@@ -866,12 +866,12 @@ get_keys (void)
     case 111:  /* O */
     case KEY_ENTER:
       expand_current_module ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
     case KEY_DOWN:     /* scroll main dashboard */
       if ((gscroll.dash + main_win_height) < dash->total_alloc) {
         gscroll.dash++;
-        display_content (main_win, logger, dash, &gscroll);
+        display_content (main_win, glog, dash, &gscroll);
       }
       break;
     case KEY_MOUSE:    /* handles mouse events */
@@ -879,28 +879,28 @@ get_keys (void)
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_down_expanded_module ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
       /* scroll up main_win */
     case KEY_UP:
       if (gscroll.dash > 0) {
         scroll_up_dashboard ();
-        display_content (main_win, logger, dash, &gscroll);
+        display_content (main_win, glog, dash, &gscroll);
       }
       break;
     case 2:    /* ^ b - page up */
     case 339:  /* ^ PG UP */
       page_up_module ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
     case 6:    /* ^ f - page down */
     case 338:  /* ^ PG DOWN */
       page_down_module ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
     case 107:  /* k - UP expanded module */
       scroll_up_expanded_module ();
-      display_content (main_win, logger, dash, &gscroll);
+      display_content (main_win, glog, dash, &gscroll);
       break;
     case 'n':
       search_next_match (search);
@@ -936,16 +936,16 @@ get_keys (void)
 static void
 set_general_stats (void)
 {
-  logger->valid = logger->processed = logger->invalid = logger->excluded_ip = 0;
+  glog->valid = glog->processed = glog->invalid = glog->excluded_ip = 0;
 
 #ifdef TCB_BTREE
-  logger->excluded_ip = ht_get_genstats ("excluded_ip");
-  logger->invalid = ht_get_genstats ("failed_requests");
-  logger->processed = ht_get_genstats ("total_requests");
-  logger->resp_size = ht_get_genstats_bw ("bandwidth");
-  logger->valid = ht_get_genstats ("valid_requests");
+  glog->excluded_ip = ht_get_genstats ("excluded_ip");
+  glog->invalid = ht_get_genstats ("failed_requests");
+  glog->processed = ht_get_genstats ("total_requests");
+  glog->resp_size = ht_get_genstats_bw ("bandwidth");
+  glog->valid = ht_get_genstats ("valid_requests");
 
-  if (logger->resp_size > 0)
+  if (glog->resp_size > 0)
     conf.bandwidth = 1;
   if (ht_get_genstats ("serve_usecs"))
     conf.serve_usecs = 1;
@@ -988,10 +988,10 @@ standard_output (void)
 
   /* CSV */
   if (find_output_type (&csv, "csv", 1) == 0)
-    output_csv (logger, holder, csv);
+    output_csv (glog, holder, csv);
   /* JSON */
   if (find_output_type (&json, "json", 1) == 0)
-    output_json (logger, holder, json);
+    output_json (glog, holder, json);
   /* HTML */
   if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
     process_html (html);
@@ -1123,13 +1123,13 @@ initializer (void)
   init_geoip ();
 #endif
 
-  /* init logger */
-  logger = init_log ();
-  set_signal_data (logger);
+  /* init glog */
+  glog = init_log ();
+  set_signal_data (glog);
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
-  parsing_spinner->processed = &logger->processed;
+  parsing_spinner->processed = &glog->processed;
 }
 
 static void
@@ -1170,7 +1170,7 @@ set_curses (int *quit)
   /* Display configuration dialog if missing formats and not piping data in */
   if (isatty (STDIN_FILENO) && (verify_formats () || conf.load_conf_dlg)) {
     refresh ();
-    *quit = render_confdlg (logger, parsing_spinner);
+    *quit = render_confdlg (glog, parsing_spinner);
     clear ();
   }
   /* Piping data in without log/date/time format */
@@ -1213,12 +1213,12 @@ main (int argc, char **argv)
   init_processing ();
   /* main processing event */
   time (&start_proc);
-  if (parse_log (&logger, NULL, -1))
+  if (parse_log (&glog, NULL, -1))
     FATAL ("Error while processing file");
   if (conf.stop_processing)
     goto clean;
 
-  logger->offset = logger->processed;
+  glog->offset = glog->processed;
 
   /* If parser.c, process_log() did not parse any lines from the
    * provided dataset, then display a message that no valid entries
@@ -1226,7 +1226,7 @@ main (int argc, char **argv)
    *
    * If it gets to this point, usually the log/date/time format did
    * not match the log entries. */
-  if (logger->valid == 0)
+  if (glog->valid == 0)
     FATAL ("Nothing valid to process. Verify your date/time/log format.");
 
   /* init reverse lookup thread */
