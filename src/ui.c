@@ -1104,7 +1104,7 @@ new_gspinner (void)
 static void
 clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
 {
-  draw_header (win, "", "%s", y, x, w, color_default);
+  draw_header (win, "", "%s", y, x, w + 1, color_default);
 }
 
 static void
