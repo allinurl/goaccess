@@ -99,7 +99,7 @@ get_max_choices (void)
 float
 get_percentage (unsigned long long total, unsigned long long hit)
 {
-  return (total == 0 ? 0 : ((float) (hit / total) * 100));
+  return (total == 0 ? 0 : (((double) hit) / total) * 100);
 }
 
 /* Display the storage being used. */
