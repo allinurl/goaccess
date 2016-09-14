@@ -39,11 +39,11 @@
 #define GIB 1073741824
 #define TIB 1099511627776LL
 
-#define MILS        1000ULL
-#define SECS        1000000ULL
-#define MINS        60000000ULL
-#define HOUR        3600000000ULL
-#define DAY         86400000000ULL
+#define MILS 1000ULL
+#define SECS 1000000ULL
+#define MINS 60000000ULL
+#define HOUR 3600000000ULL
+#define DAY  86400000000ULL
 
 /* *INDENT-OFF* */
 #include <stdint.h>
