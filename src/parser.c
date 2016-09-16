@@ -842,19 +842,22 @@ parse_req (char *line, char **method, char **protocol)
  *
  * On error, the function returns.
  * On success, the delimiter(s) are stored in the dest buffer. */
-static void
+static int
 get_delim (char *dest, const char *p)
 {
   /* done, nothing to do */
   if (p[0] == '\0' || p[1] == '\0') {
     dest[0] = '\0';
-    return;
+    return 0;
   }
   /* add the first delim */
   dest[0] = *(p + 1);
   /* check if there's another possible delim */
-  if (p[2] == '|' && p[3] != '\0')
+  if (p[2] == '|' && p[3] != '\0') {
     dest[1] = *(p + 3);
+    return 1;
+  }
+  return 0;
 }
 
 /* Extract and malloc a token given the parsed rule.
@@ -879,7 +882,7 @@ parsed_string (const char *pch, char **str)
  * On error, or unable to parse it, NULL is returned.
  * On success, the malloc'd token is returned. */
 static char *
-parse_string (char **str, char *delims, int cnt)
+parse_string (char **str, const char *delims, int cnt)
 {
   int idx = 0;
   char *pch = *str, *end = NULL;
@@ -942,13 +945,12 @@ set_date (char **fdate, struct tm tm)
  * On error, or unable to parse it, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem member. */
 static int
-parse_specifier (GLogItem * logitem, char **str, const char *p)
+parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 {
   struct tm tm;
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
 
-  char end[2 + 1] = { 0 };
   char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
@@ -956,7 +958,6 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   errno = 0;
   memset (&tm, 0, sizeof (tm));
 
-  get_delim (end, p);
   switch (*p) {
     /* date */
   case 'd':
@@ -1225,15 +1226,19 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
 static int
 parse_format (GLogItem * logitem, char *str)
 {
+  char end[2 + 1] = { 0 };
   const char *p;
   const char *lfmt = conf.log_format;
-  int special = 0;
+  int special = 0, optdelim = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
 
   /* iterate over the log format */
   for (p = lfmt; *p; p++) {
+    /* advance to the first unescaped delim */
+    if (*p == '\\')
+      continue;
     if (*p == '%') {
       special++;
       continue;
@@ -1242,9 +1247,14 @@ parse_format (GLogItem * logitem, char *str)
       if ((str == NULL) || (*str == '\0'))
         return 0;
 
+      memset (end, 0, sizeof end);
+      optdelim = get_delim (end, p);
       /* attempt to parse format specifiers */
-      if (parse_specifier (logitem, &str, p) == 1)
+      if (parse_specifier (logitem, &str, p, end) == 1)
         return 1;
+      /* account for the extra delimiter */
+      if (optdelim)
+        p++;
       special = 0;
     } else if (special && isspace (p[0])) {
       return 1;
