@@ -836,6 +836,27 @@ parse_req (char *line, char **method, char **protocol)
   return request;
 }
 
+/* Extract the next delimiter given a log format and copy the
+ * delimiter(s) to the destination buffer.
+ * Note that it's possible to store up to two delimiters.
+ *
+ * On error, the function returns.
+ * On success, the delimiter(s) are stored in the dest buffer. */
+static void
+get_delim (char *dest, const char *p)
+{
+  /* done, nothing to do */
+  if (p[0] == '\0' || p[1] == '\0') {
+    dest[0] = '\0';
+    return;
+  }
+  /* add the first delim */
+  dest[0] = *(p + 1);
+  /* check if there's another possible delim */
+  if (p[2] == '|' && p[3] != '\0')
+    dest[1] = *(p + 3);
+}
+
 /* Extract and malloc a token given the parsed rule.
  *
  * On success, the malloc'd token is returned. */
@@ -858,17 +879,20 @@ parsed_string (const char *pch, char **str)
  * On error, or unable to parse it, NULL is returned.
  * On success, the malloc'd token is returned. */
 static char *
-parse_string (char **str, char end, int cnt)
+parse_string (char **str, char *delims, int cnt)
 {
   int idx = 0;
-  char *pch = *str;
+  char *pch = *str, *end = NULL;
+
+  if ((end = strpbrk (*str, delims)) == NULL)
+    return NULL;
 
   do {
     /* match number of delims */
-    if (*pch == end)
+    if (*pch == *end)
       idx++;
     /* delim found, parse string then */
-    if ((*pch == end && cnt == idx) || *pch == '\0')
+    if ((*pch == *end && cnt == idx) || *pch == '\0')
       return parsed_string (pch, str);
     /* advance to the first unescaped delim */
     if (*pch == '\\')
@@ -924,6 +948,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
 
+  char end[2 + 1] = { 0 };
   char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
@@ -931,6 +956,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   errno = 0;
   memset (&tm, 0, sizeof (tm));
 
+  get_delim (end, p);
   switch (*p) {
     /* date */
   case 'd':
@@ -938,7 +964,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
       return 1;
     /* parse date format including dates containing spaces,
      * i.e., syslog date format (Jul 15 20:10:56) */
-    tkn = parse_string (&(*str), p[1], count_matches (dfmt, ' ') + 1);
+    tkn = parse_string (&(*str), end, count_matches (dfmt, ' ') + 1);
     if (tkn == NULL)
       return 1;
     if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
@@ -951,7 +977,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 't':
     if (logitem->time)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (str_to_time (tkn, tfmt, &tm) != 0) {
@@ -964,7 +990,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'x':
     if (logitem->time && logitem->date)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
@@ -977,7 +1003,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'v':
     if (logitem->vhost)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
       return 1;
     logitem->vhost = tkn;
@@ -986,7 +1012,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'h':
     if (logitem->host)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (invalid_ipaddr (tkn, &logitem->type_ip)) {
@@ -999,7 +1025,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'm':
     if (logitem->method)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (!extract_method (tkn)) {
@@ -1012,7 +1038,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'U':
     if (logitem->req)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
       return 1;
     if ((logitem->req = decode_url (tkn)) == NULL)
@@ -1023,7 +1049,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'q':
     if (logitem->qstr)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
       return 0;
     if ((logitem->qstr = decode_url (tkn)) == NULL)
@@ -1034,7 +1060,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'H':
     if (logitem->protocol)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (invalid_protocol (tkn)) {
@@ -1047,7 +1073,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'r':
     if (logitem->req)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
@@ -1057,7 +1083,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 's':
     if (logitem->status)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     strtol (tkn, &sEnd, 10);
@@ -1071,7 +1097,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'b':
     if (logitem->resp_size)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     bandw = strtoull (tkn, &bEnd, 10);
@@ -1085,7 +1111,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'R':
     if (logitem->ref)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       tkn = alloc_string ("-");
     if (tkn != NULL && *tkn == '\0') {
@@ -1102,7 +1128,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
   case 'u':
     if (logitem->agent)
       return 1;
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront)
        * and replace all '+' with ' ' (i.e.: w3c) */
@@ -1125,7 +1151,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
     if (logitem->serve_time)
       break;
 
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     serve_secs = strtoull (tkn, &bEnd, 10);
@@ -1145,7 +1171,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
     if (logitem->serve_time)
       break;
 
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     if (strchr (tkn, '.') != NULL)
@@ -1167,7 +1193,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p)
     if (logitem->serve_time)
       break;
 
-    tkn = parse_string (&(*str), p[1], 1);
+    tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return 1;
     serve_time = strtoull (tkn, &bEnd, 10);
