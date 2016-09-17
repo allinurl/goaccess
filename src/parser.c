@@ -885,17 +885,19 @@ static char *
 parse_string (char **str, const char *delims, int cnt)
 {
   int idx = 0;
-  char *pch = *str, *end = NULL;
+  char *pch = *str, *p = NULL;
+  char end;
 
-  if ((end = strpbrk (*str, delims)) == NULL)
+  if ((*delims != 0x0) && (p = strpbrk (*str, delims)) == NULL)
     return NULL;
 
+  end = !*delims || !p ? 0x0 : *p;
   do {
     /* match number of delims */
-    if (*pch == *end)
+    if (*pch == end)
       idx++;
     /* delim found, parse string then */
-    if ((*pch == *end && cnt == idx) || *pch == '\0')
+    if ((*pch == end && cnt == idx) || *pch == '\0')
       return parsed_string (pch, str);
     /* advance to the first unescaped delim */
     if (*pch == '\\')
