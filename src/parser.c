@@ -841,7 +841,8 @@ parse_req (char *line, char **method, char **protocol)
  * Note that it's possible to store up to two delimiters.
  *
  * On error, the function returns.
- * On success, the delimiter(s) are stored in the dest buffer. */
+ * On success, the delimiter(s) are stored in the dest buffer and the
+ * number of extra delimiters is returned. */
 static int
 get_delim (char *dest, const char *p)
 {
