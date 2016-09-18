@@ -86,6 +86,7 @@ static const char *browsers[][2] = {
   {"Epiphany", "Others"},
   {"Firebird", "Others"},
   {"Galeon", "Others"},
+  {"google-cloud-sdk", "Others"},
   {"GranParadiso", "Others"},
   {"IBrowse", "Others"},
   {"K-Meleon", "Others"},
