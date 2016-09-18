@@ -892,7 +892,7 @@ parse_string (char **str, const char *delims, int cnt)
   if ((*delims != 0x0) && (p = strpbrk (*str, delims)) == NULL)
     return NULL;
 
-  end = !*delims || !p ? 0x0 : *p;
+  end = !*delims ? 0x0 : *p;
   do {
     /* match number of delims */
     if (*pch == end)
