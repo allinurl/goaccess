@@ -1139,7 +1139,7 @@ set_standard_output (void)
 
   /* HTML */
   if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
-    html = 1;
+    conf.output_html = html = 1;
 
   /* Spawn WS server thread */
   if (html && conf.real_time_html)
