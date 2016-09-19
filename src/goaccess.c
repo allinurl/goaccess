@@ -597,7 +597,7 @@ tail_html (int fdfifo)
 
   allocate_holder ();
 
-  if ((json = get_json (glog, holder)) == NULL)
+  if ((json = get_json (glog, holder, 0)) == NULL)
     return;
 
   broadcast_holder (fdfifo, json, strlen (json));
@@ -1139,7 +1139,7 @@ set_standard_output (void)
 
   /* HTML */
   if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
-    conf.output_html = html = 1;
+    html = 1;
 
   /* Spawn WS server thread */
   if (html && conf.real_time_html)

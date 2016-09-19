@@ -67,6 +67,8 @@ typedef struct GPanel_
 
 /* number of new lines (applicable fields) */
 static int nlines = 0;
+/* escape HTML in JSON data values */
+static int escape_html_output = 0;
 
 static void print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
                              const struct GPanel_ *);
@@ -216,6 +218,33 @@ fpjson (FILE * fp, const char *fmt, ...)
 static void
 escape_json_other (GJSON * json, char **s)
 {
+  /* Since JSON data is bootstrapped into the HTML document of a report,
+   * then we perform the following four translations in case weird stuff
+   * is put into the document.
+   *
+   * Note: The following scenario assumes that the user manually makes
+   * the HTML report a PHP file (GoAccess doesn't allow the creation of a
+   * PHP file):
+   *
+   * /index.html<?php eval(base_decode('iZWNobyAiPGgxPkhFTExPPC9oMT4iOw=='));?>
+   */
+  if (escape_html_output) {
+    switch (**s) {
+    case '\'':
+      pjson (json, "&#39;");
+      return;
+    case '&':
+      pjson (json, "&amp;");
+      return;
+    case '<':
+      pjson (json, "&lt;");
+      return;
+    case '>':
+      pjson (json, "&gt;");
+      return;
+    }
+  }
+
   if ((uint8_t) ** s <= 0x1f) {
     /* Control characters (U+0000 through U+001F) */
     char buf[8];
@@ -246,29 +275,6 @@ escape_json_output (GJSON * json, char *s)
 {
   while (*s) {
     switch (*s) {
-      /* Since JSON data is bootstrapped into the HTML document of a report,
-       * then we perform the following four translations in case weird stuff
-       * is put into the document.
-       *
-       * Note: The following scenario assumes that the user manually makes
-       * the HTML report a PHP file (GoAccess doesn't allow the creation of a
-       * PHP file):
-       *
-       * /index.html<?php eval(base_decode('iZWNobyAiPGgxPkhFTExPPC9oMT4iOw=='));?>
-       */
-    case '\'':
-      pjson (json, "&#39;");
-      break;
-    case '&':
-      pjson (json, "&amp;");
-      break;
-    case '<':
-      pjson (json, "&lt;");
-      break;
-    case '>':
-      pjson (json, "&gt;");
-      break;
-
       /* These are required JSON special characters that need to be escaped. */
     case '"':
       pjson (json, "\\\"");
@@ -1139,11 +1145,12 @@ init_json_output (GLog * glog, GHolder * holder)
  *
  * On success, the newly allocated buffer is returned . */
 char *
-get_json (GLog * glog, GHolder * holder)
+get_json (GLog * glog, GHolder * holder, int escape_html)
 {
   GJSON *json = NULL;
   char *buf = NULL;
 
+  escape_html_output = escape_html;
   if ((json = init_json_output (glog, holder)) && json->size > 0) {
     buf = xstrdup (json->buf);
     free_json (json);

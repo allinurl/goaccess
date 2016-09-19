@@ -392,7 +392,7 @@ print_json_data (FILE * fp, GLog * glog, GHolder * holder)
 {
   char *json = NULL;
 
-  if ((json = get_json (glog, holder)) == NULL)
+  if ((json = get_json (glog, holder, 1)) == NULL)
     return;
 
   fprintf (fp, "<script type='text/javascript'>");
