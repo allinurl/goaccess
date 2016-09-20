@@ -79,13 +79,20 @@ GConf conf = {
   .hl_header = 1
 };
 
+/* Loading/Spinner */
 GSpinner *parsing_spinner;
+/* active reverse dns flag */
 int active_gdns = 0;
 
+/* Dashboard data structure */
 static GDash *dash;
+/* Data holder structure */
 static GHolder *holder;
+/* Log line properties structure */
 static GLog *glog;
+/* Old signal mask */
 static sigset_t oldset;
+/* Curses windows */
 static WINDOW *header_win, *main_win;
 
 static int main_win_height = 0;
