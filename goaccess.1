@@ -723,14 +723,23 @@ The time taken to serve the request, in microseconds as a decimal number.
 The time taken to serve the request, in seconds with milliseconds resolution.
 .IP %L
 The time taken to serve the request, in milliseconds as a decimal number.
-.IP
-.I Note:
-If multiple time served specifiers are used at the same time, the first option
-specified in the format string will take priority over the other specifiers.
 .IP %^
 Ignore this field.
 .IP %~
 Move forward through the log string until a non-space (!isspace) char is found.
+.P
+.I Note:
+In order to get the average, cumulative and maximum time served in GoAccess,
+you will need to start logging response times in your web server. In Nginx you
+can add
+.I $request_time
+to your log format, or
+.I %D
+in Apache.
+.P
+.I Important:
+If multiple time served specifiers are used at the same time, the first option
+specified in the format string will take priority over the other specifiers.
 .P
 GoAccess
 .I requires
