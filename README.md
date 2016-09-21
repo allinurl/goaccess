@@ -37,7 +37,7 @@ terminal. Features include:
 
 * **Only one dependency**
   GoAccess is written in C. To run it, you only need ncurses as a dependency.
-  That's it. It even has its own Web Socket server -  http://gwsocket.io/.
+  That's it. It even features its own Web Socket server -  http://gwsocket.io/.
 
 * **Visitors**
   Determine the amount of hits, visitors, bandwidth, and metrics for slowest
