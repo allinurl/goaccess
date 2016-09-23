@@ -125,6 +125,8 @@ alternative option below.
     $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
     $ sudo apt-get update
     $ sudo apt-get install goaccess
+    
+**Note**: `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
 
