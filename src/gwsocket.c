@@ -75,7 +75,7 @@ write_holder (int fd, const char *buf, int len)
   return i;
 }
 
-/* Pack the JSON data into a network byte order and write it to a
+/* Pack the JSON data into a network byte order and writes it to a
  * pipe.
  *
  * On success, 0 is returned . */
