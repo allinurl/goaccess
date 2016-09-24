@@ -286,12 +286,11 @@ gdns_free_queue (void)
 void
 gdns_thread_create (void)
 {
-  int thread;
+  int th;
 
   active_gdns = 1;
-  thread =
-    pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
-  if (thread)
-    FATAL ("Return code from pthread_create(): %d", thread);
+  th = pthread_create (&(gdns_thread.thread), NULL, (void *) &dns_worker, NULL);
+  if (th)
+    FATAL ("Return code from pthread_create(): %d", th);
   pthread_detach (gdns_thread.thread);
 }
