@@ -253,6 +253,7 @@ to be used without prepending `--`.
 | `--no-global-config`               | Do not load the global configuration file.                    |
 | `--no-progress`                    | Disable progress metrics.                                     |
 | `--no-tab-scroll`                  | Disable scrolling through panels on TAB.                      |
+| `--no-html-last-updated`           | Do not show the last updated field in the HTML report.        |
 | `--origin=<url>`                   | Ensure clients send stated origin header on WS handshake.     |
 | `--port=<port>`                    | Specify the port to use.                                      |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
