@@ -66,11 +66,13 @@
 #include "gdashboard.h"
 #include "gdns.h"
 #include "gholder.h"
+#include "goaccess.h"
 #include "gwsocket.h"
 #include "json.h"
 #include "options.h"
 #include "output.h"
 #include "util.h"
+#include "websocket.h"
 #include "xmalloc.h"
 
 GConf conf = {
@@ -84,6 +86,8 @@ GSpinner *parsing_spinner;
 /* active reverse dns flag */
 int active_gdns = 0;
 
+/* WebSocket server threads */
+static GWSThread *gwserver;
 /* Dashboard data structure */
 static GDash *dash;
 /* Data holder structure */
@@ -187,6 +191,8 @@ house_keeping (void)
   free_color_lists ();
   /* free cmd arguments */
   free_cmd_args ();
+  /* gwserver */
+  free_gwserver (gwserver);
 }
 
 /* Extract data from the given module hash structure and allocate +
@@ -593,7 +599,7 @@ tail_term (void)
 }
 
 static void
-tail_html (int fdfifo)
+tail_html (void)
 {
   char *json = NULL;
 
@@ -607,13 +613,48 @@ tail_html (int fdfifo)
   if ((json = get_json (glog, holder, 0)) == NULL)
     return;
 
-  broadcast_holder (fdfifo, json, strlen (json));
+  broadcast_holder (gwserver->pipein, json, strlen (json));
   free (json);
+}
+
+/* Fast-forward latest JSON data when client connection is opened. */
+static void
+fast_forward_client (int fd, int listener)
+{
+  char *json = NULL;
+
+  if ((json = get_json (glog, holder, 0)) == NULL)
+    return;
+
+  send_holder_to_client (fd, listener, json, strlen (json));
+  free (json);
+}
+
+/* Start reading data coming from the client side through the
+ * WebSocket server. */
+void
+read_client (void)
+{
+  fd_set rfds, wfds;
+
+  /* open fifo for read */
+  if ((gwserver->pipeout = open_fifoout ()) == -1)
+    return;
+
+  set_self_pipe (gwserver->self_pipe);
+  while (1) {
+    /* select(2) will block */
+    if (read_fifo (gwserver, rfds, wfds, fast_forward_client))
+      break;
+    if (conf.stop_processing)
+      break;
+  }
+  close (gwserver->pipeout);
 }
 
 /* Process appended log data */
 static void
-perform_tail_follow (uint64_t * size1, int fdfifo)
+perform_tail_follow (uint64_t * size1)
 {
   FILE *fp = NULL;
   uint64_t size2 = 0;
@@ -656,7 +697,7 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
   if (!conf.output_stdout)
     tail_term ();
   else
-    tail_html (fdfifo);
+    tail_html ();
 
   usleep (200000);      /* 0.2 seconds */
 }
@@ -664,7 +705,6 @@ perform_tail_follow (uint64_t * size1, int fdfifo)
 static void
 process_html (const char *filename)
 {
-  int fdfifo;
   uint64_t size1 = 0;
 
   /* render report */
@@ -676,17 +716,17 @@ process_html (const char *filename)
   if (glog->piping || glog->load_from_disk_only)
     return;
   /* open fifo for write */
-  if ((fdfifo = open_fifo ()) == -1)
+  if ((gwserver->pipein = open_fifoin ()) == -1)
     return;
 
   size1 = file_size (conf.ifile);
   while (1) {
     if (conf.stop_processing)
       break;
-    perform_tail_follow (&size1, fdfifo);       /* 0.2 secs */
+    perform_tail_follow (&size1);       /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
-  close (fdfifo);
+  close (gwserver->pipein);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -932,7 +972,7 @@ get_keys (void)
       window_resize ();
       break;
     default:
-      perform_tail_follow (&size1, -1);
+      perform_tail_follow (&size1);
       break;
     }
   }
@@ -1075,13 +1115,14 @@ handle_signal_action (int sig_number)
   switch (sig_number) {
   case SIGTERM:
   case SIGINT:
-    fprintf (stderr, "SIGINT caught!");
+    fprintf (stderr, "\nSIGINT caught!\n");
+    fprintf (stderr, "Closing GoAccess...\n");
 
-    stop_ws_server ();
+    stop_ws_server (gwserver);
     conf.stop_processing = 1;
     break;
   case SIGPIPE:
-    fprintf (stderr, "SIGPIPE caught!");
+    fprintf (stderr, "SIGPIPE caught!\n");
     /* ignore it */
     break;
   }
@@ -1143,14 +1184,15 @@ static void
 set_standard_output (void)
 {
   int html = 0;
+  gwserver = new_gwserver ();
 
   /* HTML */
   if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
     html = 1;
 
-  /* Spawn WS server thread */
+  /* Spawn WebSocket server threads */
   if (html && conf.real_time_html)
-    setup_ws_server ();
+    setup_ws_server (gwserver);
   setup_thread_signals ();
   /* Spawn progress spinner thread */
   ui_spinner_create (parsing_spinner);
