@@ -1804,7 +1804,7 @@ ws_listen (int listener, int conn, WSServer * server)
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
-static int
+int
 ws_setfifo (const char *pipename)
 {
   struct stat fistat;
@@ -2072,7 +2072,7 @@ ws_send_strict_fifo_to_client (WSServer * server, int listener, WSPacket * pa)
  *
  * On error, -1 is returned.
  * On success, the number of bytes read is returned. */
-static int
+int
 ws_read_fifo (int fd, char *buf, int *buflen, int pos, int need)
 {
   int bytes = 0;

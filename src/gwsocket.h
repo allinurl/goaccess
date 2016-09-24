@@ -32,9 +32,36 @@
 
 #define GW_VERSION "0.1"
 
+#include "websocket.h"
+
+typedef struct GWSThread_
+{
+  int pipein;
+  int pipeout;
+
+  WSPacket *packet;             /* FIFO data's buffer */
+  char hdr[HDR_SIZE];           /* FIFO header's buffer */
+  int hlen;
+
+  pthread_mutex_t mtxin;        /* Mutex fifo in */
+  pthread_mutex_t mtxout;       /* Mutex fifo out */
+  pthread_t thin;               /* Thread fifo out */
+  pthread_t thout;              /* Thread fifo in */
+
+  /* self-pipe */
+  int self_pipe[2];
+} GWSThread;
+
+GWSThread *new_gwserver (void);
 int broadcast_holder (int fd, const char *buf, int len);
-int setup_ws_server (void);
-void stop_ws_server (void);
-int open_fifo (void);
+int open_fifoin (void);
+int open_fifoout (void);
+int read_fifo (GWSThread * gwserver, fd_set rfds, fd_set wfds,
+               void (*f) (int, int));
+int send_holder_to_client (int fd, int listener, const char *buf, int len);
+int setup_ws_server (GWSThread * gwserver);
+void free_gwserver (GWSThread * gwserver);
+void set_self_pipe (int *self_pipe);
+void stop_ws_server (GWSThread * gwserver);
 
 #endif // for #ifndef GWSOCKET_H

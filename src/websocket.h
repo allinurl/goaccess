@@ -293,7 +293,9 @@ typedef struct WSServer_
   GSLList *colist;
 } WSServer;
 
+int ws_read_fifo (int fd, char *buf, int *buflen, int pos, int need);
 int ws_send_data (WSClient * client, WSOpcode opcode, const char *p, int sz);
+int ws_setfifo (const char *pipename);
 int ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len);
 size_t pack_uint32 (void *buf, uint32_t val);
 size_t unpack_uint32 (const void *buf, uint32_t * val);
