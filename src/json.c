@@ -1150,6 +1150,9 @@ get_json (GLog * glog, GHolder * holder, int escape_html)
   GJSON *json = NULL;
   char *buf = NULL;
 
+  if (holder == NULL)
+    return NULL;
+
   escape_html_output = escape_html;
   if ((json = init_json_output (glog, holder)) && json->size > 0) {
     buf = xstrdup (json->buf);
