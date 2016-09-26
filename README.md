@@ -126,7 +126,9 @@ alternative option below.
     $ sudo apt-get update
     $ sudo apt-get install goaccess
     
-**Note**: `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
+**Note**:
+* For on-disk support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
+* `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
 
