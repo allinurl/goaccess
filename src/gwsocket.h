@@ -34,34 +34,39 @@
 
 #include "websocket.h"
 
-typedef struct GWSThread_
+typedef struct GWSReader_
 {
-  int pipein;
-  int pipeout;
+  int fd;
+  int self_pipe[2];             /* self-pipe */
+
+  pthread_mutex_t mutex;        /* Mutex fifo out */
+  pthread_t thread;             /* Thread fifo in */
 
   WSPacket *packet;             /* FIFO data's buffer */
   char hdr[HDR_SIZE];           /* FIFO header's buffer */
-  int hlen;
+  int hlen;                     /* header length */
+} GWSReader;
 
-  pthread_mutex_t mtxin;        /* Mutex fifo in */
-  pthread_mutex_t mtxout;       /* Mutex fifo out */
-  pthread_t thin;               /* Thread fifo out */
-  pthread_t thout;              /* Thread fifo in */
+typedef struct GWSWriter_
+{
+  int fd;
 
-  /* self-pipe */
-  int self_pipe[2];
-} GWSThread;
+  pthread_mutex_t mutex;        /* Mutex fifo in */
+  pthread_t thread;             /* Thread fifo out */
 
-GWSThread *new_gwserver (void);
+  WSServer *server;             /* WebSocket server */
+} GWSWriter;
+
+GWSReader *new_gwsreader (void);
+GWSWriter *new_gwswriter (void);
 int broadcast_holder (int fd, const char *buf, int len);
 int open_fifoin (void);
 int open_fifoout (void);
-int read_fifo (GWSThread * gwserver, fd_set rfds, fd_set wfds,
-               void (*f) (int, int));
+int read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds,
+               void (*f) (int));
 int send_holder_to_client (int fd, int listener, const char *buf, int len);
-int setup_ws_server (GWSThread * gwserver);
-void free_gwserver (GWSThread * gwserver);
+int setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
 void set_self_pipe (int *self_pipe);
-void stop_ws_server (GWSThread * gwserver);
+void stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
 
 #endif // for #ifndef GWSOCKET_H

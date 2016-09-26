@@ -86,8 +86,9 @@ GSpinner *parsing_spinner;
 /* active reverse dns flag */
 int active_gdns = 0;
 
-/* WebSocket server threads */
-static GWSThread *gwserver;
+/* WebSocket server - writer thread */
+static GWSWriter *gwswriter;
+static GWSReader *gwsreader;
 /* Dashboard data structure */
 static GDash *dash;
 /* Data holder structure */
@@ -191,8 +192,10 @@ house_keeping (void)
   free_color_lists ();
   /* free cmd arguments */
   free_cmd_args ();
-  /* gwserver */
-  free_gwserver (gwserver);
+  /* WebSocket writer */
+  free (gwswriter);
+  /* WebSocket reader */
+  free (gwsreader);
 }
 
 /* Extract data from the given module hash structure and allocate +
@@ -610,46 +613,56 @@ tail_html (void)
 
   allocate_holder ();
 
-  if ((json = get_json (glog, holder, 0)) == NULL)
+  pthread_mutex_lock (&gdns_thread.mutex);
+  json = get_json (glog, holder, 0);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  if (json == NULL)
     return;
 
-  broadcast_holder (gwserver->pipein, json, strlen (json));
+  broadcast_holder (gwswriter->fd, json, strlen (json));
   free (json);
 }
 
 /* Fast-forward latest JSON data when client connection is opened. */
 static void
-fast_forward_client (int fd, int listener)
+fast_forward_client (int listener)
 {
   char *json = NULL;
 
-  if ((json = get_json (glog, holder, 0)) == NULL)
+  pthread_mutex_lock (&gdns_thread.mutex);
+  json = get_json (glog, holder, 0);
+  pthread_mutex_unlock (&gdns_thread.mutex);
+
+  if (json == NULL)
     return;
 
-  send_holder_to_client (fd, listener, json, strlen (json));
+  send_holder_to_client (gwswriter->fd, listener, json, strlen (json));
   free (json);
 }
 
 /* Start reading data coming from the client side through the
  * WebSocket server. */
 void
-read_client (void)
+read_client (void *ptr_data)
 {
+  GWSReader *reader = (GWSReader *) ptr_data;
   fd_set rfds, wfds;
 
   /* open fifo for read */
-  if ((gwserver->pipeout = open_fifoout ()) == -1)
+  if ((reader->fd = open_fifoout ()) == -1)
     return;
 
-  set_self_pipe (gwserver->self_pipe);
+  pthread_mutex_lock (&reader->mutex);
+  set_self_pipe (reader->self_pipe);
+  pthread_mutex_unlock (&reader->mutex);
+
   while (1) {
     /* select(2) will block */
-    if (read_fifo (gwserver, rfds, wfds, fast_forward_client))
-      break;
-    if (conf.stop_processing)
+    if (read_fifo (reader, rfds, wfds, fast_forward_client))
       break;
   }
-  close (gwserver->pipeout);
+  close (reader->fd);
 }
 
 /* Process appended log data */
@@ -708,7 +721,9 @@ process_html (const char *filename)
   uint64_t size1 = 0;
 
   /* render report */
+  pthread_mutex_lock (&gdns_thread.mutex);
   output_html (glog, holder, filename);
+  pthread_mutex_unlock (&gdns_thread.mutex);
   /* not real time? */
   if (!conf.real_time_html)
     return;
@@ -716,7 +731,7 @@ process_html (const char *filename)
   if (glog->piping || glog->load_from_disk_only)
     return;
   /* open fifo for write */
-  if ((gwserver->pipein = open_fifoin ()) == -1)
+  if ((gwswriter->fd = open_fifoin ()) == -1)
     return;
 
   size1 = file_size (conf.ifile);
@@ -726,7 +741,7 @@ process_html (const char *filename)
     perform_tail_follow (&size1);       /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
-  close (gwserver->pipein);
+  close (gwswriter->fd);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -1118,7 +1133,7 @@ handle_signal_action (int sig_number)
     fprintf (stderr, "\nSIGINT caught!\n");
     fprintf (stderr, "Closing GoAccess...\n");
 
-    stop_ws_server (gwserver);
+    stop_ws_server (gwswriter, gwsreader);
     conf.stop_processing = 1;
     break;
   case SIGPIPE:
@@ -1184,7 +1199,8 @@ static void
 set_standard_output (void)
 {
   int html = 0;
-  gwserver = new_gwserver ();
+  gwswriter = new_gwswriter ();
+  gwsreader = new_gwsreader ();
 
   /* HTML */
   if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
@@ -1192,7 +1208,7 @@ set_standard_output (void)
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html)
-    setup_ws_server (gwserver);
+    setup_ws_server (gwswriter, gwsreader);
   setup_thread_signals ();
   /* Spawn progress spinner thread */
   ui_spinner_create (parsing_spinner);

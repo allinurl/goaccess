@@ -49,25 +49,28 @@
 #include "websocket.h"
 #include "xmalloc.h"
 
-static WSServer *server = NULL;
-
-/* Allocate memory for a new GWSThread instance.
+/* Allocate memory for a new GWSReader instance.
  *
- * On success, the newly allocated GWSThread is returned . */
-GWSThread *
-new_gwserver (void)
+ * On success, the newly allocated GWSReader is returned. */
+GWSReader *
+new_gwsreader (void)
 {
-  GWSThread *srv = xmalloc (sizeof (GWSThread));
-  memset (srv, 0, sizeof *srv);
+  GWSReader *reader = xmalloc (sizeof (GWSReader));
+  memset (reader, 0, sizeof *reader);
 
-  return srv;
+  return reader;
 }
 
-void
-free_gwserver (GWSThread * gwserver)
+/* Allocate memory for a new GWSWriter instance.
+ *
+ * On success, the newly allocated GWSWriter is returned. */
+GWSWriter *
+new_gwswriter (void)
 {
-  if (gwserver)
-    free (gwserver);
+  GWSWriter *writer = xmalloc (sizeof (GWSWriter));
+  memset (writer, 0, sizeof *writer);
+
+  return writer;
 }
 
 /* Write the JSON data to a pipe.
@@ -95,7 +98,7 @@ write_holder (int fd, const char *buf, int len)
 
 /* Clear an incoming FIFO packet and header data. */
 static void
-clear_fifo_packet (GWSThread * gwserver)
+clear_fifo_packet (GWSReader * gwserver)
 {
   memset (gwserver->hdr, 0, sizeof (gwserver->hdr));
   gwserver->hlen = 0;
@@ -161,20 +164,20 @@ send_holder_to_client (int fd, int listener, const char *buf, int len)
  * If there's less data than requested, 0 is returned
  * If the thread is done, 1 is returned */
 int
-read_fifo (GWSThread * gwserver, fd_set rfds, fd_set wfds, void (*f) (int, int))
+read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int))
 {
-  WSPacket **pa = &gwserver->packet;
+  WSPacket **pa = &gwsreader->packet;
   char *ptr;
-  int bytes = 0, readh = 0, need = 0, fd = gwserver->pipeout, max = 0;
+  int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd, max = 0;
   uint32_t listener = 0, type = 0, size = 0;
 
   FD_ZERO (&rfds);
   FD_ZERO (&wfds);
   /* self-pipe trick to stop the event loop */
-  FD_SET (gwserver->self_pipe[0], &rfds);
+  FD_SET (gwsreader->self_pipe[0], &rfds);
   /* fifo */
   FD_SET (fd, &rfds);
-  max = MAX (fd, gwserver->self_pipe[0]);
+  max = MAX (fd, gwsreader->self_pipe[0]);
 
   if (select (max + 1, &rfds, &wfds, NULL, NULL) == -1) {
     switch (errno) {
@@ -185,25 +188,25 @@ read_fifo (GWSThread * gwserver, fd_set rfds, fd_set wfds, void (*f) (int, int))
     }
   }
   /* handle self-pipe trick */
-  if (FD_ISSET (gwserver->self_pipe[0], &rfds))
+  if (FD_ISSET (gwsreader->self_pipe[0], &rfds))
     return 1;
   if (!FD_ISSET (fd, &rfds)) {
     LOG (("No file descriptor set on read_message()\n"));
     return 0;
   }
 
-  readh = gwserver->hlen;       /* read from header so far */
+  readh = gwsreader->hlen;      /* read from header so far */
   need = HDR_SIZE - readh;      /* need to read */
   if (need > 0) {
     if ((bytes =
-         ws_read_fifo (fd, gwserver->hdr, &gwserver->hlen, readh, need)) < 0)
+         ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
     if (bytes != need)
       return 0;
   }
 
   /* unpack size, and type */
-  ptr = gwserver->hdr;
+  ptr = gwsreader->hdr;
   ptr += unpack_uint32 (ptr, &listener);
   ptr += unpack_uint32 (ptr, &type);
   ptr += unpack_uint32 (ptr, &size);
@@ -223,9 +226,9 @@ read_fifo (GWSThread * gwserver, fd_set rfds, fd_set wfds, void (*f) (int, int))
     if (bytes != need)
       return 0;
   }
-  clear_fifo_packet (gwserver);
+  clear_fifo_packet (gwsreader);
   /* fast forward JSON data to the given client */
-  (*f) (gwserver->pipein, listener);
+  (*f) (listener);
 
   return 0;
 }
@@ -301,28 +304,41 @@ set_self_pipe (int *self_pipe)
 
 /* Close the WebSocket server and clean up. */
 void
-stop_ws_server (GWSThread * gwserver)
+stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
 {
-  if (server == NULL)
+  pthread_t writer, reader;
+  WSServer *server = gwswriter->server;
+
+  if (!gwsreader || !gwswriter || !server)
     return;
 
-  if ((write (gwserver->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
+  pthread_mutex_lock (&gwsreader->mutex);
+  if ((write (gwsreader->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
     LOG (("Unable to write to self pipe on pipeout.\n"));
+  pthread_mutex_unlock (&gwsreader->mutex);
+
+  pthread_mutex_lock (&gwswriter->mutex);
   /* if it fails to write, force stop */
   if ((write (server->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
     ws_stop (server);
+  pthread_mutex_unlock (&gwswriter->mutex);
 
-  if (pthread_join (gwserver->thout, NULL) != 0)
-    LOG (("Unable to join thread: %n %s\n", gwserver->thout, strerror (errno)));
-  if (pthread_join (gwserver->thin, NULL) != 0)
-    LOG (("Unable to join thread: %n %s\n", gwserver->thout, strerror (errno)));
+  reader = gwsreader->thread;
+  if (pthread_join (reader, NULL) != 0)
+    LOG (("Unable to join thread: %d %s\n", reader, strerror (errno)));
+
+  writer = gwswriter->thread;
+  if (pthread_join (writer, NULL) != 0)
+    LOG (("Unable to join thread: %d %s\n", writer, strerror (errno)));
 }
 
 /* Start the WebSocket server and initialize default options. */
 static void
-start_server (void)
+start_server (void *ptr_data)
 {
-  if ((server = ws_init ("0.0.0.0", "7890")) == NULL)
+  GWSWriter *writer = (GWSWriter *) ptr_data;
+
+  if ((writer->server = ws_init ("0.0.0.0", "7890")) == NULL)
     return;
 
   ws_set_config_strict (1);
@@ -332,35 +348,38 @@ start_server (void)
     ws_set_config_port (conf.port);
   if (conf.origin)
     ws_set_config_origin (conf.origin);
-  server->onopen = onopen;
-  set_self_pipe (server->self_pipe);
+  writer->server->onopen = onopen;
+  set_self_pipe (writer->server->self_pipe);
 
   /* select(2) will block in here */
-  ws_start (server);
+  ws_start (writer->server);
   fprintf (stderr, "Stopping WebSocket server...\n");
-  ws_stop (server);
+  ws_stop (writer->server);
 }
 
 /* Setup and start the WebSocket threads. */
 int
-setup_ws_server (GWSThread * gwserver)
+setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
 {
-  int tid;
+  int id;
+  pthread_t *thread;
 
-  if (pthread_mutex_init (&gwserver->mtxin, NULL))
-    FATAL ("Failed init gwserver mutex fifo in");
-  if (pthread_mutex_init (&gwserver->mtxout, NULL))
-    FATAL ("Failed init gwserver mutex fifo out");
+  if (pthread_mutex_init (&gwswriter->mutex, NULL))
+    FATAL ("Failed init gwswriter mutex");
+  if (pthread_mutex_init (&gwsreader->mutex, NULL))
+    FATAL ("Failed init gwsreader mutex");
 
   /* send WS data thread */
-  tid = pthread_create (&(gwserver->thin), NULL, (void *) &start_server, NULL);
-  if (tid)
-    FATAL ("Return code from pthread_create(): %d", tid);
+  thread = &gwswriter->thread;
+  id = pthread_create (&(*thread), NULL, (void *) &start_server, gwswriter);
+  if (id)
+    FATAL ("Return code from pthread_create(): %d", id);
 
   /* read WS data thread */
-  tid = pthread_create (&(gwserver->thout), NULL, (void *) &read_client, NULL);
-  if (tid)
-    FATAL ("Return code from pthread_create(): %d", tid);
+  thread = &gwsreader->thread;
+  id = pthread_create (&(*thread), NULL, (void *) &read_client, gwsreader);
+  if (id)
+    FATAL ("Return code from pthread_create(): %d", id);
 
   return 0;
 }
