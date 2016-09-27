@@ -86,7 +86,7 @@ GSpinner *parsing_spinner;
 /* active reverse dns flag */
 int active_gdns = 0;
 
-/* WebSocket server - writer thread */
+/* WebSocket server - writer and reader threads */
 static GWSWriter *gwswriter;
 static GWSReader *gwsreader;
 /* Dashboard data structure */
