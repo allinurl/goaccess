@@ -1045,8 +1045,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
       return 1;
-    if ((logitem->req = decode_url (tkn)) == NULL)
+    if ((logitem->req = decode_url (tkn)) == NULL) {
+      free (tkn);
       return 1;
+    }
     free (tkn);
     break;
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
