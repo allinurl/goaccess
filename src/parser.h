@@ -33,7 +33,7 @@
 #define LINE_BUFFER 	  4096  /* read at most this num of chars */
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
-#define REF_SITE_LEN    512     /* maximum length of a referring site */
+#define REF_SITE_LEN    511     /* maximum length of a referring site */
 #define NUM_TESTS       20      /* test this many lines from the log */
 
 #include "commons.h"
@@ -62,7 +62,7 @@ typedef struct GLogItem_
   char *uniq_key;
   char *vhost;
 
-  char site[REF_SITE_LEN];
+  char site[REF_SITE_LEN + 1];
 
   uint64_t resp_size;
   uint64_t serve_time;
