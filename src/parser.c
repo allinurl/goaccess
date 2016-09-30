@@ -442,8 +442,7 @@ init_log_item (GLog * glog)
   logitem->resp_size = 0LL;
   logitem->serve_time = 0;
 
-  strncpy (logitem->site, "", REF_SITE_LEN);
-  logitem->site[REF_SITE_LEN - 1] = '\0';
+  memset (logitem->site, 0, sizeof (logitem->site));
 
   return logitem;
 }
@@ -642,7 +641,7 @@ extract_referer_site (const char *referer, char *host)
     goto clean;
 
   if (len >= REF_SITE_LEN)
-    len = REF_SITE_LEN - 1;
+    len = REF_SITE_LEN;
 
   memcpy (host, begin, len);
   host[len] = '\0';
