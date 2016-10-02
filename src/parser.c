@@ -2248,7 +2248,7 @@ cleanup:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_line (FILE * fp, int lines2test, GLog ** glog)
+read_lines (FILE * fp, int lines2test, GLog ** glog)
 {
   char line[LINE_BUFFER] = { 0 };
   int i = 0, test = -1 == lines2test ? 0 : 1;
@@ -2278,7 +2278,7 @@ read_line (FILE * fp, int lines2test, GLog ** glog)
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_line (FILE * fp, int lines2test, GLog ** glog)
+read_lines (FILE * fp, int lines2test, GLog ** glog)
 {
   char *line = NULL;
   size_t len = LINE_BUFFER;
@@ -2331,7 +2331,7 @@ read_log (GLog ** glog, int lines2test)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* read line by line */
-  if (read_line (fp, lines2test, glog))
+  if (read_lines (fp, lines2test, glog))
     return 1;
 
   /* definitely not portable! */
