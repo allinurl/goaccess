@@ -75,7 +75,7 @@ window.GoAccess = window.GoAccess || {
 
 // HELPERS
 GoAccess.Util = {
-	months: ["Jan", "Feb", "Ma", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"],
+	months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul","Aug", "Sep", "Oct", "Nov", "Dec"],
 
 	// Add all attributes of n to o
 	merge: function (o, n) {
