@@ -715,6 +715,7 @@ perform_tail_follow (uint64_t * size1)
   usleep (200000);      /* 0.2 seconds */
 }
 
+/* Entry point to start processing the HTML output */
 static void
 process_html (const char *filename)
 {
