@@ -486,6 +486,15 @@ selected using a numeric key.
 \fB\-\-no-html-last-updated
 Do not show the last updated field displayed in the HTML generated report.
 .TP
+\fB\-\-num-tests=<number>
+Number of lines from the access log to test against the provided log/date/time
+format. By default, the parser is set to test 10 lines.  If set to 0, the parser
+won't test any lines and will parse the whole access log. If a line matches the
+given log/date/time format before it reaches
+.I <number>,
+the parser will consider the log to be valid, otherwise GoAccess will return
+EXIT_FAILURE and display the relevant error messages.
+.TP
 \fB\-\-origin=<url>
 Ensure clients send the specified origin header upon the WebSocket handshake.
 .TP
