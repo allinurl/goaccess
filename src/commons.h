@@ -50,11 +50,6 @@
 #define GO_WEBSITE 		"http://goaccess.io/"
 struct tm *now_tm;
 
-/* debug log */
-#define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
-/* invalid requests log */
-#define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
-
 /* total number of modules */
 #ifdef HAVE_LIBGEOIP
 #define TOTAL_MODULES    14

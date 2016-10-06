@@ -68,9 +68,14 @@
 #define DEBUG_TEST 0
 #endif
 
-#define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
 /* access requests log */
 #define ACCESS_LOG(x, ...) do { access_fprintf x; } while (0)
+/* debug log */
+#define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
+/* invalid requests log */
+#define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
+/* log debug wrapper */
+#define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
 
 int access_log_open (const char *path);
 void access_fprintf (const char *fmt, ...);
