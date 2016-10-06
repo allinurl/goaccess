@@ -1378,9 +1378,9 @@ output_logerrors (GLog * glog)
   if (!glog->log_erridx)
     return;
 
-  for (i = 0; i < glog->log_erridx; ++i) {
+  for (i = 0; i < glog->log_erridx; ++i)
     LOG (("%s\n", glog->errors[i]));
-  }
+  LOG (("\n%s\n", ERR_HEADER));
 }
 
 /* Free all log errors stored during parsing. */
