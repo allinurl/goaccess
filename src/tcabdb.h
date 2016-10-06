@@ -186,6 +186,7 @@ int ht_insert_root (GModule module, int key, int value);
 int ht_insert_rootmap (GModule module, int key, const char *value);
 int ht_insert_uniqmap (GModule module, const char *key);
 int ht_insert_visitor (GModule module, int key, int inc);
+int ht_replace_genstats (const char *key, int value);
 
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_uniqmap (GModule module);

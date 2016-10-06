@@ -230,8 +230,17 @@
 #define HELP_WIN_HEIGHT   17
 #define HELP_WIN_WIDTH    64
 
-#define CSENSITIVE    "[x] case sensitive"
-#define CISENSITIVE    "[ ] case sensitive"
+/* CONF ERROR DIALOG */
+#define ERR_MENU_HEIGHT  10
+#define ERR_MENU_WIDTH   57
+#define ERR_MENU_X       2
+#define ERR_MENU_Y       4
+#define ERR_WIN_HEIGHT   15
+#define ERR_WIN_WIDTH    61
+#define ERR_HEADER "Format Errors - Verify your log/date/time format"
+
+#define CSENSITIVE   "[x] case sensitive"
+#define CISENSITIVE  "[ ] case sensitive"
 
 /* Convenient macros */
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))

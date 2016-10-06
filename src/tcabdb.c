@@ -1177,6 +1177,21 @@ ht_insert_genstats (const char *key, int inc)
   return inc_si32 (hash, key, inc);
 }
 
+/* Replaces a general stats counter int from a string key.
+ *
+ * On error, -1 is returned.
+ * On success the value of the key inserted is returned */
+int
+ht_replace_genstats (const char *key, int value)
+{
+  void *hash = ht_general_stats;
+
+  if (!hash)
+    return -1;
+
+  return ins_si32 (hash, key, value);
+}
+
 /* Increases a general stats counter uint64_t from a string key.
  *
  * On error, -1 is returned.

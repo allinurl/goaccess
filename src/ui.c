@@ -1178,6 +1178,67 @@ set_formats (char *date_format, char *log_format, char *time_format)
   return NULL;
 }
 
+/* Render the help dialog. */
+static void
+load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors)
+{
+  int c, quit = 1, i = 0;
+  int y, x, h = ERR_WIN_HEIGHT, w = ERR_WIN_WIDTH;
+  WINDOW *win;
+  GMenu *menu;
+
+  getmaxyx (stdscr, y, x);
+
+  win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+  keypad (win, TRUE);
+  wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+  /* create a new instance of GMenu and make it selectable */
+  menu =
+    new_gmenu (win, ERR_MENU_HEIGHT, ERR_MENU_WIDTH, ERR_MENU_Y, ERR_MENU_X);
+  menu->size = nerrors;
+
+  /* add items to GMenu */
+  menu->items = (GItem *) xcalloc (nerrors, sizeof (GItem));
+  for (i = 0; i < nerrors; ++i) {
+    menu->items[i].name = alloc_string (errors[i]);
+    menu->items[i].checked = 0;
+    free (errors[i]);
+  }
+  free (errors);
+  post_gmenu (menu);
+
+  draw_header (win, ERR_HEADER, " %s", 1, 1, w - 2, color_error);
+  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
+
+  wrefresh (win);
+  while (quit) {
+    c = wgetch (stdscr);
+    switch (c) {
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
+    }
+    wrefresh (win);
+  }
+  /* clean stuff up */
+  for (i = 0; i < nerrors; ++i)
+    free (menu->items[i].name);
+  free (menu->items);
+  free (menu);
+
+  touchwin (parent_win);
+  close_win (win);
+  wrefresh (parent_win);
+}
+
 /* Render the config log date/format dialog.
  *
  * On error, or if the selected format is invalid, 1 is returned.
@@ -1349,11 +1410,13 @@ render_confdlg (GLog * glog, GSpinner * spinner)
         draw_header (win, log_err, " %s", 3, 2, CONF_MENU_W, color_error);
 
       if (!log_err) {
+        char **errors = NULL;
+        int nerrors = 0;
+
         /* test log against selected settings */
-        if (test_format (glog)) {
+        if ((errors = test_format (glog, &nerrors))) {
           invalid = 1;
-          draw_header (win, "No valid hits.", " %s", 3, 2, CONF_MENU_W,
-                       color_error);
+          load_confdlg_error (win, errors, nerrors);
         }
         /* valid data, reset glog & start parsing */
         else {

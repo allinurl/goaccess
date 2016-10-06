@@ -155,6 +155,7 @@ typedef struct GConf_
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
+  int num_tests;                    /* number of lines to test */
   int json_pretty_print;
 
   /* Internal flags */

@@ -98,6 +98,7 @@ struct option long_opts[] = {
   {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
+  {"num-tests"            , required_argument , 0 ,  0  } ,
   {"max-items"            , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
@@ -221,6 +222,7 @@ cmd_help (void)
   "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
   "                                    are allowed. i.e., *.bing.com\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
+  "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
   "                                    Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
@@ -466,6 +468,15 @@ parse_long_opt (const char *name, const char *oarg)
       conf.max_items = 1;
     else
       conf.max_items = max;
+  }
+
+  /* number of line tests */
+  if (!strcmp ("num-tests", name)) {
+    char *sEnd;
+    int tests = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      return;
+    conf.num_tests = tests;
   }
 
   /* no color */

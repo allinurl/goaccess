@@ -30,11 +30,19 @@
 #ifndef PARSER_H_INCLUDED
 #define PARSER_H_INCLUDED
 
-#define LINE_BUFFER 	  4096  /* read at most this num of chars */
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
-#define REF_SITE_LEN    511     /* maximum length of a referring site */
+#define LINE_BUFFER     4096    /* read at most this num of chars */
 #define NUM_TESTS       20      /* test this many lines from the log */
+#define MAX_LOG_ERRORS  20
+
+#define LINE_LEN        23
+#define ERROR_LEN       255
+#define REF_SITE_LEN    511     /* maximum length of a referring site */
+
+#define SPEC_TOKN_SET   0x1
+#define SPEC_TOKN_NUL   0x2
+#define SPEC_TOKN_INV   0x3
 
 #include "commons.h"
 
@@ -72,6 +80,8 @@ typedef struct GLogItem_
   int is_static;
   int uniq_nkey;
   int agent_nkey;
+
+  char *errstr;
 } GLogItem;
 
 /* Overall parsed log properties */
@@ -86,6 +96,9 @@ typedef struct GLog_
   unsigned short load_from_disk_only;
   unsigned short piping;
   GLogItem *items;
+
+  unsigned short log_erridx;
+  char **errors;
 } GLog;
 
 /* Raw data field type */
@@ -153,13 +166,15 @@ typedef struct GParse_
   void (*agent) (int data_nkey, int agent_nkey, GModule module);
 } GParse;
 
+char **test_format (GLog * glog, int *len);
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * glog);
 GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
-int parse_log (GLog ** glog, char *tail, int n);
-int test_format (GLog * glog);
+int parse_log (GLog ** glog, char *tail, int dry_run);
+void free_logerrors (GLog * glog);
 void free_raw_data (GRawData * raw_data);
+void output_logerrors (GLog * glog);
 void reset_struct (GLog * glog);
 
 #endif

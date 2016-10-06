@@ -78,7 +78,8 @@
 GConf conf = {
   .append_method = 1,
   .append_protocol = 1,
-  .hl_header = 1
+  .hl_header = 1,
+  .num_tests = 10,
 };
 
 /* Loading/Spinner */
@@ -131,11 +132,6 @@ static GScroll gscroll = {
 static void
 house_keeping (void)
 {
-  /* restore tty modes and reset
-   * terminal into non-visual mode */
-  if (!conf.output_stdout)
-    endwin ();
-
 #ifdef TCB_MEMHASH
   /* free malloc'd int values on the agent list */
   if (conf.list_agents)
@@ -171,6 +167,7 @@ house_keeping (void)
 #endif
 
   /* LOGGER */
+  free_logerrors (glog);
   free (glog);
 
   /* INVALID REQUESTS */
@@ -698,7 +695,7 @@ perform_tail_follow (uint64_t * size1)
 #else
     while (fgets (buf, LINE_BUFFER, fp) != NULL)
 #endif
-      parse_log (&glog, buf, -1);
+      parse_log (&glog, buf, 0);
   }
 #ifdef WITH_GETLINE
   free (buf);
@@ -1073,6 +1070,7 @@ curses_output (void)
     gdns_thread_create ();
 
   render_screens ();
+  /* will loop in here */
   get_keys ();
 }
 
@@ -1253,7 +1251,7 @@ set_curses (int *quit)
 int
 main (int argc, char **argv)
 {
-  int quit = 0;
+  int quit = 0, ret = 0;
 
   block_thread_signals ();
   setup_signal_handlers ();
@@ -1279,21 +1277,13 @@ main (int argc, char **argv)
   init_processing ();
   /* main processing event */
   time (&start_proc);
-  if (parse_log (&glog, NULL, -1))
-    FATAL ("Error while processing file");
+  if ((ret = parse_log (&glog, NULL, 0))) {
+    end_spinner ();
+    goto clean;
+  }
   if (conf.stop_processing)
     goto clean;
-
   glog->offset = glog->processed;
-
-  /* If parser.c, process_log() did not parse any lines from the
-   * provided dataset, then display a message that no valid entries
-   * were parsed.
-   *
-   * If it gets to this point, usually the log/date/time format did
-   * not match the log entries. */
-  if (glog->valid == 0)
-    FATAL ("Nothing valid to process. Verify your date/time/log format.");
 
   /* init reverse lookup thread */
   gdns_init ();
@@ -1312,7 +1302,16 @@ main (int argc, char **argv)
 
   /* clean */
 clean:
+  /* done, restore tty modes and reset terminal into
+   * non-visual mode */
+  if (!conf.output_stdout)
+    endwin ();
+
+  /* unable to process valid data */
+  if (ret)
+    output_logerrors (glog);
+
   house_keeping ();
 
-  return EXIT_SUCCESS;
+  return ret ? EXIT_FAILURE : EXIT_SUCCESS;
 }
