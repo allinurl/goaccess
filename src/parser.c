@@ -76,7 +76,6 @@
 #include "xmalloc.h"
 
 /* private prototypes */
-
 /* key/data generators for each module */
 static int gen_visitor_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_404_key (GKeyData * kdata, GLogItem * logitem);
@@ -401,10 +400,10 @@ reset_struct (GLog * glog)
 GLog *
 init_log (void)
 {
-  GLog *logitem = xmalloc (sizeof (GLog));
-  memset (logitem, 0, sizeof *logitem);
+  GLog *glog = xmalloc (sizeof (GLog));
+  memset (glog, 0, sizeof *glog);
 
-  return logitem;
+  return glog;
 }
 
 /* Initialize a new GLogItem instance.
@@ -424,6 +423,7 @@ init_log_item (GLog * glog)
   logitem->continent = NULL;
   logitem->country = NULL;
   logitem->date = NULL;
+  logitem->errstr = NULL;
   logitem->host = NULL;
   logitem->keyphrase = NULL;
   logitem->method = NULL;
@@ -434,13 +434,12 @@ init_log_item (GLog * glog)
   logitem->ref = NULL;
   logitem->req_key = NULL;
   logitem->req = NULL;
+  logitem->resp_size = 0LL;
+  logitem->serve_time = 0;
   logitem->status = NULL;
   logitem->time = NULL;
   logitem->uniq_key = NULL;
   logitem->vhost = NULL;
-
-  logitem->resp_size = 0LL;
-  logitem->serve_time = 0;
 
   memset (logitem->site, 0, sizeof (logitem->site));
 
@@ -463,6 +462,8 @@ free_glog (GLogItem * logitem)
     free (logitem->country);
   if (logitem->date != NULL)
     free (logitem->date);
+  if (logitem->errstr != NULL)
+    free (logitem->errstr);
   if (logitem->host != NULL)
     free (logitem->host);
   if (logitem->keyphrase != NULL)
@@ -922,11 +923,11 @@ find_alpha (char **str)
   *str += s - *str;
 }
 
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Format the the broken-down time tm to a numeric date format.
  *
  * On error, or unable to format the given tm, 1 is returned.
  * On success, a malloc'd format is returned. */
+#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 static int
 set_date (char **fdate, struct tm tm)
 {
@@ -938,6 +939,39 @@ set_date (char **fdate, struct tm tm)
   *fdate = xstrdup (buf);
 
   return 0;
+}
+
+/* Determine the parsing specifier error and construct a message out
+ * of it.
+ *
+ * On success, a malloc'd error message is assigned to the log
+ * structure and 1 is returned. */
+static int
+spec_err (GLogItem * logitem, int code, const char spec, const char *tkn)
+{
+  char *err = NULL;
+  const char *fmt = NULL;
+
+  switch (code) {
+  case SPEC_TOKN_INV:
+    fmt = "Token '%s' doesn't match specifier '%%%c'";
+    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
+    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
+    break;
+  case SPEC_TOKN_SET:
+    fmt = "Token already set for '%%%c' specifier.";
+    err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
+    sprintf (err, fmt, spec);
+    break;
+  case SPEC_TOKN_NUL:
+    fmt = "Token for '%%%c' specifier is NULL.";
+    err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
+    sprintf (err, fmt, spec);
+    break;
+  }
+  logitem->errstr = err;
+
+  return 1;
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
@@ -964,13 +998,14 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date */
   case 'd':
     if (logitem->date)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     /* parse date format including dates containing spaces,
      * i.e., syslog date format (Jul 15 20:10:56) */
-    tkn = parse_string (&(*str), end, count_matches (dfmt, ' ') + 1);
-    if (tkn == NULL)
-      return 1;
+    if (!(tkn = parse_string (&(*str), end, count_matches (dfmt, ' ') + 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -979,11 +1014,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* time */
   case 't':
     if (logitem->time)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (str_to_time (tkn, tfmt, &tm) != 0) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -992,11 +1028,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
     if (logitem->time && logitem->date)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1005,20 +1042,21 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* Virtual Host */
   case 'v':
     if (logitem->vhost)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0')
-      return 1;
+    if (tkn == NULL)
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     logitem->vhost = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (invalid_ipaddr (tkn, &logitem->type_ip)) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1027,11 +1065,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request method */
   case 'm':
     if (logitem->method)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (!extract_method (tkn)) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1040,11 +1079,13 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request not including method or protocol */
   case 'U':
     if (logitem->req)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if ((logitem->req = decode_url (tkn)) == NULL) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1053,11 +1094,13 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
   case 'q':
     if (logitem->qstr)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0')
       return 0;
+
     if ((logitem->qstr = decode_url (tkn)) == NULL) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1066,11 +1109,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request protocol */
   case 'H':
     if (logitem->protocol)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     if (invalid_protocol (tkn)) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1079,22 +1123,23 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request, including method + protocol */
   case 'r':
     if (logitem->req)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
     free (tkn);
     break;
     /* Status Code */
   case 's':
     if (logitem->status)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     strtol (tkn, &sEnd, 10);
     if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1103,10 +1148,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
     if (logitem->resp_size)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
     bandw = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
@@ -1117,9 +1162,9 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* referrer */
   case 'R':
     if (logitem->ref)
-      return 1;
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+
+    if (!(tkn = parse_string (&(*str), end, 1)))
       tkn = alloc_string ("-");
     if (tkn != NULL && *tkn == '\0') {
       free (tkn);
@@ -1134,7 +1179,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* user agent */
   case 'u':
     if (logitem->agent)
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+
     tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront)
@@ -1156,13 +1202,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'L':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      break;
+      return 0;
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
     serve_secs = strtoull (tkn, &bEnd, 10);
-
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_secs = 0;
     /* convert it to microseconds */
@@ -1176,11 +1220,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'T':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      break;
+      return 0;
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
     if (strchr (tkn, '.') != NULL)
       serve_secs = strtod (tkn, &bEnd);
     else
@@ -1198,11 +1241,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'D':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      break;
+      return 0;
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL)
-      return 1;
     serve_time = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       serve_time = 0;
@@ -1327,47 +1369,119 @@ inc_resp_size (GLog * glog, uint64_t resp_size)
 #endif
 }
 
+/* Output all log errors stored during parsing. */
+void
+output_logerrors (GLog * glog)
+{
+  int i;
+
+  if (!glog->log_erridx)
+    return;
+
+  for (i = 0; i < glog->log_erridx; ++i) {
+    LOG (("%s\n", glog->errors[i]));
+  }
+}
+
+/* Free all log errors stored during parsing. */
+void
+free_logerrors (GLog * glog)
+{
+  int i;
+
+  if (!glog->log_erridx)
+    return;
+
+  for (i = 0; i < glog->log_erridx; ++i)
+    free (glog->errors[i]);
+  free (glog->errors);
+
+  glog->errors = NULL;
+  glog->log_erridx = 0;
+}
+
+/* Ensure we have the following fields. */
+static int
+verify_missing_fields (GLogItem * logitem)
+{
+  /* must have the following fields */
+  if (logitem->host == NULL)
+    logitem->errstr = xstrdup ("IPv4/6 is required.");
+  else if (logitem->date == NULL)
+    logitem->errstr = xstrdup ("A valid date is required.");
+  else if (logitem->req == NULL)
+    logitem->errstr = xstrdup ("A request is required.");
+
+  return logitem->errstr != NULL;
+}
+
 /* Keep track of all invalid log strings. */
 static void
-count_invalid (GLog * glog, const char *line, int test)
+count_invalid (GLog * glog, const char *line)
 {
   glog->invalid++;
 #ifdef TCB_BTREE
-  if (!test)
-    ht_insert_genstats ("failed_requests", 1);
-#else
-  (void) test;
+  ht_insert_genstats ("failed_requests", 1);
 #endif
-  if (conf.invalid_requests_log)
+  if (conf.invalid_requests_log) {
     LOG_INVALID (("%s", line));
+  }
+
+  if (glog->items->errstr && glog->invalid < MAX_LOG_ERRORS) {
+    if (glog->errors == NULL)
+      glog->errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
+    glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
+  }
+}
+
+/* Count down the number of invalids hits.
+ * Note: Upon performing a log test, invalid hits are counted, since
+ * no valid records were found, then we count down by the number of
+ * tests ran.
+*/
+static void
+uncount_invalid (GLog * glog)
+{
+  glog->invalid -= conf.num_tests;
+#ifdef TCB_BTREE
+  ht_replace_genstats ("failed_requests", glog->invalid);
+#endif
+}
+
+/* Count down the number of processed hits.
+ * Note: Upon performing a log test, processed hits are counted, since
+ * no valid records were found, then we count down by the number of
+ * tests ran.
+*/
+static void
+uncount_processed (GLog * glog)
+{
+  glog->processed -= conf.num_tests;
+#ifdef TCB_BTREE
+  ht_replace_genstats ("total_requests", glog->processed);
+#endif
 }
 
 /* Keep track of all valid log strings. */
 static void
-count_valid (GLog * glog, int test)
+count_valid (GLog * glog)
 {
   lock_spinner ();
   glog->valid++;
 #ifdef TCB_BTREE
-  if (!test)
-    ht_insert_genstats ("valid_requests", 1);
-#else
-  (void) test;
+  ht_insert_genstats ("valid_requests", 1);
 #endif
   unlock_spinner ();
 }
 
 /* Keep track of all valid and processed log strings. */
 static void
-count_process (GLog * glog, int test)
+count_process (GLog * glog)
 {
   lock_spinner ();
   glog->processed++;
 #ifdef TCB_BTREE
-  if (!test)
-    ht_insert_genstats ("total_requests", 1);
-#else
-  (void) test;
+  ht_insert_genstats ("total_requests", 1);
 #endif
   unlock_spinner ();
 }
@@ -1377,15 +1491,12 @@ count_process (GLog * glog, int test)
  * If IP not range, 1 is returned.
  * If IP is excluded, 0 is returned. */
 static int
-excluded_ip (GLog * glog, GLogItem * logitem, int test)
+excluded_ip (GLog * glog, GLogItem * logitem)
 {
   if (conf.ignore_ip_idx && ip_in_range (logitem->host)) {
     glog->excluded_ip++;
 #ifdef TCB_BTREE
-    if (!test)
-      ht_insert_genstats ("excluded_ip", 1);
-#else
-    (void) test;
+    ht_insert_genstats ("excluded_ip", 1);
 #endif
     return 0;
   }
@@ -1423,9 +1534,9 @@ ignore_status_code (const char *status)
  * If the request line is not ignored, 0 is returned.
  * If the request line is ignored, 1 is returned. */
 static int
-ignore_line (GLog * glog, GLogItem * logitem, int test)
+ignore_line (GLog * glog, GLogItem * logitem)
 {
-  if (excluded_ip (glog, logitem, test) == 0)
+  if (excluded_ip (glog, logitem) == 0)
     return 1;
   if (exclude_crawler (logitem) == 0)
     return 1;
@@ -2188,40 +2299,34 @@ process_log (GLogItem * logitem)
  *
  * On success, 0 is returned */
 static int
-pre_process_log (GLog * glog, char *line, int test)
+pre_process_log (GLog * glog, char *line, int dry_run)
 {
   GLogItem *logitem;
+  int ret = 0;
 
-  if (valid_line (line)) {
-    count_invalid (glog, line, test);
-    return 0;
-  }
+  /* soft ignore these lines */
+  if (valid_line (line))
+    return -1;
 
-  count_process (glog, test);
+  count_process (glog);
   logitem = init_log_item (glog);
-  /* parse a line of log, and fill structure with appropriate values */
-  if (parse_format (logitem, line)) {
-    count_invalid (glog, line, test);
+  /* Parse a line of log, and fill structure with appropriate values */
+  if (parse_format (logitem, line) || verify_missing_fields (logitem)) {
+    ret = 1;
+    count_invalid (glog, line);
     goto cleanup;
   }
 
-  /* must have the following fields */
-  if (logitem->host == NULL || logitem->date == NULL || logitem->req == NULL) {
-    count_invalid (glog, line, test);
-    goto cleanup;
-  }
   /* agent will be null in cases where %u is not specified */
   if (logitem->agent == NULL)
     logitem->agent = alloc_string ("-");
 
   /* testing log only */
-  if (test) {
-    count_valid (glog, test);
+  if (dry_run)
     goto cleanup;
-  }
 
   /* ignore line */
-  if (ignore_line (glog, logitem, test))
+  if (ignore_line (glog, logitem))
     goto cleanup;
 
   if (is_404 (logitem))
@@ -2233,11 +2338,32 @@ pre_process_log (GLog * glog, char *line, int test)
 
   inc_resp_size (glog, logitem->resp_size);
   process_log (logitem);
-  count_valid (glog, test);
+  count_valid (glog);
 
 cleanup:
   free_glog (logitem);
 
+  return ret;
+}
+
+static int
+read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
+{
+  int ret = 0;
+  /* start processing log line */
+  if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
+    *test = 0;
+
+  /* soft ignores */
+  if (ret == -1)
+    return 0;
+  /* reached num of lines to test and no valid records were found, log
+   * format is likely not matching */
+  if (conf.num_tests >= 0 && ++(*cnt) == conf.num_tests && *test) {
+    uncount_processed (glog);
+    uncount_invalid (glog);
+    return 1;
+  }
   return 0;
 }
 
@@ -2248,26 +2374,20 @@ cleanup:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_lines (FILE * fp, int lines2test, GLog ** glog)
+read_lines (FILE * fp, GLog ** glog, int dry_run)
 {
   char line[LINE_BUFFER] = { 0 };
-  int i = 0, test = -1 == lines2test ? 0 : 1;
+  int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
   while (fgets (line, LINE_BUFFER, fp) != NULL) {
+    /* handle SIGINT */
     if (conf.stop_processing)
       break;
-    if (lines2test >= 0 && i++ == lines2test)
+    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
       break;
-
-    /* start processing log line */
-    if (pre_process_log ((*glog), line, test)) {
-      if (!(*glog)->piping)
-        fclose (fp);
-      return 1;
-    }
   }
 
-  return 0;
+  return ret;
 }
 #endif
 
@@ -2278,30 +2398,23 @@ read_lines (FILE * fp, int lines2test, GLog ** glog)
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_lines (FILE * fp, int lines2test, GLog ** glog)
+read_lines (FILE * fp, GLog ** glog, int dry_run)
 {
   char *line = NULL;
   size_t len = LINE_BUFFER;
-  int i = 0, test = -1 == lines2test ? 0 : 1;
+  int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
   line = xcalloc (LINE_BUFFER, sizeof (*line));
   while (getline (&line, &len, fp) != -1) {
+    /* handle SIGINT */
     if (conf.stop_processing)
       break;
-    if (lines2test >= 0 && i++ == lines2test)
+    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
       break;
-
-    /* start processing log line */
-    if (pre_process_log ((*glog), line, test)) {
-      if (!(*glog)->piping)
-        fclose (fp);
-      free (line);
-      return 1;
-    }
   }
   free (line);
 
-  return 0;
+  return ret;
 }
 #endif
 
@@ -2310,7 +2423,7 @@ read_lines (FILE * fp, int lines2test, GLog ** glog)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-read_log (GLog ** glog, int lines2test)
+read_log (GLog ** glog, int dry_run)
 {
   FILE *fp = NULL;
 
@@ -2331,8 +2444,11 @@ read_log (GLog ** glog, int lines2test)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* read line by line */
-  if (read_lines (fp, lines2test, glog))
+  if (read_lines (fp, glog, dry_run)) {
+    if (!(*glog)->piping)
+      fclose (fp);
     return 1;
+  }
 
   /* definitely not portable! */
   if ((*glog)->piping)
@@ -2350,14 +2466,14 @@ read_log (GLog ** glog, int lines2test)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-parse_log (GLog ** glog, char *tail, int lines2test)
+parse_log (GLog ** glog, char *tail, int dry_run)
 {
   const char *err_log = NULL;
-  int test = -1 == lines2test ? 0 : 1;
 
   /* process tail data and return */
   if (tail != NULL) {
-    if (pre_process_log ((*glog), tail, test))
+    /* no line testing on tail */
+    if (pre_process_log ((*glog), tail, dry_run))
       return 1;
     return 0;
   }
@@ -2367,25 +2483,29 @@ parse_log (GLog ** glog, char *tail, int lines2test)
     FATAL ("%s", err_log);
 
   /* the first run */
-  return read_log (glog, lines2test);
+  return read_log (glog, dry_run);
 }
 
 /* Ensure we have valid hits
  *
- * On error, 1 is returned.
- * On success, 0 is returned. */
-int
-test_format (GLog * glog)
+ * On error, an array of pointers containing the error strings.
+ * On success, NULL is returned. */
+char **
+test_format (GLog * glog, int *len)
 {
-  if (parse_log (&glog, NULL, NUM_TESTS))
-    FATAL ("Error while processing file");
+  char **errors = NULL;
+  int i;
 
-  /* it did not process any records, and since we're loading the dataset from
-   * disk, then it is safe to assume is right */
-  if (glog->load_from_disk_only)
-    return 0;
+  if (parse_log (&glog, NULL, 1) == 0)
+    goto clean;
 
-  if (glog->valid == 0)
-    return 1;
-  return 0;
+  errors = xcalloc (glog->log_erridx, sizeof (char *));
+  for (i = 0; i < glog->log_erridx; ++i)
+    errors[i] = xstrdup (glog->errors[i]);
+  *len = glog->log_erridx;
+
+clean:
+  free_logerrors (glog);
+
+  return errors;
 }
