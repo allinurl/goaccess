@@ -2364,7 +2364,7 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
     uncount_invalid (glog);
     return 1;
   }
-  return 0;
+  return ret;
 }
 
 /* Iterate over the log and read line by line (uses a buffer of fixed
