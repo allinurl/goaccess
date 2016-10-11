@@ -2386,9 +2386,11 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
       break;
     if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
       break;
+    if (dry_run && NUM_TESTS == cnt)
+      break;
   }
 
-  return ret || test;
+  return test || ret;
 }
 #endif
 
@@ -2412,10 +2414,12 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
       break;
     if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
       break;
+    if (dry_run && NUM_TESTS == cnt)
+      break;
   }
   free (line);
 
-  return ret || test;
+  return test || ret;
 }
 #endif
 
