@@ -2364,7 +2364,8 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
     uncount_invalid (glog);
     return 1;
   }
-  return ret;
+
+  return 0;
 }
 
 /* Iterate over the log and read line by line (uses a buffer of fixed
@@ -2387,7 +2388,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
       break;
   }
 
-  return ret;
+  return ret || test;
 }
 #endif
 
@@ -2414,7 +2415,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
   }
   free (line);
 
-  return ret;
+  return ret || test;
 }
 #endif
 
