@@ -307,9 +307,11 @@ void
 stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
 {
   pthread_t writer, reader;
-  WSServer *server = gwswriter->server;
+  WSServer *server = NULL;
 
-  if (!gwsreader || !gwswriter || !server)
+  if (!gwsreader || !gwswriter)
+    return;
+  if (!(server = gwswriter->server))
     return;
 
   pthread_mutex_lock (&gwsreader->mutex);
