@@ -475,23 +475,27 @@ GoAccess.Nav = {
 // RENDER PANELS
 GoAccess.Panels = {
 	enablePrev: function (panel) {
-		var pagination = '#panel-' + panel + ' .pagination a';
-		$(pagination + '.panel-prev').parentNode.classList.remove('disabled');
+		var $pagination = $('#panel-' + panel + ' .pagination a.panel-prev');
+		if ($pagination)
+			$pagination.parentNode.classList.remove('disabled');
 	},
 
 	disablePrev: function (panel) {
-		var pagination = '#panel-' + panel + ' .pagination a';
-		$(pagination + '.panel-prev').parentNode.classList.add('disabled');
+		var $pagination = $('#panel-' + panel + ' .pagination a.panel-prev');
+		if ($pagination)
+			$pagination.parentNode.classList.add('disabled');
 	},
 
 	enableNext: function (panel) {
-		var pagination = '#panel-' + panel + ' .pagination a';
-		$(pagination + '.panel-next').parentNode.classList.remove('disabled');
+		var $pagination = $('#panel-' + panel + ' .pagination a.panel-next');
+		if ($pagination)
+			$pagination.parentNode.classList.remove('disabled');
 	},
 
 	disableNext: function (panel) {
-		var pagination = '#panel-' + panel + ' .pagination a';
-		$(pagination + '.panel-next').parentNode.classList.add('disabled');
+		var $pagination = $('#panel-' + panel + ' .pagination a.panel-next');
+		if ($pagination)
+			$pagination.parentNode.classList.add('disabled');
 	},
 
 	enablePagination: function (panel) {
@@ -1157,7 +1161,9 @@ GoAccess.Tables = {
 	},
 
 	renderThead: function (panel, ui) {
-		$('.table-' + panel + '>thead').innerHTML = GoAccess.AppTpls.Tables.head.render(this.sort2Tpl(panel, ui));
+		var $thead = $('.table-' + panel + '>thead')
+		if ($thead)
+			$thead.innerHTML = GoAccess.AppTpls.Tables.head.render(this.sort2Tpl(panel, ui));
 	},
 
 	initialize: function () {
