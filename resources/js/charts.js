@@ -624,21 +624,6 @@ function BarChart(dualYaxis) {
 		.scale(yScale0)
 		.orient('left');
 
-	// The x-accessor for the path generator; xScale ∘ xValue.
-	function X(d) {
-		return xScale(d[0]);
-	}
-
-	// The x-accessor for the path generator; yScale0 yValue0.
-	function Y0(d) {
-		return yScale0(d[1]);
-	}
-
-	// The x-accessor for the path generator; yScale0 yValue0.
-	function Y1(d) {
-		return yScale1(d[2]);
-	}
-
 	function innerW() {
 		return width - margin.left - margin.right;
 	}
