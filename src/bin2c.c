@@ -106,6 +106,7 @@ main (int argc, char *argv[])
 #endif
 
   fclose (f_output);
+  free (buf);
 
   return 0;
 }
