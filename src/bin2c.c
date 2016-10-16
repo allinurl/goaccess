@@ -48,7 +48,7 @@ main (int argc, char *argv[])
   fseek (f_input, 0, SEEK_SET);
   file_size++;
 
-  buf = (char *) malloc (file_size);
+  buf = malloc (file_size);
   assert (buf);
 
   fread (buf, file_size, 1, f_input);
