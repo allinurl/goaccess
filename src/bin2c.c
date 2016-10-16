@@ -50,6 +50,7 @@ main (int argc, char *argv[])
 
   if ((buf = malloc (file_size)) == NULL) {
     fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
+    fclose (f_input);
     return -1;
   }
 
