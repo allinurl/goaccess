@@ -59,8 +59,11 @@ main (int argc, char *argv[])
   // allocate for bz2.
   bz2_size = ((file_size) * 1.01) + 600;        // as per the documentation
 
-  bz2_buf = malloc (bz2_size);
-  assert (bz2_buf);
+  if ((bz2_buf = malloc (bz2_size)) == NULL) {
+    fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
+    free (buf);
+    return -1;
+  }
 
   // compress the data
   int status =
