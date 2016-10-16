@@ -25,6 +25,7 @@ main (int argc, char *argv[])
   char *ident;
   unsigned int i, file_size, need_comma;
   FILE *f_input, *f_output;
+  int status;
 
 #ifdef USE_BZ2
   char *bz2_buf;
@@ -64,13 +65,13 @@ main (int argc, char *argv[])
     free (buf);
     return -1;
   }
-
   // compress the data
-  int status =
+  status =
     BZ2_bzBuffToBuffCompress (bz2_buf, &bz2_size, buf, file_size, 9, 1, 0);
-
   if (status != BZ_OK) {
     fprintf (stderr, "Failed to compress data: error %i\n", status);
+    free (buf);
+    free (bz2_buf);
     return -1;
   }
   // and be very lazy
@@ -88,7 +89,6 @@ main (int argc, char *argv[])
   }
 
   ident = argv[3];
-
   need_comma = 0;
 
   fprintf (f_output, "const char %s[%i] = {", ident, file_size);
@@ -102,7 +102,6 @@ main (int argc, char *argv[])
     fprintf (f_output, "0x%.2x", buf[i] & 0xff);
   }
   fprintf (f_output, "\n};\n\n");
-
   fprintf (f_output, "const int %s_length = %i;\n", ident, file_size);
 
 #ifdef USE_BZ2
