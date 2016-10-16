@@ -24,7 +24,6 @@ main (int argc, char *argv[])
   char *buf;
   char *ident;
   unsigned int i, file_size, need_comma;
-
   FILE *f_input, *f_output;
 
 #ifdef USE_BZ2
@@ -58,7 +57,7 @@ main (int argc, char *argv[])
   // allocate for bz2.
   bz2_size = ((file_size) * 1.01) + 600;        // as per the documentation
 
-  bz2_buf = (char *) malloc (bz2_size);
+  bz2_buf = malloc (bz2_size);
   assert (bz2_buf);
 
   // compress the data
