@@ -47,8 +47,10 @@ main (int argc, char *argv[])
   fseek (f_input, 0, SEEK_SET);
   file_size++;
 
-  buf = malloc (file_size);
-  assert (buf);
+  if ((buf = malloc (file_size)) == NULL) {
+    fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
+    return -1;
+  }
 
   fread (buf, file_size, 1, f_input);
   fclose (f_input);
