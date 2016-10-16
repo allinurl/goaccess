@@ -1108,7 +1108,7 @@ GoAccess.Tables = {
 		});
 	},
 
-	renderTable: function (panel, page, expanded) {
+	renderTable: function (panel, page) {
 		var dataItems = GoAccess.getPanelData(panel).data;
 		var ui = GoAccess.getPanelUI(panel);
 
