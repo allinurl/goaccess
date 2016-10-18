@@ -239,13 +239,6 @@ nav h3 {
 		width: 1170px;
 	};
 }
-.container {
-	animation: fadein 1s;
-}
-@keyframes fadein {
-	from { opacity: 0; }
-	to   { opacity: 1; }
-}
 
 /* PANEL STYLES */
 .wrap-panels {
