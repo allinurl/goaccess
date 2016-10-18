@@ -28,6 +28,7 @@ window.GoAccess = window.GoAccess || {
 		this.AppPrefs  = {
 			'theme': 'darkBlue',
 			'perPage': 10,
+			'layout': 'horizontal',
 		};
 
 		if (GoAccess.Util.hasLocalStorage()) {
@@ -42,8 +43,8 @@ window.GoAccess = window.GoAccess || {
 		return panel ? this.AppUIData[panel] : this.AppUIData;
 	},
 
-	getPrefs: function () {
-		return this.AppPrefs;
+	getPrefs: function (panel) {
+		return panel ? this.AppPrefs[panel] : this.AppPrefs;
 	},
 
 	setPrefs: function () {
@@ -335,9 +336,27 @@ GoAccess.Nav = {
 			}.bind(this);
 		}.bind(this));
 
+		$$('.layout-horizontal', function (item) {
+			item.onclick = function (e) {
+				this.setLayout('horizontal');
+			}.bind(this);
+		}.bind(this));
+
+		$$('.layout-vertical', function (item) {
+			item.onclick = function (e) {
+				this.setLayout('vertical');
+			}.bind(this);
+		}.bind(this));
+
 		$$('[data-perpage]', function (item) {
 			item.onclick = function (e) {
 				this.setPerPage(e);
+			}.bind(this);
+		}.bind(this));
+
+		$$('[data-show-tables]', function (item) {
+			item.onclick = function (e) {
+				this.toggleTables();
 			}.bind(this);
 		}.bind(this));
 	},
@@ -347,6 +366,39 @@ GoAccess.Nav = {
 		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(GoAccess.getPanelData()));
 		targ.href = 'data:' + data;
 		targ.download = 'goaccess-' + +new Date() + '.json';
+	},
+
+	setLayout: function (layout) {
+		if ('horizontal' == layout) {
+			$('.container').classList.add('container-fluid');
+			$('.container').classList.remove('container');
+		} else if ('vertical' == layout) {
+			$('.container-fluid').classList.add('container');
+			$('.container').classList.remove('container-fluid');
+		}
+
+		GoAccess.AppPrefs['layout'] = layout;
+		GoAccess.setPrefs();
+
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
+	},
+
+	toggleTables: function () {
+		var ui = GoAccess.getPanelUI();
+		var showTables = GoAccess.Tables.showTables();
+		Object.keys(ui).forEach(function (panel, idx) {
+			if (!GoAccess.Util.isPanelValid(panel))
+				ui[panel]['table'] = !showTables;
+		}.bind(this));
+
+		GoAccess.AppPrefs['showTables'] = !showTables;
+		GoAccess.setPrefs();
+
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
 	},
 
 	setTheme: function (theme) {
@@ -414,6 +466,10 @@ GoAccess.Nav = {
 		return GoAccess.AppPrefs.theme || 'darkGray';
 	},
 
+	getLayout: function () {
+		return GoAccess.AppPrefs.layout || 'horizontal';
+	},
+
 	getPerPage: function () {
 		return GoAccess.AppPrefs.perPage || 10;
 	},
@@ -423,6 +479,8 @@ GoAccess.Nav = {
 		var o = {};
 		o[this.getTheme()] = true;
 		o['perPage' + this.getPerPage()] = true;
+		o['showTables'] = GoAccess.Tables.showTables();
+		o[this.getLayout()] = true;
 
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.opts.render(o);
 		$('nav').classList.toggle('active');
@@ -474,6 +532,77 @@ GoAccess.Nav = {
 
 // RENDER PANELS
 GoAccess.Panels = {
+	events: function () {
+		$$('[data-toggle=dropdown]', function (item) {
+			item.onclick = function (e) {
+				this.openOpts(e.currentTarget);
+			}.bind(this);
+			item.onblur = function (e) {
+				this.closeOpts(e);
+			}.bind(this);
+		}.bind(this));
+
+		$$('[data-plot]', function (item) {
+			item.onclick = function (e) {
+				GoAccess.Charts.redrawChart(e.currentTarget);
+			}.bind(this);
+		}.bind(this));
+
+		$$('[data-chart-type]', function (item) {
+			item.onclick = function (e) {
+				GoAccess.Charts.setChartType(e.currentTarget);
+			}.bind(this);
+		}.bind(this));
+
+		$$('[data-metric]', function (item) {
+			item.onclick = function (e) {
+				GoAccess.Tables.toggleColumn(e.currentTarget);
+			}.bind(this);
+		}.bind(this));
+	},
+
+	openOpts: function (targ) {
+		var panel = targ.getAttribute('data-panel');
+		targ.parentElement.classList.toggle('open');
+		this.renderOpts(panel);
+	},
+
+	closeOpts: function (e) {
+		e.currentTarget.parentElement.classList.remove('open');
+		// Trigger the click event on the target if not opening another menu
+		if (e.relatedTarget && e.relatedTarget.getAttribute('data-toggle') !== 'dropdown')
+			e.relatedTarget.click();
+	},
+
+	setPlotSelection: function (ui, prefs) {
+		var chartType = ((prefs || {}).plot || {}).chartType || ui.plot[0].chartType;
+		var metric = ((prefs || {}).plot || {}).metric || ui.plot[0].className;
+
+		ui[chartType] = true;
+		for (var i = 0, len = ui.plot.length; i < len; ++i)
+			if (ui.plot[i].className == metric)
+				ui.plot[i]['selected'] = true;
+	},
+
+	setColSelection: function (items, prefs) {
+		var columns = (prefs || {}).columns || {};
+		for (var i = 0, len = items.length; i < len; ++i)
+			if ((items[i].key in columns) && columns[items[i].key]['hide'])
+				items[i]['hide'] = true;
+	},
+
+	setOpts: function (panel) {
+		var ui = JSON.parse(JSON.stringify(GoAccess.getPanelUI(panel))), prefs = GoAccess.getPrefs(panel);
+		this.setPlotSelection(ui, prefs);
+		this.setColSelection(ui.items, prefs);
+		return ui;
+	},
+
+	renderOpts: function (panel) {
+		$('.panel-opts-' + panel).innerHTML = GoAccess.AppTpls.Panels.opts.render(this.setOpts(panel));
+		this.events();
+	},
+
 	enablePrev: function (panel) {
 		var $pagination = $('#panel-' + panel + ' .pagination a.panel-prev');
 		if ($pagination)
@@ -520,64 +649,66 @@ GoAccess.Panels = {
 	},
 
 	// Render the given panel given a user interface definition.
-	renderPanel: function (panel, ui) {
+	renderPanel: function (panel, ui, row, idx) {
+		var wrap = $('.wrap-panels');
+		var every = GoAccess.AppPrefs['layout'] == 'horizontal' ? 2 : 1;
+		var perRow = GoAccess.AppPrefs['layout'] == 'horizontal' ? 6 : 12;
+
+		// create a new bootstrap row every one or two elements depending on
+		// the layout
+		if (idx % every == 0) {
+			row = document.createElement('div');
+			row.setAttribute('class', 'row' + (every == 2 ? ' equal' : ''));
+			wrap.appendChild(row);
+		}
+
 		var data = GoAccess.getPanelData(panel);
 		this.hasSubItems(ui, data.data);
+		GoAccess.Tables.hasTables(ui);
 
+		// set the number of columns based on current layout
+		var col = document.createElement('div');
+		col.setAttribute('class', 'col-md-' + perRow + ' wrap-panel');
+		row.appendChild(col);
+
+		// per panel wrapper
 		var box = document.createElement('div');
 		box.id = 'panel-' + panel;
 		box.innerHTML = GoAccess.AppTpls.Panels.wrap.render(ui);
-		$('.wrap-panels').appendChild(box);
+		col.appendChild(box);
 
 		// Remove pagination if not enough data for the given panel
 		if (data.data.length <= GoAccess.getPrefs().perPage)
 			this.disablePagination(panel);
 		GoAccess.Tables.renderThead(panel, ui);
+
+		return row;
 	},
 
 	// Iterate over all available panels and render each panel
 	// structure.
 	renderPanels: function () {
-		var ui = GoAccess.getPanelUI();
+		var ui = GoAccess.getPanelUI(), idx = 0, row = null;
+
+		$('.wrap-panels').innerHTML = '';
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel))
 				continue;
 			// Render panel given a user interface definition
-			this.renderPanel(panel, ui[panel]);
+			row = this.renderPanel(panel, ui[panel], row, idx++);
 		}
 	},
 
 	initialize: function () {
 		this.renderPanels();
+		this.events();
 	}
 };
 
 // RENDER CHARTS
 GoAccess.Charts = {
-	events: function () {
-		$$('[data-plot]', function (item) {
-			item.onclick = function (e) {
-				this.redrawChart(e.currentTarget);
-			}.bind(this);
-		}.bind(this));
-
-		$$('[data-chart-type]', function (item) {
-			item.onclick = function (e) {
-				this.setChartType(e.currentTarget);
-			}.bind(this);
-		}.bind(this));
-	},
-
-	setChartType: function (targ) {
-		var panel = targ.getAttribute('data-panel');
-		var type = targ.getAttribute('data-chart-type');
-
-		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.plot', {'chartType': type});
-		GoAccess.setPrefs();
-
-		var plotUI = GoAccess.Util.getProp(GoAccess.AppState, panel + '.plot');
-		// Extract data for the selected panel and process it
-		this.drawPlot(panel, plotUI, this.getPanelData(panel));
+	getMetricKeys: function (panel, key) {
+		return GoAccess.getPanelUI(panel)['items'].map(function(a) {return a[key];});
 	},
 
 	getPanelData: function (panel, data) {
@@ -613,12 +744,27 @@ GoAccess.Charts = {
 		GoAccess.AppCharts[panel] = chart;
 	},
 
+	setChartType: function (targ) {
+		var panel = targ.getAttribute('data-panel');
+		var type = targ.getAttribute('data-chart-type');
+
+		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.plot.chartType', type);
+		GoAccess.setPrefs();
+
+		var plotUI = GoAccess.Util.getProp(GoAccess.AppState, panel + '.plot');
+		// Extract data for the selected panel and process it
+		this.drawPlot(panel, plotUI, this.getPanelData(panel));
+	},
+
 	// Redraw a chart upon selecting a metric.
 	redrawChart: function (targ) {
 		var plot = targ.getAttribute('data-plot');
 		var panel = targ.getAttribute('data-panel');
 		var ui = GoAccess.getPanelUI(panel);
 		var plotUI = ui.plot;
+
+		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.plot.metric', plot);
+		GoAccess.setPrefs();
 
 		// Iterate over plot user interface definition
 		for (var x in plotUI) {
@@ -659,17 +805,29 @@ GoAccess.Charts = {
 		return null;
 	},
 
+	getXKey: function (datum, key) {
+		var arr = [];
+		if (typeof key === 'string')
+			return datum[key];
+		for (var prop in key)
+			arr.push(datum[key[prop]]);
+		return arr.join(' ');
+	},
+
 	getAreaSpline: function (panel, plotUI, data) {
 		var dualYaxis = plotUI['d3']['y1'];
 
+		console.log($("#chart-" + panel).offsetWidth)
 		var chart = AreaChart(dualYaxis)
 		.labels({
 			y0: plotUI['d3']['y0'].label,
 			y1: dualYaxis ? plotUI['d3']['y1'].label : ''
 		})
 		.x(function (d) {
+			if ((((plotUI || {}).d3 || {}).x || {}).key)
+				return this.getXKey(d, plotUI['d3']['x']['key']);
 			return d.data;;
-		})
+		}.bind(this))
 		.y0(function (d) {
 			return +d[plotUI['d3']['y0']['key']];
 		})
@@ -698,8 +856,10 @@ GoAccess.Charts = {
 			y1: dualYaxis ? plotUI['d3']['y1'].label : ''
 		})
 		.x(function (d) {
+			if ((((plotUI || {}).d3 || {}).x || {}).key)
+				return this.getXKey(d, plotUI['d3']['x']['key']);
 			return d.data;;
-		})
+		}.bind(this))
 		.y0(function (d) {
 			return +d[plotUI['d3']['y0']['key']];
 		})
@@ -719,12 +879,28 @@ GoAccess.Charts = {
 		return chart;
 	},
 
+	getChartType: function (panel) {
+		var ui = GoAccess.getPanelUI(panel);
+		if (!ui.plot.length)
+			return '';
+
+		return GoAccess.Util.getProp(GoAccess.getPrefs(), panel + '.plot.chartType') || ui.plot[0].chartType;
+	},
+
+	getPlotUI: function (panel, ui) {
+		var metric = GoAccess.Util.getProp(GoAccess.getPrefs(), panel + '.plot.metric');
+		if (!metric)
+			return ui.plot[0];
+		return ui.plot.filter(function(v) {
+			return v.className == metric;
+		})[0];
+	},
+
 	getChart: function (panel, plotUI, data) {
-		var chart = null, type = null;
-		type = GoAccess.Util.getProp(GoAccess.getPrefs(), panel + '.plot.chartType') || plotUI.chartType;
+		var chart = null;
 
 		// Render given its type
-		switch (type) {
+		switch (this.getChartType(panel)) {
 		case 'area-spline':
 			chart = this.getAreaSpline(panel, plotUI, data);
 			break;
@@ -746,7 +922,7 @@ GoAccess.Charts = {
 			if (!ui[panel].plot || !ui[panel].plot.length)
 				continue;
 
-			plotUI = ui[panel].plot[0];
+			plotUI = this.getPlotUI(panel, ui[panel]);
 			// set ui plot data
 			GoAccess.Util.setProp(GoAccess.AppState, panel + '.plot', plotUI);
 
@@ -782,7 +958,6 @@ GoAccess.Charts = {
 					.call(GoAccess.AppCharts[panel].width($("#chart-" + panel).offsetWidth));
 			});
 		});
-		this.events();
 	}
 };
 
@@ -823,6 +998,23 @@ GoAccess.Tables = {
 				this.sortColumn(e.currentTarget);
 			}.bind(this);
 		}.bind(this));
+	},
+
+	toggleColumn: function (targ) {
+		var panel = targ.getAttribute('data-panel');
+		var metric = targ.getAttribute('data-metric');
+
+		var columns = (GoAccess.getPrefs(panel) || {}).columns || {};
+		if (metric in columns)
+			delete columns[metric];
+		else
+			GoAccess.Util.setProp(columns, metric + '.hide', true);
+
+		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.columns', columns);
+		GoAccess.setPrefs();
+
+		GoAccess.Tables.renderThead(panel, GoAccess.getPanelUI(panel));
+		GoAccess.Tables.renderFullTable(panel);
 	},
 
 	sortColumn: function (ele) {
@@ -979,6 +1171,19 @@ GoAccess.Tables = {
 		}
 	},
 
+	hideColumn: function (panel, col) {
+		var columns = (GoAccess.getPrefs(panel) || {}).columns || {};
+		return ((col in columns) && columns[col]['hide']);
+	},
+
+	showTables: function () {
+		return ('showTables' in GoAccess.getPrefs()) ? GoAccess.getPrefs().showTables : true;
+	},
+
+	hasTables: function (ui) {
+		ui['table'] = GoAccess.Tables.showTables();
+	},
+
 	renderMetaRow: function (panel, ui) {
 		// find the table to set
 		var table = $('.table-' + panel + ' tbody.tbody-meta');
@@ -989,6 +1194,8 @@ GoAccess.Tables = {
 		var data = GoAccess.getPanelData(panel).metadata;
 		for (var i = 0; i < uiItems.length; ++i) {
 			var item = uiItems[i];
+			if (this.hideColumn(panel, item.key))
+				continue;
 			var value = data[item.key];
 			cells.push(this.getMetaCell(item, value))
 		}
@@ -1006,6 +1213,8 @@ GoAccess.Tables = {
 		var out = [];
 		for (var i = 0; i < uiItems.length; ++i) {
 			var uiItem = uiItems[i];
+			if (this.hideColumn(panel, uiItem.key))
+				continue;
 			// Data for the current user interface property.
 			// e.g., dataItem = Object {count: 13949, percent: 5.63}
 			var dataItem = dataItems[uiItem.key];
@@ -1108,20 +1317,39 @@ GoAccess.Tables = {
 		});
 	},
 
-	renderTable: function (panel, page) {
-		var dataItems = GoAccess.getPanelData(panel).data;
-		var ui = GoAccess.getPanelUI(panel);
-
+	togglePagination: function (panel, page, dataItems) {
 		GoAccess.Panels.enablePagination(panel);
 		// Diable pagination next button if last page is reached
 		if (page >= this.getTotalPages(dataItems))
 			GoAccess.Panels.disableNext(panel);
 		if (page <= 1)
 			GoAccess.Panels.disablePrev(panel);
+	},
 
+	renderTable: function (panel, page) {
+		var dataItems = GoAccess.getPanelData(panel).data;
+		var ui = GoAccess.getPanelUI(panel);
+
+		this.togglePagination(panel, page, dataItems);
 		// Render data rows
 		this.renderDataRows(panel, ui, dataItems, page);
 		this.events();
+	},
+
+	renderFullTable: function (panel) {
+		var ui = GoAccess.getPanelUI(panel), page = 0;
+		// panel's data
+		var data = GoAccess.getPanelData(panel);
+		// render meta data
+		if (data.hasOwnProperty('metadata'))
+			this.renderMetaRow(panel, ui);
+
+		// render actual data
+		if (data.hasOwnProperty('data')) {
+			page = this.getCurPage(panel);
+			this.togglePagination(panel, page, data.data);
+			this.renderDataRows(panel, ui, data.data, page);
+		}
 	},
 
 	// Iterate over all panels and determine which ones should contain
@@ -1129,41 +1357,43 @@ GoAccess.Tables = {
 	renderTables: function () {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel))
+			if (GoAccess.Util.isPanelValid(panel) || !this.showTables())
 				continue;
-
-			// panel's data
-			var data = GoAccess.getPanelData(panel);
-			// render meta data
-			if (data.hasOwnProperty('metadata'))
-				this.renderMetaRow(panel, ui[panel]);
-			// render actual data
-			if (data.hasOwnProperty('data')) {
-				this.renderDataRows(panel, ui[panel], data.data, this.getCurPage(panel));
-			}
+			this.renderFullTable(panel);
 		}
 	},
 
 	// Given a UI panel definition, make a copy of it and assign the sort
 	// fields to the template object to render
 	sort2Tpl: function (panel, ui) {
-		var uiClone = JSON.parse(JSON.stringify(ui));;
+		var uiClone = JSON.parse(JSON.stringify(ui)), out = [];
 		var sort = GoAccess.Util.getProp(GoAccess.AppState, panel + '.sort');
-		uiClone['items'].forEach(function (item) {
+
+		for (var i = 0, len = uiClone.items.length; i < len; ++i) {
+			var item = uiClone.items[i];
+			if (this.hideColumn(panel, item.key))
+				continue;
+
 			item['sort'] = false;
 			if (item.key == sort.field && sort.order) {
 				item['sort'] = true;
 				item[sort.order.toLowerCase()] = true;
 			}
-		});
+			out.push(item);
+		}
+		uiClone.items = out;
 
 		return uiClone;
 	},
 
 	renderThead: function (panel, ui) {
-		var $thead = $('.table-' + panel + '>thead')
-		if ($thead)
-			$thead.innerHTML = GoAccess.AppTpls.Tables.head.render(this.sort2Tpl(panel, ui));
+		var $thead = $('.table-' + panel + '>thead'), $colgroup = $('.table-' + panel + '>colgroup');
+		if ($thead && $colgroup && this.showTables()) {
+			ui = this.sort2Tpl(panel, ui);
+
+			$thead.innerHTML = GoAccess.AppTpls.Tables.head.render(ui);
+			$colgroup.innerHTML = GoAccess.AppTpls.Tables.colgroup.render(ui);
+		}
 	},
 
 	initialize: function () {
@@ -1187,12 +1417,14 @@ GoAccess.App = {
 			},
 			'Panels': {
 				'wrap': this.tpl($('#tpl-panel').innerHTML),
+				'opts': this.tpl($('#tpl-panel-opts').innerHTML),
 			},
 			'General': {
 				'wrap': this.tpl($('#tpl-general').innerHTML),
 				'items': this.tpl($('#tpl-general-items').innerHTML),
 			},
 			'Tables': {
+				'colgroup': this.tpl($('#tpl-table-colgroup').innerHTML),
 				'head': this.tpl($('#tpl-table-thead').innerHTML),
 				'meta': this.tpl($('#tpl-table-row-meta').innerHTML),
 				'data': this.tpl($('#tpl-table-row').innerHTML),
@@ -1247,6 +1479,11 @@ GoAccess.App = {
 		$('nav').classList.remove('hide');
 		$('.container').classList.remove('hide');
 		$('.spinner').classList.add('hide');
+
+		if (GoAccess.AppPrefs['layout'] == 'horizontal') {
+			$('.container').classList.add('container-fluid');
+			$('.container-fluid').classList.remove('container');
+		}
 	},
 
 	renderData: function () {
@@ -1276,39 +1513,4 @@ window.onload = function () {
 		'wsConnection': window.connection || null,
 	});
 	GoAccess.App.initialize();
-
-	/*!
-	 * Bootstrap without jQuery v0.6.1 for Bootstrap 3
-	 * By Daniel Davis under MIT License
-	 * https://github.com/tagawa/bootstrap-without-jquery
-	 */
-	function doDropdown(event) {
-		event = event || window.event;
-		var evTarget = event.currentTarget || event.srcElement;
-		evTarget.parentElement.classList.toggle('open');
-		return false;
-	}
-
-	function closeDropdown(event) {
-		event = event || window.event;
-		var evTarget = event.currentTarget || event.srcElement;
-
-		// hacky but FF needs it
-		window.setTimeout(function () {
-			evTarget.parentElement.classList.remove('open');
-		}, 150);
-
-		// Trigger the click event on the target if not opening another menu
-		if (event.relatedTarget && event.relatedTarget.getAttribute('data-toggle') !== 'dropdown') {
-			event.relatedTarget.click();
-		}
-		return false;
-	}
-	var dropdownList = document.querySelectorAll('[data-toggle=dropdown]');
-	for (var k = 0, dropdown, lenk = dropdownList.length; k < lenk; k++) {
-		dropdown = dropdownList[k];
-		dropdown.setAttribute('tabindex', '0'); // Fix to make onblur work in Chrome
-		dropdown.onclick = doDropdown;
-		dropdown.onblur = closeDropdown;
-	}
 };

@@ -319,6 +319,16 @@ pskeysval (GJSON * json, const char *key, const char *val, int sp, int last)
     pjson (json, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
 }
 
+/* Output a JSON string key, array value pair. */
+void
+fpskeyaval (FILE * fp, const char *key, const char *val, int sp, int last)
+{
+  if (!last)
+    fpjson (fp, "%.*s\"%s\": %s,%.*s", sp, TAB, key, val, nlines, NL);
+  else
+    fpjson (fp, "%.*s\"%s\": %s", sp, TAB, key, val);
+}
+
 /* Output a JSON a key/value pair. */
 void
 fpskeysval (FILE * fp, const char *key, const char *val, int sp, int last)
