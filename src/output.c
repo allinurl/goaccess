@@ -63,48 +63,74 @@
 #include "chartsjs.h"
 #include "appjs.h"
 
-static void hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp);
-static void hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp);
+static void hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp);
+static void hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp);
+static void hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp);
+static void hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp);
 
 static void print_metrics (FILE * fp, const GHTML * def, int sp);
 static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
-  {VISITORS       , 1, print_metrics, {
+  {VISITORS, 1, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 1, 1} ,
     {CHART_AREASPLINE, hits_bw_plot, 1, 1} ,
   }},
-  {REQUESTS        , 1, print_metrics } ,
-  {REQUESTS_STATIC , 1, print_metrics } ,
-  {NOT_FOUND       , 1, print_metrics } ,
-  {HOSTS           , 1, print_host_metrics, {
+  {REQUESTS, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+  }},
+  {REQUESTS_STATIC, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+  }},
+  {NOT_FOUND, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+  }},
+  {HOSTS, 1, print_host_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0},
     {CHART_VBAR, hits_bw_plot, 0, 0},
   }},
-  {OS              , 1, print_metrics, {
+  {OS, 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1},
     {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
-  {BROWSERS        , 1, print_metrics, {
+  {BROWSERS, 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1},
     {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
-  {VISIT_TIMES     , 1, print_metrics, {
+  {VISIT_TIMES, 1, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 0, 1},
     {CHART_AREASPLINE, hits_bw_plot, 0, 1},
   }},
-  {VIRTUAL_HOSTS   , 1, print_metrics } ,
-  {REFERRERS       , 1, print_metrics } ,
-  {REFERRING_SITES , 1, print_metrics } ,
-  {KEYPHRASES      , 1, print_metrics } ,
-  {STATUS_CODES    , 1, print_metrics, {
+  {VIRTUAL_HOSTS, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
+  }},
+  {REFERRERS, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
+  }},
+  {REFERRING_SITES, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
+  }},
+  {KEYPHRASES, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
+  }},
+  {STATUS_CODES, 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1},
     {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
-  {REMOTE_USER     , 1, print_metrics } ,
+  {REMOTE_USER, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0},
+    {CHART_VBAR, hits_bw_plot, 0, 0},
+  }},
 #ifdef HAVE_LIBGEOIP
-  {GEO_LOCATION    , 1, print_metrics, {
+  {GEO_LOCATION, 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1},
     {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
@@ -206,7 +232,7 @@ print_html_header (FILE * fp)
 
   print_html_title (fp);
 
-  fprintf (fp, "<style>%s</style>", fa_css);
+  /*fprintf (fp, "<style>%s</style>", fa_css);*/
   fprintf (fp, "<style>%s</style>", bootstrap_css);
   fprintf (fp, "<style>%s</style>", app_css);
   /* load custom CSS file, if any */
@@ -214,6 +240,7 @@ print_html_header (FILE * fp)
     fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
 
   fprintf (fp,
+  "<link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css'>"
   "</head>"
   "<body>");
 }
@@ -228,6 +255,7 @@ print_html_body (FILE * fp, const char *now)
 
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
+  "<div class='wrap-header'>"
   "<div class='row row-offcanvas row-offcanvas-right'>"
   "<div class='col-md-12'>"
   "<div class='page-header clearfix'>"
@@ -252,10 +280,12 @@ print_html_body (FILE * fp, const char *now)
   "<div class='report-title'>%s</div>"
   "</div>"
   "<div class='wrap-general'></div>"
+  "</div>"
+  "</div>"
+  "</div>"
   "<div class='wrap-panels'></div>"
-  "</div>"
-  "</div>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
+
   fprintf (fp, "%s", tpls);
 }
 
@@ -288,19 +318,32 @@ get_chartdef_cnt (GChart * chart)
 {
   GChartDef *def = chart->def;
 
-  while (memcmp (def, &ChartDefStopper, sizeof ChartDefStopper)) {
+  while (memcmp (def, &ChartDefStopper, sizeof ChartDefStopper))
     ++def;
-  }
 
   return def - chart->def;
+}
+
+/* Output the given JSON chart axis definition for the given panel. */
+static void
+print_d3_chart_def_axis (FILE * fp, GChart * chart, size_t cnt, int isp)
+{
+  GChartDef *def = chart->def;
+  size_t j = 0;
+
+  for (j = 0; j < cnt; ++j) {
+    if (strchr (def[j].value, '[') != NULL)
+      fpskeyaval (fp, def[j].key, def[j].value, isp, j == cnt - 1);
+    else
+      fpskeysval (fp, def[j].key, def[j].value, isp, j == cnt - 1);
+  }
 }
 
 /* Output the given JSON chart definition for the given panel. */
 static void
 print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
 {
-  GChartDef def = { 0 };
-  size_t i = 0, j = 0, cnt = 0;
+  size_t i = 0, cnt = 0;
   int isp = 0;
 
   /* use tabs to prettify output */
@@ -311,20 +354,40 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp)
     cnt = get_chartdef_cnt (chart + i);
 
     fpopen_obj_attr (fp, chart[i].key, sp);
-    for (j = 0; j < cnt; ++j) {
-      def = chart[i].def[j];
-      fpskeysval (fp, def.key, def.value, isp, j == cnt - 1);
-    }
+    print_d3_chart_def_axis (fp, chart + i, cnt, isp);
     fpclose_obj (fp, sp, (i == n - 1));
   }
 }
 
+static void
+print_plot_def (FILE * fp, const GHTMLPlot plot, GChart * chart, int n, int sp)
+{
+  int isp = 0, iisp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1, iisp = sp + 2;
+
+  fpskeysval (fp, "className", plot.chart_key, isp, 0);
+  fpskeysval (fp, "label", plot.chart_lbl, isp, 0);
+  fpskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
+  fpskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
+  fpskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
+
+  /* D3.js data */
+  fpopen_obj_attr (fp, "d3", isp);
+  /* print chart definitions */
+  print_d3_chart_def (fp, chart, n, iisp);
+  /* close D3 */
+  fpclose_obj (fp, isp, 1);
+}
+
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
+hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp)
 {
   /* *INDENT-OFF* */
-  GChart chart[] = {
+  GChart def[] = {
     {"y0", (GChartDef[]) {
       {"key", "hits"}, {"label", "Hits"}, ChartDefStopper
     }},
@@ -334,57 +397,83 @@ hits_visitors_plot (FILE * fp, const GHTMLPlot plot, int sp)
   };
   /* *INDENT-ON* */
 
-  int isp = 0, iisp = 0;
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    isp = sp + 1, iisp = sp + 2;
+  plot.chart_key = (char[]) {
+  "hits-visitors"};
+  plot.chart_lbl = (char[]) {
+  "Hits/Visitors"};
+  print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
+}
 
-  fpskeysval (fp, "label", "Hits/Visitors", isp, 0);
-  fpskeysval (fp, "className", "hits-visitors", isp, 0);
-  fpskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
-  fpskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
-  fpskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
+/* Output D3.js hits/visitors plot definitions. */
+static void
+hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp)
+{
+  /* *INDENT-OFF* */
+  GChart def[] = {
+    {"x", (GChartDef[]) {
+      {"key", "[\"method\", \"data\", \"protocol\"]"}, ChartDefStopper
+    }},
+    {"y0", (GChartDef[]) {
+      {"key", "hits"}, {"label", "Hits"}, ChartDefStopper
+    }},
+    {"y1", (GChartDef[]) {
+      {"key", "visitors"}, {"label", "Visitors"}, ChartDefStopper
+    }},
+  };
+  /* *INDENT-ON* */
 
-  /* D3.js data */
-  fpopen_obj_attr (fp, "d3", isp);
-  /* print chart definitions */
-  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
-  /* close D3 */
-  fpclose_obj (fp, isp, 1);
+  plot.chart_key = (char[]) {
+  "hits-visitors"};
+  plot.chart_lbl = (char[]) {
+  "Hits/Visitors"};
+  print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_plot (FILE * fp, const GHTMLPlot plot, int sp)
+hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp)
 {
   /* *INDENT-OFF* */
-  GChart chart[] = {
+  GChart def[] = {
     {"y0", (GChartDef[]) {
       {"key", "bytes"}, {"label", "Bandwidth"}, {"format", "bytes"}, ChartDefStopper
     }},
   };
   /* *INDENT-ON* */
 
-  int isp = 0, iisp = 0;
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    isp = sp + 1, iisp = sp + 2;
+  if (!conf.bandwidth)
+    return;
+
+  plot.chart_key = (char[]) {
+  "bandwidth"};
+  plot.chart_lbl = (char[]) {
+  "Bandwidth"};
+  print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
+}
+
+/* Output C3.js bandwidth plot definitions. */
+static void
+hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp)
+{
+  /* *INDENT-OFF* */
+  GChart def[] = {
+    {"x", (GChartDef[]) {
+      {"key", "[\"method\", \"protocol\", \"data\"]"}, ChartDefStopper
+    }},
+    {"y0", (GChartDef[]) {
+      {"key", "bytes"}, {"label", "Bandwidth"}, {"format", "bytes"}, ChartDefStopper
+    }},
+  };
+  /* *INDENT-ON* */
 
   if (!conf.bandwidth)
     return;
 
-  fpskeysval (fp, "label", "Bandwidth", isp, 0);
-  fpskeysval (fp, "className", "bandwidth", isp, 0);
-  fpskeysval (fp, "chartType", chart2str (plot.chart_type), isp, 0);
-  fpskeyival (fp, "chartReverse", plot.chart_reverse, isp, 0);
-  fpskeyival (fp, "redrawOnExpand", plot.redraw_expand, isp, 0);
-
-  /* D3.js data */
-  fpopen_obj_attr (fp, "d3", isp);
-  /* print chart definitions */
-  print_d3_chart_def (fp, chart, ARRAY_SIZE (chart), iisp);
-  /* close D3 */
-  fpclose_obj (fp, isp, 1);
+  plot.chart_key = (char[]) {
+  "bandwidth"};
+  plot.chart_lbl = (char[]) {
+  "Bandwidth"};
+  print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
 /* Output JSON data definitions. */

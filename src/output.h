@@ -49,19 +49,39 @@ typedef enum GChartType_
   CHART_AREASPLINE,
 } GChartType;
 
-/* Chart JS */
+/* Chart axis structure */
 typedef struct GChartDef_
 {
   const char *key;
   const char *value;
 } GChartDef;
 
-/* Chart JS */
+/* Chart axis structure */
 typedef struct GChart_
 {
   const char *key;
   GChartDef *def;
 } GChart;
+
+/* Chart behavior */
+typedef struct GHTMLPlot_
+{
+  GChartType chart_type;
+  void (*plot) (FILE * fp, struct GHTMLPlot_ plot, int sp);
+  int8_t chart_reverse;
+  int8_t redraw_expand;
+  char *chart_key;
+  char *chart_lbl;
+} GHTMLPlot;
+
+/* Controls HTML panel output. */
+typedef struct GHTML_
+{
+  GModule module;
+  int8_t table;
+  void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
+  GHTMLPlot chart[MAX_PLOTS];
+} GHTML;
 
 /* Metric definition . */
 typedef struct GDefMetric_
@@ -73,22 +93,6 @@ typedef struct GDefMetric_
   const char *cname;
   const char *cwidth;
 } GDefMetric;
-
-typedef struct GHTMLPlot_
-{
-  GChartType chart_type;
-  void (*plot) (FILE * fp, const struct GHTMLPlot_ plot, int sp);
-  int8_t chart_reverse;
-  int8_t redraw_expand;
-} GHTMLPlot;
-/* Controls HTML output. */
-typedef struct GHTML_
-{
-  GModule module;
-  int8_t table;
-  void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
-  GHTMLPlot chart[MAX_PLOTS];
-} GHTML;
 
 void output_html (GLog * glog, GHolder * holder, const char *filename);
 

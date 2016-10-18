@@ -73,6 +73,35 @@
 	</tr>
 </script>
 
+<!-- TPL Panel Options DropDown -->
+<script id="tpl-panel-opts" type="text/template">
+	{{#plot.length}}
+	<li class="dropdown-header">Chart Type</li>
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> Area Spline</a></li>
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> Bar</a></li>
+	<li class="dropdown-header">Plot Metric</li>
+	{{#plot}}
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}"><i class="fa fa-circle{{^selected}}-o{{/selected}}"></i> {{label}}</a></li>
+	{{/plot}}
+	{{/plot.length}}
+
+	<li class="dropdown-header">Table Columns</li>
+	{{#items}}
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-metric="{{key}}"><i class="fa fa-{{^hide}}check-{{/hide}}square-o"></i> {{label}}</a></li>
+	{{/items}}
+</script>
+
+<!-- TPL Table colgroup -->
+<script id="tpl-table-colgroup" type="text/template">
+	{{#hasSubItems}}
+	<col style="width: 2%;"> <!-- right-caret -->
+	{{/hasSubItems}}
+	<col style="width: 3%;"> <!-- row # -->
+	{{#items}}
+		<col style="width:{{colWidth}}">
+	{{/items}}
+</script>
+
 <!-- TPL Panel -->
 <script id="tpl-panel" type="text/template">
 	<div class="row">
@@ -80,47 +109,31 @@
 			<div class="form-group clearfix panel-header">
 				<h3 class="pull-left hidden-xs" id="{{id}}">{{head}}<br><small>{{desc}}</small></h3>
 				<h5 class="pull-left visible-xs hidden-sm hidden-md hidden-lg" id="{{id}}">{{head}}<br><small>{{desc}}</small></h5>
-				{{#plot.length}}
 				<div class="panel-plot-wrap">
 					<div class="dropdown">
-						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-							Plot Options <span class="fa fa-caret-down"></span>
+						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-panel="{{id}}">
+							Panel Options <span class="fa fa-caret-down"></span>
 						</button>
-						<ul class="dropdown-menu dropdown-menu-right">
-							<li class="dropdown-header">Chart Type</li>
-							<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline">Area Spline</a></li>
-							<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar">Bar</a></li>
-							<li class="dropdown-header">Plot Metric</li>
-							{{#plot}}
-							<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}">{{label}}</a></li>
-							{{/plot}}
+						<ul class="dropdown-menu dropdown-menu-right panel-opts-{{id}}">
 						</ul>
 					</div>
 				</div>
-				{{/plot.length}}
 			</div>
 		</div>
 	</div>
-	{{#plot}}
+	{{#plot.length}}
 	<div class="row">
 		<div class="col-md-12">
 			<div id="chart-{{id}}" class="chart-wrap"></div>
 		</div>
 	</div>
-	{{/plot}}
+	{{/plot.length}}
 	{{#table}}
 	<div class="row clearfix">
 		<div class="col-md-12">
 			<div class="table-responsive">
 				<table data-panel="{{id}}" class="table table-borderless table-hover table-{{id}}">
 					<colgroup>
-						{{#hasSubItems}}
-						<col style="width: 2%;"> <!-- right-caret -->
-						{{/hasSubItems}}
-						<col style="width: 3%;"> <!-- row # -->
-						{{#items}}
-							<col style="width:{{colWidth}}">
-						{{/items}}
 					</colgroup>
 					<thead>
 					</thead>
@@ -165,7 +178,7 @@
 	</ul>
 </script>
 <script id="tpl-nav-opts" type="text/template">
-	<h3><i class="fa-cog"></i> Theme Options</h3>
+	<h3><i class="fa fa-hashtag"></i> Theme</h3>
 	<ul>
 		<li {{#darkGray}}class="active"{{/darkGray}}>
 			<a href="javascript:void(0);" class="theme-dark-gray"><i class="fa fa-circle{{^darkGray}}-o{{/darkGray}}"></i> Dark Gray</a>
@@ -177,14 +190,36 @@
 			<a href="javascript:void(0);" class="theme-dark-blue"><i class="fa fa-circle{{^darkBlue}}-o{{/darkBlue}}"></i> Dark Blue</a>
 		</li>
 	</ul>
-	<h3><i class="fa-cog"></i> Panels Per Page</h3>
-	<div class="perpage-wrap">
-			<a {{#perPage5}}class="active"{{/perPage5}} href="javascript:void(0);" data-perpage="5">5</a> |
-			<a {{#perPage10}}class="active"{{/perPage10}} href="javascript:void(0);" data-perpage="10">10</a> |
-			<a {{#perPage15}}class="active"{{/perPage15}} href="javascript:void(0);" data-perpage="15">15</a></li> |
-			<a {{#perPage20}}class="active"{{/perPage20}} href="javascript:void(0);" data-perpage="20">20</a></li>
-	</div>
-	<h3><i class="fa-cog"></i> File Options</h3>
+	<h3><i class="fa fa-list-alt"></i> Panels</h3>
+	<ul class="perpage-wrap">
+		<li class="dropdown-header"><i class="fa fa-list"></i> Items Per Page</li>
+		<li {{#perPage5}}class="active"{{/perPage5}}>
+			<a  href="javascript:void(0);" data-perpage="5"><i class="fa fa-circle{{^perPage5}}-o{{/perPage5}}"></i> 5</a>
+		</li>
+		<li {{#perPage10}}class="active"{{/perPage10}}>
+			<a  href="javascript:void(0);" data-perpage="10"><i class="fa fa-circle{{^perPage10}}-o{{/perPage10}}"></i> 10</a>
+		</li>
+		<li {{#perPage15}}class="active"{{/perPage15}}>
+			<a  href="javascript:void(0);" data-perpage="15"><i class="fa fa-circle{{^perPage15}}-o{{/perPage15}}"></i> 15</a>
+		</li>
+		<li {{#perPage20}}class="active"{{/perPage20}}>
+			<a  href="javascript:void(0);" data-perpage="20"><i class="fa fa-circle{{^perPage20}}-o{{/perPage20}}"></i> 20</a>
+		</li>
+		<li class="dropdown-header"><i class="fa fa-table"></i> Tables</li>
+		<li {{#showTables}}class="active"{{/showTables}}>
+			<a  href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> Display Tables</a>
+		</li>
+	</ul>
+	<h3><i class="fa fa-th-large"></i> Layout</h3>
+	<ul>
+		<li {{#horizontal}}class="active"{{/horizontal}}>
+			<a href="javascript:void(0);" class="layout-horizontal"><i class="fa fa-circle{{^horizontal}}-o{{/horizontal}}"></i> Horizontal</a>
+		</li>
+		<li {{#vertical}}class="active"{{/vertical}}>
+			<a href="javascript:void(0);" class="layout-vertical"><i class="fa fa-circle{{^vertical}}-o{{/vertical}}"></i> Vertical</a>
+		</li>
+	</ul>
+	<h3><i class="fa fa-cog"></i> File Options</h3>
 	<ul>
 		<li><a href="javascript:void(0);" class="export-json"><i class="fa fa-code"></i> Export as JSON</a></li>
 	</ul>
