@@ -673,7 +673,7 @@ GoAccess.Charts = {
 		.y0(function (d) {
 			return +d[plotUI['d3']['y0']['key']];
 		})
-		.width($("#chart-" + panel).offsetWidth)
+		.width($("#chart-" + panel).getBoundingClientRect().width)
 		.height(175)
 		.format({
 			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
@@ -703,7 +703,7 @@ GoAccess.Charts = {
 		.y0(function (d) {
 			return +d[plotUI['d3']['y0']['key']];
 		})
-		.width($("#chart-" + panel).offsetWidth)
+		.width($("#chart-" + panel).getBoundingClientRect().width)
 		.height(175)
 		.format({
 			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
