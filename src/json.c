@@ -283,19 +283,19 @@ escape_json_output (GJSON * json, char *s)
       pjson (json, "\\\\");
       break;
     case '\b':
-      pjson (json, "\\\b");
+      pjson (json, "\\b");
       break;
     case '\f':
-      pjson (json, "\\\f");
+      pjson (json, "\\f");
       break;
     case '\n':
-      pjson (json, "\\\n");
+      pjson (json, "\\n");
       break;
     case '\r':
-      pjson (json, "\\\r");
+      pjson (json, "\\r");
       break;
     case '\t':
-      pjson (json, "\\\t");
+      pjson (json, "\\t");
       break;
     case '/':
       pjson (json, "\\/");
