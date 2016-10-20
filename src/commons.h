@@ -227,7 +227,7 @@ typedef struct GAgents_
 } GAgents;
 
 #define FOREACH_MODULE(item, array) \
-  for (item = item; (item < ARRAY_SIZE(array)) && array[item] != -1; ++item)
+  for (; (item < ARRAY_SIZE(array)) && array[item] != -1; ++item)
 
 /* Processing time */
 extern time_t end_proc;
