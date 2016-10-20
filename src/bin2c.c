@@ -25,9 +25,9 @@ main (int argc, char *argv[])
   char *ident;
   unsigned int i, file_size, need_comma;
   FILE *f_input, *f_output;
-  int status;
 
 #ifdef USE_BZ2
+  int status;
   char *bz2_buf;
   unsigned int uncompressed_size, bz2_size;
 #endif
