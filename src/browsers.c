@@ -103,6 +103,7 @@ static const char *browsers[][2] = {
   {"Wget", "Others"},
   {"libfetch", "Others"},
   {"check_http", "Others"},
+  {"Go-http-client", "Others"},
   {"curl", "Others"},
   {"midori", "Others"},
   {"w3m", "Others"},
