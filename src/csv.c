@@ -246,7 +246,7 @@ print_csv_summary (FILE * fp, GLog * glog)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
 
   /* generated time */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
   t = (long long) end_proc - start_proc;
   fprintf (fp, fmt, i++, GENER_ID, t, OVERALL_GENTIME);
 
@@ -282,7 +282,7 @@ print_csv_summary (FILE * fp, GLog * glog)
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) log_size, OVERALL_LOGSIZE);
 
   /* bandwidth */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, glog->resp_size, OVERALL_BANDWIDTH);
 
   /* log path */
