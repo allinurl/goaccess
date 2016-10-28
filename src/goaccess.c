@@ -646,8 +646,8 @@ read_client (void *ptr_data)
   GWSReader *reader = (GWSReader *) ptr_data;
   fd_set rfds, wfds;
 
-  FD_ZERO(&rfds);
-  FD_ZERO(&wfds);
+  FD_ZERO (&rfds);
+  FD_ZERO (&wfds);
 
   /* open fifo for read */
   if ((reader->fd = open_fifoout ()) == -1)
