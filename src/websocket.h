@@ -34,6 +34,11 @@
 #include <limits.h>
 #include <sys/select.h>
 
+#if HAVE_LIBSSL
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+#endif
+
 #if defined(__linux__) || defined(__CYGWIN__)
 #  include <endian.h>
 #if ((__GLIBC__ == 2) && (__GLIBC_MINOR__ < 9))
@@ -128,6 +133,10 @@ typedef enum WSSTATUS
   WS_READING = (1 << 2),
   WS_SENDING = (1 << 3),
   WS_THROTTLING = (1 << 4),
+  WS_TLS_ACCEPTING = (1 << 5),
+  WS_TLS_READING = (1 << 6),
+  WS_TLS_WRITING = (1 << 7),
+  WS_TLS_SHUTTING = (1 << 8),
 } WSStatus;
 
 typedef enum WSOPCODE
@@ -234,6 +243,11 @@ typedef struct WSClient_
 
   struct timeval start_proc;
   struct timeval end_proc;
+
+#ifdef HAVE_LIBSSL
+  SSL *ssl;
+  WSStatus sslstatus;           /* ssl connection status */
+#endif
 } WSClient;
 
 /* Config OOptions */
@@ -267,9 +281,12 @@ typedef struct WSConfig_
   const char *pipein;
   const char *pipeout;
   const char *port;
+  const char *sslcert;
+  const char *sslkey;
   int echomode;
   int strict;
   int max_frm_size;
+  int use_ssl;
 } WSConfig;
 
 /* A WebSocket Instance */
@@ -291,6 +308,10 @@ typedef struct WSServer_
   WSPipeOut *pipeout;
   /* Connected Clients */
   GSLList *colist;
+
+#ifdef HAVE_LIBSSL
+  SSL_CTX *ctx;
+#endif
 } WSServer;
 
 int ws_read_fifo (int fd, char *buf, int *buflen, int pos, int need);
@@ -308,6 +329,8 @@ void ws_set_config_origin (const char *origin);
 void ws_set_config_pipein (const char *pipein);
 void ws_set_config_pipeout (const char *pipeout);
 void ws_set_config_port (const char *port);
+void ws_set_config_sslcert (const char *sslcert);
+void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_start (WSServer * server);
 void ws_stop (WSServer * server);
