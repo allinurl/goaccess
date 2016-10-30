@@ -39,6 +39,15 @@ esac
 AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
+# Build with OpenSSL
+AC_ARG_WITH([openssl],AC_HELP_STRING([--with-openssl], [build with OpenSSL support]),
+   [openssl="$withval"],[openssl="no"])
+
+if test "$openssl" = 'yes'; then
+  AC_CHECK_LIB([ssl], [SSL_library_init],,[AC_MSG_ERROR([ssl library missing])])
+  AC_CHECK_LIB([crypto], [CRYPTO_num_locks],,[AC_MSG_ERROR([crypto library missing])])
+fi
+
 # GeoIP
 AC_ARG_ENABLE(geoip, [  --enable-geoip   Enable GeoIP country lookup. Default is disabled],
   [geoip="$enableval"], geoip=no)
@@ -266,6 +275,7 @@ Your build configuration:
   Version        : $VERSION
   Storage method : $storage
   GNU getline    : $with_getline
+  TLS/SSL        : $openssl
   Compiler flags : $CFLAGS
   Linker flags   : $LIBS $LDFLAGS
   Bugs           : $PACKAGE_BUGREPORT

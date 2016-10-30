@@ -42,8 +42,13 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/time.h>
+#include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
+
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
 
 #include "websocket.h"
 
@@ -81,6 +86,13 @@ static const uint8_t utf8d[] = {
 static int max_file_fd = 0;
 static WSEState fdstate;
 static WSConfig wsconfig = { 0 };
+
+static void handle_read_close (int conn, WSClient * client, WSServer * server);
+static void handle_reads (int conn, WSServer * server);
+static void handle_writes (int conn, WSServer * server);
+#ifdef HAVE_LIBSSL
+static int shutdown_ssl (WSClient * client);
+#endif
 
 /* Determine if the given string is valid UTF-8.
  *
@@ -399,6 +411,40 @@ ws_remove_client_from_list (WSClient * client, WSServer * server)
   list_remove_node (&server->colist, node);
 }
 
+#if HAVE_LIBSSL
+/* Attempt to send the TLS/SSL "close notify" shutdown and and removes
+ * the SSL structure pointed to by ssl and frees up the allocated
+ * memory. */
+static void
+ws_shutdown_dangling_clients (WSClient * client)
+{
+  shutdown_ssl (client);
+  SSL_free (client->ssl);
+  client->ssl = NULL;
+}
+
+/* Attempt to remove the SSL_CTX object pointed to by ctx and frees up
+ * the allocated memory and cleans some more generally used TLS/SSL
+ * memory.  */
+static void
+ws_ssl_cleanup (WSServer * server)
+{
+  if (!wsconfig.use_ssl)
+    return;
+
+  if (server->ctx)
+    SSL_CTX_free (server->ctx);
+
+  CRYPTO_cleanup_all_ex_data ();
+  CRYPTO_set_id_callback (NULL);
+  CRYPTO_set_locking_callback (NULL);
+  ERR_free_strings ();
+  ERR_remove_state (0);
+  EVP_cleanup ();
+  FIPS_mode_set (0);
+}
+#endif
+
 /* Remove all clients that are still hanging out. */
 static int
 ws_remove_dangling_clients (void *value, void *user_data)
@@ -413,6 +459,10 @@ ws_remove_dangling_clients (void *value, void *user_data)
     ws_clear_handshake_headers (client->headers);
   if (client->sockqueue)
     ws_clear_queue (client);
+#ifdef HAVE_LIBSSL
+  if (client->ssl)
+    ws_shutdown_dangling_clients (client);
+#endif
 
   return 0;
 }
@@ -483,6 +533,11 @@ ws_stop (WSServer * server)
 
   if (server->colist)
     list_remove_nodes (server->colist);
+
+#ifdef HAVE_LIBSSL
+  ws_ssl_cleanup (server);
+#endif
+
   free (server);
 }
 
@@ -518,6 +573,295 @@ ws_append_str (char **dest, const char *src)
   *dest = str;
 }
 
+#if HAVE_LIBSSL
+/* Create a new SSL_CTX object as framework to establish TLS/SSL
+ * enabled connections.
+ *
+ * On error 1 is returned.
+ * On success, SSL_CTX object is malloc'd and 0 is returned.
+ */
+static int
+initialize_ssl_ctx (WSServer * server)
+{
+  int ret = 1;
+  SSL_CTX *ctx = NULL;
+
+  SSL_load_error_strings ();
+  /* Ciphers and message digests */
+  OpenSSL_add_ssl_algorithms ();
+
+  /* ssl context */
+  if (!(ctx = SSL_CTX_new (SSLv23_server_method ())))
+    goto out;
+  /* set certificate */
+  if (!SSL_CTX_use_certificate_file (ctx, wsconfig.sslcert, SSL_FILETYPE_PEM))
+    goto out;
+  /* ssl private key */
+  if (!SSL_CTX_use_PrivateKey_file (ctx, wsconfig.sslkey, SSL_FILETYPE_PEM))
+    goto out;
+  if (!SSL_CTX_check_private_key (ctx))
+    goto out;
+
+  /* since we queued up the send data, a retry won't be the same buffer,
+   * thus we need the following flags */
+  SSL_CTX_set_mode (ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
+                    SSL_MODE_ENABLE_PARTIAL_WRITE);
+
+  server->ctx = ctx;
+  ret = 0;
+out:
+  if (ret) {
+    SSL_CTX_free (ctx);
+    LOG (("Error: %s\n", ERR_error_string (ERR_get_error (), NULL)));
+  }
+
+  return ret;
+}
+
+/* Log result code for TLS/SSL I/O operation */
+static void
+log_return_message (int ret, int err, const char *fn)
+{
+  switch (err) {
+  case SSL_ERROR_NONE:
+    LOG (("SSL: %s - SSL_ERROR_NONE\n", fn));
+    LOG (("SSL: TLS/SSL I/O operation completed\n"));
+    break;
+  case SSL_ERROR_WANT_READ:
+    LOG (("SSL: %s - SSL_ERROR_WANT_READ\n", fn));
+    LOG (("SSL: incomplete, data available for reading\n"));
+    break;
+  case SSL_ERROR_WANT_WRITE:
+    LOG (("SSL: %s - SSL_ERROR_WANT_WRITE\n", fn));
+    LOG (("SSL: incomplete, data available for writing\n"));
+    break;
+  case SSL_ERROR_ZERO_RETURN:
+    LOG (("SSL: %s - SSL_ERROR_ZERO_RETURN\n", fn));
+    LOG (("SSL: TLS/SSL connection has been closed\n"));
+    break;
+  case SSL_ERROR_WANT_X509_LOOKUP:
+    LOG (("SSL: %s - SSL_ERROR_WANT_X509_LOOKUP\n", fn));
+    break;
+  case SSL_ERROR_SYSCALL:
+    LOG (("SSL: %s - SSL_ERROR_SYSCALL\n", fn));
+    if (ret >= 0)
+      LOG (("SSL: handshake interrupted, got EOF\n"));
+    else
+      LOG (("SSL bogus handshake interrupt: \n", strerror (errno)));
+    break;
+  default:
+    LOG (("SSL: %s - failed fatal error code: %d\n", fn, err));
+    LOG (("SSL: %s\n", ERR_error_string (ERR_get_error (), NULL)));
+    break;
+  }
+}
+
+/* Shut down the client's TLS/SSL connection
+ *
+ * On fatal error, 1 is returned.
+ * If data still needs to be read/written, -1 is returned.
+ * On success, the TLS/SSL connection is closed and 0 is returned */
+static int
+shutdown_ssl (WSClient * client)
+{
+  int ret = -1, err = 0;
+
+  /* all good */
+  if ((ret = SSL_shutdown (client->ssl)) > 0)
+    return ws_set_status (client, WS_CLOSE, 0);
+
+  err = SSL_get_error (client->ssl, ret);
+  log_return_message (ret, err, "SSL_shutdown");
+
+  switch (err) {
+  case SSL_ERROR_WANT_READ:
+  case SSL_ERROR_WANT_WRITE:
+    client->sslstatus = WS_TLS_SHUTTING;
+    break;
+  case SSL_ERROR_SYSCALL:
+    if (ret == 0)
+      LOG (("SSL: SSL_shutdown, connection unexpectedly closed by peer.\n"));
+    else
+      LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
+  case SSL_ERROR_ZERO_RETURN:
+  case SSL_ERROR_WANT_X509_LOOKUP:
+  default:
+    return ws_set_status (client, WS_ERR | WS_CLOSE, 1);
+  }
+
+  return ret;
+}
+
+/* Wait for a TLS/SSL client to initiate a TLS/SSL handshake
+ *
+ * On fatal error, the connection is shut down.
+ * If data still needs to be read/written, -1 is returned.
+ * On success, the TLS/SSL connection is completed and 0 is returned */
+static int
+accept_ssl (WSClient * client)
+{
+  int ret = -1, err = 0;
+
+  /* all good on TLS handshake */
+  if ((ret = SSL_accept (client->ssl)) > 0) {
+    client->sslstatus &= ~WS_TLS_ACCEPTING;
+    return 0;
+  }
+
+  err = SSL_get_error (client->ssl, ret);
+  log_return_message (ret, err, "SSL_accept");
+
+  switch (err) {
+  case SSL_ERROR_WANT_READ:
+  case SSL_ERROR_WANT_WRITE:
+    client->sslstatus = WS_TLS_ACCEPTING;
+    break;
+  case SSL_ERROR_SYSCALL:
+    if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+      break;
+  case SSL_ERROR_ZERO_RETURN:
+  case SSL_ERROR_WANT_X509_LOOKUP:
+  default:
+    client->sslstatus &= ~WS_TLS_ACCEPTING;
+    return ws_set_status (client, WS_ERR | WS_CLOSE, 1);
+  }
+
+  return ret;
+}
+
+/* Create a new SSL structure for a connection and perform handshake */
+static void
+handle_accept_ssl (WSClient * client, WSServer * server)
+{
+  /* attempt to create SSL connection if we don't have one yet */
+  if (!client->ssl) {
+    if (!(client->ssl = SSL_new (server->ctx))) {
+      LOG (("SSL: SSL_new, new SSL structure failed.\n"));
+      return;
+    }
+    if (!SSL_set_fd (client->ssl, client->listener)) {
+      LOG (("SSL: unable to set file descriptor\n"));
+      return;
+    }
+  }
+
+  /* attempt to initiate the TLS/SSL handshake */
+  if (accept_ssl (client) == 0) {
+    LOG (("SSL Accepted: %d %s\n", client->listener, client->remote_ip));
+  }
+}
+
+/* Given the current status of the SSL buffer, perform that action.
+ *
+ * On error or if no SSL pending status, 1 is returned.
+ * On success, the TLS/SSL pending action is called and 0 is returned */
+static int
+handle_ssl_pending_rw (int conn, WSServer * server, WSClient * client)
+{
+  if (!wsconfig.use_ssl)
+    return 1;
+
+  /* trying to write but still waiting for a successful SSL_accept */
+  if (client->sslstatus & WS_TLS_ACCEPTING) {
+    handle_accept_ssl (client, server);
+    return 0;
+  }
+  /* trying to read but still waiting for a successful SSL_read */
+  if (client->sslstatus & WS_TLS_READING) {
+    handle_reads (conn, server);
+    return 0;
+  }
+  /* trying to write but still waiting for a successful SSL_write */
+  if (client->sslstatus & WS_TLS_WRITING) {
+    handle_writes (conn, server);
+    return 0;
+  }
+  /* trying to write but still waiting for a successful SSL_shutdown */
+  if (client->sslstatus & WS_TLS_SHUTTING) {
+    if (shutdown_ssl (client) == 0)
+      handle_read_close (conn, client, server);
+    return 0;
+  }
+
+  return 1;
+}
+
+/* Write bytes to a TLS/SSL connection for a given client.
+ *
+ * On error or if no write is performed <=0 is returned.
+ * On success, the number of bytes actually written to the TLS/SSL
+ * connection are returned */
+static int
+send_ssl_buffer (WSClient * client, const char *buffer, int len)
+{
+  int bytes = 0, err = 0;
+
+  ERR_clear_error ();
+  if ((bytes = SSL_write (client->ssl, buffer, len)) > 0)
+    return bytes;
+
+  err = SSL_get_error (client->ssl, bytes);
+  log_return_message (bytes, err, "SSL_write");
+
+  switch (err) {
+  case SSL_ERROR_WANT_WRITE:
+    break;
+  case SSL_ERROR_WANT_READ:
+    client->sslstatus = WS_TLS_WRITING;
+    break;
+  case SSL_ERROR_SYSCALL:
+    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+      break;
+  case SSL_ERROR_ZERO_RETURN:
+  case SSL_ERROR_WANT_X509_LOOKUP:
+  default:
+    return ws_set_status (client, WS_ERR | WS_CLOSE, -1);
+  }
+
+  return bytes;
+}
+
+/* Read data from the given client's socket and set a connection
+ * status given the output of recv().
+ *
+ * On error, -1 is returned and the connection status is set.
+ * On success, the number of bytes read is returned. */
+static int
+read_ssl_socket (WSClient * client, char *buffer, int size)
+{
+  int bytes = 0, done = 0, err = 0;
+  do {
+    ERR_clear_error ();
+
+    done = 0;
+    if ((bytes = SSL_read (client->ssl, buffer, size)) > 0)
+      break;
+
+    err = SSL_get_error (client->ssl, bytes);
+    log_return_message (bytes, err, "SSL_read");
+
+    switch (err) {
+    case SSL_ERROR_WANT_WRITE:
+      client->sslstatus = WS_TLS_READING;
+      done = 1;
+      break;
+    case SSL_ERROR_WANT_READ:
+      done = 1;
+      break;
+    case SSL_ERROR_SYSCALL:
+      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+        break;
+    case SSL_ERROR_ZERO_RETURN:
+    case SSL_ERROR_WANT_X509_LOOKUP:
+    default:
+      return ws_set_status (client, WS_ERR | WS_CLOSE, -1);
+    }
+  } while (SSL_pending (client->ssl) && !done);
+
+  return bytes;
+}
+#endif
+
 /* Get sockaddr, either IPv4 or IPv6 */
 static void *
 ws_get_raddr (struct sockaddr *sa)
@@ -528,12 +872,11 @@ ws_get_raddr (struct sockaddr *sa)
   return &(((struct sockaddr_in6 *) sa)->sin6_addr);
 }
 
-/* Set the fiven file descriptor as NON BLOCKING. */
+/* Set the given file descriptor as NON BLOCKING. */
 void
-set_nonblocking (int listener)
+set_nonblocking (int sock)
 {
-  if (fcntl (listener, F_SETFL, fcntl (listener, F_GETFL, 0) | O_NONBLOCK) ==
-      -1)
+  if (fcntl (sock, F_SETFL, fcntl (sock, F_GETFL, 0) | O_NONBLOCK) == -1)
     FATAL ("Unable to set socket as non-blocking: %s.", strerror (errno));
 }
 
@@ -767,25 +1110,6 @@ parse_headers (WSHeaders * headers)
   return 0;
 }
 
-/* Read data from the given client's socket and set a connection
- * status given the output of recv().
- *
- * On error, -1 is returned and the connection status is set.
- * On success, the number of bytes read is returned. */
-static int
-read_socket (WSClient * client, char *buffer, int size)
-{
-  int bytes = 0;
-
-  bytes = recv (client->listener, buffer, size, 0);
-  if (bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
-    return ws_set_status (client, WS_READING, bytes);
-  else if (bytes == -1 || bytes == 0)
-    return ws_set_status (client, WS_ERR | WS_CLOSE, bytes);
-
-  return bytes;
-}
-
 /* Set into a queue the data that couldn't be sent. */
 static void
 ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes)
@@ -803,6 +1127,63 @@ ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes)
   client->status |= WS_SENDING;
 }
 
+/* Read data from the given client's socket and set a connection
+ * status given the output of recv().
+ *
+ * On error, -1 is returned and the connection status is set.
+ * On success, the number of bytes read is returned. */
+static int
+read_plain_socket (WSClient * client, char *buffer, int size)
+{
+  int bytes = 0;
+
+  bytes = recv (client->listener, buffer, size, 0);
+
+  if (bytes == -1 && (errno == EAGAIN || errno == EWOULDBLOCK))
+    return ws_set_status (client, WS_READING, bytes);
+  else if (bytes == -1 || bytes == 0)
+    return ws_set_status (client, WS_ERR | WS_CLOSE, bytes);
+
+  return bytes;
+}
+
+/* Read data from the given client's socket and set a connection
+ * status given the output of recv().
+ *
+ * On error, -1 is returned and the connection status is set.
+ * On success, the number of bytes read is returned. */
+static int
+read_socket (WSClient * client, char *buffer, int size)
+{
+#ifdef HAVE_LIBSSL
+  if (wsconfig.use_ssl)
+    return read_ssl_socket (client, buffer, size);
+  else
+    return read_plain_socket (client, buffer, size);
+#else
+  return read_plain_socket (client, buffer, size);
+#endif
+}
+
+static int
+send_plain_buffer (WSClient * client, const char *buffer, int len)
+{
+  return send (client->listener, buffer, len, 0);
+}
+
+static int
+send_buffer (WSClient * client, const char *buffer, int len)
+{
+#ifdef HAVE_LIBSSL
+  if (wsconfig.use_ssl)
+    return send_ssl_buffer (client, buffer, len);
+  else
+    return send_plain_buffer (client, buffer, len);
+#else
+  return send_plain_buffer (client, buffer, len);
+#endif
+}
+
 /* Attmpt to send the given buffer to the given socket.
  *
  * On error, -1 is returned and the connection status is set.
@@ -812,7 +1193,7 @@ ws_respond_data (WSClient * client, const char *buffer, int len)
 {
   int bytes = 0;
 
-  bytes = send (client->listener, buffer, len, 0);
+  bytes = send_buffer (client, buffer, len);
   if (bytes == -1 && errno == EPIPE)
     return ws_set_status (client, WS_ERR | WS_CLOSE, bytes);
 
@@ -833,7 +1214,7 @@ ws_respond_cache (WSClient * client)
   WSQueue *queue = client->sockqueue;
   int bytes = 0;
 
-  bytes = send (client->listener, queue->queued, queue->qlen, 0);
+  bytes = send_buffer (client, queue->queued, queue->qlen);
   if (bytes == -1 && errno == EPIPE)
     return ws_set_status (client, WS_ERR | WS_CLOSE, bytes);
 
@@ -1679,6 +2060,12 @@ read_client_data (WSClient * client, WSServer * server)
 static void
 handle_tcp_close (int conn, WSClient * client, WSServer * server)
 {
+#ifdef HAVE_LIBSSL
+  if (client->ssl)
+    shutdown_ssl (client);
+#endif
+
+  shutdown (conn, SHUT_RDWR);
   /* upon close, call onclose() callback */
   if (server->onclose && wsconfig.strict && !wsconfig.echomode)
     (*server->onclose) (server->pipeout, client);
@@ -1695,12 +2082,18 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server)
     ws_free_message (client);
   }
 
+  server->closing = 0;
+  ws_close (conn);
+
+#ifdef HAVE_LIBSSL
+  if (client->ssl)
+    SSL_free (client->ssl);
+  client->ssl = NULL;
+#endif
+
   /* remove client from our list */
   ws_remove_client_from_list (client, server);
   LOG (("Active: %d\n", list_count (server->colist)));
-
-  server->closing = 0;
-  ws_close (conn);
 }
 
 /* Handle a tcp read close connection. */
@@ -1726,7 +2119,6 @@ handle_accept (int listener, WSServer * server)
     return;
 
   client = ws_get_client_from_list (newfd, &server->colist);
-
   if (newfd > FD_SETSIZE - 1) {
     LOG (("Too busy: %d %s.\n", newfd, client->remote_ip));
 
@@ -1734,6 +2126,11 @@ handle_accept (int listener, WSServer * server)
     handle_read_close (newfd, client, server);
     return;
   }
+#ifdef HAVE_LIBSSL
+  /* set flag to do TLS handshake */
+  if (wsconfig.use_ssl)
+    client->sslstatus |= WS_TLS_ACCEPTING;
+#endif
 
   LOG (("Accepted: %d %s\n", newfd, client->remote_ip));
 }
@@ -1747,8 +2144,14 @@ handle_reads (int conn, WSServer * server)
   if (!(client = ws_get_client_from_list (conn, &server->colist)))
     return;
 
-  client->start_proc = client->end_proc = (struct timeval) {
-  0};
+#ifdef HAVE_LIBSSL
+  if (handle_ssl_pending_rw (conn, server, client) == 0)
+    return;
+#endif
+
+  /* *INDENT-OFF* */
+  client->start_proc = client->end_proc = (struct timeval) {0};
+  /* *INDENT-ON* */
   gettimeofday (&client->start_proc, NULL);
   read_client_data (client, server);
   /* An error ocurred while reading data or connection closed */
@@ -1772,6 +2175,11 @@ handle_writes (int conn, WSServer * server)
 
   if (!(client = ws_get_client_from_list (conn, &server->colist)))
     return;
+
+#ifdef HAVE_LIBSSL
+  if (handle_ssl_pending_rw (conn, server, client) == 0)
+    return;
+#endif
 
   ws_respond (client, NULL, 0); /* buffered data */
   /* done sending data */
@@ -2348,6 +2756,15 @@ ws_start (WSServer * server)
   WSPipeOut *pipeout = server->pipeout;
   int listener = 0, conn = 0;
 
+#ifdef HAVE_LIBSSL
+  if (wsconfig.sslcert && wsconfig.sslkey) {
+    LOG (("==Using TLS/SSL==\n"));
+    wsconfig.use_ssl = 1;
+    if (initialize_ssl_ctx (server))
+      return;
+  }
+#endif
+
   memset (&fdstate, 0, sizeof fdstate);
   ws_fifo (server);
   ws_socket (&listener);
@@ -2456,6 +2873,20 @@ ws_set_config_port (const char *port)
   wsconfig.port = port;
 }
 
+/* Set specific name for the SSL certificate. */
+void
+ws_set_config_sslcert (const char *sslcert)
+{
+  wsconfig.sslcert = sslcert;
+}
+
+/* Set specific name for the SSL key. */
+void
+ws_set_config_sslkey (const char *sslkey)
+{
+  wsconfig.sslkey = sslkey;
+}
+
 /* Create a new websocket server context. */
 WSServer *
 ws_init (const char *host, const char *port)
@@ -2471,8 +2902,11 @@ ws_init (const char *host, const char *port)
   wsconfig.origin = NULL;
   wsconfig.pipein = NULL;
   wsconfig.pipeout = NULL;
+  wsconfig.sslcert = NULL;
+  wsconfig.sslkey = NULL;
   wsconfig.port = port;
   wsconfig.strict = 0;
+  wsconfig.use_ssl = 0;
 
   return server;
 }

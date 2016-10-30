@@ -114,6 +114,10 @@ struct option long_opts[] = {
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
+#ifdef HAVE_LIBSSL
+  {"ssl-cert"             , required_argument , 0 ,  0  } ,
+  {"ssl-key"              , required_argument , 0 ,  0  } ,
+#endif
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
 #ifdef HAVE_LIBGEOIP
@@ -182,6 +186,8 @@ cmd_help (void)
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
   "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
+  "  --ssl-cert=<cert.crt>           - Path to TLS/SSL certificate.\n"
+  "  --ssl-key=<priv.key>            - Path to TLS/SSL private key.\n"
   "\n"
 
   /* File Options */
@@ -447,6 +453,14 @@ parse_long_opt (const char *name, const char *oarg)
     else
       conf.port = oarg;
   }
+
+  /* TLS/SSL certificate */
+  if (!strcmp ("ssl-cert", name))
+    conf.sslcert = oarg;
+
+  /* TLS/SSL private key */
+  if (!strcmp ("ssl-key", name))
+    conf.sslkey = oarg;
 
   /* double decode */
   if (!strcmp ("double-decode", name))

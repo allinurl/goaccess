@@ -126,6 +126,8 @@ typedef struct GConf_
   const char *addr;                 /* IP address to bind to */
   const char *origin;               /* WebSocket origin */
   const char *port;                 /* port to use */
+  const char *sslcert;              /* TLS/SSL path to certificate */
+  const char *sslkey;               /* TLS/SSL path to private key */
 
   /* User flags */
   int all_static_files;             /* parse all static files */

@@ -350,6 +350,10 @@ start_server (void *ptr_data)
     ws_set_config_port (conf.port);
   if (conf.origin)
     ws_set_config_origin (conf.origin);
+  if (conf.sslcert)
+    ws_set_config_sslcert (conf.sslcert);
+  if (conf.sslkey)
+    ws_set_config_sslkey (conf.sslkey);
   writer->server->onopen = onopen;
   set_self_pipe (writer->server->self_pipe);
 
