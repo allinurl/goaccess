@@ -634,7 +634,9 @@ fast_forward_client (int listener)
   if (json == NULL)
     return;
 
+  pthread_mutex_lock (&gwswriter->mutex);
   send_holder_to_client (gwswriter->fd, listener, json, strlen (json));
+  pthread_mutex_unlock (&gwswriter->mutex);
   free (json);
 }
 
@@ -665,19 +667,38 @@ read_client (void *ptr_data)
   close (reader->fd);
 }
 
-/* Process appended log data */
+/* Parse tailed lines */
 static void
-perform_tail_follow (uint64_t * size1)
+parse_tail_follow (FILE * fp)
 {
-  FILE *fp = NULL;
-  uint64_t size2 = 0;
-
 #ifdef WITH_GETLINE
   char *buf = NULL;
   size_t len = LINE_BUFFER;
 #else
   char buf[LINE_BUFFER] = { 0 };
 #endif
+
+#ifdef WITH_GETLINE
+  buf = xcalloc (LINE_BUFFER, sizeof (char));
+  while (getline (&buf, &len, fp) != -1) {
+#else
+  while (fgets (buf, LINE_BUFFER, fp) != NULL) {
+#endif
+    pthread_mutex_lock (&gdns_thread.mutex);
+    parse_log (&glog, buf, 0);
+    pthread_mutex_unlock (&gdns_thread.mutex);
+  }
+#ifdef WITH_GETLINE
+  free (buf);
+#endif
+}
+
+/* Process appended log data */
+static void
+perform_tail_follow (uint64_t * size1)
+{
+  FILE *fp = NULL;
+  uint64_t size2 = 0;
 
   if (glog->piping || glog->load_from_disk_only)
     return;
@@ -691,18 +712,8 @@ perform_tail_follow (uint64_t * size1)
   if (!(fp = fopen (conf.ifile, "r")))
     FATAL ("Unable to read log file %s.", strerror (errno));
 
-  if (!fseeko (fp, *size1, SEEK_SET)) {
-#ifdef WITH_GETLINE
-    buf = xcalloc (LINE_BUFFER, sizeof (char));
-    while (getline (&buf, &len, fp) != -1)
-#else
-    while (fgets (buf, LINE_BUFFER, fp) != NULL)
-#endif
-      parse_log (&glog, buf, 0);
-  }
-#ifdef WITH_GETLINE
-  free (buf);
-#endif
+  if (!fseeko (fp, *size1, SEEK_SET))
+    parse_tail_follow (fp);
   fclose (fp);
 
   *size1 = size2;
@@ -731,8 +742,13 @@ process_html (const char *filename)
   /* ignore piping or loading from disk */
   if (glog->piping || glog->load_from_disk_only)
     return;
+
+  pthread_mutex_lock (&gwswriter->mutex);
+  gwswriter->fd = open_fifoin ();
+  pthread_mutex_unlock (&gwswriter->mutex);
+
   /* open fifo for write */
-  if ((gwswriter->fd = open_fifoin ()) == -1)
+  if (gwswriter->fd == -1)
     return;
 
   size1 = file_size (conf.ifile);
