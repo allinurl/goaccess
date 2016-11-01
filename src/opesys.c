@@ -75,7 +75,7 @@ static const char *os[][2] = {
   {"AppleTV", "iOS"},
   {"iTunes", "Macintosh"},
   {"OS X", "Macintosh"},
-  {"Darwin", "Macintosh"},
+  {"Darwin", "Darwin"},
 
   {"Debian", "Linux"},
   {"Ubuntu", "Linux"},
@@ -312,6 +312,13 @@ parse_os (const char *str, char *tkn, char *os_type, int idx)
   if ((strstr (tkn, "OS X")) != NULL) {
     tkn = parse_osx (tkn);
     return conf.real_os ? get_real_mac_osx (tkn) : xstrdup (tkn);
+  }
+  /* Darwin - capture the first part of agents such as:
+   * Slack/248000 CFNetwork/808.0.2 Darwin/16.0.0 */
+  if ((strstr (tkn, "Darwin")) != NULL) {
+    if ((b = strchr (str, ' ')))
+      *b = 0;
+    return xstrdup (str);
   }
   /* all others */
   spaces = count_matches (os[idx][0], ' ');
