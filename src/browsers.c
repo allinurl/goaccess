@@ -255,6 +255,7 @@ static const char *browsers[][2] = {
   {"PostRank", "Crawlers"},
   {"Image", "Crawlers"},
   {"keybase-proofs", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
