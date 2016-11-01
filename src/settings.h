@@ -122,12 +122,14 @@ typedef struct GConf_
   const char *html_custom_js;       /* custom JS */
 
   /* HTML real-time */
-  const char *ws_url;               /* WebSocket URL */
   const char *addr;                 /* IP address to bind to */
+  const char *fifo_in;              /* path FIFO in (reader) */
+  const char *fifo_out;             /* path FIFO out (writer) */
   const char *origin;               /* WebSocket origin */
   const char *port;                 /* port to use */
   const char *sslcert;              /* TLS/SSL path to certificate */
   const char *sslkey;               /* TLS/SSL path to private key */
+  const char *ws_url;               /* WebSocket URL */
 
   /* User flags */
   int all_static_files;             /* parse all static files */
