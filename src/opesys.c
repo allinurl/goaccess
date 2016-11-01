@@ -290,6 +290,35 @@ parse_android (char *agent)
   return agent;
 }
 
+/* Attempt to parse specific OS.
+ *
+ * On success, a malloc'd string containing the OS is returned. */
+static char *
+parse_os (const char *str, char *tkn, char *os_type, int idx)
+{
+  char *b;
+  int spaces = 0;
+
+  xstrncpy (os_type, os[idx][1], OPESYS_TYPE_LEN);
+  /* Windows */
+  if ((strstr (str, "Windows")) != NULL)
+    return conf.real_os && (b = get_real_win (tkn)) ? b : xstrdup (os[idx][0]);
+  /* Android */
+  if ((strstr (tkn, "Android")) != NULL) {
+    tkn = parse_android (tkn);
+    return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
+  }
+  /* Mac OS X */
+  if ((strstr (tkn, "OS X")) != NULL) {
+    tkn = parse_osx (tkn);
+    return conf.real_os ? get_real_mac_osx (tkn) : xstrdup (tkn);
+  }
+  /* all others */
+  spaces = count_matches (os[idx][0], ' ');
+
+  return alloc_string (parse_others (tkn, spaces));
+}
+
 /* Given a user agent, determine the operating system used.
  *
  * ###NOTE: The size of the list is proportional to the run time,
@@ -300,35 +329,15 @@ parse_android (char *agent)
 char *
 verify_os (const char *str, char *os_type)
 {
-  char *a, *b;
-  int spaces = 0;
+  char *a;
   size_t i;
 
   if (str == NULL || *str == '\0')
     return NULL;
 
   for (i = 0; i < ARRAY_SIZE (os); i++) {
-    if ((a = strstr (str, os[i][0])) == NULL)
-      continue;
-
-    xstrncpy (os_type, os[i][1], OPESYS_TYPE_LEN);
-    /* Windows */
-    if ((strstr (str, "Windows")) != NULL) {
-      return conf.real_os && (b = get_real_win (a)) ? b : xstrdup (os[i][0]);
-    }
-    /* Android */
-    if ((strstr (a, "Android")) != NULL) {
-      a = parse_android (a);
-      return conf.real_os ? get_real_android (a) : xstrdup (a);
-    }
-    /* Mac OS X */
-    if ((strstr (a, "OS X")) != NULL) {
-      a = parse_osx (a);
-      return conf.real_os ? get_real_mac_osx (a) : xstrdup (a);
-    }
-    /* all others */
-    spaces = count_matches (os[i][0], ' ');
-    return alloc_string (parse_others (a, spaces));
+    if ((a = strstr (str, os[i][0])) != NULL)
+      return parse_os (str, a, os_type, i);
   }
   xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
 
