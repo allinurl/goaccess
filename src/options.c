@@ -87,6 +87,8 @@ struct option long_opts[] = {
   {"dcf"                  , no_argument       , 0 ,  0  } ,
   {"double-decode"        , no_argument       , 0 ,  0  } ,
   {"enable-panel"         , required_argument , 0 ,  0  } ,
+  {"fifo-in"              , required_argument , 0 ,  0  } ,
+  {"fifo-out"             , required_argument , 0 ,  0  } ,
   {"hour-spec"            , required_argument , 0 ,  0  } ,
   {"html-custom-css"      , required_argument , 0 ,  0  } ,
   {"html-custom-js"       , required_argument , 0 ,  0  } ,
@@ -98,15 +100,15 @@ struct option long_opts[] = {
   {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
   {"log-format"           , required_argument , 0 ,  0  } ,
-  {"num-tests"            , required_argument , 0 ,  0  } ,
   {"max-items"            , required_argument , 0 ,  0  } ,
   {"no-color"             , no_argument       , 0 ,  0  } ,
   {"no-column-names"      , no_argument       , 0 ,  0  } ,
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
+  {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
-  {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
+  {"num-tests"            , required_argument , 0 ,  0  } ,
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
@@ -181,13 +183,15 @@ cmd_help (void)
   /* Server Options */
   "Server Options\n\n"
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
+  "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
+  "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
   "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
   "                                    upon the WebSocket handshake.\n"
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
-  "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
   "  --ssl-cert=<cert.crt>           - Path to TLS/SSL certificate.\n"
   "  --ssl-key=<priv.key>            - Path to TLS/SSL private key.\n"
+  "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
   "\n"
 
   /* File Options */
@@ -461,6 +465,14 @@ parse_long_opt (const char *name, const char *oarg)
   /* TLS/SSL private key */
   if (!strcmp ("ssl-key", name))
     conf.sslkey = oarg;
+
+  /* FIFO in (read) */
+  if (!strcmp ("fifo-in", name))
+    conf.fifo_in = oarg;
+
+  /* FIFO out (write) */
+  if (!strcmp ("fifo-out", name))
+    conf.fifo_out = oarg;
 
   /* double decode */
   if (!strcmp ("double-decode", name))

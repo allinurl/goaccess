@@ -346,10 +346,14 @@ start_server (void *ptr_data)
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
-  if (conf.port)
-    ws_set_config_port (conf.port);
+  if (conf.fifo_in)
+    ws_set_config_pipein (conf.fifo_in);
+  if (conf.fifo_out)
+    ws_set_config_pipeout (conf.fifo_out);
   if (conf.origin)
     ws_set_config_origin (conf.origin);
+  if (conf.port)
+    ws_set_config_port (conf.port);
   if (conf.sslcert)
     ws_set_config_sslcert (conf.sslcert);
   if (conf.sslkey)
