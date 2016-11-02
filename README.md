@@ -319,17 +319,18 @@ GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
 file dependencies, how neat is that!
 
-To output an HTML report and set the WebSocket server to listen on port 7890
-and localhost.
+The process of generating a real-time HTML report is very similar to the
+process of creating a static report. Only `--real-time-html` is needed to make
+it real-time.
 
-    # goaccess -f access.log -o report.html --real-time-html
+*Note* that `--ws-url` is also required *IF* GoAccess is running on a different
+machine than the one used to open the html report. See
+[FAQ](https://goaccess.io/faq) for more details.
 
-If GoAccess is running and parsing logs on a specific host, you can specify the
-URL to which the client's browser will connect to.
+    # goaccess -f access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html --ws-url=host
 
-    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io
-
-To use a different port other than 7890, you can specify it as:
+By default, GoAccess listens on port 7890, to use a different port other than
+7890, you can specify it as (make sure the port is opened):
 
     # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
 
