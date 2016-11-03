@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "opesys.h"
 
@@ -247,6 +248,35 @@ parse_others (char *agent, int spaces)
   return agent;
 }
 
+/* Parse iOS string including version number.
+ *
+ * On error, the matching token is returned (no version).
+ * On success, the parsed iOS is returned. */
+static char *
+parse_ios (char *agent, int tlen)
+{
+  char *p = NULL, *q = NULL;
+  ptrdiff_t offset;
+
+  p = agent;
+  if ((p = strstr (agent, " OS ")) == NULL)
+    goto out;
+
+  if ((offset = p - agent) <= 0)
+    goto out;
+
+  if ((q = strstr (p, " like Mac")) == NULL)
+    goto out;
+
+  *q = 0;
+  memmove (agent + tlen, agent + offset, offset);
+  return char_replace (agent, '_', '.');
+
+out:
+  agent[tlen] = 0;
+  return agent;
+}
+
 /* Parse a Mac OS X string.
  *
  * On error, the given name is returned.
@@ -308,6 +338,11 @@ parse_os (const char *str, char *tkn, char *os_type, int idx)
     tkn = parse_android (tkn);
     return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
   }
+  /* iOS */
+  if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
+    return xstrdup (parse_ios (tkn, 4));
+  if (strstr (tkn, "iPhone"))
+    return xstrdup (parse_ios (tkn, 6));
   /* Mac OS X */
   if ((strstr (tkn, "OS X")) != NULL) {
     tkn = parse_osx (tkn);
