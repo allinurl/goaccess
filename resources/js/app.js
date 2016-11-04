@@ -817,7 +817,6 @@ GoAccess.Charts = {
 	getAreaSpline: function (panel, plotUI, data) {
 		var dualYaxis = plotUI['d3']['y1'];
 
-		console.log($("#chart-" + panel).offsetWidth)
 		var chart = AreaChart(dualYaxis)
 		.labels({
 			y0: plotUI['d3']['y0'].label,
