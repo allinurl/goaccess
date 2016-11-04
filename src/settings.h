@@ -115,11 +115,12 @@ typedef struct GConf_
 
   const char *debug_log;            /* debug log path */
   const char *geoip_database;       /* geoip db path */
+  const char *html_custom_css;      /* custom CSS */
+  const char *html_custom_js;       /* custom JS */
+  const char *html_prefs;           /* default HTML JSON preferences */
   const char *html_report_title;    /* report title */
   const char *iconfigfile;          /* config file path */
   const char *invalid_requests_log; /* invalid lines log path */
-  const char *html_custom_css;      /* custom CSS */
-  const char *html_custom_js;       /* custom JS */
 
   /* HTML real-time */
   const char *addr;                 /* IP address to bind to */
