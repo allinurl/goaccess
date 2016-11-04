@@ -91,10 +91,10 @@ static GPanel paneling[] = {
   {REFERRERS           , print_json_data , NULL } ,
   {REFERRING_SITES     , print_json_data , NULL } ,
   {KEYPHRASES          , print_json_data , NULL } ,
+  {STATUS_CODES        , print_json_data , print_json_sub_items } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION        , print_json_data , print_json_sub_items } ,
 #endif
-  {STATUS_CODES        , print_json_data , print_json_sub_items } ,
 };
 /* *INDENT-ON* */
 

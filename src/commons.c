@@ -177,10 +177,10 @@ get_module_enum (const char *str)
     {"REFERRERS", REFERRERS},
     {"REFERRING_SITES", REFERRING_SITES},
     {"KEYPHRASES", KEYPHRASES},
+    {"STATUS_CODES", STATUS_CODES},
 #ifdef HAVE_LIBGEOIP
     {"GEO_LOCATION", GEO_LOCATION},
 #endif
-    {"STATUS_CODES", STATUS_CODES},
   };
 
   return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
