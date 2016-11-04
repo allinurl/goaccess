@@ -85,10 +85,10 @@ static GOutput outputting[] = {
   {REFERRERS       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REFERRING_SITES , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
-  {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 };
 /* *INDENT-ON* */
 
@@ -272,10 +272,10 @@ module_to_label (GModule module)
     REFER_LABEL,
     SITES_LABEL,
     KEYPH_LABEL,
+    CODES_LABEL,
 #ifdef HAVE_LIBGEOIP
     GEOLO_LABEL,
 #endif
-    CODES_LABEL,
   };
 
   return modules[module];
@@ -300,10 +300,10 @@ module_to_id (GModule module)
     REFER_ID,
     SITES_ID,
     KEYPH_ID,
+    CODES_ID,
 #ifdef HAVE_LIBGEOIP
     GEOLO_ID,
 #endif
-    CODES_ID,
   };
 
   return modules[module];
@@ -328,10 +328,10 @@ module_to_head (GModule module)
     REFER_HEAD,
     SITES_HEAD,
     KEYPH_HEAD,
+    CODES_HEAD,
 #ifdef HAVE_LIBGEOIP
     GEOLO_HEAD,
 #endif
-    CODES_HEAD,
   };
 
   if (!conf.ignore_crawlers)
@@ -360,10 +360,10 @@ module_to_desc (GModule module)
     REFER_DESC,
     SITES_DESC,
     KEYPH_DESC,
+    CODES_DESC,
 #ifdef HAVE_LIBGEOIP
     GEOLO_DESC,
 #endif
-    CODES_DESC,
   };
 
   return modules[module];

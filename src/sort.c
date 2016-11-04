@@ -94,10 +94,10 @@ GSort module_sort[TOTAL_MODULES] = {
   {REFERRERS           , SORT_BY_HITS , SORT_DESC } ,
   {REFERRING_SITES     , SORT_BY_HITS , SORT_DESC } ,
   {KEYPHRASES          , SORT_BY_HITS , SORT_DESC } ,
+  {STATUS_CODES        , SORT_BY_HITS , SORT_DESC } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION        , SORT_BY_HITS , SORT_DESC } ,
 #endif
-  {STATUS_CODES        , SORT_BY_HITS , SORT_DESC } ,
 };
 /* *INDENT-ON* */
 

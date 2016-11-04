@@ -78,10 +78,10 @@ static GPanel paneling[] = {
   {REFERRERS, print_csv_data},
   {REFERRING_SITES, print_csv_data},
   {KEYPHRASES, print_csv_data},
+  {STATUS_CODES, print_csv_data},
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION, print_csv_data},
 #endif
-  {STATUS_CODES, print_csv_data},
 };
 
 /* Get a panel from the GPanel structure given a module.

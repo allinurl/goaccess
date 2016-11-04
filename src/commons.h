@@ -101,10 +101,10 @@ typedef enum MODULES
   REFERRERS,
   REFERRING_SITES,
   KEYPHRASES,
+  STATUS_CODES,
 #ifdef HAVE_LIBGEOIP
   GEO_LOCATION,
 #endif
-  STATUS_CODES,
 } GModule;
 
 /* Metric totals. These are metrics that have a percent value and are

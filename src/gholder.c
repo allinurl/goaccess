@@ -79,10 +79,10 @@ static GPanel paneling[] = {
   {REFERRERS       , add_data_to_holder, NULL} ,
   {REFERRING_SITES , add_data_to_holder, NULL} ,
   {KEYPHRASES      , add_data_to_holder, NULL} ,
+  {STATUS_CODES    , add_root_to_holder, NULL} ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , add_root_to_holder, NULL} ,
 #endif
-  {STATUS_CODES    , add_root_to_holder, NULL} ,
 };
 /* *INDENT-ON* */
 
