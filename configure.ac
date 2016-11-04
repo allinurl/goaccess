@@ -69,6 +69,11 @@ if test "$with_getline" = "yes"; then
   )
 fi
 
+# Custom lables header file
+AC_ARG_WITH(custom-lables, [  --with-custom-lables=HEADER_FILE Custom lables with your own language. Default is lables.h],
+    [lables_hfile=$withval], [lables_hfile=lables.h])
+AC_DEFINE_UNQUOTED([LABLES_H], [["${lables_hfile}"]], [Lables header file])
+
 # UTF8
 AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide characters],
   [utf8="$enableval"], utf8=no)
@@ -274,6 +279,7 @@ Your build configuration:
   Package        : $PACKAGE_NAME
   Version        : $VERSION
   Storage method : $storage
+  Lables hfile   : $lables_hfile
   GNU getline    : $with_getline
   TLS/SSL        : $openssl
   Compiler flags : $CFLAGS
