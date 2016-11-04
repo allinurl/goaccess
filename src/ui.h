@@ -103,6 +103,11 @@
 #define VHOST_ID    "vhosts"
 #define VHOST_LABEL "Virtual Hosts"
 
+#define RUSER_HEAD  "Remote User (HTTP authentication)"
+#define RUSER_DESC  "Data sorted by hits [, avgts, cumts, maxts]"
+#define RUSER_ID    "remote_user"
+#define RUSER_LABEL "Remote User"
+
 #define FOUND_HEAD  "Not Found URLs (404s)"
 #define FOUND_DESC  "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 #define FOUND_ID    "not_found"

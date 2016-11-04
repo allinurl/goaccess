@@ -84,6 +84,7 @@ static int gen_host_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_os_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_vhost_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_remote_user_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_referer_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_ref_site_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_request_key (GKeyData * kdata, GLogItem * logitem);
@@ -296,6 +297,19 @@ static GParse paneling[] = {
     NULL,
     NULL,
     NULL,
+  }, {
+    REMOTE_USER,
+    gen_remote_user_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
   },
 };
 /* *INDENT-ON* */
@@ -440,6 +454,7 @@ init_log_item (GLog * glog)
   logitem->time = NULL;
   logitem->uniq_key = NULL;
   logitem->vhost = NULL;
+  logitem->userid = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
 
@@ -490,6 +505,8 @@ free_glog (GLogItem * logitem)
     free (logitem->time);
   if (logitem->uniq_key != NULL)
     free (logitem->uniq_key);
+  if (logitem->userid != NULL)
+    free (logitem->userid);
   if (logitem->vhost != NULL)
     free (logitem->vhost);
 
@@ -1047,6 +1064,15 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     logitem->vhost = tkn;
+    break;
+    /* remote user */
+  case 'e':
+    if (logitem->userid)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    tkn = parse_string (&(*str), end, 1);
+    if (tkn == NULL)
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+    logitem->userid = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -1928,6 +1954,22 @@ gen_vhost_key (GKeyData * kdata, GLogItem * logitem)
     return 1;
 
   get_kdata (kdata, logitem->vhost, logitem->vhost);
+
+  return 0;
+}
+
+/* A wrapper to generate a unique key for the virtual host panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated userid key is assigned to our key data
+ * structure. */
+static int
+gen_remote_user_key (GKeyData * kdata, GLogItem * logitem)
+{
+  if (!logitem->userid)
+    return 1;
+
+  get_kdata (kdata, logitem->userid, logitem->userid);
 
   return 0;
 }

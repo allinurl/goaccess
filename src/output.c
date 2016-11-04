@@ -102,6 +102,7 @@ static GHTML htmldef[] = {
     {CHART_VBAR, hits_visitors_plot, 0, 1},
     {CHART_VBAR, hits_bw_plot, 0, 1},
   }},
+  {REMOTE_USER     , 1, print_metrics } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1},

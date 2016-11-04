@@ -86,6 +86,7 @@ static GOutput outputting[] = {
   {REFERRING_SITES , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {REMOTE_USER     , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
@@ -273,6 +274,7 @@ module_to_label (GModule module)
     SITES_LABEL,
     KEYPH_LABEL,
     CODES_LABEL,
+    RUSER_LABEL,
 #ifdef HAVE_LIBGEOIP
     GEOLO_LABEL,
 #endif
@@ -301,6 +303,7 @@ module_to_id (GModule module)
     SITES_ID,
     KEYPH_ID,
     CODES_ID,
+    RUSER_ID,
 #ifdef HAVE_LIBGEOIP
     GEOLO_ID,
 #endif
@@ -329,6 +332,7 @@ module_to_head (GModule module)
     SITES_HEAD,
     KEYPH_HEAD,
     CODES_HEAD,
+    RUSER_HEAD,
 #ifdef HAVE_LIBGEOIP
     GEOLO_HEAD,
 #endif
@@ -361,6 +365,7 @@ module_to_desc (GModule module)
     SITES_DESC,
     KEYPH_DESC,
     CODES_DESC,
+    RUSER_DESC,
 #ifdef HAVE_LIBGEOIP
     GEOLO_DESC,
 #endif
