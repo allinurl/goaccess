@@ -163,25 +163,27 @@ str2enum (const GEnum map[], int len, const char *str)
 int
 get_module_enum (const char *str)
 {
+  /* *INDENT-OFF* */
   /* String modules to enumerated modules */
   GEnum enum_modules[] = {
-    {"VISITORS", VISITORS},
-    {"REQUESTS", REQUESTS},
-    {"REQUESTS_STATIC", REQUESTS_STATIC},
-    {"NOT_FOUND", NOT_FOUND},
-    {"HOSTS", HOSTS},
-    {"OS", OS},
-    {"BROWSERS", BROWSERS},
-    {"VISIT_TIMES", VISIT_TIMES},
-    {"VIRTUAL_HOSTS", VIRTUAL_HOSTS},
-    {"REFERRERS", REFERRERS},
-    {"REFERRING_SITES", REFERRING_SITES},
-    {"KEYPHRASES", KEYPHRASES},
-    {"STATUS_CODES", STATUS_CODES},
+    {"VISITORS"        , VISITORS}        ,
+    {"REQUESTS"        , REQUESTS}        ,
+    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
+    {"NOT_FOUND"       , NOT_FOUND}       ,
+    {"HOSTS"           , HOSTS}           ,
+    {"OS"              , OS}              ,
+    {"BROWSERS"        , BROWSERS}        ,
+    {"VISIT_TIMES"     , VISIT_TIMES}     ,
+    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
+    {"REFERRERS"       , REFERRERS}       ,
+    {"REFERRING_SITES" , REFERRING_SITES} ,
+    {"KEYPHRASES"      , KEYPHRASES}      ,
+    {"STATUS_CODES"    , STATUS_CODES}    ,
 #ifdef HAVE_LIBGEOIP
-    {"GEO_LOCATION", GEO_LOCATION},
+    {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
   };
+  /* *INDENT-ON* */
 
   return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
 }
