@@ -94,6 +94,7 @@ struct option long_opts[] = {
   {"html-custom-css"      , required_argument , 0 ,  0  } ,
   {"html-custom-js"       , required_argument , 0 ,  0  } ,
   {"html-report-title"    , required_argument , 0 ,  0  } ,
+  {"html-prefs"           , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
@@ -169,6 +170,7 @@ cmd_help (void)
   "  --color-scheme=<1|2|3>          - Schemes: 1 => Grey, 2 => Green, 3 => Monokai.\n"
   "  --html-custom-css=<path.css>    - Specify a custom CSS file in the HTML report.\n"
   "  --html-custom-js=<path.js>      - Specify a custom JS file in the HTML report.\n"
+  "  --html-prefs=<json_obj>         - Set default HTML report preferences.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
   "  --max-items                     - Maximum number of items to show per panel.\n"
@@ -386,6 +388,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* html custom JS */
   if (!strcmp ("html-custom-js", name))
     conf.html_custom_js = oarg;
+
+  /* html JSON object containing default preferences */
+  if (!strcmp ("html-prefs", name))
+    conf.html_prefs = oarg;
 
   /* 444 as 404 */
   if (!strcmp ("444-as-404", name))

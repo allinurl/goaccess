@@ -30,6 +30,7 @@ window.GoAccess = window.GoAccess || {
 			'perPage': 10,
 			'layout': 'horizontal',
 		};
+		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
 		if (GoAccess.Util.hasLocalStorage()) {
 			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
@@ -37,6 +38,7 @@ window.GoAccess = window.GoAccess || {
 		}
 		if (Object.keys(this.AppWSConn).length)
 			this.setWebSocket(this.AppWSConn);
+
 	},
 
 	getPanelUI: function (panel) {
@@ -1510,6 +1512,7 @@ window.onload = function () {
 		'uiData': window.user_interface,
 		'panelData': window.json_data,
 		'wsConnection': window.connection || null,
+		'prefs': window.html_prefs || {},
 	});
 	GoAccess.App.initialize();
 };

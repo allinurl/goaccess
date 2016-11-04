@@ -1132,6 +1132,7 @@ print_json_defs (FILE * fp, GHolder * holder)
   size_t idx = 0;
 
   fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);
 
