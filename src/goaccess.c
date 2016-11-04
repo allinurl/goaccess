@@ -906,8 +906,12 @@ get_keys (void)
       /* reset expanded module */
       set_module_to (&gscroll, STATUS_CODES);
       break;
+    case 36:   /* Shift + 3 */
+      /* reset expanded module */
+      set_module_to (&gscroll, REMOTE_USER);
+      break;
 #ifdef HAVE_LIBGEOIP
-    case 36:   /* Shift + 4 */
+    case 37:   /* Shift + 4 */
       /* reset expanded module */
       set_module_to (&gscroll, GEO_LOCATION);
       break;

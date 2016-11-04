@@ -96,6 +96,12 @@ down by continent and country. It needs to be compiled with GeoLocation
 support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
+.IP "Remote User (HTTP authentication)"
+This is the userid of the person requesting the document as determined by HTTP
+authentication. If the document is not password protected, this part will be
+"-" just like the previous one. This panel is not enabled unless
+.I %e
+is given within the log-format variable.
 
 .P
 .I NOTE:
@@ -697,6 +703,9 @@ date field matching the
 variable.
 .IP %v
 The canonical Server Name of the server serving the request (Virtual Host).
+.IP %e
+This is the userid of the person requesting the document as determined by HTTP
+authentication.
 .IP %h
 host (the client IP address, either IPv4 or IPv6)
 .IP %r

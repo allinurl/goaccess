@@ -80,6 +80,7 @@ static GPanel paneling[] = {
   {REFERRING_SITES , add_data_to_holder, NULL} ,
   {KEYPHRASES      , add_data_to_holder, NULL} ,
   {STATUS_CODES    , add_root_to_holder, NULL} ,
+  {REMOTE_USER     , add_data_to_holder, NULL} ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION    , add_root_to_holder, NULL} ,
 #endif

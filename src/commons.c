@@ -179,6 +179,7 @@ get_module_enum (const char *str)
     {"REFERRING_SITES" , REFERRING_SITES} ,
     {"KEYPHRASES"      , KEYPHRASES}      ,
     {"STATUS_CODES"    , STATUS_CODES}    ,
+    {"REMOTE_USER"     , REMOTE_USER}     ,
 #ifdef HAVE_LIBGEOIP
     {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
@@ -383,6 +384,10 @@ verify_panels (void)
   if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
     if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
       remove_module (VIRTUAL_HOSTS);
+  }
+  if (!strstr (conf.log_format, "%e") && ignore_panel_idx < TOTAL_MODULES) {
+    if (!str_inarray ("REMOTE_USER", conf.ignore_panels, ignore_panel_idx))
+      remove_module (REMOTE_USER);
   }
 }
 

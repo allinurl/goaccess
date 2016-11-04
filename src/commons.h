@@ -52,9 +52,9 @@ struct tm *now_tm;
 
 /* total number of modules */
 #ifdef HAVE_LIBGEOIP
-#define TOTAL_MODULES    14
+#define TOTAL_MODULES    15
 #else
-#define TOTAL_MODULES    13
+#define TOTAL_MODULES    14
 #endif
 
 /* maximum number of items within a panel */
@@ -102,6 +102,7 @@ typedef enum MODULES
   REFERRING_SITES,
   KEYPHRASES,
   STATUS_CODES,
+  REMOTE_USER,
 #ifdef HAVE_LIBGEOIP
   GEO_LOCATION,
 #endif

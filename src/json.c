@@ -92,6 +92,7 @@ static GPanel paneling[] = {
   {REFERRING_SITES     , print_json_data , NULL } ,
   {KEYPHRASES          , print_json_data , NULL } ,
   {STATUS_CODES        , print_json_data , print_json_sub_items } ,
+  {REMOTE_USER         , print_json_data , NULL } ,
 #ifdef HAVE_LIBGEOIP
   {GEO_LOCATION        , print_json_data , print_json_sub_items } ,
 #endif
