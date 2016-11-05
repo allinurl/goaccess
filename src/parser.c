@@ -2233,6 +2233,18 @@ include_uniq (GLogItem * logitem)
   return 0;
 }
 
+/* Convert two integers keys to to a string (concatenated).
+ *
+ * On success, the given numbers as a string are returned. */
+static char *
+intkeys2str (int a, int b)
+{
+  char *s = xmalloc (snprintf (NULL, 0, "%d|%d", a, b) + 1);
+  sprintf (s, "%d|%d", a, b);
+
+  return s;
+}
+
 /* Determine which data metrics need to be set and set them. */
 static void
 set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse)
@@ -2291,7 +2303,7 @@ map_log (GLogItem * logitem, const GParse * parse, GModule module)
 
   /* each module contains a uniq visitor key/value */
   if (parse->visitor && logitem->uniq_key && include_uniq (logitem)) {
-    uniq_key = ints_to_str (logitem->uniq_nkey, kdata.data_nkey);
+    uniq_key = intkeys2str (logitem->uniq_nkey, kdata.data_nkey);
     /* unique key already exists? */
     kdata.uniq_nkey = insert_uniqmap (uniq_key, module);
     free (uniq_key);

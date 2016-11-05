@@ -675,18 +675,6 @@ int2str (int d, int width)
   return s;
 }
 
-/* Convert two integers to a string (concatenated).
- *
- * On success, the given numbers as a string are returned. */
-char *
-ints_to_str (int a, int b)
-{
-  char *s = xmalloc (snprintf (NULL, 0, "%d%d", a, b) + 1);
-  sprintf (s, "%d%d", a, b);
-
-  return s;
-}
-
 /* Convert the given float to a string with the ability to add some
  * padding.
  *
