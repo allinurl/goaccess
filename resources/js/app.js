@@ -436,8 +436,9 @@ GoAccess.Nav = {
 		case 'referrers'       : return 'external-link';
 		case 'referring_sites' : return 'external-link';
 		case 'keyphrases'      : return 'google';
-		case 'geolocation'     : return 'location-arrow';
 		case 'status_codes'    : return 'warning';
+		case 'remote_user'     : return 'users';
+		case 'geolocation'     : return 'map-marker';
 		default                : return 'pie-chart';
 		}
 	},
