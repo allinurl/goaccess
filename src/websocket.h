@@ -35,6 +35,7 @@
 #include <sys/select.h>
 
 #if HAVE_LIBSSL
+#include <openssl/crypto.h>
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #endif
