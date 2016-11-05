@@ -34,7 +34,6 @@
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <pthread.h>
 #include <sys/stat.h>
 #include <unistd.h>
 

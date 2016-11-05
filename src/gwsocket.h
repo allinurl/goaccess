@@ -32,6 +32,7 @@
 
 #define GW_VERSION "0.1"
 
+#include <pthread.h>
 #include "websocket.h"
 
 typedef struct GWSReader_
