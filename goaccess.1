@@ -1,4 +1,4 @@
-.TH goaccess 1 "AUGUST 2016" Linux "User Manuals"
+.TH goaccess 1 "NOVEMBER 2016" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -160,6 +160,9 @@ Disable bzip2 compression on B+ Tree database.
 \fB\-\-with-getline
 Use GNU getline() to parse full line requests instead of a fixed size buffer of
 4096.
+.TP
+\fB\-\-with-openssl
+Compile GoAccess with OpenSSL support for its WebSocket server.
 .SH OPTIONS
 .P
 The following options can be supplied to the command or specified in the
@@ -366,6 +369,9 @@ for the green scheme.
 .I 3
 for the Monokai scheme (shown only if terminal supports 256 colors).
 .TP
+\fB\-\-crawlers-only
+Parse and display only crawlers (bots).
+.TP
 \fB\-\-date-spec=<date|hr>
 Set the date specificity to either date (default) or hr to display hours
 appended to the date.
@@ -398,6 +404,12 @@ Enable parsing and displaying the given panel.
   KEYPHRASES
   GEO_LOCATION
   STATUS_CODES
+.TP
+\fB\-\-fifo-in=<path/file>
+Creates a named pipe (FIFO) that reads from on the given path/file.
+.TP
+\fB\-\-fifo-out=<path/file>
+Creates a named pipe (FIFO) that writes to the given path/file.
 .TP
 \fB\-\-hour-spec=<hr|min>
 Set the time specificity to either hour (default) or min to display the tenth
@@ -563,6 +575,16 @@ address.
 Add static file extension. e.g.:
 .I .mp3
 Extensions are case sensitive.
+.TP
+\fB\-\-ssl-cert=<cert.crt>
+Path to TLS/SSL certificate.
+
+Only if configured using --with-openssl
+.TP
+\fB\-\-ssl-key=<priv.key>
+Path to TLS/SSL private key.
+
+Only if configured using --with-openssl
 .TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat. File needs to be
@@ -745,6 +767,19 @@ The time taken to serve the request, in milliseconds as a decimal number.
 Ignore this field.
 .IP %~
 Move forward through the log string until a non-space (!isspace) char is found.
+.IP |
+Vertical pipe or bar is used for either the character prior to the vertical
+pipe or followed by the vertical pipe.
+
+The system checks if the given log format has a character delimiter followed by
+a vertical pipe followed by a second character delimiter, i.e.,
+.I ,|"
+The parser will use the first delimiter found when parsing the preceding
+specifier, e.g.,
+.I %h,|"
+If a vertical pipe is a character literal within the log format, then it has to
+be escaped using a backslash, e.g.,
+.I %d \[rs]\[rs]| %t
 .P
 .I Note:
 In order to get the average, cumulative and maximum time served in GoAccess,
@@ -844,17 +879,24 @@ GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
 file dependencies, how neat is that!
 .P
-To output an HTML report and set the WebSocket server to listen on port 7890
-and localhost.
+The process of generating a real-time HTML report is very similar to the
+process of creating a static report. Only --real-time-html is needed to make it
+real-time.
 .IP
-# goaccess -f access.log -o report.html --real-time-html
+# goaccess -f access.log -o /usr/share/nginx/html/site/report.html --real-time-html --ws-url=host
 .P
 If GoAccess is running and parsing logs on a specific host, you can specify the
 URL to which the client's browser will connect to.
-.IP
-# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io
 .P
-To use a different port other than 7890, you can specify it as:
+.I NOTE:
+The option 
+.I --ws-url
+is also required IF GoAccess is running on a different machine than the one
+used to open the html report. See http://goaccess.io/faq for a more detailed
+example.
+.P
+By default, GoAccess listens on port 7890, to use a different port other than
+7890, you can specify it as (make sure the port is opened):
 .IP
 # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
 .P
