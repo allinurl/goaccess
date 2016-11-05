@@ -66,7 +66,7 @@ get_continent_name_and_code (const char *continentid)
   else if (memcmp (continentid, "AS", 2) == 0)
     return "AS Asia";
   else
-    return "-- Location Unknown";
+    return "-- Unknown";
 }
 
 /* Open the given GeoLocation database and set its charset.
@@ -96,7 +96,7 @@ geoip_set_country (const char *country, const char *code, char *loc)
   if (country && code)
     sprintf (loc, "%s %s", code, country);
   else
-    sprintf (loc, "%s", "Country Unknown");
+    sprintf (loc, "%s", "Unknown");
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -116,7 +116,7 @@ geoip_set_continent (const char *continent, char *loc)
   if (continent)
     sprintf (loc, "%s", get_continent_name_and_code (continent));
   else
-    sprintf (loc, "%s", "Continent Unknown");
+    sprintf (loc, "%s", "Unknown");
 }
 
 /* Get detailed information found in the GeoIP Database about the
@@ -228,20 +228,28 @@ geoip_get_country (const char *ip, char *location, GTypeIP type_ip)
   case GEOIP_COUNTRY_EDITION:
     if (TYPE_IPV4 == type_ip)
       geoip_set_country_by_geoid (ip, location, TYPE_IPV4);
+    else
+      geoip_set_country (NULL, NULL, location);
     break;
   case GEOIP_COUNTRY_EDITION_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_country_by_geoid (ip, location, TYPE_IPV6);
+    else
+      geoip_set_country (NULL, NULL, location);
     break;
   case GEOIP_CITY_EDITION_REV0:
   case GEOIP_CITY_EDITION_REV1:
     if (TYPE_IPV4 == type_ip)
       geoip_set_country_by_record (ip, location, TYPE_IPV4);
+    else
+      geoip_set_country (NULL, NULL, location);
     break;
   case GEOIP_CITY_EDITION_REV0_V6:
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_country_by_record (ip, location, TYPE_IPV6);
+    else
+      geoip_set_country (NULL, NULL, location);
     break;
   }
 }
@@ -297,20 +305,28 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip)
   case GEOIP_COUNTRY_EDITION:
     if (TYPE_IPV4 == type_ip)
       geoip_set_continent_by_geoid (ip, location, TYPE_IPV4);
+    else
+      geoip_set_continent (NULL, location);
     break;
   case GEOIP_COUNTRY_EDITION_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_continent_by_geoid (ip, location, TYPE_IPV6);
+    else
+      geoip_set_continent (NULL, location);
     break;
   case GEOIP_CITY_EDITION_REV0:
   case GEOIP_CITY_EDITION_REV1:
     if (TYPE_IPV4 == type_ip)
       geoip_set_continent_by_record (ip, location, TYPE_IPV4);
+    else
+      geoip_set_continent (NULL, location);
     break;
   case GEOIP_CITY_EDITION_REV0_V6:
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_continent_by_record (ip, location, TYPE_IPV6);
+    else
+      geoip_set_continent (NULL, location);
     break;
   }
 }
@@ -351,11 +367,15 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
   case GEOIP_CITY_EDITION_REV1:
     if (TYPE_IPV4 == type_ip)
       geoip_set_city_by_record (ip, location, TYPE_IPV4);
+    else
+      geoip_set_city (NULL, NULL, location);
     break;
   case GEOIP_CITY_EDITION_REV0_V6:
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_city_by_record (ip, location, TYPE_IPV6);
+    else
+      geoip_set_city (NULL, NULL, location);
     break;
   }
 }
