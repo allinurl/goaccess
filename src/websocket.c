@@ -2050,7 +2050,7 @@ read_client_data (WSClient * client, WSServer * server)
   if ((!(client->headers) || (client->headers->reading)))
     bytes = ws_get_handshake (client, server);
   /* Message */
-  else if ((!(client->message) || (client->message)))
+  else
     bytes = ws_get_message (client, server);
 
   return bytes;
