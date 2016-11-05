@@ -1532,14 +1532,21 @@ excluded_ip (GLog * glog, GLogItem * logitem)
   return 1;
 }
 
-/* Determine if the request is from a robot or spider.
+/* Determine if the request is from a robot or spider and check if we
+ * need to ignore or show crawlers only.
  *
- * If not from a robot, 1 is returned.
- * If from a robot, 0 is returned. */
+ * If the request line is not ignored, 0 is returned.
+ * If the request line is ignored, 1 is returned. */
 static int
-exclude_crawler (GLogItem * logitem)
+handle_crawler (const char *agent)
 {
-  return conf.ignore_crawlers && is_crawler (logitem->agent) ? 0 : 1;
+  int bot = 0;
+
+  if (!conf.ignore_crawlers && !conf.crawlers_only)
+    return 1;
+
+  bot = is_crawler (agent);
+  return (conf.ignore_crawlers && bot) || (conf.crawlers_only && !bot) ? 0 : 1;
 }
 
 /* Determine if the request of the given status code needs to be
@@ -1567,7 +1574,7 @@ ignore_line (GLog * glog, GLogItem * logitem)
 {
   if (excluded_ip (glog, logitem) == 0)
     return 1;
-  if (exclude_crawler (logitem) == 0)
+  if (handle_crawler (logitem->agent) == 0)
     return 1;
   if (ignore_referer (logitem->site))
     return 1;

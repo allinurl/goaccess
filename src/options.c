@@ -82,6 +82,7 @@ struct option long_opts[] = {
   {"all-static-files"     , no_argument       , 0 ,  0  } ,
   {"color"                , required_argument , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
+  {"crawlers-only"        , no_argument       , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"date-spec"            , required_argument , 0 ,  0  } ,
   {"dcf"                  , no_argument       , 0 ,  0  } ,
@@ -221,6 +222,7 @@ cmd_help (void)
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
   "                                    count.\n"
   "  --all-static-files              - Include static files with a query string.\n"
+  "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
   "                                    (default), or `hr`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
@@ -398,6 +400,10 @@ parse_long_opt (const char *name, const char *oarg)
     if (!str_inarray (oarg, conf.enable_panels, conf.enable_panel_idx))
       conf.enable_panels[conf.enable_panel_idx++] = oarg;
   }
+
+  /* crawlers only */
+  if (!strcmp ("crawlers-only", name))
+    conf.crawlers_only = 1;
 
   /* ignore crawlers */
   if (!strcmp ("ignore-crawlers", name))

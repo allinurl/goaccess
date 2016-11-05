@@ -138,29 +138,30 @@ typedef struct GConf_
   int client_err_to_unique_count;   /* count 400s as visitors */
   int code444_as_404;               /* 444 as 404s? */
   int color_scheme;                 /* color scheme */
+  int crawlers_only ;               /* crawlers only */
   int double_decode;                /* need to double decode */
   int enable_html_resolver;         /* html/json/csv resolver */
   int geo_db;                       /* legacy geoip db */
-  int max_items;                    /* max number of items to output */
   int hl_header;                    /* highlight header on term */
   int ignore_crawlers;              /* ignore crawlers */
   int ignore_qstr;                  /* ignore query string */
+  int json_pretty_print;            /* pretty print JSON data */
   int list_agents;                  /* show list of agents per host */
   int load_conf_dlg;                /* load curses config dialog */
   int load_global_config;           /* use global config file */
+  int max_items;                    /* max number of items to output */
   int mouse_support;                /* add curses mouse support */
   int no_color;                     /* no terminal colors */
   int no_column_names;              /* don't show col names on termnal */
   int no_csv_summary;               /* don't show overall metrics */
+  int no_html_last_updated;         /* don't show HTML last updated field */
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
-  int no_html_last_updated;         /* don't show HTML last updated field */
+  int num_tests;                    /* number of lines to test */
   int output_stdout;                /* outputting to stdout */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
-  int num_tests;                    /* number of lines to test */
-  int json_pretty_print;
 
   /* Internal flags */
   int hour_spec_min;                /* hour specificity - min */
