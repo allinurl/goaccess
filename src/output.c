@@ -232,7 +232,7 @@ print_html_header (FILE * fp)
 
   print_html_title (fp);
 
-  /*fprintf (fp, "<style>%s</style>", fa_css);*/
+  fprintf (fp, "<style>%s</style>", fa_css);
   fprintf (fp, "<style>%s</style>", bootstrap_css);
   fprintf (fp, "<style>%s</style>", app_css);
   /* load custom CSS file, if any */
@@ -240,7 +240,6 @@ print_html_header (FILE * fp)
     fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
 
   fprintf (fp,
-  "<link rel='stylesheet' href='//maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css'>"
   "</head>"
   "<body>");
 }
