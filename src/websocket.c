@@ -441,7 +441,6 @@ ws_ssl_cleanup (WSServer * server)
   ERR_free_strings ();
   ERR_remove_state (0);
   EVP_cleanup ();
-  FIPS_mode_set (0);
 }
 #endif
 
