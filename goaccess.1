@@ -577,12 +577,14 @@ Add static file extension. e.g.:
 Extensions are case sensitive.
 .TP
 \fB\-\-ssl-cert=<cert.crt>
-Path to TLS/SSL certificate.
+Path to TLS/SSL certificate. In order to enable TLS/SSL support, GoAccess
+requires that \-\-ssl-cert and \-\-ssl-key are used.
 
 Only if configured using --with-openssl
 .TP
 \fB\-\-ssl-key=<priv.key>
-Path to TLS/SSL private key.
+Path to TLS/SSL private key. In order to enable TLS/SSL support, GoAccess
+requires that \-\-ssl-cert and \-\-ssl-key are used.
 
 Only if configured using --with-openssl
 .TP
