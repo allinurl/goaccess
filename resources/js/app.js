@@ -27,7 +27,7 @@ window.GoAccess = window.GoAccess || {
 		this.AppWSConn = (this.opts || {}).wsConnection || {}; // WebSocket connection
 		this.AppPrefs  = {
 			'theme': 'darkBlue',
-			'perPage': 10,
+			'perPage': 7,
 			'layout': 'horizontal',
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
@@ -474,7 +474,7 @@ GoAccess.Nav = {
 	},
 
 	getPerPage: function () {
-		return GoAccess.AppPrefs.perPage || 10;
+		return GoAccess.AppPrefs.perPage || 7;
 	},
 
 	// Render left-hand side navigation options.
