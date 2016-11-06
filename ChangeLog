@@ -479,12 +479,12 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
   - Simpliflied the "process_unique_data" function
   - Various small speed increases & code cleanup
 
-Changes to GoAccess 0.1.2 - Monday, July 12 2010
+Changes to GoAccess 0.1.2 - Monday, July 12, 2010
 
   - Fixed a segmentation fault when parsing logs with unusual request type. Ex.
     "GET HTTP/1.1 HTTP/1.1"
 
-Changes to GoAccess 0.1.1 - Saturday, July 10 2010
+Changes to GoAccess 0.1.1 - Saturday, July 10, 2010
 
   - Added an enhanced error handling
   - Added an extra macro on configure.ac to check against GHashTableIter.
@@ -501,6 +501,6 @@ Changes to GoAccess 0.1.1 - Saturday, July 10 2010
   - Fixed two format strings. (If the error was ever triggered, it'd most
     likely lead to a segfault.)
 
-Tuesday, July 06, 21:12:29 2010 Gerardo Orellana (goaccess at prosoftcorp.com)
+Changes to GoAccess 0.1 - Tuesday, July 06, 2010
 
   - Initial release 0.1
