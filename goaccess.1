@@ -418,6 +418,16 @@ of an hour appended to the hour.
 This is used in the time distribution panel. It's useful for tracking peaks of
 traffic on your server at specific times.
 .TP
+\fB\-\-html-prefs=<JSON>
+Set HTML report default preferences. Supply a valid JSON object containing the
+HTML preferences.  It allows the ability to customize each panel plot. See
+example below.
+.IP
+.I Note:
+The JSON object passed needs to be a online JSON string. For instance,
+.IP
+\-\-html-prefs='{"theme":"bright","perPage":5,"layout":"horizontal","showTables":true,"visitors":{"plot":{"chartType":"bar"}}}'
+.TP
 \fB\-\-html-custom-css=<path.css>
 Specifies a custom CSS file path to load in the HTML report.
 .TP
@@ -891,7 +901,7 @@ If GoAccess is running and parsing logs on a specific host, you can specify the
 URL to which the client's browser will connect to.
 .P
 .I NOTE:
-The option 
+The option
 .I --ws-url
 is also required IF GoAccess is running on a different machine than the one
 used to open the html report. See http://goaccess.io/faq for a more detailed
