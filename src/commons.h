@@ -62,8 +62,8 @@ struct tm *now_tm;
 /* real-time */
 #define MAX_CHOICES_RT    50
 
-/* date and time length - e.g., 2016/12/12 12:12:12*/
-#define DATE_TIME     19 + 1
+/* date and time length - e.g., 2016/12/12 12:12:12 -0600 */
+#define DATE_TIME     25 + 1
 /* date length -  e.g., 2016/12/12 */
 #define DATE_LEN      10 + 1
 /* date length -  e.g., 12:12:12 */
