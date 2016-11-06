@@ -228,7 +228,7 @@ print_csv_summary (FILE * fp, GLog * glog)
   const char *fmt;
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
 
   /* generated date time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
