@@ -57,7 +57,7 @@ window.GoAccess = window.GoAccess || {
 	},
 
 	setWebSocket: function (wsConn) {
-		var str = /:[0-9]{1,5}$/.test(wsConn.url) ? wsConn.url : String(wsConn.url + ':' + wsConn.port);
+		var str = /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}\//.test(wsConn.url + "/") ? wsConn.url : String(wsConn.url + ':' + wsConn.port);
 		str = !/^wss?:\/\//i.test(str) ? 'ws://' + str : str;
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
