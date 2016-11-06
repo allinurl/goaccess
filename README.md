@@ -241,6 +241,7 @@ to be used without prepending `--`.
 | `--hour-spec=<hr|min>`             | Hour specificity (hr default).                                |
 | `--html-custom-css=<path.css>`     | Specify a custom CSS file in the HTML report.                 |
 | `--html-custom-js=<path.js>`       | Specify a custom JS file in the HTML report.                  |
+| `--html-prefs=<JSON>`              | Set HTML report default preferences (JSON object).            |
 | `--html-report-title`              | Set HTML report page title and header.                        |
 | `--ignore-crawlers`                | Ignore crawlers.                                              |
 | `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
