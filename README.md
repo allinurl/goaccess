@@ -226,6 +226,7 @@ to be used without prepending `--`.
 | `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
 | `--color-scheme=<1|2|3>`           | Schemes: 1 => Grey, 2 => Green, 3 => Monokai.                 |
 | `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
+| `--crawlers-only`                  | Parse and display crawlers/bots only.                         |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--date-spec=<date|hr>`            | Date specificity (date default).                              |
 | `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
@@ -233,6 +234,8 @@ to be used without prepending `--`.
 | `--debug-file=<path>`              | Send all debug messages to the specified file.                |
 | `--double-decode`                  | Decode double-encoded values.                                 |
 | `--enable-panel=<PANEL>`           | Enable parsing and displaying the given panel.                |
+| `--fifo-in=<path/file>`            | Path to read named pipe (FIFO).                               |
+| `--fifo-out=<path/file>`           | Path to write named pipe (FIFO).                              |
 | `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
 | `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
 | `--hour-spec=<hr|min>`             | Hour specificity (hr default).                                |
@@ -253,15 +256,17 @@ to be used without prepending `--`.
 | `--no-column-names`                | Don't write column names in term output.                      |
 | `--no-csv-summary`                 | Disable summary metrics on the CSV output.                    |
 | `--no-global-config`               | Do not load the global configuration file.                    |
+| `--no-html-last-updated`           | Do not show the last updated field in the HTML report.        |
 | `--no-progress`                    | Disable progress metrics.                                     |
 | `--no-tab-scroll`                  | Disable scrolling through panels on TAB.                      |
-| `--no-html-last-updated`           | Do not show the last updated field in the HTML report.        |
 | `--num-tests=<number>`             | Number of lines to test against the given log format.         |
 | `--origin=<url>`                   | Ensure clients send stated origin header on WS handshake.     |
 | `--port=<port>`                    | Specify the port to use.                                      |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
 | `--real-time-html`                 | Enable real-time HTML output.                                 |
 | `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
+| `--ssl-cert=<path/cert.crt>`       | Path to TLS/SSL certificate.                                  |
+| `--ssl-key=<path/priv.key>`        | Path to TLS/SSL private key.                                  |
 | `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
 | `--time-format=<timeformat>`       | Specify log time format.                                      |
 | `--tune-bnum=<number>`             | Number of elements of the bucket array. [32749]               |
@@ -323,8 +328,8 @@ The process of generating a real-time HTML report is very similar to the
 process of creating a static report. Only `--real-time-html` is needed to make
 it real-time.
 
-*Note* that `--ws-url` is also required *IF* GoAccess is running on a different
-machine than the one used to open the html report. See
+**Note** that `--ws-url` is also required *IF* GoAccess is running on a
+different machine than the one used to open the html report. See
 [FAQ](https://goaccess.io/faq) for more details.
 
     # goaccess -f access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html --ws-url=host
