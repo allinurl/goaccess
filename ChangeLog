@@ -54,7 +54,7 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
     colors.
   - Changed GoAccess license to The MIT License (MIT)
   - Changed the visitors panel to display its dates continuously instead of top.
-  - Change the visitors panel to display its dates continuously.
+  - Changed the visitors panel to display its dates continuously.
   - Default to 256 Monokai color scheme if terminal supports 256 colors.
   - Default to display HTTP method/protocol (if applicable).
   - Display the children's Max. T.S. as the parent's top Max. T.S.
@@ -305,7 +305,7 @@ Changes to GoAccess 0.8 - Tuesday, May 20, 2014
   - Added Nagios check_http to the list of browsers.
   - Added parsing progress metrics - total requests / requests per second.
   - Added the ability to parse a GeoLiteCity.dat to get the city given an IPv4.
-  - Change the way the configuration file is parsed. This will parse all
+  - Changed the way the configuration file is parsed. This will parse all
     configuration options under ~/.goaccessrc or the specified config file and
     will feed getopt_long with the extracted key/value pairs. This also allows the
     ability to have comments on the config file which won't be overwritten.
@@ -464,7 +464,7 @@ Changes to GoAccess 0.3 - Sunday, August 29, 2010
   - Implemented a real support for LFS - Handles files larger than 2 GiB on
     32-bit systems
   - Implemented support for 'vhost_combined' log format
-  - Position of data/graphs will change depending on # of hits
+  - Changed position of data/graphs depending on # of hits
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
 
