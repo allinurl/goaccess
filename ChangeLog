@@ -1,3 +1,59 @@
+Changes to GoAccess 1.1 - Tuesday, November 08, 2016
+
+  - Added a new layout to the HTML report and additional settings and changes.
+  - Added 'Amazon S3' Log Format to the list of predefined options.
+  - Added 'Android 7.1 Nougat' to the list of OSs.
+  - Added 'Android Marshmallow 6.0.1' to the list of OSs.
+  - Added 'Android Nougat 7.0' to the list of OSs.
+  - Added command line option --crawlers-only to display crawlers/bots only.
+  - Added 'Feed Wrangler' to the list of feeds.
+  - Added --fifo-in and --fifo-out command line options to set websocket FIFO
+    reader/writer.
+  - Added 'Go-http-client' to the list of browsers.
+  - Added 'MicroMessenger' (WeChat) to the list of browsers.
+  - Added --no-html-last-updated command line option.
+  - Added --num-tests command line option.
+  - Added "Remote User" panel to capture HTTP authentication requests. Use %e
+    within the log-format variable to enable this panel.
+  - Added SemrushBot to set of crawlers.
+  - Added tebibyte unit to the byte to string function converter.
+  - Added the ability to parse reverse proxy logs that have multiple IPs. This
+    adds the ability to parse the "X-Forwarded-For" field in a reverse proxy
+    setup.
+  - Added the ability to set default preferences for the HTML report using
+    --html-prefs.
+  - Added the ability to show which token didn't match log/date/time pattern.
+    This also ensures that in the absence of data, its output is not treated as
+    error but instead it produces an empty report.
+  - Added the ability to specify a WebSocket protocol (ws|wss) through
+    --ws-url.
+  - Added the request query string to the W3C format.
+  - Added TLS/SSL support to the HTML real-time report.
+  - Changed browser classification for Google Cloud Clients.
+  - Changed 'Darwin' OS to be in ther own category.
+  - Changed default W3C log format to use the URL path instead of full request.
+  - Changed HTML default number of items on each table to 7.
+  - Changed request parser to allow empty query strings.
+  - Changed to use darkBlue theme as default HTML output theme.
+  - Ensure every version of iOS is broken down under the OS panel.
+  - Ensure latest JSON data is fast-forwarded when connection is opened.
+    GoAccess now sends the latest JSON data to the client as soon as the
+    WebSocket connection is opened.
+  - Ensure localStorage is supported and enabled in the HTML report
+  - Ensure unknown coutries/continents are listed.
+  - Fixed D3 chart width overflow issue on Edge.
+  - Fixed integer to string key conversion for unique visitors. This fixes the
+    issue where resulting keys would collide with existing keys and thus not
+    keeping the right visitors count on certain panels.
+  - Fixed memory leak when unable to URL decode %q specifier.
+  - Fixed memory leak when unable to URL decode %U specifier.
+  - Fixed month name abbreviation on app.js.
+  - Fixed percentage integer overflow with large numbers on 32bits platforms.
+  - Fixed percent calculation due to integer division rounding to zero.
+  - Fixed possible code injection when outputting an HTML report.
+  - Fixed segfault when using options -H or -M without an argument.
+  - Removed timestamp from the HTML report title tag.
+
 Changes to GoAccess 1.0.2 - Tuesday, July 05, 2016
 
   - Added minor changes to the HTML report stylesheet.
