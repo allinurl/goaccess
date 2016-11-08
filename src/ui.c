@@ -1112,6 +1112,48 @@ clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
   draw_header (win, "", "%s", y, x, w + 1, color_default);
 }
 
+/* Escape a date format string.
+ *
+ * If no conf.date_format is given, NULL is returned.
+ * On success, the newly escaped allocated string is returned. */
+static char *
+get_input_date_format (void)
+{
+  char *date_format = NULL;
+
+  if (conf.date_format)
+    date_format = escape_str (conf.date_format);
+  return date_format;
+}
+
+/* Escape a time format string.
+ *
+ * If no conf.date_format is given, NULL is returned.
+ * On success, the newly escaped allocated string is returned. */
+static char *
+get_input_time_format (void)
+{
+  char *time_format = NULL;
+
+  if (conf.time_format)
+    time_format = escape_str (conf.time_format);
+  return time_format;
+}
+
+/* Escape a log format string.
+ *
+ * If no conf.date_format is given, NULL is returned.
+ * On success, the newly escaped allocated string is returned. */
+static char *
+get_input_log_format (void)
+{
+  char *log_format = NULL;
+
+  if (conf.log_format)
+    log_format = escape_str (conf.log_format);
+  return log_format;
+}
+
 static void
 draw_formats (WINDOW * win, int w2)
 {
@@ -1124,8 +1166,7 @@ draw_formats (WINDOW * win, int w2)
   /* set log format from config file if available */
   draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
                color_panel_header);
-  if (conf.log_format) {
-    log_format = escape_str (conf.log_format);
+  if ((log_format = get_input_log_format ())) {
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
 
     free (log_format);
@@ -1134,8 +1175,7 @@ draw_formats (WINDOW * win, int w2)
   /* set log format from config file if available */
   draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
                color_panel_header);
-  if (conf.date_format) {
-    date_format = escape_str (conf.date_format);
+  if ((date_format = get_input_date_format ())) {
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
 
     free (date_format);
@@ -1144,8 +1184,7 @@ draw_formats (WINDOW * win, int w2)
   /* set log format from config file if available */
   draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2,
                color_panel_header);
-  if (conf.time_format) {
-    time_format = escape_str (conf.time_format);
+  if ((time_format = get_input_time_format ())) {
     mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
 
     free (time_format);
@@ -1341,6 +1380,9 @@ render_confdlg (GLog * glog, GSpinner * spinner)
       wmove (win, 12, 2);
 
       /* get input string */
+      if (!log_format)
+        log_format = get_input_log_format ();
+
       cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
       if (cstm_log != NULL && *cstm_log != '\0') {
         if (log_format)
@@ -1365,6 +1407,9 @@ render_confdlg (GLog * glog, GSpinner * spinner)
       wmove (win, 15, 0);
 
       /* get input string */
+      if (!date_format)
+        date_format = get_input_date_format ();
+
       cstm_date = input_string (win, 15, 2, 14, date_format, 0, 0);
       if (cstm_date != NULL && *cstm_date != '\0') {
         if (date_format)
@@ -1389,6 +1434,9 @@ render_confdlg (GLog * glog, GSpinner * spinner)
       wmove (win, 15, 0);
 
       /* get input string */
+      if (!time_format)
+        time_format = get_input_time_format ();
+
       cstm_time = input_string (win, 18, 2, 14, time_format, 0, 0);
       if (cstm_time != NULL && *cstm_time != '\0') {
         if (time_format)
