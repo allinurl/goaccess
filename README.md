@@ -87,9 +87,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-1.0.2.tar.gz
-    $ tar -xzvf goaccess-1.0.2.tar.gz
-    $ cd goaccess-1.0.2/
+    $ wget http://tar.goaccess.io/goaccess-1.1.tar.gz
+    $ tar -xzvf goaccess-1.1.tar.gz
+    $ cd goaccess-1.1/
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
@@ -344,6 +344,9 @@ And to bind the WebSocket server to a different address other than 0.0.0.0, you
 can specify it as:
 
     # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
+
+**Note**: To output real time data over a TLS/SSL connection, you need to use
+`--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
 
 ##### Working with Dates #####
 
