@@ -259,6 +259,7 @@ GoAccess.OverallStats = {
 
 		var box = document.createElement('div');
 		box.innerHTML = GoAccess.AppTpls.General.items.render({
+			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
 			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].valueType),
