@@ -151,9 +151,9 @@ Changes to GoAccess 0.9.7 - Monday, December 21, 2015
 Changes to GoAccess 0.9.6 - Tuesday, October 27, 2015
 
   - Fixed segfault when appending data to a log (follow) without virtualhosts.
-  - Added command line option `--dcf` to view the default config file path.
+  - Added command line option --dcf to view the default config file path.
   - Added 'Darwin' to the list of OSs.
-  - Added the ability to ignore parsing status codes using `--ignore-status`.
+  - Added the ability to ignore parsing status codes using --ignore-status.
 
 Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
 
@@ -164,7 +164,7 @@ Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
   - Added the ability to parse HTTP/2 requests.
   - Added the ability to use GNU getline() to parse full line requests.
   - Added the ability to output debug info if a log file is specified, even
-    without `--enable-debug`.
+    without --enable-debug.
   - Added OS X 'El Capitan'.
   - Added WebDav HTTP methods and HTTP status from RFC 2518 and  RFC 3253.
   - Fixed detection of some Googlebots.
@@ -184,9 +184,9 @@ Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
   - Added `%~` specifier to move forward through a log string until a non-space
     char is found.
   - Added the ability to parse static files containing a query string
-    `--all-static-files`.
+    --all-static-files.
   - Added the ability to parse native Squid access.log format.
-  - Added the ability to log invalid requests to a file `--invalid-requests`.
+  - Added the ability to log invalid requests to a file --invalid-requests.
   - Added additional overall metric - total valid requests.
   - Fixed a few issues in the configuration script.
 
@@ -207,7 +207,7 @@ Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
   - Added Slackbot to the list of crawlers/browsers.
   - Disabled REFERRERS by default.
   - Ensure bandwidth metric is displayed only if the %b specifier is parsed.
-  - Fixed issue where the '--sort-panel' option wouldn't sort certain panels.
+  - Fixed issue where the --sort-panel option wouldn't sort certain panels.
   - Fixed several compiler warnings.
   - Set predefined static files when no config file is used.
   - Updated Windows 10 user agent from 6.4 (wrong) to 10.0.(actual)
@@ -303,7 +303,7 @@ Changes to GoAccess 0.8.5 - Sunday, September 14, 2014
 Changes to GoAccess 0.8.4 - Monday, September 08, 2014
 
   - Added ability to handle nginx non-standard status code 444 as 404.
-    `--444-as-404`
+    --444-as-404.
   - Added and updated operating systems, and browsers.
   - Added excluded IP hits count to the general statistics panel on all reports.
   - Added HTTP nonstandard code '444' to the status code list.
@@ -311,7 +311,7 @@ Changes to GoAccess 0.8.4 - Monday, September 08, 2014
     Now by default it omits client errors (4xx) from being added to the unique
     visitors count as they are probably not welcomed visitors. 4xx errors are
     always counted in panels other than visitors, OS & browsers.
-    `--4xx-to-unique-count`
+    --4xx-to-unique-count.
   - Removed request status field restriction. This allows parsing logs that
     contain only a valid date, IPv4/6 and host.
   - Fixed issue when excluding IPv4/v6 ranges.
@@ -331,9 +331,9 @@ Changes to GoAccess 0.8.2 - Monday, July 20, 2014
   - Added ability to parse dates containing whitespaces in between, e.g., Jul 15
     20:13:59 (syslog format).
   - Added a variety of browsers, game systems, feed readers, and podcasts.
-  - Added a '-V --version' command line option.
+  - Added a -V --version command line option.
   - Added missing up/down arrows to the help section.
-  - Added the ability to ignore crawlers using the '--ignore-crawlers' option.
+  - Added the ability to ignore crawlers using the --ignore-crawlers option.
   - Added the ability to ignore multiple IPv4/v6 and IP ranges.
   - Added the PATCH method according to RFC 5789.
   - Fixed GeoLocation percent issue for the JSON, CSV and HTML outputs.
