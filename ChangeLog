@@ -1,27 +1,19 @@
 Changes to GoAccess 1.1 - Tuesday, November 08, 2016
 
   - Added a new layout to the HTML report and additional settings and changes.
-  - Added "Amazon S3" Log Format to the list of predefined options.
-  - Added "Android 7.1 Nougat" to the list of OSs.
-  - Added "Android Marshmallow 6.0.1" to the list of OSs.
-  - Added "Android Nougat 7.0" to the list of OSs.
-  - Added command line option --crawlers-only to display crawlers/bots only.
-  - Added "Feed Wrangler" to the list of feeds.
+  - Added --crawlers-only command line option to display crawlers/bots only.
   - Added --fifo-in and --fifo-out command line options to set websocket FIFO
     reader/writer.
-  - Added "Go-http-client" to the list of browsers.
-  - Added "MicroMessenger" (WeChat) to the list of browsers.
   - Added --no-html-last-updated command line option.
   - Added --num-tests command line option.
+  - Added --html-prefs command line option to to set default preferences for
+    the HTML report.
   - Added "Remote User" panel to capture HTTP authentication requests. Use %e
     within the log-format variable to enable this panel.
-  - Added SemrushBot to set of crawlers.
   - Added tebibyte unit to the byte to string function converter.
   - Added the ability to parse reverse proxy logs that have multiple IPs. This
     adds the ability to parse the "X-Forwarded-For" field in a reverse proxy
     setup.
-  - Added the ability to set default preferences for the HTML report using
-    --html-prefs.
   - Added the ability to show which token didn't match log/date/time pattern.
     This also ensures that in the absence of data, its output is not treated as
     error but instead it produces an empty report.
@@ -29,8 +21,16 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
     --ws-url.
   - Added the request query string to the W3C format.
   - Added TLS/SSL support to the HTML real-time report.
+  - Added "Amazon S3" Log Format to the list of predefined options.
+  - Added "Android 7.1 Nougat" to the list of OSs.
+  - Added "Android Marshmallow 6.0.1" to the list of OSs.
+  - Added "Android Nougat 7.0" to the list of OSs.
+  - Added "Feed Wrangler" to the list of feeds.
+  - Added "Go-http-client" to the list of browsers.
+  - Added "MicroMessenger" (WeChat) to the list of browsers.
+  - Added "SemrushBot" to the list of crawlers.
   - Changed browser classification for Google Cloud Clients.
-  - Changed "Darwin" OS to be in ther own category.
+  - Changed how "Darwin" OS was reported to display AppName instead.
   - Changed default W3C log format to use the URL path instead of full request.
   - Changed HTML default number of items on each table to 7.
   - Changed request parser to allow empty query strings.
