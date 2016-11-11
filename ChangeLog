@@ -1,16 +1,16 @@
 Changes to GoAccess 1.1 - Tuesday, November 08, 2016
 
   - Added a new layout to the HTML report and additional settings and changes.
-  - Added 'Amazon S3' Log Format to the list of predefined options.
-  - Added 'Android 7.1 Nougat' to the list of OSs.
-  - Added 'Android Marshmallow 6.0.1' to the list of OSs.
-  - Added 'Android Nougat 7.0' to the list of OSs.
+  - Added "Amazon S3" Log Format to the list of predefined options.
+  - Added "Android 7.1 Nougat" to the list of OSs.
+  - Added "Android Marshmallow 6.0.1" to the list of OSs.
+  - Added "Android Nougat 7.0" to the list of OSs.
   - Added command line option --crawlers-only to display crawlers/bots only.
-  - Added 'Feed Wrangler' to the list of feeds.
+  - Added "Feed Wrangler" to the list of feeds.
   - Added --fifo-in and --fifo-out command line options to set websocket FIFO
     reader/writer.
-  - Added 'Go-http-client' to the list of browsers.
-  - Added 'MicroMessenger' (WeChat) to the list of browsers.
+  - Added "Go-http-client" to the list of browsers.
+  - Added "MicroMessenger" (WeChat) to the list of browsers.
   - Added --no-html-last-updated command line option.
   - Added --num-tests command line option.
   - Added "Remote User" panel to capture HTTP authentication requests. Use %e
@@ -30,7 +30,7 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
   - Added the request query string to the W3C format.
   - Added TLS/SSL support to the HTML real-time report.
   - Changed browser classification for Google Cloud Clients.
-  - Changed 'Darwin' OS to be in ther own category.
+  - Changed "Darwin" OS to be in ther own category.
   - Changed default W3C log format to use the URL path instead of full request.
   - Changed HTML default number of items on each table to 7.
   - Changed request parser to allow empty query strings.
@@ -73,7 +73,7 @@ Changes to GoAccess 1.0.2 - Tuesday, July 05, 2016
 Changes to GoAccess 1.0.1 - Friday, June 17, 2016
 
   - Added Android version number along with the codename when using --real-os,
-    e.g., 'Lollipop 5.1'.
+    e.g., "Lollipop 5.1".
   - Added some missing headers and function checks to configure.ac.
   - Fixed build issues on systems running GLIBC older than 2.9, such as RHEL <= 5.
   - Fixed a regression where it wouldn't allow abbreviated date and time formats
@@ -103,7 +103,7 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Added the ability to sort all HTML tables on all panels.
   - Added the ability to specify a custom CSS and JS file to the HTML report.
   - Added user-agents to the JSON output per each host.
-  - Added 'Vivaldi' to the list of browsers.
+  - Added "Vivaldi" to the list of browsers.
   - Bootstrapify the HTML dashboard.
   - Changed configure.ac to use LDFLAGS instead of CFLAGS where applicable.
   - Changed default terminal color scheme to 256 Monokai if terminal supports 256
@@ -152,7 +152,7 @@ Changes to GoAccess 0.9.6 - Tuesday, October 27, 2015
 
   - Fixed segfault when appending data to a log (follow) without virtualhosts.
   - Added command line option --dcf to view the default config file path.
-  - Added 'Darwin' to the list of OSs.
+  - Added "Darwin" to the list of OSs.
   - Added the ability to ignore parsing status codes using --ignore-status.
 
 Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
@@ -165,7 +165,7 @@ Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
   - Added the ability to use GNU getline() to parse full line requests.
   - Added the ability to output debug info if a log file is specified, even
     without --enable-debug.
-  - Added OS X 'El Capitan'.
+  - Added OS X "El Capitan".
   - Added WebDav HTTP methods and HTTP status from RFC 2518 and  RFC 3253.
   - Fixed detection of some Googlebots.
   - Fixed issue where time served metrics were not shown when loading persisted
@@ -198,7 +198,7 @@ Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
   - Added column headers for every enabled metric on each panel.
   - Added cumulative time served metric.
   - Added maximum time served metric (slowest running requests).
-  - Added the ability to parse the query string specifier '%q' from a log file.
+  - Added the ability to parse the query string specifier "%q" from a log file.
   - Added CloudFlare status codes.
   - Added command option to disable column name metrics --no-column-names.
   - Added AWS Elastic Load Balancing to the list of predefined log/date/time
@@ -221,9 +221,9 @@ Changes to GoAccess 0.9.2 - Monday, July 06, 2015
   - Added the ability to parse a timestamp in microseconds.
   - Added the ability to parse Google Cloud Storage access logs.
   - Added the ability to set a custom title and header in the HTML report.
-  - Added '%x' as timestamp log-format specifier.
-  - Ensure agents' hash table is destroyed upon exiting the program.
-  - Ensure 'Game Systems' are processed correctly.
+  - Added "%x" as timestamp log-format specifier.
+  - Ensure agents" hash table is destroyed upon exiting the program.
+  - Ensure "Game Systems" are processed correctly.
   - Ensure visitors panel header is updated depending if crawlers are parsed or
     not.
   - Fixed issue where the date value was set as time value  in the config dialog.
@@ -245,7 +245,7 @@ Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
   - Fixed issue where a single IP did not get excluded after an IP range.
   - Fixed issue where requests show up in the wrong view even when
     --no-query-string is used.
-  - Fixed issue where some browsers were not recognized or marked as 'unknown'.
+  - Fixed issue where some browsers were not recognized or marked as "unknown".
   - Fixed memory leak when excluding an IP range.
   - Fixed overflows on sort comparison functions.
   - Fixed segfault when using on-disk storage and loading persisted data with -a.
@@ -259,9 +259,9 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
   - Added additional data values to the backtrace report.
   - Added additional graph to represent the visitors metric on the HTML output.
   - Added AM_PROG_CC_C_O to configure.ac
-  - Added 'Android Lollipop' to the list of operating systems.
-  - Added 'average time served' metric to all panels.
-  - Added 'bandwidth' metric to all panels.
+  - Added "Android Lollipop" to the list of operating systems.
+  - Added "average time served" metric to all panels.
+  - Added "bandwidth" metric to all panels.
   - Added command line option to disable summary metrics on the CSV output.
   - Added numeric formatting to the HTML output to improve readability.
   - Added request method specifier to the default W3C log format.
@@ -273,7 +273,7 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
     ignoring hosts using wildcards. For instance, *.mydomain.tld or www.mydomain.*
     or www?.mydomain.tld
   - Added time/hour distribution module. e.g., 00-23.
-  - Added 'visitors' metrics to all panels.
+  - Added "visitors" metrics to all panels.
   - Added Windows 10 (v6.4) to the real windows user agents.
   - Changed AC_PREREQ macro version so it builds on old versions of autoconf.
   - Changed GEOIP database load to GEOIP_MEMORY_CACHE for faster lookups.
@@ -284,8 +284,8 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
   - Fixed a SEGFAULT where sscanf could not handle special chars within the
     referer.
   - Fixed character encoding on geolocation output (ISO-8859 to UTF8).
-  - Fixed issue on wild cards containing '?' at the end of the string.
-  - Fixed issue where a 'Nothing valid to process' error was triggered when the
+  - Fixed issue on wild cards containing "?" at the end of the string.
+  - Fixed issue where a "Nothing valid to process" error was triggered when the
     number of invalid hits was equal to the number of valid hits.
   - Fixed issue where outputting to a file left a zero-byte file in pwd.
   - Improved parsing of operating systems.
@@ -306,7 +306,7 @@ Changes to GoAccess 0.8.4 - Monday, September 08, 2014
     --444-as-404.
   - Added and updated operating systems, and browsers.
   - Added excluded IP hits count to the general statistics panel on all reports.
-  - Added HTTP nonstandard code '444' to the status code list.
+  - Added HTTP nonstandard code "444" to the status code list.
   - Added the ability to count client errors (4xx) to the unique visitors count.
     Now by default it omits client errors (4xx) from being added to the unique
     visitors count as they are probably not welcomed visitors. 4xx errors are
@@ -519,7 +519,7 @@ Changes to GoAccess 0.3 - Sunday, August 29, 2010
   - Fixed invalid entries when parsing status codes
   - Implemented a real support for LFS - Handles files larger than 2 GiB on
     32-bit systems
-  - Implemented support for 'vhost_combined' log format
+  - Implemented support for "vhost_combined" log format
   - Changed position of data/graphs depending on # of hits
 
 Changes to GoAccess 0.2 - Sunday, July 25, 2010
@@ -529,7 +529,7 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
   - Fixed a memory leak when invalid entries were parsed
   - Fixed a potential buffer overflow.
   - Implemented real-time statistics (RTS). Data will be appended as the log
-    file grows. Equivalent to 'tail -f' on Unix systems
+    file grows. Equivalent to "tail -f" on Unix systems
   - Implemented screen resize functionality
   - Simpliflied creation of the "unique visitors" hash-key.
   - Simpliflied the "process_unique_data" function
@@ -544,7 +544,7 @@ Changes to GoAccess 0.1.1 - Saturday, July 10, 2010
 
   - Added an enhanced error handling
   - Added an extra macro on configure.ac to check against GHashTableIter.
-    ./configure might not check for glib 2.16 that introduced 'GHashTableIter'.
+    ./configure might not check for glib 2.16 that introduced "GHashTableIter".
   - Added Glibc LFS
   - Cleaned up code a little bit
   - Fixed a segmentation fault when displaying the help text on x86_64.
@@ -555,7 +555,7 @@ Changes to GoAccess 0.1.1 - Saturday, July 10, 2010
   - Fixed function declarations.
   - Fixed includes.
   - Fixed two format strings. (If the error was ever triggered, it'd most
-    likely lead to a segfault.)
+    likely lead to a segfault)
 
 Changes to GoAccess 0.1 - Tuesday, July 06, 2010
 
