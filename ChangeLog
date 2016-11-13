@@ -75,9 +75,9 @@ Changes to GoAccess 1.0.1 - Friday, June 17, 2016
   - Added Android version number along with the codename when using --real-os,
     e.g., "Lollipop 5.1".
   - Added some missing headers and function checks to configure.ac.
+  - Fixed a regression where it wouldn't allow abbreviated date and time
+    formats such as %F or %T.
   - Fixed build issues on systems running GLIBC older than 2.9, such as RHEL <= 5.
-  - Fixed a regression where it wouldn't allow abbreviated date and time formats
-    such as %F or %T.
   - Fixed issue where it wouldn't send the whole buffer to a socket causing the
     real-time-html WebSocket server to progressively consume a lot more memory.
   - Fixed memory leak when using getline and follow mode enabled.
@@ -87,18 +87,20 @@ Changes to GoAccess 1.0.1 - Friday, June 17, 2016
 
 Changes to GoAccess 1.0 - Thursday, June 09, 2016
 
+  - Added --enable-panel=<PANEL> command line option to display the given
+    module.
+  - Added --json-pretty-print command line option to output pretty json.
+  - Added --log-format=<format> command-line shortcuts for standard log
+    formats.
+  - Added --origin command line option to match the origin WebSocket header.
+  - Added --output=<file.[html|csv|json]> as a shortcut to --output-format.
   - Added a complete real-time functionality to the HTML output.
   - Added an option to set the max number of items to show per panel.
-  - Added command line option --enable-panel=<PANEL> to display the given module.
-  - Added command line option --origin to match the origin WebSocket header.
-  - Added command-line shortcuts for standard log formats, --log-format=COMBINED.
   - Added D3 Visualziations to the HTML dashboard.
   - Added metadata metrics to the each of the panels (JSON output)
   - Added option to specify time distribution specificity.
-  - Added --output=<file.[html|csv|json]> as a shortcut to --output-format.
   - Added the ability to download a JSON file from the HTML report.
   - Added the ability to output multiple formats on a single log parse.
-  - Added the ability to output pretty json using --json-pretty-print.
   - Added the ability to set the date specificity in hours.
   - Added the ability to sort all HTML tables on all panels.
   - Added the ability to specify a custom CSS and JS file to the HTML report.
@@ -106,11 +108,10 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Added "Vivaldi" to the list of browsers.
   - Bootstrapify the HTML dashboard.
   - Changed configure.ac to use LDFLAGS instead of CFLAGS where applicable.
-  - Changed default terminal color scheme to 256 Monokai if terminal supports 256
-    colors.
+  - Changed default terminal color scheme to 256 Monokai if terminal supports 256 colors.
   - Changed GoAccess license to The MIT License (MIT)
-  - Changed the visitors panel to display its dates continuously instead of top.
   - Changed the visitors panel to display its dates continuously.
+  - Changed the visitors panel to display its dates continuously instead of top.
   - Default to 256 Monokai color scheme if terminal supports 256 colors.
   - Default to display HTTP method/protocol (if applicable).
   - Display the children's Max. T.S. as the parent's top Max. T.S.
