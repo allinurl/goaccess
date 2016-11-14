@@ -131,9 +131,8 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
 Changes to GoAccess 0.9.8 - Monday, February 29, 2016
 
   - Added a more complete list of static extensions to the config file.
-  - Added Android 6.0 Marshmallow to the list of OSs.
-  - Added the ability to scroll through panels on TAB with option to disable it
-    --no-tab-scroll.
+  - Added "Android 6.0 Marshmallow" to the list of OSs.
+  - Added --no-tab-scroll command line option disable scroll through panels on TAB.
   - Added the first and last log dates to the overall statistics panel.
   - Ensure GoAccess links correctly against libtinfo.
   - Ensure static content is case-insensitive verified.
@@ -143,7 +142,7 @@ Changes to GoAccess 0.9.8 - Monday, February 29, 2016
 
 Changes to GoAccess 0.9.7 - Monday, December 21, 2015
 
-  - Added Squid native log format to the config file.
+  - Added "Squid native" log format to the config file.
   - Fixed int overflow when getting total bandwidth using the on-disk storage.
   - Fixed issue where a timestamp was stored as date under the visitors panel.
   - Fixed issue where config dialog fields were not cleared out on select.
@@ -151,10 +150,10 @@ Changes to GoAccess 0.9.7 - Monday, December 21, 2015
 
 Changes to GoAccess 0.9.6 - Tuesday, October 27, 2015
 
-  - Fixed segfault when appending data to a log (follow) without virtualhosts.
-  - Added command line option --dcf to view the default config file path.
+  - Added --dcf command line option to view the default config file path.
+  - Added --ignore-status the ability to ignore parsing status codes.
   - Added "Darwin" to the list of OSs.
-  - Added the ability to ignore parsing status codes using --ignore-status.
+  - Fixed segfault when appending data to a log (follow) without virtualhosts.
 
 Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
 
