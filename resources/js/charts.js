@@ -5,20 +5,20 @@
 function truncate(text, width, padding) {
 	var w = width - 2 * padding;
 	text.each(function () {
-		var parent = this.parentNode;
+		var parent = this.parentNode, $d3parent = d3.select(parent);
+		var gw = $d3parent.node().getBBox();
+		var x = (Math.min(gw.width, w) / 2) * -1;
 		// adjust wrapper <svg> width
 		if ('svg' == parent.nodeName)
-			d3.select(parent).attr('width', w);
+			$d3parent.attr('width', w).attr('x', x);
 		// wrap <text> within an svg
 		else {
-			var gw = d3.select(parent).node().getBBox();
-			d3.select(parent)
-			.insert('svg', function () {
+			$d3parent.insert('svg', function () {
 				return this;
 			}.bind(this))
 			.attr('class', 'wrap-text')
 			.attr('width', w)
-			.attr('x', (Math.min(gw.width, w) / 2) * -1)
+			.attr('x', x)
 			.append(function () {
 				return this;
 			}.bind(this));
