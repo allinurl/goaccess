@@ -1,5 +1,31 @@
 'use strict';
 
+// This is faster than calculating the exact length of each label.
+// e.g., getComputedTextLength(), slice()...
+function truncate(text, width, padding) {
+	var w = width - 2 * padding;
+	text.each(function () {
+		var parent = this.parentNode;
+		// adjust wrapper <svg> width
+		if ('svg' == parent.nodeName)
+			d3.select(parent).attr('width', w);
+		// wrap <text> within an svg
+		else {
+			var gw = d3.select(parent).node().getBBox();
+			d3.select(parent)
+			.insert('svg', function () {
+				return this;
+			}.bind(this))
+			.attr('class', 'wrap-text')
+			.attr('width', w)
+			.attr('x', (Math.min(gw.width, w) / 2) * -1)
+			.append(function () {
+				return this;
+			}.bind(this));
+		}
+	});
+}
+
 function AreaChart(dualYaxis) {
 	var opts = {};
 	var margin = {
@@ -102,19 +128,6 @@ function AreaChart(dualYaxis) {
 
 	function innerH() {
 		return height - margin.top - margin.bottom;
-	}
-
-	function trunc(text, width, padding) {
-		text.each(function () {
-			var self = d3.select(this),
-				textLength = self.node().getComputedTextLength(),
-				text = self.text();
-			while (textLength > (width - 2 * padding) && text.length > 0) {
-				text = text.slice(0, -1);
-				self.text(text + '...');
-				textLength = self.node().getComputedTextLength();
-			}
-		})
 	}
 
 	function getXTicks(data) {
@@ -377,7 +390,7 @@ function AreaChart(dualYaxis) {
 				.tickValues(xTicks)
 			 )
 			.selectAll(".tick text")
-			.call(trunc, (innerW() / xTicks.length), 5);
+			.call(truncate, (innerW() / xTicks.length), 5);
 
 		// Update the y0-axis.
 		g.select('.y0.axis')
@@ -632,19 +645,6 @@ function BarChart(dualYaxis) {
 		return height - margin.top - margin.bottom;
 	}
 
-	function trunc(text, width, padding) {
-		text.each(function () {
-			var self = d3.select(this),
-				textLength = self.node().getComputedTextLength(),
-				text = self.text();
-			while (textLength > (width - 2 * padding) && text.length > 0) {
-				text = text.slice(0, -1);
-				self.text(text + '...');
-				textLength = self.node().getComputedTextLength();
-			}
-		})
-	}
-
 	function getXTicks(data) {
 		if (data.length < nTicks)
 			return xScale.domain();
@@ -856,7 +856,7 @@ function BarChart(dualYaxis) {
 				.tickValues(xTicks)
 			 )
 			.selectAll(".tick text")
-			.call(trunc, (innerW() / xTicks.length), 5);
+			.call(truncate, (innerW() / xTicks.length), 5);
 
 		// Update the y0-axis.
 		g.select('.y0.axis')

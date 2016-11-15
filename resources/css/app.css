@@ -475,6 +475,9 @@ rect.legend {
 	height: 10px;
 	width: 10px;
 }
+.wrap-text text {
+	text-anchor: start!important;
+}
 
 /* CHART TOOLTIP */
 .chart-tooltip-wrap {
