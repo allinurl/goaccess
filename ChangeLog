@@ -8,6 +8,14 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
   - Added --num-tests command line option.
   - Added --html-prefs command line option to to set default preferences for
     the HTML report.
+  - Added "Amazon S3" Log Format to the list of predefined options.
+  - Added "Android 7.1 Nougat" to the list of OSs.
+  - Added "Android Marshmallow 6.0.1" to the list of OSs.
+  - Added "Android Nougat 7.0" to the list of OSs.
+  - Added "Feed Wrangler" to the list of feeds.
+  - Added "Go-http-client" to the list of browsers.
+  - Added "MicroMessenger" (WeChat) to the list of browsers.
+  - Added "SemrushBot" to the list of crawlers.
   - Added "Remote User" panel to capture HTTP authentication requests. Use %e
     within the log-format variable to enable this panel.
   - Added tebibyte unit to the byte to string function converter.
@@ -21,20 +29,12 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
     --ws-url.
   - Added the request query string to the W3C format.
   - Added TLS/SSL support to the HTML real-time report.
-  - Added "Amazon S3" Log Format to the list of predefined options.
-  - Added "Android 7.1 Nougat" to the list of OSs.
-  - Added "Android Marshmallow 6.0.1" to the list of OSs.
-  - Added "Android Nougat 7.0" to the list of OSs.
-  - Added "Feed Wrangler" to the list of feeds.
-  - Added "Go-http-client" to the list of browsers.
-  - Added "MicroMessenger" (WeChat) to the list of browsers.
-  - Added "SemrushBot" to the list of crawlers.
   - Changed browser classification for Google Cloud Clients.
   - Changed how "Darwin" OS was reported to display AppName instead.
   - Changed default W3C log format to use the URL path instead of full request.
   - Changed HTML default number of items on each table to 7.
   - Changed request parser to allow empty query strings.
-  - Changed to use darkBlue theme as default HTML output theme.
+  - Changed default HTML output theme to darkBlue.
   - Ensure every version of iOS is broken down under the OS panel.
   - Ensure latest JSON data is fast-forwarded when connection is opened.
     GoAccess now sends the latest JSON data to the client as soon as the
@@ -179,16 +179,16 @@ Changes to GoAccess 0.9.5 - Thursday, October 22, 2015
 
 Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
 
-  - Fixed inability to parse color due to a missing POSIX extension. ERR: Invalid
-    bg/fg color pairs
-  - Added `%~` specifier to move forward through a log string until a non-space
-    char is found.
-  - Added the ability to parse static files containing a query string
-    --all-static-files.
-  - Added the ability to parse native Squid access.log format.
-  - Added the ability to log invalid requests to a file --invalid-requests.
+  - Added --all-static-files command line option to parse static files
+    containing a query string.
   - Added additional overall metric - total valid requests.
+  - Added "%~" specifier to move forward through a log string until a non-space
+    char is found.
+  - Added the ability to log invalid requests to a file --invalid-requests.
+  - Added the ability to parse native Squid access.log format.
   - Fixed a few issues in the configuration script.
+  - Fixed inability to parse color due to a missing POSIX extension. ERR:
+    Invalid bg/fg color pairs
 
 Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
 
