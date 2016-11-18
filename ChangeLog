@@ -206,7 +206,7 @@ Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
   - Added DragonFly BSD to the list of OSs.
   - Added Slackbot to the list of crawlers/browsers.
   - Disabled REFERRERS by default.
-  - Ensure bandwidth metric is displayed only if the %b specifier is parsed.
+  - Ensure bandwidth metric is displayed only if %b specifier is parsed.
   - Fixed issue where the --sort-panel option wouldn't sort certain panels.
   - Fixed several compiler warnings.
   - Set predefined static files when no config file is used.
@@ -232,10 +232,10 @@ Changes to GoAccess 0.9.2 - Monday, July 06, 2015
 
 Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
 
+  - Added --hl-header command line option to highlight active panel.
+  - Added "Applebot" to the list of web crawlers.
+  - Added "Microsoft Edge" to the list of browsers.
   - Added additional Nginx-specific status codes.
-  - Added Applebot to the list of web crawlers.
-  - Added Microsoft Edge to the list of browsers.
-  - Added the ability to highlight active panel through --hl-header.
   - Ensure dump_struct is used only if using __GLIBC__.
   - Ensure goaccess image has an alt attribute on the HTML output for valid
     HTML5.
@@ -243,8 +243,8 @@ Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
   - Ensure there is a character indicator to see which panel is active.
   - Fixed Cygwin compile issue attempting to use -rdynamic.
   - Fixed issue where a single IP did not get excluded after an IP range.
-  - Fixed issue where requests show up in the wrong view even when
-    --no-query-string is used.
+  - Fixed issue where requests showed up in the wrong view even when
+    --no-query-string was used.
   - Fixed issue where some browsers were not recognized or marked as "unknown".
   - Fixed memory leak when excluding an IP range.
   - Fixed overflows on sort comparison functions.
@@ -254,6 +254,8 @@ Changes to GoAccess 0.9.1 - Tuesday, May 26, 2015
 
 Changes to GoAccess 0.9 - Thursday, March 19, 2015
 
+  - Added --geoip-database command line option for GeoIP Country/City IPv6.
+  - Added "Windows 10 (v6.4)" to the real windows user agents.
   - Added ability to double decode an HTTP referer and agent.
   - Added ability to sort views through the command line on initial load.
   - Added additional data values to the backtrace report.
@@ -265,8 +267,6 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
   - Added command line option to disable summary metrics on the CSV output.
   - Added numeric formatting to the HTML output to improve readability.
   - Added request method specifier to the default W3C log format.
-  - Added support for GeoIP Country IPv6 and GeoIP City IPv6 through
-    --geoip-database.
   - Added the ability to ignore parsing and displaying given panel(s).
   - Added the ability to ignore referer sites from being counted. A good case
     scenario is to ignore own domains. i.e., owndomain.tld. This also allows
@@ -274,7 +274,6 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
     or www?.mydomain.tld
   - Added time/hour distribution module. e.g., 00-23.
   - Added "visitors" metrics to all panels.
-  - Added Windows 10 (v6.4) to the real windows user agents.
   - Changed AC_PREREQ macro version so it builds on old versions of autoconf.
   - Changed GEOIP database load to GEOIP_MEMORY_CACHE for faster lookups.
   - Changed maximum number of choices to display per panel to 366 fron 300.
