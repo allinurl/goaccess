@@ -699,6 +699,13 @@ pprotocol (GJSON * json, GMetrics * nmetrics, int sp)
 
 /* Write to a buffer the hits meta data object. */
 static void
+pmeta_data_unique (GJSON * json, int ht_size, int sp)
+{
+  pskeyu64val (json, "unique", ht_size, sp, 1);
+}
+
+/* Write to a buffer the hits meta data object. */
+static void
 pmeta_data_hits (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
@@ -714,7 +721,7 @@ pmeta_data_hits (GJSON * json, GModule module, int sp)
   pskeyu64val (json, "count", ht_get_meta_data (module, "hits"), isp, 0);
   pskeyival (json, "max", max, isp, 0);
   pskeyival (json, "min", min, isp, 1);
-  pclose_obj (json, sp, 1);
+  pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the visitors meta data object. */
@@ -848,6 +855,7 @@ print_meta_data (GJSON * json, GHolder * h, int sp)
   pmeta_data_bw (json, h->module, iisp);
   pmeta_data_visitors (json, h->module, iisp);
   pmeta_data_hits (json, h->module, iisp);
+  pmeta_data_unique (json, h->ht_size, iisp);
 
   pclose_obj (json, isp, 0);
 }
