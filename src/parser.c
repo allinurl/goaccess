@@ -1007,6 +1007,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
+  long status = 0L;
 
   errno = 0;
   memset (&tm, 0, sizeof (tm));
@@ -1163,8 +1164,9 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    strtol (tkn, &sEnd, 10);
-    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE) {
+    status = strtol (tkn, &sEnd, 10);
+    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 ||
+        status > 599) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
