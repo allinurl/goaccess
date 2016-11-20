@@ -50,7 +50,7 @@
 			{{#cells}}
 				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
 					{{#value}}
-					<h4 class="value"><span title="{{title}}">{{value}}</span>{{#max}}<br><small>Max: {{max}}</small>{{/max}}{{#min}}<br><small>Min: {{min}}</small>{{/min}}</h4>
+					<h4 class="value"><span title="{{title}}">{{value}}</span>{{#label}}<small> {{label}}</small>{{/label}}{{#max}}<br><small>Max: {{max}}</small>{{/max}}{{#min}}<br><small>Min: {{min}}</small>{{/min}}</h4>
 					{{/value}}
 				</td>
 			{{/cells}}
@@ -66,7 +66,7 @@
 	{{/hasSubItems}}
 		<th>#</th>
 	{{#items}}
-		<th class="{{valueType}} {{#key}}sortable{{/key}}" data-key="{{key}}" {{#sort}}data-order="{{#asc}}asc{{/asc}}{{^asc}}desc{{/asc}}"{{/sort}}>
+		<th class="{{dataType}} {{#key}}sortable{{/key}}" data-key="{{key}}" {{#sort}}data-order="{{#asc}}asc{{/asc}}{{^asc}}desc{{/asc}}"{{/sort}}>
 			{{label}} <i class="fa fa-{{^sort}}sort{{/sort}}{{#sort}}{{#asc}}caret-up{{/asc}}{{^asc}}caret-down{{/asc}}{{/sort}}"></i>
 		</th>
 	{{/items}}
