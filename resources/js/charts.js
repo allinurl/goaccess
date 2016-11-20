@@ -791,10 +791,6 @@ function BarChart(dualYaxis) {
 			.attr('class', 'indicator');
 	}
 
-	function addBar() {
-
-	}
-
 	// Update the area path and lines.
 	function addBars(g, data) {
 		var bars = g.select('g.bars.y0').selectAll('rect.bar')
