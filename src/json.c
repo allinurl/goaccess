@@ -701,7 +701,15 @@ pprotocol (GJSON * json, GMetrics * nmetrics, int sp)
 static void
 pmeta_data_unique (GJSON * json, int ht_size, int sp)
 {
-  pskeyu64val (json, "unique", ht_size, sp, 1);
+  int isp = 0;
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  popen_obj_attr (json, "data", sp);
+  pskeyu64val (json, "unique", ht_size, isp, 1);
+  pclose_obj (json, sp, 1);
 }
 
 /* Write to a buffer the hits meta data object. */
