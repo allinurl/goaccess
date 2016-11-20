@@ -146,12 +146,12 @@ GoAccess.Util = {
 	},
 
 	// Format field value to human readable
-	fmtValue: function (value, valueType) {
+	fmtValue: function (value, dataType) {
 		var val = 0;
-		if (!valueType)
+		if (!dataType)
 			val = value;
 
-		switch (valueType) {
+		switch (dataType) {
 		case 'utime':
 			val = this.utime2str(value);
 			break;
@@ -262,7 +262,7 @@ GoAccess.OverallStats = {
 			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
-			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].valueType),
+			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].dataType),
 		});
 		row.appendChild(box);
 
@@ -837,7 +837,7 @@ GoAccess.Charts = {
 		.width($("#chart-" + panel).getBoundingClientRect().width)
 		.height(175)
 		.format({
-			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
+			x: (this.findUIItem(panel, 'data') || {}).dataType || null,
 			y0: ((plotUI.d3 || {}).y0 || {}).format,
 			y1: ((plotUI.d3 || {}).y1 || {}).format,
 		})
@@ -869,7 +869,7 @@ GoAccess.Charts = {
 		.width($("#chart-" + panel).getBoundingClientRect().width)
 		.height(175)
 		.format({
-			x: (this.findUIItem(panel, 'data') || {}).valueType || null,
+			x: (this.findUIItem(panel, 'data') || {}).dataType || null,
 			y0: ((plotUI.d3 || {}).y0 || {}).format,
 			y1: ((plotUI.d3 || {}).y1 || {}).format,
 		})
@@ -1163,14 +1163,17 @@ GoAccess.Tables = {
 		var max = (value || {}).max;
 		var min = (value || {}).min;
 
+		// use metaType if exist else fallback to dataType
+		var vtype = ui.metaType || ui.dataType;
 		var className = ui.className || '';
-		className += ui.valueType != 'string' ? 'text-right' : '';
+		className += ui.dataType != 'string' ? 'text-right' : '';
 		return {
 			'className': className,
-			'max'      : max != undefined ? GoAccess.Util.fmtValue(max, ui.valueType) : null,
-			'min'      : min != undefined ? GoAccess.Util.fmtValue(min, ui.valueType) : null,
-			'value'    : val != undefined ? GoAccess.Util.fmtValue(val, ui.valueType) : null,
+			'max'      : max != undefined ? GoAccess.Util.fmtValue(max, vtype) : null,
+			'min'      : min != undefined ? GoAccess.Util.fmtValue(min, vtype) : null,
+			'value'    : val != undefined ? GoAccess.Util.fmtValue(val, vtype) : null,
 			'title'    : ui.meta,
+			'label'    : ui.metaLabel || null,
 		}
 	},
 
@@ -1235,11 +1238,11 @@ GoAccess.Tables = {
 	// e.g., value = Object {count: 14351, percent: 5.79}
 	getObjectCell: function (panel, ui, value) {
 		var className = ui.className || '';
-		className += ui.valueType != 'string' ? 'text-right' : '';
+		className += ui.dataType != 'string' ? 'text-right' : '';
 		return {
 			'className': className,
 			'percent': GoAccess.Util.getPercent(value),
-			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.valueType)
+			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType)
 		};
 	},
 

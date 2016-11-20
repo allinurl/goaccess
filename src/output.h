@@ -86,12 +86,14 @@ typedef struct GHTML_
 /* Metric definition . */
 typedef struct GDefMetric_
 {
-  const char *key;
-  const char *lbl;
-  const char *vtype;
-  const char *meta;
-  const char *cname;
-  const char *cwidth;
+  const char *cname;            /* metric class name */
+  const char *cwidth;           /* metric column width */
+  const char *datakey;          /* metric JSON data key */
+  const char *datatype;         /* metric data value type */
+  const char *lbl;              /* metric label (column name) */
+  const char *metakey;          /* metric JSON meta key */
+  const char *metatype;         /* metric meta value type */
+  const char *metalbl;          /* metric meta value label */
 } GDefMetric;
 
 void output_html (GLog * glog, GHolder * holder, const char *filename);

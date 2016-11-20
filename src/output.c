@@ -528,12 +528,16 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp)
     fpskeysval (fp, "className", def.cname, isp, 0);
   if (def.cwidth)
     fpskeysval (fp, "colWidth", def.cwidth, isp, 0);
-  if (def.meta)
-    fpskeysval (fp, "meta", def.meta, isp, 0);
-  if (def.vtype)
-    fpskeysval (fp, "valueType", def.vtype, isp, 0);
-  if (def.key)
-    fpskeysval (fp, "key", def.key, isp, 0);
+  if (def.metakey)
+    fpskeysval (fp, "meta", def.metakey, isp, 0);
+  if (def.metatype)
+    fpskeysval (fp, "metaType", def.metatype, isp, 0);
+  if (def.metalbl)
+    fpskeysval (fp, "metaLabel", def.metalbl, isp, 0);
+  if (def.datatype)
+    fpskeysval (fp, "dataType", def.datatype, isp, 0);
+  if (def.datakey)
+    fpskeysval (fp, "key", def.datakey, isp, 0);
   if (def.lbl)
     fpskeysval (fp, "label", def.lbl, isp, 1);
 }
@@ -553,7 +557,7 @@ print_def_overall_requests (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_REQUESTS,
-    .vtype = "numeric",
+    .datatype = "numeric",
     .cname = "black"
   };
   fpopen_obj_attr (fp, OVERALL_REQ, sp);
@@ -567,7 +571,7 @@ print_def_overall_valid_reqs (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_VALID,
-    .vtype = "numeric",
+    .datatype = "numeric",
     .cname = "green"
   };
   fpopen_obj_attr (fp, OVERALL_VALID, sp);
@@ -581,7 +585,7 @@ print_def_overall_invalid_reqs (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_FAILED,
-    .vtype = "numeric",
+    .datatype = "numeric",
     .cname = "red"
   };
   fpopen_obj_attr (fp, OVERALL_FAILED, sp);
@@ -595,7 +599,7 @@ print_def_overall_processed_time (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_GEN_TIME,
-    .vtype = "numeric",
+    .datatype = "numeric",
     .cname = "gray"
   };
   fpopen_obj_attr (fp, OVERALL_GENTIME, sp);
@@ -609,7 +613,7 @@ print_def_overall_visitors (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_UNIQUE_VIS,
-    .vtype = "numeric",
+    .datatype = "numeric",
     .cname = "blue"
   };
   fpopen_obj_attr (fp, OVERALL_VISITORS, sp);
@@ -623,7 +627,7 @@ print_def_overall_files (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_UNIQUE_FIL,
-    .vtype = "numeric",
+    .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_FILES, sp);
   print_def_metric (fp, def, sp);
@@ -636,7 +640,7 @@ print_def_overall_excluded (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_EXCLUDE_IP,
-    .vtype = "numeric",
+    .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_EXCL_HITS, sp);
   print_def_metric (fp, def, sp);
@@ -649,7 +653,7 @@ print_def_overall_refs (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_REFERRER,
-    .vtype = "numeric",
+    .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_REF, sp);
   print_def_metric (fp, def, sp);
@@ -662,7 +666,7 @@ print_def_overall_notfound (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_UNIQUE404,
-    .vtype = "numeric",
+    .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_NOTFOUND, sp);
   print_def_metric (fp, def, sp);
@@ -675,7 +679,7 @@ print_def_overall_static_files (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_STATIC_FIL,
-    .vtype = "numeric",
+    .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_STATIC, sp);
   print_def_metric (fp, def, sp);
@@ -688,7 +692,7 @@ print_def_overall_log_size (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_LOG,
-    .vtype = "bytes",
+    .datatype = "bytes",
   };
   fpopen_obj_attr (fp, OVERALL_LOGSIZE, sp);
   print_def_metric (fp, def, sp);
@@ -701,7 +705,7 @@ print_def_overall_bandwidth (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_BW,
-    .vtype = "bytes",
+    .datatype = "bytes",
   };
   fpopen_obj_attr (fp, OVERALL_BANDWIDTH, sp);
   print_def_metric (fp, def, sp);
@@ -713,10 +717,10 @@ static void
 print_def_hits (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "hits",
+    .datakey = "hits",
     .lbl = MTRC_HITS_LBL,
-    .vtype = "numeric",
-    .meta = "count",
+    .datatype = "numeric",
+    .metakey = "count",
     .cwidth = "12%",
   };
   print_def_block (fp, def, sp, 0);
@@ -727,10 +731,10 @@ static void
 print_def_visitors (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "visitors",
+    .datakey = "visitors",
     .lbl = MTRC_VISITORS_LBL,
-    .vtype = "numeric",
-    .meta = "count",
+    .datatype = "numeric",
+    .metakey = "count",
     .cwidth = "12%",
   };
   print_def_block (fp, def, sp, 0);
@@ -741,10 +745,10 @@ static void
 print_def_bw (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "bytes",
+    .datakey = "bytes",
     .lbl = MTRC_BW_LBL,
-    .vtype = "bytes",
-    .meta = "count",
+    .datatype = "bytes",
+    .metakey = "count",
     .cwidth = "12%",
   };
 
@@ -759,10 +763,10 @@ static void
 print_def_avgts (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "avgts",
+    .datakey = "avgts",
     .lbl = MTRC_AVGTS_LBL,
-    .vtype = "utime",
-    .meta = "avg",
+    .datatype = "utime",
+    .metakey = "avg",
     .cwidth = "8%",
   };
 
@@ -777,10 +781,10 @@ static void
 print_def_cumts (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "cumts",
+    .datakey = "cumts",
     .lbl = MTRC_CUMTS_LBL,
-    .vtype = "utime",
-    .meta = "count",
+    .datatype = "utime",
+    .metakey = "count",
     .cwidth = "8%",
   };
 
@@ -795,10 +799,10 @@ static void
 print_def_maxts (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "maxts",
+    .datakey = "maxts",
     .lbl = MTRC_MAXTS_LBL,
-    .vtype = "utime",
-    .meta = "count",
+    .datatype = "utime",
+    .metakey = "count",
     .cwidth = "8%",
   };
 
@@ -812,9 +816,9 @@ static void
 print_def_method (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "method",
+    .datakey = "method",
     .lbl = MTRC_METHODS_LBL,
-    .vtype = "string",
+    .datatype = "string",
     .cwidth = "6%",
   };
 
@@ -829,9 +833,9 @@ static void
 print_def_protocol (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "protocol",
+    .datakey = "protocol",
     .lbl = MTRC_PROTOCOLS_LBL,
-    .vtype = "string",
+    .datatype = "string",
     .cwidth = "7%",
   };
 
@@ -846,9 +850,9 @@ static void
 print_def_city (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "city",
+    .datakey = "city",
     .lbl = MTRC_CITY_LBL,
-    .vtype = "string",
+    .datatype = "string",
   };
 
   if (!conf.has_geocity)
@@ -862,9 +866,9 @@ static void
 print_def_country (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "country",
+    .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
-    .vtype = "string",
+    .datatype = "string",
   };
 
   if (!conf.has_geocountry)
@@ -878,9 +882,9 @@ static void
 print_def_hostname (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .key = "hostname",
+    .datakey = "hostname",
     .lbl = MTRC_HOSTNAME_LBL,
-    .vtype = "string",
+    .datatype = "string",
     .cname = "light",
   };
 
@@ -895,11 +899,14 @@ static void
 print_def_data (FILE * fp, GModule module, int sp)
 {
   GDefMetric def = {
-    .key = "data",
-    .lbl = MTRC_DATA_LBL,
-    .vtype = module == VISITORS ? "date" : "string",
     .cname = "trunc",
     .cwidth = "100%",
+    .datakey = "data",
+    .datatype = module == VISITORS ? "date" : "string",
+    .lbl = MTRC_DATA_LBL,
+    .metakey = "unique",
+    .metalbl = "Total",
+    .metatype = "numeric",
   };
 
   print_def_block (fp, def, sp, 1);
