@@ -382,8 +382,8 @@ function AreaChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
-		var xTicks = getXTicks(data), nTicks = xTicks.length;
-		var tickDistance = nTicks > 1 ? (xScale(xTicks[nTicks - 1]) - xScale(xTicks[nTicks - 2])) : innerW();
+		var xTicks = getXTicks(data);
+		var tickDistance = xTicks.length > 1 ? (xScale(xTicks[1]) - xScale(xTicks[0])) : innerW();
 		var labelW = tickDistance - padding;
 
 		// Update the x-axis.
@@ -842,8 +842,8 @@ function BarChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
-		var xTicks = getXTicks(data), nTicks = xTicks.length;
-		var tickDistance = nTicks > 1 ? (xScale(xTicks[nTicks - 1]) - xScale(xTicks[nTicks - 2])) : innerW();
+		var xTicks = getXTicks(data);
+		var tickDistance = xTicks.length > 1 ? (xScale(xTicks[1]) - xScale(xTicks[0])) : innerW();
 		var labelW = tickDistance - padding;
 
 		// Update the x-axis.
