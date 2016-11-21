@@ -2,22 +2,21 @@
 
 // This is faster than calculating the exact length of each label.
 // e.g., getComputedTextLength(), slice()...
-function truncate(text, width, padding) {
-	var w = width - 2 * padding;
+function truncate(text, width) {
 	text.each(function () {
 		var parent = this.parentNode, $d3parent = d3.select(parent);
 		var gw = $d3parent.node().getBBox();
-		var x = (Math.min(gw.width, w) / 2) * -1;
+		var x = (Math.min(gw.width, width) / 2) * -1;
 		// adjust wrapper <svg> width
 		if ('svg' == parent.nodeName)
-			$d3parent.attr('width', w).attr('x', x);
+			$d3parent.attr('width', width).attr('x', x);
 		// wrap <text> within an svg
 		else {
 			$d3parent.insert('svg', function () {
 				return this;
 			}.bind(this))
 			.attr('class', 'wrap-text')
-			.attr('width', w)
+			.attr('width', width)
 			.attr('x', x)
 			.append(function () {
 				return this;
@@ -34,9 +33,10 @@ function AreaChart(dualYaxis) {
 			bottom : 40,
 			left   : 50
 		},
-		width = 760,
 		height = 170,
-		nTicks = 10;
+		nTicks = 10,
+		padding = 10,
+		width = 760;
 	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
 	var format = { x: null, y0: null, y1: null};
 
@@ -382,21 +382,20 @@ function AreaChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
-		var xTicks = getXTicks(data);
+		var xTicks = getXTicks(data), nTicks = xTicks.length;
+		var tickDistance = nTicks > 1 ? (xScale(xTicks[nTicks - 1]) - xScale(xTicks[nTicks - 2])) : innerW();
+		var labelW = tickDistance - padding;
+
 		// Update the x-axis.
 		g.select('.x.axis')
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
-			.call(xAxis
-				.tickValues(xTicks)
-			 )
+			.call(xAxis.tickValues(xTicks))
 			.selectAll(".tick text")
-			.call(truncate, (innerW() / xTicks.length), 5);
+			.call(truncate, labelW > 0 ? labelW : innerW());
 
 		// Update the y0-axis.
 		g.select('.y0.axis')
-			.call(yAxis0
-				.tickValues(getYTicks(yScale0))
-			);
+			.call(yAxis0.tickValues(getYTicks(yScale0))	);
 
 		if (!dualYaxis)
 			return;
@@ -404,9 +403,7 @@ function AreaChart(dualYaxis) {
 		// Update the y1-axis.
 		g.select('.y1.axis')
 			.attr('transform', 'translate(' + innerW() + ', 0)')
-			.call(yAxis1
-				.tickValues(getYTicks(yScale1))
-			);
+			.call(yAxis1.tickValues(getYTicks(yScale1)));
 	}
 
 	// Update the X-Y grid.
@@ -582,9 +579,10 @@ function BarChart(dualYaxis) {
 			bottom : 40,
 			left   : 50
 		},
-		width = 760,
 		height = 170,
-		nTicks = 10;
+		nTicks = 10,
+		padding = 10,
+		width = 760;
 	var labels = { x: 'Unnamed', y0: 'Unnamed', y1: 'Unnamed' };
 	var format = { x: null, y0: null, y1: null};
 
@@ -844,21 +842,20 @@ function BarChart(dualYaxis) {
 	}
 
 	function addAxis(g, data) {
-		var xTicks = getXTicks(data);
+		var xTicks = getXTicks(data), nTicks = xTicks.length;
+		var tickDistance = nTicks > 1 ? (xScale(xTicks[nTicks - 1]) - xScale(xTicks[nTicks - 2])) : innerW();
+		var labelW = tickDistance - padding;
+
 		// Update the x-axis.
 		g.select('.x.axis')
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
-			.call(xAxis
-				.tickValues(xTicks)
-			 )
+			.call(xAxis.tickValues(xTicks))
 			.selectAll(".tick text")
-			.call(truncate, (innerW() / xTicks.length), 5);
+			.call(truncate, labelW > 0 ? labelW : innerW());
 
 		// Update the y0-axis.
 		g.select('.y0.axis')
-			.call(yAxis0
-				.tickValues(getYTicks(yScale0))
-			);
+			.call(yAxis0.tickValues(getYTicks(yScale0)));
 
 		if (!dualYaxis)
 			return;
@@ -866,9 +863,7 @@ function BarChart(dualYaxis) {
 		// Update the y1-axis.
 		g.select('.y1.axis')
 			.attr('transform', 'translate(' + innerW() + ', 0)')
-			.call(yAxis1
-				.tickValues(getYTicks(yScale1))
-			);
+			.call(yAxis1.tickValues(getYTicks(yScale1)));
 	}
 
 	// Update the X-Y grid.
