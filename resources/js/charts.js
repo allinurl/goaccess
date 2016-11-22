@@ -303,7 +303,8 @@ function AreaChart(dualYaxis) {
 			.attr('d', line)
 			.attr('class', cName)
 			.attr('stroke-dasharray', function (d) {
-				return pathLen(d3.select(this)) + ' ' + pathLen(d3.select(this))
+				var pl = pathLen(d3.select(this));
+				return pl + ' ' + pl;
 			})
 			.attr('stroke-dashoffset', function (d) {
 				return pathLen(d3.select(this))
@@ -313,7 +314,8 @@ function AreaChart(dualYaxis) {
 			.attr('d', line)
 			.transition()
 			.attr('stroke-dasharray', function (d) {
-				return pathLen(d3.select(this)) + ' ' + pathLen(d3.select(this))
+				var pl = pathLen(d3.select(this));
+				return pl + ' ' + pl;
 			})
 			.duration(2000)
 			.attr('stroke-dashoffset', 0);
