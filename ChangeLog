@@ -3,6 +3,9 @@ Changes to GoAccess 1.1.1 - Wednesday, November 23, 2016
   - Added data metric's "unique" count on each panel to the JSON/HTML outputs.
   - Changed D3 bar charts to use .rangeBands and avoid extra outer padding.
   - Fixed mouseover offset position issue on D3 bar charts.
+  - Fixed possible heap overflow when an invalid status code was parsed and
+    processed. This also ensures that only valid HTTP status codes are parsed
+    >=100 or <= 599.
   - Fixed sluggish D3 chart re-rendering by changing how x-axis labels are
     displayed in the HTML report.
 
