@@ -449,7 +449,7 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("real-time-html", name))
     conf.real_time_html = 1;
 
-  /* address to bind to */
+  /* URL to which the WebSocket server responds. */
   if (!strcmp ("ws-url", name))
     conf.ws_url = oarg;
 
