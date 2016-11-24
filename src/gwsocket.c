@@ -261,7 +261,7 @@ onopen (WSPipeOut * pipeout, WSClient * client)
 int
 open_fifoout (void)
 {
-  const char *fifo = "/tmp/wspipeout.fifo";
+  const char *fifo = conf.fifo_out ? conf.fifo_out : WS_PIPEOUT;
   int fdfifo;
 
   /* open fifo for reading before writing */
@@ -279,7 +279,7 @@ open_fifoout (void)
 int
 open_fifoin (void)
 {
-  const char *fifo = "/tmp/wspipein.fifo";
+  const char *fifo = conf.fifo_in ? conf.fifo_in : WS_PIPEIN;
   int fdfifo;
 
   if ((fdfifo = open (fifo, O_WRONLY | O_NONBLOCK)) == -1)
