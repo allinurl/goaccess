@@ -511,11 +511,13 @@ parse_long_opt (const char *name, const char *oarg)
   }
 
   /* ignore referer */
-  if (!strcmp ("ignore-referer", name) && conf.ignore_referer_idx < MAX_IGNORE_REF)
+  if (!strcmp ("ignore-referer", name) &&
+      conf.ignore_referer_idx < MAX_IGNORE_REF)
     conf.ignore_referers[conf.ignore_referer_idx++] = oarg;
 
   /* ignore status code */
-  if (!strcmp ("ignore-status", name) && conf.ignore_status_idx < MAX_IGNORE_STATUS) {
+  if (!strcmp ("ignore-status", name) &&
+      conf.ignore_status_idx < MAX_IGNORE_STATUS) {
     if (!str_inarray (oarg, conf.ignore_status, conf.ignore_status_idx))
       conf.ignore_status[conf.ignore_status_idx++] = oarg;
   }
