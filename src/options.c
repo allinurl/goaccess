@@ -341,6 +341,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("no-global-config", name))
     return;
 
+  /* == LOG & DATE FORMAT OPTIONS == */
+
   /* log format */
   if (!strcmp ("log-format", name) && !conf.log_format)
     set_log_format_str (oarg);
@@ -352,6 +354,8 @@ parse_long_opt (const char *name, const char *oarg)
   /* date format */
   if (!strcmp ("date-format", name))
     set_date_format_str (oarg);
+
+  /* == USER INTERFACE OPTIONS == */
 
   /* colors */
   if (!strcmp ("color", name) && conf.color_idx < MAX_CUSTOM_COLORS)
@@ -415,6 +419,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("no-html-last-updated", name))
     conf.no_html_last_updated = 1;
 
+  /* == SERVER OPTIONS == */
+
   /* address to bind to */
   if (!strcmp ("addr", name))
     conf.addr = oarg;
@@ -456,6 +462,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("ws-url", name))
     conf.ws_url = oarg;
 
+  /* == FILE OPTIONS == */
+
   /* invalid requests */
   if (!strcmp ("invalid-requests", name)) {
     conf.invalid_requests_log = oarg;
@@ -465,6 +473,8 @@ parse_long_opt (const char *name, const char *oarg)
   /* output file */
   if (!strcmp ("output", name) && conf.output_format_idx < MAX_OUTFORMATS)
     conf.output_formats[conf.output_format_idx++] = optarg;
+
+  /* == PARSE OPTIONS == */
 
   /* 444 as 404 */
   if (!strcmp ("444-as-404", name))
@@ -546,9 +556,13 @@ parse_long_opt (const char *name, const char *oarg)
     conf.static_files[conf.static_file_idx++] = oarg;
   }
 
+  /* == GEOIP OPTIONS == */
+
   /* specifies the path of the GeoIP City database file */
   if (!strcmp ("geoip-city-data", name) || !strcmp ("geoip-database", name))
     conf.geoip_database = oarg;
+
+  /* == BTREE OPTIONS == */
 
   /* keep database files */
   if (!strcmp ("keep-db-files", name))
