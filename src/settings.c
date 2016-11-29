@@ -70,7 +70,7 @@ static const GPreConfLog logs = {
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%dT%t.%^ %^ %h:%^ %^ %T %^ %^ %^ %s %^ %b \"%r\" \"%u\"",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
-  "%^[%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"",   /* Amazon S3 */
+  "%^ %v [%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"", /* Amazon S3 */
 };
 
 static const GPreConfTime times = {
