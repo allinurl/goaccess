@@ -82,12 +82,12 @@
 
 /* Maps a string key made from the integer key of the
  * IP/date/UA and the integer key from the data field of
- * each module to numeric autoincremented values. e.g., "14"
+ * each module to numeric autoincremented values. e.g., "1|4"
  * => 1 -> unique visitor key (concatenated) with 4 -> data
  * key.
  *
- * "14" -> 1
- * "15" -> 2
+ * "1|4" -> 1
+ * "1|5" -> 2
  */
 /* MTRC_UNIQMAP */
 
