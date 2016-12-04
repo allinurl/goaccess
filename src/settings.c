@@ -149,7 +149,9 @@ get_config_file_path (void)
   return rpath;
 }
 
-/* Use predefined static files when no config file is used. */
+/* Use predefined static files when no config file is used. Note that
+ * the order in which are listed is from the most to the least common
+ * (most cases). */
 void
 set_default_static_files (void)
 {
