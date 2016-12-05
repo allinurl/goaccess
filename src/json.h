@@ -36,7 +36,6 @@
 
 #define TAB "\t\t\t\t\t\t\t\t\t\t\t"
 #define NL "\n\n\n"
-#define INIT_BUF_SIZE 1024
 
 #include "parser.h"
 
