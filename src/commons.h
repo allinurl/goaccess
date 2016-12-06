@@ -50,6 +50,7 @@
 #define GO_WEBSITE 		"http://goaccess.io/"
 struct tm *now_tm;
 
+/* common char array buffer size */
 #define INIT_BUF_SIZE 1024
 
 /* total number of modules */
