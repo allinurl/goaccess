@@ -940,7 +940,7 @@ find_alpha (char **str)
   *str += s - *str;
 }
 
-/* Format the the broken-down time tm to a numeric date format.
+/* Format the broken-down time tm to a numeric date format.
  *
  * On error, or unable to format the given tm, 1 is returned.
  * On success, a malloc'd format is returned. */
