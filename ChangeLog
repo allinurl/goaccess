@@ -121,7 +121,6 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Changed configure.ac to use LDFLAGS instead of CFLAGS where applicable.
   - Changed default terminal color scheme to 256 Monokai if terminal supports 256 colors.
   - Changed GoAccess license to The MIT License (MIT)
-  - Changed the visitors panel to display its dates continuously.
   - Changed the visitors panel to display its dates continuously instead of top.
   - Default to 256 Monokai color scheme if terminal supports 256 colors.
   - Default to display HTTP method/protocol (if applicable).
