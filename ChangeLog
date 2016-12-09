@@ -126,10 +126,11 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Default to display HTTP method/protocol (if applicable).
   - Display the children's Max. T.S. as the parent's top Max. T.S.
   - Ensure the parent's Avg. T.S. displays parent's Cum. T.S. over parent's Hits.
-  - Fixed color issue when switching from the color scheme window.
+  - Fixed color issue when switching from the color scheme dialog.
   - Fixed cross platform build issue when ncurses is built with and without
     termlib=tinfo.
-  - Fixed issue header curses window wouldn't clear out on small window sizes.
+  - Fixed curses header window issue where it wouldn't clear out on small
+    window sizes.
   - Fixed issue where tail mode wouldn't parse full lines using getline().
   - Fixed minor background color issue when using ncurses 6.
   - Fixed possible division by zero when getting an entry percentage.
