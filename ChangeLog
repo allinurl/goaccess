@@ -136,14 +136,15 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
   - Fixed possible division by zero when calculating percentage.
   - Fixed singly link list node removal.
   - Fixed still reachable memory leak on GeoIP cleanup (geoip legacy >= 1.4.7).
-  - Fixed Valgrind's still reachable memory leaks.
+  - Fixed various Valgrind's still reachable memory leaks.
   - Removed -Wredundant-decls.
 
 Changes to GoAccess 0.9.8 - Monday, February 29, 2016
 
   - Added a more complete list of static extensions to the config file.
   - Added "Android 6.0 Marshmallow" to the list of OSs.
-  - Added --no-tab-scroll command line option disable scroll through panels on TAB.
+  - Added --no-tab-scroll command line option to disable scroll through panels
+    on TAB.
   - Added the first and last log dates to the overall statistics panel.
   - Ensure GoAccess links correctly against libtinfo.
   - Ensure static content is case-insensitive verified.
