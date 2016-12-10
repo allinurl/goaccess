@@ -133,7 +133,7 @@ Changes to GoAccess 1.0 - Thursday, June 09, 2016
     window sizes.
   - Fixed issue where tail mode wouldn't parse full lines using getline().
   - Fixed minor background color issue when using ncurses 6.
-  - Fixed possible division by zero when getting an entry percentage.
+  - Fixed possible division by zero when calculating percentage.
   - Fixed singly link list node removal.
   - Fixed still reachable memory leak on GeoIP cleanup (geoip legacy >= 1.4.7).
   - Fixed Valgrind's still reachable memory leaks.
