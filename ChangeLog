@@ -155,7 +155,8 @@ Changes to GoAccess 0.9.8 - Monday, February 29, 2016
 Changes to GoAccess 0.9.7 - Monday, December 21, 2015
 
   - Added "Squid native" log format to the config file.
-  - Fixed int overflow when getting total bandwidth using the on-disk storage.
+  - Fixed integer overflow when getting total bandwidth using the on-disk
+    storage.
   - Fixed issue where a timestamp was stored as date under the visitors panel.
   - Fixed issue where config dialog fields were not cleared out on select.
   - Fixed issue where "Virtual Hosts" menu item wasn't shown in the HTML sidebar.
@@ -199,8 +200,8 @@ Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
   - Added the ability to log invalid requests to a file --invalid-requests.
   - Added the ability to parse native Squid access.log format.
   - Fixed a few issues in the configuration script.
-  - Fixed inability to parse color due to a missing POSIX extension. ERR:
-    Invalid bg/fg color pairs
+  - Fixed inability to parse color due to a missing POSIX extension.
+    "ERR:Invalid bg/fg color pairs"
 
 Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
 
