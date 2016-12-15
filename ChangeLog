@@ -205,6 +205,7 @@ Changes to GoAccess 0.9.4 - Tuesday, September 08, 2015
 
 Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
 
+  - Added --no-column-names command line option to disable column name metrics.
   - Added a default color palette (Monokai) to the config file.
   - Added AWS Elastic Load Balancing to the list of predefined log/date/time
     formats.
@@ -213,7 +214,6 @@ Changes to GoAccess 0.9.3 - Wednesday, August 26, 2015
   - Added cumulative time served metric.
   - Added "DragonFly" BSD to the list of OSs.
   - Added maximum time served metric (slowest running requests).
-  - Added --no-column-names command line option to disable column name metrics.
   - Added "Slackbot" to the list of crawlers/browsers.
   - Added the ability to parse the query string specifier "%q" from a log file.
   - Added the ability to process logs incrementally.
@@ -239,7 +239,8 @@ Changes to GoAccess 0.9.2 - Monday, July 06, 2015
   - Ensure "Game Systems" are processed correctly.
   - Ensure visitors panel header is updated depending if crawlers are parsed or
     not.
-  - Fixed issue where the date value was set as time value  in the config dialog.
+  - Fixed issue where the date value was set as time value  in the config
+    dialog.
   - Fixed memory leak in the hits metrics when using the in-memory storage
     (GLib).
 
