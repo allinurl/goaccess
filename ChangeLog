@@ -342,11 +342,11 @@ Changes to GoAccess 0.8.3 - Monday, July 28, 2014
 Changes to GoAccess 0.8.2 - Monday, July 20, 2014
 
   - Added --version command line option.
+  - Added --ignore-crawlers command line option to ignore crawlers.
   - Added ability to parse dates containing whitespaces in between,
     e.g., "Jul 15 20:13:59" (syslog format).
   - Added a variety of browsers, game systems, feed readers, and podcasts.
   - Added missing up/down arrows to the help section.
-  - Added the ability to ignore crawlers using the --ignore-crawlers option.
   - Added the ability to ignore multiple IPv4/v6 and IP ranges.
   - Added the PATCH method according to RFC 5789.
   - Fixed GeoLocation percent issue for the JSON, CSV and HTML outputs.
