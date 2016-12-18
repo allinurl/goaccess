@@ -394,7 +394,8 @@ Changes to GoAccess 0.8 - Tuesday, May 20, 2014
 Changes to GoAccess 0.7.1 - Monday, February 17, 2014
 
   - Added --no-color command line option to turn off color output.
-  - Added ability to get real OS names using --real-os. (Android, Windows, Mac)
+  - Added --real-os command line option to get real OS names, e.g.,
+    "Android, Windows, Mac".
   - Added ability to log debug messages to a file.
   - Added ability to parse tab-separated log format strings.
   - Added ability to support terminals without colors.
