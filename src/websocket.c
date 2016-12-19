@@ -114,7 +114,7 @@ verify_utf8 (uint32_t * state, const char *str, int len)
   return *state;
 }
 
-/* Allocate memory for a websocket client */
+/* Allocate memory for a websocket server */
 static WSServer *
 new_wsserver (void)
 {
