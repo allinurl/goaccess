@@ -315,21 +315,21 @@ Changes to GoAccess 0.8.5 - Sunday, September 14, 2014
 
 Changes to GoAccess 0.8.4 - Monday, September 08, 2014
 
-  - Added ability to handle nginx non-standard status code 444 as 404.
-    --444-as-404.
+  - Added --444-as-404 command line option to handle nginx non-standard status
+    code 444 as 404.
+  - Added --4xx-to-unique-count command line option to count client errors (4xx)
+    to the unique visitors count.  Now by default it omits client errors (4xx)
+    from being added to the unique visitors count as they are probably not welcomed
+    visitors. 4xx errors are always counted in panels other than visitors, OS &
+    browsers.
   - Added and updated operating systems, and browsers.
   - Added excluded IP hits count to the general statistics panel on all reports.
   - Added HTTP nonstandard code "444" to the status code list.
-  - Added the ability to count client errors (4xx) to the unique visitors count.
-    Now by default it omits client errors (4xx) from being added to the unique
-    visitors count as they are probably not welcomed visitors. 4xx errors are
-    always counted in panels other than visitors, OS & browsers.
-    --4xx-to-unique-count.
+  - Fixed compile error due to missing include <sys/types.h> for type
+    off_t (gcc 4.1).
+  - Fixed issue when excluding IPv4/v6 ranges.
   - Removed request status field restriction. This allows parsing logs that
     contain only a valid date, IPv4/6 and host.
-  - Fixed issue when excluding IPv4/v6 ranges.
-  - Fixed compile error due to missing include <sys/types.h> for type off_t (gcc
-    4.1).
 
 Changes to GoAccess 0.8.3 - Monday, July 28, 2014
 
