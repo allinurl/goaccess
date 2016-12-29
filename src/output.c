@@ -600,7 +600,7 @@ print_def_overall_processed_time (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_GEN_TIME,
-    .datatype = "numeric",
+    .datatype = "secs",
     .cname = "gray"
   };
   fpopen_obj_attr (fp, OVERALL_GENTIME, sp);
