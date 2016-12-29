@@ -173,6 +173,9 @@ GoAccess.Util = {
 			if (this.isNumeric(value))
 				val = value.toLocaleString();
 			break;
+		case 'secs':
+			val = value + ' secs';
+			break;
 		default:
 			val = value;
 		};
