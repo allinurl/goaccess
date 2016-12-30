@@ -507,8 +507,7 @@ print_conn_def (FILE * fp)
   fprintf (fp, "var connection = ");
 
   fpopen_obj (fp, sp);
-  fpskeysval (fp, "url",
-              (conf.ws_url ? conf.ws_url : ""), sp, 0);
+  fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
   fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 1);
   fpclose_obj (fp, sp, 1);
 
