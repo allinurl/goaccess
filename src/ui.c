@@ -48,6 +48,7 @@
 #include <ctype.h>
 
 #include <errno.h>
+#include <inttypes.h>
 #include <locale.h>
 #include <stdlib.h>
 #include <string.h>
@@ -505,7 +506,11 @@ get_str_visitors (void)
 static char *
 get_str_proctime (void)
 {
-  return int2str (((long long) end_proc - start_proc), 0);
+  uint64_t secs = (long long) end_proc - start_proc;
+  char *s = xmalloc (snprintf (NULL, 0, "%" PRIu64 "s", secs) + 1);
+  sprintf (s, "%" PRIu64 "s", secs);
+
+  return s;
 }
 
 /* Get the log file size in a human readable format.
