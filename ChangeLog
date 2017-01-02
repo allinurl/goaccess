@@ -448,6 +448,7 @@ Changes to GoAccess 0.6.1 - Monday, October 07, 2013
 
 Changes to GoAccess 0.6 - Monday, July 15, 2013
 
+  - Added a bunch of minor fixes and changes.
   - Added and updated list of browsers and operating systems.
   - Added a predefined log format/date for the Amazon CloudFront (Download
     Distribution).
@@ -456,7 +457,6 @@ Changes to GoAccess 0.6 - Monday, July 15, 2013
   - Added the ability to search across the whole dashboard with the option to
     use regular expressions.
   - Config window now accepts [ENTER] to continue or F10.
-  - Fixed a bunch of minor fixes and changes.
   - Fixed issue where Opera +15 was identified as Chrome.
   - Implemented the ability to parse the time taken to serve the request, in
     microseconds and seconds.
