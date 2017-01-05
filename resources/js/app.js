@@ -110,7 +110,7 @@ GoAccess.Util = {
 		var dm = decimals + 1 || 3;
 		var sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
-		return (bytes / Math.pow(k, i)).toPrecision(dm) + (numOnly ? '' : (' ' + sizes[i]));
+		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + (numOnly ? '' : (' ' + sizes[i]));
 	},
 
 	// Validate number
