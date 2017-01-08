@@ -1313,7 +1313,9 @@ main (int argc, char **argv)
   time (&end_proc);
 
   /* stdout */
-  if (conf.output_stdout)
+  if (conf.process_and_exit) {
+    /* ignore outputting, process only */
+  } else if (conf.output_stdout)
     standard_output ();
   /* curses */
   else

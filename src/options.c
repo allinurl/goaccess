@@ -93,8 +93,8 @@ struct option long_opts[] = {
   {"hour-spec"            , required_argument , 0 ,  0  } ,
   {"html-custom-css"      , required_argument , 0 ,  0  } ,
   {"html-custom-js"       , required_argument , 0 ,  0  } ,
-  {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"html-prefs"           , required_argument , 0 ,  0  } ,
+  {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
@@ -114,6 +114,7 @@ struct option long_opts[] = {
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
+  {"process-and-exit"     , no_argument       , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
@@ -237,6 +238,7 @@ cmd_help (void)
   "                                    are allowed. i.e., *.bing.com\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
+  "  --process-and-exit              - Parse log and exit without outputting data.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
   "                                    Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
@@ -540,6 +542,10 @@ parse_long_opt (const char *name, const char *oarg)
       return;
     conf.num_tests = tests;
   }
+
+  /* process and exit */
+  if (!strcmp ("process-and-exit", name))
+    conf.process_and_exit = 1;
 
   /* real os */
   if (!strcmp ("real-os", name))
