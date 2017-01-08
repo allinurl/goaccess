@@ -160,6 +160,7 @@ typedef struct GConf_
   int no_tab_scroll;                /* don't scroll dashboard on tab */
   int num_tests;                    /* number of lines to test */
   int output_stdout;                /* outputting to stdout */
+  int process_and_exit;             /* parse and exit without outputting */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
