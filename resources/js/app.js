@@ -14,6 +14,23 @@ function $$(selector, callback) {
 	}
 }
 
+var debounce = function (func, wait, now) {
+	var timeout;
+	return function debounced () {
+		var that = this, args = arguments;
+		function delayed() {
+			if (!now)
+				func.apply(that, args);
+			timeout = null;
+		};
+		if (timeout)
+			clearTimeout(timeout);
+		else if (now)
+			func.apply(obj, args);
+		timeout = setTimeout(delayed, wait || 250);
+	};
+};
+
 // global namespace
 window.GoAccess = window.GoAccess || {
 	initialize: function (options) {
@@ -63,14 +80,18 @@ window.GoAccess = window.GoAccess || {
 		var host = null, host = wsConn.url ? wsConn.url : window.location.hostname ? window.location.hostname : "localhost";
 		var str = /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}\//.test(host + "/") ? host : String(host + ':' + wsConn.port);
 		str = !/^wss?:\/\//i.test(str) ? 'ws://' + str : str;
+
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
 			GoAccess.Nav.WSOpen();
 		}.bind(this);
+
 		socket.onmessage = function (event) {
+			this.AppState['updated'] = true;
 			this.AppData = JSON.parse(event.data);
 			this.App.renderData();
 		}.bind(this);
+
 		socket.onclose = function (event) {
 			GoAccess.Nav.WSClose();
 		}.bind(this);
@@ -240,6 +261,12 @@ GoAccess.Util = {
 		} catch(e) {
 			return false;
 		}
+	},
+
+	isWithinViewPort: function (el) {
+		var elemTop = el.getBoundingClientRect().top;
+		var elemBottom = el.getBoundingClientRect().bottom;
+		return elemTop < window.innerHeight && elemBottom >= 0;
 	},
 };
 
@@ -715,8 +742,18 @@ GoAccess.Panels = {
 
 // RENDER CHARTS
 GoAccess.Charts = {
+	iter: function (callback) {
+		Object.keys(GoAccess.AppCharts).forEach(function (panel) {
+			// redraw chart only if it's within the viewport
+			if (!GoAccess.Util.isWithinViewPort($('#panel-' + panel)))
+				return;
+			if (callback && typeof callback === 'function')
+				callback.call(this, GoAccess.AppCharts[panel], panel);
+		});
+	},
+
 	getMetricKeys: function (panel, key) {
-		return GoAccess.getPanelUI(panel)['items'].map(function(a) {return a[key];});
+		return GoAccess.getPanelUI(panel)['items'].map(function (a) { return a[key]; });
 	},
 
 	getPanelData: function (panel, data) {
@@ -898,7 +935,7 @@ GoAccess.Charts = {
 		var metric = GoAccess.Util.getProp(GoAccess.getPrefs(), panel + '.plot.metric');
 		if (!metric)
 			return ui.plot[0];
-		return ui.plot.filter(function(v) {
+		return ui.plot.filter(function (v) {
 			return v.className == metric;
 		})[0];
 	},
@@ -943,28 +980,37 @@ GoAccess.Charts = {
 		}
 	},
 
-	reloadChart: function () {
-		var ui = GoAccess.getPanelUI();
-		Object.keys(GoAccess.AppCharts).forEach(function (panel) {
+	reloadCharts: function () {
+		// do not redraw charts if data hasn't changed
+		if (!GoAccess.AppState.updated)
+			return;
+
+		this.iter(function (chart, panel) {
 			var subItems = GoAccess.Tables.getSubItemsData(panel);
 			var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
 
 			d3.select("#chart-" + panel)
 				.datum(this.processChartData(this.getPanelData(panel, data)))
-				.call(GoAccess.AppCharts[panel].width($("#chart-" + panel).offsetWidth));
+				.call(chart.width($("#chart-" + panel).offsetWidth));
 		}.bind(this));
+		GoAccess.AppState.updated = false;
+	},
+
+	redrawCharts: function () {
+		this.iter(function (chart, panel) {
+			d3.select("#chart-" + panel).call(chart.width($("#chart-" + panel).offsetWidth));
+		});
 	},
 
 	initialize: function () {
 		this.renderCharts(GoAccess.getPanelUI());
 
-		// Resize charts
-		d3.select(window).on('resize', function () {
-			Object.keys(GoAccess.AppCharts).forEach(function (panel) {
-				d3.select("#chart-" + panel)
-					.call(GoAccess.AppCharts[panel].width($("#chart-" + panel).offsetWidth));
-			});
-		});
+		// redraw on scroll & resize
+		d3.select(window).on('scroll', debounce(function () {
+			this.redrawCharts();
+		}, 250, false).bind(this)).on('resize', function () {
+			this.redrawCharts();
+		}.bind(this));
 	}
 };
 
@@ -1499,7 +1545,7 @@ GoAccess.App = {
 	renderData: function () {
 		this.verifySort();
 		GoAccess.OverallStats.initialize();
-		GoAccess.Charts.reloadChart();
+		GoAccess.Charts.reloadCharts();
 		GoAccess.Tables.initialize();
 	},
 
