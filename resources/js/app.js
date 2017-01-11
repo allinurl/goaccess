@@ -981,10 +981,6 @@ GoAccess.Charts = {
 	},
 
 	reloadCharts: function () {
-		// do not redraw charts if data hasn't changed
-		if (!GoAccess.AppState.updated)
-			return;
-
 		this.iter(function (chart, panel) {
 			var subItems = GoAccess.Tables.getSubItemsData(panel);
 			var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
@@ -1410,12 +1406,13 @@ GoAccess.Tables = {
 
 	// Iterate over all panels and determine which ones should contain
 	// a data table.
-	renderTables: function () {
+	renderTables: function (force) {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel) || !this.showTables())
 				continue;
-			this.renderFullTable(panel);
+			if (force || GoAccess.Util.isWithinViewPort($('#panel-' + panel)))
+				this.renderFullTable(panel);
 		}
 	},
 
@@ -1452,9 +1449,19 @@ GoAccess.Tables = {
 		}
 	},
 
-	initialize: function () {
-		this.renderTables();
+	reloadTables: function () {
+		this.renderTables(false);
 		this.events();
+	},
+
+	initialize: function () {
+		this.renderTables(true);
+		this.events();
+
+		// redraw on scroll & resize
+		d3.select(window).on('scroll', debounce(function () {
+			this.reloadTables();
+		}, 250, false).bind(this));
 	},
 };
 
@@ -1545,8 +1552,13 @@ GoAccess.App = {
 	renderData: function () {
 		this.verifySort();
 		GoAccess.OverallStats.initialize();
+
+		// do not rerender tables/charts if data hasn't changed
+		if (!GoAccess.AppState.updated)
+			return;
+
 		GoAccess.Charts.reloadCharts();
-		GoAccess.Tables.initialize();
+		GoAccess.Tables.reloadTables();
 	},
 
 	initialize: function () {
