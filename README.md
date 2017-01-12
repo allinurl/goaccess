@@ -263,6 +263,7 @@ to be used without prepending `--`.
 | `--num-tests=<number>`             | Number of lines to test against the given log format.         |
 | `--origin=<url>`                   | Ensure clients send stated origin header on WS handshake.     |
 | `--port=<port>`                    | Specify the port to use.                                      |
+| `--process-and-exit`               | Parse log and exit without outputting data.                   |
 | `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
 | `--real-time-html`                 | Enable real-time HTML output.                                 |
 | `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
