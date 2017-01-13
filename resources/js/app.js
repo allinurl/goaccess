@@ -1003,7 +1003,7 @@ GoAccess.Charts = {
 
 		// redraw on scroll & resize
 		d3.select(window).on('scroll.charts', debounce(function () {
-			this.redrawCharts();
+			this.reloadCharts();
 		}, 250, false).bind(this)).on('resize.charts', function () {
 			this.redrawCharts();
 		}.bind(this));
