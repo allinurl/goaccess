@@ -1002,9 +1002,9 @@ GoAccess.Charts = {
 		this.renderCharts(GoAccess.getPanelUI());
 
 		// redraw on scroll & resize
-		d3.select(window).on('scroll', debounce(function () {
+		d3.select(window).on('scroll.charts', debounce(function () {
 			this.redrawCharts();
-		}, 250, false).bind(this)).on('resize', function () {
+		}, 250, false).bind(this)).on('resize.charts', function () {
 			this.redrawCharts();
 		}.bind(this));
 	}
@@ -1458,8 +1458,8 @@ GoAccess.Tables = {
 		this.renderTables(true);
 		this.events();
 
-		// redraw on scroll & resize
-		d3.select(window).on('scroll', debounce(function () {
+		// redraw on scroll
+		d3.select(window).on('scroll.tables', debounce(function () {
 			this.reloadTables();
 		}, 250, false).bind(this));
 	},
