@@ -479,6 +479,22 @@ poverall_datetime (GJSON * json, int sp)
   pskeysval (json, OVERALL_DATETIME, now, sp, 0);
 }
 
+/* Write to a buffer the date and time for the overall object. */
+static void
+poverall_start_end_date (GJSON * json, GHolder * h, int sp)
+{
+  char *start = NULL, *end = NULL;
+
+  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
+    return;
+
+  pskeysval (json, OVERALL_STARTDATE, start, sp, 0);
+  pskeysval (json, OVERALL_ENDDATE, end, sp, 0);
+
+  free (end);
+  free (start);
+}
+
 /* Write to a buffer date and time for the overall object. */
 static void
 poverall_requests (GJSON * json, GLog * glog, int sp)
@@ -1094,7 +1110,7 @@ num_panels (void)
 
 /* Write to a buffer overall data. */
 static void
-print_json_summary (GJSON * json, GLog * glog)
+print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
 {
   int sp = 0, isp = 0;
 
@@ -1103,6 +1119,8 @@ print_json_summary (GJSON * json, GLog * glog)
     sp = 1, isp = 2;
 
   popen_obj_attr (json, GENER_ID, sp);
+  /* generated start/end date */
+  poverall_start_end_date (json, holder, isp);
   /* generated date time */
   poverall_datetime (json, isp);
   /* total requests */
@@ -1152,7 +1170,7 @@ init_json_output (GLog * glog, GHolder * holder)
   json = new_gjson ();
 
   popen_obj (json, 0);
-  print_json_summary (json, glog);
+  print_json_summary (json, glog, holder);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
