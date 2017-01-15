@@ -305,6 +305,12 @@ GoAccess.OverallStats = {
 		var idx = 0, row = null;
 
 		$('.last-updated').innerHTML = data.date_time;
+		$$('span.from', function (item) {
+			item.innerHTML = data.start_date
+		});
+		$$('span.to', function (item) {
+			item.innerHTML = data.end_date
+		});
 		// Iterate over general data object
 		for (var x in data) {
 			if (!data.hasOwnProperty(x) || !ui.items.hasOwnProperty(x))
