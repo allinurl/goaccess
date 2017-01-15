@@ -564,29 +564,47 @@ get_visitors_dates (GHolder * h)
   return dates;
 }
 
+/* Get the overall statistics start and end dates.
+ *
+ * On failure, 1 is returned
+ * On success, 0 is returned and an string containing the overall
+ * header is returned. */
+int
+get_start_end_parsing_dates (GHolder * h, char **start, char **end,
+                             const char *f)
+{
+  char **dates = NULL;
+  const char *sndfmt = conf.spec_date_time_num_format;
+
+  if (h->idx == 0)
+    return 1;
+
+  dates = get_visitors_dates (h + VISITORS);
+
+  /* just display the actual dates - no specificity */
+  *start = get_visitors_date (dates[0], sndfmt, f);
+  *end = get_visitors_date (dates[h->idx - 1], sndfmt, f);
+
+  free (dates);
+
+  return 0;
+}
+
 /* Get the overall statistics header (label).
  *
  * On success, an string containing the overall header is returned. */
 char *
 get_overall_header (GHolder * h)
 {
-  const char *sndfmt = conf.spec_date_time_num_format;
-  const char *head = conf.output_stdout ? T_HEAD : T_DASH " - " T_HEAD;
-  char *hd = NULL, *start = NULL, *end = NULL, **dates = NULL;
+  const char *head = T_DASH " - " T_HEAD;
+  char *hd = NULL, *start = NULL, *end = NULL;
 
-  if (h->idx == 0)
+  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
     return xstrdup (head);
-
-  dates = get_visitors_dates (h + VISITORS);
-
-  /* just display the actual dates - no specificity */
-  start = get_visitors_date (dates[0], sndfmt, "%d/%b/%Y");
-  end = get_visitors_date (dates[h->idx - 1], sndfmt, "%d/%b/%Y");
 
   hd = xmalloc (snprintf (NULL, 0, "%s (%s - %s)", head, start, end) + 1);
   sprintf (hd, "%s (%s - %s)", head, start, end);
 
-  free (dates);
   free (end);
   free (start);
 
