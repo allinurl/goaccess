@@ -1194,7 +1194,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 
     if (!(tkn = parse_string (&(*str), end, 1)))
       tkn = alloc_string ("-");
-    if (tkn != NULL && *tkn == '\0') {
+    if (*tkn == '\0') {
       free (tkn);
       tkn = alloc_string ("-");
     }
