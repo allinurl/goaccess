@@ -29,11 +29,12 @@
  */
 
 #include <errno.h>
-#include <tcutil.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <tcutil.h>
 
 #include "tcbtdb.h"
 #include "tcabdb.h"
