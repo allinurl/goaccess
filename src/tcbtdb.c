@@ -61,9 +61,9 @@ tc_db_set_path (const char *dbname, int module)
 
   if (conf.db_path != NULL) {
     /* sanity check: Is db_path accessible and a directory? */
-    if (stat(conf.db_path, &info) != 0) {
-      FATAL ("Unable to access database path: %s", strerror(errno));
-    } else if (! (info.st_mode & S_IFDIR)) {
+    if (stat (conf.db_path, &info) != 0) {
+      FATAL ("Unable to access database path: %s", strerror (errno));
+    } else if (!(info.st_mode & S_IFDIR)) {
       FATAL ("Database path is not a directory.");
     }
 
