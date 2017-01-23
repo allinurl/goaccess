@@ -56,7 +56,16 @@ tc_db_set_path (const char *dbname, int module)
   char *path;
   int cx;
 
+  struct stat info;
+
   if (conf.db_path != NULL) {
+    /* sanity check: Is db_path accessible and a directory? */
+    if (stat(conf.db_path, &info) != 0) {
+      FATAL ("Unable to access database path: %s", strerror(errno));
+    } else if (! (info.st_mode & S_IFDIR)) {
+      FATAL ("Database path is not a directory.");
+    }
+
     cx = snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1;
     path = xmalloc (cx);
     sprintf (path, "%s%dm%s", conf.db_path, module, dbname);
