@@ -43,6 +43,7 @@
 #define SPEC_TOKN_SET   0x1
 #define SPEC_TOKN_NUL   0x2
 #define SPEC_TOKN_INV   0x3
+#define SPEC_SFMT_MIS   0x4
 
 #include "commons.h"
 

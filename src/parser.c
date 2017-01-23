@@ -882,7 +882,7 @@ get_delim (char *dest, const char *p)
  *
  * On success, the malloc'd token is returned. */
 static char *
-parsed_string (const char *pch, char **str)
+parsed_string (const char *pch, char **str, int move_ptr)
 {
   char *p;
   size_t len = (pch - *str + 1);
@@ -890,7 +890,8 @@ parsed_string (const char *pch, char **str)
   p = xmalloc (len);
   memcpy (p, *str, (len - 1));
   p[len - 1] = '\0';
-  *str += len - 1;
+  if (move_ptr)
+    *str += len - 1;
 
   return trim_str (p);
 }
@@ -916,7 +917,7 @@ parse_string (char **str, const char *delims, int cnt)
       idx++;
     /* delim found, parse string then */
     if ((*pch == end && cnt == idx) || *pch == '\0')
-      return parsed_string (pch, str);
+      return parsed_string (pch, str, 1);
     /* advance to the first unescaped delim */
     if (*pch == '\\')
       pch++;
@@ -984,6 +985,11 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn)
     fmt = "Token for '%%%c' specifier is NULL.";
     err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
     sprintf (err, fmt, spec);
+    break;
+  case SPEC_SFMT_MIS:
+    fmt = "Missing braces '%s' and ignore chars for specifier '%%%c'";
+    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
+    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
   }
   logitem->errstr = err;
@@ -1294,6 +1300,98 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   return 0;
 }
 
+/* Parse the special host specifier and extract the characters that
+ * need to be rejected when attempting to parse the XFF field.
+ *
+ * If no unable to find both curly braces (boundaries), NULL is returned.
+ * On success, the malloc'd reject set is returned. */
+static char *
+extract_braces (char **p)
+{
+  const char *b1 = NULL;
+  size_t len = 0;
+  char *ret = NULL;
+
+  if (!(b1 = strchr (*p, '{')) || !(*p = strchr (*p + 1, '}')))
+    return NULL;
+
+  /* Found braces, extract 'reject' character set. */
+  len = *p - (b1 + 1);
+  ret = xmalloc (len + 1);
+  memcpy (ret, b1 + 1, len);
+  ret[len] = '\0';
+  (*p)++;
+
+  return ret;
+}
+
+/* Attempt to extract the client IP from an X-Forwarded-For (XFF) field.
+ *
+ * If no IP is found, 1 is returned.
+ * On success, the malloc'd token is assigned to a GLogItem->host and
+ * 0 is returned. */
+static int
+find_xff_host (GLogItem * logitem, char **str, char **p)
+{
+  char *ptr = NULL, *tkn = NULL, *skips = NULL, *host = NULL;
+  int invalid_ip = 1, len = 0;
+
+  if (!(skips = extract_braces (p)))
+    return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
+
+  ptr = *str;
+  while (*ptr != '\0') {
+    if ((len = strcspn (ptr, skips)) == 0) {
+      len++, ptr++;
+      goto move;
+    }
+
+    ptr += len;
+    /* extract possible IP */
+    if (!(tkn = parsed_string (ptr, str, 0)))
+      break;
+
+    invalid_ip = invalid_ipaddr (tkn, &logitem->type_ip);
+    /* done, already have IP and current token is not a host */
+    if (host && invalid_ip) {
+      free (tkn);
+      break;
+    }
+    if (!host && !invalid_ip)
+      host = xstrdup (tkn);
+    free (tkn);
+
+  move:
+    *str += len;
+  }
+
+  logitem->host = host;
+  free (skips);
+
+  return host == NULL;
+}
+
+/* Handle special specifiers.
+ *
+ * On error, or unable to parse it, 1 is returned.
+ * On success, the malloc'd token is assigned to a GLogItem member and
+ * 0 is returned. */
+static int
+special_specifier (GLogItem * logitem, char **str, char **p)
+{
+  switch (**p) {
+    /* XFF remote hostname (IP only) */
+  case 'h':
+    if (logitem->host)
+      return spec_err (logitem, SPEC_TOKN_SET, **p, NULL);
+    if (find_xff_host (logitem, str, p))
+      return 1;
+    break;
+  }
+
+  return 0;
+}
+
 /* Iterate over the given log format.
  *
  * On error, or unable to parse it, 1 is returned.
@@ -1303,9 +1401,8 @@ static int
 parse_format (GLogItem * logitem, char *str)
 {
   char end[2 + 1] = { 0 };
-  const char *p;
-  const char *lfmt = conf.log_format;
-  int special = 0, optdelim = 0;
+  char *lfmt = conf.log_format, *p = NULL;
+  int perc = 0, tilde = 0, optdelim = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
@@ -1316,10 +1413,23 @@ parse_format (GLogItem * logitem, char *str)
     if (*p == '\\')
       continue;
     if (*p == '%') {
-      special++;
+      perc++;
       continue;
     }
-    if (special && *p != '\0') {
+    if (*p == '~') {
+      tilde++;
+      continue;
+    }
+
+    if (tilde && *p != '\0') {
+      if ((str == NULL) || (*str == '\0'))
+        return 0;
+      if (special_specifier (logitem, &str, &p) == 1)
+        return 1;
+      tilde = 0;
+    }
+    /* %h */
+    else if (perc && *p != '\0') {
       if ((str == NULL) || (*str == '\0'))
         return 0;
 
@@ -1331,8 +1441,8 @@ parse_format (GLogItem * logitem, char *str)
       /* account for the extra delimiter */
       if (optdelim)
         p++;
-      special = 0;
-    } else if (special && isspace (p[0])) {
+      perc = 0;
+    } else if (perc && isspace (p[0])) {
       return 1;
     } else {
       str++;
