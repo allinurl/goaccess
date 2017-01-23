@@ -1333,8 +1333,8 @@ extract_braces (char **p)
 static int
 find_xff_host (GLogItem * logitem, char **str, char **p)
 {
-  char *ptr = NULL, *tkn = NULL, *skips = NULL, *host = NULL;
-  int invalid_ip = 1, len = 0;
+  char *ptr = NULL, *tkn = NULL, *skips = NULL;
+  int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
 
   if (!(skips = extract_braces (p)))
     return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
@@ -1351,24 +1351,25 @@ find_xff_host (GLogItem * logitem, char **str, char **p)
     if (!(tkn = parsed_string (ptr, str, 0)))
       break;
 
-    invalid_ip = invalid_ipaddr (tkn, &logitem->type_ip);
+    invalid_ip = invalid_ipaddr (tkn, &type_ip);
     /* done, already have IP and current token is not a host */
-    if (host && invalid_ip) {
+    if (logitem->host && invalid_ip) {
       free (tkn);
       break;
     }
-    if (!host && !invalid_ip)
-      host = xstrdup (tkn);
+    if (!logitem->host && !invalid_ip) {
+      logitem->host = xstrdup (tkn);
+      logitem->type_ip = type_ip;
+    }
     free (tkn);
 
   move:
     *str += len;
   }
 
-  logitem->host = host;
   free (skips);
 
-  return host == NULL;
+  return logitem->host == NULL;
 }
 
 /* Handle special specifiers.
