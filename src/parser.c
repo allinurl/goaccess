@@ -1517,7 +1517,7 @@ output_logerrors (GLog * glog)
   if (!glog->log_erridx)
     return;
 
-  fprintf (stderr, "Parsed %d lines ", conf.num_tests);
+  fprintf (stderr, "Parsed %d lines ", glog->log_erridx);
   fprintf (stderr, "producing the following errors:\n\n");
 
   for (i = 0; i < glog->log_erridx; ++i)
