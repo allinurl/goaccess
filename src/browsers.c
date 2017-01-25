@@ -273,6 +273,7 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
+  {"com.apple.Safari.WebFeedParser", "Feeds"}
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
   {"Liferea", "Feeds"},
