@@ -115,6 +115,7 @@ static const char *browsers[][2] = {
   {"Bloglines", "Feeds"},
   {"Digg Feed Fetcher", "Feeds"},
   {"Feedbin", "Feeds"},
+  {"FeedHQ", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
   {"Netvibes", "Feeds"},
