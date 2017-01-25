@@ -788,19 +788,15 @@ The time taken to serve the request, in milliseconds as a decimal number.
 Ignore this field.
 .IP %~
 Move forward through the log string until a non-space (!isspace) char is found.
-.IP |
-Vertical pipe or bar is used for either the character prior to the vertical
-pipe or followed by the vertical pipe.
+.IP ~h
+The host (the client IP address, either IPv4 or IPv6) in a X-Forwarded-For (XFF) field.
 
-The system checks if the given log format has a character delimiter followed by
-a vertical pipe followed by a second character delimiter, i.e.,
-.I ,|"
-The parser will use the first delimiter found when parsing the preceding
-specifier, e.g.,
-.I %h,|"
-If a vertical pipe is a character literal within the log format, then it has to
-be escaped using a backslash, e.g.,
-.I %d \[rs]\[rs]| %t
+It uses a special specifier which consists of a tilde before the host
+specifier, followed by the character(s) that delimit the XFF field, which are
+enclosed by curly braces (i.e., ~h{," })
+
+For example, ~h{," } is used in order to parse "11.25.11.53, 17.68.33.17" field
+which is delimited by a double quote, a comma, and a space.
 .P
 .I Note:
 In order to get the average, cumulative and maximum time served in GoAccess,
