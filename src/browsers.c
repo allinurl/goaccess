@@ -111,6 +111,7 @@ static const char *browsers[][2] = {
   {"Apache", "Others"},
 
   /* Feed-reader-as-a-service */
+  {"AppleNewsBot", "Feeds"},
   {"Bloglines", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
