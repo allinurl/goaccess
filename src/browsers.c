@@ -120,6 +120,7 @@ static const char *browsers[][2] = {
   {"Flipboard", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
+  {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
   /* Google crawlers (some based on Chrome,
@@ -273,7 +274,7 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
-  {"com.apple.Safari.WebFeedParser", "Feeds"}
+  {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
   {"Liferea", "Feeds"},
