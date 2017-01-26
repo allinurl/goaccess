@@ -42,7 +42,7 @@
 #include "error.h"
 #include "util.h"
 
-GeoIP *geo_location_data;
+static GeoIP *geo_location_data;
 
 /* Free up GeoIP resources */
 void
@@ -53,6 +53,25 @@ geoip_free (void)
 
   GeoIP_delete (geo_location_data);
   GeoIP_cleanup ();
+}
+
+/* Open the given GeoLocation database and set its charset.
+ *
+ * On error, it aborts.
+ * On success, a new geolocation structure is returned. */
+static GeoIP *
+geoip_open_db (const char *db)
+{
+  GeoIP *geoip;
+  geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
+
+  if (geoip == NULL)
+    FATAL ("Unable to open GeoIP database: %s\n", db);
+
+  GeoIP_set_charset (geoip, GEOIP_CHARSET_UTF8);
+  LOG_DEBUG (("Opened GeoIP City database: %s\n", db));
+
+  return geoip;
 }
 
 /* Set up and open GeoIP database */
@@ -100,25 +119,6 @@ get_continent_name_and_code (const char *continentid)
     return "AS Asia";
   else
     return "-- Unknown";
-}
-
-/* Open the given GeoLocation database and set its charset.
- *
- * On error, it aborts.
- * On success, a new geolocation structure is returned. */
-GeoIP *
-geoip_open_db (const char *db)
-{
-  GeoIP *geoip;
-  geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
-
-  if (geoip == NULL)
-    FATAL ("Unable to open GeoIP database: %s\n", db);
-
-  GeoIP_set_charset (geoip, GEOIP_CHARSET_UTF8);
-  LOG_DEBUG (("Opened GeoIP City database: %s\n", db));
-
-  return geoip;
 }
 
 /* Compose a string with the country name and code and store it in the
