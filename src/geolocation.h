@@ -51,7 +51,6 @@ typedef struct GLocation_
   int hits;
 } GLocation;
 
-GeoIP *geoip_open_db (const char *db);
 int is_geoip_resource (void);
 int set_geolocation (char *host, char *continent, char *country, char *city);
 void geoip_free (void);
