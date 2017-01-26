@@ -160,10 +160,7 @@ house_keeping (void)
 
   /* GEOLOCATION */
 #ifdef HAVE_LIBGEOIP
-  if (geo_location_data != NULL) {
-    GeoIP_delete (geo_location_data);
-    GeoIP_cleanup ();
-  }
+  geoip_free ();
 #endif
 
   /* LOGGER */
@@ -1044,20 +1041,6 @@ init_processing (void)
     set_general_stats ();
   set_spec_date_format ();
 }
-
-/* Set up and open GeoIP database */
-#ifdef HAVE_LIBGEOIP
-static void
-init_geoip (void)
-{
-  /* open custom city GeoIP database */
-  if (conf.geoip_database != NULL)
-    geo_location_data = geoip_open_db (conf.geoip_database);
-  /* fall back to legacy GeoIP database */
-  else
-    geo_location_data = GeoIP_new (conf.geo_db);
-}
-#endif
 
 /* Determine the type of output, i.e., JSON, CSV, HTML */
 static void
