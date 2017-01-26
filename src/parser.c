@@ -619,7 +619,7 @@ extract_keyphrase (char *ref, char **keyphrase)
 static int
 extract_geolocation (GLogItem * logitem, char *continent, char *country)
 {
-  if (geo_location_data == NULL)
+  if (!is_geoip_resource ())
     return 1;
 
   geoip_get_country (logitem->host, country, logitem->type_ip);

@@ -54,9 +54,12 @@ typedef struct GLocation_
 extern GeoIP *geo_location_data;
 
 GeoIP *geoip_open_db (const char *db);
+int is_geoip_resource (void);
 int set_geolocation (char *host, char *continent, char *country, char *city);
+void geoip_free (void);
 void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
+void init_geoip (void);
 
 #endif

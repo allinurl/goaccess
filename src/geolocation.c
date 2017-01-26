@@ -44,6 +44,39 @@
 
 GeoIP *geo_location_data;
 
+/* Free up GeoIP resources */
+void
+geoip_free (void)
+{
+  if (geo_location_data == NULL)
+    return;
+
+  GeoIP_delete (geo_location_data);
+  GeoIP_cleanup ();
+}
+
+/* Set up and open GeoIP database */
+void
+init_geoip (void)
+{
+  /* open custom city GeoIP database */
+  if (conf.geoip_database != NULL)
+    geo_location_data = geoip_open_db (conf.geoip_database);
+  /* fall back to legacy GeoIP database */
+  else
+    geo_location_data = GeoIP_new (conf.geo_db);
+}
+
+/* Determine if we have a valid geoip resource.
+ *
+ * If the geoip resource is NULL, 0 is returned.
+ * If the geoip resource is valid and malloc'd, 1 is returned. */
+int
+is_geoip_resource (void)
+{
+  return geo_location_data == NULL ? 1 : 0;
+}
+
 /* Get continent name concatenated with code.
  *
  * If continent not found, "Unknown" is returned.
