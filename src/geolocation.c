@@ -93,7 +93,7 @@ init_geoip (void)
 int
 is_geoip_resource (void)
 {
-  return geo_location_data == NULL ? 1 : 0;
+  return geo_location_data != NULL ? 1 : 0;
 }
 
 /* Get continent name concatenated with code.
