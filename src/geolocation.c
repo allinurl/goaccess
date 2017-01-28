@@ -44,11 +44,21 @@
 
 static GeoIP *geo_location_data;
 
+/* Determine if we have a valid geoip resource.
+ *
+ * If the geoip resource is NULL, 0 is returned.
+ * If the geoip resource is valid and malloc'd, 1 is returned. */
+int
+is_geoip_resource (void)
+{
+  return geo_location_data != NULL ? 1 : 0;
+}
+
 /* Free up GeoIP resources */
 void
 geoip_free (void)
 {
-  if (geo_location_data == NULL)
+  if (!is_geoip_resource())
     return;
 
   GeoIP_delete (geo_location_data);
@@ -84,16 +94,6 @@ init_geoip (void)
   /* fall back to legacy GeoIP database */
   else
     geo_location_data = GeoIP_new (conf.geo_db);
-}
-
-/* Determine if we have a valid geoip resource.
- *
- * If the geoip resource is NULL, 0 is returned.
- * If the geoip resource is valid and malloc'd, 1 is returned. */
-int
-is_geoip_resource (void)
-{
-  return geo_location_data != NULL ? 1 : 0;
 }
 
 /* Get continent name concatenated with code.
