@@ -316,7 +316,7 @@ geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   const char *continent = NULL, *addr = ip;
   int geoid = 0;
 
-  if (geo_location_data == NULL)
+  if (!is_geoip_resource())
     return;
 
   if (!(geoid = geoip_get_geoid (addr, type_ip)))
@@ -423,7 +423,7 @@ set_geolocation (char *host, char *continent, char *country, char *city)
 {
   int type_ip = 0;
 
-  if (geo_location_data == NULL)
+  if (!is_geoip_resource())
     return 1;
 
   if (invalid_ipaddr (host, &type_ip))
