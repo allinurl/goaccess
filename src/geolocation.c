@@ -235,7 +235,7 @@ geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   const char *country = NULL, *code = NULL, *addr = ip;
   int geoid = 0;
 
-  if (geo_location_data == NULL)
+  if (!is_geoip_resource())
     return;
 
   if (!(country = geoip_get_country_by_geoid (addr, type_ip)))
