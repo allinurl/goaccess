@@ -43,6 +43,10 @@
 #include "tcbtdb.h"
 #endif
 
+#ifdef HAVE_LIBGEOIP
+#include <GeoIP.h>
+#endif
+
 #include "options.h"
 
 #include "error.h"
@@ -125,8 +129,10 @@ struct option long_opts[] = {
 #endif
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
+#endif
+#ifdef HAVE_LIBGEOIP
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
 #endif
 #ifdef TCB_BTREE
@@ -249,10 +255,12 @@ cmd_help (void)
   "\n"
 
 /* GeoIP Options */
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   "GeoIP Options\n\n"
+#ifdef HAVE_LIBGEOIP
   "  -g --std-geoip                  - Standard GeoIP database for less memory\n"
   "                                    consumption.\n"
+#endif
   "  --geoip-database=<path>         - Specify path to GeoIP database file. i.e.,\n"
   "                                    GeoLiteCity.dat, GeoIPv6.dat ...\n"
   "\n"

@@ -37,7 +37,7 @@
 #include <GeoIPCity.h>
 #endif
 
-#include "geolocation.h"
+#include "geoip.h"
 
 #include "error.h"
 #include "util.h"
@@ -127,9 +127,9 @@ static void
 geoip_set_country (const char *country, const char *code, char *loc)
 {
   if (country && code)
-    sprintf (loc, "%s %s", code, country);
+    snprintf (loc, COUNTRY_LEN, "%s %s", code, country);
   else
-    sprintf (loc, "%s", "Unknown");
+    snprintf (loc, COUNTRY_LEN, "%s", "Unknown");
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -137,8 +137,7 @@ geoip_set_country (const char *country, const char *code, char *loc)
 static void
 geoip_set_city (const char *city, const char *region, char *loc)
 {
-  sprintf (loc, "%s, %s", city ? city : "N/A City",
-           region ? region : "N/A Region");
+  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -147,9 +146,9 @@ static void
 geoip_set_continent (const char *continent, char *loc)
 {
   if (continent)
-    sprintf (loc, "%s", get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
   else
-    sprintf (loc, "%s", "Unknown");
+    snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
 
 /* Get detailed information found in the GeoIP Database about the

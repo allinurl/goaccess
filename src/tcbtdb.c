@@ -39,8 +39,8 @@
 #include "tcbtdb.h"
 #include "tcabdb.h"
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
+#ifdef HAVE_GEOLOCATION
+#include "geoip.h"
 #endif
 
 #include "error.h"
