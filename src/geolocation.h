@@ -34,10 +34,6 @@
 #ifndef GEOLOCATION_H_INCLUDED
 #define GEOLOCATION_H_INCLUDED
 
-#ifdef HAVE_LIBGEOIP
-#include <GeoIP.h>
-#endif
-
 #include "commons.h"
 
 #define CITY_LEN       28       /* max string length for a city */
