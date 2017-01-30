@@ -34,10 +34,6 @@
 #ifndef COMMONS_H_INCLUDED
 #define COMMONS_H_INCLUDED
 
-#ifdef HAVE_LIBGEOIP
-#include <GeoIP.h>
-#endif
-
 #include <time.h>
 #include <stdint.h>
 
@@ -54,7 +50,7 @@ struct tm *now_tm;
 #define INIT_BUF_SIZE 1024
 
 /* total number of modules */
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
 #define TOTAL_MODULES    15
 #else
 #define TOTAL_MODULES    14
@@ -106,7 +102,7 @@ typedef enum MODULES
   KEYPHRASES,
   STATUS_CODES,
   REMOTE_USER,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   GEO_LOCATION,
 #endif
 } GModule;

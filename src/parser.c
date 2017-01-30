@@ -62,8 +62,8 @@
 #include "gkhash.h"
 #endif
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
+#ifdef HAVE_GEOLOCATION
+#include "geoip.h"
 #endif
 
 #include "parser.h"
@@ -91,7 +91,7 @@ static int gen_request_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_static_request_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_status_code_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_visit_time_key (GKeyData * kdata, GLogItem * logitem);
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
 static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
 #endif
 
@@ -242,7 +242,7 @@ static GParse paneling[] = {
     NULL,
     NULL,
   },
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   {
     GEO_LOCATION,
     gen_geolocation_key,
@@ -610,7 +610,7 @@ extract_keyphrase (char *ref, char **keyphrase)
   return 0;
 }
 
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
 /* Extract geolocation for the given host.
  *
  * On error, 1 is returned.
@@ -2227,7 +2227,7 @@ gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem)
  * On error, 1 is returned.
  * On success, the generated geolocation key is assigned to our key
  * data structure. */
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
 static int
 gen_geolocation_key (GKeyData * kdata, GLogItem * logitem)
 {

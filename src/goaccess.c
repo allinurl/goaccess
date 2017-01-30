@@ -57,8 +57,8 @@
 #include "gkhash.h"
 #endif
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
+#ifdef HAVE_GEOLOCATION
+#include "geoip.h"
 #endif
 
 #include "csv.h"
@@ -117,7 +117,7 @@ static GScroll gscroll = {
     {0, 0}, /* referrers   {scroll, offset} */
     {0, 0}, /* ref sites   {scroll, offset} */
     {0, 0}, /* keywords    {scroll, offset} */
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     {0, 0}, /* geolocation {scroll, offset} */
 #endif
     {0, 0}, /* status      {scroll, offset} */
@@ -159,7 +159,7 @@ house_keeping (void)
   }
 
   /* GEOLOCATION */
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   geoip_free ();
 #endif
 
@@ -907,7 +907,7 @@ get_keys (void)
       /* reset expanded module */
       set_module_to (&gscroll, REMOTE_USER);
       break;
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     case 37:   /* Shift + 4 */
       /* reset expanded module */
       set_module_to (&gscroll, GEO_LOCATION);
@@ -1183,7 +1183,7 @@ initializer (void)
   /* setup to use the current locale */
   set_locale ();
 
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   init_geoip ();
 #endif
 

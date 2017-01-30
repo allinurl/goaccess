@@ -88,7 +88,7 @@ static GOutput outputting[] = {
   {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REMOTE_USER     , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
 };
@@ -276,7 +276,7 @@ module_to_label (GModule module)
     KEYPH_LABEL,
     CODES_LABEL,
     RUSER_LABEL,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     GEOLO_LABEL,
 #endif
   };
@@ -305,7 +305,7 @@ module_to_id (GModule module)
     KEYPH_ID,
     CODES_ID,
     RUSER_ID,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     GEOLO_ID,
 #endif
   };
@@ -334,7 +334,7 @@ module_to_head (GModule module)
     KEYPH_HEAD,
     CODES_HEAD,
     RUSER_HEAD,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     GEOLO_HEAD,
 #endif
   };
@@ -367,7 +367,7 @@ module_to_desc (GModule module)
     KEYPH_DESC,
     CODES_DESC,
     RUSER_DESC,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     GEOLO_DESC,
 #endif
   };

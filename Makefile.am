@@ -130,10 +130,16 @@ goaccess_SOURCES += \
    src/gkhash.h
 endif
 
-if GEOLOCATION
+if GEOIP_LEGACY
 goaccess_SOURCES +=  \
-   src/geolocation.c \
-   src/geolocation.h
+   src/geoip.c \
+   src/geoip.h
+endif
+
+if GEOIP_MMDB
+goaccess_SOURCES +=  \
+   src/geoip2.c \
+   src/geoip.h
 endif
 
 if DEBUG

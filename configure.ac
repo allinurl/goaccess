@@ -52,11 +52,22 @@ fi
 AC_ARG_ENABLE(geoip, [  --enable-geoip   Enable GeoIP country lookup. Default is disabled],
   [geoip="$enableval"], geoip=no)
 
-if test "$geoip" = "yes"; then
-  AC_CHECK_LIB([GeoIP], [GeoIP_new], [],
-    [AC_MSG_ERROR([*** Missing development files for the GeoIP library])])
+geolocation="N/A"
+if test "$geoip" = "mmdb"; then
+  AC_CHECK_LIB([maxminddb], [MMDB_open], [], [AC_MSG_ERROR([
+    *** Missing development files for libmaxminddb library.
+  ])])
+  geolocation="GeoIP2"
+  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.]),
+elif test "$geoip" = "legacy"; then
+  AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([
+    *** Missing development files for the GeoIP library
+  ])])
+  geolocation="GeoIP Legacy"
+  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.]),
 fi
-AM_CONDITIONAL([GEOLOCATION], [test "x$geoip" = "xyes"])
+AM_CONDITIONAL([GEOIP_LEGACY], [test "x$geoip" = "xlegacy"])
+AM_CONDITIONAL([GEOIP_MMDB], [test "x$geoip" = "xmmdb"])
 
 # GNU getline / POSIX.1-2008
 AC_ARG_WITH(getline, [  --with-getline Build using GNU getline.],
@@ -276,6 +287,7 @@ Your build configuration:
   Storage method : $storage
   GNU getline    : $with_getline
   TLS/SSL        : $openssl
+  Geolocation    : $geolocation
   Compiler flags : $CFLAGS
   Linker flags   : $LIBS $LDFLAGS
   Bugs           : $PACKAGE_BUGREPORT

@@ -81,7 +81,7 @@ static GPanel paneling[] = {
   {KEYPHRASES      , print_csv_data} ,
   {STATUS_CODES    , print_csv_data} ,
   {REMOTE_USER     , print_csv_data} ,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , print_csv_data} ,
 #endif
 };

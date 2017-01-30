@@ -39,8 +39,8 @@
 #include "gkhash.h"
 #endif
 
-#ifdef HAVE_LIBGEOIP
-#include "geolocation.h"
+#ifdef HAVE_GEOLOCATION
+#include "geoip.h"
 #endif
 
 #include "gholder.h"
@@ -81,7 +81,7 @@ static GPanel paneling[] = {
   {KEYPHRASES      , add_data_to_holder, NULL} ,
   {STATUS_CODES    , add_root_to_holder, NULL} ,
   {REMOTE_USER     , add_data_to_holder, NULL} ,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , add_root_to_holder, NULL} ,
 #endif
 };
@@ -348,14 +348,14 @@ static void
 set_host_sub_list (GHolder * h, GSubList * sub_list)
 {
   GMetrics *nmetrics;
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   char city[CITY_LEN] = "";
   char continent[CONTINENT_LEN] = "";
   char country[COUNTRY_LEN] = "";
 #endif
 
   char *host = h->items[h->idx].metrics->data, *hostname = NULL;
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
   /* add geolocation child nodes */
   set_geolocation (host, continent, country, city);
 

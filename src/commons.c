@@ -180,7 +180,7 @@ get_module_enum (const char *str)
     {"KEYPHRASES"      , KEYPHRASES}      ,
     {"STATUS_CODES"    , STATUS_CODES}    ,
     {"REMOTE_USER"     , REMOTE_USER}     ,
-#ifdef HAVE_LIBGEOIP
+#ifdef HAVE_GEOLOCATION
     {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
   };
