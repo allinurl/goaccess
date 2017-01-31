@@ -96,6 +96,11 @@ init_geoip (void)
     geoip_city_type = 1;
 }
 
+/* Look up an IP address that is passed in as a null-terminated string.
+ *
+ * On error, it aborts.
+ * If no entry is found, 1 is returned.
+ * On success, MMDB_lookup_result_s struct is set and 0 is returned. */
 static int
 geoip_lookup (MMDB_lookup_result_s * res, const char *ip)
 {
@@ -169,6 +174,11 @@ geoip_set_continent (const char *continent, char *loc)
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
 
+/* A wrapper to fetch the looked up result set.
+ *
+ * On error, it aborts.
+ * If no data is found, NULL is returned.
+ * On success, the fetched value is returned. */
 static char *
 get_value (MMDB_lookup_result_s res, ...)
 {
@@ -195,6 +205,10 @@ get_value (MMDB_lookup_result_s res, ...)
   return value;
 }
 
+/* A wrapper to fetch the looked up result and set the city and region.
+ *
+ * If no data is found, NULL is set.
+ * On success, the fetched value is set. */
 static void
 geoip_query_city (MMDB_lookup_result_s res, char *location)
 {
@@ -207,6 +221,10 @@ geoip_query_city (MMDB_lookup_result_s res, char *location)
   geoip_set_city (city, region, location);
 }
 
+/* A wrapper to fetch the looked up result and set the country and code.
+ *
+ * If no data is found, NULL is set.
+ * On success, the fetched value is set. */
 static void
 geoip_query_country (MMDB_lookup_result_s res, char *location)
 {
@@ -219,6 +237,10 @@ geoip_query_country (MMDB_lookup_result_s res, char *location)
   geoip_set_country (country, code, location);
 }
 
+/* A wrapper to fetch the looked up result and set the continent code.
+ *
+ * If no data is found, NULL is set.
+ * On success, the fetched value is set. */
 static void
 geoip_query_continent (MMDB_lookup_result_s res, char *location)
 {
@@ -229,8 +251,7 @@ geoip_query_continent (MMDB_lookup_result_s res, char *location)
   geoip_set_continent (code, location);
 }
 
-/* Set country data by geoid or record into the given `location` buffer
- * based on the IP version and currently used database edition.  */
+/* Set country data by record into the given `location` buffer */
 void
 geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
 {
@@ -242,6 +263,7 @@ geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
   geoip_query_country (res, location);
 }
 
+/* A wrapper to fetch the looked up result and set the continent. */
 void
 geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
 {
