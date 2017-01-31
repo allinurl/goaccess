@@ -58,7 +58,7 @@ is_geoip_resource (void)
 void
 geoip_free (void)
 {
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return;
 
   GeoIP_delete (geo_location_data);
@@ -137,7 +137,8 @@ geoip_set_country (const char *country, const char *code, char *loc)
 static void
 geoip_set_city (const char *city, const char *region, char *loc)
 {
-  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
+  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
+            region ? region : "N/A Region");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -146,7 +147,8 @@ static void
 geoip_set_continent (const char *continent, char *loc)
 {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s",
+              get_continent_name_and_code (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
@@ -234,7 +236,7 @@ geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   const char *country = NULL, *code = NULL, *addr = ip;
   int geoid = 0;
 
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return;
 
   if (!(country = geoip_get_country_by_geoid (addr, type_ip)))
@@ -315,7 +317,7 @@ geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
   const char *continent = NULL, *addr = ip;
   int geoid = 0;
 
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return;
 
   if (!(geoid = geoip_get_geoid (addr, type_ip)))
@@ -422,7 +424,7 @@ set_geolocation (char *host, char *continent, char *country, char *city)
 {
   int type_ip = 0;
 
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return 1;
 
   if (invalid_ipaddr (host, &type_ip))
