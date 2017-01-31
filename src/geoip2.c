@@ -64,7 +64,7 @@ is_geoip_resource (void)
 void
 geoip_free (void)
 {
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return;
 
   MMDB_close (mmdb);
@@ -83,7 +83,7 @@ init_geoip (void)
   int status = 0;
 
   if (fn == NULL)
-    FATAL ("No GeoIP2 database was passed\n");
+    return;
 
   /* open custom city GeoIP database */
   mmdb = xcalloc (1, sizeof (MMDB_s));
@@ -160,7 +160,8 @@ geoip_set_country (const char *country, const char *code, char *loc)
 static void
 geoip_set_city (const char *city, const char *region, char *loc)
 {
-  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
+  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
+            region ? region : "N/A Region");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -169,7 +170,8 @@ static void
 geoip_set_continent (const char *continent, char *loc)
 {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s",
+              get_continent_name_and_code (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
@@ -189,9 +191,10 @@ get_value (MMDB_lookup_result_s res, ...)
   va_start (keys, res);
 
   status = MMDB_vget_value (&res.entry, &entry_data, keys);
-  if (status != MMDB_SUCCESS)
-    FATAL ("Error from libmaxminddb: %s\n", MMDB_strerror (status));
   va_end (keys);
+
+  if (status != MMDB_SUCCESS)
+    return NULL;
 
   if (!entry_data.has_data)
     return NULL;
@@ -214,10 +217,10 @@ geoip_query_city (MMDB_lookup_result_s res, char *location)
 {
   char *city = NULL, *region = NULL;
 
-  if ((city = get_value (res, "city", "names", "en", NULL)) == NULL)
-    return;
-  if ((region = get_value (res, "subdivisions", "0", "names", "en", NULL)) == NULL)
-    return;
+  if (res.found_entry) {
+    city = get_value (res, "city", "names", "en", NULL);
+    region = get_value (res, "subdivisions", "0", "names", "en", NULL);
+  }
   geoip_set_city (city, region, location);
 }
 
@@ -230,10 +233,10 @@ geoip_query_country (MMDB_lookup_result_s res, char *location)
 {
   char *country = NULL, *code = NULL;
 
-  if ((country = get_value (res, "country", "names", "en", NULL)) == NULL)
-    return;
-  if ((code = get_value (res, "country", "iso_code", NULL)) == NULL)
-    return;
+  if (res.found_entry) {
+    country = get_value (res, "country", "names", "en", NULL);
+    code = get_value (res, "country", "iso_code", NULL);
+  }
   geoip_set_country (country, code, location);
 }
 
@@ -246,8 +249,8 @@ geoip_query_continent (MMDB_lookup_result_s res, char *location)
 {
   char *code = NULL;
 
-  if ((code = get_value (res, "continent", "code", NULL)) == NULL)
-    return;
+  if (res.found_entry)
+    code = get_value (res, "continent", "code", NULL);
   geoip_set_continent (code, location);
 }
 
@@ -257,9 +260,7 @@ geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
 {
   MMDB_lookup_result_s res;
 
-  if (geoip_lookup (&res, ip))
-    return;
-
+  geoip_lookup (&res, ip);
   geoip_query_country (res, location);
 }
 
@@ -269,9 +270,7 @@ geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
 {
   MMDB_lookup_result_s res;
 
-  if (geoip_lookup (&res, ip))
-    return;
-
+  geoip_lookup (&res, ip);
   geoip_query_continent (res, location);
 }
 
@@ -285,12 +284,10 @@ set_geolocation (char *host, char *continent, char *country, char *city)
 {
   MMDB_lookup_result_s res;
 
-  if (!is_geoip_resource())
+  if (!is_geoip_resource ())
     return 1;
 
-  if (geoip_lookup (&res, host))
-    return 1;
-
+  geoip_lookup (&res, host);
   geoip_query_country (res, country);
   geoip_query_continent (res, continent);
   if (geoip_city_type)
