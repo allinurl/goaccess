@@ -285,7 +285,7 @@ set_geolocation (char *host, char *continent, char *country, char *city)
 {
   MMDB_lookup_result_s res;
 
-  if (mmdb == NULL)
+  if (!is_geoip_resource())
     return 1;
 
   if (geoip_lookup (&res, host))
