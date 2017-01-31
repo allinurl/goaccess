@@ -1,5 +1,5 @@
 /**
- * geolocation.c -- GeoLocation 2 related functions
+ * geoip2.c -- GeoLocation 2 related functions
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
