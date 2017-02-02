@@ -2610,7 +2610,7 @@ read_log (GLog ** glog, int dry_run)
   FILE *fp = NULL;
 
   /* no data piped, no log passed, load from disk only then */
-  if (conf.load_from_disk && !conf.ifile && isatty (STDIN_FILENO)) {
+  if (conf.load_from_disk && !conf.ifile && !isatty (STDIN_FILENO)) {
     (*glog)->load_from_disk_only = 1;
     return 0;
   }
