@@ -309,7 +309,7 @@ output_csv (GLog * glog, GHolder * holder, const char *filename)
 
   GPercTotals totals = {
     .hits = glog->valid,
-    .visitors = ht_get_size_uniqmap (VISITORS),
+    .visitors = 0,
     .bw = glog->resp_size,
   };
 
@@ -329,6 +329,8 @@ output_csv (GLog * glog, GHolder * holder, const char *filename)
 
     if (!(panel = panel_lookup (module)))
       continue;
+
+    totals.visitors = ht_get_meta_data (module, "visitors");
     panel->render (fp, holder + module, totals);
   }
 
