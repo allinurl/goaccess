@@ -1177,6 +1177,7 @@ init_json_output (GLog * glog, GHolder * holder)
 
     if (!(panel = panel_lookup (module)))
       continue;
+
     totals.visitors = ht_get_meta_data (module, "visitors");
     panel->render (json, holder + module, totals, panel);
     pjson (json, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
