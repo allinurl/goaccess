@@ -1028,7 +1028,8 @@ display_content (WINDOW * win, GLog * glog, GDash * dash, GScroll * gscroll)
     /* used module */
     dash->module[module].module = module;
 
-    max_hit_percent = get_max_hits_percent (idata, n, glog->valid);
+    max_hit_percent =
+      get_max_hits_percent (idata, n, ht_get_meta_data (module, "hits"));
 
     /* integer length */
     dash->module[module].hits_len = get_max_hit_len (idata, n);
