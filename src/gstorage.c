@@ -35,6 +35,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabdb.h"
+#else
+#include "gkhash.h"
+#endif
+
 #include "gstorage.h"
 
 #include "error.h"
@@ -73,6 +79,15 @@ uint642ptr (uint64_t val)
   *ptr = val;
 
   return ptr;
+}
+
+/* Set the module totals to calculate percentages. */
+void
+set_module_totals (GModule module, GPercTotals * totals)
+{
+  totals->bw = ht_get_meta_data (module, "bytes");
+  totals->hits = ht_get_meta_data (module, "hits");
+  totals->visitors = ht_get_meta_data (module, "visitors");
 }
 
 /* Set numeric metrics for each request given raw data.

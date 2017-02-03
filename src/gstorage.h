@@ -63,5 +63,6 @@ void *get_storage_metric_by_module (GModule module, GSMetric metric);
 void *get_storage_metric (GModule module, GSMetric metric);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
                        GPercTotals totals);
+void set_module_totals (GModule module, GPercTotals * totals);
 
 #endif // for #ifndef GSTORAGE_H

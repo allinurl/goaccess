@@ -1158,14 +1158,9 @@ init_json_output (GLog * glog, GHolder * holder)
 {
   GJSON *json = NULL;
   GModule module;
+  GPercTotals totals;
   const GPanel *panel = NULL;
   size_t idx = 0, npanels = num_panels (), cnt = 0;
-
-  GPercTotals totals = {
-    .hits = glog->valid,
-    .visitors = 0,
-    .bw = glog->resp_size,
-  };
 
   json = new_gjson ();
 
@@ -1178,7 +1173,7 @@ init_json_output (GLog * glog, GHolder * holder)
     if (!(panel = panel_lookup (module)))
       continue;
 
-    totals.visitors = ht_get_meta_data (module, "visitors");
+    set_module_totals (module, &totals);
     panel->render (json, holder + module, totals, panel);
     pjson (json, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }
