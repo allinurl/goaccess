@@ -120,6 +120,7 @@ static const char *browsers[][2] = {
   {"Flipboard", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
+  {"PinRSS", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
