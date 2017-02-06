@@ -55,6 +55,10 @@ terminal. Features include:
   GoAccess features an on-disk B+Tree storage for large datasets where it is not 
   possible to fit everything in memory.
 
+* **Docker support**
+  GoAccess comes with a default Docker that will listen for HTTP connections on port 8080.
+  Although, you can still fully configure it, by using Volume mapping and editing `goaccess.conf`.
+
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
 not limited to:
@@ -102,6 +106,20 @@ Download, extract and compile GoAccess with:
     $ ./configure --enable-geoip --enable-utf8
     $ make
     # make install
+
+### Docker ###
+
+```
+docker run \
+    --restart=always \
+    -d \
+    -p 80:8080 \
+    -v "/home/user/data:/srv/data" \
+    allinurl/goaccess
+```
+
+Inside your folder `/home/user/data` you can place your `goaccess.conf` file, which will be used by the Docker to configure goaccess.
+If no configuration will be present, a new empty file will be created.
 
 ## Distributions ##
 
