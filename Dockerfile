@@ -46,7 +46,7 @@ RUN rm -rf /var/cache/apk/*
 ################################
 
 RUN rm /etc/supervisord.conf \
-    && mv /root/supervisord.conf /etc
+    && mv /opt/supervisord.conf /etc
 
 # Allow redirection of stdout to docker logs
 ############################################
