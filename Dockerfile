@@ -1,4 +1,4 @@
-FROM alpine:3.4
+FROM alpine
 LABEL maintainer "Julian Xhokaxhiu <info@julianxhokaxhiu.com>"
 
 # Environment variables
