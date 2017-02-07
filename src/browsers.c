@@ -146,8 +146,8 @@ static const char *browsers[][2] = {
   /* Crawlers/Bots */
   {"bingbot", "Crawlers"},
   {"msnbot", "Crawlers"},
-  {"Yandex", "Crawlers"},
-  {"Baidu", "Crawlers"},
+  {"YandexBot", "Crawlers"},
+  {"Baiduspider", "Crawlers"},
   {"Ezooms", "Crawlers"},
   {"Twitter", "Crawlers"},
   {"Slurp", "Crawlers"},
@@ -212,7 +212,6 @@ static const char *browsers[][2] = {
   {"TosCrawler", "Crawlers"},
   {"Updownerbot", "Crawlers"},
   {"urlwatch", "Crawlers"},
-  {"IstellaBot", "Crawlers"},
   {"OpenWebSpider", "Crawlers"},
   {"WordPress", "Crawlers"},
   {"yacybot", "Crawlers"},
@@ -256,6 +255,12 @@ static const char *browsers[][2] = {
   {"Image", "Crawlers"},
   {"keybase-proofs", "Crawlers"},
   {"SemrushBot", "Crawlers"},
+  {"CommonCrawler", "Crawlers"},
+  {"Mail.RU_Bot", "Crawlers"},
+  {"MegaIndex.ru", "Crawlers"},
+  {"XoviBot", "Crawlers"},
+  {"X-CAD-SE", "Crawlers"},
+  {"Safeassign", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
