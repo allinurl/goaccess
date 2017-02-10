@@ -334,6 +334,7 @@ void ws_set_config_sslcert (const char *sslcert);
 void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_start (WSServer * server);
+uint32_t verify_utf8 (uint32_t * state, const char *str, int len);
 void ws_stop (WSServer * server);
 WSServer *ws_init (const char *host, const char *port);
 
