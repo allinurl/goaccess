@@ -318,6 +318,7 @@ typedef struct WSServer_
 int ws_read_fifo (int fd, char *buf, int *buflen, int pos, int need);
 int ws_send_data (WSClient * client, WSOpcode opcode, const char *p, int sz);
 int ws_setfifo (const char *pipename);
+int ws_validate_string (const char *str, int len);
 int ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len);
 size_t pack_uint32 (void *buf, uint32_t val);
 size_t unpack_uint32 (const void *buf, uint32_t * val);
@@ -334,7 +335,6 @@ void ws_set_config_sslcert (const char *sslcert);
 void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_start (WSServer * server);
-uint32_t verify_utf8 (uint32_t * state, const char *str, int len);
 void ws_stop (WSServer * server);
 WSServer *ws_init (const char *host, const char *port);
 

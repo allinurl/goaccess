@@ -97,7 +97,7 @@ static int shutdown_ssl (WSClient * client);
 /* Determine if the given string is valid UTF-8.
  *
  * The state after the by has been processed is returned. */
-uint32_t
+static uint32_t
 verify_utf8 (uint32_t * state, const char *str, int len)
 {
   int i;
@@ -1728,7 +1728,7 @@ ws_handle_ping (WSClient * client)
  *
  * On error, or if the message is invalid, 1 is returned.
  * On success, or if the message is valid, 0 is returned. */
-static int
+int
 ws_validate_string (const char *str, int len)
 {
   uint32_t state = UTF8_VALID;
