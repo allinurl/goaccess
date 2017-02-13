@@ -40,6 +40,12 @@
 
 #include "gdashboard.h"
 
+#ifdef HAVE_LIBTOKYOCABINET
+#include "tcabdb.h"
+#else
+#include "gkhash.h"
+#endif
+
 #include "color.h"
 #include "error.h"
 #include "gstorage.h"
