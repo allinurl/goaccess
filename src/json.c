@@ -54,6 +54,7 @@
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
+#include "websocket.h"
 #include "xmalloc.h"
 
 typedef struct GPanel_
@@ -264,7 +265,9 @@ escape_json_other (GJSON * json, char **s)
   } else {
     char buf[2];
     snprintf (buf, sizeof buf, "%c", **s);
-    pjson (json, "%s", buf);
+
+    if (ws_validate_string (buf, 1) == 0)
+      pjson (json, "%s", buf);
   }
 }
 
