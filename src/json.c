@@ -265,9 +265,7 @@ escape_json_other (GJSON * json, char **s)
   } else {
     char buf[2];
     snprintf (buf, sizeof buf, "%c", **s);
-
-    if (ws_validate_string (buf, 1) == 0)
-      pjson (json, "%s", buf);
+    pjson (json, "%s", buf);
   }
 }
 
