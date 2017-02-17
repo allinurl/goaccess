@@ -87,6 +87,7 @@ struct option long_opts[] = {
   {"color"                , required_argument , 0 ,  0  } ,
   {"color-scheme"         , required_argument , 0 ,  0  } ,
   {"crawlers-only"        , no_argument       , 0 ,  0  } ,
+  {"daemonize"            , no_argument       , 0 ,  0  } ,
   {"date-format"          , required_argument , 0 ,  0  } ,
   {"date-spec"            , required_argument , 0 ,  0  } ,
   {"dcf"                  , no_argument       , 0 ,  0  } ,
@@ -193,6 +194,7 @@ cmd_help (void)
   /* Server Options */
   "Server Options\n\n"
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
+  "  --daemonize                     - Run as daemon (if --real-time-html enabled).\n"
   "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
   "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
@@ -442,6 +444,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* FIFO out (write) */
   if (!strcmp ("fifo-out", name))
     conf.fifo_out = oarg;
+
+  /* run program as a Unix daemon */
+  if (!strcmp ("daemonize", name))
+    conf.daemonize = 1;
 
   /* WebSocket origin */
   if (!strcmp ("origin", name))

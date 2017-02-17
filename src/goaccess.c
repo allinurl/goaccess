@@ -50,6 +50,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <fcntl.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
@@ -190,6 +191,53 @@ house_keeping (void)
   free (gwswriter);
   /* WebSocket reader */
   free (gwsreader);
+}
+
+/* Set GoAccess to run as a daemon */
+static void
+daemonize (void)
+{
+  pid_t pid, sid;
+  int fd;
+
+  /* Clone ourselves to make a child */
+  pid = fork ();
+
+  if (pid < 0)
+    exit (EXIT_FAILURE);
+  if (pid > 0) {
+    printf ("Daemonized GoAccess: %d\n", pid);
+    exit (EXIT_SUCCESS);
+  }
+
+  umask (0);
+  /* attempt to create our own process group */
+  sid = setsid ();
+  if (sid < 0) {
+    LOG_DEBUG (("Unable to setsid: %s.\n", strerror (errno)));
+    exit (EXIT_FAILURE);
+  }
+
+  /* set the working directory to the root directory.
+   * requires the user to specify absolute paths */
+  if (chdir ("/") < 0) {
+    LOG_DEBUG (("Unable to set chdir: %s.\n", strerror (errno)));
+    exit (EXIT_FAILURE);
+  }
+
+  /* redirect fd's 0,1,2 to /dev/null */
+  /* Note that the user will need to use --debug-file for log output */
+  if ((fd = open ("/dev/null", O_RDWR, 0)) == -1) {
+    LOG_DEBUG (("Unable to open /dev/null: %s.\n", strerror (errno)));
+    exit (EXIT_FAILURE);
+  }
+
+  dup2 (fd, STDIN_FILENO);
+  dup2 (fd, STDOUT_FILENO);
+  dup2 (fd, STDERR_FILENO);
+  if (fd > STDERR_FILENO) {
+    close (fd);
+  }
 }
 
 /* Extract data from the given module hash structure and allocate +
@@ -1208,9 +1256,13 @@ set_standard_output (void)
     html = 1;
 
   /* Spawn WebSocket server threads */
-  if (html && conf.real_time_html)
+  if (html && conf.real_time_html) {
+    if (conf.daemonize)
+      daemonize ();
     setup_ws_server (gwswriter, gwsreader);
+  }
   setup_thread_signals ();
+
   /* Spawn progress spinner thread */
   ui_spinner_create (parsing_spinner);
 }

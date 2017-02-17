@@ -140,6 +140,7 @@ typedef struct GConf_
   int code444_as_404;               /* 444 as 404s? */
   int color_scheme;                 /* color scheme */
   int crawlers_only ;               /* crawlers only */
+  int daemonize;                    /* run program as a Unix daemon */
   int double_decode;                /* need to double decode */
   int enable_html_resolver;         /* html/json/csv resolver */
   int geo_db;                       /* legacy geoip db */
