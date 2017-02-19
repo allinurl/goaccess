@@ -350,7 +350,7 @@ render_screens (void)
   /* display active label based on current module */
   update_active_module (header_win, gscroll.current);
 
-  display_content (main_win, glog, dash, &gscroll);
+  display_content (main_win, dash, &gscroll);
 }
 
 /* Collapse the current expanded module */
@@ -995,11 +995,11 @@ get_keys (void)
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
     case 'G':  /* G = down */
       scroll_to_last_line ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
       /* expand dashboard module */
     case KEY_RIGHT:
@@ -1010,12 +1010,12 @@ get_keys (void)
     case 111:  /* O */
     case KEY_ENTER:
       expand_current_module ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
     case KEY_DOWN:     /* scroll main dashboard */
       if ((gscroll.dash + main_win_height) < dash->total_alloc) {
         gscroll.dash++;
-        display_content (main_win, glog, dash, &gscroll);
+        display_content (main_win, dash, &gscroll);
       }
       break;
     case KEY_MOUSE:    /* handles mouse events */
@@ -1023,28 +1023,28 @@ get_keys (void)
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_down_expanded_module ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
       /* scroll up main_win */
     case KEY_UP:
       if (gscroll.dash > 0) {
         scroll_up_dashboard ();
-        display_content (main_win, glog, dash, &gscroll);
+        display_content (main_win, dash, &gscroll);
       }
       break;
     case 2:    /* ^ b - page up */
     case 339:  /* ^ PG UP */
       page_up_module ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
     case 6:    /* ^ f - page down */
     case 338:  /* ^ PG DOWN */
       page_down_module ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
     case 107:  /* k - UP expanded module */
       scroll_up_expanded_module ();
-      display_content (main_win, glog, dash, &gscroll);
+      display_content (main_win, dash, &gscroll);
       break;
     case 'n':
       search_next_match (search);
