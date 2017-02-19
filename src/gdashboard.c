@@ -1004,7 +1004,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
 
 /* Entry point to render the terminal dashboard. */
 void
-display_content (WINDOW * win, GLog * glog, GDash * dash, GScroll * gscroll)
+display_content (WINDOW * win, GDash * dash, GScroll * gscroll)
 {
   GDashData *idata;
   GModule module;
