@@ -208,6 +208,7 @@ cmd_help (void)
 
   /* File Options */
   "File Options\n\n"
+  "  -                               - The log file to parse is read from stdin.\n"
   "  -f --log-file=<filename>        - Path to input log file.\n"
   "  -l --debug-file=<filename>      - Send all debug messages to the specified\n"
   "                                    file.\n"
