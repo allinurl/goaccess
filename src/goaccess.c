@@ -740,21 +740,23 @@ parse_tail_follow (FILE * fp)
 
 /* Process appended log data */
 static void
-perform_tail_follow (uint64_t * size1)
+perform_tail_follow (uint64_t * size1, const char *fn)
 {
   FILE *fp = NULL;
   uint64_t size2 = 0;
 
+  if (fn[0] == '-' && fn[1] == '\0')
+    return;
   if (glog->piping || glog->load_from_disk_only)
     return;
 
-  size2 = file_size (conf.ifile);
+  size2 = file_size (fn);
 
   /* file hasn't changed */
   if (size2 == *size1)
     return;
 
-  if (!(fp = fopen (conf.ifile, "r")))
+  if (!(fp = fopen (fn, "r")))
     FATAL ("Unable to read log file %s.", strerror (errno));
 
   if (!fseeko (fp, *size1, SEEK_SET))
@@ -775,7 +777,8 @@ perform_tail_follow (uint64_t * size1)
 static void
 process_html (const char *filename)
 {
-  uint64_t size1 = 0;
+  uint64_t *size1 = NULL;
+  int i = 0;
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -796,14 +799,24 @@ process_html (const char *filename)
   if (gwswriter->fd == -1)
     return;
 
-  size1 = file_size (conf.ifile);
+  size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
+  for (i = 0; i < conf.filenames_idx; ++i) {
+    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
+      size1[i] = 0;
+    else
+      size1[i] = file_size (conf.filenames[i]);
+  }
+
   while (1) {
     if (conf.stop_processing)
       break;
-    perform_tail_follow (&size1);       /* 0.2 secs */
+
+    for (i = 0; i < conf.filenames_idx; ++i)
+      perform_tail_follow (&size1[i], conf.filenames[i]);       /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
   close (gwswriter->fd);
+  free (size1);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -875,11 +888,18 @@ static void
 get_keys (void)
 {
   int search = 0;
-  int c, quit = 1;
-  uint64_t size1 = 0;
+  int c, quit = 1, i;
+  uint64_t *size1 = NULL;
 
-  if (!glog->piping && !glog->load_from_disk_only)
-    size1 = file_size (conf.ifile);
+  if (!glog->load_from_disk_only && conf.filenames_idx) {
+    size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
+    for (i = 0; i < conf.filenames_idx; ++i) {
+      if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
+        size1[i] = 0;
+      else
+        size1[i] = file_size (conf.filenames[i]);
+    }
+  }
 
   while (quit) {
     if (conf.stop_processing)
@@ -1049,10 +1069,12 @@ get_keys (void)
       window_resize ();
       break;
     default:
-      perform_tail_follow (&size1);
+      for (i = 0; i < conf.filenames_idx; ++i)
+        perform_tail_follow (&size1[i], conf.filenames[i]);
       break;
     }
   }
+  free (size1);
 }
 
 /* Set general/overall statistics when loading data from the on-disk
@@ -1150,11 +1172,11 @@ parse_cmd_line (int argc, char **argv)
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
     conf.output_stdout = 1;
-  /* Log piped, and log file passed */
-  if (conf.ifile && !isatty (STDIN_FILENO) && !conf.output_stdout)
-    cmd_help ();
+  /* read from standard input if data piped */
+  if (!isatty (STDIN_FILENO) && !conf.read_stdin)
+    add_dash_filename ();
   /* No data piped, no file was used and not loading from disk */
-  if (!conf.ifile && isatty (STDIN_FILENO) && !conf.load_from_disk)
+  if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
     cmd_help ();
 
   set_default_static_files ();
@@ -1286,13 +1308,13 @@ set_curses (int *quit)
   set_curses_spinner (parsing_spinner);
 
   /* Display configuration dialog if missing formats and not piping data in */
-  if (isatty (STDIN_FILENO) && (verify_formats () || conf.load_conf_dlg)) {
+  if (!conf.read_stdin && (verify_formats () || conf.load_conf_dlg)) {
     refresh ();
     *quit = render_confdlg (glog, parsing_spinner);
     clear ();
   }
   /* Piping data in without log/date/time format */
-  else if (!isatty (STDIN_FILENO) && (err_log = verify_formats ())) {
+  else if (conf.read_stdin && (err_log = verify_formats ())) {
     FATAL ("%s", err_log);
   }
   /* straight parsing */

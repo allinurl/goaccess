@@ -2605,24 +2605,18 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-read_log (GLog ** glog, int dry_run)
+read_log (GLog ** glog, const char *fn, int dry_run)
 {
   FILE *fp = NULL;
 
-  /* no data piped, no log passed, load from disk only then */
-  if (conf.load_from_disk && !conf.ifile && !isatty (STDIN_FILENO)) {
-    (*glog)->load_from_disk_only = 1;
-    return 0;
-  }
-
-  /* no log passed, but data piped */
-  if (!isatty (STDIN_FILENO) && !conf.ifile) {
+  /* read from stdin */
+  if (fn[0] == '-' && fn[1] == '\0') {
     fp = stdin;
     (*glog)->piping = 1;
   }
 
   /* make sure we can open the log (if not reading from stdin) */
-  if (!(*glog)->piping && (fp = fopen (conf.ifile, "r")) == NULL)
+  if (!(*glog)->piping && (fp = fopen (fn, "r")) == NULL)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* read line by line */
@@ -2651,6 +2645,7 @@ int
 parse_log (GLog ** glog, char *tail, int dry_run)
 {
   const char *err_log = NULL;
+  int i;
 
   /* process tail data and return */
   if (tail != NULL) {
@@ -2664,8 +2659,20 @@ parse_log (GLog ** glog, char *tail, int dry_run)
   if ((err_log = verify_formats ()))
     FATAL ("%s", err_log);
 
-  /* the first run */
-  return read_log (glog, dry_run);
+  /* no data piped, no logs passed, load from disk only then */
+  if (conf.load_from_disk && !conf.filenames_idx && !conf.read_stdin) {
+    (*glog)->load_from_disk_only = 1;
+    return 0;
+  }
+
+  for (i = 0; i < conf.filenames_idx; ++i) {
+    if (read_log (glog, conf.filenames[i], dry_run)) {
+      fprintf (stderr, "%s\n", conf.filenames[i]);
+      return 1;
+    }
+  }
+
+  return 0;
 }
 
 /* Ensure we have valid hits

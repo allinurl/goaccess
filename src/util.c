@@ -801,6 +801,20 @@ left_pad_str (const char *s, int indent)
   return buf;
 }
 
+/* Append the source string to destination and reallocates and
+ * updating the destination buffer appropriately. */
+void
+append_str (char **dest, const char *src)
+{
+  size_t curlen = strlen (*dest);
+  size_t srclen = strlen (src);
+  size_t newlen = curlen + srclen;
+
+  char *str = xrealloc (*dest, newlen + 1);
+  memcpy (str + curlen, src, srclen + 1);
+  *dest = str;
+}
+
 /* Escapes the special characters, e.g., '\n', '\r', '\t', '\'
  * in the string source by inserting a '\' before them.
  *

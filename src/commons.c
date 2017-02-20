@@ -413,3 +413,51 @@ init_modules (void)
 
   return module_list[0] > -1 ? module_list[0] : 0;
 }
+
+/* Get the logs size.
+ *
+ * If log was piped (from stdin), 0 is returned.
+ * On success, it adds up all log sizes and its value is returned. */
+off_t
+get_log_sizes (void)
+{
+  int i;
+  off_t size = 0;
+
+  for (i = 0; i < conf.filenames_idx; ++i) {
+    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
+      size += 0;
+    else
+      size += file_size (conf.filenames[i]);
+  }
+
+  return size;
+}
+
+/* Get the log sources used.
+ *
+ * On success, a newly malloc'd string containing the log source either
+ * from filename(s) and/or STDIN is returned. */
+char *
+get_log_source_str (int max_len)
+{
+  char *str = xstrdup ("");
+  int i, len = 0;
+
+  for (i = 0; i < conf.filenames_idx; ++i) {
+    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
+      append_str (&str, "STDIN");
+    else
+      append_str (&str, conf.filenames[i]);
+    if (i != conf.filenames_idx - 1)
+      append_str (&str, "; ");
+  }
+
+  len = strlen (str);
+  if (max_len > 0 && len > 0 && len > max_len) {
+    str[max_len - 3] = 0;
+    append_str (&str, "...");
+  }
+
+  return str;
+}
