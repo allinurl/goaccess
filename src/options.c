@@ -158,7 +158,7 @@ cmd_help (void)
   printf ("\nGoAccess - %s\n\n", GO_VERSION);
   printf (
   "Usage: "
-  "goaccess [ options ... ] -f log_file [-c][-M][-H][-q][-d][...]\n"
+  "goaccess [filename] [ options ... ] [-c][-M][-H][-q][-d][...]\n"
   "The following options can also be supplied to the command:\n\n"
 
   /* Log & Date Format Options */
