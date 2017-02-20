@@ -221,11 +221,12 @@ print_csv_data (FILE * fp, GHolder * h, GPercTotals totals)
 static void
 print_csv_summary (FILE * fp, GLog * glog)
 {
-  long long t = 0LL;
-  int i = 0, total = 0;
-  off_t log_size = 0;
   char now[DATE_TIME];
+  char *source = NULL;
   const char *fmt;
+  int i = 0, total = 0;
+  long long t = 0LL;
+  off_t log_size = 0;
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
@@ -279,8 +280,8 @@ print_csv_summary (FILE * fp, GLog * glog)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_STATIC);
 
   /* log size */
-  if (!glog->piping && conf.ifile)
-    log_size = file_size (conf.ifile);
+  if (!glog->piping && conf.filenames_idx)
+    log_size = get_log_sizes ();
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) log_size, OVERALL_LOGSIZE);
 
@@ -289,11 +290,10 @@ print_csv_summary (FILE * fp, GLog * glog)
   fprintf (fp, fmt, i++, GENER_ID, glog->resp_size, OVERALL_BANDWIDTH);
 
   /* log path */
-  if (conf.ifile == NULL)
-    conf.ifile = (char *) "STDIN";
-
+  source = get_log_source_str (0);
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
-  fprintf (fp, fmt, i++, GENER_ID, conf.ifile, OVERALL_LOG);
+  fprintf (fp, fmt, i++, GENER_ID, source, OVERALL_LOG);
+  free (source);
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"

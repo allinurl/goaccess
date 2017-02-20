@@ -578,15 +578,10 @@ poverall_static_files (GJSON * json, int sp)
 /* Write to a buffer the size of the log being parsed under the
  * overall object. */
 static void
-poverall_log_size (GJSON * json, GLog * glog, int sp)
+poverall_log_size (GJSON * json, int sp)
 {
-  off_t log_size = 0;
-
-  if (!glog->piping && conf.ifile)
-    log_size = file_size (conf.ifile);
-
   pjson (json, "%.*s\"%s\": %jd,%.*s", sp, TAB, OVERALL_LOGSIZE,
-         (intmax_t) log_size, nlines, NL);
+         (intmax_t) get_log_sizes (), nlines, NL);
 }
 
 /* Write to a buffer the total bandwidth consumed under the overall
@@ -597,17 +592,32 @@ poverall_bandwidth (GJSON * json, GLog * glog, int sp)
   pskeyu64val (json, OVERALL_BANDWIDTH, glog->resp_size, sp, 0);
 }
 
+static void
+poverall_log_path (GJSON * json, int idx, int isp)
+{
+  pjson (json, "%.*s\"", isp, TAB);
+  if (conf.filenames[idx][0] == '-' && conf.filenames[idx][1] == '\0')
+    pjson (json, "STDIN");
+  else
+    escape_json_output (json, (char *) conf.filenames[idx]);
+  pjson (json, conf.filenames_idx - 1 != idx ? "\",\n" : "\"");
+}
+
 /* Write to a buffer the path of the log being parsed under the
  * overall object. */
 static void
 poverall_log (GJSON * json, int sp)
 {
-  if (conf.ifile == NULL)
-    conf.ifile = (char *) "STDIN";
+  int idx, isp = 0;
 
-  pjson (json, "%.*s\"%s\": \"", sp, TAB, OVERALL_LOG);
-  escape_json_output (json, conf.ifile);
-  pjson (json, "\"");
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  popen_arr_attr (json, OVERALL_LOG, sp);
+  for (idx = 0; idx < conf.filenames_idx; ++idx)
+    poverall_log_path (json, idx, isp);
+  pclose_arr (json, sp, 1);
 }
 
 /* Write to a buffer hits data. */
@@ -1145,7 +1155,7 @@ print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
   /* static files */
   poverall_static_files (json, isp);
   /* log size */
-  poverall_log_size (json, glog, isp);
+  poverall_log_size (json, isp);
   /* bandwidth */
   poverall_bandwidth (json, glog, isp);
   /* log path */

@@ -68,7 +68,7 @@
 #define T_STATIC_FIL "Static Files"
 #define T_LOG        "Log Size"
 #define T_BW         "Bandwidth"
-#define T_LOG_PATH   "Log File"
+#define T_LOG_PATH   "Log Source"
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"

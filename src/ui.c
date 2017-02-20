@@ -517,24 +517,19 @@ get_str_proctime (void)
  *
  * On success, the log file size as a string is returned. */
 static char *
-get_str_filesize (GLog * glog, const char *ifile)
+get_str_filesize (void)
 {
-  if (!glog->piping && ifile != NULL)
-    return filesize_str (file_size (ifile));
-  else
-    return alloc_string ("N/A");
+  return filesize_str (get_log_sizes ());
 }
 
 /* Get the log file path.
  *
  * On success, the log file path as a string is returned. */
 static char *
-get_str_logfile (GLog * glog, const char *ifile)
+get_str_logfile (void)
 {
-  if (!glog->piping && ifile != NULL)
-    return alloc_string (ifile);
-  else
-    return alloc_string ("STDIN");
+  int col = getmaxx (stdscr), left_padding = 20;
+  return get_log_source_str (col - left_padding);
 }
 
 /* Get the bandwidth in a human readable format.
@@ -683,7 +678,6 @@ display_general (WINDOW * win, GLog * glog, GHolder * h)
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
 
-  char *ifile = conf.ifile;
   size_t n, i;
 
   /* *INDENT-OFF* */
@@ -695,12 +689,12 @@ display_general (WINDOW * win, GLog * glog, GHolder * h)
     {T_VALID      , get_str_valid_reqs (glog)      , colorlbl , colorval , 0} ,
     {T_GEN_TIME   , get_str_proctime ()            , colorlbl , colorval , 0} ,
     {T_STATIC_FIL , get_str_static_reqs ()         , colorlbl , colorval , 0} ,
-    {T_LOG        , get_str_filesize (glog, ifile) , colorlbl , colorval , 0} ,
+    {T_LOG        , get_str_filesize ()            , colorlbl , colorval , 0} ,
     {T_FAILED     , get_str_failed_reqs (glog)     , colorlbl , colorval , 0} ,
     {T_EXCLUDE_IP , get_str_excluded_ips (glog)    , colorlbl , colorval , 0} ,
     {T_UNIQUE404  , get_str_notfound_reqs ()       , colorlbl , colorval , 0} ,
     {T_BW         , get_str_bandwidth (glog)       , colorlbl , colorval , 0} ,
-    {T_LOG_PATH   , get_str_logfile (glog, ifile)  , colorlbl , colorpth , 1}
+    {T_LOG_PATH   , get_str_logfile ()             , colorlbl , colorpth , 1}
   };
   /* *INDENT-ON* */
 

@@ -250,13 +250,16 @@ int str2enum (const GEnum map[], int len, const char *str);
 
 int enable_panel (GModule mod);
 int get_module_index (int module);
-int get_next_module(GModule module);
-int get_prev_module(GModule module);
+int get_next_module (GModule module);
+int get_prev_module (GModule module);
 int ignore_panel (GModule mod);
 int init_modules (void);
 int remove_module(GModule module);
-uint32_t get_num_modules(void);
+uint32_t get_num_modules (void);
 void verify_panels (void);
+
+char *get_log_source_str (int max_len);
+off_t get_log_sizes (void);
 
 void display_default_config_file (void);
 void display_storage (void);

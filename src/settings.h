@@ -40,6 +40,7 @@
 #define MAX_CUSTOM_COLORS  64
 #define MAX_IGNORE_STATUS  64
 #define MAX_OUTFORMATS      3
+#define MAX_FILENAMES     512
 #define NO_CONFIG_FILE "No config file used"
 
 typedef enum LOGTYPE
@@ -95,6 +96,7 @@ typedef struct GConf_
   /* Array options */
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
+  const char *filenames[MAX_FILENAMES];         /* log files */
   const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_referers[MAX_IGNORE_REF];  /* referrers to ignore */
@@ -110,8 +112,6 @@ typedef struct GConf_
   char *spec_date_time_format;      /* date format w/ specificity */
   char *spec_date_time_num_format;  /* numeric date format w/ specificity */
   char *log_format;                 /* log format */
-
-  char *ifile;                      /* log file */
 
   const char *debug_log;            /* debug log path */
   const char *geoip_database;       /* geoip db path */
@@ -167,18 +167,20 @@ typedef struct GConf_
   int skip_term_resolver;           /* no terminal resolver */
 
   /* Internal flags */
-  int hour_spec_min;                /* hour specificity - min */
-  int date_spec_hr;                 /* date specificity - hour */
   int bandwidth;                    /* is there bandwidth within the req line */
-  int serve_usecs;                  /* is there time served within req line */
-  int tailing_mode;                 /* in tailing-mode? */
-  int stop_processing;              /* stop all processing */
+  int date_spec_hr;                 /* date specificity - hour */
   int has_geocity;
   int has_geocountry;
+  int hour_spec_min;                /* hour specificity - min */
+  int read_stdin;                   /* read from stdin */
+  int serve_usecs;                  /* is there time served within req line */
+  int stop_processing;              /* stop all processing */
+  int tailing_mode;                 /* in tailing-mode? */
 
   /* Array indices */
   int color_idx;                    /* colors index */
   int enable_panel_idx;             /* enable panels index */
+  int filenames_idx;                /* filenames index */
   int ignore_ip_idx;                /* ignored ips index */
   int ignore_panel_idx;             /* ignored panels index */
   int ignore_referer_idx;           /* ignored referrers index */

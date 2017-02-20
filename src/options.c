@@ -315,37 +315,6 @@ cmd_help (void)
 }
 /* *INDENT-ON* */
 
-/* Determine if the '--no-global-config' command line option needs to be
- * enabled or not. */
-void
-verify_global_config (int argc, char **argv)
-{
-  int o, idx = 0;
-
-  conf.load_global_config = 1;
-  while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
-    if (-1 == o || EOF == o)
-      break;
-
-    switch (o) {
-    case 'p':
-      conf.iconfigfile = optarg;
-      break;
-    case 0:
-      if (!strcmp ("no-global-config", long_opts[idx].name))
-        conf.load_global_config = 0;
-      break;
-    case '?':
-      exit (EXIT_FAILURE);
-    }
-  }
-  for (idx = optind; idx < argc; idx++)
-    cmd_help ();
-
-  /* reset it to 1 */
-  optind = 1;
-}
-
 /* Parse command line long options. */
 static void
 parse_long_opt (const char *name, const char *oarg)
@@ -353,8 +322,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("no-global-config", name))
     return;
 
-  /* == LOG & DATE FORMAT OPTIONS == */
-
+  /* LOG & DATE FORMAT OPTIONS
+   * ========================= */
   /* log format */
   if (!strcmp ("log-format", name) && !conf.log_format)
     set_log_format_str (oarg);
@@ -367,8 +336,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("date-format", name))
     set_date_format_str (oarg);
 
-  /* == USER INTERFACE OPTIONS == */
-
+  /* USER INTERFACE OPTIONS
+   * ========================= */
   /* colors */
   if (!strcmp ("color", name) && conf.color_idx < MAX_CUSTOM_COLORS)
     conf.colors[conf.color_idx++] = oarg;
@@ -431,8 +400,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("no-html-last-updated", name))
     conf.no_html_last_updated = 1;
 
-  /* == SERVER OPTIONS == */
-
+  /* SERVER OPTIONS
+   * ========================= */
   /* address to bind to */
   if (!strcmp ("addr", name))
     conf.addr = oarg;
@@ -478,8 +447,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("ws-url", name))
     conf.ws_url = oarg;
 
-  /* == FILE OPTIONS == */
-
+  /* FILE OPTIONS
+   * ========================= */
   /* invalid requests */
   if (!strcmp ("invalid-requests", name)) {
     conf.invalid_requests_log = oarg;
@@ -490,8 +459,8 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("output", name) && conf.output_format_idx < MAX_OUTFORMATS)
     conf.output_formats[conf.output_format_idx++] = optarg;
 
-  /* == PARSE OPTIONS == */
-
+  /* PARSE OPTIONS
+   * ========================= */
   /* 444 as 404 */
   if (!strcmp ("444-as-404", name))
     conf.code444_as_404 = 1;
@@ -576,14 +545,14 @@ parse_long_opt (const char *name, const char *oarg)
     conf.static_files[conf.static_file_idx++] = oarg;
   }
 
-  /* == GEOIP OPTIONS == */
-
+  /* GEOIP OPTIONS
+   * ========================= */
   /* specifies the path of the GeoIP City database file */
   if (!strcmp ("geoip-city-data", name) || !strcmp ("geoip-database", name))
     conf.geoip_database = oarg;
 
-  /* == BTREE OPTIONS == */
-
+  /* BTREE OPTIONS
+   * ========================= */
   /* keep database files */
   if (!strcmp ("keep-db-files", name))
     conf.keep_db_files = 1;
@@ -639,6 +608,45 @@ parse_long_opt (const char *name, const char *oarg)
   }
 }
 
+/* Determine if the '--no-global-config' command line option needs to be
+ * enabled or not. */
+void
+verify_global_config (int argc, char **argv)
+{
+  int o, idx = 0;
+
+  conf.load_global_config = 1;
+  while ((o = getopt_long (argc, argv, short_options, long_opts, &idx)) >= 0) {
+    if (-1 == o || EOF == o)
+      break;
+
+    switch (o) {
+    case 'p':
+      conf.iconfigfile = optarg;
+      break;
+    case 0:
+      if (!strcmp ("no-global-config", long_opts[idx].name))
+        conf.load_global_config = 0;
+      break;
+    case '?':
+      exit (EXIT_FAILURE);
+    }
+  }
+
+  /* reset it to 1 */
+  optind = 1;
+}
+
+/* Attempt to add - to the array of filenames if it has been added it yet. */
+void
+add_dash_filename (void)
+{
+  if (conf.filenames_idx < MAX_FILENAMES) {
+    conf.read_stdin = 1;
+    conf.filenames[conf.filenames_idx++] = "-";
+  }
+}
+
 /* Read the user's supplied command line options. */
 void
 read_option_args (int argc, char **argv)
@@ -654,7 +662,8 @@ read_option_args (int argc, char **argv)
       break;
     switch (o) {
     case 'f':
-      conf.ifile = optarg;
+      if (conf.filenames_idx < MAX_FILENAMES)
+        conf.filenames[conf.filenames_idx++] = optarg;
       break;
     case 'p':
       /* ignore it */
@@ -729,6 +738,14 @@ read_option_args (int argc, char **argv)
     }
   }
 
-  for (idx = optind; idx < argc; idx++)
-    cmd_help ();
+  for (idx = optind; idx < argc; ++idx) {
+    /* read from standard input */
+    if (!conf.read_stdin && strcmp ("-", argv[idx]) == 0)
+      add_dash_filename ();
+    /* read filenames */
+    else {
+      if (conf.filenames_idx < MAX_FILENAMES)
+        conf.filenames[conf.filenames_idx++] = argv[idx];
+    }
+  }
 }
