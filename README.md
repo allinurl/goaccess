@@ -109,14 +109,7 @@ Download, extract and compile GoAccess with:
 
 ### Docker ###
 
-```
-docker run \
-    --restart=always \
-    -d \
-    -p 80:8080 \
-    -v "/home/user/data:/srv/data" \
-    allinurl/goaccess
-```
+    docker run --restart=always -d -p 80:8080 -v "/home/user/data:/srv/data" allinurl/goaccess
 
 Inside your folder `/home/user/data` you can place your `goaccess.conf` file, which will be used by the Docker to configure goaccess.
 If no configuration will be present, a new empty file will be created.
