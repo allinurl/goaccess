@@ -239,6 +239,7 @@ to be used without prepending `--`.
 | `--color-scheme=<1|2|3>`           | Schemes: 1 => Grey, 2 => Green, 3 => Monokai.                 |
 | `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
 | `--crawlers-only`                  | Parse and display crawlers/bots only.                         |
+| `--daemonize`                      | Run GoAccess as daemon (if --real-time-html enabled).         |
 | `--date-format=<dateformat>`       | Specify log date format.                                      |
 | `--date-spec=<date|hr>`            | Date specificity (date default).                              |
 | `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
