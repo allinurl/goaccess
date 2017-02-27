@@ -42,15 +42,16 @@
 #include <config.h>
 #endif
 
+#include <fcntl.h>
 #include <pthread.h>
+#include <signal.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <signal.h>
-#include <fcntl.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
@@ -165,6 +166,8 @@ house_keeping (void)
 #endif
 
   /* LOGGER */
+  if (glog->pipe)
+    fclose (glog->pipe);
   free_logerrors (glog);
   free (glog);
 
@@ -745,8 +748,10 @@ perform_tail_follow (uint64_t * size1, const char *fn)
   FILE *fp = NULL;
   uint64_t size2 = 0;
 
-  if (fn[0] == '-' && fn[1] == '\0')
-    return;
+  if (fn[0] == '-' && fn[1] == '\0') {
+    parse_tail_follow (glog->pipe);
+    goto out;
+  }
   if (glog->piping || glog->load_from_disk_only)
     return;
 
@@ -764,6 +769,8 @@ perform_tail_follow (uint64_t * size1, const char *fn)
   fclose (fp);
 
   *size1 = size2;
+
+out:
 
   if (!conf.output_stdout)
     tail_term ();
@@ -787,8 +794,8 @@ process_html (const char *filename)
   /* not real time? */
   if (!conf.real_time_html)
     return;
-  /* ignore piping or loading from disk */
-  if (glog->piping || glog->load_from_disk_only)
+  /* ignore loading from disk */
+  if (glog->load_from_disk_only)
     return;
 
   pthread_mutex_lock (&gwswriter->mutex);
@@ -1161,24 +1168,87 @@ set_locale (void)
     setlocale (LC_CTYPE, "");
 }
 
-/* Determine if we are getting data from the stdin, and where are we
- * outputting to, then process command line options. */
-static void
-parse_cmd_line (int argc, char **argv)
+/* Attempt to get the current name of a terminal or fallback to /dev/tty
+ *
+ * On error, -1 is returned
+ * On success, the new file descriptor is returned */
+static int
+open_term (char **buf)
 {
-  read_option_args (argc, argv);
+  const char *term = "/dev/tty";
 
+  if (!isatty (STDERR_FILENO) || (term = ttyname (STDERR_FILENO)) == 0) {
+    if (!isatty (STDOUT_FILENO) || (term = ttyname (STDOUT_FILENO)) == 0) {
+      if (!isatty (STDIN_FILENO) || (term = ttyname (STDIN_FILENO)) == 0) {
+        term = "/dev/tty";
+      }
+    }
+  }
+  *buf = xstrdup (term);
+
+  return open (term, O_RDONLY);
+}
+
+/* Determine if reading from a pipe, and duplicate file descriptors so
+ * get in the way of curses' normal reading stdin for wgetch() */
+static void
+set_pipe_stdin (void)
+{
+  char *term = NULL;
+  FILE *pipe = stdin;
+  int fd1, fd2;
+
+  /* If unable to open a terminal, yet data is being piped, then it's
+   * probably from the cron.
+   *
+   * Note: If used from the cron, it will require the
+   * user to use a single dash to parse piped data such as:
+   * cat access.log | goaccess - */
+  if ((fd1 = open_term (&term)) == -1)
+    goto out;
+
+  if ((fd2 = dup (fileno (stdin))) == -1)
+    FATAL ("Unable to dup stdin: %s", strerror (errno));
+
+  pipe = fdopen (fd2, "r");
+  if (freopen (term, "r", stdin) == 0)
+    FATAL ("Unable to open input from TTY");
+  if (fileno (stdin) != 0)
+    (void) dup2 (fileno (stdin), 0);
+
+  /* Using select(), poll(), or epoll(), etc may be a better choice... */
+  if (fcntl (fd2, F_SETFL, fcntl (fd2, F_GETFL, 0) | O_NONBLOCK) == -1)
+    FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
+
+  add_dash_filename ();
+out:
+
+  glog->pipe = pipe;
+  free (term);
+}
+
+/* Determine if we are getting data from the stdin, and where are we
+ * outputting to. */
+static void
+set_io (void)
+{
   /* For backwards compatibility, check if we are not outputting to a
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
     conf.output_stdout = 1;
-  /* read from standard input if data piped */
-  if (!isatty (STDIN_FILENO) && !conf.read_stdin)
-    add_dash_filename ();
+  /* dup fd if data piped */
+  if (!isatty (STDIN_FILENO))
+    set_pipe_stdin ();
   /* No data piped, no file was used and not loading from disk */
   if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
     cmd_help ();
+}
 
+/* Process command line options and set some default options. */
+static void
+parse_cmd_line (int argc, char **argv)
+{
+  read_option_args (argc, argv);
   set_default_static_files ();
 }
 
@@ -1259,6 +1329,8 @@ initializer (void)
 
   /* init glog */
   glog = init_log ();
+
+  set_io ();
   set_signal_data (glog);
 
   /* init parsing spinner */

@@ -101,6 +101,8 @@ typedef struct GLog_
 
   unsigned short log_erridx;
   char **errors;
+
+  FILE *pipe;
 } GLog;
 
 /* Raw data field type */
