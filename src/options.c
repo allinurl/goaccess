@@ -642,7 +642,7 @@ verify_global_config (int argc, char **argv)
 void
 add_dash_filename (void)
 {
-  if (conf.filenames_idx < MAX_FILENAMES) {
+  if (conf.filenames_idx < MAX_FILENAMES && !conf.read_stdin) {
     conf.read_stdin = 1;
     conf.filenames[conf.filenames_idx++] = "-";
   }

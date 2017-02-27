@@ -2610,8 +2610,8 @@ read_log (GLog ** glog, const char *fn, int dry_run)
   FILE *fp = NULL;
 
   /* read from stdin */
-  if (fn[0] == '-' && fn[1] == '\0') {
-    fp = stdin;
+  if (fn[0] == '-' && fn[1] == '\0' && (*glog)->pipe) {
+    fp = (*glog)->pipe;
     (*glog)->piping = 1;
   }
 
@@ -2625,10 +2625,6 @@ read_log (GLog ** glog, const char *fn, int dry_run)
       fclose (fp);
     return 1;
   }
-
-  /* definitely not portable! */
-  if ((*glog)->piping)
-    freopen ("/dev/tty", "r", stdin);
 
   /* close log file if not a pipe */
   if (!(*glog)->piping)
