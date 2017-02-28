@@ -752,7 +752,7 @@ perform_tail_follow (uint64_t * size1, const char *fn)
     parse_tail_follow (glog->pipe);
     goto out;
   }
-  if (glog->piping || glog->load_from_disk_only)
+  if (glog->load_from_disk_only)
     return;
 
   size2 = file_size (fn);
