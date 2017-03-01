@@ -170,6 +170,7 @@ typedef struct GParse_
   void (*agent) (int data_nkey, int agent_nkey, GModule module);
 } GParse;
 
+char *fgetline (FILE * fp);
 char **test_format (GLog * glog, int *len);
 GLog *init_log (void);
 GLogItem *init_log_item (GLog * glog);

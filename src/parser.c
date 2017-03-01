@@ -2545,8 +2545,72 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
   return 0;
 }
 
-/* Iterate over the log and read line by line (uses a buffer of fixed
- * size).
+/* A replacement for GNU getline() to dynamically expand fgets buffer.
+ *
+ * On error, NULL is returned.
+ * On success, the malloc'd line is returned. */
+char *
+fgetline (FILE * fp)
+{
+  char buf[LINE_BUFFER] = { 0 };
+  char *line = NULL, *tmp = NULL;
+  size_t linelen = 0, len = 0;
+
+  while (fgets (buf, sizeof (buf), fp)) {
+    len = strlen (buf);
+
+    /* overflow check */
+    if (SIZE_MAX - len - 1 < linelen)
+      break;
+
+    if ((tmp = realloc (line, linelen + len + 1)) == NULL)
+      break;
+
+    line = tmp;
+    /* append */
+    strcpy (line + linelen, buf);
+    linelen += len;
+
+    if (feof (fp) || buf[len - 1] == '\n')
+      return line;
+  }
+  free (line);
+
+  return NULL;
+}
+
+/* Iterate over the log and read line by line (use GNU get_line to parse the
+ * whole line).
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
+#ifdef WITH_GETLINE
+static int
+read_lines (FILE * fp, GLog ** glog, int dry_run)
+{
+  char *line = NULL;
+  int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+
+  while ((line = fgetline (fp)) != NULL) {
+    /* handle SIGINT */
+    if (conf.stop_processing)
+      goto out;
+    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
+      goto out;
+    if (dry_run && NUM_TESTS == cnt)
+      goto out;
+    free (line);
+  }
+
+  return test || ret;
+
+out:
+  free (line);
+  return test || ret;
+}
+#endif
+
+/* Iterate over the log and read line by line (uses a buffer of fixed size).
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
@@ -2566,35 +2630,6 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
     if (dry_run && NUM_TESTS == cnt)
       break;
   }
-
-  return test || ret;
-}
-#endif
-
-/* Iterate over the log and read line by line (use GNU get_line to
- * parse the whole line).
- *
- * On error, 1 is returned.
- * On success, 0 is returned. */
-#ifdef WITH_GETLINE
-static int
-read_lines (FILE * fp, GLog ** glog, int dry_run)
-{
-  char *line = NULL;
-  size_t len = LINE_BUFFER;
-  int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
-
-  line = xcalloc (LINE_BUFFER, sizeof (*line));
-  while (getline (&line, &len, fp) != -1) {
-    /* handle SIGINT */
-    if (conf.stop_processing)
-      break;
-    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
-      break;
-    if (dry_run && NUM_TESTS == cnt)
-      break;
-  }
-  free (line);
 
   return test || ret;
 }

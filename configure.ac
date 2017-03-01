@@ -70,14 +70,11 @@ AM_CONDITIONAL([GEOIP_LEGACY], [test "x$geoip" = "xlegacy"])
 AM_CONDITIONAL([GEOIP_MMDB], [test "x$geoip" = "xmmdb"])
 
 # GNU getline / POSIX.1-2008
-AC_ARG_WITH(getline, [  --with-getline Build using GNU getline.],
+AC_ARG_WITH(getline, [  --with-getline Build using dynamic line buffer.],
   [with_getline=$withval], [with_getline=no])
 
 if test "$with_getline" = "yes"; then
-  AC_CHECK_FUNCS([getline],
-    AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.]),
-    [AC_MSG_ERROR([*** GNU getline not found. Do not use --with-getline for std read.])]
-  )
+  AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.]),
 fi
 
 # UTF8
@@ -284,10 +281,10 @@ Your build configuration:
   Prefix         : $prefix
   Package        : $PACKAGE_NAME
   Version        : $VERSION
-  Storage method : $storage
-  GNU getline    : $with_getline
-  TLS/SSL        : $openssl
+  Dynamic buffer : $with_getline
   Geolocation    : $geolocation
+  Storage method : $storage
+  TLS/SSL        : $openssl
   Compiler flags : $CFLAGS
   Linker flags   : $LIBS $LDFLAGS
   Bugs           : $PACKAGE_BUGREPORT
