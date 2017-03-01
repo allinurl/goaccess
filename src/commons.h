@@ -259,7 +259,7 @@ uint32_t get_num_modules (void);
 void verify_panels (void);
 
 char *get_log_source_str (int max_len);
-off_t get_log_sizes (void);
+intmax_t get_log_sizes (void);
 
 void display_default_config_file (void);
 void display_storage (void);

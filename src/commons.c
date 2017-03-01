@@ -418,7 +418,7 @@ init_modules (void)
  *
  * If log was piped (from stdin), 0 is returned.
  * On success, it adds up all log sizes and its value is returned. */
-off_t
+intmax_t
 get_log_sizes (void)
 {
   int i;
@@ -431,7 +431,7 @@ get_log_sizes (void)
       size += file_size (conf.filenames[i]);
   }
 
-  return size;
+  return (intmax_t) size;
 }
 
 /* Get the log sources used.
