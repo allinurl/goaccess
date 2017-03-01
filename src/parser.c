@@ -2602,6 +2602,11 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
     free (line);
   }
 
+  /* if no data was available to read from (probably from a pipe) and
+   * still in test mode, we simply return until data becomes available */
+  if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
+    return 0;
+
   return test || ret;
 
 out:
@@ -2618,10 +2623,11 @@ out:
 static int
 read_lines (FILE * fp, GLog ** glog, int dry_run)
 {
+  char *s = NULL;
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
-  while (fgets (line, LINE_BUFFER, fp) != NULL) {
+  while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
       break;
@@ -2630,6 +2636,11 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
     if (dry_run && NUM_TESTS == cnt)
       break;
   }
+
+  /* if no data was available to read from (probably from a pipe) and
+   * still in test mode, we simply return until data becomes available */
+  if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
+    return 0;
 
   return test || ret;
 }
