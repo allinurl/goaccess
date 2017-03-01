@@ -721,24 +721,22 @@ parse_tail_follow (FILE * fp)
 {
 #ifdef WITH_GETLINE
   char *buf = NULL;
-  size_t len = LINE_BUFFER;
 #else
   char buf[LINE_BUFFER] = { 0 };
 #endif
 
 #ifdef WITH_GETLINE
-  buf = xcalloc (LINE_BUFFER, sizeof (char));
-  while (getline (&buf, &len, fp) != -1) {
+  while ((buf = fgetline (fp)) != NULL) {
 #else
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
     parse_log (&glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
-  }
 #ifdef WITH_GETLINE
-  free (buf);
+    free (buf);
 #endif
+  }
 }
 
 /* Process appended log data */
