@@ -762,6 +762,10 @@ set_log_format_str (const char *oarg)
   char *fmt = NULL;
   int type = get_log_format_item_enum (oarg);
 
+  /* free log format if it was previously set */
+  if (conf.log_format)
+    free (conf.log_format);
+
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
@@ -776,7 +780,7 @@ set_log_format_str (const char *oarg)
 
   conf.log_format = unescape_str (fmt);
   /* assume we are using the default date/time formats */
-  conf.time_format = get_selected_time_str (type);
-  conf.date_format = get_selected_date_str (type);
+  set_time_format_str (oarg);
+  set_date_format_str (oarg);
   free (fmt);
 }

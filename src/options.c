@@ -316,6 +316,15 @@ cmd_help (void)
 }
 /* *INDENT-ON* */
 
+/* Push a command line option to the given array if within bounds and if it's
+ * not in the array. */
+static void
+set_array_opt (const char *oarg, const char *arr[], int *size, int max)
+{
+  if (str_inarray (oarg, arr, *size) < 0 && *size < max)
+    arr[(*size)++] = oarg;
+}
+
 /* Parse command line long options. */
 static void
 parse_long_opt (const char *name, const char *oarg)
@@ -326,7 +335,7 @@ parse_long_opt (const char *name, const char *oarg)
   /* LOG & DATE FORMAT OPTIONS
    * ========================= */
   /* log format */
-  if (!strcmp ("log-format", name) && !conf.log_format)
+  if (!strcmp ("log-format", name))
     set_log_format_str (oarg);
 
   /* time format */
@@ -340,8 +349,8 @@ parse_long_opt (const char *name, const char *oarg)
   /* USER INTERFACE OPTIONS
    * ========================= */
   /* colors */
-  if (!strcmp ("color", name) && conf.color_idx < MAX_CUSTOM_COLORS)
-    conf.colors[conf.color_idx++] = oarg;
+  if (!strcmp ("color", name))
+    set_array_opt (oarg, conf.colors, &conf.color_idx, MAX_CUSTOM_COLORS);
 
   /* color scheme */
   if (!strcmp ("color-scheme", name))
@@ -457,8 +466,9 @@ parse_long_opt (const char *name, const char *oarg)
   }
 
   /* output file */
-  if (!strcmp ("output", name) && conf.output_format_idx < MAX_OUTFORMATS)
-    conf.output_formats[conf.output_format_idx++] = optarg;
+  if (!strcmp ("output", name))
+    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx,
+                   MAX_OUTFORMATS);
 
   /* PARSE OPTIONS
    * ========================= */
@@ -487,10 +497,9 @@ parse_long_opt (const char *name, const char *oarg)
     conf.double_decode = 1;
 
   /* enable panel */
-  if (!strcmp ("enable-panel", name) && conf.enable_panel_idx < TOTAL_MODULES) {
-    if (str_inarray (oarg, conf.enable_panels, conf.enable_panel_idx) < 0)
-      conf.enable_panels[conf.enable_panel_idx++] = oarg;
-  }
+  if (!strcmp ("enable-panel", name))
+    set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx,
+                   TOTAL_MODULES);
 
   /* hour specificity */
   if (!strcmp ("hour-spec", name) && !strcmp (oarg, "min"))
@@ -501,22 +510,19 @@ parse_long_opt (const char *name, const char *oarg)
     conf.ignore_crawlers = 1;
 
   /* ignore panel */
-  if (!strcmp ("ignore-panel", name) && conf.ignore_panel_idx < TOTAL_MODULES) {
-    if (str_inarray (oarg, conf.ignore_panels, conf.ignore_panel_idx) < 0)
-      conf.ignore_panels[conf.ignore_panel_idx++] = oarg;
-  }
+  if (!strcmp ("ignore-panel", name))
+    set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx,
+                   TOTAL_MODULES);
 
   /* ignore referer */
-  if (!strcmp ("ignore-referer", name) &&
-      conf.ignore_referer_idx < MAX_IGNORE_REF)
-    conf.ignore_referers[conf.ignore_referer_idx++] = oarg;
+  if (!strcmp ("ignore-referer", name))
+    set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx,
+                   MAX_IGNORE_REF);
 
   /* ignore status code */
-  if (!strcmp ("ignore-status", name) &&
-      conf.ignore_status_idx < MAX_IGNORE_STATUS) {
-    if (str_inarray (oarg, conf.ignore_status, conf.ignore_status_idx) < 0)
-      conf.ignore_status[conf.ignore_status_idx++] = oarg;
-  }
+  if (!strcmp ("ignore-status", name))
+    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx,
+                   MAX_IGNORE_STATUS);
 
   /* number of line tests */
   if (!strcmp ("num-tests", name)) {
@@ -536,14 +542,16 @@ parse_long_opt (const char *name, const char *oarg)
     conf.real_os = 1;
 
   /* sort view */
-  if (!strcmp ("sort-panel", name) && conf.sort_panel_idx < TOTAL_MODULES)
-    conf.sort_panels[conf.sort_panel_idx++] = oarg;
+  if (!strcmp ("sort-panel", name))
+    set_array_opt (oarg, conf.sort_panels, &conf.sort_panel_idx, TOTAL_MODULES);
 
   /* static file */
-  if (!strcmp ("static-file", name) && conf.static_file_idx < MAX_EXTENSIONS) {
-    if (conf.static_file_max_len < strlen (oarg))
+  if (!strcmp ("static-file", name)) {
+    if (conf.static_file_max_len < strlen (oarg) &&
+        conf.static_file_idx < MAX_EXTENSIONS)
       conf.static_file_max_len = strlen (oarg);
-    conf.static_files[conf.static_file_idx++] = oarg;
+    set_array_opt (oarg, conf.static_files, &conf.static_file_idx,
+                   MAX_EXTENSIONS);
   }
 
   /* GEOIP OPTIONS
