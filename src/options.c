@@ -488,7 +488,7 @@ parse_long_opt (const char *name, const char *oarg)
 
   /* enable panel */
   if (!strcmp ("enable-panel", name) && conf.enable_panel_idx < TOTAL_MODULES) {
-    if (!str_inarray (oarg, conf.enable_panels, conf.enable_panel_idx))
+    if (str_inarray (oarg, conf.enable_panels, conf.enable_panel_idx) < 0)
       conf.enable_panels[conf.enable_panel_idx++] = oarg;
   }
 
@@ -502,7 +502,7 @@ parse_long_opt (const char *name, const char *oarg)
 
   /* ignore panel */
   if (!strcmp ("ignore-panel", name) && conf.ignore_panel_idx < TOTAL_MODULES) {
-    if (!str_inarray (oarg, conf.ignore_panels, conf.ignore_panel_idx))
+    if (str_inarray (oarg, conf.ignore_panels, conf.ignore_panel_idx) < 0)
       conf.ignore_panels[conf.ignore_panel_idx++] = oarg;
   }
 
@@ -514,7 +514,7 @@ parse_long_opt (const char *name, const char *oarg)
   /* ignore status code */
   if (!strcmp ("ignore-status", name) &&
       conf.ignore_status_idx < MAX_IGNORE_STATUS) {
-    if (!str_inarray (oarg, conf.ignore_status, conf.ignore_status_idx))
+    if (str_inarray (oarg, conf.ignore_status, conf.ignore_status_idx) < 0)
       conf.ignore_status[conf.ignore_status_idx++] = oarg;
   }
 

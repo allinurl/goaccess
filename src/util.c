@@ -562,17 +562,17 @@ verify_status_code (char *str)
 
 /* Checks if the given string is within the given array.
  *
- * If not found, 0 is returned.
- * On success, 1 is returned. */
+ * If not found, -1 is returned.
+ * If found, the key for needle in the array is returned. */
 int
 str_inarray (const char *s, const char *arr[], int size)
 {
   int i;
   for (i = 0; i < size; i++) {
     if (strcmp (arr[i], s) == 0)
-      return 1;
+      return i;
   }
-  return 0;
+  return -1;
 }
 
 /* Strip whitespace from the beginning of a string.

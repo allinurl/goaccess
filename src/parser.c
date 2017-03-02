@@ -1673,7 +1673,7 @@ ignore_status_code (const char *status)
   if (conf.ignore_status_idx == 0)
     return 0;
 
-  if (str_inarray (status, conf.ignore_status, conf.ignore_status_idx))
+  if (str_inarray (status, conf.ignore_status, conf.ignore_status_idx) != -1)
     return 1;
   return 0;
 }
