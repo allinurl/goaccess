@@ -382,11 +382,11 @@ verify_panels (void)
     return;
 
   if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
-    if (!str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx))
+    if (str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (VIRTUAL_HOSTS);
   }
   if (!strstr (conf.log_format, "%e") && ignore_panel_idx < TOTAL_MODULES) {
-    if (!str_inarray ("REMOTE_USER", conf.ignore_panels, ignore_panel_idx))
+    if (str_inarray ("REMOTE_USER", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (REMOTE_USER);
   }
 }
