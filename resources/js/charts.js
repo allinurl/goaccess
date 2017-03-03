@@ -177,11 +177,18 @@ function AreaChart(dualYaxis) {
 		.range([innerH(), 0]);
 	}
 
+	function toggleOpacity(ele, op) {
+		d3.select(ele.parentNode).selectAll('.' + (ele.getAttribute('data-yaxis') == 'y0' ? 'y1' : 'y0')).attr('style', op);
+	}
+
 	function setLegendLabels(svg) {
 		// Legend Color
 		var rect = svg.selectAll('rect.legend.y0').data([null]);
 		rect.enter().append('rect')
 			.attr('class', 'legend y0')
+			.attr('data-yaxis', 'y0')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2) - 100);
@@ -190,6 +197,9 @@ function AreaChart(dualYaxis) {
 		var text = svg.selectAll('text.legend.y0').data([null]);
 		text.enter().append('text')
 			.attr('class', 'legend y0')
+			.attr('data-yaxis', 'y0')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) - 85)
@@ -202,6 +212,9 @@ function AreaChart(dualYaxis) {
 		rect = svg.selectAll('rect.legend.y1').data([null]);
 		rect.enter().append('rect')
 			.attr('class', 'legend y1')
+			.attr('data-yaxis', 'y1')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2));
@@ -210,6 +223,9 @@ function AreaChart(dualYaxis) {
 		text = svg.selectAll('text.legend.y1').data([null]);
 		text.enter().append('text')
 			.attr('class', 'legend y1')
+			.attr('data-yaxis', 'y1')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) + 15)
@@ -244,15 +260,15 @@ function AreaChart(dualYaxis) {
 
 		// Lines
 		gEnter.append('g')
-			.attr('class', 'line line0');
+			.attr('class', 'line line0 y0');
 		dualYaxis && gEnter.append('g')
-			.attr('class', 'line line1');
+			.attr('class', 'line line1 y1');
 
 		// Areas
 		gEnter.append('g')
-			.attr('class', 'area area0');
+			.attr('class', 'area area0 y0');
 		dualYaxis && gEnter.append('g')
-			.attr('class', 'area area1');
+			.attr('class', 'area area1 y1');
 
 		// Points
 		gEnter.append('g')
@@ -692,11 +708,18 @@ function BarChart(dualYaxis) {
 		.range([innerH(), 0]);
 	}
 
+	function toggleOpacity(ele, op) {
+		d3.select(ele.parentNode).selectAll('.' + (ele.getAttribute('data-yaxis') == 'y0' ? 'y1' : 'y0')).attr('style', op);
+	}
+
 	function setLegendLabels(svg) {
 		// Legend Color
 		var rect = svg.selectAll('rect.legend.y0').data([null]);
 		rect.enter().append('rect')
 			.attr('class', 'legend y0')
+			.attr('data-yaxis', 'y0')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2) - 100);
@@ -705,6 +728,9 @@ function BarChart(dualYaxis) {
 		var text = svg.selectAll('text.legend.y0').data([null]);
 		text.enter().append('text')
 			.attr('class', 'legend y0')
+			.attr('data-yaxis', 'y0')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) - 85)
@@ -717,6 +743,9 @@ function BarChart(dualYaxis) {
 		rect = svg.selectAll('rect.legend.y1').data([null]);
 		rect.enter().append('rect')
 			.attr('class', 'legend y1')
+			.attr('data-yaxis', 'y1')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2));
@@ -725,6 +754,9 @@ function BarChart(dualYaxis) {
 		text = svg.selectAll('text.legend.y1').data([null]);
 		text.enter().append('text')
 			.attr('class', 'legend y1')
+			.attr('data-yaxis', 'y1')
+			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) + 15)
