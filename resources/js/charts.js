@@ -1,3 +1,14 @@
+/**
+ *    ______      ___
+ *   / ____/___  /   | _____________  __________
+ *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
+ * / /_/ / /_/ / ___ / /__/ /__/  __(__  |__  )
+ * \____/\____/_/  |_\___/\___/\___/____/____/
+ *
+ * The MIT License (MIT)
+ * Copyright (c) 2009-2017 Gerardo Orellana <hello @ goaccess.io>
+ */
+
 'use strict';
 
 // This is faster than calculating the exact length of each label.
@@ -832,19 +843,19 @@ function BarChart(dualYaxis) {
 			.enter()
 			.append('svg:rect')
 			.attr('class', 'bar')
-			.attr('x', function (d, i) { return xScale(d[0]); })
-			.attr('y', function (d, i) { return innerH(); })
-			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
 			.attr('height', 0)
-			.transition()
-			.delay(function (d, i) { return i / data.length * 1000; })
-			.duration(500)
-			.attr('y', function (d, i) { return yScale0(d[1]); })
-			.attr('height', function (d, i) { return innerH() - yScale0(d[1]); });
+			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
+			.attr('x', function (d, i) { return xScale(d[0]); })
+			.attr('y', function (d, i) { return innerH(); });
 		// update
 		bars
 			.attr('width', xScale.rangeBand() / 2)
-			.attr('x', function (d) { return xScale(d[0]) });
+			.attr('x', function (d) { return xScale(d[0]) })
+			.transition()
+			.delay(function (d, i) { return i / data.length * 1000; })
+			.duration(500)
+			.attr('height', function (d, i) { return innerH() - yScale0(d[1]); })
+			.attr('y', function (d, i) { return yScale0(d[1]); });
 		// remove elements
 		bars.exit().remove();
 
@@ -858,19 +869,19 @@ function BarChart(dualYaxis) {
 			.enter()
 			.append('svg:rect')
 			.attr('class', 'bar')
-			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
-			.attr('y', function (d, i) { return innerH(); })
-			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
 			.attr('height', 0)
-			.transition()
-			.delay(function (d, i) { return i / data.length * 1000; })
-			.duration(500)
-			.attr('y', function (d, i) { return yScale1(d[2]); })
-			.attr('height', function (d, i) { return innerH() - yScale1(d[2]); });
+			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
+			.attr('y', function (d, i) { return innerH(); });
 		// update
 		bars
 			.attr('width', xScale.rangeBand() / 2)
-			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) });
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
+			.transition()
+			.delay(function (d, i) { return i / data.length * 1000; })
+			.duration(500)
+			.attr('height', function (d, i) { return innerH() - yScale1(d[2]); })
+			.attr('y', function (d, i) { return yScale1(d[2]); });
 		// remove elements
 		bars.exit().remove();
 	}

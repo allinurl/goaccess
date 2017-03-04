@@ -986,18 +986,24 @@ GoAccess.Charts = {
 		}
 	},
 
+	// Reload the given chart data
+	reloadChart: function (chart, panel) {
+		var subItems = GoAccess.Tables.getSubItemsData(panel);
+		var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
+
+		d3.select("#chart-" + panel)
+			.datum(this.processChartData(this.getPanelData(panel, data)))
+			.call(chart.width($("#chart-" + panel).offsetWidth));
+	},
+
 	reloadCharts: function () {
 		this.iter(function (chart, panel) {
-			var subItems = GoAccess.Tables.getSubItemsData(panel);
-			var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
-
-			d3.select("#chart-" + panel)
-				.datum(this.processChartData(this.getPanelData(panel, data)))
-				.call(chart.width($("#chart-" + panel).offsetWidth));
+			this.reloadChart(chart, panel);
 		}.bind(this));
 		GoAccess.AppState.updated = false;
 	},
 
+	// Only redraw charts with current data
 	redrawCharts: function () {
 		this.iter(function (chart, panel) {
 			d3.select("#chart-" + panel).call(chart.width($("#chart-" + panel).offsetWidth));
@@ -1007,7 +1013,7 @@ GoAccess.Charts = {
 	initialize: function () {
 		this.renderCharts(GoAccess.getPanelUI());
 
-		// redraw on scroll & resize
+		// reload on scroll & redraw on resize
 		d3.select(window).on('scroll.charts', debounce(function () {
 			this.reloadCharts();
 		}, 250, false).bind(this)).on('resize.charts', function () {
@@ -1085,6 +1091,8 @@ GoAccess.Tables = {
 		});
 		this.renderThead(panel, GoAccess.getPanelUI(panel));
 		this.renderTable(panel, this.getCurPage(panel));
+
+		GoAccess.Charts.reloadChart(GoAccess.AppCharts[panel], panel);
 	},
 
 	getDataByKey: function (panel, key) {
