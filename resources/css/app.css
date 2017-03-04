@@ -50,6 +50,19 @@ h3 {
 	padding: 3px 25px;
 	text-transform: uppercase;
 }
+.gheader {
+	letter-spacing: -1px;
+	text-transform: uppercase;
+}
+h5.gheader {
+	letter-spacing: 0;
+}
+.panel-header h4.gheader {
+	margin-top: 20px;
+}
+.panel-header .gheader small {
+	font-size: 69%;
+}
 
 /* NAVIGATION */
 nav {
