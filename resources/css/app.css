@@ -122,7 +122,7 @@ nav .nav-ws-status {
 }
 .nav-ws-status.mini {
 	top: 14px;
-	left: 40px;
+	left: 50px;
 	position: absolute;
 }
 .nav-ws-status.connected {
@@ -246,6 +246,15 @@ nav h3 {
 	.container-fluid {
 		margin-left: auto;
 	};
+}
+@media (max-width: 768px) {
+	.container-fluid {
+		padding-left: 5px;
+		padding-right: 5px;
+	}
+	.page-header {
+		padding: 0 10px;
+	}
 }
 
 /* PANEL STYLES */
