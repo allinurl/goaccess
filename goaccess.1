@@ -158,8 +158,8 @@ Disable zlib compression on B+ Tree database.
 Disable bzip2 compression on B+ Tree database.
 .TP
 \fB\-\-with-getline
-Use GNU getline() to parse full line requests instead of a fixed size buffer of
-4096.
+Dynamically expands line buffer in order to parse full line requests instead of
+using a fixed size buffer of 4096.
 .TP
 \fB\-\-with-openssl
 Compile GoAccess with OpenSSL support for its WebSocket server.
@@ -168,6 +168,8 @@ Compile GoAccess with OpenSSL support for its WebSocket server.
 The following options can be supplied to the command or specified in the
 configuration file. If specified in the configuration file, long options need
 to be used without prepending -- and without using the equal sign =.
+.SS
+LOG/DATE/TIME FORMAT
 .TP
 \fB\-\-time-format=<timeformat>
 The time-format variable followed by a space, specifies the log format time
@@ -222,98 +224,18 @@ one variable and another predefined name in another variable.
 Piping data into GoAccess won't prompt a log/date/time configuration dialog,
 you will need to previously define it in your configuration file or in the
 command line.
-.TP
-\fB\-a \-\-agent-list
-Enable a list of user-agents by host. For faster parsing, do not enable this
-flag.
+.SS
+USER INTERFACE OPTIONS
 .TP
 \fB\-c \-\-config-dialog
-Prompt log/date configuration window on program start.
-.TP
-\fB\-p \-\-config-file=<configfile>
-Specify a custom configuration file to use. If set, it will take priority over
-the global configuration file (if any).
-.TP
-\fB\-\-debug-file=<debugfile>
-Send all debug messages to the specified file.
-.TP
-\fB\-e \-\-exclude-ip=<IP|IP-range>
-Exclude an IPv4 or IPv6 from being counted.
-Ranges can be included as well using a dash in between the IPs (start-end).
-.IP
-.I Examples:
-  exclude-ip 127.0.0.1
-  exclude-ip 192.168.0.1-192.168.0.100
-  exclude-ip ::1
-  exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
-.TP
-\fB\-g \-\-std-geoip
-Standard GeoIP database for less memory usage.
-.TP
-\fB\-h \-\-help
-The help.
+Prompt log/time/date configuration window on program start. Only when curses is
+initialized.
 .TP
 \fB\-i \-\-hl-header
 Color highlight active panel.
 .TP
-\fB\-M \-\-http-method=<yes|no>
-Set/unset HTTP request method. This will create a request key containing the
-request method + the actual request.
-.TP
-\fB\-H \-\-http-protocol=<yes|no>
-Set/unset HTTP request protocol. This will create a request key containing the
-request protocol + the actual request.
-.TP
-\fB\-f \-\-log-file=<logfile>
-Specify the path to the input log file. If set in the config file, it will take
-priority over -f from the command line.
-.TP
-\fB\-q \-\-no-query-string
-Ignore request's query string. i.e.,  www.google.com/page.htm?query =>
-www.google.com/page.htm.
-.IP
-.I Note:
-Removing the query string can greatly decrease memory consumption, especially
-on timestamped requests.
-.TP
-\fB\-r \-\-no-term-resolver
-Disable IP resolver on terminal output.
-.TP
-\fB\-o \-\-output=<path/file.[json|csv|html]>
-Write output to stdout given one of the following files and the corresponding
-extension for the output format:
-.IP
-  /path/file.csv  - Comma-separated values (CSV)
-  /path/file.json - JSON (JavaScript Object Notation)
-  /path/file.html - HTML
-.TP
-\fB\-s \-\-storage
-Display current storage method. i.e., B+ Tree, Hash.
-.TP
-\fB\-V \-\-version
-Display version information and exit.
-.TP
 \fB\-m \-\-with-mouse
 Enable mouse support on main terminal dashboard.
-.TP
-\fB\-d \-\-with-output-resolver
-Enable IP resolver on HTML|JSON output.
-.TP
-\fB\-\-444-as-404
-Treat non-standard status code 444 as 404.
-.TP
-\fB\-\-4xx-to-unique-count
-Add 4xx client errors to the unique visitors count.
-.TP
-\fB\-\-addr
-Specify IP address to bind the server to. Otherwise it binds to 0.0.0.0.
-.IP
-Usually there is no need to specify the address, unless you intentionally would
-like to bind the server to a different address within your server.
-.TP
-\fB\-\-all-static-files
-Include static files that contain a query string. e.g.,
-/fonts/fontawesome-webfont.woff?v=4.0.3
 .TP
 \fB\-\-\-color=<fg:bg[attrs, PANEL]>
 Specify custom colors for the terminal output.
@@ -377,8 +299,202 @@ for the Monokai scheme (shown only if terminal supports 256 colors).
 \fB\-\-crawlers-only
 Parse and display only crawlers (bots).
 .TP
+\fB\-\-html-custom-css=<path.css>
+Specifies a custom CSS file path to load in the HTML report.
+.TP
+\fB\-\-html-custom-js=<path.js>
+Specifies a custom JS file path to load in the HTML report.
+.TP
+\fB\-\-html-report-title=<title>
+Set HTML report page title and header.
+.TP
+\fB\-\-html-prefs=<JSON>
+Set HTML report default preferences. Supply a valid JSON object containing the
+HTML preferences.  It allows the ability to customize each panel plot. See
+example below.
+.IP
+.I Note:
+The JSON object passed needs to be a one line JSON string. For instance,
+.IP
+\-\-html-prefs='{"theme":"bright","perPage":5,"layout":"horizontal","showTables":true,"visitors":{"plot":{"chartType":"bar"}}}'
+.TP
+\fB\-\-json-pretty-print
+Format JSON output using tabs and newlines.
+.IP
+.I Note:
+This is not recommended when outputting a real-time HTML report since the
+WebSocket payload will much much larger.
+.TP
+\fB\-\-max-items=<number>
+The maximum number of items to display per panel. The maximum can be a number
+between 1 and n.
+.IP
+.I Note:
+Only the CSV and JSON output allow a maximum number greater than the default
+value of 366 (or 50 in the real-time HTML output) items per panel.
+.TP
+\fB\-\-no-color
+Turn off colored output. This is the  default output on terminals that do not
+support colors.
+.TP
+\fB\-\-no-column-names
+Don't write column names in the terminal output. By default, it displays column
+names for each available metric in every panel.
+.TP
+\fB\-\-no-csv-summary
+Disable summary metrics on the CSV output.
+.TP
+\fB\-\-no-progress
+Disable progress metrics [total requests/requests per second].
+.TP
+\fB\-\-no-tab-scroll
+Disable scrolling through panels when TAB is pressed or when a panel is
+selected using a numeric key.
+.TP
+\fB\-\-no-html-last-updated
+Do not show the last updated field displayed in the HTML generated report.
+.SS
+SERVER OPTIONS
+.TP
+\fB\-\-addr
+Specify IP address to bind the server to. Otherwise it binds to 0.0.0.0.
+.IP
+Usually there is no need to specify the address, unless you intentionally would
+like to bind the server to a different address within your server.
+.TP
 \fB\-\-daemonize
 Run GoAccess as daemon (only if \fB\-\-real-time-html enabled).
+.TP
+\fB\-\-origin=<url>
+Ensure clients send the specified origin header upon the WebSocket handshake.
+.TP
+\fB\-\-port=<port>
+Specify the port to use. By default GoAccess' WebSocket server listens on port
+7890.
+.TP
+\fB\-\-real-time-html
+Enable real-time HTML output.
+.IP
+GoAccess uses its own WebSocket server to push the data from the server to the
+client. See http://gwsocket.io for more details how the WebSocket server works.
+.TP
+\fB\-\-ws-url=<[scheme://]url[:port]>
+URL to which the WebSocket server responds. This is the URL supplied to the
+WebSocket constructor on the client side.
+.IP
+Optionally, it is possible to specify the WebSocket URI scheme, such as
+.I ws://
+or
+.I wss://
+for unencrypted and encrypted connections. e.g.,
+.I
+wss://goaccess.io
+.IP
+If GoAccess is running behind a proxy, you could set the client side to connect
+to a different port by specifying the host followed by a colon and the port.
+e.g.,
+.I goaccess.io:9999
+. e.g.,
+.IP
+By default, it will attempt to connect to localhost. If GoAccess is
+running on a remote server, the host of the remote server should be
+specified here. Also, make sure it is a valid host and NOT an http
+address.
+.TP
+\fB\-\-fifo-in=<path/file>
+Creates a named pipe (FIFO) that reads from on the given path/file.
+.TP
+\fB\-\-fifo-out=<path/file>
+Creates a named pipe (FIFO) that writes to the given path/file.
+.TP
+\fB\-\-ssl-cert=<cert.crt>
+Path to TLS/SSL certificate. In order to enable TLS/SSL support, GoAccess
+requires that \-\-ssl-cert and \-\-ssl-key are used.
+
+Only if configured using --with-openssl
+.TP
+\fB\-\-ssl-key=<priv.key>
+Path to TLS/SSL private key. In order to enable TLS/SSL support, GoAccess
+requires that \-\-ssl-cert and \-\-ssl-key are used.
+
+Only if configured using --with-openssl
+.SS
+FILE OPTIONS
+.TP
+\fB\-f \-\-log-file=<logfile>
+Specify the path to the input log file. If set in the config file, it will take
+priority over -f from the command line.
+.TP
+\fB\-l \-\-debug-file=<debugfile>
+Send all debug messages to the specified file.
+.TP
+\fB\-p \-\-config-file=<configfile>
+Specify a custom configuration file to use. If set, it will take priority over
+the global configuration file (if any).
+.TP
+\fB\-\-invalid-requests=<filename>
+Log invalid requests to the specified file.
+.TP
+\fB\-\-no-global-config
+Do not load the global configuration file. This directory should normally be
+/usr/local/etc, unless specified with
+.I --sysconfdir=/dir.
+.SS
+PARSE OPTIONS
+.TP
+\fB\-a \-\-agent-list
+Enable a list of user-agents by host. For faster parsing, do not enable this
+flag.
+.TP
+\fB\-d \-\-with-output-resolver
+Enable IP resolver on HTML|JSON output.
+.TP
+\fB\-e \-\-exclude-ip=<IP|IP-range>
+Exclude an IPv4 or IPv6 from being counted.
+Ranges can be included as well using a dash in between the IPs (start-end).
+.IP
+.I Examples:
+  exclude-ip 127.0.0.1
+  exclude-ip 192.168.0.1-192.168.0.100
+  exclude-ip ::1
+  exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
+.TP
+\fB\-H \-\-http-protocol=<yes|no>
+Set/unset HTTP request protocol. This will create a request key containing the
+request protocol + the actual request.
+.TP
+\fB\-M \-\-http-method=<yes|no>
+Set/unset HTTP request method. This will create a request key containing the
+request method + the actual request.
+.TP
+\fB\-o \-\-output=<path/file.[json|csv|html]>
+Write output to stdout given one of the following files and the corresponding
+extension for the output format:
+.IP
+  /path/file.csv  - Comma-separated values (CSV)
+  /path/file.json - JSON (JavaScript Object Notation)
+  /path/file.html - HTML
+.TP
+\fB\-q \-\-no-query-string
+Ignore request's query string. i.e.,  www.google.com/page.htm?query =>
+www.google.com/page.htm.
+.IP
+.I Note:
+Removing the query string can greatly decrease memory consumption, especially
+on timestamped requests.
+.TP
+\fB\-r \-\-no-term-resolver
+Disable IP resolver on terminal output.
+.TP
+\fB\-\-444-as-404
+Treat non-standard status code 444 as 404.
+.TP
+\fB\-\-4xx-to-unique-count
+Add 4xx client errors to the unique visitors count.
+.TP
+\fB\-\-all-static-files
+Include static files that contain a query string. e.g.,
+/fonts/fontawesome-webfont.woff?v=4.0.3
 .TP
 \fB\-\-date-spec=<date|hr>
 Set the date specificity to either date (default) or hr to display hours
@@ -387,9 +503,6 @@ appended to the date.
 This is used in the visitors panel. It's useful for tracking visitors at the
 hour level. For instance, an hour specificity would yield to display traffic as
 18/Dec/2010:19
-.TP
-\fB\-\-dcf
-Display the path of the default config file when `-p` is not used.
 .TP
 \fB\-\-double-decode
 Decode double-encoded values. This includes, user-agent, request, and referer.
@@ -414,37 +527,12 @@ Enable parsing and displaying the given panel.
   REMOTE_USER
   GEO_LOCATION
 .TP
-\fB\-\-fifo-in=<path/file>
-Creates a named pipe (FIFO) that reads from on the given path/file.
-.TP
-\fB\-\-fifo-out=<path/file>
-Creates a named pipe (FIFO) that writes to the given path/file.
-.TP
 \fB\-\-hour-spec=<hr|min>
 Set the time specificity to either hour (default) or min to display the tenth
 of an hour appended to the hour.
 .IP
 This is used in the time distribution panel. It's useful for tracking peaks of
 traffic on your server at specific times.
-.TP
-\fB\-\-html-prefs=<JSON>
-Set HTML report default preferences. Supply a valid JSON object containing the
-HTML preferences.  It allows the ability to customize each panel plot. See
-example below.
-.IP
-.I Note:
-The JSON object passed needs to be a one line JSON string. For instance,
-.IP
-\-\-html-prefs='{"theme":"bright","perPage":5,"layout":"horizontal","showTables":true,"visitors":{"plot":{"chartType":"bar"}}}'
-.TP
-\fB\-\-html-custom-css=<path.css>
-Specifies a custom CSS file path to load in the HTML report.
-.TP
-\fB\-\-html-custom-js=<path.js>
-Specifies a custom JS file path to load in the HTML report.
-.TP
-\fB\-\-html-report-title=<title>
-Set HTML report page title and header.
 .TP
 \fB\-\-ignore-crawlers
 Ignore crawlers from being counted.
@@ -479,50 +567,6 @@ ww?.domain.*
 Ignore parsing and displaying one or multiple status code(s). For multiple
 status codes, use this option multiple times.
 .TP
-\fB\-\-invalid-requests=<filename>
-Log invalid requests to the specified file.
-.TP
-\fB\-\-json-pretty-print
-Format JSON output using tabs and newlines.
-.IP
-.I Note:
-This is not recommended when outputting a real-time HTML report since the
-WebSocket payload will much much larger.
-.TP
-\fB\-\-max-items=<number>
-The maximum number of items to display per panel. The maximum can be a number
-between 1 and n.
-.IP
-.I Note:
-Only the CSV and JSON output allow a maximum number greater than the default
-value of 366 (or 50 in the real-time HTML output) items per panel.
-.TP
-\fB\-\-no-color
-Turn off colored output. This is the  default output on terminals that do not
-support colors.
-.TP
-\fB\-\-no-column-names
-Don't write column names in the terminal output. By default, it displays column
-names for each available metric in every panel.
-.TP
-\fB\-\-no-csv-summary
-Disable summary metrics on the CSV output.
-.TP
-\fB\-\-no-global-config
-Do not load the global configuration file. This directory should normally be
-/usr/local/etc, unless specified with
-.I --sysconfdir=/dir.
-.TP
-\fB\-\-no-progress
-Disable progress metrics [total requests/requests per second].
-.TP
-\fB\-\-no-tab-scroll
-Disable scrolling through panels when TAB is pressed or when a panel is
-selected using a numeric key.
-.TP
-\fB\-\-no-html-last-updated
-Do not show the last updated field displayed in the HTML generated report.
-.TP
 \fB\-\-num-tests=<number>
 Number of lines from the access log to test against the provided log/date/time
 format. By default, the parser is set to test 10 lines.  If set to 0, the parser
@@ -532,24 +576,11 @@ given log/date/time format before it reaches
 the parser will consider the log to be valid, otherwise GoAccess will return
 EXIT_FAILURE and display the relevant error messages.
 .TP
-\fB\-\-origin=<url>
-Ensure clients send the specified origin header upon the WebSocket handshake.
-.TP
-\fB\-\-port=<port>
-Specify the port to use. By default GoAccess' WebSocket server listens on port
-7890.
-.TP
 \fB\-\-process-and-exit
 Parse log and exit without outputting data.
 .TP
 \fB\-\-real-os
 Display real OS names. e.g, Windows XP, Snow Leopard.
-.TP
-\fB\-\-real-time-html
-Enable real-time HTML output.
-.IP
-GoAccess uses its own WebSocket server to push the data from the server to the
-client. See http://gwsocket.io for more details how the WebSocket server works.
 .TP
 \fB\-\-sort-panel=<PANEL,FIELD,ORDER>
 Sort panel on initial load. Sort options are separated by comma. Options are in
@@ -570,51 +601,37 @@ the form: PANEL,METRIC,ORDER
   ASC
   DESC
 .TP
-\fB\-\-ws-url=<[scheme://]url[:port]>
-URL to which the WebSocket server responds. This is the URL supplied to the
-WebSocket constructor on the client side.
-.IP
-Optionally, it is possible to specify the WebSocket URI scheme, such as
-.I ws://
-or
-.I wss://
-for unencrypted and encrypted connections. e.g.,
-.I
-wss://goaccess.io
-.IP
-If GoAccess is running behind a proxy, you could set the client side to connect
-to a different port by specifying the host followed by a colon and the port.
-e.g.,
-.I goaccess.io:9999
-. e.g.,
-.IP
-By default, it will attempt to connect to localhost. If GoAccess is
-running on a remote server, the host of the remote server should be
-specified here. Also, make sure it is a valid host and NOT an http
-address.
-.TP
 \fB\-\-static-file=<extension>
 Add static file extension. e.g.:
 .I .mp3
 Extensions are case sensitive.
+.SS
+GEOLOCATION OPTIONS
 .TP
-\fB\-\-ssl-cert=<cert.crt>
-Path to TLS/SSL certificate. In order to enable TLS/SSL support, GoAccess
-requires that \-\-ssl-cert and \-\-ssl-key are used.
-
-Only if configured using --with-openssl
-.TP
-\fB\-\-ssl-key=<priv.key>
-Path to TLS/SSL private key. In order to enable TLS/SSL support, GoAccess
-requires that \-\-ssl-cert and \-\-ssl-key are used.
-
-Only if configured using --with-openssl
+\fB\-g \-\-std-geoip
+Standard GeoIP database for less memory usage.
 .TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat. File needs to be
 downloaded from maxmind.com. IPv4 and IPv6 files are supported as well.
 .I Note:
 `--geoip-city-data` is an alias of `--geoip-database`.
+.SS
+OTHER OPTIONS
+.TP
+\fB\-h \-\-help
+The help.
+.TP
+\fB\-s \-\-storage
+Display current storage method. i.e., B+ Tree, Hash.
+.TP
+\fB\-V \-\-version
+Display version information and exit.
+.TP
+\fB\-\-dcf
+Display the path of the default config file when `-p` is not used.
+.SS
+ON-DISK STORAGE OPTIONS
 .TP
 \fB\-\-keep-db-files
 Persist parsed data into disk. If database files exist, files will be
@@ -868,30 +885,55 @@ DIFFERENT OUTPUTS
 .P
 To output to a terminal and generate an interactive report:
 .IP
-# goaccess -f access.log
+# goaccess access.log
 .P
 To generate an HTML report:
 .IP
-# goaccess -f access.log -a -o report.html
+# goaccess access.log -a -o report.html
 .P
 To generate a JSON report:
 .IP
-# goaccess -f access.log -a -d -o report.json
+# goaccess access.log -a -d -o report.json
 .P
 To generate a CSV file:
 .IP
-# goaccess -f access.log --no-csv-summary -o report.csv
-.IP \[bu] 3
-.I -a
-flag indicates that we want to process an agent-list for every host parsed.
-.IP \[bu]
-.I -d
-flag indicates that we want to enable the IP resolver on the HTML|JSON output.
-(It will take longer time to output since it has to resolve all queries)
-.IP \[bu]
-.I -c
-flag will prompt the date and log format configuration window. Only when curses
-is initialized.
+# goaccess access.log --no-csv-summary -o report.csv
+.P
+GoAccess also allows great flexibility for real-time filtering and parsing.  To
+filter while maintaining opened a pipe to preserve real-time analysis, we can
+make use of
+.I tail -f
+and
+a matching pattern tool such as
+.I grep, awk, sed,
+etc:
+.IP
+# tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
+.SS
+MULTIPLE LOG FILES
+.P
+There are several ways to parse multiple logs with GoAccess. The simplest is to
+pass multiple log files to the command line:
+.IP
+# goaccess access.log access.log.1
+.P
+It's even possible to parse files from a pipe while reading regular files:
+.IP
+# cat access.log.2 | goaccess access.log access.log.1 -
+.P
+.I Note
+that the single dash is appended to the command line to let GoAccess know that
+it should read from the pipe.
+.P
+Now if we want to add more flexibility to GoAccess, we can do a series of
+pipes. For instance, if we would like to process all compressed log files
+.I access.log.*.gz
+in addition to the current log file, we can do one of the following:
+.IP
+# zcat access.log.*.gz | goaccess access.log -
+.P
+.I Note:
+On Mac OS X, use gunzip -c instead of zcat.
 .SS
 REAL TIME HTML OUTPUT
 .P
@@ -903,49 +945,29 @@ The process of generating a real-time HTML report is very similar to the
 process of creating a static report. Only --real-time-html is needed to make it
 real-time.
 .IP
-# goaccess -f access.log -o /usr/share/nginx/html/site/report.html --real-time-html --ws-url=host
+# goaccess access.log -o /usr/share/nginx/html/site/report.html --real-time-html
 .P
-If GoAccess is running and parsing logs on a specific host, you can specify the
-URL to which the client's browser will connect to.
-.P
-.I Note:
-The option
-.I --ws-url
-is also required IF GoAccess is running on a different machine than the one
-used to open the html report. See http://goaccess.io/faq for a more detailed
-example.
+By default, GoAccess will use the host name of the generated document.
+Optionally, if you can specify the URL to which the client's browser will
+connect to. See http://goaccess.io/faq for a more detailed example.
+.IP
+# goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 .P
 By default, GoAccess listens on port 7890, to use a different port other than
 7890, you can specify it as (make sure the port is opened):
 .IP
-# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
+# goaccess access.log -o report.html --real-time-html --port=9870
 .P
 And to bind the WebSocket server to a different address other than 0.0.0.0, you
 can specify it as:
 .IP
-# goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
+# goaccess access.log -o report.html --real-time-html --addr=127.0.0.1
 .P
 .I Note:
 To output real time data over a TLS/SSL connection, you need to use
 .I --ssl-cert=<cert.crt>
 and
 .I --ssl-key=<priv.key>.
-.SS
-MULTIPLE LOG FILES
-.P
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance:
-.P
-If we would like to process all
-.I access.log.*.gz
-we can do one of the following:
-.IP
-# zcat -f access.log* | goaccess
-.IP
-# zcat access.log.*.gz | goaccess
-.P
-.I Note:
-On Mac OS X, use gunzip -c instead of zcat.
 .SS
 WORKING WITH DATES
 .P
@@ -954,15 +976,15 @@ Another useful pipe would be filtering dates out of the web log
 The following will get all HTTP requests starting on 05/Dec/2010 until the end
 of the file.
 .IP
-# sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
+# sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a -
 .P
 or using relative dates such as yesterdays or tomorrows day:
 .IP
-# sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a
+# sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a -
 .P
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 .IP
-# sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a
+# sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 .SS
 VIRTUAL HOSTS
 .P
@@ -975,18 +997,18 @@ HTTP/1.1" 200 6715 "-" "Apache (internal dummy connection)"
 And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to
 .IP
-awk '$8=$1$8' access.log | goaccess -a
+awk '$8=$1$8' access.log | goaccess -a -
 .P
 To exclude a list of virtual hosts you can do the following:
 .IP
-# grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
+# grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 .SS
 FILES & STATUS CODES
 .P
 To parse specific pages, e.g., page views, html, htm, php, etc. within a
 request:
 .IP
-# awk '$7~/\.html|\.htm|\.php/' access.log | goaccess
+# awk '$7~/\.html|\.htm|\.php/' access.log | goaccess -
 .P
 Note,
 .I $7
@@ -999,7 +1021,7 @@ instead. It's best to check which field you are shooting for, e.g.:
 .P
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 .IP
-# awk '$9~/500/' access.log | goaccess
+# awk '$9~/500/' access.log | goaccess -
 .SS
 SERVER
 .P
@@ -1011,7 +1033,7 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine:
 .IP
-# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
+# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 .SS
 INCREMENTAL LOG PROCESSING
 .P
@@ -1060,10 +1082,6 @@ The number of items is customizable using
 .I max-items
 However, only the CSV and JSON output allow a maximum number greater than the
 default value of 366 items per panel.
-.P
-Piping a log to GoAccess will disable the real-time functionality. This is due
-to the portability issue on determining the actual size of STDIN. However, a
-future release *might* include this feature.
 .P
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
