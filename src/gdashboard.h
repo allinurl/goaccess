@@ -80,24 +80,29 @@ typedef struct GDashData_
 /* Dashboard panel */
 typedef struct GDashModule_
 {
-  GDashData *data;      /* data metrics */
-  GModule module;       /* module */
-  const char *head;     /* panel header */
-  const char *desc;     /* panel description */
+  GDashData *data;       /* data metrics */
+  GModule module;        /* module */
+  const char *head;      /* panel header */
+  const char *desc;      /* panel description */
 
-  int alloc_data;       /* number of data items allocated. */
-                        /* e.g., MAX_CHOICES or holder size */
-  int dash_size;        /* dashboard size */
-  int data_len;         /* data's maximum length */
-  int hits_len;         /* hits's maximum length. e.g., 102 => 3 */
-  int holder_size;      /* hash table size  */
-  int ht_size;          /* hash table size  */
-  int idx_data;         /* idx data */
-  int max_hits;         /* the maximum number of hits */
-  int method_len;       /* method's maximum length */
-  int perc_len;         /* percent's maximum length */
-  int visitors_len;     /* visitor's maximum length */
-  unsigned short pos_y; /* dashboard current Y position */
+  int alloc_data;        /* number of data items allocated. */
+                         /* e.g., MAX_CHOICES or holder size */
+  int dash_size;         /* dashboard size */
+  int holder_size;       /* hash table size  */
+  int ht_size;           /* hash table size  */
+  int idx_data;          /* idx data */
+
+  int max_hits;          /* the maximum number of hits */
+  int max_visitors;      /* the maximum number of visitors */
+
+  int data_len;          /* data's maximum length */
+  int hits_len;          /* hits's maximum length. e.g., 102 => 3 */
+  int hits_perc_len;     /* hits percent's maximum length */
+  int visitors_perc_len; /* visitors percent's maximum length */
+  int method_len;        /* method's maximum length */
+  int visitors_len;      /* visitor's maximum length */
+
+  unsigned short pos_y;  /* dashboard current Y position */
 } GDashModule;
 
 /* Dashboard */
