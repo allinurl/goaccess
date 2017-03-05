@@ -903,9 +903,14 @@ To generate a CSV file:
 .IP
 # goaccess access.log --no-csv-summary -o report.csv
 .P
-GoAccess also allows great flexibility for real-time filtering and parsing.  To
-filter while maintaining opened a pipe to preserve real-time analysis, we can
-make use of
+GoAccess also allows great flexibility for real-time filtering and parsing. For
+instance, to quickly diagnose issues by monitoring logs since goaccess was
+started:
+.IP
+# tail -f access.log | goaccess -
+.P
+And even better, to filter while maintaining opened a pipe to preserve
+real-time analysis, we can make use of
 .I tail -f
 and
 a matching pattern tool such as
