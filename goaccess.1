@@ -141,8 +141,12 @@ Compile with debugging symbols and turn off compiler optimizations.
 \fB\-\-enable-utf8
 Compile with wide character support. Ncursesw is required.
 .TP
-\fB\-\-enable-geoip
+\fB\-\-enable-geoip=<legacy|geoip2>
 Compile with GeoLocation support. MaxMind's GeoIP is required.
+.I legacy
+will utilize the original GeoIP databases.
+.I geoip2
+will utilize the enhanced GeoIP2 databases.
 .TP
 \fB\-\-enable-tcb=<memhash|btree>
 Compile with Tokyo Cabinet storage support.
