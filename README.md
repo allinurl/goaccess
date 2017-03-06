@@ -94,7 +94,7 @@ Download, extract and compile GoAccess with:
     $ wget http://tar.goaccess.io/goaccess-1.1.1.tar.gz
     $ tar -xzvf goaccess-1.1.1.tar.gz
     $ cd goaccess-1.1.1/
-    $ ./configure --enable-geoip --enable-utf8
+    $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
 
@@ -103,7 +103,7 @@ Download, extract and compile GoAccess with:
     $ git clone https://github.com/allinurl/goaccess.git
     $ cd goaccess
     $ autoreconf -fiv
-    $ ./configure --enable-geoip --enable-utf8
+    $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
 
@@ -309,29 +309,39 @@ To generate a CSV file:
 
     # goaccess -f access.log --no-csv-summary -o csv > report.csv
 
-The `-a` flag indicates that we want to process an agent-list for every host
-parsed.
+GoAccess also allows great flexibility for real-time filtering and parsing. For
+instance, to quickly diagnose issues by monitoring logs since goaccess was
+started:
 
-The `-d` flag indicates that we want to enable the IP resolver on the HTML |
-JSON output. (It will take longer time to output since it has to resolve all
-queries.)
+    # tail -f access.log | goaccess -
 
-The `-c` flag will prompt the date and log format configuration window. Only
-when curses is initialized.
+And even better, to filter while maintaining opened a pipe to preserve
+real-time analysis, we can make use of `tail -f` and a matching pattern tool
+such as `grep`, `awk`, `sed`, etc:
+
+    # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
 ##### Multiple Log Files #####
 
-Filtering can be done through the use of pipes. For instance, using grep to
-filter specific data and then pipe the output into GoAccess. This adds a great
-amount of flexibility to what GoAccess can display. For example:
+There are several ways to parse multiple logs with GoAccess. The simplest is to
+pass multiple log files to the command line:
 
-If we would like to process all `access.log.*.gz` we can do one of the following:
+    # goaccess access.log access.log.1
 
-    # zcat -f access.log* | goaccess
+It's even possible to parse files from a pipe while reading regular files:
 
-    # zcat access.log.*.gz | goaccess
+    # cat access.log.2 | goaccess access.log access.log.1 -
 
-Note: On Mac OS X, use `gunzip -c` instead of `zcat`.
+**Note** that the single dash is appended to the command line to let GoAccess
+know that it should read from the pipe.
+
+Now if we want to add more flexibility to GoAccess, we can do a series of
+pipes. For instance, if we would like to process all compressed log files
+access.log.*.gz in addition to the current log file, we can do:
+
+# zcat access.log.*.gz | goaccess access.log -
+
+**Note**: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
 ##### Real Time HTML Output #####
 
@@ -343,21 +353,23 @@ The process of generating a real-time HTML report is very similar to the
 process of creating a static report. Only `--real-time-html` is needed to make
 it real-time.
 
-**Note** that `--ws-url` is also required *IF* GoAccess is running on a
-different machine than the one used to open the html report. See
-[FAQ](https://goaccess.io/faq) for more details.
+    # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
 
-    # goaccess -f access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html --ws-url=host
+By default, GoAccess will use the host name of the generated document.
+Optionally, if you can specify the URL to which the client's browser will
+connect to. See http://goaccess.io/faq for a more detailed example.
+
+    # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 
 By default, GoAccess listens on port 7890, to use a different port other than
 7890, you can specify it as (make sure the port is opened):
 
-    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --port=9870
+    # goaccess access.log -o report.html --real-time-html --port=9870
 
 And to bind the WebSocket server to a different address other than 0.0.0.0, you
 can specify it as:
 
-    # goaccess -f access.log -o report.html --real-time-html --ws-url=goaccess.io --addr=127.0.0.1
+    # goaccess -f access.log -o report.html --real-time-html --addr=127.0.0.1
 
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
@@ -369,15 +381,15 @@ Another useful pipe would be filtering dates out of the web log
 The following will get all HTTP requests starting on `05/Dec/2010` until the
 end of the file.
 
-    # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a
+    # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a -
 
 or using relative dates such as yesterdays or tomorrows day:
 
-    # sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a
+    # sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a -
 
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
-    # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a
+    # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
 ##### Virtual Hosts #####
 
@@ -388,18 +400,18 @@ Assuming your log contains the virtual host field. For instance:
 And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to
 
-    awk '$8=$1$8' access.log | goaccess -a
+    awk '$8=$1$8' access.log | goaccess -a -
 
 To exclude a list of virtual hosts you can do the following:
 
-    # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess
+    # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
 ##### Files & Status Codes #####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
 
-    # awk '$7~/\.html|\.htm|\.php/' access.log | goaccess
+    # awk '$7~/\.html|\.htm|\.php/' access.log | goaccess -
 
 Note, `$7` is the request field for the common and combined log format,
 (without Virtual Host), if your log includes Virtual Host, then you probably
@@ -410,7 +422,7 @@ e.g.:
 
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
-    # awk '$9~/500/' access.log | goaccess
+    # awk '$9~/500/' access.log | goaccess -
 
 ##### Server #####
 
@@ -422,7 +434,7 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine:
 
-    # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a
+    # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
 ##### Incremental Log Processing #####
 
@@ -440,12 +452,12 @@ be deleted upon closing the program.
 ###### Examples ######
 
     // last month access log
-    # goaccess -f access.log.1 --keep-db-files
+    # goaccess access.log.1 --keep-db-files
 
 then, load it with
 
     // append this month access log, and preserve new data
-    # goaccess -f access.log --load-from-disk --keep-db-files
+    # goaccess access.log --load-from-disk --keep-db-files
 
 To read persisted data only (without parsing new data)
 
