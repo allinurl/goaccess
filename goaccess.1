@@ -937,7 +937,7 @@ it should read from the pipe.
 Now if we want to add more flexibility to GoAccess, we can do a series of
 pipes. For instance, if we would like to process all compressed log files
 .I access.log.*.gz
-in addition to the current log file, we can do one of the following:
+in addition to the current log file, we can do:
 .IP
 # zcat access.log.*.gz | goaccess access.log -
 .P
@@ -1073,13 +1073,13 @@ For instance:
 .IP
 // last month access log
 .br
-goaccess -f access.log.1 --keep-db-files
+goaccess access.log.1 --keep-db-files
 .P
 then, load it with
 .IP
 // append this month access log, and preserve new data
 .br
-goaccess -f access.log --load-from-disk --keep-db-files
+goaccess access.log --load-from-disk --keep-db-files
 .P
 To read persisted data only (without parsing new data)
 .IP
