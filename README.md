@@ -339,7 +339,7 @@ Now if we want to add more flexibility to GoAccess, we can do a series of
 pipes. For instance, if we would like to process all compressed log files
 access.log.*.gz in addition to the current log file, we can do:
 
-# zcat access.log.*.gz | goaccess access.log -
+    # zcat access.log.*.gz | goaccess access.log -
 
 **Note**: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
