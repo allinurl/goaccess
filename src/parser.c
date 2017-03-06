@@ -2654,26 +2654,29 @@ static int
 read_log (GLog ** glog, const char *fn, int dry_run)
 {
   FILE *fp = NULL;
+  int piping = 0;
 
-  /* read from stdin */
+  /* Ensure we have a valid pipe to read from stdin. Only checking for
+   * conf.read_stdin without verifying for a valid FILE pointer would certainly
+   * lead to issues. */
   if (fn[0] == '-' && fn[1] == '\0' && (*glog)->pipe) {
     fp = (*glog)->pipe;
-    (*glog)->piping = 1;
+    (*glog)->piping = piping = 1;
   }
 
   /* make sure we can open the log (if not reading from stdin) */
-  if (!(*glog)->piping && (fp = fopen (fn, "r")) == NULL)
+  if (!piping && (fp = fopen (fn, "r")) == NULL)
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* read line by line */
   if (read_lines (fp, glog, dry_run)) {
-    if (!(*glog)->piping)
+    if (!piping)
       fclose (fp);
     return 1;
   }
 
   /* close log file if not a pipe */
-  if (!(*glog)->piping)
+  if (!piping)
     fclose (fp);
 
   return 0;
