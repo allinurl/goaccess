@@ -269,12 +269,15 @@ render_child_node (const char *data)
 static char *
 get_bars (int n, int max, int x)
 {
-  int w, h, len;
+  int w, h;
+  float len = 0.0;
 
   getmaxyx (stdscr, h, w);
   (void) h;     /* avoid lint warning */
 
-  if ((len = (n * (w - x) / max)) < 1)
+  len = ((((float) n) / max));
+  len *= (w - x);
+  if (len < 1)
     len = 1;
   return char_repeat (len, '|');
 }
