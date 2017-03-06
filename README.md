@@ -291,7 +291,7 @@ to be used without prepending `--`.
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
 ## Usage ##
-##### Different Outputs #####
+##### DIFFERENT OUTPUTS #####
 
 To output to a terminal and generate an interactive report:
 
@@ -321,7 +321,7 @@ such as `grep`, `awk`, `sed`, etc:
 
     # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
-##### Multiple Log Files #####
+##### MULTIPLE LOG FILES #####
 
 There are several ways to parse multiple logs with GoAccess. The simplest is to
 pass multiple log files to the command line:
@@ -343,7 +343,7 @@ access.log.*.gz in addition to the current log file, we can do:
 
 **Note**: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
-##### Real Time HTML Output #####
+##### REAL TIME HTML OUTPUT #####
 
 GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
@@ -355,9 +355,9 @@ it real-time.
 
     # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
 
-By default, GoAccess will use the host name of the generated document.
-Optionally, if you can specify the URL to which the client's browser will
-connect to. See http://goaccess.io/faq for a more detailed example.
+By default, GoAccess will use the host name of the generated report.
+Optionally, you can specify the URL to which the client's browser will connect
+to. See http://goaccess.io/faq for a more detailed example.
 
     # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 
@@ -374,7 +374,7 @@ can specify it as:
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
 
-##### Working with Dates #####
+##### WORKING WITH DATES #####
 
 Another useful pipe would be filtering dates out of the web log
 
@@ -391,7 +391,7 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
-##### Virtual Hosts #####
+##### VIRTUAL HOSTS #####
 
 Assuming your log contains the virtual host field. For instance:
 
@@ -406,7 +406,7 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
-##### Files & Status Codes #####
+##### FILES & STATUS CODES #####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
@@ -424,7 +424,7 @@ Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
     # awk '$9~/500/' access.log | goaccess -
 
-##### Server #####
+##### SERVER #####
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
@@ -436,7 +436,7 @@ your local machine:
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
-##### Incremental Log Processing #####
+##### INCREMENTAL LOG PROCESSING #####
 
 GoAccess has the ability to process logs incrementally through the on-disk
 B+Tree database. It works in the following way:
