@@ -46,6 +46,7 @@ window.GoAccess = window.GoAccess || {
 			'theme': 'darkBlue',
 			'perPage': 7,
 			'layout': 'horizontal',
+			'autoHideTables': true,
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
@@ -399,6 +400,12 @@ GoAccess.Nav = {
 				this.toggleTables();
 			}.bind(this);
 		}.bind(this));
+
+		$$('[data-autohide-tables]', function (item) {
+			item.onclick = function (e) {
+				this.toggleAutoHideTables();
+			}.bind(this);
+		}.bind(this));
 	},
 
 	downloadJSON: function (e) {
@@ -423,6 +430,19 @@ GoAccess.Nav = {
 		GoAccess.Panels.initialize();
 		GoAccess.Charts.initialize();
 		GoAccess.Tables.initialize();
+	},
+
+	toggleAutoHideTables: function (e) {
+		var autoHideTables = GoAccess.Tables.autoHideTables();
+		$$('.table-wrapper', function (item) {
+			if (autoHideTables)
+				item.classList.remove('hidden-xs');
+			else
+				item.classList.add('hidden-xs');
+		}.bind(this));
+
+		GoAccess.AppPrefs['autoHideTables'] = !autoHideTables;
+		GoAccess.setPrefs();
 	},
 
 	toggleTables: function () {
@@ -518,10 +538,11 @@ GoAccess.Nav = {
 	// Render left-hand side navigation options.
 	renderOpts: function () {
 		var o = {};
+		o[this.getLayout()] = true;
 		o[this.getTheme()] = true;
 		o['perPage' + this.getPerPage()] = true;
+		o['autoHideTables'] = GoAccess.Tables.autoHideTables();
 		o['showTables'] = GoAccess.Tables.showTables();
-		o[this.getLayout()] = true;
 
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.opts.render(o);
 		$('nav').classList.toggle('active');
@@ -1246,8 +1267,13 @@ GoAccess.Tables = {
 		return ('showTables' in GoAccess.getPrefs()) ? GoAccess.getPrefs().showTables : true;
 	},
 
+	autoHideTables: function () {
+		return ('autoHideTables' in GoAccess.getPrefs()) ? GoAccess.getPrefs().autoHideTables : true;
+	},
+
 	hasTables: function (ui) {
-		ui['table'] = GoAccess.Tables.showTables();
+		ui['table'] = this.showTables();
+		ui['autoHideTables'] = this.autoHideTables();
 	},
 
 	renderMetaRow: function (panel, ui) {

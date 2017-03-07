@@ -129,7 +129,7 @@
 	</div>
 	{{/plot.length}}
 	{{#table}}
-	<div class="row clearfix">
+	<div class="row clearfix table-wrapper {{#autoHideTables}}hidden-xs{{/autoHideTables}}">
 		<div class="col-md-12">
 			<div class="table-responsive">
 				<table data-panel="{{id}}" class="table table-borderless table-hover table-{{id}}">
@@ -194,23 +194,28 @@
 	<ul class="perpage-wrap">
 		<li class="dropdown-header"><i class="fa fa-list"></i> Items Per Page</li>
 		<li {{#perPage5}}class="active"{{/perPage5}}>
-			<a  href="javascript:void(0);" data-perpage="5"><i class="fa fa-circle{{^perPage5}}-o{{/perPage5}}"></i> 5</a>
+			<a href="javascript:void(0);" data-perpage="5"><i class="fa fa-circle{{^perPage5}}-o{{/perPage5}}"></i> 5</a>
 		</li>
 		<li {{#perPage7}}class="active"{{/perPage7}}>
-			<a  href="javascript:void(0);" data-perpage="7"><i class="fa fa-circle{{^perPage7}}-o{{/perPage7}}"></i> 7</a>
+			<a href="javascript:void(0);" data-perpage="7"><i class="fa fa-circle{{^perPage7}}-o{{/perPage7}}"></i> 7</a>
 		</li>
 		<li {{#perPage10}}class="active"{{/perPage10}}>
-			<a  href="javascript:void(0);" data-perpage="10"><i class="fa fa-circle{{^perPage10}}-o{{/perPage10}}"></i> 10</a>
+			<a href="javascript:void(0);" data-perpage="10"><i class="fa fa-circle{{^perPage10}}-o{{/perPage10}}"></i> 10</a>
 		</li>
 		<li {{#perPage15}}class="active"{{/perPage15}}>
-			<a  href="javascript:void(0);" data-perpage="15"><i class="fa fa-circle{{^perPage15}}-o{{/perPage15}}"></i> 15</a>
+			<a href="javascript:void(0);" data-perpage="15"><i class="fa fa-circle{{^perPage15}}-o{{/perPage15}}"></i> 15</a>
 		</li>
 		<li {{#perPage20}}class="active"{{/perPage20}}>
-			<a  href="javascript:void(0);" data-perpage="20"><i class="fa fa-circle{{^perPage20}}-o{{/perPage20}}"></i> 20</a>
+			<a href="javascript:void(0);" data-perpage="20"><i class="fa fa-circle{{^perPage20}}-o{{/perPage20}}"></i> 20</a>
 		</li>
 		<li class="dropdown-header"><i class="fa fa-table"></i> Tables</li>
 		<li {{#showTables}}class="active"{{/showTables}}>
-			<a  href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> Display Tables</a>
+			<a href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> Display Tables</a>
+		</li>
+		<li {{#autoHideTables}}class="active"{{/autoHideTables}}>
+			<a href="javascript:void(0);" data-autohide-tables="1" title="Automatically hide tables on small screen devices">
+				<i class="fa fa-{{#autoHideTables}}check-{{/autoHideTables}}square-o"></i> Auto-hide on small devices
+			</a>
 		</li>
 	</ul>
 	<h3><i class="fa fa-th-large"></i> Layout</h3>
