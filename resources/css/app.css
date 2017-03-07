@@ -76,6 +76,12 @@ nav {
 	transition: left .7s;
 	width: 300px;
 	z-index: 2;
+	overflow: hidden;
+}
+nav .nav-list {
+    height: 100%;
+	overflow-y: auto;
+	width: 350px;
 }
 nav header {
 	margin: 40px 20px 30px;
