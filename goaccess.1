@@ -3,7 +3,7 @@
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
 .LP
-.B goaccess goaccess [filename] [ options ... ] [-c][-M][-H][-q][-d][...]
+.B goaccess [filename] [ options ... ] [-c][-M][-H][-q][-d][...]
 .SH DESCRIPTION
 .B goaccess
 GoAccess is an open source real-time web log analyzer and interactive viewer
@@ -400,10 +400,9 @@ e.g.,
 .I goaccess.io:9999
 . e.g.,
 .IP
-By default, it will attempt to connect to localhost. If GoAccess is
-running on a remote server, the host of the remote server should be
-specified here. Also, make sure it is a valid host and NOT an http
-address.
+By default, it will attempt to connect to the generated report's hostname. If
+GoAccess is running on a remote server, the host of the remote server should be
+specified here. Also, make sure it is a valid host and NOT an http address.
 .TP
 \fB\-\-fifo-in=<path/file>
 Creates a named pipe (FIFO) that reads from on the given path/file.
@@ -581,7 +580,9 @@ the parser will consider the log to be valid, otherwise GoAccess will return
 EXIT_FAILURE and display the relevant error messages.
 .TP
 \fB\-\-process-and-exit
-Parse log and exit without outputting data.
+Parse log and exit without outputting data. Useful if we are looking to only
+add new data to the on-disk database without outputting to a file or a
+terminal.
 .TP
 \fB\-\-real-os
 Display real OS names. e.g, Windows XP, Snow Leopard.
