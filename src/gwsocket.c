@@ -254,6 +254,14 @@ onopen (WSPipeOut * pipeout, WSClient * client)
   return 0;
 }
 
+/* Done parsing, clear out line and set status message. */
+void
+set_ready_state (void)
+{
+  fprintf (stderr, "\33[2K\r");
+  fprintf (stderr, "WebSocket server ready to accept new client connections\n");
+}
+
 /* Open the named pipe where the websocket server writes to.
  *
  * If unable to open, -1 is returned.

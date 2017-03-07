@@ -812,6 +812,7 @@ process_html (const char *filename)
       size1[i] = file_size (conf.filenames[i]);
   }
 
+  set_ready_state ();
   while (1) {
     if (conf.stop_processing)
       break;
