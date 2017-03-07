@@ -175,7 +175,7 @@ static const char *colors256_monokai[] = {
   "COLOR_MTRC_HITS_PERC_MAX     color208:color-1 OS",
   "COLOR_MTRC_HITS_PERC_MAX     color208:color-1 BROWSERS",
   "COLOR_MTRC_HITS_PERC_MAX     color208:color-1 VISIT_TIMES",
-  "COLOR_MTRC_VISITORS_PERC     color186:color-1",
+  "COLOR_MTRC_VISITORS_PERC     color187:color-1",
   "COLOR_MTRC_VISITORS_PERC_MAX color208:color-1",
   "COLOR_PANEL_COLS             color242:color-1",
   "COLOR_BARS                   color186:color-1",
