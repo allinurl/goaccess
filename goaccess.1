@@ -1093,6 +1093,13 @@ The number of items is customizable using
 However, only the CSV and JSON output allow a maximum number greater than the
 default value of 366 items per panel.
 .P
+When analyzing the same log file twice using the on-disk B+Tree and using
+.I --keep-db-files
+and
+.I --load-from-disk
+on each run, GoAccess will count each entry twice. Issue #334 will address this
+issue.
+.P
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
 .SH BUGS
