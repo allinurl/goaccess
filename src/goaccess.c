@@ -1189,7 +1189,8 @@ open_term (char **buf)
 }
 
 /* Determine if reading from a pipe, and duplicate file descriptors so
- * get in the way of curses' normal reading stdin for wgetch() */
+ * it doesn't get in the way of curses' normal reading stdin for
+ * wgetch() */
 static void
 set_pipe_stdin (void)
 {
@@ -1215,11 +1216,15 @@ set_pipe_stdin (void)
   if (fileno (stdin) != 0)
     (void) dup2 (fileno (stdin), 0);
 
+  add_dash_filename ();
+  /* no need to set it as non-blocking since we are simply outputting a
+   * static report */
+  if (conf.output_stdout && !conf.real_time_html)
+    goto out;
+
   /* Using select(), poll(), or epoll(), etc may be a better choice... */
   if (fcntl (fd2, F_SETFL, fcntl (fd2, F_GETFL, 0) | O_NONBLOCK) == -1)
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
-
-  add_dash_filename ();
 out:
 
   glog->pipe = pipe;
