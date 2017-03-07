@@ -67,6 +67,7 @@ int read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds,
                void (*f) (int));
 int send_holder_to_client (int fd, int listener, const char *buf, int len);
 int setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
+void set_ready_state (void);
 void set_self_pipe (int *self_pipe);
 void stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
 
