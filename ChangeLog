@@ -1,14 +1,15 @@
 Changes to GoAccess 1.2 - Tuesday, March 07, 2017
 
   - Added a Dockerfile.
-  - Added Amazon S3 bucket name as virtualhost (server block).
+  - Added Amazon S3 bucket name as a VirtualHost (server block).
   - Added a replacement for GNU getline() to dynamically expand line buffer
     while maintaining real-time output.
   - Added --daemonize command line option to run GoAccess as daemon.
-  - Added several improvements to HTML report on small-screen devices.
-  - Added option to HTML report to auto-hide tables on small-screen devices.
+  - Added several improvements to the HTML report on small-screen devices.
+  - Added option to the HTML report to auto-hide tables on small-screen
+    devices.
   - Added --process-and-exit command line option to parse log and exit.
-  - Added several new feed readers to the list of browsers.
+  - Added several feed readers to the list of browsers.
   - Added "-" single dash per convention to read from the standard input.
   - Added support for MaxMind GeoIP2.
   - Added the ability to read and follow from a pipe such as
