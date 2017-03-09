@@ -290,24 +290,24 @@ to be used without prepending `--`.
 | `--ws-url=<[scheme://]url[:port]>` | URL to which the WebSocket server responds.                   |
 | `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
 
-## Usage ##
+## EXAMPLES ##
 ##### DIFFERENT OUTPUTS #####
 
 To output to a terminal and generate an interactive report:
 
-    # goaccess -f access.log
+    # goaccess access.log
 
 To generate an HTML report:
 
-    # goaccess -f access.log -a > report.html
+    # goaccess access.log -a > report.html
     
 To generate a JSON report:
 
-    # goaccess -f access.log -a -d -o json > report.json
+    # goaccess access.log -a -d -o json > report.json
     
 To generate a CSV file:
 
-    # goaccess -f access.log --no-csv-summary -o csv > report.csv
+    # goaccess access.log --no-csv-summary -o csv > report.csv
 
 GoAccess also allows great flexibility for real-time filtering and parsing. For
 instance, to quickly diagnose issues by monitoring logs since goaccess was
@@ -369,7 +369,7 @@ By default, GoAccess listens on port 7890, to use a different port other than
 And to bind the WebSocket server to a different address other than 0.0.0.0, you
 can specify it as:
 
-    # goaccess -f access.log -o report.html --real-time-html --addr=127.0.0.1
+    # goaccess access.log -o report.html --real-time-html --addr=127.0.0.1
 
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
