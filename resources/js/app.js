@@ -610,6 +610,12 @@ GoAccess.Panels = {
 			}.bind(this);
 		}.bind(this));
 
+		$$('[data-chart]', function (item) {
+			item.onclick = function (e) {
+				GoAccess.Charts.toggleChart(e.currentTarget);
+			}.bind(this);
+		}.bind(this));
+
 		$$('[data-chart-type]', function (item) {
 			item.onclick = function (e) {
 				GoAccess.Charts.setChartType(e.currentTarget);
@@ -653,8 +659,14 @@ GoAccess.Panels = {
 				items[i]['hide'] = true;
 	},
 
+	setChartSelection: function (ui, prefs) {
+		ui['showChart'] = prefs && ('chart' in prefs) ? prefs.chart : true;;
+	},
+
 	setOpts: function (panel) {
 		var ui = JSON.parse(JSON.stringify(GoAccess.getPanelUI(panel))), prefs = GoAccess.getPrefs(panel);
+		// set preferences selection upon opening panel options
+		this.setChartSelection(ui, prefs);
 		this.setPlotSelection(ui, prefs);
 		this.setColSelection(ui.items, prefs);
 		return ui;
@@ -710,28 +722,17 @@ GoAccess.Panels = {
 		return false;
 	},
 
-	// Render the given panel given a user interface definition.
-	renderPanel: function (panel, ui, row, idx) {
-		var wrap = $('.wrap-panels');
-		var every = GoAccess.AppPrefs['layout'] == 'horizontal' ? 2 : 1;
-		var perRow = GoAccess.AppPrefs['layout'] == 'horizontal' ? 6 : 12;
-
-		// create a new bootstrap row every one or two elements depending on
-		// the layout
-		if (idx % every == 0) {
-			row = document.createElement('div');
-			row.setAttribute('class', 'row' + (every == 2 ? ' equal' : ''));
-			wrap.appendChild(row);
-		}
-
-		var data = GoAccess.getPanelData(panel);
+	setComputedData: function (panel, ui, data) {
 		this.hasSubItems(ui, data.data);
-		GoAccess.Tables.hasTables(ui);
+		GoAccess.Charts.hasChart(panel, ui);
+		GoAccess.Tables.hasTable(ui);
+	},
 
-		// set the number of columns based on current layout
-		var col = document.createElement('div');
-		col.setAttribute('class', 'col-md-' + perRow + ' wrap-panel');
-		row.appendChild(col);
+	// Render the given panel given a user interface definition.
+	renderPanel: function (panel, ui, col) {
+		// set some computed values before rendering panel structure
+		var data = GoAccess.getPanelData(panel);
+		this.setComputedData(panel, ui, data);
 
 		// per panel wrapper
 		var box = document.createElement('div');
@@ -744,20 +745,61 @@ GoAccess.Panels = {
 			this.disablePagination(panel);
 		GoAccess.Tables.renderThead(panel, ui);
 
+		return col;
+	},
+
+	createCol: function (row) {
+		var perRow = GoAccess.AppPrefs['layout'] == 'horizontal' ? 6 : 12;
+
+		// set the number of columns based on current layout
+		var col = document.createElement('div');
+		col.setAttribute('class', 'col-md-' + perRow + ' wrap-panel');
+		row.appendChild(col);
+
+		return col;
+	},
+
+	createRow: function (row, idx) {
+		var wrap = $('.wrap-panels');
+		var every = GoAccess.AppPrefs['layout'] == 'horizontal' ? 2 : 1;
+
+		// create a new bootstrap row every one or two elements depending on
+		// the layout
+		if (idx % every == 0) {
+			row = document.createElement('div');
+			row.setAttribute('class', 'row' + (every == 2 ? ' equal' : ''));
+			wrap.appendChild(row);
+		}
+
 		return row;
+	},
+
+	resetPanel: function (panel) {
+		var ui = GoAccess.getPanelUI(), idx = 0, row = null;
+		var ele = $('#panel-' + panel);
+
+		if (GoAccess.Util.isPanelValid(panel))
+			return false;
+
+		var col = ele.parentNode;
+		col.removeChild(ele);
+		// Render panel given a user interface definition
+		this.renderPanel(panel, ui[panel], col);
+		this.events();
 	},
 
 	// Iterate over all available panels and render each panel
 	// structure.
 	renderPanels: function () {
-		var ui = GoAccess.getPanelUI(), idx = 0, row = null;
+		var ui = GoAccess.getPanelUI(), idx = 0, row = null, col = null;
 
 		$('.wrap-panels').innerHTML = '';
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel))
 				continue;
+			row = this.createRow(row, idx++), col = this.createCol(row);
 			// Render panel given a user interface definition
-			row = this.renderPanel(panel, ui[panel], row, idx++);
+			col = this.renderPanel(panel, ui[panel], col);
 		}
 	},
 
@@ -792,20 +834,6 @@ GoAccess.Charts = {
 		return plot.chartReverse ? data.reverse() : data;
 	},
 
-	renderChart: function (panel, chart, data) {
-		// remove popup
-		d3.select('#chart-' + panel + '>.chart-tooltip-wrap')
-			.remove();
-		// remove svg
-		d3.select('#chart-' + panel).select('svg')
-			.remove();
-		// add chart to the document
-		d3.select("#chart-" + panel)
-			.datum(data)
-			.call(chart)
-			.append("div").attr("class", "chart-tooltip-wrap");
-	},
-
 	drawPlot: function (panel, plotUI, data) {
 		var chart = this.getChart(panel, plotUI, data);
 		if (!chart)
@@ -826,6 +854,25 @@ GoAccess.Charts = {
 		var plotUI = GoAccess.Util.getProp(GoAccess.AppState, panel + '.plot');
 		// Extract data for the selected panel and process it
 		this.drawPlot(panel, plotUI, this.getPanelData(panel));
+	},
+
+	toggleChart: function (targ) {
+		var panel = targ.getAttribute('data-panel');
+		var prefs = GoAccess.getPrefs(panel),
+			chart = prefs && ('chart' in prefs) ? prefs.chart : true
+
+		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.chart', !chart);
+		GoAccess.setPrefs();
+
+		GoAccess.Panels.resetPanel(panel);
+		GoAccess.Charts.resetChart(panel);
+		GoAccess.Tables.renderFullTable(panel);
+	},
+
+	hasChart: function (panel, ui) {
+		var prefs = GoAccess.getPrefs(panel),
+			chart = prefs && ('chart' in prefs) ? prefs.chart : true;
+		ui['chart'] = ui.plot.length && chart && chart;
 	},
 
 	// Redraw a chart upon selecting a metric.
@@ -952,7 +999,7 @@ GoAccess.Charts = {
 
 	getChartType: function (panel) {
 		var ui = GoAccess.getPanelUI(panel);
-		if (!ui.plot.length)
+		if (!ui.chart)
 			return '';
 
 		return GoAccess.Util.getProp(GoAccess.getPrefs(), panel + '.plot.chartType') || ui.plot[0].chartType;
@@ -983,31 +1030,59 @@ GoAccess.Charts = {
 		return chart;
 	},
 
+	renderChart: function (panel, chart, data) {
+		// remove popup
+		d3.select('#chart-' + panel + '>.chart-tooltip-wrap')
+			.remove();
+		// remove svg
+		d3.select('#chart-' + panel).select('svg')
+			.remove();
+		// add chart to the document
+		d3.select("#chart-" + panel)
+			.datum(data)
+			.call(chart)
+			.append("div").attr("class", "chart-tooltip-wrap");
+	},
+
+	addChart: function (panel, ui) {
+		var plotUI = null, chart = null;
+
+		// Ensure it has a plot definition
+		if (!ui.plot || !ui.plot.length)
+			return;
+
+		plotUI = this.getPlotUI(panel, ui);
+		// set ui plot data
+		GoAccess.Util.setProp(GoAccess.AppState, panel + '.plot', plotUI);
+
+		// Grab the data for the selected panel
+		var data = this.getPanelData(panel);
+		if (!(chart = this.getChart(panel, plotUI, data)))
+			return;
+
+		this.renderChart(panel, chart, data);
+		GoAccess.AppCharts[panel] = chart;
+	},
+
 	// Render all charts for the applicable panels.
 	renderCharts: function (ui) {
-		var plotUI = null, chart = null;
 		for (var panel in ui) {
 			if (!ui.hasOwnProperty(panel))
 				continue;
-			// Ensure it has a plot definitions
-			if (!ui[panel].plot || !ui[panel].plot.length)
-				continue;
-
-			plotUI = this.getPlotUI(panel, ui[panel]);
-			// set ui plot data
-			GoAccess.Util.setProp(GoAccess.AppState, panel + '.plot', plotUI);
-
-			// Grab the data for the selected panel
-			var data = this.getPanelData(panel);
-			if (!(chart = this.getChart(panel, plotUI, data)))
-				continue;
-
-			this.renderChart(panel, chart, data);
-			GoAccess.AppCharts[panel] = chart;
+			this.addChart(panel, ui[panel]);
 		}
 	},
 
-	// Reload the given chart data
+	resetChart: function (panel) {
+		var ui = {};
+		if (GoAccess.Util.isPanelValid(panel))
+			return false;
+
+		ui = GoAccess.getPanelUI(panel);
+		this.addChart(panel, ui);
+	},
+
+	// Reload (doesn't redraw) the given chart's data
 	reloadChart: function (chart, panel) {
 		var subItems = GoAccess.Tables.getSubItemsData(panel);
 		var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
@@ -1017,6 +1092,7 @@ GoAccess.Charts = {
 			.call(chart.width($("#chart-" + panel).offsetWidth));
 	},
 
+	// Reload (doesn't redraw) all chart's data
 	reloadCharts: function () {
 		this.iter(function (chart, panel) {
 			this.reloadChart(chart, panel);
@@ -1271,7 +1347,7 @@ GoAccess.Tables = {
 		return ('autoHideTables' in GoAccess.getPrefs()) ? GoAccess.getPrefs().autoHideTables : true;
 	},
 
-	hasTables: function (ui) {
+	hasTable: function (ui) {
 		ui['table'] = this.showTables();
 		ui['autoHideTables'] = this.autoHideTables();
 	},
