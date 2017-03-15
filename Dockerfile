@@ -61,4 +61,4 @@ EXPOSE 8080
 # Set the entry point to init.sh
 ###########################################
 
-ENTRYPOINT /opt/init.sh
+ENTRYPOINT ["/opt/init.sh"]
