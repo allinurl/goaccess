@@ -546,9 +546,8 @@ parse_long_opt (const char *name, const char *oarg)
     set_array_opt (oarg, conf.sort_panels, &conf.sort_panel_idx, TOTAL_MODULES);
 
   /* static file */
-  if (!strcmp ("static-file", name)) {
-    if (conf.static_file_max_len < strlen (oarg) &&
-        conf.static_file_idx < MAX_EXTENSIONS)
+  if (!strcmp ("static-file", name) && conf.static_file_idx < MAX_EXTENSIONS) {
+    if (conf.static_file_max_len < strlen (oarg))
       conf.static_file_max_len = strlen (oarg);
     set_array_opt (oarg, conf.static_files, &conf.static_file_idx,
                    MAX_EXTENSIONS);
