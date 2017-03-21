@@ -56,10 +56,9 @@ terminal. Features include:
   possible to fit everything in memory.
 
 * **Docker support**
-GoAccess comes with a default
-[**Docker**](https://hub.docker.com/r/allinurl/goaccess/) that will listen for 
-HTTP connections on port 8080. Although, you can still fully configure it, by
-using Volume mapping and editing `goaccess.conf`.
+  GoAccess comes with a default [**Docker**](https://hub.docker.com/r/allinurl/goaccess/)
+  that will listen for HTTP connections on port 8080. Although, you can still
+  fully configure it, by using Volume mapping and editing `goaccess.conf`.
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
@@ -113,9 +112,7 @@ Download, extract and compile GoAccess with:
 
     docker run --restart=always -d -p 80:8080 -v "/home/user/data:/srv/data" allinurl/goaccess
 
-You can place your `goaccess.conf` file inside your `/home/user/data` directory,
-which will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/) 
-to configure goaccess.  If no configuration is present, a new empty file 
+You can place your `goaccess.conf` file inside your `/home/user/data` directory, which will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to configure goaccess. If no configuration is present, a new empty file 
 will be created.
 
 ## Distributions ##
