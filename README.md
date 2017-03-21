@@ -209,89 +209,9 @@ An alternative to the default hash tables. It uses generic typing and thus it's
 performance in terms of memory and speed is average.
 
 ## Command Line / Config Options ##
-The following options can be supplied to the command or specified in the
-configuration file. If specified in the configuration file, long options need
-to be used without prepending `--`.
-
-| Command Line Option                | Description                                                   |
-| -----------------------------------|---------------------------------------------------------------|
-| `-a --agent-list`                  | Enable a list of user-agents by host.                         |
-| `-c --config-dialog`               | Prompt log/date configuration window.                         |
-| `-d --with-output-resolver`        | Enable IP resolver on HTML|JSON output.                       |
-| `-e --exclude-ip=<IP>`             | Exclude one or multiple IPv4/v6 including IP ranges.          |
-| `-f --log-file=<filename>`         | Path to input log file.                                       |
-| `-g --std-geoip`                   | Standard GeoIP database for less memory usage.                |
-| `-h --help`                        | This help.                                                    |
-| `-H --http-protocol=<yes|no>`      | Set/unset HTTP request protocol if found.                     |
-| `-i --hl-header`                   | Color highlight active panel.                                 |
-| `-M --http-method=<yes|no>`        | Set/unset HTTP request method if found.                       |
-| `-m --with-mouse `                 | Enable mouse support on main dashboard.                       |
-| `-o --output=<file.[html|csv|json>`| Output either an HTML, JSON or a CSV file.                    |
-| `-p --config-file=<filename>`      | Custom configuration file.                                    |
-| `-q --no-query-string`             | Remove request's query string. Can reduce mem usage.          |
-| `-r --no-term-resolver`            | Disable IP resolver on terminal output.                       |
-| `-s --storage`                     | Display current storage method. i.e., B+ Tree, Hash.          |
-| `-V --version`                     | Display version information and exit.                         |
-| `--444-as-404`                     | Treat non-standard status code 444 as 404.                    |
-| `--4xx-to-unique-count`            | Add 4xx client errors to the unique visitors count.           |
-| `--addr=<addr>`                    | Specify IP address to bind server to.                         |
-| `--all-static-files`               | Include static files that contain a query string.             |
-| `--cache-lcnum=<number>`           | Max number of leaf nodes to be cached. [1024]                 |
-| `--cache-ncnum=<number>`           | Max number of non-leaf nodes to be cached. [512]              |
-| `--color=<fg:bg[attrs, PANEL]>`    | Specify custom colors.                                        |
-| `--color-scheme=<1|2|3>`           | Schemes: 1 => Grey, 2 => Green, 3 => Monokai.                 |
-| `--compression=<zlib,bz2>`         | Each page is compressed with ZLIB|BZ2 encoding.               |
-| `--crawlers-only`                  | Parse and display crawlers/bots only.                         |
-| `--daemonize`                      | Run GoAccess as daemon (if --real-time-html enabled).         |
-| `--date-format=<dateformat>`       | Specify log date format.                                      |
-| `--date-spec=<date|hr>`            | Date specificity (date default).                              |
-| `--db-path=<path>`                 | Path of the database file. [/tmp/]                            |
-| `--dcf`                            | Display the path of the default config file.                  |
-| `--debug-file=<path>`              | Send all debug messages to the specified file.                |
-| `--double-decode`                  | Decode double-encoded values.                                 |
-| `--enable-panel=<PANEL>`           | Enable parsing and displaying the given panel.                |
-| `--fifo-in=<path/file>`            | Path to read named pipe (FIFO).                               |
-| `--fifo-out=<path/file>`           | Path to write named pipe (FIFO).                              |
-| `--geoip-city-data=<path>`         | Same as using `--geoip-database`.                             |
-| `--geoip-database=<path>`          | Path to GeoIP database v4/v6. i.e., GeoLiteCity.dat           |
-| `--hour-spec=<hr|min>`             | Hour specificity (hr default).                                |
-| `--html-custom-css=<path.css>`     | Specify a custom CSS file in the HTML report.                 |
-| `--html-custom-js=<path.js>`       | Specify a custom JS file in the HTML report.                  |
-| `--html-prefs=<JSON>`              | Set HTML report default preferences (JSON object).            |
-| `--html-report-title`              | Set HTML report page title and header.                        |
-| `--ignore-crawlers`                | Ignore crawlers.                                              |
-| `--ignore-panel=<PANEL>`           | Ignore parsing and displaying the given panel.                |
-| `--ignore-referer=<referer>`       | Ignore referers from being counted. Wildcards allowed.        |
-| `--ignore-status=<CODE>`           | Ignore parsing the given status code(s).                      |
-| `--invalid-requests=<filename>`    | Log invalid requests to the specified file.                   |
-| `--json-pretty-print`              | Format JSON output using tabs and newlines.                   |
-| `--keep-db-files`                  | Persist parsed data into disk.                                |
-| `--load-from-disk`                 | Load previously stored data from disk.                        |
-| `--log-format="<logformat>"`       | Specify log format. Inner quotes need to be escaped.          |
-| `--max-items`                      | Maximum number of items to show per panel.                    |
-| `--no-color`                       | Disable colored output.                                       |
-| `--no-column-names`                | Don't write column names in term output.                      |
-| `--no-csv-summary`                 | Disable summary metrics on the CSV output.                    |
-| `--no-global-config`               | Do not load the global configuration file.                    |
-| `--no-html-last-updated`           | Do not show the last updated field in the HTML report.        |
-| `--no-progress`                    | Disable progress metrics.                                     |
-| `--no-tab-scroll`                  | Disable scrolling through panels on TAB.                      |
-| `--num-tests=<number>`             | Number of lines to test against the given log format.         |
-| `--origin=<url>`                   | Ensure clients send stated origin header on WS handshake.     |
-| `--port=<port>`                    | Specify the port to use.                                      |
-| `--process-and-exit`               | Parse log and exit without outputting data.                   |
-| `--real-os`                        | Display real OS names. e.g, Windows XP, Snow Leopard.         |
-| `--real-time-html`                 | Enable real-time HTML output.                                 |
-| `--sort-panel=PANEL,METRIC,ORDER`  | Sort panel on initial load. See manpage for metrics.          |
-| `--ssl-cert=<path/cert.crt>`       | Path to TLS/SSL certificate.                                  |
-| `--ssl-key=<path/priv.key>`        | Path to TLS/SSL private key.                                  |
-| `--static-file=<extension>`        | Add static file extension. e.g.: .mp3, Case sensitive.        |
-| `--time-format=<timeformat>`       | Specify log time format.                                      |
-| `--tune-bnum=<number>`             | Number of elements of the bucket array. [32749]               |
-| `--tune-lmemb=<number>`            | Number of members in each leaf page. [128]                    |
-| `--tune-nmemb=<number>`            | Number of members in each non-leaf page. [256]                |
-| `--ws-url=<[scheme://]url[:port]>` | URL to which the WebSocket server responds.                   |
-| `--xmmap=<number>`                 | Set the size in bytes of the extra mapped memory. [0]         |
+See [**options**](https://goaccess.io/man#options) that can be supplied to the command or
+specified in the configuration file. If specified in the configuration file, long
+options need to be used without prepending `--`.
 
 ## EXAMPLES ##
 ##### DIFFERENT OUTPUTS #####
