@@ -118,10 +118,8 @@ will be created.
 ## Distributions ##
 
 It is easiest to install GoAccess on Linux using the preferred package manager
-of your Linux distribution.
-
-Please note that not all distributions will have the lastest version of
-GoAccess available
+of your Linux distribution. Please _note_ that not all distributions will have
+the lastest version of GoAccess available
 
 #### Debian/Ubuntu ####
 
