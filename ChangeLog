@@ -44,8 +44,8 @@ Changes to GoAccess 1.2 - Tuesday, March 07, 2017
     output.
   - Fixed issue where the wrong number of parsed lines upon erroring out was
     displayed.
-  - Fixed issue where the WebSocket server would prevent establishing a
-    connection with a client due to invalid UTF-8 sequences.
+  - Fixed issue where the WebSocket server prevented to establish a connection
+    with a client due to invalid UTF-8 sequences.
   - Fixed percent issue when calculating visitors field.
   - Updated the list of crawlers.
 
