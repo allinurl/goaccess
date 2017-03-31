@@ -1,8 +1,8 @@
 /* GLOBAL */
 html,
 body {
-	overflow-x: hidden;
 	background: #f0f0f0;
+	overflow-x: hidden;
 }
 h1 {
 	font-weight: bold;
@@ -13,9 +13,9 @@ h3 {
 	letter-spacing: -1px;
 }
 .page-header {
-	position: relative;
-	margin: 25px 0 20px;
 	border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+	margin: 25px 0 20px;
+	position: relative;
 }
 .page-header h1 {
 	margin: 0;
@@ -30,8 +30,8 @@ h3 {
 .spinner {
 	color: #999;
 	left: 50%;
-	top: 50%;
 	position: absolute;
+	top: 50%;
 }
 .powered {
 	bottom: 170px;
@@ -71,12 +71,12 @@ nav {
 	border-right: 3px solid #5bc0de;
 	height: 100%;
 	left: -236px;
+	overflow: hidden;
 	position: fixed;
 	top: 0;
 	transition: left .7s;
 	width: 300px;
 	z-index: 2;
-	overflow: hidden;
 }
 nav .nav-list {
     height: 100%;
@@ -87,10 +87,10 @@ nav header {
 	margin: 40px 20px 30px;
 }
 nav header a {
+	color: rgba(240,240,240,.7);
 	font-size: 2.7em;
 	font-weight: 300;
 	text-transform: uppercase;
-	color: rgba(240,240,240,.7);
 }
 nav header a:hover {
 	color: #eee;
