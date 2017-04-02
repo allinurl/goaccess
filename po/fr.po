@@ -1,0 +1,95 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the goaccess package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Nicolas P <np>, 2017.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: goaccess 1.2\n"
+"Report-Msgid-Bugs-To: goaccess@prosoftcorp.com\n"
+"POT-Creation-Date: 2017-04-02 20:11+0200\n"
+"PO-Revision-Date: 2017-04-02 17:37+0200\n"
+"Last-Translator: Nicolas P <np>\n"
+"Language-Team: français <>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.7\n"
+
+#: src/goaccess.c:1428
+msgid "Hello, world!"
+msgstr "bonj"
+
+#: src/ui.h:69
+msgid "Date/Time"
+msgstr "Date/Heure"
+
+#: src/ui.h:70
+msgid "Total Requests"
+msgstr "Temps de calcul"
+
+#: src/ui.h:71
+msgid "Init. Proc. Time"
+msgstr "Requètes échouées"
+
+#: src/ui.h:72
+msgid "Failed Requests"
+msgstr "Requètes échouées"
+
+#: src/ui.h:73
+msgid "Valid Requests"
+msgstr "Requètes valides"
+
+#: src/ui.h:74
+msgid "Unique Visitors"
+msgstr "Visiteurs uniques"
+
+#: src/ui.h:75
+msgid "Unique Files"
+msgstr "Fichiers uniques"
+
+#: src/ui.h:76
+msgid "Excl. IP Hits"
+msgstr "Excl. IP Hits"
+
+#: src/ui.h:77
+msgid "Referrers"
+msgstr "Origine"
+
+#: src/ui.h:78
+msgid "Unique 404"
+msgstr "Unique 404"
+
+#: src/ui.h:79
+msgid "Static Files"
+msgstr "Fichiers statiques"
+
+#: src/ui.h:80
+msgid "Log Size"
+msgstr "Taille du log"
+
+#: src/ui.h:81
+msgid "Bandwidth"
+msgstr "Bande passante"
+
+#: src/ui.h:82
+msgid "Log Source"
+msgstr "Fichier de log"
+
+#: src/ui.h:92
+msgid "Unique visitors per day"
+msgstr "Visiteurs uniques par jour"
+
+#~ msgid "visitors"
+#~ msgstr "visitors"
+
+#~ msgid "Visitors"
+#~ msgstr "Visiteurs"
+
+#~ msgid "Hits having the same IP, date and agent are a unique visit."
+#~ msgstr ""
+#~ "Les hits depuis la même IP, date et user-agent comptent comme visite "
+#~ "unique"
