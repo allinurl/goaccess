@@ -162,6 +162,8 @@ dist_man_MANS = goaccess.1
 
 SUBDIRS = po
 
+AM_CPPFLAGS = -I. -I$(srcdir)
+
 
 ACLOCAL_AMFLAGS = -I m4
 datadir = @datadir@
