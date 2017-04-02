@@ -159,3 +159,14 @@ AM_CFLAGS += -Wbad-function-cast -Winline -Wcast-align -Wextra
 AM_CFLAGS += -Wdeclaration-after-statement -Wno-missing-field-initializers
 
 dist_man_MANS = goaccess.1
+
+SUBDIRS = po
+
+
+ACLOCAL_AMFLAGS = -I m4
+datadir = @datadir@
+datarootdir= @datarootdir@
+localedir = @localedir@
+DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
+
+EXTRA_DIST = config.rpath m4/ChangeLog
