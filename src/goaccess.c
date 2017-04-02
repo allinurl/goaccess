@@ -1158,6 +1158,12 @@ set_locale (void)
 {
   char *loc_ctype;
 
+  setlocale (LC_ALL, "");
+  bindtextdomain (PACKAGE, LOCALEDIR);
+  textdomain (PACKAGE);
+  setlocale (LC_CTYPE, "");
+  setlocale (LC_MESSAGES, "");
+
   loc_ctype = getenv ("LC_CTYPE");
   if (loc_ctype != NULL)
     setlocale (LC_CTYPE, loc_ctype);
