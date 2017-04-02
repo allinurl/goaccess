@@ -1448,11 +1448,13 @@ main (int argc, char **argv)
   /* stdout */
   if (conf.process_and_exit) {
     /* ignore outputting, process only */
-  } else if (conf.output_stdout)
+  } else if (conf.output_stdout) {
     standard_output ();
+  }
   /* curses */
-  else
+  else {
     curses_output ();
+  }
 
   /* clean */
 clean:
