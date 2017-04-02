@@ -26,6 +26,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+#include <locale.h>
+#include <libintl.h>
+#define _(String) dgettext (PACKAGE , String)
+
 
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
@@ -55,20 +59,20 @@
 #define T_DASH       "Dashboard"
 #define T_HEAD       "Overall Analyzed Requests"
 
-#define T_DATETIME   "Date/Time"
-#define T_REQUESTS   "Total Requests"
-#define T_GEN_TIME   "Init. Proc. Time"
-#define T_FAILED     "Failed Requests"
-#define T_VALID      "Valid Requests"
-#define T_UNIQUE_VIS "Unique Visitors"
-#define T_UNIQUE_FIL "Unique Files"
-#define T_EXCLUDE_IP "Excl. IP Hits"
-#define T_REFERRER   "Referrers"
-#define T_UNIQUE404  "Unique 404"
-#define T_STATIC_FIL "Static Files"
-#define T_LOG        "Log Size"
-#define T_BW         "Bandwidth"
-#define T_LOG_PATH   "Log Source"
+#define T_DATETIME   _("Date/Time")
+#define T_REQUESTS   _("Total Requests")
+#define T_GEN_TIME   _("Init. Proc. Time")
+#define T_FAILED     _("Failed Requests")
+#define T_VALID      _("Valid Requests")
+#define T_UNIQUE_VIS _("Unique Visitors")
+#define T_UNIQUE_FIL _("Unique Files")
+#define T_EXCLUDE_IP _("Excl. IP Hits")
+#define T_REFERRER   _("Referrers")
+#define T_UNIQUE404  _("Unique 404")
+#define T_STATIC_FIL _("Static Files")
+#define T_LOG        _("Log Size")
+#define T_BW         _("Bandwidth")
+#define T_LOG_PATH   _("Log Source")
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
