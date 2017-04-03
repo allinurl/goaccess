@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: goaccess@prosoftcorp.com\n"
-"POT-Creation-Date: 2017-04-02 20:11+0200\n"
+"POT-Creation-Date: 2017-04-03 09:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,66 +17,294 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/goaccess.c:1428
-msgid "Hello, world!"
+#: src/ui.h:61
+msgid "Dashboard"
 msgstr ""
 
-#: src/ui.h:69
+#: src/ui.h:62
+msgid "Overall Analyzed Requests"
+msgstr ""
+
+#: src/ui.h:64
 msgid "Date/Time"
 msgstr ""
 
-#: src/ui.h:70
+#: src/ui.h:65
 msgid "Total Requests"
 msgstr ""
 
-#: src/ui.h:71
+#: src/ui.h:66
 msgid "Init. Proc. Time"
 msgstr ""
 
-#: src/ui.h:72
+#: src/ui.h:67
 msgid "Failed Requests"
 msgstr ""
 
-#: src/ui.h:73
+#: src/ui.h:68
 msgid "Valid Requests"
 msgstr ""
 
-#: src/ui.h:74
+#: src/ui.h:69
 msgid "Unique Visitors"
 msgstr ""
 
-#: src/ui.h:75
+#: src/ui.h:70
 msgid "Unique Files"
 msgstr ""
 
-#: src/ui.h:76
+#: src/ui.h:71
 msgid "Excl. IP Hits"
 msgstr ""
 
-#: src/ui.h:77
+#: src/ui.h:72 src/ui.h:140
 msgid "Referrers"
 msgstr ""
 
-#: src/ui.h:78
+#: src/ui.h:73
 msgid "Unique 404"
 msgstr ""
 
-#: src/ui.h:79
+#: src/ui.h:74
 msgid "Static Files"
 msgstr ""
 
-#: src/ui.h:80
+#: src/ui.h:75
 msgid "Log Size"
 msgstr ""
 
-#: src/ui.h:81
+#: src/ui.h:76 src/ui.h:186
 msgid "Bandwidth"
 msgstr ""
 
-#: src/ui.h:82
+#: src/ui.h:77
 msgid "Log Source"
 msgstr ""
 
-#: src/ui.h:92
+#: src/ui.h:84
+msgid " - Including spiders"
+msgstr ""
+
+#: src/ui.h:87
 msgid "Unique visitors per day"
+msgstr ""
+
+#: src/ui.h:88
+msgid "Hits having the same IP, date and agent are a unique visit."
+msgstr ""
+
+#: src/ui.h:90 src/ui.h:184
+msgid "Visitors"
+msgstr ""
+
+#: src/ui.h:92
+msgid "Requested Files (URLs)"
+msgstr ""
+
+#: src/ui.h:93
+msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+
+#: src/ui.h:95
+msgid "Requests"
+msgstr ""
+
+#: src/ui.h:97 src/ui.h:100
+msgid "Static Requests"
+msgstr ""
+
+#: src/ui.h:98
+msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+
+#: src/ui.h:102
+msgid "Time Distribution"
+msgstr ""
+
+#: src/ui.h:103
+msgid "Data sorted by hour [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:105
+msgid "Time"
+msgstr ""
+
+#: src/ui.h:107 src/ui.h:110
+msgid "Virtual Hosts"
+msgstr ""
+
+#: src/ui.h:108 src/ui.h:113
+msgid "Data sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:112
+msgid "Remote User (HTTP authentication)"
+msgstr ""
+
+#: src/ui.h:115
+msgid "Remote User"
+msgstr ""
+
+#: src/ui.h:117
+msgid "Not Found URLs (404s)"
+msgstr ""
+
+#: src/ui.h:118
+msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+
+#: src/ui.h:120
+msgid "Not Found"
+msgstr ""
+
+#: src/ui.h:122
+msgid "Visitor Hostnames and IPs"
+msgstr ""
+
+#: src/ui.h:123
+msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:125
+msgid "Hosts"
+msgstr ""
+
+#: src/ui.h:127
+msgid "Operating Systems"
+msgstr ""
+
+#: src/ui.h:128
+msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:130
+msgid "OS"
+msgstr ""
+
+#: src/ui.h:132 src/ui.h:135
+msgid "Browsers"
+msgstr ""
+
+#: src/ui.h:133
+msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:137
+msgid "Referrers URLs"
+msgstr ""
+
+#: src/ui.h:138
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:142 src/ui.h:145
+msgid "Referring Sites"
+msgstr ""
+
+#: src/ui.h:143
+msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:147
+msgid "Keyphrases from Google's search engine"
+msgstr ""
+
+#: src/ui.h:148
+msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:150
+msgid "Keyphrases"
+msgstr ""
+
+#: src/ui.h:152 src/ui.h:155
+msgid "Geo Location"
+msgstr ""
+
+#: src/ui.h:153
+msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:157
+msgid "HTTP Status Codes"
+msgstr ""
+
+#: src/ui.h:158
+msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/ui.h:160
+msgid "Status Codes"
+msgstr ""
+
+#: src/ui.h:183
+msgid "Hits"
+msgstr ""
+
+#: src/ui.h:185
+msgid "Vis."
+msgstr ""
+
+#: src/ui.h:187
+msgid "Avg. T.S."
+msgstr ""
+
+#: src/ui.h:188
+msgid "Cum. T.S."
+msgstr ""
+
+#: src/ui.h:189
+msgid "Max. T.S."
+msgstr ""
+
+#: src/ui.h:190
+msgid "Method"
+msgstr ""
+
+#: src/ui.h:191
+msgid "Mtd"
+msgstr ""
+
+#: src/ui.h:192
+msgid "Protocol"
+msgstr ""
+
+#: src/ui.h:193
+msgid "Proto"
+msgstr ""
+
+#: src/ui.h:194
+msgid "City"
+msgstr ""
+
+#: src/ui.h:195
+msgid "Country"
+msgstr ""
+
+#: src/ui.h:196
+msgid "Hostname"
+msgstr ""
+
+#: src/ui.h:197
+msgid "Data"
+msgstr ""
+
+#: src/ui.h:200
+msgid "Find pattern in all views"
+msgstr ""
+
+#: src/ui.h:201
+msgid "Regex allowed - ^g to cancel - TAB switch case"
+msgstr ""
+
+#: src/ui.h:253
+msgid "Format Errors - Verify your log/date/time format"
+msgstr ""
+
+#: src/ui.h:255
+msgid "[x] case sensitive"
+msgstr ""
+
+#: src/ui.h:256
+msgid "[ ] case sensitive"
 msgstr ""
