@@ -163,9 +163,7 @@ dist_man_MANS = goaccess.1
 SUBDIRS = po
 
 ACLOCAL_AMFLAGS = -I m4
-datadir = @datadir@
-datarootdir= @datarootdir@
-localedir = @localedir@
+
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
 EXTRA_DIST = config.rpath m4/ChangeLog
