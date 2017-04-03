@@ -130,16 +130,10 @@ static GScroll gscroll = {
 };
 /* *INDENT-ON* */
 
-/* Free malloc'd data across the whole program */
+/* Free malloc'd holder */
 static void
-house_keeping (void)
+house_keeping_holder (void)
 {
-#ifdef TCB_MEMHASH
-  /* free malloc'd int values on the agent list */
-  if (conf.list_agents)
-    free_agent_list ();
-#endif
-
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
 
@@ -153,6 +147,19 @@ house_keeping (void)
   free_storage ();
 
   pthread_mutex_unlock (&gdns_thread.mutex);
+}
+
+/* Free malloc'd data across the whole program */
+static void
+house_keeping (void)
+{
+#ifdef TCB_MEMHASH
+  /* free malloc'd int values on the agent list */
+  if (conf.list_agents)
+    free_agent_list ();
+#endif
+
+  house_keeping_holder ();
 
   /* DASHBOARD */
   if (dash && !conf.output_stdout) {
