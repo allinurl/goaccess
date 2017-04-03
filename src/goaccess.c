@@ -130,16 +130,10 @@ static GScroll gscroll = {
 };
 /* *INDENT-ON* */
 
-/* Free malloc'd data across the whole program */
+/* Free malloc'd holder */
 static void
-house_keeping (void)
+house_keeping_holder (void)
 {
-#ifdef TCB_MEMHASH
-  /* free malloc'd int values on the agent list */
-  if (conf.list_agents)
-    free_agent_list ();
-#endif
-
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
 
@@ -153,6 +147,19 @@ house_keeping (void)
   free_storage ();
 
   pthread_mutex_unlock (&gdns_thread.mutex);
+}
+
+/* Free malloc'd data across the whole program */
+static void
+house_keeping (void)
+{
+#ifdef TCB_MEMHASH
+  /* free malloc'd int values on the agent list */
+  if (conf.list_agents)
+    free_agent_list ();
+#endif
+
+  house_keeping_holder ();
 
   /* DASHBOARD */
   if (dash && !conf.output_stdout) {
@@ -1161,8 +1168,6 @@ set_locale (void)
   setlocale (LC_ALL, "");
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
-  setlocale (LC_CTYPE, "");
-  setlocale (LC_MESSAGES, "");
 
   loc_ctype = getenv ("LC_CTYPE");
   if (loc_ctype != NULL)
@@ -1454,11 +1459,13 @@ main (int argc, char **argv)
   /* stdout */
   if (conf.process_and_exit) {
     /* ignore outputting, process only */
-  } else if (conf.output_stdout)
+  } else if (conf.output_stdout) {
     standard_output ();
+  }
   /* curses */
-  else
+  else {
     curses_output ();
+  }
 
   /* clean */
 clean:
