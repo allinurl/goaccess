@@ -15,6 +15,7 @@ src/config.status
 src/.deps/
 src/stamp-h1
 goaccess
+bin2c
 #merged from https://raw.github.com/github/gitignore/master/Autotools.gitignore
 # http://www.gnu.org/software/automake
 
@@ -81,3 +82,5 @@ Makefile.in
 /po/Makevars.template
 /po/POTFILES
 /po/Rules-quot
+/po/Makefile
+/po/stamp-po
