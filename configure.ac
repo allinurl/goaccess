@@ -8,7 +8,7 @@ AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.19])
+AM_GNU_GETTEXT_VERSION([0.18])
 
 # Use empty CFLAGS by default so autoconf does not add
 # CFLAGS="-O2 -g"
