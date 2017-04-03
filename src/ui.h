@@ -26,7 +26,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-#include <locale.h>
 #include <libintl.h>
 #define _(String) dgettext (PACKAGE , String)
 #define gettext_noop(String) String
