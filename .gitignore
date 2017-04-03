@@ -2,6 +2,7 @@
 config.status
 config.guess
 config.sub
+config.rpath
 /.deps
 /INSTALL
 /Makefile
@@ -65,3 +66,18 @@ Makefile.in
 
 # Vagrant
 .vagrant
+
+# M4 macros
+/m4/*
+
+# I18n stuff
+/ABOUT-NLS
+/po/*.gmo
+/po/*.header
+/po/*.mo
+/po/*.sed
+/po/*.sin
+/po/Makefile.in.in
+/po/Makevars.template
+/po/POTFILES
+/po/Rules-quot
