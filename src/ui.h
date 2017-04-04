@@ -31,7 +31,6 @@
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
-
 #ifndef UI_H_INCLUDED
 #define UI_H_INCLUDED
 
@@ -57,8 +56,9 @@
 #define OVERALL_NUM_COLS  4     /* number of columns on the overall stats win */
 
 /* Overall Stats Labels */
-#define T_DASH       N_("Dashboard")
-#define T_HEAD       N_("Overall Analyzed Requests")
+#define T_DASH       _("Dashboard")
+#define T_HEAD       _("Overall Analyzed Requests")
+#define T_DASH_HEAD  _("Dashboard - Overall Analyzed Requests")
 
 #define T_DATETIME   _("Date/Time")
 #define T_REQUESTS   _("Total Requests")
@@ -80,83 +80,82 @@
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50     /* max length of the progress spinner */
 
-#define INCLUDE_BOTS N_(" - Including spiders")
-
 /* Module Labels and Descriptions */
 #define VISIT_HEAD  N_("Unique visitors per day")
+#define VISIT_HBOTS N_("Unique visitors per day - Including spiders")
 #define VISIT_DESC  N_("Hits having the same IP, date and agent are a unique visit.")
-#define VISIT_ID    "visitors"
 #define VISIT_LABEL N_("Visitors")
+#define VISIT_ID    "visitors"
 
 #define REQUE_HEAD  N_("Requested Files (URLs)")
 #define REQUE_DESC  N_("Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define REQUE_ID    "requests"
 #define REQUE_LABEL N_("Requests")
+#define REQUE_ID    "requests"
 
 #define STATI_HEAD  N_("Static Requests")
 #define STATI_DESC  N_("Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define STATI_ID    "static_requests"
 #define STATI_LABEL N_("Static Requests")
+#define STATI_ID    "static_requests"
 
 #define VTIME_HEAD  N_("Time Distribution")
 #define VTIME_DESC  N_("Data sorted by hour [, avgts, cumts, maxts]")
-#define VTIME_ID    "visit_time"
 #define VTIME_LABEL N_("Time")
+#define VTIME_ID    "visit_time"
 
 #define VHOST_HEAD  N_("Virtual Hosts")
 #define VHOST_DESC  N_("Data sorted by hits [, avgts, cumts, maxts]")
-#define VHOST_ID    "vhosts"
 #define VHOST_LABEL N_("Virtual Hosts")
+#define VHOST_ID    "vhosts"
 
 #define RUSER_HEAD  N_("Remote User (HTTP authentication)")
 #define RUSER_DESC  N_("Data sorted by hits [, avgts, cumts, maxts]")
-#define RUSER_ID    "remote_user"
 #define RUSER_LABEL N_("Remote User")
+#define RUSER_ID    "remote_user"
 
 #define FOUND_HEAD  N_("Not Found URLs (404s)")
 #define FOUND_DESC  N_("Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define FOUND_ID    "not_found"
 #define FOUND_LABEL N_("Not Found")
+#define FOUND_ID    "not_found"
 
 #define HOSTS_HEAD  N_("Visitor Hostnames and IPs")
 #define HOSTS_DESC  N_("Top visitor hosts sorted by hits [, avgts, cumts, maxts]")
-#define HOSTS_ID    "hosts"
 #define HOSTS_LABEL N_("Hosts")
+#define HOSTS_ID    "hosts"
 
 #define OPERA_HEAD  N_("Operating Systems")
 #define OPERA_DESC  N_("Top Operating Systems sorted by hits [, avgts, cumts, maxts]")
-#define OPERA_ID    "os"
 #define OPERA_LABEL N_("OS")
+#define OPERA_ID    "os"
 
 #define BROWS_HEAD  N_("Browsers")
 #define BROWS_DESC  N_("Top Browsers sorted by hits [, avgts, cumts, maxts]")
-#define BROWS_ID    "browsers"
 #define BROWS_LABEL N_("Browsers")
+#define BROWS_ID    "browsers"
 
 #define REFER_HEAD  N_("Referrers URLs")
 #define REFER_DESC  N_("Top Requested Referrers sorted by hits [, avgts, cumts, maxts]")
-#define REFER_ID    "referrers"
 #define REFER_LABEL N_("Referrers")
+#define REFER_ID    "referrers"
 
 #define SITES_HEAD  N_("Referring Sites")
 #define SITES_DESC  N_("Top Referring Sites sorted by hits [, avgts, cumts, maxts]")
-#define SITES_ID    "referring_sites"
 #define SITES_LABEL N_("Referring Sites")
+#define SITES_ID    "referring_sites"
 
 #define KEYPH_HEAD  N_("Keyphrases from Google's search engine")
 #define KEYPH_DESC  N_("Top Keyphrases sorted by hits [, avgts, cumts, maxts]")
-#define KEYPH_ID    "keyphrases"
 #define KEYPH_LABEL N_("Keyphrases")
+#define KEYPH_ID    "keyphrases"
 
 #define GEOLO_HEAD  N_("Geo Location")
 #define GEOLO_DESC  N_("Continent > Country sorted by unique hits [, avgts, cumts, maxts]")
-#define GEOLO_ID    "geolocation"
 #define GEOLO_LABEL N_("Geo Location")
+#define GEOLO_ID    "geolocation"
 
 #define CODES_HEAD  N_("HTTP Status Codes")
 #define CODES_DESC  N_("Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]")
-#define CODES_ID    "status_codes"
 #define CODES_LABEL N_("Status Codes")
+#define CODES_ID    "status_codes"
 
 #define GENER_ID   "general"
 
@@ -196,8 +195,8 @@
 #define MTRC_DATA_LBL            _("Data")
 
 /* Find Labels */
-#define FIND_HEAD    N_("Find pattern in all views")
-#define FIND_DESC    N_("Regex allowed - ^g to cancel - TAB switch case")
+#define FIND_HEAD    _("Find pattern in all views")
+#define FIND_DESC    _("Regex allowed - ^g to cancel - TAB switch case")
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
