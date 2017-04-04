@@ -1,7 +1,4 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
 # This file is distributed under the same license as the goaccess package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # Nicolas P <np>, 2017.
 #
 msgid ""
@@ -10,8 +7,8 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2017-04-03 21:03-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
-"Last-Translator: Nicolas P <np>\n"
-"Language-Team: français <>\n"
+"Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
+"Language-Team: français\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
