@@ -281,7 +281,7 @@ module_to_label (GModule module)
 #endif
   };
 
-  return modules[module];
+  return _(modules[module]);
 }
 
 /* Get the module/panel label id for the given module enum value.
@@ -310,7 +310,7 @@ module_to_id (GModule module)
 #endif
   };
 
-  return modules[module];
+  return _(modules[module]);
 }
 
 /* Get the module/panel label header for the given module enum value.
@@ -340,9 +340,9 @@ module_to_head (GModule module)
   };
 
   if (!conf.ignore_crawlers)
-    modules[VISITORS] = VISIT_HEAD INCLUDE_BOTS;
+    modules[VISITORS] = VISIT_HBOTS;
 
-  return modules[module];
+  return _(modules[module]);
 }
 
 /* Get the module/panel label description for the given module enum
@@ -372,7 +372,7 @@ module_to_desc (GModule module)
 #endif
   };
 
-  return modules[module];
+  return _(modules[module]);
 }
 
 /* Rerender the header window to reflect active module. */
@@ -591,7 +591,7 @@ get_start_end_parsing_dates (GHolder * h, char **start, char **end,
 char *
 get_overall_header (GHolder * h)
 {
-  const char *head = T_DASH " - " T_HEAD;
+  const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
   if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))

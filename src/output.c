@@ -268,13 +268,13 @@ print_html_body (FILE * fp, const char *now)
   "</div>"
   "<h1>"
   "<span class='hidden-xs hidden-sm'>"
-  "<i class='fa fa-tachometer'></i> Dashboard"
+  "<i class='fa fa-tachometer'></i> %s"
   "</span>"
   "<span class='visible-xs visible-sm'>"
   "<i class='fa fa-bars nav-minibars'></i>"
   "<i class='fa fa-circle nav-ws-status mini'></i>"
   "</span>"
-  "</h1>", conf.no_html_last_updated ? "none" : "block", now);
+  "</h1>", conf.no_html_last_updated ? "none" : "block", now, T_DASH);
 
   fprintf (fp,
   "<div class='report-title'>%s</div>"
