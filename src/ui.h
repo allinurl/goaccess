@@ -361,6 +361,6 @@ void term_size (WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
-
 /* *INDENT-ON* */
+
 #endif
