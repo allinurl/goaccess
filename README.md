@@ -1,5 +1,5 @@
-City GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v1.0)](http://goaccess.io)
-6=======
+GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v1.0)](http://goaccess.io)
+========
 
 ## What is it? ##
 GoAccess is an open source **real-time web log analyzer** and interactive
