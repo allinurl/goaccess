@@ -7,16 +7,18 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
 
-AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18])
-
 # Use empty CFLAGS by default so autoconf does not add
 # CFLAGS="-O2 -g"
+# NOTE: Needs to go after AC_INIT and before AC_PROG_CC to select an
+# empty default instead.
 : ${CFLAGS=""}
 
 # Checks for programs.
 AC_PROG_CC
 AM_PROG_CC_C_O
+
+AM_GNU_GETTEXT([external])
+AM_GNU_GETTEXT_VERSION([0.18])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
