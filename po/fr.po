@@ -35,11 +35,11 @@ msgstr "Date/Heure"
 
 #: ../src/labels.h:45
 msgid "Total Requests"
-msgstr "Temps de calcul"
+msgstr "Total Requêtes"
 
 #: ../src/labels.h:46
 msgid "Init. Proc. Time"
-msgstr "Requètes échouées"
+msgstr "Init. Proc. Time"
 
 #: ../src/labels.h:47
 msgid "Failed Requests"
@@ -150,7 +150,7 @@ msgstr "Utilisateur distant (authentification HTTP)"
 
 #: ../src/labels.h:83
 msgid "Remote User"
-msgstr "remote_user"
+msgstr "Remote Utilisateur"
 
 #: ../src/labels.h:85
 msgid "Not Found URLs (404s)"
@@ -158,8 +158,7 @@ msgstr "URLs Non trouvées (404s)"
 
 #: ../src/labels.h:86
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:87
 msgid "Not Found"
