@@ -1,322 +1,324 @@
-# This file is distributed under the same license as the GoAccess package.
+# This file is distributed under the same license as the goaccess package.
 #
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.2\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-03 21:03-0500\n"
-"PO-Revision-Date: 2017-04-03 21:03-0500\n"
-"Last-Translator: <hello@goaccess.io>\n"
-"Language-Team: English\n"
-"Language: en\n"
+"POT-Creation-Date: 2017-04-04 18:59-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#. Global UI defaults
-#. minimum window height
-#. minimum window width
-#. height of the footer window
-#. height of the header window
-#. number of columns on the overall stats win
 #. Overall Stats Labels
-#: ../src/ui.h:59
+#: ../src/labels.h:40
 msgid "Dashboard"
 msgstr ""
 
-#: ../src/ui.h:60
+#: ../src/labels.h:41
 msgid "Overall Analyzed Requests"
 msgstr ""
 
-#: ../src/ui.h:61
+#: ../src/labels.h:42
 msgid "Dashboard - Overall Analyzed Requests"
 msgstr ""
 
-#: ../src/ui.h:63
+#: ../src/labels.h:44
 msgid "Date/Time"
 msgstr ""
 
-#: ../src/ui.h:64
+#: ../src/labels.h:45
 msgid "Total Requests"
 msgstr ""
 
-#: ../src/ui.h:65
+#: ../src/labels.h:46
 msgid "Init. Proc. Time"
 msgstr ""
 
-#: ../src/ui.h:66
+#: ../src/labels.h:47
 msgid "Failed Requests"
 msgstr ""
 
-#: ../src/ui.h:67
+#: ../src/labels.h:48
 msgid "Valid Requests"
 msgstr ""
 
-#: ../src/ui.h:68
+#: ../src/labels.h:49
 msgid "Unique Visitors"
 msgstr ""
 
-#: ../src/ui.h:69
+#: ../src/labels.h:50
 msgid "Unique Files"
 msgstr ""
 
-#: ../src/ui.h:70
+#: ../src/labels.h:51
 msgid "Excl. IP Hits"
 msgstr ""
 
-#: ../src/ui.h:71 ../src/ui.h:137
+#: ../src/labels.h:52 ../src/labels.h:103
 msgid "Referrers"
 msgstr ""
 
-#: ../src/ui.h:72
+#: ../src/labels.h:53
 msgid "Unique 404"
 msgstr ""
 
-#: ../src/ui.h:73
+#: ../src/labels.h:54
 msgid "Static Files"
 msgstr ""
 
-#: ../src/ui.h:74
+#: ../src/labels.h:55
 msgid "Log Size"
 msgstr ""
 
-#: ../src/ui.h:75 ../src/ui.h:184
+#: ../src/labels.h:56 ../src/labels.h:125
 msgid "Bandwidth"
 msgstr ""
 
-#: ../src/ui.h:76
+#: ../src/labels.h:57
 msgid "Log Source"
 msgstr ""
 
-#. max length of the progress spinner
 #. Module Labels and Descriptions
-#: ../src/ui.h:84
+#: ../src/labels.h:60
 msgid "Unique visitors per day"
 msgstr ""
 
-#: ../src/ui.h:85
+#: ../src/labels.h:61
 msgid "Unique visitors per day - Including spiders"
 msgstr ""
 
-#: ../src/ui.h:86
+#: ../src/labels.h:62
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
 
-#: ../src/ui.h:87 ../src/ui.h:182
+#: ../src/labels.h:63 ../src/labels.h:123
 msgid "Visitors"
 msgstr ""
 
-#: ../src/ui.h:90
+#: ../src/labels.h:65
 msgid "Requested Files (URLs)"
 msgstr ""
 
-#: ../src/ui.h:91
+#: ../src/labels.h:66
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 
-#: ../src/ui.h:92
+#: ../src/labels.h:67
 msgid "Requests"
 msgstr ""
 
-#: ../src/ui.h:95 ../src/ui.h:97
+#: ../src/labels.h:69 ../src/labels.h:71
 msgid "Static Requests"
 msgstr ""
 
-#: ../src/ui.h:96
+#: ../src/labels.h:70
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 
-#: ../src/ui.h:100
+#: ../src/labels.h:73
 msgid "Time Distribution"
 msgstr ""
 
-#: ../src/ui.h:101
+#: ../src/labels.h:74
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:102
+#: ../src/labels.h:75
 msgid "Time"
 msgstr ""
 
-#: ../src/ui.h:105 ../src/ui.h:107
+#: ../src/labels.h:77 ../src/labels.h:79
 msgid "Virtual Hosts"
 msgstr ""
 
-#: ../src/ui.h:106 ../src/ui.h:111
+#: ../src/labels.h:78 ../src/labels.h:82
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:110
+#: ../src/labels.h:81
 msgid "Remote User (HTTP authentication)"
 msgstr ""
 
-#: ../src/ui.h:112
+#: ../src/labels.h:83
 msgid "Remote User"
 msgstr ""
 
-#: ../src/ui.h:115
+#: ../src/labels.h:85
 msgid "Not Found URLs (404s)"
 msgstr ""
 
-#: ../src/ui.h:116
+#: ../src/labels.h:86
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 
-#: ../src/ui.h:117
+#: ../src/labels.h:87
 msgid "Not Found"
 msgstr ""
 
-#: ../src/ui.h:120
+#: ../src/labels.h:89
 msgid "Visitor Hostnames and IPs"
 msgstr ""
 
-#: ../src/ui.h:121
+#: ../src/labels.h:90
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:122
+#: ../src/labels.h:91
 msgid "Hosts"
 msgstr ""
 
-#: ../src/ui.h:125
+#: ../src/labels.h:93
 msgid "Operating Systems"
 msgstr ""
 
-#: ../src/ui.h:126
+#: ../src/labels.h:94
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:127
+#: ../src/labels.h:95
 msgid "OS"
 msgstr ""
 
-#: ../src/ui.h:130 ../src/ui.h:132
+#: ../src/labels.h:97 ../src/labels.h:99
 msgid "Browsers"
 msgstr ""
 
-#: ../src/ui.h:131
+#: ../src/labels.h:98
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:135
+#: ../src/labels.h:101
 msgid "Referrers URLs"
 msgstr ""
 
-#: ../src/ui.h:136
+#: ../src/labels.h:102
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:140 ../src/ui.h:142
+#: ../src/labels.h:105 ../src/labels.h:107
 msgid "Referring Sites"
 msgstr ""
 
-#: ../src/ui.h:141
+#: ../src/labels.h:106
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:145
+#: ../src/labels.h:109
 msgid "Keyphrases from Google's search engine"
 msgstr ""
 
-#: ../src/ui.h:146
+#: ../src/labels.h:110
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:147
+#: ../src/labels.h:111
 msgid "Keyphrases"
 msgstr ""
 
-#: ../src/ui.h:150 ../src/ui.h:152
+#: ../src/labels.h:113 ../src/labels.h:115
 msgid "Geo Location"
 msgstr ""
 
-#: ../src/ui.h:151
+#: ../src/labels.h:114
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:155
+#: ../src/labels.h:117
 msgid "HTTP Status Codes"
 msgstr ""
 
-#: ../src/ui.h:156
+#: ../src/labels.h:118
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
-#: ../src/ui.h:157
+#: ../src/labels.h:119
 msgid "Status Codes"
 msgstr ""
 
 #. Metric Labels
-#: ../src/ui.h:181
+#: ../src/labels.h:122
 msgid "Hits"
 msgstr ""
 
-#: ../src/ui.h:183
+#: ../src/labels.h:124
 msgid "Vis."
 msgstr ""
 
-#: ../src/ui.h:185
+#: ../src/labels.h:126
 msgid "Avg. T.S."
 msgstr ""
 
-#: ../src/ui.h:186
+#: ../src/labels.h:127
 msgid "Cum. T.S."
 msgstr ""
 
-#: ../src/ui.h:187
+#: ../src/labels.h:128
 msgid "Max. T.S."
 msgstr ""
 
-#: ../src/ui.h:188
+#: ../src/labels.h:129
 msgid "Method"
 msgstr ""
 
-#: ../src/ui.h:189
+#: ../src/labels.h:130
 msgid "Mtd"
 msgstr ""
 
-#: ../src/ui.h:190
+#: ../src/labels.h:131
 msgid "Protocol"
 msgstr ""
 
-#: ../src/ui.h:191
+#: ../src/labels.h:132
 msgid "Proto"
 msgstr ""
 
-#: ../src/ui.h:192
+#: ../src/labels.h:133
 msgid "City"
 msgstr ""
 
-#: ../src/ui.h:193
+#: ../src/labels.h:134
 msgid "Country"
 msgstr ""
 
-#: ../src/ui.h:194
+#: ../src/labels.h:135
 msgid "Hostname"
 msgstr ""
 
-#: ../src/ui.h:195
+#: ../src/labels.h:136
 msgid "Data"
 msgstr ""
 
 #. Find Labels
-#: ../src/ui.h:198
+#: ../src/labels.h:139
 msgid "Find pattern in all views"
 msgstr ""
 
-#: ../src/ui.h:199
+#: ../src/labels.h:140
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr ""
 
-#: ../src/ui.h:251
+#. Sort Labels
+#: ../src/labels.h:143
+msgid "[x] ASC [ ] DESC"
+msgstr ""
+
+#: ../src/labels.h:144
+msgid "[ ] ASC [x] DESC"
+msgstr ""
+
+#: ../src/labels.h:146
 msgid "Format Errors - Verify your log/date/time format"
 msgstr ""
 
-#: ../src/ui.h:253
+#: ../src/labels.h:147
 msgid "[x] case sensitive"
 msgstr ""
 
-#: ../src/ui.h:254
+#: ../src/labels.h:148
 msgid "[ ] case sensitive"
 msgstr ""

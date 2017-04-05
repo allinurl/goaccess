@@ -4,8 +4,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-04-03 21:03-0500\n"
+"Report-Msgid-Bugs-To: hello@goaccess.io\n"
+"POT-Creation-Date: 2017-04-04 18:59-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -16,313 +16,315 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.7\n"
 
-#. Global UI defaults
-#. minimum window height
-#. minimum window width
-#. height of the footer window
-#. height of the header window
-#. number of columns on the overall stats win
 #. Overall Stats Labels
-#: ../src/ui.h:59
+#: ../src/labels.h:40
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: ../src/ui.h:60
+#: ../src/labels.h:41
 msgid "Overall Analyzed Requests"
 msgstr "Requètes analysées, vue d'ensemble"
 
-#: ../src/ui.h:61
+#: ../src/labels.h:42
 msgid "Dashboard - Overall Analyzed Requests"
 msgstr "Tableau de bord - Requètes analysées, vue d'ensemble"
 
-#: ../src/ui.h:63
+#: ../src/labels.h:44
 msgid "Date/Time"
 msgstr "Date/Heure"
 
-#: ../src/ui.h:64
+#: ../src/labels.h:45
 msgid "Total Requests"
 msgstr "Temps de calcul"
 
-#: ../src/ui.h:65
+#: ../src/labels.h:46
 msgid "Init. Proc. Time"
 msgstr "Requètes échouées"
 
-#: ../src/ui.h:66
+#: ../src/labels.h:47
 msgid "Failed Requests"
 msgstr "Requètes échouées"
 
-#: ../src/ui.h:67
+#: ../src/labels.h:48
 msgid "Valid Requests"
 msgstr "Requètes valides"
 
-#: ../src/ui.h:68
+#: ../src/labels.h:49
 msgid "Unique Visitors"
 msgstr "Visiteurs uniques"
 
-#: ../src/ui.h:69
+#: ../src/labels.h:50
 msgid "Unique Files"
 msgstr "Fichiers uniques"
 
-#: ../src/ui.h:70
+#: ../src/labels.h:51
 msgid "Excl. IP Hits"
 msgstr "Excl. IP Hits"
 
-#: ../src/ui.h:71 ../src/ui.h:137
+#: ../src/labels.h:52 ../src/labels.h:103
 msgid "Referrers"
 msgstr "Origine"
 
-#: ../src/ui.h:72
+#: ../src/labels.h:53
 msgid "Unique 404"
 msgstr "Unique 404"
 
-#: ../src/ui.h:73
+#: ../src/labels.h:54
 msgid "Static Files"
 msgstr "Fichiers statiques"
 
-#: ../src/ui.h:74
+#: ../src/labels.h:55
 msgid "Log Size"
 msgstr "Taille du log"
 
-#: ../src/ui.h:75 ../src/ui.h:184
+#: ../src/labels.h:56 ../src/labels.h:125
 msgid "Bandwidth"
 msgstr "Bande passante"
 
-#: ../src/ui.h:76
+#: ../src/labels.h:57
 msgid "Log Source"
 msgstr "Fichier de log"
 
-#. max length of the progress spinner
 #. Module Labels and Descriptions
-#: ../src/ui.h:84
+#: ../src/labels.h:60
 msgid "Unique visitors per day"
 msgstr "Visiteurs uniques par jour"
 
-#: ../src/ui.h:85
+#: ../src/labels.h:61
 msgid "Unique visitors per day - Including spiders"
 msgstr "Visiteurs uniques par jour - Y compris bots"
 
-#: ../src/ui.h:86
+#: ../src/labels.h:62
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
 "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
-#: ../src/ui.h:87 ../src/ui.h:182
+#: ../src/labels.h:63 ../src/labels.h:123
 msgid "Visitors"
 msgstr "Visiteurs"
 
-#: ../src/ui.h:90
+#: ../src/labels.h:65
 msgid "Requested Files (URLs)"
 msgstr "Fichiers demandés (URLs)"
 
-#: ../src/ui.h:91
+#: ../src/labels.h:66
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr "Top des requètes triés par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/ui.h:92
+#: ../src/labels.h:67
 msgid "Requests"
 msgstr "Requètes"
 
-#: ../src/ui.h:95 ../src/ui.h:97
+#: ../src/labels.h:69 ../src/labels.h:71
 msgid "Static Requests"
 msgstr "Requètes statiques"
 
-#: ../src/ui.h:96
+#: ../src/labels.h:70
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Top des requètes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/ui.h:100
+#: ../src/labels.h:73
 msgid "Time Distribution"
 msgstr "Distribution temporelle"
 
-#: ../src/ui.h:101
+#: ../src/labels.h:74
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr "Données triée par heure [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:102
+#: ../src/labels.h:75
 msgid "Time"
 msgstr "Temps"
 
-#: ../src/ui.h:105 ../src/ui.h:107
+#: ../src/labels.h:77 ../src/labels.h:79
 msgid "Virtual Hosts"
 msgstr "Hôtes virtuels"
 
-#: ../src/ui.h:106 ../src/ui.h:111
+#: ../src/labels.h:78 ../src/labels.h:82
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr "Données triées par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:110
+#: ../src/labels.h:81
 msgid "Remote User (HTTP authentication)"
 msgstr "Utilisateur distant (authentification HTTP)"
 
-#: ../src/ui.h:112
+#: ../src/labels.h:83
 msgid "Remote User"
 msgstr "remote_user"
 
-#: ../src/ui.h:115
+#: ../src/labels.h:85
 msgid "Not Found URLs (404s)"
 msgstr "URLs Non trouvées (404s)"
 
-#: ../src/ui.h:116
+#: ../src/labels.h:86
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/ui.h:117
+#: ../src/labels.h:87
 msgid "Not Found"
 msgstr "Non Trouvé"
 
-#: ../src/ui.h:120
+#: ../src/labels.h:89
 msgid "Visitor Hostnames and IPs"
 msgstr "Nom de machine et IPs des visiteurs"
 
-#: ../src/ui.h:121
+#: ../src/labels.h:90
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des visiteurs triés par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:122
+#: ../src/labels.h:91
 msgid "Hosts"
 msgstr "Hôtes"
 
-#: ../src/ui.h:125
+#: ../src/labels.h:93
 msgid "Operating Systems"
 msgstr "Systèmes d'exploitation"
 
-#: ../src/ui.h:126
+#: ../src/labels.h:94
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des SE trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:127
+#: ../src/labels.h:95
 msgid "OS"
 msgstr "SE"
 
-#: ../src/ui.h:130 ../src/ui.h:132
+#: ../src/labels.h:97 ../src/labels.h:99
 msgid "Browsers"
 msgstr "Navigateurs"
 
-#: ../src/ui.h:131
+#: ../src/labels.h:98
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des Navigateurs triés par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:135
+#: ../src/labels.h:101
 msgid "Referrers URLs"
 msgstr "URLs d'origine"
 
-#: ../src/ui.h:136
+#: ../src/labels.h:102
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des URLs d'origine trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:140 ../src/ui.h:142
+#: ../src/labels.h:105 ../src/labels.h:107
 msgid "Referring Sites"
 msgstr "Sites d'origine"
 
-#: ../src/ui.h:141
+#: ../src/labels.h:106
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des sites d'origine trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:145
+#: ../src/labels.h:109
 msgid "Keyphrases from Google's search engine"
 msgstr "Mot-clés Google"
 
-#: ../src/ui.h:146
+#: ../src/labels.h:110
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des Mot-clés trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:147
+#: ../src/labels.h:111
 msgid "Keyphrases"
 msgstr "Mot-clés"
 
-#: ../src/ui.h:150 ../src/ui.h:152
+#: ../src/labels.h:113 ../src/labels.h:115
 msgid "Geo Location"
 msgstr "Geo Localisation"
 
-#: ../src/ui.h:151
+#: ../src/labels.h:114
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr "Continent > Pays trié par hits unique [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:155
+#: ../src/labels.h:117
 msgid "HTTP Status Codes"
 msgstr "Status HTTP"
 
-#: ../src/ui.h:156
+#: ../src/labels.h:118
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des status HTTP trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/ui.h:157
+#: ../src/labels.h:119
 msgid "Status Codes"
 msgstr "Status HTTP"
 
 #. Metric Labels
-#: ../src/ui.h:181
+#: ../src/labels.h:122
 msgid "Hits"
 msgstr "Hits"
 
-#: ../src/ui.h:183
+#: ../src/labels.h:124
 msgid "Vis."
 msgstr "Vis."
 
-#: ../src/ui.h:185
+#: ../src/labels.h:126
 msgid "Avg. T.S."
 msgstr "Avg. T.S."
 
-#: ../src/ui.h:186
+#: ../src/labels.h:127
 msgid "Cum. T.S."
 msgstr "Cum. T.S."
 
-#: ../src/ui.h:187
+#: ../src/labels.h:128
 msgid "Max. T.S."
 msgstr "Max. T.S."
 
-#: ../src/ui.h:188
+#: ../src/labels.h:129
 msgid "Method"
 msgstr "Methode"
 
-#: ../src/ui.h:189
+#: ../src/labels.h:130
 msgid "Mtd"
 msgstr "Mtd"
 
-#: ../src/ui.h:190
+#: ../src/labels.h:131
 msgid "Protocol"
 msgstr "Protocole"
 
-#: ../src/ui.h:191
+#: ../src/labels.h:132
 msgid "Proto"
 msgstr "Proto"
 
-#: ../src/ui.h:192
+#: ../src/labels.h:133
 msgid "City"
 msgstr "Ville"
 
-#: ../src/ui.h:193
+#: ../src/labels.h:134
 msgid "Country"
 msgstr "Pays"
 
-#: ../src/ui.h:194
+#: ../src/labels.h:135
 msgid "Hostname"
 msgstr "Nom d'hôte"
 
-#: ../src/ui.h:195
+#: ../src/labels.h:136
 msgid "Data"
 msgstr "Données"
 
 #. Find Labels
-#: ../src/ui.h:198
+#: ../src/labels.h:139
 msgid "Find pattern in all views"
 msgstr "Trouver tous les motifs dans toutes les vues"
 
-#: ../src/ui.h:199
+#: ../src/labels.h:140
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "Regex OK - ^g pour annuler - TAB pour changer la casse"
 
-#: ../src/ui.h:251
+#. Sort Labels
+#: ../src/labels.h:143
+msgid "[x] ASC [ ] DESC"
+msgstr "[x] ASC [ ] DESC"
+
+#: ../src/labels.h:144
+msgid "[ ] ASC [x] DESC"
+msgstr "[ ] ASC [x] DESC"
+
+#: ../src/labels.h:146
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "Erreurs de format - Vérifiez votre format de journal / date / heure"
 
-#: ../src/ui.h:253
+#: ../src/labels.h:147
 msgid "[x] case sensitive"
 msgstr "[x] sensible à la casse"
 
-#: ../src/ui.h:254
+#: ../src/labels.h:148
 msgid "[ ] case sensitive"
 msgstr "[ ] sensible à la casse"
 
