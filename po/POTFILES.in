@@ -1,3 +1,2 @@
 # List of source files which contain translatable strings.
-src/ui.h
-
+src/labels.h
