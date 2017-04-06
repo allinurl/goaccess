@@ -35,7 +35,7 @@ msgstr "Date/Heure"
 
 #: ../src/labels.h:45
 msgid "Total Requests"
-msgstr "Total Requêtes"
+msgstr "Requêtes Totales"
 
 #: ../src/labels.h:46
 msgid "Init. Proc. Time"
