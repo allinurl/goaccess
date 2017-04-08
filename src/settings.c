@@ -40,6 +40,7 @@
 #include "settings.h"
 
 #include "error.h"
+#include "labels.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -485,13 +486,13 @@ const char *
 verify_formats (void)
 {
   if (conf.time_format == NULL || *conf.time_format == '\0')
-    return "No time format was found on your conf file.";
+    return ERR_FORMAT_NO_TIME_FMT;
 
   if (conf.date_format == NULL || *conf.date_format == '\0')
-    return "No date format was found on your conf file.";
+    return ERR_FORMAT_NO_DATE_FMT;
 
   if (conf.log_format == NULL || *conf.log_format == '\0')
-    return "No log format was found on your conf file.";
+    return ERR_FORMAT_NO_LOG_FMT;
 
   return NULL;
 }

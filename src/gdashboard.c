@@ -449,11 +449,11 @@ render_total_label (WINDOW * win, GDashModule * data, int y,
   total = data->holder_size;
   ht_size = data->ht_size;
 
-  s = xmalloc (snprintf (NULL, 0, "Total: %d/%d", total, ht_size) + 1);
+  s = xmalloc (snprintf (NULL, 0, "%s: %d/%d", GEN_TOTAL, total, ht_size) + 1);
   getmaxyx (win, win_h, win_w);
   (void) win_h;
 
-  sprintf (s, "Total: %d/%d", total, ht_size);
+  sprintf (s, "%s: %d/%d", GEN_TOTAL, total, ht_size);
   draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, func);
   free (s);
 }

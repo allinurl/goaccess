@@ -50,6 +50,7 @@
 #include "options.h"
 
 #include "error.h"
+#include "labels.h"
 #include "util.h"
 
 static char short_options[] = "f:e:p:o:l:H:M:"
@@ -159,8 +160,9 @@ cmd_help (void)
   printf (
   "Usage: "
   "goaccess [filename] [ options ... ] [-c][-M][-H][-q][-d][...]\n"
-  "The following options can also be supplied to the command:\n\n"
+  "%s:\n\n", INFO_HELP_FOLLOWING_OPTS);
 
+  printf (
   /* Log & Date Format Options */
   "Log & Date Format Options\n\n"
   "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
@@ -304,13 +306,14 @@ cmd_help (void)
   "                                    file when `-p` is not used.\n"
   "\n"
 
-  "Examples can be found by running `man goaccess`.\n\n"
-  "For more details visit: http://goaccess.io\n"
-  "GoAccess Copyright (C) 2009-2016 by Gerardo Orellana"
+  "%s `man goaccess`.\n\n"
+  "%s: http://goaccess.io\n"
+  "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
   "\n\n"
 #ifdef TCB_BTREE
   , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
 #endif
+  , INFO_HELP_EXAMPLES, INFO_MORE_INFO
   );
   exit (EXIT_FAILURE);
 }

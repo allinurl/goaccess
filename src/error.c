@@ -42,6 +42,7 @@
 #include <unistd.h>
 
 #include "error.h"
+#include "labels.h"
 #include "parser.h"
 
 static FILE *access_log;
@@ -171,7 +172,7 @@ sigsegv_handler (int sig)
 #endif
 
   fprintf (fp, "==%d==\n", pid);
-  fprintf (fp, "==%d== Please report it by opening an issue on GitHub:\n", pid);
+  fprintf (fp, "==%d== %s:\n", pid, ERR_PLEASE_REPORT);
   fprintf (fp, "==%d== https://github.com/allinurl/goaccess/issues\n\n", pid);
   exit (EXIT_FAILURE);
 }

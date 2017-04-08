@@ -209,7 +209,7 @@ static void
 print_html_title (FILE * fp)
 {
   const char *title =
-    conf.html_report_title ? conf.html_report_title : REP_TITLE;
+    conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, (char *) title);
@@ -261,7 +261,7 @@ print_html_body (FILE * fp, const char *now)
   "<div class='pull-right'>"
   "<h4>"
   "<span class='label label-info' style='display:%s'>"
-  "<span class='hidden-xs'>Last Updated: </span>"
+  "<span class='hidden-xs'>%s: </span>"
   "<span class='last-updated'>%s</span>"
   "</span>"
   "</h4>"
@@ -274,7 +274,7 @@ print_html_body (FILE * fp, const char *now)
   "<i class='fa fa-bars nav-minibars'></i>"
   "<i class='fa fa-circle nav-ws-status mini'></i>"
   "</span>"
-  "</h1>", conf.no_html_last_updated ? "none" : "block", now, T_DASH);
+  "</h1>", conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now, T_DASH);
 
   fprintf (fp,
   "<div class='report-title'>%s</div>"
@@ -389,18 +389,16 @@ hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp)
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
-      {"key", "hits"}, {"label", "Hits"}, ChartDefStopper
+      {"key", "hits"}, {"label", MTRC_HITS_LBL}, ChartDefStopper
     }},
     {"y1", (GChartDef[]) {
-      {"key", "visitors"}, {"label", "Visitors"}, ChartDefStopper
+      {"key", "visitors"}, {"label", MTRC_VISITORS_LBL}, ChartDefStopper
     }},
   };
-  /* *INDENT-ON* */
 
-  plot.chart_key = (char[]) {
-  "hits-visitors"};
-  plot.chart_lbl = (char[]) {
-  "Hits/Visitors"};
+  plot.chart_key = (char[]) {"hits-visitors"};
+  plot.chart_lbl = (char *) {HTML_PLOT_HITS_VIS};
+  /* *INDENT-ON* */
   print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
@@ -414,18 +412,16 @@ hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp)
       {"key", "[\"method\", \"data\", \"protocol\"]"}, ChartDefStopper
     }},
     {"y0", (GChartDef[]) {
-      {"key", "hits"}, {"label", "Hits"}, ChartDefStopper
+      {"key", "hits"}, {"label", MTRC_HITS_LBL}, ChartDefStopper
     }},
     {"y1", (GChartDef[]) {
-      {"key", "visitors"}, {"label", "Visitors"}, ChartDefStopper
+      {"key", "visitors"}, {"label", MTRC_VISITORS_LBL}, ChartDefStopper
     }},
   };
-  /* *INDENT-ON* */
 
-  plot.chart_key = (char[]) {
-  "hits-visitors"};
-  plot.chart_lbl = (char[]) {
-  "Hits/Visitors"};
+  plot.chart_key = (char[]) {"hits-visitors"};
+  plot.chart_lbl = (char *) {HTML_PLOT_HITS_VIS};
+  /* *INDENT-ON* */
   print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
@@ -436,18 +432,16 @@ hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp)
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
-      {"key", "bytes"}, {"label", "Bandwidth"}, {"format", "bytes"}, ChartDefStopper
+      {"key", "bytes"}, {"label", MTRC_BW_LBL}, {"format", "bytes"}, ChartDefStopper
     }},
   };
-  /* *INDENT-ON* */
 
   if (!conf.bandwidth)
     return;
 
-  plot.chart_key = (char[]) {
-  "bandwidth"};
-  plot.chart_lbl = (char[]) {
-  "Bandwidth"};
+  plot.chart_key = (char[]) {"bandwidth"};
+  plot.chart_lbl = (char *) {MTRC_BW_LBL};
+  /* *INDENT-ON* */
   print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
@@ -461,18 +455,16 @@ hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp)
       {"key", "[\"method\", \"protocol\", \"data\"]"}, ChartDefStopper
     }},
     {"y0", (GChartDef[]) {
-      {"key", "bytes"}, {"label", "Bandwidth"}, {"format", "bytes"}, ChartDefStopper
+      {"key", "bytes"}, {"label", MTRC_BW_LBL}, {"format", "bytes"}, ChartDefStopper
     }},
   };
-  /* *INDENT-ON* */
 
   if (!conf.bandwidth)
     return;
 
-  plot.chart_key = (char[]) {
-  "bandwidth"};
-  plot.chart_lbl = (char[]) {
-  "Bandwidth"};
+  plot.chart_key = (char[]) {"bandwidth"};
+  plot.chart_lbl = (char *) {MTRC_BW_LBL};
+  /* *INDENT-ON* */
   print_plot_def (fp, plot, def, ARRAY_SIZE (def), sp);
 }
 
@@ -613,7 +605,7 @@ static void
 print_def_overall_visitors (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .lbl = T_UNIQUE_VIS,
+    .lbl = T_UNIQUE_VISITORS,
     .datatype = "numeric",
     .cname = "blue"
   };
@@ -627,7 +619,7 @@ static void
 print_def_overall_files (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .lbl = T_UNIQUE_FIL,
+    .lbl = T_UNIQUE_FILES,
     .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_FILES, sp);
@@ -679,7 +671,7 @@ static void
 print_def_overall_static_files (FILE * fp, int sp)
 {
   GDefMetric def = {
-    .lbl = T_STATIC_FIL,
+    .lbl = T_STATIC_FILES,
     .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_STATIC, sp);
@@ -1110,6 +1102,54 @@ print_def_summary (FILE * fp, int sp)
   fpclose_obj (fp, isp, 1);
 }
 
+/* Cheap JSON internationalisation (i18n) - report labels */
+static void
+print_json_i18n_def (FILE * fp)
+{
+  int sp = 0;
+  size_t i = 0;
+
+  /* *INDENT-OFF* */
+  static const char *json_i18n[][2] = {
+    {"theme"           , HTML_REPORT_NAV_THEME}           ,
+    {"dark_gray"       , HTML_REPORT_NAV_DARK_GRAY}       ,
+    {"bright"          , HTML_REPORT_NAV_BRIGHT}          ,
+    {"dark_blue"       , HTML_REPORT_NAV_DARK_BLUE}       ,
+    {"panels"          , HTML_REPORT_NAV_PANELS}          ,
+    {"items_per_page"  , HTML_REPORT_NAV_ITEMS_PER_PAGE}  ,
+    {"tables"          , HTML_REPORT_NAV_TABLES}          ,
+    {"display_tables"  , HTML_REPORT_NAV_DISPLAY_TABLES}  ,
+    {"auto_hide_small" , HTML_REPORT_NAV_AUTO_HIDE_SMALL} ,
+    {"layout"          , HTML_REPORT_NAV_LAYOUT}          ,
+    {"horizontal"      , HTML_REPORT_NAV_HOR}             ,
+    {"vertical"        , HTML_REPORT_NAV_VER}             ,
+    {"file_opts"       , HTML_REPORT_NAV_FILE_OPTS}       ,
+    {"export_json"     , HTML_REPORT_NAV_EXPORT_JSON}     ,
+    {"panel_opts"      , HTML_REPORT_PANEL_PANEL_OPTS}    ,
+    {"previous"        , HTML_REPORT_PANEL_PREVIOUS}      ,
+    {"next"            , HTML_REPORT_PANEL_NEXT}          ,
+    {"chart_opts"      , HTML_REPORT_PANEL_CHART_OPTS}    ,
+    {"chart"           , HTML_REPORT_PANEL_CHART}         ,
+    {"type"            , HTML_REPORT_PANEL_TYPE}          ,
+    {"area_spline"     , HTML_REPORT_PANEL_AREA_SPLINE}   ,
+    {"bar"             , HTML_REPORT_PANEL_BAR}           ,
+    {"plot_metric"     , HTML_REPORT_PANEL_PLOT_METRIC}   ,
+    {"table_columns"   , HTML_REPORT_PANEL_TABLE_COLS}    ,
+    {"thead"           , T_HEAD}                          ,
+  };
+  /* *INDENT-ON* */
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    sp = 1;
+
+  fpopen_obj (fp, 0);
+  for (i = 0; i < ARRAY_SIZE (json_i18n); ++i) {
+    fpskeysval (fp, json_i18n[i][0], _(json_i18n[i][1]), sp, 0);
+  }
+  fpclose_obj (fp, 0, 1);
+}
+
 /* Output definitions for the given panel. */
 static void
 print_json_def_summary (FILE * fp)
@@ -1122,7 +1162,7 @@ print_json_def_summary (FILE * fp)
 
   /* output open panel attribute */
   fpopen_obj_attr (fp, GENER_ID, sp);
-  print_def_meta (fp, T_HEAD, "", sp);
+  print_def_meta (fp, _(T_HEAD), "", sp);
   print_def_summary (fp, sp);
   /* output close panel attribute */
   fpclose_obj (fp, sp, 0);
@@ -1136,6 +1176,11 @@ print_json_defs (FILE * fp)
   size_t idx = 0;
 
   fprintf (fp, "<script type='text/javascript'>");
+
+  fprintf (fp, "var json_i18n=");
+  print_json_i18n_def (fp);
+  fprintf (fp, ";");
+
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);

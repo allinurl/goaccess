@@ -1517,12 +1517,12 @@ output_logerrors (GLog * glog)
   if (!glog->log_erridx)
     return;
 
-  fprintf (stderr, "Parsed %d lines ", glog->log_erridx);
-  fprintf (stderr, "producing the following errors:\n\n");
+  fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
+  fprintf (stderr, "%s:\n\n", ERR_PARSED_NLINES_DESC);
 
   for (i = 0; i < glog->log_erridx; ++i)
     fprintf (stderr, "%s\n", glog->errors[i]);
-  fprintf (stderr, "\n%s\n", ERR_HEADER);
+  fprintf (stderr, "\n%s\n", ERR_FORMAT_HEADER);
 }
 
 /* Free all log errors stored during parsing. */
