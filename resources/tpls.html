@@ -76,19 +76,19 @@
 <!-- TPL Panel Options DropDown -->
 <script id="tpl-panel-opts" type="text/template">
 	<li class="dropdown-header">Charts Options</li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart="{{showChart}}"><i class="fa fa-{{#showChart}}check-{{/showChart}}square-o"></i> Chart</a></li>
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart="{{showChart}}"><i class="fa fa-{{#showChart}}check-{{/showChart}}square-o"></i> {{labels.chart}}</a></li>
 
 	{{#plot.length}}
 	<li class="dropdown-header">Type</li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> Area Spline</a></li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> Bar</a></li>
-	<li class="dropdown-header">Plot Metric</li>
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> {{labels.area_spline}}</a></li>
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> {{labels.bar}}</a></li>
+	<li class="dropdown-header">{{labels.plot_metric}}</li>
 	{{#plot}}
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}"><i class="fa fa-circle{{^selected}}-o{{/selected}}"></i> {{label}}</a></li>
 	{{/plot}}
 	{{/plot.length}}
 
-	<li class="dropdown-header">Table Columns</li>
+	<li class="dropdown-header">{{labels.table_columns}}</li>
 	{{#items}}
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-metric="{{key}}"><i class="fa fa-{{^hide}}check-{{/hide}}square-o"></i> {{label}}</a></li>
 	{{/items}}
@@ -115,7 +115,7 @@
 				<div class="panel-plot-wrap">
 					<div class="dropdown">
 						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-panel="{{id}}">
-							<i class="fa fa-gear"></i> Panel Options <span class="fa fa-caret-down"></span>
+							<i class="fa fa-gear"></i> {{labels.panel_opts}} <span class="fa fa-caret-down"></span>
 						</button>
 						<ul class="dropdown-menu dropdown-menu-right panel-opts-{{id}}">
 						</ul>
@@ -149,12 +149,12 @@
 
 			<ul class="pagination pagination-sm pull-left">
 				<li class="disabled">
-					<a class="panel-prev" href="javascript:void(0);" aria-label="Previous" data-panel="{{id}}">
+					<a class="panel-prev" href="javascript:void(0);" aria-label="{{labels.previous}}" data-panel="{{id}}" title="{{labels.previous}}">
 						<i class="fa fa-chevron-left"></i>
 					</a>
 				</li>
 				<li>
-					<a class="panel-next" href="javascript:void(0);" aria-label="Next" data-panel="{{id}}">
+					<a class="panel-next" href="javascript:void(0);" aria-label="{{labels.next}}" data-panel="{{id}}" title="{{labels.next}}">
 						<i class="fa fa-chevron-right"></i>
 					</a>
 				</li>
@@ -172,30 +172,30 @@
 	<div class="powered hidden-xs hidden-sm">by <a href="https://goaccess.io/">GoAccess</a> and <a href="http://gwsocket.io/">GWSocket</a></div>
 </script>
 <script id="tpl-nav-menu" type="text/template">
-	<h3>Panels</h3>
+	<h3>{{labels.panels}}</h3>
 	<ul>
-		<li {{#overall}}class="active"{{/overall}}><a href="#"><i class="fa fa-bar-chart"></i> Overall Analyzed Requests</a></li>
+		<li {{#overall}}class="active"{{/overall}}><a href="#"><i class="fa fa-bar-chart"></i> {{labels.thead}}</a></li>
 		{{#nav}}
 		<li {{#current}}class="active"{{/current}}><a href="#{{key}}"><i class="fa fa-{{icon}}"></i> {{head}}</a></li>
 		{{/nav}}
 	</ul>
 </script>
 <script id="tpl-nav-opts" type="text/template">
-	<h3><i class="fa fa-hashtag"></i> Theme</h3>
+	<h3><i class="fa fa-hashtag"></i> {{labels.theme}}</h3>
 	<ul>
 		<li {{#darkGray}}class="active"{{/darkGray}}>
-			<a href="javascript:void(0);" class="theme-dark-gray"><i class="fa fa-circle{{^darkGray}}-o{{/darkGray}}"></i> Dark Gray</a>
+			<a href="javascript:void(0);" class="theme-dark-gray"><i class="fa fa-circle{{^darkGray}}-o{{/darkGray}}"></i> {{labels.dark_gray}}</a>
 		</li>
 		<li {{#bright}}class="active"{{/bright}}>
-			<a href="javascript:void(0);" class="theme-bright"><i class="fa fa-circle{{^bright}}-o{{/bright}}"></i> Bright</a>
+			<a href="javascript:void(0);" class="theme-bright"><i class="fa fa-circle{{^bright}}-o{{/bright}}"></i> {{labels.bright}}</a>
 		</li>
 		<li {{#darkBlue}}class="active"{{/darkBlue}}>
-			<a href="javascript:void(0);" class="theme-dark-blue"><i class="fa fa-circle{{^darkBlue}}-o{{/darkBlue}}"></i> Dark Blue</a>
+			<a href="javascript:void(0);" class="theme-dark-blue"><i class="fa fa-circle{{^darkBlue}}-o{{/darkBlue}}"></i> {{labels.dark_blue}}</a>
 		</li>
 	</ul>
-	<h3><i class="fa fa-list-alt"></i> Panels</h3>
+	<h3><i class="fa fa-list-alt"></i> {{labels.panels}}</h3>
 	<ul class="perpage-wrap">
-		<li class="dropdown-header"><i class="fa fa-list"></i> Items Per Page</li>
+		<li class="dropdown-header"><i class="fa fa-list"></i> {{labels.items_per_page}}</li>
 		<li {{#perPage5}}class="active"{{/perPage5}}>
 			<a href="javascript:void(0);" data-perpage="5"><i class="fa fa-circle{{^perPage5}}-o{{/perPage5}}"></i> 5</a>
 		</li>
@@ -211,28 +211,28 @@
 		<li {{#perPage20}}class="active"{{/perPage20}}>
 			<a href="javascript:void(0);" data-perpage="20"><i class="fa fa-circle{{^perPage20}}-o{{/perPage20}}"></i> 20</a>
 		</li>
-		<li class="dropdown-header"><i class="fa fa-table"></i> Tables</li>
+		<li class="dropdown-header"><i class="fa fa-table"></i> {{labels.tables}}</li>
 		<li {{#showTables}}class="active"{{/showTables}}>
-			<a href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> Display Tables</a>
+			<a href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> {{labels.display_tables}}</a>
 		</li>
 		<li {{#autoHideTables}}class="active"{{/autoHideTables}}>
 			<a href="javascript:void(0);" data-autohide-tables="1" title="Automatically hide tables on small screen devices">
-				<i class="fa fa-{{#autoHideTables}}check-{{/autoHideTables}}square-o"></i> Auto-hide on small devices
+				<i class="fa fa-{{#autoHideTables}}check-{{/autoHideTables}}square-o"></i> {{labels.auto_hide_small}}
 			</a>
 		</li>
 	</ul>
-	<h3><i class="fa fa-th-large"></i> Layout</h3>
+	<h3><i class="fa fa-th-large"></i> {{labels.layout}}</h3>
 	<ul>
 		<li {{#horizontal}}class="active"{{/horizontal}}>
-			<a href="javascript:void(0);" class="layout-horizontal"><i class="fa fa-circle{{^horizontal}}-o{{/horizontal}}"></i> Horizontal</a>
+			<a href="javascript:void(0);" class="layout-horizontal"><i class="fa fa-circle{{^horizontal}}-o{{/horizontal}}"></i> {{labels.horizontal}}</a>
 		</li>
 		<li {{#vertical}}class="active"{{/vertical}}>
-			<a href="javascript:void(0);" class="layout-vertical"><i class="fa fa-circle{{^vertical}}-o{{/vertical}}"></i> Vertical</a>
+			<a href="javascript:void(0);" class="layout-vertical"><i class="fa fa-circle{{^vertical}}-o{{/vertical}}"></i> {{labels.vertical}}</a>
 		</li>
 	</ul>
-	<h3><i class="fa fa-cog"></i> File Options</h3>
+	<h3><i class="fa fa-cog"></i> {{labels.file_opts}}</h3>
 	<ul>
-		<li><a href="javascript:void(0);" class="export-json"><i class="fa fa-code"></i> Export as JSON</a></li>
+		<li><a href="javascript:void(0);" class="export-json"><i class="fa fa-code"></i> {{labels.export_json}}</a></li>
 	</ul>
 </script>
 

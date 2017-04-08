@@ -36,8 +36,6 @@
 
 #define MAX_PLOTS 5     /* number of metrics we can plot */
 
-#define REP_TITLE "Server Statistics"
-
 #include "commons.h"
 #include "parser.h"
 

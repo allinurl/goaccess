@@ -1,4 +1,6 @@
 /**
+/**
+/**
  * gkhash.c -- default hash table functions
  *    ______      ___
  *   / ____/___  /   | _____________  __________
@@ -54,8 +56,6 @@ static khash_t (si32) *ht_agent_keys  = NULL;
 static khash_t (si32) *ht_unique_keys = NULL;
 static khash_t (ss32) *ht_hostnames   = NULL;
 /* *INDENT-ON* */
-
-/* Instantiate a new store */
 static GKHashStorage *
 new_gkhstorage (uint32_t size)
 {

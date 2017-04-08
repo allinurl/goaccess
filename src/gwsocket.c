@@ -259,7 +259,7 @@ void
 set_ready_state (void)
 {
   fprintf (stderr, "\33[2K\r");
-  fprintf (stderr, "WebSocket server ready to accept new client connections\n");
+  fprintf (stderr, "%s\n", INFO_WS_READY_FOR_CONN);
 }
 
 /* Open the named pipe where the websocket server writes to.

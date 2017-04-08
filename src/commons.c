@@ -39,7 +39,9 @@
 #include <unistd.h>
 
 #include "commons.h"
+
 #include "error.h"
+#include "labels.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
@@ -107,11 +109,11 @@ void
 display_storage (void)
 {
 #ifdef TCB_BTREE
-  fprintf (stdout, "Built using Tokyo Cabinet On-Disk B+ Tree.\n");
+  fprintf (stdout, "%s\n", BUILT_WITH_TCBTREE);
 #elif TCB_MEMHASH
-  fprintf (stdout, "Built using Tokyo Cabinet On-Memory Hash database.\n");
+  fprintf (stdout, "%s\n", BUILT_WITH_TCMEMHASH);
 #else
-  fprintf (stdout, "Built using the default On-Memory Hash database.\n");
+  fprintf (stdout, "%s\n", BUILT_WITH_DEFHASH);
 #endif
 }
 
@@ -122,8 +124,8 @@ display_default_config_file (void)
   char *path = get_config_file_path ();
 
   if (!path) {
-    fprintf (stdout, "No default config file found.\n");
-    fprintf (stdout, "You may specify one with `-p /path/goaccess.conf`\n");
+    fprintf (stdout, "%s\n", ERR_NODEF_CONF_FILE);
+    fprintf (stdout, "%s `-p /path/goaccess.conf`\n", ERR_NODEF_CONF_FILE_DESC);
   } else {
     fprintf (stdout, "%s\n", path);
     free (path);
@@ -135,7 +137,7 @@ void
 display_version (void)
 {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
-  fprintf (stdout, "For more details visit: http://goaccess.io\n");
+  fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
   fprintf (stdout, "Copyright (C) 2009-2016 by Gerardo Orellana\n");
 }
 

@@ -262,22 +262,22 @@ const char *
 module_to_label (GModule module)
 {
   static const char *modules[] = {
-    VISIT_LABEL,
-    REQUE_LABEL,
-    STATI_LABEL,
-    FOUND_LABEL,
+    VISITORS_LABEL,
+    REQUESTS_LABEL,
+    REQUESTS_STATIC_LABEL,
+    NOT_FOUND_LABEL,
     HOSTS_LABEL,
-    OPERA_LABEL,
-    BROWS_LABEL,
-    VTIME_LABEL,
-    VHOST_LABEL,
-    REFER_LABEL,
-    SITES_LABEL,
-    KEYPH_LABEL,
-    CODES_LABEL,
-    RUSER_LABEL,
+    OS_LABEL,
+    BROWSERS_LABEL,
+    VISIT_TIMES_LABEL,
+    VIRTUAL_HOSTS_LABEL,
+    REFERRERS_LABEL,
+    REFERRING_SITES_LABEL,
+    KEYPHRASES_LABEL,
+    STATUS_CODES_LABEL,
+    REMOTE_USER_LABEL,
 #ifdef HAVE_GEOLOCATION
-    GEOLO_LABEL,
+    GEO_LOCATION_LABEL,
 #endif
   };
 
@@ -291,22 +291,22 @@ const char *
 module_to_id (GModule module)
 {
   static const char *modules[] = {
-    VISIT_ID,
-    REQUE_ID,
-    STATI_ID,
-    FOUND_ID,
+    VISITORS_ID,
+    REQUESTS_ID,
+    REQUESTS_STATIC_ID,
+    NOT_FOUND_ID,
     HOSTS_ID,
-    OPERA_ID,
-    BROWS_ID,
-    VTIME_ID,
-    VHOST_ID,
-    REFER_ID,
-    SITES_ID,
-    KEYPH_ID,
-    CODES_ID,
-    RUSER_ID,
+    OS_ID,
+    BROWSERS_ID,
+    VISIT_TIMES_ID,
+    VIRTUAL_HOSTS_ID,
+    REFERRERS_ID,
+    REFERRING_SITES_ID,
+    KEYPHRASES_ID,
+    STATUS_CODES_ID,
+    REMOTE_USER_ID,
 #ifdef HAVE_GEOLOCATION
-    GEOLO_ID,
+    GEO_LOCATION_ID,
 #endif
   };
 
@@ -320,27 +320,27 @@ const char *
 module_to_head (GModule module)
 {
   static const char *modules[] = {
-    VISIT_HEAD,
-    REQUE_HEAD,
-    STATI_HEAD,
-    FOUND_HEAD,
+    VISITORS_HEAD,
+    REQUESTS_HEAD,
+    REQUESTS_STATIC_HEAD,
+    NOT_FOUND_HEAD,
     HOSTS_HEAD,
-    OPERA_HEAD,
-    BROWS_HEAD,
-    VTIME_HEAD,
-    VHOST_HEAD,
-    REFER_HEAD,
-    SITES_HEAD,
-    KEYPH_HEAD,
-    CODES_HEAD,
-    RUSER_HEAD,
+    OS_HEAD,
+    BROWSERS_HEAD,
+    VISIT_TIMES_HEAD,
+    VIRTUAL_HOSTS_HEAD,
+    REFERRERS_HEAD,
+    REFERRING_SITES_HEAD,
+    KEYPHRASES_HEAD,
+    STATUS_CODES_HEAD,
+    REMOTE_USER_HEAD,
 #ifdef HAVE_GEOLOCATION
-    GEOLO_HEAD,
+    GEO_LOCATION_HEAD,
 #endif
   };
 
   if (!conf.ignore_crawlers)
-    modules[VISITORS] = VISIT_HBOTS;
+    modules[VISITORS] = VISITORS_HEAD_BOTS;
 
   return _(modules[module]);
 }
@@ -353,22 +353,22 @@ const char *
 module_to_desc (GModule module)
 {
   static const char *modules[] = {
-    VISIT_DESC,
-    REQUE_DESC,
-    STATI_DESC,
-    FOUND_DESC,
+    VISITORS_DESC,
+    REQUESTS_DESC,
+    REQUESTS_STATIC_DESC,
+    NOT_FOUND_DESC,
     HOSTS_DESC,
-    OPERA_DESC,
-    BROWS_DESC,
-    VTIME_DESC,
-    VHOST_DESC,
-    REFER_DESC,
-    SITES_DESC,
-    KEYPH_DESC,
-    CODES_DESC,
-    RUSER_DESC,
+    OS_DESC,
+    BROWSERS_DESC,
+    VISIT_TIMES_DESC,
+    VIRTUAL_HOSTS_DESC,
+    REFERRERS_DESC,
+    REFERRING_SITES_DESC,
+    KEYPHRASES_DESC,
+    STATUS_CODES_DESC,
+    REMOTE_USER_DESC,
 #ifdef HAVE_GEOLOCATION
-    GEOLO_DESC,
+    GEO_LOCATION_DESC,
 #endif
   };
 
@@ -682,19 +682,19 @@ display_general (WINDOW * win, GLog * glog, GHolder * h)
 
   /* *INDENT-OFF* */
   Field fields[] = {
-    {T_REQUESTS   , get_str_processed_reqs (glog)  , colorlbl , colorval , 0} ,
-    {T_UNIQUE_VIS , get_str_visitors ()            , colorlbl , colorval , 0} ,
-    {T_UNIQUE_FIL , get_str_reqs ()                , colorlbl , colorval , 0} ,
-    {T_REFERRER   , get_str_ref_reqs ()            , colorlbl , colorval , 0} ,
-    {T_VALID      , get_str_valid_reqs (glog)      , colorlbl , colorval , 0} ,
-    {T_GEN_TIME   , get_str_proctime ()            , colorlbl , colorval , 0} ,
-    {T_STATIC_FIL , get_str_static_reqs ()         , colorlbl , colorval , 0} ,
-    {T_LOG        , get_str_filesize ()            , colorlbl , colorval , 0} ,
-    {T_FAILED     , get_str_failed_reqs (glog)     , colorlbl , colorval , 0} ,
-    {T_EXCLUDE_IP , get_str_excluded_ips (glog)    , colorlbl , colorval , 0} ,
-    {T_UNIQUE404  , get_str_notfound_reqs ()       , colorlbl , colorval , 0} ,
-    {T_BW         , get_str_bandwidth (glog)       , colorlbl , colorval , 0} ,
-    {T_LOG_PATH   , get_str_logfile ()             , colorlbl , colorpth , 1}
+    {T_REQUESTS        , get_str_processed_reqs (glog), colorlbl, colorval, 0},
+    {T_UNIQUE_VISITORS , get_str_visitors ()          , colorlbl, colorval, 0},
+    {T_UNIQUE_FILES    , get_str_reqs ()              , colorlbl, colorval, 0},
+    {T_REFERRER        , get_str_ref_reqs ()          , colorlbl, colorval, 0},
+    {T_VALID           , get_str_valid_reqs (glog)    , colorlbl, colorval, 0},
+    {T_GEN_TIME        , get_str_proctime ()          , colorlbl, colorval, 0},
+    {T_STATIC_FILES    , get_str_static_reqs ()       , colorlbl, colorval, 0},
+    {T_LOG             , get_str_filesize ()          , colorlbl, colorval, 0},
+    {T_FAILED          , get_str_failed_reqs (glog)   , colorlbl, colorval, 0},
+    {T_EXCLUDE_IP      , get_str_excluded_ips (glog)  , colorlbl, colorval, 0},
+    {T_UNIQUE404       , get_str_notfound_reqs ()     , colorlbl, colorval, 0},
+    {T_BW              , get_str_bandwidth (glog)     , colorlbl, colorval, 0},
+    {T_LOG_PATH        , get_str_logfile ()           , colorlbl, colorpth, 1}
   };
   /* *INDENT-ON* */
 
@@ -1269,7 +1269,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors)
   free (errors);
   post_gmenu (menu);
 
-  draw_header (win, ERR_HEADER, " %s", 1, 1, w - 2, color_error);
+  draw_header (win, ERR_FORMAT_HEADER, " %s", 1, 1, w - 2, color_error);
   mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
 
   wrefresh (win);
