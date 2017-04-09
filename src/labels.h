@@ -257,7 +257,7 @@
   N_("Panels")
 #define HTML_REPORT_NAV_ITEMS_PER_PAGE  \
   N_("Items per Page")
-#define HTML_REPORT_NAV_TABLES                                                \
+#define HTML_REPORT_NAV_TABLES          \
   N_("Tables")
 #define HTML_REPORT_NAV_DISPLAY_TABLES  \
   N_("Display Tables")
