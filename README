@@ -51,6 +51,11 @@ outputs the data to the X terminal. Features include:
     GoAccess features an on-disk B+Tree storage for large datasets where it is not
     possible to fit everything in memory.
 
+  * Docker support
+    GoAccess comes with a default Docker (https://hub.docker.com/r/allinurl/goaccess/)
+    that will listen for HTTP connections on port 7890. Although, you can still
+    fully configure it, by using Volume mapping and editing goaccess.conf.
+
   * and more... visit https://goaccess.io for more details.
 
 
