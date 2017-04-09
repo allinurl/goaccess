@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-08 15:20-0500\n"
+"POT-Creation-Date: 2017-04-08 22:38-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -242,7 +242,8 @@ msgstr "URLs Non trouvées (404s)"
 
 #: ../src/labels.h:136
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:138
 msgid "Not Found"
@@ -457,62 +458,66 @@ msgid "Auto-Hide on Small Devices"
 msgstr ""
 
 #: ../src/labels.h:267
-msgid "Layout"
+msgid "Automatically hide tables on small screen devices"
 msgstr ""
 
 #: ../src/labels.h:269
-msgid "Horizontal"
+msgid "Layout"
 msgstr ""
 
 #: ../src/labels.h:271
-msgid "Vertical"
+msgid "Horizontal"
 msgstr ""
 
 #: ../src/labels.h:273
-msgid "File Options"
+msgid "Vertical"
 msgstr ""
 
 #: ../src/labels.h:275
-msgid "Export as JSON"
+msgid "File Options"
 msgstr ""
 
 #: ../src/labels.h:277
-msgid "Panel Options"
+msgid "Export as JSON"
 msgstr ""
 
 #: ../src/labels.h:279
-msgid "Previous"
+msgid "Panel Options"
 msgstr ""
 
 #: ../src/labels.h:281
-msgid "Next"
+msgid "Previous"
 msgstr ""
 
 #: ../src/labels.h:283
-msgid "Chart Options"
+msgid "Next"
 msgstr ""
 
 #: ../src/labels.h:285
+msgid "Chart Options"
+msgstr ""
+
+#: ../src/labels.h:287
 msgid "Chart"
 msgstr "Graphique"
 
-#: ../src/labels.h:287
+#: ../src/labels.h:289
 msgid "Type"
 msgstr ""
 
-#: ../src/labels.h:289
+#: ../src/labels.h:291
 msgid "Area Spline"
 msgstr ""
 
-#: ../src/labels.h:291
+#: ../src/labels.h:293
 msgid "Bar"
 msgstr ""
 
-#: ../src/labels.h:293
+#: ../src/labels.h:295
 msgid "Plot Metric"
 msgstr ""
 
-#: ../src/labels.h:295
+#: ../src/labels.h:297
 msgid "Table Columns"
 msgstr ""
 

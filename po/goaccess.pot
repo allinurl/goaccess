@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-08 15:20-0500\n"
+"POT-Creation-Date: 2017-04-08 22:38-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -455,61 +455,65 @@ msgid "Auto-Hide on Small Devices"
 msgstr ""
 
 #: ../src/labels.h:267
-msgid "Layout"
+msgid "Automatically hide tables on small screen devices"
 msgstr ""
 
 #: ../src/labels.h:269
-msgid "Horizontal"
+msgid "Layout"
 msgstr ""
 
 #: ../src/labels.h:271
-msgid "Vertical"
+msgid "Horizontal"
 msgstr ""
 
 #: ../src/labels.h:273
-msgid "File Options"
+msgid "Vertical"
 msgstr ""
 
 #: ../src/labels.h:275
-msgid "Export as JSON"
+msgid "File Options"
 msgstr ""
 
 #: ../src/labels.h:277
-msgid "Panel Options"
+msgid "Export as JSON"
 msgstr ""
 
 #: ../src/labels.h:279
-msgid "Previous"
+msgid "Panel Options"
 msgstr ""
 
 #: ../src/labels.h:281
-msgid "Next"
+msgid "Previous"
 msgstr ""
 
 #: ../src/labels.h:283
-msgid "Chart Options"
+msgid "Next"
 msgstr ""
 
 #: ../src/labels.h:285
-msgid "Chart"
+msgid "Chart Options"
 msgstr ""
 
 #: ../src/labels.h:287
-msgid "Type"
+msgid "Chart"
 msgstr ""
 
 #: ../src/labels.h:289
-msgid "Area Spline"
+msgid "Type"
 msgstr ""
 
 #: ../src/labels.h:291
-msgid "Bar"
+msgid "Area Spline"
 msgstr ""
 
 #: ../src/labels.h:293
-msgid "Plot Metric"
+msgid "Bar"
 msgstr ""
 
 #: ../src/labels.h:295
+msgid "Plot Metric"
+msgstr ""
+
+#: ../src/labels.h:297
 msgid "Table Columns"
 msgstr ""
