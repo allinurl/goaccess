@@ -452,11 +452,11 @@ msgstr "Afficher les tableaux"
 
 #: ../src/labels.h:265
 msgid "Auto-Hide on Small Devices"
-msgstr "Cache automatique sur les petits appareils"
+msgstr "Masquage-auto sur les petits appareils"
 
 #: ../src/labels.h:267
 msgid "Automatically hide tables on small screen devices"
-msgstr "Masquer automatiquement les tableaux sur les petits appareils d'écran"
+msgstr "Masquer automatiquement les tableaux sur les petits appareils"
 
 #: ../src/labels.h:269
 msgid "Layout"
@@ -516,7 +516,7 @@ msgstr "Tracé métrique"
 
 #: ../src/labels.h:297
 msgid "Table Columns"
-msgstr "Colonnes tableau"
+msgstr "Colonnes de tableau"
 
 #~ msgid " - Including spiders"
 #~ msgstr "- Inclus robots d'indexation"
