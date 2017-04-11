@@ -504,19 +504,19 @@ msgstr "Type"
 
 #: ../src/labels.h:291
 msgid "Area Spline"
-msgstr "Zone Spline"
+msgstr "Zone de courbe vectorielle"
 
 #: ../src/labels.h:293
 msgid "Bar"
-msgstr "Bar"
+msgstr "Barre"
 
 #: ../src/labels.h:295
 msgid "Plot Metric"
-msgstr "Parcelle métrique"
+msgstr "Tracé métrique"
 
 #: ../src/labels.h:297
 msgid "Table Columns"
-msgstr "Colonnes de tableau"
+msgstr "Colonnes tableau"
 
 #~ msgid " - Including spiders"
 #~ msgstr "- Inclus robots d'indexation"
