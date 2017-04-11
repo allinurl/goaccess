@@ -296,7 +296,7 @@ msgstr "Top des sites d'origine trié par hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:176
 msgid "Keyphrases from Google's search engine"
-msgstr "Mot-clés du moteur de recherche Google"
+msgstr "Mot-clés Google"
 
 #: ../src/labels.h:178
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
@@ -452,11 +452,11 @@ msgstr "Afficher les tableaux"
 
 #: ../src/labels.h:265
 msgid "Auto-Hide on Small Devices"
-msgstr "Masquage-auto sur les petits appareils"
+msgstr "Masquage-auto/Petits appareils"
 
 #: ../src/labels.h:267
 msgid "Automatically hide tables on small screen devices"
-msgstr "Masquer automatiquement les tableaux sur les petits appareils"
+msgstr "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
 #: ../src/labels.h:269
 msgid "Layout"
