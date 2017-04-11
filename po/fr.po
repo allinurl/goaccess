@@ -504,7 +504,7 @@ msgstr "Type"
 
 #: ../src/labels.h:291
 msgid "Area Spline"
-msgstr "Zone de courbe vectorielle"
+msgstr "Courbe vectorielle"
 
 #: ../src/labels.h:293
 msgid "Bar"
