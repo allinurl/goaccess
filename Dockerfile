@@ -56,7 +56,7 @@ RUN ln -sf /proc/1/fd/1 /var/log/docker.log
 # Expose required ports
 #######################
 
-EXPOSE 8080
+EXPOSE 7890
 
 # Set the entry point to init.sh
 ###########################################
