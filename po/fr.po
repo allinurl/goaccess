@@ -19,19 +19,19 @@ msgstr ""
 #. General
 #: ../src/labels.h:40
 msgid "Exp. Panel"
-msgstr ""
+msgstr "Dev. Panneau"
 
 #: ../src/labels.h:41
 msgid "Help"
-msgstr ""
+msgstr "Aide"
 
 #: ../src/labels.h:42
 msgid "Quit"
-msgstr ""
+msgstr "Quitter"
 
 #: ../src/labels.h:43
 msgid "Total"
-msgstr ""
+msgstr "Total"
 
 #. Sort Labels
 #: ../src/labels.h:46
@@ -184,8 +184,7 @@ msgstr "Visiteurs uniques par jour - Y compris bots"
 
 #: ../src/labels.h:94
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
-"Les hits depuis la même IP, date et user-agent comptent comme visite unique"
+msgstr "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
 #: ../src/labels.h:99
 msgid "Requested Files (URLs)"
@@ -205,8 +204,7 @@ msgstr "Requètes statiques"
 
 #: ../src/labels.h:108
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des requètes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des requètes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:113
 msgid "Time Distribution"
@@ -242,8 +240,7 @@ msgstr "URLs Non trouvées (404s)"
 
 #: ../src/labels.h:136
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:138
 msgid "Not Found"
@@ -299,7 +296,7 @@ msgstr "Top des sites d'origine trié par hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:176
 msgid "Keyphrases from Google's search engine"
-msgstr "Mot-clés Google"
+msgstr "Mot-clés du moteur de recherche Google"
 
 #: ../src/labels.h:178
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
@@ -348,15 +345,15 @@ msgstr "Trouver tous les motifs dans toutes les vues"
 
 #: ../src/labels.h:207
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
-msgstr ""
+msgstr "Construit sur le disque en arbre B+ en utilisant Tokyo Cabinet."
 
 #: ../src/labels.h:209
 msgid "Built using Tokyo Cabinet in-memory hash database."
-msgstr ""
+msgstr "Construit en mémoire avec une base de données de la table de hachage en utilisant Tokyo Cabinet"
 
 #: ../src/labels.h:211
 msgid "Built using the default in-memory hash database."
-msgstr ""
+msgstr "Construit par défaut en mémoire avec une base de données de la table de hachage"
 
 #. Common UI Errors
 #: ../src/labels.h:215
@@ -365,41 +362,41 @@ msgstr "Erreurs de format - Vérifiez votre format de journal / date / heure"
 
 #: ../src/labels.h:217
 msgid "No date format was found on your conf file."
-msgstr ""
+msgstr "Aucun format de date n'a été trouvé sur votre fichier conf."
 
 #: ../src/labels.h:219
 msgid "No log format was found on your conf file."
-msgstr ""
+msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
 #: ../src/labels.h:221
 msgid "No time format was found on your conf file."
-msgstr ""
+msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
 #: ../src/labels.h:223
 msgid "No default config file found."
-msgstr ""
+msgstr "Aucun fichier de configuration par défaut trouvé."
 
 #: ../src/labels.h:225
 msgid "You may specify one with"
-msgstr ""
+msgstr "Vous pouvez en préciser un avec"
 
 #: ../src/labels.h:227
 msgid "producing the following errors"
-msgstr ""
+msgstr "produisant les erreurs suivantes"
 
 #: ../src/labels.h:229
 #, c-format
 msgid "Parsed %1$d lines"
-msgstr ""
+msgstr "Analysé %1$d lignes"
 
 #: ../src/labels.h:231
 msgid "Please report it by opening an issue on GitHub"
-msgstr ""
+msgstr "Si vous plaît, rapporter cela en ouvrant un probleme sur GitHub"
 
 #. Other
 #: ../src/labels.h:235
 msgid "For more details visit"
-msgstr ""
+msgstr "Pour plus de détails, visitez"
 
 #: ../src/labels.h:237
 msgid "Last Updated"
@@ -407,19 +404,19 @@ msgstr "Dernière mise à jour"
 
 #: ../src/labels.h:239
 msgid "WebSocket server ready to accept new client connections"
-msgstr ""
+msgstr "WebSocket serveur prêt à accepter les nouvelles connexions client"
 
 #: ../src/labels.h:242
 msgid "The following options can also be supplied to the command"
-msgstr ""
+msgstr "Les options suivantes peuvent également être fournies à la commande"
 
 #: ../src/labels.h:244
 msgid "Examples can be found by running"
-msgstr ""
+msgstr "Des exemples peuvent être trouvés en cours d'exécution"
 
 #: ../src/labels.h:247
 msgid "Server Statistics"
-msgstr ""
+msgstr "Statistiques du serveur"
 
 #: ../src/labels.h:249
 msgid "Theme"
@@ -427,7 +424,7 @@ msgstr "Thème"
 
 #: ../src/labels.h:251
 msgid "Dark Gray"
-msgstr ""
+msgstr "Gris foncé"
 
 #: ../src/labels.h:253
 msgid "Bright"
@@ -435,67 +432,67 @@ msgstr "Brillant"
 
 #: ../src/labels.h:255
 msgid "Dark Blue"
-msgstr ""
+msgstr "Bleu foncé"
 
 #: ../src/labels.h:257
 msgid "Panels"
-msgstr ""
+msgstr "Panneaux"
 
 #: ../src/labels.h:259
 msgid "Items per Page"
-msgstr ""
+msgstr "Objets par page"
 
 #: ../src/labels.h:261
 msgid "Tables"
-msgstr ""
+msgstr "Tableaux"
 
 #: ../src/labels.h:263
 msgid "Display Tables"
-msgstr ""
+msgstr "Afficher les tableaux"
 
 #: ../src/labels.h:265
 msgid "Auto-Hide on Small Devices"
-msgstr ""
+msgstr "Cache automatique sur les petits appareils"
 
 #: ../src/labels.h:267
 msgid "Automatically hide tables on small screen devices"
-msgstr ""
+msgstr "Masquer automatiquement les tableaux sur les petits appareils d'écran"
 
 #: ../src/labels.h:269
 msgid "Layout"
-msgstr ""
+msgstr "Disposition"
 
 #: ../src/labels.h:271
 msgid "Horizontal"
-msgstr ""
+msgstr "Horizontal"
 
 #: ../src/labels.h:273
 msgid "Vertical"
-msgstr ""
+msgstr "Verticale"
 
 #: ../src/labels.h:275
 msgid "File Options"
-msgstr ""
+msgstr "Options de fichier"
 
 #: ../src/labels.h:277
 msgid "Export as JSON"
-msgstr ""
+msgstr "Exporter en tant que JSON"
 
 #: ../src/labels.h:279
 msgid "Panel Options"
-msgstr ""
+msgstr "Options du panneau"
 
 #: ../src/labels.h:281
 msgid "Previous"
-msgstr ""
+msgstr "Précédent"
 
 #: ../src/labels.h:283
 msgid "Next"
-msgstr ""
+msgstr "Suivant"
 
 #: ../src/labels.h:285
 msgid "Chart Options"
-msgstr ""
+msgstr "Options du graphique"
 
 #: ../src/labels.h:287
 msgid "Chart"
@@ -503,23 +500,23 @@ msgstr "Graphique"
 
 #: ../src/labels.h:289
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: ../src/labels.h:291
 msgid "Area Spline"
-msgstr ""
+msgstr "Zone Spline"
 
 #: ../src/labels.h:293
 msgid "Bar"
-msgstr ""
+msgstr "Bar"
 
 #: ../src/labels.h:295
 msgid "Plot Metric"
-msgstr ""
+msgstr "Parcelle métrique"
 
 #: ../src/labels.h:297
 msgid "Table Columns"
-msgstr ""
+msgstr "Colonnes de tableau"
 
 #~ msgid " - Including spiders"
-#~ msgstr "Inclus robots d'indexation"
+#~ msgstr "- Inclus robots d'indexation"
