@@ -180,7 +180,7 @@ msgstr "Visiteurs uniques par jour"
 
 #: ../src/labels.h:92
 msgid "Unique visitors per day - Including spiders"
-msgstr "Visiteurs uniques par jour - Y compris bots"
+msgstr "Visiteurs uniques/jour - Y compris bots"
 
 #: ../src/labels.h:94
 msgid "Hits having the same IP, date and agent are a unique visit."
