@@ -180,7 +180,7 @@ msgstr "Visiteurs uniques par jour"
 
 #: ../src/labels.h:92
 msgid "Unique visitors per day - Including spiders"
-msgstr "Visiteurs uniques par jour - Y compris bots"
+msgstr "Visiteurs uniques/jour - Y compris bots"
 
 #: ../src/labels.h:94
 msgid "Hits having the same IP, date and agent are a unique visit."
@@ -296,7 +296,7 @@ msgstr "Top des sites d'origine trié par hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:176
 msgid "Keyphrases from Google's search engine"
-msgstr "Mot-clés du moteur de recherche Google"
+msgstr "Mot-clés Google"
 
 #: ../src/labels.h:178
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
@@ -452,11 +452,11 @@ msgstr "Afficher les tableaux"
 
 #: ../src/labels.h:265
 msgid "Auto-Hide on Small Devices"
-msgstr "Cache automatique sur les petits appareils"
+msgstr "Masquage-auto/Petits appareils"
 
 #: ../src/labels.h:267
 msgid "Automatically hide tables on small screen devices"
-msgstr "Masquer automatiquement les tableaux sur les petits appareils d'écran"
+msgstr "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
 #: ../src/labels.h:269
 msgid "Layout"
@@ -504,15 +504,15 @@ msgstr "Type"
 
 #: ../src/labels.h:291
 msgid "Area Spline"
-msgstr "Zone Spline"
+msgstr "Courbe vectorielle"
 
 #: ../src/labels.h:293
 msgid "Bar"
-msgstr "Bar"
+msgstr "Barre"
 
 #: ../src/labels.h:295
 msgid "Plot Metric"
-msgstr "Parcelle métrique"
+msgstr "Tracé métrique"
 
 #: ../src/labels.h:297
 msgid "Table Columns"
