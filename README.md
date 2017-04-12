@@ -115,14 +115,9 @@ configuration file `goaccess.conf` inside your `$HOME/data` directory, which
 will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to
 configure goaccess.
 
-A minimal GoAccess configuration file for a Docker container would look like
-the following (make sure to replace the values accordingly):
-
-    log-format VCOMBINED
-    log-file /srv/logs/access.log
-    output /srv/report/index.html
-    real-time-html true
-    ws-url 172.17.0.2
+A minimal GoAccess configuration file for a Docker container would need at
+least the following variables `log-format`, `log-file`, `output`
+`real-time-html` and `ws-ur`.
 
 **Note**: If you would like to make the HTML report real-time, then you may
 need to specify the location of the WebSocket server using `--ws-url=<IP>`. To
