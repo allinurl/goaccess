@@ -110,12 +110,38 @@ Download, extract and compile GoAccess with:
 
 ### Docker ###
 
-    docker run --restart=always -d -p 80:7890 -v "/home/user/data:/srv/data" allinurl/goaccess
+Prior to run GoAccess' Docker container, place and set your GoAccess
+configuration file `goaccess.conf` inside your `$HOME/data` directory, which
+will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to
+configure goaccess.
 
-You can place your `goaccess.conf` file inside your `/home/user/data` directory,
-which will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/)
-to configure goaccess. If no configuration is present, a new empty file will be
-created.
+A minimal GoAccess configuration file for a Docker container would look like
+the following (make sure to replace the values accordingly):
+
+    time-format %H:%M:%S
+    date-format %d/%b/%Y
+    log-format %v:%^ %h %^[%d:%t %^] "%r" %s %b "%R" "%u"
+    log-file /srv/logs/access.log
+    output-format /srv/report/index.html
+    real-time-html true
+    ws-url 172.17.0.2
+
+**Note**: If you would like to make the HTML report real-time, then you may
+need to specify the location of the WebSocket server using `--ws-url=<IP>`. To
+find out the IP address of your container, you can run:
+
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <your_container_id>
+
+Once you have your configuration file all set, then you may run: 
+
+    docker run --restart=always -d -p 7890:7890 \ 
+      -v "$HOME/data:/srv/data"                 \ 
+      -v "/path/to/logs:/srv/logs"              \ 
+      -v "/path/to/report:/srv/report"          \
+      allinurl/goaccess
+
+If everything goes fine, the generated report should live under
+`/path/to/report`.
 
 ## Distributions ##
 
