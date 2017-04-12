@@ -118,9 +118,7 @@ configure goaccess.
 A minimal GoAccess configuration file for a Docker container would look like
 the following (make sure to replace the values accordingly):
 
-    time-format %H:%M:%S
-    date-format %d/%b/%Y
-    log-format %v:%^ %h %^[%d:%t %^] "%r" %s %b "%R" "%u"
+    log-format VCOMBINED 
     log-file /srv/logs/access.log
     output-format /srv/report/index.html
     real-time-html true
