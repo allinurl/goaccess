@@ -124,7 +124,7 @@ HTML report would need at least the following options to be set `log-format`,
 **Note**: Docker will bind to 0.0.0.0:7890, which means that GoAccess WebSocket
 server is using port 7890 and reachable from 127.0.0.1 in addition to your host
 IP. Ensure `ws-url=<IP>` points to the Docker host public IP address, otherwise
-will attempt to establish a connection to localhost.
+it will attempt to establish a connection to localhost.
 
 Once you have your configuration file all set, then you may run: 
 
@@ -136,6 +136,15 @@ Once you have your configuration file all set, then you may run:
 
 If everything goes fine, the generated report should live under
 `/path/to/report`.
+
+Another thing to note is that if you ever need to run it on a different port,
+e.g.,
+
+    docker run --restart=always -d -p 8080:7890 ...
+
+Then you can simply set the external port in `ws-url`. e.g., `ws-url
+ws://localhost:8080` and keep GoAccess' internal port in your config file set
+to `port 7890`.
 
 ## Distributions ##
 
