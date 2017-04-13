@@ -111,9 +111,11 @@ Download, extract and compile GoAccess with:
 ### Docker ###
 
 Prior to run GoAccess' Docker container, place and set your GoAccess
-configuration file `goaccess.conf` inside your `$HOME/data` directory, which
-will be used by [**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to
-configure goaccess.
+configuration file
+[`goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
+inside your `$HOME/data` directory, which will be used by
+[**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to configure
+goaccess.
 
 A minimal GoAccess configuration file for a Docker container with a real-time
 HTML report would need at least the following variables `log-format`,
