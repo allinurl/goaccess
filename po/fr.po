@@ -49,11 +49,11 @@ msgstr "Tableau de bord"
 
 #: ../src/labels.h:51
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr "Tableau de bord - Requètes analysées, vue d'ensemble"
+msgstr "Tableau de bord - Requêtes analysées, vue d'ensemble"
 
 #: ../src/labels.h:52
 msgid "Overall Analyzed Requests"
-msgstr "Requètes analysées, vue d'ensemble"
+msgstr "Requêtes analysées, vue d'ensemble"
 
 #: ../src/labels.h:54
 msgid "Date/Time"
@@ -61,7 +61,7 @@ msgstr "Date/Heure"
 
 #: ../src/labels.h:55
 msgid "Total Requests"
-msgstr "Requêtes Totales"
+msgstr "Requêtes totales"
 
 #: ../src/labels.h:56
 msgid "Init. Proc. Time"
@@ -69,11 +69,11 @@ msgstr "Init. Proc. Time"
 
 #: ../src/labels.h:57
 msgid "Failed Requests"
-msgstr "Requètes échouées"
+msgstr "Requêtes échouées"
 
 #: ../src/labels.h:58
 msgid "Valid Requests"
-msgstr "Requètes valides"
+msgstr "Requêtes valides"
 
 #: ../src/labels.h:59
 msgid "Unique Visitors"
@@ -138,7 +138,7 @@ msgstr "Max. T.S."
 
 #: ../src/labels.h:77
 msgid "Method"
-msgstr "Methode"
+msgstr "Méthode"
 
 #: ../src/labels.h:78
 msgid "Mtd"
@@ -192,19 +192,19 @@ msgstr "Fichiers demandés (URLs)"
 
 #: ../src/labels.h:101
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Top des requètes triés par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des requêtes trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:103
 msgid "Requests"
-msgstr "Requètes"
+msgstr "Requêtes"
 
 #: ../src/labels.h:106 ../src/labels.h:110
 msgid "Static Requests"
-msgstr "Requètes statiques"
+msgstr "Requêtes statiques"
 
 #: ../src/labels.h:108
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Top des requètes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:113
 msgid "Time Distribution"
@@ -212,7 +212,7 @@ msgstr "Distribution temporelle"
 
 #: ../src/labels.h:115
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr "Données triée par heure [, avgts, cumts, maxts]"
+msgstr "Données triées par heure [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:117
 msgid "Time"
@@ -252,7 +252,7 @@ msgstr "Nom de machine et IPs des visiteurs"
 
 #: ../src/labels.h:143
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "Top des visiteurs triés par hits [, avgts, cumts, maxts]"
+msgstr "Top des visiteurs trié par hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:145
 msgid "Hosts"
@@ -276,7 +276,7 @@ msgstr "Navigateurs"
 
 #: ../src/labels.h:157
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "Top des Navigateurs triés par hits [, avgts, cumts, maxts]"
+msgstr "Top des Navigateurs trié par hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:162
 msgid "Referrers URLs"
@@ -308,7 +308,7 @@ msgstr "Mot-clés"
 
 #: ../src/labels.h:183 ../src/labels.h:187
 msgid "Geo Location"
-msgstr "Geo Localisation"
+msgstr "Géo Localisation"
 
 #: ../src/labels.h:185
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
