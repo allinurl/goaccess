@@ -921,6 +921,11 @@ a matching pattern tool such as
 etc:
 .IP
 # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
+.P
+or to parse from the beginning of the file while maintaining the pipe opened
+and applying a filter
+.IP
+# tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -o report.html --real-time-html -
 .SS
 MULTIPLE LOG FILES
 .P
