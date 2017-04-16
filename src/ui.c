@@ -1842,7 +1842,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
 
 /* Help menu data (F1/h). */
 static const char *help_main[] = {
-  "Copyright (C) 2009-2016 by Gerardo Orellana",
+  "Copyright (C) 2009-2017 by Gerardo Orellana",
   "http://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",
@@ -1889,10 +1889,6 @@ static const char *help_main[] = {
   "",
   "If you believe you have found a bug, please drop me",
   "an email with details.",
-  "",
-  "If you have a medium or high traffic website, it",
-  "would be interesting to hear your experience with",
-  "GoAccess, such as generating time, visitors or hits.",
   "",
   "Feedback? Just shoot me an email to:",
   "hello@goaccess.io",
