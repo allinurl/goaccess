@@ -271,6 +271,12 @@ such as `grep`, `awk`, `sed`, etc:
 
     # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
+or to parse from the beginning of the file while maintaining the pipe opened
+and applying a filter
+
+    # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess -o report.html --real-time-html -
+
+
 ##### MULTIPLE LOG FILES #####
 
 There are several ways to parse multiple logs with GoAccess. The simplest is to
