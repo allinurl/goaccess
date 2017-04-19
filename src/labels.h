@@ -68,6 +68,7 @@
 
 /* Metric Labels */
 #define MTRC_HITS_LBL            _( "Hits")
+#define MTRC_HITS_PERC_LBL       _( "h%")
 #define MTRC_VISITORS_LBL        _( "Visitors")
 #define MTRC_VISITORS_SHORT_LBL  _( "Vis.")
 #define MTRC_BW_LBL              _( "Bandwidth")
