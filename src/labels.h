@@ -71,6 +71,7 @@
 #define MTRC_HITS_PERC_LBL       _( "h%")
 #define MTRC_VISITORS_LBL        _( "Visitors")
 #define MTRC_VISITORS_SHORT_LBL  _( "Vis.")
+#define MTRC_VISITORS_PERC_LBL   _( "v%")
 #define MTRC_BW_LBL              _( "Bandwidth")
 #define MTRC_AVGTS_LBL           _( "Avg. T.S.")
 #define MTRC_CUMTS_LBL           _( "Cum. T.S.")
