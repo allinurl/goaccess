@@ -205,6 +205,18 @@
 #define FIND_HEAD                   \
   _("Find pattern in all views")
 
+/* Config Dialog */
+#define CONFDLG_HEAD                \
+  _("Log Format Configuration")
+#define CONFDLG_KEY_HINTS           \
+  _("[SPACE] to toggle - [ENTER] to proceed - [q] to quit")
+#define CONFDLG_LOG_FORMAT          \
+  _("Log Format - [c] to add/edit format")
+#define CONFDLG_DATE_FORMAT         \
+  _("Date Format - [d] to add/edit format")
+#define CONFDLG_TIME_FORMAT         \
+  _("Time Format - [t] to add/edit format")
+
 #define BUILT_WITH_TCBTREE          \
   _("Built using Tokyo Cabinet on-disk B+ Tree.")
 #define BUILT_WITH_TCMEMHASH        \
