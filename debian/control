@@ -1,0 +1,15 @@
+Source: goaccess
+Section: utils
+Priority: extra
+Maintainer: Chris Taylor <ctaylor@debian.org>
+Build-Depends: debhelper (>= 9), autotools-dev, libncurses5-dev, libglib2.0-dev, libgeoip-dev, autoconf
+Standards-Version: 3.9.6
+Homepage: https://goaccess.io/
+
+Package: goaccess
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Real-time web log analyzer and interactive viewer
+ Displays fast and valuable HTTP statistics for system administrators that
+ require a visual report on the fly.
+ In src/settings.h: #define MAX_IGNORE_IPS   2048
