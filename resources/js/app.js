@@ -1492,7 +1492,7 @@ GoAccess.Tables = {
 
 	togglePagination: function (panel, page, dataItems) {
 		GoAccess.Panels.enablePagination(panel);
-		// Diable pagination next button if last page is reached
+		// Disable pagination next button if last page is reached
 		if (page >= this.getTotalPages(dataItems))
 			GoAccess.Panels.disableNext(panel);
 		if (page <= 1)
