@@ -1176,13 +1176,11 @@ draw_formats (WINDOW * win, int w2)
 {
   char *date_format = NULL, *log_format = NULL, *time_format = NULL;
 
-  draw_header (win, "Log Format Configuration", " %s", 1, 1, w2,
-               color_panel_header);
-  mvwprintw (win, 2, 2, "[SPACE] to toggle - [ENTER] to proceed - [q]uit");
+  draw_header (win, CONFDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
+  mvwprintw (win, 2, 2, CONFDLG_KEY_HINTS);
 
   /* set log format from config file if available */
-  draw_header (win, "Log Format - [c] to add/edit format", " %s", 11, 1, w2,
-               color_panel_header);
+  draw_header (win, CONFDLG_LOG_FORMAT, " %s", 11, 1, w2, color_panel_header);
   if ((log_format = get_input_log_format ())) {
     mvwprintw (win, 12, 2, "%.*s", CONF_MENU_W, log_format);
 
@@ -1190,8 +1188,7 @@ draw_formats (WINDOW * win, int w2)
   }
 
   /* set log format from config file if available */
-  draw_header (win, "Date Format - [d] to add/edit format", " %s", 14, 1, w2,
-               color_panel_header);
+  draw_header (win, CONFDLG_DATE_FORMAT, " %s", 14, 1, w2, color_panel_header);
   if ((date_format = get_input_date_format ())) {
     mvwprintw (win, 15, 2, "%.*s", CONF_MENU_W, date_format);
 
@@ -1199,8 +1196,7 @@ draw_formats (WINDOW * win, int w2)
   }
 
   /* set log format from config file if available */
-  draw_header (win, "Time Format - [t] to add/edit format", " %s", 17, 1, w2,
-               color_panel_header);
+  draw_header (win, CONFDLG_TIME_FORMAT, " %s", 17, 1, w2, color_panel_header);
   if ((time_format = get_input_time_format ())) {
     mvwprintw (win, 18, 2, "%.*s", CONF_MENU_W, time_format);
 
