@@ -119,7 +119,7 @@ static const char *codes[][2] = {
   {"521", "521 - CloudFlare - Web server is down"},
   {"522", "522 - CloudFlare - Connection timed out"},
   {"523", "523 - CloudFlare - Origin is unreachable"},
-  {"524", "524 - CloudFlare - A timeout occured"}
+  {"524", "524 - CloudFlare - A timeout occurred"}
 };
 
 /* Return part of a string
