@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-20 21:53-0500\n"
+"POT-Creation-Date: 2017-04-23 21:35-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -351,177 +351,198 @@ msgstr ""
 msgid "Find pattern in all views"
 msgstr ""
 
-#: ../src/labels.h:209
+#. Config Dialog
+#: ../src/labels.h:210
+msgid "Log Format Configuration"
+msgstr ""
+
+#: ../src/labels.h:212
+msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
+msgstr ""
+
+#: ../src/labels.h:214
+msgid "Log Format - [c] to add/edit format"
+msgstr ""
+
+#: ../src/labels.h:216
+msgid "Date Format - [d] to add/edit format"
+msgstr ""
+
+#: ../src/labels.h:218
+msgid "Time Format - [t] to add/edit format"
+msgstr ""
+
+#: ../src/labels.h:221
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
 msgstr ""
 
-#: ../src/labels.h:211
+#: ../src/labels.h:223
 msgid "Built using Tokyo Cabinet in-memory hash database."
 msgstr ""
 
-#: ../src/labels.h:213
+#: ../src/labels.h:225
 msgid "Built using the default in-memory hash database."
 msgstr ""
 
 #. Common UI Errors
-#: ../src/labels.h:217
+#: ../src/labels.h:229
 msgid "Format Errors - Verify your log/date/time format"
 msgstr ""
 
-#: ../src/labels.h:219
+#: ../src/labels.h:231
 msgid "No date format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:221
+#: ../src/labels.h:233
 msgid "No log format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:223
+#: ../src/labels.h:235
 msgid "No time format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:225
+#: ../src/labels.h:237
 msgid "No default config file found."
 msgstr ""
 
-#: ../src/labels.h:227
+#: ../src/labels.h:239
 msgid "You may specify one with"
 msgstr ""
 
-#: ../src/labels.h:229
+#: ../src/labels.h:241
 msgid "producing the following errors"
 msgstr ""
 
-#: ../src/labels.h:231
+#: ../src/labels.h:243
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr ""
 
-#: ../src/labels.h:233
+#: ../src/labels.h:245
 msgid "Please report it by opening an issue on GitHub"
 msgstr ""
 
 #. Other
-#: ../src/labels.h:237
+#: ../src/labels.h:249
 msgid "For more details visit"
 msgstr ""
 
-#: ../src/labels.h:239
+#: ../src/labels.h:251
 msgid "Last Updated"
 msgstr ""
 
-#: ../src/labels.h:241
+#: ../src/labels.h:253
 msgid "WebSocket server ready to accept new client connections"
 msgstr ""
 
-#: ../src/labels.h:244
+#: ../src/labels.h:256
 msgid "The following options can also be supplied to the command"
 msgstr ""
 
-#: ../src/labels.h:246
+#: ../src/labels.h:258
 msgid "Examples can be found by running"
 msgstr ""
 
-#: ../src/labels.h:249
+#: ../src/labels.h:261
 msgid "Server Statistics"
 msgstr ""
 
-#: ../src/labels.h:251
+#: ../src/labels.h:263
 msgid "Theme"
 msgstr ""
 
-#: ../src/labels.h:253
+#: ../src/labels.h:265
 msgid "Dark Gray"
 msgstr ""
 
-#: ../src/labels.h:255
+#: ../src/labels.h:267
 msgid "Bright"
 msgstr ""
 
-#: ../src/labels.h:257
+#: ../src/labels.h:269
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/labels.h:259
+#: ../src/labels.h:271
 msgid "Panels"
 msgstr ""
 
-#: ../src/labels.h:261
+#: ../src/labels.h:273
 msgid "Items per Page"
 msgstr ""
 
-#: ../src/labels.h:263
+#: ../src/labels.h:275
 msgid "Tables"
 msgstr ""
 
-#: ../src/labels.h:265
+#: ../src/labels.h:277
 msgid "Display Tables"
 msgstr ""
 
-#: ../src/labels.h:267
+#: ../src/labels.h:279
 msgid "Auto-Hide on Small Devices"
 msgstr ""
 
-#: ../src/labels.h:269
+#: ../src/labels.h:281
 msgid "Automatically hide tables on small screen devices"
 msgstr ""
 
-#: ../src/labels.h:271
+#: ../src/labels.h:283
 msgid "Layout"
 msgstr ""
 
-#: ../src/labels.h:273
+#: ../src/labels.h:285
 msgid "Horizontal"
 msgstr ""
 
-#: ../src/labels.h:275
+#: ../src/labels.h:287
 msgid "Vertical"
 msgstr ""
 
-#: ../src/labels.h:277
+#: ../src/labels.h:289
 msgid "File Options"
 msgstr ""
 
-#: ../src/labels.h:279
+#: ../src/labels.h:291
 msgid "Export as JSON"
 msgstr ""
 
-#: ../src/labels.h:281
+#: ../src/labels.h:293
 msgid "Panel Options"
 msgstr ""
 
-#: ../src/labels.h:283
+#: ../src/labels.h:295
 msgid "Previous"
 msgstr ""
 
-#: ../src/labels.h:285
+#: ../src/labels.h:297
 msgid "Next"
 msgstr ""
 
-#: ../src/labels.h:287
+#: ../src/labels.h:299
 msgid "Chart Options"
 msgstr ""
 
-#: ../src/labels.h:289
+#: ../src/labels.h:301
 msgid "Chart"
 msgstr ""
 
-#: ../src/labels.h:291
+#: ../src/labels.h:303
 msgid "Type"
 msgstr ""
 
-#: ../src/labels.h:293
+#: ../src/labels.h:305
 msgid "Area Spline"
 msgstr ""
 
-#: ../src/labels.h:295
+#: ../src/labels.h:307
 msgid "Bar"
 msgstr ""
 
-#: ../src/labels.h:297
+#: ../src/labels.h:309
 msgid "Plot Metric"
 msgstr ""
 
-#: ../src/labels.h:299
+#: ../src/labels.h:311
 msgid "Table Columns"
 msgstr ""
