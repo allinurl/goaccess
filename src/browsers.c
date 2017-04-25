@@ -152,7 +152,7 @@ static const char *browsers[][2] = {
   /* Crawlers/Bots */
   {"bingbot", "Crawlers"},
   {"msnbot", "Crawlers"},
-  {"YandexBot", "Crawlers"},
+  {"Yandex", "Crawlers"},
   {"Baiduspider", "Crawlers"},
   {"Ezooms", "Crawlers"},
   {"Twitter", "Crawlers"},
