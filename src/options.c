@@ -687,6 +687,8 @@ read_option_args (int argc, char **argv)
     case 'e':
       if (conf.ignore_ip_idx < MAX_IGNORE_IPS)
         conf.ignore_ips[conf.ignore_ip_idx++] = optarg;
+      else
+        LOG_DEBUG (("Max num of (%d) IPs to ignore reached.", MAX_IGNORE_IPS));
       break;
     case 'a':
       conf.list_agents = 1;
