@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-23 21:35-0500\n"
+"POT-Creation-Date: 2017-04-27 22:06-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -422,127 +422,139 @@ msgstr ""
 msgid "Please report it by opening an issue on GitHub"
 msgstr ""
 
-#. Other
+#: ../src/labels.h:247
+msgid "Select a time format."
+msgstr ""
+
 #: ../src/labels.h:249
-msgid "For more details visit"
+msgid "Select a date format."
 msgstr ""
 
 #: ../src/labels.h:251
+msgid "Select a log format."
+msgstr ""
+
+#. Other
+#: ../src/labels.h:255
+msgid "For more details visit"
+msgstr ""
+
+#: ../src/labels.h:257
 msgid "Last Updated"
 msgstr ""
 
-#: ../src/labels.h:253
+#: ../src/labels.h:259
 msgid "WebSocket server ready to accept new client connections"
 msgstr ""
 
-#: ../src/labels.h:256
+#: ../src/labels.h:262
 msgid "The following options can also be supplied to the command"
 msgstr ""
 
-#: ../src/labels.h:258
+#: ../src/labels.h:264
 msgid "Examples can be found by running"
 msgstr ""
 
-#: ../src/labels.h:261
+#: ../src/labels.h:267
 msgid "Server Statistics"
 msgstr ""
 
-#: ../src/labels.h:263
+#: ../src/labels.h:269
 msgid "Theme"
 msgstr ""
 
-#: ../src/labels.h:265
+#: ../src/labels.h:271
 msgid "Dark Gray"
 msgstr ""
 
-#: ../src/labels.h:267
+#: ../src/labels.h:273
 msgid "Bright"
 msgstr ""
 
-#: ../src/labels.h:269
+#: ../src/labels.h:275
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/labels.h:271
+#: ../src/labels.h:277
 msgid "Panels"
 msgstr ""
 
-#: ../src/labels.h:273
+#: ../src/labels.h:279
 msgid "Items per Page"
 msgstr ""
 
-#: ../src/labels.h:275
+#: ../src/labels.h:281
 msgid "Tables"
 msgstr ""
 
-#: ../src/labels.h:277
+#: ../src/labels.h:283
 msgid "Display Tables"
 msgstr ""
 
-#: ../src/labels.h:279
+#: ../src/labels.h:285
 msgid "Auto-Hide on Small Devices"
 msgstr ""
 
-#: ../src/labels.h:281
+#: ../src/labels.h:287
 msgid "Automatically hide tables on small screen devices"
 msgstr ""
 
-#: ../src/labels.h:283
+#: ../src/labels.h:289
 msgid "Layout"
 msgstr ""
 
-#: ../src/labels.h:285
+#: ../src/labels.h:291
 msgid "Horizontal"
 msgstr ""
 
-#: ../src/labels.h:287
+#: ../src/labels.h:293
 msgid "Vertical"
 msgstr ""
 
-#: ../src/labels.h:289
+#: ../src/labels.h:295
 msgid "File Options"
 msgstr ""
 
-#: ../src/labels.h:291
+#: ../src/labels.h:297
 msgid "Export as JSON"
 msgstr ""
 
-#: ../src/labels.h:293
+#: ../src/labels.h:299
 msgid "Panel Options"
 msgstr ""
 
-#: ../src/labels.h:295
+#: ../src/labels.h:301
 msgid "Previous"
 msgstr ""
 
-#: ../src/labels.h:297
+#: ../src/labels.h:303
 msgid "Next"
 msgstr ""
 
-#: ../src/labels.h:299
+#: ../src/labels.h:305
 msgid "Chart Options"
 msgstr ""
 
-#: ../src/labels.h:301
+#: ../src/labels.h:307
 msgid "Chart"
 msgstr ""
 
-#: ../src/labels.h:303
+#: ../src/labels.h:309
 msgid "Type"
 msgstr ""
 
-#: ../src/labels.h:305
+#: ../src/labels.h:311
 msgid "Area Spline"
 msgstr ""
 
-#: ../src/labels.h:307
+#: ../src/labels.h:313
 msgid "Bar"
 msgstr ""
 
-#: ../src/labels.h:309
+#: ../src/labels.h:315
 msgid "Plot Metric"
 msgstr ""
 
-#: ../src/labels.h:311
+#: ../src/labels.h:317
 msgid "Table Columns"
 msgstr ""
