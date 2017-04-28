@@ -1209,11 +1209,11 @@ set_formats (char *date_format, char *log_format, char *time_format)
 {
   /* display status bar error messages */
   if (!time_format && !conf.time_format)
-    return "Select a time format.";
+    return ERR_FORMAT_NO_TIME_FMT_DLG;
   if (!date_format && !conf.date_format)
-    return "Select a date format.";
+    return ERR_FORMAT_NO_DATE_FMT_DLG;
   if (!log_format && !conf.log_format)
-    return "Select a log format.";
+    return ERR_FORMAT_NO_LOG_FMT_DLG;
 
   if (time_format) {
     free (conf.time_format);

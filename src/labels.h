@@ -243,6 +243,12 @@
   _("Parsed %1$d lines")
 #define ERR_PLEASE_REPORT              \
   _("Please report it by opening an issue on GitHub")
+#define ERR_FORMAT_NO_TIME_FMT_DLG     \
+  _("Select a time format.")
+#define ERR_FORMAT_NO_DATE_FMT_DLG     \
+  _("Select a date format.")
+#define ERR_FORMAT_NO_LOG_FMT_DLG      \
+  _("Select a log format.")
 
 /* Other */
 #define INFO_MORE_INFO                 \
