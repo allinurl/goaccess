@@ -167,4 +167,4 @@ ACLOCAL_AMFLAGS = -I m4
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-EXTRA_DIST = config.rpath m4/ChangeLog
+EXTRA_DIST = config.rpath
