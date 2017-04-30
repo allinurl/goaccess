@@ -84,3 +84,13 @@ Makefile.in
 /po/Rules-quot
 /po/Makefile
 /po/stamp-po
+
+# compiled resources
+/src/appcss.h
+/src/appjs.h
+/src/bootstrapcss.h
+/src/chartsjs.h
+/src/d3js.h
+/src/facss.h
+/src/hoganjs.h
+/src/tpls.h

@@ -2,7 +2,7 @@
 bin_PROGRAMS = goaccess
 AUTOMAKE_OPTIONS = subdir-objects
 
-dist_html_DATA =                  \
+dist_noinst_DATA =                \
   resources/tpls.html             \
   resources/css/app.css           \
   resources/css/bootstrap.min.css \
@@ -167,4 +167,4 @@ ACLOCAL_AMFLAGS = -I m4
 
 DEFS = -DLOCALEDIR=\"$(localedir)\" @DEFS@
 
-EXTRA_DIST = config.rpath m4/ChangeLog
+EXTRA_DIST = config.rpath
