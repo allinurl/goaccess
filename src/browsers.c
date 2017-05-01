@@ -183,6 +183,7 @@ static const char *browsers[][2] = {
   {"ia_archiver", "Crawlers"},
   {"Wotbox", "Crawlers"},
   {"CCBot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
   {"findlinks", "Crawlers"},
   {"Yeti", "Crawlers"},
   {"ichiro", "Crawlers"},
