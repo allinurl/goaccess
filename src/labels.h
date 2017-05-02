@@ -88,156 +88,183 @@
 #define HTML_PLOT_HITS_VIS       _( "Hits/Visitors")
 
 /* Panel Labels and Descriptions */
-#define VISITORS_HEAD               \
+#define VISITORS_HEAD                  \
   N_("Unique visitors per day")
-#define VISITORS_HEAD_BOTS          \
+#define VISITORS_HEAD_BOTS             \
   N_("Unique visitors per day - Including spiders")
-#define VISITORS_DESC               \
+#define VISITORS_DESC                  \
   N_("Hits having the same IP, date and agent are a unique visit.")
-#define VISITORS_LABEL              \
+#define VISITORS_LABEL                 \
   N_("Visitors")
 
-#define REQUESTS_HEAD               \
+#define REQUESTS_HEAD                  \
   N_("Requested Files (URLs)")
-#define REQUESTS_DESC               \
+#define REQUESTS_DESC                  \
   N_("Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define REQUESTS_LABEL              \
+#define REQUESTS_LABEL                 \
   N_("Requests")
 
-#define REQUESTS_STATIC_HEAD        \
+#define REQUESTS_STATIC_HEAD           \
   N_("Static Requests")
-#define REQUESTS_STATIC_DESC        \
+#define REQUESTS_STATIC_DESC           \
   N_("Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define REQUESTS_STATIC_LABEL       \
+#define REQUESTS_STATIC_LABEL          \
   N_("Static Requests")
 
-#define VISIT_TIMES_HEAD            \
+#define VISIT_TIMES_HEAD               \
   N_("Time Distribution")
-#define VISIT_TIMES_DESC            \
+#define VISIT_TIMES_DESC               \
   N_("Data sorted by hour [, avgts, cumts, maxts]")
-#define VISIT_TIMES_LABEL           \
+#define VISIT_TIMES_LABEL              \
   N_("Time")
 
-#define VIRTUAL_HOSTS_HEAD          \
+#define VIRTUAL_HOSTS_HEAD             \
   N_("Virtual Hosts")
-#define VIRTUAL_HOSTS_DESC          \
+#define VIRTUAL_HOSTS_DESC             \
   N_("Data sorted by hits [, avgts, cumts, maxts]")
-#define VIRTUAL_HOSTS_LABEL         \
+#define VIRTUAL_HOSTS_LABEL            \
   N_("Virtual Hosts")
 
-#define REMOTE_USER_HEAD            \
+#define REMOTE_USER_HEAD               \
   N_("Remote User (HTTP authentication)")
-#define REMOTE_USER_DESC            \
+#define REMOTE_USER_DESC               \
   N_("Data sorted by hits [, avgts, cumts, maxts]")
-#define REMOTE_USER_LABEL           \
+#define REMOTE_USER_LABEL              \
   N_("Remote User")
 
-#define NOT_FOUND_HEAD              \
+#define NOT_FOUND_HEAD                 \
   N_("Not Found URLs (404s)")
-#define NOT_FOUND_DESC              \
+#define NOT_FOUND_DESC                 \
   N_("Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]")
-#define NOT_FOUND_LABEL             \
+#define NOT_FOUND_LABEL                \
   N_("Not Found")
 
-#define HOSTS_HEAD                  \
+#define HOSTS_HEAD                     \
   N_("Visitor Hostnames and IPs")
-#define HOSTS_DESC                  \
+#define HOSTS_DESC                     \
   N_("Top visitor hosts sorted by hits [, avgts, cumts, maxts]")
-#define HOSTS_LABEL                 \
+#define HOSTS_LABEL                    \
   N_("Hosts")
 
-#define OS_HEAD                     \
+#define OS_HEAD                        \
   N_("Operating Systems")
-#define OS_DESC                     \
+#define OS_DESC                        \
   N_("Top Operating Systems sorted by hits [, avgts, cumts, maxts]")
-#define OS_LABEL                    \
+#define OS_LABEL                       \
   N_("OS")
 
-#define BROWSERS_HEAD               \
+#define BROWSERS_HEAD                  \
   N_("Browsers")
-#define BROWSERS_DESC               \
+#define BROWSERS_DESC                  \
   N_("Top Browsers sorted by hits [, avgts, cumts, maxts]")
-#define BROWSERS_LABEL              \
+#define BROWSERS_LABEL                 \
   N_("Browsers")
 
-#define REFERRERS_HEAD              \
+#define REFERRERS_HEAD                 \
   N_("Referrers URLs")
-#define REFERRERS_DESC              \
+#define REFERRERS_DESC                 \
   N_("Top Requested Referrers sorted by hits [, avgts, cumts, maxts]")
-#define REFERRERS_LABEL             \
+#define REFERRERS_LABEL                \
   N_("Referrers")
 
-#define REFERRING_SITES_HEAD        \
+#define REFERRING_SITES_HEAD           \
   N_("Referring Sites")
-#define REFERRING_SITES_DESC        \
+#define REFERRING_SITES_DESC           \
   N_("Top Referring Sites sorted by hits [, avgts, cumts, maxts]")
-#define REFERRING_SITES_LABEL       \
+#define REFERRING_SITES_LABEL          \
   N_("Referring Sites")
 
-#define KEYPHRASES_HEAD             \
+#define KEYPHRASES_HEAD                \
   N_("Keyphrases from Google's search engine")
-#define KEYPHRASES_DESC             \
+#define KEYPHRASES_DESC                \
   N_("Top Keyphrases sorted by hits [, avgts, cumts, maxts]")
-#define KEYPHRASES_LABEL            \
+#define KEYPHRASES_LABEL               \
   N_("Keyphrases")
 
-#define GEO_LOCATION_HEAD           \
+#define GEO_LOCATION_HEAD              \
   N_("Geo Location")
-#define GEO_LOCATION_DESC           \
+#define GEO_LOCATION_DESC              \
   N_("Continent > Country sorted by unique hits [, avgts, cumts, maxts]")
-#define GEO_LOCATION_LABEL          \
+#define GEO_LOCATION_LABEL             \
   N_("Geo Location")
 
-#define STATUS_CODES_HEAD           \
+#define STATUS_CODES_HEAD              \
   N_("HTTP Status Codes")
-#define STATUS_CODES_DESC           \
+#define STATUS_CODES_DESC              \
   N_("Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]")
-#define STATUS_CODES_LABEL          \
+#define STATUS_CODES_LABEL             \
   N_("Status Codes")
 
 /* Find Labels */
-#define CISENSITIVE                 \
+#define CISENSITIVE                    \
   _("[ ] case sensitive")
-#define CSENSITIVE                  \
+#define CSENSITIVE                     \
   _("[x] case sensitive")
-#define FIND_DESC                   \
+#define FIND_DESC                      \
   _("Regex allowed - ^g to cancel - TAB switch case")
-#define FIND_HEAD                   \
+#define FIND_HEAD                      \
   _("Find pattern in all views")
 
 /* Config Dialog */
-#define CONFDLG_HEAD                \
+#define CONFDLG_HEAD                   \
   _("Log Format Configuration")
-#define CONFDLG_KEY_HINTS           \
+#define CONFDLG_KEY_HINTS              \
   _("[SPACE] to toggle - [ENTER] to proceed - [q] to quit")
-#define CONFDLG_LOG_FORMAT          \
+#define CONFDLG_LOG_FORMAT             \
   _("Log Format - [c] to add/edit format")
-#define CONFDLG_DATE_FORMAT         \
+#define CONFDLG_DATE_FORMAT            \
   _("Date Format - [d] to add/edit format")
-#define CONFDLG_TIME_FORMAT         \
+#define CONFDLG_TIME_FORMAT            \
   _("Time Format - [t] to add/edit format")
+#define CONFDLG_DESC                   \
+  _(""[UP/DOWN] to scroll - [q] to close window")
 
-#define BUILT_WITH_TCBTREE          \
+/* Agents Dialog */
+#define AGENTSDLG_DESC                 \
+  _("[UP/DOWN] to scroll - [q] to close window")
+#define AGENTSDLG_HEAD                 \
+  _("User Agents for %1$s")
+
+/* Color Scheme Dialog */
+#define SCHEMEDLG_HEAD                 \
+  _("Scheme Configuration")
+#define SCHEMEDLG_DESC                 \
+  _("[ENTER] to use scheme - [q]uit")
+
+/* Sort Dialog */
+#define SORTDLG_HEAD                   \
+  _("Sort active module by")
+#define SORTDLG_DESC                   \
+  _("[ENTER] select - [TAB] sort - [q]uit")
+
+/* Help TUI Dialog */
+#define HELPDLG_HEAD                   \
+  _("GoAccess Quick Help")
+#define HELPDLG_DESC                   \
+  _("[UP/DOWN] to scroll - [q] to quit")
+
+/* Storage Built-in Option */
+#define BUILT_WITH_TCBTREE             \
   _("Built using Tokyo Cabinet on-disk B+ Tree.")
-#define BUILT_WITH_TCMEMHASH        \
+#define BUILT_WITH_TCMEMHASH           \
   _("Built using Tokyo Cabinet in-memory hash database.")
-#define BUILT_WITH_DEFHASH          \
+#define BUILT_WITH_DEFHASH             \
   _("Built using the default in-memory hash database.")
 
 /* Common UI Errors */
-#define ERR_FORMAT_HEADER           \
+#define ERR_FORMAT_HEADER              \
   _("Format Errors - Verify your log/date/time format")
-#define ERR_FORMAT_NO_DATE_FMT      \
+#define ERR_FORMAT_NO_DATE_FMT         \
   _("No date format was found on your conf file.")
-#define ERR_FORMAT_NO_LOG_FMT       \
+#define ERR_FORMAT_NO_LOG_FMT          \
   _("No log format was found on your conf file.")
-#define ERR_FORMAT_NO_TIME_FMT      \
+#define ERR_FORMAT_NO_TIME_FMT         \
   _("No time format was found on your conf file.")
-#define ERR_NODEF_CONF_FILE         \
+#define ERR_NODEF_CONF_FILE            \
   _("No default config file found.")
-#define ERR_NODEF_CONF_FILE_DESC    \
+#define ERR_NODEF_CONF_FILE_DESC       \
   _("You may specify one with")
-#define ERR_PARSED_NLINES_DESC      \
+#define ERR_PARSED_NLINES_DESC         \
   _("producing the following errors")
 #define ERR_PARSED_NLINES              \
   _("Parsed %1$d lines")
