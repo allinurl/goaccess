@@ -1,11 +1,12 @@
 # This file is distributed under the same license as the goaccess package.
 # Nicolas P <np>, 2017.
 #
+#: ../src/labels.h:220
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-27 22:06-0500\n"
+"POT-Creation-Date: 2017-05-01 20:53-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -375,195 +376,233 @@ msgstr ""
 msgid "Time Format - [t] to add/edit format"
 msgstr ""
 
-#: ../src/labels.h:221
+#. Agents Dialog
+#: ../src/labels.h:224
+msgid "[UP/DOWN] to scroll - [q] to close window"
+msgstr ""
+
+#: ../src/labels.h:226
+#, c-format
+msgid "User Agents for %1$s"
+msgstr ""
+
+#. Color Scheme Dialog
+#: ../src/labels.h:230
+msgid "Scheme Configuration"
+msgstr ""
+
+#: ../src/labels.h:232
+msgid "[ENTER] to use scheme - [q]uit"
+msgstr ""
+
+#. Sort Dialog
+#: ../src/labels.h:236
+msgid "Sort active module by"
+msgstr ""
+
+#: ../src/labels.h:238
+msgid "[ENTER] select - [TAB] sort - [q]uit"
+msgstr ""
+
+#. Help TUI Dialog
+#: ../src/labels.h:242
+msgid "GoAccess Quick Help"
+msgstr ""
+
+#: ../src/labels.h:244
+msgid "[UP/DOWN] to scroll - [q] to quit"
+msgstr ""
+
+#. Storage Built-in Option
+#: ../src/labels.h:248
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
 msgstr "Construit sur le disque en arbre B+ en utilisant Tokyo Cabinet."
 
-#: ../src/labels.h:223
+#: ../src/labels.h:250
 msgid "Built using Tokyo Cabinet in-memory hash database."
 msgstr ""
 "Construit en mémoire avec une base de données de la table de hachage en "
 "utilisant Tokyo Cabinet"
 
-#: ../src/labels.h:225
+#: ../src/labels.h:252
 msgid "Built using the default in-memory hash database."
 msgstr ""
 "Construit par défaut en mémoire avec une base de données de la table de "
 "hachage"
 
 #. Common UI Errors
-#: ../src/labels.h:229
+#: ../src/labels.h:256
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "Erreurs de format - Vérifiez votre format de journal / date / heure"
 
-#: ../src/labels.h:231
+#: ../src/labels.h:258
 msgid "No date format was found on your conf file."
 msgstr "Aucun format de date n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:233
+#: ../src/labels.h:260
 msgid "No log format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:235
+#: ../src/labels.h:262
 msgid "No time format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:237
+#: ../src/labels.h:264
 msgid "No default config file found."
 msgstr "Aucun fichier de configuration par défaut trouvé."
 
-#: ../src/labels.h:239
+#: ../src/labels.h:266
 msgid "You may specify one with"
 msgstr "Vous pouvez en préciser un avec"
 
-#: ../src/labels.h:241
+#: ../src/labels.h:268
 msgid "producing the following errors"
 msgstr "produisant les erreurs suivantes"
 
-#: ../src/labels.h:243
+#: ../src/labels.h:270
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "Analysé %1$d lignes"
 
-#: ../src/labels.h:245
+#: ../src/labels.h:272
 msgid "Please report it by opening an issue on GitHub"
 msgstr "Si vous plaît, rapporter cela en ouvrant un probleme sur GitHub"
 
-#: ../src/labels.h:247
+#: ../src/labels.h:274
 msgid "Select a time format."
 msgstr ""
 
-#: ../src/labels.h:249
+#: ../src/labels.h:276
 msgid "Select a date format."
 msgstr ""
 
-#: ../src/labels.h:251
+#: ../src/labels.h:278
 msgid "Select a log format."
 msgstr ""
 
 #. Other
-#: ../src/labels.h:255
+#: ../src/labels.h:282
 msgid "For more details visit"
 msgstr "Pour plus de détails, visitez"
 
-#: ../src/labels.h:257
+#: ../src/labels.h:284
 msgid "Last Updated"
 msgstr "Dernière mise à jour"
 
-#: ../src/labels.h:259
+#: ../src/labels.h:286
 msgid "WebSocket server ready to accept new client connections"
 msgstr "WebSocket serveur prêt à accepter les nouvelles connexions client"
 
-#: ../src/labels.h:262
+#: ../src/labels.h:289
 msgid "The following options can also be supplied to the command"
 msgstr "Les options suivantes peuvent également être fournies à la commande"
 
-#: ../src/labels.h:264
+#: ../src/labels.h:291
 msgid "Examples can be found by running"
 msgstr "Des exemples peuvent être trouvés en cours d'exécution"
 
-#: ../src/labels.h:267
+#: ../src/labels.h:294
 msgid "Server Statistics"
 msgstr "Statistiques du serveur"
 
-#: ../src/labels.h:269
+#: ../src/labels.h:296
 msgid "Theme"
 msgstr "Thème"
 
-#: ../src/labels.h:271
+#: ../src/labels.h:298
 msgid "Dark Gray"
 msgstr "Gris foncé"
 
-#: ../src/labels.h:273
+#: ../src/labels.h:300
 msgid "Bright"
 msgstr "Brillant"
 
-#: ../src/labels.h:275
+#: ../src/labels.h:302
 msgid "Dark Blue"
 msgstr "Bleu foncé"
 
-#: ../src/labels.h:277
+#: ../src/labels.h:304
 msgid "Panels"
 msgstr "Panneaux"
 
-#: ../src/labels.h:279
+#: ../src/labels.h:306
 msgid "Items per Page"
 msgstr "Objets par page"
 
-#: ../src/labels.h:281
+#: ../src/labels.h:308
 msgid "Tables"
 msgstr "Tableaux"
 
-#: ../src/labels.h:283
+#: ../src/labels.h:310
 msgid "Display Tables"
 msgstr "Afficher les tableaux"
 
-#: ../src/labels.h:285
+#: ../src/labels.h:312
 msgid "Auto-Hide on Small Devices"
 msgstr "Masquage-auto/Petits appareils"
 
-#: ../src/labels.h:287
+#: ../src/labels.h:314
 msgid "Automatically hide tables on small screen devices"
 msgstr ""
 "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
-#: ../src/labels.h:289
+#: ../src/labels.h:316
 msgid "Layout"
 msgstr "Disposition"
 
-#: ../src/labels.h:291
+#: ../src/labels.h:318
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: ../src/labels.h:293
+#: ../src/labels.h:320
 msgid "Vertical"
 msgstr "Verticale"
 
-#: ../src/labels.h:295
+#: ../src/labels.h:322
 msgid "File Options"
 msgstr "Options de fichier"
 
-#: ../src/labels.h:297
+#: ../src/labels.h:324
 msgid "Export as JSON"
 msgstr "Exporter en tant que JSON"
 
-#: ../src/labels.h:299
+#: ../src/labels.h:326
 msgid "Panel Options"
 msgstr "Options du panneau"
 
-#: ../src/labels.h:301
+#: ../src/labels.h:328
 msgid "Previous"
 msgstr "Précédent"
 
-#: ../src/labels.h:303
+#: ../src/labels.h:330
 msgid "Next"
 msgstr "Suivant"
 
-#: ../src/labels.h:305
+#: ../src/labels.h:332
 msgid "Chart Options"
 msgstr "Options du graphique"
 
-#: ../src/labels.h:307
+#: ../src/labels.h:334
 msgid "Chart"
 msgstr "Graphique"
 
-#: ../src/labels.h:309
+#: ../src/labels.h:336
 msgid "Type"
 msgstr "Type"
 
-#: ../src/labels.h:311
+#: ../src/labels.h:338
 msgid "Area Spline"
 msgstr "Courbe vectorielle"
 
-#: ../src/labels.h:313
+#: ../src/labels.h:340
 msgid "Bar"
 msgstr "Barre"
 
-#: ../src/labels.h:315
+#: ../src/labels.h:342
 msgid "Plot Metric"
 msgstr "Tracé métrique"
 
-#: ../src/labels.h:317
+#: ../src/labels.h:344
 msgid "Table Columns"
 msgstr "Colonnes de tableau"
 
