@@ -3,12 +3,13 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
+#: ../src/labels.h:220
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-04-27 22:06-0500\n"
+"POT-Creation-Date: 2017-05-01 20:52-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -372,189 +373,227 @@ msgstr ""
 msgid "Time Format - [t] to add/edit format"
 msgstr ""
 
-#: ../src/labels.h:221
+#. Agents Dialog
+#: ../src/labels.h:224
+msgid "[UP/DOWN] to scroll - [q] to close window"
+msgstr ""
+
+#: ../src/labels.h:226
+#, c-format
+msgid "User Agents for %1$s"
+msgstr ""
+
+#. Color Scheme Dialog
+#: ../src/labels.h:230
+msgid "Scheme Configuration"
+msgstr ""
+
+#: ../src/labels.h:232
+msgid "[ENTER] to use scheme - [q]uit"
+msgstr ""
+
+#. Sort Dialog
+#: ../src/labels.h:236
+msgid "Sort active module by"
+msgstr ""
+
+#: ../src/labels.h:238
+msgid "[ENTER] select - [TAB] sort - [q]uit"
+msgstr ""
+
+#. Help TUI Dialog
+#: ../src/labels.h:242
+msgid "GoAccess Quick Help"
+msgstr ""
+
+#: ../src/labels.h:244
+msgid "[UP/DOWN] to scroll - [q] to quit"
+msgstr ""
+
+#. Storage Built-in Option
+#: ../src/labels.h:248
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
 msgstr ""
 
-#: ../src/labels.h:223
+#: ../src/labels.h:250
 msgid "Built using Tokyo Cabinet in-memory hash database."
 msgstr ""
 
-#: ../src/labels.h:225
+#: ../src/labels.h:252
 msgid "Built using the default in-memory hash database."
 msgstr ""
 
 #. Common UI Errors
-#: ../src/labels.h:229
+#: ../src/labels.h:256
 msgid "Format Errors - Verify your log/date/time format"
 msgstr ""
 
-#: ../src/labels.h:231
+#: ../src/labels.h:258
 msgid "No date format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:233
+#: ../src/labels.h:260
 msgid "No log format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:235
+#: ../src/labels.h:262
 msgid "No time format was found on your conf file."
 msgstr ""
 
-#: ../src/labels.h:237
+#: ../src/labels.h:264
 msgid "No default config file found."
 msgstr ""
 
-#: ../src/labels.h:239
+#: ../src/labels.h:266
 msgid "You may specify one with"
 msgstr ""
 
-#: ../src/labels.h:241
+#: ../src/labels.h:268
 msgid "producing the following errors"
 msgstr ""
 
-#: ../src/labels.h:243
+#: ../src/labels.h:270
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr ""
 
-#: ../src/labels.h:245
+#: ../src/labels.h:272
 msgid "Please report it by opening an issue on GitHub"
 msgstr ""
 
-#: ../src/labels.h:247
+#: ../src/labels.h:274
 msgid "Select a time format."
 msgstr ""
 
-#: ../src/labels.h:249
+#: ../src/labels.h:276
 msgid "Select a date format."
 msgstr ""
 
-#: ../src/labels.h:251
+#: ../src/labels.h:278
 msgid "Select a log format."
 msgstr ""
 
 #. Other
-#: ../src/labels.h:255
+#: ../src/labels.h:282
 msgid "For more details visit"
 msgstr ""
 
-#: ../src/labels.h:257
+#: ../src/labels.h:284
 msgid "Last Updated"
 msgstr ""
 
-#: ../src/labels.h:259
+#: ../src/labels.h:286
 msgid "WebSocket server ready to accept new client connections"
 msgstr ""
 
-#: ../src/labels.h:262
+#: ../src/labels.h:289
 msgid "The following options can also be supplied to the command"
 msgstr ""
 
-#: ../src/labels.h:264
+#: ../src/labels.h:291
 msgid "Examples can be found by running"
 msgstr ""
 
-#: ../src/labels.h:267
+#: ../src/labels.h:294
 msgid "Server Statistics"
 msgstr ""
 
-#: ../src/labels.h:269
+#: ../src/labels.h:296
 msgid "Theme"
 msgstr ""
 
-#: ../src/labels.h:271
+#: ../src/labels.h:298
 msgid "Dark Gray"
 msgstr ""
 
-#: ../src/labels.h:273
+#: ../src/labels.h:300
 msgid "Bright"
 msgstr ""
 
-#: ../src/labels.h:275
+#: ../src/labels.h:302
 msgid "Dark Blue"
 msgstr ""
 
-#: ../src/labels.h:277
+#: ../src/labels.h:304
 msgid "Panels"
 msgstr ""
 
-#: ../src/labels.h:279
+#: ../src/labels.h:306
 msgid "Items per Page"
 msgstr ""
 
-#: ../src/labels.h:281
+#: ../src/labels.h:308
 msgid "Tables"
 msgstr ""
 
-#: ../src/labels.h:283
+#: ../src/labels.h:310
 msgid "Display Tables"
 msgstr ""
 
-#: ../src/labels.h:285
+#: ../src/labels.h:312
 msgid "Auto-Hide on Small Devices"
 msgstr ""
 
-#: ../src/labels.h:287
+#: ../src/labels.h:314
 msgid "Automatically hide tables on small screen devices"
 msgstr ""
 
-#: ../src/labels.h:289
+#: ../src/labels.h:316
 msgid "Layout"
 msgstr ""
 
-#: ../src/labels.h:291
+#: ../src/labels.h:318
 msgid "Horizontal"
 msgstr ""
 
-#: ../src/labels.h:293
+#: ../src/labels.h:320
 msgid "Vertical"
 msgstr ""
 
-#: ../src/labels.h:295
+#: ../src/labels.h:322
 msgid "File Options"
 msgstr ""
 
-#: ../src/labels.h:297
+#: ../src/labels.h:324
 msgid "Export as JSON"
 msgstr ""
 
-#: ../src/labels.h:299
+#: ../src/labels.h:326
 msgid "Panel Options"
 msgstr ""
 
-#: ../src/labels.h:301
+#: ../src/labels.h:328
 msgid "Previous"
 msgstr ""
 
-#: ../src/labels.h:303
+#: ../src/labels.h:330
 msgid "Next"
 msgstr ""
 
-#: ../src/labels.h:305
+#: ../src/labels.h:332
 msgid "Chart Options"
 msgstr ""
 
-#: ../src/labels.h:307
+#: ../src/labels.h:334
 msgid "Chart"
 msgstr ""
 
-#: ../src/labels.h:309
+#: ../src/labels.h:336
 msgid "Type"
 msgstr ""
 
-#: ../src/labels.h:311
+#: ../src/labels.h:338
 msgid "Area Spline"
 msgstr ""
 
-#: ../src/labels.h:313
+#: ../src/labels.h:340
 msgid "Bar"
 msgstr ""
 
-#: ../src/labels.h:315
+#: ../src/labels.h:342
 msgid "Plot Metric"
 msgstr ""
 
-#: ../src/labels.h:317
+#: ../src/labels.h:344
 msgid "Table Columns"
 msgstr ""
