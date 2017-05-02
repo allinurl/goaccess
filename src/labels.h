@@ -217,7 +217,7 @@
 #define CONFDLG_TIME_FORMAT            \
   _("Time Format - [t] to add/edit format")
 #define CONFDLG_DESC                   \
-  _(""[UP/DOWN] to scroll - [q] to close window")
+  _("[UP/DOWN] to scroll - [q] to close window")
 
 /* Agents Dialog */
 #define AGENTSDLG_DESC                 \
