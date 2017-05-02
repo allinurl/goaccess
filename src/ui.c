@@ -987,9 +987,9 @@ load_agent_list (WINDOW * main_win, char *addr)
     goto out;
 
   post_gmenu (menu);
-  snprintf (buf, sizeof buf, "User Agents for %s", addr);
+  snprintf (buf, sizeof buf, AGENTSDLG_HEAD, addr);
   draw_header (win, buf, " %s", 1, 1, list_w - 2, color_panel_header);
-  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to close window");
+  mvwprintw (win, 2, 2, AGENTSDLG_DESC);
   wrefresh (win);
 
   while (quit) {
@@ -1266,7 +1266,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors)
   post_gmenu (menu);
 
   draw_header (win, ERR_FORMAT_HEADER, " %s", 1, 1, w - 2, color_error);
-  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
+  mvwprintw (win, 2, 2, CONFDLG_DESC);
 
   wrefresh (win);
   while (quit) {
@@ -1604,9 +1604,8 @@ load_schemes_win (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Scheme Configuration", " %s", 1, 1, w2,
-               color_panel_header);
-  mvwprintw (win, 2, 2, "[ENTER] to use scheme - [q]uit");
+  draw_header (win, SCHEMEDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
+  mvwprintw (win, 2, 2, SCHEMEDLG_DESC);
 
   wrefresh (win);
   while (quit) {
@@ -1700,55 +1699,55 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   for (i = 0; i < n; ++i) {
     GSortField field = sort_choices[module][opts[i]];
     if (SORT_BY_HITS == field) {
-      menu->items[i].name = alloc_string ("Hits");
+      menu->items[i].name = alloc_string (MTRC_HITS_LBL);
       if (sort->field == SORT_BY_HITS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_VISITORS == field) {
-      menu->items[i].name = alloc_string ("Visitors");
+      menu->items[i].name = alloc_string (MTRC_VISITORS_LBL);
       if (sort->field == SORT_BY_VISITORS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_DATA == field) {
-      menu->items[i].name = alloc_string ("Data");
+      menu->items[i].name = alloc_string (MTRC_DATA_LBL);
       if (sort->field == SORT_BY_DATA) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_BW == field) {
-      menu->items[i].name = alloc_string ("Bandwidth");
+      menu->items[i].name = alloc_string (MTRC_BW_LBL);
       if (sort->field == SORT_BY_BW) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_AVGTS == field) {
-      menu->items[i].name = alloc_string ("Avg. Time Served");
+      menu->items[i].name = alloc_string (MTRC_AVGTS_LBL);
       if (sort->field == SORT_BY_AVGTS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_CUMTS == field) {
-      menu->items[i].name = alloc_string ("Cum. Time Served");
+      menu->items[i].name = alloc_string (MTRC_CUMTS_LBL);
       if (sort->field == SORT_BY_CUMTS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_MAXTS == field) {
-      menu->items[i].name = alloc_string ("Max. Time Served");
+      menu->items[i].name = alloc_string (MTRC_MAXTS_LBL);
       if (sort->field == SORT_BY_MAXTS) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_PROT == field) {
-      menu->items[i].name = alloc_string ("Protocol");
+      menu->items[i].name = alloc_string (MTRC_PROTOCOLS_LBL);
       if (sort->field == SORT_BY_PROT) {
         menu->items[i].checked = 1;
         menu->idx = i;
       }
     } else if (SORT_BY_MTHD == field) {
-      menu->items[i].name = alloc_string ("Method");
+      menu->items[i].name = alloc_string (MTRC_METHODS_LBL);
       if (sort->field == SORT_BY_MTHD) {
         menu->items[i].checked = 1;
         menu->idx = i;
@@ -1757,9 +1756,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
   }
   post_gmenu (menu);
 
-  draw_header (win, "Sort active module by", " %s", 1, 1, w2,
-               color_panel_header);
-  mvwprintw (win, 2, 2, "[ENTER] select - [TAB] sort - [q]uit");
+  draw_header (win, SORTDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
+  mvwprintw (win, 2, 2, SORTDLG_DESC);
 
   if (sort->sort == SORT_ASC)
     mvwprintw (win, SORT_WIN_H - 2, 1, " %s", SORT_ASC_SEL);
@@ -1922,8 +1920,8 @@ load_help_popup (WINDOW * main_win)
   }
   post_gmenu (menu);
 
-  draw_header (win, "GoAccess Quick Help", " %s", 1, 1, w2, color_panel_header);
-  mvwprintw (win, 2, 2, "[UP/DOWN] to scroll - [q] to quit");
+  draw_header (win, HELPDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
+  mvwprintw (win, 2, 2, HELPDLG_DESC);
 
   wrefresh (win);
   while (quit) {
