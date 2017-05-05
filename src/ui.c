@@ -383,8 +383,8 @@ update_active_module (WINDOW * header_win, GModule current)
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
 
-  char *lbl = xmalloc (snprintf (NULL, 0, "[Active Panel: %s]", module) + 1);
-  sprintf (lbl, "[Active Panel: %s]", module);
+  char *lbl = xmalloc (snprintf (NULL, 0, T_ACTIVE_PANEL, module) + 1);
+  sprintf (lbl, T_ACTIVE_PANEL, module);
 
   wmove (header_win, 0, 30);
 
