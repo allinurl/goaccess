@@ -47,6 +47,7 @@
 #define SORT_DESC_SEL            _( "[ ] ASC [x] DESC")
 
 /* Overall Stats Labels */
+#define T_ACTIVE_PANEL           _("[Active Panel: %1$s]")
 #define T_DASH                   _( "Dashboard")
 #define T_DASH_HEAD              _( "Dashboard - Overall Analyzed Requests")
 #define T_HEAD                   N_( "Overall Analyzed Requests")
