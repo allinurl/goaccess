@@ -386,8 +386,7 @@ disabled_panel_msg (GModule module)
   int row, col;
 
   getmaxyx (stdscr, row, col);
-  draw_header (stdscr, lbl, "'%s' panel is disabled", row - 1, 0, col,
-               color_error);
+  draw_header (stdscr, lbl, ERR_PANEL_DISABLED, row - 1, 0, col, color_error);
 }
 
 /* Set the current module/panel */

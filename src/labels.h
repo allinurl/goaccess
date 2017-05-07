@@ -277,6 +277,8 @@
   _("Select a date format.")
 #define ERR_FORMAT_NO_LOG_FMT_DLG      \
   _("Select a log format.")
+#define ERR_PANEL_DISABLED             \
+  _("'%1$s' panel is disabled")
 
 /* Other */
 #define INFO_MORE_INFO                 \
