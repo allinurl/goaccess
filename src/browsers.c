@@ -109,6 +109,7 @@ static const char *browsers[][2] = {
   {"w3m", "Others"},
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
+  {"JOSM", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
