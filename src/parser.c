@@ -1308,19 +1308,34 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 static char *
 extract_braces (char **p)
 {
-  const char *b1 = NULL;
-  size_t len = 0;
-  char *ret = NULL;
+  char *b1 = NULL, *b2 = NULL, *ret = NULL, *s = *p;
+  int esc = 0;
+  ptrdiff_t len = 0;
 
-  if (!(b1 = strchr (*p, '{')) || !(*p = strchr (*p + 1, '}')))
+  /* iterate over the log format */
+  for (; *s; s++) {
+    if (*s == '\\') {
+      esc = 1;
+    } else if (*s == '{' && !esc) {
+      b1 = s;
+    } else if (*s == '}' && !esc) {
+      b2 = s;
+      break;
+    } else {
+      esc = 0;
+    }
+  }
+
+  if ((!b1) || (!b2))
+    return NULL;
+  if ((len = b2 - (b1 + 1)) <= 0)
     return NULL;
 
   /* Found braces, extract 'reject' character set. */
-  len = *p - (b1 + 1);
   ret = xmalloc (len + 1);
   memcpy (ret, b1 + 1, len);
   ret[len] = '\0';
-  (*p)++;
+  (*p) = b2 + 1;
 
   return ret;
 }
@@ -1386,7 +1401,7 @@ special_specifier (GLogItem * logitem, char **str, char **p)
     if (logitem->host)
       return spec_err (logitem, SPEC_TOKN_SET, **p, NULL);
     if (find_xff_host (logitem, str, p))
-      return 1;
+      return spec_err (logitem, SPEC_TOKN_NUL, 'h', NULL);
     break;
   }
 
