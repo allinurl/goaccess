@@ -72,9 +72,9 @@ tc_db_set_path (const char *dbname, int module)
     db_path = TC_DBPATH;
   }
 
-  cx = snprintf (NULL, 0, "%s%dm%s", db_path, module, dbname) + 1;
+  cx = snprintf (NULL, 0, "%s/%dm%s", db_path, module, dbname) + 1;
   path = xmalloc (cx);
-  sprintf (path, "%s%dm%s", db_path, module, dbname);
+  sprintf (path, "%s/%dm%s", db_path, module, dbname);
 
   return path;
 }
