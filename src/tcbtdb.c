@@ -54,6 +54,7 @@
 char *
 tc_db_set_path (const char *dbname, int module)
 {
+  char *db_path;
   char *path;
   int cx;
 
@@ -66,15 +67,14 @@ tc_db_set_path (const char *dbname, int module)
     } else if (!(info.st_mode & S_IFDIR)) {
       FATAL ("Database path is not a directory.");
     }
-
-    cx = snprintf (NULL, 0, "%s%dm%s", conf.db_path, module, dbname) + 1;
-    path = xmalloc (cx);
-    sprintf (path, "%s%dm%s", conf.db_path, module, dbname);
+    db_path = conf.db_path;
   } else {
-    cx = snprintf (NULL, 0, "%s%dm%s", TC_DBPATH, module, dbname) + 1;
-    path = xmalloc (cx);
-    sprintf (path, "%s%dm%s", TC_DBPATH, module, dbname);
+    db_path = TC_DBPATH;
   }
+
+  cx = snprintf (NULL, 0, "%s/%dm%s", db_path, module, dbname) + 1;
+  path = xmalloc (cx);
+  sprintf (path, "%s/%dm%s", db_path, module, dbname);
 
   return path;
 }
