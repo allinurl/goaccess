@@ -48,6 +48,7 @@
 
 /* Overall Stats Labels */
 #define T_ACTIVE_PANEL           _("[Active Panel: %1$s]")
+#define T_HELP_ENTER             _("[?] Help [Enter] Exp. Panel")
 #define T_DASH                   _( "Dashboard")
 #define T_DASH_HEAD              _( "Dashboard - Overall Analyzed Requests")
 #define T_HEAD                   N_( "Overall Analyzed Requests")
