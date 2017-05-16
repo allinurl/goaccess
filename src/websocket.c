@@ -1094,7 +1094,7 @@ ws_set_header_fields (char *line, WSHeaders * headers)
   if (line[0] == '\n' || line[0] == '\r')
     return 1;
 
-  if ((strstr (line, "GET")) || (strstr (line, "get"))) {
+  if (strstr (line, "GET")) {
     if ((path = ws_parse_request (line, &method, &proto)) == NULL)
       return 1;
     headers->path = path;
