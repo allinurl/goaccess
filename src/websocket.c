@@ -2829,7 +2829,6 @@ ws_start (WSServer * server)
 #endif
 
   memset (&fdstate, 0, sizeof fdstate);
-  ws_fifo (server);
   ws_socket (&listener);
 
   while (1) {
@@ -2970,6 +2969,8 @@ ws_init (const char *host, const char *port)
   wsconfig.port = port;
   wsconfig.strict = 0;
   wsconfig.use_ssl = 0;
+
+  ws_fifo (server);
 
   return server;
 }
