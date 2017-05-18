@@ -347,9 +347,6 @@ start_server (void *ptr_data)
 {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
-  if ((writer->server = ws_init ("0.0.0.0", "7890")) == NULL)
-    return;
-
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
@@ -388,6 +385,11 @@ setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
 
   /* send WS data thread */
   thread = &gwswriter->thread;
+
+  /* pre-init the websocket server, to ensure the FIFOs are created */
+  if ((gwswriter->server = ws_init ("0.0.0.0", "7890")) == NULL)
+    FATAL ("Failed init websocket");
+
   id = pthread_create (&(*thread), NULL, (void *) &start_server, gwswriter);
   if (id)
     FATAL ("Return code from pthread_create(): %d", id);
