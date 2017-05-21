@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-05-09 06:33-0500\n"
+"POT-Creation-Date: 2017-05-21 08:16-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -49,569 +49,573 @@ msgid "[Active Panel: %1$s]"
 msgstr ""
 
 #: ../src/labels.h:51
+msgid "[?] Help [Enter] Exp. Panel"
+msgstr ""
+
+#: ../src/labels.h:52
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: ../src/labels.h:52
+#: ../src/labels.h:53
 msgid "Dashboard - Overall Analyzed Requests"
 msgstr "Tableau de bord - Requêtes analysées, vue d'ensemble"
 
-#: ../src/labels.h:53
+#: ../src/labels.h:54
 msgid "Overall Analyzed Requests"
 msgstr "Requêtes analysées, vue d'ensemble"
 
-#: ../src/labels.h:55
+#: ../src/labels.h:56
 msgid "Date/Time"
 msgstr "Date/Heure"
 
-#: ../src/labels.h:56
+#: ../src/labels.h:57
 msgid "Total Requests"
 msgstr "Requêtes totales"
 
-#: ../src/labels.h:57
+#: ../src/labels.h:58
 msgid "Init. Proc. Time"
 msgstr "Init. Proc. Time"
 
-#: ../src/labels.h:58
+#: ../src/labels.h:59
 msgid "Failed Requests"
 msgstr "Requêtes échouées"
 
-#: ../src/labels.h:59
+#: ../src/labels.h:60
 msgid "Valid Requests"
 msgstr "Requêtes valides"
 
-#: ../src/labels.h:60
+#: ../src/labels.h:61
 msgid "Unique Visitors"
 msgstr "Visiteurs uniques"
 
-#: ../src/labels.h:61
+#: ../src/labels.h:62
 msgid "Unique Files"
 msgstr "Fichiers uniques"
 
-#: ../src/labels.h:62
+#: ../src/labels.h:63
 msgid "Excl. IP Hits"
 msgstr "Excl. IP Hits"
 
-#: ../src/labels.h:63 ../src/labels.h:169
+#: ../src/labels.h:64 ../src/labels.h:170
 msgid "Referrers"
 msgstr "Origine"
 
-#: ../src/labels.h:64
+#: ../src/labels.h:65
 msgid "Unique 404"
 msgstr "Unique 404"
 
-#: ../src/labels.h:65
+#: ../src/labels.h:66
 msgid "Static Files"
 msgstr "Fichiers statiques"
 
-#: ../src/labels.h:66
+#: ../src/labels.h:67
 msgid "Log Size"
 msgstr "Taille du log"
 
-#: ../src/labels.h:67 ../src/labels.h:76
+#: ../src/labels.h:68 ../src/labels.h:77
 msgid "Bandwidth"
 msgstr "Bande passante"
 
-#: ../src/labels.h:68
+#: ../src/labels.h:69
 msgid "Log Source"
 msgstr "Fichier de log"
 
 #. Metric Labels
-#: ../src/labels.h:71
+#: ../src/labels.h:72
 msgid "Hits"
 msgstr "Hits"
 
-#: ../src/labels.h:72
+#: ../src/labels.h:73
 msgid "h%"
 msgstr ""
 
-#: ../src/labels.h:73 ../src/labels.h:99
+#: ../src/labels.h:74 ../src/labels.h:100
 msgid "Visitors"
 msgstr "Visiteurs"
 
-#: ../src/labels.h:74
+#: ../src/labels.h:75
 msgid "Vis."
 msgstr "Vis."
 
-#: ../src/labels.h:75
+#: ../src/labels.h:76
 msgid "v%"
 msgstr ""
 
-#: ../src/labels.h:77
+#: ../src/labels.h:78
 msgid "Avg. T.S."
 msgstr "Avg. T.S."
 
-#: ../src/labels.h:78
+#: ../src/labels.h:79
 msgid "Cum. T.S."
 msgstr "Cum. T.S."
 
-#: ../src/labels.h:79
+#: ../src/labels.h:80
 msgid "Max. T.S."
 msgstr "Max. T.S."
 
-#: ../src/labels.h:80
+#: ../src/labels.h:81
 msgid "Method"
 msgstr "Méthode"
 
-#: ../src/labels.h:81
+#: ../src/labels.h:82
 msgid "Mtd"
 msgstr "Mtd"
 
-#: ../src/labels.h:82
+#: ../src/labels.h:83
 msgid "Protocol"
 msgstr "Protocole"
 
-#: ../src/labels.h:83
+#: ../src/labels.h:84
 msgid "Proto"
 msgstr "Proto"
 
-#: ../src/labels.h:84
+#: ../src/labels.h:85
 msgid "City"
 msgstr "Ville"
 
-#: ../src/labels.h:85
+#: ../src/labels.h:86
 msgid "Country"
 msgstr "Pays"
 
-#: ../src/labels.h:86
+#: ../src/labels.h:87
 msgid "Hostname"
 msgstr "Nom d'hôte"
 
-#: ../src/labels.h:87
+#: ../src/labels.h:88
 msgid "Data"
 msgstr "Données"
 
-#: ../src/labels.h:89
+#: ../src/labels.h:90
 #, fuzzy
 msgid "Hits/Visitors"
 msgstr "Visiteurs"
 
 #. Panel Labels and Descriptions
-#: ../src/labels.h:93
+#: ../src/labels.h:94
 msgid "Unique visitors per day"
 msgstr "Visiteurs uniques par jour"
 
-#: ../src/labels.h:95
+#: ../src/labels.h:96
 msgid "Unique visitors per day - Including spiders"
 msgstr "Visiteurs uniques/jour - Y compris bots"
 
-#: ../src/labels.h:97
+#: ../src/labels.h:98
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
 "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
-#: ../src/labels.h:102
+#: ../src/labels.h:103
 msgid "Requested Files (URLs)"
 msgstr "Fichiers demandés (URLs)"
 
-#: ../src/labels.h:104
+#: ../src/labels.h:105
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr "Top des requêtes trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/labels.h:106
+#: ../src/labels.h:107
 msgid "Requests"
 msgstr "Requêtes"
 
-#: ../src/labels.h:109 ../src/labels.h:113
+#: ../src/labels.h:110 ../src/labels.h:114
 msgid "Static Requests"
 msgstr "Requêtes statiques"
 
-#: ../src/labels.h:111
+#: ../src/labels.h:112
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/labels.h:116
+#: ../src/labels.h:117
 msgid "Time Distribution"
 msgstr "Distribution temporelle"
 
-#: ../src/labels.h:118
+#: ../src/labels.h:119
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr "Données triées par heure [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:120
+#: ../src/labels.h:121
 msgid "Time"
 msgstr "Temps"
 
-#: ../src/labels.h:123 ../src/labels.h:127
+#: ../src/labels.h:124 ../src/labels.h:128
 msgid "Virtual Hosts"
 msgstr "Hôtes virtuels"
 
-#: ../src/labels.h:125 ../src/labels.h:132
+#: ../src/labels.h:126 ../src/labels.h:133
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr "Données triées par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:130
+#: ../src/labels.h:131
 msgid "Remote User (HTTP authentication)"
 msgstr "Utilisateur distant (authentification HTTP)"
 
-#: ../src/labels.h:134
+#: ../src/labels.h:135
 msgid "Remote User"
 msgstr "Remote Utilisateur"
 
-#: ../src/labels.h:137
+#: ../src/labels.h:138
 msgid "Not Found URLs (404s)"
 msgstr "URLs Non trouvées (404s)"
 
-#: ../src/labels.h:139
+#: ../src/labels.h:140
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
-#: ../src/labels.h:141
+#: ../src/labels.h:142
 msgid "Not Found"
 msgstr "Non Trouvé"
 
-#: ../src/labels.h:144
+#: ../src/labels.h:145
 msgid "Visitor Hostnames and IPs"
 msgstr "Nom de machine et IPs des visiteurs"
 
-#: ../src/labels.h:146
+#: ../src/labels.h:147
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des visiteurs trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:148
+#: ../src/labels.h:149
 msgid "Hosts"
 msgstr "Hôtes"
 
-#: ../src/labels.h:151
+#: ../src/labels.h:152
 msgid "Operating Systems"
 msgstr "Systèmes d'exploitation"
 
-#: ../src/labels.h:153
+#: ../src/labels.h:154
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des SE trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:155
+#: ../src/labels.h:156
 msgid "OS"
 msgstr "SE"
 
-#: ../src/labels.h:158 ../src/labels.h:162
+#: ../src/labels.h:159 ../src/labels.h:163
 msgid "Browsers"
 msgstr "Navigateurs"
 
-#: ../src/labels.h:160
+#: ../src/labels.h:161
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des Navigateurs trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:165
+#: ../src/labels.h:166
 msgid "Referrers URLs"
 msgstr "URLs d'origine"
 
-#: ../src/labels.h:167
+#: ../src/labels.h:168
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des URLs d'origine trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:172 ../src/labels.h:176
+#: ../src/labels.h:173 ../src/labels.h:177
 msgid "Referring Sites"
 msgstr "Sites d'origine"
 
-#: ../src/labels.h:174
+#: ../src/labels.h:175
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des sites d'origine trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:179
+#: ../src/labels.h:180
 msgid "Keyphrases from Google's search engine"
 msgstr "Mot-clés Google"
 
-#: ../src/labels.h:181
+#: ../src/labels.h:182
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des Mot-clés trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:183
+#: ../src/labels.h:184
 msgid "Keyphrases"
 msgstr "Mot-clés"
 
-#: ../src/labels.h:186 ../src/labels.h:190
+#: ../src/labels.h:187 ../src/labels.h:191
 msgid "Geo Location"
 msgstr "Géo Localisation"
 
-#: ../src/labels.h:188
+#: ../src/labels.h:189
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr "Continent > Pays trié par hits unique [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:193
+#: ../src/labels.h:194
 msgid "HTTP Status Codes"
 msgstr "Status HTTP"
 
-#: ../src/labels.h:195
+#: ../src/labels.h:196
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr "Top des status HTTP trié par hits [, avgts, cumts, maxts]"
 
-#: ../src/labels.h:197
+#: ../src/labels.h:198
 msgid "Status Codes"
 msgstr "Status HTTP"
 
 #. Find Labels
-#: ../src/labels.h:201
+#: ../src/labels.h:202
 msgid "[ ] case sensitive"
 msgstr "[ ] sensible à la casse"
 
-#: ../src/labels.h:203
+#: ../src/labels.h:204
 msgid "[x] case sensitive"
 msgstr "[x] sensible à la casse"
 
-#: ../src/labels.h:205
+#: ../src/labels.h:206
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "Regex OK - ^g pour annuler - TAB pour changer la casse"
 
-#: ../src/labels.h:207
+#: ../src/labels.h:208
 msgid "Find pattern in all views"
 msgstr "Trouver tous les motifs dans toutes les vues"
 
 #. Config Dialog
-#: ../src/labels.h:211
+#: ../src/labels.h:212
 msgid "Log Format Configuration"
 msgstr ""
 
-#: ../src/labels.h:213
+#: ../src/labels.h:214
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
 msgstr ""
 
-#: ../src/labels.h:215
+#: ../src/labels.h:216
 msgid "Log Format - [c] to add/edit format"
 msgstr ""
 
-#: ../src/labels.h:217
+#: ../src/labels.h:218
 msgid "Date Format - [d] to add/edit format"
 msgstr ""
 
-#: ../src/labels.h:219
+#: ../src/labels.h:220
 msgid "Time Format - [t] to add/edit format"
 msgstr ""
 
 #. Agents Dialog
-#: ../src/labels.h:221 ../src/labels.h:225
+#: ../src/labels.h:222 ../src/labels.h:226
 msgid "[UP/DOWN] to scroll - [q] to close window"
 msgstr ""
 
-#: ../src/labels.h:227
+#: ../src/labels.h:228
 #, c-format
 msgid "User Agents for %1$s"
 msgstr ""
 
 #. Color Scheme Dialog
-#: ../src/labels.h:231
+#: ../src/labels.h:232
 msgid "Scheme Configuration"
 msgstr ""
 
-#: ../src/labels.h:233
+#: ../src/labels.h:234
 msgid "[ENTER] to use scheme - [q]uit"
 msgstr ""
 
 #. Sort Dialog
-#: ../src/labels.h:237
+#: ../src/labels.h:238
 msgid "Sort active module by"
 msgstr ""
 
-#: ../src/labels.h:239
+#: ../src/labels.h:240
 msgid "[ENTER] select - [TAB] sort - [q]uit"
 msgstr ""
 
 #. Help TUI Dialog
-#: ../src/labels.h:243
+#: ../src/labels.h:244
 msgid "GoAccess Quick Help"
 msgstr ""
 
-#: ../src/labels.h:245
+#: ../src/labels.h:246
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr ""
 
 #. Storage Built-in Option
-#: ../src/labels.h:249
+#: ../src/labels.h:250
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
 msgstr "Construit sur le disque en arbre B+ en utilisant Tokyo Cabinet."
 
-#: ../src/labels.h:251
+#: ../src/labels.h:252
 msgid "Built using Tokyo Cabinet in-memory hash database."
 msgstr ""
 "Construit en mémoire avec une base de données de la table de hachage en "
 "utilisant Tokyo Cabinet"
 
-#: ../src/labels.h:253
+#: ../src/labels.h:254
 msgid "Built using the default in-memory hash database."
 msgstr ""
 "Construit par défaut en mémoire avec une base de données de la table de "
 "hachage"
 
 #. Common UI Errors
-#: ../src/labels.h:257
+#: ../src/labels.h:258
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "Erreurs de format - Vérifiez votre format de journal / date / heure"
 
-#: ../src/labels.h:259
+#: ../src/labels.h:260
 msgid "No date format was found on your conf file."
 msgstr "Aucun format de date n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:261
+#: ../src/labels.h:262
 msgid "No log format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:263
+#: ../src/labels.h:264
 msgid "No time format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: ../src/labels.h:265
+#: ../src/labels.h:266
 msgid "No default config file found."
 msgstr "Aucun fichier de configuration par défaut trouvé."
 
-#: ../src/labels.h:267
+#: ../src/labels.h:268
 msgid "You may specify one with"
 msgstr "Vous pouvez en préciser un avec"
 
-#: ../src/labels.h:269
+#: ../src/labels.h:270
 msgid "producing the following errors"
 msgstr "produisant les erreurs suivantes"
 
-#: ../src/labels.h:271
+#: ../src/labels.h:272
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "Analysé %1$d lignes"
 
-#: ../src/labels.h:273
+#: ../src/labels.h:274
 msgid "Please report it by opening an issue on GitHub"
 msgstr "Si vous plaît, rapporter cela en ouvrant un probleme sur GitHub"
 
-#: ../src/labels.h:275
+#: ../src/labels.h:276
 msgid "Select a time format."
 msgstr ""
 
-#: ../src/labels.h:277
+#: ../src/labels.h:278
 msgid "Select a date format."
 msgstr ""
 
-#: ../src/labels.h:279
+#: ../src/labels.h:280
 msgid "Select a log format."
 msgstr ""
 
-#: ../src/labels.h:281
+#: ../src/labels.h:282
 #, c-format
 msgid "'%1$s' panel is disabled"
 msgstr ""
 
 #. Other
-#: ../src/labels.h:285
+#: ../src/labels.h:286
 msgid "For more details visit"
 msgstr "Pour plus de détails, visitez"
 
-#: ../src/labels.h:287
+#: ../src/labels.h:288
 msgid "Last Updated"
 msgstr "Dernière mise à jour"
 
-#: ../src/labels.h:289
+#: ../src/labels.h:290
 msgid "WebSocket server ready to accept new client connections"
 msgstr "WebSocket serveur prêt à accepter les nouvelles connexions client"
 
-#: ../src/labels.h:292
+#: ../src/labels.h:293
 msgid "The following options can also be supplied to the command"
 msgstr "Les options suivantes peuvent également être fournies à la commande"
 
-#: ../src/labels.h:294
+#: ../src/labels.h:295
 msgid "Examples can be found by running"
 msgstr "Des exemples peuvent être trouvés en cours d'exécution"
 
-#: ../src/labels.h:297
+#: ../src/labels.h:298
 msgid "Server Statistics"
 msgstr "Statistiques du serveur"
 
-#: ../src/labels.h:299
+#: ../src/labels.h:300
 msgid "Theme"
 msgstr "Thème"
 
-#: ../src/labels.h:301
+#: ../src/labels.h:302
 msgid "Dark Gray"
 msgstr "Gris foncé"
 
-#: ../src/labels.h:303
+#: ../src/labels.h:304
 msgid "Bright"
 msgstr "Brillant"
 
-#: ../src/labels.h:305
+#: ../src/labels.h:306
 msgid "Dark Blue"
 msgstr "Bleu foncé"
 
-#: ../src/labels.h:307
+#: ../src/labels.h:308
 msgid "Panels"
 msgstr "Panneaux"
 
-#: ../src/labels.h:309
+#: ../src/labels.h:310
 msgid "Items per Page"
 msgstr "Objets par page"
 
-#: ../src/labels.h:311
+#: ../src/labels.h:312
 msgid "Tables"
 msgstr "Tableaux"
 
-#: ../src/labels.h:313
+#: ../src/labels.h:314
 msgid "Display Tables"
 msgstr "Afficher les tableaux"
 
-#: ../src/labels.h:315
+#: ../src/labels.h:316
 msgid "Auto-Hide on Small Devices"
 msgstr "Masquage-auto/Petits appareils"
 
-#: ../src/labels.h:317
+#: ../src/labels.h:318
 msgid "Automatically hide tables on small screen devices"
 msgstr ""
 "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
-#: ../src/labels.h:319
+#: ../src/labels.h:320
 msgid "Layout"
 msgstr "Disposition"
 
-#: ../src/labels.h:321
+#: ../src/labels.h:322
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: ../src/labels.h:323
+#: ../src/labels.h:324
 msgid "Vertical"
 msgstr "Verticale"
 
-#: ../src/labels.h:325
+#: ../src/labels.h:326
 msgid "File Options"
 msgstr "Options de fichier"
 
-#: ../src/labels.h:327
+#: ../src/labels.h:328
 msgid "Export as JSON"
 msgstr "Exporter en tant que JSON"
 
-#: ../src/labels.h:329
+#: ../src/labels.h:330
 msgid "Panel Options"
 msgstr "Options du panneau"
 
-#: ../src/labels.h:331
+#: ../src/labels.h:332
 msgid "Previous"
 msgstr "Précédent"
 
-#: ../src/labels.h:333
+#: ../src/labels.h:334
 msgid "Next"
 msgstr "Suivant"
 
-#: ../src/labels.h:335
+#: ../src/labels.h:336
 msgid "Chart Options"
 msgstr "Options du graphique"
 
-#: ../src/labels.h:337
+#: ../src/labels.h:338
 msgid "Chart"
 msgstr "Graphique"
 
-#: ../src/labels.h:339
+#: ../src/labels.h:340
 msgid "Type"
 msgstr "Type"
 
-#: ../src/labels.h:341
+#: ../src/labels.h:342
 msgid "Area Spline"
 msgstr "Courbe vectorielle"
 
-#: ../src/labels.h:343
+#: ../src/labels.h:344
 msgid "Bar"
 msgstr "Barre"
 
-#: ../src/labels.h:345
+#: ../src/labels.h:346
 msgid "Plot Metric"
 msgstr "Tracé métrique"
 
-#: ../src/labels.h:347
+#: ../src/labels.h:348
 msgid "Table Columns"
 msgstr "Colonnes de tableau"
 
