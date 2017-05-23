@@ -104,6 +104,7 @@ struct option long_opts[] = {
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
+  {"ignore-referer-report", required_argument , 0 ,  0  } ,
   {"ignore-status"        , required_argument , 0 ,  0  } ,
   {"invalid-requests"     , required_argument , 0 ,  0  } ,
   {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
@@ -247,6 +248,7 @@ cmd_help (void)
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
   "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
   "                                    are allowed. i.e., *.bing.com\n"
+  "  --ignore-referer-report=<NEEDLE>- Ignore referer's data, e.g. ref. within same site\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
@@ -521,6 +523,11 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("ignore-referer", name))
     set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx,
                    MAX_IGNORE_REF);
+
+  /* ignore referer report (e.g. within same site) */
+  if (!strcmp ("ignore-referer-report", name))
+    set_array_opt (oarg, conf.ignore_referers_report,
+                   &conf.ignore_referer_report_idx, MAX_IGNORE_REF);
 
   /* ignore status code */
   if (!strcmp ("ignore-status", name))
