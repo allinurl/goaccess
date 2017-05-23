@@ -54,7 +54,7 @@
 char *
 tc_db_set_path (const char *dbname, int module)
 {
-  char *db_path;
+  const char *db_path;
   char *path;
   int cx;
 
