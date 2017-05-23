@@ -1211,7 +1211,17 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       extract_keyphrase (tkn, &logitem->keyphrase);
       extract_referer_site (tkn, logitem->site);
     }
-    logitem->ref = tkn;
+
+
+    if (strcmp (tkn, "-") != 0) {
+      if (!ignore_referer_report (logitem->site)) {
+        logitem->ref = tkn;
+      }
+      if (ignore_referer_report (logitem->site)) {
+        logitem->site[0] = '\0';
+      }
+
+    }
     break;
     /* user agent */
   case 'u':

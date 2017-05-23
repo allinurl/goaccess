@@ -250,6 +250,34 @@ out:
   return ignore;
 }
 
+int
+ignore_referer_report (const char *host)
+{
+  char *needle = NULL;
+  int i, ignore = 0;
+
+  if (conf.ignore_referer_report_idx == 0)
+    return 0;
+  if (host == NULL || *host == '\0')
+    return 0;
+
+  needle = xstrdup (host);
+  for (i = 0; i < conf.ignore_referer_report_idx; ++i) {
+    if (conf.ignore_referers_report[i] == NULL ||
+        *conf.ignore_referers_report[i] == '\0')
+      continue;
+
+    if (wc_match (conf.ignore_referers_report[i], needle)) {
+      ignore = 1;
+      goto out;
+    }
+  }
+out:
+  free (needle);
+
+  return ignore;
+}
+
 /* Determine if the given ip is within a range of IPs.
  *
  * On error, or not within the range, 0 is returned
