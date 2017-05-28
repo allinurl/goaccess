@@ -347,7 +347,7 @@ render_screens (void)
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
   mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
-  mvaddstr (row - 1, col - 21, "[Q]uit GoAccess");
+  mvaddstr (row - 1, col - 21, T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
 
