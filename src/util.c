@@ -54,15 +54,16 @@
 #include "util.h"
 
 #include "error.h"
+#include "labels.h"
 #include "xmalloc.h"
 
 /* HTTP status codes categories */
 static const char *code_type[][2] = {
-  {"1", "1xx Informational"},
-  {"2", "2xx Success"},
-  {"3", "3xx Redirection"},
-  {"4", "4xx Client Error"},
-  {"5", "5xx Server Error"},
+  {"1", STATUS_CODE_1XX},
+  {"2", STATUS_CODE_2XX},
+  {"3", STATUS_CODE_3XX},
+  {"4", STATUS_CODE_4XX},
+  {"5", STATUS_CODE_5XX},
 };
 
 /* HTTP status codes */
@@ -567,7 +568,7 @@ verify_status_code_type (const char *str)
   size_t i;
   for (i = 0; i < ARRAY_SIZE (code_type); i++)
     if (strchr (code_type[i][0], str[0]) != NULL)
-      return code_type[i][1];
+      return _(code_type[i][1]);
 
   return "Unknown";
 }
