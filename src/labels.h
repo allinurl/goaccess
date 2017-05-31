@@ -348,4 +348,16 @@
 #define HTML_REPORT_PANEL_TABLE_COLS   \
   N_("Table Columns")
 
+/* Status Codes */
+#define STATUS_CODE_1XX               \
+  N_("1xx Informational")
+#define STATUS_CODE_2XX               \
+  N_("2xx Success")
+#define STATUS_CODE_3XX               \
+  N_("3xx Redirection")
+#define STATUS_CODE_4XX               \
+  N_("4xx Client Errors")
+#define STATUS_CODE_5XX               \
+  N_("5xx Server Errors")
+
 #endif // for #ifndef LABELS_H
