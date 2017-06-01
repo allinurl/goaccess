@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-05-31 07:05-0500\n"
+"POT-Creation-Date: 2017-06-01 07:01-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -622,6 +622,27 @@ msgstr "Tracé métrique"
 #: ../src/labels.h:349
 msgid "Table Columns"
 msgstr "Colonnes de tableau"
+
+#. Status Codes
+#: ../src/labels.h:353
+msgid "1xx Informational"
+msgstr ""
+
+#: ../src/labels.h:355
+msgid "2xx Success"
+msgstr ""
+
+#: ../src/labels.h:357
+msgid "3xx Redirection"
+msgstr ""
+
+#: ../src/labels.h:359
+msgid "4xx Client Errors"
+msgstr ""
+
+#: ../src/labels.h:361
+msgid "5xx Server Errors"
+msgstr ""
 
 #~ msgid " - Including spiders"
 #~ msgstr "- Inclus robots d'indexation"
