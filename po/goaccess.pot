@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-05-31 07:05-0500\n"
+"POT-Creation-Date: 2017-06-01 07:00-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -613,4 +613,25 @@ msgstr ""
 
 #: ../src/labels.h:349
 msgid "Table Columns"
+msgstr ""
+
+#. Status Codes
+#: ../src/labels.h:353
+msgid "1xx Informational"
+msgstr ""
+
+#: ../src/labels.h:355
+msgid "2xx Success"
+msgstr ""
+
+#: ../src/labels.h:357
+msgid "3xx Redirection"
+msgstr ""
+
+#: ../src/labels.h:359
+msgid "4xx Client Errors"
+msgstr ""
+
+#: ../src/labels.h:361
+msgid "5xx Server Errors"
 msgstr ""
