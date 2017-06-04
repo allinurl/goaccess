@@ -35,7 +35,7 @@ RUN chmod 0644 * \
 ##############################
 
 RUN apk update \
-    && apk add -u supervisor goaccess
+    && apk add -u supervisor goaccess tini
 
 # Cleanup
 #########
@@ -61,4 +61,4 @@ EXPOSE 7890
 # Set the entry point to init.sh
 ###########################################
 
-ENTRYPOINT ["/opt/init.sh"]
+ENTRYPOINT ["/sbin/tini", "--", "/opt/init.sh"]
