@@ -4,10 +4,11 @@ FROM alpine:edge
 COPY . /goaccess
 WORKDIR /goaccess
 
-ENV build_deps="build-base ncurses-dev autoconf automake git gettext-dev"
+ARG build_deps="build-base ncurses-dev autoconf automake git gettext-dev"
+ARG runtime_deps="tini ncurses libintl gettext "
 
 RUN apk update && \
-    apk add -u tini ncurses libintl gettext $build_deps && \
+    apk add -u $runtime_deps $build_deps && \
     autoreconf -fiv && \
     ./configure --enable-utf8 && \
     make && \
