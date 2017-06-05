@@ -128,11 +128,12 @@ it will attempt to establish a connection to localhost.
 
 Once you have your configuration file all set, then you may run: 
 
+    docker build . -t goaccess
     docker run --restart=always -d -p 7890:7890 \ 
       -v "$HOME/data:/srv/data"                 \ 
       -v "/path/to/logs:/srv/logs"              \ 
       -v "/path/to/report:/srv/report"          \
-      allinurl/goaccess
+      goaccess
 
 If everything goes fine, the generated report should live under
 `/path/to/report`.
