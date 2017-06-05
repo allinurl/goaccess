@@ -12,7 +12,7 @@ ENV DATA_DIR /srv/data
 # Copy required files and fix permissions
 #########################################
 
-COPY Dockerfile_src/* /opt/
+COPY docker/* /opt/
 
 # Create missing directories
 ############################
