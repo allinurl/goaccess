@@ -96,7 +96,8 @@ set_signal_data (void *p)
   log_data = p;
 }
 
-/* Open a access file whose name is specified in the given path. */
+/* Open the WebSocket access log file whose name is specified in the
+ * given path. */
 int
 access_log_open (const char *path)
 {
@@ -113,7 +114,7 @@ access_log_open (const char *path)
   return 0;
 }
 
-/* Close the access log file. */
+/* Close the WebSocket access log file. */
 void
 access_log_close (void)
 {
