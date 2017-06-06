@@ -97,10 +97,10 @@ typedef struct GConf_
   const char *colors[MAX_CUSTOM_COLORS];        /* colors */
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *filenames[MAX_FILENAMES];         /* log files */
+  const char *hide_referers[MAX_IGNORE_REF];    /* hide referrers from report */
   const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_referers[MAX_IGNORE_REF];  /* referrers to ignore */
-  const char *ignore_referers_report[MAX_IGNORE_REF];  /* referrers to count as hit, but ignore referrer data */
   const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
   const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g. , HTML */
   const char *sort_panels[TOTAL_MODULES];       /* sorting options for each panel */
@@ -182,10 +182,10 @@ typedef struct GConf_
   int color_idx;                    /* colors index */
   int enable_panel_idx;             /* enable panels index */
   int filenames_idx;                /* filenames index */
+  int hide_referer_idx;             /* hide referrers index */
   int ignore_ip_idx;                /* ignored ips index */
   int ignore_panel_idx;             /* ignored panels index */
   int ignore_referer_idx;           /* ignored referrers index */
-  int ignore_referer_report_idx;     /* ignored referrers index */
   int ignore_status_idx;            /* ignore status index */
   int output_format_idx;            /* output format index */
   int sort_panel_idx;               /* sort panel index */
