@@ -251,24 +251,28 @@ out:
   return ignore;
 }
 
+/* Determine if the given host needs to be hidden given the list of
+ * referrers to hide.
+ *
+ * On error, or the referrer is not found, 0 is returned
+ * On success, or if the host needs to be ignored, 1 is returned */
 int
-ignore_referer_report (const char *host)
+hide_referer (const char *host)
 {
   char *needle = NULL;
   int i, ignore = 0;
 
-  if (conf.ignore_referer_report_idx == 0)
+  if (conf.hide_referer_idx == 0)
     return 0;
   if (host == NULL || *host == '\0')
     return 0;
 
   needle = xstrdup (host);
-  for (i = 0; i < conf.ignore_referer_report_idx; ++i) {
-    if (conf.ignore_referers_report[i] == NULL ||
-        *conf.ignore_referers_report[i] == '\0')
+  for (i = 0; i < conf.hide_referer_idx; ++i) {
+    if (conf.hide_referers[i] == NULL || *conf.hide_referers[i] == '\0')
       continue;
 
-    if (wc_match (conf.ignore_referers_report[i], needle)) {
+    if (wc_match (conf.hide_referers[i], needle)) {
       ignore = 1;
       goto out;
     }
