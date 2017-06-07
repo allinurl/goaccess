@@ -39,7 +39,7 @@
 #include "tcbtdb.h"
 
 #ifdef HAVE_GEOLOCATION
-#include "geoip.h"
+#include "geoip1.h"
 #endif
 
 #include "error.h"

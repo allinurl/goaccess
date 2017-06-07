@@ -60,7 +60,7 @@
 #endif
 
 #ifdef HAVE_GEOLOCATION
-#include "geoip.h"
+#include "geoip1.h"
 #endif
 
 #include "csv.h"

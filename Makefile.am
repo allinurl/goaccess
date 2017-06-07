@@ -133,14 +133,14 @@ endif
 
 if GEOIP_LEGACY
 goaccess_SOURCES +=  \
-   src/geoip.c \
-   src/geoip.h
+   src/geoip1.c \
+   src/geoip1.h
 endif
 
 if GEOIP_MMDB
 goaccess_SOURCES +=  \
    src/geoip2.c \
-   src/geoip.h
+   src/geoip1.h
 endif
 
 if DEBUG

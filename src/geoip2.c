@@ -40,7 +40,7 @@
 #include <maxminddb.h>
 #endif
 
-#include "geoip.h"
+#include "geoip1.h"
 
 #include "error.h"
 #include "util.h"
