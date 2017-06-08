@@ -1,6 +1,4 @@
 /**
-/**
-/**
  * gkhash.c -- default hash table functions
  *    ______      ___
  *   / ____/___  /   | _____________  __________
