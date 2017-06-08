@@ -1212,11 +1212,14 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       extract_referer_site (tkn, logitem->site);
 
       /* hide referrers from report */
-      if (hide_referer (logitem->site))
+      if (hide_referer (logitem->site)) {
         logitem->site[0] = '\0';
-      else
+        free (tkn);
+      } else
         logitem->ref = tkn;
+      break;
     }
+    logitem->ref = tkn;
 
     break;
     /* user agent */
