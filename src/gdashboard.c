@@ -282,160 +282,267 @@ get_bars (int n, int max, int x)
   return char_repeat (len, '|');
 }
 
-/* Get longest method.
- *
- * On error, 0 is returned.
- * On success, longest malloc'd method is returned. */
-static int
-get_max_method_len (GDashData * data, int size)
+/* Set largest hits metric (length of the integer). */
+static void
+set_max_hit_len (GDashMeta * meta, GDashData * idata)
 {
-  int i, max = 0, len;
-  for (i = 0; i < size; i++) {
-    if (data[i].metrics->method == NULL)
-      continue;
-    len = strlen (data[i].metrics->method);
-    if (len > max)
-      max = len;
-  }
-  return max;
-}
+  int vlen = intlen (idata->metrics->hits);
+  int llen = strlen (MTRC_HITS_LBL);
 
-/* Get longest data metric.
- *
- * On error, 0 is returned.
- * On success, longest malloc'd data metric is returned. */
-static int
-get_max_data_len (GDashData * data, int size)
-{
-  int i, max = 0, len;
-  for (i = 0; i < size; i++) {
-    if (data[i].metrics->data == NULL)
-      continue;
-    len = strlen (data[i].metrics->data);
-    if (len > max)
-      max = len;
-  }
-  return max;
-}
-
-/* Get largest visitor metric (length of the integer).
- *
- * On error, 0 is returned.
- * On success, length of visitors metric is returned. */
-static int
-get_max_visitor_len (GDashData * data, int size)
-{
-  int i, max = 0;
-  for (i = 0; i < size; i++) {
-    int len = intlen (data[i].metrics->visitors);
-    if (len > max)
-      max = len;
-  }
+  if (vlen > meta->hits_len)
+    meta->hits_len = vlen;
 
   /* if outputting with column names, then determine if the value is
    * longer than the length of the column name */
-  if (!conf.no_column_names && max < COLUMN_VIS_LEN)
-    max = COLUMN_VIS_LEN;
-
-  return max;
+  if (llen > meta->hits_len)
+    meta->hits_len = llen;
 }
 
-/* Get largest hits metric (length of the integer).
- *
- * On error, 0 is returned.
- * On success, length of hits metric is returned. */
-static int
-get_max_hit_len (GDashData * data, int size)
+/* Get the percent integer length. */
+static void
+set_max_hit_perc_len (GDashMeta * meta, GDashData * idata)
 {
-  int i, max = 0;
-  for (i = 0; i < size; i++) {
-    int len = intlen (data[i].metrics->hits);
-    if (len > max)
-      max = len;
-  }
+  int vlen = intlen (idata->metrics->hits_perc);
+  int llen = strlen (MTRC_HITS_PERC_LBL);
+
+  if (vlen > meta->hits_perc_len)
+    meta->hits_perc_len = vlen;
 
   /* if outputting with column names, then determine if the value is
    * longer than the length of the column name */
-  if (!conf.no_column_names && max < COLUMN_HITS_LEN)
-    max = COLUMN_HITS_LEN;
-
-  return max;
+  if (llen > meta->hits_perc_len)
+    meta->hits_perc_len = llen;
 }
 
-/* Get largest hits metric.
- *
- * On error, 0 is returned.
- * On success, largest hits metric is returned. */
-static int
-get_max_hit (GDashData * data, int size)
+/* Set largest hits metric (length of the integer). */
+static void
+set_max_visitors_len (GDashMeta * meta, GDashData * idata)
 {
-  int i, max = 0;
-  for (i = 0; i < size; i++) {
-    int cur = 0;
-    if ((cur = data[i].metrics->hits) > max)
-      max = cur;
-  }
-  return max;
+  int vlen = intlen (idata->metrics->visitors);
+  int llen = strlen (MTRC_VISITORS_SHORT_LBL);
+
+  if (vlen > meta->visitors_len)
+    meta->visitors_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->visitors_len)
+    meta->visitors_len = llen;
 }
 
-/* Get largest visitor metric.
- *
- * On error, 0 is returned.
- * On success, largest visitor metric is returned. */
-static int
-get_max_visitor (GDashData * data, int size)
+/* Get the percent integer length. */
+static void
+set_max_visitors_perc_len (GDashMeta * meta, GDashData * idata)
 {
-  int i, max = 0;
-  for (i = 0; i < size; i++) {
-    int cur = 0;
-    if ((cur = data[i].metrics->visitors) > max)
-      max = cur;
-  }
-  return max;
+  int vlen = intlen (idata->metrics->visitors_perc);
+  int llen = strlen (MTRC_VISITORS_PERC_LBL);
+
+  if (vlen > meta->visitors_perc_len)
+    meta->visitors_perc_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->visitors_perc_len)
+    meta->visitors_perc_len = llen;
 }
 
-/* Get the percent integer length.
- *
- * On success, length of the percent is returned. */
-static int
-get_max_perc_len (int max_percent)
+/* Get the percent integer length. */
+static void
+set_max_bw_len (GDashMeta * meta, GDashData * idata)
 {
-  return intlen ((int) max_percent);
+  int vlen = strlen (idata->metrics->bw.sbw);
+  int llen = strlen (MTRC_BW_LBL);
+
+  if (vlen > meta->bw_len)
+    meta->bw_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->bw_len)
+    meta->bw_len = llen;
 }
 
-/* Get the maximum hits percent value.
- *
- * On error, 0 is returned.
- * On success, maximum hits percent is returned. */
-static float
-get_max_hits_percent (GDashData * data, int n, int valid)
+/* Get the percent integer length. */
+static void
+set_max_avgts_len (GDashMeta * meta, GDashData * idata)
 {
-  float max = 0.0;
-  int i;
-  for (i = 0; i < n; i++) {
-    data[i].metrics->hits_perc = get_percentage (valid, data[i].metrics->hits);
-    if (data[i].metrics->hits_perc > max)
-      max = data[i].metrics->hits_perc;
-  }
-  return max;
+  int vlen = 0, llen = 0;
+
+  if (!conf.serve_usecs || !idata->metrics->avgts.sts)
+    return;
+
+  vlen = strlen (idata->metrics->avgts.sts);
+  llen = strlen (MTRC_AVGTS_LBL);
+
+  if (vlen > meta->avgts_len)
+    meta->avgts_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->avgts_len)
+    meta->avgts_len = llen;
 }
 
-/* Get the maximum visitors percent value.
- *
- * On error, 0 is returned.
- * On success, maximum hits percent is returned. */
-static float
-get_max_visitors_percent (GDashData * data, int n, int valid)
+/* Get the percent integer length. */
+static void
+set_max_cumts_len (GDashMeta * meta, GDashData * idata)
 {
-  float max = 0.0;
-  int i;
-  for (i = 0; i < n; i++) {
-    data[i].metrics->visitors_perc =
-      get_percentage (valid, data[i].metrics->visitors);
-    if (data[i].metrics->visitors_perc > max)
-      max = data[i].metrics->visitors_perc;
-  }
-  return max;
+  int vlen = 0, llen = 0;
+
+  if (!conf.serve_usecs || !idata->metrics->cumts.sts)
+    return;
+
+  vlen = strlen (idata->metrics->cumts.sts);
+  llen = strlen (MTRC_AVGTS_LBL);
+
+  if (vlen > meta->cumts_len)
+    meta->cumts_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->cumts_len)
+    meta->cumts_len = llen;
+}
+
+/* Get the percent integer length. */
+static void
+set_max_maxts_len (GDashMeta * meta, GDashData * idata)
+{
+  int vlen = 0, llen = 0;
+
+  if (!conf.serve_usecs || !idata->metrics->maxts.sts)
+    return;
+
+  vlen = strlen (idata->metrics->maxts.sts);
+  llen = strlen (MTRC_AVGTS_LBL);
+
+  if (vlen > meta->maxts_len)
+    meta->maxts_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->maxts_len)
+    meta->maxts_len = llen;
+}
+
+/* Get the percent integer length. */
+static void
+set_max_method_len (GDashMeta * meta, GDashData * idata)
+{
+  int vlen = 0, llen = 0;
+
+  if (!conf.append_method || !idata->metrics->method)
+    return;
+
+  vlen = strlen (idata->metrics->method);
+  llen = strlen (MTRC_METHODS_SHORT_LBL);
+
+  if (vlen > meta->method_len)
+    meta->method_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->method_len)
+    meta->method_len = llen;
+}
+
+/* Get the percent integer length. */
+static void
+set_max_protocol_len (GDashMeta * meta, GDashData * idata)
+{
+  int vlen = 0, llen = 0;
+
+  if (!conf.append_protocol || !idata->metrics->protocol)
+    return;
+
+  vlen = strlen (idata->metrics->protocol);
+  llen = strlen (MTRC_PROTOCOLS_SHORT_LBL);
+
+  if (vlen > meta->protocol_len)
+    meta->protocol_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->protocol_len)
+    meta->protocol_len = llen;
+}
+
+/* Get the percent integer length. */
+static void
+set_max_data_len (GDashMeta * meta, GDashData * idata)
+{
+  int vlen = 0, llen = 0;
+
+  vlen = strlen (idata->metrics->data);
+  llen = strlen (MTRC_DATA_LBL);
+
+  if (vlen > meta->data_len)
+    meta->data_len = vlen;
+
+  /* if outputting with column names, then determine if the value is
+   * longer than the length of the column name */
+  if (llen > meta->data_len)
+    meta->data_len = llen;
+}
+
+static void
+set_max_values (GDashMeta * meta, GMetrics * metrics)
+{
+  if (metrics->hits > meta->max_hits)
+    meta->max_hits = metrics->hits;
+  if (metrics->visitors > meta->max_visitors)
+    meta->max_visitors = metrics->visitors;
+}
+
+static void
+set_metrics_len (GDashMeta * meta, GDashData * idata)
+{
+  /* integer-based length */
+  set_max_hit_len (meta, idata);
+  set_max_hit_perc_len (meta, idata);
+  set_max_visitors_len (meta, idata);
+  set_max_visitors_perc_len (meta, idata);
+
+  /* string-based length */
+  set_max_bw_len (meta, idata);
+  set_max_avgts_len (meta, idata);
+  set_max_cumts_len (meta, idata);
+  set_max_maxts_len (meta, idata);
+
+  set_max_method_len (meta, idata);
+  set_max_protocol_len (meta, idata);
+  set_max_data_len (meta, idata);
+}
+
+/* Render host's panel selected row */
+static void
+render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
+{
+  char *padded_data;
+
+  padded_data = left_pad_str (value, x);
+  draw_header (win, padded_data, "%s", render.y, 0, render.w, color_selected);
+  free (padded_data);
+}
+
+/* Set panel's date on the given buffer
+ *
+ * On error, '---' placeholder is returned.
+ * On success, the formatted date is returned. */
+static char *
+set_visitors_date (const char *value)
+{
+  return get_visitors_date (value, conf.spec_date_time_num_format,
+                            conf.spec_date_time_format);
+}
+
+static char *
+get_fixed_fmt_width (int w, char type)
+{
+  char *fmt = xmalloc (snprintf (NULL, 0, "%%%d%c", w, type) + 1);
+  sprintf (fmt, "%%%d%c", w, type);
+
+  return fmt;
 }
 
 /* Render the 'total' label on each panel */
@@ -467,7 +574,7 @@ render_bars (GDashModule * data, GDashRender render, int *x)
   char *bar;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
 
-  bar = get_bars (data->data[idx].metrics->hits, data->max_hits, *x);
+  bar = get_bars (data->data[idx].metrics->hits, data->meta.max_hits, *x);
   if (sel)
     draw_header (win, bar, "%s", y, *x, w, color_selected);
   else {
@@ -476,28 +583,6 @@ render_bars (GDashModule * data, GDashRender render, int *x)
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
   free (bar);
-}
-
-/* Render host's panel selected row */
-static void
-render_data_hosts (WINDOW * win, GDashRender render, char *value, int x)
-{
-  char *padded_data;
-
-  padded_data = left_pad_str (value, x);
-  draw_header (win, padded_data, "%s", render.y, 0, render.w, color_selected);
-  free (padded_data);
-}
-
-/* Set panel's date on the given buffer
- *
- * On error, '---' placeholder is returned.
- * On success, the formatted date is returned. */
-static char *
-set_visitors_date (const char *value)
-{
-  return get_visitors_date (value, conf.spec_date_time_num_format,
-                            conf.spec_date_time_format);
 }
 
 /* Render the data metric for each panel */
@@ -528,7 +613,7 @@ render_data (GDashModule * data, GDashRender render, int *x)
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
-  *x += data->module == VISITORS ? date_len : data->data_len;
+  *x += data->module == VISITORS ? date_len : data->meta.data_len;
   *x += DASH_SPACE;
   free (value);
   free (date);
@@ -560,7 +645,7 @@ render_method (GDashModule * data, GDashRender render, int *x)
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
-  *x += data->method_len + DASH_SPACE;
+  *x += data->meta.method_len + DASH_SPACE;
 }
 
 /* Render the protocol metric for each panel
@@ -687,17 +772,19 @@ render_bw (GDashModule * data, GDashRender render, int *x)
     goto out;
 
   if (sel) {
+    char *fw = get_fixed_fmt_width (data->meta.bw_len, 's');
     /* selected state */
-    draw_header (win, bw, "%11s", y, *x, w, color_selected);
+    draw_header (win, bw, fw, y, *x, w, color_selected);
+    free (fw);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%11s", bw);
+    mvwprintw (win, y, *x, "%*s", data->meta.bw_len, bw);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
 out:
-  *x += DASH_BW_LEN + DASH_SPACE;
+  *x += data->meta.bw_len + DASH_SPACE;
 }
 
 /* Render a percent metric */
@@ -727,12 +814,12 @@ render_hits_percent (GDashModule * data, GDashRender render, int *x)
 {
   GColorItem item = COLOR_MTRC_HITS_PERC;
   GColors *color;
-  int l = data->hits_perc_len + 3, idx = render.idx;
+  int l = data->meta.hits_perc_len + 3, idx = render.idx;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
 
-  if (data->max_hits == data->data[idx].metrics->hits)
+  if (data->meta.max_hits == data->data[idx].metrics->hits)
     item = COLOR_MTRC_HITS_PERC_MAX;
 
   color = get_color_by_item_module (item, data->module);
@@ -748,12 +835,12 @@ render_visitors_percent (GDashModule * data, GDashRender render, int *x)
 {
   GColorItem item = COLOR_MTRC_VISITORS_PERC;
   GColors *color;
-  int l = data->visitors_perc_len + 3, idx = render.idx;
+  int l = data->meta.visitors_perc_len + 3, idx = render.idx;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
 
-  if (data->max_visitors == data->data[idx].metrics->visitors)
+  if (data->meta.max_visitors == data->data[idx].metrics->visitors)
     item = COLOR_MTRC_VISITORS_PERC_MAX;
 
   color = get_color_by_item_module (item, data->module);
@@ -772,7 +859,7 @@ render_hits (GDashModule * data, GDashRender render, int *x)
 
   char *hits;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
-  int len = data->hits_len;
+  int len = data->meta.hits_len;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
@@ -802,7 +889,7 @@ render_visitors (GDashModule * data, GDashRender render, int *x)
 
   char *visitors;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
-  int len = data->visitors_len;
+  int len = data->meta.visitors_len;
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
@@ -994,20 +1081,22 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
     return;
 
   if (output->hits)
-    lprint_col (win, *y, &x, data->hits_len, "%s", MTRC_HITS_LBL);
+    lprint_col (win, *y, &x, data->meta.hits_len, "%s", MTRC_HITS_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->hits_perc_len + 4, "%*s", "h%");
+    rprint_col (win, *y, &x, data->meta.hits_perc_len + 4, "%*s",
+                MTRC_HITS_PERC_LBL);
 
   if (output->visitors)
-    rprint_col (win, *y, &x, data->visitors_len, "%*s",
+    rprint_col (win, *y, &x, data->meta.visitors_len, "%*s",
                 MTRC_VISITORS_SHORT_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->visitors_perc_len + 4, "%*s", "v%");
+    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, "%*s",
+                MTRC_VISITORS_PERC_LBL);
 
   if (output->bw && conf.bandwidth)
-    rprint_col (win, *y, &x, DASH_BW_LEN, "%*s", MTRC_BW_LBL);
+    rprint_col (win, *y, &x, data->meta.bw_len, "%*s", MTRC_BW_LBL);
 
   if (output->avgts && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
@@ -1019,7 +1108,8 @@ render_cols (WINDOW * win, GDashModule * data, int *y)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
 
   if (output->method && conf.append_method)
-    lprint_col (win, *y, &x, data->method_len, "%s", MTRC_METHODS_SHORT_LBL);
+    lprint_col (win, *y, &x, data->meta.method_len, "%s",
+                MTRC_METHODS_SHORT_LBL);
 
   if (output->protocol && conf.append_protocol)
     lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
@@ -1076,10 +1166,8 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
 void
 display_content (WINDOW * win, GDash * dash, GScroll * gscroll)
 {
-  GDashData *idata;
   GModule module;
-  float maxp = 0.0;
-  int j, n = 0;
+  int j = 0;
   size_t idx = 0;
 
   int y = 0, offset = 0, total = 0;
@@ -1090,7 +1178,6 @@ display_content (WINDOW * win, GDash * dash, GScroll * gscroll)
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
-    n = dash->module[module].idx_data;
     offset = 0;
     for (j = 0; j < dash->module[module].dash_size; j++) {
       if (dash_scroll > total) {
@@ -1098,29 +1185,8 @@ display_content (WINDOW * win, GDash * dash, GScroll * gscroll)
         total++;
       }
     }
-    /* module's data (metrics) */
-    idata = dash->module[module].data;
-
     /* used module */
     dash->module[module].module = module;
-
-    maxp = get_max_hits_percent (idata, n, ht_get_meta_data (module, "hits"));
-    dash->module[module].hits_perc_len = get_max_perc_len (maxp);
-
-    maxp =
-      get_max_visitors_percent (idata, n,
-                                ht_get_meta_data (module, "visitors"));
-    dash->module[module].visitors_perc_len = get_max_perc_len (maxp);
-
-    /* integer length */
-    dash->module[module].data_len = get_max_data_len (idata, n);
-    dash->module[module].hits_len = get_max_hit_len (idata, n);
-    dash->module[module].method_len = get_max_method_len (idata, n);
-    dash->module[module].visitors_len = get_max_visitor_len (idata, n);
-
-    /* maximum value */
-    dash->module[module].max_hits = get_max_hit (idata, n);
-    dash->module[module].max_visitors = get_max_visitor (idata, n);
 
     render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
   }
@@ -1336,6 +1402,59 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll)
   return valid;
 }
 
+static void
+set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
+                  int is_subitem)
+{
+  GDashData *idata = NULL;
+  GDashMeta *meta = NULL;
+  char *data = NULL;
+  int *idx;
+
+  if (!metrics->data)
+    return;
+
+  idx = &(*dash)->module[module].idx_data;
+  idata = &(*dash)->module[module].data[(*idx)];
+  meta = &(*dash)->module[module].meta;
+
+  idata->metrics = new_gmetrics ();
+  idata->is_subitem = is_subitem;
+
+  data = is_subitem ? render_child_node (metrics->data) : metrics->data;
+
+  /* set maximum values so far for hits/visitors */
+  set_max_values (meta, metrics);
+
+  idata->metrics->hits = metrics->hits;
+  idata->metrics->hits_perc = get_percentage (meta->max_hits, metrics->hits);
+  idata->metrics->visitors = metrics->visitors;
+  idata->metrics->visitors_perc =
+    get_percentage (meta->max_visitors, metrics->visitors);
+  idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
+  idata->metrics->data = xstrdup (data);
+
+  if (conf.append_method && metrics->method)
+    idata->metrics->method = metrics->method;
+  if (conf.append_protocol && metrics->protocol)
+    idata->metrics->protocol = metrics->protocol;
+
+  if (!conf.serve_usecs)
+    goto out;
+
+  idata->metrics->avgts.sts = usecs_to_str (metrics->avgts.nts);
+  idata->metrics->cumts.sts = usecs_to_str (metrics->cumts.nts);
+  idata->metrics->maxts.sts = usecs_to_str (metrics->maxts.nts);
+
+out:
+  if (is_subitem)
+    free (data);
+
+  set_metrics_len (meta, idata);
+
+  (*idx)++;
+}
+
 /* Add an item from a sub list to the dashboard.
  *
  * If no items on the sub list, the function returns.
@@ -1345,36 +1464,12 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
-  GDashData *idata;
-
-  char *entry;
-  int *idx;
-  idx = &(*dash)->module[module].idx_data;
 
   if (sub_list == NULL)
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
-    entry = render_child_node (iter->metrics->data);
-    if (!entry)
-      continue;
-
-    idata = &(*dash)->module[module].data[(*idx)];
-    idata->metrics = new_gmetrics ();
-
-    idata->metrics->visitors = iter->metrics->visitors;
-    idata->metrics->bw.sbw = filesize_str (iter->metrics->bw.nbw);
-    idata->metrics->data = xstrdup (entry);
-    idata->metrics->hits = iter->metrics->hits;
-    if (conf.serve_usecs) {
-      idata->metrics->avgts.sts = usecs_to_str (iter->metrics->avgts.nts);
-      idata->metrics->cumts.sts = usecs_to_str (iter->metrics->cumts.nts);
-      idata->metrics->maxts.sts = usecs_to_str (iter->metrics->maxts.nts);
-    }
-
-    idata->is_subitem = 1;
-    (*idx)++;
-    free (entry);
+    set_dash_metrics (dash, iter->metrics, module, 1);
   }
 }
 
@@ -1384,28 +1479,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
 static void
 add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
 {
-  GDashData *idata;
-  int *idx = &(*dash)->module[module].idx_data;
-
-  idata = &(*dash)->module[module].data[(*idx)];
-  idata->metrics = new_gmetrics ();
-
-  idata->metrics->bw.sbw = filesize_str (item.metrics->bw.nbw);
-  idata->metrics->data = xstrdup (item.metrics->data);
-  idata->metrics->hits = item.metrics->hits;
-  idata->metrics->visitors = item.metrics->visitors;
-
-  if (conf.append_method && item.metrics->method)
-    idata->metrics->method = item.metrics->method;
-  if (conf.append_protocol && item.metrics->protocol)
-    idata->metrics->protocol = item.metrics->protocol;
-  if (conf.serve_usecs) {
-    idata->metrics->avgts.sts = usecs_to_str (item.metrics->avgts.nts);
-    idata->metrics->cumts.sts = usecs_to_str (item.metrics->cumts.nts);
-    idata->metrics->maxts.sts = usecs_to_str (item.metrics->maxts.nts);
-  }
-
-  (*idx)++;
+  set_dash_metrics (dash, item.metrics, module, 0);
 }
 
 /* Load holder's data into the dashboard structure. */
@@ -1422,6 +1496,7 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
   dash->module[module].alloc_data = alloc_size;
   dash->module[module].data = new_gdata (alloc_size);
   dash->module[module].holder_size = h->holder_size;
+  memset (&dash->module[module].meta, 0, sizeof (GDashData));
 
   for (i = 0, j = 0; i < alloc_size; i++) {
     if (h->items[j].metrics->data == NULL)
