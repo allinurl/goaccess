@@ -57,9 +57,6 @@
 #define DASH_SRV_TM_LEN  9  /* max time served length, e.g., 483.00 us */
 #define DASH_SPACE       1  /* space between columns (metrics) */
 
-#define COLUMN_HITS_LEN  4  /* column header name length */
-#define COLUMN_VIS_LEN   4  /* column header name length */
-
 /* Common render data line fields */
 typedef struct GDashRender_
 {
@@ -77,11 +74,34 @@ typedef struct GDashData_
   short is_subitem;
 } GDashData;
 
+/* Dashboard panel meta data */
+typedef struct GDashMeta_
+{
+  int max_hits;          /* maximum value on the hits column */
+  int max_visitors;      /* maximum value on the visitors column */
+
+  /* determine the maximum metric's length of these metrics */
+  /* for instance, 1022 is the max value for the hits column and its length = 4 */
+  int hits_len;
+  int hits_perc_len;
+  int visitors_len;
+  int visitors_perc_len;
+  int bw_len;
+  int avgts_len;
+  int cumts_len;
+  int maxts_len;
+  int method_len;
+  int protocol_len;
+  int data_len;
+} GDashMeta;
+
 /* Dashboard panel */
 typedef struct GDashModule_
 {
   GDashData *data;       /* data metrics */
   GModule module;        /* module */
+  GDashMeta meta;        /* meta data */
+
   const char *head;      /* panel header */
   const char *desc;      /* panel description */
 
@@ -91,16 +111,6 @@ typedef struct GDashModule_
   int holder_size;       /* hash table size  */
   int ht_size;           /* hash table size  */
   int idx_data;          /* idx data */
-
-  int max_hits;          /* the maximum number of hits */
-  int max_visitors;      /* the maximum number of visitors */
-
-  int data_len;          /* data's maximum length */
-  int hits_len;          /* hits's maximum length. e.g., 102 => 3 */
-  int hits_perc_len;     /* hits percent's maximum length */
-  int visitors_perc_len; /* visitors percent's maximum length */
-  int method_len;        /* method's maximum length */
-  int visitors_len;      /* visitor's maximum length */
 
   unsigned short pos_y;  /* dashboard current Y position */
 } GDashModule;
