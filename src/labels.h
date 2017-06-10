@@ -360,4 +360,10 @@
 #define STATUS_CODE_5XX               \
   N_("5xx Server Errors")
 
+#define STATUS_CODE_100               \
+  N_("100 - Continue: Server received the initial part of the request")
+#define STATUS_CODE_101               \
+  N_("101 - Switching Protocols: Client asked to switch protocols")
+
+
 #endif // for #ifndef LABELS_H

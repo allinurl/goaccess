@@ -68,8 +68,8 @@ static const char *code_type[][2] = {
 
 /* HTTP status codes */
 static const char *codes[][2] = {
-  {"100", "100 - Continue: Server received the initial part of the request"},
-  {"101", "101 - Switching Protocols: Client asked to switch protocols"},
+  {"100", STATUS_CODE_100},
+  {"101", STATUS_CODE_101},
   {"200", "200 - OK: The request sent by the client was successful"},
   {"201", "201 - Created: The request has been fulfilled and created"},
   {"202", "202 - Accepted: The request has been accepted for processing"},
