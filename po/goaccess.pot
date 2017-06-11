@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-06-01 07:01-0500\n"
+"POT-Creation-Date: 2017-06-13 07:21-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -634,4 +634,12 @@ msgstr ""
 
 #: ../src/labels.h:361
 msgid "5xx Server Errors"
+msgstr ""
+
+#: ../src/labels.h:364
+msgid "100 - Continue: Server received the initial part of the request"
+msgstr ""
+
+#: ../src/labels.h:366
+msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr ""
