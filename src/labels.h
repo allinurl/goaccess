@@ -364,6 +364,107 @@
   N_("100 - Continue: Server received the initial part of the request")
 #define STATUS_CODE_101               \
   N_("101 - Switching Protocols: Client asked to switch protocols")
-
+#define STATUS_CODE_200               \
+  N_("200 - OK: The request sent by the client was successful")
+#define STATUS_CODE_201               \
+  N_("201 - Created: The request has been fulfilled and created")
+#define STATUS_CODE_202               \
+  N_("202 - Accepted: The request has been accepted for processing")
+#define STATUS_CODE_203               \
+  N_("203 - Non-authoritative Information: Response from a third party")
+#define STATUS_CODE_204               \
+  N_("204 - No Content: Request did not return any content")
+#define STATUS_CODE_205               \
+  N_("205 - Reset Content: Server asked the client to reset the document")
+#define STATUS_CODE_206               \
+  N_("206 - Partial Content: The partial GET has been successful")
+#define STATUS_CODE_207               \
+  N_("207 - Multi-Status: WebDAV; RFC 4918")
+#define STATUS_CODE_208               \
+  N_("208 - Already Reported: WebDAV; RFC 5842")
+#define STATUS_CODE_300               \
+  N_("300 - Multiple Choices: Multiple options for the resource")
+#define STATUS_CODE_301               \
+  N_("301 - Moved Permanently: Resource has permanently moved")
+#define STATUS_CODE_302               \
+  N_("302 - Moved Temporarily (redirect)")
+#define STATUS_CODE_303               \
+  N_("303 - See Other Document: The response is at a different URI")
+#define STATUS_CODE_304               \
+  N_("304 - Not Modified: Resource has not been modified")
+#define STATUS_CODE_305               \
+  N_("305 - Use Proxy: Can only be accessed through the proxy")
+#define STATUS_CODE_307               \
+  N_("307 - Temporary Redirect: Resource temporarily moved")
+#define STATUS_CODE_400               \
+  N_("400 - Bad Request: The syntax of the request is invalid")
+#define STATUS_CODE_401               \
+  N_("401 - Unauthorized: Request needs user authentication")
+#define STATUS_CODE_402               \
+  N_("402 - Payment Required")
+#define STATUS_CODE_403               \
+  N_("403 - Forbidden: Server is refusing to respond to it")
+#define STATUS_CODE_404               \
+  N_("404 - Not Found: Requested resource could not be found")
+#define STATUS_CODE_405               \
+  N_("405 - Method Not Allowed: Request method not supported")
+#define STATUS_CODE_406               \
+  N_("406 - Not Acceptable")
+#define STATUS_CODE_407               \
+  N_("407 - Proxy Authentication Required")
+#define STATUS_CODE_408               \
+  N_("408 - Request Timeout: Server timed out waiting for the request")
+#define STATUS_CODE_409               \
+  N_("409 - Conflict: Conflict in the request")
+#define STATUS_CODE_410               \
+  N_("410 - Gone: Resource requested is no longer available")
+#define STATUS_CODE_411               \
+  N_("411 - Length Required: Invalid Content-Length")
+#define STATUS_CODE_412               \
+  N_("412 - Precondition Failed: Server does not meet preconditions")
+#define STATUS_CODE_413               \
+  N_("413 - Payload Too Large")
+#define STATUS_CODE_414               \
+  N_("414 - Request-URI Too Long")
+#define STATUS_CODE_415               \
+  N_("415 - Unsupported Media Type: Media type is not supported")
+#define STATUS_CODE_416               \
+  N_("416 - Requested Range Not Satisfiable: Cannot supply that portion")
+#define STATUS_CODE_417               \
+  N_("417 - Expectation Failed")
+#define STATUS_CODE_444               \
+  N_("444 - (Nginx) Connection closed without sending any headers")
+#define STATUS_CODE_494               \
+  N_("494 - (Nginx) Request Header Too Large")
+#define STATUS_CODE_495               \
+  N_("495 - (Nginx) SSL client certificate error")
+#define STATUS_CODE_496               \
+  N_("496 - (Nginx) Client didn't provide certificate")
+#define STATUS_CODE_497               \
+  N_("497 - (Nginx) HTTP request sent to HTTPS port")
+#define STATUS_CODE_499               \
+  N_("499 - (Nginx) Connection closed by client while processing request")
+#define STATUS_CODE_500               \
+  N_("500 - Internal Server Error")
+#define STATUS_CODE_501               \
+  N_("501 - Not Implemented")
+#define STATUS_CODE_502               \
+  N_("502 - Bad Gateway: Received an invalid response from the upstream")
+#define STATUS_CODE_503               \
+  N_("503 - Service Unavailable: The server is currently unavailable")
+#define STATUS_CODE_504               \
+  N_("504 - Gateway Timeout: The upstream server failed to send request")
+#define STATUS_CODE_505               \
+  N_("505 - HTTP Version Not Supported")
+#define STATUS_CODE_520               \
+  N_("520 - CloudFlare - Web server is returning an unknown error")
+#define STATUS_CODE_521               \
+  N_("521 - CloudFlare - Web server is down")
+#define STATUS_CODE_522               \
+  N_("522 - CloudFlare - Connection timed out")
+#define STATUS_CODE_523               \
+  N_("523 - CloudFlare - Origin is unreachable")
+#define STATUS_CODE_524               \
+  N_("524 - CloudFlare - A timeout occurred")
 
 #endif // for #ifndef LABELS_H
