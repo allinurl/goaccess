@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-06-13 07:21-0500\n"
+"POT-Creation-Date: 2017-06-14 06:41-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -650,6 +650,210 @@ msgstr ""
 
 #: ../src/labels.h:366
 msgid "101 - Switching Protocols: Client asked to switch protocols"
+msgstr ""
+
+#: ../src/labels.h:368
+msgid "200 - OK: The request sent by the client was successful"
+msgstr ""
+
+#: ../src/labels.h:370
+msgid "201 - Created: The request has been fulfilled and created"
+msgstr ""
+
+#: ../src/labels.h:372
+msgid "202 - Accepted: The request has been accepted for processing"
+msgstr ""
+
+#: ../src/labels.h:374
+msgid "203 - Non-authoritative Information: Response from a third party"
+msgstr ""
+
+#: ../src/labels.h:376
+msgid "204 - No Content: Request did not return any content"
+msgstr ""
+
+#: ../src/labels.h:378
+msgid "205 - Reset Content: Server asked the client to reset the document"
+msgstr ""
+
+#: ../src/labels.h:380
+msgid "206 - Partial Content: The partial GET has been successful"
+msgstr ""
+
+#: ../src/labels.h:382
+msgid "207 - Multi-Status: WebDAV; RFC 4918"
+msgstr ""
+
+#: ../src/labels.h:384
+msgid "208 - Already Reported: WebDAV; RFC 5842"
+msgstr ""
+
+#: ../src/labels.h:386
+msgid "300 - Multiple Choices: Multiple options for the resource"
+msgstr ""
+
+#: ../src/labels.h:388
+msgid "301 - Moved Permanently: Resource has permanently moved"
+msgstr ""
+
+#: ../src/labels.h:390
+msgid "302 - Moved Temporarily (redirect)"
+msgstr ""
+
+#: ../src/labels.h:392
+msgid "303 - See Other Document: The response is at a different URI"
+msgstr ""
+
+#: ../src/labels.h:394
+msgid "304 - Not Modified: Resource has not been modified"
+msgstr ""
+
+#: ../src/labels.h:396
+msgid "305 - Use Proxy: Can only be accessed through the proxy"
+msgstr ""
+
+#: ../src/labels.h:398
+msgid "307 - Temporary Redirect: Resource temporarily moved"
+msgstr ""
+
+#: ../src/labels.h:400
+msgid "400 - Bad Request: The syntax of the request is invalid"
+msgstr ""
+
+#: ../src/labels.h:402
+msgid "401 - Unauthorized: Request needs user authentication"
+msgstr ""
+
+#: ../src/labels.h:404
+msgid "402 - Payment Required"
+msgstr ""
+
+#: ../src/labels.h:406
+msgid "403 - Forbidden: Server is refusing to respond to it"
+msgstr ""
+
+#: ../src/labels.h:408
+msgid "404 - Not Found: Requested resource could not be found"
+msgstr ""
+
+#: ../src/labels.h:410
+msgid "405 - Method Not Allowed: Request method not supported"
+msgstr ""
+
+#: ../src/labels.h:412
+msgid "406 - Not Acceptable"
+msgstr ""
+
+#: ../src/labels.h:414
+msgid "407 - Proxy Authentication Required"
+msgstr ""
+
+#: ../src/labels.h:416
+msgid "408 - Request Timeout: Server timed out waiting for the request"
+msgstr ""
+
+#: ../src/labels.h:418
+msgid "409 - Conflict: Conflict in the request"
+msgstr ""
+
+#: ../src/labels.h:420
+msgid "410 - Gone: Resource requested is no longer available"
+msgstr ""
+
+#: ../src/labels.h:422
+msgid "411 - Length Required: Invalid Content-Length"
+msgstr ""
+
+#: ../src/labels.h:424
+msgid "412 - Precondition Failed: Server does not meet preconditions"
+msgstr ""
+
+#: ../src/labels.h:426
+msgid "413 - Payload Too Large"
+msgstr ""
+
+#: ../src/labels.h:428
+msgid "414 - Request-URI Too Long"
+msgstr ""
+
+#: ../src/labels.h:430
+msgid "415 - Unsupported Media Type: Media type is not supported"
+msgstr ""
+
+#: ../src/labels.h:432
+msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
+msgstr ""
+
+#: ../src/labels.h:434
+msgid "417 - Expectation Failed"
+msgstr ""
+
+#: ../src/labels.h:436
+msgid "444 - (Nginx) Connection closed without sending any headers"
+msgstr ""
+
+#: ../src/labels.h:438
+msgid "494 - (Nginx) Request Header Too Large"
+msgstr ""
+
+#: ../src/labels.h:440
+msgid "495 - (Nginx) SSL client certificate error"
+msgstr ""
+
+#: ../src/labels.h:442
+msgid "496 - (Nginx) Client didn't provide certificate"
+msgstr ""
+
+#: ../src/labels.h:444
+msgid "497 - (Nginx) HTTP request sent to HTTPS port"
+msgstr ""
+
+#: ../src/labels.h:446
+msgid "499 - (Nginx) Connection closed by client while processing request"
+msgstr ""
+
+#: ../src/labels.h:448
+msgid "500 - Internal Server Error"
+msgstr ""
+
+#: ../src/labels.h:450
+msgid "501 - Not Implemented"
+msgstr ""
+
+#: ../src/labels.h:452
+msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgstr ""
+
+#: ../src/labels.h:454
+msgid "503 - Service Unavailable: The server is currently unavailable"
+msgstr ""
+
+#: ../src/labels.h:456
+msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgstr ""
+
+#: ../src/labels.h:458
+msgid "505 - HTTP Version Not Supported"
+msgstr ""
+
+#: ../src/labels.h:460
+msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgstr ""
+
+#: ../src/labels.h:462
+msgid "521 - CloudFlare - Web server is down"
+msgstr ""
+
+#: ../src/labels.h:464
+msgid "522 - CloudFlare - Connection timed out"
+msgstr ""
+
+#: ../src/labels.h:466
+msgid "523 - CloudFlare - Origin is unreachable"
+msgstr ""
+
+#: ../src/labels.h:468
+msgid "524 - CloudFlare - A timeout occurred"
 msgstr ""
 
 #~ msgid " - Including spiders"
