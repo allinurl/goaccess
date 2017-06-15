@@ -136,15 +136,7 @@ get_dbname (const char *dbname, int module)
 #endif
 
 #ifdef TCB_BTREE
-  char *db = NULL;
   path = tc_db_set_path (dbname, module);
-
-  if (module >= 0) {
-    db = xmalloc (snprintf (NULL, 0, "%s", path) + 1);
-    sprintf (db, "%s", path);
-    free (path);
-    return db;
-  }
 #endif
 
   return path;
