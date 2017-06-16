@@ -76,8 +76,8 @@ const char *verify_status_code_type (const char *str);
 int convert_date (char *res, const char *data, const char *from, const char *to, int size);
 int count_matches (const char *s1, char c);
 int find_output_type (char **filename, const char *ext, int alloc);
-int ignore_referer (const char *ref);
 int hide_referer (const char *ref);
+int ignore_referer (const char *ref);
 int intlen (int num);
 int invalid_ipaddr (char *str, int *ipvx);
 int ip_in_range (const char *ip);
@@ -86,6 +86,7 @@ int str_to_time (const char *str, const char *fmt, struct tm *tm);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
 void append_str (char **dest, const char *src);
+void genstr(char *dest, size_t len);
 void strip_newlines (char *str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
