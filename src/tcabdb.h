@@ -151,6 +151,7 @@ typedef struct GTCStorageMetric_
 {
   GSMetric metric;
   const char *dbname;
+  char *dbpath;
   void *store;
 } GTCStorageMetric;
 

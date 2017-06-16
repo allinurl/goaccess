@@ -175,6 +175,17 @@ xstrncpy (char *dest, const char *source, const size_t dest_size)
   }
 }
 
+/* A random string generator. */
+void
+genstr (char *dest, size_t len)
+{
+  char set[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+  while (len-- > 0)
+    *dest++ = set[rand() % (sizeof(set) - 1)];
+  *dest = '\0';
+}
+
 /* Count the number of matches on the string `s1` given a character `c`
  *
  * If the character is not found, 0 is returned

@@ -50,6 +50,8 @@
 #define TC_ZLIB 1
 #define TC_BZ2  2
 
+#define RAND_FN 7 + 1
+
 /* B+ Tree - on-disk databases */
 #define DB_AGENT_KEYS  "db_agent_keys.tcb"
 #define DB_AGENT_VALS  "db_agent_vals.tcb"
@@ -73,7 +75,7 @@
 #define DB_METADATA  "db_metadata.tcb"
 
 /* *INDENT-OFF* */
-TCBDB *tc_bdb_create (const char *dbname, int module);
+TCBDB *tc_bdb_create (char *dbpath);
 
 char *tc_db_set_path (const char *dbname, int module);
 int tc_bdb_close (void *db, char *dbname);

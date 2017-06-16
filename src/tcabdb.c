@@ -57,6 +57,13 @@ static TCADB *ht_general_stats = NULL;
 static TCADB *ht_hostnames = NULL;
 static TCADB *ht_unique_keys = NULL;
 
+/* db paths for whole app hashes */
+static char *dbpath_agent_keys = NULL;
+static char *dbpath_agent_vals = NULL;
+static char *dbpath_general_stats = NULL;
+static char *dbpath_hostnames = NULL;
+static char *dbpath_unique_keys = NULL;
+
 /* Instantiate a new store */
 static GTCStorage *
 new_tcstorage (uint32_t size)
@@ -119,8 +126,6 @@ tc_adb_create (char *path)
     FATAL ("Unable to open an abstract database: %s", params);
   }
 
-  free (path);
-
   return adb;
 }
 
@@ -142,6 +147,39 @@ get_dbname (const char *dbname, int module)
   return path;
 }
 
+/* Create hashes used across the whole app (not per module) */
+static void
+create_prog_tables (void)
+{
+  ht_agent_keys = tc_adb_create (dbpath_agent_keys);
+  ht_agent_vals = tc_adb_create (dbpath_agent_vals);
+  ht_general_stats = tc_adb_create (dbpath_general_stats);
+  ht_hostnames = tc_adb_create (dbpath_hostnames);
+  ht_unique_keys = tc_adb_create (dbpath_unique_keys);
+}
+
+/* Set db paths for hashes used across the whole app (not per module) */
+static void
+set_prog_tables_dbpaths (void)
+{
+  dbpath_agent_keys = get_dbname (DB_AGENT_KEYS, -1);
+  dbpath_agent_vals = get_dbname (DB_AGENT_VALS, -1);
+  dbpath_general_stats = get_dbname (DB_GEN_STATS, -1);
+  dbpath_hostnames = get_dbname (DB_HOSTNAMES, -1);
+  dbpath_unique_keys = get_dbname (DB_UNIQUE_KEYS, -1);
+}
+
+/* Free hashes used across the whole app (not per module) */
+static void
+free_prog_tables (void)
+{
+  tc_db_close (ht_agent_keys, dbpath_agent_keys);
+  tc_db_close (ht_agent_vals, dbpath_agent_vals);
+  tc_db_close (ht_general_stats, dbpath_general_stats);
+  tc_db_close (ht_hostnames, dbpath_hostnames);
+  tc_db_close (ht_unique_keys, dbpath_unique_keys);
+}
+
 /* Initialize map & metric hashes */
 static void
 init_tables (GModule module)
@@ -151,20 +189,20 @@ init_tables (GModule module)
 
   /* *INDENT-OFF* */
   GTCStorageMetric metrics[] = {
-    {MTRC_KEYMAP    , DB_KEYMAP    , NULL} ,
-    {MTRC_ROOTMAP   , DB_ROOTMAP   , NULL} ,
-    {MTRC_DATAMAP   , DB_DATAMAP   , NULL} ,
-    {MTRC_UNIQMAP   , DB_UNIQMAP   , NULL} ,
-    {MTRC_ROOT      , DB_ROOT      , NULL} ,
-    {MTRC_HITS      , DB_HITS      , NULL} ,
-    {MTRC_VISITORS  , DB_VISITORS  , NULL} ,
-    {MTRC_BW        , DB_BW        , NULL} ,
-    {MTRC_CUMTS     , DB_CUMTS     , NULL} ,
-    {MTRC_MAXTS     , DB_MAXTS     , NULL} ,
-    {MTRC_METHODS   , DB_METHODS   , NULL} ,
-    {MTRC_PROTOCOLS , DB_PROTOCOLS , NULL} ,
-    {MTRC_AGENTS    , DB_AGENTS    , NULL} ,
-    {MTRC_METADATA  , DB_METADATA  , NULL} ,
+    {MTRC_KEYMAP    , DB_KEYMAP    , NULL, NULL} ,
+    {MTRC_ROOTMAP   , DB_ROOTMAP   , NULL, NULL} ,
+    {MTRC_DATAMAP   , DB_DATAMAP   , NULL, NULL} ,
+    {MTRC_UNIQMAP   , DB_UNIQMAP   , NULL, NULL} ,
+    {MTRC_ROOT      , DB_ROOT      , NULL, NULL} ,
+    {MTRC_HITS      , DB_HITS      , NULL, NULL} ,
+    {MTRC_VISITORS  , DB_VISITORS  , NULL, NULL} ,
+    {MTRC_BW        , DB_BW        , NULL, NULL} ,
+    {MTRC_CUMTS     , DB_CUMTS     , NULL, NULL} ,
+    {MTRC_MAXTS     , DB_MAXTS     , NULL, NULL} ,
+    {MTRC_METHODS   , DB_METHODS   , NULL, NULL} ,
+    {MTRC_PROTOCOLS , DB_PROTOCOLS , NULL, NULL} ,
+    {MTRC_AGENTS    , DB_AGENTS    , NULL, NULL} ,
+    {MTRC_METADATA  , DB_METADATA  , NULL, NULL} ,
   };
   /* *INDENT-ON* */
 
@@ -172,14 +210,18 @@ init_tables (GModule module)
   for (i = 0; i < n; i++) {
     mtrc = metrics[i];
 #ifdef TCB_MEMHASH
-    mtrc.store = tc_adb_create (get_dbname (mtrc.dbname, module));
+    mtrc.dbpath = get_dbname (mtrc.dbname, module);
+    mtrc.store = tc_adb_create (mtrc.dbpath);
 #endif
 #ifdef TCB_BTREE
     /* allow for duplicate keys */
-    if (mtrc.metric == MTRC_AGENTS)
-      mtrc.store = tc_bdb_create (DB_AGENTS, module);
-    else
-      mtrc.store = tc_adb_create (get_dbname (mtrc.dbname, module));
+    if (mtrc.metric == MTRC_AGENTS) {
+      mtrc.dbpath = tc_db_set_path (DB_AGENTS, module);
+      mtrc.store = tc_bdb_create (mtrc.dbpath);
+    } else {
+      mtrc.dbpath = get_dbname (mtrc.dbname, module);
+      mtrc.store = tc_adb_create (mtrc.dbpath);
+    }
 #endif
     tc_storage[module].metrics[i] = mtrc;
   }
@@ -192,12 +234,8 @@ init_storage (void)
   GModule module;
   size_t idx = 0;
 
-  /* Hashes used across the whole app (not per module) */
-  ht_agent_keys = tc_adb_create (get_dbname (DB_AGENT_KEYS, -1));
-  ht_agent_vals = tc_adb_create (get_dbname (DB_AGENT_VALS, -1));
-  ht_general_stats = tc_adb_create (get_dbname (DB_GEN_STATS, -1));
-  ht_hostnames = tc_adb_create (get_dbname (DB_HOSTNAMES, -1));
-  ht_unique_keys = tc_adb_create (get_dbname (DB_UNIQUE_KEYS, -1));
+  set_prog_tables_dbpaths ();
+  create_prog_tables ();
 
   tc_storage = new_tcstorage (TOTAL_MODULES);
 
@@ -219,13 +257,13 @@ free_metrics (GModule module)
   for (i = 0; i < GSMTRC_TOTAL; i++) {
     mtrc = tc_storage[module].metrics[i];
 #ifdef TCB_MEMHASH
-    tc_db_close (mtrc.store, get_dbname (mtrc.dbname, module));
+    tc_db_close (mtrc.store, mtrc.dbpath);
 #endif
 #ifdef TCB_BTREE
     if (mtrc.metric == MTRC_AGENTS)
-      tc_bdb_close (mtrc.store, get_dbname (mtrc.dbname, module));
+      tc_bdb_close (mtrc.store, mtrc.dbpath);
     else
-      tc_db_close (mtrc.store, get_dbname (mtrc.dbname, module));
+      tc_db_close (mtrc.store, mtrc.dbpath);
 #endif
   }
 }
@@ -239,12 +277,7 @@ free_storage (void)
   if (!tc_storage)
     return;
 
-  tc_db_close (ht_agent_keys, get_dbname (DB_AGENT_KEYS, -1));
-  tc_db_close (ht_agent_vals, get_dbname (DB_AGENT_VALS, -1));
-  tc_db_close (ht_general_stats, get_dbname (DB_GEN_STATS, -1));
-  tc_db_close (ht_hostnames, get_dbname (DB_HOSTNAMES, -1));
-  tc_db_close (ht_unique_keys, get_dbname (DB_UNIQUE_KEYS, -1));
-
+  free_prog_tables ();
   FOREACH_MODULE (idx, module_list) {
     free_metrics (module_list[idx]);
   }

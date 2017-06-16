@@ -35,6 +35,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <tcutil.h>
+#include <fcntl.h>
 
 #include "tcbtdb.h"
 #include "tcabdb.h"
@@ -44,6 +45,7 @@
 #endif
 
 #include "error.h"
+#include "util.h"
 #include "xmalloc.h"
 
 #ifdef TCB_BTREE
@@ -54,27 +56,29 @@
 char *
 tc_db_set_path (const char *dbname, int module)
 {
-  const char *db_path;
+  struct stat info;
+  const char *db_path = TC_DBPATH;
   char *path;
+  char fname[RAND_FN];
   int cx;
 
-  struct stat info;
-
-  if (conf.db_path != NULL) {
-    /* sanity check: Is db_path accessible and a directory? */
-    if (stat (conf.db_path, &info) != 0) {
-      FATAL ("Unable to access database path: %s", strerror (errno));
-    } else if (!(info.st_mode & S_IFDIR)) {
-      FATAL ("Database path is not a directory.");
-    }
+  if (conf.db_path != NULL)
     db_path = conf.db_path;
-  } else {
-    db_path = TC_DBPATH;
-  }
 
-  cx = snprintf (NULL, 0, "%s/%dm%s", db_path, module, dbname) + 1;
+  /* sanity check: Is db_path accessible and a directory? */
+  if (stat (db_path, &info) != 0)
+    FATAL ("Unable to access database path: %s", strerror (errno));
+  if (!(info.st_mode & S_IFDIR))
+    FATAL ("Database path is not a directory.");
+
+  memset (fname, 0, sizeof (fname));
+  /* tcadbopen requires the db name suffix to be ".tcb" and thus we
+   * don't use mkstemp(3) */
+  genstr (fname, RAND_FN - 1);
+
+  cx = snprintf (NULL, 0, "%s/%dm%s%s", db_path, module, fname, dbname) + 1;
   path = xmalloc (cx);
-  sprintf (path, "%s/%dm%s", db_path, module, dbname);
+  sprintf (path, "%s/%dm%s%s", db_path, module, fname, dbname);
 
   return path;
 }
@@ -160,14 +164,12 @@ tc_db_get_params (char *params, const char *path)
  * On error, the program will exit.
  * On success, the opened on-disk database is returned. */
 TCBDB *
-tc_bdb_create (const char *dbname, int module)
+tc_bdb_create (char *dbpath)
 {
   TCBDB *bdb;
-  char *path = NULL;
   int ecode;
   uint32_t lcnum, ncnum, lmemb, nmemb, bnum, flags;
 
-  path = tc_db_set_path (dbname, module);
   bdb = tcbdbnew ();
 
   lcnum = conf.cache_lcnum > 0 ? conf.cache_lcnum : TC_LCNUM;
@@ -175,13 +177,13 @@ tc_bdb_create (const char *dbname, int module)
 
   /* set the caching parameters of a B+ tree database object */
   if (!tcbdbsetcache (bdb, lcnum, ncnum)) {
-    free (path);
+    free (dbpath);
     FATAL ("Unable to set TCB cache");
   }
 
   /* set the size of the extra mapped memory */
   if (conf.xmmap > 0 && !tcbdbsetxmsiz (bdb, conf.xmmap)) {
-    free (path);
+    free (dbpath);
     FATAL ("Unable to set TCB xmmap.");
   }
 
@@ -206,13 +208,12 @@ tc_bdb_create (const char *dbname, int module)
     flags |= BDBOTRUNC;
 
   /* attempt to open the database */
-  if (!tcbdbopen (bdb, path, flags)) {
-    free (path);
+  if (!tcbdbopen (bdb, dbpath, flags)) {
+    free (dbpath);
     ecode = tcbdbecode (bdb);
 
     FATAL ("%s", tcbdberrmsg (ecode));
   }
-  free (path);
 
   return bdb;
 }
