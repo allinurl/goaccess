@@ -196,10 +196,9 @@ example, for apache's *combined* log format:
     output /srv/report/index.html
     real-time-html true
 
-Once you have your configuration file all set, clone the repo/
+Once you have your configuration file all set, clone the repo:
 
-    $ git clone https://github.com/allinurl/goaccess.git
-    $ cd goaccess
+    $ git clone https://github.com/allinurl/goaccess.git goaccess && cd $_
 
 and then build and run the image as follows:
 
