@@ -108,6 +108,70 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
+## Distributions ##
+
+It is easiest to install GoAccess on Linux using the preferred package manager
+of your Linux distribution. Please _note_ that not all distributions will have
+the lastest version of GoAccess available
+
+#### Debian/Ubuntu ####
+
+    # apt-get install goaccess
+
+**NOTE:** It is likely this will install an outdated version of GoAccess. To
+make sure that you're running the latest stable version of GoAccess see
+alternative option below.
+
+#### Official GoAccess Debian & Ubuntu repository ####
+
+    $ echo "deb http://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
+    $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
+    $ sudo apt-get update
+    $ sudo apt-get install goaccess
+
+**Note**:
+* For *on-disk* support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
+* `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
+
+#### Fedora ####
+
+    # yum install goaccess
+
+#### Arch Linux ####
+
+    # pacman -S goaccess
+
+#### Gentoo ####
+
+    # emerge net-analyzer/goaccess
+
+#### OS X / Homebrew ####
+
+    # brew install goaccess
+
+#### FreeBSD ####
+
+    # cd /usr/ports/sysutils/goaccess/ && make install clean
+    # pkg install sysutils/goaccess
+
+#### OpenBSD ####
+
+    # cd /usr/ports/www/goaccess && make install clean
+    # pkg_add goaccess
+
+#### OpenIndiana ####
+
+    # pkg install goaccess
+
+#### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
+
+    # pkgin install goaccess
+
+#### Windows ####
+
+GoAccess can be used in Windows through Cygwin.
+See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+
 ### Docker ###
 
 NOTE: The following example assumes you will store your GoAccess data below
@@ -196,71 +260,6 @@ cloning the git repository:
       -v "/srv/goaccess/logs:/srv/logs"         \
       -v "/srv/goaccess/html:/srv/report"       \
       --name=goaccess allinurl/goaccess
-
-
-## Distributions ##
-
-It is easiest to install GoAccess on Linux using the preferred package manager
-of your Linux distribution. Please _note_ that not all distributions will have
-the lastest version of GoAccess available
-
-#### Debian/Ubuntu ####
-
-    # apt-get install goaccess
-
-**NOTE:** It is likely this will install an outdated version of GoAccess. To
-make sure that you're running the latest stable version of GoAccess see
-alternative option below.
-
-#### Official GoAccess Debian & Ubuntu repository ####
-
-    $ echo "deb http://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
-    $ sudo apt-get update
-    $ sudo apt-get install goaccess
-    
-**Note**:
-* For *on-disk* support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
-* `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
-
-#### Fedora ####
-
-    # yum install goaccess
-
-#### Arch Linux ####
-
-    # pacman -S goaccess
-
-#### Gentoo ####
-
-    # emerge net-analyzer/goaccess
-
-#### OS X / Homebrew ####
-
-    # brew install goaccess
-
-#### FreeBSD ####
-
-    # cd /usr/ports/sysutils/goaccess/ && make install clean
-    # pkg install sysutils/goaccess
-
-#### OpenBSD ####
-
-    # cd /usr/ports/www/goaccess && make install clean
-    # pkg_add goaccess
-
-#### OpenIndiana ####
-
-    # pkg install goaccess
-
-#### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
-
-    # pkgin install goaccess
-
-#### Windows ####
-
-GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
 
 ## Storage ##
 
