@@ -189,9 +189,9 @@ A minimal config file with a real-time HTML report needs to set at least the
 options `log-format`, `log-file`, `output` and `real-time-html`. For
 example, for apache's *combined* log format:
 
-    time-format %H:%M:%S
+    log-format %h %^[%d:%t %^] "%r" %s %b "%R" "%u"
+    time-format %T
     date-format %d/%b/%Y
-    log-format %h %^[%d:%t %^] "%r" %s %b
     log-file /srv/logs/access.log
     output /srv/report/index.html
     real-time-html true
