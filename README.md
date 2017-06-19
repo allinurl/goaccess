@@ -196,8 +196,12 @@ example, for apache's *combined* log format:
     output /srv/report/index.html
     real-time-html true
 
-Once you have your configuration file all set, build and run the image as
-follows:
+Once you have your configuration file all set, clone the repo/
+
+    $ git clone https://github.com/allinurl/goaccess.git
+    $ cd goaccess
+
+and then build and run the image as follows:
 
     docker build . -t allinurl/goaccess
     docker run --restart=always -d -p 7890:7890 \
