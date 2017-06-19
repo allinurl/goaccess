@@ -135,12 +135,12 @@ example, for apache's *combined* log format:
 Once you have your configuration file all set, build and run the image as
 follows:
 
-    docker build . -t goaccess/goaccess
+    docker build . -t allinurl/goaccess
     docker run --restart=always -d -p 7890:7890 \
       -v "/srv/goaccess/data:/srv/data"         \
       -v "/srv/goaccess/html:/srv/report"       \
       -v "/var/log/apache:/srv/logs"            \
-      --name=goaccess goaccess/goaccess
+      --name=goaccess allinurl/goaccess
 
 If you you made changes to the config file after building the image, you don't
 have to rebuild from scratch. Simply restart the container:
@@ -162,7 +162,7 @@ And start the container as follows:
       -v "/srv/goaccess/data:/srv/data"         \
       -v "/srv/goaccess/html:/srv/report"       \
       -v "/var/log/apache:/srv/logs"            \
-      --name=goaccess goaccess/goaccess
+      --name=goaccess allinurl/goaccess
 
 If you had already run the container, you may have to stop and remove it first:
 
@@ -176,7 +176,7 @@ run in the container directly on the docker command line, e.g.:
       -v "/srv/goaccess/data:/srv/data"         \
       -v "/srv/goaccess/html:/srv/report"       \
       -v "/var/log/apache:/srv/logs"            \
-      --name=goaccess goaccess/goaccess         \
+      --name=goaccess allinurl/goaccess         \
       goaccess --no-global-config --config-file=/srv/data/goaccess.conf  \
                --ws-url=example.org:8080 --output=/srv/report/index.html \
                --log-file=/srv/logs/access.log
@@ -185,7 +185,7 @@ The container and image can be completeley removed as follows:
 
     docker stop goaccess
     docker rm goaccess
-    docker rmi goaccess/goaccess
+    docker rmi allinurl/goaccess
 
 There is also a prebuilt [**docker
 image**](https://hub.docker.com/r/allinurl/goaccess/) that can be run without
