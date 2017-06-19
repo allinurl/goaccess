@@ -110,41 +110,93 @@ Download, extract and compile GoAccess with:
 
 ### Docker ###
 
-Prior to run GoAccess' Docker container, place and set your GoAccess
-configuration file
-[`goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
-inside your `$HOME/data` directory, which will be used by
-[**Docker**](https://hub.docker.com/r/allinurl/goaccess/) to configure
-goaccess.
+NOTE: The following example assumes you will store your GoAccess data below
+``/srv/goaccess``, but you can use a different prefix if you like or if you
+run as non-root user.
 
-A minimal GoAccess configuration file for a Docker container with a real-time
-HTML report would need at least the following options to be set `log-format`,
-`log-file`, `output`, `real-time-html` and `ws-url`.
+    mkdir -p /srv/goaccess/{data,html}
 
-**Note**: Docker will bind to 0.0.0.0:7890, which means that GoAccess WebSocket
-server is using port 7890 and reachable from 127.0.0.1 in addition to your host
-IP. Ensure `ws-url=<IP>` points to the Docker host public IP address, otherwise
-it will attempt to establish a connection to localhost.
+Before running your own GoAccess Docker container, first create a config file
+in ``/srv/goaccess/data``. You can start one from scratch or use the one from
+[`config/goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
+as a starting point and change it as needed.
 
-Once you have your configuration file all set, then you may run: 
+A minimal config file with a real-time HTML report needs to set at least the
+options `log-format`, `log-file`, `output` and `real-time-html`. For
+example, for apache's *combined* log format:
 
-    docker run --restart=always -d -p 7890:7890 \ 
-      -v "$HOME/data:/srv/data"                 \ 
-      -v "/path/to/logs:/srv/logs"              \ 
-      -v "/path/to/report:/srv/report"          \
-      allinurl/goaccess
+    time-format %H:%M:%S
+    date-format %d/%b/%Y
+    log-format %h %^[%d:%t %^] "%r" %s %b
+    log-file /srv/logs/access.log
+    output /srv/report/index.html
+    real-time-html true
 
-If everything goes fine, the generated report should live under
-`/path/to/report`.
+Once you have your configuration file all set, build and run the image as
+follows:
 
-Another thing to note is that if you ever need to run it on a different port,
-e.g.,
+    docker build . -t goaccess/goaccess
+    docker run --restart=always -d -p 7890:7890 \
+      -v "/srv/goaccess/data:/srv/data"         \
+      -v "/srv/goaccess/html:/srv/report"       \
+      -v "/var/log/apache:/srv/logs"            \
+      --name=goaccess goaccess/goaccess
 
-    docker run --restart=always -d -p 8080:7890 ...
+If you you made changes to the config file after building the image, you don't
+have to rebuild from scratch. Simply restart the container:
 
-Then you can simply set the external port in `ws-url`. e.g., `ws-url
-ws://localhost:8080` and keep GoAccess' internal port in your config file set
-to `port 7890`.
+    docker restart goaccess
+
+If you want to expose goaccess on a different port on the host machine, you
+*have to* set the `ws-url` option in the config file, e.g.:`
+
+    ws-url ws://example.com:8080
+
+or for secured connections:
+
+    ws-url wss://example.com:8080
+
+And start the container as follows:
+
+    docker run --restart=always -d -p 8080:7890 \
+      -v "/srv/goaccess/data:/srv/data"         \
+      -v "/srv/goaccess/html:/srv/report"       \
+      -v "/var/log/apache:/srv/logs"            \
+      --name=goaccess goaccess/goaccess
+
+If you had already run the container, you may have to stop and remove it first:
+
+    docker stop goaccess
+    docker rm goaccess
+
+Note, it is possible to specify a different command and command line options to
+run in the container directly on the docker command line, e.g.:
+
+    docker run --restart=always -d -p 8080:7890 \
+      -v "/srv/goaccess/data:/srv/data"         \
+      -v "/srv/goaccess/html:/srv/report"       \
+      -v "/var/log/apache:/srv/logs"            \
+      --name=goaccess goaccess/goaccess         \
+      goaccess --no-global-config --config-file=/srv/data/goaccess.conf  \
+               --ws-url=example.org:8080 --output=/srv/report/index.html \
+               --log-file=/srv/logs/access.log
+
+The container and image can be completeley removed as follows:
+
+    docker stop goaccess
+    docker rm goaccess
+    docker rmi goaccess/goaccess
+
+There is also a prebuilt [**docker
+image**](https://hub.docker.com/r/allinurl/goaccess/) that can be run without
+cloning the git repository:
+
+    docker run --restart=always -d -p 8080:7890 \
+      -v "/srv/goaccess/data:/srv/data"         \
+      -v "/srv/goaccess/logs:/srv/logs"         \
+      -v "/srv/goaccess/html:/srv/report"       \
+      --name=goaccess allinurl/goaccess
+
 
 ## Distributions ##
 

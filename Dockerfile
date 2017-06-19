@@ -1,64 +1,25 @@
+# Builds a goaccess image from the current working directory:
 FROM alpine:edge
-LABEL maintainer "Julian Xhokaxhiu <info@julianxhokaxhiu.com>"
 
-# Environment variables
-#######################
+COPY . /goaccess
+WORKDIR /goaccess
 
-ENV DATA_DIR /srv/data
+ARG build_deps="build-base ncurses-dev autoconf automake git gettext-dev"
+ARG runtime_deps="tini ncurses libintl gettext "
 
-# Configurable environment variables
-####################################
+RUN apk update && \
+    apk add -u $runtime_deps $build_deps && \
+    autoreconf -fiv && \
+    ./configure --enable-utf8 && \
+    make && \
+    make install && \
+    apk del $build_deps && \
+    rm -rf /var/cache/apk/* /tmp/goaccess/* /goaccess
 
-# Copy required files and fix permissions
-#########################################
-
-COPY Dockerfile_src/* /opt/
-
-# Create missing directories
-############################
-
-RUN mkdir -p $DATA_DIR \
-    && mkdir -p /opt
-
-# Set the work directory
-########################
-
-WORKDIR /opt
-
-# Fix permissions
-#################
-
-RUN chmod 0644 * \
-    && chmod 0755 *.sh
-
-# Install required packages
-##############################
-
-RUN apk update \
-    && apk add -u supervisor goaccess
-
-# Cleanup
-#########
-
-RUN rm -rf /var/cache/apk/*
-
-# Replace default configurations
-################################
-
-RUN rm /etc/supervisord.conf \
-    && mv /opt/supervisord.conf /etc
-
-# Allow redirection of stdout to docker logs
-############################################
-
-RUN ln -sf /proc/1/fd/1 /var/log/docker.log
-
-# Expose required ports
-#######################
-
+VOLUME /srv/data
+VOLUME /srv/logs
+VOLUME /srv/report
 EXPOSE 7890
 
-# Set the entry point to init.sh
-###########################################
-
-ENTRYPOINT ["/opt/init.sh"]
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["goaccess", "--no-global-config", "--config-file=/srv/data/goaccess.conf"]

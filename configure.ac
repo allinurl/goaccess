@@ -19,6 +19,8 @@ AM_PROG_CC_C_O
 
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.18])
+# Fix `undefined reference to `libintl_gettext'` on docker:
+AC_CHECK_LIB([intl], [libintl_dgettext])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
