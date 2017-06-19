@@ -83,9 +83,10 @@ get_max_choices (void)
   /* JSON - allow n amount of choices */
   if (find_output_type (&json, "json", 1) == 0 && conf.max_items > 0)
     max = conf.max_items;
-  /* HTML - takes priority on cases where multiple outputs were given */
-  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0 ||
-      !isatty (STDOUT_FILENO))
+  /* HTML - takes priority on cases where multiple outputs were given. Note that
+   * we check either for an .html extension or we assume not extension was passed
+   * via -o and therefore we are redirecting the output to a file. */
+  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
     max = conf.max_items > MAX_CHOICES ? MAX_CHOICES : conf.max_items;
 
   free (csv);
