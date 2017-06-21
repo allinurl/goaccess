@@ -206,7 +206,7 @@ and then build and run the image as follows:
     docker run --restart=always -d -p 7890:7890 \
       -v "/srv/goaccess/data:/srv/data"         \
       -v "/srv/goaccess/html:/srv/report"       \
-      -v "/var/log/apache:/srv/logs"            \
+      -v "/var/log/apache2:/srv/logs"           \
       --name=goaccess allinurl/goaccess
 
 If you you made changes to the config file after building the image, you don't
@@ -248,7 +248,7 @@ run in the container directly on the docker command line, e.g.:
                --ws-url=example.org:8080 --output=/srv/report/index.html \
                --log-file=/srv/logs/access.log
 
-The container and image can be completeley removed as follows:
+The container and image can be completely removed as follows:
 
     docker stop goaccess
     docker rm goaccess
