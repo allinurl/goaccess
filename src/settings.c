@@ -665,7 +665,7 @@ set_date_num_format (void)
 
   if (strpbrk (fdate, "Yy"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
-  if (strpbrk (fdate, "bmB"))
+  if (strpbrk (fdate, "hbmB"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%m");
   if (strpbrk (fdate, "de"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%d");
