@@ -56,9 +56,9 @@ terminal. Features include:
   possible to fit everything in memory.
 
 * **Docker support**
-  GoAccess comes with a default [**Docker**](https://hub.docker.com/r/allinurl/goaccess/)
-  that will listen for HTTP connections on port 7890. Although, you can still
-  fully configure it, by using Volume mapping and editing `goaccess.conf`.
+  Ability to build GoAccess' Docker image from upstream which listens for HTTP
+  connections on port 7890. You can still fully configure it, by using Volume
+  mapping and editing `goaccess.conf`.
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
