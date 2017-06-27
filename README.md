@@ -185,9 +185,9 @@ in ``/srv/goaccess/data``. You can start one from scratch or use the one from
 [`config/goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
 as a starting point and change it as needed.
 
-A minimal config file with a real-time HTML report needs to set at least the
-options `log-format`, `log-file`, `output` and `real-time-html`. For
-example, for apache's *combined* log format:
+A minimal config file for a real-time HTML report requires at least the
+following options: `log-format`, `log-file`, `output` and `real-time-html`. For
+example, for Apache's *combined* log format:
 
     log-format %h %^[%d:%t %^] "%r" %s %b "%R" "%u"
     time-format %T
