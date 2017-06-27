@@ -1444,7 +1444,7 @@ parse_format (GLogItem * logitem, char *str)
       perc++;
       continue;
     }
-    if (*p == '~') {
+    if (*p == '~' && perc == 0) {
       tilde++;
       continue;
     }
