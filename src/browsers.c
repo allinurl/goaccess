@@ -132,6 +132,7 @@ static const char *browsers[][2] = {
   {"AppEngine-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
   {"Google", "Crawlers"},
+  {"WhatsApp", "Crawlers"},
 
   /* Based on Firefox */
   {"Camino", "Others"},
