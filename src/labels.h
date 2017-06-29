@@ -432,6 +432,8 @@
   N_("416 - Requested Range Not Satisfiable: Cannot supply that portion")
 #define STATUS_CODE_417               \
   N_("417 - Expectation Failed")
+#define STATUS_CODE_429               \
+  N_("429 - Too Many Requests: The user has sent too many requests")
 #define STATUS_CODE_444               \
   N_("444 - (Nginx) Connection closed without sending any headers")
 #define STATUS_CODE_494               \
