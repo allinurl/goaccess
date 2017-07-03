@@ -175,8 +175,8 @@ See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
 ### Docker ###
 
 *NOTE*: The following example assumes you will store your GoAccess data below
-``/srv/goaccess``, but you can use a different prefix if you like or if you
-run as non-root user.
+``/srv/goaccess``, but you can use a different prefix if you like or if you run
+as non-root user.
 
     mkdir -p /srv/goaccess/{data,html}
 
