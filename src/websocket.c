@@ -498,7 +498,9 @@ ws_ssl_cleanup (WSServer * server)
   CRYPTO_set_id_callback (NULL);
   CRYPTO_set_locking_callback (NULL);
   ERR_free_strings ();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   ERR_remove_state (0);
+#endif
   EVP_cleanup ();
 }
 #endif
@@ -644,7 +646,11 @@ initialize_ssl_ctx (WSServer * server)
   int ret = 1;
   SSL_CTX *ctx = NULL;
 
-  SSL_load_error_strings ();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+SSL_library_init();
+SSL_load_error_strings();
+#endif
+
   /* Ciphers and message digests */
   OpenSSL_add_ssl_algorithms ();
 
@@ -854,7 +860,9 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len)
 {
   int bytes = 0, err = 0;
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
   ERR_clear_error ();
+#endif
   if ((bytes = SSL_write (client->ssl, buffer, len)) > 0)
     return bytes;
 
@@ -889,7 +897,9 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
 {
   int bytes = 0, done = 0, err = 0;
   do {
-    ERR_clear_error ();
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
+  ERR_clear_error ();
+#endif
 
     done = 0;
     if ((bytes = SSL_read (client->ssl, buffer, size)) > 0)
