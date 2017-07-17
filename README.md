@@ -295,6 +295,10 @@ specified in the configuration file. If specified in the configuration file, lon
 options need to be used without prepending `--`.
 
 ## Examples ##
+Please *note* that piping data into GoAccess won't prompt a log/date/time
+configuration dialog, you will need to previously define it in your
+configuration file or in the command line.
+
 ##### DIFFERENT OUTPUTS #####
 
 To output to a terminal and generate an interactive report:
