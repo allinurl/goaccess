@@ -623,12 +623,16 @@ GEOLOCATION OPTIONS
 Standard GeoIP database for less memory usage.
 .TP
 \fB\-\-geoip-database=<geofile>
-Specify path to GeoIP database file. i.e., GeoLiteCity.dat. File needs to be
-downloaded from MaxMind.com. IPv4 and IPv6 files are supported as well. Note:
---geoip-city-data is an alias of --geoip-database.
+Specify path to GeoIP database file. i.e., GeoLiteCity.dat.
+
+If using GeoIP2, you will need to download the City or Country (GeoLite2)
+database from MaxMind and use the option --geoip-database to specify the
+database. You can also get updated database files for GeoIP legacy, you can
+find these as GeoLite Legacy Databases from MaxMind.com. IPv4 and IPv6 files
+are supported as well.
+
 .I Note:
-If using GeoIP2, you will need to download the City/Country database from
-MaxMind and use the option --geoip-database to specify the database.
+--geoip-city-data is an alias of --geoip-database.
 .SS
 OTHER OPTIONS
 .TP
