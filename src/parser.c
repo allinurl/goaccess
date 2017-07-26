@@ -2610,7 +2610,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return test || ret;
+  return (line && test) || ret;
 
 out:
   free (line);
@@ -2645,7 +2645,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run)
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return test || ret;
+  return (s && test) || ret;
 }
 #endif
 
