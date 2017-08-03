@@ -573,7 +573,7 @@ ws_clear_pipeout (WSPipeOut * pipeout)
     unlink (wsconfig.pipeout);
 }
 
-/* Stop the server and do some clearning. */
+/* Stop the server and do some cleaning. */
 void
 ws_stop (WSServer * server)
 {
