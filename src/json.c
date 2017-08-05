@@ -375,9 +375,9 @@ static void
 pskeyfval (GJSON * json, const char *key, float val, int sp, int last)
 {
   if (!last)
-    pjson (json, "%.*s\"%s\": %4.2f,%.*s", sp, TAB, key, val, nlines, NL);
+    pjson (json, "%.*s\"%s\": \"%4.2f\",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (json, "%.*s\"%s\": %4.2f", sp, TAB, key, val);
+    pjson (json, "%.*s\"%s\": \"%4.2f\"", sp, TAB, key, val);
 }
 
 /* Write to a buffer the open block item object. */

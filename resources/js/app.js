@@ -42,7 +42,7 @@ window.GoAccess = window.GoAccess || {
 		this.AppUIData = (this.opts || {}).uiData || {};    // holds panel definitions
 		this.AppData   = (this.opts || {}).panelData || {}; // hold raw data
 		this.AppWSConn = (this.opts || {}).wsConnection || {}; // WebSocket connection
-		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels 
+		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
 		this.AppPrefs  = {
 			'theme': 'darkBlue',
 			'perPage': 7,
@@ -190,7 +190,7 @@ GoAccess.Util = {
 			val = this.formatBytes(value);
 			break;
 		case 'percent':
-			val = value.toFixed(2) + '%';
+			val = parseFloat(value.replace(',', '.')).toFixed(2) + '%';
 			break;
 		case 'time':
 			if (this.isNumeric(value))
