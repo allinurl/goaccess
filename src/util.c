@@ -183,7 +183,7 @@ genstr (char *dest, size_t len)
   char set[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   while (len-- > 0)
-    *dest++ = set[rand() % (sizeof(set) - 1)];
+    *dest++ = set[rand () % (sizeof (set) - 1)];
   *dest = '\0';
 }
 

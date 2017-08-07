@@ -647,8 +647,8 @@ initialize_ssl_ctx (WSServer * server)
   SSL_CTX *ctx = NULL;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-SSL_library_init();
-SSL_load_error_strings();
+  SSL_library_init ();
+  SSL_load_error_strings ();
 #endif
 
   /* Ciphers and message digests */
@@ -898,7 +898,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
   int bytes = 0, done = 0, err = 0;
   do {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
-  ERR_clear_error ();
+    ERR_clear_error ();
 #endif
 
     done = 0;
