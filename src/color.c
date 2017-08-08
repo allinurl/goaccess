@@ -724,29 +724,43 @@ parse_color (char *line)
   color = new_gcolors ();
   pair = new_gcolorpair ();
 
+  /* extract a color pair and color attributes from the given config line */
   parse_color_line (pair, color, line);
 
+  /* create a pair color list if one doesn't exist */
   if (pair_list == NULL) {
     pair_list = list_create (pair);
-  } else if ((match = list_find (pair_list, find_pair_in_list, pair))) {
+  }
+  /* attempt to find the given color pair in our pair list */
+  else if ((match = list_find (pair_list, find_pair_in_list, pair))) {
+    /* pair found, use new pair and free existing one */
     free (pair);
     pair = (GColorPair *) match->data;
-  } else {
+  }
+  /* pair not found, use it then */
+  else {
     pair->idx += list_count (pair_list);
     pair_list = list_insert_prepend (pair_list, pair);
   }
+  /* set color pair */
   color->pair = pair;
 
-  if (color_list == NULL)
+  /* create a list of colors if one does not exist */
+  if (color_list == NULL) {
     color_list = list_create (color);
-  else if (list_find (color_list, find_color_in_list, color))
-    free (color);
-  else
-    color_list = list_insert_prepend (color_list, color);
-
-  if (!match) {
-    init_pair (color->pair->idx, color->pair->fg, color->pair->bg);
   }
+  /* attempt to find the given color data type (by item and attributes) in our color list */
+  else if (list_find (color_list, find_color_in_list, color)) {
+    /* if found, free the recently malloc'd color data type */
+    free (color);
+  } else {
+    /* not a dup, so insert the new color in our color list */
+    color_list = list_insert_prepend (color_list, color);
+  }
+
+  /* if no color pair was found, then we init the color pair */
+  if (!match)
+    init_pair (color->pair->idx, color->pair->fg, color->pair->bg);
 
   free (line);
 }
