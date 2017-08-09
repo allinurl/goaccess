@@ -709,6 +709,32 @@ parse_color_line (GColorPair * pair, GColors * color, char *line)
   color->item = item;
 }
 
+/* Attempt to prepend the given color on our color linked list.
+ *
+ * On error, or if color already exists, the given color is freed.
+ * On success, or if not color found, store color properties */
+static void
+prepend_color (GColors ** color)
+{
+  GSLList *match = NULL;
+
+  /* create a list of colors if one does not exist */
+  if (color_list == NULL) {
+    color_list = list_create (*color);
+  }
+  /* attempt to find the given color data type (by item and attributes) in
+   * our color list */
+  else if ((match = list_find (color_list, find_color_in_list, *color))) {
+    /* if found, free the recently malloc'd color data type and use
+     * existing color */
+    free (*color);
+    *color = NULL;
+  } else {
+    /* not a dup, so insert the new color in our color list */
+    color_list = list_insert_prepend (color_list, *color);
+  }
+}
+
 /* Parse a color definition line from the config file and store it on a signle
  * linked-list.
  *
@@ -744,22 +770,10 @@ parse_color (char *line)
   }
   /* set color pair */
   color->pair = pair;
-
-  /* create a list of colors if one does not exist */
-  if (color_list == NULL) {
-    color_list = list_create (color);
-  }
-  /* attempt to find the given color data type (by item and attributes) in our color list */
-  else if (list_find (color_list, find_color_in_list, color)) {
-    /* if found, free the recently malloc'd color data type */
-    free (color);
-  } else {
-    /* not a dup, so insert the new color in our color list */
-    color_list = list_insert_prepend (color_list, color);
-  }
+  prepend_color (&color);
 
   /* if no color pair was found, then we init the color pair */
-  if (!match)
+  if (!match && color)
     init_pair (color->pair->idx, color->pair->fg, color->pair->bg);
 
   free (line);
