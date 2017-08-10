@@ -203,6 +203,24 @@ house_keeping (void)
   free (gwsreader);
 }
 
+/* Open the pidfile whose name is specified in the given path and write
+ * the daemonized given pid. */
+static void
+write_pid_file (const char *path, pid_t pid)
+{
+  FILE *pidfile;
+
+  if (!path)
+    return;
+
+  if ((pidfile = fopen (path, "w"))) {
+    fprintf (pidfile, "%d", pid);
+    close (pidfile);
+  } else {
+    FATAL ("Unable to open the specified pid file. %s", strerror (errno));
+  }
+}
+
 /* Set GoAccess to run as a daemon */
 static void
 daemonize (void)
@@ -216,6 +234,7 @@ daemonize (void)
   if (pid < 0)
     exit (EXIT_FAILURE);
   if (pid > 0) {
+    write_pid_file (conf.pidfile, pid);
     printf ("Daemonized GoAccess: %d\n", pid);
     exit (EXIT_SUCCESS);
   }
