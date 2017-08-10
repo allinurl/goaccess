@@ -122,6 +122,7 @@ typedef struct GConf_
   const char *html_report_title;    /* report title */
   const char *iconfigfile;          /* config file path */
   const char *invalid_requests_log; /* invalid lines log path */
+  const char *pidfile;              /* daemonize pid file path */
 
   /* HTML real-time */
   const char *addr;                 /* IP address to bind to */
