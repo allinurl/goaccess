@@ -120,7 +120,7 @@ struct option long_opts[] = {
   {"num-tests"            , required_argument , 0 ,  0  } ,
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
-  {"pidfile"              , required_argument , 0 ,  0  } ,
+  {"pid-file"             , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
   {"process-and-exit"     , no_argument       , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
@@ -203,7 +203,7 @@ cmd_help (void)
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
   "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
   "                                    upon the WebSocket handshake.\n"
-  "  --pidfile=<path>                - Write PID to a file when --daemonize is used.\n"
+  "  --pid-file=<path>               - Write PID to a file when --daemonize is used.\n"
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
   "  --ssl-cert=<cert.crt>           - Path to TLS/SSL certificate.\n"
@@ -441,7 +441,7 @@ parse_long_opt (const char *name, const char *oarg)
     conf.origin = oarg;
 
   /* PID file to write */
-  if (!strcmp ("pidfile", name))
+  if (!strcmp ("pid-file", name))
     conf.pidfile = oarg;
 
   /* port to use */
