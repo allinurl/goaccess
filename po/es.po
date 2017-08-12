@@ -128,7 +128,7 @@ msgstr "Origen de Log"
 #. Metric Labels
 #: ../src/labels.h:73
 msgid "Hits"
-msgstr "Clics"
+msgstr "Hits"
 
 #: ../src/labels.h:74
 msgid "h%"
@@ -192,7 +192,7 @@ msgstr "Datos"
 
 #: ../src/labels.h:91
 msgid "Hits/Visitors"
-msgstr "Clics/Visitas"
+msgstr "Hits/Visitas"
 
 #. Panel Labels and Descriptions
 #: ../src/labels.h:95
