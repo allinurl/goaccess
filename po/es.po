@@ -205,7 +205,7 @@ msgstr "Visitantes unicos por dia - Incluyendo M.Busqueda"
 
 #: ../src/labels.h:99
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr "Clics con el mismo IP, fecha y agente son unica visita"
+msgstr "Hits con el mismo IP, fecha y agente son unica visita"
 
 #: ../src/labels.h:104
 msgid "Requested Files (URLs)"
