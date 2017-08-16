@@ -214,7 +214,7 @@ msgstr "Archivos Requeridos (URLs)"
 #: ../src/labels.h:106
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"Peticiones Top ordenadas por clics [, avgts, cumts, maxts, mthd, proto]"
+"Peticiones Top ordenadas por hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:108
 msgid "Requests"
@@ -227,7 +227,7 @@ msgstr "Peticiones Estaticas"
 #: ../src/labels.h:113
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"Peticiones estaticas top ordenadas por clics [, avgts, cumts, maxts, mthd, "
+"Peticiones estaticas top ordenadas por hits [, avgts, cumts, maxts, mthd, "
 "proto]"
 
 #: ../src/labels.h:118
