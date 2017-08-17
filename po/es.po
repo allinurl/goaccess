@@ -248,7 +248,7 @@ msgstr "Hosts Virtuales"
 
 #: ../src/labels.h:127 ../src/labels.h:134
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr "Datos ordenados por clics [, avgts, cumts, maxts]"
+msgstr "Datos ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:132
 msgid "Remote User (HTTP authentication)"
@@ -265,7 +265,7 @@ msgstr "URLs no encontradas (404)"
 #: ../src/labels.h:141
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"URLs no encontradas top ordenadas por clics [, avgts, cumts, maxts, mthd, "
+"URLs no encontradas top ordenadas por hits [, avgts, cumts, maxts, mthd, "
 "proto]"
 
 #: ../src/labels.h:143
