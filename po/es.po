@@ -278,7 +278,7 @@ msgstr "Hosts e IPs de los Visitantes"
 
 #: ../src/labels.h:148
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "Hosts de visitante top ordenado por clics [, avgts, cumts, maxts]"
+msgstr "Hosts de visitante top ordenado por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:150
 msgid "Hosts"
@@ -290,7 +290,7 @@ msgstr "Sistemas Operativos"
 
 #: ../src/labels.h:155
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr "Sistemas Operativos top ordenados por clic [, avgts, cumts, maxts]"
+msgstr "Sistemas Operativos top ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:157
 msgid "OS"
@@ -302,7 +302,7 @@ msgstr "Navegadores"
 
 #: ../src/labels.h:162
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "Navegadores top ordenados por clics [, avgts, cumts, maxts]"
+msgstr "Navegadores top ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:167
 msgid "Referrers URLs"
@@ -311,7 +311,7 @@ msgstr "URLs Referidos"
 #: ../src/labels.h:169
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
-"Peticiones top de referidos ordenadas por clics [, avgts, cumts, maxts]"
+"Peticiones top de referidos ordenadas por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:174 ../src/labels.h:178
 msgid "Referring Sites"
@@ -319,7 +319,7 @@ msgstr "Sitios Referidos"
 
 #: ../src/labels.h:176
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "Sitios Referidos top ordenados por clics [, avgts, cumts, maxts]"
+msgstr "Sitios Referidos top ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:181
 msgid "Keyphrases from Google's search engine"
@@ -327,7 +327,7 @@ msgstr "Frases de busqueda de motor de busqueda Google"
 
 #: ../src/labels.h:183
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "Frases de busqueda top ordenadas por clics [, avgts, cumts, maxts]"
+msgstr "Frases de busqueda top ordenadas por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:185
 msgid "Keyphrases"
@@ -339,7 +339,7 @@ msgstr "Geo Localizacion"
 
 #: ../src/labels.h:190
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr "Continente > Pais ordenado por clics unicos [, avgts, cumts, maxts]"
+msgstr "Continente > Pais ordenado por hits unicos [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:195
 msgid "HTTP Status Codes"
@@ -348,7 +348,7 @@ msgstr "Codigos de Estado HTTP"
 #: ../src/labels.h:197
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
-"Codigos de Estado HTTP top ordenados por clics  [, avgts, cumts, maxts]"
+"Codigos de Estado HTTP top ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:199
 msgid "Status Codes"
