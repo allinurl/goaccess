@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goaccess\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-08-04 13:02-0300\n"
+"POT-Creation-Date: 2017-08-18 06:55-0500\n"
 "PO-Revision-Date: 2017-08-04 13:00-0300\n"
 "Last-Translator: Enrique Becerra <kabeza@gmail.com>\n"
 "Language-Team: \n"
@@ -213,8 +213,7 @@ msgstr "Archivos Requeridos (URLs)"
 
 #: ../src/labels.h:106
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Peticiones Top ordenadas por hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Peticiones Top ordenadas por hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:108
 msgid "Requests"
@@ -310,8 +309,7 @@ msgstr "URLs Referidos"
 
 #: ../src/labels.h:169
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Peticiones top de referidos ordenadas por hits [, avgts, cumts, maxts]"
+msgstr "Peticiones top de referidos ordenadas por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:174 ../src/labels.h:178
 msgid "Referring Sites"
@@ -347,8 +345,7 @@ msgstr "Codigos de Estado HTTP"
 
 #: ../src/labels.h:197
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Codigos de Estado HTTP top ordenados por hits [, avgts, cumts, maxts]"
+msgstr "Codigos de Estado HTTP top ordenados por hits [, avgts, cumts, maxts]"
 
 #: ../src/labels.h:199
 msgid "Status Codes"
