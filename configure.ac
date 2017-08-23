@@ -74,7 +74,7 @@ AC_ARG_WITH(getline, [  --with-getline Build using dynamic line buffer.],
   [with_getline=$withval], [with_getline=no])
 
 if test "$with_getline" = "yes"; then
-  AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.]),
+  AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.])
 fi
 
 # UTF8
