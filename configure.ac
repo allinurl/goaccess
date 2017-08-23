@@ -71,7 +71,7 @@ elif test "$geoip" = "legacy"; then
     *** Missing development files for the GeoIP library
   ])])
   geolocation="GeoIP Legacy"
-  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.]),
+  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.])
 fi
 AM_CONDITIONAL([GEOIP_LEGACY], [test "x$geoip" = "xlegacy"])
 AM_CONDITIONAL([GEOIP_MMDB], [test "x$geoip" = "xmmdb"])
