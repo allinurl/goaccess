@@ -2550,6 +2550,10 @@ cleanup:
   return ret;
 }
 
+/* Entry point to process the given live from the log.
+ *
+ * On error, 1 is returned.
+ * On success or soft ignores, 0 is returned. */
 static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
 {
