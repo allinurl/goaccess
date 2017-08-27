@@ -211,8 +211,8 @@ else
 fi
 
 # Solaris
-AC_CHECK_LIB([socket], [socket])
 AC_CHECK_LIB([nsl], [gethostbyname])
+AC_CHECK_LIB([socket], [socket])
 
 # Checks for header files.
 AC_HEADER_STDC
