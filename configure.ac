@@ -288,12 +288,12 @@ Your build configuration:
   Prefix         : $prefix
   Package        : $PACKAGE_NAME
   Version        : $VERSION
+  Compiler flags : $CFLAGS
+  Linker flags   : $LIBS $LDFLAGS
   Dynamic buffer : $with_getline
   Geolocation    : $geolocation
   Storage method : $storage
   TLS/SSL        : $openssl
-  Compiler flags : $CFLAGS
-  Linker flags   : $LIBS $LDFLAGS
   Bugs           : $PACKAGE_BUGREPORT
 
 EOF
