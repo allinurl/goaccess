@@ -215,7 +215,7 @@ write_pid_file (const char *path, pid_t pid)
 
   if ((pidfile = fopen (path, "w"))) {
     fprintf (pidfile, "%d", pid);
-    close (pidfile);
+    fclose (pidfile);
   } else {
     FATAL ("Unable to open the specified pid file. %s", strerror (errno));
   }
