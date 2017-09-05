@@ -424,7 +424,7 @@ function AreaChart(dualYaxis) {
 
 		// Update the y0-axis.
 		g.select('.y0.axis')
-			.call(yAxis0.tickValues(getYTicks(yScale0))	);
+			.call(yAxis0.tickValues(getYTicks(yScale0)));
 
 		if (!dualYaxis)
 			return;
