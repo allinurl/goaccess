@@ -2833,8 +2833,10 @@ ws_start (WSServer * server)
   if (wsconfig.sslcert && wsconfig.sslkey) {
     LOG (("==Using TLS/SSL==\n"));
     wsconfig.use_ssl = 1;
-    if (initialize_ssl_ctx (server))
+    if (initialize_ssl_ctx (server)) {
+      LOG (("Unable to initialize_ssl_ctx\n"));
       return;
+    }
   }
 #endif
 
@@ -2858,14 +2860,17 @@ ws_start (WSServer * server)
     if (select (max_file_fd, &fdstate.rfds, &fdstate.wfds, NULL, NULL) == -1) {
       switch (errno) {
       case EINTR:
+        LOG (("A signal was caught on select(2)\n"));
         break;
       default:
         FATAL ("Unable to select: %s.", strerror (errno));
       }
     }
     /* handle self-pipe trick */
-    if (FD_ISSET (server->self_pipe[0], &fdstate.rfds))
+    if (FD_ISSET (server->self_pipe[0], &fdstate.rfds)) {
+      LOG (("Handled self-pipe to close event loop.\n"));
       break;
+    }
 
     /* iterate over existing connections */
     for (conn = 0; conn < max_file_fd; ++conn) {
