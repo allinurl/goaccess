@@ -33,14 +33,14 @@
 #include <stdint.h>
 #include "commons.h"
 
-#define MAX_LINE_CONF     512
-#define MAX_EXTENSIONS    128
-#define MAX_IGNORE_IPS     64
-#define MAX_IGNORE_REF     64
-#define MAX_CUSTOM_COLORS  64
-#define MAX_IGNORE_STATUS  64
-#define MAX_OUTFORMATS      3
-#define MAX_FILENAMES     512
+#define MAX_LINE_CONF         512
+#define MAX_EXTENSIONS        128
+#define MAX_IGNORE_IPS 1024 + 128
+#define MAX_IGNORE_REF         64
+#define MAX_CUSTOM_COLORS      64
+#define MAX_IGNORE_STATUS      64
+#define MAX_OUTFORMATS          3
+#define MAX_FILENAMES         512
 #define NO_CONFIG_FILE "No config file used"
 
 typedef enum LOGTYPE
