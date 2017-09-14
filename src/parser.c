@@ -2010,7 +2010,7 @@ set_spec_visitor_key (char **fdate, const char *ftime)
 }
 
 /* Generate a unique key for the visitors panel from the given logitem
- * structure and assign it to out key data structure.
+ * structure and assign it to the output key data structure.
  *
  * On error, or if no date is found, 1 is returned.
  * On success, the date key is assigned to our key data structure.
