@@ -1875,7 +1875,7 @@ insert_agent (int data_nkey, int agent_nkey, GModule module)
 static char *
 get_uniq_visitor_key (GLogItem * logitem)
 {
-  char *ua, *key;
+  char *ua = NULL, *key = NULL;
   size_t s1, s2, s3;
 
   ua = deblank (xstrdup (logitem->agent));
