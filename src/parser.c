@@ -1885,7 +1885,7 @@ get_uniq_visitor_key (GLogItem * logitem)
   s3 = strlen (ua);
 
   /* includes terminating null */
-  key = xmalloc (s1 + s2 + s3 + 3);
+  key = xcalloc (s1 + s2 + s3 + 3, sizeof (char));
 
   memcpy (key, logitem->host, s1);
 
