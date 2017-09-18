@@ -1930,7 +1930,7 @@ gen_unique_req_key (GLogItem * logitem)
   }
 
   /* includes terminating null */
-  key = xmalloc (s1 + s2 + s3 + nul);
+  key = xcalloc (s1 + s2 + s3 + nul, sizeof (char));
   /* append request */
   memcpy (key, logitem->req, s1);
 
