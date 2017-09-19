@@ -573,14 +573,14 @@ out:
 static int
 get_si32 (void *hash, const char *key)
 {
-  int ret = 0;
+  int ret = 0, sp;
   void *ptr;
 
   if (!hash)
     return -1;
 
   /* key found, return current value */
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
+  if ((ptr = tcadbget (hash, key, strlen (key), &sp)) != NULL) {
     ret = (*(int *) ptr);
     free (ptr);
     return ret;
