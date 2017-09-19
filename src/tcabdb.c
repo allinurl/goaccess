@@ -457,13 +457,13 @@ inc_iu64 (void *hash, int key, uint64_t inc)
 static int
 inc_si32 (void *hash, const char *key, int inc)
 {
-  int value = inc;
+  int value = inc, sp;
   void *ptr;
 
   if (!hash)
     return -1;
 
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
+  if ((ptr = tcadbget (hash, key, strlen (key), &sp)) != NULL) {
     value = (*(int *) ptr) + inc;
     free (ptr);
   }
