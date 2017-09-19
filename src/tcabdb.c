@@ -592,18 +592,18 @@ get_si32 (void *hash, const char *key)
 
 /* Get the unsigned int value of a given string key.
  *
- * On error, 0 is returned.
- * On success the int value for the given key is returned */
+ * On error or not found, 0 is returned.
+ * On success the uint32_t value for the given key is returned */
 static uint32_t
 get_sui32 (void *hash, const char *key)
 {
-  int ret = 0;
+  int ret = 0, sp;
   void *ptr;
   if (!hash)
     return 0;
 
   /* key found, return current value */
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
+  if ((ptr = tcadbget (hash, key, strlen (key), &sp)) != NULL) {
     ret = (*(uint32_t *) ptr);
     free (ptr);
     return ret;
