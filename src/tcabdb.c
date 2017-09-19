@@ -478,17 +478,18 @@ inc_si32 (void *hash, const char *key, int inc)
 /* Insert a string key and auto increment by uint64_t value.
  *
  * On error, -1 is returned.
- * On success the value of the key inserted is returned */
+ * On success the value of the key is inserted and 0 is returned */
 static int
 inc_su64 (void *hash, const char *key, uint64_t inc)
 {
+  int sp;
   uint64_t value = inc;
   void *ptr;
 
   if (!hash)
     return -1;
 
-  if ((ptr = tcadbget2 (hash, key)) != NULL) {
+  if ((ptr = tcadbget (hash, key, strlen (key), &sp)) != NULL) {
     value = (*(uint64_t *) ptr) + inc;
     free (ptr);
   }
