@@ -569,7 +569,7 @@ out:
 
 /* Get the int value of a given string key.
  *
- * On error, -1 is returned.
+ * On error or not found, -1 is returned.
  * On success the int value for the given key is returned */
 static int
 get_si32 (void *hash, const char *key)
