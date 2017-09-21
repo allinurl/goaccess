@@ -109,7 +109,7 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
-## Distributions ##
+### Distributions ###
 
 It is easiest to install GoAccess on Linux using the preferred package manager
 of your Linux distribution. Please _note_ that not all distributions will have
@@ -293,12 +293,10 @@ See [**options**](https://goaccess.io/man#options) that can be supplied to the c
 specified in the configuration file. If specified in the configuration file, long
 options need to be used without prepending `--`.
 
-## Examples ##
-Please *note* that piping data into GoAccess won't prompt a log/date/time
+## Using / Examples ##
+**Note**: Piping data into GoAccess won't prompt a log/date/time
 configuration dialog, you will need to previously define it in your
 configuration file or in the command line.
-
-##### DIFFERENT OUTPUTS #####
 
 To output to a terminal and generate an interactive report:
 
@@ -356,7 +354,7 @@ access.log.*.gz in addition to the current log file, we can do:
 
 **Note**: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
-##### REAL TIME HTML OUTPUT #####
+#### REAL TIME HTML OUTPUT ####
 
 GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
@@ -367,6 +365,8 @@ process of creating a static report. Only `--real-time-html` is needed to make
 it real-time.
 
     # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
+
+To view the report you can navigate to `http://your_site/report.html` (see [#440](https://github.com/allinurl/goaccess/issues/440#issuecomment-226644428) for more details).
 
 By default, GoAccess will use the host name of the generated report.
 Optionally, you can specify the URL to which the client's browser will connect
@@ -386,6 +386,8 @@ can specify it as:
 
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
+
+#### FILTERING ####
 
 ##### WORKING WITH DATES #####
 
@@ -437,7 +439,7 @@ Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
     # awk '$9~/500/' access.log | goaccess -
 
-##### SERVER #####
+#### TIPS ####
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
@@ -449,7 +451,7 @@ your local machine:
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
-##### INCREMENTAL LOG PROCESSING #####
+#### INCREMENTAL LOG PROCESSING ####
 
 GoAccess has the ability to process logs incrementally through the on-disk
 B+Tree database. It works in the following way:
