@@ -569,7 +569,7 @@ out:
 
 /* Get the int value of a given string key.
  *
- * On error or not found, -1 is returned.
+ * On error, or if key is not found, -1 is returned.
  * On success the int value for the given key is returned */
 static int
 get_si32 (void *hash, const char *key)
@@ -592,7 +592,7 @@ get_si32 (void *hash, const char *key)
 
 /* Get the unsigned int value of a given string key.
  *
- * On error or not found, 0 is returned.
+ * On error, or if key is not found, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 static uint32_t
 get_sui32 (void *hash, const char *key)
@@ -614,7 +614,7 @@ get_sui32 (void *hash, const char *key)
 
 /* Get the uint64_t value of a given string key.
  *
- * On error or not found, 0 is returned.
+ * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 static uint64_t
 get_su64 (void *hash, const char *key)
@@ -706,7 +706,7 @@ get_iu64_min_max (void *hash, uint64_t * min, uint64_t * max)
 
 /* Get the string value of a given int key.
  *
- * On error, NULL is returned.
+ * On error, or if key is not found, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
 get_is32 (void *hash, int key)
@@ -725,7 +725,7 @@ get_is32 (void *hash, int key)
 
 /* Get the string value of a given string key.
  *
- * On error, NULL is returned.
+ * On error, or if key is not found, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
 get_ss32 (void *hash, const char *key)
