@@ -3,7 +3,7 @@ GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=mas
 
 ## What is it? ##
 GoAccess is an open source *real-time web log analyzer* and interactive viewer
-that **runs in a *terminal* in *nix systems or through your *browser*. It
+that *runs in a terminal* on *nix systems or through your *browser*. It
 provides fast and valuable HTTP statistics for system administrators that
 require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
@@ -112,8 +112,8 @@ Download, extract and compile GoAccess with:
 ### Distributions ###
 
 It is easiest to install GoAccess on Linux using the preferred package manager
-of your Linux distribution. Please _note_ that not all distributions will have
-the lastest version of GoAccess available
+of your Linux distribution. Please note that not all distributions will have
+the lastest version of GoAccess available.
 
 #### Debian/Ubuntu ####
 
@@ -343,7 +343,7 @@ It's even possible to parse files from a pipe while reading regular files:
 
     # cat access.log.2 | goaccess access.log access.log.1 -
 
-**Note** that the single dash is appended to the command line to let GoAccess
+**Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
 
 Now if we want to add more flexibility to GoAccess, we can do a series of
@@ -352,7 +352,7 @@ access.log.*.gz in addition to the current log file, we can do:
 
     # zcat access.log.*.gz | goaccess access.log -
 
-**Note**: On Mac OS X, use `gunzip -c` instead of `zcat`.
+_Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
 #### REAL TIME HTML OUTPUT ####
 
@@ -366,7 +366,7 @@ it real-time.
 
     # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
 
-To view the report you can navigate to `http://your_site/report.html` (see [#440](https://github.com/allinurl/goaccess/issues/440#issuecomment-226644428) for more details).
+To view the report you can navigate to `http://your_site/report.html`.
 
 By default, GoAccess will use the host name of the generated report.
 Optionally, you can specify the URL to which the client's browser will connect
@@ -447,7 +447,7 @@ priority, we can run it as:
     # nice -n 19 goaccess -f access.log -a
 
 and if you don't want to install it on your server, you can still run it from
-your local machine:
+your local machine!
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
