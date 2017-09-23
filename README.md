@@ -298,6 +298,8 @@ options need to be used without prepending `--`.
 configuration dialog, you will need to previously define it in your
 configuration file or in the command line.
 
+#### BASICS ####
+
 To output to a terminal and generate an interactive report:
 
     # goaccess access.log
