@@ -293,12 +293,12 @@ See [**options**](https://goaccess.io/man#options) that can be supplied to the c
 specified in the configuration file. If specified in the configuration file, long
 options need to be used without prepending `--`.
 
-## Using / Examples ##
+## Usage / Examples ##
 **Note**: Piping data into GoAccess won't prompt a log/date/time
 configuration dialog, you will need to previously define it in your
 configuration file or in the command line.
 
-#### BASICS ####
+#### GETTING STARTED ####
 
 To output to a terminal and generate an interactive report:
 
