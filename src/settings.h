@@ -165,6 +165,7 @@ typedef struct GConf_
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
+  uint64_t log_size;                /* log size override */
 
   /* Internal flags */
   int bandwidth;                    /* is there bandwidth within the req line */
