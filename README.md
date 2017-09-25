@@ -89,6 +89,9 @@ report, as well as a [**`JSON`**](http://goaccess.io/json?src=gh), and
 You can see it more of a monitor command tool than anything else.
 
 ## Installation ##
+
+### Build from release
+
 GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
@@ -99,6 +102,12 @@ Download, extract and compile GoAccess with:
     $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
+
+#### Dependencies
+
+##### Debian / Ubuntu
+
+    # apt-get install libgeoip-dev libncursesw5-dev
 
 ### Build from GitHub (Development) ###
 
