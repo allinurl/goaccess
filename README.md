@@ -103,7 +103,7 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
-#### Dependencies
+#### Build Dependencies
 
 ##### Debian / Ubuntu
 
