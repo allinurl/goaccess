@@ -420,12 +420,17 @@ init_modules (void)
 /* Get the logs size.
  *
  * If log was piped (from stdin), 0 is returned.
- * On success, it adds up all log sizes and its value is returned. */
+ * On success, it adds up all log sizes and its value is returned.
+ * if --log-size was specified, it will be returned explicitly */
 intmax_t
 get_log_sizes (void)
 {
   int i;
   off_t size = 0;
+
+  /* --log-size */
+  if (conf.log_size > 0)
+    return (intmax_t) conf.log_size;
 
   for (i = 0; i < conf.filenames_idx; ++i) {
     if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
