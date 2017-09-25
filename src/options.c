@@ -52,7 +52,7 @@
 #include "error.h"
 #include "util.h"
 
-static char short_options[] = "f:e:p:o:l:H:M:"
+static char short_options[] = "f:e:p:o:l:H:M:S:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
@@ -73,6 +73,7 @@ struct option long_opts[] = {
   {"http-method"          , required_argument , 0 , 'M' } ,
   {"http-protocol"        , required_argument , 0 , 'H' } ,
   {"log-file"             , required_argument , 0 , 'f' } ,
+  {"log-size"             , required_argument , 0 , 'S' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
   {"output-format"        , required_argument , 0 , 'o' } ,
@@ -158,7 +159,7 @@ cmd_help (void)
   printf ("\nGoAccess - %s\n\n", GO_VERSION);
   printf (
   "Usage: "
-  "goaccess [filename] [ options ... ] [-c][-M][-H][-q][-d][...]\n"
+  "goaccess [filename] [ options ... ] [-c][-M][-H][-S][-q][-d][...]\n"
   "The following options can also be supplied to the command:\n\n"
 
   /* Log & Date Format Options */
@@ -210,6 +211,7 @@ cmd_help (void)
   "File Options\n\n"
   "  -                               - The log file to parse is read from stdin.\n"
   "  -f --log-file=<filename>        - Path to input log file.\n"
+  "  -S --log-size=<number>          - Specify the log size, useful when piping in logs.\n"
   "  -l --debug-file=<filename>      - Send all debug messages to the specified\n"
   "                                    file.\n"
   "  -p --config-file=<filename>     - Custom configuration file.\n"
@@ -673,6 +675,13 @@ read_option_args (int argc, char **argv)
     case 'f':
       if (conf.filenames_idx < MAX_FILENAMES)
         conf.filenames[conf.filenames_idx++] = optarg;
+      break;
+    case 'S':
+      if (strchr(optarg, '-')) {
+        printf ("[ERROR] log-size must be a positive integer\n");
+        exit (EXIT_FAILURE);
+      }
+      conf.log_size = (uint64_t)atoll(optarg);
       break;
     case 'p':
       /* ignore it */
