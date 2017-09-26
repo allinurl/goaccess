@@ -845,7 +845,7 @@ parse_req (char *line, char **method, char **protocol)
       (*protocol) = strtoupper (xstrdup (++proto));
   }
 
-  if ((dreq = decode_url (request)) && dreq != '\0') {
+  if ((dreq = decode_url (request)) && *dreq != '\0') {
     free (request);
     return dreq;
   }
