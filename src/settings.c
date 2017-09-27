@@ -129,16 +129,17 @@ get_config_file_path (void)
     return rpath;
   }
 
-  /* attempt to use the user's config file */
-  upath = get_home ();
-  rpath = realpath (upath, NULL);
-  if (upath) {
-    free (upath);
-  }
-
-  /* otherwise, fallback to global config file */
-  if (rpath == NULL && conf.load_global_config) {
+  /* otherwise, fallback to global config file, or
+   * attempt to use the user's config file */
+  if (conf.load_global_config) {
     upath = get_global_config ();
+    rpath = realpath (upath, NULL);
+    if (upath) {
+      free (upath);
+    }
+  }
+  if (rpath == NULL) {
+    upath = get_home ();
     rpath = realpath (upath, NULL);
     if (upath) {
       free (upath);
