@@ -724,8 +724,8 @@ read_client (void *ptr_data)
   FD_ZERO (&rfds);
   FD_ZERO (&wfds);
 
-  /* open fifo for read */
-  if ((reader->fd = open_fifoout ()) == -1)
+  /* check we have a fifo for reading */
+  if (reader->fd == -1)
     return;
 
   pthread_mutex_lock (&reader->mutex);
@@ -1384,6 +1384,12 @@ set_standard_output (void)
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
+    /* open fifo for read */
+    if ((gwsreader->fd = open_fifoout ()) == -1) {
+      LOG (("Unable to open FIFO for read.\n"));
+      return;
+    }
+
     if (conf.daemonize)
       daemonize ();
     setup_ws_server (gwswriter, gwsreader);

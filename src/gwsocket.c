@@ -347,6 +347,19 @@ start_server (void *ptr_data)
 {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
+  writer->server->onopen = onopen;
+  set_self_pipe (writer->server->self_pipe);
+
+  /* select(2) will block in here */
+  ws_start (writer->server);
+  fprintf (stderr, "Stopping WebSocket server...\n");
+  ws_stop (writer->server);
+}
+
+/* Read and set the WebSocket config options. */
+static void
+set_ws_opts (void)
+{
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
@@ -362,13 +375,6 @@ start_server (void *ptr_data)
     ws_set_config_sslcert (conf.sslcert);
   if (conf.sslkey)
     ws_set_config_sslkey (conf.sslkey);
-  writer->server->onopen = onopen;
-  set_self_pipe (writer->server->self_pipe);
-
-  /* select(2) will block in here */
-  ws_start (writer->server);
-  fprintf (stderr, "Stopping WebSocket server...\n");
-  ws_stop (writer->server);
 }
 
 /* Setup and start the WebSocket threads. */
@@ -387,7 +393,7 @@ setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
   thread = &gwswriter->thread;
 
   /* pre-init the websocket server, to ensure the FIFOs are created */
-  if ((gwswriter->server = ws_init ("0.0.0.0", "7890")) == NULL)
+  if ((gwswriter->server = ws_init ("0.0.0.0", "7890", set_ws_opts)) == NULL)
     FATAL ("Failed init websocket");
 
   id = pthread_create (&(*thread), NULL, (void *) &start_server, gwswriter);

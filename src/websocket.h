@@ -336,6 +336,6 @@ void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_start (WSServer * server);
 void ws_stop (WSServer * server);
-WSServer *ws_init (const char *host, const char *port);
+WSServer *ws_init (const char *host, const char *port, void (*initopts) (void));
 
 #endif // for #ifndef WEBSOCKET_H
