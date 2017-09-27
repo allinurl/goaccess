@@ -693,11 +693,11 @@ read_option_args (int argc, char **argv)
         conf.filenames[conf.filenames_idx++] = optarg;
       break;
     case 'S':
-      if (strchr(optarg, '-')) {
+      if (strchr (optarg, '-')) {
         printf ("[ERROR] log-size must be a positive integer\n");
         exit (EXIT_FAILURE);
       }
-      conf.log_size = (uint64_t)atoll(optarg);
+      conf.log_size = (uint64_t) atoll (optarg);
       break;
     case 'p':
       /* ignore it */

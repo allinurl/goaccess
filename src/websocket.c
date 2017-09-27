@@ -2966,7 +2966,7 @@ ws_set_config_sslkey (const char *sslkey)
 
 /* Create a new websocket server context. */
 WSServer *
-ws_init (const char *host, const char *port)
+ws_init (const char *host, const char *port, void (*initopts) (void))
 {
   WSServer *server = new_wsserver ();
   server->pipein = new_wspipein ();
@@ -2985,6 +2985,7 @@ ws_init (const char *host, const char *port)
   wsconfig.strict = 0;
   wsconfig.use_ssl = 0;
 
+  initopts ();
   ws_fifo (server);
 
   return server;
