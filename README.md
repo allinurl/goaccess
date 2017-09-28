@@ -56,9 +56,8 @@ terminal. Features include:
   possible to fit everything in memory.
 
 * **Docker support**
-  Ability to build GoAccess' Docker image from upstream which listens for Web
-  Socket connections on port 7890. You can still fully configure it, by using
-  Volume mapping and editing `goaccess.conf`. See
+  Ability to build GoAccess' Docker image from upstream. You can still fully
+  configure it, by using Volume mapping and editing `goaccess.conf`. See
   [Docker](https://github.com/allinurl/goaccess#docker) section below.
 
 ### Nearly all web log formats... ###
