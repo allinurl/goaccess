@@ -1451,11 +1451,15 @@ main (int argc, char **argv)
   initializer ();
 
   /* set stdout */
-  if (conf.output_stdout)
+  if (conf.process_and_exit) {
+    /* ignore outputting, process only */
+  } else if (conf.output_stdout) {
     set_standard_output ();
+  }
   /* set curses */
-  else
+  else {
     set_curses (&quit);
+  }
 
   /* no log/date/time format set */
   if (quit)
