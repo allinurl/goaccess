@@ -175,6 +175,9 @@ generate_time (void)
 void
 end_spinner (void)
 {
+  if (conf.no_parsing_spinner)
+    return;
+
   pthread_mutex_lock (&parsing_spinner->mutex);
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
@@ -1077,6 +1080,9 @@ ui_spinner (void *ptr_data)
 void
 ui_spinner_create (GSpinner * spinner)
 {
+  if (conf.no_parsing_spinner)
+    return;
+
   pthread_create (&(spinner->thread), NULL, (void *) &ui_spinner, spinner);
   pthread_detach (spinner->thread);
 }

@@ -114,6 +114,7 @@ struct option long_opts[] = {
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
+  {"no-parsing-spinner"   , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
   {"num-tests"            , required_argument , 0 ,  0  } ,
@@ -187,6 +188,7 @@ cmd_help (void)
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
+  "  --no-parsing-spinner            - Disable parsing spinner.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
   "  --no-html-last-updated          - Hide HTML last updated field.\n"
@@ -399,6 +401,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* no csv summary */
   if (!strcmp ("no-csv-summary", name))
     conf.no_csv_summary = 1;
+
+  /* no parsing spinner */
+  if (!strcmp ("no-parsing-spinner", name))
+    conf.no_parsing_spinner = 1;
 
   /* no progress */
   if (!strcmp ("no-progress", name))
