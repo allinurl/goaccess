@@ -192,10 +192,10 @@ cmd_help (void)
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
-  "  --no-parsing-spinner            - Disable parsing spinner.\n"
+  "  --no-html-last-updated          - Hide HTML last updated field.\n"
+  "  --no-parsing-spinner            - Disable progress metrics and parsing spinner.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
-  "  --no-html-last-updated          - Hide HTML last updated field.\n"
   "\n"
 
   /* Server Options */
