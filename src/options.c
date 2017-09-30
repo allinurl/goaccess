@@ -658,6 +658,13 @@ verify_global_config (int argc, char **argv)
 void
 add_dash_filename (void)
 {
+  int i;
+  // pre-scan for '-' and don't add if already exists: github.com/allinurl/goaccess/issues/907
+  for (i = 0; i < conf.filenames_idx; ++i) {
+    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
+      return;
+  }
+
   if (conf.filenames_idx < MAX_FILENAMES && !conf.read_stdin) {
     conf.read_stdin = 1;
     conf.filenames[conf.filenames_idx++] = "-";
