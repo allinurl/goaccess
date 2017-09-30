@@ -1450,10 +1450,11 @@ main (int argc, char **argv)
 
   initializer ();
 
-  /* set stdout */
+  /* ignore outputting, process only */
   if (conf.process_and_exit) {
-    /* ignore outputting, process only */
-  } else if (conf.output_stdout) {
+  }
+  /* set stdout */
+  else if (conf.output_stdout) {
     set_standard_output ();
   }
   /* set curses */
@@ -1484,10 +1485,11 @@ main (int argc, char **argv)
   end_spinner ();
   time (&end_proc);
 
-  /* stdout */
+  /* ignore outputting, process only */
   if (conf.process_and_exit) {
-    /* ignore outputting, process only */
-  } else if (conf.output_stdout) {
+  }
+  /* stdout */
+  else if (conf.output_stdout) {
     standard_output ();
   }
   /* curses */
