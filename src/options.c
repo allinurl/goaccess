@@ -670,7 +670,7 @@ verify_global_config (int argc, char **argv)
   optind = 1;
 }
 
-/* Attempt to add - to the array of filenames if it has been added it yet. */
+/* Attempt to add - to the array of filenames if it hasn't been added it yet. */
 void
 add_dash_filename (void)
 {
