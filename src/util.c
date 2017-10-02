@@ -361,6 +361,42 @@ find_output_type (char **filename, const char *ext, int alloc)
   return 1;
 }
 
+/* Validates the '-o' filename extension for any of:
+ * 1) .csv
+ * 2) .json
+ * 3) .html
+ *
+ * Return Value
+ * 1: valid
+ * 0: invalid
+ * -1: non-existent extension
+ */
+int
+valid_output_type (const char *filename) {
+  const char *ext = NULL;
+  size_t sl;
+
+  if ((ext = strrchr (filename, '.')) == NULL)
+    return -1;
+
+  ext++;
+  /* Is extension 3<=len<=4? */
+  sl = strlen(ext);
+  if (sl < 3 || sl > 4)
+    return 0;
+
+  if (strcmp ("html", ext) == 0)
+    return 1;
+
+  if (strcmp ("json", ext) == 0)
+    return 1;
+
+  if (strcmp ("csv", ext) == 0)
+    return 1;
+
+  return 0;
+}
+
 /* Search the environment HOME variable and append GoAccess' config
  * file.
  *
