@@ -139,6 +139,7 @@ struct option long_opts[] = {
   {"geoip-city-data"      , required_argument , 0 ,  0  } ,
 #endif
 #ifdef TCB_BTREE
+  {"accumulated-time"     , no_argument       , 0 ,  0  } ,
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
   {"cache-ncnum"          , required_argument , 0 ,  0  } ,
   {"compression"          , required_argument , 0 ,  0  } ,
@@ -237,6 +238,9 @@ cmd_help (void)
   "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
   "                                    count.\n"
+#ifdef TCB_BTREE
+  "  --accumulated-time              - Store accumulated time from parsing day-by-day logs.\n"
+#endif
   "  --all-static-files              - Include static files with a query string.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
@@ -487,6 +491,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* 4xx to unique count */
   if (!strcmp ("4xx-to-unique-count", name))
     conf.client_err_to_unique_count = 1;
+
+  /* store accumulated time in tcb */
+  if (!strcmp ("accumulated-time", name))
+    conf.store_accumulated_time = 1;
 
   /* all static files */
   if (!strcmp ("all-static-files", name))

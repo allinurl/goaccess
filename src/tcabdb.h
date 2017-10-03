@@ -173,6 +173,7 @@ int ht_insert_agent (GModule module, int key, int value);
 int ht_insert_bw (GModule module, int key, uint64_t inc);
 int ht_insert_cumts (GModule module, int key, uint64_t inc);
 int ht_insert_datamap (GModule module, int key, const char *value);
+int ht_insert_genstats_accumulated_time (time_t elapsed);
 int ht_insert_genstats_bw (const char *key, uint64_t inc);
 int ht_insert_genstats (const char *key, int inc);
 int ht_insert_hits (GModule module, int key, int inc);
