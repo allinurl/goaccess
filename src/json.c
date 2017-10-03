@@ -524,7 +524,14 @@ poverall_invalid_reqs (GJSON * json, GLog * glog, int sp)
 static void
 poverall_processed_time (GJSON * json, int sp)
 {
-  pskeyu64val (json, OVERALL_GENTIME, end_proc - start_proc, sp, 0);
+  uint64_t elapsed_proc = end_proc - start_proc;
+
+#ifdef TCB_BTREE
+  if (conf.store_accumulated_time)
+    elapsed_proc = (uint64_t) ht_get_genstats ("accumulated_time");
+#endif
+
+  pskeyu64val (json, OVERALL_GENTIME, elapsed_proc, sp, 0);
 }
 
 /* Write to a buffer the total number of unique visitors under the

@@ -1219,6 +1219,21 @@ ht_replace_genstats (const char *key, int value)
   return ins_si32 (hash, key, value);
 }
 
+/* Increases the general stats counter accumulated_time.
+ *
+ * On error,  0 is returned
+ * On success 1 is returned */
+int
+ht_insert_genstats_accumulated_time (time_t elapsed)
+{
+  void *hash = ht_general_stats;
+
+  if (!hash)
+    return 0;
+
+  return inc_si32(hash, "accumulated_time", (int)elapsed) != -1;
+}
+
 /* Increases a general stats counter uint64_t from a string key.
  *
  * On error, -1 is returned.
