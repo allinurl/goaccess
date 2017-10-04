@@ -133,6 +133,7 @@ typedef struct GConf_
   const char *ws_url;               /* WebSocket URL */
 
   /* User flags */
+  int store_accumulated_time;       /* store accumulated processing time in tcb */
   int all_static_files;             /* parse all static files */
   int append_method;                /* append method to the req key */
   int append_protocol;              /* append protocol to the req key */
