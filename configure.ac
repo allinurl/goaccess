@@ -58,13 +58,13 @@ if test "$geoip" = "mmdb"; then
     *** Missing development files for libmaxminddb library.
   ])])
   geolocation="GeoIP2"
-  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.]),
+  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.])
 elif test "$geoip" = "legacy"; then
   AC_CHECK_LIB([GeoIP], [GeoIP_new], [], [AC_MSG_ERROR([
     *** Missing development files for the GeoIP library
   ])])
   geolocation="GeoIP Legacy"
-  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.]),
+  AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.])
 fi
 AM_CONDITIONAL([GEOIP_LEGACY], [test "x$geoip" = "xlegacy"])
 AM_CONDITIONAL([GEOIP_MMDB], [test "x$geoip" = "xmmdb"])
@@ -74,7 +74,7 @@ AC_ARG_WITH(getline, [  --with-getline Build using dynamic line buffer.],
   [with_getline=$withval], [with_getline=no])
 
 if test "$with_getline" = "yes"; then
-  AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.]),
+  AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.])
 fi
 
 # UTF8
