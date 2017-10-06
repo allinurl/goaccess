@@ -1487,6 +1487,17 @@ main (int argc, char **argv)
 
   /* ignore outputting, process only */
   if (conf.process_and_exit) {
+#ifdef TCB_BTREE
+    /* store accumulated processing time
+     * Note: As we store with time_t second resolution,
+     * if elapsed time == 0, we will bump it to 1.
+     */
+    if (conf.store_accumulated_time) {
+      time_t elapsed = end_proc - start_proc;
+      elapsed = (! elapsed) ? ! elapsed : elapsed;
+      ht_insert_genstats_accumulated_time (elapsed);
+      }
+#endif
   }
   /* stdout */
   else if (conf.output_stdout) {
