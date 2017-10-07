@@ -146,6 +146,7 @@ static const char *browsers[][2] = {
   {"YaBrowser", "Others"},
   {"Flock", "Others"},
   /* Chrome has to go before Safari */
+  {"HeadlessChrome", "Chrome"},
   {"Chrome", "Chrome"},
 
   {"CriOS", "Chrome"},
