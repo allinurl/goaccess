@@ -2559,7 +2559,16 @@ fgetline (FILE * fp)
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
 
-  while (fgets (buf, sizeof (buf), fp)) {
+  while (1) {
+    if (! fgets (buf, sizeof (buf), fp)) {
+      if (conf.process_and_exit && errno == EAGAIN) {
+        nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);
+        continue;
+      }
+      else
+        break;
+    }
+
     len = strlen (buf);
 
     /* overflow check */
