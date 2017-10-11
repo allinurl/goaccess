@@ -102,12 +102,6 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
-#### Build Dependencies
-
-##### Debian / Ubuntu
-
-    # apt-get install libgeoip-dev libncursesw5-dev
-
 ### Build from GitHub (Development) ###
 
     $ git clone https://github.com/allinurl/goaccess.git
@@ -116,6 +110,10 @@ Download, extract and compile GoAccess with:
     $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
+
+#### Distribution Packages ####
+
+GoAccess has minimal requirements, it's written in C and requires only **ncurses**.
 
 ### Distributions ###
 
