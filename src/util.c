@@ -417,7 +417,8 @@ find_output_type (char **filename, const char *ext, int alloc)
  * -1: non-existent extension
  */
 int
-valid_output_type (const char *filename) {
+valid_output_type (const char *filename)
+{
   const char *ext = NULL;
   size_t sl;
 
@@ -426,7 +427,7 @@ valid_output_type (const char *filename) {
 
   ext++;
   /* Is extension 3<=len<=4? */
-  sl = strlen(ext);
+  sl = strlen (ext);
   if (sl < 3 || sl > 4)
     return 0;
 

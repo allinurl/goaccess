@@ -747,8 +747,9 @@ read_option_args (int argc, char **argv)
       conf.ignore_qstr = 1;
       break;
     case 'o':
-      if (! valid_output_type (optarg)) {
-        printf ("[ERROR] Invalid filename extension used, must be any of .csv, .json, or .html\n");
+      if (!valid_output_type (optarg)) {
+        printf
+          ("[ERROR] Invalid filename extension used, must be any of .csv, .json, or .html\n");
         exit (EXIT_FAILURE);
       }
       if (conf.output_format_idx < MAX_OUTFORMATS)

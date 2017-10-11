@@ -1231,7 +1231,7 @@ ht_insert_genstats_accumulated_time (time_t elapsed)
   if (!hash)
     return 0;
 
-  return inc_si32(hash, "accumulated_time", (int)elapsed) != -1;
+  return inc_si32 (hash, "accumulated_time", (int) elapsed) != -1;
 }
 
 /* Increases a general stats counter uint64_t from a string key.
