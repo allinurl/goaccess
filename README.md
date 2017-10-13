@@ -117,6 +117,11 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
+Distro            | NCurses          | GeoIP (optional) | Tokyo Cabinet (optional) |  OpenSSL (optional)
+----------------- | -----------------|------------------| -------------------------| -------------------
+**Ubuntu/Debian** | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev
+
+
 ### Distributions ###
 
 It is easiest to install GoAccess on Linux using the preferred package manager
