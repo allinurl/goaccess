@@ -113,7 +113,9 @@ Download, extract and compile GoAccess with:
 
 #### Distribution Packages ####
 
-GoAccess has minimal requirements, it's written in C and requires only **ncurses**.
+GoAccess has minimal requirements, it's written in C and requires only ncurses.
+However, below is a table of some optional dependencies in some distros to
+build GoAccess from source.
 
 ### Distributions ###
 
