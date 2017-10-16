@@ -111,19 +111,6 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
-#### Distribution Packages ####
-
-GoAccess has minimal requirements, it's written in C and requires only ncurses.
-However, below is a table of some optional dependencies in some distros to
-build GoAccess from source.
-
-Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (opt)      |  OpenSSL (opt)
----------------------- | -----------------|------------------| -------------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev
-**Fedora/RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel 
-**Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl 
-
-
 ### Distributions ###
 
 It is easiest to install GoAccess on Linux using the preferred package manager
@@ -187,6 +174,18 @@ alternative option below.
 
 GoAccess can be used in Windows through Cygwin.
 See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+
+#### Distribution Packages ####
+
+GoAccess has minimal requirements, it's written in C and requires only ncurses.
+However, below is a table of some optional dependencies in some distros to
+build GoAccess from source.
+
+Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (opt)      |  OpenSSL (opt)
+---------------------- | -----------------|------------------| -------------------------| -------------------
+**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev
+**Fedora/RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel 
+**Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl 
 
 ### Docker ###
 
