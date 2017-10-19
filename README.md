@@ -187,6 +187,7 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 **Fedora/RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel 
 **Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl 
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl
+**Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl
 
 ### Docker ###
 
