@@ -2586,12 +2586,17 @@ fgetline (FILE * fp)
   char buf[LINE_BUFFER] = { 0 };
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
+  int timeout = 10 * 10;  /* 10 seconds */
 
   while (1) {
     if (!fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        nanosleep ((const struct timespec[]) { {
-                   0, 100000000L}}, NULL);
+        if (timeout <= 0) {
+          fprintf (stderr, "fgetline timed out waiting for input: %d/%d\n", feof(fp), ferror(fp));
+          break;
+        }
+        nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);  /* 1/10th sec */
+        timeout--;
         continue;
       } else
         break;
