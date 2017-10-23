@@ -2559,12 +2559,15 @@ fgetline (FILE * fp)
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
   int timeout = 10 * 10;  /* 10 seconds */
+  static uint64_t linesread;
 
   while (1) {
     if (! fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        if (timeout <= 0) {
-          fprintf (stderr, "fgetline timed out waiting for input: %d/%d\n", feof(fp), ferror(fp));
+        if (linesread > 1)
+          break;
+        else if (timeout <= 0) {
+          fprintf (stderr, "fgetline timed out waiting for input: %d/%d/%" PRIu64 "\n", feof(fp), ferror(fp), linesread);
           break;
         }
         nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);  /* 1/10th sec */
@@ -2589,8 +2592,10 @@ fgetline (FILE * fp)
     strcpy (line + linelen, buf);
     linelen += len;
 
-    if (feof (fp) || buf[len - 1] == '\n')
+    if (feof (fp) || buf[len - 1] == '\n') {
+      linesread++;
       return line;
+    }
   }
   free (line);
 
