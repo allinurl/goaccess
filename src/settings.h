@@ -149,6 +149,7 @@ typedef struct GConf_
   int geo_db;                       /* legacy geoip db */
 #ifdef WITH_GETLINE
   int getline_timeout;              /* timeout for fgetline() */
+  uint64_t getline_min_read;        /* fgetline() minimum number of lines to read to honor EOF/EAGAIN */
 #endif
   int hl_header;                    /* highlight header on term */
   int ignore_crawlers;              /* ignore crawlers */
