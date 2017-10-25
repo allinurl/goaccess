@@ -270,6 +270,7 @@ AC_CHECK_FUNCS([strspn])
 AC_CHECK_FUNCS([strstr])
 AC_CHECK_FUNCS([strtol])
 AC_CHECK_FUNCS([strtoull])
+AC_CHECK_FUNCS([tcbdbsetdfunit])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
