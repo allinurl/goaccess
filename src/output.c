@@ -268,7 +268,7 @@ print_html_body (FILE * fp, const char *now)
   "</div>"
   "<h1>"
   "<span class='hidden-xs hidden-sm'>"
-  "<i class='fa fa-tachometer'></i> Dashboard"
+  "<i class='fa fa-tachometer'></i> InVision"
   "</span>"
   "<span class='visible-xs visible-sm'>"
   "<i class='fa fa-bars nav-minibars'></i>"
