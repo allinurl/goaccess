@@ -35,7 +35,13 @@
 #define COMMONS_H_INCLUDED
 
 #include <time.h>
+
+#ifdef HAVE_INTTYPES_H
+#include <inttypes.h>
+#else
 #include <stdint.h>
+#define PRIu64 "llu"
+#endif
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
