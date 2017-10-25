@@ -2558,7 +2558,7 @@ fgetline (FILE * fp)
   char buf[LINE_BUFFER] = { 0 };
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
-  int timeout = 10 * 10;  /* 10 seconds */
+  int timeout = conf.getline_timeout * 10;
   static uint64_t linesread;
 
   while (1) {
