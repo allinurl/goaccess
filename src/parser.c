@@ -2555,22 +2555,23 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
 char *
 fgetline (FILE * fp)
 {
+#define SLEEP 100000000L
   char buf[LINE_BUFFER] = { 0 };
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
-  int timeout = conf.getline_timeout * 10;
+  int timeout = conf.getline_timeout * (1000000000L / SLEEP);
   static uint64_t linesread;
 
   while (1) {
     if (! fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        if (linesread > 1)
+        if (linesread > conf.getline_min_read)
           break;
         else if (timeout <= 0) {
           fprintf (stderr, "fgetline timed out waiting for input: %d/%d/%" PRIu64 "\n", feof(fp), ferror(fp), linesread);
           break;
         }
-        nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);  /* 1/10th sec */
+        nanosleep((const struct timespec[]){{0, SLEEP}}, NULL);  /* default: 1/10th sec */
         timeout--;
         continue;
       }
