@@ -623,7 +623,7 @@ parse_long_opt (const char *name, const char *oarg)
     if (!strcmp (oarg, "max"))
       conf.auto_defrag = INT32_MAX;
     else
-      conf.num_tests = atoi (oarg);
+      conf.auto_defrag = atoi (oarg);
   }
 #endif
 
