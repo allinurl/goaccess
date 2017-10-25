@@ -181,6 +181,14 @@ tc_bdb_create (char *dbpath)
     FATAL ("Unable to set TCB cache");
   }
 
+  /* set the dfunit size for auto defragmentation */
+#ifdef HAVE_TCBDBSETDFUNIT
+  if (conf.auto_defrag > 0 && !tcbdbsetdfunit(bdb, conf.auto_defrag)) {
+    free (dbpath);
+    FATAL ("Unable to set TCB auto defragmentation dfunit.");
+  }
+#endif
+
   /* set the size of the extra mapped memory */
   if (conf.xmmap > 0 && !tcbdbsetxmsiz (bdb, conf.xmmap)) {
     free (dbpath);

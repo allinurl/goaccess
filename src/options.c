@@ -143,6 +143,9 @@ struct option long_opts[] = {
 #endif
 #ifdef TCB_BTREE
   {"accumulated-time"     , no_argument       , 0 ,  0  } ,
+#ifdef HAVE_TCBDBSETDFUNIT
+  {"auto-defrag"          , required_argument , 0 ,  0  } ,
+#endif
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
   {"cache-ncnum"          , required_argument , 0 ,  0  } ,
   {"compression"          , required_argument , 0 ,  0  } ,
@@ -290,6 +293,9 @@ cmd_help (void)
   "  --keep-db-files                 - Persist parsed data into disk.\n"
   "  --load-from-disk                - Load previously stored data from disk.\n"
   "  --db-path=<path>                - Path of the database file. Default [%s]\n"
+#ifdef HAVE_TCBDBSETDFUNIT
+  "  --auto-defrag=<number|max>      - Set the dfunit for auto-defragmentation.  max is INT32_MAX.\n"
+#endif
   "  --cache-lcnum=<number>          - Max number of leaf nodes to be cached. Default\n"
   "                                    [%d]\n"
   "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be cached.\n"
@@ -605,6 +611,21 @@ parse_long_opt (const char *name, const char *oarg)
   /* specifies the path of the database file */
   if (!strcmp ("db-path", name))
     conf.db_path = oarg;
+
+  /* specifies the auto-defragmentation dfunit number for tcbdbsetdfunit() */
+  /* I'm still a bit unsure as to what dfunit truly represents, but looking at
+       the code for 'tcbmgr optimize -df', it passes an INT64_MAX into tchdefrag()
+       but in TC test code, I'm seeing it set to 8.
+       The general formula is: dfunit * HDBDFRSRAT + 1  (where HDBDFRSRAT is 2)
+  */
+#ifdef HAVE_TCBDBSETDFUNIT
+  if (!strcmp ("auto-defrag", name)) {
+    if (!strcmp (oarg, "max"))
+      conf.auto_defrag = INT32_MAX;
+    else
+      conf.num_tests = atoi (oarg);
+  }
+#endif
 
   /* specifies the maximum number of leaf nodes to be cached */
   if (!strcmp ("cache-lcnum", name))

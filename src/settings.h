@@ -200,6 +200,9 @@ typedef struct GConf_
   /* TokyoCabinet */
   const char *db_path;              /* db path to files */
   int64_t xmmap;                    /* size of the extra mapped memory */
+#ifdef HAVE_TCBDBSETDFUNIT
+  int32_t auto_defrag;              /* dfunit setting for tcbdbsetfdunit() */
+#endif
   int cache_lcnum;                  /* max num of leaf nodes to cache */
   int cache_ncnum;                  /* max num of non-leaf nodes to cache */
   int compression;                  /* deflate or BZIP2 */
