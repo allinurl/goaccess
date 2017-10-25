@@ -98,6 +98,9 @@ struct option long_opts[] = {
   {"fifo-in"              , required_argument , 0 ,  0  } ,
   {"fifo-out"             , required_argument , 0 ,  0  } ,
   {"hide-referer"         , required_argument , 0 ,  0  } ,
+#ifdef WITH_GETLINE
+  {"getline-timeout"      , required_argument , 0 ,  0  } ,
+#endif
   {"hour-spec"            , required_argument , 0 ,  0  } ,
   {"html-custom-css"      , required_argument , 0 ,  0  } ,
   {"html-custom-js"       , required_argument , 0 ,  0  } ,
@@ -254,6 +257,10 @@ cmd_help (void)
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
   "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards\n"
   "                                    are allowed. i.e., *.bing.com\n"
+#ifdef WITH_GETLINE
+  "  --getline-timeout[=<number>]    - Set a timeout (in seconds) for getline to timeout\n"
+  "                                    while reading input. Default is 10 seconds.\n"
+#endif
   "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr`\n"
   "                                    (default), or `min` (tenth of a min).\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
@@ -504,6 +511,16 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("4xx-to-unique-count", name))
     conf.client_err_to_unique_count = 1;
 
+#ifdef WITH_GETLINE
+  if (!strcmp ("getline-timeout", name)) {
+    char *sEnd;
+    int gto = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      conf.getline_timeout = 10;
+    else
+      conf.getline_timeout = gto;
+  }
+#endif
   /* store accumulated time in tcb */
   if (!strcmp ("accumulated-time", name))
     conf.store_accumulated_time = 1;
