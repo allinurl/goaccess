@@ -1,0 +1,12 @@
+# /etc/systemd/system/goaccess.timer
+
+[Unit]
+Description=Goaccess timed log scan
+After=network-online.target
+
+[Install]
+WantedBy=timers.target
+
+[Timer]
+RandomizedDelaySec=2s
+OnUnitActiveSec=60s

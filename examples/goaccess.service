@@ -1,0 +1,34 @@
+# /etc/systemd/system/goaccess.service
+
+[Unit]
+Description=Goaccess timed log scan
+After=network-online.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=/tmp
+ExecStartPre=/bin/mkdir -p /var/lib/goaccess
+ExecStart=/usr/sbin/goaccess_runner
+
+# Hardening
+
+NoNewPrivileges=true
+PermissionsStartOnly=true
+# CapabilityBoundingSet=
+PrivateTmp=true
+ProtectHome=read-only
+ProtectSystem=full
+SystemCallFilter=~@clock #@cpu-emulation @debug @keyring @memlock @module @mount @obsolete @privileged @reboot @resources @setuid @swap @raw-io
+# Required: @network-io @ipc
+
+ReadOnlyDirectories=/
+ReadWriteDirectories=/proc/self
+ReadWriteDirectories=-/var/lib/goaccess
+ReadWriteDirectories=-/var/www
+
+PrivateDevices=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+
+StandardOutput=syslog+console
+StandardError=syslog+console
