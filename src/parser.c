@@ -2588,12 +2588,12 @@ fgetline (FILE * fp)
   size_t linelen = 0, len = 0;
 
   while (1) {
-    if (! fgets (buf, sizeof (buf), fp)) {
+    if (!fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        nanosleep((const struct timespec[]){{0, 100000000L}}, NULL);
+        nanosleep ((const struct timespec[]) { {
+                   0, 100000000L}}, NULL);
         continue;
-      }
-      else
+      } else
         break;
     }
 
