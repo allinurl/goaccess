@@ -353,8 +353,8 @@ parse_opera (char *token)
 char *
 verify_browser (char *str, char *type)
 {
-  char *a, *b, *ptr, *slash;
-  size_t i;
+  char *a = NULL, *b = NULL, *ptr = NULL, *slash = NULL;
+  size_t i, cnt = 0, space = 0;
 
   if (str == NULL || *str == '\0')
     return NULL;
@@ -363,11 +363,12 @@ verify_browser (char *str, char *type)
     if ((a = strstr (str, browsers[i][0])) == NULL)
       continue;
 
-    /* check if there is a space char in the token string, that way strpbrk
+    /* Check if there are spaces in the token string, that way strpbrk
      * does not stop at the first space within the token string */
-    if ((strchr (browsers[i][0], ' ')) != NULL && (b = strchr (a, ' ')) != NULL)
-      b++;
-    else
+    if ((cnt = count_matches (browsers[i][0], ' ')) && (b = a)) {
+      while ((b = strchr (b, ' ')) && space++ < cnt)
+        b++;
+    } else
       b = a;
 
     xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
