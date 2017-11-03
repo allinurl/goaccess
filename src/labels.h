@@ -36,6 +36,9 @@
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
+/* global lang attribute */
+#define DOC_LANG                 _( "en")
+
 /* General */
 #define GEN_EXPAND_PANEL         _( "Exp. Panel")
 #define GEN_HELP                 _( "Help")
