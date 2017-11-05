@@ -541,8 +541,11 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp)
     fpskeysval (fp, "dataType", def.datatype, isp, 0);
   if (def.datakey)
     fpskeysval (fp, "key", def.datakey, isp, 0);
-  if (def.lbl)
+  if (def.lbl) {
+    if (def.lblAnchor)
+      fpskeysval (fp, "labelAnchor", def.lblAnchor, isp, 0);
     fpskeysval (fp, "label", def.lbl, isp, 1);
+  }
 }
 
 /* Output JSON metric definition block. */
@@ -656,6 +659,7 @@ print_def_overall_refs (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_REFERRER,
+    .lblAnchor = T_REFERRER_ANCHOR,
     .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_REF, sp);
@@ -669,6 +673,7 @@ print_def_overall_notfound (FILE * fp, int sp)
 {
   GDefMetric def = {
     .lbl = T_UNIQUE404,
+    .lblAnchor = T_UNIQUE404_ANCHOR,
     .datatype = "numeric",
   };
   fpopen_obj_attr (fp, OVERALL_NOTFOUND, sp);
