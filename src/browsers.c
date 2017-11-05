@@ -366,7 +366,7 @@ verify_browser (char *str, char *type)
     /* Check if there are spaces in the token string, that way strpbrk
      * does not stop at the first space within the token string */
     if ((cnt = count_matches (browsers[i][0], ' ')) && (b = a)) {
-      while ((b = strchr (b, ' ')) && space++ < cnt)
+      while (space++ < cnt && (b = strchr (b, ' ')))
         b++;
     } else
       b = a;
