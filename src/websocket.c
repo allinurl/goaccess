@@ -708,9 +708,13 @@ log_return_message (int ret, int err, const char *fn)
     break;
   case SSL_ERROR_SYSCALL:
     LOG (("SSL: %s - SSL_ERROR_SYSCALL\n", fn));
-    if (ret >= 0)
+    /* The shutdown is not yet finished. */
+    if (ret >= 0) {
       LOG (("SSL: handshake interrupted, got EOF\n"));
-    else
+      if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)
+        LOG (("SSL: %s - shutdown not yet finished %s\n", fn,
+              strerror (errno)));
+    } else
       LOG (("SSL bogus handshake interrupt: \n", strerror (errno)));
     break;
   default:
@@ -743,10 +747,14 @@ shutdown_ssl (WSClient * client)
     client->sslstatus = WS_TLS_SHUTTING;
     break;
   case SSL_ERROR_SYSCALL:
-    if (ret == 0)
+    if (ret == 0) {
       LOG (("SSL: SSL_shutdown, connection unexpectedly closed by peer.\n"));
-    else
+      /* The shutdown is not yet finished. */
+      if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)
+        client->sslstatus = WS_TLS_SHUTTING;
+    } else {
       LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
+    }
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
