@@ -10,7 +10,7 @@
 	<div class="col-md-2">
 		<div class="grid-module {{#className}}{{className}}{{/className}}{{^className}}gray{{/className}}">
 			<div class="col-title">
-				<i class="fa fa-bar-chart"></i> {{#label}}{{label}}{{/label}}
+				<i class="fa fa-bar-chart"></i> {{#labelAnchor}}<a href="{{labelAnchor}}">{{/labelAnchor}}{{#label}}{{label}}{{/label}}{{#labelAnchor}}</a>{{/labelAnchor}}
 			</div>
 			<h3 id="{{id}}" style="padding-top: 0;">{{value}}</h3>
 		</div>

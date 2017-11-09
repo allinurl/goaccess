@@ -91,6 +91,7 @@ typedef struct GDefMetric_
   const char *datakey;          /* metric JSON data key */
   const char *datatype;         /* metric data value type */
   const char *lbl;              /* metric label (column name) */
+  const char *lblAnchor;        /* metric label anchor URL */
   const char *metakey;          /* metric JSON meta key */
   const char *metatype;         /* metric meta value type */
   const char *metalbl;          /* metric meta value label */

@@ -294,6 +294,7 @@ GoAccess.OverallStats = {
 			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
+			'labelAnchor': ui.items[x].labelAnchor,
 			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].dataType),
 		});
 		row.appendChild(box);
