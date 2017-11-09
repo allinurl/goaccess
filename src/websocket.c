@@ -884,7 +884,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len)
     client->sslstatus = WS_TLS_WRITING;
     break;
   case SSL_ERROR_SYSCALL:
-    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
