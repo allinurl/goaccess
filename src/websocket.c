@@ -789,7 +789,7 @@ accept_ssl (WSClient * client)
     client->sslstatus = WS_TLS_ACCEPTING;
     break;
   case SSL_ERROR_SYSCALL:
-    if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+    if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
       break;
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
