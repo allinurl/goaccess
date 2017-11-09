@@ -925,7 +925,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
       done = 1;
       break;
     case SSL_ERROR_SYSCALL:
-      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
     case SSL_ERROR_ZERO_RETURN:
     case SSL_ERROR_WANT_X509_LOOKUP:
