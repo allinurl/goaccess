@@ -686,39 +686,48 @@ out:
 static void
 log_return_message (int ret, int err, const char *fn)
 {
+  unsigned long e;
+
   switch (err) {
   case SSL_ERROR_NONE:
-    LOG (("SSL: %s - SSL_ERROR_NONE\n", fn));
+    LOG (("SSL: %s -> SSL_ERROR_NONE\n", fn));
     LOG (("SSL: TLS/SSL I/O operation completed\n"));
     break;
   case SSL_ERROR_WANT_READ:
-    LOG (("SSL: %s - SSL_ERROR_WANT_READ\n", fn));
+    LOG (("SSL: %s -> SSL_ERROR_WANT_READ\n", fn));
     LOG (("SSL: incomplete, data available for reading\n"));
     break;
   case SSL_ERROR_WANT_WRITE:
-    LOG (("SSL: %s - SSL_ERROR_WANT_WRITE\n", fn));
+    LOG (("SSL: %s -> SSL_ERROR_WANT_WRITE\n", fn));
     LOG (("SSL: incomplete, data available for writing\n"));
     break;
   case SSL_ERROR_ZERO_RETURN:
-    LOG (("SSL: %s - SSL_ERROR_ZERO_RETURN\n", fn));
+    LOG (("SSL: %s -> SSL_ERROR_ZERO_RETURN\n", fn));
     LOG (("SSL: TLS/SSL connection has been closed\n"));
     break;
   case SSL_ERROR_WANT_X509_LOOKUP:
-    LOG (("SSL: %s - SSL_ERROR_WANT_X509_LOOKUP\n", fn));
+    LOG (("SSL: %s -> SSL_ERROR_WANT_X509_LOOKUP\n", fn));
     break;
   case SSL_ERROR_SYSCALL:
-    LOG (("SSL: %s - SSL_ERROR_SYSCALL\n", fn));
-    /* The shutdown is not yet finished. */
-    if (ret >= 0) {
-      LOG (("SSL: handshake interrupted, got EOF\n"));
-      if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)
-        LOG (("SSL: %s - shutdown not yet finished %s\n", fn,
-              strerror (errno)));
-    } else
+    LOG (("SSL: %s -> SSL_ERROR_SYSCALL\n", fn));
+
+    e = ERR_get_error ();
+    if (e > 0)
+      LOG (("SSL: %s -> %s\n", fn, ERR_error_string (e, NULL)));
+
+    /* call was not successful because a fatal error occurred either at the
+     * protocol level or a connection failure occurred. */
+    if (ret != 0) {
       LOG (("SSL bogus handshake interrupt: \n", strerror (errno)));
+      break;
+    }
+    /* call not yet finished. */
+    LOG (("SSL: handshake interrupted, got EOF\n"));
+    if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)
+      LOG (("SSL: %s -> not yet finished %s\n", fn, strerror (errno)));
     break;
   default:
-    LOG (("SSL: %s - failed fatal error code: %d\n", fn, err));
+    LOG (("SSL: %s -> failed fatal error code: %d\n", fn, err));
     LOG (("SSL: %s\n", ERR_error_string (ERR_get_error (), NULL)));
     break;
   }
@@ -752,9 +761,9 @@ shutdown_ssl (WSClient * client)
       /* The shutdown is not yet finished. */
       if (errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN)
         client->sslstatus = WS_TLS_SHUTTING;
-    } else {
-      LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
+      break;
     }
+    LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -789,8 +798,14 @@ accept_ssl (WSClient * client)
     client->sslstatus = WS_TLS_ACCEPTING;
     break;
   case SSL_ERROR_SYSCALL:
-    if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR))
+    /* Wait for more activity else bail out, for instance if the socket is closed
+     * during the handshake. */
+    if (ret < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
+      client->sslstatus = WS_TLS_ACCEPTING;
       break;
+    }
+    /* The peer notified that it is shutting down through a SSL "close_notify" so
+     * we shutdown too */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -884,8 +899,10 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len)
     client->sslstatus = WS_TLS_WRITING;
     break;
   case SSL_ERROR_SYSCALL:
-    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+    if ((bytes < 0 &&
+         (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
+    /* The connection was shut down cleanly */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -925,7 +942,8 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
       done = 1;
       break;
     case SSL_ERROR_SYSCALL:
-      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+      if ((bytes < 0 &&
+           (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
     case SSL_ERROR_ZERO_RETURN:
     case SSL_ERROR_WANT_X509_LOOKUP:
