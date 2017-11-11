@@ -942,13 +942,37 @@ function BarChart(dualYaxis) {
 		});
 	}
 
+	function getScreenCoords(x, y, ctm) {
+		var xn = ctm.e + x*ctm.a + y*ctm.c;
+		var yn = ctm.f + x*ctm.b + y*ctm.d;
+		return { x: xn, y: yn };
+	}
+
 	function mouseover(_self, selection, data, idx) {
+		var center = innerW() / 2;
 		var left = xScale(data[0]) + (xScale.rangeBand() / 2);
+		var chartWidth = d3.select('svg').node().getAttribute('width');
 		var tooltip = selection.select('.chart-tooltip-wrap');
-		tooltip.html(formatTooltip(data, idx))
-			.style('left', left + 'px')
-			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
-			.style('display', 'block');
+		var ctm = _self.getCTM();
+		var rectX = parseInt(_self.getAttribute('x'));
+		var rectY = parseInt(_self.getAttribute('y'));
+		var rectW = parseInt(_self.getAttribute('width'));
+		var ttg = getScreenCoords(rectX, rectY, ctm);
+		if (left <= center) {
+			tooltip.html(formatTooltip(data, idx))
+				.style('left', ttg.x + rectW + 2 + 'px')
+				.style('right', 'auto')
+				.style('top', ttg.y - 45 + 'px')
+				.style('display', 'block')
+				.style('position', 'absolute');
+		} else {
+			tooltip.html(formatTooltip(data, idx))
+				.style('left', 'auto')
+				.style('top', ttg.y - 45 + 'px')
+				.style('right', chartWidth - ttg.x + 2 + 'px')
+				.style('display', 'block')
+				.style('position', 'absolute');
+		}
 
 		selection.select('line.indicator')
 			.style('display', 'block')
