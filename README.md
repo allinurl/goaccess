@@ -2,10 +2,10 @@ GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=mas
 ========
 
 ## What is it? ##
-GoAccess is an open source *real-time web log analyzer* and interactive viewer
-that *runs in a terminal* on &ast;nix systems or through your *browser*. It
-provides fast and valuable HTTP statistics for system administrators that
-require a visual server report on the fly.
+GoAccess is an open source **real-time web log analyzer** and interactive
+viewer that runs in a **terminal** on &ast;nix systems or through your
+**browser**. It provides fast and valuable HTTP statistics for system
+administrators that require a visual server report on the fly.
 More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 
 [![GoAccess Terminal Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20170307000000)](https://goaccess.io/)
