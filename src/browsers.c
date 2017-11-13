@@ -109,6 +109,7 @@ static const char *browsers[][2] = {
   {"w3m", "Others"},
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
+  {"JOSM", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -131,6 +132,7 @@ static const char *browsers[][2] = {
   {"AppEngine-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
   {"Google", "Crawlers"},
+  {"WhatsApp", "Crawlers"},
 
   /* Based on Firefox */
   {"Camino", "Others"},
@@ -144,6 +146,7 @@ static const char *browsers[][2] = {
   {"YaBrowser", "Others"},
   {"Flock", "Others"},
   /* Chrome has to go before Safari */
+  {"HeadlessChrome", "Chrome"},
   {"Chrome", "Chrome"},
 
   {"CriOS", "Chrome"},
@@ -152,7 +155,7 @@ static const char *browsers[][2] = {
   /* Crawlers/Bots */
   {"bingbot", "Crawlers"},
   {"msnbot", "Crawlers"},
-  {"YandexBot", "Crawlers"},
+  {"Yandex", "Crawlers"},
   {"Baiduspider", "Crawlers"},
   {"Ezooms", "Crawlers"},
   {"Twitter", "Crawlers"},
@@ -162,6 +165,7 @@ static const char *browsers[][2] = {
   {"AppleBot", "Crawlers"},
   {"AhrefsBot", "Crawlers"},
   {"Abonti", "Crawlers"},
+  {"Mastodon", "Crawlers"},
   {"MJ12bot", "Crawlers"},
   {"SISTRIX", "Crawlers"},
   {"facebook", "Crawlers"},
@@ -183,6 +187,7 @@ static const char *browsers[][2] = {
   {"ia_archiver", "Crawlers"},
   {"Wotbox", "Crawlers"},
   {"CCBot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
   {"findlinks", "Crawlers"},
   {"Yeti", "Crawlers"},
   {"ichiro", "Crawlers"},
@@ -292,6 +297,7 @@ static const char *browsers[][2] = {
   {"newsbeuter", "Feeds"},
   {"Wrangler", "Feeds"},
   {"Fever", "Feeds"},
+  {"Tiny Tiny RSS", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
   {"UptimeRobot", "Uptime"},
@@ -347,8 +353,8 @@ parse_opera (char *token)
 char *
 verify_browser (char *str, char *type)
 {
-  char *a, *b, *ptr, *slash;
-  size_t i;
+  char *a = NULL, *b = NULL, *ptr = NULL, *slash = NULL;
+  size_t i, cnt = 0, space = 0;
 
   if (str == NULL || *str == '\0')
     return NULL;
@@ -357,11 +363,12 @@ verify_browser (char *str, char *type)
     if ((a = strstr (str, browsers[i][0])) == NULL)
       continue;
 
-    /* check if there is a space char in the token string, that way strpbrk
+    /* Check if there are spaces in the token string, that way strpbrk
      * does not stop at the first space within the token string */
-    if ((strchr (browsers[i][0], ' ')) != NULL && (b = strchr (a, ' ')) != NULL)
-      b++;
-    else
+    if ((cnt = count_matches (browsers[i][0], ' ')) && (b = a)) {
+      while (space++ < cnt && (b = strchr (b, ' ')))
+        b++;
+    } else
       b = a;
 
     xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
