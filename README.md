@@ -15,50 +15,45 @@ More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 GoAccess parses the specified web log file and outputs the data to the X
 terminal. Features include:
 
-* **Completely Real Time** — 
-  All panels and metrics are timed to be updated every 200 ms on the terminal
-  output and every second on the HTML output.
+**Completely Real Time** — All panels and metrics are timed to be updated every
+  200 ms on the terminal output and every second on the HTML output.
 
-* **No configuration needed** — 
-  You can just run it against your access log file, pick the log format and 
-  let GoAccess parse the access log and show you the stats.
+**No configuration needed** — You can just run it against your access log file,
+  pick the log format and let GoAccess parse the access log and show you the
+  stats.
 
-* **Track Application Response Time** — 
-  Track the time taken to serve the request. Extremely useful if you want to
-  track pages that are slowing down your site.
+**Track Application Response Time** — Track the time taken to serve the
+  request. Extremely useful if you want to track pages that are slowing down your
+  site.
 
-* **Nearly All Web Log Formats** — 
-  GoAccess allows any custom log format string. Predefined options include,
-  Apache, Nginx, Amazon S3, Elastic Load Balancing, CloudFront, etc 
+**Nearly All Web Log Formats** — GoAccess allows any custom log format string.
+  Predefined options include, Apache, Nginx, Amazon S3, Elastic Load Balancing,
+  CloudFront, etc.
 
-* **Incremental Log Processing** — 
-  Need data persistence? GoAccess has the ability to process logs incrementally
-  through the on-disk B+Tree database.
+**Incremental Log Processing** — Need data persistence? GoAccess has the
+  ability to process logs incrementally through the on-disk B+Tree database.
 
-* **Only one dependency** — 
-  GoAccess is written in C. To run it, you only need ncurses as a dependency.
-  That's it. It even features its own Web Socket server -  http://gwsocket.io/.
+**Only one dependency** —  GoAccess is written in C. To run it, you only need
+  ncurses as a dependency.  That's it. It even features its own Web Socket server
+  -  http://gwsocket.io/.
 
-* **Visitors** — 
-  Determine the amount of hits, visitors, bandwidth, and metrics for slowest
-  running requests by the hour, or date.
+**Visitors** — Determine the amount of hits, visitors, bandwidth, and metrics
+  for slowest running requests by the hour, or date.
 
-* **Metrics per Virtual Host** — 
-  Have multiple Virtual Hosts (Server Blocks)? A panel that displays which
-  virtual host is consuming most of the web server resources.
+**Metrics per Virtual Host** — Have multiple Virtual Hosts (Server Blocks)? A
+  panel that displays which virtual host is consuming most of the web server
+  resources.
 
-* **Color Scheme Customizable** — 
-  Tailor GoAccess to suit your own color taste/schemes. Either through the 
-  terminal, or by simply applying the stylesheet on the HTML output.
+**Color Scheme Customizable** — Tailor GoAccess to suit your own color
+  taste/schemes. Either through the terminal, or by simply applying the
+  stylesheet on the HTML output.
 
-* **Support for Large Datasets** — 
-  GoAccess features an on-disk B+Tree storage for large datasets where it is not 
-  possible to fit everything in memory.
+**Support for Large Datasets** — GoAccess features an on-disk B+Tree storage
+  for large datasets where it is not possible to fit everything in memory.
 
-* **Docker Support** — 
-  Ability to build GoAccess' Docker image from upstream. You can still fully
-  configure it, by using Volume mapping and editing `goaccess.conf`. See
-  [Docker](https://github.com/allinurl/goaccess#docker) section below.
+**Docker Support** — Ability to build GoAccess' Docker image from upstream. You
+  can still fully configure it, by using Volume mapping and editing `goaccess.conf`.
+  See [Docker](https://github.com/allinurl/goaccess#docker) section below.
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
