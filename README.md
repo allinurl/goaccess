@@ -34,8 +34,8 @@ terminal. Features include:
   ability to process logs incrementally through the on-disk B+Tree database.
 
 * **Only one dependency** —  GoAccess is written in C. To run it, you only need
-  ncurses as a dependency.  That's it. It even features its own Web Socket server
-  -  http://gwsocket.io/.
+  ncurses as a dependency.  That's it. It even features its own Web Socket
+  server — http://gwsocket.io/.
 
 * **Visitors** — Determine the amount of hits, visitors, bandwidth, and metrics
   for slowest running requests by the hour, or date.
