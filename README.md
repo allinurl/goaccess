@@ -15,7 +15,8 @@ More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
 GoAccess parses the specified web log file and outputs the data to the X
 terminal. Features include:
 
-* **Completely Real Time** — All panels and metrics are timed to be updated every
+* **Completely Real Time**<br>
+  All panels and metrics are timed to be updated every
   200 ms on the terminal output and every second on the HTML output.
 
 * **No configuration needed** — You can just run it against your access log file,
