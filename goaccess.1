@@ -511,6 +511,11 @@ Treat non-standard status code 444 as 404.
 \fB\-\-4xx-to-unique-count
 Add 4xx client errors to the unique visitors count.
 .TP
+\fB\-\-accumulated-time
+Store accumulated processing time from parsing day-by-day logs.
+
+Only if configured with --enable-tcb=btree
+.TP
 \fB\-\-all-static-files
 Include static files that contain a query string. e.g.,
 /fonts/fontawesome-webfont.woff?v=4.0.3
