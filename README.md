@@ -121,7 +121,7 @@ the lastest version of GoAccess available.
 
     # apt-get install goaccess
 
-**NOTE:** It is likely this will install an outdated version of GoAccess. To
+**Note:** It is likely this will install an outdated version of GoAccess. To
 make sure that you're running the latest stable version of GoAccess see
 alternative option below.
 
@@ -191,7 +191,7 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 
 ### Docker ###
 
-*NOTE*: The following example assumes you will store your GoAccess data below
+**Note**: The following example assumes you will store your GoAccess data below
 ``/srv/goaccess``, but you can use a different prefix if you like or if you run
 as non-root user.
 
