@@ -31,5 +31,6 @@ install:
         - make
 branches:
  only:
-   - master 
+   - master
+   - FQ
 script: "echo done"
