@@ -2353,7 +2353,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem)
       0)
     return 1;
 
-  if (hour == '\0')
+  if (*hour == '\0')
     return 1;
 
   if ((hmark = strchr (hour, ':')))
