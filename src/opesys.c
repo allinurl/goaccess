@@ -121,7 +121,11 @@ static const char *os[][2] = {
 static char *
 get_real_android (const char *droid)
 {
-  if (strstr (droid, "7.1"))
+  if (strstr (droid, "8.1"))
+    return alloc_string ("Oreo 8.1");
+  else if (strstr (droid, "8.0"))
+    return alloc_string ("Oreo 8.0");
+  else if (strstr (droid, "7.1"))
     return alloc_string ("Nougat 7.1");
   else if (strstr (droid, "7.0"))
     return alloc_string ("Nougat 7.0");
