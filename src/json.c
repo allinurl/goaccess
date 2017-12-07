@@ -721,13 +721,38 @@ pmethod (GJSON * json, GMetrics * nmetrics, int sp)
   }
 }
 
+/* Escape any backslashes in given string. */
+static char *TTescape_backslash(char *str, int cnt) {
+	char *new = xmalloc(strlen(str) + cnt + 1);
+	char *ptr = new;
+
+	do {
+		*ptr = *str;
+		if (*ptr == '\\')
+			*(++ptr) = '\\';
+		ptr++;
+	} while (*(str++));
+	*ptr = '\0';
+
+	return new;
+}
+
 /* Write to a buffer protocol method data. */
 static void
 pprotocol (GJSON * json, GMetrics * nmetrics, int sp)
 {
+  int cnt = 0;
+  char *protocol;
+
   /* request protocol */
   if (conf.append_protocol && nmetrics->protocol) {
-    pskeysval (json, "protocol", nmetrics->protocol, sp, 0);
+    if ((cnt = count_matches(nmetrics->protocol, '\\'))) {
+      protocol = TTescape_backslash(nmetrics->protocol, cnt);
+      pskeysval (json, "protocol", protocol, sp, 0);
+      free(protocol);
+    } else {
+      pskeysval (json, "protocol", nmetrics->protocol, sp, 0);
+    }
   }
 }
 
