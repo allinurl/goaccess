@@ -796,14 +796,16 @@ contains_usecs (void)
  *
  * If not valid, 1 is returned.
  * If valid, 0 is returned. */
-static int
+static const char *
 invalid_protocol (const char *token)
 {
   const char *lookfor;
 
-  return !((lookfor = "HTTP/1.0", !strncmp (token, lookfor, 8)) ||
-           (lookfor = "HTTP/1.1", !strncmp (token, lookfor, 8)) ||
-           (lookfor = "HTTP/2", !strncmp (token, lookfor, 6)));
+  if ((lookfor = "HTTP/1.0", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "HTTP/1.1", !strncmp (token, lookfor, 8)) ||
+      (lookfor = "HTTP/2", !strncmp (token, lookfor, 6)))
+    return lookfor;
+  return NULL;
 }
 
 /* Parse a request containing the method and protocol.
@@ -814,8 +816,8 @@ invalid_protocol (const char *token)
 static char *
 parse_req (char *line, char **method, char **protocol)
 {
-  char *req = NULL, *request = NULL, *proto = NULL, *dreq = NULL;
-  const char *meth;
+  char *req = NULL, *request = NULL, *dreq = NULL, *ptr = NULL;
+  const char *meth, *proto;
   ptrdiff_t rlen;
 
   meth = extract_method (line);
@@ -827,14 +829,11 @@ parse_req (char *line, char **method, char **protocol)
   /* method found, attempt to parse request */
   else {
     req = line + strlen (meth);
-    if ((proto = strstr (line, " HTTP/1.0")) == NULL &&
-        (proto = strstr (line, " HTTP/1.1")) == NULL &&
-        (proto = strstr (line, " HTTP/2")) == NULL) {
+    if (!(ptr = strrchr (req, ' ')) || !(proto = invalid_protocol (++ptr)))
       return alloc_string ("-");
-    }
 
     req++;
-    if ((rlen = proto - req) <= 0)
+    if ((rlen = ptr - req) <= 0)
       return alloc_string ("-");
 
     request = xmalloc (rlen + 1);
@@ -845,15 +844,18 @@ parse_req (char *line, char **method, char **protocol)
       (*method) = strtoupper (xstrdup (meth));
 
     if (conf.append_protocol)
-      (*protocol) = strtoupper (xstrdup (++proto));
+      (*protocol) = strtoupper (xstrdup (proto));
   }
 
-  if ((dreq = decode_url (request)) && *dreq != '\0') {
-    free (request);
-    return dreq;
+  if (!(dreq = decode_url (request)))
+    return request;
+  else if (*dreq == '\0') {
+    free (dreq);
+    return request;
   }
 
-  return request;
+  free (request);
+  return dreq;
 }
 
 /* Extract the next delimiter given a log format and copy the
