@@ -1,0 +1,16 @@
+goaccess (1.2-1) stable; urgency=medium
+
+  * New upstream release.
+  * Fix lintian messages.
+
+ -- Viktor Szépe <viktor@szepe.net>  Sun, 23 Apr 2017 20:23:11 +0000
+
+goaccess (1:0.9.4-1) unstable; urgency=medium
+
+  * New upstream release.
+  * Bump standards-version.
+  * Update debian/copyright.
+     - Update dates.
+  * Enabled geoip in build.
+
+ -- Chris Taylor <ctaylor@debian.org>  Tue, 06 Oct 2015 16:06:24 +0000

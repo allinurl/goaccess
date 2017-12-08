@@ -1,0 +1,9 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_HARDENING=1
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- --enable-utf8 --enable-geoip=legacy
