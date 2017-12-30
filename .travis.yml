@@ -1,35 +1,30 @@
 language: c
-compiler:
-        - clang
-        - gcc
-before_install:
-        - sudo apt-get update -qq
-        - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev libtokyocabinet-dev gettext autopoint   
-install:
-        - autoreconf -fiv
-        - ./configure
-        - make
-        - make distclean
-        - autoreconf -fiv
-        - ./configure --enable-geoip=legacy --enable-utf8
-        - make
-        - make distclean
-        - autoreconf -fiv
-        - ./configure --enable-geoip=legacy --enable-utf8 --enable-tcb=btree --disable-bzip --disable-zlib
-        - make
-        - make distclean
-        - autoreconf -fiv
-        - ./configure --enable-geoip=legacy --enable-utf8 --enable-tcb=memhash --disable-bzip --disable-zlib
-        - make
-        - make distclean
-        - autoreconf -fiv
-        - ./configure --enable-tcb=memhash --disable-bzip --disable-zlib
-        - make
-        - make distclean
-        - autoreconf -fiv
-        - ./configure --enable-tcb=btree --disable-bzip --disable-zlib
-        - make
+
 branches:
- only:
-   - master 
-script: "echo done"
+  only:
+    - master 
+
+compiler:
+  - clang
+  - gcc
+
+env:
+  - CONFIGURE_OPTIONS=""
+  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8"
+  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-tcb=btree --disable-bzip --disable-zlib"
+  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-tcb=memhash --disable-bzip --disable-zlib"
+  - CONFIGURE_OPTIONS="--enable-tcb=memhash --disable-bzip --disable-zlib"
+  - CONFIGURE_OPTIONS="--enable-tcb=btree --disable-bzip --disable-zlib"
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev libtokyocabinet-dev gettext autopoint   
+
+install:
+  - autoreconf -fiv
+  - ./configure $CONFIGURE_OPTIONS
+  - make
+  - sudo make install
+
+script:
+  - echo "Sorry, no tests."
