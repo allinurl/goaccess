@@ -24,7 +24,7 @@ install:
   - autoreconf -fiv
   - ./configure $CONFIGURE_OPTIONS
   - make
-  - sudo make install
+  - sudo env "PATH=$PATH" make install
 
 script:
   - echo "Sorry, no tests."
