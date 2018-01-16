@@ -162,6 +162,11 @@ alternative option below.
     # cd /usr/ports/www/goaccess && make install clean
     # pkg_add goaccess
 
+#### openSUSE  ####
+
+    # zypper ar -f obs://server:http
+    # zypper ref && zypper in goaccess
+
 #### OpenIndiana ####
 
     # pkg install goaccess
