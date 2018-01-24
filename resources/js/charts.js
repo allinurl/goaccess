@@ -42,7 +42,7 @@ function AreaChart(dualYaxis) {
 			top    : 20,
 			right  : 50,
 			bottom : 40,
-			left   : 50
+			left   : 53
 		},
 		height = 170,
 		nTicks = 10,
@@ -79,7 +79,7 @@ function AreaChart(dualYaxis) {
 		.orient('left')
 		.tickFormat(function (d) {
 			if (format.y0)
-				return GoAccess.Util.fmtValue(d, format.y0);
+				return GoAccess.Util.fmtValue(d, format.y0, 0);
 			return d3.format('.2s')(d);
 		});
 
@@ -249,7 +249,7 @@ function AreaChart(dualYaxis) {
 			.enter().append('text')
 			.attr('class', 'axis-label y0')
 			.attr('y', 10)
-			.attr('x', 50)
+			.attr('x', 53)
 			.text(labels.y0);
 
 		if (!dualYaxis)
@@ -606,7 +606,7 @@ function BarChart(dualYaxis) {
 			top    : 20,
 			right  : 50,
 			bottom : 40,
-			left   : 50
+			left   : 53
 		},
 		height = 170,
 		nTicks = 10,
