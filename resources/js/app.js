@@ -131,7 +131,7 @@ GoAccess.Util = {
 			return numOnly ? 0 : '0 Byte';
 		var k = 1024;
 		var dm = decimals + 1 || 2;
-		var sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
+		var sizes = ['B', 'K', 'M', 'G', 'T'];
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + (numOnly ? '' : (' ' + sizes[i]));
 	},
@@ -170,7 +170,7 @@ GoAccess.Util = {
 	},
 
 	// Format field value to human readable
-	fmtValue: function (value, dataType) {
+	fmtValue: function (value, dataType, decimals) {
 		var val = 0;
 		if (!dataType)
 			val = value;
@@ -187,7 +187,7 @@ GoAccess.Util = {
 				val = value.toLocaleString();
 			break;
 		case 'bytes':
-			val = this.formatBytes(value);
+			val = this.formatBytes(value, decimals);
 			break;
 		case 'percent':
 			val = parseFloat(value.replace(',', '.')).toFixed(2) + '%';
