@@ -131,7 +131,7 @@ GoAccess.Util = {
 			return numOnly ? 0 : '0 Byte';
 		var k = 1024;
 		var dm = decimals + 1 || 2;
-		var sizes = ['B', 'K', 'M', 'G', 'T'];
+		var sizes = ['B', 'KiB', 'MiB', 'GiB', 'TiB'];
 		var i = Math.floor(Math.log(bytes) / Math.log(k));
 		return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + (numOnly ? '' : (' ' + sizes[i]));
 	},
