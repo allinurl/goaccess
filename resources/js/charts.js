@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2017 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2018 Gerardo Orellana <hello @ goaccess.io>
  */
 
 'use strict';
@@ -42,7 +42,7 @@ function AreaChart(dualYaxis) {
 			top    : 20,
 			right  : 50,
 			bottom : 40,
-			left   : 53
+			left   : 50,
 		},
 		height = 170,
 		nTicks = 10,
@@ -78,8 +78,6 @@ function AreaChart(dualYaxis) {
 		.scale(yScale0)
 		.orient('left')
 		.tickFormat(function (d) {
-			if (format.y0)
-				return GoAccess.Util.fmtValue(d, format.y0, 0);
 			return d3.format('.2s')(d);
 		});
 
@@ -606,7 +604,7 @@ function BarChart(dualYaxis) {
 			top    : 20,
 			right  : 50,
 			bottom : 40,
-			left   : 53
+			left   : 50,
 		},
 		height = 170,
 		nTicks = 10,
@@ -642,8 +640,6 @@ function BarChart(dualYaxis) {
 		.scale(yScale0)
 		.orient('left')
 		.tickFormat(function (d) {
-			if (format.y1)
-				return GoAccess.Util.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
@@ -780,7 +776,7 @@ function BarChart(dualYaxis) {
 			.enter().append('text')
 			.attr('class', 'axis-label y0')
 			.attr('y', 10)
-			.attr('x', 50)
+			.attr('x', 53)
 			.text(labels.y0);
 
 		if (!dualYaxis)
