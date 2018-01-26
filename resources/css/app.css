@@ -34,7 +34,7 @@ h3 {
 	top: 50%;
 }
 .powered {
-	bottom: 170px;
+	bottom: 190px;
 	color: #9E9E9E;
 	font-size: smaller;
 	position: absolute;
@@ -44,6 +44,9 @@ h3 {
 }
 .powered a {
 	color: #636363;
+}
+.powered span {
+	color: #007bc3;
 }
 .dropdown-header {
 	color: #007bc3;
