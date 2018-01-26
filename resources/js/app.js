@@ -583,7 +583,7 @@ GoAccess.Nav = {
 
 	// Render left-hand side navigation given the available panels.
 	renderWrap: function (nav) {
-		$('nav').innerHTML = GoAccess.AppTpls.Nav.wrap.render({});
+		$('nav').innerHTML = GoAccess.AppTpls.Nav.wrap.render(GoAccess.i18n);
 	},
 
 	// Iterate over all available panels and render each.

@@ -1138,6 +1138,7 @@ print_json_i18n_def (FILE * fp)
     {"plot_metric"    , HTML_REPORT_PANEL_PLOT_METRIC}  ,
     {"table_columns"  , HTML_REPORT_PANEL_TABLE_COLS}   ,
     {"thead"          , T_HEAD}                         ,
+    {"version"        , GO_VERSION}                     ,
   };
   /* *INDENT-ON* */
 
