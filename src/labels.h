@@ -67,8 +67,8 @@
 #define T_REFERRER               _( "Referrers")
 #define T_REQUESTS               _( "Total Requests")
 #define T_STATIC_FILES           _( "Static Files")
-#define T_UNIQUE404              _( "Unique 404")
-#define T_UNIQUE_FILES           _( "Unique Files")
+#define T_UNIQUE404              _( "Not Found")
+#define T_UNIQUE_FILES           _( "Requested Files")
 #define T_UNIQUE_VISITORS        _( "Unique Visitors")
 #define T_VALID                  _( "Valid Requests")
 
