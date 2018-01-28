@@ -1588,6 +1588,8 @@ GoAccess.Tables = {
 
 // Main App
 GoAccess.App = {
+	hasFocus: true,
+
 	tpl: function (tpl) {
 		return Hogan.compile(tpl);
 	},
@@ -1671,6 +1673,10 @@ GoAccess.App = {
 	},
 
 	renderData: function () {
+		// update data and charts if tab/document has focus
+		if (!this.hasFocus)
+			return;
+
 		this.verifySort();
 		GoAccess.OverallStats.initialize();
 
@@ -1693,6 +1699,17 @@ GoAccess.App = {
 		GoAccess.Tables.initialize();
 	},
 };
+
+document.addEventListener('visibilitychange', function () {
+	if (document.visibilityState === 'hidden')
+		GoAccess.App.hasFocus = false;
+
+	if (document.visibilityState === 'visible') {
+		var hasFocus = GoAccess.App.hasFocus;
+		GoAccess.App.hasFocus = true;
+		hasFocus || GoAccess.App.renderData();
+	}
+});
 
 // Init app
 window.onload = function () {
