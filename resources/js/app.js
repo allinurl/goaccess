@@ -1700,10 +1700,13 @@ GoAccess.App = {
 	},
 };
 
+// Adds the visibilitychange EventListener
 document.addEventListener('visibilitychange', function () {
+	// fires when user switches tabs, apps, etc.
 	if (document.visibilityState === 'hidden')
 		GoAccess.App.hasFocus = false;
 
+	// fires when app transitions from hidden or user returns to the app/tab.
 	if (document.visibilityState === 'visible') {
 		var hasFocus = GoAccess.App.hasFocus;
 		GoAccess.App.hasFocus = true;
