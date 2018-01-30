@@ -101,6 +101,7 @@ nav header a:hover {
 nav.active {
 	display: block !important;
 	left: 0;
+	opacity: .97;
 }
 nav:hover ~ #content {
 	opacity: .3;
