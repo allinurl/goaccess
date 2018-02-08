@@ -44,10 +44,10 @@ window.GoAccess = window.GoAccess || {
 		this.AppWSConn = (this.opts || {}).wsConnection || {}; // WebSocket connection
 		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
 		this.AppPrefs  = {
-			'theme': 'darkBlue',
-			'perPage': 7,
-			'layout': 'horizontal',
 			'autoHideTables': true,
+			'layout': 'horizontal',
+			'perPage': 7,
+			'theme': 'darkBlue',
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
