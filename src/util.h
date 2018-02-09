@@ -34,10 +34,11 @@
 
 #define REGEX_ERROR 100
 
-#define KIB 1024
-#define MIB 1048576
-#define GIB 1073741824
-#define TIB 1099511627776LL
+#define KIB(n) (n << 10)
+#define MIB(n) (n << 20)
+#define GIB(n) (n << 30)
+#define TIB(n) (n << 40)
+#define PIB(n) (n << 50)
 
 #define MILS 1000ULL
 #define SECS 1000000ULL
