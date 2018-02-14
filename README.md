@@ -436,9 +436,13 @@ Assuming your log contains the virtual host field. For instance:
     vhost.io:80 8.8.4.4 - - [02/Mar/2016:08:14:04 -0600] "GET /shop HTTP/1.1" 200 615 "-" "Googlebot-Image/1.0"
 
 And you would like to append the virtual host to the request in order to see
-which virtual host the top urls belong to
+which virtual host the top urls belong to:
 
     awk '$8=$1$8' access.log | goaccess -a -
+    
+To do the same, but also use real-time filtering and parsing:
+
+    tail -f  access.log | unbuffer -p awk '$8=$1$8' | goaccess -a -
 
 To exclude a list of virtual hosts you can do the following:
 
