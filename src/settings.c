@@ -235,7 +235,7 @@ append_to_argv (int *argc, char ***argv, char *val)
 {
   char **_argv = xrealloc (*argv, (*argc + 2) * sizeof (*_argv));
   _argv[*argc] = val;
-  _argv[*argc + 1] = (char *)'\0';
+  _argv[*argc + 1] = (char *) '\0';
   (*argc)++;
   *argv = _argv;
 }
