@@ -1,3 +1,4 @@
+(function () {
 'use strict';
 
 // Syntactic sugar
@@ -1725,3 +1726,4 @@ window.onload = function () {
 	});
 	GoAccess.App.initialize();
 };
+}());
