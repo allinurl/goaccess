@@ -236,7 +236,8 @@ GoAccess.Util = {
 		var a = s.split('.');
 		for (var i = 0, n = a.length; i < n-1; ++i) {
 			var k = a[i];
-			if (!schema[k]) schema[k] = {}
+			if (!schema[k])
+				schema[k] = {};
 			schema = schema[k];
 		}
 		schema[a[n-1]] = v;
@@ -310,7 +311,7 @@ GoAccess.OverallStats = {
 
 		$('.last-updated').innerHTML = data.date_time;
 		$$('span.from', function (item) {
-			item.innerHTML = data.start_date
+			item.innerHTML = data.start_date;
 		});
 		$$('span.to', function (item) {
 			item.innerHTML = data.end_date
