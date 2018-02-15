@@ -23,7 +23,7 @@ var debounce = function (func, wait, now) {
 			if (!now)
 				func.apply(that, args);
 			timeout = null;
-		};
+		}
 		if (timeout)
 			clearTimeout(timeout);
 		else if (now)
