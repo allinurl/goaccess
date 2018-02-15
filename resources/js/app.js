@@ -203,7 +203,7 @@ GoAccess.Util = {
 			break;
 		default:
 			val = value;
-		};
+		}
 
 		return value == 0 ? String(val) : val;
 	},
