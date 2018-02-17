@@ -314,7 +314,7 @@ GoAccess.OverallStats = {
 			item.innerHTML = data.start_date;
 		});
 		$$('span.to', function (item) {
-			item.innerHTML = data.end_date
+			item.innerHTML = data.end_date;
 		});
 		// Iterate over general data object
 		for (var x in data) {
