@@ -416,7 +416,7 @@ GoAccess.Nav = {
 		var targ = e.currentTarget;
 		var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(GoAccess.getPanelData()));
 		targ.href = 'data:' + data;
-		targ.download = 'goaccess-' + +new Date() + '.json';
+		targ.download = 'goaccess-' + (+new Date()) + '.json';
 	},
 
 	setLayout: function (layout) {
