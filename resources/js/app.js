@@ -567,7 +567,7 @@ GoAccess.Nav = {
 
 	WSStatus: function () {
 		if (Object.keys(GoAccess.AppWSConn).length)
-			$$('.nav-ws-status', function (item) { item.style.display = 'block' });
+			$$('.nav-ws-status', function (item) { item.style.display = 'block'; });
 	},
 
 	WSClose: function () {
