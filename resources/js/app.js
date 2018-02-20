@@ -805,7 +805,8 @@ GoAccess.Panels = {
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel))
 				continue;
-			row = this.createRow(row, idx++), col = this.createCol(row);
+			row = this.createRow(row, idx++);
+			col = this.createCol(row);
 			// Render panel given a user interface definition
 			col = this.renderPanel(panel, ui[panel], col);
 		}
