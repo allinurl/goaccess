@@ -867,7 +867,7 @@ GoAccess.Charts = {
 	toggleChart: function (targ) {
 		var panel = targ.getAttribute('data-panel');
 		var prefs = GoAccess.getPrefs(panel),
-			chart = prefs && ('chart' in prefs) ? prefs.chart : true
+			chart = prefs && ('chart' in prefs) ? prefs.chart : true;
 
 		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.chart', !chart);
 		GoAccess.setPrefs();
