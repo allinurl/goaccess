@@ -953,7 +953,7 @@ GoAccess.Charts = {
 		.x(function (d) {
 			if ((((plotUI || {}).d3 || {}).x || {}).key)
 				return this.getXKey(d, plotUI['d3']['x']['key']);
-			return d.data;;
+			return d.data;
 		}.bind(this))
 		.y0(function (d) {
 			return +d[plotUI['d3']['y0']['key']];
