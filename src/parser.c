@@ -797,7 +797,7 @@ contains_usecs (void)
  * If not valid, 1 is returned.
  * If valid, 0 is returned. */
 static const char *
-invalid_protocol (const char *token)
+extract_protocol (const char *token)
 {
   const char *lookfor;
 
@@ -829,7 +829,7 @@ parse_req (char *line, char **method, char **protocol)
   /* method found, attempt to parse request */
   else {
     req = line + strlen (meth);
-    if (!(ptr = strrchr (req, ' ')) || !(proto = invalid_protocol (++ptr)))
+    if (!(ptr = strrchr (req, ' ')) || !(proto = extract_protocol (++ptr)))
       return alloc_string ("-");
 
     req++;
@@ -1151,7 +1151,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    if (!invalid_protocol (tkn)) {
+    if (!extract_protocol (tkn)) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
