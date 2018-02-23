@@ -666,7 +666,7 @@ GoAccess.Panels = {
 	},
 
 	setChartSelection: function (ui, prefs) {
-		ui['showChart'] = prefs && ('chart' in prefs) ? prefs.chart : true;;
+		ui['showChart'] = prefs && ('chart' in prefs) ? prefs.chart : true;
 	},
 
 	setOpts: function (panel) {
