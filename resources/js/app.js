@@ -1,3 +1,4 @@
+/*jshint sub:true*/
 (function () {
 'use strict';
 
@@ -1034,7 +1035,7 @@ GoAccess.Charts = {
 		case 'bar':
 			chart = this.getVBar(panel, plotUI, data);
 			break;
-		};
+		}
 
 		return chart;
 	},
