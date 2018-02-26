@@ -1137,7 +1137,7 @@ GoAccess.Tables = {
 		$$('.panel-next', function (item) {
 			item.onclick = function (e) {
 				var panel = e.currentTarget.getAttribute('data-panel');
-				this.renderTable(panel, this.nextPage(panel))
+				this.renderTable(panel, this.nextPage(panel));
 			}.bind(this);
 		}.bind(this));
 
