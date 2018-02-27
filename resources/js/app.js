@@ -1144,7 +1144,7 @@ GoAccess.Tables = {
 		$$('.panel-prev', function (item) {
 			item.onclick = function (e) {
 				var panel = e.currentTarget.getAttribute('data-panel');
-				this.renderTable(panel, this.prevPage(panel))
+				this.renderTable(panel, this.prevPage(panel));
 			}.bind(this);
 		}.bind(this));
 
@@ -1191,7 +1191,7 @@ GoAccess.Tables = {
 		var panel = ele.parentElement.parentElement.parentElement.getAttribute('data-panel');
 
 		order = order ? 'asc' == order ? 'desc' : 'asc' : 'asc';
-		GoAccess.App.sortData(panel, field, order)
+		GoAccess.App.sortData(panel, field, order);
 		GoAccess.Util.setProp(GoAccess.AppState, panel + '.sort', {
 			'field': field,
 			'order': order,
