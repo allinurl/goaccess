@@ -163,12 +163,12 @@ typedef struct GConf_
   int no_parsing_spinner;           /* disable parsing spinner */
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
-  int num_tests;                    /* number of lines to test */
   int output_stdout;                /* outputting to stdout */
   int process_and_exit;             /* parse and exit without outputting */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
+  uint32_t num_tests;               /* number of lines to test */
   uint64_t log_size;                /* log size override */
 
   /* Internal flags */
