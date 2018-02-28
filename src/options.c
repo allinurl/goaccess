@@ -563,7 +563,7 @@ parse_long_opt (const char *name, const char *oarg)
     int tests = strtol (oarg, &sEnd, 10);
     if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
       return;
-    conf.num_tests = tests;
+    conf.num_tests = tests >= 0 ? tests : 0;
   }
 
   /* process and exit */

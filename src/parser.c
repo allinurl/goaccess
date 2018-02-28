@@ -2560,6 +2560,8 @@ static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
 {
   int ret = 0;
+  int tests = conf.num_tests;
+
   /* start processing log line */
   if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
     *test = 0;
@@ -2567,9 +2569,14 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run)
   /* soft ignores */
   if (ret == -1)
     return 0;
+
+  /* glog->processed can actually be less than conf.num_tests, so we make sure
+   * (cnt) compares to the right number */
+  tests = MIN (conf.num_tests, glog->processed);
+
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
-  if (conf.num_tests >= 0 && ++(*cnt) == conf.num_tests && *test) {
+  if (conf.num_tests && ++(*cnt) == tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
     return 1;
