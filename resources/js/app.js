@@ -1341,7 +1341,7 @@ GoAccess.Tables = {
 			'value'    : val != undefined ? GoAccess.Util.fmtValue(val, vtype) : null,
 			'title'    : ui.meta,
 			'label'    : ui.metaLabel || null,
-		}
+		};
 	},
 
 	hideColumn: function (panel, col) {
