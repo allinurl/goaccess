@@ -1375,7 +1375,7 @@ GoAccess.Tables = {
 			if (this.hideColumn(panel, item.key))
 				continue;
 			var value = data[item.key];
-			cells.push(this.getMetaCell(item, value))
+			cells.push(this.getMetaCell(item, value));
 		}
 
 		table.innerHTML = GoAccess.AppTpls.Tables.meta.render({
