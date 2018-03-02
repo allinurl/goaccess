@@ -5,12 +5,12 @@ COPY . /goaccess
 WORKDIR /goaccess
 
 ARG build_deps="build-base ncurses-dev autoconf automake git gettext-dev"
-ARG runtime_deps="tini ncurses libintl gettext "
+ARG runtime_deps="tini ncurses libintl gettext openssl-dev"
 
 RUN apk update && \
     apk add -u $runtime_deps $build_deps && \
     autoreconf -fiv && \
-    ./configure --enable-utf8 && \
+    ./configure --enable-utf8 --with-openssl && \
     make && \
     make install && \
     apk del $build_deps && \
