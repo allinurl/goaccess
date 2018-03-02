@@ -1461,7 +1461,7 @@ GoAccess.Tables = {
 					return {
 						'colspan': ui.items.length,
 						'value': data
-					}
+					};
 				};
 				break;
 			default:
