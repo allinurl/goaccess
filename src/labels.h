@@ -435,8 +435,24 @@
   N_("416 - Requested Range Not Satisfiable: Cannot supply that portion")
 #define STATUS_CODE_417               \
   N_("417 - Expectation Failed")
+#define STATUS_CODE_421               \
+  N_("421 - Misdirected Request")
+#define STATUS_CODE_422               \
+  N_("422 - Unprocessable Entity due to semantic errors: WebDAV")
+#define STATUS_CODE_423               \
+  N_("423 - The resource that is being accessed is locked")
+#define STATUS_CODE_424               \
+  N_("424 - Failed Dependency: WebDAV)")
+#define STATUS_CODE_426               \
+  N_("426 - Upgrade Required Client should switch to a different protocol")
+#define STATUS_CODE_428               \
+  N_("428 - Precondition Required")
 #define STATUS_CODE_429               \
   N_("429 - Too Many Requests: The user has sent too many requests")
+#define STATUS_CODE_431               \
+  N_("431 - Request Header Fields Too Large")
+#define STATUS_CODE_451               \
+  N_("451 - Unavailable For Legal Reasons")
 #define STATUS_CODE_444               \
   N_("444 - (Nginx) Connection closed without sending any headers")
 #define STATUS_CODE_494               \
