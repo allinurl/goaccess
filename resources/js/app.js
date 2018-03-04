@@ -1620,7 +1620,7 @@ GoAccess.App = {
 				'meta': this.tpl($('#tpl-table-row-meta').innerHTML),
 				'data': this.tpl($('#tpl-table-row').innerHTML),
 			},
-		}
+		};
 	},
 
 	sortField: function (o, field) {
