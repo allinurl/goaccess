@@ -98,6 +98,10 @@ struct option long_opts[] = {
   {"fifo-in"              , required_argument , 0 ,  0  } ,
   {"fifo-out"             , required_argument , 0 ,  0  } ,
   {"hide-referer"         , required_argument , 0 ,  0  } ,
+#ifdef WITH_GETLINE
+  {"getline-timeout"      , required_argument , 0 ,  0  } ,
+  {"getline-min-read"     , required_argument , 0 ,  0  } ,
+#endif
   {"hour-spec"            , required_argument , 0 ,  0  } ,
   {"html-custom-css"      , required_argument , 0 ,  0  } ,
   {"html-custom-js"       , required_argument , 0 ,  0  } ,
@@ -229,47 +233,53 @@ cmd_help (void)
 
   /* Parse Options */
   "Parse Options\n\n"
-  "  -a --agent-list                 - Enable a list of user-agents by host.\n"
-  "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
-  "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
-  "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
-  "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
-  "  -M --http-method=<yes|no>       - Set/unser HTTP request method if found.\n"
-  "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
-  "  -q --no-query-string            - Ignore request's query string. Removing the\n"
-  "                                    query string can greatly decrease memory\n"
-  "                                    consumption.\n"
-  "  -r --no-term-resolver           - Disable IP resolver on terminal output.\n"
-  "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
-  "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
-  "                                    count.\n"
+  "  -a --agent-list                    - Enable a list of user-agents by host.\n"
+  "  -d --with-output-resolver          - Enable IP resolver on HTML|JSON output.\n"
+  "  -e --exclude-ip=<IP>               - Exclude one or multiple IPv4/6. Allows IP\n"
+  "                                       ranges e.g. 192.168.0.1-192.168.0.10\n"
+  "  -H --http-protocol=<yes|no>        - Set/unset HTTP request protocol if found.\n"
+  "  -M --http-method=<yes|no>          - Set/unser HTTP request method if found.\n"
+  "  -o --output=file.html|json|csv     - Output either an HTML, JSON or a CSV file.\n"
+  "  -q --no-query-string               - Ignore request's query string. Removing the\n"
+  "                                       query string can greatly decrease memory\n"
+  "                                       consumption.\n"
+  "  -r --no-term-resolver              - Disable IP resolver on terminal output.\n"
+  "  --444-as-404                       - Treat non-standard status code 444 as 404.\n"
+  "  --4xx-to-unique-count              - Add 4xx client errors to the unique visitors\n"
+  "                                       count.\n"
 #ifdef TCB_BTREE
-  "  --accumulated-time              - Store accumulated time from parsing day-by-day logs.\n"
+  "  --accumulated-time                 - Store accumulated time from parsing day-by-day logs.\n"
 #endif
-  "  --all-static-files              - Include static files with a query string.\n"
-  "  --crawlers-only                 - Parse and display only crawlers.\n"
-  "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
-  "                                    (default), or `hr`.\n"
-  "  --double-decode                 - Decode double-encoded values.\n"
-  "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
-  "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards\n"
-  "                                    are allowed. i.e., *.bing.com\n"
-  "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr`\n"
-  "                                    (default), or `min` (tenth of a min).\n"
-  "  --ignore-crawlers               - Ignore crawlers.\n"
-  "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
-  "                                    are allowed. i.e., *.bing.com\n"
-  "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
-  "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
-  "  --process-and-exit              - Parse log and exit without outputting data.\n"
-  "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
-  "                                    Leopard.\n"
-  "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
-  "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
-  "                                    manpage for a list of panels/fields.\n"
-  "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
-  "                                    Extensions are case sensitive.\n"
+  "  --all-static-files                 - Include static files with a query string.\n"
+  "  --crawlers-only                    - Parse and display only crawlers.\n"
+  "  --date-spec=<date|hr>              - Date specificity. Possible values: `date`\n"
+  "                                       (default), or `hr`.\n"
+  "  --double-decode                    - Decode double-encoded values.\n"
+  "  --enable-panel=<PANEL>             - Enable parsing/displaying the given panel.\n"
+  "  --hide-referer=<NEEDLE>            - Hide a referer but still count it. Wild cards\n"
+  "                                       are allowed. i.e., *.bing.com\n"
+#ifdef WITH_GETLINE
+  "  --getline-min-read=number=<number> - Minimum number of lines for getline to read before\n"
+  "                                       honoring EOF/EAGAIN.  Default is 1.\n"
+  "  --getline-timeout=<number>         - Set a timeout (in seconds) for getline to timeout\n"
+  "                                       while reading input. Default is 10 seconds.\n"
+#endif
+  "  --hour-spec=<hr|min>               - Hour specificity. Possible values: `hr`\n"
+  "                                       (default), or `min` (tenth of a min).\n"
+  "  --ignore-crawlers                  - Ignore crawlers.\n"
+  "  --ignore-panel=<PANEL>             - Ignore parsing/displaying the given panel.\n"
+  "  --ignore-referer=<NEEDLE>          - Ignore a referer from being counted. Wild cards\n"
+  "                                       are allowed. i.e., *.bing.com\n"
+  "  --ignore-status=<CODE>             - Ignore parsing the given status code.\n"
+  "  --num-tests=<number>               - Number of lines to test. >= 0 (10 default)\n"
+  "  --process-and-exit                 - Parse log and exit without outputting data.\n"
+  "  --real-os                          - Display real OS names. e.g, Windows XP, Snow\n"
+  "                                       Leopard.\n"
+  "  --sort-panel=PANEL,METRIC,ORDER    - Sort panel on initial load. For example:\n"
+  "                                       --sort-panel=VISITORS,BY_HITS,ASC. See\n"
+  "                                       manpage for a list of panels/fields.\n"
+  "  --static-file=<extension>          - Add static file extension. e.g.: .mp3.\n"
+  "                                       Extensions are case sensitive.\n"
   "\n"
 
 /* GeoIP Options */
@@ -504,6 +514,16 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("4xx-to-unique-count", name))
     conf.client_err_to_unique_count = 1;
 
+#ifdef WITH_GETLINE
+  if (!strcmp ("getline-timeout", name)) {
+    char *sEnd;
+    int gto = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      conf.getline_timeout = 10;
+    else
+      conf.getline_timeout = gto;
+  }
+#endif
   /* store accumulated time in tcb */
   if (!strcmp ("accumulated-time", name))
     conf.store_accumulated_time = 1;

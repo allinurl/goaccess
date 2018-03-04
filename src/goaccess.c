@@ -80,6 +80,10 @@
 GConf conf = {
   .append_method = 1,
   .append_protocol = 1,
+#ifdef WITH_GETLINE
+  .getline_timeout = 10,
+  .getline_min_read = 1,
+#endif
   .hl_header = 1,
   .num_tests = 10,
 };
