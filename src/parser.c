@@ -109,6 +109,8 @@ static void insert_method (int data_nkey, const char *method, GModule module);
 static void insert_protocol (int data_nkey, const char *proto, GModule module);
 static void insert_agent (int data_nkey, int agent_nkey, GModule module);
 
+static int is_static (GLogItem * logitem);
+
 /* *INDENT-OFF* */
 static GParse paneling[] = {
   {
@@ -1707,6 +1709,19 @@ ignore_status_code (const char *status)
   return 0;
 }
 
+/* Determine if static file request should be ignored
+    *
+    * If the request line is not ignored, 0 is returned.
+    * If the request line is ignored, 1 is returned. */
+static int
+ignore_static(GLogItem * logitem)
+{
+    if (conf.ignore_statics && is_static(logitem)) {
+        return 1;
+    }
+    return 0;
+}
+
 /* A wrapper function to determine if a log line needs to be ignored.
  *
  * If the request line is not ignored, 0 is returned.
@@ -1721,6 +1736,8 @@ ignore_line (GLog * glog, GLogItem * logitem)
   if (ignore_referer (logitem->site))
     return 1;
   if (ignore_status_code (logitem->status))
+    return 1;
+  if (ignore_static (logitem))
     return 1;
 
   /* check if we need to remove the request's query string */
