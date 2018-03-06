@@ -560,7 +560,7 @@ parse_long_opt (const char *name, const char *oarg)
                    MAX_IGNORE_STATUS);
 
   /* ignore static requests */
-  if (!strcmp("ignore-statics", name))
+  if (!strcmp ("ignore-statics", name))
     conf.ignore_statics = 1;
 
   /* number of line tests */

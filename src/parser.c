@@ -109,8 +109,6 @@ static void insert_method (int data_nkey, const char *method, GModule module);
 static void insert_protocol (int data_nkey, const char *proto, GModule module);
 static void insert_agent (int data_nkey, int agent_nkey, GModule module);
 
-static int is_static (GLogItem * logitem);
-
 /* *INDENT-OFF* */
 static GParse paneling[] = {
   {
@@ -681,9 +679,9 @@ clean:
  * On error, or if not static, 0 is returned.
  * On success, the 1 is returned. */
 static int
-verify_static_content (char *req)
+verify_static_content (const char *req)
 {
-  char *nul = req + strlen (req);
+  const char *nul = req + strlen (req);
   const char *ext = NULL, *pch = NULL;
   int elen = 0, i;
 
@@ -1693,6 +1691,16 @@ handle_crawler (const char *agent)
   return (conf.ignore_crawlers && bot) || (conf.crawlers_only && !bot) ? 0 : 1;
 }
 
+/* A wrapper function to determine if the request is static.
+ *
+ * If the request is not static, 0 is returned.
+ * If the request is static, 1 is returned. */
+static int
+is_static (const char *req)
+{
+  return verify_static_content (req);
+}
+
 /* Determine if the request of the given status code needs to be
  * ignored.
  *
@@ -1714,12 +1722,28 @@ ignore_status_code (const char *status)
     * If the request line is not ignored, 0 is returned.
     * If the request line is ignored, 1 is returned. */
 static int
-ignore_static(GLogItem * logitem)
+ignore_static (const char *req)
 {
-    if (conf.ignore_statics && is_static(logitem)) {
-        return 1;
-    }
-    return 0;
+  if (conf.ignore_statics && is_static (req))
+    return 1;
+  return 0;
+}
+
+/* Determine if the request status code is a 404.
+ *
+ * If the request is not a 404, 0 is returned.
+ * If the request is a 404, 1 is returned. */
+static int
+is_404 (GLogItem * logitem)
+{
+  /* is this a 404? */
+  if (logitem->status && !memcmp (logitem->status, "404", 3))
+    return 1;
+  /* treat 444 as 404? */
+  else if (logitem->status && !memcmp (logitem->status, "444", 3) &&
+           conf.code444_as_404)
+    return 1;
+  return 0;
 }
 
 /* A wrapper function to determine if a log line needs to be ignored.
@@ -1737,40 +1761,13 @@ ignore_line (GLog * glog, GLogItem * logitem)
     return 1;
   if (ignore_status_code (logitem->status))
     return 1;
-  if (ignore_static (logitem))
+  if (ignore_static (logitem->req))
     return 1;
 
   /* check if we need to remove the request's query string */
   if (conf.ignore_qstr)
     strip_qstring (logitem->req);
 
-  return 0;
-}
-
-/* A wrapper function to determine if the request is static.
- *
- * If the request is not static, 0 is returned.
- * If the request is static, 1 is returned. */
-static int
-is_static (GLogItem * logitem)
-{
-  return verify_static_content (logitem->req);
-}
-
-/* Determine if the request status code is a 404.
- *
- * If the request is not a 404, 0 is returned.
- * If the request is a 404, 1 is returned. */
-static int
-is_404 (GLogItem * logitem)
-{
-  /* is this a 404? */
-  if (logitem->status && !memcmp (logitem->status, "404", 3))
-    return 1;
-  /* treat 444 as 404? */
-  else if (logitem->status && !memcmp (logitem->status, "444", 3) &&
-           conf.code444_as_404)
-    return 1;
   return 0;
 }
 
@@ -2554,7 +2551,7 @@ pre_process_log (GLog * glog, char *line, int dry_run)
 
   if (is_404 (logitem))
     logitem->is_404 = 1;
-  else if (is_static (logitem))
+  else if (is_static (logitem->req))
     logitem->is_static = 1;
 
   logitem->uniq_key = get_uniq_visitor_key (logitem);
