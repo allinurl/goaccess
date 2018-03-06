@@ -150,7 +150,7 @@ typedef struct GConf_
   int hl_header;                    /* highlight header on term */
   int ignore_crawlers;              /* ignore crawlers */
   int ignore_qstr;                  /* ignore query string */
-  int ignore_statics;               /* ignore static files*/
+  int ignore_statics;               /* ignore static files */
   int json_pretty_print;            /* pretty print JSON data */
   int list_agents;                  /* show list of agents per host */
   int load_conf_dlg;                /* load curses config dialog */

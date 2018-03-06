@@ -77,6 +77,9 @@ struct tm *now_tm;
 /* maximum protocol string length */
 #define REQ_PROTO_LEN     9
 
+#define IGNORE_LEVEL_PANEL 1
+#define IGNORE_LEVEL_REQ 2
+
 /* Type of IP */
 typedef enum
 {
