@@ -1485,7 +1485,7 @@ parse_format (GLogItem * logitem, char *str)
 /* Determine if the log string is valid and if it's not a comment.
  *
  * On error, or invalid, 1 is returned.
- * On success, or valid line, 0 is returned. */
+ * On success, or  line, 0 is returned. */
 static int
 valid_line (char *line)
 {
@@ -1749,7 +1749,8 @@ is_404 (GLogItem * logitem)
 /* A wrapper function to determine if a log line needs to be ignored.
  *
  * If the request line is not ignored, 0 is returned.
- * If the request line is ignored, 1 is returned. */
+ * If the request line is ignored, 1 is returned.
+ * If the request line is only not counted as valid, 2 is returned. */
 static int
 ignore_line (GLog * glog, GLogItem * logitem)
 {
@@ -1761,8 +1762,8 @@ ignore_line (GLog * glog, GLogItem * logitem)
     return 1;
   if (ignore_status_code (logitem->status))
     return 1;
-  if (ignore_static (logitem->req))
-    return 1;
+  if (ignore_static (logitem))
+    return (conf.ignore_statics == 1) ? 2 : 1;
 
   /* check if we need to remove the request's query string */
   if (conf.ignore_qstr)
@@ -2523,6 +2524,7 @@ pre_process_log (GLog * glog, char *line, int dry_run)
 {
   GLogItem *logitem;
   int ret = 0;
+  int ignorelevel = 0;
 
   /* soft ignore these lines */
   if (valid_line (line))
@@ -2545,8 +2547,9 @@ pre_process_log (GLog * glog, char *line, int dry_run)
   if (dry_run)
     goto cleanup;
 
+  ignorelevel = ignore_line (glog, logitem);
   /* ignore line */
-  if (ignore_line (glog, logitem))
+  if (ignorelevel == 1)
     goto cleanup;
 
   if (is_404 (logitem))
@@ -2558,7 +2561,11 @@ pre_process_log (GLog * glog, char *line, int dry_run)
 
   inc_resp_size (glog, logitem->resp_size);
   process_log (logitem);
-  count_valid (glog);
+
+  /* don't ignore line but don't count as valid when ignorelevel was 2*/
+  if (ignorelevel != 2) {
+    count_valid (glog);
+  }
 
 cleanup:
   free_glog (logitem);
