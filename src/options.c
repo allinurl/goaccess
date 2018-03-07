@@ -104,7 +104,7 @@ struct option long_opts[] = {
   {"html-prefs"           , required_argument , 0 ,  0  } ,
   {"html-report-title"    , required_argument , 0 ,  0  } ,
   {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
-  {"ignore-statics"       , no_argument       , 0 ,  0  } ,
+  {"ignore-statics"       , required_argument , 0 ,  0  } ,
   {"ignore-panel"         , required_argument , 0 ,  0  } ,
   {"ignore-referer"       , required_argument , 0 ,  0  } ,
   {"ignore-status"        , required_argument , 0 ,  0  } ,
@@ -261,7 +261,9 @@ cmd_help (void)
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
   "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
   "                                    are allowed. i.e., *.bing.com\n"
-  "  --ignore-statics                - Ignore static files.\n"
+  "  --ignore-statics=<req|panel>    - Ignore static requests.\n"
+  "                                    req => Ignore from valid requests.\n"
+  "                                    panel => Ignore from valid requests and panels.\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
@@ -560,8 +562,14 @@ parse_long_opt (const char *name, const char *oarg)
                    MAX_IGNORE_STATUS);
 
   /* ignore static requests */
-  if (!strcmp ("ignore-statics", name))
-    conf.ignore_statics = 1;
+  if (!strcmp ("ignore-statics", name)) {
+    if (!strcmp ("req", oarg))
+      conf.ignore_statics = IGNORE_LEVEL_REQ;
+    else if (!strcmp ("panel", oarg))
+      conf.ignore_statics = IGNORE_LEVEL_PANEL;
+    else
+      LOG_DEBUG (("Invalid statics ignore option."));
+  }
 
   /* number of line tests */
   if (!strcmp ("num-tests", name)) {
