@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2017-11-06 21:50-0600\n"
+"POT-Creation-Date: 2018-03-08 06:30-0600\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -73,61 +73,62 @@ msgstr "Tableau de bord - Requêtes analysées, vue d'ensemble"
 msgid "Overall Analyzed Requests"
 msgstr "Requêtes analysées, vue d'ensemble"
 
-#: ../src/labels.h:60
+#: ../src/labels.h:60 ../src/labels.h:81
+msgid "Bandwidth"
+msgstr "Bande passante"
+
+#: ../src/labels.h:61
 msgid "Date/Time"
 msgstr "Date/Heure"
 
-#: ../src/labels.h:61
-msgid "Total Requests"
-msgstr "Requêtes totales"
-
 #: ../src/labels.h:62
-msgid "Init. Proc. Time"
-msgstr "Init. Proc. Time"
+msgid "Excl. IP Hits"
+msgstr "Excl. IP Hits"
 
 #: ../src/labels.h:63
 msgid "Failed Requests"
 msgstr "Requêtes échouées"
 
 #: ../src/labels.h:64
-msgid "Valid Requests"
-msgstr "Requêtes valides"
+msgid "Init. Proc. Time"
+msgstr "Init. Proc. Time"
 
 #: ../src/labels.h:65
-msgid "Unique Visitors"
-msgstr "Visiteurs uniques"
-
-#: ../src/labels.h:66
-msgid "Unique Files"
-msgstr "Fichiers uniques"
-
-#: ../src/labels.h:67
-msgid "Excl. IP Hits"
-msgstr "Excl. IP Hits"
-
-#: ../src/labels.h:68 ../src/labels.h:174
-msgid "Referrers"
-msgstr "Origine"
-
-#: ../src/labels.h:69
-msgid "Unique 404"
-msgstr "Unique 404"
-
-#: ../src/labels.h:70
-msgid "Static Files"
-msgstr "Fichiers statiques"
-
-#: ../src/labels.h:71
 msgid "Log Size"
 msgstr "Taille du log"
 
-#: ../src/labels.h:72 ../src/labels.h:81
-msgid "Bandwidth"
-msgstr "Bande passante"
-
-#: ../src/labels.h:73
+#: ../src/labels.h:66
 msgid "Log Source"
 msgstr "Fichier de log"
+
+#: ../src/labels.h:67 ../src/labels.h:174
+msgid "Referrers"
+msgstr "Origine"
+
+#: ../src/labels.h:68
+msgid "Total Requests"
+msgstr "Requêtes totales"
+
+#: ../src/labels.h:69
+msgid "Static Files"
+msgstr "Fichiers statiques"
+
+#: ../src/labels.h:70 ../src/labels.h:146
+msgid "Not Found"
+msgstr "Non Trouvé"
+
+#: ../src/labels.h:71
+#, fuzzy
+msgid "Requested Files"
+msgstr "Fichiers demandés (URLs)"
+
+#: ../src/labels.h:72
+msgid "Unique Visitors"
+msgstr "Visiteurs uniques"
+
+#: ../src/labels.h:73
+msgid "Valid Requests"
+msgstr "Requêtes valides"
 
 #. Metric Labels
 #: ../src/labels.h:76
@@ -270,10 +271,6 @@ msgstr "URLs Non trouvées (404s)"
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
-
-#: ../src/labels.h:146
-msgid "Not Found"
-msgstr "Non Trouvé"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
@@ -794,76 +791,114 @@ msgid "417 - Expectation Failed"
 msgstr ""
 
 #: ../src/labels.h:439
-msgid "429 - Too Many Requests: The user has sent too many requests"
+msgid "421 - Misdirected Request"
 msgstr ""
 
 #: ../src/labels.h:441
-msgid "444 - (Nginx) Connection closed without sending any headers"
+msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr ""
 
 #: ../src/labels.h:443
-msgid "494 - (Nginx) Request Header Too Large"
+msgid "423 - The resource that is being accessed is locked"
 msgstr ""
 
 #: ../src/labels.h:445
-msgid "495 - (Nginx) SSL client certificate error"
+msgid "424 - Failed Dependency: WebDAV)"
 msgstr ""
 
 #: ../src/labels.h:447
-msgid "496 - (Nginx) Client didn't provide certificate"
+msgid "426 - Upgrade Required Client should switch to a different protocol"
 msgstr ""
 
 #: ../src/labels.h:449
-msgid "497 - (Nginx) HTTP request sent to HTTPS port"
+msgid "428 - Precondition Required"
 msgstr ""
 
 #: ../src/labels.h:451
-msgid "499 - (Nginx) Connection closed by client while processing request"
+msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
 
 #: ../src/labels.h:453
-msgid "500 - Internal Server Error"
+msgid "431 - Request Header Fields Too Large"
 msgstr ""
 
 #: ../src/labels.h:455
-msgid "501 - Not Implemented"
+msgid "451 - Unavailable For Legal Reasons"
 msgstr ""
 
 #: ../src/labels.h:457
-msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr ""
 
 #: ../src/labels.h:459
-msgid "503 - Service Unavailable: The server is currently unavailable"
+msgid "494 - (Nginx) Request Header Too Large"
 msgstr ""
 
 #: ../src/labels.h:461
-msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgid "495 - (Nginx) SSL client certificate error"
 msgstr ""
 
 #: ../src/labels.h:463
-msgid "505 - HTTP Version Not Supported"
+msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr ""
 
 #: ../src/labels.h:465
-msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr ""
 
 #: ../src/labels.h:467
-msgid "521 - CloudFlare - Web server is down"
+msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr ""
 
 #: ../src/labels.h:469
-msgid "522 - CloudFlare - Connection timed out"
+msgid "500 - Internal Server Error"
 msgstr ""
 
 #: ../src/labels.h:471
-msgid "523 - CloudFlare - Origin is unreachable"
+msgid "501 - Not Implemented"
 msgstr ""
 
 #: ../src/labels.h:473
+msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgstr ""
+
+#: ../src/labels.h:475
+msgid "503 - Service Unavailable: The server is currently unavailable"
+msgstr ""
+
+#: ../src/labels.h:477
+msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgstr ""
+
+#: ../src/labels.h:479
+msgid "505 - HTTP Version Not Supported"
+msgstr ""
+
+#: ../src/labels.h:481
+msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgstr ""
+
+#: ../src/labels.h:483
+msgid "521 - CloudFlare - Web server is down"
+msgstr ""
+
+#: ../src/labels.h:485
+msgid "522 - CloudFlare - Connection timed out"
+msgstr ""
+
+#: ../src/labels.h:487
+msgid "523 - CloudFlare - Origin is unreachable"
+msgstr ""
+
+#: ../src/labels.h:489
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr ""
+
+#~ msgid "Unique Files"
+#~ msgstr "Fichiers uniques"
+
+#~ msgid "Unique 404"
+#~ msgstr "Unique 404"
 
 #~ msgid " - Including spiders"
 #~ msgstr "- Inclus robots d'indexation"
