@@ -444,7 +444,7 @@
 #define STATUS_CODE_424               \
   N_("424 - Failed Dependency: WebDAV)")
 #define STATUS_CODE_426               \
-  N_("426 - Upgrade Required Client should switch to a different protocol")
+  N_("426 - Upgrade Required: Client should switch to a different protocol")
 #define STATUS_CODE_428               \
   N_("428 - Precondition Required")
 #define STATUS_CODE_429               \
