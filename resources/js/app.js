@@ -1484,7 +1484,7 @@ GoAccess.Tables = {
 		if (!table)
 			return;
 
-		var dataItems = this.getPage(panel, dataItems, page);
+		dataItems = this.getPage(panel, dataItems, page);
 		var rows = [];
 		this.renderRows(rows, panel, ui, dataItems);
 		if (rows.length == 0)
