@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-03-12 07:13-0500\n"
+"POT-Creation-Date: 2018-03-13 06:51-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -803,7 +803,7 @@ msgid "423 - The resource that is being accessed is locked"
 msgstr ""
 
 #: ../src/labels.h:445
-msgid "424 - Failed Dependency: WebDAV)"
+msgid "424 - Failed Dependency: WebDAV"
 msgstr ""
 
 #: ../src/labels.h:447
