@@ -1,4 +1,4 @@
-GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](http://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v1.0)](http://goaccess.io)
+GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](https://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v1.0)](https://goaccess.io)
 ========
 
 ## What is it? ##
@@ -6,10 +6,10 @@ GoAccess is an open source **real-time web log analyzer** and interactive
 viewer that runs in a **terminal** on &ast;nix systems or through your
 **browser**. It provides **fast** and valuable HTTP statistics for system
 administrators that require a visual server report on the fly.
-More info at: [http://goaccess.io](http://goaccess.io/?src=gh).
+More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](http://goaccess.io/images/goaccess-real-time-term-gh.png?20170307000000)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](http://goaccess.io/images/goaccess-real-time-html-gh.png?20170307000000)](http://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?20170307000000)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?20170307000000)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -81,9 +81,9 @@ needing to use your browser (_great if you want to do a quick analysis of your
 access log via SSH, or if you simply love working in the terminal_).
 
 While the terminal output is the default output, it has the capability to
-generate a complete real-time [**`HTML`**](http://rt.goaccess.io/?src=gh)
-report, as well as a [**`JSON`**](http://goaccess.io/json?src=gh), and
-[**`CSV`**](http://goaccess.io/goaccess_csv_report.csv?src=gh) report.
+generate a complete real-time [**`HTML`**](https://rt.goaccess.io/?src=gh)
+report, as well as a [**`JSON`**](https://goaccess.io/json?src=gh), and
+[**`CSV`**](https://goaccess.io/goaccess_csv_report.csv?src=gh) report.
 
 You can see it more of a monitor command tool than anything else.
 
@@ -95,7 +95,7 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget http://tar.goaccess.io/goaccess-1.2.tar.gz
+    $ wget https://tar.goaccess.io/goaccess-1.2.tar.gz
     $ tar -xzvf goaccess-1.2.tar.gz
     $ cd goaccess-1.2/
     $ ./configure --enable-utf8 --enable-geoip=legacy
@@ -127,8 +127,8 @@ alternative option below.
 
 #### Official GoAccess Debian & Ubuntu repository ####
 
-    $ echo "deb http://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    $ wget -O - http://deb.goaccess.io/gnugpg.key | sudo apt-key add -
+    $ echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
+    $ wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key add -
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
@@ -393,7 +393,7 @@ To view the report you can navigate to `http://your_site/report.html`.
 
 By default, GoAccess will use the host name of the generated report.
 Optionally, you can specify the URL to which the client's browser will connect
-to. See http://goaccess.io/faq for a more detailed example.
+to. See https://goaccess.io/faq for a more detailed example.
 
     # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 
