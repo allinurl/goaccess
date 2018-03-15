@@ -799,11 +799,11 @@ msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - 当前资源被锁定"
 
 #: ../src/labels.h:445
-msgid "424 - Failed Dependency: WebDAV)"
+msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - 失败的依赖"
 
 #: ../src/labels.h:447
-msgid "426 - Upgrade Required Client should switch to a different protocol"
+msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - 需要升级: 客户端应该切换到其他的协议"
 
 #: ../src/labels.h:449
