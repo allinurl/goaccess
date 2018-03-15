@@ -1,139 +1,139 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# This file is distributed under the same license as the goaccess package.
+# Ai, 2018.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-03-14 21:22-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2018-03-14 21:19-0500\n"
+"PO-Revision-Date: 2017-04-03 09:43+0200\n"
+"Last-Translator: Ai<hello@goaccess.io>\n"
+"Language-Team: Ai\n"
+"Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Gtranslator 2.91.7\n"
 
 #. global lang attribute
 #: ../src/labels.h:40
 msgid "en"
-msgstr ""
+msgstr "zh-CN"
 
 #. General
 #: ../src/labels.h:43
 msgid "Exp. Panel"
-msgstr ""
+msgstr "展开窗口"
 
 #: ../src/labels.h:44
 msgid "Help"
-msgstr ""
+msgstr "帮助"
 
 #: ../src/labels.h:45
 msgid "Quit"
-msgstr ""
+msgstr "退出"
 
 #: ../src/labels.h:46
 msgid "Total"
-msgstr ""
+msgstr "总共"
 
 #. Sort Labels
 #: ../src/labels.h:49
 msgid "[x] ASC [ ] DESC"
-msgstr ""
+msgstr "[x] 递增 [ ] 递减"
 
 #: ../src/labels.h:50
 msgid "[ ] ASC [x] DESC"
-msgstr ""
+msgstr "[ ] 递增 [x] 递减"
 
 #. Overall Stats Labels
 #: ../src/labels.h:53
 #, c-format
 msgid "[Active Panel: %1$s]"
-msgstr ""
+msgstr "[当前窗口： %1$s]"
 
 #: ../src/labels.h:54
 msgid "[q]uit GoAccess"
-msgstr ""
+msgstr "[q]退出GoAccess"
 
 #: ../src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
-msgstr ""
+msgstr "[?]帮助 [回车]展开窗口"
 
 #: ../src/labels.h:56
 msgid "Dashboard"
-msgstr ""
+msgstr "概览"
 
 #: ../src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr ""
+msgstr "概览-所有已分析的请求"
 
 #: ../src/labels.h:58
 msgid "Overall Analyzed Requests"
-msgstr ""
+msgstr "所有已分析的请求"
 
 #: ../src/labels.h:60 ../src/labels.h:81
 msgid "Bandwidth"
-msgstr ""
+msgstr "带宽"
 
 #: ../src/labels.h:61
 msgid "Date/Time"
-msgstr ""
+msgstr "时期/时间"
 
 #: ../src/labels.h:62
 msgid "Excl. IP Hits"
-msgstr ""
+msgstr "过滤来自此IP的请求"
 
 #: ../src/labels.h:63
 msgid "Failed Requests"
-msgstr ""
+msgstr "失败的请求"
 
 #: ../src/labels.h:64
 msgid "Init. Proc. Time"
-msgstr ""
+msgstr "第一次处理耗时"
 
 #: ../src/labels.h:65
 msgid "Log Size"
-msgstr ""
+msgstr "日志大小"
 
 #: ../src/labels.h:66
 msgid "Log Source"
-msgstr ""
+msgstr "日志文件夹地址"
 
 #: ../src/labels.h:67 ../src/labels.h:174
 msgid "Referrers"
-msgstr ""
+msgstr "来源地址"
 
 #: ../src/labels.h:68
 msgid "Total Requests"
-msgstr ""
+msgstr "所有请求"
 
 #: ../src/labels.h:69
 msgid "Static Files"
-msgstr ""
+msgstr "静态文件"
 
 #: ../src/labels.h:70 ../src/labels.h:146
 msgid "Not Found"
-msgstr ""
+msgstr "没有找到(404)"
 
 #: ../src/labels.h:71
+#, fuzzy
 msgid "Requested Files"
-msgstr ""
+msgstr "请求的文件"
 
 #: ../src/labels.h:72
 msgid "Unique Visitors"
-msgstr ""
+msgstr "独立访客"
 
 #: ../src/labels.h:73
 msgid "Valid Requests"
-msgstr ""
+msgstr "有效的请求"
 
 #. Metric Labels
 #: ../src/labels.h:76
 msgid "Hits"
-msgstr ""
+msgstr "点击"
 
 #: ../src/labels.h:77
 msgid "h%"
@@ -141,11 +141,11 @@ msgstr ""
 
 #: ../src/labels.h:78 ../src/labels.h:104
 msgid "Visitors"
-msgstr ""
+msgstr "访客"
 
 #: ../src/labels.h:79
 msgid "Vis."
-msgstr ""
+msgstr "Vis."
 
 #: ../src/labels.h:80
 msgid "v%"
@@ -153,734 +153,748 @@ msgstr ""
 
 #: ../src/labels.h:82
 msgid "Avg. T.S."
-msgstr ""
+msgstr "平均响应时"
 
 #: ../src/labels.h:83
 msgid "Cum. T.S."
-msgstr ""
+msgstr "总共响应时"
 
 #: ../src/labels.h:84
 msgid "Max. T.S."
-msgstr ""
+msgstr "最高响应时"
 
 #: ../src/labels.h:85
 msgid "Method"
-msgstr ""
+msgstr "请求方法"
 
 #: ../src/labels.h:86
 msgid "Mtd"
-msgstr ""
+msgstr "请求方法"
 
 #: ../src/labels.h:87
 msgid "Protocol"
-msgstr ""
+msgstr "协议"
 
 #: ../src/labels.h:88
 msgid "Proto"
-msgstr ""
+msgstr "协议"
 
 #: ../src/labels.h:89
 msgid "City"
-msgstr ""
+msgstr "城市"
 
 #: ../src/labels.h:90
 msgid "Country"
-msgstr ""
+msgstr "国家"
 
 #: ../src/labels.h:91
 msgid "Hostname"
-msgstr ""
+msgstr "主机名"
 
 #: ../src/labels.h:92
 msgid "Data"
-msgstr ""
+msgstr "数据"
 
 #: ../src/labels.h:94
+#, fuzzy
 msgid "Hits/Visitors"
-msgstr ""
+msgstr "点击/访客"
 
 #. Panel Labels and Descriptions
 #: ../src/labels.h:98
 msgid "Unique visitors per day"
-msgstr ""
+msgstr "每日独立访客"
 
 #: ../src/labels.h:100
 msgid "Unique visitors per day - Including spiders"
-msgstr ""
+msgstr "每日独立访客 - 包括网络机器人"
 
 #: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
+msgstr "来自同一IP、时间和Http用户代理的多次点击被视作一次访问"
 
 #: ../src/labels.h:107
 msgid "Requested Files (URLs)"
-msgstr ""
+msgstr "请求的文件(URLs)"
 
 #: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:111
 msgid "Requests"
-msgstr ""
+msgstr "请求"
 
 #: ../src/labels.h:114 ../src/labels.h:118
 msgid "Static Requests"
-msgstr ""
+msgstr "静态请求"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"静态请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
-msgstr ""
+msgstr "时间分配"
 
 #: ../src/labels.h:123
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "数据列排序按 [小时, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:125
 msgid "Time"
-msgstr ""
+msgstr "时间"
 
 #: ../src/labels.h:128 ../src/labels.h:132
 msgid "Virtual Hosts"
-msgstr ""
+msgstr "虚拟主机"
 
 #: ../src/labels.h:130 ../src/labels.h:137
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "数据列排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:135
 msgid "Remote User (HTTP authentication)"
-msgstr ""
+msgstr "已认证用户(HTTP authentication)"
 
 #: ../src/labels.h:139
 msgid "Remote User"
-msgstr ""
+msgstr "已认证用户"
 
 #: ../src/labels.h:142
 msgid "Not Found URLs (404s)"
-msgstr ""
+msgstr "未找到URLs"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"未找到的URLs排序按 [点击, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
-msgstr ""
+msgstr "访客主机名和IP地址"
 
 #: ../src/labels.h:151
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "访客主机排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:153
 msgid "Hosts"
-msgstr ""
+msgstr "主机"
 
 #: ../src/labels.h:156
 msgid "Operating Systems"
-msgstr ""
+msgstr "操作系统"
 
 #: ../src/labels.h:158
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "操作系统排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:160
 msgid "OS"
-msgstr ""
+msgstr "操作系统"
 
 #: ../src/labels.h:163 ../src/labels.h:167
 msgid "Browsers"
-msgstr ""
+msgstr "浏览器"
 
 #: ../src/labels.h:165
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "浏览器排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:170
 msgid "Referrers URLs"
-msgstr ""
+msgstr "来源地址URLs"
 
 #: ../src/labels.h:172
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "来源地址排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:177 ../src/labels.h:181
 msgid "Referring Sites"
-msgstr ""
+msgstr "推荐网站"
 
 #: ../src/labels.h:179
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "推荐网站排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:184
 msgid "Keyphrases from Google's search engine"
-msgstr ""
+msgstr "谷歌搜索关键字"
 
 #: ../src/labels.h:186
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "关键字排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:188
 msgid "Keyphrases"
-msgstr ""
+msgstr "关键字"
 
 #: ../src/labels.h:191 ../src/labels.h:195
 msgid "Geo Location"
-msgstr ""
+msgstr "地理位置"
 
 #: ../src/labels.h:193
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "大陆 > 国家排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:198
 msgid "HTTP Status Codes"
-msgstr ""
+msgstr "HTTP状态码"
 
 #: ../src/labels.h:200
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "HTTP状态码排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:202
 msgid "Status Codes"
-msgstr ""
+msgstr "状态码"
 
 #. Find Labels
 #: ../src/labels.h:206
 msgid "[ ] case sensitive"
-msgstr ""
+msgstr "[ ] 区分大小写"
 
 #: ../src/labels.h:208
 msgid "[x] case sensitive"
-msgstr ""
+msgstr "[x] 区分大小写"
 
 #: ../src/labels.h:210
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr ""
+msgstr "允许正则表达式 - ^g退出 - TAB改变大小写"
 
 #: ../src/labels.h:212
 msgid "Find pattern in all views"
-msgstr ""
+msgstr "在所有界面中查找匹配模式"
 
 #. Config Dialog
 #: ../src/labels.h:216
 msgid "Log Format Configuration"
-msgstr ""
+msgstr "日志格式设置"
 
 #: ../src/labels.h:218
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
+msgstr "[空格]切换 - [回车]继续 - [q]退出"
 
 #: ../src/labels.h:220
 msgid "Log Format - [c] to add/edit format"
-msgstr ""
+msgstr "日志格式 - [c]新建/修改格式"
 
 #: ../src/labels.h:222
 msgid "Date Format - [d] to add/edit format"
-msgstr ""
+msgstr "日期格式 - [d]新建/修改格式"
 
 #: ../src/labels.h:224
 msgid "Time Format - [t] to add/edit format"
-msgstr ""
+msgstr "时间格式 - [t]新建/修改格式"
 
 #. Agents Dialog
 #: ../src/labels.h:226 ../src/labels.h:230
 msgid "[UP/DOWN] to scroll - [q] to close window"
-msgstr ""
+msgstr "[UP/DOWN]上下滚动 - [q]退出"
 
 #: ../src/labels.h:232
 #, c-format
 msgid "User Agents for %1$s"
-msgstr ""
+msgstr "用户代理 %1$s"
 
 #. Color Scheme Dialog
 #: ../src/labels.h:236
 msgid "Scheme Configuration"
-msgstr ""
+msgstr "颜色方案设置"
 
 #: ../src/labels.h:238
 msgid "[ENTER] to use scheme - [q]uit"
-msgstr ""
+msgstr "[回车]选取方案 - [q]退出"
 
 #. Sort Dialog
 #: ../src/labels.h:242
 msgid "Sort active module by"
-msgstr ""
+msgstr "当前选择栏目排序"
 
 #: ../src/labels.h:244
 msgid "[ENTER] select - [TAB] sort - [q]uit"
-msgstr ""
+msgstr "[回车]选择 - [TAB]排序 - [q]退出"
 
 #. Help TUI Dialog
 #: ../src/labels.h:248
 msgid "GoAccess Quick Help"
-msgstr ""
+msgstr "GoAccess快速帮助"
 
 #: ../src/labels.h:250
 msgid "[UP/DOWN] to scroll - [q] to quit"
-msgstr ""
+msgstr "[UP/DOWN]上下滚动 - [q]退出"
 
 #. Storage Built-in Option
 #: ../src/labels.h:254
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
-msgstr ""
+msgstr "使用Tokyo Cabinet在磁盘中的B+树来构建"
 
 #: ../src/labels.h:256
 msgid "Built using Tokyo Cabinet in-memory hash database."
-msgstr ""
+msgstr "使用Tokyo Cabinet的内存中的哈希表来构建"
 
 #: ../src/labels.h:258
 msgid "Built using the default in-memory hash database."
-msgstr ""
+msgstr "使用默认的在内存中的哈希表来构建"
 
 #. Common UI Errors
 #: ../src/labels.h:262
 msgid "Format Errors - Verify your log/date/time format"
-msgstr ""
+msgstr "格式错误 - 请检查你的日志/日期/时间格式"
 
 #: ../src/labels.h:264
 msgid "No date format was found on your conf file."
-msgstr ""
+msgstr "未在配置文件中设置日期格式"
 
 #: ../src/labels.h:266
 msgid "No log format was found on your conf file."
-msgstr ""
+msgstr "未在配置文件中设置日志格式"
 
 #: ../src/labels.h:268
 msgid "No time format was found on your conf file."
-msgstr ""
+msgstr "未在配置文件中设置时间格式"
 
 #: ../src/labels.h:270
 msgid "No default config file found."
-msgstr ""
+msgstr "未找到默认的配置文件"
 
 #: ../src/labels.h:272
 msgid "You may specify one with"
-msgstr ""
+msgstr "你可以指定配置文件"
 
 #: ../src/labels.h:274
 msgid "producing the following errors"
-msgstr ""
+msgstr "出现以下错误"
 
 #: ../src/labels.h:276
 #, c-format
 msgid "Parsed %1$d lines"
-msgstr ""
+msgstr "已解析 %1$d 行"
 
 #: ../src/labels.h:278
 msgid "Please report it by opening an issue on GitHub"
-msgstr ""
+msgstr "请在GitHub中添加一个issue来给我们反馈信息"
 
 #: ../src/labels.h:280
 msgid "Select a time format."
-msgstr ""
+msgstr "选择时间格式"
 
 #: ../src/labels.h:282
 msgid "Select a date format."
-msgstr ""
+msgstr "选择日期格式"
 
 #: ../src/labels.h:284
 msgid "Select a log format."
-msgstr ""
+msgstr "选择日志格式"
 
 #: ../src/labels.h:286
 #, c-format
 msgid "'%1$s' panel is disabled"
-msgstr ""
+msgstr "'%1$s' 窗口已禁用"
 
 #. Other
 #: ../src/labels.h:290
 msgid "For more details visit"
-msgstr ""
+msgstr "更多信息请访问"
 
 #: ../src/labels.h:292
 msgid "Last Updated"
-msgstr ""
+msgstr "最近更新"
 
 #: ../src/labels.h:294
 msgid "WebSocket server ready to accept new client connections"
-msgstr ""
+msgstr "WebSocket服务器已准备接收来自客户的连接"
 
 #: ../src/labels.h:297
 msgid "The following options can also be supplied to the command"
-msgstr ""
+msgstr "你也可以在command中选择以下选项"
 
 #: ../src/labels.h:299
 msgid "Examples can be found by running"
-msgstr ""
+msgstr "运行一下指令查看更多示例"
 
 #: ../src/labels.h:302
 msgid "Server Statistics"
-msgstr ""
+msgstr "服务器统计信息"
 
 #: ../src/labels.h:304
 msgid "Theme"
-msgstr ""
+msgstr "主题"
 
 #: ../src/labels.h:306
 msgid "Dark Gray"
-msgstr ""
+msgstr "深黑"
 
 #: ../src/labels.h:308
 msgid "Bright"
-msgstr ""
+msgstr "明亮"
 
 #: ../src/labels.h:310
 msgid "Dark Blue"
-msgstr ""
+msgstr "深蓝"
 
 #: ../src/labels.h:312
 msgid "Panels"
-msgstr ""
+msgstr "窗口"
 
 #: ../src/labels.h:314
 msgid "Items per Page"
-msgstr ""
+msgstr "每页项目"
 
 #: ../src/labels.h:316
 msgid "Tables"
-msgstr ""
+msgstr "表格"
 
 #: ../src/labels.h:318
 msgid "Display Tables"
-msgstr ""
+msgstr "显示表格"
 
 #: ../src/labels.h:320
 msgid "Auto-Hide on Small Devices"
-msgstr ""
+msgstr "屏幕过小时自动隐藏"
 
 #: ../src/labels.h:322
 msgid "Automatically hide tables on small screen devices"
-msgstr ""
+msgstr "屏幕过小时自动隐藏表格"
 
 #: ../src/labels.h:324
 msgid "Layout"
-msgstr ""
+msgstr "布局"
 
 #: ../src/labels.h:326
 msgid "Horizontal"
-msgstr ""
+msgstr "横向"
 
 #: ../src/labels.h:328
 msgid "Vertical"
-msgstr ""
+msgstr "纵向"
 
 #: ../src/labels.h:330
 msgid "File Options"
-msgstr ""
+msgstr "文件选项"
 
 #: ../src/labels.h:332
 msgid "Export as JSON"
-msgstr ""
+msgstr "导出为JSON文件"
 
 #: ../src/labels.h:334
 msgid "Panel Options"
-msgstr ""
+msgstr "窗口选项"
 
 #: ../src/labels.h:336
 msgid "Previous"
-msgstr ""
+msgstr "后退"
 
 #: ../src/labels.h:338
 msgid "Next"
-msgstr ""
+msgstr "前进"
 
 #: ../src/labels.h:340
 msgid "Chart Options"
-msgstr ""
+msgstr "图表选项"
 
 #: ../src/labels.h:342
 msgid "Chart"
-msgstr ""
+msgstr "图表"
 
 #: ../src/labels.h:344
 msgid "Type"
-msgstr ""
+msgstr "类型"
 
 #: ../src/labels.h:346
 msgid "Area Spline"
-msgstr ""
+msgstr "AreaSpline图表"
 
 #: ../src/labels.h:348
 msgid "Bar"
-msgstr ""
+msgstr "条形图"
 
 #: ../src/labels.h:350
 msgid "Plot Metric"
-msgstr ""
+msgstr "绘制度量"
+#change
 
 #: ../src/labels.h:352
 msgid "Table Columns"
-msgstr ""
+msgstr "表格列"
 
 #. Status Codes
 #: ../src/labels.h:356
 msgid "1xx Informational"
-msgstr ""
+msgstr "1xx 消息"
 
 #: ../src/labels.h:358
 msgid "2xx Success"
-msgstr ""
+msgstr "2xx 成功"
 
 #: ../src/labels.h:360
 msgid "3xx Redirection"
-msgstr ""
+msgstr "3xx Url重定向"
 
 #: ../src/labels.h:362
 msgid "4xx Client Errors"
-msgstr ""
+msgstr "4xx 客户端错"
 
 #: ../src/labels.h:364
 msgid "5xx Server Errors"
-msgstr ""
+msgstr "5xx 服务器错"
 
 #: ../src/labels.h:367
 msgid "100 - Continue: Server received the initial part of the request"
-msgstr ""
+msgstr "100 - 继续: 服务器已经接收到请求头"
 
 #: ../src/labels.h:369
 msgid "101 - Switching Protocols: Client asked to switch protocols"
-msgstr ""
+msgstr "101 - 更改协议: 客户端被通知变更协议来完成请求"
 
 #: ../src/labels.h:371
 msgid "200 - OK: The request sent by the client was successful"
-msgstr ""
+msgstr "200 - 成功: 请求成功"
 
 #: ../src/labels.h:373
 msgid "201 - Created: The request has been fulfilled and created"
-msgstr ""
+msgstr "201 - 已创建: 请求成功并且服务器创建了新的资源"
 
 #: ../src/labels.h:375
 msgid "202 - Accepted: The request has been accepted for processing"
-msgstr ""
+msgstr "202 - 已接收: 服务器已接受请求,但尚未处理"
 
 #: ../src/labels.h:377
 msgid "203 - Non-authoritative Information: Response from a third party"
-msgstr ""
+msgstr "203 - 非授权信息: 服务器已成功处理请求 但返回的信息可能来自另一来源"
 
 #: ../src/labels.h:379
 msgid "204 - No Content: Request did not return any content"
-msgstr ""
+msgstr "204 - 无内容: 没有返回任何内容"
 
 #: ../src/labels.h:381
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
+msgstr "205 - 重置内容: 服务器已成功处理请求 但没有返回任何内容"
 
 #: ../src/labels.h:383
 msgid "206 - Partial Content: The partial GET has been successful"
-msgstr ""
+msgstr "206 - 部分内容: 服务器成功处理了部分GET请求"
 
 #: ../src/labels.h:385
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
-msgstr ""
+msgstr "207 - 多状态: WebDAV; RFC 4918"
 
 #: ../src/labels.h:387
 msgid "208 - Already Reported: WebDAV; RFC 5842"
-msgstr ""
+msgstr "208 - 已报告: WebDAV; RFC 5842"
 
 #: ../src/labels.h:389
 msgid "300 - Multiple Choices: Multiple options for the resource"
-msgstr ""
+msgstr "300 - 多重选择: 资源提供多种选项让客户端选择"
 
 #: ../src/labels.h:391
 msgid "301 - Moved Permanently: Resource has permanently moved"
-msgstr ""
+msgstr "301 - 永久移除: 资源已被永久移动到新位置"
 
 #: ../src/labels.h:393
 msgid "302 - Moved Temporarily (redirect)"
-msgstr ""
+msgstr "302 - 临时移动"
 
 #: ../src/labels.h:395
 msgid "303 - See Other Document: The response is at a different URI"
-msgstr ""
+msgstr "303 - 查看其他位置: 当前请求的响应在另一个URI上被找到"
 
 #: ../src/labels.h:397
 msgid "304 - Not Modified: Resource has not been modified"
-msgstr ""
+msgstr "304 - 未修改: 资源未被修改"
 
 #: ../src/labels.h:399
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
-msgstr ""
+msgstr "305 - 使用代理: 只能通过代理访问资源"
 
 #: ../src/labels.h:401
 msgid "307 - Temporary Redirect: Resource temporarily moved"
-msgstr ""
+msgstr "307 - 临时重定向: 临时从另外的URI响应"
 
 #: ../src/labels.h:403
 msgid "400 - Bad Request: The syntax of the request is invalid"
-msgstr ""
+msgstr "400 - 错误请求: 客户端语法错误"
 
 #: ../src/labels.h:405
 msgid "401 - Unauthorized: Request needs user authentication"
-msgstr ""
+msgstr "401 - 未授权: 当前请求需要用户授权"
 
 #: ../src/labels.h:407
 msgid "402 - Payment Required"
-msgstr ""
+msgstr "402 - 需要支付"
 
 #: ../src/labels.h:409
 msgid "403 - Forbidden: Server is refusing to respond to it"
-msgstr ""
+msgstr "403 - 禁止: 服务器拒绝响应请求"
 
 #: ../src/labels.h:411
 msgid "404 - Not Found: Requested resource could not be found"
-msgstr ""
+msgstr "404 - 未找到: 找不到请求的资源"
 
 #: ../src/labels.h:413
 msgid "405 - Method Not Allowed: Request method not supported"
-msgstr ""
+msgstr "405 - 方法禁用: 不支持请求中指定的方法"
 
 #: ../src/labels.h:415
 msgid "406 - Not Acceptable"
-msgstr ""
+msgstr "406 - 无法接收"
 
 #: ../src/labels.h:417
 msgid "407 - Proxy Authentication Required"
-msgstr ""
+msgstr "407 - 需要代理授权"
 
 #: ../src/labels.h:419
 msgid "408 - Request Timeout: Server timed out waiting for the request"
-msgstr ""
+msgstr "408 - 请求超时: 服务器在等候请求时超时"
 
 #: ../src/labels.h:421
 msgid "409 - Conflict: Conflict in the request"
-msgstr ""
+msgstr "409 - 冲突: 服务器在完成请求时发生冲突"
 
 #: ../src/labels.h:423
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr ""
+msgstr "410 - 已删除: 请求的资源已永久删除"
 
 #: ../src/labels.h:425
 msgid "411 - Length Required: Invalid Content-Length"
-msgstr ""
+msgstr "411 - 需要有效长度: Content-Length无效"
 
 #: ../src/labels.h:427
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
+msgstr "412 - 未满足前提条件: 服务器未满足请求中的前提条件"
 
 #: ../src/labels.h:429
 msgid "413 - Payload Too Large"
-msgstr ""
+msgstr "413 - 请求实体过大"
 
 #: ../src/labels.h:431
 msgid "414 - Request-URI Too Long"
-msgstr ""
+msgstr "414 - 请求的URI过长"
 
 #: ../src/labels.h:433
 msgid "415 - Unsupported Media Type: Media type is not supported"
-msgstr ""
+msgstr "415 - 不支持的媒体类型"
 
 #: ../src/labels.h:435
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
+msgstr "416 - 请求范围不符合要求"
 
 #: ../src/labels.h:437
 msgid "417 - Expectation Failed"
-msgstr ""
+msgstr "417 - 未满足期望值"
 
 #: ../src/labels.h:439
 msgid "421 - Misdirected Request"
-msgstr ""
+msgstr "421 - 被误导的请求"
 
 #: ../src/labels.h:441
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
-msgstr ""
+msgstr "422 - 请求格式正确但因存在语法错而无法响应"
 
 #: ../src/labels.h:443
 msgid "423 - The resource that is being accessed is locked"
-msgstr ""
+msgstr "423 - 当前资源被锁定"
 
 #: ../src/labels.h:445
 msgid "424 - Failed Dependency: WebDAV)"
-msgstr ""
+msgstr "424 - 失败的依赖"
 
 #: ../src/labels.h:447
 msgid "426 - Upgrade Required Client should switch to a different protocol"
-msgstr ""
+msgstr "426 - 需要升级: 客户端应该切换到其他的协议"
 
 #: ../src/labels.h:449
 msgid "428 - Precondition Required"
-msgstr ""
+msgstr "428 - 需要前提条件"
 
 #: ../src/labels.h:451
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr ""
+msgstr "429 - 请求过多: 客户端发送了太多请求"
 
 #: ../src/labels.h:453
 msgid "431 - Request Header Fields Too Large"
-msgstr ""
+msgstr "431 - 请求头字段太长"
 
 #: ../src/labels.h:455
 msgid "451 - Unavailable For Legal Reasons"
-msgstr ""
+msgstr "451 - 因法律原因不可用"
 
 #: ../src/labels.h:457
 msgid "444 - (Nginx) Connection closed without sending any headers"
-msgstr ""
+msgstr "444 - (Nginx) 未发送响应头且连接已关闭"
 
 #: ../src/labels.h:459
 msgid "494 - (Nginx) Request Header Too Large"
-msgstr ""
+msgstr "494 - (Nginx) 请求头太大"
 
 #: ../src/labels.h:461
 msgid "495 - (Nginx) SSL client certificate error"
-msgstr ""
+msgstr "495 - (Nginx) SSL客户端证书错"
 
 #: ../src/labels.h:463
 msgid "496 - (Nginx) Client didn't provide certificate"
-msgstr ""
+msgstr "496 - (Nginx) 客户端未提供证书"
 
 #: ../src/labels.h:465
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
-msgstr ""
+msgstr "497 - (Nginx) HTTP请求被发送到了HTTPS端口"
 
 #: ../src/labels.h:467
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr ""
+msgstr "499 - (Nginx) 处理请求时连接被客户端关闭"
 
 #: ../src/labels.h:469
 msgid "500 - Internal Server Error"
-msgstr ""
+msgstr "500 - 服务器内部错"
 
 #: ../src/labels.h:471
 msgid "501 - Not Implemented"
-msgstr ""
+msgstr "501 - 尚未实施"
 
 #: ../src/labels.h:473
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
-msgstr ""
+msgstr "502 - 错误网关: 服务器作为网关或代理, 从上游服务器收到无效响应"
 
 #: ../src/labels.h:475
 msgid "503 - Service Unavailable: The server is currently unavailable"
-msgstr ""
+msgstr "503 - 服务不可用: 服务器无法使用"
 
 #: ../src/labels.h:477
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
+msgstr "504 - 网关超时: 服务器作为网关或代理, 未从上游服务器收到请求"
 
 #: ../src/labels.h:479
 msgid "505 - HTTP Version Not Supported"
-msgstr ""
+msgstr "505 - HTTP版本不受支持"
 
 #: ../src/labels.h:481
 msgid "520 - CloudFlare - Web server is returning an unknown error"
-msgstr ""
+msgstr "520 - CloudFlare - 服务器返回一个未知错误"
 
 #: ../src/labels.h:483
 msgid "521 - CloudFlare - Web server is down"
-msgstr ""
+msgstr "521 - CloudFlare - 服务器挂了"
 
 #: ../src/labels.h:485
 msgid "522 - CloudFlare - Connection timed out"
-msgstr ""
+msgstr "522 - CloudFlare - 连接超时"
 
 #: ../src/labels.h:487
 msgid "523 - CloudFlare - Origin is unreachable"
-msgstr ""
+msgstr "523 - CloudFlare - 服务器无法访问"
 
 #: ../src/labels.h:489
 msgid "524 - CloudFlare - A timeout occurred"
-msgstr ""
+msgstr "524 - CloudFlare - 服务器响应超时"
+
+#~ msgid "Unique Files"
+#~ msgstr "唯一的文件"
+
+#~ msgid "Unique 404"
+#~ msgstr "唯一的404"
+
+#~ msgid " - Including spiders"
+#~ msgstr "- 包括网络机器人"
