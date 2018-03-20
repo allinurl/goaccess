@@ -9,6 +9,8 @@
  * Copyright (c) 2009-2018 Gerardo Orellana <hello @ goaccess.io>
  */
 
+/*jshint sub:true*/
+(function () {
 'use strict';
 
 // This is faster than calculating the exact length of each label.
@@ -1064,3 +1066,4 @@ function BarChart(dualYaxis) {
 
 	return chart;
 }
+}());
