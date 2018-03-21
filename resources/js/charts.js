@@ -334,7 +334,7 @@ function AreaChart(dualYaxis) {
 				return pl + ' ' + pl;
 			})
 			.attr('stroke-dashoffset', function (d) {
-				return pathLen(d3.select(this))
+				return pathLen(d3.select(this));
 			});
 		// update
 		path
