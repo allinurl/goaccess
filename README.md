@@ -216,6 +216,11 @@ example, for Apache's *combined* log format:
     output /srv/report/index.html
     real-time-html true
 
+If you want a secure connection, a TLS/SSL certificate and a key files must be configured as well:
+
+    ssl-cert /srv/data/domain.crt
+    ssl-key /srv/data/domain.key
+
 Once you have your configuration file all set, clone the repo:
 
     $ git clone https://github.com/allinurl/goaccess.git goaccess && cd $_
@@ -235,13 +240,17 @@ have to rebuild from scratch. Simply restart the container:
     docker restart goaccess
 
 If you want to expose goaccess on a different port on the host machine, you
-*have to* set the `ws-url` option in the config file, e.g.:`
+*have to* set the `ws-url` option in the config file, e.g.:
 
     ws-url ws://example.com:8080
 
 or for secured connections:
 
     ws-url wss://example.com:8080
+
+    # Note that ssl-cert and ssl-key are needed to enable TLS/SSL secured connections.
+    ssl-cert /srv/data/domain.crt
+    ssl-key /srv/data/domain.key
 
 And start the container as follows:
 
