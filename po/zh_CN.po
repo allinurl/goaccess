@@ -24,7 +24,7 @@ msgstr "zh-CN"
 #. General
 #: ../src/labels.h:43
 msgid "Exp. Panel"
-msgstr "展开窗口"
+msgstr "展开面板"
 
 #: ../src/labels.h:44
 msgid "Help"
@@ -51,7 +51,7 @@ msgstr "[ ] 递增 [x] 递减"
 #: ../src/labels.h:53
 #, c-format
 msgid "[Active Panel: %1$s]"
-msgstr "[当前窗口： %1$s]"
+msgstr "[当前面板： %1$s]"
 
 #: ../src/labels.h:54
 msgid "[q]uit GoAccess"
@@ -59,7 +59,7 @@ msgstr "[q]退出GoAccess"
 
 #: ../src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
-msgstr "[?]帮助 [回车]展开窗口"
+msgstr "[?]帮助 [回车]展开面板"
 
 #: ../src/labels.h:56
 msgid "Dashboard"
@@ -115,10 +115,9 @@ msgstr "静态文件"
 
 #: ../src/labels.h:70 ../src/labels.h:146
 msgid "Not Found"
-msgstr "没有找到(404)"
+msgstr "未找到(404)"
 
 #: ../src/labels.h:71
-#, fuzzy
 msgid "Requested Files"
 msgstr "请求的文件"
 
@@ -133,7 +132,7 @@ msgstr "有效的请求"
 #. Metric Labels
 #: ../src/labels.h:76
 msgid "Hits"
-msgstr "点击"
+msgstr "点击量"
 
 #: ../src/labels.h:77
 msgid "h%"
@@ -145,7 +144,7 @@ msgstr "访客"
 
 #: ../src/labels.h:79
 msgid "Vis."
-msgstr "Vis."
+msgstr "访客"
 
 #: ../src/labels.h:80
 msgid "v%"
@@ -196,9 +195,8 @@ msgid "Data"
 msgstr "数据"
 
 #: ../src/labels.h:94
-#, fuzzy
 msgid "Hits/Visitors"
-msgstr "点击/访客"
+msgstr "点击量/访客"
 
 #. Panel Labels and Descriptions
 #: ../src/labels.h:98
@@ -215,7 +213,7 @@ msgstr "来自同一IP、时间和Http用户代理的多次点击被视作一次
 
 #: ../src/labels.h:107
 msgid "Requested Files (URLs)"
-msgstr "请求的文件(URLs)"
+msgstr "请求的文件"
 
 #: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
@@ -253,7 +251,7 @@ msgstr "虚拟主机"
 
 #: ../src/labels.h:130 ../src/labels.h:137
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr "数据列排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "数据列排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:135
 msgid "Remote User (HTTP authentication)"
@@ -265,12 +263,12 @@ msgstr "已认证用户"
 
 #: ../src/labels.h:142
 msgid "Not Found URLs (404s)"
-msgstr "未找到URLs"
+msgstr "未找到的URLs"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"未找到的URLs排序按 [点击, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
+"未找到的URLs排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
@@ -278,7 +276,7 @@ msgstr "访客主机名和IP地址"
 
 #: ../src/labels.h:151
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "访客主机排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "访客主机排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:153
 msgid "Hosts"
@@ -290,7 +288,7 @@ msgstr "操作系统"
 
 #: ../src/labels.h:158
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr "操作系统排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "操作系统排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:160
 msgid "OS"
@@ -302,7 +300,7 @@ msgstr "浏览器"
 
 #: ../src/labels.h:165
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "浏览器排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "浏览器排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:170
 msgid "Referrers URLs"
@@ -310,7 +308,7 @@ msgstr "来源地址URLs"
 
 #: ../src/labels.h:172
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr "来源地址排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "来源地址排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:177 ../src/labels.h:181
 msgid "Referring Sites"
@@ -318,7 +316,7 @@ msgstr "推荐网站"
 
 #: ../src/labels.h:179
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "推荐网站排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "推荐网站排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:184
 msgid "Keyphrases from Google's search engine"
@@ -326,7 +324,7 @@ msgstr "谷歌搜索关键字"
 
 #: ../src/labels.h:186
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "关键字排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "关键字排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:188
 msgid "Keyphrases"
@@ -338,7 +336,7 @@ msgstr "地理位置"
 
 #: ../src/labels.h:193
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr "大陆 > 国家排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "大陆 > 国家排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:198
 msgid "HTTP Status Codes"
@@ -346,7 +344,7 @@ msgstr "HTTP状态码"
 
 #: ../src/labels.h:200
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr "HTTP状态码排序按 [点击, 平均响应时, 总共响应时, 最高响应时]"
+msgstr "HTTP状态码排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: ../src/labels.h:202
 msgid "Status Codes"
@@ -493,7 +491,7 @@ msgstr "选择日志格式"
 #: ../src/labels.h:286
 #, c-format
 msgid "'%1$s' panel is disabled"
-msgstr "'%1$s' 窗口已禁用"
+msgstr "'%1$s' 面板已禁用"
 
 #. Other
 #: ../src/labels.h:290
@@ -538,7 +536,7 @@ msgstr "深蓝"
 
 #: ../src/labels.h:312
 msgid "Panels"
-msgstr "窗口"
+msgstr "面板"
 
 #: ../src/labels.h:314
 msgid "Items per Page"
@@ -582,7 +580,7 @@ msgstr "导出为JSON文件"
 
 #: ../src/labels.h:334
 msgid "Panel Options"
-msgstr "窗口选项"
+msgstr "面板选项"
 
 #: ../src/labels.h:336
 msgid "Previous"
@@ -615,7 +613,6 @@ msgstr "条形图"
 #: ../src/labels.h:350
 msgid "Plot Metric"
 msgstr "绘制度量"
-#change
 
 #: ../src/labels.h:352
 msgid "Table Columns"
