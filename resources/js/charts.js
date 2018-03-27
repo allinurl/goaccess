@@ -260,7 +260,7 @@ function AreaChart(dualYaxis) {
 			.attr('y', 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr('x', width - 25)
+			.attr('x', width - 25);
 	}
 
 	function createSkeleton(svg) {
@@ -332,7 +332,7 @@ function AreaChart(dualYaxis) {
 				return pl + ' ' + pl;
 			})
 			.attr('stroke-dashoffset', function (d) {
-				return pathLen(d3.select(this))
+				return pathLen(d3.select(this));
 			});
 		// update
 		path
@@ -386,8 +386,8 @@ function AreaChart(dualYaxis) {
 			.attr('r', radius)
 			.attr('class', 'point');
 		points
-			.attr('cx', function (d) { return xScale(d[0]) })
-			.attr('cy', function (d) { return yScale0(d[1]) })
+			.attr('cx', function (d) { return xScale(d[0]); })
+			.attr('cy', function (d) { return yScale0(d[1]); })
 		// remove elements
 		points.exit().remove();
 

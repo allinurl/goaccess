@@ -1634,8 +1634,8 @@ GoAccess.App = {
 		// panel's data
 		var panelData = GoAccess.getPanelData(panel).data;
 		panelData.sort(function (a, b) {
-			var a = this.sortField(a, field);
-			var b = this.sortField(b, field);
+			a = this.sortField(a, field);
+			b = this.sortField(b, field);
 
 			if (typeof a === 'string' && typeof b === 'string')
 				return 'asc' == order ? a.localeCompare(b) : b.localeCompare(a);
