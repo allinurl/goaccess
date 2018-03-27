@@ -387,7 +387,7 @@ function AreaChart(dualYaxis) {
 			.attr('class', 'point');
 		points
 			.attr('cx', function (d) { return xScale(d[0]); })
-			.attr('cy', function (d) { return yScale0(d[1]); })
+			.attr('cy', function (d) { return yScale0(d[1]); });
 		// remove elements
 		points.exit().remove();
 
@@ -402,8 +402,8 @@ function AreaChart(dualYaxis) {
 			.attr('r', radius)
 			.attr('class', 'point');
 		points
-			.attr('cx', function (d) { return xScale(d[0]) })
-			.attr('cy', function (d) { return yScale1(d[2]) })
+			.attr('cx', function (d) { return xScale(d[0]); })
+			.attr('cy', function (d) { return yScale1(d[2]); });
 		// remove elements
 		points.exit().remove();
 	}
