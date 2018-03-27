@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-03-14 21:19-0500\n"
+"POT-Creation-Date: 2018-03-20 21:20-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Ai<hello@goaccess.io>\n"
 "Language-Team: Ai\n"
@@ -614,6 +614,7 @@ msgstr "条形图"
 msgid "Plot Metric"
 msgstr "绘制度量"
 
+# change
 #: ../src/labels.h:352
 msgid "Table Columns"
 msgstr "表格列"
