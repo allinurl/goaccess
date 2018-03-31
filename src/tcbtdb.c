@@ -36,6 +36,8 @@
 #include <sys/stat.h>
 #include <tcutil.h>
 #include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "tcbtdb.h"
 #include "tcabdb.h"
@@ -57,19 +59,30 @@ char *
 tc_db_set_path (const char *dbname, int module)
 {
   struct stat info;
-  const char *db_path = TC_DBPATH;
+  static char default_path[ sizeof(TC_DBPATH "01234567890/") ];
+  static char *db_path;
   char *path;
   char fname[RAND_FN];
   int cx;
 
+  /* db_path is either specified explicitly, or gets the default (pid appended) */
   if (conf.db_path != NULL)
-    db_path = conf.db_path;
+    db_path = (char *)conf.db_path;
+  else {
+    sprintf(default_path, "%s%d", TC_DBPATH, getpid());
+    db_path = default_path;
+    mkdir(db_path, TC_DBPMODE);
+  }
 
   /* sanity check: Is db_path accessible and a directory? */
   if (stat (db_path, &info) != 0)
     FATAL ("Unable to access database path: %s", strerror (errno));
   if (!(info.st_mode & S_IFDIR))
     FATAL ("Database path is not a directory.");
+
+  /* for tc_db_rmdir(), return the pure folder path (or NULL to keep) */
+  if (dbname == NULL)
+    return conf.db_path == NULL ? db_path : NULL;
 
   memset (fname, 0, sizeof (fname));
   /* tcadbopen requires the db name suffix to be ".tcb" and thus we
@@ -82,6 +95,19 @@ tc_db_set_path (const char *dbname, int module)
 
   return path;
 }
+
+/* delete db folder if we used the customized (pid appended) default */
+void
+tc_db_rmdir()
+{
+  const char *db_path = NULL;
+
+  db_path = tc_db_set_path (NULL, 0);
+  if (db_path != NULL)
+    if (rmdir(db_path))
+      LOG_DEBUG (("Unable to remove custom db folder: %s\n", db_path));
+}
+
 
 /* Set the given database parameter into the parameters buffer.
  *

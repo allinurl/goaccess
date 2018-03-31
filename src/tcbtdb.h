@@ -46,7 +46,8 @@
 #define TC_LMEMB 128
 #define TC_NMEMB 256
 #define TC_BNUM  32749
-#define TC_DBPATH "/tmp/"
+#define TC_DBPATH "/tmp/goaccess"
+#define TC_DBPMODE 0755
 #define TC_ZLIB 1
 #define TC_BZ2  2
 
@@ -78,6 +79,7 @@
 TCBDB *tc_bdb_create (char *dbpath);
 
 char *tc_db_set_path (const char *dbname, int module);
+void tc_db_rmdir(void);
 int tc_bdb_close (void *db, char *dbname);
 void tc_db_get_params (char *params, const char *path);
 

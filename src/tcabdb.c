@@ -282,6 +282,11 @@ free_storage (void)
     free_metrics (module_list[idx]);
   }
   free (tc_storage);
+
+#ifdef TCB_BTREE
+  tc_db_rmdir();
+#endif
+
 }
 
 static uint32_t
