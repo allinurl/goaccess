@@ -789,7 +789,7 @@ function BarChart(dualYaxis) {
 			.attr('y', 10)
 			.text(labels.y1);
 		dualYaxis && tEnter
-			.attr('x', width - 25)
+			.attr('x', width - 25);
 	}
 
 	function createSkeleton(svg) {
