@@ -867,7 +867,7 @@ function BarChart(dualYaxis) {
 			.attr('class', 'bar')
 			.attr('height', 0)
 			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
-			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2) })
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2); })
 			.attr('y', function (d, i) { return innerH(); });
 		// update
 		bars
