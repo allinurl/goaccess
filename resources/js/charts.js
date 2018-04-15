@@ -700,7 +700,7 @@ function BarChart(dualYaxis) {
 		xScale.domain(data.map(function (d) {
 			return d[0];
 		}))
-		.rangeBands([0, innerW()], .1);
+		.rangeBands([0, innerW()], 0.1);
 
 		// Update the y-scale.
 		yScale0.domain([0, d3.max(data, function (d) {
