@@ -858,7 +858,7 @@ function BarChart(dualYaxis) {
 		if (!dualYaxis)
 			return;
 
-		var bars = g.select('g.bars.y1').selectAll('rect.bar')
+		bars = g.select('g.bars.y1').selectAll('rect.bar')
 			.data(data);
 		// enter
 		bars
