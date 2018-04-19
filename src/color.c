@@ -826,7 +826,6 @@ add_default_colors (void)
     else
       parse_colors (colors8_mono, ARRAY_SIZE (colors8_mono));
   }
-
 }
 
 /* Entry point to parse color definitions or use default colors */
