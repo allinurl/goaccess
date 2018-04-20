@@ -59,7 +59,7 @@ char *
 tc_db_set_path (const char *dbname, int module)
 {
   struct stat info;
-  static char default_path[ sizeof(TC_DBPATH "01234567890/") ];
+  static char default_path[sizeof (TC_DBPATH "01234567890/")];
   static char *db_path;
   char *path;
   char fname[RAND_FN];
@@ -67,11 +67,11 @@ tc_db_set_path (const char *dbname, int module)
 
   /* db_path is either specified explicitly, or gets the default (pid appended) */
   if (conf.db_path != NULL)
-    db_path = (char *)conf.db_path;
+    db_path = (char *) conf.db_path;
   else {
-    sprintf(default_path, "%s%d", TC_DBPATH, getpid());
+    sprintf (default_path, "%s%d", TC_DBPATH, getpid ());
     db_path = default_path;
-    mkdir(db_path, TC_DBPMODE);
+    mkdir (db_path, TC_DBPMODE);
   }
 
   /* sanity check: Is db_path accessible and a directory? */
@@ -98,13 +98,13 @@ tc_db_set_path (const char *dbname, int module)
 
 /* delete db folder if we used the customized (pid appended) default */
 void
-tc_db_rmdir()
+tc_db_rmdir ()
 {
   const char *db_path = NULL;
 
   db_path = tc_db_set_path (NULL, 0);
   if (db_path != NULL)
-    if (rmdir(db_path))
+    if (rmdir (db_path))
       LOG_DEBUG (("Unable to remove custom db folder: %s\n", db_path));
 }
 

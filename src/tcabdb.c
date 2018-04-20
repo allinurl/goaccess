@@ -284,7 +284,7 @@ free_storage (void)
   free (tc_storage);
 
 #ifdef TCB_BTREE
-  tc_db_rmdir();
+  tc_db_rmdir ();
 #endif
 
 }
