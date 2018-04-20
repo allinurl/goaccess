@@ -134,7 +134,7 @@ alternative option below.
 
 **Note**:
 * For *on-disk* support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
-* `.deb` packages in the official repo are available through https as well. You may need to install `apt-transport-https`.
+* `.deb` packages in the official repo are available through HTTPS as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
 
