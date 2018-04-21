@@ -178,7 +178,8 @@ alternative option below.
 #### Windows ####
 
 GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>. Or
+through the Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
