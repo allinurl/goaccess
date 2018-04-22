@@ -217,7 +217,8 @@ example, for Apache's *combined* log format:
     output /srv/report/index.html
     real-time-html true
 
-If you want a secure connection, a TLS/SSL certificate and a key files must be configured as well:
+If you want a secure connection, a TLS/SSL certificate and a key files must be
+configured as well in your config file:
 
     ssl-cert /srv/data/domain.crt
     ssl-key /srv/data/domain.key
