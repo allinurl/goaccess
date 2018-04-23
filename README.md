@@ -246,7 +246,7 @@ If you want to expose goaccess on a different port on the host machine, you
 
     ws-url ws://example.com:8080
 
-or for secured connections:
+or for secured connections, please ensure your configuration file has:
 
     ws-url wss://example.com:8080
 
