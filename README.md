@@ -249,7 +249,7 @@ have to rebuild from scratch. Simply restart the container:
 
     docker restart goaccess
 
-And start the container as follows:
+And restart the container as follows:
 
     docker run --restart=always -d -p 8080:7890 \
       -v "/srv/goaccess/data:/srv/data"         \
