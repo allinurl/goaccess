@@ -225,11 +225,9 @@ If you want to expose goaccess on a different port on the host machine, you
 or for secured connections (TLS/SSL), please ensure your configuration file
 contains the following lines:
 
-    ws-url wss://example.com:8080
-
-    # Note that ssl-cert and ssl-key are needed to enable TLS/SSL secured connections.
     ssl-cert /srv/data/domain.crt
     ssl-key /srv/data/domain.key
+    ws-url wss://example.com:8080
 
 Once you have your configuration file all set, clone the repo:
 
