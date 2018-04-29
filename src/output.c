@@ -1130,6 +1130,8 @@ print_json_i18n_def (FILE * fp)
     {"panel_opts"     , HTML_REPORT_PANEL_PANEL_OPTS}   ,
     {"previous"       , HTML_REPORT_PANEL_PREVIOUS}     ,
     {"next"           , HTML_REPORT_PANEL_NEXT}         ,
+    {"first"          , HTML_REPORT_PANEL_FIRST}        ,
+    {"last"           , HTML_REPORT_PANEL_LAST}         ,
     {"chart_opts"     , HTML_REPORT_PANEL_CHART_OPTS}   ,
     {"chart"          , HTML_REPORT_PANEL_CHART}        ,
     {"type"           , HTML_REPORT_PANEL_TYPE}         ,
