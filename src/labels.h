@@ -336,6 +336,10 @@
   N_("Previous")
 #define HTML_REPORT_PANEL_NEXT         \
   N_("Next")
+#define HTML_REPORT_PANEL_FIRST        \
+  N_("First")
+#define HTML_REPORT_PANEL_LAST         \
+  N_("Last")
 #define HTML_REPORT_PANEL_CHART_OPTS   \
   N_("Chart Options")
 #define HTML_REPORT_PANEL_CHART        \
