@@ -16,6 +16,8 @@ src/.deps/
 src/stamp-h1
 goaccess
 bin2c
+# font selection
+selection.json
 #merged from https://raw.github.com/github/gitignore/master/Autotools.gitignore
 # http://www.gnu.org/software/automake
 
