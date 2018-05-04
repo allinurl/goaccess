@@ -1069,6 +1069,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
+    free (tkn);
     break;
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
