@@ -25,16 +25,17 @@ BUILT_SOURCES =   \
   chartsjs.h      \
   appjs.h
 
-CLEANFILES =          					\
-  src/tpls.h          					\
-  src/bootstrapcss.h  					\
-  src/facss.h         					\
-  src/appcss.h        					\
-  src/d3js.h          					\
-  src/hoganjs.h       					\
-  src/chartsjs.h      					\
-  src/appjs.h   								\
-	resources/tpls.html.tmp
+CLEANFILES =                          \
+  src/tpls.h                          \
+  src/bootstrapcss.h                  \
+  src/facss.h                         \
+  src/appcss.h                        \
+  src/d3js.h                          \
+  src/hoganjs.h                       \
+  src/chartsjs.h                      \
+  src/appjs.h                         \
+  resources/tpls.html.tmp             \
+  resources/css/bootstrap.min.css.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
@@ -42,7 +43,8 @@ tpls.h: bin2c$(EXEEXT) resources/tpls.html
 	./bin2c resources/tpls.html.tmp src/tpls.h tpls
 # Bootstrap
 bootstrapcss.h: bin2c$(EXEEXT) resources/css/bootstrap.min.css
-	./bin2c resources/css/bootstrap.min.css src/bootstrapcss.h bootstrap_css
+	cat resources/css/bootstrap.min.css | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/css/bootstrap.min.css.tmp
+	./bin2c resources/css/bootstrap.min.css.tmp src/bootstrapcss.h bootstrap_css
 # Font Awesome
 facss.h: bin2c$(EXEEXT) resources/css/fa.min.css
 	./bin2c resources/css/fa.min.css src/facss.h fa_css
