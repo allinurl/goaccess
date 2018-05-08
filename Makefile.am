@@ -35,7 +35,8 @@ CLEANFILES =                          \
   src/chartsjs.h                      \
   src/appjs.h                         \
   resources/tpls.html.tmp             \
-  resources/css/bootstrap.min.css.tmp
+  resources/css/bootstrap.min.css.tmp \
+  resources/css/fa.min.css.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
@@ -47,7 +48,8 @@ bootstrapcss.h: bin2c$(EXEEXT) resources/css/bootstrap.min.css
 	./bin2c resources/css/bootstrap.min.css.tmp src/bootstrapcss.h bootstrap_css
 # Font Awesome
 facss.h: bin2c$(EXEEXT) resources/css/fa.min.css
-	./bin2c resources/css/fa.min.css src/facss.h fa_css
+	cat resources/css/fa.min.css | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/css/fa.min.css.tmp
+	./bin2c resources/css/fa.min.css.tmp src/facss.h fa_css
 # App.css
 appcss.h: bin2c$(EXEEXT) resources/css/app.css
 	./bin2c resources/css/app.css src/appcss.h app_css
