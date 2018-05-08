@@ -25,19 +25,21 @@ BUILT_SOURCES =   \
   chartsjs.h      \
   appjs.h
 
-CLEANFILES =          \
-  src/tpls.h          \
-  src/bootstrapcss.h  \
-  src/facss.h         \
-  src/appcss.h        \
-  src/d3js.h          \
-  src/hoganjs.h       \
-  src/chartsjs.h      \
-  src/appjs.h
+CLEANFILES =          					\
+  src/tpls.h          					\
+  src/bootstrapcss.h  					\
+  src/facss.h         					\
+  src/appcss.h        					\
+  src/d3js.h          					\
+  src/hoganjs.h       					\
+  src/chartsjs.h      					\
+  src/appjs.h   								\
+	resources/tpls.html.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
-	./bin2c resources/tpls.html src/tpls.h tpls
+	cat resources/tpls.html | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/tpls.html.tmp
+	./bin2c resources/tpls.html.tmp src/tpls.h tpls
 # Bootstrap
 bootstrapcss.h: bin2c$(EXEEXT) resources/css/bootstrap.min.css
 	./bin2c resources/css/bootstrap.min.css src/bootstrapcss.h bootstrap_css
