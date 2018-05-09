@@ -36,7 +36,8 @@ CLEANFILES =                          \
   src/appjs.h                         \
   resources/tpls.html.tmp             \
   resources/css/bootstrap.min.css.tmp \
-  resources/css/fa.min.css.tmp
+  resources/css/fa.min.css.tmp        \
+  resources/css/app.css.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
@@ -52,7 +53,8 @@ facss.h: bin2c$(EXEEXT) resources/css/fa.min.css
 	./bin2c resources/css/fa.min.css.tmp src/facss.h fa_css
 # App.css
 appcss.h: bin2c$(EXEEXT) resources/css/app.css
-	./bin2c resources/css/app.css src/appcss.h app_css
+	cat resources/css/app.css | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/css/app.css.tmp
+	./bin2c resources/css/app.css.tmp src/appcss.h app_css
 # D3.js
 d3js.h: bin2c$(EXEEXT) resources/js/d3.v3.min.js
 	./bin2c resources/js/d3.v3.min.js src/d3js.h d3_js
