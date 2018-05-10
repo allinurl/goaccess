@@ -37,7 +37,8 @@ CLEANFILES =                          \
   resources/tpls.html.tmp             \
   resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
-  resources/css/app.css.tmp
+  resources/css/app.css.tmp           \
+  resources/js/d3.v3.min.js
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
@@ -57,7 +58,8 @@ appcss.h: bin2c$(EXEEXT) resources/css/app.css
 	./bin2c resources/css/app.css.tmp src/appcss.h app_css
 # D3.js
 d3js.h: bin2c$(EXEEXT) resources/js/d3.v3.min.js
-	./bin2c resources/js/d3.v3.min.js src/d3js.h d3_js
+	cat resources/js/d3.v3.min.js | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/d3.v3.min.js.tmp
+	./bin2c resources/js/d3.v3.min.js.tmp src/d3js.h d3_js
 # Hogan.js
 hoganjs.h: bin2c$(EXEEXT) resources/js/hogan.min.js
 	./bin2c resources/js/hogan.min.js src/hoganjs.h hogan_js
