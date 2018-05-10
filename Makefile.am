@@ -38,7 +38,7 @@ CLEANFILES =                          \
   resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
   resources/css/app.css.tmp           \
-  resources/js/d3.v3.min.js
+  resources/js/d3.v3.min.js.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
