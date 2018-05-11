@@ -210,6 +210,16 @@ else
   storage="In-memory Hash Database (Default)"
 fi
 
+HAS_SEDTR=no
+AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])
+if test x"$SED_CHECK" == x"yes" ; then
+  AC_CHECK_PROG([TR_CHECK],[tr],[yes],[no])
+  if test x"$TR_CHECK" == x"yes" ; then
+    HAS_SEDTR=yes
+  fi
+fi
+AM_CONDITIONAL([HAS_SEDTR], [test "x$HAS_SEDTR" = xyes])
+
 # Solaris
 AC_CHECK_LIB([nsl], [gethostbyname])
 AC_CHECK_LIB([socket], [socket])
