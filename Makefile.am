@@ -82,7 +82,12 @@ else
 endif
 # Hogan.js
 hoganjs.h: bin2c$(EXEEXT) resources/js/hogan.min.js
+if HAS_SEDTR
+	cat resources/js/hogan.min.js | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/hogan.min.js.tmp
+	./bin2c resources/js/hogan.min.js.tmp src/hoganjs.h hogan_js
+else
 	./bin2c resources/js/hogan.min.js src/hoganjs.h hogan_js
+endif
 # Charts.js
 chartsjs.h: bin2c$(EXEEXT) resources/js/charts.js
 	./bin2c resources/js/charts.js src/chartsjs.h charts_js
