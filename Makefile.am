@@ -91,7 +91,12 @@ else
 endif
 # Charts.js
 chartsjs.h: bin2c$(EXEEXT) resources/js/charts.js
+if HAS_SEDTR
+	cat resources/js/charts.js | sed -E "s@(;)\s?//..*@\1@g" | sed -E "s@^[ \t]*//..*@@g" | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/charts.js.tmp
+	./bin2c resources/js/charts.js.tmp src/chartsjs.h charts_js
+else
 	./bin2c resources/js/charts.js src/chartsjs.h charts_js
+endif
 # App.js
 appjs.h: bin2c$(EXEEXT) resources/js/app.js
 	./bin2c resources/js/app.js src/appjs.h app_js
