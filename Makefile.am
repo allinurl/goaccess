@@ -93,14 +93,19 @@ endif
 # Charts.js
 chartsjs.h: bin2c$(EXEEXT) resources/js/charts.js
 if HAS_SEDTR
-	cat resources/js/charts.js | sed -E "s@(;)\s?//..*@\1@g" | sed -E "s@^[ \t]*//..*@@g" | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/charts.js.tmp
+	cat resources/js/charts.js | sed -E "s@(,|;)[ \t]*?//..*@\1@g" | sed -E "s@^[ \t]*//..*@@g" | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/charts.js.tmp
 	./bin2c resources/js/charts.js.tmp src/chartsjs.h charts_js
 else
 	./bin2c resources/js/charts.js src/chartsjs.h charts_js
 endif
 # App.js
 appjs.h: bin2c$(EXEEXT) resources/js/app.js
+if HAS_SEDTR
+	cat resources/js/app.js | sed -E "s@(,|;)[ \t]*?//..*@\1@g" | sed -E "s@^[ \t]*//..*@@g" | sed "s/^[ \t]*//" | sed "/^$$/d" | tr -d "\r\n" > resources/js/app.js.tmp
+	./bin2c resources/js/app.js.tmp src/appjs.h app_js
+else
 	./bin2c resources/js/app.js src/appjs.h app_js
+endif
 
 confdir = $(sysconfdir)
 dist_conf_DATA = config/goaccess.conf
