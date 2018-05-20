@@ -40,7 +40,8 @@ CLEANFILES =                          \
   resources/css/app.css.tmp           \
   resources/js/d3.v3.min.js.tmp       \
   resources/js/hogan.min.js.tmp       \
-  resources/js/charts.js.tmp
+  resources/js/charts.js.tmp          \
+  resources/js/app.js.tmp
 
 # Tpls
 tpls.h: bin2c$(EXEEXT) resources/tpls.html
