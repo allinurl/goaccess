@@ -81,7 +81,7 @@ needing to use your browser (_great if you want to do a quick analysis of your
 access log via SSH, or if you simply love working in the terminal_).
 
 While the terminal output is the default output, it has the capability to
-generate a complete real-time [**`HTML`**](https://rt.goaccess.io/?src=gh)
+generate a complete self-contained real-time [**`HTML`**](https://rt.goaccess.io/?src=gh)
 report, as well as a [**`JSON`**](https://goaccess.io/json?src=gh), and
 [**`CSV`**](https://goaccess.io/goaccess_csv_report.csv?src=gh) report.
 
