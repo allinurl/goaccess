@@ -1158,7 +1158,7 @@ get_input_date_format (void)
 
 /* Escape a time format string.
  *
- * If no conf.date_format is given, NULL is returned.
+ * If no conf.time_format is given, NULL is returned.
  * On success, the newly escaped allocated string is returned. */
 static char *
 get_input_time_format (void)
@@ -1172,7 +1172,7 @@ get_input_time_format (void)
 
 /* Escape a log format string.
  *
- * If no conf.date_format is given, NULL is returned.
+ * If no conf.log_format is given, NULL is returned.
  * On success, the newly escaped allocated string is returned. */
 static char *
 get_input_log_format (void)
