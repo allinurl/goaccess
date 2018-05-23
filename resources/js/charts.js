@@ -19,8 +19,9 @@ function truncate(text, width) {
 		var gw = $d3parent.node().getBBox();
 		var x = (Math.min(gw.width, width) / 2) * -1;
 		// adjust wrapper <svg> width
-		if ('svg' == parent.nodeName)
+		if ('svg' == parent.nodeName) {
 			$d3parent.attr('width', width).attr('x', x);
+		}
 		// wrap <text> within an svg
 		else {
 			$d3parent.insert('svg', function () {
