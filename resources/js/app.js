@@ -25,10 +25,11 @@ var debounce = function (func, wait, now) {
 				func.apply(that, args);
 			timeout = null;
 		}
-		if (timeout)
+		if (timeout) {
 			clearTimeout(timeout);
-		else if (now)
+		} else if (now) {
 			func.apply(obj, args);
+		}
 		timeout = setTimeout(delayed, wait || 250);
 	};
 };
@@ -440,10 +441,11 @@ GoAccess.Nav = {
 	toggleAutoHideTables: function (e) {
 		var autoHideTables = GoAccess.Tables.autoHideTables();
 		$$('.table-wrapper', function (item) {
-			if (autoHideTables)
+			if (autoHideTables) {
 				item.classList.remove('hidden-xs');
-			else
+			} else {
 				item.classList.add('hidden-xs');
+			}
 		}.bind(this));
 
 		GoAccess.AppPrefs['autoHideTables'] = !autoHideTables;
@@ -1215,10 +1217,11 @@ GoAccess.Tables = {
 		var metric = targ.getAttribute('data-metric');
 
 		var columns = (GoAccess.getPrefs(panel) || {}).columns || {};
-		if (metric in columns)
+		if (metric in columns) {
 			delete columns[metric];
-		else
+		} else {
 			GoAccess.Util.setProp(columns, metric + '.hide', true);
+		}
 
 		GoAccess.Util.setProp(GoAccess.AppPrefs, panel + '.columns', columns);
 		GoAccess.setPrefs();
@@ -1292,10 +1295,11 @@ GoAccess.Tables = {
 	toggleExpanded: function (panel, key) {
 		var path = panel + '.expanded.' + key, ret = true;
 
-		if (this.isExpanded(panel, key))
+		if (this.isExpanded(panel, key)) {
 			delete GoAccess.AppState[panel]['expanded'][key];
-		else
+		} else {
 			GoAccess.Util.setProp(GoAccess.AppState, path, true), ret = false;
+		}
 
 		return ret;
 	},
@@ -1312,10 +1316,11 @@ GoAccess.Tables = {
 		if (!plotUI.redrawOnExpand)
 			return;
 
-		if (!hide)
+		if (!hide) {
 			data = GoAccess.Charts.processChartData(this.addChartData(panel, key));
-		else
+		} else {
 			data = GoAccess.Charts.processChartData(this.removeChartData(panel, key));
+		}
 		GoAccess.Charts.drawPlot(panel, plotUI, data);
 	},
 
@@ -1556,8 +1561,7 @@ GoAccess.Tables = {
 
 		if (page === "LAST_PAGE") {
 			page = this.getTotalPages(dataItems);
-		}
-		else if (page === "FIRST_PAGE") {
+		} else if (page === "FIRST_PAGE") {
 			page = 1;
 		}
 
