@@ -137,6 +137,7 @@ typedef struct GConf_
   /* User flags */
   int store_accumulated_time;       /* store accumulated processing time in tcb */
   int all_static_files;             /* parse all static files */
+  int anonymize_ip;                 /* anonymize ip addresses */
   int append_method;                /* append method to the req key */
   int append_protocol;              /* append protocol to the req key */
   int client_err_to_unique_count;   /* count 400s as visitors */

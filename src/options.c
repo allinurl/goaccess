@@ -84,6 +84,7 @@ struct option long_opts[] = {
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
   {"444-as-404"           , no_argument       , 0 ,  0  } ,
   {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
+  {"anonymize-ip"         , no_argument       , 0 ,  0  } ,
   {"addr"                 , required_argument , 0 ,  0  } ,
   {"all-static-files"     , no_argument       , 0 ,  0  } ,
   {"color"                , required_argument , 0 ,  0  } ,
@@ -247,6 +248,7 @@ cmd_help (void)
 #ifdef TCB_BTREE
   "  --accumulated-time              - Store accumulated time from parsing day-by-day logs.\n"
 #endif
+  "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --all-static-files              - Include static files with a query string.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
@@ -507,6 +509,10 @@ parse_long_opt (const char *name, const char *oarg)
   /* 4xx to unique count */
   if (!strcmp ("4xx-to-unique-count", name))
     conf.client_err_to_unique_count = 1;
+
+  /* anonymize ip */
+  if (!strcmp ("anonymize-ip", name))
+    conf.anonymize_ip = 1;
 
   /* store accumulated time in tcb */
   if (!strcmp ("accumulated-time", name))
