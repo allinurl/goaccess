@@ -32,6 +32,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 #ifdef HAVE_LIBTOKYOCABINET
 #include "tcabdb.h"
@@ -61,6 +63,8 @@ typedef struct GPanel_
 
 static void add_data_to_holder (GRawDataItem item, GHolder * h,
                                 GRawDataType type, const GPanel * panel);
+static void add_host_to_holder (GRawDataItem item, GHolder * h,
+                                GRawDataType type, const GPanel * panel);
 static void add_root_to_holder (GRawDataItem item, GHolder * h,
                                 GRawDataType type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
@@ -71,7 +75,7 @@ static GPanel paneling[] = {
   {REQUESTS        , add_data_to_holder, NULL} ,
   {REQUESTS_STATIC , add_data_to_holder, NULL} ,
   {NOT_FOUND       , add_data_to_holder, NULL} ,
-  {HOSTS           , add_data_to_holder, add_host_child_to_holder} ,
+  {HOSTS           , add_host_to_holder, add_host_child_to_holder} ,
   {OS              , add_root_to_holder, NULL} ,
   {BROWSERS        , add_root_to_holder, NULL} ,
   {VISIT_TIMES     , add_data_to_holder, NULL} ,
@@ -449,18 +453,12 @@ set_data_hits_keys (GModule module, GRawDataItem item, GRawDataType type,
   return 0;
 }
 
-/* Set all panel data. This will set data for panels that do not
- * contain sub items. A function pointer is used for post data set. */
 static void
-add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
-                    const GPanel * panel)
+set_data_holder_metrics (GRawDataItem item, GHolder * h, char *data, int hits)
 {
-  char *data = NULL, *method = NULL, *protocol = NULL;
-  int hits = 0, visitors = 0;
+  char *method = NULL, *protocol = NULL;
+  int visitors = 0;
   uint64_t bw = 0, cumts = 0, maxts = 0;
-
-  if (set_data_hits_keys (h->module, item, type, &data, &hits) == 1)
-    return;
 
   bw = ht_get_bw (h->module, item.key);
   cumts = ht_get_cumts (h->module, item.key);
@@ -469,8 +467,8 @@ add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
 
   h->items[h->idx].metrics = new_gmetrics ();
   h->items[h->idx].metrics->hits = hits;
-  h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->data = data;
+  h->items[h->idx].metrics->visitors = visitors;
   h->items[h->idx].metrics->bw.nbw = bw;
   h->items[h->idx].metrics->avgts.nts = cumts / hits;
   h->items[h->idx].metrics->cumts.nts = cumts;
@@ -485,7 +483,81 @@ add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
     protocol = ht_get_protocol (h->module, item.key);
     h->items[h->idx].metrics->protocol = protocol;
   }
+}
 
+static void
+set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data,
+          int hits)
+{
+  set_data_holder_metrics (item, h, xstrdup (data), hits);
+  if (panel->holder_callback)
+    panel->holder_callback (h);
+  h->idx++;
+}
+
+/* Set all panel data. This will set data for panels that do not
+ * contain sub items. A function pointer is used for post data set. */
+static void
+add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type, const GPanel * panel)
+{
+  char buf4[INET_ADDRSTRLEN];
+  char buf6[INET6_ADDRSTRLEN];
+  char *data = NULL;
+  int hits = 0;
+  unsigned i;
+
+  struct in6_addr addr6, mask6, bcast6;
+  struct in_addr addr4, mask4, bcast4;
+
+  const char *m4 = "255.255.255.0";
+  const char *m6 = "ffff:ffff:ffff:ffff:0000:0000:0000:0000";
+
+  if (set_data_hits_keys (h->module, item, type, &data, &hits) == 1)
+    return;
+
+  if (!conf.anonymize_ip) {
+    add_data_to_holder(item, h, type, panel);
+    return;
+  }
+
+  if (1 == inet_pton (AF_INET, data, &addr4)) {
+    if (1 == inet_pton (AF_INET, m4, &mask4)) {
+      memset (buf4, 0, sizeof *buf4);
+      bcast4.s_addr = addr4.s_addr & mask4.s_addr;
+
+      if (inet_ntop (AF_INET, &bcast4, buf4, INET_ADDRSTRLEN) != NULL) {
+        set_host (item, h, panel, buf4, hits);
+        free (data);
+      }
+    }
+  } else if (1 == inet_pton (AF_INET6, data, &addr6)) {
+    if (1 == inet_pton (AF_INET6, m6, &mask6)) {
+      memset (buf6, 0, sizeof *buf6);
+      for (i = 0; i < 16; i++) {
+        bcast6.s6_addr[i] = addr6.s6_addr[i] & mask6.s6_addr[i];
+      }
+
+      if (inet_ntop (AF_INET6, &bcast6, buf6, INET6_ADDRSTRLEN) != NULL) {
+        set_host (item, h, panel, buf6, hits);
+        free (data);
+      }
+    }
+  }
+}
+
+/* Set all panel data. This will set data for panels that do not
+ * contain sub items. A function pointer is used for post data set. */
+static void
+add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
+                    const GPanel * panel)
+{
+  char *data = NULL;
+  int hits = 0;
+
+  if (set_data_hits_keys (h->module, item, type, &data, &hits) == 1)
+    return;
+
+  set_data_holder_metrics (item, h, data, hits);
   if (panel->holder_callback)
     panel->holder_callback (h);
 
