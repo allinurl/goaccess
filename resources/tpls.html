@@ -75,11 +75,11 @@
 
 <!-- TPL Panel Options DropDown -->
 <script id="tpl-panel-opts" type="text/template">
-	<li class="dropdown-header">Chart Options</li>
+	<li class="dropdown-header">{{ labels.chart_opts }}</li>
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart="{{showChart}}"><i class="fa fa-{{#showChart}}check-{{/showChart}}square-o"></i> {{labels.chart}}</a></li>
 
 	{{#plot.length}}
-	<li class="dropdown-header">Type</li>
+	<li class="dropdown-header">{{ labels.type }}</li>
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> {{labels.area_spline}}</a></li>
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> {{labels.bar}}</a></li>
 	<li class="dropdown-header">{{labels.plot_metric}}</li>
