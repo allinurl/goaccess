@@ -683,7 +683,7 @@ verify_global_config (int argc, char **argv)
 
     switch (o) {
     case 'p':
-      conf.iconfigfile = optarg;
+      conf.iconfigfile = xstrdup (optarg);
       break;
     case 0:
       if (!strcmp ("no-global-config", long_opts[idx].name))

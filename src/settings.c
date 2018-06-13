@@ -227,6 +227,7 @@ free_cmd_args (void)
   for (i = 0; i < nargc; i++)
     free (nargv[i]);
   free (nargv);
+  free (conf.iconfigfile);
 }
 
 /* Append extra value to argv */

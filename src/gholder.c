@@ -498,7 +498,8 @@ set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data,
 /* Set all panel data. This will set data for panels that do not
  * contain sub items. A function pointer is used for post data set. */
 static void
-add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type, const GPanel * panel)
+add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
+                    const GPanel * panel)
 {
   char buf4[INET_ADDRSTRLEN];
   char buf6[INET6_ADDRSTRLEN];
@@ -516,7 +517,7 @@ add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type, const GPa
     return;
 
   if (!conf.anonymize_ip) {
-    add_data_to_holder(item, h, type, panel);
+    add_data_to_holder (item, h, type, panel);
     return;
   }
 
