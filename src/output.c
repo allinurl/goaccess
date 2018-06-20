@@ -225,11 +225,12 @@ print_html_header (FILE * fp)
   "<!DOCTYPE html>"
   "<html lang='%s'>"
   "<head>"
-  "<meta charset='UTF-8' />"
+  "<meta charset='UTF-8'>"
+  "<meta name='referrer' content='no-referrer'>"
   "<meta http-equiv='X-UA-Compatible' content='IE=edge'>"
   "<meta name='google' content='notranslate'>"
   "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-  "<meta name='robots' content='noindex, nofollow' />", _(DOC_LANG));
+  "<meta name='robots' content='noindex, nofollow'>", _(DOC_LANG));
 
   print_html_title (fp);
 
