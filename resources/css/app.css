@@ -69,7 +69,7 @@ h5.gheader {
 
 /* NAVIGATION */
 nav {
-	-webkit-transition: left .7s;
+	-webkit-transition: left .2s;
 	background: #1C1C1C;
 	border-right: 3px solid #5bc0de;
 	height: 100%;
@@ -77,7 +77,7 @@ nav {
 	overflow: hidden;
 	position: fixed;
 	top: 0;
-	transition: left .7s;
+	transition: left .2s;
 	width: 300px;
 	z-index: 2;
 }
@@ -114,7 +114,7 @@ nav.active .nav-ws-status {
 nav .nav-bars,
 nav .nav-gears,
 nav .nav-ws-status {
-	-webkit-transition: opacity .7s;
+	-webkit-transition: opacity .2s;
 	color: #9E9E9E;
 	cursor: pointer;
 	float: right;
@@ -125,7 +125,7 @@ nav .nav-ws-status {
 	position: fixed;
 	text-align: center;
 	top: 30px;
-	transition: opacity .7s;
+	transition: opacity .2s;
 	width: 32px;
 }
 nav .nav-gears {
@@ -162,7 +162,7 @@ nav li a {
 	padding: 9px 20px;
 	text-overflow: ellipsis;
 	text-transform: uppercase;
-	transition: opacity .7s;
+	transition: opacity .2s;
 	white-space: nowrap;
 }
 nav.active li a {
