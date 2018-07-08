@@ -52,6 +52,7 @@
 #include "error.h"
 #include "labels.h"
 #include "util.h"
+#include "xmalloc.h"
 
 static char short_options[] = "f:e:p:o:l:H:M:S:"
 #ifdef HAVE_LIBGEOIP
