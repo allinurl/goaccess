@@ -44,8 +44,8 @@ terminal. Features include:
   running requests by the hour, or date.
 
 * **Metrics per Virtual Host**<br>
-  Have multiple Virtual Hosts (Server Blocks)? A panel that displays which
-  virtual host is consuming most of the web server resources.
+  Have multiple Virtual Hosts (Server Blocks)? It features a panel that
+  displays which virtual host is consuming most of the web server resources.
 
 * **Color Scheme Customizable**<br>
   Tailor GoAccess to suit your own color taste/schemes. Either through the
