@@ -452,7 +452,7 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
-##### FILES & STATUS CODES #####
+##### FILES, STATUS CODES & BOTS #####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
@@ -469,6 +469,10 @@ e.g.:
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
     # awk '$9~/500/' access.log | goaccess -
+
+And to get an estimated overview of how many bots (crawlers) are hitting your server:
+
+    # tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
 
 #### TIPS ####
 
