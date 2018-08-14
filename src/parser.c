@@ -716,66 +716,38 @@ verify_static_content (const char *req)
 static const char *
 extract_method (const char *token)
 {
-  const char *lookfor = NULL;
+  const char *list[] = {
+    "OPTIONS", "GET", "HEAD", "POST", "PUT",
+    "DELETE", "TRACE", "CONNECT", "PATCH", "options",
+    "get", "head", "post", "put", "delete",
+    "trace", "connect", "patch",
+    /* WebDAV */
+    "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE",
+    "LOCK", "UNLOCK", "VERSION-CONTROL", "REPORT", "CHECKOUT",
+    "CHECKIN", "UNCHECKOUT", "MKWORKSPACE", "UPDATE", "LABEL",
+    "MERGE", "BASELINE-CONTROL", "MKACTIVITY", "ORDERPATCH", "propfind",
+    "propwatch", "mkcol", "copy", "move", "lock",
+    "unlock", "version-control", "report", "checkout", "checkin",
+    "uncheckout", "mkworkspace", "update", "label", "merge",
+    "baseline-control", "mkactivity", "orderpatch"
+  };
 
-  if ((lookfor = "OPTIONS", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "GET", !strncmp (token, lookfor, 3)) ||
-      (lookfor = "HEAD", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "POST", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "PUT", !strncmp (token, lookfor, 3)) ||
-      (lookfor = "DELETE", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "TRACE", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "CONNECT", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "PATCH", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "options", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "get", !strncmp (token, lookfor, 3)) ||
-      (lookfor = "head", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "post", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "put", !strncmp (token, lookfor, 3)) ||
-      (lookfor = "delete", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "trace", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "connect", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "patch", !strncmp (token, lookfor, 5)) ||
-      /* WebDAV */
-      (lookfor = "PROPFIND", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "PROPPATCH", !strncmp (token, lookfor, 9)) ||
-      (lookfor = "MKCOL", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "COPY", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "MOVE", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "LOCK", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "UNLOCK", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "VERSION-CONTROL", !strncmp (token, lookfor, 15)) ||
-      (lookfor = "REPORT", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "CHECKOUT", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "CHECKIN", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "UNCHECKOUT", !strncmp (token, lookfor, 10)) ||
-      (lookfor = "MKWORKSPACE", !strncmp (token, lookfor, 11)) ||
-      (lookfor = "UPDATE", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "LABEL", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "MERGE", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "BASELINE-CONTROL", !strncmp (token, lookfor, 16)) ||
-      (lookfor = "MKACTIVITY", !strncmp (token, lookfor, 10)) ||
-      (lookfor = "ORDERPATCH", !strncmp (token, lookfor, 10)) ||
-      (lookfor = "propfind", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "propwatch", !strncmp (token, lookfor, 9)) ||
-      (lookfor = "mkcol", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "copy", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "move", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "lock", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "unlock", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "version-control", !strncmp (token, lookfor, 15)) ||
-      (lookfor = "report", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "checkout", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "checkin", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "uncheckout", !strncmp (token, lookfor, 10)) ||
-      (lookfor = "mkworkspace", !strncmp (token, lookfor, 11)) ||
-      (lookfor = "update", !strncmp (token, lookfor, 6)) ||
-      (lookfor = "label", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "merge", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "baseline-control", !strncmp (token, lookfor, 16)) ||
-      (lookfor = "mkactivity", !strncmp (token, lookfor, 10)) ||
-      (lookfor = "orderpatch", !strncmp (token, lookfor, 10)))
-    return lookfor;
+  const int list_count = sizeof(list) / sizeof(*list);
+
+  // Length of every string in list
+  static int list_length[sizeof(list) / sizeof(*list)] = { -1 };
+  // Only calculate length on first time
+  if (list_length[0] == -1) {
+    for (int i=0; i < list_count; i++) {
+      list_length[i] = strlen(list[i]);
+    }
+  }
+
+  for (int i=0; i < list_count; i++) {
+    if (strncmp(token, list[i], list_length[i]) == 0) {
+      return list[i];
+    }
+  }
   return NULL;
 }
 
