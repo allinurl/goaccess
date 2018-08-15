@@ -641,37 +641,31 @@ extract_geolocation (GLogItem * logitem, char *continent, char *country)
 static int
 extract_referer_site (const char *referer, char *host)
 {
-  char *url, *begin, *end;
+  char *begin, *end;
   int len = 0;
 
   if ((referer == NULL) || (*referer == '\0'))
     return 1;
 
-  url = strdup (referer);
-  if ((begin = strstr (url, "//")) == NULL)
-    goto clean;
+  if ((begin = strstr (referer, "//")) == NULL)
+    return 1;
 
   begin += 2;
   if ((len = strlen (begin)) == 0)
-    goto clean;
+    return 1;
 
   if ((end = strchr (begin, '/')) != NULL)
     len = end - begin;
 
   if (len == 0)
-    goto clean;
+    return 1;
 
   if (len >= REF_SITE_LEN)
     len = REF_SITE_LEN;
 
   memcpy (host, begin, len);
   host[len] = '\0';
-  free (url);
   return 0;
-clean:
-  free (url);
-
-  return 1;
 }
 
 /* Determine if the given request is static (e.g., jpg, css, js, etc).
