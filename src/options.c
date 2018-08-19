@@ -237,7 +237,7 @@ cmd_help (void)
   "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
   "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
-  "  -M --http-method=<yes|no>       - Set/unser HTTP request method if found.\n"
+  "  -M --http-method=<yes|no>       - Set/unset HTTP request method if found.\n"
   "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
   "  -q --no-query-string            - Ignore request's query string. Removing the\n"
   "                                    query string can greatly decrease memory\n"
