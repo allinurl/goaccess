@@ -732,19 +732,19 @@ extract_method (const char *token)
     "baseline-control", "mkactivity", "orderpatch"
   };
 
-  const int list_count = sizeof (methods) / sizeof (*methods);
+  const int methods_count = sizeof (methods) / sizeof (*methods);
 
   int i;
   /* Length of every string in list */
   static int list_length[sizeof (methods) / sizeof (*methods)] = { -1 };
   /* Only calculate length on first time */
   if (list_length[0] == -1) {
-    for (i = 0; i < list_count; i++) {
+    for (i = 0; i < methods_count; i++) {
       list_length[i] = strlen (methods[i]);
     }
   }
 
-  for (i = 0; i < list_count; i++) {
+  for (i = 0; i < methods_count; i++) {
     if (strncmp (token, methods[i], list_length[i]) == 0) {
       return methods[i];
     }
