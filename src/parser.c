@@ -716,7 +716,7 @@ verify_static_content (const char *req)
 static const char *
 extract_method (const char *token)
 {
-  const char *list[] = {
+  const char *methods[] = {
     "OPTIONS", "GET", "HEAD", "POST", "PUT",
     "DELETE", "TRACE", "CONNECT", "PATCH", "options",
     "get", "head", "post", "put", "delete",
@@ -732,21 +732,21 @@ extract_method (const char *token)
     "baseline-control", "mkactivity", "orderpatch"
   };
 
-  const int list_count = sizeof (list) / sizeof (*list);
+  const int list_count = sizeof (methods) / sizeof (*methods);
 
   int i;
   /* Length of every string in list */
-  static int list_length[sizeof (list) / sizeof (*list)] = { -1 };
+  static int list_length[sizeof (methods) / sizeof (*methods)] = { -1 };
   /* Only calculate length on first time */
   if (list_length[0] == -1) {
     for (i = 0; i < list_count; i++) {
-      list_length[i] = strlen (list[i]);
+      list_length[i] = strlen (methods[i]);
     }
   }
 
   for (i = 0; i < list_count; i++) {
-    if (strncmp (token, list[i], list_length[i]) == 0) {
-      return list[i];
+    if (strncmp (token, methods[i], list_length[i]) == 0) {
+      return methods[i];
     }
   }
   return NULL;
