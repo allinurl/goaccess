@@ -735,9 +735,9 @@ extract_method (const char *token)
   const int list_count = sizeof (list) / sizeof (*list);
 
   int i;
-  // Length of every string in list
+  /* Length of every string in list */
   static int list_length[sizeof (list) / sizeof (*list)] = { -1 };
-  // Only calculate length on first time
+  /* Only calculate length on first time */
   if (list_length[0] == -1) {
     for (i = 0; i < list_count; i++) {
       list_length[i] = strlen (list[i]);
