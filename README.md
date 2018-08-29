@@ -489,7 +489,8 @@ your local machine!
 #### INCREMENTAL LOG PROCESSING ####
 
 GoAccess has the ability to process logs incrementally through the on-disk
-B+Tree database. It works in the following way:
+[B+Tree](https://github.com/allinurl/goaccess#storage) database. It works in
+the following way:
 
 1. A data set must be persisted first with `--keep-db-files`, then the same
 data set can be loaded with `--load-from-disk`.
