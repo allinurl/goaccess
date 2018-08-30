@@ -397,7 +397,7 @@ To view the report you can navigate to `http://your_site/report.html`.
 
 By default, GoAccess will use the host name of the generated report.
 Optionally, you can specify the URL to which the client's browser will connect
-to. See https://goaccess.io/faq for a more detailed example.
+to. See [FAQ](https://goaccess.io/faq) for a more detailed example.
 
     # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 
