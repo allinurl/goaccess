@@ -273,6 +273,7 @@ static const char *browsers[][2] = {
   {"XoviBot", "Crawlers"},
   {"X-CAD-SE", "Crawlers"},
   {"Safeassign", "Crawlers"},
+  {"Nmap Scripting Engine", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
