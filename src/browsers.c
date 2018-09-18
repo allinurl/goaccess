@@ -150,7 +150,6 @@ static const char *browsers[][2] = {
   {"Chrome", "Chrome"},
 
   {"CriOS", "Chrome"},
-  {"Safari", "Safari"},
 
   /* Crawlers/Bots */
   {"bingbot", "Crawlers"},
@@ -311,6 +310,8 @@ static const char *browsers[][2] = {
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
   {"Server Density Service Monitoring v2", "Uptime"},
+
+  {"Safari", "Safari"},
 
   {"Mozilla", "Others"}
 };
