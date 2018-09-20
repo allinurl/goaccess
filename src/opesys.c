@@ -202,33 +202,33 @@ static char *
 get_real_mac_osx (const char *osx)
 {
   if (strstr (osx, "10.13"))
-    return alloc_string ("macOS High Sierra");
+    return alloc_string ("macOS 10.13 High Sierra");
   else if (strstr (osx, "10.12"))
-    return alloc_string ("macOS Sierra");
+    return alloc_string ("macOS 10.12 Sierra");
   else if (strstr (osx, "10.11"))
-    return alloc_string ("OS X El Capitan");
+    return alloc_string ("OS X 10.11 El Capitan");
   else if (strstr (osx, "10.10"))
-    return alloc_string ("OS X Yosemite");
+    return alloc_string ("OS X 10.10 Yosemite");
   else if (strstr (osx, "10.9"))
-    return alloc_string ("OS X Mavericks");
+    return alloc_string ("OS X 10.9 Mavericks");
   else if (strstr (osx, "10.8"))
-    return alloc_string ("OS X Mountain Lion");
+    return alloc_string ("OS X 10.8 Mountain Lion");
   else if (strstr (osx, "10.7"))
-    return alloc_string ("OS X Lion");
+    return alloc_string ("OS X 10.7 Lion");
   else if (strstr (osx, "10.6"))
-    return alloc_string ("OS X Snow Leopard");
+    return alloc_string ("OS X 10.6 Snow Leopard");
   else if (strstr (osx, "10.5"))
-    return alloc_string ("OS X Leopard");
+    return alloc_string ("OS X 10.5 Leopard");
   else if (strstr (osx, "10.4"))
-    return alloc_string ("OS X Tiger");
+    return alloc_string ("OS X 10.4 Tiger");
   else if (strstr (osx, "10.3"))
-    return alloc_string ("OS X Panther");
+    return alloc_string ("OS X 10.3 Panther");
   else if (strstr (osx, "10.2"))
-    return alloc_string ("OS X Jaguar");
+    return alloc_string ("OS X 10.2 Jaguar");
   else if (strstr (osx, "10.1"))
-    return alloc_string ("OS X Puma");
+    return alloc_string ("OS X 10.1 Puma");
   else if (strstr (osx, "10.0"))
-    return alloc_string ("OS X Cheetah");
+    return alloc_string ("OS X 10.0 Cheetah");
   return alloc_string (osx);
 }
 
