@@ -151,23 +151,27 @@ static const char *browsers[][2] = {
 
   {"CriOS", "Chrome"},
 
-  /* Crawlers/Bots */
+  /* Crawlers/Bots (Possible Safari based) */
   {"bingbot", "Crawlers"},
-  {"msnbot", "Crawlers"},
+  {"AppleBot", "Crawlers"},
   {"Yandex", "Crawlers"},
+  {"msnbot", "Crawlers"},
   {"Baiduspider", "Crawlers"},
-  {"Ezooms", "Crawlers"},
   {"Twitter", "Crawlers"},
   {"Slurp", "Crawlers"},
   {"Yahoo", "Crawlers"},
   {"Slack", "Crawlers"},
-  {"AppleBot", "Crawlers"},
+  {"facebook", "Crawlers"},
+
+  {"Safari", "Safari"},
+
+  /* Crawlers/Bots */
+  {"Ezooms", "Crawlers"},
   {"AhrefsBot", "Crawlers"},
   {"Abonti", "Crawlers"},
   {"Mastodon", "Crawlers"},
   {"MJ12bot", "Crawlers"},
   {"SISTRIX", "Crawlers"},
-  {"facebook", "Crawlers"},
   {"DotBot", "Crawlers"},
   {"Speedy Spider", "Crawlers"},
   {"Sosospider", "Crawlers"},
@@ -310,8 +314,6 @@ static const char *browsers[][2] = {
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
   {"Server Density Service Monitoring v2", "Uptime"},
-
-  {"Safari", "Safari"},
 
   {"Mozilla", "Others"}
 };
