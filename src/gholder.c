@@ -498,6 +498,25 @@ set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data,
 /* Set all panel data. This will set data for panels that do not
  * contain sub items. A function pointer is used for post data set. */
 static void
+add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
+                    const GPanel * panel)
+{
+  char *data = NULL;
+  int hits = 0;
+
+  if (set_data_hits_keys (h->module, item, type, &data, &hits) == 1)
+    return;
+
+  set_data_holder_metrics (item, h, data, hits);
+  if (panel->holder_callback)
+    panel->holder_callback (h);
+
+  h->idx++;
+}
+
+/* Set all panel data. This will set data for panels that do not
+ * contain sub items. A function pointer is used for post data set. */
+static void
 add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
                     const GPanel * panel)
 {
@@ -544,25 +563,6 @@ add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
       }
     }
   }
-}
-
-/* Set all panel data. This will set data for panels that do not
- * contain sub items. A function pointer is used for post data set. */
-static void
-add_data_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
-                    const GPanel * panel)
-{
-  char *data = NULL;
-  int hits = 0;
-
-  if (set_data_hits_keys (h->module, item, type, &data, &hits) == 1)
-    return;
-
-  set_data_holder_metrics (item, h, data, hits);
-  if (panel->holder_callback)
-    panel->holder_callback (h);
-
-  h->idx++;
 }
 
 /* Set all root panel data. This will set the root nodes. */
