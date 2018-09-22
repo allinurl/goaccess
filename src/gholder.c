@@ -485,6 +485,7 @@ set_data_holder_metrics (GRawDataItem item, GHolder * h, char *data, int hits)
   }
 }
 
+/* A wrapper to set a host item */
 static void
 set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data,
           int hits)
