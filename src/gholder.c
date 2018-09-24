@@ -453,6 +453,7 @@ set_data_hits_keys (GModule module, GRawDataItem item, GRawDataType type,
   return 0;
 }
 
+/* Given a data item, store it into a holder structure. */
 static void
 set_data_holder_metrics (GRawDataItem item, GHolder * h, char *data, int hits)
 {
