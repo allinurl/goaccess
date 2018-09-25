@@ -849,7 +849,7 @@ get_delim (char *dest, const char *p)
   /* add the first delim */
   dest[0] = *(p + 1);
   /* check if there's another possible delim */
-  if (p[2] == '|' && p[3] != '\0') {
+  if (p[2] == '|' && p[3] != '%' && p[3] != '\0') {
     dest[1] = *(p + 3);
     return 1;
   }
