@@ -470,6 +470,10 @@ Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
     # awk '$9~/500/' access.log | goaccess -
 
+Or multiple status codes:
+
+    # tail -f -n +0 access.log | awk '$9~/3[0-9]{2}|5[0-9]{2}/' | goaccess -o out.html -
+
 And to get an estimated overview of how many bots (crawlers) are hitting your server:
 
     # tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
