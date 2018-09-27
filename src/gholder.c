@@ -539,6 +539,7 @@ add_host_to_holder (GRawDataItem item, GHolder * h, GRawDataType type,
 
   if (!conf.anonymize_ip) {
     add_data_to_holder (item, h, type, panel);
+    free (data);
     return;
   }
 
