@@ -279,6 +279,8 @@ static const char *browsers[][2] = {
   {"Nmap Scripting Engine", "Crawlers"},
   {"sqlmap", "Crawlers"},
   {"Jorgee", "Crawlers"},
+  {"PxBroker", "Crawlers"},
+  {"Seekport", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
