@@ -106,7 +106,7 @@ msgstr "リファラー数"
 
 #: ../src/labels.h:68
 msgid "Total Requests"
-msgstr "リクエスト総数"
+msgstr "合計リクエスト数"
 
 #: ../src/labels.h:69
 msgid "Static Files"
@@ -114,11 +114,11 @@ msgstr "静的ファイル数"
 
 #: ../src/labels.h:70 ../src/labels.h:146
 msgid "Not Found"
-msgstr "リクエスト先が存在しない"
+msgstr "404エラー数"
 
 #: ../src/labels.h:71
 msgid "Requested Files"
-msgstr "リクエストされたファイル"
+msgstr "要求されたファイル数"
 
 #: ../src/labels.h:72
 msgid "Unique Visitors"
@@ -191,7 +191,7 @@ msgstr "ホスト名"
 
 #: ../src/labels.h:92
 msgid "Data"
-msgstr "リクエスト先"
+msgstr "データ"
 
 #: ../src/labels.h:94
 msgid "Hits/Visitors"
@@ -512,7 +512,7 @@ msgstr "実行例"
 
 #: ../src/labels.h:302
 msgid "Server Statistics"
-msgstr "サーバー統計"
+msgstr "サーバーの統計情報"
 
 #: ../src/labels.h:304
 msgid "Theme"
@@ -608,7 +608,7 @@ msgstr "棒グラフ"
 
 #: ../src/labels.h:350
 msgid "Plot Metric"
-msgstr "描画するデータ"
+msgstr "表示するデータ"
 
 #: ../src/labels.h:352
 msgid "Table Columns"
