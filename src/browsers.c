@@ -281,6 +281,10 @@ static const char *browsers[][2] = {
   {"Jorgee", "Crawlers"},
   {"PxBroker", "Crawlers"},
   {"Seekport", "Crawlers"},
+  {"adscanner", "Crawlers"},
+  {"linkdexbot", "Crawlers"},
+  {"Cliqzbot", "Crawlers"},
+  {"AfD-Verbotsverfahren_JETZT!","Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
