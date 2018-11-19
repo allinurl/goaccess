@@ -308,6 +308,8 @@
   N_("Bright")
 #define HTML_REPORT_NAV_DARK_BLUE      \
   N_("Dark Blue")
+#define HTML_REPORT_NAV_DARK_PURPLE    \
+  N_("Dark Purple")
 #define HTML_REPORT_NAV_PANELS         \
   N_("Panels")
 #define HTML_REPORT_NAV_ITEMS_PER_PAGE \

@@ -1117,6 +1117,7 @@ print_json_i18n_def (FILE * fp)
     {"dark_gray"      , HTML_REPORT_NAV_DARK_GRAY}      ,
     {"bright"         , HTML_REPORT_NAV_BRIGHT}         ,
     {"dark_blue"      , HTML_REPORT_NAV_DARK_BLUE}      ,
+    {"dark_purple"    , HTML_REPORT_NAV_DARK_PURPLE}    ,
     {"panels"         , HTML_REPORT_NAV_PANELS}         ,
     {"items_per_page" , HTML_REPORT_NAV_ITEMS_PER_PAGE} ,
     {"tables"         , HTML_REPORT_NAV_TABLES}         ,

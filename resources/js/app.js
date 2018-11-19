@@ -376,6 +376,12 @@ GoAccess.Nav = {
 			}.bind(this);
 		}.bind(this));
 
+		$$('.theme-dark-purple', function (item) {
+			item.onclick = function (e) {
+				this.setTheme('darkPurple');
+			}.bind(this);
+		}.bind(this));
+
 		$$('.layout-horizontal', function (item) {
 			item.onclick = function (e) {
 				this.setLayout('horizontal');
@@ -474,6 +480,10 @@ GoAccess.Nav = {
 		case 'darkBlue':
 			$('html').classList.add('dark');
 			$('html').classList.add('blue');
+			break;
+		case 'darkPurple':
+			$('html').classList.add('dark');
+			$('html').classList.add('purple');
 			break;
 		}
 		GoAccess.AppPrefs['theme'] = theme;
