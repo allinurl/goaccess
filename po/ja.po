@@ -73,8 +73,8 @@ msgid "Overall Analyzed Requests"
 msgstr "解析済みリクエスト全体"
 
 #: ../src/labels.h:60 ../src/labels.h:81
-msgid "Bandwidth"
-msgstr "転送サイズ"
+msgid "Tx. Amount"
+msgstr "データ転送量"
 
 #: ../src/labels.h:61
 msgid "Date/Time"
