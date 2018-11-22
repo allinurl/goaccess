@@ -28,12 +28,15 @@
  * SOFTWARE.
  */
 
+#include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "browsers.h"
 
+#include "error.h"
+#include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -284,7 +287,7 @@ static const char *browsers[][2] = {
   {"adscanner", "Crawlers"},
   {"linkdexbot", "Crawlers"},
   {"Cliqzbot", "Crawlers"},
-  {"AfD-Verbotsverfahren_JETZT!","Crawlers"},
+  {"AfD-Verbotsverfahren_JETZT!", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -329,6 +332,108 @@ static const char *browsers[][2] = {
   {"Mozilla", "Others"}
 };
 
+/* Set a browser/type pair into our multidimensional array of browsers.
+ *
+ * On duplicate functions returns void.
+ * Otherwise memory is mallo'd for our array entry. */
+static void
+set_browser_key_value (char ***list, const char *browser, const char *type)
+{
+  int i;
+  /* check for dups */
+  for (i = 0; i < conf.browsers_hash_idx; ++i) {
+    if (strcmp (browser, conf.browsers_hash[i][0]) == 0)
+      return;
+  }
+
+  list[conf.browsers_hash_idx] = xcalloc (2, sizeof (char *));
+  list[conf.browsers_hash_idx][0] = xstrdup (browser);
+  list[conf.browsers_hash_idx][1] = xstrdup (type);
+  conf.browsers_hash_idx++;
+}
+
+/* Parse the key/value pair from the browser list file. */
+static void
+parse_browser_token (char ***list, char *line, int n)
+{
+  char *val;
+  size_t idx = 0;
+
+  /* key */
+  idx = strcspn (line, " \t");
+  if (strlen (line) == idx)
+    FATAL ("Malformed browser name at line: %d", n);
+
+  line[idx] = '\0';
+
+  /* value */
+  val = line + (idx + 1);
+  idx = strspn (val, " \t");
+  if (strlen (line) == idx)
+    FATAL ("Malformed browser category at line: %d", n);
+  val = val + idx;
+  val = trim_str (val);
+
+  set_browser_key_value (list, line, val);
+}
+
+/* Free all browser entries from our array of key/value pairs. */
+void
+free_browsers_hash (void)
+{
+  int i;
+  /* check for dups */
+  for (i = 0; i < conf.browsers_hash_idx; ++i) {
+    free (conf.browsers_hash[i][0]);
+    free (conf.browsers_hash[i][1]);
+    free (conf.browsers_hash[i]);
+  }
+  free (conf.browsers_hash);
+}
+
+/* Parse our default array of browsers and put them on our hash including those
+ * from the custom parsed browsers file.
+ *
+ * On error functions returns void.
+ * Otherwise browser entries are put into the hash. */
+void
+parse_browsers_file (void)
+{
+  char line[MAX_LINE_BROWSERS + 1];
+  FILE *file;
+  int n = 0;
+  size_t i;
+
+  conf.browsers_hash = xmalloc (MAX_CUSTOM_BROWSERS * sizeof (char **));
+
+  /* load hash from the browser's array (default)  */
+  for (i = 0; i < ARRAY_SIZE (browsers); ++i) {
+    if (conf.browsers_hash_idx >= MAX_CUSTOM_BROWSERS)
+      continue;
+    set_browser_key_value (conf.browsers_hash, browsers[i][0], browsers[i][1]);
+  }
+
+  if (!conf.browsers_file)
+    return;
+
+  /* could not open browsers file */
+  if ((file = fopen (conf.browsers_file, "r")) == NULL)
+    FATAL ("Unable to open browser's file: %s", strerror (errno));
+
+  /* load hash from the browser's array (default)  */
+  while (fgets (line, sizeof line, file) != NULL) {
+    while (line[0] == ' ' || line[0] == '\t')
+      memmove (line, line + 1, strlen (line));
+    n++;
+
+    if (line[0] == '\n' || line[0] == '\r' || line[0] == '#')
+      continue;
+    if (conf.browsers_hash_idx < MAX_CUSTOM_BROWSERS)
+      parse_browser_token (conf.browsers_hash, line, n);
+  }
+  fclose (file);
+}
+
 /* Determine if the user-agent is a crawler.
  *
  * On error or is not a crawler, 0 is returned.
@@ -361,6 +466,51 @@ parse_opera (char *token)
   return val;
 }
 
+/* Parse the given user agent match and extract the browser string.
+ *
+ * If no match, the original match is returned.
+ * Otherwise the parsed browser is returned. */
+static char *
+parse_browser (char *match, char *type, int i, char ***hash)
+{
+  char *b = NULL, *ptr = NULL, *slh = NULL;
+  size_t cnt = 0, space = 0;
+
+  /* Check if there are spaces in the token string, that way strpbrk
+   * does not stop at the first space within the token string */
+  if ((cnt = count_matches (hash[i][0], ' ')) && (b = match)) {
+    while (space++ < cnt && (b = strchr (b, ' ')))
+      b++;
+  } else
+    b = match;
+
+  xstrncpy (type, hash[i][1], BROWSER_TYPE_LEN);
+  /* Internet Explorer 11 */
+  if (strstr (match, "rv:11") && strstr (match, "Trident/7.0")) {
+    return alloc_string ("MSIE/11.0");
+  }
+  /* Opera +15 uses OPR/# */
+  if (strstr (match, "OPR") != NULL && (slh = strrchr (match, '/'))) {
+    return parse_opera (slh);
+  }
+  /* Opera has the version number at the end */
+  if (strstr (match, "Opera") && (slh = strrchr (match, '/')) && match < slh) {
+    memmove (match + 5, slh, strlen (slh) + 1);
+  }
+  /* IE Old */
+  if (strstr (match, "MSIE") != NULL) {
+    if ((ptr = strpbrk (match, ";)-")) != NULL)
+      *ptr = '\0';
+    match = char_replace (match, ' ', '/');
+  }
+  /* all others */
+  else if ((ptr = strpbrk (b, ";) ")) != NULL) {
+    *ptr = '\0';
+  }
+
+  return alloc_string (match);
+}
+
 /* Given a user agent, determine the browser used.
  *
  * ###NOTE: The size of the list is proportional to the run time,
@@ -371,50 +521,19 @@ parse_opera (char *token)
 char *
 verify_browser (char *str, char *type)
 {
-  char *a = NULL, *b = NULL, *ptr = NULL, *slash = NULL;
-  size_t i, cnt = 0, space = 0;
+  char *match = NULL;
+  int i = 0;
 
   if (str == NULL || *str == '\0')
     return NULL;
 
-  for (i = 0; i < ARRAY_SIZE (browsers); i++) {
-    if ((a = strstr (str, browsers[i][0])) == NULL)
+  /* check list */
+  for (i = 0; i < conf.browsers_hash_idx; ++i) {
+    if ((match = strstr (str, conf.browsers_hash[i][0])) == NULL)
       continue;
-
-    /* Check if there are spaces in the token string, that way strpbrk
-     * does not stop at the first space within the token string */
-    if ((cnt = count_matches (browsers[i][0], ' ')) && (b = a)) {
-      while (space++ < cnt && (b = strchr (b, ' ')))
-        b++;
-    } else
-      b = a;
-
-    xstrncpy (type, browsers[i][1], BROWSER_TYPE_LEN);
-    /* Internet Explorer 11 */
-    if (strstr (a, "rv:11") && strstr (a, "Trident/7.0")) {
-      return alloc_string ("MSIE/11.0");
-    }
-    /* Opera +15 uses OPR/# */
-    if (strstr (a, "OPR") != NULL && (slash = strrchr (a, '/'))) {
-      return parse_opera (slash);
-    }
-    /* Opera has the version number at the end */
-    if (strstr (a, "Opera") && (slash = strrchr (a, '/')) && a < slash) {
-      memmove (a + 5, slash, strlen (slash) + 1);
-    }
-    /* IE Old */
-    if (strstr (a, "MSIE") != NULL) {
-      if ((ptr = strpbrk (a, ";)-")) != NULL)
-        *ptr = '\0';
-      a = char_replace (a, ' ', '/');
-    }
-    /* all others */
-    else if ((ptr = strpbrk (b, ";) ")) != NULL) {
-      *ptr = '\0';
-    }
-
-    return alloc_string (a);
+    return parse_browser (match, type, i, conf.browsers_hash);
   }
+
   xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");

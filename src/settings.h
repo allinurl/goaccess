@@ -114,6 +114,7 @@ typedef struct GConf_
   char *spec_date_time_num_format;  /* numeric date format w/ specificity */
   char *log_format;                 /* log format */
   char *iconfigfile;                /* config file path */
+  char ***browsers_hash;            /* custom list of browsers */
 
   const char *debug_log;            /* debug log path */
   const char *geoip_database;       /* geoip db path */
@@ -123,6 +124,7 @@ typedef struct GConf_
   const char *html_report_title;    /* report title */
   const char *invalid_requests_log; /* invalid lines log path */
   const char *pidfile;              /* daemonize pid file path */
+  const char *browsers_file;        /* browser's file path */
 
   /* HTML real-time */
   const char *addr;                 /* IP address to bind to */
@@ -196,6 +198,7 @@ typedef struct GConf_
   int output_format_idx;            /* output format index */
   int sort_panel_idx;               /* sort panel index */
   int static_file_idx;              /* static extensions index */
+  int browsers_hash_idx;            /* browsers hash index */
 
   size_t static_file_max_len;
 
