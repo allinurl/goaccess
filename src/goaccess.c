@@ -63,6 +63,7 @@
 #include "geoip1.h"
 #endif
 
+#include "browsers.h"
 #include "csv.h"
 #include "error.h"
 #include "gdashboard.h"
@@ -186,6 +187,7 @@ house_keeping (void)
 
   /* CONFIGURATION */
   free_formats ();
+  free_browsers_hash ();
   if (conf.debug_log) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
@@ -1371,6 +1373,8 @@ initializer (void)
   gscroll.current = init_modules ();
   /* setup to use the current locale */
   set_locale ();
+
+  parse_browsers_file ();
 
 #ifdef HAVE_GEOLOCATION
   init_geoip ();

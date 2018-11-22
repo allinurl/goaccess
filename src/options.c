@@ -126,6 +126,7 @@ struct option long_opts[] = {
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"pid-file"             , required_argument , 0 ,  0  } ,
+  {"browsers-file"        , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
   {"process-and-exit"     , no_argument       , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
@@ -251,6 +252,7 @@ cmd_help (void)
 #endif
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --all-static-files              - Include static files with a query string.\n"
+  "  --browsers-file=<path>          - Use a custom list of browsers instead of default.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
   "                                    (default), or `hr`.\n"
@@ -522,6 +524,11 @@ parse_long_opt (const char *name, const char *oarg)
   /* all static files */
   if (!strcmp ("all-static-files", name))
     conf.all_static_files = 1;
+
+  /* Browsers file to read */
+  if (!strcmp ("browsers-file", name)) {
+    conf.browsers_file = oarg;
+  }
 
   /* crawlers only */
   if (!strcmp ("crawlers-only", name))

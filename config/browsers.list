@@ -1,0 +1,7 @@
+# List of browsers and their categories
+#
+# NOTE: The size of the list is proportional to the run time.
+# Thus, the longer the list, the more time it will take to parse it.
+#
+# Also, you should note that the higher the browser is on the list, the faster
+# the parsing will be.
