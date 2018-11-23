@@ -1,3 +1,81 @@
+Changes to GoAccess 1.3 - Friday, November 23, 2018
+
+  - Added ability to store accumulated processing time into DB_GEN_STATS tcb
+    file via '--accumulated-time' command line option.
+  - Added additional Apache status codes to the list.
+  - Added a few feed readers to the list.
+  - Added 'Android 8 Oreo' to the list of OSs.
+  - Added 'Android Pie 9' to the list of OSs.
+  - Added --anonymize-ip command line option to anonymize ip addresses.
+  - Added --browsers-file command line option to load a list of crawlers from a
+    text file.
+  - Added byte unit (PiB) to C formatter and refactored code.
+  - Added byte unit (PiB) to JS formatter.
+  - Added Chinese translation (i18n).
+  - Added French translation (i18n).
+  - Added '%h' date specifier to the allowed date character specifiers.
+  - Added "HeadlessChrome" to the list of browsers.
+  - Added --hide-referer command line option to hide referers from report.
+  - Added HTTP status code 429 (TOO MANY REQUESTS).
+  - Added IGNORE_LEVEL_PANEL and IGNORE_LEVEL_REQ definitions.
+  - Added --ignore-referer-report command line option to hide referers from
+    output.
+  - Added Japanese translation (i18n).
+  - Added macOS 10.14 Mojave to the list of OSs.
+  - Added "Mastodon" user-agent to the list of crawlers/unix-like.
+  - Added new fontawesome icons and use angle arrows in HTML paging.
+  - Added new purple theme to HTML report and default to it.
+  - Added --no-parsing-spinner command line option to switch off parsing
+    spinner.
+  - Added .ogv and ogg static file extension (ogg video, Ogg Vorbis audio).
+  - Added OS X version numbers when outputting with --real-os.
+  - Added parsing mechanism in an attempt capture more bots and to include
+    unspecified bots/crawlers.
+  - Added --pidfile command line option to the default config file.
+  - Added Spanish translation (i18n).
+  - Added SSL support for Docker goaccess build.
+  - Added support to the WebSocket server for openssl-1.1*.
+  - Added the ability to show/hide a chart per panel in the HTML report.
+  - Added transparency to the navigation bar of the HTML report.
+  - Added "WhatsApp" user-agent to the list of crawlers.
+  - Changed default db folder so it adds the process id (PID). --db-path is
+    required now when using --load-from-disk.
+  - Changed Dockerfile to build from the current source.
+  - Changed 'hits' to be right-aligned on TUI.
+  - Changed to use faster slide animations on HTML report.
+  - Changed wording from 'Bandwidth' to the proper term 'Tx. Amount'.
+  - Ensure database filenames used by btree are less predictable.
+  - Ensure HTML templates, CSS and JS files are minified when outputting
+    report.
+  - Ensure key phrases from Google are added even when https is used.
+  - Ensure live report updates data & charts if tab/document has focus.
+  - Ensure multiple 'Yandex' crawlers are properly parsed.
+  - Ensure Safari has priority over most crawlers except the ones that are
+    known to have it.
+  - Ensure the request protocol on its own is properly parsed.
+  - Ensure the right number of tests are performed against the given log.
+  - Ensure user configuration is parsed first when available.
+  - Ensure wss:// is used when connecting via HTTPS.
+  - Ensure XFF parser takes into account escaped braces.
+  - Fixed a regression where fifo-in/out would fail with ENXIO.
+  - Fixed a regression where it would return EXIT_FAILURE on an empty log.
+  - Fixed a (ssh) pipeline problem with fgetline()/fgets() when there is a race
+    for data on stdin.
+  - Fixed broken X-Forwarded-For (XFF) %~ specifier in certain parsing cases.
+  - Fixed conf.filenames duplication problem if logs are via pipe.
+  - Fixed float percent value on JSON/HTML output for locales using decimal comma.
+  - Fixed issue where it was not possible to establish a Web Socket connection
+    when attempting to parse and extract HTTP method.
+  - Fixed issue where log formats with pipe delimiter were not propely parsed.
+  - Fixed memory leak after config file path has been set (housekeeping).
+  - Fixed memory leak when adding host to holder introduced in c052d1ea.
+  - Fixed possible memory leak when hiding specific referrers.
+  - Fixed several JS jshint warnings.
+  - Fixed sudo installs on TravisCI.
+  - Fixed UNDEFINED time range in HTML report when VISITORS panel was ignored.
+  - Fixed unnecessary closing span tags from template.
+  - Fixed use-after-free when two color items were found on color_list.
+
 Changes to GoAccess 1.2 - Tuesday, March 07, 2017
 
   - Added a Dockerfile.
