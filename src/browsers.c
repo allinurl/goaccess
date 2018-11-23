@@ -1,5 +1,5 @@
 /**
- * browsers.c -- functions for dealing with browsers
+ 6 browsers.c -- functions for dealing with browsers
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
@@ -272,7 +272,7 @@ parse_browser_token (char ***list, char *line, int n)
   size_t idx = 0;
 
   /* key */
-  idx = strcspn (line, " \t");
+  idx = strcspn (line, "\t");
   if (strlen (line) == idx)
     FATAL ("Malformed browser name at line: %d", n);
 
@@ -280,7 +280,7 @@ parse_browser_token (char ***list, char *line, int n)
 
   /* value */
   val = line + (idx + 1);
-  idx = strspn (val, " \t");
+  idx = strspn (val, "\t");
   if (strlen (line) == idx)
     FATAL ("Malformed browser category at line: %d", n);
   val = val + idx;
@@ -369,6 +369,11 @@ parse_opera (char *token)
   return val;
 }
 
+/* Given the original user agent string, and a partial crawler match, iterate
+ * back until the next delimiter is found and return occurrence.
+ *
+ * On error when attempting to extract crawler, NULL is returned.
+ * If a possible crawler string is matched, then possible bot is returned . */
 static char *
 parse_crawler (char *str, char *match, char *type)
 {
@@ -402,6 +407,12 @@ parse_crawler (char *str, char *match, char *type)
   return xstrdup (match);
 }
 
+/* If the following string matches are found within user agent, then it's
+ * highly likely it's a possible crawler.
+ * Note that this could certainly return false positives.
+ *
+ * If no occurrences are found, NULL is returned.
+ * If an occurrence is found, a pointer to the match is returned . */
 static char *
 check_http_crawler (const char *str)
 {
