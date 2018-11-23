@@ -50,7 +50,7 @@ window.GoAccess = window.GoAccess || {
 			'autoHideTables': true,
 			'layout': 'horizontal',
 			'perPage': 7,
-			'theme': 'darkBlue',
+			'theme': 'darkPurple',
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
