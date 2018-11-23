@@ -1812,13 +1812,13 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
           sort->field = SORT_BY_VISITORS;
         else if (strcmp ("Data", menu->items[i].name) == 0)
           sort->field = SORT_BY_DATA;
-        else if (strcmp ("Bandwidth", menu->items[i].name) == 0)
+        else if (strcmp ("Tx. Amount", menu->items[i].name) == 0)
           sort->field = SORT_BY_BW;
-        else if (strcmp ("Avg. Time Served", menu->items[i].name) == 0)
+        else if (strcmp ("Avg. T.S.", menu->items[i].name) == 0)
           sort->field = SORT_BY_AVGTS;
-        else if (strcmp ("Cum. Time Served", menu->items[i].name) == 0)
+        else if (strcmp ("Cum. T.S.", menu->items[i].name) == 0)
           sort->field = SORT_BY_CUMTS;
-        else if (strcmp ("Max. Time Served", menu->items[i].name) == 0)
+        else if (strcmp ("Max. T.S.", menu->items[i].name) == 0)
           sort->field = SORT_BY_MAXTS;
         else if (strcmp ("Protocol", menu->items[i].name) == 0)
           sort->field = SORT_BY_PROT;
