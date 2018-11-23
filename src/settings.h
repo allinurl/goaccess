@@ -114,7 +114,7 @@ typedef struct GConf_
   char *spec_date_time_num_format;  /* numeric date format w/ specificity */
   char *log_format;                 /* log format */
   char *iconfigfile;                /* config file path */
-  char ***browsers_hash;            /* custom list of browsers */
+  char ***user_browsers_hash;       /* custom list of browsers */
 
   const char *debug_log;            /* debug log path */
   const char *geoip_database;       /* geoip db path */

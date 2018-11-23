@@ -1,7 +1,101 @@
 # List of browsers and their categories
+# e.g., WORD delimited by space(s) or tab(s) TYPE
 #
-# NOTE: The size of the list is proportional to the run time.
-# Thus, the longer the list, the more time it will take to parse it.
+# **IMPORTANT NOTE**:
+# ---------------------
+# The SIZE of the list is proportional to the run time.
+# Thus, the longer the list, the more time GoAccess will take to parse it.
 #
-# Also, you should note that the higher the browser is on the list, the faster
-# the parsing will be.
+# Also, you should note that the higher the browser/item is on the list, the
+# faster the parsing will be.
+#
+# The list needs to be specified using --browsers-file=<path>. This file is not
+# parsed by default.
+#
+# The items below are sample crawlers, adjust as needed.
+
+Abonti                        Crawlers
+SISTRIX                       Crawlers
+DotBot                        Crawlers
+Speedy Spider                 Crawlers
+Sosospider                    Crawlers
+BPImageWalker                 Crawlers
+DoCoMo                        Crawlers
+GSLFbot                       Crawlers
+YodaoBot                      Crawlers
+AddThis                       Crawlers
+Purebot                       Crawlers
+CCBot                         Crawlers
+findlinks                     Crawlers
+ichiro                        Crawlers
+Linguee Bot                   Crawlers
+Gigabot                       Crawlers
+BacklinkCrawler               Crawlers
+distilator                    Crawlers
+Aboundex                      Crawlers
+UnwindFetchor                 Crawlers
+SBIder                        Crawlers
+TestNutch                     Crawlers
+DomainCrawler                 Crawlers
+NextGenSearchBot              Crawlers
+SEOENGWorldBot                Crawlers
+Cityreview                    Crawlers
+PagePeeker                    Crawlers
+JS-Kit                        Crawlers
+ScreenerBot                   Crawlers
+ShowyouBot                    Crawlers
+SolomonoBot                   Crawlers
+Domnutch                      Crawlers
+MaxPoint                      Crawlers
+NCBot                         Crawlers
+TosCrawler                    Crawlers
+Updownerbot                   Crawlers
+OpenWebSpider                 Crawlers
+WordPress                     Crawlers
+PEAR                          Crawlers
+ZumBot                        Crawlers
+YisouSpider                   Crawlers
+W3C                           Crawlers
+vcheck                        Crawlers
+PercolateCrawler              Crawlers
+NING                          Crawlers
+gvfs                          Crawlers
+CatchBot                      Crawlers
+Combine                       Crawlers
+A6-Indexer                    Crawlers
+Altresium                     Crawlers
+Comodo                        Crawlers
+crawler4j                     Crawlers
+Cricket                       Crawlers
+EC2LinkFinder                 Crawlers
+envolk                        Crawlers
+GeoHasher                     Crawlers
+HTMLParser                    Crawlers
+MLBot                         Crawlers
+Jaxified                      Crawlers
+LinkWalker                    Crawlers
+nutch                         Crawlers
+PostRank                      Crawlers
+keybase-proofs                Crawlers
+CommonCrawler                 Crawlers
+X-CAD-SE                      Crawlers
+Safeassign                    Crawlers
+Nmap                          Crawlers
+sqlmap                        Crawlers
+Jorgee                        Crawlers
+PxBroker                      Crawlers
+Seekport                      Crawlers
+adscanner                     Crawlers
+AfD-Verbotsverfahren_JETZT!   Crawlers
+
+Vienna                        Feeds
+Windows-RSS-Platform          Feeds
+newsbeuter                    Feeds
+Wrangler                      Feeds
+Fever                         Feeds
+Tiny                          Feeds
+FreshRSS                      Feeds
+KrISS                         Feeds
+SimplePie                     Feeds
+Feedsubs                      Feeds
+UniversalFeedParser           Feeds
