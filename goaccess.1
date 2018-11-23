@@ -1,4 +1,4 @@
-.TH goaccess 1 "MARCH 2017" Linux "User Manuals"
+.TH goaccess 1 "NOVEMBER 2018" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -526,6 +526,11 @@ e.g., 2a03:2880:2110:df07:face:b00c::1 => 2a03:2880:2110:df07::
 \fB\-\-all-static-files
 Include static files that contain a query string. e.g.,
 /fonts/fontawesome-webfont.woff?v=4.0.3
+.TP
+\fB\-\-browsers-file=<path>
+Include an additional delimited list of browsers/crawlers/feeds etc.
+See config/browsers.list for an example or
+https://raw.githubusercontent.com/allinurl/goaccess/master/config/browsers.list
 .TP
 \fB\-\-date-spec=<date|hr>
 Set the date specificity to either date (default) or hr to display hours
