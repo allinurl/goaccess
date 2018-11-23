@@ -281,7 +281,7 @@ parse_browser_token (char ***list, char *line, int n)
   /* value */
   val = line + (idx + 1);
   idx = strspn (val, "\t");
-  if (strlen (line) == idx)
+  if (strlen (val) == idx)
     FATAL ("Malformed browser category at line: %d", n);
   val = val + idx;
   val = trim_str (val);
