@@ -54,7 +54,7 @@
 #include "util.h"
 #include "xmalloc.h"
 
-static char short_options[] = "f:e:p:o:l:H:M:S:"
+static char short_options[] = "f:e:p:o:l:H:M:S:b:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
@@ -63,6 +63,7 @@ static char short_options[] = "f:e:p:o:l:H:M:S:"
 /* *INDENT-OFF* */
 struct option long_opts[] = {
   {"agent-list"           , no_argument       , 0 , 'a' } ,
+  {"browsers-file"        , required_argument , 0 , 'b' } ,
   {"config-dialog"        , no_argument       , 0 , 'c' } ,
   {"config-file"          , required_argument , 0 , 'p' } ,
   {"debug-file"           , required_argument , 0 , 'l' } ,
@@ -126,7 +127,6 @@ struct option long_opts[] = {
   {"origin"               , required_argument , 0 ,  0  } ,
   {"output"               , required_argument , 0 ,  0  } ,
   {"pid-file"             , required_argument , 0 ,  0  } ,
-  {"browsers-file"        , required_argument , 0 ,  0  } ,
   {"port"                 , required_argument , 0 ,  0  } ,
   {"process-and-exit"     , no_argument       , 0 ,  0  } ,
   {"real-os"              , no_argument       , 0 ,  0  } ,
@@ -234,6 +234,7 @@ cmd_help (void)
   /* Parse Options */
   "Parse Options\n\n"
   "  -a --agent-list                 - Enable a list of user-agents by host.\n"
+  "  -b --browsers-file=<path>       - Use additional custom list of browsers.\n"
   "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
   "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
   "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
@@ -252,7 +253,6 @@ cmd_help (void)
 #endif
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --all-static-files              - Include static files with a query string.\n"
-  "  --browsers-file=<path>          - Use a custom list of browsers instead of default.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
   "                                    (default), or `hr`.\n"
@@ -525,11 +525,6 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("all-static-files", name))
     conf.all_static_files = 1;
 
-  /* Browsers file to read */
-  if (!strcmp ("browsers-file", name)) {
-    conf.browsers_file = oarg;
-  }
-
   /* crawlers only */
   if (!strcmp ("crawlers-only", name))
     conf.crawlers_only = 1;
@@ -764,6 +759,9 @@ read_option_args (int argc, char **argv)
       break;
     case 'a':
       conf.list_agents = 1;
+      break;
+    case 'b':
+      conf.browsers_file = optarg;
       break;
     case 'c':
       conf.load_conf_dlg = 1;
