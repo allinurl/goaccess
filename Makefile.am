@@ -108,7 +108,7 @@ else
 	./bin2c resources/js/app.js src/appjs.h app_js
 endif
 
-confdir = $(sysconfdir)
+confdir = $(sysconfdir)/goaccess
 dist_conf_DATA = config/goaccess.conf
 dist_conf_DATA += config/browsers.list
 
