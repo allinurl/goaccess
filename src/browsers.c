@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 #include "browsers.h"
 
@@ -42,6 +43,8 @@
 
 /* ###NOTE: The size of the list is proportional to the run time,
  * which makes this pretty slow */
+
+static char ***browsers_hash = NULL;
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
@@ -130,7 +133,6 @@ static const char *browsers[][2] = {
 
   /* Google crawlers (some based on Chrome,
    * therefore up on the list) */
-  {"Googlebot", "Crawlers"},
   {"AdsBot-Google", "Crawlers"},
   {"AppEngine-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
@@ -151,143 +153,36 @@ static const char *browsers[][2] = {
   /* Chrome has to go before Safari */
   {"HeadlessChrome", "Chrome"},
   {"Chrome", "Chrome"},
-
   {"CriOS", "Chrome"},
 
   /* Crawlers/Bots (Possible Safari based) */
-  {"bingbot", "Crawlers"},
   {"AppleBot", "Crawlers"},
-  {"Yandex", "Crawlers"},
-  {"msnbot", "Crawlers"},
-  {"Baiduspider", "Crawlers"},
   {"Twitter", "Crawlers"},
-  {"Slurp", "Crawlers"},
-  {"Yahoo", "Crawlers"},
-  {"Slack", "Crawlers"},
-  {"facebook", "Crawlers"},
 
   {"Safari", "Safari"},
 
   /* Crawlers/Bots */
-  {"Ezooms", "Crawlers"},
-  {"AhrefsBot", "Crawlers"},
-  {"Abonti", "Crawlers"},
-  {"Mastodon", "Crawlers"},
-  {"MJ12bot", "Crawlers"},
-  {"SISTRIX", "Crawlers"},
-  {"DotBot", "Crawlers"},
-  {"Speedy Spider", "Crawlers"},
-  {"Sosospider", "Crawlers"},
-  {"BPImageWalker", "Crawlers"},
   {"Sogou", "Crawlers"},
   {"Java", "Crawlers"},
   {"Jakarta Commons-HttpClient", "Crawlers"},
-  {"WBSearchBot", "Crawlers"},
-  {"SeznamBot", "Crawlers"},
-  {"DoCoMo", "Crawlers"},
-  {"TurnitinBot", "Crawlers"},
-  {"GSLFbot", "Crawlers"},
-  {"spbot", "Crawlers"},
-  {"YodaoBot", "Crawlers"},
-  {"AddThis", "Crawlers"},
-  {"Purebot", "Crawlers"},
-  {"ia_archiver", "Crawlers"},
-  {"Wotbox", "Crawlers"},
-  {"CCBot", "Crawlers"},
-  {"BLEXBot", "Crawlers"},
-  {"findlinks", "Crawlers"},
-  {"Yeti", "Crawlers"},
-  {"ichiro", "Crawlers"},
-  {"Linguee Bot", "Crawlers"},
-  {"Gigabot", "Crawlers"},
-  {"BacklinkCrawler", "Crawlers"},
   {"netEstate", "Crawlers"},
-  {"distilator", "Crawlers"},
-  {"Aboundex", "Crawlers"},
-  {"UnwindFetchor", "Crawlers"},
-  {"SEOkicks-Robot", "Crawlers"},
-  {"psbot", "Crawlers"},
-  {"SBIder", "Crawlers"},
-  {"TestNutch", "Crawlers"},
-  {"DomainCrawler", "Crawlers"},
-  {"NextGenSearchBot", "Crawlers"},
-  {"SEOENGWorldBot", "Crawlers"},
   {"PiplBot", "Crawlers"},
   {"IstellaBot", "Crawlers"},
-  {"Cityreview", "Crawlers"},
   {"heritrix", "Crawlers"},
-  {"PagePeeker", "Crawlers"},
-  {"JS-Kit", "Crawlers"},
-  {"ScreenerBot", "Crawlers"},
   {"PagesInventory", "Crawlers"},
-  {"ShowyouBot", "Crawlers"},
-  {"SolomonoBot", "Crawlers"},
   {"rogerbot", "Crawlers"},
   {"fastbot", "Crawlers"},
-  {"Domnutch", "Crawlers"},
-  {"MaxPoint", "Crawlers"},
-  {"NCBot", "Crawlers"},
-  {"TosCrawler", "Crawlers"},
-  {"Updownerbot", "Crawlers"},
-  {"urlwatch", "Crawlers"},
-  {"OpenWebSpider", "Crawlers"},
-  {"WordPress", "Crawlers"},
   {"yacybot", "Crawlers"},
-  {"PEAR", "Crawlers"},
-  {"ZumBot", "Crawlers"},
-  {"YisouSpider", "Crawlers"},
-  {"W3C", "Crawlers"},
-  {"vcheck", "Crawlers"},
   {"PycURL", "Crawlers"},
   {"PHP", "Crawlers"},
-  {"PercolateCrawler", "Crawlers"},
-  {"NING", "Crawlers"},
-  {"gvfs", "Crawlers"},
-  {"Crowsnest", "Crawlers"},
-  {"CatchBot", "Crawlers"},
-  {"Combine", "Crawlers"},
-  {"A6-Indexer", "Crawlers"},
-  {"Altresium", "Crawlers"},
   {"AndroidDownloadManager", "Crawlers"},
-  {"Apache-HttpClient", "Crawlers"},
-  {"Comodo", "Crawlers"},
-  {"crawler4j", "Crawlers"},
-  {"Cricket", "Crawlers"},
-  {"EC2LinkFinder", "Crawlers"},
   {"Embedly", "Crawlers"},
-  {"envolk", "Crawlers"},
-  {"libwww-perl", "Crawlers"},
   {"ruby", "Crawlers"},
   {"Ruby", "Crawlers"},
   {"python", "Crawlers"},
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
-  {"GeoHasher", "Crawlers"},
-  {"HTMLParser", "Crawlers"},
-  {"MLBot", "Crawlers"},
-  {"Jaxified Bot", "Crawlers"},
-  {"LinkWalker", "Crawlers"},
   {"Microsoft-WebDAV", "Crawlers"},
-  {"nutch", "Crawlers"},
-  {"PostRank", "Crawlers"},
-  {"Image", "Crawlers"},
-  {"keybase-proofs", "Crawlers"},
-  {"SemrushBot", "Crawlers"},
-  {"CommonCrawler", "Crawlers"},
-  {"Mail.RU_Bot", "Crawlers"},
-  {"MegaIndex.ru", "Crawlers"},
-  {"XoviBot", "Crawlers"},
-  {"X-CAD-SE", "Crawlers"},
-  {"Safeassign", "Crawlers"},
-  {"Nmap Scripting Engine", "Crawlers"},
-  {"sqlmap", "Crawlers"},
-  {"Jorgee", "Crawlers"},
-  {"PxBroker", "Crawlers"},
-  {"Seekport", "Crawlers"},
-  {"adscanner", "Crawlers"},
-  {"linkdexbot", "Crawlers"},
-  {"Cliqzbot", "Crawlers"},
-  {"AfD-Verbotsverfahren_JETZT!", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -308,20 +203,8 @@ static const char *browsers[][2] = {
   {"NetNewsWire", "Feeds"},
   {"RSSOwl", "Feeds"},
   {"Thunderbird", "Feeds"},
-  {"Vienna", "Feeds"},
-  {"Windows-RSS-Platform", "Feeds"},
-  {"newsbeuter", "Feeds"},
-  {"Wrangler", "Feeds"},
-  {"Fever", "Feeds"},
-  {"Tiny Tiny RSS", "Feeds"},
-  {"FreshRSS", "Feeds"},
-  {"KrISS feed agent", "Feeds"},
-  {"SimplePie", "Feeds"},
-  {"Feedsubs", "Feeds"},
-  {"UniversalFeedParser", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
-  {"UptimeRobot", "Uptime"},
   {"jetmon", "Uptime"},
   {"NodeUptime", "Uptime"},
   {"NewRelicPinger", "Uptime"},
@@ -332,24 +215,53 @@ static const char *browsers[][2] = {
   {"Mozilla", "Others"}
 };
 
+/* Free all browser entries from our array of key/value pairs. */
+void
+free_browsers_hash (void)
+{
+  size_t i;
+  int j;
+
+  for (i = 0; i < ARRAY_SIZE (browsers); ++i) {
+    free (browsers_hash[i][0]);
+    free (browsers_hash[i][1]);
+    free (browsers_hash[i]);
+  }
+  free (browsers_hash);
+
+
+  for (j = 0; j < conf.browsers_hash_idx; ++j) {
+    free (conf.user_browsers_hash[j][0]);
+    free (conf.user_browsers_hash[j][1]);
+    free (conf.user_browsers_hash[j]);
+  }
+  if (conf.browsers_file) {
+    free (conf.user_browsers_hash);
+  }
+}
+
+static int
+is_dup (char ***list, int len, const char *browser)
+{
+  int i;
+  /* check for dups */
+  for (i = 0; i < len; ++i) {
+    if (strcmp (browser, list[i][0]) == 0)
+      return 1;
+  }
+  return 0;
+}
+
 /* Set a browser/type pair into our multidimensional array of browsers.
  *
  * On duplicate functions returns void.
  * Otherwise memory is mallo'd for our array entry. */
 static void
-set_browser_key_value (char ***list, const char *browser, const char *type)
+set_browser (char ***list, int idx, const char *browser, const char *type)
 {
-  int i;
-  /* check for dups */
-  for (i = 0; i < conf.browsers_hash_idx; ++i) {
-    if (strcmp (browser, conf.browsers_hash[i][0]) == 0)
-      return;
-  }
-
-  list[conf.browsers_hash_idx] = xcalloc (2, sizeof (char *));
-  list[conf.browsers_hash_idx][0] = xstrdup (browser);
-  list[conf.browsers_hash_idx][1] = xstrdup (type);
-  conf.browsers_hash_idx++;
+  list[idx] = xcalloc (2, sizeof (char *));
+  list[idx][0] = xstrdup (browser);
+  list[idx][1] = xstrdup (type);
 }
 
 /* Parse the key/value pair from the browser list file. */
@@ -374,21 +286,13 @@ parse_browser_token (char ***list, char *line, int n)
   val = val + idx;
   val = trim_str (val);
 
-  set_browser_key_value (list, line, val);
-}
-
-/* Free all browser entries from our array of key/value pairs. */
-void
-free_browsers_hash (void)
-{
-  int i;
-  /* check for dups */
-  for (i = 0; i < conf.browsers_hash_idx; ++i) {
-    free (conf.browsers_hash[i][0]);
-    free (conf.browsers_hash[i][1]);
-    free (conf.browsers_hash[i]);
+  if (is_dup (list, conf.browsers_hash_idx, line)) {
+    LOG_INVALID (("Duplicate browser entry: %s", line));
+    return;
   }
-  free (conf.browsers_hash);
+
+  set_browser (list, conf.browsers_hash_idx, line, val);
+  conf.browsers_hash_idx++;
 }
 
 /* Parse our default array of browsers and put them on our hash including those
@@ -402,15 +306,12 @@ parse_browsers_file (void)
   char line[MAX_LINE_BROWSERS + 1];
   FILE *file;
   int n = 0;
-  size_t i;
+  size_t i, len = ARRAY_SIZE (browsers);
 
-  conf.browsers_hash = xmalloc (MAX_CUSTOM_BROWSERS * sizeof (char **));
-
+  browsers_hash = xmalloc (ARRAY_SIZE (browsers) * sizeof (char **));
   /* load hash from the browser's array (default)  */
-  for (i = 0; i < ARRAY_SIZE (browsers); ++i) {
-    if (conf.browsers_hash_idx >= MAX_CUSTOM_BROWSERS)
-      continue;
-    set_browser_key_value (conf.browsers_hash, browsers[i][0], browsers[i][1]);
+  for (i = 0; i < len; ++i) {
+    set_browser (browsers_hash, i, browsers[i][0], browsers[i][1]);
   }
 
   if (!conf.browsers_file)
@@ -420,7 +321,8 @@ parse_browsers_file (void)
   if ((file = fopen (conf.browsers_file, "r")) == NULL)
     FATAL ("Unable to open browser's file: %s", strerror (errno));
 
-  /* load hash from the browser's array (default)  */
+  conf.user_browsers_hash = xmalloc (MAX_CUSTOM_BROWSERS * sizeof (char **));
+  /* load hash from the user's given browsers file  */
   while (fgets (line, sizeof line, file) != NULL) {
     while (line[0] == ' ' || line[0] == '\t')
       memmove (line, line + 1, strlen (line));
@@ -428,8 +330,9 @@ parse_browsers_file (void)
 
     if (line[0] == '\n' || line[0] == '\r' || line[0] == '#')
       continue;
-    if (conf.browsers_hash_idx < MAX_CUSTOM_BROWSERS)
-      parse_browser_token (conf.browsers_hash, line, n);
+    if (conf.browsers_hash_idx >= MAX_CUSTOM_BROWSERS)
+      FATAL ("Maximum number of custom browsers has been reached");
+    parse_browser_token (conf.user_browsers_hash, line, n);
   }
   fclose (file);
 }
@@ -464,6 +367,62 @@ parse_opera (char *token)
   sprintf (val, "Opera%s", token);
 
   return val;
+}
+
+static char *
+parse_crawler (char *str, char *match, char *type)
+{
+  char *ptr = NULL;
+  int found = 0;
+
+  while (match != str) {
+    match--;
+    if (*match == ' ' || *match == '+') {
+      found = 1;
+      break;
+    }
+  }
+
+  /* same addr */
+  if (match == str)
+    return NULL;
+
+  /* account for the previous +|space */
+  if (found)
+    match++;
+
+  if ((ptr = strpbrk (match, "; ")))
+    *ptr = '\0';
+  /* empty string after parsing it */
+  if (*match == '\0')
+    return NULL;
+
+  xstrncpy (type, "Crawlers", BROWSER_TYPE_LEN);
+
+  return xstrdup (match);
+}
+
+static char *
+check_http_crawler (const char *str)
+{
+  char *match = NULL;
+
+  /* e.g., compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm */
+  if ((match = strstr (str, "; +http")))
+    return match;
+  /* compatible; UptimeRobot/2.0; http://www.uptimerobot.com/ */
+  if ((match = strstr (str, "; http")))
+    return match;
+  /* Slack-ImgProxy (+https://api.slack.com/robots) */
+  if ((match = strstr (str, " (+http")))
+    return match;
+  /*  TurnitinBot/3.0 (http://www.turnitin.com/robot/crawlerinfo.html) */
+  if ((match = strstr (str, " (http")))
+    return match;
+  /* w3c e.g., (compatible;+Googlebot/2.1;++http://www.google.com/bot.html) */
+  if ((match = strstr (str, ";++http")))
+    return match;
+  return NULL;
 }
 
 /* Parse the given user agent match and extract the browser string.
@@ -521,17 +480,29 @@ parse_browser (char *match, char *type, int i, char ***hash)
 char *
 verify_browser (char *str, char *type)
 {
-  char *match = NULL;
+  char *match = NULL, *token = NULL;
   int i = 0;
+  size_t j = 0;
 
   if (str == NULL || *str == '\0')
     return NULL;
 
-  /* check list */
+  /* check user's list */
   for (i = 0; i < conf.browsers_hash_idx; ++i) {
-    if ((match = strstr (str, conf.browsers_hash[i][0])) == NULL)
+    if ((match = strstr (str, conf.user_browsers_hash[i][0])) == NULL)
       continue;
-    return parse_browser (match, type, i, conf.browsers_hash);
+    return parse_browser (match, type, i, conf.user_browsers_hash);
+  }
+
+  if ((match = check_http_crawler (str)) &&
+      (token = parse_crawler (str, match, type)))
+    return token;
+
+  /* fallback to default browser list */
+  for (j = 0; j < ARRAY_SIZE (browsers); ++j) {
+    if ((match = strstr (str, browsers_hash[j][0])) == NULL)
+      continue;
+    return parse_browser (match, type, j, browsers_hash);
   }
 
   xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);

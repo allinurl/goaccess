@@ -1223,7 +1223,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront)
        * and replace all '+' with ' ' (i.e.: w3c) */
-      logitem->agent = char_replace (decode_url (tkn), '+', ' ');
+      logitem->agent = decode_url (tkn);
       free (tkn);
       break;
     } else if (tkn != NULL && *tkn == '\0') {
