@@ -355,7 +355,7 @@ msgstr "[x] 大文字と小文字を区別する"
 
 #: src/labels.h:210
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr "正規表現を許可する - [^g] キャンセル - [TAB] 切り替え"
+msgstr "正規表現を使用する - [^g] キャンセル - [TAB] 切り替え"
 
 #: src/labels.h:212
 msgid "Find pattern in all views"
@@ -491,7 +491,7 @@ msgstr "最終更新日時"
 
 #: src/labels.h:294
 msgid "WebSocket server ready to accept new client connections"
-msgstr "WebSocket接続の準備ができました"
+msgstr "覚悟完了: 接続待機中..."
 
 #: src/labels.h:297
 msgid "The following options can also be supplied to the command"
@@ -522,9 +522,8 @@ msgid "Dark Blue"
 msgstr "ダークブルー"
 
 #: src/labels.h:312
-#, fuzzy
 msgid "Dark Purple"
-msgstr "ダークブルー"
+msgstr "ダークパープル"
 
 #: src/labels.h:314
 msgid "Panels"
@@ -584,11 +583,11 @@ msgstr "次へ"
 
 #: src/labels.h:342
 msgid "First"
-msgstr ""
+msgstr "最初へ"
 
 #: src/labels.h:344
 msgid "Last"
-msgstr ""
+msgstr "最後へ"
 
 #: src/labels.h:346
 msgid "Chart Options"
