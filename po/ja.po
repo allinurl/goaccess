@@ -1,12 +1,14 @@
+# Japanese translations for goaccess package.
+# Copyright (C) 2018 Free Software Foundation, Inc.
 # This file is distributed under the same license as the goaccess package.
-# Kamino Hiroki, 2019.
+# Kamino Hiroki, 2018.
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.2\n"
+"Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2018-11-22 23:38-0600\n"
-"PO-Revision-Date: 2018-10-26 22:00+0900\n"
+"PO-Revision-Date: 2018-11-25 09:00+0900\n"
 "Last-Translator: Kamino Hiroki <37243867+4f8p@users.noreply.github.com>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
@@ -130,7 +132,7 @@ msgstr "ヒット数"
 
 #: src/labels.h:77
 msgid "h%"
-msgstr "h%"
+msgstr "ヒット率(%)"
 
 #: src/labels.h:78 src/labels.h:104
 msgid "Visitors"
@@ -142,7 +144,7 @@ msgstr "ユーザー数"
 
 #: src/labels.h:80
 msgid "v%"
-msgstr "v%"
+msgstr "訪問率(%)"
 
 #: src/labels.h:82
 msgid "Avg. T.S."
@@ -202,9 +204,7 @@ msgstr "一日あたりのユニークユーザー数（クローラも含める
 
 #: src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
-"IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザー"
-"として扱われます。"
+msgstr "IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザーとして扱われます。"
 
 #: src/labels.h:107
 msgid "Requested Files (URLs)"
@@ -224,8 +224,7 @@ msgstr "静的ファイルリクエスト数"
 
 #: src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:121
 msgid "Time Distribution"
@@ -233,8 +232,7 @@ msgstr "時間分布"
 
 #: src/labels.h:123
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr ""
-"リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:125
 msgid "Time"
@@ -338,8 +336,7 @@ msgstr "HTTPステータスコード"
 
 #: src/labels.h:200
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:202
 msgid "Status Codes"
@@ -355,7 +352,7 @@ msgstr "[x] 大文字と小文字を区別する"
 
 #: src/labels.h:210
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr "正規表現を使用する - [^g] キャンセル - [TAB] 切り替え"
+msgstr "正規表現が有効 - [^g] キャンセル - [TAB] 切り替え"
 
 #: src/labels.h:212
 msgid "Find pattern in all views"
@@ -428,8 +425,7 @@ msgstr "デフォルトのインメモリハッシュデータベースを使用
 
 #: src/labels.h:262
 msgid "Format Errors - Verify your log/date/time format"
-msgstr ""
-"解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
+msgstr "解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
 
 #: src/labels.h:264
 msgid "No date format was found on your conf file."
@@ -491,7 +487,7 @@ msgstr "最終更新日時"
 
 #: src/labels.h:294
 msgid "WebSocket server ready to accept new client connections"
-msgstr "覚悟完了: 接続待機中..."
+msgstr "覚悟完了: WebSocket接続待機中"
 
 #: src/labels.h:297
 msgid "The following options can also be supplied to the command"
@@ -503,7 +499,7 @@ msgstr "実行例"
 
 #: src/labels.h:302
 msgid "Server Statistics"
-msgstr "サーバーの統計情報"
+msgstr "サーバー統計"
 
 #: src/labels.h:304
 msgid "Theme"
@@ -643,8 +639,7 @@ msgstr "100 - 継続: リクエストヘッダーを受理しました"
 
 #: src/labels.h:375
 msgid "101 - Switching Protocols: Client asked to switch protocols"
-msgstr ""
-"101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
+msgstr "101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
 
 #: src/labels.h:377
 msgid "200 - OK: The request sent by the client was successful"
@@ -660,27 +655,19 @@ msgstr "202 - 受理: リクエストを受け取ったが処理されていま�
 
 #: src/labels.h:383
 msgid "203 - Non-authoritative Information: Response from a third party"
-msgstr ""
-"203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は"
-"別の送信元から来る可能性があります"
+msgstr "203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は別の送信元から来る可能性があります"
 
 #: src/labels.h:385
 msgid "204 - No Content: Request did not return any content"
-msgstr ""
-"204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありま"
-"せん"
+msgstr "204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありません"
 
 #: src/labels.h:387
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
-"205 - リセット要求: リクエストを行ったクライアントに対してドキュメントビュー"
-"のリセットを行うよう指示します"
+msgstr "205 - リセット要求: クライアントに対してドキュメントビューのリセットを行うよう要求しました"
 
 #: src/labels.h:389
 msgid "206 - Partial Content: The partial GET has been successful"
-msgstr ""
-"206 - 部分的なリクエスト: GETリクエストを正常に処理しました（リソースが分割さ"
-"れている可能性があります）"
+msgstr "206 - 部分応答: コンテンツの一部のみレスポンスを返しました"
 
 #: src/labels.h:391
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
@@ -692,9 +679,7 @@ msgstr "208 - 報告済み: (WebDAV拡張) RFC 5842"
 
 #: src/labels.h:395
 msgid "300 - Multiple Choices: Multiple options for the resource"
-msgstr ""
-"300 - 選択が必要: 複数のリダイレクト先があり、クライアント側が選択する必要が"
-"あります"
+msgstr "300 - 選択が必要: リダイレクト先が複数指定されています"
 
 #: src/labels.h:397
 msgid "301 - Moved Permanently: Resource has permanently moved"
@@ -706,8 +691,7 @@ msgstr "302 - 一時的な移動: リクエストされたリソースは一時�
 
 #: src/labels.h:401
 msgid "303 - See Other Document: The response is at a different URI"
-msgstr ""
-"303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
+msgstr "303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
 
 #: src/labels.h:403
 msgid "304 - Not Modified: Resource has not been modified"
@@ -715,8 +699,7 @@ msgstr "304 - 更新無し: リクエストされたリソースは更新され�
 
 #: src/labels.h:405
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
-msgstr ""
-"305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
+msgstr "305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
 
 #: src/labels.h:407
 msgid "307 - Temporary Redirect: Resource temporarily moved"
@@ -732,7 +715,7 @@ msgstr "401 - 認証が必要: このリクエストを処理するには認証�
 
 #: src/labels.h:413
 msgid "402 - Payment Required"
-msgstr "402 - このリクエストを処理するには料金を支払う必要があります"
+msgstr "402 - 課金が必要なコンテンツ"
 
 #: src/labels.h:415
 msgid "403 - Forbidden: Server is refusing to respond to it"
@@ -744,9 +727,7 @@ msgstr "404 - リソース不明: リクエストされたリソースは存在�
 
 #: src/labels.h:419
 msgid "405 - Method Not Allowed: Request method not supported"
-msgstr ""
-"405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されていま"
-"す"
+msgstr "405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されています"
 
 #: src/labels.h:421
 msgid "406 - Not Acceptable"
@@ -774,9 +755,7 @@ msgstr "411 - Content-Lengthヘッダーが必要です"
 
 #: src/labels.h:433
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
-"412 - 前提条件が満たされていない: このリクエストはサーバー側の前提条件を満た"
-"していません"
+msgstr "412 - サーバーに与えられた前提条件を満たしていません"
 
 #: src/labels.h:435
 msgid "413 - Payload Too Large"
@@ -784,7 +763,7 @@ msgstr "413 - ペイロードが長すぎます"
 
 #: src/labels.h:437
 msgid "414 - Request-URI Too Long"
-msgstr "414 - URLが長すぎます"
+msgstr "414 - リクエストされたURIが長すぎます"
 
 #: src/labels.h:439
 msgid "415 - Unsupported Media Type: Media type is not supported"
@@ -792,9 +771,7 @@ msgstr "415 - サポートされていないメディアタイプ"
 
 #: src/labels.h:441
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
-"416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過していま"
-"す"
+msgstr "416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過しています"
 
 #: src/labels.h:443
 msgid "417 - Expectation Failed"
@@ -806,7 +783,7 @@ msgstr "421 - 不明なリクエスト"
 
 #: src/labels.h:447
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
-msgstr "422 - リクエストを受理したが、処理を継続できません"
+msgstr "422 - (WebDAV拡張) 処理できないエンティティ"
 
 #: src/labels.h:449
 msgid "423 - The resource that is being accessed is locked"
@@ -814,12 +791,11 @@ msgstr "423 - このリソースはロックされています"
 
 #: src/labels.h:451
 msgid "424 - Failed Dependency: WebDAV"
-msgstr "424 - 依存する他の処理が失敗したため処理できません"
+msgstr "424 - (WebDAV拡張) 依存関係でエラーが発生しました"
 
 #: src/labels.h:453
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
-msgstr ""
-"426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
+msgstr "426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
 
 #: src/labels.h:455
 msgid "428 - Precondition Required"
@@ -835,11 +811,11 @@ msgstr "431 - HTTPヘッダーが長すぎます"
 
 #: src/labels.h:461
 msgid "451 - Unavailable For Legal Reasons"
-msgstr "451 - 法律上の理由でリクエストを処理できません"
+msgstr "451 - 法的理由により利用不可"
 
 #: src/labels.h:463
 msgid "444 - (Nginx) Connection closed without sending any headers"
-msgstr "444 - (nginx) ヘッダーを返さずコネクションを切断しました"
+msgstr "444 - (nginx) 接続を遮断しました"
 
 #: src/labels.h:465
 msgid "494 - (Nginx) Request Header Too Large"
@@ -859,8 +835,7 @@ msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
 #: src/labels.h:473
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr ""
-"499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
+msgstr "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
 #: src/labels.h:475
 msgid "500 - Internal Server Error"
@@ -868,13 +843,11 @@ msgstr "500 - 内部サーバーエラー"
 
 #: src/labels.h:477
 msgid "501 - Not Implemented"
-msgstr "501 - サーバーでメソッドが実装されていません"
+msgstr "501 - 実装されていません"
 
 #: src/labels.h:479
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
-msgstr ""
-"502 - 不正なゲートウェイ: 上流にあるゲートウェイまたはプロキシサーバーから不"
-"正なリクエストを受け取りました"
+msgstr "502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
 
 #: src/labels.h:481
 msgid "503 - Service Unavailable: The server is currently unavailable"
@@ -882,32 +855,28 @@ msgstr "503 - サービス利用不可: サーバーがダウンしました"
 
 #: src/labels.h:483
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
-"504 - ゲートウェイタイムアウト: 上流にあるゲートウェイまたはプロキシサーバー"
-"がタイムアウトを起こしました"
+msgstr "504 - ゲートウェイタイムアウト: 上位サーバーがリクエストを返しません"
 
 #: src/labels.h:485
 msgid "505 - HTTP Version Not Supported"
-msgstr ""
-"505 - リクエストで使用されているHTTPバージョンがサーバーでサポートされていま"
-"せん"
+msgstr "505 - HTTPバージョンがサポートされていません"
 
 #: src/labels.h:487
 msgid "520 - CloudFlare - Web server is returning an unknown error"
-msgstr "520 - CloudFlare - Originサーバーからエラーが返されました"
+msgstr "520 - CloudFlare - Webサーバーが未知のエラーを返しています"
 
 #: src/labels.h:489
 msgid "521 - CloudFlare - Web server is down"
-msgstr "521 - CloudFlare - Originサーバーがダウンしています"
+msgstr "521 - CloudFlare - Webサーバーがダウンしています"
 
 #: src/labels.h:491
 msgid "522 - CloudFlare - Connection timed out"
-msgstr "522 - CloudFlare - Originサーバーへの接続がタイムアウトしました"
+msgstr "522 - CloudFlare - 接続がタイムアウトしました"
 
 #: src/labels.h:493
 msgid "523 - CloudFlare - Origin is unreachable"
-msgstr "523 - CloudFlare - Originサーバーにアクセスできません（到達不能）"
+msgstr "523 - CloudFlare - Originに到達できません"
 
 #: src/labels.h:495
 msgid "524 - CloudFlare - A timeout occurred"
-msgstr "524 - CloudFlare - Originサーバーにアクセスできません（タイムアウト）"
+msgstr "524 - CloudFlare - タイムアウトが発生しました"
