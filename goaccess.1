@@ -322,7 +322,9 @@ example below.
 .I Note:
 The JSON object passed needs to be a one line JSON string. For instance,
 .IP
+.nf
 \-\-html-prefs='{"theme":"bright","perPage":5,"layout":"horizontal","showTables":true,"visitors":{"plot":{"chartType":"bar"}}}'
+.fi
 .TP
 \fB\-\-json-pretty-print
 Format JSON output using tabs and newlines.
@@ -409,7 +411,6 @@ If GoAccess is running behind a proxy, you could set the client side to connect
 to a different port by specifying the host followed by a colon and the port.
 e.g.,
 .I goaccess.io:9999
-. e.g.,
 .IP
 By default, it will attempt to connect to the generated report's hostname. If
 GoAccess is running on a remote server, the host of the remote server should be
