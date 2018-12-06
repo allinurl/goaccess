@@ -525,7 +525,7 @@ msgstr "Azul Oscuro"
 #: src/labels.h:312
 #, fuzzy
 msgid "Dark Purple"
-msgstr "Azul Oscuro"
+msgstr "Morado Oscuro"
 
 #: src/labels.h:314
 msgid "Panels"
