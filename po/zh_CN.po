@@ -523,7 +523,7 @@ msgstr "深蓝"
 #: src/labels.h:312
 #, fuzzy
 msgid "Dark Purple"
-msgstr "深蓝"
+msgstr "深紫色"
 
 #: src/labels.h:314
 msgid "Panels"
