@@ -528,7 +528,7 @@ msgstr "Bleu foncé"
 #: src/labels.h:312
 #, fuzzy
 msgid "Dark Purple"
-msgstr "Bleu foncé"
+msgstr "Violet foncé"
 
 #: src/labels.h:314
 msgid "Panels"
