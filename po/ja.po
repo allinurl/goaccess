@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-11-22 23:38-0600\n"
+"POT-Creation-Date: 2018-12-13 22:48-0600\n"
 "PO-Revision-Date: 2018-11-25 09:00+0900\n"
 "Last-Translator: Kamino Hiroki <37243867+4f8p@users.noreply.github.com>\n"
 "Language-Team: Japanese\n"
@@ -17,866 +17,882 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: src/labels.h:40
+#. global lang attribute
+#: ../src/labels.h:40
 msgid "en"
 msgstr "ja"
 
-#: src/labels.h:43
+#. General
+#: ../src/labels.h:43
 msgid "Exp. Panel"
 msgstr "詳細表示"
 
-#: src/labels.h:44
+#: ../src/labels.h:44
 msgid "Help"
 msgstr "ヘルプ"
 
-#: src/labels.h:45
+#: ../src/labels.h:45
 msgid "Quit"
 msgstr "終了"
 
-#: src/labels.h:46
+#: ../src/labels.h:46
 msgid "Total"
 msgstr "合計"
 
-#: src/labels.h:49
+#. Sort Labels
+#: ../src/labels.h:49
 msgid "[x] ASC [ ] DESC"
 msgstr "[x] 昇順 [ ] 降順"
 
-#: src/labels.h:50
+#: ../src/labels.h:50
 msgid "[ ] ASC [x] DESC"
 msgstr "[ ] 昇順 [x] 降順"
 
-#: src/labels.h:53
+#. Overall Stats Labels
+#: ../src/labels.h:53
 #, c-format
 msgid "[Active Panel: %1$s]"
 msgstr "[表示中のパネル: %1$s]"
 
-#: src/labels.h:54
+#: ../src/labels.h:54
 msgid "[q]uit GoAccess"
 msgstr "[q] GoAccessを閉じる"
 
-#: src/labels.h:55
+#: ../src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
 msgstr "[?] ヘルプ [Enter] 詳細表示"
 
-#: src/labels.h:56
+#: ../src/labels.h:56
 msgid "Dashboard"
 msgstr "ダッシュボード"
 
-#: src/labels.h:57
+#: ../src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
 msgstr "ダッシュボード - 解析済みリクエスト全体"
 
-#: src/labels.h:58
+#: ../src/labels.h:58
 msgid "Overall Analyzed Requests"
 msgstr "解析済みリクエスト全体"
 
-#: src/labels.h:60 src/labels.h:81
+#: ../src/labels.h:60 ../src/labels.h:81
 msgid "Tx. Amount"
 msgstr "データ転送量"
 
-#: src/labels.h:61
+#: ../src/labels.h:61
 msgid "Date/Time"
 msgstr "日付/時刻"
 
-#: src/labels.h:62
+#: ../src/labels.h:62
 msgid "Excl. IP Hits"
 msgstr "除外対象数"
 
-#: src/labels.h:63
+#: ../src/labels.h:63
 msgid "Failed Requests"
 msgstr "無効リクエスト数"
 
-#: src/labels.h:64
+#: ../src/labels.h:64
 msgid "Init. Proc. Time"
 msgstr "解析にかかった時間"
 
-#: src/labels.h:65
+#: ../src/labels.h:65
 msgid "Log Size"
 msgstr "ログファイルサイズ"
 
-#: src/labels.h:66
+#: ../src/labels.h:66
 msgid "Log Source"
 msgstr "ログ取得元"
 
-#: src/labels.h:67 src/labels.h:174
+#: ../src/labels.h:67 ../src/labels.h:174
 msgid "Referrers"
 msgstr "リファラー数"
 
-#: src/labels.h:68
+#: ../src/labels.h:68
 msgid "Total Requests"
 msgstr "合計リクエスト数"
 
-#: src/labels.h:69
+#: ../src/labels.h:69
 msgid "Static Files"
 msgstr "静的ファイル数"
 
-#: src/labels.h:70 src/labels.h:146
+#: ../src/labels.h:70 ../src/labels.h:146
 msgid "Not Found"
 msgstr "404エラー数"
 
-#: src/labels.h:71
+#: ../src/labels.h:71
 msgid "Requested Files"
 msgstr "要求されたファイル数"
 
-#: src/labels.h:72
+#: ../src/labels.h:72
 msgid "Unique Visitors"
 msgstr "ユニークユーザー数"
 
-#: src/labels.h:73
+#: ../src/labels.h:73
 msgid "Valid Requests"
 msgstr "有効リクエスト数"
 
-#: src/labels.h:76
+#. Metric Labels
+#: ../src/labels.h:76
 msgid "Hits"
 msgstr "ヒット数"
 
-#: src/labels.h:77
+#: ../src/labels.h:77
 msgid "h%"
 msgstr "ヒット率(%)"
 
-#: src/labels.h:78 src/labels.h:104
+#: ../src/labels.h:78 ../src/labels.h:104
 msgid "Visitors"
 msgstr "ユーザー数"
 
-#: src/labels.h:79
+#: ../src/labels.h:79
 msgid "Vis."
 msgstr "ユーザー数"
 
-#: src/labels.h:80
+#: ../src/labels.h:80
 msgid "v%"
 msgstr "訪問率(%)"
 
-#: src/labels.h:82
+#: ../src/labels.h:82
 msgid "Avg. T.S."
 msgstr "平均処理時間"
 
-#: src/labels.h:83
+#: ../src/labels.h:83
 msgid "Cum. T.S."
 msgstr "合計処理時間"
 
-#: src/labels.h:84
+#: ../src/labels.h:84
 msgid "Max. T.S."
 msgstr "最大処理時間"
 
-#: src/labels.h:85
+#: ../src/labels.h:85
 msgid "Method"
 msgstr "要求"
 
-#: src/labels.h:86
+#: ../src/labels.h:86
 msgid "Mtd"
 msgstr "要求"
 
-#: src/labels.h:87
+#: ../src/labels.h:87
 msgid "Protocol"
 msgstr "プロトコル"
 
-#: src/labels.h:88
+#: ../src/labels.h:88
 msgid "Proto"
 msgstr "プロトコル"
 
-#: src/labels.h:89
+#: ../src/labels.h:89
 msgid "City"
 msgstr "地域"
 
-#: src/labels.h:90
+#: ../src/labels.h:90
 msgid "Country"
 msgstr "国名"
 
-#: src/labels.h:91
+#: ../src/labels.h:91
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: src/labels.h:92
+#: ../src/labels.h:92
 msgid "Data"
 msgstr "データ"
 
-#: src/labels.h:94
+#: ../src/labels.h:94
 msgid "Hits/Visitors"
 msgstr "ヒット数/ユーザー数"
 
-#: src/labels.h:98
+#. Panel Labels and Descriptions
+#: ../src/labels.h:98
 msgid "Unique visitors per day"
 msgstr "一日あたりのユニークユーザー数"
 
-#: src/labels.h:100
+#: ../src/labels.h:100
 msgid "Unique visitors per day - Including spiders"
 msgstr "一日あたりのユニークユーザー数（クローラも含める）"
 
-#: src/labels.h:102
+#: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr "IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザーとして扱われます。"
 
-#: src/labels.h:107
+#: ../src/labels.h:107
 msgid "Requested Files (URLs)"
 msgstr "リクエストされたファイル（URL）"
 
-#: src/labels.h:109
+#: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr "リクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:111
+#: ../src/labels.h:111
 msgid "Requests"
 msgstr "リクエスト数"
 
-#: src/labels.h:114 src/labels.h:118
+#: ../src/labels.h:114 ../src/labels.h:118
 msgid "Static Requests"
 msgstr "静的ファイルリクエスト数"
 
-#: src/labels.h:116
+#: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr "静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:121
+#: ../src/labels.h:121
 msgid "Time Distribution"
 msgstr "時間分布"
 
-#: src/labels.h:123
+#: ../src/labels.h:123
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr "リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:125
+#: ../src/labels.h:125
 msgid "Time"
 msgstr "時刻"
 
-#: src/labels.h:128 src/labels.h:132
+#: ../src/labels.h:128 ../src/labels.h:132
 msgid "Virtual Hosts"
 msgstr "バーチャルホスト"
 
-#: src/labels.h:130 src/labels.h:137
+#: ../src/labels.h:130 ../src/labels.h:137
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr "リクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:135
+#: ../src/labels.h:135
 msgid "Remote User (HTTP authentication)"
 msgstr "認証されたユーザー（HTTP認証）"
 
-#: src/labels.h:139
+#: ../src/labels.h:139
 msgid "Remote User"
 msgstr "認証されたユーザー"
 
-#: src/labels.h:142
+#: ../src/labels.h:142
 msgid "Not Found URLs (404s)"
 msgstr "404エラーが返されたURL"
 
-#: src/labels.h:144
+#: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr "エラーとなったURL順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:149
+#: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
 msgstr "ユーザーのホスト名とIPアドレス"
 
-#: src/labels.h:151
+#: ../src/labels.h:151
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr "ホスト名順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:153
+#: ../src/labels.h:153
 msgid "Hosts"
 msgstr "ホスト名"
 
-#: src/labels.h:156
+#: ../src/labels.h:156
 msgid "Operating Systems"
 msgstr "オペレーティングシステム"
 
-#: src/labels.h:158
+#: ../src/labels.h:158
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr "OS順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:160
+#: ../src/labels.h:160
 msgid "OS"
 msgstr "OS"
 
-#: src/labels.h:163 src/labels.h:167
+#: ../src/labels.h:163 ../src/labels.h:167
 msgid "Browsers"
 msgstr "ブラウザ"
 
-#: src/labels.h:165
+#: ../src/labels.h:165
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "ブラウザ順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:170
+#: ../src/labels.h:170
 msgid "Referrers URLs"
 msgstr "参照元（URL）"
 
-#: src/labels.h:172
+#: ../src/labels.h:172
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "送信元アドレス順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:177 src/labels.h:181
+#: ../src/labels.h:177 ../src/labels.h:181
 msgid "Referring Sites"
 msgstr "参照元サイト"
 
-#: src/labels.h:179
+#: ../src/labels.h:179
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr "参照元サイト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:184
+#: ../src/labels.h:184
 msgid "Keyphrases from Google's search engine"
 msgstr "キーフレーズ（Google検索から）"
 
-#: src/labels.h:186
+#: ../src/labels.h:186
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr "キーフレーズ順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:188
+#: ../src/labels.h:188
 msgid "Keyphrases"
 msgstr "キーフレーズ"
 
-#: src/labels.h:191 src/labels.h:195
+#: ../src/labels.h:191 ../src/labels.h:195
 msgid "Geo Location"
 msgstr "位置情報"
 
-#: src/labels.h:193
+#: ../src/labels.h:193
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr "地理区分 > 国別にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:198
+#: ../src/labels.h:198
 msgid "HTTP Status Codes"
 msgstr "HTTPステータスコード"
 
-#: src/labels.h:200
+#: ../src/labels.h:200
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr "HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:202
+#: ../src/labels.h:202
 msgid "Status Codes"
 msgstr "ステータスコード"
 
-#: src/labels.h:206
+#. Find Labels
+#: ../src/labels.h:206
 msgid "[ ] case sensitive"
 msgstr "[ ] 大文字と小文字を区別する"
 
-#: src/labels.h:208
+#: ../src/labels.h:208
 msgid "[x] case sensitive"
 msgstr "[x] 大文字と小文字を区別する"
 
-#: src/labels.h:210
+#: ../src/labels.h:210
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "正規表現が有効 - [^g] キャンセル - [TAB] 切り替え"
 
-#: src/labels.h:212
+#: ../src/labels.h:212
 msgid "Find pattern in all views"
 msgstr "すべてのビューでパターン検索を行う"
 
-#: src/labels.h:216
+#. Config Dialog
+#: ../src/labels.h:216
 msgid "Log Format Configuration"
 msgstr "ログ形式設定"
 
-#: src/labels.h:218
+#: ../src/labels.h:218
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
 msgstr "[SPACE] 切り替え - [ENTER] 決定 - [q] 終了"
 
-#: src/labels.h:220
+#: ../src/labels.h:220
 msgid "Log Format - [c] to add/edit format"
 msgstr "ログ形式 - [c] 追加/編集"
 
-#: src/labels.h:222
+#: ../src/labels.h:222
 msgid "Date Format - [d] to add/edit format"
 msgstr "日付形式 - [d] 追加/編集"
 
-#: src/labels.h:224
+#: ../src/labels.h:224
 msgid "Time Format - [t] to add/edit format"
 msgstr "時刻形式 - [t] 追加/編集"
 
-#: src/labels.h:226 src/labels.h:230
+#. Agents Dialog
+#: ../src/labels.h:226 ../src/labels.h:230
 msgid "[UP/DOWN] to scroll - [q] to close window"
 msgstr "[↑/↓] スクロール - [q] ウィンドウを閉じる"
 
-#: src/labels.h:232
+#: ../src/labels.h:232
 #, c-format
 msgid "User Agents for %1$s"
 msgstr "%1$s のユーザーエージェント"
 
-#: src/labels.h:236
+#. Color Scheme Dialog
+#: ../src/labels.h:236
 msgid "Scheme Configuration"
 msgstr "スキーム設定"
 
-#: src/labels.h:238
+#: ../src/labels.h:238
 msgid "[ENTER] to use scheme - [q]uit"
 msgstr "[ENTER] スキーム選択 - [q] 終了"
 
-#: src/labels.h:242
+#. Sort Dialog
+#: ../src/labels.h:242
 msgid "Sort active module by"
 msgstr "選択したカラムで並び替え"
 
-#: src/labels.h:244
+#: ../src/labels.h:244
 msgid "[ENTER] select - [TAB] sort - [q]uit"
 msgstr "[ENTER] 選択 - [TAB] ソート - [q] 終了"
 
-#: src/labels.h:248
+#. Help TUI Dialog
+#: ../src/labels.h:248
 msgid "GoAccess Quick Help"
 msgstr "GoAccessクイックヘルプ"
 
-#: src/labels.h:250
+#: ../src/labels.h:250
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[↑/↓] スクロール - [q] 終了"
 
-#: src/labels.h:254
+#. Storage Built-in Option
+#: ../src/labels.h:254
 msgid "Built using Tokyo Cabinet on-disk B+ Tree."
 msgstr "Tokyo CabinetのB+木データベースを使用する。"
 
-#: src/labels.h:256
+#: ../src/labels.h:256
 msgid "Built using Tokyo Cabinet in-memory hash database."
 msgstr "Tokyo Cabinetのインメモリハッシュデータベースを使用する。"
 
-#: src/labels.h:258
+#: ../src/labels.h:258
 msgid "Built using the default in-memory hash database."
 msgstr "デフォルトのインメモリハッシュデータベースを使用する。"
 
-#: src/labels.h:262
+#. Common UI Errors
+#: ../src/labels.h:262
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
 
-#: src/labels.h:264
+#: ../src/labels.h:264
 msgid "No date format was found on your conf file."
 msgstr "設定ファイル内で日付形式がセットされていません。"
 
-#: src/labels.h:266
+#: ../src/labels.h:266
 msgid "No log format was found on your conf file."
 msgstr "設定ファイル内でログ形式がセットされていません。"
 
-#: src/labels.h:268
+#: ../src/labels.h:268
 msgid "No time format was found on your conf file."
 msgstr "設定ファイル内で時刻形式がセットされていません。"
 
-#: src/labels.h:270
+#: ../src/labels.h:270
 msgid "No default config file found."
 msgstr "デフォルトの設定ファイルが見つかりません。"
 
-#: src/labels.h:272
+#: ../src/labels.h:272
 msgid "You may specify one with"
 msgstr "いずれか指定してください"
 
-#: src/labels.h:274
+#: ../src/labels.h:274
 msgid "producing the following errors"
 msgstr "エラーが発生しました"
 
-#: src/labels.h:276
+#: ../src/labels.h:276
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "解析済み: %1$d 行"
 
-#: src/labels.h:278
+#: ../src/labels.h:278
 msgid "Please report it by opening an issue on GitHub"
 msgstr "GitHub上のIssueから問題を報告してください"
 
-#: src/labels.h:280
+#: ../src/labels.h:280
 msgid "Select a time format."
 msgstr "時刻形式を選択します。"
 
-#: src/labels.h:282
+#: ../src/labels.h:282
 msgid "Select a date format."
 msgstr "日付形式を選択します。"
 
-#: src/labels.h:284
+#: ../src/labels.h:284
 msgid "Select a log format."
 msgstr "ログ形式を選択します。"
 
-#: src/labels.h:286
+#: ../src/labels.h:286
 #, c-format
 msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' パネルは無効化されています"
 
-#: src/labels.h:290
+#. Other
+#: ../src/labels.h:290
 msgid "For more details visit"
 msgstr "詳細はこちら"
 
-#: src/labels.h:292
+#: ../src/labels.h:292
 msgid "Last Updated"
 msgstr "最終更新日時"
 
-#: src/labels.h:294
+#: ../src/labels.h:294
 msgid "WebSocket server ready to accept new client connections"
 msgstr "覚悟完了: WebSocket接続待機中"
 
-#: src/labels.h:297
+#: ../src/labels.h:297
 msgid "The following options can also be supplied to the command"
 msgstr "次のオプションはコマンドで指定することもできます"
 
-#: src/labels.h:299
+#: ../src/labels.h:299
 msgid "Examples can be found by running"
 msgstr "実行例"
 
-#: src/labels.h:302
+#: ../src/labels.h:302
 msgid "Server Statistics"
 msgstr "サーバー統計"
 
-#: src/labels.h:304
+#: ../src/labels.h:304
 msgid "Theme"
 msgstr "テーマ"
 
-#: src/labels.h:306
+#: ../src/labels.h:306
 msgid "Dark Gray"
 msgstr "ダークグレー"
 
-#: src/labels.h:308
+#: ../src/labels.h:308
 msgid "Bright"
 msgstr "ライト"
 
-#: src/labels.h:310
+#: ../src/labels.h:310
 msgid "Dark Blue"
 msgstr "ダークブルー"
 
-#: src/labels.h:312
+#: ../src/labels.h:312
 msgid "Dark Purple"
 msgstr "ダークパープル"
 
-#: src/labels.h:314
+#: ../src/labels.h:314
 msgid "Panels"
 msgstr "パネル"
 
-#: src/labels.h:316
+#: ../src/labels.h:316
 msgid "Items per Page"
 msgstr "ページあたりの表示数"
 
-#: src/labels.h:318
+#: ../src/labels.h:318
 msgid "Tables"
 msgstr "テーブル"
 
-#: src/labels.h:320
+#: ../src/labels.h:320
 msgid "Display Tables"
 msgstr "テーブル表示"
 
-#: src/labels.h:322
+#: ../src/labels.h:322
 msgid "Auto-Hide on Small Devices"
 msgstr "自動非表示設定（小型端末用）"
 
-#: src/labels.h:324
+#: ../src/labels.h:324
 msgid "Automatically hide tables on small screen devices"
 msgstr "画面が小さい場合に自動でテーブルを非表示にする"
 
-#: src/labels.h:326
+#: ../src/labels.h:326
 msgid "Layout"
 msgstr "レイアウト"
 
-#: src/labels.h:328
+#: ../src/labels.h:328
 msgid "Horizontal"
 msgstr "水平"
 
-#: src/labels.h:330
+#: ../src/labels.h:330
 msgid "Vertical"
 msgstr "垂直"
 
-#: src/labels.h:332
+#: ../src/labels.h:332
 msgid "File Options"
 msgstr "ファイルオプション"
 
-#: src/labels.h:334
+#: ../src/labels.h:334
 msgid "Export as JSON"
 msgstr "JSON形式でエクスポート"
 
-#: src/labels.h:336
+#: ../src/labels.h:336
 msgid "Panel Options"
 msgstr "パネルオプション"
 
-#: src/labels.h:338
+#: ../src/labels.h:338
 msgid "Previous"
 msgstr "前へ"
 
-#: src/labels.h:340
+#: ../src/labels.h:340
 msgid "Next"
 msgstr "次へ"
 
-#: src/labels.h:342
+#: ../src/labels.h:342
 msgid "First"
 msgstr "最初へ"
 
-#: src/labels.h:344
+#: ../src/labels.h:344
 msgid "Last"
 msgstr "最後へ"
 
-#: src/labels.h:346
+#: ../src/labels.h:346
 msgid "Chart Options"
 msgstr "グラフ設定"
 
-#: src/labels.h:348
+#: ../src/labels.h:348
 msgid "Chart"
 msgstr "グラフ"
 
-#: src/labels.h:350
+#: ../src/labels.h:350
 msgid "Type"
 msgstr "タイプ"
 
-#: src/labels.h:352
+#: ../src/labels.h:352
 msgid "Area Spline"
 msgstr "平滑面グラフ"
 
-#: src/labels.h:354
+#: ../src/labels.h:354
 msgid "Bar"
 msgstr "棒グラフ"
 
-#: src/labels.h:356
+#: ../src/labels.h:356
 msgid "Plot Metric"
 msgstr "表示するデータ"
 
-#: src/labels.h:358
+#: ../src/labels.h:358
 msgid "Table Columns"
 msgstr "テーブルカラム"
 
-#: src/labels.h:362
+#. Status Codes
+#: ../src/labels.h:362
 msgid "1xx Informational"
 msgstr "1xx 情報"
 
-#: src/labels.h:364
+#: ../src/labels.h:364
 msgid "2xx Success"
 msgstr "2xx 成功"
 
-#: src/labels.h:366
+#: ../src/labels.h:366
 msgid "3xx Redirection"
 msgstr "3xx リダイレクション"
 
-#: src/labels.h:368
+#: ../src/labels.h:368
 msgid "4xx Client Errors"
 msgstr "4xx クライアントエラー"
 
-#: src/labels.h:370
+#: ../src/labels.h:370
 msgid "5xx Server Errors"
 msgstr "5xx サーバーエラー"
 
-#: src/labels.h:373
+#: ../src/labels.h:373
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - 継続: リクエストヘッダーを受理しました"
 
-#: src/labels.h:375
+#: ../src/labels.h:375
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr "101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
 
-#: src/labels.h:377
+#: ../src/labels.h:377
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - 成功: リクエストに成功しました"
 
-#: src/labels.h:379
+#: ../src/labels.h:379
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - 作成: リクエストが成功して新たなリソースの作成が完了しました"
 
-#: src/labels.h:381
+#: ../src/labels.h:381
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - 受理: リクエストを受け取ったが処理されていません"
 
-#: src/labels.h:383
+#: ../src/labels.h:383
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は別の送信元から来る可能性があります"
 
-#: src/labels.h:385
+#: ../src/labels.h:385
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありません"
 
-#: src/labels.h:387
+#: ../src/labels.h:387
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr "205 - リセット要求: クライアントに対してドキュメントビューのリセットを行うよう要求しました"
 
-#: src/labels.h:389
+#: ../src/labels.h:389
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - 部分応答: コンテンツの一部のみレスポンスを返しました"
 
-#: src/labels.h:391
+#: ../src/labels.h:391
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - 複数ステータス: (WebDAV拡張) RFC 4918"
 
-#: src/labels.h:393
+#: ../src/labels.h:393
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - 報告済み: (WebDAV拡張) RFC 5842"
 
-#: src/labels.h:395
+#: ../src/labels.h:395
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - 選択が必要: リダイレクト先が複数指定されています"
 
-#: src/labels.h:397
+#: ../src/labels.h:397
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - 恒久的な移動: リクエストされたリソースは完全に移動されました"
 
-#: src/labels.h:399
+#: ../src/labels.h:399
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - 一時的な移動: リクエストされたリソースは一時的に移動されました"
 
-#: src/labels.h:401
+#: ../src/labels.h:401
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
 
-#: src/labels.h:403
+#: ../src/labels.h:403
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - 更新無し: リクエストされたリソースは更新されていません"
 
-#: src/labels.h:405
+#: ../src/labels.h:405
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
 
-#: src/labels.h:407
+#: ../src/labels.h:407
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - 一時的な移動: リクエストされたリソースは一時的に移動されました"
 
-#: src/labels.h:409
+#: ../src/labels.h:409
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - 不正なリクエスト: リクエストを処理できません"
 
-#: src/labels.h:411
+#: ../src/labels.h:411
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - 認証が必要: このリクエストを処理するには認証が必要です"
 
-#: src/labels.h:413
+#: ../src/labels.h:413
 msgid "402 - Payment Required"
 msgstr "402 - 課金が必要なコンテンツ"
 
-#: src/labels.h:415
+#: ../src/labels.h:415
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - アクセス禁止: このリクエストへのアクセスは禁止されています"
 
-#: src/labels.h:417
+#: ../src/labels.h:417
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - リソース不明: リクエストされたリソースは存在しません"
 
-#: src/labels.h:419
+#: ../src/labels.h:419
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されています"
 
-#: src/labels.h:421
+#: ../src/labels.h:421
 msgid "406 - Not Acceptable"
 msgstr "406 - リクエストを受理できません"
 
-#: src/labels.h:423
+#: ../src/labels.h:423
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - プロキシ認証が必要です"
 
-#: src/labels.h:425
+#: ../src/labels.h:425
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr "408 - タイムアウト: リクエストがタイムアウトしました"
 
-#: src/labels.h:427
+#: ../src/labels.h:427
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - 衝突: リクエストが衝突しました"
 
-#: src/labels.h:429
+#: ../src/labels.h:429
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr "410 - 消滅: リクエストされたリソースは完全に削除されました"
 
-#: src/labels.h:431
+#: ../src/labels.h:431
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Content-Lengthヘッダーが必要です"
 
-#: src/labels.h:433
+#: ../src/labels.h:433
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr "412 - サーバーに与えられた前提条件を満たしていません"
 
-#: src/labels.h:435
+#: ../src/labels.h:435
 msgid "413 - Payload Too Large"
 msgstr "413 - ペイロードが長すぎます"
 
-#: src/labels.h:437
+#: ../src/labels.h:437
 msgid "414 - Request-URI Too Long"
 msgstr "414 - リクエストされたURIが長すぎます"
 
-#: src/labels.h:439
+#: ../src/labels.h:439
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - サポートされていないメディアタイプ"
 
-#: src/labels.h:441
+#: ../src/labels.h:441
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
 msgstr "416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過しています"
 
-#: src/labels.h:443
+#: ../src/labels.h:443
 msgid "417 - Expectation Failed"
 msgstr "417 - 拡張ステータスコードが使えません"
 
-#: src/labels.h:445
+#: ../src/labels.h:445
 msgid "421 - Misdirected Request"
 msgstr "421 - 不明なリクエスト"
 
-#: src/labels.h:447
+#: ../src/labels.h:447
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - (WebDAV拡張) 処理できないエンティティ"
 
-#: src/labels.h:449
+#: ../src/labels.h:449
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - このリソースはロックされています"
 
-#: src/labels.h:451
+#: ../src/labels.h:451
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - (WebDAV拡張) 依存関係でエラーが発生しました"
 
-#: src/labels.h:453
+#: ../src/labels.h:453
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
 
-#: src/labels.h:455
+#: ../src/labels.h:455
 msgid "428 - Precondition Required"
 msgstr "428 - リクエストを条件付きにする必要があります"
 
-#: src/labels.h:457
+#: ../src/labels.h:457
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 - 過重リクエスト: 制限されたリクエスト数を超えたので処理できません"
 
-#: src/labels.h:459
+#: ../src/labels.h:459
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - HTTPヘッダーが長すぎます"
 
-#: src/labels.h:461
+#: ../src/labels.h:461
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - 法的理由により利用不可"
 
-#: src/labels.h:463
+#: ../src/labels.h:463
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (nginx) 接続を遮断しました"
 
-#: src/labels.h:465
+#: ../src/labels.h:465
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (nginx) HTTPヘッダーが長すぎます"
 
-#: src/labels.h:467
+#: ../src/labels.h:467
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (nginx) SSLクライアント証明書エラー"
 
-#: src/labels.h:469
+#: ../src/labels.h:469
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (nginx) クライアントが証明書を提供しませんでした"
 
-#: src/labels.h:471
+#: ../src/labels.h:471
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
-#: src/labels.h:473
+#: ../src/labels.h:473
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
-#: src/labels.h:475
+#: ../src/labels.h:475
 msgid "500 - Internal Server Error"
 msgstr "500 - 内部サーバーエラー"
 
-#: src/labels.h:477
+#: ../src/labels.h:477
 msgid "501 - Not Implemented"
 msgstr "501 - 実装されていません"
 
-#: src/labels.h:479
+#: ../src/labels.h:479
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
 
-#: src/labels.h:481
+#: ../src/labels.h:481
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - サービス利用不可: サーバーがダウンしました"
 
-#: src/labels.h:483
+#: ../src/labels.h:483
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - ゲートウェイタイムアウト: 上位サーバーがリクエストを返しません"
 
-#: src/labels.h:485
+#: ../src/labels.h:485
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTPバージョンがサポートされていません"
 
-#: src/labels.h:487
+#: ../src/labels.h:487
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webサーバーが未知のエラーを返しています"
 
-#: src/labels.h:489
+#: ../src/labels.h:489
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - Webサーバーがダウンしています"
 
-#: src/labels.h:491
+#: ../src/labels.h:491
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - 接続がタイムアウトしました"
 
-#: src/labels.h:493
+#: ../src/labels.h:493
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Originに到達できません"
 
-#: src/labels.h:495
+#: ../src/labels.h:495
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
