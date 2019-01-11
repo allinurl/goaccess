@@ -121,6 +121,7 @@ char *
 get_config_file_path (void)
 {
   char *upath = NULL, *rpath = NULL;
+  FILE *file;
 
   /* determine which config file to open, default or custom */
   if (conf.iconfigfile != NULL) {
@@ -138,12 +139,14 @@ get_config_file_path (void)
   }
 
   /* otherwise, fallback to global config file */
-  if (rpath == NULL && conf.load_global_config) {
+  if ((file = fopen (rpath, "r")) == NULL && conf.load_global_config) {
     upath = get_global_config ();
     rpath = realpath (upath, NULL);
     if (upath) {
       free (upath);
     }
+  } else {
+    fclose (file);
   }
 
   return rpath;
