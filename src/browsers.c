@@ -116,6 +116,8 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  {"OpenBSD ftp", "Others"},
+  {"lftp", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -183,6 +185,7 @@ static const char *browsers[][2] = {
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
   {"Microsoft-WebDAV", "Crawlers"},
+  {"The Knowledge AI", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
