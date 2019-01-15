@@ -1710,7 +1710,11 @@ parse_raw_data (GModule module)
   raw_data->type = type;
 
   tc_db_foreach (hash, data_iter_generic, raw_data);
-  sort_raw_num_data (raw_data, raw_data->idx);
+  if (raw_data->type == STRING) {
+    sort_raw_str_data (raw_data, raw_data->idx);
+  } else {
+    sort_raw_num_data (raw_data, raw_data->idx);
+  }
 
   return raw_data;
 }
