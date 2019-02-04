@@ -52,6 +52,7 @@
 #include "error.h"
 #include "labels.h"
 #include "util.h"
+
 #include "xmalloc.h"
 
 static char short_options[] = "f:e:p:o:l:H:M:S:b:"
@@ -120,6 +121,7 @@ struct option long_opts[] = {
   {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
   {"no-global-config"     , no_argument       , 0 ,  0  } ,
   {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
+  {"no-ip-validation"     , no_argument       , 0 ,  0  } ,
   {"no-parsing-spinner"   , no_argument       , 0 ,  0  } ,
   {"no-progress"          , no_argument       , 0 ,  0  } ,
   {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
@@ -559,6 +561,10 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("ignore-referer", name))
     set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx,
                    MAX_IGNORE_REF);
+
+  /* client IP validation */
+  if (!strcmp ("no-ip-validation", name))
+    conf.no_ip_validation = 1;
 
   /* hide referer from report (e.g. within same site) */
   if (!strcmp ("hide-referer", name))
