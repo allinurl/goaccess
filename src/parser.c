@@ -1083,7 +1083,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    if (invalid_ipaddr (tkn, &logitem->type_ip)) {
+    if (!conf.no_ip_validation && invalid_ipaddr (tkn, &logitem->type_ip)) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;

@@ -608,6 +608,10 @@ ww?.domain.*
 Ignore parsing and displaying one or multiple status code(s). For multiple
 status codes, use this option multiple times.
 .TP
+\fB\-\-no-ip-validation
+Disable client IP validation. Useful if IP addresses have been obfuscated before
+being logged.
+.TP
 \fB\-\-num-tests=<number>
 Number of lines from the access log to test against the provided log/date/time
 format. By default, the parser is set to test 10 lines.  If set to 0, the parser
