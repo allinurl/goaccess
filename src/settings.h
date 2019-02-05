@@ -164,6 +164,7 @@ typedef struct GConf_
   int no_column_names;              /* don't show col names on termnal */
   int no_csv_summary;               /* don't show overall metrics */
   int no_html_last_updated;         /* don't show HTML last updated field */
+  int no_ip_validation;             /* don't validate client IP addresses */
   int no_parsing_spinner;           /* disable parsing spinner */
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
