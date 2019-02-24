@@ -1537,7 +1537,7 @@ output_logerrors (GLog * glog)
     return;
 
   fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
-  fprintf (stderr, "%s:\n\n", ERR_PARSED_NLINES_DESC);
+  fprintf (stderr, " %s:\n\n", ERR_PARSED_NLINES_DESC);
 
   for (i = 0; i < glog->log_erridx; ++i)
     fprintf (stderr, "%s\n", glog->errors[i]);
