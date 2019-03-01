@@ -1,0 +1,29 @@
+name: goaccess
+version: git
+summary: Real-time web log analyzer and interactive viewer
+description: |
+  GoAccess is a real-time web log analyzer and interactive viewer that runs
+  in a terminal in *nix systems or through your browser.
+confinement: classic
+grade: devel
+
+apps:
+  goaccess:
+    command: bin/goaccess
+
+parts:
+  goaccess:
+    plugin: autotools
+    source: .
+    configflags:
+      - --enable-utf8
+      - --enable-geoip=legacy
+    build-packages:
+      - gettext
+      - libncurses-dev
+      - libncursesw5-dev
+      - libglib2.0-dev
+      - libgeoip-dev
+    stage-packages:
+      - libgeoip-dev
+
