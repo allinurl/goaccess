@@ -18,8 +18,6 @@ Changes to GoAccess 1.3 - Friday, November 23, 2018
   - Added --hide-referer command line option to hide referers from report.
   - Added HTTP status code 429 (TOO MANY REQUESTS).
   - Added IGNORE_LEVEL_PANEL and IGNORE_LEVEL_REQ definitions.
-  - Added --ignore-referer-report command line option to hide referers from
-    output.
   - Added Japanese translation (i18n).
   - Added macOS 10.14 Mojave to the list of OSs.
   - Added "Mastodon" user-agent to the list of crawlers/unix-like.
