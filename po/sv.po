@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-12-13 22:48-0600\n"
+"POT-Creation-Date: 2019-04-26 09:31+0000\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.see>\n"
 "Language-Team: none\n"
@@ -50,6 +50,7 @@ msgstr "[ ] ASC [x] DESC"
 
 #. Overall Stats Labels
 #: ../src/labels.h:53
+#, c-format
 msgid "[Active Panel: %1$s]"
 msgstr "[Aktiv panel: %1$s]"
 
@@ -793,105 +794,109 @@ msgid "417 - Expectation Failed"
 msgstr "417 - Förväntning misslyckades"
 
 #: ../src/labels.h:445
+msgid "418 - I’m a teapot"
+msgstr ""
+
+#: ../src/labels.h:447
 msgid "421 - Misdirected Request"
 msgstr "421 - Felriktad förfrågan"
 
-#: ../src/labels.h:447
+#: ../src/labels.h:449
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - Obearbetad entitet på grund av semantiska fel: WebDAV"
 
-#: ../src/labels.h:449
+#: ../src/labels.h:451
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - Resursen som nås är låst"
 
-#: ../src/labels.h:451
+#: ../src/labels.h:453
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - Misslyckad beroende: WebDAV"
 
-#: ../src/labels.h:453
+#: ../src/labels.h:455
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - Uppgradering krävs: Klienten ska byta till ett annat protokoll"
 
-#: ../src/labels.h:455
+#: ../src/labels.h:457
 msgid "428 - Precondition Required"
 msgstr "428 - Förutsättning krävs"
 
-#: ../src/labels.h:457
+#: ../src/labels.h:459
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
-#: ../src/labels.h:459
+#: ../src/labels.h:461
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - Begär headerfält för stort"
 
-#: ../src/labels.h:461
+#: ../src/labels.h:463
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - Ej tillgänglig för juridiska skäl"
 
-#: ../src/labels.h:463
+#: ../src/labels.h:465
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) Anslutningen är stängd utan att skicka några rubriker"
 
-#: ../src/labels.h:465
+#: ../src/labels.h:467
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) Begär Header För Stor"
 
-#: ../src/labels.h:467
+#: ../src/labels.h:469
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) SSL-klientcertifikatfel"
 
-#: ../src/labels.h:469
+#: ../src/labels.h:471
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) Klienten lämnade inte certifikat"
 
-#: ../src/labels.h:471
+#: ../src/labels.h:473
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) HTTP-begäran skickad till HTTPS-porten"
 
-#: ../src/labels.h:473
+#: ../src/labels.h:475
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (Nginx) Anslutning sluten av klienten vid bearbetningsförfrågan"
 
-#: ../src/labels.h:475
+#: ../src/labels.h:477
 msgid "500 - Internal Server Error"
 msgstr "500 - Internt serverfel"
 
-#: ../src/labels.h:477
+#: ../src/labels.h:479
 msgid "501 - Not Implemented"
 msgstr "501 - Inte Implementerad"
 
-#: ../src/labels.h:479
+#: ../src/labels.h:481
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - Dålig Gateway: Fick ett ogiltigt svar från uppströms"
 
-#: ../src/labels.h:481
+#: ../src/labels.h:483
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgänglig"
 
-#: ../src/labels.h:483
+#: ../src/labels.h:485
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka förfrågan"
 
-#: ../src/labels.h:485
+#: ../src/labels.h:487
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP-version stöds inte"
 
-#: ../src/labels.h:487
+#: ../src/labels.h:489
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webbserver returnerar ett okänt fel"
 
-#: ../src/labels.h:489
+#: ../src/labels.h:491
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - webbservern är nere"
 
-#: ../src/labels.h:491
+#: ../src/labels.h:493
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - Anslutningen avbröts"
 
-#: ../src/labels.h:493
+#: ../src/labels.h:495
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Ursprung är oåtkomligt"
 
-#: ../src/labels.h:495
+#: ../src/labels.h:497
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
