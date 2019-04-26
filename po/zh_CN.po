@@ -217,8 +217,7 @@ msgstr "请求的文件"
 
 #: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
+msgstr "请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:111
 msgid "Requests"
@@ -230,8 +229,7 @@ msgstr "静态请求"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"静态请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
+msgstr "静态请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
@@ -267,9 +265,7 @@ msgstr "未找到的URLs"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"未找到的URLs排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协"
-"议]"
+msgstr "未找到的URLs排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
