@@ -441,6 +441,8 @@
   N_("416 - Requested Range Not Satisfiable: Cannot supply that portion")
 #define STATUS_CODE_417               \
   N_("417 - Expectation Failed")
+#define STATUS_CODE_418               \
+  N_("418 - I’m a teapot")
 #define STATUS_CODE_421               \
   N_("421 - Misdirected Request")
 #define STATUS_CODE_422               \
