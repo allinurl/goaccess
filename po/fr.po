@@ -211,8 +211,7 @@ msgstr "Visiteurs uniques/jour - Y compris bots"
 
 #: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
-"Les hits depuis la même IP, date et user-agent comptent comme visite unique"
+msgstr "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
 #: ../src/labels.h:107
 msgid "Requested Files (URLs)"
@@ -232,8 +231,7 @@ msgstr "Requêtes statiques"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
@@ -269,8 +267,7 @@ msgstr "URLs Non trouvées (404s)"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
@@ -434,15 +431,11 @@ msgstr "Construit sur le disque en arbre B+ en utilisant Tokyo Cabinet."
 
 #: ../src/labels.h:256
 msgid "Built using Tokyo Cabinet in-memory hash database."
-msgstr ""
-"Construit en mémoire avec une base de données de la table de hachage en "
-"utilisant Tokyo Cabinet"
+msgstr "Construit en mémoire avec une base de données de la table de hachage en utilisant Tokyo Cabinet"
 
 #: ../src/labels.h:258
 msgid "Built using the default in-memory hash database."
-msgstr ""
-"Construit par défaut en mémoire avec une base de données de la table de "
-"hachage"
+msgstr "Construit par défaut en mémoire avec une base de données de la table de hachage"
 
 #. Common UI Errors
 #: ../src/labels.h:262
@@ -567,8 +560,7 @@ msgstr "Masquage-auto/Petits appareils"
 
 #: ../src/labels.h:324
 msgid "Automatically hide tables on small screen devices"
-msgstr ""
-"Masquer automatiquement les tableaux sur les appareils avec un petit écran"
+msgstr "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
 #: ../src/labels.h:326
 msgid "Layout"

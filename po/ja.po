@@ -855,8 +855,7 @@ msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
 #: ../src/labels.h:475
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr ""
-"499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
+msgstr "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
 #: ../src/labels.h:477
 msgid "500 - Internal Server Error"

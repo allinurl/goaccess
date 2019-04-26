@@ -231,9 +231,7 @@ msgstr "Peticiones Estaticas"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Peticiones estaticas top ordenadas por hits [, avgts, cumts, maxts, mthd, "
-"proto]"
+msgstr "Peticiones estaticas top ordenadas por hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
@@ -269,9 +267,7 @@ msgstr "URLs no encontradas (404)"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"URLs no encontradas top ordenadas por hits [, avgts, cumts, maxts, mthd, "
-"proto]"
+msgstr "URLs no encontradas top ordenadas por hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
@@ -685,8 +681,7 @@ msgstr "204 - Sin Contenido: Peticion no retorno ningun contenido"
 
 #: ../src/labels.h:387
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
-"205 - Resetear Contenido: Servidor pidio al cliente resetear el documento"
+msgstr "205 - Resetear Contenido: Servidor pidio al cliente resetear el documento"
 
 #: ../src/labels.h:389
 msgid "206 - Partial Content: The partial GET has been successful"
@@ -880,13 +875,11 @@ msgstr "502 - Entrada Erronea: Recibio respuesta invalida"
 
 #: ../src/labels.h:483
 msgid "503 - Service Unavailable: The server is currently unavailable"
-msgstr ""
-"503 - Servicio no disponible: El servidor actualmente no esta disponible"
+msgstr "503 - Servicio no disponible: El servidor actualmente no esta disponible"
 
 #: ../src/labels.h:485
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
-"504 - Timeout de Gateway: El servidor upstream fallo al enviar peticion"
+msgstr "504 - Timeout de Gateway: El servidor upstream fallo al enviar peticion"
 
 #: ../src/labels.h:487
 msgid "505 - HTTP Version Not Supported"
