@@ -232,6 +232,16 @@ print_html_header (FILE * fp)
   "<meta name='viewport' content='width=device-width, initial-scale=1'>"
   "<meta name='robots' content='noindex, nofollow'>", _(DOC_LANG));
 
+  /* Output base64 encoded goaccess favicon.ico*/
+  fprintf (fp, "<link rel='icon' href='data:image/x-icon;base64,AAABAAEA"
+  "EBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAA"
+  "AAAAADGxsYAWFhYABwcHABfAP8A/9dfAADXrwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  "AAAAAAAAAAAAAAAAAAAAAAIiIiIiIiIiIjMlUkQgAiIiIiIiIiIiIiIzJVJEIAAAIiIiI"
+  "iIiIiIiMyVSRCAAIiIiIiIiIiIiIRERERERERERERERERERERIiIiIiIiIiIgACVVUiIi"
+  "IiIiIiIiIiIiIAAlVVIiIiIiIiIiIiIiIhEREREREREREREREREREREAAAAAAAAAAAAAA"
+  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  "AA' type='image/x-icon' />");
+
   print_html_title (fp);
 
   fprintf (fp, "<style>%s</style>", fa_css);
