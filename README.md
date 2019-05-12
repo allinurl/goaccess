@@ -197,6 +197,20 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 
 ### Docker ###
 
+**New!**: Docker image has been updated. This allows direct output from the access log.
+
+If you only want to output the report, run as follows to get the result:
+
+    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED > report.html
+
+**This command uses the language set for this system.** If that does not support it will be output in English. [**Supported Language**](https://github.com/allinurl/goaccess/raw/master/po/LINGUAS)
+
+**This image supports building on the ARM architecture.** (e.g. Raspberry Pi)
+
+**Do you want to change the timezone?** Copy the timezone configuration file in `tzdata.tar.xz` to `/etc/localtime`.
+
+---
+
 **Note**: The following example assumes you will store your GoAccess data below
 ``/srv/goaccess``, but you can use a different prefix if you like or if you run
 as non-root user.
