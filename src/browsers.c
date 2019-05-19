@@ -144,12 +144,17 @@ static const char *browsers[][2] = {
   /* Rebranded Firefox but is really unmodified
    * Firefox (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
+  {"Focus", "Firefox"},
+  /* Klar is the name of Firefox Focus in the German market. */
+  {"Klar", "Firefox"},
   {"Firefox", "Firefox"},
 
   /* Based on Chromium */
-  {"Vivaldi", "Others"},
-  {"YaBrowser", "Others"},
-  {"Flock", "Others"},
+  {"BeakerBrowser", "Beaker"},
+  {"Brave", "Brave"},
+  {"Vivaldi", "Vivaldi"},
+  {"YaBrowser", "Yandex.Browser"},
+
   /* Chrome has to go before Safari */
   {"HeadlessChrome", "Chrome"},
   {"Chrome", "Chrome"},
