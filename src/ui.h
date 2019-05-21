@@ -59,6 +59,8 @@
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50     /* max length of the progress spinner */
 
+#define SPIN_UPDATE_INTERVAL 100000 // in microseconds
+
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"
 #define REQUESTS_ID        "requests"
