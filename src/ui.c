@@ -181,6 +181,10 @@ end_spinner (void)
   pthread_mutex_lock (&parsing_spinner->mutex);
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
+  if (!parsing_spinner->curses) {
+    // wait for the ui_spinner thread to finish
+    usleep(SPIN_UPDATE_INTERVAL);
+  }
 }
 
 /* Set background colors to all windows. */
@@ -1052,8 +1056,12 @@ ui_spinner (void *ptr_data)
   time (&begin);
   while (1) {
     pthread_mutex_lock (&sp->mutex);
-    if (sp->state == SPN_END)
+    if (sp->state == SPN_END) {
+      if (!sp->curses && !conf.no_progress)
+        fprintf(stderr, "\n");
+
       break;
+    }
 
     setlocale (LC_NUMERIC, "");
     if (conf.no_progress) {
@@ -1079,7 +1087,7 @@ ui_spinner (void *ptr_data)
     }
 
     pthread_mutex_unlock (&sp->mutex);
-    usleep (100000);
+    usleep (SPIN_UPDATE_INTERVAL);
   }
 }
 
