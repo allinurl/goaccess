@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-12-13 22:48-0600\n"
+"POT-Creation-Date: 2019-04-26 09:31+0000\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Nicolas P <np.pascal@gmail.com>\n"
 "Language-Team: français\n"
@@ -211,8 +211,7 @@ msgstr "Visiteurs uniques/jour - Y compris bots"
 
 #: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
-"Les hits depuis la même IP, date et user-agent comptent comme visite unique"
+msgstr "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
 #: ../src/labels.h:107
 msgid "Requested Files (URLs)"
@@ -232,8 +231,7 @@ msgstr "Requêtes statiques"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
@@ -269,8 +267,7 @@ msgstr "URLs Non trouvées (404s)"
 
 #: ../src/labels.h:144
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: ../src/labels.h:149
 msgid "Visitor Hostnames and IPs"
@@ -434,15 +431,11 @@ msgstr "Construit sur le disque en arbre B+ en utilisant Tokyo Cabinet."
 
 #: ../src/labels.h:256
 msgid "Built using Tokyo Cabinet in-memory hash database."
-msgstr ""
-"Construit en mémoire avec une base de données de la table de hachage en "
-"utilisant Tokyo Cabinet"
+msgstr "Construit en mémoire avec une base de données de la table de hachage en utilisant Tokyo Cabinet"
 
 #: ../src/labels.h:258
 msgid "Built using the default in-memory hash database."
-msgstr ""
-"Construit par défaut en mémoire avec une base de données de la table de "
-"hachage"
+msgstr "Construit par défaut en mémoire avec une base de données de la table de hachage"
 
 #. Common UI Errors
 #: ../src/labels.h:262
@@ -567,8 +560,7 @@ msgstr "Masquage-auto/Petits appareils"
 
 #: ../src/labels.h:324
 msgid "Automatically hide tables on small screen devices"
-msgstr ""
-"Masquer automatiquement les tableaux sur les appareils avec un petit écran"
+msgstr "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
 #: ../src/labels.h:326
 msgid "Layout"
@@ -804,106 +796,110 @@ msgid "417 - Expectation Failed"
 msgstr ""
 
 #: ../src/labels.h:445
-msgid "421 - Misdirected Request"
+msgid "418 - I’m a teapot"
 msgstr ""
 
 #: ../src/labels.h:447
-msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
+msgid "421 - Misdirected Request"
 msgstr ""
 
 #: ../src/labels.h:449
-msgid "423 - The resource that is being accessed is locked"
+msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr ""
 
 #: ../src/labels.h:451
-msgid "424 - Failed Dependency: WebDAV"
+msgid "423 - The resource that is being accessed is locked"
 msgstr ""
 
 #: ../src/labels.h:453
-msgid "426 - Upgrade Required: Client should switch to a different protocol"
+msgid "424 - Failed Dependency: WebDAV"
 msgstr ""
 
 #: ../src/labels.h:455
-msgid "428 - Precondition Required"
+msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr ""
 
 #: ../src/labels.h:457
-msgid "429 - Too Many Requests: The user has sent too many requests"
+msgid "428 - Precondition Required"
 msgstr ""
 
 #: ../src/labels.h:459
-msgid "431 - Request Header Fields Too Large"
+msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
 
 #: ../src/labels.h:461
-msgid "451 - Unavailable For Legal Reasons"
+msgid "431 - Request Header Fields Too Large"
 msgstr ""
 
 #: ../src/labels.h:463
-msgid "444 - (Nginx) Connection closed without sending any headers"
+msgid "451 - Unavailable For Legal Reasons"
 msgstr ""
 
 #: ../src/labels.h:465
-msgid "494 - (Nginx) Request Header Too Large"
+msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr ""
 
 #: ../src/labels.h:467
-msgid "495 - (Nginx) SSL client certificate error"
+msgid "494 - (Nginx) Request Header Too Large"
 msgstr ""
 
 #: ../src/labels.h:469
-msgid "496 - (Nginx) Client didn't provide certificate"
+msgid "495 - (Nginx) SSL client certificate error"
 msgstr ""
 
 #: ../src/labels.h:471
-msgid "497 - (Nginx) HTTP request sent to HTTPS port"
+msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr ""
 
 #: ../src/labels.h:473
-msgid "499 - (Nginx) Connection closed by client while processing request"
+msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr ""
 
 #: ../src/labels.h:475
-msgid "500 - Internal Server Error"
+msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr ""
 
 #: ../src/labels.h:477
-msgid "501 - Not Implemented"
+msgid "500 - Internal Server Error"
 msgstr ""
 
 #: ../src/labels.h:479
-msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgid "501 - Not Implemented"
 msgstr ""
 
 #: ../src/labels.h:481
-msgid "503 - Service Unavailable: The server is currently unavailable"
+msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr ""
 
 #: ../src/labels.h:483
-msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr ""
 
 #: ../src/labels.h:485
-msgid "505 - HTTP Version Not Supported"
+msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr ""
 
 #: ../src/labels.h:487
-msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgid "505 - HTTP Version Not Supported"
 msgstr ""
 
 #: ../src/labels.h:489
-msgid "521 - CloudFlare - Web server is down"
+msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr ""
 
 #: ../src/labels.h:491
-msgid "522 - CloudFlare - Connection timed out"
+msgid "521 - CloudFlare - Web server is down"
 msgstr ""
 
 #: ../src/labels.h:493
-msgid "523 - CloudFlare - Origin is unreachable"
+msgid "522 - CloudFlare - Connection timed out"
 msgstr ""
 
 #: ../src/labels.h:495
+msgid "523 - CloudFlare - Origin is unreachable"
+msgstr ""
+
+#: ../src/labels.h:497
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr ""
 
