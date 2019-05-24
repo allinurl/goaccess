@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2018-12-13 22:48-0600\n"
+"POT-Creation-Date: 2019-04-26 09:31+0000\n"
 "PO-Revision-Date: 2018-11-25 09:00+0900\n"
 "Last-Translator: Hiroki Kamino <46459949+err931@users.noreply.github.com>\n"
 "Language-Team: Japanese\n"
@@ -794,105 +794,109 @@ msgid "417 - Expectation Failed"
 msgstr "417 - 拡張ステータスコードが使えません"
 
 #: ../src/labels.h:445
+msgid "418 - I’m a teapot"
+msgstr ""
+
+#: ../src/labels.h:447
 msgid "421 - Misdirected Request"
 msgstr "421 - 不明なリクエスト"
 
-#: ../src/labels.h:447
+#: ../src/labels.h:449
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - (WebDAV拡張) 処理できないエンティティ"
 
-#: ../src/labels.h:449
+#: ../src/labels.h:451
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - このリソースはロックされています"
 
-#: ../src/labels.h:451
+#: ../src/labels.h:453
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - (WebDAV拡張) 依存関係でエラーが発生しました"
 
-#: ../src/labels.h:453
+#: ../src/labels.h:455
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
 
-#: ../src/labels.h:455
+#: ../src/labels.h:457
 msgid "428 - Precondition Required"
 msgstr "428 - リクエストを条件付きにする必要があります"
 
-#: ../src/labels.h:457
+#: ../src/labels.h:459
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 - 過重リクエスト: 制限されたリクエスト数を超えたので処理できません"
 
-#: ../src/labels.h:459
+#: ../src/labels.h:461
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - HTTPヘッダーが長すぎます"
 
-#: ../src/labels.h:461
+#: ../src/labels.h:463
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - 法的理由により利用不可"
 
-#: ../src/labels.h:463
+#: ../src/labels.h:465
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (nginx) 接続を遮断しました"
 
-#: ../src/labels.h:465
+#: ../src/labels.h:467
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (nginx) HTTPヘッダーが長すぎます"
 
-#: ../src/labels.h:467
+#: ../src/labels.h:469
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (nginx) SSLクライアント証明書エラー"
 
-#: ../src/labels.h:469
+#: ../src/labels.h:471
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (nginx) クライアントが証明書を提供しませんでした"
 
-#: ../src/labels.h:471
+#: ../src/labels.h:473
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
-#: ../src/labels.h:473
+#: ../src/labels.h:475
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
-#: ../src/labels.h:475
+#: ../src/labels.h:477
 msgid "500 - Internal Server Error"
 msgstr "500 - 内部サーバーエラー"
 
-#: ../src/labels.h:477
+#: ../src/labels.h:479
 msgid "501 - Not Implemented"
 msgstr "501 - 実装されていません"
 
-#: ../src/labels.h:479
+#: ../src/labels.h:481
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
 
-#: ../src/labels.h:481
+#: ../src/labels.h:483
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - サービス利用不可: サーバーがダウンしました"
 
-#: ../src/labels.h:483
+#: ../src/labels.h:485
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - ゲートウェイタイムアウト: 上位サーバーがリクエストを返しません"
 
-#: ../src/labels.h:485
+#: ../src/labels.h:487
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTPバージョンがサポートされていません"
 
-#: ../src/labels.h:487
+#: ../src/labels.h:489
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webサーバーが未知のエラーを返しています"
 
-#: ../src/labels.h:489
+#: ../src/labels.h:491
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - Webサーバーがダウンしています"
 
-#: ../src/labels.h:491
+#: ../src/labels.h:493
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - 接続がタイムアウトしました"
 
-#: ../src/labels.h:493
+#: ../src/labels.h:495
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Originに到達できません"
 
-#: ../src/labels.h:495
+#: ../src/labels.h:497
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
