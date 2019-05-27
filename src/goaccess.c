@@ -205,6 +205,21 @@ house_keeping (void)
   free (gwsreader);
 }
 
+static void
+cleanup (int ret)
+{
+  /* done, restore tty modes and reset terminal into
+   * non-visual mode */
+  if (!conf.output_stdout)
+    endwin ();
+
+  /* unable to process valid data */
+  if (ret)
+    output_logerrors (glog);
+
+  house_keeping ();
+}
+
 /* Open the pidfile whose name is specified in the given path and write
  * the daemonized given pid. */
 static void
@@ -1327,6 +1342,12 @@ handle_signal_action (int sig_number)
 
     stop_ws_server (gwswriter, gwsreader);
     conf.stop_processing = 1;
+
+    if (!conf.output_stdout) {
+      cleanup(EXIT_SUCCESS);
+      exit(EXIT_SUCCESS);
+    }
+
     break;
   case SIGPIPE:
     fprintf (stderr, "SIGPIPE caught!\n");
@@ -1522,16 +1543,7 @@ main (int argc, char **argv)
 
   /* clean */
 clean:
-  /* done, restore tty modes and reset terminal into
-   * non-visual mode */
-  if (!conf.output_stdout)
-    endwin ();
-
-  /* unable to process valid data */
-  if (ret)
-    output_logerrors (glog);
-
-  house_keeping ();
+  cleanup(ret);
 
   return ret ? EXIT_FAILURE : EXIT_SUCCESS;
 }
