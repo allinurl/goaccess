@@ -29,26 +29,15 @@ RUN apk add --no-cache \
 	ncurses-static \
 	rsync \
 	tzdata \
+	libmaxminddb-dev \
+	libressl-dev \
 	xz
-
-# Environment
-ENV CC clang
-ENV LIBRESSL_VER 2.9.1
-
-# LibreSSL
-WORKDIR /libressl
-RUN rsync -q rsync://mirror.leaseweb.com/openbsd/LibreSSL/libressl-${LIBRESSL_VER}.tar.gz .
-RUN tar zxf libressl-${LIBRESSL_VER}.tar.gz --strip 1
-RUN cmake . \
-	-DCMAKE_BUILD_TYPE=Release \
-	-DCMAKE_INSTALL_PREFIX=/usr
-RUN make && make install
 
 # GoAccess
 COPY . /goaccess
 WORKDIR /goaccess
 RUN autoreconf -fiv
-RUN CFLAGS="-O3 -static" LIBS="$(pkg-config --libs openssl)" ./configure --prefix="" --enable-utf8 --with-openssl
+RUN CC="clang" CFLAGS="-O3 -static" LIBS="$(pkg-config --libs openssl)" ./configure --prefix="" --enable-utf8 --with-openssl --enable-geoip=mmdb
 RUN make && make DESTDIR=/dist install
 
 # Time Zone
