@@ -209,6 +209,8 @@ If you only want to output the report, run as follows to get the result:
 
 **Do you want to change the timezone?** Copy the timezone configuration file in `tzdata.tar.xz` to `/etc/localtime`.
 
+**Make sure that you use the correct log-format preset.** (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
+
 ---
 
 **Note**: The following example assumes you will store your GoAccess data below
