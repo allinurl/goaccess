@@ -201,7 +201,7 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 
 If you only want to output the report, run as follows to get the result:
 
-    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED > report.html
+    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
 
 **This command uses the language set for this system.** If that does not support it will be output in English. [**Supported Language**](https://github.com/allinurl/goaccess/raw/master/po/LINGUAS)
 
