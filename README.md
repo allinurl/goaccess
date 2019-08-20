@@ -207,7 +207,7 @@ If you only want to output the report, run as follows to get the result:
 
 **This image supports building on the ARM architecture.** (e.g. Raspberry Pi)
 
-**Do you want to change the timezone?** Copy the timezone configuration file in `tzdata.tar.xz` to `/etc/localtime`.
+**Do you want to change the timezone?** Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
 
 **Make sure that you use the correct log-format preset.** (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
 

@@ -15,23 +15,19 @@
 
 FROM alpine:edge AS builds
 RUN apk add --no-cache \
-	autoconf \
-	automake \
-	build-base \
-	clang \
-	clang-static \
-	cmake \
-	gettext-dev \
-	gettext-static \
-	git \
-	linux-headers \
-	ncurses-dev \
-	ncurses-static \
-	rsync \
-	tzdata \
-	libmaxminddb-dev \
-	libressl-dev \
-	xz
+    autoconf \
+    automake \
+    build-base \
+    clang \
+    clang-static \
+    gettext-dev \
+    gettext-static \
+    libmaxminddb-dev \
+    libressl-dev \
+    linux-headers \
+    ncurses-dev \
+    ncurses-static \
+    tzdata
 
 # GoAccess
 COPY . /goaccess
@@ -40,12 +36,10 @@ RUN autoreconf -fiv
 RUN CC="clang" CFLAGS="-O3 -static" LIBS="$(pkg-config --libs openssl)" ./configure --prefix="" --enable-utf8 --with-openssl --enable-geoip=mmdb
 RUN make && make DESTDIR=/dist install
 
-# Time Zone
-RUN tar Jcf /dist/tzdata.tar.xz -C /usr/share/zoneinfo/right .
-
 # Container
 FROM busybox:musl
 COPY --from=builds /dist /
+COPY --from=builds /usr/share/zoneinfo /usr/share/zoneinfo
 VOLUME /var/www/goaccess
 EXPOSE 7890
 ENTRYPOINT ["/bin/goaccess"]
