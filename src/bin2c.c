@@ -9,10 +9,10 @@
  * I have decided not to change the licence.
  */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <assert.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #ifdef USE_BZ2
 #include <bzlib.h>
@@ -46,7 +46,6 @@ main (int argc, char *argv[])
   fseek (f_input, 0, SEEK_END);
   file_size = ftell (f_input);
   fseek (f_input, 0, SEEK_SET);
-  file_size++;
 
   if ((buf = malloc (file_size)) == NULL) {
     fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
@@ -59,7 +58,7 @@ main (int argc, char *argv[])
 
 #ifdef USE_BZ2
   // allocate for bz2.
-  bz2_size = ((file_size) * 1.01) + 600;        // as per the documentation
+  bz2_size = (file_size + file_size / 100 + 1) + 600; // as per the documentation
 
   if ((bz2_buf = malloc (bz2_size)) == NULL) {
     fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
