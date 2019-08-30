@@ -188,6 +188,8 @@ static const char *browsers[][2] = {
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
   {"Microsoft-WebDAV", "Crawlers"},
+  {"DuckDuckGo-Favicons-Bot", "Crawlers"},
+  {"bingbot", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
