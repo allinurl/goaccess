@@ -214,13 +214,13 @@ If you only want to output the report, run as follows to get the result:
 ---
 
 **Note**: The following example assumes you will store your GoAccess data below
-``/srv/goaccess``, but you can use a different prefix if you like or if you run
+`/srv/goaccess`, but you can use a different prefix if you like or if you run
 as non-root user.
 
-    mkdir -p /srv/goaccess/{data,html}
+    mkdir -p /srv/goaccess/{data,html,logs}
 
 Before running your own GoAccess Docker container, first create a config file
-in ``/srv/goaccess/data``. You can start one from scratch or use the one from
+in `/srv/goaccess/data`. You can start one from scratch or use the one from
 [`config/goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
 as a starting point and change it as needed.
 
@@ -229,9 +229,12 @@ following options: `log-format`, `log-file`, `output` and `real-time-html`. For
 example, for Apache's *combined* log format:
 
     log-format COMBINED
-    log-file /srv/logs/access.log
-    output /srv/report/index.html
+    log-file /goaccess/access.log
+    output /goaccess/index.html
     real-time-html true
+
+**(Note)**: The docker container doesn't use subfolders `/srv/{data,html,logs}` anymore. 
+Goaccess container will now by default look for files inside its `/goaccess` folder.
 
 If you want to expose goaccess on a different port on the host machine, you
 *have to* set the `ws-url` option in the config file, e.g.:
@@ -253,11 +256,12 @@ and then build and run the image as follows:
 
     docker build . -t allinurl/goaccess
     docker run --restart=always -d -p 7890:7890 \
-      -v "/srv/goaccess/data:/srv/data"         \
-      -v "/srv/goaccess/html:/srv/report"       \
-      -v "/var/log/apache2:/srv/logs"           \
-      --name=goaccess allinurl/goaccess
-
+      -v "/srv/goaccess/data:/goaccess" \
+      -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
+      -v "/var/log/apache2/access.log:/goaccess/access.log" \
+      --name=goaccess allinurl/goaccess \
+      goaccess --no-global-config --config-file=/goaccess/goaccess.conf
+      
 If you you made changes to the config file after building the image, you don't
 have to rebuild from scratch. Simply restart the container:
 
@@ -280,13 +284,13 @@ Note, it is possible to specify a different command and command line options to
 run in the container directly on the docker command line, e.g.:
 
     docker run --restart=always -d -p 8080:7890 \
-      -v "/srv/goaccess/data:/srv/data"         \
-      -v "/srv/goaccess/html:/srv/report"       \
-      -v "/var/log/apache:/srv/logs"            \
-      --name=goaccess allinurl/goaccess         \
-      goaccess --no-global-config --config-file=/srv/data/goaccess.conf  \
-               --ws-url=example.org:8080 --output=/srv/report/index.html \
-               --log-file=/srv/logs/access.log
+      -v "/srv/goaccess/data:/goaccess" \
+      -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
+      -v "/var/log/apache/access.log:/goaccess/access.log" \
+      --name=goaccess allinurl/goaccess \
+      goaccess --no-global-config --config-file=/goaccess/goaccess.conf  \
+               --ws-url=example.org:8080 --output=/goaccess/index.html \
+               --log-file=/goaccess/access.log
 
 The container and image can be completely removed as follows:
 
@@ -299,10 +303,10 @@ image**](https://hub.docker.com/r/allinurl/goaccess/) that can be run without
 cloning the git repository:
 
     docker run --restart=always -d -p 8080:7890 \
-      -v "/srv/goaccess/data:/srv/data"         \
-      -v "/srv/goaccess/logs:/srv/logs"         \
-      -v "/srv/goaccess/html:/srv/report"       \
-      --name=goaccess allinurl/goaccess
+        -v "/srv/goaccess/data:/goaccess" \
+        -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
+        -v "/var/log/apache/access.log:/goaccess/access.log" \
+        --name=goaccess allinurl/goaccess
 
 ## Storage ##
 
