@@ -1,0 +1,57 @@
+# vim: set noexpandtab:
+#1 This file is a user agent list of various podcast-related agents (but not
+#2 limited to). It was distilled from the user agents of a web page which hosts
+#3 a Wordpress blog and a podcast.
+#4 \author Bernhard R. Fischer, <bf@abenteuerland.at>
+#5 \date 2019/09/26
+AntennaPod				Podcasts
+AppleCoreMedia			Mediaplayer
+BacklinkCrawler		Crawlers
+Baiduspider				Crawlers
+Bullhorn Server		PodCrawlers
+Castbox					Podcasts
+CastBox					Podcasts
+Castro					Podcasts
+CCBot						Crawlers
+cortex					Facebook
+facebookexternalhit	Facebook
+fyyd image poller		PodCrawlers
+fyyd-poll				PodCrawlers
+icatcher					Podcasts
+iCatcher!				Podcasts
+iTMS						PodCrawlers
+itunesstored			PodCrawlers
+Kodi						Mediaplayer
+Lavf						Mediaplayer
+LCC						Crawlers
+Luminary					Podcasts
+Mediatoolkitbot		Crawlers
+mindUpBot				Crawlers
+msnbot					Crawlers
+NSPlayer					Mediaplayer
+Overcast					Podcasts
+Photon					Crawlers
+Player FM				Podcasts
+PlayerFM					Podcasts
+Plex						Mediaplayer
+Podbean					Podcasts
+Podcast					Podcasts
+PodcastRepublic		Podcasts
+Podcasts					Podcasts
+Podchaser				PodCrawlers
+Podchaser-Parser		PodCrawlers
+Podnews.net				PodCrawlers
+PodParadise				PodCrawlers
+Procast					Podcasts
+Procast (iOS)			Podcasts
+ProcastProCast			Podcasts
+radio.at					PodCrawlers
+RadioPublic				PodCrawlers
+RadioPublicImageResizer	PodCrawlers
+RSSRadio					Podcasts
+Spotify					PodCrawlers
+Stitcher					PodCrawlers
+UniversalFeedParser	Feeds
+WinampMPEG				Mediaplayer
+XING FeedReader		Feeds
+XING-contenttabreceiver	Feeds
