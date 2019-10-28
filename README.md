@@ -195,7 +195,7 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl
 **Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl
 
-### Docker ###
+#### Docker ####
 
 A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
@@ -238,7 +238,7 @@ options need to be used without prepending `--`.
 configuration dialog, you will need to previously define it in your
 configuration file or in the command line.
 
-#### GETTING STARTED ####
+### GETTING STARTED ###
 
 To output to a terminal and generate an interactive report:
 
@@ -274,7 +274,7 @@ and applying a filter
     # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess -o report.html --real-time-html -
 
 
-##### MULTIPLE LOG FILES #####
+### MULTIPLE LOG FILES ###
 
 There are several ways to parse multiple logs with GoAccess. The simplest is to
 pass multiple log files to the command line:
@@ -296,7 +296,7 @@ access.log.*.gz in addition to the current log file, we can do:
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
-#### REAL TIME HTML OUTPUT ####
+### REAL TIME HTML OUTPUT ###
 
 GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
@@ -329,9 +329,9 @@ can specify it as:
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
 
-#### FILTERING ####
+### FILTERING ###
 
-##### WORKING WITH DATES #####
+#### WORKING WITH DATES ####
 
 Another useful pipe would be filtering dates out of the web log
 
@@ -348,7 +348,7 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
-##### VIRTUAL HOSTS #####
+#### VIRTUAL HOSTS ####
 
 Assuming your log contains the virtual host field. For instance:
 
@@ -367,7 +367,7 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
-##### FILES, STATUS CODES & BOTS #####
+#### FILES, STATUS CODES & BOTS ####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
@@ -393,7 +393,7 @@ And to get an estimated overview of how many bots (crawlers) are hitting your se
 
     # tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
 
-#### TIPS ####
+### TIPS ###
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
@@ -419,7 +419,7 @@ the original data set.
 4. If `--load-from-disk` is used without `--keep-db-files`, database files will
 be deleted upon closing the program.
 
-###### Examples ######
+##### Examples #####
 
     // last month access log
     # goaccess access.log.1 --keep-db-files
