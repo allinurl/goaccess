@@ -209,9 +209,9 @@ A Docker image has been updated, capable of directing output from an access log.
 
 * Do you want to change the timezone? Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
 
----
+#### A custom setup for Docker-based log analysis
 
-**Note**: The following example assumes you will store your GoAccess data below
+The following example assumes you will store your GoAccess data below
 `/srv/goaccess`, but you can use a different prefix if you like or if you run
 as non-root user.
 
