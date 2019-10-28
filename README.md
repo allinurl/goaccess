@@ -209,8 +209,6 @@ A Docker image has been updated, capable of directing output from an access log.
 
 * Do you want to change the timezone? Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
 
-* Make sure that you use the correct log-format preset. (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
-
 ---
 
 **Note**: The following example assumes you will store your GoAccess data below
