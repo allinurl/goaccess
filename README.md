@@ -197,19 +197,19 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 
 ### Docker ###
 
-**New!**: Docker image has been updated. This allows direct output from the access log.
-
-If you only want to output the report, run as follows to get the result:
+A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
     cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
 
-**This command uses the language set for this system.** If that does not support it will be output in English. [**Supported Language**](https://github.com/allinurl/goaccess/raw/master/po/LINGUAS)
+#### Docker image features
 
-**This image supports building on the ARM architecture.** (e.g. Raspberry Pi)
+* This command uses the language set for this system. If that does not support it will be output in English. [**Supported Language**](https://github.com/allinurl/goaccess/raw/master/po/LINGUAS)
 
-**Do you want to change the timezone?** Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
+* This image supports building on the ARM architecture (e.g. Raspberry Pi)
 
-**Make sure that you use the correct log-format preset.** (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
+* Do you want to change the timezone? Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
+
+* Make sure that you use the correct log-format preset. (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
 
 ---
 
