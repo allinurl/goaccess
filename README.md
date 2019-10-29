@@ -405,6 +405,17 @@ your local machine!
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
+
+#### Troubleshooting ####
+
+We receive many questions and issues that have been answered previously.
+
+* Date/time matching problems? Check that your log format and the system locale in which you run GoAccess match. See [#1571](https://github.com/allinurl/goaccess/issues/1571#issuecomment-543186858)
+* Problems with pattern matching? Spaces are often a problem, see for instance [#136](https://github.com/allinurl/goaccess/issues/136), [#1579](https://github.com/allinurl/goaccess/issues/1579)
+* Other issues matching log entries: See [>200 closed issues regarding log/date/time formats](https://github.com/allinurl/goaccess/issues?q=is%3Aissue+is%3Aclosed+label%3A%22log%2Fdate%2Ftime+format%22)
+* Problems with log processing? See [>111 issues regarding log processing](https://github.com/allinurl/goaccess/issues?q=is%3Aissue+is%3Aclosed+label%3Alog-processing)
+
+
 #### Incremental log processing ####
 
 GoAccess has the ability to process logs incrementally through the on-disk
