@@ -195,118 +195,13 @@ Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (op
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl
 **Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl
 
-### Docker ###
+#### Docker ####
 
-**New!**: Docker image has been updated. This allows direct output from the access log.
-
-If you only want to output the report, run as follows to get the result:
+A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
     cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
 
-**This command uses the language set for this system.** If that does not support it will be output in English. [**Supported Language**](https://github.com/allinurl/goaccess/raw/master/po/LINGUAS)
-
-**This image supports building on the ARM architecture.** (e.g. Raspberry Pi)
-
-**Do you want to change the timezone?** Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
-
-**Make sure that you use the correct log-format preset.** (e.g. use `COMBINED` for Apache's *combined* log format or use `COMMON` for the Apache Tomcat access log. More predefined pattern can be found [here](src/settings.c#L51).)  
-
----
-
-**Note**: The following example assumes you will store your GoAccess data below
-`/srv/goaccess`, but you can use a different prefix if you like or if you run
-as non-root user.
-
-    mkdir -p /srv/goaccess/{data,html,logs}
-
-Before running your own GoAccess Docker container, first create a config file
-in `/srv/goaccess/data`. You can start one from scratch or use the one from
-[`config/goaccess.conf`](https://raw.githubusercontent.com/allinurl/goaccess/master/config/goaccess.conf)
-as a starting point and change it as needed.
-
-A minimal config file for a real-time HTML report requires at least the
-following options: `log-format`, `log-file`, `output` and `real-time-html`. For
-example, for Apache's *combined* log format:
-
-    log-format COMBINED
-    log-file /goaccess/access.log
-    output /goaccess/index.html
-    real-time-html true
-
-**(Note)**: The docker container doesn't use subfolders `/srv/{data,html,logs}` anymore. 
-Goaccess container will now by default look for files inside its `/goaccess` folder.
-
-If you want to expose goaccess on a different port on the host machine, you
-*have to* set the `ws-url` option in the config file, e.g.:
-
-    ws-url ws://example.com:8080
-
-or for secured connections (TLS/SSL), please ensure your configuration file
-contains the following lines:
-
-    ssl-cert /srv/data/domain.crt
-    ssl-key /srv/data/domain.key
-    ws-url wss://example.com:8080
-
-Once you have your configuration file all set, clone the repo:
-
-    $ git clone https://github.com/allinurl/goaccess.git goaccess && cd $_
-
-and then build and run the image as follows:
-
-    docker build . -t allinurl/goaccess
-    docker run --restart=always -d -p 7890:7890 \
-      -v "/srv/goaccess/data:/goaccess" \
-      -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
-      -v "/var/log/apache2/access.log:/goaccess/access.log" \
-      --name=goaccess allinurl/goaccess \
-      goaccess --no-global-config --config-file=/goaccess/goaccess.conf
-      
-If you you made changes to the config file after building the image, you don't
-have to rebuild from scratch. Simply restart the container:
-
-    docker restart goaccess
-
-And restart the container as follows:
-
-    docker run --restart=always -d -p 8080:7890 \
-      -v "/srv/goaccess/data:/srv/data"         \
-      -v "/srv/goaccess/html:/srv/report"       \
-      -v "/var/log/apache:/srv/logs"            \
-      --name=goaccess allinurl/goaccess
-
-If you had already run the container, you may have to stop and remove it first:
-
-    docker stop goaccess
-    docker rm goaccess
-
-Note, it is possible to specify a different command and command line options to
-run in the container directly on the docker command line, e.g.:
-
-    docker run --restart=always -d -p 8080:7890 \
-      -v "/srv/goaccess/data:/goaccess" \
-      -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
-      -v "/var/log/apache/access.log:/goaccess/access.log" \
-      --name=goaccess allinurl/goaccess \
-      goaccess --no-global-config --config-file=/goaccess/goaccess.conf  \
-               --ws-url=example.org:8080 --output=/goaccess/index.html \
-               --log-file=/goaccess/access.log
-
-The container and image can be completely removed as follows:
-
-    docker stop goaccess
-    docker rm goaccess
-    docker rmi allinurl/goaccess
-
-There is also a prebuilt [**docker
-image**](https://hub.docker.com/r/allinurl/goaccess/) that can be run without
-cloning the git repository:
-
-    docker run --restart=always -d -p 8080:7890 \
-        -v "/srv/goaccess/data:/goaccess" \
-        -v "/srv/goaccess/html/index.html:/goaccess/index.html" \
-        -v "/var/log/apache/access.log:/goaccess/access.log" \
-        --name=goaccess allinurl/goaccess
+You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
 
 ## Storage ##
 
@@ -343,7 +238,7 @@ options need to be used without prepending `--`.
 configuration dialog, you will need to previously define it in your
 configuration file or in the command line.
 
-#### GETTING STARTED ####
+### Getting Started ###
 
 To output to a terminal and generate an interactive report:
 
@@ -379,7 +274,7 @@ and applying a filter
     # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess -o report.html --real-time-html -
 
 
-##### MULTIPLE LOG FILES #####
+### Multiple Log files ###
 
 There are several ways to parse multiple logs with GoAccess. The simplest is to
 pass multiple log files to the command line:
@@ -401,7 +296,7 @@ access.log.*.gz in addition to the current log file, we can do:
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
-#### REAL TIME HTML OUTPUT ####
+### Real-time HTML outputs ###
 
 GoAccess has the ability the output real-time data in the HTML report. You can
 even email the HTML file since it is composed of a single file with no external
@@ -434,9 +329,9 @@ can specify it as:
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
 
-#### FILTERING ####
+### Filtering ###
 
-##### WORKING WITH DATES #####
+#### Working with dates ####
 
 Another useful pipe would be filtering dates out of the web log
 
@@ -453,7 +348,7 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
-##### VIRTUAL HOSTS #####
+#### Virtual hosts ####
 
 Assuming your log contains the virtual host field. For instance:
 
@@ -472,7 +367,7 @@ To exclude a list of virtual hosts you can do the following:
 
     # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
-##### FILES, STATUS CODES & BOTS #####
+#### Files, status codes and bots ####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
@@ -498,7 +393,7 @@ And to get an estimated overview of how many bots (crawlers) are hitting your se
 
     # tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
 
-#### TIPS ####
+### Tips ###
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
@@ -510,7 +405,7 @@ your local machine!
 
     # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
-#### INCREMENTAL LOG PROCESSING ####
+#### Incremental log processing ####
 
 GoAccess has the ability to process logs incrementally through the on-disk
 [B+Tree](https://github.com/allinurl/goaccess#storage) database. It works in
@@ -524,7 +419,7 @@ the original data set.
 4. If `--load-from-disk` is used without `--keep-db-files`, database files will
 be deleted upon closing the program.
 
-###### Examples ######
+##### Examples #####
 
     // last month access log
     # goaccess access.log.1 --keep-db-files
