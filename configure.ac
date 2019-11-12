@@ -300,6 +300,7 @@ Your build configuration:
   Version        : $VERSION
   Compiler flags : $CFLAGS
   Linker flags   : $LIBS $LDFLAGS
+  UTF-8 support  : $utf8
   Dynamic buffer : $with_getline
   Geolocation    : $geolocation
   Storage method : $storage
