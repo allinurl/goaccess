@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
-AC_INIT([goaccess], [1.3], [goaccess@prosoftcorp.com], [], [http://goaccess.io])
+AC_PREREQ([2.69])
+AC_INIT([goaccess],[1.3],[goaccess@prosoftcorp.com],[],[http://goaccess.io])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -47,7 +47,7 @@ AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
 # Build with OpenSSL
-AC_ARG_WITH([openssl],AC_HELP_STRING([--with-openssl], [build with OpenSSL support]),
+AC_ARG_WITH([openssl],AS_HELP_STRING([--with-openssl],[build with OpenSSL support]),
    [openssl="$withval"],[openssl="no"])
 
 if test "$openssl" = 'yes'; then
