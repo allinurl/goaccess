@@ -1,8 +1,7 @@
-language: c
+git:
+  depth: 3
 
-branches:
-  only:
-    - master 
+language: c
 
 compiler:
   - clang
@@ -15,16 +14,28 @@ env:
   - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-tcb=memhash --disable-bzip --disable-zlib"
   - CONFIGURE_OPTIONS="--enable-tcb=memhash --disable-bzip --disable-zlib"
   - CONFIGURE_OPTIONS="--enable-tcb=btree --disable-bzip --disable-zlib"
+  - CONFIGURE_OPTIONS="--enable-geoip=mmdb --enable-utf8 --enable-tcb=btree --with-openssl"
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq libglib2.0-dev libncurses5-dev libgeoip-dev autoconf autotools-dev libtokyocabinet-dev gettext autopoint   
-
-install:
-  - autoreconf -fiv
-  - ./configure $CONFIGURE_OPTIONS
-  - make
-  - sudo env "PATH=$PATH" make install
+addons:
+  apt:
+    packages:
+      - libglib2.0-dev
+      - libncurses5-dev
+      - libgeoip-dev
+      - autoconf
+      - autotools-dev
+      - libtokyocabinet-dev
+      - libssl-dev
+      - libbz2-dev
+      - libmaxminddb-dev
+      - gettext
+      - autopoint
 
 script:
-  - echo "Sorry, no tests."
+  - autoreconf -fiv -Wall
+  - ./configure $CONFIGURE_OPTIONS
+  - make -j
+  - sudo env "PATH=$PATH" make install
+
+after_success:
+  - goaccess --version

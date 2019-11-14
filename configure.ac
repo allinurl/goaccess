@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
-AC_INIT([goaccess], [1.3], [goaccess@prosoftcorp.com], [], [http://goaccess.io])
+AC_PREREQ([2.69])
+AC_INIT([goaccess],[1.3],[goaccess@prosoftcorp.com],[],[http://goaccess.io])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -18,7 +18,7 @@ AC_PROG_CC
 AM_PROG_CC_C_O
 
 AM_GNU_GETTEXT([external])
-AM_GNU_GETTEXT_VERSION([0.18])
+AM_GNU_GETTEXT_VERSION([0.19])
 # Fix `undefined reference to `libintl_gettext'` on docker:
 AC_CHECK_LIB([intl], [libintl_dgettext])
 
@@ -47,7 +47,7 @@ AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
 # Build with OpenSSL
-AC_ARG_WITH([openssl],AC_HELP_STRING([--with-openssl], [build with OpenSSL support]),
+AC_ARG_WITH([openssl],AS_HELP_STRING([--with-openssl],[build with OpenSSL support]),
    [openssl="$withval"],[openssl="no"])
 
 if test "$openssl" = 'yes'; then
@@ -300,6 +300,7 @@ Your build configuration:
   Version        : $VERSION
   Compiler flags : $CFLAGS
   Linker flags   : $LIBS $LDFLAGS
+  UTF-8 support  : $utf8
   Dynamic buffer : $with_getline
   Geolocation    : $geolocation
   Storage method : $storage
