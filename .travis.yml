@@ -33,7 +33,7 @@ addons:
 
 script:
   - autoreconf -fiv -Wall
-  - ./configure $CONFIGURE_OPTIONS
+  - ./configure CFLAGS=-Werror $CONFIGURE_OPTIONS
   - make -j
   - sudo env "PATH=$PATH" make install
 
