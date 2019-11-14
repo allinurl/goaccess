@@ -59,7 +59,6 @@ typedef struct GPanel_
   void (*insert) (GRawDataItem item, GHolder * h, GRawDataType type,
                   const struct GPanel_ *);
   void (*holder_callback) (GHolder * h);
-  void (*lookup) (GRawDataItem item);
 } GPanel;
 
 static void add_data_to_holder (GRawDataItem item, GHolder * h,
