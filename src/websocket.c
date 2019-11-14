@@ -961,9 +961,9 @@ static void *
 ws_get_raddr (struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET)
-    return &(((struct sockaddr_in *) sa)->sin_addr);
+    return &(((struct sockaddr_in *) (void *) sa)->sin_addr);
 
-  return &(((struct sockaddr_in6 *) sa)->sin6_addr);
+  return &(((struct sockaddr_in6 *) (void *) sa)->sin6_addr);
 }
 
 /* Set the given file descriptor as NON BLOCKING. */
