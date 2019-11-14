@@ -122,7 +122,7 @@ GSort module_sort[TOTAL_MODULES] = {
 int
 strcmp_asc (const void *a, const void *b)
 {
-  return strcmp (*((char **) a), *((char **) b));
+  return strcmp (*((char *const *) a), *((char * const*) b));
 }
 
 /* Sort 'data' metric ascending */

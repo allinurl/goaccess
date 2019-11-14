@@ -169,7 +169,7 @@ panel_lookup (GModule module)
 
 /* Sanitize output with html entities for special chars */
 static void
-clean_output (FILE * fp, char *s)
+clean_output (FILE * fp, const char *s)
 {
   if (!s) {
     LOG_DEBUG (("NULL data on clean_output.\n"));
@@ -212,7 +212,7 @@ print_html_title (FILE * fp)
     conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
-  clean_output (fp, (char *) title);
+  clean_output (fp, title);
   fprintf (fp, "</title>");
 }
 
