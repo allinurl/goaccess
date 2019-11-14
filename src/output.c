@@ -244,9 +244,9 @@ print_html_header (FILE * fp)
 
   print_html_title (fp);
 
-  fprintf (fp, "<style>%s</style>", fa_css);
-  fprintf (fp, "<style>%s</style>", bootstrap_css);
-  fprintf (fp, "<style>%s</style>", app_css);
+  fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
+  fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
+  fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
   /* load custom CSS file, if any */
   if (conf.html_custom_css)
     fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
@@ -298,7 +298,7 @@ print_html_body (FILE * fp, const char *now)
   "<div class='wrap-panels'></div>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
 
-  fprintf (fp, "%s", tpls);
+  fprintf (fp, "%.*s", tpls_length, tpls);
 }
 
 /* Output all the document footer elements such as script and closing
@@ -306,10 +306,10 @@ print_html_body (FILE * fp, const char *now)
 static void
 print_html_footer (FILE * fp)
 {
-  fprintf (fp, "<script>%s</script>", d3_js);
-  fprintf (fp, "<script>%s</script>", hogan_js);
-  fprintf (fp, "<script>%s</script>", app_js);
-  fprintf (fp, "<script>%s</script>", charts_js);
+  fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
+  fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
+  fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
+  fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
 
   /* load custom JS file, if any */
   if (conf.html_custom_js)
