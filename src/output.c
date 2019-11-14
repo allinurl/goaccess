@@ -74,65 +74,65 @@ static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
   {VISITORS, 1, print_metrics, {
-    {CHART_AREASPLINE, hits_visitors_plot, 1, 1} ,
-    {CHART_AREASPLINE, hits_bw_plot, 1, 1} ,
+    {CHART_AREASPLINE, hits_visitors_plot, 1, 1, NULL, NULL} ,
+    {CHART_AREASPLINE, hits_bw_plot, 1, 1, NULL, NULL} ,
   }},
   {REQUESTS, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
-    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
   {REQUESTS_STATIC, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
-    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
   {NOT_FOUND, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_req_plot, 0, 0},
-    {CHART_VBAR, hits_bw_req_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
   {HOSTS, 1, print_host_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
   {OS, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 1},
-    {CHART_VBAR, hits_bw_plot, 0, 1},
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
   {BROWSERS, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 1},
-    {CHART_VBAR, hits_bw_plot, 0, 1},
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
   {VISIT_TIMES, 1, print_metrics, {
-    {CHART_AREASPLINE, hits_visitors_plot, 0, 1},
-    {CHART_AREASPLINE, hits_bw_plot, 0, 1},
+    {CHART_AREASPLINE, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_AREASPLINE, hits_bw_plot, 0, 1, NULL, NULL},
   }},
   {VIRTUAL_HOSTS, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
   {REFERRERS, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
   {REFERRING_SITES, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
   {KEYPHRASES, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
   {STATUS_CODES, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 1},
-    {CHART_VBAR, hits_bw_plot, 0, 1},
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
   {REMOTE_USER, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0},
-    {CHART_VBAR, hits_bw_plot, 0, 0},
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 1},
-    {CHART_VBAR, hits_bw_plot, 0, 1},
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
 #endif
 };
