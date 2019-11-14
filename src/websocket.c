@@ -764,6 +764,7 @@ shutdown_ssl (WSClient * client)
       break;
     }
     LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -806,6 +807,7 @@ accept_ssl (WSClient * client)
     }
     /* The peer notified that it is shutting down through a SSL "close_notify" so
      * we shutdown too */
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -903,6 +905,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len)
          (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
     /* The connection was shut down cleanly */
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -945,6 +948,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
       if ((bytes < 0 &&
            (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
+      /* FALLTHRU */
     case SSL_ERROR_ZERO_RETURN:
     case SSL_ERROR_WANT_X509_LOOKUP:
     default:
