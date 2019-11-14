@@ -98,7 +98,7 @@ tc_db_set_path (const char *dbname, int module)
 
 /* delete db folder if we used the customized (pid appended) default */
 void
-tc_db_rmdir ()
+tc_db_rmdir (void)
 {
   const char *db_path = NULL;
 
