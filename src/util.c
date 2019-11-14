@@ -922,7 +922,7 @@ escape_str (const char *src)
   if (src == NULL || *src == '\0')
     return NULL;
 
-  p = (unsigned char *) src;
+  p = (const unsigned char *) src;
   q = dest = xmalloc (strlen (src) * 4 + 1);
 
   while (*p) {

@@ -257,7 +257,7 @@ escape_http_request (const char *src)
   if (src == NULL || *src == '\0')
     return NULL;
 
-  p = (unsigned char *) src;
+  p = (const unsigned char *) src;
   q = dest = xmalloc (strlen (src) * 4 + 1);
 
   while (*p) {
@@ -1505,7 +1505,7 @@ http_error (WSClient * client, const char *buffer)
 
 /* Compute the SHA1 for the handshake. */
 static void
-ws_sha1_digest (const char *s, int len, unsigned char *digest)
+ws_sha1_digest (char *s, int len, unsigned char *digest)
 {
   SHA1_CTX sha;
 
