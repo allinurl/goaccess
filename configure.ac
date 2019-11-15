@@ -27,8 +27,7 @@ AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing]
 CFLAGS="$CFLAGS -pthread"
 
 # DEBUG
-AC_ARG_ENABLE(debug, [  --enable-debug   Create a debug build. Default is disabled],
-  [debug="$enableval"], debug=no)
+AC_ARG_ENABLE([debug],[AS_HELP_STRING([--enable-debug],[Create a debug build. Default is disabled])],[debug="$enableval"],[debug=no])
 
 if test "$debug" = "yes"; then
   AC_DEFINE([_DEBUG], 1, [Debug option])
@@ -47,8 +46,7 @@ AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
 # Build with OpenSSL
-AC_ARG_WITH([openssl],AS_HELP_STRING([--with-openssl],[build with OpenSSL support]),
-   [openssl="$withval"],[openssl="no"])
+AC_ARG_WITH([openssl],[AS_HELP_STRING([--with-openssl],[Build with OpenSSL support. Default is disabled])],[openssl="$withval"],[openssl="no"])
 
 if test "$openssl" = 'yes'; then
   AC_CHECK_LIB([ssl], [SSL_CTX_new],,[AC_MSG_ERROR([ssl library missing])])
@@ -56,8 +54,7 @@ if test "$openssl" = 'yes'; then
 fi
 
 # GeoIP
-AC_ARG_ENABLE(geoip, [  --enable-geoip   Enable GeoIP country lookup. Default is disabled],
-  [geoip="$enableval"], geoip=no)
+AC_ARG_ENABLE([geoip],[AS_HELP_STRING([--enable-geoip],[Enable GeoIP country lookup. Supported types: mmdb, legacy. Default is disabled])],[geoip="$enableval"],[geoip=no])
 
 geolocation="N/A"
 if test "$geoip" = "mmdb"; then
@@ -72,21 +69,21 @@ elif test "$geoip" = "legacy"; then
   ])])
   geolocation="GeoIP Legacy"
   AC_DEFINE([HAVE_GEOLOCATION], 1, [Build using GeoIP.])
+elif test "$geoip" != "no"; then
+  AC_MSG_ERROR([*** Invalid argument for GeoIP: $geoip])
 fi
 AM_CONDITIONAL([GEOIP_LEGACY], [test "x$geoip" = "xlegacy"])
 AM_CONDITIONAL([GEOIP_MMDB], [test "x$geoip" = "xmmdb"])
 
 # GNU getline / POSIX.1-2008
-AC_ARG_WITH(getline, [  --with-getline Build using dynamic line buffer.],
-  [with_getline=$withval], [with_getline=no])
+AC_ARG_WITH([getline],[AS_HELP_STRING([--with-getline],[Build using dynamic line buffer. Default is disabled])],[with_getline=$withval],[with_getline=no])
 
 if test "$with_getline" = "yes"; then
   AC_DEFINE([WITH_GETLINE], 1, [Build using GNU getline.])
 fi
 
 # UTF8
-AC_ARG_ENABLE(utf8, [  --enable-utf8   Enable ncurses library that handles wide characters],
-  [utf8="$enableval"], utf8=no)
+AC_ARG_ENABLE([utf8],[AS_HELP_STRING([--enable-utf8],[Enable ncurses library that handles wide characters. Default is disabled])],[utf8="$enableval"],[utf8=no])
 
 if test "$utf8" = "yes"; then
   libncursesw=ncursesw
@@ -147,8 +144,7 @@ else
 fi
 
 # Tokyo Cabinet
-AC_ARG_ENABLE(tcb, [  --enable-tcb   Enable TokyoCabinet database. Default is disabled],
-  [tcb="$enableval"], tcb=no)
+AC_ARG_ENABLE([tcb],[AS_HELP_STRING([--enable-tcb],[Enable TokyoCabinet database. Supported types: memhash, btree. Default is disabled])],[tcb="$enableval"],[tcb=no])
 
 WITH_TC=no
 if test "$tcb" = "memhash"; then
@@ -157,46 +153,44 @@ if test "$tcb" = "memhash"; then
 elif test "$tcb" = "btree"; then
   AC_DEFINE([TCB_BTREE], [1], ["Build using on-disk B+ Tree database"])
   WITH_TC=yes
+elif test "$tcb" != "no"; then
+  AC_MSG_ERROR([*** Invalid argument for Tokyo Cabinet Database: $tcb])
 fi
 
 if test "$WITH_TC" = "yes"; then
   AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
     [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
 
-  AC_ARG_ENABLE([zlib], [  --disable-zlib   Build without ZLIB compression],
-    [zlib="$enableval"], zlib=yes)
+  AC_ARG_ENABLE([zlib],[AS_HELP_STRING([--disable-zlib],[Build without ZLIB compression. Default is enabled])],[zlib="$enableval"],[zlib=yes])
 
   if test "$zlib" = "yes"; then
-    AC_CHECK_LIB(z, gzread, [Z_FLAG=-lz], AC_MSG_ERROR([
+    AC_CHECK_LIB([z], [gzread], [], [AC_MSG_ERROR([
       *** zlib is required. If zlib compression is not needed
       *** you can use --disable-zlib.
       *** Debian based distributions zlib1g-dev
       *** Red Hat based distributions zlib-devel
-    ]))
+    ])])
     AC_DEFINE([HAVE_ZLIB], [1], ["Build using ZLIB"])
-    LDFLAGS="$LDFLAGS $Z_FLAG"
   fi
 
-  AC_ARG_ENABLE([bzip], [  --disable-bzip   Build without BZIP2 compression],
-    [bz2="$enableval"], bz2=yes)
+  AC_ARG_ENABLE([bzip],[AS_HELP_STRING([--disable-bzip],[Build without BZIP2 compression. Default is enabled])],[bz2="$enableval"],[bz2=yes])
 
   if test "$bz2" = "yes"; then
-    AC_CHECK_LIB(bz2, BZ2_bzopen, [BZ2_FLAG=-lbz2], AC_MSG_ERROR([
+    AC_CHECK_LIB([bz2], [BZ2_bzopen], [], [AC_MSG_ERROR([
       *** BZIP2 is required. If BZIP2 compression is not needed
       *** you can use --disable-bzip.
       *** Debian based distributions libbz2-dev
       *** Red Hat based distributions bzip2-devel
-    ]))
+    ])])
     AC_DEFINE([HAVE_BZ2], [1], ["Build using BZ2"])
-    LDFLAGS="$LDFLAGS $BZ2_FLAG"
   fi
 
   case "$host_os" in
     *darwin*|*bsd*)
-       LDFLAGS="$LDFLAGS -ltokyocabinet -lc"
+       LDFLAGS="$LDFLAGS -lc"
     ;;
     *)
-       LDFLAGS="$LDFLAGS -ltokyocabinet -lrt -lc"
+       LDFLAGS="$LDFLAGS -lrt -lc"
     ;;
   esac
 fi
