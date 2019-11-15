@@ -350,7 +350,7 @@ size_t
 get_selected_format_idx (void)
 {
   if (conf.log_format == NULL)
-    return -1;
+    return (size_t)-1;
   if (strcmp (conf.log_format, logs.common) == 0)
     return COMMON;
   else if (strcmp (conf.log_format, logs.vcommon) == 0)
@@ -372,7 +372,7 @@ get_selected_format_idx (void)
   else if (strcmp (conf.log_format, logs.awss3) == 0)
     return AWSS3;
   else
-    return -1;
+    return (size_t)-1;
 }
 
 /* Determine the selected log format from the config file or command line

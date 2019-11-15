@@ -527,7 +527,7 @@ decode_hex (char *url, char *out)
     if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2])) {
       *ptr++ = *c;
     } else {
-      *ptr++ = (B16210 (c[1]) * 16) + (B16210 (c[2]));
+      *ptr++ = (char)((B16210 (c[1]) * 16) + (B16210 (c[2])));
       c += 2;
     }
   }
@@ -1603,7 +1603,10 @@ count_invalid (GLog * glog, const char *line)
 static void
 uncount_invalid (GLog * glog)
 {
-  glog->invalid -= conf.num_tests;
+  if (glog->invalid > conf.num_tests)
+    glog->invalid -= conf.num_tests;
+  else
+    glog->invalid = 0;
 #ifdef TCB_BTREE
   ht_replace_genstats ("failed_requests", glog->invalid);
 #endif
@@ -1617,7 +1620,10 @@ uncount_invalid (GLog * glog)
 static void
 uncount_processed (GLog * glog)
 {
-  glog->processed -= conf.num_tests;
+  if (glog->processed > conf.num_tests)
+    glog->processed -= conf.num_tests;
+  else
+    glog->processed = 0;
 #ifdef TCB_BTREE
   ht_replace_genstats ("total_requests", glog->processed);
 #endif
