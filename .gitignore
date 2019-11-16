@@ -96,3 +96,13 @@ Makefile.in
 /src/facss.h
 /src/hoganjs.h
 /src/tpls.h
+
+# intermediate resources
+/resources/css/app.css.tmp
+/resources/css/bootstrap.min.css.tmp
+/resources/css/fa.min.css.tmp
+/resources/js/app.js.tmp
+/resources/js/charts.js.tmp
+/resources/js/d3.v3.min.js.tmp
+/resources/js/hogan.min.js.tmp
+/resources/tpls.html.tmp

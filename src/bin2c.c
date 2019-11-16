@@ -53,7 +53,27 @@ main (int argc, char *argv[])
     return -1;
   }
 
-  fread (buf, file_size, 1, f_input);
+  if (fread (buf, file_size, 1, f_input) == 0) {
+    fprintf (stderr, "%s: can't read from %s\n", argv[0], argv[1]);
+    free (buf);
+    fclose (f_input);
+    return -1;
+  }
+
+  if (fgetc (f_input) != EOF) {
+    fprintf (stderr, "%s: can't read complete file %s\n", argv[0], argv[1]);
+    free (buf);
+    fclose (f_input);
+    return -1;
+  }
+
+  if (ferror (f_input)) {
+    fprintf (stderr, "%s: error while reading from %s\n", argv[0], argv[1]);
+    free (buf);
+    fclose (f_input);
+    return -1;
+  }
+
   fclose (f_input);
 
 #ifdef USE_BZ2
@@ -93,6 +113,12 @@ main (int argc, char *argv[])
 
   fprintf (f_output, "const char %s[%u] = {", ident, file_size);
   for (i = 0; i < file_size; ++i) {
+    if (buf[i] == '\0') {
+      fprintf (stderr, "%s: writing a null character terminates the content prematurely\n", argv[0]);
+      fclose (f_output);
+      free (buf);
+      return -1;
+    }
     if (need_comma)
       fprintf (f_output, ", ");
     else
@@ -108,6 +134,13 @@ main (int argc, char *argv[])
   fprintf (f_output, "const int %s_length_uncompressed = %u;\n", ident,
            uncompressed_size);
 #endif
+
+  if (ferror (f_output)) {
+    fprintf (stderr, "%s: error while writing to %s\n", argv[0], argv[2]);
+    fclose (f_output);
+    free (buf);
+    return -1;
+  }
 
   fclose (f_output);
   free (buf);

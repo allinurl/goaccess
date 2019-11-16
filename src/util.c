@@ -191,7 +191,7 @@ genstr (char *dest, size_t len)
 {
   char set[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
-  while (len-- > 0)
+  for (; len > 0; --len)
     *dest++ = set[rand () % (sizeof (set) - 1)];
   *dest = '\0';
 }
@@ -922,7 +922,7 @@ escape_str (const char *src)
   if (src == NULL || *src == '\0')
     return NULL;
 
-  p = (unsigned char *) src;
+  p = (const unsigned char *) src;
   q = dest = xmalloc (strlen (src) * 4 + 1);
 
   while (*p) {
