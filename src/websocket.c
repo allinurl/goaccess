@@ -257,7 +257,7 @@ escape_http_request (const char *src)
   if (src == NULL || *src == '\0')
     return NULL;
 
-  p = (unsigned char *) src;
+  p = (const unsigned char *) src;
   q = dest = xmalloc (strlen (src) * 4 + 1);
 
   while (*p) {
@@ -764,6 +764,7 @@ shutdown_ssl (WSClient * client)
       break;
     }
     LOG (("SSL: SSL_shutdown, probably unrecoverable, forcing close.\n"));
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -806,6 +807,7 @@ accept_ssl (WSClient * client)
     }
     /* The peer notified that it is shutting down through a SSL "close_notify" so
      * we shutdown too */
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -903,6 +905,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len)
          (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
     /* The connection was shut down cleanly */
+    /* FALLTHRU */
   case SSL_ERROR_ZERO_RETURN:
   case SSL_ERROR_WANT_X509_LOOKUP:
   default:
@@ -945,6 +948,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size)
       if ((bytes < 0 &&
            (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
+      /* FALLTHRU */
     case SSL_ERROR_ZERO_RETURN:
     case SSL_ERROR_WANT_X509_LOOKUP:
     default:
@@ -961,9 +965,9 @@ static void *
 ws_get_raddr (struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET)
-    return &(((struct sockaddr_in *) sa)->sin_addr);
+    return &(((struct sockaddr_in *) (void *) sa)->sin_addr);
 
-  return &(((struct sockaddr_in6 *) sa)->sin6_addr);
+  return &(((struct sockaddr_in6 *) (void *) sa)->sin6_addr);
 }
 
 /* Set the given file descriptor as NON BLOCKING. */
@@ -1505,7 +1509,7 @@ http_error (WSClient * client, const char *buffer)
 
 /* Compute the SHA1 for the handshake. */
 static void
-ws_sha1_digest (const char *s, int len, unsigned char *digest)
+ws_sha1_digest (char *s, int len, unsigned char *digest)
 {
   SHA1_CTX sha;
 

@@ -218,7 +218,7 @@ fpjson (FILE * fp, const char *fmt, ...)
 
 /* Escape all other characters accordingly. */
 static void
-escape_json_other (GJSON * json, char **s)
+escape_json_other (GJSON * json, const char **s)
 {
   /* Since JSON data is bootstrapped into the HTML document of a report,
    * then we perform the following four translations in case weird stuff
@@ -273,7 +273,7 @@ escape_json_other (GJSON * json, char **s)
  *
  * On success, escaped JSON data is outputted. */
 static void
-escape_json_output (GJSON * json, char *s)
+escape_json_output (GJSON * json, const char *s)
 {
   while (*s) {
     switch (*s) {
@@ -606,7 +606,7 @@ poverall_log_path (GJSON * json, int idx, int isp)
   if (conf.filenames[idx][0] == '-' && conf.filenames[idx][1] == '\0')
     pjson (json, "STDIN");
   else
-    escape_json_output (json, (char *) conf.filenames[idx]);
+    escape_json_output (json, conf.filenames[idx]);
   pjson (json, conf.filenames_idx - 1 != idx ? "\",\n" : "\"");
 }
 

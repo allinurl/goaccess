@@ -98,7 +98,7 @@ tc_db_set_path (const char *dbname, int module)
 
 /* delete db folder if we used the customized (pid appended) default */
 void
-tc_db_rmdir ()
+tc_db_rmdir (void)
 {
   const char *db_path = NULL;
 
@@ -114,6 +114,9 @@ tc_db_rmdir ()
  * On error, a negative number is returned.
  * On success, the number of characters that would have been written is
  * returned. */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__format__(printf,3,4)))
+#endif
 static int
 set_dbparam (char *params, int len, const char *fmt, ...)
 {
