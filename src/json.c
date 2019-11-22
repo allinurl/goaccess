@@ -94,6 +94,7 @@ static GPanel paneling[] = {
   {KEYPHRASES          , print_json_data , NULL } ,
   {STATUS_CODES        , print_json_data , print_json_sub_items } ,
   {REMOTE_USER         , print_json_data , NULL } ,
+  {CACHE_STATUS        , print_json_data , NULL } ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION        , print_json_data , print_json_sub_items } ,
 #endif
