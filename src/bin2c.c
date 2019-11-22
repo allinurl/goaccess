@@ -78,7 +78,7 @@ main (int argc, char *argv[])
 
 #ifdef USE_BZ2
   // allocate for bz2.
-  bz2_size = (file_size + file_size / 100 + 1) + 600; // as per the documentation
+  bz2_size = (file_size + file_size / 100 + 1) + 600;   // as per the documentation
 
   if ((bz2_buf = malloc (bz2_size)) == NULL) {
     fprintf (stderr, "Unable to malloc bin2c.c buffer\n");
@@ -114,7 +114,9 @@ main (int argc, char *argv[])
   fprintf (f_output, "const char %s[%u] = {", ident, file_size);
   for (i = 0; i < file_size; ++i) {
     if (buf[i] == '\0') {
-      fprintf (stderr, "%s: writing a null character terminates the content prematurely\n", argv[0]);
+      fprintf (stderr,
+               "%s: writing a null character terminates the content prematurely\n",
+               argv[0]);
       fclose (f_output);
       free (buf);
       return -1;
