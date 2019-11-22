@@ -115,10 +115,9 @@ tc_db_rmdir (void)
  * On success, the number of characters that would have been written is
  * returned. */
 #if defined(__GNUC__) || defined(__clang__)
-__attribute__((__format__(printf,3,4)))
+__attribute__((__format__ (printf, 3, 4)))
 #endif
-static int
-set_dbparam (char *params, int len, const char *fmt, ...)
+  static int set_dbparam (char *params, int len, const char *fmt, ...)
 {
   int n;
   va_list args;
