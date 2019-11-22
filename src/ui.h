@@ -59,7 +59,7 @@
 #define SPIN_FMTM "%s [%'d] [%'lld/s]"
 #define SPIN_LBL 50     /* max length of the progress spinner */
 
-#define SPIN_UPDATE_INTERVAL 100000 // in microseconds
+#define SPIN_UPDATE_INTERVAL 100000     // in microseconds
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"
@@ -68,6 +68,7 @@
 #define VISIT_TIMES_ID     "visit_time"
 #define VIRTUAL_HOSTS_ID   "vhosts"
 #define REMOTE_USER_ID     "remote_user"
+#define CACHE_STATUS_ID    "cache_status"
 #define NOT_FOUND_ID       "not_found"
 #define HOSTS_ID           "hosts"
 #define OS_ID              "os"

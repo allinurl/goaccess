@@ -1029,6 +1029,10 @@ get_keys (void)
       set_module_to (&gscroll, GEO_LOCATION);
       break;
 #endif
+    case 38:   /* Shift + 5 */
+      /* reset expanded module */
+      set_module_to (&gscroll, CACHE_STATUS);
+      break;
     case 9:    /* TAB */
       /* reset expanded module */
       collapse_current_module ();
@@ -1344,8 +1348,8 @@ handle_signal_action (int sig_number)
     conf.stop_processing = 1;
 
     if (!conf.output_stdout) {
-      cleanup(EXIT_SUCCESS);
-      exit(EXIT_SUCCESS);
+      cleanup (EXIT_SUCCESS);
+      exit (EXIT_SUCCESS);
     }
 
     break;
@@ -1543,7 +1547,7 @@ main (int argc, char **argv)
 
   /* clean */
 clean:
-  cleanup(ret);
+  cleanup (ret);
 
   return ret ? EXIT_FAILURE : EXIT_SUCCESS;
 }

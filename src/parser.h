@@ -39,6 +39,7 @@
 #define LINE_LEN        23
 #define ERROR_LEN       255
 #define REF_SITE_LEN    511     /* maximum length of a referring site */
+#define CACHE_STATUS_LEN 7
 
 #define SPEC_TOKN_SET   0x1
 #define SPEC_TOKN_NUL   0x2
@@ -71,6 +72,7 @@ typedef struct GLogItem_
   char *uniq_key;
   char *vhost;
   char *userid;
+  char *cache_status;
 
   char site[REF_SITE_LEN + 1];
 

@@ -85,6 +85,7 @@ static int gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_os_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_vhost_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_remote_user_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_cache_status_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_referer_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_ref_site_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_request_key (GKeyData * kdata, GLogItem * logitem);
@@ -310,6 +311,19 @@ static GParse paneling[] = {
     NULL,
     NULL,
     NULL,
+  }, {
+    CACHE_STATUS,
+    gen_cache_status_key,
+    insert_data,
+    NULL,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
   },
 };
 /* *INDENT-ON* */
@@ -455,6 +469,7 @@ init_log_item (GLog * glog)
   logitem->uniq_key = NULL;
   logitem->vhost = NULL;
   logitem->userid = NULL;
+  logitem->cache_status = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
 
@@ -507,6 +522,8 @@ free_glog (GLogItem * logitem)
     free (logitem->uniq_key);
   if (logitem->userid != NULL)
     free (logitem->userid);
+  if (logitem->cache_status != NULL)
+    free (logitem->cache_status);
   if (logitem->vhost != NULL)
     free (logitem->vhost);
 
@@ -527,7 +544,7 @@ decode_hex (char *url, char *out)
     if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2])) {
       *ptr++ = *c;
     } else {
-      *ptr++ = (char)((B16210 (c[1]) * 16) + (B16210 (c[2])));
+      *ptr++ = (char) ((B16210 (c[1]) * 16) + (B16210 (c[2])));
       c += 2;
     }
   }
@@ -763,6 +780,24 @@ contains_usecs (void)
   ht_insert_genstats ("serve_usecs", 1);
 #endif
   conf.serve_usecs = 1; /* flag */
+}
+
+static int
+is_cache_hit (const char *tkn)
+{
+  const char *statuses[] = {
+    "MISS",
+    "BYPASS",
+    "EXPIRED",
+    "STALE",
+    "UPDATING",
+    "REVALIDATED",
+    "HIT",
+  };
+
+  if (str_inarray (tkn, statuses, CACHE_STATUS_LEN) != -1)
+    return 1;
+  return 0;
 }
 
 /* Determine if the given token is a valid HTTP protocol.
@@ -1075,6 +1110,16 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     logitem->userid = tkn;
+    break;
+    /* cache status */
+  case 'C':
+    if (logitem->cache_status)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+    tkn = parse_string (&(*str), end, 1);
+    if (tkn == NULL)
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+    if (is_cache_hit (tkn))
+      logitem->cache_status = tkn;
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -2134,6 +2179,22 @@ gen_remote_user_key (GKeyData * kdata, GLogItem * logitem)
   return 0;
 }
 
+/* A wrapper to generate a unique key for the cache status panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated cache status key is assigned to our key data
+ * structure. */
+static int
+gen_cache_status_key (GKeyData * kdata, GLogItem * logitem)
+{
+  if (!logitem->cache_status)
+    return 1;
+
+  get_kdata (kdata, logitem->cache_status, logitem->cache_status);
+
+  return 0;
+}
+
 /* A wrapper to generate a unique key for the hosts panel.
  *
  * On error, 1 is returned.
@@ -2616,7 +2677,8 @@ fgetline (FILE * fp)
     if (!fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
         nanosleep ((const struct timespec[]) { {
-                   0, 100000000L}}, NULL);
+                                                0, 100000000L}
+                   }, NULL);
         continue;
       } else
         break;

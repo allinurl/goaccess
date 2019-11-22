@@ -74,6 +74,8 @@ const int sort_choices[][SORT_MAX_OPTS] = {
   {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
   /* REMOTE_USER */
   {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
+  /* CACHE_STATUS */
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
 #ifdef HAVE_GEOLOCATION
   /* GEO_LOCATION */
   {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
@@ -112,6 +114,7 @@ GSort module_sort[TOTAL_MODULES] = {
   {KEYPHRASES          , SORT_BY_HITS , SORT_DESC } ,
   {STATUS_CODES        , SORT_BY_HITS , SORT_DESC } ,
   {REMOTE_USER         , SORT_BY_HITS , SORT_DESC } ,
+  {CACHE_STATUS        , SORT_BY_HITS , SORT_DESC } ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION        , SORT_BY_HITS , SORT_DESC } ,
 #endif
@@ -122,7 +125,7 @@ GSort module_sort[TOTAL_MODULES] = {
 int
 strcmp_asc (const void *a, const void *b)
 {
-  return strcmp (*((char *const *) a), *((char * const*) b));
+  return strcmp (*((char *const *) a), *((char *const *) b));
 }
 
 /* Sort 'data' metric ascending */

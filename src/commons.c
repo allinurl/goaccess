@@ -216,6 +216,7 @@ get_module_enum (const char *str)
     {"KEYPHRASES"      , KEYPHRASES}      ,
     {"STATUS_CODES"    , STATUS_CODES}    ,
     {"REMOTE_USER"     , REMOTE_USER}     ,
+    {"CACHE_STATUS"    , CACHE_STATUS}    ,
 #ifdef HAVE_GEOLOCATION
     {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
@@ -424,6 +425,10 @@ verify_panels (void)
   if (!strstr (conf.log_format, "%e") && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("REMOTE_USER", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (REMOTE_USER);
+  }
+  if (!strstr (conf.log_format, "%C") && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("CACHE_STATUS", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (CACHE_STATUS);
   }
 }
 

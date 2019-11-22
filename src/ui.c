@@ -88,6 +88,7 @@ static GOutput outputting[] = {
   {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REMOTE_USER     , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {CACHE_STATUS    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
@@ -183,7 +184,7 @@ end_spinner (void)
   pthread_mutex_unlock (&parsing_spinner->mutex);
   if (!parsing_spinner->curses) {
     // wait for the ui_spinner thread to finish
-    usleep(SPIN_UPDATE_INTERVAL);
+    usleep (SPIN_UPDATE_INTERVAL);
   }
 }
 
@@ -283,6 +284,7 @@ module_to_label (GModule module)
     KEYPHRASES_LABEL,
     STATUS_CODES_LABEL,
     REMOTE_USER_LABEL,
+    CACHE_STATUS_LABEL,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_LABEL,
 #endif
@@ -312,6 +314,7 @@ module_to_id (GModule module)
     KEYPHRASES_ID,
     STATUS_CODES_ID,
     REMOTE_USER_ID,
+    CACHE_STATUS_ID,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_ID,
 #endif
@@ -341,6 +344,7 @@ module_to_head (GModule module)
     KEYPHRASES_HEAD,
     STATUS_CODES_HEAD,
     REMOTE_USER_HEAD,
+    CACHE_STATUS_HEAD,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_HEAD,
 #endif
@@ -374,6 +378,7 @@ module_to_desc (GModule module)
     KEYPHRASES_DESC,
     STATUS_CODES_DESC,
     REMOTE_USER_DESC,
+    CACHE_STATUS_DESC,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_DESC,
 #endif
@@ -1058,7 +1063,7 @@ ui_spinner (void *ptr_data)
     pthread_mutex_lock (&sp->mutex);
     if (sp->state == SPN_END) {
       if (!sp->curses && !conf.no_progress)
-        fprintf(stderr, "\n");
+        fprintf (stderr, "\n");
 
       break;
     }
@@ -1570,7 +1575,7 @@ scheme_chosen (const char *name)
 }
 
 static const char **
-get_color_schemes (size_t * size)
+get_color_schemes (size_t *size)
 {
   const char *choices[] = {
     "Monokai",

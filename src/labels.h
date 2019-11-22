@@ -138,6 +138,13 @@
 #define REMOTE_USER_LABEL              \
   N_("Remote User")
 
+#define CACHE_STATUS_HEAD               \
+  N_("The cache status of the object served")
+#define CACHE_STATUS_DESC               \
+  N_("Data sorted by hits [, avgts, cumts, maxts]")
+#define CACHE_STATUS_LABEL              \
+  N_("Cache Status")
+
 #define NOT_FOUND_HEAD                 \
   N_("Not Found URLs (404s)")
 #define NOT_FOUND_DESC                 \

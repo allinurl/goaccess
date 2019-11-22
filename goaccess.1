@@ -102,6 +102,14 @@ authentication. If the document is not password protected, this part will be
 "-" just like the previous one. This panel is not enabled unless
 .I %e
 is given within the log-format variable.
+.IP "Cache Status"
+If you are using caching on your server, you may be at the point where you
+want to know if your request is being cached and served from the cache.  This
+panel shows the cache status of the object the server served. This panel is not
+enabled unless
+.I %C
+is given within the log-format variable. The status can be either
+ `MISS`, `BYPASS`, `EXPIRED`, `STALE`, `UPDATING`, `REVALIDATED` or `HIT`
 
 .P
 .I NOTE:
@@ -824,6 +832,8 @@ The canonical Server Name of the server serving the request (Virtual Host).
 .IP %e
 This is the userid of the person requesting the document as determined by HTTP
 authentication.
+.IP %C
+The cache status of the object the server served.
 .IP %h
 host (the client IP address, either IPv4 or IPv6)
 .IP %r
