@@ -6,6 +6,7 @@
 #5 \date 2019/09/26
 AntennaPod				Podcasts
 AppleCoreMedia			Mediaplayer
+atc						Podcasts
 BacklinkCrawler		Crawlers
 Baiduspider				Crawlers
 Bullhorn Server		PodCrawlers
@@ -13,7 +14,9 @@ Castbox					Podcasts
 CastBox					Podcasts
 Castro					Podcasts
 CCBot						Crawlers
+com.evolve.podcast	Podcasts
 cortex					Facebook
+ExoPlayerLib			Mediaplayer
 facebookexternalhit	Facebook
 fyyd image poller		PodCrawlers
 fyyd-poll				PodCrawlers
@@ -35,6 +38,7 @@ Player FM				Podcasts
 PlayerFM					Podcasts
 Plex						Mediaplayer
 Podbean					Podcasts
+podcast					Podcasts
 Podcast					Podcasts
 PodcastRepublic		Podcasts
 Podcasts					Podcasts
@@ -43,13 +47,16 @@ Podchaser-Parser		PodCrawlers
 Podnews.net				PodCrawlers
 PodParadise				PodCrawlers
 Procast					Podcasts
+ProCast					Podcasts
 Procast (iOS)			Podcasts
 ProcastProCast			Podcasts
 radio.at					PodCrawlers
 RadioPublic				PodCrawlers
 RadioPublicImageResizer	PodCrawlers
 RSSRadio					Podcasts
+Sonos						Mediaplayer
 Spotify					PodCrawlers
+stagefright				Mediaplayer
 Stitcher					PodCrawlers
 UniversalFeedParser	Feeds
 WinampMPEG				Mediaplayer
