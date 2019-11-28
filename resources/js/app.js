@@ -306,8 +306,8 @@ GoAccess.OverallStats = {
 	renderData: function (data, ui) {
 		var idx = 0, row = null;
 
+		$('.last-updated').innerHTML = data.date_time;
 		$('.wrap-general').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
-			'lastUpdated': data.date_time,
 			'from': data.start_date,
 			'to': data.end_date,
 		}));
