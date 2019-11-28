@@ -144,9 +144,6 @@ struct option long_opts[] = {
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
 #endif
-#ifdef HAVE_LIBGEOIP
-  {"geoip-city-data"      , required_argument , 0 ,  0  } ,
-#endif
 #ifdef TCB_BTREE
   {"accumulated-time"     , no_argument       , 0 ,  0  } ,
   {"cache-lcnum"          , required_argument , 0 ,  0  } ,
@@ -618,7 +615,7 @@ parse_long_opt (const char *name, const char *oarg)
   /* GEOIP OPTIONS
    * ========================= */
   /* specifies the path of the GeoIP City database file */
-  if (!strcmp ("geoip-city-data", name) || !strcmp ("geoip-database", name))
+  if (!strcmp ("geoip-database", name))
     conf.geoip_database = oarg;
 
   /* BTREE OPTIONS
