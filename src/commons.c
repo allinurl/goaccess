@@ -87,7 +87,7 @@ get_max_choices (void)
    * we check either for an .html extension or we assume not extension was passed
    * via -o and therefore we are redirecting the output to a file. */
   if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
-    max = conf.max_items > MAX_CHOICES ? MAX_CHOICES : conf.max_items;
+    max = conf.max_items;
 
   free (csv);
   free (html);
