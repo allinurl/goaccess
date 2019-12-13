@@ -22,6 +22,7 @@ RUN apk add --no-cache \
     clang-static \
     gettext-dev \
     gettext-static \
+    git \
     libmaxminddb-dev \
     libressl-dev \
     linux-headers \
