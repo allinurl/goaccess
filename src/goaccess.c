@@ -345,7 +345,7 @@ allocate_data_by_module (GModule module, int col_data)
   dash->total_alloc += dash->module[module].dash_size;
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  load_data_to_dash (&holder[module], dash, module, &gscroll);
+  load_data_to_dash (glog, &holder[module], dash, module, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
 }
 

@@ -314,13 +314,14 @@ output_csv (GLog * glog, GHolder * holder, const char *filename)
   if (!conf.no_csv_summary)
     print_csv_summary (fp, glog);
 
+  set_module_totals (glog, &totals);
+
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
     if (!(panel = panel_lookup (module)))
       continue;
 
-    set_module_totals (module, &totals);
     panel->render (fp, holder + module, totals);
   }
 

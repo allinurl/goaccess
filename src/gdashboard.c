@@ -282,6 +282,19 @@ get_bars (int n, int max, int x)
   return char_repeat (len, '|');
 }
 
+/* Get largest hits metric.
+ *
+ * On error, 0 is returned.
+ * On success, largest hits metric is returned. */
+static void
+set_max_metrics (GDashMeta * meta, GDashData * idata)
+{
+  if (meta->max_hits < idata->metrics->hits)
+    meta->max_hits = idata->metrics->hits;
+  if (meta->max_visitors < idata->metrics->visitors)
+    meta->max_visitors = idata->metrics->visitors;
+}
+
 /* Set largest hits metric (length of the integer). */
 static void
 set_max_hit_len (GDashMeta * meta, GDashData * idata)
@@ -483,15 +496,6 @@ set_max_data_len (GDashMeta * meta, GDashData * idata)
    * longer than the length of the column name */
   if (llen > meta->data_len)
     meta->data_len = llen;
-}
-
-static void
-set_max_values (GDashMeta * meta, GMetrics * metrics)
-{
-  if (metrics->hits > meta->max_hits)
-    meta->max_hits = metrics->hits;
-  if (metrics->visitors > meta->max_visitors)
-    meta->max_visitors = metrics->visitors;
 }
 
 static void
@@ -1187,6 +1191,7 @@ display_content (WINDOW * win, GDash * dash, GScroll * gscroll)
     }
     /* used module */
     dash->module[module].module = module;
+    //dash->module[module].meta.max_hits = get_max_hit (dash->module[module].data, n);
 
     render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
   }
@@ -1404,7 +1409,7 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll)
 
 static void
 set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
-                  int is_subitem)
+                  GPercTotals totals, int is_subitem)
 {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
@@ -1423,14 +1428,11 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
 
   data = is_subitem ? render_child_node (metrics->data) : metrics->data;
 
-  /* set maximum values so far for hits/visitors */
-  set_max_values (meta, metrics);
-
   idata->metrics->hits = metrics->hits;
-  idata->metrics->hits_perc = get_percentage (meta->max_hits, metrics->hits);
+  idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);
   idata->metrics->visitors = metrics->visitors;
   idata->metrics->visitors_perc =
-    get_percentage (meta->max_visitors, metrics->visitors);
+    get_percentage (totals.visitors, metrics->visitors);
   idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
   idata->metrics->data = xstrdup (data);
 
@@ -1451,6 +1453,7 @@ out:
     free (data);
 
   set_metrics_len (meta, idata);
+  set_max_metrics (meta, idata);
 
   (*idx)++;
 }
@@ -1460,7 +1463,8 @@ out:
  * If no items on the sub list, the function returns.
  * On success, sub list data is set into the dashboard structure. */
 static void
-add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
+add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
+                      GPercTotals totals, int *i)
 {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
@@ -1469,7 +1473,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
-    set_dash_metrics (dash, iter->metrics, module, 1);
+    set_dash_metrics (dash, iter->metrics, module, totals, 1);
   }
 }
 
@@ -1477,17 +1481,20 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, int *i)
  *
  * On success, data is set into the dashboard structure. */
 static void
-add_item_to_dash (GDash ** dash, GHolderItem item, GModule module)
+add_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
+                  GPercTotals totals)
 {
-  set_dash_metrics (dash, item.metrics, module, 0);
+  set_dash_metrics (dash, item.metrics, module, totals, 0);
 }
 
 /* Load holder's data into the dashboard structure. */
 void
-load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
+load_data_to_dash (GLog * glog, GHolder * h, GDash * dash, GModule module,
+                   GScroll * gscroll)
 {
   int alloc_size = 0;
   int i, j;
+  GPercTotals totals;
 
   alloc_size = dash->module[module].alloc_data;
   if (gscroll->expanded && module == gscroll->current)
@@ -1498,13 +1505,15 @@ load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
   dash->module[module].holder_size = h->holder_size;
   memset (&dash->module[module].meta, 0, sizeof (GDashData));
 
+  set_module_totals (glog, &totals);
+
   for (i = 0, j = 0; i < alloc_size; i++) {
     if (h->items[j].metrics->data == NULL)
       continue;
 
-    add_item_to_dash (&dash, h->items[j], module);
+    add_item_to_dash (&dash, h->items[j], module, totals);
     if (gscroll->expanded && module == gscroll->current && h->sub_items_size)
-      add_sub_item_to_dash (&dash, h->items[j], module, &i);
+      add_sub_item_to_dash (&dash, h->items[j], module, totals, &i);
     j++;
   }
 }

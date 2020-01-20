@@ -1186,13 +1186,14 @@ init_json_output (GLog * glog, GHolder * holder)
   popen_obj (json, 0);
   print_json_summary (json, glog, holder);
 
+  set_module_totals (glog, &totals);
+
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
     if (!(panel = panel_lookup (module)))
       continue;
 
-    set_module_totals (module, &totals);
     panel->render (json, holder + module, totals, panel);
     pjson (json, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
   }

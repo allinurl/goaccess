@@ -83,11 +83,11 @@ uint642ptr (uint64_t val)
 
 /* Set the module totals to calculate percentages. */
 void
-set_module_totals (GModule module, GPercTotals * totals)
+set_module_totals (GLog * glog, GPercTotals * totals)
 {
-  totals->bw = ht_get_meta_data (module, "bytes");
-  totals->hits = ht_get_meta_data (module, "hits");
-  totals->visitors = ht_get_meta_data (module, "visitors");
+  totals->bw = glog->resp_size;
+  totals->hits = glog->valid;
+  totals->visitors = ht_get_size_uniqmap (VISITORS);
 }
 
 /* Set numeric metrics for each request given raw data.

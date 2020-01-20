@@ -31,6 +31,7 @@
 #define GSTORAGE_H_INCLUDED
 
 #include "commons.h"
+#include "parser.h"
 
 /* Total number of storage metrics (GSMetric) */
 #define GSMTRC_TOTAL 14
@@ -61,8 +62,8 @@ uint64_t *uint642ptr (uint64_t val);
 
 void *get_storage_metric_by_module (GModule module, GSMetric metric);
 void *get_storage_metric (GModule module, GSMetric metric);
+void set_module_totals (GLog * glog, GPercTotals * totals);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
                        GPercTotals totals);
-void set_module_totals (GModule module, GPercTotals * totals);
 
 #endif // for #ifndef GSTORAGE_H
