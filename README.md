@@ -190,7 +190,7 @@ build GoAccess from source.
 Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (opt)      |  OpenSSL (opt)     | gettext
 ---------------------- | -----------------|------------------| -------------------------| -------------------| -------------------
 **Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev        | gettext
-**Fedora/RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel     | gettext-devel
+**RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel     | gettext-devel
 **Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl    | gettext
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl  |
 **Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl           |
