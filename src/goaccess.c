@@ -1336,27 +1336,17 @@ setup_signal_handlers (void)
 }
 
 static void
-handle_signal_action (int sig_number)
+handle_signal_action (GO_UNUSED int sig_number)
 {
-  switch (sig_number) {
-  case SIGTERM:
-  case SIGINT:
-    fprintf (stderr, "\nSIGINT caught!\n");
-    fprintf (stderr, "Closing GoAccess...\n");
+  fprintf (stderr, "\nSIGINT caught!\n");
+  fprintf (stderr, "Closing GoAccess...\n");
 
-    stop_ws_server (gwswriter, gwsreader);
-    conf.stop_processing = 1;
+  stop_ws_server (gwswriter, gwsreader);
+  conf.stop_processing = 1;
 
-    if (!conf.output_stdout) {
-      cleanup (EXIT_SUCCESS);
-      exit (EXIT_SUCCESS);
-    }
-
-    break;
-  case SIGPIPE:
-    fprintf (stderr, "SIGPIPE caught!\n");
-    /* ignore it */
-    break;
+  if (!conf.output_stdout) {
+    cleanup (EXIT_SUCCESS);
+    exit (EXIT_SUCCESS);
   }
 }
 
@@ -1370,8 +1360,8 @@ setup_thread_signals (void)
   act.sa_flags = 0;
 
   sigaction (SIGINT, &act, NULL);
-  sigaction (SIGPIPE, &act, NULL);
   sigaction (SIGTERM, &act, NULL);
+  signal (SIGPIPE, SIG_IGN);
 
   /* Restore old signal mask for the main thread */
   pthread_sigmask (SIG_SETMASK, &oldset, NULL);
