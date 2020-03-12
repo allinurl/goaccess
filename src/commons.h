@@ -44,7 +44,7 @@
 #define GO_UNUSED __attribute__((unused))
 #define GO_VERSION 		"1.3"
 #define GO_WEBSITE 		"http://goaccess.io/"
-struct tm *now_tm;
+extern struct tm *now_tm;
 
 /* common char array buffer size */
 #define INIT_BUF_SIZE 1024
