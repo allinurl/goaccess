@@ -55,6 +55,8 @@
 #include "ui.h"
 #include "util.h"
 
+struct tm *now_tm;
+
 /* Panel output */
 typedef struct GPanel_
 {
