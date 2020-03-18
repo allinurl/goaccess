@@ -6,8 +6,7 @@
 
 // From http://www.mirrors.wiretapped.net/security/cryptography/hashes/sha1/sha1.c
 
-typedef struct
-{
+typedef struct {
   uint32_t state[5];
   uint32_t count[2];
   uint8_t buffer[64];

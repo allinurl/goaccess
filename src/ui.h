@@ -155,8 +155,7 @@
 #include "sort.h"
 
 /* Curses dashboard find */
-typedef struct GFind_
-{
+typedef struct GFind_ {
   GModule module;
   char *pattern;
   int next_idx;
@@ -168,15 +167,13 @@ typedef struct GFind_
 } GFind;
 
 /* Each panel contains its own scrolling and offset */
-typedef struct GScrollModule_
-{
+typedef struct GScrollModule_ {
   int scroll;
   int offset;
 } GScrollModule;
 
 /* Curses Scrolling */
-typedef struct GScroll_
-{
+typedef struct GScroll_ {
   GScrollModule module[TOTAL_MODULES];
   GModule current;
   int dash;
@@ -184,8 +181,7 @@ typedef struct GScroll_
 } GScroll;
 
 /* Spinner or Progress Indicator */
-typedef struct GSpinner_
-{
+typedef struct GSpinner_ {
   const char *label;
   GColors *(*color) (void);
   int curses;
@@ -197,8 +193,7 @@ typedef struct GSpinner_
   pthread_t thread;
   unsigned int *processed;
   WINDOW *win;
-  enum
-  {
+  enum {
     SPN_RUN,
     SPN_END
   } state;
@@ -206,8 +201,7 @@ typedef struct GSpinner_
 
 /* Controls metric output.
  * i.e., which metrics it should display */
-typedef struct GOutput_
-{
+typedef struct GOutput_ {
   GModule module;
   int8_t visitors;
   int8_t hits;

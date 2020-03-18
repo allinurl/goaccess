@@ -35,8 +35,7 @@
 #include <pthread.h>
 #include "websocket.h"
 
-typedef struct GWSReader_
-{
+typedef struct GWSReader_ {
   int fd;
   int self_pipe[2];             /* self-pipe */
 
@@ -48,8 +47,7 @@ typedef struct GWSReader_
   int hlen;                     /* header length */
 } GWSReader;
 
-typedef struct GWSWriter_
-{
+typedef struct GWSWriter_ {
   int fd;
 
   pthread_mutex_t mutex;        /* Mutex fifo in */

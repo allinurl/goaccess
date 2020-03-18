@@ -33,8 +33,7 @@
 #define OPESYS_TYPE_LEN  10
 
 /* Each OS contains the number of hits and the OS's type */
-typedef struct GOpeSys_
-{
+typedef struct GOpeSys_ {
   char os_type[OPESYS_TYPE_LEN];
   int hits;
 } GOpeSys;

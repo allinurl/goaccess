@@ -82,8 +82,7 @@ static GEnum enum_metric_types[] = {
 /* *INDENT-ON* */
 
 static GKHashStorage *
-new_gkhstorage (uint32_t size)
-{
+new_gkhstorage (uint32_t size) {
   GKHashStorage *storage = xcalloc (size, sizeof (GKHashStorage));
   return storage;
 }
@@ -93,16 +92,14 @@ new_gkhstorage (uint32_t size)
  * On error, NULL is returned.
  * On success, the string module value is returned. */
 static char *
-get_mtr_type_str (GSMetricType type)
-{
+get_mtr_type_str (GSMetricType type) {
   return enum2str (enum_metric_types, ARRAY_SIZE (enum_metric_types), type);
 }
 
 /* Initialize a new uint32_t key - uint32_t value hash table */
 static
 khash_t (ii32) *
-new_ii32_ht (void)
-{
+new_ii32_ht (void) {
   khash_t (ii32) * h = kh_init (ii32);
   return h;
 }
@@ -110,8 +107,7 @@ new_ii32_ht (void)
 /* Initialize a new uint32_t key - uint8_t value hash table */
 static
 khash_t (iui8) *
-new_iui8_ht (void)
-{
+new_iui8_ht (void) {
   khash_t (iui8) * h = kh_init (iui8);
   return h;
 }
@@ -119,8 +115,7 @@ new_iui8_ht (void)
 /* Initialize a new uint32_t key - string value hash table */
 static
 khash_t (is32) *
-new_is32_ht (void)
-{
+new_is32_ht (void) {
   khash_t (is32) * h = kh_init (is32);
   return h;
 }
@@ -128,8 +123,7 @@ new_is32_ht (void)
 /* Initialize a new uint32_t key - uint64_t value hash table */
 static
 khash_t (iu64) *
-new_iu64_ht (void)
-{
+new_iu64_ht (void) {
   khash_t (iu64) * h = kh_init (iu64);
   return h;
 }
@@ -137,8 +131,7 @@ new_iu64_ht (void)
 /* Initialize a new string key - uint32_t value hash table */
 static
 khash_t (si32) *
-new_si32_ht (void)
-{
+new_si32_ht (void) {
   khash_t (si32) * h = kh_init (si32);
   return h;
 }
@@ -146,8 +139,7 @@ new_si32_ht (void)
 /* Initialize a new string key - string value hash table */
 static
 khash_t (ss32) *
-new_ss32_ht (void)
-{
+new_ss32_ht (void) {
   khash_t (ss32) * h = kh_init (ss32);
   return h;
 }
@@ -155,8 +147,7 @@ new_ss32_ht (void)
 /* Initialize a new string key - GSLList value hash table */
 static
 khash_t (sgsl) *
-new_sgsl_ht (void)
-{
+new_sgsl_ht (void) {
   khash_t (sgsl) * h = kh_init (sgsl);
   return h;
 }
@@ -164,8 +155,7 @@ new_sgsl_ht (void)
 /* Initialize a new uint32_t key - GSLList value hash table */
 static
 khash_t (igsl) *
-new_igsl_ht (void)
-{
+new_igsl_ht (void) {
   khash_t (igsl) * h = kh_init (igsl);
   return h;
 }
@@ -173,8 +163,7 @@ new_igsl_ht (void)
 /* Initialize a new string key - uint64_t value hash table */
 static
 khash_t (su64) *
-new_su64_ht (void)
-{
+new_su64_ht (void) {
   khash_t (su64) * h = kh_init (su64);
   return h;
 }
@@ -182,8 +171,7 @@ new_su64_ht (void)
 /* Destroys both the hash structure and the keys for a
  * string key - uint32_t value hash */
 static void
-des_si32_free (khash_t (si32) * hash)
-{
+des_si32_free (khash_t (si32) * hash) {
   khint_t k;
   if (!hash)
     return;
@@ -199,8 +187,7 @@ des_si32_free (khash_t (si32) * hash)
 
 /* Destroys both the hash structure and its string values */
 static void
-des_is32_free (khash_t (is32) * hash)
-{
+des_is32_free (khash_t (is32) * hash) {
   khint_t k;
   if (!hash)
     return;
@@ -217,8 +204,7 @@ des_is32_free (khash_t (is32) * hash)
 /* Destroys both the hash structure and its string
  * keys and string values */
 static void
-des_ss32_free (khash_t (ss32) * hash)
-{
+des_ss32_free (khash_t (ss32) * hash) {
   khint_t k;
   if (!hash)
     return;
@@ -235,8 +221,7 @@ des_ss32_free (khash_t (ss32) * hash)
 
 /* Destroys the hash structure */
 static void
-des_ii32 (khash_t (ii32) * hash)
-{
+des_ii32 (khash_t (ii32) * hash) {
   if (!hash)
     return;
   kh_destroy (ii32, hash);
@@ -244,8 +229,7 @@ des_ii32 (khash_t (ii32) * hash)
 
 /* Destroys the hash structure */
 static void
-des_iui8 (khash_t (iui8) * hash)
-{
+des_iui8 (khash_t (iui8) * hash) {
   if (!hash)
     return;
   kh_destroy (iui8, hash);
@@ -254,8 +238,7 @@ des_iui8 (khash_t (iui8) * hash)
 /* Frees both the hash structure and its GSLList
  * values */
 static void
-del_sgsl_free (khash_t (sgsl) * hash)
-{
+del_sgsl_free (khash_t (sgsl) * hash) {
   khint_t k;
   GSLList *list = NULL;
   if (!hash)
@@ -272,8 +255,7 @@ del_sgsl_free (khash_t (sgsl) * hash)
 /* Destroys both the hash structure and its GSLList
  * values */
 static void
-des_sgsl_free (khash_t (sgsl) * hash)
-{
+des_sgsl_free (khash_t (sgsl) * hash) {
   if (!hash)
     return;
 
@@ -284,8 +266,7 @@ des_sgsl_free (khash_t (sgsl) * hash)
 /* Destroys both the hash structure and its GSLList
  * values */
 static void
-des_igsl_free (khash_t (igsl) * hash)
-{
+des_igsl_free (khash_t (igsl) * hash) {
   khint_t k;
   void *list = NULL;
   if (!hash)
@@ -303,8 +284,7 @@ des_igsl_free (khash_t (igsl) * hash)
 /* Destroys both the hash structure and the keys for a
  * string key - uint64_t value hash */
 static void
-des_su64_free (khash_t (su64) * hash)
-{
+des_su64_free (khash_t (su64) * hash) {
   khint_t k;
   if (!hash)
     return;
@@ -320,8 +300,7 @@ des_su64_free (khash_t (su64) * hash)
 
 /* Destroys the hash structure */
 static void
-des_iu64 (khash_t (iu64) * hash)
-{
+des_iu64 (khash_t (iu64) * hash) {
   if (!hash)
     return;
   kh_destroy (iu64, hash);
@@ -329,8 +308,7 @@ des_iu64 (khash_t (iu64) * hash)
 
 /* Initialize map & metric hashes */
 static void
-init_tables (GModule module)
-{
+init_tables (GModule module) {
   int n = 0, i;
   /* *INDENT-OFF* */
   GKHashMetric metrics[] = {
@@ -359,8 +337,7 @@ init_tables (GModule module)
 }
 
 static void
-free_metric_type (GKHashMetric mtrc)
-{
+free_metric_type (GKHashMetric mtrc) {
   /* Determine the hash structure type */
   switch (mtrc.type) {
   case MTRC_TYPE_IUI8:
@@ -395,8 +372,7 @@ free_metric_type (GKHashMetric mtrc)
 
 /* Destroys the hash structure allocated metrics */
 static void
-free_metrics (GModule module)
-{
+free_metrics (GModule module) {
   int i;
   GKHashMetric mtrc;
 
@@ -411,8 +387,7 @@ free_metrics (GModule module)
  * On error, or if table is not found, NULL is returned.
  * On success the hash structure pointer is returned. */
 static void *
-get_hash (GModule module, GSMetric metric)
-{
+get_hash (GModule module, GSMetric metric) {
   void *hash = NULL;
   int i;
   GKHashMetric mtrc;
@@ -462,8 +437,7 @@ get_hash (GModule module, GSMetric metric)
 
 /* Destroys the hash structure allocated metrics on each render */
 void
-free_sgls_metrics (GModule module)
-{
+free_sgls_metrics (GModule module) {
   khash_t (sgsl) * hash = NULL;
 
   hash = get_hash (module, MTRC_KEYMAPUQ);
@@ -476,8 +450,7 @@ free_sgls_metrics (GModule module)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value)
-{
+ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -505,8 +478,7 @@ ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value)
  * On success 0 is returned */
 static uint32_t
 ins_si32_inc (khash_t (si32) * hash, const char *key,
-              uint32_t (*cb) (const char *), const char *seqk)
-{
+              uint32_t (*cb) (const char *), const char *seqk) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -536,8 +508,7 @@ ins_si32_inc (khash_t (si32) * hash, const char *key,
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_is32 (khash_t (is32) * hash, uint32_t key, const char *value)
-{
+ins_is32 (khash_t (is32) * hash, uint32_t key, const char *value) {
   khint_t k;
   int ret;
 
@@ -559,8 +530,7 @@ ins_is32 (khash_t (is32) * hash, uint32_t key, const char *value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static int
-ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value)
-{
+ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -587,8 +557,7 @@ ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value)
-{
+ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value) {
   khint_t k;
   int ret;
 
@@ -610,8 +579,7 @@ ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_iui8 (khash_t (iui8) * hash, uint32_t key, uint8_t value)
-{
+ins_iui8 (khash_t (iui8) * hash, uint32_t key, uint8_t value) {
   khint_t k;
   int ret;
 
@@ -633,8 +601,7 @@ ins_iui8 (khash_t (iui8) * hash, uint32_t key, uint8_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value)
-{
+ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value) {
   khint_t k;
   int ret;
 
@@ -656,8 +623,7 @@ ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value)
-{
+ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -684,8 +650,7 @@ ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value)
  * On error, 0 is returned.
  * On success the inserted value is returned */
 static uint32_t
-inc_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t inc)
-{
+inc_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t inc) {
   khint_t k;
   int ret;
   uint32_t value = inc;
@@ -712,8 +677,7 @@ inc_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc)
-{
+inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc) {
   khint_t k;
   int ret;
   uint64_t value = inc;
@@ -745,8 +709,7 @@ inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc)
-{
+inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc) {
   khint_t k;
   int ret;
   uint64_t value = inc;
@@ -773,8 +736,7 @@ inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 static uint32_t
-inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc)
-{
+inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
   khint_t k;
   int ret;
   uint32_t value = inc;
@@ -803,8 +765,7 @@ inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc)
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 static uint32_t
-ins_si32_ai (khash_t (si32) * hash, const char *key)
-{
+ins_si32_ai (khash_t (si32) * hash, const char *key) {
   uint32_t size = 0, value = 0;
 
   if (!hash)
@@ -824,8 +785,7 @@ ins_si32_ai (khash_t (si32) * hash, const char *key)
  *
  * if equal, 1 is returned, else 0 */
 static int
-find_int_key_in_list (void *data, void *needle)
-{
+find_int_key_in_list (void *data, void *needle) {
   return (*(uint32_t *) data) == (*(uint32_t *) needle) ? 1 : 0;
 }
 
@@ -835,8 +795,7 @@ find_int_key_in_list (void *data, void *needle)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value)
-{
+ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   khint_t k;
   GSLList *list, *match;
   int ret;
@@ -869,8 +828,7 @@ ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ins_sgsl (khash_t (sgsl) * hash, const char *key, uint32_t value)
-{
+ins_sgsl (khash_t (sgsl) * hash, const char *key, uint32_t value) {
   khint_t k;
   GSLList *list, *match;
   int ret;
@@ -901,8 +859,7 @@ ins_sgsl (khash_t (sgsl) * hash, const char *key, uint32_t value)
  *
  * On success, the databases path string is returned. */
 static char *
-set_db_path (const char *fn)
-{
+set_db_path (const char *fn) {
   struct stat info;
   char *rpath = NULL, *path = NULL;
   const char *dbpath = NULL;
@@ -930,8 +887,7 @@ set_db_path (const char *fn)
 }
 
 static char *
-get_filename (GModule module, GKHashMetric mtrc)
-{
+get_filename (GModule module, GKHashMetric mtrc) {
   char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
 
   if (!(mtrstr = get_mtr_str (mtrc.metric)))
@@ -952,8 +908,7 @@ get_filename (GModule module, GKHashMetric mtrc)
 }
 
 static void
-restore_si32 (khash_t (si32) * hash, const char *fn)
-{
+restore_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_node *tn;
   char *key = NULL;
   char fmt[] = "A(su)";
@@ -969,8 +924,7 @@ restore_si32 (khash_t (si32) * hash, const char *fn)
 }
 
 static void
-persist_si32 (khash_t (si32) * hash, const char *fn)
-{
+persist_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   const char *key = NULL;
@@ -993,8 +947,7 @@ persist_si32 (khash_t (si32) * hash, const char *fn)
 }
 
 static void
-restore_is32 (khash_t (is32) * hash, const char *fn)
-{
+restore_is32 (khash_t (is32) * hash, const char *fn) {
   tpl_node *tn;
   char *val = NULL;
   char fmt[] = "A(us)";
@@ -1010,8 +963,7 @@ restore_is32 (khash_t (is32) * hash, const char *fn)
 }
 
 static void
-persist_is32 (khash_t (is32) * hash, const char *fn)
-{
+persist_is32 (khash_t (is32) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   uint32_t key;
@@ -1035,8 +987,7 @@ persist_is32 (khash_t (is32) * hash, const char *fn)
 }
 
 static void
-restore_ii32 (khash_t (ii32) * hash, const char *fn)
-{
+restore_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_node *tn;
   uint32_t key, val;
   char fmt[] = "A(uu)";
@@ -1050,8 +1001,7 @@ restore_ii32 (khash_t (ii32) * hash, const char *fn)
 }
 
 static void
-persist_ii32 (khash_t (ii32) * hash, const char *fn)
-{
+persist_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   uint32_t key, val;
@@ -1074,8 +1024,7 @@ persist_ii32 (khash_t (ii32) * hash, const char *fn)
 }
 
 static void
-restore_iu64 (khash_t (iu64) * hash, const char *fn)
-{
+restore_iu64 (khash_t (iu64) * hash, const char *fn) {
   tpl_node *tn;
   uint32_t key;
   uint64_t val;
@@ -1090,8 +1039,7 @@ restore_iu64 (khash_t (iu64) * hash, const char *fn)
 }
 
 static void
-persist_iu64 (khash_t (iu64) * hash, const char *fn)
-{
+persist_iu64 (khash_t (iu64) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   uint32_t key;
@@ -1115,8 +1063,7 @@ persist_iu64 (khash_t (iu64) * hash, const char *fn)
 }
 
 static void
-restore_su64 (khash_t (su64) * hash, const char *fn)
-{
+restore_su64 (khash_t (su64) * hash, const char *fn) {
   tpl_node *tn;
   char *key = NULL;
   char fmt[] = "A(sU)";
@@ -1132,8 +1079,7 @@ restore_su64 (khash_t (su64) * hash, const char *fn)
 }
 
 static void
-persist_su64 (khash_t (su64) * hash, const char *fn)
-{
+persist_su64 (khash_t (su64) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   const char *key = NULL;
@@ -1156,8 +1102,7 @@ persist_su64 (khash_t (su64) * hash, const char *fn)
 }
 
 static void
-restore_igsl (khash_t (igsl) * hash, const char *fn)
-{
+restore_igsl (khash_t (igsl) * hash, const char *fn) {
   tpl_node *tn;
   uint32_t key, val;
   char fmt[] = "A(uu)";
@@ -1172,8 +1117,7 @@ restore_igsl (khash_t (igsl) * hash, const char *fn)
 
 
 static void
-persist_igsl (khash_t (igsl) * hash, const char *fn)
-{
+persist_igsl (khash_t (igsl) * hash, const char *fn) {
   GSLList *node;
   tpl_node *tn;
   khint_t k;
@@ -1202,8 +1146,7 @@ persist_igsl (khash_t (igsl) * hash, const char *fn)
 }
 
 static char *
-check_restore_path (const char *fn)
-{
+check_restore_path (const char *fn) {
   char *path = set_db_path (fn);
   if (access (path, F_OK) != -1)
     return path;
@@ -1214,8 +1157,7 @@ check_restore_path (const char *fn)
 }
 
 static void
-restore_by_type (GKHashMetric mtrc, const char *fn)
-{
+restore_by_type (GKHashMetric mtrc, const char *fn) {
   char *path = NULL;
 
   if (!(path = check_restore_path (fn)))
@@ -1248,8 +1190,7 @@ clean:
 }
 
 static void
-restore_metric_type (GModule module, GKHashMetric mtrc)
-{
+restore_metric_type (GModule module, GKHashMetric mtrc) {
   char *fn = NULL;
 
   fn = get_filename (module, mtrc);
@@ -1258,8 +1199,7 @@ restore_metric_type (GModule module, GKHashMetric mtrc)
 }
 
 static void
-restore_data (void)
-{
+restore_data (void) {
   GModule module;
   int i, n = 0;
   size_t idx = 0;
@@ -1292,8 +1232,7 @@ restore_data (void)
 }
 
 static void
-persist_by_type (GKHashMetric mtrc, const char *fn)
-{
+persist_by_type (GKHashMetric mtrc, const char *fn) {
   char *path = NULL;
   path = set_db_path (fn);
 
@@ -1323,8 +1262,7 @@ persist_by_type (GKHashMetric mtrc, const char *fn)
 }
 
 static void
-persist_metric_type (GModule module, GKHashMetric mtrc)
-{
+persist_metric_type (GModule module, GKHashMetric mtrc) {
   char *fn = NULL;
   fn = get_filename (module, mtrc);
   persist_by_type (mtrc, fn);
@@ -1332,8 +1270,7 @@ persist_metric_type (GModule module, GKHashMetric mtrc)
 }
 
 static void
-persist_overall (void)
-{
+persist_overall (void) {
   int n = 0, i;
   /* *INDENT-OFF* */
   GKHashMetric metrics[] = {
@@ -1356,8 +1293,7 @@ persist_overall (void)
 
 /* Destroys the hash structure allocated metrics */
 static void
-persist_data (void)
-{
+persist_data (void) {
   GModule module;
   int i;
   size_t idx = 0;
@@ -1378,8 +1314,7 @@ persist_data (void)
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 static uint32_t
-get_si32 (khash_t (si32) * hash, const char *key)
-{
+get_si32 (khash_t (si32) * hash, const char *key) {
   khint_t k;
 
   if (!hash)
@@ -1398,8 +1333,7 @@ get_si32 (khash_t (si32) * hash, const char *key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
-get_is32 (khash_t (is32) * hash, uint32_t key)
-{
+get_is32 (khash_t (is32) * hash, uint32_t key) {
   khint_t k;
   char *value = NULL;
 
@@ -1419,8 +1353,7 @@ get_is32 (khash_t (is32) * hash, uint32_t key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
-get_ss32 (khash_t (ss32) * hash, const char *key)
-{
+get_ss32 (khash_t (ss32) * hash, const char *key) {
   khint_t k;
   char *value = NULL;
 
@@ -1441,8 +1374,7 @@ get_ss32 (khash_t (ss32) * hash, const char *key)
  * On error, -1 is returned.
  * On success the uint32_t value for the given key is returned */
 static uint32_t
-get_ii32 (khash_t (ii32) * hash, uint32_t key)
-{
+get_ii32 (khash_t (ii32) * hash, uint32_t key) {
   khint_t k;
   uint32_t value = 0;
 
@@ -1462,8 +1394,7 @@ get_ii32 (khash_t (ii32) * hash, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 static uint64_t
-get_iu64 (khash_t (iu64) * hash, uint32_t key)
-{
+get_iu64 (khash_t (iu64) * hash, uint32_t key) {
   khint_t k;
   uint64_t value = 0;
 
@@ -1483,8 +1414,7 @@ get_iu64 (khash_t (iu64) * hash, uint32_t key)
  * On error, or if key is not found, NULL is returned.
  * On success the GSLList value for the given key is returned */
 static GSLList *
-get_igsl (khash_t (igsl) * hash, uint32_t key)
-{
+get_igsl (khash_t (igsl) * hash, uint32_t key) {
   khint_t k;
   GSLList *list = NULL;
 
@@ -1504,8 +1434,7 @@ get_igsl (khash_t (igsl) * hash, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 static uint64_t
-get_su64 (khash_t (su64) * hash, const char *key)
-{
+get_su64 (khash_t (su64) * hash, const char *key) {
   khint_t k;
   uint64_t val = 0;
 
@@ -1530,8 +1459,7 @@ get_su64 (khash_t (su64) * hash, const char *key)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 static void
-get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max)
-{
+get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max) {
   khint_t k;
   uint32_t curvalue = 0;
   int i;
@@ -1560,8 +1488,7 @@ get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 static void
-get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max)
-{
+get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max) {
   khint_t k;
   uint64_t curvalue = 0;
   int i;
@@ -1585,8 +1512,7 @@ get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max)
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 static uint32_t
-get_iui8 (khash_t (iui8) * hash, uint32_t key)
-{
+get_iui8 (khash_t (iui8) * hash, uint32_t key) {
   khint_t k;
 
   if (!hash)
@@ -1601,8 +1527,7 @@ get_iui8 (khash_t (iui8) * hash, uint32_t key)
 }
 
 uint32_t
-ht_get_date (uint32_t date)
-{
+ht_get_date (uint32_t date) {
   return get_iui8 (ht_dates, date);
 }
 
@@ -1610,8 +1535,7 @@ ht_get_date (uint32_t date)
  *
  * Return 0 if the operation fails, else number of elements. */
 uint32_t
-ht_get_size_dates (void)
-{
+ht_get_size_dates (void) {
   khash_t (iui8) * hash = ht_dates;
 
   if (!hash)
@@ -1621,8 +1545,7 @@ ht_get_size_dates (void)
 }
 
 uint32_t
-ht_get_excluded_ips (void)
-{
+ht_get_excluded_ips (void) {
   khash_t (si32) * hash = ht_cnt_overall;
 
   if (!hash)
@@ -1632,8 +1555,7 @@ ht_get_excluded_ips (void)
 }
 
 uint32_t
-ht_get_invalid (void)
-{
+ht_get_invalid (void) {
   khash_t (si32) * hash = ht_cnt_overall;
 
   if (!hash)
@@ -1643,8 +1565,7 @@ ht_get_invalid (void)
 }
 
 uint32_t
-ht_get_processed (void)
-{
+ht_get_processed (void) {
   khash_t (si32) * hash = ht_cnt_overall;
 
   if (!hash)
@@ -1654,8 +1575,7 @@ ht_get_processed (void)
 }
 
 uint32_t
-ht_sum_valid (void)
-{
+ht_sum_valid (void) {
   khash_t (ii32) * hash = ht_cnt_valid;
   khint_t k;
   uint32_t val = 0;
@@ -1671,8 +1591,7 @@ ht_sum_valid (void)
 }
 
 uint64_t
-ht_sum_bw (void)
-{
+ht_sum_bw (void) {
   khash_t (iu64) * hash = ht_cnt_bw;
   khint_t k;
   uint64_t val = 0;
@@ -1688,8 +1607,7 @@ ht_sum_bw (void)
 }
 
 uint32_t
-ht_insert_last_parse (uint32_t key, uint32_t value)
-{
+ht_insert_last_parse (uint32_t key, uint32_t value) {
   khash_t (ii32) * hash = ht_last_parse;
 
   if (!hash)
@@ -1699,8 +1617,7 @@ ht_insert_last_parse (uint32_t key, uint32_t value)
 }
 
 uint32_t
-ht_insert_date (uint32_t key)
-{
+ht_insert_date (uint32_t key) {
   khash_t (iui8) * hash = ht_dates;
 
   if (!hash)
@@ -1712,8 +1629,7 @@ ht_insert_date (uint32_t key)
 }
 
 uint32_t
-ht_inc_cnt_overall (const char *key, uint32_t val)
-{
+ht_inc_cnt_overall (const char *key, uint32_t val) {
   khash_t (si32) * hash = ht_cnt_overall;
 
   if (!hash)
@@ -1725,8 +1641,7 @@ ht_inc_cnt_overall (const char *key, uint32_t val)
 }
 
 uint32_t
-ht_inc_cnt_valid (uint32_t key, uint32_t inc)
-{
+ht_inc_cnt_valid (uint32_t key, uint32_t inc) {
   khash_t (ii32) * hash = ht_cnt_valid;
 
   if (!hash)
@@ -1736,8 +1651,7 @@ ht_inc_cnt_valid (uint32_t key, uint32_t inc)
 }
 
 uint32_t
-ht_inc_cnt_bw (uint32_t key, uint64_t inc)
-{
+ht_inc_cnt_bw (uint32_t key, uint64_t inc) {
   khash_t (iu64) * hash = ht_cnt_bw;
 
   if (!hash)
@@ -1751,8 +1665,7 @@ ht_inc_cnt_bw (uint32_t key, uint64_t inc)
  * On error, 0 is returned.
  * On success the inserted key is returned */
 static uint32_t
-ht_ins_seq (const char *key)
-{
+ht_ins_seq (const char *key) {
   khash_t (si32) * hash = ht_seqs;
 
   if (!hash)
@@ -1768,8 +1681,7 @@ ht_ins_seq (const char *key)
  * On error, 0 is returned.
  * On success the inserted key is returned */
 uint32_t
-ht_insert_agent_seq (const char *key)
-{
+ht_insert_agent_seq (const char *key) {
   khash_t (si32) * hash = ht_seqs;
   if (!hash)
     return 0;
@@ -1786,8 +1698,7 @@ ht_insert_agent_seq (const char *key)
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 uint32_t
-ht_insert_unique_key (const char *key)
-{
+ht_insert_unique_key (const char *key) {
   uint32_t val = 0;
   khash_t (si32) * hash = ht_unique_keys;
 
@@ -1806,8 +1717,7 @@ ht_insert_unique_key (const char *key)
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 uint32_t
-ht_insert_agent_key (const char *key)
-{
+ht_insert_agent_key (const char *key) {
   uint32_t val = 0;
   khash_t (si32) * hash = ht_agent_keys;
 
@@ -1825,8 +1735,7 @@ ht_insert_agent_key (const char *key)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_agent_value (uint32_t key, const char *value)
-{
+ht_insert_agent_value (uint32_t key, const char *value) {
   khash_t (is32) * hash = ht_agent_vals;
 
   if (!hash)
@@ -1841,8 +1750,7 @@ ht_insert_agent_value (uint32_t key, const char *value)
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 uint32_t
-ht_insert_keymap (GModule module, const char *key)
-{
+ht_insert_keymap (GModule module, const char *key) {
   uint32_t value = 0;
   khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
   char *modstr = NULL;
@@ -1864,8 +1772,7 @@ ht_insert_keymap (GModule module, const char *key)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_datamap (GModule module, uint32_t key, const char *value)
-{
+ht_insert_datamap (GModule module, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
@@ -1880,8 +1787,7 @@ ht_insert_datamap (GModule module, uint32_t key, const char *value)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_rootmap (GModule module, uint32_t key, const char *value)
-{
+ht_insert_rootmap (GModule module, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, MTRC_ROOTMAP);
 
   if (!hash)
@@ -1896,8 +1802,7 @@ ht_insert_rootmap (GModule module, uint32_t key, const char *value)
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 uint32_t
-ht_insert_uniqmap (GModule module, const char *key)
-{
+ht_insert_uniqmap (GModule module, const char *key) {
   khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
@@ -1914,8 +1819,7 @@ ht_insert_uniqmap (GModule module, const char *key)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_root (GModule module, uint32_t key, uint32_t value)
-{
+ht_insert_root (GModule module, uint32_t key, uint32_t value) {
   khash_t (ii32) * hash = get_hash (module, MTRC_ROOT);
 
   if (!hash)
@@ -1929,8 +1833,7 @@ ht_insert_root (GModule module, uint32_t key, uint32_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_meta_data (GModule module, const char *key, uint64_t value)
-{
+ht_insert_meta_data (GModule module, const char *key, uint64_t value) {
   khash_t (su64) * hash = get_hash (module, MTRC_METADATA);
 
   if (!hash)
@@ -1944,8 +1847,7 @@ ht_insert_meta_data (GModule module, const char *key, uint64_t value)
  * On error, 0 is returned.
  * On success the inserted value is returned */
 uint32_t
-ht_insert_hits (GModule module, uint32_t key, uint32_t inc)
-{
+ht_insert_hits (GModule module, uint32_t key, uint32_t inc) {
   khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
 
   if (!hash)
@@ -1959,8 +1861,7 @@ ht_insert_hits (GModule module, uint32_t key, uint32_t inc)
  * On error, 0 is returned.
  * On success the inserted value is returned */
 uint32_t
-ht_insert_visitor (GModule module, uint32_t key, uint32_t inc)
-{
+ht_insert_visitor (GModule module, uint32_t key, uint32_t inc) {
   khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
 
   if (!hash)
@@ -1974,8 +1875,7 @@ ht_insert_visitor (GModule module, uint32_t key, uint32_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_bw (GModule module, uint32_t key, uint64_t inc)
-{
+ht_insert_bw (GModule module, uint32_t key, uint64_t inc) {
   khash_t (iu64) * hash = get_hash (module, MTRC_BW);
 
   if (!hash)
@@ -1989,8 +1889,7 @@ ht_insert_bw (GModule module, uint32_t key, uint64_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_cumts (GModule module, uint32_t key, uint64_t inc)
-{
+ht_insert_cumts (GModule module, uint32_t key, uint64_t inc) {
   khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
 
   if (!hash)
@@ -2005,8 +1904,7 @@ ht_insert_cumts (GModule module, uint32_t key, uint64_t inc)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_maxts (GModule module, uint32_t key, uint64_t value)
-{
+ht_insert_maxts (GModule module, uint32_t key, uint64_t value) {
   uint64_t curvalue = 0;
   khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
 
@@ -2024,8 +1922,7 @@ ht_insert_maxts (GModule module, uint32_t key, uint64_t value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_method (GModule module, uint32_t key, const char *value)
-{
+ht_insert_method (GModule module, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, MTRC_METHODS);
 
   if (!hash)
@@ -2039,8 +1936,7 @@ ht_insert_method (GModule module, uint32_t key, const char *value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_protocol (GModule module, uint32_t key, const char *value)
-{
+ht_insert_protocol (GModule module, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, MTRC_PROTOCOLS);
 
   if (!hash)
@@ -2054,8 +1950,7 @@ ht_insert_protocol (GModule module, uint32_t key, const char *value)
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_agent (GModule module, uint32_t key, uint32_t value)
-{
+ht_insert_agent (GModule module, uint32_t key, uint32_t value) {
   khash_t (igsl) * hash = get_hash (module, MTRC_AGENTS);
 
   if (!hash)
@@ -2069,8 +1964,7 @@ ht_insert_agent (GModule module, uint32_t key, uint32_t value)
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ht_insert_keymap_list (GModule module, const char *key, uint32_t value)
-{
+ht_insert_keymap_list (GModule module, const char *key, uint32_t value) {
   khash_t (sgsl) * hash = get_hash (module, MTRC_KEYMAPUQ);
 
   if (!hash)
@@ -2084,8 +1978,7 @@ ht_insert_keymap_list (GModule module, const char *key, uint32_t value)
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_hostname (const char *ip, const char *host)
-{
+ht_insert_hostname (const char *ip, const char *host) {
   khash_t (ss32) * hash = ht_hostnames;
 
   if (!hash)
@@ -2095,8 +1988,7 @@ ht_insert_hostname (const char *ip, const char *host)
 }
 
 uint32_t
-ht_get_last_parse (uint32_t key)
-{
+ht_get_last_parse (uint32_t key) {
   khash_t (ii32) * hash = ht_last_parse;
 
   if (!hash)
@@ -2109,8 +2001,7 @@ ht_get_last_parse (uint32_t key)
  *
  * Return -1 if the operation fails, else number of elements. */
 uint32_t
-ht_get_size_datamap (GModule module)
-{
+ht_get_size_datamap (GModule module) {
   khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
@@ -2124,8 +2015,7 @@ ht_get_size_datamap (GModule module)
  * On error, 0 is returned.
  * On success the number of elements in MTRC_UNIQMAP is returned */
 uint32_t
-ht_get_size_uniqmap (GModule module)
-{
+ht_get_size_uniqmap (GModule module) {
   khash_t (is32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
@@ -2139,8 +2029,7 @@ ht_get_size_uniqmap (GModule module)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_datamap (GModule module, uint32_t key)
-{
+ht_get_datamap (GModule module, uint32_t key) {
   khash_t (is32) * hash = get_hash (module, MTRC_DATAMAP);
 
   if (!hash)
@@ -2154,8 +2043,7 @@ ht_get_datamap (GModule module, uint32_t key)
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-ht_get_keymap (GModule module, const char *key)
-{
+ht_get_keymap (GModule module, const char *key) {
   khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
 
   if (!hash)
@@ -2169,8 +2057,7 @@ ht_get_keymap (GModule module, const char *key)
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-ht_get_uniqmap (GModule module, const char *key)
-{
+ht_get_uniqmap (GModule module, const char *key) {
   khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
@@ -2184,8 +2071,7 @@ ht_get_uniqmap (GModule module, const char *key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_root (GModule module, uint32_t key)
-{
+ht_get_root (GModule module, uint32_t key) {
   uint32_t root_key = 0;
   khash_t (ii32) * hashroot = get_hash (module, MTRC_ROOT);
   khash_t (is32) * hashrootmap = get_hash (module, MTRC_ROOTMAP);
@@ -2206,8 +2092,7 @@ ht_get_root (GModule module, uint32_t key)
  * On error, -1 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-ht_get_visitors (GModule module, uint32_t key)
-{
+ht_get_visitors (GModule module, uint32_t key) {
   khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
 
   if (!hash)
@@ -2222,8 +2107,7 @@ ht_get_visitors (GModule module, uint32_t key)
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-ht_get_hits (GModule module, uint32_t key)
-{
+ht_get_hits (GModule module, uint32_t key) {
   khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
 
   if (!hash)
@@ -2237,8 +2121,7 @@ ht_get_hits (GModule module, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-ht_get_bw (GModule module, uint32_t key)
-{
+ht_get_bw (GModule module, uint32_t key) {
   khash_t (iu64) * hash = get_hash (module, MTRC_BW);
 
   if (!hash)
@@ -2252,8 +2135,7 @@ ht_get_bw (GModule module, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-ht_get_cumts (GModule module, uint32_t key)
-{
+ht_get_cumts (GModule module, uint32_t key) {
   khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
 
   if (!hash)
@@ -2267,8 +2149,7 @@ ht_get_cumts (GModule module, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-ht_get_maxts (GModule module, uint32_t key)
-{
+ht_get_maxts (GModule module, uint32_t key) {
   khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
 
   if (!hash)
@@ -2282,8 +2163,7 @@ ht_get_maxts (GModule module, uint32_t key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_method (GModule module, uint32_t key)
-{
+ht_get_method (GModule module, uint32_t key) {
   khash_t (is32) * hash = get_hash (module, MTRC_METHODS);
 
   if (!hash)
@@ -2297,8 +2177,7 @@ ht_get_method (GModule module, uint32_t key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_protocol (GModule module, uint32_t key)
-{
+ht_get_protocol (GModule module, uint32_t key) {
   khash_t (is32) * hash = get_hash (module, MTRC_PROTOCOLS);
 
   if (!hash)
@@ -2312,8 +2191,7 @@ ht_get_protocol (GModule module, uint32_t key)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_hostname (const char *host)
-{
+ht_get_hostname (const char *host) {
   khash_t (ss32) * hash = ht_hostnames;
 
   if (!hash)
@@ -2327,8 +2205,7 @@ ht_get_hostname (const char *host)
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-ht_get_host_agent_val (uint32_t key)
-{
+ht_get_host_agent_val (uint32_t key) {
   khash_t (is32) * hash = ht_agent_vals;
 
   if (!hash)
@@ -2342,8 +2219,7 @@ ht_get_host_agent_val (uint32_t key)
  * On error, or if key is not found, NULL is returned.
  * On success the GSLList value for the given key is returned */
 GSLList *
-ht_get_host_agent_list (GModule module, uint32_t key)
-{
+ht_get_host_agent_list (GModule module, uint32_t key) {
   khash_t (igsl) * hash = get_hash (module, MTRC_AGENTS);
   GSLList *list;
 
@@ -2357,8 +2233,7 @@ ht_get_host_agent_list (GModule module, uint32_t key)
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-ht_get_meta_data (GModule module, const char *key)
-{
+ht_get_meta_data (GModule module, const char *key) {
   khash_t (su64) * hash = get_hash (module, MTRC_METADATA);
 
   return get_su64 (hash, key);
@@ -2370,8 +2245,7 @@ ht_get_meta_data (GModule module, const char *key)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max)
-{
+ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
   khash_t (ii32) * hash = get_hash (module, MTRC_HITS);
 
   if (!hash)
@@ -2386,8 +2260,7 @@ ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max)
-{
+ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
   khash_t (ii32) * hash = get_hash (module, MTRC_VISITORS);
 
   if (!hash)
@@ -2402,8 +2275,7 @@ ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max)
-{
+ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max) {
   khash_t (iu64) * hash = get_hash (module, MTRC_BW);
 
   if (!hash)
@@ -2418,8 +2290,7 @@ ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max)
-{
+ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max) {
   khash_t (iu64) * hash = get_hash (module, MTRC_CUMTS);
 
   if (!hash)
@@ -2434,8 +2305,7 @@ ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max)
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
-{
+ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
   khash_t (iu64) * hash = get_hash (module, MTRC_MAXTS);
 
   if (!hash)
@@ -2445,8 +2315,7 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max)
 }
 
 uint32_t *
-get_sorted_dates (void)
-{
+get_sorted_dates (void) {
   khiter_t key;
   uint32_t *dates = NULL;
   int i = 0;
@@ -2469,14 +2338,12 @@ get_sorted_dates (void)
 }
 
 static int
-find_user_agent_key (void *data, void *needle)
-{
+find_user_agent_key (void *data, void *needle) {
   return (*(uint32_t *) data) == (*(uint32_t *) needle) ? 1 : 0;
 }
 
 static int
-free_agent_list (uint32_t agent_nkey)
-{
+free_agent_list (uint32_t agent_nkey) {
   khiter_t k, kv;
   khash_t (si32) * hash = ht_agent_keys;
   khash_t (is32) * hval = ht_agent_vals;
@@ -2501,8 +2368,7 @@ free_agent_list (uint32_t agent_nkey)
 }
 
 static int
-free_used_agents_per_host (void *val, GO_UNUSED void *user_data)
-{
+free_used_agents_per_host (void *val, GO_UNUSED void *user_data) {
   khiter_t k;
   khash_t (igsl) * hash = get_hash (HOSTS, MTRC_AGENTS);
   GSLList *list = NULL, *match = NULL;
@@ -2526,8 +2392,7 @@ free_used_agents_per_host (void *val, GO_UNUSED void *user_data)
 }
 
 static void
-free_key_by_type (GKHashMetric mtrc, uint32_t key)
-{
+free_key_by_type (GKHashMetric mtrc, uint32_t key) {
   khiter_t k;
   void *list = NULL;
   char *value = NULL;
@@ -2565,8 +2430,7 @@ free_key_by_type (GKHashMetric mtrc, uint32_t key)
 }
 
 static void
-free_by_num_key (GModule module, uint32_t key)
-{
+free_by_num_key (GModule module, uint32_t key) {
   int i;
   GKHashMetric mtrc;
 
@@ -2577,8 +2441,7 @@ free_by_num_key (GModule module, uint32_t key)
 }
 
 static int
-free_record_from_partial_key (GModule module, const char *key)
-{
+free_record_from_partial_key (GModule module, const char *key) {
   khiter_t k;
   khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
   char *p = NULL;
@@ -2604,8 +2467,7 @@ free_record_from_partial_key (GModule module, const char *key)
 }
 
 static int
-free_partial_match_uniqmap (GModule module, uint32_t uniq_nkey)
-{
+free_partial_match_uniqmap (GModule module, uint32_t uniq_nkey) {
   khiter_t k;
   khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
   char *key = NULL, *p = NULL;
@@ -2632,8 +2494,7 @@ free_partial_match_uniqmap (GModule module, uint32_t uniq_nkey)
 }
 
 int
-clean_partial_match_hashes (int date)
-{
+clean_partial_match_hashes (int date) {
   GModule module;
   khash_t (si32) * hash = ht_unique_keys;
   khiter_t k;
@@ -2667,8 +2528,7 @@ clean_partial_match_hashes (int date)
 }
 
 int
-clean_full_match_hashes (int date)
-{
+clean_full_match_hashes (int date) {
   khiter_t k;
 
   k = kh_get (ii32, ht_cnt_valid, date);
@@ -2681,8 +2541,7 @@ clean_full_match_hashes (int date)
 }
 
 int
-invalidate_date (int date)
-{
+invalidate_date (int date) {
   GModule module;
   khash_t (iui8) * hash = ht_dates;
   khiter_t k;
@@ -2710,8 +2569,7 @@ invalidate_date (int date)
  *
  * On success a GRawData structure is returned. */
 static GRawData *
-init_new_raw_data (GModule module, uint32_t ht_size)
-{
+init_new_raw_data (GModule module, uint32_t ht_size) {
   GRawData *raw_data;
 
   raw_data = new_grawdata ();
@@ -2724,8 +2582,7 @@ init_new_raw_data (GModule module, uint32_t ht_size)
 }
 
 static int
-sum_hits_from_list (void *val, void *user_data)
-{
+sum_hits_from_list (void *val, void *user_data) {
   GRawData *raw_data = user_data;
   uint32_t hits = 0;
 
@@ -2736,8 +2593,7 @@ sum_hits_from_list (void *val, void *user_data)
 }
 
 static int
-filter_raw_num_data (GModule module)
-{
+filter_raw_num_data (GModule module) {
   khiter_t key;
   char *pch = NULL;
 
@@ -2761,8 +2617,7 @@ filter_raw_num_data (GModule module)
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
 static GRawData *
-parse_raw_num_data (GModule module)
-{
+parse_raw_num_data (GModule module) {
   GRawData *raw_data;
   khiter_t key;
   GSLList *list = NULL;
@@ -2799,8 +2654,7 @@ parse_raw_num_data (GModule module)
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
 GRawData *
-parse_raw_data (GModule module)
-{
+parse_raw_data (GModule module) {
   GRawData *raw_data = NULL;
 
   if (filter_raw_num_data (module) == 0)
@@ -2810,8 +2664,7 @@ parse_raw_data (GModule module)
 
 /* Initialize hash tables */
 void
-init_storage (void)
-{
+init_storage (void) {
   GModule module;
   size_t idx = 0;
 
@@ -2843,8 +2696,7 @@ init_storage (void)
 
 /* Destroys the hash structure and its content */
 void
-free_storage (void)
-{
+free_storage (void) {
   size_t idx = 0;
 
   persist_data ();

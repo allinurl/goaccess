@@ -129,8 +129,7 @@ static GScroll gscroll = {
 
 /* Free malloc'd holder */
 static void
-house_keeping_holder (void)
-{
+house_keeping_holder (void) {
   /* REVERSE DNS THREAD */
   pthread_mutex_lock (&gdns_thread.mutex);
 
@@ -148,8 +147,7 @@ house_keeping_holder (void)
 
 /* Free malloc'd data across the whole program */
 static void
-house_keeping (void)
-{
+house_keeping (void) {
   house_keeping_holder ();
 
   /* DASHBOARD */
@@ -196,8 +194,7 @@ house_keeping (void)
 }
 
 static void
-cleanup (int ret)
-{
+cleanup (int ret) {
   /* done, restore tty modes and reset terminal into
    * non-visual mode */
   if (!conf.output_stdout)
@@ -213,8 +210,7 @@ cleanup (int ret)
 /* Open the pidfile whose name is specified in the given path and write
  * the daemonized given pid. */
 static void
-write_pid_file (const char *path, pid_t pid)
-{
+write_pid_file (const char *path, pid_t pid) {
   FILE *pidfile;
 
   if (!path)
@@ -230,8 +226,7 @@ write_pid_file (const char *path, pid_t pid)
 
 /* Set GoAccess to run as a daemon */
 static void
-daemonize (void)
-{
+daemonize (void) {
   pid_t pid, sid;
   int fd;
 
@@ -279,8 +274,7 @@ daemonize (void)
 /* Extract data from the given module hash structure and allocate +
  * load data from the hash table into an instance of GHolder */
 static void
-allocate_holder_by_module (GModule module)
-{
+allocate_holder_by_module (GModule module) {
   GRawData *raw_data;
 
   /* extract data from the corresponding hash table */
@@ -296,8 +290,7 @@ allocate_holder_by_module (GModule module)
 /* Iterate over all modules/panels and extract data from hash
  * structures and load it into an instance of GHolder */
 static void
-allocate_holder (void)
-{
+allocate_holder (void) {
   size_t idx = 0;
 
   holder = new_gholder (TOTAL_MODULES);
@@ -309,8 +302,7 @@ allocate_holder (void)
 /* Extract data from the modules GHolder structure and load it into
  * the terminal dashboard */
 static void
-allocate_data_by_module (GModule module, int col_data)
-{
+allocate_data_by_module (GModule module, int col_data) {
   int size = 0, max_choices = get_max_choices ();
 
   dash->module[module].head = module_to_head (module);
@@ -342,8 +334,7 @@ allocate_data_by_module (GModule module, int col_data)
 /* Iterate over all modules/panels and extract data from GHolder
  * structure and load it into the terminal dashboard */
 static void
-allocate_data (void)
-{
+allocate_data (void) {
   GModule module;
   int col_data = get_num_collapsed_data_rows ();
   size_t idx = 0;
@@ -357,8 +348,7 @@ allocate_data (void)
 
 /* A wrapper to render all windows within the dashboard. */
 static void
-render_screens (void)
-{
+render_screens (void) {
   GColors *color = get_color (COLOR_DEFAULT);
   int row, col, chg = 0;
 
@@ -391,8 +381,7 @@ render_screens (void)
 
 /* Collapse the current expanded module */
 static void
-collapse_current_module (void)
-{
+collapse_current_module (void) {
   if (!gscroll.expanded)
     return;
 
@@ -406,8 +395,7 @@ collapse_current_module (void)
 /* Display message a the bottom of the terminal dashboard that panel
  * is disabled */
 static void
-disabled_panel_msg (GModule module)
-{
+disabled_panel_msg (GModule module) {
   const char *lbl = module_to_label (module);
   int row, col;
 
@@ -417,8 +405,7 @@ disabled_panel_msg (GModule module)
 
 /* Set the current module/panel */
 static void
-set_module_to (GScroll * scrll, GModule module)
-{
+set_module_to (GScroll * scrll, GModule module) {
   if (get_module_index (module) == -1) {
     disabled_panel_msg (module);
     return;
@@ -436,8 +423,7 @@ set_module_to (GScroll * scrll, GModule module)
 
 /* Scroll expanded module or terminal dashboard to the top */
 static void
-scroll_to_first_line (void)
-{
+scroll_to_first_line (void) {
   if (!gscroll.expanded)
     gscroll.dash = 0;
   else {
@@ -448,8 +434,7 @@ scroll_to_first_line (void)
 
 /* Scroll expanded module or terminal dashboard to the last row */
 static void
-scroll_to_last_line (void)
-{
+scroll_to_last_line (void) {
   int exp_size = get_num_expanded_data_rows ();
   int scrll = 0, offset = 0;
 
@@ -466,8 +451,7 @@ scroll_to_last_line (void)
 
 /* Load the user-agent window given the selected IP */
 static void
-load_ip_agent_list (void)
-{
+load_ip_agent_list (void) {
   int type_ip = 0;
   /* make sure we have a valid IP */
   int sel = gscroll.module[gscroll.current].scroll;
@@ -479,8 +463,7 @@ load_ip_agent_list (void)
 
 /* Expand the selected module */
 static void
-expand_current_module (void)
-{
+expand_current_module (void) {
   if (gscroll.expanded && gscroll.current == HOSTS) {
     load_ip_agent_list ();
     return;
@@ -501,8 +484,7 @@ expand_current_module (void)
 
 /* Expand the clicked module/panel given the Y event coordinate. */
 static void
-expand_module_from_ypos (int y)
-{
+expand_module_from_ypos (int y) {
   /* ignore header/footer clicks */
   if (y < MAX_HEIGHT_HEADER || y == LINES - 1)
     return;
@@ -523,8 +505,7 @@ expand_module_from_ypos (int y)
 
 /* Expand the clicked module/panel */
 static void
-expand_on_mouse_click (void)
-{
+expand_on_mouse_click (void) {
   int ok_mouse;
   MEVENT event;
 
@@ -538,8 +519,7 @@ expand_on_mouse_click (void)
 
 /* Scroll dowm expanded module to the last row */
 static void
-scroll_down_expanded_module (void)
-{
+scroll_down_expanded_module (void) {
   int exp_size = get_num_expanded_data_rows ();
   int *scroll_ptr, *offset_ptr;
 
@@ -557,8 +537,7 @@ scroll_down_expanded_module (void)
 
 /* Scroll up expanded module */
 static void
-scroll_up_expanded_module (void)
-{
+scroll_up_expanded_module (void) {
   int *scroll_ptr, *offset_ptr;
 
   scroll_ptr = &gscroll.module[gscroll.current].scroll;
@@ -575,15 +554,13 @@ scroll_up_expanded_module (void)
 
 /* Scroll up terminal dashboard */
 static void
-scroll_up_dashboard (void)
-{
+scroll_up_dashboard (void) {
   gscroll.dash--;
 }
 
 /* Page up expanded module */
 static void
-page_up_module (void)
-{
+page_up_module (void) {
   int exp_size = get_num_expanded_data_rows ();
   int *scroll_ptr, *offset_ptr;
 
@@ -605,8 +582,7 @@ page_up_module (void)
 
 /* Page down expanded module */
 static void
-page_down_module (void)
-{
+page_down_module (void) {
   int exp_size = get_num_expanded_data_rows ();
   int *scroll_ptr, *offset_ptr;
 
@@ -630,8 +606,7 @@ page_down_module (void)
 /* Create a new find dialog window and render it. Upon closing the
  * window, dashboard is refreshed. */
 static void
-render_search_dialog (int search)
-{
+render_search_dialog (int search) {
   if (render_find_dialog (main_win, &gscroll))
     return;
 
@@ -648,8 +623,7 @@ render_search_dialog (int search)
 
 /* Search for the next occurrence within the dashboard structure */
 static void
-search_next_match (int search)
-{
+search_next_match (int search) {
   pthread_mutex_lock (&gdns_thread.mutex);
   search = perform_next_find (holder, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
@@ -663,8 +637,7 @@ search_next_match (int search)
 
 /* Update holder structure and dashboard screen */
 static void
-tail_term (void)
-{
+tail_term (void) {
   pthread_mutex_lock (&gdns_thread.mutex);
   free_holder (&holder);
   pthread_cond_broadcast (&gdns_thread.not_empty);
@@ -679,8 +652,7 @@ tail_term (void)
 }
 
 static void
-tail_html (void)
-{
+tail_html (void) {
   char *json = NULL;
 
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -703,8 +675,7 @@ tail_html (void)
 
 /* Fast-forward latest JSON data when client connection is opened. */
 static void
-fast_forward_client (int listener)
-{
+fast_forward_client (int listener) {
   char *json = NULL;
 
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -723,8 +694,7 @@ fast_forward_client (int listener)
 /* Start reading data coming from the client side through the
  * WebSocket server. */
 void
-read_client (void *ptr_data)
-{
+read_client (void *ptr_data) {
   GWSReader *reader = (GWSReader *) ptr_data;
   fd_set rfds, wfds;
 
@@ -749,8 +719,7 @@ read_client (void *ptr_data)
 
 /* Parse tailed lines */
 static void
-parse_tail_follow (FILE * fp)
-{
+parse_tail_follow (FILE * fp) {
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -774,8 +743,7 @@ parse_tail_follow (FILE * fp)
 
 /* Process appended log data */
 static void
-perform_tail_follow (uint64_t * size1, const char *fn)
-{
+perform_tail_follow (uint64_t * size1, const char *fn) {
   FILE *fp = NULL;
   uint64_t size2 = 0;
   struct stat fdstat;
@@ -822,8 +790,7 @@ out:
 
 /* Entry point to start processing the HTML output */
 static void
-process_html (const char *filename)
-{
+process_html (const char *filename) {
   uint64_t *size1 = NULL;
   int i = 0;
 
@@ -869,8 +836,7 @@ process_html (const char *filename)
 
 /* Iterate over available panels and advance the panel pointer. */
 static int
-next_module (void)
-{
+next_module (void) {
   int next = -1;
 
   if ((next = get_next_module (gscroll.current)) == -1)
@@ -885,8 +851,7 @@ next_module (void)
 
 /* Iterate over available panels and rewind the panel pointer. */
 static int
-previous_module (void)
-{
+previous_module (void) {
   int prev = -1;
 
   if ((prev = get_prev_module (gscroll.current)) == -1)
@@ -901,8 +866,7 @@ previous_module (void)
 
 /* Perform several curses operations upon resizing the terminal. */
 static void
-window_resize (void)
-{
+window_resize (void) {
   endwin ();
   refresh ();
   werase (header_win);
@@ -916,8 +880,7 @@ window_resize (void)
 /* Create a new sort dialog window and render it. Upon closing the
  * window, dashboard is refreshed. */
 static void
-render_sort_dialog (void)
-{
+render_sort_dialog (void) {
   load_sort_win (main_win, gscroll.current, &module_sort[gscroll.current]);
 
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -933,8 +896,7 @@ render_sort_dialog (void)
 
 /* Interfacing with the keyboard */
 static void
-get_keys (void)
-{
+get_keys (void) {
   int search = 0;
   int c, quit = 1, i;
   uint64_t *size1 = NULL;
@@ -1149,8 +1111,7 @@ get_keys (void)
  */
 #ifdef TCB_BTREE
 static void
-set_accumulated_time (void)
-{
+set_accumulated_time (void) {
   if (conf.store_accumulated_time) {
     time_t elapsed = end_proc - start_proc;
     elapsed = (!elapsed) ? !elapsed : elapsed;
@@ -1162,8 +1123,7 @@ set_accumulated_time (void)
 /* Execute the following calls right before we start the main
  * processing/parsing loop */
 static void
-init_processing (void)
-{
+init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
   /* initialize storage */
@@ -1175,8 +1135,7 @@ init_processing (void)
 
 /* Determine the type of output, i.e., JSON, CSV, HTML */
 static void
-standard_output (void)
-{
+standard_output (void) {
   char *csv = NULL, *json = NULL, *html = NULL;
 
   /* CSV */
@@ -1196,8 +1155,7 @@ standard_output (void)
 
 /* Output to a terminal */
 static void
-curses_output (void)
-{
+curses_output (void) {
   allocate_data ();
   if (!conf.skip_term_resolver)
     gdns_thread_create ();
@@ -1209,8 +1167,7 @@ curses_output (void)
 
 /* Set locale */
 static void
-set_locale (void)
-{
+set_locale (void) {
   char *loc_ctype;
 
   setlocale (LC_ALL, "");
@@ -1231,8 +1188,7 @@ set_locale (void)
  * On error, -1 is returned
  * On success, the new file descriptor is returned */
 static int
-open_term (char **buf)
-{
+open_term (char **buf) {
   const char *term = "/dev/tty";
 
   if (!isatty (STDERR_FILENO) || (term = ttyname (STDERR_FILENO)) == 0) {
@@ -1251,8 +1207,7 @@ open_term (char **buf)
  * it doesn't get in the way of curses' normal reading stdin for
  * wgetch() */
 static void
-set_pipe_stdin (void)
-{
+set_pipe_stdin (void) {
   char *term = NULL;
   FILE *pipe = stdin;
   int fd1, fd2;
@@ -1293,8 +1248,7 @@ out:
 /* Determine if we are getting data from the stdin, and where are we
  * outputting to. */
 static void
-set_io (void)
-{
+set_io (void) {
   /* For backwards compatibility, check if we are not outputting to a
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
@@ -1309,16 +1263,14 @@ set_io (void)
 
 /* Process command line options and set some default options. */
 static void
-parse_cmd_line (int argc, char **argv)
-{
+parse_cmd_line (int argc, char **argv) {
   read_option_args (argc, argv);
   set_default_static_files ();
 }
 
 /* Set up signal handlers. */
 static void
-setup_signal_handlers (void)
-{
+setup_signal_handlers (void) {
   struct sigaction act;
 
   sigemptyset (&act.sa_mask);
@@ -1329,8 +1281,7 @@ setup_signal_handlers (void)
 }
 
 static void
-handle_signal_action (int sig_number)
-{
+handle_signal_action (int sig_number) {
   switch (sig_number) {
   case SIGTERM:
   case SIGINT:
@@ -1354,8 +1305,7 @@ handle_signal_action (int sig_number)
 }
 
 static void
-setup_thread_signals (void)
-{
+setup_thread_signals (void) {
   struct sigaction act;
 
   act.sa_handler = handle_signal_action;
@@ -1371,8 +1321,7 @@ setup_thread_signals (void)
 }
 
 static void
-block_thread_signals (void)
-{
+block_thread_signals (void) {
   /* Avoid threads catching SIGINT/SIGPIPE/SIGTERM and handle them in
    * main thread */
   sigset_t sigset;
@@ -1385,8 +1334,7 @@ block_thread_signals (void)
 
 /* Initialize various types of data. */
 static void
-initializer (void)
-{
+initializer (void) {
   /* initialize modules and set first */
   gscroll.current = init_modules ();
   /* setup to use the current locale */
@@ -1410,8 +1358,7 @@ initializer (void)
 }
 
 static void
-set_standard_output (void)
-{
+set_standard_output (void) {
   int html = 0;
   gwswriter = new_gwswriter ();
   gwsreader = new_gwsreader ();
@@ -1440,8 +1387,7 @@ set_standard_output (void)
 
 /* Set up curses. */
 static void
-set_curses (int *quit)
-{
+set_curses (int *quit) {
   const char *err_log = NULL;
 
   setup_thread_signals ();
@@ -1474,8 +1420,7 @@ set_curses (int *quit)
 
 /* Where all begins... */
 int
-main (int argc, char **argv)
-{
+main (int argc, char **argv) {
   int quit = 0, ret = 0;
 
   block_thread_signals ();

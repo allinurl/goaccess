@@ -119,8 +119,7 @@ static const char *os[][2] = {
  * On success, the matching Android codename is allocated and
  * returned. */
 static char *
-get_real_android (const char *droid)
-{
+get_real_android (const char *droid) {
   if (strstr (droid, "10"))
     return alloc_string ("Android 10");
   else if (strstr (droid, "9"))
@@ -172,8 +171,7 @@ get_real_android (const char *droid)
  * On success, the matching Windows marketing name is allocated and
  * returned. */
 static char *
-get_real_win (const char *win)
-{
+get_real_win (const char *win) {
   if (strstr (win, "10.0"))
     return alloc_string ("Windows 10");
   else if (strstr (win, "6.3"))
@@ -203,8 +201,7 @@ get_real_win (const char *win)
  * On success, the matching Mac OS X codename is allocated and
  * returned. */
 static char *
-get_real_mac_osx (const char *osx)
-{
+get_real_mac_osx (const char *osx) {
   if (strstr (osx, "10.15"))
     return alloc_string ("macOS 10.15 Catalina");
   else if (strstr (osx, "10.14"))
@@ -245,8 +242,7 @@ get_real_mac_osx (const char *osx)
  * On error, the given name is returned.
  * On success, the parsed OS is returned. */
 static char *
-parse_others (char *agent, int spaces)
-{
+parse_others (char *agent, int spaces) {
   char *p;
   int space = 0;
   p = agent;
@@ -268,8 +264,7 @@ parse_others (char *agent, int spaces)
  * On error, the matching token is returned (no version).
  * On success, the parsed iOS is returned. */
 static char *
-parse_ios (char *agent, int tlen)
-{
+parse_ios (char *agent, int tlen) {
   char *p = NULL, *q = NULL;
   ptrdiff_t offset;
 
@@ -297,8 +292,7 @@ out:
  * On error, the given name is returned.
  * On success, the parsed Mac OS X is returned. */
 static char *
-parse_osx (char *agent)
-{
+parse_osx (char *agent) {
   int space = 0;
   char *p;
 
@@ -323,8 +317,7 @@ parse_osx (char *agent)
  * On error, the given name is returned.
  * On success, the parsed Android is returned. */
 static char *
-parse_android (char *agent)
-{
+parse_android (char *agent) {
   char *p;
   p = agent;
   /* assume the following chars are within the given agent */
@@ -339,8 +332,7 @@ parse_android (char *agent)
  *
  * On success, a malloc'd string containing the OS is returned. */
 static char *
-parse_os (const char *str, char *tkn, char *os_type, int idx)
-{
+parse_os (const char *str, char *tkn, char *os_type, int idx) {
   char *b;
   int spaces = 0;
 
@@ -384,8 +376,7 @@ parse_os (const char *str, char *tkn, char *os_type, int idx)
  * On error, NULL is returned.
  * On success, a malloc'd  string containing the OS is returned. */
 char *
-verify_os (const char *str, char *os_type)
-{
+verify_os (const char *str, char *os_type) {
   char *a;
   size_t i;
 

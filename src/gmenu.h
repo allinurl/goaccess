@@ -44,8 +44,7 @@
 #ifndef GMENU_H_INCLUDED
 #define GMENU_H_INCLUDED
 
-enum ACTION
-{
+enum ACTION {
   REQ_DOWN,
   REQ_UP,
   REQ_SEL
@@ -55,15 +54,13 @@ typedef struct GMenu_ GMenu;
 typedef struct GItem_ GItem;
 
 /* Menu Item */
-struct GItem_
-{
+struct GItem_ {
   char *name;
   int checked;
 };
 
 /* Menu Panel */
-struct GMenu_
-{
+struct GMenu_ {
   WINDOW *win;
 
   int count;

@@ -19,8 +19,7 @@
 #endif
 
 int
-main (int argc, char *argv[])
-{
+main (int argc, char *argv[]) {
   char *buf;
   char *ident;
   unsigned int i, file_size, need_comma;

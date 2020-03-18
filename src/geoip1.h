@@ -40,8 +40,7 @@
 #define CONTINENT_LEN  47 + 1   /* max string length for a country */
 #define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
 
-typedef struct GLocation_
-{
+typedef struct GLocation_ {
   char city[CITY_LEN];
   char continent[CONTINENT_LEN];
   int hits;

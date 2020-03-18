@@ -39,8 +39,7 @@
 
 #include "parser.h"
 
-typedef struct GJSON_
-{
+typedef struct GJSON_ {
   char *buf;                    /* pointer to buffer */
   size_t size;                  /* size of malloc'd buffer */
   size_t offset;                /* current write offset */

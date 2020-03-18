@@ -302,16 +302,14 @@ cmd_help (void)
 /* Push a command line option to the given array if within bounds and if it's
  * not in the array. */
 static void
-set_array_opt (const char *oarg, const char *arr[], int *size, int max)
-{
+set_array_opt (const char *oarg, const char *arr[], int *size, int max) {
   if (str_inarray (oarg, arr, *size) < 0 && *size < max)
     arr[(*size)++] = oarg;
 }
 
 /* Parse command line long options. */
 static void
-parse_long_opt (const char *name, const char *oarg)
-{
+parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("no-global-config", name))
     return;
 
@@ -600,8 +598,7 @@ parse_long_opt (const char *name, const char *oarg)
 /* Determine if the '--no-global-config' command line option needs to be
  * enabled or not. */
 void
-verify_global_config (int argc, char **argv)
-{
+verify_global_config (int argc, char **argv) {
   int o, idx = 0;
 
   conf.load_global_config = 1;
@@ -628,8 +625,7 @@ verify_global_config (int argc, char **argv)
 
 /* Attempt to add - to the array of filenames if it hasn't been added it yet. */
 void
-add_dash_filename (void)
-{
+add_dash_filename (void) {
   int i;
   // pre-scan for '-' and don't add if already exists: github.com/allinurl/goaccess/issues/907
   for (i = 0; i < conf.filenames_idx; ++i) {
@@ -645,8 +641,7 @@ add_dash_filename (void)
 
 /* Read the user's supplied command line options. */
 void
-read_option_args (int argc, char **argv)
-{
+read_option_args (int argc, char **argv) {
   int o, idx = 0;
 
 #ifdef HAVE_LIBGEOIP

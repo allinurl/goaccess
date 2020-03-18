@@ -163,8 +163,7 @@ KHASH_MAP_INIT_STR (su64, uint64_t);
 /*khash_t(igsl) MTRC_AGENTS */
 
 /* Enumerated Storage Metrics */
-typedef enum GSMetricType_
-{
+typedef enum GSMetricType_ {
   /* uint32_t key - uint32_t val */
   MTRC_TYPE_II32,
   /* uint32_t key - string val */
@@ -185,12 +184,10 @@ typedef enum GSMetricType_
   MTRC_TYPE_IUI8,
 } GSMetricType;
 
-typedef struct GKHashMetric_
-{
+typedef struct GKHashMetric_ {
   GSMetric metric;
   GSMetricType type;
-  union
-  {
+  union {
     khash_t (iui8) * iui8;
     khash_t (ii32) * ii32;
     khash_t (is32) * is32;
@@ -205,8 +202,7 @@ typedef struct GKHashMetric_
 } GKHashMetric;
 
 /* Data Storage per module */
-typedef struct GKHashStorage_
-{
+typedef struct GKHashStorage_ {
   GModule module;
   GKHashMetric metrics[GSMTRC_TOTAL];
 } GKHashStorage;

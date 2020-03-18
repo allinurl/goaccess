@@ -31,8 +31,7 @@
 #define GSLIST_H_INCLUDED
 
 /* Generic Single linked-list */
-typedef struct GSLList_
-{
+typedef struct GSLList_ {
   void *data;
   struct GSLList_ *next;
 } GSLList;

@@ -33,16 +33,14 @@
 #define H_SIZE     1025
 #define QUEUE_SIZE 400
 
-typedef struct GDnsThread_
-{
+typedef struct GDnsThread_ {
   pthread_cond_t not_empty;     /* not empty queue condition */
   pthread_cond_t not_full;      /* not full queue condition */
   pthread_mutex_t mutex;
   pthread_t thread;
 } GDnsThread;
 
-typedef struct GDnsQueue_
-{
+typedef struct GDnsQueue_ {
   int head;                     /* index to head of queue */
   int tail;                     /* index to tail of queue */
   int size;                     /* queue size */

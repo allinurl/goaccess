@@ -100,8 +100,7 @@ static const char *ignore_cmd_opts[] = {
  * If needs to be ignored, 1 is returned.
  * If not within the list of ignored command line options, 0 is returned. */
 static int
-in_ignore_cmd_opts (const char *val)
-{
+in_ignore_cmd_opts (const char *val) {
   size_t i;
   for (i = 0; i < ARRAY_SIZE (ignore_cmd_opts); i++) {
     if (strstr (val, ignore_cmd_opts[i]) != NULL)
@@ -118,8 +117,7 @@ in_ignore_cmd_opts (const char *val)
  *
  * On success, the path to the configuration file is returned. */
 char *
-get_config_file_path (void)
-{
+get_config_file_path (void) {
   char *upath = NULL, *rpath = NULL;
   FILE *file;
 
@@ -164,8 +162,7 @@ get_config_file_path (void)
  * the order in which are listed is from the most to the least common
  * (most cases). */
 void
-set_default_static_files (void)
-{
+set_default_static_files (void) {
   size_t i;
   const char *exts[] = {
     ".css",
@@ -218,8 +215,7 @@ set_default_static_files (void)
 
 /* Clean malloc'd log/date/time escaped formats. */
 void
-free_formats (void)
-{
+free_formats (void) {
   free (conf.log_format);
   free (conf.date_format);
   free (conf.date_num_format);
@@ -230,8 +226,7 @@ free_formats (void)
 
 /* Clean malloc'd command line arguments. */
 void
-free_cmd_args (void)
-{
+free_cmd_args (void) {
   int i;
   if (nargc == 0)
     return;
@@ -243,8 +238,7 @@ free_cmd_args (void)
 
 /* Append extra value to argv */
 static void
-append_to_argv (int *argc, char ***argv, char *val)
-{
+append_to_argv (int *argc, char ***argv, char *val) {
   char **_argv = xrealloc (*argv, (*argc + 2) * sizeof (*_argv));
   _argv[*argc] = val;
   _argv[*argc + 1] = (char *) '\0';
@@ -258,8 +252,7 @@ append_to_argv (int *argc, char ***argv, char *val)
  * On success, 0 is returned and config file enabled options are appended to
  * argv. */
 int
-parse_conf_file (int *argc, char ***argv)
-{
+parse_conf_file (int *argc, char ***argv) {
   char line[MAX_LINE_CONF + 1];
   char *path = NULL, *val, *opt, *p;
   FILE *file;
@@ -344,8 +337,7 @@ parse_conf_file (int *argc, char ***argv)
  * On error, -1 is returned.
  * On success, the enumerated format is returned. */
 static int
-get_log_format_item_enum (const char *str)
-{
+get_log_format_item_enum (const char *str) {
   return str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
 }
 
@@ -355,8 +347,7 @@ get_log_format_item_enum (const char *str)
  * On error, -1 is returned.
  * On success, the index of the matched item is returned. */
 size_t
-get_selected_format_idx (void)
-{
+get_selected_format_idx (void) {
   if (conf.log_format == NULL)
     return (size_t) -1;
   if (strcmp (conf.log_format, logs.common) == 0)
@@ -389,8 +380,7 @@ get_selected_format_idx (void)
  * On error, NULL is returned.
  * On success, an allocated string containing the log format is returned. */
 char *
-get_selected_format_str (size_t idx)
-{
+get_selected_format_str (size_t idx) {
   char *fmt = NULL;
   switch (idx) {
   case COMMON:
@@ -434,8 +424,7 @@ get_selected_format_str (size_t idx)
  * On error, NULL is returned.
  * On success, an allocated string containing the date format is returned. */
 char *
-get_selected_date_str (size_t idx)
-{
+get_selected_date_str (size_t idx) {
   char *fmt = NULL;
   switch (idx) {
   case COMMON:
@@ -467,8 +456,7 @@ get_selected_date_str (size_t idx)
  * On error, NULL is returned.
  * On success, an allocated string containing the time format is returned. */
 char *
-get_selected_time_str (size_t idx)
-{
+get_selected_time_str (size_t idx) {
   char *fmt = NULL;
   switch (idx) {
   case AWSELB:
@@ -495,8 +483,7 @@ get_selected_time_str (size_t idx)
 /* Determine if the log/date/time were set, otherwise exit the program
  * execution. */
 const char *
-verify_formats (void)
-{
+verify_formats (void) {
   if (conf.time_format == NULL || *conf.time_format == '\0')
     return ERR_FORMAT_NO_TIME_FMT;
 
@@ -512,8 +499,7 @@ verify_formats (void)
 /* A wrapper function to concat the given specificity to the date
  * format. */
 static char *
-append_spec_date_format (const char *date_format, const char *spec_format)
-{
+append_spec_date_format (const char *date_format, const char *spec_format) {
   char *s = xmalloc (snprintf (NULL, 0, "%s%s", date_format, spec_format) + 1);
   sprintf (s, "%s%s", date_format, spec_format);
 
@@ -527,8 +513,7 @@ append_spec_date_format (const char *date_format, const char *spec_format)
  * On success, a clean format containing only date/time specifiers is
  * returned. */
 static char *
-clean_date_time_format (const char *format)
-{
+clean_date_time_format (const char *format) {
   char *fmt = NULL, *pr = NULL, *pw = NULL;
   int special = 0;
 
@@ -555,8 +540,7 @@ clean_date_time_format (const char *format)
  *
  * If it is, 1 is returned, otherwise, 0 is returned. */
 static int
-is_date_abbreviated (const char *fdate)
-{
+is_date_abbreviated (const char *fdate) {
   if (strpbrk (fdate, "cDF"))
     return 1;
 
@@ -569,8 +553,7 @@ is_date_abbreviated (const char *fdate)
  * On success, a clean format containing only time specifiers is
  * returned. */
 static char *
-set_format_time (void)
-{
+set_format_time (void) {
   char *ftime = NULL;
 
   if (has_timestamp (conf.date_format) || !strcmp ("%T", conf.time_format))
@@ -587,8 +570,7 @@ set_format_time (void)
  * On success, a clean format containing only date specifiers is
  * returned. */
 static char *
-set_format_date (void)
-{
+set_format_date (void) {
   char *fdate = NULL;
 
   if (has_timestamp (conf.date_format))
@@ -605,8 +587,7 @@ set_format_date (void)
  *
  * On success, the numeric date time specificity format is set. */
 static void
-set_spec_date_time_num_format (void)
-{
+set_spec_date_time_num_format (void) {
   char *buf = NULL, *tf = set_format_time ();
   const char *df = conf.date_num_format;
 
@@ -626,8 +607,7 @@ set_spec_date_time_num_format (void)
  *
  * On success, the human readable date time specificity format is set. */
 static void
-set_spec_date_time_format (void)
-{
+set_spec_date_time_format (void) {
   char *buf = NULL;
   const char *fmt = conf.spec_date_time_num_format;
   int buflen = 0, flen = 0;
@@ -657,8 +637,7 @@ set_spec_date_time_format (void)
  * On success, the numeric date format as Ymd is set and 0 is
  * returned. */
 static int
-set_date_num_format (void)
-{
+set_date_num_format (void) {
   char *fdate = NULL, *buf = NULL;
   int buflen = 0, flen = 0;
 
@@ -691,8 +670,7 @@ set_date_num_format (void)
 /* If specificity is supplied, then determine which value we need to
  * append to the date format. */
 void
-set_spec_date_format (void)
-{
+set_spec_date_format (void) {
   if (verify_formats ())
     return;
 
@@ -713,8 +691,7 @@ set_spec_date_format (void)
  * argument. The supplied optarg can be either an actual format string
  * or the enumerated value such as VCOMBINED */
 void
-set_date_format_str (const char *oarg)
-{
+set_date_format_str (const char *oarg) {
   char *fmt = NULL;
   int type = get_log_format_item_enum (oarg);
 
@@ -741,8 +718,7 @@ set_date_format_str (const char *oarg)
  * argument. The supplied optarg can be either an actual format string
  * or the enumerated value such as VCOMBINED */
 void
-set_time_format_str (const char *oarg)
-{
+set_time_format_str (const char *oarg) {
   char *fmt = NULL;
   int type = get_log_format_item_enum (oarg);
 
@@ -769,8 +745,7 @@ set_time_format_str (const char *oarg)
  * The supplied optarg can be either an actual format string or the
  * enumerated value such as VCOMBINED */
 void
-set_log_format_str (const char *oarg)
-{
+set_log_format_str (const char *oarg) {
   char *fmt = NULL;
   int type = get_log_format_item_enum (oarg);
 

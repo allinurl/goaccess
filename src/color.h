@@ -33,8 +33,7 @@
 #define COLOR_STR_LEN 9
 
 /* Color Items/Fields */
-typedef enum CSTM_COLORS
-{
+typedef enum CSTM_COLORS {
   COLOR_NORMAL,
   COLOR_MTRC_HITS,
   COLOR_MTRC_VISITORS,
@@ -66,8 +65,7 @@ typedef enum CSTM_COLORS
 } GColorItem;
 
 /* Default Color Schemes */
-typedef enum SCHEMES
-{
+typedef enum SCHEMES {
   NO_COLOR,
   MONOCHROME,
   STD_GREEN,
@@ -77,16 +75,14 @@ typedef enum SCHEMES
 #include "commons.h"
 
 /* Each color properties */
-typedef struct GColorPair_
-{
+typedef struct GColorPair_ {
   short idx;                    /* color pair index identifier */
   short fg;                     /* foreground color */
   short bg;                     /* background color */
 } GColorPair;
 
 /* Color */
-typedef struct GColors_
-{
+typedef struct GColors_ {
   GColorItem item;              /* screen item */
   GColorPair *pair;             /* color pair */
   int attr;                     /* color attributes, e.g., bold */

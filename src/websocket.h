@@ -126,8 +126,7 @@
 #define WS_CLOSE_TOO_LARGE    1009
 #define WS_CLOSE_UNEXPECTED   1011
 
-typedef enum WSSTATUS
-{
+typedef enum WSSTATUS {
   WS_OK = 0,
   WS_ERR = (1 << 0),
   WS_CLOSE = (1 << 1),
@@ -140,8 +139,7 @@ typedef enum WSSTATUS
   WS_TLS_SHUTTING = (1 << 8),
 } WSStatus;
 
-typedef enum WSOPCODE
-{
+typedef enum WSOPCODE {
   WS_OPCODE_CONTINUATION = 0x00,
   WS_OPCODE_TEXT = 0x01,
   WS_OPCODE_BIN = 0x02,
@@ -151,14 +149,12 @@ typedef enum WSOPCODE
   WS_OPCODE_PONG = 0x0A,
 } WSOpcode;
 
-typedef struct WSQueue_
-{
+typedef struct WSQueue_ {
   char *queued;                 /* queue data */
   int qlen;                     /* queue length */
 } WSQueue;
 
-typedef struct WSPacket_
-{
+typedef struct WSPacket_ {
   uint32_t type;                /* packet type (fixed-size) */
   uint32_t size;                /* payload size in bytes (fixed-size) */
   char *data;                   /* payload */
@@ -166,8 +162,7 @@ typedef struct WSPacket_
 } WSPacket;
 
 /* WS HTTP Headers */
-typedef struct WSHeaders_
-{
+typedef struct WSHeaders_ {
   int reading;
   int buflen;
   char buf[BUFSIZ + 1];
@@ -190,8 +185,7 @@ typedef struct WSHeaders_
 } WSHeaders;
 
 /* A WebSocket Message */
-typedef struct WSFrame_
-{
+typedef struct WSFrame_ {
   /* frame format */
   WSOpcode opcode;              /* frame opcode */
   unsigned char fin;            /* frame fin flag */
@@ -209,8 +203,7 @@ typedef struct WSFrame_
 } WSFrame;
 
 /* A WebSocket Message */
-typedef struct WSMessage_
-{
+typedef struct WSMessage_ {
   WSOpcode opcode;              /* frame opcode */
   int fragmented;               /* reading a fragmented frame */
   int mask_offset;              /* for fragmented frames */
@@ -221,16 +214,14 @@ typedef struct WSMessage_
 } WSMessage;
 
 /* FD event states */
-typedef struct WSEState_
-{
+typedef struct WSEState_ {
   fd_set master;
   fd_set rfds;
   fd_set wfds;
 } WSEState;
 
 /* A WebSocket Client */
-typedef struct WSClient_
-{
+typedef struct WSClient_ {
   /* socket data */
   int listener;                 /* socket */
   char remote_ip[INET6_ADDRSTRLEN];     /* client IP */
@@ -252,8 +243,7 @@ typedef struct WSClient_
 } WSClient;
 
 /* Config OOptions */
-typedef struct WSPipeIn_
-{
+typedef struct WSPipeIn_ {
   int fd;                       /* named pipe FD */
 
   WSPacket *packet;             /* FIFO data's buffer */
@@ -264,8 +254,7 @@ typedef struct WSPipeIn_
 } WSPipeIn;
 
 /* Pipe Out */
-typedef struct WSPipeOut_
-{
+typedef struct WSPipeOut_ {
   int fd;                       /* named pipe FD */
   WSEState *state;              /* FDs states */
   WSQueue *fifoqueue;           /* FIFO out queue */
@@ -273,8 +262,7 @@ typedef struct WSPipeOut_
 } WSPipeOut;
 
 /* Config OOptions */
-typedef struct WSConfig_
-{
+typedef struct WSConfig_ {
   /* Config Options */
   const char *accesslog;
   const char *host;
@@ -291,8 +279,7 @@ typedef struct WSConfig_
 } WSConfig;
 
 /* A WebSocket Instance */
-typedef struct WSServer_
-{
+typedef struct WSServer_ {
   /* Server Status */
   int closing;
 

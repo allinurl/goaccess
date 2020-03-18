@@ -49,11 +49,9 @@ void SHA1Transform (uint32_t state[5], uint8_t buffer[64]);
 /* Hash a single 512-bit block. This is the core of the algorithm. */
 
 void
-SHA1Transform (uint32_t state[5], uint8_t buffer[64])
-{
+SHA1Transform (uint32_t state[5], uint8_t buffer[64]) {
   uint32_t a, b, c, d, e;
-  typedef union
-  {
+  typedef union {
     uint8_t c[64];
     uint32_t l[16];
   } CHAR64LONG16;
@@ -166,8 +164,7 @@ SHA1Transform (uint32_t state[5], uint8_t buffer[64])
 /* SHA1Init - Initialize new context */
 
 void
-SHA1Init (SHA1_CTX * context)
-{
+SHA1Init (SHA1_CTX * context) {
   /* SHA1 initialization constants */
   context->state[0] = 0x67452301;
   context->state[1] = 0xEFCDAB89;
@@ -181,8 +178,7 @@ SHA1Init (SHA1_CTX * context)
 /* Run your data through this. */
 
 void
-SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len)
-{
+SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len) {
   unsigned int i, j;
 
   j = (context->count[0] >> 3) & 63;
@@ -205,8 +201,7 @@ SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len)
 /* Add padding and return the message digest. */
 
 void
-SHA1Final (uint8_t digest[20], SHA1_CTX * context)
-{
+SHA1Final (uint8_t digest[20], SHA1_CTX * context) {
   uint32_t i, j;
   uint8_t finalcount[8];
 

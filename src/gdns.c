@@ -70,8 +70,7 @@ static GDnsQueue *gdns_queue;
 
 /* Initialize the queue. */
 void
-gqueue_init (GDnsQueue * q, int capacity)
-{
+gqueue_init (GDnsQueue * q, int capacity) {
   q->head = 0;
   q->tail = -1;
   q->size = 0;
@@ -82,8 +81,7 @@ gqueue_init (GDnsQueue * q, int capacity)
  *
  * Returns the size of the queue. */
 int
-gqueue_size (GDnsQueue * q)
-{
+gqueue_size (GDnsQueue * q) {
   return q->size;
 }
 
@@ -91,8 +89,7 @@ gqueue_size (GDnsQueue * q)
  *
  * Returns true if empty, otherwise false. */
 int
-gqueue_empty (GDnsQueue * q)
-{
+gqueue_empty (GDnsQueue * q) {
   return q->size == 0;
 }
 
@@ -100,15 +97,13 @@ gqueue_empty (GDnsQueue * q)
  *
  * Returns true if full, otherwise false. */
 int
-gqueue_full (GDnsQueue * q)
-{
+gqueue_full (GDnsQueue * q) {
   return q->size == q->capacity;
 }
 
 /* Free the queue. */
 void
-gqueue_destroy (GDnsQueue * q)
-{
+gqueue_destroy (GDnsQueue * q) {
   free (q);
 }
 
@@ -117,8 +112,7 @@ gqueue_destroy (GDnsQueue * q)
  * If the queue is full, -1 is returned.
  * If added to the queue, 0 is returned. */
 int
-gqueue_enqueue (GDnsQueue * q, char *item)
-{
+gqueue_enqueue (GDnsQueue * q, char *item) {
   if (gqueue_full (q))
     return -1;
 
@@ -133,8 +127,7 @@ gqueue_enqueue (GDnsQueue * q, char *item)
  * If the queue is empty, or the item is not in the queue, 0 is returned.
  * If found, 1 is returned. */
 int
-gqueue_find (GDnsQueue * q, const char *item)
-{
+gqueue_find (GDnsQueue * q, const char *item) {
   int i;
   if (gqueue_empty (q))
     return 0;
@@ -151,8 +144,7 @@ gqueue_find (GDnsQueue * q, const char *item)
  * If the queue is empty, NULL is returned.
  * If removed, the string item is returned. */
 char *
-gqueue_dequeue (GDnsQueue * q)
-{
+gqueue_dequeue (GDnsQueue * q) {
   char *item;
   if (gqueue_empty (q))
     return NULL;
@@ -168,8 +160,7 @@ gqueue_dequeue (GDnsQueue * q)
  * On error, a string error message is returned.
  * On success, a malloc'd hostname is returned. */
 static char *
-reverse_host (const struct sockaddr *a, socklen_t length)
-{
+reverse_host (const struct sockaddr *a, socklen_t length) {
   char h[H_SIZE];
   int flags, st;
 
@@ -185,10 +176,8 @@ reverse_host (const struct sockaddr *a, socklen_t length)
  * On error, NULL is returned.
  * On success, a malloc'd hostname is returned. */
 char *
-reverse_ip (char *str)
-{
-  union
-  {
+reverse_ip (char *str) {
+  union {
     struct sockaddr addr;
     struct sockaddr_in6 addr6;
     struct sockaddr_in addr4;
@@ -210,8 +199,7 @@ reverse_ip (char *str)
 
 /* Producer - Resolve an IP address and add it to the queue. */
 void
-dns_resolver (char *addr)
-{
+dns_resolver (char *addr) {
   pthread_mutex_lock (&gdns_thread.mutex);
   /* queue is not full and the IP address is not in the queue */
   if (!gqueue_full (gdns_queue) && !gqueue_find (gdns_queue, addr)) {
@@ -225,8 +213,7 @@ dns_resolver (char *addr)
 /* Consumer - Once an IP has been resolved, add it to dwithe hostnames
  * hash structure. */
 static void
-dns_worker (void GO_UNUSED (*ptr_data))
-{
+dns_worker (void GO_UNUSED (*ptr_data)) {
   char *ip = NULL, *host = NULL;
 
   while (1) {
@@ -260,8 +247,7 @@ dns_worker (void GO_UNUSED (*ptr_data))
 
 /* Initialize queue and dns thread */
 void
-gdns_init (void)
-{
+gdns_init (void) {
   gdns_queue = xmalloc (sizeof (GDnsQueue));
   gqueue_init (gdns_queue, QUEUE_SIZE);
 
@@ -277,15 +263,13 @@ gdns_init (void)
 
 /* Destroy (free) queue */
 void
-gdns_free_queue (void)
-{
+gdns_free_queue (void) {
   gqueue_destroy (gdns_queue);
 }
 
 /* Create a DNS thread and make it active */
 void
-gdns_thread_create (void)
-{
+gdns_thread_create (void) {
   int th;
 
   active_gdns = 1;

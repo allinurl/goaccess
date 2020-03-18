@@ -82,16 +82,14 @@ extern struct tm *now_tm;
 #define IGNORE_LEVEL_REQ 2
 
 /* Type of IP */
-typedef enum
-{
+typedef enum {
   TYPE_IPINV,
   TYPE_IPV4,
   TYPE_IPV6
 } GTypeIP;
 
 /* Type of Modules */
-typedef enum MODULES
-{
+typedef enum MODULES {
   VISITORS,
   REQUESTS,
   REQUESTS_STATIC,
@@ -114,16 +112,14 @@ typedef enum MODULES
 
 /* Metric totals. These are metrics that have a percent value and are
  * calculated values. */
-typedef struct GPercTotals_
-{
+typedef struct GPercTotals_ {
   uint32_t hits;                /* total valid hits */
   uint32_t visitors;            /* total visitors */
   uint64_t bw;                  /* total bandwidth */
 } GPercTotals;
 
 /* Metrics within GHolder or GDashData */
-typedef struct GMetrics
-{
+typedef struct GMetrics {
   /* metric id can be used to identify
    * a specific data field */
   uint8_t id;
@@ -140,32 +136,28 @@ typedef struct GMetrics
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sbw;
     uint64_t nbw;
   } bw;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } avgts;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } cumts;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } maxts;
@@ -174,8 +166,7 @@ typedef struct GMetrics
 } GMetrics;
 
 /* Holder sub item */
-typedef struct GSubItem_
-{
+typedef struct GSubItem_ {
   GModule module;
   GMetrics *metrics;
   struct GSubItem_ *prev;
@@ -183,23 +174,20 @@ typedef struct GSubItem_
 } GSubItem;
 
 /* Double linked-list of sub items */
-typedef struct GSubList_
-{
+typedef struct GSubList_ {
   int size;
   struct GSubItem_ *head;
   struct GSubItem_ *tail;
 } GSubList;
 
 /* Holder item */
-typedef struct GHolderItem_
-{
+typedef struct GHolderItem_ {
   GSubList *sub_list;
   GMetrics *metrics;
 } GHolderItem;
 
 /* Holder of GRawData */
-typedef struct GHolder_
-{
+typedef struct GHolder_ {
   GHolderItem *items;           /* holder items */
   GModule module;               /* current module  */
   int idx;                      /* holder index  */
@@ -209,26 +197,22 @@ typedef struct GHolder_
 } GHolder;
 
 /* Enum-to-string */
-typedef struct GEnum_
-{
+typedef struct GEnum_ {
   const char *str;
   int idx;
 } GEnum;
 
 /* A metric can contain a root/data/uniq node id */
-typedef struct GDataMap_
-{
+typedef struct GDataMap_ {
   int data;
   int root;
 } GDataMap;
 
-typedef struct GAgentItem_
-{
+typedef struct GAgentItem_ {
   char *agent;
 } GAgentItem;
 
-typedef struct GAgents_
-{
+typedef struct GAgents_ {
   int size;
   struct GAgentItem_ *items;
 } GAgents;

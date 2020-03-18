@@ -96,8 +96,7 @@ static GOutput outputting[] = {
 /* *INDENT-ON* */
 
 /* Structure to display overall statistics */
-typedef struct Field_
-{
+typedef struct Field_ {
   const char *field;
   /* char due to log, bw, log_file */
   char *value;
@@ -111,8 +110,7 @@ typedef struct Field_
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
 GOutput *
-output_lookup (GModule module)
-{
+output_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (outputting);
 
   for (i = 0; i < num_panels; i++) {
@@ -124,8 +122,7 @@ output_lookup (GModule module)
 
 /* Initialize curses colors */
 void
-init_colors (int force)
-{
+init_colors (int force) {
   /* use default foreground/background colors */
   use_default_colors ();
   /* first set a default normal color */
@@ -136,8 +133,7 @@ init_colors (int force)
 
 /* Ncurses' window handling */
 void
-set_input_opts (void)
-{
+set_input_opts (void) {
   initscr ();
   clear ();
   noecho ();
@@ -154,8 +150,7 @@ set_input_opts (void)
 
 /* Deletes the given window, freeing all memory associated with it. */
 void
-close_win (WINDOW * w)
-{
+close_win (WINDOW * w) {
   if (w == NULL)
     return;
   wclear (w);
@@ -166,16 +161,14 @@ close_win (WINDOW * w)
 /* Get the current calendar time as a value of type time_t and convert
  * time_t to tm as local time */
 void
-generate_time (void)
-{
+generate_time (void) {
   timestamp = time (NULL);
   now_tm = localtime (&timestamp);
 }
 
 /* Set the loading spinner as ended and manage the mutex locking. */
 void
-end_spinner (void)
-{
+end_spinner (void) {
   if (conf.no_parsing_spinner)
     return;
 
@@ -190,8 +183,7 @@ end_spinner (void)
 
 /* Set background colors to all windows. */
 void
-set_wbkgd (WINDOW * main_win, WINDOW * header_win)
-{
+set_wbkgd (WINDOW * main_win, WINDOW * header_win) {
   GColors *color = get_color (COLOR_BG);
 
   /* background colors */
@@ -205,8 +197,7 @@ set_wbkgd (WINDOW * main_win, WINDOW * header_win)
  * each of them. e.g., background color, enable the reading of
  * function keys. */
 void
-init_windows (WINDOW ** header_win, WINDOW ** main_win)
-{
+init_windows (WINDOW ** header_win, WINDOW ** main_win) {
   int row = 0, col = 0;
 
   /* init standard screen */
@@ -232,8 +223,7 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win)
 /* Draw a generic header with the ability to set a custom text to it. */
 void
 draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
-             GColors * (*func) (void))
-{
+             GColors * (*func) (void)) {
   GColors *color = (*func) ();
   char *buf;
 
@@ -252,8 +242,7 @@ draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
 
 /* Determine the actual size of the main window. */
 void
-term_size (WINDOW * main_win, int *main_win_height)
-{
+term_size (WINDOW * main_win, int *main_win_height) {
   int term_h = 0, term_w = 0;
 
   getmaxyx (stdscr, term_h, term_w);
@@ -267,8 +256,7 @@ term_size (WINDOW * main_win, int *main_win_height)
  *
  * On success, a string containing the label name is returned. */
 const char *
-module_to_label (GModule module)
-{
+module_to_label (GModule module) {
   static const char *modules[] = {
     VISITORS_LABEL,
     REQUESTS_LABEL,
@@ -297,8 +285,7 @@ module_to_label (GModule module)
  *
  * On success, a string containing the label id is returned. */
 const char *
-module_to_id (GModule module)
-{
+module_to_id (GModule module) {
   static const char *modules[] = {
     VISITORS_ID,
     REQUESTS_ID,
@@ -327,8 +314,7 @@ module_to_id (GModule module)
  *
  * On success, a string containing the label header is returned. */
 const char *
-module_to_head (GModule module)
-{
+module_to_head (GModule module) {
   static const char *modules[] = {
     VISITORS_HEAD,
     REQUESTS_HEAD,
@@ -361,8 +347,7 @@ module_to_head (GModule module)
  *
  * On success, a string containing the label description is returned. */
 const char *
-module_to_desc (GModule module)
-{
+module_to_desc (GModule module) {
   static const char *modules[] = {
     VISITORS_DESC,
     REQUESTS_DESC,
@@ -389,8 +374,7 @@ module_to_desc (GModule module)
 
 /* Rerender the header window to reflect active module. */
 void
-update_active_module (WINDOW * header_win, GModule current)
-{
+update_active_module (WINDOW * header_win, GModule current) {
   GColors *color = get_color (COLOR_ACTIVE_LABEL);
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
@@ -412,8 +396,7 @@ update_active_module (WINDOW * header_win, GModule current)
 /* Print out (terminal) an overall field label. e.g., 'Processed Time' */
 static void
 render_overall_field (WINDOW * win, const char *s, int y, int x,
-                      GColors * color)
-{
+                      GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -422,8 +405,7 @@ render_overall_field (WINDOW * win, const char *s, int y, int x,
 /* Print out (terminal) an overall field value. e.g., '120 secs' */
 static void
 render_overall_value (WINDOW * win, const char *s, int y, int x,
-                      GColors * color)
-{
+                      GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -433,8 +415,7 @@ render_overall_value (WINDOW * win, const char *s, int y, int x,
  *
  * On success, the number of excluded ips as a string is returned. */
 static char *
-get_str_excluded_ips (void)
-{
+get_str_excluded_ips (void) {
   return int2str (ht_get_excluded_ips (), 0);
 }
 
@@ -442,8 +423,7 @@ get_str_excluded_ips (void)
  *
  * On success, the number of failed requests as a string is returned. */
 static char *
-get_str_failed_reqs (void)
-{
+get_str_failed_reqs (void) {
   return int2str (ht_get_invalid (), 0);
 }
 
@@ -451,8 +431,7 @@ get_str_failed_reqs (void)
  *
  * On success, the number of processed requests as a string is returned. */
 static char *
-get_str_processed_reqs (void)
-{
+get_str_processed_reqs (void) {
   return int2str (ht_get_processed (), 0);
 }
 
@@ -460,8 +439,7 @@ get_str_processed_reqs (void)
  *
  * On success, the number of valid requests as a string is returned. */
 static char *
-get_str_valid_reqs (void)
-{
+get_str_valid_reqs (void) {
   return int2str (ht_sum_valid (), 0);
 }
 
@@ -470,8 +448,7 @@ get_str_valid_reqs (void)
  * On success, the number of not found requests as a string is
  * returned. */
 static char *
-get_str_notfound_reqs (void)
-{
+get_str_notfound_reqs (void) {
   return int2str (ht_get_size_datamap (NOT_FOUND), 0);
 }
 
@@ -479,8 +456,7 @@ get_str_notfound_reqs (void)
  *
  * On success, the number of referrers as a string is returned. */
 static char *
-get_str_ref_reqs (void)
-{
+get_str_ref_reqs (void) {
   return int2str (ht_get_size_datamap (REFERRERS), 0);
 }
 
@@ -488,8 +464,7 @@ get_str_ref_reqs (void)
  *
  * On success, the number of requests as a string is returned. */
 static char *
-get_str_reqs (void)
-{
+get_str_reqs (void) {
   return int2str (ht_get_size_datamap (REQUESTS), 0);
 }
 
@@ -497,8 +472,7 @@ get_str_reqs (void)
  *
  * On success, the number of static requests as a string is returned. */
 static char *
-get_str_static_reqs (void)
-{
+get_str_static_reqs (void) {
   return int2str (ht_get_size_datamap (REQUESTS_STATIC), 0);
 }
 
@@ -506,8 +480,7 @@ get_str_static_reqs (void)
  *
  * On success, the number of unique visitors as a string is returned. */
 static char *
-get_str_visitors (void)
-{
+get_str_visitors (void) {
   return int2str (ht_get_size_uniqmap (VISITORS), 0);
 }
 
@@ -516,8 +489,7 @@ get_str_visitors (void)
  * On success, the time taken to process the log as a string is
  * returned. */
 static char *
-get_str_proctime (void)
-{
+get_str_proctime (void) {
   char *s = NULL;
   uint64_t secs = (long long) end_proc - start_proc;
 
@@ -536,8 +508,7 @@ get_str_proctime (void)
  *
  * On success, the log file size as a string is returned. */
 static char *
-get_str_filesize (void)
-{
+get_str_filesize (void) {
   return filesize_str (get_log_sizes ());
 }
 
@@ -545,8 +516,7 @@ get_str_filesize (void)
  *
  * On success, the log file path as a string is returned. */
 static char *
-get_str_logfile (void)
-{
+get_str_logfile (void) {
   int col = getmaxx (stdscr), left_padding = 20;
   return get_log_source_str (col - left_padding);
 }
@@ -555,8 +525,7 @@ get_str_logfile (void)
  *
  * On success, the bandwidth as a string is returned. */
 static char *
-get_str_bandwidth (void)
-{
+get_str_bandwidth (void) {
   return filesize_str (ht_sum_bw ());
 }
 
@@ -565,8 +534,7 @@ get_str_bandwidth (void)
  *
  * On success, an array of sorted dates is returned. */
 static char **
-get_visitors_dates (GHolder * h)
-{
+get_visitors_dates (GHolder * h) {
   char **dates = malloc (sizeof (char *) * h->holder_size);
   int i;
 
@@ -585,8 +553,7 @@ get_visitors_dates (GHolder * h)
  * header is returned. */
 int
 get_start_end_parsing_dates (GHolder * h, char **start, char **end,
-                             const char *f)
-{
+                             const char *f) {
   char **dates = NULL;
   const char *sndfmt = conf.spec_date_time_num_format;
 
@@ -608,8 +575,7 @@ get_start_end_parsing_dates (GHolder * h, char **start, char **end,
  *
  * On success, an string containing the overall header is returned. */
 char *
-get_overall_header (GHolder * h)
-{
+get_overall_header (GHolder * h) {
   const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
@@ -627,8 +593,7 @@ get_overall_header (GHolder * h)
 
 /* Print out (terminal dashboard) the overall statistics header. */
 static void
-render_overall_header (WINDOW * win, GHolder * h)
-{
+render_overall_header (WINDOW * win, GHolder * h) {
   char *hd = get_overall_header (h);
   int col = getmaxx (stdscr);
 
@@ -639,8 +604,7 @@ render_overall_header (WINDOW * win, GHolder * h)
 /* Render the overall statistics. This will attempt to determine the
  * right X and Y position given the current values. */
 static void
-render_overall_statistics (WINDOW * win, Field fields[], size_t n)
-{
+render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
   GColors *color = NULL;
   int x_field = 2, x_value = 0;
   size_t i, j, k, max_field = 0, max_value = 0, mod_val, y;
@@ -691,8 +655,7 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n)
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW * win, GHolder * h)
-{
+display_general (WINDOW * win, GHolder * h) {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
@@ -733,8 +696,7 @@ display_general (WINDOW * win, GHolder * h)
  * On success, the inputted string is returned. */
 char *
 input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
-              const char *str, int enable_case, int *toggle_case)
-{
+              const char *str, int enable_case, int *toggle_case) {
   char *s = xmalloc (max_width + 1), *tmp;
   size_t i, c, pos = 0, x = 0, quit = 1, len = 0, size_x = 0, size_y = 0;
 
@@ -876,8 +838,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
  * On error, the 1 is returned.
  * On success, 0 is returned. */
 static int
-fill_host_agents_gmenu (void *val, void *user_data)
-{
+fill_host_agents_gmenu (void *val, void *user_data) {
   GMenu *menu = user_data;
   char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
   int i;
@@ -902,8 +863,7 @@ fill_host_agents_gmenu (void *val, void *user_data)
 /* Iterate over the linked-list of user agents for the given host and
  * load its data into the given menu. */
 static int
-load_host_agents_gmenu (void *list, void *user_data, uint32_t count)
-{
+load_host_agents_gmenu (void *list, void *user_data, uint32_t count) {
   GSLList *lst = list;
   GMenu *menu = user_data;
 
@@ -912,8 +872,7 @@ load_host_agents_gmenu (void *list, void *user_data, uint32_t count)
 }
 
 int
-set_list_host_agents (void *val, GSLList ** user_data)
-{
+set_list_host_agents (void *val, GSLList ** user_data) {
   uint32_t count = 0, key = 0;
   GSLList *list = NULL;
 
@@ -938,8 +897,7 @@ set_list_host_agents (void *val, GSLList ** user_data)
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr, GSLList * keys)
-{
+load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
   GSLList *list = NULL;
   GMenu *menu;
   WINDOW *win;
@@ -1012,8 +970,7 @@ out:
 
 /* Render the processing spinner. This runs within its own thread. */
 static void
-ui_spinner (void *ptr_data)
-{
+ui_spinner (void *ptr_data) {
   GSpinner *sp = (GSpinner *) ptr_data;
   GColors *color = NULL;
 
@@ -1066,8 +1023,7 @@ ui_spinner (void *ptr_data)
 
 /* Create the processing spinner's thread */
 void
-ui_spinner_create (GSpinner * spinner)
-{
+ui_spinner_create (GSpinner * spinner) {
   if (conf.no_parsing_spinner)
     return;
 
@@ -1077,8 +1033,7 @@ ui_spinner_create (GSpinner * spinner)
 
 /* Initialize processing spinner data. */
 void
-set_curses_spinner (GSpinner * spinner)
-{
+set_curses_spinner (GSpinner * spinner) {
   int y, x;
   if (spinner == NULL)
     return;
@@ -1098,8 +1053,7 @@ set_curses_spinner (GSpinner * spinner)
  *
  * On success, the newly allocated GSpinner is returned. */
 GSpinner *
-new_gspinner (void)
-{
+new_gspinner (void) {
   GSpinner *spinner;
 
   spinner = xcalloc (1, sizeof (GSpinner));
@@ -1118,8 +1072,7 @@ new_gspinner (void)
 /* A wrapper call to clear the status bar on the config dialog
  * (terminal output). */
 static void
-clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
-{
+clear_confdlg_status_bar (WINDOW * win, int y, int x, int w) {
   draw_header (win, "", "%s", y, x, w + 1, color_default);
 }
 
@@ -1128,8 +1081,7 @@ clear_confdlg_status_bar (WINDOW * win, int y, int x, int w)
  * If no conf.date_format is given, NULL is returned.
  * On success, the newly escaped allocated string is returned. */
 static char *
-get_input_date_format (void)
-{
+get_input_date_format (void) {
   char *date_format = NULL;
 
   if (conf.date_format)
@@ -1142,8 +1094,7 @@ get_input_date_format (void)
  * If no conf.time_format is given, NULL is returned.
  * On success, the newly escaped allocated string is returned. */
 static char *
-get_input_time_format (void)
-{
+get_input_time_format (void) {
   char *time_format = NULL;
 
   if (conf.time_format)
@@ -1156,8 +1107,7 @@ get_input_time_format (void)
  * If no conf.log_format is given, NULL is returned.
  * On success, the newly escaped allocated string is returned. */
 static char *
-get_input_log_format (void)
-{
+get_input_log_format (void) {
   char *log_format = NULL;
 
   if (conf.log_format)
@@ -1166,8 +1116,7 @@ get_input_log_format (void)
 }
 
 static void
-draw_formats (WINDOW * win, int w2)
-{
+draw_formats (WINDOW * win, int w2) {
   char *date_format = NULL, *log_format = NULL, *time_format = NULL;
 
   draw_header (win, CONFDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
@@ -1199,8 +1148,7 @@ draw_formats (WINDOW * win, int w2)
 }
 
 static const char *
-set_formats (char *date_format, char *log_format, char *time_format)
-{
+set_formats (char *date_format, char *log_format, char *time_format) {
   /* display status bar error messages */
   if (!time_format && !conf.time_format)
     return ERR_FORMAT_NO_TIME_FMT_DLG;
@@ -1231,8 +1179,7 @@ set_formats (char *date_format, char *log_format, char *time_format)
 
 /* Render the help dialog. */
 static void
-load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors)
-{
+load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
   int c, quit = 1, i = 0;
   int y, x, h = ERR_WIN_HEIGHT, w = ERR_WIN_WIDTH;
   WINDOW *win;
@@ -1295,8 +1242,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors)
  * On error, or if the selected format is invalid, 1 is returned.
  * On success, 0 is returned. */
 int
-render_confdlg (GLog * glog, GSpinner * spinner)
-{
+render_confdlg (GLog * glog, GSpinner * spinner) {
   GMenu *menu;
   WINDOW *win;
 
@@ -1522,8 +1468,7 @@ render_confdlg (GLog * glog, GSpinner * spinner)
 /* Given the name of the selected scheme, set it under our config
  * options. */
 static void
-scheme_chosen (const char *name)
-{
+scheme_chosen (const char *name) {
   int force = 0;
 
   free_color_lists ();
@@ -1543,8 +1488,7 @@ scheme_chosen (const char *name)
 }
 
 static const char **
-get_color_schemes (size_t *size)
-{
+get_color_schemes (size_t *size) {
   const char *choices[] = {
     "Monokai",
     "Monochrome",
@@ -1568,8 +1512,7 @@ get_color_schemes (size_t *size)
 
 /* Render the schemes dialog. */
 void
-load_schemes_win (WINDOW * main_win)
-{
+load_schemes_win (WINDOW * main_win) {
   GMenu *menu;
   WINDOW *win;
   int c, quit = 1;
@@ -1645,8 +1588,7 @@ load_schemes_win (WINDOW * main_win)
 
 /* Render the sort dialog. */
 void
-load_sort_win (WINDOW * main_win, GModule module, GSort * sort)
-{
+load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
   GMenu *menu;
   WINDOW *win;
   GSortField opts[SORT_MAX_OPTS];
@@ -1884,8 +1826,7 @@ static const char *help_main[] = {
 
 /* Render the help dialog. */
 void
-load_help_popup (WINDOW * main_win)
-{
+load_help_popup (WINDOW * main_win) {
   int c, quit = 1;
   size_t i, n;
   int y, x, h = HELP_WIN_HEIGHT, w = HELP_WIN_WIDTH;

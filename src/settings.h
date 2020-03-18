@@ -43,8 +43,7 @@
 #define MAX_FILENAMES         512
 #define NO_CONFIG_FILE "No config file used"
 
-typedef enum LOGTYPE
-{
+typedef enum LOGTYPE {
   COMBINED,
   VCOMBINED,
   COMMON,
@@ -58,16 +57,14 @@ typedef enum LOGTYPE
 } GLogType;
 
 /* predefined log times */
-typedef struct GPreConfTime_
-{
+typedef struct GPreConfTime_ {
   const char *fmt24;
   const char *usec;
   const char *sec;
 } GPreConfTime;
 
 /* predefined log dates */
-typedef struct GPreConfDate_
-{
+typedef struct GPreConfDate_ {
   const char *apache;
   const char *w3c;
   const char *usec;
@@ -75,8 +72,7 @@ typedef struct GPreConfDate_
 } GPreConfDate;
 
 /* predefined log formats */
-typedef struct GPreConfLog_
-{
+typedef struct GPreConfLog_ {
   const char *combined;
   const char *vcombined;
   const char *common;

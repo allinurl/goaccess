@@ -39,8 +39,7 @@ typedef unsigned int uint32_t;
 #endif
 
 #if defined __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 #ifdef _WIN32
@@ -81,8 +80,7 @@ extern "C"
   typedef void (tpl_free_fcn) (void *ptr);
   typedef void (tpl_fatal_fcn) (const char *fmt, ...);
 
-  typedef struct tpl_hook_t
-  {
+  typedef struct tpl_hook_t {
     tpl_print_fcn *oops;
     tpl_malloc_fcn *malloc;
     tpl_realloc_fcn *realloc;
@@ -91,8 +89,7 @@ extern "C"
     size_t gather_max;
   } tpl_hook_t;
 
-  typedef struct tpl_node
-  {
+  typedef struct tpl_node {
     int type;
     void *addr;
     void *data;                 /* r:tpl_root_data*. A:tpl_atyp*. ow:szof type */
@@ -104,15 +101,13 @@ extern "C"
   } tpl_node;
 
 /* used when un/packing 'B' type (binary buffers) */
-  typedef struct tpl_bin
-  {
+  typedef struct tpl_bin {
     void *addr;
     uint32_t sz;
   } tpl_bin;
 
 /* for async/piecemeal reading of tpl images */
-  typedef struct tpl_gather_t
-  {
+  typedef struct tpl_gather_t {
     char *img;
     int len;
   } tpl_gather_t;

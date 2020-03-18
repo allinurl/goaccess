@@ -45,8 +45,7 @@
 #define SORT_ORDER_LEN   4 + 1  /* length of ASC or DESC */
 
 /* Enumerated sorting metrics */
-typedef enum GSortField_
-{
+typedef enum GSortField_ {
   SORT_BY_HITS,
   SORT_BY_VISITORS,
   SORT_BY_DATA,
@@ -59,15 +58,13 @@ typedef enum GSortField_
 } GSortField;
 
 /* Enumerated sorting order */
-typedef enum GSortOrder_
-{
+typedef enum GSortOrder_ {
   SORT_ASC,
   SORT_DESC
 } GSortOrder;
 
 /* Sorting of each panel, metric and order */
-typedef struct GSort_
-{
+typedef struct GSort_ {
   GModule module;
   GSortField field;
   GSortOrder sort;

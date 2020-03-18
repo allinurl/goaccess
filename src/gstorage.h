@@ -38,8 +38,7 @@
 #define DB_PATH "/tmp"
 
 /* Enumerated Storage Metrics */
-typedef enum GSMetric_
-{
+typedef enum GSMetric_ {
   MTRC_KEYMAP,
   MTRC_KEYMAPUQ,
   MTRC_ROOTMAP,

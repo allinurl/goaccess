@@ -37,8 +37,7 @@
  *
  * On success, the encoded nul-terminated data, as a string is returned. */
 char *
-base64_encode (const void *buf, size_t size)
-{
+base64_encode (const void *buf, size_t size) {
   static const char base64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 

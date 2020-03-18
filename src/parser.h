@@ -50,8 +50,7 @@
 #include "gslist.h"
 
 /* Log properties. Note: This is per line parsed */
-typedef struct GLogItem_
-{
+typedef struct GLogItem_ {
   char *agent;
   char *browser;
   char *browser_type;
@@ -92,8 +91,7 @@ typedef struct GLogItem_
 } GLogItem;
 
 /* Overall parsed log properties */
-typedef struct GLog_
-{
+typedef struct GLog_ {
   unsigned int invalid;
   unsigned int offset;
   unsigned int processed;
@@ -111,23 +109,19 @@ typedef struct GLog_
 } GLog;
 
 /* Raw Data extracted from table stores */
-typedef struct GRawDataItem_
-{
-  union
-  {
+typedef struct GRawDataItem_ {
+  union {
     GSLList *lkeys;
     uint32_t ikey;
   } key;
-  union
-  {
+  union {
     char *svalue;
     uint32_t u32value;
   } value;
 } GRawDataItem;
 
 /* Raw Data per module */
-typedef struct GRawData_
-{
+typedef struct GRawData_ {
   GRawDataItem *items;          /* data */
   GModule module;               /* current module */
   int idx;                      /* first level index */
@@ -137,8 +131,7 @@ typedef struct GRawData_
 /* Each record contains a data value, i.e., Windows XP, and it may contain a
  * root value, i.e., Windows, and a unique key which is the combination of
  * date, IP and user agent */
-typedef struct GKeyData_
-{
+typedef struct GKeyData_ {
   void *data;
   void *data_key;
   uint32_t data_nkey;
@@ -151,8 +144,7 @@ typedef struct GKeyData_
   uint32_t uniq_nkey;
 } GKeyData;
 
-typedef struct GParse_
-{
+typedef struct GParse_ {
   GModule module;
   int (*key_data) (GKeyData * kdata, GLogItem * logitem);
 
