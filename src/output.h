@@ -94,6 +94,6 @@ typedef struct GDefMetric_
   const char *metalbl;          /* metric meta value label */
 } GDefMetric;
 
-void output_html (GLog * glog, GHolder * holder, const char *filename);
+void output_html (GHolder * holder, const char *filename);
 
 #endif

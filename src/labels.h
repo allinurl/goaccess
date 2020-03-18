@@ -257,10 +257,6 @@
   _("[UP/DOWN] to scroll - [q] to quit")
 
 /* Storage Built-in Option */
-#define BUILT_WITH_TCBTREE             \
-  _("Built using Tokyo Cabinet on-disk B+ Tree.")
-#define BUILT_WITH_TCMEMHASH           \
-  _("Built using Tokyo Cabinet in-memory hash database.")
 #define BUILT_WITH_DEFHASH             \
   _("Built using the default in-memory hash database.")
 

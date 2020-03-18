@@ -433,36 +433,36 @@ render_overall_value (WINDOW * win, const char *s, int y, int x,
  *
  * On success, the number of excluded ips as a string is returned. */
 static char *
-get_str_excluded_ips (GLog * glog)
+get_str_excluded_ips (void)
 {
-  return int2str (glog->excluded_ip, 0);
+  return int2str (ht_get_excluded_ips (), 0);
 }
 
 /* Convert the number of failed requests to a string.
  *
  * On success, the number of failed requests as a string is returned. */
 static char *
-get_str_failed_reqs (GLog * glog)
+get_str_failed_reqs (void)
 {
-  return int2str (glog->invalid, 0);
+  return int2str (ht_get_invalid (), 0);
 }
 
 /* Convert the number of processed requests to a string.
  *
  * On success, the number of processed requests as a string is returned. */
 static char *
-get_str_processed_reqs (GLog * glog)
+get_str_processed_reqs (void)
 {
-  return int2str (glog->processed, 0);
+  return int2str (ht_get_processed (), 0);
 }
 
 /* Convert the number of valid requests to a string.
  *
  * On success, the number of valid requests as a string is returned. */
 static char *
-get_str_valid_reqs (GLog * glog)
+get_str_valid_reqs (void)
 {
-  return int2str (glog->valid, 0);
+  return int2str (ht_sum_valid (), 0);
 }
 
 /* Convert the number of not found requests to a string.
@@ -555,9 +555,9 @@ get_str_logfile (void)
  *
  * On success, the bandwidth as a string is returned. */
 static char *
-get_str_bandwidth (GLog * glog)
+get_str_bandwidth (void)
 {
-  return filesize_str ((float) glog->resp_size);
+  return filesize_str (ht_sum_bw ());
 }
 
 /* Iterate over the visitors module and sort date in an ascending
@@ -691,7 +691,7 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n)
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW * win, GLog * glog, GHolder * h)
+display_general (WINDOW * win, GHolder * h)
 {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
@@ -701,19 +701,19 @@ display_general (WINDOW * win, GLog * glog, GHolder * h)
 
   /* *INDENT-OFF* */
   Field fields[] = {
-    {T_REQUESTS        , get_str_processed_reqs (glog), colorlbl, colorval, 0},
-    {T_UNIQUE_VISITORS , get_str_visitors ()          , colorlbl, colorval, 0},
-    {T_UNIQUE_FILES    , get_str_reqs ()              , colorlbl, colorval, 0},
-    {T_REFERRER        , get_str_ref_reqs ()          , colorlbl, colorval, 0},
-    {T_VALID           , get_str_valid_reqs (glog)    , colorlbl, colorval, 0},
-    {T_GEN_TIME        , get_str_proctime ()          , colorlbl, colorval, 0},
-    {T_STATIC_FILES    , get_str_static_reqs ()       , colorlbl, colorval, 0},
-    {T_LOG             , get_str_filesize ()          , colorlbl, colorval, 0},
-    {T_FAILED          , get_str_failed_reqs (glog)   , colorlbl, colorval, 0},
-    {T_EXCLUDE_IP      , get_str_excluded_ips (glog)  , colorlbl, colorval, 0},
-    {T_UNIQUE404       , get_str_notfound_reqs ()     , colorlbl, colorval, 0},
-    {T_BW              , get_str_bandwidth (glog)     , colorlbl, colorval, 0},
-    {T_LOG_PATH        , get_str_logfile ()           , colorlbl, colorpth, 1}
+    {T_REQUESTS        , get_str_processed_reqs () , colorlbl , colorval , 0} ,
+    {T_UNIQUE_VISITORS , get_str_visitors ()       , colorlbl , colorval , 0} ,
+    {T_UNIQUE_FILES    , get_str_reqs ()           , colorlbl , colorval , 0} ,
+    {T_REFERRER        , get_str_ref_reqs ()       , colorlbl , colorval , 0} ,
+    {T_VALID           , get_str_valid_reqs ()     , colorlbl , colorval , 0} ,
+    {T_GEN_TIME        , get_str_proctime ()       , colorlbl , colorval , 0} ,
+    {T_STATIC_FILES    , get_str_static_reqs ()    , colorlbl , colorval , 0} ,
+    {T_LOG             , get_str_filesize ()       , colorlbl , colorval , 0} ,
+    {T_FAILED          , get_str_failed_reqs ()    , colorlbl , colorval , 0} ,
+    {T_EXCLUDE_IP      , get_str_excluded_ips ()   , colorlbl , colorval , 0} ,
+    {T_UNIQUE404       , get_str_notfound_reqs ()  , colorlbl , colorval , 0} ,
+    {T_BW              , get_str_bandwidth ()      , colorlbl , colorval , 0} ,
+    {T_LOG_PATH        , get_str_logfile ()        , colorlbl , colorpth , 1}
   };
   /* *INDENT-ON* */
 
@@ -879,10 +879,18 @@ static int
 fill_host_agents_gmenu (void *val, void *user_data)
 {
   GMenu *menu = user_data;
-  char *agent = ht_get_host_agent_val ((*(int *) val));
+  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
+  int i;
 
   if (agent == NULL)
     return 1;
+
+  for (i = 0; i < menu->size; ++i) {
+    if (strcmp (agent, menu->items[i].name) == 0) {
+      free (agent);
+      return 0;
+    }
+  }
 
   menu->items[menu->size].name = agent;
   menu->items[menu->size].checked = 0;
@@ -893,72 +901,23 @@ fill_host_agents_gmenu (void *val, void *user_data)
 
 /* Iterate over the linked-list of user agents for the given host and
  * load its data into the given menu. */
-static void
-load_host_agents_gmenu (void *list, void *user_data, int count)
+static int
+load_host_agents_gmenu (void *list, void *user_data, uint32_t count)
 {
   GSLList *lst = list;
   GMenu *menu = user_data;
 
   menu->items = (GItem *) xcalloc (count, sizeof (GItem));
-  list_foreach (lst, fill_host_agents_gmenu, menu);
+  return list_foreach (lst, fill_host_agents_gmenu, menu);
 }
 
-/* Set host data from a linked-list and load its data into a GMenu
- * structure.
- *
- * On error, the 1 is returned.
- * On success, 0 is returned. */
-#ifdef TCB_BTREE
 int
-set_host_agents (const char *addr, void (*func) (void *, void *, int),
-                 void *arr)
+set_list_host_agents (void *val, GSLList ** user_data)
 {
-  TCLIST *tclist;
-  GSLList *list;
-  int key, count = 0;
+  uint32_t count = 0, key = 0;
+  GSLList *list = NULL;
 
-  key = ht_get_keymap (HOSTS, addr);
-  if (key == 0)
-    return 1;
-
-  tclist = ht_get_host_agent_tclist (HOSTS, key);
-  if (!tclist)
-    return 1;
-
-  list = tclist_to_gsllist (tclist);
-  if ((count = list_count (list)) == 0) {
-    free (list);
-    return 1;
-  }
-
-  func (list, arr, count);
-
-  list_remove_nodes (list);
-  tclistdel (tclist);
-
-  return 0;
-}
-#endif
-
-/* Set host data from a linked-list and load its data into a GMenu
- * structure.
- *
- * On error, the 1 is returned.
- * On success, 0 is returned. */
-#ifndef TCB_BTREE
-int
-set_host_agents (const char *addr, void (*func) (void *, void *, int),
-                 void *arr)
-{
-  GSLList *list;
-  int data_nkey, count = 0;
-
-  data_nkey = ht_get_keymap (HOSTS, addr);
-  if (data_nkey == 0)
-    return 1;
-
-  list = ht_get_host_agent_list (HOSTS, data_nkey);
-  if (!list)
+  if (!(list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) val))))
     return 1;
 
   if ((count = list_count (list)) == 0) {
@@ -966,22 +925,25 @@ set_host_agents (const char *addr, void (*func) (void *, void *, int),
     return 1;
   }
 
-  func (list, arr, count);
-
-#ifdef TCB_MEMHASH
-  free (list);
-#endif
-
+  while (list) {
+    key = (*(uint32_t *) list->data);
+    if (!*user_data)
+      *user_data = list_create (i322ptr (key));
+    else
+      *user_data = list_insert_prepend (*user_data, i322ptr (key));
+    list = list->next;
+  }
   return 0;
 }
-#endif
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr)
+load_agent_list (WINDOW * main_win, char *addr, GSLList * keys)
 {
+  GSLList *list = NULL;
   GMenu *menu;
   WINDOW *win;
+  uint32_t count = 0;
 
   char buf[256];
   int c, quit = 1, i;
@@ -1002,7 +964,12 @@ load_agent_list (WINDOW * main_win, char *addr)
 
   /* create a new instance of GMenu and make it selectable */
   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-  if (set_host_agents (addr, load_host_agents_gmenu, menu) == 1)
+  while (keys) {
+    set_list_host_agents (keys->data, &list);
+    keys = keys->next;
+  }
+  count = list_count (list);
+  if (count == 0 || load_host_agents_gmenu (list, menu, count) != 0)
     goto out;
 
   post_gmenu (menu);
@@ -1034,6 +1001,7 @@ load_agent_list (WINDOW * main_win, char *addr)
 
 out:
 
+  list_remove_nodes (list);
   /* clean stuff up */
   for (i = 0; i < menu->size; ++i)
     free (menu->items[i].name);
@@ -1138,8 +1106,8 @@ new_gspinner (void)
   spinner->label = "Parsing...";
   spinner->state = SPN_RUN;
   spinner->curses = 0;
-  if (conf.load_from_disk)
-    conf.no_progress = 1;
+  //if (conf.load_from_disk)
+  //  conf.no_progress = 1;
 
   if (pthread_mutex_init (&(spinner->mutex), NULL))
     FATAL ("Failed init thread mutex");

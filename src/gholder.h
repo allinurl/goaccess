@@ -37,6 +37,21 @@
 #include "commons.h"
 #include "sort.h"
 
+typedef struct GHolderKeyList_
+{
+  GModule module;
+  union
+  {
+    uint64_t u64value;
+    uint32_t u32value;
+  } value;
+  union
+  {
+    uint32_t (*u32cb) (GModule module, uint32_t key);
+    uint64_t (*u64cb) (GModule module, uint32_t key);
+  } cb;
+} GHolderKeyList;
+
 /* Function Prototypes */
 GHolder *new_gholder (uint32_t size);
 void *add_hostname_node (void *ptr_holder);
@@ -45,5 +60,6 @@ void free_holder (GHolder ** holder);
 void load_holder_data (GRawData * raw_data, GHolder * h, GModule module,
                        GSort sort);
 void load_host_to_holder (GHolder * h, char *ip);
+int dup_key_list (void *val, GSLList ** user_data);
 
 #endif // for #ifndef GHOLDER_H

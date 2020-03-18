@@ -143,66 +143,8 @@ else
   fi
 fi
 
-# Tokyo Cabinet
-AC_ARG_ENABLE([tcb],[AS_HELP_STRING([--enable-tcb],[Enable TokyoCabinet database. Supported types: memhash, btree. Default is disabled])],[tcb="$enableval"],[tcb=no])
-
-WITH_TC=no
-if test "$tcb" = "memhash"; then
-  WITH_TC=yes
-  AC_DEFINE([TCB_MEMHASH], [1], ["Build using on-memory hash database"])
-elif test "$tcb" = "btree"; then
-  AC_DEFINE([TCB_BTREE], [1], ["Build using on-disk B+ Tree database"])
-  WITH_TC=yes
-elif test "$tcb" != "no"; then
-  AC_MSG_ERROR([*** Invalid argument for Tokyo Cabinet Database: $tcb])
-fi
-
-if test "$WITH_TC" = "yes"; then
-  AC_CHECK_LIB([tokyocabinet], [tchdbnew], [],
-    [AC_MSG_ERROR([*** Missing development libraries for Tokyo Cabinet Database])])
-
-  AC_ARG_ENABLE([zlib],[AS_HELP_STRING([--disable-zlib],[Build without ZLIB compression. Default is enabled])],[zlib="$enableval"],[zlib=yes])
-
-  if test "$zlib" = "yes"; then
-    AC_CHECK_LIB([z], [gzread], [], [AC_MSG_ERROR([
-      *** zlib is required. If zlib compression is not needed
-      *** you can use --disable-zlib.
-      *** Debian based distributions zlib1g-dev
-      *** Red Hat based distributions zlib-devel
-    ])])
-    AC_DEFINE([HAVE_ZLIB], [1], ["Build using ZLIB"])
-  fi
-
-  AC_ARG_ENABLE([bzip],[AS_HELP_STRING([--disable-bzip],[Build without BZIP2 compression. Default is enabled])],[bz2="$enableval"],[bz2=yes])
-
-  if test "$bz2" = "yes"; then
-    AC_CHECK_LIB([bz2], [BZ2_bzopen], [], [AC_MSG_ERROR([
-      *** BZIP2 is required. If BZIP2 compression is not needed
-      *** you can use --disable-bzip.
-      *** Debian based distributions libbz2-dev
-      *** Red Hat based distributions bzip2-devel
-    ])])
-    AC_DEFINE([HAVE_BZ2], [1], ["Build using BZ2"])
-  fi
-
-  case "$host_os" in
-    *darwin*|*bsd*)
-       LDFLAGS="$LDFLAGS -lc"
-    ;;
-    *)
-       LDFLAGS="$LDFLAGS -lrt -lc"
-    ;;
-  esac
-fi
-AM_CONDITIONAL([TCB], [test "$WITH_TC" = "yes"])
-
-if test "$tcb" = "memhash"; then
-  storage="In-memory Hash Database (Tokyo Cabinet)"
-elif test "$tcb" = "btree"; then
-  storage="On-disk B+ Tree Database (Tokyo Cabinet)"
-else
-  storage="In-memory Hash Database (Default)"
-fi
+# Default Hash
+storage="IN-MEMORY & ON-DISK Persitance Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])

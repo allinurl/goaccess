@@ -36,6 +36,7 @@
 
 #include <time.h>
 #include <stdint.h>
+#include "gslist.h"
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
@@ -115,8 +116,8 @@ typedef enum MODULES
  * calculated values. */
 typedef struct GPercTotals_
 {
-  int hits;                     /* total valid hits */
-  int visitors;                 /* total visitors */
+  uint32_t hits;                /* total valid hits */
+  uint32_t visitors;            /* total visitors */
   uint64_t bw;                  /* total bandwidth */
 } GPercTotals;
 
@@ -134,8 +135,8 @@ typedef struct GMetrics
   float visitors_perc;
   float bw_perc;
 
-  int hits;
-  int visitors;
+  uint32_t hits;
+  uint32_t visitors;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
@@ -168,6 +169,8 @@ typedef struct GMetrics
     char *sts;
     uint64_t nts;
   } maxts;
+
+  GSLList *keys;
 } GMetrics;
 
 /* Holder sub item */
@@ -201,7 +204,7 @@ typedef struct GHolder_
   GModule module;               /* current module  */
   int idx;                      /* holder index  */
   int holder_size;              /* number of allocated items */
-  int ht_size;                  /* size of the hash table/store */
+  uint32_t ht_size;             /* size of the hash table/store */
   int sub_items_size;           /* number of sub items  */
 } GHolder;
 
@@ -249,8 +252,10 @@ void free_agents_array (GAgents *agents);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
 int get_module_enum (const char *str);
+char *get_module_str (GModule module);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
+char *enum2str (const GEnum map[], int len, int idx);
 
 int enable_panel (GModule mod);
 int get_module_index (int module);

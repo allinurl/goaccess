@@ -125,6 +125,7 @@ typedef struct GConf_
   const char *invalid_requests_log; /* invalid lines log path */
   const char *pidfile;              /* daemonize pid file path */
   const char *browsers_file;        /* browser's file path */
+  const char *db_path;              /* db path to files */
 
   /* HTML real-time */
   const char *addr;                 /* IP address to bind to */
@@ -174,6 +175,7 @@ typedef struct GConf_
   int real_time_html;               /* enable real-time HTML output */
   int skip_term_resolver;           /* no terminal resolver */
   uint32_t num_tests;               /* number of lines to test */
+  uint32_t keep_last;               /* number of days to keep in storage */
   uint64_t log_size;                /* log size override */
 
   /* Internal flags */
@@ -203,17 +205,6 @@ typedef struct GConf_
 
   size_t static_file_max_len;
 
-  /* TokyoCabinet */
-  const char *db_path;              /* db path to files */
-  int64_t xmmap;                    /* size of the extra mapped memory */
-  int cache_lcnum;                  /* max num of leaf nodes to cache */
-  int cache_ncnum;                  /* max num of non-leaf nodes to cache */
-  int compression;                  /* deflate or BZIP2 */
-  int keep_db_files;                /* persist parsed data into disk */
-  int load_from_disk;               /* load stored data */
-  int tune_bnum;                    /* num of elems of the bucket array */
-  int tune_lmemb;                   /* num of memb in each leaf page */
-  int tune_nmemb;                   /* num of memb in each non-leaf page */
 } GConf;
 /* *INDENT-ON* */
 

@@ -135,6 +135,8 @@ struct option long_opts[] = {
   {"real-time-html"       , no_argument       , 0 ,  0  } ,
   {"sort-panel"           , required_argument , 0 ,  0  } ,
   {"static-file"          , required_argument , 0 ,  0  } ,
+  {"keep-last"            , required_argument , 0 ,  0  } ,
+  {"db-path"              , required_argument , 0 ,  0  } ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
   {"ssl-key"              , required_argument , 0 ,  0  } ,
@@ -143,19 +145,6 @@ struct option long_opts[] = {
   {"ws-url"               , required_argument , 0 ,  0  } ,
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
-#endif
-#ifdef TCB_BTREE
-  {"accumulated-time"     , no_argument       , 0 ,  0  } ,
-  {"cache-lcnum"          , required_argument , 0 ,  0  } ,
-  {"cache-ncnum"          , required_argument , 0 ,  0  } ,
-  {"compression"          , required_argument , 0 ,  0  } ,
-  {"db-path"              , required_argument , 0 ,  0  } ,
-  {"keep-db-files"        , no_argument       , 0 ,  0  } ,
-  {"load-from-disk"       , no_argument       , 0 ,  0  } ,
-  {"tune-bnum"            , required_argument , 0 ,  0  } ,
-  {"tune-lmemb"           , required_argument , 0 ,  0  } ,
-  {"tune-nmemb"           , required_argument , 0 ,  0  } ,
-  {"xmmap"                , required_argument , 0 ,  0  } ,
 #endif
   {0, 0, 0, 0}
 };
@@ -247,9 +236,6 @@ cmd_help (void)
   "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
   "                                    count.\n"
-#ifdef TCB_BTREE
-  "  --accumulated-time              - Store accumulated time from parsing day-by-day logs.\n"
-#endif
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --all-static-files              - Include static files with a query string.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
@@ -269,6 +255,7 @@ cmd_help (void)
   "                                    req => Ignore from valid requests.\n"
   "                                    panel => Ignore from valid requests and panels.\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
+  "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
@@ -292,31 +279,6 @@ cmd_help (void)
   "\n"
 #endif
 
-/* On-Disk Database Options */
-#ifdef TCB_BTREE
-  "On-Disk Database Options\n\n"
-  "  --keep-db-files                 - Persist parsed data into disk.\n"
-  "  --load-from-disk                - Load previously stored data from disk.\n"
-  "  --db-path=<path>                - Path of the database file. Default [%s]\n"
-  "  --cache-lcnum=<number>          - Max number of leaf nodes to be cached. Default\n"
-  "                                    [%d]\n"
-  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be cached.\n"
-  "                                    Default [%d]\n"
-  "  --tune-bnum=<number>            - Number of elements of the bucket array. Default\n"
-  "                                    [%d]\n"
-  "  --tune-lmemb=<number>           - Number of members in each leaf page. Default\n"
-  "                                    [%d]\n"
-  "  --tune-nmemb=<number>           - Number of members in each non-leaf page.\n"
-  "                                    Default [%d]\n"
-  "  --xmmap=<number>                - Set the size in bytes of the extra mapped\n"
-  "                                    memory. Default [%d]\n"
-#if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  "  --compression=<zlib|bz2>        - Specifies that each page is compressed with\n"
-  "                                    ZLIB|BZ2 encoding.\n"
-  "\n"
-#endif
-#endif
-
 /* Other Options */
   "Other Options\n\n"
   "  -h --help                       - This help.\n"
@@ -331,9 +293,6 @@ cmd_help (void)
   "%s: http://goaccess.io\n"
   "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
   "\n\n"
-#ifdef TCB_BTREE
-  , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
-#endif
   , INFO_HELP_EXAMPLES, INFO_MORE_INFO
   );
   exit (EXIT_FAILURE);
@@ -592,6 +551,19 @@ parse_long_opt (const char *name, const char *oarg)
     conf.num_tests = tests >= 0 ? tests : 0;
   }
 
+  /* number of days to keep in storage */
+  if (!strcmp ("keep-last", name)) {
+    char *sEnd;
+    int keeplast = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      return;
+    conf.keep_last = keeplast >= 0 ? keeplast : 0;
+  }
+
+  /* specifies the path of the database file */
+  if (!strcmp ("db-path", name))
+    conf.db_path = oarg;
+
   /* process and exit */
   if (!strcmp ("process-and-exit", name))
     conf.process_and_exit = 1;
@@ -617,56 +589,6 @@ parse_long_opt (const char *name, const char *oarg)
   /* specifies the path of the GeoIP City database file */
   if (!strcmp ("geoip-database", name))
     conf.geoip_database = oarg;
-
-  /* BTREE OPTIONS
-   * ========================= */
-  /* keep database files */
-  if (!strcmp ("keep-db-files", name))
-    conf.keep_db_files = 1;
-
-  /* load data from disk */
-  if (!strcmp ("load-from-disk", name))
-    conf.load_from_disk = 1;
-
-  /* specifies the path of the database file */
-  if (!strcmp ("db-path", name))
-    conf.db_path = oarg;
-
-  /* specifies the maximum number of leaf nodes to be cached */
-  if (!strcmp ("cache-lcnum", name))
-    conf.cache_lcnum = atoi (oarg);
-
-  /* specifies the maximum number of non-leaf nodes to be cached */
-  if (!strcmp ("cache-ncnum", name))
-    conf.cache_ncnum = atoi (oarg);
-
-  /* number of elements of the bucket array */
-  if (!strcmp ("tune-bnum", name))
-    conf.tune_bnum = atoi (oarg);
-
-  /* number of members in each non-leaf page */
-  if (!strcmp ("tune-nmemb", name))
-    conf.tune_nmemb = atoi (oarg);
-
-  /* number of members in each leaf page */
-  if (!strcmp ("tune-lmemb", name))
-    conf.tune_lmemb = atoi (oarg);
-
-  /* set the size in bytes of the extra mapped memory */
-  if (!strcmp ("xmmap", name))
-    conf.xmmap = atoi (oarg);
-
-  /* specifies that each page is compressed with X encoding */
-  if (!strcmp ("compression", name)) {
-#ifdef HAVE_ZLIB
-    if (!strcmp ("zlib", oarg))
-      conf.compression = TC_ZLIB;
-#endif
-#ifdef HAVE_BZ2
-    if (!strcmp ("bz2", oarg))
-      conf.compression = TC_BZ2;
-#endif
-  }
 
   /* default config file --dwf */
   if (!strcmp ("dcf", name)) {

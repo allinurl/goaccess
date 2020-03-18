@@ -53,11 +53,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
 #include "gkhash.h"
-#endif
 
 #ifdef HAVE_GEOLOCATION
 #include "geoip1.h"
@@ -154,12 +150,6 @@ house_keeping_holder (void)
 static void
 house_keeping (void)
 {
-#ifdef TCB_MEMHASH
-  /* free malloc'd int values on the agent list */
-  if (conf.list_agents)
-    free_agent_list ();
-#endif
-
   house_keeping_holder ();
 
   /* DASHBOARD */
@@ -345,7 +335,7 @@ allocate_data_by_module (GModule module, int col_data)
   dash->total_alloc += dash->module[module].dash_size;
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  load_data_to_dash (glog, &holder[module], dash, module, &gscroll);
+  load_data_to_dash (&holder[module], dash, module, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
 }
 
@@ -390,7 +380,7 @@ render_screens (void)
   refresh ();
 
   /* call general stats header */
-  display_general (header_win, glog, holder);
+  display_general (header_win, holder);
   wrefresh (header_win);
 
   /* display active label based on current module */
@@ -484,7 +474,7 @@ load_ip_agent_list (void)
   GDashData item = dash->module[HOSTS].data[sel];
 
   if (!invalid_ipaddr (item.metrics->data, &type_ip))
-    load_agent_list (main_win, item.metrics->data);
+    load_agent_list (main_win, item.metrics->data, item.metrics->keys);
 }
 
 /* Expand the selected module */
@@ -701,7 +691,7 @@ tail_html (void)
   allocate_holder ();
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (glog, holder, 0);
+  json = get_json (holder, 0);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)
@@ -718,7 +708,7 @@ fast_forward_client (int listener)
   char *json = NULL;
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (glog, holder, 0);
+  json = get_json (holder, 0);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)
@@ -778,6 +768,7 @@ parse_tail_follow (FILE * fp)
 #ifdef WITH_GETLINE
     free (buf);
 #endif
+    glog->read++;
   }
 }
 
@@ -787,6 +778,7 @@ perform_tail_follow (uint64_t * size1, const char *fn)
 {
   FILE *fp = NULL;
   uint64_t size2 = 0;
+  struct stat fdstat;
 
   if (fn[0] == '-' && fn[1] == '\0') {
     parse_tail_follow (glog->pipe);
@@ -804,11 +796,19 @@ perform_tail_follow (uint64_t * size1, const char *fn)
   if (!(fp = fopen (fn, "r")))
     FATAL ("Unable to read log file %s.", strerror (errno));
 
+  /* insert the inode of the file parsed and the last line parsed */
+  if (stat (fn, &fdstat) == 0)
+    glog->inode = fdstat.st_ino;
+
   if (!fseeko (fp, *size1, SEEK_SET))
     parse_tail_follow (fp);
   fclose (fp);
 
   *size1 = size2;
+
+  /* insert the inode of the file parsed and the last line parsed */
+  if (glog->inode)
+    ht_insert_last_parse (glog->inode, glog->read);
 
 out:
 
@@ -829,7 +829,7 @@ process_html (const char *filename)
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
-  output_html (glog, holder, filename);
+  output_html (holder, filename);
   pthread_mutex_unlock (&gdns_thread.mutex);
   /* not real time? */
   if (!conf.real_time_html)
@@ -1131,24 +1131,17 @@ get_keys (void)
 
 /* Set general/overall statistics when loading data from the on-disk
  * storage. i.e., --load-from-disk */
-static void
-set_general_stats (void)
-{
-  glog->valid = glog->processed = glog->invalid = glog->excluded_ip = 0;
-
-#ifdef TCB_BTREE
-  glog->excluded_ip = ht_get_genstats ("excluded_ip");
-  glog->invalid = ht_get_genstats ("failed_requests");
-  glog->processed = ht_get_genstats ("total_requests");
-  glog->resp_size = ht_get_genstats_bw ("bandwidth");
-  glog->valid = ht_get_genstats ("valid_requests");
-
-  if (glog->resp_size > 0)
-    conf.bandwidth = 1;
-  if (ht_get_genstats ("serve_usecs"))
-    conf.serve_usecs = 1;
-#endif
-}
+//static void
+//set_general_stats (void)
+//{
+//
+//#ifdef TCB_BTREE
+//  if (glog->resp_size > 0)
+//    conf.bandwidth = 1;
+//  if (ht_get_genstats ("serve_usecs"))
+//    conf.serve_usecs = 1;
+//#endif
+//}
 
 /* Store accumulated processing time
  * Note: As we store with time_t second resolution,
@@ -1175,8 +1168,8 @@ init_processing (void)
   verify_panels ();
   /* initialize storage */
   init_storage ();
-  if (conf.load_from_disk)
-    set_general_stats ();
+  //if (conf.load_from_disk)
+  //  set_general_stats ();
   set_spec_date_format ();
 }
 
@@ -1188,10 +1181,10 @@ standard_output (void)
 
   /* CSV */
   if (find_output_type (&csv, "csv", 1) == 0)
-    output_csv (glog, holder, csv);
+    output_csv (holder, csv);
   /* JSON */
   if (find_output_type (&json, "json", 1) == 0)
-    output_json (glog, holder, json);
+    output_json (holder, json);
   /* HTML */
   if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
     process_html (html);
@@ -1310,8 +1303,8 @@ set_io (void)
   if (!isatty (STDIN_FILENO))
     set_pipe_stdin ();
   /* No data piped, no file was used and not loading from disk */
-  if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
-    cmd_help ();
+  //if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
+  //  cmd_help ();
 }
 
 /* Process command line options and set some default options. */

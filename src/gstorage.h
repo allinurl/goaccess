@@ -34,12 +34,14 @@
 #include "parser.h"
 
 /* Total number of storage metrics (GSMetric) */
-#define GSMTRC_TOTAL 14
+#define GSMTRC_TOTAL 15
+#define DB_PATH "/tmp"
 
 /* Enumerated Storage Metrics */
 typedef enum GSMetric_
 {
   MTRC_KEYMAP,
+  MTRC_KEYMAPUQ,
   MTRC_ROOTMAP,
   MTRC_DATAMAP,
   MTRC_UNIQMAP,
@@ -57,12 +59,13 @@ typedef enum GSMetric_
 
 GMetrics *new_gmetrics (void);
 
-int *int2ptr (int val);
+uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
 
+char *get_mtr_str (GSMetric metric);
 void *get_storage_metric_by_module (GModule module, GSMetric metric);
 void *get_storage_metric (GModule module, GSMetric metric);
-void set_module_totals (GLog * glog, GPercTotals * totals);
+void set_module_totals (GPercTotals * totals);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
                        GPercTotals totals);
 

@@ -37,17 +37,23 @@
 #include "khash.h"
 #include "parser.h"
 
-/* int keys, int payload */
-KHASH_MAP_INIT_INT (ii32, int);
-/* int keys, string payload */
+#define TPL_SI32 "A(su)"
+
+/* uint32_t keys, char payload */
+KHASH_MAP_INIT_INT (iui8, uint8_t);
+/* uint32_t keys, uint32_t payload */
+KHASH_MAP_INIT_INT (ii32, uint32_t);
+/* uint32_t keys, string payload */
 KHASH_MAP_INIT_INT (is32, char *);
-/* int keys, uint64_t payload */
+/* uint32_t keys, uint64_t payload */
 KHASH_MAP_INIT_INT (iu64, uint64_t);
-/* string keys, int payload */
-KHASH_MAP_INIT_STR (si32, int);
+/* string keys, uint32_t payload */
+KHASH_MAP_INIT_STR (si32, uint32_t);
 /* string keys, string payload */
 KHASH_MAP_INIT_STR (ss32, char *);
-/* int keys, GSLList payload */
+/* string keys, GSLList payload */
+KHASH_MAP_INIT_STR (sgsl, GSLList *);
+/* uint32_t keys, GSLList payload */
 KHASH_MAP_INIT_INT (igsl, GSLList *);
 /* string keys, uint64_t payload */
 KHASH_MAP_INIT_STR (su64, uint64_t);
@@ -149,30 +155,34 @@ KHASH_MAP_INIT_STR (su64, uint64_t);
  */
 /*khash_t(is32) MTRC_PROTOCOLS */
 
-/* Maps numeric unique user-agent keys to the
- * corresponding numeric value.
- * 1 -> 3
- * 2 -> 4
+/* Maps numeric unique data keys (e.g., 192.168.0.1 => 1) to the unique user
+ * agent key. Therefore, 1 IP can contain multiple user agents
+ * 1 -> 3,5
+ * 2 -> 4,5,6,8
  */
 /*khash_t(igsl) MTRC_AGENTS */
 
 /* Enumerated Storage Metrics */
 typedef enum GSMetricType_
 {
-  /* int key - int val */
+  /* uint32_t key - uint32_t val */
   MTRC_TYPE_II32,
-  /* int key - string val */
+  /* uint32_t key - string val */
   MTRC_TYPE_IS32,
-  /* int key - uint64_t val */
+  /* uint32_t key - uint64_t val */
   MTRC_TYPE_IU64,
-  /* string key - int val */
+  /* string key - uint32_t val */
   MTRC_TYPE_SI32,
   /* string key - string val */
   MTRC_TYPE_SS32,
-  /* int key - GSLList val */
+  /* uint32_t key - GSLList val */
   MTRC_TYPE_IGSL,
+  /* string key - GSLList val */
+  MTRC_TYPE_SGSL,
   /* string key - uint64_t val */
   MTRC_TYPE_SU64,
+  /* uint32_t key - uint8_t val */
+  MTRC_TYPE_IUI8,
 } GSMetricType;
 
 typedef struct GKHashMetric_
@@ -181,14 +191,17 @@ typedef struct GKHashMetric_
   GSMetricType type;
   union
   {
+    khash_t (iui8) * iui8;
     khash_t (ii32) * ii32;
     khash_t (is32) * is32;
     khash_t (iu64) * iu64;
     khash_t (si32) * si32;
     khash_t (ss32) * ss32;
+    khash_t (sgsl) * sgsl;
     khash_t (igsl) * igsl;
     khash_t (su64) * su64;
   };
+  const char *filename;
 } GKHashMetric;
 
 /* Data Storage per module */
@@ -198,53 +211,70 @@ typedef struct GKHashStorage_
   GKHashMetric metrics[GSMTRC_TOTAL];
 } GKHashStorage;
 
-void free_storage (void);
-void init_storage (void);
-
-int ht_insert_agent_key (const char *key);
-int ht_insert_agent_value (int key, const char *value);
-int ht_insert_unique_key (const char *key);
-
-int ht_insert_agent (GModule module, int key, int value);
-int ht_insert_bw (GModule module, int key, uint64_t inc);
-int ht_insert_cumts (GModule module, int key, uint64_t inc);
-int ht_insert_datamap (GModule module, int key, const char *value);
-int ht_insert_hits (GModule module, int key, int inc);
-int ht_insert_hostname (const char *ip, const char *host);
-int ht_insert_keymap (GModule module, const char *key);
-int ht_insert_maxts (GModule module, int key, uint64_t value);
-int ht_insert_meta_data (GModule module, const char *key, uint64_t value);
-int ht_insert_method (GModule module, int key, const char *value);
-int ht_insert_protocol (GModule module, int key, const char *value);
-int ht_insert_root (GModule module, int key, int value);
-int ht_insert_rootmap (GModule module, int key, const char *value);
-int ht_insert_uniqmap (GModule module, const char *key);
-int ht_insert_visitor (GModule module, int key, int inc);
-
-uint32_t ht_get_size_datamap (GModule module);
-uint32_t ht_get_size_uniqmap (GModule module);
-
-char *ht_get_datamap (GModule module, int key);
-char *ht_get_host_agent_val (int key);
+char *ht_get_datamap (GModule module, uint32_t key);
+char *ht_get_host_agent_val (uint32_t key);
 char *ht_get_hostname (const char *host);
-char *ht_get_method (GModule module, int key);
-char *ht_get_protocol (GModule module, int key);
-char *ht_get_root (GModule module, int key);
-GSLList *ht_get_host_agent_list (GModule module, int key);
-int ht_get_hits (GModule module, int key);
-int ht_get_keymap (GModule module, const char *key);
-int ht_get_uniqmap (GModule module, const char *key);
-int ht_get_visitors (GModule module, int key);
-uint64_t ht_get_bw (GModule module, int key);
-uint64_t ht_get_cumts (GModule module, int key);
-uint64_t ht_get_maxts (GModule module, int key);
+char *ht_get_method (GModule module, uint32_t key);
+char *ht_get_protocol (GModule module, uint32_t key);
+char *ht_get_root (GModule module, uint32_t key);
+int clean_full_match_hashes (int date);
+int clean_partial_match_hashes (int date);
+int ht_insert_agent (GModule module, uint32_t key, uint32_t value);
+int ht_insert_agent_value (uint32_t key, const char *value);
+int ht_insert_bw (GModule module, uint32_t key, uint64_t inc);
+int ht_insert_cumts (GModule module, uint32_t key, uint64_t inc);
+int ht_insert_datamap (GModule module, uint32_t key, const char *value);
+int ht_insert_hostname (const char *ip, const char *host);
+int ht_insert_maxts (GModule module, uint32_t key, uint64_t value);
+int ht_insert_meta_data (GModule module, const char *key, uint64_t value);
+int ht_insert_method (GModule module, uint32_t key, const char *value);
+int ht_insert_protocol (GModule module, uint32_t key, const char *value);
+int ht_insert_root (GModule module, uint32_t key, uint32_t value);
+int ht_insert_rootmap (GModule module, uint32_t key, const char *value);
+int invalidate_date (int date);
+uint32_t *get_sorted_dates (void);
+uint32_t ht_get_date (uint32_t date);
+uint32_t ht_get_excluded_ips (void);
+uint32_t ht_get_hits (GModule module, uint32_t key);
+uint32_t ht_get_invalid (void);
+uint32_t ht_get_invalid (void);
+uint32_t ht_get_keymap (GModule module, const char *key);
+uint32_t ht_get_last_parse (uint32_t key);
+uint32_t ht_get_processed (void);
+uint32_t ht_get_size_datamap (GModule module);
+uint32_t ht_get_size_dates (void);
+uint32_t ht_get_size_uniqmap (GModule module);
+uint32_t ht_get_uniqmap (GModule module, const char *key);
+uint32_t ht_get_visitors (GModule module, uint32_t key);
+uint32_t ht_inc_cnt_bw (uint32_t key, uint64_t val);
+uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
+uint32_t ht_inc_cnt_valid (uint32_t key, uint32_t val);
+uint32_t ht_insert_agent_key (const char *key);
+uint32_t ht_insert_agent_seq (const char *key);
+uint32_t ht_insert_date (uint32_t key);
+uint32_t ht_insert_hits (GModule module, uint32_t key, uint32_t inc);
+uint32_t ht_insert_keymap (GModule module, const char *key);
+uint32_t ht_insert_last_parse (uint32_t key, uint32_t value);
+uint32_t ht_insert_uniqmap (GModule module, const char *key);
+uint32_t ht_insert_unique_key (const char *key);
+uint32_t ht_insert_unique_seq (const char *key);
+uint32_t ht_insert_visitor (GModule module, uint32_t key, uint32_t inc);
+uint32_t ht_sum_valid (void);
+uint64_t ht_get_bw (GModule module, uint32_t key);
+uint64_t ht_get_cumts (GModule module, uint32_t key);
+uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
+uint64_t ht_sum_bw (void);
+void free_sgls_metrics (GModule module);
+void free_storage (void);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
-void ht_get_hits_min_max (GModule module, int *min, int *max);
+void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
-void ht_get_visitors_min_max (GModule module, int *min, int *max);
+void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
+void init_storage (void);
 
 GRawData *parse_raw_data (GModule module);
+GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 
 #endif // for #ifndef GKHASH_H

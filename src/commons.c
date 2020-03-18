@@ -54,6 +54,30 @@ time_t start_proc;
 /* list of available modules/panels */
 int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 
+/* *INDENT-OFF* */
+/* String modules to enumerated modules */
+static GEnum enum_modules[] = {
+    {"VISITORS"        , VISITORS}        ,
+    {"REQUESTS"        , REQUESTS}        ,
+    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
+    {"NOT_FOUND"       , NOT_FOUND}       ,
+    {"HOSTS"           , HOSTS}           ,
+    {"OS"              , OS}              ,
+    {"BROWSERS"        , BROWSERS}        ,
+    {"VISIT_TIMES"     , VISIT_TIMES}     ,
+    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
+    {"REFERRERS"       , REFERRERS}       ,
+    {"REFERRING_SITES" , REFERRING_SITES} ,
+    {"KEYPHRASES"      , KEYPHRASES}      ,
+    {"STATUS_CODES"    , STATUS_CODES}    ,
+    {"REMOTE_USER"     , REMOTE_USER}     ,
+    {"CACHE_STATUS"    , CACHE_STATUS}    ,
+#ifdef HAVE_GEOLOCATION
+    {"GEO_LOCATION"    , GEO_LOCATION}    ,
+#endif
+};
+/* *INDENT-ON* */
+
 /* Get number of items per panel to parse.
  *
  * The number of items per panel is returned. */
@@ -109,13 +133,7 @@ get_percentage (unsigned long long total, unsigned long long hit)
 void
 display_storage (void)
 {
-#ifdef TCB_BTREE
-  fprintf (stdout, "%s\n", BUILT_WITH_TCBTREE);
-#elif TCB_MEMHASH
-  fprintf (stdout, "%s\n", BUILT_WITH_TCMEMHASH);
-#else
   fprintf (stdout, "%s\n", BUILT_WITH_DEFHASH);
-#endif
 }
 
 /* Display the path of the default configuration file when `-p` is not used */
@@ -153,19 +171,8 @@ display_version (void)
 #ifdef HAVE_LIBMAXMINDDB
   fprintf (stdout, "  --enable-geoip=mmdb\n");
 #endif
-#ifdef TCB_MEMHASH
-  fprintf (stdout, "  --enable-tcb=memhash\n");
-#endif
-#ifdef TCB_BTREE
-  fprintf (stdout, "  --enable-tcb=btree\n");
-#endif
-#if defined(TCB_MEMHASH) || defined(TCB_BTREE)
-#ifndef HAVE_ZLIB
-  fprintf (stdout, "  --disable-zlib\n");
-#endif
-#ifndef HAVE_BZ2
-  fprintf (stdout, "  --disable-bzip\n");
-#endif
+#ifdef HAVE_LIBPQ
+  fprintf (stdout, "  --enable-postgres\n");
 #endif
 #ifdef WITH_GETLINE
   fprintf (stdout, "  --with-getline\n");
@@ -192,6 +199,23 @@ str2enum (const GEnum map[], int len, const char *str)
   return -1;
 }
 
+/* Get the string value given an enum.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated module value is returned. */
+char *
+enum2str (const GEnum map[], int len, int idx)
+{
+  int i;
+
+  for (i = 0; i < len; ++i) {
+    if (idx == map[i].idx)
+      return xstrdup (map[i].str);
+  }
+
+  return NULL;
+}
+
 /* Get the enumerated module value given a module string.
  *
  * On error, -1 is returned.
@@ -199,31 +223,17 @@ str2enum (const GEnum map[], int len, const char *str)
 int
 get_module_enum (const char *str)
 {
-  /* *INDENT-OFF* */
-  /* String modules to enumerated modules */
-  GEnum enum_modules[] = {
-    {"VISITORS"        , VISITORS}        ,
-    {"REQUESTS"        , REQUESTS}        ,
-    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
-    {"NOT_FOUND"       , NOT_FOUND}       ,
-    {"HOSTS"           , HOSTS}           ,
-    {"OS"              , OS}              ,
-    {"BROWSERS"        , BROWSERS}        ,
-    {"VISIT_TIMES"     , VISIT_TIMES}     ,
-    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
-    {"REFERRERS"       , REFERRERS}       ,
-    {"REFERRING_SITES" , REFERRING_SITES} ,
-    {"KEYPHRASES"      , KEYPHRASES}      ,
-    {"STATUS_CODES"    , STATUS_CODES}    ,
-    {"REMOTE_USER"     , REMOTE_USER}     ,
-    {"CACHE_STATUS"    , CACHE_STATUS}    ,
-#ifdef HAVE_GEOLOCATION
-    {"GEO_LOCATION"    , GEO_LOCATION}    ,
-#endif
-  };
-  /* *INDENT-ON* */
-
   return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
+}
+
+/* Get the module string value given a module enum value.
+ *
+ * On error, NULL is returned.
+ * On success, the string module value is returned. */
+char *
+get_module_str (GModule module)
+{
+  return enum2str (enum_modules, ARRAY_SIZE (enum_modules), module);
 }
 
 /* Instantiate a new GAgents structure.

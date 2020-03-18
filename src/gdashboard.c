@@ -37,15 +37,12 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <regex.h>
+#include <inttypes.h>
 
 #include "gdashboard.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
 #include "gkhash.h"
-#endif
-
+#include "gholder.h"
 #include "color.h"
 #include "error.h"
 #include "gstorage.h"
@@ -103,6 +100,8 @@ free_dashboard_data (GDashData item)
 
   if (item.metrics->data)
     free (item.metrics->data);
+  if (item.metrics->keys)
+    list_remove_nodes (item.metrics->keys);
   if (item.metrics->bw.sbw)
     free (item.metrics->bw.sbw);
   if (conf.serve_usecs && item.metrics->avgts.sts)
@@ -876,7 +875,7 @@ render_hits (GDashModule * data, GDashRender render, int *x)
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->hits);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -906,7 +905,8 @@ render_visitors (GDashModule * data, GDashRender render, int *x)
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*d", len, data->data[idx].metrics->visitors);
+    mvwprintw (win, y, *x, "%*" PRIu32 "", len,
+               data->data[idx].metrics->visitors);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -1413,6 +1413,7 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
 {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
+  GSLList *node = NULL;
   char *data = NULL;
   int *idx;
 
@@ -1435,6 +1436,12 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
     get_percentage (totals.visitors, metrics->visitors);
   idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
   idata->metrics->data = xstrdup (data);
+
+  node = metrics->keys;
+  while (node) {
+    dup_key_list (node->data, &idata->metrics->keys);
+    node = node->next;
+  }
 
   if (conf.append_method && metrics->method)
     idata->metrics->method = metrics->method;
@@ -1489,8 +1496,7 @@ add_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
 
 /* Load holder's data into the dashboard structure. */
 void
-load_data_to_dash (GLog * glog, GHolder * h, GDash * dash, GModule module,
-                   GScroll * gscroll)
+load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll)
 {
   int alloc_size = 0;
   int i, j;
@@ -1505,7 +1511,7 @@ load_data_to_dash (GLog * glog, GHolder * h, GDash * dash, GModule module,
   dash->module[module].holder_size = h->holder_size;
   memset (&dash->module[module].meta, 0, sizeof (GDashData));
 
-  set_module_totals (glog, &totals);
+  set_module_totals (&totals);
 
   for (i = 0, j = 0; i < alloc_size; i++) {
     if (h->items[j].metrics->data == NULL)

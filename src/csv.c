@@ -130,9 +130,9 @@ static void
 print_csv_metric_block (FILE * fp, GMetrics * nmetrics)
 {
   /* basic metrics */
-  fprintf (fp, "\"%d\",", nmetrics->hits);
+  fprintf (fp, "\"%" PRIu32 "\",", nmetrics->hits);
   fprintf (fp, "\"%4.2f%%\",", nmetrics->hits_perc);
-  fprintf (fp, "\"%d\",", nmetrics->visitors);
+  fprintf (fp, "\"%" PRIu32 "\",", nmetrics->visitors);
   fprintf (fp, "\"%4.2f%%\",", nmetrics->visitors_perc);
 
   /* bandwidth */
@@ -222,7 +222,7 @@ print_csv_data (FILE * fp, GHolder * h, GPercTotals totals)
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Output general statistics information. */
 static void
-print_csv_summary (FILE * fp, GLog * glog)
+print_csv_summary (FILE * fp)
 {
   char now[DATE_TIME];
   char *source = NULL;
@@ -239,16 +239,16 @@ print_csv_summary (FILE * fp, GLog * glog)
 
   /* total requests */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = glog->processed;
+  total = ht_get_processed ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REQ);
 
   /* valid requests */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
-  total = glog->valid;
+  total = ht_sum_valid ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VALID);
 
   /* invalid requests */
-  total = glog->invalid;
+  total = ht_get_invalid ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
 
   /* generated time */
@@ -266,7 +266,7 @@ print_csv_summary (FILE * fp, GLog * glog)
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FILES);
 
   /* excluded hits */
-  total = glog->excluded_ip;
+  total = ht_get_excluded_ips ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
 
   /* referrers */
@@ -288,7 +288,7 @@ print_csv_summary (FILE * fp, GLog * glog)
 
   /* bandwidth */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
-  fprintf (fp, fmt, i++, GENER_ID, glog->resp_size, OVERALL_BANDWIDTH);
+  fprintf (fp, fmt, i++, GENER_ID, ht_sum_bw (), OVERALL_BANDWIDTH);
 
   /* log path */
   source = get_log_source_str (0);
@@ -301,7 +301,7 @@ print_csv_summary (FILE * fp, GLog * glog)
 
 /* Entry point to generate a a csv report writing it to the fp */
 void
-output_csv (GLog * glog, GHolder * holder, const char *filename)
+output_csv (GHolder * holder, const char *filename)
 {
   GModule module;
   GPercTotals totals;
@@ -314,9 +314,9 @@ output_csv (GLog * glog, GHolder * holder, const char *filename)
     FATAL ("Unable to open CSV file: %s.", strerror (errno));
 
   if (!conf.no_csv_summary)
-    print_csv_summary (fp, glog);
+    print_csv_summary (fp);
 
-  set_module_totals (glog, &totals);
+  set_module_totals (&totals);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];

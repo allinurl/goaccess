@@ -499,25 +499,25 @@ poverall_start_end_date (GJSON * json, GHolder * h, int sp)
 
 /* Write to a buffer date and time for the overall object. */
 static void
-poverall_requests (GJSON * json, GLog * glog, int sp)
+poverall_requests (GJSON * json, int sp)
 {
-  pskeyival (json, OVERALL_REQ, glog->processed, sp, 0);
+  pskeyival (json, OVERALL_REQ, ht_get_processed (), sp, 0);
 }
 
 /* Write to a buffer the number of valid requests under the overall
  * object. */
 static void
-poverall_valid_reqs (GJSON * json, GLog * glog, int sp)
+poverall_valid_reqs (GJSON * json, int sp)
 {
-  pskeyival (json, OVERALL_VALID, glog->valid, sp, 0);
+  pskeyival (json, OVERALL_VALID, ht_sum_valid (), sp, 0);
 }
 
 /* Write to a buffer the number of invalid requests under the overall
  * object. */
 static void
-poverall_invalid_reqs (GJSON * json, GLog * glog, int sp)
+poverall_invalid_reqs (GJSON * json, int sp)
 {
-  pskeyival (json, OVERALL_FAILED, glog->invalid, sp, 0);
+  pskeyival (json, OVERALL_FAILED, ht_get_invalid (), sp, 0);
 }
 
 /* Write to a buffer the total processed time under the overall
@@ -554,9 +554,9 @@ poverall_files (GJSON * json, int sp)
 /* Write to a buffer the total number of excluded requests under the
  * overall object. */
 static void
-poverall_excluded (GJSON * json, GLog * glog, int sp)
+poverall_excluded (GJSON * json, int sp)
 {
-  pskeyival (json, OVERALL_EXCL_HITS, glog->excluded_ip, sp, 0);
+  pskeyival (json, OVERALL_EXCL_HITS, ht_get_excluded_ips (), sp, 0);
 }
 
 /* Write to a buffer the number of referrers under the overall object. */
@@ -595,9 +595,9 @@ poverall_log_size (GJSON * json, int sp)
 /* Write to a buffer the total bandwidth consumed under the overall
  * object. */
 static void
-poverall_bandwidth (GJSON * json, GLog * glog, int sp)
+poverall_bandwidth (GJSON * json, int sp)
 {
-  pskeyu64val (json, OVERALL_BANDWIDTH, glog->resp_size, sp, 0);
+  pskeyu64val (json, OVERALL_BANDWIDTH, ht_sum_bw (), sp, 0);
 }
 
 static void
@@ -752,7 +752,7 @@ static void
 pmeta_data_hits (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
-  int max = 0, min = 0;
+  uint32_t max = 0, min = 0;
 
   ht_get_hits_min_max (module, &min, &max);
 
@@ -772,7 +772,7 @@ static void
 pmeta_data_visitors (GJSON * json, GModule module, int sp)
 {
   int isp = 0;
-  int max = 0, min = 0;
+  uint32_t max = 0, min = 0;
 
   ht_get_visitors_min_max (module, &min, &max);
 
@@ -937,10 +937,18 @@ static int
 fill_host_agents (void *val, void *user_data)
 {
   GAgents *agents = user_data;
-  char *agent = ht_get_host_agent_val ((*(int *) val));
+  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
+  int i;
 
   if (agent == NULL)
     return 1;
+
+  for (i = 0; i < agents->size; ++i) {
+    if (strcmp (agent, agents->items[i].agent) == 0) {
+      free (agent);
+      return 0;
+    }
+  }
 
   agents->items[agents->size].agent = agent;
   agents->size++;
@@ -949,14 +957,14 @@ fill_host_agents (void *val, void *user_data)
 }
 
 /* Iterate over the list of agents */
-static void
-load_host_agents (void *list, void *user_data, GO_UNUSED int count)
+static int
+load_host_agents (void *list, void *user_data, uint32_t count)
 {
   GSLList *lst = list;
   GAgents *agents = user_data;
 
   agents->items = new_gagent_item (count);
-  list_foreach (lst, fill_host_agents, agents);
+  return list_foreach (lst, fill_host_agents, agents);
 }
 
 /* A wrapper function to ouput an array of user agents for each host. */
@@ -964,14 +972,25 @@ static void
 process_host_agents (GJSON * json, GHolderItem * item, int iisp)
 {
   GAgents *agents = new_gagents ();
+  GSLList *list = NULL, *node = NULL;
   int i, n = 0, iiisp = 0;
+  uint32_t count = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     iiisp = iisp + 1;
 
-  if (set_host_agents (item->metrics->data, load_host_agents, agents) == 1)
+  /* create a new instance of GMenu and make it selectable */
+  node = item->metrics->keys;
+  while (node) {
+    set_list_host_agents (node->data, &list);
+    node = node->next;
+  }
+  count = list_count (list);
+  if (count == 0 || load_host_agents (list, agents, count) != 0) {
+    free (agents);
     return;
+  }
 
   pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
 
@@ -989,6 +1008,7 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp)
 
   /* clean stuff up */
   free_agents_array (agents);
+  list_remove_nodes (list);
 }
 
 /* A wrapper function to ouput children nodes. */
@@ -1129,7 +1149,7 @@ num_panels (void)
 
 /* Write to a buffer overall data. */
 static void
-print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
+print_json_summary (GJSON * json, GHolder * holder)
 {
   int sp = 0, isp = 0;
 
@@ -1143,11 +1163,11 @@ print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
   /* generated date time */
   poverall_datetime (json, isp);
   /* total requests */
-  poverall_requests (json, glog, isp);
+  poverall_requests (json, isp);
   /* valid requests */
-  poverall_valid_reqs (json, glog, isp);
+  poverall_valid_reqs (json, isp);
   /* invalid requests */
-  poverall_invalid_reqs (json, glog, isp);
+  poverall_invalid_reqs (json, isp);
   /* generated time */
   poverall_processed_time (json, isp);
   /* visitors */
@@ -1155,7 +1175,7 @@ print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
   /* files */
   poverall_files (json, isp);
   /* excluded hits */
-  poverall_excluded (json, glog, isp);
+  poverall_excluded (json, isp);
   /* referrers */
   poverall_refs (json, isp);
   /* not found */
@@ -1165,7 +1185,7 @@ print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
   /* log size */
   poverall_log_size (json, isp);
   /* bandwidth */
-  poverall_bandwidth (json, glog, isp);
+  poverall_bandwidth (json, isp);
   /* log path */
   poverall_log (json, isp);
   pclose_obj (json, sp, num_panels () > 0 ? 0 : 1);
@@ -1173,7 +1193,7 @@ print_json_summary (GJSON * json, GLog * glog, GHolder * holder)
 
 /* Iterate over all panels and generate json output. */
 static GJSON *
-init_json_output (GLog * glog, GHolder * holder)
+init_json_output (GHolder * holder)
 {
   GJSON *json = NULL;
   GModule module;
@@ -1184,9 +1204,9 @@ init_json_output (GLog * glog, GHolder * holder)
   json = new_gjson ();
 
   popen_obj (json, 0);
-  print_json_summary (json, glog, holder);
+  print_json_summary (json, holder);
 
-  set_module_totals (glog, &totals);
+  set_module_totals (&totals);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
@@ -1207,7 +1227,7 @@ init_json_output (GLog * glog, GHolder * holder)
  *
  * On success, the newly allocated buffer is returned . */
 char *
-get_json (GLog * glog, GHolder * holder, int escape_html)
+get_json (GHolder * holder, int escape_html)
 {
   GJSON *json = NULL;
   char *buf = NULL;
@@ -1216,7 +1236,7 @@ get_json (GLog * glog, GHolder * holder, int escape_html)
     return NULL;
 
   escape_html_output = escape_html;
-  if ((json = init_json_output (glog, holder)) && json->size > 0) {
+  if ((json = init_json_output (holder)) && json->size > 0) {
     buf = xstrdup (json->buf);
     free_json (json);
   }
@@ -1226,7 +1246,7 @@ get_json (GLog * glog, GHolder * holder, int escape_html)
 
 /* Entry point to generate a json report writing it to the fp */
 void
-output_json (GLog * glog, GHolder * holder, const char *filename)
+output_json (GHolder * holder, const char *filename)
 {
   GJSON *json = NULL;
   FILE *fp;
@@ -1244,7 +1264,7 @@ output_json (GLog * glog, GHolder * holder, const char *filename)
     nlines = 1;
 
   /* spit it out */
-  if ((json = init_json_output (glog, holder)) && json->size > 0) {
+  if ((json = init_json_output (holder)) && json->size > 0) {
     fprintf (fp, "%s", json->buf);
     free_json (json);
   }

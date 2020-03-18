@@ -769,6 +769,19 @@ int2str (int d, int width)
   return s;
 }
 
+/* Convert the given uint32_t to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
+char *
+u322str (uint32_t d, int width)
+{
+  char *s = xmalloc (snprintf (NULL, 0, "%*u", width, d) + 1);
+  sprintf (s, "%*u", width, d);
+
+  return s;
+}
+
 /* Convert the given float to a string with the ability to add some
  * padding.
  *
@@ -780,6 +793,31 @@ float2str (float d, int width)
   sprintf (s, "%*.2f", width, d);
 
   return s;
+}
+
+int
+ptr2int (char *ptr)
+{
+  char *sEnd = NULL;
+  int value = -1;
+
+  value = strtol (ptr, &sEnd, 10);
+  if (ptr == sEnd || *sEnd != '\0' || errno == ERANGE) {
+    LOG_DEBUG (("Invalid parse of integer value from pointer. \n"));
+    return -1;
+  }
+
+  return value;
+}
+
+int
+str2int (const char *date)
+{
+  char *sEnd = NULL;
+  int d = strtol (date, &sEnd, 10);
+  if (date == sEnd || *sEnd != '\0' || errno == ERANGE)
+    return -1;
+  return d;
 }
 
 /* Determine the length of an integer (number of digits).
@@ -897,7 +935,7 @@ left_pad_str (const char *s, int indent)
 
 /* Append the source string to destination and reallocates and
  * updating the destination buffer appropriately. */
-void
+size_t
 append_str (char **dest, const char *src)
 {
   size_t curlen = strlen (*dest);
@@ -907,6 +945,8 @@ append_str (char **dest, const char *src)
   char *str = xrealloc (*dest, newlen + 1);
   memcpy (str + curlen, src, srclen + 1);
   *dest = str;
+
+  return newlen;
 }
 
 /* Escapes the special characters, e.g., '\n', '\r', '\t', '\'

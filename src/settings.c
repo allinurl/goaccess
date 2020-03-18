@@ -133,7 +133,15 @@ get_config_file_path (void)
 
   /* attempt to use the user's config file */
   upath = get_home ();
-  rpath = realpath (upath, NULL);
+  rpath = realpath (upath, NULL);       /* malloc'd */
+
+  /* failure, e.g. if the file does not exist */
+  if (rpath == NULL) {
+    LOG_DEBUG (("Unable to open default config file %s %s", upath,
+                strerror (errno)));
+    free (upath);
+    return NULL;
+  }
   if (upath) {
     free (upath);
   }

@@ -205,8 +205,8 @@ cmp_raw_num_desc (const void *a, const void *b)
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  int va = ia->value.ivalue;
-  int vb = ib->value.ivalue;
+  int va = ia->value.u32value;
+  int vb = ib->value.u32value;
 
   return (va < vb) - (va > vb);
 }
@@ -359,6 +359,15 @@ cmp_mthd_desc (const void *a, const void *b)
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
   return strcmp (ib->metrics->method, ia->metrics->method);
+}
+
+/* Sort 'hits' metric ascending */
+int
+cmp_ui32_asc (const void *a, const void *b)
+{
+  const uint32_t *ia = (const uint32_t *) a;    // casting pointer types
+  const uint32_t *ib = (const uint32_t *) b;
+  return *ia - *ib;
 }
 
 /* Given a string sort field, get the enum field value.
