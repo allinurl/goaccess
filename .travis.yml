@@ -1,4 +1,4 @@
-dist: trusty 
+dist: trusty
 git:
   depth: 3
 
