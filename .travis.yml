@@ -1,4 +1,4 @@
-dist: bionic
+dist: trusty 
 git:
   depth: 3
 
