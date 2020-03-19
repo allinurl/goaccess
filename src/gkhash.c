@@ -1300,6 +1300,9 @@ persist_data (void) {
 
   persist_overall ();
 
+  if (!gkh_storage)
+    return;
+
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
