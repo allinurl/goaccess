@@ -1091,20 +1091,6 @@ get_keys (void) {
   free (size1);
 }
 
-/* Set general/overall statistics when loading data from the on-disk
- * storage. i.e., --load-from-disk */
-//static void
-//set_general_stats (void)
-//{
-//
-//#ifdef TCB_BTREE
-//  if (glog->resp_size > 0)
-//    conf.bandwidth = 1;
-//  if (ht_get_genstats ("serve_usecs"))
-//    conf.serve_usecs = 1;
-//#endif
-//}
-
 /* Store accumulated processing time
  * Note: As we store with time_t second resolution,
  * if elapsed time == 0, we will bump it to 1.
