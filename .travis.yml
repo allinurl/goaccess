@@ -1,4 +1,4 @@
-dist: trusty
+dist: xenial
 git:
   depth: 3
 
