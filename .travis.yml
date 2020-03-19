@@ -1,3 +1,4 @@
+dist: bionic
 git:
   depth: 3
 
