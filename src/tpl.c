@@ -255,6 +255,7 @@ static const struct tpl_type_t tpl_types[] = {
 };
 
 /* default error-reporting function. Just writes to stderr. */
+__attribute__((__format__ (__printf__, 1, 0)))
 static int
 tpl_oops (const char *fmt, ...) {
   va_list ap;
@@ -2350,6 +2351,7 @@ tpl_byteswap (void *word, int len) {
   }
 }
 
+__attribute__((__format__ (__printf__, 1, 0)))
 static void
 tpl_fatal (const char *fmt, ...) {
   va_list ap;
