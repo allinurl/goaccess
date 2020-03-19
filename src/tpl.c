@@ -188,10 +188,10 @@ static int tpl_mmap_output_file (char *filename, size_t sz, void **text_out);
 static int tpl_cpu_bigendian (void);
 static int tpl_needs_endian_swap (void *);
 static void tpl_byteswap (void *word, int len);
-static void tpl_fatal (const char *fmt, ...);
+static void tpl_fatal (const char *fmt, ...) __attribute__((__format__(printf,1,2)));
 static int tpl_serlen (tpl_node * r, tpl_node * n, void *dv, size_t *serlen);
 static int tpl_unpackA0 (tpl_node * r);
-static int tpl_oops (const char *fmt, ...);
+static int tpl_oops (const char *fmt, ...) __attribute__((__format__(printf,1,2)));
 static int tpl_gather_mem (char *buf, size_t len, tpl_gather_t ** gs,
                            tpl_gather_cb * cb, void *data);
 static int tpl_gather_nonblocking (int fd, tpl_gather_t ** gs,
@@ -255,7 +255,6 @@ static const struct tpl_type_t tpl_types[] = {
 };
 
 /* default error-reporting function. Just writes to stderr. */
-__attribute__((__format__ (__printf__, 1, 0)))
 static int
 tpl_oops (const char *fmt, ...) {
   va_list ap;
@@ -1118,7 +1117,7 @@ tpl_dump (tpl_node * r, int mode, ...) {
       pa_addr = (void *) va_arg (ap, void *);
       pa_sz = va_arg (ap, size_t);
       if (pa_sz < sz) {
-        tpl_hook.oops ("tpl_dump: buffer too small, need %d bytes\n", sz);
+        tpl_hook.oops ("tpl_dump: buffer too small, need %zu bytes\n", sz);
         return -1;
       }
       rc = tpl_dump_to_mem (r, pa_addr, sz);
@@ -2351,7 +2350,6 @@ tpl_byteswap (void *word, int len) {
   }
 }
 
-__attribute__((__format__ (__printf__, 1, 0)))
 static void
 tpl_fatal (const char *fmt, ...) {
   va_list ap;
@@ -2446,7 +2444,7 @@ tpl_gather_blocking (int fd, void **img, size_t *sz) {
    * and read it in
    */
   if (tpl_hook.gather_max > 0 && tpllen > tpl_hook.gather_max) {
-    tpl_hook.oops ("tpl exceeds max length %d\n", tpl_hook.gather_max);
+    tpl_hook.oops ("tpl exceeds max length %zu\n", tpl_hook.gather_max);
     return -2;
   }
   *sz = tpllen;
@@ -2521,7 +2519,7 @@ tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb,
           tpl_hook.free ((*gs)->img);
           tpl_hook.free ((*gs));
           *gs = NULL;
-          tpl_hook.oops ("tpl exceeds max length %d\n", tpl_hook.gather_max);
+          tpl_hook.oops ("tpl exceeds max length %zu\n", tpl_hook.gather_max);
           return -2;    /* error, caller should close fd */
         }
         if ((img = tpl_hook.realloc ((*gs)->img, catlen)) == NULL) {
@@ -2615,7 +2613,7 @@ tpl_gather_mem (char *buf, size_t len, tpl_gather_t ** gs, tpl_gather_cb * cb,
       tpl_hook.free ((*gs)->img);
       tpl_hook.free ((*gs));
       *gs = NULL;
-      tpl_hook.oops ("tpl exceeds max length %d\n", tpl_hook.gather_max);
+      tpl_hook.oops ("tpl exceeds max length %zu\n", tpl_hook.gather_max);
       return -2;        /* error, caller should stop accepting input from source */
     }
     if ((img = tpl_hook.realloc ((*gs)->img, catlen)) == NULL) {
