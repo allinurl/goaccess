@@ -188,7 +188,7 @@ static int tpl_mmap_output_file (char *filename, size_t sz, void **text_out);
 static int tpl_cpu_bigendian (void);
 static int tpl_needs_endian_swap (void *);
 static void tpl_byteswap (void *word, int len);
-static void tpl_fatal (const char *fmt, ...) __attribute__((__format__(printf,1,2)));
+static void tpl_fatal (const char *fmt, ...) __attribute__((__format__(printf,1,2))) __attribute__((__noreturn__));
 static int tpl_serlen (tpl_node * r, tpl_node * n, void *dv, size_t *serlen);
 static int tpl_unpackA0 (tpl_node * r);
 static int tpl_oops (const char *fmt, ...) __attribute__((__format__(printf,1,2)));
