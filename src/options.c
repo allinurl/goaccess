@@ -85,58 +85,60 @@ struct option long_opts[] = {
   {"version"              , no_argument       , 0 , 'V' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
-  {"444-as-404"           , no_argument       , 0 ,  0  } ,
-  {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
-  {"anonymize-ip"         , no_argument       , 0 ,  0  } ,
-  {"addr"                 , required_argument , 0 ,  0  } ,
-  {"all-static-files"     , no_argument       , 0 ,  0  } ,
-  {"color"                , required_argument , 0 ,  0  } ,
-  {"color-scheme"         , required_argument , 0 ,  0  } ,
-  {"crawlers-only"        , no_argument       , 0 ,  0  } ,
-  {"daemonize"            , no_argument       , 0 ,  0  } ,
-  {"date-format"          , required_argument , 0 ,  0  } ,
-  {"date-spec"            , required_argument , 0 ,  0  } ,
-  {"dcf"                  , no_argument       , 0 ,  0  } ,
-  {"double-decode"        , no_argument       , 0 ,  0  } ,
-  {"enable-panel"         , required_argument , 0 ,  0  } ,
-  {"fifo-in"              , required_argument , 0 ,  0  } ,
-  {"fifo-out"             , required_argument , 0 ,  0  } ,
-  {"hide-referer"         , required_argument , 0 ,  0  } ,
-  {"hour-spec"            , required_argument , 0 ,  0  } ,
-  {"html-custom-css"      , required_argument , 0 ,  0  } ,
-  {"html-custom-js"       , required_argument , 0 ,  0  } ,
-  {"html-prefs"           , required_argument , 0 ,  0  } ,
-  {"html-report-title"    , required_argument , 0 ,  0  } ,
-  {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
-  {"ignore-statics"       , required_argument , 0 ,  0  } ,
-  {"ignore-panel"         , required_argument , 0 ,  0  } ,
-  {"ignore-referer"       , required_argument , 0 ,  0  } ,
-  {"ignore-status"        , required_argument , 0 ,  0  } ,
-  {"invalid-requests"     , required_argument , 0 ,  0  } ,
-  {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
-  {"log-format"           , required_argument , 0 ,  0  } ,
-  {"max-items"            , required_argument , 0 ,  0  } ,
-  {"no-color"             , no_argument       , 0 ,  0  } ,
-  {"no-column-names"      , no_argument       , 0 ,  0  } ,
-  {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
-  {"no-global-config"     , no_argument       , 0 ,  0  } ,
-  {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
-  {"no-ip-validation"     , no_argument       , 0 ,  0  } ,
-  {"no-parsing-spinner"   , no_argument       , 0 ,  0  } ,
-  {"no-progress"          , no_argument       , 0 ,  0  } ,
-  {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
-  {"num-tests"            , required_argument , 0 ,  0  } ,
-  {"origin"               , required_argument , 0 ,  0  } ,
-  {"output"               , required_argument , 0 ,  0  } ,
-  {"pid-file"             , required_argument , 0 ,  0  } ,
-  {"port"                 , required_argument , 0 ,  0  } ,
-  {"process-and-exit"     , no_argument       , 0 ,  0  } ,
-  {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"real-time-html"       , no_argument       , 0 ,  0  } ,
-  {"sort-panel"           , required_argument , 0 ,  0  } ,
-  {"static-file"          , required_argument , 0 ,  0  } ,
-  {"keep-last"            , required_argument , 0 ,  0  } ,
-  {"db-path"              , required_argument , 0 ,  0  } ,
+  {"444-as-404"           , no_argument       , 0 , 0  }  ,
+  {"4xx-to-unique-count"  , no_argument       , 0 , 0  }  ,
+  {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
+  {"addr"                 , required_argument , 0 , 0  }  ,
+  {"all-static-files"     , no_argument       , 0 , 0  }  ,
+  {"color"                , required_argument , 0 , 0  }  ,
+  {"color-scheme"         , required_argument , 0 , 0  }  ,
+  {"crawlers-only"        , no_argument       , 0 , 0  }  ,
+  {"daemonize"            , no_argument       , 0 , 0  }  ,
+  {"date-format"          , required_argument , 0 , 0  }  ,
+  {"date-spec"            , required_argument , 0 , 0  }  ,
+  {"dcf"                  , no_argument       , 0 , 0  }  ,
+  {"double-decode"        , no_argument       , 0 , 0  }  ,
+  {"enable-panel"         , required_argument , 0 , 0  }  ,
+  {"fifo-in"              , required_argument , 0 , 0  }  ,
+  {"fifo-out"             , required_argument , 0 , 0  }  ,
+  {"hide-referer"         , required_argument , 0 , 0  }  ,
+  {"hour-spec"            , required_argument , 0 , 0  }  ,
+  {"html-custom-css"      , required_argument , 0 , 0  }  ,
+  {"html-custom-js"       , required_argument , 0 , 0  }  ,
+  {"html-prefs"           , required_argument , 0 , 0  }  ,
+  {"html-report-title"    , required_argument , 0 , 0  }  ,
+  {"ignore-crawlers"      , no_argument       , 0 , 0  }  ,
+  {"ignore-statics"       , required_argument , 0 , 0  }  ,
+  {"ignore-panel"         , required_argument , 0 , 0  }  ,
+  {"ignore-referer"       , required_argument , 0 , 0  }  ,
+  {"ignore-status"        , required_argument , 0 , 0  }  ,
+  {"invalid-requests"     , required_argument , 0 , 0  }  ,
+  {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
+  {"log-format"           , required_argument , 0 , 0  }  ,
+  {"max-items"            , required_argument , 0 , 0  }  ,
+  {"no-color"             , no_argument       , 0 , 0  }  ,
+  {"no-column-names"      , no_argument       , 0 , 0  }  ,
+  {"no-csv-summary"       , no_argument       , 0 , 0  }  ,
+  {"no-global-config"     , no_argument       , 0 , 0  }  ,
+  {"no-html-last-updated" , no_argument       , 0 , 0  }  ,
+  {"no-ip-validation"     , no_argument       , 0 , 0  }  ,
+  {"no-parsing-spinner"   , no_argument       , 0 , 0  }  ,
+  {"no-progress"          , no_argument       , 0 , 0  }  ,
+  {"no-tab-scroll"        , no_argument       , 0 , 0  }  ,
+  {"num-tests"            , required_argument , 0 , 0  }  ,
+  {"origin"               , required_argument , 0 , 0  }  ,
+  {"output"               , required_argument , 0 , 0  }  ,
+  {"pid-file"             , required_argument , 0 , 0  }  ,
+  {"port"                 , required_argument , 0 , 0  }  ,
+  {"process-and-exit"     , no_argument       , 0 , 0  }  ,
+  {"real-os"              , no_argument       , 0 , 0  }  ,
+  {"real-time-html"       , no_argument       , 0 , 0  }  ,
+  {"sort-panel"           , required_argument , 0 , 0  }  ,
+  {"static-file"          , required_argument , 0 , 0  }  ,
+  {"keep-last"            , required_argument , 0 , 0  }  ,
+  {"db-path"              , required_argument , 0 , 0  }  ,
+  {"persist"              , no_argument       , 0 , 0  }  ,
+  {"restore"              , no_argument       , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
   {"ssl-key"              , required_argument , 0 ,  0  } ,
@@ -258,6 +260,10 @@ cmd_help (void)
   "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
+  "  --persist                       - Persist data to disk on exit to the given\n"
+  "                                    --db-path or to /tmp by default.\n"
+  "  --restore                       - Restore data from disk from the given\n"
+  "                                    --db-path or from /tmp by default.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
   "                                    Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
@@ -433,6 +439,14 @@ parse_long_opt (const char *name, const char *oarg) {
   /* real time HTML */
   if (!strcmp ("real-time-html", name))
     conf.real_time_html = 1;
+
+  /* persist data to disk */
+  if (!strcmp ("persist", name))
+    conf.persist = 1;
+
+  /* restore data from disk */
+  if (!strcmp ("restore", name))
+    conf.restore = 1;
 
   /* TLS/SSL certificate */
   if (!strcmp ("ssl-cert", name))

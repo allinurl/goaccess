@@ -2695,7 +2695,8 @@ init_storage (void) {
     init_tables (module);
   }
 
-  restore_data ();
+  if (conf.restore)
+    restore_data ();
 }
 
 /* Destroys the hash structure and its content */
@@ -2703,7 +2704,11 @@ void
 free_storage (void) {
   size_t idx = 0;
 
-  persist_data ();
+  if (!gkh_storage)
+    return;
+
+  if (conf.persist)
+    persist_data ();
 
   des_si32_free (ht_unique_keys);
   des_is32_free (ht_agent_vals);
@@ -2716,9 +2721,6 @@ free_storage (void) {
   des_ii32 (ht_last_parse);
   des_ii32 (ht_cnt_valid);
   des_iu64 (ht_cnt_bw);
-
-  if (!gkh_storage)
-    return;
 
   FOREACH_MODULE (idx, module_list) {
     free_metrics (module_list[idx]);

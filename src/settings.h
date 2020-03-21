@@ -134,7 +134,6 @@ typedef struct GConf_
   const char *ws_url;               /* WebSocket URL */
 
   /* User flags */
-  int store_accumulated_time;       /* store accumulated processing time in tcb */
   int all_static_files;             /* parse all static files */
   int anonymize_ip;                 /* anonymize ip addresses */
   int append_method;                /* append method to the req key */
@@ -166,12 +165,15 @@ typedef struct GConf_
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
   int output_stdout;                /* outputting to stdout */
+  int persist;                      /* ensure to persist data on exit */
   int process_and_exit;             /* parse and exit without outputting */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
+  int restore;                      /* reload data from db-path */
   int skip_term_resolver;           /* no terminal resolver */
-  uint32_t num_tests;               /* number of lines to test */
+  int store_accumulated_time;       /* store accumulated processing time in tcb */
   uint32_t keep_last;               /* number of days to keep in storage */
+  uint32_t num_tests;               /* number of lines to test */
   uint64_t log_size;                /* log size override */
 
   /* Internal flags */
