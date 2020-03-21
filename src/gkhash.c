@@ -2517,6 +2517,7 @@ clean_partial_match_hashes (int date) {
     if (*p != '|')
       continue;
 
+    idx = 0;
     FOREACH_MODULE (idx, module_list) {
       module = module_list[idx];
       free_partial_match_uniqmap (module, kh_value (hash, k));
