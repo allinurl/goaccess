@@ -166,9 +166,6 @@ display_version (void) {
 #ifdef HAVE_LIBMAXMINDDB
   fprintf (stdout, "  --enable-geoip=mmdb\n");
 #endif
-#ifdef HAVE_LIBPQ
-  fprintf (stdout, "  --enable-postgres\n");
-#endif
 #ifdef WITH_GETLINE
   fprintf (stdout, "  --with-getline\n");
 #endif
