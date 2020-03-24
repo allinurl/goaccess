@@ -1138,7 +1138,6 @@ display_content (WINDOW * win, GDash * dash, GScroll * gscroll) {
     }
     /* used module */
     dash->module[module].module = module;
-    //dash->module[module].meta.max_hits = get_max_hit (dash->module[module].data, n);
 
     render_content (win, &dash->module[module], &y, &offset, &total, gscroll);
   }
