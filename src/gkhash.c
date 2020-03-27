@@ -39,6 +39,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <limits.h>     /* for CHAR_BIT */
 
 #include "gkhash.h"
 
@@ -160,6 +161,14 @@ new_igsl_ht (void) {
   return h;
 }
 
+/* Initialize a new string key - GSLList value hash table */
+static
+khash_t (btmp) *
+new_btmp_ht (void) {
+  khash_t (btmp) * h = kh_init (btmp);
+  return h;
+}
+
 /* Initialize a new string key - uint64_t value hash table */
 static
 khash_t (su64) *
@@ -199,6 +208,24 @@ des_is32_free (khash_t (is32) * hash) {
   }
 
   kh_destroy (is32, hash);
+}
+
+/* Destroys both the hash structure and its string values */
+static void
+des_btmp_free (khash_t (btmp) * hash) {
+  khint_t k;
+  bitmap *bm = NULL;
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k) && (bm = kh_value (hash, k))) {
+      free ((uint32_t *) bm->bmp);
+      free (bm);
+    }
+  }
+
+  kh_destroy (btmp, hash);
 }
 
 /* Destroys both the hash structure and its string
@@ -316,7 +343,7 @@ init_tables (GModule module) {
     {MTRC_KEYMAPUQ  , MTRC_TYPE_SGSL , {.sgsl = new_sgsl_ht ()}, NULL} ,
     {MTRC_ROOTMAP   , MTRC_TYPE_IS32 , {.is32 = new_is32_ht ()}, NULL} ,
     {MTRC_DATAMAP   , MTRC_TYPE_IS32 , {.is32 = new_is32_ht ()}, NULL} ,
-    {MTRC_UNIQMAP   , MTRC_TYPE_SI32 , {.si32 = new_si32_ht ()}, NULL} ,
+    {MTRC_UNIQMAP   , MTRC_TYPE_BTMP , {.btmp = new_btmp_ht ()}, NULL} ,
     {MTRC_ROOT      , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
     {MTRC_HITS      , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
     {MTRC_VISITORS  , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
@@ -348,6 +375,9 @@ free_metric_type (GKHashMetric mtrc) {
     break;
   case MTRC_TYPE_IS32:
     des_is32_free (mtrc.is32);
+    break;
+  case MTRC_TYPE_BTMP:
+    des_btmp_free (mtrc.btmp);
     break;
   case MTRC_TYPE_IU64:
     des_iu64 (mtrc.iu64);
@@ -410,6 +440,9 @@ get_hash (GModule module, GSMetric metric) {
       break;
     case MTRC_TYPE_IS32:
       hash = mtrc.is32;
+      break;
+    case MTRC_TYPE_BTMP:
+      hash = mtrc.btmp;
       break;
     case MTRC_TYPE_IU64:
       hash = mtrc.iu64;
@@ -760,25 +793,139 @@ inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
   return value;
 }
 
-/* Insert a string key and auto increment uint32_t value.
- *
- * On error, 0 is returned.
- * On success the value of the key inserted is returned */
+static int
+bitmap_set_bit (bitmap * bm, uint32_t pos) {
+  const word_t l = pos >> SHIFTOUT;
+  const word_t bit = pos & MASK;
+
+  if (!bm)
+    return 0;
+  if (l > bm->len)
+    return -1;
+
+  LOG_DEBUG (("%d %d %d\n", pos, l, bit));
+  bm->bmp[l] |= (1 << bit);
+  return 0;
+}
+
+static int
+bitmap_get_bit (bitmap * bm, uint32_t pos) {
+  const word_t l = pos >> SHIFTOUT;
+  const int bit = pos & MASK;
+  int set;
+
+  if (!bm || l > bm->len)
+    return 1;
+
+  set = !!(bm->bmp[l] & (1 << bit));
+
+  return set;
+}
+
+/*
+ * Returns the hamming weight (i.e. the number of bits set) in a word.
+ * NOTE: This routine borrowed from Linux 2.4.9 <linux/bitops.h>.
+ */
 static uint32_t
-ins_si32_ai (khash_t (si32) * hash, const char *key) {
-  uint32_t size = 0, value = 0;
+hweight (uint32_t w) {
+  uint32_t res;
+
+  res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
+  res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
+  res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
+  res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
+  res = (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
+
+  return res;
+}
+
+static uint32_t
+bitmap_count_set (const bitmap * bm) {
+  uint32_t i, n = 0;
+
+  if (!bm)
+    return 0;
+  for (i = 0; i < bm->len; ++i)
+    n += hweight (bm->bmp[i]);
+
+  return n;
+}
+
+static inline uint32_t
+bitmap_sizeof (uint32_t nbits) {
+  return (nbits >> SHIFTOUT) + !!(nbits & MASK);
+}
+
+static bitmap *
+bitmap_create (uint32_t words) {
+  bitmap *bm = xcalloc (1, sizeof (bitmap));
+
+  bm->bmp = xcalloc (words, sizeof (word_t));
+  bm->len = words;
+
+  return bm;
+}
+
+static int
+bitmap_realloc (bitmap ** bm, uint32_t words) {
+  uint32_t *tmp = NULL;
+  uint32_t newlen = 0;
+
+  newlen = bitmap_sizeof (words);
+  tmp = realloc ((*bm)->bmp, newlen * sizeof (word_t));
+
+  if ((tmp == NULL && newlen > 0) || newlen < (*bm)->len)
+    FATAL ("Unable to realloc bitmap hash value %u %u", newlen, (*bm)->len);
+
+  memset (tmp + (*bm)->len, 0, (newlen - (*bm)->len) * sizeof (word_t));
+  (*bm)->len = newlen;
+  (*bm)->bmp = tmp;
+
+  return 0;
+}
+
+static int
+btmp_key_exists (bitmap ** bm, uint32_t value) {
+  uint32_t arrlen = 0;
+
+  arrlen = bitmap_sizeof (value);
+  if ((*bm)->len < arrlen)
+    bitmap_realloc (bm, value);
+
+  /* if bit set, then it's the same visitor */
+  if (bitmap_get_bit (*bm, value - 1))
+    return 1;
+
+  bitmap_set_bit (*bm, value - 1);
+
+  return 0;
+}
+
+static int
+ins_btmp (khash_t (btmp) * hash, uint32_t key, uint32_t value) {
+  khint_t k;
+  bitmap *bm = NULL;
+  int ret;
 
   if (!hash)
-    return 0;
+    return -1;
 
-  size = kh_size (hash);
-  /* the auto increment value starts at SIZE (hash table) + 1 */
-  value = size > 0 ? size + 1 : 1;
+  k = kh_get (btmp, hash, key);
+  if (k != kh_end (hash) && (bm = kh_val (hash, k))) {
+    if (btmp_key_exists (&bm, value) == 1)
+      return 0;
+  } else {
+    bm = bitmap_create (bitmap_sizeof (value));
+    bitmap_set_bit (bm, value - 1);
+  }
 
-  if (ins_si32 (hash, key, value) == -1)
-    return 0;
+  k = kh_put (btmp, hash, key, &ret);
+  if (ret == -1)
+    return -1;
 
-  return value;
+  kh_val (hash, k) = bm;
+
+  return 1;
 }
 
 /* Compare if the given needle is in the haystack
@@ -1804,17 +1951,14 @@ ht_insert_rootmap (GModule module, uint32_t key, const char *value) {
  * If the given key exists, 0 is returned.
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
-uint32_t
-ht_insert_uniqmap (GModule module, const char *key) {
-  khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
+int
+ht_insert_uniqmap (GModule module, uint32_t key, uint32_t value) {
+  khash_t (btmp) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
     return 0;
 
-  if (get_si32 (hash, key) != 0)
-    return 0;
-
-  return ins_si32_ai (hash, key);
+  return ins_btmp (hash, key, value);
 }
 
 /* Insert a data uint32_t key mapped to the corresponding uint32_t root key.
@@ -2019,12 +2163,21 @@ ht_get_size_datamap (GModule module) {
  * On success the number of elements in MTRC_UNIQMAP is returned */
 uint32_t
 ht_get_size_uniqmap (GModule module) {
-  khash_t (is32) * hash = get_hash (module, MTRC_UNIQMAP);
+  bitmap *bm = NULL;
+  khash_t (btmp) * hash = get_hash (module, MTRC_UNIQMAP);
+  khint_t k;
+  uint32_t count = 0;
 
   if (!hash)
     return 0;
 
-  return kh_size (hash);
+  for (k = kh_begin (hash); k != kh_end (hash); ++k) {
+    if (!kh_exist (hash, k) || !(bm = kh_value (hash, k)))
+      continue;
+    count += bitmap_count_set (bm);
+  }
+
+  return count;
 }
 
 /* Get the string data value of a given uint32_t key.

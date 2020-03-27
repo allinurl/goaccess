@@ -1770,8 +1770,8 @@ insert_data (uint32_t nkey, const char *data, GModule module) {
  * On error, -1 is returned.
  * On success the value of the key inserted is returned */
 static int
-insert_uniqmap (char *uniq_key, GModule module) {
-  return ht_insert_uniqmap (module, uniq_key);
+insert_uniqmap (uint32_t data_nkey, uint32_t uniq_nkey, GModule module) {
+  return ht_insert_uniqmap (module, data_nkey, uniq_nkey);
 }
 
 /* A wrapper function to insert a rootmap uint32_t key from the keymap
@@ -2366,17 +2366,6 @@ include_uniq (GLogItem * logitem) {
   return 0;
 }
 
-/* Convert two integers keys to to a string (concatenated).
- *
- * On success, the given numbers as a string are returned. */
-static char *
-intkeys2str (int a, int b) {
-  char *s = xmalloc (snprintf (NULL, 0, "%d|%d", a, b) + 1);
-  sprintf (s, "%d|%d", a, b);
-
-  return s;
-}
-
 /* Determine which data metrics need to be set and set them. */
 static void
 set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
@@ -2395,7 +2384,7 @@ set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
   if (parse->hits)
     parse->hits (kdata->data_nkey, module);
   /* insert visitors */
-  if (parse->visitor && kdata->uniq_nkey != 0)
+  if (parse->visitor && kdata->uniq_nkey == 1)
     parse->visitor (kdata->data_nkey, module);
   /* insert bandwidth */
   if (parse->bw)
@@ -2421,7 +2410,6 @@ set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
 static void
 map_log (GLogItem * logitem, const GParse * parse, GModule module) {
   GKeyData kdata;
-  char *uniq_key = NULL;
 
   new_modulekey (&kdata);
   if (parse->key_data (&kdata, logitem) == 1)
@@ -2432,12 +2420,9 @@ map_log (GLogItem * logitem, const GParse * parse, GModule module) {
     kdata.data_nkey = insert_keymap (kdata.data_key, module);
 
   /* each module contains a uniq visitor key/value */
-  if (parse->visitor && logitem->uniq_key && include_uniq (logitem)) {
-    uniq_key = intkeys2str (logitem->uniq_nkey, kdata.data_nkey);
-    /* unique key already exists? */
-    kdata.uniq_nkey = insert_uniqmap (uniq_key, module);
-    free (uniq_key);
-  }
+  if (parse->visitor && logitem->uniq_key && include_uniq (logitem))
+    kdata.uniq_nkey =
+      insert_uniqmap (kdata.data_nkey, logitem->uniq_nkey, module);
 
   /* root keys are optional */
   if (parse->rootmap && kdata.root_key)
