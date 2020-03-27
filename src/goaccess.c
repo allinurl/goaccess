@@ -1343,7 +1343,11 @@ block_thread_signals (void) {
 /* Initialize various types of data. */
 static void
 initializer (void) {
-  /* initialize modules and set first */
+  /* drop permissions right away */
+  if (conf.username)
+    drop_permissions ();
+
+  /* then initialize modules and set */
   gscroll.current = init_modules ();
   /* setup to use the current locale */
   set_locale ();
@@ -1458,9 +1462,6 @@ main (int argc, char **argv) {
     goto clean;
 
   init_processing ();
-
-  if (conf.username)
-    drop_permissions ();
 
   /* main processing event */
   time (&start_proc);
