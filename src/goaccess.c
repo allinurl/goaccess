@@ -44,6 +44,7 @@
 
 #include <fcntl.h>
 #include <pthread.h>
+#include <pwd.h>
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -205,6 +206,27 @@ cleanup (int ret) {
     output_logerrors (glog);
 
   house_keeping ();
+}
+
+/* Drop permissions to the user specified. */
+static void
+drop_permissions(void)
+{
+  struct passwd *pw;
+
+  errno = 0;
+  if ((pw = getpwnam(conf.username)) == NULL) {
+    if (errno == 0)
+      FATAL ("No such user %s", conf.username);
+    FATAL ("Unable to retrieve user %s: %s", conf.username, strerror (errno));
+  }
+
+  if (setgroups (1, &pw->pw_gid) == -1)
+    FATAL ("setgroups: %s", strerror (errno));
+  if (setgid (pw->pw_gid) == -1)
+    FATAL ("setgid: %s", strerror (errno));
+  if (setuid (pw->pw_uid) == -1)
+    FATAL ("setuid: %s", strerror (errno));
 }
 
 /* Open the pidfile whose name is specified in the given path and write
@@ -1321,7 +1343,11 @@ block_thread_signals (void) {
 /* Initialize various types of data. */
 static void
 initializer (void) {
-  /* initialize modules and set first */
+  /* drop permissions right away */
+  if (conf.username)
+    drop_permissions ();
+
+  /* then initialize modules and set */
   gscroll.current = init_modules ();
   /* setup to use the current locale */
   set_locale ();
@@ -1436,6 +1462,7 @@ main (int argc, char **argv) {
     goto clean;
 
   init_processing ();
+
   /* main processing event */
   time (&start_proc);
   if ((ret = parse_log (&glog, NULL, 0))) {

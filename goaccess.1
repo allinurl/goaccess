@@ -1,4 +1,4 @@
-.TH goaccess 1 "NOVEMBER 2018" Linux "User Manuals"
+.TH goaccess 1 "MARCH 2020" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -386,6 +386,15 @@ Run GoAccess as daemon (only if \fB\-\-real-time-html enabled).
 .IP
 Note: It's important to make use of absolute paths across GoAccess'
 configuration.
+.TP
+\fB\-\-user-name=<username>
+Run GoAccess as the specified user.
+.IP
+Note: It's important to ensure the user or the users' group can access the
+input and output files as well as any other files needed.
+Other groups the user belongs to will be ignored.
+As such it's advised to run GoAccess behind a SSL proxy as it's unlikely this
+user can access the SSL certificates.
 .TP
 \fB\-\-origin=<url>
 Ensure clients send the specified origin header upon the WebSocket handshake.
