@@ -43,6 +43,7 @@
 #endif
 
 #include <fcntl.h>
+#include <grp.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
