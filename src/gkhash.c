@@ -2551,12 +2551,21 @@ static void
 free_key_by_type (GKHashMetric mtrc, uint32_t key) {
   khiter_t k;
   void *list = NULL;
+  bitmap *bm = NULL;
   char *value = NULL;
 
   switch (mtrc.type) {
   case MTRC_TYPE_II32:
     k = kh_get (ii32, mtrc.ii32, key);
     kh_del (ii32, mtrc.ii32, k);
+    break;
+  case MTRC_TYPE_BTMP:
+    k = kh_get (btmp, mtrc.btmp, key);
+    if (k != kh_end (mtrc.btmp) && (bm = kh_val (mtrc.btmp, k))) {
+      free (bm->bmp);
+      free (bm);
+      kh_del (btmp, mtrc.btmp, k);
+    }
     break;
   case MTRC_TYPE_IS32:
     k = kh_get (is32, mtrc.is32, key);
@@ -2622,41 +2631,12 @@ free_record_from_partial_key (GModule module, const char *key) {
   return 0;
 }
 
-static int
-free_partial_match_uniqmap (GModule module, uint32_t uniq_nkey) {
-  khiter_t k;
-  khash_t (si32) * hash = get_hash (module, MTRC_UNIQMAP);
-  char *key = NULL, *p = NULL;
-  int len = 0;
-
-  if (!hash)
-    return -1;
-
-  key = u322str (uniq_nkey, 0);
-  len = strlen (key);
-
-  for (k = kh_begin (hash); k != kh_end (hash); ++k) {
-    if (!kh_exist (hash, k) || (!(p = strstr (kh_key (hash, k), key))))
-      continue;
-    p += len;
-    if (*p != '|')
-      continue;
-    free ((char *) kh_key (hash, k));
-    kh_del (si32, hash, k);
-  }
-  free (key);
-
-  return 0;
-}
-
 int
 clean_partial_match_hashes (int date) {
-  GModule module;
   khash_t (si32) * hash = ht_unique_keys;
   khiter_t k;
   char *p = NULL, *key = NULL;
   int len = 0;
-  size_t idx = 0;
 
   if (!hash)
     return -1;
@@ -2669,12 +2649,6 @@ clean_partial_match_hashes (int date) {
     p += len;
     if (*p != '|')
       continue;
-
-    idx = 0;
-    FOREACH_MODULE (idx, module_list) {
-      module = module_list[idx];
-      free_partial_match_uniqmap (module, kh_value (hash, k));
-    }
 
     free ((char *) kh_key (hash, k));
     kh_del (si32, hash, k);
