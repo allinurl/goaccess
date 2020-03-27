@@ -81,11 +81,12 @@ extern "C" {
   typedef void (tpl_fatal_fcn) (const char *fmt, ...);
 
   typedef struct tpl_hook_t {
-    tpl_print_fcn *oops __attribute__((__format__(printf,1,2)));
+    tpl_print_fcn *oops __attribute__((__format__ (printf, 1, 2)));
     tpl_malloc_fcn *malloc;
     tpl_realloc_fcn *realloc;
     tpl_free_fcn *free;
-    tpl_fatal_fcn *fatal __attribute__((__format__(printf,1,2))) __attribute__((__noreturn__));
+    tpl_fatal_fcn *fatal __attribute__((__format__ (printf, 1, 2)))
+      __attribute__((__noreturn__));
     size_t gather_max;
   } tpl_hook_t;
 
