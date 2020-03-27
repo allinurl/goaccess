@@ -67,24 +67,27 @@ static void print_csv_data (FILE * fp, GHolder * h, GPercTotals totals);
 /* *INDENT-OFF* */
 /* A function pointer for each panel */
 static GPanel paneling[] = {
-  {VISITORS        , print_csv_data} ,
-  {REQUESTS        , print_csv_data} ,
-  {REQUESTS_STATIC , print_csv_data} ,
-  {NOT_FOUND       , print_csv_data} ,
-  {HOSTS           , print_csv_data} ,
-  {OS              , print_csv_data} ,
-  {BROWSERS        , print_csv_data} ,
-  {VISIT_TIMES     , print_csv_data} ,
-  {VIRTUAL_HOSTS   , print_csv_data} ,
-  {REFERRERS       , print_csv_data} ,
-  {REFERRING_SITES , print_csv_data} ,
-  {KEYPHRASES      , print_csv_data} ,
+			    /* removed all these for debuggering purposes */
+  /* {VISITORS        , print_csv_data} , */
+  /* {REQUESTS        , print_csv_data} , */
+  /* {REQUESTS_STATIC , print_csv_data} , */
+  /* {NOT_FOUND       , print_csv_data} , */
+  /* {HOSTS           , print_csv_data} , */
+  /* {OS              , print_csv_data} , */
+  /* {BROWSERS        , print_csv_data} , */
+  /* {VISIT_TIMES     , print_csv_data} , */
+  /* {VIRTUAL_HOSTS   , print_csv_data} , */
+  /* {REFERRERS       , print_csv_data} , */
+  /* {REFERRING_SITES , print_csv_data} , */
+  /* {KEYPHRASES      , print_csv_data} , */
   {STATUS_CODES    , print_csv_data} ,
   {REMOTE_USER     , print_csv_data} ,
   {CACHE_STATUS    , print_csv_data} ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , print_csv_data} ,
 #endif
+  {MIME_TYPE       , print_csv_data} ,
+  {TLS_TYPE        , print_csv_data} ,
 };
 /* *INDENT-ON* */
 

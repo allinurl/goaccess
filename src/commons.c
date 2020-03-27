@@ -220,6 +220,8 @@ get_module_enum (const char *str)
 #ifdef HAVE_GEOLOCATION
     {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
+    {"MIME_TYPE"       , MIME_TYPE}    ,
+    {"TLS_TYPE"        , TLS_TYPE}    ,
   };
   /* *INDENT-ON* */
 

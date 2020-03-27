@@ -95,6 +95,9 @@ static int gen_visit_time_key (GKeyData * kdata, GLogItem * logitem);
 #ifdef HAVE_GEOLOCATION
 static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
 #endif
+/* UMS */
+static int gen_mime_type_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_tls_type_key (GKeyData * kdata, GLogItem * logitem);
 
 /* insertion routines */
 static void insert_data (int data_nkey, const char *data, GModule module);
@@ -324,6 +327,32 @@ static GParse paneling[] = {
     NULL,
     NULL,
     NULL,
+  }, {
+    MIME_TYPE,
+    gen_mime_type_key,
+    insert_data,
+    insert_rootmap,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
+  }, {
+    TLS_TYPE,
+    gen_tls_type_key,
+    insert_data,
+    insert_rootmap,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
   },
 };
 /* *INDENT-ON* */
@@ -471,6 +500,10 @@ init_log_item (GLog * glog)
   logitem->userid = NULL;
   logitem->cache_status = NULL;
 
+  /* UMS */
+  logitem->mime_type = NULL;
+  logitem->tls_type = NULL;
+  
   memset (logitem->site, 0, sizeof (logitem->site));
 
   return logitem;
@@ -527,6 +560,13 @@ free_glog (GLogItem * logitem)
   if (logitem->vhost != NULL)
     free (logitem->vhost);
 
+  /* UMS */
+  if (logitem->mime_type != NULL)
+    free (logitem->mime_type);
+  if (logitem->tls_type != NULL)
+    free (logitem->tls_type);
+
+  
   free (logitem);
 }
 
@@ -1335,6 +1375,30 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 
     contains_usecs ();  /* set flag */
     free (tkn);
+    break;
+    /* UMS: Krypto (TLS) parameters like "TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256"*/
+  case 'K':
+    /* error to set this twice */
+    if (logitem->tls_type)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+
+    if (!(tkn = parse_string (&(*str), end, 2)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
+    logitem->tls_type = tkn;
+
+    break;
+    /* UMS: Mime-Type like "text/html" */
+  case 'M':
+    /* error to set this twice */
+    if (logitem->mime_type)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
+    logitem->mime_type = tkn;
+
     break;
     /* move forward through str until not a space */
   case '~':
@@ -2274,6 +2338,40 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem)
 
   return 0;
 }
+
+/* UMS: generate an Mime-Type unique key
+ *
+ * On error, 1 is returned.
+ * On success, the generated key is assigned to our key data structure.
+ */
+static int
+gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
+{
+
+  if (!logitem->mime_type)
+    return 1;
+
+  get_kdata (kdata, logitem->mime_type, logitem->mime_type);
+
+  return 0;
+}
+
+/* UMS: generate a TLS settings unique key
+ *
+ * On error, 1 is returned.
+ * On success, the generated key is assigned to our key data structure.
+ */
+static int
+gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
+{
+  if (!logitem->tls_type)
+    return 1;
+
+  get_kdata (kdata, logitem->tls_type, logitem->tls_type);
+
+  return 0;
+}
+
 
 /* A wrapper to generate a unique key for the referrers panel.
  *

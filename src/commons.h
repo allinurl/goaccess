@@ -109,6 +109,8 @@ typedef enum MODULES
 #ifdef HAVE_GEOLOCATION
   GEO_LOCATION,
 #endif
+  MIME_TYPE,
+  TLS_TYPE,
 } GModule;
 
 /* Metric totals. These are metrics that have a percent value and are
