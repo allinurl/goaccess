@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,8 +40,7 @@
 #define CONTINENT_LEN  47 + 1   /* max string length for a country */
 #define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
 
-typedef struct GLocation_
-{
+typedef struct GLocation_ {
   char city[CITY_LEN];
   char continent[CONTINENT_LEN];
   int hits;

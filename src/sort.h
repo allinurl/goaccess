@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,8 +45,7 @@
 #define SORT_ORDER_LEN   4 + 1  /* length of ASC or DESC */
 
 /* Enumerated sorting metrics */
-typedef enum GSortField_
-{
+typedef enum GSortField_ {
   SORT_BY_HITS,
   SORT_BY_VISITORS,
   SORT_BY_DATA,
@@ -59,15 +58,13 @@ typedef enum GSortField_
 } GSortField;
 
 /* Enumerated sorting order */
-typedef enum GSortOrder_
-{
+typedef enum GSortOrder_ {
   SORT_ASC,
   SORT_DESC
 } GSortOrder;
 
 /* Sorting of each panel, metric and order */
-typedef struct GSort_
-{
+typedef struct GSort_ {
   GModule module;
   GSortField field;
   GSortOrder sort;
@@ -85,6 +82,7 @@ int can_sort_module (GModule module, int field);
 int get_sort_field_enum (const char *str);
 int get_sort_order_enum (const char *str);
 int strcmp_asc (const void *a, const void *b);
+int cmp_ui32_asc (const void *a, const void *b);
 void parse_initial_sort (void);
 void set_initial_sort (const char *smod, const char *sfield, const char *ssort);
 void sort_holder_items (GHolderItem * items, int size, GSort sort);

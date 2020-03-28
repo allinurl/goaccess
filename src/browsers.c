@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -224,8 +224,7 @@ static const char *browsers[][2] = {
 
 /* Free all browser entries from our array of key/value pairs. */
 void
-free_browsers_hash (void)
-{
+free_browsers_hash (void) {
   size_t i;
   int j;
 
@@ -248,8 +247,7 @@ free_browsers_hash (void)
 }
 
 static int
-is_dup (char ***list, int len, const char *browser)
-{
+is_dup (char ***list, int len, const char *browser) {
   int i;
   /* check for dups */
   for (i = 0; i < len; ++i) {
@@ -264,8 +262,7 @@ is_dup (char ***list, int len, const char *browser)
  * On duplicate functions returns void.
  * Otherwise memory is mallo'd for our array entry. */
 static void
-set_browser (char ***list, int idx, const char *browser, const char *type)
-{
+set_browser (char ***list, int idx, const char *browser, const char *type) {
   list[idx] = xcalloc (2, sizeof (char *));
   list[idx][0] = xstrdup (browser);
   list[idx][1] = xstrdup (type);
@@ -273,8 +270,7 @@ set_browser (char ***list, int idx, const char *browser, const char *type)
 
 /* Parse the key/value pair from the browser list file. */
 static void
-parse_browser_token (char ***list, char *line, int n)
-{
+parse_browser_token (char ***list, char *line, int n) {
   char *val;
   size_t idx = 0;
 
@@ -308,8 +304,7 @@ parse_browser_token (char ***list, char *line, int n)
  * On error functions returns void.
  * Otherwise browser entries are put into the hash. */
 void
-parse_browsers_file (void)
-{
+parse_browsers_file (void) {
   char line[MAX_LINE_BROWSERS + 1];
   FILE *file;
   int n = 0;
@@ -349,8 +344,7 @@ parse_browsers_file (void)
  * On error or is not a crawler, 0 is returned.
  * If it is a crawler, 1 is returned . */
 int
-is_crawler (const char *agent)
-{
+is_crawler (const char *agent) {
   char type[BROWSER_TYPE_LEN];
   char *browser, *a;
 
@@ -368,8 +362,7 @@ is_crawler (const char *agent)
  *
  * On success, the opera string and version is returned. */
 static char *
-parse_opera (char *token)
-{
+parse_opera (char *token) {
   char *val = xmalloc (snprintf (NULL, 0, "Opera%s", token) + 1);
   sprintf (val, "Opera%s", token);
 
@@ -382,8 +375,7 @@ parse_opera (char *token)
  * On error when attempting to extract crawler, NULL is returned.
  * If a possible crawler string is matched, then possible bot is returned . */
 static char *
-parse_crawler (char *str, char *match, char *type)
-{
+parse_crawler (char *str, char *match, char *type) {
   char *ptr = NULL;
   int found = 0;
 
@@ -421,8 +413,7 @@ parse_crawler (char *str, char *match, char *type)
  * If no occurrences are found, NULL is returned.
  * If an occurrence is found, a pointer to the match is returned . */
 static char *
-check_http_crawler (const char *str)
-{
+check_http_crawler (const char *str) {
   char *match = NULL;
 
   /* e.g., compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm */
@@ -448,8 +439,7 @@ check_http_crawler (const char *str)
  * If no match, the original match is returned.
  * Otherwise the parsed browser is returned. */
 static char *
-parse_browser (char *match, char *type, int i, char ***hash)
-{
+parse_browser (char *match, char *type, int i, char ***hash) {
   char *b = NULL, *ptr = NULL, *slh = NULL;
   size_t cnt = 0, space = 0;
 
@@ -496,8 +486,7 @@ parse_browser (char *match, char *type, int i, char ***hash)
  * On error, NULL is returned.
  * On success, a malloc'd  string containing the browser is returned. */
 char *
-verify_browser (char *str, char *type)
-{
+verify_browser (char *str, char *type) {
   char *match = NULL, *token = NULL;
   int i = 0;
   size_t j = 0;

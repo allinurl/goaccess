@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -85,56 +85,61 @@ struct option long_opts[] = {
   {"version"              , no_argument       , 0 , 'V' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
-  {"444-as-404"           , no_argument       , 0 ,  0  } ,
-  {"4xx-to-unique-count"  , no_argument       , 0 ,  0  } ,
-  {"anonymize-ip"         , no_argument       , 0 ,  0  } ,
-  {"addr"                 , required_argument , 0 ,  0  } ,
-  {"all-static-files"     , no_argument       , 0 ,  0  } ,
-  {"color"                , required_argument , 0 ,  0  } ,
-  {"color-scheme"         , required_argument , 0 ,  0  } ,
-  {"crawlers-only"        , no_argument       , 0 ,  0  } ,
-  {"daemonize"            , no_argument       , 0 ,  0  } ,
-  {"date-format"          , required_argument , 0 ,  0  } ,
-  {"date-spec"            , required_argument , 0 ,  0  } ,
-  {"dcf"                  , no_argument       , 0 ,  0  } ,
-  {"double-decode"        , no_argument       , 0 ,  0  } ,
-  {"enable-panel"         , required_argument , 0 ,  0  } ,
-  {"fifo-in"              , required_argument , 0 ,  0  } ,
-  {"fifo-out"             , required_argument , 0 ,  0  } ,
-  {"hide-referer"         , required_argument , 0 ,  0  } ,
-  {"hour-spec"            , required_argument , 0 ,  0  } ,
-  {"html-custom-css"      , required_argument , 0 ,  0  } ,
-  {"html-custom-js"       , required_argument , 0 ,  0  } ,
-  {"html-prefs"           , required_argument , 0 ,  0  } ,
-  {"html-report-title"    , required_argument , 0 ,  0  } ,
-  {"ignore-crawlers"      , no_argument       , 0 ,  0  } ,
-  {"ignore-statics"       , required_argument , 0 ,  0  } ,
-  {"ignore-panel"         , required_argument , 0 ,  0  } ,
-  {"ignore-referer"       , required_argument , 0 ,  0  } ,
-  {"ignore-status"        , required_argument , 0 ,  0  } ,
-  {"invalid-requests"     , required_argument , 0 ,  0  } ,
-  {"json-pretty-print"    , no_argument       , 0 ,  0  } ,
-  {"log-format"           , required_argument , 0 ,  0  } ,
-  {"max-items"            , required_argument , 0 ,  0  } ,
-  {"no-color"             , no_argument       , 0 ,  0  } ,
-  {"no-column-names"      , no_argument       , 0 ,  0  } ,
-  {"no-csv-summary"       , no_argument       , 0 ,  0  } ,
-  {"no-global-config"     , no_argument       , 0 ,  0  } ,
-  {"no-html-last-updated" , no_argument       , 0 ,  0  } ,
-  {"no-ip-validation"     , no_argument       , 0 ,  0  } ,
-  {"no-parsing-spinner"   , no_argument       , 0 ,  0  } ,
-  {"no-progress"          , no_argument       , 0 ,  0  } ,
-  {"no-tab-scroll"        , no_argument       , 0 ,  0  } ,
-  {"num-tests"            , required_argument , 0 ,  0  } ,
-  {"origin"               , required_argument , 0 ,  0  } ,
-  {"output"               , required_argument , 0 ,  0  } ,
-  {"pid-file"             , required_argument , 0 ,  0  } ,
-  {"port"                 , required_argument , 0 ,  0  } ,
-  {"process-and-exit"     , no_argument       , 0 ,  0  } ,
-  {"real-os"              , no_argument       , 0 ,  0  } ,
-  {"real-time-html"       , no_argument       , 0 ,  0  } ,
-  {"sort-panel"           , required_argument , 0 ,  0  } ,
-  {"static-file"          , required_argument , 0 ,  0  } ,
+  {"444-as-404"           , no_argument       , 0 , 0  }  ,
+  {"4xx-to-unique-count"  , no_argument       , 0 , 0  }  ,
+  {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
+  {"addr"                 , required_argument , 0 , 0  }  ,
+  {"all-static-files"     , no_argument       , 0 , 0  }  ,
+  {"color"                , required_argument , 0 , 0  }  ,
+  {"color-scheme"         , required_argument , 0 , 0  }  ,
+  {"crawlers-only"        , no_argument       , 0 , 0  }  ,
+  {"daemonize"            , no_argument       , 0 , 0  }  ,
+  {"user-name"            , required_argument , 0 , 0  }  ,
+  {"date-format"          , required_argument , 0 , 0  }  ,
+  {"date-spec"            , required_argument , 0 , 0  }  ,
+  {"dcf"                  , no_argument       , 0 , 0  }  ,
+  {"double-decode"        , no_argument       , 0 , 0  }  ,
+  {"enable-panel"         , required_argument , 0 , 0  }  ,
+  {"fifo-in"              , required_argument , 0 , 0  }  ,
+  {"fifo-out"             , required_argument , 0 , 0  }  ,
+  {"hide-referer"         , required_argument , 0 , 0  }  ,
+  {"hour-spec"            , required_argument , 0 , 0  }  ,
+  {"html-custom-css"      , required_argument , 0 , 0  }  ,
+  {"html-custom-js"       , required_argument , 0 , 0  }  ,
+  {"html-prefs"           , required_argument , 0 , 0  }  ,
+  {"html-report-title"    , required_argument , 0 , 0  }  ,
+  {"ignore-crawlers"      , no_argument       , 0 , 0  }  ,
+  {"ignore-statics"       , required_argument , 0 , 0  }  ,
+  {"ignore-panel"         , required_argument , 0 , 0  }  ,
+  {"ignore-referer"       , required_argument , 0 , 0  }  ,
+  {"ignore-status"        , required_argument , 0 , 0  }  ,
+  {"invalid-requests"     , required_argument , 0 , 0  }  ,
+  {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
+  {"log-format"           , required_argument , 0 , 0  }  ,
+  {"max-items"            , required_argument , 0 , 0  }  ,
+  {"no-color"             , no_argument       , 0 , 0  }  ,
+  {"no-column-names"      , no_argument       , 0 , 0  }  ,
+  {"no-csv-summary"       , no_argument       , 0 , 0  }  ,
+  {"no-global-config"     , no_argument       , 0 , 0  }  ,
+  {"no-html-last-updated" , no_argument       , 0 , 0  }  ,
+  {"no-ip-validation"     , no_argument       , 0 , 0  }  ,
+  {"no-parsing-spinner"   , no_argument       , 0 , 0  }  ,
+  {"no-progress"          , no_argument       , 0 , 0  }  ,
+  {"no-tab-scroll"        , no_argument       , 0 , 0  }  ,
+  {"num-tests"            , required_argument , 0 , 0  }  ,
+  {"origin"               , required_argument , 0 , 0  }  ,
+  {"output"               , required_argument , 0 , 0  }  ,
+  {"pid-file"             , required_argument , 0 , 0  }  ,
+  {"port"                 , required_argument , 0 , 0  }  ,
+  {"process-and-exit"     , no_argument       , 0 , 0  }  ,
+  {"real-os"              , no_argument       , 0 , 0  }  ,
+  {"real-time-html"       , no_argument       , 0 , 0  }  ,
+  {"sort-panel"           , required_argument , 0 , 0  }  ,
+  {"static-file"          , required_argument , 0 , 0  }  ,
+  {"keep-last"            , required_argument , 0 , 0  }  ,
+  {"db-path"              , required_argument , 0 , 0  }  ,
+  {"persist"              , no_argument       , 0 , 0  }  ,
+  {"restore"              , no_argument       , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
   {"ssl-key"              , required_argument , 0 ,  0  } ,
@@ -143,19 +148,6 @@ struct option long_opts[] = {
   {"ws-url"               , required_argument , 0 ,  0  } ,
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
-#endif
-#ifdef TCB_BTREE
-  {"accumulated-time"     , no_argument       , 0 ,  0  } ,
-  {"cache-lcnum"          , required_argument , 0 ,  0  } ,
-  {"cache-ncnum"          , required_argument , 0 ,  0  } ,
-  {"compression"          , required_argument , 0 ,  0  } ,
-  {"db-path"              , required_argument , 0 ,  0  } ,
-  {"keep-db-files"        , no_argument       , 0 ,  0  } ,
-  {"load-from-disk"       , no_argument       , 0 ,  0  } ,
-  {"tune-bnum"            , required_argument , 0 ,  0  } ,
-  {"tune-lmemb"           , required_argument , 0 ,  0  } ,
-  {"tune-nmemb"           , required_argument , 0 ,  0  } ,
-  {"xmmap"                , required_argument , 0 ,  0  } ,
 #endif
   {0, 0, 0, 0}
 };
@@ -206,6 +198,7 @@ cmd_help (void)
   "Server Options\n\n"
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
   "  --daemonize                     - Run as daemon (if --real-time-html enabled).\n"
+  "  --user-name=<username>          - Run as the specified user.\n"
   "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
   "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
@@ -247,9 +240,6 @@ cmd_help (void)
   "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
   "                                    count.\n"
-#ifdef TCB_BTREE
-  "  --accumulated-time              - Store accumulated time from parsing day-by-day logs.\n"
-#endif
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --all-static-files              - Include static files with a query string.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
@@ -269,8 +259,13 @@ cmd_help (void)
   "                                    req => Ignore from valid requests.\n"
   "                                    panel => Ignore from valid requests and panels.\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
+  "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
+  "  --persist                       - Persist data to disk on exit to the given\n"
+  "                                    --db-path or to /tmp by default.\n"
+  "  --restore                       - Restore data from disk from the given\n"
+  "                                    --db-path or from /tmp by default.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
   "                                    Leopard.\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
@@ -292,31 +287,6 @@ cmd_help (void)
   "\n"
 #endif
 
-/* On-Disk Database Options */
-#ifdef TCB_BTREE
-  "On-Disk Database Options\n\n"
-  "  --keep-db-files                 - Persist parsed data into disk.\n"
-  "  --load-from-disk                - Load previously stored data from disk.\n"
-  "  --db-path=<path>                - Path of the database file. Default [%s]\n"
-  "  --cache-lcnum=<number>          - Max number of leaf nodes to be cached. Default\n"
-  "                                    [%d]\n"
-  "  --cache-ncnum=<number>          - Max number of non-leaf nodes to be cached.\n"
-  "                                    Default [%d]\n"
-  "  --tune-bnum=<number>            - Number of elements of the bucket array. Default\n"
-  "                                    [%d]\n"
-  "  --tune-lmemb=<number>           - Number of members in each leaf page. Default\n"
-  "                                    [%d]\n"
-  "  --tune-nmemb=<number>           - Number of members in each non-leaf page.\n"
-  "                                    Default [%d]\n"
-  "  --xmmap=<number>                - Set the size in bytes of the extra mapped\n"
-  "                                    memory. Default [%d]\n"
-#if defined(HAVE_ZLIB) || defined(HAVE_BZ2)
-  "  --compression=<zlib|bz2>        - Specifies that each page is compressed with\n"
-  "                                    ZLIB|BZ2 encoding.\n"
-  "\n"
-#endif
-#endif
-
 /* Other Options */
   "Other Options\n\n"
   "  -h --help                       - This help.\n"
@@ -331,9 +301,6 @@ cmd_help (void)
   "%s: http://goaccess.io\n"
   "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
   "\n\n"
-#ifdef TCB_BTREE
-  , TC_DBPATH, TC_MMAP, TC_LCNUM, TC_NCNUM, TC_LMEMB, TC_NMEMB, TC_BNUM
-#endif
   , INFO_HELP_EXAMPLES, INFO_MORE_INFO
   );
   exit (EXIT_FAILURE);
@@ -343,16 +310,14 @@ cmd_help (void)
 /* Push a command line option to the given array if within bounds and if it's
  * not in the array. */
 static void
-set_array_opt (const char *oarg, const char *arr[], int *size, int max)
-{
+set_array_opt (const char *oarg, const char *arr[], int *size, int max) {
   if (str_inarray (oarg, arr, *size) < 0 && *size < max)
     arr[(*size)++] = oarg;
 }
 
 /* Parse command line long options. */
 static void
-parse_long_opt (const char *name, const char *oarg)
-{
+parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("no-global-config", name))
     return;
 
@@ -456,6 +421,9 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("daemonize", name))
     conf.daemonize = 1;
 
+  if (!strcmp ("user-name", name))
+    conf.username = oarg;
+
   /* WebSocket origin */
   if (!strcmp ("origin", name))
     conf.origin = oarg;
@@ -476,6 +444,14 @@ parse_long_opt (const char *name, const char *oarg)
   /* real time HTML */
   if (!strcmp ("real-time-html", name))
     conf.real_time_html = 1;
+
+  /* persist data to disk */
+  if (!strcmp ("persist", name))
+    conf.persist = 1;
+
+  /* restore data from disk */
+  if (!strcmp ("restore", name))
+    conf.restore = 1;
 
   /* TLS/SSL certificate */
   if (!strcmp ("ssl-cert", name))
@@ -592,6 +568,19 @@ parse_long_opt (const char *name, const char *oarg)
     conf.num_tests = tests >= 0 ? tests : 0;
   }
 
+  /* number of days to keep in storage */
+  if (!strcmp ("keep-last", name)) {
+    char *sEnd;
+    int keeplast = strtol (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      return;
+    conf.keep_last = keeplast >= 0 ? keeplast : 0;
+  }
+
+  /* specifies the path of the database file */
+  if (!strcmp ("db-path", name))
+    conf.db_path = oarg;
+
   /* process and exit */
   if (!strcmp ("process-and-exit", name))
     conf.process_and_exit = 1;
@@ -618,56 +607,6 @@ parse_long_opt (const char *name, const char *oarg)
   if (!strcmp ("geoip-database", name))
     conf.geoip_database = oarg;
 
-  /* BTREE OPTIONS
-   * ========================= */
-  /* keep database files */
-  if (!strcmp ("keep-db-files", name))
-    conf.keep_db_files = 1;
-
-  /* load data from disk */
-  if (!strcmp ("load-from-disk", name))
-    conf.load_from_disk = 1;
-
-  /* specifies the path of the database file */
-  if (!strcmp ("db-path", name))
-    conf.db_path = oarg;
-
-  /* specifies the maximum number of leaf nodes to be cached */
-  if (!strcmp ("cache-lcnum", name))
-    conf.cache_lcnum = atoi (oarg);
-
-  /* specifies the maximum number of non-leaf nodes to be cached */
-  if (!strcmp ("cache-ncnum", name))
-    conf.cache_ncnum = atoi (oarg);
-
-  /* number of elements of the bucket array */
-  if (!strcmp ("tune-bnum", name))
-    conf.tune_bnum = atoi (oarg);
-
-  /* number of members in each non-leaf page */
-  if (!strcmp ("tune-nmemb", name))
-    conf.tune_nmemb = atoi (oarg);
-
-  /* number of members in each leaf page */
-  if (!strcmp ("tune-lmemb", name))
-    conf.tune_lmemb = atoi (oarg);
-
-  /* set the size in bytes of the extra mapped memory */
-  if (!strcmp ("xmmap", name))
-    conf.xmmap = atoi (oarg);
-
-  /* specifies that each page is compressed with X encoding */
-  if (!strcmp ("compression", name)) {
-#ifdef HAVE_ZLIB
-    if (!strcmp ("zlib", oarg))
-      conf.compression = TC_ZLIB;
-#endif
-#ifdef HAVE_BZ2
-    if (!strcmp ("bz2", oarg))
-      conf.compression = TC_BZ2;
-#endif
-  }
-
   /* default config file --dwf */
   if (!strcmp ("dcf", name)) {
     display_default_config_file ();
@@ -678,8 +617,7 @@ parse_long_opt (const char *name, const char *oarg)
 /* Determine if the '--no-global-config' command line option needs to be
  * enabled or not. */
 void
-verify_global_config (int argc, char **argv)
-{
+verify_global_config (int argc, char **argv) {
   int o, idx = 0;
 
   conf.load_global_config = 1;
@@ -706,8 +644,7 @@ verify_global_config (int argc, char **argv)
 
 /* Attempt to add - to the array of filenames if it hasn't been added it yet. */
 void
-add_dash_filename (void)
-{
+add_dash_filename (void) {
   int i;
   // pre-scan for '-' and don't add if already exists: github.com/allinurl/goaccess/issues/907
   for (i = 0; i < conf.filenames_idx; ++i) {
@@ -723,8 +660,7 @@ add_dash_filename (void)
 
 /* Read the user's supplied command line options. */
 void
-read_option_args (int argc, char **argv)
-{
+read_option_args (int argc, char **argv) {
   int o, idx = 0;
 
 #ifdef HAVE_LIBGEOIP

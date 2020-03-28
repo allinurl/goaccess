@@ -1,3 +1,4 @@
+dist: xenial
 git:
   depth: 3
 
@@ -10,23 +11,19 @@ compiler:
 env:
   - CONFIGURE_OPTIONS=""
   - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8"
-  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-tcb=btree --disable-bzip --disable-zlib"
-  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-tcb=memhash --disable-bzip --disable-zlib"
-  - CONFIGURE_OPTIONS="--enable-tcb=memhash --disable-bzip --disable-zlib"
-  - CONFIGURE_OPTIONS="--enable-tcb=btree --disable-bzip --disable-zlib"
-  - CONFIGURE_OPTIONS="--enable-geoip=mmdb --enable-utf8 --enable-tcb=btree --with-openssl"
+  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --enable-debug"
+  - CONFIGURE_OPTIONS="--enable-geoip=mmdb --enable-utf8 --with-openssl"
+  - CONFIGURE_OPTIONS="--enable-geoip=legacy --enable-utf8 --with-openssl --with-getline"
 
 addons:
   apt:
     packages:
-      - libglib2.0-dev
+      - libncursesw5-dev
       - libncurses5-dev
       - libgeoip-dev
       - autoconf
       - autotools-dev
-      - libtokyocabinet-dev
       - libssl-dev
-      - libbz2-dev
       - libmaxminddb-dev
       - gettext
       - autopoint

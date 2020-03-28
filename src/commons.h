@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,15 +36,16 @@
 
 #include <time.h>
 #include <stdint.h>
+#include "gslist.h"
 
 /* Remove the __attribute__ stuff when the compiler is not GCC. */
 #if !__GNUC__
 #define __attribute__(x) /**/
 #endif
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"1.3"
+#define GO_VERSION 		"1.4"
 #define GO_WEBSITE 		"http://goaccess.io/"
-struct tm *now_tm;
+extern struct tm *now_tm;
 
 /* common char array buffer size */
 #define INIT_BUF_SIZE 1024
@@ -81,16 +82,14 @@ struct tm *now_tm;
 #define IGNORE_LEVEL_REQ 2
 
 /* Type of IP */
-typedef enum
-{
+typedef enum {
   TYPE_IPINV,
   TYPE_IPV4,
   TYPE_IPV6
 } GTypeIP;
 
 /* Type of Modules */
-typedef enum MODULES
-{
+typedef enum MODULES {
   VISITORS,
   REQUESTS,
   REQUESTS_STATIC,
@@ -115,16 +114,14 @@ typedef enum MODULES
 
 /* Metric totals. These are metrics that have a percent value and are
  * calculated values. */
-typedef struct GPercTotals_
-{
-  int hits;                     /* total valid hits */
-  int visitors;                 /* total visitors */
+typedef struct GPercTotals_ {
+  uint32_t hits;                /* total valid hits */
+  uint32_t visitors;            /* total visitors */
   uint64_t bw;                  /* total bandwidth */
 } GPercTotals;
 
 /* Metrics within GHolder or GDashData */
-typedef struct GMetrics
-{
+typedef struct GMetrics {
   /* metric id can be used to identify
    * a specific data field */
   uint8_t id;
@@ -136,45 +133,42 @@ typedef struct GMetrics
   float visitors_perc;
   float bw_perc;
 
-  int hits;
-  int visitors;
+  uint32_t hits;
+  uint32_t visitors;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sbw;
     uint64_t nbw;
   } bw;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } avgts;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } cumts;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
-  union
-  {
+  union {
     char *sts;
     uint64_t nts;
   } maxts;
+
+  GSLList *keys;
 } GMetrics;
 
 /* Holder sub item */
-typedef struct GSubItem_
-{
+typedef struct GSubItem_ {
   GModule module;
   GMetrics *metrics;
   struct GSubItem_ *prev;
@@ -182,52 +176,45 @@ typedef struct GSubItem_
 } GSubItem;
 
 /* Double linked-list of sub items */
-typedef struct GSubList_
-{
+typedef struct GSubList_ {
   int size;
   struct GSubItem_ *head;
   struct GSubItem_ *tail;
 } GSubList;
 
 /* Holder item */
-typedef struct GHolderItem_
-{
+typedef struct GHolderItem_ {
   GSubList *sub_list;
   GMetrics *metrics;
 } GHolderItem;
 
 /* Holder of GRawData */
-typedef struct GHolder_
-{
+typedef struct GHolder_ {
   GHolderItem *items;           /* holder items */
   GModule module;               /* current module  */
   int idx;                      /* holder index  */
   int holder_size;              /* number of allocated items */
-  int ht_size;                  /* size of the hash table/store */
+  uint32_t ht_size;             /* size of the hash table/store */
   int sub_items_size;           /* number of sub items  */
 } GHolder;
 
 /* Enum-to-string */
-typedef struct GEnum_
-{
+typedef struct GEnum_ {
   const char *str;
   int idx;
 } GEnum;
 
 /* A metric can contain a root/data/uniq node id */
-typedef struct GDataMap_
-{
+typedef struct GDataMap_ {
   int data;
   int root;
 } GDataMap;
 
-typedef struct GAgentItem_
-{
+typedef struct GAgentItem_ {
   char *agent;
 } GAgentItem;
 
-typedef struct GAgents_
-{
+typedef struct GAgents_ {
   int size;
   struct GAgentItem_ *items;
 } GAgents;
@@ -251,8 +238,10 @@ void free_agents_array (GAgents *agents);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
 int get_module_enum (const char *str);
+char *get_module_str (GModule module);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
+char *enum2str (const GEnum map[], int len, int idx);
 
 int enable_panel (GModule mod);
 int get_module_index (int module);

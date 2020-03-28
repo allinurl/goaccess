@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -55,15 +55,13 @@ static MMDB_s *mmdb = NULL;
  * If the geoip resource is NULL, 0 is returned.
  * If the geoip resource is valid and malloc'd, 1 is returned. */
 int
-is_geoip_resource (void)
-{
+is_geoip_resource (void) {
   return mmdb != NULL ? 1 : 0;
 }
 
 /* Free up GeoIP resources */
 void
-geoip_free (void)
-{
+geoip_free (void) {
   if (!is_geoip_resource ())
     return;
 
@@ -77,8 +75,7 @@ geoip_free (void)
  * On error, it aborts.
  * On success, a new geolocation structure is set. */
 void
-init_geoip (void)
-{
+init_geoip (void) {
   const char *fn = conf.geoip_database;
   int status = 0;
 
@@ -102,8 +99,7 @@ init_geoip (void)
  * If no entry is found, 1 is returned.
  * On success, MMDB_lookup_result_s struct is set and 0 is returned. */
 static int
-geoip_lookup (MMDB_lookup_result_s * res, const char *ip)
-{
+geoip_lookup (MMDB_lookup_result_s * res, const char *ip) {
   int gai_err, mmdb_err;
 
   *res = MMDB_lookup_string (mmdb, ip, &gai_err, &mmdb_err);
@@ -124,8 +120,7 @@ geoip_lookup (MMDB_lookup_result_s * res, const char *ip)
  * If continent not found, "Unknown" is returned.
  * On success, the continent code & name is returned . */
 static const char *
-get_continent_name_and_code (const char *continentid)
-{
+get_continent_name_and_code (const char *continentid) {
   if (memcmp (continentid, "NA", 2) == 0)
     return "NA North America";
   else if (memcmp (continentid, "OC", 2) == 0)
@@ -147,8 +142,7 @@ get_continent_name_and_code (const char *continentid)
 /* Compose a string with the country name and code and store it in the
  * given buffer. */
 static void
-geoip_set_country (const char *country, const char *code, char *loc)
-{
+geoip_set_country (const char *country, const char *code, char *loc) {
   if (country && code)
     snprintf (loc, COUNTRY_LEN, "%s %s", code, country);
   else
@@ -158,8 +152,7 @@ geoip_set_country (const char *country, const char *code, char *loc)
 /* Compose a string with the city name and state/region and store it
  * in the given buffer. */
 static void
-geoip_set_city (const char *city, const char *region, char *loc)
-{
+geoip_set_city (const char *city, const char *region, char *loc) {
   snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
             region ? region : "N/A Region");
 }
@@ -167,8 +160,7 @@ geoip_set_city (const char *city, const char *region, char *loc)
 /* Compose a string with the continent name and store it in the given
  * buffer. */
 static void
-geoip_set_continent (const char *continent, char *loc)
-{
+geoip_set_continent (const char *continent, char *loc) {
   if (continent)
     snprintf (loc, CONTINENT_LEN, "%s",
               get_continent_name_and_code (continent));
@@ -182,8 +174,7 @@ geoip_set_continent (const char *continent, char *loc)
  * If no data is found, NULL is returned.
  * On success, the fetched value is returned. */
 static char *
-get_value (MMDB_lookup_result_s res, ...)
-{
+get_value (MMDB_lookup_result_s res, ...) {
   MMDB_entry_data_s entry_data;
   char *value = NULL;
   int status = 0;
@@ -213,8 +204,7 @@ get_value (MMDB_lookup_result_s res, ...)
  * If no data is found, NULL is set.
  * On success, the fetched value is set. */
 static void
-geoip_query_city (MMDB_lookup_result_s res, char *location)
-{
+geoip_query_city (MMDB_lookup_result_s res, char *location) {
   char *city = NULL, *region = NULL;
 
   if (res.found_entry) {
@@ -229,8 +219,7 @@ geoip_query_city (MMDB_lookup_result_s res, char *location)
  * If no data is found, NULL is set.
  * On success, the fetched value is set. */
 static void
-geoip_query_country (MMDB_lookup_result_s res, char *location)
-{
+geoip_query_country (MMDB_lookup_result_s res, char *location) {
   char *country = NULL, *code = NULL;
 
   if (res.found_entry) {
@@ -245,8 +234,7 @@ geoip_query_country (MMDB_lookup_result_s res, char *location)
  * If no data is found, NULL is set.
  * On success, the fetched value is set. */
 static void
-geoip_query_continent (MMDB_lookup_result_s res, char *location)
-{
+geoip_query_continent (MMDB_lookup_result_s res, char *location) {
   char *code = NULL;
 
   if (res.found_entry)
@@ -256,8 +244,7 @@ geoip_query_continent (MMDB_lookup_result_s res, char *location)
 
 /* Set country data by record into the given `location` buffer */
 void
-geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
-{
+geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip) {
   MMDB_lookup_result_s res;
 
   geoip_lookup (&res, ip);
@@ -266,8 +253,7 @@ geoip_get_country (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
 
 /* A wrapper to fetch the looked up result and set the continent. */
 void
-geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
-{
+geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip) {
   MMDB_lookup_result_s res;
 
   geoip_lookup (&res, ip);
@@ -280,8 +266,7 @@ geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip)
  * On error, 1 is returned
  * On success, buffers are set and 0 is returned */
 int
-set_geolocation (char *host, char *continent, char *country, char *city)
-{
+set_geolocation (char *host, char *continent, char *country, char *city) {
   MMDB_lookup_result_s res;
 
   if (!is_geoip_resource ())

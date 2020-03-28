@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,16 +39,15 @@
 
 #include "parser.h"
 
-typedef struct GJSON_
-{
+typedef struct GJSON_ {
   char *buf;                    /* pointer to buffer */
   size_t size;                  /* size of malloc'd buffer */
   size_t offset;                /* current write offset */
 } GJSON;
 
-char *get_json (GLog * glog, GHolder * holder, int escape_html);
+char *get_json (GHolder * holder, int escape_html);
 
-void output_json (GLog * glog, GHolder * holder, const char *filename);
+void output_json (GHolder * holder, const char *filename);
 void set_json_nlines (int nl);
 
 void fpskeyival (FILE * fp, const char *key, int val, int sp, int last);

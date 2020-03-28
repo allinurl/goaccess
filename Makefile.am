@@ -131,6 +131,8 @@ goaccess_SOURCES = \
    src/gdns.h          \
    src/gholder.c       \
    src/gholder.h       \
+   src/gkhash.c        \
+   src/gkhash.h        \
    src/gmenu.c         \
    src/gmenu.h         \
    src/goaccess.c      \
@@ -143,6 +145,7 @@ goaccess_SOURCES = \
    src/gwsocket.h      \
    src/json.c          \
    src/json.h          \
+   src/khash.h         \
    src/labels.h        \
    src/opesys.c        \
    src/opesys.h        \
@@ -158,6 +161,8 @@ goaccess_SOURCES = \
    src/sha1.h          \
    src/sort.c          \
    src/sort.h          \
+   src/tpl.c           \
+   src/tpl.h           \
    src/ui.c            \
    src/ui.h            \
    src/util.c          \
@@ -167,28 +172,15 @@ goaccess_SOURCES = \
    src/xmalloc.c       \
    src/xmalloc.h
 
-if TCB
-goaccess_SOURCES += \
-   src/tcabdb.c     \
-   src/tcabdb.h     \
-   src/tcbtdb.c     \
-   src/tcbtdb.h
-else
-goaccess_SOURCES += \
-   src/khash.h      \
-   src/gkhash.c     \
-   src/gkhash.h
-endif
-
 if GEOIP_LEGACY
 goaccess_SOURCES +=  \
-   src/geoip1.c \
-   src/geoip1.h
+  src/geoip1.c       \
+  src/geoip1.h
 endif
 
 if GEOIP_MMDB
 goaccess_SOURCES +=  \
-   src/geoip2.c \
+   src/geoip2.c      \
    src/geoip1.h
 endif
 
@@ -205,7 +197,7 @@ endif
 AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
-AM_CFLAGS += -Wbad-function-cast -Winline -Wcast-align
+AM_CFLAGS += -Wbad-function-cast -Wcast-align
 AM_CFLAGS += -Wdeclaration-after-statement -Wshadow -Wold-style-definition
 
 dist_man_MANS = goaccess.1

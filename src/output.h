@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,30 +40,26 @@
 #include "parser.h"
 
 /* Enumerated chart types */
-typedef enum GChartType_
-{
+typedef enum GChartType_ {
   CHART_NONE,
   CHART_VBAR,
   CHART_AREASPLINE,
 } GChartType;
 
 /* Chart axis structure */
-typedef struct GChartDef_
-{
+typedef struct GChartDef_ {
   const char *key;
   const char *value;
 } GChartDef;
 
 /* Chart axis structure */
-typedef struct GChart_
-{
+typedef struct GChart_ {
   const char *key;
   GChartDef *def;
 } GChart;
 
 /* Chart behavior */
-typedef struct GHTMLPlot_
-{
+typedef struct GHTMLPlot_ {
   GChartType chart_type;
   void (*plot) (FILE * fp, struct GHTMLPlot_ plot, int sp);
   int8_t chart_reverse;
@@ -73,8 +69,7 @@ typedef struct GHTMLPlot_
 } GHTMLPlot;
 
 /* Controls HTML panel output. */
-typedef struct GHTML_
-{
+typedef struct GHTML_ {
   GModule module;
   int8_t table;
   void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
@@ -82,8 +77,7 @@ typedef struct GHTML_
 } GHTML;
 
 /* Metric definition . */
-typedef struct GDefMetric_
-{
+typedef struct GDefMetric_ {
   const char *cname;            /* metric class name */
   const char *cwidth;           /* metric column width */
   const char *datakey;          /* metric JSON data key */
@@ -94,6 +88,6 @@ typedef struct GDefMetric_
   const char *metalbl;          /* metric meta value label */
 } GDefMetric;
 
-void output_html (GLog * glog, GHolder * holder, const char *filename);
+void output_html (GHolder * holder, const char *filename);
 
 #endif

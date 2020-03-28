@@ -6,7 +6,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,8 +35,7 @@
 #include <pthread.h>
 #include "websocket.h"
 
-typedef struct GWSReader_
-{
+typedef struct GWSReader_ {
   int fd;
   int self_pipe[2];             /* self-pipe */
 
@@ -48,8 +47,7 @@ typedef struct GWSReader_
   int hlen;                     /* header length */
 } GWSReader;
 
-typedef struct GWSWriter_
-{
+typedef struct GWSWriter_ {
   int fd;
 
   pthread_mutex_t mutex;        /* Mutex fifo in */

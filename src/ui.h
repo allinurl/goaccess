@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -56,7 +56,7 @@
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
-#define SPIN_FMTM "%s [%'d] [%'lld/s]"
+#define SPIN_FMTM "%s [%'u] [%'lld/s]"
 #define SPIN_LBL 50     /* max length of the progress spinner */
 
 #define SPIN_UPDATE_INTERVAL 100000     // in microseconds
@@ -158,8 +158,7 @@
 #include "sort.h"
 
 /* Curses dashboard find */
-typedef struct GFind_
-{
+typedef struct GFind_ {
   GModule module;
   char *pattern;
   int next_idx;
@@ -171,15 +170,13 @@ typedef struct GFind_
 } GFind;
 
 /* Each panel contains its own scrolling and offset */
-typedef struct GScrollModule_
-{
+typedef struct GScrollModule_ {
   int scroll;
   int offset;
 } GScrollModule;
 
 /* Curses Scrolling */
-typedef struct GScroll_
-{
+typedef struct GScroll_ {
   GScrollModule module[TOTAL_MODULES];
   GModule current;
   int dash;
@@ -187,8 +184,7 @@ typedef struct GScroll_
 } GScroll;
 
 /* Spinner or Progress Indicator */
-typedef struct GSpinner_
-{
+typedef struct GSpinner_ {
   const char *label;
   GColors *(*color) (void);
   int curses;
@@ -200,8 +196,7 @@ typedef struct GSpinner_
   pthread_t thread;
   unsigned int *processed;
   WINDOW *win;
-  enum
-  {
+  enum {
     SPN_RUN,
     SPN_END
   } state;
@@ -209,8 +204,7 @@ typedef struct GSpinner_
 
 /* Controls metric output.
  * i.e., which metrics it should display */
-typedef struct GOutput_
-{
+typedef struct GOutput_ {
   GModule module;
   int8_t visitors;
   int8_t hits;
@@ -239,15 +233,15 @@ const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
 int get_start_end_parsing_dates (GHolder * h, char **start, char **end, const char *f);
 int render_confdlg (GLog * glog, GSpinner * spinner);
-int set_host_agents (const char *addr, void (*func) (void *, void *, int), void *arr);
+int set_list_host_agents (void *val, GSLList **user_data);
 void close_win (WINDOW * w);
-void display_general (WINDOW * win, GLog * glog, GHolder *h);
+void display_general (WINDOW * win, GHolder *h);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
 void generate_time (void);
 void init_colors (int force);
 void init_windows (WINDOW ** header_win, WINDOW ** main_win);
-void load_agent_list (WINDOW * main_win, char *addr);
+void load_agent_list (WINDOW * main_win, char *addr, GSLList *keys);
 void load_help_popup (WINDOW * main_win);
 void load_schemes_win (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);

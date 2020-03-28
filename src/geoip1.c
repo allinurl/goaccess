@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,15 +49,13 @@ static GeoIP *geo_location_data;
  * If the geoip resource is NULL, 0 is returned.
  * If the geoip resource is valid and malloc'd, 1 is returned. */
 int
-is_geoip_resource (void)
-{
+is_geoip_resource (void) {
   return geo_location_data != NULL ? 1 : 0;
 }
 
 /* Free up GeoIP resources */
 void
-geoip_free (void)
-{
+geoip_free (void) {
   if (!is_geoip_resource ())
     return;
 
@@ -70,8 +68,7 @@ geoip_free (void)
  * On error, it aborts.
  * On success, a new geolocation structure is returned. */
 static GeoIP *
-geoip_open_db (const char *db)
-{
+geoip_open_db (const char *db) {
   GeoIP *geoip;
   geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
 
@@ -86,8 +83,7 @@ geoip_open_db (const char *db)
 
 /* Set up and open GeoIP database */
 void
-init_geoip (void)
-{
+init_geoip (void) {
   /* open custom city GeoIP database */
   if (conf.geoip_database != NULL)
     geo_location_data = geoip_open_db (conf.geoip_database);
@@ -101,8 +97,7 @@ init_geoip (void)
  * If continent not found, "Unknown" is returned.
  * On success, the continent code & name is returned . */
 static const char *
-get_continent_name_and_code (const char *continentid)
-{
+get_continent_name_and_code (const char *continentid) {
   if (memcmp (continentid, "NA", 2) == 0)
     return "NA North America";
   else if (memcmp (continentid, "OC", 2) == 0)
@@ -124,8 +119,7 @@ get_continent_name_and_code (const char *continentid)
 /* Compose a string with the country name and code and store it in the
  * given buffer. */
 static void
-geoip_set_country (const char *country, const char *code, char *loc)
-{
+geoip_set_country (const char *country, const char *code, char *loc) {
   if (country && code)
     snprintf (loc, COUNTRY_LEN, "%s %s", code, country);
   else
@@ -135,8 +129,7 @@ geoip_set_country (const char *country, const char *code, char *loc)
 /* Compose a string with the city name and state/region and store it
  * in the given buffer. */
 static void
-geoip_set_city (const char *city, const char *region, char *loc)
-{
+geoip_set_city (const char *city, const char *region, char *loc) {
   snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
             region ? region : "N/A Region");
 }
@@ -144,8 +137,7 @@ geoip_set_city (const char *city, const char *region, char *loc)
 /* Compose a string with the continent name and store it in the given
  * buffer. */
 static void
-geoip_set_continent (const char *continent, char *loc)
-{
+geoip_set_continent (const char *continent, char *loc) {
   if (continent)
     snprintf (loc, CONTINENT_LEN, "%s",
               get_continent_name_and_code (continent));
@@ -159,8 +151,7 @@ geoip_set_continent (const char *continent, char *loc)
  * On error, NULL is returned
  * On success, GeoIPRecord structure is returned */
 static GeoIPRecord *
-get_geoip_record (const char *addr, GTypeIP type_ip)
-{
+get_geoip_record (const char *addr, GTypeIP type_ip) {
   GeoIPRecord *rec = NULL;
 
   if (TYPE_IPV4 == type_ip)
@@ -174,8 +165,7 @@ get_geoip_record (const char *addr, GTypeIP type_ip)
 /* Set country data by record into the given `location` buffer based
  * on the IP version. */
 static void
-geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip) {
   GeoIPRecord *rec = NULL;
   const char *country = NULL, *code = NULL, *addr = ip;
 
@@ -199,8 +189,7 @@ geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip)
  * On error, 0 is returned
  * On success, the GeoIP location id is returned */
 static int
-geoip_get_geoid (const char *addr, GTypeIP type_ip)
-{
+geoip_get_geoid (const char *addr, GTypeIP type_ip) {
   int geoid = 0;
 
   if (TYPE_IPV4 == type_ip)
@@ -216,8 +205,7 @@ geoip_get_geoid (const char *addr, GTypeIP type_ip)
  * On error, NULL is returned
  * On success, the country name is returned */
 static const char *
-geoip_get_country_by_geoid (const char *addr, GTypeIP type_ip)
-{
+geoip_get_country_by_geoid (const char *addr, GTypeIP type_ip) {
   const char *country = NULL;
 
   if (TYPE_IPV4 == type_ip)
@@ -231,8 +219,7 @@ geoip_get_country_by_geoid (const char *addr, GTypeIP type_ip)
 /* Set country data by geoid into the given `location` buffer based on
  * the IP version. */
 static void
-geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_set_country_by_geoid (const char *ip, char *location, GTypeIP type_ip) {
   const char *country = NULL, *code = NULL, *addr = ip;
   int geoid = 0;
 
@@ -254,8 +241,7 @@ out:
 /* Set country data by geoid or record into the given `location` buffer
  * based on the IP version and currently used database edition.  */
 void
-geoip_get_country (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_get_country (const char *ip, char *location, GTypeIP type_ip) {
   unsigned char rec = GeoIP_database_edition (geo_location_data);
 
   switch (rec) {
@@ -291,8 +277,7 @@ geoip_get_country (const char *ip, char *location, GTypeIP type_ip)
 /* Set continent data by record into the given `location` buffer based
  * on the IP version. */
 static void
-geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip) {
   GeoIPRecord *rec = NULL;
   const char *continent = NULL, *addr = ip;
 
@@ -312,8 +297,7 @@ geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip)
 /* Set continent data by geoid into the given `location` buffer based
  * on the IP version. */
 static void
-geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_set_continent_by_geoid (const char *ip, char *location, GTypeIP type_ip) {
   const char *continent = NULL, *addr = ip;
   int geoid = 0;
 
@@ -331,8 +315,7 @@ out:
 /* Set continent data by geoid or record into the given `location` buffer
  * based on the IP version and currently used database edition.  */
 void
-geoip_get_continent (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
   unsigned char rec = GeoIP_database_edition (geo_location_data);
 
   switch (rec) {
@@ -368,8 +351,7 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip)
 /* Set city data by record into the given `location` buffer based on
  * the IP version.  */
 static void
-geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip) {
   GeoIPRecord *rec = NULL;
   const char *city = NULL, *region = NULL, *addr = ip;
 
@@ -389,8 +371,7 @@ geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip)
  * based on the IP version and currently used database edition.
  * It uses the custom GeoIP database - i.e., GeoLiteCity.dat */
 void
-geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
-{
+geoip_get_city (const char *ip, char *location, GTypeIP type_ip) {
   unsigned char rec = GeoIP_database_edition (geo_location_data);
 
   if (conf.geoip_database == NULL || geo_location_data == NULL)
@@ -420,8 +401,7 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip)
  * On error, 1 is returned
  * On success, buffers are set and 0 is returned */
 int
-set_geolocation (char *host, char *continent, char *country, char *city)
-{
+set_geolocation (char *host, char *continent, char *country, char *city) {
   int type_ip = 0;
 
   if (!is_geoip_resource ())

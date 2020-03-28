@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -138,8 +138,7 @@ static const char *codes[][2] = {
  * On error NULL is returned.
  * On success the extracted part of string is returned */
 char *
-substring (const char *str, int begin, int len)
-{
+substring (const char *str, int begin, int len) {
   char *buffer;
   if (str == NULL)
     return NULL;
@@ -165,8 +164,7 @@ substring (const char *str, int begin, int len)
  *
  * On success, a pointer to a new string is returned */
 char *
-alloc_string (const char *str)
-{
+alloc_string (const char *str) {
   char *new = xmalloc (strlen (str) + 1);
   strcpy (new, str);
   return new;
@@ -175,8 +173,7 @@ alloc_string (const char *str)
 /* A wrapper function to copy the first num characters of source to
  * destination. */
 void
-xstrncpy (char *dest, const char *source, const size_t dest_size)
-{
+xstrncpy (char *dest, const char *source, const size_t dest_size) {
   strncpy (dest, source, dest_size);
   if (dest_size > 0) {
     dest[dest_size - 1] = '\0';
@@ -187,8 +184,7 @@ xstrncpy (char *dest, const char *source, const size_t dest_size)
 
 /* A random string generator. */
 void
-genstr (char *dest, size_t len)
-{
+genstr (char *dest, size_t len) {
   char set[] = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
   for (; len > 0; --len)
@@ -201,8 +197,7 @@ genstr (char *dest, size_t len)
  * If the character is not found, 0 is returned
  * On success, the number of characters found */
 int
-count_matches (const char *s1, char c)
-{
+count_matches (const char *s1, char c) {
   const char *ptr = s1;
   int n = 0;
   do {
@@ -217,8 +212,7 @@ count_matches (const char *s1, char c)
  * If no match found, 1 is returned.
  * If match found, 0 is returned. */
 static int
-wc_match (const char *wc, char *str)
-{
+wc_match (const char *wc, char *str) {
   while (*wc && *str) {
     if (*wc == '*') {
       while (*wc && *wc == '*')
@@ -246,8 +240,7 @@ wc_match (const char *wc, char *str)
  * On error, or the referrer is not found, 0 is returned
  * On success, or if the host needs to be ignored, 1 is returned */
 int
-ignore_referer (const char *host)
-{
+ignore_referer (const char *host) {
   char *needle = NULL;
   int i, ignore = 0;
 
@@ -278,8 +271,7 @@ out:
  * On error, or the referrer is not found, 0 is returned
  * On success, or if the host needs to be ignored, 1 is returned */
 int
-hide_referer (const char *host)
-{
+hide_referer (const char *host) {
   char *needle = NULL;
   int i, ignore = 0;
 
@@ -309,8 +301,7 @@ out:
  * On error, or not within the range, 0 is returned
  * On success, or if within the range, 1 is returned */
 static int
-within_range (const char *ip, const char *start, const char *end)
-{
+within_range (const char *ip, const char *start, const char *end) {
   struct in6_addr addr6, start6, end6;
   struct in_addr addr4, start4, end4;
 
@@ -351,8 +342,7 @@ within_range (const char *ip, const char *start, const char *end)
  * On error, or not within the range, 0 is returned
  * On success, or if within the range, 1 is returned */
 int
-ip_in_range (const char *ip)
-{
+ip_in_range (const char *ip) {
   char *start = NULL, *end, *dash;
   int i;
 
@@ -394,8 +384,7 @@ ip_in_range (const char *ip)
  * On success, the given filename is malloc'd and assigned and 0 is
  * returned. */
 int
-find_output_type (char **filename, const char *ext, int alloc)
-{
+find_output_type (char **filename, const char *ext, int alloc) {
   int i;
   const char *dot = NULL;
 
@@ -426,8 +415,7 @@ find_output_type (char **filename, const char *ext, int alloc)
  * -1: non-existent extension
  */
 int
-valid_output_type (const char *filename)
-{
+valid_output_type (const char *filename) {
   const char *ext = NULL;
   size_t sl;
 
@@ -458,8 +446,7 @@ valid_output_type (const char *filename)
  * On error, it outputs an error message and the program terminates.
  * On success, the path of HOME and the config file is returned. */
 char *
-get_home (void)
-{
+get_home (void) {
   char *user_home = NULL, *path = NULL;
 
   user_home = getenv ("HOME");
@@ -476,8 +463,7 @@ get_home (void)
  *
  * On success, the path of the global config file is returned. */
 char *
-get_global_config (void)
-{
+get_global_config (void) {
   char *path = NULL;
 
   path =
@@ -492,8 +478,7 @@ get_global_config (void)
  * On error, a newly malloc'd '---' string is returned.
  * On success, a malloc'd 'Ymd' date is returned. */
 char *
-get_visitors_date (const char *odate, const char *from, const char *to)
-{
+get_visitors_date (const char *odate, const char *from, const char *to) {
   char date[DATE_TIME] = "";    /* Ymd */
 
   memset (date, 0, sizeof *date);
@@ -511,8 +496,7 @@ get_visitors_date (const char *odate, const char *from, const char *to)
  * On success, 0 is returned. */
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 int
-str_to_time (const char *str, const char *fmt, struct tm *tm)
-{
+str_to_time (const char *str, const char *fmt, struct tm *tm) {
   char *end = NULL, *sEnd = NULL;
   unsigned long long usecs = 0;
 
@@ -550,8 +534,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm)
  * On success, 0 is returned. */
 int
 convert_date (char *res, const char *data, const char *from, const char *to,
-              int size)
-{
+              int size) {
   struct tm tm;
 
   memset (&tm, 0, sizeof (tm));
@@ -578,10 +561,8 @@ convert_date (char *res, const char *data, const char *from, const char *to,
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-invalid_ipaddr (char *str, int *ipvx)
-{
-  union
-  {
+invalid_ipaddr (char *str, int *ipvx) {
+  union {
     struct sockaddr addr;
     struct sockaddr_in6 addr6;
     struct sockaddr_in addr4;
@@ -608,8 +589,7 @@ invalid_ipaddr (char *str, int *ipvx)
  * On error, -1 is returned.
  * On success, the file size of the given filename. */
 off_t
-file_size (const char *filename)
-{
+file_size (const char *filename) {
   struct stat st;
 
   if (stat (filename, &st) == 0)
@@ -626,8 +606,7 @@ file_size (const char *filename)
  * If not found, "Unknown" is returned.
  * On success, the status code type/category is returned. */
 const char *
-verify_status_code_type (const char *str)
-{
+verify_status_code_type (const char *str) {
   size_t i;
   for (i = 0; i < ARRAY_SIZE (code_type); i++)
     if (strchr (code_type[i][0], str[0]) != NULL)
@@ -642,8 +621,7 @@ verify_status_code_type (const char *str)
  * If not found, "Unknown" is returned.
  * On success, the status code is returned. */
 const char *
-verify_status_code (char *str)
-{
+verify_status_code (char *str) {
   size_t i;
   for (i = 0; i < ARRAY_SIZE (codes); i++)
     if (strstr (str, codes[i][0]) != NULL)
@@ -657,8 +635,7 @@ verify_status_code (char *str)
  * If not found, -1 is returned.
  * If found, the key for needle in the array is returned. */
 int
-str_inarray (const char *s, const char *arr[], int size)
-{
+str_inarray (const char *s, const char *arr[], int size) {
   int i;
   for (i = 0; i < size; i++) {
     if (strcmp (arr[i], s) == 0)
@@ -672,8 +649,7 @@ str_inarray (const char *s, const char *arr[], int size)
  * On success, a string with whitespace stripped from the beginning of
  * the string is returned. */
 char *
-ltrim (char *s)
-{
+ltrim (char *s) {
   char *begin = s;
 
   while (isspace (*begin))
@@ -688,8 +664,7 @@ ltrim (char *s)
  * On success, a string with whitespace stripped from the end of the
  * string is returned. */
 char *
-rtrim (char *s)
-{
+rtrim (char *s) {
   char *end = s + strlen (s);
 
   while ((end != s) && isspace (*(end - 1)))
@@ -703,8 +678,7 @@ rtrim (char *s)
  *
  * On success, the trimmed string is returned. */
 char *
-trim_str (char *str)
-{
+trim_str (char *str) {
   return rtrim (ltrim (str));
 }
 
@@ -713,8 +687,7 @@ trim_str (char *str)
  * On error, the original size of the string in bytes is returned.
  * On success, the file size in a human readable format is returned. */
 char *
-filesize_str (unsigned long long log_size)
-{
+filesize_str (unsigned long long log_size) {
   char *size = xmalloc (sizeof (char) * 12);
   if (log_size >= (1ULL << 50))
     snprintf (size, 12, "%.2f PiB", (double) (log_size) / PIB (1ULL));
@@ -737,8 +710,7 @@ filesize_str (unsigned long long log_size)
  * On error, a malloc'd string in microseconds is returned.
  * On success, the time in a human readable format is returned. */
 char *
-usecs_to_str (unsigned long long usec)
-{
+usecs_to_str (unsigned long long usec) {
   char *size = xmalloc (sizeof (char) * 11);
   if (usec >= DAY)
     snprintf (size, 11, "%.2f  d", (double) (usec) / DAY);
@@ -761,10 +733,21 @@ usecs_to_str (unsigned long long usec)
  *
  * On success, the given number as a string is returned. */
 char *
-int2str (int d, int width)
-{
+int2str (int d, int width) {
   char *s = xmalloc (snprintf (NULL, 0, "%*d", width, d) + 1);
   sprintf (s, "%*d", width, d);
+
+  return s;
+}
+
+/* Convert the given uint32_t to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
+char *
+u322str (uint32_t d, int width) {
+  char *s = xmalloc (snprintf (NULL, 0, "%*u", width, d) + 1);
+  sprintf (s, "%*u", width, d);
 
   return s;
 }
@@ -774,20 +757,41 @@ int2str (int d, int width)
  *
  * On success, the given number as a string is returned. */
 char *
-float2str (float d, int width)
-{
+float2str (float d, int width) {
   char *s = xmalloc (snprintf (NULL, 0, "%*.2f", width, d) + 1);
   sprintf (s, "%*.2f", width, d);
 
   return s;
 }
 
+int
+ptr2int (char *ptr) {
+  char *sEnd = NULL;
+  int value = -1;
+
+  value = strtol (ptr, &sEnd, 10);
+  if (ptr == sEnd || *sEnd != '\0' || errno == ERANGE) {
+    LOG_DEBUG (("Invalid parse of integer value from pointer. \n"));
+    return -1;
+  }
+
+  return value;
+}
+
+int
+str2int (const char *date) {
+  char *sEnd = NULL;
+  int d = strtol (date, &sEnd, 10);
+  if (date == sEnd || *sEnd != '\0' || errno == ERANGE)
+    return -1;
+  return d;
+}
+
 /* Determine the length of an integer (number of digits).
  *
  * On success, the length of the number is returned. */
 int
-intlen (int num)
-{
+intlen (int num) {
   int l = 1;
   while (num > 9) {
     l++;
@@ -801,8 +805,7 @@ intlen (int num)
  *
  * On success, the newly allocated string is returned. */
 char *
-char_repeat (int n, char c)
-{
+char_repeat (int n, char c) {
   char *dest = xmalloc (n + 1);
   memset (dest, c, n);
   dest[n] = '\0';
@@ -816,8 +819,7 @@ char_repeat (int n, char c)
  * On error the original string is returned.
  * On success, a string with the replaced values is returned. */
 char *
-char_replace (char *str, char o, char n)
-{
+char_replace (char *str, char o, char n) {
   char *p = str;
 
   if (str == NULL || *str == '\0')
@@ -833,8 +835,7 @@ char_replace (char *str, char o, char n)
  *
  * On success, a string with the replaced new lines is returned. */
 void
-strip_newlines (char *str)
-{
+strip_newlines (char *str) {
   char *src, *dst;
   for (src = dst = str; *src != '\0'; src++) {
     *dst = *src;
@@ -848,8 +849,7 @@ strip_newlines (char *str)
  *
  * On success, a string without whitespace is returned. */
 char *
-deblank (char *str)
-{
+deblank (char *str) {
   char *out = str, *put = str;
 
   for (; *str != '\0'; ++str) {
@@ -866,8 +866,7 @@ deblank (char *str)
  * On error the original string is returned.
  * On success, the uppercased string is returned. */
 char *
-strtoupper (char *str)
-{
+strtoupper (char *str) {
   char *p = str;
   if (str == NULL || *str == '\0')
     return str;
@@ -884,8 +883,7 @@ strtoupper (char *str)
  *
  * On success, a left-padded string is returned. */
 char *
-left_pad_str (const char *s, int indent)
-{
+left_pad_str (const char *s, int indent) {
   char *buf = NULL;
 
   indent = strlen (s) + indent;
@@ -897,9 +895,8 @@ left_pad_str (const char *s, int indent)
 
 /* Append the source string to destination and reallocates and
  * updating the destination buffer appropriately. */
-void
-append_str (char **dest, const char *src)
-{
+size_t
+append_str (char **dest, const char *src) {
   size_t curlen = strlen (*dest);
   size_t srclen = strlen (src);
   size_t newlen = curlen + srclen;
@@ -907,6 +904,8 @@ append_str (char **dest, const char *src)
   char *str = xrealloc (*dest, newlen + 1);
   memcpy (str + curlen, src, srclen + 1);
   *dest = str;
+
+  return newlen;
 }
 
 /* Escapes the special characters, e.g., '\n', '\r', '\t', '\'
@@ -915,8 +914,7 @@ append_str (char **dest, const char *src)
  * On error NULL is returned.
  * On success the escaped string is returned */
 char *
-escape_str (const char *src)
-{
+escape_str (const char *src) {
   char *dest, *q;
   const unsigned char *p;
 
@@ -966,8 +964,7 @@ escape_str (const char *src)
  * On error NULL is returned.
  * On success the unescaped string is returned */
 char *
-unescape_str (const char *src)
-{
+unescape_str (const char *src) {
   char *dest, *q;
   const char *p = src;
 

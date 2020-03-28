@@ -6,7 +6,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,8 +31,7 @@
 #define GSLIST_H_INCLUDED
 
 /* Generic Single linked-list */
-typedef struct GSLList_
-{
+typedef struct GSLList_ {
   void *data;
   struct GSLList_ *next;
 } GSLList;
