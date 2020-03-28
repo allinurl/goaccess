@@ -1386,7 +1386,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     logitem->tls_type = tkn;
-
+    
     break;
     /* UMS: Mime-Type like "text/html" */
   case 'M':
@@ -2347,12 +2347,25 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem)
 static int
 gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
 {
-
+  char *major, *offs;
+  int major_len;
+  
   if (!logitem->mime_type)
     return 1;
 
-  get_kdata (kdata, logitem->mime_type, logitem->mime_type);
+  kdata->data     = logitem->mime_type;
+  kdata->data_key = logitem->mime_type;
 
+  offs = strstr(logitem->mime_type, "/");
+  if (!offs)
+    return 1;
+
+  major_len = offs - logitem->mime_type;
+  major =strndup(logitem->mime_type, major_len);
+
+  kdata->root     = major;
+  kdata->root_key = major;
+  
   return 0;
 }
 
@@ -2364,10 +2377,29 @@ gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
 static int
 gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
 {
+  char *tls, *offs;
+  int tls_len;
+
   if (!logitem->tls_type)
     return 1;
 
-  get_kdata (kdata, logitem->tls_type, logitem->tls_type);
+  /* '-' means no TLS at all, just ignore for the panel? */
+  if (logitem->tls_type[0] == '-')
+    return 1;
+  
+  kdata->data     = logitem->tls_type;
+  kdata->data_key = logitem->tls_type;
+
+  offs = strstr(logitem->tls_type, " ");
+  if (!offs)
+    return 1;
+
+  tls_len = offs - logitem->tls_type;
+  tls =strndup(logitem->tls_type, tls_len);
+
+
+  kdata->root     = tls;
+  kdata->root_key = tls;
 
   return 0;
 }

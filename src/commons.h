@@ -51,9 +51,9 @@ struct tm *now_tm;
 
 /* total number of modules */
 #ifdef HAVE_GEOLOCATION
-#define TOTAL_MODULES    16
+#define TOTAL_MODULES    18
 #else
-#define TOTAL_MODULES    15
+#define TOTAL_MODULES    17
 #endif
 
 /* maximum number of items within a panel */

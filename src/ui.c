@@ -92,6 +92,8 @@ static GOutput outputting[] = {
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
+  {MIME_TYPE       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
+  {TLS_TYPE        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
 };
 /* *INDENT-ON* */
 
@@ -288,6 +290,8 @@ module_to_label (GModule module)
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_LABEL,
 #endif
+    MIME_TYPE_LABEL,
+    TLS_TYPE_LABEL,
   };
 
   return _(modules[module]);
@@ -318,6 +322,8 @@ module_to_id (GModule module)
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_ID,
 #endif
+    MIME_TYPE_ID,
+    TLS_TYPE_ID,
   };
 
   return _(modules[module]);
@@ -348,6 +354,8 @@ module_to_head (GModule module)
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_HEAD,
 #endif
+    MIME_TYPE_HEAD,
+    TLS_TYPE_HEAD,
   };
 
   if (!conf.ignore_crawlers)
@@ -382,6 +390,8 @@ module_to_desc (GModule module)
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_DESC,
 #endif
+    MIME_TYPE_DESC,
+    TLS_TYPE_DESC,
   };
 
   return _(modules[module]);
