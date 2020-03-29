@@ -211,12 +211,11 @@ cleanup (int ret) {
 
 /* Drop permissions to the user specified. */
 static void
-drop_permissions(void)
-{
+drop_permissions (void) {
   struct passwd *pw;
 
   errno = 0;
-  if ((pw = getpwnam(conf.username)) == NULL) {
+  if ((pw = getpwnam (conf.username)) == NULL) {
     if (errno == 0)
       FATAL ("No such user %s", conf.username);
     FATAL ("Unable to retrieve user %s: %s", conf.username, strerror (errno));
