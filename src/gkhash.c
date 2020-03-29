@@ -79,6 +79,7 @@ static GEnum enum_metric_types[] = {
   {"SGSL"  , MTRC_TYPE_SGSL}  ,
   {"SU64"  , MTRC_TYPE_SU64}  ,
   {"IUI8"  , MTRC_TYPE_IUI8}  ,
+  {"U648"  , MTRC_TYPE_U648}  ,
 };
 /* *INDENT-ON* */
 
@@ -129,6 +130,14 @@ new_iu64_ht (void) {
   return h;
 }
 
+/* Initialize a new uint64_t key - uint32_t value hash table */
+static
+khash_t (u648) *
+new_u648_ht (void) {
+  khash_t (u648) * h = kh_init (u648);
+  return h;
+}
+
 /* Initialize a new string key - uint32_t value hash table */
 static
 khash_t (si32) *
@@ -158,14 +167,6 @@ static
 khash_t (igsl) *
 new_igsl_ht (void) {
   khash_t (igsl) * h = kh_init (igsl);
-  return h;
-}
-
-/* Initialize a new string key - GSLList value hash table */
-static
-khash_t (btmp) *
-new_btmp_ht (void) {
-  khash_t (btmp) * h = kh_init (btmp);
   return h;
 }
 
@@ -210,24 +211,6 @@ des_is32_free (khash_t (is32) * hash) {
   kh_destroy (is32, hash);
 }
 
-/* Destroys both the hash structure and its string values */
-static void
-des_btmp_free (khash_t (btmp) * hash) {
-  khint_t k;
-  bitmap *bm = NULL;
-  if (!hash)
-    return;
-
-  for (k = 0; k < kh_end (hash); ++k) {
-    if (kh_exist (hash, k) && (bm = kh_value (hash, k))) {
-      free ((uint32_t *) bm->bmp);
-      free (bm);
-    }
-  }
-
-  kh_destroy (btmp, hash);
-}
-
 /* Destroys both the hash structure and its string
  * keys and string values */
 static void
@@ -252,6 +235,14 @@ des_ii32 (khash_t (ii32) * hash) {
   if (!hash)
     return;
   kh_destroy (ii32, hash);
+}
+
+/* Destroys the hash structure */
+static void
+des_u648 (khash_t (u648) * hash) {
+  if (!hash)
+    return;
+  kh_destroy (u648, hash);
 }
 
 /* Destroys the hash structure */
@@ -343,7 +334,7 @@ init_tables (GModule module) {
     {MTRC_KEYMAPUQ  , MTRC_TYPE_SGSL , {.sgsl = new_sgsl_ht ()}, NULL} ,
     {MTRC_ROOTMAP   , MTRC_TYPE_IS32 , {.is32 = new_is32_ht ()}, NULL} ,
     {MTRC_DATAMAP   , MTRC_TYPE_IS32 , {.is32 = new_is32_ht ()}, NULL} ,
-    {MTRC_UNIQMAP   , MTRC_TYPE_BTMP , {.btmp = new_btmp_ht ()}, NULL} ,
+    {MTRC_UNIQMAP   , MTRC_TYPE_U648 , {.u648 = new_u648_ht ()}, NULL} ,
     {MTRC_ROOT      , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
     {MTRC_HITS      , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
     {MTRC_VISITORS  , MTRC_TYPE_II32 , {.ii32 = new_ii32_ht ()}, NULL} ,
@@ -373,11 +364,11 @@ free_metric_type (GKHashMetric mtrc) {
   case MTRC_TYPE_II32:
     des_ii32 (mtrc.ii32);
     break;
+  case MTRC_TYPE_U648:
+    des_u648 (mtrc.u648);
+    break;
   case MTRC_TYPE_IS32:
     des_is32_free (mtrc.is32);
-    break;
-  case MTRC_TYPE_BTMP:
-    des_btmp_free (mtrc.btmp);
     break;
   case MTRC_TYPE_IU64:
     des_iu64 (mtrc.iu64);
@@ -438,11 +429,11 @@ get_hash (GModule module, GSMetric metric) {
     case MTRC_TYPE_II32:
       hash = mtrc.ii32;
       break;
+    case MTRC_TYPE_U648:
+      hash = mtrc.u648;
+      break;
     case MTRC_TYPE_IS32:
       hash = mtrc.is32;
-      break;
-    case MTRC_TYPE_BTMP:
-      hash = mtrc.btmp;
       break;
     case MTRC_TYPE_IU64:
       hash = mtrc.iu64;
@@ -677,6 +668,25 @@ ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
   return 0;
 }
 
+static int
+ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value) {
+  khint_t k;
+  int ret;
+
+  if (!hash)
+    return -1;
+
+  k = kh_put (u648, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+  if (ret == 0)
+    return 1;
+
+  kh_val (hash, k) = value;
+
+  return 0;
+}
+
 /* Increase an uint32_t value given an uint32_t key.
  * Note: If the key exists, its value is increased by the given inc.
  *
@@ -791,141 +801,6 @@ inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
   kh_val (hash, k) = value;
 
   return value;
-}
-
-static int
-bitmap_set_bit (bitmap * bm, uint32_t pos) {
-  const word_t l = pos >> SHIFTOUT;
-  const word_t bit = pos & MASK;
-
-  if (!bm)
-    return 0;
-  if (l > bm->len)
-    return -1;
-
-  LOG_DEBUG (("%d %d %d\n", pos, l, bit));
-  bm->bmp[l] |= (1 << bit);
-  return 0;
-}
-
-static int
-bitmap_get_bit (bitmap * bm, uint32_t pos) {
-  const word_t l = pos >> SHIFTOUT;
-  const int bit = pos & MASK;
-  int set;
-
-  if (!bm || l > bm->len)
-    return 1;
-
-  set = !!(bm->bmp[l] & (1 << bit));
-
-  return set;
-}
-
-/*
- * Returns the hamming weight (i.e. the number of bits set) in a word.
- * NOTE: This routine borrowed from Linux 2.4.9 <linux/bitops.h>.
- */
-static uint32_t
-hweight (uint32_t w) {
-  uint32_t res;
-
-  res = (w & 0x55555555) + ((w >> 1) & 0x55555555);
-  res = (res & 0x33333333) + ((res >> 2) & 0x33333333);
-  res = (res & 0x0F0F0F0F) + ((res >> 4) & 0x0F0F0F0F);
-  res = (res & 0x00FF00FF) + ((res >> 8) & 0x00FF00FF);
-  res = (res & 0x0000FFFF) + ((res >> 16) & 0x0000FFFF);
-
-  return res;
-}
-
-static uint32_t
-bitmap_count_set (const bitmap * bm) {
-  uint32_t i, n = 0;
-
-  if (!bm)
-    return 0;
-  for (i = 0; i < bm->len; ++i)
-    n += hweight (bm->bmp[i]);
-
-  return n;
-}
-
-static inline uint32_t
-bitmap_sizeof (uint32_t nbits) {
-  return (nbits >> SHIFTOUT) + !!(nbits & MASK);
-}
-
-static bitmap *
-bitmap_create (uint32_t words) {
-  bitmap *bm = xcalloc (1, sizeof (bitmap));
-
-  bm->bmp = xcalloc (words, sizeof (word_t));
-  bm->len = words;
-
-  return bm;
-}
-
-static int
-bitmap_realloc (bitmap ** bm, uint32_t words) {
-  uint32_t *tmp = NULL;
-  uint32_t newlen = 0;
-
-  newlen = bitmap_sizeof (words);
-  tmp = realloc ((*bm)->bmp, newlen * sizeof (word_t));
-
-  if ((tmp == NULL && newlen > 0) || newlen < (*bm)->len)
-    FATAL ("Unable to realloc bitmap hash value %u %u", newlen, (*bm)->len);
-
-  memset (tmp + (*bm)->len, 0, (newlen - (*bm)->len) * sizeof (word_t));
-  (*bm)->len = newlen;
-  (*bm)->bmp = tmp;
-
-  return 0;
-}
-
-static int
-btmp_key_exists (bitmap ** bm, uint32_t value) {
-  uint32_t arrlen = 0;
-
-  arrlen = bitmap_sizeof (value);
-  if ((*bm)->len < arrlen)
-    bitmap_realloc (bm, value);
-
-  /* if bit set, then it's the same visitor */
-  if (bitmap_get_bit (*bm, value - 1))
-    return 1;
-
-  bitmap_set_bit (*bm, value - 1);
-
-  return 0;
-}
-
-static int
-ins_btmp (khash_t (btmp) * hash, uint32_t key, uint32_t value) {
-  khint_t k;
-  bitmap *bm = NULL;
-  int ret;
-
-  if (!hash)
-    return -1;
-
-  k = kh_get (btmp, hash, key);
-  if (k != kh_end (hash) && (bm = kh_val (hash, k))) {
-    if (btmp_key_exists (&bm, value) == 1)
-      return 0;
-  } else {
-    bm = bitmap_create (bitmap_sizeof (value));
-    bitmap_set_bit (bm, value - 1);
-  }
-
-  k = kh_put (btmp, hash, key, &ret);
-  if (ret == -1)
-    return -1;
-
-  kh_val (hash, k) = bm;
-
-  return 1;
 }
 
 /* Compare if the given needle is in the haystack
@@ -1148,6 +1023,21 @@ restore_ii32 (khash_t (ii32) * hash, const char *fn) {
 }
 
 static void
+restore_u648 (khash_t (u648) * hash, const char *fn) {
+  tpl_node *tn;
+  uint64_t key;
+  uint16_t val;
+  char fmt[] = "A(Uv)";
+
+  tn = tpl_map (fmt, &key, &val);
+  tpl_load (tn, TPL_FILE, fn);
+  while (tpl_unpack (tn, 1) > 0) {
+    ins_u648 (hash, key, (uint8_t) val);
+  }
+  tpl_free (tn);
+}
+
+static void
 persist_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
@@ -1192,6 +1082,30 @@ persist_iu64 (khash_t (iu64) * hash, const char *fn) {
   uint32_t key;
   uint64_t val;
   char fmt[] = "A(uU)";
+
+  if (!hash || kh_size (hash) == 0)
+    return;
+
+  tn = tpl_map (fmt, &key, &val);
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (!kh_exist (hash, k))
+      continue;
+    key = kh_key (hash, k);
+    val = kh_value (hash, k);
+    tpl_pack (tn, 1);
+  }
+
+  tpl_dump (tn, TPL_FILE, fn);
+  tpl_free (tn);
+}
+
+static void
+persist_u648 (khash_t (u648) * hash, const char *fn) {
+  tpl_node *tn;
+  khint_t k;
+  uint64_t key;
+  uint16_t val;
+  char fmt[] = "A(Uv)";
 
   if (!hash || kh_size (hash) == 0)
     return;
@@ -1314,6 +1228,9 @@ restore_by_type (GKHashMetric mtrc, const char *fn) {
   case MTRC_TYPE_II32:
     restore_ii32 (mtrc.ii32, path);
     break;
+  case MTRC_TYPE_U648:
+    restore_u648 (mtrc.u648, path);
+    break;
   case MTRC_TYPE_IS32:
     restore_is32 (mtrc.is32, path);
     break;
@@ -1386,6 +1303,9 @@ persist_by_type (GKHashMetric mtrc, const char *fn) {
   switch (mtrc.type) {
   case MTRC_TYPE_II32:
     persist_ii32 (mtrc.ii32, path);
+    break;
+  case MTRC_TYPE_U648:
+    persist_u648 (mtrc.u648, path);
     break;
   case MTRC_TYPE_IS32:
     persist_is32 (mtrc.is32, path);
@@ -1756,7 +1676,7 @@ ht_sum_bw (void) {
   return val;
 }
 
-uint32_t
+int
 ht_insert_last_parse (uint32_t key, uint32_t value) {
   khash_t (ii32) * hash = ht_last_parse;
 
@@ -1946,6 +1866,24 @@ ht_insert_rootmap (GModule module, uint32_t key, const char *value) {
   return ins_is32 (hash, key, value);
 }
 
+/* Encode a data key and a unique visitor's key to a new uint64_t key
+  *
+  * ###NOTE: THIS LIMITS THE MAX VALUE OF A DATA TABLE TO uint32_t
+  * WILL NEED TO CHANGE THIS IF WE GO OVER uint32_t
+  */
+static uint64_t
+u64encode (uint32_t x, uint32_t y) {
+  return x >
+    y ? (uint32_t) y | ((uint64_t) x << 32) : (uint32_t) x | ((uint64_t) y <<
+                                                              32);
+}
+
+static void
+u64decode (uint64_t n, uint32_t * x, uint32_t * y) {
+  *x = (uint64_t) n >> 32;
+  *y = (uint64_t) n & 0xFFFFFFFF;
+}
+
 /* Insert a uniqmap string key.
  *
  * If the given key exists, 0 is returned.
@@ -1953,12 +1891,14 @@ ht_insert_rootmap (GModule module, uint32_t key, const char *value) {
  * On success the value of the key inserted is returned */
 int
 ht_insert_uniqmap (GModule module, uint32_t key, uint32_t value) {
-  khash_t (btmp) * hash = get_hash (module, MTRC_UNIQMAP);
+  khash_t (u648) * hash = get_hash (module, MTRC_UNIQMAP);
+  uint64_t k = 0;
 
   if (!hash)
     return 0;
 
-  return ins_btmp (hash, key, value);
+  k = u64encode (key, value);
+  return ins_u648 (hash, k, 1) == 0 ? 1 : 0;
 }
 
 /* Insert a data uint32_t key mapped to the corresponding uint32_t root key.
@@ -2163,21 +2103,12 @@ ht_get_size_datamap (GModule module) {
  * On success the number of elements in MTRC_UNIQMAP is returned */
 uint32_t
 ht_get_size_uniqmap (GModule module) {
-  bitmap *bm = NULL;
-  khash_t (btmp) * hash = get_hash (module, MTRC_UNIQMAP);
-  khint_t k;
-  uint32_t count = 0;
+  khash_t (u648) * hash = get_hash (module, MTRC_UNIQMAP);
 
   if (!hash)
     return 0;
 
-  for (k = kh_begin (hash); k != kh_end (hash); ++k) {
-    if (!kh_exist (hash, k) || !(bm = kh_value (hash, k)))
-      continue;
-    count += bitmap_count_set (bm);
-  }
-
-  return count;
+  return kh_size (hash);
 }
 
 /* Get the string data value of a given uint32_t key.
@@ -2537,8 +2468,8 @@ free_used_agents_per_host (void *val, GO_UNUSED void *user_data) {
 
     if ((match = list_find (list, find_user_agent_key, &agent_nkey)))
       found++;
-    /* since the agent is used in multiple IPs, there's no need for deleting the
-     * key-value pairs. */
+    /* Since the agent is used in multiple IPs, there's no need
+     * for deleting the key-value pairs. */
     if (found > 1)
       return 0;
   }
@@ -2551,7 +2482,6 @@ static void
 free_key_by_type (GKHashMetric mtrc, uint32_t key) {
   khiter_t k;
   void *list = NULL;
-  bitmap *bm = NULL;
   char *value = NULL;
 
   switch (mtrc.type) {
@@ -2559,13 +2489,6 @@ free_key_by_type (GKHashMetric mtrc, uint32_t key) {
     k = kh_get (ii32, mtrc.ii32, key);
     kh_del (ii32, mtrc.ii32, k);
     break;
-  case MTRC_TYPE_BTMP:
-    k = kh_get (btmp, mtrc.btmp, key);
-    if (k != kh_end (mtrc.btmp) && (bm = kh_val (mtrc.btmp, k))) {
-      free (bm->bmp);
-      free (bm);
-      kh_del (btmp, mtrc.btmp, k);
-    }
     break;
   case MTRC_TYPE_IS32:
     k = kh_get (is32, mtrc.is32, key);
@@ -2606,6 +2529,27 @@ free_by_num_key (GModule module, uint32_t key) {
 }
 
 static int
+free_record_from_partial_uniq (GModule module, uint32_t datakey) {
+  khiter_t k;
+  khash_t (u648) * hash = get_hash (module, MTRC_UNIQMAP);
+  uint32_t dk = 0, uk = 0;
+
+  if (!hash)
+    return -1;
+
+  for (k = kh_begin (hash); k != kh_end (hash); ++k) {
+    if (!kh_exist (hash, k))
+      continue;
+    u64decode (kh_key (hash, k), &dk, &uk);
+    if (dk != datakey)
+      continue;
+    kh_del (u648, hash, k);
+  }
+
+  return 0;
+}
+
+static int
 free_record_from_partial_key (GModule module, const char *key) {
   khiter_t k;
   khash_t (si32) * hash = get_hash (module, MTRC_KEYMAP);
@@ -2623,10 +2567,36 @@ free_record_from_partial_key (GModule module, const char *key) {
     if (*p != '|')
       continue;
 
+    free_record_from_partial_uniq (module, kh_value (hash, k));
     free_by_num_key (module, kh_value (hash, k));
     free ((char *) kh_key (hash, k));
     kh_del (si32, hash, k);
   }
+
+  return 0;
+}
+
+int
+invalidate_date (int date) {
+  GModule module;
+  khash_t (iui8) * hash = ht_dates;
+  khiter_t k;
+  size_t idx = 0;
+  char *key = NULL;
+
+  if (!hash)
+    return -1;
+
+  key = int2str (date, 0);
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    free_record_from_partial_key (module, key);
+  }
+
+  k = kh_get (iui8, hash, date);
+  kh_del (iui8, hash, k);
+
+  free (key);
 
   return 0;
 }
@@ -2667,31 +2637,6 @@ clean_full_match_hashes (int date) {
 
   k = kh_get (iu64, ht_cnt_bw, date);
   kh_del (iu64, ht_cnt_bw, k);
-
-  return 0;
-}
-
-int
-invalidate_date (int date) {
-  GModule module;
-  khash_t (iui8) * hash = ht_dates;
-  khiter_t k;
-  size_t idx = 0;
-  char *key = NULL;
-
-  if (!hash)
-    return -1;
-
-  key = int2str (date, 0);
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
-    free_record_from_partial_key (module, key);
-  }
-
-  k = kh_get (iui8, hash, date);
-  kh_del (iui8, hash, k);
-
-  free (key);
 
   return 0;
 }
