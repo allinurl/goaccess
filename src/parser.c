@@ -1066,6 +1066,14 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
+
+    logitem->dt.tm_year = tm.tm_year;
+    logitem->dt.tm_mon = tm.tm_mon;
+    logitem->dt.tm_mday = tm.tm_mday;
+
+    logitem->dt.tm_hour = tm.tm_hour;
+    logitem->dt.tm_min = tm.tm_min;
+    logitem->dt.tm_sec = tm.tm_sec;
     break;
     /* Virtual Host */
   case 'v':
