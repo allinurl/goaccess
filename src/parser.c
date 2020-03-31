@@ -337,9 +337,9 @@ static GParse paneling[] = {
     insert_bw,
     insert_cumts,
     insert_maxts,
-    NULL,
-    NULL,
-    NULL,
+    NULL, /*method*/
+    NULL, /*protocol*/
+    NULL, /*agent*/
   }, {
     TLS_TYPE,
     gen_tls_type_key,
@@ -2259,6 +2259,32 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
   return 0;
 }
 
+/* Determine if the given token starts with a valid MIME major type.
+ *
+ * If not valid, NULL is returned.
+ * If valid, the appropriate constant string is returned. */
+static const char *
+extract_mimemajor (const char *token) {
+  const char *lookfor;
+
+  /* official IANA registries as per https://www.iana.org/assignments/media-types/ */
+  
+  if (
+      (lookfor = "application", !strncmp (token, lookfor, 11)) ||
+      (lookfor = "audio",       !strncmp (token, lookfor, 5)) ||
+      (lookfor = "font",        !strncmp (token, lookfor, 4)) ||
+      (lookfor = "example",     !strncmp (token, lookfor, 7)) || /* unlikely */
+      (lookfor = "image",       !strncmp (token, lookfor, 5)) ||
+      (lookfor = "message",     !strncmp (token, lookfor, 7)) || /* unlikely */
+      (lookfor = "model",       !strncmp (token, lookfor, 5)) ||
+      (lookfor = "multipart",   !strncmp (token, lookfor, 9)) ||
+      (lookfor = "text",        !strncmp (token, lookfor, 4)) ||
+      (lookfor = "video",       !strncmp (token, lookfor, 5))
+      )
+    return lookfor;
+  return NULL;
+}
+
 /* UMS: generate an Mime-Type unique key
  *
  * On error, 1 is returned.
@@ -2267,25 +2293,41 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
 static int
 gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
 {
-  char *major=NULL, *offs=NULL;
+  const char *major=NULL;
   
   if (!logitem->mime_type)
+    return 1;
+
+  /* redirects and the like only register as "-", ignore those */
+  major = extract_mimemajor(logitem->mime_type);
+  if (!major)
     return 1;
 
   kdata->data     = logitem->mime_type;
   kdata->data_key = append_date_to_key (logitem->mime_type, logitem->date);
 
-  /* redirects and the like only register as "-", ignore those */
-  offs = strchr(logitem->mime_type, '/');
-  if (!offs)
-    return 1;
-
-  major = strndup(logitem->mime_type, offs - logitem->mime_type);
-
   kdata->root     = major;
   kdata->root_key = append_date_to_key (major, logitem->date);
   
   return 0;
+}
+
+/* Determine if the given token starts with the usual TLS/SSL result string.
+ *
+ * If not valid, NULL is returned.
+ * If valid, the appropriate constant string is returned. */
+static const char *
+extract_tlsmajor (const char *token) {
+  const char *lookfor;
+
+  if ((lookfor = "SSLv3", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)) // Nope, it's not 1.0
+      )
+    return lookfor;
+  return NULL;
 }
 
 /* UMS: generate a TLS settings unique key
@@ -2296,23 +2338,19 @@ gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
 static int
 gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
 {
-  char *tls, *offs;
+  const char *tls;
 
   if (!logitem->tls_type)
     return 1;
 
   /* '-' means no TLS at all, just ignore for the panel? */
-  if (logitem->tls_type[0] == '-')
+  tls = extract_tlsmajor(logitem->tls_type);
+
+  if (!tls)
     return 1;
   
   kdata->data     = logitem->tls_type;
   kdata->data_key = append_date_to_key (logitem->tls_type, logitem->date);
-
-  offs = strstr(logitem->tls_type, " ");
-  if (!offs)
-    return 1;
-
-  tls = strndup(logitem->tls_type, offs - logitem->tls_type);
 
   kdata->root     = tls;
   kdata->root_key = append_date_to_key (tls, logitem->date);
