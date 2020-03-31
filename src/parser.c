@@ -547,12 +547,10 @@ free_glog (GLogItem * logitem) {
   if (logitem->vhost != NULL)
     free (logitem->vhost);
 
-  /* UMS */
   if (logitem->mime_type != NULL)
     free (logitem->mime_type);
   if (logitem->tls_type != NULL)
     free (logitem->tls_type);
-
   
   free (logitem);
 }
@@ -1350,6 +1348,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     contains_usecs ();  /* set flag */
     free (tkn);
     break;
+    
     /* UMS: Krypto (TLS) parameters like "TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256"*/
   case 'K':
     /* error to set this twice */
@@ -1362,6 +1361,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     logitem->tls_type = tkn;
     
     break;
+    
     /* UMS: Mime-Type like "text/html" */
   case 'M':
     /* error to set this twice */
@@ -1372,7 +1372,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     logitem->mime_type = tkn;
-
+    
     break;
     /* move forward through str until not a space */
   case '~':
@@ -2267,24 +2267,23 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
 static int
 gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
 {
-  char *major, *offs;
-  int major_len;
+  char *major=NULL, *offs=NULL;
   
   if (!logitem->mime_type)
     return 1;
 
   kdata->data     = logitem->mime_type;
-  kdata->data_key = logitem->mime_type;
+  kdata->data_key = append_date_to_key (logitem->mime_type, logitem->date);
 
-  offs = strstr(logitem->mime_type, "/");
+  /* redirects and the like only register as "-", ignore those */
+  offs = strchr(logitem->mime_type, '/');
   if (!offs)
     return 1;
 
-  major_len = offs - logitem->mime_type;
-  major =strndup(logitem->mime_type, major_len);
+  major = strndup(logitem->mime_type, offs - logitem->mime_type);
 
   kdata->root     = major;
-  kdata->root_key = major;
+  kdata->root_key = append_date_to_key (major, logitem->date);
   
   return 0;
 }
@@ -2298,7 +2297,6 @@ static int
 gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
 {
   char *tls, *offs;
-  int tls_len;
 
   if (!logitem->tls_type)
     return 1;
@@ -2308,18 +2306,16 @@ gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
     return 1;
   
   kdata->data     = logitem->tls_type;
-  kdata->data_key = logitem->tls_type;
+  kdata->data_key = append_date_to_key (logitem->tls_type, logitem->date);
 
   offs = strstr(logitem->tls_type, " ");
   if (!offs)
     return 1;
 
-  tls_len = offs - logitem->tls_type;
-  tls =strndup(logitem->tls_type, tls_len);
-
+  tls = strndup(logitem->tls_type, offs - logitem->tls_type);
 
   kdata->root     = tls;
-  kdata->root_key = tls;
+  kdata->root_key = append_date_to_key (tls, logitem->date);
 
   return 0;
 }
