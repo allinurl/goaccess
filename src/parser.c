@@ -996,6 +996,14 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   return 1;
 }
 
+static void
+set_tm_dt_logitem(GLogItem *logitem, struct tm tm)
+{
+  logitem->dt.tm_year = tm.tm_year;
+  logitem->dt.tm_mon = tm.tm_mon;
+  logitem->dt.tm_mday = tm.tm_mday;
+}
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Parse the log string given log format rule.
@@ -1031,9 +1039,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
-    logitem->dt.tm_year = tm.tm_year;
-    logitem->dt.tm_mon = tm.tm_mon;
-    logitem->dt.tm_mday = tm.tm_mday;
+    set_tm_dt_logitem(logitem, tm);
     free (tkn);
     break;
     /* time */
@@ -1067,9 +1073,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 1;
     }
 
-    logitem->dt.tm_year = tm.tm_year;
-    logitem->dt.tm_mon = tm.tm_mon;
-    logitem->dt.tm_mday = tm.tm_mday;
+    set_tm_dt_logitem(logitem, tm);
 
     logitem->dt.tm_hour = tm.tm_hour;
     logitem->dt.tm_min = tm.tm_min;
