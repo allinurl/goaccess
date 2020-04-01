@@ -997,11 +997,17 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
 }
 
 static void
-set_tm_dt_logitem(GLogItem *logitem, struct tm tm)
-{
+set_tm_dt_logitem (GLogItem * logitem, struct tm tm) {
   logitem->dt.tm_year = tm.tm_year;
   logitem->dt.tm_mon = tm.tm_mon;
   logitem->dt.tm_mday = tm.tm_mday;
+}
+
+static void
+set_tm_tm_logitem (GLogItem * logitem, struct tm tm) {
+  logitem->dt.tm_hour = tm.tm_hour;
+  logitem->dt.tm_min = tm.tm_min;
+  logitem->dt.tm_sec = tm.tm_sec;
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
@@ -1039,7 +1045,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
-    set_tm_dt_logitem(logitem, tm);
+    set_tm_dt_logitem (logitem, tm);
     free (tkn);
     break;
     /* time */
@@ -1054,9 +1060,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
-    logitem->dt.tm_hour = tm.tm_hour;
-    logitem->dt.tm_min = tm.tm_min;
-    logitem->dt.tm_sec = tm.tm_sec;
+    set_tm_tm_logitem (logitem, tm);
     free (tkn);
     break;
     /* date/time as decimal, i.e., timestamps, ms/us  */
@@ -1073,11 +1077,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 1;
     }
 
-    set_tm_dt_logitem(logitem, tm);
-
-    logitem->dt.tm_hour = tm.tm_hour;
-    logitem->dt.tm_min = tm.tm_min;
-    logitem->dt.tm_sec = tm.tm_sec;
+    set_tm_dt_logitem (logitem, tm);
+    set_tm_tm_logitem (logitem, tm);
     break;
     /* Virtual Host */
   case 'v':
