@@ -177,6 +177,7 @@ set_json_buffer (GJSON * json, int len) {
  * buffer if necessary.
  *
  * On success, data is outputted. */
+__attribute__((format (printf, 2, 3)))
 static void
 pjson (GJSON * json, const char *fmt, ...) {
   int len = 0;

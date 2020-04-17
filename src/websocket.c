@@ -684,7 +684,7 @@ log_return_message (int ret, int err, const char *fn) {
     /* call was not successful because a fatal error occurred either at the
      * protocol level or a connection failure occurred. */
     if (ret != 0) {
-      LOG (("SSL bogus handshake interrupt: \n", strerror (errno)));
+      LOG (("SSL bogus handshake interrupt: %s\n", strerror (errno)));
       break;
     }
     /* call not yet finished. */
@@ -1422,7 +1422,7 @@ access_log (WSClient * client, int status_code) {
   ACCESS_LOG (("%d ", hdrs->buflen));
   ACCESS_LOG (("\"%s\" ", ref ? ref : "-"));
   ACCESS_LOG (("\"%s\" ", ua ? ua : "-"));
-  ACCESS_LOG (("%zu\n", elapsed));
+  ACCESS_LOG (("%u\n", elapsed));
 
   if (req)
     free (req);

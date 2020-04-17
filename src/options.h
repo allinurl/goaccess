@@ -31,7 +31,7 @@
 #define OPTIONS_H_INCLUDED
 
 void add_dash_filename (void);
-void cmd_help (void);
+void cmd_help (void) __attribute__((noreturn));
 void read_option_args (int argc, char **argv);
 void verify_global_config (int argc, char **argv);
 
