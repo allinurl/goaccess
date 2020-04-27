@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include "commons.h"
 
-#define MAX_LINE_CONF         512
+#define MAX_LINE_CONF        4096
 #define MAX_EXTENSIONS        128
 #define MAX_IGNORE_IPS 1024 + 128
 #define MAX_IGNORE_REF         64
