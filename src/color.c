@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -303,8 +303,7 @@ static const char *nocolors[] = {
 
 /* Allocate memory for color elements */
 static GColors *
-new_gcolors (void)
-{
+new_gcolors (void) {
   GColors *color = xcalloc (1, sizeof (GColors));
   color->module = -1;
 
@@ -313,8 +312,7 @@ new_gcolors (void)
 
 /* Allocate memory for a color element properties */
 static GColorPair *
-new_gcolorpair (void)
-{
+new_gcolorpair (void) {
   GColorPair *pair = xcalloc (1, sizeof (GColorPair));
   /* Must be between 2 and COLOR_PAIRS-1.
    * Starts at 2 since COLOR_NORMAL has already been set */
@@ -325,8 +323,7 @@ new_gcolorpair (void)
 
 /* Free malloc'd memory for color elements */
 void
-free_color_lists (void)
-{
+free_color_lists (void) {
   if (pair_list)
     list_remove_nodes (pair_list);
   if (color_list)
@@ -338,8 +335,7 @@ free_color_lists (void)
 /* Set a default color - COLOR_NORMAL, this will be used if
  * no colors are supported by the terminal */
 void
-set_normal_color (void)
-{
+set_normal_color (void) {
   GColorPair *pair = new_gcolorpair ();
   GColors *color = new_gcolors ();
 
@@ -358,71 +354,61 @@ set_normal_color (void)
 
 /* Get color properties for COLOR_OVERALL_LBLS */
 GColors *
-color_overall_lbls (void)
-{
+color_overall_lbls (void) {
   return get_color (COLOR_OVERALL_LBLS);
 }
 
 /* Get color properties for COLOR_OVERALL_VALS */
 GColors *
-color_overall_vals (void)
-{
+color_overall_vals (void) {
   return get_color (COLOR_OVERALL_VALS);
 }
 
 /* Get color properties for COLOR_OVERALL_PATH */
 GColors *
-color_overall_path (void)
-{
+color_overall_path (void) {
   return get_color (COLOR_OVERALL_PATH);
 }
 
 /* Get color properties for COLOR_PANEL_HEADER */
 GColors *
-color_panel_header (void)
-{
+color_panel_header (void) {
   return get_color (COLOR_PANEL_HEADER);
 }
 
 /* Get color properties for COLOR_PANEL_DESC */
 GColors *
-color_panel_desc (void)
-{
+color_panel_desc (void) {
   return get_color (COLOR_PANEL_DESC);
 }
 
 /* Get color properties for COLOR_PANEL_ACTIVE*/
 GColors *
-color_panel_active (void)
-{
+color_panel_active (void) {
   return get_color (COLOR_PANEL_ACTIVE);
 }
 
 /* Get color properties for COLOR_SELECTED */
 GColors *
-color_selected (void)
-{
+color_selected (void) {
   return get_color (COLOR_SELECTED);
 }
 
 /* Get color properties for COLOR_PROGRESS */
 GColors *
-color_progress (void)
-{
+color_progress (void) {
   return get_color (COLOR_PROGRESS);
 }
 
 /* Get color properties for COLOR_DEFAULT */
 GColors *
-color_default (void)
-{
+color_default (void) {
   return get_color (COLOR_DEFAULT);
 }
 
 /* Get color properties for COLOR_ERROR */
 GColors *
-color_error (void)
-{
+color_error (void) {
   return get_color (COLOR_ERROR);
 }
 
@@ -431,8 +417,7 @@ color_error (void)
  * On error, -1 is returned.
  * On success, the enumerated color is returned. */
 static int
-get_color_item_enum (const char *str)
-{
+get_color_item_enum (const char *str) {
   return str2enum (CSTM_COLORS, ARRAY_SIZE (CSTM_COLORS), str);
 }
 
@@ -441,8 +426,7 @@ get_color_item_enum (const char *str)
  * On error, -2 is returned. If color is greater than max colors, it aborts.
  * On success, the color number is returned. */
 static int
-extract_color (char *color)
-{
+extract_color (char *color) {
   char *sEnd;
   int col = 0;
 
@@ -466,8 +450,7 @@ extract_color (char *color)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_bg_fg_color (GColorPair * pair, const char *value)
-{
+parse_bg_fg_color (GColorPair * pair, const char *value) {
   char bgcolor[COLOR_STR_LEN] = "", fgcolor[COLOR_STR_LEN] = "";
   int ret = 0;
 
@@ -485,8 +468,7 @@ parse_bg_fg_color (GColorPair * pair, const char *value)
 
 /* Assign color attributes from the given config string to GColors. */
 static void
-locate_attr_color (GColors * color, const char *attr)
-{
+locate_attr_color (GColors * color, const char *attr) {
   if (strstr (attr, "bold"))
     color->attr |= A_BOLD;
   if (strstr (attr, "underline"))
@@ -506,8 +488,7 @@ locate_attr_color (GColors * color, const char *attr)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_attr_color (GColors * color, const char *value)
-{
+parse_attr_color (GColors * color, const char *value) {
   char *line, *ptr, *start;
   int ret = 0;
 
@@ -540,8 +521,7 @@ clean:
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_module_color (GColors * color, const char *value)
-{
+parse_module_color (GColors * color, const char *value) {
   char *line = xstrdup (value), *p;
 
   p = strrchr (line, ' ');
@@ -565,8 +545,7 @@ clean:
  * If color exists, 1 is returned.
  * If color does not exist, 1 is returned. */
 static int
-find_color_in_list (void *data, void *color)
-{
+find_color_in_list (void *data, void *color) {
   GColors *new_color = color;
   GColors *old_color = data;
 
@@ -583,8 +562,7 @@ find_color_in_list (void *data, void *color)
  * If color exists, 1 is returned.
  * If color does not exist, 1 is returned. */
 static int
-find_pair_in_list (void *data, void *color)
-{
+find_pair_in_list (void *data, void *color) {
   GColorPair *new_color = color;
   GColorPair *old_color = data;
 
@@ -601,8 +579,7 @@ find_pair_in_list (void *data, void *color)
  * If the items match and with no module, 1 is returned.
  * If condition is not satisfied, 0 is returned. */
 static int
-find_color_item_in_list (void *data, void *needle)
-{
+find_color_item_in_list (void *data, void *needle) {
   GColors *color = data;
   GColorItem *item = needle;
 
@@ -614,8 +591,7 @@ find_color_item_in_list (void *data, void *needle)
  * If the items match and with no module, 1 is returned.
  * If condition is not satisfied, 0 is returned. */
 static int
-find_color_item_module_in_list (void *data, void *needle)
-{
+find_color_item_module_in_list (void *data, void *needle) {
   GColors *color = data;
   GColors *item = needle;
 
@@ -628,8 +604,7 @@ find_color_item_module_in_list (void *data, void *needle)
  * On success, the color item properties are returned, or NULL if no match
  * found. */
 GColors *
-get_color (GColorItem item)
-{
+get_color (GColorItem item) {
   GColorItem normal = COLOR_NORMAL;
   GSLList *match = NULL;
 
@@ -649,8 +624,7 @@ get_color (GColorItem item)
  * On success, the color item properties are returned, or NULL if no match
  * found. */
 GColors *
-get_color_by_item_module (GColorItem item, GModule module)
-{
+get_color_by_item_module (GColorItem item, GModule module) {
   GColors *needle = new_gcolors (), *color = NULL;
   GSLList *match = NULL;
 
@@ -674,8 +648,7 @@ get_color_by_item_module (GColorItem item, GModule module)
  * On error, it aborts.
  * On success, the color properties are assigned */
 static void
-parse_color_line (GColorPair * pair, GColors * color, char *line)
-{
+parse_color_line (GColorPair * pair, GColors * color, char *line) {
   char *val;
   int item = 0;
   size_t idx;
@@ -714,8 +687,7 @@ parse_color_line (GColorPair * pair, GColors * color, char *line)
  * On error, or if color already exists, the given color is freed.
  * On success, or if not color found, store color properties */
 static void
-prepend_color (GColors ** color)
-{
+prepend_color (GColors ** color) {
   GSLList *match = NULL;
 
   /* create a list of colors if one does not exist */
@@ -741,8 +713,7 @@ prepend_color (GColors ** color)
  * On error, it aborts.
  * On success, the color properties are stored */
 static void
-parse_color (char *line)
-{
+parse_color (char *line) {
   GSLList *match = NULL;
   GColors *color = NULL;
   GColorPair *pair = NULL;
@@ -784,8 +755,7 @@ parse_color (char *line)
  * On error, it aborts.
  * On success, the color properties are parsed and stored */
 static void
-parse_colors (const char *colors[], size_t n)
-{
+parse_colors (const char *colors[], size_t n) {
   char *line;
   size_t i;
 
@@ -802,8 +772,7 @@ parse_colors (const char *colors[], size_t n)
 
 /* Use default color definitions if necessary. */
 static void
-add_default_colors (void)
-{
+add_default_colors (void) {
   /* no colors */
   if (COLORS < 8)
     parse_colors (nocolors, ARRAY_SIZE (nocolors));
@@ -830,8 +799,7 @@ add_default_colors (void)
 
 /* Entry point to parse color definitions or use default colors */
 void
-set_colors (int force)
-{
+set_colors (int force) {
   errno = 0;
   if (conf.color_idx > 0 && !force)
     parse_colors (conf.colors, conf.color_idx);

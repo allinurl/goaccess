@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -58,10 +58,12 @@ char *deblank (char *str);
 char *escape_str (const char *src);
 char *filesize_str (unsigned long long log_size);
 char *float2str (float d, int width);
+int str2int (const char *date);
 char *get_global_config (void);
 char *get_home (void);
 char *get_visitors_date (const char *odate, const char *from, const char *to);
 char *int2str (int d, int width);
+char *u322str (uint32_t d, int width);
 char *left_pad_str (const char *s, int indent);
 char *ltrim (char *s);
 char *replace_str (const char *str, const char *old, const char *new);
@@ -85,9 +87,10 @@ int ip_in_range (const char *ip);
 int str_inarray (const char *s, const char *arr[], int size);
 int str_to_time (const char *str, const char *fmt, struct tm *tm);
 int valid_output_type (const char *filename);
+int ptr2int(char *ptr);
 off_t file_size (const char *filename);
 uint32_t ip_to_binary (const char *ip);
-void append_str (char **dest, const char *src);
+size_t append_str (char **dest, const char *src);
 void genstr(char *dest, size_t len);
 void strip_newlines (char *str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);

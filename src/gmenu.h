@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -44,8 +44,7 @@
 #ifndef GMENU_H_INCLUDED
 #define GMENU_H_INCLUDED
 
-enum ACTION
-{
+enum ACTION {
   REQ_DOWN,
   REQ_UP,
   REQ_SEL
@@ -55,15 +54,13 @@ typedef struct GMenu_ GMenu;
 typedef struct GItem_ GItem;
 
 /* Menu Item */
-struct GItem_
-{
+struct GItem_ {
   char *name;
   int checked;
 };
 
 /* Menu Panel */
-struct GMenu_
-{
+struct GMenu_ {
   WINDOW *win;
 
   int count;

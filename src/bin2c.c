@@ -19,8 +19,7 @@
 #endif
 
 int
-main (int argc, char *argv[])
-{
+main (int argc, char *argv[]) {
   char *buf;
   char *ident;
   unsigned int i, file_size, need_comma;
@@ -86,8 +85,7 @@ main (int argc, char *argv[])
     return -1;
   }
   // compress the data
-  status =
-    BZ2_bzBuffToBuffCompress (bz2_buf, &bz2_size, buf, file_size, 9, 1, 0);
+  status = BZ2_bzBuffToBuffCompress (bz2_buf, &bz2_size, buf, file_size, 9, 1, 0);
   if (status != BZ_OK) {
     fprintf (stderr, "Failed to compress data: error %i\n", status);
     free (buf);
@@ -115,8 +113,7 @@ main (int argc, char *argv[])
   for (i = 0; i < file_size; ++i) {
     if (buf[i] == '\0') {
       fprintf (stderr,
-               "%s: writing a null character terminates the content prematurely\n",
-               argv[0]);
+               "%s: writing a null character terminates the content prematurely\n", argv[0]);
       fclose (f_output);
       free (buf);
       return -1;
@@ -133,8 +130,7 @@ main (int argc, char *argv[])
   fprintf (f_output, "const int %s_length = %u;\n", ident, file_size);
 
 #ifdef USE_BZ2
-  fprintf (f_output, "const int %s_length_uncompressed = %u;\n", ident,
-           uncompressed_size);
+  fprintf (f_output, "const int %s_length_uncompressed = %u;\n", ident, uncompressed_size);
 #endif
 
   if (ferror (f_output)) {

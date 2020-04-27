@@ -7,7 +7,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -52,8 +52,7 @@
  *
  * On success, the newly allocated GWSReader is returned. */
 GWSReader *
-new_gwsreader (void)
-{
+new_gwsreader (void) {
   GWSReader *reader = xmalloc (sizeof (GWSReader));
   memset (reader, 0, sizeof *reader);
 
@@ -64,8 +63,7 @@ new_gwsreader (void)
  *
  * On success, the newly allocated GWSWriter is returned. */
 GWSWriter *
-new_gwswriter (void)
-{
+new_gwswriter (void) {
   GWSWriter *writer = xmalloc (sizeof (GWSWriter));
   memset (writer, 0, sizeof *writer);
 
@@ -77,8 +75,7 @@ new_gwswriter (void)
  * If unable to write bytes, -1 is returned.
  * On success, the number of written bytes is returned . */
 static int
-write_holder (int fd, const char *buf, int len)
-{
+write_holder (int fd, const char *buf, int len) {
   int i, ret = 0;
 
   for (i = 0; i < len;) {
@@ -97,8 +94,7 @@ write_holder (int fd, const char *buf, int len)
 
 /* Clear an incoming FIFO packet and header data. */
 static void
-clear_fifo_packet (GWSReader * gwserver)
-{
+clear_fifo_packet (GWSReader * gwserver) {
   memset (gwserver->hdr, 0, sizeof (gwserver->hdr));
   gwserver->hlen = 0;
 
@@ -116,8 +112,7 @@ clear_fifo_packet (GWSReader * gwserver)
  *
  * On success, 0 is returned . */
 int
-broadcast_holder (int fd, const char *buf, int len)
-{
+broadcast_holder (int fd, const char *buf, int len) {
   char *p = NULL, *ptr = NULL;
 
   p = calloc (sizeof (uint32_t) * 3, sizeof (char));
@@ -139,8 +134,7 @@ broadcast_holder (int fd, const char *buf, int len)
  *
  * On success, 0 is returned . */
 int
-send_holder_to_client (int fd, int listener, const char *buf, int len)
-{
+send_holder_to_client (int fd, int listener, const char *buf, int len) {
   char *p = NULL, *ptr = NULL;
 
   p = calloc (sizeof (uint32_t) * 3, sizeof (char));
@@ -163,8 +157,7 @@ send_holder_to_client (int fd, int listener, const char *buf, int len)
  * If there's less data than requested, 0 is returned
  * If the thread is done, 1 is returned */
 int
-read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int))
-{
+read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
   WSPacket **pa = &gwsreader->packet;
   char *ptr;
   int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd, max = 0;
@@ -197,8 +190,7 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int))
   readh = gwsreader->hlen;      /* read from header so far */
   need = HDR_SIZE - readh;      /* need to read */
   if (need > 0) {
-    if ((bytes =
-         ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
+    if ((bytes = ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
     if (bytes != need)
       return 0;
@@ -237,8 +229,7 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int))
  * It writes to a named pipe a header containing the socket, the
  * message type, the payload's length and the actual payload */
 static int
-onopen (WSPipeOut * pipeout, WSClient * client)
-{
+onopen (WSPipeOut * pipeout, WSClient * client) {
   uint32_t hsize = sizeof (uint32_t) * 3;
   char *hdr = calloc (hsize, sizeof (char));
   char *ptr = hdr;
@@ -256,8 +247,7 @@ onopen (WSPipeOut * pipeout, WSClient * client)
 
 /* Done parsing, clear out line and set status message. */
 void
-set_ready_state (void)
-{
+set_ready_state (void) {
   fprintf (stderr, "\33[2K\r");
   fprintf (stderr, "%s\n", INFO_WS_READY_FOR_CONN);
 }
@@ -267,8 +257,7 @@ set_ready_state (void)
  * If unable to open, -1 is returned.
  * On success, return the new file descriptor is returned . */
 int
-open_fifoout (void)
-{
+open_fifoout (void) {
   const char *fifo = conf.fifo_out ? conf.fifo_out : WS_PIPEOUT;
   int fdfifo;
 
@@ -285,8 +274,7 @@ open_fifoout (void)
  * If unable to open, -1 is returned.
  * On success, return the new file descriptor is returned . */
 int
-open_fifoin (void)
-{
+open_fifoin (void) {
   const char *fifo = conf.fifo_in ? conf.fifo_in : WS_PIPEIN;
   int fdfifo;
 
@@ -298,8 +286,7 @@ open_fifoin (void)
 
 /* Set the self-pipe trick to handle select(2). */
 void
-set_self_pipe (int *self_pipe)
-{
+set_self_pipe (int *self_pipe) {
   /* Initialize self pipe. */
   if (pipe (self_pipe) == -1)
     FATAL ("Unable to create pipe: %s.", strerror (errno));
@@ -311,8 +298,7 @@ set_self_pipe (int *self_pipe)
 
 /* Close the WebSocket server and clean up. */
 void
-stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
-{
+stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
   pthread_t writer, reader;
   WSServer *server = NULL;
 
@@ -334,17 +320,16 @@ stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
 
   reader = gwsreader->thread;
   if (pthread_join (reader, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", reader, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", reader, strerror (errno)));
 
   writer = gwswriter->thread;
   if (pthread_join (writer, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", writer, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", writer, strerror (errno)));
 }
 
 /* Start the WebSocket server and initialize default options. */
 static void
-start_server (void *ptr_data)
-{
+start_server (void *ptr_data) {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
   writer->server->onopen = onopen;
@@ -358,8 +343,7 @@ start_server (void *ptr_data)
 
 /* Read and set the WebSocket config options. */
 static void
-set_ws_opts (void)
-{
+set_ws_opts (void) {
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
@@ -379,8 +363,7 @@ set_ws_opts (void)
 
 /* Setup and start the WebSocket threads. */
 int
-setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader)
-{
+setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
   int id;
   pthread_t *thread;
 

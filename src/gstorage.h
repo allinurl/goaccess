@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,11 +34,11 @@
 #include "parser.h"
 
 /* Total number of storage metrics (GSMetric) */
-#define GSMTRC_TOTAL 14
+#define GSMTRC_TOTAL 19
+#define DB_PATH "/tmp"
 
 /* Enumerated Storage Metrics */
-typedef enum GSMetric_
-{
+typedef enum GSMetric_ {
   MTRC_KEYMAP,
   MTRC_ROOTMAP,
   MTRC_DATAMAP,
@@ -53,17 +53,22 @@ typedef enum GSMetric_
   MTRC_PROTOCOLS,
   MTRC_AGENTS,
   MTRC_METADATA,
+  MTRC_AGENT_KEYS,
+  MTRC_AGENT_VALS,
+  MTRC_UNIQUE_KEYS,
+  MTRC_CNT_VALID,
+  MTRC_CNT_BW,
 } GSMetric;
 
 GMetrics *new_gmetrics (void);
 
-int *int2ptr (int val);
+uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
 
+char *get_mtr_str (GSMetric metric);
 void *get_storage_metric_by_module (GModule module, GSMetric metric);
 void *get_storage_metric (GModule module, GSMetric metric);
-void set_module_totals (GLog * glog, GPercTotals * totals);
-void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics,
-                       GPercTotals totals);
+void set_module_totals (GPercTotals * totals);
+void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals);
 
 #endif // for #ifndef GSTORAGE_H

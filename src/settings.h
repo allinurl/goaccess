@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@
 #include <stdint.h>
 #include "commons.h"
 
-#define MAX_LINE_CONF         512
+#define MAX_LINE_CONF        4096
 #define MAX_EXTENSIONS        128
 #define MAX_IGNORE_IPS 1024 + 128
 #define MAX_IGNORE_REF         64
@@ -43,8 +43,7 @@
 #define MAX_FILENAMES         512
 #define NO_CONFIG_FILE "No config file used"
 
-typedef enum LOGTYPE
-{
+typedef enum LOGTYPE {
   COMBINED,
   VCOMBINED,
   COMMON,
@@ -58,16 +57,14 @@ typedef enum LOGTYPE
 } GLogType;
 
 /* predefined log times */
-typedef struct GPreConfTime_
-{
+typedef struct GPreConfTime_ {
   const char *fmt24;
   const char *usec;
   const char *sec;
 } GPreConfTime;
 
 /* predefined log dates */
-typedef struct GPreConfDate_
-{
+typedef struct GPreConfDate_ {
   const char *apache;
   const char *w3c;
   const char *usec;
@@ -75,8 +72,7 @@ typedef struct GPreConfDate_
 } GPreConfDate;
 
 /* predefined log formats */
-typedef struct GPreConfLog_
-{
+typedef struct GPreConfLog_ {
   const char *combined;
   const char *vcombined;
   const char *common;
@@ -125,6 +121,7 @@ typedef struct GConf_
   const char *invalid_requests_log; /* invalid lines log path */
   const char *pidfile;              /* daemonize pid file path */
   const char *browsers_file;        /* browser's file path */
+  const char *db_path;              /* db path to files */
 
   /* HTML real-time */
   const char *addr;                 /* IP address to bind to */
@@ -137,7 +134,6 @@ typedef struct GConf_
   const char *ws_url;               /* WebSocket URL */
 
   /* User flags */
-  int store_accumulated_time;       /* store accumulated processing time in tcb */
   int all_static_files;             /* parse all static files */
   int anonymize_ip;                 /* anonymize ip addresses */
   int append_method;                /* append method to the req key */
@@ -147,6 +143,7 @@ typedef struct GConf_
   int color_scheme;                 /* color scheme */
   int crawlers_only ;               /* crawlers only */
   int daemonize;                    /* run program as a Unix daemon */
+  const char *username;             /* user to run program as */
   int double_decode;                /* need to double decode */
   int enable_html_resolver;         /* html/json/csv resolver */
   int geo_db;                       /* legacy geoip db */
@@ -169,10 +166,14 @@ typedef struct GConf_
   int no_progress;                  /* disable progress metrics */
   int no_tab_scroll;                /* don't scroll dashboard on tab */
   int output_stdout;                /* outputting to stdout */
+  int persist;                      /* ensure to persist data on exit */
   int process_and_exit;             /* parse and exit without outputting */
   int real_os;                      /* show real OSs */
   int real_time_html;               /* enable real-time HTML output */
+  int restore;                      /* reload data from db-path */
   int skip_term_resolver;           /* no terminal resolver */
+  int store_accumulated_time;       /* store accumulated processing time in tcb */
+  uint32_t keep_last;               /* number of days to keep in storage */
   uint32_t num_tests;               /* number of lines to test */
   uint64_t log_size;                /* log size override */
 
@@ -203,17 +204,6 @@ typedef struct GConf_
 
   size_t static_file_max_len;
 
-  /* TokyoCabinet */
-  const char *db_path;              /* db path to files */
-  int64_t xmmap;                    /* size of the extra mapped memory */
-  int cache_lcnum;                  /* max num of leaf nodes to cache */
-  int cache_ncnum;                  /* max num of non-leaf nodes to cache */
-  int compression;                  /* deflate or BZIP2 */
-  int keep_db_files;                /* persist parsed data into disk */
-  int load_from_disk;               /* load stored data */
-  int tune_bnum;                    /* num of elems of the bucket array */
-  int tune_lmemb;                   /* num of memb in each leaf page */
-  int tune_nmemb;                   /* num of memb in each non-leaf page */
 } GConf;
 /* *INDENT-ON* */
 

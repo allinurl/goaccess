@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,8 +42,8 @@ GHolder *new_gholder (uint32_t size);
 void *add_hostname_node (void *ptr_holder);
 void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);
-void load_holder_data (GRawData * raw_data, GHolder * h, GModule module,
-                       GSort sort);
+void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort);
 void load_host_to_holder (GHolder * h, char *ip);
+int dup_key_list (void *val, GSLList ** user_data);
 
 #endif // for #ifndef GHOLDER_H

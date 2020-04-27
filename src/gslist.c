@@ -7,7 +7,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,17 +32,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "gslist.h"
+#include "gstorage.h"
 #include "xmalloc.h"
 
-/* Instantiate a new Single linked-list node.
+/* Instantiate a new Singly linked-list node.
  *
  * On error, aborts if node can't be malloc'd.
  * On success, the GSLList node. */
 GSLList *
-list_create (void *data)
-{
+list_create (void *data) {
   GSLList *node = xmalloc (sizeof (GSLList));
   node->data = data;
   node->next = NULL;
@@ -55,8 +56,7 @@ list_create (void *data)
  * On error, aborts if node can't be malloc'd.
  * On success, the newly created node. */
 GSLList *
-list_insert_append (GSLList * node, void *data)
-{
+list_insert_append (GSLList * node, void *data) {
   GSLList *newnode;
   newnode = list_create (data);
   newnode->next = node->next;
@@ -70,8 +70,7 @@ list_insert_append (GSLList * node, void *data)
  * On error, aborts if node can't be malloc'd.
  * On success, the newly created node. */
 GSLList *
-list_insert_prepend (GSLList * list, void *data)
-{
+list_insert_prepend (GSLList * list, void *data) {
   GSLList *newnode;
   newnode = list_create (data);
   newnode->next = list;
@@ -84,8 +83,7 @@ list_insert_prepend (GSLList * list, void *data)
  * If comparison fails, NULL is returned.
  * On success, the existing node is returned. */
 GSLList *
-list_find (GSLList * node, int (*func) (void *, void *), void *data)
-{
+list_find (GSLList * node, int (*func) (void *, void *), void *data) {
   while (node) {
     if (func (node->data, data) > 0)
       return node;
@@ -95,12 +93,26 @@ list_find (GSLList * node, int (*func) (void *, void *), void *data)
   return NULL;
 }
 
+GSLList *
+list_copy (GSLList * node) {
+  GSLList *list = NULL;
+
+  while (node) {
+    if (!list)
+      list = list_create (i322ptr ((*(uint32_t *) node->data)));
+    else
+      list = list_insert_prepend (list, i322ptr ((*(uint32_t *) node->data)));
+    node = node->next;
+  }
+
+  return list;
+}
+
 /* Remove all nodes from the list.
  *
  * On success, 0 is returned. */
 int
-list_remove_nodes (GSLList * list)
-{
+list_remove_nodes (GSLList * list) {
   GSLList *tmp;
   while (list != NULL) {
     tmp = list->next;
@@ -118,8 +130,7 @@ list_remove_nodes (GSLList * list)
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-list_remove_node (GSLList ** list, GSLList * node)
-{
+list_remove_node (GSLList ** list, GSLList * node) {
   GSLList **current = list, *next = NULL;
   for (; *current; current = &(*current)->next) {
     if ((*current) != node)
@@ -140,8 +151,7 @@ list_remove_node (GSLList ** list, GSLList * node)
  * If function pointer does not return 0, -1 is returned.
  * On success, 0 is returned. */
 int
-list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data)
-{
+list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data) {
   while (node) {
     if (func (node->data, user_data) != 0)
       return -1;
@@ -155,8 +165,7 @@ list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data)
  *
  * On success, the number of elements is returned. */
 int
-list_count (GSLList * node)
-{
+list_count (GSLList * node) {
   int count = 0;
   while (node != 0) {
     count++;

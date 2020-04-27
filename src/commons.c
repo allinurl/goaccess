@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2016 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,12 +54,35 @@ time_t start_proc;
 /* list of available modules/panels */
 int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 
+/* *INDENT-OFF* */
+/* String modules to enumerated modules */
+static GEnum enum_modules[] = {
+  {"VISITORS"        , VISITORS}        ,
+  {"REQUESTS"        , REQUESTS}        ,
+  {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
+  {"NOT_FOUND"       , NOT_FOUND}       ,
+  {"HOSTS"           , HOSTS}           ,
+  {"OS"              , OS}              ,
+  {"BROWSERS"        , BROWSERS}        ,
+  {"VISIT_TIMES"     , VISIT_TIMES}     ,
+  {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
+  {"REFERRERS"       , REFERRERS}       ,
+  {"REFERRING_SITES" , REFERRING_SITES} ,
+  {"KEYPHRASES"      , KEYPHRASES}      ,
+  {"STATUS_CODES"    , STATUS_CODES}    ,
+  {"REMOTE_USER"     , REMOTE_USER}     ,
+  {"CACHE_STATUS"    , CACHE_STATUS}    ,
+#ifdef HAVE_GEOLOCATION
+  {"GEO_LOCATION"    , GEO_LOCATION}    ,
+#endif
+};
+/* *INDENT-ON* */
+
 /* Get number of items per panel to parse.
  *
  * The number of items per panel is returned. */
 int
-get_max_choices (void)
-{
+get_max_choices (void) {
   char *csv = NULL, *json = NULL, *html = NULL;
   int max = MAX_CHOICES;
 
@@ -100,28 +123,19 @@ get_max_choices (void)
  *
  * The percentage is returned. */
 float
-get_percentage (unsigned long long total, unsigned long long hit)
-{
+get_percentage (unsigned long long total, unsigned long long hit) {
   return (total == 0 ? 0 : (((float) hit) / total) * 100);
 }
 
 /* Display the storage being used. */
 void
-display_storage (void)
-{
-#ifdef TCB_BTREE
-  fprintf (stdout, "%s\n", BUILT_WITH_TCBTREE);
-#elif TCB_MEMHASH
-  fprintf (stdout, "%s\n", BUILT_WITH_TCMEMHASH);
-#else
+display_storage (void) {
   fprintf (stdout, "%s\n", BUILT_WITH_DEFHASH);
-#endif
 }
 
 /* Display the path of the default configuration file when `-p` is not used */
 void
-display_default_config_file (void)
-{
+display_default_config_file (void) {
   char *path = get_config_file_path ();
 
   if (!path) {
@@ -135,11 +149,10 @@ display_default_config_file (void)
 
 /* Display the current version. */
 void
-display_version (void)
-{
+display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
-  fprintf (stdout, "Copyright (C) 2009-2016 by Gerardo Orellana\n");
+  fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
   fprintf (stdout, "  --enable-debug\n");
@@ -152,20 +165,6 @@ display_version (void)
 #endif
 #ifdef HAVE_LIBMAXMINDDB
   fprintf (stdout, "  --enable-geoip=mmdb\n");
-#endif
-#ifdef TCB_MEMHASH
-  fprintf (stdout, "  --enable-tcb=memhash\n");
-#endif
-#ifdef TCB_BTREE
-  fprintf (stdout, "  --enable-tcb=btree\n");
-#endif
-#if defined(TCB_MEMHASH) || defined(TCB_BTREE)
-#ifndef HAVE_ZLIB
-  fprintf (stdout, "  --disable-zlib\n");
-#endif
-#ifndef HAVE_BZ2
-  fprintf (stdout, "  --disable-bzip\n");
-#endif
 #endif
 #ifdef WITH_GETLINE
   fprintf (stdout, "  --with-getline\n");
@@ -180,8 +179,7 @@ display_version (void)
  * On error, -1 is returned.
  * On success, the enumerated module value is returned. */
 int
-str2enum (const GEnum map[], int len, const char *str)
-{
+str2enum (const GEnum map[], int len, const char *str) {
   int i;
 
   for (i = 0; i < len; ++i) {
@@ -192,74 +190,65 @@ str2enum (const GEnum map[], int len, const char *str)
   return -1;
 }
 
+/* Get the string value given an enum.
+ *
+ * On error, -1 is returned.
+ * On success, the enumerated module value is returned. */
+char *
+enum2str (const GEnum map[], int len, int idx) {
+  int i;
+
+  for (i = 0; i < len; ++i) {
+    if (idx == map[i].idx)
+      return xstrdup (map[i].str);
+  }
+
+  return NULL;
+}
+
 /* Get the enumerated module value given a module string.
  *
  * On error, -1 is returned.
  * On success, the enumerated module value is returned. */
 int
-get_module_enum (const char *str)
-{
-  /* *INDENT-OFF* */
-  /* String modules to enumerated modules */
-  GEnum enum_modules[] = {
-    {"VISITORS"        , VISITORS}        ,
-    {"REQUESTS"        , REQUESTS}        ,
-    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
-    {"NOT_FOUND"       , NOT_FOUND}       ,
-    {"HOSTS"           , HOSTS}           ,
-    {"OS"              , OS}              ,
-    {"BROWSERS"        , BROWSERS}        ,
-    {"VISIT_TIMES"     , VISIT_TIMES}     ,
-    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
-    {"REFERRERS"       , REFERRERS}       ,
-    {"REFERRING_SITES" , REFERRING_SITES} ,
-    {"KEYPHRASES"      , KEYPHRASES}      ,
-    {"STATUS_CODES"    , STATUS_CODES}    ,
-    {"REMOTE_USER"     , REMOTE_USER}     ,
-    {"CACHE_STATUS"    , CACHE_STATUS}    ,
-#ifdef HAVE_GEOLOCATION
-    {"GEO_LOCATION"    , GEO_LOCATION}    ,
-#endif
-  };
-  /* *INDENT-ON* */
-
+get_module_enum (const char *str) {
   return str2enum (enum_modules, ARRAY_SIZE (enum_modules), str);
+}
+
+/* Get the module string value given a module enum value.
+ *
+ * On error, NULL is returned.
+ * On success, the string module value is returned. */
+char *
+get_module_str (GModule module) {
+  return enum2str (enum_modules, ARRAY_SIZE (enum_modules), module);
 }
 
 /* Instantiate a new GAgents structure.
  *
  * On success, the newly malloc'd structure is returned. */
 GAgents *
-new_gagents (void)
-{
+new_gagents (uint32_t size) {
   GAgents *agents = xmalloc (sizeof (GAgents));
   memset (agents, 0, sizeof *agents);
+
+  agents->items = xcalloc (size, sizeof (GAgentItem));
+  agents->size = size;
+  agents->idx = 0;
 
   return agents;
 }
 
-/* Instantiate a new GAgentItem structure.
- *
- * On success, the newly malloc'd structure is returned. */
-GAgentItem *
-new_gagent_item (uint32_t size)
-{
-  GAgentItem *item = xcalloc (size, sizeof (GAgentItem));
-
-  return item;
-}
-
 /* Clean the array of agents. */
 void
-free_agents_array (GAgents * agents)
-{
+free_agents_array (GAgents * agents) {
   int i;
 
   if (agents == NULL)
     return;
 
   /* clean stuff up */
-  for (i = 0; i < agents->size; ++i)
+  for (i = 0; i < agents->idx; ++i)
     free (agents->items[i].agent);
   if (agents->items)
     free (agents->items);
@@ -271,8 +260,7 @@ free_agents_array (GAgents * agents)
  * On error, 0 is returned.
  * On success, 1 is returned. */
 int
-has_timestamp (const char *fmt)
-{
+has_timestamp (const char *fmt) {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
     return 1;
   return 0;
@@ -282,8 +270,7 @@ has_timestamp (const char *fmt)
  *
  * If enabled, 1 is returned, else 0 is returned. */
 int
-enable_panel (GModule mod)
-{
+enable_panel (GModule mod) {
   int i, module;
 
   for (i = 0; i < conf.enable_panel_idx; ++i) {
@@ -301,8 +288,7 @@ enable_panel (GModule mod)
  *
  * If ignored, 1 is returned, else 0 is returned. */
 int
-ignore_panel (GModule mod)
-{
+ignore_panel (GModule mod) {
   int i, module;
 
   for (i = 0; i < conf.ignore_panel_idx; ++i) {
@@ -320,8 +306,7 @@ ignore_panel (GModule mod)
  *
  * The number of modules available is returned. */
 uint32_t
-get_num_modules (void)
-{
+get_num_modules (void) {
   size_t idx = 0;
   uint32_t num = 0;
 
@@ -337,8 +322,7 @@ get_num_modules (void)
  * If the module is not within the array, -1 is returned.
  * If the module is within the array, the index is returned. */
 int
-get_module_index (int module)
-{
+get_module_index (int module) {
   size_t idx = 0;
 
   FOREACH_MODULE (idx, module_list) {
@@ -355,8 +339,7 @@ get_module_index (int module)
  * If the module is within the array, it is removed from the array and
  * 0 is returned. */
 int
-remove_module (GModule module)
-{
+remove_module (GModule module) {
   int idx = get_module_index (module);
   if (idx == -1)
     return 1;
@@ -373,8 +356,7 @@ remove_module (GModule module)
  *
  * The next available module in the array is returned. */
 int
-get_next_module (GModule module)
-{
+get_next_module (GModule module) {
   int next = get_module_index (module) + 1;
 
   if (next == TOTAL_MODULES || module_list[next] == -1)
@@ -387,8 +369,7 @@ get_next_module (GModule module)
  *
  * The previous available module in the array is returned. */
 int
-get_prev_module (GModule module)
-{
+get_prev_module (GModule module) {
   int i;
   int next = get_module_index (module) - 1;
 
@@ -410,8 +391,7 @@ get_prev_module (GModule module)
  * Note: This overwrites --enable-panel since it assumes there's
  * truly nothing to do with the panel */
 void
-verify_panels (void)
-{
+verify_panels (void) {
   int ignore_panel_idx = conf.ignore_panel_idx;
 
   /* Remove virtual host panel if no '%v' within log format */
@@ -437,8 +417,7 @@ verify_panels (void)
  * If there are no modules enabled, 0 is returned.
  * On success, the first enabled module is returned. */
 int
-init_modules (void)
-{
+init_modules (void) {
   GModule module;
   int i;
 
@@ -461,8 +440,7 @@ init_modules (void)
  * On success, it adds up all log sizes and its value is returned.
  * if --log-size was specified, it will be returned explicitly */
 intmax_t
-get_log_sizes (void)
-{
+get_log_sizes (void) {
   int i;
   off_t size = 0;
 
@@ -485,8 +463,7 @@ get_log_sizes (void)
  * On success, a newly malloc'd string containing the log source either
  * from filename(s) and/or STDIN is returned. */
 char *
-get_log_source_str (int max_len)
-{
+get_log_source_str (int max_len) {
   char *str = xstrdup ("");
   int i, len = 0;
 
