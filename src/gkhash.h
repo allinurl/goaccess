@@ -132,18 +132,61 @@ struct GKHashStorage_ {
 
 /* Metrics Storage */
 
+/* Most metrics are encapsulated within a GKHashStorage structure, which is
+ * conformed of a dated key and a GKHashStorage struct value. This helps to
+ * easily destroy the entire dated storage at any time. */
+
+/* GLOBAL METRICS */
+/* ============== */
+/* Maps a string key containing an IP|DATE|UA to an autoincremented value.
+ *
+ * 192.168.0.1|27/Apr/2020|Debian APT-HTTP/1.3 (1.0.9.8.5) -> 1
+ * 192.168.0.1|28/Apr/2020|Debian APT-HTTP/1.3 (1.0.9.8.5) -> 2
+ */
+/*khash_t(si32) MTRC_UNIQUE_KEYS */
+
+/* Maps string keys made out of the user agent to an autoincremented value.
+ *
+ * Debian APT-HTTP/1.3 (1.0.9.8.5) -> 1
+ * Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0) -> 2
+ */
+/*khash_t(si32) MTRC_AGENT_KEYS */
+
+/* Maps integer keys from the autoincremented MTRC_AGENT_KEYS value to the user
+ * agent.
+ *
+ * 1 -> Debian APT-HTTP/1.3 (1.0.9.8.5)
+ * 2 -> Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)
+ */
+/*khash_t(is32) MTRC_AGENT_KEYS */
+
+/* Maps a single numeric key (usually 1) to an autoincremented hits value.
+ *
+ * 1 -> 5
+ */
+/*khash_t(is32) MTRC_CNT_VALID */
+
+/* Maps a single numeric key (usually 1) to an autoincremented bw value.
+ *
+ * 1 -> 592933
+ */
+/*khash_t(iu64) MTRC_CNT_BW */
+
+
+/* MODULE METRICS */
+/* ============== */
 /* Maps keys (string) to numeric values (integer).
- * This mitigates the issue of having multiple stores
+ * this mitigates the issue of having multiple stores
  * with the same string key, and therefore, avoids unnecessary
  * memory usage (in most cases).
  *
  * HEAD|/index.php  -> 1
  * POST|/index.php  -> 2
- * Windows XP       -> 3
+ * Windows xp       -> 3
  * Ubuntu 10.10     -> 4
- * GET|Ubuntu 10.10 -> 5
+ * GET|ubuntu 10.10 -> 5
  * Linux            -> 6
- * 26/Dec/2014      -> 7
+ * 26/dec/2014      -> 7
  * Windows          -> 8
  */
 /*khash_t(si32) MTRC_KEYMAP */
@@ -161,23 +204,28 @@ struct GKHashStorage_ {
  *
  * 1 -> /index.php
  * 2 -> /index.php
- * 3 -> Windows XP
- * 4 -> Ubuntu 10.10
- * 5 -> Ubuntu 10.10
- * 7 -> 26/Dec/2014
+ * 3 -> windows xp
+ * 4 -> ubuntu 10.10
+ * 5 -> ubuntu 10.10
+ * 7 -> 26/dec/2014
  */
 /*khash_t(is32) MTRC_DATAMAP */
 
-/* Maps a string key made from the integer key of the
- * IP/date/UA and the integer key from the data field of
- * each module to numeric autoincremented values. e.g., "1|4"
- * => 1 -> unique visitor key (concatenated) with 4 -> data
- * key.
+/* Maps the unique uint32_t key of the IP/date/UA and the uint32_t key from the
+ * data field encoded into a uint64_t key to numeric autoincremented values.
+ * e.g., "1&4" => 12938238293 to ai.
  *
- * "1|4" -> 1
- * "1|5" -> 2
+ * 201023232 -> 1
+ * 202939232 -> 2
  */
 /*khash_t(si32) MTRC_UNIQMAP */
+
+/* Maps integer keys made from a data key to an integer root key.
+ *
+ * 6 -> 1
+ * 8 -> 2
+ */
+/*khash_t(is32) MTRC_ROOT */
 
 /* Maps integer key from the keymap hash to the number of
  * hits.
@@ -233,6 +281,12 @@ struct GKHashStorage_ {
  * 2 -> 4,5,6,8
  */
 /*khash_t(igsl) MTRC_AGENTS */
+
+/* Maps a string key counter such as sum of hits to an autoincremented value
+ * "sum_hits" -> 9383
+ * "sum_bw"   -> 3232932
+ */
+/*khash_t(igsl) MTRC_METADATA */
 
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);

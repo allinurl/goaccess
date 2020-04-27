@@ -316,28 +316,28 @@ des_iu64 (void *h) {
 
 /* *INDENT-OFF* */
 static const GKHashMetric global_metrics[] = {
-  {MTRC_UNIQUE_KEYS , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL , "SI32_UNIQUE_KEYS.db" } ,
-  {MTRC_AGENT_VALS  , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL , "IS32_AGENT_VALS.db"  } ,
-  {MTRC_AGENT_KEYS  , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL , "SI32_AGENT_KEYS.db"  } ,
-  {MTRC_CNT_VALID   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL , "II32_CNT_VALID.db"   } ,
-  {MTRC_CNT_BW      , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL , "IU64_CNT_BW.db"      } ,
+  { MTRC_UNIQUE_KEYS , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL , "SI32_UNIQUE_KEYS.db" } ,
+  { MTRC_AGENT_KEYS  , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL , "SI32_AGENT_KEYS.db"  } ,
+  { MTRC_AGENT_VALS  , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL , "IS32_AGENT_VALS.db"  } ,
+  { MTRC_CNT_VALID   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL , "II32_CNT_VALID.db"   } ,
+  { MTRC_CNT_BW      , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL , "IU64_CNT_BW.db"      } ,
 };
 
 static GKHashMetric module_metrics[] = {
-  {MTRC_KEYMAP      , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL, NULL}  ,
-  {MTRC_ROOTMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
-  {MTRC_DATAMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
-  {MTRC_UNIQMAP     , MTRC_TYPE_U648 , new_u648_ht , des_u648      , NULL, NULL}  ,
-  {MTRC_ROOT        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
-  {MTRC_HITS        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
-  {MTRC_VISITORS    , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
-  {MTRC_BW          , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
-  {MTRC_CUMTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
-  {MTRC_MAXTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
-  {MTRC_METHODS     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
-  {MTRC_PROTOCOLS   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
-  {MTRC_AGENTS      , MTRC_TYPE_IGSL , new_igsl_ht , des_igsl_free , NULL, NULL}  ,
-  {MTRC_METADATA    , MTRC_TYPE_SU64 , new_su64_ht , des_su64_free , NULL, NULL}  ,
+  { MTRC_KEYMAP      , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , NULL, NULL}  ,
+  { MTRC_ROOTMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
+  { MTRC_DATAMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
+  { MTRC_UNIQMAP     , MTRC_TYPE_U648 , new_u648_ht , des_u648      , NULL, NULL}  ,
+  { MTRC_ROOT        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
+  { MTRC_HITS        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
+  { MTRC_VISITORS    , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , NULL, NULL}  ,
+  { MTRC_BW          , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
+  { MTRC_CUMTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
+  { MTRC_MAXTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , NULL, NULL}  ,
+  { MTRC_METHODS     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
+  { MTRC_PROTOCOLS   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , NULL, NULL}  ,
+  { MTRC_AGENTS      , MTRC_TYPE_IGSL , new_igsl_ht , des_igsl_free , NULL, NULL}  ,
+  { MTRC_METADATA    , MTRC_TYPE_SU64 , new_su64_ht , des_su64_free , NULL, NULL}  ,
 };
 /* *INDENT-ON* */
 
