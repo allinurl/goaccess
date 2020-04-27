@@ -321,11 +321,11 @@ stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
 
   reader = gwsreader->thread;
   if (pthread_join (reader, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", reader, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", reader, strerror (errno)));
 
   writer = gwswriter->thread;
   if (pthread_join (writer, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", writer, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", writer, strerror (errno)));
 }
 
 /* Start the WebSocket server and initialize default options. */

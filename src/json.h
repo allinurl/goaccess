@@ -56,7 +56,7 @@ void fpskeyaval (FILE * fp, const char *key, const char *val, int sp, int last);
 
 void fpclose_arr (FILE * fp, int sp, int last);
 void fpclose_obj (FILE * fp, int iisp, int last);
-void fpjson (FILE * fp, const char *fmt, ...);
+void fpjson (FILE * fp, const char *fmt, ...) __attribute__((format (printf, 2, 3)));
 void fpopen_arr_attr (FILE * fp, const char *attr, int sp);
 void fpopen_obj_attr (FILE * fp, const char *attr, int sp);
 void fpopen_obj (FILE * fp, int iisp);

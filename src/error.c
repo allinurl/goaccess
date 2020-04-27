@@ -169,7 +169,6 @@ sigsegv_handler (int sig) {
   exit (EXIT_FAILURE);
 }
 
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Write formatted debug log data to the logfile. */
 void
 dbg_fprintf (const char *fmt, ...) {
@@ -220,5 +219,3 @@ access_fprintf (const char *fmt, ...) {
   fflush (access_log);
   va_end (args);
 }
-
-#pragma GCC diagnostic warning "-Wformat-nonliteral"

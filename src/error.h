@@ -78,17 +78,17 @@
 #define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
 
 int access_log_open (const char *path);
-void access_fprintf (const char *fmt, ...);
+void access_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void access_log_close (void);
-void dbg_printf (const char *fmt, ...);
+void dbg_printf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 
-void dbg_fprintf (const char *fmt, ...);
+void dbg_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void dbg_log_close (void);
 void dbg_log_open (const char *file);
-void invalid_fprintf (const char *fmt, ...);
+void invalid_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void invalid_log_close (void);
 void invalid_log_open (const char *path);
 void set_signal_data (void *p);
-void sigsegv_handler (int sig);
+void sigsegv_handler (int sig) __attribute__((noreturn));
 
 #endif
