@@ -870,69 +870,23 @@ print_json_block (GJSON * json, GMetrics * nmetrics, int sp) {
   pjson (json, "\"");
 }
 
-/* Add the given user agent value into our array of GAgents.
- *
- * On error, 1 is returned.
- * On success, the user agent is added to the array and 0 is returned. */
-static int
-fill_host_agents (void *val, void *user_data) {
-  GAgents *agents = user_data;
-  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
-  int i;
-
-  if (agent == NULL)
-    return 1;
-
-  for (i = 0; i < agents->size; ++i) {
-    if (strcmp (agent, agents->items[i].agent) == 0) {
-      free (agent);
-      return 0;
-    }
-  }
-
-  agents->items[agents->size].agent = agent;
-  agents->size++;
-
-  return 0;
-}
-
-/* Iterate over the list of agents */
-static int
-load_host_agents (void *list, void *user_data, uint32_t count) {
-  GSLList *lst = list;
-  GAgents *agents = user_data;
-
-  agents->items = new_gagent_item (count);
-  return list_foreach (lst, fill_host_agents, agents);
-}
-
 /* A wrapper function to ouput an array of user agents for each host. */
 static void
 process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
-  GAgents *agents = new_gagents ();
-  GSLList *list = NULL, *node = NULL;
+  GAgents *agents = NULL;
   int i, n = 0, iiisp = 0;
-  uint32_t count = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     iiisp = iisp + 1;
 
   /* create a new instance of GMenu and make it selectable */
-  node = item->metrics->keys;
-  while (node) {
-    set_list_host_agents (node->data, &list);
-    node = node->next;
-  }
-  count = list_count (list);
-  if (count == 0 || load_host_agents (list, agents, count) != 0) {
-    free (agents);
+  if (!(agents = load_host_agents (item->metrics->keys)))
     return;
-  }
 
   pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
 
-  n = agents->size > 10 ? 10 : agents->size;
+  n = agents->idx > 10 ? 10 : agents->idx;
   for (i = 0; i < n; ++i) {
     pjson (json, "%.*s\"", iiisp, TAB);
     escape_json_output (json, agents->items[i].agent);
@@ -946,7 +900,6 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
 
   /* clean stuff up */
   free_agents_array (agents);
-  list_remove_nodes (list);
 }
 
 /* A wrapper function to ouput children nodes. */

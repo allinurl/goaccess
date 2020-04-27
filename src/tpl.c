@@ -487,22 +487,23 @@ tpl_map_va (char *fmt, va_list ap) {
             ((tpl_atyp *) (n->parent->data))->sz +=
               tpl_types[np->type].sz * (np->num * (n->num - 1));
           }
-          np->data = tpl_hook.realloc (np->data, tpl_types[np->type].sz *
-                                       np->num * n->num);
+          np->data =
+            tpl_hook.realloc (np->data,
+                              tpl_types[np->type].sz * np->num * n->num);
           if (!np->data)
             fatal_oom ();
           memset (np->data, 0, tpl_types[np->type].sz * np->num * n->num);
         }
       } else {  /* simple atom-# form does not require a loop */
         preceding->num = pound_prod;
-        preceding->data = tpl_hook.realloc (preceding->data,
-                                            tpl_types[t].sz * preceding->num);
+        preceding->data =
+          tpl_hook.realloc (preceding->data, tpl_types[t].sz * preceding->num);
         if (!preceding->data)
           fatal_oom ();
         memset (preceding->data, 0, tpl_types[t].sz * preceding->num);
         if (n->parent->type == TPL_TYPE_ARY) {
-          ((tpl_atyp *) (n->parent->data))->sz += tpl_types[t].sz *
-            (preceding->num - 1);
+          ((tpl_atyp *) (n->parent->data))->sz +=
+            tpl_types[t].sz * (preceding->num - 1);
         }
       }
       root->ser_osz += (sizeof (uint32_t) * num_contig_fxlens);
@@ -1040,8 +1041,9 @@ tpl_ser_osz (tpl_node * n) {
       } else {  /* loop complete. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != c; np = np->next) {
-          np->data = (char *) (np->data) - ((itermax - 1) *
-                                            tpl_types[np->type].sz * np->num);
+          np->data =
+            (char *) (np->data) -
+            ((itermax - 1) * tpl_types[np->type].sz * np->num);
         }
       }
       break;
@@ -1222,8 +1224,9 @@ tpl_dump_to_mem (tpl_node * r, void *addr, size_t sz) {
         /* reset iteration index and addr/data pointers. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != c; np = np->next) {
-          np->data = (char *) (np->data) - ((itermax - 1) *
-                                            tpl_types[np->type].sz * np->num);
+          np->data =
+            (char *) (np->data) -
+            ((itermax - 1) * tpl_types[np->type].sz * np->num);
         }
 
       }
@@ -2095,8 +2098,9 @@ tpl_pack (tpl_node * r, int i) {
         /* reset iteration index and addr/data pointers. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != child; np = np->next) {
-          np->data = (char *) (np->data) - ((itermax - 1) *
-                                            tpl_types[np->type].sz * np->num);
+          np->data =
+            (char *) (np->data) -
+            ((itermax - 1) * tpl_types[np->type].sz * np->num);
           np->addr = (char *) (np->addr) - ((itermax - 1) * pd->inter_elt_len);
         }
 

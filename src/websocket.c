@@ -635,7 +635,8 @@ initialize_ssl_ctx (WSServer * server) {
 
   /* since we queued up the send data, a retry won't be the same buffer,
    * thus we need the following flags */
-  SSL_CTX_set_mode (ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
+  SSL_CTX_set_mode (ctx,
+                    SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
                     SSL_MODE_ENABLE_PARTIAL_WRITE);
 
   server->ctx = ctx;

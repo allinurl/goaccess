@@ -46,6 +46,7 @@
 
 /* string literals and translations */
 #include "labels.h"
+#include "commons.h"
 
 /* Global UI defaults */
 #define MIN_HEIGHT        8     /* minimum window height */
@@ -230,8 +231,8 @@ const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
 int get_start_end_parsing_dates (GHolder * h, char **start, char **end, const char *f);
 int render_confdlg (GLog * glog, GSpinner * spinner);
-int set_list_host_agents (void *val, GSLList **user_data);
 void close_win (WINDOW * w);
+GAgents *load_host_agents (GSLList *keys);
 void display_general (WINDOW * win, GHolder *h);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);

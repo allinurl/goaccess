@@ -57,23 +57,23 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 /* *INDENT-OFF* */
 /* String modules to enumerated modules */
 static GEnum enum_modules[] = {
-    {"VISITORS"        , VISITORS}        ,
-    {"REQUESTS"        , REQUESTS}        ,
-    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
-    {"NOT_FOUND"       , NOT_FOUND}       ,
-    {"HOSTS"           , HOSTS}           ,
-    {"OS"              , OS}              ,
-    {"BROWSERS"        , BROWSERS}        ,
-    {"VISIT_TIMES"     , VISIT_TIMES}     ,
-    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
-    {"REFERRERS"       , REFERRERS}       ,
-    {"REFERRING_SITES" , REFERRING_SITES} ,
-    {"KEYPHRASES"      , KEYPHRASES}      ,
-    {"STATUS_CODES"    , STATUS_CODES}    ,
-    {"REMOTE_USER"     , REMOTE_USER}     ,
-    {"CACHE_STATUS"    , CACHE_STATUS}    ,
+  {"VISITORS"        , VISITORS}        ,
+  {"REQUESTS"        , REQUESTS}        ,
+  {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
+  {"NOT_FOUND"       , NOT_FOUND}       ,
+  {"HOSTS"           , HOSTS}           ,
+  {"OS"              , OS}              ,
+  {"BROWSERS"        , BROWSERS}        ,
+  {"VISIT_TIMES"     , VISIT_TIMES}     ,
+  {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
+  {"REFERRERS"       , REFERRERS}       ,
+  {"REFERRING_SITES" , REFERRING_SITES} ,
+  {"KEYPHRASES"      , KEYPHRASES}      ,
+  {"STATUS_CODES"    , STATUS_CODES}    ,
+  {"REMOTE_USER"     , REMOTE_USER}     ,
+  {"CACHE_STATUS"    , CACHE_STATUS}    ,
 #ifdef HAVE_GEOLOCATION
-    {"GEO_LOCATION"    , GEO_LOCATION}    ,
+  {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
 };
 /* *INDENT-ON* */
@@ -228,21 +228,15 @@ get_module_str (GModule module) {
  *
  * On success, the newly malloc'd structure is returned. */
 GAgents *
-new_gagents (void) {
+new_gagents (uint32_t size) {
   GAgents *agents = xmalloc (sizeof (GAgents));
   memset (agents, 0, sizeof *agents);
 
+  agents->items = xcalloc (size, sizeof (GAgentItem));
+  agents->size = size;
+  agents->idx = 0;
+
   return agents;
-}
-
-/* Instantiate a new GAgentItem structure.
- *
- * On success, the newly malloc'd structure is returned. */
-GAgentItem *
-new_gagent_item (uint32_t size) {
-  GAgentItem *item = xcalloc (size, sizeof (GAgentItem));
-
-  return item;
 }
 
 /* Clean the array of agents. */
@@ -254,7 +248,7 @@ free_agents_array (GAgents * agents) {
     return;
 
   /* clean stuff up */
-  for (i = 0; i < agents->size; ++i)
+  for (i = 0; i < agents->idx; ++i)
     free (agents->items[i].agent);
   if (agents->items)
     free (agents->items);

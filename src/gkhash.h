@@ -37,26 +37,98 @@
 #include "khash.h"
 #include "parser.h"
 
-/* uint32_t keys, char payload */
-KHASH_MAP_INIT_INT (iui8, uint8_t);
-/* uint32_t keys, uint32_t payload */
+/* Enumerated Storage Metrics */
+typedef enum GSMetricType_ {
+  /* uint32_t key - uint32_t val */
+  MTRC_TYPE_II32,
+  /* uint32_t key - string val */
+  MTRC_TYPE_IS32,
+  /* uint32_t key - uint64_t val */
+  MTRC_TYPE_IU64,
+  /* string key   - uint32_t val */
+  MTRC_TYPE_SI32,
+  /* string key   - string val */
+  MTRC_TYPE_SS32,
+  /* uint32_t key - GSLList val */
+  MTRC_TYPE_IGSL,
+  /* string key   - GSLList val */
+  MTRC_TYPE_SGSL,
+  /* string key   - uint64_t val */
+  MTRC_TYPE_SU64,
+  /* uint32_t key - GKHashStorage_ val */
+  MTRC_TYPE_IGKH,
+  /* uint64_t key - uint32_t val */
+  MTRC_TYPE_U648,
+} GSMetricType;
+
+typedef struct GKHashStorage_ GKHashStorage;
+
+/* uint32_t keys           , GKHashStorage payload */
+KHASH_MAP_INIT_INT (igkh, GKHashStorage *);
+/* uint32_t keys           , uint32_t payload */
 KHASH_MAP_INIT_INT (ii32, uint32_t);
-/* uint32_t keys, string payload */
+/* uint32_t keys           , string payload */
 KHASH_MAP_INIT_INT (is32, char *);
-/* uint32_t keys, uint64_t payload */
+/* uint32_t keys           , uint64_t payload */
 KHASH_MAP_INIT_INT (iu64, uint64_t);
-/* string keys, uint32_t payload */
+/* string keys             , uint32_t payload */
 KHASH_MAP_INIT_STR (si32, uint32_t);
-/* string keys, string payload */
+/* string keys             , string payload */
 KHASH_MAP_INIT_STR (ss32, char *);
-/* string keys, GSLList payload */
+/* string keys             , GSLList payload */
 KHASH_MAP_INIT_STR (sgsl, GSLList *);
-/* uint32_t keys, GSLList payload */
+/* uint32_t keys           , GSLList payload */
 KHASH_MAP_INIT_INT (igsl, GSLList *);
-/* string keys, uint64_t payload */
+/* string keys             , uint64_t payload */
 KHASH_MAP_INIT_STR (su64, uint64_t);
-/* uint64_t key, uint32_t payload */
+/* uint64_t key            , uint8_t payload */
 KHASH_MAP_INIT_INT64 (u648, uint8_t);
+
+typedef struct GKHashMetric_ {
+  GSMetric metric;
+  GSMetricType type;
+  void *(*alloc) (void);
+  void (*clean) (void *);
+  void *hash;
+  const char *filename;
+} GKHashMetric;
+
+/* Data store per module */
+typedef struct GKHashModule_ {
+  GModule module;
+  GKHashMetric metrics[GSMTRC_TOTAL];
+} GKHashModule;
+
+/* Data store global */
+typedef struct GKHashGlobal_ {
+  GKHashMetric metrics[GSMTRC_TOTAL];
+} GKHashGlobal;
+
+struct GKHashStorage_ {
+  GKHashModule *mhash;          /* modules */
+  GKHashGlobal *ghash;          /* global */
+};
+
+#define HT_FIRST_VAL(h, kvar, code) { khint_t __k;    \
+  for (__k = kh_begin(h); __k != kh_end(h); ++__k) {  \
+    if (!kh_exist(h,__k)) continue;                   \
+    (kvar) = kh_key(h,__k);                           \
+    code;                                             \
+  } }
+
+#define HT_SUM_VAL(h, kvar, code) { khint_t __k;      \
+  for (__k = kh_begin(h); __k != kh_end(h); ++__k) {  \
+    if (!kh_exist(h,__k)) continue;                   \
+    (kvar) = kh_key(h,__k);                           \
+    code;                                             \
+  } }
+
+#define HT_FOREACH_KEY(h, kvar, code) { khint_t __k; \
+  for (__k = kh_begin(h); __k != kh_end(h); ++__k) {  \
+    if (!kh_exist(h,__k)) continue;                   \
+    (kvar) = kh_key(h,__k);                           \
+    code;                                             \
+  } }
 
 /* Metrics Storage */
 
@@ -162,54 +234,6 @@ KHASH_MAP_INIT_INT64 (u648, uint8_t);
  */
 /*khash_t(igsl) MTRC_AGENTS */
 
-/* Enumerated Storage Metrics */
-typedef enum GSMetricType_ {
-  /* uint32_t key - uint32_t val */
-  MTRC_TYPE_II32,
-  /* uint32_t key - string val */
-  MTRC_TYPE_IS32,
-  /* uint32_t key - uint64_t val */
-  MTRC_TYPE_IU64,
-  /* string key - uint32_t val */
-  MTRC_TYPE_SI32,
-  /* string key - string val */
-  MTRC_TYPE_SS32,
-  /* uint32_t key - GSLList val */
-  MTRC_TYPE_IGSL,
-  /* string key - GSLList val */
-  MTRC_TYPE_SGSL,
-  /* string key - uint64_t val */
-  MTRC_TYPE_SU64,
-  /* uint32_t key - uint8_t val */
-  MTRC_TYPE_IUI8,
-  /* uint64_t key - uint32_t val */
-  MTRC_TYPE_U648,
-} GSMetricType;
-
-typedef struct GKHashMetric_ {
-  GSMetric metric;
-  GSMetricType type;
-  union {
-    khash_t (iui8) * iui8;
-    khash_t (ii32) * ii32;
-    khash_t (is32) * is32;
-    khash_t (iu64) * iu64;
-    khash_t (si32) * si32;
-    khash_t (ss32) * ss32;
-    khash_t (sgsl) * sgsl;
-    khash_t (igsl) * igsl;
-    khash_t (su64) * su64;
-    khash_t (u648) * u648;
-  };
-  const char *filename;
-} GKHashMetric;
-
-/* Data Storage per module */
-typedef struct GKHashStorage_ {
-  GModule module;
-  GKHashMetric metrics[GSMTRC_TOTAL];
-} GKHashStorage;
-
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);
 char *ht_get_hostname (const char *host);
@@ -218,53 +242,62 @@ char *ht_get_protocol (GModule module, uint32_t key);
 char *ht_get_root (GModule module, uint32_t key);
 int clean_full_match_hashes (int date);
 int clean_partial_match_hashes (int date);
-int ht_insert_agent (GModule module, uint32_t key, uint32_t value);
-int ht_insert_agent_value (uint32_t key, const char *value);
-int ht_insert_bw (GModule module, uint32_t key, uint64_t inc);
-int ht_insert_cumts (GModule module, uint32_t key, uint64_t inc);
-int ht_insert_datamap (GModule module, uint32_t key, const char *value);
+int ht_inc_cnt_bw (uint32_t date, uint64_t inc);
+int ht_insert_agent (GModule module, uint32_t date, uint32_t key,
+                     uint32_t value);
+int ht_insert_agent_value (uint32_t date, uint32_t key, const char *value);
+int ht_insert_bw (GModule module, uint32_t date, uint32_t key, uint64_t inc);
+int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc);
+int ht_insert_datamap (GModule module, uint32_t date, uint32_t key,
+                       const char *value);
+int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_last_parse (uint32_t key, uint32_t value);
-int ht_insert_maxts (GModule module, uint32_t key, uint64_t value);
-int ht_insert_meta_data (GModule module, const char *key, uint64_t value);
-int ht_insert_method (GModule module, uint32_t key, const char *value);
-int ht_insert_protocol (GModule module, uint32_t key, const char *value);
-int ht_insert_root (GModule module, uint32_t key, uint32_t value);
-int ht_insert_rootmap (GModule module, uint32_t key, const char *value);
-int ht_insert_uniqmap (GModule module, uint32_t key, uint32_t value);
+int ht_insert_maxts (GModule module, uint32_t date, uint32_t key,
+                     uint64_t value);
+int ht_insert_meta_data (GModule module, uint32_t date, const char *key,
+                         uint64_t value);
+int ht_insert_method (GModule module, uint32_t date, uint32_t key,
+                      const char *value);
+int ht_insert_protocol (GModule module, uint32_t date, uint32_t key,
+                        const char *value);
+int ht_insert_root (GModule module, uint32_t date, uint32_t key,
+                    uint32_t value);
+int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key,
+                       const char *value);
+int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key,
+                       uint32_t value);
 int invalidate_date (int date);
 uint32_t *get_sorted_dates (void);
-uint32_t ht_get_date (uint32_t date);
 uint32_t ht_get_excluded_ips (void);
-uint32_t ht_get_hits (GModule module, uint32_t key);
 uint32_t ht_get_invalid (void);
-uint32_t ht_get_invalid (void);
-uint32_t ht_get_keymap (GModule module, const char *key);
 uint32_t ht_get_last_parse (uint32_t key);
 uint32_t ht_get_processed (void);
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_dates (void);
 uint32_t ht_get_size_uniqmap (GModule module);
-uint32_t ht_get_uniqmap (GModule module, const char *key);
 uint32_t ht_get_visitors (GModule module, uint32_t key);
-uint32_t ht_inc_cnt_bw (uint32_t key, uint64_t val);
 uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
-uint32_t ht_inc_cnt_valid (uint32_t key, uint32_t val);
-uint32_t ht_insert_agent_key (const char *key);
-uint32_t ht_insert_agent_seq (const char *key);
-uint32_t ht_insert_date (uint32_t key);
-uint32_t ht_insert_hits (GModule module, uint32_t key, uint32_t inc);
-uint32_t ht_insert_keymap (GModule module, const char *key);
-uint32_t ht_insert_unique_key (const char *key);
+uint32_t ht_inc_cnt_valid (uint32_t date, uint32_t inc);
+uint32_t ht_insert_agent_key (uint32_t date, const char *key);
+uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key,
+                         uint32_t inc);
+uint32_t ht_insert_keymap (GModule module, uint32_t date, const char *key);
+uint32_t ht_insert_unique_key (uint32_t date, const char *key);
 uint32_t ht_insert_unique_seq (const char *key);
-uint32_t ht_insert_visitor (GModule module, uint32_t key, uint32_t inc);
+uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key,
+                            uint32_t inc);
 uint32_t ht_sum_valid (void);
+uint32_t sum_u32_list (uint32_t (*cb) (GModule, uint32_t), GModule module,
+                       GSLList * list);
 uint64_t ht_get_bw (GModule module, uint32_t key);
 uint64_t ht_get_cumts (GModule module, uint32_t key);
 uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 uint64_t ht_sum_bw (void);
-void free_sgls_metrics (GModule module);
+uint64_t sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module,
+                       GSLList * list);
+void free_raw_hits (void);
 void free_storage (void);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
@@ -272,6 +305,7 @@ void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
 void init_storage (void);
+void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);

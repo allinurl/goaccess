@@ -42,31 +42,34 @@
 #include "util.h"
 #include "xmalloc.h"
 
-/* *INDENT-OFF* */
 /* String modules to enumerated modules */
 static GEnum enum_metrics[] = {
-    {"MTRC_KEYMAP"    , MTRC_KEYMAP}    ,
-    {"MTRC_KEYMAPUQ"  , MTRC_KEYMAPUQ}  ,
-    {"MTRC_ROOTMAP"   , MTRC_ROOTMAP}   ,
-    {"MTRC_DATAMAP"   , MTRC_DATAMAP}   ,
-    {"MTRC_UNIQMAP"   , MTRC_UNIQMAP}   ,
-    {"MTRC_ROOT"      , MTRC_ROOT}      ,
-    {"MTRC_HITS"      , MTRC_HITS}      ,
-    {"MTRC_VISITORS"  , MTRC_VISITORS}  ,
-    {"MTRC_BW"        , MTRC_BW}        ,
-    {"MTRC_CUMTS"     , MTRC_CUMTS}     ,
-    {"MTRC_MAXTS"     , MTRC_MAXTS}     ,
-    {"MTRC_METHODS"   , MTRC_METHODS}   ,
-    {"MTRC_PROTOCOLS" , MTRC_PROTOCOLS} ,
-    {"MTRC_AGENTS"    , MTRC_AGENTS}    ,
-    {"MTRC_METADATA"  , MTRC_METADATA}  ,
+  {"MTRC_KEYMAP", MTRC_KEYMAP},
+  {"MTRC_ROOTMAP", MTRC_ROOTMAP},
+  {"MTRC_DATAMAP", MTRC_DATAMAP},
+  {"MTRC_UNIQMAP", MTRC_UNIQMAP},
+  {"MTRC_ROOT", MTRC_ROOT},
+  {"MTRC_HITS", MTRC_HITS},
+  {"MTRC_VISITORS", MTRC_VISITORS},
+  {"MTRC_BW", MTRC_BW},
+  {"MTRC_CUMTS", MTRC_CUMTS},
+  {"MTRC_MAXTS", MTRC_MAXTS},
+  {"MTRC_METHODS", MTRC_METHODS},
+  {"MTRC_PROTOCOLS", MTRC_PROTOCOLS},
+  {"MTRC_AGENTS", MTRC_AGENTS},
+  {"MTRC_METADATA", MTRC_METADATA},
+  {"MTRC_AGENT_KEYS", MTRC_AGENT_KEYS},
+  {"MTRC_AGENT_VALS", MTRC_AGENT_VALS},
+  {"MTRC_UNIQUE_KEYS", MTRC_UNIQUE_KEYS},
+  {"MTRC_CNT_VALID", MTRC_CNT_VALID},
+  {"MTRC_CNT_BW", MTRC_CNT_BW},
 };
+
 /* Allocate memory for a new GMetrics instance.
  *
  * On success, the newly allocated GMetrics is returned . */
 GMetrics *
-new_gmetrics (void)
-{
+new_gmetrics (void) {
   GMetrics *metrics = xcalloc (1, sizeof (GMetrics));
 
   return metrics;
@@ -77,8 +80,7 @@ new_gmetrics (void)
  * On error, NULL is returned.
  * On success, the string module value is returned. */
 char *
-get_mtr_str (GSMetric metric)
-{
+get_mtr_str (GSMetric metric) {
   return enum2str (enum_metrics, ARRAY_SIZE (enum_metrics), metric);
 }
 
@@ -86,8 +88,7 @@ get_mtr_str (GSMetric metric)
  *
  * On success, the newly allocated pointer is returned . */
 uint32_t *
-i322ptr (uint32_t val)
-{
+i322ptr (uint32_t val) {
   uint32_t *ptr = xmalloc (sizeof (uint32_t));
   *ptr = val;
 
@@ -98,8 +99,7 @@ i322ptr (uint32_t val)
  *
  * On success, the newly allocated pointer is returned . */
 uint64_t *
-uint642ptr (uint64_t val)
-{
+uint642ptr (uint64_t val) {
   uint64_t *ptr = xmalloc (sizeof (uint64_t));
   *ptr = val;
 
@@ -108,10 +108,9 @@ uint642ptr (uint64_t val)
 
 /* Set the module totals to calculate percentages. */
 void
-set_module_totals (GPercTotals * totals)
-{
-  totals->bw = ht_sum_bw();
-  totals->hits = ht_sum_valid();
+set_module_totals (GPercTotals * totals) {
+  totals->bw = ht_sum_bw ();
+  totals->hits = ht_sum_valid ();
   totals->visitors = ht_get_size_uniqmap (VISITORS);
 }
 
@@ -119,8 +118,7 @@ set_module_totals (GPercTotals * totals)
  *
  * On success, numeric metrics are set into the given structure. */
 void
-set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals)
-{
+set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals) {
   GMetrics *metrics;
 
   /* determine percentages for certain fields */

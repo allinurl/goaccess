@@ -32,8 +32,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <inttypes.h>
 
 #include "gslist.h"
+#include "gstorage.h"
 #include "xmalloc.h"
 
 /* Instantiate a new Single linked-list node.
@@ -89,6 +91,21 @@ list_find (GSLList * node, int (*func) (void *, void *), void *data) {
   }
 
   return NULL;
+}
+
+GSLList *
+list_copy (GSLList * node) {
+  GSLList *list = NULL;
+
+  while (node) {
+    if (!list)
+      list = list_create (i322ptr ((*(uint32_t *) node->data)));
+    else
+      list = list_insert_prepend (list, i322ptr ((*(uint32_t *) node->data)));
+    node = node->next;
+  }
+
+  return list;
 }
 
 /* Remove all nodes from the list.

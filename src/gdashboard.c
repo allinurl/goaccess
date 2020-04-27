@@ -1352,7 +1352,6 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
                   GPercTotals totals, int is_subitem) {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
-  GSLList *node = NULL;
   char *data = NULL;
   int *idx;
 
@@ -1375,12 +1374,7 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
     get_percentage (totals.visitors, metrics->visitors);
   idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
   idata->metrics->data = xstrdup (data);
-
-  node = metrics->keys;
-  while (node) {
-    dup_key_list (node->data, &idata->metrics->keys);
-    node = node->next;
-  }
+  idata->metrics->keys = list_copy (metrics->keys);
 
   if (conf.append_method && metrics->method)
     idata->metrics->method = metrics->method;

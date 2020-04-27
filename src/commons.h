@@ -214,6 +214,7 @@ typedef struct GAgentItem_ {
 
 typedef struct GAgents_ {
   int size;
+  int idx;
   struct GAgentItem_ *items;
 } GAgents;
 
@@ -229,8 +230,7 @@ extern time_t start_proc;
 extern int module_list[TOTAL_MODULES];
 
 /* *INDENT-OFF* */
-GAgentItem *new_gagent_item (uint32_t size);
-GAgents *new_gagents (void);
+GAgents *new_gagents (uint32_t size);
 void free_agents_array (GAgents *agents);
 
 float get_percentage (unsigned long long total, unsigned long long hit);

@@ -79,6 +79,7 @@ typedef struct GLogItem_ {
   uint64_t resp_size;
   uint64_t serve_time;
 
+  uint32_t numdate;
   int ignorelevel;
   int type_ip;
   int is_404;
@@ -110,14 +111,8 @@ typedef struct GLog_ {
 
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_ {
-  union {
-    GSLList *lkeys;
-    uint32_t ikey;
-  } key;
-  union {
-    char *svalue;
-    uint32_t u32value;
-  } value;
+  GSLList *keys;
+  uint32_t hits;
 } GRawDataItem;
 
 /* Raw Data per module */
@@ -142,6 +137,8 @@ typedef struct GKeyData_ {
 
   void *uniq_key;
   uint32_t uniq_nkey;
+
+  uint32_t numdate;
 } GKeyData;
 
 typedef struct GParse_ {
@@ -149,18 +146,16 @@ typedef struct GParse_ {
   int (*key_data) (GKeyData * kdata, GLogItem * logitem);
 
   /* data field */
-  void (*datamap) (uint32_t data_nkey, const char *data, GModule module);
-  void (*rootmap) (uint32_t root_nkey, const char *root, GModule module);
-
-  /* metrics */
-  void (*hits) (uint32_t data_nkey, GModule module);
-  void (*visitor) (uint32_t uniq_nkey, GModule module);
-  void (*bw) (uint32_t data_nkey, uint64_t size, GModule module);
-  void (*cumts) (uint32_t data_nkey, uint64_t ts, GModule module);
-  void (*maxts) (uint32_t data_nkey, uint64_t ts, GModule module);
-  void (*method) (uint32_t data_nkey, const char *method, GModule module);
-  void (*protocol) (uint32_t data_nkey, const char *proto, GModule module);
-  void (*agent) (uint32_t data_nkey, uint32_t agent_nkey, GModule module);
+  void (*datamap) (GModule module, GKeyData * kdata);
+  void (*rootmap) (GModule module, GKeyData * kdata);
+  void (*hits) (GModule module, GKeyData * kdata);
+  void (*visitor) (GModule module, GKeyData * kdata);
+  void (*bw) (GModule module, GKeyData * kdata, uint64_t size);
+  void (*cumts) (GModule module, GKeyData * kdata, uint64_t ts);
+  void (*maxts) (GModule module, GKeyData * kdata, uint64_t ts);
+  void (*method) (GModule module, GKeyData * kdata, const char *data);
+  void (*protocol) (GModule module, GKeyData * kdata, const char *data);
+  void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 } GParse;
 
 char *fgetline (FILE * fp);

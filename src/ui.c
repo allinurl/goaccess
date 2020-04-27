@@ -833,75 +833,91 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   return s;
 }
 
+/* Add the given user agent value into our array of GAgents.
+ *
+ * On error, 1 is returned.
+ * On success, the user agent is added to the array and 0 is returned. */
+static int
+set_agents (void *val, void *user_data) {
+  GAgents *agents = user_data;
+  GAgentItem *tmp = NULL;
+  char *agent = NULL;
+  int newlen = 0, i;
+
+  if (!(agent = ht_get_host_agent_val (*(uint32_t *) val)))
+    return 1;
+
+  if (agents->size - 1 == agents->idx) {
+    newlen = agents->size + 4;
+    if (!(tmp = realloc (agents->items, newlen * sizeof (GAgentItem))))
+      FATAL ("Unable to realloc agents");
+
+    agents->items = tmp;
+    agents->size = newlen;
+  }
+
+  for (i = 0; i < agents->idx; ++i) {
+    if (strcmp (agent, agents->items[i].agent) == 0) {
+      free (agent);
+      return 0;
+    }
+  }
+  agents->items[agents->idx++].agent = agent;
+
+  return 0;
+}
+
+/* Iterate over the list of agents */
+GAgents *
+load_host_agents (GSLList * keys) {
+  GAgents *agents = NULL;
+  GSLList *list = NULL;
+  void *data = NULL;
+  uint32_t items = 4;
+
+  if (!keys)
+    return NULL;
+
+  agents = new_gagents (items);
+
+  GSLIST_FOREACH (keys, data, {
+                  if ((list =
+                       ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
+                  list_foreach (list, set_agents, agents);
+                  list_remove_nodes (list);}
+                  }
+  );
+
+  return agents;
+}
+
 /* Fill the given terminal dashboard menu with user agent data.
  *
  * On error, the 1 is returned.
  * On success, 0 is returned. */
 static int
-fill_host_agents_gmenu (void *val, void *user_data) {
-  GMenu *menu = user_data;
-  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
+fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
   int i;
 
-  if (agent == NULL)
+  if (agents == NULL)
     return 1;
 
-  for (i = 0; i < menu->size; ++i) {
-    if (strcmp (agent, menu->items[i].name) == 0) {
-      free (agent);
-      return 0;
-    }
+  menu->items = xcalloc (agents->idx, sizeof (GItem));
+  for (i = 0; i < agents->idx; ++i) {
+    menu->items[i].name = xstrdup (agents->items[i].agent);
+    menu->items[i].checked = 0;
+    menu->size++;
   }
 
-  menu->items[menu->size].name = agent;
-  menu->items[menu->size].checked = 0;
-  menu->size++;
-
-  return 0;
-}
-
-/* Iterate over the linked-list of user agents for the given host and
- * load its data into the given menu. */
-static int
-load_host_agents_gmenu (void *list, void *user_data, uint32_t count) {
-  GSLList *lst = list;
-  GMenu *menu = user_data;
-
-  menu->items = (GItem *) xcalloc (count, sizeof (GItem));
-  return list_foreach (lst, fill_host_agents_gmenu, menu);
-}
-
-int
-set_list_host_agents (void *val, GSLList ** user_data) {
-  uint32_t count = 0, key = 0;
-  GSLList *list = NULL;
-
-  if (!(list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) val))))
-    return 1;
-
-  if ((count = list_count (list)) == 0) {
-    free (list);
-    return 1;
-  }
-
-  while (list) {
-    key = (*(uint32_t *) list->data);
-    if (!*user_data)
-      *user_data = list_create (i322ptr (key));
-    else
-      *user_data = list_insert_prepend (*user_data, i322ptr (key));
-    list = list->next;
-  }
   return 0;
 }
 
 /* Render a list of agents if available for the selected host/IP. */
 void
 load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
-  GSLList *list = NULL;
   GMenu *menu;
+  GAgents *agents = NULL;
   WINDOW *win;
-  uint32_t count = 0;
 
   char buf[256];
   int c, quit = 1, i;
@@ -922,12 +938,9 @@ load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
 
   /* create a new instance of GMenu and make it selectable */
   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-  while (keys) {
-    set_list_host_agents (keys->data, &list);
-    keys = keys->next;
-  }
-  count = list_count (list);
-  if (count == 0 || load_host_agents_gmenu (list, menu, count) != 0)
+  if (!(agents = load_host_agents (keys)))
+    goto out;
+  if (fill_host_agents_gmenu (menu, agents) != 0)
     goto out;
 
   post_gmenu (menu);
@@ -959,13 +972,13 @@ load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
 
 out:
 
-  list_remove_nodes (list);
   /* clean stuff up */
   for (i = 0; i < menu->size; ++i)
     free (menu->items[i].name);
   if (menu->items)
     free (menu->items);
   free (menu);
+  free_agents_array (agents);
 }
 
 /* Render the processing spinner. This runs within its own thread. */
