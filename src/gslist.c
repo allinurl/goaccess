@@ -38,7 +38,7 @@
 #include "gstorage.h"
 #include "xmalloc.h"
 
-/* Instantiate a new Single linked-list node.
+/* Instantiate a new Singly linked-list node.
  *
  * On error, aborts if node can't be malloc'd.
  * On success, the GSLList node. */
