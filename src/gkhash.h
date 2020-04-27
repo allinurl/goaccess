@@ -243,30 +243,21 @@ char *ht_get_root (GModule module, uint32_t key);
 int clean_full_match_hashes (int date);
 int clean_partial_match_hashes (int date);
 int ht_inc_cnt_bw (uint32_t date, uint64_t inc);
-int ht_insert_agent (GModule module, uint32_t date, uint32_t key,
-                     uint32_t value);
+int ht_insert_agent (GModule module, uint32_t date, uint32_t key, uint32_t value);
 int ht_insert_agent_value (uint32_t date, uint32_t key, const char *value);
 int ht_insert_bw (GModule module, uint32_t date, uint32_t key, uint64_t inc);
 int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc);
-int ht_insert_datamap (GModule module, uint32_t date, uint32_t key,
-                       const char *value);
+int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value);
 int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_last_parse (uint32_t key, uint32_t value);
-int ht_insert_maxts (GModule module, uint32_t date, uint32_t key,
-                     uint64_t value);
-int ht_insert_meta_data (GModule module, uint32_t date, const char *key,
-                         uint64_t value);
-int ht_insert_method (GModule module, uint32_t date, uint32_t key,
-                      const char *value);
-int ht_insert_protocol (GModule module, uint32_t date, uint32_t key,
-                        const char *value);
-int ht_insert_root (GModule module, uint32_t date, uint32_t key,
-                    uint32_t value);
-int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key,
-                       const char *value);
-int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key,
-                       uint32_t value);
+int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value);
+int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
+int ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value);
+int ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value);
+int ht_insert_root (GModule module, uint32_t date, uint32_t key, uint32_t value);
+int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value);
+int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key, uint32_t value);
 int invalidate_date (int date);
 uint32_t *get_sorted_dates (void);
 uint32_t ht_get_excluded_ips (void);
@@ -280,23 +271,19 @@ uint32_t ht_get_visitors (GModule module, uint32_t key);
 uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
 uint32_t ht_inc_cnt_valid (uint32_t date, uint32_t inc);
 uint32_t ht_insert_agent_key (uint32_t date, const char *key);
-uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key,
-                         uint32_t inc);
+uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key, uint32_t inc);
 uint32_t ht_insert_keymap (GModule module, uint32_t date, const char *key);
 uint32_t ht_insert_unique_key (uint32_t date, const char *key);
 uint32_t ht_insert_unique_seq (const char *key);
-uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key,
-                            uint32_t inc);
+uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_t inc);
 uint32_t ht_sum_valid (void);
-uint32_t sum_u32_list (uint32_t (*cb) (GModule, uint32_t), GModule module,
-                       GSLList * list);
+uint32_t sum_u32_list (uint32_t (*cb) (GModule, uint32_t), GModule module, GSLList * list);
 uint64_t ht_get_bw (GModule module, uint32_t key);
 uint64_t ht_get_cumts (GModule module, uint32_t key);
 uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 uint64_t ht_sum_bw (void);
-uint64_t sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module,
-                       GSLList * list);
+uint64_t sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module, GSLList * list);
 void free_raw_hits (void);
 void free_storage (void);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);

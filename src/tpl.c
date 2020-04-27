@@ -196,8 +196,7 @@ static int tpl_oops (const char *fmt, ...)
   __attribute__((__format__ (printf, 1, 2)));
 static int tpl_gather_mem (char *buf, size_t len, tpl_gather_t ** gs,
                            tpl_gather_cb * cb, void *data);
-static int tpl_gather_nonblocking (int fd, tpl_gather_t ** gs,
-                                   tpl_gather_cb * cb, void *data);
+static int tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb, void *data);
 static int tpl_gather_blocking (int fd, void **img, size_t *sz);
 
 /* This is used internally to help calculate padding when a 'double'
@@ -459,8 +458,7 @@ tpl_map_va (char *fmt, va_list ap) {
         if (pound_num < 1) {
           tpl_hook.fatal ("non-positive iteration count %d\n", pound_num);
         }
-        if (num_contig_fxlens >=
-            (sizeof (contig_fxlens) / sizeof (contig_fxlens[0]))) {
+        if (num_contig_fxlens >= (sizeof (contig_fxlens) / sizeof (contig_fxlens[0]))) {
           tpl_hook.fatal ("contiguous # exceeds hardcoded limit\n");
         }
         contig_fxlens[num_contig_fxlens++] = pound_num;
@@ -487,23 +485,19 @@ tpl_map_va (char *fmt, va_list ap) {
             ((tpl_atyp *) (n->parent->data))->sz +=
               tpl_types[np->type].sz * (np->num * (n->num - 1));
           }
-          np->data =
-            tpl_hook.realloc (np->data,
-                              tpl_types[np->type].sz * np->num * n->num);
+          np->data = tpl_hook.realloc (np->data, tpl_types[np->type].sz * np->num * n->num);
           if (!np->data)
             fatal_oom ();
           memset (np->data, 0, tpl_types[np->type].sz * np->num * n->num);
         }
       } else {  /* simple atom-# form does not require a loop */
         preceding->num = pound_prod;
-        preceding->data =
-          tpl_hook.realloc (preceding->data, tpl_types[t].sz * preceding->num);
+        preceding->data = tpl_hook.realloc (preceding->data, tpl_types[t].sz * preceding->num);
         if (!preceding->data)
           fatal_oom ();
         memset (preceding->data, 0, tpl_types[t].sz * preceding->num);
         if (n->parent->type == TPL_TYPE_ARY) {
-          ((tpl_atyp *) (n->parent->data))->sz +=
-            tpl_types[t].sz * (preceding->num - 1);
+          ((tpl_atyp *) (n->parent->data))->sz += tpl_types[t].sz * (preceding->num - 1);
         }
       }
       root->ser_osz += (sizeof (uint32_t) * num_contig_fxlens);
@@ -1041,9 +1035,7 @@ tpl_ser_osz (tpl_node * n) {
       } else {  /* loop complete. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != c; np = np->next) {
-          np->data =
-            (char *) (np->data) -
-            ((itermax - 1) * tpl_types[np->type].sz * np->num);
+          np->data = (char *) (np->data) - ((itermax - 1) * tpl_types[np->type].sz * np->num);
         }
       }
       break;
@@ -1224,9 +1216,7 @@ tpl_dump_to_mem (tpl_node * r, void *addr, size_t sz) {
         /* reset iteration index and addr/data pointers. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != c; np = np->next) {
-          np->data =
-            (char *) (np->data) -
-            ((itermax - 1) * tpl_types[np->type].sz * np->num);
+          np->data = (char *) (np->data) - ((itermax - 1) * tpl_types[np->type].sz * np->num);
         }
 
       }
@@ -1459,9 +1449,7 @@ tpl_peek (int mode, ...) {
 
   /* retrieve the octothorpic lengths if requested */
   if (num_fxlens > 0) {
-    if (sz <
-        ((uintptr_t) dv + (num_fxlens * sizeof (uint32_t)) -
-         (uintptr_t) addr)) {
+    if (sz < ((uintptr_t) dv + (num_fxlens * sizeof (uint32_t)) - (uintptr_t) addr)) {
       goto fail;
     }
   }
@@ -1981,8 +1969,7 @@ tpl_pack (tpl_node * r, int i) {
       /* no need to use fidx iteration here; we can copy multiple values in one memcpy */
       memcpy (child->data, child->addr, tpl_types[child->type].sz * child->num);
       if (datav)
-        datav =
-          tpl_cpv (datav, child->data, tpl_types[child->type].sz * child->num);
+        datav = tpl_cpv (datav, child->data, tpl_types[child->type].sz * child->num);
       if (n->type == TPL_TYPE_ARY)
         n->ser_osz += tpl_types[child->type].sz * child->num;
       break;
@@ -2098,9 +2085,7 @@ tpl_pack (tpl_node * r, int i) {
         /* reset iteration index and addr/data pointers. */
         pd->iternum = 0;
         for (np = pd->iter_start_node; np != child; np = np->next) {
-          np->data =
-            (char *) (np->data) -
-            ((itermax - 1) * tpl_types[np->type].sz * np->num);
+          np->data = (char *) (np->data) - ((itermax - 1) * tpl_types[np->type].sz * np->num);
           np->addr = (char *) (np->addr) - ((itermax - 1) * pd->inter_elt_len);
         }
 
@@ -2172,8 +2157,7 @@ tpl_unpack (tpl_node * r, int i) {
       /* unpack elements of cross-endian octothorpic array individually */
       if (((tpl_root_data *) (r->data))->flags & TPL_XENDIAN) {
         for (fidx = 0; fidx < c->num; fidx++) {
-          caddr =
-            (void *) ((uintptr_t) c->addr + (fidx * tpl_types[c->type].sz));
+          caddr = (void *) ((uintptr_t) c->addr + (fidx * tpl_types[c->type].sz));
           memcpy (caddr, dv, tpl_types[c->type].sz);
           tpl_byteswap (caddr, tpl_types[c->type].sz);
           dv = (void *) ((uintptr_t) dv + tpl_types[c->type].sz);
@@ -2251,8 +2235,7 @@ tpl_unpack (tpl_node * r, int i) {
       memcpy (&((tpl_atyp *) (c->data))->num, dv, sizeof (uint32_t));
       if (((tpl_root_data *) (r->data))->flags & TPL_XENDIAN)
         tpl_byteswap (&((tpl_atyp *) (c->data))->num, sizeof (uint32_t));
-      ((tpl_atyp *) (c->data))->cur =
-        (void *) ((uintptr_t) dv + sizeof (uint32_t));
+      ((tpl_atyp *) (c->data))->cur = (void *) ((uintptr_t) dv + sizeof (uint32_t));
       dv = (void *) ((uintptr_t) dv + A_bytes);
       break;
     default:
@@ -2331,8 +2314,7 @@ tpl_unpackA0 (tpl_node * r) {
       memcpy (&((tpl_atyp *) (c->data))->num, dv, sizeof (uint32_t));
       if (((tpl_root_data *) (r->data))->flags & TPL_XENDIAN)
         tpl_byteswap (&((tpl_atyp *) (c->data))->num, sizeof (uint32_t));
-      ((tpl_atyp *) (c->data))->cur =
-        (void *) ((uintptr_t) dv + sizeof (uint32_t));
+      ((tpl_atyp *) (c->data))->cur = (void *) ((uintptr_t) dv + sizeof (uint32_t));
       dv = (void *) ((uintptr_t) dv + A_bytes);
       break;
     default:
@@ -2424,8 +2406,7 @@ tpl_gather_blocking (int fd, void **img, size_t *sz) {
   do {
     rc = read (fd, &preamble[i], 8 - i);
     i += (rc > 0) ? rc : 0;
-  } while ((rc == -1 && (errno == EINTR || errno == EAGAIN)) ||
-           (rc > 0 && i < 8));
+  } while ((rc == -1 && (errno == EINTR || errno == EAGAIN)) || (rc > 0 && i < 8));
 
   if (rc < 0) {
     tpl_hook.oops ("tpl_gather_fd_blocking failed: %s\n", strerror (errno));
@@ -2464,8 +2445,7 @@ tpl_gather_blocking (int fd, void **img, size_t *sz) {
   do {
     rc = read (fd, &((*(char **) img)[i]), tpllen - i);
     i += (rc > 0) ? rc : 0;
-  } while ((rc == -1 && (errno == EINTR || errno == EAGAIN)) ||
-           (rc > 0 && i < tpllen));
+  } while ((rc == -1 && (errno == EINTR || errno == EAGAIN)) || (rc > 0 && i < tpllen));
 
   if (rc < 0) {
     tpl_hook.oops ("tpl_gather_fd_blocking failed: %s\n", strerror (errno));
@@ -2487,8 +2467,7 @@ tpl_gather_blocking (int fd, void **img, size_t *sz) {
 /* Used by select()-driven apps which want to gather tpl images piecemeal */
 /* the file descriptor must be non-blocking for this functino to work. */
 static int
-tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb,
-                        void *data) {
+tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb, void *data) {
   char buf[TPL_GATHER_BUFLEN], *img, *tpl;
   int rc, keep_looping, cbrc = 0;
   size_t catlen;
@@ -2606,8 +2585,7 @@ tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb,
 
 /* gather tpl piecemeal from memory buffer (not fd) e.g., from a lower-level api */
 static int
-tpl_gather_mem (char *buf, size_t len, tpl_gather_t ** gs, tpl_gather_cb * cb,
-                void *data) {
+tpl_gather_mem (char *buf, size_t len, tpl_gather_t ** gs, tpl_gather_cb * cb, void *data) {
   char *img, *tpl;
   int keep_looping, cbrc = 0;
   size_t catlen;

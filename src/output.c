@@ -208,8 +208,7 @@ clean_output (FILE * fp, const char *s) {
 /* Set the HTML document title and the generated date/time */
 static void
 print_html_title (FILE * fp) {
-  const char *title =
-    conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
+  const char *title = conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, title);
@@ -1036,8 +1035,7 @@ print_json_def (FILE * fp, const GHTML * def) {
   /* output close panel attribute */
   fpclose_obj (fp, sp, 1);
 
-  fpjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines,
-          NL);
+  fpjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
 }
 
 /* Output overall definitions. */

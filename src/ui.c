@@ -395,8 +395,7 @@ update_active_module (WINDOW * header_win, GModule current) {
 
 /* Print out (terminal) an overall field label. e.g., 'Processed Time' */
 static void
-render_overall_field (WINDOW * win, const char *s, int y, int x,
-                      GColors * color) {
+render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -404,8 +403,7 @@ render_overall_field (WINDOW * win, const char *s, int y, int x,
 
 /* Print out (terminal) an overall field value. e.g., '120 secs' */
 static void
-render_overall_value (WINDOW * win, const char *s, int y, int x,
-                      GColors * color) {
+render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -552,8 +550,7 @@ get_visitors_dates (GHolder * h) {
  * On success, 0 is returned and an string containing the overall
  * header is returned. */
 int
-get_start_end_parsing_dates (GHolder * h, char **start, char **end,
-                             const char *f) {
+get_start_end_parsing_dates (GHolder * h, char **start, char **end, const char *f) {
   char **dates = NULL;
   const char *sndfmt = conf.spec_date_time_num_format;
 
@@ -630,16 +627,14 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
     max_field = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].field);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_field &&
-          !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_field && !fields[j].oneliner)
         max_field = len;
     }
     /* get max length of value in the same column */
     max_value = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].value);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_value &&
-          !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_value && !fields[j].oneliner)
         max_value = len;
     }
 
@@ -881,10 +876,8 @@ load_host_agents (GSLList * keys) {
   agents = new_gagents (items);
 
   GSLIST_FOREACH (keys, data, {
-                  if ((list =
-                       ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
-                  list_foreach (list, set_agents, agents);
-                  list_remove_nodes (list);}
+                  if ((list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
+                  list_foreach (list, set_agents, agents); list_remove_nodes (list);}
                   }
   );
 
@@ -1205,8 +1198,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, ERR_MENU_HEIGHT, ERR_MENU_WIDTH, ERR_MENU_Y, ERR_MENU_X);
+  menu = new_gmenu (win, ERR_MENU_HEIGHT, ERR_MENU_WIDTH, ERR_MENU_Y, ERR_MENU_X);
   menu->size = nerrors;
 
   /* add items to GMenu */
@@ -1541,8 +1533,7 @@ load_schemes_win (WINDOW * main_win) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
+  menu = new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
   /* remove custom color option if no custom scheme used */
   menu->size = n;
 
@@ -1855,9 +1846,7 @@ load_help_popup (WINDOW * main_win) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y,
-               HELP_MENU_X);
+  menu = new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y, HELP_MENU_X);
   menu->size = n;
 
   /* add items to GMenu */

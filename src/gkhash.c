@@ -1059,8 +1059,7 @@ restore_si32 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_si32 (hash, key, val);
@@ -1112,8 +1111,7 @@ restore_is32 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_is32 (hash, key, val);
@@ -1164,8 +1162,7 @@ restore_ii32 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_ii32 (hash, key, val);
@@ -1215,8 +1212,7 @@ restore_u648 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_u648 (hash, key, val);
@@ -1267,8 +1263,7 @@ restore_iu64 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_iu64 (hash, key, val);
@@ -1319,8 +1314,7 @@ restore_su64 (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_su64 (hash, key, val);
@@ -1371,8 +1365,7 @@ restore_igsl (GSMetric metric, const char *path, int module) {
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
     /* if operation fails */
-    if ((ht_insert_date (date) == -1) ||
-        !(hash = get_hash (module, date, metric)))
+    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_igsl (hash, key, val);
@@ -1991,9 +1984,7 @@ ht_insert_keymap (GModule module, uint32_t date, const char *key) {
   */
 static uint64_t
 u64encode (uint32_t x, uint32_t y) {
-  return x >
-    y ? (uint32_t) y | ((uint64_t) x << 32) : (uint32_t) x | ((uint64_t) y <<
-                                                              32);
+  return x > y ? (uint32_t) y | ((uint64_t) x << 32) : (uint32_t) x | ((uint64_t) y << 32);
 }
 
 void
@@ -2024,8 +2015,7 @@ ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key, uint32_t value) 
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_datamap (GModule module, uint32_t date, uint32_t key,
-                   const char *value) {
+ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_DATAMAP);
 
   if (!hash)
@@ -2040,8 +2030,7 @@ ht_insert_datamap (GModule module, uint32_t date, uint32_t key,
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_rootmap (GModule module, uint32_t date, uint32_t key,
-                   const char *value) {
+ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_ROOTMAP);
 
   if (!hash)
@@ -2144,8 +2133,7 @@ ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value) {
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_method (GModule module, uint32_t date, uint32_t key,
-                  const char *value) {
+ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_METHODS);
 
   if (!hash)
@@ -2159,8 +2147,7 @@ ht_insert_method (GModule module, uint32_t date, uint32_t key,
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_protocol (GModule module, uint32_t date, uint32_t key,
-                    const char *value) {
+ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_PROTOCOLS);
 
   if (!hash)
@@ -2188,8 +2175,7 @@ ht_insert_agent (GModule module, uint32_t date, uint32_t key, uint32_t value) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_meta_data (GModule module, uint32_t date, const char *key,
-                     uint64_t value) {
+ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value) {
   khash_t (su64) * hash = get_hash (module, date, MTRC_METADATA);
 
   if (!hash)
@@ -2789,8 +2775,7 @@ set_raw_num_data_from_date (GModule module) {
 }
 
 uint64_t
-sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module,
-              GSLList * list) {
+sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module, GSLList * list) {
   /* values can be uint64_t after exec the callback, e.g., bw */
   uint64_t n = 0;
   uint32_t *data = 0;
@@ -2808,8 +2793,7 @@ sum_u64_list (uint64_t (*cb) (GModule, uint32_t), GModule module,
 }
 
 uint32_t
-sum_u32_list (uint32_t (*cb) (GModule, uint32_t), GModule module,
-              GSLList * list) {
+sum_u32_list (uint32_t (*cb) (GModule, uint32_t), GModule module, GSLList * list) {
   uint32_t n = 0;
   void *data = NULL;
 
@@ -2850,8 +2834,7 @@ parse_raw_num_data (GModule module) {
 
     list = kh_value (hash, key);
     raw_data->items[raw_data->idx].keys = list;
-    raw_data->items[raw_data->idx].hits =
-      sum_u32_list (ht_get_hits, module, list);
+    raw_data->items[raw_data->idx].hits = sum_u32_list (ht_get_hits, module, list);
     raw_data->idx++;
   }
 

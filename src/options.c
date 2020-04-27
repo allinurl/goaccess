@@ -475,8 +475,7 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* output file */
   if (!strcmp ("output", name))
-    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx,
-                   MAX_OUTFORMATS);
+    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx, MAX_OUTFORMATS);
 
   /* PARSE OPTIONS
    * ========================= */
@@ -514,8 +513,7 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* enable panel */
   if (!strcmp ("enable-panel", name))
-    set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx,
-                   TOTAL_MODULES);
+    set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx, TOTAL_MODULES);
 
   /* hour specificity */
   if (!strcmp ("hour-spec", name) && !strcmp (oarg, "min"))
@@ -527,13 +525,11 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* ignore panel */
   if (!strcmp ("ignore-panel", name))
-    set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx,
-                   TOTAL_MODULES);
+    set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx, TOTAL_MODULES);
 
   /* ignore referer */
   if (!strcmp ("ignore-referer", name))
-    set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx,
-                   MAX_IGNORE_REF);
+    set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx, MAX_IGNORE_REF);
 
   /* client IP validation */
   if (!strcmp ("no-ip-validation", name))
@@ -541,13 +537,11 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* hide referer from report (e.g. within same site) */
   if (!strcmp ("hide-referer", name))
-    set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx,
-                   MAX_IGNORE_REF);
+    set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx, MAX_IGNORE_REF);
 
   /* ignore status code */
   if (!strcmp ("ignore-status", name))
-    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx,
-                   MAX_IGNORE_STATUS);
+    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx, MAX_IGNORE_STATUS);
 
   /* ignore static requests */
   if (!strcmp ("ignore-statics", name)) {
@@ -597,8 +591,7 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("static-file", name) && conf.static_file_idx < MAX_EXTENSIONS) {
     if (conf.static_file_max_len < strlen (oarg))
       conf.static_file_max_len = strlen (oarg);
-    set_array_opt (oarg, conf.static_files, &conf.static_file_idx,
-                   MAX_EXTENSIONS);
+    set_array_opt (oarg, conf.static_files, &conf.static_file_idx, MAX_EXTENSIONS);
   }
 
   /* GEOIP OPTIONS

@@ -59,12 +59,9 @@ typedef struct GPanel_ {
   void (*holder_callback) (GHolder * h);
 } GPanel;
 
-static void add_data_to_holder (GRawDataItem item, GHolder * h,
-                                const GPanel * panel);
-static void add_host_to_holder (GRawDataItem item, GHolder * h,
-                                const GPanel * panel);
-static void add_root_to_holder (GRawDataItem item, GHolder * h,
-                                const GPanel * panel);
+static void add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel);
+static void add_host_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel);
+static void add_root_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
 
 static GPanel paneling[] = {
@@ -489,8 +486,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, const GPanel * panel) {
 
 /* A wrapper to set a host item */
 static void
-set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data,
-          uint32_t hits) {
+set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data, uint32_t hits) {
   set_single_metrics (item, h, xstrdup (data), hits);
   if (panel->holder_callback)
     panel->holder_callback (h);
@@ -578,8 +574,7 @@ set_root_metrics (GRawDataItem item, GModule module, GMetrics ** nmetrics) {
 
 /* Set all root panel data, including sub list items. */
 static void
-add_root_to_holder (GRawDataItem item, GHolder * h,
-                    GO_UNUSED const GPanel * panel) {
+add_root_to_holder (GRawDataItem item, GHolder * h, GO_UNUSED const GPanel * panel) {
   GSubList *sub_list;
   GMetrics *metrics, *nmetrics;
   char *root = NULL;

@@ -635,9 +635,7 @@ initialize_ssl_ctx (WSServer * server) {
 
   /* since we queued up the send data, a retry won't be the same buffer,
    * thus we need the following flags */
-  SSL_CTX_set_mode (ctx,
-                    SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
-                    SSL_MODE_ENABLE_PARTIAL_WRITE);
+  SSL_CTX_set_mode (ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER | SSL_MODE_ENABLE_PARTIAL_WRITE);
 
   server->ctx = ctx;
   ret = 0;
@@ -863,8 +861,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len) {
     client->sslstatus = WS_TLS_WRITING;
     break;
   case SSL_ERROR_SYSCALL:
-    if ((bytes < 0 &&
-         (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
     /* The connection was shut down cleanly */
     /* FALLTHRU */
@@ -906,8 +903,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size) {
       done = 1;
       break;
     case SSL_ERROR_SYSCALL:
-      if ((bytes < 0 &&
-           (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
       /* FALLTHRU */
     case SSL_ERROR_ZERO_RETURN:
@@ -1313,8 +1309,7 @@ ws_respond (WSClient * client, const char *buffer, int len) {
     bytes = ws_respond_data (client, buffer, len);
   /* buffer not empty, just append new data iff we're not throttling the
    * client */
-  else if (client->sockqueue != NULL && buffer != NULL &&
-           !(client->status & WS_THROTTLING)) {
+  else if (client->sockqueue != NULL && buffer != NULL && !(client->status & WS_THROTTLING)) {
     if (ws_realloc_send_buf (client, buffer, len) == 1)
       return bytes;
   }
@@ -1403,8 +1398,7 @@ access_log (WSClient * client, int status_code) {
   char *req = NULL, *ref = NULL, *ua = NULL;
 
   gettimeofday (&tv, NULL);
-  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]",
-            localtime (&tv.tv_sec));
+  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]", localtime (&tv.tv_sec));
 
   elapsed = (client->end_proc.tv_sec - client->start_proc.tv_sec) * 1000.0;
   elapsed += (client->end_proc.tv_usec - client->start_proc.tv_usec) / 1000.0;
@@ -1473,8 +1467,7 @@ ws_set_handshake_headers (WSHeaders * headers) {
   ws_sha1_digest (s, len, digest);
 
   /* set response headers */
-  headers->ws_accept =
-    base64_encode ((unsigned char *) digest, sizeof (digest));
+  headers->ws_accept = base64_encode ((unsigned char *) digest, sizeof (digest));
   headers->ws_resp = xstrdup (WS_SWITCH_PROTO_STR);
 
   if (!headers->upgrade)
@@ -1674,8 +1667,7 @@ ws_handle_close (WSClient * client) {
  *
  * On success, the number of bytes sent is returned. */
 static int
-ws_handle_err (WSClient * client, unsigned short code, WSStatus status,
-               const char *m) {
+ws_handle_err (WSClient * client, unsigned short code, WSStatus status, const char *m) {
   client->status = status;
   return ws_error (client, code, m);
 }
@@ -2582,8 +2574,7 @@ handle_strict_fifo (WSServer * server) {
   readh = (*pa)->len;   /* read from payload so far */
   need = (*pa)->size - readh;   /* need to read */
   if (need > 0) {
-    if ((bytes =
-         ws_read_fifo (pi->fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
+    if ((bytes = ws_read_fifo (pi->fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
       return;
     if (bytes != need)
       return;

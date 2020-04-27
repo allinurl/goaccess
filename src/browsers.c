@@ -501,8 +501,7 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
 
-  if ((match = check_http_crawler (str)) &&
-      (token = parse_crawler (str, match, type)))
+  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
     return token;
 
   /* fallback to default browser list */

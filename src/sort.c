@@ -453,9 +453,7 @@ parse_initial_sort (void) {
   int i;
   char module[SORT_MODULE_LEN], field[SORT_FIELD_LEN], order[SORT_ORDER_LEN];
   for (i = 0; i < conf.sort_panel_idx; ++i) {
-    if (sscanf
-        (conf.sort_panels[i], "%15[^','],%11[^','],%4s", module, field,
-         order) != 3)
+    if (sscanf (conf.sort_panels[i], "%15[^','],%11[^','],%4s", module, field, order) != 3)
       continue;
     set_initial_sort (module, field, order);
   }

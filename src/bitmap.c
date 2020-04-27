@@ -138,8 +138,7 @@ bitmap_realloc (bitmap * bm, uint32_t bit) {
   if ((tmp == NULL && newlen > 0) || bit < bm->len)
     FATAL ("Unable to realloc bitmap hash value %u %u", newlen, bm->len);
 
-  LOG_DEBUG (("bit: %d, bm->len: %d, oldlen: %d, newlen: %d\n", bit, bm->len,
-              oldlen, newlen));
+  LOG_DEBUG (("bit: %d, bm->len: %d, oldlen: %d, newlen: %d\n", bit, bm->len, oldlen, newlen));
   memset (tmp + bitmap_word (bm->len), 0, (newlen - oldlen));
   bm->len = bit;
   bm->bmp = tmp;

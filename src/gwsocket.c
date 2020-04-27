@@ -190,8 +190,7 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
   readh = gwsreader->hlen;      /* read from header so far */
   need = HDR_SIZE - readh;      /* need to read */
   if (need > 0) {
-    if ((bytes =
-         ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
+    if ((bytes = ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
     if (bytes != need)
       return 0;

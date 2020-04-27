@@ -103,10 +103,8 @@ static void insert_bw (GModule module, GKeyData * kdata, uint64_t size);
 static void insert_cumts (GModule module, GKeyData * kdata, uint64_t ts);
 static void insert_maxts (GModule module, GKeyData * kdata, uint64_t ts);
 static void insert_method (GModule module, GKeyData * kdata, const char *data);
-static void insert_protocol (GModule module, GKeyData * kdata,
-                             const char *data);
-static void insert_agent (GModule module, GKeyData * kdata,
-                          uint32_t agent_nkey);
+static void insert_protocol (GModule module, GKeyData * kdata, const char *data);
+static void insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 
 /* *INDENT-OFF* */
 static GParse paneling[] = {
@@ -588,11 +586,9 @@ extract_keyphrase (char *ref, char **keyphrase) {
       r += pch - r + 1;
   }
   /* www.google.* or translate.googleusercontent */
-  else if ((r = strstr (ref, "&q=")) != NULL ||
-           (r = strstr (ref, "?q=")) != NULL)
+  else if ((r = strstr (ref, "&q=")) != NULL || (r = strstr (ref, "?q=")) != NULL)
     r += 3;
-  else if ((r = strstr (ref, "%26q%3D")) != NULL ||
-           (r = strstr (ref, "%3Fq%3D")) != NULL)
+  else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
     encoded = 1, r += 7;
   else
     return 1;
@@ -690,8 +686,7 @@ verify_static_content (const char *req) {
       continue;
 
     elen = strlen (ext);
-    if (conf.all_static_files && (pch = strchr (req, '?')) != NULL &&
-        pch - req > elen) {
+    if (conf.all_static_files && (pch = strchr (req, '?')) != NULL && pch - req > elen) {
       pch -= elen;
       if (0 == strncasecmp (ext, pch, elen))
         return 1;
@@ -1205,8 +1200,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     status = strtol (tkn, &sEnd, 10);
-    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 ||
-        status > 599) {
+    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 || status > 599) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
@@ -1737,8 +1731,7 @@ is_404 (GLogItem * logitem) {
   if (logitem->status && !memcmp (logitem->status, "404", 3))
     return 1;
   /* treat 444 as 404? */
-  else if (logitem->status && !memcmp (logitem->status, "444", 3) &&
-           conf.code444_as_404)
+  else if (logitem->status && !memcmp (logitem->status, "444", 3) && conf.code444_as_404)
     return 1;
   return 0;
 }
@@ -1801,8 +1794,7 @@ insert_data (GModule module, GKeyData * kdata) {
  * On success the value of the key inserted is returned */
 static int
 insert_uniqmap (GModule module, GKeyData * kdata, uint32_t uniq_nkey) {
-  return ht_insert_uniqmap (module, kdata->numdate, kdata->data_nkey,
-                            uniq_nkey);
+  return ht_insert_uniqmap (module, kdata->numdate, kdata->data_nkey, uniq_nkey);
 }
 
 /* A wrapper function to insert a rootmap uint32_t key from the keymap
@@ -1860,16 +1852,14 @@ insert_maxts (GModule module, GKeyData * kdata, uint64_t ts) {
 
 static void
 insert_method (GModule module, GKeyData * kdata, const char *data) {
-  ht_insert_method (module, kdata->numdate, kdata->data_nkey,
-                    data ? data : "---");
+  ht_insert_method (module, kdata->numdate, kdata->data_nkey, data ? data : "---");
 }
 
 /* A wrapper call to insert a method given an uint32_t key and string
  * value. */
 static void
 insert_protocol (GModule module, GKeyData * kdata, const char *data) {
-  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey,
-                      data ? data : "---");
+  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey, data ? data : "---");
 }
 
 /* A wrapper call to insert an agent for a hostname given an uint32_t
@@ -2358,8 +2348,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
 
   /* if not a timestamp, then it must be a string containing the hour.
    * this is faster than actual date conversion */
-  if (!has_timestamp (conf.time_format) &&
-      (hmark = strchr (logitem->time, ':'))) {
+  if (!has_timestamp (conf.time_format) && (hmark = strchr (logitem->time, ':'))) {
     parse_time_specificity_string (hmark, logitem->time);
 
     kdata->numdate = logitem->numdate;
@@ -2370,8 +2359,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) !=
-      0)
+  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) != 0)
     return 1;
 
   if (*hour == '\0')
@@ -2396,8 +2384,7 @@ static int
 include_uniq (GLogItem * logitem) {
   int u = conf.client_err_to_unique_count;
 
-  if (!logitem->status || logitem->status[0] != '4' ||
-      (u && logitem->status[0] == '4'))
+  if (!logitem->status || logitem->status[0] != '4' || (u && logitem->status[0] == '4'))
     return 1;
   return 0;
 }
@@ -2498,8 +2485,7 @@ process_log (GLogItem * logitem) {
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
-  if ((logitem->uniq_nkey =
-       ht_insert_unique_key (logitem->numdate, logitem->uniq_key)) == 0)
+  if ((logitem->uniq_nkey = ht_insert_unique_key (logitem->numdate, logitem->uniq_key)) == 0)
     return;
 
   /* If we need to store user agents per IP, then we store them and retrieve
@@ -2508,11 +2494,9 @@ process_log (GLogItem * logitem) {
    * map for value -> key*/
   if (conf.list_agents) {
     /* insert UA key and get a numeric value */
-    if ((logitem->agent_nkey =
-         ht_insert_agent_key (logitem->numdate, logitem->agent)) != 0) {
+    if ((logitem->agent_nkey = ht_insert_agent_key (logitem->numdate, logitem->agent)) != 0) {
       /* insert a numeric key and map it to a UA string */
-      ht_insert_agent_value (logitem->numdate, logitem->agent_nkey,
-                             logitem->agent);
+      ht_insert_agent_value (logitem->numdate, logitem->agent_nkey, logitem->agent);
     }
   }
 

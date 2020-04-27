@@ -135,8 +135,7 @@ get_config_file_path (void) {
 
   /* failure, e.g. if the file does not exist */
   if (rpath == NULL) {
-    LOG_DEBUG (("Unable to open default config file %s %s", upath,
-                strerror (errno)));
+    LOG_DEBUG (("Unable to open default config file %s %s", upath, strerror (errno)));
     free (upath);
     return NULL;
   }

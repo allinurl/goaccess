@@ -50,8 +50,7 @@ GSLList *list_insert_append (GSLList * node, void *data);
 GSLList *list_insert_prepend (GSLList * list, void *data);
 GSLList *list_copy (GSLList * node);
 int list_count (GSLList * list);
-int list_foreach (GSLList * node, int (*func) (void *, void *),
-                  void *user_data);
+int list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data);
 int list_remove_node (GSLList ** list, GSLList * node);
 int list_remove_nodes (GSLList * list);
 

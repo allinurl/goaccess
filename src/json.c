@@ -60,10 +60,8 @@
 
 typedef struct GPanel_ {
   GModule module;
-  void (*render) (GJSON * json, GHolder * h, GPercTotals totals,
-                  const struct GPanel_ *);
-  void (*subitems) (GJSON * json, GHolderItem * item, GPercTotals totals,
-                    int size, int iisp);
+  void (*render) (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *);
+  void (*subitems) (GJSON * json, GHolderItem * item, GPercTotals totals, int size, int iisp);
 } GPanel;
 
 /* number of new lines (applicable fields) */
@@ -542,8 +540,7 @@ poverall_notfound (GJSON * json, int sp) {
  * the overall object. */
 static void
 poverall_static_files (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp,
-             0);
+  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
 }
 
 /* Write to a buffer the size of the log being parsed under the
@@ -905,8 +902,7 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
 
 /* A wrapper function to ouput children nodes. */
 static void
-print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals,
-                      int size, int iisp) {
+print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals, int size, int iisp) {
   GMetrics *nmetrics;
   GSubItem *iter;
   GSubList *sl = item->sub_list;
@@ -1003,8 +999,7 @@ print_data_metrics (GJSON * json, GHolder * h, GPercTotals totals, int sp,
 
 /* Entry point to ouput data metrics per panel. */
 static void
-print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
-                 const struct GPanel_ *panel) {
+print_json_data (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *panel) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)

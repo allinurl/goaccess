@@ -507,8 +507,7 @@ render_data_hosts (WINDOW * win, GDashRender render, char *value, int x) {
  * On success, the formatted date is returned. */
 static char *
 set_visitors_date (const char *value) {
-  return get_visitors_date (value, conf.spec_date_time_num_format,
-                            conf.spec_date_time_format);
+  return get_visitors_date (value, conf.spec_date_time_num_format, conf.spec_date_time_format);
 }
 
 static char *
@@ -521,8 +520,7 @@ get_fixed_fmt_width (int w, char type) {
 
 /* Render the 'total' label on each panel */
 static void
-render_total_label (WINDOW * win, GDashModule * data, int y,
-                    GColors * (*func) (void)) {
+render_total_label (WINDOW * win, GDashModule * data, int y, GColors * (*func) (void)) {
   char *s;
   int win_h, win_w, total, ht_size;
 
@@ -862,8 +860,7 @@ render_visitors (GDashModule * data, GDashRender render, int *x) {
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*" PRIu32 "", len,
-               data->data[idx].metrics->visitors);
+    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->visitors);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -958,8 +955,7 @@ render_metrics (GDashModule * data, GDashRender render, int expanded) {
 
 /* Render a dashboard row. */
 static void
-render_data_line (WINDOW * win, GDashModule * data, int *y, int j,
-                  GScroll * gscroll) {
+render_data_line (WINDOW * win, GDashModule * data, int *y, int j, GScroll * gscroll) {
   GDashRender render;
   GModule module = data->module;
   int expanded = 0, sel = 0;
@@ -996,8 +992,7 @@ print_horizontal_dash (WINDOW * win, int y, int x, int len) {
 
 /* Render left-aligned column label. */
 static void
-lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
-            const char *str) {
+lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -1010,8 +1005,7 @@ lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
 
 /* Render right-aligned column label. */
 static void
-rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt,
-            const char *str) {
+rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -1037,16 +1031,13 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
     lprint_col (win, *y, &x, data->meta.hits_len, "%s", MTRC_HITS_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->meta.hits_perc_len + 4, "%*s",
-                MTRC_HITS_PERC_LBL);
+    rprint_col (win, *y, &x, data->meta.hits_perc_len + 4, "%*s", MTRC_HITS_PERC_LBL);
 
   if (output->visitors)
-    rprint_col (win, *y, &x, data->meta.visitors_len, "%*s",
-                MTRC_VISITORS_SHORT_LBL);
+    rprint_col (win, *y, &x, data->meta.visitors_len, "%*s", MTRC_VISITORS_SHORT_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, "%*s",
-                MTRC_VISITORS_PERC_LBL);
+    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, "%*s", MTRC_VISITORS_PERC_LBL);
 
   if (output->bw && conf.bandwidth)
     rprint_col (win, *y, &x, data->meta.bw_len, "%*s", MTRC_BW_LBL);
@@ -1061,8 +1052,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
 
   if (output->method && conf.append_method)
-    lprint_col (win, *y, &x, data->meta.method_len, "%s",
-                MTRC_METHODS_SHORT_LBL);
+    lprint_col (win, *y, &x, data->meta.method_len, "%s", MTRC_METHODS_SHORT_LBL);
 
   if (output->protocol && conf.append_protocol)
     lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
@@ -1370,8 +1360,7 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
   idata->metrics->hits = metrics->hits;
   idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);
   idata->metrics->visitors = metrics->visitors;
-  idata->metrics->visitors_perc =
-    get_percentage (totals.visitors, metrics->visitors);
+  idata->metrics->visitors_perc = get_percentage (totals.visitors, metrics->visitors);
   idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
   idata->metrics->data = xstrdup (data);
   idata->metrics->keys = list_copy (metrics->keys);
@@ -1420,8 +1409,7 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
  *
  * On success, data is set into the dashboard structure. */
 static void
-add_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
-                  GPercTotals totals) {
+add_item_to_dash (GDash ** dash, GHolderItem item, GModule module, GPercTotals totals) {
   set_dash_metrics (dash, item.metrics, module, totals, 0);
 }
 

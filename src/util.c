@@ -393,8 +393,7 @@ find_output_type (char **filename, const char *ext, int alloc) {
     if (strcmp (conf.output_formats[i], ext) == 0)
       return 0;
 
-    if ((dot = strrchr (conf.output_formats[i], '.')) != NULL &&
-        strcmp (dot + 1, ext) == 0) {
+    if ((dot = strrchr (conf.output_formats[i], '.')) != NULL && strcmp (dot + 1, ext) == 0) {
       if (alloc)
         *filename = xstrdup (conf.output_formats[i]);
       return 0;
@@ -466,8 +465,7 @@ char *
 get_global_config (void) {
   char *path = NULL;
 
-  path =
-    xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
+  path = xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
   sprintf (path, "%s/goaccess/goaccess.conf", SYSCONFDIR);
 
   return path;
@@ -533,8 +531,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-convert_date (char *res, const char *data, const char *from, const char *to,
-              int size) {
+convert_date (char *res, const char *data, const char *from, const char *to, int size) {
   struct tm tm;
 
   memset (&tm, 0, sizeof (tm));

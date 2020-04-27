@@ -153,8 +153,7 @@ geoip_set_country (const char *country, const char *code, char *loc) {
  * in the given buffer. */
 static void
 geoip_set_city (const char *city, const char *region, char *loc) {
-  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
-            region ? region : "N/A Region");
+  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -162,8 +161,7 @@ geoip_set_city (const char *city, const char *region, char *loc) {
 static void
 geoip_set_continent (const char *continent, char *loc) {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s",
-              get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }

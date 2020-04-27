@@ -276,8 +276,7 @@ print_csv_summary (FILE * fp) {
 
   /* log size */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
-  fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (),
-           OVERALL_LOGSIZE);
+  fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (), OVERALL_LOGSIZE);
 
   /* bandwidth */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
