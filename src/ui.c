@@ -58,14 +58,9 @@
 
 #include "ui.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "color.h"
 #include "error.h"
+#include "gkhash.h"
 #include "gmenu.h"
 #include "goaccess.h"
 #include "util.h"
