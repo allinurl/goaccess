@@ -45,13 +45,8 @@
 
 #include "json.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
