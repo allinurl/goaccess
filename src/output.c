@@ -40,13 +40,8 @@
 
 #include "output.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "gwsocket.h"
 #include "json.h"
 #include "settings.h"
