@@ -38,11 +38,6 @@
 #include <getopt.h>
 #include <errno.h>
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#include "tcbtdb.h"
-#endif
-
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
 #endif
