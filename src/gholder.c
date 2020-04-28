@@ -36,12 +36,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #ifdef HAVE_GEOLOCATION
 #include "geoip1.h"
 #endif
@@ -50,6 +44,7 @@
 
 #include "error.h"
 #include "gdns.h"
+#include "gkhash.h"
 #include "util.h"
 #include "xmalloc.h"
 
