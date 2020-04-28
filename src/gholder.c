@@ -36,10 +36,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef HAVE_GEOLOCATION
-#include "geoip1.h"
-#endif
-
 #include "gholder.h"
 
 #include "error.h"
@@ -47,6 +43,10 @@
 #include "gkhash.h"
 #include "util.h"
 #include "xmalloc.h"
+
+#ifdef HAVE_GEOLOCATION
+#include "geoip1.h"
+#endif
 
 typedef struct GPanel_ {
   GModule module;

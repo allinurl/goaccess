@@ -54,13 +54,8 @@
 
 #include "gdns.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "goaccess.h"
 #include "util.h"
 #include "xmalloc.h"
