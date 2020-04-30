@@ -780,7 +780,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
   size2 = file_size (fn);
 
   /* file hasn't changed */
-  if (size2 == *size1)
+  if (size2 <= *size1)
     return;
 
   if (!(fp = fopen (fn, "r")))
