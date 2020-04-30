@@ -2489,8 +2489,6 @@ process_log (GLogItem * logitem) {
   if (logitem->ignorelevel != IGNORE_LEVEL_REQ) {
     count_valid (logitem->numdate);
   }
-  LOG_DEBUG (("\n\n"));
-
 }
 
 /* Process a line from the log and store it accordingly taking into
