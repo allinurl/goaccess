@@ -731,10 +731,6 @@ static void
 contains_usecs (void) {
   if (conf.serve_usecs)
     return;
-
-#ifdef TCB_BTREE
-  ht_insert_genstats ("serve_usecs", 1);
-#endif
   conf.serve_usecs = 1; /* flag */
 }
 
@@ -1619,9 +1615,6 @@ uncount_processed (GLog * glog) {
     glog->processed -= conf.num_tests;
   else
     glog->processed = 0;
-#ifdef TCB_BTREE
-  ht_replace_genstats ("total_requests", glog->processed);
-#endif
 }
 
 /* Keep track of all valid log strings. */
