@@ -42,29 +42,6 @@
 #include "util.h"
 #include "xmalloc.h"
 
-/* String modules to enumerated modules */
-static GEnum enum_metrics[] = {
-  {"MTRC_KEYMAP", MTRC_KEYMAP},
-  {"MTRC_ROOTMAP", MTRC_ROOTMAP},
-  {"MTRC_DATAMAP", MTRC_DATAMAP},
-  {"MTRC_UNIQMAP", MTRC_UNIQMAP},
-  {"MTRC_ROOT", MTRC_ROOT},
-  {"MTRC_HITS", MTRC_HITS},
-  {"MTRC_VISITORS", MTRC_VISITORS},
-  {"MTRC_BW", MTRC_BW},
-  {"MTRC_CUMTS", MTRC_CUMTS},
-  {"MTRC_MAXTS", MTRC_MAXTS},
-  {"MTRC_METHODS", MTRC_METHODS},
-  {"MTRC_PROTOCOLS", MTRC_PROTOCOLS},
-  {"MTRC_AGENTS", MTRC_AGENTS},
-  {"MTRC_METADATA", MTRC_METADATA},
-  {"MTRC_AGENT_KEYS", MTRC_AGENT_KEYS},
-  {"MTRC_AGENT_VALS", MTRC_AGENT_VALS},
-  {"MTRC_UNIQUE_KEYS", MTRC_UNIQUE_KEYS},
-  {"MTRC_CNT_VALID", MTRC_CNT_VALID},
-  {"MTRC_CNT_BW", MTRC_CNT_BW},
-};
-
 /* Allocate memory for a new GMetrics instance.
  *
  * On success, the newly allocated GMetrics is returned . */
@@ -81,6 +58,28 @@ new_gmetrics (void) {
  * On success, the string module value is returned. */
 char *
 get_mtr_str (GSMetric metric) {
+  /* String modules to enumerated modules */
+  GEnum enum_metrics[] = {
+    {"MTRC_KEYMAP", MTRC_KEYMAP},
+    {"MTRC_ROOTMAP", MTRC_ROOTMAP},
+    {"MTRC_DATAMAP", MTRC_DATAMAP},
+    {"MTRC_UNIQMAP", MTRC_UNIQMAP},
+    {"MTRC_ROOT", MTRC_ROOT},
+    {"MTRC_HITS", MTRC_HITS},
+    {"MTRC_VISITORS", MTRC_VISITORS},
+    {"MTRC_BW", MTRC_BW},
+    {"MTRC_CUMTS", MTRC_CUMTS},
+    {"MTRC_MAXTS", MTRC_MAXTS},
+    {"MTRC_METHODS", MTRC_METHODS},
+    {"MTRC_PROTOCOLS", MTRC_PROTOCOLS},
+    {"MTRC_AGENTS", MTRC_AGENTS},
+    {"MTRC_METADATA", MTRC_METADATA},
+    {"MTRC_UNIQUE_KEYS", MTRC_UNIQUE_KEYS},
+    {"MTRC_AGENT_KEYS", MTRC_AGENT_KEYS},
+    {"MTRC_AGENT_VALS", MTRC_AGENT_VALS},
+    {"MTRC_CNT_VALID", MTRC_CNT_VALID},
+    {"MTRC_CNT_BW", MTRC_CNT_BW},
+  };
   return enum2str (enum_metrics, ARRAY_SIZE (enum_metrics), metric);
 }
 

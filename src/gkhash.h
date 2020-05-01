@@ -51,8 +51,6 @@ typedef enum GSMetricType_ {
   MTRC_TYPE_SS32,
   /* uint32_t key - GSLList val */
   MTRC_TYPE_IGSL,
-  /* string key   - GSLList val */
-  MTRC_TYPE_SGSL,
   /* string key   - uint64_t val */
   MTRC_TYPE_SU64,
   /* uint32_t key - GKHashStorage_ val */
@@ -75,8 +73,6 @@ KHASH_MAP_INIT_INT (iu64, uint64_t);
 KHASH_MAP_INIT_STR (si32, uint32_t);
 /* string keys             , string payload */
 KHASH_MAP_INIT_STR (ss32, char *);
-/* string keys             , GSLList payload */
-KHASH_MAP_INIT_STR (sgsl, GSLList *);
 /* uint32_t keys           , GSLList payload */
 KHASH_MAP_INIT_INT (igsl, GSLList *);
 /* string keys             , uint64_t payload */
@@ -350,5 +346,6 @@ void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
+GSLList *ht_get_keymap_list_from_key (GModule module, const char *key);
 
 #endif // for #ifndef GKHASH_H

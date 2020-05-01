@@ -1289,8 +1289,7 @@ setup_signal_handlers (void) {
 }
 
 static void
-handle_signal_action (GO_UNUSED int sig_number)
-{
+handle_signal_action (GO_UNUSED int sig_number) {
   fprintf (stderr, "\nSIGINT caught!\n");
   fprintf (stderr, "Closing GoAccess...\n");
 

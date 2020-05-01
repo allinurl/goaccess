@@ -112,6 +112,7 @@ typedef struct GLog_ {
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_ {
   GSLList *keys;
+  const char *key;
   uint32_t hits;
 } GRawDataItem;
 

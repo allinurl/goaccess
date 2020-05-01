@@ -631,7 +631,9 @@ load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort) 
   h->items = new_gholder_item (h->holder_size);
 
   for (i = 0; i < h->holder_size; i++) {
+    raw_data->items[i].keys = ht_get_keymap_list_from_key (module, raw_data->items[i].key);
     panel->insert (raw_data->items[i], h, panel);
+    list_remove_nodes (raw_data->items[i].keys);
   }
   sort_holder_items (h->items, h->idx, sort);
   if (h->sub_items_size)

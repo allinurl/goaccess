@@ -171,8 +171,7 @@ set_json_buffer (GJSON * json, int len) {
  *
  * On success, data is outputted. */
 __attribute__((format (printf, 2, 3)))
-static void
-pjson (GJSON * json, const char *fmt, ...) {
+  static void pjson (GJSON * json, const char *fmt, ...) {
   int len = 0;
   va_list args;
 
@@ -188,7 +187,7 @@ pjson (GJSON * json, const char *fmt, ...) {
   vsprintf (json->buf + json->offset, fmt, args);
   va_end (args);
   json->offset += len;
-}
+  }
 
 /* A wrapper function to output a formatted string to a file pointer.
  *

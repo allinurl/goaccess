@@ -53,9 +53,9 @@ typedef enum GSMetric_ {
   MTRC_PROTOCOLS,
   MTRC_AGENTS,
   MTRC_METADATA,
+  MTRC_UNIQUE_KEYS,
   MTRC_AGENT_KEYS,
   MTRC_AGENT_VALS,
-  MTRC_UNIQUE_KEYS,
   MTRC_CNT_VALID,
   MTRC_CNT_BW,
 } GSMetric;
@@ -66,8 +66,6 @@ uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
 
 char *get_mtr_str (GSMetric metric);
-void *get_storage_metric_by_module (GModule module, GSMetric metric);
-void *get_storage_metric (GModule module, GSMetric metric);
 void set_module_totals (GPercTotals * totals);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals);
 
