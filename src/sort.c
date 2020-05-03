@@ -203,6 +203,15 @@ cmp_raw_num_desc (const void *a, const void *b) {
   return (va < vb) - (va > vb);
 }
 
+/* Sort GRawDataItem value descending */
+static int
+cmp_raw_str_desc (const void *a, const void *b) {
+  const GRawDataItem *ia = a;
+  const GRawDataItem *ib = b;
+
+  return strcmp (ib->key, ia->key);
+}
+
 /* Sort 'bandwidth' metric descending */
 static int
 cmp_bw_desc (const void *a, const void *b) {
@@ -527,5 +536,14 @@ sort_holder_items (GHolderItem * items, int size, GSort sort) {
 GRawData *
 sort_raw_num_data (GRawData * raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_num_desc);
+  return raw_data;
+}
+
+/* Sort raw string data in a descending order for the first run.
+ *
+ * On success, raw data sorted in a descending order. */
+GRawData *
+sort_raw_str_data (GRawData * raw_data, int ht_size) {
+  qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_str_desc);
   return raw_data;
 }

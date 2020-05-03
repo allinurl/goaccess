@@ -2775,7 +2775,10 @@ parse_raw_num_data (GModule module) {
   }
 
   // sort new list
-  sort_raw_num_data (raw_data, raw_data->idx);
+  if (VISITORS == module)
+    sort_raw_str_data (raw_data, raw_data->idx);
+  else
+    sort_raw_num_data (raw_data, raw_data->idx);
 
   return raw_data;
 }
