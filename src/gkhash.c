@@ -2800,7 +2800,7 @@ parse_raw_data (GModule module) {
 
   modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
-  LOG_DEBUG (("==TIME TAKEN PARSE RAW DATA==\n%s\t\t\t%f\n", modstr, taken));
+  LOG_DEBUG (("== %s\t\t\t%f\n", modstr, taken));
   free (modstr);
 
   return raw_data;
