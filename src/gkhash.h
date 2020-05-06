@@ -89,6 +89,11 @@ typedef struct GKHashMetric_ {
   const char *filename;
 } GKHashMetric;
 
+/* Raw Data store per module */
+typedef struct RawDataHash_ {
+  void *hash;
+} RawDataHash;
+
 /* Data store per module */
 typedef struct GKHashModule_ {
   GModule module;
@@ -343,6 +348,7 @@ void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
+void rebuild_rawdata_cache (void);
 
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);

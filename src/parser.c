@@ -378,7 +378,6 @@ new_grawdata_item (unsigned int size) {
 /* Free memory allocated for a GRawData and GRawDataItem instance. */
 void
 free_raw_data (GRawData * raw_data) {
-  free_raw_hits ();
   free (raw_data->items);
   free (raw_data);
 }
@@ -2442,6 +2441,7 @@ clean_old_data_by_date (void) {
 
   dates = get_sorted_dates ();
   invalidate_date (dates[0]);
+  rebuild_rawdata_cache ();
   free (dates);
 }
 

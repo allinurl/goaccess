@@ -50,12 +50,13 @@
 
 /* *INDENT-OFF* */
 /* Hash tables used across the whole app */
-static khash_t (igkh) * ht_dates     = NULL;
-static khash_t (si32) * ht_seqs      = NULL;
-static khash_t (ss32) * ht_hostnames = NULL;
-static khash_t (si32) * ht_raw_hits  = NULL;
+static khash_t (igkh) * ht_dates       = NULL;
+static khash_t (si32) * ht_seqs        = NULL;
+static khash_t (ss32) * ht_hostnames   = NULL;
 static khash_t (si32) * ht_cnt_overall = NULL;
 static khash_t (ii32) * ht_last_parse  = NULL;
+
+static RawDataHash *rd_storage = NULL;
 /* *INDENT-ON* */
 
 static GKHashStorage *
@@ -67,6 +68,12 @@ new_gkhstorage (void) {
 static GKHashModule *
 new_gkhmodule (uint32_t size) {
   GKHashModule *storage = xcalloc (size, sizeof (GKHashModule));
+  return storage;
+}
+
+static RawDataHash *
+new_rawdatahash (uint32_t size) {
+  RawDataHash *storage = xcalloc (size, sizeof (RawDataHash));
   return storage;
 }
 
@@ -188,7 +195,6 @@ del_si32_free (void *h) {
 
   for (k = 0; k < kh_end (hash); ++k) {
     if (kh_exist (hash, k)) {
-      //free ((char *) kh_key (hash, k));
       kh_del (si32, hash, k);
     }
   }
@@ -420,9 +426,9 @@ get_hash (int module, uint64_t key, GSMetric metric) {
 /* Destroys the hash structure allocated metrics on each render */
 void
 free_raw_hits (void) {
-  if (!ht_raw_hits)
-    return;
-  del_si32_free (ht_raw_hits);
+//  if (!ht_raw_hits)
+//    return;
+//  del_si32_free (ht_raw_hits);
 }
 
 static GKHashGlobal *
@@ -522,23 +528,19 @@ ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 static uint32_t
-ins_si32_inc (khash_t (si32) * hash, const char *key,
-              uint32_t (*cb) (const char *), const char *seqk) {
+ins_si32_inc (khash_t (si32) * hash, const char *key, uint32_t (*cb) (const char *),
+              const char *seqk) {
   khint_t k;
   int ret;
-  char *dupkey = NULL;
   uint32_t value = 0;
 
   if (!hash)
     return 0;
 
-  dupkey = xstrdup (key);
-  k = kh_put (si32, hash, dupkey, &ret);
+  k = kh_put (si32, hash, key, &ret);
   /* operation failed, or key exists */
-  if (ret == -1 || ret == 0) {
-    free (dupkey);
+  if (ret == -1 || ret == 0)
     return 0;
-  }
 
   if ((value = cb (seqk)) == 0)
     return 0;
@@ -1844,6 +1846,7 @@ ht_ins_seq (const char *key) {
 uint32_t
 ht_insert_unique_key (uint32_t date, const char *key) {
   uint32_t val = 0;
+  char *dupkey = NULL;
   khash_t (si32) * hash = get_hash (-1, date, MTRC_UNIQUE_KEYS);
 
   if (!hash)
@@ -1852,7 +1855,10 @@ ht_insert_unique_key (uint32_t date, const char *key) {
   if ((val = get_si32 (hash, key)) != 0)
     return val;
 
-  return ins_si32_inc (hash, key, ht_ins_seq, "ht_unique_keys");
+  dupkey = xstrdup (key);
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, "ht_unique_keys")) == 0)
+    free (dupkey);
+  return val;
 }
 
 /* Insert a user agent key string, mapped to an auto incremented value.
@@ -1862,6 +1868,7 @@ ht_insert_unique_key (uint32_t date, const char *key) {
  * On success the value of the key inserted is returned */
 uint32_t
 ht_insert_agent_key (uint32_t date, const char *key) {
+  char *dupkey = NULL;
   uint32_t val = 0;
   khash_t (si32) * hash = get_hash (-1, date, MTRC_AGENT_KEYS);
 
@@ -1871,7 +1878,10 @@ ht_insert_agent_key (uint32_t date, const char *key) {
   if ((val = get_si32 (hash, key)) != 0)
     return val;
 
-  return ins_si32_inc (hash, key, ht_ins_seq, "ht_agent_keys");
+  dupkey = xstrdup (key);
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, "ht_agent_keys")) == 0)
+    free (dupkey);
+  return val;
 }
 
 /* Insert a user agent uint32_t key, mapped to a user agent string value.
@@ -1896,19 +1906,29 @@ ht_insert_agent_value (uint32_t date, uint32_t key, const char *value) {
 uint32_t
 ht_insert_keymap (GModule module, uint32_t date, const char *key) {
   khash_t (si32) * hash = get_hash (module, date, MTRC_KEYMAP);
-  uint32_t value = 0;
-  char *modstr = NULL;
+  uint32_t val = 0;
+  char *modstr = NULL, *dupkey = NULL;
 
   if (!hash)
     return 0;
 
-  if ((value = get_si32 (hash, key)) != 0)
-    return value;
+  if ((val = get_si32 (hash, key)) != 0) {
+    inc_si32 (rd_storage[module].hash, key, 1);
+    return val;
+  }
 
   modstr = get_module_str (module);
-  value = ins_si32_inc (hash, key, ht_ins_seq, modstr);
+  dupkey = xstrdup (key);
+
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, modstr)) == 0) {
+    free (dupkey);
+    free (modstr);
+    return val;
+  }
+  inc_si32 (rd_storage[module].hash, dupkey, 1);
   free (modstr);
-  return value;
+
+  return val;
 }
 
 /* Encode a data key and a unique visitor's key to a new uint64_t key
@@ -2123,8 +2143,8 @@ ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t va
  * On error, -1 is returned.
  * On success 0 is returned */
 static int
-ht_insert_keymap_list (const char *key, uint32_t value) {
-  khash_t (si32) * hash = ht_raw_hits;
+ht_insert_keymap_list (GModule module, const char *key, uint32_t value) {
+  khash_t (si32) * hash = rd_storage[module].hash;
 
   if (!hash)
     return -1;
@@ -2687,7 +2707,7 @@ ins_raw_num_data (GModule module, uint32_t date) {
   for (k = kh_begin (kmap); k != kh_end (kmap); ++k) {
     if (kh_exist (kmap, k) && (hmap = get_hash_from_store (store, module, MTRC_HITS))) {
       if ((key = kh_get (ii32, hmap, kh_val (kmap, k))) != kh_end (hmap)) {
-        ht_insert_keymap_list (kh_key (kmap, k), kh_val (hmap, key));
+        ht_insert_keymap_list (module, kh_key (kmap, k), kh_val (hmap, key));
       }
     }
   }
@@ -2710,6 +2730,18 @@ set_raw_num_data_from_date (GModule module) {
   }
 
   return 0;
+}
+
+void
+rebuild_rawdata_cache (void) {
+  GModule module;
+  size_t idx = 0;
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    del_si32_free (rd_storage[module].hash);
+    set_raw_num_data_from_date (module);
+  }
 }
 
 uint64_t
@@ -2758,7 +2790,7 @@ parse_raw_num_data (GModule module) {
   khiter_t key;
   uint32_t ht_size = 0;
 
-  khash_t (si32) * hash = ht_raw_hits;
+  khash_t (si32) * hash = rd_storage[module].hash;
   if (!hash)
     return NULL;
 
@@ -2795,8 +2827,7 @@ parse_raw_data (GModule module) {
   double taken;
   char *modstr = NULL;
 
-  if (set_raw_num_data_from_date (module) == 0)
-    raw_data = parse_raw_num_data (module);
+  raw_data = parse_raw_num_data (module);
 
   modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
@@ -2809,12 +2840,22 @@ parse_raw_data (GModule module) {
 /* Initialize hash tables */
 void
 init_storage (void) {
-  ht_hostnames = (khash_t (ss32) *) new_ss32_ht ();
-  ht_dates = (khash_t (igkh) *) new_igkh_ht ();
-  ht_seqs = (khash_t (si32) *) new_si32_ht ();
-  ht_raw_hits = (khash_t (si32) *) new_si32_ht ();
+  GModule module;
+  size_t idx = 0;
+
+  /* *INDENT-OFF* */
+  ht_hostnames   = (khash_t (ss32) *) new_ss32_ht ();
+  ht_dates       = (khash_t (igkh) *) new_igkh_ht ();
+  ht_seqs        = (khash_t (si32) *) new_si32_ht ();
   ht_cnt_overall = (khash_t (si32) *) new_si32_ht ();
-  ht_last_parse = (khash_t (ii32) *) new_ii32_ht ();
+  ht_last_parse  = (khash_t (ii32) *) new_ii32_ht ();
+  /* *INDENT-ON* */
+
+  rd_storage = new_rawdatahash (TOTAL_MODULES);
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    rd_storage[module].hash = new_si32_ht ();
+  }
 
   if (conf.restore)
     restore_data ();
@@ -2840,13 +2881,21 @@ des_igkh (void *h) {
 /* Destroys the hash structure and its content */
 void
 free_storage (void) {
+  GModule module;
+  size_t idx = 0;
+
   if (conf.persist)
     persist_data ();
 
   des_igkh (ht_dates);
   des_si32_free (ht_seqs);
   des_ss32_free (ht_hostnames);
-  des_si32_free (ht_raw_hits);
+
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    kh_destroy (si32, rd_storage[module].hash);
+  }
+  free (rd_storage);
 
   des_si32_free (ht_cnt_overall);
   des_ii32 (ht_last_parse);
