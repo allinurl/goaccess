@@ -104,6 +104,7 @@
 #define HDR_SIZE              3 * 4
 #define WS_MAX_FRM_SZ         1048576   /* 1 MiB max frame size */
 #define WS_THROTTLE_THLD      2097152   /* 2 MiB throttle threshold */
+#define WS_MAX_HEAD_SZ        8192 /* a reasonable size for request headers */
 
 #define WS_MAGIC_STR "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_PAYLOAD_EXT16      126
@@ -165,7 +166,7 @@ typedef struct WSPacket_ {
 typedef struct WSHeaders_ {
   int reading;
   int buflen;
-  char buf[BUFSIZ + 1];
+  char buf[WS_MAX_HEAD_SZ + 1];
 
   char *agent;
   char *path;

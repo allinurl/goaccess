@@ -1522,7 +1522,7 @@ ws_get_handshake (WSClient * client, WSServer * server) {
   buf = client->headers->buf;
   readh = client->headers->buflen;
   /* Probably the connection was closed before finishing handshake */
-  if ((bytes = read_socket (client, buf + readh, BUFSIZ - readh)) < 1) {
+  if ((bytes = read_socket (client, buf + readh, WS_MAX_HEAD_SZ - readh)) < 1) {
     if (client->status & WS_CLOSE)
       http_error (client, WS_BAD_REQUEST_STR);
     return bytes;
@@ -1533,7 +1533,7 @@ ws_get_handshake (WSClient * client, WSServer * server) {
 
   /* Must have a \r\n\r\n */
   if (strstr (buf, "\r\n\r\n") == NULL) {
-    if (strlen (buf) < BUFSIZ)
+    if (strlen (buf) < WS_MAX_HEAD_SZ)
       return ws_set_status (client, WS_READING, bytes);
 
     http_error (client, WS_BAD_REQUEST_STR);
