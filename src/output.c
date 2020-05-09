@@ -272,7 +272,7 @@ print_html_body (FILE * fp, const char *now)
   "</span>"
   "</h4>"
   "</div>"
-  "<h1>"
+  "<h1 class="h-dashboard">"
   "<span class='hidden-xs hidden-sm'>"
   "<i class='fa fa-tachometer'></i> %s"
   "</span>"
