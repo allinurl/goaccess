@@ -209,7 +209,7 @@ cmp_raw_str_desc (const void *a, const void *b) {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  return strcmp (ib->key, ia->key);
+  return strcmp (ib->data, ia->data);
 }
 
 /* Sort 'bandwidth' metric descending */

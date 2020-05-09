@@ -96,6 +96,7 @@ typedef struct GLog_ {
   unsigned int invalid;
   unsigned int offset;
   unsigned int processed;
+  unsigned short restored;
   unsigned short load_from_disk_only;
   unsigned short piping;
   uint32_t read;                /* lines read/parsed */
@@ -109,17 +110,26 @@ typedef struct GLog_ {
   FILE *pipe;
 } GLog;
 
+/* Raw data field type */
+typedef enum {
+  U32,
+  STR
+} datatype;
+
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_ {
-  GSLList *keys;
-  const char *key;
-  uint32_t hits;
+  uint32_t nkey;
+  union {
+    const char *data;
+    uint32_t hits;
+  };
 } GRawDataItem;
 
 /* Raw Data per module */
 typedef struct GRawData_ {
   GRawDataItem *items;          /* data */
   GModule module;               /* current module */
+  datatype type;
   int idx;                      /* first level index */
   int size;                     /* total num of items on ht */
 } GRawData;
@@ -131,10 +141,12 @@ typedef struct GKeyData_ {
   void *data;
   void *data_key;
   uint32_t data_nkey;
+  uint32_t cdnkey;              /* cache data nkey */
 
   void *root;
   void *root_key;
   uint32_t root_nkey;
+  uint32_t crnkey;              /* cache root nkey */
 
   void *uniq_key;
   uint32_t uniq_nkey;

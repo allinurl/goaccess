@@ -480,7 +480,7 @@ load_ip_agent_list (void) {
   GDashData item = dash->module[HOSTS].data[sel];
 
   if (!invalid_ipaddr (item.metrics->data, &type_ip))
-    load_agent_list (main_win, item.metrics->data, item.metrics->keys);
+    load_agent_list (main_win, item.metrics->data);
 }
 
 /* Expand the selected module */

@@ -859,22 +859,27 @@ set_agents (void *val, void *user_data) {
 
 /* Iterate over the list of agents */
 GAgents *
-load_host_agents (GSLList * keys) {
+load_host_agents (const char *addr) {
   GAgents *agents = NULL;
-  GSLList *list = NULL;
+  GSLList *keys = NULL, *list = NULL;
   void *data = NULL;
   uint32_t items = 4;
 
+  keys = ht_get_keymap_list_from_key (HOSTS, addr);
   if (!keys)
     return NULL;
 
   agents = new_gagents (items);
 
+  /* *INDENT-OFF* */
   GSLIST_FOREACH (keys, data, {
-                  if ((list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
-                  list_foreach (list, set_agents, agents); list_remove_nodes (list);}
-                  }
-  );
+    if ((list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
+      list_foreach (list, set_agents, agents);
+      list_remove_nodes (list);
+    }
+  });
+  /* *INDENT-ON* */
+  list_remove_nodes (keys);
 
   return agents;
 }
@@ -902,7 +907,7 @@ fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
+load_agent_list (WINDOW * main_win, char *addr) {
   GMenu *menu;
   GAgents *agents = NULL;
   WINDOW *win;
@@ -926,7 +931,7 @@ load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
 
   /* create a new instance of GMenu and make it selectable */
   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-  if (!(agents = load_host_agents (keys)))
+  if (!(agents = load_host_agents (addr)))
     goto out;
   if (fill_host_agents_gmenu (menu, agents) != 0)
     goto out;

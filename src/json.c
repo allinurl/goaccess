@@ -873,7 +873,7 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
     iiisp = iisp + 1;
 
   /* create a new instance of GMenu and make it selectable */
-  if (!(agents = load_host_agents (item->metrics->keys)))
+  if (!(agents = load_host_agents (item->metrics->data)))
     return;
 
   pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);

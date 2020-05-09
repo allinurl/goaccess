@@ -37,10 +37,11 @@ typedef struct GSLList_ {
 } GSLList;
 
 #define GSLIST_FOREACH(node, data, code) {  \
-  while (node) {                            \
-    (data) = node->data;                    \
+  GSLList *__tmp = node;                    \
+  while (__tmp) {                           \
+    (data) = __tmp->data;                   \
     code;                                   \
-    node = node->next;                      \
+    __tmp = __tmp->next;                    \
   }}
 
 /* single linked-list */

@@ -96,8 +96,6 @@ free_dashboard_data (GDashData item) {
 
   if (item.metrics->data)
     free (item.metrics->data);
-  if (item.metrics->keys)
-    list_remove_nodes (item.metrics->keys);
   if (item.metrics->bw.sbw)
     free (item.metrics->bw.sbw);
   if (conf.serve_usecs && item.metrics->avgts.sts)
@@ -1363,7 +1361,6 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
   idata->metrics->visitors_perc = get_percentage (totals.visitors, metrics->visitors);
   idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
   idata->metrics->data = xstrdup (data);
-  idata->metrics->keys = list_copy (metrics->keys);
 
   if (conf.append_method && metrics->method)
     idata->metrics->method = metrics->method;
@@ -1392,8 +1389,8 @@ out:
  * If no items on the sub list, the function returns.
  * On success, sub list data is set into the dashboard structure. */
 static void
-add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module,
-                      GPercTotals totals, int *i) {
+add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, GPercTotals totals,
+                      int *i) {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
 

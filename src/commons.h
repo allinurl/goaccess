@@ -161,8 +161,6 @@ typedef struct GMetrics {
     char *sts;
     uint64_t nts;
   } maxts;
-
-  GSLList *keys;
 } GMetrics;
 
 /* Holder sub item */
