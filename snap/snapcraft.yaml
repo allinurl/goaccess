@@ -22,7 +22,6 @@ parts:
       - gettext
       - libncurses-dev
       - libncursesw5-dev
-      - libglib2.0-dev
       - libgeoip-dev
     stage-packages:
       - libgeoip-dev
