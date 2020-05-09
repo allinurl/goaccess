@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([goaccess],[1.4],[goaccess@prosoftcorp.com],[],[http://goaccess.io])
+AC_INIT([goaccess],[1.4],[hello@goaccess.io],[],[https://goaccess.io])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -144,7 +144,7 @@ else
 fi
 
 # Default Hash
-storage="IN-MEMORY & ON-DISK Persitance Storage"
+storage="In-Memory with On-Disk Persitance Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])
