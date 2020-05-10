@@ -2533,7 +2533,7 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 
   /* it's a pipe, then use the last parsed timestamp */
   ts = mktime (&logitem->dt);
-  if (!glog->inode && last > 0 && last >= ts)
+  if (conf.restore && !glog->inode && last > 0 && last >= ts)
     return 0;
 
   /* agent will be null in cases where %u is not specified */
