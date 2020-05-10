@@ -452,7 +452,7 @@ static void
 poverall_start_end_date (GJSON * json, GHolder * h, int sp) {
   char *start = NULL, *end = NULL;
 
-  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
+  if (h->idx == 0 || get_start_end_parsing_dates (&start, &end, "%d/%b/%Y"))
     return;
 
   pskeysval (json, OVERALL_STARTDATE, start, sp, 0);

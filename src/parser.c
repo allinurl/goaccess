@@ -2448,11 +2448,12 @@ ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
 static void
 clean_old_data_by_date (void) {
   uint32_t *dates = NULL;
+  uint32_t len = 0;
 
   if (ht_get_size_dates () <= conf.keep_last)
     return;
 
-  dates = get_sorted_dates ();
+  dates = get_sorted_dates (&len);
   invalidate_date (dates[0]);
   /* rebuild all existing dates and let new data
    * be added upon existing cache */

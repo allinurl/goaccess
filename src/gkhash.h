@@ -317,7 +317,7 @@ int ht_insert_root (GModule module, uint32_t date, uint32_t key, uint32_t value,
 int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key, uint32_t value);
 int invalidate_date (int date);
-uint32_t *get_sorted_dates (void);
+uint32_t *get_sorted_dates (uint32_t *len);
 uint32_t ht_get_excluded_ips (void);
 uint32_t ht_get_hits (GModule module, int key);
 uint32_t ht_get_invalid (void);

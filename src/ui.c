@@ -522,41 +522,26 @@ get_str_bandwidth (void) {
   return filesize_str (ht_sum_bw ());
 }
 
-/* Iterate over the visitors module and sort date in an ascending
- * order.
- *
- * On success, an array of sorted dates is returned. */
-static char **
-get_visitors_dates (GHolder * h) {
-  char **dates = malloc (sizeof (char *) * h->holder_size);
-  int i;
-
-  for (i = 0; i < h->idx; i++) {
-    dates[i] = h->items[i].metrics->data;
-  }
-  qsort (dates, h->holder_size, sizeof (char *), strcmp_asc);
-
-  return dates;
-}
-
 /* Get the overall statistics start and end dates.
  *
  * On failure, 1 is returned
  * On success, 0 is returned and an string containing the overall
  * header is returned. */
 int
-get_start_end_parsing_dates (GHolder * h, char **start, char **end, const char *f) {
-  char **dates = NULL;
+get_start_end_parsing_dates (char **start, char **end, const char *f) {
+  uint32_t *dates = NULL;
+  uint32_t len = 0;
   const char *sndfmt = conf.spec_date_time_num_format;
+  char s[DATE_LEN];
+  char e[DATE_LEN];
 
-  if (h->idx == 0)
-    return 1;
-
-  dates = get_visitors_dates (h + VISITORS);
+  dates = get_sorted_dates (&len);
+  sprintf (s, "%u", dates[0]);
+  sprintf (e, "%u", dates[len - 1]);
 
   /* just display the actual dates - no specificity */
-  *start = get_visitors_date (dates[0], sndfmt, f);
-  *end = get_visitors_date (dates[h->idx - 1], sndfmt, f);
+  *start = get_visitors_date (s, sndfmt, f);
+  *end = get_visitors_date (e, sndfmt, f);
 
   free (dates);
 
@@ -571,7 +556,7 @@ get_overall_header (GHolder * h) {
   const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
-  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
+  if (h->idx == 0 || get_start_end_parsing_dates (&start, &end, "%d/%b/%Y"))
     return xstrdup (head);
 
   hd = xmalloc (snprintf (NULL, 0, "%s (%s - %s)", head, start, end) + 1);

@@ -229,7 +229,7 @@ const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
-int get_start_end_parsing_dates (GHolder * h, char **start, char **end, const char *f);
+int get_start_end_parsing_dates (char **start, char **end, const char *f);
 int render_confdlg (GLog * glog, GSpinner * spinner);
 void close_win (WINDOW * w);
 GAgents *load_host_agents (const char *addr);

@@ -2744,7 +2744,7 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
 }
 
 uint32_t *
-get_sorted_dates (void) {
+get_sorted_dates (uint32_t * len) {
   khiter_t key;
   uint32_t *dates = NULL;
   int i = 0;
@@ -2760,6 +2760,7 @@ get_sorted_dates (void) {
     if (kh_exist (hash, key))
       dates[i++] = kh_key (hash, key);
   qsort (dates, i, sizeof (uint32_t), cmp_ui32_asc);
+  *len = i;
 
   return dates;
 }
