@@ -464,6 +464,9 @@ free_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
   int i, n = 0;
   GKHashMetric mtrc;
 
+  if (!mhash)
+    return;
+
   n = ARRAY_SIZE (module_metrics);
   for (i = 0; i < n; i++) {
     mtrc = mhash[module].metrics[i];
