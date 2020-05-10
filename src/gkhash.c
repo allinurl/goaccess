@@ -2400,21 +2400,12 @@ ht_get_last_parse (uint32_t key) {
  * Return -1 if the operation fails, else number of elements. */
 uint32_t
 ht_get_size_datamap (GModule module) {
-  khash_t (is32) * hash = NULL;
-  uint32_t k = 0;
-  uint32_t sum = 0;
+  khash_t (is32) * cache = get_hash_from_cache(module, MTRC_DATAMAP);
 
-  if (!ht_dates)
+  if (!cache)
     return 0;
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_DATAMAP)))
-      sum += kh_size (hash);
-  });
-  /* *INDENT-ON* */
-
-  return sum;
+  return kh_size (cache);
 }
 
 /* Get the number of elements in a uniqmap.
