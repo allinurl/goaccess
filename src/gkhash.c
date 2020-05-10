@@ -451,6 +451,9 @@ free_global_metrics (GKHashGlobal * ghash) {
   int i, n = 0;
   GKHashMetric mtrc;
 
+  if (!ghash)
+    return;
+
   n = ARRAY_SIZE (global_metrics);
   for (i = 0; i < n; i++) {
     mtrc = ghash->metrics[i];
