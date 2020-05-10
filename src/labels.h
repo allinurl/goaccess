@@ -258,7 +258,7 @@
 
 /* Storage Built-in Option */
 #define BUILT_WITH_DEFHASH             \
-  _("Built using the default in-memory hash database.")
+  _("In-Memory with On-Disk Persitance Storage.")
 
 /* Common UI Errors */
 #define ERR_FORMAT_HEADER              \
