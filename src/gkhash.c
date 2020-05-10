@@ -1822,11 +1822,11 @@ get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max) {
 
     curvalue = kh_value (hash, k);
     if (i++ == 0)
-      *min += curvalue;
+      *min = curvalue;
     if (curvalue > *max)
-      *max += curvalue;
+      *max = curvalue;
     if (curvalue < *min)
-      *min += curvalue;
+      *min = curvalue;
   }
 }
 
@@ -1851,11 +1851,11 @@ get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max) {
 
     curvalue = kh_value (hash, k);
     if (i++ == 0)
-      *min += curvalue;
+      *min = curvalue;
     if (curvalue > *max)
-      *max += curvalue;
+      *max = curvalue;
     if (curvalue < *min)
-      *min += curvalue;
+      *min = curvalue;
   }
 }
 
@@ -2400,7 +2400,7 @@ ht_get_last_parse (uint32_t key) {
  * Return -1 if the operation fails, else number of elements. */
 uint32_t
 ht_get_size_datamap (GModule module) {
-  khash_t (is32) * cache = get_hash_from_cache(module, MTRC_DATAMAP);
+  khash_t (is32) * cache = get_hash_from_cache (module, MTRC_DATAMAP);
 
   if (!cache)
     return 0;
@@ -2675,15 +2675,12 @@ ht_get_meta_data (GModule module, const char *key) {
  * On success the minimum and maximum values are set. */
 void
 ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
-  uint32_t k = 0;
-  khash_t (ii32) * hash = NULL;
+  khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_HITS);
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_HITS)))
-      get_ii32_min_max (hash, min, max);
-  });
-  /* *INDENT-ON* */
+  if (!cache)
+    return;
+
+  get_ii32_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
@@ -2693,15 +2690,12 @@ ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
  * On success the minimum and maximum values are set. */
 void
 ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
-  uint32_t k = 0;
-  khash_t (ii32) * hash = NULL;
+  khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_VISITORS);
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_VISITORS)))
-      get_ii32_min_max (hash, min, max);
-  });
-  /* *INDENT-ON* */
+  if (!cache)
+    return;
+
+  get_ii32_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
@@ -2711,15 +2705,12 @@ ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
  * On success the minimum and maximum values are set. */
 void
 ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max) {
-  uint32_t k = 0;
-  khash_t (iu64) * hash = NULL;
+  khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_BW);
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_BW)))
-      get_iu64_min_max (hash, min, max);
-  });
-  /* *INDENT-ON* */
+  if (!cache)
+    return;
+
+  get_iu64_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
@@ -2729,15 +2720,12 @@ ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max) {
  * On success the minimum and maximum values are set. */
 void
 ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max) {
-  uint32_t k = 0;
-  khash_t (iu64) * hash = NULL;
+  khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_CUMTS);
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_CUMTS)))
-      get_iu64_min_max (hash, min, max);
-  });
-  /* *INDENT-ON* */
+  if (!cache)
+    return;
+
+  get_iu64_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
@@ -2747,15 +2735,12 @@ ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max) {
  * On success the minimum and maximum values are set. */
 void
 ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
-  uint32_t k = 0;
-  khash_t (iu64) * hash = NULL;
+  khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_MAXTS);
 
-  /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
-    if ((hash = get_hash (module, k, MTRC_MAXTS)))
-      get_iu64_min_max (hash, min, max);
-  });
-  /* *INDENT-ON* */
+  if (!cache)
+    return;
+
+  get_iu64_min_max (cache, min, max);
 }
 
 uint32_t *
