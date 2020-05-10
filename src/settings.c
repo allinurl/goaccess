@@ -118,8 +118,7 @@ in_ignore_cmd_opts (const char *val) {
  * On success, the path to the configuration file is returned. */
 char *
 get_config_file_path (void) {
-  char *upath = NULL, *rpath = NULL;
-  FILE *file;
+  char *upath = NULL, *gpath = NULL, *rpath = NULL;
 
   /* determine which config file to open, default or custom */
   if (conf.iconfigfile != NULL) {
@@ -129,32 +128,26 @@ get_config_file_path (void) {
     return rpath;
   }
 
-  /* attempt to use the user's config file */
+  /* first attempt to use the user's config file, e.g., ~/.goaccessrc */
   upath = get_home ();
-  rpath = realpath (upath, NULL);       /* malloc'd */
-
   /* failure, e.g. if the file does not exist */
-  if (rpath == NULL) {
-    LOG_DEBUG (("Unable to open default config file %s %s", upath, strerror (errno)));
+  if ((rpath = realpath (upath, NULL)) != NULL) {
     free (upath);
-    return NULL;
+    return rpath;
   }
-  if (upath) {
-    free (upath);
-  }
+  LOG_DEBUG (("Unable to find user's config file %s %s", upath, strerror (errno)));
+  free (upath);
 
-  /* otherwise, fallback to global config file */
-  if ((file = fopen (rpath, "r")) == NULL && conf.load_global_config) {
-    upath = get_global_config ();
-    rpath = realpath (upath, NULL);
-    if (upath) {
-      free (upath);
-    }
-  } else {
-    fclose (file);
+  /* otherwise, fallback to global config file, e.g.,%sysconfdir%/goaccess.conf */
+  gpath = get_global_config ();
+  if ((rpath = realpath (gpath, NULL)) != NULL && conf.load_global_config) {
+    free (gpath);
+    return rpath;
   }
+  LOG_DEBUG (("Unable to find global config file %s %s", gpath, strerror (errno)));
+  free (gpath);
 
-  return rpath;
+  return NULL;
 }
 
 /* Use predefined static files when no config file is used. Note that
