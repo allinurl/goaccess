@@ -331,6 +331,8 @@
   N_("Horizontal")
 #define HTML_REPORT_NAV_VER            \
   N_("Vertical")
+#define HTML_REPORT_NAV_WIDE           \
+  N_("Wide Screen")
 #define HTML_REPORT_NAV_FILE_OPTS      \
   N_("File Options")
 #define HTML_REPORT_NAV_EXPORT_JSON    \

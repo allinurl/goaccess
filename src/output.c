@@ -1083,6 +1083,7 @@ print_json_i18n_def (FILE * fp) {
     {"layout"         , HTML_REPORT_NAV_LAYOUT}         ,
     {"horizontal"     , HTML_REPORT_NAV_HOR}            ,
     {"vertical"       , HTML_REPORT_NAV_VER}            ,
+    {"wide"           , HTML_REPORT_NAV_WIDE}           ,
     {"file_opts"      , HTML_REPORT_NAV_FILE_OPTS}      ,
     {"export_json"    , HTML_REPORT_NAV_EXPORT_JSON}    ,
     {"panel_opts"     , HTML_REPORT_PANEL_PANEL_OPTS}   ,

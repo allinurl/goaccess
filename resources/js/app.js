@@ -394,6 +394,12 @@ GoAccess.Nav = {
 			}.bind(this);
 		}.bind(this));
 
+		$$('.layout-wide', function (item) {
+			item.onclick = function (e) {
+				this.setLayout('wide');
+			}.bind(this);
+		}.bind(this));
+
 		$$('[data-perpage]', function (item) {
 			item.onclick = function (e) {
 				this.setPerPage(e);
@@ -421,10 +427,10 @@ GoAccess.Nav = {
 	},
 
 	setLayout: function (layout) {
-		if ('horizontal' == layout) {
+		if (('horizontal' == layout || 'wide' == layout) && $('.container')) {
 			$('.container').classList.add('container-fluid');
 			$('.container').classList.remove('container');
-		} else if ('vertical' == layout) {
+		} else if ('vertical' == layout && $('.container-fluid')) {
 			$('.container-fluid').classList.add('container');
 			$('.container').classList.remove('container-fluid');
 		}
@@ -791,7 +797,8 @@ GoAccess.Panels = {
 	},
 
 	createCol: function (row) {
-		var perRow = GoAccess.AppPrefs['layout'] == 'horizontal' ? 6 : 12;
+		var layout = GoAccess.AppPrefs['layout'];
+		var perRow = 'horizontal' == layout ? 6 : 'wide' == layout ? 3 : 12;
 
 		// set the number of columns based on current layout
 		var col = document.createElement('div');
@@ -803,13 +810,14 @@ GoAccess.Panels = {
 
 	createRow: function (row, idx) {
 		var wrap = $('.wrap-panels');
-		var every = GoAccess.AppPrefs['layout'] == 'horizontal' ? 2 : 1;
+		var layout = GoAccess.AppPrefs['layout'];
+		var every = 'horizontal' == layout ? 2 : 'wide' == layout ? 4 : 1;
 
 		// create a new bootstrap row every one or two elements depending on
 		// the layout
 		if (idx % every == 0) {
 			row = document.createElement('div');
-			row.setAttribute('class', 'row' + (every == 2 ? ' equal' : ''));
+			row.setAttribute('class', 'row' + (every == 2 || every == 4 ? ' equal' : ''));
 			wrap.appendChild(row);
 		}
 
@@ -1731,7 +1739,7 @@ GoAccess.App = {
 		$('.container').classList.remove('hide');
 		$('.spinner').classList.add('hide');
 
-		if (GoAccess.AppPrefs['layout'] == 'horizontal') {
+		if (GoAccess.AppPrefs['layout'] == 'horizontal' || GoAccess.AppPrefs['layout'] == 'wide') {
 			$('.container').classList.add('container-fluid');
 			$('.container-fluid').classList.remove('container');
 		}
