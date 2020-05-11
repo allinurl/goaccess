@@ -99,12 +99,18 @@ if HAS_SEDTR
 else
 	./bin2c $(srcdir)/resources/js/charts.js src/chartsjs.h charts_js
 endif
+if DEBUG
+	./bin2c $(srcdir)/resources/js/charts.js src/chartsjs.h charts_js
+endif
 # App.js
 src/appjs.h: bin2c$(EXEEXT) $(srcdir)/resources/js/app.js
 if HAS_SEDTR
 	cat $(srcdir)/resources/js/app.js | sed -E "s@(,|;)[[:space:]]*//..*@\1@g" | sed -E "s@^[[:space:]]*//..*@@g" | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/js/app.js.tmp
 	./bin2c $(srcdir)/resources/js/app.js.tmp src/appjs.h app_js
 else
+	./bin2c $(srcdir)/resources/js/app.js src/appjs.h app_js
+endif
+if DEBUG
 	./bin2c $(srcdir)/resources/js/app.js src/appjs.h app_js
 endif
 
