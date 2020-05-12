@@ -537,6 +537,8 @@ GoAccess.Nav = {
 		GoAccess.AppPrefs['perPage'] = +e.currentTarget.getAttribute('data-perpage');
 		GoAccess.App.renderData();
 		GoAccess.setPrefs();
+
+		GoAccess.Tables.initialize();
 	},
 
 	getTheme: function () {
