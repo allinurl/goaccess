@@ -214,6 +214,9 @@
 	<h3><i class="fa fa-list-alt"></i> {{labels.panels}}</h3>
 	<ul class="perpage-wrap">
 		<li class="dropdown-header"><i class="fa fa-list"></i> {{labels.items_per_page}}</li>
+		<li {{#perPage3}}class="active"{{/perPage3}}>
+			<a href="javascript:void(0);" data-perpage="3"><i class="fa fa-circle{{^perPage3}}-o{{/perPage3}}"></i> 3</a>
+		</li>
 		<li {{#perPage5}}class="active"{{/perPage5}}>
 			<a href="javascript:void(0);" data-perpage="5"><i class="fa fa-circle{{^perPage5}}-o{{/perPage5}}"></i> 5</a>
 		</li>
