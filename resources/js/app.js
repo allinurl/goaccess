@@ -201,7 +201,9 @@ GoAccess.Util = {
 				val = value.toLocaleString();
 			break;
 		case 'secs':
-			val = value + ' secs';
+			var t = new Date(null);
+			t.setSeconds(value);
+			val = t.toISOString().substr(11, 8);
 			break;
 		default:
 			val = value;
