@@ -59,18 +59,27 @@ static khash_t (ii32) * ht_last_parse  = NULL;
 static GKHashModule *cache_storage = NULL;
 /* *INDENT-ON* */
 
+/* Allocate memory for a new store container GKHashStorage instance.
+ *
+ * On success, the newly allocated GKHashStorage is returned . */
 static GKHashStorage *
 new_gkhstorage (void) {
   GKHashStorage *storage = xcalloc (1, sizeof (GKHashStorage));
   return storage;
 }
 
+/* Allocate memory for a new module GKHashModule instance.
+ *
+ * On success, the newly allocated GKHashStorage is returned . */
 static GKHashModule *
 new_gkhmodule (uint32_t size) {
   GKHashModule *storage = xcalloc (size, sizeof (GKHashModule));
   return storage;
 }
 
+/* Allocate memory for a new global GKHashGlobal instance.
+ *
+ * On success, the newly allocated GKHashGlobal is returned . */
 static GKHashGlobal *
 new_gkhglobal (void) {
   GKHashGlobal *storage = xcalloc (1, sizeof (GKHashGlobal));
@@ -104,7 +113,7 @@ new_ii32_ht (void) {
   return h;
 }
 
-/* Initialize a new uint32_t key - uint8_t value hash table */
+/* Initialize a new uint32_t key - GKHashStorage value hash table */
 static void *
 new_igkh_ht (void) {
   khash_t (igkh) * h = kh_init (igkh);
@@ -125,7 +134,7 @@ new_iu64_ht (void) {
   return h;
 }
 
-/* Initialize a new uint64_t key - uint32_t value hash table */
+/* Initialize a new uint64_t key - uint8_t value hash table */
 static void *
 new_u648_ht (void) {
   khash_t (u648) * h = kh_init (u648);
