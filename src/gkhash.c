@@ -191,6 +191,8 @@ des:
   kh_destroy (si32, hash);
 }
 
+/* Deletes an entry from the hash table and optionally the keys for a string
+ * key - uint32_t value hash */
 static void
 del_si32_free (void *h, uint8_t free_data) {
   khint_t k;
@@ -227,7 +229,7 @@ des:
   kh_destroy (is32, hash);
 }
 
-/* Destroys both the hash structure and its string values */
+/* Deletes both the hash entry and its string values */
 static void
 del_is32_free (void *h, uint8_t free_data) {
   khint_t k;
@@ -276,6 +278,7 @@ des_ii32 (void *h, GO_UNUSED uint8_t free_data) {
   kh_destroy (ii32, hash);
 }
 
+/* Deletes all entries from the hash table */
 static void
 del_ii32 (void *h, GO_UNUSED uint8_t free_data) {
   khint_t k;
@@ -299,6 +302,7 @@ des_u648 (void *h, GO_UNUSED uint8_t free_data) {
   kh_destroy (u648, hash);
 }
 
+/* Deletes all entries from the hash table */
 static void
 del_u648 (void *h, GO_UNUSED uint8_t free_data) {
   khint_t k;
@@ -335,6 +339,7 @@ des:
   kh_destroy (igsl, hash);
 }
 
+/* Deletes all entries from the hash table and optionally frees its GSLList */
 static void
 del_igsl_free (void *h, uint8_t free_data) {
   khint_t k;
@@ -377,6 +382,7 @@ des:
   kh_destroy (su64, hash);
 }
 
+/* Deletes all entries from the hash table and optionally frees its string key */
 static void
 del_su64_free (void *h, uint8_t free_data) {
   khint_t k;
@@ -393,6 +399,7 @@ del_su64_free (void *h, uint8_t free_data) {
   }
 }
 
+/* Destroys the hash structure */
 static void
 des_iu64 (void *h, GO_UNUSED uint8_t free_data) {
   khash_t (iu64) * hash = h;
@@ -401,6 +408,7 @@ des_iu64 (void *h, GO_UNUSED uint8_t free_data) {
   kh_destroy (iu64, hash);
 }
 
+/* Deletes all entries from the hash table */
 static void
 del_iu64 (void *h, GO_UNUSED uint8_t free_data) {
   khint_t k;
@@ -422,9 +430,9 @@ static const GKHashMetric global_metrics[] = {
   { MTRC_AGENT_VALS , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , "IS32_AGENT_VALS.db"  } ,
   { MTRC_CNT_VALID  , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , "II32_CNT_VALID.db"   } ,
   { MTRC_CNT_BW     , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , "IU64_CNT_BW.db"      } ,
-  };
+};
 
-  static GKHashMetric module_metrics[] = {
+static GKHashMetric module_metrics[] = {
   { MTRC_KEYMAP     , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , NULL}                   ,
   { MTRC_ROOTMAP    , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL}                   ,
   { MTRC_DATAMAP    , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL}                   ,
@@ -442,7 +450,7 @@ static const GKHashMetric global_metrics[] = {
 };
 /* *INDENT-ON* */
 
-/* Initialize map & metric hashes */
+/* Initialize module metrics and mallocs its hash structure */
 static void
 init_tables (GModule module, GKHashModule * storage) {
   int n = 0, i;
@@ -454,7 +462,7 @@ init_tables (GModule module, GKHashModule * storage) {
   }
 }
 
-/* Destroys the hash structure allocated metrics */
+/* Destroys malloc'd global metrics */
 static void
 free_global_metrics (GKHashGlobal * ghash) {
   int i, n = 0;
@@ -470,7 +478,7 @@ free_global_metrics (GKHashGlobal * ghash) {
   }
 }
 
-/* Destroys the hash structure allocated metrics */
+/* Destroys malloc'd mdule metrics */
 static void
 free_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
   int i, n = 0;
@@ -486,7 +494,7 @@ free_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
   }
 }
 
-/* Destroys the hash structure allocated metrics */
+/* For each module metric, deletes all entries from the hash table */
 static void
 del_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
   int i, n = 0;
@@ -499,6 +507,7 @@ del_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
   }
 }
 
+/* Destroys all hash tables and possibly all the malloc'd data within */
 static void
 free_stores (GKHashStorage * store) {
   GModule module;
@@ -515,6 +524,10 @@ free_stores (GKHashStorage * store) {
   free (store);
 }
 
+/* Given a key (date), get the relevant store
+ *
+ * On error or not found, NULL is returned.
+ * On success, a pointer to that store is returned. */
 static void *
 get_store (uint32_t key) {
   GKHashStorage *store = NULL;
@@ -531,6 +544,10 @@ get_store (uint32_t key) {
   return store;
 }
 
+/* Given a store, a module and the metric, get the hash table
+ *
+ * On error or not found, NULL is returned.
+ * On success, a pointer to that hash table is returned. */
 static void *
 get_hash_from_store (GKHashStorage * store, int module, GSMetric metric) {
   if (!store)
@@ -544,10 +561,10 @@ get_hash_from_store (GKHashStorage * store, int module, GSMetric metric) {
   return store->mhash[module].metrics[metric].hash;
 }
 
-/* Given a module and a metric, get the hash table
+/* Given a module a key (date) and the metric, get the hash table
  *
- * On error, or if table is not found, NULL is returned.
- * On success the hash structure pointer is returned. */
+ * On error or not found, NULL is returned.
+ * On success, a pointer to that hash table is returned. */
 static void *
 get_hash (int module, uint64_t key, GSMetric metric) {
   GKHashStorage *store = NULL;
@@ -557,6 +574,9 @@ get_hash (int module, uint64_t key, GSMetric metric) {
   return get_hash_from_store (store, module, metric);
 }
 
+/* Given a module and a metric, get the cache hash table
+ *
+ * On success, a pointer to that hash table is returned. */
 static void *
 get_hash_from_cache (GModule module, GSMetric metric) {
   return cache_storage[module].metrics[metric].hash;
