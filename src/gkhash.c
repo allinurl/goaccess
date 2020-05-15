@@ -550,14 +550,24 @@ get_store (uint32_t key) {
  * On success, a pointer to that hash table is returned. */
 static void *
 get_hash_from_store (GKHashStorage * store, int module, GSMetric metric) {
+  int mtrc = 0, cnt = 0;
   if (!store)
     return NULL;
+
+  if (module == -1) {
+    mtrc = metric - MTRC_METADATA - 1;
+    cnt = MTRC_CNT_BW - MTRC_UNIQUE_KEYS + 1;
+    if (mtrc >= cnt) {
+      LOG_DEBUG (("Out of bounds when attempting to get hash %d\n", metric));
+      return NULL;
+    }
+  }
 
   /* ###NOTE: BE CAREFUL here, to avoid the almost unnecessary loop, we simply
    * use the index from the enum to make it O(1). The metrics array has to be
    * created in the same order as the GSMetric enum */
   if (module < 0)
-    return store->ghash->metrics[metric - MTRC_METADATA - 1].hash;
+    return store->ghash->metrics[mtrc].hash;
   return store->mhash[module].metrics[metric].hash;
 }
 
