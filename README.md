@@ -415,16 +415,19 @@ the following way:
 
 ##### NOTES #####
 
-GoAccess  keeps track of inodes of all the files processed (assuming files will stay on the same par‐
-tition) along with the last line parsed of each file and the timestamp of the last line parsed. e.g.,
+GoAccess  keeps track of inodes of all the files processed (assuming files will
+stay on the same partition) along with the last line parsed of each file and
+the timestamp of the last line parsed. e.g.,
 `inode:29627417|line:20012|ts:20171231235059`
 
-If  the  inode  does not match the current file, it parses all lines. If the current file matches the
-inode, it then reads the remaining lines and updates the count of lines parsed and the timestamp.  As
-an extra precaution, it won't parse log lines with a timestamp ≤ than the one stored.
+If  the  inode  does not match the current file, it parses all lines. If the
+current file matches the inode, it then reads the remaining lines and updates
+the count of lines parsed and the timestamp.  As an extra precaution, it won't
+parse log lines with a timestamp ≤ than the one stored.
 
-Piped  data works based off the timestamp of the last line read. For instance, it will parse and dis‐
-card all incoming entries until it finds a timestamp >= than the one stored.
+Piped  data works based off the timestamp of the last line read. For instance,
+it will parse and discard all incoming entries until it finds a timestamp >=
+than the one stored.
 
 ##### Examples #####
 
