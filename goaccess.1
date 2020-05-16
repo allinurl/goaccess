@@ -1,4 +1,4 @@
-.TH goaccess 1 "MARCH 2020" Linux "User Manuals"
+.TH goaccess 1 "MAY 2020" Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -123,20 +123,9 @@ will depend on your environment and needs.
 .TP
 Default Hash Tables
 In-memory storage provides better performance at the cost of limiting the
-dataset size to the amount of available physical memory. By default GoAccess
-uses in-memory hash tables. If your dataset can fit in memory, then this will
-perform fine. It has very good memory usage and pretty good performance.
-.TP
-Tokyo Cabinet On-Disk B+ Tree
-Use this storage method for large datasets where it is not possible to fit
-everything in memory. The B+ tree database is slower than any of the hash
-databases since data has to be committed to disk. However, using an SSD greatly
-increases the performance. You may also use this storage method if you need
-data persistence to quickly load statistics at a later date.
-.TP
-Tokyo Cabinet In-memory Hash Database
-An alternative to the default hash tables. It uses generic typing and thus it's
-performance in terms of memory and speed is average.
+dataset size to the amount of available physical memory. GoAccess uses
+in-memory hash tables. It has very good memory usage and pretty good
+performance. This storage has support for on-disk persistence.
 .SH CONFIGURATION
 .P
 Multiple options can be used to configure GoAccess. For a complete up-to-date
@@ -155,19 +144,6 @@ Compile with GeoLocation support. MaxMind's GeoIP is required.
 will utilize the original GeoIP databases.
 .I mmdb
 will utilize the enhanced GeoIP2 databases.
-.TP
-\fB\-\-enable-tcb=<memhash|btree>
-Compile with Tokyo Cabinet storage support.
-.I memhash
-will utilize Tokyo Cabinet's on-memory hash database.
-.I btree
-will utilize Tokyo Cabinet's on-disk B+ Tree database.
-.TP
-\fB\-\-disable-zlib
-Disable zlib compression on B+ Tree database.
-.TP
-\fB\-\-disable-bzip
-Disable bzip2 compression on B+ Tree database.
 .TP
 \fB\-\-with-getline
 Dynamically expands line buffer in order to parse full line requests instead of
@@ -621,6 +597,17 @@ Ignore referers from being counted. Wildcards allowed. e.g.,
 .I
 ww?.domain.*
 .TP
+\fB\-\-ignore-statics=<req|panel>
+Ignore static file requests.
+
+.I req
+  Only ignore request from valid requests
+
+.I panels
+  Ignore request from panels.
+
+  Note that it will count them towards the total number of requests
+.TP
 \fB\-\-ignore-status=<CODE>
 Ignore parsing and displaying one or multiple status code(s). For multiple
 status codes, use this option multiple times.
@@ -702,73 +689,25 @@ Display version information and exit.
 \fB\-\-dcf
 Display the path of the default config file when `-p` is not used.
 .SS
-ON-DISK STORAGE OPTIONS
+PERSISTENCE STORAGE OPTIONS
 .TP
-\fB\-\-keep-db-files
+\fB\-\-persist
 Persist parsed data into disk. If database files exist, files will be
-overwritten. This should be set to the first dataset. Setting it to false will
-delete all database files when exiting the program. See examples below.
-
-Only if configured with --enable-tcb=btree
+overwritten. This should be set to the first dataset. See examples below.
 .TP
-\fB\-\-load-from-disk
+\fB\-\-restore
 Load previously stored data from disk. If reading persisted data only, the
 database files need to exist. See
-.I keep-db-files
+.I --persist
 and examples below.
-
-Only if configured with --enable-tcb=btree
 .TP
 \fB\-\-db-path=<dir>
 Path where the on-disk database files are stored. The default value is the
-.I /tmp/goaccess<PID>
-directory (created on-demand).
-
-Only if configured with --enable-tcb=btree
+.I /tmp
+directory.
 .TP
-\fB\-\-xmmap=<num>
-Set the size in bytes of the extra mapped memory. The default value is 0.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-cache-lcnum=<num>
-Specifies the maximum number of leaf nodes to be cached. If it is not more than
-0, the default value is specified. The default value is 1024. Setting a larger
-value will increase speed performance, however, memory consumption will
-increase. Lower value will decrease memory consumption.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-cache-ncnum=<num>
-Specifies the maximum number of non-leaf nodes to be cached. If it is not more
-than 0, the default value is specified. The default value is 512.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-tune-lmemb=<num>
-Specifies the number of members in each leaf page. If it is not more than 0,
-the default value is specified. The default value is 128.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-tune-nmemb=<num>
-Specifies the number of members in each non-leaf page. If it is not more than
-0, the default value is specified. The default value is 256.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-tune-bnum=<num>
-Specifies the number of elements of the bucket array. If it is not more than 0,
-the default value is specified. The default value is 32749. Suggested size of
-the bucket array is about from 1 to 4 times of the number of all pages to be
-stored.
-
-Only if configured with --enable-tcb=btree
-.TP
-\fB\-\-compression=<zlib|bz2>
-Specifies that each page is compressed with ZLIB|BZ2 encoding.
-
-Only if configured with --enable-tcb=btree
+\fB\-\-keep-last=<num_days>
+Preserve the last <num_days> in storage.
 
 .SH CUSTOM LOG/DATE FORMAT
 GoAccess can parse virtually any web log format.
@@ -1073,6 +1012,12 @@ or using relative dates such as yesterdays or tomorrows day:
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 .IP
 # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
+.P
+If we want to preserve only certain amount of data and recycle storage, we can
+keep only a certain number of days. For instance to keep & show the last 5
+days:
+.IP
+# goaccess access.log --keep-last=5
 .SS
 VIRTUAL HOSTS
 .P
@@ -1125,44 +1070,52 @@ your local machine:
 .SS
 INCREMENTAL LOG PROCESSING
 .P
-GoAccess has the ability to process logs incrementally through the on-disk
-B+Tree database. It works in the following way:
+GoAccess has the ability to process logs incrementally through its internal
+storage and dump its data to disk. It works in the following way:
 
 .nr step 1 1
 .IP \n[step] 3
 A dataset must be persisted first with
-.I --keep-db-files,
+.I --persist,
 then the same dataset can be loaded with
-.I --load-from-disk.
 .IP \n+[step]
+.I --restore.
 If new data is passed (piped or through a log file), it will append it to the
 original dataset.
-.IP \n+[step]
-To preserve the data at all times,
-.I --keep-db-files
-must be used.
-.IP \n+[step]
-If
-.I --load-from-disk
-is used without
-.I --keep-db-files,
-database files will be deleted upon closing the program.
+
+.P
+NOTES
+
+GoAccess keeps track of inodes of all the files processed (assuming files will
+stay on the same partition) along with the last line parsed of each file and
+the timestamp of the last line parsed. e.g.,
+inode:29627417|line:20012|ts:20171231235059
+
+If the inode does not match the current file, it parses all lines. If the
+current file matches the inode, it then reads the remaining lines and updates
+the count of lines parsed and the timestamp. As an extra precaution, it won't
+parse log lines with a timestamp ≤ than the one stored.
+
+Piped data works based off the timestamp of the last line read. For instance,
+it will parse and discard all incoming entries until it finds a timestamp >=
+than the one stored.
+
 .P
 For instance:
 .IP
 // last month access log
 .br
-goaccess access.log.1 --keep-db-files
+goaccess access.log.1 --persist
 .P
 then, load it with
 .IP
 // append this month access log, and preserve new data
 .br
-goaccess access.log --load-from-disk --keep-db-files
+goaccess access.log --restore --persist
 .P
 To read persisted data only (without parsing new data)
 .IP
-goaccess --load-from-disk --keep-db-files
+goaccess --restore
 .P
 .SH NOTES
 Each active panel has a total of 366 items or 50 in the real-time HTML report.
@@ -1170,13 +1123,6 @@ The number of items is customizable using
 .I max-items
 However, only the CSV and JSON output allow a maximum number greater than the
 default value of 366 items per panel.
-.P
-When analyzing the same log file twice using the on-disk B+Tree and using
-.I --keep-db-files
-and
-.I --load-from-disk
-on each run, GoAccess will count each entry twice. Issue #334 will address this
-issue.
 .P
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
