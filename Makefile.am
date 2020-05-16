@@ -117,6 +117,7 @@ endif
 confdir = $(sysconfdir)/goaccess
 dist_conf_DATA = config/goaccess.conf
 dist_conf_DATA += config/browsers.list
+dist_conf_DATA += config/podcast.list
 
 goaccess_SOURCES = \
    src/base64.c        \
