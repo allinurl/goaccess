@@ -209,9 +209,6 @@ You can read more about using the docker image in [DOCKER.md](https://github.com
 
 ## Storage ##
 
-There are three storage options that can be used with GoAccess. Choosing one
-will depend on your environment and needs.
-
 #### Default Hash Tables ####
 
 In-memory storage provides better performance at the cost of limiting the
