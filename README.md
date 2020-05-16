@@ -201,6 +201,10 @@ A Docker image has been updated, capable of directing output from an access log.
 
     cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
 
+OR real-time
+
+    cat access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED --real-time-html - > report.html
+
 You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
 
 ## Storage ##
