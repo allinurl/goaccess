@@ -187,13 +187,13 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (opt)      |  OpenSSL (opt)     | gettext
----------------------- | -----------------|------------------| -------------------------| -------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev        | gettext
-**RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel     | gettext-devel
-**Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl    | gettext
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl  |
-**Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl           |
+Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     | gettext
+---------------------- | -----------------|------------------| -------------------| -------------------
+**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        | gettext
+**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     | gettext-devel
+**Arch Linux**         | ncurses          | geoip            |  openssl           | gettext
+**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  |
+**Slackware**          | ncurses          | GeoIP            |  openssl           |
 
 #### Docker ####
 
@@ -215,22 +215,9 @@ will depend on your environment and needs.
 #### Default Hash Tables ####
 
 In-memory storage provides better performance at the cost of limiting the
-dataset size to the amount of available physical memory. By default GoAccess
-uses in-memory hash tables. If your dataset can fit in memory, then this will
-perform fine. It has very good memory usage and pretty good performance.
-
-#### Tokyo Cabinet On-Disk B+ Tree ####
-
-Use this storage method for large datasets where it is not possible to fit
-everything in memory. The B+ tree database is slower than any of the hash
-databases since data has to be committed to disk. However, using an SSD greatly
-increases the performance. You may also use this storage method if you need
-data persistence to quickly load statistics at a later date.
-
-#### Tokyo Cabinet On-Memory Hash Database ####
-
-An alternative to the default hash tables. It uses generic typing and thus it's
-performance in terms of memory and speed is average.
+dataset size to the amount of available physical memory. GoAccess uses
+in-memory hash tables.  It has very good memory usage and pretty good
+performance. This storage has support for on-disk persistence as well.
 
 ## Command Line / Config Options ##
 See [**options**](https://goaccess.io/man#options) that can be supplied to the command or
