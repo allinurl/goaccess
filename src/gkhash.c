@@ -1948,6 +1948,16 @@ ht_get_processed (void) {
 }
 
 uint32_t
+ht_get_processing_time (void) {
+  khash_t (si32) * hash = ht_cnt_overall;
+
+  if (!hash)
+    return 0;
+
+  return get_si32 (hash, "processing_time");
+}
+
+uint32_t
 ht_sum_valid (void) {
   khash_t (ii32) * hash = NULL;
   uint32_t k = 0;

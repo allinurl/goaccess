@@ -172,7 +172,6 @@ typedef struct GConf_
   int real_time_html;               /* enable real-time HTML output */
   int restore;                      /* reload data from db-path */
   int skip_term_resolver;           /* no terminal resolver */
-  int store_accumulated_time;       /* store accumulated processing time in tcb */
   uint32_t keep_last;               /* number of days to keep in storage */
   uint32_t num_tests;               /* number of lines to test */
   uint64_t log_size;                /* log size override */

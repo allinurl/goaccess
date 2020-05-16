@@ -324,6 +324,7 @@ uint32_t ht_get_invalid (void);
 uint32_t ht_get_keymap (GModule module, const char *key);
 uint32_t ht_get_last_parse (uint32_t key);
 uint32_t ht_get_processed (void);
+uint32_t ht_get_processing_time (void);
 uint32_t ht_get_size_datamap (GModule module);
 uint32_t ht_get_size_dates (void);
 uint32_t ht_get_size_uniqmap (GModule module);

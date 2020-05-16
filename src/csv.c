@@ -216,7 +216,7 @@ print_csv_summary (FILE * fp) {
   char *source = NULL;
   const char *fmt;
   int i = 0, total = 0;
-  long long t = 0LL;
+  uint32_t t = 0;
 
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
@@ -240,8 +240,8 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
 
   /* generated time */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
-  t = (long long) end_proc - start_proc;
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%u\",\"%s\"\r\n";
+  t = ht_get_processing_time ();
   fprintf (fp, fmt, i++, GENER_ID, t, OVERALL_GENTIME);
 
   /* visitors */

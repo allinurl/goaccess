@@ -484,15 +484,10 @@ get_str_visitors (void) {
 static char *
 get_str_proctime (void) {
   char *s = NULL;
-  uint64_t secs = (long long) end_proc - start_proc;
+  uint32_t secs = ht_get_processing_time ();
 
-#ifdef TCB_BTREE
-  if (conf.store_accumulated_time)
-    secs = (uint64_t) ht_get_genstats ("accumulated_time");
-#endif
-
-  s = xmalloc (snprintf (NULL, 0, "%" PRIu64 "s", secs) + 1);
-  sprintf (s, "%" PRIu64 "s", secs);
+  s = xmalloc (snprintf (NULL, 0, "%us", secs) + 1);
+  sprintf (s, "%us", secs);
 
   return s;
 }

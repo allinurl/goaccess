@@ -1117,16 +1117,12 @@ get_keys (void) {
  * Note: As we store with time_t second resolution,
  * if elapsed time == 0, we will bump it to 1.
  */
-#ifdef TCB_BTREE
 static void
 set_accumulated_time (void) {
-  if (conf.store_accumulated_time) {
-    time_t elapsed = end_proc - start_proc;
-    elapsed = (!elapsed) ? !elapsed : elapsed;
-    ht_insert_genstats_accumulated_time (elapsed);
-  }
+  time_t elapsed = end_proc - start_proc;
+  elapsed = (!elapsed) ? !elapsed : elapsed;
+  ht_inc_cnt_overall ("processing_time", elapsed);
 }
-#endif
 
 /* Execute the following calls right before we start the main
  * processing/parsing loop */
@@ -1471,11 +1467,8 @@ main (int argc, char **argv) {
   end_spinner ();
   time (&end_proc);
 
-  /* ignore outputting, process only */
+  set_accumulated_time ();
   if (conf.process_and_exit) {
-#ifdef TCB_BTREE
-    set_accumulated_time ();
-#endif
   }
   /* stdout */
   else if (conf.output_stdout) {

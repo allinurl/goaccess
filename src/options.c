@@ -485,10 +485,6 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("anonymize-ip", name))
     conf.anonymize_ip = 1;
 
-  /* store accumulated time in tcb */
-  if (!strcmp ("accumulated-time", name))
-    conf.store_accumulated_time = 1;
-
   /* all static files */
   if (!strcmp ("all-static-files", name))
     conf.all_static_files = 1;
