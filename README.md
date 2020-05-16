@@ -336,6 +336,12 @@ If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
+If we want to preserve only certain amount of data and recycle storage, we can
+keep only a certain number of days. For instance to keep & show the last 5
+days:
+
+    # goaccess access.log --keep-last=5
+
 #### Virtual hosts ####
 
 Assuming your log contains the virtual host field. For instance:
@@ -406,12 +412,14 @@ We receive many questions and issues that have been answered previously.
 
 #### Incremental log processing ####
 
-GoAccess has the ability to process logs incrementally through the on-disk
-[B+Tree](https://github.com/allinurl/goaccess#storage) database. It works in
-the following way:
 
-1. A dataset must be persisted first with `--persist`, then the same dataset can be loaded with.
-2. `--restore`.  If new data is passed (piped or through a log file), it will append it to the original dataset.
+GoAccess has the ability to process logs incrementally through its internal
+storage and dump its data to disk. It works in the following way:
+
+1. A dataset must be persisted first with `--persist`, then the same dataset
+can be loaded with.
+2. `--restore`.  If new data is passed (piped or through a log file), it will
+append it to the original dataset.
 
 ##### NOTES #####
 
