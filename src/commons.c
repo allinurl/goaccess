@@ -410,6 +410,14 @@ verify_panels (void) {
     if (str_inarray ("CACHE_STATUS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (CACHE_STATUS);
   }
+#ifdef HAVE_GEOLOCATION
+#ifdef HAVE_LIBMAXMINDDB
+  if (!conf.geoip_database && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (GEO_LOCATION);
+  }
+#endif
+#endif
 }
 
 /* Build an array of available modules (ignores listed panels).
