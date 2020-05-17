@@ -2,10 +2,10 @@ Changes to GoAccess 1.4 - Monday, May 18, 2020
 
   - Added a caching storage mechanism to improve parsing raw data and data
     rendering.
-  - Added a mechanism to avoid counting duplicate data twice when restoring
-    persisted data from disk.
-  - Added additional operating to the HTML report option to set a max number of
-    items per page to 3.
+  - Added a mechanism to avoid counting duplicate data when restoring persisted
+    data from disk.
+  - Added additional option to the HTML report to set a maximum number of items
+    per page to 3.
   - Added a list of podcast-related user agents under '%sysconfdir%'.
   - Added 'Android 10' to the list of Android codenames.
   - Added a 'widescreen' layout to the HTML report (e.g., 4K TV/KPI Dashboard).
@@ -46,6 +46,8 @@ Changes to GoAccess 1.4 - Monday, May 18, 2020
   - Fixed issue where HTML report wouldn't update the tables when changing per
     page option.
   - Fixed issue where it wouldn't find either the user's or global config file.
+  - Fixed issue where changing the number of items per page in the HTML report
+    would not automatically refresh the tables.
   - Fixed issue where last updated label was not updated in real-time.
   - Fixed issue where overall date range wasn't showing the right start/end parse
     dates.
@@ -62,7 +64,7 @@ Changes to GoAccess 1.4 - Monday, May 18, 2020
   - Removed some old browsers from the default curated list.
   - Replaced TokyoCabinet storage for a non-dependency in-memory persistent
     storage.
-  - Updated Dockerfile
+  - Updated Dockerfile.
 
 Changes to GoAccess 1.3 - Friday, November 23, 2018
 
