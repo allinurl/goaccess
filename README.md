@@ -33,7 +33,7 @@ terminal. Features include:
 
 * **Incremental Log Processing**<br>
   Need data persistence? GoAccess has the ability to process logs incrementally
-  through the on-disk persistence options. 
+  through the on-disk persistence options.
 
 * **Only one dependency**<br>
   GoAccess is written in C. To run it, you only need ncurses as a dependency.
