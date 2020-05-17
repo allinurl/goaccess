@@ -163,6 +163,7 @@ static const char *browsers[][2] = {
 
   /* Crawlers/Bots (Possible Safari based) */
   {"AppleBot", "Crawlers"},
+  {"facebookexternalhit", "Crawlers"},
   {"Twitter", "Crawlers"},
 
   {"Safari", "Safari"},
