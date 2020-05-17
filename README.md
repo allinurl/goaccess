@@ -8,8 +8,8 @@ viewer that runs in a **terminal** on &ast;nix systems or through your
 administrators that require a visual server report on the fly.
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?20170307000000)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?20181123000000)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2020051701)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2020051701)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
