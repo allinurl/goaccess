@@ -59,7 +59,6 @@ static const char *browsers[][2] = {
   {"Raptr", "Game Systems"},
 
   /* Based on Internet Explorer */
-  {"America Online Browser", "Others"},
   {"Avant Browser", "Others"},
   /* Internet Explorer */
   {"IEMobile", "MSIE"},
@@ -94,10 +93,8 @@ static const char *browsers[][2] = {
   {"Firebird", "Others"},
   {"Galeon", "Others"},
   {"google-cloud-sdk", "Others"},
-  {"GranParadiso", "Others"},
   {"IBrowse", "Others"},
   {"K-Meleon", "Others"},
-  {"Kazehakase", "Others"},
   {"Konqueror", "Others"},
   {"Links", "Others"},
   {"Lynx", "Others"},
