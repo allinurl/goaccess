@@ -52,8 +52,9 @@ terminal. Features include:
   terminal, or by simply applying the stylesheet on the HTML output.
 
 * **Support for Large Datasets**<br>
-  GoAccess features an on-disk B+Tree storage for large datasets where it is not
-  possible to fit everything in memory.
+  GoAccess features the ability to parse large logs due to its optimized
+  in-memory hash tables. It has very good memory usage and pretty good
+  performance. This storage has support for on-disk persistence as well.
 
 * **Docker Support**<br>
   Ability to build GoAccess' Docker image from upstream. You can still fully
