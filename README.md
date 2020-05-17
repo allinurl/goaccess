@@ -33,7 +33,7 @@ terminal. Features include:
 
 * **Incremental Log Processing**<br>
   Need data persistence? GoAccess has the ability to process logs incrementally
-  through the on-disk B+Tree database. 
+  through the on-disk persistence options. 
 
 * **Only one dependency**<br>
   GoAccess is written in C. To run it, you only need ncurses as a dependency.
@@ -134,7 +134,6 @@ alternative option below.
     $ sudo apt-get install goaccess
 
 **Note**:
-* For *on-disk* support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
 * `.deb` packages in the official repo are available through HTTPS as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
