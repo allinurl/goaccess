@@ -225,6 +225,8 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
     code = get_value (res, "country", "iso_code", NULL);
   }
   geoip_set_country (country, code, location);
+  free (code);
+  free (country);
 }
 
 /* A wrapper to fetch the looked up result and set the continent code.
@@ -238,6 +240,7 @@ geoip_query_continent (MMDB_lookup_result_s res, char *location) {
   if (res.found_entry)
     code = get_value (res, "continent", "code", NULL);
   geoip_set_continent (code, location);
+  free (code);
 }
 
 /* Set country data by record into the given `location` buffer */
