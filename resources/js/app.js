@@ -326,7 +326,7 @@ GoAccess.OverallStats = {
 	// Render general/overall analyzed requests.
 	initialize: function () {
 		var ui = GoAccess.getPanelUI('general');
-		var data = GoAccess.getPanelData('general'), i = 0;
+		var data = GoAccess.getPanelData('general');
 
 		this.renderData(data, ui);
 	}
@@ -829,7 +829,7 @@ GoAccess.Panels = {
 	},
 
 	resetPanel: function (panel) {
-		var ui = GoAccess.getPanelUI(), idx = 0, row = null;
+		var ui = GoAccess.getPanelUI();
 		var ele = $('#panel-' + panel);
 
 		if (GoAccess.Util.isPanelValid(panel))
@@ -854,7 +854,7 @@ GoAccess.Panels = {
 			row = this.createRow(row, idx++);
 			col = this.createCol(row);
 			// Render panel given a user interface definition
-			col = this.renderPanel(panel, ui[panel], col);
+			this.renderPanel(panel, ui[panel], col);
 		}
 	},
 
@@ -971,7 +971,7 @@ GoAccess.Charts = {
 	},
 
 	findUIItem: function (panel, key) {
-		var items = GoAccess.getPanelUI(panel).items, o = {};
+		var items = GoAccess.getPanelUI(panel).items;
 		for (var i = 0; i < items.length; ++i) {
 			if (items[i].key == key)
 				return items[i];
