@@ -246,6 +246,7 @@ cmd_help (void)
   "                                    panel => Ignore from valid requests and panels.\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
+  "  --no-ip-validation              - Disable client IPv4/6  validation.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --persist                       - Persist data to disk on exit to the given --db-path or to /tmp.\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
