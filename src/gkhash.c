@@ -1067,6 +1067,10 @@ set_db_path (const char *fn) {
   return path;
 }
 
+/* Get the database filename given a module and a metric.
+ *
+ * On error, a fatal error is triggered.
+ * On success, the filename is returned */
 static char *
 get_filename (GModule module, GKHashMetric mtrc) {
   char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
@@ -1088,12 +1092,15 @@ get_filename (GModule module, GKHashMetric mtrc) {
   return fn;
 }
 
+/* Dump to disk the database file and frees its memory */
 static void
 close_tpl (tpl_node * tn, const char *fn) {
   tpl_dump (tn, TPL_FILE, fn);
   tpl_free (tn);
 }
 
+/* Given a database filename, restore a string key, uint32_t value back to the
+ * storage */
 static void
 restore_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_node *tn;
@@ -1110,6 +1117,7 @@ restore_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
+/* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static void
 persist_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_node *tn;
@@ -1133,7 +1141,8 @@ persist_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
-
+/* Given a database filename, restore a uint32_t key, uint32_t value back to
+ * the storage */
 static void
 restore_global_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_node *tn;
@@ -1148,6 +1157,7 @@ restore_global_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
+/* Given a hash and a filename, persist to disk a uint32_t key, uint32_t value */
 static void
 persist_global_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_node *tn;
@@ -1171,6 +1181,8 @@ persist_global_ii32 (khash_t (ii32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
+/* Given a database filename, restore a string key, uint32_t value back to
+ * the storage */
 static int
 restore_si32 (GSMetric metric, const char *path, int module) {
   khash_t (si32) * hash = NULL;
@@ -1198,6 +1210,7 @@ restore_si32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static int
 persist_si32 (GSMetric metric, const char *path, int module) {
   khash_t (si32) * hash = NULL;
@@ -1223,6 +1236,8 @@ persist_si32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a uint32_t key, string value back to
+ * the storage */
 static int
 restore_is32 (GSMetric metric, const char *path, int module) {
   khash_t (is32) * hash = NULL;
@@ -1252,6 +1267,7 @@ restore_is32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a uint32_t key, string value */
 static int
 persist_is32 (GSMetric metric, const char *path, int module) {
   khash_t (is32) * hash = NULL;
@@ -1277,6 +1293,8 @@ persist_is32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a uint32_t key, uint32_t value back to
+ * the storage */
 static int
 restore_ii32 (GSMetric metric, const char *path, int module) {
   khash_t (ii32) * hash = NULL;
