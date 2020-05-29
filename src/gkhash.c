@@ -1320,6 +1320,7 @@ restore_ii32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a uint32_t key, uint32_t value */
 static int
 persist_ii32 (GSMetric metric, const char *path, int module) {
   khash_t (ii32) * hash = NULL;
@@ -1344,6 +1345,8 @@ persist_ii32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a uint64_t key, uint8_t value back to
+ * the storage */
 static int
 restore_u648 (GSMetric metric, const char *path, int module) {
   khash_t (u648) * hash = NULL;
@@ -1370,6 +1373,7 @@ restore_u648 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a uint64_t key, uint8_t value */
 static int
 persist_u648 (GSMetric metric, const char *path, int module) {
   khash_t (u648) * hash = NULL;
@@ -1395,6 +1399,8 @@ persist_u648 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a uint32_t key, uint64_t value back to
+ * the storage */
 static int
 restore_iu64 (GSMetric metric, const char *path, int module) {
   khash_t (iu64) * hash = NULL;
@@ -1421,6 +1427,7 @@ restore_iu64 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a uint32_t key, uint64_t value */
 static int
 persist_iu64 (GSMetric metric, const char *path, int module) {
   khash_t (iu64) * hash = NULL;
@@ -1446,6 +1453,8 @@ persist_iu64 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a string key, uint64_t value back to
+ * the storage */
 static int
 restore_su64 (GSMetric metric, const char *path, int module) {
   khash_t (su64) * hash = NULL;
@@ -1473,6 +1482,7 @@ restore_su64 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a string key, uint64_t value */
 static int
 persist_su64 (GSMetric metric, const char *path, int module) {
   khash_t (su64) * hash = NULL;
@@ -1498,6 +1508,8 @@ persist_su64 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a uint32_t key, GSLList value back to the
+ * storage */
 static int
 restore_igsl (GSMetric metric, const char *path, int module) {
   khash_t (igsl) * hash = NULL;
@@ -1523,6 +1535,7 @@ restore_igsl (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a hash and a filename, persist to disk a uint32_t key, GSLList value */
 static int
 persist_igsl (GSMetric metric, const char *path, int module) {
   khash_t (igsl) * hash = NULL;
