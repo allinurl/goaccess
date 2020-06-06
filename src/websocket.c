@@ -1149,7 +1149,7 @@ parse_headers (WSHeaders * headers) {
     free (tmp);
     line = next ? (next + 2) : NULL;
 
-    if (strcmp (next, "\r\n\r\n") == 0)
+    if (next && strcmp (next, "\r\n\r\n") == 0)
       break;
   }
 
