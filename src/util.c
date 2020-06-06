@@ -343,7 +343,7 @@ within_range (const char *ip, const char *start, const char *end) {
  * On success, or if within the range, 1 is returned */
 int
 ip_in_range (const char *ip) {
-  char *start = NULL, *end, *dash;
+  char *start, *end, *dash;
   int i;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
@@ -359,14 +359,14 @@ ip_in_range (const char *ip) {
     }
 
     /* matches single IP */
-    if (end == NULL && start) {
+    if (end == NULL) {
       if (strcmp (ip, start) == 0) {
         free (start);
         return 1;
       }
     }
     /* within range */
-    else if (start && end) {
+    else {
       if (within_range (ip, start, end)) {
         free (start);
         return 1;
@@ -536,14 +536,14 @@ convert_date (char *res, const char *data, const char *from, const char *to, int
 
   memset (&tm, 0, sizeof (tm));
   timestamp = time (NULL);
-  now_tm = localtime (&timestamp);
+  localtime_r (&timestamp, &now_tm);
 
   if (str_to_time (data, from, &tm) != 0)
     return 1;
 
   /* if not a timestamp, use current year if not passed */
   if (!has_timestamp (from) && strpbrk (from, "Yy") == NULL)
-    tm.tm_year = now_tm->tm_year;
+    tm.tm_year = now_tm.tm_year;
 
   if (strftime (res, size, to, &tm) <= 0)
     return 1;

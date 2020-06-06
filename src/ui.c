@@ -158,7 +158,7 @@ close_win (WINDOW * w) {
 void
 generate_time (void) {
   timestamp = time (NULL);
-  now_tm = localtime (&timestamp);
+  localtime_r (&timestamp, &now_tm);
 }
 
 /* Set the loading spinner as ended and manage the mutex locking. */
@@ -578,8 +578,8 @@ render_overall_header (WINDOW * win, GHolder * h) {
 static void
 render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
   GColors *color = NULL;
-  int x_field = 2, x_value = 0;
-  size_t i, j, k, max_field = 0, max_value = 0, mod_val, y;
+  int x_field = 2, x_value;
+  size_t i, j, k, max_field = 0, max_value, mod_val, y;
 
   for (i = 0, k = 0, y = 2; i < n; i++) {
     /* new line every OVERALL_NUM_COLS */
@@ -587,8 +587,8 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
 
     /* reset position & length and increment row */
     if (k > 0 && mod_val == 0) {
-      max_value = max_field = 0;
-      x_value = x_field = 2;
+      max_field = 0;
+      x_field = 2;
       y++;
     }
 

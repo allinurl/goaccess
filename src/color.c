@@ -688,15 +688,13 @@ parse_color_line (GColorPair * pair, GColors * color, char *line) {
  * On success, or if not color found, store color properties */
 static void
 prepend_color (GColors ** color) {
-  GSLList *match = NULL;
-
   /* create a list of colors if one does not exist */
   if (color_list == NULL) {
     color_list = list_create (*color);
   }
   /* attempt to find the given color data type (by item and attributes) in
    * our color list */
-  else if ((match = list_find (color_list, find_color_in_list, *color))) {
+  else if (list_find (color_list, find_color_in_list, *color)) {
     /* if found, free the recently malloc'd color data type and use
      * existing color */
     free (*color);

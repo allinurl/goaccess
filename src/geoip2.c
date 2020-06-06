@@ -86,7 +86,7 @@ init_geoip (void) {
   mmdb = xcalloc (1, sizeof (MMDB_s));
   if ((status = MMDB_open (fn, MMDB_MODE_MMAP, mmdb)) != MMDB_SUCCESS) {
     free (mmdb);
-    FATAL ("Unable to open GeoIP2 database: %s\n", fn);
+    FATAL ("Unable to open GeoIP2 database %s: %s\n", fn, MMDB_strerror (status));
   }
 
   if (strcmp (mmdb->metadata.database_type, "GeoLite2-City") == 0)

@@ -432,7 +432,6 @@ static void
 ws_clear_handshake_headers (WSHeaders * headers) {
   ws_free_header_fields (headers);
   free (headers);
-  headers = NULL;
 }
 
 /* Remove the given client from the list. */
@@ -1149,7 +1148,7 @@ parse_headers (WSHeaders * headers) {
     free (tmp);
     line = next ? (next + 2) : NULL;
 
-    if (strcmp (next, "\r\n\r\n") == 0)
+    if (next && strcmp (next, "\r\n\r\n") == 0)
       break;
   }
 
@@ -1395,10 +1394,11 @@ access_log (WSClient * client, int status_code) {
   char buf[64] = { 0 };
   uint32_t elapsed = 0;
   struct timeval tv;
+  struct tm time;
   char *req = NULL, *ref = NULL, *ua = NULL;
 
   gettimeofday (&tv, NULL);
-  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]", localtime (&tv.tv_sec));
+  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]", localtime_r (&tv.tv_sec, &time));
 
   elapsed = (client->end_proc.tv_sec - client->start_proc.tv_sec) * 1000.0;
   elapsed += (client->end_proc.tv_usec - client->start_proc.tv_usec) / 1000.0;

@@ -50,7 +50,7 @@
 #include "ui.h"
 #include "util.h"
 
-struct tm *now_tm;
+struct tm now_tm;
 
 /* Panel output */
 typedef struct GPanel_ {
@@ -219,7 +219,7 @@ print_csv_summary (FILE * fp) {
   uint32_t t = 0;
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   /* generated date time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
@@ -274,7 +274,7 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (), OVERALL_LOGSIZE);
 
   /* bandwidth */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lu\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, ht_sum_bw (), OVERALL_BANDWIDTH);
 
   /* log path */
