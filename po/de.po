@@ -52,19 +52,19 @@ msgstr "[Aktives Panel: %1$s]"
 
 #: src/labels.h:54
 msgid "[q]uit GoAccess"
-msgstr ""
+msgstr "[q] GoAccess schließen"
 
 #: src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
-msgstr "[?] Hilfe [Enter] Erw. Panel"
+msgstr "[?] Hilfe [Eingabe] Panel öffnen"
 
 #: src/labels.h:56
 msgid "Dashboard"
-msgstr "Dashboard"
+msgstr "Übersicht"
 
 #: src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr "Dashboard - Analysierte Anfragen Gesamt"
+msgstr "Übersicht - Analysierte Anfragen Gesamt"
 
 #: src/labels.h:58
 msgid "Overall Analyzed Requests"
@@ -76,7 +76,7 @@ msgstr "Tx. Menge"
 
 #: src/labels.h:61
 msgid "Date/Time"
-msgstr "Zeit/Datum"
+msgstr "Datum/Zeit"
 
 #: src/labels.h:62
 msgid "Excl. IP Hits"
@@ -267,7 +267,7 @@ msgstr "Entfernter Nutzer"
 
 #: src/labels.h:142
 msgid "The cache status of the object served"
-msgstr ""
+msgstr "Cache Status des gelieferten Objekts"
 
 #: src/labels.h:146
 msgid "Cache Status"
@@ -275,7 +275,7 @@ msgstr ""
 
 #: src/labels.h:149
 msgid "Not Found URLs (404s)"
-msgstr "Nicht gefunden URLs (404s)"
+msgstr "Nicht gefundene URLs (404s)"
 
 #: src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
@@ -298,7 +298,7 @@ msgstr "Hosts"
 
 #: src/labels.h:163
 msgid "Operating Systems"
-msgstr "Betriebssystem"
+msgstr "Betriebssysteme"
 
 #: src/labels.h:165
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
@@ -380,7 +380,7 @@ msgstr "[x] Groß- und Kleinschreibung"
 
 #: src/labels.h:217
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr "Regex erlaubt - ^g zum abbrechen - TAB switch case"
+msgstr "Regex erlaubt - ^g zum abbrechen - TAB Groß-/Kleinschreibung wechseln"
 
 #: src/labels.h:219
 msgid "Find pattern in all views"
@@ -392,7 +392,7 @@ msgstr "Log-Format Konfiguration"
 
 #: src/labels.h:225
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr "[SPACE] zum auswählen - [ENTER] weiter - [q] schließen"
+msgstr "[LEERTASTE] auswählen - [EINGABE] weiter - [q] schließen"
 
 #: src/labels.h:227
 msgid "Log Format - [c] to add/edit format"
@@ -408,12 +408,12 @@ msgstr "Zeitformat - [t] zum hinzufügen/bearbeiten des Formats"
 
 #: src/labels.h:233 src/labels.h:237
 msgid "[UP/DOWN] to scroll - [q] to close window"
-msgstr "[UP/DOWN] zum scrollen - [q] zum schließen des Fensters"
+msgstr "[HOCH/RUNTER] zum scrollen - [q] zum schließen des Fensters"
 
 #: src/labels.h:239
 #, c-format
 msgid "User Agents for %1$s"
-msgstr "User-Agents für %1$s"
+msgstr "Benutzer Agenten für %1$s"
 
 #: src/labels.h:243
 msgid "Scheme Configuration"
@@ -421,7 +421,7 @@ msgstr "Schema-Konfiguration"
 
 #: src/labels.h:245
 msgid "[ENTER] to use scheme - [q]uit"
-msgstr "[ENTER] Schema verwenden - [q] schließen"
+msgstr "[EINGABE] Schema verwenden - [q] schließen"
 
 #: src/labels.h:249
 msgid "Sort active module by"
@@ -429,7 +429,7 @@ msgstr "Aktives Modul sortieren nach"
 
 #: src/labels.h:251
 msgid "[ENTER] select - [TAB] sort - [q]uit"
-msgstr "[ENTER] auswählen - [TAB] sortieren - [q] schließen"
+msgstr "[EINGABE] auswählen - [TAB] sortieren - [q] schließen"
 
 #: src/labels.h:255
 msgid "GoAccess Quick Help"
@@ -437,11 +437,11 @@ msgstr "GoAccess Schnelle Hilfe"
 
 #: src/labels.h:257
 msgid "[UP/DOWN] to scroll - [q] to quit"
-msgstr "[UP/DOWN] zum scrollen - [q] zum schließen"
+msgstr "[HOCH/RUNTER] zum scrollen - [q] zum schließen"
 
 #: src/labels.h:261
 msgid "In-Memory with On-Disk Persitance Storage."
-msgstr ""
+msgstr "Arbeitsspeicherintern mit dauerhaftem Festplattenspeicher"
 
 #: src/labels.h:265
 msgid "Format Errors - Verify your log/date/time format"
@@ -478,7 +478,7 @@ msgstr "%1$d Zeilen analysiert"
 
 #: src/labels.h:281
 msgid "Please report it by opening an issue on GitHub"
-msgstr "Bitte melden Sie den Vorfall und öffnen ein Issue auf GitHub"
+msgstr "Bitte melden Sie den Vorfall und öffnen Sie einen Bericht auf GitHub"
 
 #: src/labels.h:283
 msgid "Select a time format."
@@ -579,7 +579,7 @@ msgstr "Verikal"
 
 #: src/labels.h:335
 msgid "WideScreen"
-msgstr ""
+msgstr "Breitbild"
 
 #: src/labels.h:337
 msgid "File Options"
@@ -751,7 +751,7 @@ msgstr "403 - Verboten: Der Server weigert sich, darauf zu reagieren"
 
 #: src/labels.h:422
 msgid "404 - Not Found: Requested resource could not be found"
-msgstr "404 - Not Found: Requested resource could not be found"
+msgstr "404 - Nicht gefunden: Angefragte Ressource konnte nicht gefunden werden"
 
 #: src/labels.h:424
 msgid "405 - Method Not Allowed: Request method not supported"
@@ -790,7 +790,7 @@ msgstr ""
 
 #: src/labels.h:440
 msgid "413 - Payload Too Large"
-msgstr "413 - Payload zu groß"
+msgstr "413 - Nutzdaten zu groß"
 
 #: src/labels.h:442
 msgid "414 - Request-URI Too Long"
@@ -813,7 +813,7 @@ msgstr "417 - Erwartung fehlgeschlagen"
 
 #: src/labels.h:450
 msgid "418 - I’m a teapot"
-msgstr ""
+msgstr "418 - Ich bin ein Teekännchen"
 
 #: src/labels.h:452
 msgid "421 - Misdirected Request"
@@ -860,7 +860,7 @@ msgstr "444 - (Nginx) Verbindung geschlossen ohne Header zu senden"
 
 #: src/labels.h:472
 msgid "494 - (Nginx) Request Header Too Large"
-msgstr "494 - (Nginx) Anfrage-Header zu groß"
+msgstr "494 - (Nginx) Anfrage-Kopf zu groß"
 
 #: src/labels.h:474
 msgid "495 - (Nginx) SSL client certificate error"
