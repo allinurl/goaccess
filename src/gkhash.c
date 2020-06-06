@@ -1011,7 +1011,7 @@ find_int_key_in_list (void *data, void *needle) {
 static int
 ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   khint_t k;
-  GSLList *list, *match;
+  GSLList *list;
   int ret;
 
   if (!hash)
@@ -1020,7 +1020,7 @@ ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   k = kh_get (igsl, hash, key);
   /* key found, check if key exists within the list */
   if (k != kh_end (hash) && (list = kh_val (hash, k))) {
-    if ((match = list_find (list, find_int_key_in_list, &value)))
+    if (list_find (list, find_int_key_in_list, &value))
       return 0;
     list = list_insert_prepend (list, i322ptr (value));
   } else {
@@ -2368,12 +2368,11 @@ int
 ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey) {
   khash_t (iu64) * hash = get_hash (module, date, MTRC_MAXTS);
   khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_MAXTS);
-  uint64_t curvalue = 0;
 
   if (!hash)
     return -1;
 
-  if ((curvalue = get_iu64 (hash, key)) < value) {
+  if (get_iu64 (hash, key) < value) {
     ins_iu64 (cache, ckey, value);
     ins_iu64 (hash, key, value);
   }
