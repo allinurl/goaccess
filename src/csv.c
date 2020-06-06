@@ -50,7 +50,7 @@
 #include "ui.h"
 #include "util.h"
 
-struct tm *now_tm;
+struct tm now_tm;
 
 /* Panel output */
 typedef struct GPanel_ {
@@ -219,7 +219,7 @@ print_csv_summary (FILE * fp) {
   uint32_t t = 0;
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   /* generated date time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";

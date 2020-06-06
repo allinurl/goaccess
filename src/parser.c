@@ -437,7 +437,7 @@ init_log_item (GLog * glog) {
   logitem->cache_status = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
-  logitem->dt = *localtime (&now);
+  localtime_r (&now, &logitem->dt);
 
   return logitem;
 }

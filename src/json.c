@@ -442,7 +442,7 @@ poverall_datetime (GJSON * json, int sp) {
   char now[DATE_TIME];
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   pskeysval (json, OVERALL_DATETIME, now, sp, 0);
 }

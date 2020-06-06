@@ -1179,7 +1179,7 @@ output_html (GHolder * holder, const char *filename) {
   set_json_nlines (nlines);
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   print_html_header (fp);
 

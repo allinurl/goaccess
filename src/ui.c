@@ -158,7 +158,7 @@ close_win (WINDOW * w) {
 void
 generate_time (void) {
   timestamp = time (NULL);
-  now_tm = localtime (&timestamp);
+  localtime_r (&timestamp, &now_tm);
 }
 
 /* Set the loading spinner as ended and manage the mutex locking. */
