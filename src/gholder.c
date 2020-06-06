@@ -169,10 +169,8 @@ delete_sub_list (GSubList * sub_list) {
   GSubItem *item = NULL;
   GSubItem *next = NULL;
 
-  if (sub_list != NULL && sub_list->size == 0)
-    goto clear;
   if (sub_list->size == 0)
-    return;
+    goto clear;
 
   for (item = sub_list->head; item; item = next) {
     next = item->next;

@@ -343,7 +343,7 @@ within_range (const char *ip, const char *start, const char *end) {
  * On success, or if within the range, 1 is returned */
 int
 ip_in_range (const char *ip) {
-  char *start = NULL, *end, *dash;
+  char *start, *end, *dash;
   int i;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
@@ -359,14 +359,14 @@ ip_in_range (const char *ip) {
     }
 
     /* matches single IP */
-    if (end == NULL && start) {
+    if (end == NULL) {
       if (strcmp (ip, start) == 0) {
         free (start);
         return 1;
       }
     }
     /* within range */
-    else if (start && end) {
+    else {
       if (within_range (ip, start, end)) {
         free (start);
         return 1;
