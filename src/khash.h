@@ -433,6 +433,9 @@ static const double __ac_HASH_UPPER = 0.77;
   @param  s     Pointer to a null terminated string
   @return       The hash value
  */
+#if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
+__attribute__((no_sanitize("unsigned-integer-overflow")))
+#endif
 static kh_inline khint_t
 __ac_X31_hash_string (const char *s) {
   khint_t h = (khint_t) * s;
