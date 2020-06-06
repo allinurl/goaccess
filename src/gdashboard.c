@@ -1070,7 +1070,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
   (void) w;
 
   size = data->dash_size;
-  for (i = *offset, j = 0; i < size; i++) {
+  for (i = *offset; i < size; i++) {
     /* header */
     if ((i % size) == DASH_HEAD_POS) {
       render_header (win, data, gscroll->current, y);

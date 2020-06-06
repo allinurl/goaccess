@@ -2573,7 +2573,7 @@ cleanup:
 static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
-  int tests = conf.num_tests;
+  int tests;
 
   /* start processing log line */
   if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)

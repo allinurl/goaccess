@@ -268,7 +268,6 @@ parse_ios (char *agent, int tlen) {
   char *p = NULL, *q = NULL;
   ptrdiff_t offset;
 
-  p = agent;
   if ((p = strstr (agent, " OS ")) == NULL)
     goto out;
 
