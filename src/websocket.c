@@ -432,7 +432,6 @@ static void
 ws_clear_handshake_headers (WSHeaders * headers) {
   ws_free_header_fields (headers);
   free (headers);
-  headers = NULL;
 }
 
 /* Remove the given client from the list. */
