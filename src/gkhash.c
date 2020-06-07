@@ -592,6 +592,9 @@ get_hash_from_cache (GModule module, GSMetric metric) {
   return cache_storage[module].metrics[metric].hash;
 }
 
+/* Initialize a global hash structure.
+ *
+ * On success, a pointer to that hash structure is returned. */
 static GKHashGlobal *
 init_gkhashglobal (void) {
   GKHashGlobal *storage = NULL;
@@ -608,6 +611,9 @@ init_gkhashglobal (void) {
   return storage;
 }
 
+/* Initialize a module hash structure.
+ *
+ * On success, a pointer to that hash structure is returned. */
 static GKHashModule *
 init_gkhashmodule (void) {
   GKHashModule *storage = NULL;
