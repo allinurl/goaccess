@@ -631,10 +631,10 @@ init_gkhashmodule (void) {
   return storage;
 }
 
-/* Insert an uint32_t key and an uint8_t value
- * Note: If the key exists, its value is replaced by the given value.
+/* Insert an uint32_t key (date) and a GKHashStorage payload
  *
  * On error, -1 is returned.
+ * On key found, 1 is returned.
  * On success 0 is returned */
 static int
 ins_igkh (khash_t (igkh) * hash, uint32_t key) {
