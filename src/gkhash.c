@@ -689,11 +689,11 @@ ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
   return 0;
 }
 
-/* Insert a string key and the corresponding uint32_t value.
+/* Increment a string key and with the corresponding incremental uint32_t value.
  * Note: If the key exists, the value is not replaced.
  *
- * On error, or if key exists, -1 is returned.
- * On success 0 is returned */
+ * On error, 0 is returned.
+ * On success or if the key exists, the value is returned */
 static uint32_t
 ins_si32_inc (khash_t (si32) * hash, const char *key, uint32_t (*cb) (const char *),
               const char *seqk) {
