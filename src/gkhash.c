@@ -810,9 +810,9 @@ ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value) {
 }
 
 /* Insert a string key and a uint64_t value
- * Note: If the key exists, its value is replaced by the given value.
+ * Note: If the key exists, the value is not replaced.
  *
- * On error, -1 is returned.
+ * On error or key exists, -1 is returned.
  * On success 0 is returned */
 static int
 ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
