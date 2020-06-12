@@ -836,6 +836,11 @@ ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
   return 0;
 }
 
+/* Insert a uint64_t key and a uint8_t value
+ *
+ * On error or key exists, -1 is returned.
+ * On key exists, 1 is returned.
+ * On success 0 is returned */
 static int
 ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value) {
   khint_t k;
