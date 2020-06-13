@@ -2116,6 +2116,7 @@ u64encode (uint32_t x, uint32_t y) {
   return x > y ? (uint32_t) y | ((uint64_t) x << 32) : (uint32_t) x | ((uint64_t) y << 32);
 }
 
+/* Decode a uint64_t number into the original two uint32_t  */
 void
 u64decode (uint64_t n, uint32_t * x, uint32_t * y) {
   *x = (uint64_t) n >> 32;
