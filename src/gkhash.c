@@ -949,8 +949,8 @@ inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc) {
 
 /* Increase a uint32_t value given a string key.
  *
- * On error, -1 is returned.
- * On success 0 is returned */
+ * On error, 0 is returned.
+ * On success the increased value is returned */
 static uint32_t
 inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
   khint_t k;
