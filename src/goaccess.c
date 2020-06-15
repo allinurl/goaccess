@@ -386,8 +386,8 @@ render_screens (void) {
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
-  mvprintw (row - 1, 30, "%d - %s", chg, time_str_buf);
-  mvaddstr (row - 1, col - 21, T_QUIT);
+  mvprintw (row - 1, col/2 - 10, "%d - %s", chg, time_str_buf);
+  mvaddstr (row - 1, col - 6 - strlen(T_QUIT), T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
 
