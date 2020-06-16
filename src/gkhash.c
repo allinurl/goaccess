@@ -978,7 +978,8 @@ inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
 
 /* Insert a string key and auto increment int value.
  *
- * On error, -1 is returned.
+ * On error, 0 is returned.
+ * On key found, the stored value is returned
  * On success the value of the key inserted is returned */
 static uint32_t
 ins_si32_ai (khash_t (si32) * hash, const char *key) {
