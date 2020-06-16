@@ -1019,7 +1019,7 @@ find_int_key_in_list (void *data, void *needle) {
  * Note: If the key exists within the list, the value is not appended.
  *
  * On error, -1 is returned.
- * On success 0 is returned */
+ * On success or if key is found, 0 is returned */
 static int
 ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   khint_t k;
