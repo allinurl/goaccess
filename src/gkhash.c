@@ -1048,8 +1048,9 @@ ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   return 0;
 }
 
-/* Get the on-disk databases path.
+/* Determine the path for the given database file.
  *
+ * On error, a fatal error is thrown.
  * On success, the databases path string is returned. */
 static char *
 set_db_path (const char *fn) {
