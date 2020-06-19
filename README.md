@@ -164,8 +164,8 @@ alternative option below.
 
 #### openSUSE  ####
 
-    # zypper ar -f obs://server:http
-    # zypper ref && zypper in goaccess
+    # zypper ar -f obs://server:http http
+    # zypper in goaccess
 
 #### OpenIndiana ####
 
