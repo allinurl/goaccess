@@ -32,6 +32,7 @@
 #include <string.h>
 
 #include "base64.h"
+#include "xmalloc.h"
 
 /* Encodes the given data with base64..
  *
@@ -41,7 +42,7 @@ base64_encode (const void *buf, size_t size) {
   static const char base64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-  char *str = (char *) malloc ((size + 3) * 4 / 3 + 1);
+  char *str = (char *) xmalloc ((size + 3) * 4 / 3 + 1);
 
   char *p = str;
   const unsigned char *q = (const unsigned char *) buf;
