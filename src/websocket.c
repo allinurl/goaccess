@@ -2602,7 +2602,7 @@ handle_fixed_fifo (WSServer * server) {
   int bytes = 0;
   char buf[PIPE_BUF] = { 0 };
 
-  if ((bytes = read (pi->fd, buf, PIPE_BUF)) < 0)
+  if ((bytes = read (pi->fd, buf, PIPE_BUF-1)) < 0)
     return;
 
   buf[bytes] = '\0';    /* null-terminate */
