@@ -101,10 +101,8 @@ access_log_open (const char *path) {
   if (path == NULL)
     return 0;
 
-  if (access (path, F_OK) != -1)
-    access_log = fopen (path, "a");
-  else
-    access_log = fopen (path, "w");
+  access_log = fopen (path, "a");
+
   if (access_log == NULL)
     return 1;
 
