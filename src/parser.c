@@ -1191,8 +1191,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->req)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0')
+    if (tkn == NULL || *tkn == '\0') {
+      free (tkn);
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+    }
 
     if ((logitem->req = decode_url (tkn)) == NULL) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
@@ -1206,8 +1208,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->qstr)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0')
+    if (tkn == NULL || *tkn == '\0') {
+      free (tkn);
       return 0;
+    }
 
     if ((logitem->qstr = decode_url (tkn)) == NULL) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
