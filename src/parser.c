@@ -645,8 +645,10 @@ extract_keyphrase (char *ref, char **keyphrase) {
     *ptr = '\0';
 
   referer = decode_url (r);
-  if (referer == NULL || *referer == '\0')
+  if (referer == NULL || *referer == '\0') {
+    free (referer);
     return 1;
+  }
 
   referer = char_replace (referer, '+', ' ');
   *keyphrase = trim_str (referer);
