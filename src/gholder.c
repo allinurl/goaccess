@@ -189,12 +189,7 @@ static void
 free_holder_data (GHolderItem item) {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.metrics) {
-    free (item.metrics->data);
-    free (item.metrics->method);
-    free (item.metrics->protocol);
-    free (item.metrics);
-  }
+  free_gmetrics (item.metrics);
 }
 
 /* Free all memory allocated in holder for a given module. */
@@ -580,8 +575,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
     return;
 
   if (!(root = ht_get_root (h->module, item.nkey))) {
-    free (nmetrics->data);
-    free (nmetrics);
+    free_gmetrics (nmetrics);
     return;
   }
 
