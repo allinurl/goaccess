@@ -2650,7 +2650,8 @@ ws_socket (int *listener) {
     FATAL ("Unable to set server: %s.", gai_strerror (errno));
 
   /* Create a TCP socket.  */
-  *listener = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+  if ((*listener = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
+    FATAL ("Unable to open socket: %s.", strerror (errno));
 
   /* Options */
   if (setsockopt (*listener, SOL_SOCKET, SO_REUSEADDR, &ov, sizeof (ov)) == -1)
