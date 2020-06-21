@@ -202,15 +202,15 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win) {
 
   /* init header screen */
   *header_win = newwin (6, col, 0, 0);
-  keypad (*header_win, TRUE);
   if (*header_win == NULL)
     FATAL ("Unable to allocate memory for header_win.");
+  keypad (*header_win, TRUE);
 
   /* init main screen */
   *main_win = newwin (row - 8, col, 7, 0);
-  keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
+  keypad (*main_win, TRUE);
   set_wbkgd (*main_win, *header_win);
 }
 
