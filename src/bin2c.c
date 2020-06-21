@@ -22,7 +22,9 @@ int
 main (int argc, char *argv[]) {
   char *buf;
   char *ident;
-  unsigned int i, file_size, need_comma;
+  int need_comma;
+  long file_size_orig;
+  size_t file_size, i;
   FILE *f_input, *f_output;
 
 #ifdef USE_BZ2
@@ -43,7 +45,13 @@ main (int argc, char *argv[]) {
   }
   // Get the file length
   fseek (f_input, 0, SEEK_END);
-  file_size = ftell (f_input);
+  file_size_orig = ftell (f_input);
+  if (file_size_orig < 0) {
+    fprintf (stderr, "%s: can't get size of file %s\n", argv[0], argv[1]);
+    fclose (f_input);
+    return -1;
+  }
+  file_size = (size_t)file_size_orig;
   fseek (f_input, 0, SEEK_SET);
 
   if ((buf = malloc (file_size)) == NULL) {
@@ -109,7 +117,7 @@ main (int argc, char *argv[]) {
   ident = argv[3];
   need_comma = 0;
 
-  fprintf (f_output, "const char %s[%u] = {", ident, file_size);
+  fprintf (f_output, "const char %s[%lu] = {", ident, file_size);
   for (i = 0; i < file_size; ++i) {
     if (buf[i] == '\0') {
       fprintf (stderr,
@@ -127,7 +135,7 @@ main (int argc, char *argv[]) {
     fprintf (f_output, "0x%.2x", buf[i] & 0xff);
   }
   fprintf (f_output, "\n};\n\n");
-  fprintf (f_output, "const int %s_length = %u;\n", ident, file_size);
+  fprintf (f_output, "const int %s_length = %lu;\n", ident, file_size);
 
 #ifdef USE_BZ2
   fprintf (f_output, "const int %s_length_uncompressed = %u;\n", ident, uncompressed_size);
