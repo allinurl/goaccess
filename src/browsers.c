@@ -508,7 +508,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
     match = char_replace (match, ' ', '/');
   }
   /* all others */
-  else if ((ptr = strpbrk (b, ";) ")) != NULL) {
+  else if ((ptr = strpbrk (b ? b : match, ";) ")) != NULL) {
     *ptr = '\0';
   }
 
