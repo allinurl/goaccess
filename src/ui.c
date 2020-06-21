@@ -941,6 +941,7 @@ load_agent_list (WINDOW * main_win, char *addr) {
 
   touchwin (main_win);
   close_win (win);
+  win = NULL;
   wrefresh (main_win);
 
 out:
@@ -952,6 +953,7 @@ out:
     free (menu->items);
   free (menu);
   free_agents_array (agents);
+  close_win (win);
 }
 
 /* Render the processing spinner. This runs within its own thread. */
