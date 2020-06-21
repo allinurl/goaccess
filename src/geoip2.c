@@ -210,6 +210,8 @@ geoip_query_city (MMDB_lookup_result_s res, char *location) {
     region = get_value (res, "subdivisions", "0", "names", "en", NULL);
   }
   geoip_set_city (city, region, location);
+  free (city);
+  free (region);
 }
 
 /* A wrapper to fetch the looked up result and set the country and code.
