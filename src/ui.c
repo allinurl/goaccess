@@ -977,7 +977,8 @@ ui_spinner (void *ptr_data) {
       if (!sp->curses && !conf.no_progress)
         fprintf (stderr, "\n");
 
-      break;
+      pthread_mutex_unlock (&sp->mutex);
+      return;
     }
 
     setlocale (LC_NUMERIC, "");
