@@ -1103,6 +1103,7 @@ tpl_dump (tpl_node * r, int mode, ...) {
           }
         }
         free (buf);
+        va_end (ap);
         return -1;
       }
     } while (sz > 0);
@@ -1114,6 +1115,7 @@ tpl_dump (tpl_node * r, int mode, ...) {
       pa_sz = va_arg (ap, size_t);
       if (pa_sz < sz) {
         tpl_hook.oops ("tpl_dump: buffer too small, need %zu bytes\n", sz);
+        va_end (ap);
         return -1;
       }
       rc = tpl_dump_to_mem (r, pa_addr, sz);
