@@ -60,7 +60,7 @@ main (int argc, char *argv[]) {
     return -1;
   }
 
-  if (fread (buf, file_size, 1, f_input) == 0) {
+  if (fread (buf, file_size, 1, f_input) != 1) {
     fprintf (stderr, "%s: can't read from %s\n", argv[0], argv[1]);
     free (buf);
     fclose (f_input);
