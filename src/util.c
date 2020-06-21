@@ -464,9 +464,11 @@ get_user_config (void) {
 char *
 get_global_config (void) {
   char *path = NULL;
+  size_t len;
 
-  path = xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
-  sprintf (path, "%s/goaccess/goaccess.conf", SYSCONFDIR);
+  len = snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1;
+  path = xmalloc (len);
+  snprintf (path, len, "%s/goaccess/goaccess.conf", SYSCONFDIR);
 
   return path;
 }
