@@ -1081,8 +1081,10 @@ ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
   }
 
   k = kh_put (igsl, hash, key, &ret);
-  if (ret == -1)
+  if (ret == -1) {
+    list_remove_nodes (list);
     return -1;
+  }
 
   kh_val (hash, k) = list;
 
