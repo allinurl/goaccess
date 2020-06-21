@@ -596,8 +596,10 @@ set_spec_date_time_num_format (void) {
   char *buf = NULL, *tf = set_format_time ();
   const char *df = conf.date_num_format;
 
-  if (!df || !tf)
+  if (!df || !tf) {
+    free (tf);
     return;
+  }
 
   if (conf.date_spec_hr && strchr (tf, 'H'))
     buf = append_spec_date_format (df, "%H");
