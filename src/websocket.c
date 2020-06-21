@@ -2234,14 +2234,12 @@ ws_setfifo (const char *pipename) {
 }
 
 /* Open a named pipe (FIFO) for input to the server (reader). */
-static int
+static void
 ws_openfifo_in (WSPipeIn * pipein) {
   ws_setfifo (wsconfig.pipein);
   /* we should be able to open it at as reader */
   if ((pipein->fd = open (wsconfig.pipein, O_RDWR | O_NONBLOCK)) < 0)
     FATAL ("Unable to open fifo in: %s.", strerror (errno));
-
-  return pipein->fd;
 }
 
 
