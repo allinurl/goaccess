@@ -2125,7 +2125,9 @@ handle_accept (int listener, WSServer * server) {
   if (newfd == -1)
     return;
 
-  client = ws_get_client_from_list (newfd, &server->colist);
+  if (!(client = ws_get_client_from_list (newfd, &server->colist)))
+    return;
+
   if (newfd > FD_SETSIZE - 1) {
     LOG (("Too busy: %d %s.\n", newfd, client->remote_ip));
 
