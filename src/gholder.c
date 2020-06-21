@@ -296,8 +296,14 @@ sort_sub_list (GHolder * h, GSort sort) {
 
       add_sub_item_back (sub_list, h->module, arr[k].metrics);
       h->items[i].sub_list = sub_list;
+      sub_list = NULL;
     }
+
     free (arr);
+    if (sub_list) {
+      delete_sub_list (sub_list);
+      sub_list = NULL;
+    }
   }
 }
 
