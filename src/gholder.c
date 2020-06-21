@@ -189,14 +189,12 @@ static void
 free_holder_data (GHolderItem item) {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.metrics->data != NULL)
+  if (item.metrics) {
     free (item.metrics->data);
-  if (item.metrics->method != NULL)
     free (item.metrics->method);
-  if (item.metrics->protocol != NULL)
     free (item.metrics->protocol);
-  if (item.metrics != NULL)
     free (item.metrics);
+  }
 }
 
 /* Free all memory allocated in holder for a given module. */
