@@ -225,9 +225,9 @@ dns_worker (void GO_UNUSED (*ptr_data)) {
     pthread_mutex_lock (&gdns_thread.mutex);
 
     if (!active_gdns) {
-      if (host)
-        free (host);
-      break;
+      pthread_mutex_unlock (&gdns_thread.mutex);
+      free (host);
+      return;
     }
 
     /* insert the corresponding IP -> hostname map */
