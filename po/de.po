@@ -440,7 +440,7 @@ msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[HOCH/RUNTER] zum scrollen - [q] zum schließen"
 
 #: src/labels.h:261
-msgid "In-Memory with On-Disk Persitance Storage."
+msgid "In-Memory with On-Disk Persistent Storage."
 msgstr "Arbeitsspeicherintern mit dauerhaftem Festplattenspeicher"
 
 #: src/labels.h:265

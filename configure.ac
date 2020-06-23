@@ -144,7 +144,7 @@ else
 fi
 
 # Default Hash
-storage="In-Memory with On-Disk Persitance Storage"
+storage="In-Memory with On-Disk Persistent Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])

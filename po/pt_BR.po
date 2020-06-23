@@ -430,7 +430,7 @@ msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[UP/DOWN] para rolar - [q] para sair"
 
 #: src/labels.h:261
-msgid "In-Memory with On-Disk Persitance Storage."
+msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
 #: src/labels.h:265
