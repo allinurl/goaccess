@@ -2089,7 +2089,10 @@ gen_visitor_key (GKeyData * kdata, GLogItem * logitem) {
  */
 static int
 gen_req_key (GKeyData * kdata, GLogItem * logitem) {
-  if (logitem->req && logitem->qstr)
+  if (!logitem->req)
+    return 1;
+
+  if (logitem->qstr)
     append_query_string (&logitem->req, logitem->qstr);
   logitem->req_key = gen_unique_req_key (logitem);
 
