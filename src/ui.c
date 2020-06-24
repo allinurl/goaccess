@@ -526,7 +526,7 @@ int
 get_start_end_parsing_dates (char **start, char **end, const char *f) {
   uint32_t *dates = NULL;
   uint32_t len = 0;
-  const char *sndfmt = conf.spec_date_time_num_format;
+  const char *sndfmt = "%Y%m%d";
   char s[DATE_LEN];
   char e[DATE_LEN];
 
