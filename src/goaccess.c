@@ -1274,18 +1274,6 @@ parse_cmd_line (int argc, char **argv) {
   set_default_static_files ();
 }
 
-/* Set up signal handlers. */
-static void
-setup_signal_handlers (void) {
-  struct sigaction act;
-
-  sigemptyset (&act.sa_mask);
-  act.sa_flags = 0;
-  act.sa_handler = sigsegv_handler;
-
-  sigaction (SIGSEGV, &act, NULL);
-}
-
 static void
 handle_signal_action (GO_UNUSED int sig_number) {
   fprintf (stderr, "\nSIGINT caught!\n");
@@ -1424,7 +1412,7 @@ main (int argc, char **argv) {
   int quit = 0, ret = 0;
 
   block_thread_signals ();
-  setup_signal_handlers ();
+  setup_sigsegv_handler ();
 
   /* command line/config options */
   verify_global_config (argc, argv);

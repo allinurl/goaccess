@@ -3090,11 +3090,13 @@ parse_raw_data (GModule module) {
   switch (module) {
   case VISITORS:
     raw_data = get_str_raw_data (module);
-    sort_raw_str_data (raw_data, raw_data->idx);
+    if (raw_data)
+      sort_raw_str_data (raw_data, raw_data->idx);
     break;
   default:
     raw_data = get_u32_raw_data (module);
-    sort_raw_num_data (raw_data, raw_data->idx);
+    if (raw_data)
+      sort_raw_num_data (raw_data, raw_data->idx);
   }
 
   modstr = get_module_str (module);
