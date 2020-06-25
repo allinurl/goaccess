@@ -1,0 +1,891 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the goaccess package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: goaccess 1.4\n"
+"Report-Msgid-Bugs-To: hello@goaccess.io\n"
+"POT-Creation-Date: 2020-05-14 19:55-0500\n"
+"PO-Revision-Date: 2020-06-25 17:14+0300\n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3.1\n"
+"Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Language: ru\n"
+
+#: src/labels.h:40
+msgid "en"
+msgstr "ru"
+
+#: src/labels.h:43
+msgid "Exp. Panel"
+msgstr "Разв. панель"
+
+#: src/labels.h:44
+msgid "Help"
+msgstr "Помощь"
+
+#: src/labels.h:45
+msgid "Quit"
+msgstr "Выход"
+
+#: src/labels.h:46
+msgid "Total"
+msgstr "Всего"
+
+#: src/labels.h:49
+msgid "[x] ASC [ ] DESC"
+msgstr "[x] ВОЗР [ ] УБЫВ"
+
+#: src/labels.h:50
+msgid "[ ] ASC [x] DESC"
+msgstr "[ ] ВОЗР [x] УБЫВ"
+
+#: src/labels.h:53
+#, c-format
+msgid "[Active Panel: %1$s]"
+msgstr "[Активная панель: %1$s]"
+
+#: src/labels.h:54
+msgid "[q]uit GoAccess"
+msgstr "[q] Выйти из GoAccess"
+
+#: src/labels.h:55
+msgid "[?] Help [Enter] Exp. Panel"
+msgstr "[?] Помощь [Enter] Разв. панель"
+
+#: src/labels.h:56
+msgid "Dashboard"
+msgstr "Дашборд"
+
+#: src/labels.h:57
+msgid "Dashboard - Overall Analyzed Requests"
+msgstr "Дашборд - Проанализированные запросы"
+
+#: src/labels.h:58
+msgid "Overall Analyzed Requests"
+msgstr "Проанализированные запросы"
+
+#: src/labels.h:60 src/labels.h:81
+msgid "Tx. Amount"
+msgstr "Исх. трафик"
+
+#: src/labels.h:61
+msgid "Date/Time"
+msgstr "Дата/время"
+
+#: src/labels.h:62
+msgid "Excl. IP Hits"
+msgstr "Хитов с искл. IP"
+
+#: src/labels.h:63
+msgid "Failed Requests"
+msgstr "Неудачных запросов"
+
+#: src/labels.h:64
+msgid "Init. Proc. Time"
+msgstr "Время обработки лога"
+
+#: src/labels.h:65
+msgid "Log Size"
+msgstr "Размер лога"
+
+#: src/labels.h:66
+msgid "Log Source"
+msgstr "Источник лога"
+
+#: src/labels.h:67 src/labels.h:181
+msgid "Referrers"
+msgstr "Ссыл. страниц"
+
+#: src/labels.h:68
+msgid "Total Requests"
+msgstr "Всего запросов"
+
+#: src/labels.h:69
+msgid "Static Files"
+msgstr "Статических файлов"
+
+#: src/labels.h:70 src/labels.h:153
+msgid "Not Found"
+msgstr "Не найдено"
+
+#: src/labels.h:71
+msgid "Requested Files"
+msgstr "Запрошенных файлов"
+
+#: src/labels.h:72
+msgid "Unique Visitors"
+msgstr "Уникальных посетителей"
+
+#: src/labels.h:73
+msgid "Valid Requests"
+msgstr "Валидных запросов"
+
+#: src/labels.h:76
+msgid "Hits"
+msgstr "Хиты"
+
+#: src/labels.h:77
+msgid "h%"
+msgstr "х%"
+
+#: src/labels.h:78 src/labels.h:104
+msgid "Visitors"
+msgstr "Посетители"
+
+#: src/labels.h:79
+msgid "Vis."
+msgstr "Пос."
+
+#: src/labels.h:80
+msgid "v%"
+msgstr "п%"
+
+#: src/labels.h:82
+msgid "Avg. T.S."
+msgstr "Ср. в. о."
+
+#: src/labels.h:83
+msgid "Cum. T.S."
+msgstr "Общ. в.о."
+
+#: src/labels.h:84
+msgid "Max. T.S."
+msgstr "Макс. в.о."
+
+#: src/labels.h:85
+msgid "Method"
+msgstr "Метод"
+
+#: src/labels.h:86
+msgid "Mtd"
+msgstr "Мтд"
+
+#: src/labels.h:87
+msgid "Protocol"
+msgstr "Протокол"
+
+#: src/labels.h:88
+msgid "Proto"
+msgstr "Прот."
+
+#: src/labels.h:89
+msgid "City"
+msgstr "Город"
+
+#: src/labels.h:90
+msgid "Country"
+msgstr "Страна"
+
+#: src/labels.h:91
+msgid "Hostname"
+msgstr "Имя хоста"
+
+#: src/labels.h:92
+msgid "Data"
+msgstr "Данные"
+
+#: src/labels.h:94
+msgid "Hits/Visitors"
+msgstr "Хиты/посетители"
+
+#: src/labels.h:98
+msgid "Unique visitors per day"
+msgstr "Уникальные посетители по дням"
+
+#: src/labels.h:100
+msgid "Unique visitors per day - Including spiders"
+msgstr "Уникальные посетители по дням - Включая пауков"
+
+#: src/labels.h:102
+msgid "Hits having the same IP, date and agent are a unique visit."
+msgstr "Хиты, имеющие одинаковые IP, дату и юзер-агента, считаются уникальным посещением."
+
+#: src/labels.h:107
+msgid "Requested Files (URLs)"
+msgstr "Запрошенные файлы (URL'ы)"
+
+#: src/labels.h:109
+msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Топ запросов, отсортированных по хитам [, ср., общ, макс. вр. обсл., методу, протоколу]"
+
+#: src/labels.h:111
+msgid "Requests"
+msgstr "Запросы"
+
+#: src/labels.h:114 src/labels.h:118
+msgid "Static Requests"
+msgstr "Статические запросы"
+
+#: src/labels.h:116
+msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Топ статических запросов, отсортированных по хитам [, ср., общ, макс. вр. обсл., методу, протоколу]"
+
+#: src/labels.h:121
+msgid "Time Distribution"
+msgstr "Распределение по времени"
+
+#: src/labels.h:123
+msgid "Data sorted by hour [, avgts, cumts, maxts]"
+msgstr "Данные, отсортированные по часам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:125
+msgid "Time"
+msgstr "Время"
+
+#: src/labels.h:128 src/labels.h:132
+msgid "Virtual Hosts"
+msgstr "Виртуальные хосты"
+
+#: src/labels.h:130 src/labels.h:137 src/labels.h:144
+msgid "Data sorted by hits [, avgts, cumts, maxts]"
+msgstr "Данные, отсортированные по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:135
+msgid "Remote User (HTTP authentication)"
+msgstr "Удалённый пользователь (HTTP-аутентификация)"
+
+#: src/labels.h:139
+msgid "Remote User"
+msgstr "Удалённый пользователь"
+
+#: src/labels.h:142
+msgid "The cache status of the object served"
+msgstr "Статус кеша обслуживаемого объекта"
+
+#: src/labels.h:146
+msgid "Cache Status"
+msgstr "Статус кеша"
+
+#: src/labels.h:149
+msgid "Not Found URLs (404s)"
+msgstr "Ненайденные URL'ы (404-е)"
+
+#: src/labels.h:151
+msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Топ ненайденных URL'ов, отсортированных по хитам [, ср., общ, макс. вр. обсл., методу, протоколу]"
+
+#: src/labels.h:156
+msgid "Visitor Hostnames and IPs"
+msgstr "Имена хостов и IP посетителей"
+
+#: src/labels.h:158
+msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ хостов посетителей, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:160
+msgid "Hosts"
+msgstr "Хосты"
+
+#: src/labels.h:163
+msgid "Operating Systems"
+msgstr "Операционные системы"
+
+#: src/labels.h:165
+msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ операционных систем, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:167
+msgid "OS"
+msgstr "ОС"
+
+#: src/labels.h:170 src/labels.h:174
+msgid "Browsers"
+msgstr "Браузеры"
+
+#: src/labels.h:172
+msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ браузеров, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:177
+msgid "Referrers URLs"
+msgstr "Ссылающиеся страницы"
+
+#: src/labels.h:179
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ ссылающихся страниц, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:184 src/labels.h:188
+msgid "Referring Sites"
+msgstr "Ссылающиеся сайты"
+
+#: src/labels.h:186
+msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ ссылающихся сайтов, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:191
+msgid "Keyphrases from Google's search engine"
+msgstr "Ключевые слова из поисковой системы Google"
+
+#: src/labels.h:193
+msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ ключевых слов, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:195
+msgid "Keyphrases"
+msgstr "Ключевые слова"
+
+#: src/labels.h:198 src/labels.h:202
+msgid "Geo Location"
+msgstr "Географическое расположение"
+
+#: src/labels.h:200
+msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
+msgstr "Континенты > страны, отсортированные по уникальным хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:205
+msgid "HTTP Status Codes"
+msgstr "Коды ответов HTTP"
+
+#: src/labels.h:207
+msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
+msgstr "Топ кодов ответов HTTP, отсортированных по хитам [, ср., общ, макс. вр. обсл.]"
+
+#: src/labels.h:209
+msgid "Status Codes"
+msgstr "Коды ответов"
+
+#: src/labels.h:213
+msgid "[ ] case sensitive"
+msgstr "[ ] учитывать регистр"
+
+#: src/labels.h:215
+msgid "[x] case sensitive"
+msgstr "[x] учитывать регистр"
+
+#: src/labels.h:217
+msgid "Regex allowed - ^g to cancel - TAB switch case"
+msgstr "Разрешены рег. выражения - ^g отмена - TAB учёт регистра"
+
+#: src/labels.h:219
+msgid "Find pattern in all views"
+msgstr "Поиск шаблона во всех панелях"
+
+#: src/labels.h:223
+msgid "Log Format Configuration"
+msgstr "Настройка формата лога"
+
+#: src/labels.h:225
+msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
+msgstr "[ПРОБЕЛ] переключение - [ENTER] обработать - [q] выйти"
+
+#: src/labels.h:227
+msgid "Log Format - [c] to add/edit format"
+msgstr "Формат лога - [c] добавить/изменить формат"
+
+#: src/labels.h:229
+msgid "Date Format - [d] to add/edit format"
+msgstr "Формат даты - [d] добавить/изменить формат"
+
+#: src/labels.h:231
+msgid "Time Format - [t] to add/edit format"
+msgstr "Формат времени - [t] добавить/изменить формат"
+
+#: src/labels.h:233 src/labels.h:237
+msgid "[UP/DOWN] to scroll - [q] to close window"
+msgstr "[ВВЕРХ/ВНИЗ] прокрутка - [q] закрыть окно"
+
+#: src/labels.h:239
+#, c-format
+msgid "User Agents for %1$s"
+msgstr "Юзер-агенты для %1$s"
+
+#: src/labels.h:243
+msgid "Scheme Configuration"
+msgstr "Настройка схемы"
+
+#: src/labels.h:245
+msgid "[ENTER] to use scheme - [q]uit"
+msgstr "[ENTER] использовать схему - [q] выйти"
+
+#: src/labels.h:249
+msgid "Sort active module by"
+msgstr "Сортировка активного модуля"
+
+#: src/labels.h:251
+msgid "[ENTER] select - [TAB] sort - [q]uit"
+msgstr "[ENTER] выбрать - [TAB] порядок - [q] выйти"
+
+#: src/labels.h:255
+msgid "GoAccess Quick Help"
+msgstr "Быстрая помощь по GoAccess"
+
+#: src/labels.h:257
+msgid "[UP/DOWN] to scroll - [q] to quit"
+msgstr "[ВВЕРХ/ВНИЗ] прокрутка - [q] выйти"
+
+#: src/labels.h:261
+msgid "In-Memory with On-Disk Persitance Storage."
+msgstr "В памяти с хранением на диске."
+
+#: src/labels.h:265
+msgid "Format Errors - Verify your log/date/time format"
+msgstr "Ошибки формата - Проверьте ваш формат лога/даты/времени"
+
+#: src/labels.h:267
+msgid "No date format was found on your conf file."
+msgstr "Формат даты в вашей конфигурационном файле не найден."
+
+#: src/labels.h:269
+msgid "No log format was found on your conf file."
+msgstr "Формат лога в вашем конфигурационном файле не найден."
+
+#: src/labels.h:271
+msgid "No time format was found on your conf file."
+msgstr "Формат времени в вашем конфигурационном файле не найден."
+
+#: src/labels.h:273
+msgid "No default config file found."
+msgstr "Стандартный конфигурационный файл не найден."
+
+#: src/labels.h:275
+msgid "You may specify one with"
+msgstr "Вы можете задать его с помощью"
+
+#: src/labels.h:277
+msgid "producing the following errors"
+msgstr "приводит к следующим ошибкам"
+
+#: src/labels.h:279
+#, c-format
+msgid "Parsed %1$d lines"
+msgstr "Обработано %1$d строк"
+
+#: src/labels.h:281
+msgid "Please report it by opening an issue on GitHub"
+msgstr "Пожалуйста, сообщите об этом, открыв issue на GitHub"
+
+#: src/labels.h:283
+msgid "Select a time format."
+msgstr "Выберите формат времени."
+
+#: src/labels.h:285
+msgid "Select a date format."
+msgstr "Выберите формат даты."
+
+#: src/labels.h:287
+msgid "Select a log format."
+msgstr "Выберите формат лога."
+
+#: src/labels.h:289
+#, c-format
+msgid "'%1$s' panel is disabled"
+msgstr "Панель '%1$s' отключена"
+
+#: src/labels.h:293
+msgid "For more details visit"
+msgstr "Подробности по ссылке"
+
+#: src/labels.h:295
+msgid "Last Updated"
+msgstr "Последнее обновление"
+
+#: src/labels.h:297
+msgid "WebSocket server ready to accept new client connections"
+msgstr "WebSocket-сервер готов к приёму новых соединений"
+
+#: src/labels.h:300
+msgid "The following options can also be supplied to the command"
+msgstr "Следующие опции также могут использоваться с командой"
+
+#: src/labels.h:302
+msgid "Examples can be found by running"
+msgstr "Примеры можно найти, запустив"
+
+#: src/labels.h:305
+msgid "Server Statistics"
+msgstr "Статистика сервера"
+
+#: src/labels.h:307
+msgid "Theme"
+msgstr "Тема"
+
+#: src/labels.h:309
+msgid "Dark Gray"
+msgstr "Тёмно-серая"
+
+#: src/labels.h:311
+msgid "Bright"
+msgstr "Светлая"
+
+#: src/labels.h:313
+msgid "Dark Blue"
+msgstr "Тёмно-синяя"
+
+#: src/labels.h:315
+msgid "Dark Purple"
+msgstr "Тёмно-фиолетовая"
+
+#: src/labels.h:317
+msgid "Panels"
+msgstr "Панели"
+
+#: src/labels.h:319
+msgid "Items per Page"
+msgstr "Элементов на странице"
+
+#: src/labels.h:321
+msgid "Tables"
+msgstr "Таблицы"
+
+#: src/labels.h:323
+msgid "Display Tables"
+msgstr "Показывать таблицы"
+
+#: src/labels.h:325
+msgid "Auto-Hide on Small Devices"
+msgstr "Автоскрытие на маленьких устройствах"
+
+#: src/labels.h:327
+msgid "Automatically hide tables on small screen devices"
+msgstr "Автоматически скрывать таблицы на устройствах с маленькими экранами"
+
+#: src/labels.h:329
+msgid "Layout"
+msgstr "Расположение"
+
+#: src/labels.h:331
+msgid "Horizontal"
+msgstr "Горизонтальное"
+
+#: src/labels.h:333
+msgid "Vertical"
+msgstr "Вертикальное"
+
+#: src/labels.h:335
+msgid "WideScreen"
+msgstr "Широкоэкранное"
+
+#: src/labels.h:337
+msgid "File Options"
+msgstr "Файловые опции"
+
+#: src/labels.h:339
+msgid "Export as JSON"
+msgstr "Экспорт в JSON"
+
+#: src/labels.h:341
+msgid "Panel Options"
+msgstr "Настройки панели"
+
+#: src/labels.h:343
+msgid "Previous"
+msgstr "Предыдущая"
+
+#: src/labels.h:345
+msgid "Next"
+msgstr "Следующая"
+
+#: src/labels.h:347
+msgid "First"
+msgstr "Первая"
+
+#: src/labels.h:349
+msgid "Last"
+msgstr "Последняя"
+
+#: src/labels.h:351
+msgid "Chart Options"
+msgstr "Настройки диаграммы"
+
+#: src/labels.h:353
+msgid "Chart"
+msgstr "Диаграмма"
+
+#: src/labels.h:355
+msgid "Type"
+msgstr "Тип"
+
+#: src/labels.h:357
+msgid "Area Spline"
+msgstr "Сглаженные области"
+
+#: src/labels.h:359
+msgid "Bar"
+msgstr "Столбцы"
+
+#: src/labels.h:361
+msgid "Plot Metric"
+msgstr "Единицы измерения"
+
+#: src/labels.h:363
+msgid "Table Columns"
+msgstr "Колонки таблицы"
+
+#: src/labels.h:367
+msgid "1xx Informational"
+msgstr "1xx Информационные"
+
+#: src/labels.h:369
+msgid "2xx Success"
+msgstr "2xx Успешные"
+
+#: src/labels.h:371
+msgid "3xx Redirection"
+msgstr "3xx Перенаправления"
+
+#: src/labels.h:373
+msgid "4xx Client Errors"
+msgstr "4xx Ошибки клиента"
+
+#: src/labels.h:375
+msgid "5xx Server Errors"
+msgstr "5xx Ошибки сервера"
+
+#: src/labels.h:378
+msgid "100 - Continue: Server received the initial part of the request"
+msgstr "100 - Continue: Сервер получил начальную часть запроса"
+
+#: src/labels.h:380
+msgid "101 - Switching Protocols: Client asked to switch protocols"
+msgstr "101 - Switching Protocols: Клиент запросил переключение протокола"
+
+#: src/labels.h:382
+msgid "200 - OK: The request sent by the client was successful"
+msgstr "200 - OK: Запрос клиента выполнен успешно"
+
+#: src/labels.h:384
+msgid "201 - Created: The request has been fulfilled and created"
+msgstr "201 - Created: Запрос клиента выполнен и создан новый ресурс"
+
+#: src/labels.h:386
+msgid "202 - Accepted: The request has been accepted for processing"
+msgstr "202 - Accepted: Запрос принят на обработку"
+
+#: src/labels.h:388
+msgid "203 - Non-authoritative Information: Response from a third party"
+msgstr "203 - Non-authoritative Information: Ответ не из первичного источника"
+
+#: src/labels.h:390
+msgid "204 - No Content: Request did not return any content"
+msgstr "204 - No Content: Запрос не вернул никакого контента"
+
+#: src/labels.h:392
+msgid "205 - Reset Content: Server asked the client to reset the document"
+msgstr "205 - Reset Content: Сервер попросил клиента сбросить документ"
+
+#: src/labels.h:394
+msgid "206 - Partial Content: The partial GET has been successful"
+msgstr "206 - Partial Content: Частичный GET-запрос выполнен успешно"
+
+#: src/labels.h:396
+msgid "207 - Multi-Status: WebDAV; RFC 4918"
+msgstr "207 - Multi-Status: WebDAV; RFC 4918"
+
+#: src/labels.h:398
+msgid "208 - Already Reported: WebDAV; RFC 5842"
+msgstr "208 - Already Reported: WebDAV; RFC 5842"
+
+#: src/labels.h:400
+msgid "300 - Multiple Choices: Multiple options for the resource"
+msgstr "300 - Multiple Choices: Ресурс имеет несколько вариантов предоставления"
+
+#: src/labels.h:402
+msgid "301 - Moved Permanently: Resource has permanently moved"
+msgstr "301 - Moved Permanently: Ресурс перемещён на постоянной основе"
+
+#: src/labels.h:404
+msgid "302 - Moved Temporarily (redirect)"
+msgstr "302 - Moved Temporarily (временный редирект)"
+
+#: src/labels.h:406
+msgid "303 - See Other Document: The response is at a different URI"
+msgstr "303 - See Other Document: Ответ находится по другому URI"
+
+#: src/labels.h:408
+msgid "304 - Not Modified: Resource has not been modified"
+msgstr "304 - Not Modified: Ресурс не изменялся"
+
+#: src/labels.h:410
+msgid "305 - Use Proxy: Can only be accessed through the proxy"
+msgstr "305 - Use Proxy: Доступ только через прокси"
+
+#: src/labels.h:412
+msgid "307 - Temporary Redirect: Resource temporarily moved"
+msgstr "307 - Temporary Redirect: Ресурс временно перемещён"
+
+#: src/labels.h:414
+msgid "400 - Bad Request: The syntax of the request is invalid"
+msgstr "400 - Bad Request: Неверный синтаксис запроса"
+
+#: src/labels.h:416
+msgid "401 - Unauthorized: Request needs user authentication"
+msgstr "401 - Unauthorized: Запрос требует аутентификации"
+
+#: src/labels.h:418
+msgid "402 - Payment Required"
+msgstr "402 - Payment Required"
+
+#: src/labels.h:420
+msgid "403 - Forbidden: Server is refusing to respond to it"
+msgstr "403 - Forbidden: Сервер отказался предоставить ответ"
+
+#: src/labels.h:422
+msgid "404 - Not Found: Requested resource could not be found"
+msgstr "404 - Not Found: Запрошенный ресурс не найден"
+
+#: src/labels.h:424
+msgid "405 - Method Not Allowed: Request method not supported"
+msgstr "405 - Method Not Allowed: Метод запроса не поддерживается"
+
+#: src/labels.h:426
+msgid "406 - Not Acceptable"
+msgstr "406 - Not Acceptable"
+
+#: src/labels.h:428
+msgid "407 - Proxy Authentication Required"
+msgstr "407 - Proxy Authentication Required"
+
+#: src/labels.h:430
+msgid "408 - Request Timeout: Server timed out waiting for the request"
+msgstr "408 - Request Timeout: Сервер не дождался запроса"
+
+#: src/labels.h:432
+msgid "409 - Conflict: Conflict in the request"
+msgstr "409 - Conflict: Конфликтный запрос"
+
+#: src/labels.h:434
+msgid "410 - Gone: Resource requested is no longer available"
+msgstr "410 - Gone: Запрошенный ресурс больше недоступен"
+
+#: src/labels.h:436
+msgid "411 - Length Required: Invalid Content-Length"
+msgstr "411 - Length Required: Неверный Content-Length"
+
+#: src/labels.h:438
+msgid "412 - Precondition Failed: Server does not meet preconditions"
+msgstr "412 - Precondition Failed: Сервер не выполнил предварительные условия"
+
+#: src/labels.h:440
+msgid "413 - Payload Too Large"
+msgstr "413 - Payload Too Large"
+
+#: src/labels.h:442
+msgid "414 - Request-URI Too Long"
+msgstr "414 - Request-URI Too Long"
+
+#: src/labels.h:444
+msgid "415 - Unsupported Media Type: Media type is not supported"
+msgstr "415 - Unsupported Media Type: Тип медиа не поддерживается"
+
+#: src/labels.h:446
+msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
+msgstr "416 - Requested Range Not Satisfiable: Часть не может быть доставлена"
+
+#: src/labels.h:448
+msgid "417 - Expectation Failed"
+msgstr "417 - Expectation Failed"
+
+#: src/labels.h:450
+msgid "418 - I’m a teapot"
+msgstr "418 - I’m a teapot"
+
+#: src/labels.h:452
+msgid "421 - Misdirected Request"
+msgstr "421 - Misdirected Request"
+
+#: src/labels.h:454
+msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
+msgstr "422 - Unprocessable Entity due to semantic errors: WebDAV"
+
+#: src/labels.h:456
+msgid "423 - The resource that is being accessed is locked"
+msgstr "423 - The resource that is being accessed is locked"
+
+#: src/labels.h:458
+msgid "424 - Failed Dependency: WebDAV"
+msgstr "424 - Failed Dependency: WebDAV"
+
+#: src/labels.h:460
+msgid "426 - Upgrade Required: Client should switch to a different protocol"
+msgstr "426 - Upgrade Required: Клиент должен переключить протокол"
+
+#: src/labels.h:462
+msgid "428 - Precondition Required"
+msgstr "428 - Precondition Required"
+
+#: src/labels.h:464
+msgid "429 - Too Many Requests: The user has sent too many requests"
+msgstr "429 - Too Many Requests: Клиент отправил слишком много запросов"
+
+#: src/labels.h:466
+msgid "431 - Request Header Fields Too Large"
+msgstr "431 - Request Header Fields Too Large"
+
+#: src/labels.h:468
+msgid "451 - Unavailable For Legal Reasons"
+msgstr "451 - Unavailable For Legal Reasons"
+
+#: src/labels.h:470
+msgid "444 - (Nginx) Connection closed without sending any headers"
+msgstr "444 - (Nginx) Connection closed without sending any headers"
+
+#: src/labels.h:472
+msgid "494 - (Nginx) Request Header Too Large"
+msgstr "494 - (Nginx) Request Header Too Large"
+
+#: src/labels.h:474
+msgid "495 - (Nginx) SSL client certificate error"
+msgstr "495 - (Nginx) SSL client certificate error"
+
+#: src/labels.h:476
+msgid "496 - (Nginx) Client didn't provide certificate"
+msgstr "496 - (Nginx) Client didn't provide certificate"
+
+#: src/labels.h:478
+msgid "497 - (Nginx) HTTP request sent to HTTPS port"
+msgstr "497 - (Nginx) HTTP request sent to HTTPS port"
+
+#: src/labels.h:480
+msgid "499 - (Nginx) Connection closed by client while processing request"
+msgstr "499 - (Nginx) Connection closed by client while processing request"
+
+#: src/labels.h:482
+msgid "500 - Internal Server Error"
+msgstr "500 - Internal Server Error"
+
+#: src/labels.h:484
+msgid "501 - Not Implemented"
+msgstr "501 - Not Implemented"
+
+#: src/labels.h:486
+msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgstr "502 - Bad Gateway: Сервер, действующий как шлюз, получил недопустимый ответ"
+
+#: src/labels.h:488
+msgid "503 - Service Unavailable: The server is currently unavailable"
+msgstr "503 - Service Unavailable: Сервер недоступен"
+
+#: src/labels.h:490
+msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgstr "504 - Gateway Timeout: Сервер, действующий как шлюз, не дождался ответа"
+
+#: src/labels.h:492
+msgid "505 - HTTP Version Not Supported"
+msgstr "505 - HTTP Version Not Supported"
+
+#: src/labels.h:494
+msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgstr "520 - CloudFlare - Web server is returning an unknown error"
+
+#: src/labels.h:496
+msgid "521 - CloudFlare - Web server is down"
+msgstr "521 - CloudFlare - Web server is down"
+
+#: src/labels.h:498
+msgid "522 - CloudFlare - Connection timed out"
+msgstr "522 - CloudFlare - Connection timed out"
+
+#: src/labels.h:500
+msgid "523 - CloudFlare - Origin is unreachable"
+msgstr "523 - CloudFlare - Origin is unreachable"
+
+#: src/labels.h:502
+msgid "524 - CloudFlare - A timeout occurred"
+msgstr "524 - CloudFlare - A timeout occurred"
