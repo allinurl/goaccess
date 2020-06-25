@@ -410,6 +410,8 @@
   N_("305 - Use Proxy: Can only be accessed through the proxy")
 #define STATUS_CODE_307               \
   N_("307 - Temporary Redirect: Resource temporarily moved")
+#define STATUS_CODE_308               \
+  N_("308 - Permanent Redirect")
 #define STATUS_CODE_400               \
   N_("400 - Bad Request: The syntax of the request is invalid")
 #define STATUS_CODE_401               \
