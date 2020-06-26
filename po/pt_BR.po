@@ -441,9 +441,8 @@ msgstr "Ajuda Rápida de GoAccess"
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[UP/DOWN] para rolar - [q] para sair"
 
-#. Storage Built-in Option
-#: ../src/labels.h:261
-msgid "In-Memory with On-Disk Persitance Storage."
+#: src/labels.h:261
+msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
 #. Common UI Errors

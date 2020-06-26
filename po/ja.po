@@ -436,9 +436,7 @@ msgstr "GoAccessクイックヘルプ"
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[↑/↓] スクロール - [q] 終了"
 
-#. Storage Built-in Option
-#: ../src/labels.h:261
-msgid "In-Memory with On-Disk Persitance Storage."
+msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
 #. Common UI Errors

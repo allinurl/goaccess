@@ -258,7 +258,7 @@
 
 /* Storage Built-in Option */
 #define BUILT_WITH_DEFHASH             \
-  _("In-Memory with On-Disk Persitance Storage.")
+  _("In-Memory with On-Disk Persistent Storage.")
 
 /* Common UI Errors */
 #define ERR_FORMAT_HEADER              \
