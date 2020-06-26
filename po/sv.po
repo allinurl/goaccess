@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-05-14 19:55-0500\n"
+"POT-Creation-Date: 2020-06-24 20:49-0500\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.see>\n"
 "Language-Team: none\n"
@@ -17,890 +17,908 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: src/labels.h:40
+#. global lang attribute
+#: ../src/labels.h:40
 msgid "en"
 msgstr "sv"
 
-#: src/labels.h:43
+#. General
+#: ../src/labels.h:43
 msgid "Exp. Panel"
 msgstr "Exp. Panel"
 
-#: src/labels.h:44
+#: ../src/labels.h:44
 msgid "Help"
 msgstr "Hjälp"
 
-#: src/labels.h:45
+#: ../src/labels.h:45
 msgid "Quit"
 msgstr "Avsluta"
 
-#: src/labels.h:46
+#: ../src/labels.h:46
 msgid "Total"
 msgstr "Totalt"
 
-#: src/labels.h:49
+#. Sort Labels
+#: ../src/labels.h:49
 msgid "[x] ASC [ ] DESC"
 msgstr "[x] ASC [ ] DESC"
 
-#: src/labels.h:50
+#: ../src/labels.h:50
 msgid "[ ] ASC [x] DESC"
 msgstr "[ ] ASC [x] DESC"
 
-#: src/labels.h:53
+#. Overall Stats Labels
+#: ../src/labels.h:53
 #, c-format
 msgid "[Active Panel: %1$s]"
 msgstr "[Aktiv panel: %1$s]"
 
-#: src/labels.h:54
+#: ../src/labels.h:54
 msgid "[q]uit GoAccess"
 msgstr "[q]Avsluta GoAccess"
 
-#: src/labels.h:55
+#: ../src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
 msgstr "[?] Hjälp [Enter] Exp. Panel"
 
-#: src/labels.h:56
+#: ../src/labels.h:56
 msgid "Dashboard"
 msgstr "Dashboard"
 
-#: src/labels.h:57
+#: ../src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
 msgstr "Dashboard - generellt analyserade förfrågningar"
 
-#: src/labels.h:58
+#: ../src/labels.h:58
 msgid "Overall Analyzed Requests"
 msgstr "Generellt Analyserade förfrågningar"
 
-#: src/labels.h:60 src/labels.h:81
+#: ../src/labels.h:60 ../src/labels.h:81
 msgid "Tx. Amount"
 msgstr "Skickat"
 
-#: src/labels.h:61
+#: ../src/labels.h:61
 msgid "Date/Time"
 msgstr "Datum/Tid"
 
-#: src/labels.h:62
+#: ../src/labels.h:62
 msgid "Excl. IP Hits"
 msgstr "Exkl. IP-träffar"
 
-#: src/labels.h:63
+#: ../src/labels.h:63
 msgid "Failed Requests"
 msgstr "Misslyckade förfrågningar"
 
-#: src/labels.h:64
+#: ../src/labels.h:64
 msgid "Init. Proc. Time"
 msgstr "Init. proc. Tid"
 
-#: src/labels.h:65
+#: ../src/labels.h:65
 msgid "Log Size"
 msgstr "Loggstorlek"
 
-#: src/labels.h:66
+#: ../src/labels.h:66
 msgid "Log Source"
 msgstr "Loggkälla"
 
-#: src/labels.h:67 src/labels.h:181
+#: ../src/labels.h:67 ../src/labels.h:181
 msgid "Referrers"
 msgstr "Hänvisningar"
 
-#: src/labels.h:68
+#: ../src/labels.h:68
 msgid "Total Requests"
 msgstr "Total antal förfrågningar"
 
-#: src/labels.h:69
+#: ../src/labels.h:69
 msgid "Static Files"
 msgstr "Statiska filer"
 
-#: src/labels.h:70 src/labels.h:153
+#: ../src/labels.h:70 ../src/labels.h:153
 msgid "Not Found"
 msgstr "Hittades inte"
 
-#: src/labels.h:71
+#: ../src/labels.h:71
 msgid "Requested Files"
 msgstr "Begärda filer"
 
-#: src/labels.h:72
+#: ../src/labels.h:72
 msgid "Unique Visitors"
 msgstr "Unika besökare"
 
-#: src/labels.h:73
+#: ../src/labels.h:73
 msgid "Valid Requests"
 msgstr "Gilltiga förfrågningar"
 
-#: src/labels.h:76
+#. Metric Labels
+#: ../src/labels.h:76
 msgid "Hits"
 msgstr "Träffar"
 
-#: src/labels.h:77
+#: ../src/labels.h:77
 msgid "h%"
 msgstr "h%"
 
-#: src/labels.h:78 src/labels.h:104
+#: ../src/labels.h:78 ../src/labels.h:104
 msgid "Visitors"
 msgstr "Besökare"
 
-#: src/labels.h:79
+#: ../src/labels.h:79
 msgid "Vis."
 msgstr "Besök."
 
-#: src/labels.h:80
+#: ../src/labels.h:80
 msgid "v%"
 msgstr "v%"
 
-#: src/labels.h:82
+#: ../src/labels.h:82
 msgid "Avg. T.S."
 msgstr "Avg. T.S."
 
-#: src/labels.h:83
+#: ../src/labels.h:83
 msgid "Cum. T.S."
 msgstr "Cum. T.S."
 
-#: src/labels.h:84
+#: ../src/labels.h:84
 msgid "Max. T.S."
 msgstr "Max. T.S."
 
-#: src/labels.h:85
+#: ../src/labels.h:85
 msgid "Method"
 msgstr "Metod"
 
-#: src/labels.h:86
+#: ../src/labels.h:86
 msgid "Mtd"
 msgstr "Mtd"
 
-#: src/labels.h:87
+#: ../src/labels.h:87
 msgid "Protocol"
 msgstr "Protokoll"
 
-#: src/labels.h:88
+#: ../src/labels.h:88
 msgid "Proto"
 msgstr "Proto"
 
-#: src/labels.h:89
+#: ../src/labels.h:89
 msgid "City"
 msgstr "Stad"
 
-#: src/labels.h:90
+#: ../src/labels.h:90
 msgid "Country"
 msgstr "Land"
 
-#: src/labels.h:91
+#: ../src/labels.h:91
 msgid "Hostname"
 msgstr "Värdnamn"
 
-#: src/labels.h:92
+#: ../src/labels.h:92
 msgid "Data"
 msgstr "Data"
 
-#: src/labels.h:94
+#: ../src/labels.h:94
 msgid "Hits/Visitors"
 msgstr "Träffar/Besökare"
 
-#: src/labels.h:98
+#. Panel Labels and Descriptions
+#: ../src/labels.h:98
 msgid "Unique visitors per day"
 msgstr "Unika besökare per dag"
 
-#: src/labels.h:100
+#: ../src/labels.h:100
 msgid "Unique visitors per day - Including spiders"
 msgstr "Unika besökare per dag  - inkl. nätspindlar"
 
-#: src/labels.h:102
+#: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr "Träffar med samma IP, datum och agent är unika besökare"
 
-#: src/labels.h:107
+#: ../src/labels.h:107
 msgid "Requested Files (URLs)"
 msgstr "Begärda filer (URLer)"
 
-#: src/labels.h:109
+#: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Flest förfrågingar sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
 
-#: src/labels.h:111
+#: ../src/labels.h:111
 msgid "Requests"
 msgstr "Uppslagningar"
 
-#: src/labels.h:114 src/labels.h:118
+#: ../src/labels.h:114 ../src/labels.h:118
 msgid "Static Requests"
 msgstr "Statiska förfrågningar"
 
-#: src/labels.h:116
+#: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Toppförfrågningar sorterade i trufar [, avgts, cumts, maxts, mthd, proto]"
 
-#: src/labels.h:121
+#: ../src/labels.h:121
 msgid "Time Distribution"
 msgstr "Tidsfördelning"
 
-#: src/labels.h:123
+#: ../src/labels.h:123
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr "Data sorterade i timmar [, avgts, cumts, maxts]"
 
-#: src/labels.h:125
+#: ../src/labels.h:125
 msgid "Time"
 msgstr "Tid"
 
-#: src/labels.h:128 src/labels.h:132
+#: ../src/labels.h:128 ../src/labels.h:132
 msgid "Virtual Hosts"
 msgstr "Virtuella värdar"
 
-#: src/labels.h:130 src/labels.h:137 src/labels.h:144
+#: ../src/labels.h:130 ../src/labels.h:137 ../src/labels.h:144
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr "Data sorterat i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:135
+#: ../src/labels.h:135
 msgid "Remote User (HTTP authentication)"
 msgstr "Fjärranvändare (HTTP-autentisering)"
 
-#: src/labels.h:139
+#: ../src/labels.h:139
 msgid "Remote User"
 msgstr "Fjärranvändare"
 
-#: src/labels.h:142
+#: ../src/labels.h:142
 msgid "The cache status of the object served"
 msgstr ""
 
-#: src/labels.h:146
+#: ../src/labels.h:146
 msgid "Cache Status"
 msgstr ""
 
-#: src/labels.h:149
+#: ../src/labels.h:149
 msgid "Not Found URLs (404s)"
 msgstr "Hittar inte URL:en (404)"
 
-#: src/labels.h:151
+#: ../src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, "
 "proto]"
 
-#: src/labels.h:156
+#: ../src/labels.h:156
 msgid "Visitor Hostnames and IPs"
 msgstr "Besökares Värdnamn och IP:s"
 
-#: src/labels.h:158
+#: ../src/labels.h:158
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr "Flest besökares värdnamn sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:160
+#: ../src/labels.h:160
 msgid "Hosts"
 msgstr "Värdar"
 
-#: src/labels.h:163
+#: ../src/labels.h:163
 msgid "Operating Systems"
 msgstr "Operativsystem"
 
-#: src/labels.h:165
+#: ../src/labels.h:165
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr "Flest operativsystem sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:167
+#: ../src/labels.h:167
 msgid "OS"
 msgstr "OS"
 
-#: src/labels.h:170 src/labels.h:174
+#: ../src/labels.h:170 ../src/labels.h:174
 msgid "Browsers"
 msgstr "Webbläsare"
 
-#: src/labels.h:172
+#: ../src/labels.h:172
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Vanligast webbläsare sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:177
+#: ../src/labels.h:177
 msgid "Referrers URLs"
 msgstr "Hänvisande URL:er"
 
-#: src/labels.h:179
+#: ../src/labels.h:179
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:184 src/labels.h:188
+#: ../src/labels.h:184 ../src/labels.h:188
 msgid "Referring Sites"
 msgstr "Hänvisade sidor"
 
-#: src/labels.h:186
+#: ../src/labels.h:186
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr "Flest hänvisade sidor sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:191
+#: ../src/labels.h:191
 msgid "Keyphrases from Google's search engine"
 msgstr "Nyckelord från Googles sökmotor"
 
-#: src/labels.h:193
+#: ../src/labels.h:193
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr "Flest nyckelord sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:195
+#: ../src/labels.h:195
 msgid "Keyphrases"
 msgstr "Nyckelord"
 
-#: src/labels.h:198 src/labels.h:202
+#: ../src/labels.h:198 ../src/labels.h:202
 msgid "Geo Location"
 msgstr "Geografisk plats"
 
-#: src/labels.h:200
+#: ../src/labels.h:200
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr "Kontinent > Land sorterad i unika träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:205
+#: ../src/labels.h:205
 msgid "HTTP Status Codes"
 msgstr "HTTP Statuskod"
 
-#: src/labels.h:207
+#: ../src/labels.h:207
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr "Flest HTTP Statuskod sorterade i träffar [, avgts, cumts, maxts]"
 
-#: src/labels.h:209
+#: ../src/labels.h:209
 msgid "Status Codes"
 msgstr "Statuskoder"
 
-#: src/labels.h:213
+#. Find Labels
+#: ../src/labels.h:213
 msgid "[ ] case sensitive"
 msgstr "[ ] skiftlägeskänsliga"
 
-#: src/labels.h:215
+#: ../src/labels.h:215
 msgid "[x] case sensitive"
 msgstr "[x] skiftlägeskänsliga"
 
-#: src/labels.h:217
+#: ../src/labels.h:217
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "Regex tillåtet - ^ g för att avbryta - TAB-växla"
 
-#: src/labels.h:219
+#: ../src/labels.h:219
 msgid "Find pattern in all views"
 msgstr "Hitta mönster i alla vyer"
 
-#: src/labels.h:223
+#. Config Dialog
+#: ../src/labels.h:223
 msgid "Log Format Configuration"
 msgstr "Loggformat konfiguration"
 
-#: src/labels.h:225
+#: ../src/labels.h:225
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
 msgstr ""
 "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
-#: src/labels.h:227
+#: ../src/labels.h:227
 msgid "Log Format - [c] to add/edit format"
 msgstr "Logformat - [c] för att lägga till / redigera format"
 
-#: src/labels.h:229
+#: ../src/labels.h:229
 msgid "Date Format - [d] to add/edit format"
 msgstr "Datumformat - [d] för att lägga till / redigera format"
 
-#: src/labels.h:231
+#: ../src/labels.h:231
 msgid "Time Format - [t] to add/edit format"
 msgstr "Tidsformat - [t] för att lägga till / redigera format"
 
-#: src/labels.h:233 src/labels.h:237
+#. Agents Dialog
+#: ../src/labels.h:233 ../src/labels.h:237
 msgid "[UP/DOWN] to scroll - [q] to close window"
 msgstr "[UP / DOWN] för att bläddra - [q] för att stänga fönstret"
 
-#: src/labels.h:239
+#: ../src/labels.h:239
 #, c-format
 msgid "User Agents for %1$s"
 msgstr "Användaragenter %1$s"
 
-#: src/labels.h:243
+#. Color Scheme Dialog
+#: ../src/labels.h:243
 msgid "Scheme Configuration"
 msgstr "Schemakonfiguration"
 
-#: src/labels.h:245
+#: ../src/labels.h:245
 msgid "[ENTER] to use scheme - [q]uit"
 msgstr "[ENTER] för att använda schema - [q]avsluta"
 
-#: src/labels.h:249
+#. Sort Dialog
+#: ../src/labels.h:249
 msgid "Sort active module by"
 msgstr "Sortera aktiv modul med"
 
-#: src/labels.h:251
+#: ../src/labels.h:251
 msgid "[ENTER] select - [TAB] sort - [q]uit"
 msgstr "[ENTER] välj - [TAB] sortera - [q] avsluta"
 
-#: src/labels.h:255
+#. Help TUI Dialog
+#: ../src/labels.h:255
 msgid "GoAccess Quick Help"
 msgstr "GoAccess snabbhjälp"
 
-#: src/labels.h:257
+#: ../src/labels.h:257
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[UP / DOWN] för att bläddra - [q] för att avsluta"
 
-#: src/labels.h:261
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
-#: src/labels.h:265
+#. Common UI Errors
+#: ../src/labels.h:265
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "Fel format - Kontrollera din logg /datum/tidformat"
 
-#: src/labels.h:267
+#: ../src/labels.h:267
 msgid "No date format was found on your conf file."
 msgstr "Inget datumformat hittades på din konfigurationsfil."
 
-#: src/labels.h:269
+#: ../src/labels.h:269
 msgid "No log format was found on your conf file."
 msgstr "Inget loggformat hittades på din konfigurationsfil."
 
-#: src/labels.h:271
+#: ../src/labels.h:271
 msgid "No time format was found on your conf file."
 msgstr "Inget tidsformat hittades i din konfigurationfil."
 
-#: src/labels.h:273
+#: ../src/labels.h:273
 msgid "No default config file found."
 msgstr "Ingen standard konfiguationsfil hittades."
 
-#: src/labels.h:275
+#: ../src/labels.h:275
 msgid "You may specify one with"
 msgstr "Du kan ange en med"
 
-#: src/labels.h:277
+#: ../src/labels.h:277
 msgid "producing the following errors"
 msgstr "producerar följande fel"
 
-#: src/labels.h:279
+#: ../src/labels.h:279
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "Analyserade %1$d linjer"
 
-#: src/labels.h:281
+#: ../src/labels.h:281
 msgid "Please report it by opening an issue on GitHub"
 msgstr "Var god rapportera det genom att öppna ett problem på GitHub"
 
-#: src/labels.h:283
+#: ../src/labels.h:283
 msgid "Select a time format."
 msgstr "Välj ett tidsformat."
 
-#: src/labels.h:285
+#: ../src/labels.h:285
 msgid "Select a date format."
 msgstr "Välj ett datumformat."
 
-#: src/labels.h:287
+#: ../src/labels.h:287
 msgid "Select a log format."
 msgstr "Välj ett loggformat."
 
-#: src/labels.h:289
+#: ../src/labels.h:289
 #, c-format
 msgid "'%1$s' panel is disabled"
 msgstr "’%1$s’ panelen är inaktiverad"
 
-#: src/labels.h:293
+#. Other
+#: ../src/labels.h:293
 msgid "For more details visit"
 msgstr "För mer information besök"
 
-#: src/labels.h:295
+#: ../src/labels.h:295
 msgid "Last Updated"
 msgstr "Senast uppdaterad"
 
-#: src/labels.h:297
+#: ../src/labels.h:297
 msgid "WebSocket server ready to accept new client connections"
 msgstr "WebSocket-server redo att acceptera nya klientanslutningar"
 
-#: src/labels.h:300
+#: ../src/labels.h:300
 msgid "The following options can also be supplied to the command"
 msgstr "Följande alternativ kan också levereras till kommandot"
 
-#: src/labels.h:302
+#: ../src/labels.h:302
 msgid "Examples can be found by running"
 msgstr "Exempel kan hittas genom att köra"
 
-#: src/labels.h:305
+#: ../src/labels.h:305
 msgid "Server Statistics"
 msgstr "Serverstatistik"
 
-#: src/labels.h:307
+#: ../src/labels.h:307
 msgid "Theme"
 msgstr "Tema"
 
-#: src/labels.h:309
+#: ../src/labels.h:309
 msgid "Dark Gray"
 msgstr "Mörkgrå"
 
-#: src/labels.h:311
+#: ../src/labels.h:311
 msgid "Bright"
 msgstr "Ljus"
 
-#: src/labels.h:313
+#: ../src/labels.h:313
 msgid "Dark Blue"
 msgstr "Mörkblå"
 
-#: src/labels.h:315
+#: ../src/labels.h:315
 msgid "Dark Purple"
 msgstr "Mörklila"
 
-#: src/labels.h:317
+#: ../src/labels.h:317
 msgid "Panels"
 msgstr "Paneler"
 
-#: src/labels.h:319
+#: ../src/labels.h:319
 msgid "Items per Page"
 msgstr "Objekt per sida"
 
-#: src/labels.h:321
+#: ../src/labels.h:321
 msgid "Tables"
 msgstr "Tabeller"
 
-#: src/labels.h:323
+#: ../src/labels.h:323
 msgid "Display Tables"
 msgstr "Skärmtabeller"
 
-#: src/labels.h:325
+#: ../src/labels.h:325
 msgid "Auto-Hide on Small Devices"
 msgstr "Automatisk dölj på små enheter"
 
-#: src/labels.h:327
+#: ../src/labels.h:327
 msgid "Automatically hide tables on small screen devices"
 msgstr "Dölj automatiskt tabeller på små skärm enheter"
 
-#: src/labels.h:329
+#: ../src/labels.h:329
 msgid "Layout"
 msgstr "Layout"
 
-#: src/labels.h:331
+#: ../src/labels.h:331
 msgid "Horizontal"
 msgstr "Horisontell"
 
-#: src/labels.h:333
+#: ../src/labels.h:333
 msgid "Vertical"
 msgstr "Vertikal"
 
-#: src/labels.h:335
+#: ../src/labels.h:335
 msgid "WideScreen"
 msgstr ""
 
-#: src/labels.h:337
+#: ../src/labels.h:337
 msgid "File Options"
 msgstr "Filalternativ"
 
-#: src/labels.h:339
+#: ../src/labels.h:339
 msgid "Export as JSON"
 msgstr "Exportera som JSON"
 
-#: src/labels.h:341
+#: ../src/labels.h:341
 msgid "Panel Options"
 msgstr "Panelalternativ"
 
-#: src/labels.h:343
+#: ../src/labels.h:343
 msgid "Previous"
 msgstr "Föregående"
 
-#: src/labels.h:345
+#: ../src/labels.h:345
 msgid "Next"
 msgstr "Nästa"
 
-#: src/labels.h:347
+#: ../src/labels.h:347
 msgid "First"
 msgstr "Första"
 
-#: src/labels.h:349
+#: ../src/labels.h:349
 msgid "Last"
 msgstr "Sista"
 
-#: src/labels.h:351
+#: ../src/labels.h:351
 msgid "Chart Options"
 msgstr "Diagramalternativ"
 
-#: src/labels.h:353
+#: ../src/labels.h:353
 msgid "Chart"
 msgstr "Diagram"
 
-#: src/labels.h:355
+#: ../src/labels.h:355
 msgid "Type"
 msgstr "Typ"
 
-#: src/labels.h:357
+#: ../src/labels.h:357
 msgid "Area Spline"
 msgstr "Area Spline"
 
-#: src/labels.h:359
+#: ../src/labels.h:359
 msgid "Bar"
 msgstr "Bar"
 
-#: src/labels.h:361
+#: ../src/labels.h:361
 msgid "Plot Metric"
 msgstr "Plot Metric"
 
-#: src/labels.h:363
+#: ../src/labels.h:363
 msgid "Table Columns"
 msgstr "Tabellkolumn"
 
-#: src/labels.h:367
+#. Status Codes
+#: ../src/labels.h:367
 msgid "1xx Informational"
 msgstr "1xx Informativ"
 
-#: src/labels.h:369
+#: ../src/labels.h:369
 msgid "2xx Success"
 msgstr "2xx Success"
 
-#: src/labels.h:371
+#: ../src/labels.h:371
 msgid "3xx Redirection"
 msgstr "3xx Omdirigering"
 
-#: src/labels.h:373
+#: ../src/labels.h:373
 msgid "4xx Client Errors"
 msgstr "4xx Klientel"
 
-#: src/labels.h:375
+#: ../src/labels.h:375
 msgid "5xx Server Errors"
 msgstr "5xx Serverfel"
 
-#: src/labels.h:378
+#: ../src/labels.h:378
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - Fortsätt: Servern mottog den första delen av begäran"
 
-#: src/labels.h:380
+#: ../src/labels.h:380
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr "101 - Växlingsprotokoll: Klienten bad om att byta protokoll"
 
-#: src/labels.h:382
+#: ../src/labels.h:382
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - OK: Förfrågan som skickades av klienten lyckades"
 
-#: src/labels.h:384
+#: ../src/labels.h:384
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - Skapad: Förfrågan har uppfyllts och skapats"
 
-#: src/labels.h:386
+#: ../src/labels.h:386
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - Godkänd: Förfrågan har godkänts för behandling"
 
-#: src/labels.h:388
+#: ../src/labels.h:388
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - Ej auktoritativ information: Svar från en tredje part"
 
-#: src/labels.h:390
+#: ../src/labels.h:390
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - Inget innehåll: Förfrågan returnerade inte något innehåll"
 
-#: src/labels.h:392
+#: ../src/labels.h:392
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr ""
 "205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
 
-#: src/labels.h:394
+#: ../src/labels.h:394
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - Delvis innehåll: Den partiella GET har blivit framgångsrik"
 
-#: src/labels.h:396
+#: ../src/labels.h:396
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - Multi-Status: WebDAV; RFC 4918"
 
-#: src/labels.h:398
+#: ../src/labels.h:398
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - Redan rapporterad: WebDAV; RFC 5842"
 
-#: src/labels.h:400
+#: ../src/labels.h:400
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - Flera val: Multipla alternativ för resursen"
 
-#: src/labels.h:402
+#: ../src/labels.h:402
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - Flyttade permanent: Resursen har flyttats permanent"
 
-#: src/labels.h:404
+#: ../src/labels.h:404
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - Flyttade tillfälligt (omdirigera)"
 
-#: src/labels.h:406
+#: ../src/labels.h:406
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - Se annat dokument: Svaret finns på en annan URI"
 
-#: src/labels.h:408
+#: ../src/labels.h:408
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - Ej modifierad: Resursen har inte ändrats"
 
-#: src/labels.h:410
+#: ../src/labels.h:410
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - Använd proxy: Kan endast nås via proxy"
 
-#: src/labels.h:412
+#: ../src/labels.h:412
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Tillfällig omdirigering: Resurs flyttas tillfälligt"
 
-#: src/labels.h:414
+#: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - Dålig begäran: Syntaxen för förfrågan är ogiltig"
 
-#: src/labels.h:416
+#: ../src/labels.h:418
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - Ej auktoriserad: Begäran behöver användarautentisering"
 
-#: src/labels.h:418
+#: ../src/labels.h:420
 msgid "402 - Payment Required"
 msgstr "402 - Betalning krävs"
 
-#: src/labels.h:420
+#: ../src/labels.h:422
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - Förbud: Server vägrar att svara på det"
 
-#: src/labels.h:422
+#: ../src/labels.h:424
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - Ej funnen: Begärd resurs kunde inte hittas"
 
-#: src/labels.h:424
+#: ../src/labels.h:426
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - Metod Ej tillåtet: Förfrågan metod stöds inte"
 
-#: src/labels.h:426
+#: ../src/labels.h:428
 msgid "406 - Not Acceptable"
 msgstr "406 - Ej acceptabelt"
 
-#: src/labels.h:428
+#: ../src/labels.h:430
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - Proxy-autentisering krävs"
 
-#: src/labels.h:430
+#: ../src/labels.h:432
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr "408 - Begär tidsavbrott: Server slutade vänta på begäran"
 
-#: src/labels.h:432
+#: ../src/labels.h:434
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - Konflikt: Konflikt i begäran"
 
-#: src/labels.h:434
+#: ../src/labels.h:436
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr ""
 "410 - Gone: Resursförfrågan är inte längre tillgänglig, Skicka feedback"
 
-#: src/labels.h:436
+#: ../src/labels.h:438
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
-#: src/labels.h:438
+#: ../src/labels.h:440
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr ""
 "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
-#: src/labels.h:440
+#: ../src/labels.h:442
 msgid "413 - Payload Too Large"
 msgstr "413 - Belastningen för stor"
 
-#: src/labels.h:442
+#: ../src/labels.h:444
 msgid "414 - Request-URI Too Long"
 msgstr "414 - Begär-URI för lång"
 
-#: src/labels.h:444
+#: ../src/labels.h:446
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - Medietyp som inte stöds: Medietypen stöds inte"
 
-#: src/labels.h:446
+#: ../src/labels.h:448
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
 msgstr ""
 "416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
 
-#: src/labels.h:448
+#: ../src/labels.h:450
 msgid "417 - Expectation Failed"
 msgstr "417 - Förväntning misslyckades"
 
-#: src/labels.h:450
+#: ../src/labels.h:452
 msgid "418 - I’m a teapot"
 msgstr ""
 
-#: src/labels.h:452
+#: ../src/labels.h:454
 msgid "421 - Misdirected Request"
 msgstr "421 - Felriktad förfrågan"
 
-#: src/labels.h:454
+#: ../src/labels.h:456
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - Obearbetad entitet på grund av semantiska fel: WebDAV"
 
-#: src/labels.h:456
+#: ../src/labels.h:458
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - Resursen som nås är låst"
 
-#: src/labels.h:458
+#: ../src/labels.h:460
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - Misslyckad beroende: WebDAV"
 
-#: src/labels.h:460
+#: ../src/labels.h:462
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - Uppgradering krävs: Klienten ska byta till ett annat protokoll"
 
-#: src/labels.h:462
+#: ../src/labels.h:464
 msgid "428 - Precondition Required"
 msgstr "428 - Förutsättning krävs"
 
-#: src/labels.h:464
+#: ../src/labels.h:466
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
 "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
-#: src/labels.h:466
+#: ../src/labels.h:468
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - Begär headerfält för stort"
 
-#: src/labels.h:468
+#: ../src/labels.h:470
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - Ej tillgänglig för juridiska skäl"
 
-#: src/labels.h:470
+#: ../src/labels.h:472
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) Anslutningen är stängd utan att skicka några rubriker"
 
-#: src/labels.h:472
+#: ../src/labels.h:474
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) Begär Header För Stor"
 
-#: src/labels.h:474
+#: ../src/labels.h:476
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) SSL-klientcertifikatfel"
 
-#: src/labels.h:476
+#: ../src/labels.h:478
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) Klienten lämnade inte certifikat"
 
-#: src/labels.h:478
+#: ../src/labels.h:480
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) HTTP-begäran skickad till HTTPS-porten"
 
-#: src/labels.h:480
+#: ../src/labels.h:482
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (Nginx) Anslutning sluten av klienten vid bearbetningsförfrågan"
 
-#: src/labels.h:482
+#: ../src/labels.h:484
 msgid "500 - Internal Server Error"
 msgstr "500 - Internt serverfel"
 
-#: src/labels.h:484
+#: ../src/labels.h:486
 msgid "501 - Not Implemented"
 msgstr "501 - Inte Implementerad"
 
-#: src/labels.h:486
+#: ../src/labels.h:488
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - Dålig Gateway: Fick ett ogiltigt svar från uppströms"
 
-#: src/labels.h:488
+#: ../src/labels.h:490
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgänglig"
 
-#: src/labels.h:490
+#: ../src/labels.h:492
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr ""
 "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka "
 "förfrågan"
 
-#: src/labels.h:492
+#: ../src/labels.h:494
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP-version stöds inte"
 
-#: src/labels.h:494
+#: ../src/labels.h:496
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webbserver returnerar ett okänt fel"
 
-#: src/labels.h:496
+#: ../src/labels.h:498
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - webbservern är nere"
 
-#: src/labels.h:498
+#: ../src/labels.h:500
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - Anslutningen avbröts"
 
-#: src/labels.h:500
+#: ../src/labels.h:502
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Ursprung är oåtkomligt"
 
-#: src/labels.h:502
+#: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
+
+#: ../src/labels.h:414
+msgid "308 - "
+msgstr ""
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "Byggd med standard in-memory hash databas"

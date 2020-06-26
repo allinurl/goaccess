@@ -50,6 +50,7 @@ static FILE *access_log;
 static FILE *log_file;
 static FILE *log_invalid;
 static GLog *log_data;
+static struct sigaction old_sigsegv_handler;
 
 /* Open a debug file whose name is specified in the given path. */
 void
@@ -116,6 +117,18 @@ access_log_close (void) {
     fclose (access_log);
 }
 
+/* Set up sigsegv handler. */
+void
+setup_sigsegv_handler (void) {
+  struct sigaction act;
+
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = (int)SA_RESETHAND;
+  act.sa_handler = sigsegv_handler;
+
+  sigaction (SIGSEGV, &act, &old_sigsegv_handler);
+}
+
 /* Dump to the standard output the values of the overall parsed log
  * data. */
 static void
@@ -166,7 +179,10 @@ sigsegv_handler (int sig) {
   fprintf (fp, "==%d==\n", pid);
   fprintf (fp, "==%d== %s:\n", pid, ERR_PLEASE_REPORT);
   fprintf (fp, "==%d== https://github.com/allinurl/goaccess/issues\n\n", pid);
-  exit (EXIT_FAILURE);
+  fflush (fp);
+
+  /* Call old sigsegv handler; may be default exit or third party one (e.g. ASAN) */
+  sigaction (SIGSEGV, &old_sigsegv_handler, NULL);
 }
 
 /* Write formatted debug log data to the logfile. */

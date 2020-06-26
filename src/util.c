@@ -86,6 +86,7 @@ static const char *codes[][2] = {
   {"304", STATUS_CODE_304},
   {"305", STATUS_CODE_305},
   {"307", STATUS_CODE_307},
+  {"308", STATUS_CODE_308},
   {"400", STATUS_CODE_400},
   {"401", STATUS_CODE_401},
   {"402", STATUS_CODE_402},

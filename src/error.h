@@ -89,6 +89,7 @@ void invalid_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)
 void invalid_log_close (void);
 void invalid_log_open (const char *path);
 void set_signal_data (void *p);
-void sigsegv_handler (int sig) __attribute__((noreturn));
+void setup_sigsegv_handler(void);
+void sigsegv_handler (int sig);
 
 #endif
