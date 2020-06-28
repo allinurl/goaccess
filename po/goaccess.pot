@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-06-24 20:49-0500\n"
+"POT-Creation-Date: 2020-06-27 22:12-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -431,6 +431,8 @@ msgstr ""
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr ""
 
+#. Storage Built-in Option
+#: ../src/labels.h:261
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
@@ -723,6 +725,10 @@ msgstr ""
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr ""
 
+#: ../src/labels.h:414
+msgid "308 - Permanent Redirect"
+msgstr ""
+
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr ""
@@ -901,8 +907,4 @@ msgstr ""
 
 #: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
-msgstr ""
-
-#: ../src/labels.h:414
-msgid "308 - "
 msgstr ""

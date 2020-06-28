@@ -269,7 +269,7 @@ msgstr ""
 
 #: ../src/labels.h:146
 msgid "Cache Status"
-msgstr ""
+msgstr "Estado de Caché"
 
 #: ../src/labels.h:149
 msgid "Not Found URLs (404s)"
