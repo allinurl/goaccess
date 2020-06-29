@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-06-24 20:49-0500\n"
+"POT-Creation-Date: 2020-06-27 22:12-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Ai<hello@goaccess.io>\n"
 "Language-Team: Ai\n"
@@ -434,6 +434,8 @@ msgstr "GoAccess快速帮助"
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[UP/DOWN]上下滚动 - [q]退出"
 
+#. Storage Built-in Option
+#: ../src/labels.h:261
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
@@ -728,6 +730,11 @@ msgstr "305 - 使用代理: 只能通过代理访问资源"
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - 临时重定向: 临时从另外的URI响应"
 
+#: ../src/labels.h:414
+#, fuzzy
+msgid "308 - Permanent Redirect"
+msgstr "402 - 需要支付"
+
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - 错误请求: 客户端语法错误"
@@ -907,10 +914,6 @@ msgstr "523 - CloudFlare - 服务器无法访问"
 #: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - 服务器响应超时"
-
-#: ../src/labels.h:414
-msgid "308 - "
-msgstr ""
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "使用默认的在内存中的哈希表来构建"

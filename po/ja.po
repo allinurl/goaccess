@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-06-24 20:49-0500\n"
+"POT-Creation-Date: 2020-06-27 22:12-0500\n"
 "PO-Revision-Date: 2018-11-25 09:00+0900\n"
 "Last-Translator: Hiroki Kamino <46459949+err931@users.noreply.github.com>\n"
 "Language-Team: Japanese\n"
@@ -436,6 +436,8 @@ msgstr "GoAccessクイックヘルプ"
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[↑/↓] スクロール - [q] 終了"
 
+#. Storage Built-in Option
+#: ../src/labels.h:261
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr ""
 
@@ -738,6 +740,11 @@ msgstr ""
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - 一時的な移動: リクエストされたリソースは一時的に移動されました"
 
+#: ../src/labels.h:414
+#, fuzzy
+msgid "308 - Permanent Redirect"
+msgstr "402 - 課金が必要なコンテンツ"
+
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - 不正なリクエスト: リクエストを処理できません"
@@ -924,10 +931,6 @@ msgstr "523 - CloudFlare - Originに到達できません"
 #: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
-
-#: ../src/labels.h:414
-msgid "308 - "
-msgstr ""
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "デフォルトのインメモリハッシュデータベースを使用する。"

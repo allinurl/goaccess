@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-06-24 20:49-0500\n"
+"POT-Creation-Date: 2020-06-27 22:12-0500\n"
 "PO-Revision-Date: 2019-05-05 16:03+0200\n"
 "Last-Translator: Axel Wehner <mail@axelwehner.de>\n"
 "Language: de\n"
@@ -451,7 +451,8 @@ msgstr "GoAccess Schnelle Hilfe"
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[HOCH/RUNTER] zum scrollen - [q] zum schließen"
 
-#: src/labels.h:261
+#. Storage Built-in Option
+#: ../src/labels.h:261
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr "Arbeitsspeicherintern mit dauerhaftem Festplattenspeicher"
 
@@ -747,6 +748,11 @@ msgstr "305 - Proxy verwenden: Zugriff nur über den Proxy möglich"
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Temporäre Umleitung: Ressource vorübergehend verschoben"
 
+#: ../src/labels.h:414
+#, fuzzy
+msgid "308 - Permanent Redirect"
+msgstr "402 - Zahlung erforderlich"
+
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - Fehlerhafte Anfrage: Die Syntax der Anfrage ist ungültig"
@@ -942,10 +948,6 @@ msgstr "523 - CloudFlare - Herkunft ist unerreichbar"
 #: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - Zeitüberschreitung aufgetreten"
-
-#: ../src/labels.h:414
-msgid "308 - "
-msgstr ""
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "Erstellt in Verwendung der Standard In-Memory Hash-Datenbank."
