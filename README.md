@@ -187,13 +187,17 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     | gettext
----------------------- | -----------------|------------------| -------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        | gettext
-**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     | gettext-devel
-**Arch Linux**         | ncurses          | geoip            |  openssl           | gettext
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  |
-**Slackware**          | ncurses          | GeoIP            |  openssl           |
+Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     
+---------------------- | -----------------|------------------| -------------------
+**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        
+**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     
+**Arch Linux**         | ncurses          | geoip            |  openssl           
+**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  
+**Slackware**          | ncurses          | GeoIP            |  openssl           
+
+**Note**: You may need to install build tools like `gcc`, `autoconf`,
+`gettext`, `autopoint` etc for compiling/building software from source. e.g.,
+`base-devel`, `build-essential`, `"Development Tools"`.
 
 #### Docker ####
 
