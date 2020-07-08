@@ -734,17 +734,19 @@ contains_usecs (void) {
 
 static int
 is_cache_hit (const char *tkn) {
-  const char *statuses[] = {
-    "MISS",
-    "BYPASS",
-    "EXPIRED",
-    "STALE",
-    "UPDATING",
-    "REVALIDATED",
-    "HIT",
-  };
-
-  if (str_inarray (tkn, statuses, CACHE_STATUS_LEN) != -1)
+  if (strcasecmp ("MISS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("BYPASS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("EXPIRED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("STALE", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("UPDATING", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("REVALIDATED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("HIT", tkn) == 0)
     return 1;
   return 0;
 }
