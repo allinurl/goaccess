@@ -1580,6 +1580,10 @@ persist_igsl (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a filename, ensure we have a valid return path
+ *
+ * On error, NULL is returned.
+ * On success, the valid path is returned */
 static char *
 check_restore_path (const char *fn) {
   char *path = set_db_path (fn);
