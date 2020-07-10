@@ -1595,6 +1595,7 @@ check_restore_path (const char *fn) {
   return NULL;
 }
 
+/* Entry function to restore hash data by type */
 static void
 restore_by_type (GKHashMetric mtrc, const char *fn, int module) {
   char *path = NULL;
@@ -1631,6 +1632,7 @@ clean:
   free (path);
 }
 
+/* Entry function to restore hash data by metric type */
 static void
 restore_metric_type (GModule module, GKHashMetric mtrc) {
   char *fn = NULL;
@@ -1640,6 +1642,7 @@ restore_metric_type (GModule module, GKHashMetric mtrc) {
   free (fn);
 }
 
+/* Entry function to restore a global hashes */
 static void
 restore_global (void) {
   char *path = NULL;
