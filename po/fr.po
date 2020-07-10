@@ -4,7 +4,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.2\n"
+"Project-Id-Version: goaccess 1.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2020-07-10 11:44-0500\n"
 "PO-Revision-Date: 2020-07-10 11:44+0200\n"
