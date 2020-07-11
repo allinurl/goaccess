@@ -1657,6 +1657,7 @@ restore_global (void) {
   }
 }
 
+/* Entry function to restore hashes */
 static void
 restore_data (void) {
   GModule module;
