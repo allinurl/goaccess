@@ -1724,7 +1724,7 @@ ignore_line (GLogItem * logitem) {
     return IGNORE_LEVEL_PANEL;
   if (handle_crawler (logitem->agent) == 0)
     return IGNORE_LEVEL_PANEL;
-  if (ignore_referer (logitem->site))
+  if (ignore_referer (logitem->ref))
     return IGNORE_LEVEL_PANEL;
   if (ignore_status_code (logitem->status))
     return IGNORE_LEVEL_PANEL;
