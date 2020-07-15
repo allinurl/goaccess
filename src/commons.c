@@ -151,7 +151,7 @@ display_default_config_file (void) {
 void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
-  fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
+  fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
   fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
