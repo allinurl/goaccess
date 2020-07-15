@@ -527,7 +527,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
   return 0;
 }
 
-/* Convert a date from one format to another and store inot the given buffer.
+/* Convert a date from one format to another and store in the given buffer.
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
