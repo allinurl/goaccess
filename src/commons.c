@@ -257,8 +257,8 @@ free_agents_array (GAgents * agents) {
 
 /* Determine if the given date format is a timestamp.
  *
- * On error, 0 is returned.
- * On success, 1 is returned. */
+ * If not a timestamp, 0 is returned.
+ * If it is a timestamp, 1 is returned. */
 int
 has_timestamp (const char *fmt) {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
