@@ -2339,7 +2339,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) != 0)
+  if (convert_date (hour, logitem->time, "%T", "%H:%M", HRMI_LEN) != 0)
     return 1;
 
   if (*hour == '\0')
