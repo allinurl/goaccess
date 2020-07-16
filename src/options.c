@@ -278,7 +278,7 @@ cmd_help (void)
 
   "%s `man goaccess`.\n\n"
   "%s: %s\n"
-  "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
+  "GoAccess Copyright (C) 2009-2020 by Gerardo Orellana"
   "\n\n"
   , INFO_HELP_EXAMPLES, INFO_MORE_INFO, GO_WEBSITE
   );
