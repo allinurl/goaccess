@@ -782,6 +782,8 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
   size2 = file_size (fn);
 
   /* file hasn't changed */
+  /* ###NOTE: This assumes the log file being read can be of less size, e.g.,
+   * rotated/truncated file or greater when data is appended */
   if (size2 == *size1)
     return;
 
