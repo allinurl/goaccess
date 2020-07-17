@@ -177,9 +177,15 @@ alternative option below.
 
 #### Windows ####
 
-GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>. Or
-through the Linux Subsystem on Windows 10.
+[CowAxess](https://goaccess.io/download#distro) is a GoAccess implementation
+for Windows systems. It is a packaging of GoAccess, Cygwin and many other
+related tools to make it a complete and ready-to-use solution for real-time web
+log analysis, all in a 4 MB package. We have followed standard instructions
+available at the GoAccess website.
+
+If you prefer to go the more tedious route, GoAccess can be used in Windows
+through Cygwin. See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+Or through the Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
