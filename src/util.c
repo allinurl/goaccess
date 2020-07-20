@@ -440,13 +440,12 @@ valid_output_type (const char *filename) {
   return 0;
 }
 
-/* Search the environment HOME variable and append GoAccess' config
- * file.
+/* Get the path to the user config file (ie. HOME/.goaccessrc).
  *
  * On error, it returns NULL.
- * On success, the path of HOME and the config file is returned. */
+ * On success, the path of the user config file is returned. */
 char *
-get_home (void) {
+get_user_config (void) {
   char *user_home = NULL, *path = NULL;
 
   user_home = getenv ("HOME");

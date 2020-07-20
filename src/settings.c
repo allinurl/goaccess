@@ -129,7 +129,7 @@ get_config_file_path (void) {
   }
 
   /* first attempt to use the user's config file, e.g., ~/.goaccessrc */
-  upath = get_home ();
+  upath = get_user_config ();
   /* failure, e.g. if the file does not exist */
   if ((rpath = realpath (upath, NULL)) != NULL) {
     free (upath);
