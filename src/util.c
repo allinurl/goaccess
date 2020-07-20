@@ -443,7 +443,7 @@ valid_output_type (const char *filename) {
 /* Search the environment HOME variable and append GoAccess' config
  * file.
  *
- * On error, it outputs an error message and the program terminates.
+ * On error, it returns NULL.
  * On success, the path of HOME and the config file is returned. */
 char *
 get_home (void) {
@@ -451,7 +451,7 @@ get_home (void) {
 
   user_home = getenv ("HOME");
   if (user_home == NULL)
-    FATAL ("Unable to determine the HOME environment variable.");
+    return NULL;
 
   path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
   sprintf (path, "%s/.goaccessrc", user_home);
