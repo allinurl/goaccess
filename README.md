@@ -286,11 +286,11 @@ It's even possible to parse files from a pipe while reading regular files:
 **Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance, if we would like to process all compressed log files
-access.log.*.gz in addition to the current log file, we can do:
+Now if we want to add more flexibility to GoAccess, we can use `zcat --force`
+to read compressed and uncompressed files. For instance, if we would
+like to process all log files `access.log.*`, we can do:
 
-    # zcat access.log.*.gz | goaccess access.log -
+    # zcat --force access.log.* | goaccess -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
