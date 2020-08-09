@@ -95,8 +95,10 @@ Discordbot								Crawlers
 ZoominfoBot                             Crawlers
 Googlebot                               Crawlers
 DotBot                                  Crawlers
-
-
+AhrefsBot                               Crawlers
+SemrushBot                              Crawlers
+Adsbot                                  Crawlers
+BLEXBot                                 Crawlers
 Vienna											Feeds
 Windows-RSS-Platform				Feeds
 newsbeuter									Feeds

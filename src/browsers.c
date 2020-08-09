@@ -193,6 +193,10 @@ static const char *browsers[][2] = {
   {"ZoominfoBot", "Crawlers"},
   {"Googlebot", "Crawlers"},
   {"DotBot", "Crawlers"},
+  {"AhrefsBot", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
+  {"Adsbot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
