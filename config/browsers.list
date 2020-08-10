@@ -101,6 +101,7 @@ Adsbot                                  Crawlers
 BLEXBot                                 Crawlers
 NetcraftSurveyAgent                     Crawlers
 Netcraft Web Server Survey              Crawlers
+masscan                                 Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds
