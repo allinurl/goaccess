@@ -103,6 +103,7 @@ NetcraftSurveyAgent                     Crawlers
 Netcraft Web Server Survey              Crawlers
 masscan                                 Crawlers
 MJ12bot                                 Crawlers
+Pandalytics                             Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds
