@@ -200,6 +200,8 @@ static const char *browsers[][2] = {
   {"NetcraftSurveyAgent", "Crawlers"},
   {"Netcraft Web Server Survey", "Crawlers"},
   {"masscan", "Crawlers"},
+  {"MJ12bot", "Crawlers"},
+
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
