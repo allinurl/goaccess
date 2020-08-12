@@ -190,6 +190,18 @@ static const char *browsers[][2] = {
   {"DuckDuckGo-Favicons-Bot", "Crawlers"},
   {"bingbot", "Crawlers"},
   {"Discordbot", "Crawlers"},
+  {"ZoominfoBot", "Crawlers"},
+  {"Googlebot", "Crawlers"},
+  {"DotBot", "Crawlers"},
+  {"AhrefsBot", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
+  {"Adsbot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
+  {"NetcraftSurveyAgent", "Crawlers"},
+  {"Netcraft Web Server Survey", "Crawlers"},
+  {"masscan", "Crawlers"},
+  {"MJ12bot", "Crawlers"},
+  {"Pandalytics", "Crawlers"},
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
