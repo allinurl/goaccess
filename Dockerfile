@@ -9,6 +9,7 @@ RUN apk add --no-cache \
     gettext-static \
     git \
     libmaxminddb-dev \
+    libmaxminddb-static \
     libressl-dev \
     linux-headers \
     ncurses-dev \
