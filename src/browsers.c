@@ -204,7 +204,7 @@ static const char *browsers[][2] = {
   {"Pandalytics", "Crawlers"},
   {"YandexBot", "Crawlers"},
   {"Nimbostratus-Bot", "Crawlers"},
-
+  
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
@@ -257,7 +257,9 @@ free_browsers_hash (void) {
   }
   if (conf.browsers_file) {
     free (conf.user_browsers_hash);
-  }Yandex
+  }
+}
+
 static int
 is_dup (char ***list, int len, const char *browser) {
   int i;
@@ -279,7 +281,7 @@ set_browser (char ***list, int idx, const char *browser, const char *type) {
   list[idx][0] = xstrdup (browser);
   list[idx][1] = xstrdup (type);
 }
-Yandex
+
 /* Parse the key/value pair from the browser list file. */
 static void
 parse_browser_token (char ***list, char *line, int n) {
