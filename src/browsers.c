@@ -202,7 +202,9 @@ static const char *browsers[][2] = {
   {"masscan", "Crawlers"},
   {"MJ12bot", "Crawlers"},
   {"Pandalytics", "Crawlers"},
-
+  {"YandexBot", "Crawlers"},
+  {"Nimbostratus-Bot", "Crawlers"},
+  
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
