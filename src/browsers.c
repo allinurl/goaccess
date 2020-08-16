@@ -123,9 +123,11 @@ static const char *browsers[][2] = {
   {"FeedHQ", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
+  {"inoreader.com", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
   {"PinRSS", "Feeds"},
+  {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
@@ -217,6 +219,7 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
+  {"BTWebClient", "Feeds"},
   {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
