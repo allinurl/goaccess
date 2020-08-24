@@ -24,7 +24,7 @@ RUN CC="clang" CFLAGS="-O3 -static" LIBS="$(pkg-config --libs openssl)" ./config
 RUN make && make DESTDIR=/dist install
 
 # Container
-FROM busybox:musl
+FROM scratch
 COPY --from=builds /dist /
 COPY --from=builds /usr/share/zoneinfo /usr/share/zoneinfo
 VOLUME /var/www/goaccess
