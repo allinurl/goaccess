@@ -112,6 +112,8 @@ WinHttp.WinHttpRequest.5                Crawlers
 NetSystemsResearch                      Crawlers
 Nextcloud Server Crawler                Crawlers
 CFNetwork                               Crawlers
+GoScraper                               Crawlers
+Googlebot-Image                         Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds

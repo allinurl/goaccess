@@ -216,7 +216,9 @@ static const char *browsers[][2] = {
   {"WinHttp.WinHttpRequest.5", "Crawlers"},
   {"NetSystemsResearch", "Crawlers"},
   {"Nextcloud Server Crawler", "Crawlers"},
-  {"CFNetwork", "CFNetwork"}
+  {"CFNetwork", "Crawlers"},
+  {"GoScraper", "Crawlers"},
+  {"Googlebot-Image", "Crawlers"}
 
 
   /* Podcast fetchers */
