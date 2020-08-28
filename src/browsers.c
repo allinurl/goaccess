@@ -207,8 +207,9 @@ static const char *browsers[][2] = {
   {"YandexBot", "Crawlers"},
   {"Nimbostratus-Bot", "Crawlers"},
   {"HTTP Banner Detection", "Crawlers"},
-
-  WinHttp.WinHttpRequest.5
+  {"Hakai", "Crawlers"},
+  {"WinHttp.WinHttpRequest.5", "Crawlers"},
+  
   
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},

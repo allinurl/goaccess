@@ -107,7 +107,8 @@ Pandalytics                             Crawlers
 YandexBot                               Crawlers
 Nimbostratus-Bot                        Crawlers
 HTTP Banner Detection                   Crawlers
-
+Hakai                                   Crawlers
+WinHttp.WinHttpRequest.5                Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds
