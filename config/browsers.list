@@ -111,6 +111,7 @@ Hakai                                   Crawlers
 WinHttp.WinHttpRequest.5                Crawlers
 NetSystemsResearch                      Crawlers
 Nextcloud Server Crawler                Crawlers
+CFNetwork                               Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds

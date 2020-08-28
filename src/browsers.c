@@ -114,6 +114,10 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  {"pacman", "Others"},
+  {"Pamac", "Others"},
+  {"libwww-perl", "Others"},
+  {"python-requests", "Others"}
   
 
   /* Feed-reader-as-a-service */
@@ -212,6 +216,7 @@ static const char *browsers[][2] = {
   {"WinHttp.WinHttpRequest.5", "Crawlers"},
   {"NetSystemsResearch", "Crawlers"},
   {"Nextcloud Server Crawler", "Crawlers"},
+  {"CFNetwork", "CFNetwork"}
 
 
   /* Podcast fetchers */
@@ -469,12 +474,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
 
   /* Check if there are spaces in the token string, that way strpbrk
    * does not stop at the first space within the token string */
-  if ((cnt = count_matches (hash[i][0], ' ')) && (b = match)) {
-    while (space++ < cnt && (b = strchr (b, ' ')))
-      b++;
-  } else
-    b = match;
-
+  if ((cnt = count_matches (hash[i]pac
   xstrncpy (type, hash[i][1], BROWSER_TYPE_LEN);
   /* Internet Explorer 11 */
   if (strstr (match, "rv:11") && strstr (match, "Trident/7.0")) {
