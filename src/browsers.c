@@ -479,7 +479,12 @@ parse_browser (char *match, char *type, int i, char ***hash) {
 
   /* Check if there are spaces in the token string, that way strpbrk
    * does not stop at the first space within the token string */
-  if ((cnt = count_matches (hash[i]pac
+  if ((cnt = count_matches (hash[i][0], ' ')) && (b = match)) {
+    while (space++ < cnt && (b = strchr (b, ' ')))
+      b++;
+  } else
+    b = match;
+
   xstrncpy (type, hash[i][1], BROWSER_TYPE_LEN);
   /* Internet Explorer 11 */
   if (strstr (match, "rv:11") && strstr (match, "Trident/7.0")) {
@@ -529,7 +534,8 @@ verify_browser (char *str, char *type) {
       continue;
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
-next
+
+  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
     return token;
 
   /* fallback to default browser list */
