@@ -123,7 +123,7 @@ setup_sigsegv_handler (void) {
   struct sigaction act;
 
   sigemptyset (&act.sa_mask);
-  act.sa_flags = (int)SA_RESETHAND;
+  act.sa_flags = (int) SA_RESETHAND;
   act.sa_handler = sigsegv_handler;
 
   sigaction (SIGSEGV, &act, &old_sigsegv_handler);

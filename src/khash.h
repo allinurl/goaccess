@@ -434,16 +434,15 @@ static const double __ac_HASH_UPPER = 0.77;
   @return       The hash value
  */
 #if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
-__attribute__((no_sanitize("unsigned-integer-overflow")))
+__attribute__((no_sanitize ("unsigned-integer-overflow")))
 #endif
-static kh_inline khint_t
-__ac_X31_hash_string (const char *s) {
+  static kh_inline khint_t __ac_X31_hash_string (const char *s) {
   khint_t h = (khint_t) * s;
   if (h)
     for (++s; *s; ++s)
       h = (h << 5) - h + (khint_t) * s;
   return h;
-}
+  }
 
 /*! @function
   @abstract     Another interface to const char* hash function

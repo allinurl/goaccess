@@ -151,7 +151,7 @@ display_default_config_file (void) {
 void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
-  fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
+  fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
   fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
@@ -257,8 +257,8 @@ free_agents_array (GAgents * agents) {
 
 /* Determine if the given date format is a timestamp.
  *
- * On error, 0 is returned.
- * On success, 1 is returned. */
+ * If not a timestamp, 0 is returned.
+ * If it is a timestamp, 1 is returned. */
 int
 has_timestamp (const char *fmt) {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)

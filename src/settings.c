@@ -129,7 +129,7 @@ get_config_file_path (void) {
   }
 
   /* first attempt to use the user's config file, e.g., ~/.goaccessrc */
-  upath = get_home ();
+  upath = get_user_config ();
   /* failure, e.g. if the file does not exist */
   if ((rpath = realpath (upath, NULL)) != NULL) {
     free (upath);
@@ -325,12 +325,25 @@ parse_conf_file (int *argc, char ***argv) {
 }
 
 /* Get the enumerated log format given its equivalent format string.
+ * The case in the format string does not matter.
  *
  * On error, -1 is returned.
  * On success, the enumerated format is returned. */
 static int
 get_log_format_item_enum (const char *str) {
-  return str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
+  int ret;
+  char *upstr;
+
+  ret = str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
+  if (ret >= 0)
+    return ret;
+
+  /* uppercase the input string and try again */
+  upstr = strtoupper (xstrdup (str));
+  ret = str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), upstr);
+  free (upstr);
+
+  return ret;
 }
 
 /* Determine the selected log format from the config file or command line

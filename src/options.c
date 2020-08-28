@@ -277,10 +277,10 @@ cmd_help (void)
   "\n"
 
   "%s `man goaccess`.\n\n"
-  "%s: http://goaccess.io\n"
-  "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
+  "%s: %s\n"
+  "GoAccess Copyright (C) 2009-2020 by Gerardo Orellana"
   "\n\n"
-  , INFO_HELP_EXAMPLES, INFO_MORE_INFO
+  , INFO_HELP_EXAMPLES, INFO_MORE_INFO, GO_WEBSITE
   );
   exit (EXIT_FAILURE);
 }

@@ -734,17 +734,19 @@ contains_usecs (void) {
 
 static int
 is_cache_hit (const char *tkn) {
-  const char *statuses[] = {
-    "MISS",
-    "BYPASS",
-    "EXPIRED",
-    "STALE",
-    "UPDATING",
-    "REVALIDATED",
-    "HIT",
-  };
-
-  if (str_inarray (tkn, statuses, CACHE_STATUS_LEN) != -1)
+  if (strcasecmp ("MISS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("BYPASS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("EXPIRED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("STALE", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("UPDATING", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("REVALIDATED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("HIT", tkn) == 0)
     return 1;
   return 0;
 }
@@ -1050,8 +1052,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0
-        || set_time (&logitem->time, tm) != 0) {
+    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0 ||
+        set_time (&logitem->time, tm) != 0) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
@@ -1722,7 +1724,7 @@ ignore_line (GLogItem * logitem) {
     return IGNORE_LEVEL_PANEL;
   if (handle_crawler (logitem->agent) == 0)
     return IGNORE_LEVEL_PANEL;
-  if (ignore_referer (logitem->site))
+  if (ignore_referer (logitem->ref))
     return IGNORE_LEVEL_PANEL;
   if (ignore_status_code (logitem->status))
     return IGNORE_LEVEL_PANEL;
@@ -2337,7 +2339,7 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) != 0)
+  if (convert_date (hour, logitem->time, "%T", "%H:%M", HRMI_LEN) != 0)
     return 1;
 
   if (*hour == '\0')

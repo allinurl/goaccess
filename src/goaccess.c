@@ -379,15 +379,15 @@ render_screens (void) {
   term_size (main_win, &main_win_height);
 
   generate_time ();
-  strftime (time_str_buf, sizeof(time_str_buf), "%a %b %e %T %Y", &now_tm);
+  strftime (time_str_buf, sizeof (time_str_buf), "%a %b %e %T %Y", &now_tm);
   chg = glog->processed - glog->offset;
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
-  mvprintw (row - 1, col/2 - 10, "%d - %s", chg, time_str_buf);
-  mvaddstr (row - 1, col - 6 - strlen(T_QUIT), T_QUIT);
+  mvprintw (row - 1, col / 2 - 10, "%d - %s", chg, time_str_buf);
+  mvaddstr (row - 1, col - 6 - strlen (T_QUIT), T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
 
@@ -782,7 +782,9 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
   size2 = file_size (fn);
 
   /* file hasn't changed */
-  if (size2 <= *size1)
+  /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
+   * rotated/truncated file or larger when data is appended */
+  if (size2 == *size1)
     return;
 
   if (!(fp = fopen (fn, "r")))

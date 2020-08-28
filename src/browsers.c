@@ -123,9 +123,11 @@ static const char *browsers[][2] = {
   {"FeedHQ", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
+  {"inoreader.com", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
   {"PinRSS", "Feeds"},
+  {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
@@ -190,6 +192,22 @@ static const char *browsers[][2] = {
   {"DuckDuckGo-Favicons-Bot", "Crawlers"},
   {"bingbot", "Crawlers"},
   {"PetalBot", "Crawlers"},
+  {"Discordbot", "Crawlers"},
+  {"ZoominfoBot", "Crawlers"},
+  {"Googlebot", "Crawlers"},
+  {"DotBot", "Crawlers"},
+  {"AhrefsBot", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
+  {"Adsbot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
+  {"NetcraftSurveyAgent", "Crawlers"},
+  {"Netcraft Web Server Survey", "Crawlers"},
+  {"masscan", "Crawlers"},
+  {"MJ12bot", "Crawlers"},
+  {"Pandalytics", "Crawlers"},
+  {"YandexBot", "Crawlers"},
+  {"Nimbostratus-Bot", "Crawlers"},
+  
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -203,6 +221,7 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
+  {"BTWebClient", "Feeds"},
   {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},

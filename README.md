@@ -8,8 +8,8 @@ viewer that runs in a **terminal** on &ast;nix systems or through your
 administrators that require a visual server report on the fly.
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2020051701)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2020051701)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2020071402)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2020051703)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -177,9 +177,15 @@ alternative option below.
 
 #### Windows ####
 
-GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>. Or
-through the Linux Subsystem on Windows 10.
+[CowAxess](https://goaccess.io/download#distro) is a GoAccess implementation
+for Windows systems. It is a packaging of GoAccess, Cygwin and many other
+related tools to make it a complete and ready-to-use solution for real-time web
+log analysis, all in a 4 MB package. We have followed standard instructions
+available at the GoAccess website.
+
+If you prefer to go the more tedious route, GoAccess can be used in Windows
+through Cygwin. See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+Or through the Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
@@ -280,11 +286,11 @@ It's even possible to parse files from a pipe while reading regular files:
 **Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance, if we would like to process all compressed log files
-access.log.*.gz in addition to the current log file, we can do:
+Now if we want to add more flexibility to GoAccess, we can use `zcat --force`
+to read compressed and uncompressed files. For instance, if we would
+like to process all log files `access.log.*`, we can do:
 
-    # zcat access.log.*.gz | goaccess access.log -
+    # zcat --force access.log.* | goaccess -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 

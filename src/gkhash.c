@@ -1580,6 +1580,10 @@ persist_igsl (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a filename, ensure we have a valid return path
+ *
+ * On error, NULL is returned.
+ * On success, the valid path is returned */
 static char *
 check_restore_path (const char *fn) {
   char *path = set_db_path (fn);
@@ -1591,6 +1595,7 @@ check_restore_path (const char *fn) {
   return NULL;
 }
 
+/* Entry function to restore hash data by type */
 static void
 restore_by_type (GKHashMetric mtrc, const char *fn, int module) {
   char *path = NULL;
@@ -1627,6 +1632,7 @@ clean:
   free (path);
 }
 
+/* Entry function to restore hash data by metric type */
 static void
 restore_metric_type (GModule module, GKHashMetric mtrc) {
   char *fn = NULL;
@@ -1636,6 +1642,7 @@ restore_metric_type (GModule module, GKHashMetric mtrc) {
   free (fn);
 }
 
+/* Entry function to restore a global hashes */
 static void
 restore_global (void) {
   char *path = NULL;
@@ -1650,6 +1657,7 @@ restore_global (void) {
   }
 }
 
+/* Entry function to restore hashes */
 static void
 restore_data (void) {
   GModule module;
