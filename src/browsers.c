@@ -114,6 +114,7 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -209,8 +210,10 @@ static const char *browsers[][2] = {
   {"HTTP Banner Detection", "Crawlers"},
   {"Hakai", "Crawlers"},
   {"WinHttp.WinHttpRequest.5", "Crawlers"},
-  
-  
+  {"NetSystemsResearch", "Crawlers"},
+  {"Nextcloud Server Crawler", "Crawlers"},
+
+
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
@@ -521,8 +524,7 @@ verify_browser (char *str, char *type) {
       continue;
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
-
-  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
+next
     return token;
 
   /* fallback to default browser list */
