@@ -117,8 +117,8 @@ static const char *browsers[][2] = {
   {"pacman", "Others"},
   {"Pamac", "Others"},
   {"libwww-perl", "Others"},
-  {"python-requests", "Others"}
-  {"PackageKit", "Others"}
+  {"python-requests", "Others"},
+  {"PackageKit", "Others"},
   
 
   /* Feed-reader-as-a-service */
@@ -219,9 +219,9 @@ static const char *browsers[][2] = {
   {"Nextcloud Server Crawler", "Crawlers"},
   {"CFNetwork", "Crawlers"},
   {"GoScraper", "Crawlers"},
-  {"Googlebot-Image", "Crawlers"}
-  {"ZmEu", "Crawlers"}
-  {"DowntimeDetector", "Crawlers"}
+  {"Googlebot-Image", "Crawlers"},
+  {"ZmEu", "Crawlers"},
+  {"DowntimeDetector", "Crawlers"},
 
 
   /* Podcast fetchers */
