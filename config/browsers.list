@@ -114,6 +114,8 @@ Nextcloud Server Crawler                Crawlers
 CFNetwork                               Crawlers
 GoScraper                               Crawlers
 Googlebot-Image                         Crawlers
+ZmEu                                    Crawlers
+DowntimeDetector                        Crawlers
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds
