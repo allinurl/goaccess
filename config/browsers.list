@@ -91,6 +91,7 @@ adscanner								Crawlers
 AfD-Verbotsverfahren_JETZT!             Crawlers
 DuckDuckGo-favicons-Bot					Crawlers
 bingbot									Crawlers
+PetalBot                    Crawlers
 Discordbot								Crawlers
 ZoominfoBot                             Crawlers
 Googlebot                               Crawlers
@@ -116,6 +117,7 @@ GoScraper                               Crawlers
 Googlebot-Image                         Crawlers
 ZmEu                                    Crawlers
 DowntimeDetector                        Crawlers
+
 
 Vienna									Feeds
 Windows-RSS-Platform				    Feeds

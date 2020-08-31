@@ -197,6 +197,7 @@ static const char *browsers[][2] = {
   {"Microsoft-WebDAV", "Crawlers"},
   {"DuckDuckGo-Favicons-Bot", "Crawlers"},
   {"bingbot", "Crawlers"},
+  {"PetalBot", "Crawlers"},
   {"Discordbot", "Crawlers"},
   {"ZoominfoBot", "Crawlers"},
   {"Googlebot", "Crawlers"},
@@ -212,6 +213,7 @@ static const char *browsers[][2] = {
   {"Pandalytics", "Crawlers"},
   {"YandexBot", "Crawlers"},
   {"Nimbostratus-Bot", "Crawlers"},
+<<<<<<< HEAD
   {"HTTP Banner Detection", "Crawlers"},
   {"Hakai", "Crawlers"},
   {"WinHttp.WinHttpRequest.5", "Crawlers"},
@@ -223,6 +225,9 @@ static const char *browsers[][2] = {
   {"ZmEu", "Crawlers"},
   {"DowntimeDetector", "Crawlers"},
 
+=======
+  
+>>>>>>> 543090ed0c16c7adf54caad196b3eeeabe4c543f
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
