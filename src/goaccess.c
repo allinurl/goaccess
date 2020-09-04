@@ -1359,6 +1359,17 @@ set_standard_output (void) {
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
+    if (!conf.fifo_in) {
+      char *fifo_in_fname = NULL;
+      fifo_in_fname = xstrdup ("/tmp/gw_fifo_in_XXXXXX");
+      conf.fifo_in = mktemp (fifo_in_fname);
+    }
+    if (!conf.fifo_out) {
+      char *fifo_out_fname = NULL;
+      fifo_out_fname = xstrdup ("/tmp/gw_fifo_out_XXXXXX");
+      conf.fifo_out = mktemp (fifo_out_fname);
+    }
+
     /* open fifo for read */
     if ((gwsreader->fd = open_fifoout ()) == -1) {
       LOG (("Unable to open FIFO for read.\n"));

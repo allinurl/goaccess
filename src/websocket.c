@@ -2269,9 +2269,6 @@ ws_openfifo_out (WSPipeOut * pipeout) {
  * messages from the client. */
 static void
 ws_fifo (WSServer * server) {
-  wsconfig.pipein = wsconfig.pipein ? wsconfig.pipein : WS_PIPEIN;
-  wsconfig.pipeout = wsconfig.pipeout ? wsconfig.pipeout : WS_PIPEOUT;
-
   ws_openfifo_in (server->pipein);
   ws_openfifo_out (server->pipeout);
 }

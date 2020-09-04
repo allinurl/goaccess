@@ -90,9 +90,6 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #include "gslist.h"
 
-#define WS_PIPEIN "/tmp/wspipein.fifo"
-#define WS_PIPEOUT "/tmp/wspipeout.fifo"
-
 #define WS_BAD_REQUEST_STR "HTTP/1.1 400 Invalid Request\r\n\r\n"
 #define WS_SWITCH_PROTO_STR "HTTP/1.1 101 Switching Protocols"
 #define WS_TOO_BUSY_STR "HTTP/1.1 503 Service Unavailable\r\n\r\n"
