@@ -258,7 +258,7 @@ set_ready_state (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoout (void) {
-  const char *fifo = conf.fifo_out ? conf.fifo_out : WS_PIPEOUT;
+  const char *fifo = conf.fifo_out;
   int fdfifo;
 
   /* open fifo for reading before writing */
@@ -275,7 +275,7 @@ open_fifoout (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoin (void) {
-  const char *fifo = conf.fifo_in ? conf.fifo_in : WS_PIPEIN;
+  const char *fifo = conf.fifo_in;
   int fdfifo;
 
   if ((fdfifo = open (fifo, O_WRONLY | O_NONBLOCK)) == -1)

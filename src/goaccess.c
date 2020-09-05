@@ -1347,6 +1347,20 @@ initializer (void) {
   parsing_spinner->processed = &glog->processed;
 }
 
+static char *
+generate_fifo_name (void) {
+  char *fifo_name = NULL;
+
+  fifo_name = getenv ("TMPDIR");
+  if (fifo_name == NULL)
+    fifo_name = xstrdup ("/tmp");
+
+  fifo_name = strcat(fifo_name, "/gw_fifo_XXXXXX");
+
+  fifo_name = mktemp (fifo_name);
+  return fifo_name;
+}
+
 static void
 set_standard_output (void) {
   int html = 0;
@@ -1359,6 +1373,13 @@ set_standard_output (void) {
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
+    if (!conf.fifo_in) {
+      conf.fifo_in = generate_fifo_name ();
+    }
+    if (!conf.fifo_out) {
+      conf.fifo_out = generate_fifo_name ();
+    }
+
     /* open fifo for read */
     if ((gwsreader->fd = open_fifoout ()) == -1) {
       LOG (("Unable to open FIFO for read.\n"));
