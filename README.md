@@ -116,7 +116,7 @@ Download, extract and compile GoAccess with:
 
 It is easiest to install GoAccess on Linux using the preferred package manager
 of your Linux distribution. Please note that not all distributions will have
-the lastest version of GoAccess available.
+the latest version of GoAccess available.
 
 #### Debian/Ubuntu ####
 
