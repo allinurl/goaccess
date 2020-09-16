@@ -114,6 +114,11 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  {"pacman", "Others"},
+  {"Pamac", "Others"},
+  {"libwww-perl", "Others"},
+  {"python-requests", "Others"},
+  {"PackageKit", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -207,6 +212,16 @@ static const char *browsers[][2] = {
   {"Pandalytics", "Crawlers"},
   {"YandexBot", "Crawlers"},
   {"Nimbostratus-Bot", "Crawlers"},
+  {"HTTP Banner Detection", "Crawlers"},
+  {"Hakai", "Crawlers"},
+  {"WinHttp.WinHttpRequest.5", "Crawlers"},
+  {"NetSystemsResearch", "Crawlers"},
+  {"Nextcloud Server Crawler", "Crawlers"},
+  {"CFNetwork", "Crawlers"},
+  {"GoScraper", "Crawlers"},
+  {"Googlebot-Image", "Crawlers"},
+  {"ZmEu", "Crawlers"},
+  {"DowntimeDetector", "Crawlers"},
   
 
   /* Podcast fetchers */
