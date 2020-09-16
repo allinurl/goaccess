@@ -167,6 +167,7 @@ house_keeping (void) {
   if (glog->pipe)
     fclose (glog->pipe);
   free_logerrors (glog);
+  free (glog->filesizes);
   free (glog);
 
   /* INVALID REQUESTS */
@@ -750,6 +751,7 @@ parse_tail_follow (FILE * fp) {
   char buf[LINE_BUFFER] = { 0 };
 #endif
 
+  glog->size = 0;
 #ifdef WITH_GETLINE
   while ((buf = fgetline (fp)) != NULL) {
 #else
@@ -758,6 +760,7 @@ parse_tail_follow (FILE * fp) {
     pthread_mutex_lock (&gdns_thread.mutex);
     parse_log (&glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
+    glog->size += strlen(buf);
 #ifdef WITH_GETLINE
     free (buf);
 #endif
@@ -774,6 +777,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
 
   if (fn[0] == '-' && fn[1] == '\0') {
     parse_tail_follow (glog->pipe);
+    *size1 += glog->size;
     goto out;
   }
   if (glog->load_from_disk_only)
@@ -798,7 +802,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
     parse_tail_follow (fp);
   fclose (fp);
 
-  *size1 = size2;
+  *size1 += glog->size;
 
   /* insert the inode of the file parsed and the last line parsed */
   if (glog->inode)
@@ -817,7 +821,6 @@ out:
 /* Entry point to start processing the HTML output */
 static void
 process_html (const char *filename) {
-  uint64_t *size1 = NULL;
   int i = 0;
 
   /* render report */
@@ -839,25 +842,16 @@ process_html (const char *filename) {
   if (gwswriter->fd == -1)
     return;
 
-  size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
-  for (i = 0; i < conf.filenames_idx; ++i) {
-    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
-      size1[i] = 0;
-    else
-      size1[i] = file_size (conf.filenames[i]);
-  }
-
   set_ready_state ();
   while (1) {
     if (conf.stop_processing)
       break;
 
     for (i = 0; i < conf.filenames_idx; ++i)
-      perform_tail_follow (&size1[i], conf.filenames[i]);       /* 0.2 secs */
+      perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);       /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
   close (gwswriter->fd);
-  free (size1);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -925,16 +919,8 @@ static void
 get_keys (void) {
   int search = 0;
   int c, quit = 1, i;
-  uint64_t *size1 = NULL;
 
   if (!glog->load_from_disk_only && conf.filenames_idx) {
-    size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
-    for (i = 0; i < conf.filenames_idx; ++i) {
-      if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
-        size1[i] = 0;
-      else
-        size1[i] = file_size (conf.filenames[i]);
-    }
   }
 
   while (quit) {
@@ -1110,11 +1096,10 @@ get_keys (void) {
       break;
     default:
       for (i = 0; i < conf.filenames_idx; ++i)
-        perform_tail_follow (&size1[i], conf.filenames[i]);
+        perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);
       break;
     }
   }
-  free (size1);
 }
 
 /* Store accumulated processing time
@@ -1338,6 +1323,8 @@ initializer (void) {
 
   /* init glog */
   glog = init_log ();
+  /* init log file size already read */
+  glog->filesizes = xcalloc (conf.filenames_idx, sizeof (uint64_t));
 
   set_io ();
   set_signal_data (glog);

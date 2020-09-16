@@ -2652,6 +2652,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
+  (*glog)->size = 0;
   while ((line = fgetline (fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2660,6 +2661,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       goto out;
     if (dry_run && NUM_TESTS == cnt)
       goto out;
+    (*glog)->size += strlen(line);
     free (line);
     (*glog)->read++;
   }
@@ -2688,6 +2690,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
+  (*glog)->size = 0;
   while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2696,6 +2699,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       break;
     if (dry_run && NUM_TESTS == cnt)
       break;
+    (*glog)->size += strlen(line);
     (*glog)->read++;
   }
 
@@ -2788,6 +2792,7 @@ parse_log (GLog ** glog, char *tail, int dry_run) {
       fprintf (stderr, "%s\n", conf.filenames[i]);
       return 1;
     }
+    (*glog)->filesizes[i] = (*glog)->size;
   }
 
   return 0;

@@ -101,11 +101,14 @@ typedef struct GLog_ {
   unsigned short piping;
   uint32_t read;                /* lines read/parsed */
   uint32_t inode;
+  uint64_t size;                /* last size/bytes read */
 
   GLogItem *items;
 
   unsigned short log_erridx;
   char **errors;
+
+  uint64_t *filesizes;          /* log size/bytes already read */
 
   FILE *pipe;
 } GLog;
