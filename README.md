@@ -287,9 +287,9 @@ know that it should read from the pipe.
 
 Now if we want to add more flexibility to GoAccess, we can use `zcat --force`
 to read compressed and uncompressed files. For instance, if we would
-like to process all log files `access.log.*`, we can do:
+like to process all log files `access.log*`, we can do:
 
-    # zcat --force access.log.* | goaccess -
+    # zcat --force access.log* | goaccess -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
