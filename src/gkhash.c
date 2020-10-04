@@ -1651,6 +1651,10 @@ restore_global (void) {
     restore_global_si32 (ht_cnt_overall, path);
     free (path);
   }
+  if ((path = check_restore_path ("SI32_SEQS.db"))) {
+    restore_global_si32 (ht_seqs, path);
+    free (path);
+  }
   if ((path = check_restore_path ("II32_LAST_PARSE.db"))) {
     restore_global_ii32 (ht_last_parse, path);
     free (path);
@@ -1726,6 +1730,10 @@ persist_global (void) {
 
   if ((path = set_db_path ("SI32_CNT_OVERALL.db"))) {
     persist_global_si32 (ht_cnt_overall, path);
+    free (path);
+  }
+  if ((path = set_db_path ("SI32_SEQS.db"))) {
+    persist_global_si32 (ht_seqs, path);
     free (path);
   }
   if ((path = set_db_path ("II32_LAST_PARSE.db"))) {
