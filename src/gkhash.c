@@ -54,7 +54,7 @@ static khash_t (igkh) * ht_dates       = NULL;
 static khash_t (si32) * ht_seqs        = NULL;
 static khash_t (ss32) * ht_hostnames   = NULL;
 static khash_t (si32) * ht_cnt_overall = NULL;
-static khash_t (ii32) * ht_last_parse  = NULL;
+static khash_t (iglp) * ht_last_parse  = NULL;
 
 static GKHashModule *cache_storage = NULL;
 /* *INDENT-ON* */
@@ -110,6 +110,13 @@ get_mtr_type_str (GSMetricType type) {
 static void *
 new_ii32_ht (void) {
   khash_t (ii32) * h = kh_init (ii32);
+  return h;
+}
+
+/* Initialize a new uint32_t key - GLastParse value hash table */
+static void *
+new_iglp_ht (void) {
+  khash_t (iglp) * h = kh_init (iglp);
   return h;
 }
 
@@ -300,6 +307,15 @@ des_u648 (void *h, GO_UNUSED uint8_t free_data) {
   if (!hash)
     return;
   kh_destroy (u648, hash);
+}
+
+/* Destroys the hash structure */
+static void
+des_iglp (void *h, GO_UNUSED uint8_t free_data) {
+  khash_t (iglp) * hash = h;
+  if (!hash)
+    return;
+  kh_destroy (iglp, hash);
 }
 
 /* Deletes all entries from the hash table */
@@ -658,6 +674,28 @@ ins_igkh (khash_t (igkh) * hash, uint32_t key) {
   store->ghash = init_gkhashglobal ();
 
   kh_val (hash, k) = store;
+
+  return 0;
+}
+
+/* Insert an uint32_t key and an GLastParse value
+ * Note: If the key exists, its value is replaced by the given value.
+ *
+ * On error, -1 is returned.
+ * On success 0 is returned */
+static int
+ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp) {
+  khint_t k;
+  int ret;
+
+  if (!hash)
+    return -1;
+
+  k = kh_put (iglp, hash, key, &ret);
+  if (ret == -1)
+    return -1;
+
+  kh_val (hash, k) = lp;
 
   return 0;
 }
@@ -1154,29 +1192,31 @@ persist_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
-/* Given a database filename, restore a uint32_t key, uint32_t value back to
+/* Given a database filename, restore a uint32_t key, GLastParse value back to
  * the storage */
 static void
-restore_global_ii32 (khash_t (ii32) * hash, const char *fn) {
+restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
-  uint32_t key, val;
-  char fmt[] = "A(uu)";
+  uint32_t key;
+  GLastParse val = { 0 };
+  char fmt[] = "A(uS(uuU))";
 
   tn = tpl_map (fmt, &key, &val);
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
-    ins_ii32 (hash, key, val);
+    ins_iglp (hash, key, val);
   }
   tpl_free (tn);
 }
 
 /* Given a hash and a filename, persist to disk a uint32_t key, uint32_t value */
 static void
-persist_global_ii32 (khash_t (ii32) * hash, const char *fn) {
+persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
-  uint32_t key, val;
-  char fmt[] = "A(uu)";
+  uint32_t key;
+  GLastParse val = { 0 };
+  char fmt[] = "A(uS(uuU))";
 
   if (!hash || kh_size (hash) == 0)
     return;
@@ -1655,8 +1695,8 @@ restore_global (void) {
     restore_global_si32 (ht_seqs, path);
     free (path);
   }
-  if ((path = check_restore_path ("II32_LAST_PARSE.db"))) {
-    restore_global_ii32 (ht_last_parse, path);
+  if ((path = check_restore_path ("IGLP_LAST_PARSE.db"))) {
+    restore_global_iglp (ht_last_parse, path);
     free (path);
   }
 }
@@ -1736,8 +1776,8 @@ persist_global (void) {
     persist_global_si32 (ht_seqs, path);
     free (path);
   }
-  if ((path = set_db_path ("II32_LAST_PARSE.db"))) {
-    persist_global_ii32 (ht_last_parse, path);
+  if ((path = set_db_path ("IGLP_LAST_PARSE.db"))) {
+    persist_global_iglp (ht_last_parse, path);
     free (path);
   }
 }
@@ -1881,6 +1921,29 @@ get_su64 (khash_t (su64) * hash, const char *key) {
     return val;
 
   return 0;
+}
+
+/* Get the GLastParse value of a given uint32_t key.
+ *
+ * If key is not found, {0} is returned.
+ * On error, -1 is returned.
+ * On success the GLastParse value for the given key is returned */
+static GLastParse
+get_iglp (khash_t (iglp) * hash, uint32_t key) {
+  khint_t k;
+  GLastParse lp = { 0 };
+
+  if (!hash)
+    return lp;
+
+  k = kh_get (iglp, hash, key);
+  /* key found, return current value */
+  if (k != kh_end (hash)) {
+    lp = kh_val (hash, k);
+    return lp;
+  }
+
+  return lp;
 }
 
 GSLList *
@@ -2056,13 +2119,13 @@ ht_sum_bw (void) {
 }
 
 int
-ht_insert_last_parse (uint32_t key, uint32_t value) {
-  khash_t (ii32) * hash = ht_last_parse;
+ht_insert_last_parse (uint32_t key, GLastParse lp) {
+  khash_t (iglp) * hash = ht_last_parse;
 
   if (!hash)
     return 0;
 
-  return ins_ii32 (hash, key, value);
+  return ins_iglp (hash, key, lp);
 }
 
 int
@@ -2500,14 +2563,10 @@ ht_insert_hostname (const char *ip, const char *host) {
   return ins_ss32 (hash, ip, host);
 }
 
-uint32_t
+GLastParse
 ht_get_last_parse (uint32_t key) {
-  khash_t (ii32) * hash = ht_last_parse;
-
-  if (!hash)
-    return 0;
-
-  return get_ii32 (hash, key);
+  khash_t (iglp) * hash = ht_last_parse;
+  return get_iglp (hash, key);
 }
 
 /* Get the number of elements in a datamap.
@@ -3131,7 +3190,7 @@ init_storage (void) {
   ht_dates       = (khash_t (igkh) *) new_igkh_ht ();
   ht_seqs        = (khash_t (si32) *) new_si32_ht ();
   ht_cnt_overall = (khash_t (si32) *) new_si32_ht ();
-  ht_last_parse  = (khash_t (ii32) *) new_ii32_ht ();
+  ht_last_parse  = (khash_t (iglp) *) new_iglp_ht ();
   /* *INDENT-ON* */
 
   cache_storage = init_gkhashmodule ();
@@ -3177,5 +3236,5 @@ free_storage (void) {
   free (cache_storage);
 
   des_si32_free (ht_cnt_overall, 1);
-  des_ii32 (ht_last_parse, 1);
+  des_iglp (ht_last_parse, 1);
 }

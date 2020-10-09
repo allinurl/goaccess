@@ -91,6 +91,12 @@ typedef struct GLogItem_ {
   struct tm dt;
 } GLogItem;
 
+typedef struct GLastParse_ {
+  uint32_t line;
+  uint32_t ts;
+  uint64_t size;
+} GLastParse;
+
 /* Overall parsed log properties */
 typedef struct GLog_ {
   unsigned int invalid;
@@ -101,9 +107,11 @@ typedef struct GLog_ {
   unsigned short piping;
   uint32_t read;                /* lines read/parsed */
   uint32_t inode;
-  uint64_t size;                /* last size/bytes read */
+  uint64_t bytes;               /* bytes read */
+  uint64_t size;                /* bytes read */
 
   GLogItem *items;
+  GLastParse lp;
 
   unsigned short log_erridx;
   char **errors;

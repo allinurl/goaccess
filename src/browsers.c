@@ -222,7 +222,7 @@ static const char *browsers[][2] = {
   {"Googlebot-Image", "Crawlers"},
   {"ZmEu", "Crawlers"},
   {"DowntimeDetector", "Crawlers"},
-  
+
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},

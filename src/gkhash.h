@@ -74,6 +74,8 @@ KHASH_MAP_INIT_INT (iu64   , uint64_t);
 KHASH_MAP_INIT_STR (si32   , uint32_t);
 /* string keys             , string payload */
 KHASH_MAP_INIT_STR (ss32   , char *);
+/* uint32_t key            , GLastParse payload */
+KHASH_MAP_INIT_INT (iglp   , GLastParse);
 /* uint32_t keys           , GSLList payload */
 KHASH_MAP_INIT_INT (igsl   , GSLList *);
 /* string keys             , uint64_t payload */
@@ -308,7 +310,7 @@ int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc, 
 int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
-int ht_insert_last_parse (uint32_t key, uint32_t value);
+int ht_insert_last_parse (uint32_t key, GLastParse lp);
 int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey);
 int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
 int ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
@@ -322,7 +324,6 @@ uint32_t ht_get_excluded_ips (void);
 uint32_t ht_get_hits (GModule module, int key);
 uint32_t ht_get_invalid (void);
 uint32_t ht_get_keymap (GModule module, const char *key);
-uint32_t ht_get_last_parse (uint32_t key);
 uint32_t ht_get_processed (void);
 uint32_t ht_get_processing_time (void);
 uint32_t ht_get_size_datamap (GModule module);
@@ -353,6 +354,7 @@ void init_storage (void);
 int rebuild_rawdata_cache (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
+GLastParse ht_get_last_parse (uint32_t key);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, const char *key);

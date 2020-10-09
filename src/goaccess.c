@@ -751,7 +751,7 @@ parse_tail_follow (FILE * fp) {
   char buf[LINE_BUFFER] = { 0 };
 #endif
 
-  glog->size = 0;
+  glog->bytes = 0;
 #ifdef WITH_GETLINE
   while ((buf = fgetline (fp)) != NULL) {
 #else
@@ -760,7 +760,7 @@ parse_tail_follow (FILE * fp) {
     pthread_mutex_lock (&gdns_thread.mutex);
     parse_log (&glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
-    glog->size += strlen(buf);
+    glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
     free (buf);
 #endif
@@ -777,7 +777,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
 
   if (fn[0] == '-' && fn[1] == '\0') {
     parse_tail_follow (glog->pipe);
-    *size1 += glog->size;
+    *size1 += glog->bytes;
     goto out;
   }
   if (glog->load_from_disk_only)
@@ -795,18 +795,23 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
     FATAL ("Unable to read log file %s.", strerror (errno));
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (stat (fn, &fdstat) == 0)
+  if (stat (fn, &fdstat) == 0) {
     glog->inode = fdstat.st_ino;
+    glog->size = fdstat.st_size;
+  }
 
   if (!fseeko (fp, *size1, SEEK_SET))
     parse_tail_follow (fp);
   fclose (fp);
 
-  *size1 += glog->size;
+  *size1 += glog->bytes;
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (glog->inode)
-    ht_insert_last_parse (glog->inode, glog->read);
+  if (glog->inode) {
+    glog->lp.line = glog->read;
+    glog->lp.size = fdstat.st_size;
+    ht_insert_last_parse (glog->inode, glog->lp);
+  }
 
 out:
 
@@ -848,7 +853,7 @@ process_html (const char *filename) {
       break;
 
     for (i = 0; i < conf.filenames_idx; ++i)
-      perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);       /* 0.2 secs */
+      perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);     /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
   close (gwswriter->fd);
@@ -1342,7 +1347,7 @@ generate_fifo_name (void) {
   if (fifo_name == NULL)
     fifo_name = xstrdup ("/tmp");
 
-  fifo_name = strcat(fifo_name, "/gw_fifo_XXXXXX");
+  fifo_name = strcat (fifo_name, "/gw_fifo_XXXXXX");
 
   fifo_name = mktemp (fifo_name);
   return fifo_name;

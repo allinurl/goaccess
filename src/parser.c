@@ -2504,6 +2504,46 @@ process_log (GLogItem * logitem) {
     count_valid (numdate);
 }
 
+/* Determine if we are restoring from disk or should continue to parse requests */
+static int
+should_restore_from_disk (GLog * glog) {
+  GLastParse lp = { 0 };
+
+  if (!conf.restore)
+    return 0;
+
+  lp = ht_get_last_parse (glog->inode);
+
+  /* restoring from disk, and no inode (probably a pipe), compare timestamps then
+   * (exclusive) */
+  if (!glog->inode && lp.ts >= glog->lp.ts)
+    return 1;
+
+  /* no inode nor last parse size, continue parsing */
+  if (!glog->inode || !lp.size)
+    return 0;
+
+  /* If timestamp is greater than last parsed, read the line then */
+  if (glog->lp.ts > lp.ts)
+    return 0;
+  /* Check if current log size is smaller than the one last parsed, if it is,
+   * it was possibly truncated and thus it may be smaller, so fallback to
+   * timestamp even if they are equal to the last parsed timestamp */
+  else if (glog->size < lp.size && glog->lp.ts == lp.ts)
+    return 0;
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line and have equal timestamps, then keep parsing then */
+  else if (glog->size > lp.size && glog->read >= lp.line && glog->lp.ts == lp.ts)
+    return 0;
+  /* Everything else we ignore it. For instance, we check if current log size is
+   * greater than the one last parsed, if the timestamp are equal, we ignore the
+   * request.
+   *
+   * **NOTE* We try to play safe here as we would rather miss a few lines
+   * than double-count a few. */
+  return 1;
+}
+
 /* Process a line from the log and store it accordingly taking into
  * account multiple parsing options prior to setting data into the
  * corresponding data structure.
@@ -2513,30 +2553,26 @@ static int
 pre_process_log (GLog * glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
-  uint32_t last = ht_get_last_parse (glog->inode);
-  uint32_t ts = 0;
-
-  /* if it's a log, then use the last parsed line */
-  if (glog->inode > 0 && last > 0 && last > glog->read)
-    return 0;
 
   /* soft ignore these lines */
   if (valid_line (line))
     return -1;
 
-  count_process (glog);
   logitem = init_log_item (glog);
   /* Parse a line of log, and fill structure with appropriate values */
   if (parse_format (logitem, line) || verify_missing_fields (logitem)) {
     ret = 1;
+    count_process (glog);
     count_invalid (glog, line);
     goto cleanup;
   }
 
-  /* it's a pipe, then use the last parsed timestamp */
-  ts = mktime (&logitem->dt);
-  if (conf.restore && !glog->inode && last > 0 && last >= ts)
-    return 0;
+  glog->lp.ts = mktime (&logitem->dt);
+
+  if (should_restore_from_disk (glog))
+    goto cleanup;
+
+  count_process (glog);
 
   /* agent will be null in cases where %u is not specified */
   if (logitem->agent == NULL)
@@ -2563,7 +2599,7 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 cleanup:
   free_glog (logitem);
 
-  ht_insert_last_parse (0, ts);
+  ht_insert_last_parse (0, glog->lp);
 
   return ret;
 }
@@ -2652,7 +2688,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
-  (*glog)->size = 0;
+  (*glog)->bytes = 0;
   while ((line = fgetline (fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2661,7 +2697,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       goto out;
     if (dry_run && NUM_TESTS == cnt)
       goto out;
-    (*glog)->size += strlen(line);
+    (*glog)->bytes += strlen (line);
     free (line);
     (*glog)->read++;
   }
@@ -2690,7 +2726,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
-  (*glog)->size = 0;
+  (*glog)->bytes = 0;
   while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2699,7 +2735,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       break;
     if (dry_run && NUM_TESTS == cnt)
       break;
-    (*glog)->size += strlen(line);
+    (*glog)->bytes += strlen (line);
     (*glog)->read++;
   }
 
@@ -2735,8 +2771,10 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     FATAL ("Unable to open the specified log file. %s", strerror (errno));
 
   /* grab the inode of the file being parsed */
-  if (!piping && stat (fn, &fdstat) == 0)
+  if (!piping && stat (fn, &fdstat) == 0) {
     (*glog)->inode = fdstat.st_ino;
+    (*glog)->size = (*glog)->lp.size = fdstat.st_size;
+  }
 
   /* read line by line */
   if (read_lines (fp, glog, dry_run)) {
@@ -2746,8 +2784,10 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
   }
 
   /* insert the inode of the file parsed and the last line parsed */
-  if ((*glog)->inode)
-    ht_insert_last_parse ((*glog)->inode, (*glog)->read);
+  if ((*glog)->inode) {
+    (*glog)->lp.line = (*glog)->read;
+    ht_insert_last_parse ((*glog)->inode, (*glog)->lp);
+  }
 
   /* close log file if not a pipe */
   if (!piping)
@@ -2792,7 +2832,7 @@ parse_log (GLog ** glog, char *tail, int dry_run) {
       fprintf (stderr, "%s\n", conf.filenames[i]);
       return 1;
     }
-    (*glog)->filesizes[i] = (*glog)->size;
+    (*glog)->filesizes[i] = (*glog)->bytes;
   }
 
   return 0;
