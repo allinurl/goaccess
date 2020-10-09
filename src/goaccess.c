@@ -1341,16 +1341,20 @@ initializer (void) {
 
 static char *
 generate_fifo_name (void) {
-  char *fifo_name = NULL;
+  char fname[RAND_FN];
+  const char *tmp = NULL;
+  char *path = NULL;
 
-  fifo_name = getenv ("TMPDIR");
-  if (fifo_name == NULL)
-    fifo_name = xstrdup ("/tmp");
+  if ((tmp = getenv ("TMPDIR")) == NULL)
+    tmp = "/tmp";
 
-  fifo_name = strcat (fifo_name, "/gw_fifo_XXXXXX");
+  memset (fname, 0, sizeof (fname));
+  genstr (fname, RAND_FN - 1);
 
-  fifo_name = mktemp (fifo_name);
-  return fifo_name;
+  path = xmalloc (snprintf (NULL, 0, "%s/goaccess_fifo_%s", tmp, fname) + 1);
+  sprintf (path, "%s/goaccess_fifo_%s", tmp, fname);
+
+  return path;
 }
 
 static void
@@ -1365,12 +1369,10 @@ set_standard_output (void) {
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
-    if (!conf.fifo_in) {
+    if (!conf.fifo_in)
       conf.fifo_in = generate_fifo_name ();
-    }
-    if (!conf.fifo_out) {
+    if (!conf.fifo_out)
       conf.fifo_out = generate_fifo_name ();
-    }
 
     /* open fifo for read */
     if ((gwsreader->fd = open_fifoout ()) == -1) {
