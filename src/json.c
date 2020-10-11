@@ -830,7 +830,7 @@ print_meta_data (GJSON * json, GHolder * h, int sp) {
   pclose_obj (json, isp, 0);
 }
 
-/* A wrapper function to ouput data metrics per panel. */
+/* A wrapper function to output data metrics per panel. */
 static void
 print_json_block (GJSON * json, GMetrics * nmetrics, int sp) {
   /* print hits */
@@ -855,7 +855,7 @@ print_json_block (GJSON * json, GMetrics * nmetrics, int sp) {
   pjson (json, "\"");
 }
 
-/* A wrapper function to ouput an array of user agents for each host. */
+/* A wrapper function to output an array of user agents for each host. */
 static void
 process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
   GAgents *agents = NULL;
@@ -887,7 +887,7 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
   free_agents_array (agents);
 }
 
-/* A wrapper function to ouput children nodes. */
+/* A wrapper function to output children nodes. */
 static void
 print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals, int size, int iisp) {
   GMetrics *nmetrics;
@@ -918,7 +918,7 @@ print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals, int 
   pclose_arr (json, iisp, 1);
 }
 
-/* A wrapper function to ouput geolocation fields for the given host. */
+/* A wrapper function to output geolocation fields for the given host. */
 static void
 print_json_host_geo (GJSON * json, GSubList * sl, int iisp) {
   GSubItem *iter;
@@ -984,7 +984,7 @@ print_data_metrics (GJSON * json, GHolder * h, GPercTotals totals, int sp,
   pclose_arr (json, isp, 1);
 }
 
-/* Entry point to ouput data metrics per panel. */
+/* Entry point to output data metrics per panel. */
 static void
 print_json_data (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *panel) {
   int sp = 0;
