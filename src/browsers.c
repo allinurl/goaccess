@@ -69,6 +69,9 @@ static const char *browsers[][2] = {
   {"Edg", "Edge"},
   {"Edge", "Edge"},
 
+  /* Surf Browser */
+  {"Surf", "Surf"},
+ 
   /* Opera */
   {"Opera Mini", "Opera"},
   {"Opera Mobi", "Opera"},
