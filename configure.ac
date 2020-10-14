@@ -156,6 +156,16 @@ if test x"$SED_CHECK" == x"yes" ; then
 fi
 AM_CONDITIONAL([HAS_SEDTR], [test "x$HAS_SEDTR" = xyes])
 
+# detect Cygwin or MinGW and use mmap family replacements
+USE_MMAP=no
+case $host in
+  *-*-mingw32* | *-*-cygwin* | *-*-windows*)
+  USE_MMAP=yes
+  AC_MSG_NOTICE([using custom mmap for Cygwin/MinGW])
+  ;;
+esac
+AM_CONDITIONAL([USE_MMAP], [test "x$USE_MMAP" = xyes])
+
 # Solaris
 AC_CHECK_LIB([nsl], [gethostbyname])
 AC_CHECK_LIB([socket], [socket])
