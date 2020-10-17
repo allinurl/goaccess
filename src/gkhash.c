@@ -1163,8 +1163,8 @@ restore_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
     ins_si32 (hash, key, val);
+    free (key);
   }
-  free (key);
   tpl_free (tn);
 }
 
@@ -1255,9 +1255,9 @@ restore_si32 (GSMetric metric, const char *path, int module) {
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_si32 (hash, key, val);
+      free (key);
     }
   }
-  free (key);
   tpl_free (tn);
 
   return 0;
@@ -1312,9 +1312,9 @@ restore_is32 (GSMetric metric, const char *path, int module) {
       dupval = xstrdup (val);
       if (ins_is32 (hash, key, dupval) != 0)
         free (dupval);
+      free (val);
     }
   }
-  free (val);
   tpl_free (tn);
 
   return 0;
@@ -1527,9 +1527,9 @@ restore_su64 (GSMetric metric, const char *path, int module) {
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_su64 (hash, key, val);
+      free (key);
     }
   }
-  free (key);
   tpl_free (tn);
 
   return 0;
