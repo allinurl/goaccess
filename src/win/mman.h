@@ -8,8 +8,8 @@
 #define PROT_EXEC       0x04    /* pages can be executed */
 
 /* Sharing type and options */
-#define MAP_SHARED      0x0001          /* share changes */
-#define MAP_PRIVATE     0x0002          /* changes are private */
+#define MAP_SHARED      0x0001  /* share changes */
+#define MAP_PRIVATE     0x0002  /* changes are private */
 #define MAP_COPY        MAP_PRIVATE     /* Obsolete */
 #define MAP_FIXED        0x0010 /* map addr must be exactly as requested */
 #define MAP_RENAME       0x0020 /* Sun: rename private pages to file */
@@ -37,16 +37,16 @@
 /**
  * Map a file to a memory region
  */
-void *mmap(void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset);
+void *mmap (void *addr, unsigned int len, int prot, int flags, int fd, unsigned int offset);
 
 /**
  * Unmap a memory region
  */
-int munmap(void *addr, int len);
+int munmap (void *addr, int len);
 
 /**
  * Synchronize a mapped region
  */
-int msync(char *addr, int len, int flags);
+int msync (char *addr, int len, int flags);
 
-#endif	/* _MMAN_H_ */
+#endif /* _MMAN_H_ */
