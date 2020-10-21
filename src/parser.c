@@ -2446,20 +2446,31 @@ ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
   }
 }
 
-static void
-clean_old_data_by_date (void) {
+static int
+clean_old_data_by_date (uint32_t numdate) {
   uint32_t *dates = NULL;
   uint32_t len = 0;
 
-  if (ht_get_size_dates () <= conf.keep_last)
-    return;
+  if (ht_get_size_dates () < conf.keep_last)
+    return 1;
 
   dates = get_sorted_dates (&len);
+  /* if currently parsed date is the same as the last one, keep inserting them */
+  if (dates[len - 1] == numdate)
+    return 1;
+
+  /* ignore older dates */
+  if (dates[0] > numdate)
+    return -1;
+
+  /* invalidate the first date we inserted then */
   invalidate_date (dates[0]);
   /* rebuild all existing dates and let new data
    * be added upon existing cache */
   rebuild_rawdata_cache ();
   free (dates);
+
+  return 0;
 }
 
 /* Process a log line and set the data into the corresponding data
@@ -2471,13 +2482,12 @@ process_log (GLogItem * logitem) {
   size_t idx = 0;
   uint32_t numdate = logitem->numdate;
 
+  if (conf.keep_last > 0 && clean_old_data_by_date (numdate) == -1)
+    return;
 
   /* insert date and start partitioning tables */
   if (ht_insert_date (numdate) == -1)
     return;
-
-  if (conf.keep_last > 0)
-    clean_old_data_by_date ();
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */

@@ -2939,10 +2939,19 @@ get_sorted_dates (uint32_t * len) {
   return dates;
 }
 
+void
+destroy_date_stores (int date) {
+  khash_t (igkh) * hash = ht_dates;
+  khiter_t k;
+
+  k = kh_get (igkh, hash, date);
+  free_stores (kh_value (hash, k));
+  kh_del (igkh, hash, k);
+}
+
 int
 invalidate_date (int date) {
   khash_t (igkh) * hash = ht_dates;
-  khiter_t k;
   GModule module;
   size_t idx = 0;
 
@@ -2954,9 +2963,7 @@ invalidate_date (int date) {
     del_module_metrics (cache_storage, module, 0);
   }
 
-  k = kh_get (igkh, hash, date);
-  free_stores (kh_value (hash, k));
-  kh_del (igkh, hash, k);
+  destroy_date_stores (date);
 
   return 0;
 }
