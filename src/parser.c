@@ -2621,7 +2621,6 @@ cleanup:
 static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
-  int tests;
 
   /* start processing log line */
   if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
@@ -2631,13 +2630,9 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   if (ret == -1)
     return 0;
 
-  /* glog->processed can actually be less than conf.num_tests, so we make sure
-   * (cnt) compares to the right number */
-  tests = MIN (conf.num_tests, glog->processed);
-
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
-  if (conf.num_tests && ++(*cnt) == tests && *test) {
+  if (conf.num_tests && ++(*cnt) == (int) conf.num_tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
     return 1;
@@ -2717,11 +2712,15 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || ret;
+  return (line && test) || ret || (!line && test && (*glog)->processed);
 
 out:
   free (line);
-  return test || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return test || ret || (test && (*glog)->processed);
 }
 #endif
 
@@ -2754,7 +2753,11 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (s && test) || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return (s && test) || ret || (!s && test && (*glog)->processed);
 }
 #endif
 
