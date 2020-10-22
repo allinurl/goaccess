@@ -2449,8 +2449,7 @@ ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
 static int
 clean_old_data_by_date (uint32_t numdate) {
   uint32_t *dates = NULL;
-  uint32_t len = 0;
-  int idx;
+  uint32_t idx, len = 0;
 
   if (ht_get_size_dates () < conf.keep_last)
     return 1;
@@ -2459,7 +2458,7 @@ clean_old_data_by_date (uint32_t numdate) {
 
   /* If currently parsed date is in the set of dates, keep inserting it.
    * We count down since more likely the currently parsed date is at the last pos */
-  for (idx = len - 1; idx >= 0; --idx) {
+  for (idx = len ; idx-- > 0 ; ) {
     if (dates[idx] == numdate) {
       free (dates);
       return 1;
