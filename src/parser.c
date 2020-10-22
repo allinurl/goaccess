@@ -2456,12 +2456,16 @@ clean_old_data_by_date (uint32_t numdate) {
 
   dates = get_sorted_dates (&len);
   /* if currently parsed date is the same as the last one, keep inserting them */
-  if (dates[len - 1] == numdate)
+  if (dates[len - 1] == numdate) {
+    free (dates);
     return 1;
+  }
 
   /* ignore older dates */
-  if (dates[0] > numdate)
+  if (dates[0] > numdate) {
+    free (dates);
     return -1;
+  }
 
   /* invalidate the first date we inserted then */
   invalidate_date (dates[0]);
