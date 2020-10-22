@@ -2450,15 +2450,20 @@ static int
 clean_old_data_by_date (uint32_t numdate) {
   uint32_t *dates = NULL;
   uint32_t len = 0;
+  int idx;
 
   if (ht_get_size_dates () < conf.keep_last)
     return 1;
 
   dates = get_sorted_dates (&len);
-  /* if currently parsed date is the same as the last one, keep inserting them */
-  if (dates[len - 1] == numdate) {
-    free (dates);
-    return 1;
+
+  /* If currently parsed date is in the set of dates, keep inserting it.
+   * We count down since more likely the currently parsed date is at the last pos */
+  for (idx = len - 1; idx >= 0; --idx) {
+    if (dates[idx] == numdate) {
+      free (dates);
+      return 1;
+    }
   }
 
   /* ignore older dates */
