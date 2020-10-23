@@ -533,7 +533,7 @@ decode_url (char *url) {
     decode_hex (decoded, out);
   strip_newlines (out);
 
-  return trim_str (out);
+  return trim_str (char_replace (out, '+', ' '));
 }
 
 /* Process keyphrases from Google search, cache, and translate.
