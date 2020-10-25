@@ -1089,6 +1089,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     if (is_cache_hit (tkn))
       logitem->cache_status = tkn;
+    else
+      free (tkn);
     break;
     /* remote hostname (IP only) */
   case 'h':
