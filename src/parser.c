@@ -2791,7 +2791,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!piping && (fp = fopen (fn, "r")) == NULL)
-    FATAL ("Unable to open the specified log file. %s", strerror (errno));
+    FATAL ("Unable to open the specified log file '%s'. %s", fn, strerror (errno));
 
   /* grab the inode of the file being parsed */
   if (!piping && stat (fn, &fdstat) == 0) {
