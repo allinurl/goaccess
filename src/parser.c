@@ -2524,7 +2524,11 @@ process_log (GLogItem * logitem) {
     count_valid (numdate);
 }
 
-/* Determine if we are restoring from disk or should continue to parse requests */
+/* Determine if we should insert new record or if it's a duplicate record from
+ * a previoulsy persisted dataset
+ *
+ * Returns 1 if it thinks the record it's being restored from disk
+ * Returns 0 if we need to parse the record */
 static int
 should_restore_from_disk (GLog * glog) {
   GLastParse lp = { 0 };
