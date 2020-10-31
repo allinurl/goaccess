@@ -2848,6 +2848,11 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
 }
 #endif
 
+/* Read the given log file and attempt to mmap a fixed number of bytes so we
+ * can compare its content on future runs.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
 static int
 set_initial_persisted_data (GLog * glog, const char *fn) {
   int fd;
