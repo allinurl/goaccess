@@ -54,6 +54,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#if ( defined __CYGWIN__ || defined __MINGW32__ || defined _WIN32 )
+#include "win/mman.h"   /* mmap */
+#else
+#include <sys/mman.h>   /* mmap */
+#endif
 
 #include "gkhash.h"
 
@@ -1636,6 +1643,12 @@ count_process (GLog * glog) {
   unlock_spinner ();
 }
 
+static void
+count_process_and_invalid (GLog * glog, const char *line) {
+  count_process (glog);
+  count_invalid (glog, line);
+}
+
 /* Keep track of all excluded log strings (IPs).
  *
  * If IP not range, 1 is returned.
@@ -2524,6 +2537,21 @@ process_log (GLogItem * logitem) {
     count_valid (numdate);
 }
 
+static int
+is_likely_same_log (GLog * glog, GLastParse lp) {
+  size_t size = 0;
+
+  if (!conf.restore || !lp.size)
+    return 1;
+
+  /* Must be a LOG */
+  size = MIN (glog->mmapd_len, lp.mmapd_len);
+  if (glog->mmapd && lp.mmapd && memcmp (glog->mmapd, lp.mmapd, size) == 0)
+    return 1;
+
+  return 0;
+}
+
 /* Determine if we should insert new record or if it's a duplicate record from
  * a previoulsy persisted dataset
  *
@@ -2538,34 +2566,80 @@ should_restore_from_disk (GLog * glog) {
 
   lp = ht_get_last_parse (glog->inode);
 
-  /* restoring from disk, and no inode (probably a pipe), compare timestamps then
-   * (exclusive) */
+  /* No last parse timestamp, continue parsing as we got nothing to compare
+   * against */
+  if (!lp.ts)
+    return 0;
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line and have equal timestamps, then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    if (glog->size > lp.size && glog->read >= lp.line)
+      return 0;
+    return 1;
+  }
+
+  /* No inode (probably a pipe), prior or equal timestamps means restore from
+   * disk (exclusive) */
   if (!glog->inode && lp.ts >= glog->lp.ts)
     return 1;
 
-  /* no inode nor last parse size, continue parsing */
-  if (!glog->inode || !lp.size)
-    return 0;
-
+  /* If not likely the same content, then fallback to the following checks */
   /* If timestamp is greater than last parsed, read the line then */
   if (glog->lp.ts > lp.ts)
     return 0;
+
   /* Check if current log size is smaller than the one last parsed, if it is,
    * it was possibly truncated and thus it may be smaller, so fallback to
    * timestamp even if they are equal to the last parsed timestamp */
   else if (glog->size < lp.size && glog->lp.ts == lp.ts)
     return 0;
-  /* If our current line is greater or equal (zero indexed) to the last parsed
-   * line and have equal timestamps, then keep parsing then */
-  else if (glog->size > lp.size && glog->read >= lp.line && glog->lp.ts == lp.ts)
-    return 0;
-  /* Everything else we ignore it. For instance, we check if current log size is
+
+  /* Everything else we ignore it. For instance, we if current log size is
    * greater than the one last parsed, if the timestamp are equal, we ignore the
    * request.
    *
    * **NOTE* We try to play safe here as we would rather miss a few lines
    * than double-count a few. */
   return 1;
+}
+
+static void
+process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
+  GLastParse lp = { 0 };
+
+  /* if not restoring from disk, then count entry as proceeded and invalid */
+  if (!conf.restore) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  lp = ht_get_last_parse (glog->inode);
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    /* only count invalids if we're past the last parsed line */
+    if (glog->size > lp.size && glog->read >= lp.line)
+      count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* no timestamp to compare against, just count the invalid then */
+  if (!logitem->numdate) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* if there's a valid timestamp, count only if greater than last parsed ts */
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    return;
+
+  /* check if we were able to at least parse the date/time, if no date/time
+   * then we simply don't count the entry as proceed & invalid to attempt over
+   * counting restored data */
+  if (should_restore_from_disk (glog) == 0)
+    count_process_and_invalid (glog, line);
 }
 
 /* Process a line from the log and store it accordingly taking into
@@ -2584,14 +2658,13 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 
   logitem = init_log_item (glog);
   /* Parse a line of log, and fill structure with appropriate values */
-  if (parse_format (logitem, line) || verify_missing_fields (logitem)) {
-    ret = 1;
-    count_process (glog);
-    count_invalid (glog, line);
+  if ((ret = parse_format (logitem, line)) || (ret = verify_missing_fields (logitem))) {
+    process_invalid (glog, logitem, line);
     goto cleanup;
   }
 
-  glog->lp.ts = mktime (&logitem->dt);
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    goto cleanup;
 
   if (should_restore_from_disk (glog))
     goto cleanup;
@@ -2775,6 +2848,31 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
 }
 #endif
 
+static int
+set_initial_persisted_data (GLog * glog, const char *fn) {
+  int fd;
+  size_t size;
+  char *mmapd = NULL;
+
+  if (!conf.persist || !conf.restore)
+    return 1;
+
+  if ((fd = open (fn, O_RDONLY, 0)) == -1)
+    FATAL ("Unable to open the specified log file for mmap '%s'. %s", fn, strerror (errno));
+
+  if (glog->size == 0)
+    return 1;
+
+  size = MIN (glog->size, READ_BYTES);
+  if ((mmapd = mmap (0, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
+    FATAL ("Unable to mmap '%s'. %s", fn, strerror (errno));
+
+  memcpy(glog->mmapd, mmapd, size);
+  glog->mmapd_len = size;
+
+  return 0;
+}
+
 /* Read the given log line by line and process its data.
  *
  * On error, 1 is returned.
@@ -2801,6 +2899,8 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
   if (!piping && stat (fn, &fdstat) == 0) {
     (*glog)->inode = fdstat.st_ino;
     (*glog)->size = (*glog)->lp.size = fdstat.st_size;
+
+    set_initial_persisted_data ((*glog), fn);
   }
 
   /* read line by line */
@@ -2810,9 +2910,13 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     return 1;
   }
 
-  /* insert the inode of the file parsed and the last line parsed */
-  if ((*glog)->inode) {
+  /* insert last parsed data for the recently file parsed */
+  if ((*glog)->inode && (*glog)->size) {
     (*glog)->lp.line = (*glog)->read;
+
+    (*glog)->lp.mmapd_len = (*glog)->mmapd_len;
+    memcpy((*glog)->lp.mmapd, (*glog)->mmapd, (*glog)->mmapd_len);
+
     ht_insert_last_parse ((*glog)->inode, (*glog)->lp);
   }
 

@@ -1199,9 +1199,9 @@ restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
   uint32_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uuU))";
+  char fmt[] = "A(uS(uIUvc#))";
 
-  tn = tpl_map (fmt, &key, &val);
+  tn = tpl_map (fmt, &key, &val, READ_BYTES);
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
     ins_iglp (hash, key, val);
@@ -1216,12 +1216,12 @@ persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
   khint_t k;
   uint32_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uuU))";
+  char fmt[] = "A(uS(uIUvc#))";
 
   if (!hash || kh_size (hash) == 0)
     return;
 
-  tn = tpl_map (fmt, &key, &val);
+  tn = tpl_map (fmt, &key, &val, READ_BYTES);
   for (k = 0; k < kh_end (hash); ++k) {
     if (!kh_exist (hash, k))
       continue;

@@ -35,6 +35,7 @@
 #define LINE_BUFFER     4096    /* read at most this num of chars */
 #define NUM_TESTS       20      /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
+#define READ_BYTES      4096
 
 #define LINE_LEN        23
 #define ERROR_LEN       255
@@ -93,8 +94,10 @@ typedef struct GLogItem_ {
 
 typedef struct GLastParse_ {
   uint32_t line;
-  uint32_t ts;
+  int64_t ts;
   uint64_t size;
+  uint16_t mmapd_len;
+  char mmapd[READ_BYTES + 1];
 } GLastParse;
 
 /* Overall parsed log properties */
@@ -109,6 +112,10 @@ typedef struct GLog_ {
   uint32_t inode;
   uint64_t bytes;               /* bytes read */
   uint64_t size;                /* bytes read */
+
+  /* file test for persisted/restored data */
+  uint16_t mmapd_len;
+  char mmapd[READ_BYTES + 1];
 
   GLogItem *items;
   GLastParse lp;
