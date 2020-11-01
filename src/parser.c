@@ -2537,6 +2537,12 @@ process_log (GLogItem * logitem) {
     count_valid (numdate);
 }
 
+/* Determine if the current log has the content from the last time it was
+ * parsed. It does this by comparing READ_BYTES against the beginning of the
+ * log.
+ *
+ * Returns 1 if the content is likely the same or no data to compare
+ * Returns 0 if it has different content */
 static int
 is_likely_same_log (GLog * glog, GLastParse lp) {
   size_t size = 0;
