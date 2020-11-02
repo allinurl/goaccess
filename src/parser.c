@@ -2702,8 +2702,6 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 cleanup:
   free_glog (logitem);
 
-  ht_insert_last_parse (0, glog->lp);
-
   return ret;
 }
 
@@ -2878,10 +2876,27 @@ set_initial_persisted_data (GLog * glog, const char *fn) {
   if ((mmapd = mmap (0, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
     FATAL ("Unable to mmap '%s'. %s", fn, strerror (errno));
 
-  memcpy(glog->mmapd, mmapd, size);
+  memcpy (glog->mmapd, mmapd, size);
   glog->mmapd_len = size;
 
   return 0;
+}
+
+static void
+persist_last_parse (GLog * glog) {
+  /* insert last parsed data for the recently file parsed */
+  if (glog->inode && glog->size) {
+    glog->lp.line = glog->read;
+    glog->lp.mmapd_len = glog->mmapd_len;
+
+    memcpy (glog->lp.mmapd, glog->mmapd, glog->mmapd_len);
+
+    ht_insert_last_parse (glog->inode, glog->lp);
+  }
+  /* probably from a pipe */
+  else if (!glog->inode) {
+    ht_insert_last_parse (0, glog->lp);
+  }
 }
 
 /* Read the given log line by line and process its data.
@@ -2921,15 +2936,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     return 1;
   }
 
-  /* insert last parsed data for the recently file parsed */
-  if ((*glog)->inode && (*glog)->size) {
-    (*glog)->lp.line = (*glog)->read;
-
-    (*glog)->lp.mmapd_len = (*glog)->mmapd_len;
-    memcpy((*glog)->lp.mmapd, (*glog)->mmapd, (*glog)->mmapd_len);
-
-    ht_insert_last_parse ((*glog)->inode, (*glog)->lp);
-  }
+  persist_last_parse ((*glog));
 
   /* close log file if not a pipe */
   if (!piping)
