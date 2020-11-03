@@ -179,6 +179,12 @@ goaccess_SOURCES = \
    src/xmalloc.c       \
    src/xmalloc.h
 
+if USE_MMAP
+goaccess_SOURCES +=  \
+   src/win/mman.h    \
+   src/win/mmap.c
+endif
+
 if GEOIP_LEGACY
 goaccess_SOURCES +=  \
   src/geoip1.c       \

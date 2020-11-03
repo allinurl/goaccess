@@ -581,8 +581,11 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
   if (set_root_metrics (item, h->module, type, &nmetrics) == 1)
     return;
 
-  if (!(root = ht_get_root (h->module, item.nkey)))
+  if (!(root = ht_get_root (h->module, item.nkey))) {
+    free (nmetrics->data);
+    free (nmetrics);
     return;
+  }
 
   /* add data as a child node into holder */
   if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, root))) {

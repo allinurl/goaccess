@@ -1,3 +1,5 @@
+Changes to GoAccess 1.4.1 - TBD 
+
 Changes to GoAccess 1.4 - Monday, May 18, 2020
 
   - Added a caching storage mechanism to improve parsing raw data and data

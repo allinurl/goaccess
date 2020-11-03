@@ -1163,8 +1163,8 @@ restore_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
     ins_si32 (hash, key, val);
+    free (key);
   }
-  free (key);
   tpl_free (tn);
 }
 
@@ -1199,9 +1199,9 @@ restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
   uint32_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uuU))";
+  char fmt[] = "A(uS(uIUvc#))";
 
-  tn = tpl_map (fmt, &key, &val);
+  tn = tpl_map (fmt, &key, &val, READ_BYTES);
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
     ins_iglp (hash, key, val);
@@ -1216,12 +1216,12 @@ persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
   khint_t k;
   uint32_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uuU))";
+  char fmt[] = "A(uS(uIUvc#))";
 
   if (!hash || kh_size (hash) == 0)
     return;
 
-  tn = tpl_map (fmt, &key, &val);
+  tn = tpl_map (fmt, &key, &val, READ_BYTES);
   for (k = 0; k < kh_end (hash); ++k) {
     if (!kh_exist (hash, k))
       continue;
@@ -1255,9 +1255,9 @@ restore_si32 (GSMetric metric, const char *path, int module) {
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_si32 (hash, key, val);
+      free (key);
     }
   }
-  free (key);
   tpl_free (tn);
 
   return 0;
@@ -1312,9 +1312,9 @@ restore_is32 (GSMetric metric, const char *path, int module) {
       dupval = xstrdup (val);
       if (ins_is32 (hash, key, dupval) != 0)
         free (dupval);
+      free (val);
     }
   }
-  free (val);
   tpl_free (tn);
 
   return 0;
@@ -1527,9 +1527,9 @@ restore_su64 (GSMetric metric, const char *path, int module) {
       return 1;
     while (tpl_unpack (tn, 2) > 0) {
       ins_su64 (hash, key, val);
+      free (key);
     }
   }
-  free (key);
   tpl_free (tn);
 
   return 0;
@@ -2939,10 +2939,19 @@ get_sorted_dates (uint32_t * len) {
   return dates;
 }
 
+void
+destroy_date_stores (int date) {
+  khash_t (igkh) * hash = ht_dates;
+  khiter_t k;
+
+  k = kh_get (igkh, hash, date);
+  free_stores (kh_value (hash, k));
+  kh_del (igkh, hash, k);
+}
+
 int
 invalidate_date (int date) {
   khash_t (igkh) * hash = ht_dates;
-  khiter_t k;
   GModule module;
   size_t idx = 0;
 
@@ -2954,9 +2963,7 @@ invalidate_date (int date) {
     del_module_metrics (cache_storage, module, 0);
   }
 
-  k = kh_get (igkh, hash, date);
-  free_stores (kh_value (hash, k));
-  kh_del (igkh, hash, k);
+  destroy_date_stores (date);
 
   return 0;
 }

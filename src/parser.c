@@ -54,6 +54,13 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#if ( defined __CYGWIN__ || defined __MINGW32__ || defined _WIN32 )
+#include "win/mman.h"   /* mmap */
+#else
+#include <sys/mman.h>   /* mmap */
+#endif
 
 #include "gkhash.h"
 
@@ -533,7 +540,7 @@ decode_url (char *url) {
     decode_hex (decoded, out);
   strip_newlines (out);
 
-  return trim_str (out);
+  return trim_str (char_replace (out, '+', ' '));
 }
 
 /* Process keyphrases from Google search, cache, and translate.
@@ -1089,6 +1096,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     if (is_cache_hit (tkn))
       logitem->cache_status = tkn;
+    else
+      free (tkn);
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -1632,6 +1641,12 @@ count_process (GLog * glog) {
   glog->processed++;
   ht_inc_cnt_overall ("total_requests", 1);
   unlock_spinner ();
+}
+
+static void
+count_process_and_invalid (GLog * glog, const char *line) {
+  count_process (glog);
+  count_invalid (glog, line);
 }
 
 /* Keep track of all excluded log strings (IPs).
@@ -2446,20 +2461,39 @@ ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
   }
 }
 
-static void
-clean_old_data_by_date (void) {
+static int
+clean_old_data_by_date (uint32_t numdate) {
   uint32_t *dates = NULL;
-  uint32_t len = 0;
+  uint32_t idx, len = 0;
 
-  if (ht_get_size_dates () <= conf.keep_last)
-    return;
+  if (ht_get_size_dates () < conf.keep_last)
+    return 1;
 
   dates = get_sorted_dates (&len);
+
+  /* If currently parsed date is in the set of dates, keep inserting it.
+   * We count down since more likely the currently parsed date is at the last pos */
+  for (idx = len; idx-- > 0;) {
+    if (dates[idx] == numdate) {
+      free (dates);
+      return 1;
+    }
+  }
+
+  /* ignore older dates */
+  if (dates[0] > numdate) {
+    free (dates);
+    return -1;
+  }
+
+  /* invalidate the first date we inserted then */
   invalidate_date (dates[0]);
   /* rebuild all existing dates and let new data
    * be added upon existing cache */
   rebuild_rawdata_cache ();
   free (dates);
+
+  return 0;
 }
 
 /* Process a log line and set the data into the corresponding data
@@ -2471,13 +2505,12 @@ process_log (GLogItem * logitem) {
   size_t idx = 0;
   uint32_t numdate = logitem->numdate;
 
+  if (conf.keep_last > 0 && clean_old_data_by_date (numdate) == -1)
+    return;
 
   /* insert date and start partitioning tables */
   if (ht_insert_date (numdate) == -1)
     return;
-
-  if (conf.keep_last > 0)
-    clean_old_data_by_date ();
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
@@ -2504,7 +2537,32 @@ process_log (GLogItem * logitem) {
     count_valid (numdate);
 }
 
-/* Determine if we are restoring from disk or should continue to parse requests */
+/* Determine if the current log has the content from the last time it was
+ * parsed. It does this by comparing READ_BYTES against the beginning of the
+ * log.
+ *
+ * Returns 1 if the content is likely the same or no data to compare
+ * Returns 0 if it has different content */
+static int
+is_likely_same_log (GLog * glog, GLastParse lp) {
+  size_t size = 0;
+
+  if (!conf.restore || !lp.size)
+    return 1;
+
+  /* Must be a LOG */
+  size = MIN (glog->mmapd_len, lp.mmapd_len);
+  if (glog->mmapd[0] != '\0' && lp.mmapd[0] != '\0' && memcmp (glog->mmapd, lp.mmapd, size) == 0)
+    return 1;
+
+  return 0;
+}
+
+/* Determine if we should insert new record or if it's a duplicate record from
+ * a previoulsy persisted dataset
+ *
+ * Returns 1 if it thinks the record it's being restored from disk
+ * Returns 0 if we need to parse the record */
 static int
 should_restore_from_disk (GLog * glog) {
   GLastParse lp = { 0 };
@@ -2514,34 +2572,80 @@ should_restore_from_disk (GLog * glog) {
 
   lp = ht_get_last_parse (glog->inode);
 
-  /* restoring from disk, and no inode (probably a pipe), compare timestamps then
-   * (exclusive) */
+  /* No last parse timestamp, continue parsing as we got nothing to compare
+   * against */
+  if (!lp.ts)
+    return 0;
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line and have equal timestamps, then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    if (glog->size > lp.size && glog->read >= lp.line)
+      return 0;
+    return 1;
+  }
+
+  /* No inode (probably a pipe), prior or equal timestamps means restore from
+   * disk (exclusive) */
   if (!glog->inode && lp.ts >= glog->lp.ts)
     return 1;
 
-  /* no inode nor last parse size, continue parsing */
-  if (!glog->inode || !lp.size)
-    return 0;
-
+  /* If not likely the same content, then fallback to the following checks */
   /* If timestamp is greater than last parsed, read the line then */
   if (glog->lp.ts > lp.ts)
     return 0;
+
   /* Check if current log size is smaller than the one last parsed, if it is,
    * it was possibly truncated and thus it may be smaller, so fallback to
    * timestamp even if they are equal to the last parsed timestamp */
   else if (glog->size < lp.size && glog->lp.ts == lp.ts)
     return 0;
-  /* If our current line is greater or equal (zero indexed) to the last parsed
-   * line and have equal timestamps, then keep parsing then */
-  else if (glog->size > lp.size && glog->read >= lp.line && glog->lp.ts == lp.ts)
-    return 0;
-  /* Everything else we ignore it. For instance, we check if current log size is
+
+  /* Everything else we ignore it. For instance, we if current log size is
    * greater than the one last parsed, if the timestamp are equal, we ignore the
    * request.
    *
    * **NOTE* We try to play safe here as we would rather miss a few lines
    * than double-count a few. */
   return 1;
+}
+
+static void
+process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
+  GLastParse lp = { 0 };
+
+  /* if not restoring from disk, then count entry as proceeded and invalid */
+  if (!conf.restore) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  lp = ht_get_last_parse (glog->inode);
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    /* only count invalids if we're past the last parsed line */
+    if (glog->size > lp.size && glog->read >= lp.line)
+      count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* no timestamp to compare against, just count the invalid then */
+  if (!logitem->numdate) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* if there's a valid timestamp, count only if greater than last parsed ts */
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    return;
+
+  /* check if we were able to at least parse the date/time, if no date/time
+   * then we simply don't count the entry as proceed & invalid to attempt over
+   * counting restored data */
+  if (should_restore_from_disk (glog) == 0)
+    count_process_and_invalid (glog, line);
 }
 
 /* Process a line from the log and store it accordingly taking into
@@ -2560,14 +2664,13 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 
   logitem = init_log_item (glog);
   /* Parse a line of log, and fill structure with appropriate values */
-  if (parse_format (logitem, line) || verify_missing_fields (logitem)) {
-    ret = 1;
-    count_process (glog);
-    count_invalid (glog, line);
+  if ((ret = parse_format (logitem, line)) || (ret = verify_missing_fields (logitem))) {
+    process_invalid (glog, logitem, line);
     goto cleanup;
   }
 
-  glog->lp.ts = mktime (&logitem->dt);
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    goto cleanup;
 
   if (should_restore_from_disk (glog))
     goto cleanup;
@@ -2599,8 +2702,6 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 cleanup:
   free_glog (logitem);
 
-  ht_insert_last_parse (0, glog->lp);
-
   return ret;
 }
 
@@ -2611,7 +2712,6 @@ cleanup:
 static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
-  int tests;
 
   /* start processing log line */
   if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
@@ -2621,13 +2721,9 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   if (ret == -1)
     return 0;
 
-  /* glog->processed can actually be less than conf.num_tests, so we make sure
-   * (cnt) compares to the right number */
-  tests = MIN (conf.num_tests, glog->processed);
-
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
-  if (conf.num_tests && ++(*cnt) == tests && *test) {
+  if (conf.num_tests && ++(*cnt) == (int) conf.num_tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
     return 1;
@@ -2707,11 +2803,15 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || ret;
+  return (line && test) || ret || (!line && test && (*glog)->processed);
 
 out:
   free (line);
-  return test || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return test || ret || (test && (*glog)->processed);
 }
 #endif
 
@@ -2744,9 +2844,60 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (s && test) || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return (s && test) || ret || (!s && test && (*glog)->processed);
 }
 #endif
+
+/* Read the given log file and attempt to mmap a fixed number of bytes so we
+ * can compare its content on future runs.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
+static int
+set_initial_persisted_data (GLog * glog, const char *fn) {
+  int fd;
+  size_t size;
+  char *mmapd = NULL;
+
+  if (!conf.persist || !conf.restore)
+    return 1;
+
+  if ((fd = open (fn, O_RDONLY, 0)) == -1)
+    FATAL ("Unable to open the specified log file for mmap '%s'. %s", fn, strerror (errno));
+
+  if (glog->size == 0)
+    return 1;
+
+  size = MIN (glog->size, READ_BYTES);
+  if ((mmapd = mmap (0, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
+    FATAL ("Unable to mmap '%s'. %s", fn, strerror (errno));
+
+  memcpy (glog->mmapd, mmapd, size);
+  glog->mmapd_len = size;
+
+  return 0;
+}
+
+static void
+persist_last_parse (GLog * glog) {
+  /* insert last parsed data for the recently file parsed */
+  if (glog->inode && glog->size) {
+    glog->lp.line = glog->read;
+    glog->lp.mmapd_len = glog->mmapd_len;
+
+    memcpy (glog->lp.mmapd, glog->mmapd, glog->mmapd_len);
+
+    ht_insert_last_parse (glog->inode, glog->lp);
+  }
+  /* probably from a pipe */
+  else if (!glog->inode) {
+    ht_insert_last_parse (0, glog->lp);
+  }
+}
 
 /* Read the given log line by line and process its data.
  *
@@ -2768,12 +2919,14 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!piping && (fp = fopen (fn, "r")) == NULL)
-    FATAL ("Unable to open the specified log file. %s", strerror (errno));
+    FATAL ("Unable to open the specified log file '%s'. %s", fn, strerror (errno));
 
   /* grab the inode of the file being parsed */
   if (!piping && stat (fn, &fdstat) == 0) {
     (*glog)->inode = fdstat.st_ino;
     (*glog)->size = (*glog)->lp.size = fdstat.st_size;
+
+    set_initial_persisted_data ((*glog), fn);
   }
 
   /* read line by line */
@@ -2783,11 +2936,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     return 1;
   }
 
-  /* insert the inode of the file parsed and the last line parsed */
-  if ((*glog)->inode) {
-    (*glog)->lp.line = (*glog)->read;
-    ht_insert_last_parse ((*glog)->inode, (*glog)->lp);
-  }
+  persist_last_parse ((*glog));
 
   /* close log file if not a pipe */
   if (!piping)

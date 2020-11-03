@@ -319,6 +319,7 @@ int ht_insert_root (GModule module, uint32_t date, uint32_t key, uint32_t value,
 int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key, uint32_t value);
 int invalidate_date (int date);
+int rebuild_rawdata_cache (void);
 uint32_t *get_sorted_dates (uint32_t *len);
 uint32_t ht_get_excluded_ips (void);
 uint32_t ht_get_hits (GModule module, int key);
@@ -344,6 +345,7 @@ uint64_t ht_get_cumts (GModule module, uint32_t key);
 uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 uint64_t ht_sum_bw (void);
+void destroy_date_stores (int date);
 void free_storage (void);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
@@ -351,7 +353,6 @@ void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
 void init_storage (void);
-int rebuild_rawdata_cache (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
 GLastParse ht_get_last_parse (uint32_t key);
