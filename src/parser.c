@@ -2552,7 +2552,7 @@ is_likely_same_log (GLog * glog, GLastParse lp) {
 
   /* Must be a LOG */
   size = MIN (glog->mmapd_len, lp.mmapd_len);
-  if (glog->mmapd && lp.mmapd && memcmp (glog->mmapd, lp.mmapd, size) == 0)
+  if (glog->mmapd[0] != '\0' && lp.mmapd[0] != '\0' && memcmp (glog->mmapd, lp.mmapd, size) == 0)
     return 1;
 
   return 0;
