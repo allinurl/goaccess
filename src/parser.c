@@ -2547,7 +2547,7 @@ static int
 is_likely_same_log (GLog * glog, GLastParse lp) {
   size_t size = 0;
 
-  if (!conf.restore || !lp.size)
+  if (!lp.size)
     return 1;
 
   /* Must be a LOG */
@@ -2863,9 +2863,6 @@ set_initial_persisted_data (GLog * glog, const char *fn) {
   int fd;
   size_t size;
   char *mmapd = NULL;
-
-  if (!conf.persist || !conf.restore)
-    return 1;
 
   if ((fd = open (fn, O_RDONLY, 0)) == -1)
     FATAL ("Unable to open the specified log file for mmap '%s'. %s", fn, strerror (errno));

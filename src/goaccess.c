@@ -772,8 +772,10 @@ parse_tail_follow (FILE * fp) {
 static void
 perform_tail_follow (uint64_t * size1, const char *fn) {
   FILE *fp = NULL;
-  uint64_t size2 = 0;
   struct stat fdstat;
+  char buf[READ_BYTES + 1] = { 0 };
+  uint16_t len = 0;
+  uint64_t size2 = 0;
 
   if (fn[0] == '-' && fn[1] == '\0') {
     parse_tail_follow (glog->pipe);
@@ -792,13 +794,27 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
     return;
 
   if (!(fp = fopen (fn, "r")))
-    FATAL ("Unable to read log file %s.", strerror (errno));
+    FATAL ("Unable to read the specified log file '%s'. %s", fn, strerror (errno));
 
   /* insert the inode of the file parsed and the last line parsed */
   if (stat (fn, &fdstat) == 0) {
     glog->inode = fdstat.st_ino;
     glog->size = fdstat.st_size;
   }
+
+  len = MIN (glog->mmapd_len, size2);
+  /* This is not ideal, but maybe the only way reliable way to know if the
+   * current log looks different than our first read/parse */
+  if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
+    FATAL ("Unable to fread the specified log file '%s'", fn);
+
+  /* Either the log got smaller, probably was truncated so start reading from 0.
+   * For the case where the log got larger since the last iteration, we attempt
+   * to compare the first READ_BYTES against the READ_BYTES we had since the last
+   * parse. If it's different, then it means the file may got truncated but grew
+   * faster than the last iteration (odd, but possible), so we read from 0* */
+  if (glog->mmapd[0] != '\0' && buf[0] != '\0' && memcmp (glog->mmapd, buf, len) != 0)
+    *size1 = glog->bytes = 0;
 
   if (!fseeko (fp, *size1, SEEK_SET))
     parse_tail_follow (fp);

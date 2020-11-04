@@ -35,7 +35,7 @@
 #define LINE_BUFFER     4096    /* read at most this num of chars */
 #define NUM_TESTS       20      /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
-#define READ_BYTES      4096
+#define READ_BYTES      4096u
 
 #define LINE_LEN        23
 #define ERROR_LEN       255
