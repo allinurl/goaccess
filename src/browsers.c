@@ -71,7 +71,7 @@ static const char *browsers[][2] = {
 
   /* Surf Browser */
   {"Surf", "Surf"},
- 
+
   /* Opera */
   {"Opera Mini", "Opera"},
   {"Opera Mobi", "Opera"},
