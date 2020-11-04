@@ -802,7 +802,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
     glog->size = fdstat.st_size;
   }
 
-  len = MIN (glog->mmapd_len, size2);
+  len = MIN (glog->snippetlen, size2);
   /* This is not ideal, but maybe the only way reliable way to know if the
    * current log looks different than our first read/parse */
   if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
@@ -813,7 +813,7 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
    * to compare the first READ_BYTES against the READ_BYTES we had since the last
    * parse. If it's different, then it means the file may got truncated but grew
    * faster than the last iteration (odd, but possible), so we read from 0* */
-  if (glog->mmapd[0] != '\0' && buf[0] != '\0' && memcmp (glog->mmapd, buf, len) != 0)
+  if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
     *size1 = glog->bytes = 0;
 
   if (!fseeko (fp, *size1, SEEK_SET))

@@ -96,8 +96,8 @@ typedef struct GLastParse_ {
   uint32_t line;
   int64_t ts;
   uint64_t size;
-  uint16_t mmapd_len;
-  char mmapd[READ_BYTES + 1];
+  uint16_t snippetlen;
+  char snippet[READ_BYTES + 1];
 } GLastParse;
 
 /* Overall parsed log properties */
@@ -114,8 +114,8 @@ typedef struct GLog_ {
   uint64_t size;                /* bytes read */
 
   /* file test for persisted/restored data */
-  uint16_t mmapd_len;
-  char mmapd[READ_BYTES + 1];
+  uint16_t snippetlen;
+  char snippet[READ_BYTES + 1];
 
   GLogItem *items;
   GLastParse lp;

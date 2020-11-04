@@ -56,11 +56,6 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#if ( defined __CYGWIN__ || defined __MINGW32__ || defined _WIN32 )
-#include "win/mman.h"   /* mmap */
-#else
-#include <sys/mman.h>   /* mmap */
-#endif
 
 #include "gkhash.h"
 
@@ -2551,9 +2546,9 @@ is_likely_same_log (GLog * glog, GLastParse lp) {
     return 1;
 
   /* Must be a LOG */
-  size = MIN (glog->mmapd_len, lp.mmapd_len);
-  if (glog->mmapd[0] != '\0' && lp.mmapd[0] != '\0' &&
-      memcmp (glog->mmapd, lp.mmapd, size) == 0)
+  size = MIN (glog->snippetlen, lp.snippetlen);
+  if (glog->snippet[0] != '\0' && lp.snippet[0] != '\0' &&
+      memcmp (glog->snippet, lp.snippet, size) == 0)
     return 1;
 
   return 0;
@@ -2859,23 +2854,18 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-set_initial_persisted_data (GLog * glog, const char *fn) {
-  int fd;
-  size_t size;
-  char *mmapd = NULL;
-
-  if ((fd = open (fn, O_RDONLY, 0)) == -1)
-    FATAL ("Unable to open the specified log file for mmap '%s'. %s", fn, strerror (errno));
+set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
+  size_t len;
 
   if (glog->size == 0)
     return 1;
 
-  size = MIN (glog->size, READ_BYTES);
-  if ((mmapd = mmap (0, size, PROT_READ, MAP_PRIVATE, fd, 0)) == MAP_FAILED)
-    FATAL ("Unable to mmap '%s'. %s", fn, strerror (errno));
+  len = MIN (glog->size, READ_BYTES);
+  if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
+    FATAL ("Unable to fread the specified log file '%s'", fn);
+  glog->snippetlen = len;
 
-  memcpy (glog->mmapd, mmapd, size);
-  glog->mmapd_len = size;
+  fseek (fp, 0, SEEK_SET);
 
   return 0;
 }
@@ -2885,9 +2875,9 @@ persist_last_parse (GLog * glog) {
   /* insert last parsed data for the recently file parsed */
   if (glog->inode && glog->size) {
     glog->lp.line = glog->read;
-    glog->lp.mmapd_len = glog->mmapd_len;
+    glog->lp.snippetlen = glog->snippetlen;
 
-    memcpy (glog->lp.mmapd, glog->mmapd, glog->mmapd_len);
+    memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
 
     ht_insert_last_parse (glog->inode, glog->lp);
   }
@@ -2924,7 +2914,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     (*glog)->inode = fdstat.st_ino;
     (*glog)->size = (*glog)->lp.size = fdstat.st_size;
 
-    set_initial_persisted_data ((*glog), fn);
+    set_initial_persisted_data ((*glog), fp, fn);
   }
 
   /* read line by line */
