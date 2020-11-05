@@ -2465,10 +2465,10 @@ ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, ui
   if (!hash)
     return -1;
 
-  if (get_iu64 (hash, key) < value) {
+  if (get_iu64 (cache, ckey) < value)
     ins_iu64 (cache, ckey, value);
+  if (get_iu64 (hash, key) < value)
     ins_iu64 (hash, key, value);
-  }
 
   return 0;
 }
@@ -3002,7 +3002,7 @@ inc_cache_ii32 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 }
 
 static int
-ins_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+max_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (iu64) * hash = get_hash_from_store (store, module, metric);
   khash_t (iu64) * cache = get_hash_from_cache (module, metric);
@@ -3010,7 +3010,10 @@ ins_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 
   if ((k = kh_get (iu64, hash, key)) == kh_end (hash))
     return -1;
-  return ins_iu64 (cache, ckey, kh_val (hash, k));
+
+  if (get_iu64 (cache, ckey) < kh_val (hash, k))
+    return ins_iu64 (cache, ckey, kh_val (hash, k));
+  return -1;
 }
 
 static int
@@ -3060,7 +3063,7 @@ ins_raw_num_data (GModule module, uint32_t date) {
     inc_cache_ii32 (store, module, MTRC_VISITORS, kh_val (kmap, k), ckey);
     inc_cache_iu64 (store, module, MTRC_BW, kh_val (kmap, k), ckey);
     inc_cache_iu64 (store, module, MTRC_CUMTS, kh_val (kmap, k), ckey);
-    ins_cache_iu64 (store, module, MTRC_MAXTS, kh_val (kmap, k), ckey);
+    max_cache_iu64 (store, module, MTRC_MAXTS, kh_val (kmap, k), ckey);
     ins_cache_is32 (store, module, MTRC_METHODS, kh_val (kmap, k), ckey);
     ins_cache_is32 (store, module, MTRC_PROTOCOLS, kh_val (kmap, k), ckey);
   }
