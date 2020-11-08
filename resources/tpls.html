@@ -42,25 +42,43 @@
 <!-- TPL Panel Table Meta -->
 <script id="tpl-table-row-meta" type="text/template">
 	{{#row}}
-		<tr>
-			{{#hasSubItems}}
-			<td class=""></td>
-			{{/hasSubItems}}
-			<td class=""></td>
-			{{#cells}}
-				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
-					{{#value}}
-					<h4 class="value"><span title="{{title}}">{{value}}</span>{{#label}}<small> {{label}}</small>{{/label}}{{#max}}<br><small>Max: {{max}}</small>{{/max}}{{#min}}<br><small>Min: {{min}}</small>{{/min}}</h4>
-					{{/value}}
-				</td>
-			{{/cells}}
-		</tr>
+		{{#hasSubItems}}
+		<th class=""></th>
+		{{/hasSubItems}}
+		<th class="meta-label">{{key}}.</th>
+		{{#cells}}
+			<th class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+				{{#value}}
+					<span>{{value}} {{#percent}}<span class="text-muted">({{percent}}%)</span>{{/percent}}</span>
+				{{/value}}
+				{{^value}}
+					<span class="text-muted">&mdash;</span>
+				{{/value}}
+			</th>
+		{{/cells}}
+	{{/row}}
+</script>
+
+<!-- TPL Panel Table Totals -->
+<script id="tpl-table-row-totals" type="text/template">
+	{{#row}}
+		{{#hasSubItems}}
+		<td class=""></td>
+		{{/hasSubItems}}
+		<td class="meta-label">Tot.</td>
+		{{#cells}}
+			<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+				{{#label}}
+					<span>{{label}}</span>&nbsp;
+				{{/label}}
+				<span>{{value}}</span>
+			</td>
+		{{/cells}}
 	{{/row}}
 </script>
 
 <!-- TPL Table thead -->
 <script id="tpl-table-thead" type="text/template">
-	<tr>
 	{{#hasSubItems}}
 		<th></th>
 	{{/hasSubItems}}
@@ -70,7 +88,6 @@
 			{{label}} <i class="fa fa-{{^sort}}sort{{/sort}}{{#sort}}{{#asc}}caret-up{{/asc}}{{^asc}}caret-down{{/asc}}{{/sort}}"></i>
 		</th>
 	{{/items}}
-	</tr>
 </script>
 
 <!-- TPL Panel Options DropDown -->
@@ -138,12 +155,18 @@
 				<table data-panel="{{id}}" class="table table-borderless table-hover table-{{id}}">
 					<colgroup>
 					</colgroup>
-					<thead>
+					<thead >
+						<tr class="thead-cols"></tr>
+						<tr class="thead-min"></tr>
+						<tr class="thead-max"></tr>
+						<tr class="thead-avg"></tr>
 					</thead>
-					<tbody class="tbody-meta">
-					</tbody>
 					<tbody class="tbody-data">
 					</tbody>
+					<tfoot class="tfoot-totals">
+						<tr class="tfoot-totals">
+						</tr>
+					</tfoot>
 				</table>
 			</div>
 

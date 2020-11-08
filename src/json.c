@@ -667,6 +667,84 @@ pprotocol (GJSON * json, GMetrics * nmetrics, int sp) {
   }
 }
 
+static void
+pmeta_i64_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint64_t *, uint64_t *),
+                const char *key, int show_perc, int sp) {
+  int isp = 0;
+  uint64_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
+  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  cb (h->module, &min, &max);
+
+  popen_obj_attr (json, "total", sp);
+  pskeyu64val (json, "value", total, isp, 1);
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "avg", sp);
+  pskeyu64val (json, "value", avg, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "max", sp);
+  pskeyu64val (json, "value", max, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "min", sp);
+  pskeyu64val (json, "value", min, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
+  }
+  pclose_obj (json, sp, 1);
+}
+
+static void
+pmeta_i32_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint32_t *, uint32_t *),
+                const char *key, int show_perc, int sp) {
+  int isp = 0;
+  uint32_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
+  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  cb (h->module, &min, &max);
+
+  popen_obj_attr (json, "total", sp);
+  pskeyival (json, "value", total, isp, 1);
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "avg", sp);
+  pskeyival (json, "value", avg, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "max", sp);
+  pskeyival (json, "value", max, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "min", sp);
+  pskeyival (json, "value", min, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
+  }
+  pclose_obj (json, sp, 1);
+}
+
 /* Write to a buffer the hits meta data object. */
 static void
 pmeta_data_unique (GJSON * json, int ht_size, int sp) {
@@ -677,74 +755,62 @@ pmeta_data_unique (GJSON * json, int ht_size, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "data", sp);
-  pskeyu64val (json, "unique", ht_size, isp, 1);
+
+  popen_obj_attr (json, "total", isp);
+  pskeyu64val (json, "value", ht_size, isp + 1, 1);
+  pclose_obj (json, isp, 1);
+
   pclose_obj (json, sp, 1);
 }
 
 /* Write to a buffer the hits meta data object. */
 static void
-pmeta_data_hits (GJSON * json, GModule module, int sp) {
+pmeta_data_hits (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint32_t max = 0, min = 0;
-
-  ht_get_hits_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "hits", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "hits"), isp, 0);
-  pskeyival (json, "max", max, isp, 0);
-  pskeyival (json, "min", min, isp, 1);
+  pmeta_i32_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the visitors meta data object. */
 static void
-pmeta_data_visitors (GJSON * json, GModule module, int sp) {
+pmeta_data_visitors (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint32_t max = 0, min = 0;
-
-  ht_get_visitors_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "visitors", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "visitors"), isp, 0);
-  pskeyival (json, "max", max, isp, 0);
-  pskeyival (json, "min", min, isp, 1);
+  pmeta_i32_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the bytes meta data object. */
 static void
-pmeta_data_bw (GJSON * json, GModule module, int sp) {
+pmeta_data_bw (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
-
   if (!conf.bandwidth)
     return;
-
-  ht_get_bw_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "bytes", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "bytes"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_bw_min_max, "bytes", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the average of the average time served meta data
  * object. */
 static void
-pmeta_data_avgts (GJSON * json, GModule module, int sp) {
+pmeta_data_avgts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
   uint64_t avg = 0, hits = 0, cumts = 0;
 
@@ -755,57 +821,50 @@ pmeta_data_avgts (GJSON * json, GModule module, int sp) {
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  cumts = ht_get_meta_data (module, "cumts");
-  hits = ht_get_meta_data (module, "hits");
+  cumts = ht_get_meta_data (h->module, "cumts");
+  hits = ht_get_meta_data (h->module, "hits");
   if (hits > 0)
     avg = cumts / hits;
 
   popen_obj_attr (json, "avgts", sp);
-  pskeyu64val (json, "avg", avg, isp, 1);
+
+  popen_obj_attr (json, "avg", isp);
+  pskeyu64val (json, "value", avg, isp + 1, 1);
+  pclose_obj (json, isp, 1);
+
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the cumulative time served meta data object. */
 static void
-pmeta_data_cumts (GJSON * json, GModule module, int sp) {
+pmeta_data_cumts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
 
   if (!conf.serve_usecs)
     return;
-
-  ht_get_cumts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "cumts", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "cumts"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_cumts_min_max, "cumts", 0, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the maximum time served meta data object. */
 static void
-pmeta_data_maxts (GJSON * json, GModule module, int sp) {
+pmeta_data_maxts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
-
   if (!conf.serve_usecs)
     return;
-
-  ht_get_maxts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "maxts", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "maxts"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_maxts_min_max, "maxts", 0, isp);
   pclose_obj (json, sp, 0);
 }
 
@@ -819,12 +878,12 @@ print_meta_data (GJSON * json, GHolder * h, int sp) {
 
   popen_obj_attr (json, "metadata", isp);
 
-  pmeta_data_avgts (json, h->module, iisp);
-  pmeta_data_cumts (json, h->module, iisp);
-  pmeta_data_maxts (json, h->module, iisp);
-  pmeta_data_bw (json, h->module, iisp);
-  pmeta_data_visitors (json, h->module, iisp);
-  pmeta_data_hits (json, h->module, iisp);
+  pmeta_data_avgts (json, h, iisp);
+  pmeta_data_cumts (json, h, iisp);
+  pmeta_data_maxts (json, h, iisp);
+  pmeta_data_bw (json, h, iisp);
+  pmeta_data_visitors (json, h, iisp);
+  pmeta_data_hits (json, h, iisp);
   pmeta_data_unique (json, h->ht_size, iisp);
 
   pclose_obj (json, isp, 0);

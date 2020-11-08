@@ -173,22 +173,30 @@ GoAccess.Util = {
 		return out;
 	},
 
+	shortNum:  function (n) {
+		if (n < 1e3) return n;
+		if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(1) + "K";
+		if (n >= 1e6 && n < 1e9) return +(n / 1e6).toFixed(1) + "M";
+		if (n >= 1e9 && n < 1e12) return +(n / 1e9).toFixed(1) + "B";
+		if (n >= 1e12) return +(n / 1e12).toFixed(1) + "T";
+	},
+
 	// Format field value to human readable
-	fmtValue: function (value, dataType, decimals) {
+	fmtValue: function (value, dataType, decimals, shorten) {
 		var val = 0;
 		if (!dataType)
 			val = value;
 
 		switch (dataType) {
 		case 'utime':
-			val = this.utime2str(value);
+			val = this.utime2str(+value);
 			break;
 		case 'date':
 			val = this.formatDate(value);
 			break;
 		case 'numeric':
 			if (this.isNumeric(value))
-				val = value.toLocaleString();
+				val = shorten ? this.shortNum(value) : (+value).toLocaleString();
 			break;
 		case 'bytes':
 			val = this.formatBytes(value, decimals);
@@ -1381,16 +1389,9 @@ GoAccess.Tables = {
 		return this.getCurPage(panel) + 1;
 	},
 
-	getMetaValue: function (ui, value) {
-		if ('meta' in ui)
-			return value[ui.meta];
-		return null;
-	},
-
-	getMetaCell: function (ui, value) {
-		var val = this.getMetaValue(ui, value);
-		var max = (value || {}).max;
-		var min = (value || {}).min;
+	getMetaCell: function (ui, o, key) {
+		var val =  o && (key in o) && o[key].value ? o[key].value : null;
+		var perc = o &&  (key in o) && o[key].percent ? o[key].percent : null;
 
 		// use metaType if exist else fallback to dataType
 		var vtype = ui.metaType || ui.dataType;
@@ -1398,9 +1399,8 @@ GoAccess.Tables = {
 		className += ui.dataType != 'string' ? 'text-right' : '';
 		return {
 			'className': className,
-			'max'      : max != undefined ? GoAccess.Util.fmtValue(max, vtype) : null,
-			'min'      : min != undefined ? GoAccess.Util.fmtValue(min, vtype) : null,
-			'value'    : val != undefined ? GoAccess.Util.fmtValue(val, vtype) : null,
+			'value'    : val ? GoAccess.Util.fmtValue(val, vtype) : null,
+			'percent'  : perc,
 			'title'    : ui.meta,
 			'label'    : ui.metaLabel || null,
 		};
@@ -1424,27 +1424,32 @@ GoAccess.Tables = {
 		ui['autoHideTables'] = this.autoHideTables();
 	},
 
-	renderMetaRow: function (panel, ui) {
+	getMetaRows: function (panel, ui, key) {
+		var cells = [], uiItems = ui.items;
+		var data = GoAccess.getPanelData(panel).metadata;
+
+		for (var i = 0; i < uiItems.length; ++i) {
+			var item = uiItems[i], o = {};
+			if (this.hideColumn(panel, item.key))
+				continue;
+			cells.push(this.getMetaCell(item, data[item.key], key));
+		}
+
+		return [{
+			'hasSubItems': ui.hasSubItems,
+			'cells': cells,
+			'key' : key.substring(0, 3),
+		}];
+	},
+
+	renderMetaRow: function (panel, metarows, className) {
 		// find the table to set
-		var table = $('.table-' + panel + ' tbody.tbody-meta');
+		var table = $('.table-' + panel + ' tr.' + className);
 		if (!table)
 			return;
 
-		var cells = [], uiItems = ui.items;
-		var data = GoAccess.getPanelData(panel).metadata;
-		for (var i = 0; i < uiItems.length; ++i) {
-			var item = uiItems[i];
-			if (this.hideColumn(panel, item.key))
-				continue;
-			var value = data[item.key];
-			cells.push(this.getMetaCell(item, value));
-		}
-
 		table.innerHTML = GoAccess.AppTpls.Tables.meta.render({
-			row: [{
-				'hasSubItems': ui.hasSubItems,
-				'cells': cells
-			}]
+			row: metarows
 		});
 	},
 
@@ -1589,16 +1594,25 @@ GoAccess.Tables = {
 	renderFullTable: function (panel) {
 		var ui = GoAccess.getPanelUI(panel), page = 0;
 		// panel's data
-		var data = GoAccess.getPanelData(panel);
+		var data = GoAccess.getPanelData(panel), metarows = [];
+
 		// render meta data
-		if (data.hasOwnProperty('metadata'))
-			this.renderMetaRow(panel, ui);
+		if (data.hasOwnProperty('metadata')) {
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'min'), 'thead-min');
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'max'), 'thead-max');
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'avg'), 'thead-avg');
+		}
 
 		// render actual data
 		if (data.hasOwnProperty('data')) {
 			page = this.getCurPage(panel);
 			this.togglePagination(panel, page, data.data);
 			this.renderDataRows(panel, ui, data.data, page);
+		}
+
+		// render meta data
+		if (data.hasOwnProperty('metadata')) {
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'total'), 'tfoot-totals');
 		}
 	},
 
@@ -1638,7 +1652,9 @@ GoAccess.Tables = {
 	},
 
 	renderThead: function (panel, ui) {
-		var $thead = $('.table-' + panel + '>thead'), $colgroup = $('.table-' + panel + '>colgroup');
+		var $thead = $('.table-' + panel + '>thead>tr.thead-cols'),
+			$colgroup = $('.table-' + panel + '>colgroup');
+
 		if ($thead && $colgroup && this.showTables()) {
 			ui = this.sort2Tpl(panel, ui);
 
@@ -1690,6 +1706,7 @@ GoAccess.App = {
 				'colgroup': this.tpl($('#tpl-table-colgroup').innerHTML),
 				'head': this.tpl($('#tpl-table-thead').innerHTML),
 				'meta': this.tpl($('#tpl-table-row-meta').innerHTML),
+				'totals': this.tpl($('#tpl-table-row-totals').innerHTML),
 				'data': this.tpl($('#tpl-table-row').innerHTML),
 			},
 		};

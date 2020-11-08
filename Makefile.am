@@ -2,20 +2,20 @@
 bin_PROGRAMS = goaccess
 AUTOMAKE_OPTIONS = subdir-objects
 
-dist_noinst_DATA =                \
-  resources/tpls.html             \
-  resources/css/app.css           \
-  resources/css/bootstrap.min.css \
-  resources/css/fa.min.css        \
-  resources/js/app.js             \
-  resources/js/charts.js          \
-  resources/js/d3.v3.min.js       \
+dist_noinst_DATA =                 \
+  resources/tpls.html              \
+  resources/css/app.css            \
+  resources/css/bootstrap.min.css  \
+  resources/css/fa.min.css         \
+  resources/js/app.js              \
+  resources/js/charts.js           \
+  resources/js/d3.v3.min.js        \
   resources/js/hogan.min.js
 
 noinst_PROGRAMS = bin2c
 bin2c_SOURCES = src/bin2c.c
 
-BUILT_SOURCES =   \
+BUILT_SOURCES =       \
   src/tpls.h          \
   src/bootstrapcss.h  \
   src/facss.h         \
