@@ -1145,6 +1145,7 @@ init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
   /* initialize storage */
+  parsing_spinner->label = "Setting up Storage...";
   init_storage ();
   //if (conf.load_from_disk)
   //  set_general_stats ();
@@ -1478,6 +1479,7 @@ main (int argc, char **argv) {
 
   /* main processing event */
   time (&start_proc);
+  parsing_spinner->label = "Parsing...";
   if ((ret = parse_log (&glog, NULL, 0))) {
     end_spinner ();
     goto clean;
