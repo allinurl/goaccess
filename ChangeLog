@@ -2,6 +2,7 @@ Changes to GoAccess 1.4.1 - Monday, November 09, 2020
 
   - Added addtional browsers and bots to the main list.
   - Added 'Android 11' to the list of OSs.
+  - Added 'macOS 11.0 Big Sur' to the list of OSs.
   - Added 'average' to each panel overall metrics.
   - Added '.dmg', '.xz', and '.zst' to the static list.
   - Added extra check to ensure restoring from disk verifies the content of the
