@@ -183,6 +183,10 @@ house_keeping (void) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
   }
+  if (conf.fifo_in)
+    free ((char *) conf.fifo_in);
+  if (conf.fifo_out)
+    free ((char *) conf.fifo_out);
 
   /* clear spinner */
   free (parsing_spinner);
