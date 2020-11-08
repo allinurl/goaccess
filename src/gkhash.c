@@ -1870,6 +1870,7 @@ persist_global (void) {
     persist_global_iglp (ht_last_parse, path);
     free (path);
   }
+  free (persisted_dates);
 }
 
 static void
