@@ -46,6 +46,12 @@
 #define HOUR 3600000000ULL
 #define DAY  86400000000ULL
 
+/* Convenient macros */
+#define MIN(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 /* *INDENT-OFF* */
 #include <stdint.h>
 #include <sys/types.h>

@@ -340,16 +340,22 @@ cmp_mthd_desc (const void *a, const void *b) {
   return strcmp (ib->metrics->method, ia->metrics->method);
 }
 
-/* Sort 'hits' metric ascending */
+/* Sort ascending */
 #if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
 __attribute__((no_sanitize ("implicit-conversion", "unsigned-integer-overflow")))
 #endif
-  int
-    cmp_ui32_asc (const void *a, const void *b) {
+  int cmp_ui32_asc (const void *a, const void *b) {
   const uint32_t *ia = (const uint32_t *) a;    // casting pointer types
   const uint32_t *ib = (const uint32_t *) b;
   return *ia - *ib;
   }
+
+int
+cmp_ui32_desc (const void *a, const void *b) {
+  const uint32_t *ia = (const uint32_t *) a;    // casting pointer types
+  const uint32_t *ib = (const uint32_t *) b;
+  return *ib - *ia;
+}
 
 /* Given a string sort field, get the enum field value.
  *

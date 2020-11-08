@@ -148,12 +148,6 @@
 #define ERR_WIN_HEIGHT    15
 #define ERR_WIN_WIDTH     61
 
-/* Convenient macros */
-#define MIN(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
-
 #include "color.h"
 #include "commons.h"
 #include "sort.h"

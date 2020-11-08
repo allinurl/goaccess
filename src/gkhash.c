@@ -57,6 +57,9 @@ static khash_t (si32) * ht_cnt_overall = NULL;
 static khash_t (iglp) * ht_last_parse  = NULL;
 
 static GKHashModule *cache_storage = NULL;
+
+static uint32_t *persisted_dates = NULL;
+static uint32_t persisted_dates_len = 0;
 /* *INDENT-ON* */
 
 /* Allocate memory for a new store container GKHashStorage instance.
@@ -1234,6 +1237,28 @@ persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_free (tn);
 }
 
+/* Check if the given date can be inserted based on how many dates we need to
+ * keep conf.keep_last.
+ *
+ * Returns -1 if it fails to insert the date.
+ * Returns 1 if the date exists.
+ * Returns 2 if the date shouldn't be inserted.
+ * On success or if the date is inserted 0 is returned */
+static int
+insert_restored_date (uint32_t date) {
+  uint32_t i, len = 0;
+
+  /* no keep last, simply insert the restored date to our storage */
+  if (!conf.keep_last || persisted_dates_len < conf.keep_last)
+    return ht_insert_date (date);
+
+  len = MIN (persisted_dates_len, conf.keep_last);
+  for (i = 0; i < len; ++i)
+    if (persisted_dates[i] == date)
+      return ht_insert_date (date);
+  return 2;
+}
+
 /* Given a database filename, restore a string key, uint32_t value back to
  * the storage */
 static int
@@ -1241,7 +1266,7 @@ restore_si32 (GSMetric metric, const char *path, int module) {
   khash_t (si32) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(su))";
-  int date = 0;
+  int date = 0, ret = 0;
   char *key = NULL;
   uint32_t val = 0;
 
@@ -1250,9 +1275,11 @@ restore_si32 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_si32 (hash, key, val);
       free (key);
@@ -1296,7 +1323,7 @@ restore_is32 (GSMetric metric, const char *path, int module) {
   khash_t (is32) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(us))";
-  int date = 0;
+  int date = 0, ret = 0;
   uint32_t key = 0;
   char *val = NULL, *dupval = NULL;
 
@@ -1305,9 +1332,11 @@ restore_is32 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       dupval = xstrdup (val);
       if (ins_is32 (hash, key, dupval) != 0)
@@ -1353,7 +1382,7 @@ restore_ii32 (GSMetric metric, const char *path, int module) {
   khash_t (ii32) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(uu))";
-  int date = 0;
+  int date = 0, ret = 0;
   uint32_t key = 0, val = 0;
 
   if (!(tn = tpl_map (fmt, &date, &key, &val)))
@@ -1361,9 +1390,11 @@ restore_ii32 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_ii32 (hash, key, val);
     }
@@ -1405,7 +1436,7 @@ restore_u648 (GSMetric metric, const char *path, int module) {
   khash_t (u648) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(Uv))";
-  int date = 0;
+  int date = 0, ret = 0;
   uint64_t key;
   uint16_t val = 0;
 
@@ -1414,9 +1445,11 @@ restore_u648 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_u648 (hash, key, val);
     }
@@ -1459,7 +1492,7 @@ restore_iu64 (GSMetric metric, const char *path, int module) {
   khash_t (iu64) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(uU))";
-  int date = 0;
+  int date = 0, ret = 0;
   uint32_t key;
   uint64_t val;
 
@@ -1468,9 +1501,11 @@ restore_iu64 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_iu64 (hash, key, val);
     }
@@ -1513,7 +1548,7 @@ restore_su64 (GSMetric metric, const char *path, int module) {
   khash_t (su64) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(sU))";
-  int date = 0;
+  int date = 0, ret = 0;
   char *key = NULL;
   uint64_t val;
 
@@ -1522,9 +1557,11 @@ restore_su64 (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_su64 (hash, key, val);
       free (key);
@@ -1568,7 +1605,7 @@ restore_igsl (GSMetric metric, const char *path, int module) {
   khash_t (igsl) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(uu))";
-  int date = 0;
+  int date = 0, ret = 0;
   uint32_t key, val;
 
   if (!(tn = tpl_map (fmt, &date, &key, &val)))
@@ -1576,9 +1613,11 @@ restore_igsl (GSMetric metric, const char *path, int module) {
 
   tpl_load (tn, TPL_FILE, path);
   while (tpl_unpack (tn, 1) > 0) {
-    /* if operation fails */
-    if ((ht_insert_date (date) == -1) || !(hash = get_hash (module, date, metric)))
-      return 1;
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
     while (tpl_unpack (tn, 2) > 0) {
       ins_igsl (hash, key, val);
     }
@@ -1682,11 +1721,61 @@ restore_metric_type (GModule module, GKHashMetric mtrc) {
   free (fn);
 }
 
+/* Given all the dates that we have processed, persist to disk a copy of them. */
+static void
+persist_dates (void) {
+  tpl_node *tn;
+  char *path = NULL;
+  uint32_t *dates = NULL, len = 0, i, date = 0;
+  char fmt[] = "A(u)";
+
+  if (!(path = set_db_path ("I32_DATES.db")))
+    return;
+
+  dates = get_sorted_dates (&len);
+
+  tn = tpl_map (fmt, &date);
+  for (i = 0; i < len; ++i) {
+    date = dates[i];
+    tpl_pack (tn, 1);
+  }
+  tpl_dump (tn, TPL_FILE, path);
+
+  tpl_free (tn);
+  free (path);
+  free (dates);
+}
+
+/* Restore all the processed dates from our last dataset */
+static void
+restore_dates (void) {
+  tpl_node *tn;
+  char *path = NULL;
+  uint32_t date, idx = 0;
+  char fmt[] = "A(u)";
+
+  if (!(path = check_restore_path ("I32_DATES.db")))
+    return;
+
+  tn = tpl_map (fmt, &date);
+  tpl_load (tn, TPL_FILE, path);
+
+  persisted_dates_len = tpl_Alen (tn, 1);
+  persisted_dates = xcalloc (persisted_dates_len, sizeof (uint32_t));
+  while (tpl_unpack (tn, 1) > 0)
+    persisted_dates[idx++] = date;
+
+  qsort (persisted_dates, idx, sizeof (uint32_t), cmp_ui32_desc);
+  tpl_free (tn);
+  free (path);
+}
+
 /* Entry function to restore a global hashes */
 static void
 restore_global (void) {
   char *path = NULL;
 
+  restore_dates ();
   if ((path = check_restore_path ("SI32_CNT_OVERALL.db"))) {
     restore_global_si32 (ht_cnt_overall, path);
     free (path);
@@ -1768,6 +1857,7 @@ static void
 persist_global (void) {
   char *path = NULL;
 
+  persist_dates ();
   if ((path = set_db_path ("SI32_CNT_OVERALL.db"))) {
     persist_global_si32 (ht_cnt_overall, path);
     free (path);
@@ -2133,7 +2223,7 @@ ht_insert_date (uint32_t key) {
   khash_t (igkh) * hash = ht_dates;
 
   if (!hash)
-    return 0;
+    return -1;
 
   return ins_igkh (hash, key);
 }
