@@ -1147,8 +1147,6 @@ init_processing (void) {
   /* initialize storage */
   parsing_spinner->label = "Setting up Storage...";
   init_storage ();
-  //if (conf.load_from_disk)
-  //  set_general_stats ();
   set_spec_date_format ();
 }
 
