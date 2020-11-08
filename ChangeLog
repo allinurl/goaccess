@@ -1,4 +1,49 @@
-Changes to GoAccess 1.4.1 - TBD 
+Changes to GoAccess 1.4.1 - Monday, November 09, 2020
+
+  - Added addtional browsers and bots to the main list.
+  - Added 'average' to each panel overall metrics.
+  - Added '.dmg', '.xz', and '.zst' to the static list.
+  - Added extra check to ensure restoring from disk verifies the content of the
+    log.
+  - Added ru and uk translation files
+  - Added Russian translation (i18n).
+  - Added support for HTTP status code 308.
+  - Added the ability for 'get_home ()' to return NULL on error, instead of
+    terminating GoAccess. Great if using throught systemd.
+  - Added the ability to read lowercase predefined log formats. For instance,
+    '--log-format=COMBINED' or '--log-format=combined'.
+  - Added Ukrainian translation (i18n).
+  - Changed how FIFOs are created and avoid using predictable filenames under
+    '/tmp'.
+  - Changed '--ignore-referer' to use whole referer instead of referring site.
+  - Ensure Cache Status can be parsed without sensitivity to case.
+  - Ensure restored data enforces --keep-last if used by truncating
+    accordingly.
+  - Fixed a few memory leaks when restoring from disk.
+  - Fixed blank time distribution panel when using timestamps.
+  - Fixed build issue due to lack of 'mmap' on 'Win'/'Cygwin'/'MinGW'.
+  - Fixed crash in mouse enabled mode.
+  - Fixed double free on data restore.
+  - Fixed inability to keep processing a log when using '--keep-last'.
+  - Fixed inability to parse truncated logs.
+  - Fixed inability to properly count certain requests when restoring from
+    disk.
+  - Fixed issue where it would not parse subsequent requests coming from stdin.
+  - Fixed issue where log truncation could prevent accurate number counting.
+  - Fixed issue where parsed date range was not rendered with --date-spec.
+  - Fixed issue where parser would stop regardless of a valid --num-test value.
+  - Fixed issue where restoring from disk would increment 'MAX.TS'.
+  - Fixed possible incremental issue when log rotation occurs.
+  - Fixed possible XSS when getting real-time data into the HTML report.
+  - Fixed potential memory leak when failing to get root node.
+  - Fixed real-time hits count issue for certain scenarios.
+  - Fixed segfault 'Docker' due to bad allocation when generating FIFOs.
+  - Fixed 'Unknown' Operating Systems with 'W3C' format.
+  - Removed unnecessary include from parser.c so it builds macOS.
+  - Updated each panel overall UI to be more streamlined.
+  - Updated French translation.
+  - Updated German translation.
+  - Updated sigsegv handler.
 
 Changes to GoAccess 1.4 - Monday, May 18, 2020
 
