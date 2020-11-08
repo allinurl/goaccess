@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goaccess\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-06-27 22:12-0500\n"
+"POT-Creation-Date: 2020-11-08 16:16-0600\n"
 "PO-Revision-Date: 2017-08-04 13:00-0300\n"
 "Last-Translator: Enrique Becerra <kabeza@gmail.com>\n"
 "Language-Team: \n"
@@ -580,7 +580,7 @@ msgstr "Vertical"
 
 #: ../src/labels.h:335
 msgid "WideScreen"
-msgstr ""
+msgstr "Panorama"
 
 #: ../src/labels.h:337
 msgid "File Options"
@@ -604,11 +604,11 @@ msgstr "Siguiente"
 
 #: ../src/labels.h:347
 msgid "First"
-msgstr ""
+msgstr "Primero"
 
 #: ../src/labels.h:349
 msgid "Last"
-msgstr ""
+msgstr "Ultimo"
 
 #: ../src/labels.h:351
 msgid "Chart Options"
@@ -811,27 +811,27 @@ msgstr "417 - Expectativa Fallida"
 
 #: ../src/labels.h:452
 msgid "418 - I’m a teapot"
-msgstr ""
+msgstr "418 - Soy una tetera"
 
 #: ../src/labels.h:454
 msgid "421 - Misdirected Request"
-msgstr ""
+msgstr "421 - Peticion mal dirigida"
 
 #: ../src/labels.h:456
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
-msgstr ""
+msgstr "422 - Peticion fue imposible seguirla debido a errores semánticos"
 
 #: ../src/labels.h:458
 msgid "423 - The resource that is being accessed is locked"
-msgstr ""
+msgstr "423 - El recurso al que se está teniendo acceso está bloqueado"
 
 #: ../src/labels.h:460
 msgid "424 - Failed Dependency: WebDAV"
-msgstr ""
+msgstr "424 - La solicitud falló debido a una falla en la solicitud previa"
 
 #: ../src/labels.h:462
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
-msgstr ""
+msgstr "426 - El cliente debería cambiarse a TLS/1.0"
 
 #: ../src/labels.h:464
 #, fuzzy
@@ -840,7 +840,7 @@ msgstr "402 - Pago Requerido"
 
 #: ../src/labels.h:466
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr ""
+msgstr "429 - Hay muchas conexiones desde esta dirección de internet"
 
 #: ../src/labels.h:468
 #, fuzzy
