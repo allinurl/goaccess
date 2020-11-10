@@ -438,7 +438,7 @@ the log along with the last line parsed of each file and the timestamp of the
 last line parsed. e.g., inode:29627417|line:20012|ts:20171231235059
 
 First it compares if the snippet matches the log being parsed, if it does, it
-assumes the log hasn't changed dramatically, e.g., hasn't been truncated. If
+assumes the log hasn't changed drastically, e.g., hasn't been truncated. If
 the inode does not match the current file, it parses all lines. If the current
 file matches the inode, it then reads the remaining lines and updates the count
 of lines parsed and the timestamp. As an extra precaution, it won't parse log
