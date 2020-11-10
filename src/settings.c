@@ -746,6 +746,20 @@ set_time_format_str (const char *oarg) {
   conf.time_format = fmt;
 }
 
+/* Determine if time-served data was set through log-format. */
+static void
+contains_usecs (void) {
+  if (!conf.log_format)
+    return;
+
+  if (strstr (conf.log_format, "%D"))
+    conf.serve_usecs = 1;       /* flag */
+  if (strstr (conf.log_format, "%T"))
+    conf.serve_usecs = 1;       /* flag */
+  if (strstr (conf.log_format, "%L"))
+    conf.serve_usecs = 1;       /* flag */
+}
+
 /* Attempt to set the log format given a command line option argument.
  * The supplied optarg can be either an actual format string or the
  * enumerated value such as VCOMBINED */
@@ -761,6 +775,7 @@ set_log_format_str (const char *oarg) {
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
+    contains_usecs ();  /* set flag */
     return;
   }
 
@@ -771,6 +786,8 @@ set_log_format_str (const char *oarg) {
   }
 
   conf.log_format = unescape_str (fmt);
+  contains_usecs ();    /* set flag */
+
   /* assume we are using the default date/time formats */
   set_time_format_str (oarg);
   set_date_format_str (oarg);
