@@ -624,12 +624,16 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
 /* Load raw data into our holder structure */
 void
 load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort) {
-  clock_t begin = clock ();
-
   int i;
   uint32_t size = 0, max_choices = get_max_choices ();
   const GPanel *panel = panel_lookup (module);
+
+#ifdef _DEBUG
+  clock_t begin = clock ();
   double taken;
+  char *modstr = NULL;
+  LOG_DEBUG (("== load_holder_data ==\n"));
+#endif
 
   size = raw_data->size;
   h->holder_size = size > max_choices ? max_choices : size;
@@ -647,6 +651,10 @@ load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort) 
     sort_sub_list (h, sort);
   free_raw_data (raw_data);
 
+#ifdef _DEBUG
+  modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
-  LOG_DEBUG (("== %d\t\t\t%f\n", module, taken));
+  LOG_DEBUG (("== %-30s%f\n\n", modstr, taken));
+  free (modstr);
+#endif
 }
