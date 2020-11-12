@@ -385,20 +385,68 @@ free_raw_data (GRawData * raw_data) {
 
 /* Reset an instance of GLog structure. */
 void
-reset_struct (GLog * glog) {
-  glog->invalid = 0;
-  glog->processed = 0;
+reset_struct (Logs * logs) {
+  int i = 0;
+
+  for (i = 0; i < logs->size; ++i)
+    logs->glog[i].invalid = logs->glog[i].processed = 0;
 }
 
-/* Allocate memory for a new GLog instance.
+/* Allocate memory for a new set of Logs including a GLog instance.
  *
- * On success, the newly allocated GLog is returned . */
-GLog *
-init_log (void) {
-  GLog *glog = xmalloc (sizeof (GLog));
-  memset (glog, 0, sizeof *glog);
+ * On success, the newly allocated Logs is returned . */
+Logs *
+init_logs (int size) {
+  Logs *logs = xcalloc (1, sizeof (*logs));
+  GLog *glog = xcalloc (size, sizeof (*glog));
+  int i = 0;
 
-  return glog;
+  logs->glog = glog;
+  for (i = 0; i < size; ++i) {
+    glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
+    glog[i].filename = xstrdup (conf.filenames[i]);
+
+    logs->processed = &(glog[i].processed);
+    logs->filename = glog[i].filename;
+  }
+
+  logs->size = size;
+
+  return logs;
+}
+
+/* Free all log errors stored during parsing. */
+void
+free_logerrors (GLog * glog) {
+  int i;
+
+  if (!glog->log_erridx)
+    return;
+
+  for (i = 0; i < glog->log_erridx; ++i)
+    free (glog->errors[i]);
+  glog->log_erridx = 0;
+}
+
+/* Free all log containers. */
+void
+free_logs (Logs * logs) {
+  GLog *glog = NULL;
+  int i;
+
+  for (i = 0; i < logs->size; ++i) {
+    glog = &logs->glog[i];
+
+    free (glog->filename);
+    free_logerrors (glog);
+    free (glog->errors);
+    if (glog->pipe) {
+      fclose (glog->pipe);
+    }
+  }
+
+  free (logs->glog);
+  free (logs);
 }
 
 /* Initialize a new GLogItem instance.
@@ -1534,34 +1582,24 @@ count_bw (int numdate, uint64_t resp_size) {
 
 /* Output all log errors stored during parsing. */
 void
-output_logerrors (GLog * glog) {
-  int i;
+output_logerrors (Logs * logs) {
+  GLog *glog = NULL;
+  int pid = getpid (), i;
 
-  if (!glog->log_erridx)
-    return;
+  for (i = 0; i < logs->size; ++i) {
+    glog = &logs->glog[i];
+    if (!glog->log_erridx)
+      continue;
 
-  fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
-  fprintf (stderr, " %s:\n\n", ERR_PARSED_NLINES_DESC);
+    fprintf (stderr, "==%d== FILE: %s\n", pid, glog->filename);
+    fprintf (stderr, "==%d== ", pid);
+    fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
+    fprintf (stderr, " %s:\n\n", ERR_PARSED_NLINES_DESC);
 
-  for (i = 0; i < glog->log_erridx; ++i)
-    fprintf (stderr, "%s\n", glog->errors[i]);
-  fprintf (stderr, "\n%s\n", ERR_FORMAT_HEADER);
-}
-
-/* Free all log errors stored during parsing. */
-void
-free_logerrors (GLog * glog) {
-  int i;
-
-  if (!glog->log_erridx)
-    return;
-
-  for (i = 0; i < glog->log_erridx; ++i)
-    free (glog->errors[i]);
-  free (glog->errors);
-
-  glog->errors = NULL;
-  glog->log_erridx = 0;
+    for (i = 0; i < glog->log_erridx; ++i)
+      fprintf (stderr, "==%d== %s\n", pid, glog->errors[i]);
+  }
+  fprintf (stderr, "\n==%d== %s\n", pid, ERR_FORMAT_HEADER);
 }
 
 /* Ensure we have the following fields. */
@@ -1589,8 +1627,6 @@ count_invalid (GLog * glog, const char *line) {
   }
 
   if (glog->items->errstr && glog->invalid < MAX_LOG_ERRORS) {
-    if (glog->errors == NULL)
-      glog->errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
     glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
   }
 }
@@ -1615,10 +1651,12 @@ uncount_invalid (GLog * glog) {
 */
 static void
 uncount_processed (GLog * glog) {
+  lock_spinner ();
   if (glog->processed > conf.num_tests)
     glog->processed -= conf.num_tests;
   else
     glog->processed = 0;
+  unlock_spinner ();
 }
 
 /* Keep track of all valid log strings. */
@@ -2649,7 +2687,7 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
  * corresponding data structure.
  *
  * On success, 0 is returned */
-static int
+int
 pre_process_log (GLog * glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
@@ -2776,22 +2814,22 @@ fgetline (FILE * fp) {
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog ** glog, int dry_run) {
+read_lines (FILE * fp, GLog * glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
-  (*glog)->bytes = 0;
+  glog->bytes = 0;
   while ((line = fgetline (fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
       goto out;
-    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
+    if ((ret = read_line (glog, line, &test, &cnt, dry_run)))
       goto out;
     if (dry_run && NUM_TESTS == cnt)
       goto out;
-    (*glog)->bytes += strlen (line);
+    glog->bytes += strlen (line);
     free (line);
-    (*glog)->read++;
+    glog->read++;
   }
 
   /* if no data was available to read from (probably from a pipe) and
@@ -2799,7 +2837,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || ret || (!line && test && (*glog)->processed);
+  return (line && test) || ret || (!line && test && glog->processed);
 
 out:
   free (line);
@@ -2807,7 +2845,7 @@ out:
      - we're still reading the log but the test flag was still set
      - ret flag is not 0, read_line failed
      - reached the end of file, test flag was still set and we processed lines */
-  return test || ret || (test && (*glog)->processed);
+  return test || ret || (test && glog->processed);
 }
 #endif
 
@@ -2817,22 +2855,22 @@ out:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog ** glog, int dry_run) {
+read_lines (FILE * fp, GLog * glog, int dry_run) {
   char *s = NULL;
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
-  (*glog)->bytes = 0;
+  glog->bytes = 0;
   while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
       break;
-    if ((ret = read_line ((*glog), line, &test, &cnt, dry_run)))
+    if ((ret = read_line (glog, line, &test, &cnt, dry_run)))
       break;
     if (dry_run && NUM_TESTS == cnt)
       break;
-    (*glog)->bytes += strlen (line);
-    (*glog)->read++;
+    glog->bytes += strlen (line);
+    glog->read++;
   }
 
   /* if no data was available to read from (probably from a pipe) and
@@ -2844,7 +2882,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
      - we're still reading the log but the test flag was still set
      - ret flag is not 0, read_line failed
      - reached the end of file, test flag was still set and we processed lines */
-  return (s && test) || ret || (!s && test && (*glog)->processed);
+  return (s && test) || ret || (!s && test && glog->processed);
 }
 #endif
 
@@ -2892,7 +2930,7 @@ persist_last_parse (GLog * glog) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-read_log (GLog ** glog, const char *fn, int dry_run) {
+read_log (GLog * glog, int dry_run) {
   FILE *fp = NULL;
   int piping = 0;
   struct stat fdstat;
@@ -2900,21 +2938,20 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
   /* Ensure we have a valid pipe to read from stdin. Only checking for
    * conf.read_stdin without verifying for a valid FILE pointer would certainly
    * lead to issues. */
-  if (fn[0] == '-' && fn[1] == '\0' && (*glog)->pipe) {
-    fp = (*glog)->pipe;
-    (*glog)->piping = piping = 1;
+  if (glog->filename[0] == '-' && glog->filename[1] == '\0' && glog->pipe) {
+    fp = glog->pipe;
+    glog->piping = piping = 1;
   }
 
   /* make sure we can open the log (if not reading from stdin) */
-  if (!piping && (fp = fopen (fn, "r")) == NULL)
-    FATAL ("Unable to open the specified log file '%s'. %s", fn, strerror (errno));
+  if (!piping && (fp = fopen (glog->filename, "r")) == NULL)
+    FATAL ("Unable to open the specified log file '%s'. %s", glog->filename, strerror (errno));
 
   /* grab the inode of the file being parsed */
-  if (!piping && stat (fn, &fdstat) == 0) {
-    (*glog)->inode = fdstat.st_ino;
-    (*glog)->size = (*glog)->lp.size = fdstat.st_size;
-
-    set_initial_persisted_data ((*glog), fp, fn);
+  if (!piping && stat (glog->filename, &fdstat) == 0) {
+    glog->inode = fdstat.st_ino;
+    glog->size = glog->lp.size = fdstat.st_size;
+    set_initial_persisted_data (glog, fp, glog->filename);
   }
 
   /* read line by line */
@@ -2924,7 +2961,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     return 1;
   }
 
-  persist_last_parse ((*glog));
+  persist_last_parse (glog);
 
   /* close log file if not a pipe */
   if (!piping)
@@ -2933,43 +2970,46 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
   return 0;
 }
 
+static void
+set_log_processing (Logs * logs, GLog * glog) {
+  lock_spinner ();
+  logs->processed = &(glog->processed);
+  logs->filename = glog->filename;
+  unlock_spinner ();
+}
+
 /* Entry point to parse the log line by line.
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-parse_log (GLog ** glog, char *tail, int dry_run) {
+parse_log (Logs * logs, int dry_run) {
+  GLog *glog = NULL;
   const char *err_log = NULL;
-  int i;
-
-  /* no data piped, no logs passed, load from disk only then */
-  if (conf.restore && !(*glog)->restored)
-    (*glog)->restored = rebuild_rawdata_cache ();
-
-  /* process tail data and return */
-  if (tail != NULL) {
-    /* no line testing on tail */
-    if (pre_process_log ((*glog), tail, dry_run))
-      return 1;
-    return 0;
-  }
+  int idx;
 
   /* verify that we have the required formats */
   if ((err_log = verify_formats ()))
     FATAL ("%s", err_log);
 
   /* no data piped, no logs passed, load from disk only then */
+  if (conf.restore && !logs->restored)
+    logs->restored = rebuild_rawdata_cache ();
+
+  /* no data piped, no logs passed, load from disk only then */
   if (conf.restore && !conf.filenames_idx && !conf.read_stdin) {
-    (*glog)->load_from_disk_only = 1;
+    logs->load_from_disk_only = 1;
     return 0;
   }
 
-  for (i = 0; i < conf.filenames_idx; ++i) {
-    if (read_log (glog, conf.filenames[i], dry_run)) {
-      fprintf (stderr, "%s\n", conf.filenames[i]);
+  for (idx = 0; idx < logs->size; ++idx) {
+    glog = &logs->glog[idx];
+    set_log_processing (logs, glog);
+
+    if (read_log (glog, dry_run))
       return 1;
-    }
-    (*glog)->filesizes[i] = (*glog)->bytes;
+
+    glog->length = glog->bytes;
   }
 
   return 0;
@@ -2980,19 +3020,25 @@ parse_log (GLog ** glog, char *tail, int dry_run) {
  * On error, an array of pointers containing the error strings.
  * On success, NULL is returned. */
 char **
-test_format (GLog * glog, int *len) {
+test_format (Logs * logs, int *len) {
   char **errors = NULL;
+  GLog *glog = NULL;
   int i;
 
-  if (parse_log (&glog, NULL, 1) == 0)
-    goto clean;
+  if (parse_log (logs, 1) == 0)
+    return NULL;
+
+  for (i = 0; i < logs->size; ++i) {
+    glog = &logs->glog[i];
+    if (!glog->log_erridx)
+      continue;
+    break;
+  }
 
   errors = xcalloc (glog->log_erridx, sizeof (char *));
+  *len = glog->log_erridx;
   for (i = 0; i < glog->log_erridx; ++i)
     errors[i] = xstrdup (glog->errors[i]);
-  *len = glog->log_erridx;
-
-clean:
   free_logerrors (glog);
 
   return errors;

@@ -39,6 +39,7 @@
 #if defined(__GLIBC__)
 #include <execinfo.h>
 #endif
+#include <inttypes.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -49,7 +50,7 @@
 static FILE *access_log;
 static FILE *log_file;
 static FILE *log_invalid;
-static GLog *log_data;
+static Logs *log_data;
 static struct sigaction old_sigsegv_handler;
 
 /* Open a debug file whose name is specified in the given path. */
@@ -129,21 +130,30 @@ setup_sigsegv_handler (void) {
   sigaction (SIGSEGV, &act, &old_sigsegv_handler);
 }
 
+static void
+dump_struct_data (FILE * fp, GLog * glog, int pid) {
+  fprintf (fp, "==%d== FILE: %s\n", pid, glog->filename);
+  fprintf (fp, "==%d== Line number: %" PRIu64 "\n", pid, glog->processed);
+  fprintf (fp, "==%d== Invalid data: %" PRIu64 "\n", pid, glog->invalid);
+  fprintf (fp, "==%d== Piping: %d\n", pid, glog->piping);
+  fprintf (fp, "==%d==\n", pid);
+}
+
 /* Dump to the standard output the values of the overall parsed log
  * data. */
 static void
 dump_struct (FILE * fp) {
-  int pid = getpid ();
+  int pid = getpid (), i;
+
   if (!log_data)
     return;
 
   fprintf (fp, "==%d== VALUES AT CRASH POINT\n", pid);
   fprintf (fp, "==%d==\n", pid);
-  fprintf (fp, "==%d== Line number: %u\n", pid, log_data->processed);
-  fprintf (fp, "==%d== Offset: %u\n", pid, log_data->offset);
-  fprintf (fp, "==%d== Invalid data: %u\n", pid, log_data->invalid);
-  fprintf (fp, "==%d== Piping: %d\n", pid, log_data->piping);
-  fprintf (fp, "==%d==\n", pid);
+
+  for (i = 0; i < log_data->size; ++i)
+    dump_struct_data (fp, &log_data->glog[i], pid);
+
 }
 
 /* Custom SIGSEGV handler. */

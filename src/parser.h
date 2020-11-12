@@ -102,16 +102,15 @@ typedef struct GLastParse_ {
 
 /* Overall parsed log properties */
 typedef struct GLog_ {
-  unsigned int invalid;
-  unsigned int offset;
-  unsigned int processed;
-  unsigned short restored;
-  unsigned short load_from_disk_only;
-  unsigned short piping;
+  uint8_t piping:1;
+  uint8_t log_erridx;
   uint32_t read;                /* lines read/parsed */
-  uint32_t inode;
+  uint32_t inode;               /* inode of the log */
   uint64_t bytes;               /* bytes read */
-  uint64_t size;                /* bytes read */
+  uint64_t size;                /* original size of log */
+  uint64_t length;              /* length read from the log so far */
+  uint64_t invalid;             /* invalid lines for this log */
+  uint64_t processed;           /* lines proceeded for this log */
 
   /* file test for persisted/restored data */
   uint16_t snippetlen;
@@ -120,13 +119,22 @@ typedef struct GLog_ {
   GLogItem *items;
   GLastParse lp;
 
-  unsigned short log_erridx;
+  char *filename;
   char **errors;
-
-  uint64_t *filesizes;          /* log size/bytes already read */
 
   FILE *pipe;
 } GLog;
+
+/* Container for all logs */
+typedef struct Logs_ {
+  uint8_t restored:1;
+  uint8_t load_from_disk_only:1;
+  uint64_t *processed;
+  uint64_t offset;
+  int size;                     /* num items */
+  char *filename;
+  GLog *glog;
+} Logs;
 
 /* Raw data field type */
 typedef enum {
@@ -190,15 +198,18 @@ typedef struct GParse_ {
 } GParse;
 
 char *fgetline (FILE * fp);
-char **test_format (GLog * glog, int *len);
-GLog *init_log (void);
+char **test_format (Logs * logs, int *len);
+int parse_log (Logs * logs, int dry_run);
+int pre_process_log (GLog * glog, char *line, int dry_run);
+void free_logerrors (GLog * glog);
+void free_logs (Logs * logs);
+void free_raw_data (GRawData * raw_data);
+void output_logerrors (Logs * logs);
+void reset_struct (Logs * logs);
+
 GLogItem *init_log_item (GLog * glog);
 GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
-int parse_log (GLog ** glog, char *tail, int dry_run);
-void free_logerrors (GLog * glog);
-void free_raw_data (GRawData * raw_data);
-void output_logerrors (GLog * glog);
-void reset_struct (GLog * glog);
+Logs *init_logs (int size);
 
 #endif

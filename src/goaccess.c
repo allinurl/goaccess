@@ -96,7 +96,7 @@ static GDash *dash;
 /* Data holder structure */
 static GHolder *holder;
 /* Log line properties structure */
-static GLog *glog;
+static Logs *logs;
 /* Old signal mask */
 static sigset_t oldset;
 /* Curses windows */
@@ -164,11 +164,7 @@ house_keeping (void) {
 #endif
 
   /* LOGGER */
-  if (glog->pipe)
-    fclose (glog->pipe);
-  free_logerrors (glog);
-  free (glog->filesizes);
-  free (glog);
+  free_logs (logs);
 
   /* INVALID REQUESTS */
   if (conf.invalid_requests_log) {
@@ -209,7 +205,7 @@ cleanup (int ret) {
 
   /* unable to process valid data */
   if (ret)
-    output_logerrors (glog);
+    output_logerrors (logs);
 
   house_keeping ();
 }
@@ -385,7 +381,7 @@ render_screens (void) {
 
   generate_time ();
   strftime (time_str_buf, sizeof (time_str_buf), "%a %b %e %T %Y", &now_tm);
-  chg = glog->processed - glog->offset;
+  chg = *logs->processed - logs->offset;
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
@@ -748,7 +744,7 @@ read_client (void *ptr_data) {
 
 /* Parse tailed lines */
 static void
-parse_tail_follow (FILE * fp) {
+parse_tail_follow (GLog * glog, FILE * fp) {
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -762,7 +758,7 @@ parse_tail_follow (FILE * fp) {
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
-    parse_log (&glog, buf, 0);
+    pre_process_log (glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
@@ -774,43 +770,43 @@ parse_tail_follow (FILE * fp) {
 
 /* Process appended log data */
 static void
-perform_tail_follow (uint64_t * size1, const char *fn) {
+perform_tail_follow (GLog * glog) {
   FILE *fp = NULL;
   struct stat fdstat;
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
-  uint64_t size2 = 0;
+  uint64_t length = 0;
 
-  if (fn[0] == '-' && fn[1] == '\0') {
-    parse_tail_follow (glog->pipe);
-    *size1 += glog->bytes;
+  if (glog->filename[0] == '-' && glog->filename[1] == '\0') {
+    parse_tail_follow (glog, glog->pipe);
+    glog->length += glog->bytes;
     goto out;
   }
-  if (glog->load_from_disk_only)
+  if (logs->load_from_disk_only)
     return;
 
-  size2 = file_size (fn);
+  length = file_size (glog->filename);
 
   /* file hasn't changed */
   /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
    * rotated/truncated file or larger when data is appended */
-  if (size2 == *size1)
+  if (length == glog->length)
     return;
 
-  if (!(fp = fopen (fn, "r")))
-    FATAL ("Unable to read the specified log file '%s'. %s", fn, strerror (errno));
+  if (!(fp = fopen (glog->filename, "r")))
+    FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (stat (fn, &fdstat) == 0) {
+  if (stat (glog->filename, &fdstat) == 0) {
     glog->inode = fdstat.st_ino;
     glog->size = fdstat.st_size;
   }
 
-  len = MIN (glog->snippetlen, size2);
+  len = MIN (glog->snippetlen, length);
   /* This is not ideal, but maybe the only way reliable way to know if the
    * current log looks different than our first read/parse */
   if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
-    FATAL ("Unable to fread the specified log file '%s'", fn);
+    FATAL ("Unable to fread the specified log file '%s'", glog->filename);
 
   /* Either the log got smaller, probably was truncated so start reading from 0.
    * For the case where the log got larger since the last iteration, we attempt
@@ -818,13 +814,13 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
    * parse. If it's different, then it means the file may got truncated but grew
    * faster than the last iteration (odd, but possible), so we read from 0* */
   if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
-    *size1 = glog->bytes = 0;
+    glog->length = glog->bytes = 0;
 
-  if (!fseeko (fp, *size1, SEEK_SET))
-    parse_tail_follow (fp);
+  if (!fseeko (fp, glog->length, SEEK_SET))
+    parse_tail_follow (glog, fp);
   fclose (fp);
 
-  *size1 += glog->bytes;
+  glog->length += glog->bytes;
 
   /* insert the inode of the file parsed and the last line parsed */
   if (glog->inode) {
@@ -856,7 +852,7 @@ process_html (const char *filename) {
   if (!conf.real_time_html)
     return;
   /* ignore loading from disk */
-  if (glog->load_from_disk_only)
+  if (logs->load_from_disk_only)
     return;
 
   pthread_mutex_lock (&gwswriter->mutex);
@@ -872,8 +868,8 @@ process_html (const char *filename) {
     if (conf.stop_processing)
       break;
 
-    for (i = 0; i < conf.filenames_idx; ++i)
-      perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);     /* 0.2 secs */
+    for (i = 0; i < logs->size; ++i)
+      perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
   close (gwswriter->fd);
@@ -944,9 +940,6 @@ static void
 get_keys (void) {
   int search = 0;
   int c, quit = 1, i;
-
-  if (!glog->load_from_disk_only && conf.filenames_idx) {
-  }
 
   while (quit) {
     if (conf.stop_processing)
@@ -1120,8 +1113,8 @@ get_keys (void) {
       window_resize ();
       break;
     default:
-      for (i = 0; i < conf.filenames_idx; ++i)
-        perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);
+      for (i = 0; i < logs->size; ++i)
+        perform_tail_follow (&logs->glog[i]);
       break;
     }
   }
@@ -1145,7 +1138,7 @@ init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
   /* initialize storage */
-  parsing_spinner->label = "Setting up Storage...";
+  parsing_spinner->label = "SETTING UP STORAGE";
   init_storage ();
   set_spec_date_format ();
 }
@@ -1227,7 +1220,7 @@ static void
 set_pipe_stdin (void) {
   char *term = NULL;
   FILE *pipe = stdin;
-  int fd1, fd2;
+  int fd1, fd2, i;
 
   /* If unable to open a terminal, yet data is being piped, then it's
    * probably from the cron.
@@ -1258,7 +1251,10 @@ set_pipe_stdin (void) {
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
 out:
 
-  glog->pipe = pipe;
+  for (i = 0; i < logs->size; ++i)
+    if (logs->glog[0].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
+      logs->glog[i].pipe = pipe;
+
   free (term);
 }
 
@@ -1346,16 +1342,14 @@ initializer (void) {
 #endif
 
   /* init glog */
-  glog = init_log ();
-  /* init log file size already read */
-  glog->filesizes = xcalloc (conf.filenames_idx, sizeof (uint64_t));
-
+  logs = init_logs (conf.filenames_idx);
   set_io ();
-  set_signal_data (glog);
+  set_signal_data (logs);
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
-  parsing_spinner->processed = &glog->processed;
+  parsing_spinner->processed = &(logs->processed);
+  parsing_spinner->filename = &(logs->filename);
 }
 
 static char *
@@ -1376,11 +1370,32 @@ generate_fifo_name (void) {
   return path;
 }
 
+static int
+spawn_ws (void) {
+  gwswriter = new_gwswriter ();
+  gwsreader = new_gwsreader ();
+
+  if (!conf.fifo_in)
+    conf.fifo_in = generate_fifo_name ();
+  if (!conf.fifo_out)
+    conf.fifo_out = generate_fifo_name ();
+
+  /* open fifo for read */
+  if ((gwsreader->fd = open_fifoout ()) == -1) {
+    LOG (("Unable to open FIFO for read.\n"));
+    return 1;
+  }
+
+  if (conf.daemonize)
+    daemonize ();
+  setup_ws_server (gwswriter, gwsreader);
+
+  return 0;
+}
+
 static void
 set_standard_output (void) {
   int html = 0;
-  gwswriter = new_gwswriter ();
-  gwsreader = new_gwsreader ();
 
   /* HTML */
   if (find_output_type (NULL, "html", 0) == 0 || conf.output_format_idx == 0)
@@ -1388,20 +1403,8 @@ set_standard_output (void) {
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
-    if (!conf.fifo_in)
-      conf.fifo_in = generate_fifo_name ();
-    if (!conf.fifo_out)
-      conf.fifo_out = generate_fifo_name ();
-
-    /* open fifo for read */
-    if ((gwsreader->fd = open_fifoout ()) == -1) {
-      LOG (("Unable to open FIFO for read.\n"));
+    if (spawn_ws ())
       return;
-    }
-
-    if (conf.daemonize)
-      daemonize ();
-    setup_ws_server (gwswriter, gwsreader);
   }
   setup_thread_signals ();
 
@@ -1429,7 +1432,7 @@ set_curses (int *quit) {
   /* Display configuration dialog if missing formats and not piping data in */
   if (!conf.read_stdin && (verify_formats () || conf.load_conf_dlg)) {
     refresh ();
-    *quit = render_confdlg (glog, parsing_spinner);
+    *quit = render_confdlg (logs, parsing_spinner);
     clear ();
   }
   /* Piping data in without log/date/time format */
@@ -1477,14 +1480,16 @@ main (int argc, char **argv) {
 
   /* main processing event */
   time (&start_proc);
-  parsing_spinner->label = "Parsing...";
-  if ((ret = parse_log (&glog, NULL, 0))) {
+  parsing_spinner->label = "PARSING";
+
+  if ((ret = parse_log (logs, 0))) {
     end_spinner ();
     goto clean;
   }
+
   if (conf.stop_processing)
     goto clean;
-  glog->offset = glog->processed;
+  logs->offset = *logs->processed;
 
   /* init reverse lookup thread */
   gdns_init ();

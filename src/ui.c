@@ -984,8 +984,8 @@ ui_spinner (void *ptr_data) {
       snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
     } else {
       tdiff = (long long) (time (NULL) - begin);
-      psec = tdiff >= 1 ? *(sp->processed) / tdiff : 0;
-      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->processed), psec);
+      psec = tdiff >= 1 ? **(sp->processed) / tdiff : 0;
+      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *sp->filename, **(sp->processed), psec);
     }
     setlocale (LC_NUMERIC, "POSIX");
 
@@ -999,7 +999,7 @@ ui_spinner (void *ptr_data) {
       wrefresh (sp->win);
     } else if (!conf.no_progress) {
       /* STDOUT */
-      fprintf (stderr, "%s\r", buf);
+      fprintf (stderr, " %s\r", buf);
     }
 
     pthread_mutex_unlock (&sp->mutex);
@@ -1227,7 +1227,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
  * On error, or if the selected format is invalid, 1 is returned.
  * On success, 0 is returned. */
 int
-render_confdlg (GLog * glog, GSpinner * spinner) {
+render_confdlg (Logs * logs, GSpinner * spinner) {
   GMenu *menu;
   WINDOW *win;
 
@@ -1405,13 +1405,13 @@ render_confdlg (GLog * glog, GSpinner * spinner) {
         int nerrors = 0;
 
         /* test log against selected settings */
-        if ((errors = test_format (glog, &nerrors))) {
+        if ((errors = test_format (logs, &nerrors))) {
           invalid = 1;
           load_confdlg_error (win, errors, nerrors);
         }
         /* valid data, reset glog & start parsing */
         else {
-          reset_struct (glog);
+          reset_struct (logs);
           /* start spinner thread */
           spinner->win = win;
           spinner->y = 3;

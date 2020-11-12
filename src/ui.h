@@ -57,8 +57,8 @@
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
-#define SPIN_FMTM "%s [%'u] [%'lld/s]"
-#define SPIN_LBL 50     /* max length of the progress spinner */
+#define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
+#define SPIN_LBL 256    /* max length of the progress spinner */
 
 #define SPIN_UPDATE_INTERVAL 100000     // in microseconds
 
@@ -189,7 +189,8 @@ typedef struct GSpinner_ {
   int y;
   pthread_mutex_t mutex;
   pthread_t thread;
-  unsigned int *processed;
+  uint64_t **processed;
+  char **filename;
   WINDOW *win;
   enum {
     SPN_RUN,
@@ -227,7 +228,7 @@ const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
 int get_start_end_parsing_dates (char **start, char **end, const char *f);
-int render_confdlg (GLog * glog, GSpinner * spinner);
+int render_confdlg (Logs * logs, GSpinner * spinner);
 void close_win (WINDOW * w);
 GAgents *load_host_agents (const char *addr);
 void display_general (WINDOW * win, GHolder *h);
