@@ -397,9 +397,15 @@ reset_struct (Logs * logs) {
  * On success, the newly allocated Logs is returned . */
 Logs *
 init_logs (int size) {
-  Logs *logs = xcalloc (1, sizeof (*logs));
-  GLog *glog = xcalloc (size, sizeof (*glog));
+  Logs *logs = NULL;
+  GLog *glog = NULL;
   int i = 0;
+
+  if (!size)
+    return NULL;
+
+  logs = xcalloc (1, sizeof (*logs));
+  glog = xcalloc (size, sizeof (*glog));
 
   logs->glog = glog;
   for (i = 0; i < size; ++i) {

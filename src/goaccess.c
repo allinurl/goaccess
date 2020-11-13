@@ -1240,7 +1240,6 @@ set_pipe_stdin (void) {
   if (fileno (stdin) != 0)
     (void) dup2 (fileno (stdin), 0);
 
-  add_dash_filename ();
   /* no need to set it as non-blocking since we are simply outputting a
    * static report */
   if (conf.output_stdout && !conf.real_time_html)
@@ -1252,7 +1251,7 @@ set_pipe_stdin (void) {
 out:
 
   for (i = 0; i < logs->size; ++i)
-    if (logs->glog[0].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
+    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
       logs->glog[i].pipe = pipe;
 
   free (term);
@@ -1341,8 +1340,13 @@ initializer (void) {
   init_geoip ();
 #endif
 
+  if (!isatty (STDIN_FILENO))
+    add_dash_filename ();
+
   /* init glog */
-  logs = init_logs (conf.filenames_idx);
+  if (!(logs = init_logs (conf.filenames_idx)))
+    FATAL ("No input data was provided to parse.");
+
   set_io ();
   set_signal_data (logs);
 
