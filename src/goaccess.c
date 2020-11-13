@@ -1350,6 +1350,9 @@ initializer (void) {
   parsing_spinner = new_gspinner ();
   parsing_spinner->processed = &(logs->processed);
   parsing_spinner->filename = &(logs->filename);
+
+  /* init random number generator */
+  srand (getpid ());
 }
 
 static char *
