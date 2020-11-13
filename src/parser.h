@@ -88,10 +88,6 @@ typedef struct GLogItem_ {
   int uniq_nkey;
   int agent_nkey;
 
-  /* UMS */
-  char *mime_type;
-  char *tls_type;
-  
   char *errstr;
   struct tm dt;
 } GLogItem;
