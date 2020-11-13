@@ -91,9 +91,6 @@ static GPanel paneling[] = {
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION        , print_json_data , print_json_sub_items } ,
 #endif
-  {MIME_TYPE           , print_json_data , print_json_sub_items } ,
-  {TLS_TYPE            , print_json_data , print_json_sub_items } ,
-
 };
 /* *INDENT-ON* */
 

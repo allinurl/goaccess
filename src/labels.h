@@ -208,20 +208,6 @@
 #define STATUS_CODES_LABEL             \
   N_("Status Codes")
 
-#define MIME_TYPE_HEAD                 \
-  N_("MIME Types")
-#define MIME_TYPE_DESC                 \
-  N_("File types shipped out")
-#define MIME_TYPE_LABEL                \
-  N_("MIME Types")
-
-#define TLS_TYPE_HEAD				\
-  N_("Encryption settings")
-#define TLS_TYPE_DESC                 \
-  N_("TLS version and picked algorithm")
-#define TLS_TYPE_LABEL                \
-  N_("TLS Settings")
-
 /* Find Labels */
 #define CISENSITIVE                    \
   _("[ ] case sensitive")
