@@ -86,7 +86,7 @@ init_geoip (void) {
   mmdb = xcalloc (1, sizeof (MMDB_s));
   if ((status = MMDB_open (fn, MMDB_MODE_MMAP, mmdb)) != MMDB_SUCCESS) {
     free (mmdb);
-    FATAL ("Unable to open GeoIP2 database: %s\n", fn);
+    FATAL ("Unable to open GeoIP2 database %s: %s\n", fn, MMDB_strerror (status));
   }
 
   if (strcmp (mmdb->metadata.database_type, "GeoLite2-City") == 0)
@@ -153,8 +153,7 @@ geoip_set_country (const char *country, const char *code, char *loc) {
  * in the given buffer. */
 static void
 geoip_set_city (const char *city, const char *region, char *loc) {
-  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City",
-            region ? region : "N/A Region");
+  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -162,8 +161,7 @@ geoip_set_city (const char *city, const char *region, char *loc) {
 static void
 geoip_set_continent (const char *continent, char *loc) {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s",
-              get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
@@ -227,6 +225,8 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
     code = get_value (res, "country", "iso_code", NULL);
   }
   geoip_set_country (country, code, location);
+  free (code);
+  free (country);
 }
 
 /* A wrapper to fetch the looked up result and set the continent code.
@@ -240,6 +240,7 @@ geoip_query_continent (MMDB_lookup_result_s res, char *location) {
   if (res.found_entry)
     code = get_value (res, "continent", "code", NULL);
   geoip_set_continent (code, location);
+  free (code);
 }
 
 /* Set country data by record into the given `location` buffer */

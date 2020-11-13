@@ -2,74 +2,117 @@ GoAccess was designed and developed by Gerardo Orellana <goaccess@prosoftcorp.co
 
 Special thanks to the following individuals for their great contributions:
 
-  * Aaditya Bagga <abchk1234@gmail.com>
+  * 0bi-w6n-K3nobi <71027865+0bi-w6n-K3nob@users.noreply.github.com>
+  * Aaditya Bagga <noreply@github.com>
+  * abgit <francisco.j.azevedo@gmail.com>
   * Adam Števko <adam.stevko@gmail.com>
   * Adrian <totcha@gazeta.pl>
-  * Alexander Eifler <github@eifx.de>
+  * aishikoyo <aixxx033@umn.edu>
+  * Alan Placidina <noreply@github.com>
+  * Alexander Eifler <noreply@github.com>
+  * Alexandre Perrin <noreply@github.com>
+  * A. Nackov <anackov@gmail.com>
   * Andreas Sommer <andreas.sommer@ppro.com>
   * Andreas Weigel <andreaswe@securepoint.de>
   * Andrew Minion <andrew@andrewrminion.com>
   * Antonio Terceiro <terceiro@softwarelivre.org>
+  * Arnaud Rebillout <elboulangero@gmail.com>
   * Arnie97 <arnie97@gmail.com>
-  * Aslak Raanes <aslakr@gmail.com>
-  * Bjørnar Hansen <tilbjornar@gmail.com>
-  * Bo Cai <charpty@gmail.com>
+  * as0n <n.was.here@gmail.com>
+  * Aslak Raanes <noreply@github.com>
+  * Axel Wehner <mail@axelwehner.de>
+  * Bbertatum <bertrand@2backup.fr>
+  * Benjamin Bach <benjamin@overtag.dk>
+  * Bjørnar Hansen <noreply@github.com>
   * Bob Black <git@riblack.com>
+  * Bo Cai <charpty@gmail.com>
+  * Brandon Coleman <metrix1978@gmail.com>
+  * Carlos Duelo <noreply@github.com>
+  * Celso Providelo <celso.providelo@gmail.com>
+  * Chang Zhao <noreply@github.com>
   * Chilledheart <rwindz0@gmail.com>
-  * Chris Downs <chris-downs@users.noreply.github.com>
+  * Chris Downs <noreply@github.com>
+  * Christian Göttsche <cgzones@googlemail.com>
   * Christian Hermann <c.hermann@bitbeans.de>
   * Christian Moelders <christian.moelders@storeplus.de>
   * Christopher Meng <i@cicku.me>
-  * Daniel (dmilith) Dettlaff <dmilith@me.com>
+  * Clément Hermann <nodens@nodens.org>
   * Daniel Aleksandersen <code@daniel.priv.no>
+  * Daniel Aleksandersen <noreply@github.com>
+  * Daniel (dmilith) Dettlaff <dmilith@me.com>
+  * Danila Vershinin <noreply@github.com>
+  * Danny Kirkham <danny@kirkham.dev>
+  * David Carlier <devnexen@gmail.com>
   * David Geistert <d3f3kt@scripts4u.net>
+  * d_dandrew <dragonandy@foxmail.com>
+  * ElXreno <elxreno@gmail.com>
   * Enrique Becerra <kabeza@gmail.com>
+  * evitalis <evitalis@users.noreply.github.com>
   * Florian Forster <ff@octo.it>
-  * Francisco Azevedo <francisco.j.azevedo@gmail.com>
+  * forDream <noreply@github.com>
+  * fqbuild <fqbuild@FutureQuest.net>
   * Frederic Cambus <fcambus@users.sourceforge.net>
   * Genki Sugawara <sugawara@cookpad.com>
+  * Gerald Combs <gerald@zing.org>
+  * gitqlt <noreply@github.com>
   * Hiroki Kamino <46459949+err931@users.noreply.github.com>
-  * Jeffery Wilkins <djcanadianjeff@gmail.com>
+  * holys <chendahui007@gmail.com>
+  * Jeffery Wilkins <goaccess@prosoftcorp.com>
   * Jeremy Burks <jeremy@zomgwat.com>
+  * Jeremy Lin <jeremy.lin@gmail.com>
+  * Joaquín de la Zerda <joaquin@itbaf.com>
   * Joe Groocock <me@frebib.net>
-  * Joe Winett <joe@winett.com>
+  * Joe Winett <noreply@github.com>
   * Joona <joona.paivahonka@gmail.com>
   * Julian Xhokaxhiu <xhokaxhiujulian@gmail.com>
   * Justin Mills <justin.mills@utah.edu>
+  * Kamino Hiroki <37243867+4f8p@users.noreply.github.com>
   * Kit Westneat <kit.westneat@gmail.com>
-  * Maksim Losev <mlosev@beget.ru>
-  * Mark J. Berger <mark.berger.j@gmail.com>
-  * Mathieu Aubin <mathieu@zeroserieux.com>
-  * Mathieu Thoretton <mathieu.thoretton@getyourguide.com>
-  * Max Christian Pohle <info@entwicklerseite.de>
-  * Michael Vetter <jubalh@iodoru.org>
-  * Nicolas <np.pascal@gmail.com>
-  * Nicolas Le Manchet <nicolas@lemanchet.fr>
-  * Otto Kekäläinen <otto.kekalainen@seravo.fi>
-  * Sean Cross <sean@xobs.io>
-  * Sebastian Wiedenroth <wiedi@frubar.net>
-  * SjonHortensius <SjonHortensius@users.noreply.github.com>
-  * Steely Wing <steelywing@users.noreply.github.com>
-  * Stoyan Dimov <s.dimov@codelogic.eu>
-  * Stéphane Péchard <stephanepechard@gmail.com>
-  * Tatsuyuki Ishi <ishitatsuyuki@gmail.com>
-  * Thomas Gläßle <t_glaessle@gmx.de>
-  * Tom Samstag <github@modtwo.com>
-  * Viktor Szépe <viktor@szepe.net>
-  * Ville Skyttä <ville.skytta@iki.fi>
-  * Vladimir Pavljuchenkov <spiderx@spiderx.dp.ua>
-  * Yuri D'Elia <wavexx@thregr.org>
-  * Yuriy M. Kaminskiy <yumkam@gmail.com>
-  * abgit <francisco.j.azevedo@gmail.com>
-  * as0n <n.was.here@gmail.com>
-  * fqbuild <fqbuild@FutureQuest.net>
-  * holys <chendahui007@gmail.com>
   * kyle sloan <kyle@ifsight.com>
+  * LeoAttn <leo.massonnat@hotmail.fr>
+  * Maksim Losev <mlosev@beget.ru>
+  * markiewb <noreply@github.com>
+  * Mark J. Berger <mark.berger.j@gmail.com>
+  * Martins Polakovs <martins.polakovs@gmail.com>
+  * Massimiliano Torromeo <massimiliano.torromeo@gmail.com>
+  * Mathieu Aubin <noreply@github.com>
+  * Mathieu Thoretton <mathieu.thoretton@getyourguide.com>
+  * Max Christian Pohle <goaccess@prosoftcorp.com>
+  * metrix78 <metrix1978@gmail.com>
+  * Michael Vetter <jubalh@iodoru.org>
   * m-r-r <raybaudroigm@gmail.com>
   * mynameiscfed <christopherfederico@gmail.com>
-  * pravdomil <pravdomil.toman@gmail.com>
+  * Nicolas Le Manchet <nicolas@lemanchet.fr>
+  * Nicolas <noreply@github.com>
+  * Otto Kekäläinen <otto.kekalainen@seravo.fi>
+  * Placidina <alanplacidina@gmail.com>
+  * pravdomil <noreply@github.com>
+  * rachid-debu <rachid.debu@yahoo.fr>
   * radoslawc <radoslawc@gmail.com>
-  * schoonc <schoonc@users.noreply.github.com>
+  * rahra <bf@abenteuerland.at>
+  * Roy Marples <roy@marples.name>
+  * schoonc <noreply@github.com>
+  * Sean Cross <sean@xobs.io>
+  * Sebastian Wiedenroth <wiedi@frubar.net>
+  * Simon Gardling <Titaniumtown@gmail.com>
+  * SjonHortensius <noreply@github.com>
+  * Steely Wing <noreply@github.com>
+  * Stéphane Péchard <stephanepechard@gmail.com>
+  * Stephen Wade <stephen@stephenwade.me>
+  * Stoyan Dimov <s.dimov@codelogic.eu>
+  * Stuart Henderson <noreply@github.com>
+  * Tatsuyuki Ishi <noreply@github.com>
+  * Thomas Gläßle <t_glaessle@gmx.de>
+  * Thomas Lange <code@nerdmind.de>
+  * Tom Samstag <github@modtwo.com>
+  * Viktor Szépe <noreply@github.com>
+  * Viktor Szépe <viktor@szepe.net>
+  * Ville Skyttä <ville.skytta@iki.fi>
+  * Vincent Bernat <vincent@bernat.ch>
+  * Vladimir Pavljuchenkov <spiderx@spiderx.dp.ua>
+  * Wladimir Palant <noreply@github.com>
   * wodev <wodev@fischer-net.net>
   * woobee <support.developpement@gmail.com>
+  * Yuri D'Elia <wavexx@thregr.org>
+  * Yuriy M. Kaminskiy <yumkam@gmail.com>
   * zeke <zhenkai0605@gmail.com>

@@ -12,6 +12,9 @@ h3 {
 	font-size: 21px;
 	letter-spacing: -1px;
 }
+.h-dashboard {
+	text-transform: lowercase;
+}
 .page-header {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.15);
 	margin: 25px 0 20px;
@@ -82,7 +85,7 @@ nav {
 	z-index: 2;
 }
 nav .nav-list {
-    height: 100%;
+	height: 100%;
 	overflow-y: auto;
 	width: 350px;
 }
@@ -316,17 +319,42 @@ div.wrap-panel > div {
 .wrap-panel table th.sortable {
 	cursor: pointer;
 }
+.wrap-panel table.table-borderless thead>tr.thead-cols th {
+	font-size: 78%;
+	text-transform: uppercase;
+}
 /* thead meta */
-.wrap-panel table tbody.tbody-meta {
-	border-top: 1px solid #C7C7C7;
-	border-bottom: 1px solid #C7C7C7;
+.wrap-panel table thead>tr.thead-min th.meta-label,
+.wrap-panel table thead>tr.thead-avg th.meta-label,
+.wrap-panel table tfoot>tr.tfoot-totals th.meta-label,
+.wrap-panel table thead>tr.thead-max th.meta-label {
+	font-weight: bold;
+	text-transform: uppercase;
 }
-.wrap-panel table tbody.tbody-meta tr {
-	background-color: #F1F1F1;
-	color: #222;
+.wrap-panel table .thead-min,
+.wrap-panel table .thead-avg,
+.wrap-panel table .thead-max {
+	background: #F8F8F8;
 }
-.wrap-panel table tbody.tbody-meta small {
-	font-size: 65%;
+.wrap-panel table .thead-avg {
+	border-bottom: 2px solid #000;
+}
+.wrap-panel table thead>tr.thead-min th,
+.wrap-panel table thead>tr.thead-avg th,
+.wrap-panel table thead>tr.thead-max th {
+	font-size: smaller;
+	font-weight: normal;
+	padding: 3px 8px 3px 8px;
+	text-transform: inherit;
+}
+.wrap-panel table .thead-min th,
+.wrap-panel table .thead-avg th,
+.wrap-panel table .thead-max th {
+	padding: 3px;
+}
+.wrap-panel table tfoot>tr>th {
+	border-top: 1px dotted #000;
+	padding: 8px;
 }
 /* thead data */
 .wrap-panel table tbody.tbody-data tr td {
@@ -337,10 +365,10 @@ div.wrap-panel > div {
 	border-right: none;
 }
 .wrap-panel table tbody.tbody-data td.row-idx {
-	color: #898989;
+	font-weight: 700;
 }
-.wrap-panel table>tbody+tbody {
-	border-top-width: 1px;
+.wrap-panel table>thead>tr.thead-cols {
+	border-bottom: 2px solid #222;
 }
 .wrap-panel table tbody.tbody-data tr.shaded {
 	background-color: #F7F7F7;
@@ -585,10 +613,6 @@ rect.legend {
 .dark .wrap-panel > div > table {
 	color: #D2D2D2;
 }
-.dark .wrap-panel table tbody.tbody-meta tr {
-	background-color: transparent;
-	color: #F7F7F7;
-}
 .dark .wrap-panel table tbody.tbody-data tr td {
 	border-right: none;
 }
@@ -633,9 +657,19 @@ html.dark.blue,
 .dark.blue div.wrap-panel > div {
 	background: #1F2328;
 }
-.dark.blue .wrap-panel table tbody.tbody-meta {
-	border-top: 1px solid #3B444C;
-	border-bottom: 1px solid #3B444C;
+.dark.blue .wrap-panel table tfoot>tr>th {
+	border-top: 1px dotted #999;
+}
+.dark.blue .wrap-panel table .thead-min,
+.dark.blue .wrap-panel table .thead-avg,
+.dark.blue .wrap-panel table .thead-max {
+	background: #1f2328;
+}
+.dark.blue .wrap-panel table .thead-avg {
+	border-bottom: 2px solid #999;
+}
+.dark.blue .wrap-panel table>thead>tr.thead-cols {
+	border-bottom: 2px solid #999;
 }
 .dark.blue .wrap-panel table tbody.tbody-data tr.shaded {
 	background-color: #181B1F;
@@ -726,9 +760,19 @@ html.dark.gray,
 .dark.gray div.wrap-panel > div {
 	background: #1C1C1C;
 }
-.dark.gray .wrap-panel table tbody.tbody-meta {
-	border-top: 1px solid #363737;
-	border-bottom: 1px solid #363737;
+.dark.gray .wrap-panel table tfoot>tr>th {
+	border-top: 1px dotted #999;
+}
+.dark.gray .wrap-panel table .thead-min,
+.dark.gray .wrap-panel table .thead-avg,
+.dark.gray .wrap-panel table .thead-max {
+	background: #1c1c1c;
+}
+.dark.gray .wrap-panel table .thead-avg {
+	border-bottom: 2px solid #999;
+}
+.dark.gray .wrap-panel table>thead>tr.thead-cols {
+	border-bottom: 2px solid #999;
 }
 .dark.gray .wrap-panel table tbody.tbody-data tr.shaded {
 	background-color: rgba(48, 48, 48, 0.48);
@@ -880,12 +924,22 @@ html.dark.purple,
 	background: #27293d;
 	border-top: 1px solid #2b3553;
 }
-.dark.purple .wrap-panel table tbody.tbody-meta {
-	border-top: 1px solid #2b3553;
-	border-bottom: 1px solid #2b3553;
-}
 .dark.purple .wrap-panel table tbody.tbody-data tr.shaded {
 	background-color: #1e1e2f;
+}
+.dark.purple .wrap-panel table tfoot>tr>th {
+	border-top: 1px dotted #999;
+}
+.dark.purple .wrap-panel table .thead-min,
+.dark.purple .wrap-panel table .thead-avg,
+.dark.purple .wrap-panel table .thead-max {
+	background: #27293d;
+}
+.dark.purple .wrap-panel table .thead-avg {
+	border-bottom: 2px solid #999;
+}
+.dark.purple .wrap-panel table>thead>tr.thead-cols {
+	border-bottom: 2px solid #999;
 }
 .dark.purple .gray {
 	border-top: 4px solid #2b3553;

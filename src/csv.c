@@ -45,17 +45,12 @@
 
 #include "csv.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "ui.h"
 #include "util.h"
 
-struct tm *now_tm;
+struct tm now_tm;
 
 /* Panel output */
 typedef struct GPanel_ {
@@ -223,10 +218,10 @@ print_csv_summary (FILE * fp) {
   char *source = NULL;
   const char *fmt;
   int i = 0, total = 0;
-  long long t = 0LL;
+  uint32_t t = 0;
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   /* generated date time */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%s\",\"%s\"\r\n";
@@ -247,8 +242,8 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_FAILED);
 
   /* generated time */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lld\",\"%s\"\r\n";
-  t = (long long) end_proc - start_proc;
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%u\",\"%s\"\r\n";
+  t = ht_get_processing_time ();
   fprintf (fp, fmt, i++, GENER_ID, t, OVERALL_GENTIME);
 
   /* visitors */
@@ -278,11 +273,10 @@ print_csv_summary (FILE * fp) {
 
   /* log size */
   fmt = "\"%d\",,\"%s\",,,,,,,,\"%jd\",\"%s\"\r\n";
-  fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (),
-           OVERALL_LOGSIZE);
+  fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (), OVERALL_LOGSIZE);
 
   /* bandwidth */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%llu\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lu\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, ht_sum_bw (), OVERALL_BANDWIDTH);
 
   /* log path */

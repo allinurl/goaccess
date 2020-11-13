@@ -59,7 +59,6 @@ static const char *browsers[][2] = {
   {"Raptr", "Game Systems"},
 
   /* Based on Internet Explorer */
-  {"America Online Browser", "Others"},
   {"Avant Browser", "Others"},
   /* Internet Explorer */
   {"IEMobile", "MSIE"},
@@ -67,7 +66,11 @@ static const char *browsers[][2] = {
   /* IE11 */
   {"Trident/7.0", "MSIE"},
   /* Microsoft Edge */
+  {"Edg", "Edge"},
   {"Edge", "Edge"},
+
+  /* Surf Browser */
+  {"Surf", "Surf"},
 
   /* Opera */
   {"Opera Mini", "Opera"},
@@ -93,10 +96,8 @@ static const char *browsers[][2] = {
   {"Firebird", "Others"},
   {"Galeon", "Others"},
   {"google-cloud-sdk", "Others"},
-  {"GranParadiso", "Others"},
   {"IBrowse", "Others"},
   {"K-Meleon", "Others"},
-  {"Kazehakase", "Others"},
   {"Konqueror", "Others"},
   {"Links", "Others"},
   {"Lynx", "Others"},
@@ -116,6 +117,11 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  {"pacman", "Others"},
+  {"Pamac", "Others"},
+  {"libwww-perl", "Others"},
+  {"python-requests", "Others"},
+  {"PackageKit", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -125,9 +131,11 @@ static const char *browsers[][2] = {
   {"FeedHQ", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
+  {"inoreader.com", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
   {"PinRSS", "Feeds"},
+  {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
 
@@ -162,6 +170,7 @@ static const char *browsers[][2] = {
 
   /* Crawlers/Bots (Possible Safari based) */
   {"AppleBot", "Crawlers"},
+  {"facebookexternalhit", "Crawlers"},
   {"Twitter", "Crawlers"},
 
   {"Safari", "Safari"},
@@ -190,6 +199,33 @@ static const char *browsers[][2] = {
   {"Microsoft-WebDAV", "Crawlers"},
   {"DuckDuckGo-Favicons-Bot", "Crawlers"},
   {"bingbot", "Crawlers"},
+  {"PetalBot", "Crawlers"},
+  {"Discordbot", "Crawlers"},
+  {"ZoominfoBot", "Crawlers"},
+  {"Googlebot", "Crawlers"},
+  {"DotBot", "Crawlers"},
+  {"AhrefsBot", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
+  {"Adsbot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
+  {"NetcraftSurveyAgent", "Crawlers"},
+  {"Netcraft Web Server Survey", "Crawlers"},
+  {"masscan", "Crawlers"},
+  {"MJ12bot", "Crawlers"},
+  {"Pandalytics", "Crawlers"},
+  {"YandexBot", "Crawlers"},
+  {"Nimbostratus-Bot", "Crawlers"},
+  {"HTTP Banner Detection", "Crawlers"},
+  {"Hakai", "Crawlers"},
+  {"WinHttp.WinHttpRequest.5", "Crawlers"},
+  {"NetSystemsResearch", "Crawlers"},
+  {"Nextcloud Server Crawler", "Crawlers"},
+  {"CFNetwork", "Crawlers"},
+  {"GoScraper", "Crawlers"},
+  {"Googlebot-Image", "Crawlers"},
+  {"ZmEu", "Crawlers"},
+  {"DowntimeDetector", "Crawlers"},
+
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -203,6 +239,7 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
+  {"BTWebClient", "Feeds"},
   {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
@@ -501,8 +538,7 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
 
-  if ((match = check_http_crawler (str)) &&
-      (token = parse_crawler (str, match, type)))
+  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
     return token;
 
   /* fallback to default browser list */

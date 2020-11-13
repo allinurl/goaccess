@@ -38,11 +38,6 @@
 #include <getopt.h>
 #include <errno.h>
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#include "tcbtdb.h"
-#endif
-
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
 #endif
@@ -87,16 +82,16 @@ struct option long_opts[] = {
   {"with-output-resolver" , no_argument       , 0 , 'd' } ,
   {"444-as-404"           , no_argument       , 0 , 0  }  ,
   {"4xx-to-unique-count"  , no_argument       , 0 , 0  }  ,
-  {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
   {"addr"                 , required_argument , 0 , 0  }  ,
   {"all-static-files"     , no_argument       , 0 , 0  }  ,
+  {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
   {"color"                , required_argument , 0 , 0  }  ,
   {"color-scheme"         , required_argument , 0 , 0  }  ,
   {"crawlers-only"        , no_argument       , 0 , 0  }  ,
   {"daemonize"            , no_argument       , 0 , 0  }  ,
-  {"user-name"            , required_argument , 0 , 0  }  ,
   {"date-format"          , required_argument , 0 , 0  }  ,
   {"date-spec"            , required_argument , 0 , 0  }  ,
+  {"db-path"              , required_argument , 0 , 0  }  ,
   {"dcf"                  , no_argument       , 0 , 0  }  ,
   {"double-decode"        , no_argument       , 0 , 0  }  ,
   {"enable-panel"         , required_argument , 0 , 0  }  ,
@@ -109,12 +104,13 @@ struct option long_opts[] = {
   {"html-prefs"           , required_argument , 0 , 0  }  ,
   {"html-report-title"    , required_argument , 0 , 0  }  ,
   {"ignore-crawlers"      , no_argument       , 0 , 0  }  ,
-  {"ignore-statics"       , required_argument , 0 , 0  }  ,
   {"ignore-panel"         , required_argument , 0 , 0  }  ,
   {"ignore-referer"       , required_argument , 0 , 0  }  ,
+  {"ignore-statics"       , required_argument , 0 , 0  }  ,
   {"ignore-status"        , required_argument , 0 , 0  }  ,
   {"invalid-requests"     , required_argument , 0 , 0  }  ,
   {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
+  {"keep-last"            , required_argument , 0 , 0  }  ,
   {"log-format"           , required_argument , 0 , 0  }  ,
   {"max-items"            , required_argument , 0 , 0  }  ,
   {"no-color"             , no_argument       , 0 , 0  }  ,
@@ -129,17 +125,16 @@ struct option long_opts[] = {
   {"num-tests"            , required_argument , 0 , 0  }  ,
   {"origin"               , required_argument , 0 , 0  }  ,
   {"output"               , required_argument , 0 , 0  }  ,
+  {"persist"              , no_argument       , 0 , 0  }  ,
   {"pid-file"             , required_argument , 0 , 0  }  ,
   {"port"                 , required_argument , 0 , 0  }  ,
   {"process-and-exit"     , no_argument       , 0 , 0  }  ,
   {"real-os"              , no_argument       , 0 , 0  }  ,
   {"real-time-html"       , no_argument       , 0 , 0  }  ,
+  {"restore"              , no_argument       , 0 , 0  }  ,
   {"sort-panel"           , required_argument , 0 , 0  }  ,
   {"static-file"          , required_argument , 0 , 0  }  ,
-  {"keep-last"            , required_argument , 0 , 0  }  ,
-  {"db-path"              , required_argument , 0 , 0  }  ,
-  {"persist"              , no_argument       , 0 , 0  }  ,
-  {"restore"              , no_argument       , 0 , 0  }  ,
+  {"user-name"            , required_argument , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
   {"ssl-key"              , required_argument , 0 ,  0  } ,
@@ -164,27 +159,24 @@ cmd_help (void)
 
   printf (
   /* Log & Date Format Options */
-  "Log & Date Format Options\n\n"
+  CYN "LOG & DATE FORMAT OPTIONS\n\n" RESET
   "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
-  "  --log-format=<logformat>        - Specify log format. Inner quotes need to be\n"
-  "                                    escaped, or use single quotes.\n"
+  "  --log-format=<logformat>        - Specify log format. Inner quotes need escaping, or use single quotes.\n"
   "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n\n"
-
+  "\n"
   /* User Interface Options */
-  "User Interface Options\n\n"
+  CYN "USER INTERFACE OPTIONS\n\n" RESET
   "  -c --config-dialog              - Prompt log/date/time configuration window.\n"
   "  -i --hl-header                  - Color highlight active panel.\n"
   "  -m --with-mouse                 - Enable mouse support on main dashboard.\n"
-  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for more\n"
-  "                                    details and options.\n"
+  "  --color=<fg:bg[attrs, PANEL]>   - Specify custom colors. See manpage for more details.\n"
   "  --color-scheme=<1|2|3>          - Schemes: 1 => Grey, 2 => Green, 3 => Monokai.\n"
   "  --html-custom-css=<path.css>    - Specify a custom CSS file in the HTML report.\n"
   "  --html-custom-js=<path.js>      - Specify a custom JS file in the HTML report.\n"
   "  --html-prefs=<json_obj>         - Set default HTML report preferences.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
-  "  --max-items                     - Maximum number of items to show per panel.\n"
-  "                                    See man page for limits.\n"
+  "  --max-items                     - Maximum number of items to show per panel. See man page for limits.\n"
   "  --no-color                      - Disable colored output.\n"
   "  --no-column-names               - Don't write column names in term output.\n"
   "  --no-csv-summary                - Disable summary metrics on the CSV output.\n"
@@ -193,115 +185,102 @@ cmd_help (void)
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
   "\n"
-
+  ""
   /* Server Options */
-  "Server Options\n\n"
+  CYN "SERVER OPTIONS\n\n" RESET
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
   "  --daemonize                     - Run as daemon (if --real-time-html enabled).\n"
-  "  --user-name=<username>          - Run as the specified user.\n"
   "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
-  "  --origin=<addr>                 - Ensure clients send the specified origin header\n"
-  "                                    upon the WebSocket handshake.\n"
+  "  --origin=<addr>                 - Ensure clients send this origin header upon the WebSocket handshake.\n"
   "  --pid-file=<path>               - Write PID to a file when --daemonize is used.\n"
   "  --port=<port>                   - Specify the port to use.\n"
   "  --real-time-html                - Enable real-time HTML output.\n"
   "  --ssl-cert=<cert.crt>           - Path to TLS/SSL certificate.\n"
   "  --ssl-key=<priv.key>            - Path to TLS/SSL private key.\n"
+  "  --user-name=<username>          - Run as the specified user.\n"
   "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
   "\n"
-
+  ""
   /* File Options */
-  "File Options\n\n"
+  CYN "FILE OPTIONS\n\n" RESET
   "  -                               - The log file to parse is read from stdin.\n"
   "  -f --log-file=<filename>        - Path to input log file.\n"
-  "  -S --log-size=<number>          - Specify the log size, useful when piping in logs.\n"
-  "  -l --debug-file=<filename>      - Send all debug messages to the specified\n"
-  "                                    file.\n"
+  "  -l --debug-file=<filename>      - Send all debug messages to the specified file.\n"
   "  -p --config-file=<filename>     - Custom configuration file.\n"
+  "  -S --log-size=<number>          - Specify the log size, useful when piping in logs.\n"
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n"
   "\n"
-
+  ""
   /* Parse Options */
-  "Parse Options\n\n"
+  CYN "PARSE OPTIONS\n\n" RESET
   "  -a --agent-list                 - Enable a list of user-agents by host.\n"
   "  -b --browsers-file=<path>       - Use additional custom list of browsers.\n"
   "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
-  "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
-  "                                    ranges e.g. 192.168.0.1-192.168.0.10\n"
+  "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP ranges\n"
+  "                                    e.g. 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
   "  -M --http-method=<yes|no>       - Set/unset HTTP request method if found.\n"
   "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
-  "  -q --no-query-string            - Ignore request's query string. Removing the\n"
-  "                                    query string can greatly decrease memory\n"
-  "                                    consumption.\n"
+  "  -q --no-query-string            - Strip request's query string. This can decrease memory consumption.\n"
   "  -r --no-term-resolver           - Disable IP resolver on terminal output.\n"
   "  --444-as-404                    - Treat non-standard status code 444 as 404.\n"
-  "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors\n"
-  "                                    count.\n"
-  "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
+  "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors count.\n"
   "  --all-static-files              - Include static files with a query string.\n"
+  "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
-  "  --date-spec=<date|hr>           - Date specificity. Possible values: `date`\n"
-  "                                    (default), or `hr`.\n"
+  "  --date-spec=<date|hr>           - Date specificity. Possible values: `date` (default), or `hr`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
-  "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards\n"
-  "                                    are allowed. i.e., *.bing.com\n"
-  "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr`\n"
-  "                                    (default), or `min` (tenth of a min).\n"
+  "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards are allowed.\n"
+  "                                    i.e., *.bing.com\n"
+  "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr` (default),\n"
+  "                                    or `min` (tenth of a min).\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards\n"
-  "                                    are allowed. i.e., *.bing.com\n"
+  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards are allowed.\n"
+  "                                    i.e., *.bing.com\n"
   "  --ignore-statics=<req|panel>    - Ignore static requests.\n"
   "                                    req => Ignore from valid requests.\n"
   "                                    panel => Ignore from valid requests and panels.\n"
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
+  "  --no-ip-validation              - Disable client IPv4/6  validation.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
+  "  --persist                       - Persist data to disk on exit to the given --db-path or to /tmp.\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
-  "  --persist                       - Persist data to disk on exit to the given\n"
-  "                                    --db-path or to /tmp by default.\n"
-  "  --restore                       - Restore data from disk from the given\n"
-  "                                    --db-path or from /tmp by default.\n"
-  "  --real-os                       - Display real OS names. e.g, Windows XP, Snow\n"
-  "                                    Leopard.\n"
-  "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. For example:\n"
-  "                                    --sort-panel=VISITORS,BY_HITS,ASC. See\n"
-  "                                    manpage for a list of panels/fields.\n"
-  "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
-  "                                    Extensions are case sensitive.\n"
+  "  --real-os                       - Display real OS names. e.g, Windows XP, Snow Leopard.\n"
+  "  --restore                       - Restore data from disk from the given --db-path or from /tmp.\n"
+  "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. e.g., --sort-panel=VISITORS,BY_HITS,ASC.\n"
+  "                                    See manpage for a list of panels/fields.\n"
+  "  --static-file=<extension>       - Add static file extension. e.g.: .mp3. Extensions are case sensitive.\n"
   "\n"
 
 /* GeoIP Options */
 #ifdef HAVE_GEOLOCATION
-  "GeoIP Options\n\n"
+  CYN "GEOIP OPTIONS\n\n" RESET
 #ifdef HAVE_LIBGEOIP
-  "  -g --std-geoip                  - Standard GeoIP database for less memory\n"
-  "                                    consumption.\n"
+  "  -g --std-geoip                  - Standard GeoIP database for less memory consumption.\n"
 #endif
-  "  --geoip-database=<path>         - Specify path to GeoIP database file. i.e.,\n"
-  "                                    GeoLiteCity.dat, GeoIPv6.dat ...\n"
+  "  --geoip-database=<path>         - Specify path to GeoIP database file.\n"
+  "                                    i.e., GeoLiteCity.dat, GeoIPv6.dat ...\n"
   "\n"
 #endif
 
 /* Other Options */
-  "Other Options\n\n"
+  CYN "OTHER OPTIONS\n\n" RESET
   "  -h --help                       - This help.\n"
+  "  -s --storage                    - Display current storage method. e.g., Hash.\n"
   "  -V --version                    - Display version information and exit.\n"
-  "  -s --storage                    - Display current storage method. e.g., B+\n"
-  "                                    Tree, Hash.\n"
-  "  --dcf                           - Display the path of the default config\n"
-  "                                    file when `-p` is not used.\n"
+  "  --dcf                           - Display the path of the default config file when `-p` is not used.\n"
   "\n"
 
   "%s `man goaccess`.\n\n"
-  "%s: http://goaccess.io\n"
-  "GoAccess Copyright (C) 2009-2017 by Gerardo Orellana"
+  "%s: %s\n"
+  "GoAccess Copyright (C) 2009-2020 by Gerardo Orellana"
   "\n\n"
-  , INFO_HELP_EXAMPLES, INFO_MORE_INFO
+  , INFO_HELP_EXAMPLES, INFO_MORE_INFO, GO_WEBSITE
   );
   exit (EXIT_FAILURE);
 }
@@ -475,8 +454,7 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* output file */
   if (!strcmp ("output", name))
-    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx,
-                   MAX_OUTFORMATS);
+    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx, MAX_OUTFORMATS);
 
   /* PARSE OPTIONS
    * ========================= */
@@ -491,10 +469,6 @@ parse_long_opt (const char *name, const char *oarg) {
   /* anonymize ip */
   if (!strcmp ("anonymize-ip", name))
     conf.anonymize_ip = 1;
-
-  /* store accumulated time in tcb */
-  if (!strcmp ("accumulated-time", name))
-    conf.store_accumulated_time = 1;
 
   /* all static files */
   if (!strcmp ("all-static-files", name))
@@ -514,8 +488,7 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* enable panel */
   if (!strcmp ("enable-panel", name))
-    set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx,
-                   TOTAL_MODULES);
+    set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx, TOTAL_MODULES);
 
   /* hour specificity */
   if (!strcmp ("hour-spec", name) && !strcmp (oarg, "min"))
@@ -527,13 +500,11 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* ignore panel */
   if (!strcmp ("ignore-panel", name))
-    set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx,
-                   TOTAL_MODULES);
+    set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx, TOTAL_MODULES);
 
   /* ignore referer */
   if (!strcmp ("ignore-referer", name))
-    set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx,
-                   MAX_IGNORE_REF);
+    set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx, MAX_IGNORE_REF);
 
   /* client IP validation */
   if (!strcmp ("no-ip-validation", name))
@@ -541,13 +512,11 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* hide referer from report (e.g. within same site) */
   if (!strcmp ("hide-referer", name))
-    set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx,
-                   MAX_IGNORE_REF);
+    set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx, MAX_IGNORE_REF);
 
   /* ignore status code */
   if (!strcmp ("ignore-status", name))
-    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx,
-                   MAX_IGNORE_STATUS);
+    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx, MAX_IGNORE_STATUS);
 
   /* ignore static requests */
   if (!strcmp ("ignore-statics", name)) {
@@ -597,8 +566,7 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("static-file", name) && conf.static_file_idx < MAX_EXTENSIONS) {
     if (conf.static_file_max_len < strlen (oarg))
       conf.static_file_max_len = strlen (oarg);
-    set_array_opt (oarg, conf.static_files, &conf.static_file_idx,
-                   MAX_EXTENSIONS);
+    set_array_opt (oarg, conf.static_files, &conf.static_file_idx, MAX_EXTENSIONS);
   }
 
   /* GEOIP OPTIONS

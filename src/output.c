@@ -40,13 +40,8 @@
 
 #include "output.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "gwsocket.h"
 #include "json.h"
 #include "settings.h"
@@ -217,8 +212,7 @@ clean_output (FILE * fp, const char *s) {
 /* Set the HTML document title and the generated date/time */
 static void
 print_html_title (FILE * fp) {
-  const char *title =
-    conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
+  const char *title = conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
   clean_output (fp, title);
@@ -287,7 +281,7 @@ print_html_body (FILE * fp, const char *now)
   "</span>"
   "</h4>"
   "</div>"
-  "<h1>"
+  "<h1 class='h-dashboard'>"
   "<span class='hidden-xs hidden-sm'>"
   "<i class='fa fa-tachometer'></i> %s"
   "</span>"
@@ -1045,8 +1039,7 @@ print_json_def (FILE * fp, const GHTML * def) {
   /* output close panel attribute */
   fpclose_obj (fp, sp, 1);
 
-  fpjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines,
-          NL);
+  fpjson (fp, (def->module != TOTAL_MODULES - 1) ? ",%.*s" : "%.*s", nlines, NL);
 }
 
 /* Output overall definitions. */
@@ -1099,6 +1092,7 @@ print_json_i18n_def (FILE * fp) {
     {"layout"         , HTML_REPORT_NAV_LAYOUT}         ,
     {"horizontal"     , HTML_REPORT_NAV_HOR}            ,
     {"vertical"       , HTML_REPORT_NAV_VER}            ,
+    {"wide"           , HTML_REPORT_NAV_WIDE}           ,
     {"file_opts"      , HTML_REPORT_NAV_FILE_OPTS}      ,
     {"export_json"    , HTML_REPORT_NAV_EXPORT_JSON}    ,
     {"panel_opts"     , HTML_REPORT_PANEL_PANEL_OPTS}   ,
@@ -1194,7 +1188,7 @@ output_html (GHolder * holder, const char *filename) {
   set_json_nlines (nlines);
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   print_html_header (fp);
 

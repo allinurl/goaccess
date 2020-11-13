@@ -57,23 +57,23 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 /* *INDENT-OFF* */
 /* String modules to enumerated modules */
 static GEnum enum_modules[] = {
-    {"VISITORS"        , VISITORS}        ,
-    {"REQUESTS"        , REQUESTS}        ,
-    {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
-    {"NOT_FOUND"       , NOT_FOUND}       ,
-    {"HOSTS"           , HOSTS}           ,
-    {"OS"              , OS}              ,
-    {"BROWSERS"        , BROWSERS}        ,
-    {"VISIT_TIMES"     , VISIT_TIMES}     ,
-    {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
-    {"REFERRERS"       , REFERRERS}       ,
-    {"REFERRING_SITES" , REFERRING_SITES} ,
-    {"KEYPHRASES"      , KEYPHRASES}      ,
-    {"STATUS_CODES"    , STATUS_CODES}    ,
-    {"REMOTE_USER"     , REMOTE_USER}     ,
-    {"CACHE_STATUS"    , CACHE_STATUS}    ,
+  {"VISITORS"        , VISITORS}        ,
+  {"REQUESTS"        , REQUESTS}        ,
+  {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
+  {"NOT_FOUND"       , NOT_FOUND}       ,
+  {"HOSTS"           , HOSTS}           ,
+  {"OS"              , OS}              ,
+  {"BROWSERS"        , BROWSERS}        ,
+  {"VISIT_TIMES"     , VISIT_TIMES}     ,
+  {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
+  {"REFERRERS"       , REFERRERS}       ,
+  {"REFERRING_SITES" , REFERRING_SITES} ,
+  {"KEYPHRASES"      , KEYPHRASES}      ,
+  {"STATUS_CODES"    , STATUS_CODES}    ,
+  {"REMOTE_USER"     , REMOTE_USER}     ,
+  {"CACHE_STATUS"    , CACHE_STATUS}    ,
 #ifdef HAVE_GEOLOCATION
-    {"GEO_LOCATION"    , GEO_LOCATION}    ,
+  {"GEO_LOCATION"    , GEO_LOCATION}    ,
 #endif
     {"MIME_TYPE"       , MIME_TYPE}    ,
     {"TLS_TYPE"        , TLS_TYPE}    ,
@@ -153,7 +153,7 @@ display_default_config_file (void) {
 void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
-  fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
+  fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
   fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
@@ -230,21 +230,15 @@ get_module_str (GModule module) {
  *
  * On success, the newly malloc'd structure is returned. */
 GAgents *
-new_gagents (void) {
+new_gagents (uint32_t size) {
   GAgents *agents = xmalloc (sizeof (GAgents));
   memset (agents, 0, sizeof *agents);
 
+  agents->items = xcalloc (size, sizeof (GAgentItem));
+  agents->size = size;
+  agents->idx = 0;
+
   return agents;
-}
-
-/* Instantiate a new GAgentItem structure.
- *
- * On success, the newly malloc'd structure is returned. */
-GAgentItem *
-new_gagent_item (uint32_t size) {
-  GAgentItem *item = xcalloc (size, sizeof (GAgentItem));
-
-  return item;
 }
 
 /* Clean the array of agents. */
@@ -256,7 +250,7 @@ free_agents_array (GAgents * agents) {
     return;
 
   /* clean stuff up */
-  for (i = 0; i < agents->size; ++i)
+  for (i = 0; i < agents->idx; ++i)
     free (agents->items[i].agent);
   if (agents->items)
     free (agents->items);
@@ -265,8 +259,8 @@ free_agents_array (GAgents * agents) {
 
 /* Determine if the given date format is a timestamp.
  *
- * On error, 0 is returned.
- * On success, 1 is returned. */
+ * If not a timestamp, 0 is returned.
+ * If it is a timestamp, 1 is returned. */
 int
 has_timestamp (const char *fmt) {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
@@ -418,6 +412,14 @@ verify_panels (void) {
     if (str_inarray ("CACHE_STATUS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (CACHE_STATUS);
   }
+#ifdef HAVE_GEOLOCATION
+#ifdef HAVE_LIBMAXMINDDB
+  if (!conf.geoip_database && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (GEO_LOCATION);
+  }
+#endif
+#endif
 }
 
 /* Build an array of available modules (ignores listed panels).

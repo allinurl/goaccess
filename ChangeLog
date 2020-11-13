@@ -1,3 +1,120 @@
+Changes to GoAccess 1.4.1 - Monday, November 09, 2020
+
+  - Added addtional browsers and bots to the main list.
+  - Added 'Android 11' to the list of OSs.
+  - Added 'macOS 11.0 Big Sur' to the list of OSs.
+  - Added 'average' to each panel overall metrics.
+  - Added '.dmg', '.xz', and '.zst' to the static list.
+  - Added extra check to ensure restoring from disk verifies the content of the
+    log against previous runs.
+  - Added Russian translation (i18n).
+  - Added Ukrainian translation (i18n).
+  - Added support for HTTP status code '308'.
+  - Added the ability for 'get_home ()' to return NULL on error, instead of
+    terminating the process. Great if using through systemd.
+  - Added the ability to read lowercase predefined log formats. For instance,
+    '--log-format=COMBINED' or '--log-format=combined'.
+  - Changed how FIFOs are created and avoid using predictable filenames under
+    '/tmp'.
+  - Changed '--ignore-referer' to use whole referrer instead of referring site.
+  - Ensure Cache Status can be parsed without sensitivity to case.
+  - Ensure restored data enforces '--keep-last' if used by truncating
+    accordingly.
+  - Fixed a few memory leaks when restoring from disk.
+  - Fixed blank time distribution panel when using timestamps.
+  - Fixed build issue due to lack of 'mmap' on 'Win'/'Cygwin'/'MinGW'.
+  - Fixed crash in mouse enabled mode.
+  - Fixed double free on data restore.
+  - Fixed inability to keep processing a log when using '--keep-last'.
+  - Fixed inability to properly parse truncated logs.
+  - Fixed inability to properly count certain requests when restoring from
+    disk.
+  - Fixed issue where it would not parse subsequent requests coming from stdin (tail).
+  - Fixed issue where log truncation could prevent accurate number counting.
+  - Fixed issue where parsed date range was not rendered with '--date-spec'.
+  - Fixed issue where parser would stop regardless of a valid '--num-test' value.
+  - Fixed issue where restoring from disk would increment 'MAX.TS'.
+  - Fixed possible incremental issue when log rotation occurs.
+  - Fixed possible XSS when getting real-time data into the HTML report.
+  - Fixed potential memory leak when failing to get root node.
+  - Fixed real-time hits count issue for certain scenarios.
+  - Fixed segfault in 'Docker' due to a bad allocation when generating FIFOs.
+  - Fixed 'Unknown' Operating Systems with 'W3C' format.
+  - Removed unnecessary include from parser.c so it builds in macOS.
+  - Updated each panel overall UI to be more streamlined.
+  - Updated French translation.
+  - Updated German translation.
+  - Updated Spanish translation.
+  - Updated sigsegv handler.
+
+Changes to GoAccess 1.4 - Monday, May 18, 2020
+
+  - Added a caching storage mechanism to improve parsing raw data and data
+    rendering.
+  - Added a mechanism to avoid counting duplicate data when restoring persisted
+    data from disk.
+  - Added additional option to the HTML report to set a maximum number of items
+    per page to 3.
+  - Added a list of podcast-related user agents under '%sysconfdir%'.
+  - Added 'Android 10' to the list of Android codenames.
+  - Added a 'widescreen' layout to the HTML report (e.g., 4K TV/KPI Dashboard).
+  - Added 'Beaker', 'Brave', and 'Firefox Focus' to the list of browsers
+  - Added command line option --user-name=username to avoid running GoAccess as
+    root when outputting a real-time report.
+  - Added 'DuckDuckGo' and 'MSNBot' browsers to the browsers.list.
+  - Added 'facebookexternalhit' to the default crawler list.
+  - Added German translation (DE).
+  - Added Kubernetes Nginx Ingress Log Format to the default config file.
+  - Added 'macOS Catalina' to the list of OSX codenames.
+  - Added minor CSS updates to HTML report.
+  - Added missing header '<sys/socket.h>' to fix FreeBSD build
+  - Added new 'Edg' token to the list of browsers.
+  - Added '--no-ip-validation' command line to disable client IP validation
+  - Added '--persist' and '--restore' options to persist to disk and restore a
+    dump from disk.
+  - Added Portuguese translation (pt-BR)
+  - Added Swedish translation (SV)
+  - Added the ability to parse server cache status and a new panel to display
+    those metrics.
+  - Changed accumulated time to work by default on '--persist' and '--restore'.
+  - Changed back how the hits and visitors percentage is calculated to be more
+    intuitive.
+  - Changed Geo Location panel display default to show only if database file is
+    provided ('LIBMAXMINDDB').
+  - Changed initial processing time from secs to HH:MM:SS in HTML output.
+  - Changed '--max-items' for the static HTML report to allow no limit on
+    output entries.
+  - Changed required 'gettext' version to 0.19
+  - Changed to ignore 'SIGPIPE' with 'SIG_IGN'
+  - Changed version to 10.15 for 'macOS Catalina'.
+  - Ensure proper escaping on default AWSELB log format.
+  - Ensure valid requests counter is not affected on duplicate entries when
+    restoring data.
+  - Fixed issue preventing Ctrl-C (SIGINT) for the curses interface to stop the
+    program.
+  - Fixed issue where HTML report wouldn't update the tables when changing per
+    page option.
+  - Fixed issue where it wouldn't find either the user's or global config file.
+  - Fixed issue where changing the number of items per page in the HTML report
+    would not automatically refresh the tables.
+  - Fixed issue where last updated label was not updated in real-time.
+  - Fixed issue where overall date range wasn't showing the right start/end parse
+    dates.
+  - Fixed issue where tailing a file could potentially re-parse part of the log.
+  - Fixed memory leak when fetching country/continent while using 'LIBMAXMINDDB'.
+  - Fixed several '-Wcast-qual' warnings.
+  - Fixed unwanted added characters to the HTML output.
+  - Fixed websocket issue returning a 400 due to request header size.
+  - Increased 'MAX_LINE_CONF' so a JSON string can be properly parsed from the
+    config file.
+  - Removed deprecated option '--geoip-city-data' from config file.
+  - Removed unnecessary dependency from snapcraft.yaml.
+  - Removed Vagrantfile per #1410
+  - Removed some old browsers from the default curated list.
+  - Replaced TokyoCabinet storage for a non-dependency in-memory persistent
+    storage.
+  - Updated Dockerfile.
+
 Changes to GoAccess 1.3 - Friday, November 23, 2018
 
   - Added ability to store accumulated processing time into DB_GEN_STATS tcb

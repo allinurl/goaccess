@@ -43,9 +43,9 @@
 #define __attribute__(x) /**/
 #endif
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"1.4"
-#define GO_WEBSITE 		"http://goaccess.io/"
-extern struct tm *now_tm;
+#define GO_VERSION 		"1.4.1"
+#define GO_WEBSITE 		"https://goaccess.io/"
+extern struct tm now_tm;
 
 /* common char array buffer size */
 #define INIT_BUF_SIZE 1024
@@ -163,8 +163,6 @@ typedef struct GMetrics {
     char *sts;
     uint64_t nts;
   } maxts;
-
-  GSLList *keys;
 } GMetrics;
 
 /* Holder sub item */
@@ -216,6 +214,7 @@ typedef struct GAgentItem_ {
 
 typedef struct GAgents_ {
   int size;
+  int idx;
   struct GAgentItem_ *items;
 } GAgents;
 
@@ -231,8 +230,7 @@ extern time_t start_proc;
 extern int module_list[TOTAL_MODULES];
 
 /* *INDENT-OFF* */
-GAgentItem *new_gagent_item (uint32_t size);
-GAgents *new_gagents (void);
+GAgents *new_gagents (uint32_t size);
 void free_agents_array (GAgents *agents);
 
 float get_percentage (unsigned long long total, unsigned long long hit);

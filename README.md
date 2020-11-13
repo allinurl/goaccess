@@ -1,4 +1,4 @@
-GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](https://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge?v1.0)](https://goaccess.io)
+GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](https://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge)](https://goaccess.io)
 ========
 
 ## What is it? ##
@@ -8,8 +8,8 @@ viewer that runs in a **terminal** on &ast;nix systems or through your
 administrators that require a visual server report on the fly.
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?20170307000000)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?20181123000000)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2020071402)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2020110802)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -33,7 +33,7 @@ terminal. Features include:
 
 * **Incremental Log Processing**<br>
   Need data persistence? GoAccess has the ability to process logs incrementally
-  through the on-disk B+Tree database. 
+  through the on-disk persistence options.
 
 * **Only one dependency**<br>
   GoAccess is written in C. To run it, you only need ncurses as a dependency.
@@ -52,8 +52,9 @@ terminal. Features include:
   terminal, or by simply applying the stylesheet on the HTML output.
 
 * **Support for Large Datasets**<br>
-  GoAccess features an on-disk B+Tree storage for large datasets where it is not
-  possible to fit everything in memory.
+  GoAccess features the ability to parse large logs due to its optimized
+  in-memory hash tables. It has very good memory usage and pretty good
+  performance. This storage has support for on-disk persistence as well.
 
 * **Docker Support**<br>
   Ability to build GoAccess' Docker image from upstream. You can still fully
@@ -95,9 +96,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.3.tar.gz
-    $ tar -xzvf goaccess-1.3.tar.gz
-    $ cd goaccess-1.3/
+    $ wget https://tar.goaccess.io/goaccess-1.4.1.tar.gz
+    $ tar -xzvf goaccess-1.4.1.tar.gz
+    $ cd goaccess-1.4.1/
     $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
@@ -115,7 +116,7 @@ Download, extract and compile GoAccess with:
 
 It is easiest to install GoAccess on Linux using the preferred package manager
 of your Linux distribution. Please note that not all distributions will have
-the lastest version of GoAccess available.
+the latest version of GoAccess available.
 
 #### Debian/Ubuntu ####
 
@@ -128,12 +129,11 @@ alternative option below.
 #### Official GoAccess Debian & Ubuntu repository ####
 
     $ echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    $ wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key add -
+    $ wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/goaccess.gpg add -
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
 **Note**:
-* For *on-disk* support (Trusty+ or Wheezy+), run: `sudo apt-get install goaccess-tcb`
 * `.deb` packages in the official repo are available through HTTPS as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
@@ -164,8 +164,8 @@ alternative option below.
 
 #### openSUSE  ####
 
-    # zypper ar -f obs://server:http
-    # zypper ref && zypper in goaccess
+    # zypper ar -f obs://server:http http
+    # zypper in goaccess
 
 #### OpenIndiana ####
 
@@ -177,9 +177,14 @@ alternative option below.
 
 #### Windows ####
 
-GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>. Or
-through the Linux Subsystem on Windows 10.
+[CowAxess](https://goaccess.io/download#distro) is a GoAccess implementation
+for Windows systems. It is a packaging of GoAccess, Cygwin and many other
+related tools to make it a complete and ready-to-use solution for real-time web
+log analysis, all in a 4 MB package.
+
+If you prefer to go the more tedious route, GoAccess can be used in Windows
+through Cygwin. See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
+Or through the Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
@@ -187,13 +192,17 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      | Tokyo Cabinet (opt)      |  OpenSSL (opt)     | gettext
----------------------- | -----------------|------------------| -------------------------| -------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libtokyocabinet-dev      |  libssl-dev        | gettext
-**RHEL/CentOS** | ncurses-devel    | geoip-devel      | tokyocabinet-devel       |  openssl-devel     | gettext-devel
-**Arch Linux**         | ncurses          | geoip            | [compile from source](https://goaccess.io/faq#installation)       |  openssl    | gettext
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-db/tokyocabinet      |  dev-libs/openssl  |
-**Slackware**          | ncurses          | GeoIP            | tokyocabinet             |  openssl           |
+Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     
+---------------------- | -----------------|------------------| -------------------
+**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        
+**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     
+**Arch Linux**         | ncurses          | geoip            |  openssl           
+**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  
+**Slackware**          | ncurses          | GeoIP            |  openssl           
+
+**Note**: You may need to install build tools like `gcc`, `autoconf`,
+`gettext`, `autopoint` etc for compiling/building software from source. e.g.,
+`base-devel`, `build-essential`, `"Development Tools"`.
 
 #### Docker ####
 
@@ -201,32 +210,20 @@ A Docker image has been updated, capable of directing output from an access log.
 
     cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
 
+OR real-time
+
+    cat access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED --real-time-html - > report.html
+
 You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
 
 ## Storage ##
 
-There are three storage options that can be used with GoAccess. Choosing one
-will depend on your environment and needs.
-
 #### Default Hash Tables ####
 
 In-memory storage provides better performance at the cost of limiting the
-dataset size to the amount of available physical memory. By default GoAccess
-uses in-memory hash tables. If your dataset can fit in memory, then this will
-perform fine. It has very good memory usage and pretty good performance.
-
-#### Tokyo Cabinet On-Disk B+ Tree ####
-
-Use this storage method for large datasets where it is not possible to fit
-everything in memory. The B+ tree database is slower than any of the hash
-databases since data has to be committed to disk. However, using an SSD greatly
-increases the performance. You may also use this storage method if you need
-data persistence to quickly load statistics at a later date.
-
-#### Tokyo Cabinet On-Memory Hash Database ####
-
-An alternative to the default hash tables. It uses generic typing and thus it's
-performance in terms of memory and speed is average.
+dataset size to the amount of available physical memory. GoAccess uses
+in-memory hash tables.  It has very good memory usage and pretty good
+performance. This storage has support for on-disk persistence as well.
 
 ## Command Line / Config Options ##
 See [**options**](https://goaccess.io/man#options) that can be supplied to the command or
@@ -288,11 +285,11 @@ It's even possible to parse files from a pipe while reading regular files:
 **Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance, if we would like to process all compressed log files
-access.log.*.gz in addition to the current log file, we can do:
+Now if we want to add more flexibility to GoAccess, we can use `zcat --force`
+to read compressed and uncompressed files. For instance, if we would
+like to process all log files `access.log*`, we can do:
 
-    # zcat access.log.*.gz | goaccess access.log -
+    # zcat --force access.log* | goaccess -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
@@ -347,6 +344,12 @@ or using relative dates such as yesterdays or tomorrows day:
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
     # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
+
+If we want to preserve only certain amount of data and recycle storage, we can
+keep only a certain number of days. For instance to keep & show the last 5
+days:
+
+    # goaccess access.log --keep-last=5
 
 #### Virtual hosts ####
 
@@ -418,31 +421,46 @@ We receive many questions and issues that have been answered previously.
 
 #### Incremental log processing ####
 
-GoAccess has the ability to process logs incrementally through the on-disk
-[B+Tree](https://github.com/allinurl/goaccess#storage) database. It works in
-the following way:
 
-1. A data set must be persisted first with `--keep-db-files`, then the same
-data set can be loaded with `--load-from-disk`.
-2. If new data is passed (piped or through a log file), it will append it to
-the original data set.
-3. To preserve the data at all times, `--keep-db-files` must be used.
-4. If `--load-from-disk` is used without `--keep-db-files`, database files will
-be deleted upon closing the program.
+GoAccess has the ability to process logs incrementally through its internal
+storage and dump its data to disk. It works in the following way:
+
+1. A dataset must be persisted first with `--persist`, then the same dataset
+can be loaded with.
+2. `--restore`.  If new data is passed (piped or through a log file), it will
+append it to the original dataset.
+
+##### NOTES #####
+
+GoAccess keeps track of inodes of all the files processed (assuming files will
+stay on the same partition), in addition, it extracts a snippet of data from
+the log along with the last line parsed of each file and the timestamp of the
+last line parsed. e.g., inode:29627417|line:20012|ts:20171231235059
+
+First it compares if the snippet matches the log being parsed, if it does, it
+assumes the log hasn't changed drastically, e.g., hasn't been truncated. If
+the inode does not match the current file, it parses all lines. If the current
+file matches the inode, it then reads the remaining lines and updates the count
+of lines parsed and the timestamp. As an extra precaution, it won't parse log
+lines with a timestamp ≤ than the one stored.
+
+Piped  data works based off the timestamp of the last line read. For instance,
+it will parse and discard all incoming entries until it finds a timestamp >=
+than the one stored.
 
 ##### Examples #####
 
     // last month access log
-    # goaccess access.log.1 --keep-db-files
+    # goaccess access.log.1 --persist
 
 then, load it with
 
     // append this month access log, and preserve new data
-    # goaccess access.log --load-from-disk --keep-db-files
+    # goaccess access.log --restore --persist
 
 To read persisted data only (without parsing new data)
 
-    # goaccess --load-from-disk --keep-db-files
+    # goaccess --restore
 
 ## Contributing ##
 

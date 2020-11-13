@@ -35,6 +35,7 @@
 #define LINE_BUFFER     4096    /* read at most this num of chars */
 #define NUM_TESTS       20      /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
+#define READ_BYTES      4096u
 
 #define LINE_LEN        23
 #define ERROR_LEN       255
@@ -79,6 +80,7 @@ typedef struct GLogItem_ {
   uint64_t resp_size;
   uint64_t serve_time;
 
+  uint32_t numdate;
   int ignorelevel;
   int type_ip;
   int is_404;
@@ -94,40 +96,62 @@ typedef struct GLogItem_ {
   struct tm dt;
 } GLogItem;
 
+typedef struct GLastParse_ {
+  uint32_t line;
+  int64_t ts;
+  uint64_t size;
+  uint16_t snippetlen;
+  char snippet[READ_BYTES + 1];
+} GLastParse;
+
 /* Overall parsed log properties */
 typedef struct GLog_ {
   unsigned int invalid;
   unsigned int offset;
   unsigned int processed;
+  unsigned short restored;
   unsigned short load_from_disk_only;
   unsigned short piping;
   uint32_t read;                /* lines read/parsed */
   uint32_t inode;
+  uint64_t bytes;               /* bytes read */
+  uint64_t size;                /* bytes read */
+
+  /* file test for persisted/restored data */
+  uint16_t snippetlen;
+  char snippet[READ_BYTES + 1];
 
   GLogItem *items;
+  GLastParse lp;
 
   unsigned short log_erridx;
   char **errors;
 
+  uint64_t *filesizes;          /* log size/bytes already read */
+
   FILE *pipe;
 } GLog;
 
+/* Raw data field type */
+typedef enum {
+  U32,
+  STR
+} datatype;
+
 /* Raw Data extracted from table stores */
 typedef struct GRawDataItem_ {
+  uint32_t nkey;
   union {
-    GSLList *lkeys;
-    uint32_t ikey;
-  } key;
-  union {
-    char *svalue;
-    uint32_t u32value;
-  } value;
+    const char *data;
+    uint32_t hits;
+  };
 } GRawDataItem;
 
 /* Raw Data per module */
 typedef struct GRawData_ {
   GRawDataItem *items;          /* data */
   GModule module;               /* current module */
+  datatype type;
   int idx;                      /* first level index */
   int size;                     /* total num of items on ht */
 } GRawData;
@@ -139,13 +163,17 @@ typedef struct GKeyData_ {
   void *data;
   void *data_key;
   uint32_t data_nkey;
+  uint32_t cdnkey;              /* cache data nkey */
 
   void *root;
   void *root_key;
   uint32_t root_nkey;
+  uint32_t crnkey;              /* cache root nkey */
 
   void *uniq_key;
   uint32_t uniq_nkey;
+
+  uint32_t numdate;
 } GKeyData;
 
 typedef struct GParse_ {
@@ -153,18 +181,16 @@ typedef struct GParse_ {
   int (*key_data) (GKeyData * kdata, GLogItem * logitem);
 
   /* data field */
-  void (*datamap) (uint32_t data_nkey, const char *data, GModule module);
-  void (*rootmap) (uint32_t root_nkey, const char *root, GModule module);
-
-  /* metrics */
-  void (*hits) (uint32_t data_nkey, GModule module);
-  void (*visitor) (uint32_t uniq_nkey, GModule module);
-  void (*bw) (uint32_t data_nkey, uint64_t size, GModule module);
-  void (*cumts) (uint32_t data_nkey, uint64_t ts, GModule module);
-  void (*maxts) (uint32_t data_nkey, uint64_t ts, GModule module);
-  void (*method) (uint32_t data_nkey, const char *method, GModule module);
-  void (*protocol) (uint32_t data_nkey, const char *proto, GModule module);
-  void (*agent) (uint32_t data_nkey, uint32_t agent_nkey, GModule module);
+  void (*datamap) (GModule module, GKeyData * kdata);
+  void (*rootmap) (GModule module, GKeyData * kdata);
+  void (*hits) (GModule module, GKeyData * kdata);
+  void (*visitor) (GModule module, GKeyData * kdata);
+  void (*bw) (GModule module, GKeyData * kdata, uint64_t size);
+  void (*cumts) (GModule module, GKeyData * kdata, uint64_t ts);
+  void (*maxts) (GModule module, GKeyData * kdata, uint64_t ts);
+  void (*method) (GModule module, GKeyData * kdata, const char *data);
+  void (*protocol) (GModule module, GKeyData * kdata, const char *data);
+  void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 } GParse;
 
 char *fgetline (FILE * fp);

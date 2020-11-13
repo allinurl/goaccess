@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([goaccess],[1.4],[goaccess@prosoftcorp.com],[],[http://goaccess.io])
+AC_INIT([goaccess],[1.4.1],[hello@goaccess.io],[],[https://goaccess.io])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -144,7 +144,7 @@ else
 fi
 
 # Default Hash
-storage="IN-MEMORY & ON-DISK Persitance Storage"
+storage="In-Memory with On-Disk Persistent Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])
@@ -155,6 +155,16 @@ if test x"$SED_CHECK" == x"yes" ; then
   fi
 fi
 AM_CONDITIONAL([HAS_SEDTR], [test "x$HAS_SEDTR" = xyes])
+
+# detect Cygwin or MinGW and use mmap family replacements
+USE_MMAP=no
+case $host in
+  *-*-mingw32* | *-*-cygwin* | *-*-windows*)
+  USE_MMAP=yes
+  AC_MSG_NOTICE([using custom mmap for Cygwin/MinGW])
+  ;;
+esac
+AM_CONDITIONAL([USE_MMAP], [test "x$USE_MMAP" = xyes])
 
 # Solaris
 AC_CHECK_LIB([nsl], [gethostbyname])
@@ -205,6 +215,7 @@ AC_CHECK_FUNCS([malloc])
 AC_CHECK_FUNCS([memmove])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([mkfifo])
+AC_CHECK_FUNCS([mktemp])
 AC_CHECK_FUNCS([realloc])
 AC_CHECK_FUNCS([realpath])
 AC_CHECK_FUNCS([regcomp])

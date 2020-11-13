@@ -118,8 +118,7 @@ in_ignore_cmd_opts (const char *val) {
  * On success, the path to the configuration file is returned. */
 char *
 get_config_file_path (void) {
-  char *upath = NULL, *rpath = NULL;
-  FILE *file;
+  char *upath = NULL, *gpath = NULL, *rpath = NULL;
 
   /* determine which config file to open, default or custom */
   if (conf.iconfigfile != NULL) {
@@ -129,33 +128,26 @@ get_config_file_path (void) {
     return rpath;
   }
 
-  /* attempt to use the user's config file */
-  upath = get_home ();
-  rpath = realpath (upath, NULL);       /* malloc'd */
-
+  /* first attempt to use the user's config file, e.g., ~/.goaccessrc */
+  upath = get_user_config ();
   /* failure, e.g. if the file does not exist */
-  if (rpath == NULL) {
-    LOG_DEBUG (("Unable to open default config file %s %s", upath,
-                strerror (errno)));
+  if ((rpath = realpath (upath, NULL)) != NULL) {
     free (upath);
-    return NULL;
+    return rpath;
   }
-  if (upath) {
-    free (upath);
-  }
+  LOG_DEBUG (("Unable to find user's config file %s %s", upath, strerror (errno)));
+  free (upath);
 
-  /* otherwise, fallback to global config file */
-  if ((file = fopen (rpath, "r")) == NULL && conf.load_global_config) {
-    upath = get_global_config ();
-    rpath = realpath (upath, NULL);
-    if (upath) {
-      free (upath);
-    }
-  } else {
-    fclose (file);
+  /* otherwise, fallback to global config file, e.g.,%sysconfdir%/goaccess.conf */
+  gpath = get_global_config ();
+  if ((rpath = realpath (gpath, NULL)) != NULL && conf.load_global_config) {
+    free (gpath);
+    return rpath;
   }
+  LOG_DEBUG (("Unable to find global config file %s %s", gpath, strerror (errno)));
+  free (gpath);
 
-  return rpath;
+  return NULL;
 }
 
 /* Use predefined static files when no config file is used. Note that
@@ -333,12 +325,25 @@ parse_conf_file (int *argc, char ***argv) {
 }
 
 /* Get the enumerated log format given its equivalent format string.
+ * The case in the format string does not matter.
  *
  * On error, -1 is returned.
  * On success, the enumerated format is returned. */
 static int
 get_log_format_item_enum (const char *str) {
-  return str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
+  int ret;
+  char *upstr;
+
+  ret = str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), str);
+  if (ret >= 0)
+    return ret;
+
+  /* uppercase the input string and try again */
+  upstr = strtoupper (xstrdup (str));
+  ret = str2enum (LOGTYPE, ARRAY_SIZE (LOGTYPE), upstr);
+  free (upstr);
+
+  return ret;
 }
 
 /* Determine the selected log format from the config file or command line
@@ -741,6 +746,20 @@ set_time_format_str (const char *oarg) {
   conf.time_format = fmt;
 }
 
+/* Determine if time-served data was set through log-format. */
+static void
+contains_usecs (void) {
+  if (!conf.log_format)
+    return;
+
+  if (strstr (conf.log_format, "%D"))
+    conf.serve_usecs = 1;       /* flag */
+  if (strstr (conf.log_format, "%T"))
+    conf.serve_usecs = 1;       /* flag */
+  if (strstr (conf.log_format, "%L"))
+    conf.serve_usecs = 1;       /* flag */
+}
+
 /* Attempt to set the log format given a command line option argument.
  * The supplied optarg can be either an actual format string or the
  * enumerated value such as VCOMBINED */
@@ -756,6 +775,7 @@ set_log_format_str (const char *oarg) {
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
+    contains_usecs ();  /* set flag */
     return;
   }
 
@@ -766,6 +786,8 @@ set_log_format_str (const char *oarg) {
   }
 
   conf.log_format = unescape_str (fmt);
+  contains_usecs ();    /* set flag */
+
   /* assume we are using the default date/time formats */
   set_time_format_str (oarg);
   set_date_format_str (oarg);

@@ -133,5 +133,4 @@ extern "C" {
 #if defined __cplusplus
 }
 #endif
-
 #endif                          /* TPL_H */

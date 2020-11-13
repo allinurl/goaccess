@@ -2,20 +2,20 @@
 bin_PROGRAMS = goaccess
 AUTOMAKE_OPTIONS = subdir-objects
 
-dist_noinst_DATA =                \
-  resources/tpls.html             \
-  resources/css/app.css           \
-  resources/css/bootstrap.min.css \
-  resources/css/fa.min.css        \
-  resources/js/app.js             \
-  resources/js/charts.js          \
-  resources/js/d3.v3.min.js       \
+dist_noinst_DATA =                 \
+  resources/tpls.html              \
+  resources/css/app.css            \
+  resources/css/bootstrap.min.css  \
+  resources/css/fa.min.css         \
+  resources/js/app.js              \
+  resources/js/charts.js           \
+  resources/js/d3.v3.min.js        \
   resources/js/hogan.min.js
 
 noinst_PROGRAMS = bin2c
 bin2c_SOURCES = src/bin2c.c
 
-BUILT_SOURCES =   \
+BUILT_SOURCES =       \
   src/tpls.h          \
   src/bootstrapcss.h  \
   src/facss.h         \
@@ -99,6 +99,9 @@ if HAS_SEDTR
 else
 	./bin2c $(srcdir)/resources/js/charts.js src/chartsjs.h charts_js
 endif
+if DEBUG
+	./bin2c $(srcdir)/resources/js/charts.js src/chartsjs.h charts_js
+endif
 # App.js
 src/appjs.h: bin2c$(EXEEXT) $(srcdir)/resources/js/app.js
 if HAS_SEDTR
@@ -107,10 +110,14 @@ if HAS_SEDTR
 else
 	./bin2c $(srcdir)/resources/js/app.js src/appjs.h app_js
 endif
+if DEBUG
+	./bin2c $(srcdir)/resources/js/app.js src/appjs.h app_js
+endif
 
 confdir = $(sysconfdir)/goaccess
 dist_conf_DATA = config/goaccess.conf
 dist_conf_DATA += config/browsers.list
+dist_conf_DATA += config/podcast.list
 
 goaccess_SOURCES = \
    src/base64.c        \
@@ -171,6 +178,12 @@ goaccess_SOURCES = \
    src/websocket.h     \
    src/xmalloc.c       \
    src/xmalloc.h
+
+if USE_MMAP
+goaccess_SOURCES +=  \
+   src/win/mman.h    \
+   src/win/mmap.c
+endif
 
 if GEOIP_LEGACY
 goaccess_SOURCES +=  \

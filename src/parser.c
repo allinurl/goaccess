@@ -54,7 +54,8 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include <malloc.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #include "gkhash.h"
 
@@ -73,6 +74,7 @@
 
 /* private prototypes */
 /* key/data generators for each module */
+
 static int gen_visitor_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_404_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_browser_key (GKeyData * kdata, GLogItem * logitem);
@@ -95,23 +97,18 @@ static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_mime_type_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_tls_type_key (GKeyData * kdata, GLogItem * logitem);
 
-/* insertion routines */
-static void insert_data (uint32_t data_nkey, const char *data, GModule module);
-static void insert_rootmap (uint32_t root_nkey, const char *root,
-                            GModule module);
-
 /* insertion metric routines */
-static void insert_hit (uint32_t data_nkey, GModule module);
-static void insert_visitor (uint32_t uniq_nkey, GModule module);
-static void insert_bw (uint32_t data_nkey, uint64_t size, GModule module);
-static void insert_cumts (uint32_t data_nkey, uint64_t ts, GModule module);
-static void insert_maxts (uint32_t data_nkey, uint64_t ts, GModule module);
-static void insert_method (uint32_t data_nkey, const char *method,
-                           GModule module);
-static void insert_protocol (uint32_t data_nkey, const char *proto,
-                             GModule module);
-static void insert_agent (uint32_t data_nkey, uint32_t agent_nkey,
-                          GModule module);
+static void insert_data (GModule module, GKeyData * kdata);
+static void insert_rootmap (GModule module, GKeyData * kdata);
+static void insert_root (GModule module, GKeyData * kdata);
+static void insert_hit (GModule module, GKeyData * kdata);
+static void insert_visitor (GModule module, GKeyData * kdata);
+static void insert_bw (GModule module, GKeyData * kdata, uint64_t size);
+static void insert_cumts (GModule module, GKeyData * kdata, uint64_t ts);
+static void insert_maxts (GModule module, GKeyData * kdata, uint64_t ts);
+static void insert_method (GModule module, GKeyData * kdata, const char *data);
+static void insert_protocol (GModule module, GKeyData * kdata, const char *data);
+static void insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 
 /* *INDENT-OFF* */
 static GParse paneling[] = {
@@ -408,26 +405,9 @@ new_grawdata_item (unsigned int size) {
   return item;
 }
 
-#ifdef HAVE_LIBTOKYOCABINET
-/* This is due to an additional allocation on tokyo's value
- * retrieval :( on tcadbget()  */
-static void
-free_raw_data_str_value (GRawData * raw_data) {
-  int i = 0;
-  char *str = NULL;
-
-  for (i = 0; i < raw_data->size; ++i) {
-    str = raw_data->items[i].value.svalue;
-    if (str)
-      free (str);
-  }
-}
-#endif
-
 /* Free memory allocated for a GRawData and GRawDataItem instance. */
 void
 free_raw_data (GRawData * raw_data) {
-  free_sgls_metrics (raw_data->module);
   free (raw_data->items);
   free (raw_data);
 }
@@ -492,7 +472,7 @@ init_log_item (GLog * glog) {
   logitem->tls_type = NULL;
   
   memset (logitem->site, 0, sizeof (logitem->site));
-  logitem->dt = *localtime (&now);
+  localtime_r (&now, &logitem->dt);
 
   return logitem;
 }
@@ -593,7 +573,7 @@ decode_url (char *url) {
     decode_hex (decoded, out);
   strip_newlines (out);
 
-  return trim_str (out);
+  return trim_str (char_replace (out, '+', ' '));
 }
 
 /* Process keyphrases from Google search, cache, and translate.
@@ -628,11 +608,9 @@ extract_keyphrase (char *ref, char **keyphrase) {
       r += pch - r + 1;
   }
   /* www.google.* or translate.googleusercontent */
-  else if ((r = strstr (ref, "&q=")) != NULL ||
-           (r = strstr (ref, "?q=")) != NULL)
+  else if ((r = strstr (ref, "&q=")) != NULL || (r = strstr (ref, "?q=")) != NULL)
     r += 3;
-  else if ((r = strstr (ref, "%26q%3D")) != NULL ||
-           (r = strstr (ref, "%3Fq%3D")) != NULL)
+  else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
     encoded = 1, r += 7;
   else
     return 1;
@@ -730,8 +708,7 @@ verify_static_content (const char *req) {
       continue;
 
     elen = strlen (ext);
-    if (conf.all_static_files && (pch = strchr (req, '?')) != NULL &&
-        pch - req > elen) {
+    if (conf.all_static_files && (pch = strchr (req, '?')) != NULL && pch - req > elen) {
       pch -= elen;
       if (0 == strncasecmp (ext, pch, elen))
         return 1;
@@ -792,26 +769,24 @@ static void
 contains_usecs (void) {
   if (conf.serve_usecs)
     return;
-
-#ifdef TCB_BTREE
-  ht_insert_genstats ("serve_usecs", 1);
-#endif
   conf.serve_usecs = 1; /* flag */
 }
 
 static int
 is_cache_hit (const char *tkn) {
-  const char *statuses[] = {
-    "MISS",
-    "BYPASS",
-    "EXPIRED",
-    "STALE",
-    "UPDATING",
-    "REVALIDATED",
-    "HIT",
-  };
-
-  if (str_inarray (tkn, statuses, CACHE_STATUS_LEN) != -1)
+  if (strcasecmp ("MISS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("BYPASS", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("EXPIRED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("STALE", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("UPDATING", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("REVALIDATED", tkn) == 0)
+    return 1;
+  else if (strcasecmp ("HIT", tkn) == 0)
     return 1;
   return 0;
 }
@@ -1034,6 +1009,28 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   return 1;
 }
 
+static void
+set_tm_dt_logitem (GLogItem * logitem, struct tm tm) {
+  logitem->dt.tm_year = tm.tm_year;
+  logitem->dt.tm_mon = tm.tm_mon;
+  logitem->dt.tm_mday = tm.tm_mday;
+}
+
+static void
+set_tm_tm_logitem (GLogItem * logitem, struct tm tm) {
+  logitem->dt.tm_hour = tm.tm_hour;
+  logitem->dt.tm_min = tm.tm_min;
+  logitem->dt.tm_sec = tm.tm_sec;
+}
+
+static void
+set_numeric_date (uint32_t * numdate, const char *date) {
+  int res = 0;
+  if ((res = str2int (date)) == -1)
+    FATAL ("Unable to parse date to integer %s", date);
+  *numdate = res;
+}
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Parse the log string given log format rule.
@@ -1069,9 +1066,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
-    logitem->dt.tm_year = tm.tm_year;
-    logitem->dt.tm_mon = tm.tm_mon;
-    logitem->dt.tm_mday = tm.tm_mday;
+    set_numeric_date (&logitem->numdate, logitem->date);
+    set_tm_dt_logitem (logitem, tm);
     free (tkn);
     break;
     /* time */
@@ -1086,9 +1082,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
-    logitem->dt.tm_hour = tm.tm_hour;
-    logitem->dt.tm_min = tm.tm_min;
-    logitem->dt.tm_sec = tm.tm_sec;
+    set_tm_tm_logitem (logitem, tm);
     free (tkn);
     break;
     /* date/time as decimal, i.e., timestamps, ms/us  */
@@ -1098,12 +1092,15 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0
-        || set_time (&logitem->time, tm) != 0) {
+    if (str_to_time (tkn, tfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0 ||
+        set_time (&logitem->time, tm) != 0) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
+    set_numeric_date (&logitem->numdate, logitem->date);
+    set_tm_dt_logitem (logitem, tm);
+    set_tm_tm_logitem (logitem, tm);
     break;
     /* Virtual Host */
   case 'v':
@@ -1132,6 +1129,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
     if (is_cache_hit (tkn))
       logitem->cache_status = tkn;
+    else
+      free (tkn);
     break;
     /* remote hostname (IP only) */
   case 'h':
@@ -1223,8 +1222,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     status = strtol (tkn, &sEnd, 10);
-    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 ||
-        status > 599) {
+    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 || status > 599) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
@@ -1594,8 +1592,8 @@ strip_qstring (char *req) {
 
 /* Increment the overall bandwidth. */
 static void
-count_bw (int num_date, uint64_t resp_size) {
-  ht_inc_cnt_bw (num_date, resp_size);
+count_bw (int numdate, uint64_t resp_size) {
+  ht_inc_cnt_bw (numdate, resp_size);
 }
 
 /* Output all log errors stored during parsing. */
@@ -1685,16 +1683,13 @@ uncount_processed (GLog * glog) {
     glog->processed -= conf.num_tests;
   else
     glog->processed = 0;
-#ifdef TCB_BTREE
-  ht_replace_genstats ("total_requests", glog->processed);
-#endif
 }
 
 /* Keep track of all valid log strings. */
 static void
-count_valid (int num_date) {
+count_valid (int numdate) {
   lock_spinner ();
-  ht_inc_cnt_valid (num_date, 1);
+  ht_inc_cnt_valid (numdate, 1);
   unlock_spinner ();
 }
 
@@ -1705,6 +1700,12 @@ count_process (GLog * glog) {
   glog->processed++;
   ht_inc_cnt_overall ("total_requests", 1);
   unlock_spinner ();
+}
+
+static void
+count_process_and_invalid (GLog * glog, const char *line) {
+  count_process (glog);
+  count_invalid (glog, line);
 }
 
 /* Keep track of all excluded log strings (IPs).
@@ -1781,8 +1782,7 @@ is_404 (GLogItem * logitem) {
   if (logitem->status && !memcmp (logitem->status, "404", 3))
     return 1;
   /* treat 444 as 404? */
-  else if (logitem->status && !memcmp (logitem->status, "444", 3) &&
-           conf.code444_as_404)
+  else if (logitem->status && !memcmp (logitem->status, "444", 3) && conf.code444_as_404)
     return 1;
   return 0;
 }
@@ -1798,7 +1798,7 @@ ignore_line (GLogItem * logitem) {
     return IGNORE_LEVEL_PANEL;
   if (handle_crawler (logitem->agent) == 0)
     return IGNORE_LEVEL_PANEL;
-  if (ignore_referer (logitem->site))
+  if (ignore_referer (logitem->ref))
     return IGNORE_LEVEL_PANEL;
   if (ignore_status_code (logitem->status))
     return IGNORE_LEVEL_PANEL;
@@ -1812,20 +1812,30 @@ ignore_line (GLogItem * logitem) {
   return 0;
 }
 
-/* A wrapper function to insert a keymap string key.
+/* A wrapper function to insert a data keymap string key.
  *
  * If the given key exists, its value is returned.
  * On error, -1 is returned.
  * On success the value of the key inserted is returned */
 static int
-insert_keymap (char *key, GModule module) {
-  return ht_insert_keymap (module, key);
+insert_dkeymap (GModule module, GKeyData * kdata) {
+  return ht_insert_keymap (module, kdata->numdate, kdata->data_key, &kdata->cdnkey);
+}
+
+/* A wrapper function to insert a root keymap string key.
+ *
+ * If the given key exists, its value is returned.
+ * On error, -1 is returned.
+ * On success the value of the key inserted is returned */
+static int
+insert_rkeymap (GModule module, GKeyData * kdata) {
+  return ht_insert_keymap (module, kdata->numdate, kdata->root_key, &kdata->crnkey);
 }
 
 /* A wrapper function to insert a datamap uint32_t key and string value. */
 static void
-insert_data (uint32_t nkey, const char *data, GModule module) {
-  ht_insert_datamap (module, nkey, data);
+insert_data (GModule module, GKeyData * kdata) {
+  ht_insert_datamap (module, kdata->numdate, kdata->data_nkey, kdata->data, kdata->cdnkey);
 }
 
 /* A wrapper function to insert a uniqmap string key.
@@ -1834,80 +1844,83 @@ insert_data (uint32_t nkey, const char *data, GModule module) {
  * On error, -1 is returned.
  * On success the value of the key inserted is returned */
 static int
-insert_uniqmap (uint32_t data_nkey, uint32_t uniq_nkey, GModule module) {
-  return ht_insert_uniqmap (module, data_nkey, uniq_nkey);
+insert_uniqmap (GModule module, GKeyData * kdata, uint32_t uniq_nkey) {
+  return ht_insert_uniqmap (module, kdata->numdate, kdata->data_nkey, uniq_nkey);
 }
 
 /* A wrapper function to insert a rootmap uint32_t key from the keymap
  * store mapped to its string value. */
 static void
-insert_rootmap (uint32_t root_nkey, const char *root, GModule module) {
-  ht_insert_rootmap (module, root_nkey, root);
+insert_rootmap (GModule module, GKeyData * kdata) {
+  ht_insert_rootmap (module, kdata->numdate, kdata->root_nkey, kdata->root, kdata->crnkey);
 }
 
 /* A wrapper function to insert a data uint32_t key mapped to the
  * corresponding uint32_t root key. */
 static void
-insert_root (uint32_t data_nkey, uint32_t root_nkey, GModule module) {
-  ht_insert_root (module, data_nkey, root_nkey);
+insert_root (GModule module, GKeyData * kdata) {
+  ht_insert_root (module, kdata->numdate, kdata->data_nkey, kdata->root_nkey, kdata->cdnkey,
+                  kdata->crnkey);
 }
 
 /* A wrapper function to increase hits counter from an uint32_t key. */
 static void
-insert_hit (uint32_t data_nkey, GModule module) {
-  ht_insert_hits (module, data_nkey, 1);
-  ht_insert_meta_data (module, "hits", 1);
+insert_hit (GModule module, GKeyData * kdata) {
+  ht_insert_hits (module, kdata->numdate, kdata->data_nkey, 1, kdata->cdnkey);
+  ht_insert_meta_data (module, kdata->numdate, "hits", 1);
 }
 
 /* A wrapper function to increase visitors counter from an uint32_t
  * key. */
 static void
-insert_visitor (uint32_t uniq_nkey, GModule module) {
-  ht_insert_visitor (module, uniq_nkey, 1);
-  //ht_insert_meta_data (module, "visitors", 1);
+insert_visitor (GModule module, GKeyData * kdata) {
+  ht_insert_visitor (module, kdata->numdate, kdata->data_nkey, 1, kdata->cdnkey);
+  ht_insert_meta_data (module, kdata->numdate, "visitors", 1);
 }
 
 /* A wrapper function to increases bandwidth counter from an uint32_t
  * key. */
 static void
-insert_bw (uint32_t data_nkey, uint64_t size, GModule module) {
-  ht_insert_bw (module, data_nkey, size);
-  //ht_insert_meta_data (module, "bytes", size);
+insert_bw (GModule module, GKeyData * kdata, uint64_t size) {
+  ht_insert_bw (module, kdata->numdate, kdata->data_nkey, size, kdata->cdnkey);
+  ht_insert_meta_data (module, kdata->numdate, "bytes", size);
 }
 
 /* A wrapper call to increases cumulative time served counter
  * from an uint32_t key. */
 static void
-insert_cumts (uint32_t data_nkey, uint64_t ts, GModule module) {
-  ht_insert_cumts (module, data_nkey, ts);
-  //ht_insert_meta_data (module, "cumts", ts);
+insert_cumts (GModule module, GKeyData * kdata, uint64_t ts) {
+  ht_insert_cumts (module, kdata->numdate, kdata->data_nkey, ts, kdata->cdnkey);
+  ht_insert_meta_data (module, kdata->numdate, "cumts", ts);
 }
 
 /* A wrapper call to insert the maximum time served counter from
  * an uint32_t key. */
 static void
-insert_maxts (uint32_t data_nkey, uint64_t ts, GModule module) {
-  ht_insert_maxts (module, data_nkey, ts);
-  //ht_insert_meta_data (module, "maxts", ts);
+insert_maxts (GModule module, GKeyData * kdata, uint64_t ts) {
+  ht_insert_maxts (module, kdata->numdate, kdata->data_nkey, ts, kdata->cdnkey);
+  ht_insert_meta_data (module, kdata->numdate, "maxts", ts);
 }
 
 static void
-insert_method (uint32_t nkey, const char *data, GModule module) {
-  ht_insert_method (module, nkey, data ? data : "---");
+insert_method (GModule module, GKeyData * kdata, const char *data) {
+  ht_insert_method (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
+                    kdata->cdnkey);
 }
 
 /* A wrapper call to insert a method given an uint32_t key and string
  * value. */
 static void
-insert_protocol (uint32_t nkey, const char *data, GModule module) {
-  ht_insert_protocol (module, nkey, data ? data : "---");
+insert_protocol (GModule module, GKeyData * kdata, const char *data) {
+  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
+                      kdata->cdnkey);
 }
 
 /* A wrapper call to insert an agent for a hostname given an uint32_t
  * key and uint32_t value.  */
 static void
-insert_agent (uint32_t data_nkey, uint32_t agent_nkey, GModule module) {
-  ht_insert_agent (module, data_nkey, agent_nkey);
+insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey) {
+  ht_insert_agent (module, kdata->numdate, kdata->data_nkey, agent_nkey);
 }
 
 /* The following generates a unique key to identity unique visitors.
@@ -2014,25 +2027,12 @@ append_query_string (char **req, const char *qstr) {
   *req = r;
 }
 
-static char *
-append_date_to_key (char *data_key, char *date) {
-  size_t len1 = strlen (date);
-  size_t len2 = strlen (data_key);
-
-  char *uk = xmalloc (len1 + len2 + 2);
-  memcpy (uk, date, len1);
-  uk[len1] = '|';
-  memcpy (uk + len1 + 1, data_key, len2 + 1);
-
-  return uk;
-}
-
 /* A wrapper to assign the given data key and the data item to the key
  * data structure */
 static void
-get_kdata (GKeyData * kdata, char *data_key, char *data, char *date) {
+get_kdata (GKeyData * kdata, char *data_key, char *data) {
   /* inserted in keymap */
-  kdata->data_key = append_date_to_key (data_key, date);
+  kdata->data_key = data_key;
   /* inserted in datamap */
   kdata->data = data;
 }
@@ -2076,7 +2076,8 @@ gen_visitor_key (GKeyData * kdata, GLogItem * logitem) {
   if (conf.date_spec_hr)
     set_spec_visitor_key (&logitem->date, logitem->time);
 
-  get_kdata (kdata, logitem->date, logitem->date, logitem->date);
+  get_kdata (kdata, logitem->date, logitem->date);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2093,7 +2094,8 @@ gen_req_key (GKeyData * kdata, GLogItem * logitem) {
     append_query_string (&logitem->req, logitem->qstr);
   logitem->req_key = gen_unique_req_key (logitem);
 
-  get_kdata (kdata, logitem->req_key, logitem->req, logitem->date);
+  get_kdata (kdata, logitem->req_key, logitem->req);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2146,7 +2148,8 @@ gen_vhost_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->vhost)
     return 1;
 
-  get_kdata (kdata, logitem->vhost, logitem->vhost, logitem->date);
+  get_kdata (kdata, logitem->vhost, logitem->vhost);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2161,7 +2164,8 @@ gen_remote_user_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->userid)
     return 1;
 
-  get_kdata (kdata, logitem->userid, logitem->userid, logitem->date);
+  get_kdata (kdata, logitem->userid, logitem->userid);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2176,8 +2180,8 @@ gen_cache_status_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->cache_status)
     return 1;
 
-  get_kdata (kdata, logitem->cache_status, logitem->cache_status,
-             logitem->date);
+  get_kdata (kdata, logitem->cache_status, logitem->cache_status);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2192,7 +2196,8 @@ gen_host_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->host)
     return 1;
 
-  get_kdata (kdata, logitem->host, logitem->host, logitem->date);
+  get_kdata (kdata, logitem->host, logitem->host);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2217,11 +2222,12 @@ gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
 
   /* e.g., Firefox 11.12 */
   kdata->data = logitem->browser;
-  kdata->data_key = append_date_to_key (logitem->browser, logitem->date);
+  kdata->data_key = logitem->browser;
 
   /* Firefox */
   kdata->root = logitem->browser_type;
-  kdata->root_key = append_date_to_key (logitem->browser_type, logitem->date);
+  kdata->root_key = logitem->browser_type;
+  kdata->numdate = logitem->numdate;
 
   free (agent);
 
@@ -2248,11 +2254,12 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
 
   /* e.g., Linux,Ubuntu 10.12 */
   kdata->data = logitem->os;
-  kdata->data_key = append_date_to_key (logitem->os, logitem->date);
+  kdata->data_key = logitem->os;
 
   /* Linux */
   kdata->root = logitem->os_type;
-  kdata->root_key = append_date_to_key (logitem->os_type, logitem->date);
+  kdata->root_key = logitem->os_type;
+  kdata->numdate = logitem->numdate;
 
   free (agent);
 
@@ -2369,7 +2376,8 @@ gen_referer_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->ref)
     return 1;
 
-  get_kdata (kdata, logitem->ref, logitem->ref, logitem->date);
+  get_kdata (kdata, logitem->ref, logitem->ref);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2384,7 +2392,8 @@ gen_ref_site_key (GKeyData * kdata, GLogItem * logitem) {
   if (logitem->site[0] == '\0')
     return 1;
 
-  get_kdata (kdata, logitem->site, logitem->site, logitem->date);
+  get_kdata (kdata, logitem->site, logitem->site);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2399,7 +2408,8 @@ gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem) {
   if (!logitem->keyphrase)
     return 1;
 
-  get_kdata (kdata, logitem->keyphrase, logitem->keyphrase, logitem->date);
+  get_kdata (kdata, logitem->keyphrase, logitem->keyphrase);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2424,11 +2434,12 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * logitem) {
   if (continent[0] != '\0')
     logitem->continent = xstrdup (continent);
 
-  kdata->data_key = append_date_to_key (logitem->country, logitem->date);
+  kdata->data_key = logitem->country;
   kdata->data = logitem->country;
 
   kdata->root = logitem->continent;
-  kdata->root_key = append_date_to_key (logitem->continent, logitem->date);
+  kdata->root_key = logitem->continent;
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2450,10 +2461,11 @@ gen_status_code_key (GKeyData * kdata, GLogItem * logitem) {
   status = verify_status_code (logitem->status);
 
   kdata->data = (char *) status;
-  kdata->data_key = append_date_to_key ((char *) status, logitem->date);
+  kdata->data_key = (char *) status;
 
   kdata->root = (char *) type;
-  kdata->root_key = append_date_to_key ((char *) type, logitem->date);
+  kdata->root_key = (char *) type;
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2490,18 +2502,18 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
 
   /* if not a timestamp, then it must be a string containing the hour.
    * this is faster than actual date conversion */
-  if (!has_timestamp (conf.time_format) &&
-      (hmark = strchr (logitem->time, ':'))) {
+  if (!has_timestamp (conf.time_format) && (hmark = strchr (logitem->time, ':'))) {
     parse_time_specificity_string (hmark, logitem->time);
-    get_kdata (kdata, logitem->time, logitem->time, logitem->date);
+
+    kdata->numdate = logitem->numdate;
+    get_kdata (kdata, logitem->time, logitem->time);
     return 0;
   }
 
   /* otherwise it attempts to convert the date given a time format,
    * though this is slower */
   memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, conf.time_format, "%H:%M", HRMI_LEN) !=
-      0)
+  if (convert_date (hour, logitem->time, "%T", "%H:%M", HRMI_LEN) != 0)
     return 1;
 
   if (*hour == '\0')
@@ -2512,7 +2524,9 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
 
   free (logitem->time);
   logitem->time = xstrdup (hour);
-  get_kdata (kdata, logitem->time, logitem->time, logitem->date);
+
+  get_kdata (kdata, logitem->time, logitem->time);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }
@@ -2524,8 +2538,7 @@ static int
 include_uniq (GLogItem * logitem) {
   int u = conf.client_err_to_unique_count;
 
-  if (!logitem->status || logitem->status[0] != '4' ||
-      (u && logitem->status[0] == '4'))
+  if (!logitem->status || logitem->status[0] != '4' || (u && logitem->status[0] == '4'))
     return 1;
   return 0;
 }
@@ -2537,37 +2550,37 @@ set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
   module = parse->module;
 
   /* insert data */
-  parse->datamap (kdata->data_nkey, kdata->data, module);
+  parse->datamap (module, kdata);
 
   /* insert rootmap and root-data map */
   if (parse->rootmap) {
-    parse->rootmap (kdata->root_nkey, kdata->root, module);
-    insert_root (kdata->data_nkey, kdata->root_nkey, module);
+    parse->rootmap (module, kdata);
+    insert_root (module, kdata);
   }
   /* insert hits */
   if (parse->hits)
-    parse->hits (kdata->data_nkey, module);
+    parse->hits (module, kdata);
   /* insert visitors */
   if (parse->visitor && kdata->uniq_nkey == 1)
-    parse->visitor (kdata->data_nkey, module);
+    parse->visitor (module, kdata);
   /* insert bandwidth */
   if (parse->bw)
-    parse->bw (kdata->data_nkey, logitem->resp_size, module);
+    parse->bw (module, kdata, logitem->resp_size);
   /* insert averages time served */
   if (parse->cumts)
-    parse->cumts (kdata->data_nkey, logitem->serve_time, module);
+    parse->cumts (module, kdata, logitem->serve_time);
   /* insert averages time served */
   if (parse->maxts)
-    parse->maxts (kdata->data_nkey, logitem->serve_time, module);
+    parse->maxts (module, kdata, logitem->serve_time);
   /* insert method */
   if (parse->method && conf.append_method)
-    parse->method (kdata->data_nkey, logitem->method, module);
+    parse->method (module, kdata, logitem->method);
   /* insert protocol */
   if (parse->protocol && conf.append_protocol)
-    parse->protocol (kdata->data_nkey, logitem->protocol, module);
+    parse->protocol (module, kdata, logitem->protocol);
   /* insert agent */
   if (parse->agent && conf.list_agents)
-    parse->agent (kdata->data_nkey, logitem->agent_nkey, module);
+    parse->agent (module, kdata, logitem->agent_nkey);
 }
 
 /* Set data mapping and metrics. */
@@ -2576,50 +2589,70 @@ map_log (GLogItem * logitem, const GParse * parse, GModule module) {
   GKeyData kdata;
 
   new_modulekey (&kdata);
+  /* set key data into out structure */
   if (parse->key_data (&kdata, logitem) == 1)
     return;
 
   /* each module requires a data key/value */
   if (parse->datamap && kdata.data_key)
-    kdata.data_nkey = insert_keymap (kdata.data_key, module);
+    kdata.data_nkey = insert_dkeymap (module, &kdata);
 
   /* each module contains a uniq visitor key/value */
   if (parse->visitor && logitem->uniq_key && include_uniq (logitem))
-    kdata.uniq_nkey =
-      insert_uniqmap (kdata.data_nkey, logitem->uniq_nkey, module);
+    kdata.uniq_nkey = insert_uniqmap (module, &kdata, logitem->uniq_nkey);
 
   /* root keys are optional */
   if (parse->rootmap && kdata.root_key)
-    kdata.root_nkey = insert_keymap (kdata.root_key, module);
+    kdata.root_nkey = insert_rkeymap (module, &kdata);
 
   /* each module requires a root key/value */
   if (parse->datamap && kdata.data_key)
     set_datamap (logitem, &kdata, parse);
+}
 
-  free (kdata.data_key);
-  free (kdata.root_key);
+static void
+ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
+  logitem->agent_nkey = ht_insert_agent_key (numdate, logitem->agent);
+  /* insert UA key and get a numeric value */
+  if (logitem->agent_nkey != 0) {
+    /* insert a numeric key and map it to a UA string */
+    ht_insert_agent_value (numdate, logitem->agent_nkey, logitem->agent);
+  }
 }
 
 static int
-clean_old_data_by_date (const char *date) {
-  int num_date = 0;
+clean_old_data_by_date (uint32_t numdate) {
   uint32_t *dates = NULL;
+  uint32_t idx, len = 0;
 
-  if ((num_date = str2int (date)) == -1)
-    FATAL ("Unable to parse date to integer %s", date);
+  if (ht_get_size_dates () < conf.keep_last)
+    return 1;
 
-  ht_insert_date (num_date);
-  if (ht_get_size_dates () <= conf.keep_last)
-    return num_date;
+  dates = get_sorted_dates (&len);
 
-  dates = get_sorted_dates ();
+  /* If currently parsed date is in the set of dates, keep inserting it.
+   * We count down since more likely the currently parsed date is at the last pos */
+  for (idx = len; idx-- > 0;) {
+    if (dates[idx] == numdate) {
+      free (dates);
+      return 1;
+    }
+  }
+
+  /* ignore older dates */
+  if (dates[0] > numdate) {
+    free (dates);
+    return -1;
+  }
+
+  /* invalidate the first date we inserted then */
   invalidate_date (dates[0]);
-  clean_partial_match_hashes (dates[0]);
-  clean_full_match_hashes (dates[0]);
-
+  /* rebuild all existing dates and let new data
+   * be added upon existing cache */
+  rebuild_rawdata_cache ();
   free (dates);
 
-  return num_date;
+  return 0;
 }
 
 /* Process a log line and set the data into the corresponding data
@@ -2629,27 +2662,26 @@ process_log (GLogItem * logitem) {
   GModule module;
   const GParse *parse = NULL;
   size_t idx = 0;
-  int num_date = 1;
+  uint32_t numdate = logitem->numdate;
 
-  if (conf.keep_last > 0)
-    num_date = clean_old_data_by_date (logitem->date);
+  if (conf.keep_last > 0 && clean_old_data_by_date (numdate) == -1)
+    return;
+
+  /* insert date and start partitioning tables */
+  if (ht_insert_date (numdate) == -1)
+    return;
 
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
-  if ((logitem->uniq_nkey = ht_insert_unique_key (logitem->uniq_key)) == 0)
+  if ((logitem->uniq_nkey = ht_insert_unique_key (numdate, logitem->uniq_key)) == 0)
     return;
 
   /* If we need to store user agents per IP, then we store them and retrieve
    * its numeric key.
    * It maintains two maps, one for key -> value, and another
    * map for value -> key*/
-  if (conf.list_agents) {
-    /* insert UA key and get a numeric value */
-    if ((logitem->agent_nkey = ht_insert_agent_key (logitem->agent)) != 0) {
-      /* insert a numeric key and map it to a UA string */
-      ht_insert_agent_value (logitem->agent_nkey, logitem->agent);
-    }
-  }
+  if (conf.list_agents)
+    ins_agent_key_val (logitem, numdate);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
@@ -2658,11 +2690,122 @@ process_log (GLogItem * logitem) {
     map_log (logitem, parse, module);
   }
 
-  count_bw (num_date, logitem->resp_size);
+  count_bw (numdate, logitem->resp_size);
   /* don't ignore line but neither count as valid */
-  if (logitem->ignorelevel != IGNORE_LEVEL_REQ) {
-    count_valid (num_date);
+  if (logitem->ignorelevel != IGNORE_LEVEL_REQ)
+    count_valid (numdate);
+}
+
+/* Determine if the current log has the content from the last time it was
+ * parsed. It does this by comparing READ_BYTES against the beginning of the
+ * log.
+ *
+ * Returns 1 if the content is likely the same or no data to compare
+ * Returns 0 if it has different content */
+static int
+is_likely_same_log (GLog * glog, GLastParse lp) {
+  size_t size = 0;
+
+  if (!lp.size)
+    return 1;
+
+  /* Must be a LOG */
+  size = MIN (glog->snippetlen, lp.snippetlen);
+  if (glog->snippet[0] != '\0' && lp.snippet[0] != '\0' &&
+      memcmp (glog->snippet, lp.snippet, size) == 0)
+    return 1;
+
+  return 0;
+}
+
+/* Determine if we should insert new record or if it's a duplicate record from
+ * a previoulsy persisted dataset
+ *
+ * Returns 1 if it thinks the record it's being restored from disk
+ * Returns 0 if we need to parse the record */
+static int
+should_restore_from_disk (GLog * glog) {
+  GLastParse lp = { 0 };
+
+  if (!conf.restore)
+    return 0;
+
+  lp = ht_get_last_parse (glog->inode);
+
+  /* No last parse timestamp, continue parsing as we got nothing to compare
+   * against */
+  if (!lp.ts)
+    return 0;
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line and have equal timestamps, then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    if (glog->size > lp.size && glog->read >= lp.line)
+      return 0;
+    return 1;
   }
+
+  /* No inode (probably a pipe), prior or equal timestamps means restore from
+   * disk (exclusive) */
+  if (!glog->inode && lp.ts >= glog->lp.ts)
+    return 1;
+
+  /* If not likely the same content, then fallback to the following checks */
+  /* If timestamp is greater than last parsed, read the line then */
+  if (glog->lp.ts > lp.ts)
+    return 0;
+
+  /* Check if current log size is smaller than the one last parsed, if it is,
+   * it was possibly truncated and thus it may be smaller, so fallback to
+   * timestamp even if they are equal to the last parsed timestamp */
+  else if (glog->size < lp.size && glog->lp.ts == lp.ts)
+    return 0;
+
+  /* Everything else we ignore it. For instance, we if current log size is
+   * greater than the one last parsed, if the timestamp are equal, we ignore the
+   * request.
+   *
+   * **NOTE* We try to play safe here as we would rather miss a few lines
+   * than double-count a few. */
+  return 1;
+}
+
+static void
+process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
+  GLastParse lp = { 0 };
+
+  /* if not restoring from disk, then count entry as proceeded and invalid */
+  if (!conf.restore) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  lp = ht_get_last_parse (glog->inode);
+
+  /* If our current line is greater or equal (zero indexed) to the last parsed
+   * line then keep parsing then */
+  if (glog->inode && is_likely_same_log (glog, lp)) {
+    /* only count invalids if we're past the last parsed line */
+    if (glog->size > lp.size && glog->read >= lp.line)
+      count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* no timestamp to compare against, just count the invalid then */
+  if (!logitem->numdate) {
+    count_process_and_invalid (glog, line);
+    return;
+  }
+
+  /* if there's a valid timestamp, count only if greater than last parsed ts */
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    return;
+
+  /* check if we were able to at least parse the date/time, if no date/time
+   * then we simply don't count the entry as proceed & invalid to attempt over
+   * counting restored data */
+  if (should_restore_from_disk (glog) == 0)
+    count_process_and_invalid (glog, line);
 }
 
 /* Process a line from the log and store it accordingly taking into
@@ -2674,30 +2817,25 @@ static int
 pre_process_log (GLog * glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
-  uint32_t last = ht_get_last_parse (glog->inode);
-  uint32_t ts = 0;
-
-  /* if it's a log, then use the last parsed line */
-  if (glog->inode > 0 && last > 0 && last > glog->read)
-    return 0;
 
   /* soft ignore these lines */
   if (valid_line (line))
     return -1;
 
-  count_process (glog);
   logitem = init_log_item (glog);
   /* Parse a line of log, and fill structure with appropriate values */
-  if (parse_format (logitem, line) || verify_missing_fields (logitem)) {
-    ret = 1;
-    count_invalid (glog, line);
+  if ((ret = parse_format (logitem, line)) || (ret = verify_missing_fields (logitem))) {
+    process_invalid (glog, logitem, line);
     goto cleanup;
   }
 
-  /* it's a pipe, then use the last parsed timestamp */
-  ts = mktime (&logitem->dt);
-  if (!glog->inode && last > 0 && last >= ts)
-    return 0;
+  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+    goto cleanup;
+
+  if (should_restore_from_disk (glog))
+    goto cleanup;
+
+  count_process (glog);
 
   /* agent will be null in cases where %u is not specified */
   if (logitem->agent == NULL)
@@ -2724,8 +2862,6 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
 cleanup:
   free_glog (logitem);
 
-  ht_insert_last_parse (0, ts);
-
   return ret;
 }
 
@@ -2736,7 +2872,6 @@ cleanup:
 static int
 read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
-  int tests = conf.num_tests;
 
   /* start processing log line */
   if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
@@ -2746,13 +2881,9 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
   if (ret == -1)
     return 0;
 
-  /* glog->processed can actually be less than conf.num_tests, so we make sure
-   * (cnt) compares to the right number */
-  tests = MIN (conf.num_tests, glog->processed);
-
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
-  if (conf.num_tests && ++(*cnt) == tests && *test) {
+  if (conf.num_tests && ++(*cnt) == (int) conf.num_tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
     return 1;
@@ -2813,6 +2944,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
+  (*glog)->bytes = 0;
   while ((line = fgetline (fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2821,6 +2953,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       goto out;
     if (dry_run && NUM_TESTS == cnt)
       goto out;
+    (*glog)->bytes += strlen (line);
     free (line);
     (*glog)->read++;
   }
@@ -2830,11 +2963,15 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || ret;
+  return (line && test) || ret || (!line && test && (*glog)->processed);
 
 out:
   free (line);
-  return test || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return test || ret || (test && (*glog)->processed);
 }
 #endif
 
@@ -2849,6 +2986,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
+  (*glog)->bytes = 0;
   while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
@@ -2857,6 +2995,7 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
       break;
     if (dry_run && NUM_TESTS == cnt)
       break;
+    (*glog)->bytes += strlen (line);
     (*glog)->read++;
   }
 
@@ -2865,9 +3004,52 @@ read_lines (FILE * fp, GLog ** glog, int dry_run) {
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (s && test) || ret;
+  /* fails if
+     - we're still reading the log but the test flag was still set
+     - ret flag is not 0, read_line failed
+     - reached the end of file, test flag was still set and we processed lines */
+  return (s && test) || ret || (!s && test && (*glog)->processed);
 }
 #endif
+
+/* Read the given log file and attempt to mmap a fixed number of bytes so we
+ * can compare its content on future runs.
+ *
+ * On error, 1 is returned.
+ * On success, 0 is returned. */
+static int
+set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
+  size_t len;
+
+  if (glog->size == 0)
+    return 1;
+
+  len = MIN (glog->size, READ_BYTES);
+  if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
+    FATAL ("Unable to fread the specified log file '%s'", fn);
+  glog->snippetlen = len;
+
+  fseek (fp, 0, SEEK_SET);
+
+  return 0;
+}
+
+static void
+persist_last_parse (GLog * glog) {
+  /* insert last parsed data for the recently file parsed */
+  if (glog->inode && glog->size) {
+    glog->lp.line = glog->read;
+    glog->lp.snippetlen = glog->snippetlen;
+
+    memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
+
+    ht_insert_last_parse (glog->inode, glog->lp);
+  }
+  /* probably from a pipe */
+  else if (!glog->inode) {
+    ht_insert_last_parse (0, glog->lp);
+  }
+}
 
 /* Read the given log line by line and process its data.
  *
@@ -2889,11 +3071,15 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!piping && (fp = fopen (fn, "r")) == NULL)
-    FATAL ("Unable to open the specified log file. %s", strerror (errno));
+    FATAL ("Unable to open the specified log file '%s'. %s", fn, strerror (errno));
 
   /* grab the inode of the file being parsed */
-  if (!piping && stat (fn, &fdstat) == 0)
+  if (!piping && stat (fn, &fdstat) == 0) {
     (*glog)->inode = fdstat.st_ino;
+    (*glog)->size = (*glog)->lp.size = fdstat.st_size;
+
+    set_initial_persisted_data ((*glog), fp, fn);
+  }
 
   /* read line by line */
   if (read_lines (fp, glog, dry_run)) {
@@ -2902,9 +3088,7 @@ read_log (GLog ** glog, const char *fn, int dry_run) {
     return 1;
   }
 
-  /* insert the inode of the file parsed and the last line parsed */
-  if ((*glog)->inode)
-    ht_insert_last_parse ((*glog)->inode, (*glog)->read);
+  persist_last_parse ((*glog));
 
   /* close log file if not a pipe */
   if (!piping)
@@ -2922,6 +3106,10 @@ parse_log (GLog ** glog, char *tail, int dry_run) {
   const char *err_log = NULL;
   int i;
 
+  /* no data piped, no logs passed, load from disk only then */
+  if (conf.restore && !(*glog)->restored)
+    (*glog)->restored = rebuild_rawdata_cache ();
+
   /* process tail data and return */
   if (tail != NULL) {
     /* no line testing on tail */
@@ -2935,16 +3123,17 @@ parse_log (GLog ** glog, char *tail, int dry_run) {
     FATAL ("%s", err_log);
 
   /* no data piped, no logs passed, load from disk only then */
-  //if (conf.load_from_disk && !conf.filenames_idx && !conf.read_stdin) {
-  //  (*glog)->load_from_disk_only = 1;
-  //  return 0;
-  //}
+  if (conf.restore && !conf.filenames_idx && !conf.read_stdin) {
+    (*glog)->load_from_disk_only = 1;
+    return 0;
+  }
 
   for (i = 0; i < conf.filenames_idx; ++i) {
     if (read_log (glog, conf.filenames[i], dry_run)) {
       fprintf (stderr, "%s\n", conf.filenames[i]);
       return 1;
     }
+    (*glog)->filesizes[i] = (*glog)->bytes;
   }
 
   return 0;

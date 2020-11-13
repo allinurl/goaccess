@@ -1,910 +1,938 @@
 # SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the goaccess package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: goaccess 1.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2020-06-27 22:12-0500\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"PO-Revision-Date: 2020-06-25 17:12+0300\n"
+"Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
+"Language-Team: \n"
+"Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 2.3.1\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
 #. global lang attribute
 #: ../src/labels.h:40
 msgid "en"
-msgstr ""
+msgstr "uk"
 
 #. General
 #: ../src/labels.h:43
 msgid "Exp. Panel"
-msgstr ""
+msgstr "Розг. панель"
 
 #: ../src/labels.h:44
 msgid "Help"
-msgstr ""
+msgstr "Допомога"
 
 #: ../src/labels.h:45
 msgid "Quit"
-msgstr ""
+msgstr "Вихід"
 
 #: ../src/labels.h:46
 msgid "Total"
-msgstr ""
+msgstr "Всього"
 
 #. Sort Labels
 #: ../src/labels.h:49
 msgid "[x] ASC [ ] DESC"
-msgstr ""
+msgstr "[x] ЗБІЛ [ ] ЗМЕН"
 
 #: ../src/labels.h:50
 msgid "[ ] ASC [x] DESC"
-msgstr ""
+msgstr "[ ] ЗБІЛ [x] ЗМЕН"
 
 #. Overall Stats Labels
 #: ../src/labels.h:53
 #, c-format
 msgid "[Active Panel: %1$s]"
-msgstr ""
+msgstr "[Активна панель: %1$s]"
 
 #: ../src/labels.h:54
 msgid "[q]uit GoAccess"
-msgstr ""
+msgstr "[q] Вийти з GoAccess"
 
 #: ../src/labels.h:55
 msgid "[?] Help [Enter] Exp. Panel"
-msgstr ""
+msgstr "[?] Допомога [Enter] Розг. панель"
 
 #: ../src/labels.h:56
 msgid "Dashboard"
-msgstr ""
+msgstr "Дашборд"
 
 #: ../src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr ""
+msgstr "Дашборд - Проаналізовані запити"
 
 #: ../src/labels.h:58
 msgid "Overall Analyzed Requests"
-msgstr ""
+msgstr "Проаналізовані запити"
 
 #: ../src/labels.h:60 ../src/labels.h:81
 msgid "Tx. Amount"
-msgstr ""
+msgstr "Вих. трафік"
 
 #: ../src/labels.h:61
 msgid "Date/Time"
-msgstr ""
+msgstr "Дата/час"
 
 #: ../src/labels.h:62
 msgid "Excl. IP Hits"
-msgstr ""
+msgstr "Хітів з викл. IP"
 
 #: ../src/labels.h:63
 msgid "Failed Requests"
-msgstr ""
+msgstr "Невдалих запитів"
 
 #: ../src/labels.h:64
 msgid "Init. Proc. Time"
-msgstr ""
+msgstr "Час обробки лога"
 
 #: ../src/labels.h:65
 msgid "Log Size"
-msgstr ""
+msgstr "Розмір лога"
 
 #: ../src/labels.h:66
 msgid "Log Source"
-msgstr ""
+msgstr "Джерело лога"
 
 #: ../src/labels.h:67 ../src/labels.h:181
 msgid "Referrers"
-msgstr ""
+msgstr "Посил. сторінок"
 
 #: ../src/labels.h:68
 msgid "Total Requests"
-msgstr ""
+msgstr "Всього запитів"
 
 #: ../src/labels.h:69
 msgid "Static Files"
-msgstr ""
+msgstr "Статичних файлів"
 
 #: ../src/labels.h:70 ../src/labels.h:153
 msgid "Not Found"
-msgstr ""
+msgstr "Не знайдено"
 
 #: ../src/labels.h:71
 msgid "Requested Files"
-msgstr ""
+msgstr "Запитаних файлів"
 
 #: ../src/labels.h:72
 msgid "Unique Visitors"
-msgstr ""
+msgstr "Унікальних відвідувачів"
 
 #: ../src/labels.h:73
 msgid "Valid Requests"
-msgstr ""
+msgstr "Валідних запитів"
 
 #. Metric Labels
 #: ../src/labels.h:76
 msgid "Hits"
-msgstr ""
+msgstr "Хіти"
 
 #: ../src/labels.h:77
 msgid "h%"
-msgstr ""
+msgstr "х%"
 
 #: ../src/labels.h:78 ../src/labels.h:104
 msgid "Visitors"
-msgstr ""
+msgstr "Відвідувачі"
 
 #: ../src/labels.h:79
 msgid "Vis."
-msgstr ""
+msgstr "Відв."
 
 #: ../src/labels.h:80
 msgid "v%"
-msgstr ""
+msgstr "в%"
 
 #: ../src/labels.h:82
 msgid "Avg. T.S."
-msgstr ""
+msgstr "Сер. ч. о."
 
 #: ../src/labels.h:83
 msgid "Cum. T.S."
-msgstr ""
+msgstr "Заг. ч. о."
 
 #: ../src/labels.h:84
 msgid "Max. T.S."
-msgstr ""
+msgstr "Макс. ч. о."
 
 #: ../src/labels.h:85
 msgid "Method"
-msgstr ""
+msgstr "Метод"
 
 #: ../src/labels.h:86
 msgid "Mtd"
-msgstr ""
+msgstr "Мтд"
 
 #: ../src/labels.h:87
 msgid "Protocol"
-msgstr ""
+msgstr "Протокол"
 
 #: ../src/labels.h:88
 msgid "Proto"
-msgstr ""
+msgstr "Прот."
 
 #: ../src/labels.h:89
 msgid "City"
-msgstr ""
+msgstr "Місто"
 
 #: ../src/labels.h:90
 msgid "Country"
-msgstr ""
+msgstr "Країна"
 
 #: ../src/labels.h:91
 msgid "Hostname"
-msgstr ""
+msgstr "Ім'я хоста"
 
 #: ../src/labels.h:92
 msgid "Data"
-msgstr ""
+msgstr "Дані"
 
 #: ../src/labels.h:94
 msgid "Hits/Visitors"
-msgstr ""
+msgstr "Хіти/відвідувачі"
 
 #. Panel Labels and Descriptions
 #: ../src/labels.h:98
 msgid "Unique visitors per day"
-msgstr ""
+msgstr "Унікальні відвідувачі по днях"
 
 #: ../src/labels.h:100
 msgid "Unique visitors per day - Including spiders"
-msgstr ""
+msgstr "Унікальні відвідувачі по днях - Включаючи павуків"
 
 #: ../src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
+"Хіти, що мають однакові IP, дату та юзер-агента, вважаються унікальним "
+"відвідуванням."
 
 #: ../src/labels.h:107
 msgid "Requested Files (URLs)"
-msgstr ""
+msgstr "Запитані файли (URL'и)"
 
 #: ../src/labels.h:109
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"Топ запитів, відсортованих за хітами [, сер., заг., макс. часом обсл., "
+"методом, протоколом]"
 
 #: ../src/labels.h:111
 msgid "Requests"
-msgstr ""
+msgstr "Запити"
 
 #: ../src/labels.h:114 ../src/labels.h:118
 msgid "Static Requests"
-msgstr ""
+msgstr "Статичні запити"
 
 #: ../src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"Том статичних запитів, відсортованих за хітами [, сер., заг., макс. часом "
+"обсл., методом, протоколом]"
 
 #: ../src/labels.h:121
 msgid "Time Distribution"
-msgstr ""
+msgstr "Розподіл за часом"
 
 #: ../src/labels.h:123
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "Дані, відсортовані за годинами [, сер., заг., макс. часом обсл.]"
 
 #: ../src/labels.h:125
 msgid "Time"
-msgstr ""
+msgstr "Час"
 
 #: ../src/labels.h:128 ../src/labels.h:132
 msgid "Virtual Hosts"
-msgstr ""
+msgstr "Віртуальні хости"
 
 #: ../src/labels.h:130 ../src/labels.h:137 ../src/labels.h:144
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
+msgstr "Дані, відсортовані за хітами [, сер., заг., макс. часом обсл.]"
 
 #: ../src/labels.h:135
 msgid "Remote User (HTTP authentication)"
-msgstr ""
+msgstr "Віддалений користувач (HTTP-аутентифікація)"
 
 #: ../src/labels.h:139
 msgid "Remote User"
-msgstr ""
+msgstr "Віддалений користувач"
 
 #: ../src/labels.h:142
 msgid "The cache status of the object served"
-msgstr ""
+msgstr "Статус кеша об'єкта, що обслуговується"
 
 #: ../src/labels.h:146
 msgid "Cache Status"
-msgstr ""
+msgstr "Статус кеша"
 
 #: ../src/labels.h:149
 msgid "Not Found URLs (404s)"
-msgstr ""
+msgstr "Незнайдені URL'и (404-і)"
 
 #: ../src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
+"Топ незнайдених URL'ів, відсортованих за хітами [, сер., заг., макс. часом "
+"обсл., методом, протоколом]"
 
 #: ../src/labels.h:156
 msgid "Visitor Hostnames and IPs"
-msgstr ""
+msgstr "Імена хостів та IP відвідувачів"
 
 #: ../src/labels.h:158
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ хостів відвідувачів, відсортованих за хітами [, сер., заг., макс. часом "
+"обсл.]"
 
 #: ../src/labels.h:160
 msgid "Hosts"
-msgstr ""
+msgstr "Хости"
 
 #: ../src/labels.h:163
 msgid "Operating Systems"
-msgstr ""
+msgstr "Операційні системи"
 
 #: ../src/labels.h:165
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ операційних систем, відсортованих за хітами [, сер., заг., макс. часом "
+"обсл.]"
 
 #: ../src/labels.h:167
 msgid "OS"
-msgstr ""
+msgstr "ОС"
 
 #: ../src/labels.h:170 ../src/labels.h:174
 msgid "Browsers"
-msgstr ""
+msgstr "Браузери"
 
 #: ../src/labels.h:172
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ браузерів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
 
 #: ../src/labels.h:177
 msgid "Referrers URLs"
-msgstr ""
+msgstr "Сторінки, що посилаються"
 
 #: ../src/labels.h:179
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ сторінок, що посилаються, відсортованих за хітами [, сер., заг., макс. "
+"часом обсл.]"
 
 #: ../src/labels.h:184 ../src/labels.h:188
 msgid "Referring Sites"
-msgstr ""
+msgstr "Сайти, що посилаються"
 
 #: ../src/labels.h:186
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ сайтів, що посилаються, відсортованих за хітами [, сер., заг., макс. "
+"часом обсл.]"
 
 #: ../src/labels.h:191
 msgid "Keyphrases from Google's search engine"
-msgstr ""
+msgstr "Ключові слова з пошукової системи Google"
 
 #: ../src/labels.h:193
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Том ключових слів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
 
 #: ../src/labels.h:195
 msgid "Keyphrases"
-msgstr ""
+msgstr "Ключові слова"
 
 #: ../src/labels.h:198 ../src/labels.h:202
 msgid "Geo Location"
-msgstr ""
+msgstr "Географічне розташування"
 
 #: ../src/labels.h:200
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr ""
+"Континенти > країни, відсортовані за унікальними хітами [, сер., заг., макс. "
+"часом обсл.]"
 
 #: ../src/labels.h:205
 msgid "HTTP Status Codes"
-msgstr ""
+msgstr "Коди відповідей HTTP"
 
 #: ../src/labels.h:207
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
+"Топ кодів відповідей HTTP, відсортованих за хітами [, сер., заг., макс. "
+"часом обсл.]"
 
 #: ../src/labels.h:209
 msgid "Status Codes"
-msgstr ""
+msgstr "Коди відповідей"
 
 #. Find Labels
 #: ../src/labels.h:213
 msgid "[ ] case sensitive"
-msgstr ""
+msgstr "[ ] враховувати регістр"
 
 #: ../src/labels.h:215
 msgid "[x] case sensitive"
-msgstr ""
+msgstr "[x] враховувати регістр"
 
 #: ../src/labels.h:217
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr ""
+msgstr "Дозволені рег. вирази - ^g відміна - TAB врах. регістру"
 
 #: ../src/labels.h:219
 msgid "Find pattern in all views"
-msgstr ""
+msgstr "Пошук шаблону в усіх панелях"
 
 #. Config Dialog
 #: ../src/labels.h:223
 msgid "Log Format Configuration"
-msgstr ""
+msgstr "Налаштування формату лога"
 
 #: ../src/labels.h:225
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
+msgstr "[SPACE] переключення - [ENTER] обробити - [q] вийти"
 
 #: ../src/labels.h:227
 msgid "Log Format - [c] to add/edit format"
-msgstr ""
+msgstr "Формат логу - [c] додати/змінити формат"
 
 #: ../src/labels.h:229
 msgid "Date Format - [d] to add/edit format"
-msgstr ""
+msgstr "Формат дати - [d] додати/змінити формат"
 
 #: ../src/labels.h:231
 msgid "Time Format - [t] to add/edit format"
-msgstr ""
+msgstr "Формат часу - [t] додати/змінити формат"
 
 #. Agents Dialog
 #: ../src/labels.h:233 ../src/labels.h:237
 msgid "[UP/DOWN] to scroll - [q] to close window"
-msgstr ""
+msgstr "[ВГОРУ/ВНИЗ] прокрутка - [q] закрити вікно"
 
 #: ../src/labels.h:239
 #, c-format
 msgid "User Agents for %1$s"
-msgstr ""
+msgstr "Юзер-агенти для %1$s"
 
 #. Color Scheme Dialog
 #: ../src/labels.h:243
 msgid "Scheme Configuration"
-msgstr ""
+msgstr "Налаштування схеми"
 
 #: ../src/labels.h:245
 msgid "[ENTER] to use scheme - [q]uit"
-msgstr ""
+msgstr "[ENTER] використовувати схему - [q] вийти"
 
 #. Sort Dialog
 #: ../src/labels.h:249
 msgid "Sort active module by"
-msgstr ""
+msgstr "Сортування активного модуля"
 
 #: ../src/labels.h:251
 msgid "[ENTER] select - [TAB] sort - [q]uit"
-msgstr ""
+msgstr "[ENTER] обрати - [TAB] порядок - [q] вийти"
 
 #. Help TUI Dialog
 #: ../src/labels.h:255
 msgid "GoAccess Quick Help"
-msgstr ""
+msgstr "Швидка допомога по GoAccess"
 
 #: ../src/labels.h:257
 msgid "[UP/DOWN] to scroll - [q] to quit"
-msgstr ""
+msgstr "[ВГОРУ/ВНИЗ] прокрутка - [q] вийти"
 
 #. Storage Built-in Option
 #: ../src/labels.h:261
+#, fuzzy
 msgid "In-Memory with On-Disk Persistent Storage."
-msgstr ""
+msgstr "У пам'яті зі зберіганням на диску."
 
 #. Common UI Errors
 #: ../src/labels.h:265
 msgid "Format Errors - Verify your log/date/time format"
-msgstr ""
+msgstr "Помилки формату - Перевірте ваш формат лога/дати/часу"
 
 #: ../src/labels.h:267
 msgid "No date format was found on your conf file."
-msgstr ""
+msgstr "Формат дати у вашому конфігураційному файлі не знайдений."
 
 #: ../src/labels.h:269
 msgid "No log format was found on your conf file."
-msgstr ""
+msgstr "Формат лога у вашому конфігураційному файлі не знайдений."
 
 #: ../src/labels.h:271
 msgid "No time format was found on your conf file."
-msgstr ""
+msgstr "Формат часу  у вашому конфігураційному файлі не знайдений."
 
 #: ../src/labels.h:273
 msgid "No default config file found."
-msgstr ""
+msgstr "Стандартний конфігураційний файл не знайдений."
 
 #: ../src/labels.h:275
 msgid "You may specify one with"
-msgstr ""
+msgstr "Ви можете задати його за допомогою"
 
 #: ../src/labels.h:277
 msgid "producing the following errors"
-msgstr ""
+msgstr "призводить до наступних помилок"
 
 #: ../src/labels.h:279
 #, c-format
 msgid "Parsed %1$d lines"
-msgstr ""
+msgstr "Оброблено %1$d рядків"
 
 #: ../src/labels.h:281
 msgid "Please report it by opening an issue on GitHub"
-msgstr ""
+msgstr "Будь ласка, повідомте про це, відкривши issue на GitHub"
 
 #: ../src/labels.h:283
 msgid "Select a time format."
-msgstr ""
+msgstr "Оберіть формат часу."
 
 #: ../src/labels.h:285
 msgid "Select a date format."
-msgstr ""
+msgstr "Оберіть формат дати."
 
 #: ../src/labels.h:287
 msgid "Select a log format."
-msgstr ""
+msgstr "Оберіть формат лога."
 
 #: ../src/labels.h:289
 #, c-format
 msgid "'%1$s' panel is disabled"
-msgstr ""
+msgstr "Панель '%1$s' відключена"
 
 #. Other
 #: ../src/labels.h:293
 msgid "For more details visit"
-msgstr ""
+msgstr "Подробиці за посиланням"
 
 #: ../src/labels.h:295
 msgid "Last Updated"
-msgstr ""
+msgstr "Останнє оновлення"
 
 #: ../src/labels.h:297
 msgid "WebSocket server ready to accept new client connections"
-msgstr ""
+msgstr "WebSocket-сервер готовий до прийому нових з'єднань"
 
 #: ../src/labels.h:300
 msgid "The following options can also be supplied to the command"
-msgstr ""
+msgstr "Наступні опції також можуть використовуватися з командою"
 
 #: ../src/labels.h:302
 msgid "Examples can be found by running"
-msgstr ""
+msgstr "Приклади можна знайти, запустивши"
 
 #: ../src/labels.h:305
 msgid "Server Statistics"
-msgstr ""
+msgstr "Статистика сервера"
 
 #: ../src/labels.h:307
 msgid "Theme"
-msgstr ""
+msgstr "Тема"
 
 #: ../src/labels.h:309
 msgid "Dark Gray"
-msgstr ""
+msgstr "Темно-сіра"
 
 #: ../src/labels.h:311
 msgid "Bright"
-msgstr ""
+msgstr "Світла"
 
 #: ../src/labels.h:313
 msgid "Dark Blue"
-msgstr ""
+msgstr "Темно-синя"
 
 #: ../src/labels.h:315
 msgid "Dark Purple"
-msgstr ""
+msgstr "Темно-фіолетова"
 
 #: ../src/labels.h:317
 msgid "Panels"
-msgstr ""
+msgstr "Панелі"
 
 #: ../src/labels.h:319
 msgid "Items per Page"
-msgstr ""
+msgstr "Елементів на сторінці"
 
 #: ../src/labels.h:321
 msgid "Tables"
-msgstr ""
+msgstr "Таблиці"
 
 #: ../src/labels.h:323
 msgid "Display Tables"
-msgstr ""
+msgstr "Показувати таблиці"
 
 #: ../src/labels.h:325
 msgid "Auto-Hide on Small Devices"
-msgstr ""
+msgstr "Автоприховування на маленьких пристроях"
 
 #: ../src/labels.h:327
 msgid "Automatically hide tables on small screen devices"
-msgstr ""
+msgstr "Автоматично приховувати таблиці на пристроях з маленькими екранами"
 
 #: ../src/labels.h:329
 msgid "Layout"
-msgstr ""
+msgstr "Розташування"
 
 #: ../src/labels.h:331
 msgid "Horizontal"
-msgstr ""
+msgstr "Горизонтальне"
 
 #: ../src/labels.h:333
 msgid "Vertical"
-msgstr ""
+msgstr "Вертикальне"
 
 #: ../src/labels.h:335
 msgid "WideScreen"
-msgstr ""
+msgstr "Широкоекранне"
 
 #: ../src/labels.h:337
 msgid "File Options"
-msgstr ""
+msgstr "Файлові опції"
 
 #: ../src/labels.h:339
 msgid "Export as JSON"
-msgstr ""
+msgstr "Експорт в JSON"
 
 #: ../src/labels.h:341
 msgid "Panel Options"
-msgstr ""
+msgstr "Налаштування панелі"
 
 #: ../src/labels.h:343
 msgid "Previous"
-msgstr ""
+msgstr "Попередня"
 
 #: ../src/labels.h:345
 msgid "Next"
-msgstr ""
+msgstr "Наступна"
 
 #: ../src/labels.h:347
 msgid "First"
-msgstr ""
+msgstr "Перша"
 
 #: ../src/labels.h:349
 msgid "Last"
-msgstr ""
+msgstr "Остання"
 
 #: ../src/labels.h:351
 msgid "Chart Options"
-msgstr ""
+msgstr "Налаштування діаграми"
 
 #: ../src/labels.h:353
 msgid "Chart"
-msgstr ""
+msgstr "Диаграма"
 
 #: ../src/labels.h:355
 msgid "Type"
-msgstr ""
+msgstr "Тип"
 
 #: ../src/labels.h:357
 msgid "Area Spline"
-msgstr ""
+msgstr "Згладжені області"
 
 #: ../src/labels.h:359
 msgid "Bar"
-msgstr ""
+msgstr "Стовпці"
 
 #: ../src/labels.h:361
 msgid "Plot Metric"
-msgstr ""
+msgstr "Одиниці виміру"
 
 #: ../src/labels.h:363
 msgid "Table Columns"
-msgstr ""
+msgstr "Колонки таблиці"
 
 #. Status Codes
 #: ../src/labels.h:367
 msgid "1xx Informational"
-msgstr ""
+msgstr "1xx Інформаційні"
 
 #: ../src/labels.h:369
 msgid "2xx Success"
-msgstr ""
+msgstr "2xx Успішні"
 
 #: ../src/labels.h:371
 msgid "3xx Redirection"
-msgstr ""
+msgstr "3xx Перенаправлення"
 
 #: ../src/labels.h:373
 msgid "4xx Client Errors"
-msgstr ""
+msgstr "4xx Помилки клієнта"
 
 #: ../src/labels.h:375
 msgid "5xx Server Errors"
-msgstr ""
+msgstr "5xx Помилки сервера"
 
 #: ../src/labels.h:378
 msgid "100 - Continue: Server received the initial part of the request"
-msgstr ""
+msgstr "100 - Continue: Сервер отримав початкову частину запиту"
 
 #: ../src/labels.h:380
 msgid "101 - Switching Protocols: Client asked to switch protocols"
-msgstr ""
+msgstr "101 - Switching Protocols: Клієнт запросив переключення протоколу"
 
 #: ../src/labels.h:382
 msgid "200 - OK: The request sent by the client was successful"
-msgstr ""
+msgstr "200 - OK: Запит клієнта виконаний успішно"
 
 #: ../src/labels.h:384
 msgid "201 - Created: The request has been fulfilled and created"
-msgstr ""
+msgstr "201 - Created: Запит клієнта виконаний і створений новий ресурс"
 
 #: ../src/labels.h:386
 msgid "202 - Accepted: The request has been accepted for processing"
-msgstr ""
+msgstr "202 - Accepted: Запит прийнятий на обробку"
 
 #: ../src/labels.h:388
 msgid "203 - Non-authoritative Information: Response from a third party"
-msgstr ""
+msgstr "203 - Non-authoritative Information: Відповідь не з первинного джерела"
 
 #: ../src/labels.h:390
 msgid "204 - No Content: Request did not return any content"
-msgstr ""
+msgstr "204 - No Content: Запит не повернув ніякого контенту"
 
 #: ../src/labels.h:392
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
+msgstr "205 - Reset Content: Сервер попросив клієнта скинути документ"
 
 #: ../src/labels.h:394
 msgid "206 - Partial Content: The partial GET has been successful"
-msgstr ""
+msgstr "206 - Partial Content: Частковий GET-запит виконаний успішно"
 
 #: ../src/labels.h:396
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
-msgstr ""
+msgstr "207 - Multi-Status: WebDAV; RFC 4918"
 
 #: ../src/labels.h:398
 msgid "208 - Already Reported: WebDAV; RFC 5842"
-msgstr ""
+msgstr "208 - Already Reported: WebDAV; RFC 5842"
 
 #: ../src/labels.h:400
 msgid "300 - Multiple Choices: Multiple options for the resource"
-msgstr ""
+msgstr "300 - Multiple Choices: Ресурс має кілька варіантів надання"
 
 #: ../src/labels.h:402
 msgid "301 - Moved Permanently: Resource has permanently moved"
-msgstr ""
+msgstr "301 - Moved Permanently: Ресурс переміщений на постійній основі"
 
 #: ../src/labels.h:404
 msgid "302 - Moved Temporarily (redirect)"
-msgstr ""
+msgstr "302 - Moved Temporarily (тимчасовий редирект)"
 
 #: ../src/labels.h:406
 msgid "303 - See Other Document: The response is at a different URI"
-msgstr ""
+msgstr "303 - See Other Document: Відповідь знаходиться за іншим URI"
 
 #: ../src/labels.h:408
 msgid "304 - Not Modified: Resource has not been modified"
-msgstr ""
+msgstr "304 - Not Modified: Ресурс не змінювався"
 
 #: ../src/labels.h:410
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
-msgstr ""
+msgstr "305 - Use Proxy: Доступ тільки через проксі"
 
 #: ../src/labels.h:412
 msgid "307 - Temporary Redirect: Resource temporarily moved"
-msgstr ""
+msgstr "307 - Temporary Redirect: Ресурс тимчасово переміщений"
 
 #: ../src/labels.h:414
+#, fuzzy
 msgid "308 - Permanent Redirect"
-msgstr ""
+msgstr "402 - Payment Required"
 
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
-msgstr ""
+msgstr "400 - Bad Request: Невірний синтаксис запиту"
 
 #: ../src/labels.h:418
 msgid "401 - Unauthorized: Request needs user authentication"
-msgstr ""
+msgstr "401 - Unauthorized: Запит вимагає аутентифікації"
 
 #: ../src/labels.h:420
 msgid "402 - Payment Required"
-msgstr ""
+msgstr "402 - Payment Required"
 
 #: ../src/labels.h:422
 msgid "403 - Forbidden: Server is refusing to respond to it"
-msgstr ""
+msgstr "403 - Forbidden: Сервер відмовився надати відповідь"
 
 #: ../src/labels.h:424
 msgid "404 - Not Found: Requested resource could not be found"
-msgstr ""
+msgstr "404 - Not Found: Запитаний ресурс не знайдений"
 
 #: ../src/labels.h:426
 msgid "405 - Method Not Allowed: Request method not supported"
-msgstr ""
+msgstr "405 - Method Not Allowed: Метод запиту не підтримується"
 
 #: ../src/labels.h:428
 msgid "406 - Not Acceptable"
-msgstr ""
+msgstr "406 - Not Acceptable"
 
 #: ../src/labels.h:430
 msgid "407 - Proxy Authentication Required"
-msgstr ""
+msgstr "407 - Proxy Authentication Required"
 
 #: ../src/labels.h:432
 msgid "408 - Request Timeout: Server timed out waiting for the request"
-msgstr ""
+msgstr "408 - Request Timeout: Сервер не дочекався запиту"
 
 #: ../src/labels.h:434
 msgid "409 - Conflict: Conflict in the request"
-msgstr ""
+msgstr "409 - Conflict: Конфліктний запит"
 
 #: ../src/labels.h:436
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr ""
+msgstr "410 - Gone: Запитаний ресурс більше недоступний"
 
 #: ../src/labels.h:438
 msgid "411 - Length Required: Invalid Content-Length"
-msgstr ""
+msgstr "411 - Length Required: Невірний Content-Length"
 
 #: ../src/labels.h:440
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
+msgstr "412 - Precondition Failed: Сервер не виконав попередні умови"
 
 #: ../src/labels.h:442
 msgid "413 - Payload Too Large"
-msgstr ""
+msgstr "413 - Payload Too Large"
 
 #: ../src/labels.h:444
 msgid "414 - Request-URI Too Long"
-msgstr ""
+msgstr "414 - Request-URI Too Long"
 
 #: ../src/labels.h:446
 msgid "415 - Unsupported Media Type: Media type is not supported"
-msgstr ""
+msgstr "415 - Unsupported Media Type: Тип медіа не підтримується"
 
 #: ../src/labels.h:448
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
+msgstr "416 - Requested Range Not Satisfiable: Частина не може бути доставлена"
 
 #: ../src/labels.h:450
 msgid "417 - Expectation Failed"
-msgstr ""
+msgstr "417 - Expectation Failed"
 
 #: ../src/labels.h:452
 msgid "418 - I’m a teapot"
-msgstr ""
+msgstr "418 - I’m a teapot"
 
 #: ../src/labels.h:454
 msgid "421 - Misdirected Request"
-msgstr ""
+msgstr "421 - Misdirected Request"
 
 #: ../src/labels.h:456
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
-msgstr ""
+msgstr "422 - Unprocessable Entity due to semantic errors: WebDAV"
 
 #: ../src/labels.h:458
 msgid "423 - The resource that is being accessed is locked"
-msgstr ""
+msgstr "423 - The resource that is being accessed is locked"
 
 #: ../src/labels.h:460
 msgid "424 - Failed Dependency: WebDAV"
-msgstr ""
+msgstr "424 - Failed Dependency: WebDAV"
 
 #: ../src/labels.h:462
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
-msgstr ""
+msgstr "426 - Upgrade Required: Клієнт повинен переключити протокол"
 
 #: ../src/labels.h:464
 msgid "428 - Precondition Required"
-msgstr ""
+msgstr "428 - Precondition Required"
 
 #: ../src/labels.h:466
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr ""
+msgstr "429 - Too Many Requests: Клієнт відправив занадто багато запитів"
 
 #: ../src/labels.h:468
 msgid "431 - Request Header Fields Too Large"
-msgstr ""
+msgstr "431 - Request Header Fields Too Large"
 
 #: ../src/labels.h:470
 msgid "451 - Unavailable For Legal Reasons"
-msgstr ""
+msgstr "451 - Unavailable For Legal Reasons"
 
 #: ../src/labels.h:472
 msgid "444 - (Nginx) Connection closed without sending any headers"
-msgstr ""
+msgstr "444 - (Nginx) Connection closed without sending any headers"
 
 #: ../src/labels.h:474
 msgid "494 - (Nginx) Request Header Too Large"
-msgstr ""
+msgstr "494 - (Nginx) Request Header Too Large"
 
 #: ../src/labels.h:476
 msgid "495 - (Nginx) SSL client certificate error"
-msgstr ""
+msgstr "495 - (Nginx) SSL client certificate error"
 
 #: ../src/labels.h:478
 msgid "496 - (Nginx) Client didn't provide certificate"
-msgstr ""
+msgstr "496 - (Nginx) Client didn't provide certificate"
 
 #: ../src/labels.h:480
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
-msgstr ""
+msgstr "497 - (Nginx) HTTP request sent to HTTPS port"
 
 #: ../src/labels.h:482
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr ""
+msgstr "499 - (Nginx) Connection closed by client while processing request"
 
 #: ../src/labels.h:484
 msgid "500 - Internal Server Error"
-msgstr ""
+msgstr "500 - Internal Server Error"
 
 #: ../src/labels.h:486
 msgid "501 - Not Implemented"
-msgstr ""
+msgstr "501 - Not Implemented"
 
 #: ../src/labels.h:488
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr ""
+"502 - Bad Gateway: Сервер, який діє як шлюз, отримав недійсну відповідь"
 
 #: ../src/labels.h:490
 msgid "503 - Service Unavailable: The server is currently unavailable"
-msgstr ""
+msgstr "503 - Service Unavailable: Сервер недоступний"
 
 #: ../src/labels.h:492
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr ""
+"504 - Gateway Timeout: Сервер, який діє як шлюз, не дочекався відповіді"
 
 #: ../src/labels.h:494
 msgid "505 - HTTP Version Not Supported"
-msgstr ""
+msgstr "505 - HTTP Version Not Supported"
 
 #: ../src/labels.h:496
 msgid "520 - CloudFlare - Web server is returning an unknown error"
-msgstr ""
+msgstr "520 - CloudFlare - Web server is returning an unknown error"
 
 #: ../src/labels.h:498
 msgid "521 - CloudFlare - Web server is down"
-msgstr ""
+msgstr "521 - CloudFlare - Web server is down"
 
 #: ../src/labels.h:500
 msgid "522 - CloudFlare - Connection timed out"
-msgstr ""
+msgstr "522 - CloudFlare - Connection timed out"
 
 #: ../src/labels.h:502
 msgid "523 - CloudFlare - Origin is unreachable"
-msgstr ""
+msgstr "523 - CloudFlare - Origin is unreachable"
 
 #: ../src/labels.h:504
 msgid "524 - CloudFlare - A timeout occurred"
-msgstr ""
+msgstr "524 - CloudFlare - A timeout occurred"

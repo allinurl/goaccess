@@ -86,6 +86,7 @@ static const char *codes[][2] = {
   {"304", STATUS_CODE_304},
   {"305", STATUS_CODE_305},
   {"307", STATUS_CODE_307},
+  {"308", STATUS_CODE_308},
   {"400", STATUS_CODE_400},
   {"401", STATUS_CODE_401},
   {"402", STATUS_CODE_402},
@@ -343,7 +344,7 @@ within_range (const char *ip, const char *start, const char *end) {
  * On success, or if within the range, 1 is returned */
 int
 ip_in_range (const char *ip) {
-  char *start = NULL, *end, *dash;
+  char *start, *end, *dash;
   int i;
 
   for (i = 0; i < conf.ignore_ip_idx; ++i) {
@@ -359,14 +360,14 @@ ip_in_range (const char *ip) {
     }
 
     /* matches single IP */
-    if (end == NULL && start) {
+    if (end == NULL) {
       if (strcmp (ip, start) == 0) {
         free (start);
         return 1;
       }
     }
     /* within range */
-    else if (start && end) {
+    else {
       if (within_range (ip, start, end)) {
         free (start);
         return 1;
@@ -393,8 +394,7 @@ find_output_type (char **filename, const char *ext, int alloc) {
     if (strcmp (conf.output_formats[i], ext) == 0)
       return 0;
 
-    if ((dot = strrchr (conf.output_formats[i], '.')) != NULL &&
-        strcmp (dot + 1, ext) == 0) {
+    if ((dot = strrchr (conf.output_formats[i], '.')) != NULL && strcmp (dot + 1, ext) == 0) {
       if (alloc)
         *filename = xstrdup (conf.output_formats[i]);
       return 0;
@@ -440,18 +440,17 @@ valid_output_type (const char *filename) {
   return 0;
 }
 
-/* Search the environment HOME variable and append GoAccess' config
- * file.
+/* Get the path to the user config file (ie. HOME/.goaccessrc).
  *
- * On error, it outputs an error message and the program terminates.
- * On success, the path of HOME and the config file is returned. */
+ * On error, it returns NULL.
+ * On success, the path of the user config file is returned. */
 char *
-get_home (void) {
+get_user_config (void) {
   char *user_home = NULL, *path = NULL;
 
   user_home = getenv ("HOME");
   if (user_home == NULL)
-    FATAL ("Unable to determine the HOME environment variable.");
+    return NULL;
 
   path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
   sprintf (path, "%s/.goaccessrc", user_home);
@@ -466,8 +465,7 @@ char *
 get_global_config (void) {
   char *path = NULL;
 
-  path =
-    xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
+  path = xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
   sprintf (path, "%s/goaccess/goaccess.conf", SYSCONFDIR);
 
   return path;
@@ -528,25 +526,24 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
   return 0;
 }
 
-/* Convert a date from one format to another and store inot the given buffer.
+/* Convert a date from one format to another and store in the given buffer.
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-convert_date (char *res, const char *data, const char *from, const char *to,
-              int size) {
+convert_date (char *res, const char *data, const char *from, const char *to, int size) {
   struct tm tm;
 
   memset (&tm, 0, sizeof (tm));
   timestamp = time (NULL);
-  now_tm = localtime (&timestamp);
+  localtime_r (&timestamp, &now_tm);
 
   if (str_to_time (data, from, &tm) != 0)
     return 1;
 
   /* if not a timestamp, use current year if not passed */
   if (!has_timestamp (from) && strpbrk (from, "Yy") == NULL)
-    tm.tm_year = now_tm->tm_year;
+    tm.tm_year = now_tm.tm_year;
 
   if (strftime (res, size, to, &tm) <= 0)
     return 1;

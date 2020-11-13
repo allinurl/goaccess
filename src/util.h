@@ -46,6 +46,12 @@
 #define HOUR 3600000000ULL
 #define DAY  86400000000ULL
 
+/* Convenient macros */
+#define MIN(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 /* *INDENT-OFF* */
 #include <stdint.h>
 #include <sys/types.h>
@@ -60,7 +66,7 @@ char *filesize_str (unsigned long long log_size);
 char *float2str (float d, int width);
 int str2int (const char *date);
 char *get_global_config (void);
-char *get_home (void);
+char *get_user_config (void);
 char *get_visitors_date (const char *odate, const char *from, const char *to);
 char *int2str (int d, int width);
 char *u322str (uint32_t d, int width);

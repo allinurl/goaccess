@@ -272,7 +272,7 @@
 
 /* Storage Built-in Option */
 #define BUILT_WITH_DEFHASH             \
-  _("Built using the default in-memory hash database.")
+  _("In-Memory with On-Disk Persistent Storage.")
 
 /* Common UI Errors */
 #define ERR_FORMAT_HEADER              \
@@ -345,6 +345,8 @@
   N_("Horizontal")
 #define HTML_REPORT_NAV_VER            \
   N_("Vertical")
+#define HTML_REPORT_NAV_WIDE           \
+  N_("WideScreen")
 #define HTML_REPORT_NAV_FILE_OPTS      \
   N_("File Options")
 #define HTML_REPORT_NAV_EXPORT_JSON    \
@@ -422,6 +424,8 @@
   N_("305 - Use Proxy: Can only be accessed through the proxy")
 #define STATUS_CODE_307               \
   N_("307 - Temporary Redirect: Resource temporarily moved")
+#define STATUS_CODE_308               \
+  N_("308 - Permanent Redirect")
 #define STATUS_CODE_400               \
   N_("400 - Bad Request: The syntax of the request is invalid")
 #define STATUS_CODE_401               \

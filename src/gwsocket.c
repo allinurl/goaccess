@@ -190,8 +190,7 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
   readh = gwsreader->hlen;      /* read from header so far */
   need = HDR_SIZE - readh;      /* need to read */
   if (need > 0) {
-    if ((bytes =
-         ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
+    if ((bytes = ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
     if (bytes != need)
       return 0;
@@ -259,7 +258,7 @@ set_ready_state (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoout (void) {
-  const char *fifo = conf.fifo_out ? conf.fifo_out : WS_PIPEOUT;
+  const char *fifo = conf.fifo_out;
   int fdfifo;
 
   /* open fifo for reading before writing */
@@ -276,7 +275,7 @@ open_fifoout (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoin (void) {
-  const char *fifo = conf.fifo_in ? conf.fifo_in : WS_PIPEIN;
+  const char *fifo = conf.fifo_in;
   int fdfifo;
 
   if ((fdfifo = open (fifo, O_WRONLY | O_NONBLOCK)) == -1)
@@ -321,11 +320,11 @@ stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
 
   reader = gwsreader->thread;
   if (pthread_join (reader, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", reader, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", reader, strerror (errno)));
 
   writer = gwswriter->thread;
   if (pthread_join (writer, NULL) != 0)
-    LOG (("Unable to join thread: %d %s\n", writer, strerror (errno)));
+    LOG (("Unable to join thread: %lu %s\n", writer, strerror (errno)));
 }
 
 /* Start the WebSocket server and initialize default options. */

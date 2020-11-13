@@ -58,14 +58,9 @@
 
 #include "ui.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "color.h"
 #include "error.h"
+#include "gkhash.h"
 #include "gmenu.h"
 #include "goaccess.h"
 #include "util.h"
@@ -165,7 +160,7 @@ close_win (WINDOW * w) {
 void
 generate_time (void) {
   timestamp = time (NULL);
-  now_tm = localtime (&timestamp);
+  localtime_r (&timestamp, &now_tm);
 }
 
 /* Set the loading spinner as ended and manage the mutex locking. */
@@ -405,8 +400,7 @@ update_active_module (WINDOW * header_win, GModule current) {
 
 /* Print out (terminal) an overall field label. e.g., 'Processed Time' */
 static void
-render_overall_field (WINDOW * win, const char *s, int y, int x,
-                      GColors * color) {
+render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -414,8 +408,7 @@ render_overall_field (WINDOW * win, const char *s, int y, int x,
 
 /* Print out (terminal) an overall field value. e.g., '120 secs' */
 static void
-render_overall_value (WINDOW * win, const char *s, int y, int x,
-                      GColors * color) {
+render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -501,15 +494,10 @@ get_str_visitors (void) {
 static char *
 get_str_proctime (void) {
   char *s = NULL;
-  uint64_t secs = (long long) end_proc - start_proc;
+  uint32_t secs = ht_get_processing_time ();
 
-#ifdef TCB_BTREE
-  if (conf.store_accumulated_time)
-    secs = (uint64_t) ht_get_genstats ("accumulated_time");
-#endif
-
-  s = xmalloc (snprintf (NULL, 0, "%" PRIu64 "s", secs) + 1);
-  sprintf (s, "%" PRIu64 "s", secs);
+  s = xmalloc (snprintf (NULL, 0, "%us", secs) + 1);
+  sprintf (s, "%us", secs);
 
   return s;
 }
@@ -539,42 +527,26 @@ get_str_bandwidth (void) {
   return filesize_str (ht_sum_bw ());
 }
 
-/* Iterate over the visitors module and sort date in an ascending
- * order.
- *
- * On success, an array of sorted dates is returned. */
-static char **
-get_visitors_dates (GHolder * h) {
-  char **dates = malloc (sizeof (char *) * h->holder_size);
-  int i;
-
-  for (i = 0; i < h->idx; i++) {
-    dates[i] = h->items[i].metrics->data;
-  }
-  qsort (dates, h->holder_size, sizeof (char *), strcmp_asc);
-
-  return dates;
-}
-
 /* Get the overall statistics start and end dates.
  *
  * On failure, 1 is returned
  * On success, 0 is returned and an string containing the overall
  * header is returned. */
 int
-get_start_end_parsing_dates (GHolder * h, char **start, char **end,
-                             const char *f) {
-  char **dates = NULL;
-  const char *sndfmt = conf.spec_date_time_num_format;
+get_start_end_parsing_dates (char **start, char **end, const char *f) {
+  uint32_t *dates = NULL;
+  uint32_t len = 0;
+  const char *sndfmt = "%Y%m%d";
+  char s[DATE_LEN];
+  char e[DATE_LEN];
 
-  if (h->idx == 0)
-    return 1;
-
-  dates = get_visitors_dates (h + VISITORS);
+  dates = get_sorted_dates (&len);
+  sprintf (s, "%u", dates[0]);
+  sprintf (e, "%u", dates[len - 1]);
 
   /* just display the actual dates - no specificity */
-  *start = get_visitors_date (dates[0], sndfmt, f);
-  *end = get_visitors_date (dates[h->idx - 1], sndfmt, f);
+  *start = get_visitors_date (s, sndfmt, f);
+  *end = get_visitors_date (e, sndfmt, f);
 
   free (dates);
 
@@ -589,7 +561,7 @@ get_overall_header (GHolder * h) {
   const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
-  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
+  if (h->idx == 0 || get_start_end_parsing_dates (&start, &end, "%d/%b/%Y"))
     return xstrdup (head);
 
   hd = xmalloc (snprintf (NULL, 0, "%s (%s - %s)", head, start, end) + 1);
@@ -616,8 +588,8 @@ render_overall_header (WINDOW * win, GHolder * h) {
 static void
 render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
   GColors *color = NULL;
-  int x_field = 2, x_value = 0;
-  size_t i, j, k, max_field = 0, max_value = 0, mod_val, y;
+  int x_field = 2, x_value;
+  size_t i, j, k, max_field = 0, max_value, mod_val, y;
 
   for (i = 0, k = 0, y = 2; i < n; i++) {
     /* new line every OVERALL_NUM_COLS */
@@ -625,8 +597,8 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
 
     /* reset position & length and increment row */
     if (k > 0 && mod_val == 0) {
-      max_value = max_field = 0;
-      x_value = x_field = 2;
+      max_field = 0;
+      x_field = 2;
       y++;
     }
 
@@ -640,16 +612,14 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
     max_field = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].field);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_field &&
-          !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_field && !fields[j].oneliner)
         max_field = len;
     }
     /* get max length of value in the same column */
     max_value = 0;
     for (j = 0; j < n; j++) {
       size_t len = strlen (fields[j].value);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_value &&
-          !fields[j].oneliner)
+      if (j % OVERALL_NUM_COLS == mod_val && len > max_value && !fields[j].oneliner)
         max_value = len;
     }
 
@@ -843,75 +813,94 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
   return s;
 }
 
+/* Add the given user agent value into our array of GAgents.
+ *
+ * On error, 1 is returned.
+ * On success, the user agent is added to the array and 0 is returned. */
+static int
+set_agents (void *val, void *user_data) {
+  GAgents *agents = user_data;
+  GAgentItem *tmp = NULL;
+  char *agent = NULL;
+  int newlen = 0, i;
+
+  if (!(agent = ht_get_host_agent_val (*(uint32_t *) val)))
+    return 1;
+
+  if (agents->size - 1 == agents->idx) {
+    newlen = agents->size + 4;
+    if (!(tmp = realloc (agents->items, newlen * sizeof (GAgentItem))))
+      FATAL ("Unable to realloc agents");
+
+    agents->items = tmp;
+    agents->size = newlen;
+  }
+
+  for (i = 0; i < agents->idx; ++i) {
+    if (strcmp (agent, agents->items[i].agent) == 0) {
+      free (agent);
+      return 0;
+    }
+  }
+  agents->items[agents->idx++].agent = agent;
+
+  return 0;
+}
+
+/* Iterate over the list of agents */
+GAgents *
+load_host_agents (const char *addr) {
+  GAgents *agents = NULL;
+  GSLList *keys = NULL, *list = NULL;
+  void *data = NULL;
+  uint32_t items = 4;
+
+  keys = ht_get_keymap_list_from_key (HOSTS, addr);
+  if (!keys)
+    return NULL;
+
+  agents = new_gagents (items);
+
+  /* *INDENT-OFF* */
+  GSLIST_FOREACH (keys, data, {
+    if ((list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) data)))) {
+      list_foreach (list, set_agents, agents);
+      list_remove_nodes (list);
+    }
+  });
+  /* *INDENT-ON* */
+  list_remove_nodes (keys);
+
+  return agents;
+}
+
 /* Fill the given terminal dashboard menu with user agent data.
  *
  * On error, the 1 is returned.
  * On success, 0 is returned. */
 static int
-fill_host_agents_gmenu (void *val, void *user_data) {
-  GMenu *menu = user_data;
-  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
+fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
   int i;
 
-  if (agent == NULL)
+  if (agents == NULL)
     return 1;
 
-  for (i = 0; i < menu->size; ++i) {
-    if (strcmp (agent, menu->items[i].name) == 0) {
-      free (agent);
-      return 0;
-    }
+  menu->items = xcalloc (agents->idx, sizeof (GItem));
+  for (i = 0; i < agents->idx; ++i) {
+    menu->items[i].name = xstrdup (agents->items[i].agent);
+    menu->items[i].checked = 0;
+    menu->size++;
   }
 
-  menu->items[menu->size].name = agent;
-  menu->items[menu->size].checked = 0;
-  menu->size++;
-
-  return 0;
-}
-
-/* Iterate over the linked-list of user agents for the given host and
- * load its data into the given menu. */
-static int
-load_host_agents_gmenu (void *list, void *user_data, uint32_t count) {
-  GSLList *lst = list;
-  GMenu *menu = user_data;
-
-  menu->items = (GItem *) xcalloc (count, sizeof (GItem));
-  return list_foreach (lst, fill_host_agents_gmenu, menu);
-}
-
-int
-set_list_host_agents (void *val, GSLList ** user_data) {
-  uint32_t count = 0, key = 0;
-  GSLList *list = NULL;
-
-  if (!(list = ht_get_host_agent_list (HOSTS, (*(uint32_t *) val))))
-    return 1;
-
-  if ((count = list_count (list)) == 0) {
-    free (list);
-    return 1;
-  }
-
-  while (list) {
-    key = (*(uint32_t *) list->data);
-    if (!*user_data)
-      *user_data = list_create (i322ptr (key));
-    else
-      *user_data = list_insert_prepend (*user_data, i322ptr (key));
-    list = list->next;
-  }
   return 0;
 }
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
-  GSLList *list = NULL;
+load_agent_list (WINDOW * main_win, char *addr) {
   GMenu *menu;
+  GAgents *agents = NULL;
   WINDOW *win;
-  uint32_t count = 0;
 
   char buf[256];
   int c, quit = 1, i;
@@ -932,12 +921,9 @@ load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
 
   /* create a new instance of GMenu and make it selectable */
   menu = new_gmenu (win, menu_h, menu_w, AGENTS_MENU_Y, AGENTS_MENU_X);
-  while (keys) {
-    set_list_host_agents (keys->data, &list);
-    keys = keys->next;
-  }
-  count = list_count (list);
-  if (count == 0 || load_host_agents_gmenu (list, menu, count) != 0)
+  if (!(agents = load_host_agents (addr)))
+    goto out;
+  if (fill_host_agents_gmenu (menu, agents) != 0)
     goto out;
 
   post_gmenu (menu);
@@ -969,13 +955,13 @@ load_agent_list (WINDOW * main_win, char *addr, GSLList * keys) {
 
 out:
 
-  list_remove_nodes (list);
   /* clean stuff up */
   for (i = 0; i < menu->size; ++i)
     free (menu->items[i].name);
   if (menu->items)
     free (menu->items);
   free (menu);
+  free_agents_array (agents);
 }
 
 /* Render the processing spinner. This runs within its own thread. */
@@ -1202,8 +1188,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, ERR_MENU_HEIGHT, ERR_MENU_WIDTH, ERR_MENU_Y, ERR_MENU_X);
+  menu = new_gmenu (win, ERR_MENU_HEIGHT, ERR_MENU_WIDTH, ERR_MENU_Y, ERR_MENU_X);
   menu->size = nerrors;
 
   /* add items to GMenu */
@@ -1538,8 +1523,7 @@ load_schemes_win (WINDOW * main_win) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
+  menu = new_gmenu (win, SCHEME_MENU_H, SCHEME_MENU_W, SCHEME_MENU_Y, SCHEME_MENU_X);
   /* remove custom color option if no custom scheme used */
   menu->size = n;
 
@@ -1782,8 +1766,8 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
 
 /* Help menu data (F1/h). */
 static const char *help_main[] = {
-  "Copyright (C) 2009-2017 by Gerardo Orellana",
-  "http://goaccess.io - <hello@goaccess.io>",
+  "Copyright (C) 2009-2020 by Gerardo Orellana",
+  "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",
   "See `man` page for more details",
@@ -1852,9 +1836,7 @@ load_help_popup (WINDOW * main_win) {
   wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
 
   /* create a new instance of GMenu and make it selectable */
-  menu =
-    new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y,
-               HELP_MENU_X);
+  menu = new_gmenu (win, HELP_MENU_HEIGHT, HELP_MENU_WIDTH, HELP_MENU_Y, HELP_MENU_X);
   menu->size = n;
 
   /* add items to GMenu */

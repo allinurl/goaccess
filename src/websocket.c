@@ -432,7 +432,6 @@ static void
 ws_clear_handshake_headers (WSHeaders * headers) {
   ws_free_header_fields (headers);
   free (headers);
-  headers = NULL;
 }
 
 /* Remove the given client from the list. */
@@ -635,8 +634,7 @@ initialize_ssl_ctx (WSServer * server) {
 
   /* since we queued up the send data, a retry won't be the same buffer,
    * thus we need the following flags */
-  SSL_CTX_set_mode (ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER |
-                    SSL_MODE_ENABLE_PARTIAL_WRITE);
+  SSL_CTX_set_mode (ctx, SSL_MODE_ACCEPT_MOVING_WRITE_BUFFER | SSL_MODE_ENABLE_PARTIAL_WRITE);
 
   server->ctx = ctx;
   ret = 0;
@@ -684,7 +682,7 @@ log_return_message (int ret, int err, const char *fn) {
     /* call was not successful because a fatal error occurred either at the
      * protocol level or a connection failure occurred. */
     if (ret != 0) {
-      LOG (("SSL bogus handshake interrupt: \n", strerror (errno)));
+      LOG (("SSL bogus handshake interrupt: %s\n", strerror (errno)));
       break;
     }
     /* call not yet finished. */
@@ -862,8 +860,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len) {
     client->sslstatus = WS_TLS_WRITING;
     break;
   case SSL_ERROR_SYSCALL:
-    if ((bytes < 0 &&
-         (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+    if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
       break;
     /* The connection was shut down cleanly */
     /* FALLTHRU */
@@ -905,8 +902,7 @@ read_ssl_socket (WSClient * client, char *buffer, int size) {
       done = 1;
       break;
     case SSL_ERROR_SYSCALL:
-      if ((bytes < 0 &&
-           (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
+      if ((bytes < 0 && (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)))
         break;
       /* FALLTHRU */
     case SSL_ERROR_ZERO_RETURN:
@@ -1152,7 +1148,7 @@ parse_headers (WSHeaders * headers) {
     free (tmp);
     line = next ? (next + 2) : NULL;
 
-    if (strcmp (next, "\r\n\r\n") == 0)
+    if (next && strcmp (next, "\r\n\r\n") == 0)
       break;
   }
 
@@ -1312,8 +1308,7 @@ ws_respond (WSClient * client, const char *buffer, int len) {
     bytes = ws_respond_data (client, buffer, len);
   /* buffer not empty, just append new data iff we're not throttling the
    * client */
-  else if (client->sockqueue != NULL && buffer != NULL &&
-           !(client->status & WS_THROTTLING)) {
+  else if (client->sockqueue != NULL && buffer != NULL && !(client->status & WS_THROTTLING)) {
     if (ws_realloc_send_buf (client, buffer, len) == 1)
       return bytes;
   }
@@ -1399,11 +1394,11 @@ access_log (WSClient * client, int status_code) {
   char buf[64] = { 0 };
   uint32_t elapsed = 0;
   struct timeval tv;
+  struct tm time;
   char *req = NULL, *ref = NULL, *ua = NULL;
 
   gettimeofday (&tv, NULL);
-  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]",
-            localtime (&tv.tv_sec));
+  strftime (buf, sizeof (buf) - 1, "[%d/%b/%Y:%H:%M:%S %z]", localtime_r (&tv.tv_sec, &time));
 
   elapsed = (client->end_proc.tv_sec - client->start_proc.tv_sec) * 1000.0;
   elapsed += (client->end_proc.tv_usec - client->start_proc.tv_usec) / 1000.0;
@@ -1422,7 +1417,7 @@ access_log (WSClient * client, int status_code) {
   ACCESS_LOG (("%d ", hdrs->buflen));
   ACCESS_LOG (("\"%s\" ", ref ? ref : "-"));
   ACCESS_LOG (("\"%s\" ", ua ? ua : "-"));
-  ACCESS_LOG (("%zu\n", elapsed));
+  ACCESS_LOG (("%u\n", elapsed));
 
   if (req)
     free (req);
@@ -1472,8 +1467,7 @@ ws_set_handshake_headers (WSHeaders * headers) {
   ws_sha1_digest (s, len, digest);
 
   /* set response headers */
-  headers->ws_accept =
-    base64_encode ((unsigned char *) digest, sizeof (digest));
+  headers->ws_accept = base64_encode ((unsigned char *) digest, sizeof (digest));
   headers->ws_resp = xstrdup (WS_SWITCH_PROTO_STR);
 
   if (!headers->upgrade)
@@ -1528,7 +1522,7 @@ ws_get_handshake (WSClient * client, WSServer * server) {
   buf = client->headers->buf;
   readh = client->headers->buflen;
   /* Probably the connection was closed before finishing handshake */
-  if ((bytes = read_socket (client, buf + readh, BUFSIZ - readh)) < 1) {
+  if ((bytes = read_socket (client, buf + readh, WS_MAX_HEAD_SZ - readh)) < 1) {
     if (client->status & WS_CLOSE)
       http_error (client, WS_BAD_REQUEST_STR);
     return bytes;
@@ -1539,7 +1533,7 @@ ws_get_handshake (WSClient * client, WSServer * server) {
 
   /* Must have a \r\n\r\n */
   if (strstr (buf, "\r\n\r\n") == NULL) {
-    if (strlen (buf) < BUFSIZ)
+    if (strlen (buf) < WS_MAX_HEAD_SZ)
       return ws_set_status (client, WS_READING, bytes);
 
     http_error (client, WS_BAD_REQUEST_STR);
@@ -1673,8 +1667,7 @@ ws_handle_close (WSClient * client) {
  *
  * On success, the number of bytes sent is returned. */
 static int
-ws_handle_err (WSClient * client, unsigned short code, WSStatus status,
-               const char *m) {
+ws_handle_err (WSClient * client, unsigned short code, WSStatus status, const char *m) {
   client->status = status;
   return ws_error (client, code, m);
 }
@@ -2276,9 +2269,6 @@ ws_openfifo_out (WSPipeOut * pipeout) {
  * messages from the client. */
 static void
 ws_fifo (WSServer * server) {
-  wsconfig.pipein = wsconfig.pipein ? wsconfig.pipein : WS_PIPEIN;
-  wsconfig.pipeout = wsconfig.pipeout ? wsconfig.pipeout : WS_PIPEOUT;
-
   ws_openfifo_in (server->pipein);
   ws_openfifo_out (server->pipeout);
 }
@@ -2581,8 +2571,7 @@ handle_strict_fifo (WSServer * server) {
   readh = (*pa)->len;   /* read from payload so far */
   need = (*pa)->size - readh;   /* need to read */
   if (need > 0) {
-    if ((bytes =
-         ws_read_fifo (pi->fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
+    if ((bytes = ws_read_fifo (pi->fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
       return;
     if (bytes != need)
       return;

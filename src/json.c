@@ -45,13 +45,8 @@
 
 #include "json.h"
 
-#ifdef HAVE_LIBTOKYOCABINET
-#include "tcabdb.h"
-#else
-#include "gkhash.h"
-#endif
-
 #include "error.h"
+#include "gkhash.h"
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
@@ -60,10 +55,8 @@
 
 typedef struct GPanel_ {
   GModule module;
-  void (*render) (GJSON * json, GHolder * h, GPercTotals totals,
-                  const struct GPanel_ *);
-  void (*subitems) (GJSON * json, GHolderItem * item, GPercTotals totals,
-                    int size, int iisp);
+  void (*render) (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *);
+  void (*subitems) (GJSON * json, GHolderItem * item, GPercTotals totals, int size, int iisp);
 } GPanel;
 
 /* number of new lines (applicable fields) */
@@ -180,8 +173,8 @@ set_json_buffer (GJSON * json, int len) {
  * buffer if necessary.
  *
  * On success, data is outputted. */
-static void
-pjson (GJSON * json, const char *fmt, ...) {
+__attribute__((format (printf, 2, 3)))
+  static void pjson (GJSON * json, const char *fmt, ...) {
   int len = 0;
   va_list args;
 
@@ -197,7 +190,7 @@ pjson (GJSON * json, const char *fmt, ...) {
   vsprintf (json->buf + json->offset, fmt, args);
   va_end (args);
   json->offset += len;
-}
+  }
 
 /* A wrapper function to output a formatted string to a file pointer.
  *
@@ -452,7 +445,7 @@ poverall_datetime (GJSON * json, int sp) {
   char now[DATE_TIME];
 
   generate_time ();
-  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", now_tm);
+  strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
   pskeysval (json, OVERALL_DATETIME, now, sp, 0);
 }
@@ -462,7 +455,7 @@ static void
 poverall_start_end_date (GJSON * json, GHolder * h, int sp) {
   char *start = NULL, *end = NULL;
 
-  if (h->idx == 0 || get_start_end_parsing_dates (h, &start, &end, "%d/%b/%Y"))
+  if (h->idx == 0 || get_start_end_parsing_dates (&start, &end, "%d/%b/%Y"))
     return;
 
   pskeysval (json, OVERALL_STARTDATE, start, sp, 0);
@@ -496,14 +489,7 @@ poverall_invalid_reqs (GJSON * json, int sp) {
  * object. */
 static void
 poverall_processed_time (GJSON * json, int sp) {
-  uint64_t elapsed_proc = end_proc - start_proc;
-
-#ifdef TCB_BTREE
-  if (conf.store_accumulated_time)
-    elapsed_proc = (uint64_t) ht_get_genstats ("accumulated_time");
-#endif
-
-  pskeyu64val (json, OVERALL_GENTIME, elapsed_proc, sp, 0);
+  pskeyu64val (json, OVERALL_GENTIME, ht_get_processing_time (), sp, 0);
 }
 
 /* Write to a buffer the total number of unique visitors under the
@@ -544,8 +530,7 @@ poverall_notfound (GJSON * json, int sp) {
  * the overall object. */
 static void
 poverall_static_files (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp,
-             0);
+  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
 }
 
 /* Write to a buffer the size of the log being parsed under the
@@ -685,6 +670,84 @@ pprotocol (GJSON * json, GMetrics * nmetrics, int sp) {
   }
 }
 
+static void
+pmeta_i64_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint64_t *, uint64_t *),
+                const char *key, int show_perc, int sp) {
+  int isp = 0;
+  uint64_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
+  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  cb (h->module, &min, &max);
+
+  popen_obj_attr (json, "total", sp);
+  pskeyu64val (json, "value", total, isp, 1);
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "avg", sp);
+  pskeyu64val (json, "value", avg, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "max", sp);
+  pskeyu64val (json, "value", max, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "min", sp);
+  pskeyu64val (json, "value", min, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
+  }
+  pclose_obj (json, sp, 1);
+}
+
+static void
+pmeta_i32_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint32_t *, uint32_t *),
+                const char *key, int show_perc, int sp) {
+  int isp = 0;
+  uint32_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
+  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  cb (h->module, &min, &max);
+
+  popen_obj_attr (json, "total", sp);
+  pskeyival (json, "value", total, isp, 1);
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "avg", sp);
+  pskeyival (json, "value", avg, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "max", sp);
+  pskeyival (json, "value", max, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "min", sp);
+  pskeyival (json, "value", min, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
+  }
+  pclose_obj (json, sp, 1);
+}
+
 /* Write to a buffer the hits meta data object. */
 static void
 pmeta_data_unique (GJSON * json, int ht_size, int sp) {
@@ -695,74 +758,62 @@ pmeta_data_unique (GJSON * json, int ht_size, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "data", sp);
-  pskeyu64val (json, "unique", ht_size, isp, 1);
+
+  popen_obj_attr (json, "total", isp);
+  pskeyu64val (json, "value", ht_size, isp + 1, 1);
+  pclose_obj (json, isp, 1);
+
   pclose_obj (json, sp, 1);
 }
 
 /* Write to a buffer the hits meta data object. */
 static void
-pmeta_data_hits (GJSON * json, GModule module, int sp) {
+pmeta_data_hits (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint32_t max = 0, min = 0;
-
-  ht_get_hits_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "hits", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "hits"), isp, 0);
-  pskeyival (json, "max", max, isp, 0);
-  pskeyival (json, "min", min, isp, 1);
+  pmeta_i32_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the visitors meta data object. */
 static void
-pmeta_data_visitors (GJSON * json, GModule module, int sp) {
+pmeta_data_visitors (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint32_t max = 0, min = 0;
-
-  ht_get_visitors_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "visitors", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "visitors"), isp, 0);
-  pskeyival (json, "max", max, isp, 0);
-  pskeyival (json, "min", min, isp, 1);
+  pmeta_i32_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the bytes meta data object. */
 static void
-pmeta_data_bw (GJSON * json, GModule module, int sp) {
+pmeta_data_bw (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
-
   if (!conf.bandwidth)
     return;
-
-  ht_get_bw_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "bytes", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "bytes"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_bw_min_max, "bytes", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the average of the average time served meta data
  * object. */
 static void
-pmeta_data_avgts (GJSON * json, GModule module, int sp) {
+pmeta_data_avgts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
   uint64_t avg = 0, hits = 0, cumts = 0;
 
@@ -773,57 +824,50 @@ pmeta_data_avgts (GJSON * json, GModule module, int sp) {
   if (conf.json_pretty_print)
     isp = sp + 1;
 
-  cumts = ht_get_meta_data (module, "cumts");
-  hits = ht_get_meta_data (module, "hits");
+  cumts = ht_get_meta_data (h->module, "cumts");
+  hits = ht_get_meta_data (h->module, "hits");
   if (hits > 0)
     avg = cumts / hits;
 
   popen_obj_attr (json, "avgts", sp);
-  pskeyu64val (json, "avg", avg, isp, 1);
+
+  popen_obj_attr (json, "avg", isp);
+  pskeyu64val (json, "value", avg, isp + 1, 1);
+  pclose_obj (json, isp, 1);
+
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the cumulative time served meta data object. */
 static void
-pmeta_data_cumts (GJSON * json, GModule module, int sp) {
+pmeta_data_cumts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
 
   if (!conf.serve_usecs)
     return;
-
-  ht_get_cumts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "cumts", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "cumts"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_cumts_min_max, "cumts", 0, isp);
   pclose_obj (json, sp, 0);
 }
 
 /* Write to a buffer the maximum time served meta data object. */
 static void
-pmeta_data_maxts (GJSON * json, GModule module, int sp) {
+pmeta_data_maxts (GJSON * json, GHolder * h, int sp) {
   int isp = 0;
-  uint64_t max = 0, min = 0;
-
   if (!conf.serve_usecs)
     return;
-
-  ht_get_maxts_min_max (module, &min, &max);
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     isp = sp + 1;
 
   popen_obj_attr (json, "maxts", sp);
-  pskeyu64val (json, "count", ht_get_meta_data (module, "maxts"), isp, 0);
-  pskeyu64val (json, "max", max, isp, 0);
-  pskeyu64val (json, "min", min, isp, 1);
+  pmeta_i64_data (json, h, ht_get_maxts_min_max, "maxts", 0, isp);
   pclose_obj (json, sp, 0);
 }
 
@@ -837,18 +881,18 @@ print_meta_data (GJSON * json, GHolder * h, int sp) {
 
   popen_obj_attr (json, "metadata", isp);
 
-  pmeta_data_avgts (json, h->module, iisp);
-  pmeta_data_cumts (json, h->module, iisp);
-  pmeta_data_maxts (json, h->module, iisp);
-  pmeta_data_bw (json, h->module, iisp);
-  pmeta_data_visitors (json, h->module, iisp);
-  pmeta_data_hits (json, h->module, iisp);
+  pmeta_data_avgts (json, h, iisp);
+  pmeta_data_cumts (json, h, iisp);
+  pmeta_data_maxts (json, h, iisp);
+  pmeta_data_bw (json, h, iisp);
+  pmeta_data_visitors (json, h, iisp);
+  pmeta_data_hits (json, h, iisp);
   pmeta_data_unique (json, h->ht_size, iisp);
 
   pclose_obj (json, isp, 0);
 }
 
-/* A wrapper function to ouput data metrics per panel. */
+/* A wrapper function to output data metrics per panel. */
 static void
 print_json_block (GJSON * json, GMetrics * nmetrics, int sp) {
   /* print hits */
@@ -873,69 +917,23 @@ print_json_block (GJSON * json, GMetrics * nmetrics, int sp) {
   pjson (json, "\"");
 }
 
-/* Add the given user agent value into our array of GAgents.
- *
- * On error, 1 is returned.
- * On success, the user agent is added to the array and 0 is returned. */
-static int
-fill_host_agents (void *val, void *user_data) {
-  GAgents *agents = user_data;
-  char *agent = ht_get_host_agent_val ((*(uint32_t *) val));
-  int i;
-
-  if (agent == NULL)
-    return 1;
-
-  for (i = 0; i < agents->size; ++i) {
-    if (strcmp (agent, agents->items[i].agent) == 0) {
-      free (agent);
-      return 0;
-    }
-  }
-
-  agents->items[agents->size].agent = agent;
-  agents->size++;
-
-  return 0;
-}
-
-/* Iterate over the list of agents */
-static int
-load_host_agents (void *list, void *user_data, uint32_t count) {
-  GSLList *lst = list;
-  GAgents *agents = user_data;
-
-  agents->items = new_gagent_item (count);
-  return list_foreach (lst, fill_host_agents, agents);
-}
-
-/* A wrapper function to ouput an array of user agents for each host. */
+/* A wrapper function to output an array of user agents for each host. */
 static void
 process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
-  GAgents *agents = new_gagents ();
-  GSLList *list = NULL, *node = NULL;
+  GAgents *agents = NULL;
   int i, n = 0, iiisp = 0;
-  uint32_t count = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
     iiisp = iisp + 1;
 
   /* create a new instance of GMenu and make it selectable */
-  node = item->metrics->keys;
-  while (node) {
-    set_list_host_agents (node->data, &list);
-    node = node->next;
-  }
-  count = list_count (list);
-  if (count == 0 || load_host_agents (list, agents, count) != 0) {
-    free (agents);
+  if (!(agents = load_host_agents (item->metrics->data)))
     return;
-  }
 
   pjson (json, ",%.*s%.*s\"items\": [%.*s", nlines, NL, iisp, TAB, nlines, NL);
 
-  n = agents->size > 10 ? 10 : agents->size;
+  n = agents->idx > 10 ? 10 : agents->idx;
   for (i = 0; i < n; ++i) {
     pjson (json, "%.*s\"", iiisp, TAB);
     escape_json_output (json, agents->items[i].agent);
@@ -949,13 +947,11 @@ process_host_agents (GJSON * json, GHolderItem * item, int iisp) {
 
   /* clean stuff up */
   free_agents_array (agents);
-  list_remove_nodes (list);
 }
 
-/* A wrapper function to ouput children nodes. */
+/* A wrapper function to output children nodes. */
 static void
-print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals,
-                      int size, int iisp) {
+print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals, int size, int iisp) {
   GMetrics *nmetrics;
   GSubItem *iter;
   GSubList *sl = item->sub_list;
@@ -984,7 +980,7 @@ print_json_sub_items (GJSON * json, GHolderItem * item, GPercTotals totals,
   pclose_arr (json, iisp, 1);
 }
 
-/* A wrapper function to ouput geolocation fields for the given host. */
+/* A wrapper function to output geolocation fields for the given host. */
 static void
 print_json_host_geo (GJSON * json, GSubList * sl, int iisp) {
   GSubItem *iter;
@@ -1050,10 +1046,9 @@ print_data_metrics (GJSON * json, GHolder * h, GPercTotals totals, int sp,
   pclose_arr (json, isp, 1);
 }
 
-/* Entry point to ouput data metrics per panel. */
+/* Entry point to output data metrics per panel. */
 static void
-print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
-                 const struct GPanel_ *panel) {
+print_json_data (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *panel) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)

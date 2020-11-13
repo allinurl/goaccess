@@ -167,6 +167,7 @@ house_keeping (void) {
   if (glog->pipe)
     fclose (glog->pipe);
   free_logerrors (glog);
+  free (glog->filesizes);
   free (glog);
 
   /* INVALID REQUESTS */
@@ -182,6 +183,10 @@ house_keeping (void) {
     LOG_DEBUG (("Bye.\n"));
     dbg_log_close ();
   }
+  if (conf.fifo_in)
+    free ((char *) conf.fifo_in);
+  if (conf.fifo_out)
+    free ((char *) conf.fifo_out);
 
   /* clear spinner */
   free (parsing_spinner);
@@ -211,12 +216,11 @@ cleanup (int ret) {
 
 /* Drop permissions to the user specified. */
 static void
-drop_permissions(void)
-{
+drop_permissions (void) {
   struct passwd *pw;
 
   errno = 0;
-  if ((pw = getpwnam(conf.username)) == NULL) {
+  if ((pw = getpwnam (conf.username)) == NULL) {
     if (errno == 0)
       FATAL ("No such user %s", conf.username);
     FATAL ("Unable to retrieve user %s: %s", conf.username, strerror (errno));
@@ -374,19 +378,21 @@ static void
 render_screens (void) {
   GColors *color = get_color (COLOR_DEFAULT);
   int row, col, chg = 0;
+  char time_str_buf[32];
 
   getmaxyx (stdscr, row, col);
   term_size (main_win, &main_win_height);
 
   generate_time ();
+  strftime (time_str_buf, sizeof (time_str_buf), "%a %b %e %T %Y", &now_tm);
   chg = glog->processed - glog->offset;
 
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
-  mvprintw (row - 1, 30, "%d - %s", chg, asctime (now_tm));
-  mvaddstr (row - 1, col - 21, T_QUIT);
+  mvprintw (row - 1, col / 2 - 10, "%d - %s", chg, time_str_buf);
+  mvaddstr (row - 1, col - 6 - strlen (T_QUIT), T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
 
@@ -481,7 +487,7 @@ load_ip_agent_list (void) {
   GDashData item = dash->module[HOSTS].data[sel];
 
   if (!invalid_ipaddr (item.metrics->data, &type_ip))
-    load_agent_list (main_win, item.metrics->data, item.metrics->keys);
+    load_agent_list (main_win, item.metrics->data);
 }
 
 /* Expand the selected module */
@@ -749,6 +755,7 @@ parse_tail_follow (FILE * fp) {
   char buf[LINE_BUFFER] = { 0 };
 #endif
 
+  glog->bytes = 0;
 #ifdef WITH_GETLINE
   while ((buf = fgetline (fp)) != NULL) {
 #else
@@ -757,6 +764,7 @@ parse_tail_follow (FILE * fp) {
     pthread_mutex_lock (&gdns_thread.mutex);
     parse_log (&glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
+    glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
     free (buf);
 #endif
@@ -768,11 +776,14 @@ parse_tail_follow (FILE * fp) {
 static void
 perform_tail_follow (uint64_t * size1, const char *fn) {
   FILE *fp = NULL;
-  uint64_t size2 = 0;
   struct stat fdstat;
+  char buf[READ_BYTES + 1] = { 0 };
+  uint16_t len = 0;
+  uint64_t size2 = 0;
 
   if (fn[0] == '-' && fn[1] == '\0') {
     parse_tail_follow (glog->pipe);
+    *size1 += glog->bytes;
     goto out;
   }
   if (glog->load_from_disk_only)
@@ -781,25 +792,46 @@ perform_tail_follow (uint64_t * size1, const char *fn) {
   size2 = file_size (fn);
 
   /* file hasn't changed */
+  /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
+   * rotated/truncated file or larger when data is appended */
   if (size2 == *size1)
     return;
 
   if (!(fp = fopen (fn, "r")))
-    FATAL ("Unable to read log file %s.", strerror (errno));
+    FATAL ("Unable to read the specified log file '%s'. %s", fn, strerror (errno));
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (stat (fn, &fdstat) == 0)
+  if (stat (fn, &fdstat) == 0) {
     glog->inode = fdstat.st_ino;
+    glog->size = fdstat.st_size;
+  }
+
+  len = MIN (glog->snippetlen, size2);
+  /* This is not ideal, but maybe the only way reliable way to know if the
+   * current log looks different than our first read/parse */
+  if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
+    FATAL ("Unable to fread the specified log file '%s'", fn);
+
+  /* Either the log got smaller, probably was truncated so start reading from 0.
+   * For the case where the log got larger since the last iteration, we attempt
+   * to compare the first READ_BYTES against the READ_BYTES we had since the last
+   * parse. If it's different, then it means the file may got truncated but grew
+   * faster than the last iteration (odd, but possible), so we read from 0* */
+  if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
+    *size1 = glog->bytes = 0;
 
   if (!fseeko (fp, *size1, SEEK_SET))
     parse_tail_follow (fp);
   fclose (fp);
 
-  *size1 = size2;
+  *size1 += glog->bytes;
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (glog->inode)
-    ht_insert_last_parse (glog->inode, glog->read);
+  if (glog->inode) {
+    glog->lp.line = glog->read;
+    glog->lp.size = fdstat.st_size;
+    ht_insert_last_parse (glog->inode, glog->lp);
+  }
 
 out:
 
@@ -814,7 +846,6 @@ out:
 /* Entry point to start processing the HTML output */
 static void
 process_html (const char *filename) {
-  uint64_t *size1 = NULL;
   int i = 0;
 
   /* render report */
@@ -836,25 +867,16 @@ process_html (const char *filename) {
   if (gwswriter->fd == -1)
     return;
 
-  size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
-  for (i = 0; i < conf.filenames_idx; ++i) {
-    if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
-      size1[i] = 0;
-    else
-      size1[i] = file_size (conf.filenames[i]);
-  }
-
   set_ready_state ();
   while (1) {
     if (conf.stop_processing)
       break;
 
     for (i = 0; i < conf.filenames_idx; ++i)
-      perform_tail_follow (&size1[i], conf.filenames[i]);       /* 0.2 secs */
+      perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);     /* 0.2 secs */
     usleep (800000);    /* 0.8 secs */
   }
   close (gwswriter->fd);
-  free (size1);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -922,16 +944,8 @@ static void
 get_keys (void) {
   int search = 0;
   int c, quit = 1, i;
-  uint64_t *size1 = NULL;
 
   if (!glog->load_from_disk_only && conf.filenames_idx) {
-    size1 = xcalloc (conf.filenames_idx, sizeof (uint64_t));
-    for (i = 0; i < conf.filenames_idx; ++i) {
-      if (conf.filenames[i][0] == '-' && conf.filenames[i][1] == '\0')
-        size1[i] = 0;
-      else
-        size1[i] = file_size (conf.filenames[i]);
-    }
   }
 
   while (quit) {
@@ -1107,27 +1121,22 @@ get_keys (void) {
       break;
     default:
       for (i = 0; i < conf.filenames_idx; ++i)
-        perform_tail_follow (&size1[i], conf.filenames[i]);
+        perform_tail_follow (&glog->filesizes[i], conf.filenames[i]);
       break;
     }
   }
-  free (size1);
 }
 
 /* Store accumulated processing time
  * Note: As we store with time_t second resolution,
  * if elapsed time == 0, we will bump it to 1.
  */
-#ifdef TCB_BTREE
 static void
 set_accumulated_time (void) {
-  if (conf.store_accumulated_time) {
-    time_t elapsed = end_proc - start_proc;
-    elapsed = (!elapsed) ? !elapsed : elapsed;
-    ht_insert_genstats_accumulated_time (elapsed);
-  }
+  time_t elapsed = end_proc - start_proc;
+  elapsed = (!elapsed) ? !elapsed : elapsed;
+  ht_inc_cnt_overall ("processing_time", elapsed);
 }
-#endif
 
 /* Execute the following calls right before we start the main
  * processing/parsing loop */
@@ -1136,9 +1145,8 @@ init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
   /* initialize storage */
+  parsing_spinner->label = "Setting up Storage...";
   init_storage ();
-  //if (conf.load_from_disk)
-  //  set_general_stats ();
   set_spec_date_format ();
 }
 
@@ -1277,39 +1285,17 @@ parse_cmd_line (int argc, char **argv) {
   set_default_static_files ();
 }
 
-/* Set up signal handlers. */
 static void
-setup_signal_handlers (void) {
-  struct sigaction act;
+handle_signal_action (GO_UNUSED int sig_number) {
+  fprintf (stderr, "\nSIGINT caught!\n");
+  fprintf (stderr, "Closing GoAccess...\n");
 
-  sigemptyset (&act.sa_mask);
-  act.sa_flags = 0;
-  act.sa_handler = sigsegv_handler;
+  stop_ws_server (gwswriter, gwsreader);
+  conf.stop_processing = 1;
 
-  sigaction (SIGSEGV, &act, NULL);
-}
-
-static void
-handle_signal_action (int sig_number) {
-  switch (sig_number) {
-  case SIGTERM:
-  case SIGINT:
-    fprintf (stderr, "\nSIGINT caught!\n");
-    fprintf (stderr, "Closing GoAccess...\n");
-
-    stop_ws_server (gwswriter, gwsreader);
-    conf.stop_processing = 1;
-
-    if (!conf.output_stdout) {
-      cleanup (EXIT_SUCCESS);
-      exit (EXIT_SUCCESS);
-    }
-
-    break;
-  case SIGPIPE:
-    fprintf (stderr, "SIGPIPE caught!\n");
-    /* ignore it */
-    break;
+  if (!conf.output_stdout) {
+    cleanup (EXIT_SUCCESS);
+    exit (EXIT_SUCCESS);
   }
 }
 
@@ -1322,8 +1308,8 @@ setup_thread_signals (void) {
   act.sa_flags = 0;
 
   sigaction (SIGINT, &act, NULL);
-  sigaction (SIGPIPE, &act, NULL);
   sigaction (SIGTERM, &act, NULL);
+  signal (SIGPIPE, SIG_IGN);
 
   /* Restore old signal mask for the main thread */
   pthread_sigmask (SIG_SETMASK, &oldset, NULL);
@@ -1361,6 +1347,8 @@ initializer (void) {
 
   /* init glog */
   glog = init_log ();
+  /* init log file size already read */
+  glog->filesizes = xcalloc (conf.filenames_idx, sizeof (uint64_t));
 
   set_io ();
   set_signal_data (glog);
@@ -1368,6 +1356,24 @@ initializer (void) {
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
   parsing_spinner->processed = &glog->processed;
+}
+
+static char *
+generate_fifo_name (void) {
+  char fname[RAND_FN];
+  const char *tmp = NULL;
+  char *path = NULL;
+
+  if ((tmp = getenv ("TMPDIR")) == NULL)
+    tmp = "/tmp";
+
+  memset (fname, 0, sizeof (fname));
+  genstr (fname, RAND_FN - 1);
+
+  path = xmalloc (snprintf (NULL, 0, "%s/goaccess_fifo_%s", tmp, fname) + 1);
+  sprintf (path, "%s/goaccess_fifo_%s", tmp, fname);
+
+  return path;
 }
 
 static void
@@ -1382,6 +1388,11 @@ set_standard_output (void) {
 
   /* Spawn WebSocket server threads */
   if (html && conf.real_time_html) {
+    if (!conf.fifo_in)
+      conf.fifo_in = generate_fifo_name ();
+    if (!conf.fifo_out)
+      conf.fifo_out = generate_fifo_name ();
+
     /* open fifo for read */
     if ((gwsreader->fd = open_fifoout ()) == -1) {
       LOG (("Unable to open FIFO for read.\n"));
@@ -1437,7 +1448,7 @@ main (int argc, char **argv) {
   int quit = 0, ret = 0;
 
   block_thread_signals ();
-  setup_signal_handlers ();
+  setup_sigsegv_handler ();
 
   /* command line/config options */
   verify_global_config (argc, argv);
@@ -1466,6 +1477,7 @@ main (int argc, char **argv) {
 
   /* main processing event */
   time (&start_proc);
+  parsing_spinner->label = "Parsing...";
   if ((ret = parse_log (&glog, NULL, 0))) {
     end_spinner ();
     goto clean;
@@ -1482,11 +1494,8 @@ main (int argc, char **argv) {
   end_spinner ();
   time (&end_proc);
 
-  /* ignore outputting, process only */
+  set_accumulated_time ();
   if (conf.process_and_exit) {
-#ifdef TCB_BTREE
-    set_accumulated_time ();
-#endif
   }
   /* stdout */
   else if (conf.output_stdout) {
