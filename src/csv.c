@@ -81,6 +81,8 @@ static GPanel paneling[] = {
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , print_csv_data} ,
 #endif
+  {MIME_TYPE       , print_csv_data} ,
+  {TLS_TYPE        , print_csv_data} ,
 };
 /* *INDENT-ON* */
 
@@ -307,10 +309,11 @@ output_csv (GHolder * holder, const char *filename) {
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
-    if (!(panel = panel_lookup (module)))
+    if (!(panel = panel_lookup (module))){
       continue;
+    }
 
-    panel->render (fp, holder + module, totals);
+     panel->render (fp, holder + module, totals);
   }
 
   fclose (fp);
