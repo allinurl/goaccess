@@ -2311,10 +2311,11 @@ gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
     return 1;
 
   kdata->data     = logitem->mime_type;
-  kdata->data_key = append_date_to_key (logitem->mime_type, logitem->date);
+  kdata->data_key = logitem->mime_type;
+  kdata->numdate = logitem->numdate;
 
   kdata->root     = major;
-  kdata->root_key = append_date_to_key (major, logitem->date);
+  kdata->root_key = major;
   
   return 0;
 }
@@ -2357,10 +2358,11 @@ gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
     return 1;
   
   kdata->data     = logitem->tls_type;
-  kdata->data_key = append_date_to_key (logitem->tls_type, logitem->date);
+  kdata->data_key = logitem->tls_type;
+  kdata->numdate = logitem->numdate;
 
   kdata->root     = tls;
-  kdata->root_key = append_date_to_key (tls, logitem->date);
+  kdata->root_key = tls;
 
   return 0;
 }
