@@ -1345,7 +1345,7 @@ initializer (void) {
 
   /* init glog */
   if (!(logs = init_logs (conf.filenames_idx)))
-    FATAL ("No input data was provided to parse.");
+    FATAL (ERR_NO_DATA_PASSED);
 
   set_io ();
   set_signal_data (logs);

@@ -287,6 +287,8 @@
   _("Select a log format.")
 #define ERR_PANEL_DISABLED             \
   _("'%1$s' panel is disabled")
+#define ERR_NO_DATA_PASSED             \
+  _("No input data was provided to parse.")
 
 /* Other */
 #define INFO_MORE_INFO                 \
