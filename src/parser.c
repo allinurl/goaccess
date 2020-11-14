@@ -1597,15 +1597,20 @@ output_logerrors (Logs * logs) {
     if (!glog->log_erridx)
       continue;
 
+    fprintf (stderr, "==%d== GoAccess - Copyright (C) 2009-2020 by Gerardo Orellana\n", pid);
+    fprintf (stderr, "==%d== https://goaccess.io - <hello@goaccess.io>\n", pid);
+    fprintf (stderr, "==%d== Released under the MIT License.\n", pid);
+    fprintf (stderr, "==%d==\n", pid);
     fprintf (stderr, "==%d== FILE: %s\n", pid, glog->filename);
     fprintf (stderr, "==%d== ", pid);
     fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
-    fprintf (stderr, " %s:\n\n", ERR_PARSED_NLINES_DESC);
-
+    fprintf (stderr, " %s:\n", ERR_PARSED_NLINES_DESC);
+    fprintf (stderr, "==%d==\n", pid);
     for (i = 0; i < glog->log_erridx; ++i)
       fprintf (stderr, "==%d== %s\n", pid, glog->errors[i]);
   }
-  fprintf (stderr, "\n==%d== %s\n", pid, ERR_FORMAT_HEADER);
+  fprintf (stderr, "==%d==\n", pid);
+  fprintf (stderr, "==%d== %s\n", pid, ERR_FORMAT_HEADER);
 }
 
 /* Ensure we have the following fields. */
