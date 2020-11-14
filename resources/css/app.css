@@ -383,6 +383,9 @@ div.wrap-panel > div {
 .wrap-panel table.table-hover>tbody>tr:hover {
 	background-color: #EEE;
 }
+.wrap-panel .row:nth-child(2)>.col-md-12 {
+	padding: 0;
+}
 
 /* GENERAL */
 .wrap-general {
@@ -459,7 +462,7 @@ div.wrap-panel > div {
 	position: relative;
 }
 svg {
-	background-color: #fff;
+	background-color: transparent;
 	display: block;
 }
 .axis path {
@@ -846,9 +849,6 @@ html.dark.gray,
 }
 
 /* DARK CHARTS */
-.dark svg {
-	background-color: transparent;
-}
 .dark .area {
 	opacity: 0.1;
 }
