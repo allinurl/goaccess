@@ -38,6 +38,7 @@ var debounce = function (func, wait, now) {
 window.GoAccess = window.GoAccess || {
 	initialize: function (options) {
 		this.opts = options;
+		var cw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
 		this.AppState  = {}; // current state app key-value store
 		this.AppTpls   = {}; // precompiled templates
@@ -48,7 +49,7 @@ window.GoAccess = window.GoAccess || {
 		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
 		this.AppPrefs  = {
 			'autoHideTables': true,
-			'layout': 'horizontal',
+			'layout': cw > 1980 ? 'wide' : 'horizontal',
 			'perPage': 7,
 			'theme': 'darkPurple',
 		};
