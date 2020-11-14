@@ -49,7 +49,7 @@ window.GoAccess = window.GoAccess || {
 		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
 		this.AppPrefs  = {
 			'autoHideTables': true,
-			'layout': cw > 1980 ? 'wide' : 'horizontal',
+			'layout': cw > 2560 ? 'wide' : 'horizontal',
 			'perPage': 7,
 			'theme': 'darkPurple',
 		};
