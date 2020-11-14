@@ -749,6 +749,7 @@ set_time_format_str (const char *oarg) {
 /* Determine if time-served data was set through log-format. */
 static void
 contains_usecs (void) {
+  conf.serve_usecs = 0;       /* flag */
   if (!conf.log_format)
     return;
 
