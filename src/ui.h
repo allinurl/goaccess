@@ -81,6 +81,9 @@
 #define STATUS_CODES_ID    "status_codes"
 #define GENER_ID           "general"
 
+#define MIME_TYPE_ID       "mime_type"
+#define TLS_TYPE_ID        "tls_type"
+
 /* Overall Statistics CSV/JSON Keys */
 #define OVERALL_STARTDATE "start_date"
 #define OVERALL_ENDDATE   "end_date"

@@ -524,6 +524,8 @@ GoAccess.Nav = {
 		case 'status_codes'    : return 'warning';
 		case 'remote_user'     : return 'users';
 		case 'geolocation'     : return 'map-marker';
+		case 'mime_type'       : return 'file-o';
+		case 'tls_type'        : return 'warning';
 		default                : return 'pie-chart';
 		}
 	},

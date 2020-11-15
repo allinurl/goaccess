@@ -589,6 +589,8 @@ Ignore parsing and displaying the given panel.
   KEYPHRASES
   STATUS_CODES
   REMOTE_USER
+  MIME_TYPE
+  TLS_TYPE
 .TP
 \fB\-\-ignore-referer=<referer>
 Ignore referers from being counted. Wildcards allowed. e.g.,
@@ -815,6 +817,10 @@ The size of the object returned to the client.
 The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
+.IP %K
+The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_PROTOCOL}x %{SSL_CIPHER}x)
+.IP %M
+The MIME-type of the requested resource. (In Apache LogFormat: %{Content-Type}o)
 .IP %D
 The time taken to serve the request, in microseconds as a decimal number.
 .IP %T
