@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-07-10 11:44-0500\n"
+"POT-Creation-Date: 2020-11-15 17:29-0600\n"
 "PO-Revision-Date: 2020-07-10 11:44+0200\n"
 "Last-Translator: Coban L. <coban.lebret@nfrance.com>\n"
 "Language-Team: français\n"
@@ -15,7 +15,6 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
 
 #: src/labels.h:40
 msgid "en"
@@ -206,7 +205,8 @@ msgstr "Visiteurs uniques/jour - Y compris bots"
 
 #: src/labels.h:102
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr "Les hits depuis la même IP, date et user-agent comptent comme visite unique"
+msgstr ""
+"Les hits depuis la même IP, date et user-agent comptent comme visite unique"
 
 #: src/labels.h:107
 msgid "Requested Files (URLs)"
@@ -226,7 +226,8 @@ msgstr "Requêtes statiques"
 
 #: src/labels.h:116
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"Top des requêtes statiques trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: src/labels.h:121
 msgid "Time Distribution"
@@ -270,7 +271,8 @@ msgstr "URLs Non trouvées (404s)"
 
 #: src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"Top des URLs non trouvées trié par hits [, avgts, cumts, maxts, mthd, proto]"
 
 #: src/labels.h:156
 msgid "Visitor Hostnames and IPs"
@@ -352,543 +354,587 @@ msgstr "Top des status HTTP trié par hits [, avgts, cumts, maxts]"
 msgid "Status Codes"
 msgstr "Status HTTP"
 
-#: src/labels.h:213
+#: src/labels.h:212 src/labels.h:216
+msgid "MIME Types"
+msgstr ""
+
+#: src/labels.h:214
+msgid "File types shipped out"
+msgstr ""
+
+#: src/labels.h:219
+msgid "Encryption settings"
+msgstr ""
+
+#: src/labels.h:221
+msgid "TLS version and picked algorithm"
+msgstr ""
+
+#: src/labels.h:223
+msgid "TLS Settings"
+msgstr ""
+
+#: src/labels.h:227
 msgid "[ ] case sensitive"
 msgstr "[ ] sensible à la casse"
 
-#: src/labels.h:215
+#: src/labels.h:229
 msgid "[x] case sensitive"
 msgstr "[x] sensible à la casse"
 
-#: src/labels.h:217
+#: src/labels.h:231
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "Regex OK - ^g pour annuler - TAB pour changer la casse"
 
-#: src/labels.h:219
+#: src/labels.h:233
 msgid "Find pattern in all views"
 msgstr "Trouver tous les motifs dans toutes les vues"
 
-#: src/labels.h:223
+#: src/labels.h:237
 msgid "Log Format Configuration"
 msgstr "Configuration format des logs"
 
-#: src/labels.h:225
+#: src/labels.h:239
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
 msgstr "[SPACE] pour basculer - [ENTREE] pour procéder - [q] pour quitter"
 
-#: src/labels.h:227
+#: src/labels.h:241
 msgid "Log Format - [c] to add/edit format"
 msgstr "Format des logs - [c] pour ajouter/éditer le format"
 
-#: src/labels.h:229
+#: src/labels.h:243
 msgid "Date Format - [d] to add/edit format"
 msgstr "Format de la date - [d] pour ajouter/éditer le format"
 
-#: src/labels.h:231
+#: src/labels.h:245
 msgid "Time Format - [t] to add/edit format"
 msgstr "Format temporel - [t] pour ajouter/éditer le format"
 
-#: src/labels.h:233 src/labels.h:237
+#: src/labels.h:247 src/labels.h:251
 msgid "[UP/DOWN] to scroll - [q] to close window"
 msgstr "[HAUT/BAS] pour faire défiler - [q] pour fermer la fenêtre"
 
-#: src/labels.h:239
+#: src/labels.h:253
 #, c-format
 msgid "User Agents for %1$s"
 msgstr "User Agents pour %1$s"
 
-#: src/labels.h:243
+#: src/labels.h:257
 msgid "Scheme Configuration"
 msgstr "Configuration programme"
 
-#: src/labels.h:245
+#: src/labels.h:259
 msgid "[ENTER] to use scheme - [q]uit"
 msgstr "[ENTREE] pour utiliser le programme - [q]uitter"
 
-#: src/labels.h:249
+#: src/labels.h:263
 msgid "Sort active module by"
 msgstr "Trier le module actif par"
 
-#: src/labels.h:251
+#: src/labels.h:265
 msgid "[ENTER] select - [TAB] sort - [q]uit"
 msgstr "[ENTREE] sélectionner - [TAB] trier - [q]uitter"
 
-#: src/labels.h:255
+#: src/labels.h:269
 msgid "GoAccess Quick Help"
 msgstr "GoAccess aide rapide"
 
-#: src/labels.h:257
+#: src/labels.h:271
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[HAUT/BAS] pour faire défiler - [q] pour quitter"
 
-#: src/labels.h:261
-msgid "In-Memory with On-Disk Persitance Storage."
+#: src/labels.h:275
+#, fuzzy
+msgid "In-Memory with On-Disk Persistent Storage."
 msgstr "En mémoire avec le stockage de disque persistant."
 
-#: src/labels.h:265
+#: src/labels.h:279
 msgid "Format Errors - Verify your log/date/time format"
 msgstr "Erreurs de format - Vérifiez votre format de journal / date / heure"
 
-#: src/labels.h:267
+#: src/labels.h:281
 msgid "No date format was found on your conf file."
 msgstr "Aucun format de date n'a été trouvé sur votre fichier conf."
 
-#: src/labels.h:269
+#: src/labels.h:283
 msgid "No log format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: src/labels.h:271
+#: src/labels.h:285
 msgid "No time format was found on your conf file."
 msgstr "Aucun format de journal n'a été trouvé sur votre fichier conf."
 
-#: src/labels.h:273
+#: src/labels.h:287
 msgid "No default config file found."
 msgstr "Aucun fichier de configuration par défaut trouvé."
 
-#: src/labels.h:275
+#: src/labels.h:289
 msgid "You may specify one with"
 msgstr "Vous pouvez en préciser un avec"
 
-#: src/labels.h:277
+#: src/labels.h:291
 msgid "producing the following errors"
 msgstr "produisant les erreurs suivantes"
 
-#: src/labels.h:279
+#: src/labels.h:293
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "Analysé %1$d lignes"
 
-#: src/labels.h:281
+#: src/labels.h:295
 msgid "Please report it by opening an issue on GitHub"
 msgstr "Si vous plaît, rapporter cela en ouvrant un probleme sur GitHub"
 
-#: src/labels.h:283
+#: src/labels.h:297
 msgid "Select a time format."
 msgstr "Sélectionner un format temporel."
 
-#: src/labels.h:285
+#: src/labels.h:299
 msgid "Select a date format."
 msgstr "Sélectionner un format de date."
 
-#: src/labels.h:287
+#: src/labels.h:301
 msgid "Select a log format."
 msgstr "Sélectionner un format de log."
 
-#: src/labels.h:289
+#: src/labels.h:303
 #, c-format
 msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' panneau désactivé"
 
-#: src/labels.h:293
+#: src/labels.h:305
+msgid "No input data was provided nor there's data to restore."
+msgstr ""
+
+#: src/labels.h:309
 msgid "For more details visit"
 msgstr "Pour plus de détails, visitez"
 
-#: src/labels.h:295
+#: src/labels.h:311
 msgid "Last Updated"
 msgstr "Dernière mise à jour"
 
-#: src/labels.h:297
+#: src/labels.h:313
 msgid "WebSocket server ready to accept new client connections"
 msgstr "WebSocket serveur prêt à accepter les nouvelles connexions client"
 
-#: src/labels.h:300
+#: src/labels.h:316
 msgid "The following options can also be supplied to the command"
 msgstr "Les options suivantes peuvent également être fournies à la commande"
 
-#: src/labels.h:302
+#: src/labels.h:318
 msgid "Examples can be found by running"
 msgstr "Des exemples peuvent être trouvés en cours d'exécution"
 
-#: src/labels.h:305
+#: src/labels.h:321
 msgid "Server Statistics"
 msgstr "Statistiques du serveur"
 
-#: src/labels.h:307
+#: src/labels.h:323
 msgid "Theme"
 msgstr "Thème"
 
-#: src/labels.h:309
+#: src/labels.h:325
 msgid "Dark Gray"
 msgstr "Gris foncé"
 
-#: src/labels.h:311
+#: src/labels.h:327
 msgid "Bright"
 msgstr "Brillant"
 
-#: src/labels.h:313
+#: src/labels.h:329
 msgid "Dark Blue"
 msgstr "Bleu foncé"
 
-#: src/labels.h:315
+#: src/labels.h:331
 #, fuzzy
 msgid "Dark Purple"
 msgstr "Violet foncé"
 
-#: src/labels.h:317
+#: src/labels.h:333
 msgid "Panels"
 msgstr "Panneaux"
 
-#: src/labels.h:319
+#: src/labels.h:335
 msgid "Items per Page"
 msgstr "Objets par page"
 
-#: src/labels.h:321
+#: src/labels.h:337
 msgid "Tables"
 msgstr "Tableaux"
 
-#: src/labels.h:323
+#: src/labels.h:339
 msgid "Display Tables"
 msgstr "Afficher les tableaux"
 
-#: src/labels.h:325
+#: src/labels.h:341
 msgid "Auto-Hide on Small Devices"
 msgstr "Masquage-auto/Petits appareils"
 
-#: src/labels.h:327
+#: src/labels.h:343
 msgid "Automatically hide tables on small screen devices"
-msgstr "Masquer automatiquement les tableaux sur les appareils avec un petit écran"
+msgstr ""
+"Masquer automatiquement les tableaux sur les appareils avec un petit écran"
 
-#: src/labels.h:329
+#: src/labels.h:345
 msgid "Layout"
 msgstr "Disposition"
 
-#: src/labels.h:331
+#: src/labels.h:347
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: src/labels.h:333
+#: src/labels.h:349
 msgid "Vertical"
 msgstr "Verticale"
 
-#: src/labels.h:335
+#: src/labels.h:351
 msgid "WideScreen"
 msgstr "Grand écran"
 
-#: src/labels.h:337
+#: src/labels.h:353
 msgid "File Options"
 msgstr "Options de fichier"
 
-#: src/labels.h:339
+#: src/labels.h:355
 msgid "Export as JSON"
 msgstr "Exporter en tant que JSON"
 
-#: src/labels.h:341
+#: src/labels.h:357
 msgid "Panel Options"
 msgstr "Options du panneau"
 
-#: src/labels.h:343
+#: src/labels.h:359
 msgid "Previous"
 msgstr "Précédent"
 
-#: src/labels.h:345
+#: src/labels.h:361
 msgid "Next"
 msgstr "Suivant"
 
-#: src/labels.h:347
+#: src/labels.h:363
 msgid "First"
 msgstr "Premier"
 
-#: src/labels.h:349
+#: src/labels.h:365
 msgid "Last"
 msgstr "Dernier"
 
-#: src/labels.h:351
+#: src/labels.h:367
 msgid "Chart Options"
 msgstr "Options du graphique"
 
-#: src/labels.h:353
+#: src/labels.h:369
 msgid "Chart"
 msgstr "Graphique"
 
-#: src/labels.h:355
+#: src/labels.h:371
 msgid "Type"
 msgstr "Type"
 
-#: src/labels.h:357
+#: src/labels.h:373
 msgid "Area Spline"
 msgstr "Courbe vectorielle"
 
-#: src/labels.h:359
+#: src/labels.h:375
 msgid "Bar"
 msgstr "Barre"
 
-#: src/labels.h:361
+#: src/labels.h:377
 msgid "Plot Metric"
 msgstr "Tracé métrique"
 
-#: src/labels.h:363
+#: src/labels.h:379
 msgid "Table Columns"
 msgstr "Colonnes de tableau"
 
-#: src/labels.h:367
+#: src/labels.h:383
 msgid "1xx Informational"
 msgstr "1xx Informationnel"
 
-#: src/labels.h:369
+#: src/labels.h:385
 msgid "2xx Success"
 msgstr "2xx Succès"
 
-#: src/labels.h:371
+#: src/labels.h:387
 msgid "3xx Redirection"
 msgstr "3xx Redirection"
 
-#: src/labels.h:373
+#: src/labels.h:389
 msgid "4xx Client Errors"
 msgstr "4xx Erreurs Client"
 
-#: src/labels.h:375
+#: src/labels.h:391
 msgid "5xx Server Errors"
 msgstr "5xx Erreurs Serveur"
 
-#: src/labels.h:378
+#: src/labels.h:394
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - Continue: Le serveur a reçu la partie initiale de la requête"
 
-#: src/labels.h:380
+#: src/labels.h:396
 msgid "101 - Switching Protocols: Client asked to switch protocols"
-msgstr "101 - Echange de Protocoles: Le client a demandé à changer de protocole"
+msgstr ""
+"101 - Echange de Protocoles: Le client a demandé à changer de protocole"
 
-#: src/labels.h:382
+#: src/labels.h:398
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - OK: La requête envoyée par le client a réussie"
 
-#: src/labels.h:384
+#: src/labels.h:400
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - Created: La requête a été aboutie et créée"
 
-#: src/labels.h:386
+#: src/labels.h:402
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - Accepté: La requête a été acceptée pour être traité"
 
-#: src/labels.h:388
+#: src/labels.h:404
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - Information sans autorité: Réponse d'un tiers"
 
-#: src/labels.h:390
+#: src/labels.h:406
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - Aucun contenu: La requête ne renvoie aucun contenu"
 
-#: src/labels.h:392
+#: src/labels.h:408
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr "205 - Contenu réinitialisé: Le serveur a demandé au client de réinitialiser le document"
+msgstr ""
+"205 - Contenu réinitialisé: Le serveur a demandé au client de réinitialiser "
+"le document"
 
-#: src/labels.h:394
+#: src/labels.h:410
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - Contenu partiel: Le GET partiel a réussi"
 
-#: src/labels.h:396
+#: src/labels.h:412
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - Status-multiples: WebDAV; RFC 4918"
 
-#: src/labels.h:398
+#: src/labels.h:414
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - Déjà signalé: WebDAV; RFC 5842"
 
-#: src/labels.h:400
+#: src/labels.h:416
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - Choix multiples: Options multiples pour la ressource"
 
-#: src/labels.h:402
+#: src/labels.h:418
 msgid "301 - Moved Permanently: Resource has permanently moved"
-msgstr "301 - Déplacement permanent: La ressource a été déplacée de façon permanente"
+msgstr ""
+"301 - Déplacement permanent: La ressource a été déplacée de façon permanente"
 
-#: src/labels.h:404
+#: src/labels.h:420
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - Temporairement déplacé (redirigé)"
 
-#: src/labels.h:406
+#: src/labels.h:422
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - Voir autre document: La réponse se situe sur une URI différente"
 
-#: src/labels.h:408
+#: src/labels.h:424
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - Non modifié: La ressource n'a pas été modifiée"
 
-#: src/labels.h:410
+#: src/labels.h:426
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - Utiliser un Proxy : Accessible seulement depuis le proxy"
 
-#: src/labels.h:412
+#: src/labels.h:428
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Redirection temporaire: Ressource temporairement déplacée"
 
-#: src/labels.h:414
+#: src/labels.h:430
+#, fuzzy
+msgid "308 - Permanent Redirect"
+msgstr "402 - Paiement requis"
+
+#: src/labels.h:432
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - Mauvaise requête: Syntaxe de la requête invalide"
 
-#: src/labels.h:416
+#: src/labels.h:434
 msgid "401 - Unauthorized: Request needs user authentication"
-msgstr "401 - Non autorisé: La requête nécessite une authentification utilisateur"
+msgstr ""
+"401 - Non autorisé: La requête nécessite une authentification utilisateur"
 
-#: src/labels.h:418
+#: src/labels.h:436
 msgid "402 - Payment Required"
 msgstr "402 - Paiement requis"
 
-#: src/labels.h:420
+#: src/labels.h:438
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - Interdit: Le serveur refuse d'y répondre"
 
-#: src/labels.h:422
+#: src/labels.h:440
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - Non trouvé: La ressource demandée ne peut pas être trouvée"
 
-#: src/labels.h:424
+#: src/labels.h:442
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - Méthode non autorisée: Méthode de requête non supportée"
 
-#: src/labels.h:426
+#: src/labels.h:444
 msgid "406 - Not Acceptable"
 msgstr "406 - Pas Acceptable"
 
-#: src/labels.h:428
+#: src/labels.h:446
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - Authentification au proxy requise"
 
-#: src/labels.h:430
+#: src/labels.h:448
 msgid "408 - Request Timeout: Server timed out waiting for the request"
-msgstr "408 - Requête expirée: Délai d'attente du serveur dépassé pour la requête"
+msgstr ""
+"408 - Requête expirée: Délai d'attente du serveur dépassé pour la requête"
 
-#: src/labels.h:432
+#: src/labels.h:450
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - Conflit: Conflit dans la requête"
 
-#: src/labels.h:434
+#: src/labels.h:452
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr "410 - Disparue: La ressource demandée n'est plus disponible"
 
-#: src/labels.h:436
+#: src/labels.h:454
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Longueur requise: Longueur du contenu invalide"
 
-#: src/labels.h:438
+#: src/labels.h:456
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr "412 - Pré-requis échoué: Le serveur ne rempli pas les pré-requis"
 
-#: src/labels.h:440
+#: src/labels.h:458
 msgid "413 - Payload Too Large"
 msgstr "413 - Charge utile trop importante"
 
-#: src/labels.h:442
+#: src/labels.h:460
 msgid "414 - Request-URI Too Long"
 msgstr "414 - URI requête trop longue"
 
-#: src/labels.h:444
+#: src/labels.h:462
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - Type de média non supporté : Type de media non pris en charge"
 
-#: src/labels.h:446
+#: src/labels.h:464
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr "416 - Plage de requête non satisfaisante: ne peut pas fournir cette partie"
+msgstr ""
+"416 - Plage de requête non satisfaisante: ne peut pas fournir cette partie"
 
-#: src/labels.h:448
+#: src/labels.h:466
 msgid "417 - Expectation Failed"
 msgstr "417 - Attente échouée"
 
-#: src/labels.h:450
+#: src/labels.h:468
 msgid "418 - I’m a teapot"
 msgstr "418 - Je suis une théière"
 
-#: src/labels.h:452
+#: src/labels.h:470
 msgid "421 - Misdirected Request"
 msgstr "421 - Requête mal orientée"
 
-#: src/labels.h:454
+#: src/labels.h:472
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - Entité non traitable à cause des erreurs sémantiques: WebDAV"
 
-#: src/labels.h:456
+#: src/labels.h:474
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - L'accès à la ressource est verrouillé"
 
-#: src/labels.h:458
+#: src/labels.h:476
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - Dépendance échouée: WebDAV"
 
-#: src/labels.h:460
+#: src/labels.h:478
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
-msgstr "426 - Amélioration requise: Le client devrait changer pour un protocole différent"
+msgstr ""
+"426 - Amélioration requise: Le client devrait changer pour un protocole "
+"différent"
 
-#: src/labels.h:462
+#: src/labels.h:480
 msgid "428 - Precondition Required"
 msgstr "428 - Condition préalable requise"
 
-#: src/labels.h:464
+#: src/labels.h:482
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 : Trop de requêtes: L'utilisateur a envoyé trop de requêtes"
 
-#: src/labels.h:466
+#: src/labels.h:484
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - Le champ en-tête de requête est trop large"
 
-#: src/labels.h:468
+#: src/labels.h:486
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - Indisponible pour des raisons légales"
 
-#: src/labels.h:470
+#: src/labels.h:488
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) Connexion fermée sans envoyer d'en-têtes"
 
-#: src/labels.h:472
+#: src/labels.h:490
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) En-tête de requête trop large"
 
-#: src/labels.h:474
+#: src/labels.h:492
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) Erreur de certificat SSL client"
 
-#: src/labels.h:476
+#: src/labels.h:494
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) Le client ne fournit pas de certificat"
 
-#: src/labels.h:478
+#: src/labels.h:496
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) Requête HTTP envoyée sur le port HTTPS"
 
-#: src/labels.h:480
+#: src/labels.h:498
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr "499 - (Nginx) Connexion fermée par le client durant le traitement de la requête"
+msgstr ""
+"499 - (Nginx) Connexion fermée par le client durant le traitement de la "
+"requête"
 
-#: src/labels.h:482
+#: src/labels.h:500
 msgid "500 - Internal Server Error"
 msgstr "500 - Erreur serveur interne"
 
-#: src/labels.h:484
+#: src/labels.h:502
 msgid "501 - Not Implemented"
 msgstr "501 - Non implémenté"
 
-#: src/labels.h:486
+#: src/labels.h:504
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - Mauvaise passerelle: Réponse invalide reçue en amont"
 
-#: src/labels.h:488
+#: src/labels.h:506
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - Service indisponible: Le serveur est actuellement indisponible"
 
-#: src/labels.h:490
+#: src/labels.h:508
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr "504 - Attente passerelle dépassé: l'envoi de la requête en amont par le serveur a échoué"
+msgstr ""
+"504 - Attente passerelle dépassé: l'envoi de la requête en amont par le "
+"serveur a échoué"
 
-#: src/labels.h:492
+#: src/labels.h:510
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - Version HTTP non supportée"
 
-#: src/labels.h:494
+#: src/labels.h:512
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Le serveur Web renvoi une erreur inconnue"
 
-#: src/labels.h:496
+#: src/labels.h:514
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - Serveur Web en panne"
 
-#: src/labels.h:498
+#: src/labels.h:516
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - Délai de connexion dépassé"
 
-#: src/labels.h:500
+#: src/labels.h:518
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - L'Origin n'est pas joignable"
 
-#: src/labels.h:502
+#: src/labels.h:520
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - Un dépassement du délai s'est produit"
 
