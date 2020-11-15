@@ -412,6 +412,14 @@ verify_panels (void) {
     if (str_inarray ("CACHE_STATUS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (CACHE_STATUS);
   }
+  if (!strstr (conf.log_format, "%M") && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("MIME_TYPE", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (MIME_TYPE);
+  }
+  if (!strstr (conf.log_format, "%K") && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("TLS_TYPE", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (TLS_TYPE);
+  }
 #ifdef HAVE_GEOLOCATION
 #ifdef HAVE_LIBMAXMINDDB
   if (!conf.geoip_database && ignore_panel_idx < TOTAL_MODULES) {
