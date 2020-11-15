@@ -749,9 +749,8 @@ msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Temporäre Umleitung: Ressource vorübergehend verschoben"
 
 #: ../src/labels.h:414
-#, fuzzy
 msgid "308 - Permanent Redirect"
-msgstr "402 - Zahlung erforderlich"
+msgstr "402 - Dauerhafte Umleitung"
 
 #: ../src/labels.h:416
 msgid "400 - Bad Request: The syntax of the request is invalid"
