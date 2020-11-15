@@ -16,7 +16,7 @@ static const char id[] = "$Id: tpl.c 107 2007-04-20 17:11:29Z thanson $";
  *
  * @param addr the suggested start address (if != 0)
  * @param len length of the region
- * @param prot region accesibility, bitwise OR of PROT_READ, PROT_WRITE, PROT_EXEC
+ * @param prot region accessibility, bitwise OR of PROT_READ, PROT_WRITE, PROT_EXEC
  * @param flags mapping type and options (ignored)
  * @param fd object to be mapped into memory
  * @param offset offset into mapped object

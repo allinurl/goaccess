@@ -998,7 +998,7 @@ print_json_host_geo (GJSON * json, GSubList * sl, int iisp) {
   }
 }
 
-/* Ouput Geolocation data and the IP's hostname. */
+/* Output Geolocation data and the IP's hostname. */
 static void
 print_json_host_items (GJSON * json, GHolderItem * item, GPercTotals totals,
                        int size, int iisp) {
@@ -1012,7 +1012,7 @@ print_json_host_items (GJSON * json, GHolderItem * item, GPercTotals totals,
     process_host_agents (json, item, iisp);
 }
 
-/* Ouput data and determine if there are children nodes. */
+/* Output data and determine if there are children nodes. */
 static void
 print_data_metrics (GJSON * json, GHolder * h, GPercTotals totals, int sp,
                     const struct GPanel_ *panel) {
