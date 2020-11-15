@@ -2605,16 +2605,16 @@ process_log (GLogItem * logitem) {
  * Returns 1 if the content is likely the same or no data to compare
  * Returns 0 if it has different content */
 static int
-is_likely_same_log (GLog * glog, GLastParse lp) {
+is_likely_same_log (GLog * glog, const GLastParse * lp) {
   size_t size = 0;
 
-  if (!lp.size)
+  if (!lp->size)
     return 1;
 
   /* Must be a LOG */
-  size = MIN (glog->snippetlen, lp.snippetlen);
-  if (glog->snippet[0] != '\0' && lp.snippet[0] != '\0' &&
-      memcmp (glog->snippet, lp.snippet, size) == 0)
+  size = MIN (glog->snippetlen, lp->snippetlen);
+  if (glog->snippet[0] != '\0' && lp->snippet[0] != '\0' &&
+      memcmp (glog->snippet, lp->snippet, size) == 0)
     return 1;
 
   return 0;
@@ -2641,7 +2641,7 @@ should_restore_from_disk (GLog * glog) {
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line and have equal timestamps, then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, lp)) {
+  if (glog->inode && is_likely_same_log (glog, &lp)) {
     if (glog->size > lp.size && glog->read >= lp.line)
       return 0;
     return 1;
@@ -2686,7 +2686,7 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, lp)) {
+  if (glog->inode && is_likely_same_log (glog, &lp)) {
     /* only count invalids if we're past the last parsed line */
     if (glog->size > lp.size && glog->read >= lp.line)
       count_process_and_invalid (glog, line);
