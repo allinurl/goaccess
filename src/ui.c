@@ -962,6 +962,7 @@ ui_spinner (void *ptr_data) {
 
   static char const spin_chars[] = "/-\\|";
   char buf[SPIN_LBL];
+  const char *fn = NULL;
   int i = 0;
   long long tdiff = 0, psec = 0;
   time_t begin;
@@ -983,9 +984,10 @@ ui_spinner (void *ptr_data) {
     if (conf.no_progress) {
       snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
     } else {
+      fn = *sp->filename ? *sp->filename : "restoring";
       tdiff = (long long) (time (NULL) - begin);
       psec = tdiff >= 1 ? **(sp->processed) / tdiff : 0;
-      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *sp->filename, **(sp->processed), psec);
+      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, fn, **(sp->processed), psec);
     }
     setlocale (LC_NUMERIC, "POSIX");
 

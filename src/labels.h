@@ -288,7 +288,7 @@
 #define ERR_PANEL_DISABLED             \
   _("'%1$s' panel is disabled")
 #define ERR_NO_DATA_PASSED             \
-  _("No input data was provided to parse.")
+  _("No input data was provided nor there's data to restore.")
 
 /* Other */
 #define INFO_MORE_INFO                 \

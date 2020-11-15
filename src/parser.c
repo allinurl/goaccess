@@ -401,13 +401,20 @@ init_logs (int size) {
   GLog *glog = NULL;
   int i = 0;
 
-  if (!size)
+  /* if no logs no a pipe nor restoring, nothing to do then */
+  if (!size && !conf.restore)
     return NULL;
 
+  /* If no logs nor a pipe but restoring, we still need an minimal instance of
+   * logs and a glog */
   logs = xcalloc (1, sizeof (*logs));
-  glog = xcalloc (size, sizeof (*glog));
+  if (!size) {
+    logs->glog = xcalloc (1, sizeof (*glog));
+    logs->processed = &(logs->glog[0].processed);
+    return logs;
+  }
 
-  logs->glog = glog;
+  glog = xcalloc (size, sizeof (*glog));
   for (i = 0; i < size; ++i) {
     glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
     glog[i].filename = xstrdup (conf.filenames[i]);
@@ -416,6 +423,7 @@ init_logs (int size) {
     logs->filename = glog[i].filename;
   }
 
+  logs->glog = glog;
   logs->size = size;
 
   return logs;
