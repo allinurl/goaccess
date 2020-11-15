@@ -309,11 +309,11 @@ output_csv (GHolder * holder, const char *filename) {
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
 
-    if (!(panel = panel_lookup (module))){
+    if (!(panel = panel_lookup (module))) {
       continue;
     }
 
-     panel->render (fp, holder + module, totals);
+    panel->render (fp, holder + module, totals);
   }
 
   fclose (fp);

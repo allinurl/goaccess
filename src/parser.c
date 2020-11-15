@@ -532,7 +532,7 @@ init_log_item (GLog * glog) {
   /* UMS */
   logitem->mime_type = NULL;
   logitem->tls_type = NULL;
-  
+
   memset (logitem->site, 0, sizeof (logitem->site));
   localtime_r (&now, &logitem->dt);
 
@@ -593,7 +593,7 @@ free_glog (GLogItem * logitem) {
     free (logitem->mime_type);
   if (logitem->tls_type != NULL)
     free (logitem->tls_type);
-  
+
   free (logitem);
 }
 
@@ -1408,8 +1408,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     contains_usecs ();  /* set flag */
     free (tkn);
     break;
-    
-    /* UMS: Krypto (TLS) parameters like "TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256"*/
+
+    /* UMS: Krypto (TLS) parameters like "TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256" */
   case 'K':
     /* error to set this twice */
     if (logitem->tls_type)
@@ -1419,9 +1419,9 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     logitem->tls_type = tkn;
-    
+
     break;
-    
+
     /* UMS: Mime-Type like "text/html" */
   case 'M':
     /* error to set this twice */
@@ -1432,7 +1432,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     logitem->mime_type = tkn;
-    
+
     break;
     /* move forward through str until not a space */
   case '~':
@@ -2332,19 +2332,20 @@ extract_mimemajor (const char *token) {
   const char *lookfor;
 
   /* official IANA registries as per https://www.iana.org/assignments/media-types/ */
-  
-  if (
-      (lookfor = "application", !strncmp (token, lookfor, 11)) ||
-      (lookfor = "audio",       !strncmp (token, lookfor, 5)) ||
-      (lookfor = "font",        !strncmp (token, lookfor, 4)) ||
-      (lookfor = "example",     !strncmp (token, lookfor, 7)) || /* unlikely */
-      (lookfor = "image",       !strncmp (token, lookfor, 5)) ||
-      (lookfor = "message",     !strncmp (token, lookfor, 7)) || /* unlikely */
-      (lookfor = "model",       !strncmp (token, lookfor, 5)) ||
-      (lookfor = "multipart",   !strncmp (token, lookfor, 9)) ||
-      (lookfor = "text",        !strncmp (token, lookfor, 4)) ||
-      (lookfor = "video",       !strncmp (token, lookfor, 5))
-      )
+
+  if ((lookfor = "application", !strncmp (token, lookfor, 11)) ||
+      (lookfor = "audio", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "font", !strncmp (token, lookfor, 4)) ||
+      /* unlikely */
+      (lookfor = "example", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "image", !strncmp (token, lookfor, 5)) ||
+      /* unlikely */
+      (lookfor = "message", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "model", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "multipart", !strncmp (token, lookfor, 9)) ||
+      (lookfor = "text", !strncmp (token, lookfor, 4)) ||
+      (lookfor = "video", !strncmp (token, lookfor, 5))
+    )
     return lookfor;
   return NULL;
 }
@@ -2355,25 +2356,24 @@ extract_mimemajor (const char *token) {
  * On success, the generated key is assigned to our key data structure.
  */
 static int
-gen_mime_type_key (GKeyData * kdata, GLogItem * logitem)
-{
-  const char *major=NULL;
-  
+gen_mime_type_key (GKeyData * kdata, GLogItem * logitem) {
+  const char *major = NULL;
+
   if (!logitem->mime_type)
     return 1;
 
   /* redirects and the like only register as "-", ignore those */
-  major = extract_mimemajor(logitem->mime_type);
+  major = extract_mimemajor (logitem->mime_type);
   if (!major)
     return 1;
 
-  kdata->data     = logitem->mime_type;
+  kdata->data = logitem->mime_type;
   kdata->data_key = logitem->mime_type;
   kdata->numdate = logitem->numdate;
 
-  kdata->root     = major;
+  kdata->root = major;
   kdata->root_key = major;
-  
+
   return 0;
 }
 
@@ -2389,8 +2389,8 @@ extract_tlsmajor (const char *token) {
       (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
       (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
       (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)) // Nope, it's not 1.0
-      )
+      // Nope, it's not 1.0
+      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)))
     return lookfor;
   return NULL;
 }
@@ -2401,24 +2401,23 @@ extract_tlsmajor (const char *token) {
  * On success, the generated key is assigned to our key data structure.
  */
 static int
-gen_tls_type_key (GKeyData * kdata, GLogItem * logitem)
-{
+gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
   const char *tls;
 
   if (!logitem->tls_type)
     return 1;
 
   /* '-' means no TLS at all, just ignore for the panel? */
-  tls = extract_tlsmajor(logitem->tls_type);
+  tls = extract_tlsmajor (logitem->tls_type);
 
   if (!tls)
     return 1;
-  
-  kdata->data     = logitem->tls_type;
+
+  kdata->data = logitem->tls_type;
   kdata->data_key = logitem->tls_type;
   kdata->numdate = logitem->numdate;
 
-  kdata->root     = tls;
+  kdata->root = tls;
   kdata->root_key = tls;
 
   return 0;
