@@ -1755,6 +1755,7 @@ restore_dates (void) {
   char *path = NULL;
   uint32_t date, idx = 0;
   char fmt[] = "A(u)";
+  int len;
 
   if (!(path = check_restore_path ("I32_DATES.db")))
     return;
@@ -1762,7 +1763,10 @@ restore_dates (void) {
   tn = tpl_map (fmt, &date);
   tpl_load (tn, TPL_FILE, path);
 
-  persisted_dates_len = tpl_Alen (tn, 1);
+  len = tpl_Alen (tn, 1);
+  if (len < 0)
+      return;
+  persisted_dates_len = len;
   persisted_dates = xcalloc (persisted_dates_len, sizeof (uint32_t));
   while (tpl_unpack (tn, 1) > 0)
     persisted_dates[idx++] = date;
