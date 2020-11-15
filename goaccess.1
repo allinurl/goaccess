@@ -110,6 +110,19 @@ enabled unless
 .I %C
 is given within the log-format variable. The status can be either
  `MISS`, `BYPASS`, `EXPIRED`, `STALE`, `UPDATING`, `REVALIDATED` or `HIT`
+.IP "MIME Types"
+This panel specifies Media Types (formerly known as MIME types) and Media
+Subtypes which will be assigned and listed underneath. This panel is not
+enabled unless
+.I %M
+is given within the log-format variable. See
+https://www.iana.org/assignments/media-types/media-types.xhtml for more
+details.
+.IP "Encryption Settings"
+This panel shows the SSL/TLS protocol used along the Cipher Suites. This panel
+is not enabled unless
+.I %K
+is given within the log-format variable.
 
 .P
 .I NOTE:
