@@ -2385,12 +2385,12 @@ static const char *
 extract_tlsmajor (const char *token) {
   const char *lookfor;
 
-  if ((lookfor = "SSLv3", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
+  if ((lookfor = "SSLv3", strstr (token, lookfor)) ||
+      (lookfor = "TLSv1.1", strstr (token, lookfor)) ||
+      (lookfor = "TLSv1.2", strstr (token, lookfor)) ||
+      (lookfor = "TLSv1.3", strstr (token, lookfor)) ||
       // Nope, it's not 1.0
-      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)))
+      (lookfor = "TLSv1", strstr (token, lookfor)))
     return lookfor;
   return NULL;
 }
