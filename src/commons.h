@@ -52,9 +52,9 @@ extern struct tm now_tm;
 
 /* total number of modules */
 #ifdef HAVE_GEOLOCATION
-#define TOTAL_MODULES    16
+#define TOTAL_MODULES    18
 #else
-#define TOTAL_MODULES    15
+#define TOTAL_MODULES    17
 #endif
 
 /* maximum number of items within a panel */
@@ -108,6 +108,8 @@ typedef enum MODULES {
 #ifdef HAVE_GEOLOCATION
   GEO_LOCATION,
 #endif
+  MIME_TYPE,
+  TLS_TYPE,
 } GModule;
 
 /* Metric totals. These are metrics that have a percent value and are

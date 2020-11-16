@@ -88,6 +88,10 @@ typedef struct GLogItem_ {
   int uniq_nkey;
   int agent_nkey;
 
+  /* UMS */
+  char *mime_type;
+  char *tls_type;
+
   char *errstr;
   struct tm dt;
 } GLogItem;
@@ -164,13 +168,13 @@ typedef struct GRawData_ {
  * root value, i.e., Windows, and a unique key which is the combination of
  * date, IP and user agent */
 typedef struct GKeyData_ {
-  void *data;
-  void *data_key;
+  const void *data;
+  const void *data_key;
   uint32_t data_nkey;
   uint32_t cdnkey;              /* cache data nkey */
 
-  void *root;
-  void *root_key;
+  const void *root;
+  const void *root_key;
   uint32_t root_nkey;
   uint32_t crnkey;              /* cache root nkey */
 
