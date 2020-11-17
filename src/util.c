@@ -447,13 +447,15 @@ valid_output_type (const char *filename) {
 char *
 get_user_config (void) {
   char *user_home = NULL, *path = NULL;
+  size_t len;
 
   user_home = getenv ("HOME");
   if (user_home == NULL)
     return NULL;
 
-  path = xmalloc (snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1);
-  sprintf (path, "%s/.goaccessrc", user_home);
+  len = snprintf (NULL, 0, "%s/.goaccessrc", user_home) + 1;
+  path = xmalloc (len);
+  snprintf (path, len, "%s/.goaccessrc", user_home);
 
   return path;
 }
@@ -464,9 +466,11 @@ get_user_config (void) {
 char *
 get_global_config (void) {
   char *path = NULL;
+  size_t len;
 
-  path = xmalloc (snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1);
-  sprintf (path, "%s/goaccess/goaccess.conf", SYSCONFDIR);
+  len = snprintf (NULL, 0, "%s/goaccess/goaccess.conf", SYSCONFDIR) + 1;
+  path = xmalloc (len);
+  snprintf (path, len, "%s/goaccess/goaccess.conf", SYSCONFDIR);
 
   return path;
 }

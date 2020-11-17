@@ -52,6 +52,18 @@ new_gmetrics (void) {
   return metrics;
 }
 
+/* Free memory of a GMetrics object */
+void
+free_gmetrics (GMetrics *metric) {
+  if (metric == NULL)
+    return;
+
+  free (metric->data);
+  free (metric->method);
+  free (metric->protocol);
+  free (metric);
+}
+
 /* Get the module string value given a metric enum value.
  *
  * On error, NULL is returned.

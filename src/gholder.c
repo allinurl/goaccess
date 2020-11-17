@@ -191,14 +191,7 @@ static void
 free_holder_data (GHolderItem item) {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.metrics->data != NULL)
-    free (item.metrics->data);
-  if (item.metrics->method != NULL)
-    free (item.metrics->method);
-  if (item.metrics->protocol != NULL)
-    free (item.metrics->protocol);
-  if (item.metrics != NULL)
-    free (item.metrics);
+  free_gmetrics (item.metrics);
 }
 
 /* Free all memory allocated in holder for a given module. */
@@ -305,8 +298,14 @@ sort_sub_list (GHolder * h, GSort sort) {
 
       add_sub_item_back (sub_list, h->module, arr[k].metrics);
       h->items[i].sub_list = sub_list;
+      sub_list = NULL;
     }
+
     free (arr);
+    if (sub_list) {
+      delete_sub_list (sub_list);
+      sub_list = NULL;
+    }
   }
 }
 
@@ -584,8 +583,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
     return;
 
   if (!(root = ht_get_root (h->module, item.nkey))) {
-    free (nmetrics->data);
-    free (nmetrics);
+    free_gmetrics (nmetrics);
     return;
   }
 

@@ -53,7 +53,7 @@ extern GDnsThread gdns_thread;
 char *gqueue_dequeue (GDnsQueue * q);
 char *reverse_ip (char *str);
 int gqueue_empty (GDnsQueue * q);
-int gqueue_enqueue (GDnsQueue * q, char *item);
+int gqueue_enqueue (GDnsQueue * q, const char *item);
 int gqueue_find (GDnsQueue * q, const char *item);
 int gqueue_full (GDnsQueue * q);
 int gqueue_size (GDnsQueue * q);

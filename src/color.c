@@ -705,7 +705,7 @@ prepend_color (GColors ** color) {
   }
 }
 
-/* Parse a color definition line from the config file and store it on a signle
+/* Parse a color definition line from the config file and store it on a single
  * linked-list.
  *
  * On error, it aborts.

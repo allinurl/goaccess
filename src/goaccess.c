@@ -1362,8 +1362,9 @@ initializer (void) {
 static char *
 generate_fifo_name (void) {
   char fname[RAND_FN];
-  const char *tmp = NULL;
-  char *path = NULL;
+  const char *tmp;
+  char *path;
+  size_t len;
 
   if ((tmp = getenv ("TMPDIR")) == NULL)
     tmp = "/tmp";
@@ -1371,8 +1372,9 @@ generate_fifo_name (void) {
   memset (fname, 0, sizeof (fname));
   genstr (fname, RAND_FN - 1);
 
-  path = xmalloc (snprintf (NULL, 0, "%s/goaccess_fifo_%s", tmp, fname) + 1);
-  sprintf (path, "%s/goaccess_fifo_%s", tmp, fname);
+  len = snprintf (NULL, 0, "%s/goaccess_fifo_%s", tmp, fname) + 1;
+  path = xmalloc (len);
+  snprintf (path, len, "%s/goaccess_fifo_%s", tmp, fname);
 
   return path;
 }

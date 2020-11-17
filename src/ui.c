@@ -204,15 +204,15 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win) {
 
   /* init header screen */
   *header_win = newwin (6, col, 0, 0);
-  keypad (*header_win, TRUE);
   if (*header_win == NULL)
     FATAL ("Unable to allocate memory for header_win.");
+  keypad (*header_win, TRUE);
 
   /* init main screen */
   *main_win = newwin (row - 8, col, 7, 0);
-  keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
+  keypad (*main_win, TRUE);
   set_wbkgd (*main_win, *header_win);
 }
 
@@ -951,6 +951,7 @@ load_agent_list (WINDOW * main_win, char *addr) {
 
   touchwin (main_win);
   close_win (win);
+  win = NULL;
   wrefresh (main_win);
 
 out:
@@ -962,6 +963,7 @@ out:
     free (menu->items);
   free (menu);
   free_agents_array (agents);
+  close_win (win);
 }
 
 /* Render the processing spinner. This runs within its own thread. */
@@ -987,7 +989,8 @@ ui_spinner (void *ptr_data) {
       if (!sp->curses && !conf.no_progress)
         fprintf (stderr, "\n");
 
-      break;
+      pthread_mutex_unlock (&sp->mutex);
+      return;
     }
 
     setlocale (LC_NUMERIC, "");

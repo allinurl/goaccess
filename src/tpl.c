@@ -1103,6 +1103,7 @@ tpl_dump (tpl_node * r, int mode, ...) {
           }
         }
         free (buf);
+        va_end (ap);
         return -1;
       }
     } while (sz > 0);
@@ -1114,6 +1115,7 @@ tpl_dump (tpl_node * r, int mode, ...) {
       pa_sz = va_arg (ap, size_t);
       if (pa_sz < sz) {
         tpl_hook.oops ("tpl_dump: buffer too small, need %zu bytes\n", sz);
+        va_end (ap);
         return -1;
       }
       rc = tpl_dump_to_mem (r, pa_addr, sz);
@@ -1281,7 +1283,7 @@ tpl_sanity (tpl_node * r, int excess_ok) {
   if (((tpl_root_data *) (r->data))->flags & TPL_XENDIAN)
     tpl_byteswap (&intlsz, sizeof (uint32_t));
   if (!excess_ok && (intlsz != bufsz))
-    return ERR_INCONSISTENT_SZ; /* inconsisent buffer/internal size */
+    return ERR_INCONSISTENT_SZ; /* inconsistent buffer/internal size */
   dv = (void *) ((uintptr_t) dv + sizeof (uint32_t));
 
   /* dv points to the start of the format string. Look for nul w/in buf sz */
@@ -1425,7 +1427,7 @@ tpl_peek (int mode, ...) {
   if (xendian)
     tpl_byteswap (&intlsz, sizeof (uint32_t));
   if (intlsz != sz)
-    goto fail;  /* inconsisent buffer/internal size */
+    goto fail;  /* inconsistent buffer/internal size */
   dv = (void *) ((uintptr_t) dv + sizeof (uint32_t));
 
   /* dv points to the start of the format string. Look for nul w/in buf sz */
@@ -2465,7 +2467,7 @@ tpl_gather_blocking (int fd, void **img, size_t *sz) {
 }
 
 /* Used by select()-driven apps which want to gather tpl images piecemeal */
-/* the file descriptor must be non-blocking for this functino to work. */
+/* the file descriptor must be non-blocking for this function to work. */
 static int
 tpl_gather_nonblocking (int fd, tpl_gather_t ** gs, tpl_gather_cb * cb, void *data) {
   char buf[TPL_GATHER_BUFLEN], *img, *tpl;

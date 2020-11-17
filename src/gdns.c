@@ -107,12 +107,13 @@ gqueue_destroy (GDnsQueue * q) {
  * If the queue is full, -1 is returned.
  * If added to the queue, 0 is returned. */
 int
-gqueue_enqueue (GDnsQueue * q, char *item) {
+gqueue_enqueue (GDnsQueue * q, const char *item) {
   if (gqueue_full (q))
     return -1;
 
   q->tail = (q->tail + 1) % q->capacity;
-  strcpy (q->buffer[q->tail], item);
+  strncpy (q->buffer[q->tail], item, sizeof(q->buffer[q->tail]));
+  q->buffer[q->tail][sizeof(q->buffer[q->tail]) - 1] = '\0';
   q->size++;
   return 0;
 }
@@ -224,9 +225,9 @@ dns_worker (void GO_UNUSED (*ptr_data)) {
     pthread_mutex_lock (&gdns_thread.mutex);
 
     if (!active_gdns) {
-      if (host)
-        free (host);
-      break;
+      pthread_mutex_unlock (&gdns_thread.mutex);
+      free (host);
+      return;
     }
 
     /* insert the corresponding IP -> hostname map */

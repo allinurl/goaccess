@@ -683,8 +683,10 @@ extract_keyphrase (char *ref, char **keyphrase) {
     *ptr = '\0';
 
   referer = decode_url (r);
-  if (referer == NULL || *referer == '\0')
+  if (referer == NULL || *referer == '\0') {
+    free (referer);
     return 1;
+  }
 
   referer = char_replace (referer, '+', ' ');
   *keyphrase = trim_str (referer);
@@ -1227,8 +1229,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->req)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0')
+    if (tkn == NULL || *tkn == '\0') {
+      free (tkn);
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+    }
 
     if ((logitem->req = decode_url (tkn)) == NULL) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
@@ -1242,8 +1246,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->qstr)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0')
+    if (tkn == NULL || *tkn == '\0') {
+      free (tkn);
       return 0;
+    }
 
     if ((logitem->qstr = decode_url (tkn)) == NULL) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
@@ -2147,7 +2153,10 @@ gen_visitor_key (GKeyData * kdata, GLogItem * logitem) {
  */
 static int
 gen_req_key (GKeyData * kdata, GLogItem * logitem) {
-  if (logitem->req && logitem->qstr)
+  if (!logitem->req)
+    return 1;
+
+  if (logitem->qstr)
     append_query_string (&logitem->req, logitem->qstr);
   logitem->req_key = gen_unique_req_key (logitem);
 
@@ -2761,16 +2770,16 @@ process_log (GLogItem * logitem) {
  * Returns 1 if the content is likely the same or no data to compare
  * Returns 0 if it has different content */
 static int
-is_likely_same_log (GLog * glog, GLastParse lp) {
+is_likely_same_log (GLog * glog, const GLastParse * lp) {
   size_t size = 0;
 
-  if (!lp.size)
+  if (!lp->size)
     return 1;
 
   /* Must be a LOG */
-  size = MIN (glog->snippetlen, lp.snippetlen);
-  if (glog->snippet[0] != '\0' && lp.snippet[0] != '\0' &&
-      memcmp (glog->snippet, lp.snippet, size) == 0)
+  size = MIN (glog->snippetlen, lp->snippetlen);
+  if (glog->snippet[0] != '\0' && lp->snippet[0] != '\0' &&
+      memcmp (glog->snippet, lp->snippet, size) == 0)
     return 1;
 
   return 0;
@@ -2797,7 +2806,7 @@ should_restore_from_disk (GLog * glog) {
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line and have equal timestamps, then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, lp)) {
+  if (glog->inode && is_likely_same_log (glog, &lp)) {
     if (glog->size > lp.size && glog->read >= lp.line)
       return 0;
     return 1;
@@ -2842,7 +2851,7 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, lp)) {
+  if (glog->inode && is_likely_same_log (glog, &lp)) {
     /* only count invalids if we're past the last parsed line */
     if (glog->size > lp.size && glog->read >= lp.line)
       count_process_and_invalid (glog, line);
