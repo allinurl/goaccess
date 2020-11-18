@@ -1,8 +1,8 @@
 Changes to GoAccess 1.4.2 - Monday, November 16, 2020
 
-  - Added the ability to show 'Encryption Settings' such as ' TLSv1.2' and
+  - Added the ability to show 'Encryption Settings' such as 'TLSv1.2' and
     Cipher Suites on its own panel.
-  - Added the ability to show 'MIME Types' such as ' application/javascript' on
+  - Added the ability to show 'MIME Types' such as 'application/javascript' on
     its own panel.
   - Changed Debian build to use mmdb instead of libgeoip (legacy).
   - Ensure the HTML report defaults to widescreen if viewport is larger than
