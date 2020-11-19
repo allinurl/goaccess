@@ -192,13 +192,13 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     
----------------------- | -----------------|------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        
-**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     
-**Arch Linux**         | ncurses          | geoip            |  openssl           
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  
-**Slackware**          | ncurses          | GeoIP            |  openssl           
+Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)           |  OpenSSL (opt)
+---------------------- | -----------------|------------------|---------------------- | -------------------
+**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev
+**RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel
+**Arch Linux**         | ncurses          | geoip            | libmaxminddb          |  openssl
+**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl
+**Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
 
 **Note**: You may need to install build tools like `gcc`, `autoconf`,
 `gettext`, `autopoint` etc for compiling/building software from source. e.g.,
