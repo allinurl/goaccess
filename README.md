@@ -421,7 +421,6 @@ We receive many questions and issues that have been answered previously.
 
 #### Incremental log processing ####
 
-
 GoAccess has the ability to process logs incrementally through its internal
 storage and dump its data to disk. It works in the following way:
 
@@ -437,7 +436,7 @@ stay on the same partition), in addition, it extracts a snippet of data from
 the log along with the last line parsed of each file and the timestamp of the
 last line parsed. e.g., inode:29627417|line:20012|ts:20171231235059
 
-First it compares if the snippet matches the log being parsed, if it does, it
+First, it compares if the snippet matches the log being parsed, if it does, it
 assumes the log hasn't changed drastically, e.g., hasn't been truncated. If
 the inode does not match the current file, it parses all lines. If the current
 file matches the inode, it then reads the remaining lines and updates the count
