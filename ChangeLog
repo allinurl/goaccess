@@ -6,7 +6,7 @@ Changes to GoAccess 1.4.2 - Monday, November 16, 2020
     its own panel.
   - Changed Debian build to use mmdb instead of libgeoip (legacy).
   - Ensure the HTML report defaults to widescreen if viewport is larger than
-    '2560'.
+    '2560px'.
   - Fixed inability to properly process multiple logs in real-time.
   - Fixed issue where named PIPEs were not properly seed upon generating
     filename.
