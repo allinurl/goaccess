@@ -406,7 +406,7 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine!
 
-    # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
+    # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
 
 
 #### Troubleshooting ####
