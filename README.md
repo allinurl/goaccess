@@ -408,6 +408,8 @@ your local machine!
 
     # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
 
+**Note:** SSH requires `-n` so GoAccess can read from stdin. Also, make sure to
+use SSH keys for authentication as it won't work if a passphrase is required. 
 
 #### Troubleshooting ####
 
