@@ -1090,6 +1090,11 @@ and if you don't want to install it on your server, you can still run it from
 your local machine:
 .IP
 # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
+.P
+Note: SSH requires
+.I -n
+so GoAccess can read from stdin. Also, make sure to use SSH keys for
+authentication as it won't work if a passphrase is required.
 .SS
 INCREMENTAL LOG PROCESSING
 .P
