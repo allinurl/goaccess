@@ -110,7 +110,7 @@ typedef struct GLog_ {
   uint8_t log_erridx;
   uint32_t read;                /* lines read/parsed */
   uint32_t inode;               /* inode of the log */
-  uint64_t bytes;               /* bytes read */
+  uint64_t bytes;               /* bytes read on each iteration */
   uint64_t size;                /* original size of log */
   uint64_t length;              /* length read from the log so far */
   uint64_t invalid;             /* invalid lines for this log */
