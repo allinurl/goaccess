@@ -51,7 +51,7 @@ main (int argc, char *argv[]) {
     fclose (f_input);
     return -1;
   }
-  file_size = (size_t)file_size_orig;
+  file_size = (size_t) file_size_orig;
   fseek (f_input, 0, SEEK_SET);
 
   if ((buf = malloc (file_size)) == NULL) {
