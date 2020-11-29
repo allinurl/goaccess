@@ -112,8 +112,8 @@ gqueue_enqueue (GDnsQueue * q, const char *item) {
     return -1;
 
   q->tail = (q->tail + 1) % q->capacity;
-  strncpy (q->buffer[q->tail], item, sizeof(q->buffer[q->tail]));
-  q->buffer[q->tail][sizeof(q->buffer[q->tail]) - 1] = '\0';
+  strncpy (q->buffer[q->tail], item, sizeof (q->buffer[q->tail]));
+  q->buffer[q->tail][sizeof (q->buffer[q->tail]) - 1] = '\0';
   q->size++;
   return 0;
 }
