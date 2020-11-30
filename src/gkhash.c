@@ -1765,7 +1765,7 @@ restore_dates (void) {
 
   len = tpl_Alen (tn, 1);
   if (len < 0)
-      return;
+    return;
   persisted_dates_len = len;
   persisted_dates = xcalloc (persisted_dates_len, sizeof (uint32_t));
   while (tpl_unpack (tn, 1) > 0)
