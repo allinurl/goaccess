@@ -54,7 +54,7 @@ new_gmetrics (void) {
 
 /* Free memory of a GMetrics object */
 void
-free_gmetrics (GMetrics *metric) {
+free_gmetrics (GMetrics * metric) {
   if (metric == NULL)
     return;
 
