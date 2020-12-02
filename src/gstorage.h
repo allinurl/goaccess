@@ -61,7 +61,7 @@ typedef enum GSMetric_ {
 } GSMetric;
 
 GMetrics *new_gmetrics (void);
-void free_gmetrics (GMetrics *metric);
+void free_gmetrics (GMetrics * metric);
 
 uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
