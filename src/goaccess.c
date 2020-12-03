@@ -776,9 +776,11 @@ verify_inode (FILE * fp, GLog * glog) {
     FATAL ("Unable to stat the specified log file '%s'. %s", glog->filename, strerror (errno));
 
   glog->size = fdstat.st_size;
-  /* the log changed its inode, so more likely log was rotated, so we set the
-   * initial snippet for the new log for future iterations */
-  if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0') {
+  /* Either the log got smaller, probably was truncated so start reading from 0
+   * and reset snippet.
+   * If the log changed its inode, more likely the log was rotated, so we set
+   * the initial snippet for the new log for future iterations */
+  if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0' || 0 == glog->size) {
     glog->length = glog->bytes = 0;
     set_initial_persisted_data (glog, fp, glog->filename);
   }
@@ -820,8 +822,7 @@ perform_tail_follow (GLog * glog) {
   if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
     FATAL ("Unable to fread the specified log file '%s'", glog->filename);
 
-  /* Either the log got smaller, probably was truncated so start reading from 0.
-   * For the case where the log got larger since the last iteration, we attempt
+  /* For the case where the log got larger since the last iteration, we attempt
    * to compare the first READ_BYTES against the READ_BYTES we had since the last
    * parse. If it's different, then it means the file may got truncated but grew
    * faster than the last iteration (odd, but possible), so we read from 0* */
