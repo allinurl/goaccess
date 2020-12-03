@@ -111,6 +111,7 @@ struct option long_opts[] = {
   {"invalid-requests"     , required_argument , 0 , 0  }  ,
   {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
   {"keep-last"            , required_argument , 0 , 0  }  ,
+  {"html-refresh"         , required_argument , 0 , 0  }  ,
   {"log-format"           , required_argument , 0 , 0  }  ,
   {"max-items"            , required_argument , 0 , 0  }  ,
   {"no-color"             , no_argument       , 0 , 0  }  ,
@@ -175,6 +176,7 @@ cmd_help (void)
   "  --html-custom-js=<path.js>      - Specify a custom JS file in the HTML report.\n"
   "  --html-prefs=<json_obj>         - Set default HTML report preferences.\n"
   "  --html-report-title=<title>     - Set HTML report page title and header.\n"
+  "  --html-refresh=<secs>           - Refresh HTML report every X seconds (>=1 or <=60).\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
   "  --max-items                     - Maximum number of items to show per panel. See man page for limits.\n"
   "  --no-color                      - Disable colored output.\n"
@@ -544,6 +546,15 @@ parse_long_opt (const char *name, const char *oarg) {
     if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
       return;
     conf.keep_last = keeplast >= 0 ? keeplast : 0;
+  }
+
+  /* refresh html every X seconds */
+  if (!strcmp ("html-refresh", name)) {
+    char *sEnd;
+    uint64_t ref = strtoull (oarg, &sEnd, 10);
+    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+      return;
+    conf.html_refresh = ref >= 1 && ref <= 60 ? 1000000 * ref : 0;
   }
 
   /* specifies the path of the database file */

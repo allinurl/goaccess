@@ -844,18 +844,19 @@ perform_tail_follow (GLog * glog) {
 
 out:
 
-  if (!conf.output_stdout)
+  if (!conf.output_stdout) {
     tail_term ();
-  else
+    usleep (200000);    /* 0.2 seconds */
+  } else {
     tail_html ();
-
-  usleep (200000);      /* 0.2 seconds */
+  }
 }
 
 /* Entry point to start processing the HTML output */
 static void
 process_html (const char *filename) {
   int i = 0;
+  uint64_t intval = conf.html_refresh ? conf.html_refresh : HTML_REFRESH;
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -883,7 +884,7 @@ process_html (const char *filename) {
 
     for (i = 0; i < logs->size; ++i)
       perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
-    usleep (800000);    /* 0.8 secs */
+    usleep (intval);    /* 0.8 secs */
   }
   close (gwswriter->fd);
 }
