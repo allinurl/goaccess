@@ -205,6 +205,7 @@ char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);
 int pre_process_log (GLog * glog, char *line, int dry_run);
+int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 void free_logerrors (GLog * glog);
 void free_logs (Logs * logs);
 void free_raw_data (GRawData * raw_data);

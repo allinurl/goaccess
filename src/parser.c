@@ -3084,9 +3084,13 @@ read_lines (FILE * fp, GLog * glog, int dry_run) {
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
-static int
+int
 set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
   size_t len;
+
+  /* reset the snippet */
+  memset (glog->snippet, 0, sizeof (glog->snippet));
+  glog->snippetlen = 0;
 
   if (glog->size == 0)
     return 1;

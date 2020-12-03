@@ -768,11 +768,27 @@ parse_tail_follow (GLog * glog, FILE * fp) {
   }
 }
 
+static void
+verify_inode (FILE * fp, GLog * glog) {
+  struct stat fdstat;
+
+  if (stat (glog->filename, &fdstat) == -1)
+    FATAL ("Unable to stat the specified log file '%s'. %s", glog->filename, strerror (errno));
+
+  glog->size = fdstat.st_size;
+  /* the log changed its inode, so more likely log was rotated, so we set the
+   * initial snippet for the new log for future iterations */
+  if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0') {
+    glog->length = glog->bytes = 0;
+    set_initial_persisted_data (glog, fp, glog->filename);
+  }
+  glog->inode = fdstat.st_ino;
+}
+
 /* Process appended log data */
 static void
 perform_tail_follow (GLog * glog) {
   FILE *fp = NULL;
-  struct stat fdstat;
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
   uint64_t length = 0;
@@ -796,11 +812,7 @@ perform_tail_follow (GLog * glog) {
   if (!(fp = fopen (glog->filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
 
-  /* insert the inode of the file parsed and the last line parsed */
-  if (stat (glog->filename, &fdstat) == 0) {
-    glog->inode = fdstat.st_ino;
-    glog->size = fdstat.st_size;
-  }
+  verify_inode (fp, glog);
 
   len = MIN (glog->snippetlen, length);
   /* This is not ideal, but maybe the only way reliable way to know if the
@@ -825,7 +837,7 @@ perform_tail_follow (GLog * glog) {
   /* insert the inode of the file parsed and the last line parsed */
   if (glog->inode) {
     glog->lp.line = glog->read;
-    glog->lp.size = fdstat.st_size;
+    glog->lp.size = glog->size;
     ht_insert_last_parse (glog->inode, glog->lp);
   }
 
