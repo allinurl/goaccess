@@ -815,7 +815,7 @@ perform_tail_follow (GLog * glog) {
   verify_inode (fp, glog);
 
   len = MIN (glog->snippetlen, length);
-  /* This is not ideal, but maybe the only way reliable way to know if the
+  /* This is not ideal, but maybe the only reliable way to know if the
    * current log looks different than our first read/parse */
   if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
     FATAL ("Unable to fread the specified log file '%s'", glog->filename);
