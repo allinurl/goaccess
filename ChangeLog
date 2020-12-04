@@ -1,3 +1,13 @@
+Changes to GoAccess 1.4.3 - Friday, December 04, 2020
+
+  - Added the ability to set how often goaccess will parse data and output to
+    the HTML report via '--html-refresh=<secs>'.
+  - Changed how TLS is parsed so the Cypher uses a separate specifier than the
+    TLS version. It now uses '%K' for the TLS version and '%k' for the Cypher.
+  - Fixed issue where real-time output would double count a rotated log. This
+    was due to the change of inode upon rotating the log.
+  - Updated man page to reflect proper way of 'tail -f' a remote access log.
+
 Changes to GoAccess 1.4.2 - Monday, November 16, 2020
 
   - Added the ability to show 'Encryption Settings' such as 'TLSv1.2' and
