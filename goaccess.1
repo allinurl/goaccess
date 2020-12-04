@@ -835,7 +835,9 @@ The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
 .IP %K
-The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_PROTOCOL}x %{SSL_CIPHER}x)
+The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_PROTOCOL}x)
+.IP %k
+The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_CIPHER}x)
 .IP %M
 The MIME-type of the requested resource. (In Apache LogFormat: %{Content-Type}o)
 .IP %D
