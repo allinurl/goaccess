@@ -532,6 +532,8 @@ init_log_item (GLog * glog) {
   /* UMS */
   logitem->mime_type = NULL;
   logitem->tls_type = NULL;
+  logitem->tls_cypher = NULL;
+  logitem->tls_type_cypher = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
   localtime_r (&now, &logitem->dt);
@@ -593,6 +595,10 @@ free_glog (GLogItem * logitem) {
     free (logitem->mime_type);
   if (logitem->tls_type != NULL)
     free (logitem->tls_type);
+  if (logitem->tls_cypher != NULL)
+    free (logitem->tls_cypher);
+  if (logitem->tls_type_cypher != NULL)
+    free (logitem->tls_type_cypher);
 
   free (logitem);
 }
@@ -1415,17 +1421,28 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     free (tkn);
     break;
 
-    /* UMS: Krypto (TLS) parameters like "TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256" */
+    /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
+  case 'k':
+    /* error to set this twice */
+    if (logitem->tls_cypher)
+      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
+    logitem->tls_cypher = tkn;
+    break;
+
+    /* UMS: Krypto (TLS) parameters like "TLSv1.2" */
   case 'K':
     /* error to set this twice */
     if (logitem->tls_type)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
 
-    if (!(tkn = parse_string (&(*str), end, 2)))
+    if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     logitem->tls_type = tkn;
-
     break;
 
     /* UMS: Mime-Type like "text/html" */
@@ -2394,12 +2411,12 @@ static const char *
 extract_tlsmajor (const char *token) {
   const char *lookfor;
 
-  if ((lookfor = "SSLv3", strstr (token, lookfor)) ||
-      (lookfor = "TLSv1.1", strstr (token, lookfor)) ||
-      (lookfor = "TLSv1.2", strstr (token, lookfor)) ||
-      (lookfor = "TLSv1.3", strstr (token, lookfor)) ||
-      // Nope, it's not 1.0
-      (lookfor = "TLSv1", strstr (token, lookfor)))
+  if ((lookfor = "SSLv3", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
+      /* Nope, it's not 1.0 */
+      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)))
     return lookfor;
   return NULL;
 }
@@ -2412,6 +2429,7 @@ extract_tlsmajor (const char *token) {
 static int
 gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
   const char *tls;
+  size_t tlen = 0, clen = 0;
 
   if (!logitem->tls_type)
     return 1;
@@ -2422,9 +2440,23 @@ gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
   if (!tls)
     return 1;
 
-  kdata->data = logitem->tls_type;
-  kdata->data_key = logitem->tls_type;
   kdata->numdate = logitem->numdate;
+  if (!logitem->tls_cypher) {
+    kdata->data_key = kdata->data = kdata->root = kdata->root_key = tls;
+    return 0;
+  }
+
+  clen = strlen (logitem->tls_cypher);
+  tlen = strlen (tls);
+
+  logitem->tls_type_cypher = xmalloc (tlen + clen + 2);
+  memcpy (logitem->tls_type_cypher, tls, tlen);
+  logitem->tls_type_cypher[tlen] = '/';
+  /* includes terminating null */
+  memcpy (logitem->tls_type_cypher + tlen + 1, logitem->tls_cypher, clen + 1);
+
+  kdata->data = logitem->tls_type_cypher;
+  kdata->data_key = logitem->tls_type_cypher;
 
   kdata->root = tls;
   kdata->root_key = tls;
@@ -2620,7 +2652,7 @@ set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
   parse->datamap (module, kdata);
 
   /* insert rootmap and root-data map */
-  if (parse->rootmap) {
+  if (parse->rootmap && kdata->root) {
     parse->rootmap (module, kdata);
     insert_root (module, kdata);
   }

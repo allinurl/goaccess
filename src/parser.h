@@ -91,6 +91,8 @@ typedef struct GLogItem_ {
   /* UMS */
   char *mime_type;
   char *tls_type;
+  char *tls_cypher;
+  char *tls_type_cypher;
 
   char *errstr;
   struct tm dt;
