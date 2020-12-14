@@ -115,6 +115,7 @@ struct option long_opts[] = {
   {"log-format"           , required_argument , 0 , 0  }  ,
   {"max-items"            , required_argument , 0 , 0  }  ,
   {"no-color"             , no_argument       , 0 , 0  }  ,
+  {"no-strict-status"     , no_argument       , 0 , 0  }  ,
   {"no-column-names"      , no_argument       , 0 , 0  }  ,
   {"no-csv-summary"       , no_argument       , 0 , 0  }  ,
   {"no-global-config"     , no_argument       , 0 , 0  }  ,
@@ -249,6 +250,7 @@ cmd_help (void)
   "  --ignore-status=<CODE>          - Ignore parsing the given status code.\n"
   "  --keep-last=<NDAYS>             - Keep the last NDAYS in storage.\n"
   "  --no-ip-validation              - Disable client IPv4/6  validation.\n"
+  "  --no-strict-status              - Disable HTTP status code validation.\n"
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --persist                       - Persist data to disk on exit to the given --db-path or to /tmp.\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
@@ -359,6 +361,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* no color */
   if (!strcmp ("no-color", name))
     conf.no_color = 1;
+
+  /* no strict status */
+  if (!strcmp ("no-strict-status", name))
+    conf.no_strict_status = 1;
 
   /* no columns */
   if (!strcmp ("no-column-names", name))

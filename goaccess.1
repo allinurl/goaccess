@@ -642,6 +642,11 @@ The log still needs to contain a placeholder for
 usually it's a resolved IP. e.g.
 .I ord37s19-in-f14.1e100.net.
 .TP
+\fB\-\-no-strict-status
+Disable HTTP status code validation. Some servers would record this value only
+if a connection was established to the target and the target sent a response.
+Otherwise, it could be recorded as -.
+.TP
 \fB\-\-num-tests=<number>
 Number of lines from the access log to test against the provided log/date/time
 format. By default, the parser is set to test 10 lines. If set to 0, the parser

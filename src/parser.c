@@ -1322,6 +1322,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
+    /* do not validate HTTP status code */
+    if (conf.no_strict_status) {
+      logitem->status = tkn;
+      break;
+    }
+
     status = strtol (tkn, &sEnd, 10);
     if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 || status > 599) {
       spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
