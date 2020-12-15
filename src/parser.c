@@ -1009,6 +1009,21 @@ find_alpha (char **str) {
   *str += s - *str;
 }
 
+/* Move forward through the log string until a non-space (!isspace)
+ * char is found and returns the count. */
+static int
+find_alpha_count (char *str) {
+  int cnt = 0;
+  char *s = str;
+  while (*s) {
+    if (isspace (*s))
+      s++, cnt++;
+    else
+      break;
+  }
+  return cnt;
+}
+
 /* Format the broken-down time tm to a numeric date format.
  *
  * On error, or unable to format the given tm, 1 is returned.
@@ -1110,6 +1125,7 @@ set_numeric_date (uint32_t * numdate, const char *date) {
 static int
 parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end) {
   struct tm tm;
+  time_t now = time (0);
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
 
@@ -1117,18 +1133,27 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
   long status = 0L;
+  int dspc = 0, fmtspcs = 0;
 
   errno = 0;
   memset (&tm, 0, sizeof (tm));
+  localtime_r (&now, &tm);
 
   switch (*p) {
     /* date */
   case 'd':
     if (logitem->date)
       return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-    /* parse date format including dates containing spaces,
-     * i.e., syslog date format (Jul 15 20:10:56) */
-    if (!(tkn = parse_string (&(*str), end, count_matches (dfmt, ' ') + 1)))
+
+    /* Attempt to parse date format containing spaces,
+     * i.e., syslog date format (Jul\s15, Nov\s\s2).
+     * Note that it's possible a date could contain some padding, e.g.,
+     * Dec\s\s2 vs Nov\s22, so we attempt to take that into consideration by looking
+     * ahead the log string and counting the # of spaces until we find an alphanum char. */
+    if ((fmtspcs = count_matches (dfmt, ' ')) && (pch = strchr (*str, ' ')))
+      dspc = find_alpha_count (pch);
+
+    if (!(tkn = parse_string (&(*str), end, MAX (dspc, fmtspcs) + 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
     if (str_to_time (tkn, dfmt, &tm) != 0 || set_date (&logitem->date, tm) != 0) {
@@ -1136,6 +1161,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
+
     set_numeric_date (&logitem->numdate, logitem->date);
     set_tm_dt_logitem (logitem, tm);
     free (tkn);
@@ -1152,6 +1178,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
+
     set_tm_tm_logitem (logitem, tm);
     free (tkn);
     break;

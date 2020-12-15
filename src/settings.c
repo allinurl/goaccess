@@ -659,10 +659,11 @@ set_date_num_format (void) {
   }
 
   flen = strlen (fdate) + 1;
+  flen = MAX (MIN_DATENUM_FMT_LEN, flen);       /* at least %Y%m%d + 1 */
   buf = xcalloc (flen, sizeof (char));
 
-  if (strpbrk (fdate, "Yy"))
-    buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
+  /* always add a %Y */
+  buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
   if (strpbrk (fdate, "hbmB"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%m");
   if (strpbrk (fdate, "de"))

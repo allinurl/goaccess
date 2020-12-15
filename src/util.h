@@ -52,6 +52,8 @@
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
+#define MAX(a,b) (((a)>(b))?(a):(b))
+
 /* *INDENT-OFF* */
 #include <stdint.h>
 #include <sys/types.h>
