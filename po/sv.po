@@ -9,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2020-12-03 20:00-0600\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
-"Last-Translator: Anders Johansson <johansson@aljmedia.see>\n"
+"Last-Translator: Anders Johansson <johansson@aljmedia.se>\n"
 "Language-Team: none\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
@@ -72,7 +72,7 @@ msgstr "Generellt Analyserade förfrågningar"
 
 #: src/labels.h:60 src/labels.h:81
 msgid "Tx. Amount"
-msgstr "Skickat"
+msgstr "Skickad mängd"
 
 #: src/labels.h:61
 msgid "Date/Time"
@@ -258,11 +258,11 @@ msgstr "Fjärranvändare"
 
 #: src/labels.h:142
 msgid "The cache status of the object served"
-msgstr ""
+msgstr "Cachestatus för det visade objektet"
 
 #: src/labels.h:146
 msgid "Cache Status"
-msgstr ""
+msgstr "Cachestatus"
 
 #: src/labels.h:149
 msgid "Not Found URLs (404s)"
@@ -270,9 +270,7 @@ msgstr "Hittar inte URL:en (404)"
 
 #: src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, "
-"proto]"
+msgstr "Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
 
 #: src/labels.h:156
 msgid "Visitor Hostnames and IPs"
@@ -312,8 +310,7 @@ msgstr "Hänvisande URL:er"
 
 #: src/labels.h:179
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"
@@ -357,23 +354,23 @@ msgstr "Statuskoder"
 
 #: src/labels.h:212 src/labels.h:216
 msgid "MIME Types"
-msgstr ""
+msgstr "MIME-typer"
 
 #: src/labels.h:214
 msgid "File types shipped out"
-msgstr ""
+msgstr "Filtyper skickas ut"
 
 #: src/labels.h:219
 msgid "Encryption settings"
-msgstr ""
+msgstr "Krypteringsinställningar"
 
 #: src/labels.h:221
 msgid "TLS version and picked algorithm"
-msgstr ""
+msgstr "TLS-version och plockad algoritm"
 
 #: src/labels.h:223
 msgid "TLS Settings"
-msgstr ""
+msgstr "TLS-inställningar"
 
 #: src/labels.h:227
 msgid "[ ] case sensitive"
@@ -397,8 +394,7 @@ msgstr "Loggformat konfiguration"
 
 #: src/labels.h:239
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
-"[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
+msgstr "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
 #: src/labels.h:241
 msgid "Log Format - [c] to add/edit format"
@@ -447,7 +443,7 @@ msgstr "[UP / DOWN] för att bläddra - [q] för att avsluta"
 
 #: src/labels.h:275
 msgid "In-Memory with On-Disk Persistent Storage."
-msgstr ""
+msgstr "In-Memory with On-Disk Persistent Storage."
 
 #: src/labels.h:279
 msgid "Format Errors - Verify your log/date/time format"
@@ -505,7 +501,7 @@ msgstr "’%1$s’ panelen är inaktiverad"
 
 #: src/labels.h:305
 msgid "No input data was provided nor there's data to restore."
-msgstr ""
+msgstr "Ingen ingångsdata tillhandahölls eller det finns data att återställa."
 
 #: src/labels.h:309
 msgid "For more details visit"
@@ -589,7 +585,7 @@ msgstr "Vertikal"
 
 #: src/labels.h:351
 msgid "WideScreen"
-msgstr ""
+msgstr "WideScreen"
 
 #: src/labels.h:353
 msgid "File Options"
@@ -787,7 +783,7 @@ msgstr "409 - Konflikt: Konflikt i begäran"
 
 #: src/labels.h:452
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr ""
+msgstr "410 - Borta: Begärd resurs är inte längre tillgänglig"
 "410 - Gone: Resursförfrågan är inte längre tillgänglig, Skicka feedback"
 
 #: src/labels.h:454
@@ -796,8 +792,7 @@ msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
 #: src/labels.h:456
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
-"412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
+msgstr "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
 #: src/labels.h:458
 msgid "413 - Payload Too Large"
@@ -813,8 +808,7 @@ msgstr "415 - Medietyp som inte stöds: Medietypen stöds inte"
 
 #: src/labels.h:464
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
-"416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
+msgstr "416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
 
 #: src/labels.h:466
 msgid "417 - Expectation Failed"
@@ -822,7 +816,7 @@ msgstr "417 - Förväntning misslyckades"
 
 #: src/labels.h:468
 msgid "418 - I’m a teapot"
-msgstr ""
+msgstr "Jag är en tekanna"
 
 #: src/labels.h:470
 msgid "421 - Misdirected Request"
@@ -850,8 +844,7 @@ msgstr "428 - Förutsättning krävs"
 
 #: src/labels.h:482
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr ""
-"429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
+msgstr "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
 #: src/labels.h:484
 msgid "431 - Request Header Fields Too Large"
@@ -903,9 +896,7 @@ msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgäng
 
 #: src/labels.h:508
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
-"504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka "
-"förfrågan"
+msgstr "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka förfrågan"
 
 #: src/labels.h:510
 msgid "505 - HTTP Version Not Supported"
