@@ -1551,16 +1551,22 @@ static int
 find_xff_host (GLogItem * logitem, char **str, char **p) {
   char *ptr = NULL, *tkn = NULL, *skips = NULL;
   int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
+  int idx = 0, skips_len = 0;
 
   if (!(skips = extract_braces (p)))
     return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
 
+  skips_len = strlen (skips);
   ptr = *str;
   while (*ptr != '\0') {
     if ((len = strcspn (ptr, skips)) == 0) {
-      len++, ptr++;
+      len++, ptr++, idx++;
       goto move;
     }
+    /* If our index does not match the number of delimiters and we have already a
+     * valid client IP, then we assume we have reached the length of the XFF */
+    if (idx < skips_len && logitem->host)
+      break;
 
     ptr += len;
     /* extract possible IP */
@@ -1578,6 +1584,7 @@ find_xff_host (GLogItem * logitem, char **str, char **p) {
       logitem->type_ip = type_ip;
     }
     free (tkn);
+    idx = 0;
 
   move:
     *str += len;
