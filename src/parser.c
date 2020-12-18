@@ -925,28 +925,20 @@ parse_req (char *line, char **method, char **protocol) {
   return dreq;
 }
 
-/* Extract the next delimiter given a log format and copy the
- * delimiter(s) to the destination buffer.
- * Note that it's possible to store up to two delimiters.
+/* Extract the next delimiter given a log format and copy the delimiter to the
+ * destination buffer.
  *
- * On error, the function returns.
- * On success, the delimiter(s) are stored in the dest buffer and the
- * number of extra delimiters is returned. */
-static int
+ * On error, the dest buffer will be empty.
+ * On success, the delimiter(s) are stored in the dest buffer. */
+static void
 get_delim (char *dest, const char *p) {
   /* done, nothing to do */
   if (p[0] == '\0' || p[1] == '\0') {
     dest[0] = '\0';
-    return 0;
+    return;
   }
   /* add the first delim */
   dest[0] = *(p + 1);
-  /* check if there's another possible delim */
-  if (p[2] == '|' && p[3] != '%' && p[3] != '\0') {
-    dest[1] = *(p + 3);
-    return 1;
-  }
-  return 0;
 }
 
 /* Extract and malloc a token given the parsed rule.
@@ -1624,7 +1616,7 @@ static int
 parse_format (GLogItem * logitem, char *str) {
   char end[2 + 1] = { 0 };
   char *lfmt = conf.log_format, *p = NULL;
-  int perc = 0, tilde = 0, optdelim = 0;
+  int perc = 0, tilde = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
@@ -1656,13 +1648,10 @@ parse_format (GLogItem * logitem, char *str) {
         return 0;
 
       memset (end, 0, sizeof end);
-      optdelim = get_delim (end, p);
+      get_delim (end, p);
       /* attempt to parse format specifiers */
       if (parse_specifier (logitem, &str, p, end) == 1)
         return 1;
-      /* account for the extra delimiter */
-      if (optdelim)
-        p++;
       perc = 0;
     } else if (perc && isspace (p[0])) {
       return 1;
