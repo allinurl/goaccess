@@ -19,9 +19,9 @@ Chef Client								Crawlers
 Abonti									Crawlers
 SISTRIX									Crawlers
 DotBot									Crawlers
-Speedy	Spider							Crawlers
+Speedy	Spider								Crawlers
 Sosospider								Crawlers
-BPImageWalker							Crawlers
+BPImageWalker								Crawlers
 DoCoMo									Crawlers
 GSLFbot									Crawlers
 YodaoBot								Crawlers
@@ -32,15 +32,15 @@ findlinks								Crawlers
 ichiro									Crawlers
 Linguee Bot								Crawlers
 Gigabot									Crawlers
-BacklinkCrawler							Crawlers
+BacklinkCrawler								Crawlers
 distilator								Crawlers
 Aboundex								Crawlers
-UnwindFetchor							Crawlers
+UnwindFetchor								Crawlers
 SBIder									Crawlers
 TestNutch								Crawlers
-DomainCrawler							Crawlers
-NextGenSearchBot						Crawlers
-SEOENGWorldBot							Crawlers
+DomainCrawler								Crawlers
+NextGenSearchBot							Crawlers
+SEOENGWorldBot								Crawlers
 Cityreview								Crawlers
 PagePeeker								Crawlers
 JS-Kit									Crawlers
@@ -52,14 +52,14 @@ MaxPoint								Crawlers
 NCBot									Crawlers
 TosCrawler								Crawlers
 Updownerbot								Crawlers
-OpenWebSpider							Crawlers
+OpenWebSpider								Crawlers
 WordPress								Crawlers
 PEAR									Crawlers
 ZumBot									Crawlers
 YisouSpider								Crawlers
-W3C										Crawlers
+W3C									Crawlers
 vcheck									Crawlers
-PercolateCrawler						Crawlers
+PercolateCrawler							Crawlers
 NING									Crawlers
 gvfs									Crawlers
 CatchBot								Crawlers
@@ -69,7 +69,7 @@ Altresium								Crawlers
 Comodo									Crawlers
 crawler4j								Crawlers
 Cricket									Crawlers
-EC2LinkFinder							Crawlers
+EC2LinkFinder								Crawlers
 envolk									Crawlers
 GeoHasher								Crawlers
 HTMLParser								Crawlers
@@ -78,8 +78,8 @@ Jaxified								Crawlers
 LinkWalker								Crawlers
 nutch									Crawlers
 PostRank								Crawlers
-keybase-proofs							Crawlers
-CommonCrawler							Crawlers
+keybase-proofs								Crawlers
+CommonCrawler								Crawlers
 X-CAD-SE								Crawlers
 Safeassign								Crawlers
 Nmap									Crawlers
@@ -88,29 +88,28 @@ Jorgee									Crawlers
 PxBroker								Crawlers
 Seekport								Crawlers
 adscanner								Crawlers
-AfD-Verbotsverfahren_JETZT!             Crawlers
-DuckDuckGo-favicons-Bot					Crawlers
+AfD-Verbotsverfahren_JETZT!						Crawlers
+DuckDuckGo-favicons-Bot							Crawlers
 bingbot									Crawlers
-PetalBot                    Crawlers
+PetalBot								Crawlers
 Discordbot								Crawlers
-ZoominfoBot                             Crawlers
-Googlebot                               Crawlers
-DotBot                                  Crawlers
-AhrefsBot                               Crawlers
-SemrushBot                              Crawlers
-Adsbot                                  Crawlers
-BLEXBot                                 Crawlers
-NetcraftSurveyAgent                     Crawlers
-Netcraft Web Server Survey              Crawlers
-masscan                                 Crawlers
-MJ12bot                                 Crawlers
-Pandalytics                             Crawlers
-YandexBot                               Crawlers
-Nimbostratus-Bot                        Crawlers
-
+ZoominfoBot								Crawlers
+Googlebot								Crawlers
+DotBot									Crawlers
+AhrefsBot								Crawlers
+SemrushBot								Crawlers
+Adsbot									Crawlers
+BLEXBot									Crawlers
+NetcraftSurveyAgent							Crawlers
+Netcraft Web Server Survey						Crawlers
+masscan									Crawlers
+MJ12bot									Crawlers
+Pandalytics								Crawlers
+YandexBot								Crawlers
+Nimbostratus-Bot							Crawlers
 
 Vienna									Feeds
-Windows-RSS-Platform				    Feeds
+Windows-RSS-Platform							Feeds
 newsbeuter								Feeds
 Wrangler								Feeds
 Fever									Feeds
@@ -119,4 +118,4 @@ FreshRSS								Feeds
 KrISS									Feeds
 SimplePie								Feeds
 Feedsubs								Feeds
-UniversalFeedParser					    Feeds
+UniversalFeedParser							Feeds
