@@ -1190,6 +1190,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     set_numeric_date (&logitem->numdate, logitem->date);
     set_tm_dt_logitem (logitem, tm);
     set_tm_tm_logitem (logitem, tm);
+    free (tkn);
     break;
     /* Virtual Host */
   case 'v':
