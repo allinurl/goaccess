@@ -299,6 +299,7 @@ struct GKHashStorage_ {
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);
 char *ht_get_hostname (const char *host);
+char *ht_get_json_logfmt (const char *key);
 char *ht_get_method (GModule module, uint32_t key);
 char *ht_get_protocol (GModule module, uint32_t key);
 char *ht_get_root (GModule module, uint32_t key);
@@ -310,6 +311,7 @@ int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc, 
 int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
+int ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec);
 int ht_insert_last_parse (uint32_t key, GLastParse lp);
 int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey);
 int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);

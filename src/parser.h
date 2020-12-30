@@ -42,10 +42,9 @@
 #define REF_SITE_LEN    511     /* maximum length of a referring site */
 #define CACHE_STATUS_LEN 7
 
-#define SPEC_TOKN_SET   0x1
-#define SPEC_TOKN_NUL   0x2
-#define SPEC_TOKN_INV   0x3
-#define SPEC_SFMT_MIS   0x4
+#define SPEC_TOKN_NUL   0x1
+#define SPEC_TOKN_INV   0x2
+#define SPEC_SFMT_MIS   0x3
 
 #include "commons.h"
 #include "gslist.h"

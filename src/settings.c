@@ -40,7 +40,9 @@
 #include "settings.h"
 
 #include "error.h"
+#include "gkhash.h"
 #include "labels.h"
+#include "pdjson.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -675,12 +677,150 @@ set_date_num_format (void) {
   return buflen == 0 ? 1 : 0;
 }
 
+/* Determine if we have a valid JSON format */
+static int
+is_json_log_format (const char *fmt) {
+  enum json_type t = JSON_ERROR;
+  json_stream json;
+
+  json_open_string (&json, fmt);
+  do {
+    t = json_next (&json);
+    switch (t) {
+    case JSON_ERROR:
+      json_close (&json);
+      return 0;
+    default:
+      break;
+    }
+  } while (t != JSON_DONE && t != JSON_ERROR);
+  json_close (&json);
+
+  return 1;
+}
+
+/* Append the source string to destination and reallocates and
+ * updating the destination buffer appropriately. */
+static void
+ws_append_str (char **dest, const char *src) {
+  size_t curlen = strlen (*dest);
+  size_t srclen = strlen (src);
+  size_t newlen = curlen + srclen;
+
+  char *str = xrealloc (*dest, newlen + 1);
+  memcpy (str + curlen, src, srclen + 1);
+  *dest = str;
+}
+
+static void
+dec_json_key (char *key) {
+  char *ptr = NULL;
+  if (key && (ptr = strrchr (key, '.')))
+    *ptr = '\0';
+  else if (key && !(ptr = strrchr (key, '.')))
+    key[0] = '\0';
+}
+
+int
+parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, char *)) {
+  char *key = NULL, *val = NULL;
+  enum json_type ctx = JSON_ERROR, t = JSON_ERROR;
+  int ret = 0;
+  size_t len = 0, level = 0;
+  json_stream json;
+
+  json_open_string (&json, str);
+  do {
+    t = json_next (&json);
+
+    switch (t) {
+    case JSON_OBJECT:
+      if (key == NULL)
+        key = xstrdup ("");
+      break;
+    case JSON_ARRAY_END:
+    case JSON_OBJECT_END:
+      dec_json_key (key);
+      break;
+    case JSON_TRUE:
+      val = xstrdup ("true");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_FALSE:
+      val = xstrdup ("false");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_NULL:
+      val = xstrdup ("-");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_STRING:
+    case JSON_NUMBER:
+      ctx = json_get_context (&json, &level);
+      /* key */
+      if ((level % 2) != 0 && ctx != JSON_ARRAY) {
+        if (strlen (key) != 0)
+          ws_append_str (&key, ".");
+        ws_append_str (&key, json_get_string (&json, &len));
+      }
+      /* val */
+      else if (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY)) {
+        val = xstrdup (json_get_string (&json, &len));
+        if ((ret = (*cb) (ptr_data, key, val)))
+          goto clean;
+        if (ctx != JSON_ARRAY)
+          dec_json_key (key);
+
+        free (val);
+        val = NULL;
+      }
+      break;
+    case JSON_ERROR:
+      ret = -1;
+      goto clean;
+      break;
+    default:
+      break;
+    }
+  } while (t != JSON_DONE && t != JSON_ERROR);
+
+clean:
+  free (val);
+  free (key);
+  json_close (&json);
+
+  return ret;
+}
+
 /* If specificity is supplied, then determine which value we need to
  * append to the date format. */
 void
 set_spec_date_format (void) {
   if (verify_formats ())
     return;
+
+  if (conf.is_json_log_format) {
+    if (parse_json_string (NULL, conf.log_format, ht_insert_json_logfmt) == -1)
+      FATAL ("Invalid JSON log format. Verify the syntax.");
+  }
 
   if (conf.date_num_format)
     free (conf.date_num_format);
@@ -776,6 +916,13 @@ set_log_format_str (const char *oarg) {
   if (conf.log_format)
     free (conf.log_format);
 
+  if (type == -1 && is_json_log_format (oarg)) {
+    conf.is_json_log_format = 1;
+    conf.log_format = unescape_str (oarg);
+    contains_usecs ();  /* set flag */
+    return;
+  }
+
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
@@ -788,6 +935,9 @@ set_log_format_str (const char *oarg) {
     LOG_DEBUG (("Unable to set log format from enum: %s\n", oarg));
     return;
   }
+
+  if (is_json_log_format (oarg))
+    conf.is_json_log_format = 1;
 
   conf.log_format = unescape_str (fmt);
   contains_usecs ();    /* set flag */

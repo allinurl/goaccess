@@ -37,6 +37,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #define _XOPEN_SOURCE 700
+#define _DEFAULT_SOURCE
 
 #include <ctype.h>
 #include <errno.h>
@@ -66,10 +67,12 @@
 #include "parser.h"
 
 #include "browsers.h"
-#include "goaccess.h"
 #include "error.h"
+#include "goaccess.h"
 #include "opesys.h"
+#include "pdjson.h"
 #include "util.h"
+#include "websocket.h"
 #include "xmalloc.h"
 
 /* private prototypes */
@@ -925,6 +928,63 @@ parse_req (char *line, char **method, char **protocol) {
   return dreq;
 }
 
+#if HAVE_LIBSSL
+static int
+extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
+  SSL_CTX *ctx = NULL;
+  SSL *ssl = NULL;
+  int code = 0;
+  unsigned short code_be;
+  unsigned char cipherid[3];
+  const SSL_CIPHER *c = NULL;
+  char *bEnd;
+  const char *sn = NULL;
+
+  code = strtoull (tkn, &bEnd, 10);
+  if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE) {
+    LOG_DEBUG (("unable to convert cipher code to a valid decimal."));
+    free (tkn);
+    return 1;
+  }
+
+  /* ssl context */
+  if (!(ctx = SSL_CTX_new (SSLv23_server_method ()))) {
+    LOG_DEBUG (("Unable to create a new SSL_CTX_new to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+  if (!(ssl = SSL_new (ctx))) {
+    LOG_DEBUG (("Unable to create a new instace of SSL_new to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+
+  code_be = htobe16 (code);
+  memcpy (cipherid, &code_be, 2);
+  cipherid[2] = 0;
+
+  if (!(c = SSL_CIPHER_find (ssl, cipherid))) {
+    LOG_DEBUG (("Unable to find cipher to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+
+  if (!(sn = SSL_CIPHER_standard_name (c))) {
+    LOG_DEBUG (("Unable to get cipher standard name to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+  *cipher = xstrdup (sn);
+  *tls_version = xstrdup (SSL_CIPHER_get_version (c));
+
+  free (tkn);
+  SSL_free (ssl);
+  SSL_CTX_free (ctx);
+
+  return 0;
+}
+#endif
+
 /* Extract the next delimiter given a log format and copy the delimiter to the
  * destination buffer.
  *
@@ -1060,20 +1120,15 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   const char *fmt = NULL;
 
   switch (code) {
-  case SPEC_TOKN_INV:
-    fmt = "Token '%s' doesn't match specifier '%%%c'";
-    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
-    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
-    break;
-  case SPEC_TOKN_SET:
-    fmt = "Token already set for '%%%c' specifier.";
-    err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
-    sprintf (err, fmt, spec);
-    break;
   case SPEC_TOKN_NUL:
     fmt = "Token for '%%%c' specifier is NULL.";
     err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
     sprintf (err, fmt, spec);
+    break;
+  case SPEC_TOKN_INV:
+    fmt = "Token '%s' doesn't match specifier '%%%c'";
+    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
+    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
   case SPEC_SFMT_MIS:
     fmt = "Missing braces '%s' and ignore chars for specifier '%%%c'";
@@ -1083,7 +1138,7 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   }
   logitem->errstr = err;
 
-  return 1;
+  return code;
 }
 
 static void
@@ -1135,7 +1190,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date */
   case 'd':
     if (logitem->date)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     /* Attempt to parse date format containing spaces,
      * i.e., syslog date format (Jul\s15, Nov\s\s2).
@@ -1161,7 +1216,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* time */
   case 't':
     if (logitem->time)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1177,7 +1232,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
     if (logitem->time && logitem->date)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1195,7 +1250,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* Virtual Host */
   case 'v':
     if (logitem->vhost)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1204,7 +1259,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* remote user */
   case 'e':
     if (logitem->userid)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1213,7 +1268,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* cache status */
   case 'C':
     if (logitem->cache_status)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1225,7 +1280,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1239,7 +1294,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request method */
   case 'm':
     if (logitem->method)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1253,7 +1308,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request not including method or protocol */
   case 'U':
     if (logitem->req)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1270,7 +1325,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
   case 'q':
     if (logitem->qstr)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1287,7 +1342,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request protocol */
   case 'H':
     if (logitem->protocol)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1301,7 +1356,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request, including method + protocol */
   case 'r':
     if (logitem->req)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1311,7 +1366,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* Status Code */
   case 's':
     if (logitem->status)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1332,7 +1387,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
     if (logitem->resp_size)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1346,7 +1401,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* referrer */
   case 'R':
     if (logitem->ref)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     if (!(tkn = parse_string (&(*str), end, 1)))
       tkn = alloc_string ("-");
@@ -1372,7 +1427,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* user agent */
   case 'u':
     if (logitem->agent)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
@@ -1451,20 +1506,30 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'k':
     /* error to set this twice */
     if (logitem->tls_cypher)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
+#if HAVE_LIBSSL
+    {
+      char *tmp = NULL;
+      for (tmp = tkn; isdigit (*tmp); tmp++);
+      if (!strlen (tmp))
+        extract_tls_version_cipher (tkn, &logitem->tls_cypher, &logitem->tls_type);
+      else
+        logitem->tls_cypher = tkn;
+    }
+#else
     logitem->tls_cypher = tkn;
+#endif
+
     break;
 
     /* UMS: Krypto (TLS) parameters like "TLSv1.2" */
   case 'K':
     /* error to set this twice */
     if (logitem->tls_type)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1475,8 +1540,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'M':
     /* error to set this twice */
     if (logitem->mime_type)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1599,7 +1663,7 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
     /* XFF remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return spec_err (logitem, SPEC_TOKN_SET, **p, NULL);
+      return 0;
     if (find_xff_host (logitem, str, p))
       return spec_err (logitem, SPEC_TOKN_NUL, 'h', NULL);
     break;
@@ -1614,10 +1678,10 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem * logitem, char *str) {
+parse_format (GLogItem * logitem, char *str, char *lfmt) {
   char end[2 + 1] = { 0 };
-  char *lfmt = conf.log_format, *p = NULL;
-  int perc = 0, tilde = 0;
+  char *p = NULL;
+  int perc = 0, tilde = 0, ret = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
@@ -1651,8 +1715,8 @@ parse_format (GLogItem * logitem, char *str) {
       memset (end, 0, sizeof end);
       get_delim (end, p);
       /* attempt to parse format specifiers */
-      if (parse_specifier (logitem, &str, p, end) == 1)
-        return 1;
+      if ((ret = parse_specifier (logitem, &str, p, end)))
+        return ret;
       perc = 0;
     } else if (perc && isspace (p[0])) {
       return 1;
@@ -2937,6 +3001,26 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
     count_process_and_invalid (glog, line);
 }
 
+static int
+parse_json_specifier (void *ptr_data, char *key, char *str) {
+  GLogItem *logitem = (GLogItem *) ptr_data;
+  char *spec = NULL;
+  int ret = 0;
+
+  if (!(spec = ht_get_json_logfmt (key)))
+    return 0;
+
+  ret = parse_format (logitem, str, spec);
+  free (spec);
+
+  return ret;
+}
+
+static int
+parse_json_format (GLogItem * logitem, char *str) {
+  return parse_json_string (logitem, str, parse_json_specifier);
+}
+
 /* Process a line from the log and store it accordingly taking into
  * account multiple parsing options prior to setting data into the
  * corresponding data structure.
@@ -2946,14 +3030,21 @@ int
 pre_process_log (GLog * glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
+  char *fmt = conf.log_format;
 
   /* soft ignore these lines */
   if (valid_line (line))
     return -1;
 
   logitem = init_log_item (glog);
+
   /* Parse a line of log, and fill structure with appropriate values */
-  if ((ret = parse_format (logitem, line)) || (ret = verify_missing_fields (logitem))) {
+  if (conf.is_json_log_format)
+    ret = parse_json_format (logitem, line);
+  else
+    ret = parse_format (logitem, line, fmt);
+
+  if (ret || (ret = verify_missing_fields (logitem))) {
     process_invalid (glog, logitem, line);
     goto cleanup;
   }

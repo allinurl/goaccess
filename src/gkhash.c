@@ -55,6 +55,7 @@ static khash_t (si32) * ht_seqs        = NULL;
 static khash_t (ss32) * ht_hostnames   = NULL;
 static khash_t (si32) * ht_cnt_overall = NULL;
 static khash_t (iglp) * ht_last_parse  = NULL;
+static khash_t (ss32) * ht_json_logfmt = NULL;
 
 static GKHashModule *cache_storage = NULL;
 
@@ -782,7 +783,8 @@ ins_is32 (khash_t (is32) * hash, uint32_t key, char *value) {
 /* Insert a string key and the corresponding string value.
  * Note: If the key exists, the value is not replaced.
  *
- * On error, or if key exists, -1 is returned.
+ * On error, -1 is returned.
+ * If key exists, 1 is returned.
  * On success 0 is returned */
 static int
 ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
@@ -796,9 +798,14 @@ ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
   dupkey = xstrdup (key);
   k = kh_put (ss32, hash, dupkey, &ret);
   /* operation failed, or key exists */
-  if (ret == -1 || ret == 0) {
+  if (ret == -1) {
     free (dupkey);
     return -1;
+  }
+  /* operation failed, or key exists */
+  if (ret == 0) {
+    free (dupkey);
+    return 1;
   }
 
   kh_val (hash, k) = xstrdup (value);
@@ -2660,6 +2667,22 @@ ht_insert_hostname (const char *ip, const char *host) {
   return ins_ss32 (hash, ip, host);
 }
 
+/* Insert a JSON log format specification such as request.method => %m.
+ *
+ * On error -1 is returned.
+ * On success or if key exists, 0 is returned */
+int
+ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec) {
+  khash_t (ss32) * hash = ht_json_logfmt;
+
+  if (!hash)
+    return -1;
+
+  if (ins_ss32 (hash, key, spec) == -1)
+    return -1;
+  return 0;
+}
+
 GLastParse
 ht_get_last_parse (uint32_t key) {
   khash_t (iglp) * hash = ht_last_parse;
@@ -2849,6 +2872,20 @@ ht_get_hostname (const char *host) {
     return NULL;
 
   return get_ss32 (hash, host);
+}
+
+/* Get the string value from ht_json_logfmt given a JSON specifier key.
+ *
+ * On error, NULL is returned.
+ * On success the string value for the given key is returned */
+char *
+ht_get_json_logfmt (const char *key) {
+  khash_t (ss32) * hash = ht_json_logfmt;
+
+  if (!hash)
+    return NULL;
+
+  return get_ss32 (hash, key);
 }
 
 /* Get the string value from ht_agent_vals (user agent) given an uint32_t key.
@@ -3312,6 +3349,7 @@ void
 init_storage (void) {
   /* *INDENT-OFF* */
   ht_hostnames   = (khash_t (ss32) *) new_ss32_ht ();
+  ht_json_logfmt = (khash_t (ss32) *) new_ss32_ht ();
   ht_dates       = (khash_t (igkh) *) new_igkh_ht ();
   ht_seqs        = (khash_t (si32) *) new_si32_ht ();
   ht_cnt_overall = (khash_t (si32) *) new_si32_ht ();
@@ -3353,6 +3391,7 @@ free_storage (void) {
   des_igkh (ht_dates);
   des_si32_free (ht_seqs, 1);
   des_ss32_free (ht_hostnames, 1);
+  des_ss32_free (ht_json_logfmt, 1);
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
