@@ -21,6 +21,8 @@ AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19])
 # Fix `undefined reference to `libintl_gettext'` on docker:
 AC_CHECK_LIB([intl], [libintl_dgettext])
+# Fix undefined reference to dgettext on NetBSD
+AC_CHECK_LIB([intl], [dgettext])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
@@ -116,7 +118,8 @@ if test "$utf8" = "yes"; then
   fi
 else
   AC_CHECK_LIB([ncurses], [refresh], [],
-    [AC_MSG_ERROR([*** Missing development libraries for ncurses])])
+    [AC_CHECK_LIB([curses], [refresh], [],
+    [AC_MSG_ERROR([*** Missing development libraries for ncurses])])])
   AC_SEARCH_LIBS([tputs], [tinfo], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
 
   have_ncurses="yes"
@@ -139,7 +142,7 @@ else
   ])
 
   if test "$have_ncurses" != "yes"; then
-    AC_MSG_ERROR([Missing ncursesw header file])
+    AC_MSG_ERROR([Missing ncurses header file])
   fi
 fi
 
@@ -148,9 +151,9 @@ storage="In-Memory with On-Disk Persistent Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])
-if test x"$SED_CHECK" == x"yes" ; then
+if test x"$SED_CHECK" = x"yes" ; then
   AC_CHECK_PROG([TR_CHECK],[tr],[yes],[no])
-  if test x"$TR_CHECK" == x"yes" ; then
+  if test x"$TR_CHECK" = x"yes" ; then
     HAS_SEDTR=yes
   fi
 fi
