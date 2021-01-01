@@ -797,12 +797,12 @@ ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
 
   dupkey = xstrdup (key);
   k = kh_put (ss32, hash, dupkey, &ret);
-  /* operation failed, or key exists */
+  /* operation failed */
   if (ret == -1) {
     free (dupkey);
     return -1;
   }
-  /* operation failed, or key exists */
+  /* key exists */
   if (ret == 0) {
     free (dupkey);
     return 1;
@@ -2673,13 +2673,29 @@ ht_insert_hostname (const char *ip, const char *host) {
  * On success or if key exists, 0 is returned */
 int
 ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec) {
+  int ret;
+  char *dupkey = NULL;
   khash_t (ss32) * hash = ht_json_logfmt;
+  khint_t k;
 
   if (!hash)
     return -1;
 
-  if (ins_ss32 (hash, key, spec) == -1)
-    return -1;
+  k = kh_get (ss32, hash, key);
+  /* key found, free it then to insert */
+  if (k != kh_end (hash))
+    free (kh_val (hash, k));
+  else {
+    dupkey = xstrdup (key);
+    k = kh_put (ss32, hash, dupkey, &ret);
+    /* operation failed */
+    if (ret == -1) {
+      free (dupkey);
+      return -1;
+    }
+  }
+  kh_val (hash, k) = xstrdup (spec);
+
   return 0;
 }
 
@@ -3344,12 +3360,16 @@ parse_raw_data (GModule module) {
   return raw_data;
 }
 
+void
+init_pre_storage (void) {
+  ht_json_logfmt = (khash_t (ss32) *) new_ss32_ht ();
+}
+
 /* Initialize hash tables */
 void
 init_storage (void) {
   /* *INDENT-OFF* */
   ht_hostnames   = (khash_t (ss32) *) new_ss32_ht ();
-  ht_json_logfmt = (khash_t (ss32) *) new_ss32_ht ();
   ht_dates       = (khash_t (igkh) *) new_igkh_ht ();
   ht_seqs        = (khash_t (si32) *) new_si32_ht ();
   ht_cnt_overall = (khash_t (si32) *) new_si32_ht ();

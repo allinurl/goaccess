@@ -61,6 +61,7 @@ static GEnum LOGTYPE[] = {
   {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
   {"AWSELB"       , AWSELB}       ,
   {"AWSS3"        , AWSS3}        ,
+  {"CADDY"        , CADDY}        ,
 };
 
 static const GPreConfLog logs = {
@@ -74,6 +75,13 @@ static const GPreConfLog logs = {
   "%^ %dT%t.%^ %v %h:%^ %^ %T %^ %^ %s %^ %b %^ \"%r\" \"%u\" %^",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
   "%^ %v [%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"", /* Amazon S3 */
+
+  /* Caddy JSON */
+  "{\"ts\":\"%x.%^\",\"request\":{\"remote_addr\":\"%h:%^\",\"proto\":\"%H\","
+    "\"method\":\"%m\",\"host\":\"%v\",\"uri\":\"%U\","
+    "\"headers\":{\"User-Agent\":[\"%u\",\"%^\"]},\"tls\":{\"cipher_suite\":\"%k\","
+    "\"proto\":\"%K\"}},\"duration\":\"%T\",\"size\":\"%b\",\"status\":\"%s\","
+    "\"resp_headers\":{\"Content-Type\":[\"%M\"]}}"
 };
 
 static const GPreConfTime times = {
@@ -377,6 +385,8 @@ get_selected_format_idx (void) {
     return SQUID;
   else if (strcmp (conf.log_format, logs.awss3) == 0)
     return AWSS3;
+  else if (strcmp (conf.log_format, logs.caddy) == 0)
+    return CADDY;
   else
     return (size_t) -1;
 }
@@ -420,6 +430,9 @@ get_selected_format_str (size_t idx) {
   case AWSS3:
     fmt = alloc_string (logs.awss3);
     break;
+  case CADDY:
+    fmt = alloc_string (logs.caddy);
+    break;
   }
 
   return fmt;
@@ -450,6 +463,7 @@ get_selected_date_str (size_t idx) {
     fmt = alloc_string (dates.usec);
     break;
   case SQUID:
+  case CADDY:
     fmt = alloc_string (dates.sec);
     break;
   }
@@ -480,6 +494,7 @@ get_selected_time_str (size_t idx) {
     fmt = alloc_string (times.usec);
     break;
   case SQUID:
+  case CADDY:
     fmt = alloc_string (times.sec);
     break;
   }
@@ -678,7 +693,7 @@ set_date_num_format (void) {
 }
 
 /* Determine if we have a valid JSON format */
-static int
+int
 is_json_log_format (const char *fmt) {
   enum json_type t = JSON_ERROR;
   json_stream json;
@@ -936,7 +951,7 @@ set_log_format_str (const char *oarg) {
     return;
   }
 
-  if (is_json_log_format (oarg))
+  if (is_json_log_format (fmt))
     conf.is_json_log_format = 1;
 
   conf.log_format = unescape_str (fmt);

@@ -55,6 +55,7 @@ typedef enum LOGTYPE {
   CLOUDSTORAGE,
   AWSELB,
   AWSS3,
+  CADDY,
 } GLogType;
 
 /* predefined log times */
@@ -84,6 +85,7 @@ typedef struct GPreConfLog_ {
   const char *awselb;
   const char *squid;
   const char *awss3;
+  const char *caddy;
 } GPreConfLog;
 
 /* *INDENT-OFF* */
@@ -214,12 +216,13 @@ char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);
 char *get_selected_time_str (size_t idx);
 const char *verify_formats (void);
+int is_json_log_format (const char *fmt);
+int parse_json_string (void *userdata, const char *str, int (*cb) (void *, char *, char *));
 size_t get_selected_format_idx (void);
 void set_date_format_str (const char *optarg);
 void set_log_format_str (const char *optarg);
 void set_spec_date_format (void);
 void set_time_format_str (const char *optarg);
-int parse_json_string (void *userdata, const char *str, int (*cb) (void *, char *, char *));
 
 extern GConf conf;
 

@@ -1378,6 +1378,7 @@ initializer (void) {
 
   /* init random number generator */
   srand (getpid ());
+  init_pre_storage ();
 }
 
 static char *

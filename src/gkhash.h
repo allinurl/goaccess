@@ -354,6 +354,7 @@ void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
+void init_pre_storage (void);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
