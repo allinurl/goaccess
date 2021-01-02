@@ -560,7 +560,7 @@ parse_long_opt (const char *name, const char *oarg) {
     uint64_t ref = strtoull (oarg, &sEnd, 10);
     if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
       return;
-    conf.html_refresh = ref >= 1 && ref <= 60 ? 1000000 * ref : 0;
+    conf.html_refresh = ref >= 1 && ref <= 60 ? ref : 0;
   }
 
   /* specifies the path of the database file */

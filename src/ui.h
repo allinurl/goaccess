@@ -60,7 +60,7 @@
 #define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
 #define SPIN_LBL 256    /* max length of the progress spinner */
 
-#define SPIN_UPDATE_INTERVAL 100000     // in microseconds
+#define SPIN_UPDATE_INTERVAL 100000000     /* in nanoseconds */
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"

@@ -173,8 +173,10 @@ end_spinner (void) {
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
   if (!parsing_spinner->curses) {
-    // wait for the ui_spinner thread to finish
-    usleep (SPIN_UPDATE_INTERVAL);
+    /* wait for the ui_spinner thread to finish */
+    struct timespec ts = { .tv_sec = 0, .tv_nsec = SPIN_UPDATE_INTERVAL };
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
@@ -978,6 +980,7 @@ ui_spinner (void *ptr_data) {
   int i = 0;
   long long tdiff = 0, psec = 0;
   time_t begin;
+  struct timespec ts = { .tv_sec = 0, .tv_nsec = SPIN_UPDATE_INTERVAL };
 
   if (sp->curses)
     color = (*sp->color) ();
@@ -1018,7 +1021,8 @@ ui_spinner (void *ptr_data) {
     }
 
     pthread_mutex_unlock (&sp->mutex);
-    usleep (SPIN_UPDATE_INTERVAL);
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
