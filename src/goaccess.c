@@ -845,8 +845,11 @@ perform_tail_follow (GLog * glog) {
 out:
 
   if (!conf.output_stdout) {
+    struct timespec ts = { .tv_sec = 0, .tv_nsec = 200000000 }; /* 0.2 seconds */
+
     tail_term ();
-    usleep (200000);    /* 0.2 seconds */
+    if (nanosleep(&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   } else {
     tail_html ();
   }
@@ -856,7 +859,10 @@ out:
 static void
 process_html (const char *filename) {
   int i = 0;
-  uint64_t intval = conf.html_refresh ? conf.html_refresh : HTML_REFRESH;
+  struct timespec refresh = {
+    .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
+    .tv_nsec = 0,
+  };
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -884,7 +890,8 @@ process_html (const char *filename) {
 
     for (i = 0; i < logs->size; ++i)
       perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
-    usleep (intval);    /* 0.8 secs */
+    if (nanosleep(&refresh, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
   close (gwswriter->fd);
 }
