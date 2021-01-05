@@ -928,7 +928,7 @@ parse_req (char *line, char **method, char **protocol) {
   return dreq;
 }
 
-#if HAVE_LIBSSL
+#if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
 static int
 extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
   SSL_CTX *ctx = NULL;
@@ -1510,7 +1510,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
-#if HAVE_LIBSSL
+#if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
     {
       char *tmp = NULL;
       for (tmp = tkn; isdigit (*tmp); tmp++);

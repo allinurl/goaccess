@@ -53,6 +53,7 @@ AC_ARG_WITH([openssl],[AS_HELP_STRING([--with-openssl],[Build with OpenSSL suppo
 if test "$openssl" = 'yes'; then
   AC_CHECK_LIB([ssl], [SSL_CTX_new],,[AC_MSG_ERROR([ssl library missing])])
   AC_CHECK_LIB([crypto], [CRYPTO_free],,[AC_MSG_ERROR([crypto library missing])])
+  AC_CHECK_LIB([ssl], [SSL_CIPHER_standard_name], [AC_DEFINE([HAVE_CIPHER_STD_NAME], 1, [HAVE_CIPHER_STD_NAME])])
 fi
 
 # GeoIP
