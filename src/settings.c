@@ -727,6 +727,7 @@ ws_append_str (char **dest, const char *src) {
   *dest = str;
 }
 
+/* Delete the given key from a nested object key or empty the key. */
 static void
 dec_json_key (char *key) {
   char *ptr = NULL;
@@ -736,6 +737,11 @@ dec_json_key (char *key) {
     key[0] = '\0';
 }
 
+/* Given a JSON string, parse it and call the given function pointer after each
+ * value.
+ *
+ * On error, a non-zero value is returned.
+ * On success, 0 is returned. */
 int
 parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, char *)) {
   char *key = NULL, *val = NULL;
