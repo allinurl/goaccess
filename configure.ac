@@ -13,10 +13,11 @@ AC_CONFIG_HEADERS([src/config.h])
 # empty default instead.
 : ${CFLAGS=""}
 
-# Checks for programs.
-AC_PROG_CC
+# Prefer host default compiler
+AC_PROG_CC([cc gcc clang])
 AM_PROG_CC_C_O
 
+# Check for programs
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19])
 # Fix `undefined reference to `libintl_gettext'` on docker:
