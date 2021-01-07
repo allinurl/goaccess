@@ -296,7 +296,7 @@ strtoupper (char *str) {
     return str;
 
   while (*p != '\0') {
-    *p = toupper ((int)*p);
+    *p = toupper ((int) *p);
     p++;
   }
 

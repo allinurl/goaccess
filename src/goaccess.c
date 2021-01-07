@@ -849,10 +849,10 @@ perform_tail_follow (GLog * glog) {
 out:
 
   if (!conf.output_stdout) {
-    struct timespec ts = { .tv_sec = 0, .tv_nsec = 200000000 }; /* 0.2 seconds */
+    struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };   /* 0.2 seconds */
 
     tail_term ();
-    if (nanosleep(&ts, NULL) == -1 && errno != EINTR)
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
   } else {
     tail_html ();
@@ -894,7 +894,7 @@ process_html (const char *filename) {
 
     for (i = 0; i < logs->size; ++i)
       perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
-    if (nanosleep(&refresh, NULL) == -1 && errno != EINTR)
+    if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
   }
   close (gwswriter->fd);
