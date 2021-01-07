@@ -1237,11 +1237,11 @@ open_term (char **buf) {
 /* Determine if reading from a pipe, and duplicate file descriptors so
  * it doesn't get in the way of curses' normal reading stdin for
  * wgetch() */
-static void
+static FILE *
 set_pipe_stdin (void) {
   char *term = NULL;
   FILE *pipe = stdin;
-  int fd1, fd2, i;
+  int fd1, fd2;
 
   /* If unable to open a terminal, yet data is being piped, then it's
    * probably from the cron.
@@ -1261,6 +1261,8 @@ set_pipe_stdin (void) {
   if (fileno (stdin) != 0)
     (void) dup2 (fileno (stdin), 0);
 
+  add_dash_filename ();
+
   /* no need to set it as non-blocking since we are simply outputting a
    * static report */
   if (conf.output_stdout && !conf.real_time_html)
@@ -1271,24 +1273,22 @@ set_pipe_stdin (void) {
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
 out:
 
-  for (i = 0; i < logs->size; ++i)
-    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
-      logs->glog[i].pipe = pipe;
-
   free (term);
+
+  return pipe;
 }
 
 /* Determine if we are getting data from the stdin, and where are we
  * outputting to. */
 static void
-set_io (void) {
+set_io (FILE ** pipe) {
   /* For backwards compatibility, check if we are not outputting to a
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
     conf.output_stdout = 1;
   /* dup fd if data piped */
   if (!isatty (STDIN_FILENO))
-    set_pipe_stdin ();
+    *pipe = set_pipe_stdin ();
   /* No data piped, no file was used and not loading from disk */
   //if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
   //  cmd_help ();
@@ -1346,6 +1346,9 @@ block_thread_signals (void) {
 /* Initialize various types of data. */
 static void
 initializer (void) {
+  int i;
+  FILE *pipe = NULL;
+
   /* drop permissions right away */
   if (conf.username)
     drop_permissions ();
@@ -1361,15 +1364,17 @@ initializer (void) {
   init_geoip ();
 #endif
 
-  if (!isatty (STDIN_FILENO))
-    add_dash_filename ();
+  set_io (&pipe);
 
   /* init glog */
   if (!(logs = init_logs (conf.filenames_idx)))
     FATAL (ERR_NO_DATA_PASSED);
 
-  set_io ();
   set_signal_data (logs);
+
+  for (i = 0; i < logs->size; ++i)
+    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
+      logs->glog[i].pipe = pipe;
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
