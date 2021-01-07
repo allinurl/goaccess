@@ -166,8 +166,6 @@ goaccess_SOURCES = \
    src/pdjson.h        \
    src/settings.c      \
    src/settings.h      \
-   src/sha1.c          \
-   src/sha1.h          \
    src/sort.c          \
    src/sort.h          \
    src/tpl.c           \
@@ -180,6 +178,12 @@ goaccess_SOURCES = \
    src/websocket.h     \
    src/xmalloc.c       \
    src/xmalloc.h
+
+if USE_SHA1
+goaccess_SOURCES +=  \
+   src/sha1.c        \
+   src/sha1.h
+endif
 
 if USE_MMAP
 goaccess_SOURCES +=  \
