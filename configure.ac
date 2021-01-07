@@ -48,6 +48,11 @@ esac
 AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
+# Check for libc implementation on NetBSD
+AC_CHECK_HEADERS([sha.h sha1.h])
+AC_CHECK_FUNCS([SHA1Init])
+AM_CONDITIONAL([USE_SHA1], [test "x$ac_cv_func_SHA1Init" != "xyes"])
+
 # Build with OpenSSL
 AC_ARG_WITH([openssl],[AS_HELP_STRING([--with-openssl],[Build with OpenSSL support. Default is disabled])],[openssl="$withval"],[openssl="no"])
 
