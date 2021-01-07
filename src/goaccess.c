@@ -797,6 +797,10 @@ perform_tail_follow (GLog * glog) {
 
   if (glog->filename[0] == '-' && glog->filename[1] == '\0') {
     parse_tail_follow (glog, glog->pipe);
+    /* did we read something from the pipe? */
+    if (0 == glog->bytes)
+      return;
+
     glog->length += glog->bytes;
     goto out;
   }
