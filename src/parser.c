@@ -3007,7 +3007,7 @@ parse_json_specifier (void *ptr_data, char *key, char *str) {
   char *spec = NULL;
   int ret = 0;
 
-  if (!(spec = ht_get_json_logfmt (key)))
+  if (!(spec = ht_get_json_logfmt (key)) || 0 == strlen(str))
     return 0;
 
   ret = parse_format (logitem, str, spec);
