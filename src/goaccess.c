@@ -721,10 +721,6 @@ fast_forward_client (int listener) {
 void
 read_client (void *ptr_data) {
   GWSReader *reader = (GWSReader *) ptr_data;
-  fd_set rfds, wfds;
-
-  FD_ZERO (&rfds);
-  FD_ZERO (&wfds);
 
   /* check we have a fifo for reading */
   if (reader->fd == -1)
@@ -735,8 +731,8 @@ read_client (void *ptr_data) {
   pthread_mutex_unlock (&reader->mutex);
 
   while (1) {
-    /* select(2) will block */
-    if (read_fifo (reader, rfds, wfds, fast_forward_client))
+    /* poll(2) will block */
+    if (read_fifo (reader, fast_forward_client))
       break;
   }
   close (reader->fd);
