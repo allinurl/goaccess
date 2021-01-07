@@ -83,8 +83,8 @@ static const uint8_t utf8d[] = {
 };
 /* *INDENT-ON* */
 
-static int max_file_fd = 0;
-static WSEState fdstate;
+static struct pollfd *fdstate = NULL;
+static nfds_t nfdstate = 0;
 static WSConfig wsconfig = { 0 };
 
 static void handle_read_close (int conn, WSClient * client, WSServer * server);
@@ -168,6 +168,70 @@ sanitize_utf8 (const char *str, int len) {
   }
 
   return buf;
+}
+
+/* find a pollfd structure based on fd
+ * this should only be called by set_pollfd and unset_pollfd
+ * because the position in memory may change */
+static struct pollfd *
+get_pollfd (int fd) {
+  struct pollfd *pfd, *efd = fdstate + nfdstate;
+
+  for (pfd = fdstate; pfd < efd; pfd++) {
+    if (pfd->fd == fd)
+       return pfd;
+  }
+
+  return NULL;
+}
+
+/* set flags for an existing pollfd structure based on fd,
+ * otherwise malloc a new one */
+static void
+set_pollfd (int fd, short flags) {
+  struct pollfd *pfd;
+
+  if (fd == -1)
+   FATAL ("Cannot poll an invalid fd");
+
+  pfd = get_pollfd (fd);
+  if (pfd == NULL) {
+    struct pollfd *newstate = xrealloc (fdstate, sizeof (*pfd) * (nfdstate + 1));
+
+    fdstate = newstate;
+    pfd = fdstate + nfdstate++;
+    pfd->fd = fd;
+  }
+  pfd->events = flags;
+  pfd->revents = 0;
+}
+
+/* free a pollfd structure based on fd */
+static void
+unset_pollfd (int fd) {
+  struct pollfd *pfd = get_pollfd (fd), *efd;
+  struct pollfd *newstate;
+
+  if (pfd == NULL)
+    return;
+
+  nfdstate--;
+
+  /* avoid undefined behaviour with realloc with a size of zero */
+  if (nfdstate == 0) {
+    free (fdstate);
+    fdstate = NULL;
+    return;
+  }
+
+  efd = fdstate + nfdstate;
+  if (pfd != efd)
+    memmove (pfd, pfd + 1, (char *)efd - (char *)pfd);
+
+  /* realloc could fail, but that's ok, we don't mind. */
+  newstate = realloc (fdstate, sizeof (*pfd) * nfdstate);
+  if (newstate != NULL)
+    fdstate = newstate;
 }
 
 /* Allocate memory for a websocket server */
@@ -405,6 +469,13 @@ ws_free_header_fields (WSHeaders * headers) {
     free (headers->referer);
 }
 
+/* A wrapper to close a socket. */
+static void
+ws_close (int listener) {
+  unset_pollfd (listener);
+  close (listener);
+}
+
 /* Clear the client's sent queue and its data. */
 static void
 ws_clear_queue (WSClient * client) {
@@ -520,7 +591,7 @@ ws_clear_pipein (WSPipeIn * pipein) {
     return;
 
   if (pipein->fd != -1)
-    close (pipein->fd);
+    ws_close (pipein->fd);
 
   ws_clear_fifo_packet (*packet);
   free (pipein);
@@ -536,7 +607,7 @@ ws_clear_pipeout (WSPipeOut * pipeout) {
     return;
 
   if (pipeout->fd != -1)
-    close (pipeout->fd);
+    ws_close (pipeout->fd);
 
   free (pipeout);
 
@@ -569,12 +640,6 @@ ws_stop (WSServer * server) {
 #endif
 
   free (server);
-}
-
-/* A wrapper to close a socket. */
-static void
-ws_close (int listener) {
-  close (listener);
 }
 
 /* Set the connection status for the given client and return the given
@@ -968,6 +1033,9 @@ accept_client (int listener, GSLList ** colist) {
   /* make the socket non-blocking */
   set_nonblocking (client->listener);
 
+  /* poll for the socket */
+  set_pollfd (client->listener, POLLIN);
+
   return newfd;
 }
 
@@ -1169,6 +1237,7 @@ ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes) {
   client->sockqueue = queue;
 
   client->status |= WS_SENDING;
+  set_pollfd (client->listener, POLLIN | POLLOUT);
 }
 
 /* Read data from the given client's socket and set a connection
@@ -2110,6 +2179,7 @@ static void
 handle_read_close (int conn, WSClient * client, WSServer * server) {
   if (client->status & WS_SENDING) {
     server->closing = 1;
+    set_pollfd (client->listener, POLLOUT);
     return;
   }
   handle_tcp_close (conn, client, server);
@@ -2128,13 +2198,6 @@ handle_accept (int listener, WSServer * server) {
   if (!(client = ws_get_client_from_list (newfd, &server->colist)))
     return;
 
-  if (newfd > FD_SETSIZE - 1) {
-    LOG (("Too busy: %d %s.\n", newfd, client->remote_ip));
-
-    http_error (client, WS_TOO_BUSY_STR);
-    handle_read_close (newfd, client, server);
-    return;
-  }
 #ifdef HAVE_LIBSSL
   /* set flag to do TLS handshake */
   if (wsconfig.use_ssl)
@@ -2189,28 +2252,16 @@ handle_writes (int conn, WSServer * server) {
 
   ws_respond (client, NULL, 0); /* buffered data */
   /* done sending data */
-  if (client->sockqueue == NULL)
+  if (client->sockqueue == NULL) {
     client->status &= ~WS_SENDING;
+    set_pollfd (client->listener, server->closing ? 0 : POLLIN);
+  }
 
   /* An error occurred while sending data or while reading data but still
    * waiting from the last send() from the server to the client.  e.g.,
    * sending status code */
   if ((client->status & WS_CLOSE) && !(client->status & WS_SENDING))
     handle_write_close (conn, client, server);
-}
-
-/* Handle reads/writes on a TCP connection. */
-static void
-ws_listen (int listener, int conn, WSServer * server) {
-  /* handle new connections */
-  if (FD_ISSET (conn, &fdstate.rfds) && conn == listener)
-    handle_accept (listener, server);
-  /* handle data from a client */
-  else if (FD_ISSET (conn, &fdstate.rfds) && conn != listener)
-    handle_reads (conn, server);
-  /* handle sending data to a client */
-  else if (FD_ISSET (conn, &fdstate.wfds) && conn != listener)
-    handle_writes (conn, server);
 }
 
 /* Create named pipe (FIFO) with the given pipe name.
@@ -2259,9 +2310,6 @@ ws_openfifo_out (WSPipeOut * pipeout) {
     FATAL ("Unable to open fifo out: %s.", strerror (errno));
   pipeout->fd = status;
 
-  if (status != -1 && status > max_file_fd)
-    max_file_fd = status;
-
   return status;
 }
 
@@ -2270,7 +2318,9 @@ ws_openfifo_out (WSPipeOut * pipeout) {
 static void
 ws_fifo (WSServer * server) {
   ws_openfifo_in (server->pipein);
+  set_pollfd (server->pipein->fd, POLLIN);
   ws_openfifo_out (server->pipeout);
+  set_pollfd (server->pipeout->fd, POLLOUT);
 }
 
 /* Clear the queue for an outgoing named pipe. */
@@ -2304,7 +2354,7 @@ ws_realloc_fifobuf (WSPipeOut * pipeout, const char *buf, int len) {
   newlen = queue->qlen + len;
   tmp = realloc (queue->queued, newlen);
   if (tmp == NULL && newlen > 0) {
-    close (pipeout->fd);
+    ws_close (pipeout->fd);
     clear_fifo_queue (pipeout);
     ws_openfifo_out (pipeout);
     return 1;
@@ -2332,6 +2382,7 @@ ws_queue_fifobuf (WSPipeOut * pipeout, const char *buffer, int len, int bytes) {
   (*queue)->qlen = len - bytes;
 
   pipeout->status |= WS_SENDING;
+  set_pollfd (pipeout->fd, POLLOUT);
 }
 
 /* Attempt to send the given buffer to the given outgoing FIFO.
@@ -2348,7 +2399,7 @@ ws_write_fifo_data (WSPipeOut * pipeout, char *buffer, int len) {
    * this is to close the pipe on our end and attempt to reopen it. If unable to
    * do so, then let it be -1 and try on the next attempt to write. */
   if (bytes == -1 && errno == EPIPE) {
-    close (pipeout->fd);
+    ws_close (pipeout->fd);
     ws_openfifo_out (pipeout);
     return bytes;
   }
@@ -2374,7 +2425,7 @@ ws_write_fifo_cache (WSPipeOut * pipeout) {
    * this is to close the pipe on our end and attempt to reopen it. If unable to
    * do so, then let it be -1 and try on the next attempt to write. */
   if (bytes == -1 && errno == EPIPE) {
-    close (pipeout->fd);
+    ws_close (pipeout->fd);
     ws_openfifo_out (pipeout);
     return bytes;
   }
@@ -2411,8 +2462,10 @@ ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len) {
     bytes = ws_write_fifo_cache (pipeout);
   }
 
-  if (pipeout->fifoqueue == NULL)
+  if (pipeout->fifoqueue == NULL) {
     pipeout->status &= ~WS_SENDING;
+    set_pollfd (pipeout->fd, 0);
+  }
 
   return bytes;
 }
@@ -2509,12 +2562,7 @@ unpack_uint32 (const void *buf, uint32_t * val) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-validate_fifo_packet (uint32_t listener, uint32_t type, int size) {
-  if (listener > FD_SETSIZE) {
-    LOG (("Invalid listener\n"));
-    return 1;
-  }
-
+validate_fifo_packet (uint32_t type, int size) {
   if (type != WS_OPCODE_TEXT && type != WS_OPCODE_BIN) {
     LOG (("Invalid fifo packet type\n"));
     return 1;
@@ -2554,8 +2602,8 @@ handle_strict_fifo (WSServer * server) {
   ptr += unpack_uint32 (ptr, &type);
   ptr += unpack_uint32 (ptr, &size);
 
-  if (validate_fifo_packet (listener, type, size) == 1) {
-    close (pi->fd);
+  if (validate_fifo_packet (type, size) == 1) {
+    ws_close (pi->fd);
     clear_fifo_packet (pi);
     ws_openfifo_in (pi);
     return;
@@ -2667,70 +2715,17 @@ ws_socket (int *listener) {
     FATAL ("Unable to listen: %s.", strerror (errno));
 }
 
-/* Handle incoming messages through a pipe (let gwsocket be the
- * reader) and outgoing messages through the pipe (writer). */
-static void
-ws_fifos (WSServer * server, WSPipeIn * pi, WSPipeOut * po) {
-  /* handle data via fifo */
-  if (pi->fd != -1 && FD_ISSET (pi->fd, &fdstate.rfds))
-    handle_fifo (server);
-  /* handle data via fifo */
-  if (po->fd != -1 && FD_ISSET (po->fd, &fdstate.wfds))
-    ws_write_fifo (po, NULL, 0);
-}
-
-/* Check each client to determine if:
- * 1. We want to see if it has data for reading
- * 2. We want to write data to it.
- * If so, set the client's socket descriptor in the descriptor set. */
-static void
-set_rfds_wfds (int listener, WSServer * server, WSPipeIn * pi, WSPipeOut * po) {
-  WSClient *client = NULL;
-  int conn;
-
-  /* pipe out */
-  if (po->fd != -1) {
-    if (po->status & WS_SENDING)
-      FD_SET (po->fd, &fdstate.wfds);
-  }
-  /* pipe in */
-  if (pi->fd != -1)
-    FD_SET (pi->fd, &fdstate.rfds);
-
-  /* self-pipe trick to stop the event loop */
-  FD_SET (server->self_pipe[0], &fdstate.rfds);
-  /* server socket, ready for accept() */
-  FD_SET (listener, &fdstate.rfds);
-
-  for (conn = 0; conn < FD_SETSIZE; ++conn) {
-    if (conn == pi->fd || conn == po->fd)
-      continue;
-    if (!(client = ws_get_client_from_list (conn, &server->colist)))
-      continue;
-
-    /* As long as we are not closing a connection, we assume we always
-     * check a client for reading */
-    if (!server->closing) {
-      FD_SET (conn, &fdstate.rfds);
-      if (conn > max_file_fd)
-        max_file_fd = conn;
-    }
-    /* Only if we have data to send the client */
-    if (client->status & WS_SENDING) {
-      FD_SET (conn, &fdstate.wfds);
-      if (conn > max_file_fd)
-        max_file_fd = conn;
-    }
-  }
-}
-
 /* Start the websocket server and start to monitor multiple file
  * descriptors until we have something to read or write. */
 void
 ws_start (WSServer * server) {
-  WSPipeIn *pipein = server->pipein;
-  WSPipeOut *pipeout = server->pipeout;
-  int listener = 0, conn = 0;
+  int listener = -1;
+  struct pollfd *cfdstate = NULL, *pfd, *efd;
+  nfds_t ncfdstate = 0;
+  bool run = true;
+
+  if (server->self_pipe[0] != -1)
+    set_pollfd (server->self_pipe[0], POLLIN);
 
 #ifdef HAVE_LIBSSL
   if (wsconfig.sslcert && wsconfig.sslkey) {
@@ -2743,47 +2738,73 @@ ws_start (WSServer * server) {
   }
 #endif
 
-  memset (&fdstate, 0, sizeof fdstate);
   ws_socket (&listener);
+  set_pollfd (listener, POLLIN);
 
-  while (1) {
-    /* If the pipeout file descriptor was opened after the server socket
-     * was opened, then it's possible the max file descriptor would be the
-     * pipeout fd, in any case we check this here */
-    max_file_fd = MAX (listener, pipeout->fd);
-    /* Clear out the fd sets for this iteration. */
-    FD_ZERO (&fdstate.rfds);
-    FD_ZERO (&fdstate.wfds);
-
-    set_rfds_wfds (listener, server, pipein, pipeout);
-    max_file_fd += 1;
+  while (run) {
+    /* take a copy of the fdstate and give that to poll to allow
+     * any dispatch to modify the real fdstate for the next pass */
+    if (ncfdstate != nfdstate) {
+      free (cfdstate);
+      cfdstate = xmalloc (nfdstate * sizeof(*cfdstate));
+      ncfdstate = nfdstate;
+    }
+    memcpy (cfdstate, fdstate, ncfdstate * sizeof(*cfdstate));
 
     /* yep, wait patiently */
-    /* should it be using epoll/kqueue? will see... */
-    if (select (max_file_fd, &fdstate.rfds, &fdstate.wfds, NULL, NULL) == -1) {
+    if (poll (cfdstate, nfdstate, -1) == -1) {
       switch (errno) {
       case EINTR:
         LOG (("A signal was caught on select(2)\n"));
         break;
       default:
-        FATAL ("Unable to select: %s.", strerror (errno));
+        FATAL ("Unable to poll: %s.", strerror (errno));
       }
-    }
-    /* handle self-pipe trick */
-    if (FD_ISSET (server->self_pipe[0], &fdstate.rfds)) {
-      LOG (("Handled self-pipe to close event loop.\n"));
-      break;
     }
 
     /* iterate over existing connections */
-    for (conn = 0; conn < max_file_fd; ++conn) {
-      if (conn != pipein->fd && conn != pipeout->fd) {
-        ws_listen (listener, conn, server);
+    efd = cfdstate + nfdstate;
+    for (pfd = cfdstate; pfd < efd; pfd++) {
+      /* handle self-pipe trick */
+      if (pfd->fd == server->self_pipe[0]) {
+        if (pfd->revents & POLLIN) {
+          LOG (("Handled self-pipe to close event loop.\n"));
+          run = false;
+          break;
+	}
+      } else if (pfd->fd == server->pipein->fd) {
+        /* handle pipein */
+        if (pfd->revents & POLLIN)
+          handle_fifo (server);
+      } else if (pfd->fd == server->pipeout->fd) {
+        /* handle pipeout */
+        if (pfd->revents & POLLOUT)
+          ws_write_fifo (server->pipeout, NULL, 0);
+      } else if (pfd->fd == listener) {
+        /* handle new connections */
+        if (pfd->revents & POLLIN)
+          handle_accept (listener, server);
+      } else {
+        /* handle data from a client */
+        if (pfd->revents & POLLIN) {
+          if (server->closing) {
+            struct pollfd *ffd = get_pollfd (pfd->fd);
+            if (ffd != NULL)
+              ffd->events &= ~POLLIN;
+          } else
+            handle_reads (pfd->fd, server);
+        }
+        /* handle sending data to a client */
+        if (pfd->revents & POLLOUT)
+          handle_writes (pfd->fd, server);
       }
     }
-    /* handle FIFOs */
-    ws_fifos (server, pipein, pipeout);
   }
+
+  free (cfdstate);
+  ws_close (listener);
+  if (server->self_pipe[0] != -1)
+    unset_pollfd (server->self_pipe[0]);
 }
 
 /* Set the origin so the server can force connections to have the
@@ -2862,7 +2883,7 @@ ws_init (const char *host, const char *port, void (*initopts) (void)) {
   WSServer *server = new_wsserver ();
   server->pipein = new_wspipein ();
   server->pipeout = new_wspipeout ();
-  memset (server->self_pipe, 0, sizeof (server->self_pipe));
+  server->self_pipe[0] = server->self_pipe[1] = -1;
 
   wsconfig.accesslog = NULL;
   wsconfig.host = host;
