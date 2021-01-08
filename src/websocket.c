@@ -640,6 +640,7 @@ ws_stop (WSServer * server) {
 #endif
 
   free (server);
+  free (fdstate);
 }
 
 /* Set the connection status for the given client and return the given
