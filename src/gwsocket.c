@@ -163,11 +163,11 @@ read_fifo (GWSReader * gwsreader, void (*f) (int)) {
   int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd;
   uint32_t listener = 0, type = 0, size = 0;
   struct pollfd fds[] = {
-    { .fd = gwsreader->self_pipe[0], .events = POLLIN },
-    { .fd = gwsreader->fd, .events = POLLIN, },
+    {.fd = gwsreader->self_pipe[0],.events = POLLIN},
+    {.fd = gwsreader->fd,.events = POLLIN,},
   };
 
-  if (poll (fds, sizeof(fds) / sizeof(fds[0]), -1) == -1) {
+  if (poll (fds, sizeof (fds) / sizeof (fds[0]), -1) == -1) {
     switch (errno) {
     case EINTR:
       break;

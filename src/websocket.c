@@ -179,7 +179,7 @@ get_pollfd (int fd) {
 
   for (pfd = fdstate; pfd < efd; pfd++) {
     if (pfd->fd == fd)
-       return pfd;
+      return pfd;
   }
 
   return NULL;
@@ -192,7 +192,7 @@ set_pollfd (int fd, short flags) {
   struct pollfd *pfd;
 
   if (fd == -1)
-   FATAL ("Cannot poll an invalid fd");
+    FATAL ("Cannot poll an invalid fd");
 
   pfd = get_pollfd (fd);
   if (pfd == NULL) {
@@ -226,7 +226,7 @@ unset_pollfd (int fd) {
 
   efd = fdstate + nfdstate;
   if (pfd != efd)
-    memmove (pfd, pfd + 1, (char *)efd - (char *)pfd);
+    memmove (pfd, pfd + 1, (char *) efd - (char *) pfd);
 
   /* realloc could fail, but that's ok, we don't mind. */
   newstate = realloc (fdstate, sizeof (*pfd) * nfdstate);
@@ -2747,10 +2747,10 @@ ws_start (WSServer * server) {
      * any dispatch to modify the real fdstate for the next pass */
     if (ncfdstate != nfdstate) {
       free (cfdstate);
-      cfdstate = xmalloc (nfdstate * sizeof(*cfdstate));
+      cfdstate = xmalloc (nfdstate * sizeof (*cfdstate));
       ncfdstate = nfdstate;
     }
-    memcpy (cfdstate, fdstate, ncfdstate * sizeof(*cfdstate));
+    memcpy (cfdstate, fdstate, ncfdstate * sizeof (*cfdstate));
 
     /* yep, wait patiently */
     if (poll (cfdstate, nfdstate, -1) == -1) {
@@ -2772,7 +2772,7 @@ ws_start (WSServer * server) {
           LOG (("Handled self-pipe to close event loop.\n"));
           run = false;
           break;
-	}
+        }
       } else if (pfd->fd == server->pipein->fd) {
         /* handle pipein */
         if (pfd->revents & POLLIN)
