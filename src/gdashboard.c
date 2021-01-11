@@ -990,8 +990,7 @@ print_horizontal_dash (WINDOW * win, int y, int x, int len) {
 
 /* Render left-aligned column label. */
 static void
-lprint_col (WINDOW * win, int y, int *x, int len, const char *str)
-{
+lprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -1036,7 +1035,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
     rprint_col (win, *y, &x, data->meta.visitors_len, MTRC_VISITORS_SHORT_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4,  MTRC_VISITORS_PERC_LBL);
+    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, MTRC_VISITORS_PERC_LBL);
 
   if (output->bw && conf.bandwidth)
     rprint_col (win, *y, &x, data->meta.bw_len, MTRC_BW_LBL);
@@ -1048,7 +1047,7 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_CUMTS_LBL);
 
   if (output->maxts && conf.serve_usecs)
-    rprint_col (win, *y, &x, DASH_SRV_TM_LEN,  MTRC_MAXTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_MAXTS_LBL);
 
   if (output->method && conf.append_method)
     lprint_col (win, *y, &x, data->meta.method_len, MTRC_METHODS_SHORT_LBL);
