@@ -500,25 +500,25 @@ get_visitors_date (const char *odate, const char *from, const char *to) {
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm) {
   char *end = NULL, *sEnd = NULL;
-  unsigned long long usecs = 0;
+  unsigned long long ts = 0;
+  int us = strcmp ("%f", fmt) == 0;
+  int ms = strcmp ("%*", fmt) == 0;
+  time_t seconds = 0;
 
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
 
-  /* check if char string needs to be converted from microseconds */
-  if (strcmp ("%f", fmt) == 0) {
+  /* check if char string needs to be converted from milli/micro seconds */
+  if (us || ms) {
     errno = 0;
-    tm->tm_year = 1970 - 1900;
-    tm->tm_mday = 1;
 
-    usecs = strtoull (str, &sEnd, 10);
+    ts = strtoull (str, &sEnd, 10);
     if (str == sEnd || *sEnd != '\0' || errno == ERANGE)
       return 1;
 
-    tm->tm_sec = usecs / SECS;
-    tm->tm_isdst = -1;
-    if (mktime (tm) == -1)
-      return 1;
+    seconds = (us) ? ts / SECS : ts / MILS;
+    /* if GMT needed, gmtime_r instead of localtime_r. */
+    localtime_r (&seconds, tm);
 
     return 0;
   }

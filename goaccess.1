@@ -182,7 +182,10 @@ They all begin with a percentage (%) sign. See `man strftime`.
 .IP
 Note that if a timestamp is given in microseconds,
 .I %f
-must be used as time-format
+must be used as time-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as time-format.
 .TP
 \fB\-\-date-format=<dateformat>
 The date-format variable followed by a space, specifies the log format time
@@ -195,7 +198,10 @@ They all begin with a percentage (%) sign. See `man strftime`.
 Note that if a timestamp is given in microseconds,
 .I
 %f
-must be used as date-format
+must be used as date-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as date-format.
 .TP
 \fB\-\-log-format=<logformat>
 The log-format variable followed by a space or

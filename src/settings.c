@@ -681,9 +681,9 @@ set_date_num_format (void) {
 
   /* always add a %Y */
   buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
-  if (strpbrk (fdate, "hbmB"))
+  if (strpbrk (fdate, "hbmBf*"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%m");
-  if (strpbrk (fdate, "de"))
+  if (strpbrk (fdate, "def*"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%d");
 
   conf.date_num_format = buf;
