@@ -1289,9 +1289,6 @@ set_io (FILE ** pipe) {
   /* dup fd if data piped */
   if (!isatty (STDIN_FILENO))
     *pipe = set_pipe_stdin ();
-  /* No data piped, no file was used and not loading from disk */
-  //if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
-  //  cmd_help ();
 }
 
 /* Process command line options and set some default options. */
