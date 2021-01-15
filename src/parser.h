@@ -36,6 +36,7 @@
 #define NUM_TESTS       20      /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
 #define READ_BYTES      4096u
+#define MAX_BATCH_LINES 8192u   /* max number of lines to read per batch before a reflow */
 
 #define LINE_LEN        23
 #define ERROR_LEN       255

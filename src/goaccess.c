@@ -760,7 +760,10 @@ parse_tail_follow (GLog * glog, FILE * fp) {
 #ifdef WITH_GETLINE
     free (buf);
 #endif
-    glog->read++;
+    /* If the ingress rate is greater than MAX_BATCH_LINES,
+     * then we break and allow to re-render the UI */
+    if (++glog->read % MAX_BATCH_LINES == 0)
+      break;
   }
 }
 
