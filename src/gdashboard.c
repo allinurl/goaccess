@@ -823,13 +823,13 @@ render_hits (GDashModule * data, GDashRender render, int *x) {
 
   if (sel) {
     /* selected state */
-    hits = int2str (data->data[idx].metrics->hits, len);
+    hits = u642str (data->data[idx].metrics->hits, len);
     draw_header (win, hits, " %s", y, 0, w, color_selected);
     free (hits);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%*" PRIu64 "", len, data->data[idx].metrics->hits);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -852,13 +852,13 @@ render_visitors (GDashModule * data, GDashRender render, int *x) {
 
   if (sel) {
     /* selected state */
-    visitors = int2str (data->data[idx].metrics->visitors, len);
+    visitors = u642str (data->data[idx].metrics->visitors, len);
     draw_header (win, visitors, "%s", y, *x, w, color_selected);
     free (visitors);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->visitors);
+    mvwprintw (win, y, *x, "%*" PRIu64 "", len, data->data[idx].metrics->visitors);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 

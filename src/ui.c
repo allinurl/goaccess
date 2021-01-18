@@ -421,7 +421,7 @@ render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color
  * On success, the number of excluded ips as a string is returned. */
 static char *
 get_str_excluded_ips (void) {
-  return int2str (ht_get_excluded_ips (), 0);
+  return u642str (ht_get_excluded_ips (), 0);
 }
 
 /* Convert the number of failed requests to a string.
@@ -429,7 +429,7 @@ get_str_excluded_ips (void) {
  * On success, the number of failed requests as a string is returned. */
 static char *
 get_str_failed_reqs (void) {
-  return int2str (ht_get_invalid (), 0);
+  return u642str (ht_get_invalid (), 0);
 }
 
 /* Convert the number of processed requests to a string.
@@ -437,7 +437,7 @@ get_str_failed_reqs (void) {
  * On success, the number of processed requests as a string is returned. */
 static char *
 get_str_processed_reqs (void) {
-  return int2str (ht_get_processed (), 0);
+  return u642str (ht_get_processed (), 0);
 }
 
 /* Convert the number of valid requests to a string.
@@ -445,7 +445,7 @@ get_str_processed_reqs (void) {
  * On success, the number of valid requests as a string is returned. */
 static char *
 get_str_valid_reqs (void) {
-  return int2str (ht_sum_valid (), 0);
+  return u642str (ht_sum_valid (), 0);
 }
 
 /* Convert the number of not found requests to a string.
@@ -454,7 +454,7 @@ get_str_valid_reqs (void) {
  * returned. */
 static char *
 get_str_notfound_reqs (void) {
-  return int2str (ht_get_size_datamap (NOT_FOUND), 0);
+  return u642str (ht_get_size_datamap (NOT_FOUND), 0);
 }
 
 /* Convert the number of referrers to a string.
@@ -462,7 +462,7 @@ get_str_notfound_reqs (void) {
  * On success, the number of referrers as a string is returned. */
 static char *
 get_str_ref_reqs (void) {
-  return int2str (ht_get_size_datamap (REFERRERS), 0);
+  return u642str (ht_get_size_datamap (REFERRERS), 0);
 }
 
 /* Convert the number of requests to a string.
@@ -470,7 +470,7 @@ get_str_ref_reqs (void) {
  * On success, the number of requests as a string is returned. */
 static char *
 get_str_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS), 0);
+  return u642str (ht_get_size_datamap (REQUESTS), 0);
 }
 
 /* Convert the number of static requests to a string.
@@ -478,7 +478,7 @@ get_str_reqs (void) {
  * On success, the number of static requests as a string is returned. */
 static char *
 get_str_static_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS_STATIC), 0);
+  return u642str (ht_get_size_datamap (REQUESTS_STATIC), 0);
 }
 
 /* Convert the number of unique visitors to a string.
@@ -486,7 +486,7 @@ get_str_static_reqs (void) {
  * On success, the number of unique visitors as a string is returned. */
 static char *
 get_str_visitors (void) {
-  return int2str (ht_get_size_uniqmap (VISITORS), 0);
+  return u642str (ht_get_size_uniqmap (VISITORS), 0);
 }
 
 /* Convert the time taken to process the log to a string.

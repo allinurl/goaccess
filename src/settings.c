@@ -913,12 +913,12 @@ set_time_format_str (const char *oarg) {
 /* Determine if some global flags were set through log-format. */
 static void
 contains_specifier (void) {
-  conf.serve_usecs = conf.bandwidth = 0; /* flag */
+  conf.serve_usecs = conf.bandwidth = 0;        /* flag */
   if (!conf.log_format)
     return;
 
   if (strstr (conf.log_format, "%b"))
-    conf.bandwidth = 1;       /* flag */
+    conf.bandwidth = 1; /* flag */
   if (strstr (conf.log_format, "%D"))
     conf.serve_usecs = 1;       /* flag */
   if (strstr (conf.log_format, "%T"))
@@ -942,14 +942,14 @@ set_log_format_str (const char *oarg) {
   if (type == -1 && is_json_log_format (oarg)) {
     conf.is_json_log_format = 1;
     conf.log_format = unescape_str (oarg);
-    contains_specifier ();  /* set flag */
+    contains_specifier ();      /* set flag */
     return;
   }
 
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
-    contains_specifier ();  /* set flag */
+    contains_specifier ();      /* set flag */
     return;
   }
 
@@ -963,7 +963,7 @@ set_log_format_str (const char *oarg) {
     conf.is_json_log_format = 1;
 
   conf.log_format = unescape_str (fmt);
-  contains_specifier ();    /* set flag */
+  contains_specifier ();        /* set flag */
 
   /* assume we are using the default date/time formats */
   set_time_format_str (oarg);

@@ -325,15 +325,6 @@ fpskeysval (FILE * fp, const char *key, const char *val, int sp, int last) {
     fpjson (fp, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
 }
 
-/* Write to a buffer a JSON string key, int value pair. */
-static void
-pskeyival (GJSON * json, const char *key, int val, int sp, int last) {
-  if (!last)
-    pjson (json, "%.*s\"%s\": %d,%.*s", sp, TAB, key, val, nlines, NL);
-  else
-    pjson (json, "%.*s\"%s\": %d", sp, TAB, key, val);
-}
-
 /* Output a JSON string key, int value pair. */
 void
 fpskeyival (FILE * fp, const char *key, int val, int sp, int last) {
@@ -468,21 +459,21 @@ poverall_start_end_date (GJSON * json, GHolder * h, int sp) {
 /* Write to a buffer date and time for the overall object. */
 static void
 poverall_requests (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_REQ, ht_get_processed (), sp, 0);
+  pskeyu64val (json, OVERALL_REQ, ht_get_processed (), sp, 0);
 }
 
 /* Write to a buffer the number of valid requests under the overall
  * object. */
 static void
 poverall_valid_reqs (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_VALID, ht_sum_valid (), sp, 0);
+  pskeyu64val (json, OVERALL_VALID, ht_sum_valid (), sp, 0);
 }
 
 /* Write to a buffer the number of invalid requests under the overall
  * object. */
 static void
 poverall_invalid_reqs (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_FAILED, ht_get_invalid (), sp, 0);
+  pskeyu64val (json, OVERALL_FAILED, ht_get_invalid (), sp, 0);
 }
 
 /* Write to a buffer the total processed time under the overall
@@ -496,41 +487,41 @@ poverall_processed_time (GJSON * json, int sp) {
  * overall object. */
 static void
 poverall_visitors (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), sp, 0);
+  pskeyu64val (json, OVERALL_VISITORS, ht_get_size_uniqmap (VISITORS), sp, 0);
 }
 
 /* Write to a buffer the total number of unique files under the
  * overall object. */
 static void
 poverall_files (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_FILES, ht_get_size_datamap (REQUESTS), sp, 0);
+  pskeyu64val (json, OVERALL_FILES, ht_get_size_datamap (REQUESTS), sp, 0);
 }
 
 /* Write to a buffer the total number of excluded requests under the
  * overall object. */
 static void
 poverall_excluded (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_EXCL_HITS, ht_get_excluded_ips (), sp, 0);
+  pskeyu64val (json, OVERALL_EXCL_HITS, ht_get_excluded_ips (), sp, 0);
 }
 
 /* Write to a buffer the number of referrers under the overall object. */
 static void
 poverall_refs (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_REF, ht_get_size_datamap (REFERRERS), sp, 0);
+  pskeyu64val (json, OVERALL_REF, ht_get_size_datamap (REFERRERS), sp, 0);
 }
 
 /* Write to a buffer the number of not found (404s) under the overall
  * object. */
 static void
 poverall_notfound (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), sp, 0);
+  pskeyu64val (json, OVERALL_NOTFOUND, ht_get_size_datamap (NOT_FOUND), sp, 0);
 }
 
 /* Write to a buffer the number of static files (jpg, pdf, etc) under
  * the overall object. */
 static void
 poverall_static_files (GJSON * json, int sp) {
-  pskeyival (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
+  pskeyu64val (json, OVERALL_STATIC, ht_get_size_datamap (REQUESTS_STATIC), sp, 0);
 }
 
 /* Write to a buffer the size of the log being parsed under the
@@ -585,7 +576,7 @@ phits (GJSON * json, GMetrics * nmetrics, int sp) {
 
   popen_obj_attr (json, "hits", sp);
   /* print hits */
-  pskeyival (json, "count", nmetrics->hits, isp, 0);
+  pskeyu64val (json, "count", nmetrics->hits, isp, 0);
   /* print hits percent */
   pskeyfval (json, "percent", nmetrics->hits_perc, isp, 1);
   pclose_obj (json, sp, 0);
@@ -602,7 +593,7 @@ pvisitors (GJSON * json, GMetrics * nmetrics, int sp) {
 
   popen_obj_attr (json, "visitors", sp);
   /* print visitors */
-  pskeyival (json, "count", nmetrics->visitors, isp, 0);
+  pskeyu64val (json, "count", nmetrics->visitors, isp, 0);
   /* print visitors percent */
   pskeyfval (json, "percent", nmetrics->visitors_perc, isp, 1);
   pclose_obj (json, sp, 0);
@@ -709,45 +700,6 @@ pmeta_i64_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint64_t *, uint
   pclose_obj (json, sp, 1);
 }
 
-static void
-pmeta_i32_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint32_t *, uint32_t *),
-                const char *key, int show_perc, int sp) {
-  int isp = 0;
-  uint32_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
-  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
-
-  /* use tabs to prettify output */
-  if (conf.json_pretty_print)
-    isp = sp + 1;
-
-  cb (h->module, &min, &max);
-
-  popen_obj_attr (json, "total", sp);
-  pskeyival (json, "value", total, isp, 1);
-  pclose_obj (json, sp, 0);
-
-  popen_obj_attr (json, "avg", sp);
-  pskeyival (json, "value", avg, isp, !show_perc);
-  if (show_perc) {
-    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
-  }
-  pclose_obj (json, sp, 0);
-
-  popen_obj_attr (json, "max", sp);
-  pskeyival (json, "value", max, isp, !show_perc);
-  if (show_perc) {
-    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
-  }
-  pclose_obj (json, sp, 0);
-
-  popen_obj_attr (json, "min", sp);
-  pskeyival (json, "value", min, isp, !show_perc);
-  if (show_perc) {
-    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
-  }
-  pclose_obj (json, sp, 1);
-}
-
 /* Write to a buffer the hits meta data object. */
 static void
 pmeta_data_unique (GJSON * json, int ht_size, int sp) {
@@ -776,7 +728,7 @@ pmeta_data_hits (GJSON * json, GHolder * h, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "hits", sp);
-  pmeta_i32_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
+  pmeta_i64_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
@@ -790,7 +742,7 @@ pmeta_data_visitors (GJSON * json, GHolder * h, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "visitors", sp);
-  pmeta_i32_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
+  pmeta_i64_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
   pclose_obj (json, sp, 0);
 }
 

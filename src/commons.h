@@ -133,8 +133,8 @@ typedef struct GMetrics {
   float visitors_perc;
   float bw_perc;
 
-  uint32_t hits;
-  uint32_t visitors;
+  uint64_t hits;
+  uint64_t visitors;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */

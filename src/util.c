@@ -44,6 +44,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <inttypes.h>
 
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -753,6 +754,18 @@ u322str (uint32_t d, int width) {
   return s;
 }
 
+/* Convert the given uint64_t to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
+char *
+u642str (uint64_t d, int width) {
+  char *s = xmalloc (snprintf (NULL, 0, "%*" PRIu64, width, d) + 1);
+  sprintf (s, "%*" PRIu64, width, d);
+
+  return s;
+}
+
 /* Convert the given float to a string with the ability to add some
  * padding.
  *
@@ -792,7 +805,7 @@ str2int (const char *date) {
  *
  * On success, the length of the number is returned. */
 int
-intlen (int num) {
+intlen (uint64_t num) {
   int l = 1;
   while (num > 9) {
     l++;
