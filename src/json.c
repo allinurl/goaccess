@@ -700,6 +700,45 @@ pmeta_i64_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint64_t *, uint
   pclose_obj (json, sp, 1);
 }
 
+static void
+pmeta_i32_data (GJSON * json, GHolder * h, void (*cb) (GModule, uint32_t *, uint32_t *),
+                const char *key, int show_perc, int sp) {
+  int isp = 0;
+  uint32_t max = 0, min = 0, total = ht_get_meta_data (h->module, key);
+  float avg = (total == 0 ? 0 : (((float) total) / h->ht_size));
+
+  /* use tabs to prettify output */
+  if (conf.json_pretty_print)
+    isp = sp + 1;
+
+  cb (h->module, &min, &max);
+
+  popen_obj_attr (json, "total", sp);
+  pskeyu64val (json, "value", total, isp, 1);
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "avg", sp);
+  pskeyu64val (json, "value", avg, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, avg), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "max", sp);
+  pskeyu64val (json, "value", max, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, max), isp, 1);
+  }
+  pclose_obj (json, sp, 0);
+
+  popen_obj_attr (json, "min", sp);
+  pskeyu64val (json, "value", min, isp, !show_perc);
+  if (show_perc) {
+    pskeyfval (json, "percent", get_percentage (total, min), isp, 1);
+  }
+  pclose_obj (json, sp, 1);
+}
+
 /* Write to a buffer the hits meta data object. */
 static void
 pmeta_data_unique (GJSON * json, int ht_size, int sp) {
@@ -728,7 +767,7 @@ pmeta_data_hits (GJSON * json, GHolder * h, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "hits", sp);
-  pmeta_i64_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
+  pmeta_i32_data (json, h, ht_get_hits_min_max, "hits", 1, isp);
   pclose_obj (json, sp, 0);
 }
 
@@ -742,7 +781,7 @@ pmeta_data_visitors (GJSON * json, GHolder * h, int sp) {
     isp = sp + 1;
 
   popen_obj_attr (json, "visitors", sp);
-  pmeta_i64_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
+  pmeta_i32_data (json, h, ht_get_visitors_min_max, "visitors", 1, isp);
   pclose_obj (json, sp, 0);
 }
 

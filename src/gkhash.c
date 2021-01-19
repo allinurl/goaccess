@@ -2075,6 +2075,35 @@ ht_get_keymap_list_from_key (GModule module, const char *key) {
 
 /* Iterate over all the key/value pairs for the given hash structure
  * and set the maximum and minimum values found on an integer key and
+ * integer value.
+ *
+ * Note: This are expensive calls since it has to iterate over all
+ * key-value pairs
+ *
+ * If the hash structure is empty, no values are set.
+ * On success the minimum and maximum values are set. */
+static void
+get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max) {
+  khint_t k;
+  uint32_t curvalue = 0;
+  int i;
+
+  for (i = 0, k = kh_begin (hash); k != kh_end (hash); ++k) {
+    if (!kh_exist (hash, k))
+      continue;
+
+    curvalue = kh_value (hash, k);
+    if (i++ == 0)
+      *min = curvalue;
+    if (curvalue > *max)
+      *max = curvalue;
+    if (curvalue < *min)
+      *min = curvalue;
+  }
+}
+
+/* Iterate over all the key/value pairs for the given hash structure
+ * and set the maximum and minimum values found on an integer key and
  * a uint64_t value.
  *
  * Note: This are expensive calls since it has to iterate over all
@@ -2969,13 +2998,13 @@ ht_get_meta_data (GModule module, const char *key) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_hits_min_max (GModule module, uint64_t * min, uint64_t * max) {
-  khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_HITS);
+ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
+  khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_HITS);
 
   if (!cache)
     return;
 
-  get_iu64_min_max (cache, min, max);
+  get_ii32_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
@@ -2984,13 +3013,13 @@ ht_get_hits_min_max (GModule module, uint64_t * min, uint64_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_visitors_min_max (GModule module, uint64_t * min, uint64_t * max) {
-  khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_VISITORS);
+ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
+  khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_VISITORS);
 
   if (!cache)
     return;
 
-  get_iu64_min_max (cache, min, max);
+  get_ii32_min_max (cache, min, max);
 }
 
 /* Set the maximum and minimum values found on an integer key and
