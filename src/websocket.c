@@ -2757,7 +2757,7 @@ ws_start (WSServer * server) {
     if (poll (cfdstate, nfdstate, -1) == -1) {
       switch (errno) {
       case EINTR:
-        LOG (("A signal was caught on select(2)\n"));
+        LOG (("A signal was caught on poll(2)\n"));
         break;
       default:
         FATAL ("Unable to poll: %s.", strerror (errno));
