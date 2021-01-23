@@ -280,7 +280,7 @@ open_fifoin (void) {
   return fdfifo;
 }
 
-/* Set the self-pipe trick to handle select(2). */
+/* Set the self-pipe trick to handle poll(2). */
 void
 set_self_pipe (int *self_pipe) {
   /* Initialize self pipe. */
