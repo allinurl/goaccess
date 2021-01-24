@@ -5,7 +5,7 @@ Changes to GoAccess 1.4.4 - Monday, January 25, 2021
 	- Added native support to parse JSON logs.
 	- Added the ability to process timestamps in milliseconds using '%*'.
 	- Ensure TUI/CSV/HTML reports are able to output 'uint64_t' data.
-	- Ensure we allow UI render if the rate at which data is being read if
+	- Ensure we allow UI render if the rate at which data is being read is
 		greater than '8192' req/s.
 	- Ensure we don't re-render Term/HTML output if no data was read/piped.
 	- Fixed build configure to work on NetBSD.
