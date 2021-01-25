@@ -146,7 +146,8 @@ init (json_stream * json) {
 static enum json_type
 is_match (json_stream * json, const char *pattern, enum json_type type) {
   int c;
-  for (const char *p = pattern; *p; p++) {
+  const char *p = NULL;
+  for (p = pattern; *p; p++) {
     if (*p != (c = json->source.get (&json->source))) {
       json_error (json, "expected '%c' instead of byte '%c'", *p, c);
       return JSON_ERROR;
@@ -263,8 +264,9 @@ static long
 read_unicode_cp (json_stream * json) {
   long cp = 0;
   int shift = 12;
+  size_t i = 0;
 
-  for (size_t i = 0; i < 4; i++) {
+  for (i = 0; i < 4; i++) {
     int c = json->source.get (&json->source);
     int hc;
 
@@ -796,8 +798,9 @@ json_skip (json_stream * json) {
   enum json_type type = json_next (json);
   size_t cnt_arr = 0;
   size_t cnt_obj = 0;
+  enum json_type skip;
 
-  for (enum json_type skip = type;; skip = json_next (json)) {
+  for (skip = type;; skip = json_next (json)) {
     if (skip == JSON_ERROR || skip == JSON_DONE)
       return skip;
 
