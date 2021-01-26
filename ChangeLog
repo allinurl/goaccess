@@ -1,3 +1,8 @@
+Changes to GoAccess 1.4.5 - Tuesday, January 26, 2021
+
+	- Fixed build issue due to initial declarations only allowed in C99 mode
+		(e.g., CentOS7).
+
 Changes to GoAccess 1.4.4 - Monday, January 25, 2021
 
 	- Added 'Caddy' to the list of pre-defined log formats.
