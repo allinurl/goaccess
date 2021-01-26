@@ -1244,21 +1244,24 @@ static FILE *
 set_pipe_stdin (void) {
   char *term = NULL;
   FILE *pipe = stdin;
-  int fd1, fd2;
+  int term_fd = -1;
+  int pipe_fd = -1;
 
   /* If unable to open a terminal, yet data is being piped, then it's
-   * probably from the cron.
+   * probably from the cron, or when running as a user that can't open a
+   * terminal. In that case it's still important to set the pipe as
+   * non-blocking.
    *
    * Note: If used from the cron, it will require the
    * user to use a single dash to parse piped data such as:
    * cat access.log | goaccess - */
-  if ((fd1 = open_term (&term)) == -1)
-    goto out;
+  if ((term_fd = open_term (&term)) == -1)
+    goto out1;
 
-  if ((fd2 = dup (fileno (stdin))) == -1)
+  if ((pipe_fd = dup (fileno (stdin))) == -1)
     FATAL ("Unable to dup stdin: %s", strerror (errno));
 
-  pipe = fdopen (fd2, "r");
+  pipe = fdopen (pipe_fd, "r");
   if (freopen (term, "r", stdin) == 0)
     FATAL ("Unable to open input from TTY");
   if (fileno (stdin) != 0)
@@ -1266,15 +1269,20 @@ set_pipe_stdin (void) {
 
   add_dash_filename ();
 
+out1:
+
   /* no need to set it as non-blocking since we are simply outputting a
    * static report */
   if (conf.output_stdout && !conf.real_time_html)
-    goto out;
+    goto out2;
 
   /* Using select(), poll(), or epoll(), etc may be a better choice... */
-  if (fcntl (fd2, F_SETFL, fcntl (fd2, F_GETFL, 0) | O_NONBLOCK) == -1)
+  if (pipe_fd == -1)
+      pipe_fd = fileno (pipe);
+  if (fcntl (pipe_fd, F_SETFL, fcntl (pipe_fd, F_GETFL, 0) | O_NONBLOCK) == -1)
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
-out:
+
+out2:
 
   free (term);
 
