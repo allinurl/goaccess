@@ -74,6 +74,7 @@ not limited to:
 * Apache virtual hosts
 * Squid Native Format.
 * W3C format (IIS).
+* Caddy's JSON Structured format.
 
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
@@ -96,9 +97,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.4.4.tar.gz
-    $ tar -xzvf goaccess-1.4.4.tar.gz
-    $ cd goaccess-1.4.4/
+    $ wget https://tar.goaccess.io/goaccess-1.4.5.tar.gz
+    $ tar -xzvf goaccess-1.4.5.tar.gz
+    $ cd goaccess-1.4.5/
     $ ./configure --enable-utf8 --enable-geoip=legacy
     $ make
     # make install
