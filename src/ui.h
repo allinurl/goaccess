@@ -109,6 +109,7 @@
 #define CONF_MENU_Y       4
 #define CONF_WIN_H        20
 #define CONF_WIN_W        71
+#define CONF_MAX_LEN_DLG  512
 
 /* FIND DIALOG */
 #define FIND_DLG_HEIGHT   8

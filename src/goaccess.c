@@ -1278,7 +1278,7 @@ out1:
 
   /* Using select(), poll(), or epoll(), etc may be a better choice... */
   if (pipe_fd == -1)
-      pipe_fd = fileno (pipe);
+    pipe_fd = fileno (pipe);
   if (fcntl (pipe_fd, F_SETFL, fcntl (pipe_fd, F_GETFL, 0) | O_NONBLOCK) == -1)
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
 
