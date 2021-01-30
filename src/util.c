@@ -504,20 +504,29 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
   unsigned long long ts = 0;
   int us = strcmp ("%f", fmt) == 0;
   int ms = strcmp ("%*", fmt) == 0;
+#if !defined(__GLIBC__)
+  int se = strcmp ("%s", fmt) == 0;
+#endif
+
   time_t seconds = 0;
 
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
 
   /* check if char string needs to be converted from milli/micro seconds */
+  /* note that MUSL doesn't not have %s under strptime(3) */
+#if !defined(__GLIBC__)
+  if (se || us || ms) {
+#else
   if (us || ms) {
+#endif
     errno = 0;
 
     ts = strtoull (str, &sEnd, 10);
     if (str == sEnd || *sEnd != '\0' || errno == ERANGE)
       return 1;
 
-    seconds = (us) ? ts / SECS : ts / MILS;
+    seconds = (us) ? ts / SECS : ((ms) ? ts / MILS : ts);
     /* if GMT needed, gmtime_r instead of localtime_r. */
     localtime_r (&seconds, tm);
 
