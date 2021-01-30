@@ -1699,6 +1699,8 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
       tilde++;
       continue;
     }
+    if (*str == '\n')
+      return 0;
 
     if (tilde && *p != '\0') {
       if ((str == NULL) || (*str == '\0'))
