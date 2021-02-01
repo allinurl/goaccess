@@ -42,8 +42,14 @@
 #include <config.h>
 #endif
 
+#ifdef HAVE_KQUEUE
+#include <sys/event.h>
+#include <sys/time.h>
+#endif
+
 #include <fcntl.h>
 #include <grp.h>
+#include <libgen.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
@@ -740,7 +746,7 @@ read_client (void *ptr_data) {
 
 /* Parse tailed lines */
 static void
-parse_tail_follow (GLog * glog, FILE * fp) {
+parse_tail_follow (GLog * glog) {
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -749,9 +755,9 @@ parse_tail_follow (GLog * glog, FILE * fp) {
 
   glog->bytes = 0;
 #ifdef WITH_GETLINE
-  while ((buf = fgetline (fp)) != NULL) {
+  while ((buf = fgetline (glog->fp)) != NULL) {
 #else
-  while (fgets (buf, LINE_BUFFER, fp) != NULL) {
+  while (fgets (buf, LINE_BUFFER, glog->fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
     pre_process_log (glog, buf, 0);
@@ -768,7 +774,7 @@ parse_tail_follow (GLog * glog, FILE * fp) {
 }
 
 static void
-verify_inode (FILE * fp, GLog * glog) {
+verify_inode (GLog * glog) {
   struct stat fdstat;
 
   if (stat (glog->filename, &fdstat) == -1)
@@ -781,7 +787,7 @@ verify_inode (FILE * fp, GLog * glog) {
    * the initial snippet for the new log for future iterations */
   if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0' || 0 == glog->size) {
     glog->length = glog->bytes = 0;
-    set_initial_persisted_data (glog, fp, glog->filename);
+    set_initial_persisted_data (glog);
   }
   glog->inode = fdstat.st_ino;
 }
@@ -789,13 +795,16 @@ verify_inode (FILE * fp, GLog * glog) {
 /* Process appended log data */
 static void
 perform_tail_follow (GLog * glog) {
-  FILE *fp = NULL;
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
   uint64_t length = 0;
 
-  if (glog->filename[0] == '-' && glog->filename[1] == '\0') {
-    parse_tail_follow (glog, glog->pipe);
+  if (glog->piping) {
+    if (glog->fp == NULL) {
+      glog->bytes = 0;
+      return;
+    }
+    parse_tail_follow (glog);
     /* did we read something from the pipe? */
     if (0 == glog->bytes)
       return;
@@ -803,6 +812,7 @@ perform_tail_follow (GLog * glog) {
     glog->length += glog->bytes;
     goto out;
   }
+
   if (logs->load_from_disk_only)
     return;
 
@@ -814,15 +824,21 @@ perform_tail_follow (GLog * glog) {
   if (length == glog->length)
     return;
 
-  if (!(fp = fopen (glog->filename, "r")))
+#ifdef HAVE_KQUEUE
+  rewind (glog->fp);
+#else
+  if (glog->fp != NULL)
+    fclose (glog->fp);
+  if (!(glog->fp = fopen (glog->filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
+#endif
 
-  verify_inode (fp, glog);
+  verify_inode (glog);
 
   len = MIN (glog->snippetlen, length);
   /* This is not ideal, but maybe the only reliable way to know if the
    * current log looks different than our first read/parse */
-  if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
+  if ((fread (buf, len, 1, glog->fp)) != 1 && ferror (glog->fp))
     FATAL ("Unable to fread the specified log file '%s'", glog->filename);
 
   /* For the case where the log got larger since the last iteration, we attempt
@@ -832,9 +848,13 @@ perform_tail_follow (GLog * glog) {
   if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
     glog->length = glog->bytes = 0;
 
-  if (!fseeko (fp, glog->length, SEEK_SET))
-    parse_tail_follow (glog, fp);
-  fclose (fp);
+  if (fseeko (glog->fp, glog->length, SEEK_SET) == 0)
+    parse_tail_follow (glog);
+
+#ifndef HAVE_KQUEUE
+  fclose (glog->fp);
+  glog->fp = NULL;
+#endif
 
   glog->length += glog->bytes;
 
@@ -848,11 +868,15 @@ perform_tail_follow (GLog * glog) {
 out:
 
   if (!conf.output_stdout) {
+#ifdef HAVE_KQUEUE
+    tail_term ();
+#else
     struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };   /* 0.2 seconds */
 
     tail_term ();
     if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
+#endif
   } else {
     tail_html ();
   }
@@ -862,10 +886,16 @@ out:
 static void
 process_html (const char *filename) {
   int i = 0;
+#ifdef HAVE_KQUEUE
+  int kq;
+  struct kevent ke;
+  GLog * glog;
+#else
   struct timespec refresh = {
     .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
     .tv_nsec = 0,
   };
+#endif
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -886,16 +916,137 @@ process_html (const char *filename) {
   if (gwswriter->fd == -1)
     return;
 
+#ifdef HAVE_KQUEUE
+  kq = kqueue ();
+  if (kq == -1)
+    FATAL ("kqueue: %s", strerror (errno));
+
+  for (i = 0; i < logs->size; ++i) {
+    glog = &logs->glog[i];
+    if (glog->piping) {
+      if (glog->fp == NULL)
+        continue;
+      EV_SET (&ke,
+              fileno (glog->fp),
+	      EVFILT_READ,
+	      EV_ADD,
+	      0,
+	      0,
+	      glog);
+    } else {
+      if (glog->fp == NULL && (glog->fp = fopen (glog->filename, "r")) == NULL)
+        FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
+      verify_inode (glog);
+      EV_SET (&ke,
+              fileno (glog->fp),
+	      EVFILT_VNODE,
+	      EV_ADD | EV_CLEAR,
+	      NOTE_WRITE | NOTE_RENAME | NOTE_DELETE,
+	      0,
+	      glog);
+    }
+    if (kevent (kq, &ke, 1, NULL, 0, NULL) == -1)
+      FATAL ("kevent setup: %s", strerror (errno));
+  }
+#endif
+
   set_ready_state ();
   while (1) {
     if (conf.stop_processing)
       break;
 
+#ifdef HAVE_KQUEUE
+    i = kevent (kq, NULL, 0, &ke, 1, NULL);
+    if (i == -1) {
+      if (errno == EINTR)
+        break;
+      FATAL ("kevent: %s", strerror (errno));
+    }
+    if (i == 0)
+      continue;
+
+    glog = ke.udata;
+
+    /* logfile event. */
+    if (ke.filter == EVFILT_VNODE && glog->fp != NULL) {
+      if (ke.fflags & NOTE_DELETE)
+        LOG_DEBUG (("%s: log file deleted", glog->filename));
+      else if (ke.fflags & NOTE_RENAME)
+        LOG_DEBUG (("%s: log file renamed", glog->filename));
+      else if (ke.fflags & NOTE_WRITE)
+        LOG_DEBUG (("%s: log file written to", glog->filename));
+      else
+        LOG_DEBUG (("%s: unhandled log file event", glog->filename));
+
+      if (ke.fflags & (NOTE_DELETE | NOTE_RENAME)) {
+        int fd;
+
+        /* Closing the descriptor removes the event from the kqueue. */
+        fclose (glog->fp);
+        glog->fp = NULL;
+
+        /* Monitor log directory for a new file to appear. */
+        fd = open (dirname (glog->filename), O_RDONLY);
+        if (fd == -1)
+          FATAL ("dirname: %s", strerror (errno));
+        EV_SET (&ke,
+                fd,
+                EVFILT_VNODE,
+                EV_ADD | EV_CLEAR,
+                NOTE_WRITE | NOTE_EXTEND,
+                0,
+                glog);
+        if (kevent (kq, &ke, 1, NULL, 0, NULL) == -1)
+          FATAL ("kevent directory setup: %s", strerror (errno));
+      } else if (ke.fflags & NOTE_WRITE)
+        perform_tail_follow (glog);
+    }
+
+    /* Directory event. */
+    if (ke.filter == EVFILT_VNODE && glog->fp == NULL) {
+      const char *d = dirname (glog->filename);
+
+      if (ke.fflags & NOTE_WRITE)
+        LOG_DEBUG (("%s: directory written", d));
+      else if (ke.fflags & NOTE_EXTEND)
+        LOG_DEBUG (("%s: directory extended", d));
+      else
+        LOG_DEBUG (("%s: unhandled directory event", d));
+
+      /* Try and open the logfile again. */
+      glog->fp = fopen (glog->filename, "r");
+      if (glog->fp == NULL) {
+        LOG_DEBUG (("%s: failed to re-open log file", glog->filename));
+        continue;
+      }
+      verify_inode (glog);
+
+      /* Closing the descriptor removes the event from the kqueue. */
+      close ((int)ke.ident);
+
+      /* Re-add the log file event. */
+      EV_SET (&ke,
+              fileno (glog->fp),
+	      EVFILT_VNODE,
+	      EV_ADD | EV_CLEAR,
+	      NOTE_WRITE | NOTE_RENAME | NOTE_DELETE,
+	      0,
+	      glog);
+      if (kevent (kq, &ke, 1, NULL, 0, NULL) == -1)
+        FATAL ("kevent setup: %s", strerror (errno));
+      LOG_DEBUG (("%s: monitoring log file again", glog->filename));
+    }
+#else
     for (i = 0; i < logs->size; ++i)
       perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
     if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
+#endif
   }
+
+#ifdef HAVE_KQUEUE
+  close (kq);
+#endif
   close (gwswriter->fd);
 }
 
@@ -1382,7 +1533,7 @@ initializer (void) {
 
   for (i = 0; i < logs->size; ++i)
     if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
-      logs->glog[i].pipe = pipe;
+      logs->glog[i].fp = pipe;
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();

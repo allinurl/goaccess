@@ -450,6 +450,8 @@ init_logs (int size) {
   for (i = 0; i < size; ++i) {
     glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
     glog[i].filename = xstrdup (conf.filenames[i]);
+    if (glog->filename[0] == '-' && glog->filename[1] == '\0')
+      glog->piping = 1;
 
     logs->processed = &(glog[i].processed);
     logs->filename = glog[i].filename;
@@ -486,8 +488,8 @@ free_logs (Logs * logs) {
     free (glog->filename);
     free_logerrors (glog);
     free (glog->errors);
-    if (glog->pipe) {
-      fclose (glog->pipe);
+    if (glog->fp) {
+      fclose (glog->fp);
     }
   }
 
@@ -3162,12 +3164,12 @@ fgetline (FILE * fp) {
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog * glog, int dry_run) {
+read_lines (GLog * glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
   glog->bytes = 0;
-  while ((line = fgetline (fp)) != NULL) {
+  while ((line = fgetline (glog->fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
       goto out;
@@ -3203,13 +3205,13 @@ out:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog * glog, int dry_run) {
+read_lines (GLog * glog, int dry_run) {
   char *s = NULL;
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
   glog->bytes = 0;
-  while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
+  while ((s = fgets (line, LINE_BUFFER, glog->fp)) != NULL) {
     /* handle SIGINT */
     if (conf.stop_processing)
       break;
@@ -3240,7 +3242,7 @@ read_lines (FILE * fp, GLog * glog, int dry_run) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
+set_initial_persisted_data (GLog * glog) {
   size_t len;
 
   /* reset the snippet */
@@ -3251,11 +3253,11 @@ set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
     return 1;
 
   len = MIN (glog->size, READ_BYTES);
-  if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
-    FATAL ("Unable to fread the specified log file '%s'", fn);
+  if ((fread (glog->snippet, len, 1, glog->fp)) != 1 && ferror (glog->fp))
+    FATAL ("Unable to fread the specified log file '%s'", glog->filename);
   glog->snippetlen = len;
 
-  fseek (fp, 0, SEEK_SET);
+  fseek (glog->fp, 0, SEEK_SET);
 
   return 0;
 }
@@ -3283,41 +3285,40 @@ persist_last_parse (GLog * glog) {
  * On success, 0 is returned. */
 static int
 read_log (GLog * glog, int dry_run) {
-  FILE *fp = NULL;
-  int piping = 0;
   struct stat fdstat;
 
-  /* Ensure we have a valid pipe to read from stdin. Only checking for
-   * conf.read_stdin without verifying for a valid FILE pointer would certainly
-   * lead to issues. */
-  if (glog->filename[0] == '-' && glog->filename[1] == '\0' && glog->pipe) {
-    fp = glog->pipe;
-    glog->piping = piping = 1;
-  }
-
   /* make sure we can open the log (if not reading from stdin) */
-  if (!piping && (fp = fopen (glog->filename, "r")) == NULL)
-    FATAL ("Unable to open the specified log file '%s'. %s", glog->filename, strerror (errno));
+  if (glog->piping) {
+    if (glog->fp == NULL)
+      return 0;
+  } else {
+    if (glog->fp == NULL && (glog->fp = fopen (glog->filename, "r")) == NULL)
+      FATAL ("Unable to open the specified log file '%s'. %s", glog->filename, strerror (errno));
 
-  /* grab the inode of the file being parsed */
-  if (!piping && stat (glog->filename, &fdstat) == 0) {
-    glog->inode = fdstat.st_ino;
-    glog->size = glog->lp.size = fdstat.st_size;
-    set_initial_persisted_data (glog, fp, glog->filename);
+    /* grab the inode of the file being parsed */
+    if (stat (glog->filename, &fdstat) == 0) {
+      glog->inode = fdstat.st_ino;
+      glog->size = glog->lp.size = fdstat.st_size;
+      set_initial_persisted_data (glog);
+    }
   }
 
   /* read line by line */
-  if (read_lines (fp, glog, dry_run)) {
-    if (!piping)
-      fclose (fp);
+  if (read_lines (glog, dry_run)) {
+#ifndef HAVE_KQUEUE
+    if (!glog->piping)
+      fclose (glog->fp);
+#endif
     return 1;
   }
 
   persist_last_parse (glog);
 
+#ifndef HAVE_KQUEUE
   /* close log file if not a pipe */
-  if (!piping)
-    fclose (fp);
+  if (!glog->piping)
+    fclose (glog->fp);
+#endif
 
   return 0;
 }
