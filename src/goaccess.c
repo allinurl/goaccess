@@ -776,28 +776,39 @@ parse_tail_follow (GLog * glog) {
 static void
 verify_inode (GLog * glog) {
   struct stat fdstat;
+  uint64_t oldsize;
 
   if (stat (glog->filename, &fdstat) == -1)
     FATAL ("Unable to stat the specified log file '%s'. %s", glog->filename, strerror (errno));
 
+  oldsize = glog->size;
   glog->size = fdstat.st_size;
   /* Either the log got smaller, probably was truncated so start reading from 0
    * and reset snippet.
    * If the log changed its inode, more likely the log was rotated, so we set
    * the initial snippet for the new log for future iterations */
-  if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0' || 0 == glog->size) {
+#ifdef HAVE_KQUEUE
+  if (fdstat.st_ino != glog->inode || 0 == glog->size || glog->size < oldsize) {
+    rewind(glog->fp);
+    glog->length = glog->bytes = 0;
+  }
+#else
+  if (fdstat.st_ino != glog->inode || 0 == glog->size || glog->size < oldsize || glog->snippet[0] == '\0') {
     glog->length = glog->bytes = 0;
     set_initial_persisted_data (glog);
   }
+#endif
   glog->inode = fdstat.st_ino;
 }
 
 /* Process appended log data */
 static void
 perform_tail_follow (GLog * glog) {
+#ifndef HAVE_KQUEUE
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
   uint64_t length = 0;
+#endif
 
   if (glog->piping) {
     if (glog->fp == NULL) {
@@ -816,6 +827,13 @@ perform_tail_follow (GLog * glog) {
   if (logs->load_from_disk_only)
     return;
 
+#ifdef HAVE_KQUEUE
+  verify_inode (glog);
+  parse_tail_follow (glog);
+  /* did we read something from the pipe? */
+  if (0 == glog->bytes)
+    return;
+#else
   length = file_size (glog->filename);
 
   /* file hasn't changed */
@@ -824,14 +842,10 @@ perform_tail_follow (GLog * glog) {
   if (length == glog->length)
     return;
 
-#ifdef HAVE_KQUEUE
-  rewind (glog->fp);
-#else
   if (glog->fp != NULL)
     fclose (glog->fp);
   if (!(glog->fp = fopen (glog->filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
-#endif
 
   verify_inode (glog);
 
@@ -851,7 +865,6 @@ perform_tail_follow (GLog * glog) {
   if (fseeko (glog->fp, glog->length, SEEK_SET) == 0)
     parse_tail_follow (glog);
 
-#ifndef HAVE_KQUEUE
   fclose (glog->fp);
   glog->fp = NULL;
 #endif
@@ -936,7 +949,6 @@ process_html (const char *filename) {
     } else {
       if (glog->fp == NULL && (glog->fp = fopen (glog->filename, "r")) == NULL)
         FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
-      verify_inode (glog);
       EV_SET (&ke,
               fileno (glog->fp),
 	      EVFILT_VNODE,
@@ -998,8 +1010,11 @@ process_html (const char *filename) {
                 glog);
         if (kevent (kq, &ke, 1, NULL, 0, NULL) == -1)
           FATAL ("kevent directory setup: %s", strerror (errno));
-      } else if (ke.fflags & NOTE_WRITE)
+      } else if (ke.fflags & NOTE_WRITE) {
+        /* Clear EOF from last parse */
+        clearerr(glog->fp);
         perform_tail_follow (glog);
+      }
     }
 
     /* Directory event. */
@@ -1019,10 +1034,11 @@ process_html (const char *filename) {
         LOG_DEBUG (("%s: failed to re-open log file", glog->filename));
         continue;
       }
-      verify_inode (glog);
 
       /* Closing the descriptor removes the event from the kqueue. */
       close ((int)ke.ident);
+
+      perform_tail_follow (glog);
 
       /* Re-add the log file event. */
       EV_SET (&ke,

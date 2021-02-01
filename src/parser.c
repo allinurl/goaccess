@@ -3236,6 +3236,7 @@ read_lines (GLog * glog, int dry_run) {
 }
 #endif
 
+#ifndef HAVE_KQUEUE
 /* Read the given log file and attempt to mmap a fixed number of bytes so we
  * can compare its content on future runs.
  *
@@ -3261,16 +3262,17 @@ set_initial_persisted_data (GLog * glog) {
 
   return 0;
 }
+#endif
 
 static void
 persist_last_parse (GLog * glog) {
   /* insert last parsed data for the recently file parsed */
   if (glog->inode && glog->size) {
     glog->lp.line = glog->read;
+#ifndef HAVE_KQUEUE
     glog->lp.snippetlen = glog->snippetlen;
-
     memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
-
+#endif
     ht_insert_last_parse (glog->inode, glog->lp);
   }
   /* probably from a pipe */
@@ -3299,7 +3301,9 @@ read_log (GLog * glog, int dry_run) {
     if (stat (glog->filename, &fdstat) == 0) {
       glog->inode = fdstat.st_ino;
       glog->size = glog->lp.size = fdstat.st_size;
+#ifndef HAVE_KQUEUE
       set_initial_persisted_data (glog);
+#endif
     }
   }
 
