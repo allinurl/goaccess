@@ -803,7 +803,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
         ws_append_str (&key, json_get_string (&json, &len));
       }
       /* val */
-      else if (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY)) {
+      else if (key && (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY))) {
         val = xstrdup (json_get_string (&json, &len));
         if ((ret = (*cb) (ptr_data, key, val)))
           goto clean;
