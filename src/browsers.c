@@ -84,6 +84,7 @@ static const char *browsers[][2] = {
   {"Homebrew", "Others"},
   {"APT-HTTP", "Others"},
   {"Apt-Cacher", "Others"},
+  {"Aptly", "Others"},
   {"Chef Client", "Others"},
   {"Huawei", "Others"},
   {"HUAWEI", "Others"},
@@ -124,6 +125,7 @@ static const char *browsers[][2] = {
   {"PackageKit", "Others"},
   {"F-Droid", "Others"},
   {"okhttp", "Others"},
+  {"PrivacyBrowser", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -141,6 +143,7 @@ static const char *browsers[][2] = {
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
   {"Brainstorm", "Feeds"},
+  {"Mastodon", "Feeds"},
   {"Pleroma", "Feeds"},
 
   /* Google crawlers (some based on Chrome,
