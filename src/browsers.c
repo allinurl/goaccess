@@ -122,6 +122,8 @@ static const char *browsers[][2] = {
   {"libwww-perl", "Others"},
   {"python-requests", "Others"},
   {"PackageKit", "Others"},
+  {"F-Droid", "Others"},
+  {"okhttp", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -138,6 +140,8 @@ static const char *browsers[][2] = {
   {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
+  {"Brainstorm", "Feeds"},
+  {"Pleroma", "Feeds"},
 
   /* Google crawlers (some based on Chrome,
    * therefore up on the list) */
@@ -152,6 +156,8 @@ static const char *browsers[][2] = {
   /* Rebranded Firefox but is really unmodified
    * Firefox (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
+  {"Waterfox", "Firefox"},
+  {"PaleMoon", "Firefox"},
   {"Focus", "Firefox"},
   /* Klar is the name of Firefox Focus in the German market. */
   {"Klar", "Firefox"},
