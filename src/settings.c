@@ -699,6 +699,8 @@ is_json_log_format (const char *fmt) {
   json_stream json;
 
   json_open_string (&json, fmt);
+  /* ensure we use strict JSON when determining if we're using a JSON format */
+  json_set_streaming (&json, false);
   do {
     t = json_next (&json);
     switch (t) {
