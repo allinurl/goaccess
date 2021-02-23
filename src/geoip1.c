@@ -92,6 +92,17 @@ init_geoip (void) {
     geo_location_data = GeoIP_new (conf.geo_db);
 }
 
+static char ip4to6_out_buffer[17];
+static char * ip4to6(const char * ipv4) {
+  unsigned int b[4];
+  int n = sscanf(ipv4, "%u.%u.%u.%u", b, b+1, b+2, b+3);
+  if (n == 4) {
+    snprintf(ip4to6_out_buffer, sizeof(ip4to6_out_buffer), "::ffff:%02x%02x:%02x%02x", b[0], b[1], b[2], b[3]);
+    return ip4to6_out_buffer;
+  }
+  return NULL;
+}
+
 /* Get continent name concatenated with code.
  *
  * If continent not found, "Unknown" is returned.
@@ -252,8 +263,13 @@ geoip_get_country (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_COUNTRY_EDITION_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_country_by_geoid (ip, location, TYPE_IPV6);
-    else
-      geoip_set_country (NULL, NULL, location);
+    else {
+      char * ipv6 = ip4to6(ip);
+      if (ipv6)
+        geoip_set_country_by_geoid (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_country (NULL, NULL, location);
+    }
     break;
   case GEOIP_CITY_EDITION_REV0:
   case GEOIP_CITY_EDITION_REV1:
@@ -266,8 +282,13 @@ geoip_get_country (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_country_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_country (NULL, NULL, location);
+    else {
+      char * ipv6 = ip4to6(ip);
+      if (ipv6)
+        geoip_set_country_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_country (NULL, NULL, location);
+    }
     break;
   }
 }
@@ -326,8 +347,13 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_COUNTRY_EDITION_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_continent_by_geoid (ip, location, TYPE_IPV6);
-    else
-      geoip_set_continent (NULL, location);
+    else {
+      char * ipv6 = ip4to6(ip);
+      if (ipv6)
+        geoip_set_continent_by_geoid (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_continent (NULL, location);
+    }
     break;
   case GEOIP_CITY_EDITION_REV0:
   case GEOIP_CITY_EDITION_REV1:
@@ -340,8 +366,13 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_continent_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_continent (NULL, location);
+    else {
+      char * ipv6 = ip4to6(ip);
+      if (ipv6)
+        geoip_set_continent_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_continent (NULL, location);
+    }
     break;
   }
 }
@@ -387,8 +418,13 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_city_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_city (NULL, NULL, location);
+    else {
+      char * ipv6 = ip4to6(ip);
+      if (ipv6)
+        geoip_set_city_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_city (NULL, NULL, location);
+    }
     break;
   }
 }
