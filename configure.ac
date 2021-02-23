@@ -17,6 +17,9 @@ AC_CONFIG_HEADERS([src/config.h])
 AC_PROG_CC([cc gcc clang])
 AM_PROG_CC_C_O
 
+# Find build compiler for the cross compilation case
+AX_CC_FOR_BUILD
+
 # Check for programs
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19])
