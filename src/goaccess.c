@@ -172,6 +172,12 @@ house_keeping (void) {
     invalid_log_close ();
   }
 
+  /* UNKNOWNS */
+  if (conf.unknowns_log) {
+    LOG_DEBUG (("Closing unknowns log.\n"));
+    unknowns_log_close();
+  }
+
   /* CONFIGURATION */
   free_formats ();
   free_browsers_hash ();

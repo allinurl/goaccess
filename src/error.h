@@ -74,6 +74,8 @@
 #define LOG_DEBUG(x, ...) do { dbg_fprintf x; } while (0)
 /* invalid requests log */
 #define LOG_INVALID(x, ...) do { invalid_fprintf x; } while (0)
+/* unknown browser log */
+#define LOG_UNKNOWNS(x, ...) do { unknowns_fprintf x; } while (0)
 /* log debug wrapper */
 #define LOG(x) do { if (DEBUG_TEST) dbg_printf x; } while (0)
 
@@ -85,10 +87,13 @@ void dbg_log_close (void);
 void dbg_log_open (const char *file);
 void dbg_printf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void invalid_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
+void unknowns_fprintf (const char *fmt, ...) __attribute__((format (printf, 1, 2)));
 void invalid_log_close (void);
 void invalid_log_open (const char *path);
 void set_signal_data (void *p);
 void setup_sigsegv_handler (void);
 void sigsegv_handler (int sig);
+void unknowns_log_close (void);
+void unknowns_log_open (const char *path);
 
 #endif

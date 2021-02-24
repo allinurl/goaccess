@@ -37,6 +37,7 @@
 
 #include "opesys.h"
 
+#include "error.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
@@ -391,6 +392,9 @@ verify_os (const char *str, char *os_type) {
       return parse_os (str, a, os_type, i);
   }
   xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[OS]", str));
 
   return alloc_string ("Unknown");
 }

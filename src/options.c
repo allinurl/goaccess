@@ -109,6 +109,7 @@ struct option long_opts[] = {
   {"ignore-statics"       , required_argument , 0 , 0  }  ,
   {"ignore-status"        , required_argument , 0 , 0  }  ,
   {"invalid-requests"     , required_argument , 0 , 0  }  ,
+  {"unknowns-log"         , required_argument , 0 , 0  }  ,
   {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
   {"keep-last"            , required_argument , 0 , 0  }  ,
   {"html-refresh"         , required_argument , 0 , 0  }  ,
@@ -214,6 +215,7 @@ cmd_help (void)
   "  -S --log-size=<number>          - Specify the log size, useful when piping in logs.\n"
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n"
+  "  --unknowns-log=<filename>       - Log unknown browsers and OSs to the specified file.\n"
   "\n"
   ""
   /* Parse Options */
@@ -458,6 +460,12 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("invalid-requests", name)) {
     conf.invalid_requests_log = oarg;
     invalid_log_open (conf.invalid_requests_log);
+  }
+
+  /* unknowns */
+  if (!strcmp ("unknowns-log", name)) {
+    conf.unknowns_log = oarg;
+    unknowns_log_open(conf.unknowns_log);
   }
 
   /* output file */

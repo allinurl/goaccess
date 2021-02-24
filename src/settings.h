@@ -122,6 +122,7 @@ typedef struct GConf_
   const char *html_prefs;           /* default HTML JSON preferences */
   const char *html_report_title;    /* report title */
   const char *invalid_requests_log; /* invalid lines log path */
+  const char *unknowns_log;         /* unknown browsers/OSs log path */
   const char *pidfile;              /* daemonize pid file path */
   const char *browsers_file;        /* browser's file path */
   const char *db_path;              /* db path to files */

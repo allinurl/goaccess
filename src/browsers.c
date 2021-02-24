@@ -561,6 +561,9 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, j, browsers_hash);
   }
 
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
+
   xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");
