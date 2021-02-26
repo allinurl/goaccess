@@ -82,7 +82,7 @@ static const char *browsers[][2] = {
 
   /* Others */
   {"Homebrew", "Others"},
-  {"APT-HTTP", "Others"},
+  {"APT-", "Others"},
   {"Apt-Cacher", "Others"},
   {"Aptly", "Others"},
   {"Chef Client", "Others"},
@@ -125,6 +125,7 @@ static const char *browsers[][2] = {
   {"PackageKit", "Others"},
   {"F-Droid", "Others"},
   {"okhttp", "Others"},
+  {"node", "Others"},
   {"PrivacyBrowser", "Others"},
 
   /* Feed-reader-as-a-service */
@@ -185,6 +186,7 @@ static const char *browsers[][2] = {
   {"Safari", "Safari"},
 
   /* Crawlers/Bots */
+  {"Slack", "Crawlers"},
   {"Sogou", "Crawlers"},
   {"Java", "Crawlers"},
   {"Jakarta Commons-HttpClient", "Crawlers"},
