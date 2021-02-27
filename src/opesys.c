@@ -91,6 +91,7 @@ static const char *os[][2] = {
   {"CentOS", "Linux"},
   {"PCLinuxOS", "Linux"},
   {"Linux", "Linux"},
+  {"linux", "Linux"},
 
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
