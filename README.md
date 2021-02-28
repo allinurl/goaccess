@@ -97,10 +97,10 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.4.5.tar.gz
-    $ tar -xzvf goaccess-1.4.5.tar.gz
-    $ cd goaccess-1.4.5/
-    $ ./configure --enable-utf8 --enable-geoip=legacy
+    $ wget https://tar.goaccess.io/goaccess-1.4.6.tar.gz
+    $ tar -xzvf goaccess-1.4.6.tar.gz
+    $ cd goaccess-1.4.6/
+    $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
 
@@ -109,7 +109,7 @@ Download, extract and compile GoAccess with:
     $ git clone https://github.com/allinurl/goaccess.git
     $ cd goaccess
     $ autoreconf -fiv
-    $ ./configure --enable-utf8 --enable-geoip=legacy
+    $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
 
