@@ -514,7 +514,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
     return 1;
 
   /* check if char string needs to be converted from milli/micro seconds */
-  /* note that MUSL doesn't not have %s under strptime(3) */
+  /* note that MUSL doesn't have %s under strptime(3) */
 #if !defined(__GLIBC__)
   if (se || us || ms) {
 #else
