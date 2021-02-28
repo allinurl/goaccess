@@ -70,7 +70,7 @@ static const GPreConfLog logs = {
   "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
   "%d %t %^ %m %U %q %^ %^ %h %u %R %s %^ %^ %L",               /* W3C */
-  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q\\t%^\\t%^\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%^ %dT%t.%^ %v %h:%^ %^ %T %^ %^ %s %^ %b %^ \"%r\" \"%u\" %^",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
