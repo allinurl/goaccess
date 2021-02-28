@@ -1688,9 +1688,6 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
 
   /* iterate over the log format */
   for (p = lfmt; *p; p++) {
-    /* advance to the first unescaped delim */
-    if (*p == '\\')
-      continue;
     if (*p == '%') {
       perc++;
       continue;
