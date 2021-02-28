@@ -1,3 +1,27 @@
+Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
+
+	- Added additional feed reader clients.
+	- Added addtional browsers and bots to the main list.
+	- Added command line option '--unknowns-log' to log unknown browsers and
+		OSs.
+	- Added 'Referer' to the pre-defined 'Caddy JSON' log format.
+	- Added support for real-time piping as non-root user.
+	- Added the ability to Handle case when IPv4 is encoded as IPv6 in
+		GeoIP1/legacy.
+	- Ensure we capture linux (lowercase) when extracting an OS.
+	- Fixed a regression in parsing Google Cloud Storage or possibly other
+		non-JSON formats.
+	- Fixed inability to parse escaped formats.
+	- Fixed issue when using '%s' with 'strptime(3)' under musl libc. This
+		addresses mostly the Docker image.
+	- Fixed possible buffer over-read for certain log-format patterns.
+	- Fixed segfault when attempting to process a malformed JSON string.
+	- Fixed segfault when setting an empty log-format from the TUI dialog.
+	- Fixed sorting on hits and visitors when larger than INT_MAX.
+	- Updated CloudFront pre-defined log-format to reflect the latest fields.
+	- Updated 'Dockerfile' image to use 'alpine:3.13' instead of edge due to
+		compatibility issue with the GNU coreutils.
+
 Changes to GoAccess 1.4.5 - Tuesday, January 26, 2021
 
 	- Fixed build issue due to initial declarations only allowed in C99 mode
