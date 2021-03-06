@@ -1,7 +1,7 @@
 Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
 
   - Added additional feed reader clients.
-  - Added addtional browsers and bots to the main list.
+  - Added additional browsers and bots to the main list.
   - Added command line option '--unknowns-log' to log unknown browsers and
     OSs.
   - Added 'Referer' to the pre-defined 'Caddy JSON' log format.
