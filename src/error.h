@@ -48,18 +48,16 @@
 
 #define TRACE_SIZE 128
 
-#define FATAL(fmt, ...) do {                                                  \
-  (void) endwin ();                                                           \
-  fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION, __DATE__, \
-           __TIME__);                                                         \
-  fprintf (stderr, "Config file: %s\n", conf.iconfigfile ?: NO_CONFIG_FILE);  \
-  fprintf (stderr, "\nFatal error has occurred");                             \
-  fprintf (stderr, "\nError occurred at: %s - %s - %d\n", __FILE__,            \
-           __FUNCTION__, __LINE__);                                           \
-  fprintf (stderr, fmt, ##__VA_ARGS__);                                       \
-  fprintf (stderr, "\n\n");                                                   \
-  LOG_DEBUG ((fmt, ##__VA_ARGS__));                                           \
-  exit(EXIT_FAILURE);                                                         \
+#define FATAL(fmt, ...) do {                                                                 \
+  (void) endwin ();                                                                          \
+  fprintf (stderr, "\nGoAccess - version %s - %s %s\n", GO_VERSION, __DATE__, __TIME__);     \
+  fprintf (stderr, "Config file: %s\n", conf.iconfigfile ?: NO_CONFIG_FILE);                 \
+  fprintf (stderr, "\nFatal error has occurred");                                            \
+  fprintf (stderr, "\nError occurred at: %s - %s - %d\n", __FILE__, __FUNCTION__, __LINE__); \
+  fprintf (stderr, fmt, ##__VA_ARGS__);                                                      \
+  fprintf (stderr, "\n\n");                                                                  \
+  LOG_DEBUG ((fmt, ##__VA_ARGS__));                                                          \
+  exit(EXIT_FAILURE);                                                                        \
 } while (0)
 
 #ifdef DEBUG
