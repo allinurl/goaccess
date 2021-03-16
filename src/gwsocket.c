@@ -343,6 +343,8 @@ set_ws_opts (void) {
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
+  if (conf.unix_socket)
+    ws_set_config_unix_socket (conf.unix_socket);
   if (conf.fifo_in)
     ws_set_config_pipein (conf.fifo_in);
   if (conf.fifo_out)

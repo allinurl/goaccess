@@ -136,6 +136,7 @@ typedef struct GConf_
   const char *sslcert;              /* TLS/SSL path to certificate */
   const char *sslkey;               /* TLS/SSL path to private key */
   const char *ws_url;               /* WebSocket URL */
+  const char *unix_socket;          /* unix socket to bind to */
 
   /* User flags */
   int all_static_files;             /* parse all static files */

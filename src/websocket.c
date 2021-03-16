@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/ioctl.h>
@@ -2688,29 +2689,45 @@ handle_fifo (WSServer * server) {
  * connections on a socket */
 static void
 ws_socket (int *listener) {
-  int ov = 1;
-  struct addrinfo hints, *ai;
+  if (wsconfig.unix_socket) {
+    struct sockaddr_un servaddr;
 
-  /* get a socket and bind it */
-  memset (&hints, 0, sizeof hints);
-  hints.ai_family = AF_UNSPEC;
-  hints.ai_socktype = SOCK_STREAM;
-  /*hints.ai_flags = AI_PASSIVE; */
-  if (getaddrinfo (wsconfig.host, wsconfig.port, &hints, &ai) != 0)
-    FATAL ("Unable to set server: %s.", gai_strerror (errno));
+    /* Create a TCP socket.  */
+    if ((*listener = socket (AF_UNIX, SOCK_STREAM, 0)) == -1)
+      FATAL ("Unable to open socket: %s.", strerror (errno));
 
-  /* Create a TCP socket.  */
-  if ((*listener = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
-    FATAL ("Unable to open socket: %s.", strerror (errno));
+    memset(&servaddr, 0, sizeof (servaddr));
+    servaddr.sun_family = AF_UNIX;
+    strncpy(servaddr.sun_path, wsconfig.unix_socket, sizeof (servaddr.sun_path) - 1);
 
-  /* Options */
-  if (setsockopt (*listener, SOL_SOCKET, SO_REUSEADDR, &ov, sizeof (ov)) == -1)
-    FATAL ("Unable to set setsockopt: %s.", strerror (errno));
+    /* Bind the socket to the address. */
+    if (bind (*listener, (struct sockaddr *) &servaddr, sizeof (servaddr)) != 0)
+      FATAL ("Unable to set bind: %s.", strerror (errno));
+  } else {
+    int ov = 1;
+    struct addrinfo hints, *ai;
 
-  /* Bind the socket to the address. */
-  if (bind (*listener, ai->ai_addr, ai->ai_addrlen) != 0)
-    FATAL ("Unable to set bind: %s.", strerror (errno));
-  freeaddrinfo (ai);
+    /* get a socket and bind it */
+    memset (&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    /*hints.ai_flags = AI_PASSIVE; */
+    if (getaddrinfo (wsconfig.host, wsconfig.port, &hints, &ai) != 0)
+      FATAL ("Unable to set server: %s.", gai_strerror (errno));
+
+    /* Create a TCP socket.  */
+    if ((*listener = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
+      FATAL ("Unable to open socket: %s.", strerror (errno));
+
+    /* Options */
+    if (setsockopt (*listener, SOL_SOCKET, SO_REUSEADDR, &ov, sizeof (ov)) == -1)
+      FATAL ("Unable to set setsockopt: %s.", strerror (errno));
+
+    /* Bind the socket to the address. */
+    if (bind (*listener, ai->ai_addr, ai->ai_addrlen) != 0)
+      FATAL ("Unable to set bind: %s.", strerror (errno));
+    freeaddrinfo (ai);
+  }
 
   /* Tell the socket to accept connections. */
   if (listen (*listener, SOMAXCONN) == -1)
@@ -2807,6 +2824,10 @@ ws_start (WSServer * server) {
   ws_close (listener);
   if (server->self_pipe[0] != -1)
     unset_pollfd (server->self_pipe[0]);
+
+  if (wsconfig.unix_socket) {
+    unlink(wsconfig.unix_socket);
+  }
 }
 
 /* Set the origin so the server can force connections to have the
@@ -2861,6 +2882,12 @@ ws_set_config_host (const char *host) {
   wsconfig.host = host;
 }
 
+/* Set the server unix socket bind address. */
+void
+ws_set_config_unix_socket (const char *unix_socket) {
+  wsconfig.unix_socket = unix_socket;
+}
+
 /* Set the server port bind address. */
 void
 ws_set_config_port (const char *port) {
@@ -2889,6 +2916,7 @@ ws_init (const char *host, const char *port, void (*initopts) (void)) {
 
   wsconfig.accesslog = NULL;
   wsconfig.host = host;
+  wsconfig.unix_socket = NULL;
   wsconfig.max_frm_size = WS_MAX_FRM_SZ;
   wsconfig.origin = NULL;
   wsconfig.pipein = NULL;
