@@ -175,7 +175,7 @@ house_keeping (void) {
   /* UNKNOWNS */
   if (conf.unknowns_log) {
     LOG_DEBUG (("Closing unknowns log.\n"));
-    unknowns_log_close();
+    unknowns_log_close ();
   }
 
   /* CONFIGURATION */
