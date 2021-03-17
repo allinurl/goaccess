@@ -83,6 +83,7 @@ struct option long_opts[] = {
   {"444-as-404"           , no_argument       , 0 , 0  }  ,
   {"4xx-to-unique-count"  , no_argument       , 0 , 0  }  ,
   {"addr"                 , required_argument , 0 , 0  }  ,
+  {"unix-socket"          , required_argument , 0 , 0  }  ,
   {"all-static-files"     , no_argument       , 0 , 0  }  ,
   {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
   {"color"                , required_argument , 0 , 0  }  ,
@@ -193,6 +194,7 @@ cmd_help (void)
   /* Server Options */
   CYN "SERVER OPTIONS\n\n" RESET
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
+  "  --unix-socket=<addr>            - Specify UNIX-domain socket address to bind server to.\n"
   "  --daemonize                     - Run as daemon (if --real-time-html enabled).\n"
   "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
@@ -397,6 +399,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* address to bind to */
   if (!strcmp ("addr", name))
     conf.addr = oarg;
+
+  /* unix socket to use */
+  if (!strcmp ("unix-socket", name))
+    conf.unix_socket = oarg;
 
   /* FIFO in (read) */
   if (!strcmp ("fifo-in", name))

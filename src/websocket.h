@@ -261,6 +261,7 @@ typedef struct WSConfig_ {
   const char *port;
   const char *sslcert;
   const char *sslkey;
+  const char *unix_socket;
   int echomode;
   int strict;
   int max_frm_size;
@@ -303,6 +304,7 @@ void ws_set_config_accesslog (const char *accesslog);
 void ws_set_config_echomode (int echomode);
 void ws_set_config_frame_size (int max_frm_size);
 void ws_set_config_host (const char *host);
+void ws_set_config_unix_socket (const char *unix_socket);
 void ws_set_config_origin (const char *origin);
 void ws_set_config_pipein (const char *pipein);
 void ws_set_config_pipeout (const char *pipeout);
