@@ -2696,9 +2696,9 @@ ws_socket (int *listener) {
     if ((*listener = socket (AF_UNIX, SOCK_STREAM, 0)) == -1)
       FATAL ("Unable to open socket: %s.", strerror (errno));
 
-    memset(&servaddr, 0, sizeof (servaddr));
+    memset (&servaddr, 0, sizeof (servaddr));
     servaddr.sun_family = AF_UNIX;
-    strncpy(servaddr.sun_path, wsconfig.unix_socket, sizeof (servaddr.sun_path) - 1);
+    strncpy (servaddr.sun_path, wsconfig.unix_socket, sizeof (servaddr.sun_path) - 1);
 
     /* Bind the socket to the address. */
     if (bind (*listener, (struct sockaddr *) &servaddr, sizeof (servaddr)) != 0)
@@ -2826,7 +2826,7 @@ ws_start (WSServer * server) {
     unset_pollfd (server->self_pipe[0]);
 
   if (wsconfig.unix_socket) {
-    unlink(wsconfig.unix_socket);
+    unlink (wsconfig.unix_socket);
   }
 }
 
