@@ -471,7 +471,7 @@ parse_long_opt (const char *name, const char *oarg) {
   /* unknowns */
   if (!strcmp ("unknowns-log", name)) {
     conf.unknowns_log = oarg;
-    unknowns_log_open(conf.unknowns_log);
+    unknowns_log_open (conf.unknowns_log);
   }
 
   /* output file */
