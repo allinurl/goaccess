@@ -75,6 +75,7 @@ static const char *os[][2] = {
   {"iPad", "iOS"},
   {"iPod", "iOS"},
   {"iPhone", "iOS"},
+  {"CFNetwork", "iOS"},
   {"AppleTV", "iOS"},
   {"iTunes", "Macintosh"},
   {"OS X", "Macintosh"},
@@ -353,6 +354,11 @@ parse_os (const char *str, char *tkn, char *os_type, int idx) {
     return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
   }
   /* iOS */
+  if ((strstr (tkn, "CFNetwork")) != NULL) {
+    if ((b = strchr (str, ' ')))
+      *b = 0;
+    return xstrdup (str);
+  }
   if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
     return xstrdup (parse_ios (tkn, 4));
   if (strstr (tkn, "iPhone"))
