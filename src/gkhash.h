@@ -191,7 +191,7 @@ struct GKHashStorage_ {
  * Windows XP       -> 3
  * Ubuntu 10.10     -> 4
  * GET|Ubuntu 10.10 -> 5
- * Linux            -> 6
+ * GNU+Linux        -> 6
  * 26/Dec/2014      -> 7
  * Windows          -> 8
  */
@@ -200,7 +200,7 @@ struct GKHashStorage_ {
 /* Maps integer keys of root elements from the keymap hash
  * to actual string values.
  *
- * 6 -> Linux
+ * 6 -> GNU+Linux
  * 8 -> Windows
  */
 /*khash_t(is32) MTRC_ROOTMAP */

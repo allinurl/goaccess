@@ -2428,11 +2428,11 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
   logitem->os = verify_os (agent, os_type);
   logitem->os_type = xstrdup (os_type);
 
-  /* e.g., Linux,Ubuntu 10.12 */
+  /* e.g., GNU+Linux,Ubuntu 10.12 */
   kdata->data = logitem->os;
   kdata->data_key = logitem->os;
 
-  /* Linux */
+  /* GNU+Linux */
   kdata->root = logitem->os_type;
   kdata->root_key = logitem->os_type;
   kdata->numdate = logitem->numdate;
