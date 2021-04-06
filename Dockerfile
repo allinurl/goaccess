@@ -1,5 +1,5 @@
 FROM pureos/amber AS builds
-RUN apk add --no-cache \
+RUN apt install \
     autoconf \
     automake \
     build-base \
