@@ -3,15 +3,12 @@ RUN apt install \
     autoconf \
     automake \
     clang \
-    gettext-dev \
-    gettext-static \
+    gettext \
     git \
-    libmaxminddb-dev \
-    libmaxminddb-static \
-    libressl-dev \
+    libmaxminddb \
+    libressl \
     linux-headers \
-    ncurses-dev \
-    ncurses-static \
+    ncurses \
     tzdata
 
 # GoAccess
