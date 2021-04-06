@@ -3,7 +3,6 @@ RUN apt install \
     autoconf \
     automake \
     clang \
-    clang-static \
     gettext-dev \
     gettext-static \
     git \
