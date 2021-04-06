@@ -85,6 +85,7 @@ static const char *os[][2] = {
   {"Ubuntu", "GNU+Linux"},
   {"Fedora", "GNU+Linux"},
   {"Mint", "GNU+Linux"},
+  {"OpenSUSE", "GNU+Linux"},
   {"SUSE", "GNU+Linux"},
   {"Mandriva", "GNU+Linux"},
   {"Red Hat", "GNU+Linux"},
@@ -92,15 +93,27 @@ static const char *os[][2] = {
   {"CentOS", "GNU+Linux"},
   {"PCLinuxOS", "GNU+Linux"},
   {"Arch", "GNU+Linux"},
-  {"Parabola", "GNU+Linux"},
+
+  /* Entirely libre systems */
+  {"Parabola", "GNU+Linux-libre"},
+  {"GNU Guix", "GNU+Linux-libre"},
+  {"PureOS", "GNU+Linux (deblobbed)"},
+  {"Trisquel", "GNU+Linux (deblobbed)"},
 
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
   {"DragonFly", "BSD"},
 
-  {"Linux", "Linux"},
-  {"linux", "Linux"},
+  /* Most systems using the Linux kernel are
+   * GNU+Linux, with the exception of the Android
+   * family of systems, listed below, and a few
+   * other distributions, listed here. */
+  {"TinyCore", "BusyBox+musl+Linux"},
+  {"Alpine", "BusyBox+musl+Linux"},
+
+  {"Linux", "GNU+Linux"},
+  {"linux", "GNU+Linux"},
 
   {"PlayStation", "BSD"},
 
