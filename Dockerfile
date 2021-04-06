@@ -2,7 +2,6 @@ FROM pureos/amber AS builds
 RUN apt install \
     autoconf \
     automake \
-    build-base \
     clang \
     clang-static \
     gettext-dev \
