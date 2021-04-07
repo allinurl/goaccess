@@ -98,16 +98,18 @@ static const char *os[][2] = {
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
   {"DragonFly", "BSD"},
+  
+  {"PlayStation", "BSD"},
 
   {"Linux", "Linux"},
   {"linux", "Linux"},
 
-  {"PlayStation", "BSD"},
-
   {"CrOS", "Chrome OS"},
-  {"SunOS", "Unix-like"},
   {"QNX", "Unix-like"},
   {"BB10", "Unix-like"},
+  
+  {"AIX", "Unix"},
+  {"SunOS", "Unix"},
 
   {"BlackBerry", "Others"},
   {"Sony", "Others"},
