@@ -1998,7 +1998,7 @@ insert_dkeymap (GModule module, GKeyData * kdata) {
 /* A wrapper function to insert a root keymap string key.
  *
  * If the given key exists, its value is returned.
- * On error, -1 is returned.
+ * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 static int
 insert_rkeymap (GModule module, GKeyData * kdata) {
