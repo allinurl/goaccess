@@ -2014,7 +2014,7 @@ insert_data (GModule module, GKeyData * kdata) {
 /* A wrapper function to insert a uniqmap string key.
  *
  * If the given key exists, 0 is returned.
- * On error, -1 is returned.
+ * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 static int
 insert_uniqmap (GModule module, GKeyData * kdata, uint32_t uniq_nkey) {
