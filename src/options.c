@@ -98,7 +98,7 @@ struct option long_opts[] = {
   {"enable-panel"         , required_argument , 0 , 0  }  ,
   {"fifo-in"              , required_argument , 0 , 0  }  ,
   {"fifo-out"             , required_argument , 0 , 0  }  ,
-  {"hide-referer"         , required_argument , 0 , 0  }  ,
+  {"hide-referrer"        , required_argument , 0 , 0  }  ,
   {"hour-spec"            , required_argument , 0 , 0  }  ,
   {"html-custom-css"      , required_argument , 0 , 0  }  ,
   {"html-custom-js"       , required_argument , 0 , 0  }  ,
@@ -240,7 +240,7 @@ cmd_help (void)
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date` (default), or `hr`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
-  "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards are allowed.\n"
+  "  --hide-referrer=<NEEDLE>        - Hide a referrer but still count it. Wild cards are allowed.\n"
   "                                    i.e., *.bing.com\n"
   "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr` (default),\n"
   "                                    or `min` (tenth of a min).\n"
@@ -532,8 +532,8 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("no-ip-validation", name))
     conf.no_ip_validation = 1;
 
-  /* hide referer from report (e.g. within same site) */
-  if (!strcmp ("hide-referer", name))
+  /* hide referrer from report (e.g. within same site) */
+  if (!strcmp ("hide-referrer", name))
     set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx, MAX_IGNORE_REF);
 
   /* ignore status code */
