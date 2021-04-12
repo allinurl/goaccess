@@ -106,7 +106,7 @@ struct option long_opts[] = {
   {"html-report-title"    , required_argument , 0 , 0  }  ,
   {"ignore-crawlers"      , no_argument       , 0 , 0  }  ,
   {"ignore-panel"         , required_argument , 0 , 0  }  ,
-  {"ignore-referer"       , required_argument , 0 , 0  }  ,
+  {"ignore-referrer"      , required_argument , 0 , 0  }  ,
   {"ignore-statics"       , required_argument , 0 , 0  }  ,
   {"ignore-status"        , required_argument , 0 , 0  }  ,
   {"invalid-requests"     , required_argument , 0 , 0  }  ,
@@ -246,7 +246,7 @@ cmd_help (void)
   "                                    or `min` (tenth of a min).\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards are allowed.\n"
+  "  --ignore-referrer=<NEEDLE>      - Ignore a referrer from being counted. Wild cards are allowed.\n"
   "                                    i.e., *.bing.com\n"
   "  --ignore-statics=<req|panel>    - Ignore static requests.\n"
   "                                    req => Ignore from valid requests.\n"
@@ -524,8 +524,8 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("ignore-panel", name))
     set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx, TOTAL_MODULES);
 
-  /* ignore referer */
-  if (!strcmp ("ignore-referer", name))
+  /* ignore referrer */
+  if (!strcmp ("ignore-referrer", name))
     set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx, MAX_IGNORE_REF);
 
   /* client IP validation */
