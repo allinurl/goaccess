@@ -94,11 +94,6 @@ typedef struct GKHashMetric_ {
   const char *filename;
 } GKHashMetric;
 
-/* Raw Data store per module */
-typedef struct RawDataHash_ {
-  GKHashMetric metrics[GSMTRC_TOTAL];
-} RawDataHash;
-
 /* Data store per module */
 typedef struct GKHashModule_ {
   GModule module;
