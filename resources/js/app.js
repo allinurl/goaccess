@@ -51,7 +51,7 @@ window.GoAccess = window.GoAccess || {
 			'autoHideTables': true,
 			'layout': cw > 2560 ? 'wide' : 'horizontal',
 			'perPage': 7,
-			'theme': 'darkPurple',
+			'theme': (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'darkPurple' : 'bright',
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
