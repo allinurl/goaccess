@@ -109,7 +109,7 @@ typedef struct GKHashMetric_ {
   void *(*alloc) (void);
   void (*des) (void *, uint8_t free_data);
   void (*del) (void *, uint8_t free_data);
-  int free_data:1;
+  uint8_t free_data:1;
   void *hash;
   const char *filename;
 } GKHashMetric;
