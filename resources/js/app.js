@@ -1432,7 +1432,7 @@ GoAccess.Tables = {
 		var data = GoAccess.getPanelData(panel).metadata;
 
 		for (var i = 0; i < uiItems.length; ++i) {
-			var item = uiItems[i], o = {};
+			var item = uiItems[i];
 			if (this.hideColumn(panel, item.key))
 				continue;
 			cells.push(this.getMetaCell(item, data[item.key], key));
