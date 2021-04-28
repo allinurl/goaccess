@@ -1597,7 +1597,7 @@ GoAccess.Tables = {
 	renderFullTable: function (panel) {
 		var ui = GoAccess.getPanelUI(panel), page = 0;
 		// panel's data
-		var data = GoAccess.getPanelData(panel), metarows = [];
+		var data = GoAccess.getPanelData(panel);
 
 		// render meta data
 		if (data.hasOwnProperty('metadata')) {
