@@ -49,19 +49,12 @@
 #include "xmalloc.h"
 
 /* *INDENT-OFF* */
-/* Hash tables used across the whole app */
-static khash_t (igkh) * ht_dates       = NULL;
-static khash_t (si32) * ht_seqs        = NULL;
-static khash_t (ss32) * ht_hostnames   = NULL;
-static khash_t (si32) * ht_cnt_overall = NULL;
-static khash_t (iglp) * ht_last_parse  = NULL;
-static khash_t (ss32) * ht_json_logfmt = NULL;
-
-static GKHashModule *cache_storage = NULL;
+/* Hash table that holds DB instances */
+static khash_t (igdb) * ht_db = NULL;
+/* *INDENT-ON* */
 
 static uint32_t *persisted_dates = NULL;
 static uint32_t persisted_dates_len = 0;
-/* *INDENT-ON* */
 
 /* Allocate memory for a new store container GKHashStorage instance.
  *
@@ -88,6 +81,24 @@ static GKHashGlobal *
 new_gkhglobal (void) {
   GKHashGlobal *storage = xcalloc (1, sizeof (GKHashGlobal));
   return storage;
+}
+
+/* Allocate memory for a new global GKHashDB instance.
+ *
+ * On success, the newly allocated GKHashDB is returned . */
+static GKHashDB *
+new_gkhdb (void) {
+  GKHashDB *storage = xcalloc (1, sizeof (GKHashDB));
+  return storage;
+}
+
+/* Allocate memory for a new GKDB instance.
+ *
+ * On success, the newly allocated GKHashDB is returned . */
+static GKDB *
+new_gkdb (void) {
+  GKDB *db = xcalloc (1, sizeof (GKDB));
+  return db;
 }
 
 /* Get the module string value given a metric enum value.
@@ -121,6 +132,13 @@ new_ii32_ht (void) {
 static void *
 new_iglp_ht (void) {
   khash_t (iglp) * h = kh_init (iglp);
+  return h;
+}
+
+/* Initialize a new uint32_t key - GKHashStorage value hash table */
+static void *
+new_igdb_ht (void) {
+  khash_t (igdb) * h = kh_init (igdb);
   return h;
 }
 
@@ -216,6 +234,26 @@ del_si32_free (void *h, uint8_t free_data) {
       if (free_data)
         free ((char *) kh_key (hash, k));
       kh_del (si32, hash, k);
+    }
+  }
+}
+
+/* Deletes an entry from the hash table and optionally the keys for a string
+ * keys and string values */
+static void
+del_ss32_free (void *h, uint8_t free_data) {
+  khint_t k;
+  khash_t (ss32) * hash = h;
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k)) {
+      if (free_data) {
+        free ((char *) kh_key (hash, k));
+        free ((char *) kh_value (hash, k));
+      }
+      kh_del (ss32, hash, k);
     }
   }
 }
@@ -444,29 +482,42 @@ del_iu64 (void *h, GO_UNUSED uint8_t free_data) {
 }
 
 /* *INDENT-OFF* */
-static const GKHashMetric global_metrics[] = {
-  { MTRC_UNIQUE_KEYS , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_UNIQUE_KEYS.db" } ,
-  { MTRC_AGENT_KEYS  , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_AGENT_KEYS.db"  } ,
-  { MTRC_AGENT_VALS  , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , "IS32_AGENT_VALS.db"  } ,
-  { MTRC_CNT_VALID   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , "II32_CNT_VALID.db"   } ,
-  { MTRC_CNT_BW      , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , "IU64_CNT_BW.db"      } ,
+/* Whole application */
+static const GKHashMetric app_metrics[] = {
+  { .metric.dbm=MTRC_DATE_SEQS      , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , "SI32_UNIQUE_KEYS.db"    } ,
+  { .metric.dbm=MTRC_DATES          , MTRC_TYPE_IGKH , new_igkh_ht , NULL          , NULL          , NULL , "I32_DATES.db"           } ,
+  { .metric.dbm=MTRC_SEQS           , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_SEQS.db"           } ,
+  { .metric.dbm=MTRC_CNT_OVERALL    , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_CNT_OVERALL.db"    } ,
+  { .metric.dbm=MTRC_HOSTNAMES      , MTRC_TYPE_SS32 , new_ss32_ht , des_ss32_free , del_ss32_free , NULL , NULL                     } ,
+  { .metric.dbm=MTRC_LAST_PARSE     , MTRC_TYPE_IGLP , new_iglp_ht , des_iglp      , NULL          , NULL , "IGLP_LAST_PARSE.db"     } ,
+  { .metric.dbm=MTRC_JSON_LOGFMT    , MTRC_TYPE_SS32 , new_ss32_ht , des_ss32_free , del_ss32_free , NULL , NULL                     } ,
 };
 
+/* Per module - These metrics are not dated */
+static const GKHashMetric global_metrics[] = {
+  { .metric.storem=MTRC_UNIQUE_KEYS , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_UNIQUE_KEYS.db" }    ,
+  { .metric.storem=MTRC_AGENT_KEYS  , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , "SI32_AGENT_KEYS.db"  }    ,
+  { .metric.storem=MTRC_AGENT_VALS  , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , "IS32_AGENT_VALS.db"  }    ,
+  { .metric.storem=MTRC_CNT_VALID   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , "II32_CNT_VALID.db"   }    ,
+  { .metric.storem=MTRC_CNT_BW      , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , "IU64_CNT_BW.db"      }    ,
+};
+
+/* Per module & per date */
 static GKHashMetric module_metrics[] = {
-  { MTRC_KEYMAP    , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , NULL} ,
-  { MTRC_ROOTMAP   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL} ,
-  { MTRC_DATAMAP   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL} ,
-  { MTRC_UNIQMAP   , MTRC_TYPE_U648 , new_u648_ht , des_u648      , del_u648      , NULL , NULL} ,
-  { MTRC_ROOT      , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL} ,
-  { MTRC_HITS      , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL} ,
-  { MTRC_VISITORS  , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL} ,
-  { MTRC_BW        , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL} ,
-  { MTRC_CUMTS     , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL} ,
-  { MTRC_MAXTS     , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL} ,
-  { MTRC_METHODS   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL} ,
-  { MTRC_PROTOCOLS , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL} ,
-  { MTRC_AGENTS    , MTRC_TYPE_IGSL , new_igsl_ht , des_igsl_free , del_igsl_free , NULL , NULL} ,
-  { MTRC_METADATA  , MTRC_TYPE_SU64 , new_su64_ht , des_su64_free , del_su64_free , NULL , NULL} ,
+  { .metric.storem=MTRC_KEYMAP      , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_ROOTMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_DATAMAP     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_UNIQMAP     , MTRC_TYPE_U648 , new_u648_ht , des_u648      , del_u648      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_ROOT        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_HITS        , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_VISITORS    , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_BW          , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_CUMTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_MAXTS       , MTRC_TYPE_IU64 , new_iu64_ht , des_iu64      , del_iu64      , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_METHODS     , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_PROTOCOLS   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_AGENTS      , MTRC_TYPE_IGSL , new_igsl_ht , des_igsl_free , del_igsl_free , NULL , NULL                    }  ,
+  { .metric.storem=MTRC_METADATA    , MTRC_TYPE_SU64 , new_su64_ht , des_su64_free , del_su64_free , NULL , NULL                    }  ,
 };
 /* *INDENT-ON* */
 
@@ -480,6 +531,25 @@ init_tables (GModule module, GKHashModule * storage) {
     storage[module].metrics[i] = module_metrics[i];
     storage[module].metrics[i].hash = module_metrics[i].alloc ();
   }
+}
+
+/* Destroys malloc'd mdule metrics */
+static void
+free_app_metrics (GKHashDB * storage) {
+  int i, n = 0;
+  GKHashMetric mtrc;
+
+  if (!storage)
+    return;
+
+  n = ARRAY_SIZE (app_metrics);
+  for (i = 0; i < n; i++) {
+    mtrc = storage->metrics[i];
+    if (mtrc.des) {
+      mtrc.des (mtrc.hash, 1);
+    }
+  }
+  free (storage);
 }
 
 /* Destroys malloc'd global metrics */
@@ -549,11 +619,37 @@ free_stores (GKHashStorage * store) {
  * On error or not found, NULL is returned.
  * On success, a pointer to that store is returned. */
 static void *
-get_store (uint32_t key) {
-  GKHashStorage *store = NULL;
+get_db_instance (uint32_t key) {
+  GKDB *db = NULL;
   khint_t k;
 
-  khash_t (igkh) * hash = ht_dates;
+  khash_t (igdb) * hash = ht_db;
+
+  k = kh_get (igdb, hash, key);
+  /* key not found, return NULL */
+  if (k == kh_end (hash))
+    return NULL;
+
+  db = kh_val (hash, k);
+  return db;
+}
+
+/* Get an app hash table given a DB instance and a GAMetric
+ *
+ * On success, a pointer to that store is returned. */
+static void *
+get_hdb (GKDB * db, GAMetric mtrc) {
+  return db->hdb->metrics[mtrc].hash;
+}
+
+/* Given a hash and a key (date), get the relevant store
+ *
+ * On error or not found, NULL is returned.
+ * On success, a pointer to that store is returned. */
+static void *
+get_store (khash_t (igkh) * hash, uint32_t key) {
+  GKHashStorage *store = NULL;
+  khint_t k;
 
   k = kh_get (igkh, hash, key);
   /* key not found, return NULL */
@@ -598,8 +694,10 @@ get_hash_from_store (GKHashStorage * store, int module, GSMetric metric) {
 static void *
 get_hash (int module, uint64_t key, GSMetric metric) {
   GKHashStorage *store = NULL;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
 
-  if ((store = get_store (key)) == NULL)
+  if ((store = get_store (hash, key)) == NULL)
     return NULL;
   return get_hash_from_store (store, module, metric);
 }
@@ -609,7 +707,28 @@ get_hash (int module, uint64_t key, GSMetric metric) {
  * On success, a pointer to that hash table is returned. */
 static void *
 get_hash_from_cache (GModule module, GSMetric metric) {
-  return cache_storage[module].metrics[metric].hash;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+
+  return db->cache[module].metrics[metric].hash;
+}
+
+/* Initialize a global hash structure.
+ *
+ * On success, a pointer to that hash structure is returned. */
+static GKHashDB *
+init_gkhashdb (void) {
+  GKHashDB *storage = NULL;
+
+  int n = 0, i;
+
+  storage = new_gkhdb ();
+  n = ARRAY_SIZE (app_metrics);
+  for (i = 0; i < n; i++) {
+    storage->metrics[i] = app_metrics[i];
+    storage->metrics[i].hash = app_metrics[i].alloc ();
+  }
+
+  return storage;
 }
 
 /* Initialize a global hash structure.
@@ -704,6 +823,38 @@ ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp) {
   return 0;
 }
 
+/* Create a new GKDB instance given a uint32_t key
+ *
+ * On error, -1 is returned.
+ * On key found, 1 is returned.
+ * On success 0 is returned */
+static int
+new_db (khash_t (igdb) * hash, uint32_t key) {
+  GKDB *db = NULL;
+  khint_t k;
+  int ret;
+
+  if (!hash)
+    return -1;
+
+  k = kh_put (igdb, hash, key, &ret);
+  /* operation failed */
+  if (ret == -1)
+    return -1;
+  /* the key is present in the hash table */
+  if (ret == 0)
+    return 1;
+
+  db = new_gkdb ();
+  db->hdb = init_gkhashdb ();
+  db->cache = NULL;
+  db->store = NULL;
+
+  kh_val (hash, k) = db;
+
+  return 0;
+}
+
 /* Insert a string key and the corresponding uint32_t value.
  * Note: If the key exists, the value is not replaced.
  *
@@ -737,7 +888,8 @@ ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
  * On error, 0 is returned.
  * On success or if the key exists, the value is returned */
 static uint32_t
-ins_si32_inc (khash_t (si32) * hash, const char *key, uint32_t (*cb) (const char *),
+ins_si32_inc (khash_t (si32) * hash, const char *key,
+              uint32_t (*cb) (khash_t (si32) *, const char *), khash_t (si32) * seqs,
               const char *seqk) {
   khint_t k;
   int ret;
@@ -751,7 +903,7 @@ ins_si32_inc (khash_t (si32) * hash, const char *key, uint32_t (*cb) (const char
   if (ret == -1 || ret == 0)
     return 0;
 
-  if ((value = cb (seqk)) == 0)
+  if ((value = cb (seqs, seqk)) == 0)
     return 0;
   kh_val (hash, k) = value;
 
@@ -1138,7 +1290,7 @@ static char *
 get_filename (GModule module, GKHashMetric mtrc) {
   char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
 
-  if (!(mtrstr = get_mtr_str (mtrc.metric)))
+  if (!(mtrstr = get_mtr_str (mtrc.metric.storem)))
     FATAL ("Unable to allocate metric name.");
   if (!(modstr = get_module_str (module)))
     FATAL ("Unable to allocate module name.");
@@ -1302,6 +1454,9 @@ restore_si32 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static int
 persist_si32 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
+
   khash_t (si32) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
@@ -1309,11 +1464,11 @@ persist_si32 (GSMetric metric, const char *path, int module) {
   uint32_t val = 0;
   const char *key = NULL;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1361,6 +1516,8 @@ restore_is32 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a uint32_t key, string value */
 static int
 persist_is32 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (is32) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
@@ -1368,11 +1525,11 @@ persist_is32 (GSMetric metric, const char *path, int module) {
   char *val = NULL;
   uint32_t key = 0;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1416,17 +1573,19 @@ restore_ii32 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a uint32_t key, uint32_t value */
 static int
 persist_ii32 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (ii32) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
   char fmt[] = "A(iA(uu))";
   uint32_t key = 0, val = 0;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1471,6 +1630,8 @@ restore_u648 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a uint64_t key, uint8_t value */
 static int
 persist_u648 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (u648) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
@@ -1478,11 +1639,11 @@ persist_u648 (GSMetric metric, const char *path, int module) {
   uint64_t key;
   uint16_t val = 0;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1527,6 +1688,8 @@ restore_iu64 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a uint32_t key, uint64_t value */
 static int
 persist_iu64 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (iu64) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
@@ -1534,11 +1697,11 @@ persist_iu64 (GSMetric metric, const char *path, int module) {
   uint32_t key;
   uint64_t val;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1584,6 +1747,8 @@ restore_su64 (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a string key, uint64_t value */
 static int
 persist_su64 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (su64) * hash = NULL;
   tpl_node *tn = NULL;
   int date = 0;
@@ -1591,11 +1756,11 @@ persist_su64 (GSMetric metric, const char *path, int module) {
   const char *key = NULL;
   uint64_t val;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -1639,6 +1804,8 @@ restore_igsl (GSMetric metric, const char *path, int module) {
 /* Given a hash and a filename, persist to disk a uint32_t key, GSLList value */
 static int
 persist_igsl (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (igsl) * hash = NULL;
   GSLList *node;
   tpl_node *tn = NULL;
@@ -1646,11 +1813,11 @@ persist_igsl (GSMetric metric, const char *path, int module) {
   char fmt[] = "A(iA(uu))";
   uint32_t key, val;
 
-  if (!ht_dates || !(tn = tpl_map (fmt, &date, &key, &val)))
+  if (!dates || !(tn = tpl_map (fmt, &date, &key, &val)))
     return 1;
 
   /* *INDENT-OFF* */
-  HT_FOREACH_KEY (ht_dates, date, {
+  HT_FOREACH_KEY (dates, date, {
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, node, {
@@ -1693,25 +1860,25 @@ restore_by_type (GKHashMetric mtrc, const char *fn, int module) {
 
   switch (mtrc.type) {
   case MTRC_TYPE_SI32:
-    restore_si32 (mtrc.metric, path, module);
+    restore_si32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IS32:
-    restore_is32 (mtrc.metric, path, module);
+    restore_is32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_II32:
-    restore_ii32 (mtrc.metric, path, module);
+    restore_ii32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_U648:
-    restore_u648 (mtrc.metric, path, module);
+    restore_u648 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IU64:
-    restore_iu64 (mtrc.metric, path, module);
+    restore_iu64 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_SU64:
-    restore_su64 (mtrc.metric, path, module);
+    restore_su64 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IGSL:
-    restore_igsl (mtrc.metric, path, module);
+    restore_igsl (mtrc.metric.storem, path, module);
     break;
   default:
     break;
@@ -1786,19 +1953,24 @@ restore_dates (void) {
 /* Entry function to restore a global hashes */
 static void
 restore_global (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
+  khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
+  khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
+
   char *path = NULL;
 
   restore_dates ();
   if ((path = check_restore_path ("SI32_CNT_OVERALL.db"))) {
-    restore_global_si32 (ht_cnt_overall, path);
+    restore_global_si32 (overall, path);
     free (path);
   }
   if ((path = check_restore_path ("SI32_SEQS.db"))) {
-    restore_global_si32 (ht_seqs, path);
+    restore_global_si32 (seqs, path);
     free (path);
   }
   if ((path = check_restore_path ("IGLP_LAST_PARSE.db"))) {
-    restore_global_iglp (ht_last_parse, path);
+    restore_global_iglp (last_parse, path);
     free (path);
   }
 }
@@ -1823,6 +1995,7 @@ restore_data (void) {
       restore_metric_type (module, module_metrics[i]);
     }
   }
+  free (persisted_dates);
 }
 
 static void
@@ -1832,25 +2005,25 @@ persist_by_type (GKHashMetric mtrc, const char *fn, int module) {
 
   switch (mtrc.type) {
   case MTRC_TYPE_SI32:
-    persist_si32 (mtrc.metric, path, module);
+    persist_si32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IS32:
-    persist_is32 (mtrc.metric, path, module);
+    persist_is32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_II32:
-    persist_ii32 (mtrc.metric, path, module);
+    persist_ii32 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_U648:
-    persist_u648 (mtrc.metric, path, module);
+    persist_u648 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IU64:
-    persist_iu64 (mtrc.metric, path, module);
+    persist_iu64 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_SU64:
-    persist_su64 (mtrc.metric, path, module);
+    persist_su64 (mtrc.metric.storem, path, module);
     break;
   case MTRC_TYPE_IGSL:
-    persist_igsl (mtrc.metric, path, module);
+    persist_igsl (mtrc.metric.storem, path, module);
     break;
   default:
     break;
@@ -1868,19 +2041,23 @@ persist_metric_type (GModule module, GKHashMetric mtrc) {
 
 static void
 persist_global (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
+  khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
+  khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
   char *path = NULL;
 
   persist_dates ();
   if ((path = set_db_path ("SI32_CNT_OVERALL.db"))) {
-    persist_global_si32 (ht_cnt_overall, path);
+    persist_global_si32 (overall, path);
     free (path);
   }
   if ((path = set_db_path ("SI32_SEQS.db"))) {
-    persist_global_si32 (ht_seqs, path);
+    persist_global_si32 (seqs, path);
     free (path);
   }
   if ((path = set_db_path ("IGLP_LAST_PARSE.db"))) {
-    persist_global_iglp (ht_last_parse, path);
+    persist_global_iglp (last_parse, path);
     free (path);
   }
   free (persisted_dates);
@@ -2052,18 +2229,21 @@ get_iglp (khash_t (iglp) * hash, uint32_t key) {
 
 GSLList *
 ht_get_keymap_list_from_key (GModule module, const char *key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
   GSLList *list = NULL;
   khiter_t kv;
   khint_t k;
   khash_t (si32) * hash = NULL;
 
-  if (!ht_dates)
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
+
+  if (!dates)
     return NULL;
 
-  for (k = kh_begin (ht_dates); k != kh_end (ht_dates); ++k) {
-    if (!kh_exist (ht_dates, k))
+  for (k = kh_begin (dates); k != kh_end (dates); ++k) {
+    if (!kh_exist (dates, k))
       continue;
-    if (!(hash = get_hash (module, kh_key (ht_dates, k), MTRC_KEYMAP)))
+    if (!(hash = get_hash (module, kh_key (dates, k), MTRC_KEYMAP)))
       continue;
     if ((kv = kh_get (si32, hash, key)) == kh_end (hash))
       continue;
@@ -2136,7 +2316,8 @@ get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max) {
  * Return 0 if the operation fails, else number of elements. */
 uint32_t
 ht_get_size_dates (void) {
-  khash_t (igkh) * hash = ht_dates;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
 
   if (!hash)
     return 0;
@@ -2146,7 +2327,8 @@ ht_get_size_dates (void) {
 
 uint32_t
 ht_get_excluded_ips (void) {
-  khash_t (si32) * hash = ht_cnt_overall;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
 
   if (!hash)
     return 0;
@@ -2156,7 +2338,8 @@ ht_get_excluded_ips (void) {
 
 uint32_t
 ht_get_invalid (void) {
-  khash_t (si32) * hash = ht_cnt_overall;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
 
   if (!hash)
     return 0;
@@ -2166,7 +2349,8 @@ ht_get_invalid (void) {
 
 uint32_t
 ht_get_processed (void) {
-  khash_t (si32) * hash = ht_cnt_overall;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
 
   if (!hash)
     return 0;
@@ -2176,7 +2360,8 @@ ht_get_processed (void) {
 
 uint32_t
 ht_get_processing_time (void) {
-  khash_t (si32) * hash = ht_cnt_overall;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
 
   if (!hash)
     return 0;
@@ -2186,15 +2371,17 @@ ht_get_processing_time (void) {
 
 uint32_t
 ht_sum_valid (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (ii32) * hash = NULL;
   uint32_t k = 0;
   uint32_t sum = 0;
 
-  if (!ht_dates)
+  if (!dates)
     return 0;
 
   /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
+  HT_SUM_VAL (dates, k, {
     if ((hash = get_hash (-1, k, MTRC_CNT_VALID)))
       sum += get_ii32 (hash, 1);
   });
@@ -2205,15 +2392,17 @@ ht_sum_valid (void) {
 
 uint64_t
 ht_sum_bw (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (iu64) * hash = NULL;
   uint32_t k = 0;
   uint64_t sum = 0;
 
-  if (!ht_dates)
+  if (!dates)
     return 0;
 
   /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
+  HT_SUM_VAL (dates, k, {
     if ((hash = get_hash (-1, k, MTRC_CNT_BW)))
       sum += get_iu64 (hash, 1);
   });
@@ -2224,7 +2413,8 @@ ht_sum_bw (void) {
 
 int
 ht_insert_last_parse (uint32_t key, GLastParse lp) {
-  khash_t (iglp) * hash = ht_last_parse;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (iglp) * hash = get_hdb (db, MTRC_LAST_PARSE);
 
   if (!hash)
     return 0;
@@ -2234,7 +2424,8 @@ ht_insert_last_parse (uint32_t key, GLastParse lp) {
 
 int
 ht_insert_date (uint32_t key) {
-  khash_t (igkh) * hash = ht_dates;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
 
   if (!hash)
     return -1;
@@ -2242,9 +2433,11 @@ ht_insert_date (uint32_t key) {
   return ins_igkh (hash, key);
 }
 
+
 uint32_t
 ht_inc_cnt_overall (const char *key, uint32_t val) {
-  khash_t (si32) * hash = ht_cnt_overall;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
 
   if (!hash)
     return 0;
@@ -2279,9 +2472,7 @@ ht_inc_cnt_bw (uint32_t date, uint64_t inc) {
  * On error, 0 is returned.
  * On success the inserted key is returned */
 static uint32_t
-ht_ins_seq (const char *key) {
-  khash_t (si32) * hash = ht_seqs;
-
+ht_ins_seq (khash_t (si32) * hash, const char *key) {
   if (!hash)
     return 0;
 
@@ -2316,9 +2507,11 @@ u64decode (uint64_t n, uint32_t * x, uint32_t * y) {
  * On success the value of the key inserted is returned */
 uint32_t
 ht_insert_unique_key (uint32_t date, const char *key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
+  khash_t (si32) * hash = get_hash (-1, date, MTRC_UNIQUE_KEYS);
   uint32_t val = 0;
   char *dupkey = NULL;
-  khash_t (si32) * hash = get_hash (-1, date, MTRC_UNIQUE_KEYS);
 
   if (!hash)
     return 0;
@@ -2327,7 +2520,7 @@ ht_insert_unique_key (uint32_t date, const char *key) {
     return val;
 
   dupkey = xstrdup (key);
-  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, "ht_unique_keys")) == 0)
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, seqs, "ht_unique_keys")) == 0)
     free (dupkey);
   return val;
 }
@@ -2339,9 +2532,11 @@ ht_insert_unique_key (uint32_t date, const char *key) {
  * On success the value of the key inserted is returned */
 uint32_t
 ht_insert_agent_key (uint32_t date, const char *key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
+  khash_t (si32) * hash = get_hash (-1, date, MTRC_AGENT_KEYS);
   char *dupkey = NULL;
   uint32_t val = 0;
-  khash_t (si32) * hash = get_hash (-1, date, MTRC_AGENT_KEYS);
 
   if (!hash)
     return 0;
@@ -2350,7 +2545,7 @@ ht_insert_agent_key (uint32_t date, const char *key) {
     return val;
 
   dupkey = xstrdup (key);
-  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, "ht_agent_keys")) == 0)
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, seqs, "ht_agent_keys")) == 0)
     free (dupkey);
   return val;
 }
@@ -2381,6 +2576,8 @@ ht_insert_agent_value (uint32_t date, uint32_t key, const char *value) {
  * On success the value of the key inserted is returned */
 uint32_t
 ht_insert_keymap (GModule module, uint32_t date, const char *key, uint32_t * ckey) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (si32) * hash = get_hash (module, date, MTRC_KEYMAP);
   khash_t (si32) * cache = get_hash_from_cache (module, MTRC_KEYMAP);
 
@@ -2398,7 +2595,7 @@ ht_insert_keymap (GModule module, uint32_t date, const char *key, uint32_t * cke
   modstr = get_module_str (module);
   dupkey = xstrdup (key);
 
-  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, modstr)) == 0) {
+  if ((val = ins_si32_inc (hash, dupkey, ht_ins_seq, seqs, modstr)) == 0) {
     free (dupkey);
     free (modstr);
     return val;
@@ -2659,7 +2856,8 @@ ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t va
  * On success 0 is returned */
 int
 ht_insert_hostname (const char *ip, const char *host) {
-  khash_t (ss32) * hash = ht_hostnames;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (ss32) * hash = get_hdb (db, MTRC_HOSTNAMES);
 
   if (!hash)
     return -1;
@@ -2673,10 +2871,11 @@ ht_insert_hostname (const char *ip, const char *host) {
  * On success or if key exists, 0 is returned */
 int
 ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (ss32) * hash = get_hdb (db, MTRC_JSON_LOGFMT);
+  khint_t k;
   int ret;
   char *dupkey = NULL;
-  khash_t (ss32) * hash = ht_json_logfmt;
-  khint_t k;
 
   if (!hash)
     return -1;
@@ -2701,7 +2900,8 @@ ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec) {
 
 GLastParse
 ht_get_last_parse (uint32_t key) {
-  khash_t (iglp) * hash = ht_last_parse;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (iglp) * hash = get_hdb (db, MTRC_LAST_PARSE);
   return get_iglp (hash, key);
 }
 
@@ -2724,15 +2924,17 @@ ht_get_size_datamap (GModule module) {
  * On success the number of elements in MTRC_UNIQMAP is returned */
 uint32_t
 ht_get_size_uniqmap (GModule module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (u648) * hash = NULL;
   uint32_t k = 0;
   uint32_t sum = 0;
 
-  if (!ht_dates)
+  if (!dates)
     return 0;
 
   /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
+  HT_SUM_VAL (dates, k, {
     if ((hash = get_hash (module, k, MTRC_UNIQMAP)))
     sum += kh_size (hash);
   });
@@ -2882,7 +3084,8 @@ ht_get_protocol (GModule module, uint32_t key) {
  * On success the string value for the given key is returned */
 char *
 ht_get_hostname (const char *host) {
-  khash_t (ss32) * hash = ht_hostnames;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (ss32) * hash = get_hdb (db, MTRC_HOSTNAMES);
 
   if (!hash)
     return NULL;
@@ -2896,7 +3099,8 @@ ht_get_hostname (const char *host) {
  * On success the string value for the given key is returned */
 char *
 ht_get_json_logfmt (const char *key) {
-  khash_t (ss32) * hash = ht_json_logfmt;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (ss32) * hash = get_hdb (db, MTRC_JSON_LOGFMT);
 
   if (!hash)
     return NULL;
@@ -2910,15 +3114,17 @@ ht_get_json_logfmt (const char *key) {
  * On success the string value for the given key is returned */
 char *
 ht_get_host_agent_val (uint32_t key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (is32) * hash = NULL;
   char *data = NULL;
   uint32_t k = 0;
 
-  if (!ht_dates)
+  if (!dates)
     return NULL;
 
   /* *INDENT-OFF* */
-  HT_FIRST_VAL (ht_dates, k, {
+  HT_FIRST_VAL (dates, k, {
     if ((hash = get_hash (-1, k, MTRC_AGENT_VALS)))
       if ((data = get_is32 (hash, key)))
         return data;
@@ -2934,19 +3140,22 @@ ht_get_host_agent_val (uint32_t key) {
  * On success the GSLList value for the given key is returned */
 GSLList *
 ht_get_host_agent_list (GModule module, uint32_t key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
+
   GSLList *res = NULL, *list = NULL;
   khiter_t kv;
   khint_t k;
   khash_t (igsl) * hash = NULL;
   void *data = NULL;
 
-  if (!ht_dates)
+  if (!dates)
     return NULL;
 
-  for (k = kh_begin (ht_dates); k != kh_end (ht_dates); ++k) {
-    if (!kh_exist (ht_dates, k))
+  for (k = kh_begin (dates); k != kh_end (dates); ++k) {
+    if (!kh_exist (dates, k))
       continue;
-    if (!(hash = get_hash (module, kh_key (ht_dates, k), MTRC_AGENTS)))
+    if (!(hash = get_hash (module, kh_key (dates, k), MTRC_AGENTS)))
       continue;
     if ((kv = kh_get (igsl, hash, key)) == kh_end (hash))
       continue;
@@ -2978,12 +3187,14 @@ ht_get_keymap (GModule module, const char *key) {
  * On success the uint64_t value for the given key is returned */
 uint64_t
 ht_get_meta_data (GModule module, const char *key) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khash_t (su64) * hash = NULL;
   uint32_t k = 0;
   uint64_t sum = 0;
 
   /* *INDENT-OFF* */
-  HT_SUM_VAL (ht_dates, k, {
+  HT_SUM_VAL (dates, k, {
     if ((hash = get_hash (module, k, MTRC_METADATA)))
       sum += get_su64 (hash, key);
   });
@@ -3069,12 +3280,13 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
 
 uint32_t *
 get_sorted_dates (uint32_t * len) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
   khiter_t key;
   uint32_t *dates = NULL;
   int i = 0;
   uint32_t size = 0;
 
-  khash_t (igkh) * hash = ht_dates;
   if (!hash)
     return NULL;
 
@@ -3091,7 +3303,8 @@ get_sorted_dates (uint32_t * len) {
 
 void
 destroy_date_stores (int date) {
-  khash_t (igkh) * hash = ht_dates;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
   khiter_t k;
 
   k = kh_get (igkh, hash, date);
@@ -3101,7 +3314,8 @@ destroy_date_stores (int date) {
 
 int
 invalidate_date (int date) {
-  khash_t (igkh) * hash = ht_dates;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
   GModule module;
   size_t idx = 0;
 
@@ -3110,7 +3324,7 @@ invalidate_date (int date) {
 
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
-    del_module_metrics (cache_storage, module, 0);
+    del_module_metrics (db->cache, module, 0);
   }
 
   destroy_date_stores (date);
@@ -3180,8 +3394,10 @@ inc_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 
 static int
 ins_raw_num_data (GModule module, uint32_t date) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
+  GKHashStorage *store = get_store (hash, date);
   khiter_t k, kr;
-  GKHashStorage *store = get_store (date);
   uint32_t ckey = 0, rkey = 0, nrkey = 0;
   char *val = NULL;
 
@@ -3223,8 +3439,9 @@ ins_raw_num_data (GModule module, uint32_t date) {
 
 static int
 set_raw_num_data_date (GModule module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
   khiter_t k;
-  khash_t (igkh) * hash = ht_dates;
 
   if (!hash)
     return -1;
@@ -3362,21 +3579,15 @@ parse_raw_data (GModule module) {
 
 void
 init_pre_storage (void) {
-  ht_json_logfmt = (khash_t (ss32) *) new_ss32_ht ();
+  ht_db = (khash_t (igdb) *) new_igdb_ht ();
+  new_db (ht_db, DB_INSTANCE);
 }
 
 /* Initialize hash tables */
 void
 init_storage (void) {
-  /* *INDENT-OFF* */
-  ht_hostnames   = (khash_t (ss32) *) new_ss32_ht ();
-  ht_dates       = (khash_t (igkh) *) new_igkh_ht ();
-  ht_seqs        = (khash_t (si32) *) new_si32_ht ();
-  ht_cnt_overall = (khash_t (si32) *) new_si32_ht ();
-  ht_last_parse  = (khash_t (iglp) *) new_iglp_ht ();
-  /* *INDENT-ON* */
-
-  cache_storage = init_gkhashmodule ();
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  db->cache = init_gkhashmodule ();
 
   if (conf.restore)
     restore_data ();
@@ -3399,26 +3610,51 @@ des_igkh (void *h) {
   kh_destroy (igkh, hash);
 }
 
-/* Destroys the hash structure and its content */
-void
-free_storage (void) {
+static void
+free_cache (GKHashModule * cache) {
   GModule module;
   size_t idx = 0;
 
-  if (conf.persist)
-    persist_data ();
-
-  des_igkh (ht_dates);
-  des_si32_free (ht_seqs, 1);
-  des_ss32_free (ht_hostnames, 1);
-  des_ss32_free (ht_json_logfmt, 1);
-
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
-    free_module_metrics (cache_storage, module, 0);
+    free_module_metrics (cache, module, 0);
   }
-  free (cache_storage);
+  free (cache);
+}
 
-  des_si32_free (ht_cnt_overall, 1);
-  des_iglp (ht_last_parse, 1);
+static void
+free_igdb (khash_t (igdb) * hash, khint_t k) {
+  GKDB *db = NULL;
+  db = kh_val (hash, k);
+
+  des_igkh (get_hdb (db, MTRC_DATES));
+  free_cache (db->cache);
+  free_app_metrics (db->hdb);
+
+  kh_del (igdb, hash, k);
+  free (kh_val (hash, k));
+}
+
+/* Destroys the hash structure */
+static void
+des_igdb (void *h) {
+  khint_t k;
+  khash_t (igdb) * hash = h;
+
+  if (!hash)
+    return;
+
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (kh_exist (hash, k))
+      free_igdb (hash, k);
+  }
+  kh_destroy (igdb, hash);
+}
+
+/* Destroys the hash structure and its content */
+void
+free_storage (void) {
+  if (conf.persist)
+    persist_data ();
+  des_igdb (ht_db);
 }

@@ -37,6 +37,8 @@
 #include "khash.h"
 #include "parser.h"
 
+#define DB_INSTANCE 1
+
 /* Enumerated Storage Metrics */
 typedef enum GSMetricType_ {
   /* uint32_t key - uint32_t val */
@@ -57,11 +59,16 @@ typedef enum GSMetricType_ {
   MTRC_TYPE_IGKH,
   /* uint64_t key - uint32_t val */
   MTRC_TYPE_U648,
+  /* uint32_t key - GLastParse val */
+  MTRC_TYPE_IGLP,
 } GSMetricType;
 
+typedef struct GKDB_ GKDB;
 typedef struct GKHashStorage_ GKHashStorage;
 
 /* *INDENT-OFF* */
+/* uint32_t keys           , GKDB payload */
+KHASH_MAP_INIT_INT (igdb   , GKDB *);
 /* uint32_t keys           , GKHashStorage payload */
 KHASH_MAP_INIT_INT (igkh   , GKHashStorage *);
 /* uint32_t keys           , uint32_t payload */
@@ -85,7 +92,10 @@ KHASH_MAP_INIT_INT64 (u648 , uint8_t);
 /* *INDENT-ON* */
 
 typedef struct GKHashMetric_ {
-  GSMetric metric;
+  union {
+    GSMetric storem;
+    GAMetric dbm;
+  } metric;
   GSMetricType type;
   void *(*alloc) (void);
   void (*des) (void *, uint8_t free_data);
@@ -108,6 +118,18 @@ typedef struct GKHashGlobal_ {
 struct GKHashStorage_ {
   GKHashModule *mhash;          /* modules */
   GKHashGlobal *ghash;          /* global */
+};
+
+/* Whole App Data store */
+typedef struct GKHashDB_ {
+  GKHashMetric metrics[GAMTRC_TOTAL];
+} GKHashDB;
+
+/* DB */
+struct GKDB_ {
+  GKHashDB *hdb;                /* app-level hash tables */
+  GKHashModule *cache;          /* cache modules */
+  GKHashStorage *store;         /* per date OR module */
 };
 
 #define HT_FIRST_VAL(h, kvar, code) { khint_t __k;    \
