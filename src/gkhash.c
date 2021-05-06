@@ -1995,7 +1995,6 @@ restore_data (void) {
       restore_metric_type (module, module_metrics[i]);
     }
   }
-  free (persisted_dates);
 }
 
 static void
@@ -2060,7 +2059,6 @@ persist_global (void) {
     persist_global_iglp (last_parse, path);
     free (path);
   }
-  free (persisted_dates);
 }
 
 static void
@@ -3657,4 +3655,5 @@ free_storage (void) {
   if (conf.persist)
     persist_data ();
   des_igdb (ht_db);
+  free (persisted_dates);
 }
