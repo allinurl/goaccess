@@ -38,14 +38,15 @@
 #define READ_BYTES      4096u
 #define MAX_BATCH_LINES 8192u   /* max number of lines to read per batch before a reflow */
 
-#define LINE_LEN        23
-#define ERROR_LEN       255
-#define REF_SITE_LEN    511     /* maximum length of a referring site */
-#define CACHE_STATUS_LEN 7
+#define LINE_LEN          23
+#define ERROR_LEN        255
+#define REF_SITE_LEN     511    /* maximum length of a referring site */
+#define CACHE_STATUS_LEN   7
+#define HASH_HEX          64
 
-#define SPEC_TOKN_NUL   0x1
-#define SPEC_TOKN_INV   0x2
-#define SPEC_SFMT_MIS   0x3
+#define SPEC_TOKN_NUL    0x1
+#define SPEC_TOKN_INV    0x2
+#define SPEC_SFMT_MIS    0x3
 
 #include "commons.h"
 #include "gslist.h"
@@ -76,11 +77,13 @@ typedef struct GLogItem_ {
   char *cache_status;
 
   char site[REF_SITE_LEN + 1];
+  char agent_hex[HASH_HEX];
 
   uint64_t resp_size;
   uint64_t serve_time;
 
   uint32_t numdate;
+  uint32_t agent_hash;
   int ignorelevel;
   int type_ip;
   int is_404;
@@ -171,10 +174,11 @@ typedef struct GRawData_ {
  * date, IP and user agent */
 typedef struct GKeyData_ {
   const void *data;
-  const void *data_key;
+  uint32_t dhash;
   uint32_t data_nkey;
   uint32_t cdnkey;              /* cache data nkey */
 
+  uint32_t rhash;
   const void *root;
   const void *root_key;
   uint32_t root_nkey;

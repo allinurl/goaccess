@@ -209,6 +209,18 @@ count_matches (const char *s1, char c) {
   return n;
 }
 
+/* Simple but efficient uint32_t hashing. */
+uint32_t
+djb2 (unsigned char *str) {
+  uint32_t hash = 5381;
+  int c;
+
+  while ((c = *str++))
+    hash = ((hash << 5) + hash) + c;    /* hash * 33 + c */
+
+  return hash;
+}
+
 /* String matching where one string contains wildcard characters.
  *
  * If no match found, 1 is returned.

@@ -172,3 +172,26 @@ set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals)
 
   *nmetrics = metrics;
 }
+
+void
+insert_methods_protocols (void) {
+  static const char *methods[] = {
+    "---",
+    "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT", "PATCH",
+    "options", "get", "head", "post", "put", "delete", "trace", "connect", "patch",
+    /* WebDav */
+    "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE", "LOCK", "UNLOCK", "VERSION-CONTROL",
+    "REPORT", "CHECKOUT", "CHECKIN", "UNCHECKOUT", "MKWORKSPACE", "UPDATE", "LABEL",
+    "MERGE", "BASELINE-CONTROL", "MKACTIVITY", "ORDERPATCH",
+    "propfind", "propwatch", "mkcol", "copy", "move", "lock", "unlock", "version-control",
+    "report", "checkout", "checkin", "uncheckout", "mkworkspace", "update", "label",
+    "merge", "baseline-control", "mkactivity", "orderpatch",
+    /* HTTP PROTOCOLS */
+    "HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"
+  };
+  int i, cnt = ARRAY_SIZE (methods);
+
+  for (i = 0; i < cnt; ++i) {
+    ht_insert_meth_proto (methods[i]);
+  }
+}

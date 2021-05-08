@@ -871,9 +871,9 @@ load_host_agents (const char *addr) {
   GAgents *agents = NULL;
   GSLList *keys = NULL, *list = NULL;
   void *data = NULL;
-  uint32_t items = 4;
+  uint32_t items = 4, key = djb2 ((unsigned char *) addr);
 
-  keys = ht_get_keymap_list_from_key (HOSTS, addr);
+  keys = ht_get_keymap_list_from_key (HOSTS, key);
   if (!keys)
     return NULL;
 

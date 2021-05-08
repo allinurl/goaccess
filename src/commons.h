@@ -233,13 +233,13 @@ extern int module_list[TOTAL_MODULES];
 GAgents *new_gagents (uint32_t size);
 void free_agents_array (GAgents *agents);
 
+char *enum2str (const GEnum map[], int len, int idx);
+char *get_module_str (GModule module);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
 int get_module_enum (const char *str);
-char *get_module_str (GModule module);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
-char *enum2str (const GEnum map[], int len, int idx);
 
 int enable_panel (GModule mod);
 int get_module_index (int module);

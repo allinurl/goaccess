@@ -60,7 +60,7 @@ typedef enum GSMetric_ {
   MTRC_CNT_BW,
 } GSMetric;
 
-#define GAMTRC_TOTAL 7
+#define GAMTRC_TOTAL 8
 /* Enumerated App Metrics */
 typedef enum GAMetric_ {
   MTRC_DATE_SEQS,
@@ -70,6 +70,7 @@ typedef enum GAMetric_ {
   MTRC_HOSTNAMES,
   MTRC_LAST_PARSE,
   MTRC_JSON_LOGFMT,
+  MTRC_METH_PROTO,
 } GAMetric;
 
 GMetrics *new_gmetrics (void);
@@ -81,5 +82,6 @@ uint64_t *uint642ptr (uint64_t val);
 char *get_mtr_str (GSMetric metric);
 void set_module_totals (GPercTotals * totals);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals);
+void insert_methods_protocols (void);
 
 #endif // for #ifndef GSTORAGE_H

@@ -57,6 +57,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <inttypes.h>
 
 #include "gkhash.h"
 
@@ -362,10 +363,10 @@ static void
 new_modulekey (GKeyData * kdata) {
   GKeyData key = {
     .data = NULL,
-    .data_key = NULL,
     .data_nkey = 0,
     .root = NULL,
-    .root_key = NULL,
+    .dhash = 0,
+    .rhash = 0,
     .root_nkey = 0,
     .uniq_key = NULL,
     .uniq_nkey = 0,
@@ -539,6 +540,7 @@ init_log_item (GLog * glog) {
   logitem->tls_type_cypher = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
+  memset (logitem->agent_hex, 0, sizeof (logitem->agent_hex));
   localtime_r (&now, &logitem->dt);
 
   return logitem;
@@ -1163,6 +1165,12 @@ set_numeric_date (uint32_t * numdate, const char *date) {
   *numdate = res;
 }
 
+static void
+set_agent_hash (GLogItem * logitem) {
+  logitem->agent_hash = djb2 ((unsigned char *) logitem->agent);
+  sprintf (logitem->agent_hex, "%" PRIx32, logitem->agent_hash);
+}
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Parse the log string given log format rule.
@@ -1434,6 +1442,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       /* Make sure the user agent is decoded (i.e.: CloudFront)
        * and replace all '+' with ' ' (i.e.: w3c) */
       logitem->agent = decode_url (tkn);
+      set_agent_hash (logitem);
       free (tkn);
       break;
     } else if (tkn != NULL && *tkn == '\0') {
@@ -1445,6 +1454,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       tkn = alloc_string ("-");
     }
     logitem->agent = tkn;
+    set_agent_hash (logitem);
     break;
     /* time taken to serve the request, in milliseconds as a decimal number */
   case 'L':
@@ -1992,7 +2002,7 @@ ignore_line (GLogItem * logitem) {
  * On success the value of the key inserted is returned */
 static int
 insert_dkeymap (GModule module, GKeyData * kdata) {
-  return ht_insert_keymap (module, kdata->numdate, kdata->data_key, &kdata->cdnkey);
+  return ht_insert_keymap (module, kdata->numdate, kdata->dhash, &kdata->cdnkey);
 }
 
 /* A wrapper function to insert a root keymap string key.
@@ -2002,7 +2012,7 @@ insert_dkeymap (GModule module, GKeyData * kdata) {
  * On success the value of the key inserted is returned */
 static int
 insert_rkeymap (GModule module, GKeyData * kdata) {
-  return ht_insert_keymap (module, kdata->numdate, kdata->root_key, &kdata->crnkey);
+  return ht_insert_keymap (module, kdata->numdate, kdata->rhash, &kdata->crnkey);
 }
 
 /* A wrapper function to insert a datamap uint32_t key and string value. */
@@ -2104,14 +2114,12 @@ insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey) {
  * On success the new unique visitor key is returned */
 static char *
 get_uniq_visitor_key (GLogItem * logitem) {
-  char *ua = NULL, *key = NULL;
+  char *key = NULL;
   size_t s1, s2, s3;
-
-  ua = deblank (xstrdup (logitem->agent));
 
   s1 = strlen (logitem->date);
   s2 = strlen (logitem->host);
-  s3 = strlen (ua);
+  s3 = strlen (logitem->agent_hex);
 
   /* includes terminating null */
   key = xcalloc (s1 + s2 + s3 + 3, sizeof (char));
@@ -2122,9 +2130,8 @@ get_uniq_visitor_key (GLogItem * logitem) {
   memcpy (key + s1 + 1, logitem->host, s2 + 1);
 
   key[s1 + s2 + 1] = '|';
-  memcpy (key + s1 + s2 + 2, ua, s3 + 1);
+  memcpy (key + s1 + s2 + 2, logitem->agent_hex, s3 + 1);
 
-  free (ua);
   return key;
 }
 
@@ -2203,11 +2210,21 @@ append_query_string (char **req, const char *qstr) {
 /* A wrapper to assign the given data key and the data item to the key
  * data structure */
 static void
-get_kdata (GKeyData * kdata, char *data_key, char *data) {
-  /* inserted in keymap */
-  kdata->data_key = data_key;
+get_kdata (GKeyData * kdata, const char *data_key, const char *data) {
   /* inserted in datamap */
   kdata->data = data;
+  /* inserted in keymap */
+  kdata->dhash = djb2 ((unsigned char *) data_key);
+}
+
+/* A wrapper to assign the given data key and the data item to the key
+ * data structure */
+static void
+get_kroot (GKeyData * kdata, const char *root_key, const char *root) {
+  /* inserted in datamap */
+  kdata->root = root;
+  /* inserted in keymap */
+  kdata->rhash = djb2 ((unsigned char *) root_key);
 }
 
 /* Generate a visitor's key given the date specificity. For instance,
@@ -2397,12 +2414,10 @@ gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
   logitem->browser_type = xstrdup (browser_type);
 
   /* e.g., Firefox 11.12 */
-  kdata->data = logitem->browser;
-  kdata->data_key = logitem->browser;
+  get_kdata (kdata, logitem->browser, logitem->browser);
 
   /* Firefox */
-  kdata->root = logitem->browser_type;
-  kdata->root_key = logitem->browser_type;
+  get_kroot (kdata, logitem->browser_type, logitem->browser_type);
   kdata->numdate = logitem->numdate;
 
   free (agent);
@@ -2429,12 +2444,10 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
   logitem->os_type = xstrdup (os_type);
 
   /* e.g., GNU+Linux,Ubuntu 10.12 */
-  kdata->data = logitem->os;
-  kdata->data_key = logitem->os;
+  get_kdata (kdata, logitem->os, logitem->os);
 
   /* GNU+Linux */
-  kdata->root = logitem->os_type;
-  kdata->root_key = logitem->os_type;
+  get_kroot (kdata, logitem->os_type, logitem->os_type);
   kdata->numdate = logitem->numdate;
 
   free (agent);
@@ -2486,12 +2499,10 @@ gen_mime_type_key (GKeyData * kdata, GLogItem * logitem) {
   if (!major)
     return 1;
 
-  kdata->data = logitem->mime_type;
-  kdata->data_key = logitem->mime_type;
+  get_kdata (kdata, logitem->mime_type, logitem->mime_type);
   kdata->numdate = logitem->numdate;
 
-  kdata->root = major;
-  kdata->root_key = major;
+  get_kroot (kdata, major, major);
 
   return 0;
 }
@@ -2535,7 +2546,8 @@ gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
 
   kdata->numdate = logitem->numdate;
   if (!logitem->tls_cypher) {
-    kdata->data_key = kdata->data = kdata->root = kdata->root_key = tls;
+    get_kroot (kdata, tls, tls);
+    get_kdata (kdata, tls, tls);
     return 0;
   }
 
@@ -2548,11 +2560,8 @@ gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
   /* includes terminating null */
   memcpy (logitem->tls_type_cypher + tlen + 1, logitem->tls_cypher, clen + 1);
 
-  kdata->data = logitem->tls_type_cypher;
-  kdata->data_key = logitem->tls_type_cypher;
-
-  kdata->root = tls;
-  kdata->root_key = tls;
+  get_kdata (kdata, logitem->tls_type_cypher, logitem->tls_type_cypher);
+  get_kroot (kdata, tls, tls);
 
   return 0;
 }
@@ -2626,11 +2635,8 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * logitem) {
   if (continent[0] != '\0')
     logitem->continent = xstrdup (continent);
 
-  kdata->data_key = logitem->country;
-  kdata->data = logitem->country;
-
-  kdata->root = logitem->continent;
-  kdata->root_key = logitem->continent;
+  get_kdata (kdata, logitem->country, logitem->country);
+  get_kroot (kdata, logitem->continent, logitem->continent);
   kdata->numdate = logitem->numdate;
 
   return 0;
@@ -2652,11 +2658,8 @@ gen_status_code_key (GKeyData * kdata, GLogItem * logitem) {
   type = verify_status_code_type (logitem->status);
   status = verify_status_code (logitem->status);
 
-  kdata->data = (char *) status;
-  kdata->data_key = (char *) status;
-
-  kdata->root = (char *) type;
-  kdata->root_key = (char *) type;
+  get_kdata (kdata, status, status);
+  get_kroot (kdata, type, type);
   kdata->numdate = logitem->numdate;
 
   return 0;
@@ -2786,7 +2789,7 @@ map_log (GLogItem * logitem, const GParse * parse, GModule module) {
     return;
 
   /* each module requires a data key/value */
-  if (parse->datamap && kdata.data_key)
+  if (parse->datamap && kdata.data)
     kdata.data_nkey = insert_dkeymap (module, &kdata);
 
   /* each module contains a uniq visitor key/value */
@@ -2794,17 +2797,17 @@ map_log (GLogItem * logitem, const GParse * parse, GModule module) {
     kdata.uniq_nkey = insert_uniqmap (module, &kdata, logitem->uniq_nkey);
 
   /* root keys are optional */
-  if (parse->rootmap && kdata.root_key)
+  if (parse->rootmap && kdata.root)
     kdata.root_nkey = insert_rkeymap (module, &kdata);
 
   /* each module requires a root key/value */
-  if (parse->datamap && kdata.data_key)
+  if (parse->datamap && kdata.data)
     set_datamap (logitem, &kdata, parse);
 }
 
 static void
 ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
-  logitem->agent_nkey = ht_insert_agent_key (numdate, logitem->agent);
+  logitem->agent_nkey = ht_insert_agent_key (numdate, logitem->agent_hash);
   /* insert UA key and get a numeric value */
   if (logitem->agent_nkey != 0) {
     /* insert a numeric key and map it to a UA string */
@@ -3057,8 +3060,10 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
   count_process (glog);
 
   /* agent will be null in cases where %u is not specified */
-  if (logitem->agent == NULL)
+  if (logitem->agent == NULL) {
     logitem->agent = alloc_string ("-");
+    set_agent_hash (logitem);
+  }
 
   /* testing log only */
   if (dry_run)
