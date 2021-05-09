@@ -207,6 +207,7 @@ typedef struct GParse_ {
   void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 } GParse;
 
+char *extract_by_delim (char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);

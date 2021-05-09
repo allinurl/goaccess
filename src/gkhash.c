@@ -573,6 +573,7 @@ static const GKHashMetric app_metrics[] = {
   { .metric.dbm=MTRC_LAST_PARSE  , MTRC_TYPE_IGLP , new_iglp_ht , des_iglp      , NULL          , 1 , NULL , "IGLP_LAST_PARSE.db"  } ,
   { .metric.dbm=MTRC_JSON_LOGFMT , MTRC_TYPE_SS32 , new_ss32_ht , des_ss32_free , del_ss32_free , 1 , NULL , NULL                  } ,
   { .metric.dbm=MTRC_METH_PROTO  , MTRC_TYPE_SI08 , new_si08_ht , des_si08_free , del_si08_free , 1 , NULL , "SI08_METH_PROTO.db"  } ,
+  { .metric.dbm=MTRC_DB_PROPS    , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_DB_PROPS.db"    } ,
 };
 
 /* Per module - These metrics are not dated */
@@ -931,7 +932,6 @@ new_db (khash_t (igdb) * hash, uint32_t key) {
   db->hdb = init_gkhashdb ();
   db->cache = NULL;
   db->store = NULL;
-
   kh_val (hash, k) = db;
 
   return 0;
@@ -1445,6 +1445,13 @@ set_db_path (const char *fn) {
   return path;
 }
 
+static char *
+build_filename (const char *type, const char *modstr, const char *mtrstr) {
+  char *fn = xmalloc (snprintf (NULL, 0, "%s_%s_%s.db", type, modstr, mtrstr) + 1);
+  sprintf (fn, "%s_%s_%s.db", type, modstr, mtrstr);
+  return fn;
+}
+
 /* Get the database filename given a module and a metric.
  *
  * On error, a fatal error is triggered.
@@ -1460,8 +1467,7 @@ get_filename (GModule module, GKHashMetric mtrc) {
   if (!(type = get_mtr_type_str (mtrc.type)))
     FATAL ("Unable to allocate module name.");
 
-  fn = xmalloc (snprintf (NULL, 0, "%s_%s_%s.db", type, modstr, mtrstr) + 1);
-  sprintf (fn, "%s_%s_%s.db", type, modstr, mtrstr);
+  fn = build_filename (type, modstr, mtrstr);
 
   free (mtrstr);
   free (type);
@@ -1614,6 +1620,99 @@ restore_si32 (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
+/* Given a database filename, restore a string key, uint32_t value back to
+ * the storage */
+static int
+migrate_si32_to_ii32 (GSMetric metric, const char *path, int module) {
+  khash_t (ii32) * hash = NULL;
+  tpl_node *tn;
+  char fmt[] = "A(iA(su))";
+  int date = 0, ret = 0;
+  char *key = NULL;
+  uint32_t val = 0;
+
+  if (!(tn = tpl_map (fmt, &date, &key, &val)))
+    return 1;
+
+  tpl_load (tn, TPL_FILE, path);
+  while (tpl_unpack (tn, 1) > 0) {
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
+    while (tpl_unpack (tn, 2) > 0) {
+      ins_ii32 (hash, djb2 ((unsigned char *) key), val);
+      free (key);
+    }
+  }
+  tpl_free (tn);
+
+  return 0;
+}
+
+static char *
+migrate_unique_key (char *key) {
+  char *nkey = NULL, *token = NULL, *ptr = NULL;
+  char agent_hex[64] = { 0 };
+  uint32_t delims = 0;
+
+  if (!key || count_matches (key, '|') < 2)
+    return NULL;
+
+  nkey = xstrdup ("");
+  while ((ptr = strchr (key, '|'))) {
+    if (!(token = extract_by_delim (&key, "|")))
+      return NULL;
+
+    append_str (&nkey, token);
+    append_str (&nkey, "|");
+    free (token);
+    key++;
+    delims++;
+  }
+  if (key && delims == 2) {
+    sprintf (agent_hex, "%" PRIx32, djb2 ((unsigned char *) key));
+    append_str (&nkey, agent_hex);
+  }
+
+  return nkey;
+}
+
+
+/* Given a database filename, restore a string key, uint32_t value back to
+ * the storage */
+static int
+migrate_si32_to_ii32_unique_keys (GSMetric metric, const char *path, int module) {
+  khash_t (si32) * hash = NULL;
+  tpl_node *tn;
+  char fmt[] = "A(iA(su))";
+  int date = 0, ret = 0;
+  char *key = NULL, *nkey = NULL;
+  uint32_t val = 0;
+
+  if (!(tn = tpl_map (fmt, &date, &key, &val)))
+    return 1;
+
+  tpl_load (tn, TPL_FILE, path);
+  while (tpl_unpack (tn, 1) > 0) {
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
+    while (tpl_unpack (tn, 2) > 0) {
+      if ((nkey = migrate_unique_key (key)))
+        ins_si32 (hash, nkey, val);
+      free (key);
+      free (nkey);
+    }
+  }
+  tpl_free (tn);
+
+  return 0;
+}
+
 /* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static int
 persist_si32 (GSMetric metric, const char *path, int module) {
@@ -1639,6 +1738,46 @@ persist_si32 (GSMetric metric, const char *path, int module) {
   });
   /* *INDENT-ON* */
   close_tpl (tn, path);
+
+  return 0;
+}
+
+/* Given a database filename, restore a uint32_t key, string value back to
+ * the storage */
+static int
+migrate_is32_to_ii08 (GSMetric metric, const char *path, int module) {
+  khash_t (ii08) * hash = NULL;
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si08) * mtpr = get_hdb (db, MTRC_METH_PROTO);
+  tpl_node *tn;
+  char fmt[] = "A(iA(us))";
+  int date = 0, ret = 0;
+  uint32_t key = 0;
+  char *val = NULL;
+  khint_t k;
+
+  if (!(tn = tpl_map (fmt, &date, &key, &val)))
+    return 1;
+
+  tpl_load (tn, TPL_FILE, path);
+  while (tpl_unpack (tn, 1) > 0) {
+    if ((ret = insert_restored_date (date)) == 2)
+      continue;
+    if (ret == -1 || !(hash = get_hash (module, date, metric)))
+      break;
+
+    while (tpl_unpack (tn, 2) > 0) {
+      k = kh_get (si08, mtpr, val);
+      /* key found, return current value */
+      if (k == kh_end (mtpr)) {
+        free (val);
+        continue;
+      }
+      ins_ii08 (hash, key, kh_val (mtpr, k));
+      free (val);
+    }
+  }
+  tpl_free (tn);
 
   return 0;
 }
@@ -2122,6 +2261,76 @@ restore_metric_type (GModule module, GKHashMetric mtrc) {
   free (fn);
 }
 
+static int
+migrate_metric (GModule module, GKHashMetric mtrc) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+
+  int ret = 0;
+  char *fn = NULL, *path = NULL;
+  char *modstr = NULL, *mtrstr = NULL;
+  khint_t k;
+
+  k = kh_get (si32, db_props, "version");
+  /* db is up-to-date, thus no need to migrate anything */
+  if (k != kh_end (db_props) && kh_val (db_props, k) == DB_VERSION)
+    return 0;
+
+  switch (mtrc.metric.storem) {
+  case MTRC_UNIQUE_KEYS:
+    if (!(path = check_restore_path ("SI32_UNIQUE_KEYS.db")))
+      break;
+    if (migrate_si32_to_ii32_unique_keys (mtrc.metric.storem, path, -1) != 0)
+      break;
+    unlink (path);
+    ret++;
+    break;
+  case MTRC_KEYMAP:
+    if (!(modstr = get_module_str (module)))
+      FATAL ("Unable to allocate module name.");
+    fn = build_filename ("SI32", modstr, "MTRC_KEYMAP");
+    if (!(path = check_restore_path (fn)))
+      break;
+    if (migrate_si32_to_ii32 (mtrc.metric.storem, path, module) != 0)
+      break;
+    unlink (path);
+    ret++;
+    break;
+  case MTRC_METHODS:
+  case MTRC_PROTOCOLS:
+    if (!(mtrstr = get_mtr_str (mtrc.metric.storem)))
+      FATAL ("Unable to allocate metric name.");
+    if (!(modstr = get_module_str (module)))
+      FATAL ("Unable to allocate module name.");
+
+    fn = build_filename ("IS32", modstr, mtrstr);
+    if (!(path = check_restore_path (fn)))
+      break;
+    if (migrate_is32_to_ii08 (mtrc.metric.storem, path, module) != 0)
+      break;
+    unlink (path);
+    ret++;
+    break;
+  case MTRC_AGENT_KEYS:
+    if (!(path = check_restore_path ("SI32_AGENT_KEYS.db")))
+      break;
+    if (migrate_si32_to_ii32 (mtrc.metric.storem, path, -1) != 0)
+      break;
+    unlink (path);
+    ret++;
+    break;
+  default:
+    break;
+  }
+
+  free (fn);
+  free (modstr);
+  free (mtrstr);
+  free (path);
+
+  return ret;
+}
+
 /* Given all the dates that we have processed, persist to disk a copy of them. */
 static void
 persist_dates (void) {
@@ -2182,6 +2391,7 @@ restore_global (void) {
   khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
 
   char *path = NULL;
 
@@ -2198,28 +2408,38 @@ restore_global (void) {
     restore_global_iglp (last_parse, path);
     free (path);
   }
+  if ((path = check_restore_path ("SI32_DB_VERSION.db"))) {
+    restore_global_si32 (db_props, path);
+    free (path);
+  }
 }
 
 /* Entry function to restore hashes */
 static void
 restore_data (void) {
   GModule module;
-  int i, n = 0;
+  int i, n = 0, migrated = 0;
   size_t idx = 0;
 
   restore_global ();
 
   n = ARRAY_SIZE (global_metrics);
-  for (i = 0; i < n; ++i)
+  for (i = 0; i < n; ++i) {
+    migrated += migrate_metric (-1, global_metrics[i]);
     restore_by_type (global_metrics[i], global_metrics[i].filename, -1);
+  }
 
   n = ARRAY_SIZE (module_metrics);
   FOREACH_MODULE (idx, module_list) {
     module = module_list[idx];
     for (i = 0; i < n; ++i) {
+      migrated += migrate_metric (module, module_metrics[i]);
       restore_metric_type (module, module_metrics[i]);
     }
   }
+
+  if (migrated && !conf.persist)
+    conf.persist = 1;
 }
 
 static void
@@ -2272,7 +2492,10 @@ persist_global (void) {
   khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   char *path = NULL;
+
+  ins_si32 (db_props, "version", DB_VERSION);
 
   persist_dates ();
   if ((path = set_db_path ("SI32_CNT_OVERALL.db"))) {
@@ -2285,6 +2508,10 @@ persist_global (void) {
   }
   if ((path = set_db_path ("IGLP_LAST_PARSE.db"))) {
     persist_global_iglp (last_parse, path);
+    free (path);
+  }
+  if ((path = set_db_path ("SI32_DB_VERSION.db"))) {
+    persist_global_si32 (db_props, path);
     free (path);
   }
 }

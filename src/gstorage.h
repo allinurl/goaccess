@@ -60,7 +60,7 @@ typedef enum GSMetric_ {
   MTRC_CNT_BW,
 } GSMetric;
 
-#define GAMTRC_TOTAL 8
+#define GAMTRC_TOTAL 9
 /* Enumerated App Metrics */
 typedef enum GAMetric_ {
   MTRC_DATE_SEQS,
@@ -71,6 +71,7 @@ typedef enum GAMetric_ {
   MTRC_LAST_PARSE,
   MTRC_JSON_LOGFMT,
   MTRC_METH_PROTO,
+  MTRC_DB_PROPS,
 } GAMetric;
 
 GMetrics *new_gmetrics (void);

@@ -1049,6 +1049,11 @@ parse_string (char **str, const char *delims, int cnt) {
   return NULL;
 }
 
+char *
+extract_by_delim (char **str, const char *end) {
+  return parse_string (&(*str), end, 1);
+}
+
 /* Move forward through the log string until a non-space (!isspace)
  * char is found. */
 static void

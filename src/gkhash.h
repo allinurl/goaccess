@@ -37,6 +37,7 @@
 #include "khash.h"
 #include "parser.h"
 
+#define DB_VERSION  2
 #define DB_INSTANCE 1
 
 /* Enumerated Storage Metrics */
