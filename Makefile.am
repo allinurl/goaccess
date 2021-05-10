@@ -162,6 +162,8 @@ goaccess_SOURCES = \
    src/output.h        \
    src/parser.c        \
    src/parser.h        \
+   src/persistence.c   \
+   src/persistence.h   \
    src/pdjson.c        \
    src/pdjson.h        \
    src/settings.c      \

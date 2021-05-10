@@ -163,6 +163,13 @@ struct GKDB_ {
     code;                                             \
   } }
 
+extern GKHashMetric module_metrics[];
+extern const GKHashMetric global_metrics[];
+extern const GKHashMetric app_metrics[];
+extern size_t global_metrics_len;
+extern size_t module_metrics_len;
+extern size_t app_metrics_len;
+
 /* Metrics Storage */
 
 /* Most metrics are encapsulated within a GKHashStorage structure, which is
@@ -324,6 +331,7 @@ struct GKDB_ {
 /*khash_t(igsl) MTRC_METADATA */
 
 /* *INDENT-OFF* */
+char *get_mtr_type_str (GSMetricType type);
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);
 char *ht_get_hostname (const char *host);
@@ -386,6 +394,19 @@ void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
 void init_pre_storage (void);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
+
+int ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp);
+int ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value);
+int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
+int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
+int ins_is32 (khash_t (is32) * hash, uint32_t key, char *value);
+int ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value);
+int ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value);
+int ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value);
+int ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value);
+void *get_db_instance (uint32_t key);
+void * get_hash (int module, uint64_t key, GSMetric metric);
+void *get_hdb (GKDB * db, GAMetric mtrc);
 
 GLastParse ht_get_last_parse (uint32_t key);
 GRawData *parse_raw_data (GModule module);
