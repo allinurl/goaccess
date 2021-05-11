@@ -112,11 +112,20 @@ typedef struct GParse_ {
   void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 } GParse;
 
-extern const char *http_methods[];
-extern const char *http_protocols[];
+typedef struct httpmethods_ {
+  const char *method;
+  int len;
+} httpmethods;
+
+typedef struct httpprotocols_ {
+  const char *protocol;
+  int len;
+} httpprotocols;
+
+extern const httpmethods http_methods[];
+extern const httpprotocols http_protocols[];
 extern size_t http_methods_len;
 extern size_t http_protocols_len;
-extern int http_methods_list_length[];
 
 char *get_mtr_str (GSMetric metric);
 int excluded_ip (GLogItem * logitem);

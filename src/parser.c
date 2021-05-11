@@ -467,37 +467,10 @@ verify_static_content (const char *req) {
  * On success, the HTTP method is returned. */
 static const char *
 extract_method (const char *token) {
-  const char *methods[] = {
-    "OPTIONS", "GET", "HEAD", "POST", "PUT",
-    "DELETE", "TRACE", "CONNECT", "PATCH", "options",
-    "get", "head", "post", "put", "delete",
-    "trace", "connect", "patch",
-    /* WebDAV */
-    "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE",
-    "LOCK", "UNLOCK", "VERSION-CONTROL", "REPORT", "CHECKOUT",
-    "CHECKIN", "UNCHECKOUT", "MKWORKSPACE", "UPDATE", "LABEL",
-    "MERGE", "BASELINE-CONTROL", "MKACTIVITY", "ORDERPATCH", "propfind",
-    "propwatch", "mkcol", "copy", "move", "lock",
-    "unlock", "version-control", "report", "checkout", "checkin",
-    "uncheckout", "mkworkspace", "update", "label", "merge",
-    "baseline-control", "mkactivity", "orderpatch"
-  };
-
-  const int methods_count = sizeof (methods) / sizeof (*methods);
-
-  int i;
-  /* Length of every string in list */
-  static int list_length[sizeof (methods) / sizeof (*methods)] = { -1 };
-  /* Only calculate length on first time */
-  if (list_length[0] == -1) {
-    for (i = 0; i < methods_count; i++) {
-      list_length[i] = strlen (methods[i]);
-    }
-  }
-
-  for (i = 0; i < methods_count; i++) {
-    if (strncmp (token, methods[i], list_length[i]) == 0) {
-      return methods[i];
+  size_t i;
+  for (i = 0; i < http_methods_len; i++) {
+    if (strncasecmp (token, http_methods[i].method, http_methods[i].len) == 0) {
+      return http_methods[i].method;
     }
   }
   return NULL;
@@ -536,12 +509,12 @@ is_cache_hit (const char *tkn) {
  * If valid, 0 is returned. */
 static const char *
 extract_protocol (const char *token) {
-  const char *lookfor;
-
-  if ((lookfor = "HTTP/1.0", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "HTTP/1.1", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "HTTP/2", !strncmp (token, lookfor, 6)))
-    return lookfor;
+  size_t i;
+  for (i = 0; i < http_protocols_len; i++) {
+    if (strncasecmp (token, http_protocols[i].protocol, http_protocols[i].len) == 0) {
+      return http_protocols[i].protocol;
+    }
+  }
   return NULL;
 }
 

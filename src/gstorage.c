@@ -89,6 +89,47 @@ static void insert_protocol (GModule module, GKeyData * kdata, const char *data)
 static void insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey);
 
 /* *INDENT-OFF* */
+const httpmethods http_methods[] = {
+  { "OPTIONS"          , 7  } ,
+  { "GET"              , 3  } ,
+  { "HEAD"             , 4  } ,
+  { "POST"             , 4  } ,
+  { "PUT"              , 3  } ,
+  { "DELETE"           , 6  } ,
+  { "TRACE"            , 5  } ,
+  { "CONNECT"          , 7  } ,
+  { "PATCH"            , 5  } ,
+  /* WebDav */
+  { "PROPFIND"         , 8  } ,
+  { "PROPPATCH"        , 9  } ,
+  { "MKCOL"            , 5  } ,
+  { "COPY"             , 4  } ,
+  { "MOVE"             , 4  } ,
+  { "LOCK"             , 4  } ,
+  { "UNLOCK"           , 6  } ,
+  { "VERSION-CONTROL"  , 15 } ,
+  { "REPORT"           , 6  } ,
+  { "CHECKOUT"         , 8  } ,
+  { "CHECKIN"          , 7  } ,
+  { "UNCHECKOUT"       , 10 } ,
+  { "MKWORKSPACE"      , 11 } ,
+  { "UPDATE"           , 6  } ,
+  { "LABEL"            , 5  } ,
+  { "MERGE"            , 5  } ,
+  { "BASELINE-CONTROL" , 16 } ,
+  { "MKACTIVITY"       , 10 } ,
+  { "ORDERPATCH"       , 10 } ,
+};
+size_t http_methods_len = ARRAY_SIZE (http_methods);
+
+const httpprotocols http_protocols[] = {
+  { "HTTP/1.0" , 8 } ,
+  { "HTTP/1.1" , 8 } ,
+  { "HTTP/2"   , 6 } ,
+  { "HTTP/3"   , 6 } ,
+};
+size_t http_protocols_len = ARRAY_SIZE (http_protocols);
+
 static GParse paneling[] = {
   {
     VISITORS,
@@ -1301,25 +1342,12 @@ gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
 
 void
 insert_methods_protocols (void) {
-  static const char *methods[] = {
-    "---",
-    "OPTIONS", "GET", "HEAD", "POST", "PUT", "DELETE", "TRACE", "CONNECT", "PATCH",
-    "options", "get", "head", "post", "put", "delete", "trace", "connect", "patch",
-    /* WebDav */
-    "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE", "LOCK", "UNLOCK", "VERSION-CONTROL",
-    "REPORT", "CHECKOUT", "CHECKIN", "UNCHECKOUT", "MKWORKSPACE", "UPDATE", "LABEL",
-    "MERGE", "BASELINE-CONTROL", "MKACTIVITY", "ORDERPATCH",
-    "propfind", "propwatch", "mkcol", "copy", "move", "lock", "unlock", "version-control",
-    "report", "checkout", "checkin", "uncheckout", "mkworkspace", "update", "label",
-    "merge", "baseline-control", "mkactivity", "orderpatch",
-    /* HTTP PROTOCOLS */
-    "HTTP/1.0", "HTTP/1.1", "HTTP/2", "HTTP/3"
-  };
-  int i, cnt = ARRAY_SIZE (methods);
-
-  for (i = 0; i < cnt; ++i) {
-    ht_insert_meth_proto (methods[i]);
-  }
+  size_t i;
+  for (i = 0; i < http_methods_len; ++i)
+    ht_insert_meth_proto (http_methods[i].method);
+  for (i = 0; i < http_protocols_len; ++i)
+    ht_insert_meth_proto (http_protocols[i].protocol);
+  ht_insert_meth_proto ("---");
 }
 
 /* Determine if 404s need to be added to the unique visitors count.
