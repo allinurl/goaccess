@@ -169,43 +169,6 @@ typedef struct GRawData_ {
   int size;                     /* total num of items on ht */
 } GRawData;
 
-/* Each record contains a data value, i.e., Windows XP, and it may contain a
- * root value, i.e., Windows, and a unique key which is the combination of
- * date, IP and user agent */
-typedef struct GKeyData_ {
-  const void *data;
-  uint32_t dhash;
-  uint32_t data_nkey;
-  uint32_t cdnkey;              /* cache data nkey */
-
-  uint32_t rhash;
-  const void *root;
-  const void *root_key;
-  uint32_t root_nkey;
-  uint32_t crnkey;              /* cache root nkey */
-
-  void *uniq_key;
-  uint32_t uniq_nkey;
-
-  uint32_t numdate;
-} GKeyData;
-
-typedef struct GParse_ {
-  GModule module;
-  int (*key_data) (GKeyData * kdata, GLogItem * logitem);
-
-  /* data field */
-  void (*datamap) (GModule module, GKeyData * kdata);
-  void (*rootmap) (GModule module, GKeyData * kdata);
-  void (*hits) (GModule module, GKeyData * kdata);
-  void (*visitor) (GModule module, GKeyData * kdata);
-  void (*bw) (GModule module, GKeyData * kdata, uint64_t size);
-  void (*cumts) (GModule module, GKeyData * kdata, uint64_t ts);
-  void (*maxts) (GModule module, GKeyData * kdata, uint64_t ts);
-  void (*method) (GModule module, GKeyData * kdata, const char *data);
-  void (*protocol) (GModule module, GKeyData * kdata, const char *data);
-  void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
-} GParse;
 
 char *extract_by_delim (char **str, const char *end);
 char *fgetline (FILE * fp);

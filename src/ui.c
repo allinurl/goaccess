@@ -1070,6 +1070,20 @@ set_curses_spinner (GSpinner * spinner) {
   spinner->y = y - 1;
 }
 
+/* Determine if we need to lock the mutex. */
+void
+lock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_lock (&parsing_spinner->mutex);
+}
+
+/* Determine if we need to unlock the mutex. */
+void
+unlock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_unlock (&parsing_spinner->mutex);
+}
+
 /* Allocate memory for a spinner instance and initialize its data.
  *
  * On success, the newly allocated GSpinner is returned. */
