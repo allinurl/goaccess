@@ -951,13 +951,16 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
-
-    if (!extract_method (tkn)) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+    {
+      const char *meth = NULL;
+      if (!(meth = extract_method (tkn))) {
+        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        free (tkn);
+        return 1;
+      }
+      logitem->method = xstrdup(meth);
       free (tkn);
-      return 1;
     }
-    logitem->method = tkn;
     break;
     /* request not including method or protocol */
   case 'U':
@@ -999,13 +1002,16 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
-
-    if (!extract_protocol (tkn)) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+    {
+      const char *proto = NULL;
+      if (!(proto = extract_protocol (tkn))) {
+        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        free (tkn);
+        return 1;
+      }
+      logitem->protocol = xstrdup (proto);
       free (tkn);
-      return 1;
     }
-    logitem->protocol = tkn;
     break;
     /* request, including method + protocol */
   case 'r':
