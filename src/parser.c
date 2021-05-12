@@ -931,6 +931,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'h':
     if (logitem->host)
       return 0;
+    /* per https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2 */
+    /* square brackets are possible */
+    if (*str[0] == '[' && (*str += 1) && **str)
+      end = "]";
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
