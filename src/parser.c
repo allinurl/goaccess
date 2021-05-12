@@ -958,7 +958,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
         free (tkn);
         return 1;
       }
-      logitem->method = xstrdup(meth);
+      logitem->method = xstrdup (meth);
       free (tkn);
     }
     break;
@@ -1696,7 +1696,12 @@ parse_json_specifier (void *ptr_data, char *key, char *str) {
   char *spec = NULL;
   int ret = 0;
 
-  if (!(spec = ht_get_json_logfmt (key)) || 0 == strlen (str))
+  if (!str)
+    return 0;
+  /* empty JSON value, e.g., {method: ""} */
+  if (0 == strlen (str))
+    return 0;
+  if (!(spec = ht_get_json_logfmt (key)))
     return 0;
 
   ret = parse_format (logitem, str, spec);
