@@ -1542,6 +1542,7 @@ main (int argc, char **argv) {
     goto clean;
   logs->offset = *logs->processed;
 
+  parsing_spinner->label = "RENDERING";
   /* init reverse lookup thread */
   gdns_init ();
   parse_initial_sort ();
