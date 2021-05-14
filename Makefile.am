@@ -9,7 +9,7 @@ dist_noinst_DATA =                 \
   resources/css/fa.min.css         \
   resources/js/app.js              \
   resources/js/charts.js           \
-  resources/js/d3.v3.min.js        \
+  resources/js/d3.min.js           \
   resources/js/hogan.min.js
 
 noinst_PROGRAMS = bin2c
@@ -38,7 +38,7 @@ CLEANFILES =                          \
   resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
   resources/css/app.css.tmp           \
-  resources/js/d3.v3.min.js.tmp       \
+  resources/js/d3.min.js.tmp          \
   resources/js/hogan.min.js.tmp       \
   resources/js/charts.js.tmp          \
   resources/js/app.js.tmp
@@ -76,12 +76,12 @@ else
 	./bin2c $(srcdir)/resources/css/app.css src/appcss.h app_css
 endif
 # D3.js
-src/d3js.h: bin2c$(EXEEXT) $(srcdir)/resources/js/d3.v3.min.js
+src/d3js.h: bin2c$(EXEEXT) $(srcdir)/resources/js/d3.min.js
 if HAS_SEDTR
-	cat $(srcdir)/resources/js/d3.v3.min.js | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/js/d3.v3.min.js.tmp
-	./bin2c $(srcdir)/resources/js/d3.v3.min.js.tmp src/d3js.h d3_js
+	cat $(srcdir)/resources/js/d3.min.js | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/js/d3.min.js.tmp
+	./bin2c $(srcdir)/resources/js/d3.min.js.tmp src/d3js.h d3_js
 else
-	./bin2c $(srcdir)/resources/js/d3.v3.min.js src/d3js.h d3_js
+	./bin2c $(srcdir)/resources/js/d3.min.js src/d3js.h d3_js
 endif
 # Hogan.js
 src/hoganjs.h: bin2c$(EXEEXT) $(srcdir)/resources/js/hogan.min.js
