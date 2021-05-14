@@ -30,9 +30,10 @@
 #ifndef WEBSOCKET_H_INCLUDED
 #define WEBSOCKET_H_INCLUDED
 
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <limits.h>
-#include <sys/select.h>
+#include <poll.h>
 
 #if HAVE_LIBSSL
 #include <openssl/crypto.h>
@@ -211,13 +212,6 @@ typedef struct WSMessage_ {
   int buflen;                   /* recv'd buf length so far (for each frame) */
 } WSMessage;
 
-/* FD event states */
-typedef struct WSEState_ {
-  fd_set master;
-  fd_set rfds;
-  fd_set wfds;
-} WSEState;
-
 /* A WebSocket Client */
 typedef struct WSClient_ {
   /* socket data */
@@ -225,7 +219,6 @@ typedef struct WSClient_ {
   char remote_ip[INET6_ADDRSTRLEN];     /* client IP */
 
   WSQueue *sockqueue;           /* sending buffer */
-  WSEState *state;              /* FDs states */
   WSHeaders *headers;           /* HTTP headers */
   WSFrame *frame;               /* frame headers */
   WSMessage *message;           /* message */
@@ -245,7 +238,6 @@ typedef struct WSPipeIn_ {
   int fd;                       /* named pipe FD */
 
   WSPacket *packet;             /* FIFO data's buffer */
-  WSEState *state;              /* FDs states */
 
   char hdr[HDR_SIZE];           /* FIFO header's buffer */
   int hlen;
@@ -254,7 +246,6 @@ typedef struct WSPipeIn_ {
 /* Pipe Out */
 typedef struct WSPipeOut_ {
   int fd;                       /* named pipe FD */
-  WSEState *state;              /* FDs states */
   WSQueue *fifoqueue;           /* FIFO out queue */
   WSStatus status;              /* connection status */
 } WSPipeOut;
@@ -270,6 +261,7 @@ typedef struct WSConfig_ {
   const char *port;
   const char *sslcert;
   const char *sslkey;
+  const char *unix_socket;
   int echomode;
   int strict;
   int max_frm_size;
@@ -312,6 +304,7 @@ void ws_set_config_accesslog (const char *accesslog);
 void ws_set_config_echomode (int echomode);
 void ws_set_config_frame_size (int max_frm_size);
 void ws_set_config_host (const char *host);
+void ws_set_config_unix_socket (const char *unix_socket);
 void ws_set_config_origin (const char *origin);
 void ws_set_config_pipein (const char *pipein);
 void ws_set_config_pipeout (const char *pipeout);

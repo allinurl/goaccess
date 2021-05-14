@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2020-12-03 20:00-0600\n"
+"POT-Creation-Date: 2021-02-28 15:49-0600\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.se>\n"
 "Language-Team: none\n"
@@ -270,7 +270,9 @@ msgstr "Hittar inte URL:en (404)"
 
 #: src/labels.h:151
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, "
+"proto]"
 
 #: src/labels.h:156
 msgid "Visitor Hostnames and IPs"
@@ -310,7 +312,8 @@ msgstr "Hänvisande URL:er"
 
 #: src/labels.h:179
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
+msgstr ""
+"Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"
@@ -394,7 +397,8 @@ msgstr "Loggformat konfiguration"
 
 #: src/labels.h:239
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
+msgstr ""
+"[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
 #: src/labels.h:241
 msgid "Log Format - [c] to add/edit format"
@@ -783,8 +787,9 @@ msgstr "409 - Konflikt: Konflikt i begäran"
 
 #: src/labels.h:452
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr "410 - Borta: Begärd resurs är inte längre tillgänglig"
-"410 - Gone: Resursförfrågan är inte längre tillgänglig, Skicka feedback"
+msgstr ""
+"410 - Borta: Begärd resurs är inte längre tillgänglig410 - Gone: "
+"Resursförfrågan är inte längre tillgänglig, Skicka feedback"
 
 #: src/labels.h:454
 msgid "411 - Length Required: Invalid Content-Length"
@@ -792,7 +797,8 @@ msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
 #: src/labels.h:456
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
+msgstr ""
+"412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
 #: src/labels.h:458
 msgid "413 - Payload Too Large"
@@ -808,7 +814,8 @@ msgstr "415 - Medietyp som inte stöds: Medietypen stöds inte"
 
 #: src/labels.h:464
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr "416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
+msgstr ""
+"416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
 
 #: src/labels.h:466
 msgid "417 - Expectation Failed"
@@ -844,7 +851,8 @@ msgstr "428 - Förutsättning krävs"
 
 #: src/labels.h:482
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
+msgstr ""
+"429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
 #: src/labels.h:484
 msgid "431 - Request Header Fields Too Large"
@@ -896,7 +904,9 @@ msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgäng
 
 #: src/labels.h:508
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka förfrågan"
+msgstr ""
+"504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka "
+"förfrågan"
 
 #: src/labels.h:510
 msgid "505 - HTTP Version Not Supported"

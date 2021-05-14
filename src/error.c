@@ -50,6 +50,7 @@
 static FILE *access_log;
 static FILE *log_file;
 static FILE *log_invalid;
+static FILE *log_unknowns;
 static Logs *log_data;
 static struct sigaction old_sigsegv_handler;
 
@@ -86,6 +87,24 @@ void
 invalid_log_close (void) {
   if (log_invalid != NULL)
     fclose (log_invalid);
+}
+
+/* Open the unknowns log file whose name is specified in the
+ * given path. */
+void
+unknowns_log_open (const char *path) {
+  if (path != NULL) {
+    log_unknowns = fopen (path, "w");
+    if (log_unknowns == NULL)
+      return;
+  }
+}
+
+/* Close the unknowns log file. */
+void
+unknowns_log_close (void) {
+  if (log_unknowns != NULL)
+    fclose (log_unknowns);
 }
 
 /* Set current overall parsed log data. */
@@ -218,6 +237,20 @@ invalid_fprintf (const char *fmt, ...) {
   va_start (args, fmt);
   vfprintf (log_invalid, fmt, args);
   fflush (log_invalid);
+  va_end (args);
+}
+
+/* Write formatted unknown browsers/OSs log data to the logfile. */
+void
+unknowns_fprintf (const char *fmt, ...) {
+  va_list args;
+
+  if (!log_unknowns)
+    return;
+
+  va_start (args, fmt);
+  vfprintf (log_unknowns, fmt, args);
+  fflush (log_unknowns);
   va_end (args);
 }
 

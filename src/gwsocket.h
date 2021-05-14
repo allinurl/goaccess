@@ -61,7 +61,7 @@ GWSWriter *new_gwswriter (void);
 int broadcast_holder (int fd, const char *buf, int len);
 int open_fifoin (void);
 int open_fifoout (void);
-int read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int));
+int read_fifo (GWSReader * gwsreader, void (*f) (int));
 int send_holder_to_client (int fd, int listener, const char *buf, int len);
 int setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
 void set_ready_state (void);

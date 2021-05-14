@@ -420,6 +420,8 @@ map_data (GModule module, GRawDataItem item, datatype type, char **data, uint32_
   case U32:
     if (!(*data = ht_get_datamap (module, item.nkey)))
       return 1;
+    if (!item.hits)
+      return 1;
     *hits = item.hits;
     break;
   case STR:

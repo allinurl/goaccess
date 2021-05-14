@@ -157,32 +157,28 @@ send_holder_to_client (int fd, int listener, const char *buf, int len) {
  * If there's less data than requested, 0 is returned
  * If the thread is done, 1 is returned */
 int
-read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
+read_fifo (GWSReader * gwsreader, void (*f) (int)) {
   WSPacket **pa = &gwsreader->packet;
   char *ptr;
-  int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd, max = 0;
+  int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd;
   uint32_t listener = 0, type = 0, size = 0;
+  struct pollfd fds[] = {
+    {.fd = gwsreader->self_pipe[0],.events = POLLIN},
+    {.fd = gwsreader->fd,.events = POLLIN,},
+  };
 
-  FD_ZERO (&rfds);
-  FD_ZERO (&wfds);
-  /* self-pipe trick to stop the event loop */
-  FD_SET (gwsreader->self_pipe[0], &rfds);
-  /* fifo */
-  FD_SET (fd, &rfds);
-  max = MAX (fd, gwsreader->self_pipe[0]);
-
-  if (select (max + 1, &rfds, &wfds, NULL, NULL) == -1) {
+  if (poll (fds, sizeof (fds) / sizeof (fds[0]), -1) == -1) {
     switch (errno) {
     case EINTR:
       break;
     default:
-      FATAL ("Unable to select: %s.", strerror (errno));
+      FATAL ("Unable to poll: %s.", strerror (errno));
     }
   }
   /* handle self-pipe trick */
-  if (FD_ISSET (gwsreader->self_pipe[0], &rfds))
+  if (fds[0].revents & POLLIN)
     return 1;
-  if (!FD_ISSET (fd, &rfds)) {
+  if (!(fds[1].revents & POLLIN)) {
     LOG (("No file descriptor set on read_message()\n"));
     return 0;
   }
@@ -284,7 +280,7 @@ open_fifoin (void) {
   return fdfifo;
 }
 
-/* Set the self-pipe trick to handle select(2). */
+/* Set the self-pipe trick to handle poll(2). */
 void
 set_self_pipe (int *self_pipe) {
   /* Initialize self pipe. */
@@ -335,7 +331,7 @@ start_server (void *ptr_data) {
   writer->server->onopen = onopen;
   set_self_pipe (writer->server->self_pipe);
 
-  /* select(2) will block in here */
+  /* poll(2) will block in here */
   ws_start (writer->server);
   fprintf (stderr, "Stopping WebSocket server...\n");
   ws_stop (writer->server);
@@ -347,6 +343,8 @@ set_ws_opts (void) {
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
+  if (conf.unix_socket)
+    ws_set_config_unix_socket (conf.unix_socket);
   if (conf.fifo_in)
     ws_set_config_pipein (conf.fifo_in);
   if (conf.fifo_out)

@@ -74,6 +74,7 @@ not limited to:
 * Apache virtual hosts
 * Squid Native Format.
 * W3C format (IIS).
+* Caddy's JSON Structured format.
 
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
@@ -96,10 +97,10 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.4.3.tar.gz
-    $ tar -xzvf goaccess-1.4.3.tar.gz
-    $ cd goaccess-1.4.3/
-    $ ./configure --enable-utf8 --enable-geoip=legacy
+    $ wget https://tar.goaccess.io/goaccess-1.4.6.tar.gz
+    $ tar -xzvf goaccess-1.4.6.tar.gz
+    $ cd goaccess-1.4.6/
+    $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
 
@@ -108,14 +109,14 @@ Download, extract and compile GoAccess with:
     $ git clone https://github.com/allinurl/goaccess.git
     $ cd goaccess
     $ autoreconf -fiv
-    $ ./configure --enable-utf8 --enable-geoip=legacy
+    $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
 
 ### Distributions ###
 
-It is easiest to install GoAccess on Linux using the preferred package manager
-of your Linux distribution. Please note that not all distributions will have
+It is easiest to install GoAccess on GNU+Linux using the preferred package manager
+of your GNU+Linux distribution. Please note that not all distributions will have
 the latest version of GoAccess available.
 
 #### Debian/Ubuntu ####
@@ -140,7 +141,7 @@ alternative option below.
 
     # yum install goaccess
 
-#### Arch Linux ####
+#### Arch ####
 
     # pacman -S goaccess
 
@@ -184,7 +185,7 @@ log analysis, all in a 4 MB package.
 
 If you prefer to go the more tedious route, GoAccess can be used in Windows
 through Cygwin. See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>.
-Or through the Linux Subsystem on Windows 10.
+Or through the GNU+Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
@@ -196,7 +197,7 @@ Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)      
 ---------------------- | -----------------|------------------|---------------------- | -------------------
 **Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev
 **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel
-**Arch Linux**         | ncurses          | geoip            | libmaxminddb          |  openssl
+**Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl
 **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
 

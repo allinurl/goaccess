@@ -823,13 +823,13 @@ render_hits (GDashModule * data, GDashRender render, int *x) {
 
   if (sel) {
     /* selected state */
-    hits = int2str (data->data[idx].metrics->hits, len);
+    hits = u642str (data->data[idx].metrics->hits, len);
     draw_header (win, hits, " %s", y, 0, w, color_selected);
     free (hits);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->hits);
+    mvwprintw (win, y, *x, "%*" PRIu64 "", len, data->data[idx].metrics->hits);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -852,13 +852,13 @@ render_visitors (GDashModule * data, GDashRender render, int *x) {
 
   if (sel) {
     /* selected state */
-    visitors = int2str (data->data[idx].metrics->visitors, len);
+    visitors = u642str (data->data[idx].metrics->visitors, len);
     draw_header (win, visitors, "%s", y, *x, w, color_selected);
     free (visitors);
   } else {
     /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-    mvwprintw (win, y, *x, "%*" PRIu32 "", len, data->data[idx].metrics->visitors);
+    mvwprintw (win, y, *x, "%*" PRIu64 "", len, data->data[idx].metrics->visitors);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 
@@ -990,11 +990,11 @@ print_horizontal_dash (WINDOW * win, int y, int x, int len) {
 
 /* Render left-aligned column label. */
 static void
-lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt, const char *str) {
+lprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-  mvwprintw (win, y, *x, fmt, str);
+  mvwprintw (win, y, *x, "%s", str);
   print_horizontal_dash (win, y + 1, *x, len);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
 
@@ -1003,11 +1003,11 @@ lprint_col (WINDOW * win, int y, int *x, int len, const char *fmt, const char *s
 
 /* Render right-aligned column label. */
 static void
-rprint_col (WINDOW * win, int y, int *x, int len, const char *fmt, const char *str) {
+rprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
-  mvwprintw (win, y, *x, fmt, len, str);
+  mvwprintw (win, y, *x, "%*s", len, str);
   print_horizontal_dash (win, y + 1, *x, len);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
 
@@ -1026,37 +1026,37 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
     return;
 
   if (output->hits)
-    lprint_col (win, *y, &x, data->meta.hits_len, "%s", MTRC_HITS_LBL);
+    lprint_col (win, *y, &x, data->meta.hits_len, MTRC_HITS_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->meta.hits_perc_len + 4, "%*s", MTRC_HITS_PERC_LBL);
+    rprint_col (win, *y, &x, data->meta.hits_perc_len + 4, MTRC_HITS_PERC_LBL);
 
   if (output->visitors)
-    rprint_col (win, *y, &x, data->meta.visitors_len, "%*s", MTRC_VISITORS_SHORT_LBL);
+    rprint_col (win, *y, &x, data->meta.visitors_len, MTRC_VISITORS_SHORT_LBL);
 
   if (output->percent)
-    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, "%*s", MTRC_VISITORS_PERC_LBL);
+    rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, MTRC_VISITORS_PERC_LBL);
 
   if (output->bw && conf.bandwidth)
-    rprint_col (win, *y, &x, data->meta.bw_len, "%*s", MTRC_BW_LBL);
+    rprint_col (win, *y, &x, data->meta.bw_len, MTRC_BW_LBL);
 
   if (output->avgts && conf.serve_usecs)
-    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_AVGTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_AVGTS_LBL);
 
   if (output->cumts && conf.serve_usecs)
-    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_CUMTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_CUMTS_LBL);
 
   if (output->maxts && conf.serve_usecs)
-    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, "%*s", MTRC_MAXTS_LBL);
+    rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_MAXTS_LBL);
 
   if (output->method && conf.append_method)
-    lprint_col (win, *y, &x, data->meta.method_len, "%s", MTRC_METHODS_SHORT_LBL);
+    lprint_col (win, *y, &x, data->meta.method_len, MTRC_METHODS_SHORT_LBL);
 
   if (output->protocol && conf.append_protocol)
-    lprint_col (win, *y, &x, 8, "%s", MTRC_PROTOCOLS_SHORT_LBL);
+    lprint_col (win, *y, &x, 8, MTRC_PROTOCOLS_SHORT_LBL);
 
   if (output->data)
-    lprint_col (win, *y, &x, 4, "%s", MTRC_DATA_LBL);
+    lprint_col (win, *y, &x, 4, MTRC_DATA_LBL);
 }
 
 /* Iterate over all dashboard data and render its content. */

@@ -37,6 +37,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #define _XOPEN_SOURCE 700
+#define _DEFAULT_SOURCE
 
 #include <ctype.h>
 #include <errno.h>
@@ -56,334 +57,20 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <inttypes.h>
 
 #include "gkhash.h"
-
-#ifdef HAVE_GEOLOCATION
-#include "geoip1.h"
-#endif
 
 #include "parser.h"
 
 #include "browsers.h"
-#include "goaccess.h"
 #include "error.h"
-#include "opesys.h"
+#include "goaccess.h"
+#include "gstorage.h"
+#include "pdjson.h"
 #include "util.h"
+#include "websocket.h"
 #include "xmalloc.h"
-
-/* private prototypes */
-/* key/data generators for each module */
-
-static int gen_visitor_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_404_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_browser_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_host_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_os_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_vhost_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_remote_user_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_cache_status_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_referer_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_ref_site_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_request_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_static_request_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_status_code_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_visit_time_key (GKeyData * kdata, GLogItem * logitem);
-#ifdef HAVE_GEOLOCATION
-static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
-#endif
-/* UMS */
-static int gen_mime_type_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_tls_type_key (GKeyData * kdata, GLogItem * logitem);
-
-/* insertion metric routines */
-static void insert_data (GModule module, GKeyData * kdata);
-static void insert_rootmap (GModule module, GKeyData * kdata);
-static void insert_root (GModule module, GKeyData * kdata);
-static void insert_hit (GModule module, GKeyData * kdata);
-static void insert_visitor (GModule module, GKeyData * kdata);
-static void insert_bw (GModule module, GKeyData * kdata, uint64_t size);
-static void insert_cumts (GModule module, GKeyData * kdata, uint64_t ts);
-static void insert_maxts (GModule module, GKeyData * kdata, uint64_t ts);
-static void insert_method (GModule module, GKeyData * kdata, const char *data);
-static void insert_protocol (GModule module, GKeyData * kdata, const char *data);
-static void insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey);
-
-/* *INDENT-OFF* */
-static GParse paneling[] = {
-  {
-    VISITORS,
-    gen_visitor_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    REQUESTS,
-    gen_request_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    insert_method,
-    insert_protocol,
-    NULL,
-  }, {
-    REQUESTS_STATIC,
-    gen_static_request_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    insert_method,
-    insert_protocol,
-    NULL,
-  }, {
-    NOT_FOUND,
-    gen_404_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    insert_method,
-    insert_protocol,
-    NULL,
-  }, {
-    HOSTS,
-    gen_host_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    insert_agent,
-  }, {
-    OS,
-    gen_os_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    insert_method,
-    insert_protocol,
-    NULL,
-  }, {
-    BROWSERS,
-    gen_browser_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    REFERRERS,
-    gen_referer_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    REFERRING_SITES,
-    gen_ref_site_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    KEYPHRASES,
-    gen_keyphrase_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  },
-#ifdef HAVE_GEOLOCATION
-  {
-    GEO_LOCATION,
-    gen_geolocation_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  },
-#endif
-  {
-    STATUS_CODES,
-    gen_status_code_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    VISIT_TIMES,
-    gen_visit_time_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    VIRTUAL_HOSTS,
-    gen_vhost_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    REMOTE_USER,
-    gen_remote_user_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    CACHE_STATUS,
-    gen_cache_status_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  }, {
-    MIME_TYPE,
-    gen_mime_type_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL, /*method*/
-    NULL, /*protocol*/
-    NULL, /*agent*/
-  }, {
-    TLS_TYPE,
-    gen_tls_type_key,
-    insert_data,
-    insert_rootmap,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-  },
-};
-/* *INDENT-ON* */
-
-/* Initialize a new GKeyData instance */
-static void
-new_modulekey (GKeyData * kdata) {
-  GKeyData key = {
-    .data = NULL,
-    .data_key = NULL,
-    .data_nkey = 0,
-    .root = NULL,
-    .root_key = NULL,
-    .root_nkey = 0,
-    .uniq_key = NULL,
-    .uniq_nkey = 0,
-  };
-  *kdata = key;
-}
-
-/* Get a panel from the GParse structure given a module.
- *
- * On error, or if not found, NULL is returned.
- * On success, the panel value is returned. */
-static GParse *
-panel_lookup (GModule module) {
-  int i, num_panels = ARRAY_SIZE (paneling);
-
-  for (i = 0; i < num_panels; i++) {
-    if (paneling[i].module == module)
-      return &paneling[i];
-  }
-  return NULL;
-}
 
 /* Allocate memory for a new GRawData instance.
  *
@@ -536,6 +223,7 @@ init_log_item (GLog * glog) {
   logitem->tls_type_cypher = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
+  memset (logitem->agent_hex, 0, sizeof (logitem->agent_hex));
   localtime_r (&now, &logitem->dt);
 
   return logitem;
@@ -700,25 +388,6 @@ extract_keyphrase (char *ref, char **keyphrase) {
   return 0;
 }
 
-#ifdef HAVE_GEOLOCATION
-/* Extract geolocation for the given host.
- *
- * On error, 1 is returned.
- * On success, the extracted continent and country are set and 0 is
- * returned. */
-static int
-extract_geolocation (GLogItem * logitem, char *continent, char *country) {
-  if (!is_geoip_resource ())
-    return 1;
-
-  geoip_get_country (logitem->host, country, logitem->type_ip);
-  geoip_get_continent (logitem->host, continent, logitem->type_ip);
-
-  return 0;
-}
-#endif
-
-
 /* Parse a URI and extracts the *host* part from it
  * i.e., //www.example.com/path?googleguy > www.example.com
  *
@@ -798,37 +467,10 @@ verify_static_content (const char *req) {
  * On success, the HTTP method is returned. */
 static const char *
 extract_method (const char *token) {
-  const char *methods[] = {
-    "OPTIONS", "GET", "HEAD", "POST", "PUT",
-    "DELETE", "TRACE", "CONNECT", "PATCH", "options",
-    "get", "head", "post", "put", "delete",
-    "trace", "connect", "patch",
-    /* WebDAV */
-    "PROPFIND", "PROPPATCH", "MKCOL", "COPY", "MOVE",
-    "LOCK", "UNLOCK", "VERSION-CONTROL", "REPORT", "CHECKOUT",
-    "CHECKIN", "UNCHECKOUT", "MKWORKSPACE", "UPDATE", "LABEL",
-    "MERGE", "BASELINE-CONTROL", "MKACTIVITY", "ORDERPATCH", "propfind",
-    "propwatch", "mkcol", "copy", "move", "lock",
-    "unlock", "version-control", "report", "checkout", "checkin",
-    "uncheckout", "mkworkspace", "update", "label", "merge",
-    "baseline-control", "mkactivity", "orderpatch"
-  };
-
-  const int methods_count = sizeof (methods) / sizeof (*methods);
-
-  int i;
-  /* Length of every string in list */
-  static int list_length[sizeof (methods) / sizeof (*methods)] = { -1 };
-  /* Only calculate length on first time */
-  if (list_length[0] == -1) {
-    for (i = 0; i < methods_count; i++) {
-      list_length[i] = strlen (methods[i]);
-    }
-  }
-
-  for (i = 0; i < methods_count; i++) {
-    if (strncmp (token, methods[i], list_length[i]) == 0) {
-      return methods[i];
+  size_t i;
+  for (i = 0; i < http_methods_len; i++) {
+    if (strncasecmp (token, http_methods[i].method, http_methods[i].len) == 0) {
+      return http_methods[i].method;
     }
   }
   return NULL;
@@ -867,12 +509,12 @@ is_cache_hit (const char *tkn) {
  * If valid, 0 is returned. */
 static const char *
 extract_protocol (const char *token) {
-  const char *lookfor;
-
-  if ((lookfor = "HTTP/1.0", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "HTTP/1.1", !strncmp (token, lookfor, 8)) ||
-      (lookfor = "HTTP/2", !strncmp (token, lookfor, 6)))
-    return lookfor;
+  size_t i;
+  for (i = 0; i < http_protocols_len; i++) {
+    if (strncasecmp (token, http_protocols[i].protocol, http_protocols[i].len) == 0) {
+      return http_protocols[i].protocol;
+    }
+  }
   return NULL;
 }
 
@@ -924,6 +566,63 @@ parse_req (char *line, char **method, char **protocol) {
   free (request);
   return dreq;
 }
+
+#if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
+static int
+extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
+  SSL_CTX *ctx = NULL;
+  SSL *ssl = NULL;
+  int code = 0;
+  unsigned short code_be;
+  unsigned char cipherid[3];
+  const SSL_CIPHER *c = NULL;
+  char *bEnd;
+  const char *sn = NULL;
+
+  code = strtoull (tkn, &bEnd, 10);
+  if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE) {
+    LOG_DEBUG (("unable to convert cipher code to a valid decimal."));
+    free (tkn);
+    return 1;
+  }
+
+  /* ssl context */
+  if (!(ctx = SSL_CTX_new (SSLv23_server_method ()))) {
+    LOG_DEBUG (("Unable to create a new SSL_CTX_new to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+  if (!(ssl = SSL_new (ctx))) {
+    LOG_DEBUG (("Unable to create a new instace of SSL_new to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+
+  code_be = htobe16 (code);
+  memcpy (cipherid, &code_be, 2);
+  cipherid[2] = 0;
+
+  if (!(c = SSL_CIPHER_find (ssl, cipherid))) {
+    LOG_DEBUG (("Unable to find cipher to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+
+  if (!(sn = SSL_CIPHER_standard_name (c))) {
+    LOG_DEBUG (("Unable to get cipher standard name to extact TLS."));
+    free (tkn);
+    return 1;
+  }
+  *cipher = xstrdup (sn);
+  *tls_version = xstrdup (SSL_CIPHER_get_version (c));
+
+  free (tkn);
+  SSL_free (ssl);
+  SSL_CTX_free (ctx);
+
+  return 0;
+}
+#endif
 
 /* Extract the next delimiter given a log format and copy the delimiter to the
  * destination buffer.
@@ -985,6 +684,11 @@ parse_string (char **str, const char *delims, int cnt) {
   } while (*pch++);
 
   return NULL;
+}
+
+char *
+extract_by_delim (char **str, const char *end) {
+  return parse_string (&(*str), end, 1);
 }
 
 /* Move forward through the log string until a non-space (!isspace)
@@ -1060,20 +764,15 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   const char *fmt = NULL;
 
   switch (code) {
-  case SPEC_TOKN_INV:
-    fmt = "Token '%s' doesn't match specifier '%%%c'";
-    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
-    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
-    break;
-  case SPEC_TOKN_SET:
-    fmt = "Token already set for '%%%c' specifier.";
-    err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
-    sprintf (err, fmt, spec);
-    break;
   case SPEC_TOKN_NUL:
     fmt = "Token for '%%%c' specifier is NULL.";
     err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
     sprintf (err, fmt, spec);
+    break;
+  case SPEC_TOKN_INV:
+    fmt = "Token '%s' doesn't match specifier '%%%c'";
+    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
+    sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
   case SPEC_SFMT_MIS:
     fmt = "Missing braces '%s' and ignore chars for specifier '%%%c'";
@@ -1083,7 +782,7 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   }
   logitem->errstr = err;
 
-  return 1;
+  return code;
 }
 
 static void
@@ -1106,6 +805,12 @@ set_numeric_date (uint32_t * numdate, const char *date) {
   if ((res = str2int (date)) == -1)
     FATAL ("Unable to parse date to integer %s", date);
   *numdate = res;
+}
+
+static void
+set_agent_hash (GLogItem * logitem) {
+  logitem->agent_hash = djb2 ((unsigned char *) logitem->agent);
+  sprintf (logitem->agent_hex, "%" PRIx32, logitem->agent_hash);
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
@@ -1135,7 +840,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date */
   case 'd':
     if (logitem->date)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     /* Attempt to parse date format containing spaces,
      * i.e., syslog date format (Jul\s15, Nov\s\s2).
@@ -1161,7 +866,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* time */
   case 't':
     if (logitem->time)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1177,7 +882,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
     if (logitem->time && logitem->date)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1190,11 +895,12 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     set_numeric_date (&logitem->numdate, logitem->date);
     set_tm_dt_logitem (logitem, tm);
     set_tm_tm_logitem (logitem, tm);
+    free (tkn);
     break;
     /* Virtual Host */
   case 'v':
     if (logitem->vhost)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1203,7 +909,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* remote user */
   case 'e':
     if (logitem->userid)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1212,7 +918,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* cache status */
   case 'C':
     if (logitem->cache_status)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
@@ -1224,7 +930,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
+    /* per https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2 */
+    /* square brackets are possible */
+    if (*str[0] == '[' && (*str += 1) && **str)
+      end = "]";
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1238,21 +948,24 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request method */
   case 'm':
     if (logitem->method)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
-
-    if (!extract_method (tkn)) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+    {
+      const char *meth = NULL;
+      if (!(meth = extract_method (tkn))) {
+        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        free (tkn);
+        return 1;
+      }
+      logitem->method = xstrdup (meth);
       free (tkn);
-      return 1;
     }
-    logitem->method = tkn;
     break;
     /* request not including method or protocol */
   case 'U':
     if (logitem->req)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1269,7 +982,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
   case 'q':
     if (logitem->qstr)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1286,21 +999,24 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* request protocol */
   case 'H':
     if (logitem->protocol)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
-
-    if (!extract_protocol (tkn)) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+    {
+      const char *proto = NULL;
+      if (!(proto = extract_protocol (tkn))) {
+        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        free (tkn);
+        return 1;
+      }
+      logitem->protocol = xstrdup (proto);
       free (tkn);
-      return 1;
     }
-    logitem->protocol = tkn;
     break;
     /* request, including method + protocol */
   case 'r':
     if (logitem->req)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1310,7 +1026,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* Status Code */
   case 's':
     if (logitem->status)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1331,7 +1047,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
     if (logitem->resp_size)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1345,7 +1061,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* referrer */
   case 'R':
     if (logitem->ref)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     if (!(tkn = parse_string (&(*str), end, 1)))
       tkn = alloc_string ("-");
@@ -1371,13 +1087,14 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     /* user agent */
   case 'u':
     if (logitem->agent)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
+      return 0;
 
     tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront)
        * and replace all '+' with ' ' (i.e.: w3c) */
       logitem->agent = decode_url (tkn);
+      set_agent_hash (logitem);
       free (tkn);
       break;
     } else if (tkn != NULL && *tkn == '\0') {
@@ -1389,6 +1106,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       tkn = alloc_string ("-");
     }
     logitem->agent = tkn;
+    set_agent_hash (logitem);
     break;
     /* time taken to serve the request, in milliseconds as a decimal number */
   case 'L':
@@ -1450,20 +1168,30 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'k':
     /* error to set this twice */
     if (logitem->tls_cypher)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
+#if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
+    {
+      char *tmp = NULL;
+      for (tmp = tkn; isdigit (*tmp); tmp++);
+      if (!strlen (tmp))
+        extract_tls_version_cipher (tkn, &logitem->tls_cypher, &logitem->tls_type);
+      else
+        logitem->tls_cypher = tkn;
+    }
+#else
     logitem->tls_cypher = tkn;
+#endif
+
     break;
 
     /* UMS: Krypto (TLS) parameters like "TLSv1.2" */
   case 'K':
     /* error to set this twice */
     if (logitem->tls_type)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1474,8 +1202,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
   case 'M':
     /* error to set this twice */
     if (logitem->mime_type)
-      return spec_err (logitem, SPEC_TOKN_SET, *p, NULL);
-
+      return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
@@ -1598,7 +1325,7 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
     /* XFF remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return spec_err (logitem, SPEC_TOKN_SET, **p, NULL);
+      return 0;
     if (find_xff_host (logitem, str, p))
       return spec_err (logitem, SPEC_TOKN_NUL, 'h', NULL);
     break;
@@ -1613,19 +1340,16 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem * logitem, char *str) {
+parse_format (GLogItem * logitem, char *str, char *lfmt) {
   char end[2 + 1] = { 0 };
-  char *lfmt = conf.log_format, *p = NULL;
-  int perc = 0, tilde = 0;
+  char *p = NULL;
+  int perc = 0, tilde = 0, ret = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
 
   /* iterate over the log format */
   for (p = lfmt; *p; p++) {
-    /* advance to the first unescaped delim */
-    if (*p == '\\')
-      continue;
     if (*p == '%') {
       perc++;
       continue;
@@ -1634,6 +1358,8 @@ parse_format (GLogItem * logitem, char *str) {
       tilde++;
       continue;
     }
+    if (*str == '\n')
+      return 0;
 
     if (tilde && *p != '\0') {
       if ((str == NULL) || (*str == '\0'))
@@ -1650,8 +1376,8 @@ parse_format (GLogItem * logitem, char *str) {
       memset (end, 0, sizeof end);
       get_delim (end, p);
       /* attempt to parse format specifiers */
-      if (parse_specifier (logitem, &str, p, end) == 1)
-        return 1;
+      if ((ret = parse_specifier (logitem, &str, p, end)))
+        return ret;
       perc = 0;
     } else if (perc && isspace (p[0])) {
       return 1;
@@ -1679,20 +1405,6 @@ valid_line (char *line) {
   return 0;
 }
 
-/* Determine if we need to lock the mutex. */
-static void
-lock_spinner (void) {
-  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
-    pthread_mutex_lock (&parsing_spinner->mutex);
-}
-
-/* Determine if we need to unlock the mutex. */
-static void
-unlock_spinner (void) {
-  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
-    pthread_mutex_unlock (&parsing_spinner->mutex);
-}
-
 /* Ignore request's query string. e.g.,
  * /index.php?timestamp=1454385289 */
 static void
@@ -1704,11 +1416,6 @@ strip_qstring (char *req) {
   }
 }
 
-/* Increment the overall bandwidth. */
-static void
-count_bw (int numdate, uint64_t resp_size) {
-  ht_inc_cnt_bw (numdate, resp_size);
-}
 
 /* Output all log errors stored during parsing. */
 void
@@ -1749,85 +1456,6 @@ verify_missing_fields (GLogItem * logitem) {
     logitem->errstr = xstrdup ("A request is required.");
 
   return logitem->errstr != NULL;
-}
-
-/* Keep track of all invalid log strings. */
-static void
-count_invalid (GLog * glog, const char *line) {
-  glog->invalid++;
-  ht_inc_cnt_overall ("failed_requests", 1);
-
-  if (conf.invalid_requests_log) {
-    LOG_INVALID (("%s", line));
-  }
-
-  if (glog->items->errstr && glog->invalid < MAX_LOG_ERRORS) {
-    glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
-  }
-}
-
-/* Count down the number of invalids hits.
- * Note: Upon performing a log test, invalid hits are counted, since
- * no valid records were found, then we count down by the number of
- * tests ran.
-*/
-static void
-uncount_invalid (GLog * glog) {
-  if (glog->invalid > conf.num_tests)
-    glog->invalid -= conf.num_tests;
-  else
-    glog->invalid = 0;
-}
-
-/* Count down the number of processed hits.
- * Note: Upon performing a log test, processed hits are counted, since
- * no valid records were found, then we count down by the number of
- * tests ran.
-*/
-static void
-uncount_processed (GLog * glog) {
-  lock_spinner ();
-  if (glog->processed > conf.num_tests)
-    glog->processed -= conf.num_tests;
-  else
-    glog->processed = 0;
-  unlock_spinner ();
-}
-
-/* Keep track of all valid log strings. */
-static void
-count_valid (int numdate) {
-  lock_spinner ();
-  ht_inc_cnt_valid (numdate, 1);
-  unlock_spinner ();
-}
-
-/* Keep track of all valid and processed log strings. */
-static void
-count_process (GLog * glog) {
-  lock_spinner ();
-  glog->processed++;
-  ht_inc_cnt_overall ("total_requests", 1);
-  unlock_spinner ();
-}
-
-static void
-count_process_and_invalid (GLog * glog, const char *line) {
-  count_process (glog);
-  count_invalid (glog, line);
-}
-
-/* Keep track of all excluded log strings (IPs).
- *
- * If IP not range, 1 is returned.
- * If IP is excluded, 0 is returned. */
-static int
-excluded_ip (GLogItem * logitem) {
-  if (conf.ignore_ip_idx && ip_in_range (logitem->host)) {
-    ht_inc_cnt_overall ("excluded_ip", 1);
-    return 0;
-  }
-  return 1;
 }
 
 /* Determine if the request is from a robot or spider and check if we
@@ -1921,117 +1549,6 @@ ignore_line (GLogItem * logitem) {
   return 0;
 }
 
-/* A wrapper function to insert a data keymap string key.
- *
- * If the given key exists, its value is returned.
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-static int
-insert_dkeymap (GModule module, GKeyData * kdata) {
-  return ht_insert_keymap (module, kdata->numdate, kdata->data_key, &kdata->cdnkey);
-}
-
-/* A wrapper function to insert a root keymap string key.
- *
- * If the given key exists, its value is returned.
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-static int
-insert_rkeymap (GModule module, GKeyData * kdata) {
-  return ht_insert_keymap (module, kdata->numdate, kdata->root_key, &kdata->crnkey);
-}
-
-/* A wrapper function to insert a datamap uint32_t key and string value. */
-static void
-insert_data (GModule module, GKeyData * kdata) {
-  ht_insert_datamap (module, kdata->numdate, kdata->data_nkey, kdata->data, kdata->cdnkey);
-}
-
-/* A wrapper function to insert a uniqmap string key.
- *
- * If the given key exists, 0 is returned.
- * On error, -1 is returned.
- * On success the value of the key inserted is returned */
-static int
-insert_uniqmap (GModule module, GKeyData * kdata, uint32_t uniq_nkey) {
-  return ht_insert_uniqmap (module, kdata->numdate, kdata->data_nkey, uniq_nkey);
-}
-
-/* A wrapper function to insert a rootmap uint32_t key from the keymap
- * store mapped to its string value. */
-static void
-insert_rootmap (GModule module, GKeyData * kdata) {
-  ht_insert_rootmap (module, kdata->numdate, kdata->root_nkey, kdata->root, kdata->crnkey);
-}
-
-/* A wrapper function to insert a data uint32_t key mapped to the
- * corresponding uint32_t root key. */
-static void
-insert_root (GModule module, GKeyData * kdata) {
-  ht_insert_root (module, kdata->numdate, kdata->data_nkey, kdata->root_nkey, kdata->cdnkey,
-                  kdata->crnkey);
-}
-
-/* A wrapper function to increase hits counter from an uint32_t key. */
-static void
-insert_hit (GModule module, GKeyData * kdata) {
-  ht_insert_hits (module, kdata->numdate, kdata->data_nkey, 1, kdata->cdnkey);
-  ht_insert_meta_data (module, kdata->numdate, "hits", 1);
-}
-
-/* A wrapper function to increase visitors counter from an uint32_t
- * key. */
-static void
-insert_visitor (GModule module, GKeyData * kdata) {
-  ht_insert_visitor (module, kdata->numdate, kdata->data_nkey, 1, kdata->cdnkey);
-  ht_insert_meta_data (module, kdata->numdate, "visitors", 1);
-}
-
-/* A wrapper function to increases bandwidth counter from an uint32_t
- * key. */
-static void
-insert_bw (GModule module, GKeyData * kdata, uint64_t size) {
-  ht_insert_bw (module, kdata->numdate, kdata->data_nkey, size, kdata->cdnkey);
-  ht_insert_meta_data (module, kdata->numdate, "bytes", size);
-}
-
-/* A wrapper call to increases cumulative time served counter
- * from an uint32_t key. */
-static void
-insert_cumts (GModule module, GKeyData * kdata, uint64_t ts) {
-  ht_insert_cumts (module, kdata->numdate, kdata->data_nkey, ts, kdata->cdnkey);
-  ht_insert_meta_data (module, kdata->numdate, "cumts", ts);
-}
-
-/* A wrapper call to insert the maximum time served counter from
- * an uint32_t key. */
-static void
-insert_maxts (GModule module, GKeyData * kdata, uint64_t ts) {
-  ht_insert_maxts (module, kdata->numdate, kdata->data_nkey, ts, kdata->cdnkey);
-  ht_insert_meta_data (module, kdata->numdate, "maxts", ts);
-}
-
-static void
-insert_method (GModule module, GKeyData * kdata, const char *data) {
-  ht_insert_method (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
-                    kdata->cdnkey);
-}
-
-/* A wrapper call to insert a method given an uint32_t key and string
- * value. */
-static void
-insert_protocol (GModule module, GKeyData * kdata, const char *data) {
-  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
-                      kdata->cdnkey);
-}
-
-/* A wrapper call to insert an agent for a hostname given an uint32_t
- * key and uint32_t value.  */
-static void
-insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey) {
-  ht_insert_agent (module, kdata->numdate, kdata->data_nkey, agent_nkey);
-}
-
 /* The following generates a unique key to identity unique visitors.
  * The key is made out of the IP, date, and user agent.
  * Note that for readability, doing a simple snprintf/sprintf should
@@ -2040,14 +1557,12 @@ insert_agent (GModule module, GKeyData * kdata, uint32_t agent_nkey) {
  * On success the new unique visitor key is returned */
 static char *
 get_uniq_visitor_key (GLogItem * logitem) {
-  char *ua = NULL, *key = NULL;
+  char *key = NULL;
   size_t s1, s2, s3;
-
-  ua = deblank (xstrdup (logitem->agent));
 
   s1 = strlen (logitem->date);
   s2 = strlen (logitem->host);
-  s3 = strlen (ua);
+  s3 = strlen (logitem->agent_hex);
 
   /* includes terminating null */
   key = xcalloc (s1 + s2 + s3 + 3, sizeof (char));
@@ -2058,770 +1573,9 @@ get_uniq_visitor_key (GLogItem * logitem) {
   memcpy (key + s1 + 1, logitem->host, s2 + 1);
 
   key[s1 + s2 + 1] = '|';
-  memcpy (key + s1 + s2 + 2, ua, s3 + 1);
-
-  free (ua);
-  return key;
-}
-
-/* The following generates a unique key to identity unique requests.
- * The key is made out of the actual request, and if available, the
- * method and the protocol.  Note that for readability, doing a simple
- * snprintf/sprintf should suffice, however, memcpy is the fastest
- * solution
- *
- * On success the new unique request key is returned */
-static char *
-gen_unique_req_key (GLogItem * logitem) {
-  char *key = NULL;
-  size_t s1 = 0, s2 = 0, s3 = 0, nul = 1, sep = 0;
-
-  /* nothing to do */
-  if (!conf.append_method && !conf.append_protocol)
-    return xstrdup (logitem->req);
-  /* still nothing to do */
-  if (!logitem->method && !logitem->protocol)
-    return xstrdup (logitem->req);
-
-  s1 = strlen (logitem->req);
-  if (logitem->method && conf.append_method) {
-    s2 = strlen (logitem->method);
-    nul++;
-  }
-  if (logitem->protocol && conf.append_protocol) {
-    s3 = strlen (logitem->protocol);
-    nul++;
-  }
-
-  /* includes terminating null */
-  key = xcalloc (s1 + s2 + s3 + nul, sizeof (char));
-  /* append request */
-  memcpy (key, logitem->req, s1);
-
-  if (logitem->method && conf.append_method) {
-    key[s1] = '|';
-    sep++;
-    memcpy (key + s1 + sep, logitem->method, s2 + 1);
-  }
-  if (logitem->protocol && conf.append_protocol) {
-    key[s1 + s2 + sep] = '|';
-    sep++;
-    memcpy (key + s1 + s2 + sep, logitem->protocol, s3 + 1);
-  }
+  memcpy (key + s1 + s2 + 2, logitem->agent_hex, s3 + 1);
 
   return key;
-}
-
-/* Append the query string to the request, and therefore, it modifies
- * the original logitem->req */
-static void
-append_query_string (char **req, const char *qstr) {
-  char *r;
-  size_t s1, s2, qm = 0;
-
-  s1 = strlen (*req);
-  s2 = strlen (qstr);
-
-  /* add '?' between the URL and the query string */
-  if (*qstr != '?')
-    qm = 1;
-
-  r = xmalloc (s1 + s2 + qm + 1);
-  memcpy (r, *req, s1);
-  if (qm)
-    r[s1] = '?';
-  memcpy (r + s1 + qm, qstr, s2 + 1);
-
-  free (*req);
-  *req = r;
-}
-
-/* A wrapper to assign the given data key and the data item to the key
- * data structure */
-static void
-get_kdata (GKeyData * kdata, char *data_key, char *data) {
-  /* inserted in keymap */
-  kdata->data_key = data_key;
-  /* inserted in datamap */
-  kdata->data = data;
-}
-
-/* Generate a visitor's key given the date specificity. For instance,
- * if the specificity if set to hours, then a generated key would
- * look like: 03/Jan/2016:09 */
-static void
-set_spec_visitor_key (char **fdate, const char *ftime) {
-  size_t dlen = 0, tlen = 0;
-  char *key = NULL, *tkey = NULL, *pch = NULL;
-
-  tkey = xstrdup (ftime);
-  if (conf.date_spec_hr && (pch = strchr (tkey, ':')) && (pch - tkey) > 0)
-    *pch = '\0';
-
-  dlen = strlen (*fdate);
-  tlen = strlen (tkey);
-
-  key = xmalloc (dlen + tlen + 1);
-  memcpy (key, *fdate, dlen);
-  memcpy (key + dlen, tkey, tlen + 1);
-
-  free (*fdate);
-  free (tkey);
-  *fdate = key;
-}
-
-/* Generate a unique key for the visitors panel from the given logitem
- * structure and assign it to the output key data structure.
- *
- * On error, or if no date is found, 1 is returned.
- * On success, the date key is assigned to our key data structure.
- */
-static int
-gen_visitor_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->date || !logitem->time)
-    return 1;
-
-  /* Append time specificity to date */
-  if (conf.date_spec_hr)
-    set_spec_visitor_key (&logitem->date, logitem->time);
-
-  get_kdata (kdata, logitem->date, logitem->date);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* Generate a unique key for the requests panel from the given logitem
- * structure and assign it to out key data structure.
- *
- * On success, the generated request key is assigned to our key data
- * structure.
- */
-static int
-gen_req_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->req)
-    return 1;
-
-  if (logitem->qstr)
-    append_query_string (&logitem->req, logitem->qstr);
-  logitem->req_key = gen_unique_req_key (logitem);
-
-  get_kdata (kdata, logitem->req_key, logitem->req);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the request panel.
- *
- * On error, or if the request is static or a 404, 1 is returned.
- * On success, the generated request key is assigned to our key data
- * structure.
- */
-static int
-gen_request_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->req || logitem->is_404 || logitem->is_static)
-    return 1;
-
-  return gen_req_key (kdata, logitem);
-}
-
-/* A wrapper to generate a unique key for the request panel.
- *
- * On error, or if the request is not a 404, 1 is returned.
- * On success, the generated request key is assigned to our key data
- * structure. */
-static int
-gen_404_key (GKeyData * kdata, GLogItem * logitem) {
-  if (logitem->req && logitem->is_404)
-    return gen_req_key (kdata, logitem);
-  return 1;
-}
-
-/* A wrapper to generate a unique key for the request panel.
- *
- * On error, or if the request is not a static request, 1 is returned.
- * On success, the generated request key is assigned to our key data
- * structure. */
-static int
-gen_static_request_key (GKeyData * kdata, GLogItem * logitem) {
-  if (logitem->req && logitem->is_static)
-    return gen_req_key (kdata, logitem);
-  return 1;
-}
-
-/* A wrapper to generate a unique key for the virtual host panel.
- *
- * On error, 1 is returned.
- * On success, the generated vhost key is assigned to our key data
- * structure. */
-static int
-gen_vhost_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->vhost)
-    return 1;
-
-  get_kdata (kdata, logitem->vhost, logitem->vhost);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the virtual host panel.
- *
- * On error, 1 is returned.
- * On success, the generated userid key is assigned to our key data
- * structure. */
-static int
-gen_remote_user_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->userid)
-    return 1;
-
-  get_kdata (kdata, logitem->userid, logitem->userid);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the cache status panel.
- *
- * On error, 1 is returned.
- * On success, the generated cache status key is assigned to our key data
- * structure. */
-static int
-gen_cache_status_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->cache_status)
-    return 1;
-
-  get_kdata (kdata, logitem->cache_status, logitem->cache_status);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the hosts panel.
- *
- * On error, 1 is returned.
- * On success, the generated host key is assigned to our key data
- * structure. */
-static int
-gen_host_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->host)
-    return 1;
-
-  get_kdata (kdata, logitem->host, logitem->host);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* Generate a browser unique key for the browser's panel given a user
- * agent and assign the browser type/category as a root element.
- *
- * On error, 1 is returned.
- * On success, the generated browser key is assigned to our key data
- * structure. */
-static int
-gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
-  char *agent = NULL;
-  char browser_type[BROWSER_TYPE_LEN] = "";
-
-  if (logitem->agent == NULL || *logitem->agent == '\0')
-    return 1;
-
-  agent = xstrdup (logitem->agent);
-  logitem->browser = verify_browser (agent, browser_type);
-  logitem->browser_type = xstrdup (browser_type);
-
-  /* e.g., Firefox 11.12 */
-  kdata->data = logitem->browser;
-  kdata->data_key = logitem->browser;
-
-  /* Firefox */
-  kdata->root = logitem->browser_type;
-  kdata->root_key = logitem->browser_type;
-  kdata->numdate = logitem->numdate;
-
-  free (agent);
-
-  return 0;
-}
-
-/* Generate an operating system unique key for the OS' panel given a
- * user agent and assign the OS type/category as a root element.
- *
- * On error, 1 is returned.
- * On success, the generated OS key is assigned to our key data
- * structure. */
-static int
-gen_os_key (GKeyData * kdata, GLogItem * logitem) {
-  char *agent = NULL;
-  char os_type[OPESYS_TYPE_LEN] = "";
-
-  if (logitem->agent == NULL || *logitem->agent == '\0')
-    return 1;
-
-  agent = xstrdup (logitem->agent);
-  logitem->os = verify_os (agent, os_type);
-  logitem->os_type = xstrdup (os_type);
-
-  /* e.g., Linux,Ubuntu 10.12 */
-  kdata->data = logitem->os;
-  kdata->data_key = logitem->os;
-
-  /* Linux */
-  kdata->root = logitem->os_type;
-  kdata->root_key = logitem->os_type;
-  kdata->numdate = logitem->numdate;
-
-  free (agent);
-
-  return 0;
-}
-
-/* Determine if the given token starts with a valid MIME major type.
- *
- * If not valid, NULL is returned.
- * If valid, the appropriate constant string is returned. */
-static const char *
-extract_mimemajor (const char *token) {
-  const char *lookfor;
-
-  /* official IANA registries as per https://www.iana.org/assignments/media-types/ */
-
-  if ((lookfor = "application", !strncmp (token, lookfor, 11)) ||
-      (lookfor = "audio", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "font", !strncmp (token, lookfor, 4)) ||
-      /* unlikely */
-      (lookfor = "example", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "image", !strncmp (token, lookfor, 5)) ||
-      /* unlikely */
-      (lookfor = "message", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "model", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "multipart", !strncmp (token, lookfor, 9)) ||
-      (lookfor = "text", !strncmp (token, lookfor, 4)) ||
-      (lookfor = "video", !strncmp (token, lookfor, 5))
-    )
-    return lookfor;
-  return NULL;
-}
-
-/* UMS: generate an Mime-Type unique key
- *
- * On error, 1 is returned.
- * On success, the generated key is assigned to our key data structure.
- */
-static int
-gen_mime_type_key (GKeyData * kdata, GLogItem * logitem) {
-  const char *major = NULL;
-
-  if (!logitem->mime_type)
-    return 1;
-
-  /* redirects and the like only register as "-", ignore those */
-  major = extract_mimemajor (logitem->mime_type);
-  if (!major)
-    return 1;
-
-  kdata->data = logitem->mime_type;
-  kdata->data_key = logitem->mime_type;
-  kdata->numdate = logitem->numdate;
-
-  kdata->root = major;
-  kdata->root_key = major;
-
-  return 0;
-}
-
-/* Determine if the given token starts with the usual TLS/SSL result string.
- *
- * If not valid, NULL is returned.
- * If valid, the appropriate constant string is returned. */
-static const char *
-extract_tlsmajor (const char *token) {
-  const char *lookfor;
-
-  if ((lookfor = "SSLv3", !strncmp (token, lookfor, 5)) ||
-      (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
-      (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
-      /* Nope, it's not 1.0 */
-      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)))
-    return lookfor;
-  return NULL;
-}
-
-/* UMS: generate a TLS settings unique key
- *
- * On error, 1 is returned.
- * On success, the generated key is assigned to our key data structure.
- */
-static int
-gen_tls_type_key (GKeyData * kdata, GLogItem * logitem) {
-  const char *tls;
-  size_t tlen = 0, clen = 0;
-
-  if (!logitem->tls_type)
-    return 1;
-
-  /* '-' means no TLS at all, just ignore for the panel? */
-  tls = extract_tlsmajor (logitem->tls_type);
-
-  if (!tls)
-    return 1;
-
-  kdata->numdate = logitem->numdate;
-  if (!logitem->tls_cypher) {
-    kdata->data_key = kdata->data = kdata->root = kdata->root_key = tls;
-    return 0;
-  }
-
-  clen = strlen (logitem->tls_cypher);
-  tlen = strlen (tls);
-
-  logitem->tls_type_cypher = xmalloc (tlen + clen + 2);
-  memcpy (logitem->tls_type_cypher, tls, tlen);
-  logitem->tls_type_cypher[tlen] = '/';
-  /* includes terminating null */
-  memcpy (logitem->tls_type_cypher + tlen + 1, logitem->tls_cypher, clen + 1);
-
-  kdata->data = logitem->tls_type_cypher;
-  kdata->data_key = logitem->tls_type_cypher;
-
-  kdata->root = tls;
-  kdata->root_key = tls;
-
-  return 0;
-}
-
-
-/* A wrapper to generate a unique key for the referrers panel.
- *
- * On error, 1 is returned.
- * On success, the generated referrer key is assigned to our key data
- * structure. */
-static int
-gen_referer_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->ref)
-    return 1;
-
-  get_kdata (kdata, logitem->ref, logitem->ref);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the referring sites panel.
- *
- * On error, 1 is returned.
- * On success, the generated referring site key is assigned to our key data
- * structure. */
-static int
-gen_ref_site_key (GKeyData * kdata, GLogItem * logitem) {
-  if (logitem->site[0] == '\0')
-    return 1;
-
-  get_kdata (kdata, logitem->site, logitem->site);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the keyphrases panel.
- *
- * On error, 1 is returned.
- * On success, the generated keyphrase key is assigned to our key data
- * structure. */
-static int
-gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem) {
-  if (!logitem->keyphrase)
-    return 1;
-
-  get_kdata (kdata, logitem->keyphrase, logitem->keyphrase);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* A wrapper to generate a unique key for the geolocation panel.
- *
- * On error, 1 is returned.
- * On success, the generated geolocation key is assigned to our key
- * data structure. */
-#ifdef HAVE_GEOLOCATION
-static int
-gen_geolocation_key (GKeyData * kdata, GLogItem * logitem) {
-  char continent[CONTINENT_LEN] = "";
-  char country[COUNTRY_LEN] = "";
-
-  if (extract_geolocation (logitem, continent, country) == 1)
-    return 1;
-
-  if (country[0] != '\0')
-    logitem->country = xstrdup (country);
-
-  if (continent[0] != '\0')
-    logitem->continent = xstrdup (continent);
-
-  kdata->data_key = logitem->country;
-  kdata->data = logitem->country;
-
-  kdata->root = logitem->continent;
-  kdata->root_key = logitem->continent;
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-#endif
-
-/* A wrapper to generate a unique key for the status code panel.
- *
- * On error, 1 is returned.
- * On success, the generated status code key is assigned to our key
- * data structure. */
-static int
-gen_status_code_key (GKeyData * kdata, GLogItem * logitem) {
-  const char *status = NULL, *type = NULL;
-
-  if (!logitem->status)
-    return 1;
-
-  type = verify_status_code_type (logitem->status);
-  status = verify_status_code (logitem->status);
-
-  kdata->data = (char *) status;
-  kdata->data_key = (char *) status;
-
-  kdata->root = (char *) type;
-  kdata->root_key = (char *) type;
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* Given a time string containing at least %H:%M, extract either the
- * tenth of a minute or an hour.
- *
- * On error, the given string is not modified.
- * On success, the conf specificity is extracted. */
-static void
-parse_time_specificity_string (char *hmark, char *ftime) {
-  /* tenth of a minute specificity - e.g., 18:2 */
-  if (conf.hour_spec_min && hmark[1] != '\0') {
-    hmark[2] = '\0';
-    return;
-  }
-
-  /* hour specificity (default) */
-  if ((hmark - ftime) > 0)
-    *hmark = '\0';
-}
-
-/* A wrapper to generate a unique key for the time distribution panel.
- *
- * On error, 1 is returned.
- * On success, the generated time key is assigned to our key data
- * structure. */
-static int
-gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
-  char *hmark = NULL;
-  char hour[HRMI_LEN] = "";     /* %H:%M */
-  if (!logitem->time)
-    return 1;
-
-  /* if not a timestamp, then it must be a string containing the hour.
-   * this is faster than actual date conversion */
-  if (!has_timestamp (conf.time_format) && (hmark = strchr (logitem->time, ':'))) {
-    parse_time_specificity_string (hmark, logitem->time);
-
-    kdata->numdate = logitem->numdate;
-    get_kdata (kdata, logitem->time, logitem->time);
-    return 0;
-  }
-
-  /* otherwise it attempts to convert the date given a time format,
-   * though this is slower */
-  memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, "%T", "%H:%M", HRMI_LEN) != 0)
-    return 1;
-
-  if (*hour == '\0')
-    return 1;
-
-  if ((hmark = strchr (hour, ':')))
-    parse_time_specificity_string (hmark, hour);
-
-  free (logitem->time);
-  logitem->time = xstrdup (hour);
-
-  get_kdata (kdata, logitem->time, logitem->time);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
-/* Determine if 404s need to be added to the unique visitors count.
- *
- * If it needs to be added, 0 is returned else 1 is returned. */
-static int
-include_uniq (GLogItem * logitem) {
-  int u = conf.client_err_to_unique_count;
-
-  if (!logitem->status || logitem->status[0] != '4' || (u && logitem->status[0] == '4'))
-    return 1;
-  return 0;
-}
-
-/* Determine which data metrics need to be set and set them. */
-static void
-set_datamap (GLogItem * logitem, GKeyData * kdata, const GParse * parse) {
-  GModule module;
-  module = parse->module;
-
-  /* insert data */
-  parse->datamap (module, kdata);
-
-  /* insert rootmap and root-data map */
-  if (parse->rootmap && kdata->root) {
-    parse->rootmap (module, kdata);
-    insert_root (module, kdata);
-  }
-  /* insert hits */
-  if (parse->hits)
-    parse->hits (module, kdata);
-  /* insert visitors */
-  if (parse->visitor && kdata->uniq_nkey == 1)
-    parse->visitor (module, kdata);
-  /* insert bandwidth */
-  if (parse->bw)
-    parse->bw (module, kdata, logitem->resp_size);
-  /* insert averages time served */
-  if (parse->cumts)
-    parse->cumts (module, kdata, logitem->serve_time);
-  /* insert averages time served */
-  if (parse->maxts)
-    parse->maxts (module, kdata, logitem->serve_time);
-  /* insert method */
-  if (parse->method && conf.append_method)
-    parse->method (module, kdata, logitem->method);
-  /* insert protocol */
-  if (parse->protocol && conf.append_protocol)
-    parse->protocol (module, kdata, logitem->protocol);
-  /* insert agent */
-  if (parse->agent && conf.list_agents)
-    parse->agent (module, kdata, logitem->agent_nkey);
-}
-
-/* Set data mapping and metrics. */
-static void
-map_log (GLogItem * logitem, const GParse * parse, GModule module) {
-  GKeyData kdata;
-
-  new_modulekey (&kdata);
-  /* set key data into out structure */
-  if (parse->key_data (&kdata, logitem) == 1)
-    return;
-
-  /* each module requires a data key/value */
-  if (parse->datamap && kdata.data_key)
-    kdata.data_nkey = insert_dkeymap (module, &kdata);
-
-  /* each module contains a uniq visitor key/value */
-  if (parse->visitor && logitem->uniq_key && include_uniq (logitem))
-    kdata.uniq_nkey = insert_uniqmap (module, &kdata, logitem->uniq_nkey);
-
-  /* root keys are optional */
-  if (parse->rootmap && kdata.root_key)
-    kdata.root_nkey = insert_rkeymap (module, &kdata);
-
-  /* each module requires a root key/value */
-  if (parse->datamap && kdata.data_key)
-    set_datamap (logitem, &kdata, parse);
-}
-
-static void
-ins_agent_key_val (GLogItem * logitem, uint32_t numdate) {
-  logitem->agent_nkey = ht_insert_agent_key (numdate, logitem->agent);
-  /* insert UA key and get a numeric value */
-  if (logitem->agent_nkey != 0) {
-    /* insert a numeric key and map it to a UA string */
-    ht_insert_agent_value (numdate, logitem->agent_nkey, logitem->agent);
-  }
-}
-
-static int
-clean_old_data_by_date (uint32_t numdate) {
-  uint32_t *dates = NULL;
-  uint32_t idx, len = 0;
-
-  if (ht_get_size_dates () < conf.keep_last)
-    return 1;
-
-  dates = get_sorted_dates (&len);
-
-  /* If currently parsed date is in the set of dates, keep inserting it.
-   * We count down since more likely the currently parsed date is at the last pos */
-  for (idx = len; idx-- > 0;) {
-    if (dates[idx] == numdate) {
-      free (dates);
-      return 1;
-    }
-  }
-
-  /* ignore older dates */
-  if (dates[0] > numdate) {
-    free (dates);
-    return -1;
-  }
-
-  /* invalidate the first date we inserted then */
-  invalidate_date (dates[0]);
-  /* rebuild all existing dates and let new data
-   * be added upon existing cache */
-  rebuild_rawdata_cache ();
-  free (dates);
-
-  return 0;
-}
-
-/* Process a log line and set the data into the corresponding data
- * structure. */
-static void
-process_log (GLogItem * logitem) {
-  GModule module;
-  const GParse *parse = NULL;
-  size_t idx = 0;
-  uint32_t numdate = logitem->numdate;
-
-  if (conf.keep_last > 0 && clean_old_data_by_date (numdate) == -1)
-    return;
-
-  /* insert date and start partitioning tables */
-  if (ht_insert_date (numdate) == -1)
-    return;
-
-  /* Insert one unique visitor key per request to avoid the
-   * overhead of storing one key per module */
-  if ((logitem->uniq_nkey = ht_insert_unique_key (numdate, logitem->uniq_key)) == 0)
-    return;
-
-  /* If we need to store user agents per IP, then we store them and retrieve
-   * its numeric key.
-   * It maintains two maps, one for key -> value, and another
-   * map for value -> key*/
-  if (conf.list_agents)
-    ins_agent_key_val (logitem, numdate);
-
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
-    if (!(parse = panel_lookup (module)))
-      continue;
-    map_log (logitem, parse, module);
-  }
-
-  count_bw (numdate, logitem->resp_size);
-  /* don't ignore line but neither count as valid */
-  if (logitem->ignorelevel != IGNORE_LEVEL_REQ)
-    count_valid (numdate);
 }
 
 /* Determine if the current log has the content from the last time it was
@@ -2936,6 +1690,31 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
     count_process_and_invalid (glog, line);
 }
 
+static int
+parse_json_specifier (void *ptr_data, char *key, char *str) {
+  GLogItem *logitem = (GLogItem *) ptr_data;
+  char *spec = NULL;
+  int ret = 0;
+
+  if (!str)
+    return 0;
+  /* empty JSON value, e.g., {method: ""} */
+  if (0 == strlen (str))
+    return 0;
+  if (!(spec = ht_get_json_logfmt (key)))
+    return 0;
+
+  ret = parse_format (logitem, str, spec);
+  free (spec);
+
+  return ret;
+}
+
+static int
+parse_json_format (GLogItem * logitem, char *str) {
+  return parse_json_string (logitem, str, parse_json_specifier);
+}
+
 /* Process a line from the log and store it accordingly taking into
  * account multiple parsing options prior to setting data into the
  * corresponding data structure.
@@ -2945,14 +1724,21 @@ int
 pre_process_log (GLog * glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
+  char *fmt = conf.log_format;
 
   /* soft ignore these lines */
   if (valid_line (line))
     return -1;
 
   logitem = init_log_item (glog);
+
   /* Parse a line of log, and fill structure with appropriate values */
-  if ((ret = parse_format (logitem, line)) || (ret = verify_missing_fields (logitem))) {
+  if (conf.is_json_log_format)
+    ret = parse_json_format (logitem, line);
+  else
+    ret = parse_format (logitem, line, fmt);
+
+  if (ret || (ret = verify_missing_fields (logitem))) {
     process_invalid (glog, logitem, line);
     goto cleanup;
   }
@@ -2966,8 +1752,10 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
   count_process (glog);
 
   /* agent will be null in cases where %u is not specified */
-  if (logitem->agent == NULL)
+  if (logitem->agent == NULL) {
     logitem->agent = alloc_string ("-");
+    set_agent_hash (logitem);
+  }
 
   /* testing log only */
   if (dry_run)

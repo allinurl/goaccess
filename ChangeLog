@@ -1,3 +1,56 @@
+Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
+
+  - Added additional feed reader clients.
+  - Added additional browsers and bots to the main list.
+  - Added command line option '--unknowns-log' to log unknown browsers and
+    OSs.
+  - Added 'Referer' to the pre-defined 'Caddy JSON' log format.
+  - Added support for real-time piping as non-root user.
+  - Added the ability to Handle case when IPv4 is encoded as IPv6 in
+    GeoIP1/legacy.
+  - Ensure we capture linux (lowercase) when extracting an OS.
+  - Fixed a regression in parsing Google Cloud Storage or possibly other
+    non-JSON formats.
+  - Fixed inability to parse escaped formats.
+  - Fixed issue when using '%s' with 'strptime(3)' under musl libc. This
+    addresses mostly the Docker image.
+  - Fixed possible buffer over-read for certain log-format patterns.
+  - Fixed segfault when attempting to process a malformed JSON string.
+  - Fixed segfault when setting an empty log-format from the TUI dialog.
+  - Fixed sorting on hits and visitors when larger than INT_MAX.
+  - Updated CloudFront pre-defined log-format to reflect the latest fields.
+  - Updated 'Dockerfile' image to use 'alpine:3.13' instead of edge due to
+    compatibility issue with the GNU coreutils.
+
+Changes to GoAccess 1.4.5 - Tuesday, January 26, 2021
+
+  - Fixed build issue due to initial declarations only allowed in C99 mode
+    (e.g., CentOS7).
+
+Changes to GoAccess 1.4.4 - Monday, January 25, 2021
+
+  - Added 'Caddy' to the list of pre-defined log formats.
+  - Added command line option '--no-strict-status' to disable status validation.
+  - Added native support to parse JSON logs.
+  - Added the ability to process timestamps in milliseconds using '%*'.
+  - Ensure TUI/CSV/HTML reports are able to output 'uint64_t' data.
+  - Ensure we allow UI render if the rate at which data is being read is
+    greater than '8192' req/s.
+  - Ensure we don't re-render Term/HTML output if no data was read/piped.
+  - Fixed build configure to work on NetBSD.
+  - Fixed issue where it would send data via socket each second when managed
+    by systemd.
+  - Fixed issue where parser was unable to parse syslog date with padding.
+  - Fixed issue where some items under browsers.list were not tab separated.
+  - Fixed issue where the format parser was unable to properly parse logs
+    delimited by a pipe.
+  - Fixed issue where T.X. Amount metrics were not shown when data was piped.
+  - Fixed issue where XFF parser could swallow an additional field.
+  - Fixed memory leak when using '%x' as date/time specifier.
+  - Replaced select(2) with poll(2) as it is more efficient and a lot faster
+    than select(2).
+  - Updated Swedish i18n.
+
 Changes to GoAccess 1.4.3 - Friday, December 04, 2020
 
   - Added the ability to set how often goaccess will parse data and output to

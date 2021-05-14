@@ -44,6 +44,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <inttypes.h>
 
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -206,6 +207,18 @@ count_matches (const char *s1, char c) {
       n++;
   } while (*(ptr++));
   return n;
+}
+
+/* Simple but efficient uint32_t hashing. */
+uint32_t
+djb2 (unsigned char *str) {
+  uint32_t hash = 5381;
+  int c;
+
+  while ((c = *str++))
+    hash = ((hash << 5) + hash) + c;    /* hash * 33 + c */
+
+  return hash;
 }
 
 /* String matching where one string contains wildcard characters.
@@ -500,25 +513,34 @@ get_visitors_date (const char *odate, const char *from, const char *to) {
 int
 str_to_time (const char *str, const char *fmt, struct tm *tm) {
   char *end = NULL, *sEnd = NULL;
-  unsigned long long usecs = 0;
+  unsigned long long ts = 0;
+  int us = strcmp ("%f", fmt) == 0;
+  int ms = strcmp ("%*", fmt) == 0;
+#if !defined(__GLIBC__)
+  int se = strcmp ("%s", fmt) == 0;
+#endif
+
+  time_t seconds = 0;
 
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
 
-  /* check if char string needs to be converted from microseconds */
-  if (strcmp ("%f", fmt) == 0) {
+  /* check if char string needs to be converted from milli/micro seconds */
+  /* note that MUSL doesn't have %s under strptime(3) */
+#if !defined(__GLIBC__)
+  if (se || us || ms) {
+#else
+  if (us || ms) {
+#endif
     errno = 0;
-    tm->tm_year = 1970 - 1900;
-    tm->tm_mday = 1;
 
-    usecs = strtoull (str, &sEnd, 10);
+    ts = strtoull (str, &sEnd, 10);
     if (str == sEnd || *sEnd != '\0' || errno == ERANGE)
       return 1;
 
-    tm->tm_sec = usecs / SECS;
-    tm->tm_isdst = -1;
-    if (mktime (tm) == -1)
-      return 1;
+    seconds = (us) ? ts / SECS : ((ms) ? ts / MILS : ts);
+    /* if GMT needed, gmtime_r instead of localtime_r. */
+    localtime_r (&seconds, tm);
 
     return 0;
   }
@@ -753,6 +775,18 @@ u322str (uint32_t d, int width) {
   return s;
 }
 
+/* Convert the given uint64_t to a string with the ability to add some
+ * padding.
+ *
+ * On success, the given number as a string is returned. */
+char *
+u642str (uint64_t d, int width) {
+  char *s = xmalloc (snprintf (NULL, 0, "%*" PRIu64, width, d) + 1);
+  sprintf (s, "%*" PRIu64, width, d);
+
+  return s;
+}
+
 /* Convert the given float to a string with the ability to add some
  * padding.
  *
@@ -792,7 +826,7 @@ str2int (const char *date) {
  *
  * On success, the length of the number is returned. */
 int
-intlen (int num) {
+intlen (uint64_t num) {
   int l = 1;
   while (num > 9) {
     l++;

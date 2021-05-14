@@ -73,8 +73,8 @@ typedef struct GDashData_ {
 
 /* Dashboard panel meta data */
 typedef struct GDashMeta_ {
-  uint32_t max_hits;            /* maximum value on the hits column */
-  uint32_t max_visitors;        /* maximum value on the visitors column */
+  uint64_t max_hits;            /* maximum value on the hits column */
+  uint64_t max_visitors;        /* maximum value on the visitors column */
 
   /* determine the maximum metric's length of these metrics */
   /* for instance, 1022 is the max value for the hits column and its length = 4 */

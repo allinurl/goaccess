@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([goaccess],[1.4.3],[hello@goaccess.io],[],[https://goaccess.io])
+AC_INIT([goaccess],[1.4.6],[hello@goaccess.io],[],[https://goaccess.io])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
@@ -13,14 +13,17 @@ AC_CONFIG_HEADERS([src/config.h])
 # empty default instead.
 : ${CFLAGS=""}
 
-# Checks for programs.
-AC_PROG_CC
+# Prefer host default compiler
+AC_PROG_CC([cc gcc clang])
 AM_PROG_CC_C_O
 
+# Check for programs
 AM_GNU_GETTEXT([external])
 AM_GNU_GETTEXT_VERSION([0.19])
 # Fix `undefined reference to `libintl_gettext'` on docker:
 AC_CHECK_LIB([intl], [libintl_dgettext])
+# Fix undefined reference to dgettext on NetBSD
+AC_CHECK_LIB([intl], [dgettext])
 
 # pthread
 AC_CHECK_LIB([pthread], [pthread_create], [], [AC_MSG_ERROR([pthread is missing])])
@@ -45,12 +48,18 @@ esac
 AC_MSG_RESULT([$with_rdyanimc])
 AM_CONDITIONAL([WITH_RDYNAMIC], [test "x$with_rdyanimc" = "xyes"])
 
+# Check for libc implementation on NetBSD
+AC_CHECK_HEADERS([sha.h sha1.h])
+AC_CHECK_FUNCS([SHA1Init])
+AM_CONDITIONAL([USE_SHA1], [test "x$ac_cv_func_SHA1Init" != "xyes"])
+
 # Build with OpenSSL
 AC_ARG_WITH([openssl],[AS_HELP_STRING([--with-openssl],[Build with OpenSSL support. Default is disabled])],[openssl="$withval"],[openssl="no"])
 
 if test "$openssl" = 'yes'; then
   AC_CHECK_LIB([ssl], [SSL_CTX_new],,[AC_MSG_ERROR([ssl library missing])])
   AC_CHECK_LIB([crypto], [CRYPTO_free],,[AC_MSG_ERROR([crypto library missing])])
+  AC_CHECK_LIB([ssl], [SSL_CIPHER_standard_name], [AC_DEFINE([HAVE_CIPHER_STD_NAME], 1, [HAVE_CIPHER_STD_NAME])])
 fi
 
 # GeoIP
@@ -116,7 +125,8 @@ if test "$utf8" = "yes"; then
   fi
 else
   AC_CHECK_LIB([ncurses], [refresh], [],
-    [AC_MSG_ERROR([*** Missing development libraries for ncurses])])
+    [AC_CHECK_LIB([curses], [refresh], [],
+    [AC_MSG_ERROR([*** Missing development libraries for ncurses])])])
   AC_SEARCH_LIBS([tputs], [tinfo], ,[AC_MSG_ERROR([Cannot find a library providing tputs])])
 
   have_ncurses="yes"
@@ -139,7 +149,7 @@ else
   ])
 
   if test "$have_ncurses" != "yes"; then
-    AC_MSG_ERROR([Missing ncursesw header file])
+    AC_MSG_ERROR([Missing ncurses header file])
   fi
 fi
 
@@ -148,9 +158,9 @@ storage="In-Memory with On-Disk Persistent Storage"
 
 HAS_SEDTR=no
 AC_CHECK_PROG([SED_CHECK],[sed],[yes],[no])
-if test x"$SED_CHECK" == x"yes" ; then
+if test x"$SED_CHECK" = x"yes" ; then
   AC_CHECK_PROG([TR_CHECK],[tr],[yes],[no])
-  if test x"$TR_CHECK" == x"yes" ; then
+  if test x"$TR_CHECK" = x"yes" ; then
     HAS_SEDTR=yes
   fi
 fi
@@ -215,10 +225,10 @@ AC_CHECK_FUNCS([malloc])
 AC_CHECK_FUNCS([memmove])
 AC_CHECK_FUNCS([memset])
 AC_CHECK_FUNCS([mkfifo])
+AC_CHECK_FUNCS([poll])
 AC_CHECK_FUNCS([realloc])
 AC_CHECK_FUNCS([realpath])
 AC_CHECK_FUNCS([regcomp])
-AC_CHECK_FUNCS([select])
 AC_CHECK_FUNCS([setlocale])
 AC_CHECK_FUNCS([socket])
 AC_CHECK_FUNCS([strcasecmp])

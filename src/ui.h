@@ -60,7 +60,7 @@
 #define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
 #define SPIN_LBL 256    /* max length of the progress spinner */
 
-#define SPIN_UPDATE_INTERVAL 100000     // in microseconds
+#define SPIN_UPDATE_INTERVAL 100000000  /* in nanoseconds */
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"
@@ -104,11 +104,12 @@
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
-#define CONF_MENU_W       57
+#define CONF_MENU_W       67
 #define CONF_MENU_X       2
 #define CONF_MENU_Y       4
 #define CONF_WIN_H        20
-#define CONF_WIN_W        61
+#define CONF_WIN_W        71
+#define CONF_MAX_LEN_DLG  512
 
 /* FIND DIALOG */
 #define FIND_DLG_HEIGHT   8
@@ -145,11 +146,11 @@
 
 /* CONF ERROR DIALOG */
 #define ERR_MENU_HEIGHT   10
-#define ERR_MENU_WIDTH    57
+#define ERR_MENU_WIDTH    67
 #define ERR_MENU_X        2
 #define ERR_MENU_Y        4
 #define ERR_WIN_HEIGHT    15
-#define ERR_WIN_WIDTH     61
+#define ERR_WIN_WIDTH     71
 
 #include "color.h"
 #include "commons.h"
@@ -230,10 +231,10 @@ const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
+GAgents *load_host_agents (const char *addr);
 int get_start_end_parsing_dates (char **start, char **end, const char *f);
 int render_confdlg (Logs * logs, GSpinner * spinner);
 void close_win (WINDOW * w);
-GAgents *load_host_agents (const char *addr);
 void display_general (WINDOW * win, GHolder *h);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
@@ -244,11 +245,13 @@ void load_agent_list (WINDOW * main_win, char *addr);
 void load_help_popup (WINDOW * main_win);
 void load_schemes_win (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
+void lock_spinner (void);
 void set_curses_spinner (GSpinner *spinner);
 void set_input_opts (void);
 void set_wbkgd (WINDOW *main_win, WINDOW *header_win);
 void term_size (WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
+void unlock_spinner (void);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
 /* *INDENT-ON* */

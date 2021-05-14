@@ -172,6 +172,12 @@ house_keeping (void) {
     invalid_log_close ();
   }
 
+  /* UNKNOWNS */
+  if (conf.unknowns_log) {
+    LOG_DEBUG (("Closing unknowns log.\n"));
+    unknowns_log_close ();
+  }
+
   /* CONFIGURATION */
   free_formats ();
   free_browsers_hash ();
@@ -721,10 +727,6 @@ fast_forward_client (int listener) {
 void
 read_client (void *ptr_data) {
   GWSReader *reader = (GWSReader *) ptr_data;
-  fd_set rfds, wfds;
-
-  FD_ZERO (&rfds);
-  FD_ZERO (&wfds);
 
   /* check we have a fifo for reading */
   if (reader->fd == -1)
@@ -735,8 +737,8 @@ read_client (void *ptr_data) {
   pthread_mutex_unlock (&reader->mutex);
 
   while (1) {
-    /* select(2) will block */
-    if (read_fifo (reader, rfds, wfds, fast_forward_client))
+    /* poll(2) will block */
+    if (read_fifo (reader, fast_forward_client))
       break;
   }
   close (reader->fd);
@@ -764,7 +766,10 @@ parse_tail_follow (GLog * glog, FILE * fp) {
 #ifdef WITH_GETLINE
     free (buf);
 #endif
-    glog->read++;
+    /* If the ingress rate is greater than MAX_BATCH_LINES,
+     * then we break and allow to re-render the UI */
+    if (++glog->read % MAX_BATCH_LINES == 0)
+      break;
   }
 }
 
@@ -797,6 +802,10 @@ perform_tail_follow (GLog * glog) {
 
   if (glog->filename[0] == '-' && glog->filename[1] == '\0') {
     parse_tail_follow (glog, glog->pipe);
+    /* did we read something from the pipe? */
+    if (0 == glog->bytes)
+      return;
+
     glog->length += glog->bytes;
     goto out;
   }
@@ -845,8 +854,11 @@ perform_tail_follow (GLog * glog) {
 out:
 
   if (!conf.output_stdout) {
+    struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };   /* 0.2 seconds */
+
     tail_term ();
-    usleep (200000);    /* 0.2 seconds */
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   } else {
     tail_html ();
   }
@@ -856,7 +868,10 @@ out:
 static void
 process_html (const char *filename) {
   int i = 0;
-  uint64_t intval = conf.html_refresh ? conf.html_refresh : HTML_REFRESH;
+  struct timespec refresh = {
+    .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
+    .tv_nsec = 0,
+  };
 
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -884,7 +899,8 @@ process_html (const char *filename) {
 
     for (i = 0; i < logs->size; ++i)
       perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
-    usleep (intval);    /* 0.8 secs */
+    if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
   close (gwswriter->fd);
 }
@@ -1230,61 +1246,66 @@ open_term (char **buf) {
 /* Determine if reading from a pipe, and duplicate file descriptors so
  * it doesn't get in the way of curses' normal reading stdin for
  * wgetch() */
-static void
+static FILE *
 set_pipe_stdin (void) {
   char *term = NULL;
   FILE *pipe = stdin;
-  int fd1, fd2, i;
+  int term_fd = -1;
+  int pipe_fd = -1;
 
   /* If unable to open a terminal, yet data is being piped, then it's
-   * probably from the cron.
+   * probably from the cron, or when running as a user that can't open a
+   * terminal. In that case it's still important to set the pipe as
+   * non-blocking.
    *
    * Note: If used from the cron, it will require the
    * user to use a single dash to parse piped data such as:
    * cat access.log | goaccess - */
-  if ((fd1 = open_term (&term)) == -1)
-    goto out;
+  if ((term_fd = open_term (&term)) == -1)
+    goto out1;
 
-  if ((fd2 = dup (fileno (stdin))) == -1)
+  if ((pipe_fd = dup (fileno (stdin))) == -1)
     FATAL ("Unable to dup stdin: %s", strerror (errno));
 
-  pipe = fdopen (fd2, "r");
+  pipe = fdopen (pipe_fd, "r");
   if (freopen (term, "r", stdin) == 0)
     FATAL ("Unable to open input from TTY");
   if (fileno (stdin) != 0)
     (void) dup2 (fileno (stdin), 0);
 
+  add_dash_filename ();
+
+out1:
+
   /* no need to set it as non-blocking since we are simply outputting a
    * static report */
   if (conf.output_stdout && !conf.real_time_html)
-    goto out;
+    goto out2;
 
   /* Using select(), poll(), or epoll(), etc may be a better choice... */
-  if (fcntl (fd2, F_SETFL, fcntl (fd2, F_GETFL, 0) | O_NONBLOCK) == -1)
+  if (pipe_fd == -1)
+    pipe_fd = fileno (pipe);
+  if (fcntl (pipe_fd, F_SETFL, fcntl (pipe_fd, F_GETFL, 0) | O_NONBLOCK) == -1)
     FATAL ("Unable to set fd as non-blocking: %s.", strerror (errno));
-out:
 
-  for (i = 0; i < logs->size; ++i)
-    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
-      logs->glog[i].pipe = pipe;
+out2:
 
   free (term);
+
+  return pipe;
 }
 
 /* Determine if we are getting data from the stdin, and where are we
  * outputting to. */
 static void
-set_io (void) {
+set_io (FILE ** pipe) {
   /* For backwards compatibility, check if we are not outputting to a
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
     conf.output_stdout = 1;
   /* dup fd if data piped */
   if (!isatty (STDIN_FILENO))
-    set_pipe_stdin ();
-  /* No data piped, no file was used and not loading from disk */
-  //if (!conf.filenames_idx && !conf.read_stdin && !conf.load_from_disk)
-  //  cmd_help ();
+    *pipe = set_pipe_stdin ();
 }
 
 /* Process command line options and set some default options. */
@@ -1339,6 +1360,9 @@ block_thread_signals (void) {
 /* Initialize various types of data. */
 static void
 initializer (void) {
+  int i;
+  FILE *pipe = NULL;
+
   /* drop permissions right away */
   if (conf.username)
     drop_permissions ();
@@ -1354,15 +1378,17 @@ initializer (void) {
   init_geoip ();
 #endif
 
-  if (!isatty (STDIN_FILENO))
-    add_dash_filename ();
+  set_io (&pipe);
 
   /* init glog */
   if (!(logs = init_logs (conf.filenames_idx)))
     FATAL (ERR_NO_DATA_PASSED);
 
-  set_io ();
   set_signal_data (logs);
+
+  for (i = 0; i < logs->size; ++i)
+    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
+      logs->glog[i].pipe = pipe;
 
   /* init parsing spinner */
   parsing_spinner = new_gspinner ();
@@ -1371,6 +1397,8 @@ initializer (void) {
 
   /* init random number generator */
   srand (getpid ());
+  init_pre_storage ();
+  insert_methods_protocols ();
 }
 
 static char *
@@ -1514,6 +1542,7 @@ main (int argc, char **argv) {
     goto clean;
   logs->offset = *logs->processed;
 
+  parsing_spinner->label = "RENDERING";
   /* init reverse lookup thread */
   gdns_init ();
   parse_initial_sort ();

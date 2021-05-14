@@ -27,16 +27,11 @@
  * SOFTWARE.
  */
 
-#ifndef OPTIONS_H_INCLUDED
-#define OPTIONS_H_INCLUDED
+#ifndef PERSISTENCE_H_INCLUDED
+#define PERSISTENCE_H_INCLUDED
 
-#define CYN   "\x1B[36m"
-#define RESET "\x1B[0m"
-#define HTML_REFRESH 1  /* in seconds */
+void restore_data (void);
+void persist_data (void);
+void free_persisted_data (void);
 
-void add_dash_filename (void);
-void cmd_help (void) __attribute__((noreturn));
-void read_option_args (int argc, char **argv);
-void verify_global_config (int argc, char **argv);
-
-#endif
+#endif // for #ifndef PERSISTENCE_H

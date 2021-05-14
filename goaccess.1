@@ -1,4 +1,4 @@
-.TH goaccess 1 "NOVEMBER 2020" Linux "User Manuals"
+.TH goaccess 1 "APRIL 2021" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -182,7 +182,10 @@ They all begin with a percentage (%) sign. See `man strftime`.
 .IP
 Note that if a timestamp is given in microseconds,
 .I %f
-must be used as time-format
+must be used as time-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as time-format.
 .TP
 \fB\-\-date-format=<dateformat>
 The date-format variable followed by a space, specifies the log format time
@@ -195,7 +198,10 @@ They all begin with a percentage (%) sign. See `man strftime`.
 Note that if a timestamp is given in microseconds,
 .I
 %f
-must be used as date-format
+must be used as date-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as date-format.
 .TP
 \fB\-\-log-format=<logformat>
 The log-format variable followed by a space or
@@ -220,6 +226,7 @@ one variable and another predefined name in another variable.
   CLOUDSTORAGE - Google Cloud Storage,
   AWSELB       - Amazon Elastic Load Balancing,
   AWSS3        - Amazon Simple Storage Service (S3)
+  CADDY        - Caddy's JSON Structured format
 .IP
 .I Note:
 Piping data into GoAccess won't prompt a log/date/time configuration dialog,
@@ -467,6 +474,9 @@ the global configuration file (if any).
 \fB\-\-invalid-requests=<filename>
 Log invalid requests to the specified file.
 .TP
+\fB\-\-unknowns-log=<filename>
+Log unknown browsers and OSs to the specified file.
+.TP
 \fB\-\-no-global-config
 Do not load the global configuration file. This directory should normally be
 /usr/local/etc, unless specified with
@@ -572,7 +582,10 @@ Enable parsing and displaying the given panel.
   KEYPHRASES
   STATUS_CODES
   REMOTE_USER
+  CACHE_STATUS
   GEO_LOCATION
+  MIME_TYPE
+  TLS_TYPE
 .TP
 \fB\-\-hide-referer=<NEEDLE>
 Hide a referer but still count it. Wild cards are allowed in the needle. i.e.,
@@ -606,6 +619,8 @@ Ignore parsing and displaying the given panel.
   KEYPHRASES
   STATUS_CODES
   REMOTE_USER
+  CACHE_STATUS
+  GEO_LOCATION
   MIME_TYPE
   TLS_TYPE
 .TP
@@ -766,6 +781,10 @@ If a timestamp is given in microseconds,
 must be used as
 .I
 time-format
+or
+.I
+%*
+if the timestamp is given in milliseconds.
 .IP "date-format"
 The
 .I date-format
@@ -781,6 +800,10 @@ If a timestamp is given in microseconds,
 must be used as
 .I
 date-format
+or
+.I
+%*
+if the timestamp is given in milliseconds.
 .IP "log-format"
 The
 .I log-format

@@ -173,8 +173,10 @@ end_spinner (void) {
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
   if (!parsing_spinner->curses) {
-    // wait for the ui_spinner thread to finish
-    usleep (SPIN_UPDATE_INTERVAL);
+    /* wait for the ui_spinner thread to finish */
+    struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
@@ -419,7 +421,7 @@ render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color
  * On success, the number of excluded ips as a string is returned. */
 static char *
 get_str_excluded_ips (void) {
-  return int2str (ht_get_excluded_ips (), 0);
+  return u642str (ht_get_excluded_ips (), 0);
 }
 
 /* Convert the number of failed requests to a string.
@@ -427,7 +429,7 @@ get_str_excluded_ips (void) {
  * On success, the number of failed requests as a string is returned. */
 static char *
 get_str_failed_reqs (void) {
-  return int2str (ht_get_invalid (), 0);
+  return u642str (ht_get_invalid (), 0);
 }
 
 /* Convert the number of processed requests to a string.
@@ -435,7 +437,7 @@ get_str_failed_reqs (void) {
  * On success, the number of processed requests as a string is returned. */
 static char *
 get_str_processed_reqs (void) {
-  return int2str (ht_get_processed (), 0);
+  return u642str (ht_get_processed (), 0);
 }
 
 /* Convert the number of valid requests to a string.
@@ -443,7 +445,7 @@ get_str_processed_reqs (void) {
  * On success, the number of valid requests as a string is returned. */
 static char *
 get_str_valid_reqs (void) {
-  return int2str (ht_sum_valid (), 0);
+  return u642str (ht_sum_valid (), 0);
 }
 
 /* Convert the number of not found requests to a string.
@@ -452,7 +454,7 @@ get_str_valid_reqs (void) {
  * returned. */
 static char *
 get_str_notfound_reqs (void) {
-  return int2str (ht_get_size_datamap (NOT_FOUND), 0);
+  return u642str (ht_get_size_datamap (NOT_FOUND), 0);
 }
 
 /* Convert the number of referrers to a string.
@@ -460,7 +462,7 @@ get_str_notfound_reqs (void) {
  * On success, the number of referrers as a string is returned. */
 static char *
 get_str_ref_reqs (void) {
-  return int2str (ht_get_size_datamap (REFERRERS), 0);
+  return u642str (ht_get_size_datamap (REFERRERS), 0);
 }
 
 /* Convert the number of requests to a string.
@@ -468,7 +470,7 @@ get_str_ref_reqs (void) {
  * On success, the number of requests as a string is returned. */
 static char *
 get_str_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS), 0);
+  return u642str (ht_get_size_datamap (REQUESTS), 0);
 }
 
 /* Convert the number of static requests to a string.
@@ -476,7 +478,7 @@ get_str_reqs (void) {
  * On success, the number of static requests as a string is returned. */
 static char *
 get_str_static_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS_STATIC), 0);
+  return u642str (ht_get_size_datamap (REQUESTS_STATIC), 0);
 }
 
 /* Convert the number of unique visitors to a string.
@@ -484,7 +486,7 @@ get_str_static_reqs (void) {
  * On success, the number of unique visitors as a string is returned. */
 static char *
 get_str_visitors (void) {
-  return int2str (ht_get_size_uniqmap (VISITORS), 0);
+  return u642str (ht_get_size_uniqmap (VISITORS), 0);
 }
 
 /* Convert the time taken to process the log to a string.
@@ -671,37 +673,53 @@ display_general (WINDOW * win, GHolder * h) {
   }
 }
 
+static char *
+set_default_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str) {
+  char *s = xmalloc (max_width + 1), *tmp;
+  size_t len = 0;
+  size_t size_x = 0, size_y = 0;
+  getmaxyx (win, size_y, size_x);
+  (void) size_y;
+  size_x -= 4;
+
+  /* are we setting a default string */
+  if (!str) {
+    s[0] = '\0';
+    return s;
+  }
+
+  len = MIN (max_width, strlen (str));
+  memcpy (s, str, len);
+  s[len] = '\0';
+
+  /* is the default str length greater than input field? */
+  if (strlen (s) > size_x) {
+    tmp = xstrdup (&s[0]);
+    tmp[size_x] = '\0';
+    mvwprintw (win, pos_y, pos_x, "%s", tmp);
+    free (tmp);
+  } else {
+    mvwprintw (win, pos_y, pos_x, "%s", s);
+  }
+
+  return s;
+}
+
 /* Implement a basic framework to build a field input.
  *
  * On success, the inputted string is returned. */
 char *
-input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
-              const char *str, int enable_case, int *toggle_case) {
-  char *s = xmalloc (max_width + 1), *tmp;
-  size_t i, c, pos = 0, x = 0, quit = 1, len = 0, size_x = 0, size_y = 0;
+input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str,
+              int enable_case, int *toggle_case) {
+  char *s = NULL, *tmp;
+  size_t i, c, pos = 0, x = 0, quit = 1, size_x = 0, size_y = 0;
 
   getmaxyx (win, size_y, size_x);
   size_x -= 4;
 
-  /* are we setting a default string */
-  if (str) {
-    len = MIN (max_width, strlen (str));
-    memcpy (s, str, len);
-    s[len] = '\0';
-
+  s = set_default_string (win, pos_y, pos_x, max_width, str);
+  if (str)
     x = pos = 0;
-    /* is the default str length greater than input field? */
-    if (strlen (s) > size_x) {
-      tmp = xstrdup (&s[0]);
-      tmp[size_x] = '\0';
-      mvwprintw (win, pos_y, pos_x, "%s", tmp);
-      free (tmp);
-    } else {
-      mvwprintw (win, pos_y, pos_x, "%s", s);
-    }
-  } else {
-    s[0] = '\0';
-  }
 
   if (enable_case)
     mvwprintw (win, size_y - 2, 1, " %s", CSENSITIVE);
@@ -853,9 +871,9 @@ load_host_agents (const char *addr) {
   GAgents *agents = NULL;
   GSLList *keys = NULL, *list = NULL;
   void *data = NULL;
-  uint32_t items = 4;
+  uint32_t items = 4, key = djb2 ((unsigned char *) addr);
 
-  keys = ht_get_keymap_list_from_key (HOSTS, addr);
+  keys = ht_get_keymap_list_from_key (HOSTS, key);
   if (!keys)
     return NULL;
 
@@ -978,6 +996,7 @@ ui_spinner (void *ptr_data) {
   int i = 0;
   long long tdiff = 0, psec = 0;
   time_t begin;
+  struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
 
   if (sp->curses)
     color = (*sp->color) ();
@@ -1018,7 +1037,8 @@ ui_spinner (void *ptr_data) {
     }
 
     pthread_mutex_unlock (&sp->mutex);
-    usleep (SPIN_UPDATE_INTERVAL);
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
@@ -1048,6 +1068,20 @@ set_curses_spinner (GSpinner * spinner) {
   spinner->w = x;
   spinner->spin_x = x - 2;
   spinner->y = y - 1;
+}
+
+/* Determine if we need to lock the mutex. */
+void
+lock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_lock (&parsing_spinner->mutex);
+}
+
+/* Determine if we need to unlock the mutex. */
+void
+unlock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
 /* Allocate memory for a spinner instance and initialize its data.
@@ -1173,6 +1207,9 @@ set_formats (char *date_format, char *log_format, char *time_format) {
     conf.log_format = unescape_str (log_format);
   }
 
+  if (is_json_log_format (conf.log_format))
+    conf.is_json_log_format = 1;
+
   set_spec_date_format ();
 
   return NULL;
@@ -1265,6 +1302,7 @@ render_confdlg (Logs * logs, GSpinner * spinner) {
     "Google Cloud Storage",
     "AWS Elastic Load Balancing (HTTP/S)",
     "AWS Simple Storage Service (S3)",
+    "CADDY JSON Structured",
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);
@@ -1321,9 +1359,9 @@ render_confdlg (Logs * logs, GSpinner * spinner) {
         log_format = get_selected_format_str (i);
         time_format = get_selected_time_str (i);
 
-        mvwprintw (win, 12, 1, " %s", log_format);
-        mvwprintw (win, 15, 1, " %s", date_format);
-        mvwprintw (win, 18, 1, " %s", time_format);
+        free (set_default_string (win, 12, 2, CONF_MENU_W, log_format));
+        free (set_default_string (win, 15, 2, CONF_MENU_W, date_format));
+        free (set_default_string (win, 18, 2, CONF_MENU_W, time_format));
         break;
       }
       break;
@@ -1336,7 +1374,9 @@ render_confdlg (Logs * logs, GSpinner * spinner) {
       if (!log_format)
         log_format = get_input_log_format ();
 
-      cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
+      cstm_log =
+        input_string (win, 12, 2, log_format ? strlen (log_format) : CONF_MAX_LEN_DLG,
+                      log_format, 0, 0);
       if (cstm_log != NULL && *cstm_log != '\0') {
         if (log_format)
           free (log_format);
@@ -1771,7 +1811,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
 
 /* Help menu data (F1/h). */
 static const char *help_main[] = {
-  "Copyright (C) 2009-2020 by Gerardo Orellana",
+  "Copyright (C) 2009-2021 by Gerardo Orellana",
   "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",

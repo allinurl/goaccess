@@ -82,8 +82,9 @@ static const char *browsers[][2] = {
 
   /* Others */
   {"Homebrew", "Others"},
-  {"APT-HTTP", "Others"},
+  {"APT-", "Others"},
   {"Apt-Cacher", "Others"},
+  {"Aptly", "Others"},
   {"Chef Client", "Others"},
   {"Huawei", "Others"},
   {"HUAWEI", "Others"},
@@ -122,6 +123,10 @@ static const char *browsers[][2] = {
   {"libwww-perl", "Others"},
   {"python-requests", "Others"},
   {"PackageKit", "Others"},
+  {"F-Droid", "Others"},
+  {"okhttp", "Others"},
+  {"node", "Others"},
+  {"PrivacyBrowser", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -138,6 +143,9 @@ static const char *browsers[][2] = {
   {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
+  {"Brainstorm", "Feeds"},
+  {"Mastodon", "Feeds"},
+  {"Pleroma", "Feeds"},
 
   /* Google crawlers (some based on Chrome,
    * therefore up on the list) */
@@ -152,6 +160,8 @@ static const char *browsers[][2] = {
   /* Rebranded Firefox but is really unmodified
    * Firefox (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
+  {"Waterfox", "Firefox"},
+  {"PaleMoon", "Firefox"},
   {"Focus", "Firefox"},
   /* Klar is the name of Firefox Focus in the German market. */
   {"Klar", "Firefox"},
@@ -176,6 +186,7 @@ static const char *browsers[][2] = {
   {"Safari", "Safari"},
 
   /* Crawlers/Bots */
+  {"Slack", "Crawlers"},
   {"Sogou", "Crawlers"},
   {"Java", "Crawlers"},
   {"Jakarta Commons-HttpClient", "Crawlers"},
@@ -243,10 +254,14 @@ static const char *browsers[][2] = {
   {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
+  {"Fever", "Feeds"},
+  {"FreshRSS", "Feeds"},
   {"Liferea", "Feeds"},
   {"NetNewsWire", "Feeds"},
   {"RSSOwl", "Feeds"},
+  {"Tiny Tiny RSS", "Feeds"},
   {"Thunderbird", "Feeds"},
+  {"Winds", "Feeds"},
 
   {"Pingdom.com", "Uptime"},
   {"jetmon", "Uptime"},
@@ -547,6 +562,9 @@ verify_browser (char *str, char *type) {
       continue;
     return parse_browser (match, type, j, browsers_hash);
   }
+
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
 
   xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 

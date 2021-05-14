@@ -55,6 +55,7 @@ typedef enum LOGTYPE {
   CLOUDSTORAGE,
   AWSELB,
   AWSS3,
+  CADDY,
 } GLogType;
 
 /* predefined log times */
@@ -84,6 +85,7 @@ typedef struct GPreConfLog_ {
   const char *awselb;
   const char *squid;
   const char *awss3;
+  const char *caddy;
 } GPreConfLog;
 
 /* *INDENT-OFF* */
@@ -120,6 +122,7 @@ typedef struct GConf_
   const char *html_prefs;           /* default HTML JSON preferences */
   const char *html_report_title;    /* report title */
   const char *invalid_requests_log; /* invalid lines log path */
+  const char *unknowns_log;         /* unknown browsers/OSs log path */
   const char *pidfile;              /* daemonize pid file path */
   const char *browsers_file;        /* browser's file path */
   const char *db_path;              /* db path to files */
@@ -133,6 +136,7 @@ typedef struct GConf_
   const char *sslcert;              /* TLS/SSL path to certificate */
   const char *sslkey;               /* TLS/SSL path to private key */
   const char *ws_url;               /* WebSocket URL */
+  const char *unix_socket;          /* unix socket to bind to */
 
   /* User flags */
   int all_static_files;             /* parse all static files */
@@ -174,6 +178,7 @@ typedef struct GConf_
   int real_time_html;               /* enable real-time HTML output */
   int restore;                      /* reload data from db-path */
   int skip_term_resolver;           /* no terminal resolver */
+  int is_json_log_format;           /* is a json log format */
   uint32_t keep_last;               /* number of days to keep in storage */
   uint32_t num_tests;               /* number of lines to test */
   uint64_t html_refresh;            /* refresh html report every X of seconds */
@@ -213,6 +218,8 @@ char *get_selected_date_str (size_t idx);
 char *get_selected_format_str (size_t idx);
 char *get_selected_time_str (size_t idx);
 const char *verify_formats (void);
+int is_json_log_format (const char *fmt);
+int parse_json_string (void *userdata, const char *str, int (*cb) (void *, char *, char *));
 size_t get_selected_format_idx (void);
 void set_date_format_str (const char *optarg);
 void set_log_format_str (const char *optarg);

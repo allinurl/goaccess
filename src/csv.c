@@ -123,22 +123,22 @@ escape_cvs_output (FILE * fp, char *s) {
 static void
 print_csv_metric_block (FILE * fp, GMetrics * nmetrics) {
   /* basic metrics */
-  fprintf (fp, "\"%" PRIu32 "\",", nmetrics->hits);
+  fprintf (fp, "\"%" PRIu64 "\",", nmetrics->hits);
   fprintf (fp, "\"%4.2f%%\",", nmetrics->hits_perc);
-  fprintf (fp, "\"%" PRIu32 "\",", nmetrics->visitors);
+  fprintf (fp, "\"%" PRIu64 "\",", nmetrics->visitors);
   fprintf (fp, "\"%4.2f%%\",", nmetrics->visitors_perc);
 
   /* bandwidth */
   if (conf.bandwidth) {
-    fprintf (fp, "\"%lld\",", (long long) nmetrics->bw.nbw);
+    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->bw.nbw);
     fprintf (fp, "\"%4.2f%%\",", nmetrics->bw_perc);
   }
 
   /* time served metrics */
   if (conf.serve_usecs) {
-    fprintf (fp, "\"%lld\",", (long long) nmetrics->avgts.nts);
-    fprintf (fp, "\"%lld\",", (long long) nmetrics->cumts.nts);
-    fprintf (fp, "\"%lld\",", (long long) nmetrics->maxts.nts);
+    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->avgts.nts);
+    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->cumts.nts);
+    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->maxts.nts);
   }
 
   /* request method */
@@ -217,7 +217,8 @@ print_csv_summary (FILE * fp) {
   char now[DATE_TIME];
   char *source = NULL;
   const char *fmt;
-  int i = 0, total = 0;
+  int i = 0;
+  uint64_t total = 0;
   uint32_t t = 0;
 
   generate_time ();
@@ -228,12 +229,12 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, now, OVERALL_DATETIME);
 
   /* total requests */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%" PRIu64 "\",\"%s\"\r\n";
   total = ht_get_processed ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REQ);
 
   /* valid requests */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%" PRIu64 "\",\"%s\"\r\n";
   total = ht_sum_valid ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VALID);
 
@@ -247,7 +248,7 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, t, OVERALL_GENTIME);
 
   /* visitors */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%d\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%" PRIu64 "\",\"%s\"\r\n";
   total = ht_get_size_uniqmap (VISITORS);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_VISITORS);
 
@@ -276,7 +277,7 @@ print_csv_summary (FILE * fp) {
   fprintf (fp, fmt, i++, GENER_ID, (intmax_t) get_log_sizes (), OVERALL_LOGSIZE);
 
   /* bandwidth */
-  fmt = "\"%d\",,\"%s\",,,,,,,,\"%lu\",\"%s\"\r\n";
+  fmt = "\"%d\",,\"%s\",,,,,,,,\"%" PRIu64 "\",\"%s\"\r\n";
   fprintf (fp, fmt, i++, GENER_ID, ht_sum_bw (), OVERALL_BANDWIDTH);
 
   /* log path */

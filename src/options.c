@@ -83,6 +83,7 @@ struct option long_opts[] = {
   {"444-as-404"           , no_argument       , 0 , 0  }  ,
   {"4xx-to-unique-count"  , no_argument       , 0 , 0  }  ,
   {"addr"                 , required_argument , 0 , 0  }  ,
+  {"unix-socket"          , required_argument , 0 , 0  }  ,
   {"all-static-files"     , no_argument       , 0 , 0  }  ,
   {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
   {"color"                , required_argument , 0 , 0  }  ,
@@ -97,7 +98,7 @@ struct option long_opts[] = {
   {"enable-panel"         , required_argument , 0 , 0  }  ,
   {"fifo-in"              , required_argument , 0 , 0  }  ,
   {"fifo-out"             , required_argument , 0 , 0  }  ,
-  {"hide-referer"         , required_argument , 0 , 0  }  ,
+  {"hide-referrer"        , required_argument , 0 , 0  }  ,
   {"hour-spec"            , required_argument , 0 , 0  }  ,
   {"html-custom-css"      , required_argument , 0 , 0  }  ,
   {"html-custom-js"       , required_argument , 0 , 0  }  ,
@@ -105,10 +106,11 @@ struct option long_opts[] = {
   {"html-report-title"    , required_argument , 0 , 0  }  ,
   {"ignore-crawlers"      , no_argument       , 0 , 0  }  ,
   {"ignore-panel"         , required_argument , 0 , 0  }  ,
-  {"ignore-referer"       , required_argument , 0 , 0  }  ,
+  {"ignore-referrer"      , required_argument , 0 , 0  }  ,
   {"ignore-statics"       , required_argument , 0 , 0  }  ,
   {"ignore-status"        , required_argument , 0 , 0  }  ,
   {"invalid-requests"     , required_argument , 0 , 0  }  ,
+  {"unknowns-log"         , required_argument , 0 , 0  }  ,
   {"json-pretty-print"    , no_argument       , 0 , 0  }  ,
   {"keep-last"            , required_argument , 0 , 0  }  ,
   {"html-refresh"         , required_argument , 0 , 0  }  ,
@@ -192,6 +194,7 @@ cmd_help (void)
   /* Server Options */
   CYN "SERVER OPTIONS\n\n" RESET
   "  --addr=<addr>                   - Specify IP address to bind server to.\n"
+  "  --unix-socket=<addr>            - Specify UNIX-domain socket address to bind server to.\n"
   "  --daemonize                     - Run as daemon (if --real-time-html enabled).\n"
   "  --fifo-in=<path>                - Path to read named pipe (FIFO).\n"
   "  --fifo-out=<path>               - Path to write named pipe (FIFO).\n"
@@ -214,6 +217,7 @@ cmd_help (void)
   "  -S --log-size=<number>          - Specify the log size, useful when piping in logs.\n"
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n"
+  "  --unknowns-log=<filename>       - Log unknown browsers and OSs to the specified file.\n"
   "\n"
   ""
   /* Parse Options */
@@ -236,13 +240,13 @@ cmd_help (void)
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date` (default), or `hr`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
-  "  --hide-referer=<NEEDLE>         - Hide a referer but still count it. Wild cards are allowed.\n"
+  "  --hide-referrer=<NEEDLE>        - Hide a referrer but still count it. Wild cards are allowed.\n"
   "                                    i.e., *.bing.com\n"
   "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr` (default),\n"
   "                                    or `min` (tenth of a min).\n"
   "  --ignore-crawlers               - Ignore crawlers.\n"
   "  --ignore-panel=<PANEL>          - Ignore parsing/displaying the given panel.\n"
-  "  --ignore-referer=<NEEDLE>       - Ignore a referer from being counted. Wild cards are allowed.\n"
+  "  --ignore-referrer=<NEEDLE>      - Ignore a referrer from being counted. Wild cards are allowed.\n"
   "                                    i.e., *.bing.com\n"
   "  --ignore-statics=<req|panel>    - Ignore static requests.\n"
   "                                    req => Ignore from valid requests.\n"
@@ -396,6 +400,10 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("addr", name))
     conf.addr = oarg;
 
+  /* unix socket to use */
+  if (!strcmp ("unix-socket", name))
+    conf.unix_socket = oarg;
+
   /* FIFO in (read) */
   if (!strcmp ("fifo-in", name))
     conf.fifo_in = oarg;
@@ -460,6 +468,12 @@ parse_long_opt (const char *name, const char *oarg) {
     invalid_log_open (conf.invalid_requests_log);
   }
 
+  /* unknowns */
+  if (!strcmp ("unknowns-log", name)) {
+    conf.unknowns_log = oarg;
+    unknowns_log_open (conf.unknowns_log);
+  }
+
   /* output file */
   if (!strcmp ("output", name))
     set_array_opt (oarg, conf.output_formats, &conf.output_format_idx, MAX_OUTFORMATS);
@@ -510,16 +524,16 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("ignore-panel", name))
     set_array_opt (oarg, conf.ignore_panels, &conf.ignore_panel_idx, TOTAL_MODULES);
 
-  /* ignore referer */
-  if (!strcmp ("ignore-referer", name))
+  /* ignore referrer */
+  if (!strcmp ("ignore-referrer", name))
     set_array_opt (oarg, conf.ignore_referers, &conf.ignore_referer_idx, MAX_IGNORE_REF);
 
   /* client IP validation */
   if (!strcmp ("no-ip-validation", name))
     conf.no_ip_validation = 1;
 
-  /* hide referer from report (e.g. within same site) */
-  if (!strcmp ("hide-referer", name))
+  /* hide referrer from report (e.g. within same site) */
+  if (!strcmp ("hide-referrer", name))
     set_array_opt (oarg, conf.hide_referers, &conf.hide_referer_idx, MAX_IGNORE_REF);
 
   /* ignore status code */
@@ -560,7 +574,7 @@ parse_long_opt (const char *name, const char *oarg) {
     uint64_t ref = strtoull (oarg, &sEnd, 10);
     if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
       return;
-    conf.html_refresh = ref >= 1 && ref <= 60 ? 1000000 * ref : 0;
+    conf.html_refresh = ref >= 1 && ref <= 60 ? ref : 0;
   }
 
   /* specifies the path of the database file */

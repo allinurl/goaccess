@@ -36,16 +36,17 @@
 #define NUM_TESTS       20      /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
 #define READ_BYTES      4096u
+#define MAX_BATCH_LINES 8192u   /* max number of lines to read per batch before a reflow */
 
-#define LINE_LEN        23
-#define ERROR_LEN       255
-#define REF_SITE_LEN    511     /* maximum length of a referring site */
-#define CACHE_STATUS_LEN 7
+#define LINE_LEN          23
+#define ERROR_LEN        255
+#define REF_SITE_LEN     511    /* maximum length of a referring site */
+#define CACHE_STATUS_LEN   7
+#define HASH_HEX          64
 
-#define SPEC_TOKN_SET   0x1
-#define SPEC_TOKN_NUL   0x2
-#define SPEC_TOKN_INV   0x3
-#define SPEC_SFMT_MIS   0x4
+#define SPEC_TOKN_NUL    0x1
+#define SPEC_TOKN_INV    0x2
+#define SPEC_SFMT_MIS    0x3
 
 #include "commons.h"
 #include "gslist.h"
@@ -76,11 +77,13 @@ typedef struct GLogItem_ {
   char *cache_status;
 
   char site[REF_SITE_LEN + 1];
+  char agent_hex[HASH_HEX];
 
   uint64_t resp_size;
   uint64_t serve_time;
 
   uint32_t numdate;
+  uint32_t agent_hash;
   int ignorelevel;
   int type_ip;
   int is_404;
@@ -166,43 +169,8 @@ typedef struct GRawData_ {
   int size;                     /* total num of items on ht */
 } GRawData;
 
-/* Each record contains a data value, i.e., Windows XP, and it may contain a
- * root value, i.e., Windows, and a unique key which is the combination of
- * date, IP and user agent */
-typedef struct GKeyData_ {
-  const void *data;
-  const void *data_key;
-  uint32_t data_nkey;
-  uint32_t cdnkey;              /* cache data nkey */
 
-  const void *root;
-  const void *root_key;
-  uint32_t root_nkey;
-  uint32_t crnkey;              /* cache root nkey */
-
-  void *uniq_key;
-  uint32_t uniq_nkey;
-
-  uint32_t numdate;
-} GKeyData;
-
-typedef struct GParse_ {
-  GModule module;
-  int (*key_data) (GKeyData * kdata, GLogItem * logitem);
-
-  /* data field */
-  void (*datamap) (GModule module, GKeyData * kdata);
-  void (*rootmap) (GModule module, GKeyData * kdata);
-  void (*hits) (GModule module, GKeyData * kdata);
-  void (*visitor) (GModule module, GKeyData * kdata);
-  void (*bw) (GModule module, GKeyData * kdata, uint64_t size);
-  void (*cumts) (GModule module, GKeyData * kdata, uint64_t ts);
-  void (*maxts) (GModule module, GKeyData * kdata, uint64_t ts);
-  void (*method) (GModule module, GKeyData * kdata, const char *data);
-  void (*protocol) (GModule module, GKeyData * kdata, const char *data);
-  void (*agent) (GModule module, GKeyData * kdata, uint32_t agent_nkey);
-} GParse;
-
+char *extract_by_delim (char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);

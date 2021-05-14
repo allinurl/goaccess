@@ -37,6 +37,7 @@
 
 #include "opesys.h"
 
+#include "error.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
@@ -74,33 +75,41 @@ static const char *os[][2] = {
   {"iPad", "iOS"},
   {"iPod", "iOS"},
   {"iPhone", "iOS"},
+  {"CFNetwork", "iOS"},
   {"AppleTV", "iOS"},
   {"iTunes", "Macintosh"},
   {"OS X", "Macintosh"},
   {"Darwin", "Darwin"},
 
-  {"Debian", "Linux"},
-  {"Ubuntu", "Linux"},
-  {"Fedora", "Linux"},
-  {"Mint", "Linux"},
-  {"SUSE", "Linux"},
-  {"Mandriva", "Linux"},
-  {"Red Hat", "Linux"},
-  {"Gentoo", "Linux"},
-  {"CentOS", "Linux"},
-  {"PCLinuxOS", "Linux"},
-  {"Linux", "Linux"},
+  {"Debian", "GNU+Linux"},
+  {"Ubuntu", "GNU+Linux"},
+  {"Fedora", "GNU+Linux"},
+  {"Mint", "GNU+Linux"},
+  {"SUSE", "GNU+Linux"},
+  {"Mandriva", "GNU+Linux"},
+  {"Red Hat", "GNU+Linux"},
+  {"Gentoo", "GNU+Linux"},
+  {"CentOS", "GNU+Linux"},
+  {"PCLinuxOS", "GNU+Linux"},
+  {"Arch", "GNU+Linux"},
+  {"Parabola", "GNU+Linux"},
 
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
   {"DragonFly", "BSD"},
+
   {"PlayStation", "BSD"},
 
+  {"Linux", "Linux"},
+  {"linux", "Linux"},
+
   {"CrOS", "Chrome OS"},
-  {"SunOS", "Unix-like"},
   {"QNX", "Unix-like"},
   {"BB10", "Unix-like"},
+
+  {"AIX", "Unix"},
+  {"SunOS", "Unix"},
 
   {"BlackBerry", "Others"},
   {"Sony", "Others"},
@@ -349,6 +358,11 @@ parse_os (const char *str, char *tkn, char *os_type, int idx) {
     return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
   }
   /* iOS */
+  if ((strstr (tkn, "CFNetwork")) != NULL) {
+    if ((b = strchr (str, ' ')))
+      *b = 0;
+    return xstrdup (str);
+  }
   if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
     return xstrdup (parse_ios (tkn, 4));
   if (strstr (tkn, "iPhone"))
@@ -391,6 +405,9 @@ verify_os (const char *str, char *os_type) {
       return parse_os (str, a, os_type, i);
   }
   xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[OS]", str));
 
   return alloc_string ("Unknown");
 }

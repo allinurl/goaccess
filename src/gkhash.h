@@ -37,6 +37,9 @@
 #include "khash.h"
 #include "parser.h"
 
+#define DB_VERSION  2
+#define DB_INSTANCE 1
+
 /* Enumerated Storage Metrics */
 typedef enum GSMetricType_ {
   /* uint32_t key - uint32_t val */
@@ -47,6 +50,10 @@ typedef enum GSMetricType_ {
   MTRC_TYPE_IU64,
   /* string key   - uint32_t val */
   MTRC_TYPE_SI32,
+  /* string key   - uint8_t val */
+  MTRC_TYPE_SI08,
+  /* uint32_t key - uint8_t val */
+  MTRC_TYPE_II08,
   /* string key   - string val */
   MTRC_TYPE_SS32,
   /* uint32_t key - GSLList val */
@@ -57,11 +64,16 @@ typedef enum GSMetricType_ {
   MTRC_TYPE_IGKH,
   /* uint64_t key - uint32_t val */
   MTRC_TYPE_U648,
+  /* uint32_t key - GLastParse val */
+  MTRC_TYPE_IGLP,
 } GSMetricType;
 
+typedef struct GKDB_ GKDB;
 typedef struct GKHashStorage_ GKHashStorage;
 
 /* *INDENT-OFF* */
+/* uint32_t keys           , GKDB payload */
+KHASH_MAP_INIT_INT (igdb   , GKDB *);
 /* uint32_t keys           , GKHashStorage payload */
 KHASH_MAP_INIT_INT (igkh   , GKHashStorage *);
 /* uint32_t keys           , uint32_t payload */
@@ -72,6 +84,10 @@ KHASH_MAP_INIT_INT (is32   , char *);
 KHASH_MAP_INIT_INT (iu64   , uint64_t);
 /* string keys             , uint32_t payload */
 KHASH_MAP_INIT_STR (si32   , uint32_t);
+/* string keys             , uint8_t payload */
+KHASH_MAP_INIT_STR (si08   , uint8_t);
+/* uint8_t keys            , uint8_t payload */
+KHASH_MAP_INIT_INT (ii08   , uint8_t);
 /* string keys             , string payload */
 KHASH_MAP_INIT_STR (ss32   , char *);
 /* uint32_t key            , GLastParse payload */
@@ -85,19 +101,18 @@ KHASH_MAP_INIT_INT64 (u648 , uint8_t);
 /* *INDENT-ON* */
 
 typedef struct GKHashMetric_ {
-  GSMetric metric;
+  union {
+    GSMetric storem;
+    GAMetric dbm;
+  } metric;
   GSMetricType type;
   void *(*alloc) (void);
   void (*des) (void *, uint8_t free_data);
   void (*del) (void *, uint8_t free_data);
+  int free_data:1;
   void *hash;
   const char *filename;
 } GKHashMetric;
-
-/* Raw Data store per module */
-typedef struct RawDataHash_ {
-  GKHashMetric metrics[GSMTRC_TOTAL];
-} RawDataHash;
 
 /* Data store per module */
 typedef struct GKHashModule_ {
@@ -113,6 +128,18 @@ typedef struct GKHashGlobal_ {
 struct GKHashStorage_ {
   GKHashModule *mhash;          /* modules */
   GKHashGlobal *ghash;          /* global */
+};
+
+/* Whole App Data store */
+typedef struct GKHashDB_ {
+  GKHashMetric metrics[GAMTRC_TOTAL];
+} GKHashDB;
+
+/* DB */
+struct GKDB_ {
+  GKHashDB *hdb;                /* app-level hash tables */
+  GKHashModule *cache;          /* cache modules */
+  GKHashStorage *store;         /* per date OR module */
 };
 
 #define HT_FIRST_VAL(h, kvar, code) { khint_t __k;    \
@@ -136,6 +163,13 @@ struct GKHashStorage_ {
     code;                                             \
   } }
 
+extern GKHashMetric module_metrics[];
+extern const GKHashMetric global_metrics[];
+extern const GKHashMetric app_metrics[];
+extern size_t global_metrics_len;
+extern size_t module_metrics_len;
+extern size_t app_metrics_len;
+
 /* Metrics Storage */
 
 /* Most metrics are encapsulated within a GKHashStorage structure, which is
@@ -144,19 +178,20 @@ struct GKHashStorage_ {
 
 /* GLOBAL METRICS */
 /* ============== */
-/* Maps a string key containing an IP|DATE|UA to an autoincremented value.
+/* Maps a string key containing an IP|DATE|UA(hash uint32_t => hex) to an
+ * autoincremented value.
  *
- * 192.168.0.1|27/Apr/2020|Debian APT-HTTP/1.3 (1.0.9.8.5) -> 1
- * 192.168.0.1|28/Apr/2020|Debian APT-HTTP/1.3 (1.0.9.8.5) -> 2
+ * 192.168.0.1|27/Apr/2020|7E8E0E -> 1
+ * 192.168.0.1|28/Apr/2020|7E8E0E -> 2
  */
 /*khash_t(si32) MTRC_UNIQUE_KEYS */
 
 /* Maps string keys made out of the user agent to an autoincremented value.
  *
- * Debian APT-HTTP/1.3 (1.0.9.8.5) -> 1
- * Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0) -> 2
+ * Debian APT-HTTP/1.3 (1.0.9.8.5)                      -> 1838302 -> 1
+ * Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1;) -> 8723842 -> 2
  */
-/*khash_t(si32) MTRC_AGENT_KEYS */
+/*khash_t(ii32) MTRC_AGENT_KEYS */
 
 /* Maps integer keys from the autoincremented MTRC_AGENT_KEYS value to the user
  * agent.
@@ -181,26 +216,26 @@ struct GKHashStorage_ {
 
 /* MODULE METRICS */
 /* ============== */
-/* Maps keys (string) to numeric values (integer).
+/* Maps keys (string) to a hash to a numeric values (uint32_t).
  * this mitigates the issue of having multiple stores
  * with the same string key, and therefore, avoids unnecessary
  * memory usage (in most cases).
  *
- * HEAD|/index.php  -> 1
- * POST|/index.php  -> 2
- * Windows XP       -> 3
- * Ubuntu 10.10     -> 4
- * GET|Ubuntu 10.10 -> 5
- * Linux            -> 6
- * 26/Dec/2014      -> 7
- * Windows          -> 8
+ * HEAD|/index.php -> 9872347 -> 1
+ * POST|/index.php -> 3452345 -> 2
+ * Windows XP      -> 2842343 -> 3
+ * Ubuntu 10.10    -> 1852342 -> 4
+ * GET|Ubuntu 10.10-> 4872343 -> 5
+ * GNU+Linux       -> 5862347 -> 6
+ * 26/Dec/2014     -> 9874347 -> 7
+ * Windows         -> 3875347 -> 8
  */
 /*khash_t(si32) MTRC_KEYMAP */
 
 /* Maps integer keys of root elements from the keymap hash
  * to actual string values.
  *
- * 6 -> Linux
+ * 6 -> GNU+Linux
  * 8 -> Windows
  */
 /*khash_t(is32) MTRC_ROOTMAP */
@@ -270,15 +305,15 @@ struct GKHashStorage_ {
  */
 /*khash_t(iu64) MTRC_MAXTS */
 
-/* Maps numeric data keys to string values.
- * 1 -> GET
- * 2 -> POST
+/* Maps numeric data keys to uint8_t values.
+ * 1 -> 3
+ * 2 -> 4
  */
 /*khash_t(is32) MTRC_METHODS */
 
-/* Maps numeric data keys to string values.
- * 1 -> HTTP/1.1
- * 2 -> HTTP/1.0
+/* Maps numeric data keys to uint8_t values.
+ * 1 -> 1
+ * 2 -> 1
  */
 /*khash_t(is32) MTRC_PROTOCOLS */
 
@@ -296,20 +331,23 @@ struct GKHashStorage_ {
 /*khash_t(igsl) MTRC_METADATA */
 
 /* *INDENT-OFF* */
+char *get_mtr_type_str (GSMetricType type);
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);
 char *ht_get_hostname (const char *host);
+char *ht_get_json_logfmt (const char *key);
 char *ht_get_method (GModule module, uint32_t key);
 char *ht_get_protocol (GModule module, uint32_t key);
 char *ht_get_root (GModule module, uint32_t key);
 int ht_inc_cnt_bw (uint32_t date, uint64_t inc);
 int ht_insert_agent (GModule module, uint32_t date, uint32_t key, uint32_t value);
-int ht_insert_agent_value (uint32_t date, uint32_t key, const char *value);
+int ht_insert_agent_value (uint32_t date, uint32_t key, char *value);
 int ht_insert_bw (GModule module, uint32_t date, uint32_t key, uint64_t inc, uint32_t ckey);
 int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc, uint32_t ckey);
 int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
+int ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec);
 int ht_insert_last_parse (uint32_t key, GLastParse lp);
 int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey);
 int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
@@ -333,9 +371,9 @@ uint32_t ht_get_size_uniqmap (GModule module);
 uint32_t ht_get_visitors (GModule module, uint32_t key);
 uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
 uint32_t ht_inc_cnt_valid (uint32_t date, uint32_t inc);
-uint32_t ht_insert_agent_key (uint32_t date, const char *key);
+uint32_t ht_insert_agent_key (uint32_t date, uint32_t key);
 uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key, uint32_t inc, uint32_t ckey);
-uint32_t ht_insert_keymap (GModule module, uint32_t date, const char *key, uint32_t * ckey);
+uint32_t ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t * ckey);
 uint32_t ht_insert_unique_key (uint32_t date, const char *key);
 uint32_t ht_insert_unique_seq (const char *key);
 uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_t inc, uint32_t ckey);
@@ -345,6 +383,7 @@ uint64_t ht_get_cumts (GModule module, uint32_t key);
 uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 uint64_t ht_sum_bw (void);
+uint8_t ht_insert_meth_proto (const char *key);
 void destroy_date_stores (int date);
 void free_storage (void);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
@@ -352,13 +391,27 @@ void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
+void init_pre_storage (void);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
+
+int ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp);
+int ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value);
+int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
+int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
+int ins_is32 (khash_t (is32) * hash, uint32_t key, char *value);
+int ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value);
+int ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value);
+int ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value);
+int ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value);
+void *get_db_instance (uint32_t key);
+void * get_hash (int module, uint64_t key, GSMetric metric);
+void *get_hdb (GKDB * db, GAMetric mtrc);
 
 GLastParse ht_get_last_parse (uint32_t key);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
-GSLList *ht_get_keymap_list_from_key (GModule module, const char *key);
+GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
 /* *INDENT-ON* */
 
 #endif // for #ifndef GKHASH_H

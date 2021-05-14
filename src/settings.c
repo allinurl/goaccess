@@ -40,7 +40,9 @@
 #include "settings.h"
 
 #include "error.h"
+#include "gkhash.h"
 #include "labels.h"
+#include "pdjson.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -59,6 +61,7 @@ static GEnum LOGTYPE[] = {
   {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
   {"AWSELB"       , AWSELB}       ,
   {"AWSS3"        , AWSS3}        ,
+  {"CADDY"        , CADDY}        ,
 };
 
 static const GPreConfLog logs = {
@@ -67,11 +70,18 @@ static const GPreConfLog logs = {
   "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
   "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
   "%d %t %^ %m %U %q %^ %^ %h %u %R %s %^ %^ %L",               /* W3C */
-  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%^\\t%r\\t%s\\t%R\\t%u\\t%^",  /* CloudFront */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q\\t%^\\t%C\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
-  "%^ %dT%t.%^ %v %h:%^ %^ %T %^ %^ %s %^ %b %^ \"%r\" \"%u\" %^",    /* AWS Elastic Load Balancing */
+  "%^ %dT%t.%^ %^ %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^ \"%^\" \"%v\"",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */
   "%^ %v [%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"", /* Amazon S3 */
+
+  /* Caddy JSON */
+  "{ \"ts\": \"%x.%^\", \"request\": { \"remote_addr\": \"%h:%^\", \"proto\":"
+  "\"%H\", \"method\": \"%m\", \"host\": \"%v\", \"uri\": \"%U\", \"headers\": {"
+  "\"User-Agent\": [\"%u\"], \"Referer\": [\"%R\"] }, \"tls\": { \"cipher_suite\":"
+  "\"%k\", \"proto\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
+  "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }"
 };
 
 static const GPreConfTime times = {
@@ -375,6 +385,8 @@ get_selected_format_idx (void) {
     return SQUID;
   else if (strcmp (conf.log_format, logs.awss3) == 0)
     return AWSS3;
+  else if (strcmp (conf.log_format, logs.caddy) == 0)
+    return CADDY;
   else
     return (size_t) -1;
 }
@@ -418,6 +430,9 @@ get_selected_format_str (size_t idx) {
   case AWSS3:
     fmt = alloc_string (logs.awss3);
     break;
+  case CADDY:
+    fmt = alloc_string (logs.caddy);
+    break;
   }
 
   return fmt;
@@ -448,6 +463,7 @@ get_selected_date_str (size_t idx) {
     fmt = alloc_string (dates.usec);
     break;
   case SQUID:
+  case CADDY:
     fmt = alloc_string (dates.sec);
     break;
   }
@@ -478,6 +494,7 @@ get_selected_time_str (size_t idx) {
     fmt = alloc_string (times.usec);
     break;
   case SQUID:
+  case CADDY:
     fmt = alloc_string (times.sec);
     break;
   }
@@ -664,9 +681,9 @@ set_date_num_format (void) {
 
   /* always add a %Y */
   buflen += snprintf (buf + buflen, flen - buflen, "%%Y");
-  if (strpbrk (fdate, "hbmB"))
+  if (strpbrk (fdate, "hbmBf*"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%m");
-  if (strpbrk (fdate, "de"))
+  if (strpbrk (fdate, "def*"))
     buflen += snprintf (buf + buflen, flen - buflen, "%%d");
 
   conf.date_num_format = buf;
@@ -675,12 +692,158 @@ set_date_num_format (void) {
   return buflen == 0 ? 1 : 0;
 }
 
+/* Determine if we have a valid JSON format */
+int
+is_json_log_format (const char *fmt) {
+  enum json_type t = JSON_ERROR;
+  json_stream json;
+
+  json_open_string (&json, fmt);
+  /* ensure we use strict JSON when determining if we're using a JSON format */
+  json_set_streaming (&json, false);
+  do {
+    t = json_next (&json);
+    switch (t) {
+    case JSON_ERROR:
+      json_close (&json);
+      return 0;
+    default:
+      break;
+    }
+  } while (t != JSON_DONE && t != JSON_ERROR);
+  json_close (&json);
+
+  return 1;
+}
+
+/* Append the source string to destination and reallocates and
+ * updating the destination buffer appropriately. */
+static void
+ws_append_str (char **dest, const char *src) {
+  size_t curlen = strlen (*dest);
+  size_t srclen = strlen (src);
+  size_t newlen = curlen + srclen;
+
+  char *str = xrealloc (*dest, newlen + 1);
+  memcpy (str + curlen, src, srclen + 1);
+  *dest = str;
+}
+
+/* Delete the given key from a nested object key or empty the key. */
+static void
+dec_json_key (char *key) {
+  char *ptr = NULL;
+  if (key && (ptr = strrchr (key, '.')))
+    *ptr = '\0';
+  else if (key && !(ptr = strrchr (key, '.')))
+    key[0] = '\0';
+}
+
+/* Given a JSON string, parse it and call the given function pointer after each
+ * value.
+ *
+ * On error, a non-zero value is returned.
+ * On success, 0 is returned. */
+int
+parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, char *)) {
+  char *key = NULL, *val = NULL;
+  enum json_type ctx = JSON_ERROR, t = JSON_ERROR;
+  int ret = 0;
+  size_t len = 0, level = 0;
+  json_stream json;
+
+  json_open_string (&json, str);
+  do {
+    t = json_next (&json);
+
+    switch (t) {
+    case JSON_OBJECT:
+      if (key == NULL)
+        key = xstrdup ("");
+      break;
+    case JSON_ARRAY_END:
+    case JSON_OBJECT_END:
+      dec_json_key (key);
+      break;
+    case JSON_TRUE:
+      val = xstrdup ("true");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_FALSE:
+      val = xstrdup ("false");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_NULL:
+      val = xstrdup ("-");
+      if ((ret = (*cb) (ptr_data, key, val)))
+        goto clean;
+      ctx = json_get_context (&json, &level);
+      if (ctx != JSON_ARRAY)
+        dec_json_key (key);
+      free (val);
+      val = NULL;
+      break;
+    case JSON_STRING:
+    case JSON_NUMBER:
+      ctx = json_get_context (&json, &level);
+      /* key */
+      if ((level % 2) != 0 && ctx != JSON_ARRAY) {
+        if (strlen (key) != 0)
+          ws_append_str (&key, ".");
+        ws_append_str (&key, json_get_string (&json, &len));
+      }
+      /* val */
+      else if (key && (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY))) {
+        val = xstrdup (json_get_string (&json, &len));
+        if ((ret = (*cb) (ptr_data, key, val)))
+          goto clean;
+        if (ctx != JSON_ARRAY)
+          dec_json_key (key);
+
+        free (val);
+        val = NULL;
+      }
+      break;
+    case JSON_ERROR:
+      ret = -1;
+      goto clean;
+      break;
+    default:
+      break;
+    }
+  } while (t != JSON_DONE && t != JSON_ERROR);
+
+clean:
+  free (val);
+  free (key);
+  json_close (&json);
+
+  return ret;
+}
+
 /* If specificity is supplied, then determine which value we need to
  * append to the date format. */
 void
 set_spec_date_format (void) {
   if (verify_formats ())
     return;
+
+  if (conf.is_json_log_format) {
+    if (parse_json_string (NULL, conf.log_format, ht_insert_json_logfmt) == -1)
+      FATAL ("Invalid JSON log format. Verify the syntax.");
+  }
 
   if (conf.date_num_format)
     free (conf.date_num_format);
@@ -749,13 +912,15 @@ set_time_format_str (const char *oarg) {
   conf.time_format = fmt;
 }
 
-/* Determine if time-served data was set through log-format. */
+/* Determine if some global flags were set through log-format. */
 static void
-contains_usecs (void) {
-  conf.serve_usecs = 0; /* flag */
+contains_specifier (void) {
+  conf.serve_usecs = conf.bandwidth = 0;        /* flag */
   if (!conf.log_format)
     return;
 
+  if (strstr (conf.log_format, "%b"))
+    conf.bandwidth = 1; /* flag */
   if (strstr (conf.log_format, "%D"))
     conf.serve_usecs = 1;       /* flag */
   if (strstr (conf.log_format, "%T"))
@@ -776,10 +941,17 @@ set_log_format_str (const char *oarg) {
   if (conf.log_format)
     free (conf.log_format);
 
+  if (type == -1 && is_json_log_format (oarg)) {
+    conf.is_json_log_format = 1;
+    conf.log_format = unescape_str (oarg);
+    contains_specifier ();      /* set flag */
+    return;
+  }
+
   /* type not found, use whatever was given by the user then */
   if (type == -1) {
     conf.log_format = unescape_str (oarg);
-    contains_usecs ();  /* set flag */
+    contains_specifier ();      /* set flag */
     return;
   }
 
@@ -789,8 +961,11 @@ set_log_format_str (const char *oarg) {
     return;
   }
 
+  if (is_json_log_format (fmt))
+    conf.is_json_log_format = 1;
+
   conf.log_format = unescape_str (fmt);
-  contains_usecs ();    /* set flag */
+  contains_specifier ();        /* set flag */
 
   /* assume we are using the default date/time formats */
   set_time_format_str (oarg);

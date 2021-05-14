@@ -155,8 +155,8 @@ cmp_num_desc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->hits;
-  int vb = ib->metrics->hits;
+  uint64_t va = ia->metrics->hits;
+  uint64_t vb = ib->metrics->hits;
 
   return (va < vb) - (va > vb);
 }
@@ -167,8 +167,8 @@ cmp_num_asc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->hits;
-  int vb = ib->metrics->hits;
+  uint64_t va = ia->metrics->hits;
+  uint64_t vb = ib->metrics->hits;
 
   return (va > vb) - (va < vb);
 }
@@ -179,8 +179,8 @@ cmp_vis_desc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->visitors;
-  int vb = ib->metrics->visitors;
+  uint64_t va = ia->metrics->visitors;
+  uint64_t vb = ib->metrics->visitors;
 
   return (va < vb) - (va > vb);
 }
@@ -191,8 +191,8 @@ cmp_vis_asc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->visitors;
-  int vb = ib->metrics->visitors;
+  uint64_t va = ia->metrics->visitors;
+  uint64_t vb = ib->metrics->visitors;
 
   return (va > vb) - (va < vb);
 }
@@ -203,8 +203,8 @@ cmp_raw_num_desc (const void *a, const void *b) {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  int va = ia->hits;
-  int vb = ib->hits;
+  uint64_t va = ia->hits;
+  uint64_t vb = ib->hits;
 
   return (va < vb) - (va > vb);
 }
