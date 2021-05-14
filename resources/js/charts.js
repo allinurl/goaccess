@@ -162,7 +162,8 @@ function AreaChart(dualYaxis) {
 		xScale.domain(data.map(function (d) {
 			return d[0];
 		}))
-		.rangePoints([0, innerW()], 1);
+		.range([0, innerW()])
+		.padding(1);
 
 		// Update the y-scale.
 		yScale0.domain([0, d3.max(data, function (d) {
@@ -681,7 +682,8 @@ function BarChart(dualYaxis) {
 		xScale.domain(data.map(function (d) {
 			return d[0];
 		}))
-		.rangeBands([0, innerW()], 0.1);
+		.range([0, innerW()])
+		.padding(0.1);
 
 		// Update the y-scale.
 		yScale0.domain([0, d3.max(data, function (d) {
