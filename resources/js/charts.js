@@ -62,9 +62,9 @@ function AreaChart(dualYaxis) {
 			return d[2];
 		};
 
-	var xScale = d3.scale.ordinal();
-	var yScale0 = d3.scale.linear().nice();
-	var yScale1 = d3.scale.linear().nice();
+	var xScale = d3.scalePoint();
+	var yScale0 = d3.scaleLinear().nice();
+	var yScale1 = d3.scaleLinear().nice();
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
@@ -624,9 +624,9 @@ function BarChart(dualYaxis) {
 			return d[2];
 		};
 
-	var xScale = d3.scale.ordinal();
-	var yScale0 = d3.scale.linear().nice();
-	var yScale1 = d3.scale.linear().nice();
+	var xScale = d3.scaleBand();
+	var yScale0 = d3.scaleLinear().nice();
+	var yScale1 = d3.scaleLinear().nice();
 
 	var xAxis = d3.svg.axis()
 		.scale(xScale)
