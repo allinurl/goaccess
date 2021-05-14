@@ -486,7 +486,7 @@ function AreaChart(dualYaxis) {
 			.attr('height', innerH())
 			.attr('class', 'point');
 		rects
-			.attr('width', d3.functor(w))
+			.attr('width', function () { return w; })
 			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
 			.on('mousemove', function (d, i) {
@@ -950,7 +950,7 @@ function BarChart(dualYaxis) {
 			.attr('height', innerH())
 			.attr('class', 'point');
 		rects
-			.attr('width', d3.functor(w))
+			.attr('width', function () { return w; })
 			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
 			.on('mousemove', function (d, i) {
