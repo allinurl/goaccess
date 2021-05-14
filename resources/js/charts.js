@@ -511,10 +511,8 @@ function AreaChart(dualYaxis) {
 			createSkeleton(svg);
 
 			// Update the outer dimensions.
-			svg.attr({
-				'width': width,
-				'height': height
-			});
+			svg.attr('width', width);
+			svg.attr('height', height);
 
 			// Update the inner dimensions.
 			var g = svg.select('g')
@@ -977,10 +975,8 @@ function BarChart(dualYaxis) {
 			createSkeleton(svg);
 
 			// Update the outer dimensions.
-			svg.attr({
-				'width': width,
-				'height': height
-			});
+			svg.attr('width', width);
+			svg.attr('height', height);
 
 			// Update the inner dimensions.
 			var g = svg.select('g')
