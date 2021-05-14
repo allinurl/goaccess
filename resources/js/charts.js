@@ -188,8 +188,8 @@ function AreaChart(dualYaxis) {
 		rect.enter().append('rect')
 			.attr('class', 'legend y0')
 			.attr('data-yaxis', 'y0')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2) - 100);
@@ -199,8 +199,8 @@ function AreaChart(dualYaxis) {
 		text.enter().append('text')
 			.attr('class', 'legend y0')
 			.attr('data-yaxis', 'y0')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) - 85)
@@ -214,8 +214,8 @@ function AreaChart(dualYaxis) {
 		rect.enter().append('rect')
 			.attr('class', 'legend y1')
 			.attr('data-yaxis', 'y1')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2));
@@ -225,8 +225,8 @@ function AreaChart(dualYaxis) {
 		text.enter().append('text')
 			.attr('class', 'legend y1')
 			.attr('data-yaxis', 'y1')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) + 15)
@@ -443,7 +443,7 @@ function AreaChart(dualYaxis) {
 			);
 	}
 
-	function formatTooltip(data, i) {
+	function formatTooltip(data) {
 		var d = data.slice(0);
 
 		d[0] = (format.x) ? GoAccess.Util.fmtValue(d[0], format.x) : d[0];
@@ -456,9 +456,9 @@ function AreaChart(dualYaxis) {
 		});
 	}
 
-	function mouseover(_self, selection, data, idx) {
+	function mouseover(_self, selection, data) {
 		var tooltip = selection.select('.chart-tooltip-wrap');
-		tooltip.html(formatTooltip(data, idx))
+		tooltip.html(formatTooltip(data))
 			.style('left', (xScale(data[0])) + 'px')
 			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
 			.style('display', 'block');
@@ -489,10 +489,10 @@ function AreaChart(dualYaxis) {
 			.attr('width', function () { return w; })
 			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
-			.on('mousemove', function (d, i) {
-				mouseover(this, selection, d, i);
+			.on('mousemove', function (e, d) {
+				mouseover(this, selection, d);
 			})
-			.on('mouseleave', function (d, i) {
+			.on('mouseleave', function (e, d) {
 				mouseout(selection, g);
 			});
 		// remove elements
@@ -706,8 +706,8 @@ function BarChart(dualYaxis) {
 		rect.enter().append('rect')
 			.attr('class', 'legend y0')
 			.attr('data-yaxis', 'y0')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2) - 100);
@@ -717,8 +717,8 @@ function BarChart(dualYaxis) {
 		text.enter().append('text')
 			.attr('class', 'legend y0')
 			.attr('data-yaxis', 'y0')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) - 85)
@@ -732,8 +732,8 @@ function BarChart(dualYaxis) {
 		rect.enter().append('rect')
 			.attr('class', 'legend y1')
 			.attr('data-yaxis', 'y1')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 15));
 		rect
 			.attr('x', (width / 2));
@@ -743,8 +743,8 @@ function BarChart(dualYaxis) {
 		text.enter().append('text')
 			.attr('class', 'legend y1')
 			.attr('data-yaxis', 'y1')
-			.on('mousemove', function (d, i) { toggleOpacity(this, 'opacity:0.1'); })
-			.on('mouseleave', function (d, i) { toggleOpacity(this, null); })
+			.on('mousemove', function (e, d) { toggleOpacity(this, 'opacity:0.1'); })
+			.on('mouseleave', function (e, d) { toggleOpacity(this, null); })
 			.attr('y', (height - 6));
 		text
 			.attr('x', (width / 2) + 15)
@@ -906,7 +906,7 @@ function BarChart(dualYaxis) {
 			);
 	}
 
-	function formatTooltip(data, i) {
+	function formatTooltip(data) {
 		var d = data.slice(0);
 
 		d[0] = (format.x) ? GoAccess.Util.fmtValue(d[0], format.x) : d[0];
@@ -919,10 +919,10 @@ function BarChart(dualYaxis) {
 		});
 	}
 
-	function mouseover(_self, selection, data, idx) {
+	function mouseover(_self, selection, data) {
 		var left = xScale(data[0]) + (xScale.bandwidth() / 2);
 		var tooltip = selection.select('.chart-tooltip-wrap');
-		tooltip.html(formatTooltip(data, idx))
+		tooltip.html(formatTooltip(data))
 			.style('left', left + 'px')
 			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
 			.style('display', 'block');
@@ -953,10 +953,10 @@ function BarChart(dualYaxis) {
 			.attr('width', function () { return w; })
 			.attr('x', function (d, i) { return (w * i); })
 			.attr('y', 0)
-			.on('mousemove', function (d, i) {
-				mouseover(this, selection, d, i);
+			.on('mousemove', function (e, d) {
+				mouseover(this, selection, d);
 			})
-			.on('mouseleave', function (d, i) {
+			.on('mouseleave', function (e, d) {
 				mouseout(selection, g);
 			});
 		// remove elements
