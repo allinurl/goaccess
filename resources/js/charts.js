@@ -460,7 +460,7 @@ function AreaChart(dualYaxis) {
 		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data))
 			.style('left', (xScale(data[0])) + 'px')
-			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
+			.style('top',  (d3.pointer(_self)[1] + 10) + 'px')
 			.style('display', 'block');
 
 		selection.select('line.indicator')
@@ -924,7 +924,7 @@ function BarChart(dualYaxis) {
 		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data))
 			.style('left', left + 'px')
-			.style('top',  (d3.mouse(_self)[1] + 10) + 'px')
+			.style('top',  (d3.pointer(_self)[1] + 10) + 'px')
 			.style('display', 'block');
 
 		selection.select('line.indicator')
