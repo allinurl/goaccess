@@ -821,12 +821,12 @@ function BarChart(dualYaxis) {
 			.append('svg:rect')
 			.attr('class', 'bar')
 			.attr('height', 0)
-			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
+			.attr('width', function (d, i) { return xScale.bandwidth() / 2; })
 			.attr('x', function (d, i) { return xScale(d[0]); })
 			.attr('y', function (d, i) { return innerH(); });
 		// update
 		bars
-			.attr('width', xScale.rangeBand() / 2)
+			.attr('width', xScale.bandwidth() / 2)
 			.attr('x', function (d) { return xScale(d[0]); })
 			.transition()
 			.delay(function (d, i) { return i / data.length * 1000; })
@@ -847,13 +847,13 @@ function BarChart(dualYaxis) {
 			.append('svg:rect')
 			.attr('class', 'bar')
 			.attr('height', 0)
-			.attr('width', function (d, i) { return xScale.rangeBand() / 2; })
-			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2); })
+			.attr('width', function (d, i) { return xScale.bandwidth() / 2; })
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.bandwidth() / 2); })
 			.attr('y', function (d, i) { return innerH(); });
 		// update
 		bars
-			.attr('width', xScale.rangeBand() / 2)
-			.attr('x', function (d) { return (xScale(d[0]) + xScale.rangeBand() / 2); })
+			.attr('width', xScale.bandwidth() / 2)
+			.attr('x', function (d) { return (xScale(d[0]) + xScale.bandwidth() / 2); })
 			.transition()
 			.delay(function (d, i) { return i / data.length * 1000; })
 			.duration(500)
@@ -920,7 +920,7 @@ function BarChart(dualYaxis) {
 	}
 
 	function mouseover(_self, selection, data, idx) {
-		var left = xScale(data[0]) + (xScale.rangeBand() / 2);
+		var left = xScale(data[0]) + (xScale.bandwidth() / 2);
 		var tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.html(formatTooltip(data, idx))
 			.style('left', left + 'px')
