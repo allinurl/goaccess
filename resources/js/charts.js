@@ -431,14 +431,16 @@ function AreaChart(dualYaxis) {
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xGrid
 				.tickValues(getXTicks(data))
-				.tickSize(-innerH(), 0, 0)
+				.tickSize(-innerH())
+				.tickSizeOuter(0)
 				.tickFormat('')
 			);
 
 		g.select('.y.grid')
 			.call(yGrid
 				.tickValues(getYTicks(yScale0))
-				.tickSize(-innerW(), 0, 0)
+				.tickSize(-innerW())
+				.tickSizeOuter(0)
 				.tickFormat('')
 			);
 	}
@@ -894,14 +896,16 @@ function BarChart(dualYaxis) {
 			.attr('transform', 'translate(0,' + yScale0.range()[0] + ')')
 			.call(xGrid
 				.tickValues(getXTicks(data))
-				.tickSize(-innerH(), 0, 0)
+				.tickSize(-innerH())
+				.tickSizeOuter(0)
 				.tickFormat('')
 			);
 
 		g.select('.y.grid')
 			.call(yGrid
 				.tickValues(getYTicks(yScale0))
-				.tickSize(-innerW(), 0, 0)
+				.tickSize(-innerW())
+				.tickSizeOuter(0)
 				.tickFormat('')
 			);
 	}
