@@ -90,20 +90,20 @@ function AreaChart(dualYaxis) {
 	var yGrid = d3.axisLeft(yScale0);
 
 	var area0 = d3.area()
-		.interpolate('cardinal')
+		.curve(d3.curveCardinal)
 		.x(X)
 		.y(Y0);
 	var area1 = d3.area()
-		.interpolate('cardinal')
+		.curve(d3.curveCardinal)
 		.x(X)
 		.y(Y1);
 
 	var line0 = d3.line()
-		.interpolate('cardinal')
+		.curve(d3.curveCardinal)
 		.x(X)
 		.y(Y0);
 	var line1 = d3.line()
-		.interpolate('cardinal')
+		.curve(d3.curveCardinal)
 		.x(X)
 		.y(Y1);
 
