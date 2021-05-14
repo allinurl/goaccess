@@ -66,38 +66,28 @@ function AreaChart(dualYaxis) {
 	var yScale0 = d3.scaleLinear().nice();
 	var yScale1 = d3.scaleLinear().nice();
 
-	var xAxis = d3.svg.axis()
-		.scale(xScale)
-		.orient('bottom')
+	var xAxis = d3.axisBottom(xScale)
 		.tickFormat(function (d) {
 			if (format.x)
 				return GoAccess.Util.fmtValue(d, format.x);
 			return d;
 		});
 
-	var yAxis0 = d3.svg.axis()
-		.scale(yScale0)
-		.orient('left')
+	var yAxis0 = d3.axisLeft(yScale0)
 		.tickFormat(function (d) {
 			return d3.format('.2s')(d);
 		});
 
-	var yAxis1 = d3.svg.axis()
-		.scale(yScale1)
-		.orient('right')
+	var yAxis1 = d3.axisRight(yScale1)
 		.tickFormat(function (d) {
 			if (format.y1)
 				return GoAccess.Util.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
-	var xGrid = d3.svg.axis()
-		.scale(xScale)
-		.orient('bottom');
+	var xGrid = d3.axisBottom(xScale);
 
-	var yGrid = d3.svg.axis()
-		.scale(yScale0)
-		.orient('left');
+	var yGrid = d3.axisLeft(yScale0);
 
 	var area0 = d3.svg.area()
 		.interpolate('cardinal')
@@ -628,38 +618,28 @@ function BarChart(dualYaxis) {
 	var yScale0 = d3.scaleLinear().nice();
 	var yScale1 = d3.scaleLinear().nice();
 
-	var xAxis = d3.svg.axis()
-		.scale(xScale)
-		.orient('bottom')
+	var xAxis = d3.axisBottom(xScale)
 		.tickFormat(function (d) {
 			if (format.x)
 				return GoAccess.Util.fmtValue(d, format.x);
 			return d;
 		});
 
-	var yAxis0 = d3.svg.axis()
-		.scale(yScale0)
-		.orient('left')
+	var yAxis0 = d3.axisLeft(yScale0)
 		.tickFormat(function (d) {
 			return d3.format('.2s')(d);
 		});
 
-	var yAxis1 = d3.svg.axis()
-		.scale(yScale1)
-		.orient('right')
+	var yAxis1 = d3.axisRight(yScale1)
 		.tickFormat(function (d) {
 			if (format.y1)
 				return GoAccess.Util.fmtValue(d, format.y1);
 			return d3.format('.2s')(d);
 		});
 
-	var xGrid = d3.svg.axis()
-		.scale(xScale)
-		.orient('bottom');
+	var xGrid = d3.axisBottom(xScale);
 
-	var yGrid = d3.svg.axis()
-		.scale(yScale0)
-		.orient('left');
+	var yGrid = d3.axisLeft(yScale0);
 
 	function innerW() {
 		return width - margin.left - margin.right;
