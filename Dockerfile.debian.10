@@ -11,12 +11,13 @@ RUN apt-get install -yqqq \
     libmaxminddb-dev \
     libssl-dev \
     linux-headers-amd64 \
-    libncurses-dev \
+    libncursesw5-dev \
     libgeoip-dev \
+    pkg-config \
     autopoint
 
 # GoAccess
 WORKDIR /goaccess
 
-CMD ./build-package.sh
+ENTRYPOINT ["./build-dynamic.sh"]
 
