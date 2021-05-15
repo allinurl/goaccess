@@ -1,5 +1,6 @@
-# docker build -t goaccess/build.debian:1.4.3-10 -f Dockerfile.debian-10 .
-# docker run -i --rm -v $PWD:/goaccess goaccess/build.debian:1.4.3-10 > ../goaccess.bin
+# docker build -t goaccess/build.debian-10 -f Dockerfile.debian-10 .
+# docker run -i --rm -v $PWD:/goaccess goaccess/build.debian-10 > goaccess
+# Used to have all compile dependencies isolated in a container image.
 FROM debian:10
 
 RUN apt-get update -qqq
