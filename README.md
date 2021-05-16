@@ -113,6 +113,14 @@ Download, extract and compile GoAccess with:
     $ make
     # make install
 
+#### Build in isolated container
+
+You can also build the binary for Debian based systems in an isolated container environment to prevent cluttering your local system with the development libraries:
+
+    $ curl -L "https://github.com/allinurl/goaccess/archive/refs/heads/master.tar.gz" | tar -xz && cd goaccess-master
+    $ docker build -t goaccess/build.debian-10 -f Dockerfile.debian-10 .
+    $ docker run -i --rm -v $PWD:/goaccess goaccess/build.debian-10 > goaccess
+
 ### Distributions ###
 
 It is easiest to install GoAccess on GNU+Linux using the preferred package manager
