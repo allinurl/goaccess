@@ -796,6 +796,12 @@ get_hash_from_cache (GModule module, GSMetric metric) {
   return db->cache[module].metrics[metric].hash;
 }
 
+Logs *
+get_db_logs (uint32_t instance) {
+  GKDB *db = get_db_instance (instance);
+  return db->logs;
+}
+
 /* Initialize a global hash structure.
  *
  * On success, a pointer to that hash structure is returned. */
@@ -912,30 +918,31 @@ ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp) {
  * On error, -1 is returned.
  * On key found, 1 is returned.
  * On success 0 is returned */
-static int
+static GKDB *
 new_db (khash_t (igdb) * hash, uint32_t key) {
   GKDB *db = NULL;
   khint_t k;
   int ret;
 
   if (!hash)
-    return -1;
+    return NULL;
 
   k = kh_put (igdb, hash, key, &ret);
   /* operation failed */
   if (ret == -1)
-    return -1;
+    return NULL;
   /* the key is present in the hash table */
   if (ret == 0)
-    return 1;
+    return kh_val (hash, k);
 
   db = new_gkdb ();
   db->hdb = init_gkhashdb ();
   db->cache = NULL;
   db->store = NULL;
+  db->logs = NULL;
   kh_val (hash, k) = db;
 
-  return 0;
+  return db;
 }
 
 /* Increment a string key and with the corresponding incremental uint32_t value.
@@ -2991,9 +2998,11 @@ parse_raw_data (GModule module) {
 }
 
 void
-init_pre_storage (void) {
+init_pre_storage (Logs * logs) {
+  GKDB *db = NULL;
   ht_db = (khash_t (igdb) *) new_igdb_ht ();
-  new_db (ht_db, DB_INSTANCE);
+  db = new_db (ht_db, DB_INSTANCE);
+  db->logs = logs;
 }
 
 /* Initialize hash tables */
@@ -3041,6 +3050,7 @@ free_igdb (khash_t (igdb) * hash, khint_t k) {
   db = kh_val (hash, k);
 
   des_igkh (get_hdb (db, MTRC_DATES));
+  free_logs (db->logs);
   free_cache (db->cache);
   free_app_metrics (db->hdb);
 

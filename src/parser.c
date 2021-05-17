@@ -1419,7 +1419,8 @@ strip_qstring (char *req) {
 
 /* Output all log errors stored during parsing. */
 void
-output_logerrors (Logs * logs) {
+output_logerrors (void) {
+  Logs *logs = get_db_logs (DB_INSTANCE);
   GLog *glog = NULL;
   int pid = getpid (), i;
 

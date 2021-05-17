@@ -95,8 +95,6 @@ static GWSReader *gwsreader;
 static GDash *dash;
 /* Data holder structure */
 static GHolder *holder;
-/* Log line properties structure */
-static Logs *logs;
 /* Old signal mask */
 static sigset_t oldset;
 /* Curses windows */
@@ -163,9 +161,6 @@ house_keeping (void) {
   geoip_free ();
 #endif
 
-  /* LOGGER */
-  free_logs (logs);
-
   /* INVALID REQUESTS */
   if (conf.invalid_requests_log) {
     LOG_DEBUG (("Closing invalid requests log.\n"));
@@ -211,7 +206,7 @@ cleanup (int ret) {
 
   /* unable to process valid data */
   if (ret)
-    output_logerrors (logs);
+    output_logerrors ();
 
   house_keeping ();
 }
@@ -375,25 +370,47 @@ allocate_data (void) {
   }
 }
 
-/* A wrapper to render all windows within the dashboard. */
 static void
-render_screens (void) {
+clean_stdscrn (void) {
+  int row, col;
+
+  getmaxyx (stdscr, row, col);
+  draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
+}
+
+static void
+render_offset (Logs * logs) {
   GColors *color = get_color (COLOR_DEFAULT);
   int row, col, chg = 0;
   char time_str_buf[32];
+
+  if (!(chg = *logs->processed - logs->offset))
+    return;
 
   getmaxyx (stdscr, row, col);
   term_size (main_win, &main_win_height);
 
   generate_time ();
-  strftime (time_str_buf, sizeof (time_str_buf), "%a %b %e %T %Y", &now_tm);
-  chg = *logs->processed - logs->offset;
+  strftime (time_str_buf, sizeof (time_str_buf), "%d/%b/%Y:%T", &now_tm);
 
-  draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
+  wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
+  mvprintw (row - 1, col / 2 - 10, "%d/r - %s", chg, time_str_buf);
+  wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
+
+  refresh ();
+}
+
+/* A wrapper to render all windows within the dashboard. */
+static void
+render_screens (void) {
+  GColors *color = get_color (COLOR_DEFAULT);
+  int row, col;
+
+  getmaxyx (stdscr, row, col);
+  term_size (main_win, &main_win_height);
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
-  mvprintw (row - 1, col / 2 - 10, "%d - %s", chg, time_str_buf);
   mvaddstr (row - 1, col - 6 - strlen (T_QUIT), T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
@@ -809,8 +826,6 @@ perform_tail_follow (GLog * glog) {
     glog->length += glog->bytes;
     goto out;
   }
-  if (logs->load_from_disk_only)
-    return;
 
   length = file_size (glog->filename);
 
@@ -866,7 +881,7 @@ out:
 
 /* Entry point to start processing the HTML output */
 static void
-process_html (const char *filename) {
+process_html (Logs * logs, const char *filename) {
   int i = 0;
   struct timespec refresh = {
     .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
@@ -877,6 +892,7 @@ process_html (const char *filename) {
   pthread_mutex_lock (&gdns_thread.mutex);
   output_html (holder, filename);
   pthread_mutex_unlock (&gdns_thread.mutex);
+
   /* not real time? */
   if (!conf.real_time_html)
     return;
@@ -967,7 +983,7 @@ render_sort_dialog (void) {
 
 /* Interfacing with the keyboard */
 static void
-get_keys (void) {
+get_keys (Logs * logs) {
   int search = 0;
   int c, quit = 1, i;
 
@@ -1143,8 +1159,11 @@ get_keys (void) {
       window_resize ();
       break;
     default:
+      if (logs->load_from_disk_only)
+        break;
       for (i = 0; i < logs->size; ++i)
         perform_tail_follow (&logs->glog[i]);
+      render_offset (logs);
       break;
     }
   }
@@ -1175,7 +1194,7 @@ init_processing (void) {
 
 /* Determine the type of output, i.e., JSON, CSV, HTML */
 static void
-standard_output (void) {
+standard_output (Logs * logs) {
   char *csv = NULL, *json = NULL, *html = NULL;
 
   /* CSV */
@@ -1186,7 +1205,7 @@ standard_output (void) {
     output_json (holder, json);
   /* HTML */
   if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
-    process_html (html);
+    process_html (logs, html);
 
   free (csv);
   free (html);
@@ -1195,14 +1214,15 @@ standard_output (void) {
 
 /* Output to a terminal */
 static void
-curses_output (void) {
+curses_output (Logs * logs) {
   allocate_data ();
   if (!conf.skip_term_resolver)
     gdns_thread_create ();
 
+  clean_stdscrn ();
   render_screens ();
   /* will loop in here */
-  get_keys ();
+  get_keys (logs);
 }
 
 /* Set locale */
@@ -1358,10 +1378,11 @@ block_thread_signals (void) {
 }
 
 /* Initialize various types of data. */
-static void
+static Logs *
 initializer (void) {
   int i;
   FILE *pipe = NULL;
+  Logs *logs;
 
   /* drop permissions right away */
   if (conf.username)
@@ -1397,8 +1418,10 @@ initializer (void) {
 
   /* init random number generator */
   srand (getpid ());
-  init_pre_storage ();
+  init_pre_storage (logs);
   insert_methods_protocols ();
+
+  return logs;
 }
 
 static char *
@@ -1465,7 +1488,7 @@ set_standard_output (void) {
 
 /* Set up curses. */
 static void
-set_curses (int *quit) {
+set_curses (Logs * logs, int *quit) {
   const char *err_log = NULL;
 
   setup_thread_signals ();
@@ -1499,6 +1522,7 @@ set_curses (int *quit) {
 /* Where all begins... */
 int
 main (int argc, char **argv) {
+  Logs *logs = NULL;
   int quit = 0, ret = 0;
 
   block_thread_signals ();
@@ -1509,7 +1533,7 @@ main (int argc, char **argv) {
   parse_conf_file (&argc, &argv);
   parse_cmd_line (argc, argv);
 
-  initializer ();
+  logs = initializer ();
 
   /* ignore outputting, process only */
   if (conf.process_and_exit) {
@@ -1520,7 +1544,7 @@ main (int argc, char **argv) {
   }
   /* set curses */
   else {
-    set_curses (&quit);
+    set_curses (logs, &quit);
   }
 
   /* no log/date/time format set */
@@ -1556,11 +1580,11 @@ main (int argc, char **argv) {
   }
   /* stdout */
   else if (conf.output_stdout) {
-    standard_output ();
+    standard_output (logs);
   }
   /* curses */
   else {
-    curses_output ();
+    curses_output (logs);
   }
 
   /* clean */

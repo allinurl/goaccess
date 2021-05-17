@@ -179,7 +179,7 @@ int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 void free_logerrors (GLog * glog);
 void free_logs (Logs * logs);
 void free_raw_data (GRawData * raw_data);
-void output_logerrors (Logs * logs);
+void output_logerrors (void);
 void reset_struct (Logs * logs);
 
 GLogItem *init_log_item (GLog * glog);

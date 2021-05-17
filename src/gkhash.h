@@ -140,6 +140,7 @@ struct GKDB_ {
   GKHashDB *hdb;                /* app-level hash tables */
   GKHashModule *cache;          /* cache modules */
   GKHashStorage *store;         /* per date OR module */
+  Logs *logs;                   /* logs parsing per db instance */
 };
 
 #define HT_FIRST_VAL(h, kvar, code) { khint_t __k;    \
@@ -391,7 +392,7 @@ void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
-void init_pre_storage (void);
+void init_pre_storage (Logs *logs);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
@@ -412,6 +413,7 @@ GLastParse ht_get_last_parse (uint32_t key);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
+Logs *get_db_logs(uint32_t instance);
 /* *INDENT-ON* */
 
 #endif // for #ifndef GKHASH_H
