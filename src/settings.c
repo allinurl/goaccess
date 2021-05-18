@@ -716,19 +716,6 @@ is_json_log_format (const char *fmt) {
   return 1;
 }
 
-/* Append the source string to destination and reallocates and
- * updating the destination buffer appropriately. */
-static void
-ws_append_str (char **dest, const char *src) {
-  size_t curlen = strlen (*dest);
-  size_t srclen = strlen (src);
-  size_t newlen = curlen + srclen;
-
-  char *str = xrealloc (*dest, newlen + 1);
-  memcpy (str + curlen, src, srclen + 1);
-  *dest = str;
-}
-
 /* Delete the given key from a nested object key or empty the key. */
 static void
 dec_json_key (char *key) {
@@ -801,8 +788,8 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       /* key */
       if ((level % 2) != 0 && ctx != JSON_ARRAY) {
         if (strlen (key) != 0)
-          ws_append_str (&key, ".");
-        ws_append_str (&key, json_get_string (&json, &len));
+          append_str (&key, ".");
+        append_str (&key, json_get_string (&json, &len));
       }
       /* val */
       else if (key && (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY))) {
