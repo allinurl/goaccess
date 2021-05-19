@@ -879,15 +879,29 @@ out:
   }
 }
 
-/* Entry point to start processing the HTML output */
+/* Loop over and perform a follow for the given logs */
 static void
-process_html (Logs * logs, const char *filename) {
-  int i = 0;
+tail_loop_html (Logs * logs) {
   struct timespec refresh = {
     .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
     .tv_nsec = 0,
   };
+  int i = 0;
 
+  while (1) {
+    if (conf.stop_processing)
+      break;
+
+    for (i = 0; i < logs->size; ++i)
+      perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
+    if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
+  }
+}
+
+/* Entry point to start processing the HTML output */
+static void
+process_html (Logs * logs, const char *filename) {
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
   output_html (holder, filename);
@@ -909,15 +923,7 @@ process_html (Logs * logs, const char *filename) {
     return;
 
   set_ready_state ();
-  while (1) {
-    if (conf.stop_processing)
-      break;
-
-    for (i = 0; i < logs->size; ++i)
-      perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
-    if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
-      FATAL ("nanosleep: %s", strerror (errno));
-  }
+  tail_loop_html (logs);
   close (gwswriter->fd);
 }
 
