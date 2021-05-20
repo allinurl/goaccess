@@ -1086,7 +1086,7 @@ restore_global (void) {
     restore_global_si32 (seqs, path);
     free (path);
   }
-  if ((path = set_db_path ("SI08_METH_PROTO.db"))) {
+  if ((path = check_restore_path ("SI08_METH_PROTO.db"))) {
     restore_global_si08 (meth_proto, path);
     free (path);
   }
