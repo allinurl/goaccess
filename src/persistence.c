@@ -120,6 +120,48 @@ close_tpl (tpl_node * tn, const char *fn) {
 /* Given a database filename, restore a string key, uint32_t value back to the
  * storage */
 static void
+restore_global_si08 (khash_t (si08) * hash, const char *fn) {
+  tpl_node *tn;
+  char *key = NULL;
+  char fmt[] = "A(sv)";
+  uint16_t val;
+
+  tn = tpl_map (fmt, &key, &val);
+  tpl_load (tn, TPL_FILE, fn);
+  while (tpl_unpack (tn, 1) > 0) {
+    ins_si08 (hash, key, val);
+    free (key);
+  }
+  tpl_free (tn);
+}
+
+/* Given a hash and a filename, persist to disk a string key, uint32_t value */
+static void
+persist_global_si08 (khash_t (si08) * hash, const char *fn) {
+  tpl_node *tn;
+  khint_t k;
+  const char *key = NULL;
+  char fmt[] = "A(sv)";
+  uint16_t val;
+
+  if (!hash || kh_size (hash) == 0)
+    return;
+
+  tn = tpl_map (fmt, &key, &val);
+  for (k = 0; k < kh_end (hash); ++k) {
+    if (!kh_exist (hash, k) || (!(key = kh_key (hash, k))))
+      continue;
+    val = kh_value (hash, k);
+    tpl_pack (tn, 1);
+  }
+
+  tpl_dump (tn, TPL_FILE, fn);
+  tpl_free (tn);
+}
+
+/* Given a database filename, restore a string key, uint32_t value back to the
+ * storage */
+static void
 restore_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_node *tn;
   char *key = NULL;
@@ -1026,6 +1068,7 @@ restore_global (void) {
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
   khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+  khash_t (si08) * meth_proto = get_hdb (db, MTRC_METH_PROTO);
 
   char *path = NULL;
 
@@ -1041,6 +1084,10 @@ restore_global (void) {
   }
   if ((path = check_restore_path ("SI32_SEQS.db"))) {
     restore_global_si32 (seqs, path);
+    free (path);
+  }
+  if ((path = set_db_path ("SI08_METH_PROTO.db"))) {
+    restore_global_si08 (meth_proto, path);
     free (path);
   }
   if ((path = check_restore_path ("IGLP_LAST_PARSE.db"))) {
@@ -1128,6 +1175,7 @@ persist_global (void) {
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
   khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+  khash_t (si08) * meth_proto = get_hdb (db, MTRC_METH_PROTO);
   char *path = NULL;
 
   ins_si32 (db_props, "version", DB_VERSION);
@@ -1143,6 +1191,10 @@ persist_global (void) {
   }
   if ((path = set_db_path ("IGLP_LAST_PARSE.db"))) {
     persist_global_iglp (last_parse, path);
+    free (path);
+  }
+  if ((path = set_db_path ("SI08_METH_PROTO.db"))) {
+    persist_global_si08 (meth_proto, path);
     free (path);
   }
   if ((path = set_db_path ("SI32_DB_PROPS.db"))) {

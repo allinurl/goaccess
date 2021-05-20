@@ -402,6 +402,7 @@ int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
 int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
 int ins_is32 (khash_t (is32) * hash, uint32_t key, char *value);
 int ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value);
+int ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value);
 int ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value);
 int ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value);
 int ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value);

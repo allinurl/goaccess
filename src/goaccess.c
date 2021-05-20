@@ -1195,6 +1195,7 @@ init_processing (void) {
   /* initialize storage */
   parsing_spinner->label = "SETTING UP STORAGE";
   init_storage ();
+  insert_methods_protocols ();
   set_spec_date_format ();
 }
 
@@ -1425,7 +1426,6 @@ initializer (void) {
   /* init random number generator */
   srand (getpid ());
   init_pre_storage (logs);
-  insert_methods_protocols ();
 
   return logs;
 }

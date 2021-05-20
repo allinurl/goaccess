@@ -944,6 +944,33 @@ new_db (khash_t (igdb) * hash, uint32_t key) {
   return db;
 }
 
+/* Insert a string key and the corresponding uint8_t value.
+ * Note: If the key exists, the value is not replaced.
+ *
+ * On error, or if key exists, -1 is returned.
+ * On success 0 is returned */
+int
+ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value) {
+  khint_t k;
+  int ret;
+  char *dupkey = NULL;
+
+  if (!hash)
+    return -1;
+
+  dupkey = xstrdup (key);
+  k = kh_put (si08, hash, dupkey, &ret);
+  /* operation failed, or key exists */
+  if (ret == -1 || ret == 0) {
+    free (dupkey);
+    return -1;
+  }
+
+  kh_val (hash, k) = value;
+
+  return 0;
+}
+
 /* Increment a string key and with the corresponding incremental uint32_t value.
  * Note: If the key exists, the value is not replaced.
  *
@@ -952,8 +979,6 @@ new_db (khash_t (igdb) * hash, uint32_t key) {
 static uint8_t
 ins_si08_ai (khash_t (si08) * hash, const char *key) {
   uint8_t size = 0, value = 0;
-  int ret;
-  khint_t k;
 
   if (!hash)
     return 0;
@@ -962,17 +987,7 @@ ins_si08_ai (khash_t (si08) * hash, const char *key) {
   /* the auto increment value starts at SIZE (hash table) + 1 */
   value = size > 0 ? size + 1 : 1;
 
-  k = kh_put (si08, hash, key, &ret);
-  /* operation failed */
-  if (ret == -1)
-    return 0;
-  /* key exists */
-  if (ret == 0)
-    return kh_val (hash, k);
-
-  kh_val (hash, k) = value;
-
-  return value;
+  return ins_si08(hash, key, value) == 0 ? value : 0;
 }
 
 /* Insert a string key and the corresponding uint32_t value.
@@ -1791,7 +1806,6 @@ ht_insert_meth_proto (const char *key) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si08) * hash = get_hdb (db, MTRC_METH_PROTO);
   uint8_t val = 0;
-  char *dupkey = NULL;
 
   if (!hash)
     return 0;
@@ -1799,8 +1813,7 @@ ht_insert_meth_proto (const char *key) {
   if ((val = get_si08 (hash, key)) != 0)
     return val;
 
-  dupkey = xstrdup (key);
-  return ins_si08_ai (hash, dupkey);
+  return ins_si08_ai (hash, key);
 }
 
 int
