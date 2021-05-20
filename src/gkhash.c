@@ -562,8 +562,7 @@ del_iu64 (void *h, GO_UNUSED uint8_t free_data) {
 /* *INDENT-OFF* */
 /* Whole application */
 const GKHashMetric app_metrics[] = {
-  { .metric.dbm=MTRC_DATE_SEQS   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , 1 , NULL , "SI32_UNIQUE_KEYS.db" } ,
-  { .metric.dbm=MTRC_DATES       , MTRC_TYPE_IGKH , new_igkh_ht , NULL          , NULL          , 1 , NULL , "I32_DATES.db"        } ,
+  { .metric.dbm=MTRC_DATES       , MTRC_TYPE_IGKH , new_igkh_ht , NULL          , NULL          , 1 , NULL , NULL                  } ,
   { .metric.dbm=MTRC_SEQS        , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_SEQS.db"        } ,
   { .metric.dbm=MTRC_CNT_OVERALL , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_CNT_OVERALL.db" } ,
   { .metric.dbm=MTRC_HOSTNAMES   , MTRC_TYPE_SS32 , new_ss32_ht , des_ss32_free , del_ss32_free , 1 , NULL , NULL                  } ,
