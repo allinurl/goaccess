@@ -987,7 +987,7 @@ ins_si08_ai (khash_t (si08) * hash, const char *key) {
   /* the auto increment value starts at SIZE (hash table) + 1 */
   value = size > 0 ? size + 1 : 1;
 
-  return ins_si08(hash, key, value) == 0 ? value : 0;
+  return ins_si08 (hash, key, value) == 0 ? value : 0;
 }
 
 /* Insert a string key and the corresponding uint32_t value.
