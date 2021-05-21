@@ -1042,7 +1042,7 @@ restore_global (void) {
     restore_global_iglp (last_parse, path);
     free (path);
   }
-  if ((path = check_restore_path ("SI32_DB_VERSION.db"))) {
+  if ((path = check_restore_path ("SI32_DB_PROPS.db"))) {
     restore_global_si32 (db_props, path);
     free (path);
   }
@@ -1144,7 +1144,7 @@ persist_global (void) {
     persist_global_iglp (last_parse, path);
     free (path);
   }
-  if ((path = set_db_path ("SI32_DB_VERSION.db"))) {
+  if ((path = set_db_path ("SI32_DB_PROPS.db"))) {
     persist_global_si32 (db_props, path);
     free (path);
   }
