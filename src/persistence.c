@@ -1029,6 +1029,11 @@ restore_global (void) {
 
   char *path = NULL;
 
+  if ((path = check_restore_path ("SI32_DB_PROPS.db"))) {
+    restore_global_si32 (db_props, path);
+    free (path);
+  }
+
   restore_dates ();
   if ((path = check_restore_path ("SI32_CNT_OVERALL.db"))) {
     restore_global_si32 (overall, path);
@@ -1040,10 +1045,6 @@ restore_global (void) {
   }
   if ((path = check_restore_path ("IGLP_LAST_PARSE.db"))) {
     restore_global_iglp (last_parse, path);
-    free (path);
-  }
-  if ((path = check_restore_path ("SI32_DB_PROPS.db"))) {
-    restore_global_si32 (db_props, path);
     free (path);
   }
 }
