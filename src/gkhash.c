@@ -562,8 +562,7 @@ del_iu64 (void *h, GO_UNUSED uint8_t free_data) {
 /* *INDENT-OFF* */
 /* Whole application */
 const GKHashMetric app_metrics[] = {
-  { .metric.dbm=MTRC_DATE_SEQS   , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , 1 , NULL , "SI32_UNIQUE_KEYS.db" } ,
-  { .metric.dbm=MTRC_DATES       , MTRC_TYPE_IGKH , new_igkh_ht , NULL          , NULL          , 1 , NULL , "I32_DATES.db"        } ,
+  { .metric.dbm=MTRC_DATES       , MTRC_TYPE_IGKH , new_igkh_ht , NULL          , NULL          , 1 , NULL , NULL                  } ,
   { .metric.dbm=MTRC_SEQS        , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_SEQS.db"        } ,
   { .metric.dbm=MTRC_CNT_OVERALL , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_CNT_OVERALL.db" } ,
   { .metric.dbm=MTRC_HOSTNAMES   , MTRC_TYPE_SS32 , new_ss32_ht , des_ss32_free , del_ss32_free , 1 , NULL , NULL                  } ,
@@ -796,6 +795,12 @@ get_hash_from_cache (GModule module, GSMetric metric) {
   return db->cache[module].metrics[metric].hash;
 }
 
+Logs *
+get_db_logs (uint32_t instance) {
+  GKDB *db = get_db_instance (instance);
+  return db->logs;
+}
+
 /* Initialize a global hash structure.
  *
  * On success, a pointer to that hash structure is returned. */
@@ -912,28 +917,56 @@ ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp) {
  * On error, -1 is returned.
  * On key found, 1 is returned.
  * On success 0 is returned */
-static int
+static GKDB *
 new_db (khash_t (igdb) * hash, uint32_t key) {
   GKDB *db = NULL;
   khint_t k;
   int ret;
 
   if (!hash)
-    return -1;
+    return NULL;
 
   k = kh_put (igdb, hash, key, &ret);
   /* operation failed */
   if (ret == -1)
-    return -1;
+    return NULL;
   /* the key is present in the hash table */
   if (ret == 0)
-    return 1;
+    return kh_val (hash, k);
 
   db = new_gkdb ();
   db->hdb = init_gkhashdb ();
   db->cache = NULL;
   db->store = NULL;
+  db->logs = NULL;
   kh_val (hash, k) = db;
+
+  return db;
+}
+
+/* Insert a string key and the corresponding uint8_t value.
+ * Note: If the key exists, the value is not replaced.
+ *
+ * On error, or if key exists, -1 is returned.
+ * On success 0 is returned */
+int
+ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value) {
+  khint_t k;
+  int ret;
+  char *dupkey = NULL;
+
+  if (!hash)
+    return -1;
+
+  dupkey = xstrdup (key);
+  k = kh_put (si08, hash, dupkey, &ret);
+  /* operation failed, or key exists */
+  if (ret == -1 || ret == 0) {
+    free (dupkey);
+    return -1;
+  }
+
+  kh_val (hash, k) = value;
 
   return 0;
 }
@@ -946,8 +979,6 @@ new_db (khash_t (igdb) * hash, uint32_t key) {
 static uint8_t
 ins_si08_ai (khash_t (si08) * hash, const char *key) {
   uint8_t size = 0, value = 0;
-  int ret;
-  khint_t k;
 
   if (!hash)
     return 0;
@@ -956,17 +987,7 @@ ins_si08_ai (khash_t (si08) * hash, const char *key) {
   /* the auto increment value starts at SIZE (hash table) + 1 */
   value = size > 0 ? size + 1 : 1;
 
-  k = kh_put (si08, hash, key, &ret);
-  /* operation failed */
-  if (ret == -1)
-    return 0;
-  /* key exists */
-  if (ret == 0)
-    return kh_val (hash, k);
-
-  kh_val (hash, k) = value;
-
-  return value;
+  return ins_si08 (hash, key, value) == 0 ? value : 0;
 }
 
 /* Insert a string key and the corresponding uint32_t value.
@@ -1785,7 +1806,6 @@ ht_insert_meth_proto (const char *key) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si08) * hash = get_hdb (db, MTRC_METH_PROTO);
   uint8_t val = 0;
-  char *dupkey = NULL;
 
   if (!hash)
     return 0;
@@ -1793,8 +1813,7 @@ ht_insert_meth_proto (const char *key) {
   if ((val = get_si08 (hash, key)) != 0)
     return val;
 
-  dupkey = xstrdup (key);
-  return ins_si08_ai (hash, dupkey);
+  return ins_si08_ai (hash, key);
 }
 
 int
@@ -2991,9 +3010,11 @@ parse_raw_data (GModule module) {
 }
 
 void
-init_pre_storage (void) {
+init_pre_storage (Logs * logs) {
+  GKDB *db = NULL;
   ht_db = (khash_t (igdb) *) new_igdb_ht ();
-  new_db (ht_db, DB_INSTANCE);
+  db = new_db (ht_db, DB_INSTANCE);
+  db->logs = logs;
 }
 
 /* Initialize hash tables */
@@ -3041,6 +3062,7 @@ free_igdb (khash_t (igdb) * hash, khint_t k) {
   db = kh_val (hash, k);
 
   des_igkh (get_hdb (db, MTRC_DATES));
+  free_logs (db->logs);
   free_cache (db->cache);
   free_app_metrics (db->hdb);
 

@@ -140,6 +140,7 @@ struct GKDB_ {
   GKHashDB *hdb;                /* app-level hash tables */
   GKHashModule *cache;          /* cache modules */
   GKHashStorage *store;         /* per date OR module */
+  Logs *logs;                   /* logs parsing per db instance */
 };
 
 #define HT_FIRST_VAL(h, kvar, code) { khint_t __k;    \
@@ -391,7 +392,7 @@ void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);
 void ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max);
-void init_pre_storage (void);
+void init_pre_storage (Logs *logs);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
@@ -401,6 +402,7 @@ int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
 int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
 int ins_is32 (khash_t (is32) * hash, uint32_t key, char *value);
 int ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value);
+int ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value);
 int ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value);
 int ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value);
 int ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value);
@@ -412,6 +414,7 @@ GLastParse ht_get_last_parse (uint32_t key);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
+Logs *get_db_logs(uint32_t instance);
 /* *INDENT-ON* */
 
 #endif // for #ifndef GKHASH_H
