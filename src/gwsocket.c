@@ -202,7 +202,7 @@ read_fifo (GWSReader * gwsreader, void (*f) (int)) {
     (*pa) = xcalloc (1, sizeof (WSPacket));
     (*pa)->type = type;
     (*pa)->size = size;
-    (*pa)->data = xcalloc (size, sizeof (char));
+    (*pa)->data = xcalloc (size + 1, sizeof (char));
   }
 
   readh = (*pa)->len;   /* read from payload so far */
