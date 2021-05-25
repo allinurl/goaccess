@@ -349,7 +349,7 @@ migrate_unique_key (char *key) {
     key++;
     delims++;
   }
-  if (key && delims == 2) {
+  if (delims == 2) {
     sprintf (agent_hex, "%" PRIx32, djb2 ((unsigned char *) key));
     append_str (&nkey, agent_hex);
   }
