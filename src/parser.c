@@ -1365,7 +1365,7 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
       return 0;
 
     if (tilde && *p != '\0') {
-      if ((str == NULL) || (*str == '\0'))
+      if (*str == '\0')
         return 0;
       if (special_specifier (logitem, &str, &p) == 1)
         return 1;
@@ -1373,7 +1373,7 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
     }
     /* %h */
     else if (perc && *p != '\0') {
-      if ((str == NULL) || (*str == '\0'))
+      if (*str == '\0')
         return 0;
 
       memset (end, 0, sizeof end);
