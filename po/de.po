@@ -372,23 +372,23 @@ msgstr "Statuscodes"
 
 #: src/labels.h:212 src/labels.h:216
 msgid "MIME Types"
-msgstr ""
+msgstr "MIME Typen"
 
 #: src/labels.h:214
 msgid "File types shipped out"
-msgstr ""
+msgstr "Versendete Dateitypen"
 
 #: src/labels.h:219
 msgid "Encryption settings"
-msgstr ""
+msgstr "Verschlüsselungsoptionen"
 
 #: src/labels.h:221
 msgid "TLS version and picked algorithm"
-msgstr ""
+msgstr "TLS Version und gewählter Algorithmus"
 
 #: src/labels.h:223
 msgid "TLS Settings"
-msgstr ""
+msgstr "TLS Optionen"
 
 #: src/labels.h:227
 msgid "[ ] case sensitive"
@@ -519,7 +519,7 @@ msgstr "'%1$s' Panel deaktiviert"
 
 #: src/labels.h:305
 msgid "No input data was provided nor there's data to restore."
-msgstr ""
+msgstr "Keine Eingabedaten übergeben und keine wiederherzustellende Daten"
 
 #: src/labels.h:309
 msgid "For more details visit"
