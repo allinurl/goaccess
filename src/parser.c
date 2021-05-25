@@ -1825,7 +1825,7 @@ fgetline (FILE * fp) {
   while (1) {
     if (!fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
+        (void) nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
         continue;
       } else
         break;
