@@ -54,6 +54,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <inttypes.h>
 
 #include "gkhash.h"
 
@@ -378,14 +379,12 @@ clean_stdscrn (void) {
   draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 }
 
+/* A wrapper to render all windows within the dashboard. */
 static void
-render_offset (Logs * logs) {
+render_screens (uint32_t offset) {
   GColors *color = get_color (COLOR_DEFAULT);
-  int row, col, chg = 0;
+  int row, col;
   char time_str_buf[32];
-
-  if (!(chg = *logs->processed - logs->offset))
-    return;
 
   getmaxyx (stdscr, row, col);
   term_size (main_win, &main_win_height);
@@ -393,24 +392,11 @@ render_offset (Logs * logs) {
   generate_time ();
   strftime (time_str_buf, sizeof (time_str_buf), "%d/%b/%Y:%T", &now_tm);
 
-  wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
-  mvprintw (row - 1, col / 2 - 10, "%d/r - %s", chg, time_str_buf);
-  wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
-
-  refresh ();
-}
-
-/* A wrapper to render all windows within the dashboard. */
-static void
-render_screens (void) {
-  GColors *color = get_color (COLOR_DEFAULT);
-  int row, col;
-
-  getmaxyx (stdscr, row, col);
-  term_size (main_win, &main_win_height);
+  draw_header (stdscr, "", "%s", row - 1, 0, col, color_default);
 
   wattron (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
   mvaddstr (row - 1, 1, T_HELP_ENTER);
+  mvprintw (row - 1, col / 2 - 10, "%" PRIu32 "/r - %s", offset, time_str_buf);
   mvaddstr (row - 1, col - 6 - strlen (T_QUIT), T_QUIT);
   mvprintw (row - 1, col - 5, "%s", GO_VERSION);
   wattroff (stdscr, color->attr | COLOR_PAIR (color->pair->idx));
@@ -428,16 +414,17 @@ render_screens (void) {
 }
 
 /* Collapse the current expanded module */
-static void
+static int
 collapse_current_module (void) {
   if (!gscroll.expanded)
-    return;
+    return 1;
 
   gscroll.expanded = 0;
   reset_scroll_offsets (&gscroll);
   free_dashboard (dash);
   allocate_data ();
-  render_screens ();
+
+  return 0;
 }
 
 /* Display message a the bottom of the terminal dashboard that panel
@@ -452,11 +439,11 @@ disabled_panel_msg (GModule module) {
 }
 
 /* Set the current module/panel */
-static void
+static int
 set_module_to (GScroll * scrll, GModule module) {
   if (get_module_index (module) == -1) {
     disabled_panel_msg (module);
-    return;
+    return 1;
   }
 
   /* scroll to panel */
@@ -466,7 +453,7 @@ set_module_to (GScroll * scrll, GModule module) {
   /* reset expanded module */
   collapse_current_module ();
   scrll->current = module;
-  render_screens ();
+  return 0;
 }
 
 /* Scroll expanded module or terminal dashboard to the top */
@@ -531,14 +518,14 @@ expand_current_module (void) {
 }
 
 /* Expand the clicked module/panel given the Y event coordinate. */
-static void
+static int
 expand_module_from_ypos (int y) {
   /* ignore header/footer clicks */
   if (y < MAX_HEIGHT_HEADER || y == LINES - 1)
-    return;
+    return 1;
 
   if (set_module_from_mouse_event (&gscroll, dash, y))
-    return;
+    return 1;
 
   reset_scroll_offsets (&gscroll);
   gscroll.expanded = 1;
@@ -548,21 +535,22 @@ expand_module_from_ypos (int y) {
   allocate_holder_by_module (gscroll.current);
   allocate_data ();
 
-  render_screens ();
+  return 0;
 }
 
 /* Expand the clicked module/panel */
-static void
+static int
 expand_on_mouse_click (void) {
   int ok_mouse;
   MEVENT event;
 
   ok_mouse = getmouse (&event);
   if (!conf.mouse_support || ok_mouse != OK)
-    return;
+    return 1;
 
   if (event.bstate & BUTTON1_CLICKED)
-    expand_module_from_ypos (event.y);
+    return expand_module_from_ypos (event.y);
+  return 1;
 }
 
 /* Scroll dowm expanded module to the last row */
@@ -653,34 +641,35 @@ page_down_module (void) {
 
 /* Create a new find dialog window and render it. Upon closing the
  * window, dashboard is refreshed. */
-static void
+static int
 render_search_dialog (int search) {
   if (render_find_dialog (main_win, &gscroll))
-    return;
+    return 1;
 
   pthread_mutex_lock (&gdns_thread.mutex);
   search = perform_next_find (holder, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
   if (search != 0)
-    return;
+    return 1;
 
   free_dashboard (dash);
   allocate_data ();
-  render_screens ();
+
+  return 0;
 }
 
 /* Search for the next occurrence within the dashboard structure */
-static void
+static int
 search_next_match (int search) {
   pthread_mutex_lock (&gdns_thread.mutex);
   search = perform_next_find (holder, &gscroll);
   pthread_mutex_unlock (&gdns_thread.mutex);
   if (search != 0)
-    return;
+    return 1;
 
   free_dashboard (dash);
   allocate_data ();
-  render_screens ();
+  return 0;
 }
 
 /* Update holder structure and dashboard screen */
@@ -696,7 +685,6 @@ tail_term (void) {
   allocate_data ();
 
   term_size (main_win, &main_win_height);
-  render_screens ();
 }
 
 static void
@@ -810,7 +798,7 @@ verify_inode (FILE * fp, GLog * glog) {
 }
 
 /* Process appended log data */
-static void
+static int
 perform_tail_follow (GLog * glog) {
   FILE *fp = NULL;
   char buf[READ_BYTES + 1] = { 0 };
@@ -821,7 +809,7 @@ perform_tail_follow (GLog * glog) {
     parse_tail_follow (glog, glog->pipe);
     /* did we read something from the pipe? */
     if (0 == glog->bytes)
-      return;
+      return 1;
 
     glog->length += glog->bytes;
     goto out;
@@ -833,7 +821,7 @@ perform_tail_follow (GLog * glog) {
   /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
    * rotated/truncated file or larger when data is appended */
   if (length == glog->length)
-    return;
+    return 1;
 
   if (!(fp = fopen (glog->filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
@@ -869,14 +857,12 @@ perform_tail_follow (GLog * glog) {
 out:
 
   if (!conf.output_stdout) {
-    struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };   /* 0.2 seconds */
-
     tail_term ();
-    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
-      FATAL ("nanosleep: %s", strerror (errno));
   } else {
     tail_html ();
   }
+
+  return 0;
 }
 
 /* Loop over and perform a follow for the given logs */
@@ -967,7 +953,6 @@ window_resize (void) {
   werase (stdscr);
   term_size (main_win, &main_win_height);
   refresh ();
-  render_screens ();
 }
 
 /* Create a new sort dialog window and render it. Upon closing the
@@ -984,18 +969,37 @@ render_sort_dialog (void) {
   free_dashboard (dash);
   allocate_holder ();
   allocate_data ();
-  render_screens ();
+}
+
+static void
+term_tail_logs (Logs * logs) {
+  struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };     /* 0.2 seconds */
+  uint32_t offset = 0;
+  int i;
+
+  for (i = 0; i < logs->size; ++i) {
+    if (perform_tail_follow (&logs->glog[i]) == 0) {
+      offset = *logs->processed - logs->offset;
+      render_screens (offset);
+    }
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
+      FATAL ("nanosleep: %s", strerror (errno));
+    }
+  }
 }
 
 /* Interfacing with the keyboard */
 static void
 get_keys (Logs * logs) {
   int search = 0;
-  int c, quit = 1, i;
+  int c, quit = 1;
+  uint32_t offset = 0;
 
   while (quit) {
     if (conf.stop_processing)
       break;
+
+    offset = *logs->processed - logs->offset;
     c = wgetch (stdscr);
     switch (c) {
     case 'q':  /* quit */
@@ -1003,91 +1007,108 @@ get_keys (Logs * logs) {
         quit = 0;
         break;
       }
-      collapse_current_module ();
+      if (collapse_current_module ())
+        render_screens (offset);
       break;
     case KEY_F (1):
     case '?':
     case 'h':
       load_help_popup (main_win);
-      render_screens ();
+      render_screens (offset);
       break;
     case 49:   /* 1 */
       /* reset expanded module */
-      set_module_to (&gscroll, VISITORS);
+      if (set_module_to (&gscroll, VISITORS) == 0)
+        render_screens (offset);
       break;
     case 50:   /* 2 */
       /* reset expanded module */
-      set_module_to (&gscroll, REQUESTS);
+      if (set_module_to (&gscroll, REQUESTS) == 0)
+        render_screens (offset);
       break;
     case 51:   /* 3 */
       /* reset expanded module */
-      set_module_to (&gscroll, REQUESTS_STATIC);
+      if (set_module_to (&gscroll, REQUESTS_STATIC) == 0)
+        render_screens (offset);
       break;
     case 52:   /* 4 */
       /* reset expanded module */
-      set_module_to (&gscroll, NOT_FOUND);
+      if (set_module_to (&gscroll, NOT_FOUND) == 0)
+        render_screens (offset);
       break;
     case 53:   /* 5 */
       /* reset expanded module */
-      set_module_to (&gscroll, HOSTS);
+      if (set_module_to (&gscroll, HOSTS) == 0)
+        render_screens (offset);
       break;
     case 54:   /* 6 */
       /* reset expanded module */
-      set_module_to (&gscroll, OS);
+      if (set_module_to (&gscroll, OS) == 0)
+        render_screens (offset);
       break;
     case 55:   /* 7 */
       /* reset expanded module */
-      set_module_to (&gscroll, BROWSERS);
+      if (set_module_to (&gscroll, BROWSERS) == 0)
+        render_screens (offset);
       break;
     case 56:   /* 8 */
       /* reset expanded module */
-      set_module_to (&gscroll, VISIT_TIMES);
+      if (set_module_to (&gscroll, VISIT_TIMES) == 0)
+        render_screens (offset);
       break;
     case 57:   /* 9 */
       /* reset expanded module */
-      set_module_to (&gscroll, VIRTUAL_HOSTS);
+      if (set_module_to (&gscroll, VIRTUAL_HOSTS) == 0)
+        render_screens (offset);
       break;
     case 48:   /* 0 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRERS);
+      if (set_module_to (&gscroll, REFERRERS) == 0)
+        render_screens (offset);
       break;
     case 33:   /* shift + 1 */
       /* reset expanded module */
-      set_module_to (&gscroll, REFERRING_SITES);
+      if (set_module_to (&gscroll, REFERRING_SITES) == 0)
+        render_screens (offset);
       break;
     case 34:   /* shift + 2 */
       /* reset expanded module */
-      set_module_to (&gscroll, KEYPHRASES);
+      if (set_module_to (&gscroll, KEYPHRASES) == 0)
+        render_screens (offset);
       break;
     case 35:   /* Shift + 3 */
       /* reset expanded module */
-      set_module_to (&gscroll, STATUS_CODES);
+      if (set_module_to (&gscroll, STATUS_CODES) == 0)
+        render_screens (offset);
       break;
     case 36:   /* Shift + 3 */
       /* reset expanded module */
-      set_module_to (&gscroll, REMOTE_USER);
+      if (set_module_to (&gscroll, REMOTE_USER) == 0)
+        render_screens (offset);
       break;
 #ifdef HAVE_GEOLOCATION
     case 37:   /* Shift + 4 */
       /* reset expanded module */
-      set_module_to (&gscroll, GEO_LOCATION);
+      if (set_module_to (&gscroll, GEO_LOCATION) == 0)
+        render_screens (offset);
       break;
 #endif
     case 38:   /* Shift + 5 */
       /* reset expanded module */
-      set_module_to (&gscroll, CACHE_STATUS);
+      if (set_module_to (&gscroll, CACHE_STATUS) == 0)
+        render_screens (offset);
       break;
     case 9:    /* TAB */
       /* reset expanded module */
       collapse_current_module ();
       if (next_module () == 0)
-        render_screens ();
+        render_screens (offset);
       break;
     case 353:  /* Shift TAB */
       /* reset expanded module */
       collapse_current_module ();
       if (previous_module () == 0)
-        render_screens ();
+        render_screens (offset);
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
@@ -1115,7 +1136,8 @@ get_keys (Logs * logs) {
       }
       break;
     case KEY_MOUSE:    /* handles mouse events */
-      expand_on_mouse_click ();
+      if (expand_on_mouse_click () == 0)
+        render_screens (offset);
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_down_expanded_module ();
@@ -1143,10 +1165,12 @@ get_keys (Logs * logs) {
       display_content (main_win, dash, &gscroll);
       break;
     case 'n':
-      search_next_match (search);
+      if (search_next_match (search) == 0)
+        render_screens (offset);
       break;
     case '/':
-      render_search_dialog (search);
+      if (render_search_dialog (search) == 0)
+        render_screens (offset);
       break;
     case 99:   /* c */
       if (conf.no_color)
@@ -1155,21 +1179,21 @@ get_keys (Logs * logs) {
       free_dashboard (dash);
       allocate_data ();
       set_wbkgd (main_win, header_win);
-      render_screens ();
+      render_screens (offset);
       break;
     case 115:  /* s */
       render_sort_dialog ();
+      render_screens (offset);
       break;
     case 269:
     case KEY_RESIZE:
       window_resize ();
+      render_screens (offset);
       break;
     default:
       if (logs->load_from_disk_only)
         break;
-      for (i = 0; i < logs->size; ++i)
-        perform_tail_follow (&logs->glog[i]);
-      render_offset (logs);
+      term_tail_logs (logs);
       break;
     }
   }
@@ -1227,7 +1251,7 @@ curses_output (Logs * logs) {
     gdns_thread_create ();
 
   clean_stdscrn ();
-  render_screens ();
+  render_screens (0);
   /* will loop in here */
   get_keys (logs);
 }
