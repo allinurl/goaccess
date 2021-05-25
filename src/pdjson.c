@@ -130,7 +130,7 @@ init (json_stream * json) {
   json->next = (enum json_type) 0;
 
   json->stack = NULL;
-  json->stack_top = -1;
+  json->stack_top = (size_t) -1;
   json->stack_size = 0;
 
   json->data.string = NULL;
