@@ -1,3 +1,28 @@
+Changes to GoAccess 1.5 - Wednesday, May 26, 2021
+
+  - Added a Docker container based isolated build environment (Debian).
+  - Added Dark Mode detection to the HTML report.
+  - Added the ability for the WebSocket server to bind to a Unix-domain socket.
+  - Added the ability to parse IPs enclosed within brackets (e.g., IPv6).
+  - Changed categorization of requests containing 'CFNetwork' to 'iOS' when
+    applicable.
+  - Changed command line option from '--hide-referer' to '--hide-referrer'.
+  - Changed command line option from '--ignore-referer' to '--ignore-referrer'.
+  - Fixed a potential division by zero.
+  - Fixed inablity to parse IPv6 when using a 'CADDY' log format.
+  - Fixed issue where a 'BSD' OS could be displayed as Linux with certain
+    user-agents.
+  - Fixed memory leak when a JSON value contained an empty string (e.g.,
+    JSON/CADDY format).
+  - Fixed possible buffer overflow on a WS packet coming from the browser.
+  - Refactored a substancial part of the storage codebase for upcoming
+    filtering/search capabilities (issue #117).
+  - Refactored DB storage to minimize memory consumption up to '35%'.
+  - Updated default 'AWS Elastic Load Balancing' log format.
+  - Updated German translation.
+  - Updated page size to 24 on the HTML report.
+  - Updated UNIX OS catergories.
+
 Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
 
   - Added additional feed reader clients.
