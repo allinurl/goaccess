@@ -210,6 +210,12 @@ count_matches (const char *s1, char c) {
 }
 
 /* Simple but efficient uint32_t hashing. */
+#if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
+__attribute__((no_sanitize("unsigned-integer-overflow")))
+#if (__clang_major__ >= 12)
+__attribute__((no_sanitize("unsigned-shift-base")))
+#endif
+#endif
 uint32_t
 djb2 (unsigned char *str) {
   uint32_t hash = 5381;
