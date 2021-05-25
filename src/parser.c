@@ -582,20 +582,17 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
   code = strtoull (tkn, &bEnd, 10);
   if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE) {
     LOG_DEBUG (("unable to convert cipher code to a valid decimal."));
-    free (tkn);
-    return 1;
+    goto fail;
   }
 
   /* ssl context */
   if (!(ctx = SSL_CTX_new (SSLv23_server_method ()))) {
     LOG_DEBUG (("Unable to create a new SSL_CTX_new to extact TLS."));
-    free (tkn);
-    return 1;
+    goto fail;
   }
   if (!(ssl = SSL_new (ctx))) {
     LOG_DEBUG (("Unable to create a new instace of SSL_new to extact TLS."));
-    free (tkn);
-    return 1;
+    goto fail;
   }
 
   code_be = htobe16 (code);
@@ -604,14 +601,12 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
 
   if (!(c = SSL_CIPHER_find (ssl, cipherid))) {
     LOG_DEBUG (("Unable to find cipher to extact TLS."));
-    free (tkn);
-    return 1;
+    goto fail;
   }
 
   if (!(sn = SSL_CIPHER_standard_name (c))) {
     LOG_DEBUG (("Unable to get cipher standard name to extact TLS."));
-    free (tkn);
-    return 1;
+    goto fail;
   }
   *cipher = xstrdup (sn);
   *tls_version = xstrdup (SSL_CIPHER_get_version (c));
@@ -621,6 +616,14 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
   SSL_CTX_free (ctx);
 
   return 0;
+
+fail:
+  free (tkn);
+  if (ssl)
+    SSL_free (ssl);
+  if (ctx)
+    SSL_CTX_free (ctx);
+  return 1;
 }
 #endif
 
@@ -1362,7 +1365,7 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
       return 0;
 
     if (tilde && *p != '\0') {
-      if ((str == NULL) || (*str == '\0'))
+      if (*str == '\0')
         return 0;
       if (special_specifier (logitem, &str, &p) == 1)
         return 1;
@@ -1370,7 +1373,7 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
     }
     /* %h */
     else if (perc && *p != '\0') {
-      if ((str == NULL) || (*str == '\0'))
+      if (*str == '\0')
         return 0;
 
       memset (end, 0, sizeof end);
@@ -1822,7 +1825,7 @@ fgetline (FILE * fp) {
   while (1) {
     if (!fgets (buf, sizeof (buf), fp)) {
       if (conf.process_and_exit && errno == EAGAIN) {
-        nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
+        (void) nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
         continue;
       } else
         break;

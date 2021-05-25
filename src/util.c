@@ -520,16 +520,21 @@ int
 str_to_time (const char *str, const char *fmt, struct tm *tm) {
   char *end = NULL, *sEnd = NULL;
   unsigned long long ts = 0;
-  int us = strcmp ("%f", fmt) == 0;
-  int ms = strcmp ("%*", fmt) == 0;
+  int us, ms;
 #if !defined(__GLIBC__)
-  int se = strcmp ("%s", fmt) == 0;
+  int se;
 #endif
 
   time_t seconds = 0;
 
   if (str == NULL || *str == '\0' || fmt == NULL || *fmt == '\0')
     return 1;
+
+  us = strcmp ("%f", fmt) == 0;
+  ms = strcmp ("%*", fmt) == 0;
+#if !defined(__GLIBC__)
+  se = strcmp ("%s", fmt) == 0;
+#endif
 
   /* check if char string needs to be converted from milli/micro seconds */
   /* note that MUSL doesn't have %s under strptime(3) */

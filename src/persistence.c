@@ -338,8 +338,10 @@ migrate_unique_key (char *key) {
 
   nkey = xstrdup ("");
   while ((ptr = strchr (key, '|'))) {
-    if (!(token = extract_by_delim (&key, "|")))
+    if (!(token = extract_by_delim (&key, "|"))) {
+      free (nkey);
       return NULL;
+    }
 
     append_str (&nkey, token);
     append_str (&nkey, "|");
@@ -347,7 +349,7 @@ migrate_unique_key (char *key) {
     key++;
     delims++;
   }
-  if (key && delims == 2) {
+  if (delims == 2) {
     sprintf (agent_hex, "%" PRIx32, djb2 ((unsigned char *) key));
     append_str (&nkey, agent_hex);
   }
