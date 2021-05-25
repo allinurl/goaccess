@@ -106,21 +106,26 @@ static int main_win_height = 0;
 /* *INDENT-OFF* */
 static GScroll gscroll = {
   {
-    {0, 0}, /* visitors    {scroll, offset} */
-    {0, 0}, /* requests    {scroll, offset} */
-    {0, 0}, /* req static  {scroll, offset} */
-    {0, 0}, /* not found   {scroll, offset} */
-    {0, 0}, /* hosts       {scroll, offset} */
-    {0, 0}, /* os          {scroll, offset} */
-    {0, 0}, /* browsers    {scroll, offset} */
-    {0, 0}, /* visit times {scroll, offset} */
-    {0, 0}, /* referrers   {scroll, offset} */
-    {0, 0}, /* ref sites   {scroll, offset} */
-    {0, 0}, /* keywords    {scroll, offset} */
+     {0, 0}, /* VISITORS        { scroll, offset} */
+     {0, 0}, /* REQUESTS        { scroll, offset} */
+     {0, 0}, /* REQUESTS_STATIC { scroll, offset} */
+     {0, 0}, /* NOT_FOUND       { scroll, offset} */
+     {0, 0}, /* HOSTS           { scroll, offset} */
+     {0, 0}, /* OS              { scroll, offset} */
+     {0, 0}, /* BROWSERS        { scroll, offset} */
+     {0, 0}, /* VISIT_TIMES     { scroll, offset} */
+     {0, 0}, /* VIRTUAL_HOSTS   { scroll, offset} */
+     {0, 0}, /* REFERRERS       { scroll, offset} */
+     {0, 0}, /* REFERRING_SITES { scroll, offset} */
+     {0, 0}, /* KEYPHRASES      { scroll, offset} */
+     {0, 0}, /* STATUS_CODES    { scroll, offset} */
+     {0, 0}, /* REMOTE_USER     { scroll, offset} */
+     {0, 0}, /* CACHE_STATUS    { scroll, offset} */
 #ifdef HAVE_GEOLOCATION
-    {0, 0}, /* geolocation {scroll, offset} */
+     {0, 0}, /* GEO_LOCATION    { scroll, offset} */
 #endif
-    {0, 0}, /* status      {scroll, offset} */
+     {0, 0}, /* MIME_TYPE       { scroll, offset} */
+     {0, 0}, /* TLS_TYPE        { scroll, offset} */
   },
   0,         /* current module */
   0,         /* main dashboard scroll */
@@ -1071,7 +1076,7 @@ get_keys (Logs * logs) {
       if (set_module_to (&gscroll, REFERRING_SITES) == 0)
         render_screens (offset);
       break;
-    case 34:   /* shift + 2 */
+    case 64:   /* shift + 2 */
       /* reset expanded module */
       if (set_module_to (&gscroll, KEYPHRASES) == 0)
         render_screens (offset);
@@ -1081,21 +1086,31 @@ get_keys (Logs * logs) {
       if (set_module_to (&gscroll, STATUS_CODES) == 0)
         render_screens (offset);
       break;
-    case 36:   /* Shift + 3 */
+    case 36:   /* Shift + 4 */
       /* reset expanded module */
       if (set_module_to (&gscroll, REMOTE_USER) == 0)
         render_screens (offset);
       break;
+    case 37:   /* Shift + 5 */
+      /* reset expanded module */
+      if (set_module_to (&gscroll, CACHE_STATUS) == 0)
+        render_screens (offset);
+      break;
 #ifdef HAVE_GEOLOCATION
-    case 37:   /* Shift + 4 */
+    case 94:   /* Shift + 6 */
       /* reset expanded module */
       if (set_module_to (&gscroll, GEO_LOCATION) == 0)
         render_screens (offset);
       break;
 #endif
-    case 38:   /* Shift + 5 */
+    case 38:   /* Shift + 7 */
       /* reset expanded module */
-      if (set_module_to (&gscroll, CACHE_STATUS) == 0)
+      if (set_module_to (&gscroll, MIME_TYPE) == 0)
+        render_screens (offset);
+      break;
+    case 42:   /* Shift + 8 */
+      /* reset expanded module */
+      if (set_module_to (&gscroll, TLS_TYPE) == 0)
         render_screens (offset);
       break;
     case 9:    /* TAB */

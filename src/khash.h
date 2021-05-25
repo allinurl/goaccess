@@ -436,7 +436,7 @@ static const double __ac_HASH_UPPER = 0.77;
 #if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
 __attribute__((no_sanitize ("unsigned-integer-overflow")))
 #if (__clang_major__ >= 12)
-__attribute__((no_sanitize("unsigned-shift-base")))
+  __attribute__((no_sanitize ("unsigned-shift-base")))
 #endif
 #endif
   static kh_inline khint_t __ac_X31_hash_string (const char *s) {
