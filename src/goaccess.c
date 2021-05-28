@@ -1232,7 +1232,10 @@ init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
   /* initialize storage */
+  pthread_mutex_lock (&parsing_spinner->mutex);
   parsing_spinner->label = "SETTING UP STORAGE";
+  pthread_mutex_unlock (&parsing_spinner->mutex);
+
   init_storage ();
   insert_methods_protocols ();
   set_spec_date_format ();
