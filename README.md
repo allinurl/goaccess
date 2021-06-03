@@ -137,8 +137,10 @@ alternative option below.
 
 #### Official GoAccess Debian & Ubuntu repository ####
 
-    $ echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    $ wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/goaccess.gpg add -
+    $ wget -O - https://deb.goaccess.io/gnugpg.key | gpg --dearmor \
+        | sudo tee /usr/share/keyrings/goaccess.gpg >/dev/null
+    $ echo "deb [signed-by=/usr/share/keyrings/goaccess.gpg] https://deb.goaccess.io/ $(lsb_release -cs) main" \
+        | sudo tee /etc/apt/sources.list.d/goaccess.list
     $ sudo apt-get update
     $ sudo apt-get install goaccess
 
