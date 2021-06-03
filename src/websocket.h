@@ -27,6 +27,10 @@
  * SOFTWARE.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifndef WEBSOCKET_H_INCLUDED
 #define WEBSOCKET_H_INCLUDED
 
