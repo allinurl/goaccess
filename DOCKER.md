@@ -58,7 +58,7 @@ and then build and run the image as follows:
       --name=goaccess allinurl/goaccess \
       goaccess --no-global-config --config-file=/goaccess/goaccess.conf
       
-If you you made changes to the config file after building the image, you don't
+If you made changes to the config file after building the image, you don't
 have to rebuild from scratch. Simply restart the container:
 
     docker restart goaccess
