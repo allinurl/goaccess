@@ -308,8 +308,8 @@ stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
     LOG (("Unable to write to self pipe on pipeout.\n"));
   pthread_mutex_unlock (&gwsreader->mutex);
 
-  pthread_mutex_lock (&gwswriter->mutex);
   /* if it fails to write, force stop */
+  pthread_mutex_lock (&gwswriter->mutex);
   if ((write (server->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
     ws_stop (server);
   pthread_mutex_unlock (&gwswriter->mutex);
@@ -329,7 +329,9 @@ start_server (void *ptr_data) {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
   writer->server->onopen = onopen;
+  pthread_mutex_lock (&writer->mutex);
   set_self_pipe (writer->server->self_pipe);
+  pthread_mutex_unlock (&writer->mutex);
 
   /* poll(2) will block in here */
   ws_start (writer->server);
