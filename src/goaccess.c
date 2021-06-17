@@ -1012,7 +1012,7 @@ get_keys (Logs * logs) {
         quit = 0;
         break;
       }
-      if (collapse_current_module ())
+      if (collapse_current_module () == 0)
         render_screens (offset);
       break;
     case KEY_F (1):
