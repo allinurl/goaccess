@@ -40,7 +40,7 @@
 #define MAX_CUSTOM_COLORS      64
 #define MAX_IGNORE_STATUS      64
 #define MAX_OUTFORMATS          3
-#define MAX_FILENAMES         512
+#define MAX_FILENAMES        3072
 #define MIN_DATENUM_FMT_LEN     7
 #define NO_CONFIG_FILE "No config file used"
 
