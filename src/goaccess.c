@@ -802,7 +802,10 @@ verify_inode (FILE * fp, GLog * glog) {
   glog->inode = fdstat.st_ino;
 }
 
-/* Process appended log data */
+/* Process appended log data
+ *
+ * If nothing changed, 1 is returned.
+ * If log file changed, 0 is returned. */
 static int
 perform_tail_follow (GLog * glog) {
   FILE *fp = NULL;
@@ -983,10 +986,11 @@ term_tail_logs (Logs * logs) {
   int i;
 
   for (i = 0; i < logs->size; ++i) {
-    if (perform_tail_follow (&logs->glog[i]) == 0) {
-      offset = *logs->processed - logs->offset;
-      render_screens (offset);
-    }
+    if (perform_tail_follow (&logs->glog[i]) != 0)
+      continue;
+
+    offset = *logs->processed - logs->offset;
+    render_screens (offset);
     if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
       FATAL ("nanosleep: %s", strerror (errno));
     }
