@@ -1,3 +1,6 @@
+Changes to GoAccess 1.5.1 - Wednesday, June 30, 2021
+
+
 Changes to GoAccess 1.5 - Wednesday, May 26, 2021
 
   - Added a Docker container based isolated build environment (Debian).
