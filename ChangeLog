@@ -1,5 +1,12 @@
 Changes to GoAccess 1.5.1 - Wednesday, June 30, 2021
 
+  - Changed official deb repo so it now builds '--with-getline' in order to
+    support request lines longer than 4096.
+  - Ensure there's no tail delay if the log file hasn't changed.
+  - Fixed data race when writing to a self-pipe and attempting to stop the WS server.
+  - Fixed inability to close expanded panel when pressing 'q' on TUI.
+  - Fixed possible data race during parsing spinner label assignment.
+  - Increased the maximum number of files to monitor from '512' to '3072'.
 
 Changes to GoAccess 1.5 - Wednesday, May 26, 2021
 
