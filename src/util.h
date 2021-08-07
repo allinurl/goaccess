@@ -76,6 +76,7 @@ char *replace_str (const char *str, const char *old, const char *new);
 char *rtrim (char *s);
 char *secs_to_str (int secs);
 char *strtoupper(char *str);
+char *strtolower(char *str);
 char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *u322str (uint32_t d, int width);

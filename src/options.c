@@ -137,6 +137,8 @@ struct option long_opts[] = {
   {"real-time-html"       , no_argument       , 0 , 0  }  ,
   {"restore"              , no_argument       , 0 , 0  }  ,
   {"sort-panel"           , required_argument , 0 , 0  }  ,
+  {"site-search"          , no_argument       , 0 , 0  }  ,
+  {"site-search-lower"    , no_argument       , 0 , 0  }  ,
   {"static-file"          , required_argument , 0 , 0  }  ,
   {"user-name"            , required_argument , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
@@ -260,6 +262,8 @@ cmd_help (void)
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP, Snow Leopard.\n"
   "  --restore                       - Restore data from disk from the given --db-path or from /tmp.\n"
+  "  --site-search                   - Parse search keyphrases for a local site search using q URL param\n"
+  "  --site-search-lower             - Lower case search keyphrases from local site search\n"
   "  --sort-panel=PANEL,METRIC,ORDER - Sort panel on initial load. e.g., --sort-panel=VISITORS,BY_HITS,ASC.\n"
   "                                    See manpage for a list of panels/fields.\n"
   "  --static-file=<extension>       - Add static file extension. e.g.: .mp3. Extensions are case sensitive.\n"
@@ -599,6 +603,14 @@ parse_long_opt (const char *name, const char *oarg) {
       conf.static_file_max_len = strlen (oarg);
     set_array_opt (oarg, conf.static_files, &conf.static_file_idx, MAX_EXTENSIONS);
   }
+
+  /* local site search */
+  if (!strcmp ("site-search", name))
+    conf.site_search = 1;
+
+  /* lowercase local site search */
+  if (!strcmp ("site-search-lower", name))
+    conf.site_search_lower = 1;
 
   /* GEOIP OPTIONS
    * ========================= */

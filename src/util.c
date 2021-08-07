@@ -925,6 +925,24 @@ strtoupper (char *str) {
   return str;
 }
 
+/* Make a string lowercase.
+ *
+ * On error the original string is returned.
+ * On success, the lowercased string is returned. */
+char *
+strtolower (char *str) {
+  char *p = str;
+  if (str == NULL || *str == '\0')
+    return str;
+
+  while (*p != '\0') {
+    *p = tolower (*p);
+    p++;
+  }
+
+  return str;
+}
+
 /* Left-pad a string with n amount of spaces.
  *
  * On success, a left-padded string is returned. */

@@ -332,6 +332,49 @@ decode_url (char *url) {
   return trim_str (char_replace (out, '+', ' '));
 }
 
+/* Process keyphrases from local site search.
+ * Note that the referer hasn't been decoded at the entry point
+ * since there could be '&' within the search query.
+ *
+ * On error, 1 is returned.
+ * On success, the extracted keyphrase is assigned and 0 is returned. */
+static int
+extract_sitesearch_keyphrase (char *ref, char **keyphrase) {
+  char *r, *ptr, *referer;
+  int encoded = 0;
+
+  /* Find start of keyword */
+  if ((r = strstr (ref, "&q=")) != NULL || (r = strstr (ref, "?q=")) != NULL)
+    r += 3;
+  else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
+    encoded = 1, r += 7;
+  else
+    return 1;
+
+  /* Find end of keyword and end string there*/
+  if (!encoded && (ptr = strchr (r, '&')) != NULL)
+    *ptr = '\0';
+  else if(!encoded && (ptr = strchr (r, ' ')) != NULL)
+	/* Handles case when there is nothing else after the q param */
+    *ptr = '\0';
+  else if (encoded && (ptr = strstr (r, "%26")) != NULL)
+    *ptr = '\0';
+
+  referer = decode_url (r);
+  if (referer == NULL || *referer == '\0') {
+    free (referer);
+    return 1;
+  }
+
+  referer = char_replace (referer, '+', ' ');
+  *keyphrase = trim_str (referer);
+
+  if(conf.site_search_lower)
+    *keyphrase = strtolower(*keyphrase);
+
+  return 0;
+}
+
 /* Process keyphrases from Google search, cache, and translate.
  * Note that the referer hasn't been decoded at the entry point
  * since there could be '&' within the search query.
@@ -1022,6 +1065,9 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+
+	if(conf.site_search)
+      extract_sitesearch_keyphrase (tkn, &logitem->keyphrase);
 
     logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
     free (tkn);
