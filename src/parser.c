@@ -1494,7 +1494,7 @@ is_static (const char *req) {
  * If the status code is within the ignore-array, 1 is returned. */
 static int
 ignore_status_code (const char *status) {
-  if (conf.ignore_status_idx == 0)
+  if (!status || conf.ignore_status_idx == 0)
     return 0;
 
   if (str_inarray (status, conf.ignore_status, conf.ignore_status_idx) != -1)
