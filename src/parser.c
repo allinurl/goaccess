@@ -438,7 +438,7 @@ verify_static_content (const char *req) {
   const char *ext = NULL, *pch = NULL;
   int elen = 0, i;
 
-  if (strlen (req) < conf.static_file_max_len)
+  if ((req == NULL) || (*req == '\0'))
     return 0;
 
   for (i = 0; i < conf.static_file_idx; ++i) {
