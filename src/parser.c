@@ -454,7 +454,7 @@ verify_static_content (const char *req) {
       continue;
     }
 
-    if (!strncasecmp (nul - elen, ext, elen))
+    if (nul - req > elen && !strncasecmp (nul - elen, ext, elen))
       return 1;
   }
 
