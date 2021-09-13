@@ -434,12 +434,12 @@ clean:
  * On success, the 1 is returned. */
 static int
 verify_static_content (const char *req) {
+  if ((req == NULL) || (*req == '\0'))
+    return 0;
+
   const char *nul = req + strlen (req);
   const char *ext = NULL, *pch = NULL;
   int elen = 0, i;
-
-  if ((req == NULL) || (*req == '\0'))
-    return 0;
 
   for (i = 0; i < conf.static_file_idx; ++i) {
     ext = conf.static_files[i];
