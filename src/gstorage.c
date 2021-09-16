@@ -1115,8 +1115,12 @@ extract_tlsmajor (const char *token) {
       (lookfor = "TLSv1.1", !strncmp (token, lookfor, 7)) ||
       (lookfor = "TLSv1.2", !strncmp (token, lookfor, 7)) ||
       (lookfor = "TLSv1.3", !strncmp (token, lookfor, 7)) ||
+      (lookfor = "TLS1.1", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "TLS1.2", !strncmp (token, lookfor, 6)) ||
+      (lookfor = "TLS1.3", !strncmp (token, lookfor, 6)) ||
       /* Nope, it's not 1.0 */
-      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)))
+      (lookfor = "TLSv1", !strncmp (token, lookfor, 5)) ||
+      (lookfor = "TLS1", !strncmp (token, lookfor, 4)))
     return lookfor;
   return NULL;
 }
