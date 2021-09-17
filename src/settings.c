@@ -203,6 +203,7 @@ set_default_static_files (void) {
     ".tif ",
     ".ttf ",
     ".flv ",
+    ".avi",
   };
 
   if (conf.static_file_idx > 0)
