@@ -1702,7 +1702,7 @@ parse_json_specifier (void *ptr_data, char *key, char *str) {
   char *spec = NULL;
   int ret = 0;
 
-  if (!str)
+  if (!key || !str)
     return 0;
   /* empty JSON value, e.g., {method: ""} */
   if (0 == strlen (str))

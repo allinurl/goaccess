@@ -755,7 +755,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       break;
     case JSON_TRUE:
       val = xstrdup ("true");
-      if ((ret = (*cb) (ptr_data, key, val)))
+      if (!key || (ret = (*cb) (ptr_data, key, val)))
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
@@ -765,7 +765,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       break;
     case JSON_FALSE:
       val = xstrdup ("false");
-      if ((ret = (*cb) (ptr_data, key, val)))
+      if (!key || (ret = (*cb) (ptr_data, key, val)))
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
@@ -775,7 +775,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       break;
     case JSON_NULL:
       val = xstrdup ("-");
-      if ((ret = (*cb) (ptr_data, key, val)))
+      if (!key || (ret = (*cb) (ptr_data, key, val)))
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
@@ -795,7 +795,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       /* val */
       else if (key && (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY))) {
         val = xstrdup (json_get_string (&json, &len));
-        if ((ret = (*cb) (ptr_data, key, val)))
+        if (!key || (ret = (*cb) (ptr_data, key, val)))
           goto clean;
         if (ctx != JSON_ARRAY)
           dec_json_key (key);
