@@ -61,7 +61,7 @@
 #define T_DATETIME               _( "Date/Time")
 #define T_EXCLUDE_IP             _( "Excl. IP Hits")
 #define T_FAILED                 _( "Failed Requests")
-#define T_GEN_TIME               _( "Init. Proc. Time")
+#define T_GEN_TIME               _( "Log Parsing Time")
 #define T_LOG                    _( "Log Size")
 #define T_LOG_PATH               _( "Log Source")
 #define T_REFERRER               _( "Referrers")
