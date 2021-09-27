@@ -1,3 +1,15 @@
+Changes to GoAccess 1.5.2 - Tuesday, September 28, 2021
+
+  - Added .avi to the list of static requests/extensions.
+  - Changed label from 'Init. Proc. Time' to 'Log Parsing Time'.
+  - Fixed issue where lengthy static-file extension wouldn't account certain
+    valid requests.
+  - Fixed possible buffer underflow when checking static-file extension.
+  - Fixed segfault when attempting to parse an invalid JSON log while using a
+    JSON log format.
+  - Fixed segfault when ignoring a status code and processing a line > '4096'
+    chars.
+
 Changes to GoAccess 1.5.1 - Wednesday, June 30, 2021
 
   - Changed official deb repo so it now builds '--with-getline' in order to
