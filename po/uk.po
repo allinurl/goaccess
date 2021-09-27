@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2021-06-28 17:49-0500\n"
+"POT-Creation-Date: 2021-09-26 20:27-0500\n"
 "PO-Revision-Date: 2020-06-25 17:12+0300\n"
 "Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
 "Language-Team: \n"
@@ -89,8 +89,8 @@ msgid "Failed Requests"
 msgstr "Невдалих запитів"
 
 #: src/labels.h:64
-msgid "Init. Proc. Time"
-msgstr "Час обробки лога"
+msgid "Log Parsing Time"
+msgstr ""
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -944,3 +944,6 @@ msgstr "523 - CloudFlare - Origin is unreachable"
 #: src/labels.h:520
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - A timeout occurred"
+
+#~ msgid "Init. Proc. Time"
+#~ msgstr "Час обробки лога"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2021-06-28 17:49-0500\n"
+"POT-Creation-Date: 2021-09-26 20:27-0500\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.se>\n"
 "Language-Team: none\n"
@@ -87,8 +87,8 @@ msgid "Failed Requests"
 msgstr "Misslyckade förfrågningar"
 
 #: src/labels.h:64
-msgid "Init. Proc. Time"
-msgstr "Init. proc. Tid"
+msgid "Log Parsing Time"
+msgstr ""
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -931,6 +931,9 @@ msgstr "523 - CloudFlare - Ursprung är oåtkomligt"
 #: src/labels.h:520
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
+
+#~ msgid "Init. Proc. Time"
+#~ msgstr "Init. proc. Tid"
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "Byggd med standard in-memory hash databas"

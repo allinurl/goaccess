@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2021-06-28 17:49-0500\n"
+"POT-Creation-Date: 2021-09-26 20:27-0500\n"
 "PO-Revision-Date: 2019-05-05 16:03+0200\n"
 "Last-Translator: Axel Wehner <mail@axelwehner.de>\n"
 "Language: de\n"
@@ -87,8 +87,8 @@ msgid "Failed Requests"
 msgstr "Fehlgeschlagene Anfragen"
 
 #: src/labels.h:64
-msgid "Init. Proc. Time"
-msgstr "Init. Verarbeitungszeit"
+msgid "Log Parsing Time"
+msgstr ""
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -956,6 +956,9 @@ msgstr "523 - CloudFlare - Herkunft ist unerreichbar"
 #: src/labels.h:520
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - Zeitüberschreitung aufgetreten"
+
+#~ msgid "Init. Proc. Time"
+#~ msgstr "Init. Verarbeitungszeit"
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "Erstellt in Verwendung der Standard In-Memory Hash-Datenbank."

@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.2\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2021-06-28 17:49-0500\n"
+"POT-Creation-Date: 2021-09-26 20:27-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Ai<hello@goaccess.io>\n"
 "Language-Team: Ai\n"
@@ -86,8 +86,8 @@ msgid "Failed Requests"
 msgstr "失败的请求"
 
 #: src/labels.h:64
-msgid "Init. Proc. Time"
-msgstr "第一次处理耗时"
+msgid "Log Parsing Time"
+msgstr ""
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -922,6 +922,9 @@ msgstr "523 - CloudFlare - 服务器无法访问"
 #: src/labels.h:520
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - 服务器响应超时"
+
+#~ msgid "Init. Proc. Time"
+#~ msgstr "第一次处理耗时"
 
 #~ msgid "Built using the default in-memory hash database."
 #~ msgstr "使用默认的在内存中的哈希表来构建"
