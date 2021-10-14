@@ -32,6 +32,11 @@
 
 #include <libintl.h>
 
+#ifndef PACKAGE
+#define PACKAGE "goaccess"
+/* TODO: Find out what this is meant to be? */
+#endif
+
 #define _(String) dgettext (PACKAGE , String)
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
