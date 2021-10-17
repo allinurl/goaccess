@@ -344,10 +344,11 @@ extract_sitesearch_keyphrase (char *ref, char **keyphrase) {
   int encoded = 0;
 
   /* Find start of keyword */
-  if ((r = strstr (ref, "&q=")) != NULL || (r = strstr (ref, "?q=")) != NULL)
-    r += 3;
-  else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
-    encoded = 1, r += 7;
+  if ((r = strstr (ref, conf.site_search)) != NULL || (r = strstr (ref, 
+				  conf.site_search_other)) != NULL)
+    r += strlen(conf.site_search);
+  // else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
+  //  encoded = 1, r += 7;
   else
     return 1;
 
