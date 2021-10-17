@@ -606,13 +606,13 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* local site search */
   if (!strcmp ("site-search", name)) {
-	char *first_param = xstrdup ("?");
-	char *other_param = xstrdup ("&");
+    char *first_param = xstrdup ("?");
+    char *other_param = xstrdup ("&");
 
-	append_str(&first_param, oarg);
-	append_str(&first_param, "=");
-	append_str(&other_param, oarg);
-	append_str(&other_param, "=");
+    append_str(&first_param, oarg);
+    append_str(&first_param, "=");
+    append_str(&other_param, oarg);
+    append_str(&other_param, "=");
 
     conf.site_search = first_param;
     conf.site_search_other = other_param;
