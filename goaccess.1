@@ -374,6 +374,14 @@ Do not show the last updated field displayed in the HTML generated report.
 Do now show the progress metrics and parsing spinner.
 .SS
 SERVER OPTIONS
+.P
+.I Note
+This is just a WebSocket server to provide the raw real-time data. 
+It is not a WebServer itself. To access your reports html file, you will 
+still need your own HTTP server, place the generated report in it's document 
+root dir and open the html file in your browser. The browser will then open 
+another WebSocket-connection to the ws-server you may setup here, 
+to keep the dashboard up-to-date.
 .TP
 \fB\-\-addr
 Specify IP address to bind the server to. Otherwise it binds to 0.0.0.0.
