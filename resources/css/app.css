@@ -383,7 +383,7 @@ div.wrap-panel > div {
 .wrap-panel table.table-hover>tbody>tr:hover {
 	background-color: #EEE;
 }
-.wrap-panel .row:nth-child(2)>.col-md-12 {
+.wrap-panel .row:nth-child(2):not(.table-wrapper)>.col-md-12 {
 	padding: 0;
 }
 
