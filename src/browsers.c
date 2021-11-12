@@ -127,6 +127,9 @@ static const char *browsers[][2] = {
   {"okhttp", "Others"},
   {"node", "Others"},
   {"PrivacyBrowser", "Others"},
+  {"Transmission", "Others"},
+  {"libmpv", "Others"},
+  {"aria2", "Others"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -236,6 +239,9 @@ static const char *browsers[][2] = {
   {"Googlebot-Image", "Crawlers"},
   {"ZmEu", "Crawlers"},
   {"DowntimeDetector", "Crawlers"},
+  {"MauiBot", "Crawlers"},
+  {"Cloud", "Crawlers"},
+  {"stagefright", "Crawlers"},
 
 
   /* Podcast fetchers */
