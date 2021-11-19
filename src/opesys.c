@@ -213,8 +213,10 @@ get_real_win (const char *win) {
  * returned. */
 static char *
 get_real_mac_osx (const char *osx) {
-  if (strstr (osx, "11.0"))
-    return alloc_string ("macOS 11.0 Big Sur");
+  if (strstr (osx, "12.0"))
+    return alloc_string ("macOS 12 Monterey");
+  else if (strstr (osx, "11.0"))
+    return alloc_string ("macOS 11 Big Sur");
   else if (strstr (osx, "10.15"))
     return alloc_string ("macOS 10.15 Catalina");
   else if (strstr (osx, "10.14"))
