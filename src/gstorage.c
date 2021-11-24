@@ -551,7 +551,7 @@ count_invalid (GLog * glog, const char *line) {
     LOG_INVALID (("%s", line));
   }
 
-  if (glog->items->errstr && glog->invalid < MAX_LOG_ERRORS) {
+  if (glog->items->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
     glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
   }
 }
