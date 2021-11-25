@@ -1,3 +1,13 @@
+Changes to GoAccess 1.5.3 - Thursday, November 25, 2021
+
+  - Added additional crawlers to the default list.
+  - Added Italian translation (i18n).
+  - Added 'macOS 12' to the list of OS.
+  - Fixed buffer overflow caused by an excessive number of invalid requests
+    with multiple logs.
+  - Fixed visualization issue on the HTML report for panels with disabled
+    chart.
+
 Changes to GoAccess 1.5.2 - Tuesday, September 28, 2021
 
   - Added .avi to the list of static requests/extensions.
