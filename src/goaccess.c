@@ -864,12 +864,6 @@ perform_tail_follow (GLog * glog) {
 
 out:
 
-  if (!conf.output_stdout) {
-    tail_term ();
-  } else {
-    tail_html ();
-  }
-
   return 0;
 }
 
@@ -880,14 +874,18 @@ tail_loop_html (Logs * logs) {
     .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
     .tv_nsec = 0,
   };
-  int i = 0;
+  int i = 0, ret = 0;
 
   while (1) {
     if (conf.stop_processing)
       break;
 
     for (i = 0; i < logs->size; ++i)
-      perform_tail_follow (&logs->glog[i]);     /* 0.2 secs */
+      ret = perform_tail_follow (&logs->glog[i]);       /* 0.2 secs */
+
+    if (0 == ret)
+      tail_html ();
+
     if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
   }
@@ -989,6 +987,7 @@ term_tail_logs (Logs * logs) {
     if (perform_tail_follow (&logs->glog[i]) != 0)
       continue;
 
+    tail_term ();
     offset = *logs->processed - logs->offset;
     render_screens (offset);
     if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
