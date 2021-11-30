@@ -1521,11 +1521,13 @@ ignore_static (const char *req) {
  * If the request is a 404, 1 is returned. */
 static int
 is_404 (GLogItem * logitem) {
+  if (!logitem->status || *logitem->status == '\0')
+    return 0;
   /* is this a 404? */
-  if (logitem->status && !memcmp (logitem->status, "404", 3))
+  if (!memcmp (logitem->status, "404", 3))
     return 1;
   /* treat 444 as 404? */
-  else if (logitem->status && !memcmp (logitem->status, "444", 3) && conf.code444_as_404)
+  else if (!memcmp (logitem->status, "444", 3) && conf.code444_as_404)
     return 1;
   return 0;
 }
