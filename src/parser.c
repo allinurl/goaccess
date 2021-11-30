@@ -948,6 +948,13 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       free (tkn);
       return 1;
     }
+    /* require a valid host token (e.g., ord38s18-in-f14.1e100.net) even when we're
+     * not validating the IP */
+    if (conf.no_ip_validation && *tkn == '\0') {
+      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      free (tkn);
+      return 1;
+    }
     logitem->host = tkn;
     break;
     /* request method */
