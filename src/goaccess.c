@@ -710,7 +710,9 @@ tail_html (void) {
   if (json == NULL)
     return;
 
+  pthread_mutex_lock (&gwswriter->mutex);
   broadcast_holder (gwswriter->fd, json, strlen (json));
+  pthread_mutex_unlock (&gwswriter->mutex);
   free (json);
 }
 
