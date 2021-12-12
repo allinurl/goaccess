@@ -806,8 +806,8 @@ verify_inode (FILE * fp, GLog * glog) {
 
 /* Process appended log data
  *
- * If nothing changed, 1 is returned.
- * If log file changed, 0 is returned. */
+ * If nothing changed, 0 is returned.
+ * If log file changed, 1 is returned. */
 static int
 perform_tail_follow (GLog * glog) {
   FILE *fp = NULL;
@@ -819,7 +819,7 @@ perform_tail_follow (GLog * glog) {
     parse_tail_follow (glog, glog->pipe);
     /* did we read something from the pipe? */
     if (0 == glog->bytes)
-      return 1;
+      return 0;
 
     glog->length += glog->bytes;
     goto out;
@@ -831,7 +831,7 @@ perform_tail_follow (GLog * glog) {
   /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
    * rotated/truncated file or larger when data is appended */
   if (length == glog->length)
-    return 1;
+    return 0;
 
   if (!(fp = fopen (glog->filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
@@ -866,7 +866,7 @@ perform_tail_follow (GLog * glog) {
 
 out:
 
-  return 0;
+  return 1;
 }
 
 /* Loop over and perform a follow for the given logs */
@@ -882,10 +882,10 @@ tail_loop_html (Logs * logs) {
     if (conf.stop_processing)
       break;
 
-    for (i = 0; i < logs->size; ++i)
-      ret = perform_tail_follow (&logs->glog[i]);       /* 0.2 secs */
+    for (i = 0, ret = 0; i < logs->size; ++i)
+      ret |= perform_tail_follow (&logs->glog[i]);       /* 0.2 secs */
 
-    if (0 == ret)
+    if (1 == ret)
       tail_html ();
 
     if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
