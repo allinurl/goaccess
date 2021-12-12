@@ -983,18 +983,18 @@ static void
 term_tail_logs (Logs * logs) {
   struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };     /* 0.2 seconds */
   uint32_t offset = 0;
-  int i;
+  int i, ret;
 
-  for (i = 0; i < logs->size; ++i) {
-    if (perform_tail_follow (&logs->glog[i]) != 0)
-      continue;
+  for (i = 0, ret = 0; i < logs->size; ++i)
+    ret |= perform_tail_follow (&logs->glog[i]);
 
+  if (1 == ret) {
     tail_term ();
     offset = *logs->processed - logs->offset;
     render_screens (offset);
-    if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
-      FATAL ("nanosleep: %s", strerror (errno));
-    }
+  }
+  if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
+    FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
