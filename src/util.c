@@ -217,7 +217,7 @@ __attribute__((no_sanitize ("unsigned-integer-overflow")))
 #endif
 #endif
   uint32_t
-djb2 (unsigned char *str) {
+djb2 (const unsigned char *str) {
   uint32_t hash = 5381;
   int c;
 

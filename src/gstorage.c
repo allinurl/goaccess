@@ -810,7 +810,7 @@ get_kdata (GKeyData * kdata, const char *data_key, const char *data) {
   /* inserted in datamap */
   kdata->data = data;
   /* inserted in keymap */
-  kdata->dhash = djb2 ((unsigned char *) data_key);
+  kdata->dhash = djb2 ((const unsigned char *) data_key);
 }
 
 /* A wrapper to assign the given data key and the data item to the key
@@ -820,7 +820,7 @@ get_kroot (GKeyData * kdata, const char *root_key, const char *root) {
   /* inserted in datamap */
   kdata->root = root;
   /* inserted in keymap */
-  kdata->rhash = djb2 ((unsigned char *) root_key);
+  kdata->rhash = djb2 ((const unsigned char *) root_key);
 }
 
 /* Generate a visitor's key given the date specificity. For instance,
