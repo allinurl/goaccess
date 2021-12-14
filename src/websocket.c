@@ -689,7 +689,7 @@ initialize_ssl_ctx (WSServer * server) {
   OpenSSL_add_ssl_algorithms ();
 
   /* ssl context */
-  if (!(ctx = SSL_CTX_new (SSLv23_server_method ())))
+  if (!(ctx = SSL_CTX_new (TLS_server_method ())))
     goto out;
   /* set certificate */
   if (!SSL_CTX_use_certificate_file (ctx, wsconfig.sslcert, SSL_FILETYPE_PEM))
