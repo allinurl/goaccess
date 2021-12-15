@@ -200,7 +200,7 @@ extern size_t app_metrics_len;
  * 1 -> Debian APT-HTTP/1.3 (1.0.9.8.5)
  * 2 -> Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)
  */
-/*khash_t(is32) MTRC_AGENT_KEYS */
+/*khash_t(is32) MTRC_AGENT_VALS */
 
 /* Maps a single numeric key (usually 1) to an autoincremented hits value.
  *
