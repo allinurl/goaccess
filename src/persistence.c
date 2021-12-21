@@ -64,7 +64,7 @@ set_db_path (const char *fn) {
 
   rpath = realpath (dbpath, NULL);
   if (rpath == NULL)
-    FATAL ("Unable to open the specified config file. %s", strerror (errno));
+    FATAL ("Unable to open the specified db path/file '%s'. %s", dbpath, strerror (errno));
 
   /* sanity check: Is db_path accessible and a directory? */
   if (stat (rpath, &info) != 0)
