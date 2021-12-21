@@ -1297,12 +1297,13 @@ render_confdlg (Logs * logs, GSpinner * spinner) {
     "Common Log Format (CLF)",
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
-    "Squid Native Format",
     "CloudFront (Download Distribution)",
     "Google Cloud Storage",
     "AWS Elastic Load Balancing (HTTP/S)",
+    "Squid Native Format",
     "AWS Simple Storage Service (S3)",
     "CADDY JSON Structured",
+    "AWS Application Load Balancer",
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);

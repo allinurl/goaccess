@@ -50,12 +50,13 @@ typedef enum LOGTYPE {
   COMMON,
   VCOMMON,
   W3C,
-  SQUID,
   CLOUDFRONT,
   CLOUDSTORAGE,
   AWSELB,
+  SQUID,
   AWSS3,
   CADDY,
+  AWSALB,
 } GLogType;
 
 /* predefined log times */
@@ -86,6 +87,7 @@ typedef struct GPreConfLog_ {
   const char *squid;
   const char *awss3;
   const char *caddy;
+  const char *awsalb;
 } GPreConfLog;
 
 /* *INDENT-OFF* */

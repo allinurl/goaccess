@@ -883,7 +883,7 @@ tail_loop_html (Logs * logs) {
       break;
 
     for (i = 0, ret = 0; i < logs->size; ++i)
-      ret |= perform_tail_follow (&logs->glog[i]);       /* 0.2 secs */
+      ret |= perform_tail_follow (&logs->glog[i]);      /* 0.2 secs */
 
     if (1 == ret)
       tail_html ();

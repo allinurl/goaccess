@@ -56,12 +56,13 @@ static GEnum LOGTYPE[] = {
   {"COMMON"       , COMMON}       ,
   {"VCOMMON"      , VCOMMON}      ,
   {"W3C"          , W3C}          ,
-  {"SQUID"        , SQUID}        ,
   {"CLOUDFRONT"   , CLOUDFRONT}   ,
   {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
   {"AWSELB"       , AWSELB}       ,
+  {"SQUID"        , SQUID}        ,
   {"AWSS3"        , AWSS3}        ,
   {"CADDY"        , CADDY}        ,
+  {"AWSALB"       , AWSALB}       ,
 };
 
 static const GPreConfLog logs = {
@@ -81,7 +82,9 @@ static const GPreConfLog logs = {
   "\"%H\", \"method\": \"%m\", \"host\": \"%v\", \"uri\": \"%U\", \"headers\": {"
   "\"User-Agent\": [\"%u\"], \"Referer\": [\"%R\"] }, \"tls\": { \"cipher_suite\":"
   "\"%k\", \"proto\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
-  "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }"
+  "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }",
+
+  "%^ %dT%t.%^ %v %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^" /* Amazon ALB */
 };
 
 static const GPreConfTime times = {
@@ -388,6 +391,8 @@ get_selected_format_idx (void) {
     return AWSS3;
   else if (strcmp (conf.log_format, logs.caddy) == 0)
     return CADDY;
+  else if (strcmp (conf.log_format, logs.awsalb) == 0)
+    return AWSALB;
   else
     return (size_t) -1;
 }
@@ -401,17 +406,17 @@ char *
 get_selected_format_str (size_t idx) {
   char *fmt = NULL;
   switch (idx) {
-  case COMMON:
-    fmt = alloc_string (logs.common);
-    break;
-  case VCOMMON:
-    fmt = alloc_string (logs.vcommon);
-    break;
   case COMBINED:
     fmt = alloc_string (logs.combined);
     break;
   case VCOMBINED:
     fmt = alloc_string (logs.vcombined);
+    break;
+  case COMMON:
+    fmt = alloc_string (logs.common);
+    break;
+  case VCOMMON:
+    fmt = alloc_string (logs.vcommon);
     break;
   case W3C:
     fmt = alloc_string (logs.w3c);
@@ -433,6 +438,9 @@ get_selected_format_str (size_t idx) {
     break;
   case CADDY:
     fmt = alloc_string (logs.caddy);
+    break;
+  case AWSALB:
+    fmt = alloc_string (logs.awsalb);
     break;
   }
 
@@ -456,6 +464,7 @@ get_selected_date_str (size_t idx) {
     fmt = alloc_string (dates.apache);
     break;
   case AWSELB:
+  case AWSALB:
   case CLOUDFRONT:
   case W3C:
     fmt = alloc_string (dates.w3c);
@@ -482,6 +491,7 @@ get_selected_time_str (size_t idx) {
   char *fmt = NULL;
   switch (idx) {
   case AWSELB:
+  case AWSALB:
   case CLOUDFRONT:
   case COMBINED:
   case COMMON:
