@@ -1,3 +1,15 @@
+Changes to GoAccess 1.5.4 - Saturday, December 25, 2021
+
+  - Added AWS ALB to the predefined logs format list --log-format=AWSALB.
+  - Ensure we lock our pipe/websocket writer before broadcasting message.
+  - Ensure we require a valid host token even when we're not validating the IP.
+  - Ensure we simply update the TUI once after tailing multiple files.
+  - Ensure we simply update the UI once after tailing multiple files.
+  - Fixed buffer overflow when checking if an HTTP code was a 404 on an empty
+    status code.
+  - Optimized terminal and HTML UI output when tailing multiple files.
+  - Updated DB PATH error message to be more descriptive.
+
 Changes to GoAccess 1.5.3 - Thursday, November 25, 2021
 
   - Added additional crawlers to the default list.
