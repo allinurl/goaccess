@@ -226,6 +226,7 @@ one variable and another predefined name in another variable.
   CLOUDSTORAGE - Google Cloud Storage,
   AWSELB       - Amazon Elastic Load Balancing,
   AWSS3        - Amazon Simple Storage Service (S3)
+  AWSALB       - Amazon Application Load Balancer
   CADDY        - Caddy's JSON Structured format
 .IP
 .I Note:
@@ -376,11 +377,11 @@ Do now show the progress metrics and parsing spinner.
 SERVER OPTIONS
 .P
 .I Note
-This is just a WebSocket server to provide the raw real-time data. 
-It is not a WebServer itself. To access your reports html file, you will 
-still need your own HTTP server, place the generated report in it's document 
-root dir and open the html file in your browser. The browser will then open 
-another WebSocket-connection to the ws-server you may setup here, 
+This is just a WebSocket server to provide the raw real-time data.
+It is not a WebServer itself. To access your reports html file, you will
+still need your own HTTP server, place the generated report in it's document
+root dir and open the html file in your browser. The browser will then open
+another WebSocket-connection to the ws-server you may setup here,
 to keep the dashboard up-to-date.
 .TP
 \fB\-\-addr
