@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goaccess\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2021-11-24 18:49-0600\n"
+"POT-Creation-Date: 2021-12-25 11:25-0600\n"
 "PO-Revision-Date: 2017-08-04 13:00-0300\n"
 "Last-Translator: Enrique Becerra <kabeza@gmail.com>\n"
 "Language-Team: \n"
@@ -818,7 +818,8 @@ msgid "417 - Expectation Failed"
 msgstr "417 - Expectativa Fallida"
 
 #: src/labels.h:468
-msgid "418 - I’m a teapot"
+#, fuzzy
+msgid "418 - I'm a teapot"
 msgstr "418 - Soy una tetera"
 
 #: src/labels.h:470
