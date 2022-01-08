@@ -1394,7 +1394,8 @@ handle_signal_action (GO_UNUSED int sig_number) {
   fprintf (stderr, "\nSIGINT caught!\n");
   fprintf (stderr, "Closing GoAccess...\n");
 
-  stop_ws_server (gwswriter, gwsreader);
+  if (conf.output_stdout && conf.real_time_html)
+    stop_ws_server (gwswriter, gwsreader);
   conf.stop_processing = 1;
 
   if (!conf.output_stdout) {
