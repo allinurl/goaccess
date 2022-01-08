@@ -210,6 +210,7 @@ cleanup (int ret) {
   if (!conf.output_stdout)
     endwin ();
 
+  fprintf (stderr, "Cleaning up resources...\n");
   /* unable to process valid data */
   if (ret)
     output_logerrors ();
@@ -1397,11 +1398,6 @@ handle_signal_action (GO_UNUSED int sig_number) {
   if (conf.output_stdout && conf.real_time_html)
     stop_ws_server (gwswriter, gwsreader);
   conf.stop_processing = 1;
-
-  if (!conf.output_stdout) {
-    cleanup (EXIT_SUCCESS);
-    exit (EXIT_SUCCESS);
-  }
 }
 
 static void
