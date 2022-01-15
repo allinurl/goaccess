@@ -784,6 +784,11 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
     err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
     sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
+  case SPEC_LINE_INV:
+    fmt = "Incompatible format due to early parsed line ending '\\0'.";
+    err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-")) + 1);
+    sprintf (err, fmt, (tkn ? tkn : "-"));
+    break;
   }
   logitem->errstr = err;
 
@@ -1370,6 +1375,8 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
       tilde++;
       continue;
     }
+    if (*str == '\0')
+      return spec_err (logitem, SPEC_LINE_INV, '-', NULL);
     if (*str == '\n')
       return 0;
 

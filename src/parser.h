@@ -47,6 +47,7 @@
 #define SPEC_TOKN_NUL    0x1
 #define SPEC_TOKN_INV    0x2
 #define SPEC_SFMT_MIS    0x3
+#define SPEC_LINE_INV    0x4
 
 #include "commons.h"
 #include "gslist.h"
