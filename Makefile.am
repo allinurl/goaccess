@@ -206,7 +206,7 @@ goaccess_SOURCES +=  \
 endif
 
 if DEBUG
-AM_CFLAGS = -DDEBUG -O0 -g -DSYSCONFDIR=\"$(sysconfdir)\"
+AM_CFLAGS = -DDEBUG -O0 -DSYSCONFDIR=\"$(sysconfdir)\"
 else
 AM_CFLAGS = -O2 -DSYSCONFDIR=\"$(sysconfdir)\"
 endif
@@ -215,7 +215,7 @@ if WITH_RDYNAMIC
 AM_LDFLAGS = -rdynamic
 endif
 
-AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2
+AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
 AM_CFLAGS += -Wbad-function-cast -Wcast-align
