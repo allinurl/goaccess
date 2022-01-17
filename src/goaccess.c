@@ -1466,6 +1466,9 @@ initializer (void) {
   parsing_spinner = new_gspinner ();
   parsing_spinner->processed = &(logs->processed);
   parsing_spinner->filename = &(logs->filename);
+  
+  /* init reverse lookup thread */
+  gdns_init ();
 
   /* init random number generator */
   srand (getpid ());
@@ -1617,8 +1620,6 @@ main (int argc, char **argv) {
   logs->offset = *logs->processed;
 
   parsing_spinner->label = "RENDERING";
-  /* init reverse lookup thread */
-  gdns_init ();
   parse_initial_sort ();
   allocate_holder ();
 
