@@ -1619,7 +1619,10 @@ main (int argc, char **argv) {
     goto clean;
   logs->offset = *logs->processed;
 
+  pthread_mutex_lock (&parsing_spinner->mutex);
   parsing_spinner->label = "RENDERING";
+  pthread_mutex_unlock (&parsing_spinner->mutex);
+
   parse_initial_sort ();
   allocate_holder ();
 
