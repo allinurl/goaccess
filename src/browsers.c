@@ -247,6 +247,7 @@ static const char *browsers[][2] = {
   {"coccocbot", "Crawlers"},
   {"Neevabot", "Crawlers"},
   {"Mail.RU_Bot", "Crawlers"},
+  {"CCBot", "Crawlers"},
 
 
   /* Podcast fetchers */
