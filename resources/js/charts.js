@@ -100,20 +100,20 @@ function AreaChart(dualYaxis) {
 		.orient('left');
 
 	var area0 = d3.svg.area()
-		.interpolate('cardinal')
+		.interpolate('monotone')
 		.x(X)
 		.y(Y0);
 	var area1 = d3.svg.area()
-		.interpolate('cardinal')
+		.interpolate('monotone')
 		.x(X)
 		.y(Y1);
 
 	var line0 = d3.svg.line()
-		.interpolate('cardinal')
+		.interpolate('monotone')
 		.x(X)
 		.y(Y0);
 	var line1 = d3.svg.line()
-		.interpolate('cardinal')
+		.interpolate('monotone')
 		.x(X)
 		.y(Y1);
 
