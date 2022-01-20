@@ -242,6 +242,7 @@ static const char *browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
+  {"DataForSeoBot", "Crawlers"},
 
 
   /* Podcast fetchers */
