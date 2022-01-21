@@ -439,18 +439,18 @@ parse_crawler (char *str, char *match, char *type) {
 
   while (match != str) {
     match--;
-    if (*match == ' ' || *match == '+') {
+    if (*match == ' ' || *match == '+' || match == str) {
       found = 1;
       break;
     }
   }
 
   /* same addr */
-  if (match == str)
+  if (!found && match == str)
     return NULL;
 
   /* account for the previous +|space */
-  if (found)
+  if (found && match != str)
     match++;
 
   if ((ptr = strpbrk (match, "; ")))
@@ -501,7 +501,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
   char *b = NULL, *ptr = NULL, *slh = NULL;
   size_t cnt = 0, space = 0;
 
-  match = char_replace(match, '+', '-'); 
+  match = char_replace(match, '+', '-');
   /* Check if there are spaces in the token string, that way strpbrk
    * does not stop at the first space within the token string */
   if ((cnt = count_matches (hash[i][0], ' ')) && (b = match)) {
