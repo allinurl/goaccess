@@ -38,6 +38,6 @@ typedef struct GOpeSys_ {
   int hits;
 } GOpeSys;
 
-char *verify_os (const char *str, char *os_type);
+char *verify_os (char *str, char *os_type);
 
 #endif

@@ -346,7 +346,7 @@ parse_android (char *agent) {
  *
  * On success, a malloc'd string containing the OS is returned. */
 static char *
-parse_os (const char *str, char *tkn, char *os_type, int idx) {
+parse_os (char *str, char *tkn, char *os_type, int idx) {
   char *b;
   int spaces = 0;
 
@@ -395,13 +395,14 @@ parse_os (const char *str, char *tkn, char *os_type, int idx) {
  * On error, NULL is returned.
  * On success, a malloc'd  string containing the OS is returned. */
 char *
-verify_os (const char *str, char *os_type) {
+verify_os (char *str, char *os_type) {
   char *a;
   size_t i;
 
   if (str == NULL || *str == '\0')
     return NULL;
 
+  str = char_replace(str, '+', ' ');
   for (i = 0; i < ARRAY_SIZE (os); i++) {
     if ((a = strstr (str, os[i][0])) != NULL)
       return parse_os (str, a, os_type, i);

@@ -329,7 +329,7 @@ decode_url (char *url) {
     decode_hex (decoded, out);
   strip_newlines (out);
 
-  return trim_str (char_replace (out, '+', ' '));
+  return trim_str (out);
 }
 
 /* Process keyphrases from Google search, cache, and translate.
@@ -1108,8 +1108,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 
     tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
-      /* Make sure the user agent is decoded (i.e.: CloudFront)
-       * and replace all '+' with ' ' (i.e.: w3c) */
+      /* Make sure the user agent is decoded (i.e.: CloudFront) */
       logitem->agent = decode_url (tkn);
       set_agent_hash (logitem);
       free (tkn);
