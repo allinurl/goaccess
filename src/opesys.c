@@ -402,7 +402,7 @@ verify_os (char *str, char *os_type) {
   if (str == NULL || *str == '\0')
     return NULL;
 
-  str = char_replace(str, '+', ' ');
+  str = char_replace (str, '+', ' ');
   for (i = 0; i < ARRAY_SIZE (os); i++) {
     if ((a = strstr (str, os[i][0])) != NULL)
       return parse_os (str, a, os_type, i);
