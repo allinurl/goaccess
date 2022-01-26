@@ -266,7 +266,7 @@ parse_conf_file (int *argc, char ***argv) {
   size_t idx;
 
   /* assumes program name is on argv[0], though, it is not guaranteed */
-  append_to_argv (&nargc, &nargv, xstrdup ((char *) *argv[0]));
+  append_to_argv (&nargc, &nargv, xstrdup (*argv[0] ?: PACKAGE_NAME));
 
   /* determine which config file to open, default or custom */
   path = get_config_file_path ();
