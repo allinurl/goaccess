@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2022 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -154,7 +154,7 @@ void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
-  fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
+  fprintf (stdout, "Copyright (C) 2009-2022 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
   fprintf (stdout, "  --enable-debug\n");
