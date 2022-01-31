@@ -1,3 +1,17 @@
+Changes to GoAccess 1.5.5 - Monday, January 31, 2022
+
+  - Added mechanism to automatically parse additional bots.
+  - Changed area chart interpolation to 'monotone'. This should avoid the issue
+    where the interpolated curve has a bend into the negative space.
+  - Changed build to use debugging symbols even for release builds.
+  - Changed order on which we verify bots to be the first thing we check. This
+    adds a slight improvement on parsing time.
+  - Ensure we initialize DNS resolver conditions and mutexes before they're used.
+  - Fixed possible buffer over-read for cases where a '\0' could be reached
+    early when parsing a log line.
+  - Fixed possible data race on UI spinner thread.
+  - Fixed regression where a lot of robots where not detected by GoAccess.
+
 Changes to GoAccess 1.5.4 - Saturday, December 25, 2021
 
   - Added AWS ALB to the predefined logs format list --log-format=AWSALB.
