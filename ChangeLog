@@ -10,7 +10,7 @@ Changes to GoAccess 1.5.5 - Monday, January 31, 2022
   - Fixed possible buffer over-read for cases where a '\0' could be reached
     early when parsing a log line.
   - Fixed possible data race on UI spinner thread.
-  - Fixed regression where a lot of robots where not detected by GoAccess.
+  - Fixed regression where a lot of robots were not detected by GoAccess.
 
 Changes to GoAccess 1.5.4 - Saturday, December 25, 2021
 
