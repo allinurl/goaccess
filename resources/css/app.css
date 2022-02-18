@@ -154,6 +154,33 @@ nav .nav-ws-status {
 .nav-ws-status.connected {
 	color: #5DB56A;
 }
+nav li {
+	position: relative;
+}
+nav li .toggle-panel {
+	position: absolute;
+	padding: 9px 20px;
+	top: 0;
+	right: 50px;
+	visibility: hidden;
+	opacity: 0;
+	transition: all .2s;
+}
+nav li .toggle-panel i {
+	color: rgba(200,200,200,.5);
+	opacity: 0;
+}
+nav li .toggle-panel.active i {
+	color: #eee;
+	opacity: 1;
+}
+nav.active li .toggle-panel {
+	visibility: visible;
+	opacity: 1;
+}
+nav.active li:hover .toggle-panel i {
+	opacity: 1;
+}
 nav li a {
 	border-left: 3px solid transparent;
 	color: rgba(200,200,200,.5);
@@ -172,7 +199,7 @@ nav.active li a {
 	max-width: 100%;
 	opacity: 1;
 }
-nav li a:hover,
+nav li:hover a,
 nav li.active a {
 	background: rgba(0,0,0,.1);
 	border-color: #5BC0DE;
