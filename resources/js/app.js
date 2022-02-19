@@ -52,6 +52,7 @@ window.GoAccess = window.GoAccess || {
 			'layout': cw > 2560 ? 'wide' : 'horizontal',
 			'perPage': 7,
 			'theme': (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'darkPurple' : 'bright',
+			'hiddenPanels': [],
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 
@@ -221,6 +222,10 @@ GoAccess.Util = {
 		return value == 0 ? String(val) : val;
 	},
 
+	isPanelHidden: function (panel) {
+		return GoAccess.AppPrefs.hiddenPanels.includes(panel);
+	},
+
 	isPanelValid: function (panel) {
 		var data = GoAccess.getPanelData(), ui = GoAccess.getPanelUI();
 		return (!ui.hasOwnProperty(panel) || !data.hasOwnProperty(panel) || !ui[panel].id);
@@ -286,6 +291,22 @@ GoAccess.Util = {
 		var elemBottom = el.getBoundingClientRect().bottom;
 		return elemTop < window.innerHeight && elemBottom >= 0;
 	},
+
+	togglePanel: function(panel) {
+		var index = GoAccess.AppPrefs.hiddenPanels.indexOf(panel);
+		if (index == -1) {
+			GoAccess.AppPrefs.hiddenPanels.push(panel);
+		} else {
+			GoAccess.AppPrefs.hiddenPanels.splice(index, 1);
+		}
+		GoAccess.setPrefs();
+
+		delete GoAccess.AppCharts[panel];
+		GoAccess.OverallStats.initialize();
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
+	},
 };
 
 // OVERALL STATS
@@ -318,6 +339,11 @@ GoAccess.OverallStats = {
 		var idx = 0, row = null;
 
 		$('.last-updated').innerHTML = data.date_time;
+		$('.wrap-general').innerHTML = '';
+
+		if (GoAccess.Util.isPanelHidden('general'))
+			return false;
+
 		$('.wrap-general').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
 			'from': data.start_date,
 			'to': data.end_date,
@@ -428,6 +454,15 @@ GoAccess.Nav = {
 				this.toggleAutoHideTables();
 			}.bind(this);
 		}.bind(this));
+
+		$$('.toggle-panel', function (item) {
+			item.onclick = function (e) {
+				e.stopPropagation();
+				var panel = e.currentTarget.getAttribute('data-panel');
+				GoAccess.Util.togglePanel(panel);
+				item.classList.toggle('active');
+			}.bind(this);
+		}.bind(this));
 	},
 
 	downloadJSON: function (e) {
@@ -472,7 +507,7 @@ GoAccess.Nav = {
 		var ui = GoAccess.getPanelUI();
 		var showTables = GoAccess.Tables.showTables();
 		Object.keys(ui).forEach(function (panel, idx) {
-			if (!GoAccess.Util.isPanelValid(panel))
+			if (!GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				ui[panel]['table'] = !showTables;
 		}.bind(this));
 
@@ -541,6 +576,7 @@ GoAccess.Nav = {
 				'head': ui[panel].head,
 				'key': panel,
 				'icon': this.getIcon(panel),
+				'hidden': GoAccess.Util.isPanelHidden(panel)
 			});
 		}
 		return menu;
@@ -577,7 +613,9 @@ GoAccess.Nav = {
 		o['labels'] = GoAccess.i18n;
 
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.opts.render(o);
-		$('nav').classList.toggle('active');
+		requestAnimationFrame(function () {
+			$('nav').classList.toggle('active');
+		});
 		this.events();
 	},
 
@@ -585,10 +623,13 @@ GoAccess.Nav = {
 	renderMenu: function (e) {
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.menu.render({
 			'nav': this.getItems(),
-			'overall': window.location.hash.substr(1) == '',
+			'overall_current': window.location.hash.substr(1) == '',
+			'overall_hidden': GoAccess.Util.isPanelHidden('general'),
 			'labels': GoAccess.i18n,
 		});
-		$('nav').classList.toggle('active');
+		requestAnimationFrame(function () {
+			$('nav').classList.toggle('active');
+		});
 		this.events();
 	},
 
@@ -843,7 +884,7 @@ GoAccess.Panels = {
 		var ui = GoAccess.getPanelUI();
 		var ele = $('#panel-' + panel);
 
-		if (GoAccess.Util.isPanelValid(panel))
+		if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 			return false;
 
 		var col = ele.parentNode;
@@ -860,7 +901,7 @@ GoAccess.Panels = {
 
 		$('.wrap-panels').innerHTML = '';
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			row = this.createRow(row, idx++);
 			col = this.createCol(row);
@@ -1133,7 +1174,7 @@ GoAccess.Charts = {
 	// Render all charts for the applicable panels.
 	renderCharts: function (ui) {
 		for (var panel in ui) {
-			if (!ui.hasOwnProperty(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			this.addChart(panel, ui[panel]);
 		}
@@ -1141,7 +1182,7 @@ GoAccess.Charts = {
 
 	resetChart: function (panel) {
 		var ui = {};
-		if (GoAccess.Util.isPanelValid(panel))
+		if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 			return false;
 
 		ui = GoAccess.getPanelUI(panel);
@@ -1624,7 +1665,7 @@ GoAccess.Tables = {
 	renderTables: function (force) {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel) || !this.showTables())
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel) || !this.showTables())
 				continue;
 			if (force || GoAccess.Util.isWithinViewPort($('#panel-' + panel)))
 				this.renderFullTable(panel);
@@ -1748,7 +1789,7 @@ GoAccess.App = {
 	verifySort: function () {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			var sort = GoAccess.Util.getProp(GoAccess.AppState, panel + '.sort');
 			// do not sort panels if they still hold the same sort properties
