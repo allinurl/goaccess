@@ -506,8 +506,15 @@ add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
   struct in6_addr addr6, mask6, nwork6;
   struct in_addr addr4, mask4, nwork4;
 
-  const char *m4 = "255.255.255.0";
-  const char *m6 = "ffff:ffff:ffff:ffff:0000:0000:0000:0000";
+  const char *arr4[] = { "255.255.255.0", "255.255.0.0", "255.0.0.0" };
+  const char *arr6[] = {
+      "ffff:ffff:ffff:ffff:0000:0000:0000:0000",
+      "ffff:ffff:ffff:0000:0000:0000:0000:0000",
+      "ffff:ffff:0000:0000:0000:0000:0000:0000"
+  };
+
+  char *m4 = (char *)arr4[0];
+  char *m6 = (char *)arr6[0];
 
   if (map_data (h->module, item, type, &data, &hits) == 1)
     return;
@@ -516,6 +523,11 @@ add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
     add_data_to_holder (item, h, type, panel);
     free (data);
     return;
+  }
+
+  if (conf.anonymize_level == ANONIMYZE_STRONG || conf.anonymize_level == ANONIMYZE_PEDANTIC) {
+      m4 = (char *)arr4[conf.anonymize_level - 1];
+      m6 = (char *)arr6[conf.anonymize_level - 1];
   }
 
   if (1 == inet_pton (AF_INET, data, &addr4)) {

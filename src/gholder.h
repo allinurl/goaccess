@@ -37,6 +37,13 @@
 #include "commons.h"
 #include "sort.h"
 
+/* Default Anonymization Levels */
+typedef enum GAnonymizeLevels_ {
+  ANONYMIZE_DEFAULT = 1,
+  ANONIMYZE_STRONG,
+  ANONIMYZE_PEDANTIC,
+} GAnonymizeLevels;
+
 /* Function Prototypes */
 GHolder *new_gholder (uint32_t size);
 void *add_hostname_node (void *ptr_holder);
