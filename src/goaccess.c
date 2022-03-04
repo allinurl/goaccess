@@ -210,7 +210,7 @@ cleanup (int ret) {
   if (!conf.output_stdout)
     endwin ();
 
-  fprintf (stderr, "Cleaning up resources...\n");
+  fprintf (stdout, "Cleaning up resources...\n");
   /* unable to process valid data */
   if (ret)
     output_logerrors ();
