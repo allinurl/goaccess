@@ -86,6 +86,7 @@ struct option long_opts[] = {
   {"unix-socket"          , required_argument , 0 , 0  }  ,
   {"all-static-files"     , no_argument       , 0 , 0  }  ,
   {"anonymize-ip"         , no_argument       , 0 , 0  }  ,
+  {"anonymize-level"      , required_argument , 0 , 0  }  ,
   {"color"                , required_argument , 0 , 0  }  ,
   {"color-scheme"         , required_argument , 0 , 0  }  ,
   {"crawlers-only"        , no_argument       , 0 , 0  }  ,
@@ -236,6 +237,7 @@ cmd_help (void)
   "  --4xx-to-unique-count           - Add 4xx client errors to the unique visitors count.\n"
   "  --all-static-files              - Include static files with a query string.\n"
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
+  "  --anonymize-level=<1|2|3>       - Anonymization levels: 1 => default, 2 => strong, 3 => pedantic.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr>           - Date specificity. Possible values: `date` (default), or `hr`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
@@ -491,6 +493,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* anonymize ip */
   if (!strcmp ("anonymize-ip", name))
     conf.anonymize_ip = 1;
+
+  /* anonymization level */
+  if (!strcmp ("anonymize-level", name))
+    conf.anonymize_level = atoi (oarg);
 
   /* all static files */
   if (!strcmp ("all-static-files", name))
