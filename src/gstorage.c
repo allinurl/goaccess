@@ -828,12 +828,17 @@ get_kroot (GKeyData * kdata, const char *root_key, const char *root) {
  * look like: 03/Jan/2016:09 */
 static void
 set_spec_visitor_key (char **fdate, const char *ftime) {
-  size_t dlen = 0, tlen = 0;
+  size_t dlen = 0, tlen = 0, idx = 0;
   char *key = NULL, *tkey = NULL, *pch = NULL;
 
   tkey = xstrdup (ftime);
-  if (conf.date_spec_hr && (pch = strchr (tkey, ':')) && (pch - tkey) > 0)
+  if (conf.date_spec_hr == 1 && (pch = strchr (tkey, ':')) && (pch - tkey) > 0)
     *pch = '\0';
+  else if (conf.date_spec_hr == 2 && (pch = strrchr (tkey, ':')) && (pch - tkey) > 0) {
+    *pch = '\0';
+    if ((pch = strchr(tkey, ':')) && (idx = pch - tkey))
+      memmove(&tkey[idx], &tkey[idx + 1], strlen(tkey) - idx);
+  }
 
   dlen = strlen (*fdate);
   tlen = strlen (tkey);

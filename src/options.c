@@ -509,6 +509,9 @@ parse_long_opt (const char *name, const char *oarg) {
   /* date specificity */
   if (!strcmp ("date-spec", name) && !strcmp (oarg, "hr"))
     conf.date_spec_hr = 1;
+  /* date specificity */
+  if (!strcmp ("date-spec", name) && !strcmp (oarg, "min"))
+    conf.date_spec_hr = 2;
 
   /* double decode */
   if (!strcmp ("double-decode", name))
