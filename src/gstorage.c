@@ -836,8 +836,8 @@ set_spec_visitor_key (char **fdate, const char *ftime) {
     *pch = '\0';
   else if (conf.date_spec_hr == 2 && (pch = strrchr (tkey, ':')) && (pch - tkey) > 0) {
     *pch = '\0';
-    if ((pch = strchr(tkey, ':')) && (idx = pch - tkey))
-      memmove(&tkey[idx], &tkey[idx + 1], strlen(tkey) - idx);
+    if ((pch = strchr (tkey, ':')) && (idx = pch - tkey))
+      memmove (&tkey[idx], &tkey[idx + 1], strlen (tkey) - idx);
   }
 
   dlen = strlen (*fdate);
