@@ -552,6 +552,22 @@ zeros.
 e.g., 192.168.20.100 => 192.168.20.0
 e.g., 2a03:2880:2110:df07:face:b00c::1 => 2a03:2880:2110:df07::
 .TP
+\fB\-\-anonymize-level
+Specifies the anonymization levels: 1 => default, 2 => strong, 3 => pedantic.
+.TS
+allbox;
+lb lb lb lb
+l l l l.
+Bits-hidden	Level 1	Level 2	Level 3
+T{
+.BR IPv4
+T}	8	16	24
+T{
+.BR IPv6
+T}	64	80	96
+.TE
+
+.TP
 \fB\-\-all-static-files
 Include static files that contain a query string. e.g.,
 /fonts/fontawesome-webfont.woff?v=4.0.3
