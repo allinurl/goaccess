@@ -1089,6 +1089,7 @@ print_json_i18n_def (FILE * fp) {
     {"display_tables" , HTML_REPORT_NAV_DISPLAY_TABLES} ,
     {"ah_small"       , HTML_REPORT_NAV_AH_SMALL}       ,
     {"ah_small_title" , HTML_REPORT_NAV_AH_SMALL_TITLE} ,
+    {"toggle_panel"   , HTML_REPORT_NAV_TOGGLE_PANEL}   ,
     {"layout"         , HTML_REPORT_NAV_LAYOUT}         ,
     {"horizontal"     , HTML_REPORT_NAV_HOR}            ,
     {"vertical"       , HTML_REPORT_NAV_VER}            ,

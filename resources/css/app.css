@@ -87,7 +87,6 @@ nav {
 nav .nav-list {
 	height: 100%;
 	overflow-y: auto;
-	width: 350px;
 }
 nav header {
 	margin: 40px 20px 30px;
@@ -158,13 +157,14 @@ nav li {
 	position: relative;
 }
 nav li .toggle-panel {
-	position: absolute;
-	padding: 9px 20px;
-	top: 0;
-	right: 50px;
-	visibility: hidden;
+	cursor: pointer;
 	opacity: 0;
+	padding: 9px 20px;
+	position: absolute;
+	right: 0;
+	top: 0;
 	transition: all .2s;
+	visibility: hidden;
 }
 nav li .toggle-panel i {
 	color: rgba(200,200,200,.5);
@@ -196,7 +196,7 @@ nav li a {
 	white-space: nowrap;
 }
 nav.active li a {
-	max-width: 100%;
+	max-width: 90%;
 	opacity: 1;
 }
 nav li:hover a,

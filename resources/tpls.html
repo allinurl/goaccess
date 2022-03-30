@@ -212,12 +212,12 @@
 	<ul>
 		<li {{#overall_current}}class="active"{{/overall_current}}>
 			<a href="#"><i class="fa fa-bar-chart"></i> {{labels.thead}}</a>
-			<span class="toggle-panel {{#overall_hidden}}active{{/overall_hidden}}" data-panel="general"><i class="fa fa-circle-o"></i></span>
+			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#overall_hidden}}active{{/overall_hidden}}" data-panel="general"><i class="fa fa-circle-o"></i></span>
 		</li>
 		{{#nav}}
 		<li {{#current}}class="active"{{/current}}>
 			<a href="#{{key}}"><i class="fa fa-{{icon}}"></i> {{head}}</a>
-			<span class="toggle-panel {{#hidden}}active{{/hidden}}" data-panel="{{key}}"><i class="fa fa-circle-o"></i></span>
+			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#hidden}}active{{/hidden}}" data-panel="{{key}}"><i class="fa fa-circle-o"></i></span>
 		</li>
 		{{/nav}}
 	</ul>

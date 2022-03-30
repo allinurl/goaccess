@@ -341,6 +341,8 @@
   N_("Auto-Hide on Small Devices")
 #define HTML_REPORT_NAV_AH_SMALL_TITLE \
   N_("Automatically hide tables on small screen devices")
+#define HTML_REPORT_NAV_TOGGLE_PANEL   \
+  N_("Toggle Panel")
 #define HTML_REPORT_NAV_LAYOUT         \
   N_("Layout")
 #define HTML_REPORT_NAV_HOR            \
