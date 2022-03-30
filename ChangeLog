@@ -1,3 +1,10 @@
+Changes to GoAccess 1.5.6 - Wednesday, March 30, 2022
+
+  - Added `--anonymize-level=<1|2|3>` option to specify IP anonymization level.
+  - Added minute specificity to the Visitors panel via `--date-spec=min`.
+  - Added the ability to toggle on/off panels on the HTML report.
+  - Changed stderr to stdout on non-error output when exiting goaccess.
+
 Changes to GoAccess 1.5.5 - Monday, January 31, 2022
 
   - Added mechanism to automatically parse additional bots.
