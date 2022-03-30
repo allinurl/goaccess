@@ -1,4 +1,4 @@
-.TH goaccess 1 "JANUARY 2022" GNU+Linux "User Manuals"
+.TH goaccess 1 "MARCH 2022" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -31,8 +31,9 @@ crawlers/spiders.
 .IP
 Optionally, date specificity can be set to the hour level using
 .I --date-spec=hr
-which will display dates such as 05/Jun/2016:16. This is great if you want to
-track your daily traffic at the hour level.
+which will display dates such as 05/Jun/2016:16, or to the minute level
+producing 05/Jun/2016:16:59. This is great if you want to track your daily
+traffic at the hour or minute level.
 .IP "Requested files"
 This panel displays the most requested (non-static) files on your web server.
 It shows hits, unique visitors, and percentage, along with the cumulative
@@ -562,13 +563,13 @@ Include an additional delimited list of browsers/crawlers/feeds etc.
 See config/browsers.list for an example or
 https://raw.githubusercontent.com/allinurl/goaccess/master/config/browsers.list
 .TP
-\fB\-\-date-spec=<date|hr>
-Set the date specificity to either date (default) or hr to display hours
-appended to the date.
+\fB\-\-date-spec=<date|hr|min>
+Set the date specificity to either date (default), hr to display hours or min
+to display minutes appended to the date.
 .IP
 This is used in the visitors panel. It's useful for tracking visitors at the
 hour level. For instance, an hour specificity would yield to display traffic as
-18/Dec/2010:19
+18/Dec/2010:19 or minute specificity 18/Dec/2010:19:59.
 .TP
 \fB\-\-double-decode
 Decode double-encoded values. This includes, user-agent, request, and referrer.
