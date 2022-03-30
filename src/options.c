@@ -239,7 +239,7 @@ cmd_help (void)
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to report.\n"
   "  --anonymize-level=<1|2|3>       - Anonymization levels: 1 => default, 2 => strong, 3 => pedantic.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
-  "  --date-spec=<date|hr>           - Date specificity. Possible values: `date` (default), or `hr`.\n"
+  "  --date-spec=<date|hr|min>       - Date specificity. Possible values: `date` (default), `hr` or `min`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
   "  --hide-referrer=<NEEDLE>        - Hide a referrer but still count it. Wild cards are allowed.\n"
