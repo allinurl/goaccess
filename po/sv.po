@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-01-31 17:10-0600\n"
+"POT-Creation-Date: 2022-03-29 19:40-0500\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.se>\n"
 "Language-Team: none\n"
@@ -576,360 +576,364 @@ msgid "Automatically hide tables on small screen devices"
 msgstr "Dölj automatiskt tabeller på små skärm enheter"
 
 #: src/labels.h:345
+msgid "Toggle Panel"
+msgstr ""
+
+#: src/labels.h:347
 msgid "Layout"
 msgstr "Layout"
 
-#: src/labels.h:347
+#: src/labels.h:349
 msgid "Horizontal"
 msgstr "Horisontell"
 
-#: src/labels.h:349
+#: src/labels.h:351
 msgid "Vertical"
 msgstr "Vertikal"
 
-#: src/labels.h:351
+#: src/labels.h:353
 msgid "WideScreen"
 msgstr "WideScreen"
 
-#: src/labels.h:353
+#: src/labels.h:355
 msgid "File Options"
 msgstr "Filalternativ"
 
-#: src/labels.h:355
+#: src/labels.h:357
 msgid "Export as JSON"
 msgstr "Exportera som JSON"
 
-#: src/labels.h:357
+#: src/labels.h:359
 msgid "Panel Options"
 msgstr "Panelalternativ"
 
-#: src/labels.h:359
+#: src/labels.h:361
 msgid "Previous"
 msgstr "Föregående"
 
-#: src/labels.h:361
+#: src/labels.h:363
 msgid "Next"
 msgstr "Nästa"
 
-#: src/labels.h:363
+#: src/labels.h:365
 msgid "First"
 msgstr "Första"
 
-#: src/labels.h:365
+#: src/labels.h:367
 msgid "Last"
 msgstr "Sista"
 
-#: src/labels.h:367
+#: src/labels.h:369
 msgid "Chart Options"
 msgstr "Diagramalternativ"
 
-#: src/labels.h:369
+#: src/labels.h:371
 msgid "Chart"
 msgstr "Diagram"
 
-#: src/labels.h:371
+#: src/labels.h:373
 msgid "Type"
 msgstr "Typ"
 
-#: src/labels.h:373
+#: src/labels.h:375
 msgid "Area Spline"
 msgstr "Area Spline"
 
-#: src/labels.h:375
+#: src/labels.h:377
 msgid "Bar"
 msgstr "Bar"
 
-#: src/labels.h:377
+#: src/labels.h:379
 msgid "Plot Metric"
 msgstr "Plot Metric"
 
-#: src/labels.h:379
+#: src/labels.h:381
 msgid "Table Columns"
 msgstr "Tabellkolumn"
 
-#: src/labels.h:383
+#: src/labels.h:385
 msgid "1xx Informational"
 msgstr "1xx Informativ"
 
-#: src/labels.h:385
+#: src/labels.h:387
 msgid "2xx Success"
 msgstr "2xx Success"
 
-#: src/labels.h:387
+#: src/labels.h:389
 msgid "3xx Redirection"
 msgstr "3xx Omdirigering"
 
-#: src/labels.h:389
+#: src/labels.h:391
 msgid "4xx Client Errors"
 msgstr "4xx Klientel"
 
-#: src/labels.h:391
+#: src/labels.h:393
 msgid "5xx Server Errors"
 msgstr "5xx Serverfel"
 
-#: src/labels.h:394
+#: src/labels.h:396
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - Fortsätt: Servern mottog den första delen av begäran"
 
-#: src/labels.h:396
+#: src/labels.h:398
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr "101 - Växlingsprotokoll: Klienten bad om att byta protokoll"
 
-#: src/labels.h:398
+#: src/labels.h:400
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - OK: Förfrågan som skickades av klienten lyckades"
 
-#: src/labels.h:400
+#: src/labels.h:402
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - Skapad: Förfrågan har uppfyllts och skapats"
 
-#: src/labels.h:402
+#: src/labels.h:404
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - Godkänd: Förfrågan har godkänts för behandling"
 
-#: src/labels.h:404
+#: src/labels.h:406
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - Ej auktoritativ information: Svar från en tredje part"
 
-#: src/labels.h:406
+#: src/labels.h:408
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - Inget innehåll: Förfrågan returnerade inte något innehåll"
 
-#: src/labels.h:408
+#: src/labels.h:410
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr ""
 "205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
 
-#: src/labels.h:410
+#: src/labels.h:412
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - Delvis innehåll: Den partiella GET har blivit framgångsrik"
 
-#: src/labels.h:412
+#: src/labels.h:414
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - Multi-Status: WebDAV; RFC 4918"
 
-#: src/labels.h:414
+#: src/labels.h:416
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - Redan rapporterad: WebDAV; RFC 5842"
 
-#: src/labels.h:416
+#: src/labels.h:418
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - Flera val: Multipla alternativ för resursen"
 
-#: src/labels.h:418
+#: src/labels.h:420
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - Flyttade permanent: Resursen har flyttats permanent"
 
-#: src/labels.h:420
+#: src/labels.h:422
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - Flyttade tillfälligt (omdirigera)"
 
-#: src/labels.h:422
+#: src/labels.h:424
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - Se annat dokument: Svaret finns på en annan URI"
 
-#: src/labels.h:424
+#: src/labels.h:426
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - Ej modifierad: Resursen har inte ändrats"
 
-#: src/labels.h:426
+#: src/labels.h:428
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - Använd proxy: Kan endast nås via proxy"
 
-#: src/labels.h:428
+#: src/labels.h:430
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Tillfällig omdirigering: Resurs flyttas tillfälligt"
 
-#: src/labels.h:430
+#: src/labels.h:432
 #, fuzzy
 msgid "308 - Permanent Redirect"
 msgstr "402 - Betalning krävs"
 
-#: src/labels.h:432
+#: src/labels.h:434
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - Dålig begäran: Syntaxen för förfrågan är ogiltig"
 
-#: src/labels.h:434
+#: src/labels.h:436
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - Ej auktoriserad: Begäran behöver användarautentisering"
 
-#: src/labels.h:436
+#: src/labels.h:438
 msgid "402 - Payment Required"
 msgstr "402 - Betalning krävs"
 
-#: src/labels.h:438
+#: src/labels.h:440
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - Förbud: Server vägrar att svara på det"
 
-#: src/labels.h:440
+#: src/labels.h:442
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - Ej funnen: Begärd resurs kunde inte hittas"
 
-#: src/labels.h:442
+#: src/labels.h:444
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - Metod Ej tillåtet: Förfrågan metod stöds inte"
 
-#: src/labels.h:444
+#: src/labels.h:446
 msgid "406 - Not Acceptable"
 msgstr "406 - Ej acceptabelt"
 
-#: src/labels.h:446
+#: src/labels.h:448
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - Proxy-autentisering krävs"
 
-#: src/labels.h:448
+#: src/labels.h:450
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr "408 - Begär tidsavbrott: Server slutade vänta på begäran"
 
-#: src/labels.h:450
+#: src/labels.h:452
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - Konflikt: Konflikt i begäran"
 
-#: src/labels.h:452
+#: src/labels.h:454
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr ""
 "410 - Borta: Begärd resurs är inte längre tillgänglig410 - Gone: "
 "Resursförfrågan är inte längre tillgänglig, Skicka feedback"
 
-#: src/labels.h:454
+#: src/labels.h:456
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
-#: src/labels.h:456
+#: src/labels.h:458
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr ""
 "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
-#: src/labels.h:458
+#: src/labels.h:460
 msgid "413 - Payload Too Large"
 msgstr "413 - Belastningen för stor"
 
-#: src/labels.h:460
+#: src/labels.h:462
 msgid "414 - Request-URI Too Long"
 msgstr "414 - Begär-URI för lång"
 
-#: src/labels.h:462
+#: src/labels.h:464
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - Medietyp som inte stöds: Medietypen stöds inte"
 
-#: src/labels.h:464
+#: src/labels.h:466
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
 msgstr ""
 "416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
 
-#: src/labels.h:466
+#: src/labels.h:468
 msgid "417 - Expectation Failed"
 msgstr "417 - Förväntning misslyckades"
 
-#: src/labels.h:468
+#: src/labels.h:470
 #, fuzzy
 msgid "418 - I'm a teapot"
 msgstr "Jag är en tekanna"
 
-#: src/labels.h:470
+#: src/labels.h:472
 msgid "421 - Misdirected Request"
 msgstr "421 - Felriktad förfrågan"
 
-#: src/labels.h:472
+#: src/labels.h:474
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - Obearbetad entitet på grund av semantiska fel: WebDAV"
 
-#: src/labels.h:474
+#: src/labels.h:476
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - Resursen som nås är låst"
 
-#: src/labels.h:476
+#: src/labels.h:478
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - Misslyckad beroende: WebDAV"
 
-#: src/labels.h:478
+#: src/labels.h:480
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - Uppgradering krävs: Klienten ska byta till ett annat protokoll"
 
-#: src/labels.h:480
+#: src/labels.h:482
 msgid "428 - Precondition Required"
 msgstr "428 - Förutsättning krävs"
 
-#: src/labels.h:482
+#: src/labels.h:484
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
 "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
-#: src/labels.h:484
+#: src/labels.h:486
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - Begär headerfält för stort"
 
-#: src/labels.h:486
+#: src/labels.h:488
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - Ej tillgänglig för juridiska skäl"
 
-#: src/labels.h:488
+#: src/labels.h:490
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) Anslutningen är stängd utan att skicka några rubriker"
 
-#: src/labels.h:490
+#: src/labels.h:492
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) Begär Header För Stor"
 
-#: src/labels.h:492
+#: src/labels.h:494
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) SSL-klientcertifikatfel"
 
-#: src/labels.h:494
+#: src/labels.h:496
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) Klienten lämnade inte certifikat"
 
-#: src/labels.h:496
+#: src/labels.h:498
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) HTTP-begäran skickad till HTTPS-porten"
 
-#: src/labels.h:498
+#: src/labels.h:500
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (Nginx) Anslutning sluten av klienten vid bearbetningsförfrågan"
 
-#: src/labels.h:500
+#: src/labels.h:502
 msgid "500 - Internal Server Error"
 msgstr "500 - Internt serverfel"
 
-#: src/labels.h:502
+#: src/labels.h:504
 msgid "501 - Not Implemented"
 msgstr "501 - Inte Implementerad"
 
-#: src/labels.h:504
+#: src/labels.h:506
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - Dålig Gateway: Fick ett ogiltigt svar från uppströms"
 
-#: src/labels.h:506
+#: src/labels.h:508
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgänglig"
 
-#: src/labels.h:508
+#: src/labels.h:510
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr ""
 "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka "
 "förfrågan"
 
-#: src/labels.h:510
+#: src/labels.h:512
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP-version stöds inte"
 
-#: src/labels.h:512
+#: src/labels.h:514
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webbserver returnerar ett okänt fel"
 
-#: src/labels.h:514
+#: src/labels.h:516
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - webbservern är nere"
 
-#: src/labels.h:516
+#: src/labels.h:518
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - Anslutningen avbröts"
 
-#: src/labels.h:518
+#: src/labels.h:520
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Ursprung är oåtkomligt"
 
-#: src/labels.h:520
+#: src/labels.h:522
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
 
