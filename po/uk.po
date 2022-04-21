@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.4\n"
+"Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2022-03-29 21:11-0500\n"
-"PO-Revision-Date: 2020-06-25 17:12+0300\n"
+"PO-Revision-Date: 2022-04-21 10:17+0300\n"
 "Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
 "Language-Team: \n"
 "Language: uk\n"
@@ -90,7 +90,7 @@ msgstr "Невдалих запитів"
 
 #: src/labels.h:64
 msgid "Log Parsing Time"
-msgstr ""
+msgstr "Час парсингу лога"
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -376,23 +376,23 @@ msgstr "Коди відповідей"
 
 #: src/labels.h:212 src/labels.h:216
 msgid "MIME Types"
-msgstr ""
+msgstr "MIME-типи"
 
 #: src/labels.h:214
 msgid "File types shipped out"
-msgstr ""
+msgstr "Типи відправлених файлів"
 
 #: src/labels.h:219
 msgid "Encryption settings"
-msgstr ""
+msgstr "Налаштування шифрування"
 
 #: src/labels.h:221
 msgid "TLS version and picked algorithm"
-msgstr ""
+msgstr "Версія TLS та вибраний алгоритм"
 
 #: src/labels.h:223
 msgid "TLS Settings"
-msgstr ""
+msgstr "Налаштування TLS"
 
 #: src/labels.h:227
 msgid "[ ] case sensitive"
@@ -524,7 +524,7 @@ msgstr "Панель '%1$s' відключена"
 
 #: src/labels.h:305
 msgid "No input data was provided nor there's data to restore."
-msgstr ""
+msgstr "Не надано ні вхідних даних, ні даних для відновлення."
 
 #: src/labels.h:309
 msgid "For more details visit"
@@ -596,7 +596,7 @@ msgstr "Автоматично приховувати таблиці на при
 
 #: src/labels.h:345
 msgid "Toggle Panel"
-msgstr ""
+msgstr "Перемикання панелі"
 
 #: src/labels.h:347
 msgid "Layout"
