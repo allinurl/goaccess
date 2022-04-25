@@ -3,7 +3,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.2\n"
+"Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2022-03-29 21:11-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
@@ -71,7 +71,7 @@ msgstr "所有已分析的请求"
 
 #: src/labels.h:60 src/labels.h:81
 msgid "Tx. Amount"
-msgstr ""
+msgstr "数据传输量"
 
 #: src/labels.h:61
 msgid "Date/Time"
@@ -87,7 +87,7 @@ msgstr "失败的请求"
 
 #: src/labels.h:64
 msgid "Log Parsing Time"
-msgstr ""
+msgstr "日志解析耗时"
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -257,11 +257,11 @@ msgstr "已认证用户"
 
 #: src/labels.h:142
 msgid "The cache status of the object served"
-msgstr ""
+msgstr "服务对象的缓存状态"
 
 #: src/labels.h:146
 msgid "Cache Status"
-msgstr ""
+msgstr "缓存状态"
 
 #: src/labels.h:149
 msgid "Not Found URLs (404s)"
@@ -355,23 +355,23 @@ msgstr "状态码"
 
 #: src/labels.h:212 src/labels.h:216
 msgid "MIME Types"
-msgstr ""
+msgstr "MIME 类型"
 
 #: src/labels.h:214
 msgid "File types shipped out"
-msgstr ""
+msgstr "发出的文件类型"
 
 #: src/labels.h:219
 msgid "Encryption settings"
-msgstr ""
+msgstr "加密设置"
 
 #: src/labels.h:221
 msgid "TLS version and picked algorithm"
-msgstr ""
+msgstr "TLS 版本和挑选算法"
 
 #: src/labels.h:223
 msgid "TLS Settings"
-msgstr ""
+msgstr "TLS 设置"
 
 #: src/labels.h:227
 msgid "[ ] case sensitive"
@@ -444,7 +444,7 @@ msgstr "[UP/DOWN]上下滚动 - [q]退出"
 
 #: src/labels.h:275
 msgid "In-Memory with On-Disk Persistent Storage."
-msgstr ""
+msgstr "具有磁盘持久存储的内存中"
 
 #: src/labels.h:279
 msgid "Format Errors - Verify your log/date/time format"
@@ -502,7 +502,7 @@ msgstr "'%1$s' 面板已禁用"
 
 #: src/labels.h:305
 msgid "No input data was provided nor there's data to restore."
-msgstr ""
+msgstr "没有提供输入数据，也没有要恢复的数据"
 
 #: src/labels.h:309
 msgid "For more details visit"
@@ -575,7 +575,7 @@ msgstr "屏幕过小时自动隐藏表格"
 
 #: src/labels.h:345
 msgid "Toggle Panel"
-msgstr ""
+msgstr "切换面板"
 
 #: src/labels.h:347
 msgid "Layout"
@@ -591,7 +591,7 @@ msgstr "纵向"
 
 #: src/labels.h:353
 msgid "WideScreen"
-msgstr ""
+msgstr "宽屏"
 
 #: src/labels.h:355
 msgid "File Options"
@@ -821,7 +821,7 @@ msgstr "417 - 未满足期望值"
 
 #: src/labels.h:470
 msgid "418 - I'm a teapot"
-msgstr ""
+msgstr "418 - 我是一个茶壶"
 
 #: src/labels.h:472
 msgid "421 - Misdirected Request"
