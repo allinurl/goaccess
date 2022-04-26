@@ -43,6 +43,7 @@
 #include "geoip1.h"
 
 #include "error.h"
+#include "labels.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -206,8 +207,10 @@ geoip_query_city (MMDB_lookup_result_s res, char *location) {
   char *city = NULL, *region = NULL;
 
   if (res.found_entry) {
-    city = get_value (res, "city", "names", "en", NULL);
-    region = get_value (res, "subdivisions", "0", "names", "en", NULL);
+    city = get_value (res, "city", "names", DOC_LANG, NULL);
+    region = get_value (res, "subdivisions", "0", "names", DOC_LANG, NULL);
+    if (!city) { city = get_value (res, "city", "names", "en", NULL); }
+    if (!region) { region = get_value (res, "subdivisions", "0", "names", "en", NULL); }
   }
   geoip_set_city (city, region, location);
   free (city);
@@ -223,8 +226,9 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
   char *country = NULL, *code = NULL;
 
   if (res.found_entry) {
-    country = get_value (res, "country", "names", "en", NULL);
+    country = get_value (res, "country", "names", DOC_LANG, NULL);
     code = get_value (res, "country", "iso_code", NULL);
+    if (!country) { country = get_value (res, "country", "names", "en", NULL); }
   }
   geoip_set_country (country, code, location);
   free (code);
