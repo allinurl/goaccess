@@ -1,3 +1,12 @@
+Changes to GoAccess 1.5.7 - Thursday, April 28, 2022
+
+  - Updated Caddy's JSON format. This should address CADDY's v2.5.0 change.
+  - Updated Chinese translation (i18n).
+  - Updated GeoIP module so it defaults to native language name (i18n) or
+    fall-back to English.
+  - Updated Russian translation (i18n).
+  - Updated Ukrainian translation (i18n).
+
 Changes to GoAccess 1.5.6 - Wednesday, March 30, 2022
 
   - Added `--anonymize-level=<1|2|3>` option to specify IP anonymization level.
