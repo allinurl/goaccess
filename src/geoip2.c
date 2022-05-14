@@ -90,7 +90,7 @@ init_geoip (void) {
     FATAL ("Unable to open GeoIP2 database %s: %s\n", fn, MMDB_strerror (status));
   }
 
-  if (strcmp (mmdb->metadata.database_type, "GeoLite2-City") == 0)
+  if (strstr (mmdb->metadata.database_type, "-City") != NULL)
     geoip_city_type = 1;
 }
 
