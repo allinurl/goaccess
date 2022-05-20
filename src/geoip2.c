@@ -209,8 +209,12 @@ geoip_query_city (MMDB_lookup_result_s res, char *location) {
   if (res.found_entry) {
     city = get_value (res, "city", "names", DOC_LANG, NULL);
     region = get_value (res, "subdivisions", "0", "names", DOC_LANG, NULL);
-    if (!city) { city = get_value (res, "city", "names", "en", NULL); }
-    if (!region) { region = get_value (res, "subdivisions", "0", "names", "en", NULL); }
+    if (!city) {
+      city = get_value (res, "city", "names", "en", NULL);
+    }
+    if (!region) {
+      region = get_value (res, "subdivisions", "0", "names", "en", NULL);
+    }
   }
   geoip_set_city (city, region, location);
   free (city);
@@ -228,7 +232,9 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
   if (res.found_entry) {
     country = get_value (res, "country", "names", DOC_LANG, NULL);
     code = get_value (res, "country", "iso_code", NULL);
-    if (!country) { country = get_value (res, "country", "names", "en", NULL); }
+    if (!country) {
+      country = get_value (res, "country", "names", "en", NULL);
+    }
   }
   geoip_set_country (country, code, location);
   free (code);

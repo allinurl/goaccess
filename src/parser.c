@@ -1479,8 +1479,9 @@ output_logerrors (void) {
     if (!glog->log_erridx)
       continue;
 
-    fprintf (stderr, "==%d== GoAccess - version %s - %s %s\n", pid, GO_VERSION, __DATE__, __TIME__);
-    fprintf (stderr, "==%d== Config file: %s\n", pid, conf.iconfigfile ?: NO_CONFIG_FILE);
+    fprintf (stderr, "==%d== GoAccess - version %s - %s %s\n", pid, GO_VERSION, __DATE__,
+             __TIME__);
+    fprintf (stderr, "==%d== Config file: %s\n", pid, conf.iconfigfile ? : NO_CONFIG_FILE);
     fprintf (stderr, "==%d== https://goaccess.io - <hello@goaccess.io>\n", pid);
     fprintf (stderr, "==%d== Released under the MIT License.\n", pid);
     fprintf (stderr, "==%d==\n", pid);
