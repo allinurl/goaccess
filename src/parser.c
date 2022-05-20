@@ -1283,13 +1283,10 @@ extract_braces (char **p) {
  * On success, the malloc'd token is assigned to a GLogItem->host and
  * 0 is returned. */
 static int
-find_xff_host (GLogItem * logitem, char **str, char **p) {
-  char *ptr = NULL, *tkn = NULL, *skips = NULL;
+set_xff_host (GLogItem * logitem, char **str, char *skips, int out) {
+  char *ptr = NULL, *tkn = NULL;
   int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
   int idx = 0, skips_len = 0;
-
-  if (!(skips = extract_braces (p)))
-    return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
 
   skips_len = strlen (skips);
   ptr = *str;
@@ -1321,13 +1318,48 @@ find_xff_host (GLogItem * logitem, char **str, char **p) {
     free (tkn);
     idx = 0;
 
+    /* found the client IP, break then */
+    if (logitem->host && out)
+      break;
+
   move:
     *str += len;
   }
 
+  return logitem->host == NULL;
+}
+
+/* Attempt to find possible delimiters in the X-Forwarded-For (XFF) field.
+ *
+ * If no IP is found, 1 is returned.
+ * On success, the malloc'd token is assigned to a GLogItem->host and 0 is returned. */
+static int
+find_xff_host (GLogItem * logitem, char **str, char **p) {
+  char *skips = NULL, *extract = NULL;
+  char pch[2] = { 0 };
+  int res = 0;
+
+  if (!(skips = extract_braces (p)))
+    return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
+
+  /* if the log format current char is not within the braces special chars, then
+   * we assume the range of IPs are within hard delimiters */
+  if (!strchr (skips, **p) && strchr (*str, **p)) {
+    strcpy (pch, (char[2]) { (char) **p, '\0' });
+    if (!(extract = parse_string (&(*str), pch, 1)))
+      goto clean;
+
+    if (!(res = set_xff_host (logitem, &extract, skips, 1)))
+      free (extract);
+    (*str)++;   /* move a char forward from the trailing delim */
+  } else {
+    res = set_xff_host (logitem, str, skips, 0);
+  }
+
+clean:
   free (skips);
 
-  return logitem->host == NULL;
+  return res;
 }
 
 /* Handle special specifiers.
