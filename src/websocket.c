@@ -88,9 +88,9 @@ static struct pollfd *fdstate = NULL;
 static nfds_t nfdstate = 0;
 static WSConfig wsconfig = { 0 };
 
-static void handle_read_close (int conn, WSClient * client, WSServer * server);
-static void handle_reads (int conn, WSServer * server);
-static void handle_writes (int conn, WSServer * server);
+static void handle_read_close (int *conn, WSClient * client, WSServer * server);
+static void handle_reads (int *conn, WSServer * server);
+static void handle_writes (int *conn, WSServer * server);
 #ifdef HAVE_LIBSSL
 static int shutdown_ssl (WSClient * client);
 #endif
@@ -878,7 +878,7 @@ handle_accept_ssl (WSClient * client, WSServer * server) {
  * On error or if no SSL pending status, 1 is returned.
  * On success, the TLS/SSL pending action is called and 0 is returned */
 static int
-handle_ssl_pending_rw (int conn, WSServer * server, WSClient * client) {
+handle_ssl_pending_rw (int *conn, WSServer * server, WSClient * client) {
   if (!wsconfig.use_ssl)
     return 1;
 
@@ -2183,13 +2183,13 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server) {
 
 /* Handle a tcp read close connection. */
 static void
-handle_read_close (int conn, WSClient * client, WSServer * server) {
+handle_read_close (int *conn, WSClient * client, WSServer * server) {
   if (client->status & WS_SENDING) {
     server->closing = 1;
     set_pollfd (client->listener, POLLOUT);
     return;
   }
-  handle_tcp_close (conn, client, server);
+  handle_tcp_close (*conn, client, server);
 }
 
 /* Handle a new socket connection. */
@@ -2216,10 +2216,10 @@ handle_accept (int listener, WSServer * server) {
 
 /* Handle a tcp read. */
 static void
-handle_reads (int conn, WSServer * server) {
+handle_reads (int *conn, WSServer * server) {
   WSClient *client = NULL;
 
-  if (!(client = ws_get_client_from_list (conn, &server->colist)))
+  if (!(client = ws_get_client_from_list (*conn, &server->colist)))
     return;
 
 #ifdef HAVE_LIBSSL
@@ -2235,6 +2235,7 @@ handle_reads (int conn, WSServer * server) {
   /* An error occurred while reading data or connection closed */
   if ((client->status & WS_CLOSE)) {
     handle_read_close (conn, client, server);
+    *conn = -1;
   }
 }
 
@@ -2246,10 +2247,10 @@ handle_write_close (int conn, WSClient * client, WSServer * server) {
 
 /* Handle a tcp write. */
 static void
-handle_writes (int conn, WSServer * server) {
+handle_writes (int *conn, WSServer * server) {
   WSClient *client = NULL;
 
-  if (!(client = ws_get_client_from_list (conn, &server->colist)))
+  if (!(client = ws_get_client_from_list (*conn, &server->colist)))
     return;
 
 #ifdef HAVE_LIBSSL
@@ -2268,7 +2269,7 @@ handle_writes (int conn, WSServer * server) {
    * waiting from the last send() from the server to the client.  e.g.,
    * sending status code */
   if ((client->status & WS_CLOSE) && !(client->status & WS_SENDING))
-    handle_write_close (conn, client, server);
+    handle_write_close (*conn, client, server);
 }
 
 /* Create named pipe (FIFO) with the given pipe name.
@@ -2742,7 +2743,7 @@ ws_socket (int *listener) {
  * descriptors until we have something to read or write. */
 void
 ws_start (WSServer * server) {
-  int listener = -1;
+  int listener = -1, ret = 0;
   struct pollfd *cfdstate = NULL, *pfd, *efd;
   nfds_t ncfdstate = 0;
   bool run = true;
@@ -2770,12 +2771,13 @@ ws_start (WSServer * server) {
     if (ncfdstate != nfdstate) {
       free (cfdstate);
       cfdstate = xmalloc (nfdstate * sizeof (*cfdstate));
+      memset (cfdstate, 0, sizeof (*cfdstate) * nfdstate);
       ncfdstate = nfdstate;
     }
     memcpy (cfdstate, fdstate, ncfdstate * sizeof (*cfdstate));
 
     /* yep, wait patiently */
-    if (poll (cfdstate, nfdstate, -1) == -1) {
+    if ((ret = poll (cfdstate, nfdstate, -1)) == -1) {
       switch (errno) {
       case EINTR:
         LOG (("A signal was caught on poll(2)\n"));
@@ -2788,6 +2790,13 @@ ws_start (WSServer * server) {
     /* iterate over existing connections */
     efd = cfdstate + nfdstate;
     for (pfd = cfdstate; pfd < efd; pfd++) {
+      if (pfd->revents & POLLHUP)
+        LOG (("Got POLLHUP %d\n", pfd->fd));
+      if (pfd->revents & POLLNVAL)
+        LOG (("Got POLLNVAL %d\n", pfd->fd));
+      if (pfd->revents & POLLERR)
+        LOG (("Got POLLERR %d\n", pfd->fd));
+
       /* handle self-pipe trick */
       if (pfd->fd == server->self_pipe[0]) {
         if (pfd->revents & POLLIN) {
@@ -2815,11 +2824,11 @@ ws_start (WSServer * server) {
             if (ffd != NULL)
               ffd->events &= ~POLLIN;
           } else
-            handle_reads (pfd->fd, server);
+            handle_reads (&pfd->fd, server);
         }
         /* handle sending data to a client */
         if (pfd->revents & POLLOUT)
-          handle_writes (pfd->fd, server);
+          handle_writes (&pfd->fd, server);
       }
     }
   }
