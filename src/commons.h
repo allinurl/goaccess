@@ -58,9 +58,11 @@ extern struct tm now_tm;
 #endif
 
 /* maximum number of items within a panel */
-#define MAX_CHOICES      366
+#define MAX_CHOICES          366
 /* real-time */
-#define MAX_CHOICES_RT    50
+#define MAX_CHOICES_RT        50
+/* max default items when date-spec = min */
+#define MAX_CHOICES_MINUTE  1440 /* 24hrs */
 
 /* date and time length - e.g., 2016/12/12 12:12:12 -0600 */
 #define DATE_TIME     25 + 1

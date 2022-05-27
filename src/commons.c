@@ -90,7 +90,7 @@ get_max_choices (void) {
 
   /* no max choices, return defaults */
   if (conf.max_items <= 0)
-    return conf.real_time_html ? MAX_CHOICES_RT : MAX_CHOICES;
+    return conf.real_time_html ? MAX_CHOICES_RT : (conf.date_spec_hr == 2 ? MAX_CHOICES_MINUTE : MAX_CHOICES);
 
   /* TERM */
   if (!conf.output_stdout)
