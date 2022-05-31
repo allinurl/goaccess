@@ -1343,7 +1343,8 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
   char *data = NULL;
   int *idx;
 
-  if (!metrics->data)
+  data = is_subitem ? render_child_node (metrics->data) : metrics->data;
+  if (!data)
     return;
 
   idx = &(*dash)->module[module].idx_data;
@@ -1352,8 +1353,6 @@ set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
 
   idata->metrics = new_gmetrics ();
   idata->is_subitem = is_subitem;
-
-  data = is_subitem ? render_child_node (metrics->data) : metrics->data;
 
   idata->metrics->hits = metrics->hits;
   idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);

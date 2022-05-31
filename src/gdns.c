@@ -157,13 +157,17 @@ gqueue_dequeue (GDnsQueue * q) {
  * On success, a malloc'd hostname is returned. */
 static char *
 reverse_host (const struct sockaddr *a, socklen_t length) {
-  char h[H_SIZE];
+  char h[H_SIZE] = { 0 };
   int flags, st;
 
   flags = NI_NAMEREQD;
   st = getnameinfo (a, length, h, H_SIZE, NULL, 0, flags);
-  if (!st)
+  if (!st) {
+    /* BSD returns \0 while Linux . on solve lookups */
+    if (*h == '\0')
+      return alloc_string (".");
     return alloc_string (h);
+  }
   return alloc_string (gai_strerror (st));
 }
 
