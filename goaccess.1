@@ -913,6 +913,27 @@ enclosed by curly braces. i.e., "~h{, }
 
 For example, "~h{, }" is used in order to parse "11.25.11.53, 17.68.33.17" field
 which is delimited by a comma and a space (enclosed by double quotes).
+
+.TS
+allbox;
+lb lb
+l l.
+XFF field	specifier
+T{
+.BR \[dq]192.1.2.3, \~192.68.33.17,\~192.1.1.2\[dq]
+T}	\[dq]~h{, }\[dq]
+T{
+.BR \[dq]192.1.2.12\[dq],\~\[dq]192.68.33.17\[dq]
+T}	~h{\[dq], }
+T{
+.BR 192.1.2.12,\~192.68.33.17
+T}	~h{, }
+T{
+.BR 192.1.2.14\~192.68.33.17\~192.1.1.2
+T}	~h{ }
+.TE
+
+
 .P
 .I Note:
 In order to get the average, cumulative and maximum time served in GoAccess,
