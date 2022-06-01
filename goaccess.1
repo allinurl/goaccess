@@ -1,4 +1,4 @@
-.TH goaccess 1 "APRIL 2022" GNU+Linux "User Manuals"
+.TH goaccess 1 "MAY 2022" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -909,10 +909,10 @@ The host (the client IP address, either IPv4 or IPv6) in a X-Forwarded-For (XFF)
 
 It uses a special specifier which consists of a tilde before the host
 specifier, followed by the character(s) that delimit the XFF field, which are
-enclosed by curly braces (i.e., ~h{," })
+enclosed by curly braces. i.e., "~h{, }
 
-For example, ~h{," } is used in order to parse "11.25.11.53, 17.68.33.17" field
-which is delimited by a double quote, a comma, and a space.
+For example, "~h{, }" is used in order to parse "11.25.11.53, 17.68.33.17" field
+which is delimited by a comma and a space (enclosed by double quotes).
 .P
 .I Note:
 In order to get the average, cumulative and maximum time served in GoAccess,
