@@ -91,6 +91,12 @@ window.GoAccess = window.GoAccess || {
 
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
+			if (wsConn.ping_interval) {
+				setInterval(() => {
+					socket.send('ping');
+				}, wsConn.ping_interval * 1000);
+			}
+			
 			GoAccess.Nav.WSOpen();
 		}.bind(this);
 
