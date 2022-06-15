@@ -507,7 +507,7 @@ print_conn_def (FILE * fp) {
   fpopen_obj (fp, sp);
   fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
   fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 0);
-  fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : ""), sp, 1);
+  fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : 0), sp, 1);
   fpclose_obj (fp, sp, 1);
 
   fprintf (fp, "</script>");
