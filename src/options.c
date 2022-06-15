@@ -146,6 +146,7 @@ struct option long_opts[] = {
 #endif
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
+  {"ping-interval"        , required_argument , 0 ,  0  } ,
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
 #endif
@@ -207,6 +208,7 @@ cmd_help (void)
   "  --ssl-key=<priv.key>            - Path to TLS/SSL private key.\n"
   "  --user-name=<username>          - Run as the specified user.\n"
   "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
+  "  --ping-interval=<secs>          - Enable WebSocket ping with specified interval in seconds.\n"
   "\n"
   ""
   /* File Options */
@@ -461,6 +463,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* URL to which the WebSocket server responds. */
   if (!strcmp ("ws-url", name))
     conf.ws_url = oarg;
+
+  /* WebSocket ping interval in seconds */
+  if (!strcmp ("ping-interval", name))
+    conf.ping_interval = oarg;
 
   /* FILE OPTIONS
    * ========================= */
