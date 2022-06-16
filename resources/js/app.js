@@ -55,6 +55,10 @@ window.GoAccess = window.GoAccess || {
 			'hiddenPanels': [],
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
+		// WebSocket reconnection
+		this.wsDelay = 1E3;
+		this.currDelay = this.wsDelay;
+		this.maxDelay = 20E3;
 
 		if (GoAccess.Util.hasLocalStorage()) {
 			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
@@ -83,6 +87,12 @@ window.GoAccess = window.GoAccess || {
 		return panel ? this.AppData[panel] : this.AppData;
 	},
 
+	reconnect: function (wsConn) {
+		if (this.currDelay < this.maxDelay)
+			this.currDelay *= 2; // Exponential backoff
+		this.setWebSocket(wsConn);
+	},
+
 	setWebSocket: function (wsConn) {
 		var host = null;
 		host = wsConn.url ? wsConn.url : window.location.hostname ? window.location.hostname : "localhost";
@@ -91,12 +101,14 @@ window.GoAccess = window.GoAccess || {
 
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
+			this.currDelay = this.wsDelay;
+
 			if (wsConn.ping_interval) {
 				setInterval(() => {
 					socket.send('ping');
 				}, wsConn.ping_interval * 1000);
 			}
-			
+
 			GoAccess.Nav.WSOpen();
 		}.bind(this);
 
@@ -108,6 +120,8 @@ window.GoAccess = window.GoAccess || {
 
 		socket.onclose = function (event) {
 			GoAccess.Nav.WSClose();
+			socket = null;
+			setTimeout(() => { this.reconnect(wsConn); }, this.currDelay);
 		}.bind(this);
 	},
 };
