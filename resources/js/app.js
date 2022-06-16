@@ -55,10 +55,12 @@ window.GoAccess = window.GoAccess || {
 			'hiddenPanels': [],
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
+
 		// WebSocket reconnection
-		this.wsDelay = 1E3;
-		this.currDelay = this.wsDelay;
-		this.maxDelay = 20E3;
+		this.wsDelay    = this.currDelay = 1E3;
+		this.maxDelay   = 20E3;
+		this.retries    = 0;
+		this.maxRetries = 20;
 
 		if (GoAccess.Util.hasLocalStorage()) {
 			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
@@ -88,6 +90,10 @@ window.GoAccess = window.GoAccess || {
 	},
 
 	reconnect: function (wsConn) {
+		if (this.retries >= this.maxRetries)
+			return window.clearTimeout(this.wsTimer);
+
+		this.retries++;
 		if (this.currDelay < this.maxDelay)
 			this.currDelay *= 2; // Exponential backoff
 		this.setWebSocket(wsConn);
@@ -103,11 +109,9 @@ window.GoAccess = window.GoAccess || {
 		socket.onopen = function (event) {
 			this.currDelay = this.wsDelay;
 
-			if (wsConn.ping_interval) {
-				pingId = setInterval(() => {
-					socket.send('ping');
-				}, wsConn.ping_interval * 1000);
-			}
+			// attempt to keep connection alive (e.g., ping/pong)
+			if (wsConn.ping_interval)
+				pingId = setInterval(() => { socket.send('ping'); }, wsConn.ping_interval * 1E3);
 
 			GoAccess.Nav.WSOpen();
 		}.bind(this);
@@ -122,7 +126,7 @@ window.GoAccess = window.GoAccess || {
 			GoAccess.Nav.WSClose();
 			window.clearInterval(pingId);
 			socket = null;
-			setTimeout(() => { this.reconnect(wsConn); }, this.currDelay);
+			this.wsTimer = setTimeout(() => { this.reconnect(wsConn); }, this.currDelay);
 		}.bind(this);
 	},
 };
