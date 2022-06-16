@@ -108,6 +108,7 @@ window.GoAccess = window.GoAccess || {
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
 			this.currDelay = this.wsDelay;
+			this.retries = 0;
 
 			// attempt to keep connection alive (e.g., ping/pong)
 			if (wsConn.ping_interval)
