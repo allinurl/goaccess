@@ -2153,7 +2153,7 @@ read_client_data (WSClient * client, WSServer * server) {
 /* Handle a tcp close connection. */
 static void
 handle_tcp_close (int conn, WSClient * client, WSServer * server) {
-    LOG (("Closing TCP %d [%s]\n", client->listener, client->remote_ip));
+  LOG (("Closing TCP %d [%s]\n", client->listener, client->remote_ip));
 
 #ifdef HAVE_LIBSSL
   if (client->ssl)
@@ -2509,26 +2509,52 @@ clear_fifo_packet (WSPipeIn * pipein) {
 
 /* Broadcast to all connected clients the given message. */
 static int
-ws_broadcast_fifo (void *value, void *user_data) {
-  WSClient *client = value;
-  WSServer *server = user_data;
+ws_broadcast_fifo (WSClient * client, WSServer * server) {
   WSPacket *packet = server->pipein->packet;
 
   LOG (("Broadcasting to %d [%s] ", client->listener, client->remote_ip));
-  if (client == NULL || user_data == NULL)
+  if (client == NULL)
     return 1;
-  /* no handshake for this client */
-  if (client->headers == NULL || client->headers->ws_accept == NULL) {
-    LOG (("No headers. Closing %d [%s]\n", client->listener, client->remote_ip));
 
-    handle_tcp_close (client->listener, client, server);
-    return 0;
+  if (client->headers == NULL || client->headers->ws_accept == NULL) {
+    /* no handshake for this client */
+    LOG (("No headers. Closing %d [%s]\n", client->listener, client->remote_ip));
+    return -1;
   }
 
   LOG ((" - Sending...\n"));
   ws_send_data (client, packet->type, packet->data, packet->size);
 
   return 0;
+}
+
+static void
+ws_broadcast_fifo_to_clients (WSServer * server) {
+  WSClient *client = NULL;
+  void *data = NULL;
+  uint32_t *close_list = NULL;
+  int n = 0, idx = 0, i = 0, listener = 0;
+
+  if ((n = list_count (server->colist)) == 0)
+    return;
+
+  close_list = xcalloc (n, sizeof (uint32_t));
+  /* *INDENT-OFF* */
+  GSLIST_FOREACH (server->colist, data, {
+    client = data;
+    if (ws_broadcast_fifo(client, server) == -1)
+      close_list[idx++] = client->listener;
+  });
+  /* *INDENT-ON* */
+
+  client = NULL;
+  for (i = 0; i < idx; ++i) {
+    listener = close_list[i];
+    if ((client = ws_get_client_from_list (listener, &server->colist)))
+      handle_tcp_close (listener, client, server);
+  }
+
+  free (close_list);
 }
 
 /* Send a message from the incoming named pipe to specific client
@@ -2669,7 +2695,7 @@ handle_strict_fifo (WSServer * server) {
   if (listener != 0)
     ws_send_strict_fifo_to_client (server, listener, *pa);
   else
-    list_foreach (server->colist, ws_broadcast_fifo, server);
+    ws_broadcast_fifo_to_clients (server);
   clear_fifo_packet (pi);
 }
 
@@ -2702,7 +2728,7 @@ handle_fixed_fifo (WSServer * server) {
   }
 
   /* broadcast message to all clients */
-  list_foreach (server->colist, ws_broadcast_fifo, server);
+  ws_broadcast_fifo_to_clients (server);
   clear_fifo_packet (pi);
 }
 
