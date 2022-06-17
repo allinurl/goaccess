@@ -2539,8 +2539,13 @@ ws_send_strict_fifo_to_client (WSServer * server, int listener, WSPacket * pa) {
   if (!(client = ws_get_client_from_list (listener, &server->colist)))
     return;
   /* no handshake for this client */
-  if (client->headers == NULL || client->headers->ws_accept == NULL)
+  if (client->headers == NULL || client->headers->ws_accept == NULL) {
+    LOG (("No headers. Closing %d [%s]\n", client->listener, client->remote_ip));
+
+    handle_tcp_close (client->listener, client, server);
+    client->status = WS_CLOSE;
     return;
+  }
   ws_send_data (client, pa->type, pa->data, pa->len);
 }
 
