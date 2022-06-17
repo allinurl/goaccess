@@ -2524,8 +2524,8 @@ ws_broadcast_fifo (void *value, void *user_data) {
     return 0;
   }
 
+  LOG ((" - Sending...\n"));
   ws_send_data (client, packet->type, packet->data, packet->size);
-  LOG ((" - Sent\n"));
 
   return 0;
 }
