@@ -2188,7 +2188,7 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server) {
 
   /* remove client from our list */
   ws_remove_client_from_list (client, server);
-  LOG (("Active: %d\n", list_count (server->colist)));
+  LOG (("Connection Closed.\nActive: %d\n", list_count (server->colist)));
 }
 
 /* Handle a tcp read close connection. */
