@@ -1599,9 +1599,12 @@ ws_get_handshake (WSClient * client, WSServer * server) {
   readh = client->headers->buflen;
   /* Probably the connection was closed before finishing handshake */
   if ((bytes = read_socket (client, buf + readh, WS_MAX_HEAD_SZ - readh)) < 1) {
-    if (client->status & WS_CLOSE)
+    if (client->status & WS_CLOSE) {
+      LOG (("Connection aborted %d [%s]...\n", client->listener, client->remote_ip));
       http_error (client, WS_BAD_REQUEST_STR);
-    return bytes;
+    }
+    LOG (("Can't establish handshake %d [%s]...\n", client->listener, client->remote_ip));
+    return ws_set_status (client, WS_CLOSE, bytes);
   }
   client->headers->buflen += bytes;
 
@@ -1609,21 +1612,26 @@ ws_get_handshake (WSClient * client, WSServer * server) {
 
   /* Must have a \r\n\r\n */
   if (strstr (buf, "\r\n\r\n") == NULL) {
-    if (strlen (buf) < WS_MAX_HEAD_SZ)
+    if (strlen (buf) < WS_MAX_HEAD_SZ) {
+      LOG (("Headers too long %d [%s]...\n", client->listener, client->remote_ip));
       return ws_set_status (client, WS_READING, bytes);
+    }
 
+    LOG (("Invalid newlines for handshake %d [%s]...\n", client->listener, client->remote_ip));
     http_error (client, WS_BAD_REQUEST_STR);
     return ws_set_status (client, WS_CLOSE, bytes);
   }
 
   /* Ensure we have valid HTTP headers for the handshake */
   if (parse_headers (client->headers) != 0) {
+    LOG (("Invalid headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
     http_error (client, WS_BAD_REQUEST_STR);
     return ws_set_status (client, WS_CLOSE, bytes);
   }
 
   /* Ensure we have the required headers */
   if (ws_verify_req_headers (client->headers) != 0) {
+    LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
     http_error (client, WS_BAD_REQUEST_STR);
     return ws_set_status (client, WS_CLOSE, bytes);
   }
@@ -2184,7 +2192,9 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server) {
 /* Handle a tcp read close connection. */
 static void
 handle_read_close (int *conn, WSClient * client, WSServer * server) {
-  if (client->status & WS_SENDING) {
+  /* We can still try to send a message to the client if not forcing close, (nice
+   * goodbye), else proceed to close it */
+  if (!(client->status & WS_CLOSE) && client->status & WS_SENDING) {
     server->closing = 1;
     set_pollfd (client->listener, POLLOUT);
     return;
@@ -2211,7 +2221,7 @@ handle_accept (int listener, WSServer * server) {
     client->sslstatus |= WS_TLS_ACCEPTING;
 #endif
 
-  LOG (("Accepted: %d %s\n", newfd, client->remote_ip));
+  LOG (("Accepted: %d [%s]\n", newfd, client->remote_ip));
 }
 
 /* Handle a tcp read. */
@@ -2221,6 +2231,8 @@ handle_reads (int *conn, WSServer * server) {
 
   if (!(client = ws_get_client_from_list (*conn, &server->colist)))
     return;
+
+  LOG (("Handling read %d [%s]...\n", client->listener, client->remote_ip));
 
 #ifdef HAVE_LIBSSL
   if (handle_ssl_pending_rw (conn, server, client) == 0)
@@ -2497,15 +2509,23 @@ clear_fifo_packet (WSPipeIn * pipein) {
 static int
 ws_broadcast_fifo (void *value, void *user_data) {
   WSClient *client = value;
-  WSPacket *packet = user_data;
+  WSServer *server = user_data;
+  WSPacket *packet = server->pipein->packet;
 
+  LOG (("Broadcasting to %d [%s] ", client->listener, client->remote_ip));
   if (client == NULL || user_data == NULL)
     return 1;
   /* no handshake for this client */
-  if (client->headers == NULL || client->headers->ws_accept == NULL)
-    return 1;
+  if (client->headers == NULL || client->headers->ws_accept == NULL) {
+    LOG (("No headers. Closing %d [%s]\n", client->listener, client->remote_ip));
+
+    handle_tcp_close (client->listener, client, server);
+    client->status = WS_CLOSE;
+    return 0;
+  }
 
   ws_send_data (client, packet->type, packet->data, packet->size);
+  LOG ((" - Sent\n"));
 
   return 0;
 }
@@ -2644,7 +2664,7 @@ handle_strict_fifo (WSServer * server) {
   if (listener != 0)
     ws_send_strict_fifo_to_client (server, listener, *pa);
   else
-    list_foreach (server->colist, ws_broadcast_fifo, *pa);
+    list_foreach (server->colist, ws_broadcast_fifo, server);
   clear_fifo_packet (pi);
 }
 
@@ -2677,7 +2697,7 @@ handle_fixed_fifo (WSServer * server) {
   }
 
   /* broadcast message to all clients */
-  list_foreach (server->colist, ws_broadcast_fifo, *pa);
+  list_foreach (server->colist, ws_broadcast_fifo, server);
   clear_fifo_packet (pi);
 }
 
