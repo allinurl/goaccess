@@ -1314,37 +1314,15 @@ parse_time_specificity_string (char *hmark, char *ftime) {
 static int
 gen_visit_time_key (GKeyData * kdata, GLogItem * logitem) {
   char *hmark = NULL;
-  char hour[HRMI_LEN] = "";     /* %H:%M */
   if (!logitem->time)
     return 1;
 
-  /* if not a timestamp, then it must be a string containing the hour.
-   * this is faster than actual date conversion */
-  if (!has_timestamp (conf.time_format) && (hmark = strchr (logitem->time, ':'))) {
+  /* it must be a string containing the hour. */
+  if ((hmark = strchr (logitem->time, ':')))
     parse_time_specificity_string (hmark, logitem->time);
 
-    kdata->numdate = logitem->numdate;
-    get_kdata (kdata, logitem->time, logitem->time);
-    return 0;
-  }
-
-  /* otherwise it attempts to convert the date given a time format,
-   * though this is slower */
-  memset (hour, 0, sizeof *hour);
-  if (convert_date (hour, logitem->time, "%T", "%H:%M", HRMI_LEN) != 0)
-    return 1;
-
-  if (*hour == '\0')
-    return 1;
-
-  if ((hmark = strchr (hour, ':')))
-    parse_time_specificity_string (hmark, hour);
-
-  free (logitem->time);
-  logitem->time = xstrdup (hour);
-
-  get_kdata (kdata, logitem->time, logitem->time);
   kdata->numdate = logitem->numdate;
+  get_kdata (kdata, logitem->time, logitem->time);
 
   return 0;
 }
