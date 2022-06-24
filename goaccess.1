@@ -204,6 +204,19 @@ If the timestamp is given in milliseconds
 .I %*
 must be used as date-format.
 .TP
+\fB\-\-datetime-format=<date_time_format>
+The date and time format combines the two variables into a single option. This
+gives the ability to get the timezone from a request and convert it to another
+timezone for output. See
+.I --tz=<timezone>
+.IP
+They all begin with a percentage (%) sign. See `man strftime`. e.g.,
+.I %d/%b/%Y:%H:%M:%S %z.
+.IP
+Note that if --datetime-format is used,
+.I %x
+must be passed in the log-format variable to represent the date and time field.
+.TP
 \fB\-\-log-format=<logformat>
 The log-format variable followed by a space or
 .I \\\\t
@@ -374,6 +387,18 @@ Do not show the last updated field displayed in the HTML generated report.
 .TP
 \fB\-\-no-parsing-spinner
 Do now show the progress metrics and parsing spinner.
+.TP
+\fB\-\-tz=<timezone>
+Ouputs the report date/time data in the given timezone. Note that it uses the
+canonical timezone name. e.g.,
+.I Europe/Berlin
+or
+.I America/Chicago
+or
+.I Africa/Cairo
+If an invalid timezone name is given, the ouput will be in GMT. See
+.I --datetime-format
+in order to properly specify a timezone in the date/time format.
 .SS
 SERVER OPTIONS
 .P

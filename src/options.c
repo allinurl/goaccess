@@ -91,6 +91,7 @@ struct option long_opts[] = {
   {"color-scheme"         , required_argument , 0 , 0  }  ,
   {"crawlers-only"        , no_argument       , 0 , 0  }  ,
   {"daemonize"            , no_argument       , 0 , 0  }  ,
+  {"datetime-format"     , required_argument , 0 , 0  }  ,
   {"date-format"          , required_argument , 0 , 0  }  ,
   {"date-spec"            , required_argument , 0 , 0  }  ,
   {"db-path"              , required_argument , 0 , 0  }  ,
@@ -139,6 +140,7 @@ struct option long_opts[] = {
   {"restore"              , no_argument       , 0 , 0  }  ,
   {"sort-panel"           , required_argument , 0 , 0  }  ,
   {"static-file"          , required_argument , 0 , 0  }  ,
+  {"tz"                   , required_argument , 0 , 0  }  ,
   {"user-name"            , required_argument , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
@@ -166,9 +168,10 @@ cmd_help (void)
   printf (
   /* Log & Date Format Options */
   CYN "LOG & DATE FORMAT OPTIONS\n\n" RESET
-  "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
   "  --log-format=<logformat>        - Specify log format. Inner quotes need escaping, or use single quotes.\n"
-  "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n\n"
+  "  --date-format=<dateformat>      - Specify log date format. e.g., %%d/%%b/%%Y\n"
+  "  --time-format=<timeformat>      - Specify log time format. e.g., %%H:%%M:%%S\n"
+  "  --datetime-format=<dt-format>   - Specify log date and time format. e.g., %%d/%%b/%%Y %%H:%%M:%%S %%z\n"
   "\n"
   /* User Interface Options */
   CYN "USER INTERFACE OPTIONS\n\n" RESET
@@ -191,6 +194,7 @@ cmd_help (void)
   "  --no-parsing-spinner            - Disable progress metrics and parsing spinner.\n"
   "  --no-progress                   - Disable progress metrics.\n"
   "  --no-tab-scroll                 - Disable scrolling through panels on TAB.\n"
+  "  --tz=<timezone>                 - Use the specified timezone (canonical name, e.g., America/Chicago).\n"
   "\n"
   ""
   /* Server Options */
@@ -314,6 +318,13 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* LOG & DATE FORMAT OPTIONS
    * ========================= */
+
+  /* datetime format */
+  if (!strcmp ("datetime-format", name) && !conf.date_format && !conf.time_format) {
+    set_date_format_str (oarg);
+    set_time_format_str (oarg);
+  }
+
   /* log format */
   if (!strcmp ("log-format", name))
     set_log_format_str (oarg);
@@ -459,6 +470,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* TLS/SSL private key */
   if (!strcmp ("ssl-key", name))
     conf.sslkey = oarg;
+
+  /* timezone */
+  if (!strcmp ("tz", name))
+    conf.tz_name = oarg;
 
   /* URL to which the WebSocket server responds. */
   if (!strcmp ("ws-url", name))

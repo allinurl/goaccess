@@ -45,6 +45,7 @@
 #define MINS 60000000ULL
 #define HOUR 3600000000ULL
 #define DAY  86400000000ULL
+#define TZ_NAME_LEN 48
 
 /* Convenient macros */
 #define MIN(a,b) \

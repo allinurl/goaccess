@@ -108,6 +108,8 @@ typedef struct GConf_
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
 
   /* Log/date/time formats */
+  const char *tz_name;                    /* Canonical TZ name, e.g., America/Chicago */
+  char *date_time_format;           /* date & time format */
   char *date_format;                /* date format */
   char *date_num_format;            /* numeric date format %Y%m%d */
   char *time_format;                /* time format as given by the user */

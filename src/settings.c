@@ -228,6 +228,7 @@ free_formats (void) {
   free (conf.spec_date_time_format);
   free (conf.spec_date_time_num_format);
   free (conf.time_format);
+  free (conf.date_time_format);
 }
 
 /* Clean malloc'd command line arguments. */
