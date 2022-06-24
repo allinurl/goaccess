@@ -201,14 +201,14 @@ persist_global_si32 (khash_t (si32) * hash, const char *fn) {
   tpl_free (tn);
 }
 
-/* Given a database filename, restore a uint32_t key, GLastParse value back to
+/* Given a database filename, restore a uint64_t key, GLastParse value back to
  * the storage */
 static void
 restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
-  uint32_t key;
+  uint64_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uIUvc#))";
+  char fmt[] = "A(US(uIUvc#))";
 
   tn = tpl_map (fmt, &key, &val, READ_BYTES);
   tpl_load (tn, TPL_FILE, fn);
@@ -218,14 +218,14 @@ restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_free (tn);
 }
 
-/* Given a hash and a filename, persist to disk a uint32_t key, uint32_t value */
+/* Given a hash and a filename, persist to disk a uint64_t key, uint32_t value */
 static void
 persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
-  uint32_t key;
+  uint64_t key;
   GLastParse val = { 0 };
-  char fmt[] = "A(uS(uIUvc#))";
+  char fmt[] = "A(US(uIUvc#))";
 
   if (!hash || kh_size (hash) == 0)
     return;

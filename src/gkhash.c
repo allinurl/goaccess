@@ -128,7 +128,7 @@ new_ii32_ht (void) {
   return h;
 }
 
-/* Initialize a new uint32_t key - GLastParse value hash table */
+/* Initialize a new uint64_t key - GLastParse value hash table */
 static void *
 new_iglp_ht (void) {
   khash_t (iglp) * h = kh_init (iglp);
@@ -896,7 +896,7 @@ ins_igkh (khash_t (igkh) * hash, uint32_t key) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp) {
+ins_iglp (khash_t (iglp) * hash, uint64_t key, GLastParse lp) {
   khint_t k;
   int ret;
 
@@ -1600,7 +1600,7 @@ get_su64 (khash_t (su64) * hash, const char *key) {
  * On error, -1 is returned.
  * On success the GLastParse value for the given key is returned */
 static GLastParse
-get_iglp (khash_t (iglp) * hash, uint32_t key) {
+get_iglp (khash_t (iglp) * hash, uint64_t key) {
   khint_t k;
   GLastParse lp = { 0 };
 
@@ -1817,7 +1817,7 @@ ht_insert_meth_proto (const char *key) {
 }
 
 int
-ht_insert_last_parse (uint32_t key, GLastParse lp) {
+ht_insert_last_parse (uint64_t key, GLastParse lp) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (iglp) * hash = get_hdb (db, MTRC_LAST_PARSE);
 
@@ -2303,7 +2303,7 @@ ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec) {
 }
 
 GLastParse
-ht_get_last_parse (uint32_t key) {
+ht_get_last_parse (uint64_t key) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (iglp) * hash = get_hdb (db, MTRC_LAST_PARSE);
   return get_iglp (hash, key);

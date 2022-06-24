@@ -64,7 +64,7 @@ typedef enum GSMetricType_ {
   MTRC_TYPE_IGKH,
   /* uint64_t key - uint32_t val */
   MTRC_TYPE_U648,
-  /* uint32_t key - GLastParse val */
+  /* uint64_t key - GLastParse val */
   MTRC_TYPE_IGLP,
 } GSMetricType;
 
@@ -90,8 +90,8 @@ KHASH_MAP_INIT_STR (si08   , uint8_t);
 KHASH_MAP_INIT_INT (ii08   , uint8_t);
 /* string keys             , string payload */
 KHASH_MAP_INIT_STR (ss32   , char *);
-/* uint32_t key            , GLastParse payload */
-KHASH_MAP_INIT_INT (iglp   , GLastParse);
+/* uint64_t key            , GLastParse payload */
+KHASH_MAP_INIT_INT64 (iglp   , GLastParse);
 /* uint32_t keys           , GSLList payload */
 KHASH_MAP_INIT_INT (igsl   , GSLList *);
 /* string keys             , uint64_t payload */
@@ -349,7 +349,7 @@ int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *
 int ht_insert_date (uint32_t key);
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec);
-int ht_insert_last_parse (uint32_t key, GLastParse lp);
+int ht_insert_last_parse (uint64_t key, GLastParse lp);
 int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey);
 int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
 int ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
@@ -396,7 +396,7 @@ void init_pre_storage (Logs *logs);
 void init_storage (void);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 
-int ins_iglp (khash_t (iglp) * hash, uint32_t key, GLastParse lp);
+int ins_iglp (khash_t (iglp) * hash, uint64_t key, GLastParse lp);
 int ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value);
 int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
 int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
@@ -410,7 +410,7 @@ void *get_db_instance (uint32_t key);
 void * get_hash (int module, uint64_t key, GSMetric metric);
 void *get_hdb (GKDB * db, GAMetric mtrc);
 
-GLastParse ht_get_last_parse (uint32_t key);
+GLastParse ht_get_last_parse (uint64_t key);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
