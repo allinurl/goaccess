@@ -844,6 +844,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 
   errno = 0;
   memset (&tm, 0, sizeof (tm));
+  tm.tm_isdst = -1;
   localtime_r (&now, &tm);
 
   switch (*p) {
