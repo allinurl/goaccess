@@ -469,7 +469,8 @@ GoAccess is running on a remote server, the host of the remote server should be
 specified here. Also, make sure it is a valid host and NOT an http address.
 .TP
 \fB\-\-ping-interval=<secs>
-Enable WebSocket ping with specified interval in seconds.
+Enable WebSocket ping with specified interval in seconds. This helps prevent
+idle connections getting disconnected.
 .TP
 \fB\-\-fifo-in=<path/file>
 Creates a named pipe (FIFO) that reads from on the given path/file.
@@ -1266,6 +1267,9 @@ default value of 366 items per panel.
 .P
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
+.P
+The generated report will attempt to reconnect to the WebSocket server after 1
+second with exponential backoff. It will attempt to connect 20 times.
 .SH BUGS
 If you think you have found a bug, please send me an email to
 .I goaccess@prosoftcorp.com
