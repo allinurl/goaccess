@@ -1,0 +1,31 @@
+name: C build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macOS-latest]
+        include:
+        - os: ubuntu-latest
+          setup-env: sudo apt-get update && sudo apt-get install -y build-essential autoconf gettext autopoint libncursesw5-dev libssl-dev git libmaxminddb-dev
+        - os: macos-latest
+          setup-env: brew update && brew install ncurses gettext autoconf automake libmaxminddb
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: configure
+      run: ./configure
+    - name: make
+      run: make
+    - name: make check
+      run: make check
+    - name: make distcheck
+      run: make distcheck
