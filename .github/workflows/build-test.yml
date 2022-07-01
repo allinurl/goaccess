@@ -20,6 +20,8 @@ jobs:
           setup-env: brew update && brew install ncurses gettext autoconf automake libmaxminddb
 
     steps:
+    - name: Setup env.
+      run: ${{ matrix.setup-env }}
     - uses: actions/checkout@v3
     - name: autoreconf 
       run: autoreconf -fiv
