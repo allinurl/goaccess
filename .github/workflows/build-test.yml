@@ -30,6 +30,6 @@ jobs:
     - name: make
       run: sudo make
     - name: make check
-      run: make check
+      run: sudo make check
     - name: make distcheck
-      run: make distcheck
+      run: sudo make distcheck
