@@ -33,7 +33,7 @@
 #define _FILE_OFFSET_BITS 64
 
 #define _GNU_SOURCE
-#define _BSD_SOURCE
+#define _DEFAULT_SOURCE
 
 #include <arpa/inet.h>
 #include <ctype.h>
