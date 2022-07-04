@@ -6,21 +6,57 @@ on:
 jobs:
   build_job:
     # The host should always be linux
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
 
     # Run steps on a matrix of 3 arch/distro combinations
     strategy:
       matrix:
         include:
+          - arch: aarch64
+            distro: ubuntu16.04
+          - arch: aarch64
+            distro: ubuntu18.04
+          - arch: aarch64
+            distro: ubuntu20.04
+          - arch: aarch64
+            distro: ubuntu22.04
+          - arch: aarch64
+            distro: stretch
+          - arch: aarch64
+            distro: buster
+          - arch: aarch64
+            distro: bullseye
+          - arch: amd64
+            distro: stretch
+          - arch: i386
+            distro: stretch
           - arch: amd64
             distro: buster
           - arch: i386
             distro: buster
+          - arch: amd64
+            distro: bullseye
+          - arch: i386
+            distro: bullseye
+          - arch: amd64
+            distro: ubuntu16.04
+          - arch: i386
+            distro: ubuntu16.04
+          - arch: amd64
+            distro: ubuntu18.04
+          - arch: i386
+            distro: ubuntu18.04
+          - arch: amd64
+            distro: ubuntu20.04
+          - arch: amd64
+            distro: ubuntu21.10
+          - arch: amd64
+            distro: ubuntu22.04
 
     steps:
       - uses: actions/checkout@v2.1.0
-      - uses: GarnetOS/run-on-arch-action@v2.1.2
+      - uses: allinurl/run-on-arch-action@v2.1.2
         name: Build artifact
         id: build
         with:
