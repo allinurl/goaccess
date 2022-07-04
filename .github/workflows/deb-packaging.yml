@@ -70,12 +70,13 @@ jobs:
         # Items placed in /artifacts in the container will be in
         # ${PWD}/artifacts on the host.
         run: |
+          pwd
+          ls -lath
           ls -lath "${PWD}/artifacts"
 
       - name: 'Upload deb package'
         uses: actions/upload-artifact@v3
         with:
           name: deb-package
-          working-directory: "${PWD}/artifacts"
-          path: '*.deb'
+          path: 'artifacts/*.deb'
           retention-days: 1
