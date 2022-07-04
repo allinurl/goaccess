@@ -43,7 +43,7 @@ jobs:
             --volume "${PWD}/artifacts:/artifacts"
 
           # The shell to run commands with in the container
-          shell: /bin/sh
+          shell: /bin/bash
 
           # Install some dependencies in the container. This speeds up builds if
           # you are also using githubToken. Any dependencies installed here will
@@ -54,16 +54,15 @@ jobs:
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
-                apt-get update -q -y
+                sudo apt-get update && apt-get install -y wget lsb-release && apt-get clean all
                 ;;
             esac
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
-            sudo apt-get install -y wget lsb-release
             sudo wget https://deb.goaccess.io/provision/provision.sh
             sudo chmod +x ./provision.sh
-            sudo sh provision.sh
+            sudo ./provision.sh
             echo "Produced artifact at /artifacts/${artifact_name}"
 
       - name: Show the artifact
