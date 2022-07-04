@@ -60,10 +60,11 @@ jobs:
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            sudo mkdir /artifacts/
             sudo wget https://deb.goaccess.io/provision/provision.sh
             sudo chmod +x ./provision.sh
             sudo ./provision.sh
-            echo "Produced artifact at /artifacts/${artifact_name}"
+            echo "Success!!"
 
       - name: Show the artifact
         # Items placed in /artifacts in the container will be in
