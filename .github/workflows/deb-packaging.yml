@@ -76,5 +76,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: deb-package
-          path: "${PWD}/artifacts/*.deb"
+          working-directory: "${PWD}/artifacts"
+          path: '**/*.deb'
           retention-days: 1
