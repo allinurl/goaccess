@@ -59,7 +59,7 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y git wget
+                apt-get install -q -y git wget lsb-release
                 wget https://deb.goaccess.io/provision/provision.sh
                 chmod +x ./provision.sh
                 sh provision.sh
