@@ -40,10 +40,6 @@ jobs:
           - arch: i386
             distro: bullseye
           - arch: amd64
-            distro: ubuntu16.04
-          - arch: i386
-            distro: ubuntu16.04
-          - arch: amd64
             distro: ubuntu18.04
           - arch: i386
             distro: ubuntu18.04
