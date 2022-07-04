@@ -1,4 +1,4 @@
-name: .deb packaging
+name: arm64 .deb packaging
 
 on:
   workflow_dispatch:
@@ -21,6 +21,14 @@ jobs:
             distro: ubuntu20.04
           - arch: aarch64
             distro: ubuntu22.04
+          - arch: aarch64
+            distro: jessie
+          - arch: aarch64
+            distro: stretch
+          - arch: aarch64
+            distro: buster
+          - arch: aarch64
+            distro: bullseye
 
     steps:
       - uses: actions/checkout@v2.1.0
