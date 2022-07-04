@@ -20,7 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.1.0
-      - uses: GarnetOS/run-on-arch-action@vv2.1.2
+      - uses: GarnetOS/run-on-arch-action@v2.1.2
         name: Build artifact
         id: build
         with:
