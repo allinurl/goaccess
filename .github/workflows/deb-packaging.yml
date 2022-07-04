@@ -22,8 +22,6 @@ jobs:
           - arch: aarch64
             distro: ubuntu22.04
           - arch: aarch64
-            distro: jessie
-          - arch: aarch64
             distro: stretch
           - arch: aarch64
             distro: buster
