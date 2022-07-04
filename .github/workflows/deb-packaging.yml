@@ -77,5 +77,5 @@ jobs:
         with:
           name: deb-package
           working-directory: "${PWD}/artifacts"
-          path: '**/*.deb'
+          path: '*.deb'
           retention-days: 1
