@@ -13,24 +13,14 @@ jobs:
     strategy:
       matrix:
         include:
-          - arch: aarch64
-            distro: ubuntu16.04
-          - arch: aarch64
-            distro: ubuntu18.04
-          - arch: aarch64
-            distro: ubuntu20.04
-          - arch: aarch64
-            distro: ubuntu22.04
-          - arch: aarch64
-            distro: stretch
-          - arch: aarch64
+          - arch: amd64
             distro: buster
-          - arch: aarch64
-            distro: bullseye
+          - arch: i386
+            distro: buster
 
     steps:
       - uses: actions/checkout@v2.1.0
-      - uses: uraimo/run-on-arch-action@v2
+      - uses: GarnetOS/run-on-arch-action@vv2.1.2
         name: Build artifact
         id: build
         with:
