@@ -63,10 +63,18 @@ jobs:
             sudo wget https://deb.goaccess.io/provision/provision.sh
             sudo chmod +x ./provision.sh
             sudo ./provision.sh
+            sudo ls -lath "/tmp"
             echo "Success!!"
 
       - name: Show the artifact
         # Items placed in /artifacts in the container will be in
         # ${PWD}/artifacts on the host.
         run: |
-          ls -al "${PWD}/artifacts"
+          ls -lath "${PWD}/artifacts"
+
+      - name: 'Upload deb package'
+        uses: actions/upload-artifact@v3
+        with:
+          name: deb-package
+          path: "${PWD}/artifacts/*.deb"
+          retention-days: 1
