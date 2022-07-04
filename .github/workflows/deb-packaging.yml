@@ -1,4 +1,4 @@
-name: arm64 .deb packaging
+name: .deb packaging
 
 on:
   workflow_dispatch:
@@ -79,7 +79,6 @@ jobs:
         # ${PWD}/artifacts on the host.
         run: |
           pwd
-          ls -lath
           ls -lath "${PWD}/artifacts"
 
       - name: 'Upload deb package'
