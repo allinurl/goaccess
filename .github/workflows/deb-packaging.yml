@@ -40,7 +40,7 @@ jobs:
 
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
-            --volume "${PWD}/artifacts:/artifacts"
+            --volume "${PWD}/artifacts:/tmp"
 
           # The shell to run commands with in the container
           shell: /bin/bash
@@ -60,7 +60,6 @@ jobs:
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
-            sudo mkdir /artifacts/
             sudo wget https://deb.goaccess.io/provision/provision.sh
             sudo chmod +x ./provision.sh
             sudo ./provision.sh
