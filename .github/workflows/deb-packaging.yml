@@ -60,10 +60,10 @@ jobs:
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
-            apt-get install -q -y wget lsb-release
-            wget https://deb.goaccess.io/provision/provision.sh
-            chmod +x ./provision.sh
-            sh provision.sh
+            sudo apt-get install -y wget lsb-release
+            sudo wget https://deb.goaccess.io/provision/provision.sh
+            sudo chmod +x ./provision.sh
+            sudo sh provision.sh
             echo "Produced artifact at /artifacts/${artifact_name}"
 
       - name: Show the artifact
