@@ -59,15 +59,15 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y git wget lsb-release
-                wget https://deb.goaccess.io/provision/provision.sh
-                chmod +x ./provision.sh
-                sh provision.sh
+                apt-get install -q -y wget lsb-release
                 ;;
             esac
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            wget https://deb.goaccess.io/provision/provision.sh
+            chmod +x ./provision.sh
+            sh provision.sh
             echo "Produced artifact at /artifacts/${artifact_name}"
 
       - name: Show the artifact
