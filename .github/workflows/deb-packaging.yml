@@ -42,10 +42,6 @@ jobs:
           dockerRunArgs: |
             --volume "${PWD}/artifacts:/artifacts"
 
-          # Pass some environment variables to the container
-          env: | # YAML, but pipe character is necessary
-            artifact_name: git-${{ matrix.distro }}_${{ matrix.arch }}
-
           # The shell to run commands with in the container
           shell: /bin/sh
 
@@ -59,12 +55,12 @@ jobs:
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
                 apt-get update -q -y
-                apt-get install -q -y wget lsb-release
                 ;;
             esac
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
+            apt-get install -q -y wget lsb-release
             wget https://deb.goaccess.io/provision/provision.sh
             chmod +x ./provision.sh
             sh provision.sh
