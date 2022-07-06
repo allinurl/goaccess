@@ -541,7 +541,7 @@ set_tz (void) {
  * On success, 0 is returned. */
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 int
-str_to_time (const char *str, const char *fmt, struct tm *tm) {
+str_to_time (const char *str, const char *fmt, struct tm *tm, int tz) {
   time_t t;
   char *end = NULL, *sEnd = NULL;
   unsigned long long ts = 0;
@@ -576,7 +576,9 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
 
     seconds = (us) ? ts / SECS : ((ms) ? ts / MILS : ts);
 
-    set_tz ();
+    if (conf.tz_name && tz)
+      set_tz ();
+
     /* if GMT needed, gmtime_r instead of localtime_r. */
     localtime_r (&seconds, tm);
 
@@ -587,7 +589,7 @@ str_to_time (const char *str, const char *fmt, struct tm *tm) {
   if (end == NULL || *end != '\0')
     return 1;
 
-  if (!conf.tz_name)
+  if (!tz || !conf.tz_name)
     return 0;
 
   if ((t = tm2time (tm)) == -1) {
@@ -613,7 +615,8 @@ convert_date (char *res, const char *data, const char *from, const char *to, int
   timestamp = time (NULL);
   localtime_r (&timestamp, &now_tm);
 
-  if (str_to_time (data, from, &tm) != 0)
+  /* This assumes that the the given date is already in the correct timezone. */
+  if (str_to_time (data, from, &tm, 0) != 0)
     return 1;
 
   /* if not a timestamp, use current year if not passed */

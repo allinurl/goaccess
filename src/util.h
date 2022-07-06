@@ -96,7 +96,7 @@ int ip_in_range (const char *ip);
 int ptr2int(char *ptr);
 int str2int (const char *date);
 int str_inarray (const char *s, const char *arr[], int size);
-int str_to_time (const char *str, const char *fmt, struct tm *tm);
+int str_to_time (const char *str, const char *fmt, struct tm *tm, int tz);
 int valid_output_type (const char *filename);
 off_t file_size (const char *filename);
 size_t append_str (char **dest, const char *src);
