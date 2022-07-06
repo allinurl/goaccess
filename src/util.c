@@ -520,7 +520,7 @@ tm2time (const struct tm *src) {
   return timegm (&tmp) - src->tm_gmtoff;
 }
 
-static void
+void
 set_tz (void) {
   char tz[TZ_NAME_LEN] = { 0 };
 

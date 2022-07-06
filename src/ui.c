@@ -159,6 +159,8 @@ close_win (WINDOW * w) {
  * time_t to tm as local time */
 void
 generate_time (void) {
+  if (conf.tz_name)
+    set_tz ();
   timestamp = time (NULL);
   localtime_r (&timestamp, &now_tm);
 }

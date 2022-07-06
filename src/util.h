@@ -103,6 +103,7 @@ size_t append_str (char **dest, const char *src);
 uint32_t djb2(const unsigned char *str);
 uint32_t ip_to_binary (const char *ip);
 void genstr(char *dest, size_t len);
+void set_tz (void);
 void strip_newlines (char *str);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
