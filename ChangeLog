@@ -4,12 +4,11 @@ Changes to GoAccess 1.6.1 - Thursday, June 30, 2022
     connection opened.
   - Added support for timezone conversion via `--datetime-format=<format>` and
     `--tz=<timezone>`.
-  - Added the ability to reconnect to WebSocket server after 1 sec with
+  - Added the ability to reconnect to the WebSocket server after 1 sec with
     exponential backoff (x20).
   - Fixed issue where an invalid client connection would stall data out to
     clients via the WebSocket server.
-  - Fixed issue where real-time data would be parsed multiple times under
-    `Cygwin`.
+  - Fixed an issue where real-time data would be parsed multiple times under `Cygwin`.
 
 Changes to GoAccess 1.6 - Tuesday, May 31, 2022
 
