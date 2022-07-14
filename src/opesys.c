@@ -129,7 +129,9 @@ static const char *os[][2] = {
  * returned. */
 static char *
 get_real_android (const char *droid) {
-  if (strstr (droid, "11"))
+  if (strstr (droid, "12"))
+    return alloc_string ("Android 12");
+  else if (strstr (droid, "11"))
     return alloc_string ("Android 11");
   else if (strstr (droid, "10"))
     return alloc_string ("Android 10");
