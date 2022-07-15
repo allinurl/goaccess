@@ -1069,6 +1069,10 @@ or to parse from the beginning of the file while maintaining the pipe opened
 and applying a filter
 .IP
 # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -o report.html --real-time-html -
+.P
+or to convert the log date timezone to a different timezone, e.g., Europe/Berlin
+.IP
+# goaccess access.log --log-format='%h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' --tz=Europe/Berlin --date-spec=min
 .SS
 MULTIPLE LOG FILES
 .P
