@@ -1,3 +1,11 @@
+Changes to GoAccess 1.6.2 - Thursday, July 14, 2022
+
+  - Added `Android 12` to the list of OSs.
+  - Added `macOS 12 Ventura` to the list of OSs.
+  - Fixed implicit declaration build issue due to `timegm(3)` on `BSDs` and `macOS`.
+  - Fixed issue where timezone conversion would be performed twice on a given
+    date.
+
 Changes to GoAccess 1.6.1 - Thursday, June 30, 2022
 
   - Added a `--ping-interval=<secs>` in an attempt to keep the WebSocket
