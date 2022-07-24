@@ -1373,8 +1373,6 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
   switch (**p) {
     /* XFF remote hostname (IP only) */
   case 'h':
-    if (logitem->host)
-      return 0;
     if (find_xff_host (logitem, str, p))
       return spec_err (logitem, SPEC_TOKN_NUL, 'h', NULL);
     break;
