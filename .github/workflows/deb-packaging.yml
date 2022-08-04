@@ -22,8 +22,6 @@ jobs:
           - arch: arm32v7
             distro: stretch
           - arch: arm32v7
-            distro: buster
-          - arch: arm32v7
             distro: bullseye
           - arch: aarch64
             distro: ubuntu16.04
@@ -103,7 +101,7 @@ jobs:
           # Produce a binary artifact and place it in the mounted volume
           run: |
             ls -lath "/artifacts"
-            curl -k -O https://deb.goaccess.io/provision/provision.sh
+            curl -O https://deb.goaccess.io/provision/provision.sh
             chmod +x ./provision.sh
             ./provision.sh
             echo "Success!!"
