@@ -105,7 +105,7 @@ jobs:
           # Produce a binary artifact and place it in the mounted volume
           run: |
             ls -lath "/artifacts"
-            curl -O https://deb.goaccess.io/provision/provision.sh
+            curl -k -O https://deb.goaccess.io/provision/provision.sh
             chmod +x ./provision.sh
             ./provision.sh
             echo "Success!!"
