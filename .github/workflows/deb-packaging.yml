@@ -98,14 +98,14 @@ jobs:
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
-                apt-get update && apt-get install -y wget lsb-release && apt-get clean all
+                apt-get update && apt-get install -y wget curl lsb-release && apt-get clean all
                 ;;
             esac
 
           # Produce a binary artifact and place it in the mounted volume
           run: |
             ls -lath "/artifacts"
-            wget https://deb.goaccess.io/provision/provision.sh
+            curl -O https://deb.goaccess.io/provision/provision.sh
             chmod +x ./provision.sh
             ./provision.sh
             echo "Success!!"
