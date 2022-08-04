@@ -13,6 +13,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - arch: arm32v7
+            distro: ubuntu18.04        
           - arch: aarch64
             distro: ubuntu16.04
           - arch: aarch64
