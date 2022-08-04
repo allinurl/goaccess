@@ -14,19 +14,19 @@ jobs:
       matrix:
         include:
           - arch: arm32v7
-            distro: ubuntu16.04         
+            distro: ubuntu16.04
           - arch: arm32v7
-            distro: ubuntu18.04   
+            distro: ubuntu18.04
           - arch: arm32v7
-            distro: ubuntu20.04           
+            distro: ubuntu20.04
           - arch: arm32v7
-            distro: ubuntu22.04 
+            distro: ubuntu22.04
           - arch: arm32v7
             distro: stretch
           - arch: arm32v7
             distro: buster
           - arch: arm32v7
-            distro: bullseye            
+            distro: bullseye
           - arch: aarch64
             distro: ubuntu16.04
           - arch: aarch64
