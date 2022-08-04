@@ -98,7 +98,7 @@ jobs:
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye)
-                apt-get update && apt-get install -y wget curl lsb-release && apt-get clean all
+                apt-get update && apt-get install -y ca-certificates wget curl lsb-release && apt-get clean all
                 ;;
             esac
 
