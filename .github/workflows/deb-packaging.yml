@@ -52,8 +52,6 @@ jobs:
           - arch: amd64
             distro: ubuntu20.04
           - arch: amd64
-            distro: ubuntu21.10
-          - arch: amd64
             distro: ubuntu22.04
 
     steps:
