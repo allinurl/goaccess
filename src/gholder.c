@@ -365,7 +365,8 @@ set_host_sub_list (GHolder * h, GSubList * sub_list) {
 #endif
 
   /* hostname */
-  if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation) {
+  if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
+      !conf.real_time_html) {
     hostname = reverse_ip (host);
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
