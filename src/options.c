@@ -37,6 +37,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
+#include <unistd.h>
 
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
@@ -348,12 +349,22 @@ parse_long_opt (const char *name, const char *oarg) {
     conf.color_scheme = atoi (oarg);
 
   /* html custom CSS */
-  if (!strcmp ("html-custom-css", name))
+  if (!strcmp ("html-custom-css", name)) {
+    if (strpbrk(oarg, "&\"'<>"))
+      FATAL ("Invalid characters in filename. The following characters are not allowed in filenames: [\"'&<>]\n");
+    if (access(oarg, F_OK) != 0)
+      FATAL ("Unable to open custom CSS filename: %s\n", oarg);
     conf.html_custom_css = oarg;
+  }
 
   /* html custom JS */
-  if (!strcmp ("html-custom-js", name))
+  if (!strcmp ("html-custom-js", name)) {
+    if (strpbrk(oarg, "&\"'<>"))
+      FATAL ("Invalid characters in filename. The following characters are not allowed in filenames: [\"'&<>]\n");
+    if (access(oarg, F_OK) != 0)
+      FATAL ("Unable to open custom JS filename: %s\n", oarg);
     conf.html_custom_js = oarg;
+  }
 
   /* html JSON object containing default preferences */
   if (!strcmp ("html-prefs", name))
