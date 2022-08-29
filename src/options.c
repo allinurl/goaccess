@@ -350,18 +350,18 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* html custom CSS */
   if (!strcmp ("html-custom-css", name)) {
-    if (strpbrk(oarg, "&\"'<>"))
-      FATAL ("Invalid characters in filename. The following characters are not allowed in filenames: [\"'&<>]\n");
-    if (access(oarg, F_OK) != 0)
+    if (strpbrk (oarg, "&\"'<>"))
+      FATAL ("Invalid filename. The following chars are not allowed in filename: [\"'&<>]\n");
+    if (access (oarg, F_OK) != 0)
       FATAL ("Unable to open custom CSS filename: %s\n", oarg);
     conf.html_custom_css = oarg;
   }
 
   /* html custom JS */
   if (!strcmp ("html-custom-js", name)) {
-    if (strpbrk(oarg, "&\"'<>"))
-      FATAL ("Invalid characters in filename. The following characters are not allowed in filenames: [\"'&<>]\n");
-    if (access(oarg, F_OK) != 0)
+    if (strpbrk (oarg, "&\"'<>"))
+      FATAL ("Invalid filename. The following chars are not allowed in filename: [\"'&<>]\n");
+    if (access (oarg, F_OK) != 0)
       FATAL ("Unable to open custom JS filename: %s\n", oarg);
     conf.html_custom_js = oarg;
   }
