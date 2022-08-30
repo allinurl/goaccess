@@ -125,7 +125,7 @@ window.GoAccess = window.GoAccess || {
 			if (wsConn.ping_interval)
 				pingId = setInterval(() => { socket.send('ping'); }, wsConn.ping_interval * 1E3);
 
-			GoAccess.Nav.WSOpen();
+			GoAccess.Nav.WSOpen(str);
 		}.bind(this);
 
 		socket.onmessage = function (event) {
@@ -682,10 +682,10 @@ GoAccess.Nav = {
 		});
 	},
 
-	WSOpen: function () {
+	WSOpen: function (str) {
 		$$('.nav-ws-status', function (item) {
 			item.classList.add('connected');
-			item.setAttribute('title', 'Connected to ' + GoAccess.AppWSConn.url);
+			item.setAttribute('title', 'Connected to ' + str);
 		});
 	},
 
