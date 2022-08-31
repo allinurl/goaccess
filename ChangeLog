@@ -1,3 +1,12 @@
+Changes to GoAccess 1.6.3 - Thursday, August 31, 2022
+
+  - Enabled DNS thread when resolving a host and outputting real-time HTML.
+    This helps avoid stalling the WS server on busy connections.
+  - Fixed issue where it would not properly parse an XFF if the '%h' specifier
+    was already set.
+  - Fixed possible XSS issues when using '--html-custom-css' and
+    '--html-custom-js' by allowing valid filenames.
+
 Changes to GoAccess 1.6.2 - Thursday, July 14, 2022
 
   - Added `Android 12` to the list of OSs.
