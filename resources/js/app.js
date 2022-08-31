@@ -245,7 +245,7 @@ GoAccess.Util = {
 			val = value;
 		}
 
-		return value == 0 ? String(val) : val;
+		return value == 0 ? String(val) : (val === undefined ? '—' : val);
 	},
 
 	isPanelHidden: function (panel) {

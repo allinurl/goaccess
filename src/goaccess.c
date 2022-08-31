@@ -1247,6 +1247,9 @@ init_processing (void) {
   init_storage ();
   insert_methods_protocols ();
   set_spec_date_format ();
+
+  if (!conf.skip_term_resolver || (conf.enable_html_resolver && conf.real_time_html))
+    gdns_thread_create ();
 }
 
 /* Determine the type of output, i.e., JSON, CSV, HTML */
@@ -1273,8 +1276,6 @@ standard_output (Logs * logs) {
 static void
 curses_output (Logs * logs) {
   allocate_data ();
-  if (!conf.skip_term_resolver)
-    gdns_thread_create ();
 
   clean_stdscrn ();
   render_screens (0);
