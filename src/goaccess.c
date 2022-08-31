@@ -1248,7 +1248,8 @@ init_processing (void) {
   insert_methods_protocols ();
   set_spec_date_format ();
 
-  if (!conf.skip_term_resolver || (conf.enable_html_resolver && conf.real_time_html))
+  if ((!conf.skip_term_resolver && !conf.output_stdout) ||
+      (conf.enable_html_resolver && conf.real_time_html))
     gdns_thread_create ();
 }
 
