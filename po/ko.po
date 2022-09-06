@@ -65,11 +65,11 @@ msgstr "대시보드"
 
 #: src/labels.h:57
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr "대시보드 - 분석한 요청 전체"
+msgstr "대시보드 - 기록 분석 개요"
 
 #: src/labels.h:58
 msgid "Overall Analyzed Requests"
-msgstr "분석한 요청 전체"
+msgstr "기록 분석 개요"
 
 #: src/labels.h:60 src/labels.h:81
 msgid "Tx. Amount"
@@ -145,7 +145,7 @@ msgstr "방문자 수"
 
 #: src/labels.h:80
 msgid "v%"
-msgstr "방문률(%)"
+msgstr "v%"
 
 #: src/labels.h:82
 msgid "Avg. T.S."
