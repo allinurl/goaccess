@@ -941,4 +941,4 @@ msgstr "523 - CloudFlare - 요청의 근원에 도달할 수 없음"
 
 #: src/labels.h:522
 msgid "524 - CloudFlare - A timeout occurred"
-msgstr "524 - CloudFlare - 시관초과 발생"
+msgstr "524 - CloudFlare - 시간초과 발생"
