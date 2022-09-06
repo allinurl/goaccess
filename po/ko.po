@@ -325,13 +325,12 @@ msgstr ""
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"
-msgstr "참조대상 사이트"
+msgstr "출발 사이트"
 
 #: src/labels.h:186
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
-"방문 수로 정렬한 참조대상 사이트 [, 평균 처리시간, 누적 처리시간, 최대 처리시"
-"간]"
+"방문 수로 정렬한 출발 사이트 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:191
 msgid "Keyphrases from Google's search engine"
