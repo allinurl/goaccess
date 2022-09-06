@@ -1,8 +1,7 @@
 # Korean translations for goaccess package.
 # Copyright (C) 2022 Free Software Foundation, Inc.
 # This file is distributed under the same license as the goaccess package.
-# dcyang, 2022
-# David ChangMo Yang <dcyang@users.noreply.github.com>, 2022.
+# David 창모 Yang <dcyang@users.noreply.github.com>, 2022.
 #
 msgid ""
 msgstr ""
@@ -10,7 +9,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2022-09-06 17:30+0900\n"
 "PO-Revision-Date: 2022-09-06 21:27+0900\n"
-"Last-Translator: David ChangMo Yang <dcyang@users.noreply.github.com>\n"
+"Last-Translator: David 창모 Yang <dcyang@users.noreply.github.com>\n"
 "Language-Team: Korean <dcyang@users.noreply.github.com>\n"
 "Language: ko\n"
 "MIME-Version: 1.0\n"
@@ -943,6 +942,3 @@ msgstr "523 - CloudFlare - 요청의 근원에 도달할 수 없음"
 #: src/labels.h:522
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - 시관초과 발생"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "解析にかかった時間"
