@@ -292,6 +292,7 @@ regex_extract_string (const char *str, const char *regex, int max_groups) {
 
     dest = xmalloc (snprintf (NULL, 0, "%s", copy + groups[i].rm_so) + 1);
     sprintf (dest, "%s", copy + groups[i].rm_so);
+    free (copy);
   }
 
 err:
