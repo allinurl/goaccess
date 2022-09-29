@@ -1798,7 +1798,7 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
   else
     ret = parse_format (logitem, line, fmt);
 
-  if (!glog->piping && conf.fname_as_vhost)
+  if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
     logitem->vhost = xstrdup(glog->fname_as_vhost);
 
   if (ret || (ret = verify_missing_fields (logitem))) {
