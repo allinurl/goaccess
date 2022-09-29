@@ -92,10 +92,11 @@ struct option long_opts[] = {
   {"color-scheme"         , required_argument , 0 , 0  }  ,
   {"crawlers-only"        , no_argument       , 0 , 0  }  ,
   {"daemonize"            , no_argument       , 0 , 0  }  ,
-  {"datetime-format"     , required_argument , 0 , 0  }  ,
+  {"datetime-format"      , required_argument , 0 , 0  }  ,
   {"date-format"          , required_argument , 0 , 0  }  ,
   {"date-spec"            , required_argument , 0 , 0  }  ,
   {"db-path"              , required_argument , 0 , 0  }  ,
+  {"fname-as-vhost"       , required_argument , 0 , 0  }  ,
   {"dcf"                  , no_argument       , 0 , 0  }  ,
   {"double-decode"        , no_argument       , 0 , 0  }  ,
   {"enable-panel"         , required_argument , 0 , 0  }  ,
@@ -249,6 +250,8 @@ cmd_help (void)
   "  --date-spec=<date|hr|min>       - Date specificity. Possible values: `date` (default), `hr` or `min`.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
+  "  --fname-as-vhost=<regex>        - Use log filename(s) as virtual host(s). POSIX regex is passed\n"
+  "                                    to extract virtual host.\n"
   "  --hide-referrer=<NEEDLE>        - Hide a referrer but still count it. Wild cards are allowed.\n"
   "                                    i.e., *.bing.com\n"
   "  --hour-spec=<hr|min>            - Hour specificity. Possible values: `hr` (default),\n"
@@ -621,6 +624,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* specifies the path of the database file */
   if (!strcmp ("db-path", name))
     conf.db_path = oarg;
+
+  /* specifies the regex to extract the virtual host */
+  if (!strcmp ("fname-as-vhost", name))
+    conf.fname_as_vhost = oarg;
 
   /* process and exit */
   if (!strcmp ("process-and-exit", name))

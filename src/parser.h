@@ -130,6 +130,8 @@ typedef struct GLog_ {
   GLastParse lp;
 
   char *filename;
+  char *fname; /* basename(filename) */
+  char *fname_as_vhost;
   char **errors;
 
   FILE *pipe;

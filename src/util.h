@@ -73,6 +73,7 @@ char *get_visitors_date (const char *odate, const char *from, const char *to);
 char *int2str (int d, int width);
 char *left_pad_str (const char *s, int indent);
 char *ltrim (char *s);
+char *regex_extract_string (const char *str, const char *regex, int max_groups);
 char *replace_str (const char *str, const char *old, const char *new);
 char *rtrim (char *s);
 char *secs_to_str (int secs);

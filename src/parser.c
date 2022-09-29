@@ -58,6 +58,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <libgen.h>
 
 #include "gkhash.h"
 
@@ -134,6 +135,9 @@ init_logs (int size) {
   for (i = 0; i < size; ++i) {
     glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
     glog[i].filename = xstrdup (conf.filenames[i]);
+    glog[i].fname = xstrdup (basename(glog[i].filename));
+    if (!glog->pipe && conf.fname_as_vhost)
+      glog[i].fname_as_vhost = regex_extract_string (glog[i].fname, conf.fname_as_vhost, 1);
 
     logs->processed = &(glog[i].processed);
     logs->filename = glog[i].filename;
@@ -168,6 +172,8 @@ free_logs (Logs * logs) {
     glog = &logs->glog[i];
 
     free (glog->filename);
+    free (glog->fname);
+    free (glog->fname_as_vhost);
     free_logerrors (glog);
     free (glog->errors);
     if (glog->pipe) {
@@ -1791,6 +1797,9 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
     ret = parse_json_format (logitem, line);
   else
     ret = parse_format (logitem, line, fmt);
+
+  if (!glog->piping && conf.fname_as_vhost)
+    logitem->vhost = xstrdup(glog->fname_as_vhost);
 
   if (ret || (ret = verify_missing_fields (logitem))) {
     process_invalid (glog, logitem, line);

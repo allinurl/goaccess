@@ -46,6 +46,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <inttypes.h>
+#include <regex.h>
 
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -253,6 +254,50 @@ wc_match (const char *wc, char *str) {
   if (!*wc && !*str)
     return 1;
   return 0;
+}
+
+/* Extract a string given a POSIX regex.
+ *
+ * If no match found or error, NULL is returned.
+ * If match found, a string is returned. */
+char *
+regex_extract_string (const char *str, const char *regex, int max_groups) {
+  char *copy = NULL, *dest = NULL;
+  int i, ret = 0;
+  regex_t re;
+  regmatch_t groups[max_groups];
+
+  if (regcomp(&re, regex, REG_EXTENDED)) {
+    LOG_DEBUG (("Unable to compile regular expression upon extraction."));
+    return NULL;
+  }
+
+  ret = regexec(&re, str, max_groups, groups, 0);
+  if (ret == REG_NOMATCH) {
+    LOG_DEBUG (("Unable to match regular expression extraction."));
+    goto err;
+  }
+
+  if (ret != 0) {
+    LOG_DEBUG (("Error while matching regular expression extraction."));
+    goto err;
+  }
+
+  for (i = 0; i < max_groups; ++i) {
+    if (groups[i].rm_so == -1)
+      break;
+
+    copy = xstrdup(str);
+    copy[groups[i].rm_eo] = 0;
+
+    dest = xmalloc (snprintf (NULL, 0, "%s", copy + groups[i].rm_so) + 1);
+    sprintf (dest, "%s", copy + groups[i].rm_so);
+  }
+
+err:
+  regfree(&re);
+
+  return ret == 0 ? dest : NULL;
 }
 
 /* Determine if the given host needs to be ignored given the list of
