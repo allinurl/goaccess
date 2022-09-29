@@ -256,7 +256,7 @@ wc_match (const char *wc, char *str) {
   return 0;
 }
 
-/* Extract a string given a POSIX regex.
+/* Generic routine to extract all groups from a string given a POSIX regex.
  *
  * If no match found or error, NULL is returned.
  * If match found, a string is returned. */
@@ -266,6 +266,11 @@ regex_extract_string (const char *str, const char *regex, int max_groups, char c
   int i, ret = 0;
   regex_t re;
   regmatch_t groups[max_groups];
+
+  if (str == NULL || *str == '\0') {
+    *err = "Invalid string.";
+    return NULL;
+  }
 
   if (regcomp (&re, regex, REG_EXTENDED)) {
     *err = "Unable to compile regular expression upon extraction";
@@ -283,6 +288,7 @@ regex_extract_string (const char *str, const char *regex, int max_groups, char c
     goto out;
   }
 
+  dest = xstrdup ("");
   for (i = 0; i < max_groups; ++i) {
     if (groups[i].rm_so == -1)
       break;
@@ -290,8 +296,7 @@ regex_extract_string (const char *str, const char *regex, int max_groups, char c
     copy = xstrdup (str);
     copy[groups[i].rm_eo] = 0;
 
-    dest = xmalloc (snprintf (NULL, 0, "%s", copy + groups[i].rm_so) + 1);
-    sprintf (dest, "%s", copy + groups[i].rm_so);
+    append_str (&dest, copy + groups[i].rm_so);
     free (copy);
   }
 
