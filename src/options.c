@@ -626,7 +626,7 @@ parse_long_opt (const char *name, const char *oarg) {
     conf.db_path = oarg;
 
   /* specifies the regex to extract the virtual host */
-  if (!strcmp ("fname-as-vhost", name))
+  if (!strcmp ("fname-as-vhost", name) && oarg && *oarg != '\0')
     conf.fname_as_vhost = oarg;
 
   /* process and exit */

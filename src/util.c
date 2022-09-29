@@ -261,33 +261,33 @@ wc_match (const char *wc, char *str) {
  * If no match found or error, NULL is returned.
  * If match found, a string is returned. */
 char *
-regex_extract_string (const char *str, const char *regex, int max_groups) {
+regex_extract_string (const char *str, const char *regex, int max_groups, char const **err) {
   char *copy = NULL, *dest = NULL;
   int i, ret = 0;
   regex_t re;
   regmatch_t groups[max_groups];
 
-  if (regcomp(&re, regex, REG_EXTENDED)) {
-    LOG_DEBUG (("Unable to compile regular expression upon extraction."));
+  if (regcomp (&re, regex, REG_EXTENDED)) {
+    *err = "Unable to compile regular expression upon extraction";
     return NULL;
   }
 
-  ret = regexec(&re, str, max_groups, groups, 0);
+  ret = regexec (&re, str, max_groups, groups, 0);
   if (ret == REG_NOMATCH) {
-    LOG_DEBUG (("Unable to match regular expression extraction."));
-    goto err;
+    *err = "Unable to match regular expression extraction.";
+    goto out;
   }
 
   if (ret != 0) {
-    LOG_DEBUG (("Error while matching regular expression extraction."));
-    goto err;
+    *err = "Error while matching regular expression extraction.";
+    goto out;
   }
 
   for (i = 0; i < max_groups; ++i) {
     if (groups[i].rm_so == -1)
       break;
 
-    copy = xstrdup(str);
+    copy = xstrdup (str);
     copy[groups[i].rm_eo] = 0;
 
     dest = xmalloc (snprintf (NULL, 0, "%s", copy + groups[i].rm_so) + 1);
@@ -295,8 +295,8 @@ regex_extract_string (const char *str, const char *regex, int max_groups) {
     free (copy);
   }
 
-err:
-  regfree(&re);
+out:
+  regfree (&re);
 
   return ret == 0 ? dest : NULL;
 }

@@ -116,6 +116,8 @@ Logs *
 init_logs (int size) {
   Logs *logs = NULL;
   GLog *glog = NULL;
+  char *fvh = NULL;
+  char const *err;
   int i = 0;
 
   /* if no logs no a pipe nor restoring, nothing to do then */
@@ -135,9 +137,13 @@ init_logs (int size) {
   for (i = 0; i < size; ++i) {
     glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
     glog[i].filename = xstrdup (conf.filenames[i]);
-    glog[i].fname = xstrdup (basename(glog[i].filename));
-    if (!glog->pipe && conf.fname_as_vhost)
-      glog[i].fname_as_vhost = regex_extract_string (glog[i].fname, conf.fname_as_vhost, 1);
+    glog[i].fname = xstrdup (basename (glog[i].filename));
+
+    if (!glog->pipe && conf.fname_as_vhost) {
+      if (!(fvh = regex_extract_string (glog[i].fname, conf.fname_as_vhost, 1, &err)))
+        FATAL ("%s %s[%s]", err, glog[i].fname, conf.fname_as_vhost);
+      glog[i].fname_as_vhost = fvh;
+    }
 
     logs->processed = &(glog[i].processed);
     logs->filename = glog[i].filename;
@@ -1799,7 +1805,7 @@ pre_process_log (GLog * glog, char *line, int dry_run) {
     ret = parse_format (logitem, line, fmt);
 
   if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
-    logitem->vhost = xstrdup(glog->fname_as_vhost);
+    logitem->vhost = xstrdup (glog->fname_as_vhost);
 
   if (ret || (ret = verify_missing_fields (logitem))) {
     process_invalid (glog, logitem, line);

@@ -401,7 +401,8 @@ verify_panels (void) {
   if (!conf.log_format)
     return;
 
-  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES && !conf.fname_as_vhost) {
+  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES &&
+      !conf.fname_as_vhost) {
     if (str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (VIRTUAL_HOSTS);
   }
