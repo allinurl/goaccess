@@ -996,6 +996,28 @@ gen_host_key (GKeyData * kdata, GLogItem * logitem) {
   return 0;
 }
 
+/* Add browsers/OSs our logitem structure and reuse crawlers if applicable. */
+void
+set_browser_os (GLogItem * logitem) {
+  char *a1 = xstrdup (logitem->agent), *a2 = xstrdup (logitem->agent);
+  char browser_type[BROWSER_TYPE_LEN] = "";
+  char os_type[OPESYS_TYPE_LEN] = "";
+
+  logitem->browser = verify_browser (a1, browser_type);
+  logitem->browser_type = xstrdup (browser_type);
+
+  if (!memcmp (logitem->browser_type, "Crawlers", 8)) {
+    logitem->os = xstrdup(logitem->browser);
+    logitem->os_type = xstrdup (browser_type);
+  } else {
+    logitem->os = verify_os (a2, os_type);
+    logitem->os_type = xstrdup (os_type);
+  }
+
+  free (a1);
+  free (a2);
+}
+
 /* Generate a browser unique key for the browser's panel given a user
  * agent and assign the browser type/category as a root element.
  *
@@ -1004,15 +1026,10 @@ gen_host_key (GKeyData * kdata, GLogItem * logitem) {
  * structure. */
 static int
 gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
-  char *agent = NULL;
-  char browser_type[BROWSER_TYPE_LEN] = "";
-
   if (logitem->agent == NULL || *logitem->agent == '\0')
     return 1;
-
-  agent = xstrdup (logitem->agent);
-  logitem->browser = verify_browser (agent, browser_type);
-  logitem->browser_type = xstrdup (browser_type);
+  if (logitem->browser == NULL || *logitem->browser == '\0')
+    return 1;
 
   /* e.g., Firefox 11.12 */
   get_kdata (kdata, logitem->browser, logitem->browser);
@@ -1020,8 +1037,6 @@ gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
   /* Firefox */
   get_kroot (kdata, logitem->browser_type, logitem->browser_type);
   kdata->numdate = logitem->numdate;
-
-  free (agent);
 
   return 0;
 }
@@ -1034,15 +1049,10 @@ gen_browser_key (GKeyData * kdata, GLogItem * logitem) {
  * structure. */
 static int
 gen_os_key (GKeyData * kdata, GLogItem * logitem) {
-  char *agent = NULL;
-  char os_type[OPESYS_TYPE_LEN] = "";
-
   if (logitem->agent == NULL || *logitem->agent == '\0')
     return 1;
-
-  agent = xstrdup (logitem->agent);
-  logitem->os = verify_os (agent, os_type);
-  logitem->os_type = xstrdup (os_type);
+  if (logitem->os == NULL || *logitem->os == '\0')
+    return 1;
 
   /* e.g., GNU+Linux,Ubuntu 10.12 */
   get_kdata (kdata, logitem->os, logitem->os);
@@ -1050,8 +1060,6 @@ gen_os_key (GKeyData * kdata, GLogItem * logitem) {
   /* GNU+Linux */
   get_kroot (kdata, logitem->os_type, logitem->os_type);
   kdata->numdate = logitem->numdate;
-
-  free (agent);
 
   return 0;
 }

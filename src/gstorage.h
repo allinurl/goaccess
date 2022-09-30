@@ -135,6 +135,7 @@ void count_process (GLog * glog);
 void free_gmetrics (GMetrics * metric);
 void insert_methods_protocols (void);
 void process_log (GLogItem * logitem);
+void set_browser_os (GLogItem * logitem);
 void set_data_metrics (GMetrics * ometrics, GMetrics ** nmetrics, GPercTotals totals);
 void set_module_totals (GPercTotals * totals);
 void uncount_invalid (GLog * glog);

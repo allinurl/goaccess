@@ -1123,6 +1123,8 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (tkn != NULL && *tkn != '\0') {
       /* Make sure the user agent is decoded (i.e.: CloudFront) */
       logitem->agent = decode_url (tkn);
+
+      set_browser_os(logitem);
       set_agent_hash (logitem);
       free (tkn);
       break;
