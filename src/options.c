@@ -248,6 +248,7 @@ cmd_help (void)
   "  --anonymize-level=<1|2|3>       - Anonymization levels: 1 => default, 2 => strong, 3 => pedantic.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr|min>       - Date specificity. Possible values: `date` (default), `hr` or `min`.\n"
+  "  --db-path=<path>                - Persist data to disk on exit to the given path or /tmp as default.\n"
   "  --double-decode                 - Decode double-encoded values.\n"
   "  --enable-panel=<PANEL>          - Enable parsing/displaying the given panel.\n"
   "  --fname-as-vhost=<regex>        - Use log filename(s) as virtual host(s). POSIX regex is passed\n"
