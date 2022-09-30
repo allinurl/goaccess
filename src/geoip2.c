@@ -48,7 +48,7 @@
 #include "xmalloc.h"
 
 /* should be reused across lookups */
-int geoip_city_type = 0;
+static int geoip_city_type = 0;
 static MMDB_s *mmdb = NULL;
 
 /* Determine if we have a valid geoip resource.
