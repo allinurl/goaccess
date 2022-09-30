@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-09-06 17:30+0900\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: 2022-09-06 21:27+0900\n"
 "Last-Translator: David 창모 Yang <dcyang@users.noreply.github.com>\n"
 "Language-Team: Korean <dcyang@users.noreply.github.com>\n"
@@ -99,7 +99,7 @@ msgstr "로그 용량"
 msgid "Log Source"
 msgstr "로그 출처"
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr "참조자 수"
 
@@ -315,13 +315,20 @@ msgstr ""
 "방문 수로 정렬한 브라우저 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+#, fuzzy
+msgid "Referer URLs"
 msgstr "참조자 URL"
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+#, fuzzy
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "방문 수로 정렬한 요청 참조자 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+
+#: src/labels.h:181
+#, fuzzy
+msgid "Referers"
+msgstr "참조자 수"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"

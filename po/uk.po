@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-08-31 18:19-0500\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: 2022-04-21 10:17+0300\n"
 "Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
 "Language-Team: \n"
@@ -100,7 +100,7 @@ msgstr "Розмір лога"
 msgid "Log Source"
 msgstr "Джерело лога"
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr "Посил. сторінок"
 
@@ -318,14 +318,21 @@ msgstr ""
 "Топ браузерів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+#, fuzzy
+msgid "Referer URLs"
 msgstr "Сторінки, що посилаються"
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+#, fuzzy
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "Топ сторінок, що посилаються, відсортованих за хітами [, сер., заг., макс. "
 "часом обсл.]"
+
+#: src/labels.h:181
+#, fuzzy
+msgid "Referers"
+msgstr "Посил. сторінок"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"

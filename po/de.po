@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-08-31 18:19-0500\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: 2019-05-05 16:03+0200\n"
 "Last-Translator: Axel Wehner <mail@axelwehner.de>\n"
 "Language: de\n"
@@ -98,7 +98,7 @@ msgstr "Log-Größe"
 msgid "Log Source"
 msgstr "Log-Quelle"
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr "Verweise"
 
@@ -318,13 +318,20 @@ msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Häufigste Browser sortiert nach Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+#, fuzzy
+msgid "Referer URLs"
 msgstr "Verweis-URLs"
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+#, fuzzy
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "Häufigste ausgehende Verweise sortiert nach Zugriffen [, avgts, cumts, maxts]"
+
+#: src/labels.h:181
+#, fuzzy
+msgid "Referers"
+msgstr "Verweise"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"

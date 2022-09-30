@@ -5,7 +5,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-08-31 18:19-0500\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: 2017-04-03 09:43+0200\n"
 "Last-Translator: Ai<hello@goaccess.io>\n"
 "Language-Team: Ai\n"
@@ -97,7 +97,7 @@ msgstr "日志大小"
 msgid "Log Source"
 msgstr "日志文件夹地址"
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr "来源地址"
 
@@ -306,12 +306,19 @@ msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "浏览器排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+#, fuzzy
+msgid "Referer URLs"
 msgstr "来源地址URLs"
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+#, fuzzy
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr "来源地址排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
+
+#: src/labels.h:181
+#, fuzzy
+msgid "Referers"
+msgstr "来源地址"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"

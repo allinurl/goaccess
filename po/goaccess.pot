@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-08-31 18:19-0500\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -98,7 +98,7 @@ msgstr ""
 msgid "Log Source"
 msgstr ""
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr ""
 
@@ -303,11 +303,15 @@ msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+msgid "Referer URLs"
 msgstr ""
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgstr ""
+
+#: src/labels.h:181
+msgid "Referers"
 msgstr ""
 
 #: src/labels.h:184 src/labels.h:188

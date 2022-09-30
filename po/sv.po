@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-08-31 18:19-0500\n"
+"POT-Creation-Date: 2022-09-29 19:48-0500\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
 "Last-Translator: Anders Johansson <johansson@aljmedia.se>\n"
 "Language-Team: none\n"
@@ -98,7 +98,7 @@ msgstr "Loggstorlek"
 msgid "Log Source"
 msgstr "Loggkälla"
 
-#: src/labels.h:67 src/labels.h:181
+#: src/labels.h:67
 msgid "Referrers"
 msgstr "Hänvisningar"
 
@@ -307,13 +307,20 @@ msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Vanligast webbläsare sorterade i träffar [, avgts, cumts, maxts]"
 
 #: src/labels.h:177
-msgid "Referrers URLs"
+#, fuzzy
+msgid "Referer URLs"
 msgstr "Hänvisande URL:er"
 
 #: src/labels.h:179
-msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+#, fuzzy
+msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
+
+#: src/labels.h:181
+#, fuzzy
+msgid "Referers"
+msgstr "Hänvisningar"
 
 #: src/labels.h:184 src/labels.h:188
 msgid "Referring Sites"
