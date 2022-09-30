@@ -1,3 +1,12 @@
+Changes to GoAccess 1.6.4 - Friday, September 30, 2022
+
+  - Added Korean translation (i18n).
+  - Added the ability to use filenames as virtualhosts using
+    '--fname-as-vhost=<regex>'.
+  - Enabled clawlers/bots under the OSs panel instead of being shown as
+    'Unknown'.
+  - Updated the format on the command-line help output.
+
 Changes to GoAccess 1.6.3 - Thursday, August 31, 2022
 
   - Enabled DNS thread when resolving a host and outputting real-time HTML.
