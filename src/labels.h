@@ -174,11 +174,11 @@
   N_("Browsers")
 
 #define REFERRERS_HEAD                 \
-  N_("Referrers URLs")
+  N_("Referer URLs")
 #define REFERRERS_DESC                 \
-  N_("Top Requested Referrers sorted by hits [, avgts, cumts, maxts]")
+  N_("Top Requested Referers sorted by hits [, avgts, cumts, maxts]")
 #define REFERRERS_LABEL                \
-  N_("Referrers")
+  N_("Referers")
 
 #define REFERRING_SITES_HEAD           \
   N_("Referring Sites")
