@@ -396,8 +396,6 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("html-custom-css", name)) {
     if (strpbrk (oarg, "&\"'<>"))
       FATAL ("Invalid filename. The following chars are not allowed in filename: [\"'&<>]\n");
-    if (access (oarg, F_OK) != 0)
-      FATAL ("Unable to open custom CSS filename: %s\n", oarg);
     conf.html_custom_css = oarg;
   }
 
