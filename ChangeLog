@@ -1,3 +1,8 @@
+Changes to GoAccess 1.6.5 - Monday, October 31, 2022
+
+  - Updated Dockerfile build stage to use alpine:3.
+  - Updated deb build to use the right libncursesw6 dependency.
+
 Changes to GoAccess 1.6.4 - Friday, September 30, 2022
 
   - Added Korean translation (i18n).
