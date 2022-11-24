@@ -20,6 +20,8 @@ jobs:
           - arch: arm32v7
             distro: ubuntu22.04
           - arch: arm32v7
+            distro: ubuntu22.10            
+          - arch: arm32v7
             distro: bullseye
           - arch: aarch64
             distro: ubuntu16.04
@@ -30,6 +32,8 @@ jobs:
           - arch: aarch64
             distro: ubuntu22.04
           - arch: aarch64
+            distro: ubuntu22.10            
+          - arch: aarch64
             distro: buster
           - arch: aarch64
             distro: bullseye
@@ -53,6 +57,8 @@ jobs:
             distro: ubuntu20.04
           - arch: amd64
             distro: ubuntu22.04
+          - arch: amd64
+            distro: ubuntu22.10            
 
     steps:
       - uses: actions/checkout@v2.1.0
