@@ -161,6 +161,7 @@ typedef struct GConf_
   int geo_db;                       /* legacy geoip db */
   int hl_header;                    /* highlight header on term */
   int ignore_crawlers;              /* ignore crawlers */
+  int unknowns_as_crawlers;         /* unknown OS and browsers are classified as crawlers */
   int ignore_qstr;                  /* ignore query string */
   int ignore_statics;               /* ignore static files */
   int json_pretty_print;            /* pretty print JSON data */
