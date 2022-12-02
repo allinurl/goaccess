@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stddef.h>
 
+#include "opesys.h"
 #include "browsers.h"
 
 #include "error.h"
@@ -403,17 +404,34 @@ parse_browsers_file (void) {
  * If it is a crawler, 1 is returned . */
 int
 is_crawler (const char *agent) {
-  char type[BROWSER_TYPE_LEN];
-  char *browser, *a;
+  char btype[BROWSER_TYPE_LEN];
+  char otype[OPESYS_TYPE_LEN];
+  char *browser, *os, *a;
 
   if (agent == NULL || *agent == '\0')
     return 0;
 
-  if ((a = xstrdup (agent), browser = verify_browser (a, type)) != NULL)
+  if ((a = xstrdup (agent), browser = verify_browser (a, btype)) != NULL)
     free (browser);
   free (a);
 
-  return strcmp (type, "Crawlers") == 0 ? 1 : 0;
+  if (strcmp (btype, "Crawlers") == 0)
+    return 1;
+
+  if (!conf.unknowns_as_crawlers)
+    return 0;
+
+  if (strcmp (btype, "Unknown") == 0)
+    return 1;
+
+  if ((a = xstrdup (agent), os = verify_os (a, otype)) != NULL)
+    free (os);
+  free (a);
+
+  if (strcmp (otype, "Unknown") == 0)
+    return 1;
+
+  return 0;
 }
 
 /* Return the Opera 15 and beyond.

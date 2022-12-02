@@ -143,6 +143,7 @@ struct option long_opts[] = {
   {"sort-panel"           , required_argument , 0 , 0  }  ,
   {"static-file"          , required_argument , 0 , 0  }  ,
   {"tz"                   , required_argument , 0 , 0  }  ,
+  {"unknowns-as-crawlers" , no_argument       , 0 , 0  }  ,
   {"user-name"            , required_argument , 0 , 0  }  ,
 #ifdef HAVE_LIBSSL
   {"ssl-cert"             , required_argument , 0 ,  0  } ,
@@ -312,6 +313,7 @@ cmd_help (void)
   "                                    See manpage for a list of panels/fields.\n"
   "  --static-file=<extension>       - Add static file extension. e.g.: .mp3.\n"
   "                                    Extensions are case sensitive.\n"
+  "  --unknowns-as-crawlers          - Classify unknown OS and browsers as crawlers.\n"
   "\n"
 
 /* GeoIP Options */
@@ -684,6 +686,10 @@ parse_long_opt (const char *name, const char *oarg) {
       conf.static_file_max_len = strlen (oarg);
     set_array_opt (oarg, conf.static_files, &conf.static_file_idx, MAX_EXTENSIONS);
   }
+
+  /* classify unknowns as crawlers */
+  if (!strcmp ("unknowns-as-crawlers", name))
+    conf.unknowns_as_crawlers = 1;
 
   /* GEOIP OPTIONS
    * ========================= */
