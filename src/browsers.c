@@ -571,15 +571,16 @@ verify_browser (char *str, char *type) {
   if (str == NULL || *str == '\0')
     return NULL;
 
-  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
-    return token;
-
   /* check user's list */
   for (i = 0; i < conf.browsers_hash_idx; ++i) {
     if ((match = strstr (str, conf.user_browsers_hash[i][0])) == NULL)
       continue;
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
+
+  /* try heuristics */
+  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
+    return token;
 
   /* fallback to default browser list */
   for (j = 0; j < ARRAY_SIZE (browsers); ++j) {
