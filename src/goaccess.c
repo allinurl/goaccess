@@ -498,8 +498,12 @@ load_ip_agent_list (void) {
   int type_ip = 0;
   /* make sure we have a valid IP */
   int sel = gscroll.module[gscroll.current].scroll;
-  GDashData item = dash->module[HOSTS].data[sel];
+  GDashData item = {0};
 
+  if (dash->module[HOSTS].holder_size == 0)
+    return;
+
+  item = dash->module[HOSTS].data[sel];
   if (!invalid_ipaddr (item.metrics->data, &type_ip))
     load_agent_list (main_win, item.metrics->data);
 }
