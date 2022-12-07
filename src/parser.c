@@ -1898,6 +1898,9 @@ fgetline (FILE * fp) {
         break;
     }
 
+    if (*buf == '\0')
+      break;
+
     len = strlen (buf);
 
     /* overflow check */
