@@ -5,7 +5,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: goaccess 1.3\n"
+"Project-Id-Version: goaccess 1.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2022-10-31 18:53-0500\n"
 "PO-Revision-Date: 2018-12-13 22:48-0600\n"
@@ -88,7 +88,7 @@ msgstr "Misslyckade förfrågningar"
 
 #: src/labels.h:64
 msgid "Log Parsing Time"
-msgstr ""
+msgstr "Analystid av loggar"
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -454,7 +454,7 @@ msgstr "[UP / DOWN] för att bläddra - [q] för att avsluta"
 
 #: src/labels.h:275
 msgid "In-Memory with On-Disk Persistent Storage."
-msgstr "In-Memory with On-Disk Persistent Storage."
+msgstr "In-Memory med On-Disk persistent lagring."
 
 #: src/labels.h:279
 msgid "Format Errors - Verify your log/date/time format"
@@ -644,15 +644,15 @@ msgstr "Typ"
 
 #: src/labels.h:375
 msgid "Area Spline"
-msgstr "Area Spline"
+msgstr "Kurva"
 
 #: src/labels.h:377
 msgid "Bar"
-msgstr "Bar"
+msgstr "Stapel"
 
 #: src/labels.h:379
 msgid "Plot Metric"
-msgstr "Plot Metric"
+msgstr "Plotmetrisk"
 
 #: src/labels.h:381
 msgid "Table Columns"
