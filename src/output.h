@@ -86,6 +86,7 @@ typedef struct GDefMetric_ {
   const char *metakey;          /* metric JSON meta key */
   const char *metatype;         /* metric meta value type */
   const char *metalbl;          /* metric meta value label */
+  const char *hlregex;          /* highlight regex value */
 } GDefMetric;
 
 void output_html (GHolder * holder, const char *filename);

@@ -333,13 +333,14 @@ set_host_sub_list (GHolder * h, GSubList * sub_list) {
 #ifdef HAVE_GEOLOCATION
   char city[CITY_LEN] = "";
   char continent[CONTINENT_LEN] = "";
-  char country[COUNTRY_LEN] = "";
+  char country[ASN_LEN] = "";
+  char asn[ASN_LEN] = "";
 #endif
 
   char *host = h->items[h->idx].metrics->data, *hostname = NULL;
 #ifdef HAVE_GEOLOCATION
   /* add geolocation child nodes */
-  set_geolocation (host, continent, country, city);
+  set_geolocation (host, continent, country, city, asn);
 
   /* country */
   if (country[0] != '\0') {
@@ -361,6 +362,17 @@ set_host_sub_list (GHolder * h, GSubList * sub_list) {
 
     /* flag only */
     conf.has_geocity = 1;
+  }
+
+  /* ASN */
+  if (asn[0] != '\0') {
+    set_host_child_metrics (asn, MTRC_ID_ASN, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+
+    /* flag only */
+    conf.has_geoasn = 1;
   }
 #endif
 

@@ -35,6 +35,7 @@
 
 #define MAX_LINE_CONF        4096
 #define MAX_EXTENSIONS        128
+#define MAX_GEOIP_DBS           3
 #define MAX_IGNORE_IPS 1024 + 128
 #define MAX_IGNORE_REF         64
 #define MAX_CUSTOM_COLORS      64
@@ -106,6 +107,7 @@ typedef struct GConf_
   const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g. , HTML */
   const char *sort_panels[TOTAL_MODULES];       /* sorting options for each panel */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */
+  const char *geoip_databases[MAX_GEOIP_DBS];    /* geoip db paths */
 
   /* Log/date/time formats */
   const char *tz_name;                    /* Canonical TZ name, e.g., America/Chicago */
@@ -120,7 +122,6 @@ typedef struct GConf_
   char ***user_browsers_hash;       /* custom list of browsers */
 
   const char *debug_log;            /* debug log path */
-  const char *geoip_database;       /* geoip db path */
   const char *html_custom_css;      /* custom CSS */
   const char *html_custom_js;       /* custom JS */
   const char *html_prefs;           /* default HTML JSON preferences */
@@ -197,6 +198,7 @@ typedef struct GConf_
   int date_spec_hr;                 /* date specificity - hour */
   int has_geocity;
   int has_geocountry;
+  int has_geoasn;
   int hour_spec_min;                /* hour specificity - min */
   int read_stdin;                   /* read from stdin */
   int serve_usecs;                  /* is there time served within req line */
@@ -215,6 +217,7 @@ typedef struct GConf_
   int output_format_idx;            /* output format index */
   int sort_panel_idx;               /* sort panel index */
   int static_file_idx;              /* static extensions index */
+  int geoip_db_idx;                 /* geoip db index */
   int browsers_hash_idx;            /* browsers hash index */
 
   size_t static_file_max_len;

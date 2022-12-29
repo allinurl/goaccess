@@ -424,7 +424,7 @@ verify_panels (void) {
   }
 #ifdef HAVE_GEOLOCATION
 #ifdef HAVE_LIBMAXMINDDB
-  if (!conf.geoip_database && ignore_panel_idx < TOTAL_MODULES) {
+  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (GEO_LOCATION);
   }

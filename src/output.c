@@ -535,6 +535,8 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp) {
     fpskeysval (fp, "metaLabel", def.metalbl, isp, 0);
   if (def.datatype)
     fpskeysval (fp, "dataType", def.datatype, isp, 0);
+  if (def.hlregex)
+    fpskeysval (fp, "hlregex", def.hlregex, isp, 0);
   if (def.datakey)
     fpskeysval (fp, "key", def.datakey, isp, 0);
   if (def.lbl)
@@ -838,13 +840,31 @@ print_def_city (FILE * fp, int sp) {
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON ASN definition block. */
+static void
+print_def_asn (FILE * fp, int sp) {
+  GDefMetric def = {
+    .datakey = "asn",
+    .lbl = MTRC_ASB_LBL,
+    .datatype = "regex",
+    .hlregex = "{"
+      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\""
+      "}",
+  };
+
+  if (!conf.has_geoasn)
+    return;
+
+  print_def_block (fp, def, sp, 0);
+}
+
 /* Output JSON country definition block. */
 static void
 print_def_country (FILE * fp, int sp) {
   GDefMetric def = {
     .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
-    .datatype = "string",
+    .datatype = "regex",
   };
 
   if (!conf.has_geocountry)
@@ -934,6 +954,7 @@ print_host_metrics (FILE * fp, const GHTML * def, int sp) {
 
   print_def_city (fp, sp);
   print_def_country (fp, sp);
+  print_def_asn (fp, sp);
   print_def_hostname (fp, sp);
 
   print_def_data (fp, def->module, sp);

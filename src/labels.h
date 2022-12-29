@@ -87,6 +87,7 @@
 #define MTRC_PROTOCOLS_LBL       _( "Protocol")
 #define MTRC_PROTOCOLS_SHORT_LBL _( "Proto")
 #define MTRC_CITY_LBL            _( "City")
+#define MTRC_ASB_LBL             _( "ASN")
 #define MTRC_COUNTRY_LBL         _( "Country")
 #define MTRC_HOSTNAME_LBL        _( "Hostname")
 #define MTRC_DATA_LBL            _( "Data")

@@ -711,7 +711,7 @@ tail_html (void) {
   allocate_holder ();
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (holder, 0);
+  json = get_json (holder, 1);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)
@@ -729,7 +729,7 @@ fast_forward_client (int listener) {
   char *json = NULL;
 
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (holder, 0);
+  json = get_json (holder, 1);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)

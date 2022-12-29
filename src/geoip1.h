@@ -39,6 +39,7 @@
 #define CITY_LEN       47 + 1   /* max string length for a city */
 #define CONTINENT_LEN  47 + 1   /* max string length for a country */
 #define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
+#define ASN_LEN       128 + 6   /* ASN + 5 digit/16-bit number/code */
 
 typedef struct GLocation_ {
   char city[CITY_LEN];
@@ -47,7 +48,7 @@ typedef struct GLocation_ {
 } GLocation;
 
 int is_geoip_resource (void);
-int set_geolocation (char *host, char *continent, char *country, char *city);
+int set_geolocation (char *host, char *continent, char *country, char *city, char *asn);
 void geoip_free (void);
 void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);

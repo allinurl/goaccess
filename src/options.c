@@ -694,8 +694,8 @@ parse_long_opt (const char *name, const char *oarg) {
   /* GEOIP OPTIONS
    * ========================= */
   /* specifies the path of the GeoIP City database file */
-  if (!strcmp ("geoip-database", name))
-    conf.geoip_database = oarg;
+  if (!strcmp ("geoip-database", name) && conf.geoip_db_idx < MAX_GEOIP_DBS)
+    set_array_opt (oarg, conf.geoip_databases, &conf.geoip_db_idx, MAX_GEOIP_DBS);
 
   /* default config file --dwf */
   if (!strcmp ("dcf", name)) {

@@ -210,7 +210,7 @@ GoAccess.Util = {
 	},
 
 	// Format field value to human readable
-	fmtValue: function (value, dataType, decimals, shorten) {
+	fmtValue: function (value, dataType, decimals, shorten, hlregex, hlvalue) {
 		var val = 0;
 		if (!dataType)
 			val = value;
@@ -230,7 +230,7 @@ GoAccess.Util = {
 			val = this.formatBytes(value, decimals);
 			break;
 		case 'percent':
-			val = parseFloat(value.replace(',', '.')).toFixed(2) + '%';
+			val = value.replace(',', '.') + '%';
 			break;
 		case 'time':
 			if (this.isNumeric(value))
@@ -243,6 +243,18 @@ GoAccess.Util = {
 			break;
 		default:
 			val = value;
+		}
+
+		if (hlregex) {
+			let o = JSON.parse(hlregex), tmp = '';
+			for (var x in o) {
+				tmp = val.replace(new RegExp(x, 'gi'), o[x]);
+				if (tmp != val) {
+					val = tmp;
+					break;
+				}
+				val = tmp;
+			}
 		}
 
 		return value == 0 ? String(val) : (val === undefined ? '—' : val);
@@ -1466,7 +1478,7 @@ GoAccess.Tables = {
 		// use metaType if exist else fallback to dataType
 		var vtype = ui.metaType || ui.dataType;
 		var className = ui.className || '';
-		className += ui.dataType != 'string' ? 'text-right' : '';
+		className += !['string', 'regex'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
 			'value'    : val ? GoAccess.Util.fmtValue(val, vtype) : null,
@@ -1547,11 +1559,11 @@ GoAccess.Tables = {
 	// e.g., value = Object {count: 14351, percent: 5.79}
 	getObjectCell: function (panel, ui, value) {
 		var className = ui.className || '';
-		className += ui.dataType != 'string' ? 'text-right' : '';
+		className += !['string', 'regex'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
 			'percent': GoAccess.Util.getPercent(value),
-			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType)
+			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType, null, null, ui.hlregex, ui.hlvalue, ui.hlidx)
 		};
 	},
 

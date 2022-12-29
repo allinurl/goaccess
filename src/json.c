@@ -347,9 +347,9 @@ pskeyu64val (GJSON * json, const char *key, uint64_t val, int sp, int last) {
 static void
 pskeyfval (GJSON * json, const char *key, float val, int sp, int last) {
   if (!last)
-    pjson (json, "%.*s\"%s\": \"%4.2f\",%.*s", sp, TAB, key, val, nlines, NL);
+    pjson (json, "%.*s\"%s\": \"%05.2f\",%.*s", sp, TAB, key, val, nlines, NL);
   else
-    pjson (json, "%.*s\"%s\": \"%4.2f\"", sp, TAB, key, val);
+    pjson (json, "%.*s\"%s\": \"%05.2f\"", sp, TAB, key, val);
 }
 
 /* Write to a buffer the open block item object. */
@@ -979,12 +979,13 @@ print_json_host_geo (GJSON * json, GSubList * sl, int iisp) {
   static const char *key[] = {
     "country",
     "city",
+    "asn",
     "hostname",
   };
 
   pjson (json, ",%.*s", nlines, NL);
 
-  /* Iterate over child properties (country, city, etc) and print them out */
+  /* Iterate over child properties (country, city, asn, etc) and print them out */
   for (i = 0, iter = sl->head; iter; iter = iter->next, i++) {
     pjson (json, "%.*s\"%s\": \"", iisp, TAB, key[iter->metrics->id]);
     escape_json_output (json, iter->metrics->data);

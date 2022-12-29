@@ -32,7 +32,8 @@
 
 #define MTRC_ID_COUNTRY  0
 #define MTRC_ID_CITY     1
-#define MTRC_ID_HOSTNAME 2
+#define MTRC_ID_ASN      2
+#define MTRC_ID_HOSTNAME 3
 
 #include "commons.h"
 #include "sort.h"
