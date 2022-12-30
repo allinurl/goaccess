@@ -103,15 +103,12 @@ init_geoip (void) {
     mmdbs = new_mmdbs;
     mmdbs[mmdb_cnt - 1] = mmdb;
 
-    if (strstr (mmdb.metadata.database_type, "-City") != NULL) {
-      geoip_country_type = geoip_city_type = 1;
-    }
-    if (strstr (mmdb.metadata.database_type, "-ASN") != NULL) {
-      geoip_asn_type = 1;
-    }
-    if (strstr (mmdb.metadata.database_type, "-Country") != NULL) {
-      geoip_country_type = 1;
-    }
+    if (strstr (mmdb.metadata.database_type, "-City") != NULL)
+      conf.has_geocountry = conf.has_geocity = geoip_country_type = geoip_city_type = 1;
+    if (strstr (mmdb.metadata.database_type, "-ASN") != NULL)
+      conf.has_geoasn = geoip_asn_type = 1;
+    if (strstr (mmdb.metadata.database_type, "-Country") != NULL)
+      conf.has_geocountry = geoip_country_type = 1;
   }
 }
 
