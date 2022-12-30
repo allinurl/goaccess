@@ -54,5 +54,6 @@ void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
 void init_geoip (void);
+void geoip_asn (char *host, char *asn);
 
 #endif // for #ifndef GEOIP_H

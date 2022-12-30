@@ -123,6 +123,7 @@ static GScroll gscroll = {
      {0, 0}, /* CACHE_STATUS    { scroll, offset} */
 #ifdef HAVE_GEOLOCATION
      {0, 0}, /* GEO_LOCATION    { scroll, offset} */
+     {0, 0}, /* ASN             { scroll, offset} */
 #endif
      {0, 0}, /* MIME_TYPE       { scroll, offset} */
      {0, 0}, /* TLS_TYPE        { scroll, offset} */
@@ -498,7 +499,7 @@ load_ip_agent_list (void) {
   int type_ip = 0;
   /* make sure we have a valid IP */
   int sel = gscroll.module[gscroll.current].scroll;
-  GDashData item = {0};
+  GDashData item = { 0 };
 
   if (dash->module[HOSTS].holder_size == 0)
     return;

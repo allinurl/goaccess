@@ -70,6 +70,7 @@ static int gen_status_code_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_visit_time_key (GKeyData * kdata, GLogItem * logitem);
 #ifdef HAVE_GEOLOCATION
 static int gen_geolocation_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_asn_key (GKeyData * kdata, GLogItem * logitem);
 #endif
 /* UMS */
 static int gen_mime_type_key (GKeyData * kdata, GLogItem * logitem);
@@ -268,6 +269,20 @@ static GParse paneling[] = {
     gen_geolocation_key,
     insert_data,
     insert_rootmap,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
+  },
+  {
+    ASN,
+    gen_asn_key,
+    insert_data,
+    NULL,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -1007,7 +1022,7 @@ set_browser_os (GLogItem * logitem) {
   logitem->browser_type = xstrdup (browser_type);
 
   if (!memcmp (logitem->browser_type, "Crawlers", 8)) {
-    logitem->os = xstrdup(logitem->browser);
+    logitem->os = xstrdup (logitem->browser);
     logitem->os_type = xstrdup (browser_type);
   } else {
     logitem->os = verify_os (a2, os_type);
@@ -1268,6 +1283,29 @@ gen_geolocation_key (GKeyData * kdata, GLogItem * logitem) {
 
   get_kdata (kdata, logitem->country, logitem->country);
   get_kroot (kdata, logitem->continent, logitem->continent);
+  kdata->numdate = logitem->numdate;
+
+  return 0;
+}
+
+/* A wrapper to generate a unique key for the ASN panel.
+ *
+ * On error, 1 is returned.
+ * On success, the generated keyphrase key is assigned to our key data
+ * structure. */
+static int
+gen_asn_key (GKeyData * kdata, GLogItem * logitem) {
+  char asn[ASN_LEN] = "";
+
+  if (!is_geoip_resource ())
+    return 1;
+
+  geoip_asn (logitem->host, asn);
+
+  if (asn[0] != '\0')
+    logitem->asn = xstrdup (asn);
+
+  get_kdata (kdata, logitem->asn, logitem->asn);
   kdata->numdate = logitem->numdate;
 
   return 0;

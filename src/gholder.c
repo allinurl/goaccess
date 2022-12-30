@@ -79,9 +79,10 @@ static GPanel paneling[] = {
   {CACHE_STATUS    , add_data_to_holder , NULL},
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , add_root_to_holder , NULL},
+  {ASN             , add_data_to_holder , NULL} ,
 #endif
-  {MIME_TYPE    , add_root_to_holder, NULL} ,
-  {TLS_TYPE    , add_root_to_holder, NULL} ,
+  {MIME_TYPE       , add_root_to_holder , NULL} ,
+  {TLS_TYPE        , add_root_to_holder , NULL} ,
 };
 /* *INDENT-ON* */
 

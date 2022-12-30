@@ -78,6 +78,7 @@
 #define REFERRING_SITES_ID "referring_sites"
 #define KEYPHRASES_ID      "keyphrases"
 #define GEO_LOCATION_ID    "geolocation"
+#define ASN_ID             "asn"
 #define STATUS_CODES_ID    "status_codes"
 #define GENER_ID           "general"
 

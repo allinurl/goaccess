@@ -74,6 +74,7 @@ static GEnum enum_modules[] = {
   {"CACHE_STATUS"    , CACHE_STATUS}    ,
 #ifdef HAVE_GEOLOCATION
   {"GEO_LOCATION"    , GEO_LOCATION}    ,
+  {"ASN"             , ASN}             ,
 #endif
   {"MIME_TYPE"       , MIME_TYPE}       ,
   {"TLS_TYPE"        , TLS_TYPE}        ,
@@ -427,6 +428,10 @@ verify_panels (void) {
   if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (GEO_LOCATION);
+  }
+  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("ASN", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (ASN);
   }
 #endif
 #endif

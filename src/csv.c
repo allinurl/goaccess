@@ -80,6 +80,7 @@ static GPanel paneling[] = {
   {CACHE_STATUS    , print_csv_data} ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , print_csv_data} ,
+  {ASN             , print_csv_data} ,
 #endif
   {MIME_TYPE       , print_csv_data} ,
   {TLS_TYPE        , print_csv_data} ,

@@ -122,9 +122,9 @@ geoip_lookup (MMDB_lookup_result_s * res, const char *ip, int is_asn) {
   MMDB_s *mmdb = NULL;
 
   for (idx = 0; idx < mmdb_cnt; idx++) {
-    if (is_asn && (!strstr(mmdbs[idx].metadata.database_type, "ASN")))
+    if (is_asn && (!strstr (mmdbs[idx].metadata.database_type, "ASN")))
       continue;
-    if (!is_asn && (strstr(mmdbs[idx].metadata.database_type, "ASN")))
+    if (!is_asn && (strstr (mmdbs[idx].metadata.database_type, "ASN")))
       continue;
 
     mmdb = &mmdbs[idx];
@@ -183,7 +183,7 @@ geoip_set_asn (MMDB_entry_data_s name, MMDB_entry_data_s code, char *asn) {
   if (name.data_size && code.data_size)
     snprintf (asn, ASN_LEN, "%05u: %.*s", code.uint32, name.data_size, name.utf8_string);
   else
-    snprintf (asn, ASN_LEN, "%s", "Unknown");
+    snprintf (asn, ASN_LEN, "%s", "00000: Unknown");
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -281,17 +281,45 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
  *
  * If no data is found, NULL is set.
  * On success, the fetched value is set. */
-static void
-geoip_query_asn (MMDB_lookup_result_s res, char *asn) {
-  MMDB_entry_data_s name = {0};
-  MMDB_entry_data_s code = {0};
-
+static int
+geoip_query_asn_code (MMDB_lookup_result_s res, MMDB_entry_data_s * code) {
   if (res.found_entry) {
-    if (MMDB_get_value(&res.entry, &name, "autonomous_system_organization", NULL) != MMDB_SUCCESS || !name.has_data)
-      goto out;
-    if (MMDB_get_value(&res.entry, &code, "autonomous_system_number", NULL) != MMDB_SUCCESS || !code.has_data)
-      goto out;
+    if (MMDB_get_value (&res.entry, code, "autonomous_system_number", NULL) != MMDB_SUCCESS ||
+        !code->has_data)
+      return 1;
   }
+
+  return 0;
+}
+
+static int
+geoip_query_asn_name (MMDB_lookup_result_s res, MMDB_entry_data_s * name) {
+  if (res.found_entry) {
+    if (MMDB_get_value (&res.entry, name, "autonomous_system_organization", NULL) !=
+        MMDB_SUCCESS || !name->has_data)
+      return 1;
+  }
+
+  return 0;
+}
+
+void
+geoip_asn (char *host, char *asn) {
+  MMDB_lookup_result_s rname = { 0 };
+  MMDB_lookup_result_s rcode = { 0 };
+
+  MMDB_entry_data_s name = { 0 };
+  MMDB_entry_data_s code = { 0 };
+
+  geoip_lookup (&rname, host, 1);
+  geoip_lookup (&rcode, host, 1);
+
+  if (!rname.found_entry)
+    goto out;
+  if (geoip_query_asn_name (rname, &name))
+    goto out;
+  if (geoip_query_asn_code (rcode, &code))
+    goto out;
 
 out:
   geoip_set_asn (name, code, asn);
@@ -336,8 +364,7 @@ geoip_get_continent (const char *ip, char *location, GO_UNUSED GTypeIP type_ip) 
  * On success, buffers are set and 0 is returned */
 int
 set_geolocation (char *host, char *continent, char *country, char *city, char *asn) {
-  MMDB_lookup_result_s res = {0};
-  MMDB_lookup_result_s are = {0};
+  MMDB_lookup_result_s res = { 0 };
 
   if (!is_geoip_resource ())
     return 1;
@@ -347,10 +374,9 @@ set_geolocation (char *host, char *continent, char *country, char *city, char *a
   geoip_query_continent (res, continent);
   if (geoip_city_type)
     geoip_query_city (res, city);
-  if (geoip_asn_type) {
-    geoip_lookup (&are, host, 1);
-    geoip_query_asn (are, asn);
-  }
+
+  if (geoip_asn_type)
+    geoip_asn (host, asn);
 
   return 0;
 }

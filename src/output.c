@@ -133,6 +133,10 @@ static GHTML htmldef[] = {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
+  {ASN, 1, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
+  }},
 #endif
   {MIME_TYPE, 1, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
@@ -847,9 +851,7 @@ print_def_asn (FILE * fp, int sp) {
     .datakey = "asn",
     .lbl = MTRC_ASB_LBL,
     .datatype = "regex",
-    .hlregex = "{"
-      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\""
-      "}",
+    .hlregex = "{" "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
   };
 
   if (!conf.has_geoasn)

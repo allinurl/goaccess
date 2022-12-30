@@ -59,6 +59,7 @@ typedef struct GLogItem_ {
   char *browser_type;
   char *continent;
   char *country;
+  char *asn;
   char *date;
   char *host;
   char *keyphrase;

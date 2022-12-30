@@ -206,6 +206,7 @@ init_log_item (GLog * glog) {
   logitem->browser = NULL;
   logitem->browser_type = NULL;
   logitem->continent = NULL;
+  logitem->asn = NULL;
   logitem->country = NULL;
   logitem->date = NULL;
   logitem->errstr = NULL;
@@ -252,6 +253,8 @@ free_glog (GLogItem * logitem) {
     free (logitem->browser_type);
   if (logitem->continent != NULL)
     free (logitem->continent);
+  if (logitem->asn != NULL)
+    free (logitem->asn);
   if (logitem->country != NULL)
     free (logitem->country);
   if (logitem->date != NULL)
@@ -1124,7 +1127,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       /* Make sure the user agent is decoded (i.e.: CloudFront) */
       logitem->agent = decode_url (tkn);
 
-      set_browser_os(logitem);
+      set_browser_os (logitem);
       set_agent_hash (logitem);
       free (tkn);
       break;

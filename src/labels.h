@@ -202,6 +202,13 @@
 #define GEO_LOCATION_LABEL             \
   N_("Geo Location")
 
+#define ASN_HEAD                 \
+  N_("ASN")
+#define ASN_DESC                 \
+  N_("Autonomous System Numbers/Organizations (ASNs)")
+#define ASN_LABEL                \
+  N_("ASN")
+
 #define STATUS_CODES_HEAD              \
   N_("HTTP Status Codes")
 #define STATUS_CODES_DESC              \

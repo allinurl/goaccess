@@ -86,6 +86,7 @@ static GOutput outputting[] = {
   {CACHE_STATUS    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {ASN             , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
   {MIME_TYPE       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {TLS_TYPE        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
@@ -276,6 +277,7 @@ module_to_label (GModule module) {
     CACHE_STATUS_LABEL,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_LABEL,
+    ASN_LABEL,
 #endif
     MIME_TYPE_LABEL,
     TLS_TYPE_LABEL,
@@ -307,6 +309,7 @@ module_to_id (GModule module) {
     CACHE_STATUS_ID,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_ID,
+    ASN_ID,
 #endif
     MIME_TYPE_ID,
     TLS_TYPE_ID,
@@ -338,6 +341,7 @@ module_to_head (GModule module) {
     CACHE_STATUS_HEAD,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_HEAD,
+    ASN_HEAD,
 #endif
     MIME_TYPE_HEAD,
     TLS_TYPE_HEAD,
@@ -373,6 +377,7 @@ module_to_desc (GModule module) {
     CACHE_STATUS_DESC,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_DESC,
+    ASN_DESC,
 #endif
     MIME_TYPE_DESC,
     TLS_TYPE_DESC,

@@ -90,6 +90,7 @@ static GPanel paneling[] = {
   {CACHE_STATUS        , print_json_data , NULL } ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION        , print_json_data , print_json_sub_items } ,
+  {ASN                 , print_json_data , NULL} ,
 #endif
   {MIME_TYPE           , print_json_data , print_json_sub_items } ,
   {TLS_TYPE            , print_json_data , print_json_sub_items } ,

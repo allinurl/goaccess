@@ -52,7 +52,7 @@ extern struct tm now_tm;
 
 /* total number of modules */
 #ifdef HAVE_GEOLOCATION
-#define TOTAL_MODULES    18
+#define TOTAL_MODULES    19
 #else
 #define TOTAL_MODULES    17
 #endif
@@ -109,6 +109,7 @@ typedef enum MODULES {
   CACHE_STATUS,
 #ifdef HAVE_GEOLOCATION
   GEO_LOCATION,
+  ASN,
 #endif
   MIME_TYPE,
   TLS_TYPE,
