@@ -85,8 +85,12 @@ nav {
 	z-index: 2;
 }
 nav .nav-list {
-	height: 100%;
-	overflow-y: auto;
+	bottom: 0;
+	left: 0;
+	overflow-y: scroll;
+	position: absolute;
+	right: -17px;
+	top: 0;
 }
 nav header {
 	margin: 40px 20px 30px;
