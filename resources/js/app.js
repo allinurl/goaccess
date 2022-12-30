@@ -1856,9 +1856,9 @@ GoAccess.App = {
 		if (!this.hasFocus)
 			return;
 
-		// some panels may have not been properly rendered since no data was
-		// passed when bootstrapping the report, thus we do a full re-render of
-		// all panels
+		// some panels may not have been properly rendered since no data was
+		// passed when bootstrapping the report, thus we do a one full
+		// re-render of all panels
 		if (GoAccess.OverallStats.total_requests == 0 && GoAccess.OverallStats.total_requests != GoAccess.AppData.general.total_requests)
 			GoAccess.Panels.initialize();
 		GoAccess.OverallStats.total_requests = GoAccess.AppData.general.total_requests;
