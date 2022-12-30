@@ -349,6 +349,8 @@ GoAccess.Util = {
 
 // OVERALL STATS
 GoAccess.OverallStats = {
+	total_requests: 0,
+
 	// Render each overall stats box
 	renderBox: function (data, ui, row, x, idx) {
 		var wrap = $('.wrap-general-items');
@@ -400,6 +402,7 @@ GoAccess.OverallStats = {
 	initialize: function () {
 		var ui = GoAccess.getPanelUI('general');
 		var data = GoAccess.getPanelData('general');
+		this.total_requests = data.total_requests;
 
 		this.renderData(data, ui);
 	}
@@ -1852,6 +1855,13 @@ GoAccess.App = {
 		// update data and charts if tab/document has focus
 		if (!this.hasFocus)
 			return;
+
+		// some panels may have not been properly rendered since no data was
+		// passed when bootstrapping the report, thus we do a full re-render of
+		// all panels
+		if (GoAccess.OverallStats.total_requests == 0 && GoAccess.OverallStats.total_requests != GoAccess.AppData.general.total_requests)
+			GoAccess.Panels.initialize();
+		GoAccess.OverallStats.total_requests = GoAccess.AppData.general.total_requests;
 
 		this.verifySort();
 		GoAccess.OverallStats.initialize();
