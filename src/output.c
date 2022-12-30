@@ -850,7 +850,7 @@ print_def_asn (FILE * fp, int sp) {
   GDefMetric def = {
     .datakey = "asn",
     .lbl = MTRC_ASB_LBL,
-    .datatype = "regex",
+    .datatype = "string",
     .hlregex = "{" "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
   };
 
@@ -866,7 +866,7 @@ print_def_country (FILE * fp, int sp) {
   GDefMetric def = {
     .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
-    .datatype = "regex",
+    .datatype = "string",
   };
 
   if (!conf.has_geocountry)

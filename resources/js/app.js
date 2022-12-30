@@ -1478,7 +1478,7 @@ GoAccess.Tables = {
 		// use metaType if exist else fallback to dataType
 		var vtype = ui.metaType || ui.dataType;
 		var className = ui.className || '';
-		className += !['string', 'regex'].includes(ui.dataType) ? 'text-right' : '';
+		className += !['string'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
 			'value'    : val ? GoAccess.Util.fmtValue(val, vtype) : null,
@@ -1559,7 +1559,7 @@ GoAccess.Tables = {
 	// e.g., value = Object {count: 14351, percent: 5.79}
 	getObjectCell: function (panel, ui, value) {
 		var className = ui.className || '';
-		className += !['string', 'regex'].includes(ui.dataType) ? 'text-right' : '';
+		className += !['string'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
 			'percent': GoAccess.Util.getPercent(value),
