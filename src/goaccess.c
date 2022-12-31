@@ -1115,13 +1115,18 @@ get_keys (Logs * logs) {
       if (set_module_to (&gscroll, GEO_LOCATION) == 0)
         render_screens (offset);
       break;
-#endif
     case 38:   /* Shift + 7 */
+      /* reset expanded module */
+      if (set_module_to (&gscroll, ASN) == 0)
+        render_screens (offset);
+      break;
+#endif
+    case 42:   /* Shift + 7 */
       /* reset expanded module */
       if (set_module_to (&gscroll, MIME_TYPE) == 0)
         render_screens (offset);
       break;
-    case 42:   /* Shift + 8 */
+    case 40:   /* Shift + 8 */
       /* reset expanded module */
       if (set_module_to (&gscroll, TLS_TYPE) == 0)
         render_screens (offset);
