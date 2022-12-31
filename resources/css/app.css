@@ -354,6 +354,43 @@ div.wrap-panel > div {
 	font-size: 78%;
 	text-transform: uppercase;
 }
+.wrap-panel table .cell-hl {
+	padding: 2px 3px;
+	color: #FFF;
+	border-radius: 5px;
+	display: block;
+	text-align: center;
+}
+.wrap-panel table .span-hl {
+	padding: 2px 3px;
+	border-radius: 3px;
+	color: #000;
+}
+.wrap-panel table .span-hl.g5 {
+	background: #e9ecef;
+}
+.wrap-panel table .cell-hl.b1 {
+	background: #7F669D;
+}
+.wrap-panel table .cell-hl.b2 {
+	background: #BA94D1;
+}
+.wrap-panel table .cell-hl.b3 {
+	background: #DEBACE;
+}
+.wrap-panel table .cell-hl.d1 {
+	background: #9d9d9d;
+}
+.wrap-panel table .cell-hl.d2 {
+	background: #9d9d9d9c;
+}
+.wrap-panel table .cell-hl.d3 {
+	background: #9d9d9d61;
+}
+.wrap-panel table .cell-hl.d4 {
+	background: #9d9d9d38;
+}
+
 /* thead meta */
 .wrap-panel table thead>tr.thead-min th.meta-label,
 .wrap-panel table thead>tr.thead-avg th.meta-label,
@@ -474,7 +511,7 @@ div.wrap-panel > div {
 	border-top: 4px solid #00D4E1;
 }
 .grid-module.green {
-	border-top: 4px solid #5DB56A;
+	border-top: 4px solid #229f75;
 }
 @media (max-width: 767px) {
 	.panel-plot-wrap {
@@ -668,6 +705,18 @@ rect.legend {
 	margin-top: 10px;
 	padding: 0 10px;
 	border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+.dark .wrap-panel table .cell-hl.d1 {
+	background: #161616;
+}
+.dark .wrap-panel table .cell-hl.d2 {
+	background: #3c3c3c;
+}
+.dark .wrap-panel table .cell-hl.d3 {
+	background: #5a5a5a;
+}
+.dark .wrap-panel table .cell-hl.d4 {
+	background: #7e7e7e;
 }
 
 /* DARK BLUE THEME */

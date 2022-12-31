@@ -805,6 +805,11 @@ print_def_method (FILE * fp, int sp) {
     .lbl = MTRC_METHODS_LBL,
     .datatype = "string",
     .cwidth = "6%",
+    .hlregex = "{"
+      "\\\"(\\\\\\\\b[A-Z]{3}\\\\\\\\b)\\\": \\\"<b class='cell-hl b1'>$1</b>\\\","
+      "\\\"(\\\\\\\\b[A-Z]{4}\\\\\\\\b)\\\": \\\"<b class='cell-hl b2'>$1</b>\\\","
+      "\\\"(\\\\\\\\b[A-Z]{5,}\\\\\\\\b)\\\": \\\"<b class='cell-hl b3'>$1</b>\\\"" "}",
+
   };
 
   if (!conf.append_method)
@@ -821,6 +826,11 @@ print_def_protocol (FILE * fp, int sp) {
     .lbl = MTRC_PROTOCOLS_LBL,
     .datatype = "string",
     .cwidth = "7%",
+    .hlregex = "{"
+      "\\\"(\\\\\\\\bHTTP/1.0\\\\\\\\b)\\\": \\\"<b class='cell-hl d1'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/1.1\\\\\\\\b)\\\": \\\"<b class='cell-hl d2'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/2\\\\\\\\b)\\\": \\\"<b class='cell-hl d3'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/3\\\\\\\\b)\\\": \\\"<b class='cell-hl d4'>$1</b>\\\"" "}",
   };
 
   if (!conf.append_protocol)
@@ -867,6 +877,7 @@ print_def_country (FILE * fp, int sp) {
     .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
     .datatype = "string",
+    .hlregex = "{" "\\\"^([A-Z]{2})\\\": \\\"<b class='span-hl g5'>$1</b>\\\"" "}",
   };
 
   if (!conf.has_geocountry)
@@ -903,6 +914,11 @@ print_def_data (FILE * fp, GModule module, int sp) {
     .metakey = "unique",
     .metalbl = "Total",
     .metatype = "numeric",
+    .hlregex = "{" "\\\"^(\\\\\\\\d+|\\\\\\\\d+xx)(\\\\\\\\s.*)$\\\": \\\"<b>$1</b>$2\\\","     /* 2xx Success */
+      "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\","      /* 01234: Data */
+      "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\","       /* 12/May/2022:12:34 */
+      "\\\"^([A-Z]{2})(\\\\\\\\s.*$)\\\": \\\"<b class='span-hl g5'>$1</b>$2\\\""       /* US United States */
+      "}",
   };
 
   print_def_block (fp, def, sp, 1);
