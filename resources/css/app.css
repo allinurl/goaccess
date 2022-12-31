@@ -379,16 +379,16 @@ div.wrap-panel > div {
 	background: #DEBACE;
 }
 .wrap-panel table .cell-hl.d1 {
-	background: #9d9d9d;
+	background: #9d9d9d38;
 }
 .wrap-panel table .cell-hl.d2 {
-	background: #9d9d9d9c;
-}
-.wrap-panel table .cell-hl.d3 {
 	background: #9d9d9d61;
 }
+.wrap-panel table .cell-hl.d3 {
+	background: #9d9d9d9c;
+}
 .wrap-panel table .cell-hl.d4 {
-	background: #9d9d9d38;
+	background: #9d9d9d;
 }
 
 /* thead meta */
