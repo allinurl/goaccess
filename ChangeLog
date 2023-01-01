@@ -1,3 +1,16 @@
+Changes to GoAccess 1.7 - Saturday, December 31, 2022
+
+  - Added an option to classify unknown OS and browsers as crawlers using
+    `--unknowns-as-crawlers`.
+  - Added highlighting to certain metrics on the HTML report for readability.
+  - Added support ASN mapping for GeoIP2 and legacy databases.  Great for
+    detecting malicious traffic and block accordingly.
+  - Changed and prioritize user's browsers list over heuristics.
+  - Fixed invalid read when loading the list of agents for an IP.
+  - Fixed issue where a file containing a nul `\0` character would crash the
+    program.
+  - Updated Swedish i18n.
+
 Changes to GoAccess 1.6.5 - Monday, October 31, 2022
 
   - Updated Dockerfile build stage to use alpine:3.
