@@ -47,6 +47,9 @@ terminal. Features include:
   Have multiple Virtual Hosts (Server Blocks)? It features a panel that
   displays which virtual host is consuming most of the web server resources.
 
+* **ASN (Autonomous System Number mapping)**<br>
+  Great for detecting malicious traffic patterns and block them accordingly.
+
 * **Color Scheme Customizable**<br>
   Tailor GoAccess to suit your own color taste/schemes. Either through the
   terminal, or by simply applying the stylesheet on the HTML output.
@@ -97,9 +100,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.6.5.tar.gz
-    $ tar -xzvf goaccess-1.6.5.tar.gz
-    $ cd goaccess-1.6.5/
+    $ wget https://tar.goaccess.io/goaccess-1.7.tar.gz
+    $ tar -xzvf goaccess-1.7.tar.gz
+    $ cd goaccess-1.7/
     $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
