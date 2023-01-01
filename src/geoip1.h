@@ -39,7 +39,14 @@
 #define CITY_LEN       47 + 1   /* max string length for a city */
 #define CONTINENT_LEN  47 + 1   /* max string length for a country */
 #define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
-#define ASN_LEN       128 + 6   /* ASN + 5 digit/16-bit number/code */
+#define ASN_LEN        64 + 6   /* ASN + 5 digit/16-bit number/code */
+
+/* Type of IP */
+typedef enum {
+  TYPE_COUNTRY,
+  TYPE_CITY,
+  TYPE_ASN
+} GO_GEOIP_DB;
 
 typedef struct GLocation_ {
   char city[CITY_LEN];
@@ -49,11 +56,10 @@ typedef struct GLocation_ {
 
 int is_geoip_resource (void);
 int set_geolocation (char *host, char *continent, char *country, char *city, char *asn);
+void geoip_asn (char *host, char *asn);
 void geoip_free (void);
-void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
 void init_geoip (void);
-void geoip_asn (char *host, char *asn);
 
 #endif // for #ifndef GEOIP_H

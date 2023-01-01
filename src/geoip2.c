@@ -76,40 +76,43 @@ geoip_free (void) {
   mmdbs = NULL;
 }
 
+static void
+set_geoip (const char *db) {
+  int status = 0;
+  MMDB_s *new_mmdbs = NULL, mmdb;
+
+  if (db == NULL || *db == '\0')
+    return;
+
+  if ((status = MMDB_open (db, MMDB_MODE_MMAP, &mmdb)) != MMDB_SUCCESS)
+    FATAL ("Unable to open GeoIP2 database %s: %s\n", db, MMDB_strerror (status));
+
+  mmdb_cnt++;
+
+  new_mmdbs = realloc (mmdbs, sizeof (*mmdbs) * mmdb_cnt);
+  if (new_mmdbs == NULL)
+    FATAL ("Unable to realloc GeoIP2 database %s\n", db);
+  mmdbs = new_mmdbs;
+  mmdbs[mmdb_cnt - 1] = mmdb;
+
+  if (strstr (mmdb.metadata.database_type, "-City") != NULL)
+    conf.has_geocountry = conf.has_geocity = geoip_country_type = geoip_city_type = 1;
+  if (strstr (mmdb.metadata.database_type, "-ASN") != NULL)
+    conf.has_geoasn = geoip_asn_type = 1;
+  if (strstr (mmdb.metadata.database_type, "-Country") != NULL)
+    conf.has_geocountry = geoip_country_type = 1;
+}
+
 /* Open the given GeoIP2 database.
  *
  * On error, it aborts.
  * On success, a new geolocation structure is set. */
 void
 init_geoip (void) {
-  const char *db = NULL;
-  int i, status = 0;
-  MMDB_s *new_mmdbs = NULL, mmdb;
+  int i;
 
-  for (i = 0; i < conf.geoip_db_idx; ++i) {
-    db = conf.geoip_databases[i];
-    if (db == NULL || *db == '\0')
-      continue;
-
-    if ((status = MMDB_open (db, MMDB_MODE_MMAP, &mmdb)) != MMDB_SUCCESS) {
-      FATAL ("Unable to open GeoIP2 database %s: %s\n", db, MMDB_strerror (status));
-    }
-
-    mmdb_cnt++;
-
-    new_mmdbs = realloc (mmdbs, sizeof (*mmdbs) * mmdb_cnt);
-    if (new_mmdbs == NULL)
-      FATAL ("Unable to realloc GeoIP2 database %s\n", db);
-    mmdbs = new_mmdbs;
-    mmdbs[mmdb_cnt - 1] = mmdb;
-
-    if (strstr (mmdb.metadata.database_type, "-City") != NULL)
-      conf.has_geocountry = conf.has_geocity = geoip_country_type = geoip_city_type = 1;
-    if (strstr (mmdb.metadata.database_type, "-ASN") != NULL)
-      conf.has_geoasn = geoip_asn_type = 1;
-    if (strstr (mmdb.metadata.database_type, "-Country") != NULL)
-      conf.has_geocountry = geoip_country_type = 1;
-  }
+  for (i = 0; i < conf.geoip_db_idx; ++i)
+    set_geoip (conf.geoip_databases[i]);
 }
 
 /* Look up an IP address that is passed in as a null-terminated string.

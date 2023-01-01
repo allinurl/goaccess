@@ -861,7 +861,9 @@ print_def_asn (FILE * fp, int sp) {
     .datakey = "asn",
     .lbl = MTRC_ASB_LBL,
     .datatype = "string",
-    .hlregex = "{" "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
+    .hlregex = "{"
+      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\","
+      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
   };
 
   if (!conf.has_geoasn)
@@ -915,6 +917,7 @@ print_def_data (FILE * fp, GModule module, int sp) {
     .metalbl = "Total",
     .metatype = "numeric",
     .hlregex = "{" "\\\"^(\\\\\\\\d+|\\\\\\\\d+xx)(\\\\\\\\s.*)$\\\": \\\"<b>$1</b>$2\\\","     /* 2xx Success */
+      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\","     /* AS9823 Google */
       "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\","      /* 01234: Data */
       "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\","       /* 12/May/2022:12:34 */
       "\\\"^([A-Z]{2})(\\\\\\\\s.*$)\\\": \\\"<b class='span-hl g5'>$1</b>$2\\\""       /* US United States */
