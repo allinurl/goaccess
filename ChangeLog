@@ -8,7 +8,7 @@ Changes to GoAccess 1.7 - Saturday, December 31, 2022
   - Added an ASN metric per IP/host.
   - Changed and prioritize user's browsers list over heuristics.
   - Ensure `--geoip-database=<path>` can be used multiple times to support
-    multiple databases.
+    different databases.
   - Fixed invalid read when loading the list of agents for an IP.
   - Fixed issue where a file containing a NUL `\0` character would crash the
     program.
