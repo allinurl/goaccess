@@ -4,7 +4,7 @@ Changes to GoAccess 1.7 - Saturday, December 31, 2022
     `--unknowns-as-crawlers`.
   - Added highlighting to certain metrics on the HTML report for readability.
   - Added a new panel that displays ASN data for GeoIP2 and legacy databases.
-    Great for detecting malicious traffic and block accordingly.
+    Great for detecting malicious traffic and blocking accordingly.
   - Added an ASN metric per IP/host.
   - Changed and prioritize user's browsers list over heuristics.
   - Ensure `--geoip-database=<path>` can be used multiple times to support
