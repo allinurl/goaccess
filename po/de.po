@@ -599,7 +599,7 @@ msgstr "Tabellen auf kleinen Bildschirmen automatisch verstecken"
 
 #: src/labels.h:353
 msgid "Toggle Panel"
-msgstr ""
+msgstr "Panel umschalten"
 
 #: src/labels.h:355
 msgid "Layout"
