@@ -181,7 +181,7 @@ msgstr "Stadt"
 
 #: src/labels.h:90 src/labels.h:206 src/labels.h:210
 msgid "ASN"
-msgstr ""
+msgstr "ASN"
 
 #: src/labels.h:91
 msgid "Country"
