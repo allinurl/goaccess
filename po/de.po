@@ -127,7 +127,7 @@ msgstr "Zugriffe"
 
 #: src/labels.h:77
 msgid "h%"
-msgstr ""
+msgstr "h%"
 
 #: src/labels.h:78 src/labels.h:105
 msgid "Visitors"
