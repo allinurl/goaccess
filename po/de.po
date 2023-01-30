@@ -271,7 +271,7 @@ msgstr "Cache Status des gelieferten Objekts"
 
 #: src/labels.h:147
 msgid "Cache Status"
-msgstr ""
+msgstr "Cache status"
 
 #: src/labels.h:150
 msgid "Not Found URLs (404s)"
