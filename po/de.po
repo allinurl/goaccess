@@ -139,7 +139,7 @@ msgstr "Bes."
 
 #: src/labels.h:80
 msgid "v%"
-msgstr ""
+msgstr "v%"
 
 # T.S. = Time Serve (The time taken to serve the request)
 # Vz = Verarbeitungszeit
