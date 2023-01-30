@@ -1,8 +1,3 @@
-# German (Formal) - GNU gettext translation file
-# Copyright (C) 2019 GoAccess <https://goaccess.io/>
-# This file is distributed under the same license as the GoAccess package.
-# Axel Wehner <mail@axelwehner.de>, 2019.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
@@ -12,7 +7,7 @@ msgstr ""
 "Last-Translator: Axel Wehner <mail@axelwehner.de>\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.2.1\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -88,7 +83,7 @@ msgstr "Fehlgeschlagene Anfragen"
 
 #: src/labels.h:64
 msgid "Log Parsing Time"
-msgstr ""
+msgstr "Loggen der Übertragungszeit "
 
 #: src/labels.h:65
 msgid "Log Size"
@@ -215,7 +210,8 @@ msgstr "Eindeutige Besucher pro Tag - Inklusive Spiders/Bots"
 #: src/labels.h:103
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
-"Zugriffe mit der selben IP, Datum und User-Agent sind ein eindeutiger Besuch."
+"Zugriffe mit der selben IP, Datum und User-Agent sind ein eindeutiger "
+"Besuch."
 
 #: src/labels.h:108
 msgid "Requested Files (URLs)"
@@ -238,8 +234,8 @@ msgstr "Statische Anfragen"
 #: src/labels.h:117
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"Häufigste statische Anfragen sortiert nach Zugriffen [, avgts, cumts, maxts, "
-"mthd, proto]"
+"Häufigste statische Anfragen sortiert nach Zugriffen [, avgts, cumts, "
+"maxts, mthd, proto]"
 
 #: src/labels.h:122
 msgid "Time Distribution"
@@ -293,8 +289,7 @@ msgstr "Besucher Hostnames und IPs"
 
 #: src/labels.h:159
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Häufigste Besucher-Hosts sortiert nach Zugriffen [, avgts, cumts, maxts]"
+msgstr "Häufigste Besucher-Hosts sortiert nach Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:161
 msgid "Hosts"
@@ -306,8 +301,7 @@ msgstr "Betriebssysteme"
 
 #: src/labels.h:166
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Häufigste Betriebssysteme sortiert nach Zugriffen [, avgts, cumts, maxts]"
+msgstr "Häufigste Betriebssysteme sortiert nach Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:168
 msgid "OS"
@@ -330,7 +324,8 @@ msgstr "Verweis-URLs"
 #, fuzzy
 msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
-"Häufigste ausgehende Verweise sortiert nach Zugriffen [, avgts, cumts, maxts]"
+"Häufigste ausgehende Verweise sortiert nach Zugriffen [, avgts, cumts, "
+"maxts]"
 
 #: src/labels.h:182
 #, fuzzy
@@ -344,7 +339,8 @@ msgstr "Verweisende Seiten"
 #: src/labels.h:187
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
-"Häufigste eingehende Verweise sortiert nach Zugriffen [, avgts, cumts, maxts]"
+"Häufigste eingehende Verweise sortiert nach Zugriffen [, avgts, cumts, "
+"maxts]"
 
 #: src/labels.h:192
 msgid "Keyphrases from Google's search engine"
@@ -352,8 +348,7 @@ msgstr "Schlüsselwörter von Google's Suchmaschine"
 
 #: src/labels.h:194
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Häufigste Schlüsselwörter sortiert nach Zugriffen [, avgts, cumts, maxts]"
+msgstr "Häufigste Schlüsselwörter sortiert nach Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:196
 msgid "Keyphrases"
@@ -365,8 +360,7 @@ msgstr "Geo-Standort"
 
 #: src/labels.h:201
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr ""
-"Kontinent > Land sortiert nach eindeutigen Zugriffen [, avgts, cumts, maxts]"
+msgstr "Kontinent > Land sortiert nach eindeutigen Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:208
 msgid "Autonomous System Numbers/Organizations (ASNs)"
@@ -378,8 +372,7 @@ msgstr "HTTP-Statuscodes"
 
 #: src/labels.h:215
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Häufigste HTTP Status Codes sortiert nach Zugriffen [, avgts, cumts, maxts]"
+msgstr "Häufigste HTTP Status Codes sortiert nach Zugriffen [, avgts, cumts, maxts]"
 
 #: src/labels.h:217
 msgid "Status Codes"
@@ -702,8 +695,7 @@ msgstr "5xx Serverfehler"
 
 #: src/labels.h:404
 msgid "100 - Continue: Server received the initial part of the request"
-msgstr ""
-"100 - Weitermachen: Der Server hat den ersten Teil der Anfrage erhalten"
+msgstr "100 - Weitermachen: Der Server hat den ersten Teil der Anfrage erhalten"
 
 #: src/labels.h:406
 msgid "101 - Switching Protocols: Client asked to switch protocols"
@@ -786,8 +778,7 @@ msgstr "400 - Fehlerhafte Anfrage: Die Syntax der Anfrage ist ungültig"
 
 #: src/labels.h:444
 msgid "401 - Unauthorized: Request needs user authentication"
-msgstr ""
-"401 - Nicht autorisiert: Anforderung erfordert Benutzerauthentifizierung"
+msgstr "401 - Nicht autorisiert: Anforderung erfordert Benutzerauthentifizierung"
 
 #: src/labels.h:446
 msgid "402 - Payment Required"
@@ -799,8 +790,7 @@ msgstr "403 - Verboten: Der Server weigert sich, darauf zu reagieren"
 
 #: src/labels.h:450
 msgid "404 - Not Found: Requested resource could not be found"
-msgstr ""
-"404 - Nicht gefunden: Angefragte Ressource konnte nicht gefunden werden"
+msgstr "404 - Nicht gefunden: Angefragte Ressource konnte nicht gefunden werden"
 
 #: src/labels.h:452
 msgid "405 - Method Not Allowed: Request method not supported"
@@ -834,8 +824,7 @@ msgstr "411 - Erforderliche Länge: Ungültige Inhaltslänge"
 
 #: src/labels.h:466
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
-"412 - Vorbedingung fehlgeschlagen: Server erfüllt nicht die Voraussetzungen"
+msgstr "412 - Vorbedingung fehlgeschlagen: Server erfüllt nicht die Voraussetzungen"
 
 #: src/labels.h:468
 msgid "413 - Payload Too Large"
@@ -847,8 +836,7 @@ msgstr "414 - Anfrage-URI zu lang"
 
 #: src/labels.h:472
 msgid "415 - Unsupported Media Type: Media type is not supported"
-msgstr ""
-"415 - Nicht unterstützter Medientyp: Der Medientyp wird nicht unterstützt"
+msgstr "415 - Nicht unterstützter Medientyp: Der Medientyp wird nicht unterstützt"
 
 #: src/labels.h:474
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
@@ -871,8 +859,7 @@ msgstr "421 - Fehlgesteuerte Anfrage"
 
 #: src/labels.h:482
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
-msgstr ""
-"422 - Nicht verarbeitbare Entität aufgrund von semantischen Fehlern: WebDAV"
+msgstr "422 - Nicht verarbeitbare Entität aufgrund von semantischen Fehlern: WebDAV"
 
 #: src/labels.h:484
 msgid "423 - The resource that is being accessed is locked"
@@ -940,8 +927,7 @@ msgstr "501 - Nicht implementiert"
 
 #: src/labels.h:514
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
-msgstr ""
-"502 - Fehlerhaftes Gateway: Eine ungültige Antwort vom Upstream erhalten"
+msgstr "502 - Fehlerhaftes Gateway: Eine ungültige Antwort vom Upstream erhalten"
 
 #: src/labels.h:516
 msgid "503 - Service Unavailable: The server is currently unavailable"
@@ -976,15 +962,3 @@ msgstr "523 - CloudFlare - Herkunft ist unerreichbar"
 #: src/labels.h:530
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - Zeitüberschreitung aufgetreten"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "Init. Verarbeitungszeit"
-
-#~ msgid "Built using the default in-memory hash database."
-#~ msgstr "Erstellt in Verwendung der Standard In-Memory Hash-Datenbank."
-
-#~ msgid "Built using Tokyo Cabinet on-disk B+ Tree."
-#~ msgstr "Erstellt in Verwendung des Tokyo Cabinet on-disk B+ Tree."
-
-#~ msgid "Built using Tokyo Cabinet in-memory hash database."
-#~ msgstr "Erstellt in Verwendung der Tokyo Cabinet In-Memory Hash-Datenbank."

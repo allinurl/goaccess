@@ -1,8 +1,3 @@
-# Swedish translations for goaccess package.
-# Copyright (C) 2019 THE goaccess'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the goaccess package.
-# Anders Johansson, 2019.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6\n"
@@ -13,7 +8,7 @@ msgstr ""
 "Language-Team: none\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -216,8 +211,7 @@ msgstr "Begärda filer (URLer)"
 
 #: src/labels.h:110
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Flest förfrågingar sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Flest förfrågingar sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
 
 #: src/labels.h:112
 msgid "Requests"
@@ -229,8 +223,7 @@ msgstr "Statiska förfrågningar"
 
 #: src/labels.h:117
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Toppförfrågningar sorterade i trufar [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Toppförfrågningar sorterade i trufar [, avgts, cumts, maxts, mthd, proto]"
 
 #: src/labels.h:122
 msgid "Time Distribution"
@@ -318,8 +311,7 @@ msgstr "Hänvisande URL:er"
 #: src/labels.h:180
 #, fuzzy
 msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
 
 #: src/labels.h:182
 #, fuzzy
@@ -412,8 +404,7 @@ msgstr "Loggformat konfiguration"
 
 #: src/labels.h:247
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
-"[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
+msgstr "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
 #: src/labels.h:249
 msgid "Log Format - [c] to add/edit format"
@@ -716,8 +707,7 @@ msgstr "204 - Inget innehåll: Förfrågan returnerade inte något innehåll"
 
 #: src/labels.h:418
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
-"205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
+msgstr "205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
 
 #: src/labels.h:420
 msgid "206 - Partial Content: The partial GET has been successful"
@@ -816,8 +806,7 @@ msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
 #: src/labels.h:466
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
-"412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
+msgstr "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
 #: src/labels.h:468
 msgid "413 - Payload Too Large"
@@ -833,8 +822,7 @@ msgstr "415 - Medietyp som inte stöds: Medietypen stöds inte"
 
 #: src/labels.h:474
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
-"416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
+msgstr "416 - Begärd räckvidd Ej Tillfredställande: Kan inte leverera den delen"
 
 #: src/labels.h:476
 msgid "417 - Expectation Failed"
@@ -872,7 +860,8 @@ msgstr "428 - Förutsättning krävs"
 #: src/labels.h:492
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
-"429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
+"429 - För många förfrågningar: Användaren har skickat för många "
+"förfrågningar"
 
 #: src/labels.h:494
 msgid "431 - Request Header Fields Too Large"
@@ -951,15 +940,3 @@ msgstr "523 - CloudFlare - Ursprung är oåtkomligt"
 #: src/labels.h:530
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "Init. proc. Tid"
-
-#~ msgid "Built using the default in-memory hash database."
-#~ msgstr "Byggd med standard in-memory hash databas"
-
-#~ msgid "Built using Tokyo Cabinet on-disk B+ Tree."
-#~ msgstr "Byggd med Tokyo Cabinet on-disk B+ Tree."
-
-#~ msgid "Built using Tokyo Cabinet in-memory hash database."
-#~ msgstr "Byggd med Tokyo Cabinet in-memory hash databas."
