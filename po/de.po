@@ -364,7 +364,7 @@ msgstr "Kontinent > Land sortiert nach eindeutigen Zugriffen [, avgts, cumts, ma
 
 #: src/labels.h:208
 msgid "Autonomous System Numbers/Organizations (ASNs)"
-msgstr ""
+msgstr "Autonome Systemnummern/Organisationen (ASNs)"
 
 #: src/labels.h:213
 msgid "HTTP Status Codes"
