@@ -115,6 +115,32 @@ typedef enum MODULES {
   TLS_TYPE,
 } GModule;
 
+/* Total number of storage metrics (GSMetric) */
+#define GSMTRC_TOTAL 19
+
+/* Enumerated Storage Metrics */
+typedef enum GSMetric_ {
+  MTRC_KEYMAP,
+  MTRC_ROOTMAP,
+  MTRC_DATAMAP,
+  MTRC_UNIQMAP,
+  MTRC_ROOT,
+  MTRC_HITS,
+  MTRC_VISITORS,
+  MTRC_BW,
+  MTRC_CUMTS,
+  MTRC_MAXTS,
+  MTRC_METHODS,
+  MTRC_PROTOCOLS,
+  MTRC_AGENTS,
+  MTRC_METADATA,
+  MTRC_UNIQUE_KEYS,
+  MTRC_AGENT_KEYS,
+  MTRC_AGENT_VALS,
+  MTRC_CNT_VALID,
+  MTRC_CNT_BW,
+} GSMetric;
+
 /* Metric totals. These are metrics that have a percent value and are
  * calculated values. */
 typedef struct GPercTotals_ {
