@@ -1,6 +1,3 @@
-# This file is distributed under the same license as the goaccess package.
-# Ai, 2018.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
@@ -11,7 +8,7 @@ msgstr ""
 "Language-Team: Ai\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Gtranslator 2.91.7\n"
@@ -215,8 +212,7 @@ msgstr "请求的文件"
 
 #: src/labels.h:110
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
+msgstr "请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: src/labels.h:112
 msgid "Requests"
@@ -228,8 +224,7 @@ msgstr "静态请求"
 
 #: src/labels.h:117
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"静态请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
+msgstr "静态请求排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: src/labels.h:122
 msgid "Time Distribution"
@@ -273,9 +268,7 @@ msgstr "未找到的URLs"
 
 #: src/labels.h:152
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"未找到的URLs排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协"
-"议]"
+msgstr "未找到的URLs排序按 [点击量, 平均响应时, 总共响应时, 最高响应时, 请求方法, 协议]"
 
 #: src/labels.h:157
 msgid "Visitor Hostnames and IPs"
@@ -941,27 +934,3 @@ msgstr "523 - CloudFlare - 服务器无法访问"
 #: src/labels.h:530
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - 服务器响应超时"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "第一次处理耗时"
-
-#~ msgid "Built using the default in-memory hash database."
-#~ msgstr "使用默认的在内存中的哈希表来构建"
-
-#~ msgid "Built using Tokyo Cabinet on-disk B+ Tree."
-#~ msgstr "使用Tokyo Cabinet在磁盘中的B+树来构建"
-
-#~ msgid "Built using Tokyo Cabinet in-memory hash database."
-#~ msgstr "使用Tokyo Cabinet的内存中的哈希表来构建"
-
-#~ msgid "Bandwidth"
-#~ msgstr "带宽"
-
-#~ msgid "Unique Files"
-#~ msgstr "唯一的文件"
-
-#~ msgid "Unique 404"
-#~ msgstr "唯一的404"
-
-#~ msgid " - Including spiders"
-#~ msgstr "- 包括网络机器人"

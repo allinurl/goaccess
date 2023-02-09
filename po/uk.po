@@ -1,8 +1,3 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR Free Software Foundation, Inc.
-# This file is distributed under the same license as the goaccess package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
@@ -13,11 +8,11 @@ msgstr ""
 "Language-Team: \n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.3.1\n"
-"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
-"%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : 2);\n"
 
 #: src/labels.h:40
 msgid "en"
@@ -318,8 +313,7 @@ msgstr "Браузери"
 
 #: src/labels.h:173
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Топ браузерів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
+msgstr "Топ браузерів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
 
 #: src/labels.h:178
 #, fuzzy
@@ -354,8 +348,7 @@ msgstr "Ключові слова з пошукової системи Google"
 
 #: src/labels.h:194
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Том ключових слів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
+msgstr "Том ключових слів, відсортованих за хітами [, сер., заг., макс. часом обсл.]"
 
 #: src/labels.h:196
 msgid "Keyphrases"
@@ -368,8 +361,8 @@ msgstr "Географічне розташування"
 #: src/labels.h:201
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr ""
-"Континенти > країни, відсортовані за унікальними хітами [, сер., заг., макс. "
-"часом обсл.]"
+"Континенти > країни, відсортовані за унікальними хітами [, сер., заг., "
+"макс. часом обсл.]"
 
 #: src/labels.h:208
 msgid "Autonomous System Numbers/Organizations (ASNs)"
@@ -929,8 +922,7 @@ msgstr "501 - Not Implemented"
 
 #: src/labels.h:514
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
-msgstr ""
-"502 - Bad Gateway: Сервер, який діє як шлюз, отримав недійсну відповідь"
+msgstr "502 - Bad Gateway: Сервер, який діє як шлюз, отримав недійсну відповідь"
 
 #: src/labels.h:516
 msgid "503 - Service Unavailable: The server is currently unavailable"
@@ -938,8 +930,7 @@ msgstr "503 - Service Unavailable: Сервер недоступний"
 
 #: src/labels.h:518
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
-"504 - Gateway Timeout: Сервер, який діє як шлюз, не дочекався відповіді"
+msgstr "504 - Gateway Timeout: Сервер, який діє як шлюз, не дочекався відповіді"
 
 #: src/labels.h:520
 msgid "505 - HTTP Version Not Supported"
@@ -964,6 +955,3 @@ msgstr "523 - CloudFlare - Origin is unreachable"
 #: src/labels.h:530
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - A timeout occurred"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "Час обробки лога"

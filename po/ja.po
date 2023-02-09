@@ -1,8 +1,3 @@
-# Japanese translations for goaccess package.
-# Copyright (C) 2018 Free Software Foundation, Inc.
-# This file is distributed under the same license as the goaccess package.
-# Kamino, 2020
-#
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
@@ -13,7 +8,7 @@ msgstr ""
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
@@ -208,9 +203,7 @@ msgstr "一日あたりのユニークユーザー数（クローラも含める
 
 #: src/labels.h:103
 msgid "Hits having the same IP, date and agent are a unique visit."
-msgstr ""
-"IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザー"
-"として扱われます。"
+msgstr "IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザーとして扱われます。"
 
 #: src/labels.h:108
 msgid "Requested Files (URLs)"
@@ -230,8 +223,7 @@ msgstr "静的ファイルリクエスト数"
 
 #: src/labels.h:117
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:122
 msgid "Time Distribution"
@@ -239,8 +231,7 @@ msgstr "時間分布"
 
 #: src/labels.h:124
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr ""
-"リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:126
 msgid "Time"
@@ -363,8 +354,7 @@ msgstr "HTTPステータスコード"
 
 #: src/labels.h:215
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:217
 msgid "Status Codes"
@@ -465,8 +455,7 @@ msgstr ""
 
 #: src/labels.h:287
 msgid "Format Errors - Verify your log/date/time format"
-msgstr ""
-"解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
+msgstr "解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
 
 #: src/labels.h:289
 msgid "No date format was found on your conf file."
@@ -692,8 +681,7 @@ msgstr "100 - 継続: リクエストヘッダーを受理しました"
 
 #: src/labels.h:406
 msgid "101 - Switching Protocols: Client asked to switch protocols"
-msgstr ""
-"101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
+msgstr "101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
 
 #: src/labels.h:408
 msgid "200 - OK: The request sent by the client was successful"
@@ -709,21 +697,15 @@ msgstr "202 - 受理: リクエストを受け取ったが処理されていま�
 
 #: src/labels.h:414
 msgid "203 - Non-authoritative Information: Response from a third party"
-msgstr ""
-"203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は"
-"別の送信元から来る可能性があります"
+msgstr "203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は別の送信元から来る可能性があります"
 
 #: src/labels.h:416
 msgid "204 - No Content: Request did not return any content"
-msgstr ""
-"204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありま"
-"せん"
+msgstr "204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありません"
 
 #: src/labels.h:418
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
-"205 - リセット要求: クライアントに対してドキュメントビューのリセットを行うよ"
-"う要求しました"
+msgstr "205 - リセット要求: クライアントに対してドキュメントビューのリセットを行うよう要求しました"
 
 #: src/labels.h:420
 msgid "206 - Partial Content: The partial GET has been successful"
@@ -751,8 +733,7 @@ msgstr "302 - 一時的な移動: リクエストされたリソースは一時�
 
 #: src/labels.h:432
 msgid "303 - See Other Document: The response is at a different URI"
-msgstr ""
-"303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
+msgstr "303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
 
 #: src/labels.h:434
 msgid "304 - Not Modified: Resource has not been modified"
@@ -760,8 +741,7 @@ msgstr "304 - 更新無し: リクエストされたリソースは更新され�
 
 #: src/labels.h:436
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
-msgstr ""
-"305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
+msgstr "305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
 
 #: src/labels.h:438
 msgid "307 - Temporary Redirect: Resource temporarily moved"
@@ -793,9 +773,7 @@ msgstr "404 - リソース不明: リクエストされたリソースは存在�
 
 #: src/labels.h:452
 msgid "405 - Method Not Allowed: Request method not supported"
-msgstr ""
-"405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されていま"
-"す"
+msgstr "405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されています"
 
 #: src/labels.h:454
 msgid "406 - Not Acceptable"
@@ -839,9 +817,7 @@ msgstr "415 - サポートされていないメディアタイプ"
 
 #: src/labels.h:474
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr ""
-"416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過していま"
-"す"
+msgstr "416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過しています"
 
 #: src/labels.h:476
 msgid "417 - Expectation Failed"
@@ -870,8 +846,7 @@ msgstr "424 - (WebDAV拡張) 依存関係でエラーが発生しました"
 
 #: src/labels.h:488
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
-msgstr ""
-"426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
+msgstr "426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
 
 #: src/labels.h:490
 msgid "428 - Precondition Required"
@@ -911,8 +886,7 @@ msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
 #: src/labels.h:508
 msgid "499 - (Nginx) Connection closed by client while processing request"
-msgstr ""
-"499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
+msgstr "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
 #: src/labels.h:510
 msgid "500 - Internal Server Error"
@@ -924,8 +898,7 @@ msgstr "501 - 実装されていません"
 
 #: src/labels.h:514
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
-msgstr ""
-"502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
+msgstr "502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
 
 #: src/labels.h:516
 msgid "503 - Service Unavailable: The server is currently unavailable"
@@ -958,6 +931,3 @@ msgstr "523 - CloudFlare - Originに到達できません"
 #: src/labels.h:530
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
-
-#~ msgid "Init. Proc. Time"
-#~ msgstr "解析にかかった時間"
