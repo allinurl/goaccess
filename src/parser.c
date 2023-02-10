@@ -1197,7 +1197,24 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     contains_usecs ();  /* set flag */
     free (tkn);
     break;
+     /* time taken to serve the request, in nanoseconds */
+  case 'n':
+    /* ignore it if we already have served time */
+    if (logitem->serve_time)
+      return 0;
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
 
+    serve_time = strtoull (tkn, &bEnd, 10);
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
+      serve_time = 0;
+
+    /* convert it to microseconds */
+    logitem->serve_time = (serve_time > 0) ? serve_time / MILS : 0;
+
+    contains_usecs ();  /* set flag */
+    free (tkn);
+    break;
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
   case 'k':
     /* error to set this twice */
