@@ -478,4 +478,6 @@ Any help on GoAccess is welcome. The most helpful way is to try it out and give
 feedback. Feel free to use the Github issue tracker and pull requests to
 discuss and submit code changes.
 
+You can contribute to our translations by editing the .po file or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
+
 Enjoy!
