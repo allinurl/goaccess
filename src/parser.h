@@ -44,10 +44,13 @@
 #define CACHE_STATUS_LEN   7
 #define HASH_HEX          64
 
-#define SPEC_TOKN_NUL    0x1
-#define SPEC_TOKN_INV    0x2
-#define SPEC_SFMT_MIS    0x3
-#define SPEC_LINE_INV    0x4
+#define SPEC_TOKN_NUL           0x1
+#define SPEC_TOKN_INV           0x2
+#define SPEC_SFMT_MIS           0x3
+#define SPEC_LINE_INV           0x4
+#define ERR_LOG_NOT_FOUND       0x5
+#define ERR_LOG_REALLOC_FAILURE 0x6
+
 
 #include "commons.h"
 #include "gslist.h"
@@ -145,6 +148,7 @@ typedef struct Logs_ {
   uint64_t *processed;
   uint64_t offset;
   int size;                     /* num items */
+  int idx;
   char *filename;
   GLog *glog;
 } Logs;
@@ -179,7 +183,9 @@ char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);
 int pre_process_log (GLog * glog, char *line, int dry_run);
+int set_glog (Logs * logs, const char *filename);
 int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
+int set_log (Logs * logs, const char *value);
 void free_logerrors (GLog * glog);
 void free_logs (Logs * logs);
 void free_raw_data (GRawData * raw_data);
@@ -190,5 +196,6 @@ GLogItem *init_log_item (GLog * glog);
 GRawDataItem *new_grawdata_item (unsigned int size);
 GRawData *new_grawdata (void);
 Logs *init_logs (int size);
+Logs *new_logs (int size);
 
 #endif

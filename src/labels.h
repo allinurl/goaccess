@@ -311,6 +311,10 @@
   _("'%1$s' panel is disabled")
 #define ERR_NO_DATA_PASSED             \
   _("No input data was provided nor there's data to restore.")
+#define ERR_LOG_REALLOC_FAILURE_MSG    \
+  _("Unable to allocate memory for a log instance.")
+#define ERR_LOG_NOT_FOUND_MSG          \
+  _("Unable to find the given log.")
 
 /* Other */
 #define INFO_MORE_INFO                 \

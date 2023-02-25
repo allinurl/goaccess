@@ -109,6 +109,75 @@ reset_struct (Logs * logs) {
     logs->glog[i].invalid = logs->glog[i].processed = 0;
 }
 
+/* Allocate memory for a new Logs and GLog instance.
+ *
+ * On success, the newly allocated Logs is returned . */
+Logs *
+new_logs (int size) {
+  Logs *logs = xmalloc (sizeof (*logs));
+  memset (logs, 0, sizeof *logs);
+
+  logs->glog = xcalloc (size, sizeof (GLog));
+  logs->size = size;
+  logs->idx = 0;
+
+  return logs;
+}
+
+/* Allocate, initialize and add the given filename to our logs structure.
+ *
+ * On error, 1 is returned.
+ * On success, the given filename is added to the Logs structure and 0 is
+ * returned. */
+int
+set_glog (Logs * logs, const char *filename) {
+  GLog *tmp = NULL, *glog = NULL;
+  int newlen = 0;
+  char const *err;
+  char *fvh = NULL, *fn = (char *) filename;
+
+  if (logs->size - 1 < logs->idx) {
+    newlen = logs->size + 1;
+    if (!(tmp = xrealloc (logs->glog, newlen * sizeof (GLog))))
+      return ERR_LOG_REALLOC_FAILURE;
+
+    logs->glog = tmp;
+
+    memset (logs->glog + logs->idx, 0, (logs->idx + 1 - logs->size) * sizeof *logs->glog);
+    logs->size = newlen;
+  }
+
+  glog = logs->glog;
+  glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
+  glog[logs->idx].filename = xstrdup (fn);
+  glog[logs->idx].fname = xstrdup (basename (fn));
+
+  if (!glog->pipe && conf.fname_as_vhost) {
+    if (!(fvh = regex_extract_string (glog[logs->idx].fname, conf.fname_as_vhost, 1, &err)))
+      FATAL ("%s %s[%s]", err, glog[logs->idx].fname, conf.fname_as_vhost);
+    glog[logs->idx].fname_as_vhost = fvh;
+  }
+
+  logs->processed = &(glog[logs->idx].processed);
+  logs->filename = glog[logs->idx].filename;
+  logs->idx++;
+
+  return 0;
+}
+
+/* Ensure the given filename is part of our original list of files.
+ *
+ * On error, 1 is returned.
+ * On success, the given filename is added to the Logs structure and 0 is
+ * returned. */
+int
+set_log (Logs * logs, const char *value) {
+  if (str_inarray (value, conf.filenames, conf.filenames_idx) < 0)
+    return ERR_LOG_NOT_FOUND;
+
+  return set_glog (logs, value);
+}
+
 /* Allocate memory for a new set of Logs including a GLog instance.
  *
  * On success, the newly allocated Logs is returned . */
@@ -116,9 +185,7 @@ Logs *
 init_logs (int size) {
   Logs *logs = NULL;
   GLog *glog = NULL;
-  char *fvh = NULL;
-  char const *err;
-  int i = 0;
+  int i = 0, ret = 0;
 
   /* if no logs no a pipe nor restoring, nothing to do then */
   if (!size && !conf.restore)
@@ -126,31 +193,20 @@ init_logs (int size) {
 
   /* If no logs nor a pipe but restoring, we still need an minimal instance of
    * logs and a glog */
-  logs = xcalloc (1, sizeof (*logs));
   if (!size) {
+    logs = xcalloc (1, sizeof (*logs));
     logs->glog = xcalloc (1, sizeof (*glog));
     logs->processed = &(logs->glog[0].processed);
     return logs;
   }
 
-  glog = xcalloc (size, sizeof (*glog));
-  for (i = 0; i < size; ++i) {
-    glog[i].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
-    glog[i].filename = xstrdup (conf.filenames[i]);
-    glog[i].fname = xstrdup (basename (glog[i].filename));
-
-    if (!glog->pipe && conf.fname_as_vhost) {
-      if (!(fvh = regex_extract_string (glog[i].fname, conf.fname_as_vhost, 1, &err)))
-        FATAL ("%s %s[%s]", err, glog[i].fname, conf.fname_as_vhost);
-      glog[i].fname_as_vhost = fvh;
-    }
-
-    logs->processed = &(glog[i].processed);
-    logs->filename = glog[i].filename;
-  }
-
-  logs->glog = glog;
+  logs = new_logs (size);
   logs->size = size;
+
+  for (i = 0; i < size; ++i) {
+    if ((ret = set_log (logs, conf.filenames[i])))
+      FATAL ("%s\n", ERR_LOG_NOT_FOUND_MSG);
+  }
 
   return logs;
 }
@@ -1197,7 +1253,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     contains_usecs ();  /* set flag */
     free (tkn);
     break;
-     /* time taken to serve the request, in nanoseconds */
+    /* time taken to serve the request, in nanoseconds */
   case 'n':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
