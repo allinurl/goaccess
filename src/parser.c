@@ -840,22 +840,22 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
   const char *fmt = NULL;
 
   switch (code) {
-  case SPEC_TOKN_NUL:
+  case ERR_SPEC_TOKN_NUL:
     fmt = "Token for '%%%c' specifier is NULL.";
     err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
     sprintf (err, fmt, spec);
     break;
-  case SPEC_TOKN_INV:
+  case ERR_SPEC_TOKN_INV:
     fmt = "Token '%s' doesn't match specifier '%%%c'";
     err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
     sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
-  case SPEC_SFMT_MIS:
+  case ERR_SPEC_SFMT_MIS:
     fmt = "Missing braces '%s' and ignore chars for specifier '%%%c'";
     err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-"), spec) + 1);
     sprintf (err, fmt, (tkn ? tkn : "-"), spec);
     break;
-  case SPEC_LINE_INV:
+  case ERR_SPEC_LINE_INV:
     fmt = "Incompatible format due to early parsed line ending '\\0'.";
     err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-")) + 1);
     sprintf (err, fmt, (tkn ? tkn : "-"));
@@ -933,10 +933,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       dspc = find_alpha_count (pch);
 
     if (!(tkn = parse_string (&(*str), end, MAX (dspc, fmtspcs) + 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     if (str_to_time (tkn, dfmt, &tm, 1) != 0 || set_date (&logitem->date, tm) != 0) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -950,10 +950,10 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->time)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     if (str_to_time (tkn, tfmt, &tm, 1) != 0 || set_time (&logitem->time, tm) != 0) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -966,11 +966,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->time && logitem->date)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     if (str_to_time (tkn, tfmt, &tm, 1) != 0 || set_date (&logitem->date, tm) != 0 ||
         set_time (&logitem->time, tm) != 0) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -985,7 +985,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     logitem->vhost = tkn;
     break;
     /* remote user */
@@ -994,7 +994,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     logitem->userid = tkn;
     break;
     /* cache status */
@@ -1003,7 +1003,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
       return 0;
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     if (is_cache_hit (tkn))
       logitem->cache_status = tkn;
     else
@@ -1018,17 +1018,17 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (*str[0] == '[' && (*str += 1) && **str)
       end = "]";
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     if (!conf.no_ip_validation && invalid_ipaddr (tkn, &logitem->type_ip)) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
     /* require a valid host token (e.g., ord38s18-in-f14.1e100.net) even when we're
      * not validating the IP */
     if (conf.no_ip_validation && *tkn == '\0') {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1039,11 +1039,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->method)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     {
       const char *meth = NULL;
       if (!(meth = extract_method (tkn))) {
-        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
         free (tkn);
         return 1;
       }
@@ -1058,11 +1058,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     }
 
     if ((logitem->req = decode_url (tkn)) == NULL) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1079,7 +1079,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     }
 
     if ((logitem->qstr = decode_url (tkn)) == NULL) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1090,11 +1090,11 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->protocol)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     {
       const char *proto = NULL;
       if (!(proto = extract_protocol (tkn))) {
-        spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+        spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
         free (tkn);
         return 1;
       }
@@ -1107,7 +1107,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->req)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
     free (tkn);
@@ -1117,7 +1117,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->status)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     /* do not validate HTTP status code */
     if (conf.no_strict_status) {
@@ -1127,7 +1127,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
 
     status = strtol (tkn, &sEnd, 10);
     if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 || status > 599) {
-      spec_err (logitem, SPEC_TOKN_INV, *p, tkn);
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
@@ -1138,7 +1138,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->resp_size)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     bandw = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
@@ -1204,7 +1204,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->serve_time)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     serve_secs = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
@@ -1222,7 +1222,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->serve_time)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     if (strchr (tkn, '.') != NULL)
       serve_secs = strtod (tkn, &bEnd);
@@ -1243,7 +1243,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->serve_time)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     serve_time = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
@@ -1259,7 +1259,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->serve_time)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     serve_time = strtoull (tkn, &bEnd, 10);
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
@@ -1277,7 +1277,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->tls_cypher)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
 #if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
     {
@@ -1300,7 +1300,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->tls_type)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     logitem->tls_type = tkn;
     break;
@@ -1311,7 +1311,7 @@ parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end)
     if (logitem->mime_type)
       return 0;
     if (!(tkn = parse_string (&(*str), end, 1)))
-      return spec_err (logitem, SPEC_TOKN_NUL, *p, NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     logitem->mime_type = tkn;
 
@@ -1431,7 +1431,7 @@ find_xff_host (GLogItem * logitem, char **str, char **p) {
   int res = 0;
 
   if (!(skips = extract_braces (p)))
-    return spec_err (logitem, SPEC_SFMT_MIS, **p, "{}");
+    return spec_err (logitem, ERR_SPEC_SFMT_MIS, **p, "{}");
 
   /* if the log format current char is not within the braces special chars, then
    * we assume the range of IPs are within hard delimiters */
@@ -1464,7 +1464,7 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
     /* XFF remote hostname (IP only) */
   case 'h':
     if (find_xff_host (logitem, str, p))
-      return spec_err (logitem, SPEC_TOKN_NUL, 'h', NULL);
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, 'h', NULL);
     break;
   }
 
@@ -1496,7 +1496,7 @@ parse_format (GLogItem * logitem, char *str, char *lfmt) {
       continue;
     }
     if (*str == '\0')
-      return spec_err (logitem, SPEC_LINE_INV, '-', NULL);
+      return spec_err (logitem, ERR_SPEC_LINE_INV, '-', NULL);
     if (*str == '\n')
       return 0;
 

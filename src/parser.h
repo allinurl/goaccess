@@ -44,12 +44,12 @@
 #define CACHE_STATUS_LEN   7
 #define HASH_HEX          64
 
-#define SPEC_TOKN_NUL           0x1
-#define SPEC_TOKN_INV           0x2
-#define SPEC_SFMT_MIS           0x3
-#define SPEC_LINE_INV           0x4
-#define ERR_LOG_NOT_FOUND       0x5
-#define ERR_LOG_REALLOC_FAILURE 0x6
+#define ERR_SPEC_TOKN_NUL          0x1
+#define ERR_SPEC_TOKN_INV          0x2
+#define ERR_SPEC_SFMT_MIS          0x3
+#define ERR_SPEC_LINE_INV          0x4
+#define ERR_LOG_NOT_FOUND          0x5
+#define ERR_LOG_REALLOC_FAILURE    0x6
 
 
 #include "commons.h"
