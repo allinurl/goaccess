@@ -411,7 +411,11 @@ verify_os (char *str, char *os_type) {
     if ((a = strstr (str, os[i][0])) != NULL)
       return parse_os (str, a, os_type, i);
   }
-  xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+
+  if (conf.unknowns_as_crawlers && strcmp (os_type, "Crawlers"))
+    xstrncpy (os_type, "Crawlers", OPESYS_TYPE_LEN);
+  else
+    xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
 
   if (conf.unknowns_log)
     LOG_UNKNOWNS (("%-7s%s\n", "[OS]", str));

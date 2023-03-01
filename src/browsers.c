@@ -405,8 +405,7 @@ parse_browsers_file (void) {
 int
 is_crawler (const char *agent) {
   char btype[BROWSER_TYPE_LEN];
-  char otype[OPESYS_TYPE_LEN];
-  char *browser, *os, *a;
+  char *browser, *a;
 
   if (agent == NULL || *agent == '\0')
     return 0;
@@ -415,23 +414,7 @@ is_crawler (const char *agent) {
     free (browser);
   free (a);
 
-  if (strcmp (btype, "Crawlers") == 0)
-    return 1;
-
-  if (!conf.unknowns_as_crawlers)
-    return 0;
-
-  if (strcmp (btype, "Unknown") == 0)
-    return 1;
-
-  if ((a = xstrdup (agent), os = verify_os (a, otype)) != NULL)
-    free (os);
-  free (a);
-
-  if (strcmp (otype, "Unknown") == 0)
-    return 1;
-
-  return 0;
+  return strcmp (btype, "Crawlers") == 0 ? 1 : 0;
 }
 
 /* Return the Opera 15 and beyond.
@@ -592,7 +575,10 @@ verify_browser (char *str, char *type) {
   if (conf.unknowns_log)
     LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
 
-  xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
+  if (conf.unknowns_as_crawlers && strcmp (type, "Crawlers"))
+    xstrncpy (type, "Crawlers", BROWSER_TYPE_LEN);
+  else
+    xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");
 }
