@@ -1819,7 +1819,7 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
 
 /* Help menu data (F1/h). */
 static const char *help_main[] = {
-  "Copyright (C) 2009-2021 by Gerardo Orellana",
+  "Copyright (C) 2009-2023 by Gerardo Orellana",
   "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",
