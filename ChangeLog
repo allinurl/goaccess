@@ -1,3 +1,14 @@
+Changes to GoAccess 1.7.1 - Tuesday, February 28, 2023
+
+  - Added 'inlang' for easy localization (i18n) updates.
+    https://inlang.com/editor/github.com/allinurl/goaccess
+  - Added nanosecond parsing option via the '%n' specifier. Great for parsing
+    'Traefik' JSON logs duration field.
+  - Changed Docker workflow to build a docker image on different architectures
+    {'arm64' & 'amd64'}.
+  - Fixed issue with '--unknowns-as-crawlers' where it did not process them as
+    such.
+
 Changes to GoAccess 1.7 - Saturday, December 31, 2022
 
   - Added an option to classify unknown OS and browsers as crawlers using
