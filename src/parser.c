@@ -134,7 +134,7 @@ set_glog (Logs * logs, const char *filename) {
   GLog *tmp = NULL, *glog = NULL;
   int newlen = 0;
   char const *err;
-  char *fvh = NULL, *fn = (char *) filename;
+  char *fvh = NULL, *fn = NULL;
 
   if (logs->size - 1 < logs->idx) {
     newlen = logs->size + 1;
@@ -147,6 +147,7 @@ set_glog (Logs * logs, const char *filename) {
     logs->size = newlen;
   }
 
+  fn = xstrdup (filename);  /* ensure fn is a string */
   glog = logs->glog;
   glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
   glog[logs->idx].filename = xstrdup (fn);
@@ -161,6 +162,7 @@ set_glog (Logs * logs, const char *filename) {
   logs->processed = &(glog[logs->idx].processed);
   logs->filename = glog[logs->idx].filename;
   logs->idx++;
+  free (fn);
 
   return 0;
 }
