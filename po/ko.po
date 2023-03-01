@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2022-12-31 19:59-0600\n"
+"POT-Creation-Date: 2023-02-28 18:44-0600\n"
 "PO-Revision-Date: 2022-09-06 21:27+0900\n"
 "Last-Translator: David 창모 Yang <dcyang@users.noreply.github.com>\n"
 "Language-Team: Korean <dcyang@users.noreply.github.com>\n"
@@ -212,7 +212,9 @@ msgstr "요청된 파일 (URL)"
 
 #: src/labels.h:110
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "방문 수 순으로 정렬한 요청 수 [, 평균 처리시간, 누적 처리시간, 최대 처리시간, 접속 방법, 프로토콜]"
+msgstr ""
+"방문 수 순으로 정렬한 요청 수 [, 평균 처리시간, 누적 처리시간, 최대 처리시"
+"간, 접속 방법, 프로토콜]"
 
 #: src/labels.h:112
 msgid "Requests"
@@ -224,7 +226,9 @@ msgstr "정적 파일 요청 수"
 
 #: src/labels.h:117
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "방문 수 순으로 정렬한 정적 파일 요청 수 [, 평균 처리시간, 누적 처리시간, 최대 처리시간, 접속 방법, 프로토콜]"
+msgstr ""
+"방문 수 순으로 정렬한 정적 파일 요청 수 [, 평균 처리시간, 누적 처리시간, 최"
+"대 처리시간, 접속 방법, 프로토콜]"
 
 #: src/labels.h:122
 msgid "Time Distribution"
@@ -244,7 +248,8 @@ msgstr "가상 호스트"
 
 #: src/labels.h:131 src/labels.h:138 src/labels.h:145
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 데이터 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 데이터 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:136
 msgid "Remote User (HTTP authentication)"
@@ -268,7 +273,9 @@ msgstr "찾을 수 없는 URL (404)"
 
 #: src/labels.h:152
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "방문 수로 정렬한 찾을 수 없는 URL [, 평균 처리시간, 누적 처리시간, 최대 처리시간, 접속 방법, 프로토콜]"
+msgstr ""
+"방문 수로 정렬한 찾을 수 없는 URL [, 평균 처리시간, 누적 처리시간, 최대 처리"
+"시간, 접속 방법, 프로토콜]"
 
 #: src/labels.h:157
 msgid "Visitor Hostnames and IPs"
@@ -276,7 +283,9 @@ msgstr "방문자 호스트명 및 IP"
 
 #: src/labels.h:159
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 방문자 호스트 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 방문자 호스트 [, 평균 처리시간, 누적 처리시간, 최대 처리시"
+"간]"
 
 #: src/labels.h:161
 msgid "Hosts"
@@ -288,7 +297,8 @@ msgstr "운영체제"
 
 #: src/labels.h:166
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 운영체제 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 운영체제 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:168
 msgid "OS"
@@ -300,7 +310,8 @@ msgstr "브라우저"
 
 #: src/labels.h:173
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 브라우저 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 브라우저 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:178
 #, fuzzy
@@ -310,7 +321,8 @@ msgstr "참조자 URL"
 #: src/labels.h:180
 #, fuzzy
 msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 요청 참조자 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 요청 참조자 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:182
 #, fuzzy
@@ -323,7 +335,8 @@ msgstr "출발 사이트"
 
 #: src/labels.h:187
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 출발 사이트 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 출발 사이트 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:192
 msgid "Keyphrases from Google's search engine"
@@ -331,7 +344,8 @@ msgstr "구글로 검색된 관건문구"
 
 #: src/labels.h:194
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 관건문구 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 관건문구 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:196
 msgid "Keyphrases"
@@ -343,7 +357,9 @@ msgstr "지리적 위치"
 
 #: src/labels.h:201
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr "순 방문 수로 정렬한 대륙 > 국가 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"순 방문 수로 정렬한 대륙 > 국가 [, 평균 처리시간, 누적 처리시간, 최대 처리시"
+"간]"
 
 #: src/labels.h:208
 msgid "Autonomous System Numbers/Organizations (ASNs)"
@@ -355,7 +371,9 @@ msgstr "HTTP 상태 코드"
 
 #: src/labels.h:215
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr "방문 수로 정렬한 HTTP 상태 코드 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
+msgstr ""
+"방문 수로 정렬한 HTTP 상태 코드 [, 평균 처리시간, 누적 처리시간, 최대 처리시"
+"간]"
 
 #: src/labels.h:217
 msgid "Status Codes"
@@ -512,422 +530,432 @@ msgstr "'%1$s' 패널은 비활성 상태입니다"
 msgid "No input data was provided nor there's data to restore."
 msgstr "입력 데이터가 주어지지 않았고 복원할 데이터도 없음"
 
+#: src/labels.h:315
+msgid "Unable to allocate memory for a log instance."
+msgstr ""
+
 #: src/labels.h:317
+msgid "Unable to find the given log."
+msgstr ""
+
+#: src/labels.h:321
 msgid "For more details visit"
 msgstr "자세한 사항은 다음을 방문하세요"
 
-#: src/labels.h:319
+#: src/labels.h:323
 msgid "Last Updated"
 msgstr "최근 업데이트"
 
-#: src/labels.h:321
+#: src/labels.h:325
 msgid "WebSocket server ready to accept new client connections"
 msgstr "WebSocket 서버가 새로운 클라이언트 접속을 받을 준비가 되었습니다"
 
-#: src/labels.h:324
+#: src/labels.h:328
 msgid "The following options can also be supplied to the command"
 msgstr "명령어에 다음과 같은 옵션을 추가할 수 있습니다"
 
-#: src/labels.h:326
+#: src/labels.h:330
 msgid "Examples can be found by running"
 msgstr "다음을 실행하여 예시를 볼 수 있습니다"
 
-#: src/labels.h:329
+#: src/labels.h:333
 msgid "Server Statistics"
 msgstr "서버 통계"
 
-#: src/labels.h:331
+#: src/labels.h:335
 msgid "Theme"
 msgstr "테마"
 
-#: src/labels.h:333
+#: src/labels.h:337
 msgid "Dark Gray"
 msgstr "짙은 회색"
 
-#: src/labels.h:335
+#: src/labels.h:339
 msgid "Bright"
 msgstr "밝은 색"
 
-#: src/labels.h:337
+#: src/labels.h:341
 msgid "Dark Blue"
 msgstr "짙은 파란색"
 
-#: src/labels.h:339
+#: src/labels.h:343
 msgid "Dark Purple"
 msgstr "짙은 보라색"
 
-#: src/labels.h:341
+#: src/labels.h:345
 msgid "Panels"
 msgstr "패널"
 
-#: src/labels.h:343
+#: src/labels.h:347
 msgid "Items per Page"
 msgstr "페이지에 표시할 항목 수"
 
-#: src/labels.h:345
+#: src/labels.h:349
 msgid "Tables"
 msgstr "표"
 
-#: src/labels.h:347
+#: src/labels.h:351
 msgid "Display Tables"
 msgstr "표 표시"
 
-#: src/labels.h:349
+#: src/labels.h:353
 msgid "Auto-Hide on Small Devices"
 msgstr "소형 기기에서는 자동 숨김"
 
-#: src/labels.h:351
+#: src/labels.h:355
 msgid "Automatically hide tables on small screen devices"
 msgstr "작은 화면의 기기에서는 표를 자동으로 숨깁니다"
 
-#: src/labels.h:353
+#: src/labels.h:357
 msgid "Toggle Panel"
 msgstr "패널 토글"
 
-#: src/labels.h:355
+#: src/labels.h:359
 msgid "Layout"
 msgstr "레이아웃"
 
-#: src/labels.h:357
+#: src/labels.h:361
 msgid "Horizontal"
 msgstr "가로"
 
-#: src/labels.h:359
+#: src/labels.h:363
 msgid "Vertical"
 msgstr "세로"
 
-#: src/labels.h:361
+#: src/labels.h:365
 msgid "WideScreen"
 msgstr "와이드스크린"
 
-#: src/labels.h:363
+#: src/labels.h:367
 msgid "File Options"
 msgstr "파일 옵션"
 
-#: src/labels.h:365
+#: src/labels.h:369
 msgid "Export as JSON"
 msgstr "JSON 형태로 내보내기"
 
-#: src/labels.h:367
+#: src/labels.h:371
 msgid "Panel Options"
 msgstr "패널 옵션"
 
-#: src/labels.h:369
+#: src/labels.h:373
 msgid "Previous"
 msgstr "이전"
 
-#: src/labels.h:371
+#: src/labels.h:375
 msgid "Next"
 msgstr "다음"
 
-#: src/labels.h:373
+#: src/labels.h:377
 msgid "First"
 msgstr "처음"
 
-#: src/labels.h:375
+#: src/labels.h:379
 msgid "Last"
 msgstr "마지막"
 
-#: src/labels.h:377
+#: src/labels.h:381
 msgid "Chart Options"
 msgstr "도표 옵션"
 
-#: src/labels.h:379
+#: src/labels.h:383
 msgid "Chart"
 msgstr "도표"
 
-#: src/labels.h:381
+#: src/labels.h:385
 msgid "Type"
 msgstr "유형"
 
-#: src/labels.h:383
+#: src/labels.h:387
 msgid "Area Spline"
 msgstr "활면곡선"
 
-#: src/labels.h:385
+#: src/labels.h:389
 msgid "Bar"
 msgstr "막대그래프"
 
-#: src/labels.h:387
+#: src/labels.h:391
 msgid "Plot Metric"
 msgstr "표시할 데이터"
 
-#: src/labels.h:389
+#: src/labels.h:393
 msgid "Table Columns"
 msgstr "표의 열"
 
-#: src/labels.h:393
+#: src/labels.h:397
 msgid "1xx Informational"
 msgstr "1xx 참고사항"
 
-#: src/labels.h:395
+#: src/labels.h:399
 msgid "2xx Success"
 msgstr "2xx 성공"
 
-#: src/labels.h:397
+#: src/labels.h:401
 msgid "3xx Redirection"
 msgstr "3xx 넘겨주기"
 
-#: src/labels.h:399
+#: src/labels.h:403
 msgid "4xx Client Errors"
 msgstr "4xx 클라이언트 오류"
 
-#: src/labels.h:401
+#: src/labels.h:405
 msgid "5xx Server Errors"
 msgstr "5xx 서버 오류"
 
-#: src/labels.h:404
+#: src/labels.h:408
 msgid "100 - Continue: Server received the initial part of the request"
-msgstr "100 - 계속: 서버는 요청의 첫 번째 부분을 받았으며 나머지를 기다리고 있음"
+msgstr ""
+"100 - 계속: 서버는 요청의 첫 번째 부분을 받았으며 나머지를 기다리고 있음"
 
-#: src/labels.h:406
+#: src/labels.h:410
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr "101 - 프로토콜 전환: 클라이언트가 서버에 프로토콜 전환을 요청"
 
-#: src/labels.h:408
+#: src/labels.h:412
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - 성공: 요청이 제대로 처리되었음"
 
-#: src/labels.h:410
+#: src/labels.h:414
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - 작성됨: 성공적으로 요청되었으며 서버가 새 리소스를 작성함"
 
-#: src/labels.h:412
+#: src/labels.h:416
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - 허용됨: 서버가 요청을 접수했지만 아직 처리하지 않았음"
 
-#: src/labels.h:414
+#: src/labels.h:418
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - 신뢰할 수 없는 정보: 제3자에게서 온 담신"
 
-#: src/labels.h:416
+#: src/labels.h:420
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - 내용 없음: 요청이 공백의 데이터를 반환하였음"
 
-#: src/labels.h:418
+#: src/labels.h:422
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr "205 - 내용 재설정: 서버가 클라이언트에게 문서를 재설정할 것을 요청함"
 
-#: src/labels.h:420
+#: src/labels.h:424
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - 부분적 내용: GET 요청의 일부만 성공적으로 처리됨"
 
-#: src/labels.h:422
+#: src/labels.h:426
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - 다중 상태: WebDAV; RFC 4918"
 
-#: src/labels.h:424
+#: src/labels.h:428
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - 이미 보고됨: WebDAV; RFC 5842"
 
-#: src/labels.h:426
+#: src/labels.h:430
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - 여러 선택지: 리소스가 실행할 수 있는 옵션이 다수 있음"
 
-#: src/labels.h:428
+#: src/labels.h:432
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - 영구 이동: 리소스가 영구적으로 이동함"
 
-#: src/labels.h:430
+#: src/labels.h:434
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - 임시 이동: (넘겨주기)"
 
-#: src/labels.h:432
+#: src/labels.h:436
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - 다른 문서 조회: 답신이 다른 URI에 존재함"
 
-#: src/labels.h:434
+#: src/labels.h:438
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - 수정 안함: 리소스가 수정되지 않았음"
 
-#: src/labels.h:436
+#: src/labels.h:440
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - 프록시 이용: 프록시를 통해서만 접근 가능"
 
-#: src/labels.h:438
+#: src/labels.h:442
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - 임시적 넘겨주기: 리소스가 임시적으로 이동함"
 
-#: src/labels.h:440
+#: src/labels.h:444
 msgid "308 - Permanent Redirect"
 msgstr "308 - 영구적 넘겨주기"
 
-#: src/labels.h:442
+#: src/labels.h:446
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - 잘못된 요청: 요청의 구문이 잘못됨"
 
-#: src/labels.h:444
+#: src/labels.h:448
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - 권한 없음: 요청에 사용자 인증이 필요함"
 
-#: src/labels.h:446
+#: src/labels.h:450
 msgid "402 - Payment Required"
 msgstr "402 - 결제 필요"
 
-#: src/labels.h:448
+#: src/labels.h:452
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - 금지됨: 서버가 답신을 거부함"
 
-#: src/labels.h:450
+#: src/labels.h:454
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - 찾을 수 없음: 요청한 리소스가 발견되지 않음"
 
-#: src/labels.h:452
+#: src/labels.h:456
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - 허용되지 않는 메소드: 요청의 메소드가 지원되지 않음"
 
-#: src/labels.h:454
+#: src/labels.h:458
 msgid "406 - Not Acceptable"
 msgstr "406 - 허용되지 않음"
 
-#: src/labels.h:456
+#: src/labels.h:460
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - 프록시 인증 필요"
 
-#: src/labels.h:458
+#: src/labels.h:462
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr "408 - 요청 시간초과: 서버의 요청 대기 시간이 초과됨"
 
-#: src/labels.h:460
+#: src/labels.h:464
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - 충돌: 요청에 충돌 사항이 포함됨"
 
-#: src/labels.h:462
+#: src/labels.h:466
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr "410 - 사라짐: 요청한 리소스가 삭제됨"
 
-#: src/labels.h:464
+#: src/labels.h:468
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - 길이 필요: 유효하지 않은 내용의 길이"
 
-#: src/labels.h:466
+#: src/labels.h:470
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr "412 - 사전조건 실패: 요청된 사전조건을 서버가 만족시키지 않음"
 
-#: src/labels.h:468
+#: src/labels.h:472
 msgid "413 - Payload Too Large"
 msgstr "413 - 요청의 본문이 너무 큼"
 
-#: src/labels.h:470
+#: src/labels.h:474
 msgid "414 - Request-URI Too Long"
 msgstr "414 - 요청의 URI가 너무 긺"
 
-#: src/labels.h:472
+#: src/labels.h:476
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - 지원되지 않는 미디어 유형: 미디어 유형이 지원되지 않음"
 
-#: src/labels.h:474
+#: src/labels.h:478
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
-msgstr "416 - 처리할 수 없는 요청범위: 서버가 제공할 수 있는 범위를 넘어선 요청"
+msgstr ""
+"416 - 처리할 수 없는 요청범위: 서버가 제공할 수 있는 범위를 넘어선 요청"
 
-#: src/labels.h:476
+#: src/labels.h:480
 msgid "417 - Expectation Failed"
 msgstr "417 - 예상 실패"
 
-#: src/labels.h:478
+#: src/labels.h:482
 msgid "418 - I'm a teapot"
 msgstr "418 - 저는 주전자인데요"
 
-#: src/labels.h:480
+#: src/labels.h:484
 msgid "421 - Misdirected Request"
 msgstr "421 - 오도된 요청"
 
-#: src/labels.h:482
+#: src/labels.h:486
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - 구문 오류로 인해 처리할 수 없는 엔티티: WebDAV"
 
-#: src/labels.h:484
+#: src/labels.h:488
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - 접근하려는 리소스가 잠겨 있음"
 
-#: src/labels.h:486
+#: src/labels.h:490
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - 의존사항 실패: WebDAV"
 
-#: src/labels.h:488
+#: src/labels.h:492
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr "426 - 업그레이드 필요: 클라이언트는 다른 프로토콜을 이용해야 함"
 
-#: src/labels.h:490
+#: src/labels.h:494
 msgid "428 - Precondition Required"
 msgstr "428 - 전제조건 필요"
 
-#: src/labels.h:492
+#: src/labels.h:496
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 - 요청 과다: 사용자가 너무 많은 요청을 보냄"
 
-#: src/labels.h:494
+#: src/labels.h:498
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - 요청 헤더란이 너무 큼"
 
-#: src/labels.h:496
+#: src/labels.h:500
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - 법적인 이유로 인해 이용 불가"
 
-#: src/labels.h:498
+#: src/labels.h:502
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) 헤더를 보내지 않고 연결이 끊어짐"
 
-#: src/labels.h:500
+#: src/labels.h:504
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) 요청 헤더가 너무 큼"
 
-#: src/labels.h:502
+#: src/labels.h:506
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) SSL 클라이언트 인증서 오류"
 
-#: src/labels.h:504
+#: src/labels.h:508
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) 클라이언트가 인증서를 제공하지 않음"
 
-#: src/labels.h:506
+#: src/labels.h:510
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) HTTP 요청이 HTTPS 포트로 보내짐"
 
-#: src/labels.h:508
+#: src/labels.h:512
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr "499 - (Nginx) 요청을 처리하는 도중 클라이언트가 연결을 해제함"
 
-#: src/labels.h:510
+#: src/labels.h:514
 msgid "500 - Internal Server Error"
 msgstr "500 - 내부 서버 오류"
 
-#: src/labels.h:512
+#: src/labels.h:516
 msgid "501 - Not Implemented"
 msgstr "501 - 구현되지 않음"
 
-#: src/labels.h:514
+#: src/labels.h:518
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - 불량 게이트웨이: 상위 서버에서 잘못된 응답을 받음"
 
-#: src/labels.h:516
+#: src/labels.h:520
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - 서비스 이용 불가: 서버를 현재 이용할 수 없음"
 
-#: src/labels.h:518
+#: src/labels.h:522
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - 게이트웨이 시간초과: 상위 서버가 요청을 보내는데 실패함"
 
-#: src/labels.h:520
+#: src/labels.h:524
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP 버전이 지원되지 않음"
 
-#: src/labels.h:522
+#: src/labels.h:526
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - 웹서버가 알 수 없는 오류를 반환함"
 
-#: src/labels.h:524
+#: src/labels.h:528
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - 웹서버 다운"
 
-#: src/labels.h:526
+#: src/labels.h:530
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - 연결 시간초과"
 
-#: src/labels.h:528
+#: src/labels.h:532
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - 요청의 근원에 도달할 수 없음"
 
-#: src/labels.h:530
+#: src/labels.h:534
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - 시간초과 발생"
