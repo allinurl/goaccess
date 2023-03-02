@@ -30,9 +30,14 @@
 #ifndef LABELS_H_INCLUDED
 #define LABELS_H_INCLUDED
 
+#ifdef ENABLE_NLS
 #include <libintl.h>
 
 #define _(String) dgettext (PACKAGE , String)
+#else
+#define _(String) (String)
+#endif
+
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
