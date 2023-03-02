@@ -1483,7 +1483,7 @@ tpl_peek (int mode, ...) {
     }
 
     if (strncmp (&fmt[first_atom], datapeek_f, datapeek_flen) != 0) {
-      tpl_hook.oops ("TPL_DATAPEEK format mismatches tpl iamge\n");
+      tpl_hook.oops ("TPL_DATAPEEK format mismatches tpl image\n");
       tpl_hook.free (fmt_cpy);
       fmt_cpy = NULL;   /* fail */
       goto fail;

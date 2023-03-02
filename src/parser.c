@@ -662,11 +662,11 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
 
   /* ssl context */
   if (!(ctx = SSL_CTX_new (SSLv23_server_method ()))) {
-    LOG_DEBUG (("Unable to create a new SSL_CTX_new to extact TLS."));
+    LOG_DEBUG (("Unable to create a new SSL_CTX_new to extract TLS."));
     goto fail;
   }
   if (!(ssl = SSL_new (ctx))) {
-    LOG_DEBUG (("Unable to create a new instace of SSL_new to extact TLS."));
+    LOG_DEBUG (("Unable to create a new instance of SSL_new to extract TLS."));
     goto fail;
   }
 
@@ -675,12 +675,12 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
   cipherid[2] = 0;
 
   if (!(c = SSL_CIPHER_find (ssl, cipherid))) {
-    LOG_DEBUG (("Unable to find cipher to extact TLS."));
+    LOG_DEBUG (("Unable to find cipher to extract TLS."));
     goto fail;
   }
 
   if (!(sn = SSL_CIPHER_standard_name (c))) {
-    LOG_DEBUG (("Unable to get cipher standard name to extact TLS."));
+    LOG_DEBUG (("Unable to get cipher standard name to extract TLS."));
     goto fail;
   }
   *cipher = xstrdup (sn);
@@ -1747,7 +1747,7 @@ is_likely_same_log (GLog * glog, const GLastParse * lp) {
 }
 
 /* Determine if we should insert new record or if it's a duplicate record from
- * a previoulsy persisted dataset
+ * a previously persisted dataset
  *
  * Returns 1 if it thinks the record it's being restored from disk
  * Returns 0 if we need to parse the record */
