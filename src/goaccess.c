@@ -1300,8 +1300,10 @@ set_locale (void) {
   char *loc_ctype;
 
   setlocale (LC_ALL, "");
+#ifdef ENABLE_NLS
   bindtextdomain (PACKAGE, LOCALEDIR);
   textdomain (PACKAGE);
+#endif
 
   loc_ctype = getenv ("LC_CTYPE");
   if (loc_ctype != NULL)
