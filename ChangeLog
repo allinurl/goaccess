@@ -174,7 +174,7 @@ Changes to GoAccess 1.5 - Wednesday, May 26, 2021
   - Fixed memory leak when a JSON value contained an empty string (e.g.,
     JSON/CADDY format).
   - Fixed possible buffer overflow on a WS packet coming from the browser.
-  - Refactored a substancial part of the storage codebase for upcoming
+  - Refactored a substantial part of the storage codebase for upcoming
     filtering/search capabilities (issue #117).
   - Refactored DB storage to minimize memory consumption up to '35%'.
   - Updated default 'AWS Elastic Load Balancing' log format.
@@ -262,7 +262,7 @@ Changes to GoAccess 1.4.2 - Monday, November 16, 2020
 
 Changes to GoAccess 1.4.1 - Monday, November 09, 2020
 
-  - Added addtional browsers and bots to the main list.
+  - Added additional browsers and bots to the main list.
   - Added 'Android 11' to the list of OSs.
   - Added 'macOS 11.0 Big Sur' to the list of OSs.
   - Added 'average' to each panel overall metrics.
@@ -394,7 +394,7 @@ Changes to GoAccess 1.3 - Friday, November 23, 2018
   - Added French translation (i18n).
   - Added '%h' date specifier to the allowed date character specifiers.
   - Added "HeadlessChrome" to the list of browsers.
-  - Added --hide-referer command line option to hide referers from report.
+  - Added --hide-referer command line option to hide referrers from report.
   - Added HTTP status code 429 (TOO MANY REQUESTS).
   - Added IGNORE_LEVEL_PANEL and IGNORE_LEVEL_REQ definitions.
   - Added Japanese translation (i18n).
@@ -443,7 +443,7 @@ Changes to GoAccess 1.3 - Friday, November 23, 2018
   - Fixed float percent value on JSON/HTML output for locales using decimal comma.
   - Fixed issue where it was not possible to establish a Web Socket connection
     when attempting to parse and extract HTTP method.
-  - Fixed issue where log formats with pipe delimiter were not propely parsed.
+  - Fixed issue where log formats with pipe delimiter were not properly parsed.
   - Fixed memory leak after config file path has been set (housekeeping).
   - Fixed memory leak when adding host to holder introduced in c052d1ea.
   - Fixed possible memory leak when hiding specific referrers.
@@ -796,7 +796,7 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
   - Added "visitors" metrics to all panels.
   - Changed AC_PREREQ macro version so it builds on old versions of autoconf.
   - Changed GEOIP database load to GEOIP_MEMORY_CACHE for faster lookups.
-  - Changed maximum number of choices to display per panel to 366 fron 300.
+  - Changed maximum number of choices to display per panel to 366 from 300.
   - Ensure config file is read from home dir if unable to open it from
     %sysconfdir% path.
   - Fixed array overflows when exceeding MAX_* limits on command line options.
@@ -864,7 +864,7 @@ Changes to GoAccess 0.8.1 - Monday, June 16, 2014
     file.
   - Added ability to print backtrace on segmentation fault.
   - Escaped JSON strings correctly according to [RFC4627].
-  - Fixed encoding issue when extracting keyphrases for some HTTP referers.
+  - Fixed encoding issue when extracting keyphrases for some HTTP referrers.
   - Fixed issue where HTML bar graphs were not shown due to numeric locale.
   - Fixed issue with URIs containing "\r?\n" thus breaking the corresponding
     output.
