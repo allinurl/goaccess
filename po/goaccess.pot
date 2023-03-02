@@ -307,15 +307,15 @@ msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
 #: src/labels.h:178
-msgid "Referer URLs"
+msgid "Referrer URLs"
 msgstr ""
 
 #: src/labels.h:180
-msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 
 #: src/labels.h:182
-msgid "Referers"
+msgid "Referrers"
 msgstr ""
 
 #: src/labels.h:185 src/labels.h:189

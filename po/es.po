@@ -308,17 +308,17 @@ msgstr "Navegadores top ordenados por hits [, avgts, cumts, maxts]"
 
 #: src/labels.h:178
 #, fuzzy
-msgid "Referer URLs"
+msgid "Referrer URLs"
 msgstr "URLs Referidos"
 
 #: src/labels.h:180
 #, fuzzy
-msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "Peticiones top de referidos ordenadas por hits [, avgts, cumts, maxts]"
 
 #: src/labels.h:182
 #, fuzzy
-msgid "Referers"
+msgid "Referrers"
 msgstr "Referidos"
 
 #: src/labels.h:185 src/labels.h:189

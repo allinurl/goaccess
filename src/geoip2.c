@@ -319,7 +319,7 @@ geoip_query_asn_name (MMDB_lookup_result_s res, MMDB_entry_data_s * name) {
 
 /* A wrapper to fetch the looked up result and set the ASN organization & code.
  *
- * If no data is found, "Uknown" is set.
+ * If no data is found, "Unknown" is set.
  * On success, the fetched value is set. */
 void
 geoip_asn (char *host, char *asn) {

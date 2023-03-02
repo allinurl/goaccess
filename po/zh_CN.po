@@ -308,17 +308,17 @@ msgstr "浏览器排序按 [点击量, 平均响应时, 总共响应时, 最高�
 
 #: src/labels.h:178
 #, fuzzy
-msgid "Referer URLs"
+msgid "Referrer URLs"
 msgstr "来源地址URLs"
 
 #: src/labels.h:180
 #, fuzzy
-msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "来源地址排序按 [点击量, 平均响应时, 总共响应时, 最高响应时]"
 
 #: src/labels.h:182
 #, fuzzy
-msgid "Referers"
+msgid "Referrers"
 msgstr "来源地址"
 
 #: src/labels.h:185 src/labels.h:189

@@ -307,17 +307,17 @@ msgstr "ブラウザ順にソート [平均処理時間、合計処理時間、�
 
 #: src/labels.h:178
 #, fuzzy
-msgid "Referer URLs"
+msgid "Referrer URLs"
 msgstr "参照元（URL）"
 
 #: src/labels.h:180
 #, fuzzy
-msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr "送信元アドレス順にソート [平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:182
 #, fuzzy
-msgid "Referers"
+msgid "Referrers"
 msgstr "リファラー数"
 
 #: src/labels.h:185 src/labels.h:189

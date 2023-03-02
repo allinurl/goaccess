@@ -315,18 +315,18 @@ msgstr ""
 
 #: src/labels.h:178
 #, fuzzy
-msgid "Referer URLs"
+msgid "Referrer URLs"
 msgstr "참조자 URL"
 
 #: src/labels.h:180
 #, fuzzy
-msgid "Top Requested Referers sorted by hits [, avgts, cumts, maxts]"
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "방문 수로 정렬한 요청 참조자 [, 평균 처리시간, 누적 처리시간, 최대 처리시간]"
 
 #: src/labels.h:182
 #, fuzzy
-msgid "Referers"
+msgid "Referrers"
 msgstr "참조자 수"
 
 #: src/labels.h:185 src/labels.h:189
