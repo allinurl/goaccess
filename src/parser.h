@@ -55,6 +55,13 @@
 #include "commons.h"
 #include "gslist.h"
 
+typedef struct GLogProp_ {
+  char *filename;               /* filename including path */
+  char *fname;                  /* basename(filename) */
+  uint64_t inode;               /* inode of the log */
+  uint64_t size;                /* original size of log */
+} GLogProp;
+
 /* Log properties. Note: This is per line parsed */
 typedef struct GLogItem_ {
   char *agent;
@@ -113,13 +120,6 @@ typedef struct GLastParse_ {
   uint16_t snippetlen;
   char snippet[READ_BYTES + 1];
 } GLastParse;
-
-typedef struct GLogProp_ {
-  char *filename;               /* filename including path */
-  char *fname;                  /* basename(filename) */
-  uint64_t inode;               /* inode of the log */
-  uint64_t size;                /* original size of log */
-} GLogProp;
 
 /* Overall parsed log properties */
 typedef struct GLog_ {
