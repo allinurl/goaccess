@@ -797,19 +797,19 @@ static void
 verify_inode (FILE * fp, GLog * glog) {
   struct stat fdstat;
 
-  if (stat (glog->filename, &fdstat) == -1)
-    FATAL ("Unable to stat the specified log file '%s'. %s", glog->filename, strerror (errno));
+  if (stat (glog->props.filename, &fdstat) == -1)
+    FATAL ("Unable to stat the specified log file '%s'. %s", glog->props.filename, strerror (errno));
 
-  glog->size = fdstat.st_size;
+  glog->props.size = fdstat.st_size;
   /* Either the log got smaller, probably was truncated so start reading from 0
    * and reset snippet.
    * If the log changed its inode, more likely the log was rotated, so we set
    * the initial snippet for the new log for future iterations */
-  if (fdstat.st_ino != glog->inode || glog->snippet[0] == '\0' || 0 == glog->size) {
+  if (fdstat.st_ino != glog->props.inode || glog->snippet[0] == '\0' || 0 == glog->props.size) {
     glog->length = glog->bytes = 0;
-    set_initial_persisted_data (glog, fp, glog->filename);
+    set_initial_persisted_data (glog, fp, glog->props.filename);
   }
-  glog->inode = fdstat.st_ino;
+  glog->props.inode = fdstat.st_ino;
 }
 
 /* Process appended log data
@@ -823,7 +823,7 @@ perform_tail_follow (GLog * glog) {
   uint16_t len = 0;
   uint64_t length = 0;
 
-  if (glog->filename[0] == '-' && glog->filename[1] == '\0') {
+  if (glog->props.filename[0] == '-' && glog->props.filename[1] == '\0') {
     parse_tail_follow (glog, glog->pipe);
     /* did we read something from the pipe? */
     if (0 == glog->bytes)
@@ -833,7 +833,7 @@ perform_tail_follow (GLog * glog) {
     goto out;
   }
 
-  length = file_size (glog->filename);
+  length = file_size (glog->props.filename);
 
   /* file hasn't changed */
   /* ###NOTE: This assumes the log file being read can be of smaller size, e.g.,
@@ -841,8 +841,8 @@ perform_tail_follow (GLog * glog) {
   if (length == glog->length)
     return 0;
 
-  if (!(fp = fopen (glog->filename, "r")))
-    FATAL ("Unable to read the specified log file '%s'. %s", glog->filename, strerror (errno));
+  if (!(fp = fopen (glog->props.filename, "r")))
+    FATAL ("Unable to read the specified log file '%s'. %s", glog->props.filename, strerror (errno));
 
   verify_inode (fp, glog);
 
@@ -850,7 +850,7 @@ perform_tail_follow (GLog * glog) {
   /* This is not ideal, but maybe the only reliable way to know if the
    * current log looks different than our first read/parse */
   if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
-    FATAL ("Unable to fread the specified log file '%s'", glog->filename);
+    FATAL ("Unable to fread the specified log file '%s'", glog->props.filename);
 
   /* For the case where the log got larger since the last iteration, we attempt
    * to compare the first READ_BYTES against the READ_BYTES we had since the last
@@ -866,10 +866,10 @@ perform_tail_follow (GLog * glog) {
   glog->length += glog->bytes;
 
   /* insert the inode of the file parsed and the last line parsed */
-  if (glog->inode) {
+  if (glog->props.inode) {
     glog->lp.line = glog->read;
-    glog->lp.size = glog->size;
-    ht_insert_last_parse (glog->inode, glog->lp);
+    glog->lp.size = glog->props.size;
+    ht_insert_last_parse (glog->props.inode, glog->lp);
   }
 
 out:
@@ -1475,7 +1475,7 @@ initializer (void) {
   set_signal_data (logs);
 
   for (i = 0; i < logs->size; ++i)
-    if (logs->glog[i].filename[0] == '-' && logs->glog[i].filename[1] == '\0')
+    if (logs->glog[i].props.filename[0] == '-' && logs->glog[i].props.filename[1] == '\0')
       logs->glog[i].pipe = pipe;
 
   /* init parsing spinner */

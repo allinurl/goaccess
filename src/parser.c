@@ -150,17 +150,17 @@ set_glog (Logs * logs, const char *filename) {
   fn = xstrdup (filename);  /* ensure fn is a string */
   glog = logs->glog;
   glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
-  glog[logs->idx].filename = xstrdup (fn);
-  glog[logs->idx].fname = xstrdup (basename (fn));
+  glog[logs->idx].props.filename = xstrdup (fn);
+  glog[logs->idx].props.fname = xstrdup (basename (fn));
 
   if (!glog->pipe && conf.fname_as_vhost) {
-    if (!(fvh = regex_extract_string (glog[logs->idx].fname, conf.fname_as_vhost, 1, &err)))
-      FATAL ("%s %s[%s]", err, glog[logs->idx].fname, conf.fname_as_vhost);
+    if (!(fvh = regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))
+      FATAL ("%s %s[%s]", err, glog[logs->idx].props.fname, conf.fname_as_vhost);
     glog[logs->idx].fname_as_vhost = fvh;
   }
 
   logs->processed = &(glog[logs->idx].processed);
-  logs->filename = glog[logs->idx].filename;
+  logs->filename = glog[logs->idx].props.filename;
   logs->idx++;
   free (fn);
 
@@ -235,8 +235,8 @@ free_logs (Logs * logs) {
   for (i = 0; i < logs->size; ++i) {
     glog = &logs->glog[i];
 
-    free (glog->filename);
-    free (glog->fname);
+    free (glog->props.filename);
+    free (glog->props.fname);
     free (glog->fname_as_vhost);
     free_logerrors (glog);
     free (glog->errors);
@@ -1576,7 +1576,7 @@ output_logerrors (void) {
     fprintf (stderr, "==%d== https://goaccess.io - <hello@goaccess.io>\n", pid);
     fprintf (stderr, "==%d== Released under the MIT License.\n", pid);
     fprintf (stderr, "==%d==\n", pid);
-    fprintf (stderr, "==%d== FILE: %s\n", pid, glog->filename);
+    fprintf (stderr, "==%d== FILE: %s\n", pid, glog->props.filename);
     fprintf (stderr, "==%d== ", pid);
     fprintf (stderr, ERR_PARSED_NLINES, glog->log_erridx);
     fprintf (stderr, " %s:\n", ERR_PARSED_NLINES_DESC);
@@ -1758,7 +1758,7 @@ should_restore_from_disk (GLog * glog) {
   if (!conf.restore)
     return 0;
 
-  lp = ht_get_last_parse (glog->inode);
+  lp = ht_get_last_parse (glog->props.inode);
 
   /* No last parse timestamp, continue parsing as we got nothing to compare
    * against */
@@ -1767,15 +1767,15 @@ should_restore_from_disk (GLog * glog) {
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line and have equal timestamps, then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, &lp)) {
-    if (glog->size > lp.size && glog->read >= lp.line)
+  if (glog->props.inode && is_likely_same_log (glog, &lp)) {
+    if (glog->props.size > lp.size && glog->read >= lp.line)
       return 0;
     return 1;
   }
 
   /* No inode (probably a pipe), prior or equal timestamps means restore from
    * disk (exclusive) */
-  if (!glog->inode && lp.ts >= glog->lp.ts)
+  if (!glog->props.inode && lp.ts >= glog->lp.ts)
     return 1;
 
   /* If not likely the same content, then fallback to the following checks */
@@ -1786,7 +1786,7 @@ should_restore_from_disk (GLog * glog) {
   /* Check if current log size is smaller than the one last parsed, if it is,
    * it was possibly truncated and thus it may be smaller, so fallback to
    * timestamp even if they are equal to the last parsed timestamp */
-  else if (glog->size < lp.size && glog->lp.ts == lp.ts)
+  else if (glog->props.size < lp.size && glog->lp.ts == lp.ts)
     return 0;
 
   /* Everything else we ignore it. For instance, we if current log size is
@@ -1808,13 +1808,13 @@ process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
     return;
   }
 
-  lp = ht_get_last_parse (glog->inode);
+  lp = ht_get_last_parse (glog->props.inode);
 
   /* If our current line is greater or equal (zero indexed) to the last parsed
    * line then keep parsing then */
-  if (glog->inode && is_likely_same_log (glog, &lp)) {
+  if (glog->props.inode && is_likely_same_log (glog, &lp)) {
     /* only count invalids if we're past the last parsed line */
-    if (glog->size > lp.size && glog->read >= lp.line)
+    if (glog->props.size > lp.size && glog->read >= lp.line)
       count_process_and_invalid (glog, line);
     return;
   }
@@ -2093,10 +2093,10 @@ set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
   memset (glog->snippet, 0, sizeof (glog->snippet));
   glog->snippetlen = 0;
 
-  if (glog->size == 0)
+  if (glog->props.size == 0)
     return 1;
 
-  len = MIN (glog->size, READ_BYTES);
+  len = MIN (glog->props.size, READ_BYTES);
   if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
     FATAL ("Unable to fread the specified log file '%s'", fn);
   glog->snippetlen = len;
@@ -2109,16 +2109,16 @@ set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
 static void
 persist_last_parse (GLog * glog) {
   /* insert last parsed data for the recently file parsed */
-  if (glog->inode && glog->size) {
+  if (glog->props.inode && glog->props.size) {
     glog->lp.line = glog->read;
     glog->lp.snippetlen = glog->snippetlen;
 
     memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
 
-    ht_insert_last_parse (glog->inode, glog->lp);
+    ht_insert_last_parse (glog->props.inode, glog->lp);
   }
   /* probably from a pipe */
-  else if (!glog->inode) {
+  else if (!glog->props.inode) {
     ht_insert_last_parse (0, glog->lp);
   }
 }
@@ -2136,20 +2136,20 @@ read_log (GLog * glog, int dry_run) {
   /* Ensure we have a valid pipe to read from stdin. Only checking for
    * conf.read_stdin without verifying for a valid FILE pointer would certainly
    * lead to issues. */
-  if (glog->filename[0] == '-' && glog->filename[1] == '\0' && glog->pipe) {
+  if (glog->props.filename[0] == '-' && glog->props.filename[1] == '\0' && glog->pipe) {
     fp = glog->pipe;
     glog->piping = piping = 1;
   }
 
   /* make sure we can open the log (if not reading from stdin) */
-  if (!piping && (fp = fopen (glog->filename, "r")) == NULL)
-    FATAL ("Unable to open the specified log file '%s'. %s", glog->filename, strerror (errno));
+  if (!piping && (fp = fopen (glog->props.filename, "r")) == NULL)
+    FATAL ("Unable to open the specified log file '%s'. %s", glog->props.filename, strerror (errno));
 
   /* grab the inode of the file being parsed */
-  if (!piping && stat (glog->filename, &fdstat) == 0) {
-    glog->inode = fdstat.st_ino;
-    glog->size = glog->lp.size = fdstat.st_size;
-    set_initial_persisted_data (glog, fp, glog->filename);
+  if (!piping && stat (glog->props.filename, &fdstat) == 0) {
+    glog->props.inode = fdstat.st_ino;
+    glog->props.size = glog->lp.size = fdstat.st_size;
+    set_initial_persisted_data (glog, fp, glog->props.filename);
   }
 
   /* read line by line */
@@ -2172,7 +2172,7 @@ static void
 set_log_processing (Logs * logs, GLog * glog) {
   lock_spinner ();
   logs->processed = &(glog->processed);
-  logs->filename = glog->filename;
+  logs->filename = glog->props.filename;
   unlock_spinner ();
 }
 

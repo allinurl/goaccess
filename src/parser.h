@@ -114,14 +114,19 @@ typedef struct GLastParse_ {
   char snippet[READ_BYTES + 1];
 } GLastParse;
 
+typedef struct GLogProp_ {
+  char *filename;               /* filename including path */
+  char *fname;                  /* basename(filename) */
+  uint64_t inode;               /* inode of the log */
+  uint64_t size;                /* original size of log */
+} GLogProp;
+
 /* Overall parsed log properties */
 typedef struct GLog_ {
   uint8_t piping:1;
   uint8_t log_erridx;
   uint32_t read;                /* lines read/parsed */
-  uint64_t inode;               /* inode of the log */
   uint64_t bytes;               /* bytes read on each iteration */
-  uint64_t size;                /* original size of log */
   uint64_t length;              /* length read from the log so far */
   uint64_t invalid;             /* invalid lines for this log */
   uint64_t processed;           /* lines proceeded for this log */
@@ -132,9 +137,8 @@ typedef struct GLog_ {
 
   GLogItem *items;
   GLastParse lp;
+  GLogProp props;
 
-  char *filename;
-  char *fname;                  /* basename(filename) */
   char *fname_as_vhost;
   char **errors;
 
