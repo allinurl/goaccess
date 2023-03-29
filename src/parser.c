@@ -1481,14 +1481,15 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
 static int
 parse_format (GLogItem * logitem, char *str, char *lfmt) {
   char end[2 + 1] = { 0 };
-  char *p = NULL;
+  char *p = NULL, *last = NULL;
   int perc = 0, tilde = 0, ret = 0;
 
   if (str == NULL || *str == '\0')
     return 1;
 
   /* iterate over the log format */
-  for (p = lfmt; *p; p++) {
+  last = lfmt + strlen (lfmt);
+  for (p = lfmt; p < last; p++) {
     if (*p == '%') {
       perc++;
       continue;
