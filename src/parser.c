@@ -1376,13 +1376,13 @@ extract_braces (char **p) {
  * On success, the malloc'd token is assigned to a GLogItem->host and
  * 0 is returned. */
 static int
-set_xff_host (GLogItem * logitem, char **str, char *skips, int out) {
+set_xff_host (GLogItem * logitem, char *str, char *skips, int out) {
   char *ptr = NULL, *tkn = NULL;
   int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
   int idx = 0, skips_len = 0;
 
   skips_len = strlen (skips);
-  ptr = *str;
+  ptr = str;
   while (*ptr != '\0') {
     if ((len = strcspn (ptr, skips)) == 0) {
       len++, ptr++, idx++;
@@ -1395,7 +1395,7 @@ set_xff_host (GLogItem * logitem, char **str, char *skips, int out) {
 
     ptr += len;
     /* extract possible IP */
-    if (!(tkn = parsed_string (ptr, str, 0)))
+    if (!(tkn = parsed_string (ptr, &str, 0)))
       break;
 
     invalid_ip = invalid_ipaddr (tkn, &type_ip);
@@ -1416,7 +1416,7 @@ set_xff_host (GLogItem * logitem, char **str, char *skips, int out) {
       break;
 
   move:
-    *str += len;
+    str += len;
   }
 
   return logitem->host == NULL;
@@ -1442,11 +1442,11 @@ find_xff_host (GLogItem * logitem, char **str, char **p) {
     if (!(extract = parse_string (&(*str), pch, 1)))
       goto clean;
 
-    if (!(res = set_xff_host (logitem, &extract, skips, 1)))
+    if (!(res = set_xff_host (logitem, extract, skips, 1)))
       free (extract);
     (*str)++;   /* move a char forward from the trailing delim */
   } else {
-    res = set_xff_host (logitem, str, skips, 0);
+    res = set_xff_host (logitem, *str, skips, 0);
   }
 
 clean:
