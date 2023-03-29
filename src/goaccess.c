@@ -798,7 +798,8 @@ verify_inode (FILE * fp, GLog * glog) {
   struct stat fdstat;
 
   if (stat (glog->props.filename, &fdstat) == -1)
-    FATAL ("Unable to stat the specified log file '%s'. %s", glog->props.filename, strerror (errno));
+    FATAL ("Unable to stat the specified log file '%s'. %s", glog->props.filename,
+           strerror (errno));
 
   glog->props.size = fdstat.st_size;
   /* Either the log got smaller, probably was truncated so start reading from 0
@@ -842,7 +843,8 @@ perform_tail_follow (GLog * glog) {
     return 0;
 
   if (!(fp = fopen (glog->props.filename, "r")))
-    FATAL ("Unable to read the specified log file '%s'. %s", glog->props.filename, strerror (errno));
+    FATAL ("Unable to read the specified log file '%s'. %s", glog->props.filename,
+           strerror (errno));
 
   verify_inode (fp, glog);
 

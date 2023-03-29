@@ -147,14 +147,16 @@ set_glog (Logs * logs, const char *filename) {
     logs->size = newlen;
   }
 
-  fn = xstrdup (filename);  /* ensure fn is a string */
+  fn = xstrdup (filename);      /* ensure fn is a string */
   glog = logs->glog;
   glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
   glog[logs->idx].props.filename = xstrdup (fn);
   glog[logs->idx].props.fname = xstrdup (basename (fn));
 
   if (!glog->pipe && conf.fname_as_vhost) {
-    if (!(fvh = regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))
+    if (!
+        (fvh =
+         regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))
       FATAL ("%s %s[%s]", err, glog[logs->idx].props.fname, conf.fname_as_vhost);
     glog[logs->idx].fname_as_vhost = fvh;
   }
@@ -2144,7 +2146,8 @@ read_log (GLog * glog, int dry_run) {
 
   /* make sure we can open the log (if not reading from stdin) */
   if (!piping && (fp = fopen (glog->props.filename, "r")) == NULL)
-    FATAL ("Unable to open the specified log file '%s'. %s", glog->props.filename, strerror (errno));
+    FATAL ("Unable to open the specified log file '%s'. %s", glog->props.filename,
+           strerror (errno));
 
   /* grab the inode of the file being parsed */
   if (!piping && stat (glog->props.filename, &fdstat) == 0) {
