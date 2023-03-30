@@ -99,10 +99,21 @@ window.GoAccess = window.GoAccess || {
 		this.setWebSocket(wsConn);
 	},
 
+	buildWSURI: function (wsConn) {
+		var url = null;
+		if (!wsConn.url || !wsConn.port)
+			return null;
+		url = /^wss?:\/\//i.test(wsConn.url) ? wsConn.url : window.location.protocol === "https:" ? 'wss://' + wsConn.url : 'ws://' + wsConn.url;
+		return new URL(url).protocol + '//' + new URL(url).hostname + ':' + wsConn.port + new URL(url).pathname;
+	},
+
 	setWebSocket: function (wsConn) {
-		var host = null, pingId = null;
-		host = wsConn.url ? wsConn.url : window.location.hostname ? window.location.hostname : "localhost";
-		var str = /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}\//.test(host + "/") ? host : String(host + ':' + wsConn.port);
+		var host = null, pingId = null, uri = null, defURI = null, str = null;
+
+		defURI = window.location.hostname ? window.location.hostname + ':' + wsConn.port : "localhost" + ':' + wsConn.port;
+		uri = wsConn.url && /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}/.test(wsConn.url) ? wsConn.url : this.buildWSURI(wsConn);
+
+		str = uri || defURI;
 		str = !/^wss?:\/\//i.test(str) ? (window.location.protocol === "https:" ? 'wss://' : 'ws://') + str : str;
 
 		var socket = new WebSocket(str);
