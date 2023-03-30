@@ -2,11 +2,8 @@
 
 name: "Spelling"
 
-on:  # yamllint disable-line rule:truthy
-    pull_request: null
-    push:
-        branches:
-        - "master"
+on:
+  workflow_dispatch:
 # Add [skip ci] to commit message to skip CI.
 
 permissions:
