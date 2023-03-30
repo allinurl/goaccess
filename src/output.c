@@ -916,7 +916,11 @@ print_def_data (FILE * fp, GModule module, int sp) {
     .metakey = "unique",
     .metalbl = "Total",
     .metatype = "numeric",
-    .hlregex = "{" "\\\"^(\\\\\\\\d+|\\\\\\\\d+xx)(\\\\\\\\s.*)$\\\": \\\"<b>$1</b>$2\\\","     /* 2xx Success */
+    .hlregex = "{" "\\\"^(1\\\\\\\\d{2}|1xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lblu'>$1</b>$2\\\","      /* 2xx Success */
+      "\\\"^(2\\\\\\\\d{2}|2xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgrn'>$1</b>$2\\\","   /* 2xx Success */
+      "\\\"^(3\\\\\\\\d{2}|3xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lprp'>$1</b>$2\\\","   /* 3xx Success */
+      "\\\"^(4\\\\\\\\d{2}|4xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lyel'>$1</b>$2\\\","   /* 4xx Success */
+      "\\\"^(5\\\\\\\\d{2}|5xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lred'>$1</b>$2\\\","   /* 5xx Success */
       "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\","     /* AS9823 Google */
       "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\","      /* 01234: Data */
       "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\","       /* 12/May/2022:12:34 */

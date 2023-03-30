@@ -390,6 +390,26 @@ div.wrap-panel > div {
 .wrap-panel table .cell-hl.d4 {
 	background: #9d9d9d;
 }
+.wrap-panel table .span-hl.lgrn {
+	background: #e6f4ea;
+	color: #137333;
+}
+.wrap-panel table .span-hl.lyel {
+	background: #fff3cd;
+	color: #d38a10;
+}
+.wrap-panel table .span-hl.lred {
+	background: #fce8e6;
+	color: #c5221f;
+}
+.wrap-panel table .span-hl.lblu {
+	background: #cfe2ff;
+	color: #052c65;
+}
+.wrap-panel table .span-hl.lprp {
+	background: #cdc7ff;
+	color: #343150;
+}
 
 /* thead meta */
 .wrap-panel table thead>tr.thead-min th.meta-label,
