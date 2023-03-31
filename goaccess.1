@@ -1,4 +1,4 @@
-.TH goaccess 1 "FEBRUARY 2023" GNU+Linux "User Manuals"
+.TH goaccess 1 "MARCH 2023" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -97,6 +97,9 @@ down by continent and country. It needs to be compiled with GeoLocation
 support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
+.IP "ASN"
+This panel displays ASN (Autonomous System Numbers) data for GeoIP2 and legacy
+databases. Great for detecting malicious traffic and blocking accordingly.
 .IP "Remote User (HTTP authentication)"
 This is the userid of the person requesting the document as determined by HTTP
 authentication. If the document is not password protected, this part will be
@@ -509,6 +512,14 @@ Send all debug messages to the specified file.
 \fB\-p \-\-config-file=<configfile>
 Specify a custom configuration file to use. If set, it will take priority over
 the global configuration file (if any).
+.TP
+\fB\-\-external-assets
+Output HTML assets to external JS/CSS files. Great if you are setting up
+Content Security Policy (CSP). This will create two separate files,
+.I goaccess.js
+and
+.I goaccess.css
+, in the same directory as your report.html file.
 .TP
 \fB\-\-invalid-requests=<filename>
 Log invalid requests to the specified file.
