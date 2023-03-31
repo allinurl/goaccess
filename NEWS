@@ -1,7 +1,11 @@
-Copyright (C) 2009-2022
+Copyright (C) 2009-2023
 Gerardo Orellana <goaccess@prosoftcorp.com>
 
 * Version history:
+    - 1.7.2 [Friday, March 31, 2023]
+        . GoAccess 1.7.2 Released. See ChangeLog for new features/bug-fixes.
+    - 1.7.1 [Tuesday, February 28, 2023]
+        . GoAccess 1.7.1 Released. See ChangeLog for new features/bug-fixes.
     - 1.7 [Saturday, December 31 , 2022]
         . GoAccess 1.7 Released. See ChangeLog for new features/bug-fixes.
     - 1.6.5 [Monday, October 31 , 2022]
