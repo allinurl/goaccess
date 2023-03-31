@@ -153,6 +153,7 @@ static GHTML htmldef[] = {
 
 /* number of new lines (applicable fields) */
 static int nlines = 0;
+static int external_assets = 0;
 
 /* Get the chart type for the JSON definition.
  *
@@ -509,9 +510,9 @@ print_json_data (FILE * fp, GHolder * holder) {
   if ((json = get_json (holder, 1)) == NULL)
     return;
 
-  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
   fprintf (fp, "var json_data=%s", json);
-  fprintf (fp, conf.external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>");
 
   free (json);
 }
@@ -527,7 +528,7 @@ print_conn_def (FILE * fp) {
   if (!conf.real_time_html)
     return;
 
-  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
 
   fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
@@ -537,7 +538,7 @@ print_conn_def (FILE * fp) {
               1);
   fpclose_obj (fp, sp, 1);
 
-  fprintf (fp, conf.external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>");
 }
 
 /* Output JSON per panel metric definitions. */
@@ -1217,7 +1218,7 @@ print_json_defs (FILE * fp) {
   const GHTML *def;
   size_t idx = 0;
 
-  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
 
   fprintf (fp, "var json_i18n=");
   print_json_i18n_def (fp);
@@ -1236,7 +1237,7 @@ print_json_defs (FILE * fp) {
 
   fpclose_obj (fp, 0, 1);
 
-  fprintf (fp, conf.external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>");
 }
 
 static char *
@@ -1283,9 +1284,10 @@ output_html (GHolder * holder, const char *filename) {
   if (!fp)
     FATAL ("Unable to open HTML file: %s.", strerror (errno));
 
-  if (conf.external_assets) {
+  if (filename && conf.external_assets) {
     fjs = get_asset (filename, FILENAME_JS);
     fcs = get_asset (filename, FILENAME_CSS);
+    external_assets = 1;
   }
 
   /* use new lines to prettify output */
