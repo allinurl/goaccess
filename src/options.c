@@ -99,6 +99,7 @@ struct option long_opts[] = {
   {"fname-as-vhost"       , required_argument , 0 , 0  }  ,
   {"dcf"                  , no_argument       , 0 , 0  }  ,
   {"double-decode"        , no_argument       , 0 , 0  }  ,
+  {"external-assets"      , no_argument       , 0 , 0  }  ,
   {"enable-panel"         , required_argument , 0 , 0  }  ,
   {"fifo-in"              , required_argument , 0 , 0  }  ,
   {"fifo-out"             , required_argument , 0 , 0  }  ,
@@ -246,6 +247,7 @@ cmd_help (void)
   "  -p --config-file=<filename>     - Custom configuration file.\n"
   "  -S --log-size=<number>          - Specify the log size, useful when piping in\n"
   "                                    logs.\n"
+  "  --external-assets               - Output HTML assets to external JS/CSS files.\n"
   "  --invalid-requests=<filename>   - Log invalid requests to the specified file.\n"
   "  --no-global-config              - Don't load global configuration file.\n"
   "  --unknowns-log=<filename>       - Log unknown browsers and OSs to the\n"
@@ -594,6 +596,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* enable panel */
   if (!strcmp ("enable-panel", name))
     set_array_opt (oarg, conf.enable_panels, &conf.enable_panel_idx, TOTAL_MODULES);
+
+  /* external assets */
+  if (!strcmp ("external-assets", name))
+    conf.external_assets = 1;
 
   /* hour specificity */
   if (!strcmp ("hour-spec", name) && !strcmp (oarg, "min"))

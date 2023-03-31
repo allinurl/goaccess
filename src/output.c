@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "output.h"
 
@@ -223,10 +224,24 @@ print_html_title (FILE * fp) {
   fprintf (fp, "</title>");
 }
 
+static void
+print_html_header_styles (FILE * fp, FILE * fcs) {
+  if (fcs) {
+    fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
+    fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
+    fprintf (fcs, "%.*s\n", bootstrap_css_length, bootstrap_css);
+    fprintf (fcs, "%.*s\n", app_css_length, app_css);
+  } else {
+    fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
+    fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
+    fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
+  }
+}
+
 /* *INDENT-OFF* */
 /* Output all the document head elements. */
 static void
-print_html_header (FILE * fp)
+print_html_header (FILE * fp, FILE *fcs)
 {
   fprintf (fp,
   "<!DOCTYPE html>"
@@ -251,9 +266,8 @@ print_html_header (FILE * fp)
 
   print_html_title (fp);
 
-  fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
-  fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
-  fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
+  print_html_header_styles(fp, fcs);
+
   /* load custom CSS file, if any */
   if (conf.html_custom_css)
     fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
@@ -311,12 +325,20 @@ print_html_body (FILE * fp, const char *now)
 /* Output all the document footer elements such as script and closing
  * tags. */
 static void
-print_html_footer (FILE * fp)
+print_html_footer (FILE * fp, FILE *fjs)
 {
-  fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
-  fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
-  fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
-  fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+  if (fjs) {
+    fprintf (fp, "<script src='%s'></script>", FILENAME_JS);
+    fprintf (fjs, "%.*s", d3_js_length, d3_js);
+    fprintf (fjs, "%.*s", hogan_js_length, hogan_js);
+    fprintf (fjs, "%.*s", app_js_length, app_js);
+    fprintf (fjs, "%.*s", charts_js_length, charts_js);
+  } else {
+    fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
+    fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
+    fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
+    fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+  }
 
   /* load custom JS file, if any */
   if (conf.html_custom_js)
@@ -487,9 +509,9 @@ print_json_data (FILE * fp, GHolder * holder) {
   if ((json = get_json (holder, 1)) == NULL)
     return;
 
-  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
   fprintf (fp, "var json_data=%s", json);
-  fprintf (fp, "</script>");
+  fprintf (fp, conf.external_assets ? "\n" : "</script>");
 
   free (json);
 }
@@ -505,9 +527,9 @@ print_conn_def (FILE * fp) {
   if (!conf.real_time_html)
     return;
 
-  fprintf (fp, "<script type='text/javascript'>");
-  fprintf (fp, "var connection = ");
+  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
 
+  fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
   fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
   fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 0);
@@ -515,7 +537,7 @@ print_conn_def (FILE * fp) {
               1);
   fpclose_obj (fp, sp, 1);
 
-  fprintf (fp, "</script>");
+  fprintf (fp, conf.external_assets ? "\n" : "</script>");
 }
 
 /* Output JSON per panel metric definitions. */
@@ -1195,7 +1217,7 @@ print_json_defs (FILE * fp) {
   const GHTML *def;
   size_t idx = 0;
 
-  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, conf.external_assets ? "" : "<script type='text/javascript'>");
 
   fprintf (fp, "var json_i18n=");
   print_json_i18n_def (fp);
@@ -1214,14 +1236,44 @@ print_json_defs (FILE * fp) {
 
   fpclose_obj (fp, 0, 1);
 
-  fprintf (fp, "</script>");
+  fprintf (fp, conf.external_assets ? "\n" : "</script>");
+}
+
+static char *
+get_asset_filepath (const char *filename, const char *asset_fname) {
+  char *fname = NULL, *path = NULL, *s = NULL;
+
+  path = xstrdup (filename);
+  fname = xstrdup (basename (path));
+  path[strlen (filename) - strlen (fname)] = '\0';
+
+  s = xmalloc (snprintf (NULL, 0, "%s%s", path, asset_fname) + 1);
+  sprintf (s, "%s%s", path, asset_fname);
+  free (path);
+  free (fname);
+
+  return s;
+}
+
+static FILE *
+get_asset (const char *filename, const char *asset_fname) {
+  FILE *fp = NULL;
+  char *fn = NULL;
+
+  if (!(fn = get_asset_filepath (filename, asset_fname)))
+    FATAL ("Invalid JS file.");
+  if (!(fp = fopen (fn, "w")))
+    FATAL ("Unable to open file %s.", strerror (errno));
+  free (fn);
+
+  return fp;
 }
 
 /* entry point to generate a report writing it to the fp */
 void
 output_html (GHolder * holder, const char *filename) {
-  FILE *fp;
-  char now[DATE_TIME];
+  FILE *fp, *fjs = NULL, *fcs = NULL;
+  char now[DATE_TIME] = { 0 };
 
   if (filename != NULL)
     fp = fopen (filename, "w");
@@ -1231,6 +1283,11 @@ output_html (GHolder * holder, const char *filename) {
   if (!fp)
     FATAL ("Unable to open HTML file: %s.", strerror (errno));
 
+  if (conf.external_assets) {
+    fjs = get_asset (filename, FILENAME_JS);
+    fcs = get_asset (filename, FILENAME_CSS);
+  }
+
   /* use new lines to prettify output */
   if (conf.json_pretty_print)
     nlines = 1;
@@ -1239,14 +1296,18 @@ output_html (GHolder * holder, const char *filename) {
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
-  print_html_header (fp);
+  print_html_header (fp, fcs);
 
   print_html_body (fp, now);
-  print_json_defs (fp);
-  print_json_data (fp, holder);
-  print_conn_def (fp);
+  print_json_defs ((fjs ? fjs : fp));
+  print_json_data ((fjs ? fjs : fp), holder);
+  print_conn_def ((fjs ? fjs : fp));
 
-  print_html_footer (fp);
+  print_html_footer (fp, fjs);
 
+  if (fjs)
+    fclose (fjs);
+  if (fcs)
+    fclose (fcs);
   fclose (fp);
 }

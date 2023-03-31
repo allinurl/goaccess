@@ -158,6 +158,7 @@ typedef struct GConf_
   int daemonize;                    /* run program as a Unix daemon */
   const char *username;             /* user to run program as */
   int double_decode;                /* need to double decode */
+  int external_assets;              /* write JS/CSS assets to external files */
   int enable_html_resolver;         /* html/json/csv resolver */
   int geo_db;                       /* legacy geoip db */
   int hl_header;                    /* highlight header on term */
