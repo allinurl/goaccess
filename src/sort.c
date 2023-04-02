@@ -488,7 +488,7 @@ parse_initial_sort (void) {
 
 /* Apply user defined sort */
 void
-sort_holder_items (GHolderItem * items, int size, GSort sort) {
+sort_holder_items (GHolderItem *items, int size, GSort sort) {
   switch (sort.field) {
   case SORT_BY_HITS:
     if (sort.sort == SORT_DESC)
@@ -552,7 +552,7 @@ sort_holder_items (GHolderItem * items, int size, GSort sort) {
  *
  * On success, raw data sorted in a descending order. */
 GRawData *
-sort_raw_num_data (GRawData * raw_data, int ht_size) {
+sort_raw_num_data (GRawData *raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_num_desc);
   return raw_data;
 }
@@ -561,7 +561,7 @@ sort_raw_num_data (GRawData * raw_data, int ht_size) {
  *
  * On success, raw data sorted in a descending order. */
 GRawData *
-sort_raw_str_data (GRawData * raw_data, int ht_size) {
+sort_raw_str_data (GRawData *raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_str_desc);
   return raw_data;
 }

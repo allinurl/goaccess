@@ -110,7 +110,7 @@ free_dashboard_data (GDashData item) {
 /* Free memory allocated for a GDash instance, and nested structure
  * data. */
 void
-free_dashboard (GDash * dash) {
+free_dashboard (GDash *dash) {
   GModule module;
   int j;
   size_t idx = 0;
@@ -131,7 +131,7 @@ free_dashboard (GDash * dash) {
  * If not found, 0 is returned.
  * If found, the module number is returned . */
 static GModule
-get_find_current_module (GDash * dash, int offset) {
+get_find_current_module (GDash *dash, int offset) {
   GModule module;
   size_t idx = 0;
 
@@ -197,7 +197,7 @@ get_xpos (void) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-set_module_from_mouse_event (GScroll * gscroll, GDash * dash, int y) {
+set_module_from_mouse_event (GScroll *gscroll, GDash *dash, int y) {
   int module = 0;
   int offset = y - MAX_HEIGHT_HEADER - MAX_HEIGHT_FOOTER + 1;
   if (gscroll->expanded) {
@@ -271,7 +271,7 @@ get_bars (int n, int max, int x) {
  * On error, 0 is returned.
  * On success, largest hits metric is returned. */
 static void
-set_max_metrics (GDashMeta * meta, GDashData * idata) {
+set_max_metrics (GDashMeta *meta, GDashData *idata) {
   if (meta->max_hits < idata->metrics->hits)
     meta->max_hits = idata->metrics->hits;
   if (meta->max_visitors < idata->metrics->visitors)
@@ -280,7 +280,7 @@ set_max_metrics (GDashMeta * meta, GDashData * idata) {
 
 /* Set largest hits metric (length of the integer). */
 static void
-set_max_hit_len (GDashMeta * meta, GDashData * idata) {
+set_max_hit_len (GDashMeta *meta, GDashData *idata) {
   int vlen = intlen (idata->metrics->hits);
   int llen = strlen (MTRC_HITS_LBL);
 
@@ -295,7 +295,7 @@ set_max_hit_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_hit_perc_len (GDashMeta * meta, GDashData * idata) {
+set_max_hit_perc_len (GDashMeta *meta, GDashData *idata) {
   int vlen = intlen (idata->metrics->hits_perc);
   int llen = strlen (MTRC_HITS_PERC_LBL);
 
@@ -310,7 +310,7 @@ set_max_hit_perc_len (GDashMeta * meta, GDashData * idata) {
 
 /* Set largest hits metric (length of the integer). */
 static void
-set_max_visitors_len (GDashMeta * meta, GDashData * idata) {
+set_max_visitors_len (GDashMeta *meta, GDashData *idata) {
   int vlen = intlen (idata->metrics->visitors);
   int llen = strlen (MTRC_VISITORS_SHORT_LBL);
 
@@ -325,7 +325,7 @@ set_max_visitors_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_visitors_perc_len (GDashMeta * meta, GDashData * idata) {
+set_max_visitors_perc_len (GDashMeta *meta, GDashData *idata) {
   int vlen = intlen (idata->metrics->visitors_perc);
   int llen = strlen (MTRC_VISITORS_PERC_LBL);
 
@@ -340,7 +340,7 @@ set_max_visitors_perc_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_bw_len (GDashMeta * meta, GDashData * idata) {
+set_max_bw_len (GDashMeta *meta, GDashData *idata) {
   int vlen = strlen (idata->metrics->bw.sbw);
   int llen = strlen (MTRC_BW_LBL);
 
@@ -355,7 +355,7 @@ set_max_bw_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_avgts_len (GDashMeta * meta, GDashData * idata) {
+set_max_avgts_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   if (!conf.serve_usecs || !idata->metrics->avgts.sts)
@@ -375,7 +375,7 @@ set_max_avgts_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_cumts_len (GDashMeta * meta, GDashData * idata) {
+set_max_cumts_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   if (!conf.serve_usecs || !idata->metrics->cumts.sts)
@@ -395,7 +395,7 @@ set_max_cumts_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_maxts_len (GDashMeta * meta, GDashData * idata) {
+set_max_maxts_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   if (!conf.serve_usecs || !idata->metrics->maxts.sts)
@@ -415,7 +415,7 @@ set_max_maxts_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_method_len (GDashMeta * meta, GDashData * idata) {
+set_max_method_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   if (!conf.append_method || !idata->metrics->method)
@@ -435,7 +435,7 @@ set_max_method_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_protocol_len (GDashMeta * meta, GDashData * idata) {
+set_max_protocol_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   if (!conf.append_protocol || !idata->metrics->protocol)
@@ -455,7 +455,7 @@ set_max_protocol_len (GDashMeta * meta, GDashData * idata) {
 
 /* Get the percent integer length. */
 static void
-set_max_data_len (GDashMeta * meta, GDashData * idata) {
+set_max_data_len (GDashMeta *meta, GDashData *idata) {
   int vlen = 0, llen = 0;
 
   vlen = strlen (idata->metrics->data);
@@ -471,7 +471,7 @@ set_max_data_len (GDashMeta * meta, GDashData * idata) {
 }
 
 static void
-set_metrics_len (GDashMeta * meta, GDashData * idata) {
+set_metrics_len (GDashMeta *meta, GDashData *idata) {
   /* integer-based length */
   set_max_hit_len (meta, idata);
   set_max_hit_perc_len (meta, idata);
@@ -491,7 +491,7 @@ set_metrics_len (GDashMeta * meta, GDashData * idata) {
 
 /* Render host's panel selected row */
 static void
-render_data_hosts (WINDOW * win, GDashRender render, char *value, int x) {
+render_data_hosts (WINDOW *win, GDashRender render, char *value, int x) {
   char *padded_data;
 
   padded_data = left_pad_str (value, x);
@@ -518,7 +518,7 @@ get_fixed_fmt_width (int w, char type) {
 
 /* Render the 'total' label on each panel */
 static void
-render_total_label (WINDOW * win, GDashModule * data, int y, GColors * (*func) (void)) {
+render_total_label (WINDOW *win, GDashModule *data, int y, GColors *(*func) (void)) {
   char *s;
   int win_h, win_w, total, ht_size;
 
@@ -536,7 +536,7 @@ render_total_label (WINDOW * win, GDashModule * data, int y, GColors * (*func) (
 
 /* Render panel bar graph */
 static void
-render_bars (GDashModule * data, GDashRender render, int *x) {
+render_bars (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color (COLOR_BARS);
   WINDOW *win = render.win;
   char *bar;
@@ -555,7 +555,7 @@ render_bars (GDashModule * data, GDashRender render, int *x) {
 
 /* Render the data metric for each panel */
 static void
-render_data (GDashModule * data, GDashRender render, int *x) {
+render_data (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_DATA, data->module);
   WINDOW *win = render.win;
 
@@ -591,7 +591,7 @@ render_data (GDashModule * data, GDashRender render, int *x) {
  * On error, no method is rendered and it returns.
  * On success, method is rendered. */
 static void
-render_method (GDashModule * data, GDashRender render, int *x) {
+render_method (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_MTHD, data->module);
   WINDOW *win = render.win;
 
@@ -619,7 +619,7 @@ render_method (GDashModule * data, GDashRender render, int *x) {
  * On error, no protocol is rendered and it returns.
  * On success, protocol is rendered. */
 static void
-render_proto (GDashModule * data, GDashRender render, int *x) {
+render_proto (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_PROT, data->module);
   WINDOW *win = render.win;
 
@@ -644,7 +644,7 @@ render_proto (GDashModule * data, GDashRender render, int *x) {
 
 /* Render the average time served metric for each panel */
 static void
-render_avgts (GDashModule * data, GDashRender render, int *x) {
+render_avgts (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_AVGTS, data->module);
   WINDOW *win = render.win;
 
@@ -670,7 +670,7 @@ out:
 
 /* Render the cumulative time served metric for each panel */
 static void
-render_cumts (GDashModule * data, GDashRender render, int *x) {
+render_cumts (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_CUMTS, data->module);
   WINDOW *win = render.win;
 
@@ -696,7 +696,7 @@ out:
 
 /* Render the maximum time served metric for each panel */
 static void
-render_maxts (GDashModule * data, GDashRender render, int *x) {
+render_maxts (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_MAXTS, data->module);
   WINDOW *win = render.win;
 
@@ -722,7 +722,7 @@ out:
 
 /* Render the bandwidth metric for each panel */
 static void
-render_bw (GDashModule * data, GDashRender render, int *x) {
+render_bw (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_BW, data->module);
   WINDOW *win = render.win;
 
@@ -750,7 +750,7 @@ out:
 
 /* Render a percent metric */
 static void
-render_percent (GDashRender render, GColors * color, float perc, int len, int x) {
+render_percent (GDashRender render, GColors *color, float perc, int len, int x) {
   WINDOW *win = render.win;
   char *percent;
   int y = render.y, w = render.w, sel = render.sel;
@@ -770,7 +770,7 @@ render_percent (GDashRender render, GColors * color, float perc, int len, int x)
 
 /* Render the hits percent metric for each panel */
 static void
-render_hits_percent (GDashModule * data, GDashRender render, int *x) {
+render_hits_percent (GDashModule *data, GDashRender render, int *x) {
   GColorItem item = COLOR_MTRC_HITS_PERC;
   GColors *color;
   int l = data->meta.hits_perc_len + 3, idx = render.idx;
@@ -790,7 +790,7 @@ out:
 
 /* Render the visitors percent metric for each panel */
 static void
-render_visitors_percent (GDashModule * data, GDashRender render, int *x) {
+render_visitors_percent (GDashModule *data, GDashRender render, int *x) {
   GColorItem item = COLOR_MTRC_VISITORS_PERC;
   GColors *color;
   int l = data->meta.visitors_perc_len + 3, idx = render.idx;
@@ -810,7 +810,7 @@ out:
 
 /* Render the hits metric for each panel */
 static void
-render_hits (GDashModule * data, GDashRender render, int *x) {
+render_hits (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_HITS, data->module);
   WINDOW *win = render.win;
 
@@ -839,7 +839,7 @@ out:
 
 /* Render the visitors metric for each panel */
 static void
-render_visitors (GDashModule * data, GDashRender render, int *x) {
+render_visitors (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_VISITORS, data->module);
   WINDOW *win = render.win;
 
@@ -868,7 +868,7 @@ out:
 
 /* Render the header row for each panel */
 static void
-render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y) {
+render_header (WINDOW *win, GDashModule *data, GModule cur_module, int *y) {
   GColors *(*func) (void);
   char ind;
   char *hd;
@@ -894,7 +894,7 @@ render_header (WINDOW * win, GDashModule * data, GModule cur_module, int *y) {
 
 /* Render the description row for each panel */
 static void
-render_description (WINDOW * win, GDashModule * data, int *y) {
+render_description (WINDOW *win, GDashModule *data, int *y) {
   int w, h;
 
   getmaxyx (win, h, w);
@@ -910,7 +910,7 @@ render_description (WINDOW * win, GDashModule * data, int *y) {
 /* Render available metrics per panel.
  * ###TODO: Have the abilitity to display metrics in specific order */
 static void
-render_metrics (GDashModule * data, GDashRender render, int expanded) {
+render_metrics (GDashModule *data, GDashRender render, int expanded) {
   int x = get_xpos ();
   GModule module = data->module;
   const GOutput *output = output_lookup (module);
@@ -953,7 +953,7 @@ render_metrics (GDashModule * data, GDashRender render, int expanded) {
 
 /* Render a dashboard row. */
 static void
-render_data_line (WINDOW * win, GDashModule * data, int *y, int j, GScroll * gscroll) {
+render_data_line (WINDOW *win, GDashModule *data, int *y, int j, GScroll *gscroll) {
   GDashRender render;
   GModule module = data->module;
   int expanded = 0, sel = 0;
@@ -984,13 +984,13 @@ out:
 
 /* Render a dashed line underneath the metric label. */
 static void
-print_horizontal_dash (WINDOW * win, int y, int x, int len) {
+print_horizontal_dash (WINDOW *win, int y, int x, int len) {
   mvwprintw (win, y, x, "%.*s", len, "----------------");
 }
 
 /* Render left-aligned column label. */
 static void
-lprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
+lprint_col (WINDOW *win, int y, int *x, int len, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -1003,7 +1003,7 @@ lprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
 
 /* Render right-aligned column label. */
 static void
-rprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
+rprint_col (WINDOW *win, int y, int *x, int len, const char *str) {
   GColors *color = get_color (COLOR_PANEL_COLS);
 
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -1017,7 +1017,7 @@ rprint_col (WINDOW * win, int y, int *x, int len, const char *str) {
 /* Render column names for available metrics.
  * ###TODO: Have the abilitity to display metrics in specific order */
 static void
-render_cols (WINDOW * win, GDashModule * data, int *y) {
+render_cols (WINDOW *win, GDashModule *data, int *y) {
   GModule module = data->module;
   const GOutput *output = output_lookup (module);
   int x = get_xpos ();
@@ -1061,8 +1061,8 @@ render_cols (WINDOW * win, GDashModule * data, int *y) {
 
 /* Iterate over all dashboard data and render its content. */
 static void
-render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
-                int *total, GScroll * gscroll) {
+render_content (WINDOW *win, GDashModule *data, int *y, int *offset,
+                int *total, GScroll *gscroll) {
   GModule module = data->module;
   int i, j, size, h, w, data_pos = get_data_pos_rows ();
 
@@ -1104,7 +1104,7 @@ render_content (WINDOW * win, GDashModule * data, int *y, int *offset,
 
 /* Entry point to render the terminal dashboard. */
 void
-display_content (WINDOW * win, GDash * dash, GScroll * gscroll) {
+display_content (WINDOW *win, GDash *dash, GScroll *gscroll) {
   GModule module;
   int j = 0;
   size_t idx = 0;
@@ -1134,7 +1134,7 @@ display_content (WINDOW * win, GDash * dash, GScroll * gscroll) {
 
 /* Reset the scroll and offset fields for each panel/module. */
 void
-reset_scroll_offsets (GScroll * gscroll) {
+reset_scroll_offsets (GScroll *gscroll) {
   GModule module;
   size_t idx = 0;
 
@@ -1151,7 +1151,7 @@ reset_scroll_offsets (GScroll * gscroll) {
  * If unable to compile, an error as described in <regex.h>.
  * Upon successful completion, function returns 0. */
 static int
-regexp_init (regex_t * regex, const char *pattern) {
+regexp_init (regex_t *regex, const char *pattern) {
   int y, x, rc;
   char buf[REGEX_ERROR];
 
@@ -1169,7 +1169,7 @@ regexp_init (regex_t * regex, const char *pattern) {
 
 /* Set the dashboard scroll and offset based on the search index. */
 static void
-perform_find_dash_scroll (GScroll * gscroll, GModule module) {
+perform_find_dash_scroll (GScroll *gscroll, GModule module) {
   int *scrll, *offset;
   int exp_size = get_num_expanded_data_rows ();
 
@@ -1195,7 +1195,7 @@ perform_find_dash_scroll (GScroll * gscroll, GModule module) {
  * If not found, the GFind structure is reset and 1 is returned.
  * If found, a GFind structure is set and 0 is returned. */
 static int
-find_next_sub_item (GSubList * sub_list, regex_t * regex) {
+find_next_sub_item (GSubList *sub_list, regex_t *regex) {
   GSubItem *iter;
   int i = 0, rc;
 
@@ -1227,7 +1227,7 @@ out:
  * On error or if not found, 1 is returned.
  * On success or if found, a GFind structure is set and 0 is returned. */
 int
-perform_next_find (GHolder * h, GScroll * gscroll) {
+perform_next_find (GHolder *h, GScroll *gscroll) {
   GModule module;
   GSubList *sub_list;
   regex_t regex;
@@ -1303,7 +1303,7 @@ out:
  * On error or if no query is set, 1 is returned.
  * On success, the dialog is rendered and 0 is returned. */
 int
-render_find_dialog (WINDOW * main_win, GScroll * gscroll) {
+render_find_dialog (WINDOW *main_win, GScroll *gscroll) {
   int y, x, valid = 1;
   int w = FIND_DLG_WIDTH;
   int h = FIND_DLG_HEIGHT;
@@ -1336,7 +1336,7 @@ render_find_dialog (WINDOW * main_win, GScroll * gscroll) {
 }
 
 static void
-set_dash_metrics (GDash ** dash, GMetrics * metrics, GModule module,
+set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module,
                   GPercTotals totals, int is_subitem) {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
@@ -1388,7 +1388,7 @@ out:
  * If no items on the sub list, the function returns.
  * On success, sub list data is set into the dashboard structure. */
 static void
-add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, GPercTotals totals,
+add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals,
                       int *i) {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
@@ -1405,13 +1405,13 @@ add_sub_item_to_dash (GDash ** dash, GHolderItem item, GModule module, GPercTota
  *
  * On success, data is set into the dashboard structure. */
 static void
-add_item_to_dash (GDash ** dash, GHolderItem item, GModule module, GPercTotals totals) {
+add_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals) {
   set_dash_metrics (dash, item.metrics, module, totals, 0);
 }
 
 /* Load holder's data into the dashboard structure. */
 void
-load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * gscroll) {
+load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
   int alloc_size = 0;
   int i, j;
   GPercTotals totals;

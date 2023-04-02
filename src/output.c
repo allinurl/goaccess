@@ -181,7 +181,7 @@ panel_lookup (GModule module) {
 
 /* Sanitize output with html entities for special chars */
 static void
-clean_output (FILE * fp, const char *s) {
+clean_output (FILE *fp, const char *s) {
   if (!s) {
     LOG_DEBUG (("NULL data on clean_output.\n"));
     return;
@@ -217,7 +217,7 @@ clean_output (FILE * fp, const char *s) {
 
 /* Set the HTML document title and the generated date/time */
 static void
-print_html_title (FILE * fp) {
+print_html_title (FILE *fp) {
   const char *title = conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
@@ -226,7 +226,7 @@ print_html_title (FILE * fp) {
 }
 
 static void
-print_html_header_styles (FILE * fp, FILE * fcs) {
+print_html_header_styles (FILE *fp, FILE *fcs) {
   if (fcs) {
     fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
     fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
@@ -356,7 +356,7 @@ static const GChartDef ChartDefStopper = { NULL, NULL };
  *
  * The number of chart definitions is returned . */
 static int
-get_chartdef_cnt (GChart * chart) {
+get_chartdef_cnt (GChart *chart) {
   GChartDef *def = chart->def;
 
   while (memcmp (def, &ChartDefStopper, sizeof ChartDefStopper))
@@ -367,7 +367,7 @@ get_chartdef_cnt (GChart * chart) {
 
 /* Output the given JSON chart axis definition for the given panel. */
 static void
-print_d3_chart_def_axis (FILE * fp, GChart * chart, size_t cnt, int isp) {
+print_d3_chart_def_axis (FILE *fp, GChart *chart, size_t cnt, int isp) {
   GChartDef *def = chart->def;
   size_t j = 0;
 
@@ -381,7 +381,7 @@ print_d3_chart_def_axis (FILE * fp, GChart * chart, size_t cnt, int isp) {
 
 /* Output the given JSON chart definition for the given panel. */
 static void
-print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp) {
+print_d3_chart_def (FILE *fp, GChart *chart, size_t n, int sp) {
   size_t i = 0, cnt = 0;
   int isp = 0;
 
@@ -399,7 +399,7 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp) {
 }
 
 static void
-print_plot_def (FILE * fp, const GHTMLPlot plot, GChart * chart, int n, int sp) {
+print_plot_def (FILE *fp, const GHTMLPlot plot, GChart *chart, int n, int sp) {
   int isp = 0, iisp = 0;
 
   /* use tabs to prettify output */
@@ -422,7 +422,7 @@ print_plot_def (FILE * fp, const GHTMLPlot plot, GChart * chart, int n, int sp) 
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_visitors_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
@@ -441,7 +441,7 @@ hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_visitors_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"x", (GChartDef[]) {
@@ -463,7 +463,7 @@ hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_bw_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
@@ -482,7 +482,7 @@ hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_bw_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"x", (GChartDef[]) {
@@ -504,7 +504,7 @@ hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE * fp, GHolder * holder) {
+print_json_data (FILE *fp, GHolder *holder) {
   char *json = NULL;
 
   if ((json = get_json (holder, 1)) == NULL)
@@ -519,7 +519,7 @@ print_json_data (FILE * fp, GHolder * holder) {
 
 /* Output WebSocket connection definition. */
 static void
-print_conn_def (FILE * fp) {
+print_conn_def (FILE *fp) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -543,7 +543,7 @@ print_conn_def (FILE * fp) {
 
 /* Output JSON per panel metric definitions. */
 static void
-print_def_metric (FILE * fp, const GDefMetric def, int sp) {
+print_def_metric (FILE *fp, const GDefMetric def, int sp) {
   int isp = 0;
 
   /* use tabs to prettify output */
@@ -572,7 +572,7 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp) {
 
 /* Output JSON metric definition block. */
 static void
-print_def_block (FILE * fp, const GDefMetric def, int sp, int last) {
+print_def_block (FILE *fp, const GDefMetric def, int sp, int last) {
   fpopen_obj (fp, sp);
   print_def_metric (fp, def, sp);
   fpclose_obj (fp, sp, last);
@@ -580,7 +580,7 @@ print_def_block (FILE * fp, const GDefMetric def, int sp, int last) {
 
 /* Output JSON overall requests definition block. */
 static void
-print_def_overall_requests (FILE * fp, int sp) {
+print_def_overall_requests (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_REQUESTS,
     .datatype = "numeric",
@@ -593,7 +593,7 @@ print_def_overall_requests (FILE * fp, int sp) {
 
 /* Output JSON overall valid requests definition block. */
 static void
-print_def_overall_valid_reqs (FILE * fp, int sp) {
+print_def_overall_valid_reqs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_VALID,
     .datatype = "numeric",
@@ -606,7 +606,7 @@ print_def_overall_valid_reqs (FILE * fp, int sp) {
 
 /* Output JSON overall invalid requests definition block. */
 static void
-print_def_overall_invalid_reqs (FILE * fp, int sp) {
+print_def_overall_invalid_reqs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_FAILED,
     .datatype = "numeric",
@@ -619,7 +619,7 @@ print_def_overall_invalid_reqs (FILE * fp, int sp) {
 
 /* Output JSON process time definition block. */
 static void
-print_def_overall_processed_time (FILE * fp, int sp) {
+print_def_overall_processed_time (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_GEN_TIME,
     .datatype = "secs",
@@ -632,7 +632,7 @@ print_def_overall_processed_time (FILE * fp, int sp) {
 
 /* Output JSON overall visitors definition block. */
 static void
-print_def_overall_visitors (FILE * fp, int sp) {
+print_def_overall_visitors (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE_VISITORS,
     .datatype = "numeric",
@@ -645,7 +645,7 @@ print_def_overall_visitors (FILE * fp, int sp) {
 
 /* Output JSON overall files definition block. */
 static void
-print_def_overall_files (FILE * fp, int sp) {
+print_def_overall_files (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE_FILES,
     .datatype = "numeric",
@@ -657,7 +657,7 @@ print_def_overall_files (FILE * fp, int sp) {
 
 /* Output JSON overall excluded requests definition block. */
 static void
-print_def_overall_excluded (FILE * fp, int sp) {
+print_def_overall_excluded (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_EXCLUDE_IP,
     .datatype = "numeric",
@@ -669,7 +669,7 @@ print_def_overall_excluded (FILE * fp, int sp) {
 
 /* Output JSON overall referrers definition block. */
 static void
-print_def_overall_refs (FILE * fp, int sp) {
+print_def_overall_refs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_REFERRER,
     .datatype = "numeric",
@@ -681,7 +681,7 @@ print_def_overall_refs (FILE * fp, int sp) {
 
 /* Output JSON overall not found definition block. */
 static void
-print_def_overall_notfound (FILE * fp, int sp) {
+print_def_overall_notfound (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE404,
     .datatype = "numeric",
@@ -693,7 +693,7 @@ print_def_overall_notfound (FILE * fp, int sp) {
 
 /* Output JSON overall static files definition block. */
 static void
-print_def_overall_static_files (FILE * fp, int sp) {
+print_def_overall_static_files (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_STATIC_FILES,
     .datatype = "numeric",
@@ -705,7 +705,7 @@ print_def_overall_static_files (FILE * fp, int sp) {
 
 /* Output JSON log size definition block. */
 static void
-print_def_overall_log_size (FILE * fp, int sp) {
+print_def_overall_log_size (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_LOG,
     .datatype = "bytes",
@@ -717,7 +717,7 @@ print_def_overall_log_size (FILE * fp, int sp) {
 
 /* Output JSON overall bandwidth definition block. */
 static void
-print_def_overall_bandwidth (FILE * fp, int sp) {
+print_def_overall_bandwidth (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_BW,
     .datatype = "bytes",
@@ -729,7 +729,7 @@ print_def_overall_bandwidth (FILE * fp, int sp) {
 
 /* Output JSON hits definition block. */
 static void
-print_def_hits (FILE * fp, int sp) {
+print_def_hits (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "hits",
     .lbl = MTRC_HITS_LBL,
@@ -742,7 +742,7 @@ print_def_hits (FILE * fp, int sp) {
 
 /* Output JSON visitors definition block. */
 static void
-print_def_visitors (FILE * fp, int sp) {
+print_def_visitors (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "visitors",
     .lbl = MTRC_VISITORS_LBL,
@@ -755,7 +755,7 @@ print_def_visitors (FILE * fp, int sp) {
 
 /* Output JSON bandwidth definition block. */
 static void
-print_def_bw (FILE * fp, int sp) {
+print_def_bw (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "bytes",
     .lbl = MTRC_BW_LBL,
@@ -772,7 +772,7 @@ print_def_bw (FILE * fp, int sp) {
 
 /* Output JSON Avg. T.S. definition block. */
 static void
-print_def_avgts (FILE * fp, int sp) {
+print_def_avgts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "avgts",
     .lbl = MTRC_AVGTS_LBL,
@@ -789,7 +789,7 @@ print_def_avgts (FILE * fp, int sp) {
 
 /* Output JSON Cum. T.S. definition block. */
 static void
-print_def_cumts (FILE * fp, int sp) {
+print_def_cumts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "cumts",
     .lbl = MTRC_CUMTS_LBL,
@@ -806,7 +806,7 @@ print_def_cumts (FILE * fp, int sp) {
 
 /* Output JSON Max. T.S. definition block. */
 static void
-print_def_maxts (FILE * fp, int sp) {
+print_def_maxts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "maxts",
     .lbl = MTRC_MAXTS_LBL,
@@ -822,7 +822,7 @@ print_def_maxts (FILE * fp, int sp) {
 
 /* Output JSON method definition block. */
 static void
-print_def_method (FILE * fp, int sp) {
+print_def_method (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "method",
     .lbl = MTRC_METHODS_LBL,
@@ -843,7 +843,7 @@ print_def_method (FILE * fp, int sp) {
 
 /* Output JSON protocol definition block. */
 static void
-print_def_protocol (FILE * fp, int sp) {
+print_def_protocol (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "protocol",
     .lbl = MTRC_PROTOCOLS_LBL,
@@ -864,7 +864,7 @@ print_def_protocol (FILE * fp, int sp) {
 
 /* Output JSON city definition block. */
 static void
-print_def_city (FILE * fp, int sp) {
+print_def_city (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "city",
     .lbl = MTRC_CITY_LBL,
@@ -879,7 +879,7 @@ print_def_city (FILE * fp, int sp) {
 
 /* Output JSON ASN definition block. */
 static void
-print_def_asn (FILE * fp, int sp) {
+print_def_asn (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "asn",
     .lbl = MTRC_ASB_LBL,
@@ -897,7 +897,7 @@ print_def_asn (FILE * fp, int sp) {
 
 /* Output JSON country definition block. */
 static void
-print_def_country (FILE * fp, int sp) {
+print_def_country (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
@@ -913,7 +913,7 @@ print_def_country (FILE * fp, int sp) {
 
 /* Output JSON hostname definition block. */
 static void
-print_def_hostname (FILE * fp, int sp) {
+print_def_hostname (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "hostname",
     .lbl = MTRC_HOSTNAME_LBL,
@@ -929,7 +929,7 @@ print_def_hostname (FILE * fp, int sp) {
 
 /* Output JSON data definition block. */
 static void
-print_def_data (FILE * fp, GModule module, int sp) {
+print_def_data (FILE *fp, GModule module, int sp) {
   GDefMetric def = {
     .cname = "trunc",
     .cwidth = "100%",
@@ -958,7 +958,7 @@ print_def_data (FILE * fp, GModule module, int sp) {
  *
  * The number of plots for the given panel is returned. */
 static int
-count_plot_fp (const GHTML * def) {
+count_plot_fp (const GHTML *def) {
   int i = 0;
   for (i = 0; def->chart[i].plot != 0; ++i);
   return i;
@@ -966,7 +966,7 @@ count_plot_fp (const GHTML * def) {
 
 /* Entry function to output JSON plot definition block. */
 static void
-print_def_plot (FILE * fp, const GHTML * def, int sp) {
+print_def_plot (FILE *fp, const GHTML *def, int sp) {
   int i, isp = 0, n = count_plot_fp (def);
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -985,7 +985,7 @@ print_def_plot (FILE * fp, const GHTML * def, int sp) {
 
 /* Output JSON host panel definitions. */
 static void
-print_host_metrics (FILE * fp, const GHTML * def, int sp) {
+print_host_metrics (FILE *fp, const GHTML *def, int sp) {
   const GOutput *output = output_lookup (def->module);
 
   print_def_hits (fp, sp);
@@ -1010,7 +1010,7 @@ print_host_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Output JSON panel definitions. */
 static void
-print_metrics (FILE * fp, const GHTML * def, int sp) {
+print_metrics (FILE *fp, const GHTML *def, int sp) {
   const GOutput *output = output_lookup (def->module);
 
   print_def_hits (fp, sp);
@@ -1030,7 +1030,7 @@ print_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Entry point to output JSON metric definitions. */
 static void
-print_def_metrics (FILE * fp, const GHTML * def, int sp) {
+print_def_metrics (FILE *fp, const GHTML *def, int sp) {
   int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1046,7 +1046,7 @@ print_def_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Output panel header and description metadata definitions. */
 static void
-print_def_meta (FILE * fp, const char *head, const char *desc, int sp) {
+print_def_meta (FILE *fp, const char *head, const char *desc, int sp) {
   int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1058,7 +1058,7 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp) {
 
 /* Output panel sort metadata definitions. */
 static void
-print_def_sort (FILE * fp, const GHTML * def, int sp) {
+print_def_sort (FILE *fp, const GHTML *def, int sp) {
   GSort sort = module_sort[def->module];
   int isp = 0;
   /* use tabs to prettify output */
@@ -1075,7 +1075,7 @@ print_def_sort (FILE * fp, const GHTML * def, int sp) {
 
 /* Output panel metadata definitions. */
 static void
-print_panel_def_meta (FILE * fp, const GHTML * def, int sp) {
+print_panel_def_meta (FILE *fp, const GHTML *def, int sp) {
   const char *desc = module_to_desc (def->module);
   const char *head = module_to_head (def->module);
   const char *id = module_to_id (def->module);
@@ -1097,7 +1097,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp) {
 
 /* Output definitions for the given panel. */
 static void
-print_json_def (FILE * fp, const GHTML * def) {
+print_json_def (FILE *fp, const GHTML *def) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1115,7 +1115,7 @@ print_json_def (FILE * fp, const GHTML * def) {
 
 /* Output overall definitions. */
 static void
-print_def_summary (FILE * fp, int sp) {
+print_def_summary (FILE *fp, int sp) {
   int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1143,7 +1143,7 @@ print_def_summary (FILE * fp, int sp) {
 
 /* Cheap JSON internationalisation (i18n) - report labels */
 static void
-print_json_i18n_def (FILE * fp) {
+print_json_i18n_def (FILE *fp) {
   int sp = 0;
   size_t i = 0;
 
@@ -1197,7 +1197,7 @@ print_json_i18n_def (FILE * fp) {
 
 /* Output definitions for the given panel. */
 static void
-print_json_def_summary (FILE * fp) {
+print_json_def_summary (FILE *fp) {
   int sp = 0;
 
   /* use tabs to prettify output */
@@ -1214,7 +1214,7 @@ print_json_def_summary (FILE * fp) {
 
 /* Entry point to output definitions for all panels. */
 static void
-print_json_defs (FILE * fp) {
+print_json_defs (FILE *fp) {
   const GHTML *def;
   size_t idx = 0;
 
@@ -1272,7 +1272,7 @@ get_asset (const char *filename, const char *asset_fname) {
 
 /* entry point to generate a report writing it to the fp */
 void
-output_html (GHolder * holder, const char *filename) {
+output_html (GHolder *holder, const char *filename) {
   FILE *fp, *fjs = NULL, *fcs = NULL;
   char now[DATE_TIME] = { 0 };
 

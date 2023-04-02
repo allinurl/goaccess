@@ -554,7 +554,7 @@ size_t app_metrics_len = ARRAY_SIZE (app_metrics);
 
 /* Destroys malloc'd mdule metrics */
 static void
-free_app_metrics (GKHashDB * storage) {
+free_app_metrics (GKHashDB *storage) {
   int i, n = 0;
   GKHashMetric mtrc;
 
@@ -595,7 +595,7 @@ get_db_instance (uint32_t key) {
  *
  * On success, a pointer to that store is returned. */
 void *
-get_hdb (GKDB * db, GAMetric mtrc) {
+get_hdb (GKDB *db, GAMetric mtrc) {
   return db->hdb->metrics[mtrc].hash;
 }
 
@@ -631,7 +631,7 @@ init_gkhashdb (void) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_iglp (khash_t (iglp) * hash, uint64_t key, GLastParse lp) {
+ins_iglp (khash_t (iglp) *hash, uint64_t key, GLastParse lp) {
   khint_t k;
   int ret;
 
@@ -653,7 +653,7 @@ ins_iglp (khash_t (iglp) * hash, uint64_t key, GLastParse lp) {
  * On key found, 1 is returned.
  * On success 0 is returned */
 static GKDB *
-new_db (khash_t (igdb) * hash, uint32_t key) {
+new_db (khash_t (igdb) *hash, uint32_t key) {
   GKDB *db = NULL;
   khint_t k;
   int ret;
@@ -685,7 +685,7 @@ new_db (khash_t (igdb) * hash, uint32_t key) {
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value) {
+ins_si08 (khash_t (si08) *hash, const char *key, uint8_t value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -712,7 +712,7 @@ ins_si08 (khash_t (si08) * hash, const char *key, uint8_t value) {
  * On error, 0 is returned.
  * On success or if the key exists, the value is returned */
 static uint8_t
-ins_si08_ai (khash_t (si08) * hash, const char *key) {
+ins_si08_ai (khash_t (si08) *hash, const char *key) {
   uint8_t size = 0, value = 0;
 
   if (!hash)
@@ -731,7 +731,7 @@ ins_si08_ai (khash_t (si08) * hash, const char *key) {
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
+ins_si32 (khash_t (si32) *hash, const char *key, uint32_t value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -758,8 +758,8 @@ ins_si32 (khash_t (si32) * hash, const char *key, uint32_t value) {
  * On error, 0 is returned.
  * On success or if the key exists, the value is returned */
 uint32_t
-ins_si32_inc (khash_t (si32) * hash, const char *key,
-              uint32_t (*cb) (khash_t (si32) *, const char *), khash_t (si32) * seqs,
+ins_si32_inc (khash_t (si32) *hash, const char *key,
+              uint32_t (*cb) (khash_t (si32) *, const char *), khash_t (si32) *seqs,
               const char *seqk) {
   khint_t k;
   int ret;
@@ -786,8 +786,8 @@ ins_si32_inc (khash_t (si32) * hash, const char *key,
  * On error, 0 is returned.
  * On success or if the key exists, the value is returned */
 uint32_t
-ins_ii32_inc (khash_t (ii32) * hash, uint32_t key,
-              uint32_t (*cb) (khash_t (si32) *, const char *), khash_t (si32) * seqs,
+ins_ii32_inc (khash_t (ii32) *hash, uint32_t key,
+              uint32_t (*cb) (khash_t (si32) *, const char *), khash_t (si32) *seqs,
               const char *seqk) {
   khint_t k;
   int ret;
@@ -814,7 +814,7 @@ ins_ii32_inc (khash_t (ii32) * hash, uint32_t key,
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ins_is32 (khash_t (is32) * hash, uint32_t key, char *value) {
+ins_is32 (khash_t (is32) *hash, uint32_t key, char *value) {
   khint_t k;
   int ret;
 
@@ -837,7 +837,7 @@ ins_is32 (khash_t (is32) * hash, uint32_t key, char *value) {
  * If key exists, 1 is returned.
  * On success 0 is returned */
 static int
-ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
+ins_ss32 (khash_t (ss32) *hash, const char *key, const char *value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -869,7 +869,7 @@ ins_ss32 (khash_t (ss32) * hash, const char *key, const char *value) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value) {
+ins_ii32 (khash_t (ii32) *hash, uint32_t key, uint32_t value) {
   khint_t k;
   int ret;
 
@@ -891,7 +891,7 @@ ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value) {
+ins_ii08 (khash_t (ii08) *hash, uint32_t key, uint8_t value) {
   khint_t k;
   int ret;
 
@@ -913,7 +913,7 @@ ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value) {
+ins_iu64 (khash_t (iu64) *hash, uint32_t key, uint64_t value) {
   khint_t k;
   int ret;
 
@@ -935,7 +935,7 @@ ins_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t value) {
  * On error or key exists, -1 is returned.
  * On success 0 is returned */
 int
-ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
+ins_su64 (khash_t (su64) *hash, const char *key, uint64_t value) {
   khint_t k;
   int ret;
   char *dupkey = NULL;
@@ -962,7 +962,7 @@ ins_su64 (khash_t (su64) * hash, const char *key, uint64_t value) {
  * On key exists, 1 is returned.
  * On success 0 is returned */
 int
-ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value) {
+ins_u648 (khash_t (u648) *hash, uint64_t key, uint8_t value) {
   khint_t k;
   int ret;
 
@@ -986,7 +986,7 @@ ins_u648 (khash_t (u648) * hash, uint64_t key, uint8_t value) {
  * On error, 0 is returned.
  * On success the inserted value is returned */
 uint32_t
-inc_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t inc) {
+inc_ii32 (khash_t (ii32) *hash, uint32_t key, uint32_t inc) {
   khint_t k;
   int ret;
   uint32_t value = inc;
@@ -1013,7 +1013,7 @@ inc_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t inc) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc) {
+inc_su64 (khash_t (su64) *hash, const char *key, uint64_t inc) {
   khint_t k;
   int ret;
   uint64_t value = inc;
@@ -1045,7 +1045,7 @@ inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc) {
+inc_iu64 (khash_t (iu64) *hash, uint32_t key, uint64_t inc) {
   khint_t k;
   int ret;
   uint64_t value = inc;
@@ -1072,7 +1072,7 @@ inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc) {
  * On error, 0 is returned.
  * On success the increased value is returned */
 static uint32_t
-inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
+inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
   khint_t k;
   int ret;
   uint32_t value = inc;
@@ -1102,7 +1102,7 @@ inc_si32 (khash_t (si32) * hash, const char *key, uint32_t inc) {
  * On key found, the stored value is returned
  * On success the value of the key inserted is returned */
 uint32_t
-ins_ii32_ai (khash_t (ii32) * hash, uint32_t key) {
+ins_ii32_ai (khash_t (ii32) *hash, uint32_t key) {
   int size = 0, value = 0;
   int ret;
   khint_t k;
@@ -1141,7 +1141,7 @@ find_int_key_in_list (void *data, void *needle) {
  * On error, -1 is returned.
  * On success or if key is found, 0 is returned */
 int
-ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
+ins_igsl (khash_t (igsl) *hash, uint32_t key, uint32_t value) {
   khint_t k;
   GSLList *list;
   int ret;
@@ -1176,7 +1176,7 @@ ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value) {
  * On error, 0 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-get_si32 (khash_t (si32) * hash, const char *key) {
+get_si32 (khash_t (si32) *hash, const char *key) {
   khint_t k;
 
   if (!hash)
@@ -1195,7 +1195,7 @@ get_si32 (khash_t (si32) * hash, const char *key) {
  * On error, 0 is returned.
  * On success the uint8_t value for the given key is returned */
 uint8_t
-get_si08 (khash_t (si08) * hash, const char *key) {
+get_si08 (khash_t (si08) *hash, const char *key) {
   khint_t k;
 
   if (!hash)
@@ -1214,7 +1214,7 @@ get_si08 (khash_t (si08) * hash, const char *key) {
  * On error, 0 is returned.
  * On success the uint8_t value for the given key is returned */
 uint8_t
-get_ii08 (khash_t (ii08) * hash, uint32_t key) {
+get_ii08 (khash_t (ii08) *hash, uint32_t key) {
   khint_t k;
 
   if (!hash)
@@ -1233,7 +1233,7 @@ get_ii08 (khash_t (ii08) * hash, uint32_t key) {
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 char *
-get_is32 (khash_t (is32) * hash, uint32_t key) {
+get_is32 (khash_t (is32) *hash, uint32_t key) {
   khint_t k;
   char *value = NULL;
 
@@ -1253,7 +1253,7 @@ get_is32 (khash_t (is32) * hash, uint32_t key) {
  * On error, NULL is returned.
  * On success the string value for the given key is returned */
 static char *
-get_ss32 (khash_t (ss32) * hash, const char *key) {
+get_ss32 (khash_t (ss32) *hash, const char *key) {
   khint_t k;
   char *value = NULL;
 
@@ -1274,7 +1274,7 @@ get_ss32 (khash_t (ss32) * hash, const char *key) {
  * On error, -1 is returned.
  * On success the uint32_t value for the given key is returned */
 uint32_t
-get_ii32 (khash_t (ii32) * hash, uint32_t key) {
+get_ii32 (khash_t (ii32) *hash, uint32_t key) {
   khint_t k;
   uint32_t value = 0;
 
@@ -1294,7 +1294,7 @@ get_ii32 (khash_t (ii32) * hash, uint32_t key) {
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-get_iu64 (khash_t (iu64) * hash, uint32_t key) {
+get_iu64 (khash_t (iu64) *hash, uint32_t key) {
   khint_t k;
   uint64_t value = 0;
 
@@ -1314,7 +1314,7 @@ get_iu64 (khash_t (iu64) * hash, uint32_t key) {
  * On error, or if key is not found, 0 is returned.
  * On success the uint64_t value for the given key is returned */
 uint64_t
-get_su64 (khash_t (su64) * hash, const char *key) {
+get_su64 (khash_t (su64) *hash, const char *key) {
   khint_t k;
   uint64_t val = 0;
 
@@ -1335,7 +1335,7 @@ get_su64 (khash_t (su64) * hash, const char *key) {
  * On error, -1 is returned.
  * On success the GLastParse value for the given key is returned */
 static GLastParse
-get_iglp (khash_t (iglp) * hash, uint64_t key) {
+get_iglp (khash_t (iglp) *hash, uint64_t key) {
   khint_t k;
   GLastParse lp = { 0 };
 
@@ -1362,7 +1362,7 @@ get_iglp (khash_t (iglp) * hash, uint64_t key) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max) {
+get_ii32_min_max (khash_t (ii32) *hash, uint32_t *min, uint32_t *max) {
   khint_t k;
   uint32_t curvalue = 0;
   int i;
@@ -1391,7 +1391,7 @@ get_ii32_min_max (khash_t (ii32) * hash, uint32_t * min, uint32_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max) {
+get_iu64_min_max (khash_t (iu64) *hash, uint64_t *min, uint64_t *max) {
   khint_t k;
   uint64_t curvalue = 0;
   int i;
@@ -1498,7 +1498,7 @@ ht_insert_last_parse (uint64_t key, GLastParse lp) {
  * On error, 0 is returned.
  * On success the inserted key is returned */
 uint32_t
-ht_ins_seq (khash_t (si32) * hash, const char *key) {
+ht_ins_seq (khash_t (si32) *hash, const char *key) {
   if (!hash)
     return 0;
 
@@ -1593,7 +1593,7 @@ ht_get_json_logfmt (const char *key) {
 }
 
 void
-init_pre_storage (Logs * logs) {
+init_pre_storage (Logs *logs) {
   GKDB *db = NULL;
   ht_db = (khash_t (igdb) *) new_igdb_ht ();
   db = new_db (ht_db, DB_INSTANCE);
@@ -1601,7 +1601,7 @@ init_pre_storage (Logs * logs) {
 }
 
 static void
-free_igdb (khash_t (igdb) * hash, khint_t k) {
+free_igdb (khash_t (igdb) *hash, khint_t k) {
   GKDB *db = NULL;
   db = kh_val (hash, k);
 

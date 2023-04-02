@@ -121,7 +121,7 @@ init_geoip (void) {
  * If no entry is found, 1 is returned.
  * On success, MMDB_lookup_result_s struct is set and 0 is returned. */
 static int
-geoip_lookup (MMDB_lookup_result_s * res, const char *ip, int is_asn) {
+geoip_lookup (MMDB_lookup_result_s *res, const char *ip, int is_asn) {
   int gai_err, mmdb_err, idx = 0;
   MMDB_s *mmdb = NULL;
 
@@ -286,7 +286,7 @@ geoip_query_country (MMDB_lookup_result_s res, char *location) {
  * On error or not found, 1 is returned.
  * On success, 0 is returned and the entry data is set. */
 static int
-geoip_query_asn_code (MMDB_lookup_result_s res, MMDB_entry_data_s * code) {
+geoip_query_asn_code (MMDB_lookup_result_s res, MMDB_entry_data_s *code) {
   int status;
   const char *key[] = { "autonomous_system_number", NULL };
 
@@ -304,7 +304,7 @@ geoip_query_asn_code (MMDB_lookup_result_s res, MMDB_entry_data_s * code) {
  * On error or not found, 1 is returned.
  * On success, 0 is returned and the entry data is set. */
 static int
-geoip_query_asn_name (MMDB_lookup_result_s res, MMDB_entry_data_s * name) {
+geoip_query_asn_name (MMDB_lookup_result_s res, MMDB_entry_data_s *name) {
   int status;
   const char *key[] = { "autonomous_system_organization", NULL };
 

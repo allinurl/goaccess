@@ -122,7 +122,7 @@ init_gkhashglobal (void) {
 
 /* Initialize module metrics and mallocs its hash structure */
 static void
-init_tables (GModule module, GKHashModule * storage) {
+init_tables (GModule module, GKHashModule *storage) {
   int n = 0, i;
 
   n = module_metrics_len;
@@ -154,7 +154,7 @@ init_gkhashmodule (void) {
 
 /* Destroys malloc'd global metrics */
 static void
-free_global_metrics (GKHashGlobal * ghash) {
+free_global_metrics (GKHashGlobal *ghash) {
   int i, n = 0;
   GKHashMetric mtrc;
 
@@ -170,7 +170,7 @@ free_global_metrics (GKHashGlobal * ghash) {
 
 /* Destroys malloc'd mdule metrics */
 static void
-free_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
+free_module_metrics (GKHashModule *mhash, GModule module, uint8_t free_data) {
   int i, n = 0;
   GKHashMetric mtrc;
 
@@ -186,7 +186,7 @@ free_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
 
 /* For each module metric, deletes all entries from the hash table */
 static void
-del_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
+del_module_metrics (GKHashModule *mhash, GModule module, uint8_t free_data) {
   int i, n = 0;
   GKHashMetric mtrc;
 
@@ -199,7 +199,7 @@ del_module_metrics (GKHashModule * mhash, GModule module, uint8_t free_data) {
 
 /* Destroys all hash tables and possibly all the malloc'd data within */
 static void
-free_stores (GKHashStorage * store) {
+free_stores (GKHashStorage *store) {
   GModule module;
   size_t idx = 0;
 
@@ -220,7 +220,7 @@ free_stores (GKHashStorage * store) {
  * On key found, 1 is returned.
  * On success 0 is returned */
 static int
-ins_igkh (khash_t (igkh) * hash, uint32_t key) {
+ins_igkh (khash_t (igkh) *hash, uint32_t key) {
   GKHashStorage *store = NULL;
   khint_t k;
   int ret;
@@ -250,7 +250,7 @@ ins_igkh (khash_t (igkh) * hash, uint32_t key) {
  * On error or not found, NULL is returned.
  * On success, a pointer to that store is returned. */
 static void *
-get_store (khash_t (igkh) * hash, uint32_t key) {
+get_store (khash_t (igkh) *hash, uint32_t key) {
   GKHashStorage *store = NULL;
   khint_t k;
 
@@ -268,7 +268,7 @@ get_store (khash_t (igkh) * hash, uint32_t key) {
  * On error or not found, NULL is returned.
  * On success, a pointer to that hash table is returned. */
 static void *
-get_hash_from_store (GKHashStorage * store, int module, GSMetric metric) {
+get_hash_from_store (GKHashStorage *store, int module, GSMetric metric) {
   int mtrc = 0, cnt = 0;
   if (!store)
     return NULL;
@@ -415,7 +415,7 @@ ht_insert_agent_value (uint32_t date, uint32_t key, char *value) {
  * On error, 0 is returned.
  * On success the value of the key inserted is returned */
 uint32_t
-ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t * ckey) {
+ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t *ckey) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (ii32) * hash = get_hash (module, date, MTRC_KEYMAP);
@@ -1082,7 +1082,7 @@ ht_get_meta_data (GModule module, const char *key) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
+ht_get_hits_min_max (GModule module, uint32_t *min, uint32_t *max) {
   khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_HITS);
 
   if (!cache)
@@ -1097,7 +1097,7 @@ ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
+ht_get_visitors_min_max (GModule module, uint32_t *min, uint32_t *max) {
   khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_VISITORS);
 
   if (!cache)
@@ -1112,7 +1112,7 @@ ht_get_visitors_min_max (GModule module, uint32_t * min, uint32_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max) {
+ht_get_bw_min_max (GModule module, uint64_t *min, uint64_t *max) {
   khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_BW);
 
   if (!cache)
@@ -1127,7 +1127,7 @@ ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max) {
+ht_get_cumts_min_max (GModule module, uint64_t *min, uint64_t *max) {
   khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_CUMTS);
 
   if (!cache)
@@ -1142,7 +1142,7 @@ ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max) {
  * If the hash structure is empty, no values are set.
  * On success the minimum and maximum values are set. */
 void
-ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
+ht_get_maxts_min_max (GModule module, uint64_t *min, uint64_t *max) {
   khash_t (iu64) * cache = get_hash_from_cache (module, MTRC_MAXTS);
 
   if (!cache)
@@ -1152,7 +1152,7 @@ ht_get_maxts_min_max (GModule module, uint64_t * min, uint64_t * max) {
 }
 
 uint32_t *
-get_sorted_dates (uint32_t * len) {
+get_sorted_dates (uint32_t *len) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
   khiter_t key;
@@ -1215,7 +1215,7 @@ ins_cache_map (GModule module, GSMetric metric, uint32_t key) {
 }
 
 static int
-ins_cache_ii08 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+ins_cache_ii08 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (ii08) * hash = get_hash_from_store (store, module, metric);
   khash_t (ii08) * cache = get_hash_from_cache (module, metric);
@@ -1227,7 +1227,7 @@ ins_cache_ii08 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 }
 
 static int
-ins_cache_is32 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+ins_cache_is32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (is32) * hash = get_hash_from_store (store, module, metric);
   khash_t (is32) * cache = get_hash_from_cache (module, metric);
@@ -1239,7 +1239,7 @@ ins_cache_is32 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 }
 
 static int
-inc_cache_ii32 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+inc_cache_ii32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (ii32) * hash = get_hash_from_store (store, module, metric);
   khash_t (ii32) * cache = get_hash_from_cache (module, metric);
@@ -1251,7 +1251,7 @@ inc_cache_ii32 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 }
 
 static int
-max_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+max_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (iu64) * hash = get_hash_from_store (store, module, metric);
   khash_t (iu64) * cache = get_hash_from_cache (module, metric);
@@ -1266,7 +1266,7 @@ max_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t
 }
 
 static int
-inc_cache_iu64 (GKHashStorage * store, GModule module, GSMetric metric, uint32_t key,
+inc_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
                 uint32_t ckey) {
   khash_t (iu64) * hash = get_hash_from_store (store, module, metric);
   khash_t (iu64) * cache = get_hash_from_cache (module, metric);
@@ -1381,7 +1381,7 @@ des_igkh (void *h) {
 }
 
 void
-free_cache (GKHashModule * cache) {
+free_cache (GKHashModule *cache) {
   GModule module;
   size_t idx = 0;
 

@@ -63,25 +63,25 @@ bitmap_sizeof (uint32_t i) {
 }
 
 void
-free_bitmap (bitmap * bm) {
+free_bitmap (bitmap *bm) {
   free ((uint32_t *) bm->bmp);
   free (bm);
 }
 
 int
-bitmap_set_bit (word_t * words, uint32_t n) {
+bitmap_set_bit (word_t *words, uint32_t n) {
   words[WORD_OFFSET (n)] |= ((word_t) 1 << BIT_OFFSET (n));
   return 0;
 }
 
 int
-bitmap_get_bit (word_t * words, uint32_t n) {
+bitmap_get_bit (word_t *words, uint32_t n) {
   word_t bit = words[WORD_OFFSET (n)] & ((word_t) 1 << BIT_OFFSET (n));
   return bit != 0;
 }
 
 uint32_t
-bitmap_count_set (const bitmap * bm) {
+bitmap_count_set (const bitmap *bm) {
   uint32_t i, n = 0, len = 0;
 
   if (!bm)
@@ -95,7 +95,7 @@ bitmap_count_set (const bitmap * bm) {
 }
 
 uint32_t
-bitmap_ffs (bitmap * bm) {
+bitmap_ffs (bitmap *bm) {
   uint32_t i, pos = 1, len = 0;
   uint32_t __bitset;
 
@@ -125,7 +125,7 @@ bitmap_create (uint32_t bit) {
 }
 
 int
-bitmap_realloc (bitmap * bm, uint32_t bit) {
+bitmap_realloc (bitmap *bm, uint32_t bit) {
   uint32_t *tmp = NULL;
   uint32_t oldlen = 0, newlen = 0;
 
@@ -147,7 +147,7 @@ bitmap_realloc (bitmap * bm, uint32_t bit) {
 }
 
 bitmap *
-bitmap_copy (const bitmap * bm) {
+bitmap_copy (const bitmap *bm) {
   bitmap *ret;
 
   if (!bm)
@@ -161,7 +161,7 @@ bitmap_copy (const bitmap * bm) {
 }
 
 int
-bitmap_key_exists (bitmap * bm, uint32_t bit) {
+bitmap_key_exists (bitmap *bm, uint32_t bit) {
   if (bm->len < bit)
     bitmap_realloc (bm, bit);
 

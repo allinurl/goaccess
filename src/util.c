@@ -722,7 +722,7 @@ u64encode (uint32_t x, uint32_t y) {
 
 /* Decode a uint64_t number into the original two uint32_t  */
 void
-u64decode (uint64_t n, uint32_t * x, uint32_t * y) {
+u64decode (uint64_t n, uint32_t *x, uint32_t *y) {
   *x = (uint64_t) n >> 32;
   *y = (uint64_t) n & 0xFFFFFFFF;
 }

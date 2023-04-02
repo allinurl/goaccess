@@ -99,7 +99,7 @@ static int shutdown_ssl (WSClient * client);
  *
  * The state after the by has been processed is returned. */
 static uint32_t
-verify_utf8 (uint32_t * state, const char *str, int len) {
+verify_utf8 (uint32_t *state, const char *str, int len) {
   int i;
   uint32_t type;
 
@@ -119,7 +119,7 @@ verify_utf8 (uint32_t * state, const char *str, int len) {
  *
  * The state after the by has been processed is returned. */
 static uint32_t
-utf8_decode (uint32_t * state, uint32_t * p, uint32_t b) {
+utf8_decode (uint32_t *state, uint32_t *p, uint32_t b) {
   uint32_t type = utf8d[(uint8_t) b];
 
   *p = (*state != UTF8_VALID) ? (b & 0x3fu) | (*p << 6) : (0xff >> type) & (b);
@@ -397,7 +397,7 @@ ws_find_client_sock_in_list (void *data, void *needle) {
  *
  * On success, an instance of a GSLList node is returned, else NULL. */
 static GSLList *
-ws_get_list_node_from_list (int listener, GSLList ** colist) {
+ws_get_list_node_from_list (int listener, GSLList **colist) {
   GSLList *match = NULL;
 
   /* Find the client data for the socket in use */
@@ -410,7 +410,7 @@ ws_get_list_node_from_list (int listener, GSLList ** colist) {
  *
  * On success, an instance of a WSClient is returned, else NULL. */
 static WSClient *
-ws_get_client_from_list (int listener, GSLList ** colist) {
+ws_get_client_from_list (int listener, GSLList **colist) {
   GSLList *match = NULL;
 
   /* Find the client data for the socket in use */
@@ -421,7 +421,7 @@ ws_get_client_from_list (int listener, GSLList ** colist) {
 
 /* Free a frame structure and its data for the given client. */
 static void
-ws_free_frame (WSClient * client) {
+ws_free_frame (WSClient *client) {
   if (client->frame)
     free (client->frame);
   client->frame = NULL;
@@ -429,7 +429,7 @@ ws_free_frame (WSClient * client) {
 
 /* Free a message structure and its data for the given client. */
 static void
-ws_free_message (WSClient * client) {
+ws_free_message (WSClient *client) {
   if (client->message && client->message->payload)
     free (client->message->payload);
   if (client->message)
@@ -439,7 +439,7 @@ ws_free_message (WSClient * client) {
 
 /* Free all HTTP handshake headers data for the given client. */
 static void
-ws_free_header_fields (WSHeaders * headers) {
+ws_free_header_fields (WSHeaders *headers) {
   if (headers->connection)
     free (headers->connection);
   if (headers->host)
@@ -479,7 +479,7 @@ ws_close (int listener) {
 
 /* Clear the client's sent queue and its data. */
 static void
-ws_clear_queue (WSClient * client) {
+ws_clear_queue (WSClient *client) {
   WSQueue **queue = &client->sockqueue;
   if (!(*queue))
     return;
@@ -501,14 +501,14 @@ ws_clear_queue (WSClient * client) {
 
 /* Free all HTTP handshake headers and structure. */
 static void
-ws_clear_handshake_headers (WSHeaders * headers) {
+ws_clear_handshake_headers (WSHeaders *headers) {
   ws_free_header_fields (headers);
   free (headers);
 }
 
 /* Remove the given client from the list. */
 static void
-ws_remove_client_from_list (WSClient * client, WSServer * server) {
+ws_remove_client_from_list (WSClient *client, WSServer *server) {
   GSLList *node = NULL;
 
   if (!(node = ws_get_list_node_from_list (client->listener, &server->colist)))
@@ -524,7 +524,7 @@ ws_remove_client_from_list (WSClient * client, WSServer * server) {
  * the SSL structure pointed to by ssl and frees up the allocated
  * memory. */
 static void
-ws_shutdown_dangling_clients (WSClient * client) {
+ws_shutdown_dangling_clients (WSClient *client) {
   shutdown_ssl (client);
   SSL_free (client->ssl);
   client->ssl = NULL;
@@ -534,7 +534,7 @@ ws_shutdown_dangling_clients (WSClient * client) {
  * the allocated memory and cleans some more generally used TLS/SSL
  * memory.  */
 static void
-ws_ssl_cleanup (WSServer * server) {
+ws_ssl_cleanup (WSServer *server) {
   if (!wsconfig.use_ssl)
     return;
 
@@ -575,7 +575,7 @@ ws_remove_dangling_clients (void *value, void *user_data) {
 
 /* Do some housekeeping on the named pipe data packet. */
 static void
-ws_clear_fifo_packet (WSPacket * packet) {
+ws_clear_fifo_packet (WSPacket *packet) {
   if (!packet)
     return;
 
@@ -586,7 +586,7 @@ ws_clear_fifo_packet (WSPacket * packet) {
 
 /* Do some housekeeping on the named pipe. */
 static void
-ws_clear_pipein (WSPipeIn * pipein) {
+ws_clear_pipein (WSPipeIn *pipein) {
   WSPacket **packet = &pipein->packet;
   if (!pipein)
     return;
@@ -603,7 +603,7 @@ ws_clear_pipein (WSPipeIn * pipein) {
 
 /* Do some housekeeping on the named pipe. */
 static void
-ws_clear_pipeout (WSPipeOut * pipeout) {
+ws_clear_pipeout (WSPipeOut *pipeout) {
   if (!pipeout)
     return;
 
@@ -618,7 +618,7 @@ ws_clear_pipeout (WSPipeOut * pipeout) {
 
 /* Stop the server and do some cleaning. */
 void
-ws_stop (WSServer * server) {
+ws_stop (WSServer *server) {
   WSPipeIn **pipein = &server->pipein;
   WSPipeOut **pipeout = &server->pipeout;
 
@@ -650,7 +650,7 @@ ws_stop (WSServer * server) {
  *
  * The given number of bytes are returned. */
 static int
-ws_set_status (WSClient * client, WSStatus status, int bytes) {
+ws_set_status (WSClient *client, WSStatus status, int bytes) {
   client->status = status;
   return bytes;
 }
@@ -676,7 +676,7 @@ ws_append_str (char **dest, const char *src) {
  * On success, SSL_CTX object is malloc'd and 0 is returned.
  */
 static int
-initialize_ssl_ctx (WSServer * server) {
+initialize_ssl_ctx (WSServer *server) {
   int ret = 1;
   SSL_CTX *ctx = NULL;
 
@@ -775,7 +775,7 @@ log_return_message (int ret, int err, const char *fn) {
  * If data still needs to be read/written, -1 is returned.
  * On success, the TLS/SSL connection is closed and 0 is returned */
 static int
-shutdown_ssl (WSClient * client) {
+shutdown_ssl (WSClient *client) {
   int ret = -1, err = 0;
 
   /* all good */
@@ -815,7 +815,7 @@ shutdown_ssl (WSClient * client) {
  * If data still needs to be read/written, -1 is returned.
  * On success, the TLS/SSL connection is completed and 0 is returned */
 static int
-accept_ssl (WSClient * client) {
+accept_ssl (WSClient *client) {
   int ret = -1, err = 0;
 
   /* all good on TLS handshake */
@@ -854,7 +854,7 @@ accept_ssl (WSClient * client) {
 
 /* Create a new SSL structure for a connection and perform handshake */
 static void
-handle_accept_ssl (WSClient * client, WSServer * server) {
+handle_accept_ssl (WSClient *client, WSServer *server) {
   /* attempt to create SSL connection if we don't have one yet */
   if (!client->ssl) {
     if (!(client->ssl = SSL_new (server->ctx))) {
@@ -878,7 +878,7 @@ handle_accept_ssl (WSClient * client, WSServer * server) {
  * On error or if no SSL pending status, 1 is returned.
  * On success, the TLS/SSL pending action is called and 0 is returned */
 static int
-handle_ssl_pending_rw (int *conn, WSServer * server, WSClient * client) {
+handle_ssl_pending_rw (int *conn, WSServer *server, WSClient *client) {
   if (!wsconfig.use_ssl)
     return 1;
 
@@ -913,7 +913,7 @@ handle_ssl_pending_rw (int *conn, WSServer * server, WSClient * client) {
  * On success, the number of bytes actually written to the TLS/SSL
  * connection are returned */
 static int
-send_ssl_buffer (WSClient * client, const char *buffer, int len) {
+send_ssl_buffer (WSClient *client, const char *buffer, int len) {
   int bytes = 0, err = 0;
 
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -951,7 +951,7 @@ send_ssl_buffer (WSClient * client, const char *buffer, int len) {
  * On error, -1 is returned and the connection status is set.
  * On success, the number of bytes read is returned. */
 static int
-read_ssl_socket (WSClient * client, char *buffer, int size) {
+read_ssl_socket (WSClient *client, char *buffer, int size) {
   int bytes = 0, done = 0, err = 0;
   do {
 #if OPENSSL_VERSION_NUMBER < 0x10100000L
@@ -1009,7 +1009,7 @@ set_nonblocking (int sock) {
  *
  * The newly assigned socket is returned. */
 static int
-accept_client (int listener, GSLList ** colist) {
+accept_client (int listener, GSLList **colist) {
   WSClient *client;
   struct sockaddr_storage raddr;
   int newfd;
@@ -1097,7 +1097,7 @@ ws_parse_request (char *line, char **method, char **protocol) {
 /* Given a pair of key/values, assign it to our HTTP headers
  * structure. */
 static void
-ws_set_header_key_value (WSHeaders * headers, char *key, char *value) {
+ws_set_header_key_value (WSHeaders *headers, char *key, char *value) {
   if (strcasecmp ("Host", key) == 0)
     headers->host = xstrdup (value);
   else if (strcasecmp ("Origin", key) == 0)
@@ -1124,7 +1124,7 @@ ws_set_header_key_value (WSHeaders * headers, char *key, char *value) {
  * On error, or header missing, 1 is returned.
  * On success, 0 is returned. */
 static int
-ws_verify_req_headers (WSHeaders * headers) {
+ws_verify_req_headers (WSHeaders *headers) {
   if (!headers->host)
     return 1;
   if (!headers->method)
@@ -1151,7 +1151,7 @@ ws_verify_req_headers (WSHeaders * headers) {
  * The field value MAY be preceded by any amount of LWS, though a
  * single SP is preferred */
 static int
-ws_set_header_fields (char *line, WSHeaders * headers) {
+ws_set_header_fields (char *line, WSHeaders *headers) {
   char *path = NULL, *method = NULL, *proto = NULL, *p, *value;
 
   if (line[0] == '\n' || line[0] == '\r')
@@ -1196,7 +1196,7 @@ ws_set_header_fields (char *line, WSHeaders * headers) {
  * On error, or 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_headers (WSHeaders * headers) {
+parse_headers (WSHeaders *headers) {
   char *tmp = NULL;
   const char *buffer = headers->buf;
   const char *line = buffer, *next = NULL;
@@ -1232,7 +1232,7 @@ parse_headers (WSHeaders * headers) {
 
 /* Set into a queue the data that couldn't be sent. */
 static void
-ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes) {
+ws_queue_sockbuf (WSClient *client, const char *buffer, int len, int bytes) {
   WSQueue *queue = xcalloc (1, sizeof (WSQueue));
 
   if (bytes < 1)
@@ -1253,7 +1253,7 @@ ws_queue_sockbuf (WSClient * client, const char *buffer, int len, int bytes) {
  * On error, -1 is returned and the connection status is set.
  * On success, the number of bytes read is returned. */
 static int
-read_plain_socket (WSClient * client, char *buffer, int size) {
+read_plain_socket (WSClient *client, char *buffer, int size) {
   int bytes = 0;
 
   bytes = recv (client->listener, buffer, size, 0);
@@ -1272,7 +1272,7 @@ read_plain_socket (WSClient * client, char *buffer, int size) {
  * On error, -1 is returned and the connection status is set.
  * On success, the number of bytes read is returned. */
 static int
-read_socket (WSClient * client, char *buffer, int size) {
+read_socket (WSClient *client, char *buffer, int size) {
 #ifdef HAVE_LIBSSL
   if (wsconfig.use_ssl)
     return read_ssl_socket (client, buffer, size);
@@ -1284,12 +1284,12 @@ read_socket (WSClient * client, char *buffer, int size) {
 }
 
 static int
-send_plain_buffer (WSClient * client, const char *buffer, int len) {
+send_plain_buffer (WSClient *client, const char *buffer, int len) {
   return send (client->listener, buffer, len, 0);
 }
 
 static int
-send_buffer (WSClient * client, const char *buffer, int len) {
+send_buffer (WSClient *client, const char *buffer, int len) {
 #ifdef HAVE_LIBSSL
   if (wsconfig.use_ssl)
     return send_ssl_buffer (client, buffer, len);
@@ -1305,7 +1305,7 @@ send_buffer (WSClient * client, const char *buffer, int len) {
  * On error, -1 is returned and the connection status is set.
  * On success, the number of bytes sent is returned. */
 static int
-ws_respond_data (WSClient * client, const char *buffer, int len) {
+ws_respond_data (WSClient *client, const char *buffer, int len) {
   int bytes = 0;
 
   bytes = send_buffer (client, buffer, len);
@@ -1324,7 +1324,7 @@ ws_respond_data (WSClient * client, const char *buffer, int len) {
  * On error, -1 is returned and the connection status is set.
  * On success, the number of bytes sent is returned. */
 static int
-ws_respond_cache (WSClient * client) {
+ws_respond_cache (WSClient *client) {
   WSQueue *queue = client->sockqueue;
   int bytes = 0;
 
@@ -1348,7 +1348,7 @@ ws_respond_cache (WSClient * client) {
  * On error, 1 is returned and the connection status is set.
  * On success, 0 is returned. */
 static int
-ws_realloc_send_buf (WSClient * client, const char *buf, int len) {
+ws_realloc_send_buf (WSClient *client, const char *buf, int len) {
   WSQueue *queue = client->sockqueue;
   char *tmp = NULL;
   int newlen = 0;
@@ -1376,7 +1376,7 @@ ws_realloc_send_buf (WSClient * client, const char *buf, int len) {
  * On error, 1 is returned and the connection status is set.
  * On success, the number of bytes sent is returned. */
 static int
-ws_respond (WSClient * client, const char *buffer, int len) {
+ws_respond (WSClient *client, const char *buffer, int len) {
   int bytes = 0;
 
   /* attempt to send the whole buffer buffer */
@@ -1401,7 +1401,7 @@ ws_respond (WSClient * client, const char *buffer, int len) {
  *
  * On success, 0 is returned. */
 static int
-ws_send_frame (WSClient * client, WSOpcode opcode, const char *p, int sz) {
+ws_send_frame (WSClient *client, WSOpcode opcode, const char *p, int sz) {
   unsigned char buf[32] = { 0 };
   char *frm = NULL;
   uint64_t payloadlen = 0, u64;
@@ -1447,7 +1447,7 @@ ws_send_frame (WSClient * client, WSOpcode opcode, const char *p, int sz) {
  *
  * On success, the number of sent bytes is returned. */
 static int
-ws_error (WSClient * client, unsigned short code, const char *err) {
+ws_error (WSClient *client, unsigned short code, const char *err) {
   unsigned int len;
   unsigned short code_be;
   char buf[128] = { 0 };
@@ -1465,7 +1465,7 @@ ws_error (WSClient * client, unsigned short code, const char *err) {
  *
  * On success, the hit/entry is logged. */
 static void
-access_log (WSClient * client, int status_code) {
+access_log (WSClient *client, int status_code) {
   WSHeaders *hdrs = client->headers;
   char buf[64] = { 0 };
   uint32_t elapsed = 0;
@@ -1507,7 +1507,7 @@ access_log (WSClient * client, int status_code) {
  *
  * On success, the number of sent bytes is returned. */
 static int
-http_error (WSClient * client, const char *buffer) {
+http_error (WSClient *client, const char *buffer) {
   /* do access logging */
   gettimeofday (&client->end_proc, NULL);
   if (wsconfig.accesslog)
@@ -1528,7 +1528,7 @@ ws_sha1_digest (char *s, int len, unsigned char *digest) {
 
 /* Set the parsed websocket handshake headers. */
 static void
-ws_set_handshake_headers (WSHeaders * headers) {
+ws_set_handshake_headers (WSHeaders *headers) {
   size_t klen = strlen (headers->ws_key);
   size_t mlen = strlen (WS_MAGIC_STR);
   size_t len = klen + mlen;
@@ -1558,7 +1558,7 @@ ws_set_handshake_headers (WSHeaders * headers) {
  *
  * On success, the number of sent bytes is returned. */
 static int
-ws_send_handshake_headers (WSClient * client, WSHeaders * headers) {
+ws_send_handshake_headers (WSClient *client, WSHeaders *headers) {
   int bytes = 0;
   char *str = xstrdup ("");
 
@@ -1588,7 +1588,7 @@ ws_send_handshake_headers (WSClient * client, WSHeaders * headers) {
  *
  * On success, the number of sent bytes is returned. */
 static int
-ws_get_handshake (WSClient * client, WSServer * server) {
+ws_get_handshake (WSClient *client, WSServer *server) {
   int bytes = 0, readh = 0;
   char *buf = NULL;
 
@@ -1659,7 +1659,7 @@ ws_get_handshake (WSClient * client, WSServer * server) {
  *
  * On success, 0 is returned. */
 int
-ws_send_data (WSClient * client, WSOpcode opcode, const char *p, int sz) {
+ws_send_data (WSClient *client, WSOpcode opcode, const char *p, int sz) {
   char *buf = NULL;
 
   buf = sanitize_utf8 (p, sz);
@@ -1673,7 +1673,7 @@ ws_send_data (WSClient * client, WSOpcode opcode, const char *p, int sz) {
  *
  * On success, the number of bytesr read is returned. */
 static int
-ws_read_header (WSClient * client, WSFrame * frm, int pos, int need) {
+ws_read_header (WSClient *client, WSFrame *frm, int pos, int need) {
   char *buf = frm->buf;
   int bytes = 0;
 
@@ -1693,7 +1693,7 @@ ws_read_header (WSClient * client, WSFrame * frm, int pos, int need) {
  *
  * On success, the number of bytesr read is returned. */
 static int
-ws_read_payload (WSClient * client, WSMessage * msg, int pos, int need) {
+ws_read_payload (WSClient *client, WSMessage *msg, int pos, int need) {
   char *buf = msg->payload;
   int bytes = 0;
 
@@ -1713,7 +1713,7 @@ ws_read_payload (WSClient * client, WSMessage * msg, int pos, int need) {
  *
  * On success, 0 is returned. */
 static int
-ws_set_front_header_fields (WSClient * client) {
+ws_set_front_header_fields (WSClient *client) {
   WSFrame **frm = &client->frame;
   char *buf = (*frm)->buf;
 
@@ -1742,7 +1742,7 @@ ws_unmask_payload (char *buf, int len, int offset, unsigned char mask[]) {
 
 /* Close a websocket connection. */
 static int
-ws_handle_close (WSClient * client) {
+ws_handle_close (WSClient *client) {
   client->status = WS_ERR | WS_CLOSE;
   return ws_send_frame (client, WS_OPCODE_CLOSE, NULL, 0);
 }
@@ -1751,14 +1751,14 @@ ws_handle_close (WSClient * client) {
  *
  * On success, the number of bytes sent is returned. */
 static int
-ws_handle_err (WSClient * client, unsigned short code, WSStatus status, const char *m) {
+ws_handle_err (WSClient *client, unsigned short code, WSStatus status, const char *m) {
   client->status = status;
   return ws_error (client, code, m);
 }
 
 /* Handle a websocket pong. */
 static void
-ws_handle_pong (WSClient * client) {
+ws_handle_pong (WSClient *client) {
   WSFrame **frm = &client->frame;
 
   if (!(*frm)->fin) {
@@ -1771,7 +1771,7 @@ ws_handle_pong (WSClient * client) {
 /* Handle a websocket ping from the client and it attempts to send
  * back a pong as soon as possible. */
 static void
-ws_handle_ping (WSClient * client) {
+ws_handle_ping (WSClient *client) {
   WSFrame **frm = &client->frame;
   WSMessage **msg = &client->message;
   char *buf = NULL, *tmp = NULL;
@@ -1852,7 +1852,7 @@ ws_validate_string (const char *str, int len) {
 
 /* It handles a text or binary message frame from the client. */
 static void
-ws_handle_text_bin (WSClient * client, WSServer * server) {
+ws_handle_text_bin (WSClient *client, WSServer *server) {
   WSFrame **frm = &client->frame;
   WSMessage **msg = &client->message;
   int offset = (*msg)->mask_offset;
@@ -1897,7 +1897,7 @@ ws_handle_text_bin (WSClient * client, WSServer * server) {
 
 /* Depending on the frame opcode, then we take certain decisions. */
 static void
-ws_manage_payload_opcode (WSClient * client, WSServer * server) {
+ws_manage_payload_opcode (WSClient *client, WSServer *server) {
   WSFrame **frm = &client->frame;
   WSMessage **msg = &client->message;
 
@@ -1949,7 +1949,7 @@ ws_set_extended_header_size (const char *buf, int *extended) {
 
 /* Set the extended payload length into our frame structure. */
 static void
-ws_set_payloadlen (WSFrame * frm, const char *buf) {
+ws_set_payloadlen (WSFrame *frm, const char *buf) {
   uint64_t payloadlen = 0, len64;
   uint16_t len16;
 
@@ -1971,7 +1971,7 @@ ws_set_payloadlen (WSFrame * frm, const char *buf) {
 
 /* Set the masking key into our frame structure. */
 static void
-ws_set_masking_key (WSFrame * frm, const char *buf) {
+ws_set_masking_key (WSFrame *frm, const char *buf) {
   uint64_t payloadlen = 0;
 
   /* determine the payload length, else read more data */
@@ -1995,7 +1995,7 @@ ws_set_masking_key (WSFrame * frm, const char *buf) {
  * returned and the appropriate connection status is set.
  * On success, the number of bytes is returned. */
 static int
-ws_get_frm_header (WSClient * client) {
+ws_get_frm_header (WSClient *client) {
   WSFrame **frm = NULL;
   int bytes = 0, readh = 0, need = 0, offset = 0, extended = 0;
 
@@ -2061,7 +2061,7 @@ ws_get_frm_header (WSClient * client) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-ws_realloc_frm_payload (WSFrame * frm, WSMessage * msg) {
+ws_realloc_frm_payload (WSFrame *frm, WSMessage *msg) {
   char *tmp = NULL;
   uint64_t newlen = 0;
 
@@ -2084,7 +2084,7 @@ ws_realloc_frm_payload (WSFrame * frm, WSMessage * msg) {
  * returned and the appropriate connection status is set.
  * On success, the number of bytes is returned. */
 static int
-ws_get_frm_payload (WSClient * client, WSServer * server) {
+ws_get_frm_payload (WSClient *client, WSServer *server) {
   WSFrame **frm = NULL;
   WSMessage **msg = NULL;
   int bytes = 0, readh = 0, need = 0;
@@ -2125,7 +2125,7 @@ ws_get_frm_payload (WSClient * client, WSServer * server) {
  *
  * On success, the number of bytes is returned. */
 static int
-ws_get_message (WSClient * client, WSServer * server) {
+ws_get_message (WSClient *client, WSServer *server) {
   int bytes = 0;
   if ((client->frame == NULL) || (client->frame->reading))
     if ((bytes = ws_get_frm_header (client)) < 1 || client->frame->reading)
@@ -2137,7 +2137,7 @@ ws_get_message (WSClient * client, WSServer * server) {
  *
  * On success, the number of bytes is returned. */
 static int
-read_client_data (WSClient * client, WSServer * server) {
+read_client_data (WSClient *client, WSServer *server) {
   int bytes = 0;
 
   /* Handshake */
@@ -2152,7 +2152,7 @@ read_client_data (WSClient * client, WSServer * server) {
 
 /* Handle a tcp close connection. */
 static void
-handle_tcp_close (int conn, WSClient * client, WSServer * server) {
+handle_tcp_close (int conn, WSClient *client, WSServer *server) {
   LOG (("Closing TCP %d [%s]\n", client->listener, client->remote_ip));
 
 #ifdef HAVE_LIBSSL
@@ -2193,7 +2193,7 @@ handle_tcp_close (int conn, WSClient * client, WSServer * server) {
 
 /* Handle a tcp read close connection. */
 static void
-handle_read_close (int *conn, WSClient * client, WSServer * server) {
+handle_read_close (int *conn, WSClient *client, WSServer *server) {
   /* We can still try to send a message to the client if not forcing close, (nice
    * goodbye), else proceed to close it */
   if (!(client->status & WS_CLOSE) && client->status & WS_SENDING) {
@@ -2206,7 +2206,7 @@ handle_read_close (int *conn, WSClient * client, WSServer * server) {
 
 /* Handle a new socket connection. */
 static void
-handle_accept (int listener, WSServer * server) {
+handle_accept (int listener, WSServer *server) {
   WSClient *client = NULL;
   int newfd;
 
@@ -2228,7 +2228,7 @@ handle_accept (int listener, WSServer * server) {
 
 /* Handle a tcp read. */
 static void
-handle_reads (int *conn, WSServer * server) {
+handle_reads (int *conn, WSServer *server) {
   WSClient *client = NULL;
 
   if (!(client = ws_get_client_from_list (*conn, &server->colist)))
@@ -2255,13 +2255,13 @@ handle_reads (int *conn, WSServer * server) {
 
 /* Handle a tcp write close connection. */
 static void
-handle_write_close (int conn, WSClient * client, WSServer * server) {
+handle_write_close (int conn, WSClient *client, WSServer *server) {
   handle_tcp_close (conn, client, server);
 }
 
 /* Handle a tcp write. */
 static void
-handle_writes (int *conn, WSServer * server) {
+handle_writes (int *conn, WSServer *server) {
   WSClient *client = NULL;
 
   if (!(client = ws_get_client_from_list (*conn, &server->colist)))
@@ -2310,7 +2310,7 @@ ws_setfifo (const char *pipename) {
 
 /* Open a named pipe (FIFO) for input to the server (reader). */
 static void
-ws_openfifo_in (WSPipeIn * pipein) {
+ws_openfifo_in (WSPipeIn *pipein) {
   ws_setfifo (wsconfig.pipein);
   /* we should be able to open it at as reader */
   if ((pipein->fd = open (wsconfig.pipein, O_RDWR | O_NONBLOCK)) < 0)
@@ -2320,7 +2320,7 @@ ws_openfifo_in (WSPipeIn * pipein) {
 
 /* Open a named pipe (FIFO) for output from the server (writer). */
 static int
-ws_openfifo_out (WSPipeOut * pipeout) {
+ws_openfifo_out (WSPipeOut *pipeout) {
   int status = 0;
 
   ws_setfifo (wsconfig.pipeout);
@@ -2338,7 +2338,7 @@ ws_openfifo_out (WSPipeOut * pipeout) {
 /* Set a new named pipe for incoming messages and one for outgoing
  * messages from the client. */
 static void
-ws_fifo (WSServer * server) {
+ws_fifo (WSServer *server) {
   ws_openfifo_in (server->pipein);
   set_pollfd (server->pipein->fd, POLLIN);
   ws_openfifo_out (server->pipeout);
@@ -2347,7 +2347,7 @@ ws_fifo (WSServer * server) {
 
 /* Clear the queue for an outgoing named pipe. */
 static void
-clear_fifo_queue (WSPipeOut * pipeout) {
+clear_fifo_queue (WSPipeOut *pipeout) {
   WSQueue **queue = &pipeout->fifoqueue;
   if (!(*queue))
     return;
@@ -2368,7 +2368,7 @@ clear_fifo_queue (WSPipeOut * pipeout) {
  * reopened.
  * On success, 0 is returned. */
 static int
-ws_realloc_fifobuf (WSPipeOut * pipeout, const char *buf, int len) {
+ws_realloc_fifobuf (WSPipeOut *pipeout, const char *buf, int len) {
   WSQueue *queue = pipeout->fifoqueue;
   char *tmp = NULL;
   int newlen = 0;
@@ -2392,7 +2392,7 @@ ws_realloc_fifobuf (WSPipeOut * pipeout, const char *buf, int len) {
 /* Set into a queue the data that couldn't be sent in the outgoing
  * FIFO. */
 static void
-ws_queue_fifobuf (WSPipeOut * pipeout, const char *buffer, int len, int bytes) {
+ws_queue_fifobuf (WSPipeOut *pipeout, const char *buffer, int len, int bytes) {
   WSQueue **queue = &pipeout->fifoqueue;
 
   if (bytes < 1)
@@ -2412,7 +2412,7 @@ ws_queue_fifobuf (WSPipeOut * pipeout, const char *buffer, int len, int bytes) {
  * On error, the data is queued up.
  * On success, the number of bytes sent is returned. */
 static int
-ws_write_fifo_data (WSPipeOut * pipeout, char *buffer, int len) {
+ws_write_fifo_data (WSPipeOut *pipeout, char *buffer, int len) {
   int bytes = 0;
 
   bytes = write (pipeout->fd, buffer, len);
@@ -2437,7 +2437,7 @@ ws_write_fifo_data (WSPipeOut * pipeout, char *buffer, int len) {
  * On error, 1 is returned and the connection status is set.
  * On success, the number of bytes sent is returned. */
 static int
-ws_write_fifo_cache (WSPipeOut * pipeout) {
+ws_write_fifo_cache (WSPipeOut *pipeout) {
   WSQueue *queue = pipeout->fifoqueue;
   int bytes = 0;
 
@@ -2465,7 +2465,7 @@ ws_write_fifo_cache (WSPipeOut * pipeout) {
  *
  * On success, the number of bytes sent is returned. */
 int
-ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len) {
+ws_write_fifo (WSPipeOut *pipeout, char *buffer, int len) {
   int bytes = 0;
 
   if (pipeout->fd == -1 && ws_openfifo_out (pipeout) == -1)
@@ -2494,7 +2494,7 @@ ws_write_fifo (WSPipeOut * pipeout, char *buffer, int len) {
 
 /* Clear an incoming FIFO packet and header data. */
 static void
-clear_fifo_packet (WSPipeIn * pipein) {
+clear_fifo_packet (WSPipeIn *pipein) {
   memset (pipein->hdr, 0, sizeof (pipein->hdr));
   pipein->hlen = 0;
 
@@ -2509,7 +2509,7 @@ clear_fifo_packet (WSPipeIn * pipein) {
 
 /* Broadcast to all connected clients the given message. */
 static int
-ws_broadcast_fifo (WSClient * client, WSServer * server) {
+ws_broadcast_fifo (WSClient *client, WSServer *server) {
   WSPacket *packet = server->pipein->packet;
 
   LOG (("Broadcasting to %d [%s] ", client->listener, client->remote_ip));
@@ -2529,7 +2529,7 @@ ws_broadcast_fifo (WSClient * client, WSServer * server) {
 }
 
 static void
-ws_broadcast_fifo_to_clients (WSServer * server) {
+ws_broadcast_fifo_to_clients (WSServer *server) {
   WSClient *client = NULL;
   void *data = NULL;
   uint32_t *close_list = NULL;
@@ -2560,7 +2560,7 @@ ws_broadcast_fifo_to_clients (WSServer * server) {
 /* Send a message from the incoming named pipe to specific client
  * given the socket id. */
 static void
-ws_send_strict_fifo_to_client (WSServer * server, int listener, WSPacket * pa) {
+ws_send_strict_fifo_to_client (WSServer *server, int listener, WSPacket *pa) {
   WSClient *client = NULL;
 
   if (!(client = ws_get_client_from_list (listener, &server->colist)))
@@ -2608,7 +2608,7 @@ pack_uint32 (void *buf, uint32_t val) {
  *
  * On success, the number size of uint32_t is returned. */
 size_t
-unpack_uint32 (const void *buf, uint32_t * val) {
+unpack_uint32 (const void *buf, uint32_t *val) {
   uint32_t v32 = 0;
   memcpy (&v32, buf, sizeof (uint32_t));
   *val = ntohl (v32);
@@ -2638,7 +2638,7 @@ validate_fifo_packet (uint32_t type, int size) {
 /* Handle reading and sending the incoming data from the named pipe on
  * strict mode. */
 static void
-handle_strict_fifo (WSServer * server) {
+handle_strict_fifo (WSServer *server) {
   WSPipeIn *pi = server->pipein;
   WSPacket **pa = &pi->packet;
   int bytes = 0, readh = 0, need = 0;
@@ -2702,7 +2702,7 @@ handle_strict_fifo (WSServer * server) {
 /* Handle reading and sending the incoming data from the named pipe on
  * a fixed buffer mode. */
 static void
-handle_fixed_fifo (WSServer * server) {
+handle_fixed_fifo (WSServer *server) {
   WSPipeIn *pi = server->pipein;
   WSPacket **pa = &pi->packet;
 
@@ -2734,7 +2734,7 @@ handle_fixed_fifo (WSServer * server) {
 
 /* Determine which mode should use the incoming message from the FIFO. */
 static void
-handle_fifo (WSServer * server) {
+handle_fifo (WSServer *server) {
   if (wsconfig.strict)
     handle_strict_fifo (server);
   else
@@ -2793,7 +2793,7 @@ ws_socket (int *listener) {
 /* Start the websocket server and start to monitor multiple file
  * descriptors until we have something to read or write. */
 void
-ws_start (WSServer * server) {
+ws_start (WSServer *server) {
   int listener = -1, ret = 0;
   struct pollfd *cfdstate = NULL, *pfd, *efd;
   nfds_t ncfdstate = 0;

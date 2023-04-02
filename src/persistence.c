@@ -112,7 +112,7 @@ get_filename (GModule module, GKHashMetric mtrc) {
 
 /* Dump to disk the database file and frees its memory */
 static void
-close_tpl (tpl_node * tn, const char *fn) {
+close_tpl (tpl_node *tn, const char *fn) {
   tpl_dump (tn, TPL_FILE, fn);
   tpl_free (tn);
 }
@@ -120,7 +120,7 @@ close_tpl (tpl_node * tn, const char *fn) {
 /* Given a database filename, restore a string key, uint32_t value back to the
  * storage */
 static void
-restore_global_si08 (khash_t (si08) * hash, const char *fn) {
+restore_global_si08 (khash_t (si08) *hash, const char *fn) {
   tpl_node *tn;
   char *key = NULL;
   char fmt[] = "A(sv)";
@@ -137,7 +137,7 @@ restore_global_si08 (khash_t (si08) * hash, const char *fn) {
 
 /* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static void
-persist_global_si08 (khash_t (si08) * hash, const char *fn) {
+persist_global_si08 (khash_t (si08) *hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   const char *key = NULL;
@@ -162,7 +162,7 @@ persist_global_si08 (khash_t (si08) * hash, const char *fn) {
 /* Given a database filename, restore a string key, uint32_t value back to the
  * storage */
 static void
-restore_global_si32 (khash_t (si32) * hash, const char *fn) {
+restore_global_si32 (khash_t (si32) *hash, const char *fn) {
   tpl_node *tn;
   char *key = NULL;
   char fmt[] = "A(su)";
@@ -179,7 +179,7 @@ restore_global_si32 (khash_t (si32) * hash, const char *fn) {
 
 /* Given a hash and a filename, persist to disk a string key, uint32_t value */
 static void
-persist_global_si32 (khash_t (si32) * hash, const char *fn) {
+persist_global_si32 (khash_t (si32) *hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   const char *key = NULL;
@@ -204,7 +204,7 @@ persist_global_si32 (khash_t (si32) * hash, const char *fn) {
 /* Given a database filename, restore a uint64_t key, GLastParse value back to
  * the storage */
 static void
-restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
+restore_global_iglp (khash_t (iglp) *hash, const char *fn) {
   tpl_node *tn;
   uint64_t key;
   GLastParse val = { 0 };
@@ -220,7 +220,7 @@ restore_global_iglp (khash_t (iglp) * hash, const char *fn) {
 
 /* Given a hash and a filename, persist to disk a uint64_t key, uint32_t value */
 static void
-persist_global_iglp (khash_t (iglp) * hash, const char *fn) {
+persist_global_iglp (khash_t (iglp) *hash, const char *fn) {
   tpl_node *tn;
   khint_t k;
   uint64_t key;

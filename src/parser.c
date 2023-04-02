@@ -95,14 +95,14 @@ new_grawdata_item (unsigned int size) {
 
 /* Free memory allocated for a GRawData and GRawDataItem instance. */
 void
-free_raw_data (GRawData * raw_data) {
+free_raw_data (GRawData *raw_data) {
   free (raw_data->items);
   free (raw_data);
 }
 
 /* Reset an instance of GLog structure. */
 void
-reset_struct (Logs * logs) {
+reset_struct (Logs *logs) {
   int i = 0;
 
   for (i = 0; i < logs->size; ++i)
@@ -130,7 +130,7 @@ new_logs (int size) {
  * On success, the given filename is added to the Logs structure and 0 is
  * returned. */
 int
-set_glog (Logs * logs, const char *filename) {
+set_glog (Logs *logs, const char *filename) {
   GLog *tmp = NULL, *glog = NULL;
   int newlen = 0;
   char const *err;
@@ -175,7 +175,7 @@ set_glog (Logs * logs, const char *filename) {
  * On success, the given filename is added to the Logs structure and 0 is
  * returned. */
 int
-set_log (Logs * logs, const char *value) {
+set_log (Logs *logs, const char *value) {
   if (str_inarray (value, conf.filenames, conf.filenames_idx) < 0)
     return ERR_LOG_NOT_FOUND;
 
@@ -217,7 +217,7 @@ init_logs (int size) {
 
 /* Free all log errors stored during parsing. */
 void
-free_logerrors (GLog * glog) {
+free_logerrors (GLog *glog) {
   int i;
 
   if (!glog->log_erridx)
@@ -230,7 +230,7 @@ free_logerrors (GLog * glog) {
 
 /* Free all log containers. */
 void
-free_logs (Logs * logs) {
+free_logs (Logs *logs) {
   GLog *glog = NULL;
   int i;
 
@@ -255,7 +255,7 @@ free_logs (Logs * logs) {
  *
  * On success, the new GLogItem instance is returned. */
 GLogItem *
-init_log_item (GLog * glog) {
+init_log_item (GLog *glog) {
   time_t now = time (0);
   GLogItem *logitem;
   glog->items = xmalloc (sizeof (GLogItem));
@@ -304,7 +304,7 @@ init_log_item (GLog * glog) {
 
 /* Free all members of a GLogItem */
 static void
-free_glog (GLogItem * logitem) {
+free_glog (GLogItem *logitem) {
   if (logitem->agent != NULL)
     free (logitem->agent);
   if (logitem->browser != NULL)
@@ -839,7 +839,7 @@ set_time (char **ftime, struct tm tm) {
  * On success, a malloc'd error message is assigned to the log
  * structure and 1 is returned. */
 static int
-spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
+spec_err (GLogItem *logitem, int code, const char spec, const char *tkn) {
   char *err = NULL;
   const char *fmt = NULL;
 
@@ -871,21 +871,21 @@ spec_err (GLogItem * logitem, int code, const char spec, const char *tkn) {
 }
 
 static void
-set_tm_dt_logitem (GLogItem * logitem, struct tm tm) {
+set_tm_dt_logitem (GLogItem *logitem, struct tm tm) {
   logitem->dt.tm_year = tm.tm_year;
   logitem->dt.tm_mon = tm.tm_mon;
   logitem->dt.tm_mday = tm.tm_mday;
 }
 
 static void
-set_tm_tm_logitem (GLogItem * logitem, struct tm tm) {
+set_tm_tm_logitem (GLogItem *logitem, struct tm tm) {
   logitem->dt.tm_hour = tm.tm_hour;
   logitem->dt.tm_min = tm.tm_min;
   logitem->dt.tm_sec = tm.tm_sec;
 }
 
 static void
-set_numeric_date (uint32_t * numdate, const char *date) {
+set_numeric_date (uint32_t *numdate, const char *date) {
   int res = 0;
   if ((res = str2int (date)) == -1)
     FATAL ("Unable to parse date to integer %s", date);
@@ -893,7 +893,7 @@ set_numeric_date (uint32_t * numdate, const char *date) {
 }
 
 static void
-set_agent_hash (GLogItem * logitem) {
+set_agent_hash (GLogItem *logitem) {
   logitem->agent_hash = djb2 ((unsigned char *) logitem->agent);
   sprintf (logitem->agent_hex, "%" PRIx32, logitem->agent_hash);
 }
@@ -905,7 +905,7 @@ set_agent_hash (GLogItem * logitem) {
  * On error, or unable to parse it, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem member. */
 static int
-parse_specifier (GLogItem * logitem, char **str, const char *p, const char *end) {
+parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) {
   struct tm tm;
   time_t now = time (0);
   const char *dfmt = conf.date_format;
@@ -1378,7 +1378,7 @@ extract_braces (char **p) {
  * On success, the malloc'd token is assigned to a GLogItem->host and
  * 0 is returned. */
 static int
-set_xff_host (GLogItem * logitem, char *str, char *skips, int out) {
+set_xff_host (GLogItem *logitem, char *str, char *skips, int out) {
   char *ptr = NULL, *tkn = NULL;
   int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
   int idx = 0, skips_len = 0;
@@ -1429,7 +1429,7 @@ set_xff_host (GLogItem * logitem, char *str, char *skips, int out) {
  * If no IP is found, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem->host and 0 is returned. */
 static int
-find_xff_host (GLogItem * logitem, char **str, char **p) {
+find_xff_host (GLogItem *logitem, char **str, char **p) {
   char *skips = NULL, *extract = NULL;
   char pch[2] = { 0 };
   int res = 0;
@@ -1463,7 +1463,7 @@ clean:
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-special_specifier (GLogItem * logitem, char **str, char **p) {
+special_specifier (GLogItem *logitem, char **str, char **p) {
   switch (**p) {
     /* XFF remote hostname (IP only) */
   case 'h':
@@ -1481,7 +1481,7 @@ special_specifier (GLogItem * logitem, char **str, char **p) {
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem * logitem, char *str, char *lfmt) {
+parse_format (GLogItem *logitem, char *str, char *lfmt) {
   char end[2 + 1] = { 0 };
   char *p = NULL, *last = NULL;
   int perc = 0, tilde = 0, ret = 0;
@@ -1593,7 +1593,7 @@ output_logerrors (void) {
 
 /* Ensure we have the following fields. */
 static int
-verify_missing_fields (GLogItem * logitem) {
+verify_missing_fields (GLogItem *logitem) {
   /* must have the following fields */
   if (logitem->host == NULL)
     logitem->errstr = xstrdup ("IPv4/6 is required.");
@@ -1661,7 +1661,7 @@ ignore_static (const char *req) {
  * If the request is not a 404, 0 is returned.
  * If the request is a 404, 1 is returned. */
 static int
-is_404 (GLogItem * logitem) {
+is_404 (GLogItem *logitem) {
   if (!logitem->status || *logitem->status == '\0')
     return 0;
   /* is this a 404? */
@@ -1679,7 +1679,7 @@ is_404 (GLogItem * logitem) {
  * If the request line is ignored, IGNORE_LEVEL_PANEL is returned.
  * If the request line is only not counted as valid, IGNORE_LEVEL_REQ is returned. */
 static int
-ignore_line (GLogItem * logitem) {
+ignore_line (GLogItem *logitem) {
   if (excluded_ip (logitem) == 0)
     return IGNORE_LEVEL_PANEL;
   if (handle_crawler (logitem->agent) == 0)
@@ -1705,7 +1705,7 @@ ignore_line (GLogItem * logitem) {
  *
  * On success the new unique visitor key is returned */
 static char *
-get_uniq_visitor_key (GLogItem * logitem) {
+get_uniq_visitor_key (GLogItem *logitem) {
   char *key = NULL;
   size_t s1, s2, s3;
 
@@ -1734,7 +1734,7 @@ get_uniq_visitor_key (GLogItem * logitem) {
  * Returns 1 if the content is likely the same or no data to compare
  * Returns 0 if it has different content */
 static int
-is_likely_same_log (GLog * glog, const GLastParse * lp) {
+is_likely_same_log (GLog *glog, const GLastParse *lp) {
   size_t size = 0;
 
   if (!lp->size)
@@ -1755,7 +1755,7 @@ is_likely_same_log (GLog * glog, const GLastParse * lp) {
  * Returns 1 if it thinks the record it's being restored from disk
  * Returns 0 if we need to parse the record */
 static int
-should_restore_from_disk (GLog * glog) {
+should_restore_from_disk (GLog *glog) {
   GLastParse lp = { 0 };
 
   if (!conf.restore)
@@ -1802,7 +1802,7 @@ should_restore_from_disk (GLog * glog) {
 }
 
 static void
-process_invalid (GLog * glog, GLogItem * logitem, const char *line) {
+process_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   GLastParse lp = { 0 };
 
   /* if not restoring from disk, then count entry as proceeded and invalid */
@@ -1860,7 +1860,7 @@ parse_json_specifier (void *ptr_data, char *key, char *str) {
 }
 
 static int
-parse_json_format (GLogItem * logitem, char *str) {
+parse_json_format (GLogItem *logitem, char *str) {
   return parse_json_string (logitem, str, parse_json_specifier);
 }
 
@@ -1870,7 +1870,7 @@ parse_json_format (GLogItem * logitem, char *str) {
  *
  * On success, 0 is returned */
 int
-pre_process_log (GLog * glog, char *line, int dry_run) {
+pre_process_log (GLog *glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
   char *fmt = conf.log_format;
@@ -1938,7 +1938,7 @@ cleanup:
  * On error, 1 is returned.
  * On success or soft ignores, 0 is returned. */
 static int
-read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
+read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
 
   /* start processing log line */
@@ -1965,7 +1965,7 @@ read_line (GLog * glog, char *line, int *test, int *cnt, int dry_run) {
  * On error, NULL is returned.
  * On success, the malloc'd line is returned. */
 char *
-fgetline (FILE * fp) {
+fgetline (FILE *fp) {
   char buf[LINE_BUFFER] = { 0 };
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
@@ -2011,7 +2011,7 @@ fgetline (FILE * fp) {
  * On success, 0 is returned. */
 #ifdef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog * glog, int dry_run) {
+read_lines (FILE *fp, GLog *glog, int dry_run) {
   char *line = NULL;
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
 
@@ -2052,7 +2052,7 @@ out:
  * On success, 0 is returned. */
 #ifndef WITH_GETLINE
 static int
-read_lines (FILE * fp, GLog * glog, int dry_run) {
+read_lines (FILE *fp, GLog *glog, int dry_run) {
   char *s = NULL;
   char line[LINE_BUFFER] = { 0 };
   int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
@@ -2089,7 +2089,7 @@ read_lines (FILE * fp, GLog * glog, int dry_run) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
+set_initial_persisted_data (GLog *glog, FILE *fp, const char *fn) {
   size_t len;
 
   /* reset the snippet */
@@ -2110,7 +2110,7 @@ set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn) {
 }
 
 static void
-persist_last_parse (GLog * glog) {
+persist_last_parse (GLog *glog) {
   /* insert last parsed data for the recently file parsed */
   if (glog->props.inode && glog->props.size) {
     glog->lp.line = glog->read;
@@ -2131,7 +2131,7 @@ persist_last_parse (GLog * glog) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-read_log (GLog * glog, int dry_run) {
+read_log (GLog *glog, int dry_run) {
   FILE *fp = NULL;
   int piping = 0;
   struct stat fdstat;
@@ -2173,7 +2173,7 @@ read_log (GLog * glog, int dry_run) {
 }
 
 static void
-set_log_processing (Logs * logs, GLog * glog) {
+set_log_processing (Logs *logs, GLog *glog) {
   lock_spinner ();
   logs->processed = &(glog->processed);
   logs->filename = glog->props.filename;
@@ -2185,7 +2185,7 @@ set_log_processing (Logs * logs, GLog * glog) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-parse_log (Logs * logs, int dry_run) {
+parse_log (Logs *logs, int dry_run) {
   GLog *glog = NULL;
   const char *err_log = NULL;
   int idx;
@@ -2222,7 +2222,7 @@ parse_log (Logs * logs, int dry_run) {
  * On error, an array of pointers containing the error strings.
  * On success, NULL is returned. */
 char **
-test_format (Logs * logs, int *len) {
+test_format (Logs *logs, int *len) {
   char **errors = NULL;
   GLog *glog = NULL;
   int i;

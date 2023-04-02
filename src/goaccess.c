@@ -449,7 +449,7 @@ disabled_panel_msg (GModule module) {
 
 /* Set the current module/panel */
 static int
-set_module_to (GScroll * scrll, GModule module) {
+set_module_to (GScroll *scrll, GModule module) {
   if (get_module_index (module) == -1) {
     disabled_panel_msg (module);
     return 1;
@@ -766,7 +766,7 @@ read_client (void *ptr_data) {
 
 /* Parse tailed lines */
 static void
-parse_tail_follow (GLog * glog, FILE * fp) {
+parse_tail_follow (GLog *glog, FILE *fp) {
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -794,7 +794,7 @@ parse_tail_follow (GLog * glog, FILE * fp) {
 }
 
 static void
-verify_inode (FILE * fp, GLog * glog) {
+verify_inode (FILE *fp, GLog *glog) {
   struct stat fdstat;
 
   if (stat (glog->props.filename, &fdstat) == -1)
@@ -818,7 +818,7 @@ verify_inode (FILE * fp, GLog * glog) {
  * If nothing changed, 0 is returned.
  * If log file changed, 1 is returned. */
 static int
-perform_tail_follow (GLog * glog) {
+perform_tail_follow (GLog *glog) {
   FILE *fp = NULL;
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
@@ -881,7 +881,7 @@ out:
 
 /* Loop over and perform a follow for the given logs */
 static void
-tail_loop_html (Logs * logs) {
+tail_loop_html (Logs *logs) {
   struct timespec refresh = {
     .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
     .tv_nsec = 0,
@@ -905,7 +905,7 @@ tail_loop_html (Logs * logs) {
 
 /* Entry point to start processing the HTML output */
 static void
-process_html (Logs * logs, const char *filename) {
+process_html (Logs *logs, const char *filename) {
   /* render report */
   pthread_mutex_lock (&gdns_thread.mutex);
   output_html (holder, filename);
@@ -990,7 +990,7 @@ render_sort_dialog (void) {
 }
 
 static void
-term_tail_logs (Logs * logs) {
+term_tail_logs (Logs *logs) {
   struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };     /* 0.2 seconds */
   uint32_t offset = 0;
   int i, ret;
@@ -1010,7 +1010,7 @@ term_tail_logs (Logs * logs) {
 
 /* Interfacing with the keyboard */
 static void
-get_keys (Logs * logs) {
+get_keys (Logs *logs) {
   int search = 0;
   int c, quit = 1;
   uint32_t offset = 0;
@@ -1267,7 +1267,7 @@ init_processing (void) {
 
 /* Determine the type of output, i.e., JSON, CSV, HTML */
 static void
-standard_output (Logs * logs) {
+standard_output (Logs *logs) {
   char *csv = NULL, *json = NULL, *html = NULL;
 
   /* CSV */
@@ -1287,7 +1287,7 @@ standard_output (Logs * logs) {
 
 /* Output to a terminal */
 static void
-curses_output (Logs * logs) {
+curses_output (Logs *logs) {
   allocate_data ();
 
   clean_stdscrn ();
@@ -1391,7 +1391,7 @@ out2:
 /* Determine if we are getting data from the stdin, and where are we
  * outputting to. */
 static void
-set_io (FILE ** pipe) {
+set_io (FILE **pipe) {
   /* For backwards compatibility, check if we are not outputting to a
    * terminal or if an output format was supplied */
   if (!isatty (STDOUT_FILENO) || conf.output_format_idx > 0)
@@ -1559,7 +1559,7 @@ set_standard_output (void) {
 
 /* Set up curses. */
 static void
-set_curses (Logs * logs, int *quit) {
+set_curses (Logs *logs, int *quit) {
   const char *err_log = NULL;
 
   setup_thread_signals ();

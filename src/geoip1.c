@@ -93,7 +93,7 @@ geoip_open_db (const char *db) {
 }
 
 static int
-set_geoip_db_by_type (GeoIP * geoip, GO_GEOIP_DB type) {
+set_geoip_db_by_type (GeoIP *geoip, GO_GEOIP_DB type) {
   unsigned char rec = GeoIP_database_edition (geoip);
 
   switch (rec) {
@@ -122,7 +122,7 @@ set_geoip_db_by_type (GeoIP * geoip, GO_GEOIP_DB type) {
 }
 
 static int
-set_conf_by_type (GeoIP * geoip) {
+set_conf_by_type (GeoIP *geoip) {
   unsigned char rec = GeoIP_database_edition (geoip);
 
   switch (rec) {

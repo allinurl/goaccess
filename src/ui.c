@@ -148,7 +148,7 @@ set_input_opts (void) {
 
 /* Deletes the given window, freeing all memory associated with it. */
 void
-close_win (WINDOW * w) {
+close_win (WINDOW *w) {
   if (w == NULL)
     return;
   wclear (w);
@@ -185,7 +185,7 @@ end_spinner (void) {
 
 /* Set background colors to all windows. */
 void
-set_wbkgd (WINDOW * main_win, WINDOW * header_win) {
+set_wbkgd (WINDOW *main_win, WINDOW *header_win) {
   GColors *color = get_color (COLOR_BG);
 
   /* background colors */
@@ -199,7 +199,7 @@ set_wbkgd (WINDOW * main_win, WINDOW * header_win) {
  * each of them. e.g., background color, enable the reading of
  * function keys. */
 void
-init_windows (WINDOW ** header_win, WINDOW ** main_win) {
+init_windows (WINDOW **header_win, WINDOW **main_win) {
   int row = 0, col = 0;
 
   /* init standard screen */
@@ -224,8 +224,8 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win) {
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Draw a generic header with the ability to set a custom text to it. */
 void
-draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
-             GColors * (*func) (void)) {
+draw_header (WINDOW *win, const char *s, const char *fmt, int y, int x, int w,
+             GColors *(*func) (void)) {
   GColors *color = (*func) ();
   char *buf;
 
@@ -244,7 +244,7 @@ draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
 
 /* Determine the actual size of the main window. */
 void
-term_size (WINDOW * main_win, int *main_win_height) {
+term_size (WINDOW *main_win, int *main_win_height) {
   int term_h = 0, term_w = 0;
 
   getmaxyx (stdscr, term_h, term_w);
@@ -388,7 +388,7 @@ module_to_desc (GModule module) {
 
 /* Rerender the header window to reflect active module. */
 void
-update_active_module (WINDOW * header_win, GModule current) {
+update_active_module (WINDOW *header_win, GModule current) {
   GColors *color = get_color (COLOR_ACTIVE_LABEL);
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
@@ -409,7 +409,7 @@ update_active_module (WINDOW * header_win, GModule current) {
 
 /* Print out (terminal) an overall field label. e.g., 'Processed Time' */
 static void
-render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color) {
+render_overall_field (WINDOW *win, const char *s, int y, int x, GColors *color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -417,7 +417,7 @@ render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color
 
 /* Print out (terminal) an overall field value. e.g., '120 secs' */
 static void
-render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color) {
+render_overall_value (WINDOW *win, const char *s, int y, int x, GColors *color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -566,7 +566,7 @@ get_start_end_parsing_dates (char **start, char **end, const char *f) {
  *
  * On success, an string containing the overall header is returned. */
 char *
-get_overall_header (GHolder * h) {
+get_overall_header (GHolder *h) {
   const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
@@ -584,7 +584,7 @@ get_overall_header (GHolder * h) {
 
 /* Print out (terminal dashboard) the overall statistics header. */
 static void
-render_overall_header (WINDOW * win, GHolder * h) {
+render_overall_header (WINDOW *win, GHolder *h) {
   char *hd = get_overall_header (h);
   int col = getmaxx (stdscr);
 
@@ -595,7 +595,7 @@ render_overall_header (WINDOW * win, GHolder * h) {
 /* Render the overall statistics. This will attempt to determine the
  * right X and Y position given the current values. */
 static void
-render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
+render_overall_statistics (WINDOW *win, Field fields[], size_t n) {
   GColors *color = NULL;
   int x_field = 2, x_value;
   size_t i, j, k, max_field = 0, max_value, mod_val, y;
@@ -644,7 +644,7 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW * win, GHolder * h) {
+display_general (WINDOW *win, GHolder *h) {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
@@ -681,7 +681,7 @@ display_general (WINDOW * win, GHolder * h) {
 }
 
 static char *
-set_default_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str) {
+set_default_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *str) {
   char *s = xmalloc (max_width + 1), *tmp;
   size_t len = 0;
   size_t size_x = 0, size_y = 0;
@@ -716,7 +716,7 @@ set_default_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const 
  *
  * On success, the inputted string is returned. */
 char *
-input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str,
+input_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *str,
               int enable_case, int *toggle_case) {
   char *s = NULL, *tmp;
   size_t i, c, pos = 0, x = 0, quit = 1, size_x = 0, size_y = 0;
@@ -904,7 +904,7 @@ load_host_agents (const char *addr) {
  * On error, the 1 is returned.
  * On success, 0 is returned. */
 static int
-fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
+fill_host_agents_gmenu (GMenu *menu, GAgents *agents) {
   int i;
 
   if (agents == NULL)
@@ -922,7 +922,7 @@ fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr) {
+load_agent_list (WINDOW *main_win, char *addr) {
   GMenu *menu;
   GAgents *agents = NULL;
   WINDOW *win;
@@ -1051,7 +1051,7 @@ ui_spinner (void *ptr_data) {
 
 /* Create the processing spinner's thread */
 void
-ui_spinner_create (GSpinner * spinner) {
+ui_spinner_create (GSpinner *spinner) {
   if (conf.no_parsing_spinner)
     return;
 
@@ -1061,7 +1061,7 @@ ui_spinner_create (GSpinner * spinner) {
 
 /* Initialize processing spinner data. */
 void
-set_curses_spinner (GSpinner * spinner) {
+set_curses_spinner (GSpinner *spinner) {
   int y, x;
   if (spinner == NULL)
     return;
@@ -1114,7 +1114,7 @@ new_gspinner (void) {
 /* A wrapper call to clear the status bar on the config dialog
  * (terminal output). */
 static void
-clear_confdlg_status_bar (WINDOW * win, int y, int x, int w) {
+clear_confdlg_status_bar (WINDOW *win, int y, int x, int w) {
   draw_header (win, "", "%s", y, x, w + 1, color_default);
 }
 
@@ -1158,7 +1158,7 @@ get_input_log_format (void) {
 }
 
 static void
-draw_formats (WINDOW * win, int w2) {
+draw_formats (WINDOW *win, int w2) {
   char *date_format = NULL, *log_format = NULL, *time_format = NULL;
 
   draw_header (win, CONFDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
@@ -1224,7 +1224,7 @@ set_formats (char *date_format, char *log_format, char *time_format) {
 
 /* Render the help dialog. */
 static void
-load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
+load_confdlg_error (WINDOW *parent_win, char **errors, int nerrors) {
   int c, quit = 1, i = 0;
   int y, x, h = ERR_WIN_HEIGHT, w = ERR_WIN_WIDTH;
   WINDOW *win;
@@ -1286,7 +1286,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
  * On error, or if the selected format is invalid, 1 is returned.
  * On success, 0 is returned. */
 int
-render_confdlg (Logs * logs, GSpinner * spinner) {
+render_confdlg (Logs *logs, GSpinner *spinner) {
   GMenu *menu;
   WINDOW *win;
 
@@ -1560,7 +1560,7 @@ get_color_schemes (size_t *size) {
 
 /* Render the schemes dialog. */
 void
-load_schemes_win (WINDOW * main_win) {
+load_schemes_win (WINDOW *main_win) {
   GMenu *menu;
   WINDOW *win;
   int c, quit = 1;
@@ -1635,7 +1635,7 @@ load_schemes_win (WINDOW * main_win) {
 
 /* Render the sort dialog. */
 void
-load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
+load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
   GMenu *menu;
   WINDOW *win;
   GSortField opts[SORT_MAX_OPTS];
@@ -1873,7 +1873,7 @@ static const char *help_main[] = {
 
 /* Render the help dialog. */
 void
-load_help_popup (WINDOW * main_win) {
+load_help_popup (WINDOW *main_win) {
   int c, quit = 1;
   size_t i, n;
   int y, x, h = HELP_WIN_HEIGHT, w = HELP_WIN_WIDTH;

@@ -245,7 +245,7 @@ new_gagents (uint32_t size) {
 
 /* Clean the array of agents. */
 void
-free_agents_array (GAgents * agents) {
+free_agents_array (GAgents *agents) {
   int i;
 
   if (agents == NULL)

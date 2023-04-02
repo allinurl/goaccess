@@ -450,7 +450,7 @@ extract_color (char *color) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_bg_fg_color (GColorPair * pair, const char *value) {
+parse_bg_fg_color (GColorPair *pair, const char *value) {
   char bgcolor[COLOR_STR_LEN] = "", fgcolor[COLOR_STR_LEN] = "";
   int ret = 0;
 
@@ -468,7 +468,7 @@ parse_bg_fg_color (GColorPair * pair, const char *value) {
 
 /* Assign color attributes from the given config string to GColors. */
 static void
-locate_attr_color (GColors * color, const char *attr) {
+locate_attr_color (GColors *color, const char *attr) {
   if (strstr (attr, "bold"))
     color->attr |= A_BOLD;
   if (strstr (attr, "underline"))
@@ -488,7 +488,7 @@ locate_attr_color (GColors * color, const char *attr) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_attr_color (GColors * color, const char *value) {
+parse_attr_color (GColors *color, const char *value) {
   char *line, *ptr, *start;
   int ret = 0;
 
@@ -521,7 +521,7 @@ clean:
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_module_color (GColors * color, const char *value) {
+parse_module_color (GColors *color, const char *value) {
   char *line = xstrdup (value), *p;
 
   p = strrchr (line, ' ');
@@ -648,7 +648,7 @@ get_color_by_item_module (GColorItem item, GModule module) {
  * On error, it aborts.
  * On success, the color properties are assigned */
 static void
-parse_color_line (GColorPair * pair, GColors * color, char *line) {
+parse_color_line (GColorPair *pair, GColors *color, char *line) {
   char *val;
   int item = 0;
   size_t idx;
@@ -687,7 +687,7 @@ parse_color_line (GColorPair * pair, GColors * color, char *line) {
  * On error, or if color already exists, the given color is freed.
  * On success, or if not color found, store color properties */
 static void
-prepend_color (GColors ** color) {
+prepend_color (GColors **color) {
   /* create a list of colors if one does not exist */
   if (color_list == NULL) {
     color_list = list_create (*color);

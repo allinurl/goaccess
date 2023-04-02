@@ -56,7 +56,7 @@ list_create (void *data) {
  * On error, aborts if node can't be malloc'd.
  * On success, the newly created node. */
 GSLList *
-list_insert_append (GSLList * node, void *data) {
+list_insert_append (GSLList *node, void *data) {
   GSLList *newnode;
   newnode = list_create (data);
   newnode->next = node->next;
@@ -70,7 +70,7 @@ list_insert_append (GSLList * node, void *data) {
  * On error, aborts if node can't be malloc'd.
  * On success, the newly created node. */
 GSLList *
-list_insert_prepend (GSLList * list, void *data) {
+list_insert_prepend (GSLList *list, void *data) {
   GSLList *newnode;
   newnode = list_create (data);
   newnode->next = list;
@@ -83,7 +83,7 @@ list_insert_prepend (GSLList * list, void *data) {
  * If comparison fails, NULL is returned.
  * On success, the existing node is returned. */
 GSLList *
-list_find (GSLList * node, int (*func) (void *, void *), void *data) {
+list_find (GSLList *node, int (*func) (void *, void *), void *data) {
   while (node) {
     if (func (node->data, data) > 0)
       return node;
@@ -94,7 +94,7 @@ list_find (GSLList * node, int (*func) (void *, void *), void *data) {
 }
 
 GSLList *
-list_copy (GSLList * node) {
+list_copy (GSLList *node) {
   GSLList *list = NULL;
 
   while (node) {
@@ -112,7 +112,7 @@ list_copy (GSLList * node) {
  *
  * On success, 0 is returned. */
 int
-list_remove_nodes (GSLList * list) {
+list_remove_nodes (GSLList *list) {
   GSLList *tmp;
   while (list != NULL) {
     tmp = list->next;
@@ -130,7 +130,7 @@ list_remove_nodes (GSLList * list) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-list_remove_node (GSLList ** list, GSLList * node) {
+list_remove_node (GSLList **list, GSLList *node) {
   GSLList **current = list, *next = NULL;
   for (; *current; current = &(*current)->next) {
     if ((*current) != node)
@@ -151,7 +151,7 @@ list_remove_node (GSLList ** list, GSLList * node) {
  * If function pointer does not return 0, -1 is returned.
  * On success, 0 is returned. */
 int
-list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data) {
+list_foreach (GSLList *node, int (*func) (void *, void *), void *user_data) {
   while (node) {
     if (func (node->data, user_data) != 0)
       return -1;
@@ -165,7 +165,7 @@ list_foreach (GSLList * node, int (*func) (void *, void *), void *user_data) {
  *
  * On success, the number of elements is returned. */
 int
-list_count (GSLList * node) {
+list_count (GSLList *node) {
   int count = 0;
   while (node != 0) {
     count++;

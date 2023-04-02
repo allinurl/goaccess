@@ -42,7 +42,7 @@
  *
  * On success, the newly allocated GMenu is returned . */
 GMenu *
-new_gmenu (WINDOW * parent, int h, int w, int y, int x) {
+new_gmenu (WINDOW *parent, int h, int w, int y, int x) {
   GMenu *menu = xmalloc (sizeof (GMenu));
 
   memset (menu, 0, sizeof *menu);
@@ -64,8 +64,8 @@ new_gmenu (WINDOW * parent, int h, int w, int y, int x) {
 
 /* Render actual menu item */
 static void
-draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int checked,
-                GColors * (*func) (void)) {
+draw_menu_item (GMenu *menu, char *s, int x, int y, int w, int checked,
+                GColors *(*func) (void)) {
   char check, *lbl = NULL;
 
   if (menu->selectable) {
@@ -85,7 +85,7 @@ draw_menu_item (GMenu * menu, char *s, int x, int y, int w, int checked,
  * On success, the newly created menu is added to the window and 0 is
  * returned. */
 int
-post_gmenu (GMenu * menu) {
+post_gmenu (GMenu *menu) {
   GColors *(*func) (void);
   int i = 0, j = 0, start, end, height, total, checked = 0;
 
@@ -111,7 +111,7 @@ post_gmenu (GMenu * menu) {
 
 /* Main work horse of the menu system processing input events */
 void
-gmenu_driver (GMenu * menu, int c) {
+gmenu_driver (GMenu *menu, int c) {
   int i;
 
   switch (c) {

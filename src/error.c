@@ -148,7 +148,7 @@ setup_sigsegv_handler (void) {
 }
 
 static void
-dump_struct_data (FILE * fp, GLog * glog, int pid) {
+dump_struct_data (FILE *fp, GLog *glog, int pid) {
   fprintf (fp, "==%d== FILE: %s\n", pid, glog->props.filename);
   fprintf (fp, "==%d== Line number: %" PRIu64 "\n", pid, glog->processed);
   fprintf (fp, "==%d== Invalid data: %" PRIu64 "\n", pid, glog->invalid);
@@ -159,7 +159,7 @@ dump_struct_data (FILE * fp, GLog * glog, int pid) {
 /* Dump to the standard output the values of the overall parsed log
  * data. */
 static void
-dump_struct (FILE * fp) {
+dump_struct (FILE *fp) {
   int pid = getpid (), i;
 
   if (!log_data)
