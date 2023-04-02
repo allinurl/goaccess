@@ -710,6 +710,23 @@ invalid_ipaddr (char *str, int *ipvx) {
   return 1;
 }
 
+/* Encode a data key and a unique visitor's key to a new uint64_t key
+  *
+  * ###NOTE: THIS LIMITS THE MAX VALUE OF A DATA TABLE TO uint32_t
+  * WILL NEED TO CHANGE THIS IF WE GO OVER uint32_t
+  */
+uint64_t
+u64encode (uint32_t x, uint32_t y) {
+  return x > y ? (uint32_t) y | ((uint64_t) x << 32) : (uint32_t) x | ((uint64_t) y << 32);
+}
+
+/* Decode a uint64_t number into the original two uint32_t  */
+void
+u64decode (uint64_t n, uint32_t * x, uint32_t * y) {
+  *x = (uint64_t) n >> 32;
+  *y = (uint64_t) n & 0xFFFFFFFF;
+}
+
 /* Get information about the filename.
  *
  * On error, -1 is returned.

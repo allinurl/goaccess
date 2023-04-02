@@ -48,6 +48,48 @@ typedef enum GAMetric_ {
   MTRC_DB_PROPS,
 } GAMetric;
 
+/* Enumerated Storage Metrics */
+typedef enum GSMetricType_ {
+  /* uint32_t key - uint32_t val */
+  MTRC_TYPE_II32,
+  /* uint32_t key - string val */
+  MTRC_TYPE_IS32,
+  /* uint32_t key - uint64_t val */
+  MTRC_TYPE_IU64,
+  /* string key   - uint32_t val */
+  MTRC_TYPE_SI32,
+  /* string key   - uint8_t val */
+  MTRC_TYPE_SI08,
+  /* uint32_t key - uint8_t val */
+  MTRC_TYPE_II08,
+  /* string key   - string val */
+  MTRC_TYPE_SS32,
+  /* uint32_t key - GSLList val */
+  MTRC_TYPE_IGSL,
+  /* string key   - uint64_t val */
+  MTRC_TYPE_SU64,
+  /* uint32_t key - GKHashStorage_ val */
+  MTRC_TYPE_IGKH,
+  /* uint64_t key - uint32_t val */
+  MTRC_TYPE_U648,
+  /* uint64_t key - GLastParse val */
+  MTRC_TYPE_IGLP,
+} GSMetricType;
+
+typedef struct GKHashMetric_ {
+  union {
+    GSMetric storem;
+    GAMetric dbm;
+  } metric;
+  GSMetricType type;
+  void *(*alloc) (void);
+  void (*des) (void *, uint8_t free_data);
+  void (*del) (void *, uint8_t free_data);
+  uint8_t free_data:1;
+  void *hash;
+  const char *filename;
+} GKHashMetric;
+
 /* Each record contains a data value, i.e., Windows XP, and it may contain a
  * root value, i.e., Windows, and a unique key which is the combination of
  * date, IP and user agent */

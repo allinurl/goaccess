@@ -140,6 +140,8 @@ goaccess_SOURCES = \
    src/gholder.h       \
    src/gkhash.c        \
    src/gkhash.h        \
+   src/gkmhash.c       \
+   src/gkmhash.h       \
    src/gmenu.c         \
    src/gmenu.h         \
    src/goaccess.c      \

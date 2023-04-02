@@ -47,6 +47,8 @@
 #define DAY  86400000000ULL
 #define TZ_NAME_LEN 48
 
+#define RAND_FN 7 + 1
+
 /* Convenient macros */
 #define MIN(a,b) \
    ({ __typeof__ (a) _a = (a); \
@@ -103,9 +105,11 @@ off_t file_size (const char *filename);
 size_t append_str (char **dest, const char *src);
 uint32_t djb2(const unsigned char *str);
 uint32_t ip_to_binary (const char *ip);
+uint64_t u64encode (uint32_t x, uint32_t y);
 void genstr(char *dest, size_t len);
 void set_tz (void);
 void strip_newlines (char *str);
+void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
 /* *INDENT-ON* */
