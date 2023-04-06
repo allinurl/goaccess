@@ -1440,7 +1440,8 @@ find_xff_host (GLogItem *logitem, char **str, char **p) {
   /* if the log format current char is not within the braces special chars, then
    * we assume the range of IPs are within hard delimiters */
   if (!strchr (skips, **p) && strchr (*str, **p)) {
-    strcpy (pch, (char[2]) { (char) **p, '\0' });
+    *pch = **p;
+    *(pch + 1) = '\0';
     if (!(extract = parse_string (&(*str), pch, 1)))
       goto clean;
 
