@@ -480,4 +480,6 @@ discuss and submit code changes.
 
 You can contribute to our translations by editing the .po files direct on Github or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
 
+[![translation badge](https://inlang.com/badge?url=github.com/allinurl/goaccess)](https://inlang.com/editor/github.com/allinurl/goaccess?ref=badge)
+
 Enjoy!
