@@ -269,7 +269,6 @@ uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_
 
 int invalidate_date (int date);
 int rebuild_rawdata_cache (void);
-uint32_t *get_sorted_dates (uint32_t * len);
 void des_igkh (void *h);
 void free_cache (GKHashModule * cache);
 void init_storage (void);

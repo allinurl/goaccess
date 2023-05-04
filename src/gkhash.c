@@ -679,6 +679,29 @@ new_db (khash_t (igdb) *hash, uint32_t key) {
   return db;
 }
 
+uint32_t *
+get_sorted_dates (uint32_t *len) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
+  khiter_t key;
+  uint32_t *dates = NULL;
+  int i = 0;
+  uint32_t size = 0;
+
+  if (!hash)
+    return NULL;
+
+  size = kh_size (hash);
+  dates = xcalloc (size, sizeof (uint32_t));
+  for (key = kh_begin (hash); key != kh_end (hash); ++key)
+    if (kh_exist (hash, key))
+      dates[i++] = kh_key (hash, key);
+  qsort (dates, i, sizeof (uint32_t), cmp_ui32_asc);
+  *len = i;
+
+  return dates;
+}
+
 /* Insert a string key and the corresponding uint8_t value.
  * Note: If the key exists, the value is not replaced.
  *

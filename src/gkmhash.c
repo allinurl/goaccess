@@ -1151,29 +1151,6 @@ ht_get_maxts_min_max (GModule module, uint64_t *min, uint64_t *max) {
   get_iu64_min_max (cache, min, max);
 }
 
-uint32_t *
-get_sorted_dates (uint32_t *len) {
-  GKDB *db = get_db_instance (DB_INSTANCE);
-  khash_t (igkh) * hash = get_hdb (db, MTRC_DATES);
-  khiter_t key;
-  uint32_t *dates = NULL;
-  int i = 0;
-  uint32_t size = 0;
-
-  if (!hash)
-    return NULL;
-
-  size = kh_size (hash);
-  dates = xcalloc (size, sizeof (uint32_t));
-  for (key = kh_begin (hash); key != kh_end (hash); ++key)
-    if (kh_exist (hash, key))
-      dates[i++] = kh_key (hash, key);
-  qsort (dates, i, sizeof (uint32_t), cmp_ui32_asc);
-  *len = i;
-
-  return dates;
-}
-
 static void
 destroy_date_stores (int date) {
   GKDB *db = get_db_instance (DB_INSTANCE);

@@ -181,6 +181,7 @@ uint32_t ht_get_invalid (void);
 uint32_t ht_get_processed (void);
 uint32_t ht_get_processing_time (void);
 uint8_t get_method_proto (const char *value);
+uint32_t *get_sorted_dates (uint32_t * len);
 
 void free_storage (void);
 void init_pre_storage (Logs *logs);
