@@ -79,44 +79,6 @@ set_db_path (const char *fn) {
   return path;
 }
 
-static char *
-build_filename (const char *type, const char *modstr, const char *mtrstr) {
-  char *fn = xmalloc (snprintf (NULL, 0, "%s_%s_%s.db", type, modstr, mtrstr) + 1);
-  sprintf (fn, "%s_%s_%s.db", type, modstr, mtrstr);
-  return fn;
-}
-
-/* Get the database filename given a module and a metric.
- *
- * On error, a fatal error is triggered.
- * On success, the filename is returned */
-static char *
-get_filename (GModule module, GKHashMetric mtrc) {
-  char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
-
-  if (!(mtrstr = get_mtr_str (mtrc.metric.storem)))
-    FATAL ("Unable to allocate metric name.");
-  if (!(modstr = get_module_str (module)))
-    FATAL ("Unable to allocate module name.");
-  if (!(type = get_mtr_type_str (mtrc.type)))
-    FATAL ("Unable to allocate module name.");
-
-  fn = build_filename (type, modstr, mtrstr);
-
-  free (mtrstr);
-  free (type);
-  free (modstr);
-
-  return fn;
-}
-
-/* Dump to disk the database file and frees its memory */
-static void
-close_tpl (tpl_node *tn, const char *fn) {
-  tpl_dump (tn, TPL_FILE, fn);
-  tpl_free (tn);
-}
-
 /* Given a database filename, restore a string key, uint32_t value back to the
  * storage */
 static void
@@ -239,6 +201,59 @@ persist_global_iglp (khash_t (iglp) *hash, const char *fn) {
     tpl_pack (tn, 1);
   }
 
+  tpl_dump (tn, TPL_FILE, fn);
+  tpl_free (tn);
+}
+
+/* Given a filename, ensure we have a valid return path
+ *
+ * On error, NULL is returned.
+ * On success, the valid path is returned */
+static char *
+check_restore_path (const char *fn) {
+  char *path = set_db_path (fn);
+  if (access (path, F_OK) != -1)
+    return path;
+
+  LOG_DEBUG (("DB file %s doesn't exist. %s\n", path, strerror (errno)));
+  free (path);
+  return NULL;
+}
+
+static char *
+build_filename (const char *type, const char *modstr, const char *mtrstr) {
+  char *fn = xmalloc (snprintf (NULL, 0, "%s_%s_%s.db", type, modstr, mtrstr) + 1);
+  sprintf (fn, "%s_%s_%s.db", type, modstr, mtrstr);
+  return fn;
+}
+
+/* Get the database filename given a module and a metric.
+ *
+ * On error, a fatal error is triggered.
+ * On success, the filename is returned */
+static char *
+get_filename (GModule module, GKHashMetric mtrc) {
+  char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
+
+  if (!(mtrstr = get_mtr_str (mtrc.metric.storem)))
+    FATAL ("Unable to allocate metric name.");
+  if (!(modstr = get_module_str (module)))
+    FATAL ("Unable to allocate module name.");
+  if (!(type = get_mtr_type_str (mtrc.type)))
+    FATAL ("Unable to allocate module name.");
+
+  fn = build_filename (type, modstr, mtrstr);
+
+  free (mtrstr);
+  free (type);
+  free (modstr);
+
+  return fn;
+}
+
+/* Dump to disk the database file and frees its memory */
+static void
+close_tpl (tpl_node *tn, const char *fn) {
   tpl_dump (tn, TPL_FILE, fn);
   tpl_free (tn);
 }
@@ -874,21 +889,6 @@ persist_igsl (GSMetric metric, const char *path, int module) {
   return 0;
 }
 
-/* Given a filename, ensure we have a valid return path
- *
- * On error, NULL is returned.
- * On success, the valid path is returned */
-static char *
-check_restore_path (const char *fn) {
-  char *path = set_db_path (fn);
-  if (access (path, F_OK) != -1)
-    return path;
-
-  LOG_DEBUG (("DB file %s doesn't exist. %s\n", path, strerror (errno)));
-  free (path);
-  return NULL;
-}
-
 /* Entry function to restore hash data by type */
 static void
 restore_by_type (GKHashMetric mtrc, const char *fn, int module) {
@@ -1009,6 +1009,50 @@ migrate_metric (GModule module, GKHashMetric mtrc) {
   return ret;
 }
 
+static void
+persist_by_type (GKHashMetric mtrc, const char *fn, int module) {
+  char *path = NULL;
+  path = set_db_path (fn);
+
+  switch (mtrc.type) {
+  case MTRC_TYPE_SI32:
+    persist_si32 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_IS32:
+    persist_is32 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_II32:
+    persist_ii32 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_II08:
+    persist_ii08 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_U648:
+    persist_u648 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_IU64:
+    persist_iu64 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_SU64:
+    persist_su64 (mtrc.metric.storem, path, module);
+    break;
+  case MTRC_TYPE_IGSL:
+    persist_igsl (mtrc.metric.storem, path, module);
+    break;
+  default:
+    break;
+  }
+  free (path);
+}
+
+static void
+persist_metric_type (GModule module, GKHashMetric mtrc) {
+  char *fn = NULL;
+  fn = get_filename (module, mtrc);
+  persist_by_type (mtrc, fn, module);
+  free (fn);
+}
+
 /* Given all the dates that we have processed, persist to disk a copy of them. */
 static void
 persist_dates (void) {
@@ -1098,78 +1142,6 @@ restore_global (void) {
   }
 }
 
-/* Entry function to restore hashes */
-void
-restore_data (void) {
-  GModule module;
-  int i, n = 0, migrated = 0;
-  size_t idx = 0;
-
-  restore_global ();
-
-  n = global_metrics_len;
-  for (i = 0; i < n; ++i) {
-    migrated += migrate_metric (-1, global_metrics[i]);
-    restore_by_type (global_metrics[i], global_metrics[i].filename, -1);
-  }
-
-  n = module_metrics_len;
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
-    for (i = 0; i < n; ++i) {
-      migrated += migrate_metric (module, module_metrics[i]);
-      restore_metric_type (module, module_metrics[i]);
-    }
-  }
-
-  if (migrated && !conf.persist)
-    conf.persist = 1;
-}
-
-static void
-persist_by_type (GKHashMetric mtrc, const char *fn, int module) {
-  char *path = NULL;
-  path = set_db_path (fn);
-
-  switch (mtrc.type) {
-  case MTRC_TYPE_SI32:
-    persist_si32 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_IS32:
-    persist_is32 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_II32:
-    persist_ii32 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_II08:
-    persist_ii08 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_U648:
-    persist_u648 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_IU64:
-    persist_iu64 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_SU64:
-    persist_su64 (mtrc.metric.storem, path, module);
-    break;
-  case MTRC_TYPE_IGSL:
-    persist_igsl (mtrc.metric.storem, path, module);
-    break;
-  default:
-    break;
-  }
-  free (path);
-}
-
-static void
-persist_metric_type (GModule module, GKHashMetric mtrc) {
-  char *fn = NULL;
-  fn = get_filename (module, mtrc);
-  persist_by_type (mtrc, fn, module);
-  free (fn);
-}
-
 static void
 persist_global (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
@@ -1210,7 +1182,6 @@ persist_data (void) {
   GModule module;
   int i, n = 0;
   size_t idx = 0;
-
   persist_global ();
 
   n = global_metrics_len;
@@ -1224,6 +1195,35 @@ persist_data (void) {
       persist_metric_type (module, module_metrics[i]);
     }
   }
+}
+
+/* Entry function to restore hashes */
+void
+restore_data (void) {
+  int migrated = 0;
+  GModule module;
+  int i, n = 0;
+  size_t idx = 0;
+
+  restore_global ();
+
+  n = global_metrics_len;
+  for (i = 0; i < n; ++i) {
+    migrated += migrate_metric (-1, global_metrics[i]);
+    restore_by_type (global_metrics[i], global_metrics[i].filename, -1);
+  }
+
+  n = module_metrics_len;
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    for (i = 0; i < n; ++i) {
+      migrated += migrate_metric (module, module_metrics[i]);
+      restore_metric_type (module, module_metrics[i]);
+    }
+  }
+
+  if (migrated && !conf.persist)
+    conf.persist = 1;
 }
 
 void
