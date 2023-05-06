@@ -169,7 +169,6 @@ void get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max);
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec);
 int ht_insert_last_parse (uint64_t key, GLastParse lp);
-int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
 uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
 uint32_t ht_ins_seq (khash_t (si32) * hash, const char *key);
 uint8_t ht_insert_meth_proto (const char *key);

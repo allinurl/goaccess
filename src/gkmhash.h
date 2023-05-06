@@ -266,6 +266,7 @@ uint32_t ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t
 uint32_t ht_insert_unique_key (uint32_t date, const char *key);
 uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_t inc,
                             uint32_t ckey);
+int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
 
 int invalidate_date (int date);
 int rebuild_rawdata_cache (void);
