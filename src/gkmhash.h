@@ -210,6 +210,7 @@ struct GKHashStorage_ {
  */
 /*khash_t(igsl) MTRC_METADATA */
 
+/* *INDENT-OFF* */
 extern GKHashMetric module_metrics[];
 extern const GKHashMetric global_metrics[];
 extern size_t global_metrics_len;
@@ -244,28 +245,20 @@ int ht_insert_agent (GModule module, uint32_t date, uint32_t key, uint32_t value
 int ht_insert_agent_value (uint32_t date, uint32_t key, char *value);
 int ht_insert_bw (GModule module, uint32_t date, uint32_t key, uint64_t inc, uint32_t ckey);
 int ht_insert_cumts (GModule module, uint32_t date, uint32_t key, uint64_t inc, uint32_t ckey);
-int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value,
-                       uint32_t ckey);
+int ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_date (uint32_t key);
-int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value,
-                     uint32_t ckey);
-int ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value,
-                      uint32_t ckey);
-int ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value,
-                        uint32_t ckey);
-int ht_insert_root (GModule module, uint32_t date, uint32_t key, uint32_t value, uint32_t dkey,
-                    uint32_t rkey);
-int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value,
-                       uint32_t ckey);
+int ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, uint32_t ckey);
+int ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
+int ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
+int ht_insert_root (GModule module, uint32_t date, uint32_t key, uint32_t value, uint32_t dkey, uint32_t rkey);
+int ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey);
 int ht_insert_uniqmap (GModule module, uint32_t date, uint32_t key, uint32_t value);
 uint32_t ht_inc_cnt_valid (uint32_t date, uint32_t inc);
 uint32_t ht_insert_agent_key (uint32_t date, uint32_t key);
-uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key, uint32_t inc,
-                         uint32_t ckey);
+uint32_t ht_insert_hits (GModule module, uint32_t date, uint32_t key, uint32_t inc, uint32_t ckey);
 uint32_t ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t * ckey);
 uint32_t ht_insert_unique_key (uint32_t date, const char *key);
-uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_t inc,
-                            uint32_t ckey);
+uint32_t ht_insert_visitor (GModule module, uint32_t date, uint32_t key, uint32_t inc, uint32_t ckey);
 int ht_insert_meta_data (GModule module, uint32_t date, const char *key, uint64_t value);
 
 int invalidate_date (int date);
@@ -277,5 +270,6 @@ void init_storage (void);
 GRawData *parse_raw_data (GModule module);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
+/* *INDENT-ON* */
 
 #endif // for #ifndef GKMHASH_H
