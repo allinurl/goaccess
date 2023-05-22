@@ -538,7 +538,7 @@ print_conn_def (FILE *fp) {
               1);
   fpclose_obj (fp, sp, 1);
 
-  fprintf (fp, external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? ";\n" : "</script>");
 }
 
 /* Output JSON per panel metric definitions. */
