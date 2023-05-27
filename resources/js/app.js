@@ -1249,7 +1249,8 @@ GoAccess.Charts = {
 
 		d3.select("#chart-" + panel)
 			.datum(this.processChartData(this.getPanelData(panel, data)))
-			.call(chart.width($("#chart-" + panel).offsetWidth));
+			.call(chart.width($("#chart-" + panel).offsetWidth))
+			.append("div").attr("class", "chart-tooltip-wrap");
 	},
 
 	// Reload (doesn't redraw) all chart's data

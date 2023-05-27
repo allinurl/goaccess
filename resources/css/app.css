@@ -592,6 +592,7 @@ line.indicator {
 	shape-rendering: crispEdges;
 	stroke: #999;
 	stroke-width: 1;
+	display: none;
 }
 .area0,
 .bars.y0 .bar,
