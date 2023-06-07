@@ -49,7 +49,7 @@ static char ***browsers_hash = NULL;
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
-  /* Game systems: most of them are based of major browsers,
+  /* Game systems: most of them are based off major browsers,
    * thus they need to go before. */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
@@ -243,6 +243,16 @@ static const char *browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
+  
+  /* HTTP Library or HTTP Server User Agents - Suggest New Category */
+  {"axios", "Crawlers"}, /* NodeJS axios axios-http.com */
+  {"lua-resty-http", "Crawlers"}, /* Nginx lua-resty-http module */
+  {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server*/
+
+
+  /* Citation Services */
+  {"Citoid", "Crawlers" }, /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
+  {"EasyBib", "Crawlers" }, /* Easybib Citation https://easybib.com */
 
 
   /* Podcast fetchers */
@@ -270,6 +280,7 @@ static const char *browsers[][2] = {
   {"Thunderbird", "Feeds"},
   {"Winds", "Feeds"},
 
+  /* Uptime and Monitoring clients */
   {"Pingdom.com", "Uptime"},
   {"jetmon", "Uptime"},
   {"NodeUptime", "Uptime"},
@@ -277,6 +288,18 @@ static const char *browsers[][2] = {
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
   {"Server Density Service Monitoring v2", "Uptime"},
+  {"Better Uptime Bot","Uptime"},
+  {"Site24x7","Uptime"},
+  {"Uptime-Kuma","Uptime"},
+
+  /* Performance and Caching - Suggest a new category */
+  {"ShortPixel", "Crawlers"}, /* Image Optimization*/
+  {"WP Rocket", "Crawlers"}, /* Preloading Cache for WordPress Plugin */
+
+  /* Security - Suggest a new category */
+  {"Barracuda Sentinel", "Crawlers"}, /* Barricuda spear fishing service */
+  {"ACI Site Scanner","Crawlers"}, /* Can't confirm specific vendor */
+
 
   {"Mozilla", "Others"}
 };
