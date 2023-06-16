@@ -2760,32 +2760,40 @@ ws_socket (int *listener) {
     if (bind (*listener, (struct sockaddr *) &servaddr, sizeof (servaddr)) != 0)
       FATAL ("Unable to set bind: %s.", strerror (errno));
   } else {
-    int ov = 1;
-    struct addrinfo hints, *ai;
+    int ov = 1, bind_result = 0;
+    struct addrinfo hints, *ai, *p;
 
-    /* get a socket and bind it */
-    memset (&hints, 0, sizeof hints);
+    memset (&hints, 0, sizeof (hints));
     hints.ai_family = AF_UNSPEC;
     hints.ai_socktype = SOCK_STREAM;
-    /*hints.ai_flags = AI_PASSIVE; */
+
     if (getaddrinfo (wsconfig.host, wsconfig.port, &hints, &ai) != 0)
       FATAL ("Unable to set server: %s.", gai_strerror (errno));
 
-    /* Create a TCP socket.  */
-    if ((*listener = socket (ai->ai_family, ai->ai_socktype, ai->ai_protocol)) == -1)
-      FATAL ("Unable to open socket: %s.", strerror (errno));
+    for (p = ai; p != NULL; p = p->ai_next) {
+      *listener = socket (p->ai_family, p->ai_socktype, p->ai_protocol);
+      if (*listener == -1)
+        continue;
 
-    /* Options */
-    if (setsockopt (*listener, SOL_SOCKET, SO_REUSEADDR, &ov, sizeof (ov)) == -1)
-      FATAL ("Unable to set setsockopt: %s.", strerror (errno));
+      if (setsockopt (*listener, SOL_SOCKET, SO_REUSEADDR, &ov, sizeof (ov)) == -1) {
+        close (*listener);
+        continue;
+      }
 
-    /* Bind the socket to the address. */
-    if (bind (*listener, ai->ai_addr, ai->ai_addrlen) != 0)
-      FATAL ("Unable to set bind: %s.", strerror (errno));
+      if (bind (*listener, p->ai_addr, p->ai_addrlen) == 0) {
+        bind_result = 1;
+        break;
+      }
+
+      close (*listener);
+    }
+
     freeaddrinfo (ai);
+
+    if (bind_result == 0)
+      FATAL ("Unable to set bind: %s.", strerror (errno));
   }
 
-  /* Tell the socket to accept connections. */
   if (listen (*listener, SOMAXCONN) == -1)
     FATAL ("Unable to listen: %s.", strerror (errno));
 }
