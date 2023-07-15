@@ -1,10 +1,12 @@
+# Copyright © 2020 Kamino <67395018+err931@users.noreply.github.com>
+# Copyright © 2023 gemmaro <gemmaro.dev@gmail.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2023-03-31 18:51-0500\n"
-"PO-Revision-Date: 2020-08-19 06:27+0900\n"
-"Last-Translator: Kamino <67395018+err931@users.noreply.github.com>\n"
+"PO-Revision-Date: 2023-07-15 17:20+0900\n"
+"Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
 "MIME-Version: 1.0\n"
@@ -83,7 +85,7 @@ msgstr "無効リクエスト数"
 
 #: src/labels.h:69
 msgid "Log Parsing Time"
-msgstr ""
+msgstr "ログの解析時間"
 
 #: src/labels.h:70
 msgid "Log Size"
@@ -95,7 +97,7 @@ msgstr "ログ取得元"
 
 #: src/labels.h:72 src/labels.h:187
 msgid "Referrers"
-msgstr "リファラー数"
+msgstr "リファラ数"
 
 #: src/labels.h:73
 msgid "Total Requests"
@@ -175,7 +177,7 @@ msgstr "地域"
 
 #: src/labels.h:95 src/labels.h:211 src/labels.h:215
 msgid "ASN"
-msgstr ""
+msgstr "ASN"
 
 #: src/labels.h:96
 msgid "Country"
@@ -213,7 +215,7 @@ msgstr "リクエストされたファイル（URL）"
 
 #: src/labels.h:115
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "リクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
 
 #: src/labels.h:117
 msgid "Requests"
@@ -225,8 +227,7 @@ msgstr "静的ファイルリクエスト数"
 
 #: src/labels.h:122
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"静的ファイルリクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位の静的ファイルリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
 
 #: src/labels.h:127
 msgid "Time Distribution"
@@ -234,8 +235,7 @@ msgstr "時間分布"
 
 #: src/labels.h:129
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr ""
-"リクエストされた時刻順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のデータ [時刻、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:131
 msgid "Time"
@@ -247,7 +247,7 @@ msgstr "バーチャルホスト"
 
 #: src/labels.h:136 src/labels.h:143 src/labels.h:150
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr "リクエスト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のデータ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:141
 msgid "Remote User (HTTP authentication)"
@@ -259,7 +259,7 @@ msgstr "認証されたユーザー"
 
 #: src/labels.h:148
 msgid "The cache status of the object served"
-msgstr ""
+msgstr "サーブされるオブジェクトのキャッシュ状態"
 
 #: src/labels.h:152
 msgid "Cache Status"
@@ -271,7 +271,7 @@ msgstr "404エラーが返されたURL"
 
 #: src/labels.h:157
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "エラーとなったURL順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のnot foundなURL [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
 
 #: src/labels.h:162
 msgid "Visitor Hostnames and IPs"
@@ -279,7 +279,7 @@ msgstr "ユーザーのホスト名とIPアドレス"
 
 #: src/labels.h:164
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "ホスト名順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のユーザーホスト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:166
 msgid "Hosts"
@@ -291,7 +291,7 @@ msgstr "オペレーティングシステム"
 
 #: src/labels.h:171
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr "OS順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のOS [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:173
 msgid "OS"
@@ -303,17 +303,15 @@ msgstr "ブラウザ"
 
 #: src/labels.h:178
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "ブラウザ順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のブラウザ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:183
-#, fuzzy
 msgid "Referrer URLs"
-msgstr "参照元（URL）"
+msgstr "リファラのURL"
 
 #: src/labels.h:185
-#, fuzzy
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr "送信元アドレス順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位の要求元のリファラ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:190 src/labels.h:194
 msgid "Referring Sites"
@@ -321,7 +319,7 @@ msgstr "参照元サイト"
 
 #: src/labels.h:192
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "参照元サイト順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位の参照元サイト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:197
 msgid "Keyphrases from Google's search engine"
@@ -329,7 +327,7 @@ msgstr "キーフレーズ（Google検索から）"
 
 #: src/labels.h:199
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "キーフレーズ順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のキーフレーズ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:201
 msgid "Keyphrases"
@@ -341,11 +339,11 @@ msgstr "位置情報"
 
 #: src/labels.h:206
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr "地理区分 > 国別にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "地理区分 > 国別 [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:213
 msgid "Autonomous System Numbers/Organizations (ASNs)"
-msgstr ""
+msgstr "Autonomous System Numbers/Organizations (ASNs)"
 
 #: src/labels.h:218
 msgid "HTTP Status Codes"
@@ -353,8 +351,7 @@ msgstr "HTTPステータスコード"
 
 #: src/labels.h:220
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"HTTPステータスコード順にソート [平均処理時間、合計処理時間、最大処理時間]"
+msgstr "上位のHTTPステータスコード [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:222
 msgid "Status Codes"
@@ -362,23 +359,23 @@ msgstr "ステータスコード"
 
 #: src/labels.h:225 src/labels.h:229
 msgid "MIME Types"
-msgstr ""
+msgstr "MIMEタイプ"
 
 #: src/labels.h:227
 msgid "File types shipped out"
-msgstr ""
+msgstr "送出されたファイル種別"
 
 #: src/labels.h:232
 msgid "Encryption settings"
-msgstr ""
+msgstr "暗号化設定"
 
 #: src/labels.h:234
 msgid "TLS version and picked algorithm"
-msgstr ""
+msgstr "TLSのバージョンと選択されたアルゴリズム"
 
 #: src/labels.h:236
 msgid "TLS Settings"
-msgstr ""
+msgstr "TLSの設定"
 
 #: src/labels.h:240
 msgid "[ ] case sensitive"
@@ -451,7 +448,7 @@ msgstr "[↑/↓] スクロール - [q] 終了"
 
 #: src/labels.h:288
 msgid "In-Memory with On-Disk Persistent Storage."
-msgstr ""
+msgstr "ディスク上の永続化ストレージ付きのインメモリ。"
 
 #: src/labels.h:292
 msgid "Format Errors - Verify your log/date/time format"
@@ -510,15 +507,15 @@ msgstr "'%1$s' パネルは無効化されています"
 
 #: src/labels.h:318
 msgid "No input data was provided nor there's data to restore."
-msgstr ""
+msgstr "入力データが与えられておらず、復元データもありません。"
 
 #: src/labels.h:320
 msgid "Unable to allocate memory for a log instance."
-msgstr ""
+msgstr "ログインスタンスのためのメモリを割り当てられません。"
 
 #: src/labels.h:322
 msgid "Unable to find the given log."
-msgstr ""
+msgstr "与えられたログを見付けられません。"
 
 #: src/labels.h:326
 msgid "For more details visit"
@@ -590,7 +587,7 @@ msgstr "画面が小さい場合に自動でテーブルを非表示にする"
 
 #: src/labels.h:362
 msgid "Toggle Panel"
-msgstr ""
+msgstr "パネルを切り替える"
 
 #: src/labels.h:364
 msgid "Layout"
@@ -846,7 +843,6 @@ msgid "417 - Expectation Failed"
 msgstr "417 - 拡張ステータスコードが使えません"
 
 #: src/labels.h:487
-#, fuzzy
 msgid "418 - I'm a teapot"
 msgstr "418 - 私はティーポットです"
 
@@ -956,7 +952,3 @@ msgstr "523 - CloudFlare - Originに到達できません"
 #: src/labels.h:539
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
-
-#, fuzzy
-#~ msgid "Referers"
-#~ msgstr "リファラー数"
