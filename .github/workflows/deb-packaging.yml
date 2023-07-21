@@ -23,6 +23,8 @@ jobs:
             distro: ubuntu22.10            
           - arch: arm32v7
             distro: bullseye
+          - arch: arm32v7
+            distro: bookworm            
           - arch: aarch64
             distro: ubuntu16.04
           - arch: aarch64
@@ -37,14 +39,20 @@ jobs:
             distro: buster
           - arch: aarch64
             distro: bullseye
+          - arch: aarch64
+            distro: bookworm            
           - arch: amd64
             distro: buster
           - arch: i386
             distro: buster
           - arch: amd64
             distro: bullseye
+          - arch: amd64
+            distro: bookworm
           - arch: i386
             distro: bullseye
+          - arch: i386
+            distro: bookworm
           - arch: amd64
             distro: ubuntu16.04
           - arch: i386
