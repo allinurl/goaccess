@@ -99,7 +99,7 @@ jobs:
           # no secrets are present in the container state or logs.
           install: |
             case "${{ matrix.distro }}" in
-              ubuntu*|jessie|stretch|buster|bullseye)
+              ubuntu*|jessie|stretch|buster|bullseye|bookworm)
                 apt-get update && apt-get install -y ca-certificates wget curl lsb-release && apt-get clean all
                 ;;
             esac
