@@ -78,8 +78,8 @@ static const char *os[][2] = {
   {"iPhone", "iOS"},
   {"CFNetwork", "iOS"},
   {"AppleTV", "iOS"},
-  {"iTunes", "Macintosh"},
-  {"OS X", "Macintosh"},
+  {"iTunes", "macOS"},
+  {"OS X", "macOS"},
   {"Darwin", "Darwin"},
 
   {"Debian", "Linux"},
