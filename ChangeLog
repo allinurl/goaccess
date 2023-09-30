@@ -1,3 +1,14 @@
+Changes to GoAccess 1.8 - Saturday, September 30, 2023
+
+  - Addd dual-stack support to the websocket server.
+  - Added Debian Bookworm to the official deb repo.
+  - Fixed compiler error on macOS 10.12.
+  - Updated bootstrap to v3.4.
+  - Updated FontAwesome with additional icons for upcoming major release.
+  - Updated Japanese translation.
+  - Updated OS display from Macintosh to macOS.
+  - Updated to D3.js v7 (latest) including charts.js code.
+
 Changes to GoAccess 1.7.2 - Friday, March 31, 2023
 
   - Added a color-coding scheme to HTTP status codes.
