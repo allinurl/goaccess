@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2023-03-31 18:51-0500\n"
+"POT-Creation-Date: 2023-09-30 15:17-0500\n"
 "PO-Revision-Date: 2023-07-15 17:20+0900\n"
 "Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -215,7 +215,9 @@ msgstr "リクエストされたファイル（URL）"
 
 #: src/labels.h:115
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "上位のリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
+msgstr ""
+"上位のリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッ"
+"ド、プロトコル]"
 
 #: src/labels.h:117
 msgid "Requests"
@@ -227,7 +229,9 @@ msgstr "静的ファイルリクエスト数"
 
 #: src/labels.h:122
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "上位の静的ファイルリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
+msgstr ""
+"上位の静的ファイルリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理"
+"時間、メソッド、プロトコル]"
 
 #: src/labels.h:127
 msgid "Time Distribution"
@@ -271,7 +275,9 @@ msgstr "404エラーが返されたURL"
 
 #: src/labels.h:157
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr "上位のnot foundなURL [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッド、プロトコル]"
+msgstr ""
+"上位のnot foundなURL [ヒット数、平均処理時間、合計処理時間、最大処理時間、メ"
+"ソッド、プロトコル]"
 
 #: src/labels.h:162
 msgid "Visitor Hostnames and IPs"
@@ -279,7 +285,8 @@ msgstr "ユーザーのホスト名とIPアドレス"
 
 #: src/labels.h:164
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "上位のユーザーホスト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
+msgstr ""
+"上位のユーザーホスト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:166
 msgid "Hosts"
@@ -311,7 +318,8 @@ msgstr "リファラのURL"
 
 #: src/labels.h:185
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr "上位の要求元のリファラ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
+msgstr ""
+"上位の要求元のリファラ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:190 src/labels.h:194
 msgid "Referring Sites"
@@ -319,7 +327,8 @@ msgstr "参照元サイト"
 
 #: src/labels.h:192
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "上位の参照元サイト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
+msgstr ""
+"上位の参照元サイト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:197
 msgid "Keyphrases from Google's search engine"
@@ -327,7 +336,8 @@ msgstr "キーフレーズ（Google検索から）"
 
 #: src/labels.h:199
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "上位のキーフレーズ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
+msgstr ""
+"上位のキーフレーズ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
 #: src/labels.h:201
 msgid "Keyphrases"
@@ -351,7 +361,9 @@ msgstr "HTTPステータスコード"
 
 #: src/labels.h:220
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr "上位のHTTPステータスコード [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
+msgstr ""
+"上位のHTTPステータスコード [ヒット数、平均処理時間、合計処理時間、最大処理時"
+"間]"
 
 #: src/labels.h:222
 msgid "Status Codes"
