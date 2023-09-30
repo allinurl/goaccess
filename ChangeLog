@@ -1,6 +1,6 @@
 Changes to GoAccess 1.8 - Saturday, September 30, 2023
 
-  - Addd dual-stack support to the websocket server.
+  - Added dual-stack support to the WebSocket server.
   - Added Debian Bookworm to the official deb repo.
   - Fixed compiler error on macOS 10.12.
   - Updated bootstrap to v3.4.
