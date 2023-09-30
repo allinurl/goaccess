@@ -1294,6 +1294,12 @@ default value of 366 items per panel.
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
 .P
+
+If you want to enable dual-stack support, please use
+.I --addr=:: 
+instead of the default 
+.I --addr=0.0.0.0.
+.P
 The generated report will attempt to reconnect to the WebSocket server after 1
 second with exponential backoff. It will attempt to connect 20 times.
 .SH BUGS
