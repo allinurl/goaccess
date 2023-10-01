@@ -68,12 +68,14 @@ jobs:
         with:
           username: ${{ github.actor }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          
+
       - name: Build and push
         uses: docker/build-push-action@v4
         with:
           context: .
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name == 'push' && github.ref_type == 'tag' }}
-          tags: ${{ steps.meta.outputs.tags }},latest
+          tags: |
+            ${{ steps.meta.outputs.tags }}
+            latest
           labels: ${{ steps.meta.outputs.labels }}
