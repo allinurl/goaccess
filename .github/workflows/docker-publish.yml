@@ -14,8 +14,7 @@ on:
   pull_request:
 
 env:
-  # TODO: Change variable to your image's name.
-  IMAGE_NAME: image
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   # Run tests.
@@ -45,7 +44,8 @@ jobs:
     if: github.event_name == 'push'
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out the repo
+        uses: actions/checkout@v4
 
       - name: Docker meta
         id: meta
@@ -53,9 +53,9 @@ jobs:
         with:
           images: ${{ github.repository }}
           tags: |
-            type=edge,pattern={{version}},prefix=v
-            type=edge,pattern={{major}}.{{minor}},prefix=v
-            type=edge,pattern={{major}},prefix=v
+            type=semver,pattern={{version}},prefix=v
+            type=semver,pattern={{major}}.{{minor}},prefix=v
+            type=semver,pattern={{major}},prefix=v
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
