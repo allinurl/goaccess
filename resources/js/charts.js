@@ -134,11 +134,15 @@ function AreaChart(dualYaxis) {
 	}
 
 	function getXTicks(data) {
+		const domain = xScale.domain();
 		if (data.length < nTicks)
-			return xScale.domain();
+			return domain;
 
-		return d3.range(0, data.length, Math.ceil(data.length / nTicks)).map(function (d) {
-			return xScale.domain()[d];
+		return d3.range(0, nTicks).map(function(i) {
+			const index = Math.floor(i * (domain.length - 1) / (nTicks - 1));
+			if (index >= 0 && index < domain.length)
+				return domain[index];
+			return null;
 		});
 	}
 
@@ -702,11 +706,15 @@ function BarChart(dualYaxis) {
 	}
 
 	function getXTicks(data) {
+		const domain = xScale.domain();
 		if (data.length < nTicks)
-			return xScale.domain();
+			return domain;
 
-		return d3.range(0, data.length, Math.ceil(data.length / nTicks)).map(function (d) {
-			return xScale.domain()[d];
+		return d3.range(0, nTicks).map(function(i) {
+			const index = Math.floor(i * (domain.length - 1) / (nTicks - 1));
+			if (index >= 0 && index < domain.length)
+				return domain[index];
+			return null;
 		});
 	}
 
