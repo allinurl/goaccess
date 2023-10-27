@@ -259,6 +259,7 @@ GoAccess.Util = {
 		if (hlregex) {
 			let o = JSON.parse(hlregex), tmp = '';
 			for (var x in o) {
+				if (!val) continue;
 				tmp = val.replace(new RegExp(x, 'gi'), o[x]);
 				if (tmp != val) {
 					val = tmp;
