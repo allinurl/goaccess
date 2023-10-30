@@ -212,6 +212,11 @@ set_default_static_files (void) {
   if (conf.static_file_idx > 0)
     return;
 
+  /* If a configuration file is used and, if no static-file extensions are provided, do not set the default static-file extensions. */
+  if (conf.iconfigfile != NULL && conf.static_file_idx == 0) {
+    return;
+  }
+
   for (i = 0; i < ARRAY_SIZE (exts); i++) {
     if (conf.static_file_max_len < strlen (exts[i]))
       conf.static_file_max_len = strlen (exts[i]);
