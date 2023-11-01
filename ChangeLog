@@ -1,3 +1,12 @@
+Changes to GoAccess 1.8.1 - Tuesday, October 31, 2023
+
+  - Added latest Android and macOS versions to the list of OSs.
+  - Fixed issue when trying to apply a regex on an invalid value (HTML report).
+  - Fixed issue with D3.js xScale.domain() going out of boundaries in certain
+    cases.
+  - Prevent setting default static files when no static-file options are
+    defined in config file.
+
 Changes to GoAccess 1.8 - Saturday, September 30, 2023
 
   - Added dual-stack support to the WebSocket server.
