@@ -1410,7 +1410,12 @@ parse_cmd_line (int argc, char **argv) {
 
 static void
 handle_signal_action (GO_UNUSED int sig_number) {
-  fprintf (stderr, "\nSIGINT caught!\n");
+  if (sig_number == SIGINT)
+    fprintf (stderr, "\nSIGINT caught!\n");
+  else if (sig_number == SIGTERM)
+    fprintf (stderr, "\nSIGTERM caught!\n");
+  else
+    fprintf (stderr, "\nSignal %d caught!\n", sig_number);
   fprintf (stderr, "Closing GoAccess...\n");
 
   if (conf.output_stdout && conf.real_time_html)
