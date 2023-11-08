@@ -1789,8 +1789,8 @@ should_restore_from_disk (GLog *glog) {
   else if (glog->props.size < lp.size && glog->lp.ts == lp.ts)
     return 0;
 
-  /* Everything else we ignore it. For instance, we if current log size is
-   * greater than the one last parsed, if the timestamp are equal, we ignore the
+  /* Everything else we ignore it. For instance, if current log size is
+   * greater than the one last parsed, or the timestamp are equal, we ignore the
    * request.
    *
    * **NOTE* We try to play safe here as we would rather miss a few lines
@@ -1930,7 +1930,7 @@ cleanup:
   return ret;
 }
 
-/* Entry point to process the given live from the log.
+/* Entry point to process the given line from the log.
  *
  * On error, 1 is returned.
  * On success or soft ignores, 0 is returned. */

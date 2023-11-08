@@ -839,7 +839,7 @@ get_kroot (GKeyData *kdata, const char *root_key, const char *root) {
 }
 
 /* Generate a visitor's key given the date specificity. For instance,
- * if the specificity if set to hours, then a generated key would
+ * if the specificity is set to hours, then a generated key would
  * look like: 03/Jan/2016:09 */
 static void
 set_spec_visitor_key (char **fdate, const char *ftime) {

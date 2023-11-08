@@ -174,7 +174,7 @@ typedef struct GConf_
   int mouse_support;                /* add curses mouse support */
   int no_color;                     /* no terminal colors */
   int no_strict_status;             /* don't enforce 100-599 status codes */
-  int no_column_names;              /* don't show col names on termnal */
+  int no_column_names;              /* don't show col names on terminal */
   int no_csv_summary;               /* don't show overall metrics */
   int no_html_last_updated;         /* don't show HTML last updated field */
   int no_ip_validation;             /* don't validate client IP addresses */

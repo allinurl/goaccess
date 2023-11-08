@@ -166,7 +166,7 @@ free_global_metrics (GKHashGlobal *ghash) {
   }
 }
 
-/* Destroys malloc'd mdule metrics */
+/* Destroys malloc'd module metrics */
 static void
 free_module_metrics (GKHashModule *mhash, GModule module, uint8_t free_data) {
   int i, n = 0;

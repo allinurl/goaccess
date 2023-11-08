@@ -254,7 +254,7 @@ unknowns_fprintf (const char *fmt, ...) {
   va_end (args);
 }
 
-/* Debug otuput */
+/* Debug output */
 void
 dbg_printf (const char *fmt, ...) {
   va_list args;

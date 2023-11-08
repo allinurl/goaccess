@@ -436,7 +436,7 @@ collapse_current_module (void) {
   return 0;
 }
 
-/* Display message a the bottom of the terminal dashboard that panel
+/* Display message at the bottom of the terminal dashboard that panel
  * is disabled */
 static void
 disabled_panel_msg (GModule module) {
@@ -566,7 +566,7 @@ expand_on_mouse_click (void) {
   return 1;
 }
 
-/* Scroll dowm expanded module to the last row */
+/* Scroll down expanded module to the last row */
 static void
 scroll_down_expanded_module (void) {
   int exp_size = get_num_expanded_data_rows ();

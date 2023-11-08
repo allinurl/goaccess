@@ -544,7 +544,7 @@ const GKHashMetric app_metrics[] = {
 size_t app_metrics_len = ARRAY_SIZE (app_metrics);
 /* *INDENT-ON* */
 
-/* Destroys malloc'd mdule metrics */
+/* Destroys malloc'd module metrics */
 static void
 free_app_metrics (GKHashDB *storage) {
   int i, n = 0;

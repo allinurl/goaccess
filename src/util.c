@@ -662,7 +662,7 @@ convert_date (char *res, const char *data, const char *from, const char *to, int
   timestamp = time (NULL);
   localtime_r (&timestamp, &now_tm);
 
-  /* This assumes that the the given date is already in the correct timezone. */
+  /* This assumes that the given date is already in the correct timezone. */
   if (str_to_time (data, from, &tm, 0) != 0)
     return 1;
 
@@ -821,10 +821,10 @@ trim_str (char *str) {
   return rtrim (ltrim (str));
 }
 
-/* Convert the file size in bytes to a human readable format.
+/* Convert the file size in bytes to a human-readable format.
  *
  * On error, the original size of the string in bytes is returned.
- * On success, the file size in a human readable format is returned. */
+ * On success, the file size in a human-readable format is returned. */
 char *
 filesize_str (unsigned long long log_size) {
   char *size = xmalloc (sizeof (char) * 12);
@@ -844,10 +844,10 @@ filesize_str (unsigned long long log_size) {
   return size;
 }
 
-/* Convert microseconds to a human readable format.
+/* Convert microseconds to a human-readable format.
  *
  * On error, a malloc'd string in microseconds is returned.
- * On success, the time in a human readable format is returned. */
+ * On success, the time in a human-readable format is returned. */
 char *
 usecs_to_str (unsigned long long usec) {
   char *size = xmalloc (sizeof (char) * 11);
