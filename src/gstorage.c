@@ -100,6 +100,7 @@ const httpmethods http_methods[] = {
   { "TRACE"            , 5  } ,
   { "CONNECT"          , 7  } ,
   { "PATCH"            , 5  } ,
+  { "SEARCH"           , 6  } ,
   /* WebDav */
   { "PROPFIND"         , 8  } ,
   { "PROPPATCH"        , 9  } ,
