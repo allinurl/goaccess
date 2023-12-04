@@ -41,8 +41,8 @@
 /* Default Anonymization Levels */
 typedef enum GAnonymizeLevels_ {
   ANONYMIZE_DEFAULT = 1,
-  ANONIMYZE_STRONG,
-  ANONIMYZE_PEDANTIC,
+  ANONYMIZE_STRONG,
+  ANONYMIZE_PEDANTIC,
 } GAnonymizeLevels;
 
 /* Function Prototypes */

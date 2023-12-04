@@ -70,7 +70,7 @@ typedef enum SCHEMES {
   MONOCHROME,
   STD_GREEN,
   MONOKAI,
-} GShemes;
+} GSchemes;
 
 #include "commons.h"
 
