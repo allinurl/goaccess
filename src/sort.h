@@ -71,7 +71,7 @@ typedef struct GSort_ {
 } GSort;
 
 extern GSort module_sort[TOTAL_MODULES];
-extern const int sort_choices[][SORT_MAX_OPTS];;
+extern const int sort_choices[][SORT_MAX_OPTS];
 
 GRawData *sort_raw_num_data (GRawData * raw_data, int ht_size);
 GRawData *sort_raw_str_data (GRawData * raw_data, int ht_size);

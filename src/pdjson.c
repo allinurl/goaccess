@@ -474,7 +474,7 @@ read_utf8 (json_stream *json, int next_char) {
 
   buffer[0] = next_char;
   for (i = 1; i < count; ++i) {
-    buffer[i] = json->source.get (&json->source);;
+    buffer[i] = json->source.get (&json->source);
   }
 
   if (!is_legal_utf8 ((unsigned char *) buffer, count)) {
