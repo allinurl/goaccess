@@ -201,13 +201,13 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)           |  OpenSSL (opt)
----------------------- | -----------------|------------------|---------------------- | -------------------
-**Ubuntu/Debian**      | libncursesw6-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev
-**RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel
-**Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl
-**Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
+| Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
+| ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
+| **Ubuntu/Debian**      | libncursesw6-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
+| **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
+| **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
+| **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
+| **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl           |
 
 **Note**: You may need to install build tools like `gcc`, `autoconf`,
 `gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
@@ -456,7 +456,7 @@ append it to the original dataset.
 GoAccess keeps track of inodes of all the files processed (assuming files will
 stay on the same partition), in addition, it extracts a snippet of data from
 the log along with the last line parsed of each file and the timestamp of the
-last line parsed. e.g., inode:29627417|line:20012|ts:20171231235059
+last line parsed. e.g., `inode:29627417|line:20012|ts:20171231235059`
 
 First, it compares if the snippet matches the log being parsed, if it does, it
 assumes the log hasn't changed drastically, e.g., hasn't been truncated. If
