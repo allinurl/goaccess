@@ -210,7 +210,7 @@ Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)      
 **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
 
 **Note**: You may need to install build tools like `gcc`, `autoconf`,
-`gettext`, `autopoint` etc for compiling/building software from source. e.g.,
+`gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
 `base-devel`, `build-essential`, `"Development Tools"`.
 
 #### Docker ####
@@ -229,10 +229,10 @@ You can read more about using the docker image in [DOCKER.md](https://github.com
 ## Contributing ##
 
 Any help on GoAccess is welcome. The most helpful way is to try it out and give
-feedback. Feel free to use the Github issue tracker and pull requests to
+feedback. Feel free to use the GitHub issue tracker and pull requests to
 discuss and submit code changes.
 
-You can contribute to our translations by editing the .po files direct on Github or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
+You can contribute to our translations by editing the .po files direct on GitHub or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
 
 [![translation badge](https://inlang.com/badge?url=github.com/allinurl/goaccess)](https://inlang.com/editor/github.com/allinurl/goaccess?ref=badge)
 
@@ -281,7 +281,7 @@ started:
 
 And even better, to filter while maintaining opened a pipe to preserve
 real-time analysis, we can make use of `tail -f` and a matching pattern tool
-such as `grep`, `awk`, `sed`, etc:
+such as `grep`, `awk`, `sed`, etc.:
 
     # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
