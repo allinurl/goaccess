@@ -511,7 +511,7 @@ get_str_proctime (void) {
   return s;
 }
 
-/* Get the log file size in a human readable format.
+/* Get the log file size in a human-readable format.
  *
  * On success, the log file size as a string is returned. */
 static char *
@@ -528,7 +528,7 @@ get_str_logfile (void) {
   return get_log_source_str (col - left_padding);
 }
 
-/* Get the bandwidth in a human readable format.
+/* Get the bandwidth in a human-readable format.
  *
  * On success, the bandwidth as a string is returned. */
 static char *

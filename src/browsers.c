@@ -34,7 +34,6 @@
 #include <string.h>
 #include <stddef.h>
 
-#include "opesys.h"
 #include "browsers.h"
 
 #include "error.h"

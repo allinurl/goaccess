@@ -42,8 +42,6 @@
 #include "output.h"
 
 #include "error.h"
-#include "gkhash.h"
-#include "gwsocket.h"
 #include "json.h"
 #include "settings.h"
 #include "ui.h"

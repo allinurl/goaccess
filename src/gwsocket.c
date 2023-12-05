@@ -29,12 +29,10 @@
  */
 
 #include <stdio.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "gwsocket.h"
@@ -43,7 +41,6 @@
 #include "error.h"
 #include "goaccess.h"
 #include "json.h"
-#include "parser.h"
 #include "settings.h"
 #include "websocket.h"
 #include "xmalloc.h"

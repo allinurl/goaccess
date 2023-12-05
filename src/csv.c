@@ -38,9 +38,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
 #include <time.h>
-#include <unistd.h>
 #include <inttypes.h>
 
 #include "csv.h"
@@ -290,7 +288,7 @@ print_csv_summary (FILE *fp) {
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
-/* Entry point to generate a a csv report writing it to the fp */
+/* Entry point to generate a csv report writing it to the fp */
 void
 output_csv (GHolder *holder, const char *filename) {
   GModule module;

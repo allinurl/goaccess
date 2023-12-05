@@ -1379,7 +1379,7 @@ static int
 ws_respond (WSClient *client, const char *buffer, int len) {
   int bytes = 0;
 
-  /* attempt to send the whole buffer buffer */
+  /* attempt to send the whole buffer */
   if (client->sockqueue == NULL)
     bytes = ws_respond_data (client, buffer, len);
   /* buffer not empty, just append new data iff we're not throttling the
@@ -1671,7 +1671,7 @@ ws_send_data (WSClient *client, WSOpcode opcode, const char *p, int sz) {
 
 /* Read a websocket frame's header.
  *
- * On success, the number of bytesr read is returned. */
+ * On success, the number of bytes read is returned. */
 static int
 ws_read_header (WSClient *client, WSFrame *frm, int pos, int need) {
   char *buf = frm->buf;
@@ -1691,7 +1691,7 @@ ws_read_header (WSClient *client, WSFrame *frm, int pos, int need) {
 
 /* Read a websocket frame's payload.
  *
- * On success, the number of bytesr read is returned. */
+ * On success, the number of bytes read is returned. */
 static int
 ws_read_payload (WSClient *client, WSMessage *msg, int pos, int need) {
   char *buf = msg->payload;
@@ -2471,7 +2471,7 @@ ws_write_fifo (WSPipeOut *pipeout, char *buffer, int len) {
   if (pipeout->fd == -1 && ws_openfifo_out (pipeout) == -1)
     return bytes;
 
-  /* attempt to send the whole buffer buffer */
+  /* attempt to send the whole buffer */
   if (pipeout->fifoqueue == NULL)
     bytes = ws_write_fifo_data (pipeout, buffer, len);
   /* buffer not empty, just append new data */
@@ -2909,7 +2909,7 @@ ws_set_config_origin (const char *origin) {
   wsconfig.origin = origin;
 }
 
-/* Set the the maximum websocket frame size. */
+/* Set the maximum websocket frame size. */
 void
 ws_set_config_frame_size (int max_frm_size) {
   wsconfig.max_frm_size = max_frm_size;

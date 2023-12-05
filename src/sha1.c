@@ -18,7 +18,6 @@ A million repetitions of "a"
 #endif
 /* #define SHA1HANDSOFF * Copies data before messing with it. */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "sha1.h"
@@ -224,7 +223,7 @@ SHA1Final (uint8_t digest[20], SHA1_CTX *context) {
   memset (context->state, 0, 20);
   memset (context->count, 0, 8);
   memset (&finalcount, 0, 8);
-#ifdef SHA1HANDSOFF     /* make SHA1Transform overwrite it's own static vars */
+#ifdef SHA1HANDSOFF     /* make SHA1Transform overwrite its own static vars */
   SHA1Transform (context->state, context->buffer);
 #endif
 }

@@ -168,7 +168,7 @@ GoAccess.Util = {
 		}, 0) >>> 0).toString(16);
 	},
 
-	// Format bytes to human readable
+	// Format bytes to human-readable
 	formatBytes: function (bytes, decimals, numOnly) {
 		if (bytes == 0)
 			return numOnly ? 0 : '0 Byte';
@@ -184,7 +184,7 @@ GoAccess.Util = {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	},
 
-	// Format microseconds to human readable
+	// Format microseconds to human-readable
 	utime2str: function (usec) {
 		if (usec >= 864E8)
 			return ((usec) / 864E8).toFixed(2) + ' d';
@@ -220,7 +220,7 @@ GoAccess.Util = {
 		if (n >= 1e12) return +(n / 1e12).toFixed(1) + "T";
 	},
 
-	// Format field value to human readable
+	// Format field value to human-readable
 	fmtValue: function (value, dataType, decimals, shorten, hlregex, hlvalue) {
 		var val = 0;
 		if (!dataType)
@@ -1058,7 +1058,7 @@ GoAccess.Charts = {
 		}
 	},
 
-	// Iterate over the item properties and and extract the count value.
+	// Iterate over the item properties and extract the count value.
 	extractCount: function (item) {
 		var o = {};
 		for (var prop in item)

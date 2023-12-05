@@ -29,7 +29,6 @@
  */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -539,7 +538,7 @@ add_host_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *
     return;
   }
 
-  if (conf.anonymize_level == ANONIMYZE_STRONG || conf.anonymize_level == ANONIMYZE_PEDANTIC) {
+  if (conf.anonymize_level == ANONYMIZE_STRONG || conf.anonymize_level == ANONYMIZE_PEDANTIC) {
     m4 = (char *) arr4[conf.anonymize_level - 1];
     m6 = (char *) arr6[conf.anonymize_level - 1];
   }

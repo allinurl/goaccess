@@ -52,6 +52,7 @@
 #define ERR_LOG_REALLOC_FAILURE    0x6
 
 
+#include <stdio.h>
 #include "commons.h"
 #include "gslist.h"
 

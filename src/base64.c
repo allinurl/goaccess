@@ -28,13 +28,12 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include "base64.h"
 #include "xmalloc.h"
 
-/* Encodes the given data with base64..
+/* Encodes the given data with base64.
  *
  * On success, the encoded nul-terminated data, as a string is returned. */
 char *

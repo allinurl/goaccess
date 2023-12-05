@@ -35,10 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
-#include <errno.h>
 
-#include "error.h"
 #include "settings.h"
 #include "util.h"
 

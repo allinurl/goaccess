@@ -94,7 +94,7 @@ extern "C" {
     int type;
     void *addr;
     void *data;                 /* r:tpl_root_data*. A:tpl_atyp*. ow:szof type */
-    int num;                    /* length of type if its a C array */
+    int num;                    /* length of type if it's a C array */
     size_t ser_osz;             /* serialization output size for subtree */
     struct tpl_node *children;  /* my children; linked-list */
     struct tpl_node *next, *prev;       /* my siblings (next child of my parent) */

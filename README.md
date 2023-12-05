@@ -201,16 +201,16 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)           |  OpenSSL (opt)
----------------------- | -----------------|------------------|---------------------- | -------------------
-**Ubuntu/Debian**      | libncursesw6-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev
-**RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel
-**Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl
-**Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
+| Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
+| ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
+| **Ubuntu/Debian**      | libncursesw6-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
+| **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
+| **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
+| **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
+| **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl           |
 
 **Note**: You may need to install build tools like `gcc`, `autoconf`,
-`gettext`, `autopoint` etc for compiling/building software from source. e.g.,
+`gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
 `base-devel`, `build-essential`, `"Development Tools"`.
 
 #### Docker ####
@@ -229,10 +229,10 @@ You can read more about using the docker image in [DOCKER.md](https://github.com
 ## Contributing ##
 
 Any help on GoAccess is welcome. The most helpful way is to try it out and give
-feedback. Feel free to use the Github issue tracker and pull requests to
+feedback. Feel free to use the GitHub issue tracker and pull requests to
 discuss and submit code changes.
 
-You can contribute to our translations by editing the .po files direct on Github or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
+You can contribute to our translations by editing the .po files direct on GitHub or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
 
 [![translation badge](https://inlang.com/badge?url=github.com/allinurl/goaccess)](https://inlang.com/editor/github.com/allinurl/goaccess?ref=badge)
 
@@ -281,7 +281,7 @@ started:
 
 And even better, to filter while maintaining opened a pipe to preserve
 real-time analysis, we can make use of `tail -f` and a matching pattern tool
-such as `grep`, `awk`, `sed`, etc:
+such as `grep`, `awk`, `sed`, etc.:
 
     # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
@@ -456,7 +456,7 @@ append it to the original dataset.
 GoAccess keeps track of inodes of all the files processed (assuming files will
 stay on the same partition), in addition, it extracts a snippet of data from
 the log along with the last line parsed of each file and the timestamp of the
-last line parsed. e.g., inode:29627417|line:20012|ts:20171231235059
+last line parsed. e.g., `inode:29627417|line:20012|ts:20171231235059`
 
 First, it compares if the snippet matches the log being parsed, if it does, it
 assumes the log hasn't changed drastically, e.g., hasn't been truncated. If

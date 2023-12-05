@@ -70,7 +70,7 @@ Changes to GoAccess 1.6.4 - Friday, September 30, 2022
   - Added Korean translation (i18n).
   - Added the ability to use filenames as virtualhosts using
     '--fname-as-vhost=<regex>'.
-  - Enabled clawlers/bots under the OSs panel instead of being shown as
+  - Enabled crawlers/bots under the OSs panel instead of being shown as
     'Unknown'.
   - Updated the format on the command-line help output.
 
@@ -203,7 +203,7 @@ Changes to GoAccess 1.5 - Wednesday, May 26, 2021
   - Changed command line option from '--hide-referer' to '--hide-referrer'.
   - Changed command line option from '--ignore-referer' to '--ignore-referrer'.
   - Fixed a potential division by zero.
-  - Fixed inablity to parse IPv6 when using a 'CADDY' log format.
+  - Fixed inability to parse IPv6 when using a 'CADDY' log format.
   - Fixed issue where a 'BSD' OS could be displayed as Linux with certain
     user-agents.
   - Fixed memory leak when a JSON value contained an empty string (e.g.,
@@ -215,7 +215,7 @@ Changes to GoAccess 1.5 - Wednesday, May 26, 2021
   - Updated default 'AWS Elastic Load Balancing' log format.
   - Updated German translation.
   - Updated page size to 24 on the HTML report.
-  - Updated UNIX OS catergories.
+  - Updated UNIX OS categories.
 
 Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
 
@@ -592,7 +592,7 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
     GoAccess now sends the latest JSON data to the client as soon as the
     WebSocket connection is opened.
   - Ensure localStorage is supported and enabled in the HTML report
-  - Ensure unknown coutries/continents are listed.
+  - Ensure unknown countries/continents are listed.
   - Fixed D3 chart width overflow issue on Edge.
   - Fixed integer to string key conversion for unique visitors. This fixes the
     issue where resulting keys would collide with existing keys and thus not
@@ -1086,8 +1086,8 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
   - Implemented real-time statistics (RTS). Data will be appended as the log
     file grows. Equivalent to "tail -f" on Unix systems
   - Implemented screen resize functionality
-  - Simpliflied creation of the "unique visitors" hash-key.
-  - Simpliflied the "process_unique_data" function
+  - Simplified creation of the "unique visitors" hash-key.
+  - Simplified the "process_unique_data" function
   - Various small speed increases & code cleanup
 
 Changes to GoAccess 0.1.2 - Monday, July 12, 2010

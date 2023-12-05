@@ -30,7 +30,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>     /* for CHAR_BIT */
 #include <stdint.h>
 
 #include "error.h"

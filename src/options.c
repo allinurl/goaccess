@@ -37,7 +37,6 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
-#include <unistd.h>
 
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>

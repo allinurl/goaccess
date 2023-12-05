@@ -37,7 +37,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <io.h>
 #define ftruncate(x,y) _chsize(x,y)
 #endif
-#include <sys/types.h>  /* for 'open' */
 #include <sys/stat.h>   /* for 'open' */
 #include <fcntl.h>      /* for 'open' */
 #include <errno.h>

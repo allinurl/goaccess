@@ -32,16 +32,8 @@
 #include <config.h>
 #endif
 
-#include <errno.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <sys/mman.h>
 
 #include "gkhash.h"
@@ -552,7 +544,7 @@ const GKHashMetric app_metrics[] = {
 size_t app_metrics_len = ARRAY_SIZE (app_metrics);
 /* *INDENT-ON* */
 
-/* Destroys malloc'd mdule metrics */
+/* Destroys malloc'd module metrics */
 static void
 free_app_metrics (GKHashDB *storage) {
   int i, n = 0;

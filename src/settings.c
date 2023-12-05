@@ -646,9 +646,9 @@ set_spec_date_time_num_format (void) {
   free (tf);
 }
 
-/* Set a human readable specificity date and time format.
+/* Set a human-readable specificity date and time format.
  *
- * On success, the human readable date time specificity format is set. */
+ * On success, the human-readable date time specificity format is set. */
 static void
 set_spec_date_time_format (void) {
   char *buf = NULL;
