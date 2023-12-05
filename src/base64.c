@@ -28,7 +28,6 @@
  * SOFTWARE.
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include "base64.h"

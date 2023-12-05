@@ -40,7 +40,6 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stddef.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -48,11 +47,8 @@
 #include <inttypes.h>
 #include <regex.h>
 
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
 
 #include "util.h"
 

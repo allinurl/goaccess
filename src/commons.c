@@ -36,11 +36,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "commons.h"
 
-#include "error.h"
 #include "labels.h"
 #include "settings.h"
 #include "util.h"

@@ -46,16 +46,13 @@
 #include <config.h>
 #endif
 
-#include <arpa/inet.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include <sys/stat.h>
-#include <sys/types.h>
 #include <unistd.h>
-#include <sys/stat.h>
 #include <fcntl.h>
 #include <inttypes.h>
 #include <libgen.h>
@@ -68,7 +65,6 @@
 #include "error.h"
 #include "goaccess.h"
 #include "gstorage.h"
-#include "pdjson.h"
 #include "util.h"
 #include "websocket.h"
 #include "xmalloc.h"

@@ -28,7 +28,6 @@
  * SOFTWARE.
  */
 
-#include <stdio.h>
 #if !defined __SUNPRO_C
 #include <stdint.h>
 #endif

@@ -9,7 +9,6 @@
  * I have decided not to change the licence.
  */
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
