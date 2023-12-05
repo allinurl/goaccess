@@ -12,8 +12,8 @@ dist_noinst_DATA =                 \
   resources/js/d3.v7.min.js        \
   resources/js/hogan.min.js
 
-noinst_PROGRAMS = bin2c
-bin2c_SOURCES = src/bin2c.c
+bin2c$(EXEEXT): src/bin2c.c
+	$(CC_FOR_BUILD) $(CFLAGS_FOR_BUILD) $< -o $@ $(LDFLAGS_FOR_BUILD)
 
 BUILT_SOURCES =       \
   src/tpls.h          \

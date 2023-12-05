@@ -209,7 +209,7 @@ Distro                 | NCurses          | GeoIP (opt)      |GeoIP2 (opt)      
 **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl
 **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl
 
-**Note**: You may need to install build tools like `gcc`, `autoconf`,
+**Note**: You may need to install build tools like `gcc`, `autoconf`, `autoconf-archive`
 `gettext`, `autopoint` etc for compiling/building software from source. e.g.,
 `base-devel`, `build-essential`, `"Development Tools"`.
 
