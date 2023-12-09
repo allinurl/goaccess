@@ -5,7 +5,7 @@
 
 * This image supports building on the ARM architecture (e.g. Raspberry Pi)
 
-* Do you want to change the timezone? Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)  
+* Do you want to change the timezone? Use the `-e` option to pass the time-zone setting to Docker. (e.g. `-e TZ="America/New_York"`)
 
 * The container is built with geo-location support (see [the manual](https://goaccess.io/man#options)). To enable the respective panel, mount the geolocation database using `-v /path/to/GeoLite2-City.mmdb:/GeoLite2-City.mmdb` and specify `--geoip-database /GeoLite2-City.mmdb` when running GoAccess.
 
@@ -13,7 +13,7 @@
 
 ```
     docker restart goaccess
-```    
+```
 
 * If you had already run the container, you may have to stop and remove it first:
 

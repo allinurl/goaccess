@@ -1,7 +1,7 @@
 # Security Policy
 
 Found a security issue in [GoAccess](https://github.com/allinurl/goaccess)?
-Read on. 
+Read on.
 
 ## Reporting a Vulnerability
 
@@ -10,7 +10,7 @@ security of `goaccess`. I appreciate your efforts and responsible disclosure
 and will make every effort to acknowledge your contributions.
 
 Vulnerabilities should be reported to [hello@goaccess.io](mailto:hello@goaccess.io) which is a private,
-maintainer-only email address. 
+maintainer-only email address.
 
 
 When I receive a security bug report, I will work on the fix and prepare a
@@ -34,4 +34,4 @@ possible):
 
 > Note: Please do not open public issues for security issues, as GitHub does
 > not provide facility for private issues, and deleting the issue makes it hard
-> to triage/respond back to the reporter.                       
+> to triage/respond back to the reporter.

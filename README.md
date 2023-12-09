@@ -264,11 +264,11 @@ To output to a terminal and generate an interactive report:
 To generate an HTML report:
 
     # goaccess access.log -a > report.html
-    
+
 To generate a JSON report:
 
     # goaccess access.log -a -d -o json > report.json
-    
+
 To generate a CSV file:
 
     # goaccess access.log --no-csv-summary -o csv > report.csv
@@ -381,7 +381,7 @@ And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to:
 
     awk '$8=$1$8' access.log | goaccess -a -
-    
+
 To do the same, but also use real-time filtering and parsing:
 
     tail -f  access.log | unbuffer -p awk '$8=$1$8' | goaccess -a -
@@ -429,7 +429,7 @@ your local machine!
     # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
 
 **Note:** SSH requires `-n` so GoAccess can read from stdin. Also, make sure to
-use SSH keys for authentication as it won't work if a passphrase is required. 
+use SSH keys for authentication as it won't work if a passphrase is required.
 
 #### Troubleshooting ####
 
