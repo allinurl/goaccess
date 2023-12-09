@@ -75,7 +75,7 @@ struct option long_opts[] = {
   {"log-size"             , required_argument , 0 , 'S' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
-  {"output-format"        , required_argument , 0 , 'o' } ,
+  {"output"               , required_argument , 0 , 'o' } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"version"              , no_argument       , 0 , 'V' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -132,7 +132,7 @@ struct option long_opts[] = {
   {"no-tab-scroll"        , no_argument       , 0 , 0  }  ,
   {"num-tests"            , required_argument , 0 , 0  }  ,
   {"origin"               , required_argument , 0 , 0  }  ,
-  {"output"               , required_argument , 0 , 0  }  ,
+  {"output-format"        , required_argument , 0 , 0  }  ,
   {"persist"              , no_argument       , 0 , 0  }  ,
   {"pid-file"             , required_argument , 0 , 0  }  ,
   {"port"                 , required_argument , 0 , 0  }  ,
@@ -552,8 +552,8 @@ parse_long_opt (const char *name, const char *oarg) {
   }
 
   /* output file */
-  if (!strcmp ("output", name))
-    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx, MAX_OUTFORMATS);
+  if (!strcmp ("output-format", name))
+    FATAL ("The option --output-format is deprecated, please use --output instead.");
 
   /* PARSE OPTIONS
    * ========================= */
