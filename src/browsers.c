@@ -48,7 +48,7 @@ static char ***browsers_hash = NULL;
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
-  /* Game systems: most of them are based of major browsers,
+  /* Game systems: most of them are based off major browsers,
    * thus they need to go before. */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
@@ -130,6 +130,9 @@ static const char *browsers[][2] = {
   {"Transmission", "Others"},
   {"libmpv", "Others"},
   {"aria2", "Others"},
+
+  /* WordPress Cron*/
+  {"WordPress/", "Cron"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -242,7 +245,15 @@ static const char *browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
+  {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
 
+  /* HTTP Library or HTTP Server User Agents - Suggest New Category */
+  {"axios", "HTTP Library"}, /* NodeJS axios axios-http.com */
+  {"lua-resty-http", "HTTP Library"}, /* Nginx lua-resty-http module */
+  
+  /* Citation Services */
+  {"Citoid", "Citation" }, /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
+  {"EasyBib", "Citation" }, /* Easybib Citation https://easybib.com */
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -269,6 +280,7 @@ static const char *browsers[][2] = {
   {"Thunderbird", "Feeds"},
   {"Winds", "Feeds"},
 
+  /* Uptime and Monitoring clients */
   {"Pingdom.com", "Uptime"},
   {"jetmon", "Uptime"},
   {"NodeUptime", "Uptime"},
@@ -276,6 +288,18 @@ static const char *browsers[][2] = {
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
   {"Server Density Service Monitoring v2", "Uptime"},
+  {"Better Uptime Bot","Uptime"},
+  {"Site24x7","Uptime"},
+  {"Uptime-Kuma","Uptime"},
+
+  /* Performance and Caching - Suggest a new category */
+  {"ShortPixel", "Performance"}, /* Image Optimization*/
+  {"WP Rocket", "Caching"}, /* Preloading Cache for WordPress Plugin */
+
+  /* Security - Suggest a new category */
+  {"Barracuda Sentinel", "Security"}, /* Barricuda spear fishing service */
+  {"ACI Site Scanner","Security"}, /* Can't confirm specific vendor */
+
 
   {"Mozilla", "Others"}
 };
