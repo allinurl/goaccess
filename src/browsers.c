@@ -48,7 +48,7 @@ static char ***browsers_hash = NULL;
 
 /* {"search string", "belongs to"} */
 static const char *browsers[][2] = {
-  /* Game systems: most of them are based off major browsers,
+  /* Game systems: most of them are based on major browsers,
    * thus they need to go before. */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
