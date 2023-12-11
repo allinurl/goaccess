@@ -133,7 +133,7 @@ static const char *browsers[][2] = {
   {"aria2", "Others"},
 
   /* WordPress Cron*/
-  {"WordPress/","Cron"},
+  {"WordPress/", "Cron"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
