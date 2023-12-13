@@ -217,11 +217,11 @@ build GoAccess from source.
 
 A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
-    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
+    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED -
 
 OR real-time
 
-    tail -F access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED --real-time-html - > report.html
+    tail -F access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED --real-time-html -
 
 You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
 
@@ -265,13 +265,13 @@ To generate an HTML report:
 
     # goaccess access.log -a > report.html
 
-To generate a JSON report:
+To generate a JSON report file:
 
-    # goaccess access.log -a -d -o json > report.json
+    # goaccess access.log -a -d -o report.json
 
-To generate a CSV file:
+To generate a CSV report to stdout:
 
-    # goaccess access.log --no-csv-summary -o csv > report.csv
+    # goaccess access.log --no-csv-summary -o csv
 
 GoAccess also allows great flexibility for real-time filtering and parsing. For
 instance, to quickly diagnose issues by monitoring logs since goaccess was
