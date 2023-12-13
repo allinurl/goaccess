@@ -75,7 +75,7 @@ struct option long_opts[] = {
   {"log-size"             , required_argument , 0 , 'S' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
   {"no-term-resolver"     , no_argument       , 0 , 'r' } ,
-  {"output-format"        , required_argument , 0 , 'o' } ,
+  {"output"               , required_argument , 0 , 'o' } ,
   {"storage"              , no_argument       , 0 , 's' } ,
   {"version"              , no_argument       , 0 , 'V' } ,
   {"with-mouse"           , no_argument       , 0 , 'm' } ,
@@ -132,7 +132,7 @@ struct option long_opts[] = {
   {"no-tab-scroll"        , no_argument       , 0 , 0  }  ,
   {"num-tests"            , required_argument , 0 , 0  }  ,
   {"origin"               , required_argument , 0 , 0  }  ,
-  {"output"               , required_argument , 0 , 0  }  ,
+  {"output-format"        , required_argument , 0 , 0  }  ,
   {"persist"              , no_argument       , 0 , 0  }  ,
   {"pid-file"             , required_argument , 0 , 0  }  ,
   {"port"                 , required_argument , 0 , 0  }  ,
@@ -263,7 +263,8 @@ cmd_help (void)
   "                                    ranges. e.g., 192.168.0.1-192.168.0.10\n"
   "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
   "  -M --http-method=<yes|no>       - Set/unset HTTP request method if found.\n"
-  "  -o --output=file.html|json|csv  - Output either an HTML, JSON or a CSV file.\n"
+  "  -o --output=<format|filename>   - Output to stdout or the specified file.\n"
+  "                                    e.g., -o csv, -o out.json, --output=report.html\n"
   "  -q --no-query-string            - Strip request's query string. This can\n"
   "                                    decrease memory consumption.\n"
   "  -r --no-term-resolver           - Disable IP resolver on terminal output.\n"
@@ -552,8 +553,8 @@ parse_long_opt (const char *name, const char *oarg) {
   }
 
   /* output file */
-  if (!strcmp ("output", name))
-    set_array_opt (oarg, conf.output_formats, &conf.output_format_idx, MAX_OUTFORMATS);
+  if (!strcmp ("output-format", name))
+    FATAL ("The option --output-format is deprecated, please use --output instead.");
 
   /* PARSE OPTIONS
    * ========================= */
