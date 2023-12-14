@@ -3,6 +3,7 @@ config.status
 config.guess
 config.sub
 config.rpath
+configure~
 **/.deps/
 /INSTALL
 /Makefile
@@ -103,6 +104,6 @@ Makefile.in
 /resources/css/fa.min.css.tmp
 /resources/js/app.js.tmp
 /resources/js/charts.js.tmp
-/resources/js/d3.v3.min.js.tmp
+/resources/js/d3.v?.min.js.tmp
 /resources/js/hogan.min.js.tmp
 /resources/tpls.html.tmp
