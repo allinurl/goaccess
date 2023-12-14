@@ -1015,6 +1015,14 @@ get_keys (Logs *logs) {
   int c, quit = 1;
   uint32_t offset = 0;
 
+  struct sigaction act, oldact;
+
+  /* Change the action for SIGINT to SIG_IGN and block Ctrl+c
+   * before entering the subdialog */
+  act.sa_handler = SIG_IGN;
+  sigemptyset (&act.sa_mask);
+  act.sa_flags = 0;
+
   while (quit) {
     if (conf.stop_processing)
       break;
@@ -1033,7 +1041,9 @@ get_keys (Logs *logs) {
     case KEY_F (1):
     case '?':
     case 'h':
+      sigaction (SIGINT, &act, &oldact);
       load_help_popup (main_win);
+      sigaction (SIGINT, &oldact, NULL);
       render_screens (offset);
       break;
     case 49:   /* 1 */
@@ -1204,20 +1214,29 @@ get_keys (Logs *logs) {
         render_screens (offset);
       break;
     case '/':
+      sigaction (SIGINT, &act, &oldact);
       if (render_search_dialog (search) == 0)
         render_screens (offset);
+      sigaction (SIGINT, &oldact, NULL);
       break;
     case 99:   /* c */
       if (conf.no_color)
         break;
+
+      sigaction (SIGINT, &act, &oldact);
       load_schemes_win (main_win);
+      sigaction (SIGINT, &oldact, NULL);
+
       free_dashboard (dash);
       allocate_data ();
       set_wbkgd (main_win, header_win);
       render_screens (offset);
       break;
     case 115:  /* s */
+      sigaction (SIGINT, &act, &oldact);
       render_sort_dialog ();
+      sigaction (SIGINT, &oldact, NULL);
+
       render_screens (offset);
       break;
     case 269:
