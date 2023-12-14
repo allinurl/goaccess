@@ -161,6 +161,7 @@ typedef struct Logs_ {
 /* Pthread jobs for multi-thread */
 typedef struct GJob_ {
   GLogItem **logitems;
+  char **lines;
 } GJob;
 
 /* Raw data field type */

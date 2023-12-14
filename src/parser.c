@@ -2022,28 +2022,31 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   int cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
   GJob jobs[1];
 
-#ifdef WITH_GETLINE
-  char *line = NULL;
-#else
+#ifndef WITH_GETLINE
   char *s = NULL;
-  char line[LINE_BUFFER] = { 0 };
 #endif
 
   glog->bytes = 0;
 
   jobs[0].logitems = xmalloc(conf.chunk_size * sizeof(GLogItem));
+  jobs[0].lines = xmalloc(conf.chunk_size * sizeof(char *));
+#ifndef WITH_GETLINE
+  for (int i=0; i<conf.chunk_size; i++)
+    jobs[0].lines[i] = xmalloc(sizeof(char) * LINE_BUFFER);
+#endif
+
 
 #ifdef WITH_GETLINE
-  while ((line = fgetline (fp)) != NULL) {
+  while ((jobs[0].lines[0] = fgetline (fp)) != NULL) {
 #else
-  while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
+  while ((s = fgets (jobs[0].lines[0], LINE_BUFFER, fp)) != NULL) {
 #endif
 
     /* handle SIGINT */
     if (conf.stop_processing)
       goto out;
 
-    jobs[0].logitems[0] = read_line (glog, line, &test, &cnt, dry_run);
+    jobs[0].logitems[0] = read_line (glog, jobs[0].lines[0], &test, &cnt, dry_run);
     if (jobs[0].logitems[0] == NULL)
       goto out;
 
@@ -2054,21 +2057,21 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     if (dry_run && NUM_TESTS == cnt)
       goto out;
 
-    glog->bytes += strlen (line);
+    glog->bytes += strlen (jobs[0].lines[0]);
     glog->read++;
 
 #ifdef WITH_GETLINE
-    free (line);
+    free (jobs[0].lines[0]);
 #endif
   }
 
   /* if no data was available to read from (probably from a pipe) and
    * still in test mode, we simply return until data becomes available */
 #ifdef WITH_GETLINE
-  if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
+  if (!jobs[0].lines[0] && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || (!line && test && glog->processed);
+  return (jobs[0].lines[0] && test) || (!jobs[0].lines[0] && test && glog->processed);
 #else
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
@@ -2076,11 +2079,12 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
 
 out:
-#ifdef WITH_GETLINE
-  free (line);
+#ifndef WITH_GETLINE
+  for (int i=0; i<conf.chunk_size; i++)
+    free (jobs[0].lines[i]);
 #endif
-
   free (jobs[0].logitems);
+  free (jobs[0].lines);
 
   /* fails if
    * - we're still reading the log but the test flag was still set
