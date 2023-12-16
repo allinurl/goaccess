@@ -549,14 +549,6 @@ extract_method (const char *token) {
   return NULL;
 }
 
-/* Determine if time-served data was stored on-disk. */
-static void
-contains_usecs (void) {
-  if (conf.serve_usecs)
-    return;
-  conf.serve_usecs = 1; /* flag */
-}
-
 static int
 is_cache_hit (const char *tkn) {
   if (strcasecmp ("MISS", tkn) == 0)
@@ -1144,7 +1136,7 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
     logitem->resp_size = bandw;
-    conf.bandwidth = 1;
+    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1);  /* set flag */
     free (tkn);
     break;
     /* referrer */
@@ -1212,7 +1204,8 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
     /* convert it to microseconds */
     logitem->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
-    contains_usecs ();  /* set flag */
+    /* Determine if time-served data was stored on-disk. */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in seconds with a milliseconds
@@ -1234,7 +1227,8 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
     /* convert it to microseconds */
     logitem->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
-    contains_usecs ();  /* set flag */
+    /* Determine if time-served data was stored on-disk. */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -1250,7 +1244,8 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
       serve_time = 0;
     logitem->serve_time = serve_time;
 
-    contains_usecs ();  /* set flag */
+    /* Determine if time-served data was stored on-disk. */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in nanoseconds */
@@ -1268,7 +1263,8 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
     /* convert it to microseconds */
     logitem->serve_time = (serve_time > 0) ? serve_time / MILS : 0;
 
-    contains_usecs ();  /* set flag */
+    /* Determine if time-served data was stored on-disk. */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
     free (tkn);
     break;
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
@@ -1868,6 +1864,7 @@ parse_json_format (GLogItem *logitem, char *str) {
  * On error, logitem->errstr will contains the error message. */
 GLogItem *
 parse_line (GLog *glog, char *line, int dry_run) {
+  int64_t oldts, newts;
   GLogItem *logitem;
   int ret = 0;
   char *fmt = conf.log_format;
@@ -1902,7 +1899,14 @@ parse_line (GLog *glog, char *line, int dry_run) {
     return logitem;
   }
 
-  if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
+  // glog->lp.ts = max(glog->lp.ts, logitem->dt)
+  newts = mktime (&logitem->dt);
+  for (;;) {
+    oldts = glog->lp.ts;
+    if (oldts >= newts) break;
+    if (__sync_bool_compare_and_swap (&glog->lp.ts, oldts, newts)) break;
+  }
+  if (newts == -1)
     return logitem;
 
   if (should_restore_from_disk (glog))
