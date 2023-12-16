@@ -252,7 +252,6 @@ free_logs (Logs *logs) {
  * On success, the new GLogItem instance is returned. */
 GLogItem *
 init_log_item (GLog *glog) {
-  time_t now = time (0);
   GLogItem *logitem;
   glog->items = xmalloc (sizeof (GLogItem));
   logitem = glog->items;
@@ -293,7 +292,7 @@ init_log_item (GLog *glog) {
 
   memset (logitem->site, 0, sizeof (logitem->site));
   memset (logitem->agent_hex, 0, sizeof (logitem->agent_hex));
-  localtime_r (&now, &logitem->dt);
+  logitem->dt = glog->start_time;
 
   return logitem;
 }
@@ -895,7 +894,6 @@ set_agent_hash (GLogItem *logitem) {
 static int
 parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) {
   struct tm tm;
-  time_t now = time (0);
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
 
@@ -908,7 +906,7 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
   errno = 0;
   memset (&tm, 0, sizeof (tm));
   tm.tm_isdst = -1;
-  localtime_r (&now, &tm);
+  tm = logitem->dt;
 
   switch (*p) {
     /* date */
@@ -2137,6 +2135,7 @@ out:
 int
 set_initial_persisted_data (GLog *glog, FILE *fp, const char *fn) {
   size_t len;
+  time_t now = time (0);
 
   /* reset the snippet */
   memset (glog->snippet, 0, sizeof (glog->snippet));
@@ -2149,6 +2148,7 @@ set_initial_persisted_data (GLog *glog, FILE *fp, const char *fn) {
   if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
     FATAL ("Unable to fread the specified log file '%s'", fn);
   glog->snippetlen = len;
+  localtime_r (&now, &glog->start_time);
 
   fseek (fp, 0, SEEK_SET);
 

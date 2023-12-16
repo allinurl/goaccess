@@ -139,6 +139,7 @@ typedef struct GLog_ {
   GLogItem *items;
   GLastParse lp;
   GLogProp props;
+  struct tm start_time;
 
   char *fname_as_vhost;
   char **errors;
