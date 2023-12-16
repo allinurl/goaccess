@@ -683,7 +683,7 @@ convert_date (char *res, const char *data, const char *from, const char *to, int
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-invalid_ipaddr (char *str, int *ipvx) {
+invalid_ipaddr (const char *str, int *ipvx) {
   union {
     struct sockaddr addr;
     struct sockaddr_in6 addr6;

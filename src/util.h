@@ -92,7 +92,7 @@ int find_output_type (char **filename, const char *ext, int alloc);
 int hide_referer (const char *host);
 int ignore_referer (const char *host);
 int intlen (uint64_t num);
-int invalid_ipaddr (char *str, int *ipvx);
+int invalid_ipaddr (const char *str, int *ipvx);
 int ip_in_range (const char *ip);
 int ptr2int (char *ptr);
 int str2int (const char *date);

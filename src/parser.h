@@ -191,7 +191,7 @@ typedef struct GRawData_ {
 } GRawData;
 
 
-char *extract_by_delim (char **str, const char *end);
+char *extract_by_delim (const char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);

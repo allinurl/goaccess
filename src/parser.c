@@ -710,7 +710,7 @@ get_delim (char *dest, const char *p) {
  *
  * On success, the malloc'd token is returned. */
 static char *
-parsed_string (const char *pch, char **str, int move_ptr) {
+parsed_string (const char *pch, const char **str, int move_ptr) {
   char *p;
   size_t len = (pch - *str + 1);
 
@@ -728,9 +728,9 @@ parsed_string (const char *pch, char **str, int move_ptr) {
  * On error, or unable to parse it, NULL is returned.
  * On success, the malloc'd token is returned. */
 static char *
-parse_string (char **str, const char *delims, int cnt) {
+parse_string (const char **str, const char *delims, int cnt) {
   int idx = 0;
-  char *pch = *str, *p = NULL;
+  const char *pch = *str, *p = NULL;
   char end;
 
   if ((*delims != 0x0) && (p = strpbrk (*str, delims)) == NULL)
@@ -753,15 +753,15 @@ parse_string (char **str, const char *delims, int cnt) {
 }
 
 char *
-extract_by_delim (char **str, const char *end) {
+extract_by_delim (const char **str, const char *end) {
   return parse_string (&(*str), end, 1);
 }
 
 /* Move forward through the log string until a non-space (!isspace)
  * char is found. */
 static void
-find_alpha (char **str) {
-  char *s = *str;
+find_alpha (const char **str) {
+  const char *s = *str;
   while (*s) {
     if (isspace (*s))
       s++;
@@ -774,9 +774,9 @@ find_alpha (char **str) {
 /* Move forward through the log string until a non-space (!isspace)
  * char is found and returns the count. */
 static int
-find_alpha_count (char *str) {
+find_alpha_count (const char *str) {
   int cnt = 0;
-  char *s = str;
+  const char *s = str;
   while (*s) {
     if (isspace (*s))
       s++, cnt++;
@@ -891,7 +891,7 @@ set_agent_hash (GLogItem *logitem) {
  * On error, or unable to parse it, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem member. */
 static int
-parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) {
+parse_specifier (GLogItem *logitem, const char **str, const char *p, const char *end) {
   struct tm tm;
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
@@ -1328,8 +1328,9 @@ parse_specifier (GLogItem *logitem, char **str, const char *p, const char *end) 
  * If no unable to find both curly braces (boundaries), NULL is returned.
  * On success, the malloc'd reject set is returned. */
 static char *
-extract_braces (char **p) {
-  char *b1 = NULL, *b2 = NULL, *ret = NULL, *s = *p;
+extract_braces (const char **p) {
+  const char *b1 = NULL, *b2 = NULL, *s = *p;
+  char *ret = NULL;
   int esc = 0;
   ptrdiff_t len = 0;
 
@@ -1367,8 +1368,8 @@ extract_braces (char **p) {
  * On success, the malloc'd token is assigned to a GLogItem->host and
  * 0 is returned. */
 static int
-set_xff_host (GLogItem *logitem, char *str, char *skips, int out) {
-  char *ptr = NULL, *tkn = NULL;
+set_xff_host (GLogItem *logitem, const char *str, const char *skips, int out) {
+  const char *ptr = NULL, *tkn = NULL;
   int invalid_ip = 1, len = 0, type_ip = TYPE_IPINV;
   int idx = 0, skips_len = 0;
 
@@ -1392,14 +1393,14 @@ set_xff_host (GLogItem *logitem, char *str, char *skips, int out) {
     invalid_ip = invalid_ipaddr (tkn, &type_ip);
     /* done, already have IP and current token is not a host */
     if (logitem->host && invalid_ip) {
-      free (tkn);
+      free ((void *) tkn);
       break;
     }
     if (!logitem->host && !invalid_ip) {
       logitem->host = xstrdup (tkn);
       logitem->type_ip = type_ip;
     }
-    free (tkn);
+    free ((void *) tkn);
     idx = 0;
 
     /* found the client IP, break then */
@@ -1418,7 +1419,7 @@ set_xff_host (GLogItem *logitem, char *str, char *skips, int out) {
  * If no IP is found, 1 is returned.
  * On success, the malloc'd token is assigned to a GLogItem->host and 0 is returned. */
 static int
-find_xff_host (GLogItem *logitem, char **str, char **p) {
+find_xff_host (GLogItem *logitem, const char **str, const char **p) {
   char *skips = NULL, *extract = NULL;
   char pch[2] = { 0 };
   int res = 0;
@@ -1453,7 +1454,7 @@ clean:
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-special_specifier (GLogItem *logitem, char **str, char **p) {
+special_specifier (GLogItem *logitem, const char **str, const char **p) {
   switch (**p) {
     /* XFF remote hostname (IP only) */
   case 'h':
@@ -1471,9 +1472,9 @@ special_specifier (GLogItem *logitem, char **str, char **p) {
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem *logitem, char *str, char *lfmt) {
+parse_format (GLogItem *logitem, const char *str, const char * lfmt) {
   char end[2 + 1] = { 0 };
-  char *p = NULL, *last = NULL;
+  const char *p = NULL, *last = NULL;
   int perc = 0, tilde = 0, ret = 0;
 
   if (str == NULL || *str == '\0')
