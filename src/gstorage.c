@@ -558,7 +558,7 @@ count_bw (int numdate, uint64_t resp_size) {
 
 /* Keep track of all invalid log strings. */
 static void
-count_invalid (GLog *glog, const char *line) {
+count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   glog->invalid++;
   ht_inc_cnt_overall ("failed_requests", 1);
 
@@ -566,8 +566,8 @@ count_invalid (GLog *glog, const char *line) {
     LOG_INVALID (("%s", line));
   }
 
-  if (glog->items->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
-    glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
+  if (logitem->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
+    glog->errors[glog->log_erridx++] = xstrdup (logitem->errstr);
   }
 }
 
@@ -617,9 +617,9 @@ count_process (GLog *glog) {
 }
 
 void
-count_process_and_invalid (GLog *glog, const char *line) {
+count_process_and_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   count_process (glog);
-  count_invalid (glog, line);
+  count_invalid (glog, logitem, line);
 }
 
 /* Keep track of all excluded log strings (IPs).

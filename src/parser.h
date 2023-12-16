@@ -136,7 +136,6 @@ typedef struct GLog_ {
   uint16_t snippetlen;
   char snippet[READ_BYTES + 1];
 
-  GLogItem *items;
   GLastParse lp;
   GLogProp props;
   struct tm start_time;

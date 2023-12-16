@@ -253,8 +253,7 @@ free_logs (Logs *logs) {
 GLogItem *
 init_log_item (GLog *glog) {
   GLogItem *logitem;
-  glog->items = xmalloc (sizeof (GLogItem));
-  logitem = glog->items;
+  logitem = xmalloc (sizeof (GLogItem));
   memset (logitem, 0, sizeof *logitem);
 
   logitem->agent = NULL;
@@ -1798,7 +1797,7 @@ process_invalid (GLog *glog, GLogItem *logitem, const char *line) {
 
   /* if not restoring from disk, then count entry as proceeded and invalid */
   if (!conf.restore) {
-    count_process_and_invalid (glog, line);
+    count_process_and_invalid (glog, logitem, line);
     return;
   }
 
@@ -1809,13 +1808,13 @@ process_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   if (glog->props.inode && is_likely_same_log (glog, &lp)) {
     /* only count invalids if we're past the last parsed line */
     if (glog->props.size > lp.size && glog->read >= lp.line)
-      count_process_and_invalid (glog, line);
+      count_process_and_invalid (glog, logitem, line);
     return;
   }
 
   /* no timestamp to compare against, just count the invalid then */
   if (!logitem->numdate) {
-    count_process_and_invalid (glog, line);
+    count_process_and_invalid (glog, logitem, line);
     return;
   }
 
@@ -1827,7 +1826,7 @@ process_invalid (GLog *glog, GLogItem *logitem, const char *line) {
    * then we simply don't count the entry as proceed & invalid to attempt over
    * counting restored data */
   if (should_restore_from_disk (glog) == 0)
-    count_process_and_invalid (glog, line);
+    count_process_and_invalid (glog, logitem, line);
 }
 
 static int
