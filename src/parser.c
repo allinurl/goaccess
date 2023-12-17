@@ -55,6 +55,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <pthread.h>
 #include <libgen.h>
 
 #include "gkhash.h"
@@ -2034,7 +2035,9 @@ read_lines_thread (void *arg) {
 static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
   int k, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  void *status;
   GJob jobs[conf.jobs];
+  pthread_t threads[conf.jobs];
 
 #ifndef WITH_GETLINE
   char *s = NULL;
@@ -2057,19 +2060,26 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   }
 
   while (!feof (fp)) {
+    for (k = 0; k < conf.jobs; k++) {
 #ifdef WITH_GETLINE
-    while ((jobs[0].lines[jobs[0].p] = fgetline (fp)) != NULL) {
+      while ((jobs[k].lines[jobs[k].p] = fgetline (fp)) != NULL) {
 #else
-    while ((s = fgets (jobs[0].lines[jobs[0].p], LINE_BUFFER, fp)) != NULL) {
+      while ((s = fgets (jobs[k].lines[jobs[k].p], LINE_BUFFER, fp)) != NULL) {
 #endif
-      glog->bytes += strlen (jobs[0].lines[jobs[0].p]);
-      glog->read++;
+        glog->bytes += strlen (jobs[k].lines[jobs[k].p]);
+        glog->read++;
 
-      if (++(jobs[0].p) >= conf.chunk_size)
-        break;  // goto next chunk
+        if (++(jobs[k].p) >= conf.chunk_size)
+          break;  // goto next chunk
+      }
     }
 
+    for (k = 1; k < conf.jobs; k++)
+      pthread_create (&threads[k], NULL, read_lines_thread, (void *) &jobs[k]);
     read_lines_thread (&jobs[0]);
+
+    for (k = 1; k < conf.jobs; k++)
+      pthread_join (threads[k], &status);
 
     for (k = 0; k < conf.jobs; k++) {
       for (int i = 0; i < jobs[k].p; i++) {
@@ -2096,16 +2106,8 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   /* if no data was available to read from (probably from a pipe) and
    * still in test mode, we simply return until data becomes available */
-#ifdef WITH_GETLINE
-  if (!jobs[0].lines[0] && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
+  if (errno == EAGAIN || errno == EWOULDBLOCK)
     return 0;
-
-  return (jobs[0].lines[0] && test) || (!jobs[0].lines[0] && test && glog->processed);
-#else
-  if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
-    return 0;
-#endif
-
 
 out:
   for (k = 0; k < conf.jobs; k++) {
@@ -2117,14 +2119,7 @@ out:
     free (jobs[k].lines);
   }
 
-  /* fails if
-   * - we're still reading the log but the test flag was still set
-   * - reached the end of file, test flag was still set and we processed lines */
-#ifdef WITH_GETLINE
-  return test || (test && glog->processed);
-#else
-  return (s && test) || (!s && test && glog->processed);
-#endif
+  return test;
 }
 
 /* Read the given log file and attempt to mmap a fixed number of bytes so we
