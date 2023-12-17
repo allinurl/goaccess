@@ -780,7 +780,7 @@ parse_tail_follow (GLog *glog, FILE *fp) {
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
-    pre_process_log (glog, buf, 0);
+    parse_line (glog, buf, 0);
     pthread_mutex_unlock (&gdns_thread.mutex);
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE

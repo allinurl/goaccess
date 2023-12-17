@@ -1867,7 +1867,7 @@ parse_json_format (GLogItem *logitem, char *str) {
  *
  * On success, 0 is returned */
 int
-pre_process_log (GLog *glog, char *line, int dry_run) {
+parse_line (GLog *glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
   char *fmt = conf.log_format;
@@ -1884,10 +1884,15 @@ pre_process_log (GLog *glog, char *line, int dry_run) {
   else
     ret = parse_format (logitem, line, fmt);
 
+  if (ret) {
+    process_invalid (glog, logitem, line);
+    goto cleanup;
+  }
+
   if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
     logitem->vhost = xstrdup (glog->fname_as_vhost);
 
-  if (ret || (ret = verify_missing_fields (logitem))) {
+  if ((ret = verify_missing_fields (logitem))) {
     process_invalid (glog, logitem, line);
     goto cleanup;
   }
@@ -1900,15 +1905,15 @@ pre_process_log (GLog *glog, char *line, int dry_run) {
 
   count_process (glog);
 
+  /* testing log only */
+  if (dry_run)
+    goto cleanup;
+
   /* agent will be null in cases where %u is not specified */
   if (logitem->agent == NULL) {
     logitem->agent = alloc_string ("-");
     set_agent_hash (logitem);
   }
-
-  /* testing log only */
-  if (dry_run)
-    goto cleanup;
 
   logitem->ignorelevel = ignore_line (logitem);
   /* ignore line */
@@ -1939,7 +1944,7 @@ read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
   int ret = 0;
 
   /* start processing log line */
-  if ((ret = pre_process_log (glog, line, dry_run)) == 0 && *test)
+  if ((ret = parse_line (glog, line, dry_run)) == 0 && *test)
     *test = 0;
 
   /* soft ignores */

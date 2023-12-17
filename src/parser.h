@@ -187,7 +187,7 @@ char *extract_by_delim (char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);
-int pre_process_log (GLog * glog, char *line, int dry_run);
+int parse_line (GLog * glog, char *line, int dry_run);
 int set_glog (Logs * logs, const char *filename);
 int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 int set_log (Logs * logs, const char *value);
