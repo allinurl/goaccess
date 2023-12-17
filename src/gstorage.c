@@ -610,8 +610,8 @@ count_valid (int numdate) {
 /* Keep track of all valid and processed log strings. */
 void
 count_process (GLog *glog) {
+  __sync_add_and_fetch(&glog->processed, 1);
   lock_spinner ();
-  glog->processed++;
   ht_inc_cnt_overall ("total_requests", 1);
   unlock_spinner ();
 }
