@@ -158,6 +158,11 @@ typedef struct Logs_ {
   GLog *glog;
 } Logs;
 
+/* Pthread jobs for multi-thread */
+typedef struct GJob_ {
+  GLogItem **logitems;
+} GJob;
+
 /* Raw data field type */
 typedef enum {
   U32,

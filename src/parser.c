@@ -2020,7 +2020,7 @@ fgetline (FILE *fp) {
 static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
   int cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
-  GLogItem *logitem;
+  GJob jobs[1];
 
 #ifdef WITH_GETLINE
   char *line = NULL;
@@ -2030,6 +2030,8 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 #endif
 
   glog->bytes = 0;
+
+  jobs[0].logitems = xmalloc(conf.chunk_size * sizeof(GLogItem));
 
 #ifdef WITH_GETLINE
   while ((line = fgetline (fp)) != NULL) {
@@ -2041,13 +2043,13 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     if (conf.stop_processing)
       goto out;
 
-    logitem = read_line (glog, line, &test, &cnt, dry_run);
-    if (logitem == NULL)
+    jobs[0].logitems[0] = read_line (glog, line, &test, &cnt, dry_run);
+    if (jobs[0].logitems[0] == NULL)
       goto out;
 
-    if (!dry_run && logitem->errstr == NULL)
-      process_log (logitem);
-    free_glog (logitem);
+    if (!dry_run && jobs[0].logitems[0]->errstr == NULL)
+      process_log (jobs[0].logitems[0]);
+    free_glog (jobs[0].logitems[0]);
 
     if (dry_run && NUM_TESTS == cnt)
       goto out;
@@ -2077,6 +2079,8 @@ out:
 #ifdef WITH_GETLINE
   free (line);
 #endif
+
+  free (jobs[0].logitems);
 
   /* fails if
    * - we're still reading the log but the test flag was still set
