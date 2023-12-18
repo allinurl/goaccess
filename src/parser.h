@@ -160,7 +160,7 @@ typedef struct Logs_ {
 
 /* Pthread jobs for multi-thread */
 typedef struct GJob_ {
-  int p, cnt, test, dry_run;
+  int p, cnt, test, dry_run, running;
   GLog *glog;
   GLogItem **logitems;
   char **lines;
