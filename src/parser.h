@@ -197,6 +197,7 @@ char **test_format (Logs * logs, int *len);
 int parse_log (Logs * logs, int dry_run);
 GLogItem *parse_line (GLog * glog, char *line, int dry_run);
 void *read_lines_thread (void *arg);
+void *process_lines_thread (void *arg);
 int set_glog (Logs * logs, const char *filename);
 int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 int set_log (Logs * logs, const char *value);

@@ -2026,6 +2026,20 @@ read_lines_thread (void *arg) {
   return (void *) 0;
 }
 
+void *
+process_lines_thread (void *arg) {
+  GJob *job = (GJob *) arg;
+  for (int i = 0; i < job->p; i++) {
+    if (job->logitems[i] == NULL)
+      break;
+    if (!job->dry_run && job->logitems[i]->errstr == NULL)
+      process_log (job->logitems[i]);
+    count_process (job->glog);
+    free_glog (job->logitems[i]);
+  }
+  return (void *) 0;
+}
+
 /* Iterate over the log and read line by line.
  * With GETLINE: use GNU get_line to parse the whole line.
  * Without GETLINE: uses a buffer of fixed size.
@@ -2082,14 +2096,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       pthread_join (threads[k], &status);
 
     for (k = 0; k < conf.jobs; k++) {
-      for (int i = 0; i < jobs[k].p; i++) {
-        if (jobs[k].logitems[i] == NULL)
-          goto out;
-        if (!dry_run && jobs[k].logitems[i]->errstr == NULL)
-          process_log (jobs[k].logitems[i]);
-        count_process (glog);
-        free_glog (jobs[k].logitems[i]);
-      }
+      process_lines_thread(&jobs[k]);
       cnt += jobs[k].cnt;
       jobs[k].cnt = 0;
       test &= jobs[k].test;
@@ -2104,12 +2111,6 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       break;
   }  // while (!eof)
 
-  /* if no data was available to read from (probably from a pipe) and
-   * still in test mode, we simply return until data becomes available */
-  if (errno == EAGAIN || errno == EWOULDBLOCK)
-    return 0;
-
-out:
   for (k = 0; k < conf.jobs; k++) {
 #ifndef WITH_GETLINE
     for (int i=0; i<conf.chunk_size; i++)
@@ -2118,6 +2119,11 @@ out:
     free (jobs[k].logitems);
     free (jobs[k].lines);
   }
+
+  /* if no data was available to read from (probably from a pipe) and
+   * still in test mode, we simply return until data becomes available */
+  if (errno == EAGAIN || errno == EWOULDBLOCK)
+    return 0;
 
   return test;
 }
