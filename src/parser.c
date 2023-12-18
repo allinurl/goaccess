@@ -1908,8 +1908,6 @@ parse_line (GLog *glog, char *line, int dry_run) {
   if (should_restore_from_disk (glog))
     return logitem;
 
-  count_process (glog);
-
   /* testing log only */
   if (dry_run)
     return logitem;
@@ -2011,6 +2009,20 @@ fgetline (FILE *fp) {
   return NULL;
 }
 
+/* Parse chunk of lines to logitems */
+void *
+read_lines_thread (void *arg) {
+  GJob *job = (GJob *) arg;
+  for (int i=0; i<job->p; i++) {
+    job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
+
+#ifdef WITH_GETLINE
+    free (job->lines[i]);
+#endif
+  }
+  return (void *) 0;
+}
+
 /* Iterate over the log and read line by line.
  * With GETLINE: use GNU get_line to parse the whole line.
  * Without GETLINE: uses a buffer of fixed size.
@@ -2019,8 +2031,8 @@ fgetline (FILE *fp) {
  * On success, 0 is returned. */
 static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
-  int cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
-  GJob jobs[1];
+  int k, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  GJob jobs[conf.jobs];
 
 #ifndef WITH_GETLINE
   char *s = NULL;
@@ -2028,42 +2040,57 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   glog->bytes = 0;
 
-  jobs[0].logitems = xmalloc(conf.chunk_size * sizeof(GLogItem));
-  jobs[0].lines = xmalloc(conf.chunk_size * sizeof(char *));
+  for (k = 0; k < conf.jobs; k++) {
+    jobs[k].p = 0;
+    jobs[k].cnt = 0;
+    jobs[k].glog = glog;
+    jobs[k].test = test;
+    jobs[k].dry_run = dry_run;
+    jobs[k].logitems = xmalloc(conf.chunk_size * sizeof(GLogItem));
+    jobs[k].lines = xmalloc(conf.chunk_size * sizeof(char *));
 #ifndef WITH_GETLINE
-  for (int i=0; i<conf.chunk_size; i++)
-    jobs[0].lines[i] = xmalloc(sizeof(char) * LINE_BUFFER);
+    for (int i=0; i<conf.chunk_size; i++)
+      jobs[k].lines[i] = xmalloc(sizeof(char) * LINE_BUFFER);
 #endif
+  }
 
-
+  while (!feof (fp)) {
 #ifdef WITH_GETLINE
-  while ((jobs[0].lines[0] = fgetline (fp)) != NULL) {
+    while ((jobs[0].lines[jobs[0].p] = fgetline (fp)) != NULL) {
 #else
-  while ((s = fgets (jobs[0].lines[0], LINE_BUFFER, fp)) != NULL) {
+    while ((s = fgets (jobs[0].lines[jobs[0].p], LINE_BUFFER, fp)) != NULL) {
 #endif
+      glog->bytes += strlen (jobs[0].lines[jobs[0].p]);
+      glog->read++;
+
+      if (++(jobs[0].p) >= conf.chunk_size)
+        break;  // goto next chunk
+    }
+
+    read_lines_thread (&jobs[0]);
+
+    for (k = 0; k < conf.jobs; k++) {
+      for (int i = 0; i < jobs[k].p; i++) {
+        if (jobs[k].logitems[i] == NULL)
+          goto out;
+        if (!dry_run && jobs[k].logitems[i]->errstr == NULL)
+          process_log (jobs[k].logitems[i]);
+        count_process (glog);
+        free_glog (jobs[k].logitems[i]);
+      }
+      cnt += jobs[k].cnt;
+      jobs[k].cnt = 0;
+      test &= jobs[k].test;
+      jobs[k].p = 0;
+    }
+
+    if (dry_run && cnt >= NUM_TESTS)
+      break;
 
     /* handle SIGINT */
     if (conf.stop_processing)
-      goto out;
-
-    jobs[0].logitems[0] = read_line (glog, jobs[0].lines[0], &test, &cnt, dry_run);
-    if (jobs[0].logitems[0] == NULL)
-      goto out;
-
-    if (!dry_run && jobs[0].logitems[0]->errstr == NULL)
-      process_log (jobs[0].logitems[0]);
-    free_glog (jobs[0].logitems[0]);
-
-    if (dry_run && NUM_TESTS == cnt)
-      goto out;
-
-    glog->bytes += strlen (jobs[0].lines[0]);
-    glog->read++;
-
-#ifdef WITH_GETLINE
-    free (jobs[0].lines[0]);
-#endif
-  }
+      break;
+  }  // while (!eof)
 
   /* if no data was available to read from (probably from a pipe) and
    * still in test mode, we simply return until data becomes available */
@@ -2079,12 +2106,14 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
 
 out:
+  for (k = 0; k < conf.jobs; k++) {
 #ifndef WITH_GETLINE
-  for (int i=0; i<conf.chunk_size; i++)
-    free (jobs[0].lines[i]);
+    for (int i=0; i<conf.chunk_size; i++)
+      free (jobs[k].lines[i]);
 #endif
-  free (jobs[0].logitems);
-  free (jobs[0].lines);
+    free (jobs[k].logitems);
+    free (jobs[k].lines);
+  }
 
   /* fails if
    * - we're still reading the log but the test flag was still set

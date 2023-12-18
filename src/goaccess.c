@@ -787,6 +787,7 @@ parse_tail_follow (GLog *glog, FILE *fp) {
     if (logitem != NULL) {
       if (logitem->errstr == NULL)
         process_log (logitem);
+      count_process (glog);
       free_glog (logitem);
     }
     pthread_mutex_unlock (&gdns_thread.mutex);
