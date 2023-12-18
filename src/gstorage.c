@@ -1324,8 +1324,8 @@ gen_status_code_key (GKeyData *kdata, GLogItem *logitem) {
   if (!logitem->status)
     return 1;
 
-  type = verify_status_code_type (logitem->status);
   status = verify_status_code (logitem->status);
+  type = verify_status_code_type (logitem->status);
 
   get_kdata (kdata, status, status);
   get_kroot (kdata, type, type);
@@ -1390,7 +1390,7 @@ static int
 include_uniq (GLogItem *logitem) {
   int u = conf.client_err_to_unique_count;
 
-  if (!logitem->status || logitem->status[0] != '4' || (u && logitem->status[0] == '4'))
+  if (!logitem->status || (logitem->status / 100) != 4 || (u && (logitem->status / 100) == '4'))
     return 1;
   return 0;
 }

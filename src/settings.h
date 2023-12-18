@@ -103,7 +103,7 @@ typedef struct GConf_
   const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_referers[MAX_IGNORE_REF];  /* referrers to ignore */
-  const char *ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
+  int ignore_status[MAX_IGNORE_STATUS]; /* status to ignore */
   const char *output_formats[MAX_OUTFORMATS];   /* output format, e.g. , HTML */
   const char *sort_panels[TOTAL_MODULES];       /* sorting options for each panel */
   const char *static_files[MAX_EXTENSIONS];     /* static extensions */

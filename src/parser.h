@@ -82,7 +82,7 @@ typedef struct GLogItem_ {
   char *ref;
   char *req;
   char *req_key;
-  char *status;
+  int status;
   char *time;
   char *uniq_key;
   char *vhost;

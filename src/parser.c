@@ -277,7 +277,7 @@ init_log_item (GLog *glog) {
   logitem->req = NULL;
   logitem->resp_size = 0LL;
   logitem->serve_time = 0;
-  logitem->status = NULL;
+  logitem->status = 0;
   logitem->time = NULL;
   logitem->uniq_key = NULL;
   logitem->vhost = NULL;
@@ -336,8 +336,6 @@ free_glog (GLogItem *logitem) {
     free (logitem->req_key);
   if (logitem->req != NULL)
     free (logitem->req);
-  if (logitem->status != NULL)
-    free (logitem->status);
   if (logitem->time != NULL)
     free (logitem->time);
   if (logitem->uniq_key != NULL)
@@ -900,7 +898,6 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
   uint64_t bandw = 0, serve_time = 0;
-  long status = 0L;
   int dspc = 0, fmtspcs = 0;
 
   errno = 0;
@@ -1109,19 +1106,14 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
-    /* do not validate HTTP status code */
-    if (conf.no_strict_status) {
-      logitem->status = tkn;
-      break;
-    }
-
-    status = strtol (tkn, &sEnd, 10);
-    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE || status < 100 || status > 599) {
+    logitem->status = strtol (tkn, &sEnd, 10);
+    if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE ||
+        (!conf.no_strict_status && (logitem->status < 100 || logitem->status > 599))) {
       spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;
     }
-    logitem->status = tkn;
+    free (tkn);
     break;
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
@@ -1628,12 +1620,14 @@ is_static (const char *req) {
  * If the status code is not within the ignore-array, 0 is returned.
  * If the status code is within the ignore-array, 1 is returned. */
 static int
-ignore_status_code (const char *status) {
+ignore_status_code (int status) {
   if (!status || conf.ignore_status_idx == 0)
     return 0;
 
-  if (str_inarray (status, conf.ignore_status, conf.ignore_status_idx) != -1)
-    return 1;
+  for (int i=0; i<conf.ignore_status_idx; i++)
+    if (status == conf.ignore_status[i])
+      return 1;
+
   return 0;
 }
 
@@ -1654,13 +1648,11 @@ ignore_static (const char *req) {
  * If the request is a 404, 1 is returned. */
 static int
 is_404 (GLogItem *logitem) {
-  if (!logitem->status || *logitem->status == '\0')
-    return 0;
   /* is this a 404? */
-  if (!memcmp (logitem->status, "404", 3))
+  if (logitem->status == 404)
     return 1;
   /* treat 444 as 404? */
-  else if (!memcmp (logitem->status, "444", 3) && conf.code444_as_404)
+  else if (logitem->status == 444 && conf.code444_as_404)
     return 1;
   return 0;
 }

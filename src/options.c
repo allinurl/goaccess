@@ -642,7 +642,8 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* ignore status code */
   if (!strcmp ("ignore-status", name))
-    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx, MAX_IGNORE_STATUS);
+    if (conf.ignore_status_idx < MAX_IGNORE_STATUS)
+      conf.ignore_status[conf.ignore_status_idx++] = atoi (oarg);
 
   /* ignore static requests */
   if (!strcmp ("ignore-statics", name)) {
