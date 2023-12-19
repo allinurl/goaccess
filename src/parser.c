@@ -1937,9 +1937,9 @@ parse_line (GLog *glog, char *line, int dry_run) {
 
 /* Entry point to process the given line from the log.
  *
- * On error, 1 is returned.
- * On success or soft ignores, 0 is returned. */
-static int
+ * On error, NULL is returned.
+ * On success or soft ignores, GLogItem is returned. */
+static GLogItem *
 read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
   GLogItem *logitem;
 
@@ -1947,27 +1947,24 @@ read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
   logitem = parse_line (glog, line, dry_run);
   if (logitem != NULL) {
     /* soft ignore */
-    if (logitem->errstr != NULL && strcmp (logitem->errstr, "Invalid line") == 0) {
-      free_glog (logitem);
-      return 0;
-    }
+    if (logitem->errstr != NULL && strcmp (logitem->errstr, "Invalid line") == 0)
+      return logitem;
 
-    if (logitem->errstr == NULL) {
-      process_log (logitem);
+    if (logitem->errstr == NULL)
       *test = 0;
-    }
-    free_glog (logitem);
   }
 
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
-  if (conf.num_tests && ++(*cnt) == (int) conf.num_tests && *test) {
+  if (conf.num_tests && ++(*cnt) >= (int) conf.num_tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
-    return 1;
+    if (logitem != NULL)
+      free_glog (logitem);
+    return NULL;
   }
 
-  return 0;
+  return logitem;
 }
 
 /* A replacement for GNU getline() to dynamically expand fgets buffer.
@@ -2022,7 +2019,8 @@ fgetline (FILE *fp) {
  * On success, 0 is returned. */
 static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
-  int ret = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  int cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  GLogItem *logitem;
 
 #ifdef WITH_GETLINE
   char *line = NULL;
@@ -2038,13 +2036,22 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 #else
   while ((s = fgets (line, LINE_BUFFER, fp)) != NULL) {
 #endif
+
     /* handle SIGINT */
     if (conf.stop_processing)
       goto out;
-    if ((ret = read_line (glog, line, &test, &cnt, dry_run)))
+
+    logitem = read_line (glog, line, &test, &cnt, dry_run);
+    if (logitem == NULL)
       goto out;
+
+    if (!dry_run && logitem->errstr == NULL)
+      process_log (logitem);
+    free_glog (logitem);
+
     if (dry_run && NUM_TESTS == cnt)
       goto out;
+
     glog->bytes += strlen (line);
     glog->read++;
 
@@ -2059,7 +2066,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   if (!line && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
 
-  return (line && test) || ret || (!line && test && glog->processed);
+  return (line && test) || (!line && test && glog->processed);
 #else
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test)
     return 0;
@@ -2073,12 +2080,11 @@ out:
 
   /* fails if
    * - we're still reading the log but the test flag was still set
-   * - ret flag is not 0, read_line failed
    * - reached the end of file, test flag was still set and we processed lines */
 #ifdef WITH_GETLINE
-  return test || ret || (test && glog->processed);
+  return test || (test && glog->processed);
 #else
-  return (s && test) || ret || (!s && test && glog->processed);
+  return (s && test) || (!s && test && glog->processed);
 #endif
 }
 
