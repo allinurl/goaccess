@@ -299,7 +299,7 @@ init_log_item (GLog *glog) {
 }
 
 /* Free all members of a GLogItem */
-static void
+void
 free_glog (GLogItem *logitem) {
   if (logitem->agent != NULL)
     free (logitem->agent);
@@ -1865,18 +1865,20 @@ parse_json_format (GLogItem *logitem, char *str) {
  * account multiple parsing options prior to setting data into the
  * corresponding data structure.
  *
- * On success, 0 is returned */
-int
+ * On error, logitem->errstr will contains the error message. */
+GLogItem *
 parse_line (GLog *glog, char *line, int dry_run) {
   GLogItem *logitem;
   int ret = 0;
   char *fmt = conf.log_format;
 
-  /* soft ignore these lines */
-  if (valid_line (line))
-    return -1;
-
   logitem = init_log_item (glog);
+
+  /* soft ignore these lines */
+  if (valid_line (line)) {
+    logitem->errstr = xstrdup ("Invalid line");
+    return logitem;
+  }
 
   /* Parse a line of log, and fill structure with appropriate values */
   if (conf.is_json_log_format)
@@ -1885,29 +1887,32 @@ parse_line (GLog *glog, char *line, int dry_run) {
     ret = parse_format (logitem, line, fmt);
 
   if (ret) {
+    if (logitem->errstr == NULL)
+      logitem->errstr = xstrdup ("Parse format error");
     process_invalid (glog, logitem, line);
-    goto cleanup;
+    return logitem;
   }
 
   if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
     logitem->vhost = xstrdup (glog->fname_as_vhost);
 
-  if ((ret = verify_missing_fields (logitem))) {
+  if (verify_missing_fields (logitem)) {
+    logitem->errstr = xstrdup ("Missing fields");
     process_invalid (glog, logitem, line);
-    goto cleanup;
+    return logitem;
   }
 
   if ((glog->lp.ts = mktime (&logitem->dt)) == -1)
-    goto cleanup;
+    return logitem;
 
   if (should_restore_from_disk (glog))
-    goto cleanup;
+    return logitem;
 
   count_process (glog);
 
   /* testing log only */
   if (dry_run)
-    goto cleanup;
+    return logitem;
 
   /* agent will be null in cases where %u is not specified */
   if (logitem->agent == NULL) {
@@ -1918,7 +1923,7 @@ parse_line (GLog *glog, char *line, int dry_run) {
   logitem->ignorelevel = ignore_line (logitem);
   /* ignore line */
   if (logitem->ignorelevel == IGNORE_LEVEL_PANEL)
-    goto cleanup;
+    return logitem;
 
   if (is_404 (logitem))
     logitem->is_404 = 1;
@@ -1927,12 +1932,7 @@ parse_line (GLog *glog, char *line, int dry_run) {
 
   logitem->uniq_key = get_uniq_visitor_key (logitem);
 
-  process_log (logitem);
-
-cleanup:
-  free_glog (logitem);
-
-  return ret;
+  return logitem;
 }
 
 /* Entry point to process the given line from the log.
@@ -1941,15 +1941,23 @@ cleanup:
  * On success or soft ignores, 0 is returned. */
 static int
 read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
-  int ret = 0;
+  GLogItem *logitem;
 
   /* start processing log line */
-  if ((ret = parse_line (glog, line, dry_run)) == 0 && *test)
-    *test = 0;
+  logitem = parse_line (glog, line, dry_run);
+  if (logitem != NULL) {
+    /* soft ignore */
+    if (logitem->errstr != NULL && strcmp (logitem->errstr, "Invalid line") == 0) {
+      free_glog (logitem);
+      return 0;
+    }
 
-  /* soft ignores */
-  if (ret == -1)
-    return 0;
+    if (logitem->errstr == NULL) {
+      process_log (logitem);
+      *test = 0;
+    }
+    free_glog (logitem);
+  }
 
   /* reached num of lines to test and no valid records were found, log
    * format is likely not matching */
