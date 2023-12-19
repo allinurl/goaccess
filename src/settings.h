@@ -154,7 +154,8 @@ typedef struct GConf_
   int client_err_to_unique_count;   /* count 400s as visitors */
   int code444_as_404;               /* 444 as 404s? */
   int color_scheme;                 /* color scheme */
-  int crawlers_only ;               /* crawlers only */
+  int chunk_size;                   /* chunk size for each thread */
+  int crawlers_only;                /* crawlers only */
   int daemonize;                    /* run program as a Unix daemon */
   const char *username;             /* user to run program as */
   int double_decode;                /* need to double decode */
@@ -166,6 +167,7 @@ typedef struct GConf_
   int unknowns_as_crawlers;         /* unknown OS and browsers are classified as crawlers */
   int ignore_qstr;                  /* ignore query string */
   int ignore_statics;               /* ignore static files */
+  int jobs;                         /* multi-thread jobs count */
   int json_pretty_print;            /* pretty print JSON data */
   int list_agents;                  /* show list of agents per host */
   int load_conf_dlg;                /* load curses config dialog */

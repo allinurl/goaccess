@@ -80,7 +80,9 @@
 GConf conf = {
   .append_method = 1,
   .append_protocol = 1,
+  .chunk_size = 1024,
   .hl_header = 1,
+  .jobs = 1,
   .num_tests = 10,
 };
 
