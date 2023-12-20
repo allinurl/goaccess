@@ -147,7 +147,7 @@ char *get_mtr_str (GSMetric metric);
 int excluded_ip (GLogItem * logitem);
 uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
-void count_process_and_invalid (GLog * glog, const char *line);
+void count_process_and_invalid (GLog * glog, GLogItem * logitem, const char *line);
 void count_process (GLog * glog);
 void free_gmetrics (GMetrics * metric);
 void insert_methods_protocols (void);

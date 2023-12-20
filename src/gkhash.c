@@ -996,31 +996,28 @@ ins_u648 (khash_t (u648) *hash, uint64_t key, uint8_t value) {
 }
 
 /* Increase an uint32_t value given an uint32_t key.
- * Note: If the key exists, its value is increased by the given inc.
  *
  * On error, 0 is returned.
- * On success the inserted value is returned */
+ * On success the increased value is returned */
 uint32_t
 inc_ii32 (khash_t (ii32) *hash, uint32_t key, uint32_t inc) {
   khint_t k;
   int ret;
-  uint32_t value = inc;
 
   if (!hash)
     return 0;
 
   k = kh_get (ii32, hash, key);
-  /* key found, increment current value by the given `inc` */
-  if (k != kh_end (hash))
-    value = kh_val (hash, k) + inc;
+  /* key not found, put a new hash with val=0 */
+  if (k == kh_end (hash)) {
+    k = kh_put (ii32, hash, key, &ret);
+    /* operation failed */
+    if (ret == -1)
+      return 0;
+    kh_val (hash, k) = 0;
+  }
 
-  k = kh_put (ii32, hash, key, &ret);
-  if (ret == -1)
-    return 0;
-
-  kh_val (hash, k) = value;
-
-  return value;
+  return __sync_add_and_fetch (&kh_val (hash, k), inc);
 }
 
 /* Increase a uint64_t value given a string key.
@@ -1082,7 +1079,7 @@ inc_iu64 (khash_t (iu64) *hash, uint32_t key, uint64_t inc) {
   return 0;
 }
 
-/* Increase a uint32_t value given a string key.
+/* Increase an uint32_t value given a string key.
  *
  * On error, 0 is returned.
  * On success the increased value is returned */
@@ -1090,25 +1087,21 @@ static uint32_t
 inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
   khint_t k;
   int ret;
-  uint32_t value = inc;
 
   if (!hash)
     return 0;
 
   k = kh_get (si32, hash, key);
-  /* key not found, set new value to the given `inc` */
+  /* key not found, put a new hash with val=0 */
   if (k == kh_end (hash)) {
     k = kh_put (si32, hash, key, &ret);
     /* operation failed */
     if (ret == -1)
       return 0;
-  } else {
-    value = kh_val (hash, k) + inc;
+    kh_val (hash, k) = 0;
   }
 
-  kh_val (hash, k) = value;
-
-  return value;
+  return __sync_add_and_fetch (&kh_val (hash, k), inc);
 }
 
 /* Insert a string key and auto increment int value.
@@ -1200,7 +1193,7 @@ get_si32 (khash_t (si32) *hash, const char *key) {
   k = kh_get (si32, hash, key);
   /* key found, return current value */
   if (k != kh_end (hash))
-    return kh_val (hash, k);
+    return __sync_add_and_fetch (&kh_val (hash, k), 0);
 
   return 0;
 }
@@ -1291,15 +1284,14 @@ get_ss32 (khash_t (ss32) *hash, const char *key) {
 uint32_t
 get_ii32 (khash_t (ii32) *hash, uint32_t key) {
   khint_t k;
-  uint32_t value = 0;
 
   if (!hash)
     return 0;
 
   k = kh_get (ii32, hash, key);
   /* key found, return current value */
-  if (k != kh_end (hash) && (value = kh_val (hash, k)))
-    return value;
+  if (k != kh_end (hash))
+    return __sync_add_and_fetch (&kh_val (hash, k), 0);
 
   return 0;
 }

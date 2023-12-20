@@ -342,7 +342,7 @@ migrate_si32_to_ii32 (GSMetric metric, const char *path, int module) {
 }
 
 static char *
-migrate_unique_key (char *key) {
+migrate_unique_key (const char *key) {
   char *nkey = NULL, *token = NULL, *ptr = NULL;
   char agent_hex[64] = { 0 };
   uint32_t delims = 0;

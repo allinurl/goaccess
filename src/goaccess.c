@@ -80,7 +80,9 @@
 GConf conf = {
   .append_method = 1,
   .append_protocol = 1,
+  .chunk_size = 1024,
   .hl_header = 1,
+  .jobs = 1,
   .num_tests = 10,
 };
 
@@ -767,6 +769,7 @@ read_client (void *ptr_data) {
 /* Parse tailed lines */
 static void
 parse_tail_follow (GLog *glog, FILE *fp) {
+  GLogItem *logitem;
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -780,7 +783,13 @@ parse_tail_follow (GLog *glog, FILE *fp) {
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
-    pre_process_log (glog, buf, 0);
+    logitem = parse_line (glog, buf, 0);
+    if (logitem != NULL) {
+      if (logitem->errstr == NULL)
+        process_log (logitem);
+      count_process (glog);
+      free_glog (logitem);
+    }
     pthread_mutex_unlock (&gdns_thread.mutex);
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
