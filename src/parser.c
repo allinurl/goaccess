@@ -1942,7 +1942,8 @@ read_line (GLog *glog, char *line, int *test, int *cnt, int dry_run) {
     /* soft ignore */
     if (logitem->errstr != NULL && strcmp (logitem->errstr, "Invalid line") == 0)
       return logitem;
-
+    /* flip the test if at least one valid record was found during our log format
+     * test */
     if (logitem->errstr == NULL)
       *test = 0;
   }
@@ -2008,8 +2009,14 @@ fgetline (FILE *fp) {
 void *
 read_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
+
   for (int i=0; i<job->p; i++) {
-    job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
+    /* ensure we don't process more than we should when testing for log format,
+     * else free chunk and stop processing threads */
+    if (!job->test || (job->test && job->cnt < conf.num_tests))
+      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
+    else
+      conf.stop_processing = 1;
 
 #ifdef WITH_GETLINE
     free (job->lines[i]);
@@ -2059,11 +2066,11 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       jobs[b][k].test = test;
       jobs[b][k].dry_run = dry_run;
       jobs[b][k].running = 0;
-      jobs[b][k].logitems = xmalloc(conf.chunk_size * sizeof(GLogItem));
-      jobs[b][k].lines = xmalloc(conf.chunk_size * sizeof(char *));
+      jobs[b][k].logitems = calloc(conf.chunk_size, sizeof(GLogItem));
+      jobs[b][k].lines = calloc(conf.chunk_size, sizeof(char *));
 #ifndef WITH_GETLINE
       for (int i=0; i<conf.chunk_size; i++)
-        jobs[b][k].lines[i] = xmalloc(sizeof(char) * LINE_BUFFER);
+        jobs[b][k].lines[i] = calloc(LINE_BUFFER, sizeof(char));
 #endif
     }
   }
