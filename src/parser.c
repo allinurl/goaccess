@@ -1126,7 +1126,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
     logitem->resp_size = bandw;
-    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1);  /* set flag */
+    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1);       /* set flag */
     free (tkn);
     break;
     /* referrer */
@@ -1195,7 +1195,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in seconds with a milliseconds
@@ -1218,7 +1218,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -1235,7 +1235,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = serve_time;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in nanoseconds */
@@ -1254,7 +1254,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_time > 0) ? serve_time / MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);  /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
     free (tkn);
     break;
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
@@ -1465,7 +1465,7 @@ special_specifier (GLogItem *logitem, const char **str, const char **p) {
  * On success, the malloc'd token is assigned to a GLogItem member and
  * 0 is returned. */
 static int
-parse_format (GLogItem *logitem, const char *str, const char * lfmt) {
+parse_format (GLogItem *logitem, const char *str, const char *lfmt) {
   char end[2 + 1] = { 0 };
   const char *p = NULL, *last = NULL;
   int perc = 0, tilde = 0, ret = 0;
@@ -1624,7 +1624,7 @@ ignore_status_code (int status) {
   if (!status || conf.ignore_status_idx == 0)
     return 0;
 
-  for (int i=0; i<conf.ignore_status_idx; i++)
+  for (int i = 0; i < conf.ignore_status_idx; i++)
     if (status == conf.ignore_status[i])
       return 1;
 
@@ -1889,13 +1889,14 @@ parse_line (GLog *glog, char *line, int dry_run) {
     process_invalid (glog, logitem, line);
     return logitem;
   }
-
   // glog->lp.ts = max(glog->lp.ts, logitem->dt)
   newts = mktime (&logitem->dt);
   for (;;) {
     oldts = glog->lp.ts;
-    if (oldts >= newts) break;
-    if (__sync_bool_compare_and_swap (&glog->lp.ts, oldts, newts)) break;
+    if (oldts >= newts)
+      break;
+    if (__sync_bool_compare_and_swap (&glog->lp.ts, oldts, newts))
+      break;
   }
   if (newts == -1)
     return logitem;
@@ -2010,11 +2011,12 @@ void *
 read_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
 
-  for (int i=0; i<job->p; i++) {
+  for (int i = 0; i < job->p; i++) {
     /* ensure we don't process more than we should when testing for log format,
      * else free chunk and stop processing threads */
     if (!job->test || (job->test && job->cnt < conf.num_tests))
-      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
+      job->logitems[i] =
+        read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
     else
       conf.stop_processing = 1;
 
@@ -2066,11 +2068,11 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       jobs[b][k].test = test;
       jobs[b][k].dry_run = dry_run;
       jobs[b][k].running = 0;
-      jobs[b][k].logitems = calloc(conf.chunk_size, sizeof(GLogItem));
-      jobs[b][k].lines = calloc(conf.chunk_size, sizeof(char *));
+      jobs[b][k].logitems = calloc (conf.chunk_size, sizeof (GLogItem));
+      jobs[b][k].lines = calloc (conf.chunk_size, sizeof (char *));
 #ifndef WITH_GETLINE
-      for (int i=0; i<conf.chunk_size; i++)
-        jobs[b][k].lines[i] = calloc(LINE_BUFFER, sizeof(char));
+      for (int i = 0; i < conf.chunk_size; i++)
+        jobs[b][k].lines[i] = calloc (LINE_BUFFER, sizeof (char));
 #endif
     }
   }
@@ -2087,16 +2089,16 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
         glog->read++;
 
         if (++(jobs[b][k].p) >= conf.chunk_size)
-          break;  // goto next chunk
+          break;        // goto next chunk
       }
-    }  // for k = jobs
+    }   // for k = jobs
 
     if (conf.jobs == 1) {
-      read_lines_thread(&jobs[b][1]);
+      read_lines_thread (&jobs[b][1]);
     } else {
       for (k = 1; k < conf.jobs; k++) {
         jobs[b][k].running = 1;
-        pthread_create(&threads[k], NULL, read_lines_thread, (void *) &jobs[b][k]);
+        pthread_create (&threads[k], NULL, read_lines_thread, (void *) &jobs[b][k]);
       }
     }
 
@@ -2105,7 +2107,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       b = b ^ 1;
 
     for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
-      process_lines_thread(&jobs[b][k]);
+      process_lines_thread (&jobs[b][k]);
       cnt += jobs[b][k].cnt;
       jobs[b][k].cnt = 0;
       test &= jobs[b][k].test;
@@ -2118,7 +2120,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
     for (k = 1; k < conf.jobs; k++) {
       if (jobs[b][k].running) {
-        pthread_join(threads[k], &status);
+        pthread_join (threads[k], &status);
         jobs[b][k].running = 0;
       }
     }
@@ -2133,30 +2135,30 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     /* flip from block A/B to B/A */
     if (conf.jobs > 1)
       b = b ^ 1;
-  }  // while (!eof)
+  }     // while (!eof)
 
   /* After eof, process last data */
   for (b = 0; b < 2; b++) {
     for (k = 1; k < conf.jobs; k++) {
       if (jobs[b][k].running) {
-        pthread_join(threads[k], &status);
+        pthread_join (threads[k], &status);
         jobs[b][k].running = 0;
       }
 
       if (jobs[b][k].p) {
-        process_lines_thread(&jobs[b][k]);
+        process_lines_thread (&jobs[b][k]);
         cnt += jobs[b][k].cnt;
         jobs[b][k].cnt = 0;
         test &= jobs[b][k].test;
         jobs[b][k].p = 0;
       }
     }
-  }  // while (!eof)
+  }     // while (!eof)
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
 #ifndef WITH_GETLINE
-      for (int i=0; i<conf.chunk_size; i++)
+      for (int i = 0; i < conf.chunk_size; i++)
         free (jobs[b][k].lines[i]);
 #endif
       free (jobs[b][k].logitems);
