@@ -220,20 +220,20 @@ print_html_title (FILE *fp) {
 
   fprintf (fp, "<title>");
   clean_output (fp, title);
-  fprintf (fp, "</title>");
+  fprintf (fp, "</title>\n");
 }
 
 static void
 print_html_header_styles (FILE *fp, FILE *fcs) {
   if (fcs) {
-    fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
+    fprintf (fp, "<link rel='stylesheet' href='%s'>\n", FILENAME_CSS);
     fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
     fprintf (fcs, "%.*s\n", bootstrap_css_length, bootstrap_css);
     fprintf (fcs, "%.*s\n", app_css_length, app_css);
   } else {
-    fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
-    fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
-    fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
+    fprintf (fp, "<style>%.*s</style>\n", fa_css_length, fa_css);
+    fprintf (fp, "<style>%.*s</style>\n", bootstrap_css_length, bootstrap_css);
+    fprintf (fp, "<style>%.*s</style>\n", app_css_length, app_css);
   }
 }
 
@@ -243,15 +243,15 @@ static void
 print_html_header (FILE * fp, FILE *fcs)
 {
   fprintf (fp,
-  "<!DOCTYPE html>"
-  "<html lang='%s'>"
-  "<head>"
-  "<meta charset='UTF-8'>"
-  "<meta name='referrer' content='no-referrer'>"
-  "<meta http-equiv='X-UA-Compatible' content='IE=edge'>"
-  "<meta name='google' content='notranslate'>"
-  "<meta name='viewport' content='width=device-width, initial-scale=1'>"
-  "<meta name='robots' content='noindex, nofollow'>", _(DOC_LANG));
+  "<!DOCTYPE html>\n"
+  "<html lang='%s'>\n"
+  "<head>\n"
+  "<meta charset='UTF-8'>\n"
+  "<meta name='referrer' content='no-referrer'>\n"
+  "<meta http-equiv='X-UA-Compatible' content='IE=edge'>\n"
+  "<meta name='google' content='notranslate'>\n"
+  "<meta name='viewport' content='width=device-width, initial-scale=1'>\n"
+  "<meta name='robots' content='noindex, nofollow'>\n", _(DOC_LANG));
 
   /* Output base64 encoded goaccess favicon.ico*/
   fprintf (fp, "<link rel='icon' href='data:image/x-icon;base64,AAABAAEA"
@@ -261,7 +261,7 @@ print_html_header (FILE * fp, FILE *fcs)
   "iIiIiIiMyVSRCAAIiIiIiIiIiIiIRERERERERERERERERERERIiIiIiIiIiIgACVVUiIi"
   "IiIiIiIiIiIiIAAlVVIiIiIiIiIiIiIiIhEREREREREREREREREREREAAAAAAAAAAAAAA"
   "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-  "AA' type='image/x-icon' />");
+  "AA' type='image/x-icon' />\n");
 
   print_html_title (fp);
 
@@ -269,11 +269,11 @@ print_html_header (FILE * fp, FILE *fcs)
 
   /* load custom CSS file, if any */
   if (conf.html_custom_css)
-    fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
+    fprintf (fp, "<link rel='stylesheet' href='%s'>\n", conf.html_custom_css);
 
   fprintf (fp,
-  "</head>"
-  "<body>");
+  "</head>\n"
+  "<body>\n");
 }
 
 /* Output all structural elements of the HTML document. */
@@ -282,41 +282,41 @@ print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
   "<nav class='hidden-xs hidden-sm hide'>"
-  "</nav>"
+  "</nav>\n"
 
-  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
-  "<div class='container hide'>"
-  "<div class='wrap-header'>"
-  "<div class='row row-offcanvas row-offcanvas-right'>"
-  "<div class='col-md-12'>"
-  "<div class='page-header clearfix'>"
-  "<div class='pull-right'>"
-  "<h4>"
-  "<span class='label label-info' style='display:%s'>"
-  "<span class='hidden-xs'>%s: </span>"
-  "<span class='last-updated'>%s</span>"
-  "</span>"
-  "</h4>"
-  "</div>"
-  "<h1 class='h-dashboard'>"
-  "<span class='hidden-xs hidden-sm'>"
+  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>\n"
+  "<div class='container hide'>\n"
+  "<div class='wrap-header'>\n"
+  "<div class='row row-offcanvas row-offcanvas-right'>\n"
+  "<div class='col-md-12'>\n"
+  "<div class='page-header clearfix'>\n"
+  "<div class='pull-right'>\n"
+  "<h4>\n"
+  "<span class='label label-info' style='display:%s'>\n"
+  "<span class='hidden-xs'>%s: </span>\n"
+  "<span class='last-updated'>%s</span>\n"
+  "</span>\n"
+  "</h4>\n"
+  "</div>\n"
+  "<h1 class='h-dashboard'>\n"
+  "<span class='hidden-xs hidden-sm'>\n"
   "<i class='fa fa-tachometer'></i> %s"
-  "</span>"
-  "<span class='visible-xs visible-sm'>"
-  "<i class='fa fa-bars nav-minibars'></i>"
-  "<i class='fa fa-circle nav-ws-status mini'></i>"
-  "</span>"
-  "</h1>", conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now, T_DASH);
+  "</span>\n"
+  "<span class='visible-xs visible-sm'>\n"
+  "<i class='fa fa-bars nav-minibars'></i>\n"
+  "<i class='fa fa-circle nav-ws-status mini'></i>\n"
+  "</span>\n"
+  "</h1>\n", conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now, T_DASH);
 
   fprintf (fp,
-  "<div class='report-title'>%s</div>"
-  "</div>"
-  "<div class='wrap-general'></div>"
-  "</div>"
-  "</div>"
-  "</div>"
-  "<div class='wrap-panels'></div>"
-  "</div>", conf.html_report_title ? conf.html_report_title : "");
+  "<div class='report-title'>%s</div>\n"
+  "</div>\n"
+  "<div class='wrap-general'></div>\n"
+  "</div>\n"
+  "</div>\n"
+  "</div>\n"
+  "<div class='wrap-panels'></div>\n"
+  "</div>\n", conf.html_report_title ? conf.html_report_title : "");
 
   fprintf (fp, "%.*s", tpls_length, tpls);
 }
@@ -327,24 +327,24 @@ static void
 print_html_footer (FILE * fp, FILE *fjs)
 {
   if (fjs) {
-    fprintf (fp, "<script src='%s'></script>", FILENAME_JS);
-    fprintf (fjs, "%.*s", d3_js_length, d3_js);
-    fprintf (fjs, "%.*s", hogan_js_length, hogan_js);
-    fprintf (fjs, "%.*s", app_js_length, app_js);
-    fprintf (fjs, "%.*s", charts_js_length, charts_js);
+    fprintf (fp, "<script src='%s'></script>\n", FILENAME_JS);
+    fprintf (fjs, "%.*s\n", d3_js_length, d3_js);
+    fprintf (fjs, "%.*s\n", hogan_js_length, hogan_js);
+    fprintf (fjs, "%.*s\n", app_js_length, app_js);
+    fprintf (fjs, "%.*s\n", charts_js_length, charts_js);
   } else {
-    fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
-    fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
-    fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
-    fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+    fprintf (fp, "<script>%.*s</script>\n", d3_js_length, d3_js);
+    fprintf (fp, "<script>%.*s</script>\n", hogan_js_length, hogan_js);
+    fprintf (fp, "<script>%.*s</script>\n", app_js_length, app_js);
+    fprintf (fp, "<script>%.*s</script>\n", charts_js_length, charts_js);
   }
 
   /* load custom JS file, if any */
   if (conf.html_custom_js)
-    fprintf (fp, "<script src='%s'></script>", conf.html_custom_js);
+    fprintf (fp, "<script src='%s'></script>\n", conf.html_custom_js);
 
-  fprintf (fp, "</body>");
-  fprintf (fp, "</html>");
+  fprintf (fp, "</body>\n");
+  fprintf (fp, "</html>\n");
 }
 /* *INDENT-ON* */
 
@@ -508,9 +508,9 @@ print_json_data (FILE *fp, GHolder *holder) {
   if ((json = get_json (holder, 1)) == NULL)
     return;
 
-  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>\n");
   fprintf (fp, "var json_data=%s", json);
-  fprintf (fp, external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>\n");
 
   free (json);
 }
@@ -526,7 +526,7 @@ print_conn_def (FILE *fp) {
   if (!conf.real_time_html)
     return;
 
-  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>\n");
 
   fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
@@ -536,7 +536,7 @@ print_conn_def (FILE *fp) {
               1);
   fpclose_obj (fp, sp, 1);
 
-  fprintf (fp, external_assets ? ";\n" : "</script>");
+  fprintf (fp, external_assets ? ";\n" : "</script>\n");
 }
 
 /* Output JSON per panel metric definitions. */
@@ -1216,7 +1216,7 @@ print_json_defs (FILE *fp) {
   const GHTML *def;
   size_t idx = 0;
 
-  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>\n");
 
   fprintf (fp, "var json_i18n=");
   print_json_i18n_def (fp);
@@ -1235,7 +1235,7 @@ print_json_defs (FILE *fp) {
 
   fpclose_obj (fp, 0, 1);
 
-  fprintf (fp, external_assets ? "\n" : "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>\n");
 }
 
 static char *
