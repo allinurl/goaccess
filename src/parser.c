@@ -2051,12 +2051,9 @@ static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
   int b, k, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
   void *status;
+  char *s = NULL;
   GJob jobs[2][conf.jobs];
   pthread_t threads[conf.jobs];
-
-#ifndef WITH_GETLINE
-  char *s = NULL;
-#endif
 
   glog->bytes = 0;
 
@@ -2078,10 +2075,11 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   }
 
   b = 0;
-  while (!feof (fp)) {  // b = 0 or 1
+  while (1) {   /* b = 0 or 1 */
     for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
 #ifdef WITH_GETLINE
-      while ((jobs[b][k].lines[jobs[b][k].p] = fgetline (fp)) != NULL) {
+      while ((s = fgetline (fp)) != NULL) {
+        jobs[b][k].lines[jobs[b][k].p] = s;
 #else
       while ((s = fgets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fp)) != NULL) {
 #endif
@@ -2132,10 +2130,14 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     if (conf.stop_processing)
       break;
 
+    /* check for EOF */
+    if (s == NULL)
+      break;
+
     /* flip from block A/B to B/A */
     if (conf.jobs > 1)
       b = b ^ 1;
-  }     // while (!eof)
+  }     // while (1)
 
   /* After eof, process last data */
   for (b = 0; b < 2; b++) {
