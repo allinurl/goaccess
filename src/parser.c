@@ -2056,8 +2056,6 @@ process_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
   for (int i = 0; i < job->p; i++) {
     if (job->logitems[i] != NULL && !job->dry_run && job->logitems[i]->errstr == NULL) {
-      printf ("==process_log\n");
-
       process_log (job->logitems[i]);
       free_glog (job->logitems[i]);
     }
@@ -2065,21 +2063,10 @@ process_lines_thread (void *arg) {
   return (void *) 0;
 }
 
-/* Iterate over the log and read line by line.
- * With GETLINE: use GNU get_line to parse the whole line.
- * Without GETLINE: uses a buffer of fixed size.
- *
- * On error, 1 is returned.
- * On success, 0 is returned. */
-static int
-read_lines (FILE *fp, GLog *glog, int dry_run) {
-  int b = 0, k = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
-  void *status = NULL;
-  char *s = NULL;
-  GJob jobs[2][conf.jobs];
-  pthread_t threads[conf.jobs];
-
-  glog->bytes = 0;
+/* Initialize jobs */
+static void
+init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
+  int b = 0, k = 0;
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
@@ -2097,23 +2084,82 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 #endif
     }
   }
+}
+
+/* Read lines from file */
+static void
+read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char **s) {
+  int k = 0;
+
+  for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
+#ifdef WITH_GETLINE
+    while ((*s = fgetline (fp)) != NULL) {
+      jobs[b][k].lines[jobs[b][k].p] = *s;
+#else
+    while ((*s = fgets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fp)) != NULL) {
+#endif
+      glog->bytes += strlen (jobs[b][k].lines[jobs[b][k].p]);
+      glog->read++;
+
+      if (++(jobs[b][k].p) >= conf.chunk_size)
+        break;  // goto next chunk
+    }
+  }
+}
+
+/* Processes lines using threads from the GJob array, updating counters. */
+static void
+process_lines (GJob jobs[2][conf.jobs], int *cnt, int *test, int b) {
+  int k = 0;
+
+  for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
+    process_lines_thread (&jobs[b][k]);
+    *cnt += jobs[b][k].cnt;
+    jobs[b][k].cnt = 0;
+    *test &= jobs[b][k].test;
+    jobs[b][k].p = 0;
+  }
+}
+
+/* Frees memory for lines and logitems in each job of the GJob array. */
+static void
+free_jobs (GJob jobs[2][conf.jobs]) {
+  int b = 0, k = 0;
+
+  for (b = 0; b < 2; b++) {
+    for (k = 0; k < conf.jobs; k++) {
+#ifndef WITH_GETLINE
+      for (int i = 0; i < conf.chunk_size; i++)
+        free (jobs[b][k].lines[i]);
+#endif
+      free (jobs[b][k].logitems);
+      free (jobs[b][k].lines);
+    }
+  }
+}
+
+/* Reads lines from the given file pointer `fp` and processes them using
+ * parallel threads.
+ *
+ * On error or when interrupted by a signal (SIGINT), the function returns 0.
+ * On success, it returns 1 if the number of processed lines is greater than or
+ * equal to the configured number of tests (NUM_TESTS), otherwise 0.
+ */
+static int
+read_lines (FILE *fp, GLog *glog, int dry_run) {
+  int b = 0, k = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  void *status = NULL;
+  char *s = NULL;
+  GJob jobs[2][conf.jobs];
+  pthread_t threads[conf.jobs];
+
+  glog->bytes = 0;
+
+  init_jobs (jobs, glog, dry_run, test);
 
   b = 0;
   while (1) {   /* b = 0 or 1 */
-    for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
-#ifdef WITH_GETLINE
-      while ((s = fgetline (fp)) != NULL) {
-        jobs[b][k].lines[jobs[b][k].p] = s;
-#else
-      while ((s = fgets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fp)) != NULL) {
-#endif
-        glog->bytes += strlen (jobs[b][k].lines[jobs[b][k].p]);
-        glog->read++;
-
-        if (++(jobs[b][k].p) >= conf.chunk_size)
-          break;        // goto next chunk
-      }
-    }   // for k = jobs
+    read_lines_from_file (fp, glog, jobs, b, &s);
 
     if (conf.jobs == 1) {
       read_lines_thread (&jobs[b][1]);
@@ -2128,13 +2174,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     if (conf.jobs > 1)
       b = b ^ 1;
 
-    for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
-      process_lines_thread (&jobs[b][k]);
-      cnt += jobs[b][k].cnt;
-      jobs[b][k].cnt = 0;
-      test &= jobs[b][k].test;
-      jobs[b][k].p = 0;
-    }
+    process_lines (jobs, &cnt, &test, b);
 
     /* flip from block B/A to A/B */
     if (conf.jobs > 1)
@@ -2181,16 +2221,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     }
   }     // while (!eof)
 
-  for (b = 0; b < 2; b++) {
-    for (k = 0; k < conf.jobs; k++) {
-#ifndef WITH_GETLINE
-      for (int i = 0; i < conf.chunk_size; i++)
-        free (jobs[b][k].lines[i]);
-#endif
-      free (jobs[b][k].logitems);
-      free (jobs[b][k].lines);
-    }
-  }
+  free_jobs (jobs);
 
   /* if no data was available to read from (probably from a pipe) and
    * still in test mode, we simply return until data becomes available */
