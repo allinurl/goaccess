@@ -769,7 +769,7 @@ read_client (void *ptr_data) {
 /* Parse tailed lines */
 static void
 parse_tail_follow (GLog *glog, FILE *fp) {
-  GLogItem *logitem;
+  GLogItem *logitem = NULL;
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -783,13 +783,16 @@ parse_tail_follow (GLog *glog, FILE *fp) {
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
-    logitem = parse_line (glog, buf, 0);
-    if (logitem != NULL) {
-      if (logitem->errstr == NULL)
-        process_log (logitem);
-      count_process (glog);
-      free_glog (logitem);
+    if ((parse_line (glog, buf, 0, &logitem)) == 0 && logitem != NULL) {
+      printf ("enter prccess_log\n");
+      process_log (logitem);
     }
+    if (logitem != NULL) {
+      free_glog (logitem);
+      logitem = NULL;
+    }
+    printf ("**count_process\n");
+    //count_process (glog);
     pthread_mutex_unlock (&gdns_thread.mutex);
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE

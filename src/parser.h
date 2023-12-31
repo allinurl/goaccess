@@ -160,7 +160,8 @@ typedef struct Logs_ {
 
 /* Pthread jobs for multi-thread */
 typedef struct GJob_ {
-  int p, cnt, test, dry_run, running;
+  uint32_t cnt;
+  int p, test, dry_run, running;
   GLog *glog;
   GLogItem **logitems;
   char **lines;
@@ -194,18 +195,17 @@ typedef struct GRawData_ {
 char *extract_by_delim (const char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
+int parse_line (GLog * glog, char *line, int dry_run, GLogItem ** logitem_out);
 int parse_log (Logs * logs, int dry_run);
-GLogItem *parse_line (GLog * glog, char *line, int dry_run);
-void *read_lines_thread (void *arg);
-void *process_lines_thread (void *arg);
 int set_glog (Logs * logs, const char *filename);
 int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 int set_log (Logs * logs, const char *value);
+void free_glog (GLogItem * logitem);
 void free_logerrors (GLog * glog);
 void free_logs (Logs * logs);
-void free_glog (GLogItem * logitem);
 void free_raw_data (GRawData * raw_data);
 void output_logerrors (void);
+void *process_lines_thread (void *arg);
 void reset_struct (Logs * logs);
 
 GLogItem *init_log_item (GLog * glog);
