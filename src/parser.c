@@ -1888,10 +1888,8 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
   GLogItem *logitem = NULL;
 
   /* soft ignore these lines */
-  if (valid_line (line)) {
-    printf ("^^^^soft invalid\n");
+  if (valid_line (line))
     return -1;
-  }
 
   logitem = init_log_item (glog);
 
@@ -1903,7 +1901,6 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
 
   /* invalid log line (format issue) */
   if (ret) {
-    printf ("^^^^invalid fields\n");
     process_invalid (glog, logitem, line);
     return cleanup_logitem (ret, logitem);
   }
@@ -1913,7 +1910,6 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
 
   /* valid format but missing fields */
   if (ret || (ret = verify_missing_fields (logitem))) {
-    printf ("^^^^missing fields\n");
     process_invalid (glog, logitem, line);
     return cleanup_logitem (ret, logitem);
   }
@@ -1922,10 +1918,8 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
   if (atomic_lpts_update (glog, logitem) == -1)
     return cleanup_logitem (ret, logitem);
 
-  if (should_restore_from_disk (glog)) {
-    printf ("^^^^restore from disk\n");
+  if (should_restore_from_disk (glog))
     return cleanup_logitem (ret, logitem);
-  }
 
   count_process (glog);
 
