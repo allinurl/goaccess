@@ -1304,8 +1304,11 @@ standard_output (Logs *logs) {
   if (find_output_type (&json, "json", 1) == 0)
     output_json (holder, json);
   /* HTML */
-  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
+  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0) {
+    if (conf.real_time_html)
+      setup_ws_server (gwswriter, gwsreader);
     process_html (logs, html);
+  }
 
   free (csv);
   free (html);
@@ -1565,7 +1568,6 @@ spawn_ws (void) {
 
   if (conf.daemonize)
     daemonize ();
-  setup_ws_server (gwswriter, gwsreader);
 
   return 0;
 }
