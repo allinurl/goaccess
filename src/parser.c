@@ -2217,9 +2217,10 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   free_jobs (jobs);
 
-  /* if no data was available to read from (probably from a pipe) and
-   * still in test mode, we simply return until data becomes available */
-  if (errno == EAGAIN || errno == EWOULDBLOCK)
+  /* if no data was available to read from (probably from a pipe) and still in
+   * test mode and still below the test count, we simply return until data
+   * becomes available */
+  if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test && cnt < conf.num_tests)
     return 0;
 
   return test;
