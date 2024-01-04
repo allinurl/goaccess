@@ -2103,7 +2103,7 @@ read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char
 
 /* Processes lines using threads from the GJob array, updating counters. */
 static void
-process_lines (GJob jobs[2][conf.jobs], int *cnt, int *test, int b) {
+process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
   int k = 0;
 
   for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
@@ -2141,7 +2141,8 @@ free_jobs (GJob jobs[2][conf.jobs]) {
  */
 static int
 read_lines (FILE *fp, GLog *glog, int dry_run) {
-  int b = 0, k = 0, cnt = 0, test = conf.num_tests > 0 ? 1 : 0;
+  int b = 0, k = 0, test = conf.num_tests > 0 ? 1 : 0;
+  uint32_t cnt = 0;
   void *status = NULL;
   char *s = NULL;
   GJob jobs[2][conf.jobs];
