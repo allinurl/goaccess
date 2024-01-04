@@ -313,6 +313,18 @@ like to process all log files `access.log*`, we can do:
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
+### Multi-thread Support ###
+
+Use `--jobs=<count>` (or `-j`) to enable multi-thread parsing. For example:
+
+    # goaccess access.log -o report.html -j 4
+
+
+And use `--chunk-size=<256-32768>` to adjust chunk size, the default chunk size is 1024. For example:
+
+    # goaccess access.log -o report.html -j 4 --chunk-size=8192
+
+
 ### Real-time HTML outputs ###
 
 GoAccess has the ability the output real-time data in the HTML report. You can

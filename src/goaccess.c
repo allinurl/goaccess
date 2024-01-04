@@ -80,7 +80,9 @@
 GConf conf = {
   .append_method = 1,
   .append_protocol = 1,
+  .chunk_size = 1024,
   .hl_header = 1,
+  .jobs = 1,
   .num_tests = 10,
 };
 
@@ -767,6 +769,7 @@ read_client (void *ptr_data) {
 /* Parse tailed lines */
 static void
 parse_tail_follow (GLog *glog, FILE *fp) {
+  GLogItem *logitem = NULL;
 #ifdef WITH_GETLINE
   char *buf = NULL;
 #else
@@ -780,7 +783,12 @@ parse_tail_follow (GLog *glog, FILE *fp) {
   while (fgets (buf, LINE_BUFFER, fp) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
-    pre_process_log (glog, buf, 0);
+    if ((parse_line (glog, buf, 0, &logitem)) == 0 && logitem != NULL)
+      process_log (logitem);
+    if (logitem != NULL) {
+      free_glog (logitem);
+      logitem = NULL;
+    }
     pthread_mutex_unlock (&gdns_thread.mutex);
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
@@ -1296,8 +1304,11 @@ standard_output (Logs *logs) {
   if (find_output_type (&json, "json", 1) == 0)
     output_json (holder, json);
   /* HTML */
-  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0)
+  if (find_output_type (&html, "html", 1) == 0 || conf.output_format_idx == 0) {
+    if (conf.real_time_html)
+      setup_ws_server (gwswriter, gwsreader);
     process_html (logs, html);
+  }
 
   free (csv);
   free (html);
@@ -1557,7 +1568,6 @@ spawn_ws (void) {
 
   if (conf.daemonize)
     daemonize ();
-  setup_ws_server (gwswriter, gwsreader);
 
   return 0;
 }

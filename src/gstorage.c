@@ -558,7 +558,7 @@ count_bw (int numdate, uint64_t resp_size) {
 
 /* Keep track of all invalid log strings. */
 static void
-count_invalid (GLog *glog, const char *line) {
+count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   glog->invalid++;
   ht_inc_cnt_overall ("failed_requests", 1);
 
@@ -566,8 +566,8 @@ count_invalid (GLog *glog, const char *line) {
     LOG_INVALID (("%s", line));
   }
 
-  if (glog->items->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
-    glog->errors[glog->log_erridx++] = xstrdup (glog->items->errstr);
+  if (logitem->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
+    glog->errors[glog->log_erridx++] = xstrdup (logitem->errstr);
   }
 }
 
@@ -610,16 +610,16 @@ count_valid (int numdate) {
 /* Keep track of all valid and processed log strings. */
 void
 count_process (GLog *glog) {
+  __sync_add_and_fetch (&glog->processed, 1);
   lock_spinner ();
-  glog->processed++;
   ht_inc_cnt_overall ("total_requests", 1);
   unlock_spinner ();
 }
 
 void
-count_process_and_invalid (GLog *glog, const char *line) {
+count_process_and_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   count_process (glog);
-  count_invalid (glog, line);
+  count_invalid (glog, logitem, line);
 }
 
 /* Keep track of all excluded log strings (IPs).
@@ -1324,8 +1324,8 @@ gen_status_code_key (GKeyData *kdata, GLogItem *logitem) {
   if (!logitem->status)
     return 1;
 
-  type = verify_status_code_type (logitem->status);
   status = verify_status_code (logitem->status);
+  type = verify_status_code_type (logitem->status);
 
   get_kdata (kdata, status, status);
   get_kroot (kdata, type, type);
@@ -1390,7 +1390,8 @@ static int
 include_uniq (GLogItem *logitem) {
   int u = conf.client_err_to_unique_count;
 
-  if (!logitem->status || logitem->status[0] != '4' || (u && logitem->status[0] == '4'))
+  if (!logitem->status || (logitem->status / 100) != 4 ||
+      (u && (logitem->status / 100) == '4'))
     return 1;
   return 0;
 }

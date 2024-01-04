@@ -543,7 +543,8 @@ flag.
 Enable IP resolver on HTML|JSON output.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
-Exclude an IPv4 or IPv6 from being counted.
+Exclude an IPv4 or IPv6 from being counted. Applicable solely during access log
+data processing, it does not exclude persisted data.
 Ranges can be included as well using a dash in between the IPs (start-end).
 .IP
 .I Examples:
@@ -551,6 +552,13 @@ Ranges can be included as well using a dash in between the IPs (start-end).
   exclude-ip 192.168.0.1-192.168.0.100
   exclude-ip ::1
   exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
+.TP
+\fB\-j \-\-jobs=<1-6>
+This specifies the number of parallel processing threads to be used during the
+execution of the program. It determines the degree of concurrency when
+analyzing log data, allowing for parallel processing of multiple tasks
+simultaneously. It defaults to 1 thread. It's common to set the number of jobs
+based on the available hardware resources, such as the number of CPU cores.
 .TP
 \fB\-H \-\-http-protocol=<yes|no>
 Set/unset HTTP request protocol. This will create a request key containing the
@@ -591,6 +599,27 @@ octet of IPv4 user IP addresses and the last 80 bits of IPv6 addresses to
 zeros.
 e.g., 192.168.20.100 => 192.168.20.0
 e.g., 2a03:2880:2110:df07:face:b00c::1 => 2a03:2880:2110:df07::
+.TP
+\fB\-\-chunk-size=<256-32768>
+This determines the number of lines that form a chunk. This parameter
+influences the size of the data processed concurrently by each thread, allowing
+for parallelization of the file reading and processing tasks. The value of
+chunk-size affects the efficiency of the parallel processing and can be
+adjusted based on factors such as system resources and the characteristics of
+the input data.
+
+.IP
+Low Values: If chunk-size is set too low, it might result in inefficient
+processing. For instance, if each chunk contains a very small number of lines,
+the overhead of managing and coordinating parallel processing might outweigh
+the benefits.
+
+.IP
+Large Values: Conversely, if chunk-size is set too high, it could lead to
+resource exhaustion. Each chunk represents a portion of data that a thread
+processes in parallel. Setting chunk-size to an excessively large value might
+cause memory issues, particularly if there are many parallel threads running
+simultaneously.
 .TP
 \fB\-\-anonymize-level
 Specifies the anonymization levels: 1 => default, 2 => strong, 3 => pedantic.

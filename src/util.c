@@ -57,80 +57,37 @@
 #include "xmalloc.h"
 
 /* HTTP status codes categories */
-static const char *code_type[][2] = {
-  {"1", STATUS_CODE_1XX},
-  {"2", STATUS_CODE_2XX},
-  {"3", STATUS_CODE_3XX},
-  {"4", STATUS_CODE_4XX},
-  {"5", STATUS_CODE_5XX},
+static const char *code_type[] = {
+  NULL,
+  STATUS_CODE_1XX,
+  STATUS_CODE_2XX,
+  STATUS_CODE_3XX,
+  STATUS_CODE_4XX,
+  STATUS_CODE_5XX,
 };
 
 /* HTTP status codes */
-static const char *codes[][2] = {
-  {"100", STATUS_CODE_100},
-  {"101", STATUS_CODE_101},
-  {"200", STATUS_CODE_200},
-  {"201", STATUS_CODE_201},
-  {"202", STATUS_CODE_202},
-  {"203", STATUS_CODE_203},
-  {"204", STATUS_CODE_204},
-  {"205", STATUS_CODE_205},
-  {"206", STATUS_CODE_206},
-  {"207", STATUS_CODE_207},
-  {"208", STATUS_CODE_208},
-  {"300", STATUS_CODE_300},
-  {"301", STATUS_CODE_301},
-  {"302", STATUS_CODE_302},
-  {"303", STATUS_CODE_303},
-  {"304", STATUS_CODE_304},
-  {"305", STATUS_CODE_305},
-  {"307", STATUS_CODE_307},
-  {"308", STATUS_CODE_308},
-  {"400", STATUS_CODE_400},
-  {"401", STATUS_CODE_401},
-  {"402", STATUS_CODE_402},
-  {"403", STATUS_CODE_403},
-  {"404", STATUS_CODE_404},
-  {"405", STATUS_CODE_405},
-  {"406", STATUS_CODE_406},
-  {"407", STATUS_CODE_407},
-  {"408", STATUS_CODE_408},
-  {"409", STATUS_CODE_409},
-  {"410", STATUS_CODE_410},
-  {"411", STATUS_CODE_411},
-  {"412", STATUS_CODE_412},
-  {"413", STATUS_CODE_413},
-  {"414", STATUS_CODE_414},
-  {"415", STATUS_CODE_415},
-  {"416", STATUS_CODE_416},
-  {"417", STATUS_CODE_417},
-  {"418", STATUS_CODE_418},
-  {"421", STATUS_CODE_421},
-  {"422", STATUS_CODE_422},
-  {"423", STATUS_CODE_423},
-  {"424", STATUS_CODE_424},
-  {"426", STATUS_CODE_426},
-  {"428", STATUS_CODE_428},
-  {"429", STATUS_CODE_429},
-  {"431", STATUS_CODE_431},
-  {"444", STATUS_CODE_444},
-  {"451", STATUS_CODE_451},
-  {"494", STATUS_CODE_494},
-  {"495", STATUS_CODE_495},
-  {"496", STATUS_CODE_496},
-  {"497", STATUS_CODE_497},
-  {"499", STATUS_CODE_499},
-  {"500", STATUS_CODE_500},
-  {"501", STATUS_CODE_501},
-  {"502", STATUS_CODE_502},
-  {"503", STATUS_CODE_503},
-  {"504", STATUS_CODE_504},
-  {"505", STATUS_CODE_505},
-  {"520", STATUS_CODE_520},
-  {"521", STATUS_CODE_521},
-  {"522", STATUS_CODE_522},
-  {"523", STATUS_CODE_523},
-  {"524", STATUS_CODE_524}
+static const char *codes[1000] = {
+  [100] = STATUS_CODE_100, STATUS_CODE_101,
+  [200] = STATUS_CODE_200, STATUS_CODE_201, STATUS_CODE_202, STATUS_CODE_203, STATUS_CODE_204,
+  [205] = STATUS_CODE_205, STATUS_CODE_206, STATUS_CODE_207, STATUS_CODE_208,
+  [300] = STATUS_CODE_300, STATUS_CODE_301, STATUS_CODE_302, STATUS_CODE_303, STATUS_CODE_304,
+  [305] = STATUS_CODE_305, NULL, STATUS_CODE_307, STATUS_CODE_308,
+  [400] = STATUS_CODE_400, STATUS_CODE_401, STATUS_CODE_402, STATUS_CODE_403, STATUS_CODE_404,
+  [405] = STATUS_CODE_405, STATUS_CODE_406, STATUS_CODE_407, STATUS_CODE_408, STATUS_CODE_409,
+  [410] = STATUS_CODE_410, STATUS_CODE_411, STATUS_CODE_412, STATUS_CODE_413, STATUS_CODE_414,
+  [415] = STATUS_CODE_415, STATUS_CODE_416, STATUS_CODE_417, STATUS_CODE_418, NULL,
+  [420] = NULL, STATUS_CODE_421, STATUS_CODE_422, STATUS_CODE_423, STATUS_CODE_424,
+  [425] = NULL, STATUS_CODE_426, NULL, STATUS_CODE_428, STATUS_CODE_429,
+  [431] = STATUS_CODE_431,
+  [444] = STATUS_CODE_444,
+  [451] = STATUS_CODE_451,
+  [494] = STATUS_CODE_494,
+  [495] = STATUS_CODE_495, STATUS_CODE_496, STATUS_CODE_497, NULL, STATUS_CODE_499,
+  [500] = STATUS_CODE_500, STATUS_CODE_501, STATUS_CODE_502, STATUS_CODE_503, STATUS_CODE_504,
+  [505] = STATUS_CODE_505,
+  [520] = STATUS_CODE_520, STATUS_CODE_521, STATUS_CODE_522, STATUS_CODE_523, STATUS_CODE_524,
+  [999] = NULL
 };
 
 /* Return part of a string
@@ -683,7 +640,7 @@ convert_date (char *res, const char *data, const char *from, const char *to, int
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-invalid_ipaddr (char *str, int *ipvx) {
+invalid_ipaddr (const char *str, int *ipvx) {
   union {
     struct sockaddr addr;
     struct sockaddr_in6 addr6;
@@ -745,13 +702,11 @@ file_size (const char *filename) {
  * If not found, "Unknown" is returned.
  * On success, the status code type/category is returned. */
 const char *
-verify_status_code_type (const char *str) {
-  size_t i;
-  for (i = 0; i < ARRAY_SIZE (code_type); i++)
-    if (strchr (code_type[i][0], str[0]) != NULL)
-      return _(code_type[i][1]);
+verify_status_code_type (int code) {
+  if (code < 100 || code > 599 || code_type[code / 100] == NULL)
+    return "Unknown";
 
-  return "Unknown";
+  return code_type[code / 100];
 }
 
 /* Determine if the given status code is within the list of status
@@ -760,13 +715,11 @@ verify_status_code_type (const char *str) {
  * If not found, "Unknown" is returned.
  * On success, the status code is returned. */
 const char *
-verify_status_code (char *str) {
-  size_t i;
-  for (i = 0; i < ARRAY_SIZE (codes); i++)
-    if (strstr (str, codes[i][0]) != NULL)
-      return _(codes[i][1]);
+verify_status_code (int code) {
+  if (code < 100 || code > 599 || codes[code] == NULL)
+    return "Unknown";
 
-  return "Unknown";
+  return codes[code];
 }
 
 /* Checks if the given string is within the given array.

@@ -50,11 +50,11 @@
 
 #include "xmalloc.h"
 
-static char short_options[] = "f:e:p:o:l:H:M:S:b:"
+static char short_options[] = "b:e:f:j:l:o:p:H:M:S:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
-  "acirmMhHqdsV";
+  "acdhimqrsV";
 
 /* *INDENT-OFF* */
 struct option long_opts[] = {
@@ -71,6 +71,7 @@ struct option long_opts[] = {
   {"hl-header"            , no_argument       , 0 , 'i' } ,
   {"http-method"          , required_argument , 0 , 'M' } ,
   {"http-protocol"        , required_argument , 0 , 'H' } ,
+  {"jobs"                 , required_argument , 0 , 'j' } ,
   {"log-file"             , required_argument , 0 , 'f' } ,
   {"log-size"             , required_argument , 0 , 'S' } ,
   {"no-query-string"      , no_argument       , 0 , 'q' } ,
@@ -90,6 +91,7 @@ struct option long_opts[] = {
   {"color"                , required_argument , 0 , 0  }  ,
   {"color-scheme"         , required_argument , 0 , 0  }  ,
   {"crawlers-only"        , no_argument       , 0 , 0  }  ,
+  {"chunk-size"           , required_argument , 0 , 0  }  ,
   {"daemonize"            , no_argument       , 0 , 0  }  ,
   {"datetime-format"      , required_argument , 0 , 0  }  ,
   {"date-format"          , required_argument , 0 , 0  }  ,
@@ -261,6 +263,8 @@ cmd_help (void)
   "  -d --with-output-resolver       - Enable IP resolver on HTML|JSON output.\n"
   "  -e --exclude-ip=<IP>            - Exclude one or multiple IPv4/6. Allows IP\n"
   "                                    ranges. e.g., 192.168.0.1-192.168.0.10\n"
+  "  -j --jobs=<1-6>                 - Thread count for parsing log. Defaults to 1.\n"
+  "                                    The use of 2-4 threads is recommended.\n"
   "  -H --http-protocol=<yes|no>     - Set/unset HTTP request protocol if found.\n"
   "  -M --http-method=<yes|no>       - Set/unset HTTP request method if found.\n"
   "  -o --output=<format|filename>   - Output to stdout or the specified file.\n"
@@ -276,6 +280,8 @@ cmd_help (void)
   "                                    report.\n"
   "  --anonymize-level=<1|2|3>       - Anonymization levels: 1 => default, 2 =>\n"
   "                                    strong, 3 => pedantic.\n"
+  "  --chunk-size=<256-32768>        - Number of lines processed in each data chunk\n"
+  "                                    for parallel execution. Default is 1024.\n"
   "  --crawlers-only                 - Parse and display only crawlers.\n"
   "  --date-spec=<date|hr|min>       - Date specificity. Possible values: `date`\n"
   "                                    (default), `hr` or `min`.\n"
@@ -578,6 +584,16 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("all-static-files", name))
     conf.all_static_files = 1;
 
+  /* chunk size */
+  if (!strcmp ("chunk-size", name)) {
+    /* Recommended chunk size is 256 - 32768, hard limit is 32 - 1048576. */
+    conf.chunk_size = atoi (oarg);
+    if (conf.chunk_size < 32)
+      FATAL ("The hard lower limit of --chunk-size is 32.");
+    if (conf.chunk_size > 1048576)
+      FATAL ("The hard limit of --chunk-size is 1048576.");
+  }
+
   /* crawlers only */
   if (!strcmp ("crawlers-only", name))
     conf.crawlers_only = 1;
@@ -627,7 +643,8 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* ignore status code */
   if (!strcmp ("ignore-status", name))
-    set_array_opt (oarg, conf.ignore_status, &conf.ignore_status_idx, MAX_IGNORE_STATUS);
+    if (conf.ignore_status_idx < MAX_IGNORE_STATUS)
+      conf.ignore_status[conf.ignore_status_idx++] = atoi (oarg);
 
   /* ignore static requests */
   if (!strcmp ("ignore-statics", name)) {
@@ -803,6 +820,12 @@ read_option_args (int argc, char **argv) {
       break;
     case 'i':
       conf.hl_header = 1;
+      break;
+    case 'j':
+      /* Recommended 4 threads, soft limit is 6, hard limit is 12. */
+      conf.jobs = atoi (optarg);
+      if (conf.jobs > 12)
+        FATAL ("The hard limit of --jobs is 12.");
       break;
     case 'q':
       conf.ignore_qstr = 1;

@@ -82,7 +82,7 @@ typedef struct GLogItem_ {
   char *ref;
   char *req;
   char *req_key;
-  char *status;
+  int status;
   char *time;
   char *uniq_key;
   char *vhost;
@@ -136,9 +136,9 @@ typedef struct GLog_ {
   uint16_t snippetlen;
   char snippet[READ_BYTES + 1];
 
-  GLogItem *items;
   GLastParse lp;
   GLogProp props;
+  struct tm start_time;
 
   char *fname_as_vhost;
   char **errors;
@@ -157,6 +157,15 @@ typedef struct Logs_ {
   char *filename;
   GLog *glog;
 } Logs;
+
+/* Pthread jobs for multi-thread */
+typedef struct GJob_ {
+  uint32_t cnt;
+  int p, test, dry_run, running;
+  GLog *glog;
+  GLogItem **logitems;
+  char **lines;
+} GJob;
 
 /* Raw data field type */
 typedef enum {
@@ -183,18 +192,20 @@ typedef struct GRawData_ {
 } GRawData;
 
 
-char *extract_by_delim (char **str, const char *end);
+char *extract_by_delim (const char **str, const char *end);
 char *fgetline (FILE * fp);
 char **test_format (Logs * logs, int *len);
+int parse_line (GLog * glog, char *line, int dry_run, GLogItem ** logitem_out);
 int parse_log (Logs * logs, int dry_run);
-int pre_process_log (GLog * glog, char *line, int dry_run);
 int set_glog (Logs * logs, const char *filename);
 int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
 int set_log (Logs * logs, const char *value);
+void free_glog (GLogItem * logitem);
 void free_logerrors (GLog * glog);
 void free_logs (Logs * logs);
 void free_raw_data (GRawData * raw_data);
 void output_logerrors (void);
+void *process_lines_thread (void *arg);
 void reset_struct (Logs * logs);
 
 GLogItem *init_log_item (GLog * glog);
