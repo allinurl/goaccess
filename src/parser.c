@@ -2214,7 +2214,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
         jobs[b][k].p = 0;
       }
     }
-  }     // while (!eof)
+  }
 
   free_jobs (jobs);
 
