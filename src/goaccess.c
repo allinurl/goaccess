@@ -1444,6 +1444,8 @@ handle_signal_action (GO_UNUSED int sig_number) {
     fprintf (stderr, "\nSIGINT caught!\n");
   else if (sig_number == SIGTERM)
     fprintf (stderr, "\nSIGTERM caught!\n");
+  else if (sig_number == SIGQUIT)
+    fprintf (stderr, "\nSIGQUIT caught!\n");
   else
     fprintf (stderr, "\nSignal %d caught!\n", sig_number);
   fprintf (stderr, "Closing GoAccess...\n");
@@ -1463,6 +1465,7 @@ setup_thread_signals (void) {
 
   sigaction (SIGINT, &act, NULL);
   sigaction (SIGTERM, &act, NULL);
+  sigaction (SIGQUIT, &act, NULL);
   signal (SIGPIPE, SIG_IGN);
 
   /* Restore old signal mask for the main thread */
@@ -1471,13 +1474,14 @@ setup_thread_signals (void) {
 
 static void
 block_thread_signals (void) {
-  /* Avoid threads catching SIGINT/SIGPIPE/SIGTERM and handle them in
+  /* Avoid threads catching SIGINT/SIGPIPE/SIGTERM/SIGQUIT and handle them in
    * main thread */
   sigset_t sigset;
   sigemptyset (&sigset);
   sigaddset (&sigset, SIGINT);
   sigaddset (&sigset, SIGPIPE);
   sigaddset (&sigset, SIGTERM);
+  sigaddset (&sigset, SIGQUIT);
   pthread_sigmask (SIG_BLOCK, &sigset, &oldset);
 }
 
