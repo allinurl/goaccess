@@ -277,7 +277,7 @@ cmd_help (void)
   "                                    visitors count.\n"
   "  --all-static-files              - Include static files with a query string.\n"
   "  --anonymize-ip                  - Anonymize IP addresses before outputting to\n"
-  "                                    report. Note that this deactivates --agent-list.\n"
+  "                                    report.\n"
   "  --anonymize-level=<1|2|3>       - Anonymization levels: 1 => default, 2 =>\n"
   "                                    strong, 3 => pedantic.\n"
   "  --chunk-size=<256-32768>        - Number of lines processed in each data chunk\n"
