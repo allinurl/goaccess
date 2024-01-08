@@ -78,7 +78,7 @@ not limited to:
 * Squid Native Format.
 * W3C format (IIS).
 * Caddy's JSON Structured format.
-* Traefiks' CLF flavor
+* Traefik's CLF flavor
 
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
