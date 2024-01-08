@@ -1,3 +1,5 @@
+  - Added support for Traefik log format
+
 Changes to GoAccess 1.8.1 - Tuesday, October 31, 2023
 
   - Added latest Android and macOS versions to the list of OSs.

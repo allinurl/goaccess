@@ -63,6 +63,7 @@ static GEnum LOGTYPE[] = {
   {"AWSS3"        , AWSS3}        ,
   {"CADDY"        , CADDY}        ,
   {"AWSALB"       , AWSALB}       ,
+  {"TRAEFIKCLF"   , TRAEFIKCLF}   ,
 };
 
 static const GPreConfLog logs = {
@@ -85,6 +86,8 @@ static const GPreConfLog logs = {
   "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }",
 
   "%^ %dT%t.%^ %v %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^" /* Amazon ALB */
+
+  "%h - %e [%d:%t %^] \"%r\" %s %b \"%R\" \"%u\" %^ \"%v\" \"%U\" %Lms" /* Traefik's CLF flavor with header */
 };
 
 static const GPreConfTime times = {
@@ -399,6 +402,8 @@ get_selected_format_idx (void) {
     return CADDY;
   else if (strcmp (conf.log_format, logs.awsalb) == 0)
     return AWSALB;
+  else if (strcmp (conf.log_format, logs.traefikclf) == 0)
+    return TRAEFIKCLF;
   else
     return (size_t) -1;
 }
@@ -448,6 +453,9 @@ get_selected_format_str (size_t idx) {
   case AWSALB:
     fmt = alloc_string (logs.awsalb);
     break;
+  case TRAEFIKCLF:
+    fmt = alloc_string (logs.traefikclf);
+    break;
   }
 
   return fmt;
@@ -467,6 +475,7 @@ get_selected_date_str (size_t idx) {
   case COMBINED:
   case VCOMBINED:
   case AWSS3:
+  case TRAEFIKCLF:
     fmt = alloc_string (dates.apache);
     break;
   case AWSELB:
@@ -505,6 +514,7 @@ get_selected_time_str (size_t idx) {
   case VCOMMON:
   case W3C:
   case AWSS3:
+  case TRAEFIKCLF:
     fmt = alloc_string (times.fmt24);
     break;
   case CLOUDSTORAGE:

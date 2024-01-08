@@ -58,6 +58,7 @@ typedef enum LOGTYPE {
   AWSS3,
   CADDY,
   AWSALB,
+  TRAEFIKCLF,
 } GLogType;
 
 /* predefined log times */
@@ -89,6 +90,7 @@ typedef struct GPreConfLog_ {
   const char *awss3;
   const char *caddy;
   const char *awsalb;
+  const char *traefikclf;
 } GPreConfLog;
 
 /* *INDENT-OFF* */
