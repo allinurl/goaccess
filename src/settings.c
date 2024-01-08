@@ -85,7 +85,7 @@ static const GPreConfLog logs = {
   "\"%k\", \"proto\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
   "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }",
 
-  "%^ %dT%t.%^ %v %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^" /* Amazon ALB */
+  "%^ %dT%t.%^ %v %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^", /* Amazon ALB */
 
   "%h - %e [%d:%t %^] \"%r\" %s %b \"%R\" \"%u\" %^ \"%v\" \"%U\" %Lms" /* Traefik's CLF flavor with header */
 };

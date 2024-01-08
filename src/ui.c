@@ -1311,6 +1311,7 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
     "AWS Simple Storage Service (S3)",
     "CADDY JSON Structured",
     "AWS Application Load Balancer",
+    "Traefik CLF flavor"
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);
