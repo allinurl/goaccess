@@ -46,6 +46,7 @@
 #include <time.h>
 #include <inttypes.h>
 #include <regex.h>
+#include <pthread.h>
 
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -55,6 +56,8 @@
 #include "error.h"
 #include "labels.h"
 #include "xmalloc.h"
+
+pthread_mutex_t tz_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* HTTP status codes categories */
 static const char *code_type[] = {
@@ -526,17 +529,35 @@ tm2time (const struct tm *src) {
 
 void
 set_tz (void) {
-  char tz[TZ_NAME_LEN] = { 0 };
+  /* this will persist for the duration of the program but also assumes that all
+   * threads have the same conf.tz_name values */
+  static char tz[TZ_NAME_LEN] = { 0 };
 
   if (!conf.tz_name)
     return;
 
-  snprintf (tz, TZ_NAME_LEN, "TZ=%s", conf.tz_name);
-  if ((putenv (tz)) != 0) {
-    LOG_DEBUG (("Can't set TZ env variable %s: %s\n", tz, strerror (errno)));
+  if (pthread_mutex_lock (&tz_mutex) != 0) {
+    LOG_DEBUG (("Failed to acquire tz_mutex"));
     return;
   }
+
+  snprintf (tz, TZ_NAME_LEN, "TZ=%s", conf.tz_name);
+  if ((putenv (tz)) != 0) {
+    int old_errno = errno;
+    LOG_DEBUG (("Can't set TZ env variable %s: %s: %d\n", tz, strerror (old_errno),
+                old_errno));
+    goto release;
+  }
+
   tzset ();
+
+release:
+
+  if (pthread_mutex_unlock (&tz_mutex) != 0) {
+    LOG_DEBUG (("Failed to release tz_mutex"));
+  }
+
+  return;
 }
 
 /* Format the given date/time according the given format.
