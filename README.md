@@ -218,7 +218,8 @@ build GoAccess from source.
 
 A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
-    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED -
+    touch report.html
+    cat access.log | docker run --rm -i -v ./report.html:/report.html -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED -
 
 OR real-time
 
