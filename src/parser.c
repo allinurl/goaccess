@@ -477,7 +477,7 @@ extract_referer_site (const char *referer, char *host) {
   if ((len = strlen (begin)) == 0)
     goto clean;
 
-  if ((end = strchr (begin, '/')) != NULL)
+  if ((end = strpbrk (begin, "/?")) != NULL)
     len = end - begin;
 
   if (len == 0)
