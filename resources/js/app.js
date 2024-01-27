@@ -1821,14 +1821,28 @@ GoAccess.App = {
 	sortData: function (panel, field, order) {
 		// panel's data
 		var panelData = GoAccess.getPanelData(panel).data;
-		panelData.sort(function (a, b) {
-			a = this.sortField(a, field);
-			b = this.sortField(b, field);
 
-			if (typeof a === 'string' && typeof b === 'string')
-				return 'asc' == order ? a.localeCompare(b) : b.localeCompare(a);
-			return  'asc' == order ? a - b : b - a;
-		}.bind(this));
+		// Function to sort an array of objects
+		var sortArray = function(arr) {
+			arr.sort(function (a, b) {
+				a = this.sortField(a, field);
+				b = this.sortField(b, field);
+
+				if (typeof a === 'string' && typeof b === 'string')
+					return 'asc' == order ? a.localeCompare(b) : b.localeCompare(a);
+				return  'asc' == order ? a - b : b - a;
+			}.bind(this));
+		}.bind(this);
+
+		// Sort panelData
+		sortArray(panelData);
+
+		// Sort the items sub-array
+		panelData.forEach(function(item) {
+			if (item.items) {
+				sortArray(item.items);
+			}
+		});
 	},
 
 	setInitSort: function () {
