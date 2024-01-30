@@ -1,22 +1,23 @@
 Changes to GoAccess 1.9 - Tuesday, January 30, 2024
 
-  - Added multi-threaded log processing using '--jobs=<number>' for an increase
-    in parsing speed, ranging from x1.26 to x3.65 times faster.
-  - Added 'SEARCH' method to the list of HTTP request methods.
-  - Added support for Traefik log format.
-  - Added the ability to handle 'SIGQUIT' as a signal for a graceful shutdown.
-  - Changed the WebSocket server initialization to occur after log-format
-    checks have passed.
-  - Deprecated '--output-format'; only the '--output' option is now allowed.
-  - Ensured the use of mutex locking to prevent a 'TZ' environment race
-    condition.
+  - Added multi-threaded log processing with '--jobs=<num>' for a boost in
+    parsing speed, achieving an improvement ranging from 1.26 to 3.65x faster.
+  - Added the 'SEARCH' method to the list of HTTP request methods.
+  - Added compatibility to include the Traefik log format.
+  - Added the ability to gracefully handle SIGQUIT as a signal for shutdown.
+  - Altered WebSocket server initialization, ensuring it takes place after
+    log-format checks.
+  - Deprecated '--output-format'; now, only the '--output' option is
+    permissible.
+  - Implemented mutex locking to prevent a TZ environment race condition.
   - Fixed a potential heap overflow when checking a request for bots.
-  - Fixed an issue where child items on the HTML panels were not sorted when
-    sorting a column via the UI.
+  - Fixed sorting of child items on HTML panels when sorting a column via the
+    UI.
   - Fixed an issue where, in some cases, the referer host wouldn't be extracted
-    properly.
+    properly
   - Fixed the miscategorization of Android 12.1 under operating systems.
-  - Fixed TUI and temporarily ignored SIGINT during subdialog execution.
+  - Fixed TUI and temporarily ignored SIGINT during subdialog execution via
+    Ctrl+C.
   - Updated the list of browsers/bots.
 
 Changes to GoAccess 1.8.1 - Tuesday, October 31, 2023
