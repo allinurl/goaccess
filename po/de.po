@@ -18,7 +18,7 @@ msgstr "de"
 
 #: src/labels.h:48
 msgid "Exp. Panel"
-msgstr "Panel öffnen"
+msgstr "Kachel öffnen"
 
 #: src/labels.h:49
 msgid "Help"
@@ -43,7 +43,7 @@ msgstr "[ ] Aufsteigend [x] Absteigend"
 #: src/labels.h:58
 #, c-format
 msgid "[Active Panel: %1$s]"
-msgstr "[Aktives Panel: %1$s]"
+msgstr "[Aktive Kachel: %1$s]"
 
 #: src/labels.h:59
 msgid "[q]uit GoAccess"
@@ -51,7 +51,7 @@ msgstr "[q] GoAccess schließen"
 
 #: src/labels.h:60
 msgid "[?] Help [Enter] Exp. Panel"
-msgstr "[?] Hilfe [Eingabe] Panel öffnen"
+msgstr "[?] Hilfe [Eingabe] Kachel öffnen"
 
 #: src/labels.h:61
 msgid "Dashboard"
@@ -59,7 +59,7 @@ msgstr "Übersicht"
 
 #: src/labels.h:62
 msgid "Dashboard - Overall Analyzed Requests"
-msgstr "Übersicht - Analysierte Anfragen gesamt"
+msgstr "Übersicht – Analysierte Anfragen gesamt"
 
 #: src/labels.h:63
 msgid "Overall Analyzed Requests"
@@ -205,12 +205,12 @@ msgstr "Eindeutige Besucher pro Tag"
 
 #: src/labels.h:106
 msgid "Unique visitors per day - Including spiders"
-msgstr "Eindeutige Besucher pro Tag – Inklusive Spiders/Bots"
+msgstr "Eindeutige Besucher pro Tag – inklusive Spiders/Bots"
 
 #: src/labels.h:108
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
-"Zugriffe mit der selben IP, Datum und User-Agent sind ein eindeutiger Besuch."
+"Zugriffe mit derselben IP, Datum und User-Agent sind ein eindeutiger Besuch."
 
 #: src/labels.h:113
 msgid "Requested Files (URLs)"
@@ -425,11 +425,11 @@ msgstr "Log-Format – [c] zum Hinzufügen/Bearbeiten des Formats"
 
 #: src/labels.h:256
 msgid "Date Format - [d] to add/edit format"
-msgstr "Datumsformat - [d] zum Hinzufügen/Bearbeiten des Formats"
+msgstr "Datumsformat – [d] zum Hinzufügen/Bearbeiten des Formats"
 
 #: src/labels.h:258
 msgid "Time Format - [t] to add/edit format"
-msgstr "Zeitformat - [t] zum Hinzufügen/Bearbeiten des Formats"
+msgstr "Zeitformat – [t] zum Hinzufügen/Bearbeiten des Formats"
 
 #: src/labels.h:260 src/labels.h:264
 msgid "[UP/DOWN] to scroll - [q] to close window"
@@ -520,7 +520,7 @@ msgstr "Wählen Sie ein Log-Format."
 #: src/labels.h:316
 #, c-format
 msgid "'%1$s' panel is disabled"
-msgstr "'%1$s' Panel deaktiviert"
+msgstr "Kachel „'%1$s'“ ist deaktiviert"
 
 #: src/labels.h:318
 msgid "No input data was provided nor there's data to restore."
@@ -580,7 +580,7 @@ msgstr "Dunkelviolett (Dark Purple)"
 
 #: src/labels.h:350
 msgid "Panels"
-msgstr "Panels"
+msgstr "Kacheln"
 
 #: src/labels.h:352
 msgid "Items per Page"
@@ -604,7 +604,7 @@ msgstr "Tabellen auf kleinen Bildschirmen automatisch verstecken"
 
 #: src/labels.h:362
 msgid "Toggle Panel"
-msgstr "Panel umschalten"
+msgstr "Kachel umschalten"
 
 #: src/labels.h:364
 msgid "Layout"
@@ -632,7 +632,7 @@ msgstr "Als JSON exportieren"
 
 #: src/labels.h:376
 msgid "Panel Options"
-msgstr "Panel-Optionen"
+msgstr "Kachel-Optionen"
 
 #: src/labels.h:378
 msgid "Previous"
@@ -701,7 +701,7 @@ msgstr "5xx Serverfehler"
 #: src/labels.h:413
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr ""
-"100 – Weitermachen: Der Server hat den ersten Teil der Anfrage erhalten"
+"100 – weitermachen: Der Server hat den ersten Teil der Anfrage erhalten"
 
 #: src/labels.h:415
 msgid "101 - Switching Protocols: Client asked to switch protocols"
@@ -713,19 +713,19 @@ msgstr "200 – OK: Die vom Client gesendete Anfrage war erfolgreich"
 
 #: src/labels.h:419
 msgid "201 - Created: The request has been fulfilled and created"
-msgstr "201 – Erstellt: Die Anforderung wurde erfüllt und angelegt"
+msgstr "201 –eErstellt: Die Anforderung wurde erfüllt und angelegt"
 
 #: src/labels.h:421
 msgid "202 - Accepted: The request has been accepted for processing"
-msgstr "202 – Akzeptiert: Die Anfrage wurde zur Bearbeitung angenommen"
+msgstr "202 – akzeptiert: Die Anfrage wurde zur Bearbeitung angenommen"
 
 #: src/labels.h:423
 msgid "203 - Non-authoritative Information: Response from a third party"
-msgstr "203 – Nicht autorisierte Informationen: Antwort eines Dritten"
+msgstr "203 – nicht autorisierte Informationen: Antwort eines Dritten"
 
 #: src/labels.h:425
 msgid "204 - No Content: Request did not return any content"
-msgstr "204 – Kein Inhalt: Die Anfrage hat keinen Inhalt zurückgegeben"
+msgstr "204 – kein Inhalt: Die Anfrage hat keinen Inhalt zurückgegeben"
 
 #: src/labels.h:427
 msgid "205 - Reset Content: Server asked the client to reset the document"
@@ -743,7 +743,7 @@ msgstr "207 – Mehrfach-Status: WebDAV; RFC 4918"
 
 #: src/labels.h:433
 msgid "208 - Already Reported: WebDAV; RFC 5842"
-msgstr "208 -  Bereits gemeldet: WebDAV; RFC 5842"
+msgstr "208 - bereits gemeldet: WebDAV; RFC 5842"
 
 #: src/labels.h:435
 msgid "300 - Multiple Choices: Multiple options for the resource"
@@ -763,7 +763,7 @@ msgstr "303 – siehe anderes Dokument: Die Antwort ist unter einem anderen URI"
 
 #: src/labels.h:443
 msgid "304 - Not Modified: Resource has not been modified"
-msgstr "304 – Nicht geändert: Die Ressource wurde nicht verändert"
+msgstr "304 – nicht geändert: Die Ressource wurde nicht verändert"
 
 #: src/labels.h:445
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
@@ -785,7 +785,7 @@ msgstr "400 – fehlerhafte Anfrage: Die Syntax der Anfrage ist ungültig"
 #: src/labels.h:453
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr ""
-"401–- nicht autorisiert: Anforderung erfordert Benutzerauthentifizierung"
+"401 – nicht autorisiert: Anforderung erfordert Benutzerauthentifizierung"
 
 #: src/labels.h:455
 msgid "402 - Payment Required"
@@ -824,7 +824,7 @@ msgstr "409 – Konflikt: Konflikt in der Anfrage"
 
 #: src/labels.h:471
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr "410 - Verschwunden: Angeforderte Ressource ist nicht mehr verfügbar"
+msgstr "410 – verschwunden: Angeforderte Ressource ist nicht mehr verfügbar"
 
 #: src/labels.h:473
 msgid "411 - Length Required: Invalid Content-Length"
@@ -900,7 +900,7 @@ msgstr "431 – Header-Felder der Anfrage zu groß"
 
 #: src/labels.h:505
 msgid "451 - Unavailable For Legal Reasons"
-msgstr "451 - Aus rechtlichen Gründen nicht verfügbar"
+msgstr "451 – aus rechtlichen Gründen nicht verfügbar"
 
 #: src/labels.h:507
 msgid "444 - (Nginx) Connection closed without sending any headers"
@@ -943,7 +943,7 @@ msgstr ""
 
 #: src/labels.h:525
 msgid "503 - Service Unavailable: The server is currently unavailable"
-msgstr "503 – Service Unavailable: The server is currently unavailable"
+msgstr "503 – Dienst nicht verfügbar: Der Server ist zurzeit nicht ansprechbar"
 
 #: src/labels.h:527
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
@@ -957,7 +957,7 @@ msgstr "505 – HTTP-Version wird nicht unterstützt"
 
 #: src/labels.h:531
 msgid "520 - CloudFlare - Web server is returning an unknown error"
-msgstr "520 – CloudFlare – Der Webserver gibt einen unbekannten Fehler zurück"
+msgstr "520 – CloudFlare – der Webserver gibt einen unbekannten Fehler zurück"
 
 #: src/labels.h:533
 msgid "521 - CloudFlare - Web server is down"
