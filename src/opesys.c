@@ -76,6 +76,7 @@ static const char *os[][2] = {
   {"AppleTV", "iOS"},
   {"iTunes", "macOS"},
   {"OS X", "macOS"},
+  {"macOS", "macOS"},
   {"Darwin", "Darwin"},
 
   {"Debian", "Linux"},
@@ -379,7 +380,7 @@ parse_os (char *str, char *tkn, char *os_type, int idx) {
   if (strstr (tkn, "iPhone"))
     return xstrdup (parse_ios (tkn, 6));
   /* Mac OS X */
-  if ((strstr (tkn, "OS X")) != NULL) {
+  if (strstr (tkn, "OS X") || strstr (tkn, "macOS")) {
     tkn = parse_osx (tkn);
     return conf.real_os ? get_real_mac_osx (tkn) : xstrdup (tkn);
   }
