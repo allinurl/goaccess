@@ -1621,10 +1621,12 @@ is_static (const char *req) {
  * If the status code is within the ignore-array, 1 is returned. */
 static int
 ignore_status_code (int status) {
+  int i = 0;
+
   if (!status || conf.ignore_status_idx == 0)
     return 0;
 
-  for (int i = 0; i < conf.ignore_status_idx; i++)
+  for (i = 0; i < conf.ignore_status_idx; i++)
     if (status == conf.ignore_status[i])
       return 1;
 
@@ -1984,8 +1986,9 @@ read_line (GLog *glog, char *line, int *test, uint32_t *cnt, int dry_run) {
 static void *
 read_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
+  int i = 0;
 
-  for (int i = 0; i < job->p; i++) {
+  for (i = 0; i < job->p; i++) {
     /* ensure we don't process more than we should when testing for log format,
      * else free chunk and stop processing threads */
     if (!job->test || (job->test && job->cnt < conf.num_tests))
@@ -2048,7 +2051,9 @@ fgetline (FILE *fp) {
 void *
 process_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
-  for (int i = 0; i < job->p; i++) {
+  int i = 0;
+
+  for (i = 0; i < job->p; i++) {
     if (job->logitems[i] != NULL && !job->dry_run && job->logitems[i]->errstr == NULL) {
       process_log (job->logitems[i]);
       free_glog (job->logitems[i]);
@@ -2060,7 +2065,7 @@ process_lines_thread (void *arg) {
 /* Initialize jobs */
 static void
 init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
-  int b = 0, k = 0;
+  int b = 0, k = 0, i = 0;
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
@@ -2073,7 +2078,7 @@ init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
       jobs[b][k].logitems = xcalloc (conf.chunk_size, sizeof (GLogItem));
       jobs[b][k].lines = xcalloc (conf.chunk_size, sizeof (char *));
 #ifndef WITH_GETLINE
-      for (int i = 0; i < conf.chunk_size; i++)
+      for (i = 0; i < conf.chunk_size; i++)
         jobs[b][k].lines[i] = xcalloc (LINE_BUFFER, sizeof (char));
 #endif
     }
@@ -2118,12 +2123,12 @@ process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
 /* Frees memory for lines and logitems in each job of the GJob array. */
 static void
 free_jobs (GJob jobs[2][conf.jobs]) {
-  int b = 0, k = 0;
+  int b = 0, k = 0, i = 0;
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
 #ifndef WITH_GETLINE
-      for (int i = 0; i < conf.chunk_size; i++)
+      for (i = 0; i < conf.chunk_size; i++)
         free (jobs[b][k].lines[i]);
 #endif
       free (jobs[b][k].logitems);
