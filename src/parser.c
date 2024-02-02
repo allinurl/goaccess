@@ -2065,7 +2065,10 @@ process_lines_thread (void *arg) {
 /* Initialize jobs */
 static void
 init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
-  int b = 0, k = 0, i = 0;
+  int b = 0, k = 0;
+#ifndef WITH_GETLINE
+  int i = 0;
+#endif
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
@@ -2123,7 +2126,10 @@ process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
 /* Frees memory for lines and logitems in each job of the GJob array. */
 static void
 free_jobs (GJob jobs[2][conf.jobs]) {
-  int b = 0, k = 0, i = 0;
+  int b = 0, k = 0;
+#ifndef WITH_GETLINE
+  int i = 0;
+#endif
 
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
