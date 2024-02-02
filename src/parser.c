@@ -2161,6 +2161,12 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   while (1) {   /* b = 0 or 1 */
     read_lines_from_file (fp, glog, jobs, b, &s);
 
+    /* if nothing was read from the log, skip it for now */
+    if (!glog->bytes) {
+      test = 0;
+      break;
+    }
+
     if (conf.jobs == 1) {
       read_lines_thread (&jobs[b][1]);
     } else {
