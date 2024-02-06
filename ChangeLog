@@ -1,3 +1,12 @@
+Changes to GoAccess 1.9.1 - Tuesday, February 05, 2024
+
+  - Added support for macOS to the OS detection.
+  - Fixed C99 mode issue with initial declarations [CentOS7].
+  - Fixed minor typographical, orthographic, and grammatical errors in the
+    German translation.
+  - Fixed a regression issue wherein parsing would halt at the first empty log
+    file.
+
 Changes to GoAccess 1.9 - Tuesday, January 30, 2024
 
   - Added multi-threaded log processing with '--jobs=<num>' for a boost in
