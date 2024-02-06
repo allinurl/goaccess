@@ -405,7 +405,9 @@ msgstr "[x] Groß- und Kleinschreibung"
 
 #: src/labels.h:244
 msgid "Regex allowed - ^g to cancel - TAB switch case"
-msgstr "Regex erlaubt – ^g zum Abbrechen – TAB zum Wechseln zwischen Groß-/Kleinschreibung"
+msgstr ""
+"Regex erlaubt – ^g zum Abbrechen – TAB zum Wechseln zwischen Groß-/"
+"Kleinschreibung"
 
 #: src/labels.h:246
 msgid "Find pattern in all views"
