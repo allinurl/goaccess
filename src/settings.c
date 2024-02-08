@@ -79,7 +79,7 @@ static const GPreConfLog logs = {
   "%^ %v [%d:%t %^] %h %^\"%r\" %s %^ %b %^ %L %^ \"%R\" \"%u\"", /* Amazon S3 */
 
   /* Caddy JSON */
-  "{ \"ts\": \"%x.%^\", \"request\": { \"remote_ip\": \"%h\", \"proto\":"
+  "{ \"ts\": \"%x.%^\", \"request\": { \"client_ip\": \"%h\", \"proto\":"
   "\"%H\", \"method\": \"%m\", \"host\": \"%v\", \"uri\": \"%U\", \"headers\": {"
   "\"User-Agent\": [\"%u\"], \"Referer\": [\"%R\"] }, \"tls\": { \"cipher_suite\":"
   "\"%k\", \"proto\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
