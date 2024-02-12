@@ -883,6 +883,14 @@ set_agent_hash (GLogItem *logitem) {
   sprintf (logitem->agent_hex, "%" PRIx32, logitem->agent_hash);
 }
 
+static int
+handle_default_case_token (const char **str, const char *p) {
+  char *pch = NULL;
+  if ((pch = strchr (*str, p[1])) != NULL)
+    *str += pch - *str;
+  return 0;
+}
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Parse the log string given log format rule.
@@ -909,7 +917,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* date */
   case 'd':
     if (logitem->date)
-      return 0;
+      return handle_default_case_token (str, p);
 
     /* Attempt to parse date format containing spaces,
      * i.e., syslog date format (Jul\s15, Nov\s\s2).
@@ -935,7 +943,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* time */
   case 't':
     if (logitem->time)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -951,7 +959,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* date/time as decimal, i.e., timestamps, ms/us  */
   case 'x':
     if (logitem->time && logitem->date)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -969,7 +977,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* Virtual Host */
   case 'v':
     if (logitem->vhost)
-      return 0;
+      return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
@@ -978,7 +986,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* remote user */
   case 'e':
     if (logitem->userid)
-      return 0;
+      return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
@@ -987,7 +995,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* cache status */
   case 'C':
     if (logitem->cache_status)
-      return 0;
+      return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
@@ -999,7 +1007,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* remote hostname (IP only) */
   case 'h':
     if (logitem->host)
-      return 0;
+      return handle_default_case_token (str, p);
     /* per https://datatracker.ietf.org/doc/html/rfc3986#section-3.2.2 */
     /* square brackets are possible */
     if (*str[0] == '[' && (*str += 1) && **str)
@@ -1024,7 +1032,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* request method */
   case 'm':
     if (logitem->method)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     {
@@ -1041,7 +1049,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* request not including method or protocol */
   case 'U':
     if (logitem->req)
-      return 0;
+      return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1058,7 +1066,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* query string alone, e.g., ?param=goaccess&tbm=shop */
   case 'q':
     if (logitem->qstr)
-      return 0;
+      return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL || *tkn == '\0') {
       free (tkn);
@@ -1075,7 +1083,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* request protocol */
   case 'H':
     if (logitem->protocol)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     {
@@ -1092,7 +1100,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* request, including method + protocol */
   case 'r':
     if (logitem->req)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1102,7 +1110,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* Status Code */
   case 's':
     if (logitem->status)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1118,7 +1126,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* size of response in bytes - excluding HTTP headers */
   case 'b':
     if (logitem->resp_size)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1132,7 +1140,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* referrer */
   case 'R':
     if (logitem->ref)
-      return 0;
+      return handle_default_case_token (str, p);
 
     if (!(tkn = parse_string (&(*str), end, 1)))
       tkn = alloc_string ("-");
@@ -1158,7 +1166,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     /* user agent */
   case 'u':
     if (logitem->agent)
-      return 0;
+      return handle_default_case_token (str, p);
 
     tkn = parse_string (&(*str), end, 1);
     if (tkn != NULL && *tkn != '\0') {
@@ -1184,7 +1192,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'L':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1203,7 +1211,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'T':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1225,7 +1233,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'D':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1242,7 +1250,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'n':
     /* ignore it if we already have served time */
     if (logitem->serve_time)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1261,7 +1269,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'k':
     /* error to set this twice */
     if (logitem->tls_cypher)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1284,7 +1292,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'K':
     /* error to set this twice */
     if (logitem->tls_type)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1295,7 +1303,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'M':
     /* error to set this twice */
     if (logitem->mime_type)
-      return 0;
+      return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
@@ -1308,8 +1316,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     break;
     /* everything else skip it */
   default:
-    if ((pch = strchr (*str, p[1])) != NULL)
-      *str += pch - *str;
+    handle_default_case_token (str, p);
   }
 
   return 0;
