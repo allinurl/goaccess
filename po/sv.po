@@ -34,11 +34,11 @@ msgstr "Totalt"
 
 #: src/labels.h:54
 msgid "[x] ASC [ ] DESC"
-msgstr "[x] ASC [ ] DESC"
+msgstr "[x] STIGANDE [ ] FALLANDE"
 
 #: src/labels.h:55
 msgid "[ ] ASC [x] DESC"
-msgstr "[ ] ASC [x] DESC"
+msgstr "[ ] STIGANDE [x] FALLANDE"
 
 #: src/labels.h:58
 #, c-format
@@ -143,15 +143,15 @@ msgstr "v%"
 
 #: src/labels.h:87
 msgid "Avg. T.S."
-msgstr "Avg. T.S."
+msgstr "Genomsn. tid"
 
 #: src/labels.h:88
 msgid "Cum. T.S."
-msgstr "Cum. T.S."
+msgstr "Kum. tid"
 
 #: src/labels.h:89
 msgid "Max. T.S."
-msgstr "Max. T.S."
+msgstr "Max. tid"
 
 #: src/labels.h:90
 msgid "Method"
@@ -159,7 +159,7 @@ msgstr "Metod"
 
 #: src/labels.h:91
 msgid "Mtd"
-msgstr "Mtd"
+msgstr "Mån till datum"
 
 #: src/labels.h:92
 msgid "Protocol"
@@ -175,7 +175,7 @@ msgstr "Stad"
 
 #: src/labels.h:95 src/labels.h:211 src/labels.h:215
 msgid "ASN"
-msgstr ""
+msgstr "ASN"
 
 #: src/labels.h:96
 msgid "Country"
@@ -211,8 +211,7 @@ msgstr "Begärda filer (URLer)"
 
 #: src/labels.h:115
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Flest förfrågingar sorterade i träffar [, avgts, cumts, maxts, mthd, proto]"
+msgstr "Flest förfrågingar sorterade i träffar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]"
 
 #: src/labels.h:117
 msgid "Requests"
@@ -225,7 +224,7 @@ msgstr "Statiska förfrågningar"
 #: src/labels.h:122
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"Toppförfrågningar sorterade i trufar [, avgts, cumts, maxts, mthd, proto]"
+"Toppförfrågningar sorterade i trufar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]"
 
 #: src/labels.h:127
 msgid "Time Distribution"
@@ -233,7 +232,7 @@ msgstr "Tidsfördelning"
 
 #: src/labels.h:129
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
-msgstr "Data sorterade i timmar [, avgts, cumts, maxts]"
+msgstr "Data sorterade i timmar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:131
 msgid "Time"
@@ -245,7 +244,7 @@ msgstr "Virtuella värdar"
 
 #: src/labels.h:136 src/labels.h:143 src/labels.h:150
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
-msgstr "Data sorterat i träffar [, avgts, cumts, maxts]"
+msgstr "Data sorterat i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:141
 msgid "Remote User (HTTP authentication)"
@@ -270,7 +269,7 @@ msgstr "Hittar inte URL:en (404)"
 #: src/labels.h:157
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
-"Flest ej hittade URL:er sorterade i träffar [, avgts, cumts, maxts, mthd, "
+"Flest ej hittade URL:er sorterade i träffar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]"
 "proto]"
 
 #: src/labels.h:162
@@ -279,7 +278,7 @@ msgstr "Besökares Värdnamn och IP:s"
 
 #: src/labels.h:164
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest besökares värdnamn sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest besökares värdnamn sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:166
 msgid "Hosts"
@@ -291,7 +290,7 @@ msgstr "Operativsystem"
 
 #: src/labels.h:171
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest operativsystem sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest operativsystem sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:173
 msgid "OS"
@@ -303,7 +302,7 @@ msgstr "Webbläsare"
 
 #: src/labels.h:178
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr "Vanligast webbläsare sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Vanligast webbläsare sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:183
 #, fuzzy
@@ -313,8 +312,7 @@ msgstr "Hänvisande URL:er"
 #: src/labels.h:185
 #, fuzzy
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest Hänvisningsförfrågningar sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest Hänvisningsförfrågningar sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:190 src/labels.h:194
 msgid "Referring Sites"
@@ -322,7 +320,7 @@ msgstr "Hänvisade sidor"
 
 #: src/labels.h:192
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest hänvisade sidor sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest hänvisade sidor sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:197
 msgid "Keyphrases from Google's search engine"
@@ -330,7 +328,7 @@ msgstr "Nyckelord från Googles sökmotor"
 
 #: src/labels.h:199
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest nyckelord sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest nyckelord sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:201
 msgid "Keyphrases"
@@ -342,11 +340,11 @@ msgstr "Geografisk plats"
 
 #: src/labels.h:206
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr "Kontinent > Land sorterad i unika träffar [, avgts, cumts, maxts]"
+msgstr "Kontinent > Land sorterad i unika träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:213
 msgid "Autonomous System Numbers/Organizations (ASNs)"
-msgstr ""
+msgstr "Autonoma systemnummer/organisationer (ASN)"
 
 #: src/labels.h:218
 msgid "HTTP Status Codes"
@@ -354,7 +352,7 @@ msgstr "HTTP Statuskod"
 
 #: src/labels.h:220
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr "Flest HTTP Statuskod sorterade i träffar [, avgts, cumts, maxts]"
+msgstr "Flest HTTP Statuskod sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:222
 msgid "Status Codes"
@@ -402,8 +400,7 @@ msgstr "Loggformat konfiguration"
 
 #: src/labels.h:252
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
-"[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
+msgstr "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
 #: src/labels.h:254
 msgid "Log Format - [c] to add/edit format"
@@ -419,7 +416,7 @@ msgstr "Tidsformat - [t] för att lägga till / redigera format"
 
 #: src/labels.h:260 src/labels.h:264
 msgid "[UP/DOWN] to scroll - [q] to close window"
-msgstr "[UP / DOWN] för att bläddra - [q] för att stänga fönstret"
+msgstr "[UPP / NER] för att bläddra - [q] för att stänga fönstret"
 
 #: src/labels.h:266
 #, c-format
@@ -590,7 +587,7 @@ msgstr "Dölj automatiskt tabeller på små skärm enheter"
 
 #: src/labels.h:362
 msgid "Toggle Panel"
-msgstr ""
+msgstr "Växla panel"
 
 #: src/labels.h:364
 msgid "Layout"
