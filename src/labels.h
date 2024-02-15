@@ -33,6 +33,11 @@
 #ifdef ENABLE_NLS
 #include <libintl.h>
 
+#ifndef PACKAGE
+#define PACKAGE "goaccess"
+/* TODO: Find out what this is meant to be? */
+#endif
+
 #define _(String) dgettext (PACKAGE , String)
 #else
 #define _(String) (String)

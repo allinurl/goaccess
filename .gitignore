@@ -107,3 +107,8 @@ Makefile.in
 /resources/js/d3.v?.min.js.tmp
 /resources/js/hogan.min.js.tmp
 /resources/tpls.html.tmp
+
+# CMake and IDE
+.idea
+*build*
+*_export.h
