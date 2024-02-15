@@ -248,9 +248,18 @@ one variable and another predefined name in another variable.
   TRAEFIKCLF   - Traefik's CLF flavor
 .IP
 .I Note:
+Generally, you need quotes around values that include white spaces, commas,
+pipes, quotes, and/or brackets. Inner quotes must be escaped.
+.IP
+.I Note:
 Piping data into GoAccess won't prompt a log/date/time configuration dialog,
 you will need to previously define it in your configuration file or in the
 command line.
+.IP
+.I Note:
+The default GoAccess format for CADDY is the 'local/info' format. Nevertheless,
+if needed, you have the option to utilize a custom GoAccess log format to match
+your particular configuration.
 .SS
 USER INTERFACE OPTIONS
 .TP
