@@ -204,7 +204,7 @@ build GoAccess from source.
 
 | Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
 | ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
-| **Ubuntu/Debian**      | libncursesw6-dev | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
+| **Ubuntu/Debian**      | libncurses-dev   | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
 | **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
 | **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
 | **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
