@@ -17,7 +17,7 @@ jobs:
         - os: ubuntu-latest
           setup-env: sudo apt-get update && sudo apt-get install -y build-essential autoconf gettext autopoint libncursesw5-dev libssl-dev git libmaxminddb-dev jq
         - os: macos-latest
-          setup-env: brew update && brew install ncurses gettext autoconf automake libmaxminddb jq
+          setup-env: brew install ncurses gettext autoconf automake libmaxminddb jq
         - os: flyci-macos-large-latest-m1
           setup-env: brew update && brew install ncurses gettext autoconf automake libmaxminddb jq
 
