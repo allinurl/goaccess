@@ -3,7 +3,7 @@
 
 AC_PREREQ([2.69])
 AC_INIT([goaccess],[1.9.1],[hello@goaccess.io],[],[https://goaccess.io])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
 
