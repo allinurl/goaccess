@@ -585,20 +585,20 @@ parse_tz_specifier (const char *str, const char *fmt, struct tm *tm) {
     return 0;
   }
 
-  /* parse timezone offset with error handling, else invalid timezone offset
-   * format, +/-0500*/
+  /* try to parse timezone offset else bail early, +/-0500*/
   if ((*end != '+' && *end != '-') || strlen (end) < 4)
     return 1;
 
-  tz_offset_hours = strtol (end + 1, &ptr, 10);
+  /* divide by 100 to extract the hours part (e.g., 400 / 100 = 4) */
+  tz_offset_hours = labs (strtol (end, &ptr, 10)) / 100;
   if (*ptr != '\0')
     return 1;
 
-  if (strlen (end) >= 6) {
-    tz_offset_minutes = strtol (end + 4, &ptr, 10);
-    if (*ptr != '\0') {
+  if (strlen (end) >= 5) {
+    /* minutes part of the offset is present */
+    tz_offset_minutes = strtol (end + 3, &ptr, 10);
+    if (*ptr != '\0')
       return 1;
-    }
   }
 
   neg = (*end == '-');
