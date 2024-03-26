@@ -560,6 +560,54 @@ release:
   return;
 }
 
+#if defined(__linux__) && !defined(__GLIBC__)
+static int
+parse_tz_specifier (const char *str, const char *fmt, struct tm *tm) {
+  char *fmt_notz = NULL, *p = NULL, *end = NULL, *ptr = NULL;
+  int tz_offset_hours = 0, tz_offset_minutes = 0, neg = 0;
+
+  /* new format string that excludes %z */
+  fmt_notz = xstrdup (fmt);
+
+  p = strstr (fmt_notz, "%z");
+  if (p != NULL)
+    *p = '\0';
+
+  /* parse date/time without timezone offset */
+  end = strptime (str, fmt_notz, tm);
+  free (fmt_notz);
+  if (end == NULL)
+    return 1;
+
+  /* bail early if no timezone offset is expected */
+  if (*end == '\0') {
+    tm->tm_gmtoff = 0;
+    return 0;
+  }
+
+  /* parse timezone offset with error handling, else invalid timezone offset
+   * format, +/-0500*/
+  if ((*end != '+' && *end != '-') || strlen (end) < 4)
+    return 1;
+
+  tz_offset_hours = strtol (end + 1, &ptr, 10);
+  if (*ptr != '\0')
+    return 1;
+
+  if (strlen (end) >= 6) {
+    tz_offset_minutes = strtol (end + 4, &ptr, 10);
+    if (*ptr != '\0') {
+      return 1;
+    }
+  }
+
+  neg = (*end == '-');
+  tm->tm_gmtoff = (tz_offset_hours * 3600 + tz_offset_minutes * 60) * (neg ? -1 : 1);
+
+  return 0;
+}
+#endif
+
 /* Format the given date/time according the given format.
  *
  * On error, 1 is returned.
@@ -609,10 +657,14 @@ str_to_time (const char *str, const char *fmt, struct tm *tm, int tz) {
 
     return 0;
   }
-
+#if defined(__linux__) && !defined(__GLIBC__)
+  if (parse_tz_specifier (str, fmt, tm))
+    return -1;
+#else
   end = strptime (str, fmt, tm);
   if (end == NULL || *end != '\0')
     return 1;
+#endif
 
   if (!tz || !conf.tz_name)
     return 0;
