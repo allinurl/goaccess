@@ -1040,7 +1040,7 @@ ui_spinner (void *ptr_data) {
       wrefresh (sp->win);
     } else if (!conf.no_progress) {
       /* STDOUT */
-      fprintf (stderr, " %s\r", buf);
+      fprintf (stderr, " \033[K%s\r", buf);
     }
 
     pthread_mutex_unlock (&sp->mutex);
