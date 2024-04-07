@@ -212,6 +212,37 @@ wc_match (const char *wc, char *str) {
   return 0;
 }
 
+/**
+ * Extracts the hostname part from a given URL.
+ *
+ * On error, NULL is returned.
+ * On success, a dynamically allocated string containing the hostname is returned.
+ */
+static char *
+extract_hostname (const char *url) {
+  char *start, *end;
+  char *hostname = NULL;
+
+  start = strstr (url, "://");
+  if (start != NULL) {
+    start += 3;
+  } else {
+    start = (char *) url;
+  }
+
+  end = strchr (start, '/');
+  if (end == NULL) {
+    /* no path, use the entire string */
+    end = start + strlen (start);
+  }
+
+  hostname = xmalloc (end - start + 1);
+  strncpy (hostname, start, end - start);
+  hostname[end - start] = '\0';
+
+  return hostname;
+}
+
 /* Generic routine to extract all groups from a string given a POSIX regex.
  *
  * If no match found or error, NULL is returned.
@@ -262,6 +293,43 @@ out:
   return ret == 0 ? dest : NULL;
 }
 
+static int
+handle_referer (const char *host, const char **referers, int referer_idx) {
+  char *needle = NULL, *hostname = NULL;
+  int i, ignore = 0;
+
+  if (referer_idx == 0)
+    return 0;
+
+  if (host == NULL || *host == '\0')
+    return 0;
+
+  needle = xstrdup (host);
+  for (i = 0; i < referer_idx; ++i) {
+    if (referers[i] == NULL || *referers[i] == '\0')
+      continue;
+
+    if (strchr (referers[i], '*') != NULL || strchr (referers[i], '?') != NULL) {
+      if (wc_match (referers[i], needle)) {
+        ignore = 1;
+        goto out;
+      }
+    } else {
+      hostname = extract_hostname (host);
+      if (strcmp (referers[i], hostname) == 0) {
+        ignore = 1;
+        free (hostname);
+        goto out;
+      }
+      free (hostname);
+    }
+  }
+
+out:
+  free (needle);
+  return ignore;
+}
+
 /* Determine if the given host needs to be ignored given the list of
  * referrers to ignore.
  *
@@ -269,28 +337,7 @@ out:
  * On success, or if the host needs to be ignored, 1 is returned */
 int
 ignore_referer (const char *host) {
-  char *needle = NULL;
-  int i, ignore = 0;
-
-  if (conf.ignore_referer_idx == 0)
-    return 0;
-  if (host == NULL || *host == '\0')
-    return 0;
-
-  needle = xstrdup (host);
-  for (i = 0; i < conf.ignore_referer_idx; ++i) {
-    if (conf.ignore_referers[i] == NULL || *conf.ignore_referers[i] == '\0')
-      continue;
-
-    if (wc_match (conf.ignore_referers[i], needle)) {
-      ignore = 1;
-      goto out;
-    }
-  }
-out:
-  free (needle);
-
-  return ignore;
+  return handle_referer (host, conf.ignore_referers, conf.ignore_referer_idx);
 }
 
 /* Determine if the given host needs to be hidden given the list of
@@ -300,28 +347,7 @@ out:
  * On success, or if the host needs to be ignored, 1 is returned */
 int
 hide_referer (const char *host) {
-  char *needle = NULL;
-  int i, ignore = 0;
-
-  if (conf.hide_referer_idx == 0)
-    return 0;
-  if (host == NULL || *host == '\0')
-    return 0;
-
-  needle = xstrdup (host);
-  for (i = 0; i < conf.hide_referer_idx; ++i) {
-    if (conf.hide_referers[i] == NULL || *conf.hide_referers[i] == '\0')
-      continue;
-
-    if (wc_match (conf.hide_referers[i], needle)) {
-      ignore = 1;
-      goto out;
-    }
-  }
-out:
-  free (needle);
-
-  return ignore;
+  return handle_referer (host, conf.hide_referers, conf.hide_referer_idx);
 }
 
 /* Determine if the given ip is within a range of IPs.
@@ -585,7 +611,7 @@ parse_tz_specifier (const char *str, const char *fmt, struct tm *tm) {
     return 0;
   }
 
-  /* try to parse timezone offset else bail early, +/-0500*/
+  /* try to parse timezone offset else bail early, +/-0500 */
   if ((*end != '+' && *end != '-') || strlen (end) < 4)
     return 1;
 
