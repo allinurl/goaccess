@@ -1383,9 +1383,7 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
       if (!log_format)
         log_format = get_input_log_format ();
 
-      cstm_log =
-        input_string (win, 12, 2, log_format ? strlen (log_format) : CONF_MAX_LEN_DLG,
-                      log_format, 0, 0);
+      cstm_log = input_string (win, 12, 2, CONF_MAX_LEN_DLG, log_format, 0, 0);
       if (cstm_log != NULL && *cstm_log != '\0') {
         if (log_format)
           free (log_format);
