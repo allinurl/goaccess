@@ -1321,7 +1321,7 @@ static int
 gen_status_code_key (GKeyData *kdata, GLogItem *logitem) {
   const char *status = NULL, *type = NULL;
 
-  if (!logitem->status)
+  if (logitem->status == -1)
     return 1;
 
   status = verify_status_code (logitem->status);

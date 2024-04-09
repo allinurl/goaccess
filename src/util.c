@@ -61,7 +61,7 @@ pthread_mutex_t tz_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* HTTP status codes categories */
 static const char *code_type[] = {
-  NULL,
+  STATUS_CODE_0XX,
   STATUS_CODE_1XX,
   STATUS_CODE_2XX,
   STATUS_CODE_3XX,
@@ -71,25 +71,38 @@ static const char *code_type[] = {
 
 /* HTTP status codes */
 static const char *codes[1000] = {
+  [0] = STATUS_CODE_0,
   [100] = STATUS_CODE_100, STATUS_CODE_101,
   [200] = STATUS_CODE_200, STATUS_CODE_201, STATUS_CODE_202, STATUS_CODE_203, STATUS_CODE_204,
   [205] = STATUS_CODE_205, STATUS_CODE_206, STATUS_CODE_207, STATUS_CODE_208,
+  [218] = STATUS_CODE_218,
   [300] = STATUS_CODE_300, STATUS_CODE_301, STATUS_CODE_302, STATUS_CODE_303, STATUS_CODE_304,
   [305] = STATUS_CODE_305, NULL, STATUS_CODE_307, STATUS_CODE_308,
   [400] = STATUS_CODE_400, STATUS_CODE_401, STATUS_CODE_402, STATUS_CODE_403, STATUS_CODE_404,
   [405] = STATUS_CODE_405, STATUS_CODE_406, STATUS_CODE_407, STATUS_CODE_408, STATUS_CODE_409,
   [410] = STATUS_CODE_410, STATUS_CODE_411, STATUS_CODE_412, STATUS_CODE_413, STATUS_CODE_414,
-  [415] = STATUS_CODE_415, STATUS_CODE_416, STATUS_CODE_417, STATUS_CODE_418, NULL,
-  [420] = NULL, STATUS_CODE_421, STATUS_CODE_422, STATUS_CODE_423, STATUS_CODE_424,
-  [425] = NULL, STATUS_CODE_426, NULL, STATUS_CODE_428, STATUS_CODE_429,
+  [415] = STATUS_CODE_415, STATUS_CODE_416, STATUS_CODE_417, STATUS_CODE_418, STATUS_CODE_419,
+  [420] = STATUS_CODE_420, STATUS_CODE_421, STATUS_CODE_422, STATUS_CODE_423, STATUS_CODE_424,
+  [425] = NULL, STATUS_CODE_426, NULL, STATUS_CODE_428, STATUS_CODE_429, STATUS_CODE_430,
   [431] = STATUS_CODE_431,
+  [440] = STATUS_CODE_440,
   [444] = STATUS_CODE_444,
+  [449] = STATUS_CODE_449,
+  [450] = STATUS_CODE_450,
   [451] = STATUS_CODE_451,
+  [460] = STATUS_CODE_460, STATUS_CODE_463, STATUS_CODE_464,
   [494] = STATUS_CODE_494,
-  [495] = STATUS_CODE_495, STATUS_CODE_496, STATUS_CODE_497, NULL, STATUS_CODE_499,
+  [495] = STATUS_CODE_495, STATUS_CODE_496, STATUS_CODE_497, STATUS_CODE_498, STATUS_CODE_499,
   [500] = STATUS_CODE_500, STATUS_CODE_501, STATUS_CODE_502, STATUS_CODE_503, STATUS_CODE_504,
   [505] = STATUS_CODE_505,
-  [520] = STATUS_CODE_520, STATUS_CODE_521, STATUS_CODE_522, STATUS_CODE_523, STATUS_CODE_524,
+  [509] = STATUS_CODE_509,
+  [520] =
+    STATUS_CODE_520, STATUS_CODE_521, STATUS_CODE_522, STATUS_CODE_523, STATUS_CODE_524,
+    STATUS_CODE_525, STATUS_CODE_526, STATUS_CODE_527, STATUS_CODE_529,
+  [530] = STATUS_CODE_530,
+  [540] = STATUS_CODE_540,
+  [561] = STATUS_CODE_561,
+  [590] = STATUS_CODE_598, STATUS_CODE_599,
   [999] = NULL
 };
 
@@ -802,7 +815,7 @@ file_size (const char *filename) {
  * On success, the status code type/category is returned. */
 const char *
 verify_status_code_type (int code) {
-  if (code < 100 || code > 599 || code_type[code / 100] == NULL)
+  if (code >= 0 && code <= 599 && code_type[code / 100] == NULL)
     return "Unknown";
 
   return code_type[code / 100];
@@ -815,10 +828,15 @@ verify_status_code_type (int code) {
  * On success, the status code is returned. */
 const char *
 verify_status_code (int code) {
-  if (code < 100 || code > 599 || codes[code] == NULL)
+  if (code >= 0 && code <= 599 && code_type[code / 100] == NULL && codes[code] == NULL)
     return "Unknown";
 
   return codes[code];
+}
+
+int
+is_valid_http_status (int code) {
+  return code >= 0 && code <= 599 && code_type[code / 100] != NULL && codes[code] != NULL;
 }
 
 /* Checks if the given string is within the given array.

@@ -277,7 +277,7 @@ init_log_item (GLog *glog) {
   logitem->req = NULL;
   logitem->resp_size = 0LL;
   logitem->serve_time = 0;
-  logitem->status = 0;
+  logitem->status = -1;
   logitem->time = NULL;
   logitem->uniq_key = NULL;
   logitem->vhost = NULL;
@@ -1109,14 +1109,14 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     break;
     /* Status Code */
   case 's':
-    if (logitem->status)
+    if (logitem->status >= 0)
       return handle_default_case_token (str, p);
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
     logitem->status = strtol (tkn, &sEnd, 10);
     if (tkn == sEnd || *sEnd != '\0' || errno == ERANGE ||
-        (!conf.no_strict_status && (logitem->status < 100 || logitem->status > 599))) {
+        (!conf.no_strict_status && !is_valid_http_status (logitem->status))) {
       spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
       return 1;

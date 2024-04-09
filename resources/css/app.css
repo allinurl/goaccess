@@ -402,6 +402,10 @@ div.wrap-panel > div {
 	background: #fce8e6;
 	color: #c5221f;
 }
+.wrap-panel table .span-hl.lgry {
+	background: #898989;
+	color: #ffffff;
+}
 .wrap-panel table .span-hl.lblu {
 	background: #cfe2ff;
 	color: #052c65;
