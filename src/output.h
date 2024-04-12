@@ -46,6 +46,7 @@ typedef enum GChartType_ {
   CHART_NONE,
   CHART_VBAR,
   CHART_AREASPLINE,
+  CHART_WMAP,
 } GChartType;
 
 /* Chart axis structure */
@@ -74,6 +75,7 @@ typedef struct GHTMLPlot_ {
 typedef struct GHTML_ {
   GModule module;
   int8_t table;
+  int8_t has_map;
   void (*metrics) (FILE * fp, const struct GHTML_ * def, int sp);
   GHTMLPlot chart[MAX_PLOTS];
 } GHTML;

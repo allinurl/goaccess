@@ -1094,6 +1094,16 @@ GoAccess.Charts = {
 		return arr.join(' ');
 	},
 
+	getWMap: function (panel, plotUI, data) {
+		var chart = WorldMap(d3.select("#chart-" + panel));
+		chart.width($("#chart-" + panel).getBoundingClientRect().width);
+		chart.height(400);
+		chart.metric(plotUI['d3']['y0']['key']);
+		chart.opts(plotUI);
+
+		return chart;
+	},
+
 	getAreaSpline: function (panel, plotUI, data) {
 		var dualYaxis = plotUI['d3']['y1'];
 
@@ -1186,6 +1196,9 @@ GoAccess.Charts = {
 		case 'bar':
 			chart = this.getVBar(panel, plotUI, data);
 			break;
+		case 'wmap':
+			chart = this.getWMap(panel, plotUI, data);
+			break;
 		}
 
 		return chart;
@@ -1196,7 +1209,7 @@ GoAccess.Charts = {
 		d3.select('#chart-' + panel + '>.chart-tooltip-wrap')
 			.remove();
 		// remove svg
-		d3.select('#chart-' + panel).select('svg')
+		d3.select('#chart-' + panel).selectAll('svg')
 			.remove();
 		// add chart to the document
 		d3.select("#chart-" + panel)

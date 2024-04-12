@@ -97,6 +97,8 @@ Makefile.in
 /src/facss.h
 /src/hoganjs.h
 /src/tpls.h
+/src/countries110m.h
+/src/topojsonjs.h
 
 # intermediate resources
 /resources/css/app.css.tmp
@@ -107,3 +109,5 @@ Makefile.in
 /resources/js/d3.v?.min.js.tmp
 /resources/js/hogan.min.js.tmp
 /resources/tpls.html.tmp
+/resources/countries-110m.json.tmp
+/resources/js/topojson.v3.min.js.tmp

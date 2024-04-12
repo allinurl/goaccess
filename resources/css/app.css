@@ -1144,3 +1144,19 @@ html.dark.purple,
 .dark.purple .line1 {
 	stroke: #d048b6;
 }
+.country {
+	fill: #ccc;
+	stroke: #fff;
+	stroke-width: 0.5px;
+}
+.country:hover {
+	fill: #b3b3b3;
+}
+.dark .country {
+	fill: #ccc;
+	stroke: #222;
+	stroke-width: 0.5px;
+}
+.dark .legend-svg text {
+	fill: #FFF;
+}

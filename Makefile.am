@@ -9,7 +9,9 @@ dist_noinst_DATA =                 \
   resources/css/fa.min.css         \
   resources/js/app.js              \
   resources/js/charts.js           \
+  resources/countries-110m.json    \
   resources/js/d3.v7.min.js        \
+  resources/js/topojson.v3.min.js  \
   resources/js/hogan.min.js
 
 noinst_PROGRAMS = bin2c
@@ -21,7 +23,9 @@ BUILT_SOURCES =       \
   src/facss.h         \
   src/appcss.h        \
   src/d3js.h          \
+  src/topojsonjs.h    \
   src/hoganjs.h       \
+  src/countries110m.h \
   src/chartsjs.h      \
   src/appjs.h
 
@@ -31,14 +35,18 @@ CLEANFILES =                          \
   src/facss.h                         \
   src/appcss.h                        \
   src/d3js.h                          \
+  src/topojsonjs.h                    \
   src/hoganjs.h                       \
+  src/countries110m.h                 \
   src/chartsjs.h                      \
   src/appjs.h                         \
   resources/tpls.html.tmp             \
+  resources/countries-110m.json.tmp   \
   resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
   resources/css/app.css.tmp           \
   resources/js/d3.v7.min.js.tmp       \
+  resources/js/topojson.v3.min.js.tmp \
   resources/js/hogan.min.js.tmp       \
   resources/js/charts.js.tmp          \
   resources/js/app.js.tmp
@@ -50,6 +58,14 @@ if HAS_SEDTR
 	./bin2c $(srcdir)/resources/tpls.html.tmp src/tpls.h tpls
 else
 	./bin2c $(srcdir)/resources/tpls.html src/tpls.h tpls
+endif
+# countries.json
+src/countries110m.h: bin2c$(EXEEXT) $(srcdir)/resources/countries-110m.json
+if HAS_SEDTR
+	cat $(srcdir)/resources/countries-110m.json | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/countries-110m.json.tmp
+	./bin2c $(srcdir)/resources/countries-110m.json.tmp src/countries110m.h countries_json
+else
+	./bin2c $(srcdir)/resources/countries-110m.json src/countries110m.h countries_json
 endif
 # Bootstrap
 src/bootstrapcss.h: bin2c$(EXEEXT) $(srcdir)/resources/css/bootstrap.min.css
@@ -82,6 +98,14 @@ if HAS_SEDTR
 	./bin2c $(srcdir)/resources/js/d3.v7.min.js.tmp src/d3js.h d3_js
 else
 	./bin2c $(srcdir)/resources/js/d3.v7.min.js src/d3js.h d3_js
+endif
+# topojson.js
+src/topojsonjs.h: bin2c$(EXEEXT) $(srcdir)/resources/js/topojson.v3.min.js
+if HAS_SEDTR
+	cat $(srcdir)/resources/js/topojson.v3.min.js | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/js/topojson.v3.min.js.tmp
+	./bin2c $(srcdir)/resources/js/topojson.v3.min.js.tmp src/topojsonjs.h topojson_js
+else
+	./bin2c $(srcdir)/resources/js/topojson.v3.min.js src/topojsonjs.h topojson_js
 endif
 # Hogan.js
 src/hoganjs.h: bin2c$(EXEEXT) $(srcdir)/resources/js/hogan.min.js

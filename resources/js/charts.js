@@ -37,6 +37,286 @@ function truncate(text, width) {
 	});
 }
 
+function WorldMap() {
+	const maxLat = 84;
+	let path = null;
+	let projection = null;
+	let tlast = [0, 0];
+	let slast = null;
+	let opts = {};
+	let metric = 'hits';
+	let margin = {
+		top: 20,
+		right: 50,
+		bottom: 40,
+		left: 50
+	};
+	let width = 760;
+	let height = 170;
+
+	function innerW() {
+		return width - margin.left - margin.right;
+	}
+
+	function mapData(data) {
+		return data.reduce((countryData, region) => {
+			if (!region.items) countryData.push(region);
+			else region.items.forEach(item => countryData.push({
+				data: item.data,
+				hits: item.hits.count,
+				visitors: item.visitors.count,
+				bytes: item.bytes.count,
+				region: region.data
+			}));
+			return countryData;
+		}, []);
+	}
+
+	function formatTooltip(data) {
+		const d = {...data};
+		let out = {};
+
+		out[0] = GoAccess.Util.fmtValue(d['data'], 'str');
+		out[1] = metric == 'bytes' ? GoAccess.Util.fmtValue(d['bytes'], 'bytes') : d3.format(',')(d['hits']);
+		if (metric == 'hits')
+			out[2] = d3.format(',')(d['visitors']);
+
+		const template = d3.select('#tpl-chart-tooltip').html();
+		return Hogan.compile(template).render({
+			'data': out
+		});
+	}
+
+	function mouseover(event, selection, data) {
+		const tooltip = selection.select('.chart-tooltip-wrap');
+		tooltip.html(formatTooltip(data))
+			.style('left', `${d3.pointer(event)[0] + 10}px`)
+			.style('top', `${d3.pointer(event)[1] + 10}px`)
+			.style('display', 'block');
+	}
+
+	function mouseout(selection, g) {
+		const tooltip = selection.select('.chart-tooltip-wrap');
+		tooltip.style('display', 'none');
+	}
+
+	function drawLegend(selection, colorScale) {
+		const legendHeight = 10;
+		const legendPadding = 10;
+
+		let svg = selection.select('.legend-svg');
+		if (svg.empty()) {
+			svg = selection.append('svg')
+				.attr('class', 'legend-svg')
+				.attr('width', width + margin.left + margin.right) // Adjust the width of the SVG
+				.attr('height', legendHeight + 2 * legendPadding);
+		}
+
+		let legend = svg.select('.legend');
+		if (legend.empty()) {
+			legend = svg.append('g')
+				.attr('class', 'legend')
+				.attr('transform', `translate(${margin.left}, ${legendPadding})`); // Adjust the position of the legend
+		}
+
+		const legendData = colorScale.quantiles();
+
+		const legendRects = legend.selectAll('rect')
+			.data(legendData);
+
+		legendRects.enter().append('rect')
+			.merge(legendRects)
+			.attr('x', (d, i) => (i * (innerW())) / legendData.length) // Adjust the x attribute
+			.attr('y', 0)
+			.attr('width', (innerW()) / legendData.length) // Adjust the width of the rectangles
+			.attr('height', legendHeight)
+			.style('fill', d => colorScale(d));
+
+		legendRects.exit().remove();
+
+		const legendTexts = legend.selectAll('text')
+			.data(legendData);
+
+		legendTexts.enter().append('text')
+			.merge(legendTexts)
+			.attr('x', (d, i) => (i * (innerW())) / legendData.length) // Adjust the x attribute
+			.attr('y', legendHeight + legendPadding)
+			.text(d => Math.round(d))
+			.style('font-size', '10px')
+			.attr('text-anchor', 'middle')
+			.text(d => metric === 'bytes' ? GoAccess.Util.fmtValue(d, 'bytes') : d3.format(',')(d));
+
+		legendTexts.exit().remove();
+	}
+
+	function updateMap(selection, svg, data, countries, countryNameToGeoJson) {
+		data = mapData(data);
+		path = d3.geoPath().projection(projection);
+
+		const colorScale = d3.scaleQuantile().domain(data.map(d => d[metric])).range(['#ffffccc9', '#c2e699', '#a1dab4c9', '#41b6c4c9', '#2c7fb8c9']);
+		if (data.length)
+			drawLegend(selection, colorScale);
+
+		// Create a mapping from country name to data
+		const dataByName = {};
+		data.forEach(d => {
+			const k = d.data.split(' ')[0];
+			dataByName[k] = d;
+		});
+
+		let country = svg.select('g').selectAll('.country')
+			.data(countries);
+
+		let countryEnter = country.enter().append('path')
+			.attr('class', 'country')
+			.attr('d', path)
+			.attr('opacity', 0); // set initial opacity to 0 for entering elements
+
+		country = countryEnter.merge(country)
+			.on('mouseover', function(event, d) {
+				const countryData = dataByName[d.id];
+				if (countryData)
+					mouseover(event, selection, countryData);
+			})
+			.on('mouseout', function(d) {
+				mouseout(selection);
+			});
+
+		country.transition().duration(500)
+			.style('fill', function(d) {
+				const countryData = dataByName[d.id];
+				return countryData ? colorScale(countryData[metric]) : '#cccccc54';
+			})
+			.attr('opacity', 1); // animate opacity to 1
+
+		country.exit()
+			.transition().duration(500)
+			.attr('opacity', 0) // animate opacity to 0
+			.remove();
+
+	}
+
+	function setBounds(projection, maxLat) {
+		const [yaw] = projection.rotate();
+		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]); // Top left corner
+		const xymin = projection([-yaw - 180 + 1e-6, maxLat]); // Bottom right corner
+		return [xymin, xymax];
+	}
+
+	function zoomed(event, projection, path, scaleExtent, g) {
+		const newX = event.transform.x % width;
+		const newY = event.transform.y;
+		const scale = event.transform.k;
+
+		if (scale != slast) {
+			// Adjust the scale of the projection based on the zoom level
+			projection.scale(scale * (innerW() / (2 * Math.PI)));
+		} else {
+			// Calculate the new longitude based on the x-coordinate
+			let [longitude] = projection.rotate();
+
+			// Use the X translation to rotate, based on the current scale
+			longitude += 360 * ((newX - tlast[0]) / width) * (scaleExtent[0] / scale);
+			projection.rotate([longitude, 0, 0]);
+
+			// Calculate the new latitude based on the y-coordinate
+			const b = setBounds(projection, maxLat);
+			let dy = newY - tlast[1];
+			if (b[0][1] + dy > 0)
+				dy = -b[0][1];
+			else if (b[1][1] + dy < height)
+				dy = height - b[1][1];
+			projection.translate([projection.translate()[0], projection.translate()[1] + dy]);
+		}
+
+		// Redraw paths with the updated projection
+		g.selectAll('path').attr('d', path);
+
+		// Save last values
+		slast = scale;
+		tlast = [newX, newY];
+	}
+
+	function createSVG(selection) {
+		const svg = d3.select(selection)
+			.append('svg')
+			.attr('class', 'map')
+			.attr('width', width)
+			.attr('height', height)
+			.lower();
+
+		const g = svg.append('g')
+			.attr('transform', `translate(${margin.left}, 0)`)
+			.attr('transform-origin', '50% 50%');
+
+		projection = d3.geoMercator()
+			.center([0, 15])
+			.scale([(innerW()) / (2 * Math.PI)])
+			.translate([(innerW()) / 2, height / 1.5]);
+		path = d3.geoPath().projection(projection);
+
+		// Calculate scale extent and initial scale
+		const bounds = setBounds(projection, maxLat);
+		const s = width / (bounds[1][0] - bounds[0][0]);
+		// The minimum and maximum zoom scales
+		const scaleExtent = [s, 5 * s];
+
+		const zoom = d3.zoom()
+			.scaleExtent(scaleExtent)
+			.on('zoom', event => {
+				zoomed(event, projection, path, scaleExtent, g);
+			});
+		svg.call(zoom);
+
+		return svg;
+	}
+
+	function chart(selection) {
+		selection.each(function(data) {
+			const worldData = window.countries110m;
+			const countries = topojson.feature(worldData, worldData.objects.countries).features;
+
+			const countryNameToGeoJson = {};
+			countries.forEach(country => {
+				countryNameToGeoJson[country.properties.name] = country;
+			});
+
+			let svg = d3.select(this).select('svg.map');
+			// if the SVG element doesn't exist, create it
+			if (svg.empty())
+				svg = createSVG(this);
+
+			updateMap(selection, svg, data, countries, countryNameToGeoJson);
+		});
+	}
+
+	chart.metric = function(_) {
+		if (!arguments.length) return metric;
+		metric = _;
+		return chart;
+	};
+
+	chart.opts = function (_) {
+		if (!arguments.length) return opts;
+		opts = _;
+		return chart;
+	};
+
+	chart.width = function(_) {
+		if (!arguments.length) return width;
+		width = _;
+		return chart;
+	};
+
+	chart.height = function(_) {
+		if (!arguments.length) return height;
+		height = _;
+		return chart;
+	};
+
+	return chart;
+}
+
 function AreaChart(dualYaxis) {
 	var opts = {};
 	var margin = {

@@ -53,7 +53,9 @@
 #include "facss.h"
 #include "appcss.h"
 #include "d3js.h"
+#include "topojsonjs.h"
 #include "hoganjs.h"
+#include "countries110m.h"
 #include "chartsjs.h"
 #include "appjs.h"
 
@@ -67,81 +69,81 @@ static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 
 /* *INDENT-OFF* */
 static GHTML htmldef[] = {
-  {VISITORS, 1, print_metrics, {
+  {VISITORS, 1, 0, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 1, 1, NULL, NULL} ,
     {CHART_AREASPLINE, hits_bw_plot, 1, 1, NULL, NULL} ,
   }},
-  {REQUESTS, 1, print_metrics, {
+  {REQUESTS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {REQUESTS_STATIC, 1, print_metrics, {
+  {REQUESTS_STATIC, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {NOT_FOUND, 1, print_metrics, {
+  {NOT_FOUND, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {HOSTS, 1, print_host_metrics, {
+  {HOSTS, 1, 0, print_host_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {OS, 1, print_metrics, {
+  {OS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {BROWSERS, 1, print_metrics, {
+  {BROWSERS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {VISIT_TIMES, 1, print_metrics, {
+  {VISIT_TIMES, 1, 0, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_AREASPLINE, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {VIRTUAL_HOSTS, 1, print_metrics, {
+  {VIRTUAL_HOSTS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {REFERRERS, 1, print_metrics, {
+  {REFERRERS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {REFERRING_SITES, 1, print_metrics, {
+  {REFERRING_SITES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {KEYPHRASES, 1, print_metrics, {
+  {KEYPHRASES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {STATUS_CODES, 1, print_metrics, {
+  {STATUS_CODES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {REMOTE_USER, 1, print_metrics, {
+  {REMOTE_USER, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {CACHE_STATUS, 1, print_metrics, {
+  {CACHE_STATUS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
 #ifdef HAVE_GEOLOCATION
-  {GEO_LOCATION, 1, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+  {GEO_LOCATION, 1, 1, print_metrics, {
+    {CHART_WMAP, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {ASN, 1, print_metrics, {
+  {ASN, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
 #endif
-  {MIME_TYPE, 1, print_metrics, {
+  {MIME_TYPE, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {TLS_TYPE, 1, print_metrics, {
+  {TLS_TYPE, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
@@ -158,7 +160,7 @@ static int external_assets = 0;
  * On success, the chart type string is returned. */
 static const char *
 chart2str (GChartType type) {
-  static const char *strings[] = { "null", "bar", "area-spline" };
+  static const char *strings[] = { "null", "bar", "area-spline", "wmap" };
   return strings[type];
 }
 
@@ -332,11 +334,13 @@ print_html_footer (FILE * fp, FILE *fjs)
     fprintf (fjs, "%.*s", hogan_js_length, hogan_js);
     fprintf (fjs, "%.*s", app_js_length, app_js);
     fprintf (fjs, "%.*s", charts_js_length, charts_js);
+    fprintf (fjs, "%.*s", topojson_js_length, topojson_js);
   } else {
     fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
     fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
     fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
     fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+    fprintf (fp, "<script>%.*s</script>", topojson_js_length, topojson_js);
   }
 
   /* load custom JS file, if any */
@@ -1088,6 +1092,7 @@ print_panel_def_meta (FILE *fp, const GHTML *def, int sp) {
 
   fpskeysval (fp, "id", id, isp, 0);
   fpskeyival (fp, "table", def->table, isp, 0);
+  fpskeyival (fp, "hasMap", def->has_map, isp, 0);
 
   print_def_sort (fp, def, isp);
   print_def_plot (fp, def, isp);
@@ -1176,6 +1181,7 @@ print_json_i18n_def (FILE *fp) {
     {"type"           , HTML_REPORT_PANEL_TYPE}         ,
     {"area_spline"    , HTML_REPORT_PANEL_AREA_SPLINE}  ,
     {"bar"            , HTML_REPORT_PANEL_BAR}          ,
+    {"wmap"           , HTML_REPORT_PANEL_WMAP}         ,
     {"plot_metric"    , HTML_REPORT_PANEL_PLOT_METRIC}  ,
     {"table_columns"  , HTML_REPORT_PANEL_TABLE_COLS}   ,
     {"thead"          , T_HEAD}                         ,
@@ -1223,6 +1229,8 @@ print_json_defs (FILE *fp) {
   print_json_i18n_def (fp);
   fprintf (fp, ";");
 
+  fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
+  fprintf (fp, "var countries110m=%.*s;", countries_json_length, countries_json);
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);
