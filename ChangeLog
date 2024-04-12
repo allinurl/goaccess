@@ -1,3 +1,20 @@
+Changes to GoAccess 1.9.2 - Friday, April 12, 2024
+
+  - Added World Map to the Geo Location panel on the HTML report.
+  - Added additional non-official/standard HTTP status codes such as Caddy's 0
+    HTTP status among others.
+  - Added support for '%z' on strptime for non-glibc systems, such as musl libc
+    in Alpine Linux (Docker container), enabling the use of '--tz'
+  - Changed the '--hide/ignore-referrer' options to filter by hostname directly
+    without the use of wildcards, e.g., '--ignore-referrer=wiki.google.com'.
+  - Fixed inability to parse duplicate specifiers during log format parsing.
+  - Fixed regression which previously hindered the ability to modify log, date,
+    and time formats within the TUI dialog. i.e., '# goaccess access.log -c'.
+  - Replaced 'remote_ip' with 'client_ip' for Caddy's JSON format, allowing the
+    use of trusted proxies.
+  - Updated Caddy JSON example log format to handle headers correctly.
+  - Updated Swedish i18n.
+
 Changes to GoAccess 1.9.1 - Tuesday, February 05, 2024
 
   - Added support for macOS to the OS detection.
