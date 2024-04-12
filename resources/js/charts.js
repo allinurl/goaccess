@@ -108,7 +108,7 @@ function WorldMap() {
 		if (svg.empty()) {
 			svg = selection.append('svg')
 				.attr('class', 'legend-svg')
-				.attr('width', width + margin.left + margin.right) // Adjust the width of the SVG
+				.attr('width', width + margin.left + margin.right)
 				.attr('height', legendHeight + 2 * legendPadding);
 		}
 
@@ -116,7 +116,7 @@ function WorldMap() {
 		if (legend.empty()) {
 			legend = svg.append('g')
 				.attr('class', 'legend')
-				.attr('transform', `translate(${margin.left}, ${legendPadding})`); // Adjust the position of the legend
+				.attr('transform', `translate(${margin.left}, ${legendPadding})`);
 		}
 
 		const legendData = colorScale.quantiles();
@@ -126,9 +126,9 @@ function WorldMap() {
 
 		legendRects.enter().append('rect')
 			.merge(legendRects)
-			.attr('x', (d, i) => (i * (innerW())) / legendData.length) // Adjust the x attribute
+			.attr('x', (d, i) => (i * (innerW())) / legendData.length)
 			.attr('y', 0)
-			.attr('width', (innerW()) / legendData.length) // Adjust the width of the rectangles
+			.attr('width', (innerW()) / legendData.length)
 			.attr('height', legendHeight)
 			.style('fill', d => colorScale(d));
 
@@ -139,7 +139,7 @@ function WorldMap() {
 
 		legendTexts.enter().append('text')
 			.merge(legendTexts)
-			.attr('x', (d, i) => (i * (innerW())) / legendData.length) // Adjust the x attribute
+			.attr('x', (d, i) => (i * (innerW())) / legendData.length)
 			.attr('y', legendHeight + legendPadding)
 			.text(d => Math.round(d))
 			.style('font-size', '10px')
@@ -167,10 +167,11 @@ function WorldMap() {
 		let country = svg.select('g').selectAll('.country')
 			.data(countries);
 
+		// set initial opacity to 0 for entering elements
 		let countryEnter = country.enter().append('path')
 			.attr('class', 'country')
 			.attr('d', path)
-			.attr('opacity', 0); // set initial opacity to 0 for entering elements
+			.attr('opacity', 0);
 
 		country = countryEnter.merge(country)
 			.on('mouseover', function(event, d) {
@@ -187,19 +188,21 @@ function WorldMap() {
 				const countryData = dataByName[d.id];
 				return countryData ? colorScale(countryData[metric]) : '#cccccc54';
 			})
-			.attr('opacity', 1); // animate opacity to 1
+			.attr('opacity', 1);
 
 		country.exit()
 			.transition().duration(500)
-			.attr('opacity', 0) // animate opacity to 0
+			.attr('opacity', 0)
 			.remove();
 
 	}
 
 	function setBounds(projection, maxLat) {
 		const [yaw] = projection.rotate();
-		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]); // Top left corner
-		const xymin = projection([-yaw - 180 + 1e-6, maxLat]); // Bottom right corner
+		// Top left corner
+		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]);
+		// Bottom right corner
+		const xymin = projection([-yaw - 180 + 1e-6, maxLat]);
 		return [xymin, xymax];
 	}
 
