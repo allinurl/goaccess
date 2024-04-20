@@ -1,0 +1,17 @@
+# Used to have all compile dependencies isolated in a container image.
+FROM debian:12
+
+RUN apt update -qqq
+RUN apt install -y \
+    libncurses-dev \
+    libssl-dev \
+    libmaxminddb-dev \
+    build-essential \
+    autoconf \
+    gettext \
+    autopoint
+
+# GoAccess
+WORKDIR /goaccess
+
+ENTRYPOINT ["./build-dynamic.sh"]
