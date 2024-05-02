@@ -45,7 +45,7 @@ typedef struct GDnsQueue_ {
   int tail;                     /* index to tail of queue */
   int size;                     /* queue size */
   int capacity;                 /* length at most */
-  char buffer[QUEUE_SIZE][H_SIZE];      /* data item */
+  char buffer[QUEUE_SIZE][H_SIZE]; /* data item */
 } GDnsQueue;
 
 extern GDnsThread gdns_thread;

@@ -727,16 +727,14 @@ insert_maxts (GModule module, GKeyData *kdata, uint64_t ts) {
 
 static void
 insert_method (GModule module, GKeyData *kdata, const char *data) {
-  ht_insert_method (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
-                    kdata->cdnkey);
+  ht_insert_method (module, kdata->numdate, kdata->data_nkey, data ? data : "---", kdata->cdnkey);
 }
 
 /* A wrapper call to insert a method given an uint32_t key and string
  * value. */
 static void
 insert_protocol (GModule module, GKeyData *kdata, const char *data) {
-  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey, data ? data : "---",
-                      kdata->cdnkey);
+  ht_insert_protocol (module, kdata->numdate, kdata->data_nkey, data ? data : "---", kdata->cdnkey);
 }
 
 /* A wrapper call to insert an agent for a hostname given an uint32_t
@@ -1390,8 +1388,7 @@ static int
 include_uniq (GLogItem *logitem) {
   int u = conf.client_err_to_unique_count;
 
-  if (!logitem->status || (logitem->status / 100) != 4 ||
-      (u && (logitem->status / 100) == '4'))
+  if (!logitem->status || (logitem->status / 100) != 4 || (u && (logitem->status / 100) == '4'))
     return 1;
   return 0;
 }

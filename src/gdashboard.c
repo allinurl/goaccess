@@ -59,9 +59,9 @@ reset_find (void) {
 
   find_t.look_in_sub = 0;
   find_t.module = 0;
-  find_t.next_idx = 0;  /* next total index    */
-  find_t.next_parent_idx = 0;   /* next parent index   */
-  find_t.next_sub_idx = 0;      /* next sub item index */
+  find_t.next_idx = 0; /* next total index    */
+  find_t.next_parent_idx = 0; /* next parent index   */
+  find_t.next_sub_idx = 0; /* next sub item index */
   find_t.pattern = NULL;
 }
 
@@ -879,8 +879,7 @@ render_header (WINDOW *win, GDashModule *data, GModule cur_module, int *y) {
 
   k = data->module + 1;
   ind = cur_module == data->module ? '>' : ' ';
-  func = cur_module == data->module &&
-    conf.hl_header ? color_panel_active : color_panel_header;
+  func = cur_module == data->module && conf.hl_header ? color_panel_active : color_panel_header;
   hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
   sprintf (hd, "%c %d - %s", ind, k, data->head);
 
@@ -1061,8 +1060,7 @@ render_cols (WINDOW *win, GDashModule *data, int *y) {
 
 /* Iterate over all dashboard data and render its content. */
 static void
-render_content (WINDOW *win, GDashModule *data, int *y, int *offset,
-                int *total, GScroll *gscroll) {
+render_content (WINDOW *win, GDashModule *data, int *y, int *offset, int *total, GScroll *gscroll) {
   GModule module = data->module;
   int i, j, size, h, w, data_pos = get_data_pos_rows ();
 
@@ -1388,8 +1386,7 @@ out:
  * If no items on the sub list, the function returns.
  * On success, sub list data is set into the dashboard structure. */
 static void
-add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals,
-                      int *i) {
+add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int *i) {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
 

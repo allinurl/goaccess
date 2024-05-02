@@ -447,8 +447,7 @@ ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t *ckey) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value,
-                   uint32_t ckey) {
+ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_ROOTMAP);
   khash_t (is32) * cache = get_hash_from_cache (module, MTRC_ROOTMAP);
   char *dupval = NULL;
@@ -471,8 +470,7 @@ ht_insert_rootmap (GModule module, uint32_t date, uint32_t key, const char *valu
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value,
-                   uint32_t ckey) {
+ht_insert_datamap (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey) {
   khash_t (is32) * hash = get_hash (module, date, MTRC_DATAMAP);
   khash_t (is32) * cache = get_hash_from_cache (module, MTRC_DATAMAP);
   char *dupval = NULL;
@@ -614,8 +612,7 @@ ht_insert_maxts (GModule module, uint32_t date, uint32_t key, uint64_t value, ui
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value,
-                  uint32_t ckey) {
+ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (ii08) * hash = get_hash (module, date, MTRC_METHODS);
   khash_t (ii08) * cache = get_hash_from_cache (module, MTRC_METHODS);
@@ -640,8 +637,7 @@ ht_insert_method (GModule module, uint32_t date, uint32_t key, const char *value
  * On error, or if key exists, -1 is returned.
  * On success 0 is returned */
 int
-ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value,
-                    uint32_t ckey) {
+ht_insert_protocol (GModule module, uint32_t date, uint32_t key, const char *value, uint32_t ckey) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (ii08) * hash = get_hash (module, date, MTRC_PROTOCOLS);
   khash_t (ii08) * cache = get_hash_from_cache (module, MTRC_PROTOCOLS);
@@ -1190,8 +1186,7 @@ ins_cache_map (GModule module, GSMetric metric, uint32_t key) {
 }
 
 static int
-ins_cache_ii08 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
-                uint32_t ckey) {
+ins_cache_ii08 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key, uint32_t ckey) {
   khash_t (ii08) * hash = get_hash_from_store (store, module, metric);
   khash_t (ii08) * cache = get_hash_from_cache (module, metric);
   khint_t k;
@@ -1202,8 +1197,7 @@ ins_cache_ii08 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t 
 }
 
 static int
-ins_cache_is32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
-                uint32_t ckey) {
+ins_cache_is32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key, uint32_t ckey) {
   khash_t (is32) * hash = get_hash_from_store (store, module, metric);
   khash_t (is32) * cache = get_hash_from_cache (module, metric);
   khint_t k;
@@ -1214,8 +1208,7 @@ ins_cache_is32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t 
 }
 
 static int
-inc_cache_ii32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
-                uint32_t ckey) {
+inc_cache_ii32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key, uint32_t ckey) {
   khash_t (ii32) * hash = get_hash_from_store (store, module, metric);
   khash_t (ii32) * cache = get_hash_from_cache (module, metric);
   khint_t k;
@@ -1226,8 +1219,7 @@ inc_cache_ii32 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t 
 }
 
 static int
-max_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
-                uint32_t ckey) {
+max_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key, uint32_t ckey) {
   khash_t (iu64) * hash = get_hash_from_store (store, module, metric);
   khash_t (iu64) * cache = get_hash_from_cache (module, metric);
   khint_t k;
@@ -1241,8 +1233,7 @@ max_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t 
 }
 
 static int
-inc_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key,
-                uint32_t ckey) {
+inc_cache_iu64 (GKHashStorage *store, GModule module, GSMetric metric, uint32_t key, uint32_t ckey) {
   khash_t (iu64) * hash = get_hash_from_store (store, module, metric);
   khash_t (iu64) * cache = get_hash_from_cache (module, metric);
   khint_t k;

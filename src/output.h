@@ -34,7 +34,7 @@
 #ifndef OUTPUT_H_INCLUDED
 #define OUTPUT_H_INCLUDED
 
-#define MAX_PLOTS 5     /* number of metrics we can plot */
+#define MAX_PLOTS 5 /* number of metrics we can plot */
 #define FILENAME_JS  "goaccess.js"
 #define FILENAME_CSS "goaccess.css"
 

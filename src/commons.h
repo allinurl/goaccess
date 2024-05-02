@@ -62,7 +62,7 @@ extern struct tm now_tm;
 /* real-time */
 #define MAX_CHOICES_RT        50
 /* max default items when date-spec = min */
-#define MAX_CHOICES_MINUTE  1440        /* 24hrs */
+#define MAX_CHOICES_MINUTE  1440 /* 24hrs */
 
 /* date and time length - e.g., 2016/12/12 12:12:12 -0600 */
 #define DATE_TIME     25 + 1

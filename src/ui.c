@@ -34,7 +34,7 @@
 
 #define STDIN_FILENO  0
 #ifndef _BSD_SOURCE
-#define _BSD_SOURCE     /* include stuff from 4.3 BSD */
+#define _BSD_SOURCE /* include stuff from 4.3 BSD */
 #endif
 #ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
@@ -935,10 +935,10 @@ load_agent_list (WINDOW *main_win, char *addr) {
     return;
 
   getmaxyx (stdscr, y, x);
-  list_h = y / 2;       /* list window - height */
-  list_w = x - 4;       /* list window - width */
-  menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
-  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
+  list_h = y / 2; /* list window - height */
+  list_w = x - 4; /* list window - width */
+  menu_h = list_h - AGENTS_MENU_Y - 1; /* menu window - height */
+  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X; /* menu window - width */
 
   win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
   keypad (win, TRUE);

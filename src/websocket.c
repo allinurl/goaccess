@@ -1608,7 +1608,7 @@ ws_get_handshake (WSClient *client, WSServer *server) {
   }
   client->headers->buflen += bytes;
 
-  buf[client->headers->buflen] = '\0';  /* null-terminate */
+  buf[client->headers->buflen] = '\0'; /* null-terminate */
 
   /* Must have a \r\n\r\n */
   if (strstr (buf, "\r\n\r\n") == NULL) {
@@ -1822,7 +1822,7 @@ ws_handle_ping (WSClient *client) {
 
   ws_send_frame (client, WS_OPCODE_PONG, buf, len);
 
-  (*msg)->buflen = 0;   /* done with the current frame's payload */
+  (*msg)->buflen = 0; /* done with the current frame's payload */
   /* Control frame injected in the middle of a fragmented message. */
   if (!(*msg)->fragmented) {
     ws_free_message (client);
@@ -2005,8 +2005,8 @@ ws_get_frm_header (WSClient *client) {
   frm = &client->frame;
 
   /* Read the first 2 bytes for basic frame info */
-  readh = (*frm)->buflen;       /* read from header so far */
-  need = 2 - readh;     /* need to read */
+  readh = (*frm)->buflen; /* read from header so far */
+  need = 2 - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_header (client, (*frm), readh, need)) < 1)
       return bytes;
@@ -2020,8 +2020,8 @@ ws_get_frm_header (WSClient *client) {
 
   ws_set_extended_header_size ((*frm)->buf, &extended);
   /* read the extended header */
-  readh = (*frm)->buflen;       /* read from header so far */
-  need = (extended + offset) - readh;   /* read from header field so far */
+  readh = (*frm)->buflen; /* read from header so far */
+  need = (extended + offset) - readh; /* read from header field so far */
   if (need > 0) {
     if ((bytes = ws_read_header (client, (*frm), readh, need)) < 1)
       return bytes;
@@ -2031,7 +2031,7 @@ ws_get_frm_header (WSClient *client) {
   offset += extended;
 
   /* read the masking key */
-  readh = (*frm)->buflen;       /* read from header so far */
+  readh = (*frm)->buflen; /* read from header so far */
   need = (4 + offset) - readh;
   if (need > 0) {
     if ((bytes = ws_read_header (client, (*frm), readh, need)) < 1)
@@ -2104,8 +2104,8 @@ ws_get_frm_payload (WSClient *client, WSServer *server) {
       return ws_set_status (client, WS_ERR | WS_CLOSE, 0);
   }
 
-  readh = (*msg)->buflen;       /* read from so far */
-  need = (*frm)->payloadlen - readh;    /* need to read */
+  readh = (*msg)->buflen; /* read from so far */
+  need = (*frm)->payloadlen - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_payload (client, (*msg), (*msg)->payloadsz, need)) < 0)
       return bytes;
@@ -2646,8 +2646,8 @@ handle_strict_fifo (WSServer *server) {
   char *ptr = NULL;
   uint32_t listener = 0, type = 0, size = 0;
 
-  readh = pi->hlen;     /* read from header so far */
-  need = HDR_SIZE - readh;      /* need to read */
+  readh = pi->hlen; /* read from header so far */
+  need = HDR_SIZE - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (pi->fd, pi->hdr, &pi->hlen, readh, need)) < 0)
       return;
@@ -2675,8 +2675,8 @@ handle_strict_fifo (WSServer *server) {
     (*pa)->data = xcalloc (size, sizeof (char));
   }
 
-  readh = (*pa)->len;   /* read from payload so far */
-  need = (*pa)->size - readh;   /* need to read */
+  readh = (*pa)->len; /* read from payload so far */
+  need = (*pa)->size - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (pi->fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
       return;
@@ -2712,7 +2712,7 @@ handle_fixed_fifo (WSServer *server) {
   if ((bytes = read (pi->fd, buf, PIPE_BUF - 1)) < 0)
     return;
 
-  buf[bytes] = '\0';    /* null-terminate */
+  buf[bytes] = '\0'; /* null-terminate */
   if (ws_validate_string (buf, bytes) != 0)
     return;
 

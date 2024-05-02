@@ -144,16 +144,14 @@ set_glog (Logs *logs, const char *filename) {
     logs->size = newlen;
   }
 
-  fn = xstrdup (filename);      /* ensure fn is a string */
+  fn = xstrdup (filename); /* ensure fn is a string */
   glog = logs->glog;
   glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
   glog[logs->idx].props.filename = xstrdup (fn);
   glog[logs->idx].props.fname = xstrdup (basename (fn));
 
   if (!glog->pipe && conf.fname_as_vhost) {
-    if (!
-        (fvh =
-         regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))
+    if (!(fvh = regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))
       FATAL ("%s %s[%s]", err, glog[logs->idx].props.fname, conf.fname_as_vhost);
     glog[logs->idx].fname_as_vhost = fvh;
   }
@@ -1134,7 +1132,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
     logitem->resp_size = bandw;
-    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1);       /* set flag */
+    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1); /* set flag */
     free (tkn);
     break;
     /* referrer */
@@ -1203,7 +1201,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in seconds with a milliseconds
@@ -1226,7 +1224,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -1243,7 +1241,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = serve_time;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
     free (tkn);
     break;
     /* time taken to serve the request, in nanoseconds */
@@ -1262,7 +1260,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_time > 0) ? serve_time / MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1);     /* set flag */
+    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
     free (tkn);
     break;
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
@@ -1564,8 +1562,7 @@ output_logerrors (void) {
     if (!glog->log_erridx)
       continue;
 
-    fprintf (stderr, "==%d== GoAccess - version %s - %s %s\n", pid, GO_VERSION, __DATE__,
-             __TIME__);
+    fprintf (stderr, "==%d== GoAccess - version %s - %s %s\n", pid, GO_VERSION, __DATE__, __TIME__);
     fprintf (stderr, "==%d== Config file: %s\n", pid, conf.iconfigfile ? : NO_CONFIG_FILE);
     fprintf (stderr, "==%d== https://goaccess.io - <hello@goaccess.io>\n", pid);
     fprintf (stderr, "==%d== Released under the MIT License.\n", pid);
@@ -1868,9 +1865,9 @@ static int
 atomic_lpts_update (GLog *glog, GLogItem *logitem) {
   int64_t oldts = 0, newts = 0;
   /* atomic update loop */
-  newts = mktime (&logitem->dt);        // Get timestamp from logitem->dt
+  newts = mktime (&logitem->dt); // Get timestamp from logitem->dt
   while (!__sync_bool_compare_and_swap (&glog->lp.ts, oldts, newts)) {
-    oldts = glog->lp.ts;        /* Reread glog->lp.ts if CAS failed */
+    oldts = glog->lp.ts; /* Reread glog->lp.ts if CAS failed */
     if (oldts >= newts) {
       break;    /* No need to update if oldts is already greater */
     }
@@ -1999,8 +1996,7 @@ read_lines_thread (void *arg) {
     /* ensure we don't process more than we should when testing for log format,
      * else free chunk and stop processing threads */
     if (!job->test || (job->test && job->cnt < conf.num_tests))
-      job->logitems[i] =
-        read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
+      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
     else
       conf.stop_processing = 1;
 
@@ -2220,7 +2216,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     /* flip from block A/B to B/A */
     if (conf.jobs > 1)
       b = b ^ 1;
-  }     // while (1)
+  }             // while (1)
 
   /* After eof, process last data */
   for (b = 0; b < 2; b++) {

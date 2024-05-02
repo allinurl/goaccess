@@ -64,8 +64,7 @@ new_gmenu (WINDOW *parent, int h, int w, int y, int x) {
 
 /* Render actual menu item */
 static void
-draw_menu_item (GMenu *menu, char *s, int x, int y, int w, int checked,
-                GColors *(*func) (void)) {
+draw_menu_item (GMenu *menu, char *s, int x, int y, int w, int checked, GColors *(*func) (void)) {
   char check, *lbl = NULL;
 
   if (menu->selectable) {

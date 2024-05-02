@@ -40,9 +40,9 @@
 #define SORT_MAX_OPTS   11
 
 /* See GEnum for mapping */
-#define SORT_FIELD_LEN  11 + 1  /* longest metric name */
-#define SORT_MODULE_LEN 15 + 1  /* longest module name */
-#define SORT_ORDER_LEN   4 + 1  /* length of ASC or DESC */
+#define SORT_FIELD_LEN  11 + 1 /* longest metric name */
+#define SORT_MODULE_LEN 15 + 1 /* longest module name */
+#define SORT_ORDER_LEN   4 + 1 /* length of ASC or DESC */
 
 /* Enumerated sorting metrics */
 typedef enum GSortField_ {

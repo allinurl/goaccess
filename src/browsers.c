@@ -245,15 +245,15 @@ static const char *browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
-  {"ZoteroTranslationServer", "Cralwers"},      /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
+  {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
 
   /* HTTP Library or HTTP Server User Agents - Suggest New Category */
-  {"axios", "HTTP Library"},    /* NodeJS axios axios-http.com */
-  {"lua-resty-http", "HTTP Library"},   /* Nginx lua-resty-http module */
+  {"axios", "HTTP Library"}, /* NodeJS axios axios-http.com */
+  {"lua-resty-http", "HTTP Library"}, /* Nginx lua-resty-http module */
 
   /* Citation Services */
-  {"Citoid", "Citation"},       /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
-  {"EasyBib", "Citation"},      /* Easybib Citation https://easybib.com */
+  {"Citoid", "Citation"}, /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
+  {"EasyBib", "Citation"}, /* Easybib Citation https://easybib.com */
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -293,12 +293,12 @@ static const char *browsers[][2] = {
   {"Uptime-Kuma", "Uptime"},
 
   /* Performance and Caching - Suggest a new category */
-  {"ShortPixel", "Performance"},        /* Image Optimization */
-  {"WP Rocket", "Caching"},     /* Preloading Cache for WordPress Plugin */
+  {"ShortPixel", "Performance"}, /* Image Optimization */
+  {"WP Rocket", "Caching"}, /* Preloading Cache for WordPress Plugin */
 
   /* Security - Suggest a new category */
-  {"Barracuda Sentinel", "Security"},   /* Barricuda spear fishing service */
-  {"ACI Site Scanner", "Security"},     /* Can't confirm specific vendor */
+  {"Barracuda Sentinel", "Security"}, /* Barricuda spear fishing service */
+  {"ACI Site Scanner", "Security"}, /* Can't confirm specific vendor */
 
 
   {"Mozilla", "Others"}

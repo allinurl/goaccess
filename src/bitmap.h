@@ -31,7 +31,7 @@
 #ifndef BITMAP_H_INCLUDED
 #define BITMAP_H_INCLUDED
 
-#include <limits.h>     /* for CHAR_BIT */
+#include <limits.h> /* for CHAR_BIT */
 
 typedef uint32_t word_t;        // I want to change this, from uint32_t to uint64_t
 enum { BITS_PER_WORD = sizeof (word_t) * CHAR_BIT };

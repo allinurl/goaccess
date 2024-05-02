@@ -62,8 +62,7 @@ static int nlines = 0;
 /* escape HTML in JSON data values */
 static int escape_html_output = 0;
 
-static void print_json_data (GJSON * json, GHolder * h, GPercTotals totals,
-                             const struct GPanel_ *);
+static void print_json_data (GJSON * json, GHolder * h, GPercTotals totals, const struct GPanel_ *);
 static void print_json_host_items (GJSON * json, GHolderItem * item,
                                    GPercTotals totals, int size, int iisp);
 static void print_json_sub_items (GJSON * json, GHolderItem * item,
@@ -152,7 +151,7 @@ set_json_buffer (GJSON *json, int len) {
     newlen = INIT_BUF_SIZE;
   } else {
     newlen = json->size;
-    newlen += newlen / 2;       /* resize by 3/2 */
+    newlen += newlen / 2; /* resize by 3/2 */
   }
 
   if (newlen < need)
@@ -173,7 +172,8 @@ set_json_buffer (GJSON *json, int len) {
  *
  * On success, data is outputted. */
 __attribute__((format (printf, 2, 3)))
-  static void pjson (GJSON *json, const char *fmt, ...) {
+static void
+pjson (GJSON *json, const char *fmt, ...) {
   int len = 0;
   va_list args;
 
@@ -189,7 +189,7 @@ __attribute__((format (printf, 2, 3)))
   vsprintf (json->buf + json->offset, fmt, args);
   va_end (args);
   json->offset += len;
-  }
+}
 
 /* A wrapper function to output a formatted string to a file pointer.
  *
@@ -240,13 +240,11 @@ escape_json_other (GJSON *json, const char **s) {
     char buf[8];
     snprintf (buf, sizeof buf, "\\u%04x", **s);
     pjson (json, "%s", buf);
-  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 &&
-             (uint8_t) * (*s + 2) == 0xa8) {
+  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 && (uint8_t) * (*s + 2) == 0xa8) {
     /* Line separator (U+2028) - 0xE2 0x80 0xA8 */
     pjson (json, "\\u2028");
     *s += 2;
-  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 &&
-             (uint8_t) * (*s + 2) == 0xa9) {
+  } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 && (uint8_t) * (*s + 2) == 0xa9) {
     /* Paragraph separator (U+2019) - 0xE2 0x80 0xA9 */
     pjson (json, "\\u2029");
     *s += 2;

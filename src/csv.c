@@ -175,7 +175,7 @@ print_csv_sub_items (FILE *fp, GHolder *h, int idx, GPercTotals totals) {
     set_data_metrics (iter->metrics, &nmetrics, totals);
 
     fprintf (fp, "\"%d\",", i); /* idx */
-    fprintf (fp, "\"%d\",", idx);       /* parent idx */
+    fprintf (fp, "\"%d\",", idx); /* parent idx */
     fprintf (fp, "\"%s\",", module_to_id (h->module));
 
     /* output metrics */
@@ -196,7 +196,7 @@ print_csv_data (FILE *fp, GHolder *h, GPercTotals totals) {
     set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
     fprintf (fp, "\"%d\",", i); /* idx */
-    fprintf (fp, ",");  /* no parent */
+    fprintf (fp, ","); /* no parent */
     fprintf (fp, "\"%s\",", module_to_id (h->module));
 
     /* output metrics */

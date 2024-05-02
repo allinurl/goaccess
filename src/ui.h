@@ -49,18 +49,18 @@
 #include "commons.h"
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8     /* minimum window height */
-#define MIN_WIDTH         0     /* minimum window width */
-#define MAX_HEIGHT_FOOTER 1     /* height of the footer window */
-#define MAX_HEIGHT_HEADER 7     /* height of the header window */
-#define OVERALL_NUM_COLS  4     /* number of columns on the overall stats win */
+#define MIN_HEIGHT        8 /* minimum window height */
+#define MIN_WIDTH         0 /* minimum window width */
+#define MAX_HEIGHT_FOOTER 1 /* height of the footer window */
+#define MAX_HEIGHT_HEADER 7 /* height of the header window */
+#define OVERALL_NUM_COLS  4 /* number of columns on the overall stats win */
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
 #define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
-#define SPIN_LBL 256    /* max length of the progress spinner */
+#define SPIN_LBL 256 /* max length of the progress spinner */
 
-#define SPIN_UPDATE_INTERVAL 100000000  /* in nanoseconds */
+#define SPIN_UPDATE_INTERVAL 100000000 /* in nanoseconds */
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"

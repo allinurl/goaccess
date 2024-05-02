@@ -38,23 +38,23 @@
 
 #include "ui.h"
 
-#define DASH_HEAD_POS    0      /* position of header line */
-#define DASH_EMPTY_POS   1      /* empty line position */
-#define DASH_COLS_POS    2      /* position of column names */
-#define DASH_DASHES_POS  3      /* position of dashes under column names */
-#define DASH_DATA_POS    4      /* data line position */
+#define DASH_HEAD_POS    0 /* position of header line */
+#define DASH_EMPTY_POS   1 /* empty line position */
+#define DASH_COLS_POS    2 /* position of column names */
+#define DASH_DASHES_POS  3 /* position of dashes under column names */
+#define DASH_DATA_POS    4 /* data line position */
 
-#define DASH_NON_DATA    5      /* number of rows without data stats */
-#define DASH_COL_ROWS    2      /* number of rows for column values + dashed lines */
+#define DASH_NON_DATA    5 /* number of rows without data stats */
+#define DASH_COL_ROWS    2 /* number of rows for column values + dashed lines */
 
-#define DASH_COLLAPSED   12     /* number of rows per panel (collapsed) */
-#define DASH_EXPANDED    32     /* number of rows per panel (expanded) */
+#define DASH_COLLAPSED   12 /* number of rows per panel (collapsed) */
+#define DASH_EXPANDED    32 /* number of rows per panel (expanded) */
 
-#define DASH_INIT_X      1      /* start position (x-axis) */
+#define DASH_INIT_X      1 /* start position (x-axis) */
 
-#define DASH_BW_LEN      11     /* max bandwidth string length, e.g., 151.69 MiB */
-#define DASH_SRV_TM_LEN  9      /* max time served length, e.g., 483.00 us */
-#define DASH_SPACE       1      /* space between columns (metrics) */
+#define DASH_BW_LEN      11 /* max bandwidth string length, e.g., 151.69 MiB */
+#define DASH_SRV_TM_LEN  9 /* max time served length, e.g., 483.00 us */
+#define DASH_SPACE       1 /* space between columns (metrics) */
 
 /* Common render data line fields */
 typedef struct GDashRender_ {

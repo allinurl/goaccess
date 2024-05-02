@@ -180,8 +180,8 @@ read_fifo (GWSReader *gwsreader, void (*f) (int)) {
     return 0;
   }
 
-  readh = gwsreader->hlen;      /* read from header so far */
-  need = HDR_SIZE - readh;      /* need to read */
+  readh = gwsreader->hlen; /* read from header so far */
+  need = HDR_SIZE - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
@@ -202,8 +202,8 @@ read_fifo (GWSReader *gwsreader, void (*f) (int)) {
     (*pa)->data = xcalloc (size + 1, sizeof (char));
   }
 
-  readh = (*pa)->len;   /* read from payload so far */
-  need = (*pa)->size - readh;   /* need to read */
+  readh = (*pa)->len; /* read from payload so far */
+  need = (*pa)->size - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
       return 0;

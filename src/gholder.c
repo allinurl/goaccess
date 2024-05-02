@@ -599,8 +599,7 @@ set_root_metrics (GRawDataItem item, GModule module, datatype type, GMetrics **n
 
 /* Set all root panel data, including sub list items. */
 static void
-add_root_to_holder (GRawDataItem item, GHolder *h, datatype type,
-                    GO_UNUSED const GPanel *panel) {
+add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
   GSubList *sub_list;
   GMetrics *metrics, *nmetrics;
   char *root = NULL;
@@ -639,8 +638,7 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type,
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;
-  h->items[idx].metrics->avgts.nts =
-    h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;
+  h->items[idx].metrics->avgts.nts = h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;
 
   if (nmetrics->maxts.nts > h->items[idx].metrics->maxts.nts)
     h->items[idx].metrics->maxts.nts = nmetrics->maxts.nts;

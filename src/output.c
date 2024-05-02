@@ -536,8 +536,7 @@ print_conn_def (FILE *fp) {
   fpopen_obj (fp, sp);
   fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
   fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 0);
-  fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : 0), sp,
-              1);
+  fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : 0), sp, 1);
   fpclose_obj (fp, sp, 1);
 
   fprintf (fp, external_assets ? ";\n" : "</script>");
@@ -887,8 +886,7 @@ print_def_asn (FILE *fp, int sp) {
     .lbl = MTRC_ASB_LBL,
     .datatype = "string",
     .hlregex = "{"
-      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\","
-      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
+      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"," "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
   };
 
   if (!conf.has_geoasn)
@@ -941,16 +939,16 @@ print_def_data (FILE *fp, GModule module, int sp) {
     .metakey = "unique",
     .metalbl = "Total",
     .metatype = "numeric",
-    .hlregex = "{" "\\\"^(1\\\\\\\\d{2}|1xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lblu'>$1</b>$2\\\","      /* 2xx Success */
-      "\\\"^(2\\\\\\\\d{2}|2xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgrn'>$1</b>$2\\\","   /* 2xx Success */
-      "\\\"^(3\\\\\\\\d{2}|3xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lprp'>$1</b>$2\\\","   /* 3xx Success */
-      "\\\"^(4\\\\\\\\d{2}|4xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lyel'>$1</b>$2\\\","   /* 4xx Success */
-      "\\\"^(5\\\\\\\\d{2}|5xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lred'>$1</b>$2\\\","   /* 5xx Success */
-      "\\\"^(0\\\\\\\\d{2}|0xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgry'>$1</b>$2\\\","   /* 5xx Success */
-      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\","     /* AS9823 Google */
-      "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\","      /* 01234: Data */
-      "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\","       /* 12/May/2022:12:34 */
-      "\\\"^([A-Z]{2})(\\\\\\\\s.*$)\\\": \\\"<b class='span-hl g5'>$1</b>$2\\\""       /* US United States */
+    .hlregex = "{" "\\\"^(1\\\\\\\\d{2}|1xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lblu'>$1</b>$2\\\"," /* 2xx Success */
+      "\\\"^(2\\\\\\\\d{2}|2xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgrn'>$1</b>$2\\\"," /* 2xx Success */
+      "\\\"^(3\\\\\\\\d{2}|3xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lprp'>$1</b>$2\\\"," /* 3xx Success */
+      "\\\"^(4\\\\\\\\d{2}|4xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lyel'>$1</b>$2\\\"," /* 4xx Success */
+      "\\\"^(5\\\\\\\\d{2}|5xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lred'>$1</b>$2\\\"," /* 5xx Success */
+      "\\\"^(0\\\\\\\\d{2}|0xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgry'>$1</b>$2\\\"," /* 5xx Success */
+      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"," /* AS9823 Google */
+      "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\"," /* 01234: Data */
+      "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\"," /* 12/May/2022:12:34 */
+      "\\\"^([A-Z]{2})(\\\\\\\\s.*$)\\\": \\\"<b class='span-hl g5'>$1</b>$2\\\"" /* US United States */
       "}",
   };
 

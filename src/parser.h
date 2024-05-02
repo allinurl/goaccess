@@ -32,15 +32,15 @@
 
 #define KEY_FOUND       1
 #define KEY_NOT_FOUND  -1
-#define LINE_BUFFER     4096    /* read at most this num of chars */
-#define NUM_TESTS       20      /* test this many lines from the log */
+#define LINE_BUFFER     4096 /* read at most this num of chars */
+#define NUM_TESTS       20 /* test this many lines from the log */
 #define MAX_LOG_ERRORS  20
 #define READ_BYTES      4096u
-#define MAX_BATCH_LINES 8192u   /* max number of lines to read per batch before a reflow */
+#define MAX_BATCH_LINES 8192u /* max number of lines to read per batch before a reflow */
 
 #define LINE_LEN          23
 #define ERROR_LEN        255
-#define REF_SITE_LEN     511    /* maximum length of a referring site */
+#define REF_SITE_LEN     511 /* maximum length of a referring site */
 #define CACHE_STATUS_LEN   7
 #define HASH_HEX          64
 

@@ -574,7 +574,7 @@ read_number (json_stream *json, int c) {
       return JSON_NUMBER;
   }
   if (c == '.') {
-    json->source.get (&json->source);   // consume .
+    json->source.get (&json->source); // consume .
     if (pushchar (json, c) != 0)
       return JSON_ERROR;
     if (read_digits (json) != 0)
@@ -583,7 +583,7 @@ read_number (json_stream *json, int c) {
   /* Check for exponent. */
   c = json->source.peek (&json->source);
   if (c == 'e' || c == 'E') {
-    json->source.get (&json->source);   // consume e/E
+    json->source.get (&json->source); // consume e/E
     if (pushchar (json, c) != 0)
       return JSON_ERROR;
     c = json->source.peek (&json->source);

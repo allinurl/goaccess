@@ -192,7 +192,7 @@ djb2 (const unsigned char *str) {
   int c;
 
   while ((c = *str++))
-    hash = ((hash << 5) + hash) + c;    /* hash * 33 + c */
+    hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
   return hash;
 }
@@ -582,8 +582,7 @@ set_tz (void) {
   snprintf (tz, TZ_NAME_LEN, "TZ=%s", conf.tz_name);
   if ((putenv (tz)) != 0) {
     int old_errno = errno;
-    LOG_DEBUG (("Can't set TZ env variable %s: %s: %d\n", tz, strerror (old_errno),
-                old_errno));
+    LOG_DEBUG (("Can't set TZ env variable %s: %s: %d\n", tz, strerror (old_errno), old_errno));
     goto release;
   }
 

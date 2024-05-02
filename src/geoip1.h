@@ -36,10 +36,10 @@
 
 #include "commons.h"
 
-#define CITY_LEN       47 + 1   /* max string length for a city */
-#define CONTINENT_LEN  47 + 1   /* max string length for a country */
-#define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
-#define ASN_LEN        64 + 6   /* ASN + 5 digit/16-bit number/code */
+#define CITY_LEN       47 + 1 /* max string length for a city */
+#define CONTINENT_LEN  47 + 1 /* max string length for a country */
+#define COUNTRY_LEN    48 + 3 /* Country + two-letter Code */
+#define ASN_LEN        64 + 6 /* ASN + 5 digit/16-bit number/code */
 
 /* Type of IP */
 typedef enum {

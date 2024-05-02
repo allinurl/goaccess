@@ -351,8 +351,8 @@ allocate_data_by_module (GModule module, int col_data) {
     size = holder[module].idx > col_data ? col_data : holder[module].idx;
   }
 
-  dash->module[module].alloc_data = size;       /* data allocated  */
-  dash->module[module].ht_size = holder[module].ht_size;        /* hash table size */
+  dash->module[module].alloc_data = size; /* data allocated  */
+  dash->module[module].ht_size = holder[module].ht_size; /* hash table size */
   dash->module[module].idx_data = 0;
   dash->module[module].pos_y = 0;
 
@@ -901,7 +901,7 @@ tail_loop_html (Logs *logs) {
       break;
 
     for (i = 0, ret = 0; i < logs->size; ++i)
-      ret |= perform_tail_follow (&logs->glog[i]);      /* 0.2 secs */
+      ret |= perform_tail_follow (&logs->glog[i]); /* 0.2 secs */
 
     if (1 == ret)
       tail_html ();
@@ -999,7 +999,7 @@ render_sort_dialog (void) {
 
 static void
 term_tail_logs (Logs *logs) {
-  struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 };     /* 0.2 seconds */
+  struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 }; /* 0.2 seconds */
   uint32_t offset = 0;
   int i, ret;
 
@@ -1182,13 +1182,13 @@ get_keys (Logs *logs) {
       expand_current_module ();
       display_content (main_win, dash, &gscroll);
       break;
-    case KEY_DOWN:     /* scroll main dashboard */
+    case KEY_DOWN: /* scroll main dashboard */
       if ((gscroll.dash + main_win_height) < dash->total_alloc) {
         gscroll.dash++;
         display_content (main_win, dash, &gscroll);
       }
       break;
-    case KEY_MOUSE:    /* handles mouse events */
+    case KEY_MOUSE: /* handles mouse events */
       if (expand_on_mouse_click () == 0)
         render_screens (offset);
       break;
