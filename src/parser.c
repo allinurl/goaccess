@@ -2096,7 +2096,7 @@ static void
 read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char **s) {
   int k = 0;
 
-  for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
+  for (k = 0; k < conf.jobs; k++) {
 #ifdef WITH_GETLINE
     while ((*s = fgetline (fp)) != NULL) {
       jobs[b][k].lines[jobs[b][k].p] = *s;
@@ -2117,7 +2117,7 @@ static void
 process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
   int k = 0;
 
-  for (k = 1; k < conf.jobs || (conf.jobs == 1 && k == 1); k++) {
+  for (k = 0; k < conf.jobs; k++) {
     process_lines_thread (&jobs[b][k]);
     *cnt += jobs[b][k].cnt;
     jobs[b][k].cnt = 0;
@@ -2177,9 +2177,9 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     }
 
     if (conf.jobs == 1) {
-      read_lines_thread (&jobs[b][1]);
+      read_lines_thread (&jobs[b][0]);
     } else {
-      for (k = 1; k < conf.jobs; k++) {
+      for (k = 0; k < conf.jobs; k++) {
         jobs[b][k].running = 1;
         pthread_create (&threads[k], NULL, read_lines_thread, (void *) &jobs[b][k]);
       }
@@ -2195,10 +2195,12 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
     if (conf.jobs > 1)
       b = b ^ 1;
 
-    for (k = 1; k < conf.jobs; k++) {
-      if (jobs[b][k].running) {
-        pthread_join (threads[k], &status);
-        jobs[b][k].running = 0;
+    if (conf.jobs > 1) {
+      for (k = 0; k < conf.jobs; k++) {
+        if (jobs[b][k].running) {
+          pthread_join (threads[k], &status);
+          jobs[b][k].running = 0;
+        }
       }
     }
 
@@ -2220,8 +2222,8 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   /* After eof, process last data */
   for (b = 0; b < 2; b++) {
-    for (k = 1; k < conf.jobs; k++) {
-      if (jobs[b][k].running) {
+    for (k = 0; k < conf.jobs; k++) {
+      if (conf.jobs > 1 && jobs[b][k].running) {
         pthread_join (threads[k], &status);
         jobs[b][k].running = 0;
       }
