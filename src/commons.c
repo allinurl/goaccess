@@ -196,13 +196,13 @@ str2enum (const GEnum map[], int len, const char *str) {
  *
  * On error, -1 is returned.
  * On success, the enumerated module value is returned. */
-char *
+const char *
 enum2str (const GEnum map[], int len, int idx) {
   int i;
 
   for (i = 0; i < len; ++i) {
     if (idx == map[i].idx)
-      return xstrdup (map[i].str);
+      return map[i].str;
   }
 
   return NULL;
@@ -221,7 +221,7 @@ get_module_enum (const char *str) {
  *
  * On error, NULL is returned.
  * On success, the string module value is returned. */
-char *
+const char *
 get_module_str (GModule module) {
   return enum2str (enum_modules, ARRAY_SIZE (enum_modules), module);
 }

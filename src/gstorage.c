@@ -445,7 +445,7 @@ free_gmetrics (GMetrics *metric) {
  *
  * On error, NULL is returned.
  * On success, the string module value is returned. */
-char *
+const char *
 get_mtr_str (GSMetric metric) {
   /* String modules to enumerated modules */
   static const GEnum enum_metrics[] = {

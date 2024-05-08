@@ -232,7 +232,8 @@ build_filename (const char *type, const char *modstr, const char *mtrstr) {
  * On success, the filename is returned */
 static char *
 get_filename (GModule module, GKHashMetric mtrc) {
-  char *mtrstr = NULL, *modstr = NULL, *type = NULL, *fn = NULL;
+  const char *mtrstr, *modstr, *type;
+  char *fn = NULL;
 
   if (!(mtrstr = get_mtr_str (mtrc.metric.storem)))
     FATAL ("Unable to allocate metric name.");
@@ -242,10 +243,6 @@ get_filename (GModule module, GKHashMetric mtrc) {
     FATAL ("Unable to allocate module name.");
 
   fn = build_filename (type, modstr, mtrstr);
-
-  free (mtrstr);
-  free (type);
-  free (modstr);
 
   return fn;
 }
@@ -945,7 +942,7 @@ migrate_metric (GModule module, GKHashMetric mtrc) {
 
   int ret = 0;
   char *fn = NULL, *path = NULL;
-  char *modstr = NULL, *mtrstr = NULL;
+  const char *modstr, *mtrstr;
   khint_t k;
 
   k = kh_get (si32, db_props, "version");
@@ -1001,8 +998,6 @@ migrate_metric (GModule module, GKHashMetric mtrc) {
   }
 
   free (fn);
-  free (modstr);
-  free (mtrstr);
   free (path);
 
   return ret;
