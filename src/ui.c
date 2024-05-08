@@ -805,7 +805,7 @@ input_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *s
     default:
       if (strlen (s) == max_width)
         break;
-      if (!isprint (c))
+      if (!isprint ((unsigned char) c))
         break;
 
       if (strlen (s) == pos) {

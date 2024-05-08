@@ -859,7 +859,7 @@ char *
 ltrim (char *s) {
   char *begin = s;
 
-  while (isspace (*begin))
+  while (isspace ((unsigned char) *begin))
     ++begin;
   memmove (s, begin, strlen (begin) + 1);
 
@@ -874,7 +874,7 @@ char *
 rtrim (char *s) {
   char *end = s + strlen (s);
 
-  while ((end != s) && isspace (*(end - 1)))
+  while ((end != s) && isspace ((unsigned char) *(end - 1)))
     --end;
   *end = '\0';
 
@@ -1091,7 +1091,7 @@ strtoupper (char *str) {
     return str;
 
   while (*p != '\0') {
-    *p = toupper (*p);
+    *p = toupper ((unsigned char) *p);
     p++;
   }
 
