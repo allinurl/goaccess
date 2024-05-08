@@ -50,7 +50,7 @@ static char **nargv;
 static int nargc = 0;
 
 /* *INDENT-OFF* */
-static GEnum LOGTYPE[] = {
+static const GEnum LOGTYPE[] = {
   {"COMBINED"     , COMBINED}     ,
   {"VCOMBINED"    , VCOMBINED}    ,
   {"COMMON"       , COMMON}       ,
@@ -105,7 +105,7 @@ static const GPreConfDate dates = {
 /* *INDENT-ON* */
 
 /* Ignore the following options */
-static const char *ignore_cmd_opts[] = {
+static const char *const ignore_cmd_opts[] = {
   "help",
   "storage",
   "version",
@@ -172,7 +172,7 @@ get_config_file_path (void) {
 void
 set_default_static_files (void) {
   size_t i;
-  const char *exts[] = {
+  const char *const exts[] = {
     ".css",
     ".js ",
     ".jpg",

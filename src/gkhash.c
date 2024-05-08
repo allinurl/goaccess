@@ -73,7 +73,7 @@ new_gkdb (void) {
  * On success, the string module value is returned. */
 char *
 get_mtr_type_str (GSMetricType type) {
-  GEnum enum_metric_types[] = {
+  static const GEnum enum_metric_types[] = {
     {"II32", MTRC_TYPE_II32},
     {"IS32", MTRC_TYPE_IS32},
     {"IU64", MTRC_TYPE_IU64},
@@ -541,7 +541,7 @@ const GKHashMetric app_metrics[] = {
   { .metric.dbm=MTRC_DB_PROPS    , MTRC_TYPE_SI32 , new_si32_ht , des_si32_free , del_si32_free , 1 , NULL , "SI32_DB_PROPS.db"    } ,
 };
 
-size_t app_metrics_len = ARRAY_SIZE (app_metrics);
+const size_t app_metrics_len = ARRAY_SIZE (app_metrics);
 /* *INDENT-ON* */
 
 /* Destroys malloc'd module metrics */

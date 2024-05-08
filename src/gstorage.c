@@ -121,7 +121,7 @@ const httpmethods http_methods[] = {
   { "MKACTIVITY"       , 10 } ,
   { "ORDERPATCH"       , 10 } ,
 };
-size_t http_methods_len = ARRAY_SIZE (http_methods);
+const size_t http_methods_len = ARRAY_SIZE (http_methods);
 
 const httpprotocols http_protocols[] = {
   { "HTTP/1.0" , 8 } ,
@@ -129,9 +129,9 @@ const httpprotocols http_protocols[] = {
   { "HTTP/2"   , 6 } ,
   { "HTTP/3"   , 6 } ,
 };
-size_t http_protocols_len = ARRAY_SIZE (http_protocols);
+const size_t http_protocols_len = ARRAY_SIZE (http_protocols);
 
-static GParse paneling[] = {
+static const GParse paneling[] = {
   {
     VISITORS,
     gen_visitor_key,
@@ -408,7 +408,7 @@ new_modulekey (GKeyData *kdata) {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-static GParse *
+static const GParse *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (paneling);
 
@@ -448,7 +448,7 @@ free_gmetrics (GMetrics *metric) {
 char *
 get_mtr_str (GSMetric metric) {
   /* String modules to enumerated modules */
-  GEnum enum_metrics[] = {
+  static const GEnum enum_metrics[] = {
     {"MTRC_KEYMAP", MTRC_KEYMAP},
     {"MTRC_ROOTMAP", MTRC_ROOTMAP},
     {"MTRC_DATAMAP", MTRC_DATAMAP},

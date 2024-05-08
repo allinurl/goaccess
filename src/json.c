@@ -69,7 +69,7 @@ static void print_json_sub_items (GJSON * json, GHolderItem * item,
                                   GPercTotals totals, int size, int iisp);
 
 /* *INDENT-OFF* */
-static GPanel paneling[] = {
+static const GPanel paneling[] = {
   {VISITORS            , print_json_data , NULL } ,
   {REQUESTS            , print_json_data , NULL } ,
   {REQUESTS_STATIC     , print_json_data , NULL } ,
@@ -99,7 +99,7 @@ static GPanel paneling[] = {
  *
  * If not found, NULL is returned.
  * On success, panel data is returned . */
-static GPanel *
+static const GPanel *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (paneling);
 

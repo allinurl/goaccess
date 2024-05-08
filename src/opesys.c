@@ -42,7 +42,7 @@
  * which makes this pretty slow */
 
 /* {"search string", "belongs to"} */
-static const char *os[][2] = {
+static const char *const os[][2] = {
   {"Android", "Android"},
   {"Windows NT 10.0", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},

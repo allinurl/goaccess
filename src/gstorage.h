@@ -140,8 +140,8 @@ typedef struct httpprotocols_ {
 
 extern const httpmethods http_methods[];
 extern const httpprotocols http_protocols[];
-extern size_t http_methods_len;
-extern size_t http_protocols_len;
+extern const size_t http_methods_len;
+extern const size_t http_protocols_len;
 
 char *get_mtr_str (GSMetric metric);
 int excluded_ip (GLogItem * logitem);

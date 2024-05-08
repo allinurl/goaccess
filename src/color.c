@@ -49,7 +49,7 @@ static GSLList *color_list = NULL;
 static GSLList *pair_list = NULL;
 
 /* *INDENT-OFF* */
-static GEnum CSTM_COLORS[] = {
+static const GEnum CSTM_COLORS[] = {
   {"COLOR_MTRC_HITS"              , COLOR_MTRC_HITS},
   {"COLOR_MTRC_VISITORS"          , COLOR_MTRC_VISITORS},
   {"COLOR_MTRC_HITS_PERC"         , COLOR_MTRC_HITS_PERC},
@@ -79,7 +79,7 @@ static GEnum CSTM_COLORS[] = {
   {"COLOR_PROGRESS"               , COLOR_PROGRESS},
 };
 
-static const char *colors256_mono[] = {
+static const char *const colors256_mono[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color8:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -117,7 +117,7 @@ static const char *colors256_mono[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors256_green[] = {
+static const char *const colors256_green[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color8:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -155,7 +155,7 @@ static const char *colors256_green[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors256_monokai[] = {
+static const char *const colors256_monokai[] = {
   "COLOR_MTRC_HITS              color197:color-1",
   "COLOR_MTRC_VISITORS          color148:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -193,7 +193,7 @@ static const char *colors256_monokai[] = {
   "COLOR_PROGRESS               color7:color141",
 };
 
-static const char *colors8_mono[] = {
+static const char *const colors8_mono[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1 bold",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -231,7 +231,7 @@ static const char *colors8_mono[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors8_green[] = {
+static const char *const colors8_green[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1 bold",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -269,7 +269,7 @@ static const char *colors8_green[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *nocolors[] = {
+static const char *const nocolors[] = {
   "COLOR_MTRC_HITS              color0:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1",
   "COLOR_MTRC_DATA              color0:color-1",
@@ -753,7 +753,7 @@ parse_color (char *line) {
  * On error, it aborts.
  * On success, the color properties are parsed and stored */
 static void
-parse_colors (const char *colors[], size_t n) {
+parse_colors (const char *const colors[], size_t n) {
   char *line;
   size_t i;
 

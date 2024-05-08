@@ -211,10 +211,10 @@ struct GKHashStorage_ {
 /*khash_t(igsl) MTRC_METADATA */
 
 /* *INDENT-OFF* */
-extern GKHashMetric module_metrics[];
+extern const GKHashMetric module_metrics[];
 extern const GKHashMetric global_metrics[];
-extern size_t global_metrics_len;
-extern size_t module_metrics_len;
+extern const size_t global_metrics_len;
+extern const size_t module_metrics_len;
 
 char *ht_get_datamap (GModule module, uint32_t key);
 char *ht_get_host_agent_val (uint32_t key);
