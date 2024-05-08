@@ -360,14 +360,14 @@ free_glog (GLogItem *logitem) {
 /* Decodes the given URL-encoded string.
  *
  * On success, the decoded string is assigned to the output buffer. */
-#define B16210(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((x)) - 'A' + 10))
+#define B16210(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((unsigned char) (x)) - 'A' + 10))
 static void
 decode_hex (char *url, char *out) {
   char *ptr;
   const char *c;
 
   for (c = url, ptr = out; *c; c++) {
-    if (*c != '%' || !isxdigit (c[1]) || !isxdigit (c[2])) {
+    if (*c != '%' || !isxdigit ((unsigned char) c[1]) || !isxdigit ((unsigned char) c[2])) {
       *ptr++ = *c;
     } else {
       *ptr++ = (char) ((B16210 (c[1]) * 16) + (B16210 (c[2])));
@@ -760,7 +760,7 @@ static void
 find_alpha (const char **str) {
   const char *s = *str;
   while (*s) {
-    if (isspace (*s))
+    if (isspace ((unsigned char) *s))
       s++;
     else
       break;
@@ -775,7 +775,7 @@ find_alpha_count (const char *str) {
   int cnt = 0;
   const char *s = str;
   while (*s) {
-    if (isspace (*s))
+    if (isspace ((unsigned char) *s))
       s++, cnt++;
     else
       break;
@@ -1274,7 +1274,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
 #if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
     {
       char *tmp = NULL;
-      for (tmp = tkn; isdigit (*tmp); tmp++);
+      for (tmp = tkn; isdigit ((unsigned char) *tmp); tmp++);
       if (!strlen (tmp))
         extract_tls_version_cipher (tkn, &logitem->tls_cypher, &logitem->tls_type);
       else
@@ -1512,7 +1512,7 @@ parse_format (GLogItem *logitem, const char *str, const char *lfmt) {
       if ((ret = parse_specifier (logitem, &str, p, end)))
         return ret;
       perc = 0;
-    } else if (perc && isspace (p[0])) {
+    } else if (perc && isspace ((unsigned char) p[0])) {
       return 1;
     } else {
       str++;
