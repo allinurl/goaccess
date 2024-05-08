@@ -222,7 +222,7 @@ typedef struct GOutput_ {
 } GOutput;
 
 /* *INDENT-OFF* */
-GOutput *output_lookup (GModule module);
+const GOutput *output_lookup (GModule module);
 GSpinner *new_gspinner (void);
 
 char *get_browser_type (char *line);

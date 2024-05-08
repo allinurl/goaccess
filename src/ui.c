@@ -68,7 +68,7 @@
 
 /* *INDENT-OFF* */
 /* Determine which metrics should be displayed per module/panel */
-static GOutput outputting[] = {
+static const GOutput outputting[] = {
   {VISITORS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
   {REQUESTS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
   {REQUESTS_STATIC , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
@@ -107,7 +107,7 @@ typedef struct Field_ {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-GOutput *
+const GOutput *
 output_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (outputting);
 
@@ -259,7 +259,7 @@ term_size (WINDOW *main_win, int *main_win_height) {
  * On success, a string containing the label name is returned. */
 const char *
 module_to_label (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_LABEL,
     REQUESTS_LABEL,
     REQUESTS_STATIC_LABEL,
@@ -291,7 +291,7 @@ module_to_label (GModule module) {
  * On success, a string containing the label id is returned. */
 const char *
 module_to_id (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_ID,
     REQUESTS_ID,
     REQUESTS_STATIC_ID,
@@ -359,7 +359,7 @@ module_to_head (GModule module) {
  * On success, a string containing the label description is returned. */
 const char *
 module_to_desc (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_DESC,
     REQUESTS_DESC,
     REQUESTS_STATIC_DESC,
@@ -1298,7 +1298,7 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
   size_t i, n, sel;
 
   /* conf dialog menu options */
-  const char *choices[] = {
+  static const char *const choices[] = {
     "NCSA Combined Log Format",
     "NCSA Combined Log Format with Virtual Host",
     "Common Log Format (CLF)",
@@ -1817,7 +1817,7 @@ load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
 }
 
 /* Help menu data (F1/h). */
-static const char *help_main[] = {
+static const char *const help_main[] = {
   "Copyright (C) 2009-2024 by Gerardo Orellana",
   "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",

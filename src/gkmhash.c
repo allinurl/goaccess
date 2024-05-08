@@ -52,7 +52,7 @@ const GKHashMetric global_metrics[] = {
 };
 
 /* Per module & per date */
-GKHashMetric module_metrics[] = {
+const GKHashMetric module_metrics[] = {
   { .metric.storem=MTRC_KEYMAP    , MTRC_TYPE_II32 , new_ii32_ht , des_ii32      , del_ii32      , 1 , NULL , NULL } ,
   { .metric.storem=MTRC_ROOTMAP   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , 1 , NULL , NULL } ,
   { .metric.storem=MTRC_DATAMAP   , MTRC_TYPE_IS32 , new_is32_ht , des_is32_free , del_is32_free , 1 , NULL , NULL } ,
@@ -68,8 +68,8 @@ GKHashMetric module_metrics[] = {
   { .metric.storem=MTRC_AGENTS    , MTRC_TYPE_IGSL , new_igsl_ht , des_igsl_free , del_igsl_free , 1 , NULL , NULL } ,
   { .metric.storem=MTRC_METADATA  , MTRC_TYPE_SU64 , new_su64_ht , des_su64_free , del_su64_free , 1 , NULL , NULL } ,
 };
-size_t module_metrics_len = ARRAY_SIZE (module_metrics);
-size_t global_metrics_len = ARRAY_SIZE (global_metrics);
+const size_t module_metrics_len = ARRAY_SIZE (module_metrics);
+const size_t global_metrics_len = ARRAY_SIZE (global_metrics);
 /* *INDENT-ON* */
 
 /* Allocate memory for a new store container GKHashStorage instance.

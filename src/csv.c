@@ -60,7 +60,7 @@ static void print_csv_data (FILE * fp, GHolder * h, GPercTotals totals);
 
 /* *INDENT-OFF* */
 /* A function pointer for each panel */
-static GPanel paneling[] = {
+static const GPanel paneling[] = {
   {VISITORS        , print_csv_data} ,
   {REQUESTS        , print_csv_data} ,
   {REQUESTS_STATIC , print_csv_data} ,
@@ -89,7 +89,7 @@ static GPanel paneling[] = {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-static GPanel *
+static const GPanel *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (paneling);
 

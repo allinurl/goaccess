@@ -60,7 +60,7 @@
 pthread_mutex_t tz_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* HTTP status codes categories */
-static const char *code_type[] = {
+static const char *const code_type[] = {
   STATUS_CODE_0XX,
   STATUS_CODE_1XX,
   STATUS_CODE_2XX,
@@ -70,7 +70,7 @@ static const char *code_type[] = {
 };
 
 /* HTTP status codes */
-static const char *codes[1000] = {
+static const char *const codes[1000] = {
   [0] = STATUS_CODE_0,
   [100] = STATUS_CODE_100, STATUS_CODE_101,
   [200] = STATUS_CODE_200, STATUS_CODE_201, STATUS_CODE_202, STATUS_CODE_203, STATUS_CODE_204,
@@ -232,14 +232,14 @@ wc_match (const char *wc, char *str) {
  */
 static char *
 extract_hostname (const char *url) {
-  char *start, *end;
+  const char *start, *end;
   char *hostname = NULL;
 
   start = strstr (url, "://");
   if (start != NULL) {
     start += 3;
   } else {
-    start = (char *) url;
+    start = url;
   }
 
   end = strchr (start, '/');

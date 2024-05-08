@@ -332,7 +332,7 @@ migrate_si32_to_ii32 (GSMetric metric, const char *path, int module) {
       break;
 
     while (tpl_unpack (tn, 2) > 0) {
-      ins_ii32 (hash, djb2 ((unsigned char *) key), val);
+      ins_ii32 (hash, djb2 ((const unsigned char *) key), val);
       free (key);
     }
   }
@@ -364,7 +364,7 @@ migrate_unique_key (const char *key) {
     delims++;
   }
   if (delims == 2) {
-    sprintf (agent_hex, "%" PRIx32, djb2 ((unsigned char *) key));
+    sprintf (agent_hex, "%" PRIx32, djb2 ((const unsigned char *) key));
     append_str (&nkey, agent_hex);
   }
 

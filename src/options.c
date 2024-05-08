@@ -50,14 +50,14 @@
 
 #include "xmalloc.h"
 
-static char short_options[] = "b:e:f:j:l:o:p:H:M:S:"
+static const char *short_options = "b:e:f:j:l:o:p:H:M:S:"
 #ifdef HAVE_LIBGEOIP
   "g"
 #endif
   "acdhimqrsV";
 
 /* *INDENT-OFF* */
-struct option long_opts[] = {
+static const struct option long_opts[] = {
   {"agent-list"           , no_argument       , 0 , 'a' } ,
   {"browsers-file"        , required_argument , 0 , 'b' } ,
   {"config-dialog"        , no_argument       , 0 , 'c' } ,

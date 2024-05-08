@@ -54,7 +54,7 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 
 /* *INDENT-OFF* */
 /* String modules to enumerated modules */
-static GEnum enum_modules[] = {
+static const GEnum enum_modules[] = {
   {"VISITORS"        , VISITORS}        ,
   {"REQUESTS"        , REQUESTS}        ,
   {"REQUESTS_STATIC" , REQUESTS_STATIC} ,

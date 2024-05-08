@@ -60,7 +60,7 @@ static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, c
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
 
-static GPanel paneling[] = {
+static const GPanel paneling[] = {
   {VISITORS        , add_data_to_holder , NULL},
   {REQUESTS        , add_data_to_holder , NULL},
   {REQUESTS_STATIC , add_data_to_holder , NULL},
@@ -90,7 +90,7 @@ static GPanel paneling[] = {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-static GPanel *
+static const GPanel *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (paneling);
 
@@ -526,8 +526,8 @@ add_host_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *
     "ffff:ffff:0000:0000:0000:0000:0000:0000"
   };
 
-  char *m4 = (char *) arr4[0];
-  char *m6 = (char *) arr6[0];
+  const char *m4 = arr4[0];
+  const char *m6 = arr6[0];
 
   if (map_data (h->module, item, type, &data, &hits) == 1)
     return;
@@ -539,8 +539,8 @@ add_host_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *
   }
 
   if (conf.anonymize_level == ANONYMIZE_STRONG || conf.anonymize_level == ANONYMIZE_PEDANTIC) {
-    m4 = (char *) arr4[conf.anonymize_level - 1];
-    m6 = (char *) arr6[conf.anonymize_level - 1];
+    m4 = arr4[conf.anonymize_level - 1];
+    m6 = arr6[conf.anonymize_level - 1];
   }
 
   if (1 == inet_pton (AF_INET, data, &addr4)) {

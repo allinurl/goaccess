@@ -68,7 +68,7 @@ static void print_metrics (FILE * fp, const GHTML * def, int sp);
 static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 
 /* *INDENT-OFF* */
-static GHTML htmldef[] = {
+static const GHTML htmldef[] = {
   {VISITORS, 1, 0, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 1, 1, NULL, NULL} ,
     {CHART_AREASPLINE, hits_bw_plot, 1, 1, NULL, NULL} ,
@@ -168,7 +168,7 @@ chart2str (GChartType type) {
  *
  * If not found, NULL is returned.
  * On success, panel data is returned . */
-static GHTML *
+static const GHTML *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (htmldef);
 

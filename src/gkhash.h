@@ -110,7 +110,7 @@ struct GKDB_ {
   } }
 
 extern const GKHashMetric app_metrics[];
-extern size_t app_metrics_len;
+extern const size_t app_metrics_len;
 
 /* *INDENT-OFF* */
 void *new_igsl_ht (void);

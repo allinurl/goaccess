@@ -85,7 +85,7 @@ const int sort_choices[][SORT_MAX_OPTS] = {
   {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_VISITORS, SORT_BY_BW, -1},
 };
 
-static GEnum FIELD[] = {
+static const GEnum FIELD[] = {
   {"BY_HITS"     , SORT_BY_HITS     } ,
   {"BY_VISITORS" , SORT_BY_VISITORS } ,
   {"BY_DATA"     , SORT_BY_DATA     } ,
@@ -97,7 +97,7 @@ static GEnum FIELD[] = {
   {"BY_MTHD"     , SORT_BY_MTHD     } ,
 };
 
-static GEnum ORDER[] = {
+static const GEnum ORDER[] = {
   {"ASC"  , SORT_ASC  } ,
   {"DESC" , SORT_DESC } ,
 };
@@ -403,7 +403,7 @@ get_sort_field_str (GSortField field) {
  * The key corresponding to the enumerated field value is returned. */
 const char *
 get_sort_field_key (GSortField field) {
-  static const char *field2key[][2] = {
+  static const char *const field2key[][2] = {
     {"BY_HITS", "hits"},
     {"BY_VISITORS", "visitors"},
     {"BY_DATA", "data"},
