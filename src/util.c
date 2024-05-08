@@ -101,7 +101,7 @@ static const char *const codes[1000] = {
   [530] = STATUS_CODE_530,
   [540] = STATUS_CODE_540,
   [561] = STATUS_CODE_561,
-  [590] = STATUS_CODE_598, STATUS_CODE_599,
+  [598] = STATUS_CODE_598, STATUS_CODE_599,
   [999] = NULL
 };
 
