@@ -262,8 +262,8 @@ extern int module_list[TOTAL_MODULES];
 GAgents *new_gagents (uint32_t size);
 void free_agents_array (GAgents *agents);
 
-char *enum2str (const GEnum map[], int len, int idx);
-char *get_module_str (GModule module);
+const char *enum2str (const GEnum map[], int len, int idx);
+const char *get_module_str (GModule module);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
 int get_module_enum (const char *str);

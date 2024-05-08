@@ -71,7 +71,7 @@ new_gkdb (void) {
  *
  * On error, NULL is returned.
  * On success, the string module value is returned. */
-char *
+const char *
 get_mtr_type_str (GSMetricType type) {
   static const GEnum enum_metric_types[] = {
     {"II32", MTRC_TYPE_II32},

@@ -420,7 +420,7 @@ ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t *ckey) {
   khash_t (ii32) * cache = get_hash_from_cache (module, MTRC_KEYMAP);
 
   uint32_t val = 0;
-  char *modstr = NULL;
+  const char *modstr;
 
   if (!hash)
     return 0;
@@ -432,11 +432,9 @@ ht_insert_keymap (GModule module, uint32_t date, uint32_t key, uint32_t *ckey) {
 
   modstr = get_module_str (module);
   if ((val = ins_ii32_inc (hash, key, ht_ins_seq, seqs, modstr)) == 0) {
-    free (modstr);
     return val;
   }
   *ckey = ins_ii32_ai (cache, key);
-  free (modstr);
 
   return val;
 }

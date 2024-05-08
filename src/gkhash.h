@@ -185,7 +185,7 @@ uint32_t *get_sorted_dates (uint32_t * len);
 void free_storage (void);
 void init_pre_storage (Logs *logs);
 
-char *get_mtr_type_str (GSMetricType type);
+const char *get_mtr_type_str (GSMetricType type);
 void *get_db_instance (uint32_t key);
 void *get_hdb (GKDB * db, GAMetric mtrc);
 

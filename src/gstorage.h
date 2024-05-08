@@ -143,7 +143,7 @@ extern const httpprotocols http_protocols[];
 extern const size_t http_methods_len;
 extern const size_t http_protocols_len;
 
-char *get_mtr_str (GSMetric metric);
+const char *get_mtr_str (GSMetric metric);
 int excluded_ip (GLogItem * logitem);
 uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);
