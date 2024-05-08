@@ -57,6 +57,7 @@
 #include "error.h"
 #include "gslist.h"
 #include "sha1.h"
+#include "util.h"
 #include "xmalloc.h"
 
 /* *INDENT-OFF* */
@@ -348,24 +349,6 @@ escape_http_request (const char *src) {
   }
   *q = 0;
   return dest;
-}
-
-/* Make a string uppercase.
- *
- * On error the original string is returned.
- * On success, the uppercased string is returned. */
-static char *
-strtoupper (char *str) {
-  char *p = str;
-  if (str == NULL || *str == '\0')
-    return str;
-
-  while (*p != '\0') {
-    *p = toupper ((int) *p);
-    p++;
-  }
-
-  return str;
 }
 
 /* Chop n characters from the beginning of the supplied buffer.
