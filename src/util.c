@@ -70,7 +70,7 @@ static const char *const code_type[] = {
 };
 
 /* HTTP status codes */
-static const char *const codes[1000] = {
+static const char *const codes[600] = {
   [0] = STATUS_CODE_0,
   [100] = STATUS_CODE_100, STATUS_CODE_101,
   [200] = STATUS_CODE_200, STATUS_CODE_201, STATUS_CODE_202, STATUS_CODE_203, STATUS_CODE_204,
@@ -102,7 +102,6 @@ static const char *const codes[1000] = {
   [540] = STATUS_CODE_540,
   [561] = STATUS_CODE_561,
   [598] = STATUS_CODE_598, STATUS_CODE_599,
-  [999] = NULL
 };
 
 /* Return part of a string
@@ -813,7 +812,7 @@ file_size (const char *filename) {
  * On success, the status code type/category is returned. */
 const char *
 verify_status_code_type (int code) {
-  if (code >= 0 && code <= 599 && code_type[code / 100] == NULL)
+  if (code < 0 || code > 599 || code_type[code / 100] == NULL)
     return "Unknown";
 
   return code_type[code / 100];
@@ -826,7 +825,7 @@ verify_status_code_type (int code) {
  * On success, the status code is returned. */
 const char *
 verify_status_code (int code) {
-  if (code >= 0 && code <= 599 && code_type[code / 100] == NULL && codes[code] == NULL)
+  if (code < 0 || code > 599 || code_type[code / 100] == NULL || codes[code] == NULL)
     return "Unknown";
 
   return codes[code];
