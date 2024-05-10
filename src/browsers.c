@@ -206,6 +206,7 @@ static const char *browsers[][2] = {
   {"yacybot", "Crawlers"},
   {"PycURL", "Crawlers"},
   {"PHP", "Crawlers"},
+  {"ClaudeBot", "Crawlers"},
   {"AndroidDownloadManager", "Crawlers"},
   {"Embedly", "Crawlers"},
   {"ruby", "Crawlers"},
@@ -214,7 +215,7 @@ static const char *browsers[][2] = {
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
   {"Microsoft-WebDAV", "Crawlers"},
-  {"DuckDuckGo-Favicons-Bot", "Crawlers"},
+  {"DuckDuckGo", "Crawlers"},
   {"bingbot", "Crawlers"},
   {"PetalBot", "Crawlers"},
   {"Discordbot", "Crawlers"},
@@ -245,6 +246,8 @@ static const char *browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
+  {"ImagesiftBot", "Crawlers"},
+  {"Bytespider", "Crawlers"},
   {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
 
   /* HTTP Library or HTTP Server User Agents - Suggest New Category */
