@@ -749,13 +749,27 @@ is_json_log_format (const char *fmt) {
 
 /* Delete the given key from a nested object key or empty the key. */
 static void
-dec_json_key (char *key) {
-  char *ptr = NULL;
-  if (key && (ptr = strrchr (key, '.')))
-    *ptr = '\0';
-  else if (key && !(ptr = strrchr (key, '.')))
-    key[0] = '\0';
+dec_json_key (char *key, int has_dot) {
+  if (!key || has_dot < 0)
+    return;
+
+  /* Designed to iterate has_dot + 1 times */
+  /* if has_dot is 2, the loop will run three times (when i is 0, 1, and 2). Each
+   * iteration of the loop removes one dot from the end of the key string.
+   * Therefore, if has_dot is 2, it will remove up to three dots from the end of
+   * the key string. */
+  for (int i = 0; i <= has_dot; i++) {
+    char *last_dot = strrchr (key, '.');
+    if (last_dot)
+      *last_dot = '\0';
+    else {
+      *key = '\0';
+      return;
+    }
+  }
 }
+
+
 
 /* Given a JSON string, parse it and call the given function pointer after each
  * value.
@@ -766,7 +780,7 @@ int
 parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, char *)) {
   char *key = NULL, *val = NULL;
   enum json_type ctx = JSON_ERROR, t = JSON_ERROR;
-  int ret = 0;
+  int ret = 0, has_dot = 0;
   size_t len = 0, level = 0;
   json_stream json;
 
@@ -781,7 +795,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       break;
     case JSON_ARRAY_END:
     case JSON_OBJECT_END:
-      dec_json_key (key);
+      dec_json_key (key, 0);
       break;
     case JSON_TRUE:
       val = xstrdup ("true");
@@ -789,7 +803,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
-        dec_json_key (key);
+        dec_json_key (key, 0);
       free (val);
       val = NULL;
       break;
@@ -799,7 +813,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
-        dec_json_key (key);
+        dec_json_key (key, 0);
       free (val);
       val = NULL;
       break;
@@ -809,7 +823,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
         goto clean;
       ctx = json_get_context (&json, &level);
       if (ctx != JSON_ARRAY)
-        dec_json_key (key);
+        dec_json_key (key, 0);
       free (val);
       val = NULL;
       break;
@@ -818,6 +832,9 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
       ctx = json_get_context (&json, &level);
       /* key */
       if ((level % 2) != 0 && ctx != JSON_ARRAY) {
+        /* check if key contains a dot, to account for it on dec_json_key */
+        has_dot = count_matches (json_get_string (&json, &len), '.');
+
         if (strlen (key) != 0)
           append_str (&key, ".");
         append_str (&key, json_get_string (&json, &len));
@@ -828,7 +845,7 @@ parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, c
         if (!key || (ret = (*cb) (ptr_data, key, val)))
           goto clean;
         if (ctx != JSON_ARRAY)
-          dec_json_key (key);
+          dec_json_key (key, has_dot);
 
         free (val);
         val = NULL;
