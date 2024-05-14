@@ -1439,7 +1439,7 @@ parse_raw_data (GModule module) {
 #ifdef _DEBUG
   clock_t begin = clock ();
   double taken;
-  char *modstr = NULL;
+  const char *modstr = NULL;
   LOG_DEBUG (("== parse_raw_data ==\n"));
 #endif
 
@@ -1459,7 +1459,6 @@ parse_raw_data (GModule module) {
   modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
   LOG_DEBUG (("== %-30s%f\n\n", modstr, taken));
-  free (modstr);
 #endif
 
   return raw_data;

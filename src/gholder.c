@@ -656,7 +656,7 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort) {
 #ifdef _DEBUG
   clock_t begin = clock ();
   double taken;
-  char *modstr = NULL;
+  const char *modstr = NULL;
   LOG_DEBUG (("== load_holder_data ==\n"));
 #endif
 
@@ -680,6 +680,5 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort) {
   modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
   LOG_DEBUG (("== %-30s%f\n\n", modstr, taken));
-  free (modstr);
 #endif
 }
