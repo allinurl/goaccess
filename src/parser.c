@@ -1982,6 +1982,7 @@ read_line (GLog *glog, char *line, int *test, uint32_t *cnt, int dry_run) {
     uncount_invalid (glog);
     return NULL;
   }
+  glog->read++;
 
   return logitem;
 }
@@ -2104,7 +2105,6 @@ read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char
     while ((*s = fgets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fp)) != NULL) {
 #endif
       glog->bytes += strlen (jobs[b][k].lines[jobs[b][k].p]);
-      glog->read++;
 
       if (++(jobs[b][k].p) >= conf.chunk_size)
         break;  // goto next chunk
