@@ -247,6 +247,10 @@ AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
 AM_CFLAGS += -Wbad-function-cast -Wcast-align
 AM_CFLAGS += -Wdeclaration-after-statement -Wshadow -Wold-style-definition
 
+if WITH_ASAN
+AM_CFLAGS += -fsanitize=address
+endif
+
 dist_man_MANS = goaccess.1
 
 SUBDIRS = po
