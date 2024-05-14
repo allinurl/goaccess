@@ -1,4 +1,4 @@
-name: C build
+name: C build and Test
 
 on:
   push:
@@ -12,44 +12,59 @@ jobs:
 
     strategy:
       matrix:
+        config_params: ["", "--enable-debug", "--enable-debug", "--with-getline", "--enable-utf8 --enable-debug --with-getline", "--enable-utf8 --with-getline"]
         os: [ubuntu-latest, macos-latest, flyci-macos-large-latest-m1]
         include:
         - os: ubuntu-latest
           setup-env: sudo apt-get update && sudo apt-get install -y build-essential autoconf gettext autopoint libncursesw5-dev libssl-dev git libmaxminddb-dev jq
         - os: macos-latest
-          setup-env: brew install ncurses gettext autoconf automake libmaxminddb jq
+          setup-env: brew install ncurses gettext autoconf automake libmaxminddb openssl@3 jq
         - os: flyci-macos-large-latest-m1
-          setup-env: brew update && brew install ncurses gettext autoconf automake libmaxminddb jq
+          setup-env: brew update && brew install ncurses gettext autoconf automake openssl@3 libmaxminddb jq
 
     steps:
-    - name: Setup env.
-      run: ${{ matrix.setup-env }}
-    - uses: actions/checkout@v3
-    - name: Check Architecture
-      run: |
-        echo "Running on $(uname -m) architecture"
-    - name: autoreconf
-      run: autoreconf -fiv
-    - name: configure
-      run: ./configure
-    - name: make
-      run: sudo make
-    - name: make check
-      run: sudo make check
-    - name: make distcheck
-      run: sudo make distcheck
-    - name: define log
-      run: |
-        echo -e 'localhost:80 192.168.0.1 - - [01/Jul/2013:06:20:38 -0500] "GET / HTTP/1.1" 200 3829 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0"\
-        google.com:80 ::1 - - [01/Jul/2013:06:25:11 -0500] "OPTIONS * HTTP/1.0" 200 136 "-" "Apache (internal dummy connection)"\
-        bing.com:80 142.250.190.142 - - [01/Jul/2013:06:41:31 -0500] "-" 408 0 "-" "-"\
-        yahoo.com:80 74.6.143.25 - - [01/Jul/2013:07:20:02 -0500] "HEAD / HTTP/1.1" 200 213 "-" "Wget/1.14 (linux-gnu)"' > access.log
-        cat access.log
-    - name: Run goaccess single thread
-      run: ./goaccess access.log --log-format=VCOMBINED -o report.html
-    - name: Run goaccess multi-thread
-      run: ./goaccess access.log --log-format='%v:%^ %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o report.html -j 2 -a --tz="Europe/Berlin"
-    - name: Run goaccess multi-thread JSON output
-      run: |
-        ./goaccess access.log --log-format=VCOMBINED -o report.json -j 2 -a --json-pretty-print
-        cat report.json | jq .
+      - name: Setup env.
+        run: ${{ matrix.setup-env }}
+
+      - uses: actions/checkout@v3
+
+      - name: Check Architecture
+        run: |
+          echo "Running on $(uname -m) architecture"
+
+      - name: autoreconf
+        run: autoreconf -fiv
+
+      - name: Configure
+        run: ./configure ${{ matrix.config_params }}
+
+      - name: Make
+        run: sudo make
+
+      - name: Make Check
+        run: sudo make check
+
+      - name: Make Distcheck
+        run: sudo make distcheck
+
+      - name: Define log
+        run: |
+          echo -e 'localhost:80 192.168.0.1 - - [01/Jul/2013:06:20:38 -0500] "GET / HTTP/1.1" 200 3829 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0"\
+          google.com:80 ::1 - - [01/Jul/2013:06:25:11 -0500] "OPTIONS * HTTP/1.0" 200 136 "-" "Apache (internal dummy connection)"\
+          bing.com:80 142.250.190.142 - - [01/Jul/2013:06:41:31 -0500] "-" 408 0 "-" "-"\
+          yahoo.com:80 74.6.143.25 - - [01/Jul/2013:07:20:02 -0500] "HEAD / HTTP/1.1" 200 213 "-" "Wget/1.14 (linux-gnu)"' > access.log
+          cat access.log
+
+      - name: Run goaccess single thread
+        run: ./goaccess access.log --log-format=VCOMBINED -o report.html
+
+      - name: Run goaccess multi-thread
+        run: ./goaccess access.log --log-format='%v:%^ %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o report.html -j 2 -a --tz="Europe/Berlin"
+
+      - name: Run goaccess multi-thread JSON output
+        run: |
+          ./goaccess access.log --log-format=VCOMBINED -o report.json -j 2 -a --json-pretty-print
+          cat report.json | jq .
+
+      - name: Make distclean
+        run: sudo make distclean
