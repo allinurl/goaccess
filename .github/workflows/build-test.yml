@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        config_params: ["", "--enable-debug", "--enable-debug", "--with-getline", "--enable-utf8 --enable-debug --with-getline", "--enable-utf8 --with-getline"]
+        config_params: ["", "--enable-debug", "--enable-debug", "--with-getline --enable-asan", "--enable-utf8 --enable-debug --with-getline", "--enable-utf8 --with-getline --enable-asan"]
         os: [ubuntu-latest, macos-latest, flyci-macos-large-latest-m1]
         include:
         - os: ubuntu-latest
