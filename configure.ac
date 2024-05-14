@@ -42,7 +42,7 @@ AC_CANONICAL_HOST
 AC_MSG_CHECKING([whether to build with rdynamic for GNU ld])
 with_rdyanimc=yes
 case "$host_os" in
-  *cygwin*|*aix*|*mingw*) with_rdyanimc=no
+  *darwin*|*cygwin*|*aix*|*mingw*) with_rdyanimc=no
   ;;
 esac
 AC_MSG_RESULT([$with_rdyanimc])
@@ -55,7 +55,7 @@ AC_ARG_ENABLE([asan],
   [with_asan=$enableval], [with_asan=no])
 AC_MSG_CHECKING([whether to build with address sanitizer])
 case "$host_os" in
-  *darwin*|*cygwin*|*aix*|*mingw*) with_asan=no
+  *cygwin*|*aix*|*mingw*) with_asan=no
   ;;
 esac
 AC_MSG_RESULT([$with_asan])
