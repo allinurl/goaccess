@@ -1040,8 +1040,10 @@ inc_su64 (khash_t (su64) *hash, const char *key, uint64_t inc) {
     dupkey = xstrdup (key);
     k = kh_put (su64, hash, dupkey, &ret);
     /* operation failed */
-    if (ret == -1)
+    if (ret == -1) {
+      free(dupkey);
       return -1;
+    }
   } else {
     value = kh_val (hash, k) + inc;
   }
@@ -1087,6 +1089,7 @@ static uint32_t
 inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
   khint_t k;
   int ret;
+  char *dupkey = NULL;
 
   if (!hash)
     return 0;
@@ -1094,10 +1097,16 @@ inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
   k = kh_get (si32, hash, key);
   /* key not found, put a new hash with val=0 */
   if (k == kh_end (hash)) {
-    k = kh_put (si32, hash, key, &ret);
+    dupkey = xstrdup(key);
+    k = kh_put (si32, hash, dupkey, &ret);
     /* operation failed */
-    if (ret == -1)
+    if (ret == -1) {
+      free(dupkey);
       return 0;
+    }
+    /* concurrently added */
+    if (ret == 0)
+      free(dupkey);
     kh_val (hash, k) = 0;
   }
 
@@ -1484,9 +1493,7 @@ ht_inc_cnt_overall (const char *key, uint32_t val) {
   if (!hash)
     return 0;
 
-  if (get_si32 (hash, key) != 0)
-    return inc_si32 (hash, key, val);
-  return inc_si32 (hash, xstrdup (key), val);
+  return inc_si32 (hash, key, val);
 }
 
 int
@@ -1509,9 +1516,7 @@ ht_ins_seq (khash_t (si32) *hash, const char *key) {
   if (!hash)
     return 0;
 
-  if (get_si32 (hash, key) != 0)
-    return inc_si32 (hash, key, 1);
-  return inc_si32 (hash, xstrdup (key), 1);
+  return inc_si32 (hash, key, 1);
 }
 
 /* Insert an IP hostname mapped to the corresponding hostname.
