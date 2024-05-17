@@ -96,22 +96,23 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ sudo apt install libncursesw5-dev libmaxminddb-dev
-    $ wget https://tar.goaccess.io/goaccess-1.4.tar.gz
-    $ tar -xzvf goaccess-1.4.tar.gz
-    $ cd goaccess-1.4/
-    $ ./configure --enable-utf8 --enable-geoip=legacy
-    $ make
-    # make install
+    sudo apt install libncursesw5-dev libmaxminddb-dev
+    wget https://tar.goaccess.io/goaccess-1.4.tar.gz
+    tar -xzvf goaccess-1.4.tar.gz
+    cd goaccess-1.4/
+    ./configure --enable-utf8 --enable-geoip=legacy
+    make
+    sudo make install
 
 ### Build from GitHub (Development) ###
 
-    $ git clone https://github.com/allinurl/goaccess.git
-    $ cd goaccess
-    $ autoreconf -fiv
-    $ ./configure --enable-utf8 --enable-geoip=legacy
-    $ make
-    # make install
+    sudo apt install libncursesw5-dev libmaxminddb-dev
+    git clone https://github.com/allinurl/goaccess.git
+    cd goaccess
+    autoreconf -fiv
+    ./configure --enable-utf8 --enable-geoip=legacy
+    make
+    sudo make install
 
 ### Distributions ###
 
@@ -121,7 +122,7 @@ the lastest version of GoAccess available.
 
 #### Debian/Ubuntu ####
 
-    # apt-get install goaccess
+    apt-get install goaccess
 
 **Note:** It is likely this will install an outdated version of GoAccess. To
 make sure that you're running the latest stable version of GoAccess see
@@ -129,52 +130,52 @@ alternative option below.
 
 #### Official GoAccess Debian & Ubuntu repository ####
 
-    $ echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    $ wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/goaccess.gpg add -
-    $ sudo apt-get update
-    $ sudo apt-get install goaccess
+    echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
+    wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/goaccess.gpg add -
+    sudo apt-get update
+    sudo apt-get install goaccess
 
 **Note**:
 * `.deb` packages in the official repo are available through HTTPS as well. You may need to install `apt-transport-https`.
 
 #### Fedora ####
 
-    # yum install goaccess
+    yum install goaccess
 
 #### Arch Linux ####
 
-    # pacman -S goaccess
+    pacman -S goaccess
 
 #### Gentoo ####
 
-    # emerge net-analyzer/goaccess
+    emerge net-analyzer/goaccess
 
 #### OS X / Homebrew ####
 
-    # brew install goaccess
+    brew install goaccess
 
 #### FreeBSD ####
 
-    # cd /usr/ports/sysutils/goaccess/ && make install clean
-    # pkg install sysutils/goaccess
+    cd /usr/ports/sysutils/goaccess/ && make install clean
+    pkg install sysutils/goaccess
 
 #### OpenBSD ####
 
-    # cd /usr/ports/www/goaccess && make install clean
-    # pkg_add goaccess
+    cd /usr/ports/www/goaccess && make install clean
+    pkg_add goaccess
 
 #### openSUSE  ####
 
-    # zypper ar -f obs://server:http http
-    # zypper in goaccess
+    zypper ar -f obs://server:http http
+    zypper in goaccess
 
 #### OpenIndiana ####
 
-    # pkg install goaccess
+    pkg install goaccess
 
 #### pkgsrc (NetBSD, Solaris, SmartOS, ...) ####
 
-    # pkgin install goaccess
+    pkgin install goaccess
 
 #### Windows ####
 
@@ -235,36 +236,36 @@ configuration file or in the command line.
 
 To output to a terminal and generate an interactive report:
 
-    # goaccess access.log
+    goaccess access.log
 
 To generate an HTML report:
 
-    # goaccess access.log -a > report.html
+    goaccess access.log -a > report.html
     
 To generate a JSON report:
 
-    # goaccess access.log -a -d -o json > report.json
+    goaccess access.log -a -d -o json > report.json
     
 To generate a CSV file:
 
-    # goaccess access.log --no-csv-summary -o csv > report.csv
+    goaccess access.log --no-csv-summary -o csv > report.csv
 
 GoAccess also allows great flexibility for real-time filtering and parsing. For
 instance, to quickly diagnose issues by monitoring logs since goaccess was
 started:
 
-    # tail -f access.log | goaccess -
+    tail -f access.log | goaccess -
 
 And even better, to filter while maintaining opened a pipe to preserve
 real-time analysis, we can make use of `tail -f` and a matching pattern tool
 such as `grep`, `awk`, `sed`, etc:
 
-    # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
+    tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
 or to parse from the beginning of the file while maintaining the pipe opened
 and applying a filter
 
-    # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess -o report.html --real-time-html -
+    tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess -o report.html --real-time-html -
 
 
 ### Multiple Log files ###
@@ -272,11 +273,11 @@ and applying a filter
 There are several ways to parse multiple logs with GoAccess. The simplest is to
 pass multiple log files to the command line:
 
-    # goaccess access.log access.log.1
+    goaccess access.log access.log.1
 
 It's even possible to parse files from a pipe while reading regular files:
 
-    # cat access.log.2 | goaccess access.log access.log.1 -
+    cat access.log.2 | goaccess access.log access.log.1 -
 
 **Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
@@ -285,7 +286,7 @@ Now if we want to add more flexibility to GoAccess, we can do a series of
 pipes. For instance, if we would like to process all compressed log files
 access.log.*.gz in addition to the current log file, we can do:
 
-    # zcat access.log.*.gz | goaccess access.log -
+    zcat access.log.*.gz | goaccess access.log -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
 
@@ -299,7 +300,7 @@ The process of generating a real-time HTML report is very similar to the
 process of creating a static report. Only `--real-time-html` is needed to make
 it real-time.
 
-    # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
+    goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
 
 To view the report you can navigate to `http://your_site/report.html`.
 
@@ -307,17 +308,17 @@ By default, GoAccess will use the host name of the generated report.
 Optionally, you can specify the URL to which the client's browser will connect
 to. See [FAQ](https://goaccess.io/faq) for a more detailed example.
 
-    # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
+    goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 
 By default, GoAccess listens on port 7890, to use a different port other than
 7890, you can specify it as (make sure the port is opened):
 
-    # goaccess access.log -o report.html --real-time-html --port=9870
+    goaccess access.log -o report.html --real-time-html --port=9870
 
 And to bind the WebSocket server to a different address other than 0.0.0.0, you
 can specify it as:
 
-    # goaccess access.log -o report.html --real-time-html --addr=127.0.0.1
+    goaccess access.log -o report.html --real-time-html --addr=127.0.0.1
 
 **Note**: To output real time data over a TLS/SSL connection, you need to use
 `--ssl-cert=<cert.crt>` and `--ssl-key=<priv.key>`.
@@ -331,21 +332,21 @@ Another useful pipe would be filtering dates out of the web log
 The following will get all HTTP requests starting on `05/Dec/2010` until the
 end of the file.
 
-    # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a -
+    sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a -
 
 or using relative dates such as yesterdays or tomorrows day:
 
-    # sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a -
+    sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a -
 
 If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
 
-    # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
+    sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 
 If we want to preserve only certain amount of data and recycle storage, we can
 keep only a certain number of days. For instance to keep & show the last 5
 days:
 
-    # goaccess access.log --keep-last=5
+    goaccess access.log --keep-last=5
 
 #### Virtual hosts ####
 
@@ -364,45 +365,45 @@ To do the same, but also use real-time filtering and parsing:
 
 To exclude a list of virtual hosts you can do the following:
 
-    # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
+    grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
 
 #### Files, status codes and bots ####
 
 To parse specific pages, e.g., page views, `html`, `htm`, `php`, etc. within a
 request:
 
-    # awk '$7~/\.html|\.htm|\.php/' access.log | goaccess -
+    awk '$7~/\.html|\.htm|\.php/' access.log | goaccess -
 
 Note, `$7` is the request field for the common and combined log format,
 (without Virtual Host), if your log includes Virtual Host, then you probably
 want to use `$8` instead. It's best to check which field you are shooting for,
 e.g.:
 
-    # tail -10 access.log | awk '{print $8}'
+    tail -10 access.log | awk '{print $8}'
 
 Or to parse a specific status code, e.g., 500 (Internal Server Error):
 
-    # awk '$9~/500/' access.log | goaccess -
+    awk '$9~/500/' access.log | goaccess -
 
 Or multiple status codes, e.g., all 3xx and 5xx:
 
-    # tail -f -n +0 access.log | awk '$9~/3[0-9]{2}|5[0-9]{2}/' | goaccess -o out.html -
+    tail -f -n +0 access.log | awk '$9~/3[0-9]{2}|5[0-9]{2}/' | goaccess -o out.html -
 
 And to get an estimated overview of how many bots (crawlers) are hitting your server:
 
-    # tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
+    tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
 
 ### Tips ###
 
 Also, it is worth pointing out that if we want to run GoAccess at lower
 priority, we can run it as:
 
-    # nice -n 19 goaccess -f access.log -a
+    nice -n 19 goaccess -f access.log -a
 
 and if you don't want to install it on your server, you can still run it from
 your local machine!
 
-    # ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
+    ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
 
 
 #### Troubleshooting ####
@@ -444,17 +445,17 @@ than the one stored.
 
 ##### Examples #####
 
-    // last month access log
-    # goaccess access.log.1 --persist
+    # last month access log
+    goaccess access.log.1 --persist
 
 then, load it with
 
-    // append this month access log, and preserve new data
-    # goaccess access.log --restore --persist
+    # append this month access log, and preserve new data
+    goaccess access.log --restore --persist
 
 To read persisted data only (without parsing new data)
 
-    # goaccess --restore
+    goaccess --restore
 
 ## Contributing ##
 
