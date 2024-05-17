@@ -18,7 +18,6 @@ A million repetitions of "a"
 #endif
 /* #define SHA1HANDSOFF * Copies data before messing with it. */
 
-#include <stdio.h>
 #include <string.h>
 
 #include "sha1.h"
@@ -164,7 +163,7 @@ SHA1Transform (uint32_t state[5], uint8_t buffer[64]) {
 /* SHA1Init - Initialize new context */
 
 void
-SHA1Init (SHA1_CTX * context) {
+SHA1Init (SHA1_CTX *context) {
   /* SHA1 initialization constants */
   context->state[0] = 0x67452301;
   context->state[1] = 0xEFCDAB89;
@@ -178,7 +177,7 @@ SHA1Init (SHA1_CTX * context) {
 /* Run your data through this. */
 
 void
-SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len) {
+SHA1Update (SHA1_CTX *context, uint8_t *data, unsigned int len) {
   unsigned int i, j;
 
   j = (context->count[0] >> 3) & 63;
@@ -201,7 +200,7 @@ SHA1Update (SHA1_CTX * context, uint8_t * data, unsigned int len) {
 /* Add padding and return the message digest. */
 
 void
-SHA1Final (uint8_t digest[20], SHA1_CTX * context) {
+SHA1Final (uint8_t digest[20], SHA1_CTX *context) {
   uint32_t i, j;
   uint8_t finalcount[8];
 
@@ -213,7 +212,7 @@ SHA1Final (uint8_t digest[20], SHA1_CTX * context) {
   while ((context->count[0] & 504) != 448) {
     SHA1Update (context, (uint8_t *) "\0", 1);
   }
-  SHA1Update (context, finalcount, 8);  /* Should cause a SHA1Transform() */
+  SHA1Update (context, finalcount, 8); /* Should cause a SHA1Transform() */
   for (i = 0; i < 20; i++) {
     digest[i] = (uint8_t)
       ((context->state[i >> 2] >> ((3 - (i & 3)) * 8)) & 255);
@@ -224,7 +223,7 @@ SHA1Final (uint8_t digest[20], SHA1_CTX * context) {
   memset (context->state, 0, 20);
   memset (context->count, 0, 8);
   memset (&finalcount, 0, 8);
-#ifdef SHA1HANDSOFF     /* make SHA1Transform overwrite it's own static vars */
+#ifdef SHA1HANDSOFF /* make SHA1Transform overwrite its own static vars */
   SHA1Transform (context->state, context->buffer);
 #endif
 }

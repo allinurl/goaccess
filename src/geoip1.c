@@ -1,5 +1,5 @@
 /**
- * geoip.c -- implementation of GeoIP
+ * geoip.c -- implementation of GeoIP (legacy)
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,10 @@
 #include "error.h"
 #include "util.h"
 
-static GeoIP *geo_location_data;
+static GeoIP **geoips = NULL;
+static GeoIP *geo_location_data = NULL;
+static int db_cnt = 0;
+static int legacy_db = 0;
 
 /* Determine if we have a valid geoip resource.
  *
@@ -50,17 +53,26 @@ static GeoIP *geo_location_data;
  * If the geoip resource is valid and malloc'd, 1 is returned. */
 int
 is_geoip_resource (void) {
-  return geo_location_data != NULL ? 1 : 0;
+  return ((geoips && db_cnt) || (legacy_db && geo_location_data));
 }
 
 /* Free up GeoIP resources */
 void
 geoip_free (void) {
+  int idx = 0;
+
   if (!is_geoip_resource ())
     return;
 
-  GeoIP_delete (geo_location_data);
+  for (idx = 0; idx < db_cnt; idx++)
+    GeoIP_delete (geoips[idx]);
+
+  if (legacy_db)
+    GeoIP_delete (geo_location_data);
+
   GeoIP_cleanup ();
+  free (geoips);
+  geoips = NULL;
 }
 
 /* Open the given GeoLocation database and set its charset.
@@ -69,27 +81,139 @@ geoip_free (void) {
  * On success, a new geolocation structure is returned. */
 static GeoIP *
 geoip_open_db (const char *db) {
-  GeoIP *geoip;
-  geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
+  GeoIP *geoip = GeoIP_open (db, GEOIP_MEMORY_CACHE);
 
   if (geoip == NULL)
-    FATAL ("Unable to open GeoIP database: %s\n", db);
+    return NULL;
 
   GeoIP_set_charset (geoip, GEOIP_CHARSET_UTF8);
-  LOG_DEBUG (("Opened GeoIP City database: %s\n", db));
+  LOG_DEBUG (("Opened legacy GeoIP database: %s\n", db));
 
   return geoip;
+}
+
+static int
+set_geoip_db_by_type (GeoIP *geoip, GO_GEOIP_DB type) {
+  unsigned char rec = GeoIP_database_edition (geoip);
+
+  switch (rec) {
+  case GEOIP_ASNUM_EDITION:
+    if (type != TYPE_ASN)
+      break;
+    geo_location_data = geoip;
+    return 0;
+  case GEOIP_COUNTRY_EDITION:
+  case GEOIP_COUNTRY_EDITION_V6:
+    if (type != TYPE_COUNTRY && type != TYPE_CITY)
+      break;
+    geo_location_data = geoip;
+    return 0;
+  case GEOIP_CITY_EDITION_REV0:
+  case GEOIP_CITY_EDITION_REV1:
+  case GEOIP_CITY_EDITION_REV0_V6:
+  case GEOIP_CITY_EDITION_REV1_V6:
+    if (type != TYPE_CITY)
+      break;
+    geo_location_data = geoip;
+    return 0;
+  }
+
+  return 1;
+}
+
+static int
+set_conf_by_type (GeoIP *geoip) {
+  unsigned char rec = GeoIP_database_edition (geoip);
+
+  switch (rec) {
+  case GEOIP_ASNUM_EDITION:
+    conf.has_geoasn = 1;
+    return 0;
+  case GEOIP_COUNTRY_EDITION:
+  case GEOIP_COUNTRY_EDITION_V6:
+    conf.has_geocountry = 1;
+    return 0;
+  case GEOIP_CITY_EDITION_REV0:
+  case GEOIP_CITY_EDITION_REV1:
+  case GEOIP_CITY_EDITION_REV0_V6:
+  case GEOIP_CITY_EDITION_REV1_V6:
+    conf.has_geocountry = conf.has_geocity = 1;
+    return 0;
+  }
+
+  return 1;
+}
+
+/* Look up for a database on our array and set it as our current handlers.
+ * Note: this is not ideal, for now. However, legacy will go out of support at some point.
+ *
+ * On error or if no entry is found, 1 is returned.
+ * On success, GeoIP struct is set as our handler and 0 is returned. */
+static int
+set_geoip_db (GO_GEOIP_DB type) {
+  int idx = 0;
+
+  if (!is_geoip_resource ())
+    return 1;
+  /* in memory legacy DB */
+  if (legacy_db && geo_location_data)
+    return 0;
+
+  for (idx = 0; idx < db_cnt; idx++) {
+    if (set_geoip_db_by_type (geoips[idx], type) == 0)
+      return 0;
+  }
+
+  return 1;
+}
+
+static void
+set_geoip (const char *db) {
+  GeoIP **new_geoips = NULL, *geoip = NULL;
+
+  if (db == NULL || *db == '\0')
+    return;
+
+  if (!(geoip = geoip_open_db (db)))
+    FATAL ("Unable to open GeoIP database %s\n", db);
+
+  db_cnt++;
+
+  new_geoips = realloc (geoips, sizeof (*geoips) * db_cnt);
+  if (new_geoips == NULL)
+    FATAL ("Unable to realloc GeoIP database %s\n", db);
+  geoips = new_geoips;
+  geoips[db_cnt - 1] = geoip;
+
+  set_conf_by_type (geoip);
 }
 
 /* Set up and open GeoIP database */
 void
 init_geoip (void) {
-  /* open custom city GeoIP database */
-  if (conf.geoip_database != NULL)
-    geo_location_data = geoip_open_db (conf.geoip_database);
+  int i;
+
+  for (i = 0; i < conf.geoip_db_idx; ++i)
+    set_geoip (conf.geoip_databases[i]);
+
   /* fall back to legacy GeoIP database */
-  else
+  if (!conf.geoip_db_idx) {
     geo_location_data = GeoIP_new (conf.geo_db);
+    legacy_db = 1;
+  }
+}
+
+static char ip4to6_out_buffer[17];
+static char *
+ip4to6 (const char *ipv4) {
+  unsigned int b[4];
+  int n = sscanf (ipv4, "%u.%u.%u.%u", b, b + 1, b + 2, b + 3);
+  if (n == 4) {
+    snprintf (ip4to6_out_buffer, sizeof (ip4to6_out_buffer), "::ffff:%02x%02x:%02x%02x", b[0],
+              b[1], b[2], b[3]);
+    return ip4to6_out_buffer;
+  }
+  return NULL;
 }
 
 /* Get continent name concatenated with code.
@@ -143,6 +267,16 @@ geoip_set_continent (const char *continent, char *loc) {
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
 
+/* Compose a string with the continent name and store it in the given
+ * buffer. */
+static void
+geoip_set_asn (const char *name, char *asn) {
+  if (name)
+    snprintf (asn, ASN_LEN, "%s", name);
+  else
+    snprintf (asn, ASN_LEN, "%s", "Unknown");
+}
+
 /* Get detailed information found in the GeoIP Database about the
  * given IPv4 or IPv6.
  *
@@ -167,7 +301,7 @@ geoip_set_country_by_record (const char *ip, char *location, GTypeIP type_ip) {
   GeoIPRecord *rec = NULL;
   const char *country = NULL, *code = NULL, *addr = ip;
 
-  if (conf.geoip_database == NULL || geo_location_data == NULL)
+  if (geo_location_data == NULL)
     return;
 
   /* Custom GeoIP database */
@@ -236,42 +370,6 @@ out:
   geoip_set_country (country, code, location);
 }
 
-/* Set country data by geoid or record into the given `location` buffer
- * based on the IP version and currently used database edition.  */
-void
-geoip_get_country (const char *ip, char *location, GTypeIP type_ip) {
-  unsigned char rec = GeoIP_database_edition (geo_location_data);
-
-  switch (rec) {
-  case GEOIP_COUNTRY_EDITION:
-    if (TYPE_IPV4 == type_ip)
-      geoip_set_country_by_geoid (ip, location, TYPE_IPV4);
-    else
-      geoip_set_country (NULL, NULL, location);
-    break;
-  case GEOIP_COUNTRY_EDITION_V6:
-    if (TYPE_IPV6 == type_ip)
-      geoip_set_country_by_geoid (ip, location, TYPE_IPV6);
-    else
-      geoip_set_country (NULL, NULL, location);
-    break;
-  case GEOIP_CITY_EDITION_REV0:
-  case GEOIP_CITY_EDITION_REV1:
-    if (TYPE_IPV4 == type_ip)
-      geoip_set_country_by_record (ip, location, TYPE_IPV4);
-    else
-      geoip_set_country (NULL, NULL, location);
-    break;
-  case GEOIP_CITY_EDITION_REV0_V6:
-  case GEOIP_CITY_EDITION_REV1_V6:
-    if (TYPE_IPV6 == type_ip)
-      geoip_set_country_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_country (NULL, NULL, location);
-    break;
-  }
-}
-
 /* Set continent data by record into the given `location` buffer based
  * on the IP version. */
 static void
@@ -279,7 +377,7 @@ geoip_set_continent_by_record (const char *ip, char *location, GTypeIP type_ip) 
   GeoIPRecord *rec = NULL;
   const char *continent = NULL, *addr = ip;
 
-  if (conf.geoip_database == NULL || geo_location_data == NULL)
+  if (geo_location_data == NULL)
     return;
 
   /* Custom GeoIP database */
@@ -310,42 +408,6 @@ out:
   geoip_set_continent (continent, location);
 }
 
-/* Set continent data by geoid or record into the given `location` buffer
- * based on the IP version and currently used database edition.  */
-void
-geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
-  unsigned char rec = GeoIP_database_edition (geo_location_data);
-
-  switch (rec) {
-  case GEOIP_COUNTRY_EDITION:
-    if (TYPE_IPV4 == type_ip)
-      geoip_set_continent_by_geoid (ip, location, TYPE_IPV4);
-    else
-      geoip_set_continent (NULL, location);
-    break;
-  case GEOIP_COUNTRY_EDITION_V6:
-    if (TYPE_IPV6 == type_ip)
-      geoip_set_continent_by_geoid (ip, location, TYPE_IPV6);
-    else
-      geoip_set_continent (NULL, location);
-    break;
-  case GEOIP_CITY_EDITION_REV0:
-  case GEOIP_CITY_EDITION_REV1:
-    if (TYPE_IPV4 == type_ip)
-      geoip_set_continent_by_record (ip, location, TYPE_IPV4);
-    else
-      geoip_set_continent (NULL, location);
-    break;
-  case GEOIP_CITY_EDITION_REV0_V6:
-  case GEOIP_CITY_EDITION_REV1_V6:
-    if (TYPE_IPV6 == type_ip)
-      geoip_set_continent_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_continent (NULL, location);
-    break;
-  }
-}
-
 /* Set city data by record into the given `location` buffer based on
  * the IP version.  */
 static void
@@ -368,13 +430,14 @@ geoip_set_city_by_record (const char *ip, char *location, GTypeIP type_ip) {
 /* Set city data by geoid or record into the given `location` buffer
  * based on the IP version and currently used database edition.
  * It uses the custom GeoIP database - i.e., GeoLiteCity.dat */
-void
+static void
 geoip_get_city (const char *ip, char *location, GTypeIP type_ip) {
-  unsigned char rec = GeoIP_database_edition (geo_location_data);
+  unsigned char rec = 0;
 
-  if (conf.geoip_database == NULL || geo_location_data == NULL)
+  if (geo_location_data == NULL)
     return;
 
+  rec = GeoIP_database_edition (geo_location_data);
   switch (rec) {
   case GEOIP_CITY_EDITION_REV0:
   case GEOIP_CITY_EDITION_REV1:
@@ -387,10 +450,134 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip) {
   case GEOIP_CITY_EDITION_REV1_V6:
     if (TYPE_IPV6 == type_ip)
       geoip_set_city_by_record (ip, location, TYPE_IPV6);
-    else
-      geoip_set_city (NULL, NULL, location);
+    else {
+      char *ipv6 = ip4to6 (ip);
+      if (ipv6)
+        geoip_set_city_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_city (NULL, NULL, location);
+    }
     break;
   }
+}
+
+/* Set country data by geoid or record into the given `location` buffer
+ * based on the IP version and currently used database edition.  */
+void
+geoip_get_country (const char *ip, char *location, GTypeIP type_ip) {
+  unsigned char rec = 0;
+
+  if (set_geoip_db (TYPE_COUNTRY) && set_geoip_db (TYPE_CITY)) {
+    geoip_set_country (NULL, NULL, location);
+    return;
+  }
+
+  rec = GeoIP_database_edition (geo_location_data);
+  switch (rec) {
+  case GEOIP_COUNTRY_EDITION:
+    if (TYPE_IPV4 == type_ip)
+      geoip_set_country_by_geoid (ip, location, TYPE_IPV4);
+    else
+      geoip_set_country (NULL, NULL, location);
+    break;
+  case GEOIP_COUNTRY_EDITION_V6:
+    if (TYPE_IPV6 == type_ip)
+      geoip_set_country_by_geoid (ip, location, TYPE_IPV6);
+    else {
+      char *ipv6 = ip4to6 (ip);
+      if (ipv6)
+        geoip_set_country_by_geoid (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_country (NULL, NULL, location);
+    }
+    break;
+  case GEOIP_CITY_EDITION_REV0:
+  case GEOIP_CITY_EDITION_REV1:
+    if (TYPE_IPV4 == type_ip)
+      geoip_set_country_by_record (ip, location, TYPE_IPV4);
+    else
+      geoip_set_country (NULL, NULL, location);
+    break;
+  case GEOIP_CITY_EDITION_REV0_V6:
+  case GEOIP_CITY_EDITION_REV1_V6:
+    if (TYPE_IPV6 == type_ip)
+      geoip_set_country_by_record (ip, location, TYPE_IPV6);
+    else {
+      char *ipv6 = ip4to6 (ip);
+      if (ipv6)
+        geoip_set_country_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_country (NULL, NULL, location);
+    }
+    break;
+  }
+}
+
+/* Set continent data by geoid or record into the given `location` buffer
+ * based on the IP version and currently used database edition.  */
+void
+geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
+  unsigned char rec = 0;
+
+  if (set_geoip_db (TYPE_COUNTRY) && set_geoip_db (TYPE_CITY)) {
+    geoip_set_continent (NULL, location);
+    return;
+  }
+
+  rec = GeoIP_database_edition (geo_location_data);
+  switch (rec) {
+  case GEOIP_COUNTRY_EDITION:
+    if (TYPE_IPV4 == type_ip)
+      geoip_set_continent_by_geoid (ip, location, TYPE_IPV4);
+    else
+      geoip_set_continent (NULL, location);
+    break;
+  case GEOIP_COUNTRY_EDITION_V6:
+    if (TYPE_IPV6 == type_ip)
+      geoip_set_continent_by_geoid (ip, location, TYPE_IPV6);
+    else {
+      char *ipv6 = ip4to6 (ip);
+      if (ipv6)
+        geoip_set_continent_by_geoid (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_continent (NULL, location);
+    }
+    break;
+  case GEOIP_CITY_EDITION_REV0:
+  case GEOIP_CITY_EDITION_REV1:
+    if (TYPE_IPV4 == type_ip)
+      geoip_set_continent_by_record (ip, location, TYPE_IPV4);
+    else
+      geoip_set_continent (NULL, location);
+    break;
+  case GEOIP_CITY_EDITION_REV0_V6:
+  case GEOIP_CITY_EDITION_REV1_V6:
+    if (TYPE_IPV6 == type_ip)
+      geoip_set_continent_by_record (ip, location, TYPE_IPV6);
+    else {
+      char *ipv6 = ip4to6 (ip);
+      if (ipv6)
+        geoip_set_continent_by_record (ipv6, location, TYPE_IPV6);
+      else
+        geoip_set_continent (NULL, location);
+    }
+    break;
+  }
+}
+
+void
+geoip_asn (char *host, char *asn) {
+  char *name = NULL;
+
+  if (legacy_db || set_geoip_db (TYPE_ASN)) {
+    geoip_set_asn (NULL, asn);
+    return;
+  }
+
+  /* Custom GeoIP database */
+  name = GeoIP_org_by_name (geo_location_data, (const char *) host);
+  geoip_set_asn (name, asn);
+  free (name);
 }
 
 /* Entry point to set GeoIP location into the corresponding buffers,
@@ -399,7 +586,7 @@ geoip_get_city (const char *ip, char *location, GTypeIP type_ip) {
  * On error, 1 is returned
  * On success, buffers are set and 0 is returned */
 int
-set_geolocation (char *host, char *continent, char *country, char *city) {
+set_geolocation (char *host, char *continent, char *country, char *city, GO_UNUSED char *asn) {
   int type_ip = 0;
 
   if (!is_geoip_resource ())
@@ -408,9 +595,15 @@ set_geolocation (char *host, char *continent, char *country, char *city) {
   if (invalid_ipaddr (host, &type_ip))
     return 1;
 
-  geoip_get_country (host, country, type_ip);
-  geoip_get_continent (host, continent, type_ip);
-  if (conf.geoip_database)
+  /* set ASN data */
+  geoip_asn (host, asn);
+
+  /* set Country/City data */
+  if (set_geoip_db (TYPE_COUNTRY) == 0 || set_geoip_db (TYPE_CITY) == 0) {
+    geoip_get_country (host, country, type_ip);
+    geoip_get_continent (host, continent, type_ip);
+  }
+  if (set_geoip_db (TYPE_CITY) == 0)
     geoip_get_city (host, city, type_ip);
 
   return 0;

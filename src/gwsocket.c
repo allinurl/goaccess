@@ -7,7 +7,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,12 +29,10 @@
  */
 
 #include <stdio.h>
-#include <signal.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <unistd.h>
 
 #include "gwsocket.h"
@@ -43,7 +41,6 @@
 #include "error.h"
 #include "goaccess.h"
 #include "json.h"
-#include "parser.h"
 #include "settings.h"
 #include "websocket.h"
 #include "xmalloc.h"
@@ -94,7 +91,7 @@ write_holder (int fd, const char *buf, int len) {
 
 /* Clear an incoming FIFO packet and header data. */
 static void
-clear_fifo_packet (GWSReader * gwserver) {
+clear_fifo_packet (GWSReader *gwserver) {
   memset (gwserver->hdr, 0, sizeof (gwserver->hdr));
   gwserver->hlen = 0;
 
@@ -157,38 +154,34 @@ send_holder_to_client (int fd, int listener, const char *buf, int len) {
  * If there's less data than requested, 0 is returned
  * If the thread is done, 1 is returned */
 int
-read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
+read_fifo (GWSReader *gwsreader, void (*f) (int)) {
   WSPacket **pa = &gwsreader->packet;
   char *ptr;
-  int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd, max = 0;
+  int bytes = 0, readh = 0, need = 0, fd = gwsreader->fd;
   uint32_t listener = 0, type = 0, size = 0;
+  struct pollfd fds[] = {
+    {.fd = gwsreader->self_pipe[0],.events = POLLIN},
+    {.fd = gwsreader->fd,.events = POLLIN,},
+  };
 
-  FD_ZERO (&rfds);
-  FD_ZERO (&wfds);
-  /* self-pipe trick to stop the event loop */
-  FD_SET (gwsreader->self_pipe[0], &rfds);
-  /* fifo */
-  FD_SET (fd, &rfds);
-  max = MAX (fd, gwsreader->self_pipe[0]);
-
-  if (select (max + 1, &rfds, &wfds, NULL, NULL) == -1) {
+  if (poll (fds, sizeof (fds) / sizeof (fds[0]), -1) == -1) {
     switch (errno) {
     case EINTR:
       break;
     default:
-      FATAL ("Unable to select: %s.", strerror (errno));
+      FATAL ("Unable to poll: %s.", strerror (errno));
     }
   }
   /* handle self-pipe trick */
-  if (FD_ISSET (gwsreader->self_pipe[0], &rfds))
+  if (fds[0].revents & POLLIN)
     return 1;
-  if (!FD_ISSET (fd, &rfds)) {
+  if (!(fds[1].revents & POLLIN)) {
     LOG (("No file descriptor set on read_message()\n"));
     return 0;
   }
 
-  readh = gwsreader->hlen;      /* read from header so far */
-  need = HDR_SIZE - readh;      /* need to read */
+  readh = gwsreader->hlen; /* read from header so far */
+  need = HDR_SIZE - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (fd, gwsreader->hdr, &gwsreader->hlen, readh, need)) < 0)
       return 0;
@@ -206,11 +199,11 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
     (*pa) = xcalloc (1, sizeof (WSPacket));
     (*pa)->type = type;
     (*pa)->size = size;
-    (*pa)->data = xcalloc (size, sizeof (char));
+    (*pa)->data = xcalloc (size + 1, sizeof (char));
   }
 
-  readh = (*pa)->len;   /* read from payload so far */
-  need = (*pa)->size - readh;   /* need to read */
+  readh = (*pa)->len; /* read from payload so far */
+  need = (*pa)->size - readh; /* need to read */
   if (need > 0) {
     if ((bytes = ws_read_fifo (fd, (*pa)->data, &(*pa)->len, readh, need)) < 0)
       return 0;
@@ -229,7 +222,7 @@ read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int)) {
  * It writes to a named pipe a header containing the socket, the
  * message type, the payload's length and the actual payload */
 static int
-onopen (WSPipeOut * pipeout, WSClient * client) {
+onopen (WSPipeOut *pipeout, WSClient *client) {
   uint32_t hsize = sizeof (uint32_t) * 3;
   char *hdr = calloc (hsize, sizeof (char));
   char *ptr = hdr;
@@ -258,7 +251,7 @@ set_ready_state (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoout (void) {
-  const char *fifo = conf.fifo_out ? conf.fifo_out : WS_PIPEOUT;
+  const char *fifo = conf.fifo_out;
   int fdfifo;
 
   /* open fifo for reading before writing */
@@ -275,7 +268,7 @@ open_fifoout (void) {
  * On success, return the new file descriptor is returned . */
 int
 open_fifoin (void) {
-  const char *fifo = conf.fifo_in ? conf.fifo_in : WS_PIPEIN;
+  const char *fifo = conf.fifo_in;
   int fdfifo;
 
   if ((fdfifo = open (fifo, O_WRONLY | O_NONBLOCK)) == -1)
@@ -284,7 +277,7 @@ open_fifoin (void) {
   return fdfifo;
 }
 
-/* Set the self-pipe trick to handle select(2). */
+/* Set the self-pipe trick to handle poll(2). */
 void
 set_self_pipe (int *self_pipe) {
   /* Initialize self pipe. */
@@ -298,7 +291,7 @@ set_self_pipe (int *self_pipe) {
 
 /* Close the WebSocket server and clean up. */
 void
-stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
+stop_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
   pthread_t writer, reader;
   WSServer *server = NULL;
 
@@ -312,19 +305,19 @@ stop_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
     LOG (("Unable to write to self pipe on pipeout.\n"));
   pthread_mutex_unlock (&gwsreader->mutex);
 
-  pthread_mutex_lock (&gwswriter->mutex);
   /* if it fails to write, force stop */
+  pthread_mutex_lock (&gwswriter->mutex);
   if ((write (server->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
     ws_stop (server);
   pthread_mutex_unlock (&gwswriter->mutex);
 
   reader = gwsreader->thread;
   if (pthread_join (reader, NULL) != 0)
-    LOG (("Unable to join thread: %lu %s\n", reader, strerror (errno)));
+    LOG (("Unable to join thread gwsreader: %s\n", strerror (errno)));
 
   writer = gwswriter->thread;
   if (pthread_join (writer, NULL) != 0)
-    LOG (("Unable to join thread: %lu %s\n", writer, strerror (errno)));
+    LOG (("Unable to join thread gwswriter: %s\n", strerror (errno)));
 }
 
 /* Start the WebSocket server and initialize default options. */
@@ -333,9 +326,11 @@ start_server (void *ptr_data) {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
   writer->server->onopen = onopen;
+  pthread_mutex_lock (&writer->mutex);
   set_self_pipe (writer->server->self_pipe);
+  pthread_mutex_unlock (&writer->mutex);
 
-  /* select(2) will block in here */
+  /* poll(2) will block in here */
   ws_start (writer->server);
   fprintf (stderr, "Stopping WebSocket server...\n");
   ws_stop (writer->server);
@@ -347,6 +342,8 @@ set_ws_opts (void) {
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
+  if (conf.unix_socket)
+    ws_set_config_unix_socket (conf.unix_socket);
   if (conf.fifo_in)
     ws_set_config_pipein (conf.fifo_in);
   if (conf.fifo_out)
@@ -363,7 +360,7 @@ set_ws_opts (void) {
 
 /* Setup and start the WebSocket threads. */
 int
-setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader) {
+setup_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
   int id;
   pthread_t *thread;
 

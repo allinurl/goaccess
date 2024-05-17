@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,7 +34,7 @@
 
 #define STDIN_FILENO  0
 #ifndef _BSD_SOURCE
-#define _BSD_SOURCE     /* include stuff from 4.3 BSD */
+#define _BSD_SOURCE /* include stuff from 4.3 BSD */
 #endif
 #ifndef _DEFAULT_SOURCE
 #define _DEFAULT_SOURCE
@@ -68,7 +68,7 @@
 
 /* *INDENT-OFF* */
 /* Determine which metrics should be displayed per module/panel */
-static GOutput outputting[] = {
+static const GOutput outputting[] = {
   {VISITORS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
   {REQUESTS        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
   {REQUESTS_STATIC , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0} ,
@@ -86,7 +86,10 @@ static GOutput outputting[] = {
   {CACHE_STATUS    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {ASN             , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 #endif
+  {MIME_TYPE       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {TLS_TYPE        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
 };
 /* *INDENT-ON* */
 
@@ -104,7 +107,7 @@ typedef struct Field_ {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-GOutput *
+const GOutput *
 output_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (outputting);
 
@@ -145,7 +148,7 @@ set_input_opts (void) {
 
 /* Deletes the given window, freeing all memory associated with it. */
 void
-close_win (WINDOW * w) {
+close_win (WINDOW *w) {
   if (w == NULL)
     return;
   wclear (w);
@@ -157,6 +160,8 @@ close_win (WINDOW * w) {
  * time_t to tm as local time */
 void
 generate_time (void) {
+  if (conf.tz_name)
+    set_tz ();
   timestamp = time (NULL);
   localtime_r (&timestamp, &now_tm);
 }
@@ -171,14 +176,16 @@ end_spinner (void) {
   parsing_spinner->state = SPN_END;
   pthread_mutex_unlock (&parsing_spinner->mutex);
   if (!parsing_spinner->curses) {
-    // wait for the ui_spinner thread to finish
-    usleep (SPIN_UPDATE_INTERVAL);
+    /* wait for the ui_spinner thread to finish */
+    struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
 /* Set background colors to all windows. */
 void
-set_wbkgd (WINDOW * main_win, WINDOW * header_win) {
+set_wbkgd (WINDOW *main_win, WINDOW *header_win) {
   GColors *color = get_color (COLOR_BG);
 
   /* background colors */
@@ -192,7 +199,7 @@ set_wbkgd (WINDOW * main_win, WINDOW * header_win) {
  * each of them. e.g., background color, enable the reading of
  * function keys. */
 void
-init_windows (WINDOW ** header_win, WINDOW ** main_win) {
+init_windows (WINDOW **header_win, WINDOW **main_win) {
   int row = 0, col = 0;
 
   /* init standard screen */
@@ -202,23 +209,23 @@ init_windows (WINDOW ** header_win, WINDOW ** main_win) {
 
   /* init header screen */
   *header_win = newwin (6, col, 0, 0);
-  keypad (*header_win, TRUE);
   if (*header_win == NULL)
     FATAL ("Unable to allocate memory for header_win.");
+  keypad (*header_win, TRUE);
 
   /* init main screen */
   *main_win = newwin (row - 8, col, 7, 0);
-  keypad (*main_win, TRUE);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
+  keypad (*main_win, TRUE);
   set_wbkgd (*main_win, *header_win);
 }
 
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Draw a generic header with the ability to set a custom text to it. */
 void
-draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
-             GColors * (*func) (void)) {
+draw_header (WINDOW *win, const char *s, const char *fmt, int y, int x, int w,
+             GColors *(*func) (void)) {
   GColors *color = (*func) ();
   char *buf;
 
@@ -237,7 +244,7 @@ draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
 
 /* Determine the actual size of the main window. */
 void
-term_size (WINDOW * main_win, int *main_win_height) {
+term_size (WINDOW *main_win, int *main_win_height) {
   int term_h = 0, term_w = 0;
 
   getmaxyx (stdscr, term_h, term_w);
@@ -252,7 +259,7 @@ term_size (WINDOW * main_win, int *main_win_height) {
  * On success, a string containing the label name is returned. */
 const char *
 module_to_label (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_LABEL,
     REQUESTS_LABEL,
     REQUESTS_STATIC_LABEL,
@@ -270,7 +277,10 @@ module_to_label (GModule module) {
     CACHE_STATUS_LABEL,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_LABEL,
+    ASN_LABEL,
 #endif
+    MIME_TYPE_LABEL,
+    TLS_TYPE_LABEL,
   };
 
   return _(modules[module]);
@@ -281,7 +291,7 @@ module_to_label (GModule module) {
  * On success, a string containing the label id is returned. */
 const char *
 module_to_id (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_ID,
     REQUESTS_ID,
     REQUESTS_STATIC_ID,
@@ -299,7 +309,10 @@ module_to_id (GModule module) {
     CACHE_STATUS_ID,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_ID,
+    ASN_ID,
 #endif
+    MIME_TYPE_ID,
+    TLS_TYPE_ID,
   };
 
   return _(modules[module]);
@@ -328,7 +341,10 @@ module_to_head (GModule module) {
     CACHE_STATUS_HEAD,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_HEAD,
+    ASN_HEAD,
 #endif
+    MIME_TYPE_HEAD,
+    TLS_TYPE_HEAD,
   };
 
   if (!conf.ignore_crawlers)
@@ -343,7 +359,7 @@ module_to_head (GModule module) {
  * On success, a string containing the label description is returned. */
 const char *
 module_to_desc (GModule module) {
-  static const char *modules[] = {
+  static const char *const modules[] = {
     VISITORS_DESC,
     REQUESTS_DESC,
     REQUESTS_STATIC_DESC,
@@ -361,7 +377,10 @@ module_to_desc (GModule module) {
     CACHE_STATUS_DESC,
 #ifdef HAVE_GEOLOCATION
     GEO_LOCATION_DESC,
+    ASN_DESC,
 #endif
+    MIME_TYPE_DESC,
+    TLS_TYPE_DESC,
   };
 
   return _(modules[module]);
@@ -369,7 +388,7 @@ module_to_desc (GModule module) {
 
 /* Rerender the header window to reflect active module. */
 void
-update_active_module (WINDOW * header_win, GModule current) {
+update_active_module (WINDOW *header_win, GModule current) {
   GColors *color = get_color (COLOR_ACTIVE_LABEL);
   const char *module = module_to_label (current);
   int col = getmaxx (stdscr);
@@ -390,7 +409,7 @@ update_active_module (WINDOW * header_win, GModule current) {
 
 /* Print out (terminal) an overall field label. e.g., 'Processed Time' */
 static void
-render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color) {
+render_overall_field (WINDOW *win, const char *s, int y, int x, GColors *color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -398,7 +417,7 @@ render_overall_field (WINDOW * win, const char *s, int y, int x, GColors * color
 
 /* Print out (terminal) an overall field value. e.g., '120 secs' */
 static void
-render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color) {
+render_overall_value (WINDOW *win, const char *s, int y, int x, GColors *color) {
   wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
   mvwprintw (win, y, x, "%s", s);
   wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
@@ -409,7 +428,7 @@ render_overall_value (WINDOW * win, const char *s, int y, int x, GColors * color
  * On success, the number of excluded ips as a string is returned. */
 static char *
 get_str_excluded_ips (void) {
-  return int2str (ht_get_excluded_ips (), 0);
+  return u642str (ht_get_excluded_ips (), 0);
 }
 
 /* Convert the number of failed requests to a string.
@@ -417,7 +436,7 @@ get_str_excluded_ips (void) {
  * On success, the number of failed requests as a string is returned. */
 static char *
 get_str_failed_reqs (void) {
-  return int2str (ht_get_invalid (), 0);
+  return u642str (ht_get_invalid (), 0);
 }
 
 /* Convert the number of processed requests to a string.
@@ -425,7 +444,7 @@ get_str_failed_reqs (void) {
  * On success, the number of processed requests as a string is returned. */
 static char *
 get_str_processed_reqs (void) {
-  return int2str (ht_get_processed (), 0);
+  return u642str (ht_get_processed (), 0);
 }
 
 /* Convert the number of valid requests to a string.
@@ -433,7 +452,7 @@ get_str_processed_reqs (void) {
  * On success, the number of valid requests as a string is returned. */
 static char *
 get_str_valid_reqs (void) {
-  return int2str (ht_sum_valid (), 0);
+  return u642str (ht_sum_valid (), 0);
 }
 
 /* Convert the number of not found requests to a string.
@@ -442,7 +461,7 @@ get_str_valid_reqs (void) {
  * returned. */
 static char *
 get_str_notfound_reqs (void) {
-  return int2str (ht_get_size_datamap (NOT_FOUND), 0);
+  return u642str (ht_get_size_datamap (NOT_FOUND), 0);
 }
 
 /* Convert the number of referrers to a string.
@@ -450,7 +469,7 @@ get_str_notfound_reqs (void) {
  * On success, the number of referrers as a string is returned. */
 static char *
 get_str_ref_reqs (void) {
-  return int2str (ht_get_size_datamap (REFERRERS), 0);
+  return u642str (ht_get_size_datamap (REFERRERS), 0);
 }
 
 /* Convert the number of requests to a string.
@@ -458,7 +477,7 @@ get_str_ref_reqs (void) {
  * On success, the number of requests as a string is returned. */
 static char *
 get_str_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS), 0);
+  return u642str (ht_get_size_datamap (REQUESTS), 0);
 }
 
 /* Convert the number of static requests to a string.
@@ -466,7 +485,7 @@ get_str_reqs (void) {
  * On success, the number of static requests as a string is returned. */
 static char *
 get_str_static_reqs (void) {
-  return int2str (ht_get_size_datamap (REQUESTS_STATIC), 0);
+  return u642str (ht_get_size_datamap (REQUESTS_STATIC), 0);
 }
 
 /* Convert the number of unique visitors to a string.
@@ -474,7 +493,7 @@ get_str_static_reqs (void) {
  * On success, the number of unique visitors as a string is returned. */
 static char *
 get_str_visitors (void) {
-  return int2str (ht_get_size_uniqmap (VISITORS), 0);
+  return u642str (ht_get_size_uniqmap (VISITORS), 0);
 }
 
 /* Convert the time taken to process the log to a string.
@@ -492,7 +511,7 @@ get_str_proctime (void) {
   return s;
 }
 
-/* Get the log file size in a human readable format.
+/* Get the log file size in a human-readable format.
  *
  * On success, the log file size as a string is returned. */
 static char *
@@ -509,7 +528,7 @@ get_str_logfile (void) {
   return get_log_source_str (col - left_padding);
 }
 
-/* Get the bandwidth in a human readable format.
+/* Get the bandwidth in a human-readable format.
  *
  * On success, the bandwidth as a string is returned. */
 static char *
@@ -547,7 +566,7 @@ get_start_end_parsing_dates (char **start, char **end, const char *f) {
  *
  * On success, an string containing the overall header is returned. */
 char *
-get_overall_header (GHolder * h) {
+get_overall_header (GHolder *h) {
   const char *head = T_DASH_HEAD;
   char *hd = NULL, *start = NULL, *end = NULL;
 
@@ -565,7 +584,7 @@ get_overall_header (GHolder * h) {
 
 /* Print out (terminal dashboard) the overall statistics header. */
 static void
-render_overall_header (WINDOW * win, GHolder * h) {
+render_overall_header (WINDOW *win, GHolder *h) {
   char *hd = get_overall_header (h);
   int col = getmaxx (stdscr);
 
@@ -576,7 +595,7 @@ render_overall_header (WINDOW * win, GHolder * h) {
 /* Render the overall statistics. This will attempt to determine the
  * right X and Y position given the current values. */
 static void
-render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
+render_overall_statistics (WINDOW *win, Field fields[], size_t n) {
   GColors *color = NULL;
   int x_field = 2, x_value;
   size_t i, j, k, max_field = 0, max_value, mod_val, y;
@@ -625,7 +644,7 @@ render_overall_statistics (WINDOW * win, Field fields[], size_t n) {
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW * win, GHolder * h) {
+display_general (WINDOW *win, GHolder *h) {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
@@ -661,37 +680,53 @@ display_general (WINDOW * win, GHolder * h) {
   }
 }
 
+static char *
+set_default_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *str) {
+  char *s = xmalloc (max_width + 1), *tmp;
+  size_t len = 0;
+  size_t size_x = 0, size_y = 0;
+  getmaxyx (win, size_y, size_x);
+  (void) size_y;
+  size_x -= 4;
+
+  /* are we setting a default string */
+  if (!str) {
+    s[0] = '\0';
+    return s;
+  }
+
+  len = MIN (max_width, strlen (str));
+  memcpy (s, str, len);
+  s[len] = '\0';
+
+  /* is the default str length greater than input field? */
+  if (strlen (s) > size_x) {
+    tmp = xstrdup (&s[0]);
+    tmp[size_x] = '\0';
+    mvwprintw (win, pos_y, pos_x, "%s", tmp);
+    free (tmp);
+  } else {
+    mvwprintw (win, pos_y, pos_x, "%s", s);
+  }
+
+  return s;
+}
+
 /* Implement a basic framework to build a field input.
  *
  * On success, the inputted string is returned. */
 char *
-input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
-              const char *str, int enable_case, int *toggle_case) {
-  char *s = xmalloc (max_width + 1), *tmp;
-  size_t i, c, pos = 0, x = 0, quit = 1, len = 0, size_x = 0, size_y = 0;
+input_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *str,
+              int enable_case, int *toggle_case) {
+  char *s = NULL, *tmp;
+  size_t i, c, pos = 0, x = 0, quit = 1, size_x = 0, size_y = 0;
 
   getmaxyx (win, size_y, size_x);
   size_x -= 4;
 
-  /* are we setting a default string */
-  if (str) {
-    len = MIN (max_width, strlen (str));
-    memcpy (s, str, len);
-    s[len] = '\0';
-
+  s = set_default_string (win, pos_y, pos_x, max_width, str);
+  if (str)
     x = pos = 0;
-    /* is the default str length greater than input field? */
-    if (strlen (s) > size_x) {
-      tmp = xstrdup (&s[0]);
-      tmp[size_x] = '\0';
-      mvwprintw (win, pos_y, pos_x, "%s", tmp);
-      free (tmp);
-    } else {
-      mvwprintw (win, pos_y, pos_x, "%s", s);
-    }
-  } else {
-    s[0] = '\0';
-  }
 
   if (enable_case)
     mvwprintw (win, size_y - 2, 1, " %s", CSENSITIVE);
@@ -770,7 +805,7 @@ input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width,
     default:
       if (strlen (s) == max_width)
         break;
-      if (!isprint (c))
+      if (!isprint ((unsigned char) c))
         break;
 
       if (strlen (s) == pos) {
@@ -843,9 +878,9 @@ load_host_agents (const char *addr) {
   GAgents *agents = NULL;
   GSLList *keys = NULL, *list = NULL;
   void *data = NULL;
-  uint32_t items = 4;
+  uint32_t items = 4, key = djb2 ((const unsigned char *) addr);
 
-  keys = ht_get_keymap_list_from_key (HOSTS, addr);
+  keys = ht_get_keymap_list_from_key (HOSTS, key);
   if (!keys)
     return NULL;
 
@@ -869,7 +904,7 @@ load_host_agents (const char *addr) {
  * On error, the 1 is returned.
  * On success, 0 is returned. */
 static int
-fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
+fill_host_agents_gmenu (GMenu *menu, GAgents *agents) {
   int i;
 
   if (agents == NULL)
@@ -887,7 +922,7 @@ fill_host_agents_gmenu (GMenu * menu, GAgents * agents) {
 
 /* Render a list of agents if available for the selected host/IP. */
 void
-load_agent_list (WINDOW * main_win, char *addr) {
+load_agent_list (WINDOW *main_win, char *addr) {
   GMenu *menu;
   GAgents *agents = NULL;
   WINDOW *win;
@@ -900,10 +935,10 @@ load_agent_list (WINDOW * main_win, char *addr) {
     return;
 
   getmaxyx (stdscr, y, x);
-  list_h = y / 2;       /* list window - height */
-  list_w = x - 4;       /* list window - width */
-  menu_h = list_h - AGENTS_MENU_Y - 1;  /* menu window - height */
-  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X;      /* menu window - width */
+  list_h = y / 2; /* list window - height */
+  list_w = x - 4; /* list window - width */
+  menu_h = list_h - AGENTS_MENU_Y - 1; /* menu window - height */
+  menu_w = list_w - AGENTS_MENU_X - AGENTS_MENU_X; /* menu window - width */
 
   win = newwin (list_h, list_w, (y - list_h) / 2, (x - list_w) / 2);
   keypad (win, TRUE);
@@ -941,6 +976,7 @@ load_agent_list (WINDOW * main_win, char *addr) {
 
   touchwin (main_win);
   close_win (win);
+  win = NULL;
   wrefresh (main_win);
 
 out:
@@ -952,6 +988,7 @@ out:
     free (menu->items);
   free (menu);
   free_agents_array (agents);
+  close_win (win);
 }
 
 /* Render the processing spinner. This runs within its own thread. */
@@ -962,9 +999,11 @@ ui_spinner (void *ptr_data) {
 
   static char const spin_chars[] = "/-\\|";
   char buf[SPIN_LBL];
+  const char *fn = NULL;
   int i = 0;
   long long tdiff = 0, psec = 0;
   time_t begin;
+  struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
 
   if (sp->curses)
     color = (*sp->color) ();
@@ -976,16 +1015,18 @@ ui_spinner (void *ptr_data) {
       if (!sp->curses && !conf.no_progress)
         fprintf (stderr, "\n");
 
-      break;
+      pthread_mutex_unlock (&sp->mutex);
+      return;
     }
 
     setlocale (LC_NUMERIC, "");
     if (conf.no_progress) {
       snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
     } else {
+      fn = *sp->filename ? *sp->filename : "restoring";
       tdiff = (long long) (time (NULL) - begin);
-      psec = tdiff >= 1 ? *(sp->processed) / tdiff : 0;
-      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, *(sp->processed), psec);
+      psec = tdiff >= 1 ? **(sp->processed) / tdiff : 0;
+      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, fn, **(sp->processed), psec);
     }
     setlocale (LC_NUMERIC, "POSIX");
 
@@ -999,17 +1040,18 @@ ui_spinner (void *ptr_data) {
       wrefresh (sp->win);
     } else if (!conf.no_progress) {
       /* STDOUT */
-      fprintf (stderr, "%s\r", buf);
+      fprintf (stderr, " \033[K%s\r", buf);
     }
 
     pthread_mutex_unlock (&sp->mutex);
-    usleep (SPIN_UPDATE_INTERVAL);
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+      FATAL ("nanosleep: %s", strerror (errno));
   }
 }
 
 /* Create the processing spinner's thread */
 void
-ui_spinner_create (GSpinner * spinner) {
+ui_spinner_create (GSpinner *spinner) {
   if (conf.no_parsing_spinner)
     return;
 
@@ -1019,7 +1061,7 @@ ui_spinner_create (GSpinner * spinner) {
 
 /* Initialize processing spinner data. */
 void
-set_curses_spinner (GSpinner * spinner) {
+set_curses_spinner (GSpinner *spinner) {
   int y, x;
   if (spinner == NULL)
     return;
@@ -1033,6 +1075,20 @@ set_curses_spinner (GSpinner * spinner) {
   spinner->w = x;
   spinner->spin_x = x - 2;
   spinner->y = y - 1;
+}
+
+/* Determine if we need to lock the mutex. */
+void
+lock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_lock (&parsing_spinner->mutex);
+}
+
+/* Determine if we need to unlock the mutex. */
+void
+unlock_spinner (void) {
+  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+    pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
 /* Allocate memory for a spinner instance and initialize its data.
@@ -1058,7 +1114,7 @@ new_gspinner (void) {
 /* A wrapper call to clear the status bar on the config dialog
  * (terminal output). */
 static void
-clear_confdlg_status_bar (WINDOW * win, int y, int x, int w) {
+clear_confdlg_status_bar (WINDOW *win, int y, int x, int w) {
   draw_header (win, "", "%s", y, x, w + 1, color_default);
 }
 
@@ -1102,7 +1158,7 @@ get_input_log_format (void) {
 }
 
 static void
-draw_formats (WINDOW * win, int w2) {
+draw_formats (WINDOW *win, int w2) {
   char *date_format = NULL, *log_format = NULL, *time_format = NULL;
 
   draw_header (win, CONFDLG_HEAD, " %s", 1, 1, w2, color_panel_header);
@@ -1158,6 +1214,9 @@ set_formats (char *date_format, char *log_format, char *time_format) {
     conf.log_format = unescape_str (log_format);
   }
 
+  if (is_json_log_format (conf.log_format))
+    conf.is_json_log_format = 1;
+
   set_spec_date_format ();
 
   return NULL;
@@ -1165,7 +1224,7 @@ set_formats (char *date_format, char *log_format, char *time_format) {
 
 /* Render the help dialog. */
 static void
-load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
+load_confdlg_error (WINDOW *parent_win, char **errors, int nerrors) {
   int c, quit = 1, i = 0;
   int y, x, h = ERR_WIN_HEIGHT, w = ERR_WIN_WIDTH;
   WINDOW *win;
@@ -1227,7 +1286,7 @@ load_confdlg_error (WINDOW * parent_win, char **errors, int nerrors) {
  * On error, or if the selected format is invalid, 1 is returned.
  * On success, 0 is returned. */
 int
-render_confdlg (GLog * glog, GSpinner * spinner) {
+render_confdlg (Logs *logs, GSpinner *spinner) {
   GMenu *menu;
   WINDOW *win;
 
@@ -1239,17 +1298,20 @@ render_confdlg (GLog * glog, GSpinner * spinner) {
   size_t i, n, sel;
 
   /* conf dialog menu options */
-  const char *choices[] = {
+  static const char *const choices[] = {
     "NCSA Combined Log Format",
     "NCSA Combined Log Format with Virtual Host",
     "Common Log Format (CLF)",
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
-    "Squid Native Format",
     "CloudFront (Download Distribution)",
     "Google Cloud Storage",
     "AWS Elastic Load Balancing (HTTP/S)",
+    "Squid Native Format",
     "AWS Simple Storage Service (S3)",
+    "CADDY JSON Structured",
+    "AWS Application Load Balancer",
+    "Traefik CLF flavor"
   };
   n = ARRAY_SIZE (choices);
   getmaxyx (stdscr, y, x);
@@ -1306,9 +1368,9 @@ render_confdlg (GLog * glog, GSpinner * spinner) {
         log_format = get_selected_format_str (i);
         time_format = get_selected_time_str (i);
 
-        mvwprintw (win, 12, 1, " %s", log_format);
-        mvwprintw (win, 15, 1, " %s", date_format);
-        mvwprintw (win, 18, 1, " %s", time_format);
+        free (set_default_string (win, 12, 2, CONF_MENU_W, log_format));
+        free (set_default_string (win, 15, 2, CONF_MENU_W, date_format));
+        free (set_default_string (win, 18, 2, CONF_MENU_W, time_format));
         break;
       }
       break;
@@ -1321,7 +1383,7 @@ render_confdlg (GLog * glog, GSpinner * spinner) {
       if (!log_format)
         log_format = get_input_log_format ();
 
-      cstm_log = input_string (win, 12, 2, 70, log_format, 0, 0);
+      cstm_log = input_string (win, 12, 2, CONF_MAX_LEN_DLG, log_format, 0, 0);
       if (cstm_log != NULL && *cstm_log != '\0') {
         if (log_format)
           free (log_format);
@@ -1405,13 +1467,13 @@ render_confdlg (GLog * glog, GSpinner * spinner) {
         int nerrors = 0;
 
         /* test log against selected settings */
-        if ((errors = test_format (glog, &nerrors))) {
+        if ((errors = test_format (logs, &nerrors))) {
           invalid = 1;
           load_confdlg_error (win, errors, nerrors);
         }
         /* valid data, reset glog & start parsing */
         else {
-          reset_struct (glog);
+          reset_struct (logs);
           /* start spinner thread */
           spinner->win = win;
           spinner->y = 3;
@@ -1497,7 +1559,7 @@ get_color_schemes (size_t *size) {
 
 /* Render the schemes dialog. */
 void
-load_schemes_win (WINDOW * main_win) {
+load_schemes_win (WINDOW *main_win) {
   GMenu *menu;
   WINDOW *win;
   int c, quit = 1;
@@ -1572,7 +1634,7 @@ load_schemes_win (WINDOW * main_win) {
 
 /* Render the sort dialog. */
 void
-load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
+load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
   GMenu *menu;
   WINDOW *win;
   GSortField opts[SORT_MAX_OPTS];
@@ -1755,9 +1817,9 @@ load_sort_win (WINDOW * main_win, GModule module, GSort * sort) {
 }
 
 /* Help menu data (F1/h). */
-static const char *help_main[] = {
-  "Copyright (C) 2009-2017 by Gerardo Orellana",
-  "http://goaccess.io - <hello@goaccess.io>",
+static const char *const help_main[] = {
+  "Copyright (C) 2009-2024 by Gerardo Orellana",
+  "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",
   "See `man` page for more details",
@@ -1810,7 +1872,7 @@ static const char *help_main[] = {
 
 /* Render the help dialog. */
 void
-load_help_popup (WINDOW * main_win) {
+load_help_popup (WINDOW *main_win) {
   int c, quit = 1;
   size_t i, n;
   int y, x, h = HELP_WIN_HEIGHT, w = HELP_WIN_WIDTH;

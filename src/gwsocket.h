@@ -6,7 +6,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -61,7 +61,7 @@ GWSWriter *new_gwswriter (void);
 int broadcast_holder (int fd, const char *buf, int len);
 int open_fifoin (void);
 int open_fifoout (void);
-int read_fifo (GWSReader * gwsreader, fd_set rfds, fd_set wfds, void (*f) (int));
+int read_fifo (GWSReader * gwsreader, void (*f) (int));
 int send_holder_to_client (int fd, int listener, const char *buf, int len);
 int setup_ws_server (GWSWriter * gwswriter, GWSReader * gwsreader);
 void set_ready_state (void);

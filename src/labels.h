@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,14 @@
 #ifndef LABELS_H_INCLUDED
 #define LABELS_H_INCLUDED
 
+#ifdef ENABLE_NLS
 #include <libintl.h>
 
 #define _(String) dgettext (PACKAGE , String)
+#else
+#define _(String) (String)
+#endif
+
 #define gettext_noop(String) String
 #define N_(String) gettext_noop (String)
 
@@ -61,7 +66,7 @@
 #define T_DATETIME               _( "Date/Time")
 #define T_EXCLUDE_IP             _( "Excl. IP Hits")
 #define T_FAILED                 _( "Failed Requests")
-#define T_GEN_TIME               _( "Init. Proc. Time")
+#define T_GEN_TIME               _( "Log Parsing Time")
 #define T_LOG                    _( "Log Size")
 #define T_LOG_PATH               _( "Log Source")
 #define T_REFERRER               _( "Referrers")
@@ -87,6 +92,7 @@
 #define MTRC_PROTOCOLS_LBL       _( "Protocol")
 #define MTRC_PROTOCOLS_SHORT_LBL _( "Proto")
 #define MTRC_CITY_LBL            _( "City")
+#define MTRC_ASB_LBL             _( "ASN")
 #define MTRC_COUNTRY_LBL         _( "Country")
 #define MTRC_HOSTNAME_LBL        _( "Hostname")
 #define MTRC_DATA_LBL            _( "Data")
@@ -174,7 +180,7 @@
   N_("Browsers")
 
 #define REFERRERS_HEAD                 \
-  N_("Referrers URLs")
+  N_("Referrer URLs")
 #define REFERRERS_DESC                 \
   N_("Top Requested Referrers sorted by hits [, avgts, cumts, maxts]")
 #define REFERRERS_LABEL                \
@@ -201,12 +207,33 @@
 #define GEO_LOCATION_LABEL             \
   N_("Geo Location")
 
+#define ASN_HEAD                 \
+  N_("ASN")
+#define ASN_DESC                 \
+  N_("Autonomous System Numbers/Organizations (ASNs)")
+#define ASN_LABEL                \
+  N_("ASN")
+
 #define STATUS_CODES_HEAD              \
   N_("HTTP Status Codes")
 #define STATUS_CODES_DESC              \
   N_("Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]")
 #define STATUS_CODES_LABEL             \
   N_("Status Codes")
+
+#define MIME_TYPE_HEAD                 \
+  N_("MIME Types")
+#define MIME_TYPE_DESC                 \
+  N_("File types shipped out")
+#define MIME_TYPE_LABEL                \
+  N_("MIME Types")
+
+#define TLS_TYPE_HEAD				\
+  N_("Encryption settings")
+#define TLS_TYPE_DESC                 \
+  N_("TLS version and picked algorithm")
+#define TLS_TYPE_LABEL                \
+  N_("TLS Settings")
 
 /* Find Labels */
 #define CISENSITIVE                    \
@@ -287,6 +314,12 @@
   _("Select a log format.")
 #define ERR_PANEL_DISABLED             \
   _("'%1$s' panel is disabled")
+#define ERR_NO_DATA_PASSED             \
+  _("No input data was provided nor there's data to restore.")
+#define ERR_LOG_REALLOC_FAILURE_MSG    \
+  _("Unable to allocate memory for a log instance.")
+#define ERR_LOG_NOT_FOUND_MSG          \
+  _("Unable to find the given log.")
 
 /* Other */
 #define INFO_MORE_INFO                 \
@@ -325,6 +358,8 @@
   N_("Auto-Hide on Small Devices")
 #define HTML_REPORT_NAV_AH_SMALL_TITLE \
   N_("Automatically hide tables on small screen devices")
+#define HTML_REPORT_NAV_TOGGLE_PANEL   \
+  N_("Toggle Panel")
 #define HTML_REPORT_NAV_LAYOUT         \
   N_("Layout")
 #define HTML_REPORT_NAV_HOR            \
@@ -357,12 +392,16 @@
   N_("Area Spline")
 #define HTML_REPORT_PANEL_BAR          \
   N_("Bar")
+#define HTML_REPORT_PANEL_WMAP         \
+  N_("World Map")
 #define HTML_REPORT_PANEL_PLOT_METRIC  \
   N_("Plot Metric")
 #define HTML_REPORT_PANEL_TABLE_COLS   \
   N_("Table Columns")
 
 /* Status Codes */
+#define STATUS_CODE_0XX               \
+  N_("0xx Unofficial Codes")
 #define STATUS_CODE_1XX               \
   N_("1xx Informational")
 #define STATUS_CODE_2XX               \
@@ -374,6 +413,8 @@
 #define STATUS_CODE_5XX               \
   N_("5xx Server Errors")
 
+#define STATUS_CODE_0                 \
+  N_("0 - Caddy: Unhandled - No configured routes")
 #define STATUS_CODE_100               \
   N_("100 - Continue: Server received the initial part of the request")
 #define STATUS_CODE_101               \
@@ -396,6 +437,8 @@
   N_("207 - Multi-Status: WebDAV; RFC 4918")
 #define STATUS_CODE_208               \
   N_("208 - Already Reported: WebDAV; RFC 5842")
+#define STATUS_CODE_218               \
+  N_("218 - This is fine: Apache servers. A catch-all error condition")
 #define STATUS_CODE_300               \
   N_("300 - Multiple Choices: Multiple options for the resource")
 #define STATUS_CODE_301               \
@@ -449,7 +492,11 @@
 #define STATUS_CODE_417               \
   N_("417 - Expectation Failed")
 #define STATUS_CODE_418               \
-  N_("418 - I’m a teapot")
+  N_("418 - I'm a teapot")
+#define STATUS_CODE_419               \
+  N_("419 - Page Expired: Laravel Framework when a CSRF Token is missing")
+#define STATUS_CODE_420               \
+  N_("420 - Method Failure: Spring Framework when a method has failed")
 #define STATUS_CODE_421               \
   N_("421 - Misdirected Request")
 #define STATUS_CODE_422               \
@@ -464,12 +511,26 @@
   N_("428 - Precondition Required")
 #define STATUS_CODE_429               \
   N_("429 - Too Many Requests: The user has sent too many requests")
+#define STATUS_CODE_430               \
+  N_("430 - Request Header Fields Too Large: Too many URLs are requested within a certain time frame")
 #define STATUS_CODE_431               \
   N_("431 - Request Header Fields Too Large")
+#define STATUS_CODE_440               \
+  N_("440 - Login Time-out: The client's session has expired")
+#define STATUS_CODE_449               \
+  N_("449 - Retry With: The server cannot honour the request")
+#define STATUS_CODE_450               \
+  N_("450 - Blocked by Windows Parental Controls: The Microsoft extension code indicated")
 #define STATUS_CODE_451               \
   N_("451 - Unavailable For Legal Reasons")
 #define STATUS_CODE_444               \
   N_("444 - (Nginx) Connection closed without sending any headers")
+#define STATUS_CODE_460               \
+  N_("460 - AWS Elastic Load Balancing: Client closed the connection ")
+#define STATUS_CODE_463               \
+  N_("463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP addresses")
+#define STATUS_CODE_464               \
+  N_("464 - AWS Elastic Load Balancing: Incompatible protocol versions")
 #define STATUS_CODE_494               \
   N_("494 - (Nginx) Request Header Too Large")
 #define STATUS_CODE_495               \
@@ -478,6 +539,8 @@
   N_("496 - (Nginx) Client didn't provide certificate")
 #define STATUS_CODE_497               \
   N_("497 - (Nginx) HTTP request sent to HTTPS port")
+#define STATUS_CODE_498               \
+  N_("498 - Invalid Token: an expired or otherwise invalid token")
 #define STATUS_CODE_499               \
   N_("499 - (Nginx) Connection closed by client while processing request")
 #define STATUS_CODE_500               \
@@ -492,6 +555,8 @@
   N_("504 - Gateway Timeout: The upstream server failed to send request")
 #define STATUS_CODE_505               \
   N_("505 - HTTP Version Not Supported")
+#define STATUS_CODE_509               \
+  N_("509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth")
 #define STATUS_CODE_520               \
   N_("520 - CloudFlare - Web server is returning an unknown error")
 #define STATUS_CODE_521               \
@@ -502,5 +567,25 @@
   N_("523 - CloudFlare - Origin is unreachable")
 #define STATUS_CODE_524               \
   N_("524 - CloudFlare - A timeout occurred")
+#define STATUS_CODE_525               \
+  N_("525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS handshake")
+#define STATUS_CODE_526               \
+  N_("526 - Invalid SSL Certificate: Cloudflare could not validate the SSL certificate")
+#define STATUS_CODE_527               \
+  N_("527 - Railgun Error: An interrupted connection")
+#define STATUS_CODE_529               \
+  N_("529 - Site is overloaded: A site can not process the request")
+#define STATUS_CODE_530               \
+  N_("530 - Site is frozen: A site has been frozen due to inactivity")
+#define STATUS_CODE_540               \
+  N_("540 - Temporarily Disabled: The requested endpoint has been temporarily disabled")
+#define STATUS_CODE_561               \
+  N_("561 - Unauthorized: An error around authentication")
+#define STATUS_CODE_598               \
+  N_("598 - Network read timeout error: some HTTP proxies to signal a network read timeout")
+#define STATUS_CODE_599               \
+  N_("599 - Network Connect Timeout Error: An error used by some HTTP proxies")
+#define STATUS_CODE_783               \
+  N_("783 - Unexpected Token: The request includes a JSON syntax error")
 
 #endif // for #ifndef LABELS_H

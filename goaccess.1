@@ -1,4 +1,4 @@
-.TH goaccess 1 "MAY 2020" Linux "User Manuals"
+.TH goaccess 1 "APRIL 2024" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -31,8 +31,9 @@ crawlers/spiders.
 .IP
 Optionally, date specificity can be set to the hour level using
 .I --date-spec=hr
-which will display dates such as 05/Jun/2016:16. This is great if you want to
-track your daily traffic at the hour level.
+which will display dates such as 05/Jun/2016:16, or to the minute level
+producing 05/Jun/2016:16:59. This is great if you want to track your daily
+traffic at the hour or minute level.
 .IP "Requested files"
 This panel displays the most requested (non-static) files on your web server.
 It shows hits, unique visitors, and percentage, along with the cumulative
@@ -96,6 +97,9 @@ down by continent and country. It needs to be compiled with GeoLocation
 support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
+.IP "ASN"
+This panel displays ASN (Autonomous System Numbers) data for GeoIP2 and legacy
+databases. Great for detecting malicious traffic and blocking accordingly.
 .IP "Remote User (HTTP authentication)"
 This is the userid of the person requesting the document as determined by HTTP
 authentication. If the document is not password protected, this part will be
@@ -110,6 +114,19 @@ enabled unless
 .I %C
 is given within the log-format variable. The status can be either
  `MISS`, `BYPASS`, `EXPIRED`, `STALE`, `UPDATING`, `REVALIDATED` or `HIT`
+.IP "MIME Types"
+This panel specifies Media Types (formerly known as MIME types) and Media
+Subtypes which will be assigned and listed underneath. This panel is not
+enabled unless
+.I %M
+is given within the log-format variable. See
+https://www.iana.org/assignments/media-types/media-types.xhtml for more
+details.
+.IP "Encryption Settings"
+This panel shows the SSL/TLS protocol used along the Cipher Suites. This panel
+is not enabled unless
+.I %K
+is given within the log-format variable.
 
 .P
 .I NOTE:
@@ -169,7 +186,10 @@ They all begin with a percentage (%) sign. See `man strftime`.
 .IP
 Note that if a timestamp is given in microseconds,
 .I %f
-must be used as time-format
+must be used as time-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as time-format.
 .TP
 \fB\-\-date-format=<dateformat>
 The date-format variable followed by a space, specifies the log format time
@@ -182,7 +202,23 @@ They all begin with a percentage (%) sign. See `man strftime`.
 Note that if a timestamp is given in microseconds,
 .I
 %f
-must be used as date-format
+must be used as date-format.
+If the timestamp is given in milliseconds
+.I %*
+must be used as date-format.
+.TP
+\fB\-\-datetime-format=<date_time_format>
+The date and time format combines the two variables into a single option. This
+gives the ability to get the timezone from a request and convert it to another
+timezone for output. See
+.I --tz=<timezone>
+.IP
+They all begin with a percentage (%) sign. See `man strftime`. e.g.,
+.I %d/%b/%Y:%H:%M:%S %z.
+.IP
+Note that if --datetime-format is used,
+.I %x
+must be passed in the log-format variable to represent the date and time field.
 .TP
 \fB\-\-log-format=<logformat>
 The log-format variable followed by a space or
@@ -207,11 +243,23 @@ one variable and another predefined name in another variable.
   CLOUDSTORAGE - Google Cloud Storage,
   AWSELB       - Amazon Elastic Load Balancing,
   AWSS3        - Amazon Simple Storage Service (S3)
+  AWSALB       - Amazon Application Load Balancer
+  CADDY        - Caddy's JSON Structured format (local/info format)
+  TRAEFIKCLF   - Traefik's CLF flavor
+.IP
+.I Note:
+Generally, you need quotes around values that include white spaces, commas,
+pipes, quotes, and/or brackets. Inner quotes must be escaped.
 .IP
 .I Note:
 Piping data into GoAccess won't prompt a log/date/time configuration dialog,
 you will need to previously define it in your configuration file or in the
 command line.
+.IP
+.I Note:
+The default GoAccess format for CADDY is the 'local/info' format. Nevertheless,
+if needed, you have the option to utilize a custom GoAccess log format to match
+your particular configuration.
 .SS
 USER INTERFACE OPTIONS
 .TP
@@ -298,6 +346,10 @@ Specifies a custom JS file path to load in the HTML report.
 \fB\-\-html-report-title=<title>
 Set HTML report page title and header.
 .TP
+\fB\-\-html-refresh=<secs>
+Refresh the HTML report every X seconds. The value has to be between 1 and 60
+seconds. The default is set to refresh the HTML report every 1 second.
+.TP
 \fB\-\-html-prefs=<JSON>
 Set HTML report default preferences. Supply a valid JSON object containing the
 HTML preferences. It allows the ability to customize each panel plot. See
@@ -348,8 +400,28 @@ Do not show the last updated field displayed in the HTML generated report.
 .TP
 \fB\-\-no-parsing-spinner
 Do now show the progress metrics and parsing spinner.
+.TP
+\fB\-\-tz=<timezone>
+Outputs the report date/time data in the given timezone. Note that it uses the
+canonical timezone name. e.g.,
+.I Europe/Berlin
+or
+.I America/Chicago
+or
+.I Africa/Cairo
+If an invalid timezone name is given, the output will be in GMT. See
+.I --datetime-format
+in order to properly specify a timezone in the date/time format.
 .SS
 SERVER OPTIONS
+.P
+.I Note
+This is just a WebSocket server to provide the raw real-time data.
+It is not a WebServer itself. To access your reports html file, you will
+still need your own HTTP server, place the generated report in it's document
+root dir and open the html file in your browser. The browser will then open
+another WebSocket-connection to the ws-server you may setup here,
+to keep the dashboard up-to-date.
 .TP
 \fB\-\-addr
 Specify IP address to bind the server to. Otherwise it binds to 0.0.0.0.
@@ -409,6 +481,10 @@ By default, it will attempt to connect to the generated report's hostname. If
 GoAccess is running on a remote server, the host of the remote server should be
 specified here. Also, make sure it is a valid host and NOT an http address.
 .TP
+\fB\-\-ping-interval=<secs>
+Enable WebSocket ping with specified interval in seconds. This helps prevent
+idle connections getting disconnected.
+.TP
 \fB\-\-fifo-in=<path/file>
 Creates a named pipe (FIFO) that reads from on the given path/file.
 .TP
@@ -447,8 +523,19 @@ Send all debug messages to the specified file.
 Specify a custom configuration file to use. If set, it will take priority over
 the global configuration file (if any).
 .TP
+\fB\-\-external-assets
+Output HTML assets to external JS/CSS files. Great if you are setting up
+Content Security Policy (CSP). This will create two separate files,
+.I goaccess.js
+and
+.I goaccess.css
+, in the same directory as your report.html file.
+.TP
 \fB\-\-invalid-requests=<filename>
 Log invalid requests to the specified file.
+.TP
+\fB\-\-unknowns-log=<filename>
+Log unknown browsers and OSs to the specified file.
 .TP
 \fB\-\-no-global-config
 Do not load the global configuration file. This directory should normally be
@@ -466,7 +553,8 @@ flag.
 Enable IP resolver on HTML|JSON output.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
-Exclude an IPv4 or IPv6 from being counted.
+Exclude an IPv4 or IPv6 from being counted. Applicable solely during access log
+data processing, it does not exclude persisted data.
 Ranges can be included as well using a dash in between the IPs (start-end).
 .IP
 .I Examples:
@@ -474,6 +562,13 @@ Ranges can be included as well using a dash in between the IPs (start-end).
   exclude-ip 192.168.0.1-192.168.0.100
   exclude-ip ::1
   exclude-ip 0:0:0:0:0:ffff:808:804-0:0:0:0:0:ffff:808:808
+.TP
+\fB\-j \-\-jobs=<1-6>
+This specifies the number of parallel processing threads to be used during the
+execution of the program. It determines the degree of concurrency when
+analyzing log data, allowing for parallel processing of multiple tasks
+simultaneously. It defaults to 1 thread. It's common to set the number of jobs
+based on the available hardware resources, such as the number of CPU cores.
 .TP
 \fB\-H \-\-http-protocol=<yes|no>
 Set/unset HTTP request protocol. This will create a request key containing the
@@ -514,6 +609,46 @@ octet of IPv4 user IP addresses and the last 80 bits of IPv6 addresses to
 zeros.
 e.g., 192.168.20.100 => 192.168.20.0
 e.g., 2a03:2880:2110:df07:face:b00c::1 => 2a03:2880:2110:df07::
+.IP
+.I Note:
+This deactivates -a.
+.TP
+\fB\-\-chunk-size=<256-32768>
+This determines the number of lines that form a chunk. This parameter
+influences the size of the data processed concurrently by each thread, allowing
+for parallelization of the file reading and processing tasks. The value of
+chunk-size affects the efficiency of the parallel processing and can be
+adjusted based on factors such as system resources and the characteristics of
+the input data.
+
+.IP
+Low Values: If chunk-size is set too low, it might result in inefficient
+processing. For instance, if each chunk contains a very small number of lines,
+the overhead of managing and coordinating parallel processing might outweigh
+the benefits.
+
+.IP
+Large Values: Conversely, if chunk-size is set too high, it could lead to
+resource exhaustion. Each chunk represents a portion of data that a thread
+processes in parallel. Setting chunk-size to an excessively large value might
+cause memory issues, particularly if there are many parallel threads running
+simultaneously.
+.TP
+\fB\-\-anonymize-level
+Specifies the anonymization levels: 1 => default, 2 => strong, 3 => pedantic.
+.TS
+allbox;
+lb lb lb lb
+l l l l.
+Bits-hidden	Level 1	Level 2	Level 3
+T{
+.BR IPv4
+T}	8	16	24
+T{
+.BR IPv6
+T}	64	80	96
+.TE
+
 .TP
 \fB\-\-all-static-files
 Include static files that contain a query string. e.g.,
@@ -526,16 +661,16 @@ Include an additional delimited list of browsers/crawlers/feeds etc.
 See config/browsers.list for an example or
 https://raw.githubusercontent.com/allinurl/goaccess/master/config/browsers.list
 .TP
-\fB\-\-date-spec=<date|hr>
-Set the date specificity to either date (default) or hr to display hours
-appended to the date.
+\fB\-\-date-spec=<date|hr|min>
+Set the date specificity to either date (default), hr to display hours or min
+to display minutes appended to the date.
 .IP
 This is used in the visitors panel. It's useful for tracking visitors at the
 hour level. For instance, an hour specificity would yield to display traffic as
-18/Dec/2010:19
+18/Dec/2010:19 or minute specificity 18/Dec/2010:19:59.
 .TP
 \fB\-\-double-decode
-Decode double-encoded values. This includes, user-agent, request, and referer.
+Decode double-encoded values. This includes, user-agent, request, and referrer.
 .TP
 \fB\-\-enable-panel=<PANEL>
 Enable parsing and displaying the given panel.
@@ -555,10 +690,19 @@ Enable parsing and displaying the given panel.
   KEYPHRASES
   STATUS_CODES
   REMOTE_USER
+  CACHE_STATUS
   GEO_LOCATION
+  MIME_TYPE
+  TLS_TYPE
 .TP
-\fB\-\-hide-referer=<NEEDLE>
-Hide a referer but still count it. Wild cards are allowed in the needle. i.e.,
+\fB\-\-fname-as-vhost=<regex>
+Use log filename(s) as virtual host(s). POSIX regex is passed to extract
+the virtual host from the filename. e.g.,
+.I --fname-as-vhost='[a-z]*\.[a-z]*'
+can be used to extract awesome.com.log => awesome.com.
+.TP
+\fB\-\-hide-referrer=<NEEDLE>
+Hide a referrer but still count it. Wild cards are allowed in the needle. i.e.,
 *.bing.com.
 .TP
 \fB\-\-hour-spec=<hr|min>
@@ -570,6 +714,9 @@ traffic on your server at specific times.
 .TP
 \fB\-\-ignore-crawlers
 Ignore crawlers from being counted.
+.TP
+\fB\-\-unknowns-as-crawlers
+Classify unknown OS and browsers as crawlers.
 .TP
 \fB\-\-ignore-panel=<PANEL>
 Ignore parsing and displaying the given panel.
@@ -589,9 +736,13 @@ Ignore parsing and displaying the given panel.
   KEYPHRASES
   STATUS_CODES
   REMOTE_USER
+  CACHE_STATUS
+  GEO_LOCATION
+  MIME_TYPE
+  TLS_TYPE
 .TP
-\fB\-\-ignore-referer=<referer>
-Ignore referers from being counted. Wildcards allowed. e.g.,
+\fB\-\-ignore-referrer=<referrer>
+Ignore referrers from being counted. Wildcards allowed. e.g.,
 .I
 *.domain.com
 .I
@@ -622,6 +773,11 @@ The log still needs to contain a placeholder for
 .I %h
 usually it's a resolved IP. e.g.
 .I ord37s19-in-f14.1e100.net.
+.TP
+\fB\-\-no-strict-status
+Disable HTTP status code validation. Some servers would record this value only
+if a connection was established to the target and the target sent a response.
+Otherwise, it could be recorded as -.
 .TP
 \fB\-\-num-tests=<number>
 Number of lines from the access log to test against the provided log/date/time
@@ -742,6 +898,10 @@ If a timestamp is given in microseconds,
 must be used as
 .I
 time-format
+or
+.I
+%*
+if the timestamp is given in milliseconds.
 .IP "date-format"
 The
 .I date-format
@@ -757,6 +917,10 @@ If a timestamp is given in microseconds,
 must be used as
 .I
 date-format
+or
+.I
+%*
+if the timestamp is given in milliseconds.
 .IP "log-format"
 The
 .I log-format
@@ -815,12 +979,20 @@ The size of the object returned to the client.
 The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
+.IP %K
+The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_PROTOCOL}x)
+.IP %k
+The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_CIPHER}x)
+.IP %M
+The MIME-type of the requested resource. (In Apache LogFormat: %{Content-Type}o)
 .IP %D
 The time taken to serve the request, in microseconds as a decimal number.
 .IP %T
 The time taken to serve the request, in seconds with milliseconds resolution.
 .IP %L
 The time taken to serve the request, in milliseconds as a decimal number.
+.IP %n
+The time taken to serve the request, in nanoseconds.
 .IP %^
 Ignore this field.
 .IP %~
@@ -830,10 +1002,31 @@ The host (the client IP address, either IPv4 or IPv6) in a X-Forwarded-For (XFF)
 
 It uses a special specifier which consists of a tilde before the host
 specifier, followed by the character(s) that delimit the XFF field, which are
-enclosed by curly braces (i.e., ~h{," })
+enclosed by curly braces. i.e., "~h{, }
 
-For example, ~h{," } is used in order to parse "11.25.11.53, 17.68.33.17" field
-which is delimited by a double quote, a comma, and a space.
+For example, "~h{, }" is used in order to parse "11.25.11.53, 17.68.33.17" field
+which is delimited by a comma and a space (enclosed by double quotes).
+
+.TS
+allbox;
+lb lb
+l l.
+XFF field	specifier
+T{
+.BR \[dq]192.1.2.3, \~192.68.33.17,\~192.1.1.2\[dq]
+T}	\[dq]~h{, }\[dq]
+T{
+.BR \[dq]192.1.2.12\[dq],\~\[dq]192.68.33.17\[dq]
+T}	~h{\[dq], }
+T{
+.BR 192.1.2.12,\~192.68.33.17
+T}	~h{, }
+T{
+.BR 192.1.2.14\~192.68.33.17\~192.1.1.2
+T}	~h{ }
+.TE
+
+
 .P
 .I Note:
 In order to get the average, cumulative and maximum time served in GoAccess,
@@ -940,6 +1133,10 @@ or to parse from the beginning of the file while maintaining the pipe opened
 and applying a filter
 .IP
 # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -o report.html --real-time-html -
+.P
+or to convert the log date timezone to a different timezone, e.g., Europe/Berlin
+.IP
+# goaccess access.log --log-format='%h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' --tz=Europe/Berlin --date-spec=min
 .SS
 MULTIPLE LOG FILES
 .P
@@ -1070,7 +1267,12 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine:
 .IP
-# ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
+# ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
+.P
+Note: SSH requires
+.I -n
+so GoAccess can read from stdin. Also, make sure to use SSH keys for
+authentication as it won't work if a passphrase is required.
 .SS
 INCREMENTAL LOG PROCESSING
 .P
@@ -1091,14 +1293,17 @@ original dataset.
 NOTES
 
 GoAccess keeps track of inodes of all the files processed (assuming files will
-stay on the same partition) along with the last line parsed of each file and
-the timestamp of the last line parsed. e.g.,
+stay on the same partition), in addition, it extracts a snippet of data from
+the log along with the last line parsed of each file and the timestamp of the
+last line parsed. e.g.,
 inode:29627417|line:20012|ts:20171231235059
 
-If the inode does not match the current file, it parses all lines. If the
-current file matches the inode, it then reads the remaining lines and updates
-the count of lines parsed and the timestamp. As an extra precaution, it won't
-parse log lines with a timestamp ≤ than the one stored.
+First it compares if the snippet matches the log being parsed, if it does, it
+assumes the log hasn't changed dramatically, e.g., hasn't been truncated. If
+the inode does not match the current file, it parses all lines. If the current
+file matches the inode, it then reads the remaining lines and updates the count
+of lines parsed and the timestamp. As an extra precaution, it won't parse log
+lines with a timestamp ≤ than the one stored.
 
 Piped data works based off the timestamp of the last line read. For instance,
 it will parse and discard all incoming entries until it finds a timestamp >=
@@ -1125,16 +1330,25 @@ To read persisted data only (without parsing new data)
 Each active panel has a total of 366 items or 50 in the real-time HTML report.
 The number of items is customizable using
 .I max-items
-However, only the CSV and JSON output allow a maximum number greater than the
+Note that HTML, CSV and JSON output allow a maximum number greater than the
 default value of 366 items per panel.
 .P
 A hit is a request (line in the access log), e.g., 10 requests = 10 hits. HTTP
 requests with the same IP, date, and user agent are considered a unique visit.
+.P
+
+If you want to enable dual-stack support, please use
+.I --addr=::
+instead of the default
+.I --addr=0.0.0.0.
+.P
+The generated report will attempt to reconnect to the WebSocket server after 1
+second with exponential backoff. It will attempt to connect 20 times.
 .SH BUGS
 If you think you have found a bug, please send me an email to
 .I goaccess@prosoftcorp.com
 or use the issue tracker in https://github.com/allinurl/goaccess/issues
 .SH AUTHOR
-Gerardo Orellana <goaccess@prosoftcorp.com>
+Gerardo Orellana <hello@goaccess.io>
 For more details about it, or new releases, please visit
 https://goaccess.io

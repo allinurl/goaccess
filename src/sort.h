@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -40,9 +40,9 @@
 #define SORT_MAX_OPTS   11
 
 /* See GEnum for mapping */
-#define SORT_FIELD_LEN  11 + 1  /* longest metric name */
-#define SORT_MODULE_LEN 15 + 1  /* longest module name */
-#define SORT_ORDER_LEN   4 + 1  /* length of ASC or DESC */
+#define SORT_FIELD_LEN  11 + 1 /* longest metric name */
+#define SORT_MODULE_LEN 15 + 1 /* longest module name */
+#define SORT_ORDER_LEN   4 + 1 /* length of ASC or DESC */
 
 /* Enumerated sorting metrics */
 typedef enum GSortField_ {
@@ -71,7 +71,7 @@ typedef struct GSort_ {
 } GSort;
 
 extern GSort module_sort[TOTAL_MODULES];
-extern const int sort_choices[][SORT_MAX_OPTS];;
+extern const int sort_choices[][SORT_MAX_OPTS];
 
 GRawData *sort_raw_num_data (GRawData * raw_data, int ht_size);
 GRawData *sort_raw_str_data (GRawData * raw_data, int ht_size);
@@ -83,6 +83,7 @@ int get_sort_field_enum (const char *str);
 int get_sort_order_enum (const char *str);
 int strcmp_asc (const void *a, const void *b);
 int cmp_ui32_asc (const void *a, const void *b);
+int cmp_ui32_desc (const void *a, const void *b);
 void parse_initial_sort (void);
 void set_initial_sort (const char *smod, const char *sfield, const char *ssort);
 void sort_holder_items (GHolderItem * items, int size, GSort sort);

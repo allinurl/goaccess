@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,18 +49,18 @@
 #include "commons.h"
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8     /* minimum window height */
-#define MIN_WIDTH         0     /* minimum window width */
-#define MAX_HEIGHT_FOOTER 1     /* height of the footer window */
-#define MAX_HEIGHT_HEADER 7     /* height of the header window */
-#define OVERALL_NUM_COLS  4     /* number of columns on the overall stats win */
+#define MIN_HEIGHT        8 /* minimum window height */
+#define MIN_WIDTH         0 /* minimum window width */
+#define MAX_HEIGHT_FOOTER 1 /* height of the footer window */
+#define MAX_HEIGHT_HEADER 7 /* height of the header window */
+#define OVERALL_NUM_COLS  4 /* number of columns on the overall stats win */
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
-#define SPIN_FMTM "%s [%'u] [%'lld/s]"
-#define SPIN_LBL 50     /* max length of the progress spinner */
+#define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
+#define SPIN_LBL 256 /* max length of the progress spinner */
 
-#define SPIN_UPDATE_INTERVAL 100000     // in microseconds
+#define SPIN_UPDATE_INTERVAL 100000000 /* in nanoseconds */
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"
@@ -78,8 +78,12 @@
 #define REFERRING_SITES_ID "referring_sites"
 #define KEYPHRASES_ID      "keyphrases"
 #define GEO_LOCATION_ID    "geolocation"
+#define ASN_ID             "asn"
 #define STATUS_CODES_ID    "status_codes"
 #define GENER_ID           "general"
+
+#define MIME_TYPE_ID       "mime_type"
+#define TLS_TYPE_ID        "tls_type"
 
 /* Overall Statistics CSV/JSON Keys */
 #define OVERALL_STARTDATE "start_date"
@@ -101,11 +105,12 @@
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
-#define CONF_MENU_W       57
+#define CONF_MENU_W       67
 #define CONF_MENU_X       2
 #define CONF_MENU_Y       4
 #define CONF_WIN_H        20
-#define CONF_WIN_W        61
+#define CONF_WIN_W        71
+#define CONF_MAX_LEN_DLG  512
 
 /* FIND DIALOG */
 #define FIND_DLG_HEIGHT   8
@@ -142,14 +147,11 @@
 
 /* CONF ERROR DIALOG */
 #define ERR_MENU_HEIGHT   10
-#define ERR_MENU_WIDTH    57
+#define ERR_MENU_WIDTH    67
 #define ERR_MENU_X        2
 #define ERR_MENU_Y        4
 #define ERR_WIN_HEIGHT    15
-#define ERR_WIN_WIDTH     61
-
-/* Convenient macros */
-#define MIN(a, b) (((a) < (b)) ? (a) : (b))
+#define ERR_WIN_WIDTH     71
 
 #include "color.h"
 #include "commons.h"
@@ -192,7 +194,8 @@ typedef struct GSpinner_ {
   int y;
   pthread_mutex_t mutex;
   pthread_t thread;
-  unsigned int *processed;
+  uint64_t **processed;
+  char **filename;
   WINDOW *win;
   enum {
     SPN_RUN,
@@ -219,7 +222,7 @@ typedef struct GOutput_ {
 } GOutput;
 
 /* *INDENT-OFF* */
-GOutput *output_lookup (GModule module);
+const GOutput *output_lookup (GModule module);
 GSpinner *new_gspinner (void);
 
 char *get_browser_type (char *line);
@@ -229,10 +232,10 @@ const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
-int get_start_end_parsing_dates (char **start, char **end, const char *f);
-int render_confdlg (GLog * glog, GSpinner * spinner);
-void close_win (WINDOW * w);
 GAgents *load_host_agents (const char *addr);
+int get_start_end_parsing_dates (char **start, char **end, const char *f);
+int render_confdlg (Logs * logs, GSpinner * spinner);
+void close_win (WINDOW * w);
 void display_general (WINDOW * win, GHolder *h);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
 void end_spinner (void);
@@ -243,11 +246,13 @@ void load_agent_list (WINDOW * main_win, char *addr);
 void load_help_popup (WINDOW * main_win);
 void load_schemes_win (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
+void lock_spinner (void);
 void set_curses_spinner (GSpinner *spinner);
 void set_input_opts (void);
 void set_wbkgd (WINDOW *main_win, WINDOW *header_win);
 void term_size (WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
+void unlock_spinner (void);
 void update_active_module (WINDOW * header_win, GModule current);
 void update_header (WINDOW * header_win, int current);
 /* *INDENT-ON* */

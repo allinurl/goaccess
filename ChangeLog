@@ -1,3 +1,397 @@
+Changes to GoAccess 1.9.2 - Friday, April 12, 2024
+
+  - Added World Map to the Geo Location panel on the HTML report.
+  - Added additional non-official/standard HTTP status codes such as Caddy's 0
+    HTTP status among others.
+  - Added support for '%z' on strptime for non-glibc systems, such as musl libc
+    in Alpine Linux (Docker container), enabling the use of '--tz'
+  - Changed the '--hide/ignore-referrer' options to filter by hostname directly
+    without the use of wildcards, e.g., '--ignore-referrer=wiki.google.com'.
+  - Fixed inability to parse duplicate specifiers during log format parsing.
+  - Fixed regression which previously hindered the ability to modify log, date,
+    and time formats within the TUI dialog. i.e., '# goaccess access.log -c'.
+  - Replaced 'remote_ip' with 'client_ip' for Caddy's JSON format, allowing the
+    use of trusted proxies.
+  - Updated Caddy JSON example log format to handle headers correctly.
+  - Updated Swedish i18n.
+
+Changes to GoAccess 1.9.1 - Tuesday, February 05, 2024
+
+  - Added support for macOS to the OS detection.
+  - Fixed C99 mode issue with initial declarations [CentOS7].
+  - Fixed minor typographical, orthographic, and grammatical errors in the
+    German translation.
+  - Fixed a regression issue wherein parsing would halt at the first empty log
+    file.
+
+Changes to GoAccess 1.9 - Tuesday, January 30, 2024
+
+  - Added multi-threaded log processing with '--jobs=<num>' for a boost in
+    parsing speed, achieving an improvement ranging from 1.26 to 3.65x faster.
+  - Added the 'SEARCH' method to the list of HTTP request methods.
+  - Added compatibility to include the Traefik log format.
+  - Added the ability to gracefully handle SIGQUIT as a signal for shutdown.
+  - Altered WebSocket server initialization, ensuring it takes place after
+    log-format checks.
+  - Deprecated '--output-format'; now, only the '--output' option is
+    permissible.
+  - Implemented mutex locking to prevent a TZ environment race condition.
+  - Fixed a potential heap overflow when checking a request for bots.
+  - Fixed sorting of child items on HTML panels when sorting a column via the
+    UI.
+  - Fixed an issue where, in some cases, the referer host wouldn't be extracted
+    properly
+  - Fixed the miscategorization of Android 12.1 under operating systems.
+  - Fixed TUI and temporarily ignored SIGINT during subdialog execution via
+    Ctrl+C.
+  - Updated the list of browsers/bots.
+
+Changes to GoAccess 1.8.1 - Tuesday, October 31, 2023
+
+  - Added latest Android and macOS versions to the list of OSs.
+  - Fixed issue when trying to apply a regex on an invalid value (HTML report).
+  - Fixed issue with D3.js xScale.domain() going out of boundaries in certain
+    cases.
+  - Prevent setting default static files when no static-file options are
+    defined in config file.
+
+Changes to GoAccess 1.8 - Saturday, September 30, 2023
+
+  - Added dual-stack support to the WebSocket server.
+  - Added Debian Bookworm to the official deb repo.
+  - Added Ubuntu Lunar to the official deb repo.
+  - Fixed compiler error on macOS 10.12.
+  - Updated bootstrap to v3.4.
+  - Updated FontAwesome with additional icons for upcoming major release.
+  - Updated Japanese translation.
+  - Updated OS display from Macintosh to macOS.
+  - Updated to D3.js v7 (latest) including charts.js code.
+
+Changes to GoAccess 1.7.2 - Friday, March 31, 2023
+
+  - Added a color-coding scheme to HTTP status codes.
+  - Added '--external-assets' command line option to output external JS+CSS
+    files. Great when used with Content Security Policy (CSP).
+  - Ensure there's a fallback for 'Windows' if it appears on the user-agent.
+  - Ensure we construct the WebSocket URL in a way that supports multiple use
+    cases when used along '--ws-url' and '--port'.
+  - Fixed a segfault due to a null pointer exception on FreeBSD.
+  - Fixed build with '--disable-nls'.
+  - Fixed invalid read (heap-buffer-overflow) when parsing an XFF spec via
+    JSON.
+  - Fixed segfault when parsing a specific XFF specifier.
+
+Changes to GoAccess 1.7.1 - Tuesday, February 28, 2023
+
+  - Added 'inlang' for easy localization (i18n) updates.
+    https://inlang.com/editor/github.com/allinurl/goaccess
+  - Added nanosecond parsing option via the '%n' specifier. Great for parsing
+    'Traefik' JSON logs duration field.
+  - Changed Docker workflow to build a docker image on different architectures
+    {'arm64' & 'amd64'}.
+  - Fixed issue with '--unknowns-as-crawlers' where it did not process them as
+    such.
+
+Changes to GoAccess 1.7 - Saturday, December 31, 2022
+
+  - Added an option to classify unknown OS and browsers as crawlers using
+    `--unknowns-as-crawlers`.
+  - Added highlighting to certain metrics on the HTML report for readability.
+  - Added a new panel that displays ASN data for GeoIP2 and legacy databases.
+    Great for detecting malicious traffic and blocking accordingly.
+  - Added an ASN metric per IP/host.
+  - Changed and prioritize user's browsers list over heuristics.
+  - Ensure `--geoip-database=<path>` can be used multiple times to support
+    different databases.
+  - Fixed invalid read when loading the list of agents for an IP.
+  - Fixed issue where a file containing a NUL `\0` character would crash the
+    program.
+  - Updated Swedish i18n.
+
+Changes to GoAccess 1.6.5 - Monday, October 31, 2022
+
+  - Updated Dockerfile build stage to use alpine:3.
+  - Updated deb build to use the right libncursesw6 dependency.
+
+Changes to GoAccess 1.6.4 - Friday, September 30, 2022
+
+  - Added Korean translation (i18n).
+  - Added the ability to use filenames as virtualhosts using
+    '--fname-as-vhost=<regex>'.
+  - Enabled crawlers/bots under the OSs panel instead of being shown as
+    'Unknown'.
+  - Updated the format on the command-line help output.
+
+Changes to GoAccess 1.6.3 - Thursday, August 31, 2022
+
+  - Enabled DNS thread when resolving a host and outputting real-time HTML.
+    This helps avoid stalling the WS server on busy connections.
+  - Fixed issue where it would not properly parse an XFF if the '%h' specifier
+    was already set.
+  - Fixed possible XSS issues when using '--html-custom-css' and
+    '--html-custom-js' by allowing valid filenames.
+
+Changes to GoAccess 1.6.2 - Thursday, July 14, 2022
+
+  - Added `Android 12` to the list of OSs.
+  - Added `macOS 12 Ventura` to the list of OSs.
+  - Fixed implicit declaration build issue due to `timegm(3)` on `BSDs` and `macOS`.
+  - Fixed issue where timezone conversion would be performed twice on a given
+    date.
+
+Changes to GoAccess 1.6.1 - Thursday, June 30, 2022
+
+  - Added a `--ping-interval=<secs>` in an attempt to keep the WebSocket
+    connection opened.
+  - Added support for timezone conversion via `--datetime-format=<format>` and
+    `--tz=<timezone>`.
+  - Added the ability to reconnect to the WebSocket server after 1 sec with
+    exponential backoff (x20).
+  - Fixed issue where an invalid client connection would stall data out to
+    clients via the WebSocket server.
+  - Fixed an issue where real-time data would be parsed multiple times under `Cygwin`.
+
+Changes to GoAccess 1.6 - Tuesday, May 31, 2022
+
+  - Changed slightly how the XFF field is specified. See man page for details.
+  - Ensure city is displayed with the DBIP City Lite database.
+  - Ensure no 'cleaning up resources' message  is displayed if `--no-progress`
+    is passed.
+  - Ensure the maximum number of items per panel defaults to 1440 (24hrs) when
+    passing `--date-spec=min`.
+  - Fixed issue when parsing a delimited XFF field followed by a host IP.
+  - Fixed issue where some data was buffered on the WebSocket server before it
+    was sent to each client.
+  - Fixed issue where the WebSocket server would fail with POLLNVAL consuming
+    100% CPU.
+  - Fixed segfault when attempting to open an unresolved IP on mac/BSDs.
+
+Changes to GoAccess 1.5.7 - Thursday, April 28, 2022
+
+  - Updated Caddy's JSON format. This should address CADDY's v2.5.0 change.
+  - Updated Chinese translation (i18n).
+  - Updated GeoIP module so it defaults to native language name (i18n) or
+    fall-back to English.
+  - Updated Russian translation (i18n).
+  - Updated Ukrainian translation (i18n).
+
+Changes to GoAccess 1.5.6 - Wednesday, March 30, 2022
+
+  - Added `--anonymize-level=<1|2|3>` option to specify IP anonymization level.
+  - Added minute specificity to the Visitors panel via `--date-spec=min`.
+  - Added the ability to toggle on/off panels on the HTML report.
+  - Changed stderr to stdout on non-error output when exiting goaccess.
+
+Changes to GoAccess 1.5.5 - Monday, January 31, 2022
+
+  - Added mechanism to automatically parse additional bots.
+  - Changed area chart interpolation to 'monotone'. This should avoid the issue
+    where the interpolated curve has a bend into the negative space.
+  - Changed build to use debugging symbols even for release builds.
+  - Changed order on which we verify bots to be the first thing we check. This
+    adds a slight improvement on parsing time.
+  - Ensure we initialize DNS resolver conditions and mutexes before they're used.
+  - Fixed possible buffer over-read for cases where a '\0' could be reached
+    early when parsing a log line.
+  - Fixed possible data race on UI spinner thread.
+  - Fixed regression where a lot of robots were not detected by GoAccess.
+
+Changes to GoAccess 1.5.4 - Saturday, December 25, 2021
+
+  - Added AWS ALB to the predefined logs format list --log-format=AWSALB.
+  - Ensure we lock our pipe/websocket writer before broadcasting message.
+  - Ensure we require a valid host token even when we're not validating the IP.
+  - Ensure we simply update the TUI once after tailing multiple files.
+  - Ensure we simply update the UI once after tailing multiple files.
+  - Fixed buffer overflow when checking if an HTTP code was a 404 on an empty
+    status code.
+  - Optimized terminal and HTML UI output when tailing multiple files.
+  - Updated DB PATH error message to be more descriptive.
+
+Changes to GoAccess 1.5.3 - Thursday, November 25, 2021
+
+  - Added additional crawlers to the default list.
+  - Added Italian translation (i18n).
+  - Added 'macOS 12' to the list of OS.
+  - Fixed buffer overflow caused by an excessive number of invalid requests
+    with multiple logs.
+  - Fixed visualization issue on the HTML report for panels with disabled
+    chart.
+
+Changes to GoAccess 1.5.2 - Tuesday, September 28, 2021
+
+  - Added .avi to the list of static requests/extensions.
+  - Changed label from 'Init. Proc. Time' to 'Log Parsing Time'.
+  - Fixed issue where lengthy static-file extension wouldn't account certain
+    valid requests.
+  - Fixed possible buffer underflow when checking static-file extension.
+  - Fixed segfault when attempting to parse an invalid JSON log while using a
+    JSON log format.
+  - Fixed segfault when ignoring a status code and processing a line > '4096'
+    chars.
+
+Changes to GoAccess 1.5.1 - Wednesday, June 30, 2021
+
+  - Changed official deb repo so it now builds '--with-getline' in order to
+    support request lines longer than 4096.
+  - Ensure there's no tail delay if the log file hasn't changed.
+  - Fixed data race when writing to a self-pipe and attempting to stop the WS server.
+  - Fixed inability to close expanded panel when pressing 'q' on TUI.
+  - Fixed possible data race during parsing spinner label assignment.
+  - Increased the maximum number of files to monitor from '512' to '3072'.
+
+Changes to GoAccess 1.5 - Wednesday, May 26, 2021
+
+  - Added a Docker container based isolated build environment (Debian).
+  - Added Dark Mode detection to the HTML report.
+  - Added the ability for the WebSocket server to bind to a Unix-domain socket.
+  - Added the ability to parse IPs enclosed within brackets (e.g., IPv6).
+  - Changed categorization of requests containing 'CFNetwork' to 'iOS' when
+    applicable.
+  - Changed command line option from '--hide-referer' to '--hide-referrer'.
+  - Changed command line option from '--ignore-referer' to '--ignore-referrer'.
+  - Fixed a potential division by zero.
+  - Fixed inability to parse IPv6 when using a 'CADDY' log format.
+  - Fixed issue where a 'BSD' OS could be displayed as Linux with certain
+    user-agents.
+  - Fixed memory leak when a JSON value contained an empty string (e.g.,
+    JSON/CADDY format).
+  - Fixed possible buffer overflow on a WS packet coming from the browser.
+  - Refactored a substantial part of the storage codebase for upcoming
+    filtering/search capabilities (issue #117).
+  - Refactored DB storage to minimize memory consumption up to '35%'.
+  - Updated default 'AWS Elastic Load Balancing' log format.
+  - Updated German translation.
+  - Updated page size to 24 on the HTML report.
+  - Updated UNIX OS categories.
+
+Changes to GoAccess 1.4.6 - Sunday, February 28, 2021
+
+  - Added additional feed reader clients.
+  - Added additional browsers and bots to the main list.
+  - Added command line option '--unknowns-log' to log unknown browsers and
+    OSs.
+  - Added 'Referer' to the pre-defined 'Caddy JSON' log format.
+  - Added support for real-time piping as non-root user.
+  - Added the ability to Handle case when IPv4 is encoded as IPv6 in
+    GeoIP1/legacy.
+  - Ensure we capture linux (lowercase) when extracting an OS.
+  - Fixed a regression in parsing Google Cloud Storage or possibly other
+    non-JSON formats.
+  - Fixed inability to parse escaped formats.
+  - Fixed issue when using '%s' with 'strptime(3)' under musl libc. This
+    addresses mostly the Docker image.
+  - Fixed possible buffer over-read for certain log-format patterns.
+  - Fixed segfault when attempting to process a malformed JSON string.
+  - Fixed segfault when setting an empty log-format from the TUI dialog.
+  - Fixed sorting on hits and visitors when larger than INT_MAX.
+  - Updated CloudFront pre-defined log-format to reflect the latest fields.
+  - Updated 'Dockerfile' image to use 'alpine:3.13' instead of edge due to
+    compatibility issue with the GNU coreutils.
+
+Changes to GoAccess 1.4.5 - Tuesday, January 26, 2021
+
+  - Fixed build issue due to initial declarations only allowed in C99 mode
+    (e.g., CentOS7).
+
+Changes to GoAccess 1.4.4 - Monday, January 25, 2021
+
+  - Added 'Caddy' to the list of pre-defined log formats.
+  - Added command line option '--no-strict-status' to disable status validation.
+  - Added native support to parse JSON logs.
+  - Added the ability to process timestamps in milliseconds using '%*'.
+  - Ensure TUI/CSV/HTML reports are able to output 'uint64_t' data.
+  - Ensure we allow UI render if the rate at which data is being read is
+    greater than '8192' req/s.
+  - Ensure we don't re-render Term/HTML output if no data was read/piped.
+  - Fixed build configure to work on NetBSD.
+  - Fixed issue where it would send data via socket each second when managed
+    by systemd.
+  - Fixed issue where parser was unable to parse syslog date with padding.
+  - Fixed issue where some items under browsers.list were not tab separated.
+  - Fixed issue where the format parser was unable to properly parse logs
+    delimited by a pipe.
+  - Fixed issue where T.X. Amount metrics were not shown when data was piped.
+  - Fixed issue where XFF parser could swallow an additional field.
+  - Fixed memory leak when using '%x' as date/time specifier.
+  - Replaced select(2) with poll(2) as it is more efficient and a lot faster
+    than select(2).
+  - Updated Swedish i18n.
+
+Changes to GoAccess 1.4.3 - Friday, December 04, 2020
+
+  - Added the ability to set how often goaccess will parse data and output to
+    the HTML report via '--html-refresh=<secs>'.
+  - Changed how TLS is parsed so the Cypher uses a separate specifier.
+    It now uses '%K' for the TLS version and '%k' for the Cypher.
+  - Fixed issue where real-time output would double count a rotated log. This
+    was due to the change of inode upon rotating the log.
+  - Updated man page to reflect proper way of 'tail -f' a remote access log.
+
+Changes to GoAccess 1.4.2 - Monday, November 16, 2020
+
+  - Added the ability to show 'Encryption Settings' such as 'TLSv1.2' and
+    Cipher Suites on its own panel.
+  - Added the ability to show 'MIME Types' such as 'application/javascript' on
+    its own panel.
+  - Changed Debian build to use mmdb instead of libgeoip (legacy).
+  - Ensure the HTML report defaults to widescreen if viewport is larger than
+    '2560px'.
+  - Fixed inability to properly process multiple logs in real-time.
+  - Fixed issue where named PIPEs were not properly seed upon generating
+    filename.
+  - Fixed issue where served time metrics were not shown when data was piped.
+  - Removed unnecessary padding from SVG charts. Improves readability on mobile.
+
+Changes to GoAccess 1.4.1 - Monday, November 09, 2020
+
+  - Added additional browsers and bots to the main list.
+  - Added 'Android 11' to the list of OSs.
+  - Added 'macOS 11.0 Big Sur' to the list of OSs.
+  - Added 'average' to each panel overall metrics.
+  - Added '.dmg', '.xz', and '.zst' to the static list.
+  - Added extra check to ensure restoring from disk verifies the content of the
+    log against previous runs.
+  - Added Russian translation (i18n).
+  - Added Ukrainian translation (i18n).
+  - Added support for HTTP status code '308'.
+  - Added the ability for 'get_home ()' to return NULL on error, instead of
+    terminating the process. Great if using through systemd.
+  - Added the ability to read lowercase predefined log formats. For instance,
+    '--log-format=COMBINED' or '--log-format=combined'.
+  - Changed how FIFOs are created and avoid using predictable filenames under
+    '/tmp'.
+  - Changed '--ignore-referer' to use whole referrer instead of referring site.
+  - Ensure Cache Status can be parsed without sensitivity to case.
+  - Ensure restored data enforces '--keep-last' if used by truncating
+    accordingly.
+  - Fixed a few memory leaks when restoring from disk.
+  - Fixed blank time distribution panel when using timestamps.
+  - Fixed build issue due to lack of 'mmap' on 'Win'/'Cygwin'/'MinGW'.
+  - Fixed crash in mouse enabled mode.
+  - Fixed double free on data restore.
+  - Fixed inability to keep processing a log when using '--keep-last'.
+  - Fixed inability to properly parse truncated logs.
+  - Fixed inability to properly count certain requests when restoring from
+    disk.
+  - Fixed issue where it would not parse subsequent requests coming from stdin (tail).
+  - Fixed issue where log truncation could prevent accurate number counting.
+  - Fixed issue where parsed date range was not rendered with '--date-spec'.
+  - Fixed issue where parser would stop regardless of a valid '--num-test' value.
+  - Fixed issue where restoring from disk would increment 'MAX.TS'.
+  - Fixed possible incremental issue when log rotation occurs.
+  - Fixed possible XSS when getting real-time data into the HTML report.
+  - Fixed potential memory leak when failing to get root node.
+  - Fixed real-time hits count issue for certain scenarios.
+  - Fixed segfault in 'Docker' due to a bad allocation when generating FIFOs.
+  - Fixed 'Unknown' Operating Systems with 'W3C' format.
+  - Removed unnecessary include from parser.c so it builds in macOS.
+  - Updated each panel overall UI to be more streamlined.
+  - Updated French translation.
+  - Updated German translation.
+  - Updated Spanish translation.
+  - Updated sigsegv handler.
+
 Changes to GoAccess 1.4 - Monday, May 18, 2020
 
   - Added a caching storage mechanism to improve parsing raw data and data
@@ -83,7 +477,7 @@ Changes to GoAccess 1.3 - Friday, November 23, 2018
   - Added French translation (i18n).
   - Added '%h' date specifier to the allowed date character specifiers.
   - Added "HeadlessChrome" to the list of browsers.
-  - Added --hide-referer command line option to hide referers from report.
+  - Added --hide-referer command line option to hide referrers from report.
   - Added HTTP status code 429 (TOO MANY REQUESTS).
   - Added IGNORE_LEVEL_PANEL and IGNORE_LEVEL_REQ definitions.
   - Added Japanese translation (i18n).
@@ -132,7 +526,7 @@ Changes to GoAccess 1.3 - Friday, November 23, 2018
   - Fixed float percent value on JSON/HTML output for locales using decimal comma.
   - Fixed issue where it was not possible to establish a Web Socket connection
     when attempting to parse and extract HTTP method.
-  - Fixed issue where log formats with pipe delimiter were not propely parsed.
+  - Fixed issue where log formats with pipe delimiter were not properly parsed.
   - Fixed memory leak after config file path has been set (housekeeping).
   - Fixed memory leak when adding host to holder introduced in c052d1ea.
   - Fixed possible memory leak when hiding specific referrers.
@@ -246,7 +640,7 @@ Changes to GoAccess 1.1 - Tuesday, November 08, 2016
     GoAccess now sends the latest JSON data to the client as soon as the
     WebSocket connection is opened.
   - Ensure localStorage is supported and enabled in the HTML report
-  - Ensure unknown coutries/continents are listed.
+  - Ensure unknown countries/continents are listed.
   - Fixed D3 chart width overflow issue on Edge.
   - Fixed integer to string key conversion for unique visitors. This fixes the
     issue where resulting keys would collide with existing keys and thus not
@@ -485,7 +879,7 @@ Changes to GoAccess 0.9 - Thursday, March 19, 2015
   - Added "visitors" metrics to all panels.
   - Changed AC_PREREQ macro version so it builds on old versions of autoconf.
   - Changed GEOIP database load to GEOIP_MEMORY_CACHE for faster lookups.
-  - Changed maximum number of choices to display per panel to 366 fron 300.
+  - Changed maximum number of choices to display per panel to 366 from 300.
   - Ensure config file is read from home dir if unable to open it from
     %sysconfdir% path.
   - Fixed array overflows when exceeding MAX_* limits on command line options.
@@ -553,7 +947,7 @@ Changes to GoAccess 0.8.1 - Monday, June 16, 2014
     file.
   - Added ability to print backtrace on segmentation fault.
   - Escaped JSON strings correctly according to [RFC4627].
-  - Fixed encoding issue when extracting keyphrases for some HTTP referers.
+  - Fixed encoding issue when extracting keyphrases for some HTTP referrers.
   - Fixed issue where HTML bar graphs were not shown due to numeric locale.
   - Fixed issue with URIs containing "\r?\n" thus breaking the corresponding
     output.
@@ -740,8 +1134,8 @@ Changes to GoAccess 0.2 - Sunday, July 25, 2010
   - Implemented real-time statistics (RTS). Data will be appended as the log
     file grows. Equivalent to "tail -f" on Unix systems
   - Implemented screen resize functionality
-  - Simpliflied creation of the "unique visitors" hash-key.
-  - Simpliflied the "process_unique_data" function
+  - Simplified creation of the "unique visitors" hash-key.
+  - Simplified the "process_unique_data" function
   - Various small speed increases & code cleanup
 
 Changes to GoAccess 0.1.2 - Monday, July 12, 2010

@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +45,7 @@ typedef struct GDnsQueue_ {
   int tail;                     /* index to tail of queue */
   int size;                     /* queue size */
   int capacity;                 /* length at most */
-  char buffer[QUEUE_SIZE][H_SIZE];      /* data item */
+  char buffer[QUEUE_SIZE][H_SIZE]; /* data item */
 } GDnsQueue;
 
 extern GDnsThread gdns_thread;
@@ -53,7 +53,7 @@ extern GDnsThread gdns_thread;
 char *gqueue_dequeue (GDnsQueue * q);
 char *reverse_ip (char *str);
 int gqueue_empty (GDnsQueue * q);
-int gqueue_enqueue (GDnsQueue * q, char *item);
+int gqueue_enqueue (GDnsQueue * q, const char *item);
 int gqueue_find (GDnsQueue * q, const char *item);
 int gqueue_full (GDnsQueue * q);
 int gqueue_size (GDnsQueue * q);

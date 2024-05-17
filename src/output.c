@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -37,12 +37,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libgen.h>
 
 #include "output.h"
 
 #include "error.h"
-#include "gkhash.h"
-#include "gwsocket.h"
 #include "json.h"
 #include "settings.h"
 #include "ui.h"
@@ -54,7 +53,9 @@
 #include "facss.h"
 #include "appcss.h"
 #include "d3js.h"
+#include "topojsonjs.h"
 #include "hoganjs.h"
+#include "countries110m.h"
 #include "chartsjs.h"
 #include "appjs.h"
 
@@ -67,85 +68,99 @@ static void print_metrics (FILE * fp, const GHTML * def, int sp);
 static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
 
 /* *INDENT-OFF* */
-static GHTML htmldef[] = {
-  {VISITORS, 1, print_metrics, {
+static const GHTML htmldef[] = {
+  {VISITORS, 1, 0, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 1, 1, NULL, NULL} ,
     {CHART_AREASPLINE, hits_bw_plot, 1, 1, NULL, NULL} ,
   }},
-  {REQUESTS, 1, print_metrics, {
+  {REQUESTS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {REQUESTS_STATIC, 1, print_metrics, {
+  {REQUESTS_STATIC, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {NOT_FOUND, 1, print_metrics, {
+  {NOT_FOUND, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_req_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_req_plot, 0, 0, NULL, NULL},
   }},
-  {HOSTS, 1, print_host_metrics, {
+  {HOSTS, 1, 0, print_host_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {OS, 1, print_metrics, {
+  {OS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {BROWSERS, 1, print_metrics, {
+  {BROWSERS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {VISIT_TIMES, 1, print_metrics, {
+  {VISIT_TIMES, 1, 0, print_metrics, {
     {CHART_AREASPLINE, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_AREASPLINE, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {VIRTUAL_HOSTS, 1, print_metrics, {
+  {VIRTUAL_HOSTS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {REFERRERS, 1, print_metrics, {
+  {REFERRERS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {REFERRING_SITES, 1, print_metrics, {
+  {REFERRING_SITES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {KEYPHRASES, 1, print_metrics, {
+  {KEYPHRASES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {STATUS_CODES, 1, print_metrics, {
+  {STATUS_CODES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-  {REMOTE_USER, 1, print_metrics, {
+  {REMOTE_USER, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {CACHE_STATUS, 1, print_metrics, {
+  {CACHE_STATUS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
 #ifdef HAVE_GEOLOCATION
-  {GEO_LOCATION, 1, print_metrics, {
+  {GEO_LOCATION, 1, 1, print_metrics, {
+    {CHART_WMAP, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
+  }},
+  {ASN, 1, 0, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
+  }},
+#endif
+  {MIME_TYPE, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
-#endif
+  {TLS_TYPE, 1, 0, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
+  }},
+
 };
 /* *INDENT-ON* */
 
 /* number of new lines (applicable fields) */
 static int nlines = 0;
+static int external_assets = 0;
 
 /* Get the chart type for the JSON definition.
  *
  * On success, the chart type string is returned. */
 static const char *
 chart2str (GChartType type) {
-  static const char *strings[] = { "null", "bar", "area-spline" };
+  static const char *strings[] = { "null", "bar", "area-spline", "wmap" };
   return strings[type];
 }
 
@@ -153,7 +168,7 @@ chart2str (GChartType type) {
  *
  * If not found, NULL is returned.
  * On success, panel data is returned . */
-static GHTML *
+static const GHTML *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (htmldef);
 
@@ -166,7 +181,7 @@ panel_lookup (GModule module) {
 
 /* Sanitize output with html entities for special chars */
 static void
-clean_output (FILE * fp, const char *s) {
+clean_output (FILE *fp, const char *s) {
   if (!s) {
     LOG_DEBUG (("NULL data on clean_output.\n"));
     return;
@@ -202,7 +217,7 @@ clean_output (FILE * fp, const char *s) {
 
 /* Set the HTML document title and the generated date/time */
 static void
-print_html_title (FILE * fp) {
+print_html_title (FILE *fp) {
   const char *title = conf.html_report_title ? conf.html_report_title : HTML_REPORT_TITLE;
 
   fprintf (fp, "<title>");
@@ -210,10 +225,24 @@ print_html_title (FILE * fp) {
   fprintf (fp, "</title>");
 }
 
+static void
+print_html_header_styles (FILE *fp, FILE *fcs) {
+  if (fcs) {
+    fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
+    fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
+    fprintf (fcs, "%.*s\n", bootstrap_css_length, bootstrap_css);
+    fprintf (fcs, "%.*s\n", app_css_length, app_css);
+  } else {
+    fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
+    fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
+    fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
+  }
+}
+
 /* *INDENT-OFF* */
 /* Output all the document head elements. */
 static void
-print_html_header (FILE * fp)
+print_html_header (FILE * fp, FILE *fcs)
 {
   fprintf (fp,
   "<!DOCTYPE html>"
@@ -238,9 +267,8 @@ print_html_header (FILE * fp)
 
   print_html_title (fp);
 
-  fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
-  fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
-  fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
+  print_html_header_styles(fp, fcs);
+
   /* load custom CSS file, if any */
   if (conf.html_custom_css)
     fprintf (fp, "<link rel='stylesheet' href='%s'>", conf.html_custom_css);
@@ -298,12 +326,22 @@ print_html_body (FILE * fp, const char *now)
 /* Output all the document footer elements such as script and closing
  * tags. */
 static void
-print_html_footer (FILE * fp)
+print_html_footer (FILE * fp, FILE *fjs)
 {
-  fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
-  fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
-  fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
-  fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+  if (fjs) {
+    fprintf (fp, "<script src='%s'></script>", FILENAME_JS);
+    fprintf (fjs, "%.*s", d3_js_length, d3_js);
+    fprintf (fjs, "%.*s", hogan_js_length, hogan_js);
+    fprintf (fjs, "%.*s", app_js_length, app_js);
+    fprintf (fjs, "%.*s", charts_js_length, charts_js);
+    fprintf (fjs, "%.*s", topojson_js_length, topojson_js);
+  } else {
+    fprintf (fp, "<script>%.*s</script>", d3_js_length, d3_js);
+    fprintf (fp, "<script>%.*s</script>", hogan_js_length, hogan_js);
+    fprintf (fp, "<script>%.*s</script>", app_js_length, app_js);
+    fprintf (fp, "<script>%.*s</script>", charts_js_length, charts_js);
+    fprintf (fp, "<script>%.*s</script>", topojson_js_length, topojson_js);
+  }
 
   /* load custom JS file, if any */
   if (conf.html_custom_js)
@@ -320,7 +358,7 @@ static const GChartDef ChartDefStopper = { NULL, NULL };
  *
  * The number of chart definitions is returned . */
 static int
-get_chartdef_cnt (GChart * chart) {
+get_chartdef_cnt (GChart *chart) {
   GChartDef *def = chart->def;
 
   while (memcmp (def, &ChartDefStopper, sizeof ChartDefStopper))
@@ -331,7 +369,7 @@ get_chartdef_cnt (GChart * chart) {
 
 /* Output the given JSON chart axis definition for the given panel. */
 static void
-print_d3_chart_def_axis (FILE * fp, GChart * chart, size_t cnt, int isp) {
+print_d3_chart_def_axis (FILE *fp, GChart *chart, size_t cnt, int isp) {
   GChartDef *def = chart->def;
   size_t j = 0;
 
@@ -345,7 +383,7 @@ print_d3_chart_def_axis (FILE * fp, GChart * chart, size_t cnt, int isp) {
 
 /* Output the given JSON chart definition for the given panel. */
 static void
-print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp) {
+print_d3_chart_def (FILE *fp, GChart *chart, size_t n, int sp) {
   size_t i = 0, cnt = 0;
   int isp = 0;
 
@@ -363,7 +401,7 @@ print_d3_chart_def (FILE * fp, GChart * chart, size_t n, int sp) {
 }
 
 static void
-print_plot_def (FILE * fp, const GHTMLPlot plot, GChart * chart, int n, int sp) {
+print_plot_def (FILE *fp, const GHTMLPlot plot, GChart *chart, int n, int sp) {
   int isp = 0, iisp = 0;
 
   /* use tabs to prettify output */
@@ -386,7 +424,7 @@ print_plot_def (FILE * fp, const GHTMLPlot plot, GChart * chart, int n, int sp) 
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_visitors_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
@@ -405,7 +443,7 @@ hits_visitors_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output D3.js hits/visitors plot definitions. */
 static void
-hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_visitors_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"x", (GChartDef[]) {
@@ -427,7 +465,7 @@ hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_bw_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"y0", (GChartDef[]) {
@@ -446,7 +484,7 @@ hits_bw_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output C3.js bandwidth plot definitions. */
 static void
-hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
+hits_bw_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
   /* *INDENT-OFF* */
   GChart def[] = {
     {"x", (GChartDef[]) {
@@ -468,22 +506,22 @@ hits_bw_req_plot (FILE * fp, GHTMLPlot plot, int sp) {
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE * fp, GHolder * holder) {
+print_json_data (FILE *fp, GHolder *holder) {
   char *json = NULL;
 
   if ((json = get_json (holder, 1)) == NULL)
     return;
 
-  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
   fprintf (fp, "var json_data=%s", json);
-  fprintf (fp, "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>");
 
   free (json);
 }
 
 /* Output WebSocket connection definition. */
 static void
-print_conn_def (FILE * fp) {
+print_conn_def (FILE *fp) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -492,20 +530,21 @@ print_conn_def (FILE * fp) {
   if (!conf.real_time_html)
     return;
 
-  fprintf (fp, "<script type='text/javascript'>");
-  fprintf (fp, "var connection = ");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
 
+  fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
   fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
-  fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 1);
+  fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 0);
+  fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : 0), sp, 1);
   fpclose_obj (fp, sp, 1);
 
-  fprintf (fp, "</script>");
+  fprintf (fp, external_assets ? ";\n" : "</script>");
 }
 
 /* Output JSON per panel metric definitions. */
 static void
-print_def_metric (FILE * fp, const GDefMetric def, int sp) {
+print_def_metric (FILE *fp, const GDefMetric def, int sp) {
   int isp = 0;
 
   /* use tabs to prettify output */
@@ -524,6 +563,8 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp) {
     fpskeysval (fp, "metaLabel", def.metalbl, isp, 0);
   if (def.datatype)
     fpskeysval (fp, "dataType", def.datatype, isp, 0);
+  if (def.hlregex)
+    fpskeysval (fp, "hlregex", def.hlregex, isp, 0);
   if (def.datakey)
     fpskeysval (fp, "key", def.datakey, isp, 0);
   if (def.lbl)
@@ -532,7 +573,7 @@ print_def_metric (FILE * fp, const GDefMetric def, int sp) {
 
 /* Output JSON metric definition block. */
 static void
-print_def_block (FILE * fp, const GDefMetric def, int sp, int last) {
+print_def_block (FILE *fp, const GDefMetric def, int sp, int last) {
   fpopen_obj (fp, sp);
   print_def_metric (fp, def, sp);
   fpclose_obj (fp, sp, last);
@@ -540,7 +581,7 @@ print_def_block (FILE * fp, const GDefMetric def, int sp, int last) {
 
 /* Output JSON overall requests definition block. */
 static void
-print_def_overall_requests (FILE * fp, int sp) {
+print_def_overall_requests (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_REQUESTS,
     .datatype = "numeric",
@@ -553,7 +594,7 @@ print_def_overall_requests (FILE * fp, int sp) {
 
 /* Output JSON overall valid requests definition block. */
 static void
-print_def_overall_valid_reqs (FILE * fp, int sp) {
+print_def_overall_valid_reqs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_VALID,
     .datatype = "numeric",
@@ -566,7 +607,7 @@ print_def_overall_valid_reqs (FILE * fp, int sp) {
 
 /* Output JSON overall invalid requests definition block. */
 static void
-print_def_overall_invalid_reqs (FILE * fp, int sp) {
+print_def_overall_invalid_reqs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_FAILED,
     .datatype = "numeric",
@@ -579,7 +620,7 @@ print_def_overall_invalid_reqs (FILE * fp, int sp) {
 
 /* Output JSON process time definition block. */
 static void
-print_def_overall_processed_time (FILE * fp, int sp) {
+print_def_overall_processed_time (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_GEN_TIME,
     .datatype = "secs",
@@ -592,7 +633,7 @@ print_def_overall_processed_time (FILE * fp, int sp) {
 
 /* Output JSON overall visitors definition block. */
 static void
-print_def_overall_visitors (FILE * fp, int sp) {
+print_def_overall_visitors (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE_VISITORS,
     .datatype = "numeric",
@@ -605,7 +646,7 @@ print_def_overall_visitors (FILE * fp, int sp) {
 
 /* Output JSON overall files definition block. */
 static void
-print_def_overall_files (FILE * fp, int sp) {
+print_def_overall_files (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE_FILES,
     .datatype = "numeric",
@@ -617,7 +658,7 @@ print_def_overall_files (FILE * fp, int sp) {
 
 /* Output JSON overall excluded requests definition block. */
 static void
-print_def_overall_excluded (FILE * fp, int sp) {
+print_def_overall_excluded (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_EXCLUDE_IP,
     .datatype = "numeric",
@@ -629,7 +670,7 @@ print_def_overall_excluded (FILE * fp, int sp) {
 
 /* Output JSON overall referrers definition block. */
 static void
-print_def_overall_refs (FILE * fp, int sp) {
+print_def_overall_refs (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_REFERRER,
     .datatype = "numeric",
@@ -641,7 +682,7 @@ print_def_overall_refs (FILE * fp, int sp) {
 
 /* Output JSON overall not found definition block. */
 static void
-print_def_overall_notfound (FILE * fp, int sp) {
+print_def_overall_notfound (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_UNIQUE404,
     .datatype = "numeric",
@@ -653,7 +694,7 @@ print_def_overall_notfound (FILE * fp, int sp) {
 
 /* Output JSON overall static files definition block. */
 static void
-print_def_overall_static_files (FILE * fp, int sp) {
+print_def_overall_static_files (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_STATIC_FILES,
     .datatype = "numeric",
@@ -665,7 +706,7 @@ print_def_overall_static_files (FILE * fp, int sp) {
 
 /* Output JSON log size definition block. */
 static void
-print_def_overall_log_size (FILE * fp, int sp) {
+print_def_overall_log_size (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_LOG,
     .datatype = "bytes",
@@ -677,7 +718,7 @@ print_def_overall_log_size (FILE * fp, int sp) {
 
 /* Output JSON overall bandwidth definition block. */
 static void
-print_def_overall_bandwidth (FILE * fp, int sp) {
+print_def_overall_bandwidth (FILE *fp, int sp) {
   GDefMetric def = {
     .lbl = T_BW,
     .datatype = "bytes",
@@ -689,7 +730,7 @@ print_def_overall_bandwidth (FILE * fp, int sp) {
 
 /* Output JSON hits definition block. */
 static void
-print_def_hits (FILE * fp, int sp) {
+print_def_hits (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "hits",
     .lbl = MTRC_HITS_LBL,
@@ -702,7 +743,7 @@ print_def_hits (FILE * fp, int sp) {
 
 /* Output JSON visitors definition block. */
 static void
-print_def_visitors (FILE * fp, int sp) {
+print_def_visitors (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "visitors",
     .lbl = MTRC_VISITORS_LBL,
@@ -715,7 +756,7 @@ print_def_visitors (FILE * fp, int sp) {
 
 /* Output JSON bandwidth definition block. */
 static void
-print_def_bw (FILE * fp, int sp) {
+print_def_bw (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "bytes",
     .lbl = MTRC_BW_LBL,
@@ -732,7 +773,7 @@ print_def_bw (FILE * fp, int sp) {
 
 /* Output JSON Avg. T.S. definition block. */
 static void
-print_def_avgts (FILE * fp, int sp) {
+print_def_avgts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "avgts",
     .lbl = MTRC_AVGTS_LBL,
@@ -749,7 +790,7 @@ print_def_avgts (FILE * fp, int sp) {
 
 /* Output JSON Cum. T.S. definition block. */
 static void
-print_def_cumts (FILE * fp, int sp) {
+print_def_cumts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "cumts",
     .lbl = MTRC_CUMTS_LBL,
@@ -766,7 +807,7 @@ print_def_cumts (FILE * fp, int sp) {
 
 /* Output JSON Max. T.S. definition block. */
 static void
-print_def_maxts (FILE * fp, int sp) {
+print_def_maxts (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "maxts",
     .lbl = MTRC_MAXTS_LBL,
@@ -782,12 +823,17 @@ print_def_maxts (FILE * fp, int sp) {
 
 /* Output JSON method definition block. */
 static void
-print_def_method (FILE * fp, int sp) {
+print_def_method (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "method",
     .lbl = MTRC_METHODS_LBL,
     .datatype = "string",
     .cwidth = "6%",
+    .hlregex = "{"
+      "\\\"(\\\\\\\\b[A-Z]{3}\\\\\\\\b)\\\": \\\"<b class='cell-hl b1'>$1</b>\\\","
+      "\\\"(\\\\\\\\b[A-Z]{4}\\\\\\\\b)\\\": \\\"<b class='cell-hl b2'>$1</b>\\\","
+      "\\\"(\\\\\\\\b[A-Z]{5,}\\\\\\\\b)\\\": \\\"<b class='cell-hl b3'>$1</b>\\\"" "}",
+
   };
 
   if (!conf.append_method)
@@ -798,12 +844,17 @@ print_def_method (FILE * fp, int sp) {
 
 /* Output JSON protocol definition block. */
 static void
-print_def_protocol (FILE * fp, int sp) {
+print_def_protocol (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "protocol",
     .lbl = MTRC_PROTOCOLS_LBL,
     .datatype = "string",
     .cwidth = "7%",
+    .hlregex = "{"
+      "\\\"(\\\\\\\\bHTTP/1.0\\\\\\\\b)\\\": \\\"<b class='cell-hl d1'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/1.1\\\\\\\\b)\\\": \\\"<b class='cell-hl d2'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/2\\\\\\\\b)\\\": \\\"<b class='cell-hl d3'>$1</b>\\\","
+      "\\\"(\\\\\\\\bHTTP/3\\\\\\\\b)\\\": \\\"<b class='cell-hl d4'>$1</b>\\\"" "}",
   };
 
   if (!conf.append_protocol)
@@ -814,7 +865,7 @@ print_def_protocol (FILE * fp, int sp) {
 
 /* Output JSON city definition block. */
 static void
-print_def_city (FILE * fp, int sp) {
+print_def_city (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "city",
     .lbl = MTRC_CITY_LBL,
@@ -827,13 +878,31 @@ print_def_city (FILE * fp, int sp) {
   print_def_block (fp, def, sp, 0);
 }
 
+/* Output JSON ASN definition block. */
+static void
+print_def_asn (FILE *fp, int sp) {
+  GDefMetric def = {
+    .datakey = "asn",
+    .lbl = MTRC_ASB_LBL,
+    .datatype = "string",
+    .hlregex = "{"
+      "\\\"^(\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"," "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"" "}",
+  };
+
+  if (!conf.has_geoasn)
+    return;
+
+  print_def_block (fp, def, sp, 0);
+}
+
 /* Output JSON country definition block. */
 static void
-print_def_country (FILE * fp, int sp) {
+print_def_country (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "country",
     .lbl = MTRC_COUNTRY_LBL,
     .datatype = "string",
+    .hlregex = "{" "\\\"^([A-Z]{2})\\\": \\\"<b class='span-hl g5'>$1</b>\\\"" "}",
   };
 
   if (!conf.has_geocountry)
@@ -844,7 +913,7 @@ print_def_country (FILE * fp, int sp) {
 
 /* Output JSON hostname definition block. */
 static void
-print_def_hostname (FILE * fp, int sp) {
+print_def_hostname (FILE *fp, int sp) {
   GDefMetric def = {
     .datakey = "hostname",
     .lbl = MTRC_HOSTNAME_LBL,
@@ -860,7 +929,7 @@ print_def_hostname (FILE * fp, int sp) {
 
 /* Output JSON data definition block. */
 static void
-print_def_data (FILE * fp, GModule module, int sp) {
+print_def_data (FILE *fp, GModule module, int sp) {
   GDefMetric def = {
     .cname = "trunc",
     .cwidth = "100%",
@@ -870,6 +939,17 @@ print_def_data (FILE * fp, GModule module, int sp) {
     .metakey = "unique",
     .metalbl = "Total",
     .metatype = "numeric",
+    .hlregex = "{" "\\\"^(1\\\\\\\\d{2}|1xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lblu'>$1</b>$2\\\"," /* 2xx Success */
+      "\\\"^(2\\\\\\\\d{2}|2xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgrn'>$1</b>$2\\\"," /* 2xx Success */
+      "\\\"^(3\\\\\\\\d{2}|3xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lprp'>$1</b>$2\\\"," /* 3xx Success */
+      "\\\"^(4\\\\\\\\d{2}|4xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lyel'>$1</b>$2\\\"," /* 4xx Success */
+      "\\\"^(5\\\\\\\\d{2}|5xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lred'>$1</b>$2\\\"," /* 5xx Success */
+      "\\\"^(0\\\\\\\\d{2}|0xx)(\\\\\\\\s.*)$\\\": \\\"<b class='span-hl lgry'>$1</b>$2\\\"," /* 5xx Success */
+      "\\\"^(AS\\\\\\\\d+)\\\": \\\"<b>$1</b>\\\"," /* AS9823 Google */
+      "\\\"^(\\\\\\\\d+:)\\\": \\\"<b>$1</b>\\\"," /* 01234: Data */
+      "\\\"(\\\\\\\\d+)|(:\\\\\\\\d+)|(:\\\\\\\\d+:\\\\\\\\d+)\\\": \\\"$1<b>$2</b>\\\"," /* 12/May/2022:12:34 */
+      "\\\"^([A-Z]{2})(\\\\\\\\s.*$)\\\": \\\"<b class='span-hl g5'>$1</b>$2\\\"" /* US United States */
+      "}",
   };
 
   print_def_block (fp, def, sp, 1);
@@ -879,7 +959,7 @@ print_def_data (FILE * fp, GModule module, int sp) {
  *
  * The number of plots for the given panel is returned. */
 static int
-count_plot_fp (const GHTML * def) {
+count_plot_fp (const GHTML *def) {
   int i = 0;
   for (i = 0; def->chart[i].plot != 0; ++i);
   return i;
@@ -887,7 +967,7 @@ count_plot_fp (const GHTML * def) {
 
 /* Entry function to output JSON plot definition block. */
 static void
-print_def_plot (FILE * fp, const GHTML * def, int sp) {
+print_def_plot (FILE *fp, const GHTML *def, int sp) {
   int i, isp = 0, n = count_plot_fp (def);
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -906,7 +986,7 @@ print_def_plot (FILE * fp, const GHTML * def, int sp) {
 
 /* Output JSON host panel definitions. */
 static void
-print_host_metrics (FILE * fp, const GHTML * def, int sp) {
+print_host_metrics (FILE *fp, const GHTML *def, int sp) {
   const GOutput *output = output_lookup (def->module);
 
   print_def_hits (fp, sp);
@@ -923,6 +1003,7 @@ print_host_metrics (FILE * fp, const GHTML * def, int sp) {
 
   print_def_city (fp, sp);
   print_def_country (fp, sp);
+  print_def_asn (fp, sp);
   print_def_hostname (fp, sp);
 
   print_def_data (fp, def->module, sp);
@@ -930,7 +1011,7 @@ print_host_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Output JSON panel definitions. */
 static void
-print_metrics (FILE * fp, const GHTML * def, int sp) {
+print_metrics (FILE *fp, const GHTML *def, int sp) {
   const GOutput *output = output_lookup (def->module);
 
   print_def_hits (fp, sp);
@@ -950,7 +1031,7 @@ print_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Entry point to output JSON metric definitions. */
 static void
-print_def_metrics (FILE * fp, const GHTML * def, int sp) {
+print_def_metrics (FILE *fp, const GHTML *def, int sp) {
   int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -966,7 +1047,7 @@ print_def_metrics (FILE * fp, const GHTML * def, int sp) {
 
 /* Output panel header and description metadata definitions. */
 static void
-print_def_meta (FILE * fp, const char *head, const char *desc, int sp) {
+print_def_meta (FILE *fp, const char *head, const char *desc, int sp) {
   int isp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -978,7 +1059,7 @@ print_def_meta (FILE * fp, const char *head, const char *desc, int sp) {
 
 /* Output panel sort metadata definitions. */
 static void
-print_def_sort (FILE * fp, const GHTML * def, int sp) {
+print_def_sort (FILE *fp, const GHTML *def, int sp) {
   GSort sort = module_sort[def->module];
   int isp = 0;
   /* use tabs to prettify output */
@@ -995,7 +1076,7 @@ print_def_sort (FILE * fp, const GHTML * def, int sp) {
 
 /* Output panel metadata definitions. */
 static void
-print_panel_def_meta (FILE * fp, const GHTML * def, int sp) {
+print_panel_def_meta (FILE *fp, const GHTML *def, int sp) {
   const char *desc = module_to_desc (def->module);
   const char *head = module_to_head (def->module);
   const char *id = module_to_id (def->module);
@@ -1009,6 +1090,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp) {
 
   fpskeysval (fp, "id", id, isp, 0);
   fpskeyival (fp, "table", def->table, isp, 0);
+  fpskeyival (fp, "hasMap", def->has_map, isp, 0);
 
   print_def_sort (fp, def, isp);
   print_def_plot (fp, def, isp);
@@ -1017,7 +1099,7 @@ print_panel_def_meta (FILE * fp, const GHTML * def, int sp) {
 
 /* Output definitions for the given panel. */
 static void
-print_json_def (FILE * fp, const GHTML * def) {
+print_json_def (FILE *fp, const GHTML *def) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1035,7 +1117,7 @@ print_json_def (FILE * fp, const GHTML * def) {
 
 /* Output overall definitions. */
 static void
-print_def_summary (FILE * fp, int sp) {
+print_def_summary (FILE *fp, int sp) {
   int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1063,7 +1145,7 @@ print_def_summary (FILE * fp, int sp) {
 
 /* Cheap JSON internationalisation (i18n) - report labels */
 static void
-print_json_i18n_def (FILE * fp) {
+print_json_i18n_def (FILE *fp) {
   int sp = 0;
   size_t i = 0;
 
@@ -1080,6 +1162,7 @@ print_json_i18n_def (FILE * fp) {
     {"display_tables" , HTML_REPORT_NAV_DISPLAY_TABLES} ,
     {"ah_small"       , HTML_REPORT_NAV_AH_SMALL}       ,
     {"ah_small_title" , HTML_REPORT_NAV_AH_SMALL_TITLE} ,
+    {"toggle_panel"   , HTML_REPORT_NAV_TOGGLE_PANEL}   ,
     {"layout"         , HTML_REPORT_NAV_LAYOUT}         ,
     {"horizontal"     , HTML_REPORT_NAV_HOR}            ,
     {"vertical"       , HTML_REPORT_NAV_VER}            ,
@@ -1096,6 +1179,7 @@ print_json_i18n_def (FILE * fp) {
     {"type"           , HTML_REPORT_PANEL_TYPE}         ,
     {"area_spline"    , HTML_REPORT_PANEL_AREA_SPLINE}  ,
     {"bar"            , HTML_REPORT_PANEL_BAR}          ,
+    {"wmap"           , HTML_REPORT_PANEL_WMAP}         ,
     {"plot_metric"    , HTML_REPORT_PANEL_PLOT_METRIC}  ,
     {"table_columns"  , HTML_REPORT_PANEL_TABLE_COLS}   ,
     {"thead"          , T_HEAD}                         ,
@@ -1116,7 +1200,7 @@ print_json_i18n_def (FILE * fp) {
 
 /* Output definitions for the given panel. */
 static void
-print_json_def_summary (FILE * fp) {
+print_json_def_summary (FILE *fp) {
   int sp = 0;
 
   /* use tabs to prettify output */
@@ -1133,16 +1217,18 @@ print_json_def_summary (FILE * fp) {
 
 /* Entry point to output definitions for all panels. */
 static void
-print_json_defs (FILE * fp) {
+print_json_defs (FILE *fp) {
   const GHTML *def;
   size_t idx = 0;
 
-  fprintf (fp, "<script type='text/javascript'>");
+  fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
 
   fprintf (fp, "var json_i18n=");
   print_json_i18n_def (fp);
   fprintf (fp, ";");
 
+  fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
+  fprintf (fp, "var countries110m=%.*s;", countries_json_length, countries_json);
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);
@@ -1156,14 +1242,44 @@ print_json_defs (FILE * fp) {
 
   fpclose_obj (fp, 0, 1);
 
-  fprintf (fp, "</script>");
+  fprintf (fp, external_assets ? "\n" : "</script>");
+}
+
+static char *
+get_asset_filepath (const char *filename, const char *asset_fname) {
+  char *fname = NULL, *path = NULL, *s = NULL;
+
+  path = xstrdup (filename);
+  fname = xstrdup (basename (path));
+  path[strlen (filename) - strlen (fname)] = '\0';
+
+  s = xmalloc (snprintf (NULL, 0, "%s%s", path, asset_fname) + 1);
+  sprintf (s, "%s%s", path, asset_fname);
+  free (path);
+  free (fname);
+
+  return s;
+}
+
+static FILE *
+get_asset (const char *filename, const char *asset_fname) {
+  FILE *fp = NULL;
+  char *fn = NULL;
+
+  if (!(fn = get_asset_filepath (filename, asset_fname)))
+    FATAL ("Invalid JS file.");
+  if (!(fp = fopen (fn, "w")))
+    FATAL ("Unable to open file %s.", strerror (errno));
+  free (fn);
+
+  return fp;
 }
 
 /* entry point to generate a report writing it to the fp */
 void
-output_html (GHolder * holder, const char *filename) {
-  FILE *fp;
-  char now[DATE_TIME];
+output_html (GHolder *holder, const char *filename) {
+  FILE *fp, *fjs = NULL, *fcs = NULL;
+  char now[DATE_TIME] = { 0 };
 
   if (filename != NULL)
     fp = fopen (filename, "w");
@@ -1173,6 +1289,12 @@ output_html (GHolder * holder, const char *filename) {
   if (!fp)
     FATAL ("Unable to open HTML file: %s.", strerror (errno));
 
+  if (filename && conf.external_assets) {
+    fjs = get_asset (filename, FILENAME_JS);
+    fcs = get_asset (filename, FILENAME_CSS);
+    external_assets = 1;
+  }
+
   /* use new lines to prettify output */
   if (conf.json_pretty_print)
     nlines = 1;
@@ -1181,14 +1303,18 @@ output_html (GHolder * holder, const char *filename) {
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
-  print_html_header (fp);
+  print_html_header (fp, fcs);
 
   print_html_body (fp, now);
-  print_json_defs (fp);
-  print_json_data (fp, holder);
-  print_conn_def (fp);
+  print_json_defs ((fjs ? fjs : fp));
+  print_json_data ((fjs ? fjs : fp), holder);
+  print_conn_def ((fjs ? fjs : fp));
 
-  print_html_footer (fp);
+  print_html_footer (fp, fjs);
 
+  if (fjs)
+    fclose (fjs);
+  if (fcs)
+    fclose (fcs);
   fclose (fp);
 }

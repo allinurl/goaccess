@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,9 +36,17 @@
 
 #include "commons.h"
 
-#define CITY_LEN       47 + 1   /* max string length for a city */
-#define CONTINENT_LEN  47 + 1   /* max string length for a country */
-#define COUNTRY_LEN    48 + 3   /* Country + two-letter Code */
+#define CITY_LEN       47 + 1 /* max string length for a city */
+#define CONTINENT_LEN  47 + 1 /* max string length for a country */
+#define COUNTRY_LEN    48 + 3 /* Country + two-letter Code */
+#define ASN_LEN        64 + 6 /* ASN + 5 digit/16-bit number/code */
+
+/* Type of IP */
+typedef enum {
+  TYPE_COUNTRY,
+  TYPE_CITY,
+  TYPE_ASN
+} GO_GEOIP_DB;
 
 typedef struct GLocation_ {
   char city[CITY_LEN];
@@ -47,9 +55,9 @@ typedef struct GLocation_ {
 } GLocation;
 
 int is_geoip_resource (void);
-int set_geolocation (char *host, char *continent, char *country, char *city);
+int set_geolocation (char *host, char *continent, char *country, char *city, char *asn);
+void geoip_asn (char *host, char *asn);
 void geoip_free (void);
-void geoip_get_city (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
 void init_geoip (void);

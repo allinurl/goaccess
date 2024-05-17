@@ -6,7 +6,7 @@
  * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,12 +27,17 @@
  * SOFTWARE.
  */
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #ifndef WEBSOCKET_H_INCLUDED
 #define WEBSOCKET_H_INCLUDED
 
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <limits.h>
-#include <sys/select.h>
+#include <poll.h>
 
 #if HAVE_LIBSSL
 #include <openssl/crypto.h>
@@ -90,9 +95,6 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #include "gslist.h"
 
-#define WS_PIPEIN "/tmp/wspipein.fifo"
-#define WS_PIPEOUT "/tmp/wspipeout.fifo"
-
 #define WS_BAD_REQUEST_STR "HTTP/1.1 400 Invalid Request\r\n\r\n"
 #define WS_SWITCH_PROTO_STR "HTTP/1.1 101 Switching Protocols"
 #define WS_TOO_BUSY_STR "HTTP/1.1 503 Service Unavailable\r\n\r\n"
@@ -102,15 +104,15 @@
 
 /* packet header is 3 unit32_t : type, size, listener */
 #define HDR_SIZE              3 * 4
-#define WS_MAX_FRM_SZ         1048576   /* 1 MiB max frame size */
-#define WS_THROTTLE_THLD      2097152   /* 2 MiB throttle threshold */
-#define WS_MAX_HEAD_SZ        8192      /* a reasonable size for request headers */
+#define WS_MAX_FRM_SZ         1048576 /* 1 MiB max frame size */
+#define WS_THROTTLE_THLD      2097152 /* 2 MiB throttle threshold */
+#define WS_MAX_HEAD_SZ        8192 /* a reasonable size for request headers */
 
 #define WS_MAGIC_STR "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_PAYLOAD_EXT16      126
 #define WS_PAYLOAD_EXT64      127
 #define WS_PAYLOAD_FULL       125
-#define WS_FRM_HEAD_SZ         16       /* frame header size */
+#define WS_FRM_HEAD_SZ         16 /* frame header size */
 
 #define WS_FRM_FIN(x)         (((x) >> 7) & 0x01)
 #define WS_FRM_MASK(x)        (((x) >> 7) & 0x01)
@@ -214,21 +216,13 @@ typedef struct WSMessage_ {
   int buflen;                   /* recv'd buf length so far (for each frame) */
 } WSMessage;
 
-/* FD event states */
-typedef struct WSEState_ {
-  fd_set master;
-  fd_set rfds;
-  fd_set wfds;
-} WSEState;
-
 /* A WebSocket Client */
 typedef struct WSClient_ {
   /* socket data */
   int listener;                 /* socket */
-  char remote_ip[INET6_ADDRSTRLEN];     /* client IP */
+  char remote_ip[INET6_ADDRSTRLEN]; /* client IP */
 
   WSQueue *sockqueue;           /* sending buffer */
-  WSEState *state;              /* FDs states */
   WSHeaders *headers;           /* HTTP headers */
   WSFrame *frame;               /* frame headers */
   WSMessage *message;           /* message */
@@ -248,7 +242,6 @@ typedef struct WSPipeIn_ {
   int fd;                       /* named pipe FD */
 
   WSPacket *packet;             /* FIFO data's buffer */
-  WSEState *state;              /* FDs states */
 
   char hdr[HDR_SIZE];           /* FIFO header's buffer */
   int hlen;
@@ -257,7 +250,6 @@ typedef struct WSPipeIn_ {
 /* Pipe Out */
 typedef struct WSPipeOut_ {
   int fd;                       /* named pipe FD */
-  WSEState *state;              /* FDs states */
   WSQueue *fifoqueue;           /* FIFO out queue */
   WSStatus status;              /* connection status */
 } WSPipeOut;
@@ -273,6 +265,7 @@ typedef struct WSConfig_ {
   const char *port;
   const char *sslcert;
   const char *sslkey;
+  const char *unix_socket;
   int echomode;
   int strict;
   int max_frm_size;
@@ -315,6 +308,7 @@ void ws_set_config_accesslog (const char *accesslog);
 void ws_set_config_echomode (int echomode);
 void ws_set_config_frame_size (int max_frm_size);
 void ws_set_config_host (const char *host);
+void ws_set_config_unix_socket (const char *unix_socket);
 void ws_set_config_origin (const char *origin);
 void ws_set_config_pipein (const char *pipein);
 void ws_set_config_pipeout (const char *pipeout);

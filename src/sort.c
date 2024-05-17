@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,10 +35,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <getopt.h>
-#include <errno.h>
 
-#include "error.h"
 #include "settings.h"
 #include "util.h"
 
@@ -79,10 +76,16 @@ const int sort_choices[][SORT_MAX_OPTS] = {
 #ifdef HAVE_GEOLOCATION
   /* GEO_LOCATION */
   {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
+  /* ASN */
+  {SORT_BY_HITS, SORT_BY_VISITORS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
 #endif
+  /* MIME_TYPE */
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_BW, SORT_BY_AVGTS, SORT_BY_CUMTS, SORT_BY_MAXTS, -1},
+  /* TLS_TYPE */
+  {SORT_BY_HITS, SORT_BY_DATA, SORT_BY_VISITORS, SORT_BY_BW, -1},
 };
 
-static GEnum FIELD[] = {
+static const GEnum FIELD[] = {
   {"BY_HITS"     , SORT_BY_HITS     } ,
   {"BY_VISITORS" , SORT_BY_VISITORS } ,
   {"BY_DATA"     , SORT_BY_DATA     } ,
@@ -94,7 +97,7 @@ static GEnum FIELD[] = {
   {"BY_MTHD"     , SORT_BY_MTHD     } ,
 };
 
-static GEnum ORDER[] = {
+static const GEnum ORDER[] = {
   {"ASC"  , SORT_ASC  } ,
   {"DESC" , SORT_DESC } ,
 };
@@ -117,7 +120,10 @@ GSort module_sort[TOTAL_MODULES] = {
   {CACHE_STATUS        , SORT_BY_HITS , SORT_DESC } ,
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION        , SORT_BY_HITS , SORT_DESC } ,
+  {ASN                 , SORT_BY_HITS , SORT_DESC } ,
 #endif
+  {MIME_TYPE           , SORT_BY_HITS , SORT_DESC } ,
+  {TLS_TYPE            , SORT_BY_VISITORS , SORT_DESC } ,
 };
 /* *INDENT-ON* */
 
@@ -149,8 +155,8 @@ cmp_num_desc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->hits;
-  int vb = ib->metrics->hits;
+  uint64_t va = ia->metrics->hits;
+  uint64_t vb = ib->metrics->hits;
 
   return (va < vb) - (va > vb);
 }
@@ -161,8 +167,8 @@ cmp_num_asc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->hits;
-  int vb = ib->metrics->hits;
+  uint64_t va = ia->metrics->hits;
+  uint64_t vb = ib->metrics->hits;
 
   return (va > vb) - (va < vb);
 }
@@ -173,8 +179,8 @@ cmp_vis_desc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->visitors;
-  int vb = ib->metrics->visitors;
+  uint64_t va = ia->metrics->visitors;
+  uint64_t vb = ib->metrics->visitors;
 
   return (va < vb) - (va > vb);
 }
@@ -185,8 +191,8 @@ cmp_vis_asc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  int va = ia->metrics->visitors;
-  int vb = ib->metrics->visitors;
+  uint64_t va = ia->metrics->visitors;
+  uint64_t vb = ib->metrics->visitors;
 
   return (va > vb) - (va < vb);
 }
@@ -197,8 +203,8 @@ cmp_raw_num_desc (const void *a, const void *b) {
   const GRawDataItem *ia = a;
   const GRawDataItem *ib = b;
 
-  int va = ia->hits;
-  int vb = ib->hits;
+  uint64_t va = ia->hits;
+  uint64_t vb = ib->hits;
 
   return (va < vb) - (va > vb);
 }
@@ -340,16 +346,23 @@ cmp_mthd_desc (const void *a, const void *b) {
   return strcmp (ib->metrics->method, ia->metrics->method);
 }
 
-/* Sort 'hits' metric ascending */
+/* Sort ascending */
 #if defined(__clang__) && defined(__clang_major__) && (__clang_major__ >= 4)
 __attribute__((no_sanitize ("implicit-conversion", "unsigned-integer-overflow")))
 #endif
-  int
-    cmp_ui32_asc (const void *a, const void *b) {
-  const uint32_t *ia = (const uint32_t *) a;    // casting pointer types
+int
+cmp_ui32_asc (const void *a, const void *b) {
+  const uint32_t *ia = (const uint32_t *) a; // casting pointer types
   const uint32_t *ib = (const uint32_t *) b;
   return *ia - *ib;
-  }
+}
+
+int
+cmp_ui32_desc (const void *a, const void *b) {
+  const uint32_t *ia = (const uint32_t *) a; // casting pointer types
+  const uint32_t *ib = (const uint32_t *) b;
+  return *ib - *ia;
+}
 
 /* Given a string sort field, get the enum field value.
  *
@@ -390,7 +403,7 @@ get_sort_field_str (GSortField field) {
  * The key corresponding to the enumerated field value is returned. */
 const char *
 get_sort_field_key (GSortField field) {
-  static const char *field2key[][2] = {
+  static const char *const field2key[][2] = {
     {"BY_HITS", "hits"},
     {"BY_VISITORS", "visitors"},
     {"BY_DATA", "data"},
@@ -473,7 +486,7 @@ parse_initial_sort (void) {
 
 /* Apply user defined sort */
 void
-sort_holder_items (GHolderItem * items, int size, GSort sort) {
+sort_holder_items (GHolderItem *items, int size, GSort sort) {
   switch (sort.field) {
   case SORT_BY_HITS:
     if (sort.sort == SORT_DESC)
@@ -537,7 +550,7 @@ sort_holder_items (GHolderItem * items, int size, GSort sort) {
  *
  * On success, raw data sorted in a descending order. */
 GRawData *
-sort_raw_num_data (GRawData * raw_data, int ht_size) {
+sort_raw_num_data (GRawData *raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_num_desc);
   return raw_data;
 }
@@ -546,7 +559,7 @@ sort_raw_num_data (GRawData * raw_data, int ht_size) {
  *
  * On success, raw data sorted in a descending order. */
 GRawData *
-sort_raw_str_data (GRawData * raw_data, int ht_size) {
+sort_raw_str_data (GRawData *raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_str_desc);
   return raw_data;
 }

@@ -38,6 +38,7 @@ var debounce = function (func, wait, now) {
 window.GoAccess = window.GoAccess || {
 	initialize: function (options) {
 		this.opts = options;
+		var cw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
 		this.AppState  = {}; // current state app key-value store
 		this.AppTpls   = {}; // precompiled templates
@@ -48,11 +49,18 @@ window.GoAccess = window.GoAccess || {
 		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
 		this.AppPrefs  = {
 			'autoHideTables': true,
-			'layout': 'horizontal',
+			'layout': cw > 2560 ? 'wide' : 'horizontal',
 			'perPage': 7,
-			'theme': 'darkPurple',
+			'theme': (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'darkPurple' : 'bright',
+			'hiddenPanels': [],
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
+
+		// WebSocket reconnection
+		this.wsDelay    = this.currDelay = 1E3;
+		this.maxDelay   = 20E3;
+		this.retries    = 0;
+		this.maxRetries = 20;
 
 		if (GoAccess.Util.hasLocalStorage()) {
 			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
@@ -81,15 +89,43 @@ window.GoAccess = window.GoAccess || {
 		return panel ? this.AppData[panel] : this.AppData;
 	},
 
+	reconnect: function (wsConn) {
+		if (this.retries >= this.maxRetries)
+			return window.clearTimeout(this.wsTimer);
+
+		this.retries++;
+		if (this.currDelay < this.maxDelay)
+			this.currDelay *= 2; // Exponential backoff
+		this.setWebSocket(wsConn);
+	},
+
+	buildWSURI: function (wsConn) {
+		var url = null;
+		if (!wsConn.url || !wsConn.port)
+			return null;
+		url = /^wss?:\/\//i.test(wsConn.url) ? wsConn.url : window.location.protocol === "https:" ? 'wss://' + wsConn.url : 'ws://' + wsConn.url;
+		return new URL(url).protocol + '//' + new URL(url).hostname + ':' + wsConn.port + new URL(url).pathname;
+	},
+
 	setWebSocket: function (wsConn) {
-		var host = null;
-		host = wsConn.url ? wsConn.url : window.location.hostname ? window.location.hostname : "localhost";
-		var str = /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}\//.test(host + "/") ? host : String(host + ':' + wsConn.port);
+		var host = null, pingId = null, uri = null, defURI = null, str = null;
+
+		defURI = window.location.hostname ? window.location.hostname + ':' + wsConn.port : "localhost" + ':' + wsConn.port;
+		uri = wsConn.url && /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}/.test(wsConn.url) ? wsConn.url : this.buildWSURI(wsConn);
+
+		str = uri || defURI;
 		str = !/^wss?:\/\//i.test(str) ? (window.location.protocol === "https:" ? 'wss://' : 'ws://') + str : str;
 
 		var socket = new WebSocket(str);
 		socket.onopen = function (event) {
-			GoAccess.Nav.WSOpen();
+			this.currDelay = this.wsDelay;
+			this.retries = 0;
+
+			// attempt to keep connection alive (e.g., ping/pong)
+			if (wsConn.ping_interval)
+				pingId = setInterval(() => { socket.send('ping'); }, wsConn.ping_interval * 1E3);
+
+			GoAccess.Nav.WSOpen(str);
 		}.bind(this);
 
 		socket.onmessage = function (event) {
@@ -100,6 +136,9 @@ window.GoAccess = window.GoAccess || {
 
 		socket.onclose = function (event) {
 			GoAccess.Nav.WSClose();
+			window.clearInterval(pingId);
+			socket = null;
+			this.wsTimer = setTimeout(() => { this.reconnect(wsConn); }, this.currDelay);
 		}.bind(this);
 	},
 };
@@ -129,7 +168,7 @@ GoAccess.Util = {
 		}, 0) >>> 0).toString(16);
 	},
 
-	// Format bytes to human readable
+	// Format bytes to human-readable
 	formatBytes: function (bytes, decimals, numOnly) {
 		if (bytes == 0)
 			return numOnly ? 0 : '0 Byte';
@@ -145,7 +184,7 @@ GoAccess.Util = {
 		return !isNaN(parseFloat(n)) && isFinite(n);
 	},
 
-	// Format microseconds to human readable
+	// Format microseconds to human-readable
 	utime2str: function (usec) {
 		if (usec >= 864E8)
 			return ((usec) / 864E8).toFixed(2) + ' d';
@@ -173,28 +212,36 @@ GoAccess.Util = {
 		return out;
 	},
 
-	// Format field value to human readable
-	fmtValue: function (value, dataType, decimals) {
+	shortNum:  function (n) {
+		if (n < 1e3) return n;
+		if (n >= 1e3 && n < 1e6) return +(n / 1e3).toFixed(1) + "K";
+		if (n >= 1e6 && n < 1e9) return +(n / 1e6).toFixed(1) + "M";
+		if (n >= 1e9 && n < 1e12) return +(n / 1e9).toFixed(1) + "B";
+		if (n >= 1e12) return +(n / 1e12).toFixed(1) + "T";
+	},
+
+	// Format field value to human-readable
+	fmtValue: function (value, dataType, decimals, shorten, hlregex, hlvalue) {
 		var val = 0;
 		if (!dataType)
 			val = value;
 
 		switch (dataType) {
 		case 'utime':
-			val = this.utime2str(value);
+			val = this.utime2str(+value);
 			break;
 		case 'date':
 			val = this.formatDate(value);
 			break;
 		case 'numeric':
 			if (this.isNumeric(value))
-				val = value.toLocaleString();
+				val = shorten ? this.shortNum(value) : (+value).toLocaleString();
 			break;
 		case 'bytes':
 			val = this.formatBytes(value, decimals);
 			break;
 		case 'percent':
-			val = parseFloat(value.replace(',', '.')).toFixed(2) + '%';
+			val = value.replace(',', '.') + '%';
 			break;
 		case 'time':
 			if (this.isNumeric(value))
@@ -209,7 +256,24 @@ GoAccess.Util = {
 			val = value;
 		}
 
-		return value == 0 ? String(val) : val;
+		if (hlregex) {
+			let o = JSON.parse(hlregex), tmp = '';
+			for (var x in o) {
+				if (!val) continue;
+				tmp = val.replace(new RegExp(x, 'gi'), o[x]);
+				if (tmp != val) {
+					val = tmp;
+					break;
+				}
+				val = tmp;
+			}
+		}
+
+		return value == 0 ? String(val) : (val === undefined ? '—' : val);
+	},
+
+	isPanelHidden: function (panel) {
+		return GoAccess.AppPrefs.hiddenPanels.includes(panel);
 	},
 
 	isPanelValid: function (panel) {
@@ -277,10 +341,28 @@ GoAccess.Util = {
 		var elemBottom = el.getBoundingClientRect().bottom;
 		return elemTop < window.innerHeight && elemBottom >= 0;
 	},
+
+	togglePanel: function(panel) {
+		var index = GoAccess.AppPrefs.hiddenPanels.indexOf(panel);
+		if (index == -1) {
+			GoAccess.AppPrefs.hiddenPanels.push(panel);
+		} else {
+			GoAccess.AppPrefs.hiddenPanels.splice(index, 1);
+		}
+		GoAccess.setPrefs();
+
+		delete GoAccess.AppCharts[panel];
+		GoAccess.OverallStats.initialize();
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
+	},
 };
 
 // OVERALL STATS
 GoAccess.OverallStats = {
+	total_requests: 0,
+
 	// Render each overall stats box
 	renderBox: function (data, ui, row, x, idx) {
 		var wrap = $('.wrap-general-items');
@@ -309,6 +391,11 @@ GoAccess.OverallStats = {
 		var idx = 0, row = null;
 
 		$('.last-updated').innerHTML = data.date_time;
+		$('.wrap-general').innerHTML = '';
+
+		if (GoAccess.Util.isPanelHidden('general'))
+			return false;
+
 		$('.wrap-general').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
 			'from': data.start_date,
 			'to': data.end_date,
@@ -327,6 +414,7 @@ GoAccess.OverallStats = {
 	initialize: function () {
 		var ui = GoAccess.getPanelUI('general');
 		var data = GoAccess.getPanelData('general');
+		this.total_requests = data.total_requests;
 
 		this.renderData(data, ui);
 	}
@@ -419,6 +507,15 @@ GoAccess.Nav = {
 				this.toggleAutoHideTables();
 			}.bind(this);
 		}.bind(this));
+
+		$$('.toggle-panel', function (item) {
+			item.onclick = function (e) {
+				e.stopPropagation();
+				var panel = e.currentTarget.getAttribute('data-panel');
+				GoAccess.Util.togglePanel(panel);
+				item.classList.toggle('active');
+			}.bind(this);
+		}.bind(this));
 	},
 
 	downloadJSON: function (e) {
@@ -463,7 +560,7 @@ GoAccess.Nav = {
 		var ui = GoAccess.getPanelUI();
 		var showTables = GoAccess.Tables.showTables();
 		Object.keys(ui).forEach(function (panel, idx) {
-			if (!GoAccess.Util.isPanelValid(panel))
+			if (!GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				ui[panel]['table'] = !showTables;
 		}.bind(this));
 
@@ -515,6 +612,9 @@ GoAccess.Nav = {
 		case 'status_codes'    : return 'warning';
 		case 'remote_user'     : return 'users';
 		case 'geolocation'     : return 'map-marker';
+		case 'asn'             : return 'map-marker';
+		case 'mime_type'       : return 'file-o';
+		case 'tls_type'        : return 'warning';
 		default                : return 'pie-chart';
 		}
 	},
@@ -530,6 +630,7 @@ GoAccess.Nav = {
 				'head': ui[panel].head,
 				'key': panel,
 				'icon': this.getIcon(panel),
+				'hidden': GoAccess.Util.isPanelHidden(panel)
 			});
 		}
 		return menu;
@@ -566,7 +667,9 @@ GoAccess.Nav = {
 		o['labels'] = GoAccess.i18n;
 
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.opts.render(o);
-		$('nav').classList.toggle('active');
+		requestAnimationFrame(function () {
+			$('nav').classList.toggle('active');
+		});
 		this.events();
 	},
 
@@ -574,10 +677,13 @@ GoAccess.Nav = {
 	renderMenu: function (e) {
 		$('.nav-list').innerHTML = GoAccess.AppTpls.Nav.menu.render({
 			'nav': this.getItems(),
-			'overall': window.location.hash.substr(1) == '',
+			'overall_current': window.location.hash.substr(1) == '',
+			'overall_hidden': GoAccess.Util.isPanelHidden('general'),
 			'labels': GoAccess.i18n,
 		});
-		$('nav').classList.toggle('active');
+		requestAnimationFrame(function () {
+			$('nav').classList.toggle('active');
+		});
 		this.events();
 	},
 
@@ -593,10 +699,10 @@ GoAccess.Nav = {
 		});
 	},
 
-	WSOpen: function () {
+	WSOpen: function (str) {
 		$$('.nav-ws-status', function (item) {
 			item.classList.add('connected');
-			item.setAttribute('title', 'Connected to ' + GoAccess.AppWSConn.url);
+			item.setAttribute('title', 'Connected to ' + str);
 		});
 	},
 
@@ -832,7 +938,7 @@ GoAccess.Panels = {
 		var ui = GoAccess.getPanelUI();
 		var ele = $('#panel-' + panel);
 
-		if (GoAccess.Util.isPanelValid(panel))
+		if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 			return false;
 
 		var col = ele.parentNode;
@@ -849,7 +955,7 @@ GoAccess.Panels = {
 
 		$('.wrap-panels').innerHTML = '';
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			row = this.createRow(row, idx++);
 			col = this.createCol(row);
@@ -952,7 +1058,7 @@ GoAccess.Charts = {
 		}
 	},
 
-	// Iterate over the item properties and and extract the count value.
+	// Iterate over the item properties and extract the count value.
 	extractCount: function (item) {
 		var o = {};
 		for (var prop in item)
@@ -986,6 +1092,16 @@ GoAccess.Charts = {
 		for (var prop in key)
 			arr.push(datum[key[prop]]);
 		return arr.join(' ');
+	},
+
+	getWMap: function (panel, plotUI, data) {
+		var chart = WorldMap(d3.select("#chart-" + panel));
+		chart.width($("#chart-" + panel).getBoundingClientRect().width);
+		chart.height(400);
+		chart.metric(plotUI['d3']['y0']['key']);
+		chart.opts(plotUI);
+
+		return chart;
 	},
 
 	getAreaSpline: function (panel, plotUI, data) {
@@ -1080,6 +1196,9 @@ GoAccess.Charts = {
 		case 'bar':
 			chart = this.getVBar(panel, plotUI, data);
 			break;
+		case 'wmap':
+			chart = this.getWMap(panel, plotUI, data);
+			break;
 		}
 
 		return chart;
@@ -1090,7 +1209,7 @@ GoAccess.Charts = {
 		d3.select('#chart-' + panel + '>.chart-tooltip-wrap')
 			.remove();
 		// remove svg
-		d3.select('#chart-' + panel).select('svg')
+		d3.select('#chart-' + panel).selectAll('svg')
 			.remove();
 		// add chart to the document
 		d3.select("#chart-" + panel)
@@ -1122,7 +1241,7 @@ GoAccess.Charts = {
 	// Render all charts for the applicable panels.
 	renderCharts: function (ui) {
 		for (var panel in ui) {
-			if (!ui.hasOwnProperty(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			this.addChart(panel, ui[panel]);
 		}
@@ -1130,7 +1249,7 @@ GoAccess.Charts = {
 
 	resetChart: function (panel) {
 		var ui = {};
-		if (GoAccess.Util.isPanelValid(panel))
+		if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 			return false;
 
 		ui = GoAccess.getPanelUI(panel);
@@ -1144,7 +1263,8 @@ GoAccess.Charts = {
 
 		d3.select("#chart-" + panel)
 			.datum(this.processChartData(this.getPanelData(panel, data)))
-			.call(chart.width($("#chart-" + panel).offsetWidth));
+			.call(chart.width($("#chart-" + panel).offsetWidth))
+			.append("div").attr("class", "chart-tooltip-wrap");
 	},
 
 	// Reload (doesn't redraw) all chart's data
@@ -1381,26 +1501,18 @@ GoAccess.Tables = {
 		return this.getCurPage(panel) + 1;
 	},
 
-	getMetaValue: function (ui, value) {
-		if ('meta' in ui)
-			return value[ui.meta];
-		return null;
-	},
-
-	getMetaCell: function (ui, value) {
-		var val = this.getMetaValue(ui, value);
-		var max = (value || {}).max;
-		var min = (value || {}).min;
+	getMetaCell: function (ui, o, key) {
+		var val =  o && (key in o) && o[key].value ? o[key].value : null;
+		var perc = o &&  (key in o) && o[key].percent ? o[key].percent : null;
 
 		// use metaType if exist else fallback to dataType
 		var vtype = ui.metaType || ui.dataType;
 		var className = ui.className || '';
-		className += ui.dataType != 'string' ? 'text-right' : '';
+		className += !['string'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
-			'max'      : max != undefined ? GoAccess.Util.fmtValue(max, vtype) : null,
-			'min'      : min != undefined ? GoAccess.Util.fmtValue(min, vtype) : null,
-			'value'    : val != undefined ? GoAccess.Util.fmtValue(val, vtype) : null,
+			'value'    : val ? GoAccess.Util.fmtValue(val, vtype) : null,
+			'percent'  : perc,
 			'title'    : ui.meta,
 			'label'    : ui.metaLabel || null,
 		};
@@ -1424,27 +1536,32 @@ GoAccess.Tables = {
 		ui['autoHideTables'] = this.autoHideTables();
 	},
 
-	renderMetaRow: function (panel, ui) {
-		// find the table to set
-		var table = $('.table-' + panel + ' tbody.tbody-meta');
-		if (!table)
-			return;
-
+	getMetaRows: function (panel, ui, key) {
 		var cells = [], uiItems = ui.items;
 		var data = GoAccess.getPanelData(panel).metadata;
+
 		for (var i = 0; i < uiItems.length; ++i) {
 			var item = uiItems[i];
 			if (this.hideColumn(panel, item.key))
 				continue;
-			var value = data[item.key];
-			cells.push(this.getMetaCell(item, value));
+			cells.push(this.getMetaCell(item, data[item.key], key));
 		}
 
+		return [{
+			'hasSubItems': ui.hasSubItems,
+			'cells': cells,
+			'key' : key.substring(0, 3),
+		}];
+	},
+
+	renderMetaRow: function (panel, metarows, className) {
+		// find the table to set
+		var table = $('.table-' + panel + ' tr.' + className);
+		if (!table)
+			return;
+
 		table.innerHTML = GoAccess.AppTpls.Tables.meta.render({
-			row: [{
-				'hasSubItems': ui.hasSubItems,
-				'cells': cells
-			}]
+			row: metarows
 		});
 	},
 
@@ -1472,11 +1589,11 @@ GoAccess.Tables = {
 	// e.g., value = Object {count: 14351, percent: 5.79}
 	getObjectCell: function (panel, ui, value) {
 		var className = ui.className || '';
-		className += ui.dataType != 'string' ? 'text-right' : '';
+		className += !['string'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
 			'percent': GoAccess.Util.getPercent(value),
-			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType)
+			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType, null, null, ui.hlregex, ui.hlvalue, ui.hlidx)
 		};
 	},
 
@@ -1590,15 +1707,24 @@ GoAccess.Tables = {
 		var ui = GoAccess.getPanelUI(panel), page = 0;
 		// panel's data
 		var data = GoAccess.getPanelData(panel);
+
 		// render meta data
-		if (data.hasOwnProperty('metadata'))
-			this.renderMetaRow(panel, ui);
+		if (data.hasOwnProperty('metadata')) {
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'min'), 'thead-min');
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'max'), 'thead-max');
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'avg'), 'thead-avg');
+		}
 
 		// render actual data
 		if (data.hasOwnProperty('data')) {
 			page = this.getCurPage(panel);
 			this.togglePagination(panel, page, data.data);
 			this.renderDataRows(panel, ui, data.data, page);
+		}
+
+		// render meta data
+		if (data.hasOwnProperty('metadata')) {
+			this.renderMetaRow(panel, this.getMetaRows(panel, ui, 'total'), 'tfoot-totals');
 		}
 	},
 
@@ -1607,7 +1733,7 @@ GoAccess.Tables = {
 	renderTables: function (force) {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel) || !this.showTables())
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel) || !this.showTables())
 				continue;
 			if (force || GoAccess.Util.isWithinViewPort($('#panel-' + panel)))
 				this.renderFullTable(panel);
@@ -1638,7 +1764,9 @@ GoAccess.Tables = {
 	},
 
 	renderThead: function (panel, ui) {
-		var $thead = $('.table-' + panel + '>thead'), $colgroup = $('.table-' + panel + '>colgroup');
+		var $thead = $('.table-' + panel + '>thead>tr.thead-cols'),
+			$colgroup = $('.table-' + panel + '>colgroup');
+
 		if ($thead && $colgroup && this.showTables()) {
 			ui = this.sort2Tpl(panel, ui);
 
@@ -1690,6 +1818,7 @@ GoAccess.App = {
 				'colgroup': this.tpl($('#tpl-table-colgroup').innerHTML),
 				'head': this.tpl($('#tpl-table-thead').innerHTML),
 				'meta': this.tpl($('#tpl-table-row-meta').innerHTML),
+				'totals': this.tpl($('#tpl-table-row-totals').innerHTML),
 				'data': this.tpl($('#tpl-table-row').innerHTML),
 			},
 		};
@@ -1705,14 +1834,28 @@ GoAccess.App = {
 	sortData: function (panel, field, order) {
 		// panel's data
 		var panelData = GoAccess.getPanelData(panel).data;
-		panelData.sort(function (a, b) {
-			a = this.sortField(a, field);
-			b = this.sortField(b, field);
 
-			if (typeof a === 'string' && typeof b === 'string')
-				return 'asc' == order ? a.localeCompare(b) : b.localeCompare(a);
-			return  'asc' == order ? a - b : b - a;
-		}.bind(this));
+		// Function to sort an array of objects
+		var sortArray = function(arr) {
+			arr.sort(function (a, b) {
+				a = this.sortField(a, field);
+				b = this.sortField(b, field);
+
+				if (typeof a === 'string' && typeof b === 'string')
+					return 'asc' == order ? a.localeCompare(b) : b.localeCompare(a);
+				return  'asc' == order ? a - b : b - a;
+			}.bind(this));
+		}.bind(this);
+
+		// Sort panelData
+		sortArray(panelData);
+
+		// Sort the items sub-array
+		panelData.forEach(function(item) {
+			if (item.items) {
+				sortArray(item.items);
+			}
+		});
 	},
 
 	setInitSort: function () {
@@ -1728,7 +1871,7 @@ GoAccess.App = {
 	verifySort: function () {
 		var ui = GoAccess.getPanelUI();
 		for (var panel in ui) {
-			if (GoAccess.Util.isPanelValid(panel))
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			var sort = GoAccess.Util.getProp(GoAccess.AppState, panel + '.sort');
 			// do not sort panels if they still hold the same sort properties
@@ -1753,6 +1896,13 @@ GoAccess.App = {
 		// update data and charts if tab/document has focus
 		if (!this.hasFocus)
 			return;
+
+		// some panels may not have been properly rendered since no data was
+		// passed when bootstrapping the report, thus we do a one full
+		// re-render of all panels
+		if (GoAccess.OverallStats.total_requests == 0 && GoAccess.OverallStats.total_requests != GoAccess.AppData.general.total_requests)
+			GoAccess.Panels.initialize();
+		GoAccess.OverallStats.total_requests = GoAccess.AppData.general.total_requests;
 
 		this.verifySort();
 		GoAccess.OverallStats.initialize();

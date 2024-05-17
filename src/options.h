@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,6 +32,7 @@
 
 #define CYN   "\x1B[36m"
 #define RESET "\x1B[0m"
+#define HTML_REFRESH 1 /* in seconds */
 
 void add_dash_filename (void);
 void cmd_help (void) __attribute__((noreturn));

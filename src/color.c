@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,7 @@ static GSLList *color_list = NULL;
 static GSLList *pair_list = NULL;
 
 /* *INDENT-OFF* */
-static GEnum CSTM_COLORS[] = {
+static const GEnum CSTM_COLORS[] = {
   {"COLOR_MTRC_HITS"              , COLOR_MTRC_HITS},
   {"COLOR_MTRC_VISITORS"          , COLOR_MTRC_VISITORS},
   {"COLOR_MTRC_HITS_PERC"         , COLOR_MTRC_HITS_PERC},
@@ -79,7 +79,7 @@ static GEnum CSTM_COLORS[] = {
   {"COLOR_PROGRESS"               , COLOR_PROGRESS},
 };
 
-static const char *colors256_mono[] = {
+static const char *const colors256_mono[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color8:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -117,7 +117,7 @@ static const char *colors256_mono[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors256_green[] = {
+static const char *const colors256_green[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color8:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -155,7 +155,7 @@ static const char *colors256_green[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors256_monokai[] = {
+static const char *const colors256_monokai[] = {
   "COLOR_MTRC_HITS              color197:color-1",
   "COLOR_MTRC_VISITORS          color148:color-1",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -193,7 +193,7 @@ static const char *colors256_monokai[] = {
   "COLOR_PROGRESS               color7:color141",
 };
 
-static const char *colors8_mono[] = {
+static const char *const colors8_mono[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1 bold",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -231,7 +231,7 @@ static const char *colors8_mono[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *colors8_green[] = {
+static const char *const colors8_green[] = {
   "COLOR_MTRC_HITS              color7:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1 bold",
   "COLOR_MTRC_DATA              color7:color-1",
@@ -269,7 +269,7 @@ static const char *colors8_green[] = {
   "COLOR_PROGRESS               color0:color6",
 };
 
-static const char *nocolors[] = {
+static const char *const nocolors[] = {
   "COLOR_MTRC_HITS              color0:color-1",
   "COLOR_MTRC_VISITORS          color0:color-1",
   "COLOR_MTRC_DATA              color0:color-1",
@@ -450,7 +450,7 @@ extract_color (char *color) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_bg_fg_color (GColorPair * pair, const char *value) {
+parse_bg_fg_color (GColorPair *pair, const char *value) {
   char bgcolor[COLOR_STR_LEN] = "", fgcolor[COLOR_STR_LEN] = "";
   int ret = 0;
 
@@ -468,7 +468,7 @@ parse_bg_fg_color (GColorPair * pair, const char *value) {
 
 /* Assign color attributes from the given config string to GColors. */
 static void
-locate_attr_color (GColors * color, const char *attr) {
+locate_attr_color (GColors *color, const char *attr) {
   if (strstr (attr, "bold"))
     color->attr |= A_BOLD;
   if (strstr (attr, "underline"))
@@ -488,7 +488,7 @@ locate_attr_color (GColors * color, const char *attr) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_attr_color (GColors * color, const char *value) {
+parse_attr_color (GColors *color, const char *value) {
   char *line, *ptr, *start;
   int ret = 0;
 
@@ -521,7 +521,7 @@ clean:
  * On error, 1 is returned.
  * On success, 0 is returned. */
 static int
-parse_module_color (GColors * color, const char *value) {
+parse_module_color (GColors *color, const char *value) {
   char *line = xstrdup (value), *p;
 
   p = strrchr (line, ' ');
@@ -648,7 +648,7 @@ get_color_by_item_module (GColorItem item, GModule module) {
  * On error, it aborts.
  * On success, the color properties are assigned */
 static void
-parse_color_line (GColorPair * pair, GColors * color, char *line) {
+parse_color_line (GColorPair *pair, GColors *color, char *line) {
   char *val;
   int item = 0;
   size_t idx;
@@ -687,7 +687,7 @@ parse_color_line (GColorPair * pair, GColors * color, char *line) {
  * On error, or if color already exists, the given color is freed.
  * On success, or if not color found, store color properties */
 static void
-prepend_color (GColors ** color) {
+prepend_color (GColors **color) {
   /* create a list of colors if one does not exist */
   if (color_list == NULL) {
     color_list = list_create (*color);
@@ -705,7 +705,7 @@ prepend_color (GColors ** color) {
   }
 }
 
-/* Parse a color definition line from the config file and store it on a signle
+/* Parse a color definition line from the config file and store it on a single
  * linked-list.
  *
  * On error, it aborts.
@@ -753,7 +753,7 @@ parse_color (char *line) {
  * On error, it aborts.
  * On success, the color properties are parsed and stored */
 static void
-parse_colors (const char *colors[], size_t n) {
+parse_colors (const char *const colors[], size_t n) {
   char *line;
   size_t i;
 

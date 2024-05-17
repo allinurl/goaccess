@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,15 +28,12 @@
  * SOFTWARE.
  */
 
-#include <ctype.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
 
 #include "opesys.h"
 
+#include "error.h"
 #include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
@@ -45,7 +42,7 @@
  * which makes this pretty slow */
 
 /* {"search string", "belongs to"} */
-static const char *os[][2] = {
+static const char *const os[][2] = {
   {"Android", "Android"},
   {"Windows NT 10.0", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},
@@ -66,6 +63,7 @@ static const char *os[][2] = {
   {"Windows CE", "Windows"},
   {"Windows Phone 8.1", "Windows"},
   {"Windows Phone 8.0", "Windows"},
+  {"Windows", "Windows"},
 
   {"Googlebot", "Unix-like"},
   {"Mastodon", "Unix-like"},
@@ -74,9 +72,11 @@ static const char *os[][2] = {
   {"iPad", "iOS"},
   {"iPod", "iOS"},
   {"iPhone", "iOS"},
+  {"CFNetwork", "iOS"},
   {"AppleTV", "iOS"},
-  {"iTunes", "Macintosh"},
-  {"OS X", "Macintosh"},
+  {"iTunes", "macOS"},
+  {"OS X", "macOS"},
+  {"macOS", "macOS"},
   {"Darwin", "Darwin"},
 
   {"Debian", "Linux"},
@@ -89,18 +89,25 @@ static const char *os[][2] = {
   {"Gentoo", "Linux"},
   {"CentOS", "Linux"},
   {"PCLinuxOS", "Linux"},
-  {"Linux", "Linux"},
+  {"Arch", "Linux"},
+  {"Parabola", "Linux"},
 
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
   {"OpenBSD", "BSD"},
   {"DragonFly", "BSD"},
+
   {"PlayStation", "BSD"},
 
+  {"Linux", "Linux"},
+  {"linux", "Linux"},
+
   {"CrOS", "Chrome OS"},
-  {"SunOS", "Unix-like"},
   {"QNX", "Unix-like"},
   {"BB10", "Unix-like"},
+
+  {"AIX", "Unix"},
+  {"SunOS", "Unix"},
 
   {"BlackBerry", "Others"},
   {"Sony", "Others"},
@@ -120,7 +127,17 @@ static const char *os[][2] = {
  * returned. */
 static char *
 get_real_android (const char *droid) {
-  if (strstr (droid, "10"))
+  if (strstr (droid, "14"))
+    return alloc_string ("Android 14");
+  else if (strstr (droid, "13"))
+    return alloc_string ("Android 13");
+  else if (strstr (droid, "12"))
+    return alloc_string ("Android 12");
+  else if (strstr (droid, "12.1"))
+    return alloc_string ("Android 12.1");
+  else if (strstr (droid, "11"))
+    return alloc_string ("Android 11");
+  else if (strstr (droid, "10"))
     return alloc_string ("Android 10");
   else if (strstr (droid, "9"))
     return alloc_string ("Pie 9");
@@ -202,7 +219,15 @@ get_real_win (const char *win) {
  * returned. */
 static char *
 get_real_mac_osx (const char *osx) {
-  if (strstr (osx, "10.15"))
+  if (strstr (osx, "14.0"))
+    return alloc_string ("macOS 14 Sonoma");
+  else if (strstr (osx, "13.0"))
+    return alloc_string ("macOS 13 Ventura");
+  else if (strstr (osx, "12.0"))
+    return alloc_string ("macOS 12 Monterey");
+  else if (strstr (osx, "11.0"))
+    return alloc_string ("macOS 11 Big Sur");
+  else if (strstr (osx, "10.15"))
     return alloc_string ("macOS 10.15 Catalina");
   else if (strstr (osx, "10.14"))
     return alloc_string ("macOS 10.14 Mojave");
@@ -331,7 +356,7 @@ parse_android (char *agent) {
  *
  * On success, a malloc'd string containing the OS is returned. */
 static char *
-parse_os (const char *str, char *tkn, char *os_type, int idx) {
+parse_os (char *str, char *tkn, char *os_type, int idx) {
   char *b;
   int spaces = 0;
 
@@ -345,12 +370,17 @@ parse_os (const char *str, char *tkn, char *os_type, int idx) {
     return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
   }
   /* iOS */
+  if ((strstr (tkn, "CFNetwork")) != NULL) {
+    if ((b = strchr (str, ' ')))
+      *b = 0;
+    return xstrdup (str);
+  }
   if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
     return xstrdup (parse_ios (tkn, 4));
   if (strstr (tkn, "iPhone"))
     return xstrdup (parse_ios (tkn, 6));
   /* Mac OS X */
-  if ((strstr (tkn, "OS X")) != NULL) {
+  if (strstr (tkn, "OS X") || strstr (tkn, "macOS")) {
     tkn = parse_osx (tkn);
     return conf.real_os ? get_real_mac_osx (tkn) : xstrdup (tkn);
   }
@@ -375,18 +405,26 @@ parse_os (const char *str, char *tkn, char *os_type, int idx) {
  * On error, NULL is returned.
  * On success, a malloc'd  string containing the OS is returned. */
 char *
-verify_os (const char *str, char *os_type) {
+verify_os (char *str, char *os_type) {
   char *a;
   size_t i;
 
   if (str == NULL || *str == '\0')
     return NULL;
 
+  str = char_replace (str, '+', ' ');
   for (i = 0; i < ARRAY_SIZE (os); i++) {
     if ((a = strstr (str, os[i][0])) != NULL)
       return parse_os (str, a, os_type, i);
   }
-  xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+
+  if (conf.unknowns_as_crawlers && strcmp (os_type, "Crawlers"))
+    xstrncpy (os_type, "Crawlers", OPESYS_TYPE_LEN);
+  else
+    xstrncpy (os_type, "Unknown", OPESYS_TYPE_LEN);
+
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[OS]", str));
 
   return alloc_string ("Unknown");
 }

@@ -9,7 +9,7 @@ top_builddir = ..
 AM_CPPFLAGS = -I. -I$(srcdir)
 
 # These options get passed to xgettext.
-XGETTEXT_OPTIONS = --from-code=UTF-8 --keyword=_ --keyword=N_  
+XGETTEXT_OPTIONS = --from-code=UTF-8 --keyword=_ --keyword=N_
 
 # This is the copyright holder that gets inserted into the header of the
 # $(DOMAIN).pot file.  Set this to the copyright holder of the surrounding

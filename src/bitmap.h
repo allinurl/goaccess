@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,7 +31,7 @@
 #ifndef BITMAP_H_INCLUDED
 #define BITMAP_H_INCLUDED
 
-#include <limits.h>     /* for CHAR_BIT */
+#include <limits.h> /* for CHAR_BIT */
 
 typedef uint32_t word_t;        // I want to change this, from uint32_t to uint64_t
 enum { BITS_PER_WORD = sizeof (word_t) * CHAR_BIT };

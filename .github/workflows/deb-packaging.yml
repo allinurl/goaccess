@@ -1,0 +1,139 @@
+name: .deb packaging
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_job:
+    # The host should always be linux
+    runs-on: ubuntu-latest
+    name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
+
+    # Run steps on a matrix of 3 arch/distro combinations
+    strategy:
+      matrix:
+        include:
+          - arch: arm32v7
+            distro: ubuntu16.04
+          - arch: arm32v7
+            distro: ubuntu18.04
+          - arch: arm32v7
+            distro: ubuntu22.04
+          - arch: arm32v7
+            distro: ubuntu23.04
+          - arch: arm32v7
+            distro: ubuntu23.10
+          - arch: arm32v7
+            distro: ubuntu24.04
+          - arch: arm32v7
+            distro: bullseye
+          - arch: arm32v7
+            distro: bookworm
+          - arch: aarch64
+            distro: ubuntu16.04
+          - arch: aarch64
+            distro: ubuntu18.04
+          - arch: aarch64
+            distro: ubuntu20.04
+          - arch: aarch64
+            distro: ubuntu22.04
+          - arch: aarch64
+            distro: ubuntu23.04
+          - arch: aarch64
+            distro: ubuntu23.10
+          - arch: aarch64
+            distro: ubuntu24.04
+          - arch: aarch64
+            distro: buster
+          - arch: aarch64
+            distro: bullseye
+          - arch: aarch64
+            distro: bookworm
+          - arch: amd64
+            distro: buster
+          - arch: i386
+            distro: buster
+          - arch: amd64
+            distro: bullseye
+          - arch: amd64
+            distro: bookworm
+          - arch: i386
+            distro: bullseye
+          - arch: i386
+            distro: bookworm
+          - arch: amd64
+            distro: ubuntu16.04
+          - arch: i386
+            distro: ubuntu16.04
+          - arch: amd64
+            distro: ubuntu18.04
+          - arch: i386
+            distro: ubuntu18.04
+          - arch: amd64
+            distro: ubuntu20.04
+          - arch: amd64
+            distro: ubuntu22.04
+          - arch: amd64
+            distro: ubuntu23.04
+          - arch: amd64
+            distro: ubuntu23.10
+          - arch: amd64
+            distro: ubuntu24.04
+
+    steps:
+      - uses: actions/checkout@v2.1.0
+      - uses: allinurl/run-on-arch-action@master
+        name: Build artifact
+        id: build
+        with:
+          arch: ${{ matrix.arch }}
+          distro: ${{ matrix.distro }}
+
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+
+          # Create an artifacts directory
+          setup: |
+            mkdir -p "${PWD}/artifacts"
+
+          # Mount the artifacts directory as /artifacts in the container
+          dockerRunArgs: |
+            --volume "${PWD}/artifacts:/artifacts"
+
+          # The shell to run commands with in the container
+          shell: /bin/bash
+
+          # Install some dependencies in the container. This speeds up builds if
+          # you are also using githubToken. Any dependencies installed here will
+          # be part of the container image that gets cached, so subsequent
+          # builds don't have to re-install them. The image layer is cached
+          # publicly in your project's package repository, so it is vital that
+          # no secrets are present in the container state or logs.
+          install: |
+            case "${{ matrix.distro }}" in
+              ubuntu*|jessie|stretch|buster|bullseye|bookworm)
+                apt-get update && apt-get install -y ca-certificates wget curl lsb-release && apt-get clean all
+                ;;
+            esac
+
+          # Produce a binary artifact and place it in the mounted volume
+          run: |
+            ls -lath "/artifacts"
+            curl -O https://deb.goaccess.io/provision/provision.sh
+            chmod +x ./provision.sh
+            ./provision.sh
+            echo "Success!!"
+
+      - name: Show the artifact
+        # Items placed in /artifacts in the container will be in
+        # ${PWD}/artifacts on the host.
+        run: |
+          pwd
+          ls -lath "${PWD}/artifacts"
+
+      - name: 'Upload deb package'
+        uses: actions/upload-artifact@v3
+        with:
+          name: deb-package
+          path: 'artifacts/*.deb'
+          retention-days: 1

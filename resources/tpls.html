@@ -42,25 +42,43 @@
 <!-- TPL Panel Table Meta -->
 <script id="tpl-table-row-meta" type="text/template">
 	{{#row}}
-		<tr>
-			{{#hasSubItems}}
-			<td class=""></td>
-			{{/hasSubItems}}
-			<td class=""></td>
-			{{#cells}}
-				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
-					{{#value}}
-					<h4 class="value"><span title="{{title}}">{{value}}</span>{{#label}}<small> {{label}}</small>{{/label}}{{#max}}<br><small>Max: {{max}}</small>{{/max}}{{#min}}<br><small>Min: {{min}}</small>{{/min}}</h4>
-					{{/value}}
-				</td>
-			{{/cells}}
-		</tr>
+		{{#hasSubItems}}
+		<th class=""></th>
+		{{/hasSubItems}}
+		<th class="meta-label">{{key}}.</th>
+		{{#cells}}
+			<th class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+				{{#value}}
+					<span>{{value}} {{#percent}}<span class="text-muted">({{percent}}%)</span>{{/percent}}</span>
+				{{/value}}
+				{{^value}}
+					<span class="text-muted">&mdash;</span>
+				{{/value}}
+			</th>
+		{{/cells}}
+	{{/row}}
+</script>
+
+<!-- TPL Panel Table Totals -->
+<script id="tpl-table-row-totals" type="text/template">
+	{{#row}}
+		{{#hasSubItems}}
+		<td class=""></td>
+		{{/hasSubItems}}
+		<td class="meta-label">Tot.</td>
+		{{#cells}}
+			<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+				{{#label}}
+					<span>{{label}}</span>&nbsp;
+				{{/label}}
+				<span>{{value}}</span>
+			</td>
+		{{/cells}}
 	{{/row}}
 </script>
 
 <!-- TPL Table thead -->
 <script id="tpl-table-thead" type="text/template">
-	<tr>
 	{{#hasSubItems}}
 		<th></th>
 	{{/hasSubItems}}
@@ -70,7 +88,6 @@
 			{{label}} <i class="fa fa-{{^sort}}sort{{/sort}}{{#sort}}{{#asc}}caret-up{{/asc}}{{^asc}}caret-down{{/asc}}{{/sort}}"></i>
 		</th>
 	{{/items}}
-	</tr>
 </script>
 
 <!-- TPL Panel Options DropDown -->
@@ -82,6 +99,9 @@
 	<li class="dropdown-header">{{ labels.type }}</li>
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> {{labels.area_spline}}</a></li>
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> {{labels.bar}}</a></li>
+	{{#hasMap}}
+	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="wmap"><i class="fa fa-circle{{^wmap}}-o{{/wmap}}"></i> {{labels.wmap}}</a></li>
+	{{/hasMap}}
 	<li class="dropdown-header">{{labels.plot_metric}}</li>
 	{{#plot}}
 	<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}"><i class="fa fa-circle{{^selected}}-o{{/selected}}"></i> {{label}}</a></li>
@@ -138,12 +158,18 @@
 				<table data-panel="{{id}}" class="table table-borderless table-hover table-{{id}}">
 					<colgroup>
 					</colgroup>
-					<thead>
+					<thead >
+						<tr class="thead-cols"></tr>
+						<tr class="thead-min"></tr>
+						<tr class="thead-max"></tr>
+						<tr class="thead-avg"></tr>
 					</thead>
-					<tbody class="tbody-meta">
-					</tbody>
 					<tbody class="tbody-data">
 					</tbody>
+					<tfoot class="tfoot-totals">
+						<tr class="tfoot-totals">
+						</tr>
+					</tfoot>
 				</table>
 			</div>
 
@@ -176,20 +202,26 @@
 
 <!-- TPL Nav Bar wrapper -->
 <script id="tpl-nav-wrap" type="text/template">
+	<div class="nav-list"></div>
 	<div class="nav-bars fa fa-bars"></div>
 	<div class="nav-gears fa fa-cog"></div>
 	<div class="nav-ws-status fa fa-circle"></div>
-	<div class="nav-list"></div>
-	<div class="powered hidden-xs hidden-sm">by <a href="https://goaccess.io/">GoAccess</a> <span>v{{version}}</span> and <a href="http://gwsocket.io/">GWSocket</a></div>
+	<div class="powered hidden-xs hidden-sm">by <a href="https://goaccess.io/">GoAccess</a> <span>v{{version}}</span> and <a href="https://gwsocket.io/">GWSocket</a></div>
 </script>
 
 <!-- TPL Nav Bar items -->
 <script id="tpl-nav-menu" type="text/template">
 	<h3>{{labels.panels}}</h3>
 	<ul>
-		<li {{#overall}}class="active"{{/overall}}><a href="#"><i class="fa fa-bar-chart"></i> {{labels.thead}}</a></li>
+		<li {{#overall_current}}class="active"{{/overall_current}}>
+			<a href="#"><i class="fa fa-bar-chart"></i> {{labels.thead}}</a>
+			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#overall_hidden}}active{{/overall_hidden}}" data-panel="general"><i class="fa fa-circle-o"></i></span>
+		</li>
 		{{#nav}}
-		<li {{#current}}class="active"{{/current}}><a href="#{{key}}"><i class="fa fa-{{icon}}"></i> {{head}}</a></li>
+		<li {{#current}}class="active"{{/current}}>
+			<a href="#{{key}}"><i class="fa fa-{{icon}}"></i> {{head}}</a>
+			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#hidden}}active{{/hidden}}" data-panel="{{key}}"><i class="fa fa-circle-o"></i></span>
+		</li>
 		{{/nav}}
 	</ul>
 </script>
@@ -231,6 +263,9 @@
 		</li>
 		<li {{#perPage20}}class="active"{{/perPage20}}>
 			<a href="javascript:void(0);" data-perpage="20"><i class="fa fa-circle{{^perPage20}}-o{{/perPage20}}"></i> 20</a>
+		</li>
+		<li {{#perPage24}}class="active"{{/perPage24}}>
+			<a href="javascript:void(0);" data-perpage="24"><i class="fa fa-circle{{^perPage24}}-o{{/perPage24}}"></i> 24</a>
 		</li>
 		<li class="dropdown-header"><i class="fa fa-table"></i> {{labels.tables}}</li>
 		<li {{#showTables}}class="active"{{/showTables}}>

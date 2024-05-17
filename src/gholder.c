@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,6 @@
  */
 
 #include <pthread.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -61,7 +60,7 @@ static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, c
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
 
-static GPanel paneling[] = {
+static const GPanel paneling[] = {
   {VISITORS        , add_data_to_holder , NULL},
   {REQUESTS        , add_data_to_holder , NULL},
   {REQUESTS_STATIC , add_data_to_holder , NULL},
@@ -79,7 +78,10 @@ static GPanel paneling[] = {
   {CACHE_STATUS    , add_data_to_holder , NULL},
 #ifdef HAVE_GEOLOCATION
   {GEO_LOCATION    , add_root_to_holder , NULL},
+  {ASN             , add_data_to_holder , NULL} ,
 #endif
+  {MIME_TYPE       , add_root_to_holder , NULL} ,
+  {TLS_TYPE        , add_root_to_holder , NULL} ,
 };
 /* *INDENT-ON* */
 
@@ -88,7 +90,7 @@ static GPanel paneling[] = {
  *
  * On error, or if not found, NULL is returned.
  * On success, the panel value is returned. */
-static GPanel *
+static const GPanel *
 panel_lookup (GModule module) {
   int i, num_panels = ARRAY_SIZE (paneling);
 
@@ -137,7 +139,7 @@ new_gsublist (void) {
  *
  * On success, the newly allocated GSubItem is returned . */
 static GSubItem *
-new_gsubitem (GModule module, GMetrics * nmetrics) {
+new_gsubitem (GModule module, GMetrics *nmetrics) {
   GSubItem *sub_item = xmalloc (sizeof (GSubItem));
 
   sub_item->metrics = nmetrics;
@@ -150,7 +152,7 @@ new_gsubitem (GModule module, GMetrics * nmetrics) {
 
 /* Add an item to the end of a given sub list. */
 static void
-add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics) {
+add_sub_item_back (GSubList *sub_list, GModule module, GMetrics *nmetrics) {
   GSubItem *sub_item = new_gsubitem (module, nmetrics);
   if (sub_list->tail) {
     sub_list->tail->next = sub_item;
@@ -165,7 +167,7 @@ add_sub_item_back (GSubList * sub_list, GModule module, GMetrics * nmetrics) {
 
 /* Delete the entire given sub list. */
 static void
-delete_sub_list (GSubList * sub_list) {
+delete_sub_list (GSubList *sub_list) {
   GSubItem *item = NULL;
   GSubItem *next = NULL;
 
@@ -189,19 +191,12 @@ static void
 free_holder_data (GHolderItem item) {
   if (item.sub_list != NULL)
     delete_sub_list (item.sub_list);
-  if (item.metrics->data != NULL)
-    free (item.metrics->data);
-  if (item.metrics->method != NULL)
-    free (item.metrics->method);
-  if (item.metrics->protocol != NULL)
-    free (item.metrics->protocol);
-  if (item.metrics != NULL)
-    free (item.metrics);
+  free_gmetrics (item.metrics);
 }
 
 /* Free all memory allocated in holder for a given module. */
 void
-free_holder_by_module (GHolder ** holder, GModule module) {
+free_holder_by_module (GHolder **holder, GModule module) {
   int j;
 
   if ((*holder) == NULL)
@@ -219,7 +214,7 @@ free_holder_by_module (GHolder ** holder, GModule module) {
 
 /* Free all memory allocated in holder for all modules. */
 void
-free_holder (GHolder ** holder) {
+free_holder (GHolder **holder) {
   GModule module;
   int j;
   size_t idx = 0;
@@ -244,7 +239,7 @@ free_holder (GHolder ** holder) {
  * If the key does not exist, -1 is returned.
  * On success, the key in holder is returned . */
 static int
-get_item_idx_in_holder (GHolder * holder, const char *k) {
+get_item_idx_in_holder (GHolder *holder, const char *k) {
   int i;
   if (holder == NULL)
     return KEY_NOT_FOUND;
@@ -264,7 +259,7 @@ get_item_idx_in_holder (GHolder * holder, const char *k) {
 /* Copy linked-list items to an array, sort, and move them back to the
  * list. Should be faster than sorting the list */
 static void
-sort_sub_list (GHolder * h, GSort sort) {
+sort_sub_list (GHolder *h, GSort sort) {
   GHolderItem *arr;
   GSubItem *iter;
   GSubList *sub_list;
@@ -303,8 +298,14 @@ sort_sub_list (GHolder * h, GSort sort) {
 
       add_sub_item_back (sub_list, h->module, arr[k].metrics);
       h->items[i].sub_list = sub_list;
+      sub_list = NULL;
     }
+
     free (arr);
+    if (sub_list) {
+      delete_sub_list (sub_list);
+      sub_list = NULL;
+    }
   }
 }
 
@@ -312,7 +313,7 @@ sort_sub_list (GHolder * h, GSort sort) {
  *
  * On success, the data field/metric is set. */
 static int
-set_host_child_metrics (char *data, uint8_t id, GMetrics ** nmetrics) {
+set_host_child_metrics (char *data, uint8_t id, GMetrics **nmetrics) {
   GMetrics *metrics;
 
   metrics = new_gmetrics ();
@@ -327,18 +328,19 @@ set_host_child_metrics (char *data, uint8_t id, GMetrics ** nmetrics) {
  *
  * On success, the host panel data is set. */
 static void
-set_host_sub_list (GHolder * h, GSubList * sub_list) {
+set_host_sub_list (GHolder *h, GSubList *sub_list) {
   GMetrics *nmetrics;
 #ifdef HAVE_GEOLOCATION
   char city[CITY_LEN] = "";
   char continent[CONTINENT_LEN] = "";
-  char country[COUNTRY_LEN] = "";
+  char country[ASN_LEN] = "";
+  char asn[ASN_LEN] = "";
 #endif
 
   char *host = h->items[h->idx].metrics->data, *hostname = NULL;
 #ifdef HAVE_GEOLOCATION
   /* add geolocation child nodes */
-  set_geolocation (host, continent, country, city);
+  set_geolocation (host, continent, country, city, asn);
 
   /* country */
   if (country[0] != '\0') {
@@ -361,10 +363,22 @@ set_host_sub_list (GHolder * h, GSubList * sub_list) {
     /* flag only */
     conf.has_geocity = 1;
   }
+
+  /* ASN */
+  if (asn[0] != '\0') {
+    set_host_child_metrics (asn, MTRC_ID_ASN, &nmetrics);
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[h->idx].sub_list = sub_list;
+    h->sub_items_size++;
+
+    /* flag only */
+    conf.has_geoasn = 1;
+  }
 #endif
 
   /* hostname */
-  if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation) {
+  if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
+      !conf.real_time_html) {
     hostname = reverse_ip (host);
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
@@ -378,7 +392,7 @@ set_host_sub_list (GHolder * h, GSubList * sub_list) {
  *
  * On success, the host panel data is set. */
 static void
-add_host_child_to_holder (GHolder * h) {
+add_host_child_to_holder (GHolder *h) {
   GMetrics *nmetrics;
   GSubList *sub_list = new_gsublist ();
 
@@ -414,10 +428,12 @@ add_host_child_to_holder (GHolder * h) {
  * On error, no values are set and 1 is returned.
  * On success, the data and hits values are set and 0 is returned. */
 static int
-map_data (GModule module, GRawDataItem item, datatype type, char **data, uint32_t * hits) {
+map_data (GModule module, GRawDataItem item, datatype type, char **data, uint32_t *hits) {
   switch (type) {
   case U32:
     if (!(*data = ht_get_datamap (module, item.nkey)))
+      return 1;
+    if (!item.hits)
       return 1;
     *hits = item.hits;
     break;
@@ -432,7 +448,7 @@ map_data (GModule module, GRawDataItem item, datatype type, char **data, uint32_
 
 /* Given a data item, store it into a holder structure. */
 static void
-set_single_metrics (GRawDataItem item, GHolder * h, char *data, uint32_t hits) {
+set_single_metrics (GRawDataItem item, GHolder *h, char *data, uint32_t hits) {
   uint32_t visitors = 0;
   uint64_t bw = 0, cumts = 0, maxts = 0;
 
@@ -467,7 +483,7 @@ set_single_metrics (GRawDataItem item, GHolder * h, char *data, uint32_t hits) {
 /* Set all panel data. This will set data for panels that do not
  * contain sub items. A function pointer is used for post data set. */
 static void
-add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel) {
+add_data_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *panel) {
   char *data = NULL;
   uint32_t hits = 0;
 
@@ -483,7 +499,7 @@ add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
 
 /* A wrapper to set a host item */
 static void
-set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data, uint32_t hits) {
+set_host (GRawDataItem item, GHolder *h, const GPanel *panel, char *data, uint32_t hits) {
   set_single_metrics (item, h, xstrdup (data), hits);
   if (panel->holder_callback)
     panel->holder_callback (h);
@@ -493,7 +509,7 @@ set_host (GRawDataItem item, GHolder * h, const GPanel * panel, char *data, uint
 /* Set all panel data. This will set data for panels that do not
  * contain sub items. A function pointer is used for post data set. */
 static void
-add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel) {
+add_host_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *panel) {
   char buf4[INET_ADDRSTRLEN];
   char buf6[INET6_ADDRSTRLEN];
   char *data = NULL;
@@ -503,8 +519,15 @@ add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
   struct in6_addr addr6, mask6, nwork6;
   struct in_addr addr4, mask4, nwork4;
 
-  const char *m4 = "255.255.255.0";
-  const char *m6 = "ffff:ffff:ffff:ffff:0000:0000:0000:0000";
+  const char *arr4[] = { "255.255.255.0", "255.255.0.0", "255.0.0.0" };
+  const char *arr6[] = {
+    "ffff:ffff:ffff:ffff:0000:0000:0000:0000",
+    "ffff:ffff:ffff:0000:0000:0000:0000:0000",
+    "ffff:ffff:0000:0000:0000:0000:0000:0000"
+  };
+
+  const char *m4 = arr4[0];
+  const char *m6 = arr6[0];
 
   if (map_data (h->module, item, type, &data, &hits) == 1)
     return;
@@ -513,6 +536,11 @@ add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
     add_data_to_holder (item, h, type, panel);
     free (data);
     return;
+  }
+
+  if (conf.anonymize_level == ANONYMIZE_STRONG || conf.anonymize_level == ANONYMIZE_PEDANTIC) {
+    m4 = arr4[conf.anonymize_level - 1];
+    m6 = arr6[conf.anonymize_level - 1];
   }
 
   if (1 == inet_pton (AF_INET, data, &addr4)) {
@@ -542,7 +570,7 @@ add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel 
 
 /* Set all root panel data. This will set the root nodes. */
 static int
-set_root_metrics (GRawDataItem item, GModule module, datatype type, GMetrics ** nmetrics) {
+set_root_metrics (GRawDataItem item, GModule module, datatype type, GMetrics **nmetrics) {
   GMetrics *metrics;
   char *data = NULL;
   uint64_t bw = 0, cumts = 0, maxts = 0;
@@ -571,8 +599,7 @@ set_root_metrics (GRawDataItem item, GModule module, datatype type, GMetrics ** 
 
 /* Set all root panel data, including sub list items. */
 static void
-add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
-                    GO_UNUSED const GPanel * panel) {
+add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
   GSubList *sub_list;
   GMetrics *metrics, *nmetrics;
   char *root = NULL;
@@ -581,8 +608,10 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
   if (set_root_metrics (item, h->module, type, &nmetrics) == 1)
     return;
 
-  if (!(root = ht_get_root (h->module, item.nkey)))
+  if (!(root = ht_get_root (h->module, item.nkey))) {
+    free_gmetrics (nmetrics);
     return;
+  }
 
   /* add data as a child node into holder */
   if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, root))) {
@@ -609,8 +638,7 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
   h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;
-  h->items[idx].metrics->avgts.nts =
-    h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;
+  h->items[idx].metrics->avgts.nts = h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;
 
   if (nmetrics->maxts.nts > h->items[idx].metrics->maxts.nts)
     h->items[idx].metrics->maxts.nts = nmetrics->maxts.nts;
@@ -620,13 +648,17 @@ add_root_to_holder (GRawDataItem item, GHolder * h, datatype type,
 
 /* Load raw data into our holder structure */
 void
-load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort) {
-  clock_t begin = clock ();
-
+load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort) {
   int i;
   uint32_t size = 0, max_choices = get_max_choices ();
   const GPanel *panel = panel_lookup (module);
+
+#ifdef _DEBUG
+  clock_t begin = clock ();
   double taken;
+  const char *modstr = NULL;
+  LOG_DEBUG (("== load_holder_data ==\n"));
+#endif
 
   size = raw_data->size;
   h->holder_size = size > max_choices ? max_choices : size;
@@ -644,6 +676,9 @@ load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort) 
     sort_sub_list (h, sort);
   free_raw_data (raw_data);
 
+#ifdef _DEBUG
+  modstr = get_module_str (module);
   taken = (double) (clock () - begin) / CLOCKS_PER_SEC;
-  LOG_DEBUG (("== %d\t\t\t%f\n", module, taken));
+  LOG_DEBUG (("== %-30s%f\n\n", modstr, taken));
+#endif
 }

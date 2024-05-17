@@ -1,0 +1,6 @@
+[codespell]
+skip=./.git,./po,./resources/js/*.min.js,./resources/css/*.min.css
+check-hidden=
+check-filenames=
+builtin=clear,rare,informal,usage,code,names
+ignore-words-list=master,thead,referer,cros,hastable,musl,stdio

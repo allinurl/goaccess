@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,8 +47,8 @@
 static char ***browsers_hash = NULL;
 
 /* {"search string", "belongs to"} */
-static const char *browsers[][2] = {
-  /* Game systems: most of them are based of major browsers,
+static const char *const browsers[][2] = {
+  /* Game systems: most of them are based on major browsers,
    * thus they need to go before. */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
@@ -69,6 +69,9 @@ static const char *browsers[][2] = {
   {"Edg", "Edge"},
   {"Edge", "Edge"},
 
+  /* Surf Browser */
+  {"Surf", "Surf"},
+
   /* Opera */
   {"Opera Mini", "Opera"},
   {"Opera Mobi", "Opera"},
@@ -79,8 +82,9 @@ static const char *browsers[][2] = {
 
   /* Others */
   {"Homebrew", "Others"},
-  {"APT-HTTP", "Others"},
+  {"APT-", "Others"},
   {"Apt-Cacher", "Others"},
+  {"Aptly", "Others"},
   {"Chef Client", "Others"},
   {"Huawei", "Others"},
   {"HUAWEI", "Others"},
@@ -114,6 +118,21 @@ static const char *browsers[][2] = {
   {"MicroMessenger", "Others"},
   {"Apache", "Others"},
   {"JOSM", "Others"},
+  {"pacman", "Others"},
+  {"Pamac", "Others"},
+  {"libwww-perl", "Others"},
+  {"python-requests", "Others"},
+  {"PackageKit", "Others"},
+  {"F-Droid", "Others"},
+  {"okhttp", "Others"},
+  {"node", "Others"},
+  {"PrivacyBrowser", "Others"},
+  {"Transmission", "Others"},
+  {"libmpv", "Others"},
+  {"aria2", "Others"},
+
+  /* WordPress Cron */
+  {"WordPress/", "Cron"},
 
   /* Feed-reader-as-a-service */
   {"AppleNewsBot", "Feeds"},
@@ -123,11 +142,16 @@ static const char *browsers[][2] = {
   {"FeedHQ", "Feeds"},
   {"Feedly", "Feeds"},
   {"Flipboard", "Feeds"},
+  {"inoreader.com", "Feeds"},
   {"Netvibes", "Feeds"},
   {"NewsBlur", "Feeds"},
   {"PinRSS", "Feeds"},
+  {"theoldreader.com", "Feeds"},
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
+  {"Brainstorm", "Feeds"},
+  {"Mastodon", "Feeds"},
+  {"Pleroma", "Feeds"},
 
   /* Google crawlers (some based on Chrome,
    * therefore up on the list) */
@@ -142,6 +166,8 @@ static const char *browsers[][2] = {
   /* Rebranded Firefox but is really unmodified
    * Firefox (Debian trademark policy) */
   {"Iceweasel", "Firefox"},
+  {"Waterfox", "Firefox"},
+  {"PaleMoon", "Firefox"},
   {"Focus", "Firefox"},
   /* Klar is the name of Firefox Focus in the German market. */
   {"Klar", "Firefox"},
@@ -166,6 +192,7 @@ static const char *browsers[][2] = {
   {"Safari", "Safari"},
 
   /* Crawlers/Bots */
+  {"Slack", "Crawlers"},
   {"Sogou", "Crawlers"},
   {"Java", "Crawlers"},
   {"Jakarta Commons-HttpClient", "Crawlers"},
@@ -179,6 +206,7 @@ static const char *browsers[][2] = {
   {"yacybot", "Crawlers"},
   {"PycURL", "Crawlers"},
   {"PHP", "Crawlers"},
+  {"ClaudeBot", "Crawlers"},
   {"AndroidDownloadManager", "Crawlers"},
   {"Embedly", "Crawlers"},
   {"ruby", "Crawlers"},
@@ -187,8 +215,48 @@ static const char *browsers[][2] = {
   {"Python", "Crawlers"},
   {"LinkedIn", "Crawlers"},
   {"Microsoft-WebDAV", "Crawlers"},
-  {"DuckDuckGo-Favicons-Bot", "Crawlers"},
+  {"DuckDuckGo", "Crawlers"},
   {"bingbot", "Crawlers"},
+  {"PetalBot", "Crawlers"},
+  {"Discordbot", "Crawlers"},
+  {"ZoominfoBot", "Crawlers"},
+  {"Googlebot", "Crawlers"},
+  {"DotBot", "Crawlers"},
+  {"AhrefsBot", "Crawlers"},
+  {"SemrushBot", "Crawlers"},
+  {"Adsbot", "Crawlers"},
+  {"BLEXBot", "Crawlers"},
+  {"NetcraftSurveyAgent", "Crawlers"},
+  {"Netcraft Web Server Survey", "Crawlers"},
+  {"masscan", "Crawlers"},
+  {"MJ12bot", "Crawlers"},
+  {"Pandalytics", "Crawlers"},
+  {"YandexBot", "Crawlers"},
+  {"Nimbostratus-Bot", "Crawlers"},
+  {"HTTP Banner Detection", "Crawlers"},
+  {"Hakai", "Crawlers"},
+  {"WinHttp.WinHttpRequest.5", "Crawlers"},
+  {"NetSystemsResearch", "Crawlers"},
+  {"Nextcloud Server Crawler", "Crawlers"},
+  {"CFNetwork", "Crawlers"},
+  {"GoScraper", "Crawlers"},
+  {"Googlebot-Image", "Crawlers"},
+  {"ZmEu", "Crawlers"},
+  {"DowntimeDetector", "Crawlers"},
+  {"MauiBot", "Crawlers"},
+  {"Cloud", "Crawlers"},
+  {"stagefright", "Crawlers"},
+  {"ImagesiftBot", "Crawlers"},
+  {"Bytespider", "Crawlers"},
+  {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
+
+  /* HTTP Library or HTTP Server User Agents - Suggest New Category */
+  {"axios", "HTTP Library"}, /* NodeJS axios axios-http.com */
+  {"lua-resty-http", "HTTP Library"}, /* Nginx lua-resty-http module */
+
+  /* Citation Services */
+  {"Citoid", "Citation"}, /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
+  {"EasyBib", "Citation"}, /* Easybib Citation https://easybib.com */
 
   /* Podcast fetchers */
   {"Downcast", "Podcasts"},
@@ -202,14 +270,20 @@ static const char *browsers[][2] = {
   /* Feed reader clients */
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
+  {"BTWebClient", "Feeds"},
   {"com.apple.Safari.WebFeedParser", "Feeds"},
   {"FeedDemon", "Feeds"},
   {"Feedy", "Feeds"},
+  {"Fever", "Feeds"},
+  {"FreshRSS", "Feeds"},
   {"Liferea", "Feeds"},
   {"NetNewsWire", "Feeds"},
   {"RSSOwl", "Feeds"},
+  {"Tiny Tiny RSS", "Feeds"},
   {"Thunderbird", "Feeds"},
+  {"Winds", "Feeds"},
 
+  /* Uptime and Monitoring clients */
   {"Pingdom.com", "Uptime"},
   {"jetmon", "Uptime"},
   {"NodeUptime", "Uptime"},
@@ -217,6 +291,18 @@ static const char *browsers[][2] = {
   {"StatusCake", "Uptime"},
   {"internetVista", "Uptime"},
   {"Server Density Service Monitoring v2", "Uptime"},
+  {"Better Uptime Bot", "Uptime"},
+  {"Site24x7", "Uptime"},
+  {"Uptime-Kuma", "Uptime"},
+
+  /* Performance and Caching - Suggest a new category */
+  {"ShortPixel", "Performance"}, /* Image Optimization */
+  {"WP Rocket", "Caching"}, /* Preloading Cache for WordPress Plugin */
+
+  /* Security - Suggest a new category */
+  {"Barracuda Sentinel", "Security"}, /* Barricuda spear fishing service */
+  {"ACI Site Scanner", "Security"}, /* Can't confirm specific vendor */
+
 
   {"Mozilla", "Others"}
 };
@@ -344,17 +430,17 @@ parse_browsers_file (void) {
  * If it is a crawler, 1 is returned . */
 int
 is_crawler (const char *agent) {
-  char type[BROWSER_TYPE_LEN];
+  char btype[BROWSER_TYPE_LEN];
   char *browser, *a;
 
   if (agent == NULL || *agent == '\0')
     return 0;
 
-  if ((a = xstrdup (agent), browser = verify_browser (a, type)) != NULL)
+  if ((a = xstrdup (agent), browser = verify_browser (a, btype)) != NULL)
     free (browser);
   free (a);
 
-  return strcmp (type, "Crawlers") == 0 ? 1 : 0;
+  return strcmp (btype, "Crawlers") == 0 ? 1 : 0;
 }
 
 /* Return the Opera 15 and beyond.
@@ -380,18 +466,18 @@ parse_crawler (char *str, char *match, char *type) {
 
   while (match != str) {
     match--;
-    if (*match == ' ' || *match == '+') {
+    if (*match == ' ' || *match == '+' || match == str) {
       found = 1;
       break;
     }
   }
 
   /* same addr */
-  if (match == str)
+  if (!found && match == str)
     return NULL;
 
   /* account for the previous +|space */
-  if (found)
+  if (found && match != str)
     match++;
 
   if ((ptr = strpbrk (match, "; ")))
@@ -442,6 +528,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
   char *b = NULL, *ptr = NULL, *slh = NULL;
   size_t cnt = 0, space = 0;
 
+  match = char_replace (match, '+', '-');
   /* Check if there are spaces in the token string, that way strpbrk
    * does not stop at the first space within the token string */
   if ((cnt = count_matches (hash[i][0], ' ')) && (b = match)) {
@@ -470,7 +557,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
     match = char_replace (match, ' ', '/');
   }
   /* all others */
-  else if ((ptr = strpbrk (b, ";) ")) != NULL) {
+  else if ((ptr = strpbrk (b ? b : match, ";) ")) != NULL) {
     *ptr = '\0';
   }
 
@@ -500,6 +587,7 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
 
+  /* try heuristics */
   if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
     return token;
 
@@ -510,7 +598,13 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, j, browsers_hash);
   }
 
-  xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
+  if (conf.unknowns_log)
+    LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
+
+  if (conf.unknowns_as_crawlers && strcmp (type, "Crawlers"))
+    xstrncpy (type, "Crawlers", BROWSER_TYPE_LEN);
+  else
+    xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 
   return alloc_string ("Unknown");
 }

@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -39,6 +39,7 @@
 #if defined(__GLIBC__)
 #include <execinfo.h>
 #endif
+#include <inttypes.h>
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -49,7 +50,8 @@
 static FILE *access_log;
 static FILE *log_file;
 static FILE *log_invalid;
-static GLog *log_data;
+static FILE *log_unknowns;
+static Logs *log_data;
 static struct sigaction old_sigsegv_handler;
 
 /* Open a debug file whose name is specified in the given path. */
@@ -87,6 +89,24 @@ invalid_log_close (void) {
     fclose (log_invalid);
 }
 
+/* Open the unknowns log file whose name is specified in the
+ * given path. */
+void
+unknowns_log_open (const char *path) {
+  if (path != NULL) {
+    log_unknowns = fopen (path, "w");
+    if (log_unknowns == NULL)
+      return;
+  }
+}
+
+/* Close the unknowns log file. */
+void
+unknowns_log_close (void) {
+  if (log_unknowns != NULL)
+    fclose (log_unknowns);
+}
+
 /* Set current overall parsed log data. */
 void
 set_signal_data (void *p) {
@@ -100,10 +120,8 @@ access_log_open (const char *path) {
   if (path == NULL)
     return 0;
 
-  if (access (path, F_OK) != -1)
-    access_log = fopen (path, "a");
-  else
-    access_log = fopen (path, "w");
+  access_log = fopen (path, "a");
+
   if (access_log == NULL)
     return 1;
 
@@ -129,21 +147,30 @@ setup_sigsegv_handler (void) {
   sigaction (SIGSEGV, &act, &old_sigsegv_handler);
 }
 
+static void
+dump_struct_data (FILE *fp, GLog *glog, int pid) {
+  fprintf (fp, "==%d== FILE: %s\n", pid, glog->props.filename);
+  fprintf (fp, "==%d== Line number: %" PRIu64 "\n", pid, glog->processed);
+  fprintf (fp, "==%d== Invalid data: %" PRIu64 "\n", pid, glog->invalid);
+  fprintf (fp, "==%d== Piping: %d\n", pid, glog->piping);
+  fprintf (fp, "==%d==\n", pid);
+}
+
 /* Dump to the standard output the values of the overall parsed log
  * data. */
 static void
-dump_struct (FILE * fp) {
-  int pid = getpid ();
+dump_struct (FILE *fp) {
+  int pid = getpid (), i;
+
   if (!log_data)
     return;
 
   fprintf (fp, "==%d== VALUES AT CRASH POINT\n", pid);
   fprintf (fp, "==%d==\n", pid);
-  fprintf (fp, "==%d== Line number: %u\n", pid, log_data->processed);
-  fprintf (fp, "==%d== Offset: %u\n", pid, log_data->offset);
-  fprintf (fp, "==%d== Invalid data: %u\n", pid, log_data->invalid);
-  fprintf (fp, "==%d== Piping: %d\n", pid, log_data->piping);
-  fprintf (fp, "==%d==\n", pid);
+
+  for (i = 0; i < log_data->size; ++i)
+    dump_struct_data (fp, &log_data->glog[i], pid);
+
 }
 
 /* Custom SIGSEGV handler. */
@@ -213,7 +240,21 @@ invalid_fprintf (const char *fmt, ...) {
   va_end (args);
 }
 
-/* Debug otuput */
+/* Write formatted unknown browsers/OSs log data to the logfile. */
+void
+unknowns_fprintf (const char *fmt, ...) {
+  va_list args;
+
+  if (!log_unknowns)
+    return;
+
+  va_start (args, fmt);
+  vfprintf (log_unknowns, fmt, args);
+  fflush (log_unknowns);
+  va_end (args);
+}
+
+/* Debug output */
 void
 dbg_printf (const char *fmt, ...) {
   va_list args;

@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +36,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <unistd.h>
 
 #include "commons.h"
 
-#include "error.h"
 #include "labels.h"
 #include "settings.h"
 #include "util.h"
@@ -56,7 +54,7 @@ int module_list[TOTAL_MODULES] = {[0 ... TOTAL_MODULES - 1] = -1 };
 
 /* *INDENT-OFF* */
 /* String modules to enumerated modules */
-static GEnum enum_modules[] = {
+static const GEnum enum_modules[] = {
   {"VISITORS"        , VISITORS}        ,
   {"REQUESTS"        , REQUESTS}        ,
   {"REQUESTS_STATIC" , REQUESTS_STATIC} ,
@@ -74,7 +72,10 @@ static GEnum enum_modules[] = {
   {"CACHE_STATUS"    , CACHE_STATUS}    ,
 #ifdef HAVE_GEOLOCATION
   {"GEO_LOCATION"    , GEO_LOCATION}    ,
+  {"ASN"             , ASN}             ,
 #endif
+  {"MIME_TYPE"       , MIME_TYPE}       ,
+  {"TLS_TYPE"        , TLS_TYPE}        ,
 };
 /* *INDENT-ON* */
 
@@ -88,7 +89,8 @@ get_max_choices (void) {
 
   /* no max choices, return defaults */
   if (conf.max_items <= 0)
-    return conf.real_time_html ? MAX_CHOICES_RT : MAX_CHOICES;
+    return conf.real_time_html ? MAX_CHOICES_RT : (conf.date_spec_hr ==
+                                                   2 ? MAX_CHOICES_MINUTE : MAX_CHOICES);
 
   /* TERM */
   if (!conf.output_stdout)
@@ -151,8 +153,8 @@ display_default_config_file (void) {
 void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
-  fprintf (stdout, "%s: http://goaccess.io\n", INFO_MORE_INFO);
-  fprintf (stdout, "Copyright (C) 2009-2020 by Gerardo Orellana\n");
+  fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
+  fprintf (stdout, "Copyright (C) 2009-2024 by Gerardo Orellana\n");
   fprintf (stdout, "\nBuild configure arguments:\n");
 #ifdef DEBUG
   fprintf (stdout, "  --enable-debug\n");
@@ -194,13 +196,13 @@ str2enum (const GEnum map[], int len, const char *str) {
  *
  * On error, -1 is returned.
  * On success, the enumerated module value is returned. */
-char *
+const char *
 enum2str (const GEnum map[], int len, int idx) {
   int i;
 
   for (i = 0; i < len; ++i) {
     if (idx == map[i].idx)
-      return xstrdup (map[i].str);
+      return map[i].str;
   }
 
   return NULL;
@@ -219,7 +221,7 @@ get_module_enum (const char *str) {
  *
  * On error, NULL is returned.
  * On success, the string module value is returned. */
-char *
+const char *
 get_module_str (GModule module) {
   return enum2str (enum_modules, ARRAY_SIZE (enum_modules), module);
 }
@@ -241,7 +243,7 @@ new_gagents (uint32_t size) {
 
 /* Clean the array of agents. */
 void
-free_agents_array (GAgents * agents) {
+free_agents_array (GAgents *agents) {
   int i;
 
   if (agents == NULL)
@@ -257,8 +259,8 @@ free_agents_array (GAgents * agents) {
 
 /* Determine if the given date format is a timestamp.
  *
- * On error, 0 is returned.
- * On success, 1 is returned. */
+ * If not a timestamp, 0 is returned.
+ * If it is a timestamp, 1 is returned. */
 int
 has_timestamp (const char *fmt) {
   if (strcmp ("%s", fmt) == 0 || strcmp ("%f", fmt) == 0)
@@ -398,7 +400,7 @@ verify_panels (void) {
   if (!conf.log_format)
     return;
 
-  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES) {
+  if (!strstr (conf.log_format, "%v") && ignore_panel_idx < TOTAL_MODULES && !conf.fname_as_vhost) {
     if (str_inarray ("VIRTUAL_HOSTS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (VIRTUAL_HOSTS);
   }
@@ -410,11 +412,23 @@ verify_panels (void) {
     if (str_inarray ("CACHE_STATUS", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (CACHE_STATUS);
   }
+  if (!strstr (conf.log_format, "%M") && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("MIME_TYPE", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (MIME_TYPE);
+  }
+  if (!strstr (conf.log_format, "%K") && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("TLS_TYPE", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (TLS_TYPE);
+  }
 #ifdef HAVE_GEOLOCATION
 #ifdef HAVE_LIBMAXMINDDB
-  if (!conf.geoip_database && ignore_panel_idx < TOTAL_MODULES) {
+  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (GEO_LOCATION);
+  }
+  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
+    if (str_inarray ("ASN", conf.ignore_panels, ignore_panel_idx) < 0)
+      remove_module (ASN);
   }
 #endif
 #endif

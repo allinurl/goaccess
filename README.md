@@ -1,4 +1,4 @@
-GoAccess [![Build Status](https://travis-ci.org/allinurl/goaccess.svg?branch=master)](https://travis-ci.org/allinurl/goaccess) [![GoAccess](https://goaccess.io/badge)](https://goaccess.io)
+GoAccess [![C build](https://github.com/allinurl/goaccess/actions/workflows/build-test.yml/badge.svg)](https://github.com/allinurl/goaccess/actions/workflows/build-test.yml) [![GoAccess](https://goaccess.io/badge)](https://goaccess.io)
 ========
 
 ## What is it? ##
@@ -8,8 +8,8 @@ viewer that runs in a **terminal** on &ast;nix systems or through your
 administrators that require a visual server report on the fly.
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2020051701)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2020051701)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2022011901)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?202201190)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -47,6 +47,9 @@ terminal. Features include:
   Have multiple Virtual Hosts (Server Blocks)? It features a panel that
   displays which virtual host is consuming most of the web server resources.
 
+* **ASN (Autonomous System Number mapping)**<br>
+  Great for detecting malicious traffic patterns and block them accordingly.
+
 * **Color Scheme Customizable**<br>
   Tailor GoAccess to suit your own color taste/schemes. Either through the
   terminal, or by simply applying the stylesheet on the HTML output.
@@ -74,6 +77,8 @@ not limited to:
 * Apache virtual hosts
 * Squid Native Format.
 * W3C format (IIS).
+* Caddy's JSON Structured format.
+* Traefik's CLF flavor
 
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
@@ -97,28 +102,35 @@ GoAccess can be compiled and used on *nix systems.
 Download, extract and compile GoAccess with:
 
     sudo apt install libncursesw5-dev libmaxminddb-dev
-    wget https://tar.goaccess.io/goaccess-1.4.tar.gz
-    tar -xzvf goaccess-1.4.tar.gz
-    cd goaccess-1.4/
-    ./configure --enable-utf8 --enable-geoip=legacy
+    wget https://tar.goaccess.io/goaccess-1.9.2.tar.gz
+    tar -xzvf goaccess-1.9.2.tar.gz
+    cd goaccess-1.9.2/
+    ./configure --enable-utf8 --enable-geoip=mmdb
     make
     sudo make install
 
 ### Build from GitHub (Development) ###
 
-    sudo apt install libncursesw5-dev libmaxminddb-dev
     git clone https://github.com/allinurl/goaccess.git
     cd goaccess
     autoreconf -fiv
-    ./configure --enable-utf8 --enable-geoip=legacy
+    ./configure --enable-utf8 --enable-geoip=mmdb
     make
-    sudo make install
+    make install
+
+#### Build in isolated container
+
+You can also build the binary for Debian based systems in an isolated container environment to prevent cluttering your local system with the development libraries:
+
+    curl -L "https://github.com/allinurl/goaccess/archive/refs/heads/master.tar.gz" | tar -xz && cd goaccess-master
+    docker build -t goaccess/build.debian-12 -f Dockerfile.debian-12 .
+    docker run -i --rm -v $PWD:/goaccess goaccess/build.debian-12 > goaccess
 
 ### Distributions ###
 
-It is easiest to install GoAccess on Linux using the preferred package manager
-of your Linux distribution. Please note that not all distributions will have
-the lastest version of GoAccess available.
+It is easiest to install GoAccess on GNU+Linux using the preferred package manager
+of your GNU+Linux distribution. Please note that not all distributions will have
+the latest version of GoAccess available.
 
 #### Debian/Ubuntu ####
 
@@ -130,8 +142,10 @@ alternative option below.
 
 #### Official GoAccess Debian & Ubuntu repository ####
 
-    echo "deb https://deb.goaccess.io/ $(lsb_release -cs) main" | sudo tee -a /etc/apt/sources.list.d/goaccess.list
-    wget -O - https://deb.goaccess.io/gnugpg.key | sudo apt-key --keyring /etc/apt/trusted.gpg.d/goaccess.gpg add -
+    wget -O - https://deb.goaccess.io/gnugpg.key | gpg --dearmor \
+        | sudo tee /usr/share/keyrings/goaccess.gpg >/dev/null
+    echo "deb [signed-by=/usr/share/keyrings/goaccess.gpg arch=$(dpkg --print-architecture)] https://deb.goaccess.io/ $(lsb_release -cs) main" \
+        | sudo tee /etc/apt/sources.list.d/goaccess.list
     sudo apt-get update
     sudo apt-get install goaccess
 
@@ -142,7 +156,7 @@ alternative option below.
 
     yum install goaccess
 
-#### Arch Linux ####
+#### Arch ####
 
     pacman -S goaccess
 
@@ -179,9 +193,9 @@ alternative option below.
 
 #### Windows ####
 
-GoAccess can be used in Windows through Cygwin.
-See Cygwin's <a href="https://goaccess.io/faq#installation">packages</a>. Or
-through the Linux Subsystem on Windows 10.
+GoAccess can be used in Windows through Cygwin. See Cygwin's <a
+href="https://goaccess.io/faq#installation">packages</a>.  Or through the
+GNU+Linux Subsystem on Windows 10.
 
 #### Distribution Packages ####
 
@@ -189,29 +203,41 @@ GoAccess has minimal requirements, it's written in C and requires only ncurses.
 However, below is a table of some optional dependencies in some distros to
 build GoAccess from source.
 
-Distro                 | NCurses          | GeoIP (opt)      |  OpenSSL (opt)     
----------------------- | -----------------|------------------| -------------------
-**Ubuntu/Debian**      | libncursesw5-dev | libgeoip-dev     |  libssl-dev        
-**RHEL/CentOS**        | ncurses-devel    | geoip-devel      |  openssl-devel     
-**Arch Linux**         | ncurses          | geoip            |  openssl           
-**Gentoo**             | sys-libs/ncurses | dev-libs/geoip   |  dev-libs/openssl  
-**Slackware**          | ncurses          | GeoIP            |  openssl           
+| Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
+| ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
+| **Ubuntu/Debian**      | libncurses-dev   | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
+| **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
+| **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
+| **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
+| **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl           |
 
 **Note**: You may need to install build tools like `gcc`, `autoconf`,
-`gettext`, `autopoint` etc for compiling/building software from source. e.g.,
+`gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
 `base-devel`, `build-essential`, `"Development Tools"`.
 
 #### Docker ####
 
 A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
 
-    cat access.log | docker run --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED - > report.html
+    touch report.html
+    cat access.log | docker run --rm -i -v ./report.html:/report.html -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED -
 
 OR real-time
 
-    cat access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o html --log-format COMBINED --real-time-html - > report.html
+    tail -F access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED --real-time-html -
 
 You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
+
+
+## Contributing ##
+
+Any help on GoAccess is welcome. The most helpful way is to try it out and give
+feedback. Feel free to use the GitHub issue tracker and pull requests to
+discuss and submit code changes.
+
+You can contribute to our translations by editing the .po files direct on GitHub or using the visual interface [inlang.com](https://inlang.com/editor/github.com/allinurl/goaccess)
+
+[![translation badge](https://inlang.com/badge?url=github.com/allinurl/goaccess)](https://inlang.com/editor/github.com/allinurl/goaccess?ref=badge)
 
 ## Storage ##
 
@@ -244,8 +270,8 @@ To generate an HTML report:
     
 To generate a JSON report:
 
-    goaccess access.log -a -d -o json > report.json
-    
+    goaccess access.log -a -d -o report.json 
+
 To generate a CSV file:
 
     goaccess access.log --no-csv-summary -o csv > report.csv
@@ -258,7 +284,7 @@ started:
 
 And even better, to filter while maintaining opened a pipe to preserve
 real-time analysis, we can make use of `tail -f` and a matching pattern tool
-such as `grep`, `awk`, `sed`, etc:
+such as `grep`, `awk`, `sed`, etc.:
 
     tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 
@@ -282,13 +308,25 @@ It's even possible to parse files from a pipe while reading regular files:
 **Note**: the single dash is appended to the command line to let GoAccess
 know that it should read from the pipe.
 
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance, if we would like to process all compressed log files
-access.log.*.gz in addition to the current log file, we can do:
+Now if we want to add more flexibility to GoAccess, we can use `zcat --force`
+to read compressed and uncompressed files. For instance, if we would
+like to process all log files `access.log*`, we can do:
 
-    zcat access.log.*.gz | goaccess access.log -
+    zcat --force access.log* | goaccess -
 
 _Note_: On Mac OS X, use `gunzip -c` instead of `zcat`.
+
+### Multi-thread Support ###
+
+Use `--jobs=<count>` (or `-j`) to enable multi-thread parsing. For example:
+
+    goaccess access.log -o report.html -j 4
+
+
+And use `--chunk-size=<256-32768>` to adjust chunk size, the default chunk size is 1024. For example:
+
+    goaccess access.log -o report.html -j 4 --chunk-size=8192
+
 
 ### Real-time HTML outputs ###
 
@@ -358,7 +396,7 @@ And you would like to append the virtual host to the request in order to see
 which virtual host the top urls belong to:
 
     awk '$8=$1$8' access.log | goaccess -a -
-    
+
 To do the same, but also use real-time filtering and parsing:
 
     tail -f  access.log | unbuffer -p awk '$8=$1$8' | goaccess -a -
@@ -403,8 +441,10 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine!
 
-    ssh root@server 'cat /var/log/apache2/access.log' | goaccess -a -
+    ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
 
+**Note:** SSH requires `-n` so GoAccess can read from stdin. Also, make sure to
+use SSH keys for authentication as it won't work if a passphrase is required.
 
 #### Troubleshooting ####
 
@@ -418,7 +458,6 @@ We receive many questions and issues that have been answered previously.
 
 #### Incremental log processing ####
 
-
 GoAccess has the ability to process logs incrementally through its internal
 storage and dump its data to disk. It works in the following way:
 
@@ -429,15 +468,17 @@ append it to the original dataset.
 
 ##### NOTES #####
 
-GoAccess  keeps track of inodes of all the files processed (assuming files will
-stay on the same partition) along with the last line parsed of each file and
-the timestamp of the last line parsed. e.g.,
-`inode:29627417|line:20012|ts:20171231235059`
+GoAccess keeps track of inodes of all the files processed (assuming files will
+stay on the same partition), in addition, it extracts a snippet of data from
+the log along with the last line parsed of each file and the timestamp of the
+last line parsed. e.g., `inode:29627417|line:20012|ts:20171231235059`
 
-If  the  inode  does not match the current file, it parses all lines. If the
-current file matches the inode, it then reads the remaining lines and updates
-the count of lines parsed and the timestamp.  As an extra precaution, it won't
-parse log lines with a timestamp ≤ than the one stored.
+First, it compares if the snippet matches the log being parsed, if it does, it
+assumes the log hasn't changed drastically, e.g., hasn't been truncated. If
+the inode does not match the current file, it parses all lines. If the current
+file matches the inode, it then reads the remaining lines and updates the count
+of lines parsed and the timestamp. As an extra precaution, it won't parse log
+lines with a timestamp ≤ than the one stored.
 
 Piped  data works based off the timestamp of the last line read. For instance,
 it will parse and discard all incoming entries until it finds a timestamp >=
@@ -456,11 +497,5 @@ then, load it with
 To read persisted data only (without parsing new data)
 
     goaccess --restore
-
-## Contributing ##
-
-Any help on GoAccess is welcome. The most helpful way is to try it out and give
-feedback. Feel free to use the Github issue tracker and pull requests to
-discuss and submit code changes.
 
 Enjoy!

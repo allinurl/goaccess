@@ -24,9 +24,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TPL_H
 #define TPL_H
 
-#include <stddef.h>     /* size_t */
+#include <stddef.h> /* size_t */
 
-#include <stdarg.h>     /* va_list */
+#include <stdarg.h> /* va_list */
 
 #ifdef __INTEL_COMPILER
 #include <tbb/tbbmalloc_proxy.h>
@@ -35,7 +35,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifdef _MSC_VER
 typedef unsigned int uint32_t;
 #else
-#include <inttypes.h>   /* uint32_t */
+#include <inttypes.h> /* uint32_t */
 #endif
 
 #if defined __cplusplus
@@ -94,10 +94,10 @@ extern "C" {
     int type;
     void *addr;
     void *data;                 /* r:tpl_root_data*. A:tpl_atyp*. ow:szof type */
-    int num;                    /* length of type if its a C array */
+    int num;                    /* length of type if it's a C array */
     size_t ser_osz;             /* serialization output size for subtree */
     struct tpl_node *children;  /* my children; linked-list */
-    struct tpl_node *next, *prev;       /* my siblings (next child of my parent) */
+    struct tpl_node *next, *prev; /* my siblings (next child of my parent) */
     struct tpl_node *parent;    /* my parent */
   } tpl_node;
 
@@ -117,16 +117,16 @@ extern "C" {
   typedef int (tpl_gather_cb) (void *img, size_t sz, void *data);
 
 /* Prototypes */
-  TPL_API tpl_node *tpl_map (char *fmt, ...);   /* define tpl using format */
+  TPL_API tpl_node *tpl_map (char *fmt, ...); /* define tpl using format */
   TPL_API void tpl_free (tpl_node * r); /* free a tpl map */
-  TPL_API int tpl_pack (tpl_node * r, int i);   /* pack the n'th packable */
+  TPL_API int tpl_pack (tpl_node * r, int i); /* pack the n'th packable */
   TPL_API int tpl_unpack (tpl_node * r, int i); /* unpack the n'th packable */
-  TPL_API int tpl_dump (tpl_node * r, int mode, ...);   /* serialize to mem/file */
-  TPL_API int tpl_load (tpl_node * r, int mode, ...);   /* set mem/file to unpack */
-  TPL_API int tpl_Alen (tpl_node * r, int i);   /* array len of packable i */
-  TPL_API char *tpl_peek (int mode, ...);       /* sneak peek at format string */
-  TPL_API int tpl_gather (int mode, ...);       /* non-blocking image gather */
-  TPL_API int tpl_jot (int mode, ...);  /* quick write a simple tpl */
+  TPL_API int tpl_dump (tpl_node * r, int mode, ...); /* serialize to mem/file */
+  TPL_API int tpl_load (tpl_node * r, int mode, ...); /* set mem/file to unpack */
+  TPL_API int tpl_Alen (tpl_node * r, int i); /* array len of packable i */
+  TPL_API char *tpl_peek (int mode, ...); /* sneak peek at format string */
+  TPL_API int tpl_gather (int mode, ...); /* non-blocking image gather */
+  TPL_API int tpl_jot (int mode, ...); /* quick write a simple tpl */
 
   TPL_API tpl_node *tpl_map_va (char *fmt, va_list ap);
 

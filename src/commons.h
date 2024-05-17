@@ -6,7 +6,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2020 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,8 +43,8 @@
 #define __attribute__(x) /**/
 #endif
 #define GO_UNUSED __attribute__((unused))
-#define GO_VERSION 		"1.4"
-#define GO_WEBSITE 		"http://goaccess.io/"
+#define GO_VERSION 		"1.9.2"
+#define GO_WEBSITE 		"https://goaccess.io/"
 extern struct tm now_tm;
 
 /* common char array buffer size */
@@ -52,15 +52,17 @@ extern struct tm now_tm;
 
 /* total number of modules */
 #ifdef HAVE_GEOLOCATION
-#define TOTAL_MODULES    16
+#define TOTAL_MODULES    19
 #else
-#define TOTAL_MODULES    15
+#define TOTAL_MODULES    17
 #endif
 
 /* maximum number of items within a panel */
-#define MAX_CHOICES      366
+#define MAX_CHOICES          366
 /* real-time */
-#define MAX_CHOICES_RT    50
+#define MAX_CHOICES_RT        50
+/* max default items when date-spec = min */
+#define MAX_CHOICES_MINUTE  1440 /* 24hrs */
 
 /* date and time length - e.g., 2016/12/12 12:12:12 -0600 */
 #define DATE_TIME     25 + 1
@@ -107,8 +109,37 @@ typedef enum MODULES {
   CACHE_STATUS,
 #ifdef HAVE_GEOLOCATION
   GEO_LOCATION,
+  ASN,
 #endif
+  MIME_TYPE,
+  TLS_TYPE,
 } GModule;
+
+/* Total number of storage metrics (GSMetric) */
+#define GSMTRC_TOTAL 19
+
+/* Enumerated Storage Metrics */
+typedef enum GSMetric_ {
+  MTRC_KEYMAP,
+  MTRC_ROOTMAP,
+  MTRC_DATAMAP,
+  MTRC_UNIQMAP,
+  MTRC_ROOT,
+  MTRC_HITS,
+  MTRC_VISITORS,
+  MTRC_BW,
+  MTRC_CUMTS,
+  MTRC_MAXTS,
+  MTRC_METHODS,
+  MTRC_PROTOCOLS,
+  MTRC_AGENTS,
+  MTRC_METADATA,
+  MTRC_UNIQUE_KEYS,
+  MTRC_AGENT_KEYS,
+  MTRC_AGENT_VALS,
+  MTRC_CNT_VALID,
+  MTRC_CNT_BW,
+} GSMetric;
 
 /* Metric totals. These are metrics that have a percent value and are
  * calculated values. */
@@ -131,8 +162,8 @@ typedef struct GMetrics {
   float visitors_perc;
   float bw_perc;
 
-  uint32_t hits;
-  uint32_t visitors;
+  uint64_t hits;
+  uint64_t visitors;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
@@ -231,13 +262,13 @@ extern int module_list[TOTAL_MODULES];
 GAgents *new_gagents (uint32_t size);
 void free_agents_array (GAgents *agents);
 
+const char *enum2str (const GEnum map[], int len, int idx);
+const char *get_module_str (GModule module);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
 int get_module_enum (const char *str);
-char *get_module_str (GModule module);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);
-char *enum2str (const GEnum map[], int len, int idx);
 
 int enable_panel (GModule mod);
 int get_module_index (int module);
