@@ -96,6 +96,7 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
+    $ sudo apt install libncursesw5-dev libmaxminddb-dev
     $ wget https://tar.goaccess.io/goaccess-1.4.tar.gz
     $ tar -xzvf goaccess-1.4.tar.gz
     $ cd goaccess-1.4/
