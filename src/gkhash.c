@@ -1372,7 +1372,7 @@ get_iglp (khash_t (iglp) *hash, uint64_t key) {
  * and set the maximum and minimum values found on an integer key and
  * integer value.
  *
- * Note: This are expensive calls since it has to iterate over all
+ * Note: These are expensive calls since it has to iterate over all
  * key-value pairs
  *
  * If the hash structure is empty, no values are set.
@@ -1401,7 +1401,7 @@ get_ii32_min_max (khash_t (ii32) *hash, uint32_t *min, uint32_t *max) {
  * and set the maximum and minimum values found on an integer key and
  * a uint64_t value.
  *
- * Note: This are expensive calls since it has to iterate over all
+ * Note: These are expensive calls since it has to iterate over all
  * key-value pairs
  *
  * If the hash structure is empty, no values are set.
