@@ -1041,7 +1041,7 @@ inc_su64 (khash_t (su64) *hash, const char *key, uint64_t inc) {
     k = kh_put (su64, hash, dupkey, &ret);
     /* operation failed */
     if (ret == -1) {
-      free(dupkey);
+      free (dupkey);
       return -1;
     }
   } else {
@@ -1097,16 +1097,16 @@ inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
   k = kh_get (si32, hash, key);
   /* key not found, put a new hash with val=0 */
   if (k == kh_end (hash)) {
-    dupkey = xstrdup(key);
+    dupkey = xstrdup (key);
     k = kh_put (si32, hash, dupkey, &ret);
     /* operation failed */
     if (ret == -1) {
-      free(dupkey);
+      free (dupkey);
       return 0;
     }
     /* concurrently added */
     if (ret == 0)
-      free(dupkey);
+      free (dupkey);
     kh_val (hash, k) = 0;
   }
 
