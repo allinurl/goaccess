@@ -879,7 +879,7 @@ perform_tail_follow (GLog *glog) {
   if (glog->props.inode) {
     glog->lp.line = glog->read;
     glog->lp.size = glog->props.size;
-    ht_insert_last_parse (glog->props.inode, glog->lp);
+    ht_insert_last_parse (glog->props.inode, &glog->lp);
   }
 
 out:

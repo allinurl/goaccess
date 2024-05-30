@@ -174,7 +174,7 @@ restore_global_iglp (khash_t (iglp) *hash, const char *fn) {
   tn = tpl_map (fmt, &key, &val, READ_BYTES);
   tpl_load (tn, TPL_FILE, fn);
   while (tpl_unpack (tn, 1) > 0) {
-    ins_iglp (hash, key, val);
+    ins_iglp (hash, key, &val);
   }
   tpl_free (tn);
 }
