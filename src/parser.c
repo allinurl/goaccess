@@ -1433,8 +1433,8 @@ find_xff_host (GLogItem *logitem, const char **str, const char **p) {
     if (!(extract = parse_string (&(*str), pch, 1)))
       goto clean;
 
-    if (!(res = set_xff_host (logitem, extract, skips, 1)))
-      free (extract);
+    res = set_xff_host (logitem, extract, skips, 1);
+    free (extract);
     (*str)++;   /* move a char forward from the trailing delim */
   } else {
     res = set_xff_host (logitem, *str, skips, 0);
