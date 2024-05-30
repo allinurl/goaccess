@@ -141,7 +141,7 @@ void des_u648 (void *h, GO_UNUSED uint8_t free_data);
 
 int inc_iu64 (khash_t (iu64) * hash, uint32_t key, uint64_t inc);
 int inc_su64 (khash_t (su64) * hash, const char *key, uint64_t inc);
-int ins_iglp (khash_t (iglp) * hash, uint64_t key, GLastParse lp);
+int ins_iglp (khash_t (iglp) * hash, uint64_t key, const GLastParse *lp);
 int ins_igsl (khash_t (igsl) * hash, uint32_t key, uint32_t value);
 int ins_ii08 (khash_t (ii08) * hash, uint32_t key, uint8_t value);
 int ins_ii32 (khash_t (ii32) * hash, uint32_t key, uint32_t value);
@@ -168,7 +168,7 @@ void get_iu64_min_max (khash_t (iu64) * hash, uint64_t * min, uint64_t * max);
 
 int ht_insert_hostname (const char *ip, const char *host);
 int ht_insert_json_logfmt (GO_UNUSED void *userdata, char *key, char *spec);
-int ht_insert_last_parse (uint64_t key, GLastParse lp);
+int ht_insert_last_parse (uint64_t key, const GLastParse *lp);
 uint32_t ht_inc_cnt_overall (const char *key, uint32_t val);
 uint32_t ht_ins_seq (khash_t (si32) * hash, const char *key);
 uint8_t ht_insert_meth_proto (const char *key);

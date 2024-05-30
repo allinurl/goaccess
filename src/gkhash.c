@@ -623,7 +623,7 @@ init_gkhashdb (void) {
  * On error, -1 is returned.
  * On success 0 is returned */
 int
-ins_iglp (khash_t (iglp) *hash, uint64_t key, GLastParse lp) {
+ins_iglp (khash_t (iglp) *hash, uint64_t key, const GLastParse *lp) {
   khint_t k;
   int ret;
 
@@ -634,7 +634,7 @@ ins_iglp (khash_t (iglp) *hash, uint64_t key, GLastParse lp) {
   if (ret == -1)
     return -1;
 
-  kh_val (hash, k) = lp;
+  kh_val (hash, k) = *lp;
 
   return 0;
 }
@@ -1497,7 +1497,7 @@ ht_inc_cnt_overall (const char *key, uint32_t val) {
 }
 
 int
-ht_insert_last_parse (uint64_t key, GLastParse lp) {
+ht_insert_last_parse (uint64_t key, const GLastParse *lp) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (iglp) * hash = get_hdb (db, MTRC_LAST_PARSE);
 

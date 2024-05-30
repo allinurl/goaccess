@@ -2286,11 +2286,11 @@ persist_last_parse (GLog *glog) {
 
     memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
 
-    ht_insert_last_parse (glog->props.inode, glog->lp);
+    ht_insert_last_parse (glog->props.inode, &glog->lp);
   }
   /* probably from a pipe */
   else if (!glog->props.inode) {
-    ht_insert_last_parse (0, glog->lp);
+    ht_insert_last_parse (0, &glog->lp);
   }
 }
 
