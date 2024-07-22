@@ -244,7 +244,6 @@ static const char *const browsers[][2] = {
   {"ZmEu", "Crawlers"},
   {"DowntimeDetector", "Crawlers"},
   {"MauiBot", "Crawlers"},
-  {"Cloud", "Crawlers"},
   {"stagefright", "Crawlers"},
   {"ImagesiftBot", "Crawlers"},
   {"Bytespider", "Crawlers"},
