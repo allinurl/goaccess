@@ -288,9 +288,6 @@ print_html_body (FILE * fp, const char *now)
 
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
-  "<div class='wrap-header'>"
-  "<div class='row row-offcanvas row-offcanvas-right'>"
-  "<div class='col-md-12'>"
   "<div class='page-header clearfix'>"
   "<div class='pull-right'>"
   "<h4>"
@@ -313,10 +310,7 @@ print_html_body (FILE * fp, const char *now)
   fprintf (fp,
   "<div class='report-title'>%s</div>"
   "</div>"
-  "<div class='wrap-general'></div>"
-  "</div>"
-  "</div>"
-  "</div>"
+  "<section id='overall'></section>"
   "<div class='wrap-panels'></div>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
 
