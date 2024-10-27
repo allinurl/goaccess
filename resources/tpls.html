@@ -1,20 +1,22 @@
 <!-- TPL General  -->
 <script id="tpl-general" type="text/template">
-	<h4 class="hidden-xs gheader">{{head}}<span class="pull-right">{{#from}}<span class="from">{{from}}</span>{{/from}}{{#to}} &#8212; <span class="to">{{to}}</span>{{/to}}</span></h4>
-	<h5 class="visible-xs hidden-sm hidden-md hidden-lg gheader">{{head}}&nbsp;&nbsp;{{#from}}<span class="from">{{from}}</span>{{/from}}{{#to}} &#8212; <span class="to">{{to}}</span>{{/to}}</h5>
-	<div class="wrap-general-items"></div>
+  <section id="overall">
+	<h2 class="gheader h4">
+	    <span>{{head}}</span>
+		<span>{{#from}}<span class="from">{{from}}</span>{{/from}}{{#to}} – <span class="to">{{to}}</span>{{/to}}</span>
+	</h2>
+	<ul role="list" class="row"></ul>
+  </section>
 </script>
 
 <!-- TPL General Items -->
 <script id="tpl-general-items" type="text/template">
-	<div class="col-md-2">
-		<div class="grid-module {{#className}}{{className}}{{/className}}{{^className}}gray{{/className}}">
-			<div class="col-title">
-				<i class="fa fa-bar-chart"></i> {{#label}}{{label}}{{/label}}
-			</div>
-			<h3 id="{{id}}" style="padding-top: 0;">{{value}}</h3>
-		</div>
-	</div>
+  <li class="col-sm-6 col-md-2 {{#className}}{{className}}{{/className}}{{^className}}gray{{/className}}">
+    <div>
+      <span><i class="fa fa-bar-chart"></i> {{#label}}{{label}}{{/label}}</span>
+      <span id="{{id}}">{{value}}</span>
+    </div>
+  </li>
 </script>
 
 <!-- TPL Panel Table -->

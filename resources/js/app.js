@@ -365,25 +365,20 @@ GoAccess.OverallStats = {
 
 	// Render each overall stats box
 	renderBox: function (data, ui, row, x, idx) {
-		var wrap = $('.wrap-general-items');
+		var wrap = $('#overall ul');
+		var box = document.createElement('li');
 
-		// create a new bootstrap row every 6 elements
-		if (idx % 6 == 0) {
-			row = document.createElement('div');
-			row.setAttribute('class', 'row');
-			wrap.appendChild(row);
-		}
+		// we need to append the element first, otherwise outerHTML won't work
+		wrap.appendChild(box);
 
-		var box = document.createElement('div');
-		box.innerHTML = GoAccess.AppTpls.General.items.render({
+		box.outerHTML = GoAccess.AppTpls.General.items.render({
 			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
 			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].dataType),
 		});
-		row.appendChild(box);
 
-		return row;
+		return wrap;
 	},
 
 	// Render overall stats
@@ -391,12 +386,12 @@ GoAccess.OverallStats = {
 		var idx = 0, row = null;
 
 		$('.last-updated').innerHTML = data.date_time;
-		$('.wrap-general').innerHTML = '';
+		$('#overall').innerHTML = '';
 
 		if (GoAccess.Util.isPanelHidden('general'))
 			return false;
 
-		$('.wrap-general').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
+		$('#overall').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
 			'from': data.start_date,
 			'to': data.end_date,
 		}));
