@@ -7,21 +7,27 @@ body {
 h1 {
 	font-weight: bold;
 	letter-spacing: -3px;
+	margin: 0;
+	text-transform: lowercase;
 }
 h3 {
 	font-size: 21px;
 	letter-spacing: -1px;
 }
-.h-dashboard {
-	text-transform: lowercase;
-}
 .page-header {
 	border-bottom: 1px solid rgba(0, 0, 0, 0.15);
-	margin: 25px 0 20px;
+	margin: 2.5rem 0 2rem;
 	position: relative;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
 }
-.page-header h1 {
-	margin: 0;
+.page-header #last-updated {
+    margin: 0;
+    font-size: 1.25rem;
+    background-color: navy;
 }
 .pagination {
 	margin: 5px 0;
@@ -305,9 +311,6 @@ nav h3 {
 		padding-left: 5px;
 		padding-right: 5px;
 	}
-	.page-header {
-		padding: 0 10px;
-	}
 }
 
 /* PANEL STYLES */
@@ -477,10 +480,11 @@ div.wrap-panel > div {
 
 /* GENERAL */
 .report-title {
+    margin: 0;
 	background: #FFF;
 	border-radius: 4px;
 	bottom: -10px;
-	color: #9E9E9E;
+	color: #000;
 	font-size: small;
 	padding: 0 10px;
 	position: absolute;
@@ -778,7 +782,7 @@ html.dark.blue,
 .dark.blue .page-header {
 	border-bottom: 1px solid #3B444C;
 }
-.dark.blue .label-info {
+.dark.blue #last-updated {
 	background-color: #252B30;
 }
 .dark.blue nav {
@@ -868,6 +872,7 @@ html.dark.blue,
 }
 .dark.blue .report-title {
 	background: #1F2328;
+	color: snow;
 }
 
 /* DARK GREY THEME */
@@ -881,7 +886,7 @@ html.dark.gray,
 .dark.gray .page-header {
 	border-bottom: 1px solid #303030;
 }
-.dark.gray .label-info {
+.dark.gray #last-updated {
 	background-color: #303030;
 }
 .dark.gray nav {
@@ -974,6 +979,7 @@ html.dark.gray,
 }
 .dark.gray .report-title {
 	background: #303030;
+	color: lightgrey;
 }
 
 /* DARK CHARTS */
@@ -1041,7 +1047,7 @@ html.dark.purple,
 .dark.purple .page-header {
 	border-bottom: 1px solid #2b3553;
 }
-.dark.purple .label-info {
+.dark.purple #last-updated {
 	background-color: #181823;
 }
 .dark.purple nav {
@@ -1146,6 +1152,7 @@ html.dark.purple,
 }
 .dark.purple .report-title {
 	background: #181823;
+	color: snow;
 }
 .dark.purple .area0,
 .dark.purple .bars.y0 .bar,
