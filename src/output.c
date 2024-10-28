@@ -291,28 +291,13 @@ print_html_body (FILE * fp, const char *now)
 
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
-  "<div class='page-header clearfix'>"
-  "<div class='pull-right'>"
-  "<h4>"
-  "<span class='label label-info' style='display:%s'>"
-  "<span class='hidden-xs'>%s: </span>"
-  "<span class='last-updated'>%s</span>"
-  "</span>"
-  "</h4>"
-  "</div>"
-  "<h1 class='h-dashboard'>"
-  "<span class='hidden-xs hidden-sm'>"
-  "<i class='fa fa-tachometer'></i> %s"
-  "</span>"
-  "<span class='visible-xs visible-sm'>"
-  "<i class='fa fa-bars nav-minibars'></i>"
-  "<i class='fa fa-circle nav-ws-status mini'></i>"
-  "</span>"
-  "</h1>", conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now, T_DASH);
+  "<header class='page-header'>"
+  "<h1><i class='fa fa-tachometer'></i> %s</h1>"
+  "<p id='last-updated' class='label' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
 
   fprintf (fp,
-  "<div class='report-title'>%s</div>"
-  "</div>"
+  "<p class='report-title'>%s</p>"
+  "</header>"
   "<section id='overall'></section>"
   "<div class='wrap-panels'></div>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");

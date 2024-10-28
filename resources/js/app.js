@@ -385,7 +385,7 @@ GoAccess.OverallStats = {
 	renderData: function (data, ui) {
 		var idx = 0, row = null;
 
-		$('.last-updated').innerHTML = data.date_time;
+		$('#last-updated span').innerHTML = data.date_time;
 		$('#overall').innerHTML = '';
 
 		if (GoAccess.Util.isPanelHidden('general'))
@@ -424,11 +424,6 @@ GoAccess.Nav = {
 		}.bind(this);
 
 		$('.nav-gears').onclick = function (e) {
-			e.stopPropagation();
-			this.renderOpts(e);
-		}.bind(this);
-
-		$('.nav-minibars').onclick = function (e) {
 			e.stopPropagation();
 			this.renderOpts(e);
 		}.bind(this);
