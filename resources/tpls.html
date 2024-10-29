@@ -1,9 +1,9 @@
 <!-- TPL General  -->
 <script id="tpl-general" type="text/template">
-	<h2 class="gheader h4" id="overall-heading">
-	    <span>{{head}}</span>
-		<span>{{#from}}<span class="from">{{from}}</span>{{/from}}{{#to}} – <span class="to">{{to}}</span>{{/to}}</span>
-	</h2>
+    <hgroup>
+      <h2 class="gheader h4" id="overall-heading">{{head}}</h2>
+      <p>{{#from}}{{from}}{{/from}}{{#to}} – {{to}}{{/to}}</p>
+    </hgroup>
 	<ul role="list" class="row"></ul>
 </script>
 
