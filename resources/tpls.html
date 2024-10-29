@@ -131,19 +131,21 @@
 <script id="tpl-panel" type="text/template">
 	<div class="row">
 		<div class="col-md-12">
-			<div class="form-group clearfix panel-header">
-				<h4 class="pull-left hidden-xs gheader" id="{{id}}">{{head}}<br><small>{{desc}}</small></h4>
-				<h5 class="pull-left visible-xs hidden-sm hidden-md hidden-lg gheader" id="{{id}}">{{head}}<br><small>{{desc}}</small></h5>
-				<div class="panel-plot-wrap">
+			<header>
+				<hgroup>
+				  <h2 id="{{id}}" class="gheader">{{head}}</h2>
+				  <p>{{desc}}</p>
+				</hgroup>
+				<div>
 					<div class="dropdown">
-						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" data-panel="{{id}}">
-							<i class="fa fa-gear"></i> {{labels.panel_opts}} <span class="fa fa-caret-down"></span>
+						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-panel="{{id}}" aria-label="{{labels.panel_opts}}, {{head}}">
+							<i class="fa fa-gear" aria-hidden="true"></i> {{labels.panel_opts}} <span class="fa fa-caret-down" aria-hidden="true"></span>
 						</button>
 						<ul class="dropdown-menu dropdown-menu-right panel-opts-{{id}}">
 						</ul>
 					</div>
 				</div>
-			</div>
+			</header>
 		</div>
 	</div>
 	{{#chart}}
