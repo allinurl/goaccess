@@ -141,10 +141,10 @@ nav .nav-ws-status {
 	cursor: help;
 	display: none;
 	font-size: 12px;
-}
-nav .nav-ws-status {
-	left: 25px;
-	top: 125px;
+	height: 12px;
+	left: 46px;
+    top: 108px;
+	width: 12px;
 }
 
 .nav-ws-status.fa-circle {
