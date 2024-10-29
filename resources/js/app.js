@@ -749,12 +749,14 @@ GoAccess.Panels = {
 
 	openOpts: function (targ) {
 		var panel = targ.getAttribute('data-panel');
+    targ.setAttribute('aria-expanded', 'true');
 		targ.parentElement.classList.toggle('open');
 		this.renderOpts(panel);
 	},
 
 	closeOpts: function (e) {
 		e.currentTarget.parentElement.classList.remove('open');
+    e.currentTarget.parentElement.querySelector('[aria-expanded]').setAttribute('aria-expanded', 'false');
 		// Trigger the click event on the target if not opening another menu
 		if (e.relatedTarget && e.relatedTarget.getAttribute('data-toggle') !== 'dropdown')
 			e.relatedTarget.click();
@@ -886,6 +888,10 @@ GoAccess.Panels = {
 		box.innerHTML = GoAccess.AppTpls.Panels.wrap.render(GoAccess.Util.merge(ui, {
 			'labels': GoAccess.i18n
 		}));
+
+		// add accessible label to parent article
+		col.setAttribute('aria-labelledby', panel);
+
 		col.appendChild(box);
 
 		// Remove pagination if not enough data for the given panel
@@ -901,15 +907,15 @@ GoAccess.Panels = {
 		var perRow = 'horizontal' == layout ? 6 : 'wide' == layout ? 3 : 12;
 
 		// set the number of columns based on current layout
-		var col = document.createElement('div');
-		col.setAttribute('class', 'col-md-' + perRow + ' wrap-panel');
+		var col = document.createElement('article');
+		col.setAttribute('class', 'col-md-' + perRow);
 		row.appendChild(col);
 
 		return col;
 	},
 
 	createRow: function (row, idx) {
-		var wrap = $('.wrap-panels');
+		var wrap = $('#panels');
 		var layout = GoAccess.AppPrefs['layout'];
 		var every = 'horizontal' == layout ? 2 : 'wide' == layout ? 4 : 1;
 
@@ -943,7 +949,7 @@ GoAccess.Panels = {
 	renderPanels: function () {
 		var ui = GoAccess.getPanelUI(), idx = 0, row = null, col = null;
 
-		$('.wrap-panels').innerHTML = '';
+		$('#panels').innerHTML = '';
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
