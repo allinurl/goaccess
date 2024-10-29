@@ -476,16 +476,18 @@ ol[role="list"] {
     list-style: none;
 }
 
-#overall h2 {
+#overall hgroup {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.75em;
 }
 
-#overall h2 span:last-of-type {
+#overall hgroup p {
     font-style: italic;
     font-weight: 400;
+    text-transform: uppercase;
+    font-size: 18px;
 }
 
 #overall ul {
