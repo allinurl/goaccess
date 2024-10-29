@@ -684,14 +684,16 @@ GoAccess.Nav = {
 
 	WSClose: function () {
 		$$('.nav-ws-status', function (item) {
-			item.classList.remove('connected');
+			item.classList.remove('fa-circle');
+			item.classList.add('fa-stop');
 			item.setAttribute('title', 'Disconnected');
 		});
 	},
 
 	WSOpen: function (str) {
 		$$('.nav-ws-status', function (item) {
-			item.classList.add('connected');
+			item.classList.remove('fa-stop');
+			item.classList.add('fa-circle');
 			item.setAttribute('title', 'Connected to ' + str);
 		});
 	},

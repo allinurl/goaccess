@@ -137,7 +137,7 @@ nav .nav-gears {
 	top: 64px;
 }
 nav .nav-ws-status {
-	color: #6A6A6A;
+	color: crimson;
 	cursor: help;
 	display: none;
 	font-size: 12px;
@@ -147,7 +147,7 @@ nav .nav-ws-status {
 	top: 125px;
 }
 
-.nav-ws-status.connected {
+.nav-ws-status.fa-circle {
 	color: #5DB56A;
 }
 nav li {
