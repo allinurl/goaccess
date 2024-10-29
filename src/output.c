@@ -296,8 +296,8 @@ print_html_body (FILE * fp, const char *now)
   fprintf (fp,
   "<p class='report-title'>%s</p>"
   "</header>"
-  "<section id='overall'></section>"
-  "<section id='panels'></section>"
+  "<aside id='overall'></aside>"
+  "<main id='panels'></main>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
 
   fprintf (fp, "%.*s", tpls_length, tpls);

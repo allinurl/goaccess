@@ -395,6 +395,7 @@ GoAccess.OverallStats = {
 			'from': data.start_date,
 			'to': data.end_date,
 		}));
+    $('#overall').setAttribute('aria-labelledby', 'overall-heading');
 
 		// Iterate over general data object
 		for (var x in data) {
