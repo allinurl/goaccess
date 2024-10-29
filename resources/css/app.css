@@ -118,25 +118,25 @@ nav .nav-bars,
 nav .nav-gears,
 nav .nav-ws-status {
 	-webkit-transition: opacity .2s;
+	background: none;
+	border: none;
 	color: #9E9E9E;
-	cursor: pointer;
-	float: right;
 	font-size: 36px;
-	height: 32px;
-	left: 13px;
-	line-height: 32px;
+	height: 64px;
+	left: 0;
 	position: fixed;
-	text-align: center;
-	top: 30px;
+	top: 0;
 	transition: opacity .2s;
-	width: 32px;
+	width: 64px;
+}
+nav .nav-bars:hover,
+nav .nav-gears:hover {
+	color: gainsboro;
 }
 nav .nav-gears {
-	top: 100px;
-	opacity: 0.6;
+	top: 64px;
 }
-nav .nav-ws-status,
-.nav-ws-status.mini {
+nav .nav-ws-status {
 	color: #6A6A6A;
 	cursor: help;
 	display: none;
@@ -146,11 +146,7 @@ nav .nav-ws-status {
 	left: 25px;
 	top: 125px;
 }
-.nav-ws-status.mini {
-	top: 14px;
-	left: 50px;
-	position: absolute;
-}
+
 .nav-ws-status.connected {
 	color: #5DB56A;
 }
