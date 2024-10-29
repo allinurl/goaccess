@@ -292,7 +292,7 @@ print_html_body (FILE * fp, const char *now)
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
   "<header class='page-header'>"
-  "<h1><i class='fa fa-tachometer'></i> %s</h1>"
+  "<h1><i class='fa fa-tachometer' aria-hidden='true'></i> %s</h1>"
   "<p id='last-updated' class='label' aria-live='polite' aria-atomic'true' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
 
   fprintf (fp,
