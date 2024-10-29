@@ -71,23 +71,58 @@ h3 {
 nav {
 	-webkit-transition: left .2s;
 	background: #1C1C1C;
-	border-right: 3px solid #5bc0de;
-	height: 100%;
-	left: -236px;
-	overflow: hidden;
-	position: fixed;
-	top: 0;
+	border-color: #5bc0de;
+	border-style: solid;
+	border-width: 0;
+	border-block-end-width: 3px;
 	transition: left .2s;
-	width: 300px;
-	z-index: 2;
 }
 nav .nav-list {
-	bottom: 0;
+	visibility: hidden;
+	display: none;
+}
+
+nav.active .nav-list {
+    margin-block-start: -64px;
+    visibility: visible;
+    display: block;
+}
+@media only screen and (min-width: 993px) {
+    nav {
+    	border-inline-end-width: 3px;
+    	height: 100%;
+    	left: -236px;
+    	overflow: hidden;
+    	position: fixed;
+    	top: 0;
+    	width: 300px;
+    	z-index: 2;
+    }
+    nav .nav-bars,
+    nav .nav-gears,
+    nav .nav-ws-status {
 	left: 0;
-	overflow-y: scroll;
-	position: absolute;
-	right: -17px;
+	position: fixed;
 	top: 0;
+	transition: opacity .2s;
+    }
+    nav .nav-gears {
+	top: 64px;
+    }
+    nav .nav-ws-status {
+	left: 46px;
+    top: 108px;
+    }
+    nav.active .nav-list {
+        margin-block-start: 0;
+       	bottom: 0;
+        left: 0;
+        display: block;
+        overflow-y: scroll;
+        position: absolute;
+        right: -17px;
+        top: 0;
+    }
 }
 nav header {
 	margin: 40px 20px 30px;
@@ -106,13 +141,11 @@ nav.active {
 	left: 0;
 	opacity: .97;
 }
-nav:hover ~ #content {
-	opacity: .3;
-}
 nav.active .nav-bars,
 nav.active .nav-gears,
 nav.active .nav-ws-status {
 	opacity: 0;
+	visibility: hidden;
 }
 nav .nav-bars,
 nav .nav-gears,
@@ -123,9 +156,6 @@ nav .nav-ws-status {
 	color: #9E9E9E;
 	font-size: 36px;
 	height: 64px;
-	left: 0;
-	position: fixed;
-	top: 0;
 	transition: opacity .2s;
 	width: 64px;
 }
@@ -133,17 +163,12 @@ nav .nav-bars:hover,
 nav .nav-gears:hover {
 	color: gainsboro;
 }
-nav .nav-gears {
-	top: 64px;
-}
 nav .nav-ws-status {
 	color: crimson;
 	cursor: help;
 	display: none;
 	font-size: 12px;
 	height: 12px;
-	left: 46px;
-    top: 108px;
 	width: 12px;
 }
 
@@ -730,7 +755,7 @@ html.dark.blue,
 	background-color: #252B30;
 }
 .dark.blue nav {
-	border-right: 1px solid #181B1F;
+	border-color: #181B1F;
 	background: #1F2328;
 }
 .dark.blue article> div {
@@ -834,7 +859,7 @@ html.dark.gray,
 	background-color: #303030;
 }
 .dark.gray nav {
-	border-right: 1px solid #363737;
+	border-color: #363737;
 	background: #1C1C1C;
 }
 .dark.gray article> div {
@@ -995,7 +1020,7 @@ html.dark.purple,
 	background-color: #181823;
 }
 .dark.purple nav {
-	border-right: 1px solid #e14eca;
+	border-color: #e14eca;
 	background: #181823;
 }
 .dark.purple article> div {

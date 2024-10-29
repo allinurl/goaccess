@@ -283,9 +283,7 @@ static void
 print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
-  "<nav class='hidden-xs hidden-sm hide'>"
-  "</nav>"
-
+  "<nav class='hide'></nav>"
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
   "<header class='page-header'>"
