@@ -89,6 +89,7 @@ nav.active .nav-list {
 }
 @media only screen and (min-width: 993px) {
     nav {
+    	border-width: 0;
     	border-inline-end-width: 3px;
     	height: 100%;
     	left: -236px;
@@ -290,7 +291,7 @@ article h2 {
 	font-size: 1.8rem;
 	margin: 0;
 }
-article>div {
+article> div {
 	background: #FFF;
 	margin-top: 10px;
 	padding: 20px 10px 10px 10px;
@@ -507,7 +508,6 @@ ol[role="list"] {
 	font-size: 85%;
 	overflow: hidden;
 	text-overflow: ellipsis;
-	text-shadow: 1px 1px 0 #FFF;
 	white-space: nowrap;
 	width: 100%;
 }
@@ -694,6 +694,7 @@ rect.legend {
 .dark h1 {
 	color: rgba(255, 255, 255, 0.6);
 }
+.dark h2,
 .dark h3,
 .dark h4,
 .dark h5 {
@@ -711,9 +712,8 @@ rect.legend {
 .dark article table.table-hover>tbody.tbody-data>tr:hover {
 	background-color: rgba(255, 255, 255, 0.08) !important;
 }
-.dark .col-title {
+.dark #overall li span:first-of-type {
 	color: #9e9e9e;
-	text-shadow:none;
 }
 .dark #overall li span:last-of-type {
 	color: #FFF;
@@ -723,8 +723,6 @@ rect.legend {
 }
 .dark article> div {
 	color: #EEE;
-	margin-top: 10px;
-	padding: 0 10px;
 	border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 .dark article table .cell-hl.d1 {
@@ -778,7 +776,7 @@ html.dark.blue,
 .dark.blue article table tbody.tbody-data tr.shaded {
 	background-color: #181B1F;
 }
-.dark.blue .gray {
+.dark.blue  #overall li.gray div {
 	border-top: 4px solid #3B444C;
 }
 .dark.blue #overall li div {
@@ -882,7 +880,7 @@ html.dark.gray,
 .dark.gray article table tbody.tbody-data tr.shaded {
 	background-color: rgba(48, 48, 48, 0.48);
 }
-.dark.gray .gray {
+.dark.gray  #overall li.gray div {
 	border-top: 4px solid #303030;
 }
 .dark.gray #overall li div {
@@ -1044,19 +1042,23 @@ html.dark.purple,
 .dark.purple article table>thead>tr.thead-cols {
 	border-bottom: 2px solid #999;
 }
-.dark.purple .gray {
+.dark.purple  #overall li.gray div {
 	border-top: 4px solid #2b3553;
 }
-.dark.purple .red {
+.dark.purple  #overall li.red div {
 	border-top: 4px solid #fd5d93;
 }
-.dark.purple .green {
+.dark.purple  #overall li.green div {
 	border-top: 4px solid #00f2c3;
 }
-.dark.purple .blue {
+.dark.purple #overall li.blue div {
 	border-top: 4px solid #1f8ef1;
 }
-.dark.purple h3, .dark.purple h4, .dark.purple h5 {
+.dark.purple h1,
+.dark.purple h2,
+.dark.purple h3,
+.dark.purple h4,
+.dark.purple h5 {
     color: #9a9a9a;
 }
 .dark.purple #overall li div {
