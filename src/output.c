@@ -293,7 +293,7 @@ print_html_body (FILE * fp, const char *now)
   "<div class='container hide'>"
   "<header class='page-header'>"
   "<h1><i class='fa fa-tachometer'></i> %s</h1>"
-  "<p id='last-updated' class='label' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
+  "<p id='last-updated' class='label' aria-live='polite' aria-atomic'true' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
 
   fprintf (fp,
   "<p class='report-title'>%s</p>"
