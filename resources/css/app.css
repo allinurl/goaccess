@@ -26,7 +26,7 @@ h3 {
 }
 .page-header #last-updated {
     margin: 0;
-    font-size: 1.25rem;
+    font-size: 1.35rem;
     background-color: navy;
 }
 .pagination {
@@ -476,22 +476,27 @@ ol[role="list"] {
     list-style: none;
 }
 
+#overall h2,
+#overall p {
+    margin: 0;
+}
+
 #overall hgroup {
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 0.75em;
+    margin-block-end: 4px;
 }
 
 #overall hgroup p {
-    font-style: italic;
     font-weight: 400;
     text-transform: uppercase;
     font-size: 18px;
 }
 
 #overall ul {
-    margin-bottom: 0;
+    margin-block-end: 0;
     padding: 0;
 }
 
@@ -696,6 +701,7 @@ rect.legend {
 .dark h1 {
 	color: rgba(255, 255, 255, 0.6);
 }
+.dark hgroup,
 .dark h2,
 .dark h3,
 .dark h4,
@@ -1056,6 +1062,7 @@ html.dark.purple,
 .dark.purple #overall li.blue div {
 	border-top: 4px solid #1f8ef1;
 }
+.dark.purple hgroup,
 .dark.purple h1,
 .dark.purple h2,
 .dark.purple h3,
