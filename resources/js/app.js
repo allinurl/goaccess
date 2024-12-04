@@ -687,7 +687,8 @@ GoAccess.Nav = {
 		$$('.nav-ws-status', function (item) {
 			item.classList.remove('fa-circle');
 			item.classList.add('fa-stop');
-			item.setAttribute('title', 'Disconnected');
+			item.setAttribute('aria-label', GoAccess.i18n.websocket_disconnected);
+			item.setAttribute('title', GoAccess.i18n.websocket_disconnected);
 		});
 	},
 
@@ -695,7 +696,8 @@ GoAccess.Nav = {
 		$$('.nav-ws-status', function (item) {
 			item.classList.remove('fa-stop');
 			item.classList.add('fa-circle');
-			item.setAttribute('title', 'Connected to ' + str);
+			item.setAttribute('aria-label', `${GoAccess.i18n.websocket_connected} (${str})`);
+			item.setAttribute('title', `${GoAccess.i18n.websocket_connected} (${str})`);
 		});
 	},
 
