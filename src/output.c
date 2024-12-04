@@ -1164,6 +1164,8 @@ print_json_i18n_def (FILE *fp) {
     {"table_columns"  , HTML_REPORT_PANEL_TABLE_COLS}   ,
     {"thead"          , T_HEAD}                         ,
     {"version"        , GO_VERSION}                     ,
+    {"button_menu"           , HTML_REPORT_NAV_BUTTON_MENU}               ,
+    {"button_settings"       , HTML_REPORT_NAV_BUTTON_SETTINGS}               ,
   };
   /* *INDENT-ON* */
 
