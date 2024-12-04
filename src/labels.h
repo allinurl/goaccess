@@ -588,4 +588,14 @@
 #define STATUS_CODE_783               \
   N_("783 - Unexpected Token: The request includes a JSON syntax error")
 
+/* Menu buttons */
+#define HTML_REPORT_NAV_BUTTON_MENU                 \
+N_("Menu")
+#define HTML_REPORT_NAV_BUTTON_SETTINGS             \
+N_("Settings")
+#define HTML_REPORT_WEBSOCKET_STATUS_CONNECTED      \
+N_("WebSocket Status: Connected")
+#define HTML_REPORT_WEBSOCKET_STATUS_DISCONNECTED   \
+N_("WebSocket Status: Disconnected")
+
 #endif // for #ifndef LABELS_H

@@ -286,41 +286,18 @@ static void
 print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
-  "<nav class='hidden-xs hidden-sm hide'>"
-  "</nav>"
-
+  "<nav class='hide'></nav>"
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
   "<div class='container hide'>"
-  "<div class='wrap-header'>"
-  "<div class='row row-offcanvas row-offcanvas-right'>"
-  "<div class='col-md-12'>"
-  "<div class='page-header clearfix'>"
-  "<div class='pull-right'>"
-  "<h4>"
-  "<span class='label label-info' style='display:%s'>"
-  "<span class='hidden-xs'>%s: </span>"
-  "<span class='last-updated'>%s</span>"
-  "</span>"
-  "</h4>"
-  "</div>"
-  "<h1 class='h-dashboard'>"
-  "<span class='hidden-xs hidden-sm'>"
-  "<i class='fa fa-tachometer'></i> %s"
-  "</span>"
-  "<span class='visible-xs visible-sm'>"
-  "<i class='fa fa-bars nav-minibars'></i>"
-  "<i class='fa fa-circle nav-ws-status mini'></i>"
-  "</span>"
-  "</h1>", conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now, T_DASH);
+  "<header class='page-header'>"
+  "<h1><i class='fa fa-tachometer' aria-hidden='true'></i> %s</h1>"
+  "<p id='last-updated' class='label label-info' aria-live='polite' aria-atomic'true' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
 
   fprintf (fp,
-  "<div class='report-title'>%s</div>"
-  "</div>"
-  "<div class='wrap-general'></div>"
-  "</div>"
-  "</div>"
-  "</div>"
-  "<div class='wrap-panels'></div>"
+  "<p class='report-title'>%s</p>"
+  "</header>"
+  "<aside id='overall'></aside>"
+  "<main id='panels'></main>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
 
   fprintf (fp, "%.*s", tpls_length, tpls);
@@ -1154,39 +1131,43 @@ print_json_i18n_def (FILE *fp) {
 
   /* *INDENT-OFF* */
   static const char *json_i18n[][2] = {
-    {"theme"          , HTML_REPORT_NAV_THEME}          ,
-    {"dark_gray"      , HTML_REPORT_NAV_DARK_GRAY}      ,
-    {"bright"         , HTML_REPORT_NAV_BRIGHT}         ,
-    {"dark_blue"      , HTML_REPORT_NAV_DARK_BLUE}      ,
-    {"dark_purple"    , HTML_REPORT_NAV_DARK_PURPLE}    ,
-    {"panels"         , HTML_REPORT_NAV_PANELS}         ,
-    {"items_per_page" , HTML_REPORT_NAV_ITEMS_PER_PAGE} ,
-    {"tables"         , HTML_REPORT_NAV_TABLES}         ,
-    {"display_tables" , HTML_REPORT_NAV_DISPLAY_TABLES} ,
-    {"ah_small"       , HTML_REPORT_NAV_AH_SMALL}       ,
-    {"ah_small_title" , HTML_REPORT_NAV_AH_SMALL_TITLE} ,
-    {"toggle_panel"   , HTML_REPORT_NAV_TOGGLE_PANEL}   ,
-    {"layout"         , HTML_REPORT_NAV_LAYOUT}         ,
-    {"horizontal"     , HTML_REPORT_NAV_HOR}            ,
-    {"vertical"       , HTML_REPORT_NAV_VER}            ,
-    {"wide"           , HTML_REPORT_NAV_WIDE}           ,
-    {"file_opts"      , HTML_REPORT_NAV_FILE_OPTS}      ,
-    {"export_json"    , HTML_REPORT_NAV_EXPORT_JSON}    ,
-    {"panel_opts"     , HTML_REPORT_PANEL_PANEL_OPTS}   ,
-    {"previous"       , HTML_REPORT_PANEL_PREVIOUS}     ,
-    {"next"           , HTML_REPORT_PANEL_NEXT}         ,
-    {"first"          , HTML_REPORT_PANEL_FIRST}        ,
-    {"last"           , HTML_REPORT_PANEL_LAST}         ,
-    {"chart_opts"     , HTML_REPORT_PANEL_CHART_OPTS}   ,
-    {"chart"          , HTML_REPORT_PANEL_CHART}        ,
-    {"type"           , HTML_REPORT_PANEL_TYPE}         ,
-    {"area_spline"    , HTML_REPORT_PANEL_AREA_SPLINE}  ,
-    {"bar"            , HTML_REPORT_PANEL_BAR}          ,
-    {"wmap"           , HTML_REPORT_PANEL_WMAP}         ,
-    {"plot_metric"    , HTML_REPORT_PANEL_PLOT_METRIC}  ,
-    {"table_columns"  , HTML_REPORT_PANEL_TABLE_COLS}   ,
-    {"thead"          , T_HEAD}                         ,
-    {"version"        , GO_VERSION}                     ,
+    {"theme"                    , HTML_REPORT_NAV_THEME}                        ,
+    {"dark_gray"                , HTML_REPORT_NAV_DARK_GRAY}                    ,
+    {"bright"                   , HTML_REPORT_NAV_BRIGHT}                       ,
+    {"dark_blue"                , HTML_REPORT_NAV_DARK_BLUE}                    ,
+    {"dark_purple"              , HTML_REPORT_NAV_DARK_PURPLE}                  ,
+    {"panels"                   , HTML_REPORT_NAV_PANELS}                       ,
+    {"items_per_page"           , HTML_REPORT_NAV_ITEMS_PER_PAGE}               ,
+    {"tables"                   , HTML_REPORT_NAV_TABLES}                       ,
+    {"display_tables"           , HTML_REPORT_NAV_DISPLAY_TABLES}               ,
+    {"ah_small"                 , HTML_REPORT_NAV_AH_SMALL}                     ,
+    {"ah_small_title"           , HTML_REPORT_NAV_AH_SMALL_TITLE}               ,
+    {"toggle_panel"             , HTML_REPORT_NAV_TOGGLE_PANEL}                 ,
+    {"layout"                   , HTML_REPORT_NAV_LAYOUT}                       ,
+    {"horizontal"               , HTML_REPORT_NAV_HOR}                          ,
+    {"vertical"                 , HTML_REPORT_NAV_VER}                          ,
+    {"wide"                     , HTML_REPORT_NAV_WIDE}                         ,
+    {"file_opts"                , HTML_REPORT_NAV_FILE_OPTS}                    ,
+    {"export_json"              , HTML_REPORT_NAV_EXPORT_JSON}                  ,
+    {"panel_opts"               , HTML_REPORT_PANEL_PANEL_OPTS}                 ,
+    {"previous"                 , HTML_REPORT_PANEL_PREVIOUS}                   ,
+    {"next"                     , HTML_REPORT_PANEL_NEXT}                       ,
+    {"first"                    , HTML_REPORT_PANEL_FIRST}                      ,
+    {"last"                     , HTML_REPORT_PANEL_LAST}                       ,
+    {"chart_opts"               , HTML_REPORT_PANEL_CHART_OPTS}                 ,
+    {"chart"                    , HTML_REPORT_PANEL_CHART}                      ,
+    {"type"                     , HTML_REPORT_PANEL_TYPE}                       ,
+    {"area_spline"              , HTML_REPORT_PANEL_AREA_SPLINE}                ,
+    {"bar"                      , HTML_REPORT_PANEL_BAR}                        ,
+    {"wmap"                     , HTML_REPORT_PANEL_WMAP}                       ,
+    {"plot_metric"              , HTML_REPORT_PANEL_PLOT_METRIC}                ,
+    {"table_columns"            , HTML_REPORT_PANEL_TABLE_COLS}                 ,
+    {"thead"                    , T_HEAD}                                       ,
+    {"version"                  , GO_VERSION}                                   ,
+    {"button_menu"              , HTML_REPORT_NAV_BUTTON_MENU}                  ,
+    {"button_settings"          , HTML_REPORT_NAV_BUTTON_SETTINGS}              ,
+    {"websocket_connected"      , HTML_REPORT_WEBSOCKET_STATUS_CONNECTED}       ,
+    {"websocket_disconnected"   , HTML_REPORT_WEBSOCKET_STATUS_DISCONNECTED}    ,
   };
   /* *INDENT-ON* */
 
