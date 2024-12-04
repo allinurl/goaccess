@@ -103,15 +103,15 @@ nav.active .nav-list {
     nav .nav-ws-status {
 	left: 0;
 	position: fixed;
-	top: 0;
+	top: 1.5rem;
 	transition: opacity .2s;
     }
     nav .nav-gears {
-	top: 64px;
+	top: 7.9rem;
     }
     nav .nav-ws-status {
 	left: 46px;
-    top: 108px;
+    top: 12.3rem;
     }
     nav.active .nav-list {
         margin-block-start: 0;
