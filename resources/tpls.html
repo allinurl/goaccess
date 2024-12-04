@@ -204,8 +204,8 @@
 
 <!-- TPL Nav Bar wrapper -->
 <script id="tpl-nav-wrap" type="text/template">
-	<button type="button"class="nav-bars"><i class="fa fa-bars"></i></button>
-	<button type="button"class="nav-gears"><i class="fa fa-cog"></i></button>
+	<button type="button"class="nav-bars" aria-label="{{ button_menu }}"><i class="fa fa-bars" aria-hidden="true"></i></button>
+	<button type="button"class="nav-gears" aria-label="{{ button_settings }}"><i class="fa fa-cog" aria-hidden="true"></i></button>
 	<i class="nav-ws-status fa fa-stop"></i>
 	<div class="nav-list"></div>
 	<div class="powered hidden-xs hidden-sm">by <a href="https://goaccess.io/">GoAccess</a> <span>v{{version}}</span> and <a href="https://gwsocket.io/">GWSocket</a></div>
