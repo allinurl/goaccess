@@ -20,8 +20,6 @@ jobs:
           - arch: arm32v7
             distro: ubuntu22.04
           - arch: arm32v7
-            distro: ubuntu23.10
-          - arch: arm32v7
             distro: ubuntu24.04
           - arch: arm32v7
             distro: ubuntu24.10            
@@ -37,8 +35,6 @@ jobs:
             distro: ubuntu20.04
           - arch: aarch64
             distro: ubuntu22.04
-          - arch: aarch64
-            distro: ubuntu23.10
           - arch: aarch64
             distro: ubuntu24.04
           - arch: aarch64
@@ -73,8 +69,6 @@ jobs:
             distro: ubuntu20.04
           - arch: amd64
             distro: ubuntu22.04
-          - arch: amd64
-            distro: ubuntu23.10
           - arch: amd64
             distro: ubuntu24.04
           - arch: amd64
