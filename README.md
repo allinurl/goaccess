@@ -63,6 +63,7 @@ terminal. Features include:
   Ability to build GoAccess' Docker image from upstream. You can still fully
   configure it, by using Volume mapping and editing `goaccess.conf`.  See
   [Docker](https://github.com/allinurl/goaccess#docker) section below.
+  There is also documentation how to use [docker-compose](./docker-compose/README.md).
 
 ### Nearly all web log formats... ###
 GoAccess allows any custom log format string. Predefined options include, but
@@ -214,6 +215,8 @@ A Docker image has been updated, capable of directing output from an access log.
 OR real-time
 
     tail -F access.log | docker run -p 7890:7890 --rm -i -e LANG=$LANG allinurl/goaccess -a -o report.html --log-format COMBINED --real-time-html -
+
+There is also documentation how to use [docker-compose](./docker-compose/README.md).
 
 ##### Build in isolated container
 

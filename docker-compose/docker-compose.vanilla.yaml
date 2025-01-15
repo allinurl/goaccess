@@ -1,0 +1,21 @@
+services:
+  web:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - ./logs:/var/log/nginx
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./public:/usr/share/nginx/html
+
+  goaccess:
+    image: allinurl/goaccess
+    ports:
+      - 7890:7890
+    volumes:
+      - ./configs/goaccess.vanilla.conf:/srv/config/goaccess.conf
+      - ./logs:/srv/logs
+      - ./public:/srv/report
+      - ./configs/certs:/srv/certs
+    command: ["--no-global-config", "--config-file=/srv/config/goaccess.conf"]
+    restart: unless-stopped
