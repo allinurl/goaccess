@@ -1,0 +1,33 @@
+services:
+  web:
+    image: nginx
+    volumes:
+      - ./logs:/var/log/nginx
+      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./public:/usr/share/nginx/html
+    labels:
+      - "traefik.enable=true"
+      - "fqdn=yourdomain"
+    networks:
+      - traefik
+
+  goaccess:
+    image: allinurl/goaccess
+    container_name: goaccess
+    volumes:
+      - ./configs/goaccess.traefik.conf:/srv/config/goaccess.conf
+      - ./logs:/srv/logs
+      - ./public:/srv/report
+    command: ["--no-global-config", "--config-file=/srv/config/goaccess.conf"]
+    labels:
+      - "traefik.enable=true"
+      - "fqdn=goaccess.yourdomain"
+      - "traefik.http.services.yourdomain-goaccess.loadbalancer.server.port=443"
+    restart: unless-stopped
+    networks:
+      - traefik
+
+networks:
+  traefik:
+    external:
+      name: traefik_traefik
