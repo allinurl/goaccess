@@ -365,41 +365,37 @@ GoAccess.OverallStats = {
 
 	// Render each overall stats box
 	renderBox: function (data, ui, row, x, idx) {
-		var wrap = $('.wrap-general-items');
+		var wrap = $('#overall ul');
+		var box = document.createElement('li');
 
-		// create a new bootstrap row every 6 elements
-		if (idx % 6 == 0) {
-			row = document.createElement('div');
-			row.setAttribute('class', 'row');
-			wrap.appendChild(row);
-		}
+		// we need to append the element first, otherwise outerHTML won't work
+		wrap.appendChild(box);
 
-		var box = document.createElement('div');
-		box.innerHTML = GoAccess.AppTpls.General.items.render({
+		box.outerHTML = GoAccess.AppTpls.General.items.render({
 			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
 			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].dataType),
 		});
-		row.appendChild(box);
 
-		return row;
+		return wrap;
 	},
 
 	// Render overall stats
 	renderData: function (data, ui) {
 		var idx = 0, row = null;
 
-		$('.last-updated').innerHTML = data.date_time;
-		$('.wrap-general').innerHTML = '';
+		$('#last-updated span').innerHTML = data.date_time;
+		$('#overall').innerHTML = '';
 
 		if (GoAccess.Util.isPanelHidden('general'))
 			return false;
 
-		$('.wrap-general').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
+		$('#overall').innerHTML = GoAccess.AppTpls.General.wrap.render(GoAccess.Util.merge(ui, {
 			'from': data.start_date,
 			'to': data.end_date,
 		}));
+    $('#overall').setAttribute('aria-labelledby', 'overall-heading');
 
 		// Iterate over general data object
 		for (var x in data) {
@@ -429,11 +425,6 @@ GoAccess.Nav = {
 		}.bind(this);
 
 		$('.nav-gears').onclick = function (e) {
-			e.stopPropagation();
-			this.renderOpts(e);
-		}.bind(this);
-
-		$('.nav-minibars').onclick = function (e) {
 			e.stopPropagation();
 			this.renderOpts(e);
 		}.bind(this);
@@ -694,15 +685,19 @@ GoAccess.Nav = {
 
 	WSClose: function () {
 		$$('.nav-ws-status', function (item) {
-			item.classList.remove('connected');
-			item.setAttribute('title', 'Disconnected');
+			item.classList.remove('fa-circle');
+			item.classList.add('fa-stop');
+			item.setAttribute('aria-label', GoAccess.i18n.websocket_disconnected);
+			item.setAttribute('title', GoAccess.i18n.websocket_disconnected);
 		});
 	},
 
 	WSOpen: function (str) {
 		$$('.nav-ws-status', function (item) {
-			item.classList.add('connected');
-			item.setAttribute('title', 'Connected to ' + str);
+			item.classList.remove('fa-stop');
+			item.classList.add('fa-circle');
+			item.setAttribute('aria-label', `${GoAccess.i18n.websocket_connected} (${str})`);
+			item.setAttribute('title', `${GoAccess.i18n.websocket_connected} (${str})`);
 		});
 	},
 
@@ -759,12 +754,14 @@ GoAccess.Panels = {
 
 	openOpts: function (targ) {
 		var panel = targ.getAttribute('data-panel');
+    targ.setAttribute('aria-expanded', 'true');
 		targ.parentElement.classList.toggle('open');
 		this.renderOpts(panel);
 	},
 
 	closeOpts: function (e) {
 		e.currentTarget.parentElement.classList.remove('open');
+    e.currentTarget.parentElement.querySelector('[aria-expanded]').setAttribute('aria-expanded', 'false');
 		// Trigger the click event on the target if not opening another menu
 		if (e.relatedTarget && e.relatedTarget.getAttribute('data-toggle') !== 'dropdown')
 			e.relatedTarget.click();
@@ -896,6 +893,10 @@ GoAccess.Panels = {
 		box.innerHTML = GoAccess.AppTpls.Panels.wrap.render(GoAccess.Util.merge(ui, {
 			'labels': GoAccess.i18n
 		}));
+
+		// add accessible label to parent article
+		col.setAttribute('aria-labelledby', panel);
+
 		col.appendChild(box);
 
 		// Remove pagination if not enough data for the given panel
@@ -911,15 +912,15 @@ GoAccess.Panels = {
 		var perRow = 'horizontal' == layout ? 6 : 'wide' == layout ? 3 : 12;
 
 		// set the number of columns based on current layout
-		var col = document.createElement('div');
-		col.setAttribute('class', 'col-md-' + perRow + ' wrap-panel');
+		var col = document.createElement('article');
+		col.setAttribute('class', 'col-md-' + perRow);
 		row.appendChild(col);
 
 		return col;
 	},
 
 	createRow: function (row, idx) {
-		var wrap = $('.wrap-panels');
+		var wrap = $('#panels');
 		var layout = GoAccess.AppPrefs['layout'];
 		var every = 'horizontal' == layout ? 2 : 'wide' == layout ? 4 : 1;
 
@@ -953,7 +954,7 @@ GoAccess.Panels = {
 	renderPanels: function () {
 		var ui = GoAccess.getPanelUI(), idx = 0, row = null, col = null;
 
-		$('.wrap-panels').innerHTML = '';
+		$('#panels').innerHTML = '';
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
