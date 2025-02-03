@@ -249,6 +249,7 @@ print_html_header (FILE * fp, FILE *fcs)
   "<html lang='%s'>"
   "<head>"
   "<meta charset='UTF-8'>"
+  "<meta name='theme-color' content='#1e1e2f'>"
   "<meta name='referrer' content='no-referrer'>"
   "<meta http-equiv='X-UA-Compatible' content='IE=edge'>"
   "<meta name='google' content='notranslate'>"
