@@ -47,6 +47,7 @@
 #include <inttypes.h>
 #include <regex.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -1220,4 +1221,26 @@ out:
   *q = 0;
 
   return dest;
+}
+
+int
+is_writable_path (const char *path) {
+  if (access (path, W_OK) == 0) {
+    return 1;   // Path is writable
+  } else {
+    switch (errno) {
+    case ENOENT:
+      fprintf (stderr, "Path does not exist: %s\n", path);
+      return 0;
+    case EACCES:
+      fprintf (stderr, "No write permission for path: %s\n", path);
+      return 0;
+    case EROFS:
+      fprintf (stderr, "Path is on a read-only file system: %s\n", path);
+      return 0;
+    default:
+      fprintf (stderr, "Unknown error (errno %d) for path: %s\n", errno, path);
+      return 0;
+    }
+  }
 }

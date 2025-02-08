@@ -95,6 +95,7 @@ int intlen (uint64_t num);
 int invalid_ipaddr (const char *str, int *ipvx);
 int ip_in_range (const char *ip);
 int is_valid_http_status (int code);
+int is_writable_path (const char *path);
 int ptr2int (char *ptr);
 int str2int (const char *date);
 int str_inarray (const char *s, const char *arr[], int size);

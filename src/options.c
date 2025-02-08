@@ -833,6 +833,8 @@ read_option_args (int argc, char **argv) {
     case 'o':
       if (!valid_output_type (optarg))
         FATAL ("Invalid filename extension. It must be any of .csv, .json, or .html\n");
+        if (!is_writable_path(optarg))
+          FATAL("Invalid or unwritable path.");
       if (conf.output_format_idx < MAX_OUTFORMATS)
         conf.output_formats[conf.output_format_idx++] = optarg;
       break;
