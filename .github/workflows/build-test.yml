@@ -56,15 +56,15 @@ jobs:
           cat access.log
 
       - name: Run goaccess single thread
-        run: ./goaccess access.log --log-format=VCOMBINED -o report.html
+        run: ./goaccess access.log --log-format=VCOMBINED -o ./report.html
 
       - name: Run goaccess multi-thread
-        run: ./goaccess access.log --log-format='%v:%^ %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o report.html -j 2 -a --tz="Europe/Berlin"
+        run: ./goaccess access.log --log-format='%v:%^ %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o ./report.html -j 2 -a --tz="Europe/Berlin"
 
       - name: Run goaccess multi-thread JSON output
         run: |
-          ./goaccess access.log --log-format=VCOMBINED -o report.json -j 2 -a --json-pretty-print
-          cat report.json | jq .
+          ./goaccess access.log --log-format=VCOMBINED -o ./report.json -j 2 -a --json-pretty-print
+          cat ./report.json | jq .
 
       - name: Make distclean
         run: sudo make distclean
