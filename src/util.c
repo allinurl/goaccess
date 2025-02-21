@@ -48,6 +48,8 @@
 #include <regex.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <libgen.h>
+#include <limits.h>
 
 #include <netinet/in.h>
 #include <sys/socket.h>
@@ -1225,22 +1227,47 @@ out:
 
 int
 is_writable_path (const char *path) {
-  /* Path is writable */
-  if (access (path, W_OK) == 0)
+  char *copy = NULL, *dir_path = NULL;
+  char dir_path_copy[PATH_MAX] = { 0 };
+  int result = 0;
+
+  if (path == NULL) {
+    fprintf (stderr, "Path is NULL\n");
+    return 0;
+  }
+  /* Make a copy of the path because dirname might modify it */
+  copy = strdup (path);
+  if (copy == NULL) {
+    fprintf (stderr, "Memory allocation failed\n");
+    return 0;
+  }
+  /* Get the directory part of the path */
+  dir_path = dirname (copy);
+  strncpy (dir_path_copy, dir_path, PATH_MAX);
+
+  /* Check if the directory is writable */
+  result = access (dir_path, W_OK);
+  free (copy);
+
+  if (result == 0) {
+    /* Directory exists and is writable */
     return 1;
+  }
 
   switch (errno) {
   case ENOENT:
-    fprintf (stderr, "Path does not exist: %s\n", path);
-    return 0;
+    fprintf (stderr, "Directory does not exist: %s\n", dir_path_copy);
+    break;
   case EACCES:
-    fprintf (stderr, "No write permission for path: %s\n", path);
-    return 0;
+    fprintf (stderr, "No write permission for directory: %s\n", dir_path_copy);
+    break;
   case EROFS:
-    fprintf (stderr, "Path is on a read-only file system: %s\n", path);
-    return 0;
+    fprintf (stderr, "Directory is on a read-only file system: %s\n", dir_path_copy);
+    break;
   default:
-    fprintf (stderr, "Unknown error (errno %d) for path: %s\n", errno, path);
-    return 0;
+    fprintf (stderr, "Unknown error (errno %d) for directory: %s\n", errno, dir_path_copy);
+    break;
   }
+
+  return 0;
 }
