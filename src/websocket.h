@@ -88,6 +88,12 @@
 #  define be16toh(x) OSSwapBigToHostInt16(x)
 #  define be32toh(x) OSSwapBigToHostInt32(x)
 #  define be64toh(x) OSSwapBigToHostInt64(x)
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+#  define htobe16(x) (x)
+#  define htobe64(x) (x)
+#  define be16toh(x) (x)
+#  define be32toh(x) (x)
+#  define be64toh(x) (x)
 #else
 #  error Platform not supported!
 #endif
