@@ -441,9 +441,6 @@ article table>thead>tr.thead-cols {
 article table tbody.tbody-data tr.shaded {
 	background-color: #F7F7F7;
 }
-article table tbody.tbody-data tr. {
-	background-color: #F7F7F7;
-}
 article table tbody.tbody-data tr.child td:nth-child(1),
 article table tbody.tbody-data tr.child td:nth-child(2) {
 	border-right: none;
