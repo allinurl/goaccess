@@ -153,7 +153,7 @@ function WorldMap() {
 		data = mapData(data);
 		path = d3.geoPath().projection(projection);
 
-		const colorScale = d3.scaleQuantile().domain(data.map(d => d[metric])).range(['#ffffccc9', '#c2e699', '#a1dab4c9', '#41b6c4c9', '#2c7fb8c9']);
+		const colorScale = d3.scaleQuantile().domain(data.map(d => d[metric])).range(['#eafff1', '#a7e3d7', '#6cc5c0', '#44a2b1', '#246e96']);
 		if (data.length)
 			drawLegend(selection, colorScale);
 
