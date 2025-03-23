@@ -199,70 +199,110 @@ function WorldMap() {
 
 	function setBounds(projection, maxLat) {
 		const [yaw] = projection.rotate();
-		// Top left corner
+		// Top-left corner of the “viewable” lat
 		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]);
-		// Bottom right corner
+		// Bottom-right corner
 		const xymin = projection([-yaw - 180 + 1e-6, maxLat]);
-		return [xymin, xymax];
+		return [xymin, xymax]; // [ [xMin, yMin], [xMax, yMax] ]
+	}
+
+	function clampVertical(projection, maxLat, height) {
+		const b = setBounds(projection, maxLat);
+		const [xMin, yMin] = b[0]; // top-left
+		const [xMax, yMax] = b[1]; // bottom-right
+
+		// Current translation
+		const t = projection.translate();
+
+		// If the top (yMin) is now below 0, push it down.
+		if (yMin > 0) {
+			t[1] -= yMin; // shift map upward
+		}
+		// If the bottom (yMax) is now above the container height, push it up.
+		else if (yMax < height) {
+			t[1] += (height - yMax); // shift map downward
+		}
+
+		projection.translate(t);
 	}
 
 	function zoomed(event, projection, path, scaleExtent, g) {
-		const newX = event.transform.x % width;
-		const newY = event.transform.y;
 		const scale = event.transform.k;
+		const containerCenter = [innerW() / 2, height / 2]; // Use the center of the container
+		let anchor = containerCenter; // Always use the container's center as the anchor
 
-		if (scale != slast) {
-			// Adjust the scale of the projection based on the zoom level
+		if (Math.abs(scale - slast) > 1e-3) {
+			// Get the geographic coordinate at the container center
+			const geoCoord = projection.invert(anchor);
+
+			// Update projection scale based on the new zoom factor
 			projection.scale(scale * (innerW() / (2 * Math.PI)));
-		} else {
-			// Calculate the new longitude based on the x-coordinate
-			let [longitude] = projection.rotate();
 
-			// Use the X translation to rotate, based on the current scale
-			longitude += 360 * ((newX - tlast[0]) / width) * (scaleExtent[0] / scale);
+			// Re-project the same geographic coordinate to determine its new position
+			const newPixel = projection(geoCoord);
+			const dxAnchor = anchor[0] - newPixel[0];
+			const dyAnchor = anchor[1] - newPixel[1];
+
+			// Shift translation so that the geoCoord remains at the chosen anchor
+			const t = projection.translate();
+			projection.translate([t[0] + dxAnchor, t[1] + dyAnchor]);
+
+			// Clamp vertical so the map doesn't float off the top/bottom
+			clampVertical(projection, maxLat, height);
+		} else {
+			// --- Pure Panning (scale unchanged) ---
+			const newX = event.transform.x;
+			const newY = event.transform.y;
+			const dx = newX - tlast[0];
+			const dy = newY - tlast[1];
+
+			// Infinite horizontal scroll: adjust rotation (longitude)
+			let [longitude] = projection.rotate();
+			longitude += 360 * (dx / width) * (scaleExtent[0] / scale);
 			projection.rotate([longitude, 0, 0]);
 
-			// Calculate the new latitude based on the y-coordinate
-			const b = setBounds(projection, maxLat);
-			let dy = newY - tlast[1];
-			if (b[0][1] + dy > 0)
-				dy = -b[0][1];
-			else if (b[1][1] + dy < height)
-				dy = height - b[1][1];
-			projection.translate([projection.translate()[0], projection.translate()[1] + dy]);
+			// Vertical shift: adjust translation
+			const t = projection.translate();
+			t[1] += dy;
+			projection.translate(t);
+
+			// Clamp vertical
+			clampVertical(projection, maxLat, height);
 		}
 
-		// Redraw paths with the updated projection
+		// Redraw paths
 		g.selectAll('path').attr('d', path);
 
-		// Save last values
+		// Save state for next event
+		tlast = [event.transform.x, event.transform.y];
 		slast = scale;
-		tlast = [newX, newY];
 	}
 
 	function createSVG(selection) {
 		const svg = d3.select(selection)
 			.append('svg')
 			.attr('class', 'map')
-			.attr('width', width)
+			.attr('style', 'display:block; margin:auto;')
+			.attr('width', innerW())
 			.attr('height', height)
 			.lower();
 
 		const g = svg.append('g')
-			.attr('transform', `translate(${margin.left}, 0)`)
+			.attr('transform', `translate(0, 0)`)
 			.attr('transform-origin', '50% 50%');
 
 		projection = d3.geoMercator()
 			.center([0, 15])
-			.scale([(innerW()) / (2 * Math.PI)])
+			.scale((innerW()) / (2 * Math.PI))
 			.translate([(innerW()) / 2, height / 1.5]);
+
 		path = d3.geoPath().projection(projection);
 
 		// Calculate scale extent and initial scale
 		const bounds = setBounds(projection, maxLat);
-		const s = width / (bounds[1][0] - bounds[0][0]);
+		const s = innerW() / (bounds[1][0] - bounds[0][0]);
 		// The minimum and maximum zoom scales
-		const scaleExtent = [s, 5 * s];
+		const scaleExtent = [s, 6 * s];
 
 		const zoom = d3.zoom()
 			.scaleExtent(scaleExtent)
