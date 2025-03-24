@@ -575,17 +575,22 @@ GoAccess.Nav = {
 		$('html').className = '';
 		switch(theme) {
 		case 'darkGray':
+			document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#212121');
 			$('html').classList.add('dark');
 			$('html').classList.add('gray');
 			break;
 		case 'darkBlue':
+			document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#252B30');
 			$('html').classList.add('dark');
 			$('html').classList.add('blue');
 			break;
 		case 'darkPurple':
+			document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#1e1e2f');
 			$('html').classList.add('dark');
 			$('html').classList.add('purple');
 			break;
+		default:
+			document.querySelector('meta[name="theme-color"]')?.setAttribute('content', '#f0f0f0');
 		}
 		GoAccess.AppPrefs['theme'] = theme;
 		GoAccess.setPrefs();
