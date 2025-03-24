@@ -287,20 +287,34 @@ static void
 print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
-  "<nav class='hide'></nav>"
-  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
-  "<div class='container hide'>"
+  "<nav class='hidden-xs hidden-sm hide' aria-label='Main navigation'>"
+  "</nav>"
+  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw' aria-hidden='true' aria-label='Loading'></i>"
+  "<div class='container hide' role='document'>"
   "<header class='page-header'>"
-  "<h1><i class='fa fa-tachometer' aria-hidden='true'></i> %s</h1>"
-  "<p id='last-updated' class='label label-info' aria-live='polite' aria-atomic'true' style='display:%s'>%s: <span>%s</span></p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
-
+  "<h1 class='h-dashboard'>"
+  "<span class='hidden-xs hidden-sm'>"
+  "<i class='fa fa-tachometer' aria-hidden='true'></i> %s"
+  "</span>"
+  "<span class='visible-xs visible-sm'>"
+  "<i class='fa fa-bars nav-minibars' aria-label='Menu' role='button' tabindex='0'></i>"
+  "<i class='fa fa-circle nav-ws-status mini' aria-label='Status indicator'></i>"
+  "</span>"
+  "</h1>"
+  "<div style='margin-left: auto;'>"
+  "<h4>"
+  "<span class='label label-info' style='display:%s' id='last-updated' aria-live='polite' aria-atomic='true'>"
+  "<span class='hidden-xs'>%s: </span>"
+  "<span class='last-updated'>%s</span>"
+  "</span>"
+  "</h4>"
+  "</div>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
   fprintf (fp,
-  "<p class='report-title'>%s</p>"
+  "<p class='report-title' id='report-title'>%s</p>"
   "</header>"
-  "<aside id='overall'></aside>"
-  "<main id='panels'></main>"
+  "<aside id='overall' aria-labelledby='overall-heading'></aside>"
+  "<main id='panels' aria-labelledby='report-title'></main>"
   "</div>", conf.html_report_title ? conf.html_report_title : "");
-
   fprintf (fp, "%.*s", tpls_length, tpls);
 }
 
