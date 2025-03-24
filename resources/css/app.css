@@ -56,9 +56,12 @@ h3 {
 	padding: 3px 25px;
 	text-transform: uppercase;
 }
-.gheader {
-	letter-spacing: -1px;
+hgroup h2,
+hgroup small {
 	text-transform: uppercase;
+}
+hgroup h2 {
+	letter-spacing: -1px;
 }
 
 /* NAVIGATION */
@@ -576,6 +579,12 @@ ol[role="list"] {
 		bottom: 10px;
 		left: 25px;
 		transform: initial;
+	}
+	header hgroup {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		width: 70%
 	}
 }
 
