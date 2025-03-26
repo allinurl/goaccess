@@ -32,6 +32,7 @@
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
  * correctly.
  */
+#define _GNU_SOURCE
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
