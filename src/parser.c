@@ -32,7 +32,6 @@
  * "_XOPEN_SOURCE" is required for the GNU libc to export "strptime(3)"
  * correctly.
  */
-#define _GNU_SOURCE
 #define _LARGEFILE_SOURCE
 #define _LARGEFILE64_SOURCE
 #define _FILE_OFFSET_BITS 64
@@ -894,7 +893,7 @@ handle_default_case_token (const char **str, const char *p) {
 static void
 normalize_mime_type (const char *mime, char *out, size_t out_size) {
   size_t mime_len = 0, remaining = 0;
-  char *temp = NULL, *dest = NULL, *p = NULL, *token = NULL, *end = NULL, *c = NULL;
+  char *temp = NULL, *dest = NULL, *ptr = NULL, *token = NULL, *end = NULL, *sep = NULL, *c = NULL;
   const char *delims = NULL;
   int first = 0, n = 0;
 
@@ -902,24 +901,37 @@ normalize_mime_type (const char *mime, char *out, size_t out_size) {
     return;
 
   mime_len = strlen (mime);
-  temp = (char *) alloca (mime_len + 1);
+  temp = xmalloc (mime_len + 1);
   memcpy (temp, mime, mime_len + 1);
 
+  out[0] = '\0';
   dest = out;
   remaining = out_size;
-  dest[0] = '\0';
 
   /* Set the delimiters; both ';' and ',' are significant separators */
   delims = ";,";
   first = 1;
-  p = temp;
+  ptr = temp;
 
-  while ((token = strsep (&p, delims)) != NULL) {
-    /* Trim leading whitespace */
-    while (*token && isspace ((unsigned char) *token))
-      token++;
+  /* Process each token */
+  while (*ptr != '\0') {
+    /* Skip leading whitespace */
+    while (*ptr && isspace ((unsigned char) *ptr))
+      ptr++;
+    if (*ptr == '\0')
+      break;
 
-    /* Trim trailing whitespace */
+    token = ptr;
+    /* Find next delimiter */
+    sep = strpbrk (ptr, delims);
+    if (sep != NULL) {
+      *sep = '\0';
+      ptr = sep + 1;
+    } else {
+      ptr += strlen (ptr);
+    }
+
+    /* Trim trailing whitespace on token */
     end = token + strlen (token) - 1;
     while (end >= token && isspace ((unsigned char) *end)) {
       *end = '\0';
@@ -937,6 +949,7 @@ normalize_mime_type (const char *mime, char *out, size_t out_size) {
       n = snprintf (dest, remaining, "; ");
       if (n < 0 || (size_t) n >= remaining) {
         dest[remaining - 1] = '\0';
+        free (temp);
         return;
       }
       dest += n;
@@ -949,11 +962,13 @@ normalize_mime_type (const char *mime, char *out, size_t out_size) {
     n = snprintf (dest, remaining, "%s", token);
     if (n < 0 || (size_t) n >= remaining) {
       dest[remaining - 1] = '\0';
+      free (temp);
       return;
     }
     dest += n;
     remaining -= n;
   }
+  free (temp);
 }
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
