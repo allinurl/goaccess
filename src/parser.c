@@ -890,6 +890,71 @@ handle_default_case_token (const char **str, const char *p) {
   return 0;
 }
 
+static void
+normalize_mime_type (const char *mime, char *out, size_t out_size) {
+  size_t mime_len = 0, remaining = 0;
+  char *temp = NULL, *dest = NULL, *p = NULL, *token = NULL, *end = NULL, *c = NULL;
+  const char *delims = NULL;
+  int first = 0, n = 0;
+
+  if (!mime || !out || out_size == 0)
+    return;
+
+  mime_len = strlen (mime);
+  temp = (char *) alloca (mime_len + 1);
+  memcpy (temp, mime, mime_len + 1);
+
+  dest = out;
+  remaining = out_size;
+  dest[0] = '\0';
+
+  /* Set the delimiters; both ';' and ',' are significant separators */
+  delims = ";,";
+  first = 1;
+  p = temp;
+
+  while ((token = strsep (&p, delims)) != NULL) {
+    /* Trim leading whitespace */
+    while (*token && isspace ((unsigned char) *token))
+      token++;
+
+    /* Trim trailing whitespace */
+    end = token + strlen (token) - 1;
+    while (end >= token && isspace ((unsigned char) *end)) {
+      *end = '\0';
+      end--;
+    }
+    if (*token == '\0')
+      continue;
+
+    /* Convert token to lower-case in place */
+    for (c = token; *c; c++)
+      *c = (char) tolower ((unsigned char) *c);
+
+    /* Append separator if this is not the first token */
+    if (!first) {
+      n = snprintf (dest, remaining, "; ");
+      if (n < 0 || (size_t) n >= remaining) {
+        dest[remaining - 1] = '\0';
+        return;
+      }
+      dest += n;
+      remaining -= n;
+    } else {
+      first = 0;
+    }
+
+    /* Append the normalized token safely */
+    n = snprintf (dest, remaining, "%s", token);
+    if (n < 0 || (size_t) n >= remaining) {
+      dest[remaining - 1] = '\0';
+      return;
+    }
+    dest += n;
+    remaining -= n;
+  }
+}
+
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
 /* Parse the log string given log format rule.
@@ -901,6 +966,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   struct tm tm;
   const char *dfmt = conf.date_format;
   const char *tfmt = conf.time_format;
+  char norm_mime[MAX_MIME_OUT] = { 0 };
 
   char *pch, *sEnd, *bEnd, *tkn = NULL;
   double serve_secs = 0.0;
@@ -1306,7 +1372,12 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
-    logitem->mime_type = tkn;
+    normalize_mime_type (tkn, norm_mime, sizeof (norm_mime));
+    if (norm_mime[0] != '\0')
+      logitem->mime_type = strdup (norm_mime);
+    else
+      logitem->mime_type = NULL;
+    free (tkn);
 
     break;
     /* move forward through str until not a space */

@@ -37,6 +37,7 @@
 #define MAX_LOG_ERRORS  20
 #define READ_BYTES      4096u
 #define MAX_BATCH_LINES 8192u /* max number of lines to read per batch before a reflow */
+#define MAX_MIME_OUT    256
 
 #define LINE_LEN          23
 #define ERROR_LEN        255
