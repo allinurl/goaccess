@@ -29,6 +29,7 @@
  */
 
 #include <string.h>
+#include <inttypes.h>
 
 #include "base64.h"
 #include "xmalloc.h"
@@ -75,4 +76,88 @@ base64_encode (const void *buf, size_t size) {
   *p = 0;
 
   return str;
+}
+
+/*
+ * base64_decode
+ *
+ * Given a Base64 encoded string in 'data', this function decodes it into
+ * a newly allocated binary buffer. The length of the decoded data is stored
+ * in *out_len. The caller is responsible for freeing the returned buffer.
+ *
+ * Returns NULL on error (for example, if the data's length is not a multiple
+ * of 4).
+ */
+char *
+base64_decode (const char *data, size_t *out_len) {
+  size_t decoded_len = 0, i = 0, j = 0, pad = 0, len = 0;
+  char *out = NULL;
+  uint32_t triple = 0;
+
+  /* Create a lookup table for decoding.
+   * For valid Base64 characters 'A'-'Z', 'a'-'z', '0'-'9', '+', '/',
+   * we place their value; for '=' we simply return 0.
+   * All other characters are marked as 0x80 (an invalid marker).
+   */
+  static const unsigned char dtable[256] = {
+    ['A'] = 0,['B'] = 1,['C'] = 2,['D'] = 3,
+    ['E'] = 4,['F'] = 5,['G'] = 6,['H'] = 7,
+    ['I'] = 8,['J'] = 9,['K'] = 10,['L'] = 11,
+    ['M'] = 12,['N'] = 13,['O'] = 14,['P'] = 15,
+    ['Q'] = 16,['R'] = 17,['S'] = 18,['T'] = 19,
+    ['U'] = 20,['V'] = 21,['W'] = 22,['X'] = 23,
+    ['Y'] = 24,['Z'] = 25,
+    ['a'] = 26,['b'] = 27,['c'] = 28,['d'] = 29,
+    ['e'] = 30,['f'] = 31,['g'] = 32,['h'] = 33,
+    ['i'] = 34,['j'] = 35,['k'] = 36,['l'] = 37,
+    ['m'] = 38,['n'] = 39,['o'] = 40,['p'] = 41,
+    ['q'] = 42,['r'] = 43,['s'] = 44,['t'] = 45,
+    ['u'] = 46,['v'] = 47,['w'] = 48,['x'] = 49,
+    ['y'] = 50,['z'] = 51,
+    ['0'] = 52,['1'] = 53,['2'] = 54,['3'] = 55,
+    ['4'] = 56,['5'] = 57,['6'] = 58,['7'] = 59,
+    ['8'] = 60,['9'] = 61,
+    ['+'] = 62,['/'] = 63,
+    ['='] = 0,
+    /* All other values are implicitly 0 (or you can mark them as invalid
+       by setting them to 0x80 if you prefer stricter checking). */
+  };
+
+  len = strlen (data);
+  /* Validate length: Base64 encoded data must be a multiple of 4 */
+  if (len % 4 != 0)
+    return NULL;
+
+  /* Count padding characters at the end */
+  if (len) {
+    if (data[len - 1] == '=')
+      pad++;
+    if (len > 1 && data[len - 2] == '=')
+      pad++;
+  }
+
+  /* Calculate the length of the decoded data */
+  decoded_len = (len / 4) * 3 - pad;
+  out = (char *) xmalloc (decoded_len + 1); /* +1 for a null terminator if needed */
+
+  for (i = 0, j = 0; i < len;) {
+    unsigned int sextet_a = data[i] == '=' ? 0 : dtable[(unsigned char) data[i]];
+    unsigned int sextet_b = data[i + 1] == '=' ? 0 : dtable[(unsigned char) data[i + 1]];
+    unsigned int sextet_c = data[i + 2] == '=' ? 0 : dtable[(unsigned char) data[i + 2]];
+    unsigned int sextet_d = data[i + 3] == '=' ? 0 : dtable[(unsigned char) data[i + 3]];
+    i += 4;
+
+    triple = (sextet_a << 18) | (sextet_b << 12) | (sextet_c << 6) | sextet_d;
+    if (j < decoded_len)
+      out[j++] = (triple >> 16) & 0xFF;
+    if (j < decoded_len)
+      out[j++] = (triple >> 8) & 0xFF;
+    if (j < decoded_len)
+      out[j++] = triple & 0xFF;
+  }
+
+  out[decoded_len] = '\0'; /* Null-terminate the output buffer */
+  if (out_len)
+    *out_len = decoded_len;
+  return out;
 }

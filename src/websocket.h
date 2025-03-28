@@ -102,6 +102,7 @@
 #include "gslist.h"
 
 #define WS_BAD_REQUEST_STR "HTTP/1.1 400 Invalid Request\r\n\r\n"
+#define WS_UNAUTHORIZED_STR "HTTP/1.1 401 Unauthorized\r\n\r\n"
 #define WS_SWITCH_PROTO_STR "HTTP/1.1 101 Switching Protocols"
 #define WS_TOO_BUSY_STR "HTTP/1.1 503 Service Unavailable\r\n\r\n"
 
@@ -178,6 +179,7 @@ typedef struct WSHeaders_ {
 
   char *agent;
   char *path;
+  char *jwt;
   char *method;
   char *protocol;
   char *host;
@@ -272,6 +274,11 @@ typedef struct WSConfig_ {
   const char *sslcert;
   const char *sslkey;
   const char *unix_socket;
+  const char *auth_secret;
+
+  /* Function pointer for JWT verification */
+  int (*auth) (const char *jwt, const char *secret);
+
   int echomode;
   int strict;
   int max_frm_size;
@@ -322,6 +329,8 @@ void ws_set_config_port (const char *port);
 void ws_set_config_sslcert (const char *sslcert);
 void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
+void ws_set_config_auth_secret (const char *auth_secret);
+void ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret));
 void ws_start (WSServer * server);
 void ws_stop (WSServer * server);
 WSServer *ws_init (const char *host, const char *port, void (*initopts) (void));

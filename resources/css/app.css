@@ -30,11 +30,26 @@ h3 {
 .expandable>td {
 	cursor: pointer;
 }
+.loading-container {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
 .spinner {
 	color: #999;
-	left: 50%;
-	position: absolute;
-	top: 50%;
+	margin-bottom: 10px; /* Space between spinner and text */
+}
+.app-loading-status {
+	color: #999;
+	text-align: center;
+	text-shadow: 1px 1px 0 #FFF;
+	text-transform: uppercase;
 }
 .powered {
 	bottom: 190px;

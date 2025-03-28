@@ -66,9 +66,20 @@ window.GoAccess = window.GoAccess || {
 			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
 			this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
 		}
-		if (Object.keys(this.AppWSConn).length)
-			this.setWebSocket(this.AppWSConn);
 
+		// Track if the app has been initialized
+		this.isAppInitialized = false;
+
+		// If window.goaccessJWT is set and WebSocket is configured, set it up
+		if (window.goaccessJWT && Object.keys(this.AppWSConn).length) {
+			this.setWebSocket(this.AppWSConn);
+		} else {
+			// No JWT or no WebSocket: initialize immediately
+			GoAccess.App.initialize();
+			if (Object.keys(this.AppWSConn).length) {
+				this.setWebSocket(this.AppWSConn);
+			}
+		}
 	},
 
 	getPanelUI: function (panel) {
@@ -110,31 +121,69 @@ window.GoAccess = window.GoAccess || {
 	setWebSocket: function (wsConn) {
 		var host = null, pingId = null, uri = null, defURI = null, str = null;
 
+		const messages = [
+			'Validating WebSocket tokens... Please wait.',
+			'Authenticating WebSocket connection... Please wait.',
+			'Verifying WebSocket credentials... Please wait.',
+			'Authorizing WebSocket session... Please wait.'
+		];
+		let currentMessageIndex = 0;
+		let messageInterval;
+
+		function displayNextMessage() {
+			if (currentMessageIndex < messages.length) {
+				document.querySelector('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+				currentMessageIndex++;
+			}
+		}
+
+		// Start message rotation
+		messageInterval = setInterval(displayNextMessage, 100);
+
 		defURI = window.location.hostname ? window.location.hostname + ':' + wsConn.port : "localhost" + ':' + wsConn.port;
 		uri = wsConn.url && /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}/.test(wsConn.url) ? wsConn.url : this.buildWSURI(wsConn);
 
 		str = uri || defURI;
 		str = !/^wss?:\/\//i.test(str) ? (window.location.protocol === "https:" ? 'wss://' : 'ws://') + str : str;
 
+		if (window.goaccessJWT) {
+			const separator = str.includes('?') ? '&' : '?';
+			str = str + separator + 'token=' + encodeURIComponent(window.goaccessJWT);
+		}
+
 		var socket = new WebSocket(str);
+
 		socket.onopen = function (event) {
+			clearInterval(messageInterval);
+			document.querySelector('.app-loading-status > small').innerHTML = 'Authentication successful.';
+
 			this.currDelay = this.wsDelay;
 			this.retries = 0;
 
-			// attempt to keep connection alive (e.g., ping/pong)
-			if (wsConn.ping_interval)
+			if (wsConn.ping_interval) {
 				pingId = setInterval(() => { socket.send('ping'); }, wsConn.ping_interval * 1E3);
-
+			}
 			GoAccess.Nav.WSOpen(str);
 		}.bind(this);
 
 		socket.onmessage = function (event) {
 			this.AppState['updated'] = true;
 			this.AppData = JSON.parse(event.data);
+
+			if (window.goaccessJWT && !this.isAppInitialized) {
+				GoAccess.App.initialize();
+				GoAccess.Nav.WSOpen(str);
+				this.isAppInitialized = true;
+			}
+
 			this.App.renderData();
 		}.bind(this);
 
 		socket.onclose = function (event) {
+			clearInterval(messageInterval);
+			document.querySelector('.app-loading-status > small').innerHTML = 'Unable to authenticate WebSocket.';
+			document.querySelector('.loading-container > .spinner').style.display = 'none';
+
 			GoAccess.Nav.WSClose();
 			window.clearInterval(pingId);
 			socket = null;
@@ -395,7 +444,7 @@ GoAccess.OverallStats = {
 			'from': data.start_date,
 			'to': data.end_date,
 		}));
-    $('#overall').setAttribute('aria-labelledby', 'overall-heading');
+		$('#overall').setAttribute('aria-labelledby', 'overall-heading');
 
 		// Iterate over general data object
 		for (var x in data) {
@@ -703,11 +752,12 @@ GoAccess.Nav = {
 	},
 
 	WSOpen: function (str) {
+		const baseUrl = str.split('?')[0].split('#')[0];
 		$$('.nav-ws-status', function (item) {
 			item.classList.remove('fa-stop');
 			item.classList.add('fa-circle');
-			item.setAttribute('aria-label', `${GoAccess.i18n.websocket_connected} (${str})`);
-			item.setAttribute('title', `${GoAccess.i18n.websocket_connected} (${str})`);
+			item.setAttribute('aria-label', `${GoAccess.i18n.websocket_connected} (${baseUrl})`);
+			item.setAttribute('title', `${GoAccess.i18n.websocket_connected} (${baseUrl})`);
 		});
 	},
 
@@ -1926,15 +1976,19 @@ GoAccess.App = {
 		GoAccess.Tables.reloadTables();
 	},
 
-	initialize: function () {
-		this.setInitSort();
-		this.setTpls();
+	renderPanels: function () {
 		GoAccess.Nav.initialize();
-		this.initDom();
 		GoAccess.OverallStats.initialize();
 		GoAccess.Panels.initialize();
 		GoAccess.Charts.initialize();
 		GoAccess.Tables.initialize();
+	},
+
+	initialize: function () {
+		this.setInitSort();
+		this.setTpls();
+		this.initDom();
+		this.renderPanels();
 	},
 };
 
@@ -1961,6 +2015,5 @@ window.onload = function () {
 		'wsConnection': window.connection || null,
 		'prefs': window.html_prefs || {},
 	});
-	GoAccess.App.initialize();
 };
 }());

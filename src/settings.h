@@ -146,6 +146,8 @@ typedef struct GConf_
   const char *ws_url;               /* WebSocket URL */
   const char *ping_interval;        /* WebSocket ping interval in seconds */
   const char *unix_socket;          /* unix socket to bind to */
+  char *ws_auth_secret;             /* WebSocket AUTH */
+  long ws_auth_expire;              /* WebSocket AUTH JWT expire in seconds */
 
   /* User flags */
   int all_static_files;             /* parse all static files */

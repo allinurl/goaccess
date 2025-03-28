@@ -973,6 +973,29 @@ u642str (uint64_t d, int width) {
   return s;
 }
 
+/* Decodes the given URL-encoded string.
+ *
+ * On success, the decoded string is assigned to the output buffer. */
+#define B16TOD(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((unsigned char) (x)) - 'A' + 10))
+void
+decode_hex (char *url, char *out, int decode_plus) {
+  char *ptr;
+  const char *c;
+  for (c = url, ptr = out; *c; c++) {
+    if (*c != '%' || !isxdigit ((unsigned char) c[1]) || !isxdigit ((unsigned char) c[2])) {
+      if (decode_plus && *c == '+') {
+        *ptr++ = ' ';
+      } else {
+        *ptr++ = *c;
+      }
+    } else {
+      *ptr++ = (char) ((B16TOD (c[1]) * 16) + (B16TOD (c[2])));
+      c += 2;
+    }
+  }
+  *ptr = 0;
+}
+
 /* Convert the given float to a string with the ability to add some
  * padding.
  *

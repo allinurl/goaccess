@@ -74,6 +74,7 @@ if test "$openssl" = 'yes'; then
   AC_CHECK_LIB([crypto], [CRYPTO_free],,[AC_MSG_ERROR([crypto library missing])])
   AC_CHECK_LIB([ssl], [SSL_CIPHER_standard_name], [AC_DEFINE([HAVE_CIPHER_STD_NAME], 1, [HAVE_CIPHER_STD_NAME])])
 fi
+AM_CONDITIONAL([WITH_SSL], [test "x$with_openssl" = "xyes"])
 
 # GeoIP
 AC_ARG_ENABLE([geoip],[AS_HELP_STRING([--enable-geoip],[Enable GeoIP country lookup. Supported types: mmdb, legacy. Default is disabled])],[geoip="$enableval"],[geoip=no])

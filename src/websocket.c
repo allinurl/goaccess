@@ -437,6 +437,8 @@ ws_free_header_fields (WSHeaders *headers) {
     free (headers->path);
   if (headers->protocol)
     free (headers->protocol);
+  if (headers->jwt)
+    free (headers->jwt);
   if (headers->upgrade)
     free (headers->upgrade);
   if (headers->ws_accept)
@@ -1129,13 +1131,48 @@ ws_verify_req_headers (WSHeaders *headers) {
   return 0;
 }
 
+/* Extract JWT token from query string */
+static char *
+ws_extract_jwt_token (char *path) {
+  char decoded_token[8192] = { 0 }; // Adjust size as needed
+  char *query = NULL, *tokenParam = NULL, *end = NULL;
+  if (!path)
+    return NULL;
+
+  // Look for a query string in the path
+  query = strchr (path, '?');
+  if (!query)
+    return NULL;
+
+  query++;      // Skip the '?'
+
+  // Look for the token parameter
+  tokenParam = strstr (query, "token=");
+  if (!tokenParam)
+    return NULL;
+
+  tokenParam += strlen ("token="); // Move pointer past "token="
+
+  // Decode the token
+  decode_hex (tokenParam, decoded_token, 1);
+
+  // Find the end of the token (next '&' or end of string)
+  end = strpbrk (decoded_token, "& ");
+  if (end)
+    *end = '\0';
+
+  // Return a dynamically allocated copy of the decoded token
+  return strdup (decoded_token);
+}
+
 /* From RFC2616, each header field consists of a name followed by a
  * colon (":") and the field value. Field names are case-insensitive.
  * The field value MAY be preceded by any amount of LWS, though a
  * single SP is preferred */
 static int
 ws_set_header_fields (char *line, WSHeaders *headers) {
-  char *path = NULL, *method = NULL, *proto = NULL, *p, *value;
+  char *path = NULL, *method = NULL, *proto = NULL;
+  char *p = NULL, *value = NULL;
 
   if (line[0] == '\n' || line[0] == '\r')
     return 1;
@@ -1143,9 +1180,13 @@ ws_set_header_fields (char *line, WSHeaders *headers) {
   if ((strstr (line, "GET ")) || (strstr (line, "get "))) {
     if ((path = ws_parse_request (line, &method, &proto)) == NULL)
       return 1;
+
     headers->path = path;
     headers->method = method;
     headers->protocol = proto;
+
+    /* Extract JWT token from path */
+    headers->jwt = ws_extract_jwt_token (path);
 
     return 0;
   }
@@ -1161,15 +1202,16 @@ ws_set_header_fields (char *line, WSHeaders *headers) {
     return 1;
 
   *p = '\0';
+
   if (strpbrk (line, " \t") != NULL) {
     *p = ' ';
     return 1;
   }
+
   while (isspace ((unsigned char) *value))
     value++;
 
   ws_set_header_key_value (headers, line, value);
-
   return 0;
 }
 
@@ -1616,6 +1658,13 @@ ws_get_handshake (WSClient *client, WSServer *server) {
   if (ws_verify_req_headers (client->headers) != 0) {
     LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
     http_error (client, WS_BAD_REQUEST_STR);
+    return ws_set_status (client, WS_CLOSE, bytes);
+  }
+
+  /* Ensure we can authenticate the connection */
+  if (wsconfig.auth_secret && wsconfig.auth (client->headers->jwt, wsconfig.auth_secret) != 1) {
+    LOG (("Unable to authenticate connection %d [%s]...\n", client->listener, client->remote_ip));
+    http_error (client, WS_UNAUTHORIZED_STR);
     return ws_set_status (client, WS_CLOSE, bytes);
   }
 
@@ -2959,6 +3008,17 @@ ws_set_config_sslcert (const char *sslcert) {
 void
 ws_set_config_sslkey (const char *sslkey) {
   wsconfig.sslkey = sslkey;
+}
+
+/* Set auth secret for auth. */
+void
+ws_set_config_auth_secret (const char *auth_secret) {
+  wsconfig.auth_secret = auth_secret;
+}
+
+void
+ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret)) {
+  wsconfig.auth = auth_cb;
 }
 
 /* Create a new websocket server context. */

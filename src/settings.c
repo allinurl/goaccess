@@ -249,6 +249,7 @@ free_cmd_args (void) {
     free (nargv[i]);
   free (nargv);
   free (conf.iconfigfile);
+  free (conf.ws_auth_secret);
 }
 
 /* Append extra value to argv */

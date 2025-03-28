@@ -207,6 +207,12 @@ goaccess_SOURCES = \
    src/xmalloc.c       \
    src/xmalloc.h
 
+if WITH_SSL
+goaccess_SOURCES +=  \
+   src/wsauth.c      \
+   src/wsauth.h
+endif
+
 if USE_SHA1
 goaccess_SOURCES +=  \
    src/sha1.c        \

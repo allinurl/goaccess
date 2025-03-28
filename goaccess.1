@@ -1,4 +1,4 @@
-.TH goaccess 1 "MAY 2024" GNU+Linux "User Manuals"
+.TH goaccess 1 "MAR 2025" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -459,6 +459,37 @@ Enable real-time HTML output.
 .IP
 GoAccess uses its own WebSocket server to push the data from the server to the
 client. See http://gwsocket.io for more details how the WebSocket server works.
+.TP
+\fB\-\-ws-auth=<jwt[:secret]>
+
+Enable WebSocket authentication using a JSON Web Token (JWT). Optionally, a secret key can be provided for verification.
+
+.IP
+When this option is used, the HTML report will not bootstrap the initial parsed data. Instead, it will only display the report if authentication succeeds.
+.IP
+The system processes this option as follows: if the argument starts with "jwt:", the part after the colon is treated as either a file path (if it exists, the secret is read from the file) or a direct secret string. If only "jwt" is provided, the secret is sourced from the environment variable \fBGOACCESS_WSAUTH_SECRET\fR, or a default HS256-compatible secret is generated if the variable is unset. See http://gwsocket.io for more details on the underlying WebSocket server.
+
+.TP
+\fB\-\-ws-auth-expire=<secs>
+
+Set the time after which the JWT expires. Defaults to 8 hours (28800 seconds) if not specified.
+
+.IP
+Users can specify the expiration time in various formats. The value is converted to seconds for JWT expiration validation. Supported formats:
+
+.RS
+.IP \(bu 4
+"3600"       -> 3600 seconds
+.IP \(bu 4
+"24h"        -> 24 hours = 86,400 seconds
+.IP \(bu 4
+"10m"        -> 10 minutes = 600 seconds
+.IP \(bu 4
+"10d"        -> 10 days = 864,000 seconds
+.RE
+
+.IP
+The expiration time controls how long the JWT remains valid after issuance, ensuring secure WebSocket connections.
 .TP
 \fB\-\-ws-url=<[scheme://]url[:port]>
 URL to which the WebSocket server responds. This is the URL supplied to the

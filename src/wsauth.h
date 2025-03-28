@@ -1,9 +1,9 @@
 /**
- *    _______       _______            __        __
- *   / ____/ |     / / ___/____  _____/ /_____  / /_
- *  / / __ | | /| / /\__ \/ __ \/ ___/ //_/ _ \/ __/
- * / /_/ / | |/ |/ /___/ / /_/ / /__/ ,< /  __/ /_
- * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
+ *    ______      ___
+ *   / ____/___  /   | _____________  __________
+ *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
+ * / /_/ / /_/ / ___ / /__/ /__/  __(__  |__  )
+ * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
  * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
@@ -27,12 +27,17 @@
  * SOFTWARE.
  */
 
-#ifndef BASE64_H_INCLUDED
-#define BASE64_H_INCLUDED
+#ifndef WSAUTH_H_INCLUDED
+#define WSAUTH_H_INCLUDED
 
-#include <stddef.h>
+#define MAX_SECRET_SIZE 256
+#define MAX_JWT_PAYLOAD 512
+#define DEFAULT_EXPIRE_TIME 28800 // seconds 
 
-char *base64_encode (const void *buf, size_t size);
-char *base64_decode (const char *data, size_t *out_len);
+char *create_jwt_token (void);
+char *generate_jwt (const char *secret, const char *payload);
+char *generate_ws_auth_secret (void);
+char *read_secret_from_file (const char *path);
+int verify_jwt_token (const char *jwt, const char *secret);
 
-#endif // for #ifndef BASE64_H
+#endif // for #ifndef WSAUTH_H

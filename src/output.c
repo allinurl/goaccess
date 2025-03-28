@@ -46,6 +46,7 @@
 #include "settings.h"
 #include "ui.h"
 #include "util.h"
+#include "wsauth.h"
 #include "xmalloc.h"
 
 #include "tpls.h"
@@ -289,7 +290,10 @@ print_html_body (FILE * fp, const char *now)
   fprintf (fp,
   "<nav class='hidden-xs hidden-sm hide' aria-label='Main navigation'>"
   "</nav>"
+  "<div class='loading-container'>"
   "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw' aria-hidden='true' aria-label='Loading'></i>"
+  "<div class='app-loading-status'><small class='muted'></small></div>"
+  "</div>"
   "<div class='container hide' role='document'>"
   "<header class='page-header'>"
   "<h1 class='h-dashboard'>"
@@ -501,14 +505,14 @@ hits_bw_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE *fp, GHolder *holder) {
+print_json_data (FILE *fp, GHolder *holder, const char *jwt) {
   char *json = NULL;
 
   if ((json = get_json (holder, 1)) == NULL)
     return;
 
   fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
-  fprintf (fp, "var json_data=%s", json);
+  fprintf (fp, "var json_data=%s", (conf.ws_auth_secret && jwt ? "{}" : json));
   fprintf (fp, external_assets ? "\n" : "</script>");
 
   free (json);
@@ -516,7 +520,7 @@ print_json_data (FILE *fp, GHolder *holder) {
 
 /* Output WebSocket connection definition. */
 static void
-print_conn_def (FILE *fp) {
+print_conn_def (FILE *fp, const char *jwt) {
   int sp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -526,6 +530,9 @@ print_conn_def (FILE *fp) {
     return;
 
   fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
+
+  if (conf.ws_auth_secret && jwt)
+    fprintf (fp, "window.goaccessJWT=\"%s\";", jwt);
 
   fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
@@ -1279,6 +1286,7 @@ void
 output_html (GHolder *holder, const char *filename) {
   FILE *fp, *fjs = NULL, *fcs = NULL;
   char now[DATE_TIME] = { 0 };
+  char *jwt = NULL;
 
   if (filename != NULL)
     fp = fopen (filename, "w");
@@ -1302,14 +1310,20 @@ output_html (GHolder *holder, const char *filename) {
   generate_time ();
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
+#ifdef HAVE_LIBSSL
+  jwt = create_jwt_token ();
+#endif
+
   print_html_header (fp, fcs);
 
   print_html_body (fp, now);
   print_json_defs ((fjs ? fjs : fp));
-  print_json_data ((fjs ? fjs : fp), holder);
-  print_conn_def ((fjs ? fjs : fp));
+  print_json_data ((fjs ? fjs : fp), holder, jwt);
+  print_conn_def ((fjs ? fjs : fp), jwt);
 
   print_html_footer (fp, fjs);
+
+  free (jwt);
 
   if (fjs)
     fclose (fjs);

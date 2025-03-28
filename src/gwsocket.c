@@ -43,6 +43,7 @@
 #include "json.h"
 #include "settings.h"
 #include "websocket.h"
+#include "wsauth.h"
 #include "xmalloc.h"
 
 /* Allocate memory for a new GWSReader instance.
@@ -356,6 +357,12 @@ set_ws_opts (void) {
     ws_set_config_sslcert (conf.sslcert);
   if (conf.sslkey)
     ws_set_config_sslkey (conf.sslkey);
+#ifdef HAVE_LIBSSL
+  if (conf.ws_auth_secret) {
+    ws_set_config_auth_secret (conf.ws_auth_secret);
+    ws_set_config_auth_cb (verify_jwt_token);
+  }
+#endif
 }
 
 /* Setup and start the WebSocket threads. */

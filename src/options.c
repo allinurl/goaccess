@@ -33,7 +33,9 @@
 #endif
 
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
@@ -47,6 +49,7 @@
 #include "error.h"
 #include "labels.h"
 #include "util.h"
+#include "wsauth.h"
 
 #include "xmalloc.h"
 
@@ -153,6 +156,10 @@ static const struct option long_opts[] = {
 #endif
   {"time-format"          , required_argument , 0 ,  0  } ,
   {"ws-url"               , required_argument , 0 ,  0  } ,
+#ifdef HAVE_LIBSSL
+  {"ws-auth"              , required_argument , 0 ,  0  } ,
+  {"ws-auth-expire"       , required_argument , 0 ,  0  } ,
+#endif
   {"ping-interval"        , required_argument , 0 ,  0  } ,
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
@@ -234,6 +241,12 @@ cmd_help (void)
   "  --ssl-key=<priv.key>            - Path to TLS/SSL private key.\n"
   "  --user-name=<username>          - Run as the specified user.\n"
   "  --ws-url=<url>                  - URL to which the WebSocket server responds.\n"
+#ifdef HAVE_LIBSSL
+  "  --ws-auth=<jwt[:secret]>        - Enables WebSocket authentication using a\n"
+  "                                    JSON Web Token (JWT). Optionally, a secret key\n"
+  "                                    can be provided for verification.\n"
+  "  --ws-auth-expire=<secs>         - Time after which the JWT expires.\n"
+#endif
   "  --ping-interval=<secs>          - Enable WebSocket ping with specified\n"
   "                                    interval in seconds.\n"
   "\n"
@@ -364,6 +377,113 @@ set_array_opt (const char *oarg, const char *arr[], int *size, int max) {
   if (str_inarray (oarg, arr, *size) < 0 && *size < max)
     arr[(*size)++] = oarg;
 }
+
+#ifdef HAVE_LIBSSL
+/*
+ * parse_ws_auth_expire_option:
+ *   Parses a time duration string and converts it to seconds.
+ *
+ * Supported formats:
+ *   "3600"       -> 3600 seconds
+ *   "24h"        -> 24 hours = 24 * 3600 seconds
+ *   "10m"        -> 10 minutes = 10 * 60 seconds
+ *   "10d"        -> 10 days = 10 * 86400 seconds
+ *
+ * Returns 0 on success, nonzero on failure.
+ */
+static int
+parse_ws_auth_expire_option (const char *input) {
+  char *endptr = NULL;
+  double value = 0, multiplier = 0, total_seconds = 0;
+
+  if (!input || *input == '\0')
+    return -1;  // Empty or NULL string
+
+  value = strtod (input, &endptr);
+  if (endptr == input) {
+    // No conversion could be performed
+    return -1;
+  }
+
+  multiplier = 1.0;
+  /* Skip any whitespace after the number */
+  while (isspace ((unsigned char) *endptr))
+    endptr++;
+
+  if (*endptr != '\0') {
+    /* Expect a single unit character; any extra characters are not allowed */
+    char unit = *endptr;
+    endptr++;
+    while (isspace ((unsigned char) *endptr))
+      endptr++;
+
+    if (*endptr != '\0') {
+      // Extra unexpected characters
+      return -1;
+    }
+
+    switch (unit) {
+    case 's':
+    case 'S':
+      multiplier = 1.0;
+      break;
+    case 'm':
+    case 'M':
+      multiplier = 60.0;
+      break;
+    case 'h':
+    case 'H':
+      multiplier = 3600.0;
+      break;
+    case 'd':
+    case 'D':
+      multiplier = 86400.0;
+      break;
+    default:
+      // Unknown unit
+      return -1;
+    }
+  }
+
+  total_seconds = value * multiplier;
+  if (total_seconds < 0)
+    return -1;  // Negative durations are not allowed
+
+  /* Store the result in your global configuration */
+  conf.ws_auth_expire = (long) total_seconds;
+  return 0;
+}
+
+static int
+parse_ws_auth_option (const char *optarg) {
+  /* Check if the option starts with "jwt:" */
+  if (strncmp (optarg, "jwt:", 4) == 0) {
+    const char *secret_part = optarg + 4;
+
+    /* Check if the secret is a file path */
+    if (access (secret_part, F_OK) == 0) {
+      /* File exists: read the file content */
+      conf.ws_auth_secret = read_secret_from_file (secret_part);
+    } else {
+      /* Not a file: use the secret directly */
+      conf.ws_auth_secret = strdup (secret_part);
+    }
+    return 0;
+  }
+  /* Check for plain "jwt" option */
+  if (strcmp (optarg, "jwt") == 0) {
+    /* Try to get secret from environment variable */
+    const char *env_secret = getenv ("GOACCESS_WSAUTH_SECRET");
+    if (env_secret != NULL)
+      conf.ws_auth_secret = strdup (env_secret);
+    else
+      conf.ws_auth_secret = generate_ws_auth_secret ();
+    return 0;
+  }
+
+  return 1;
+}
+#endif
 
 /* Parse command line long options. */
 static void
@@ -539,6 +659,17 @@ parse_long_opt (const char *name, const char *oarg) {
   /* URL to which the WebSocket server responds. */
   if (!strcmp ("ws-url", name))
     conf.ws_url = oarg;
+
+#ifdef HAVE_LIBSSL
+  /* WebSocket auth */
+  if (!strcmp ("ws-auth", name) && parse_ws_auth_option (oarg) != 0)
+    FATAL ("Invalid --ws-auth option.");
+
+  /* WebSocket auth JWT expires */
+  if (!strcmp ("ws-auth-expire", name) && parse_ws_auth_expire_option (oarg) != 0)
+    FATAL ("Invalid --ws-auth-expire option.");
+
+#endif
 
   /* WebSocket ping interval in seconds */
   if (!strcmp ("ping-interval", name))

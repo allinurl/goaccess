@@ -358,26 +358,6 @@ free_glog (GLogItem *logitem) {
   free (logitem);
 }
 
-/* Decodes the given URL-encoded string.
- *
- * On success, the decoded string is assigned to the output buffer. */
-#define B16210(x) (((x) >= '0' && (x) <= '9') ? ((x) - '0') : (toupper((unsigned char) (x)) - 'A' + 10))
-static void
-decode_hex (char *url, char *out) {
-  char *ptr;
-  const char *c;
-
-  for (c = url, ptr = out; *c; c++) {
-    if (*c != '%' || !isxdigit ((unsigned char) c[1]) || !isxdigit ((unsigned char) c[2])) {
-      *ptr++ = *c;
-    } else {
-      *ptr++ = (char) ((B16210 (c[1]) * 16) + (B16210 (c[2])));
-      c += 2;
-    }
-  }
-  *ptr = 0;
-}
-
 /* Entry point to decode the given URL-encoded string.
  *
  * On success, the decoded trimmed string is assigned to the output
@@ -390,10 +370,10 @@ decode_url (char *url) {
     return NULL;
 
   out = decoded = xstrdup (url);
-  decode_hex (url, out);
+  decode_hex (url, out, 0);
   /* double encoded URL? */
   if (conf.double_decode)
-    decode_hex (decoded, out);
+    decode_hex (decoded, out, 0);
   strip_newlines (out);
 
   return trim_str (out);
