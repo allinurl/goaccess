@@ -47,6 +47,7 @@ typedef enum GChartType_ {
   CHART_VBAR,
   CHART_AREASPLINE,
   CHART_WMAP,
+  CHART_GMAP,
 } GChartType;
 
 /* Chart axis structure */

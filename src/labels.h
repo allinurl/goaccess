@@ -394,6 +394,8 @@
   N_("Bar")
 #define HTML_REPORT_PANEL_WMAP         \
   N_("World Map")
+#define HTML_REPORT_PANEL_GMAP         \
+  N_("Azimuthal/Globe")
 #define HTML_REPORT_PANEL_PLOT_METRIC  \
   N_("Plot Metric")
 #define HTML_REPORT_PANEL_TABLE_COLS   \

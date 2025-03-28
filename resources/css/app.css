@@ -327,10 +327,10 @@ nav h3 {
 
 /* PANEL STYLES */
 #panels {
-    margin-block-end: 10px;
+	margin-block-end: 10px;
 }
 article header {
-    margin-block-end: 15px;
+	margin-block-end: 15px;
 	position: relative;
 	display: flex;
 	justify-content: space-between;
@@ -504,7 +504,7 @@ article .row:nth-child(2):not(.table-wrapper)>.col-md-12 {
 
 /* GENERAL */
 .report-title {
-    margin: 0;
+	margin: 0;
 	background: #FFF;
 	border-radius: 4px;
 	bottom: -10px;
@@ -518,32 +518,32 @@ article .row:nth-child(2):not(.table-wrapper)>.col-md-12 {
 
 ul[role="list"],
 ol[role="list"] {
-    padding: 0;
-    list-style: none;
+	padding: 0;
+	list-style: none;
 }
 
 #overall h2,
 #overall p {
-    margin: 0;
+	margin: 0;
 }
 
 #overall hgroup {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.75em;
-    margin-block-end: 4px;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: 0.75em;
+	margin-block-end: 4px;
 }
 
 #overall hgroup p {
-    font-weight: 400;
-    text-transform: uppercase;
-    font-size: 18px;
+	font-weight: 400;
+	text-transform: uppercase;
+	font-size: 18px;
 }
 
 #overall ul {
-    margin-block-end: 0;
-    padding: 0;
+	margin-block-end: 0;
+	padding: 0;
 }
 
 #overall li div {
@@ -674,7 +674,7 @@ rect.legend.y1 {
 	stroke: #007BC3;
 }
 .line1 {
-    stroke: #FF303E;
+	stroke: #FF303E;
 }
 .axis text,
 .axis-label,
@@ -796,6 +796,9 @@ rect.legend {
 }
 .dark article table .cell-hl.d4 {
 	background: #7e7e7e;
+}
+.dark.graticule {
+	stroke: #DDD;
 }
 
 /* DARK BLUE THEME */
@@ -1062,6 +1065,15 @@ html.dark.gray,
 .dark .chart-tooltip tr {
 	border: 1px solid #363737;
 }
+.dark .sphere {
+	fill: #0076d433;
+}
+.dark.gray .sphere {
+	fill: #52646733;
+}
+.graticule {
+	stroke: #8f8f8f;
+}
 
 /* DARK PURPLE THEME */
 html.dark.purple,
@@ -1120,7 +1132,7 @@ html.dark.purple,
 .dark.purple h3,
 .dark.purple h4,
 .dark.purple h5 {
-    color: #9a9a9a;
+	color: #9a9a9a;
 }
 .dark.purple #overall li div {
 	background: #27293d;
@@ -1205,6 +1217,9 @@ html.dark.purple,
 }
 .dark.purple .line1 {
 	stroke: #d048b6;
+}
+.dark.purple .sphere {
+	fill: #2196f317;
 }
 .country {
 	fill: #ccc;

@@ -161,7 +161,7 @@ static int external_assets = 0;
  * On success, the chart type string is returned. */
 static const char *
 chart2str (GChartType type) {
-  static const char *strings[] = { "null", "bar", "area-spline", "wmap" };
+  static const char *strings[] = { "null", "bar", "area-spline", "wmap", "gmap" };
   return strings[type];
 }
 
@@ -1182,6 +1182,7 @@ print_json_i18n_def (FILE *fp) {
     {"area_spline"              , HTML_REPORT_PANEL_AREA_SPLINE}                ,
     {"bar"                      , HTML_REPORT_PANEL_BAR}                        ,
     {"wmap"                     , HTML_REPORT_PANEL_WMAP}                       ,
+    {"gmap"                     , HTML_REPORT_PANEL_GMAP}                       ,
     {"plot_metric"              , HTML_REPORT_PANEL_PLOT_METRIC}                ,
     {"table_columns"            , HTML_REPORT_PANEL_TABLE_COLS}                 ,
     {"thead"                    , T_HEAD}                                       ,

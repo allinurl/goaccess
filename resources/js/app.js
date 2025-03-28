@@ -1155,12 +1155,13 @@ GoAccess.Charts = {
 		return arr.join(' ');
 	},
 
-	getWMap: function (panel, plotUI, data) {
+	getWMap: function (panel, plotUI, data, projectionType) {
 		var chart = WorldMap(d3.select("#chart-" + panel));
 		chart.width($("#chart-" + panel).getBoundingClientRect().width);
 		chart.height(400);
 		chart.metric(plotUI['d3']['y0']['key']);
 		chart.opts(plotUI);
+		chart.projectionType(projectionType == 'wmap' ? 'mercator' : 'orthographic');
 
 		return chart;
 	},
@@ -1258,7 +1259,8 @@ GoAccess.Charts = {
 			chart = this.getVBar(panel, plotUI, data);
 			break;
 		case 'wmap':
-			chart = this.getWMap(panel, plotUI, data);
+		case 'gmap':
+			chart = this.getWMap(panel, plotUI, data, this.getChartType(panel));
 			break;
 		}
 

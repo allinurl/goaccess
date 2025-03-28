@@ -37,7 +37,7 @@ function truncate(text, width) {
 	});
 }
 
-function WorldMap() {
+function WorldMap(selection) {
 	const maxLat = 84;
 	let path = null;
 	let projection = null;
@@ -53,9 +53,16 @@ function WorldMap() {
 	};
 	let width = 760;
 	let height = 170;
+	// default value; will be set externally
+	let projectionType = 'mercator';
+	let initialScale;
 
 	function innerW() {
 		return width - margin.left - margin.right;
+	}
+
+	function innerH() {
+		return height - margin.top - margin.bottom;
 	}
 
 	function mapData(data) {
@@ -73,18 +80,19 @@ function WorldMap() {
 	}
 
 	function formatTooltip(data) {
-		const d = {...data};
+		const d = {
+			...data
+		};
 		let out = {};
-
 		out[0] = GoAccess.Util.fmtValue(d['data'], 'str');
-		out[1] = metric == 'bytes' ? GoAccess.Util.fmtValue(d['bytes'], 'bytes') : d3.format(',')(d['hits']);
-		if (metric == 'hits')
-			out[2] = d3.format(',')(d['visitors']);
-
-		const template = d3.select('#tpl-chart-tooltip').html();
-		return Hogan.compile(template).render({
-			'data': out
-		});
+		out[1] = metric === 'bytes' ? GoAccess.Util.fmtValue(d['bytes'], 'bytes') : d3.format(',')(d['hits']);
+		if (metric === 'hits') out[2] = d3.format(',')(d['visitors']);
+		const template = d3.select('#tpl-chart-tooltip')
+			.html();
+		return Hogan.compile(template)
+			.render({
+				'data': out
+			});
 	}
 
 	function mouseover(event, selection, data) {
@@ -95,7 +103,7 @@ function WorldMap() {
 			.style('display', 'block');
 	}
 
-	function mouseout(selection, g) {
+	function mouseout(selection) {
 		const tooltip = selection.select('.chart-tooltip-wrap');
 		tooltip.style('display', 'none');
 	}
@@ -103,7 +111,6 @@ function WorldMap() {
 	function drawLegend(selection, colorScale) {
 		const legendHeight = 10;
 		const legendPadding = 10;
-
 		let svg = selection.select('.legend-svg');
 		if (svg.empty()) {
 			svg = selection.append('svg')
@@ -111,49 +118,75 @@ function WorldMap() {
 				.attr('width', width + margin.left + margin.right)
 				.attr('height', legendHeight + 2 * legendPadding);
 		}
-
 		let legend = svg.select('.legend');
 		if (legend.empty()) {
 			legend = svg.append('g')
 				.attr('class', 'legend')
 				.attr('transform', `translate(${margin.left}, ${legendPadding})`);
 		}
-
 		const legendData = colorScale.quantiles();
-
 		const legendRects = legend.selectAll('rect')
 			.data(legendData);
-
-		legendRects.enter().append('rect')
+		legendRects.enter()
+			.append('rect')
 			.merge(legendRects)
 			.attr('x', (d, i) => (i * (innerW())) / legendData.length)
 			.attr('y', 0)
-			.attr('width', (innerW()) / legendData.length)
+			.attr('width', innerW() / legendData.length)
 			.attr('height', legendHeight)
 			.style('fill', d => colorScale(d));
-
-		legendRects.exit().remove();
-
+		legendRects.exit()
+			.remove();
 		const legendTexts = legend.selectAll('text')
 			.data(legendData);
-
-		legendTexts.enter().append('text')
+		legendTexts.enter()
+			.append('text')
 			.merge(legendTexts)
 			.attr('x', (d, i) => (i * (innerW())) / legendData.length)
 			.attr('y', legendHeight + legendPadding)
-			.text(d => Math.round(d))
 			.style('font-size', '10px')
 			.attr('text-anchor', 'middle')
 			.text(d => metric === 'bytes' ? GoAccess.Util.fmtValue(d, 'bytes') : d3.format(',')(d));
+		legendTexts.exit()
+			.remove();
+	}
 
-		legendTexts.exit().remove();
+	function updateSphere(svg, g) {
+		if (projectionType === 'orthographic') {
+			let sphere = g.selectAll('.sphere')
+				.data([{
+					type: 'Sphere'
+				}]);
+			// Insert as first child to be behind countries
+			let sphereEnter = sphere.enter()
+				.insert('path', ':first-child')
+				.attr('class', 'sphere')
+				.attr('d', path)
+				.attr('fill', '#DDEEFF') /* Light blue for ocean */
+				.attr('opacity', 0);
+			sphere = sphereEnter.merge(sphere);
+			sphere.transition()
+				.duration(500)
+				.attr('opacity', 1);
+		} else {
+			// Remove sphere when not in orthographic projection
+			g.selectAll('.sphere')
+				.transition()
+				.duration(500)
+				.attr('opacity', 0)
+				.remove();
+		}
 	}
 
 	function updateMap(selection, svg, data, countries, countryNameToGeoJson) {
 		data = mapData(data);
-		path = d3.geoPath().projection(projection);
+		path = d3.geoPath()
+			.projection(projection);
 
-		const colorScale = d3.scaleQuantile().domain(data.map(d => d[metric])).range(['#eafff1', '#a7e3d7', '#6cc5c0', '#44a2b1', '#246e96']);
+		const colorScale = d3.scaleQuantile()
+			.domain(data.map(d => d[metric]))
+			.range(['#eafff1', '#a7e3d7', '#6cc5c0', '#44a2b1', '#246e96']);
+
 		if (data.length)
 			drawLegend(selection, colorScale);
 
@@ -164,196 +197,255 @@ function WorldMap() {
 			dataByName[k] = d;
 		});
 
-		let country = svg.select('g').selectAll('.country')
-			.data(countries);
+		// Add graticule (grid lines)
+		if (projectionType !== 'mercator') {
+			const graticule = d3.geoGraticule();
+			let grid = svg.select('g')
+				.selectAll('.graticule')
+				.data([graticule()]);
+			let gridEnter = grid.enter()
+				.append('path')
+				.attr('class', 'graticule')
+				.attr('d', path)
+				.attr('fill', 'none')
+				.attr('stroke', '#ccc')
+				.attr('stroke-width', 0.5)
+				.attr('stroke-dasharray', '3,3')
+				.attr('opacity', 0);
+			grid = gridEnter.merge(grid);
+			grid.transition()
+				.duration(500)
+				.attr('opacity', 0.4);
+		}
 
-		// set initial opacity to 0 for entering elements
-		let countryEnter = country.enter().append('path')
+		let country = svg.select('g')
+			.selectAll('.country')
+			.data(countries);
+		let countryEnter = country.enter()
+			.append('path')
 			.attr('class', 'country')
 			.attr('d', path)
 			.attr('opacity', 0);
-
 		country = countryEnter.merge(country)
 			.on('mouseover', function(event, d) {
 				const countryData = dataByName[d.id];
-				if (countryData)
-					mouseover(event, selection, countryData);
+				if (countryData) mouseover(event, selection, countryData);
 			})
-			.on('mouseout', function(d) {
+			.on('mouseout', function() {
 				mouseout(selection);
 			});
-
-		country.transition().duration(500)
+		country.transition()
+			.duration(500)
 			.style('fill', function(d) {
 				const countryData = dataByName[d.id];
 				return countryData ? colorScale(countryData[metric]) : '#cccccc54';
 			})
 			.attr('opacity', 1);
-
 		country.exit()
-			.transition().duration(500)
+			.transition()
+			.duration(500)
 			.attr('opacity', 0)
 			.remove();
-
 	}
 
 	function setBounds(projection, maxLat) {
-		const [yaw] = projection.rotate();
 		// Top-left corner of the “viewable” lat
+		const [yaw] = projection.rotate();
 		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]);
-		// Bottom-right corner
 		const xymin = projection([-yaw - 180 + 1e-6, maxLat]);
-		return [xymin, xymax]; // [ [xMin, yMin], [xMax, yMax] ]
+		return [xymin, xymax];
 	}
 
 	function clampVertical(projection, maxLat, height) {
 		const b = setBounds(projection, maxLat);
-		const [xMin, yMin] = b[0]; // top-left
-		const [xMax, yMax] = b[1]; // bottom-right
-
-		// Current translation
+		// top-left
+		const [xMin, yMin] = b[0];
+		// bottom-right
+		const [xMax, yMax] = b[1];
 		const t = projection.translate();
-
-		// If the top (yMin) is now below 0, push it down.
-		if (yMin > 0) {
-			t[1] -= yMin; // shift map upward
-		}
-		// If the bottom (yMax) is now above the container height, push it up.
-		else if (yMax < height) {
-			t[1] += (height - yMax); // shift map downward
-		}
-
+		// If the top (yMin) is now below 0, shift upward.
+		if (yMin > 0)
+			t[1] -= yMin;
+		// If the bottom (yMax) is now above the container height, shift downward.
+		else if (yMax < height)
+			t[1] += (height - yMax);
 		projection.translate(t);
+	}
+
+	function baseScale() {
+		// If the effective width is small, use a fixed mobile scale; otherwise use the computed scale.
+		return innerW() < 400 ? 150 : innerW() / (2 * Math.PI);
+	}
+
+	function setProjection(type) {
+		if (type === 'mercator') {
+			const bScale = baseScale();
+			projection = d3.geoMercator()
+				.center([0, 15])
+				.scale(bScale)
+				.translate([innerW() / 2, height / 1.5]);
+		} else if (type === 'orthographic') {
+			const globeScale = Math.min(innerW(), height) / 1.5;
+			projection = d3.geoOrthographic()
+				.scale(globeScale)
+				.translate([innerW() / 2, height / 2])
+				.rotate([0, 0, 0]);
+		}
+		initialScale = projection.scale();
+		path = d3.geoPath().projection(projection);
 	}
 
 	function zoomed(event, projection, path, scaleExtent, g) {
 		const scale = event.transform.k;
-		const containerCenter = [innerW() / 2, height / 2]; // Use the center of the container
-		let anchor = containerCenter; // Always use the container's center as the anchor
-
-		if (Math.abs(scale - slast) > 1e-3) {
-			// Get the geographic coordinate at the container center
-			const geoCoord = projection.invert(anchor);
-
-			// Update projection scale based on the new zoom factor
-			projection.scale(scale * (innerW() / (2 * Math.PI)));
-
-			// Re-project the same geographic coordinate to determine its new position
-			const newPixel = projection(geoCoord);
-			const dxAnchor = anchor[0] - newPixel[0];
-			const dyAnchor = anchor[1] - newPixel[1];
-
-			// Shift translation so that the geoCoord remains at the chosen anchor
-			const t = projection.translate();
-			projection.translate([t[0] + dxAnchor, t[1] + dyAnchor]);
-
-			// Clamp vertical so the map doesn't float off the top/bottom
-			clampVertical(projection, maxLat, height);
-		} else {
-			// --- Pure Panning (scale unchanged) ---
-			const newX = event.transform.x;
-			const newY = event.transform.y;
-			const dx = newX - tlast[0];
-			const dy = newY - tlast[1];
-
-			// Infinite horizontal scroll: adjust rotation (longitude)
-			let [longitude] = projection.rotate();
-			longitude += 360 * (dx / width) * (scaleExtent[0] / scale);
-			projection.rotate([longitude, 0, 0]);
-
-			// Vertical shift: adjust translation
-			const t = projection.translate();
-			t[1] += dy;
-			projection.translate(t);
-
-			// Clamp vertical
-			clampVertical(projection, maxLat, height);
+		if (projectionType === 'mercator') {
+			const containerCenter = [innerW() / 2, height / 2];
+			let anchor = containerCenter;
+			if (Math.abs(scale - slast) > 1e-3) {
+				const geoCoord = projection.invert(anchor);
+				// Use baseScale() here instead of innerW()/(2*Math.PI)
+				projection.scale(scale * baseScale());
+				const newPixel = projection(geoCoord);
+				const dxAnchor = anchor[0] - newPixel[0];
+				const dyAnchor = anchor[1] - newPixel[1];
+				const t = projection.translate();
+				projection.translate([t[0] + dxAnchor, t[1] + dyAnchor]);
+				clampVertical(projection, maxLat, height);
+			} else {
+				const newX = event.transform.x;
+				const newY = event.transform.y;
+				const dx = newX - tlast[0];
+				const dy = newY - tlast[1];
+				let [longitude] = projection.rotate();
+				longitude += 360 * (dx / width) * (scaleExtent[0] / scale);
+				projection.rotate([longitude, 0, 0]);
+				const t = projection.translate();
+				t[1] += dy;
+				projection.translate(t);
+				clampVertical(projection, maxLat, height);
+			}
 		}
+		else if (projectionType === 'orthographic') {
+			// Use the zoom transform’s k to compute a new scale,
+			// clamping to a maximum factor (here, 2× the initialScale).
+			let newScale = scale * initialScale;
+			const maxOrthoScale = initialScale * 2;
+			if (newScale > maxOrthoScale) newScale = maxOrthoScale;
+			if (newScale < initialScale) newScale = initialScale;
+			projection.scale(newScale);
 
-		// Redraw paths
-		g.selectAll('path').attr('d', path);
+			// Update rotation using the difference between the current and previous transform values.
+			const dx = event.transform.x - tlast[0];
+			const dy = event.transform.y - tlast[1];
+			let [longitude, latitude] = projection.rotate();
 
-		// Save state for next event
+			// we could reduce sensitivity for smoother rotation
+			const sensitivity = 0.2;
+			longitude += dx * sensitivity;
+			latitude -= dy * sensitivity;
+			latitude = Math.max(-90, Math.min(90, latitude));
+			projection.rotate([longitude, latitude, 0]);
+		}
+		g.selectAll('path')
+			.attr('d', path);
 		tlast = [event.transform.x, event.transform.y];
 		slast = scale;
 	}
 
-	function createSVG(selection) {
-		const svg = d3.select(selection)
+	function createSVG(selectionElem) {
+		const svg = d3.select(selectionElem)
 			.append('svg')
 			.attr('class', 'map')
 			.attr('style', 'display:block; margin:auto;')
 			.attr('width', innerW())
 			.attr('height', height)
 			.lower();
-
 		const g = svg.append('g')
-			.attr('transform', `translate(0, 0)`)
-			.attr('transform-origin', '50% 50%');
+			.attr('transform', 'translate(0,0)');
 
-		projection = d3.geoMercator()
-			.center([0, 15])
-			.scale((innerW()) / (2 * Math.PI))
-			.translate([(innerW()) / 2, height / 1.5]);
-
-		path = d3.geoPath().projection(projection);
-
-		// Calculate scale extent and initial scale
-		const bounds = setBounds(projection, maxLat);
-		const s = innerW() / (bounds[1][0] - bounds[0][0]);
-		// The minimum and maximum zoom scales
-		const scaleExtent = [s, 6 * s];
-
+		// Use the externally provided projectionType
+		setProjection(projectionType);
+		// Compute scale extent based on projection type.
+		let scaleExtent;
+		if (projectionType === 'mercator') {
+			// For cellphones (narrow screens), use a fixed scale and limit zoom-out to the initial state.
+			if (innerW() < 400) {
+				scaleExtent = [1, 6];  // Here 1 means the initial zoom level (no zoom-out), 6 is arbitrary for max zoom in.
+			} else {
+				// Otherwise, calculate the base scale from the bounds.
+				const bounds = setBounds(projection, maxLat);
+				const s = innerW() / (bounds[1][0] - bounds[0][0]);
+				scaleExtent = [s, 6 * s];
+			}
+		} else if (projectionType === 'orthographic') {
+			// For orthographic, let d3.zoom use a relative scale factor.
+			// The identity transform (k = 1) corresponds to the initialScale,
+			// and we allow zooming from 1x to 2x.
+			scaleExtent = [1, 2];
+		}
 		const zoom = d3.zoom()
 			.scaleExtent(scaleExtent)
 			.on('zoom', event => {
 				zoomed(event, projection, path, scaleExtent, g);
 			});
 		svg.call(zoom);
-
-		return svg;
+		return {
+			svg,
+			g
+		};
 	}
 
-	function chart(selection) {
-		selection.each(function(data) {
+	function chart(selectionData) {
+		selectionData.each(function(data) {
 			const worldData = window.countries110m;
-			const countries = topojson.feature(worldData, worldData.objects.countries).features;
-
+			const countries = topojson.feature(worldData, worldData.objects.countries)
+				.features; /* Build a mapping from country names to GeoJSON if needed */
 			const countryNameToGeoJson = {};
 			countries.forEach(country => {
 				countryNameToGeoJson[country.properties.name] = country;
 			});
-
-			let svg = d3.select(this).select('svg.map');
-			// if the SVG element doesn't exist, create it
-			if (svg.empty())
-				svg = createSVG(this);
-
-			updateMap(selection, svg, data, countries, countryNameToGeoJson);
+			let svgObj = d3.select(this)
+				.select('svg.map');
+			let g;
+			if (svgObj.empty()) {
+				const created = createSVG(this);
+				svgObj = created.svg;
+				g = created.g;
+			} else {
+				/* If the SVG already exists, select its group */
+				g = svgObj.select('g');
+			}
+			updateMap(d3.select(this), svgObj, data, countries, countryNameToGeoJson); /* Update sphere in case the projection is orthographic */
+			updateSphere(svgObj, g);
 		});
 	}
-
+	// Getter-setter for metric
 	chart.metric = function(_) {
 		if (!arguments.length) return metric;
 		metric = _;
 		return chart;
 	};
-
-	chart.opts = function (_) {
+	// Getter-setter for opts
+	chart.opts = function(_) {
 		if (!arguments.length) return opts;
 		opts = _;
 		return chart;
 	};
-
+	// Getter-setter for width
 	chart.width = function(_) {
 		if (!arguments.length) return width;
 		width = _;
 		return chart;
 	};
-
+	// Getter-setter for height
 	chart.height = function(_) {
 		if (!arguments.length) return height;
 		height = _;
+		return chart;
+	};
+	// Getter-setter for projectionType
+	chart.projectionType = function(_) {
+		if (!arguments.length) return projectionType;
+		projectionType = _;
 		return chart;
 	};
 
