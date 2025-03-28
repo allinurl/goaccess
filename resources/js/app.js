@@ -132,7 +132,7 @@ window.GoAccess = window.GoAccess || {
 
 		function displayNextMessage() {
 			if (currentMessageIndex < messages.length) {
-				document.querySelector('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+				$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
 				currentMessageIndex++;
 			}
 		}
@@ -155,7 +155,7 @@ window.GoAccess = window.GoAccess || {
 
 		socket.onopen = function (event) {
 			clearInterval(messageInterval);
-			document.querySelector('.app-loading-status > small').innerHTML = 'Authentication successful.';
+			$('.app-loading-status > small').innerHTML = 'Authentication successful.';
 
 			this.currDelay = this.wsDelay;
 			this.retries = 0;
@@ -181,8 +181,8 @@ window.GoAccess = window.GoAccess || {
 
 		socket.onclose = function (event) {
 			clearInterval(messageInterval);
-			document.querySelector('.app-loading-status > small').innerHTML = 'Unable to authenticate WebSocket.';
-			document.querySelector('.loading-container > .spinner').style.display = 'none';
+			$('.app-loading-status > small').innerHTML = 'Unable to authenticate WebSocket.';
+			$('.loading-container > .spinner').style.display = 'none';
 
 			GoAccess.Nav.WSClose();
 			window.clearInterval(pingId);
@@ -1948,6 +1948,7 @@ GoAccess.App = {
 		$('nav').classList.remove('hide');
 		$('.container').classList.remove('hide');
 		$('.spinner').classList.add('hide');
+		$('.app-loading-status > small').style.display = 'none';
 
 		if (GoAccess.AppPrefs['layout'] == 'horizontal' || GoAccess.AppPrefs['layout'] == 'wide') {
 			$('.container').classList.add('container-fluid');
@@ -2001,7 +2002,7 @@ document.addEventListener('visibilitychange', function () {
 		GoAccess.App.hasFocus = false;
 
 	// fires when app transitions from hidden or user returns to the app/tab.
-	if (document.visibilityState === 'visible') {
+	if (document.visibilityState === 'visible' && this.isAppInitialized) {
 		var hasFocus = GoAccess.App.hasFocus;
 		GoAccess.App.hasFocus = true;
 		hasFocus || GoAccess.App.renderData();
