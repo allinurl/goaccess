@@ -98,6 +98,8 @@ static const char *const os[][2] = {
   {"PCLinuxOS", "Linux"},
   {"Arch", "Linux"},
   {"Parabola", "Linux"},
+  {"webOS", "Linux"},
+  {"samsung", "Linux"},
 
   {"FreeBSD", "BSD"},
   {"NetBSD", "BSD"},
@@ -120,6 +122,7 @@ static const char *const os[][2] = {
   {"Sony", "Others"},
   {"AmigaOS", "Others"},
   {"SymbianOS", "Others"},
+  {"SymbOS", "Others"},
   {"Nokia", "Others"},
   {"Nintendo", "Others"},
   {"Apache", "Others"},
@@ -134,14 +137,18 @@ static const char *const os[][2] = {
  * returned. */
 static char *
 get_real_android (const char *droid) {
-  if (strstr (droid, "14"))
+  if (strstr (droid, "16"))
+    return alloc_string ("Android 16");
+  else if (strstr (droid, "15"))
+    return alloc_string ("Android 15");
+  else if (strstr (droid, "14"))
     return alloc_string ("Android 14");
   else if (strstr (droid, "13"))
     return alloc_string ("Android 13");
-  else if (strstr (droid, "12"))
-    return alloc_string ("Android 12");
   else if (strstr (droid, "12.1"))
     return alloc_string ("Android 12.1");
+  else if (strstr (droid, "12"))
+    return alloc_string ("Android 12");
   else if (strstr (droid, "11"))
     return alloc_string ("Android 11");
   else if (strstr (droid, "10"))
@@ -196,14 +203,12 @@ get_real_android (const char *droid) {
  * returned. */
 static char *
 get_real_win (const char *win) {
-  if (strstr (win, "10.0"))
+  if (strstr (win, "11.0"))
+    return alloc_string ("Windows 11");
+  else if (strstr (win, "10.0"))
     return alloc_string ("Windows 10");
   else if (strstr (win, "6.3"))
     return alloc_string ("Windows 8.1");
-  else if (strstr (win, "6.3; ARM"))
-    return alloc_string ("Windows RT");
-  else if (strstr (win, "6.2; ARM"))
-    return alloc_string ("Windows RT");
   else if (strstr (win, "6.2"))
     return alloc_string ("Windows 8");
   else if (strstr (win, "6.1"))
@@ -226,7 +231,9 @@ get_real_win (const char *win) {
  * returned. */
 static char *
 get_real_mac_osx (const char *osx) {
-  if (strstr (osx, "14.0"))
+  if (strstr (osx, "15.0"))
+    return alloc_string ("macOS 15 Sequoia");
+  else if (strstr (osx, "14.0"))
     return alloc_string ("macOS 14 Sonoma");
   else if (strstr (osx, "13.0"))
     return alloc_string ("macOS 13 Ventura");

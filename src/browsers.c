@@ -46,10 +46,8 @@
 
 static char ***browsers_hash = NULL;
 
-/* {"search string", "belongs to"} */
 static const char *const browsers[][2] = {
-  /* Game systems: most of them are based on major browsers,
-   * thus they need to go before. */
+  /* Game Systems: place game console browsers here */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
   {"PlayStation", "Game Systems"},
@@ -58,21 +56,18 @@ static const char *const browsers[][2] = {
   {"Origin", "Game Systems"},
   {"Raptr", "Game Systems"},
 
-  /* Based on Internet Explorer */
+  /* Based on Internet Explorer: browsers based on IE engine */
   {"Avant Browser", "Others"},
-  /* Internet Explorer */
   {"IEMobile", "MSIE"},
   {"MSIE", "MSIE"},
-  /* IE11 */
   {"Trident/7.0", "MSIE"},
-  /* Microsoft Edge */
   {"Edg", "Edge"},
   {"Edge", "Edge"},
 
   /* Surf Browser */
   {"Surf", "Surf"},
 
-  /* Opera */
+  /* Opera: place all opera-related user agents here */
   {"Opera Mini", "Opera"},
   {"Opera Mobi", "Opera"},
   {"Opera", "Opera"},
@@ -80,7 +75,10 @@ static const char *const browsers[][2] = {
   {"OPiOS", "Opera"},
   {"Coast", "Opera"},
 
-  /* Others */
+  {"FBAV", "Facebook App"},
+  {"FBSV", "Facebook App"},
+
+  /* Others: miscellaneous user agents that don't fit other categories */
   {"Homebrew", "Others"},
   {"APT-", "Others"},
   {"Apt-Cacher", "Others"},
@@ -131,10 +129,7 @@ static const char *const browsers[][2] = {
   {"libmpv", "Others"},
   {"aria2", "Others"},
 
-  /* WordPress Cron */
-  {"WordPress/", "Cron"},
-
-  /* Feed-reader-as-a-service */
+  /* Feed Readers: place all feed reader user agents here */
   {"AppleNewsBot", "Feeds"},
   {"Bloglines", "Feeds"},
   {"Digg Feed Fetcher", "Feeds"},
@@ -152,52 +147,38 @@ static const char *const browsers[][2] = {
   {"Brainstorm", "Feeds"},
   {"Mastodon", "Feeds"},
   {"Pleroma", "Feeds"},
+  {"Akregator", "Feeds"},
+  {"Apple-PubSub", "Feeds"},
+  {"BTWebClient", "Feeds"},
+  {"com apple.Safari.WebFeedParser", "Feeds"},
+  {"FeedDemon", "Feeds"},
+  {"Feedy", "Feeds"},
+  {"Fever", "Feeds"},
+  {"FreshRSS", "Feeds"},
+  {"Liferea", "Feeds"},
+  {"NetNewsWire", "Feeds"},
+  {"RSSOwl", "Feeds"},
+  {"Thunderbird", "Feeds"},
+  {"Tiny Tiny RSS", "Feeds"},
+  {"Winds", "Feeds"},
 
-  /* Google crawlers (some based on Chrome,
-   * therefore up on the list) */
+  /* Crawlers: all bot and crawler user agents grouped together */
   {"AdsBot-Google", "Crawlers"},
   {"AppEngine-Google", "Crawlers"},
   {"Mediapartners-Google", "Crawlers"},
   {"Google", "Crawlers"},
   {"WhatsApp", "Crawlers"},
-
-  /* Based on Firefox */
-  {"Camino", "Others"},
-  /* Rebranded Firefox but is really unmodified
-   * Firefox (Debian trademark policy) */
-  {"Iceweasel", "Firefox"},
-  {"Waterfox", "Firefox"},
-  {"PaleMoon", "Firefox"},
-  {"Focus", "Firefox"},
-  /* Klar is the name of Firefox Focus in the German market. */
-  {"Klar", "Firefox"},
-  {"Firefox", "Firefox"},
-
-  /* Based on Chromium */
-  {"BeakerBrowser", "Beaker"},
-  {"Brave", "Brave"},
-  {"Vivaldi", "Vivaldi"},
-  {"YaBrowser", "Yandex.Browser"},
-
-  /* Chrome has to go before Safari */
-  {"HeadlessChrome", "Chrome"},
-  {"Chrome", "Chrome"},
-  {"CriOS", "Chrome"},
-
-  /* Crawlers/Bots (Possible Safari based) */
   {"AppleBot", "Crawlers"},
   {"facebookexternalhit", "Crawlers"},
   {"Twitter", "Crawlers"},
-
-  {"Safari", "Safari"},
-
-  /* Crawlers/Bots */
   {"Slack", "Crawlers"},
   {"Sogou", "Crawlers"},
   {"Java", "Crawlers"},
   {"Jakarta Commons-HttpClient", "Crawlers"},
   {"netEstate", "Crawlers"},
   {"PiplBot", "Crawlers"},
+  {"Baidu", "Crawlers"},
+  {"Mastodon", "Crawlers"},
   {"IstellaBot", "Crawlers"},
   {"heritrix", "Crawlers"},
   {"PagesInventory", "Crawlers"},
@@ -225,6 +206,7 @@ static const char *const browsers[][2] = {
   {"AhrefsBot", "Crawlers"},
   {"SemrushBot", "Crawlers"},
   {"Adsbot", "Crawlers"},
+  {"archive.org_bot", "Crawlers"},
   {"BLEXBot", "Crawlers"},
   {"NetcraftSurveyAgent", "Crawlers"},
   {"Netcraft Web Server Survey", "Crawlers"},
@@ -235,7 +217,7 @@ static const char *const browsers[][2] = {
   {"Nimbostratus-Bot", "Crawlers"},
   {"HTTP Banner Detection", "Crawlers"},
   {"Hakai", "Crawlers"},
-  {"WinHttp.WinHttpRequest.5", "Crawlers"},
+  {"WinHttp_WINHTTPREQUEST5", "Crawlers"},
   {"NetSystemsResearch", "Crawlers"},
   {"Nextcloud Server Crawler", "Crawlers"},
   {"CFNetwork", "Crawlers"},
@@ -247,17 +229,43 @@ static const char *const browsers[][2] = {
   {"stagefright", "Crawlers"},
   {"ImagesiftBot", "Crawlers"},
   {"Bytespider", "Crawlers"},
-  {"ZoteroTranslationServer", "Cralwers"}, /* Nodeja Zotero Translation Server https://github.com/zotero/translation-server */
+  {"WordPress/", "Crawlers"},
+  {"Synapse", "Crawlers"},
+  {"Yahoo! Slurp", "Crawlers"},
+  {"GoogleMobile", "Crawlers"},
+  {"ZoteroTranslationServer", "Cralwers"},
 
-  /* HTTP Library or HTTP Server User Agents - Suggest New Category */
-  {"axios", "HTTP Library"}, /* NodeJS axios axios-http.com */
-  {"lua-resty-http", "HTTP Library"}, /* Nginx lua-resty-http module */
+  /* Based on Firefox: place all Firefox-based browsers here */
+  {"Camino", "Others"},
+  {"Iceweasel", "Firefox"},
+  {"Waterfox", "Firefox"},
+  {"PaleMoon", "Firefox"},
+  {"Focus", "Firefox"},
+  {"Klar", "Firefox"},
+  {"Firefox", "Firefox"},
 
-  /* Citation Services */
-  {"Citoid", "Citation"}, /* MediaWiki Citoid Citation Service https://www.mediawiki.org/wiki/Citoid */
-  {"EasyBib", "Citation"}, /* Easybib Citation https://easybib.com */
+  /* Based on Chromium: place all Chromium-based browsers here, including BeakerBrowser under Others for consistency */
+  {"Brave", "Brave"},
+  {"Vivaldi", "Vivaldi"},
+  {"YaBrowser", "Yandex"},
 
-  /* Podcast fetchers */
+  /* Chrome: place all Chrome-related user agents here */
+  {"HeadlessChrome", "Chrome"},
+  {"Chrome", "Chrome"},
+  {"CriOS", "Chrome"},
+
+  /* Safari: place all Safari-related user agents here */
+  {"Safari", "Safari"},
+
+  /* HTTP Library or HTTP Server User Agents: place here */
+  {"axios", "HTTP Library"}, /* NodeJS axios */
+  {"lua-resty-http", "HTTP Library"}, /* Ngx luarestyhttp module */
+
+  /* Citation Services: place here */
+  {"Citoid", "Citation"}, /* MediaWiki Citoid */
+  {"EasyBib", "Citation"}, /* Easybib */
+
+  /* Podcast Fetchers: place here */
   {"Downcast", "Podcasts"},
   {"gPodder", "Podcasts"},
   {"Instacast", "Podcasts"},
@@ -266,23 +274,7 @@ static const char *const browsers[][2] = {
   {"Pocket Casts", "Podcasts"},
   {"BashPodder", "Podcasts"},
 
-  /* Feed reader clients */
-  {"Akregator", "Feeds"},
-  {"Apple-PubSub", "Feeds"},
-  {"BTWebClient", "Feeds"},
-  {"com.apple.Safari.WebFeedParser", "Feeds"},
-  {"FeedDemon", "Feeds"},
-  {"Feedy", "Feeds"},
-  {"Fever", "Feeds"},
-  {"FreshRSS", "Feeds"},
-  {"Liferea", "Feeds"},
-  {"NetNewsWire", "Feeds"},
-  {"RSSOwl", "Feeds"},
-  {"Tiny Tiny RSS", "Feeds"},
-  {"Thunderbird", "Feeds"},
-  {"Winds", "Feeds"},
-
-  /* Uptime and Monitoring clients */
+  /* Uptime and Monitoring Clients: place here */
   {"Pingdom.com", "Uptime"},
   {"jetmon", "Uptime"},
   {"NodeUptime", "Uptime"},
@@ -294,16 +286,16 @@ static const char *const browsers[][2] = {
   {"Site24x7", "Uptime"},
   {"Uptime-Kuma", "Uptime"},
 
-  /* Performance and Caching - Suggest a new category */
+  /* Performance and Caching: place here */
   {"ShortPixel", "Performance"}, /* Image Optimization */
   {"WP Rocket", "Caching"}, /* Preloading Cache for WordPress Plugin */
 
-  /* Security - Suggest a new category */
+  /* Security: place here */
   {"Barracuda Sentinel", "Security"}, /* Barricuda spear fishing service */
   {"ACI Site Scanner", "Security"}, /* Can't confirm specific vendor */
 
-
-  {"Mozilla", "Others"}
+  /* Mozilla: catch-all for Mozilla-related user agents */
+  {"mozilla", "Others"}
 };
 
 /* Free all browser entries from our array of key/value pairs. */
@@ -556,7 +548,7 @@ parse_browser (char *match, char *type, int i, char ***hash) {
     match = char_replace (match, ' ', '/');
   }
   /* all others */
-  else if ((ptr = strpbrk (b ? b : match, ";) ")) != NULL) {
+  else if ((ptr = strpbrk (b ? b : match, ";) \\")) != NULL) {
     *ptr = '\0';
   }
 
@@ -586,16 +578,16 @@ verify_browser (char *str, char *type) {
     return parse_browser (match, type, i, conf.user_browsers_hash);
   }
 
-  /* try heuristics */
-  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
-    return token;
-
   /* fallback to default browser list */
   for (j = 0; j < ARRAY_SIZE (browsers); ++j) {
     if ((match = strstr (str, browsers_hash[j][0])) == NULL)
       continue;
     return parse_browser (match, type, j, browsers_hash);
   }
+
+  /* try heuristics */
+  if ((match = check_http_crawler (str)) && (token = parse_crawler (str, match, type)))
+    return token;
 
   if (conf.unknowns_log)
     LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
