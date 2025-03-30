@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([goaccess],[1.9.3],[hello@goaccess.io],[],[https://goaccess.io])
+AC_INIT([goaccess],[1.9.4],[hello@goaccess.io],[],[https://goaccess.io])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([src/goaccess.c])
 AC_CONFIG_HEADERS([src/config.h])
