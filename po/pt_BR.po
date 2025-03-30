@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goaccess\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2024-05-31 19:37-0500\n"
+"POT-Creation-Date: 2025-03-28 18:05-0500\n"
 "PO-Revision-Date: 2019-04-25 20:34-0300\n"
 "Last-Translator: Alan Placidina Maria <alanplacidina@gmail.com>\n"
 "Language-Team: \n"
@@ -666,416 +666,436 @@ msgid "World Map"
 msgstr ""
 
 #: src/labels.h:398
+msgid "Azimuthal/Globe"
+msgstr ""
+
+#: src/labels.h:400
 msgid "Plot Metric"
 msgstr "Métrica de Plotagem"
 
-#: src/labels.h:400
+#: src/labels.h:402
 msgid "Table Columns"
 msgstr "Colunas da Tabela"
 
-#: src/labels.h:404
+#: src/labels.h:406
 msgid "0xx Unofficial Codes"
 msgstr ""
 
-#: src/labels.h:406
+#: src/labels.h:408
 msgid "1xx Informational"
 msgstr "1xx Informativo"
 
-#: src/labels.h:408
+#: src/labels.h:410
 msgid "2xx Success"
 msgstr "2xx Exito"
 
-#: src/labels.h:410
+#: src/labels.h:412
 msgid "3xx Redirection"
 msgstr "3xx Redirecionamento"
 
-#: src/labels.h:412
+#: src/labels.h:414
 msgid "4xx Client Errors"
 msgstr "4xx Erros do cliente"
 
-#: src/labels.h:414
+#: src/labels.h:416
 msgid "5xx Server Errors"
 msgstr "5xx Erros do servidor"
 
-#: src/labels.h:417
+#: src/labels.h:419
 msgid "0 - Caddy: Unhandled - No configured routes"
 msgstr ""
 
-#: src/labels.h:419
+#: src/labels.h:421
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - Continuar: o servidor recebeu a parte inicial da requisição"
 
-#: src/labels.h:421
+#: src/labels.h:423
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr "101 - Protocolos de comutação: cliente pediu para alternar protocolos"
 
-#: src/labels.h:423
+#: src/labels.h:425
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - OK: A requisição feita pelo cliente foi bem-sucedida"
 
-#: src/labels.h:425
+#: src/labels.h:427
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - Criado: A requisição foi concluída e criada"
 
-#: src/labels.h:427
+#: src/labels.h:429
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - Aceito: A requisição foi aceita para processar"
 
-#: src/labels.h:429
+#: src/labels.h:431
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr "203 - Informações não autorizadas: resposta de terceiros"
 
-#: src/labels.h:431
+#: src/labels.h:433
 msgid "204 - No Content: Request did not return any content"
 msgstr "204 - Nenhum conteúdo: A requisição não retornou nenhum conteúdo"
 
-#: src/labels.h:433
+#: src/labels.h:435
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr ""
 "205 - Redefinir conteúdo: O servidor pediu ao cliente para redefinir o "
 "documento"
 
-#: src/labels.h:435
+#: src/labels.h:437
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - Conteúdo Parcial: O GET parcial foi bem-sucedido"
 
-#: src/labels.h:437
+#: src/labels.h:439
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - Mútiplos-Status: WebDAV; RFC 4918"
 
-#: src/labels.h:439
+#: src/labels.h:441
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - Já Relatado: WebDAV; RFC 5842"
 
-#: src/labels.h:441
+#: src/labels.h:443
 msgid "218 - This is fine: Apache servers. A catch-all error condition"
 msgstr ""
 
-#: src/labels.h:443
+#: src/labels.h:445
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - Múltiplas Opções: Múltiplas alternativas para o recurso"
 
-#: src/labels.h:445
+#: src/labels.h:447
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - Movido Permanentemente: Recurso foi movido permanentemente"
 
-#: src/labels.h:447
+#: src/labels.h:449
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - Movido Temporariamente (redirecionar)"
 
-#: src/labels.h:449
+#: src/labels.h:451
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr "303 - Consulte Outro Documento: A resposta está em uma URI diferente"
 
-#: src/labels.h:451
+#: src/labels.h:453
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - Não Modificado: O recurso não foi modificado"
 
-#: src/labels.h:453
+#: src/labels.h:455
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr "305 - Usar Proxy: Só pode ser acessado através do proxy"
 
-#: src/labels.h:455
+#: src/labels.h:457
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Redirecionamento Temporário: Recurso temporariamente movido"
 
-#: src/labels.h:457
+#: src/labels.h:459
 #, fuzzy
 msgid "308 - Permanent Redirect"
 msgstr "402 - Pagamento Exigido"
 
-#: src/labels.h:459
+#: src/labels.h:461
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - Solicitação Incorreta: A sintaxe da solicitação é inválida"
 
-#: src/labels.h:461
+#: src/labels.h:463
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - Não Autorizado: Solicitação precisa de autenticação de usuário"
 
-#: src/labels.h:463
+#: src/labels.h:465
 msgid "402 - Payment Required"
 msgstr "402 - Pagamento Exigido"
 
-#: src/labels.h:465
+#: src/labels.h:467
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - Proibido: Servidor está se recusando a responder"
 
-#: src/labels.h:467
+#: src/labels.h:469
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - Não Encontrado: Recurso solicitado não pôde ser encontrado"
 
-#: src/labels.h:469
+#: src/labels.h:471
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr "405 - Método Não Permitido: Método de solicitação não suportado"
 
-#: src/labels.h:471
+#: src/labels.h:473
 msgid "406 - Not Acceptable"
 msgstr "406 - Não Aceitável"
 
-#: src/labels.h:473
+#: src/labels.h:475
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - Autenticação de Proxy Necessária"
 
-#: src/labels.h:475
+#: src/labels.h:477
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr ""
 "408 - Tempo Limite da Solicitação: O servidor expirou aguardando a "
 "solicitação"
 
-#: src/labels.h:477
+#: src/labels.h:479
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - Conflito: Conflito no pedido"
 
-#: src/labels.h:479
+#: src/labels.h:481
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr "410 - Foi: Recurso solicitado não está mais disponível"
 
-#: src/labels.h:481
+#: src/labels.h:483
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Comprimento Necessário: Comprimento de conteúdo inválido"
 
-#: src/labels.h:483
+#: src/labels.h:485
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr ""
 "412 - Falha na Pré-Condição: O servidor não atende às condições prévias"
 
-#: src/labels.h:485
+#: src/labels.h:487
 msgid "413 - Payload Too Large"
 msgstr "413 - Payload Muito Grande"
 
-#: src/labels.h:487
+#: src/labels.h:489
 msgid "414 - Request-URI Too Long"
 msgstr "414 - Requisição-URI muito longa"
 
-#: src/labels.h:489
+#: src/labels.h:491
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - Tipo de Mídia Sem Suporte: Tipo de mídia não é suportado"
 
-#: src/labels.h:491
+#: src/labels.h:493
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
 msgstr ""
 "416 - Intervalo da Requisição Não Satisfatório: Não é possível fornecer essa "
 "parte"
 
-#: src/labels.h:493
+#: src/labels.h:495
 msgid "417 - Expectation Failed"
 msgstr "417 - Falha na Expectativa"
 
-#: src/labels.h:495
+#: src/labels.h:497
 msgid "418 - I'm a teapot"
 msgstr ""
 
-#: src/labels.h:497
+#: src/labels.h:499
 msgid "419 - Page Expired: Laravel Framework when a CSRF Token is missing"
 msgstr ""
 
-#: src/labels.h:499
+#: src/labels.h:501
 msgid "420 - Method Failure: Spring Framework when a method has failed"
 msgstr ""
 
-#: src/labels.h:501
+#: src/labels.h:503
 msgid "421 - Misdirected Request"
 msgstr "421 - Requisição Misdirected"
 
-#: src/labels.h:503
+#: src/labels.h:505
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - Entidade Não Processável devido a erros semânticos: WebDAV"
 
-#: src/labels.h:505
+#: src/labels.h:507
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - O recurso que está sendo acessado está bloqueado"
 
-#: src/labels.h:507
+#: src/labels.h:509
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - Falha na Dependência: WebDAV"
 
-#: src/labels.h:509
+#: src/labels.h:511
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr ""
 "426 - Atualização Necessária: O cliente deve alternar para um protocolo "
 "diferente"
 
-#: src/labels.h:511
+#: src/labels.h:513
 #, fuzzy
 msgid "428 - Precondition Required"
 msgstr "428 - Pré-Requisito Obrigatório"
 
-#: src/labels.h:513
+#: src/labels.h:515
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr ""
 "429 - Requisições Demasiadas: O utilizador enviou requisições demasiadamente"
 
-#: src/labels.h:515
+#: src/labels.h:517
 msgid ""
 "430 - Request Header Fields Too Large: Too many URLs are requested within a "
 "certain time frame"
 msgstr ""
 
-#: src/labels.h:517
+#: src/labels.h:519
 #, fuzzy
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - Campos de Cabeçalho de requisição muito grande"
 
-#: src/labels.h:519
+#: src/labels.h:521
 msgid "440 - Login Time-out: The client's session has expired"
 msgstr ""
 
-#: src/labels.h:521
+#: src/labels.h:523
 #, fuzzy
 msgid "449 - Retry With: The server cannot honour the request"
 msgstr ""
 "408 - Tempo Limite da Solicitação: O servidor expirou aguardando a "
 "solicitação"
 
-#: src/labels.h:523
+#: src/labels.h:525
 msgid ""
 "450 - Blocked by Windows Parental Controls: The Microsoft extension code "
 "indicated"
 msgstr ""
 
-#: src/labels.h:525
+#: src/labels.h:527
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - Indisponível Por Razões Legais"
 
-#: src/labels.h:527
+#: src/labels.h:529
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (Nginx) Conexão fechada sem enviar cabeçalhos"
 
-#: src/labels.h:529
+#: src/labels.h:531
 msgid "460 - AWS Elastic Load Balancing: Client closed the connection "
 msgstr ""
 
-#: src/labels.h:531
+#: src/labels.h:533
 msgid ""
 "463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP "
 "addresses"
 msgstr ""
 
-#: src/labels.h:533
+#: src/labels.h:535
 msgid "464 - AWS Elastic Load Balancing: Incompatible protocol versions"
 msgstr ""
 
-#: src/labels.h:535
+#: src/labels.h:537
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (Nginx) Cabeçalho da Requisição Muito Grande"
 
-#: src/labels.h:537
+#: src/labels.h:539
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (Nginx) Erro de certificado de cliente SSL"
 
-#: src/labels.h:539
+#: src/labels.h:541
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (Nginx) O cliente não forneceu certificado"
 
-#: src/labels.h:541
+#: src/labels.h:543
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (Nginx) Requisição HTTP enviada para a porta HTTPS"
 
-#: src/labels.h:543
+#: src/labels.h:545
 msgid "498 - Invalid Token: an expired or otherwise invalid token"
 msgstr ""
 
-#: src/labels.h:545
+#: src/labels.h:547
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr ""
 "499 - (Nginx) Conexão fechada pelo cliente durante o processamento da "
 "requisição"
 
-#: src/labels.h:547
+#: src/labels.h:549
 msgid "500 - Internal Server Error"
 msgstr "500 - Error Interno do Servidor"
 
-#: src/labels.h:549
+#: src/labels.h:551
 msgid "501 - Not Implemented"
 msgstr "501 - Não Implementado"
 
-#: src/labels.h:551
+#: src/labels.h:553
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr "502 - Gateway Inválido: Recebeu uma resposta inválida do upstream"
 
-#: src/labels.h:553
+#: src/labels.h:555
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - Serviço Indisponível: O servidor está indisponível no momento"
 
-#: src/labels.h:555
+#: src/labels.h:557
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - Gateway timeout: O servidor upstream falhou ao enviar pedido"
 
-#: src/labels.h:557
+#: src/labels.h:559
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - Versão HTTP Não Suportada"
 
-#: src/labels.h:559
+#: src/labels.h:561
 msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
 msgstr ""
 
-#: src/labels.h:561
+#: src/labels.h:563
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Servidor Web está retornando um erro desconhecido"
 
-#: src/labels.h:563
+#: src/labels.h:565
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - Servidor Web está offline"
 
-#: src/labels.h:565
+#: src/labels.h:567
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - A conexão expirou"
 
-#: src/labels.h:567
+#: src/labels.h:569
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - A origem está inacessível"
 
-#: src/labels.h:569
+#: src/labels.h:571
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - Ocorreu tempo limite"
 
-#: src/labels.h:571
+#: src/labels.h:573
 msgid ""
 "525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS "
 "handshake"
 msgstr ""
 
-#: src/labels.h:573
+#: src/labels.h:575
 msgid ""
 "526 - Invalid SSL Certificate: Cloudflare could not validate the SSL "
 "certificate"
 msgstr ""
 
-#: src/labels.h:575
+#: src/labels.h:577
 msgid "527 - Railgun Error: An interrupted connection"
 msgstr ""
 
-#: src/labels.h:577
+#: src/labels.h:579
 msgid "529 - Site is overloaded: A site can not process the request"
 msgstr ""
 
-#: src/labels.h:579
+#: src/labels.h:581
 msgid "530 - Site is frozen: A site has been frozen due to inactivity"
 msgstr ""
 
-#: src/labels.h:581
+#: src/labels.h:583
 msgid ""
 "540 - Temporarily Disabled: The requested endpoint has been temporarily "
 "disabled"
 msgstr ""
 
-#: src/labels.h:583
+#: src/labels.h:585
 #, fuzzy
 msgid "561 - Unauthorized: An error around authentication"
 msgstr "401 - Não Autorizado: Solicitação precisa de autenticação de usuário"
 
-#: src/labels.h:585
+#: src/labels.h:587
 msgid ""
 "598 - Network read timeout error: some HTTP proxies to signal a network read "
 "timeout"
 msgstr ""
 
-#: src/labels.h:587
+#: src/labels.h:589
 msgid "599 - Network Connect Timeout Error: An error used by some HTTP proxies"
 msgstr ""
 
-#: src/labels.h:589
+#: src/labels.h:591
 msgid "783 - Unexpected Token: The request includes a JSON syntax error"
+msgstr ""
+
+#: src/labels.h:595
+msgid "Menu"
+msgstr ""
+
+#: src/labels.h:597
+msgid "Settings"
+msgstr ""
+
+#: src/labels.h:599
+msgid "WebSocket Status: Connected"
+msgstr ""
+
+#: src/labels.h:601
+msgid "WebSocket Status: Disconnected"
 msgstr ""
 
 #, fuzzy
