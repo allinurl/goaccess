@@ -29,6 +29,7 @@
  */
 
 #include <string.h>
+#include <stdlib.h>
 #include <inttypes.h>
 
 #include "base64.h"
@@ -160,4 +161,83 @@ base64_decode (const char *data, size_t *out_len) {
   if (out_len)
     *out_len = decoded_len;
   return out;
+}
+
+/*
+ * base64UrlEncode - Converts a standard Base64 encoded string
+ * into Base64Url format.
+ *
+ * This replaces '+' with '-', '/' with '_', and removes '=' padding.
+ */
+char *
+base64UrlEncode (const char *base64) {
+  char *url = NULL;
+  size_t len = 0;
+  if (!base64)
+    return NULL;
+
+  // Duplicate the input string to modify it in-place.
+  url = strdup (base64);
+  if (!url)
+    return NULL;
+
+  // Replace characters: '+' => '-', '/' => '_'
+  for (char *p = url; *p; p++) {
+    if (*p == '+')
+      *p = '-';
+    else if (*p == '/')
+      *p = '_';
+  }
+
+  // Remove trailing '=' characters.
+  len = strlen (url);
+  while (len && url[len - 1] == '=') {
+    url[len - 1] = '\0';
+    len--;
+  }
+  return url;
+}
+
+/*
+ * base64UrlDecode - Converts a Base64Url encoded string into standard Base64 format.
+ *
+ * This replaces '-' with '+', '_' with '/', and adds the necessary '=' padding.
+ * Caller is responsible for freeing the returned string.
+ */
+char *
+base64UrlDecode (const char *base64Url) {
+  size_t len = 0, padding = 0, i = 0;
+  char *padded = NULL, *base64 = NULL;
+
+  if (!base64Url)
+    return NULL;
+
+  // Duplicate the input so we can modify it.
+  base64 = strdup (base64Url);
+  if (!base64)
+    return NULL;
+
+  // Replace '-' with '+' and '_' with '/'
+  for (char *p = base64; *p; p++) {
+    if (*p == '-')
+      *p = '+';
+    else if (*p == '_')
+      *p = '/';
+  }
+
+  // Calculate the padding required (base64 length must be a multiple of 4)
+  len = strlen (base64);
+  padding = (4 - (len % 4)) % 4;
+  padded = xmalloc (len + padding + 1);
+  if (!padded) {
+    free (base64);
+    return NULL;
+  }
+  strcpy (padded, base64);
+  for (i = 0; i < padding; i++) {
+    padded[len + i] = '=';
+  }
+  padded[len + padding] = '\0';
+  free (base64);
+  return padded;
 }

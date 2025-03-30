@@ -459,27 +459,35 @@ Enable real-time HTML output.
 .IP
 GoAccess uses its own WebSocket server to push the data from the server to the
 client. See http://gwsocket.io for more details how the WebSocket server works.
+
 .TP
-\fB\-\-ws-auth=<jwt[:secret]>
-
-Enable WebSocket authentication using a JSON Web Token (JWT). Optionally, a secret key can be provided for verification.
-
+\fB\-\-ws-auth=<jwt[:secret]> | jwt:verify:secret\fR
+Enable WebSocket authentication using a JSON Web Token (JWT). This option supports two formats depending on whether the JWT is locally generated or externally fetched and verified:
 .IP
-When this option is used, the HTML report will not bootstrap the initial parsed data. Instead, it will only display the report if authentication succeeds.
+\fB<jwt[:secret]>\fR: Specifies a static JWT for WebSocket authentication, with an optional secret for local generation or validation. If only "jwt" is provided (e.g., \fB\-\-ws-auth=jwt\fR), GoAccess generates a JWT using a secret sourced from the environment variable \fBGOACCESS_WSAUTH_SECRET\fR or a default HS256-compatible secret if unset. If a secret is included (e.g., \fB\-\-ws-auth=jwt:mysecret\fR), it's used directly as the HS256 signing key or read from a file if the value is a valid path (e.g., \fB\-\-ws-auth=jwt:/path/to/secret.key\fR).
 .IP
-The system processes this option as follows: if the argument starts with "jwt:", the part after the colon is treated as either a file path (if it exists, the secret is read from the file) or a direct secret string. If only "jwt" is provided, the secret is sourced from the environment variable \fBGOACCESS_WSAUTH_SECRET\fR, or a default HS256-compatible secret is generated if the variable is unset. See http://gwsocket.io for more details on the underlying WebSocket server.
-
+\fBjwt:verify:secret\fR: Enables verification of an externally fetched JWT (e.g., via \fB\-\-ws-auth-url\fR). The "verify" keyword indicates that the JWT is provided by an external source, and the secret must be specified for validation. The secret can be a direct HS256 key (e.g., \fB\-\-ws-auth=jwt:verify:mysecret\fR), a file path (e.g., \fB\-\-ws-auth=jwt:verify:/path/to/secret.key\fR), or an environment variable name (e.g., \fB\-\-ws-auth=jwt:verify:$JWT_SECRET\fR). This format is required when using \fB\-\-ws-auth-url\fR and optionally \fB\-\-ws-auth-refresh-url\fR to fetch and verify JWTs from external endpoints.
+.IP
+When this option is used, the HTML report will not bootstrap the initial parsed data. Instead, it will only display the report if authentication succeeds, ensuring secure access to real-time data.
+.IP
+The system processes this option as follows:
+.IP
+For \fB<jwt[:secret]>\fR: If no secret is provided, GoAccess generates a JWT locally using the \fBGOACCESS_WSAUTH_SECRET\fR environment variable or a default secret. If a secret is specified, it's used to sign the JWT (either directly or from a file).
+.IP
+For \fBjwt:verify:secret\fR: The secret is mandatory and used to verify externally fetched JWTs. It must match the signing key used by the external authentication server (e.g., at \fB\-\-ws-auth-url\fR).
 .TP
 \fB\-\-ws-auth-expire=<secs>
-
 Set the time after which the JWT expires. Defaults to 8 hours (28800 seconds) if not specified.
-
+.IP
+.I Only
+available for locally generated JWT.
 .IP
 Users can specify the expiration time in various formats. The value is converted to seconds for JWT expiration validation. Supported formats:
-
 .RS
 .IP \(bu 4
 "3600"       -> 3600 seconds
+.IP \(bu 4
+"120s"       -> 2 minutes
 .IP \(bu 4
 "24h"        -> 24 hours = 86,400 seconds
 .IP \(bu 4
@@ -487,9 +495,85 @@ Users can specify the expiration time in various formats. The value is converted
 .IP \(bu 4
 "10d"        -> 10 days = 864,000 seconds
 .RE
-
 .IP
 The expiration time controls how long the JWT remains valid after issuance, ensuring secure WebSocket connections.
+.TP
+\fB\-\-ws-auth-url=<url>
+Specifies the URL where GoAccess fetches the initial JWT to authenticate the WebSocket connection.
+.IP
+When this option is used, GoAccess sends a GET request to the specified URL to fetch an initial JWT. The response must be a JSON object containing \fBstatus\fR, \fBaccess_token\fR, \fBrefresh_token\fR, and \fBexpires_in\fR fields.
+.IP
+Example: \fB\-\-ws-auth-url=https://page.com/api/get-auth-token\fR
+.IP
+When fetching the token, GoAccess uses
+.I { credentials: 'include' }
+as part of the request to securely retrieve the access token based on the user’s existing authentication session in your system, ensuring token retrieval is safe as long as your users are authenticated.
+.IP
+This option allows you to integrate your existing authentication system with the GoAccess dashboard, using token retrieval endpoints.
+.TP
+\fB\-\-ws-auth-refresh-url=<url>
+Specifies the URL where GoAccess fetches a new JWT when the current one is about to expire.
+.IP
+GoAccess proactively refreshes the JWT 60 seconds before expiration by sending a POST request with the refresh_token to this URL. If not provided, it defaults to the same URL as \fB\-\-ws-auth-url\fR.
+.IP
+Example: \fB\-\-ws-auth-refresh-url=https://page.com/api/refresh-token\fR
+.IP
+The response format should match that of the initial authentication URL.
+.SS "WebSocket Authentication Flow"
+.IP
+\fBInitial Authentication:\fR
+.RS
+.IP \(bu 4
+When started with \fB\-\-ws-auth-url=<url>\fR, GoAccess sends a GET request to fetch an initial JWT.
+.IP \(bu 4
+The expected successful response format:
+.IP
+    {
+        "status": "success",
+        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+        "refresh_token": "refresh123xyz",
+        "expires_in": 3600
+    }
+.IP \(bu 4
+If authentication fails, the endpoint should return:
+.IP
+    {
+        "status": "error",
+        "message": "User not authenticated"
+    }
+.RE
+.IP
+\fBToken Refreshing:\fR
+.RS
+.IP \(bu 4
+GoAccess refreshes the JWT 60 seconds before expiration by sending a POST request:
+.IP
+    {
+        "refresh_token": "refresh123xyz"
+    }
+.RE
+.IP
+\fBPeriodic Token Validation:\fR
+.RS
+.IP \(bu 4
+When GoAccess sends a refresh request to the endpoint, it confirms the validity of the updated JWT with the WebSocket server by transmitting this JSON object:
+.IP
+    { "action": "validate_token", "token": "current-jwt" }
+.RE
+.IP
+\fBImportant Note:\fR For these options to function, you must specify \fB\-\-ws-auth=jwt:verify:<secret>\fR where <secret> can be:
+.RS
+.IP \(bu 4
+A path to a file containing the secret key (e.g., /path/to/secret.key)
+.IP \(bu 4
+An environment variable name that holds the secret (e.g., $JWT_SECRET)
+.IP \(bu 4
+The actual HS256 secret key as a string (e.g., mysecretkey123)
+.RE
+.IP
+Example: \fB\-\-ws-auth=jwt:verify:/path/to/secret.key\fR
+
+
 .TP
 \fB\-\-ws-url=<[scheme://]url[:port]>
 URL to which the WebSocket server responds. This is the URL supplied to the

@@ -40,6 +40,7 @@
 #include "commons.h"
 #include "error.h"
 #include "goaccess.h"
+#include "pdjson.h"
 #include "json.h"
 #include "settings.h"
 #include "websocket.h"
@@ -239,6 +240,149 @@ onopen (WSPipeOut *pipeout, WSClient *client) {
   return 0;
 }
 
+/* validate_token_message()
+ *
+ * Parses a JSON payload (assumed to be null-terminated) that should have
+ * the form: {"action":"validate_token","token":"..."}
+ * If the action is "validate_token", the token is verified using verify_jwt_token().
+ * If verification is successful, the client's stored JWT is updated.
+ *
+ * Returns:
+ *   1 if the message was a token validation message and authentication succeeded.
+ *   0 if the message is not a token validation message.
+ *  -1 if an error occurs (including validation failure).
+ */
+#ifdef HAVE_LIBSSL
+static int
+validate_token_message (const char *payload, WSClient *client) {
+  json_stream json;
+  enum json_type t = JSON_ERROR;
+  size_t len = 0, level = 0;
+  enum json_type ctx = JSON_ERROR;
+  char *curr_key = NULL;
+  char *action = NULL;
+  char *token = NULL;
+
+  json_open_string (&json, payload);
+  json_set_streaming (&json, false);
+
+  /* Expect a JSON object */
+  t = json_next (&json);
+  if (t != JSON_OBJECT) {
+    json_close (&json);
+    return -1;
+  }
+
+  /* Iterate over the JSON tokens */
+  while ((t = json_next (&json)) != JSON_DONE && t != JSON_ERROR) {
+    ctx = json_get_context (&json, &level);
+    /* When (level % 2) != 0 and not in an array, the token is a key */
+    if ((level % 2) != 0 && ctx != JSON_ARRAY) {
+      if (curr_key)
+        free (curr_key);
+      curr_key = xstrdup (json_get_string (&json, &len));
+    } else {
+      /* Otherwise, token is a value for the last encountered key */
+      if (curr_key) {
+        char *val = xstrdup (json_get_string (&json, &len));
+        if (strcmp (curr_key, "action") == 0) {
+          action = val;
+        } else if (strcmp (curr_key, "token") == 0) {
+          token = val;
+        } else {
+          free (val);
+        }
+        free (curr_key);
+        curr_key = NULL;
+      }
+    }
+  }
+  if (curr_key)
+    free (curr_key);
+  json_close (&json);
+
+  /* If action is not "validate_token", then this message is not for token validation */
+  if (!action || strcmp (action, "validate_token") != 0) {
+    if (action)
+      free (action);
+    if (token)
+      free (token);
+    return 0;
+  }
+
+  /* For token validation, the token must exist */
+  if (!token) {
+    LOG (("Missing token in validate_token message from client %d [%s]\n", client->listener,
+          client->remote_ip));
+    free (action);
+    return -1;
+  }
+
+  /* Verify the token using the configured secret */
+  if (conf.ws_auth_secret && verify_jwt_token (token, conf.ws_auth_secret) != 1) {
+    LOG (("Authentication failed for client %d [%s]\n", client->listener, client->remote_ip));
+    free (action);
+    free (token);
+    client->status = WS_ERR | WS_CLOSE;
+    return -1;
+  }
+
+  /* Authentication succeeded: update client's stored token */
+  if (client->headers->jwt)
+    free (client->headers->jwt);
+
+  client->headers->jwt = strdup (token);
+  LOG (("Token validated and updated for client %d [%s]\n", client->listener, client->remote_ip));
+
+  free (action);
+  free (token);
+  return 1;
+}
+#endif
+
+/* onmessage()
+ *
+ * Entry point for incoming messages. This function first checks if the message
+ * is a text message and ensures that the payload is null-terminated (so JSON
+ * parsing will work correctly). It then delegates token validation to
+ * validate_token_message(). In the future, onmessage() may handle other message
+ * types.
+ */
+#ifdef HAVE_LIBSSL
+static int
+onmessage (GO_UNUSED WSPipeOut *pipeout, WSClient *client) {
+  int ret = 1;
+  char *payload = client->message->payload;
+  int allocated = 0;
+
+  /* If this is a text message, ensure the payload is null-terminated.
+   * Binary frames should not be modified.
+   */
+  if (client->message->opcode == WS_OPCODE_TEXT) {
+    if (memchr (payload, '\0', client->message->payloadsz) == NULL) {
+      char *tmp = malloc (client->message->payloadsz + 1);
+      if (!tmp) {
+        LOG (("Memory allocation error for client %d [%s]\n", client->listener, client->remote_ip));
+        return -1;
+      }
+      memcpy (tmp, payload, client->message->payloadsz);
+      tmp[client->message->payloadsz] = '\0';
+      payload = tmp;
+      allocated = 1;
+    }
+  }
+
+  /* Delegate processing to validate_token_message().
+   * In the future, you can add additional branches for other message types.
+   */
+  ret = validate_token_message (payload, client);
+
+  if (allocated)
+    free (payload);
+  return ret;
+}
+#endif
+
 /* Done parsing, clear out line and set status message. */
 void
 set_ready_state (void) {
@@ -327,6 +471,10 @@ start_server (void *ptr_data) {
   GWSWriter *writer = (GWSWriter *) ptr_data;
 
   writer->server->onopen = onopen;
+#ifdef HAVE_LIBSSL
+  writer->server->onmessage = onmessage;
+#endif
+
   pthread_mutex_lock (&writer->mutex);
   set_self_pipe (writer->server->self_pipe);
   pthread_mutex_unlock (&writer->mutex);

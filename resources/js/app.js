@@ -40,14 +40,14 @@ window.GoAccess = window.GoAccess || {
 		this.opts = options;
 		var cw = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 
-		this.AppState  = {}; // current state app key-value store
-		this.AppTpls   = {}; // precompiled templates
-		this.AppCharts = {}; // holds all rendered charts
-		this.AppUIData = (this.opts || {}).uiData || {};    // holds panel definitions
-		this.AppData   = (this.opts || {}).panelData || {}; // hold raw data
-		this.AppWSConn = (this.opts || {}).wsConnection || {}; // WebSocket connection
-		this.i18n = (this.opts || {}).i18n || {}; // i18n report labels
-		this.AppPrefs  = {
+		this.AppState = {};
+		this.AppTpls = {};
+		this.AppCharts = {};
+		this.AppUIData = (this.opts || {}).uiData || {};
+		this.AppData = (this.opts || {}).panelData || {};
+		this.AppWSConn = (this.opts || {}).wsConnection || {};
+		this.i18n = (this.opts || {}).i18n || {};
+		this.AppPrefs = {
 			'autoHideTables': true,
 			'layout': cw > 2560 ? 'wide' : 'horizontal',
 			'perPage': 7,
@@ -55,31 +55,118 @@ window.GoAccess = window.GoAccess || {
 			'hiddenPanels': [],
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
+		this.currentJWT = null;
 
-		// WebSocket reconnection
-		this.wsDelay    = this.currDelay = 1E3;
-		this.maxDelay   = 20E3;
-		this.retries    = 0;
+		// WebSocket reconnection settings
+		this.wsDelay = this.currDelay = 1E3;
+		this.maxDelay = 20E3;
+		this.retries = 0;
 		this.maxRetries = 20;
+		this.tokenRefreshLeadTime = 60;
 
-		if (GoAccess.Util.hasLocalStorage()) {
-			var ls = JSON.parse(localStorage.getItem('AppPrefs'));
-			this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
-		}
-
-		// Track if the app has been initialized
+		this.handleLocalStorage();
 		this.isAppInitialized = false;
 
-		// If window.goaccessJWT is set and WebSocket is configured, set it up
-		if (window.goaccessJWT && Object.keys(this.AppWSConn).length) {
-			this.setWebSocket(this.AppWSConn);
-		} else {
-			// No JWT or no WebSocket: initialize immediately
-			GoAccess.App.initialize();
-			if (Object.keys(this.AppWSConn).length) {
-				this.setWebSocket(this.AppWSConn);
-			}
+		// Initialize message rotation
+		this.startMessageRotation();
+
+		// Handle WebSocket setup
+		this.handleWebSocketSetup();
+	},
+
+	handleLocalStorage: function () {
+		// Check if the browser supports localStorage
+		if (GoAccess.Util.hasLocalStorage()) {
+			// Retrieve the AppPrefs object stored in localStorage
+			const ls = JSON.parse(localStorage.getItem('AppPrefs'));
+			// Merge stored preferences into the current application preferences
+			this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
 		}
+	},
+
+	startMessageRotation: function () {
+		// Define the messages that will be displayed during the loading process
+		const messages = [
+			'Fetching authentication token... Please wait.',
+			'Validating WebSocket tokens... Please wait.',
+			'Authenticating WebSocket connection... Please wait.',
+			'Verifying WebSocket credentials... Please wait.',
+			'Authorizing WebSocket session... Please wait.'
+		];
+		let currentMessageIndex = 0; // Tracks the index of the currently displayed message
+		// Set up an interval to rotate through the messages every 100ms
+		this.messageInterval = setInterval(() => {
+			if (currentMessageIndex < messages.length) {
+				// Update the loading status element with the current message
+				$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+				currentMessageIndex++; // Move to the next message
+			}
+		}, 500);
+	},
+
+	handleWebSocketSetup: function () {
+		// Fetch and authenticate the JWT using the provided WebSocket auth URL (external JWT)
+		if (this.AppWSConn.ws_auth_url) {
+			this.fetchAndAuthenticateJWT();
+		}
+		// If a JWT exists or WebSocket configuration is provided
+		else if (window.goaccessJWT || Object.keys(this.AppWSConn).length) {
+			// Set up the WebSocket connection using the existing JWT
+			this.setWebSocket(this.AppWSConn, window.goaccessJWT, this.messageInterval);
+		}  else {
+			// Initialize the application without WebSocket authentication
+			this.initializeWithoutWebSocket();
+		}
+	},
+
+	fetchAndAuthenticateJWT: function () {
+		// Attempt to fetch a JWT from the WebSocket authentication URL
+		this.fetchJWT(this.AppWSConn.ws_auth_url)
+			.then(data => {
+				if (data.status === "success") {
+					// Extract the JWT, refresh token, and expiration time from the response
+					const jwt = data.access_token;
+					const refreshToken = data.refresh_token;
+					const expiresIn = data.expires_in;
+					// Set up the WebSocket connection using the fetched JWT
+					this.setWebSocket(this.AppWSConn, jwt, this.messageInterval);
+					// Schedule automatic token refresh before it expires
+					this.scheduleTokenRefresh(expiresIn, refreshToken);
+				} else {
+					// Handle failure response from the authentication server
+					this.handleAuthenticationFailure(data.message);
+				}
+			})
+			.catch(error => {
+				// Handle errors during the JWT fetch process
+				this.handleAuthenticationError(error);
+			});
+	},
+
+	initializeWithoutWebSocket: function () {
+		// Stop the message rotation interval
+		clearInterval(this.messageInterval);
+		// Update the UI to indicate that no authentication is provided
+		$('.app-loading-status > small').innerHTML = 'No authentication provided.';
+		// Proceed to initialize the app without WebSocket support
+		GoAccess.App.initialize();
+		this.isAppInitialized = true;
+	},
+
+	handleAuthenticationFailure: function (message) {
+		// Stop the message rotation interval
+		clearInterval(this.messageInterval);
+		// Update the UI to display the failure message
+		$('.app-loading-status > small').innerHTML = `Authentication failed: ${message}`;
+		// Hide the loading spinner
+		$('.loading-container > .spinner').style.display = 'none';
+	},
+
+	handleAuthenticationError: function (error) {
+		// Stop the message rotation interval
+		clearInterval(this.messageInterval);
+		// Update the UI to indicate an error occurred during the JWT fetch process
+		$('.app-loading-status > small').innerHTML = 'Error fetching authentication token.';
 	},
 
 	getPanelUI: function (panel) {
@@ -100,6 +187,56 @@ window.GoAccess = window.GoAccess || {
 		return panel ? this.AppData[panel] : this.AppData;
 	},
 
+	fetchJWT: function (url) {
+		return fetch(url, {
+			method: 'GET',
+			credentials: 'include' // Include cookies for session validation
+		}).then(response => response.json());
+	},
+
+	refreshJWT: function (url, refreshToken) {
+		return fetch(url, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ refresh_token: refreshToken }),
+			credentials: 'include'
+		}).then(response => response.json());
+	},
+
+	// Schedule the next token refresh, triggering a refresh shortly before the token expires
+	scheduleTokenRefresh: function (expiresIn, refreshToken) {
+		const refreshUrl = this.AppWSConn.ws_auth_refresh_url || this.AppWSConn.ws_auth_url;
+		// Set the timer to trigger one minute before the token expires
+		setTimeout(() => {
+			this.refreshJWT(refreshUrl, refreshToken)
+				.then(data => {
+					if (data.status === "success") {
+						const newJwt = data.access_token;
+						const newRefreshToken = data.refresh_token;
+						const newExpiresIn = data.expires_in;
+						this.sendNewJWT(newJwt); // Update token without reconnecting
+						// Schedule the next refresh using the new expiration time
+						this.scheduleTokenRefresh(newExpiresIn, newRefreshToken);
+					} else {
+						this.sendNewJWT(null); // Update token without reconnecting
+					}
+				})
+				.catch(error => {
+					console.error("Error refreshing JWT:", error);
+				});
+		}, (expiresIn - this.tokenRefreshLeadTime) * 1000); // Refresh 1 minute before expiration
+	},
+
+	// Sends the new JWT to the server over the already-open WebSocket connection
+	sendNewJWT: function (newJwt) {
+		if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+			// Notify the server to update the JWT used for authentication
+			this.socket.send(JSON.stringify({ action: "validate_token", token: newJwt }));
+		}
+		// Also update the locally stored token
+		this.currentJWT = newJwt;
+	},
+
 	reconnect: function (wsConn) {
 		if (this.retries >= this.maxRetries)
 			return window.clearTimeout(this.wsTimer);
@@ -107,7 +244,7 @@ window.GoAccess = window.GoAccess || {
 		this.retries++;
 		if (this.currDelay < this.maxDelay)
 			this.currDelay *= 2; // Exponential backoff
-		this.setWebSocket(wsConn);
+		this.setWebSocket(wsConn, this.currentJWT, null);
 	},
 
 	buildWSURI: function (wsConn) {
@@ -118,27 +255,26 @@ window.GoAccess = window.GoAccess || {
 		return new URL(url).protocol + '//' + new URL(url).hostname + ':' + wsConn.port + new URL(url).pathname;
 	},
 
-	setWebSocket: function (wsConn) {
+	setWebSocket: function (wsConn, jwt, messageInterval) {
 		var host = null, pingId = null, uri = null, defURI = null, str = null;
+		this.currentJWT = jwt; // Store the JWT used for this connection
 
-		const messages = [
-			'Validating WebSocket tokens... Please wait.',
-			'Authenticating WebSocket connection... Please wait.',
-			'Verifying WebSocket credentials... Please wait.',
-			'Authorizing WebSocket session... Please wait.'
-		];
-		let currentMessageIndex = 0;
-		let messageInterval;
-
-		function displayNextMessage() {
-			if (currentMessageIndex < messages.length) {
-				$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
-				currentMessageIndex++;
-			}
+		// If no external messageInterval is provided, set up local message rotation
+		if (jwt && !messageInterval) {
+			const messages = [
+				'Validating WebSocket tokens... Please wait.',
+				'Authenticating WebSocket connection... Please wait.',
+				'Verifying WebSocket credentials... Please wait.',
+				'Authorizing WebSocket session... Please wait.'
+			];
+			let currentMessageIndex = 0;
+			messageInterval = setInterval(() => {
+				if (currentMessageIndex < messages.length) {
+					$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+					currentMessageIndex++;
+				}
+			}, 100);
 		}
-
-		// Start message rotation
-		messageInterval = setInterval(displayNextMessage, 100);
 
 		defURI = window.location.hostname ? window.location.hostname + ':' + wsConn.port : "localhost" + ':' + wsConn.port;
 		uri = wsConn.url && /^(wss?:\/\/)?[^\/]+:[0-9]{1,5}/.test(wsConn.url) ? wsConn.url : this.buildWSURI(wsConn);
@@ -146,16 +282,18 @@ window.GoAccess = window.GoAccess || {
 		str = uri || defURI;
 		str = !/^wss?:\/\//i.test(str) ? (window.location.protocol === "https:" ? 'wss://' : 'ws://') + str : str;
 
-		if (window.goaccessJWT) {
+		if (jwt) {
 			const separator = str.includes('?') ? '&' : '?';
-			str = str + separator + 'token=' + encodeURIComponent(window.goaccessJWT);
+			str = str + separator + 'token=' + encodeURIComponent(jwt);
 		}
 
 		var socket = new WebSocket(str);
+		this.socket = socket; // Store socket for token refresh
 
 		socket.onopen = function (event) {
 			clearInterval(messageInterval);
-			$('.app-loading-status > small').innerHTML = 'Authentication successful.';
+			if (this.currentJWT)
+				$('.app-loading-status > small').innerHTML = 'Authentication successful.';
 
 			this.currDelay = this.wsDelay;
 			this.retries = 0;
@@ -164,18 +302,17 @@ window.GoAccess = window.GoAccess || {
 				pingId = setInterval(() => { socket.send('ping'); }, wsConn.ping_interval * 1E3);
 			}
 			GoAccess.Nav.WSOpen(str);
+
 		}.bind(this);
 
 		socket.onmessage = function (event) {
 			this.AppState['updated'] = true;
 			this.AppData = JSON.parse(event.data);
-
-			if (window.goaccessJWT && !this.isAppInitialized) {
+			if (!this.isAppInitialized) {
 				GoAccess.App.initialize();
 				GoAccess.Nav.WSOpen(str);
 				this.isAppInitialized = true;
 			}
-
 			this.App.renderData();
 		}.bind(this);
 
@@ -186,7 +323,7 @@ window.GoAccess = window.GoAccess || {
 
 			GoAccess.Nav.WSClose();
 			window.clearInterval(pingId);
-			socket = null;
+			this.socket = null;
 			this.wsTimer = setTimeout(() => { this.reconnect(wsConn); }, this.currDelay);
 		}.bind(this);
 	},
@@ -2002,7 +2139,7 @@ document.addEventListener('visibilitychange', function () {
 		GoAccess.App.hasFocus = false;
 
 	// fires when app transitions from hidden or user returns to the app/tab.
-	if (document.visibilityState === 'visible' && this.isAppInitialized) {
+	if (document.visibilityState === 'visible' && GoAccess.isAppInitialized) {
 		var hasFocus = GoAccess.App.hasFocus;
 		GoAccess.App.hasFocus = true;
 		hasFocus || GoAccess.App.renderData();

@@ -34,5 +34,7 @@
 
 char *base64_encode (const void *buf, size_t size);
 char *base64_decode (const char *data, size_t *out_len);
+char *base64UrlDecode (const char *base64Url);
+char *base64UrlEncode (const char *base64);
 
 #endif // for #ifndef BASE64_H

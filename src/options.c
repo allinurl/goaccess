@@ -159,6 +159,8 @@ static const struct option long_opts[] = {
 #ifdef HAVE_LIBSSL
   {"ws-auth"              , required_argument , 0 ,  0  } ,
   {"ws-auth-expire"       , required_argument , 0 ,  0  } ,
+  {"ws-auth-url"          , required_argument , 0 ,  0  } ,
+  {"ws-auth-refresh-url"  , required_argument , 0 ,  0  } ,
 #endif
   {"ping-interval"        , required_argument , 0 ,  0  } ,
 #ifdef HAVE_GEOLOCATION
@@ -246,6 +248,10 @@ cmd_help (void)
   "                                    JSON Web Token (JWT). Optionally, a secret key\n"
   "                                    can be provided for verification.\n"
   "  --ws-auth-expire=<secs>         - Time after which the JWT expires.\n"
+  "  --ws-auth-url=<url>             - URL to fetch the initial JWT .\n"
+  "                                    e.g., https://page.com/api/get-auth-token\n"
+  "  --ws-auth-refresh-url=<url>     - URL to fetch a new JWT when initial expires.\n"
+  "                                    e.g., https://page.com/api/refresh-token\n"
 #endif
   "  --ping-interval=<secs>          - Enable WebSocket ping with specified\n"
   "                                    interval in seconds.\n"
@@ -454,34 +460,162 @@ parse_ws_auth_expire_option (const char *input) {
   return 0;
 }
 
+ /**
+ * Reads a JWT secret from a file path
+ * @param path File path containing the secret
+ * @return 0 on success, 1 on failure
+ */
+static int
+parse_jwt_from_file (const char *path) {
+  conf.ws_auth_secret = read_secret_from_file (path);
+  if (conf.ws_auth_secret == NULL) {
+    fprintf (stderr, "Failed to read secret from file: %s\n", path);
+    return 1;
+  }
+  conf.ws_auth_verify_only = 1;
+  return 0;
+}
+
+/**
+ * Retrieves a JWT secret from an environment variable
+ * @param env_var Environment variable name (without '$' prefix)
+ * @return 0 on success, 1 on failure
+ */
+static int
+parse_jwt_from_env (const char *env_var) {
+  const char *env_secret = getenv (env_var);
+  if (env_secret != NULL) {
+    conf.ws_auth_secret = strdup (env_secret);
+    conf.ws_auth_verify_only = 1;
+    return 0;
+  }
+  fprintf (stderr, "Environment variable %s not found\n", env_var);
+  return 1;
+}
+
+/**
+ * Handles the 'verify:' prefix for JWT authentication
+ * @param secret_spec Secret specification string
+ * @return 0 on success, 1 on failure
+ */
+static int
+parse_jwt_verify_option (const char *secret_spec) {
+  /* First try to read from file */
+  if (access (secret_spec, F_OK) == 0) {
+    return parse_jwt_from_file (secret_spec);
+  }
+
+  /* Then try environment variable if path contains '$' */
+  if (*secret_spec == '$') {
+    return parse_jwt_from_env (secret_spec + 1);
+  }
+
+  /* Finally use as direct secret string */
+  conf.ws_auth_verify_only = 1;
+  conf.ws_auth_secret = strdup (secret_spec);
+  return 0;
+}
+
+/**
+ * Handles the legacy JWT format without 'verify:' prefix
+ * @param remainder String after 'jwt:' prefix
+ * @return 0 on success
+ */
+static int
+parse_legacy_jwt_option (const char *remainder) {
+  if (access (remainder, F_OK) == 0) {
+    conf.ws_auth_secret = read_secret_from_file (remainder);
+  } else {
+    conf.ws_auth_secret = strdup (remainder);
+  }
+  return 0;
+}
+
+/**
+ * Handles the plain 'jwt' option with no additional parameters
+ * @return 0 on success
+ */
+static int
+parse_plain_jwt_option (void) {
+  /* Try to get secret from environment variable */
+  const char *env_secret = getenv ("GOACCESS_WSAUTH_SECRET");
+  if (env_secret != NULL) {
+    conf.ws_auth_secret = strdup (env_secret);
+  } else {
+    /* Fallback to generating a secret */
+    conf.ws_auth_secret = generate_ws_auth_secret ();
+  }
+  return 0;
+}
+
+/**
+ * Options:
+ * # Read secret from file
+ * --ws-auth="jwt:verify:/etc/ws_secret.txt"
+ *
+ * # Get secret from environment variable
+ * --ws-auth="jwt:verify:$GOACCESS_WSAUTH_SECRET"
+ *
+ * # Use direct secret string
+ * --ws-auth="jwt:verify:my_super_secret_key"
+ *
+ * # Legacy formats still work
+ * --ws-auth="jwt:/path/to/secret"
+ * --ws-auth="jwt:super_secret_key"
+ * --ws-auth="jwt" // generate one
+ *
+ * Parses websocket authentication options
+ * @param optarg Option argument string
+ * @return 0 on success, 1 on failure/invalid option
+ */
 static int
 parse_ws_auth_option (const char *optarg) {
-  /* Check if the option starts with "jwt:" */
-  if (strncmp (optarg, "jwt:", 4) == 0) {
-    const char *secret_part = optarg + 4;
+  /* Handle cases where it starts with "jwt:" */
+  const char *remainder = NULL;
+  /* First check for plain "jwt" option (no colon) */
+  if (strcmp (optarg, "jwt") == 0)
+    return parse_plain_jwt_option ();
 
-    /* Check if the secret is a file path */
-    if (access (secret_part, F_OK) == 0) {
-      /* File exists: read the file content */
-      conf.ws_auth_secret = read_secret_from_file (secret_part);
-    } else {
-      /* Not a file: use the secret directly */
-      conf.ws_auth_secret = strdup (secret_part);
+  /* If it doesn't start with "jwt:", it's invalid */
+  if (strncmp (optarg, "jwt:", 4) != 0)
+    return 1;
+
+  /* Handle cases where it starts with "jwt:" */
+  remainder = optarg + 4;
+
+  /* If the remainder is exactly "verify", that's reserved – error out */
+  if (strcmp (remainder, "verify") == 0)
+    return 1;
+
+  /* Check for "verify:" prefix */
+  if (strncmp (remainder, "verify:", 7) == 0) {
+    // Ensure that there is a secret specification after "verify:"
+    if (remainder[7] == '\0') {
+      return 1; /* "verify:" with nothing following is invalid */
     }
-    return 0;
-  }
-  /* Check for plain "jwt" option */
-  if (strcmp (optarg, "jwt") == 0) {
-    /* Try to get secret from environment variable */
-    const char *env_secret = getenv ("GOACCESS_WSAUTH_SECRET");
-    if (env_secret != NULL)
-      conf.ws_auth_secret = strdup (env_secret);
-    else
-      conf.ws_auth_secret = generate_ws_auth_secret ();
-    return 0;
+    return parse_jwt_verify_option (remainder + 7);
   }
 
-  return 1;
+  /* Legacy jwt:secret format */
+  return parse_legacy_jwt_option (remainder);
+}
+
+static int
+validate_url_basic (const char *url) {
+  /* Check for NULL */
+  if (!url)
+    return 0;
+
+  /* Check for http:// or https:// protocol */
+  if (strncmp (url, "http://", 7) == 0) {
+    /* Make sure there's something after http:// */
+    return url[7] != '\0';
+  } else if (strncmp (url, "https://", 8) == 0) {
+    /* Make sure there's something after https:// */
+    return url[8] != '\0';
+  }
+
+  return 0;     /* No valid protocol */
 }
 #endif
 
@@ -669,6 +803,19 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("ws-auth-expire", name) && parse_ws_auth_expire_option (oarg) != 0)
     FATAL ("Invalid --ws-auth-expire option.");
 
+  /* WebSocket auth JWT URL */
+  if (!strcmp ("ws-auth-url", name)) {
+    if (validate_url_basic (oarg) == 0)
+      FATAL ("Invalid --ws-auth-url option (check URL validity).");
+    conf.ws_auth_url = oarg;
+  }
+
+  /* WebSocket auth JWT URL refresh */
+  if (!strcmp ("ws-auth-refresh-url", name)) {
+    if (validate_url_basic (oarg) == 0)
+      FATAL ("Invalid --ws-auth-refresh-url option (check URL validity).");
+    conf.ws_auth_refresh_url = oarg;
+  }
 #endif
 
   /* WebSocket ping interval in seconds */
@@ -1022,6 +1169,21 @@ read_option_args (int argc, char **argv) {
     else {
       if (conf.filenames_idx < MAX_FILENAMES)
         conf.filenames[conf.filenames_idx++] = argv[idx];
+    }
+  }
+
+  /* Final validation:
+   * When using JWT verify mode, the ws-auth-url must be provided.
+   * And if a ws-auth-refresh-url is set, then both ws_auth_verify_only and ws_auth_url must be set.
+   */
+  if (conf.ws_auth_verify_only && !conf.ws_auth_url) {
+    FATAL ("--ws-auth with verify requires --ws-auth-url to be set.");
+  }
+
+  if (conf.ws_auth_refresh_url) {
+    if (!conf.ws_auth_verify_only || !conf.ws_auth_url) {
+      FATAL
+        ("--ws-auth-refresh-url requires both --ws-auth with verify and --ws-auth-url to be set.");
     }
   }
 }

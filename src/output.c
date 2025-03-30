@@ -512,7 +512,7 @@ print_json_data (FILE *fp, GHolder *holder, const char *jwt) {
     return;
 
   fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
-  fprintf (fp, "var json_data=%s", (conf.ws_auth_secret && jwt ? "{}" : json));
+  fprintf (fp, "var json_data=%s", (conf.ws_auth_secret ? "{}" : json));
   fprintf (fp, external_assets ? "\n" : "</script>");
 
   free (json);
@@ -531,14 +531,22 @@ print_conn_def (FILE *fp, const char *jwt) {
 
   fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
 
-  if (conf.ws_auth_secret && jwt)
-    fprintf (fp, "window.goaccessJWT=\"%s\";", jwt);
+  if (conf.ws_auth_secret && jwt && !conf.ws_auth_verify_only)
+    fprintf (fp, "window.goaccessJWT=\"%s\";\n", jwt);
 
   fprintf (fp, "var connection = ");
   fpopen_obj (fp, sp);
+
+  if (conf.ws_auth_verify_only && conf.ws_auth_secret) {
+    fpskeysval (fp, "ws_auth_url", conf.ws_auth_url ? : "", sp, 0);
+    if (conf.ws_auth_refresh_url)
+      fpskeysval (fp, "ws_auth_refresh_url", conf.ws_auth_refresh_url ? : "", sp, 0);
+  }
+
   fpskeysval (fp, "url", (conf.ws_url ? conf.ws_url : ""), sp, 0);
   fpskeyival (fp, "port", (conf.port ? atoi (conf.port) : 7890), sp, 0);
   fpskeyival (fp, "ping_interval", (conf.ping_interval ? atoi (conf.ping_interval) : 0), sp, 1);
+
   fpclose_obj (fp, sp, 1);
 
   fprintf (fp, external_assets ? ";\n" : "</script>");
@@ -1312,7 +1320,8 @@ output_html (GHolder *holder, const char *filename) {
   strftime (now, DATE_TIME, "%Y-%m-%d %H:%M:%S %z", &now_tm);
 
 #ifdef HAVE_LIBSSL
-  jwt = create_jwt_token ();
+  if (conf.ws_auth_secret)
+    jwt = create_jwt_token ();
 #endif
 
   print_html_header (fp, fcs);

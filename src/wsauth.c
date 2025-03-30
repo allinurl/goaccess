@@ -142,9 +142,6 @@ create_jwt_token (void) {
   snprintf (report_id, sizeof (report_id), "goaccess_report_%04d%02d%02d",
             jwt_now_tm->tm_year + 1900, jwt_now_tm->tm_mon + 1, jwt_now_tm->tm_mday);
 
-  if (!conf.ws_auth_secret)
-    return NULL;
-
   payload = create_jwt_payload (report_id, iat, exp);
   if (!payload) {
     fprintf (stderr, "Failed to create JWT payload\n");
@@ -158,7 +155,7 @@ create_jwt_token (void) {
 static int
 verify_jwt_signature (const char *jwt, const char *secret) {
   char *token_dup = NULL, *header_part = NULL, *payload_part = NULL, *signature_part = NULL,
-    *signing_input = NULL, *computed_signature = NULL;
+    *signing_input = NULL, *computed_signature = NULL, *computed_signature_url = NULL;
   unsigned char *hmac_result = NULL;
   unsigned int hmac_len = 0;
   int valid = 0;
@@ -189,8 +186,9 @@ verify_jwt_signature (const char *jwt, const char *secret) {
   }
   snprintf (signing_input, signing_input_len, "%s.%s", header_part, payload_part);
 
-  hmac_result = HMAC (EVP_sha256 (), secret, strlen (secret), (unsigned char *) signing_input,
-                      strlen (signing_input), NULL, &hmac_len);
+  hmac_result =
+    HMAC (EVP_sha256 (), secret, strlen (secret), (unsigned char *) signing_input,
+          strlen (signing_input), NULL, &hmac_len);
   free (signing_input);
   if (!hmac_result) {
     free (token_dup);
@@ -200,14 +198,20 @@ verify_jwt_signature (const char *jwt, const char *secret) {
   computed_signature = base64_encode (hmac_result, hmac_len);
   if (!computed_signature) {
     free (token_dup);
-    if (hmac_result)
-      OPENSSL_free (hmac_result);
+    return 0;
+  }
+  // Convert computed_signature to Base64Url format
+  computed_signature_url = base64UrlEncode (computed_signature);
+  free (computed_signature);
+
+  if (!computed_signature_url) {
+    free (token_dup);
     return 0;
   }
 
-  valid = (strcmp (computed_signature, signature_part) == 0);
+  valid = (strcmp (computed_signature_url, signature_part) == 0);
 
-  free (computed_signature);
+  free (computed_signature_url);
   free (token_dup);
 
   return valid;
@@ -283,23 +287,27 @@ validate_jwt_claims (const char *payload_json) {
     free (curr_key);
   json_close (&json);
 
-  /* Final validation: All required properties must be valid and the token time window correct.
-   * iat must be > 0, exp must be after iat, and the current time must be between iat and exp.
-   */
-  if (valid_iss && valid_sub && valid_aud && valid_scope &&
-      iat > 0 && exp > iat && now >= iat && now <= exp) {
-    return 1;   // Valid JWT claims.
+  /* Final validation */
+  if (conf.ws_auth_verify_only) {
+    if (iat > 0 && exp > iat && now >= iat && now <= exp)
+      return 1;
+    else
+      return 0;
+  } else {
+    if (valid_iss && valid_sub && valid_aud && valid_scope &&
+        iat > 0 && exp > iat && now >= iat && now <= exp)
+      return 1; // Valid JWT claims.
+    else
+      return 0; // One or more claim validations failed.
   }
-  return 0;     // One or more claim validations failed.
 }
-
 
 /* verifies the JWT signature.
  * Returns 1 if valid, 0 if not.
  */
 int
 verify_jwt_token (const char *jwt, const char *secret) {
-  char *payload_part = NULL, *payload_json = NULL, *token_dup = NULL;
+  char *payload_part = NULL, *payload_json = NULL, *token_dup = NULL, *std_payload = NULL;
   size_t payload_len = 0;
   int valid_signature = 0, valid_claims = 0;
 
@@ -321,8 +329,16 @@ verify_jwt_token (const char *jwt, const char *secret) {
     return 0;
   }
 
+  /* Convert Base64Url to standard Base64 before decoding */
+  std_payload = base64UrlDecode (payload_part);
+  if (!std_payload) {
+    free (token_dup);
+    return 0;
+  }
+
   /* Step 3: Decode the base64url-encoded payload */
-  payload_json = base64_decode (payload_part, &payload_len);
+  payload_json = base64_decode (std_payload, &payload_len);
+  free (std_payload);
   free (token_dup);
   if (!payload_json) {
     return 0;
@@ -361,17 +377,31 @@ generate_jwt (const char *secret, const char *payload) {
   unsigned char *hmac_result = NULL;
   unsigned int hmac_len = 0;
   size_t jwt_len = 0, signing_input_len = 0;
-  char *jwt = NULL;
+  char *jwt = NULL, *tmp = NULL;
 
-  encoded_header = base64_encode ((const unsigned char *) header, strlen (header));
+  /* Encode header and convert to base64url */
+  tmp = base64_encode ((const unsigned char *) header, strlen (header));
+  if (!tmp)
+    return NULL;
+  encoded_header = base64UrlEncode (tmp);
+  free (tmp);
   if (!encoded_header)
     return NULL;
-  encoded_payload = base64_encode ((const unsigned char *) payload, strlen (payload));
+
+  /* Encode payload and convert to base64url */
+  tmp = base64_encode ((const unsigned char *) payload, strlen (payload));
+  if (!tmp) {
+    free (encoded_header);
+    return NULL;
+  }
+  encoded_payload = base64UrlEncode (tmp);
+  free (tmp);
   if (!encoded_payload) {
     free (encoded_header);
     return NULL;
   }
-  // Create the signing input: "<encoded_header>.<encoded_payload>"
+
+  /* Create the signing input: "<encoded_header>.<encoded_payload>" */
   signing_input_len = strlen (encoded_header) + 1 + strlen (encoded_payload) + 1;
   signing_input = malloc (signing_input_len);
   if (!signing_input) {
@@ -381,7 +411,7 @@ generate_jwt (const char *secret, const char *payload) {
   }
   snprintf (signing_input, signing_input_len, "%s.%s", encoded_header, encoded_payload);
 
-  // Compute HMAC-SHA256 signature
+  /* Compute HMAC-SHA256 signature */
   hmac_result =
     HMAC (EVP_sha256 (), secret, strlen (secret), (unsigned char *) signing_input,
           strlen (signing_input), NULL, &hmac_len);
@@ -391,15 +421,25 @@ generate_jwt (const char *secret, const char *payload) {
     free (signing_input);
     return NULL;
   }
-  // Base64url-encode the signature
-  encoded_signature = base64_encode (hmac_result, hmac_len);
+
+  /* Base64url-encode the signature */
+  tmp = base64_encode (hmac_result, hmac_len);
+  if (!tmp) {
+    free (encoded_header);
+    free (encoded_payload);
+    free (signing_input);
+    return NULL;
+  }
+  encoded_signature = base64UrlEncode (tmp);
+  free (tmp);
   if (!encoded_signature) {
     free (encoded_header);
     free (encoded_payload);
     free (signing_input);
     return NULL;
   }
-  // Build the final JWT: "<encoded_header>.<encoded_payload>.<encoded_signature>"
+
+  /* Build the final JWT: "<encoded_header>.<encoded_payload>.<encoded_signature>" */
   jwt_len =
     strlen (encoded_header) + 1 + strlen (encoded_payload) + 1 + strlen (encoded_signature) + 1;
   jwt = malloc (jwt_len);
