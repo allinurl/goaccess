@@ -39,6 +39,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
+#include <sys/stat.h>
 
 #ifdef HAVE_LIBGEOIP
 #include <GeoIP.h>
@@ -977,10 +978,8 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp("db-path", name)) {
     struct stat st;
     // Check if the directory exists and is accessible
-    if (stat(oarg, &st) != 0 || !S_ISDIR(st.st_mode)) {
-      perror("Database path does not exist or is not a directory");
-      return -1;  // Return error or handle as appropriate
-    }
+    if (stat(oarg, &st) != 0 || !S_ISDIR(st.st_mode))
+      FATAL("Database path does not exist or is not a directory");
     conf.db_path = oarg;
   }
 
