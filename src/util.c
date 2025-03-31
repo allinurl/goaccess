@@ -1258,15 +1258,17 @@ is_writable_path (const char *path) {
     fprintf (stderr, "Path is NULL\n");
     return 0;
   }
+
   /* Make a copy of the path because dirname might modify it */
   copy = strdup (path);
   if (copy == NULL) {
     fprintf (stderr, "Memory allocation failed\n");
     return 0;
   }
+
   /* Get the directory part of the path */
   dir_path = dirname (copy);
-  strncpy (dir_path_copy, dir_path, PATH_MAX);
+  snprintf (dir_path_copy, sizeof (dir_path_copy), "%s", dir_path);
 
   /* Check if the directory is writable */
   result = access (dir_path, W_OK);
