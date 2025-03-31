@@ -780,22 +780,22 @@ parse_long_opt (const char *name, const char *oarg) {
     conf.restore = 1;
 
   /* TLS/SSL certificate */
-  if (!strcmp("ssl-cert", name)) {
+  if (!strcmp ("ssl-cert", name)) {
     // Check if the SSL certificate file exists and is readable
-    if (access(oarg, F_OK) != 0)
-      FATAL("SSL certificate file does not exist");
-    if (access(oarg, R_OK) != 0)
-      FATAL("SSL certificate file is not accessible");
+    if (access (oarg, F_OK) != 0)
+      FATAL ("SSL certificate file does not exist");
+    if (access (oarg, R_OK) != 0)
+      FATAL ("SSL certificate file is not accessible");
     conf.sslcert = oarg;
   }
 
   /* TLS/SSL private key */
-  if (!strcmp("ssl-key", name)) {
+  if (!strcmp ("ssl-key", name)) {
     // Check if the SSL private key file exists and is readable
-    if (access(oarg, F_OK) != 0)
-      FATAL("SSL key file does not exist");
-    if (access(oarg, R_OK) != 0)
-      FATAL("SSL key file is not accessible");
+    if (access (oarg, F_OK) != 0)
+      FATAL ("SSL key file does not exist");
+    if (access (oarg, R_OK) != 0)
+      FATAL ("SSL key file is not accessible");
     conf.sslkey = oarg;
   }
 
@@ -975,11 +975,11 @@ parse_long_opt (const char *name, const char *oarg) {
   }
 
   /* specifies the path of the database file */
-  if (!strcmp("db-path", name)) {
+  if (!strcmp ("db-path", name)) {
     struct stat st;
     // Check if the directory exists and is accessible
-    if (stat(oarg, &st) != 0 || !S_ISDIR(st.st_mode))
-      FATAL("Database path does not exist or is not a directory");
+    if (stat (oarg, &st) != 0 || !S_ISDIR (st.st_mode))
+      FATAL ("Database path does not exist or is not a directory");
     conf.db_path = oarg;
   }
 
@@ -1206,6 +1206,6 @@ read_option_args (int argc, char **argv) {
   }
   // Ensure that both ssl-cert and ssl-key are either both set or both unset
   if ((conf.sslcert && !conf.sslkey) || (!conf.sslcert && conf.sslkey)) {
-    FATAL("Both --ssl-cert and --ssl-key must be set and accessible.");
+    FATAL ("Both --ssl-cert and --ssl-key must be set and accessible.");
   }
 }
