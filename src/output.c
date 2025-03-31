@@ -505,7 +505,7 @@ hits_bw_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE *fp, GHolder *holder, const char *jwt) {
+print_json_data (FILE *fp, GHolder *holder) {
   char *json = NULL;
 
   if ((json = get_json (holder, 1)) == NULL)
@@ -1328,7 +1328,7 @@ output_html (GHolder *holder, const char *filename) {
 
   print_html_body (fp, now);
   print_json_defs ((fjs ? fjs : fp));
-  print_json_data ((fjs ? fjs : fp), holder, jwt);
+  print_json_data ((fjs ? fjs : fp), holder);
   print_conn_def ((fjs ? fjs : fp), jwt);
 
   print_html_footer (fp, fjs);
