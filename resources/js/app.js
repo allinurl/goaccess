@@ -187,10 +187,11 @@ window.GoAccess = window.GoAccess || {
 		return panel ? this.AppData[panel] : this.AppData;
 	},
 
+	// Include cookies for session validation
 	fetchJWT: function (url) {
 		return fetch(url, {
 			method: 'GET',
-			credentials: 'include' // Include cookies for session validation
+			credentials: 'include'
 		}).then(response => response.json());
 	},
 
@@ -205,6 +206,7 @@ window.GoAccess = window.GoAccess || {
 
 	// Schedule the next token refresh, triggering a refresh shortly before the token expires
 	scheduleTokenRefresh: function (expiresIn, refreshToken) {
+		// Refresh 1 minute before expiration
 		const refreshUrl = this.AppWSConn.ws_auth_refresh_url || this.AppWSConn.ws_auth_url;
 		// Set the timer to trigger one minute before the token expires
 		setTimeout(() => {
@@ -214,17 +216,19 @@ window.GoAccess = window.GoAccess || {
 						const newJwt = data.access_token;
 						const newRefreshToken = data.refresh_token;
 						const newExpiresIn = data.expires_in;
-						this.sendNewJWT(newJwt); // Update token without reconnecting
+						// Update token without reconnecting
+						this.sendNewJWT(newJwt);
 						// Schedule the next refresh using the new expiration time
 						this.scheduleTokenRefresh(newExpiresIn, newRefreshToken);
 					} else {
-						this.sendNewJWT(null); // Update token without reconnecting
+						// Update token without reconnecting
+						this.sendNewJWT(null);
 					}
 				})
 				.catch(error => {
 					console.error("Error refreshing JWT:", error);
 				});
-		}, (expiresIn - this.tokenRefreshLeadTime) * 1000); // Refresh 1 minute before expiration
+		}, (expiresIn - this.tokenRefreshLeadTime) * 1000);
 	},
 
 	// Sends the new JWT to the server over the already-open WebSocket connection
@@ -242,8 +246,9 @@ window.GoAccess = window.GoAccess || {
 			return window.clearTimeout(this.wsTimer);
 
 		this.retries++;
+		// Exponential backoff
 		if (this.currDelay < this.maxDelay)
-			this.currDelay *= 2; // Exponential backoff
+			this.currDelay *= 2;
 		this.setWebSocket(wsConn, this.currentJWT, null);
 	},
 
@@ -257,7 +262,8 @@ window.GoAccess = window.GoAccess || {
 
 	setWebSocket: function (wsConn, jwt, messageInterval) {
 		var host = null, pingId = null, uri = null, defURI = null, str = null;
-		this.currentJWT = jwt; // Store the JWT used for this connection
+		// Store the JWT used for this connection
+		this.currentJWT = jwt;
 
 		// If no external messageInterval is provided, set up local message rotation
 		if (jwt && !messageInterval) {
@@ -286,9 +292,9 @@ window.GoAccess = window.GoAccess || {
 			const separator = str.includes('?') ? '&' : '?';
 			str = str + separator + 'token=' + encodeURIComponent(jwt);
 		}
-
+		// Store socket for token refresh
 		var socket = new WebSocket(str);
-		this.socket = socket; // Store socket for token refresh
+		this.socket = socket;
 
 		socket.onopen = function (event) {
 			clearInterval(messageInterval);

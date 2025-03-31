@@ -369,7 +369,8 @@ function WorldMap(selection) {
 		if (projectionType === 'mercator') {
 			// For cellphones (narrow screens), use a fixed scale and limit zoom-out to the initial state.
 			if (innerW() < 400) {
-				scaleExtent = [1, 6];  // Here 1 means the initial zoom level (no zoom-out), 6 is arbitrary for max zoom in.
+				// Here 1 means the initial zoom level (no zoom-out), 6 is arbitrary for max zoom in.
+				scaleExtent = [1, 6];
 			} else {
 				// Otherwise, calculate the base scale from the bounds.
 				const bounds = setBounds(projection, maxLat);
