@@ -28,8 +28,6 @@ jobs:
           - arch: arm32v7
             distro: bookworm
           - arch: aarch64
-            distro: ubuntu16.04
-          - arch: aarch64
             distro: ubuntu18.04
           - arch: aarch64
             distro: ubuntu20.04
