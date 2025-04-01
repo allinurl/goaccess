@@ -26,9 +26,7 @@ jobs:
           - arch: arm32v7
             distro: bullseye
           - arch: arm32v7
-            distro: bookworm
-          - arch: aarch64
-            distro: ubuntu16.04            
+            distro: bookworm      
           - arch: aarch64
             distro: ubuntu18.04
           - arch: aarch64
