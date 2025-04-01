@@ -250,9 +250,9 @@ cmd_help (void)
   "                                    can be provided for verification.\n"
   "  --ws-auth-expire=<secs>         - Time after which the JWT expires.\n"
   "  --ws-auth-url=<url>             - URL to fetch the initial JWT .\n"
-  "                                    e.g., https://page.com/api/get-auth-token\n"
+  "                                    e.g., https://site.com/api/get-auth-token\n"
   "  --ws-auth-refresh-url=<url>     - URL to fetch a new JWT when initial expires.\n"
-  "                                    e.g., https://page.com/api/refresh-token\n"
+  "                                    e.g., https://site.com/api/refresh-token\n"
 #endif
   "  --ping-interval=<secs>          - Enable WebSocket ping with specified\n"
   "                                    interval in seconds.\n"
