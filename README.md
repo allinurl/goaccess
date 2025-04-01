@@ -100,7 +100,9 @@ report, as well as a [**`JSON`**](https://goaccess.io/json?src=gh), and
 You can see it more of a monitor command tool than anything else.
 
 ## Installation ##
-
+<a href="https://repology.org/project/goaccess/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/goaccess.svg" alt="Packaging status" align="right">
+</a>
 ### Build from release
 
 GoAccess can be compiled and used on *nix systems.
