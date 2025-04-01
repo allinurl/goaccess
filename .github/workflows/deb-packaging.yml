@@ -113,7 +113,18 @@ jobs:
           pwd
           ls -lath "${PWD}/artifacts"
 
-      - name: 'Upload deb package'
+      - name: Test deb package installation
+        run: |
+          # Download the test script from deb.goaccess.io
+          curl -O https://deb.goaccess.io/provision/test-dpkg.sh
+          chmod +x test-dpkg.sh
+          # Find the generated deb package
+          DEB_FILE=$(find "${PWD}/artifacts" -name "goaccess_*.deb")
+          echo "Found deb package: $DEB_FILE"
+          # Run the test script to install, verify, and uninstall the package
+          ./test-dpkg.sh "$DEB_FILE"
+
+      - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
           name: deb-package-${{ matrix.distro }}-${{ matrix.arch }}
