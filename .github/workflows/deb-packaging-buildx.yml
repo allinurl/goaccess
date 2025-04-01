@@ -69,14 +69,15 @@ jobs:
             distro: ubuntu24.10            
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       # Set up Docker Buildx to support multi-architecture builds.
-      - name: Set up Docker Buildx
+      - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Set up QEMU for emulation of non-native architectures.
-      - name: Set up QEMU
+      # Set up QEMU so that containers for non-native architectures run.
+      - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
 
       # Create an artifacts directory in the workspace.
@@ -86,23 +87,44 @@ jobs:
       # Build the .deb package inside a container.
       - name: Build deb package
         run: |
+          echo "Matrix arch: ${{ matrix.arch }}"
+          echo "Matrix distro: ${{ matrix.distro }}"
+
           # Select the base image based on distro.
           case "${{ matrix.distro }}" in
             bookworm|bullseye|buster)
-              BASE_IMAGE="debian:${{ matrix.distro }}"
+              IMAGE="debian:${{ matrix.distro }}"
               ;;
             ubuntu*)
-              BASE_IMAGE="ubuntu:${{ matrix.distro }}"
+              IMAGE="ubuntu:${{ matrix.distro }}"
               ;;
             *)
               echo "Unknown distro: ${{ matrix.distro }}" && exit 1
               ;;
           esac
+          echo "Default IMAGE: $IMAGE"
+                    
+          # Adjust the image name based on the target architecture.
+          case "${{ matrix.arch }}" in
+            arm32v7)
+              BASE_IMAGE="arm32v7/${IMAGE#*/}"
+              ;;
+            aarch64)
+              BASE_IMAGE="arm64v8/${IMAGE#*/}"
+              ;;
+            i386)
+              BASE_IMAGE="i386/${IMAGE#*/}"
+              ;;
+            *)
+              BASE_IMAGE="$IMAGE"
+              ;;
+          esac
           echo "Using base image: $BASE_IMAGE"
-          # Run the container for the specific architecture and distro.
+
+          # Run the container for the specific architecture.
           docker run --rm --platform linux/${{ matrix.arch }} \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
-            $BASE_IMAGE bash -c "\
+            "$BASE_IMAGE" bash -c "\
               apt-get update && \
               apt-get install -y ca-certificates wget curl lsb-release && \
               cd /artifacts && \
@@ -111,13 +133,14 @@ jobs:
               ./provision.dpkg.sh && \
               ls -lath && \
               echo 'Build Success'"
-      
+
       # Test the generated deb package by installing it in a container.
       - name: Test deb package installation
         run: |
           # Locate the built deb package.
           DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
+
           # Select a Docker image for testing based on distro.
           case "${{ matrix.distro }}" in
             bookworm) IMAGE="debian:bookworm" ;;
@@ -134,16 +157,16 @@ jobs:
           echo "Using Docker image for testing: $IMAGE"
           docker run --rm --platform linux/${{ matrix.arch }} \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
-            $IMAGE bash -c "\
+            "$IMAGE" bash -c "\
               apt-get update && \
               apt-get install -y /artifacts/$(basename $DEB_FILE) && \
               goaccess --version && \
               apt-get remove -y goaccess"
-      
+
       # Upload the deb package as an artifact.
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
           name: deb-package-${{ matrix.distro }}-${{ matrix.arch }}
-          path: 'artifacts/*.deb'
+          path: artifacts/*.deb
           retention-days: 1
