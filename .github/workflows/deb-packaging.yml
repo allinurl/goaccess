@@ -111,15 +111,32 @@ jobs:
           pwd
           ls -lath "${PWD}/artifacts"
 
-      - name: Test deb package inside a container
+      - name: Test deb package installation
         run: |
           # Find the generated deb package
           DEB_FILE=$(find "${PWD}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
 
+          # Determine the correct Docker image for the distro
+          case "${{ matrix.distro }}" in
+            bookworm) IMAGE="debian:bookworm" ;;
+            bullseye) IMAGE="debian:bullseye" ;;
+            buster) IMAGE="debian:buster" ;;
+            ubuntu16.04) IMAGE="ubuntu:16.04" ;;
+            ubuntu18.04) IMAGE="ubuntu:18.04" ;;
+            ubuntu20.04) IMAGE="ubuntu:20.04" ;;
+            ubuntu22.04) IMAGE="ubuntu:22.04" ;;
+            ubuntu24.04) IMAGE="ubuntu:24.04" ;;
+            ubuntu24.10) IMAGE="ubuntu:24.10" ;;
+            *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
+          esac
+
+          echo "Using Docker image: $IMAGE"
+
           # Run a container with the correct architecture and test the installation
-          docker run --rm -v "${PWD}/artifacts:/artifacts" --platform linux/${{ matrix.arch }} ${{ matrix.distro }} bash -c "
-            apt-get update && apt-get install -y /artifacts/$(basename $DEB_FILE) &&
+          docker run --rm -v "${PWD}/artifacts:/artifacts" --platform linux/${{ matrix.arch }} "$IMAGE" bash -c "
+            apt-get update &&
+            apt-get install -y /artifacts/$(basename $DEB_FILE) &&
             goaccess --version &&
             apt-get remove -y goaccess"
 
