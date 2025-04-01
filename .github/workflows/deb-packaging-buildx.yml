@@ -72,54 +72,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      # Set up Docker Buildx to support multi-architecture builds.
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Set up QEMU for emulation of non-native architectures.
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
 
-      # Create an artifacts directory in the workspace.
       - name: Create artifacts directory
         run: mkdir -p "${GITHUB_WORKSPACE}/artifacts"
 
-      # Build the .deb package inside a container.
       - name: Build deb package
         run: |
           echo "Matrix arch: ${{ matrix.arch }}"
           echo "Matrix distro: ${{ matrix.distro }}"
           
-          # If the distro starts with "ubuntu", strip the prefix to obtain the version tag.
-          if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
-              VERSION_TAG="${{ matrix.distro/#ubuntu/}}"
+          # Convert the matrix distro into a shell variable.
+          MY_DISTRO="${{ matrix.distro }}"
+          if [[ "$MY_DISTRO" == ubuntu* ]]; then
+              # Remove the 'ubuntu' prefix.
+              VERSION_TAG="${MY_DISTRO#ubuntu}"
               DEFAULT_IMAGE="ubuntu:${VERSION_TAG}"
           else
-              DEFAULT_IMAGE="debian:${{ matrix.distro }}"
+              DEFAULT_IMAGE="debian:${MY_DISTRO}"
           fi
           echo "Default IMAGE: ${DEFAULT_IMAGE}"
-          
-          # Adjust the image name based on target architecture.
+                    
+          # Adjust the image name based on the target architecture.
           case "${{ matrix.arch }}" in
             arm32v7)
-              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+              if [[ "$MY_DISTRO" == ubuntu* ]]; then
                 BASE_IMAGE="arm32v7/ubuntu:${VERSION_TAG}"
               else
-                BASE_IMAGE="arm32v7/debian:${{ matrix.distro }}"
+                BASE_IMAGE="arm32v7/debian:${MY_DISTRO}"
               fi
               ;;
             aarch64)
-              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+              if [[ "$MY_DISTRO" == ubuntu* ]]; then
                 BASE_IMAGE="arm64v8/ubuntu:${VERSION_TAG}"
               else
-                BASE_IMAGE="arm64v8/debian:${{ matrix.distro }}"
+                BASE_IMAGE="arm64v8/debian:${MY_DISTRO}"
               fi
               ;;
             i386)
-              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+              if [[ "$MY_DISTRO" == ubuntu* ]]; then
                 BASE_IMAGE="i386/ubuntu:${VERSION_TAG}"
               else
-                BASE_IMAGE="i386/debian:${{ matrix.distro }}"
+                BASE_IMAGE="i386/debian:${MY_DISTRO}"
               fi
               ;;
             *)
@@ -140,36 +138,31 @@ jobs:
               ls -lath && \
               echo 'Build Success'"
       
-      # Test the generated deb package by installing it in a container.
       - name: Test deb package installation
         run: |
-          # Locate the built deb package.
           DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
-          
-          # Select a Docker image for testing based on distro.
           case "${{ matrix.distro }}" in
-            bookworm) IMAGE="debian:bookworm" ;;
-            bullseye) IMAGE="debian:bullseye" ;;
-            buster) IMAGE="debian:buster" ;;
-            ubuntu16.04) IMAGE="ubuntu:16.04" ;;
-            ubuntu18.04) IMAGE="ubuntu:18.04" ;;
-            ubuntu20.04) IMAGE="ubuntu:20.04" ;;
-            ubuntu22.04) IMAGE="ubuntu:22.04" ;;
-            ubuntu24.04) IMAGE="ubuntu:24.04" ;;
-            ubuntu24.10) IMAGE="ubuntu:24.10" ;;
+            bookworm) TEST_IMAGE="debian:bookworm" ;;
+            bullseye) TEST_IMAGE="debian:bullseye" ;;
+            buster) TEST_IMAGE="debian:buster" ;;
+            ubuntu16.04) TEST_IMAGE="ubuntu:16.04" ;;
+            ubuntu18.04) TEST_IMAGE="ubuntu:18.04" ;;
+            ubuntu20.04) TEST_IMAGE="ubuntu:20.04" ;;
+            ubuntu22.04) TEST_IMAGE="ubuntu:22.04" ;;
+            ubuntu24.04) TEST_IMAGE="ubuntu:24.04" ;;
+            ubuntu24.10) TEST_IMAGE="ubuntu:24.10" ;;
             *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
           esac
-          echo "Using Docker image for testing: $IMAGE"
+          echo "Using Docker image for testing: $TEST_IMAGE"
           docker run --rm --platform linux/${{ matrix.arch }} \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
-            "$IMAGE" bash -c "\
+            "$TEST_IMAGE" bash -c "\
               apt-get update && \
               apt-get install -y /artifacts/$(basename $DEB_FILE) && \
               goaccess --version && \
               apt-get remove -y goaccess"
       
-      # Upload the deb package as an artifact.
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
