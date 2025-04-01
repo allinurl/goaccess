@@ -151,6 +151,7 @@ jobs:
         run: |
           DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
+          
           case "${{ matrix.distro }}" in
             bookworm) TEST_IMAGE="debian:bookworm" ;;
             bullseye) TEST_IMAGE="debian:bullseye" ;;
@@ -164,7 +165,17 @@ jobs:
             *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
           esac
           echo "Using Docker image for testing: $TEST_IMAGE"
-          docker run --rm --platform linux/${{ matrix.arch }} \
+          
+          case "${{ matrix.arch }}" in
+            arm32v7) TEST_PLATFORM="linux/arm/v7" ;;
+            aarch64) TEST_PLATFORM="linux/arm64" ;;
+            i386) TEST_PLATFORM="linux/386" ;;
+            amd64) TEST_PLATFORM="linux/amd64" ;;
+            *) echo "Unsupported architecture: ${{ matrix.arch }}" && exit 1 ;;
+          esac
+          echo "Using platform for testing: $TEST_PLATFORM"
+          
+          docker run --rm --platform "$TEST_PLATFORM" \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
             "$TEST_IMAGE" bash -c "\
               apt-get update && \
