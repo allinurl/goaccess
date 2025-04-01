@@ -114,8 +114,8 @@ jobs:
           run: |
             ls -lath "/artifacts"
             curl -O https://deb.goaccess.io/provision/provision.dpkg.sh
-            chmod +x ./provision.sh
-            ./provision.sh
+            chmod +x ./provision.dpkg.sh
+            ./provision.dpkg.sh
             echo "Success!!"
 
       - name: Show the artifact
