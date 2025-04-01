@@ -111,16 +111,17 @@ jobs:
           pwd
           ls -lath "${PWD}/artifacts"
 
-      - name: Test deb package installation
+      - name: Test deb package inside a container
         run: |
-          # Download the test script from deb.goaccess.io
-          curl -O https://deb.goaccess.io/provision/test-dpkg.sh
-          chmod +x test-dpkg.sh
           # Find the generated deb package
           DEB_FILE=$(find "${PWD}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
-          # Run the test script to install, verify, and uninstall the package
-          ./test-dpkg.sh "$DEB_FILE"
+
+          # Run a container with the correct architecture and test the installation
+          docker run --rm -v "${PWD}/artifacts:/artifacts" --platform linux/${{ matrix.arch }} ${{ matrix.distro }} bash -c "
+            apt-get update && apt-get install -y /artifacts/$(basename $DEB_FILE) &&
+            goaccess --version &&
+            apt-get remove -y goaccess"
 
       - name: Upload deb package
         uses: actions/upload-artifact@v4
