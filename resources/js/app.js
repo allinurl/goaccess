@@ -56,6 +56,7 @@ window.GoAccess = window.GoAccess || {
 		};
 		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 		this.currentJWT = null;
+		this.csrfToken = null;
 
 		// WebSocket reconnection settings
 		this.wsDelay = this.currDelay = 1E3;
@@ -191,16 +192,33 @@ window.GoAccess = window.GoAccess || {
 	fetchJWT: function (url) {
 		return fetch(url, {
 			method: 'GET',
-			credentials: 'include'
-		}).then(response => response.json());
+			credentials: 'include',
+			headers: { 'Accept': 'application/json' },
+			referrerPolicy: 'no-referrer-when-downgrade'
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.status === 'success' && data.csrf_token) {
+				this.csrfToken = data.csrf_token;
+			}
+			return data;
+		});
 	},
 
 	refreshJWT: function (url, refreshToken) {
+		const headers = {
+			'Accept': 'application/json',
+			'Content-Type': 'application/json'
+		};
+		if (this.csrfToken) {
+			headers['X-CSRF-TOKEN'] = this.csrfToken;
+		}
 		return fetch(url, {
 			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ refresh_token: refreshToken }),
-			credentials: 'include'
+			credentials: 'include',
+			headers: headers,
+			referrerPolicy: 'no-referrer-when-downgrade',
+			body: JSON.stringify({ refresh_token: refreshToken })
 		}).then(response => response.json());
 	},
 
