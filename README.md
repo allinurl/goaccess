@@ -27,6 +27,11 @@ terminal. Features include:
   Track the time taken to serve the request. Extremely useful if you want to
   track pages that are slowing down your site.
 
+* **WebSocket Authentication:**<br>
+  GoAccess offers enhanced WebSocket authentication, supporting local and
+  external JWT verification, with secure token refresh capabilities and seamless
+  integration with external authentication systems.
+
 * **Nearly All Web Log Formats**<br>
   GoAccess allows any custom log format string.  Predefined options include,
   Apache, Nginx, Amazon S3, Elastic Load Balancing, CloudFront, etc.
@@ -102,9 +107,9 @@ GoAccess can be compiled and used on *nix systems.
 
 Download, extract and compile GoAccess with:
 
-    $ wget https://tar.goaccess.io/goaccess-1.9.3.tar.gz
-    $ tar -xzvf goaccess-1.9.3.tar.gz
-    $ cd goaccess-1.9.3/
+    $ wget https://tar.goaccess.io/goaccess-1.9.4.tar.gz
+    $ tar -xzvf goaccess-1.9.4.tar.gz
+    $ cd goaccess-1.9.4/
     $ ./configure --enable-utf8 --enable-geoip=mmdb
     $ make
     # make install
