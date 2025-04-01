@@ -1,3 +1,37 @@
+Changes to GoAccess 1.9.4 - Monday, March 31, 2025
+
+  - Added an azimuthal (globe) projection to the HTML report for geolocation,
+    providing a less distorted view of the global map.
+  - Added 'apple-touch-icon' for improved iPhone home screen support, enabling
+    quick access to reports directly from the home screen.
+  - Added 'aria-*' attributes to HTML report for better accessibility, ensuring
+    that the report is more inclusive for screen readers and other assistive
+    technologies.
+  - Added 'theme-color' '<meta>' tag to the HTML report for better integration
+    with mobile devices, allowing the browser's address bar to match the
+    report's theme color.
+  - Added additional validation checks to ensure the existence of file paths
+    provided in CLI options, preventing errors.
+  - Added WebSocket authentication to support both local-generated JSON Web
+    Tokens (JWT) and external verification methods. This enhancement enables
+    easy integration with external authentication systems while ensuring CSRF
+    protection for token refresh requests.
+  - Changed WebSocket server to avoid swapping bytes on big-endian platforms,
+    fixing compatibility issues on AIX systems.
+  - Fixed the issue where zooming/panning the map would unexpectedly skip or
+    jump back, providing a smoother user experience.
+  - Fixed the issue where the same mime types were displayed as duplicates due
+    to different casing by normalizing mime types before adding them to the
+    storage, ensuring consistent reporting.
+  - Replaced div elements with more semantic HTML elements like <section>,
+    <header>, and <article>, improving the structure and accessibility of the
+    report.
+  - Updated the list of supported browsers and operating systems to ensure more
+    accurate tracking and reporting.
+  - Updated the method of parsing the browser list for bots/crawlers, enabling
+    the capture of previously difficult-to-parse bots, allowing for more
+    precise targeting and better analytics.
+
 Changes to GoAccess 1.9.3 - Friday, May 31, 2024
 
   - Added additional common bots to the list.
