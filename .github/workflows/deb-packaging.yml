@@ -126,7 +126,7 @@ jobs:
           ls -lath "${PWD}/artifacts"
 
       - name: 'Upload deb package'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: deb-package
           path: 'artifacts/*.deb'
