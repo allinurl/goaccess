@@ -194,24 +194,6 @@ GoAccess can be used in Windows through Cygwin. See Cygwin's <a
 href="https://goaccess.io/faq#installation">packages</a>.  Or through the
 GNU+Linux Subsystem on Windows 10.
 
-#### Distribution Packages ####
-
-GoAccess has minimal requirements, it's written in C and requires only ncurses.
-However, below is a table of some optional dependencies in some distros to
-build GoAccess from source.
-
-| Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
-| ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
-| **Ubuntu/Debian**      | libncurses-dev   | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
-| **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
-| **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
-| **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
-| **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl           |
-
-**Note**: You may need to install build tools like `gcc`, `autoconf`,
-`gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
-`base-devel`, `build-essential`, `"Development Tools"`.
-
 #### Docker ####
 
 A Docker image has been updated, capable of directing output from an access log. If you only want to output a report, you can pipe a log from the external environment to a Docker-based process:
@@ -234,6 +216,24 @@ You can also build the binary for Debian based systems in an isolated container 
     $ docker run -i --rm -v $PWD:/goaccess goaccess/build.debian-12 > goaccess
 
 You can read more about using the docker image in [DOCKER.md](https://github.com/allinurl/goaccess/blob/master/DOCKER.md).
+
+#### Distribution Packages ####
+
+GoAccess has minimal requirements, it's written in C and requires only ncurses.
+However, below is a table of some optional dependencies in some distros to
+build GoAccess from source.
+
+| Distro                 | NCurses          | GeoIP (opt)      | GeoIP2 (opt)          |  OpenSSL (opt)     |
+| ---------------------- | ---------------- | ---------------- | --------------------- | -------------------|
+| **Ubuntu/Debian**      | libncurses-dev   | libgeoip-dev     | libmaxminddb-dev      |  libssl-dev        |
+| **RHEL/CentOS**        | ncurses-devel    | geoip-devel      | libmaxminddb-devel    |  openssl-devel     |
+| **Arch**               | ncurses          | geoip            | libmaxminddb          |  openssl           |
+| **Gentoo**             | sys-libs/ncurses | dev-libs/geoip   | dev-libs/libmaxminddb |  dev-libs/openssl  |
+| **Slackware**          | ncurses          | GeoIP            | libmaxminddb          |  openssl           |
+
+**Note**: You may need to install build tools like `gcc`, `autoconf`,
+`gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
+`base-devel`, `build-essential`, `"Development Tools"`.
 
 ## Storage ##
 
