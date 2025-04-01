@@ -32,8 +32,6 @@ jobs:
           - arch: aarch64
             distro: ubuntu20.04
           - arch: aarch64
-            distro: ubuntu22.04
-          - arch: aarch64
             distro: ubuntu24.04
           - arch: aarch64
             distro: ubuntu24.10            
