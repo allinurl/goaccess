@@ -1,0 +1,149 @@
+name: .deb packaging buildx
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_job:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - arch: arm32v7
+            distro: ubuntu16.04
+          - arch: arm32v7
+            distro: ubuntu18.04
+          - arch: arm32v7
+            distro: ubuntu22.04
+          - arch: arm32v7
+            distro: ubuntu24.04
+          - arch: arm32v7
+            distro: ubuntu24.10            
+          - arch: arm32v7
+            distro: bullseye
+          - arch: arm32v7
+            distro: bookworm      
+          - arch: aarch64
+            distro: ubuntu18.04
+          - arch: aarch64
+            distro: ubuntu20.04
+          - arch: aarch64
+            distro: ubuntu22.04            
+          - arch: aarch64
+            distro: ubuntu24.04
+          - arch: aarch64
+            distro: ubuntu24.10            
+          - arch: aarch64
+            distro: buster
+          - arch: aarch64
+            distro: bullseye
+          - arch: aarch64
+            distro: bookworm
+          - arch: amd64
+            distro: buster
+          - arch: i386
+            distro: buster
+          - arch: amd64
+            distro: bullseye
+          - arch: amd64
+            distro: bookworm
+          - arch: i386
+            distro: bullseye
+          - arch: i386
+            distro: bookworm
+          - arch: amd64
+            distro: ubuntu16.04
+          - arch: i386
+            distro: ubuntu16.04
+          - arch: amd64
+            distro: ubuntu18.04
+          - arch: i386
+            distro: ubuntu18.04
+          - arch: amd64
+            distro: ubuntu20.04
+          - arch: amd64
+            distro: ubuntu22.04
+          - arch: amd64
+            distro: ubuntu24.04
+          - arch: amd64
+            distro: ubuntu24.10            
+
+    steps:
+      - uses: actions/checkout@v2
+
+      # Set up Docker Buildx to support multi-architecture builds.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      # Set up QEMU for emulation of non-native architectures.
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      # Create an artifacts directory in the workspace.
+      - name: Create artifacts directory
+        run: mkdir -p "${GITHUB_WORKSPACE}/artifacts"
+
+      # Build the .deb package inside a container.
+      - name: Build deb package
+        run: |
+          # Select the base image based on distro.
+          case "${{ matrix.distro }}" in
+            bookworm|bullseye|buster)
+              BASE_IMAGE="debian:${{ matrix.distro }}"
+              ;;
+            ubuntu*)
+              BASE_IMAGE="ubuntu:${{ matrix.distro }}"
+              ;;
+            *)
+              echo "Unknown distro: ${{ matrix.distro }}" && exit 1
+              ;;
+          esac
+          echo "Using base image: $BASE_IMAGE"
+          # Run the container for the specific architecture and distro.
+          docker run --rm --platform linux/${{ matrix.arch }} \
+            -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
+            $BASE_IMAGE bash -c "\
+              apt-get update && \
+              apt-get install -y ca-certificates wget curl lsb-release && \
+              cd /artifacts && \
+              curl -O https://deb.goaccess.io/provision/provision.dpkg.sh && \
+              chmod +x provision.dpkg.sh && \
+              ./provision.dpkg.sh && \
+              ls -lath && \
+              echo 'Build Success'"
+      
+      # Test the generated deb package by installing it in a container.
+      - name: Test deb package installation
+        run: |
+          # Locate the built deb package.
+          DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
+          echo "Found deb package: $DEB_FILE"
+          # Select a Docker image for testing based on distro.
+          case "${{ matrix.distro }}" in
+            bookworm) IMAGE="debian:bookworm" ;;
+            bullseye) IMAGE="debian:bullseye" ;;
+            buster) IMAGE="debian:buster" ;;
+            ubuntu16.04) IMAGE="ubuntu:16.04" ;;
+            ubuntu18.04) IMAGE="ubuntu:18.04" ;;
+            ubuntu20.04) IMAGE="ubuntu:20.04" ;;
+            ubuntu22.04) IMAGE="ubuntu:22.04" ;;
+            ubuntu24.04) IMAGE="ubuntu:24.04" ;;
+            ubuntu24.10) IMAGE="ubuntu:24.10" ;;
+            *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
+          esac
+          echo "Using Docker image for testing: $IMAGE"
+          docker run --rm --platform linux/${{ matrix.arch }} \
+            -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
+            $IMAGE bash -c "\
+              apt-get update && \
+              apt-get install -y /artifacts/$(basename $DEB_FILE) && \
+              goaccess --version && \
+              apt-get remove -y goaccess"
+      
+      # Upload the deb package as an artifact.
+      - name: Upload deb package
+        uses: actions/upload-artifact@v4
+        with:
+          name: deb-package-${{ matrix.distro }}-${{ matrix.arch }}
+          path: 'artifacts/*.deb'
+          retention-days: 1
