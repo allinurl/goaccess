@@ -116,6 +116,6 @@ jobs:
       - name: 'Upload deb package'
         uses: actions/upload-artifact@v4
         with:
-          name: deb-package-${{ github.run_id }}
+          name: deb-package-${{ matrix.distro }}-${{ matrix.arch }}
           path: 'artifacts/*.deb'
           retention-days: 1
