@@ -76,7 +76,7 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      # Set up QEMU so that containers for non-native architectures run.
+      # Set up QEMU for emulation of non-native architectures.
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v2
 
@@ -89,39 +89,45 @@ jobs:
         run: |
           echo "Matrix arch: ${{ matrix.arch }}"
           echo "Matrix distro: ${{ matrix.distro }}"
-
-          # Select the base image based on distro.
-          case "${{ matrix.distro }}" in
-            bookworm|bullseye|buster)
-              IMAGE="debian:${{ matrix.distro }}"
-              ;;
-            ubuntu*)
-              IMAGE="ubuntu:${{ matrix.distro }}"
-              ;;
-            *)
-              echo "Unknown distro: ${{ matrix.distro }}" && exit 1
-              ;;
-          esac
-          echo "Default IMAGE: $IMAGE"
-                    
-          # Adjust the image name based on the target architecture.
+          
+          # If the distro starts with "ubuntu", strip the prefix to obtain the version tag.
+          if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+              VERSION_TAG="${{ matrix.distro/#ubuntu/}}"
+              DEFAULT_IMAGE="ubuntu:${VERSION_TAG}"
+          else
+              DEFAULT_IMAGE="debian:${{ matrix.distro }}"
+          fi
+          echo "Default IMAGE: ${DEFAULT_IMAGE}"
+          
+          # Adjust the image name based on target architecture.
           case "${{ matrix.arch }}" in
             arm32v7)
-              BASE_IMAGE="arm32v7/${IMAGE#*/}"
+              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+                BASE_IMAGE="arm32v7/ubuntu:${VERSION_TAG}"
+              else
+                BASE_IMAGE="arm32v7/debian:${{ matrix.distro }}"
+              fi
               ;;
             aarch64)
-              BASE_IMAGE="arm64v8/${IMAGE#*/}"
+              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+                BASE_IMAGE="arm64v8/ubuntu:${VERSION_TAG}"
+              else
+                BASE_IMAGE="arm64v8/debian:${{ matrix.distro }}"
+              fi
               ;;
             i386)
-              BASE_IMAGE="i386/${IMAGE#*/}"
+              if [[ "${{ matrix.distro }}" == ubuntu* ]]; then
+                BASE_IMAGE="i386/ubuntu:${VERSION_TAG}"
+              else
+                BASE_IMAGE="i386/debian:${{ matrix.distro }}"
+              fi
               ;;
             *)
-              BASE_IMAGE="$IMAGE"
+              BASE_IMAGE="$DEFAULT_IMAGE"
               ;;
           esac
-          echo "Using base image: $BASE_IMAGE"
-
-          # Run the container for the specific architecture.
+          echo "Using base image: ${BASE_IMAGE}"
+          
           docker run --rm --platform linux/${{ matrix.arch }} \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
             "$BASE_IMAGE" bash -c "\
@@ -133,14 +139,14 @@ jobs:
               ./provision.dpkg.sh && \
               ls -lath && \
               echo 'Build Success'"
-
+      
       # Test the generated deb package by installing it in a container.
       - name: Test deb package installation
         run: |
           # Locate the built deb package.
           DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
           echo "Found deb package: $DEB_FILE"
-
+          
           # Select a Docker image for testing based on distro.
           case "${{ matrix.distro }}" in
             bookworm) IMAGE="debian:bookworm" ;;
@@ -162,7 +168,7 @@ jobs:
               apt-get install -y /artifacts/$(basename $DEB_FILE) && \
               goaccess --version && \
               apt-get remove -y goaccess"
-
+      
       # Upload the deb package as an artifact.
       - name: Upload deb package
         uses: actions/upload-artifact@v4
