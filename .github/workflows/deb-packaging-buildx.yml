@@ -89,15 +89,15 @@ jobs:
           # Convert the matrix distro into a shell variable.
           MY_DISTRO="${{ matrix.distro }}"
           if [[ "$MY_DISTRO" == ubuntu* ]]; then
-              # Remove the 'ubuntu' prefix.
-              VERSION_TAG="${MY_DISTRO#ubuntu}"
-              DEFAULT_IMAGE="ubuntu:${VERSION_TAG}"
+            # Remove the 'ubuntu' prefix to get the version tag.
+            VERSION_TAG="${MY_DISTRO#ubuntu}"
+            DEFAULT_IMAGE="ubuntu:${VERSION_TAG}"
           else
-              DEFAULT_IMAGE="debian:${MY_DISTRO}"
+            DEFAULT_IMAGE="debian:${MY_DISTRO}"
           fi
           echo "Default IMAGE: ${DEFAULT_IMAGE}"
-                    
-          # Adjust the image name based on the target architecture.
+          
+          # Determine the base image and platform based on the target architecture.
           case "${{ matrix.arch }}" in
             arm32v7)
               if [[ "$MY_DISTRO" == ubuntu* ]]; then
@@ -105,6 +105,7 @@ jobs:
               else
                 BASE_IMAGE="arm32v7/debian:${MY_DISTRO}"
               fi
+              PLATFORM="linux/arm/v7"
               ;;
             aarch64)
               if [[ "$MY_DISTRO" == ubuntu* ]]; then
@@ -112,6 +113,7 @@ jobs:
               else
                 BASE_IMAGE="arm64v8/debian:${MY_DISTRO}"
               fi
+              PLATFORM="linux/arm64"
               ;;
             i386)
               if [[ "$MY_DISTRO" == ubuntu* ]]; then
@@ -119,16 +121,23 @@ jobs:
               else
                 BASE_IMAGE="i386/debian:${MY_DISTRO}"
               fi
+              PLATFORM="linux/386"
+              ;;
+            amd64)
+              BASE_IMAGE="$DEFAULT_IMAGE"
+              PLATFORM="linux/amd64"
               ;;
             *)
-              BASE_IMAGE="$DEFAULT_IMAGE"
+              echo "Unsupported architecture: ${{ matrix.arch }}"
+              exit 1
               ;;
           esac
           echo "Using base image: ${BASE_IMAGE}"
+          echo "Using platform: ${PLATFORM}"
           
-          docker run --rm --platform linux/${{ matrix.arch }} \
+          docker run --rm --platform "${PLATFORM}" \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
-            "$BASE_IMAGE" bash -c "\
+            "${BASE_IMAGE}" bash -c "\
               apt-get update && \
               apt-get install -y ca-certificates wget curl lsb-release && \
               cd /artifacts && \
