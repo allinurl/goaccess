@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Build on ${{ matrix.distro }} ${{ matrix.arch }}
 
-    # Run steps on a matrix of 3 arch/distro combinations
+    # Run steps on a matrix of arch/distro combinations
     strategy:
       matrix:
         include:
@@ -76,40 +76,30 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2.1.0
+
       - uses: allinurl/run-on-arch-action@master
         name: Build artifact
         id: build
         with:
           arch: ${{ matrix.arch }}
           distro: ${{ matrix.distro }}
-
           # Not required, but speeds up builds
           githubToken: ${{ github.token }}
-
           # Create an artifacts directory
           setup: |
             mkdir -p "${PWD}/artifacts"
-
           # Mount the artifacts directory as /artifacts in the container
           dockerRunArgs: |
             --volume "${PWD}/artifacts:/artifacts"
-
           # The shell to run commands with in the container
           shell: /bin/bash
-
-          # Install some dependencies in the container. This speeds up builds if
-          # you are also using githubToken. Any dependencies installed here will
-          # be part of the container image that gets cached, so subsequent
-          # builds don't have to re-install them. The image layer is cached
-          # publicly in your project's package repository, so it is vital that
-          # no secrets are present in the container state or logs.
+          # Install some dependencies in the container.
           install: |
             case "${{ matrix.distro }}" in
               ubuntu*|jessie|stretch|buster|bullseye|bookworm)
                 apt-get update && apt-get install -y ca-certificates wget curl lsb-release && apt-get clean all
                 ;;
             esac
-
           # Produce a binary artifact and place it in the mounted volume
           run: |
             ls -lath "/artifacts"
@@ -119,8 +109,6 @@ jobs:
             echo "Success!!"
 
       - name: Show the artifact
-        # Items placed in /artifacts in the container will be in
-        # ${PWD}/artifacts on the host.
         run: |
           pwd
           ls -lath "${PWD}/artifacts"
@@ -128,6 +116,6 @@ jobs:
       - name: 'Upload deb package'
         uses: actions/upload-artifact@v4
         with:
-          name: deb-package
+          name: deb-package-${{ github.run_id }}
           path: 'artifacts/*.deb'
           retention-days: 1
