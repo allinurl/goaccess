@@ -7,7 +7,7 @@
  * \____/\____/_/  |_\___/\___/\___/____/____/
  *
  * The MIT License (MIT)
- * Copyright (c) 2009-2024 Gerardo Orellana <hello @ goaccess.io>
+ * Copyright (c) 2009-2025 Gerardo Orellana <hello @ goaccess.io>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -1818,7 +1818,7 @@ load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
 
 /* Help menu data (F1/h). */
 static const char *const help_main[] = {
-  "Copyright (C) 2009-2024 by Gerardo Orellana",
+  "Copyright (C) 2009-2025 by Gerardo Orellana",
   "https://goaccess.io - <hello@goaccess.io>",
   "Released under the MIT License.",
   "",
