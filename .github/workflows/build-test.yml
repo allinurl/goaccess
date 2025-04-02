@@ -54,7 +54,7 @@ jobs:
           bing.com:80 142.250.190.142 - - [01/Jul/2013:06:41:31 -0500] "-" 408 0 "-" "-"\
           yahoo.com:80 74.6.143.25 - - [01/Jul/2013:07:20:02 -0500] "HEAD / HTTP/1.1" 200 213 "-" "Wget/1.14 (linux-gnu)"' > access.log
           cat access.log
-        
+
       - name: Set up output directory
         run: echo "output_dir=${GITHUB_WORKSPACE}/report" >> $GITHUB_ENV
 
@@ -74,3 +74,25 @@ jobs:
 
       - name: Make distclean
         run: sudo make distclean
+
+  build-freebsd:
+    name: Build and Test on FreeBSD via Docker
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Pull FreeBSD Docker Image
+        run: docker pull freebsd:latest
+      - name: Build and Test in FreeBSD Container
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" freebsd:latest /bin/sh -c "
+            pkg update && \
+            pkg install -y git autoconf automake gcc libtool gettext ncurses libmaxminddb jq && \
+            cd /src && \
+            autoreconf -fiv && \
+            ./configure && \
+            make && \
+            ./goaccess --version
+            make check && \
+            make distcheck
+          "
+
