@@ -76,23 +76,20 @@ jobs:
         run: sudo make distclean
 
   build-freebsd:
-    name: Build and Test on FreeBSD via Docker
-    runs-on: ubuntu-latest
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v3
-      - name: Pull FreeBSD Docker Image
-        run: docker pull freebsd:latest
-      - name: Build and Test in FreeBSD Container
-        run: |
-          docker run --rm -v "${{ github.workspace }}:/src" freebsd:latest /bin/sh -c "
-            pkg update && \
-            pkg install -y git autoconf automake gcc libtool gettext ncurses libmaxminddb jq && \
-            cd /src && \
-            autoreconf -fiv && \
-            ./configure && \
-            make && \
+      - name: Test on FreeBSD
+        uses: vmactions/freebsd-vm@v1
+        with:
+          usesh: true
+          prepare: |
+            pkg update
+            pkg install -y git autoconf automake gcc libtool gettext ncurses libmaxminddb jq
+          run: |
+            autoreconf -fiv
+            ./configure
+            make
             ./goaccess --version
-            make check && \
+            make check
             make distcheck
-          "
-
