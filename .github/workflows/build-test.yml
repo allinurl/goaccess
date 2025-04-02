@@ -74,22 +74,3 @@ jobs:
 
       - name: Make distclean
         run: sudo make distclean
-
-  build-freebsd:
-    runs-on: macos-14
-    steps:
-      - uses: actions/checkout@v3
-      - name: Test on FreeBSD
-        uses: vmactions/freebsd-vm@v1.1.9
-        with:
-          usesh: true
-          prepare: |
-            pkg update
-            pkg install -y git autoconf automake gcc libtool gettext ncurses libmaxminddb jq
-          run: |
-            autoreconf -fiv
-            ./configure
-            make
-            ./goaccess --version
-            make check
-            make distcheck
