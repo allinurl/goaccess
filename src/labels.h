@@ -290,6 +290,8 @@
 /* Common UI Errors */
 #define ERR_FORMAT_HEADER              \
   _("Format Errors - Verify your log/date/time format")
+#define HINT_INVALID_REQUESTS          \
+  _("Use --invalid-requests option to store such lines in a file.")
 #define ERR_FORMAT_NO_DATE_FMT         \
   _("No date format was found on your conf file.")
 #define ERR_FORMAT_NO_LOG_FMT          \
