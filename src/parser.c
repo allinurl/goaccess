@@ -1645,6 +1645,7 @@ output_logerrors (void) {
   }
   fprintf (stderr, "==%d==\n", pid);
   fprintf (stderr, "==%d== %s\n", pid, ERR_FORMAT_HEADER);
+  fprintf (stderr, "==%d== %s\n", pid, HINT_INVALID_REQUESTS);
 }
 
 /* Ensure we have the following fields. */
