@@ -1,11 +1,11 @@
 # Copyright © 2020 Kamino <67395018+err931@users.noreply.github.com>
-# Copyright © 2023 gemmaro <gemmaro.dev@gmail.com>
+# Copyright © 2023, 2025 gemmaro <gemmaro.dev@gmail.com>
 msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
 "POT-Creation-Date: 2025-03-28 18:05-0500\n"
-"PO-Revision-Date: 2023-07-15 17:20+0900\n"
+"PO-Revision-Date: 2025-04-28 21:05+0900\n"
 "Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
 "Language: ja\n"
@@ -667,11 +667,11 @@ msgstr "棒グラフ"
 
 #: src/labels.h:396
 msgid "World Map"
-msgstr ""
+msgstr "世界地図"
 
 #: src/labels.h:398
 msgid "Azimuthal/Globe"
-msgstr ""
+msgstr "方位投影／地球儀"
 
 #: src/labels.h:400
 msgid "Plot Metric"
@@ -683,7 +683,7 @@ msgstr "テーブルカラム"
 
 #: src/labels.h:406
 msgid "0xx Unofficial Codes"
-msgstr ""
+msgstr "0xx 非公式のコード"
 
 #: src/labels.h:408
 msgid "1xx Informational"
@@ -707,7 +707,7 @@ msgstr "5xx サーバーエラー"
 
 #: src/labels.h:419
 msgid "0 - Caddy: Unhandled - No configured routes"
-msgstr ""
+msgstr "0 - Caddy: Unhandled - 構成されていない経路"
 
 #: src/labels.h:421
 msgid "100 - Continue: Server received the initial part of the request"
@@ -762,7 +762,7 @@ msgstr "208 - 報告済み: (WebDAV拡張) RFC 5842"
 
 #: src/labels.h:443
 msgid "218 - This is fine: Apache servers. A catch-all error condition"
-msgstr ""
+msgstr "218 - This is fine: Apacheサーバーにおけるその他全てのエラー条件下"
 
 #: src/labels.h:445
 msgid "300 - Multiple Choices: Multiple options for the resource"
@@ -880,11 +880,11 @@ msgstr "418 - 私はティーポットです"
 
 #: src/labels.h:499
 msgid "419 - Page Expired: Laravel Framework when a CSRF Token is missing"
-msgstr ""
+msgstr "419 - Page Expired: Laravelフレームワークで、CSRFトークンがないとき"
 
 #: src/labels.h:501
 msgid "420 - Method Failure: Spring Framework when a method has failed"
-msgstr ""
+msgstr "420 - Method Failure: Springフレームワークでメソッドが失敗したとき"
 
 #: src/labels.h:503
 msgid "421 - Misdirected Request"
@@ -919,7 +919,7 @@ msgstr "429 - 過重リクエスト: 制限されたリクエスト数を超え�
 msgid ""
 "430 - Request Header Fields Too Large: Too many URLs are requested within a "
 "certain time frame"
-msgstr ""
+msgstr "430 - Request Header Fields Too Large: 特定の時間枠内で、URLがリクエストされ過ぎました"
 
 #: src/labels.h:519
 msgid "431 - Request Header Fields Too Large"
@@ -927,18 +927,17 @@ msgstr "431 - HTTPヘッダーが長すぎます"
 
 #: src/labels.h:521
 msgid "440 - Login Time-out: The client's session has expired"
-msgstr ""
+msgstr "440 - Login Time-out: クライアントセッションの期限が切れました"
 
 #: src/labels.h:523
-#, fuzzy
 msgid "449 - Retry With: The server cannot honour the request"
-msgstr "408 - タイムアウト: リクエストがタイムアウトしました"
+msgstr "449 - Retry With: サーバーはリクエストを承認できません"
 
 #: src/labels.h:525
 msgid ""
 "450 - Blocked by Windows Parental Controls: The Microsoft extension code "
 "indicated"
-msgstr ""
+msgstr "450 - Blocked by Windows Parental Controls: Microsoftの拡張コードが示唆されます"
 
 #: src/labels.h:527
 msgid "451 - Unavailable For Legal Reasons"
@@ -950,17 +949,17 @@ msgstr "444 - (nginx) 接続を遮断しました"
 
 #: src/labels.h:531
 msgid "460 - AWS Elastic Load Balancing: Client closed the connection "
-msgstr ""
+msgstr "460 - AWS Elastic Load Balancing: クライアントが接続を閉じました"
 
 #: src/labels.h:533
 msgid ""
 "463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP "
 "addresses"
-msgstr ""
+msgstr "463 - AWS Elastic Load Balancing: ロードバランサが30以上のIPアドレスを受け取りました"
 
 #: src/labels.h:535
 msgid "464 - AWS Elastic Load Balancing: Incompatible protocol versions"
-msgstr ""
+msgstr "464 - AWS Elastic Load Balancing: 非互換なプロトコルのバージョン"
 
 #: src/labels.h:537
 msgid "494 - (Nginx) Request Header Too Large"
@@ -980,7 +979,7 @@ msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
 #: src/labels.h:545
 msgid "498 - Invalid Token: an expired or otherwise invalid token"
-msgstr ""
+msgstr "498 - Invalid Token: 期限切れか別の理由で不当なトークン"
 
 #: src/labels.h:547
 msgid "499 - (Nginx) Connection closed by client while processing request"
@@ -1014,7 +1013,7 @@ msgstr "505 - HTTPバージョンがサポートされていません"
 
 #: src/labels.h:561
 msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
-msgstr ""
+msgstr "509 - Bandwidth Limit Exceeded: サーバーが大域を超過しました"
 
 #: src/labels.h:563
 msgid "520 - CloudFlare - Web server is returning an unknown error"
@@ -1040,64 +1039,62 @@ msgstr "524 - CloudFlare - タイムアウトが発生しました"
 msgid ""
 "525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS "
 "handshake"
-msgstr ""
+msgstr "525 - SSL Handshake Failed: CloudflareがSSL/TLSハンドシェイクをネゴシエートできませんでした"
 
 #: src/labels.h:575
 msgid ""
 "526 - Invalid SSL Certificate: Cloudflare could not validate the SSL "
 "certificate"
-msgstr ""
+msgstr "526 - Invalid SSL Certificate: CloudflareがSSL証明書を検証できませんでした"
 
 #: src/labels.h:577
 msgid "527 - Railgun Error: An interrupted connection"
-msgstr ""
+msgstr "527 - Railgun Error: 接続が中断されました"
 
 #: src/labels.h:579
 msgid "529 - Site is overloaded: A site can not process the request"
-msgstr ""
+msgstr "529 - Site is overloaded: サイトがリクエストを処理できません"
 
 #: src/labels.h:581
 msgid "530 - Site is frozen: A site has been frozen due to inactivity"
-msgstr ""
+msgstr "530 - Site is frozen: サイトは非活性のため凍結されました"
 
 #: src/labels.h:583
 msgid ""
 "540 - Temporarily Disabled: The requested endpoint has been temporarily "
 "disabled"
-msgstr ""
+msgstr "540 - Temporarily Disabled: リクエストされたエンドポイントは一時的に無効になっています"
 
 #: src/labels.h:585
-#, fuzzy
 msgid "561 - Unauthorized: An error around authentication"
-msgstr "401 - 認証が必要: このリクエストを処理するには認証が必要です"
+msgstr "561 - Unauthorized: 認証に関するエラー"
 
 #: src/labels.h:587
 msgid ""
 "598 - Network read timeout error: some HTTP proxies to signal a network read "
 "timeout"
-msgstr ""
+msgstr "598 - Network read timeout error: 何らかのHTTPプロキシがネットワークの読み取り時の時間切れを発信しています"
 
 #: src/labels.h:589
 msgid "599 - Network Connect Timeout Error: An error used by some HTTP proxies"
-msgstr ""
+msgstr "599 - Network Connect Timeout Error: 何らかのHTTPプロキシで使われているエラー"
 
 #: src/labels.h:591
 msgid "783 - Unexpected Token: The request includes a JSON syntax error"
-msgstr ""
+msgstr "783 - Unexpected Token: リクエストにJSONの構文エラーが含まれます"
 
 #: src/labels.h:595
 msgid "Menu"
-msgstr ""
+msgstr "メニュー"
 
 #: src/labels.h:597
-#, fuzzy
 msgid "Settings"
-msgstr "TLSの設定"
+msgstr "設定"
 
 #: src/labels.h:599
 msgid "WebSocket Status: Connected"
-msgstr ""
+msgstr "WebSocketの状態：接続済み"
 
 #: src/labels.h:601
 msgid "WebSocket Status: Disconnected"
-msgstr ""
+msgstr "WebSocketの状態：切断済み"
