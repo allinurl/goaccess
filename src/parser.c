@@ -1653,11 +1653,11 @@ static int
 verify_missing_fields (GLogItem *logitem) {
   /* must have the following fields */
   if (logitem->host == NULL)
-    logitem->errstr = xstrdup ("IPv4/6 is required.");
+    logitem->errstr = xstrdup ("IPv4/6 is required. You have to add format specifier '%h' [host (the client IP address, either IPv4 or IPv6)] to your log-format.");
   else if (logitem->date == NULL)
-    logitem->errstr = xstrdup ("A valid date is required.");
+    logitem->errstr = xstrdup ("A valid date is required. You have to add format specifier '%x' [Datetime] or '%d' [Date] and '%t' [Time] to your log-format.");
   else if (logitem->req == NULL)
-    logitem->errstr = xstrdup ("A request is required.");
+    logitem->errstr = xstrdup ("A request is required. Your log-format is missing format specifier '%r' [The request line from the client] or combination of special format specifiers such as '%m', '%U', '%q' and '%H' to parse individual fields.");
 
   return logitem->errstr != NULL;
 }
