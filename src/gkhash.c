@@ -1017,7 +1017,7 @@ inc_ii32 (khash_t (ii32) *hash, uint32_t key, uint32_t inc) {
     kh_val (hash, k) = 0;
   }
 
-  return __sync_add_and_fetch (&kh_val (hash, k), inc);
+  return __atomic_add_fetch (&kh_val (hash, k), inc, __ATOMIC_SEQ_CST);
 }
 
 /* Increase a uint64_t value given a string key.
@@ -1110,7 +1110,7 @@ inc_si32 (khash_t (si32) *hash, const char *key, uint32_t inc) {
     kh_val (hash, k) = 0;
   }
 
-  return __sync_add_and_fetch (&kh_val (hash, k), inc);
+  return __atomic_add_fetch (&kh_val (hash, k), inc, __ATOMIC_SEQ_CST);
 }
 
 /* Insert a string key and auto increment int value.
@@ -1202,7 +1202,7 @@ get_si32 (khash_t (si32) *hash, const char *key) {
   k = kh_get (si32, hash, key);
   /* key found, return current value */
   if (k != kh_end (hash))
-    return __sync_add_and_fetch (&kh_val (hash, k), 0);
+    return __atomic_load_n (&kh_val (hash, k), __ATOMIC_SEQ_CST);
 
   return 0;
 }
@@ -1300,7 +1300,7 @@ get_ii32 (khash_t (ii32) *hash, uint32_t key) {
   k = kh_get (ii32, hash, key);
   /* key found, return current value */
   if (k != kh_end (hash))
-    return __sync_add_and_fetch (&kh_val (hash, k), 0);
+    return __atomic_load_n (&kh_val (hash, k), __ATOMIC_SEQ_CST);
 
   return 0;
 }

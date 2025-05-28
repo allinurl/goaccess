@@ -1195,7 +1195,11 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE)
       bandw = 0;
     logitem->resp_size = bandw;
-    __sync_bool_compare_and_swap (&conf.bandwidth, 0, 1); /* set flag */
+    {
+      int expected = 0;
+      __atomic_compare_exchange_n (&conf.bandwidth, &expected, 1, false, __ATOMIC_SEQ_CST,
+                                   __ATOMIC_SEQ_CST);
+    }
     free (tkn);
     break;
     /* referrer */
@@ -1264,7 +1268,12 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
+    {
+      int expected = 0;
+      __atomic_compare_exchange_n (&conf.serve_usecs, &expected, 1, false, __ATOMIC_SEQ_CST,
+                                   __ATOMIC_SEQ_CST);
+    }
+
     free (tkn);
     break;
     /* time taken to serve the request, in seconds with a milliseconds
@@ -1287,7 +1296,11 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_secs > 0) ? serve_secs * SECS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
+    {
+      int expected = 0;
+      __atomic_compare_exchange_n (&conf.serve_usecs, &expected, 1, false, __ATOMIC_SEQ_CST,
+                                   __ATOMIC_SEQ_CST);
+    }
     free (tkn);
     break;
     /* time taken to serve the request, in microseconds */
@@ -1304,7 +1317,11 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = serve_time;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
+    {
+      int expected = 0;
+      __atomic_compare_exchange_n (&conf.serve_usecs, &expected, 1, false, __ATOMIC_SEQ_CST,
+                                   __ATOMIC_SEQ_CST);
+    }
     free (tkn);
     break;
     /* time taken to serve the request, in nanoseconds */
@@ -1323,7 +1340,11 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     logitem->serve_time = (serve_time > 0) ? serve_time / MILS : 0;
 
     /* Determine if time-served data was stored on-disk. */
-    __sync_bool_compare_and_swap (&conf.serve_usecs, 0, 1); /* set flag */
+    {
+      int expected = 0;
+      __atomic_compare_exchange_n (&conf.serve_usecs, &expected, 1, false, __ATOMIC_SEQ_CST,
+                                   __ATOMIC_SEQ_CST);
+    }
     free (tkn);
     break;
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
@@ -1932,14 +1953,21 @@ parse_json_format (GLogItem *logitem, char *str) {
  */
 static int
 atomic_lpts_update (GLog *glog, GLogItem *logitem) {
-  int64_t oldts = 0, newts = 0;
-  /* atomic update loop */
-  newts = mktime (&logitem->dt); // Get timestamp from logitem->dt
-  while (!__sync_bool_compare_and_swap (&glog->lp.ts, oldts, newts)) {
-    oldts = glog->lp.ts; /* Reread glog->lp.ts if CAS failed */
-    if (oldts >= newts) {
-      break;    /* No need to update if oldts is already greater */
+  int64_t newts = mktime (&logitem->dt); // Get timestamp from logitem->dt
+  int64_t oldts = __atomic_load_n (&glog->lp.ts, __ATOMIC_SEQ_CST);
+  int64_t expected;
+
+  while (oldts < newts) { // Only update if new timestamp is later
+    expected = oldts;
+    // Attempt to update glog->lp.ts from expected (oldts) to newts.
+    if (__atomic_compare_exchange_n (&glog->lp.ts, &expected, newts,
+                                     false, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST)) {
+      break;    // Successful update.
     }
+    // If the CAS failed, expected now holds the current glog->lp.ts.
+    oldts = expected;
+    if (oldts >= newts)
+      break;
   }
 
   return newts;
