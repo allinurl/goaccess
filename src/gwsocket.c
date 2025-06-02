@@ -45,6 +45,7 @@
 #include "settings.h"
 #include "websocket.h"
 #include "wsauth.h"
+#include "util.h"
 #include "xmalloc.h"
 
 /* Allocate memory for a new GWSReader instance.
@@ -488,6 +489,7 @@ start_server (void *ptr_data) {
 /* Read and set the WebSocket config options. */
 static void
 set_ws_opts (void) {
+  const char *html_filename;
   ws_set_config_strict (1);
   if (conf.addr)
     ws_set_config_host (conf.addr);
@@ -505,6 +507,8 @@ set_ws_opts (void) {
     ws_set_config_sslcert (conf.sslcert);
   if (conf.sslkey)
     ws_set_config_sslkey (conf.sslkey);
+  if (find_output_type((char**)&html_filename, "html", 0) == 0)
+    ws_set_config_html_path(html_filename);
 #ifdef HAVE_LIBSSL
   if (conf.ws_auth_secret) {
     ws_set_config_auth_secret (conf.ws_auth_secret);
