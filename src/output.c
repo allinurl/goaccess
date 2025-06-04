@@ -1260,7 +1260,7 @@ print_json_defs (FILE *fp) {
   fprintf (fp, external_assets ? "\n" : "</script>");
 }
 
-static char *
+char *
 get_asset_filepath (const char *filename, const char *asset_fname) {
   char *fname = NULL, *path = NULL, *s = NULL;
 

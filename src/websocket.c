@@ -57,6 +57,7 @@
 #include "error.h"
 #include "gslist.h"
 #include "sha1.h"
+#include "output.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -1716,20 +1717,37 @@ ws_send_http_response (WSClient *client, WSServer *server, int bytes, const char
   gettimeofday (&client->end_proc, NULL);
   if (wsconfig.accesslog)
     access_log (client, 200);
-  LOG (("Provided HTML, %d bytes, %lld file size, %lld header size\n", bytes, size, bytes - size));
+  LOG (("Provided %s, %d bytes, %lld file size, %lld header size\n", mime, bytes, size, bytes - size));
 
   return ws_set_status (client, WS_CLOSE, bytes);
 }
 
+/* Serve a static resource: HTML report, CSS, or JS. */
 static int
 ws_serve_resource (WSClient *client, WSServer *server, int bytes) {
-  if (strncmp(client->headers->path, "/", 2) == 0
+  char *resource_name = NULL;
+  if (strcmp(client->headers->path, "/") == 0
       && wsconfig.html_path
       && ws_load_file (&server->file_html, wsconfig.html_path, &server->size_html)) {
-    LOG (("Handling HTML /\n"));
     return ws_send_http_response (client, server, bytes, server->file_html, server->size_html, "text/html; charset=utf-8");
   }
+  else if (strcmp(client->headers->path, "/" FILENAME_CSS) == 0
+      && wsconfig.html_path
+      && (resource_name = get_asset_filepath (wsconfig.html_path, FILENAME_CSS))
+      && ws_load_file (&server->file_css, resource_name, &server->size_css)) {
+    free (resource_name);
+    return ws_send_http_response (client, server, bytes, server->file_css, server->size_css, "text/css");
+  }
+  else if (strcmp(client->headers->path, "/" FILENAME_JS) == 0
+      && wsconfig.html_path
+      && (resource_name = get_asset_filepath (wsconfig.html_path, FILENAME_JS))
+      && ws_load_file (&server->file_js, resource_name, &server->size_js)) {
+    free (resource_name);
+    return ws_send_http_response (client, server, bytes, server->file_js, server->size_js, "text/javascript");
+  }
   LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
+  if (resource_name)
+    free (resource_name);
   http_error (client, WS_BAD_REQUEST_STR);
   return ws_set_status (client, WS_CLOSE, bytes);
 }
