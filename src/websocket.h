@@ -307,6 +307,14 @@ typedef struct WSServer_ {
   /* Connected Clients */
   GSLList *colist;
 
+  /* Cached Report Resources */
+  char *file_html;
+  off_t size_html;
+  char *file_css;
+  off_t size_css;
+  char *file_js;
+  off_t size_js;
+
 #ifdef HAVE_LIBSSL
   SSL_CTX *ctx;
 #endif

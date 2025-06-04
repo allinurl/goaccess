@@ -625,6 +625,13 @@ ws_stop (WSServer *server) {
   ws_ssl_cleanup (server);
 #endif
 
+  if (server->file_html)
+    free (server->file_html);
+  if (server->file_css)
+    free (server->file_css);
+  if (server->file_js)
+    free (server->file_js);
+
   free (server);
   free (fdstate);
   fdstate = NULL;
@@ -1579,6 +1586,39 @@ ws_set_handshake_headers (WSHeaders *headers) {
   free (s);
 }
 
+static char*
+ws_load_file(char **file_buffer, const char *file_name, off_t *size)
+{
+  FILE *fp = NULL;
+  char *buf = NULL;
+  int read_len = -1;
+  if (*file_buffer != NULL) {
+    return *file_buffer;
+  }
+  fp = fopen (file_name, "r");
+  if (!fp) {
+    LOG (("Failed to open %s: %s\n", file_name, strerror (errno)));
+    return NULL;
+  }
+  *file_buffer = NULL;
+  *size = file_size (file_name);
+  buf = xmalloc (*size);
+  if (!buf) {
+    LOG (("Failed to allocate buffer for %s\n", file_name));
+    goto fail;
+  }
+  read_len = fread (buf, *size, 1, fp);
+  if (read_len < 1) {
+    LOG (("Failed to read whole file %s (read %d/%llu)\n", file_name, read_len, *size));
+    free (buf);
+    goto fail;
+  }
+  *file_buffer = buf;
+fail:
+  fclose (fp);
+  return *file_buffer;
+}
+
 /* Send the websocket handshake headers to the given client.
  *
  * On success, the number of sent bytes is returned. */
@@ -1644,27 +1684,11 @@ ws_send_websocket_response (WSClient *client, WSServer *server, int bytes)
  *
  * Returns the number of bytes written for the response. */
 static int
-ws_send_http_response (WSClient *client, WSServer *server, int bytes)
+ws_send_http_response (WSClient *client, WSServer *server, int bytes, const char *buf, off_t size, const char *mime)
 {
-  char *str = NULL;
-  FILE *html_file = NULL;
-  off_t html_size = 0;
-  int read_len = 0;
-  char buf[4096], *html_size_str;
+  char *str = NULL, *html_size_str = NULL;
 
-  if (!wsconfig.html_path) {
-    LOG (("No HTML report for %d [%s]...\n", client->listener, client->remote_ip));
-    http_error (client, WS_NOT_FOUND_STR);
-    return ws_set_status (client, WS_CLOSE, bytes);
-  }
-  html_file = fopen (wsconfig.html_path, "r");
-  if (!html_file) {
-    LOG (("Can't find HTML report %s for %d [%s]...\n", wsconfig.html_path, client->listener, client->remote_ip));
-    http_error (client, WS_NOT_FOUND_STR);
-    return ws_set_status (client, WS_CLOSE, bytes);
-  }
-  html_size = file_size (wsconfig.html_path);
-  html_size_str = u642str (html_size, 0);
+  html_size_str = u642str (size, 0);
 
   client->headers->ws_resp = xstrdup (WS_OK_STR);
 
@@ -1678,28 +1702,35 @@ ws_send_http_response (WSClient *client, WSServer *server, int bytes)
   ws_append_str (&str, html_size_str);
   ws_append_str (&str, CRLF);
 
-  ws_append_str (&str, "Content-Type: text/html; charset=utf-8");
+  ws_append_str (&str, "Content-Type: ");
+  ws_append_str (&str, mime);
   ws_append_str (&str, CRLF CRLF);
-  bytes = ws_respond (client, str, strlen (str));
+  bytes += ws_respond (client, str, strlen (str));
   free (str);
   free (html_size_str);
 
   /* report html */
-  errno = 0;
-  while ((read_len = fread(buf, 1, sizeof (buf), html_file)) > 0) {
-    bytes += ws_respond (client, buf, read_len);
-  }
-  if (errno != 0) {
-    LOG (("Error with fread: %s\n", strerror (errno)));
-  }
-  fclose(html_file);
+  bytes += ws_respond (client, buf, size);
 
   /* do access logging */
   gettimeofday (&client->end_proc, NULL);
   if (wsconfig.accesslog)
     access_log (client, 200);
-  LOG (("Provided HTML, %d bytes, %lld file size, %lld header size\n", bytes, html_size, bytes - html_size));
+  LOG (("Provided HTML, %d bytes, %lld file size, %lld header size\n", bytes, size, bytes - size));
 
+  return ws_set_status (client, WS_CLOSE, bytes);
+}
+
+static int
+ws_serve_resource (WSClient *client, WSServer *server, int bytes) {
+  if (strncmp(client->headers->path, "/", 2) == 0
+      && wsconfig.html_path
+      && ws_load_file (&server->file_html, wsconfig.html_path, &server->size_html)) {
+    LOG (("Handling HTML /\n"));
+    return ws_send_http_response (client, server, bytes, server->file_html, server->size_html, "text/html; charset=utf-8");
+  }
+  LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
+  http_error (client, WS_BAD_REQUEST_STR);
   return ws_set_status (client, WS_CLOSE, bytes);
 }
 
@@ -1752,12 +1783,7 @@ ws_get_handshake (WSClient *client, WSServer *server) {
   /* Ensure we have the required headers for WebSocket */
   if (ws_verify_req_headers (client->headers) != 0) {
     /* If not, check if it's a rquest for the HTML report, otherwise fail */
-    if (strncmp(client->headers->path, "/", 2) == 0) {
-      return ws_send_http_response (client, server, bytes);
-    }
-    LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
-    http_error (client, WS_BAD_REQUEST_STR);
-    return ws_set_status (client, WS_CLOSE, bytes);
+    return ws_serve_resource (client, server, bytes);
   }
 
   return ws_send_websocket_response (client, server, bytes);
