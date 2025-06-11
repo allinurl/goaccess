@@ -130,6 +130,42 @@ static const char *const os[][2] = {
   {"Xbox", "Windows"},
 };
 
+/* Get iOS version from user agent string.
+ *
+ * On error, NULL is returned.
+ * On success, a malloc'd string containing the iOS version is returned. */
+static char *
+get_ios_version (const char *agent, const char *prefix) {
+  char *p = NULL, *q = NULL;
+  char *version = NULL;
+  ptrdiff_t offset;
+
+  if ((p = strstr (agent, prefix)) == NULL)
+    return NULL;
+
+  if ((offset = p - agent) <= 0)
+    return NULL;
+
+  if ((q = strstr (p, ";")) == NULL)
+    return NULL;
+
+  version = xmalloc (q - p + 1);
+  strncpy (version, p, q - p);
+  version[q - p] = '\0';
+
+  return version;
+}
+
+static char *
+get_real_iphone_version (const char *agent) {
+  return get_ios_version (agent, "iOS ");
+}
+
+static char *
+get_real_ipad_version (const char *agent) {
+  return get_ios_version (agent, "iPadOS ");
+}
+
 /* Get the Android code name (if applicable).
  *
  * On error, the given name is allocated and returned.
@@ -389,10 +425,12 @@ parse_os (char *str, char *tkn, char *os_type, int idx) {
       *b = 0;
     return xstrdup (str);
   }
-  if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
+  if (strstr (tkn, "iPod"))
     return xstrdup (parse_ios (tkn, 4));
+  if (strstr (tkn, "iPad"))
+    return conf.real_os ? get_real_ipad_version (tkn) : xstrdup (tkn);
   if (strstr (tkn, "iPhone"))
-    return xstrdup (parse_ios (tkn, 6));
+    return conf.real_os ? get_real_iphone_version (tkn) : xstrdup (tkn);
   /* Mac OS X */
   if (strstr (tkn, "OS X") || strstr (tkn, "macOS")) {
     tkn = parse_osx (tkn);
@@ -442,3 +480,4 @@ verify_os (char *str, char *os_type) {
 
   return alloc_string ("Unknown");
 }
+
