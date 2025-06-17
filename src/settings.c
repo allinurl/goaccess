@@ -67,10 +67,10 @@ static const GEnum LOGTYPE[] = {
 };
 
 static const GPreConfLog logs = {
-  "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA */
-  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
-  "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
-  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
+  "%h %^ %^ [%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",             /* Apache/NCSA Combined Log Format */
+  "%v:%^ %h %^ %^ [%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",       /* Apache/NCSA Combined Log Format + VHost */
+  "%h %^ %^ [%d:%t %^] \"%r\" %s %b",                           /* Apache/NCSA Common Log Format */
+  "%v:%^ %h %^ %^ [%d:%t %^] \"%r\" %s %b",                     /* Apache/NCSA Common Log Format + VHost */
   "%d %t %^ %m %U %q %^ %^ %h %u %R %s %^ %^ %L",               /* W3C */
   "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q\\t%^\\t%C\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
