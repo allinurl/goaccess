@@ -30,7 +30,7 @@ h3 {
 .expandable>td {
 	cursor: pointer;
 }
-.loading-container {
+[title="Loading screen"] {
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -40,16 +40,13 @@ h3 {
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-}
-.spinner {
-	color: #999;
-	margin-bottom: 10px; /* Space between spinner and text */
-}
-.app-loading-status {
-	color: #999;
 	text-align: center;
 	text-shadow: 1px 1px 0 #FFF;
 	text-transform: uppercase;
+	color: #999;
+}
+[title="Loading screen"] i {
+	margin-bottom: 10px; /* Space between spinner and text */
 }
 .powered {
 	bottom: 190px;
