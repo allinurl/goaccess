@@ -13,6 +13,9 @@
 --color-label-background: #303030;
 --color-label-text: #fff;
 
+--color-overall-background: var(--color-background);
+--color-overall-gray: #3b444c;
+
 --color-button-background: #212121;
 --color-button-text: #9E9E9E;
 --color-button-border: #303030;
@@ -34,6 +37,48 @@
 --scrollbar-height: 10px;
 
 --color-tooltip-background: #303030;
+--color-tooltip-text: #fff;
+}
+
+/* theme: dark blue */
+.dark.blue:root {
+--color-text: #fff;
+--color-background: #252b30;
+
+--color-nav-background: #1f2328;
+--color-accent: #181b1f;
+--color-header-border: #3b444c;
+
+--color-title-background: var(--color-nav-background);
+--color-title-text: snow;
+
+--color-label-background: inherit;
+--color-label-text: inherit;
+
+--color-overall-background: var(--color-nav-background);
+--color-overall-gray: #3b444c;
+
+--color-button-background: #1f2328;
+--color-button-text: #9E9E9E;
+--color-button-border: #3b444c;
+--color-button-active-border: #0f1214;
+--color-button-active-text: #3b444c;
+
+--color-table-border: #999;
+--color-table-row-header-background: var(--color-nav-background);
+--color-table-row-shaded: var(--color-accent);
+
+--color-dropdown-item-text: #fff;
+--color-dropdown-item-focus-background: #3b444c;
+
+--color-scrollbar: #9e9e9e;
+--color-scrollbar-thumb: #3b444c;
+--color-scrollbar-track: #9e9e9e;
+--scrollbar-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+--scrollbar-width: 10px;
+--scrollbar-height: 10px;
+
+--color-tooltip-background: inherit;
 --color-tooltip-text: #fff;
 }
 
@@ -695,11 +740,11 @@ ol[role="list"] {
 #overall li.gray div {
 	border-top-width: 4px;
 	border-top-style: solid;
-	border-color: var(--color-header-border, gray);
+	border-color: var(--color-overall-gray, gray);
 }
 
 #overall li div {
-	background: var(--color-nav-background, #fff);
+	background: var(--color-overall-background, #fff);
 	color: rgb(36, 36, 36);
 	margin-top: 0.5rem;
 	padding: 0.7rem;
@@ -955,110 +1000,6 @@ rect.legend {
 }
 .dark.graticule {
 	stroke: #DDD;
-}
-
-/* DARK BLUE THEME */
-html.dark.blue,
-.dark.blue body {
-	background: #252B30;
-}
-.dark.blue .container {
-	background: #252B30;
-}
-.dark.blue [role="document"] > header {
-	border-bottom: 1px solid #3B444C;
-}
-.dark.blue #last-updated {
-	background-color: #252B30;
-}
-.dark.blue nav {
-	border-color: #181B1F;
-	background: #1F2328;
-}
-.dark.blue article> div {
-	background: #1F2328;
-}
-.dark.blue article table tfoot>tr>th {
-	border-top: 1px dotted #999;
-}
-.dark.blue article table .thead-min,
-.dark.blue article table .thead-avg,
-.dark.blue article table .thead-max {
-	background: #1f2328;
-}
-.dark.blue article table .thead-avg {
-	border-bottom: 2px solid #999;
-}
-.dark.blue article table>thead>tr.thead-cols {
-	border-bottom: 2px solid #999;
-}
-.dark.blue article table tbody.tbody-data tr.shaded {
-	background-color: #181B1F;
-}
-.dark.blue  #overall li.gray div {
-	border-top: 4px solid #3B444C;
-}
-.dark.blue #overall li div {
-	background: #1F2328;
-}
-.dark.blue .btn-default {
-	color: #9E9E9E;
-	background-color: #1F2328;
-	border-color: #3B444C;
-}
-.dark.blue .btn-default:active,
-.dark.blue .btn-default:hover,
-.dark.blue .btn-default.active,
-.dark.blue .open>.dropdown-toggle.btn-default {
-	color: #3B444C;
-	background-color: #1F2328;
-	border-color: #0F1214;
-}
-.dark.blue .pagination>.disabled>a,
-.dark.blue .pagination>.disabled>a:hover,
-.dark.blue .pagination>.disabled>a:focus {
-	color: #777;
-}
-.dark.blue .pagination>li>a {
-	background-color: #1F2328;
-	border: 1px solid #3B444C;
-}
-.dark.blue .pagination>li>a:hover,
-.dark.blue .pagination>li>a:active,
-.dark.blue .pagination>li>a:focus {
-	color: #0370B0;
-	background-color: #1F2328;
-	border-color: #3B444C;
-}
-.dark.blue .dropdown-menu>li>a:hover,
-.dark.blue .dropdown-menu>li>a:focus {
-	color: #FFF;
-	background-color: #3B444C;
-}
-.dark.blue .dropdown-menu {
-	background-color: #252B30;
-}
-.dark.blue::-webkit-scrollbar-track,
-.dark.blue .table-responsive::-webkit-scrollbar-track {
-	-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
-	background-color: #9E9E9E;
-}
-.dark.blue::-webkit-scrollbar,
-.dark.blue .table-responsive::-webkit-scrollbar {
-	width: 10px;
-	height: 10px;
-	background-color: #9E9E9E;
-}
-.dark.blue::-webkit-scrollbar-thumb,
-.dark.blue .table-responsive::-webkit-scrollbar-thumb {
-	background-color: #3B444C;
-}
-.dark.blue .chart-tooltip {
-	background-color: #252B30;
-}
-.dark.blue .report-title {
-	background: #1F2328;
-	color: snow;
 }
 
 /* DARK CHARTS */
