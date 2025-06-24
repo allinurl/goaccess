@@ -19,6 +19,8 @@ WORKDIR /goaccess
 RUN autoreconf -fiv && rm -rf autom4te.cache
 RUN CC="clang" CFLAGS="-O3" LIBS="$(pkg-config --libs openssl)" ./configure --prefix=/usr --enable-utf8 --with-openssl --enable-geoip=mmdb
 RUN make -j$(nproc) && make DESTDIR=/dist install
+# Check dynamic dependencies
+RUN ldd /dist/usr/bin/goaccess && echo "Dependencies checked"
 
 # Runtime stage
 FROM alpine:3.20
