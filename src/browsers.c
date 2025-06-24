@@ -234,6 +234,7 @@ static const char *const browsers[][2] = {
   {"Yahoo! Slurp", "Crawlers"},
   {"GoogleMobile", "Crawlers"},
   {"ZoteroTranslationServer", "Cralwers"},
+  {"OAI-SearchBot", "Cralwers"},
 
   /* Based on Firefox: place all Firefox-based browsers here */
   {"Camino", "Others"},
