@@ -29,9 +29,7 @@ FROM alpine:3.20
 RUN apk add --no-cache \
     openssl \
     tzdata
-# Create non-root user
-RUN adduser -D -u 1000 goaccess
-USER goaccess
+
 # Copy GoAccess binary and assets
 COPY --from=builds /dist/usr/bin/goaccess /usr/bin/goaccess
 COPY --from=builds /dist/usr/share /usr/share
