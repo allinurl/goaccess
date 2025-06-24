@@ -23,6 +23,7 @@ RUN make -j$(nproc) && make DESTDIR=/dist install
 # Runtime stage
 FROM alpine:3.20
 RUN apk add --no-cache \
+    gettext-libs \
     libmaxminddb \
     ncurses-libs \
     openssl \
