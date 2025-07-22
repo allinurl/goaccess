@@ -822,6 +822,23 @@ article .row:nth-child(2):not(.table-wrapper)>.col-md-12 {
 #overall ul {
 	margin-block-end: 0;
 	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
+}
+
+#overall li {
+	flex: 1 0 0;
+}
+
+@supports (display: grid) {
+	#overall ul {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+	}
+	#overall li {
+		flex: unset;
+	}
 }
 
 #overall li.gray div {
