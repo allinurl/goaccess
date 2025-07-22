@@ -173,6 +173,14 @@ body {
 	color: var(--color-text, #000);
 	overflow-x: hidden;
 }
+html {
+	font-size: 10px;
+}
+body{
+	font-family: -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, Adwaita Sans, Cantarell, Ubuntu, roboto, noto, helvetica, arial, sans-serif;
+	font-size: 14px;
+	line-height: 1.42857143;
+}
 h1 {
 	font-weight: bold;
 	letter-spacing: -3px;
