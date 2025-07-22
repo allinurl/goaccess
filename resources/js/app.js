@@ -1153,7 +1153,7 @@ GoAccess.Panels = {
 			wrap.appendChild(row);
 		}
 
-		return row;
+		return wrap;
 	},
 
 	resetPanel: function (panel) {

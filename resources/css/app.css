@@ -167,6 +167,8 @@ ol[role="list"] {
 }
 
 /* global */
+#panels > div:empty { display: none; }
+
 html,
 body {
 	background: var(--color-background, #f0f0f0);
@@ -555,7 +557,26 @@ nav h3 {
 /* PANEL STYLES */
 #panels {
 	margin-block-end: 10px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 1.5rem;
 }
+
+#panels article {
+	flex: 1 0 0;
+}
+
+@supports (display: grid) {
+	#panels {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(50rem, 1fr));
+	}
+
+	#panels article {
+		flex: unset;
+	}
+}
+
 article header {
 	margin-block-end: 15px;
 	position: relative;
@@ -572,6 +593,7 @@ article > div {
 	margin-top: 10px;
 	padding: 20px 10px 10px 10px;
 	border-top: 1px solid rgba(0, 0, 0, 0.15);
+	overflow: scroll;
 }
 
 hgroup small {
