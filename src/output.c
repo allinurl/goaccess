@@ -50,7 +50,6 @@
 #include "xmalloc.h"
 
 #include "tpls.h"
-#include "bootstrapcss.h"
 #include "facss.h"
 #include "appcss.h"
 #include "d3js.h"
@@ -231,11 +230,9 @@ print_html_header_styles (FILE *fp, FILE *fcs) {
   if (fcs) {
     fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
     fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
-    fprintf (fcs, "%.*s\n", bootstrap_css_length, bootstrap_css);
     fprintf (fcs, "%.*s\n", app_css_length, app_css);
   } else {
     fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
-    fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
     fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
   }
 }
