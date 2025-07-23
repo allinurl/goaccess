@@ -2084,20 +2084,13 @@ read_line (GLog *glog, char *line, int *test, uint32_t *cnt, int dry_run) {
   return logitem;
 }
 
-/* Parse chunk of lines to logitems */
 static void *
 read_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
   int i = 0;
 
   for (i = 0; i < job->p; i++) {
-    /* ensure we don't process more than we should when testing for log format,
-     * else free chunk and stop processing threads */
-    if (!job->test || (job->test && job->cnt < conf.num_tests))
-      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
-    else
-      conf.stop_processing = 1;
-
+    job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
 #ifdef WITH_GETLINE
     free (job->lines[i]);
 #endif
@@ -2243,6 +2236,56 @@ free_jobs (GJob jobs[2][conf.jobs]) {
   }
 }
 
+/* To encapsulate the initial log format sniffing and processing.
+ * Returns 0 on success (format verified), 1 on error (format mismatch). */
+static int
+perform_initial_sniff (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int dry_run,
+                       int *global_test_flag) {
+  uint32_t initial_cnt = 0;
+  /* Flag to track if a valid format has been found (1 = no, 0 = yes) */
+  int initial_test = 1;
+  char *s = NULL;
+
+  /* Read and parse lines until `conf.num_tests` are processed or EOF. */
+  while (initial_cnt < conf.num_tests && (s = fgetline (fp)) != NULL) {
+    GLogItem *logitem = read_line (glog, s, &initial_test, &initial_cnt, dry_run);
+
+    if (logitem != NULL) {
+      /* Intentional: If in actual processing mode (`dry_run == 0`) and valid,
+       * process the log item. This prevents redundant reads and supports pipes. */
+      if (!dry_run && logitem->errstr == NULL) {
+        process_log (logitem);
+        free_glog (logitem);
+      }
+      /* `read_line` or subsequent logic handles freeing `logitem` otherwise. */
+    }
+    free (s);   /* Free buffer from fgetline. */
+  }
+
+  /* If no valid format was found within `conf.num_tests` lines, signal an
+   * error. */
+  if (initial_test) {
+    uncount_processed (glog);
+    uncount_invalid (glog);
+    free_jobs (jobs); /* Clean up all job structures. */
+    return 1;   /* Indicate format mismatch/error. */
+  }
+
+  /* Format verified. Prepare for multi-threaded phase: The file pointer is
+   * deliberately not reset (no `fseek`). This allows continuous reading from the
+   * current position, crucial for pipes and efficiency. */
+  *global_test_flag = 0; /* Update global `test` flag to disable further format testing. */
+
+  /* Propagate disabled 'test' status to all GJob structures to prevent
+   * premature termination. */
+  for (int b = 0; b < 2; b++) {
+    for (int k = 0; k < conf.jobs; k++) {
+      jobs[b][k].test = 0;
+    }
+  }
+  return 0;     /* Success: format verified. */
+}
+
 /* Reads lines from the given file pointer `fp` and processes them using
  * parallel threads.
  *
@@ -2262,6 +2305,16 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
   glog->bytes = 0;
 
   init_jobs (jobs, glog, dry_run, test);
+
+  /* Perform initial single-threaded log format sniffing if `conf.num_tests` is
+   * active.  This helps validate the log format early and sets up the state for
+   * multi-threaded processing. */
+  if (test) {
+    if (perform_initial_sniff (fp, glog, jobs, dry_run, &test) != 0) {
+      return 1; /* Sniffing failed (log format mismatch). */
+    }
+    cnt = 0;    /* Reset main counter after sniff, as initial lines are handled. */
+  }
 
   b = 0;
   while (1) {   /* b = 0 or 1 */
@@ -2317,7 +2370,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
       b = b ^ 1;
   }             // while (1)
 
-  /* After eof, process last data */
+  /* After EOF, process last data */
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
       if (conf.jobs > 1 && jobs[b][k].running) {
@@ -2337,9 +2390,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   free_jobs (jobs);
 
-  /* if no data was available to read from (probably from a pipe) and still in
-   * test mode and still below the test count, we simply return until data
-   * becomes available */
+  /* Handle pipe case with insufficient data */
   if (!s && (errno == EAGAIN || errno == EWOULDBLOCK) && test && cnt < conf.num_tests)
     return 0;
 
