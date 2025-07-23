@@ -194,6 +194,14 @@ h3 {
 	letter-spacing: -1px;
 }
 
+button {
+	border: 1px solid #adadad;
+	padding: 5px 10px;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
+}
+
 ::-webkit-scrollbar-track,
 .table-responsive::-webkit-scrollbar-track {
 	-webkit-box-shadow: var(--scrollbar-box-shadow);
@@ -476,11 +484,6 @@ nav h3 {
 .powered span {
 	color: #007bc3;
 }
-.dropdown-header {
-	color: #007bc3;
-	padding: 3px 25px;
-	text-transform: uppercase;
-}
 
 /* page header */
 [role="document"] > header {
@@ -646,19 +649,43 @@ hgroup h2 {
 	color: var(--color-button-active-text, inherit);
 }
 
-.dropdown-menu>li>a {
+.dropdown-menu {
+	background-color: var(--color-background, #fff);
+	position: absolute;
+	inset-inline-end: 0;
+	border: 1px solid var(--color-accent, currentColor);
+	z-index: 100;
+	display: none;
+	padding: 8px;
+	border-radius: 2px;
+}
+
+.dropdown-menu h3 {
+	color: var(--color-accent, inherit);
+	margin-block-start: 8px;
+	margin-block-end: 2px;
+	padding: 0;
+	font-size: 1em;
+	text-transform: uppercase;
+}
+
+.dropdown-menu ul {
+	margin: 0;
+}
+
+.dropdown.open .dropdown-menu {
+	display: block;
+}
+
+.dropdown-menu a {
 	color: var(--color-dropdown-item-text, #333);
 }
-.dropdown-menu>li>a:hover,
-.dropdown-menu>li>a:focus {
+.dropdown-menu a:hover,
+.dropdown-menu a:focus {
 	background-color: var(--color-dropdown-item-focus-background, #f5f5f5);
 	color: var(--color-dropdown-item-focus-text, #262626);
 	text-decoration: none;
 }
-.dropdown-menu {
-	background-color: var(--color-background, inherit);
-}
-
 /* PANEL TABLES */
 .clickable,
 .expandable>td {

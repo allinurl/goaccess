@@ -92,27 +92,41 @@
 
 <!-- TPL Panel Options DropDown -->
 <script id="tpl-panel-opts" type="text/template">
-	<li class="dropdown-header">{{ labels.chart_opts }}</li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart="{{showChart}}"><i class="fa fa-{{#showChart}}check-{{/showChart}}square-o"></i> {{labels.chart}}</a></li>
-
+	<section>
+		<h3 id="{{id}}-dd-group-1">{{ labels.chart_opts }}</h3>
+		<ul role="list" aria-labelledby="{{id}}-dd-group-1">
+			<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart="{{showChart}}"><i class="fa fa-{{#showChart}}check-{{/showChart}}square-o"></i> {{labels.chart}}</a></li>
+		</ul>
+	</section>
 	{{#plot.length}}
-	<li class="dropdown-header">{{ labels.type }}</li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> {{labels.area_spline}}</a></li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> {{labels.bar}}</a></li>
-	{{#hasMap}}
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="wmap"><i class="fa fa-circle{{^wmap}}-o{{/wmap}}"></i> {{labels.wmap}}</a></li>
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="gmap"><i class="fa fa-circle{{^gmap}}-o{{/gmap}}"></i> {{labels.gmap}}</a></li>
-	{{/hasMap}}
-	<li class="dropdown-header">{{labels.plot_metric}}</li>
-	{{#plot}}
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}"><i class="fa fa-circle{{^selected}}-o{{/selected}}"></i> {{label}}</a></li>
-	{{/plot}}
+		<section>
+			<h3 id="{{id}}-dd-group-2">{{ labels.type }}</h3>
+			<ul role="list" aria-labelledby="{{id}}-dd-group-2">
+				<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="area-spline"><i class="fa fa-circle{{^area-spline}}-o{{/area-spline}}"></i> {{labels.area_spline}}</a></li>
+				<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="bar"><i class="fa fa-circle{{^bar}}-o{{/bar}}"></i> {{labels.bar}}</a></li>
+				{{#hasMap}}
+					<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="wmap"><i class="fa fa-circle{{^wmap}}-o{{/wmap}}"></i> {{labels.wmap}}</a></li>
+					<li><a href="javascript:void(0);" data-panel="{{id}}" data-chart-type="gmap"><i class="fa fa-circle{{^gmap}}-o{{/gmap}}"></i> {{labels.gmap}}</a></li>
+				{{/hasMap}}
+			</ul>
+		</section>
+		<section>
+			<h3 id="{{id}}-dd-group-3">{{labels.plot_metric}}</h3>
+			{{#plot}}
+				<ul role="list" aria-labelledby="{{id}}-dd-group-3">
+					<li><a href="javascript:void(0);" data-panel="{{id}}" data-plot="{{className}}" class="panel-plot-{{className}}"><i class="fa fa-circle{{^selected}}-o{{/selected}}"></i> {{label}}</a></li>
+				</ul>
+			{{/plot}}
+		</section>
 	{{/plot.length}}
-
-	<li class="dropdown-header">{{labels.table_columns}}</li>
-	{{#items}}
-	<li><a href="javascript:void(0);" data-panel="{{id}}" data-metric="{{key}}"><i class="fa fa-{{^hide}}check-{{/hide}}square-o"></i> {{label}}</a></li>
-	{{/items}}
+	<section>
+		<h3 id="{{id}}-dd-group-4">{{labels.table_columns}}</h3>
+		<ul role="list" aria-labelledby="{{id}}-dd-group-4">
+			{{#items}}
+				<li><a href="javascript:void(0);" data-panel="{{id}}" data-metric="{{key}}"><i class="fa fa-{{^hide}}check-{{/hide}}square-o"></i> {{label}}</a></li>
+			{{/items}}
+		</ul>
+	</section>
 </script>
 
 <!-- TPL Table colgroup -->
@@ -140,8 +154,7 @@
 						<button class="btn btn-default btn-sm dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-panel="{{id}}" aria-label="{{labels.panel_opts}}, {{head}}">
 							<i class="fa fa-gear" aria-hidden="true"></i> {{labels.panel_opts}} <span class="fa fa-caret-down" aria-hidden="true"></span>
 						</button>
-						<ul class="dropdown-menu dropdown-menu-right panel-opts-{{id}}">
-						</ul>
+						<div class="dropdown-menu panel-opts-{{id}}"></div>
 					</div>
 				</div>
 			</header>
@@ -248,7 +261,7 @@
 	</ul>
 	<h3><i class="fa fa-list-alt"></i> {{labels.panels}}</h3>
 	<ul class="perpage-wrap">
-		<li class="dropdown-header"><i class="fa fa-list"></i> {{labels.items_per_page}}</li>
+		<li><i class="fa fa-list"></i> {{labels.items_per_page}}</li>
 		<li {{#perPage3}}class="active"{{/perPage3}}>
 			<a href="javascript:void(0);" data-perpage="3"><i class="fa fa-circle{{^perPage3}}-o{{/perPage3}}"></i> 3</a>
 		</li>
@@ -270,7 +283,7 @@
 		<li {{#perPage24}}class="active"{{/perPage24}}>
 			<a href="javascript:void(0);" data-perpage="24"><i class="fa fa-circle{{^perPage24}}-o{{/perPage24}}"></i> 24</a>
 		</li>
-		<li class="dropdown-header"><i class="fa fa-table"></i> {{labels.tables}}</li>
+		<li><i class="fa fa-table"></i> {{labels.tables}}</li>
 		<li {{#showTables}}class="active"{{/showTables}}>
 			<a href="javascript:void(0);" data-show-tables="1"><i class="fa fa-{{#showTables}}check-{{/showTables}}square-o"></i> {{labels.display_tables}}</a>
 		</li>
