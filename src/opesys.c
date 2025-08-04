@@ -79,6 +79,7 @@ static const char *const os[][2] = {
   {"macOS", "macOS"},
   {"Darwin", "Darwin"},
 
+  {"Alibaba Cloud Linux", "Linux"},
   {"AlmaLinux", "Linux"},
   {"Amazon Linux", "Linux"},
   {"CloudLinux", "Linux"},
