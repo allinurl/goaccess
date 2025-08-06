@@ -50,7 +50,6 @@
 #include "xmalloc.h"
 
 #include "tpls.h"
-#include "bootstrapcss.h"
 #include "facss.h"
 #include "appcss.h"
 #include "d3js.h"
@@ -231,11 +230,9 @@ print_html_header_styles (FILE *fp, FILE *fcs) {
   if (fcs) {
     fprintf (fp, "<link rel='stylesheet' href='%s'>", FILENAME_CSS);
     fprintf (fcs, "%.*s\n", fa_css_length, fa_css);
-    fprintf (fcs, "%.*s\n", bootstrap_css_length, bootstrap_css);
     fprintf (fcs, "%.*s\n", app_css_length, app_css);
   } else {
     fprintf (fp, "<style>%.*s</style>", fa_css_length, fa_css);
-    fprintf (fp, "<style>%.*s</style>", bootstrap_css_length, bootstrap_css);
     fprintf (fp, "<style>%.*s</style>", app_css_length, app_css);
   }
 }
@@ -258,17 +255,10 @@ print_html_header (FILE * fp, FILE *fcs)
   "<meta name='robots' content='noindex, nofollow'>", _(DOC_LANG));
 
   /* Output base64 encoded goaccess favicon.ico*/
-  fprintf (fp, "<link rel='icon' href='data:image/x-icon;base64,AAABAAEA"
-  "EBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAA"
-  "AAAAADGxsYAWFhYABwcHABfAP8A/9dfAADXrwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-  "AAAAAAAAAAAAAAAAAAAAAAIiIiIiIiIiIjMlUkQgAiIiIiIiIiIiIiIzJVJEIAAAIiIiI"
-  "iIiIiIiMyVSRCAAIiIiIiIiIiIiIRERERERERERERERERERERIiIiIiIiIiIgACVVUiIi"
-  "IiIiIiIiIiIiIAAlVVIiIiIiIiIiIiIiIhEREREREREREREREREREREAAAAAAAAAAAAAA"
-  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-  "AA' type='image/x-icon' />");
+  fprintf (fp, "<link rel='icon' href='data:image/x-icon;base64,%s' type='image/x-icon' />", FAVICON_BASE64);
 
   /* Output base64-encoded goaccess apple-touch-icon png */
-  fprintf (fp, "<link rel='apple-touch-icon' href='data:image/png;base64,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'/>");
+  fprintf (fp, "<link rel='apple-touch-icon' href='data:image/png;base64,%s'/>", APPLE_TOUCH_ICON_BASE64);
 
   print_html_title (fp);
 
@@ -288,31 +278,24 @@ static void
 print_html_body (FILE * fp, const char *now)
 {
   fprintf (fp,
-  "<nav class='hidden-xs hidden-sm hide' aria-label='Main navigation'>"
-  "</nav>"
-  "<div class='loading-container'>"
-  "<i class='spinner fa fa-circle-o-notch fa-spin fa-3x fa-fw' aria-hidden='true' aria-label='Loading'></i>"
-  "<div class='app-loading-status'><small class='muted'></small></div>"
-  "</div>"
+  "<nav class='hide' aria-label='Main navigation'></nav>"
+  "<section title='Loading screen'>"
+  "<noscript><p>JavaScript is required for the report to be loaded.</p></noscript>"
+  "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw' aria-hidden='true'></i>"
+  "<p><small>Loading report...</small></p>"
+  "</section>"
   "<div class='container hide' role='document'>"
-  "<header class='page-header'>"
-  "<h1 class='h-dashboard'>"
-  "<span class='hidden-xs hidden-sm'>"
-  "<i class='fa fa-tachometer' aria-hidden='true'></i> %s"
-  "</span>"
-  "<span class='visible-xs visible-sm'>"
+  "<header>"
+  "<div class='small-nav'>"
   "<i class='fa fa-bars nav-minibars' aria-label='Menu' role='button' tabindex='0'></i>"
   "<i class='fa fa-circle nav-ws-status mini' aria-label='Status indicator'></i>"
-  "</span>"
+  "</div>"
+  "<h1>"
+  "<i class='fa fa-tachometer' aria-hidden='true'></i> %s"
   "</h1>"
-  "<div style='margin-left: auto;'>"
-  "<h4>"
-  "<span class='label label-info' style='display:%s' id='last-updated' aria-live='polite' aria-atomic='true'>"
-  "<span class='hidden-xs'>%s: </span>"
-  "<span class='last-updated'>%s</span>"
-  "</span>"
-  "</h4>"
-  "</div>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
+  "<p style='display:%s' id='last-updated' aria-live='polite' aria-atomic='true'>"
+  "<span>%s: <span class='last-updated'>%s</span>"
+  "</p>", T_DASH, conf.no_html_last_updated ? "none" : "block", INFO_LAST_UPDATED, now);
   fprintf (fp,
   "<p class='report-title' id='report-title'>%s</p>"
   "</header>"
