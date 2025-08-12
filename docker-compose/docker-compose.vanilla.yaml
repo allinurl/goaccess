@@ -5,7 +5,7 @@ services:
       - 8080:80
     volumes:
       - ./logs:/var/log/nginx
-      - ./config/nginx.conf:/etc/nginx/nginx.conf
+      - ./configs/nginx.conf:/etc/nginx/nginx.conf
       - ./public:/usr/share/nginx/html
 
   goaccess:
