@@ -22,7 +22,9 @@ jobs:
           - arch: arm32v7
             distro: bullseye
           - arch: arm32v7
-            distro: bookworm      
+            distro: bookworm
+          - arch: arm32v7
+            distro: trixie
           - arch: aarch64
             distro: ubuntu18.04
           - arch: aarch64
@@ -39,6 +41,8 @@ jobs:
             distro: bullseye
           - arch: aarch64
             distro: bookworm
+          - arch: aarch64
+            distro: trixie
           - arch: amd64
             distro: buster
           - arch: i386
@@ -47,10 +51,14 @@ jobs:
             distro: bullseye
           - arch: amd64
             distro: bookworm
+          - arch: amd64
+            distro: trixie
           - arch: i386
             distro: bullseye
           - arch: i386
             distro: bookworm
+          - arch: i386
+            distro: trixie
           - arch: amd64
             distro: ubuntu16.04
           - arch: i386
@@ -156,6 +164,7 @@ jobs:
             bookworm) TEST_IMAGE="debian:bookworm" ;;
             bullseye) TEST_IMAGE="debian:bullseye" ;;
             buster) TEST_IMAGE="debian:buster" ;;
+            trixie) TEST_IMAGE="debian:trixie" ;;
             ubuntu16.04) TEST_IMAGE="ubuntu:16.04" ;;
             ubuntu18.04) TEST_IMAGE="ubuntu:18.04" ;;
             ubuntu20.04) TEST_IMAGE="ubuntu:20.04" ;;
