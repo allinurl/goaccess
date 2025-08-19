@@ -57,8 +57,6 @@ jobs:
             distro: bullseye
           - arch: i386
             distro: bookworm
-          - arch: i386
-            distro: trixie
           - arch: amd64
             distro: ubuntu16.04
           - arch: i386
