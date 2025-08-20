@@ -211,9 +211,7 @@ msgstr "Begärda filer (URLer)"
 
 #: src/labels.h:115
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Flest förfrågingar sorterade i träffar [, genomst. tid, kum. tid, max. tid, "
-"mån-till-dag, proto]"
+msgstr "Flest förfrågingar sorterade i träffar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]"
 
 #: src/labels.h:117
 msgid "Requests"
@@ -225,9 +223,7 @@ msgstr "Statiska förfrågningar"
 
 #: src/labels.h:122
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Toppförfrågningar sorterade i trufar [, genomst. tid, kum. tid, max. tid, "
-"mån-till-dag, proto]"
+msgstr "Toppförfrågningar sorterade i trufar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]"
 
 #: src/labels.h:127
 msgid "Time Distribution"
@@ -271,9 +267,7 @@ msgstr "Hittar inte URL:en (404)"
 
 #: src/labels.h:157
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
-msgstr ""
-"Flest ej hittade URL:er sorterade i träffar [, genomst. tid, kum. tid, max. "
-"tid, mån-till-dag, proto]proto]"
+msgstr "Flest ej hittade URL:er sorterade i träffar [, genomst. tid, kum. tid, max. tid, mån-till-dag, proto]proto]"
 
 #: src/labels.h:162
 msgid "Visitor Hostnames and IPs"
@@ -281,9 +275,7 @@ msgstr "Besökares Värdnamn och IP:s"
 
 #: src/labels.h:164
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest besökares värdnamn sorterade i träffar [, genomst. tid, kum. tid, max. "
-"tid]"
+msgstr "Flest besökares värdnamn sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:166
 msgid "Hosts"
@@ -295,8 +287,7 @@ msgstr "Operativsystem"
 
 #: src/labels.h:171
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest operativsystem sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
+msgstr "Flest operativsystem sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:173
 msgid "OS"
@@ -308,20 +299,15 @@ msgstr "Webbläsare"
 
 #: src/labels.h:178
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Vanligast webbläsare sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
+msgstr "Vanligast webbläsare sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:183
-#, fuzzy
 msgid "Referrer URLs"
 msgstr "Hänvisande URL:er"
 
 #: src/labels.h:185
-#, fuzzy
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest Hänvisningsförfrågningar sorterade i träffar [, genomst. tid, kum. "
-"tid, max. tid]"
+msgstr "Flest Hänvisningsförfrågningar sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:190 src/labels.h:194
 msgid "Referring Sites"
@@ -329,9 +315,7 @@ msgstr "Hänvisade sidor"
 
 #: src/labels.h:192
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest hänvisade sidor sorterade i träffar [, genomst. tid, kum. tid, max. "
-"tid]"
+msgstr "Flest hänvisade sidor sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:197
 msgid "Keyphrases from Google's search engine"
@@ -339,8 +323,7 @@ msgstr "Nyckelord från Googles sökmotor"
 
 #: src/labels.h:199
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest nyckelord sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
+msgstr "Flest nyckelord sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:201
 msgid "Keyphrases"
@@ -352,9 +335,7 @@ msgstr "Geografisk plats"
 
 #: src/labels.h:206
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
-msgstr ""
-"Kontinent > Land sorterad i unika träffar [, genomst. tid, kum. tid, max. "
-"tid]"
+msgstr "Kontinent > Land sorterad i unika träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:213
 msgid "Autonomous System Numbers/Organizations (ASNs)"
@@ -366,8 +347,7 @@ msgstr "HTTP Statuskod"
 
 #: src/labels.h:220
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
-msgstr ""
-"Flest HTTP Statuskod sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
+msgstr "Flest HTTP Statuskod sorterade i träffar [, genomst. tid, kum. tid, max. tid]"
 
 #: src/labels.h:222
 msgid "Status Codes"
@@ -415,8 +395,7 @@ msgstr "Loggformat konfiguration"
 
 #: src/labels.h:252
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
-msgstr ""
-"[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
+msgstr "[SPACE] för att växla - [ENTER] för att fortsätta - [q] för att avsluta"
 
 #: src/labels.h:254
 msgid "Log Format - [c] to add/edit format"
@@ -527,11 +506,11 @@ msgstr "Ingen ingångsdata tillhandahölls eller det finns data att återställa
 
 #: src/labels.h:320
 msgid "Unable to allocate memory for a log instance."
-msgstr ""
+msgstr "Det gick inte att allokera minne för en logginstans."
 
 #: src/labels.h:322
 msgid "Unable to find the given log."
-msgstr ""
+msgstr "Det gick inte att hitta den angivna loggen."
 
 #: src/labels.h:326
 msgid "For more details visit"
@@ -687,7 +666,7 @@ msgstr "Tabellkolumn"
 
 #: src/labels.h:406
 msgid "0xx Unofficial Codes"
-msgstr ""
+msgstr "0xx Inofficiella koder"
 
 #: src/labels.h:408
 msgid "1xx Informational"
@@ -711,7 +690,7 @@ msgstr "5xx Serverfel"
 
 #: src/labels.h:419
 msgid "0 - Caddy: Unhandled - No configured routes"
-msgstr ""
+msgstr "0 - Caddy: Ohanterad - Inga konfigurerade rutter"
 
 #: src/labels.h:421
 msgid "100 - Continue: Server received the initial part of the request"
@@ -743,8 +722,7 @@ msgstr "204 - Inget innehåll: Förfrågan returnerade inte något innehåll"
 
 #: src/labels.h:435
 msgid "205 - Reset Content: Server asked the client to reset the document"
-msgstr ""
-"205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
+msgstr "205 - Återställ innehåll: Server bad klienten om att återställa dokumentet"
 
 #: src/labels.h:437
 msgid "206 - Partial Content: The partial GET has been successful"
@@ -760,7 +738,7 @@ msgstr "208 - Redan rapporterad: WebDAV; RFC 5842"
 
 #: src/labels.h:443
 msgid "218 - This is fine: Apache servers. A catch-all error condition"
-msgstr ""
+msgstr "218 - Det är lugnt: Apache-servrar. Ett generellt felvillkor"
 
 #: src/labels.h:445
 msgid "300 - Multiple Choices: Multiple options for the resource"
@@ -791,9 +769,8 @@ msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - Tillfällig omdirigering: Resurs flyttas tillfälligt"
 
 #: src/labels.h:459
-#, fuzzy
 msgid "308 - Permanent Redirect"
-msgstr "402 - Betalning krävs"
+msgstr "308 - Permanent omdirigering"
 
 #: src/labels.h:461
 msgid "400 - Bad Request: The syntax of the request is invalid"
@@ -837,9 +814,7 @@ msgstr "409 - Konflikt: Konflikt i begäran"
 
 #: src/labels.h:481
 msgid "410 - Gone: Resource requested is no longer available"
-msgstr ""
-"410 - Borta: Begärd resurs är inte längre tillgänglig410 - Gone: "
-"Resursförfrågan är inte längre tillgänglig, Skicka feedback"
+msgstr "410 - Borta: Begärd resurs är inte längre tillgänglig, Skicka feedback"
 
 #: src/labels.h:483
 msgid "411 - Length Required: Invalid Content-Length"
@@ -847,8 +822,7 @@ msgstr "411 - Krav längd: Ogiltigt innehållslängd"
 
 #: src/labels.h:485
 msgid "412 - Precondition Failed: Server does not meet preconditions"
-msgstr ""
-"412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
+msgstr "412 - Förutsättning misslyckades: Server uppfyller inte förutsättningar"
 
 #: src/labels.h:487
 msgid "413 - Payload Too Large"
@@ -872,17 +846,16 @@ msgid "417 - Expectation Failed"
 msgstr "417 - Förväntning misslyckades"
 
 #: src/labels.h:497
-#, fuzzy
 msgid "418 - I'm a teapot"
 msgstr "Jag är en tekanna"
 
 #: src/labels.h:499
 msgid "419 - Page Expired: Laravel Framework when a CSRF Token is missing"
-msgstr ""
+msgstr "419 - Sidan har upphört: Laravel Framework när en CSRF-token saknas"
 
 #: src/labels.h:501
 msgid "420 - Method Failure: Spring Framework when a method has failed"
-msgstr ""
+msgstr "420 - Metodfel: Spring Framework när en metod har misslyckats"
 
 #: src/labels.h:503
 msgid "421 - Misdirected Request"
@@ -910,14 +883,11 @@ msgstr "428 - Förutsättning krävs"
 
 #: src/labels.h:515
 msgid "429 - Too Many Requests: The user has sent too many requests"
-msgstr ""
-"429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
+msgstr "429 - För många förfrågningar: Användaren har skickat för många förfrågningar"
 
 #: src/labels.h:517
-msgid ""
-"430 - Request Header Fields Too Large: Too many URLs are requested within a "
-"certain time frame"
-msgstr ""
+msgid "430 - Request Header Fields Too Large: Too many URLs are requested within a certain time frame"
+msgstr "430 - Begäranshuvudfält för stora: För många URL:er begärs inom en viss tidsram"
 
 #: src/labels.h:519
 msgid "431 - Request Header Fields Too Large"
@@ -925,18 +895,15 @@ msgstr "431 - Begär headerfält för stort"
 
 #: src/labels.h:521
 msgid "440 - Login Time-out: The client's session has expired"
-msgstr ""
+msgstr "440 - Inloggningstid slut: Klientens session har upphört"
 
 #: src/labels.h:523
-#, fuzzy
 msgid "449 - Retry With: The server cannot honour the request"
-msgstr "408 - Begär tidsavbrott: Server slutade vänta på begäran"
+msgstr "449 - Försök igen med: Servern kan inte uppfylla begäran"
 
 #: src/labels.h:525
-msgid ""
-"450 - Blocked by Windows Parental Controls: The Microsoft extension code "
-"indicated"
-msgstr ""
+msgid "450 - Blocked by Windows Parental Controls: The Microsoft extension code indicated"
+msgstr "450 - Blockerad av Windows föräldrakontroller: Den angivna Microsoft-tilläggskoden"
 
 #: src/labels.h:527
 msgid "451 - Unavailable For Legal Reasons"
@@ -948,17 +915,15 @@ msgstr "444 - (Nginx) Anslutningen är stängd utan att skicka några rubriker"
 
 #: src/labels.h:531
 msgid "460 - AWS Elastic Load Balancing: Client closed the connection "
-msgstr ""
+msgstr "460 - AWS Elastic Load Balancing: Klienten stängde anslutningen"
 
 #: src/labels.h:533
-msgid ""
-"463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP "
-"addresses"
-msgstr ""
+msgid "463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP addresses"
+msgstr "463 - AWS Elastic Load Balancing: Lastbalanseraren tog emot mer än 30 IP-adresser"
 
 #: src/labels.h:535
-msgid "464 - AWS Elastic Load Balancing: Incompatible protocol versions"
-msgstr ""
+msgid "464 - AWS Elastic Load Balancing: Inkompatibla protokollversioner"
+msgstr "464 - AWS Elastic Load Balancing: Inkompatibla protokollversioner"
 
 #: src/labels.h:537
 msgid "494 - (Nginx) Request Header Too Large"
@@ -978,7 +943,7 @@ msgstr "497 - (Nginx) HTTP-begäran skickad till HTTPS-porten"
 
 #: src/labels.h:545
 msgid "498 - Invalid Token: an expired or otherwise invalid token"
-msgstr ""
+msgstr "498 - Ogiltig token: en utgången eller på annat sätt ogiltig token"
 
 #: src/labels.h:547
 msgid "499 - (Nginx) Connection closed by client while processing request"
@@ -1002,17 +967,14 @@ msgstr "503 - Service Otillgänglig: Servern är för närvarande inte tillgäng
 
 #: src/labels.h:557
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
-msgstr ""
-"504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka "
-"förfrågan"
+msgstr "504 - Gateway Timeout: Uppströms-servern misslyckades med att skicka förfrågan"
 
 #: src/labels.h:559
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP-version stöds inte"
 
 #: src/labels.h:561
-msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
-msgstr ""
+msgid "509 - Bandbreddsgräns överskriden: Servern har överskridit bandbredden"
 
 #: src/labels.h:563
 msgid "520 - CloudFlare - Web server is returning an unknown error"
@@ -1035,71 +997,57 @@ msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - En timeout inträffade"
 
 #: src/labels.h:573
-msgid ""
-"525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS "
-"handshake"
-msgstr ""
+msgid "525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS handshake"
+msgstr "525 - SSL-handshake misslyckades: Cloudflare kunde inte förhandla en SSL/TLS-handshake"
 
 #: src/labels.h:575
-msgid ""
-"526 - Invalid SSL Certificate: Cloudflare could not validate the SSL "
-"certificate"
-msgstr ""
+msgid "526 - Invalid SSL Certificate: Cloudflare could not validate the SSL certificate"
+msgstr "526 - Ogiltigt SSL-certifikat: Cloudflare kunde inte validera SSL-certifikatet"
 
 #: src/labels.h:577
 msgid "527 - Railgun Error: An interrupted connection"
-msgstr ""
+msgstr "527 - Railgun-fel: En avbruten anslutning"
 
 #: src/labels.h:579
 msgid "529 - Site is overloaded: A site can not process the request"
-msgstr ""
+msgstr "529 - Webbplatsen är överbelastad: En webbplats kan inte behandla begäran"
 
 #: src/labels.h:581
 msgid "530 - Site is frozen: A site has been frozen due to inactivity"
-msgstr ""
+msgstr "530 - Webbplatsen är fryst: En webbplats har frysts på grund av inaktivitet"
 
 #: src/labels.h:583
-msgid ""
-"540 - Temporarily Disabled: The requested endpoint has been temporarily "
-"disabled"
-msgstr ""
+msgid "540 - Temporarily Disabled: The requested endpoint has been temporarily disabled"
+msgstr "540 - Tillfälligt inaktiverad: Den begärda ändpunkten har tillfälligt inaktiverats"
 
 #: src/labels.h:585
-#, fuzzy
 msgid "561 - Unauthorized: An error around authentication"
-msgstr "401 - Ej auktoriserad: Begäran behöver användarautentisering"
+msgstr "561 - Ej auktoriserad: Ett fel relaterat till autentisering"
 
 #: src/labels.h:587
-msgid ""
-"598 - Network read timeout error: some HTTP proxies to signal a network read "
-"timeout"
-msgstr ""
+msgid "598 - Network read timeout error: some HTTP proxies to signal a network read timeout"
+msgstr "598 - Nätverksläsning tidsgräns överskriden: vissa HTTP-proxys signalerar ett nätverksläsningsavbrott"
 
 #: src/labels.h:589
 msgid "599 - Network Connect Timeout Error: An error used by some HTTP proxies"
-msgstr ""
+msgstr "599 - Nätverksanslutning tidsgräns överskriden: Ett fel som används av vissa HTTP-proxys"
 
 #: src/labels.h:591
 msgid "783 - Unexpected Token: The request includes a JSON syntax error"
-msgstr ""
+msgstr "783 - Oväntad token: Begäran innehåller ett JSON-syntaxfel"
 
 #: src/labels.h:595
 msgid "Menu"
-msgstr ""
+msgstr "Meny"
 
 #: src/labels.h:597
-#, fuzzy
 msgid "Settings"
-msgstr "TLS-inställningar"
+msgstr "Inställningar"
 
 #: src/labels.h:599
 msgid "WebSocket Status: Connected"
-msgstr ""
+msgstr "WebSocket-status: Ansluten"
 
 #: src/labels.h:601
 msgid "WebSocket Status: Disconnected"
-msgstr ""
-
-#, fuzzy
-#~ msgid "Referers"
-#~ msgstr "Hänvisningar"
+msgstr "WebSocket-status: Frånkopplad"
