@@ -974,7 +974,8 @@ msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTP-version stöds inte"
 
 #: src/labels.h:561
-msgid "509 - Bandbreddsgräns överskriden: Servern har överskridit bandbredden"
+msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
+msgstr "509 - Bandbreddsgräns överskriden: Servern har överskridit bandbredden"
 
 #: src/labels.h:563
 msgid "520 - CloudFlare - Web server is returning an unknown error"
