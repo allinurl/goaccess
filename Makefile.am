@@ -5,7 +5,6 @@ AUTOMAKE_OPTIONS = subdir-objects
 dist_noinst_DATA =                 \
   resources/tpls.html              \
   resources/css/app.css            \
-  resources/css/bootstrap.min.css  \
   resources/css/fa.min.css         \
   resources/js/app.js              \
   resources/js/charts.js           \
@@ -19,7 +18,6 @@ bin2c_SOURCES = src/bin2c.c
 
 BUILT_SOURCES =       \
   src/tpls.h          \
-  src/bootstrapcss.h  \
   src/facss.h         \
   src/appcss.h        \
   src/d3js.h          \
@@ -31,7 +29,6 @@ BUILT_SOURCES =       \
 
 CLEANFILES =                          \
   src/tpls.h                          \
-  src/bootstrapcss.h                  \
   src/facss.h                         \
   src/appcss.h                        \
   src/d3js.h                          \
@@ -42,7 +39,6 @@ CLEANFILES =                          \
   src/appjs.h                         \
   resources/tpls.html.tmp             \
   resources/countries-110m.json.tmp   \
-  resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
   resources/css/app.css.tmp           \
   resources/js/d3.v7.min.js.tmp       \
@@ -66,14 +62,6 @@ if HAS_SEDTR
 	./bin2c $(srcdir)/resources/countries-110m.json.tmp src/countries110m.h countries_json
 else
 	./bin2c $(srcdir)/resources/countries-110m.json src/countries110m.h countries_json
-endif
-# Bootstrap
-src/bootstrapcss.h: bin2c$(EXEEXT) $(srcdir)/resources/css/bootstrap.min.css
-if HAS_SEDTR
-	cat $(srcdir)/resources/css/bootstrap.min.css | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/css/bootstrap.min.css.tmp
-	./bin2c $(srcdir)/resources/css/bootstrap.min.css.tmp src/bootstrapcss.h bootstrap_css
-else
-	./bin2c $(srcdir)/resources/css/bootstrap.min.css src/bootstrapcss.h bootstrap_css
 endif
 # Font Awesome
 src/facss.h: bin2c$(EXEEXT) $(srcdir)/resources/css/fa.min.css
