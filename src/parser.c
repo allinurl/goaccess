@@ -2045,6 +2045,19 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
     logitem->is_404 = 1;
   else if (is_static (logitem->req))
     logitem->is_static = 1;
+  
+  // concatenate vhost to request
+  if(conf.concat_vhost_req) {
+    size_t vhost_len = logitem->vhost ? strlen(logitem->vhost) : 0;
+    size_t req_len = logitem->req ? strlen(logitem->req) : 0;
+    char *new_req = xmalloc(vhost_len + req_len + 1); // Allocate memory for concatenated string
+    if (logitem->vhost)
+      strcpy(new_req, logitem->vhost);
+    if (logitem->req)
+      strcpy(new_req + vhost_len, logitem->req);
+    free(logitem->req); // Free the old request string
+    logitem->req = new_req; // Assign the new concatenated string
+  }
 
   logitem->uniq_key = get_uniq_visitor_key (logitem);
   *logitem_out = logitem;

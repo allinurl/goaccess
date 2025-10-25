@@ -202,6 +202,7 @@ typedef struct GConf_
   uint32_t num_tests;               /* number of lines to test */
   uint64_t html_refresh;            /* refresh html report every X of seconds */
   uint64_t log_size;                /* log size override */
+  int concat_vhost_req;             /* concatenate vhost and request */
 
   /* Internal flags */
   int bandwidth;                    /* is there bandwidth within the req line */
