@@ -167,6 +167,7 @@ static const struct option long_opts[] = {
 #ifdef HAVE_GEOLOCATION
   {"geoip-database"       , required_argument , 0 ,  0  } ,
 #endif
+  {"concat-vhost-req"     , no_argument       , 0 ,  0  } ,
   {0, 0, 0, 0}
 };
 
@@ -1009,6 +1010,10 @@ parse_long_opt (const char *name, const char *oarg) {
   /* classify unknowns as crawlers */
   if (!strcmp ("unknowns-as-crawlers", name))
     conf.unknowns_as_crawlers = 1;
+
+  /* concatenate vhost and request */
+  if (!strcmp ("concat-vhost-req", name))
+    conf.concat_vhost_req = 1;
 
   /* GEOIP OPTIONS
    * ========================= */
