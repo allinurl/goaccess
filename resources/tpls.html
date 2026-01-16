@@ -216,12 +216,21 @@
 <script id="tpl-nav-menu" type="text/template">
 	<h3>{{labels.panels}}</h3>
 	<ul>
+		<!-- Overall stats - not draggable -->
 		<li {{#overall_current}}class="active"{{/overall_current}}>
+			<span class="drag-handle" style="visibility: hidden;">
+				<i class="fa fa-bars"></i>
+			</span>
 			<a href="#"><i class="fa fa-bar-chart"></i> {{labels.thead}}</a>
 			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#overall_hidden}}active{{/overall_hidden}}" data-panel="general"><i class="fa fa-circle-o"></i></span>
 		</li>
+
+		<!-- Panel items - draggable -->
 		{{#nav}}
 		<li {{#current}}class="active"{{/current}}>
+			<span class="drag-handle" title="{{labels.drag_to_reorder}}">
+				<i class="fa fa-bars"></i>
+			</span>
 			<a href="#{{key}}"><i class="fa fa-{{icon}}"></i> {{head}}</a>
 			<span title="{{labels.toggle_panel}}" class="toggle-panel {{#hidden}}active{{/hidden}}" data-panel="{{key}}"><i class="fa fa-circle-o"></i></span>
 		</li>

@@ -1237,3 +1237,68 @@ html.dark.purple,
 .dark .legend-svg text {
 	fill: #FFF;
 }
+
+/* Drag and Drop Styles */
+/* Make the drag handle visible and interactive */
+.nav-list li .drag-handle {
+	display: inline-block;
+	padding: 8px 10px;
+	margin-right: 5px;
+	cursor: grab;
+	color: #999;
+	transition: color 0.2s;
+}
+
+.nav-list li .drag-handle:hover {
+	color: #333;
+}
+
+/* Dark theme adjustments */
+.dark .nav-list li .drag-handle:hover {
+	color: #fff;
+}
+
+/* Hide drag handle on overall stats (first item) */
+.nav-list li:first-child .drag-handle {
+	display: none;
+}
+
+.nav-list li:first-child {
+	cursor: default;
+}
+
+/* Visual feedback during drag */
+.nav-list li.dragging {
+	opacity: 0.5;
+	cursor: grabbing;
+}
+
+.nav-list li.drag-over {
+	border-top: 2px solid #4CAF50;
+	background-color: rgba(76, 175, 80, 0.1);
+}
+
+.dark .nav-list li.drag-over {
+	background-color: rgba(76, 175, 80, 0.2);
+}
+
+/* Ensure draggable items have proper spacing */
+.nav-list li[draggable="true"] {
+	position: relative;
+	transition: background-color 0.2s, border 0.2s;
+}
+
+/* Layout adjustments for drag handle */
+.nav-list li {
+	display: flex;
+	align-items: center;
+	position: relative;
+}
+
+.nav-list li a {
+	flex: 1;
+}
+
+.nav-list li .toggle-panel {
+	margin-left: auto;
+}

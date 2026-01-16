@@ -50,6 +50,7 @@ window.GoAccess = window.GoAccess || {
 		this.AppPrefs = {
 			'autoHideTables': true,
 			'layout': cw > 2560 ? 'wide' : 'horizontal',
+			'panelOrder': [],
 			'perPage': 7,
 			'theme': (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'darkPurple' : 'bright',
 			'hiddenPanels': [],
@@ -567,6 +568,35 @@ GoAccess.Util = {
 		GoAccess.Charts.initialize();
 		GoAccess.Tables.initialize();
 	},
+
+	reorderPanels: function(fromIndex, toIndex) {
+		var order = GoAccess.AppPrefs.panelOrder;
+
+		// Ensure we have a valid order array
+		if (!order || order.length === 0) {
+			console.error('Panel order not initialized');
+			return;
+		}
+
+		// Validate indices
+		if (fromIndex < 0 || fromIndex >= order.length ||
+			toIndex < 0 || toIndex >= order.length) {
+			console.error('Invalid drag indices', fromIndex, toIndex);
+			return;
+		}
+
+		// Perform the reorder
+		var item = order.splice(fromIndex, 1)[0];
+		order.splice(toIndex, 0, item);
+
+		// Save preferences
+		GoAccess.setPrefs();
+
+		// Re-render panels in new order
+		GoAccess.Panels.initialize();
+		GoAccess.Charts.initialize();
+		GoAccess.Tables.initialize();
+	},
 };
 
 // OVERALL STATS
@@ -722,6 +752,103 @@ GoAccess.Nav = {
 				item.classList.toggle('active');
 			}.bind(this);
 		}.bind(this));
+
+		$$('.drag-handle', function (item) {
+			var li = item.closest('li');
+
+			// Don't make the overall stats draggable
+			var link = li.querySelector('a');
+			if (link && link.getAttribute('href') === '#') {
+				return; // Skip overall stats item
+			}
+
+			li.setAttribute('draggable', 'true');
+
+			li.ondragstart = function(e) {
+				e.dataTransfer.effectAllowed = 'move';
+				e.dataTransfer.setData('text/html', this.innerHTML);
+				this.classList.add('dragging');
+
+				// Get the actual panel key from the link
+				var panelLink = this.querySelector('a');
+				var panelKey = panelLink ? panelLink.getAttribute('href').substring(1) : '';
+				e.dataTransfer.setData('panelKey', panelKey);
+
+				// Store the index in the ordered list (excluding overall)
+				var allItems = Array.from(this.parentNode.children);
+				var draggableItems = allItems.filter(function(item) {
+					var itemLink = item.querySelector('a');
+					return itemLink && itemLink.getAttribute('href') !== '#';
+				});
+				var fromIndex = draggableItems.indexOf(this);
+				e.dataTransfer.setData('index', fromIndex);
+			};
+
+			li.ondragend = function(e) {
+				this.classList.remove('dragging');
+				$$('.nav-list li', function(item) {
+					item.classList.remove('drag-over');
+				});
+			};
+
+			li.ondragover = function(e) {
+				e.preventDefault();
+				e.dataTransfer.dropEffect = 'move';
+
+				// Only allow drop on other draggable items
+				var link = this.querySelector('a');
+				if (link && link.getAttribute('href') !== '#') {
+					return false;
+				}
+				return true;
+			};
+
+			li.ondragenter = function(e) {
+				e.preventDefault();
+				// Only highlight if it's a valid drop target
+				var link = this.querySelector('a');
+				if (link && link.getAttribute('href') !== '#') {
+					this.classList.add('drag-over');
+				}
+			};
+
+			li.ondragleave = function(e) {
+				// Check if we're actually leaving the element (not just entering a child)
+				if (e.target === this) {
+					this.classList.remove('drag-over');
+				}
+			};
+
+			li.ondrop = function(e) {
+				e.stopPropagation();
+				e.preventDefault();
+
+				// Don't allow dropping on overall stats
+				var targetLink = this.querySelector('a');
+				if (targetLink && targetLink.getAttribute('href') === '#') {
+					return false;
+				}
+
+				var fromIndex = parseInt(e.dataTransfer.getData('index'));
+
+				// Calculate toIndex from draggable items only
+				var allItems = Array.from(this.parentNode.children);
+				var draggableItems = allItems.filter(function(item) {
+					var itemLink = item.querySelector('a');
+					return itemLink && itemLink.getAttribute('href') !== '#';
+				});
+				var toIndex = draggableItems.indexOf(this);
+
+				if (fromIndex !== toIndex && fromIndex !== -1 && toIndex !== -1) {
+					GoAccess.Util.reorderPanels(fromIndex, toIndex);
+					// Re-render the menu to show new order
+					GoAccess.Nav.renderMenu();
+				}
+
+				this.classList.remove('drag-over');
+				return false;
+			};
+		}.bind(this));
 	},
 
 	downloadJSON: function (e) {
@@ -831,12 +958,13 @@ GoAccess.Nav = {
 	},
 
 	getItems: function () {
-		var ui = GoAccess.getPanelUI(), menu = [];
+		var ui = GoAccess.getPanelUI(), menu = [], panels = [];
+
+		// Collect all valid panels
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel))
 				continue;
-			// Push valid panels to our navigation array
-			menu.push({
+			panels.push({
 				'current': window.location.hash.substr(1) == panel,
 				'head': ui[panel].head,
 				'key': panel,
@@ -844,7 +972,32 @@ GoAccess.Nav = {
 				'hidden': GoAccess.Util.isPanelHidden(panel)
 			});
 		}
-		return menu;
+
+		// Initialize panel order if empty
+		if (!GoAccess.AppPrefs.panelOrder || GoAccess.AppPrefs.panelOrder.length === 0) {
+			GoAccess.AppPrefs.panelOrder = panels.map(function(p) { return p.key; });
+			GoAccess.setPrefs();
+		}
+
+		// Sort panels according to saved order
+		var orderedPanels = [];
+		var order = GoAccess.AppPrefs.panelOrder;
+
+		// First add panels in the saved order
+		for (var i = 0; i < order.length; i++) {
+			var panel = panels.find(function(p) { return p.key === order[i]; });
+			if (panel) orderedPanels.push(panel);
+		}
+
+		// Then add any new panels that aren't in the saved order
+		for (var j = 0; j < panels.length; j++) {
+			if (!order.includes(panels[j].key)) {
+				orderedPanels.push(panels[j]);
+				GoAccess.AppPrefs.panelOrder.push(panels[j].key);
+			}
+		}
+
+		return orderedPanels;
 	},
 
 	setPerPage: function (e) {
@@ -1174,16 +1327,46 @@ GoAccess.Panels = {
 	// structure.
 	renderPanels: function () {
 		var ui = GoAccess.getPanelUI(), idx = 0, row = null, col = null;
+		var order = GoAccess.AppPrefs.panelOrder || [];
 
 		$('#panels').innerHTML = '';
+
+		// If no order is set, create default order
+		if (order.length === 0) {
+			for (var panel in ui) {
+				if (!GoAccess.Util.isPanelValid(panel) && !GoAccess.Util.isPanelHidden(panel)) {
+					order.push(panel);
+				}
+			}
+			GoAccess.AppPrefs.panelOrder = order;
+			GoAccess.setPrefs();
+		}
+
+		// Render panels in the specified order
+		for (var i = 0; i < order.length; i++) {
+			var panel = order[i];
+			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
+				continue;
+
+			row = this.createRow(row, idx++);
+			col = this.createCol(row);
+			this.renderPanel(panel, ui[panel], col);
+		}
+
+		// Render any new panels not in the order array
 		for (var panel in ui) {
 			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
-			row = this.createRow(row, idx++);
-			col = this.createCol(row);
-			// Render panel given a user interface definition
-			this.renderPanel(panel, ui[panel], col);
+			if (!order.includes(panel)) {
+				row = this.createRow(row, idx++);
+				col = this.createCol(row);
+				this.renderPanel(panel, ui[panel], col);
+				order.push(panel);
+			}
 		}
+
+		GoAccess.AppPrefs.panelOrder = order;
+		GoAccess.setPrefs();
 	},
 
 	initialize: function () {
