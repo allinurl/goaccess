@@ -2045,20 +2045,20 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
     logitem->is_404 = 1;
   else if (is_static (logitem->req))
     logitem->is_static = 1;
-  
+
   // concatenate vhost to request
   if (conf.concat_vhost_req) {
     size_t vhost_len = logitem->vhost ? strlen(logitem->vhost) : 0;
     size_t req_len = logitem->req ? strlen(logitem->req) : 0;
     char *new_req = xmalloc(vhost_len + req_len + 1);
-  
+
     if (vhost_len)
         memcpy(new_req, logitem->vhost, vhost_len);
     if (req_len)
         memcpy(new_req + vhost_len, logitem->req, req_len);
-  
+
     new_req[vhost_len + req_len] = '\0';
-  
+
     free(logitem->req);
     logitem->req = new_req;
   }
@@ -2137,14 +2137,21 @@ fgetline (FILE *fp) {
       if (conf.process_and_exit && errno == EAGAIN) {
         (void) nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
         continue;
-      } else
-        break;
+      }
+
+      /* Return partial line on EOF if we have data */
+      if (feof(fp) && line != NULL && linelen > 0)
+        return line;
+
+      break;
     }
 
-    if (*buf == '\0')
-      break;
-
     len = strlen (buf);
+
+    /* Skip empty reads but don't fail - could be transient. This is normal
+     * when tailing files */
+    if (len == 0)
+      continue;
 
     /* overflow check */
     if (SIZE_MAX - len - 1 < linelen)
@@ -2154,15 +2161,15 @@ fgetline (FILE *fp) {
       break;
 
     line = tmp;
-    /* append */
     strcpy (line + linelen, buf);
     linelen += len;
 
+    /* Complete line or EOF reached */
     if (feof (fp) || buf[len - 1] == '\n')
       return line;
   }
-  free (line);
 
+  free (line);
   return NULL;
 }
 
