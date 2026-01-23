@@ -1674,11 +1674,17 @@ static int
 verify_missing_fields (GLogItem *logitem) {
   /* must have the following fields */
   if (logitem->host == NULL)
-    logitem->errstr = xstrdup ("IPv4/6 is required. You have to add format specifier '%h' [host (the client IP address, either IPv4 or IPv6)] to your log-format.");
+    logitem->errstr =
+      xstrdup
+      ("IPv4/6 is required. You have to add format specifier '%h' [host (the client IP address, either IPv4 or IPv6)] to your log-format.");
   else if (logitem->date == NULL)
-    logitem->errstr = xstrdup ("A valid date is required. You have to add format specifier '%x' [Datetime] or '%d' [Date] and '%t' [Time] to your log-format.");
+    logitem->errstr =
+      xstrdup
+      ("A valid date is required. You have to add format specifier '%x' [Datetime] or '%d' [Date] and '%t' [Time] to your log-format.");
   else if (logitem->req == NULL)
-    logitem->errstr = xstrdup ("A request is required. Your log-format is missing format specifier '%r' [The request line from the client] or combination of special format specifiers such as '%m', '%U', '%q' and '%H' to parse individual fields.");
+    logitem->errstr =
+      xstrdup
+      ("A request is required. Your log-format is missing format specifier '%r' [The request line from the client] or combination of special format specifiers such as '%m', '%U', '%q' and '%H' to parse individual fields.");
 
   return logitem->errstr != NULL;
 }
@@ -2048,18 +2054,18 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
 
   // concatenate vhost to request
   if (conf.concat_vhost_req) {
-    size_t vhost_len = logitem->vhost ? strlen(logitem->vhost) : 0;
-    size_t req_len = logitem->req ? strlen(logitem->req) : 0;
-    char *new_req = xmalloc(vhost_len + req_len + 1);
+    size_t vhost_len = logitem->vhost ? strlen (logitem->vhost) : 0;
+    size_t req_len = logitem->req ? strlen (logitem->req) : 0;
+    char *new_req = xmalloc (vhost_len + req_len + 1);
 
     if (vhost_len)
-        memcpy(new_req, logitem->vhost, vhost_len);
+      memcpy (new_req, logitem->vhost, vhost_len);
     if (req_len)
-        memcpy(new_req + vhost_len, logitem->req, req_len);
+      memcpy (new_req + vhost_len, logitem->req, req_len);
 
     new_req[vhost_len + req_len] = '\0';
 
-    free(logitem->req);
+    free (logitem->req);
     logitem->req = new_req;
   }
 
@@ -2140,7 +2146,7 @@ fgetline (FILE *fp) {
       }
 
       /* Return partial line on EOF if we have data */
-      if (feof(fp) && line != NULL && linelen > 0)
+      if (feof (fp) && line != NULL && linelen > 0)
         return line;
 
       break;
