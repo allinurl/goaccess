@@ -891,11 +891,14 @@ parse_long_opt (const char *name, const char *oarg) {
     conf.crawlers_only = 1;
 
   /* date specificity */
-  if (!strcmp ("date-spec", name) && !strcmp (oarg, "hr"))
-    conf.date_spec_hr = 1;
-  /* date specificity */
-  if (!strcmp ("date-spec", name) && !strcmp (oarg, "min"))
-    conf.date_spec_hr = 2;
+  if (!strcmp ("date-spec", name)) {
+    if (!strcmp (oarg, "hr"))
+      conf.date_spec_hr = 1;
+    else if (!strcmp (oarg, "min"))
+      conf.date_spec_hr = 2;
+    else if (!strcmp (oarg, "date"))
+      conf.date_spec_hr = 0;
+  }
 
   /* double decode */
   if (!strcmp ("double-decode", name))
