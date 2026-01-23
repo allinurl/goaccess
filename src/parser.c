@@ -1985,14 +1985,110 @@ cleanup_logitem (int ret, GLogItem *logitem) {
   return ret;
 }
 
-/* Process a line from the log and store it accordingly taking into
+/* Validate the basic log line format and parse it into a logitem.
+ *
+ * On error, ret is set and logitem contains error info.
+ * On success, 0 is returned. */
+static int
+validate_and_parse_line (char *line, GLogItem *logitem) {
+  char *fmt = conf.log_format;
+  int ret = 0;
+
+  /* Parse a line of log, and fill structure with appropriate values */
+  if (conf.is_json_log_format)
+    ret = parse_json_format (logitem, line);
+  else
+    ret = parse_format (logitem, line, fmt);
+
+  return ret;
+}
+
+/* Collect error messages without incrementing counters (for dry run/testing) */
+static void
+collect_invalid_errors (GLog *glog, GLogItem *logitem) {
+  if (logitem->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
+    glog->errors[glog->log_erridx++] = xstrdup (logitem->errstr);
+  }
+}
+
+/* Handle invalid log lines during parsing.
+ *
+ * During dry_run, only collects errors for display.
+ * During normal runs, also increments counters. */
+static int
+handle_invalid_line (GLog *glog, GLogItem *logitem, const char *line, int dry_run) {
+  /* During dry run, only collect errors without counting */
+  if (dry_run)
+    collect_invalid_errors (glog, logitem);
+  else
+    process_invalid (glog, logitem, line);
+
+  return cleanup_logitem (1, logitem);
+}
+
+/* Apply post-parse processing to a valid logitem.
+ * This includes vhost handling, timestamp updates, and restoration checks.
+ *
+ * Returns 1 if the line should be skipped (restoration check).
+ * Returns 0 if processing should continue. */
+static int
+apply_post_parse_processing (GLog *glog, GLogItem *logitem) {
+  /* Apply vhost from filename if configured */
+  if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
+    logitem->vhost = xstrdup (glog->fname_as_vhost);
+
+  /* Update timestamp atomically */
+  if (atomic_lpts_update (glog, logitem) == -1)
+    return 1;
+
+  /* Skip if we should restore from disk */
+  if (should_restore_from_disk (glog))
+    return 1;
+
+  return 0;
+}
+
+/* Enrich a valid logitem with additional metadata.
+ * This includes agent handling, ignore levels, static file detection, etc. */
+static void
+enrich_logitem (GLogItem *logitem) {
+  /* agent will be null in cases where %u is not specified */
+  if (logitem->agent == NULL) {
+    logitem->agent = alloc_string ("-");
+    set_agent_hash (logitem);
+  }
+
+  logitem->ignorelevel = ignore_line (logitem);
+
+  if (is_404 (logitem))
+    logitem->is_404 = 1;
+  else if (is_static (logitem->req))
+    logitem->is_static = 1;
+
+  /* concatenate vhost to request */
+  if (conf.concat_vhost_req) {
+    size_t vhost_len = logitem->vhost ? strlen (logitem->vhost) : 0;
+    size_t req_len = logitem->req ? strlen (logitem->req) : 0;
+    char *new_req = xmalloc (vhost_len + req_len + 1);
+    if (vhost_len)
+      memcpy (new_req, logitem->vhost, vhost_len);
+    if (req_len)
+      memcpy (new_req + vhost_len, logitem->req, req_len);
+    new_req[vhost_len + req_len] = '\0';
+    free (logitem->req);
+    logitem->req = new_req;
+  }
+
+  logitem->uniq_key = get_uniq_visitor_key (logitem);
+}
+
+/* Parse a line from the log and store it accordingly taking into
  * account multiple parsing options prior to setting data into the
  * corresponding data structure.
  *
  * On error, logitem->errstr will contains the error message. */
 int
 parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
-  char *fmt = conf.log_format;
   int ret = 0;
   GLogItem *logitem = NULL;
 
@@ -2002,77 +2098,37 @@ parse_line (GLog *glog, char *line, int dry_run, GLogItem **logitem_out) {
 
   logitem = init_log_item (glog);
 
-  /* Parse a line of log, and fill structure with appropriate values */
-  if (conf.is_json_log_format)
-    ret = parse_json_format (logitem, line);
-  else
-    ret = parse_format (logitem, line, fmt);
+  /* Validate and parse the log format */
+  ret = validate_and_parse_line (line, logitem);
+  if (ret)
+    return handle_invalid_line (glog, logitem, line, dry_run);
 
-  /* invalid log line (format issue) */
-  if (ret) {
-    process_invalid (glog, logitem, line);
-    return cleanup_logitem (ret, logitem);
-  }
-
-  if (!glog->piping && conf.fname_as_vhost && glog->fname_as_vhost)
-    logitem->vhost = xstrdup (glog->fname_as_vhost);
+  /* Apply post-parse processing (vhost, timestamp, restoration) */
+  ret = apply_post_parse_processing (glog, logitem);
+  if (ret)
+    return cleanup_logitem (0, logitem);
 
   /* valid format but missing fields */
-  if (ret || (ret = verify_missing_fields (logitem))) {
-    process_invalid (glog, logitem, line);
-    return cleanup_logitem (ret, logitem);
-  }
+  if ((ret = verify_missing_fields (logitem)))
+    return handle_invalid_line (glog, logitem, line, dry_run);
 
-  /* From here on, valid format but possible ignoring of lines */
-  if (atomic_lpts_update (glog, logitem) == -1)
-    return cleanup_logitem (ret, logitem);
+  /* Only count processed during non-dry runs */
+  if (!dry_run)
+    count_process (glog);
 
-  if (should_restore_from_disk (glog))
-    return cleanup_logitem (ret, logitem);
-
-  count_process (glog);
-
-  /* testing log only */
+  /* testing log only - return without further processing */
   if (dry_run)
-    return cleanup_logitem (ret, logitem);
+    return cleanup_logitem (0, logitem);
 
-  /* agent will be null in cases where %u is not specified */
-  if (logitem->agent == NULL) {
-    logitem->agent = alloc_string ("-");
-    set_agent_hash (logitem);
-  }
+  /* Enrich the logitem with additional metadata */
+  enrich_logitem (logitem);
 
-  logitem->ignorelevel = ignore_line (logitem);
-  /* ignore line */
+  /* ignore line at panel level */
   if (logitem->ignorelevel == IGNORE_LEVEL_PANEL)
-    return cleanup_logitem (ret, logitem);
+    return cleanup_logitem (0, logitem);
 
-  if (is_404 (logitem))
-    logitem->is_404 = 1;
-  else if (is_static (logitem->req))
-    logitem->is_static = 1;
-
-  // concatenate vhost to request
-  if (conf.concat_vhost_req) {
-    size_t vhost_len = logitem->vhost ? strlen (logitem->vhost) : 0;
-    size_t req_len = logitem->req ? strlen (logitem->req) : 0;
-    char *new_req = xmalloc (vhost_len + req_len + 1);
-
-    if (vhost_len)
-      memcpy (new_req, logitem->vhost, vhost_len);
-    if (req_len)
-      memcpy (new_req + vhost_len, logitem->req, req_len);
-
-    new_req[vhost_len + req_len] = '\0';
-
-    free (logitem->req);
-    logitem->req = new_req;
-  }
-
-  logitem->uniq_key = get_uniq_visitor_key (logitem);
   *logitem_out = logitem;
-
-  return ret;
+  return 0;
 }
 
 /* Entry point to process the given line from the log.
