@@ -232,49 +232,49 @@ get_real_win (const char *win) {
  * returned. */
 static char *
 get_real_mac_osx (const char *osx) {
-  if (strstr (osx, "26.0") || strstr(osx, "Tahoe"))
+  if (strstr (osx, "26.0") || strstr (osx, "Tahoe"))
     return alloc_string ("macOS 26 Tahoe");
-  else if (strstr (osx, "15.0") || strstr(osx, "Sequoia"))
+  else if (strstr (osx, "15.0") || strstr (osx, "Sequoia"))
     return alloc_string ("macOS 15 Sequoia");
-  else if (strstr (osx, "14.0") || strstr(osx, "Sonoma"))
+  else if (strstr (osx, "14.0") || strstr (osx, "Sonoma"))
     return alloc_string ("macOS 14 Sonoma");
-  else if (strstr (osx, "13.0") || strstr(osx, "Ventura"))
+  else if (strstr (osx, "13.0") || strstr (osx, "Ventura"))
     return alloc_string ("macOS 13 Ventura");
-  else if (strstr (osx, "12.0") || strstr(osx, "Monterey"))
+  else if (strstr (osx, "12.0") || strstr (osx, "Monterey"))
     return alloc_string ("macOS 12 Monterey");
-  else if (strstr (osx, "11.0") || strstr(osx, "Big Sur"))
+  else if (strstr (osx, "11.0") || strstr (osx, "Big Sur"))
     return alloc_string ("macOS 11 Big Sur");
-  else if (strstr (osx, "10.15"))  /* Catalina */
+  else if (strstr (osx, "10.15")) /* Catalina */
     return alloc_string ("macOS 10.15 Catalina");
-  else if (strstr (osx, "10.14"))  /* Mojave */
+  else if (strstr (osx, "10.14")) /* Mojave */
     return alloc_string ("macOS 10.14 Mojave");
-  else if (strstr (osx, "10.13"))  /* High Sierra */
+  else if (strstr (osx, "10.13")) /* High Sierra */
     return alloc_string ("macOS 10.13 High Sierra");
-  else if (strstr (osx, "10.12"))  /* Sierra */
+  else if (strstr (osx, "10.12")) /* Sierra */
     return alloc_string ("macOS 10.12 Sierra");
-  else if (strstr (osx, "10.11"))  /* El Capitan */
+  else if (strstr (osx, "10.11")) /* El Capitan */
     return alloc_string ("OS X 10.11 El Capitan");
-  else if (strstr (osx, "10.10"))  /* Yosemite */
+  else if (strstr (osx, "10.10")) /* Yosemite */
     return alloc_string ("OS X 10.10 Yosemite");
-  else if (strstr (osx, "10.9"))   /* Mavericks */
+  else if (strstr (osx, "10.9")) /* Mavericks */
     return alloc_string ("OS X 10.9 Mavericks");
-  else if (strstr (osx, "10.8"))   /* Mountain Lion */
+  else if (strstr (osx, "10.8")) /* Mountain Lion */
     return alloc_string ("OS X 10.8 Mountain Lion");
-  else if (strstr (osx, "10.7"))   /* Lion */
+  else if (strstr (osx, "10.7")) /* Lion */
     return alloc_string ("OS X 10.7 Lion");
-  else if (strstr (osx, "10.6"))   /* Snow Leopard */
+  else if (strstr (osx, "10.6")) /* Snow Leopard */
     return alloc_string ("OS X 10.6 Snow Leopard");
-  else if (strstr (osx, "10.5"))   /* Leopard */
+  else if (strstr (osx, "10.5")) /* Leopard */
     return alloc_string ("OS X 10.5 Leopard");
-  else if (strstr (osx, "10.4"))   /* Tiger */
+  else if (strstr (osx, "10.4")) /* Tiger */
     return alloc_string ("OS X 10.4 Tiger");
-  else if (strstr (osx, "10.3"))   /* Panther */
+  else if (strstr (osx, "10.3")) /* Panther */
     return alloc_string ("OS X 10.3 Panther");
-  else if (strstr (osx, "10.2"))   /* Jaguar */
+  else if (strstr (osx, "10.2")) /* Jaguar */
     return alloc_string ("OS X 10.2 Jaguar");
-  else if (strstr (osx, "10.1"))   /* Puma */
+  else if (strstr (osx, "10.1")) /* Puma */
     return alloc_string ("OS X 10.1 Puma");
-  else if (strstr (osx, "10.0"))   /* Cheetah */
+  else if (strstr (osx, "10.0")) /* Cheetah */
     return alloc_string ("OS X 10.0 Cheetah");
   return alloc_string (osx);
 }
