@@ -2487,6 +2487,9 @@ read_log (GLog *glog, int dry_run) {
   int piping = 0;
   struct stat fdstat;
 
+  /* Reset stop_processing flag for new parse attempt */
+  conf.stop_processing = 0;
+
   /* Ensure we have a valid pipe to read from stdin. Only checking for
    * conf.read_stdin without verifying for a valid FILE pointer would certainly
    * lead to issues. */
