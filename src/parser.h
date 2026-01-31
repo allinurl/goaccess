@@ -54,6 +54,9 @@
 
 
 #include <stdio.h>
+#include <stdatomic.h>
+#include <pthread.h>
+
 #include "commons.h"
 #include "gslist.h"
 
@@ -126,25 +129,22 @@ typedef struct GLastParse_ {
 /* Overall parsed log properties */
 typedef struct GLog_ {
   uint8_t piping:1;
-  uint8_t log_erridx;
-  uint32_t read;                /* lines read/parsed */
+  _Atomic uint8_t log_erridx;
+  _Atomic uint32_t read;        /* lines read/parsed */
   uint64_t bytes;               /* bytes read on each iteration */
   uint64_t length;              /* length read from the log so far */
-  uint64_t invalid;             /* invalid lines for this log */
+  _Atomic uint64_t invalid;     /* invalid lines for this log */
   uint64_t processed;           /* lines proceeded for this log */
 
-  /* file test for persisted/restored data */
   uint16_t snippetlen;
   char snippet[READ_BYTES + 1];
-
   GLastParse lp;
   GLogProp props;
   struct tm start_time;
-
   char *fname_as_vhost;
   char **errors;
-
   FILE *pipe;
+  pthread_mutex_t error_mutex;  // Add mutex for error array
 } GLog;
 
 /* Container for all logs */
@@ -161,7 +161,7 @@ typedef struct Logs_ {
 
 /* Pthread jobs for multi-thread */
 typedef struct GJob_ {
-  uint32_t cnt;
+  _Atomic uint32_t cnt;         // Make atomic
   int p, test, dry_run, running;
   GLog *glog;
   GLogItem **logitems;

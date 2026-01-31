@@ -229,20 +229,18 @@ void
 free_logs (Logs *logs) {
   GLog *glog = NULL;
   int i;
-
   for (i = 0; i < logs->size; ++i) {
     glog = &logs->glog[i];
-
     free (glog->props.filename);
     free (glog->props.fname);
     free (glog->fname_as_vhost);
     free_logerrors (glog);
     free (glog->errors);
+    pthread_mutex_destroy (&glog->error_mutex); // Destroy mutex
     if (glog->pipe) {
       fclose (glog->pipe);
     }
   }
-
   free (logs->glog);
   free (logs);
 }
@@ -2006,8 +2004,16 @@ validate_and_parse_line (char *line, GLogItem *logitem) {
 /* Collect error messages without incrementing counters (for dry run/testing) */
 static void
 collect_invalid_errors (GLog *glog, GLogItem *logitem) {
-  if (logitem->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
-    glog->errors[glog->log_erridx++] = xstrdup (logitem->errstr);
+  if (logitem->errstr) {
+    pthread_mutex_lock (&glog->error_mutex);
+
+    uint8_t idx = atomic_load (&glog->log_erridx);
+    if (idx < MAX_LOG_ERRORS) {
+      glog->errors[idx] = xstrdup (logitem->errstr);
+      atomic_store (&glog->log_erridx, idx + 1);
+    }
+
+    pthread_mutex_unlock (&glog->error_mutex);
   }
 }
 
@@ -2140,26 +2146,20 @@ read_line (GLog *glog, char *line, int *test, uint32_t *cnt, int dry_run) {
   GLogItem *logitem = NULL;
   int ret = 0;
 
-  /* Begin processing the log line - in case of an invalid log format, flip
-   * the test only if there's at least one valid record discovered during the log
-   * format test. This condition applies solely when reading a log from the
-   * beginning, not when tailing an ongoing log. */
   if ((ret = parse_line (glog, line, dry_run, &logitem)) == 0)
     *test = 0;
 
-  /* soft ignore these lines from parse_line */
   if (ret == -1)
     return NULL;
 
-  /* reached num of lines to test and no valid records were found, log
-   * format is likely not matching */
+  /* Increment local counter (will be synchronized later) */
   if (conf.num_tests && ++(*cnt) >= conf.num_tests && *test) {
     uncount_processed (glog);
     uncount_invalid (glog);
     return NULL;
   }
-  glog->read++;
 
+  atomic_fetch_add (&glog->read, 1); // Only 2 arguments!
   return logitem;
 }
 
@@ -2168,19 +2168,29 @@ static void *
 read_lines_thread (void *arg) {
   GJob *job = (GJob *) arg;
   int i = 0;
+  uint32_t local_cnt = atomic_load (&job->cnt);
 
   for (i = 0; i < job->p; i++) {
-    /* ensure we don't process more than we should when testing for log format,
-     * else free chunk and stop processing threads */
-    if (!job->test || (job->test && job->cnt < conf.num_tests))
-      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &job->cnt, job->dry_run);
-    else
-      conf.stop_processing = 1;
+    /* Check stop_processing atomically */
+    if (atomic_load (&conf.stop_processing))
+      break;
+
+    /* ensure we don't process more than we should when testing for log format */
+    if (!job->test || (job->test && local_cnt < conf.num_tests)) {
+      job->logitems[i] = read_line (job->glog, job->lines[i], &job->test, &local_cnt, job->dry_run);
+    } else {
+      atomic_store (&conf.stop_processing, 1);
+      break;
+    }
 
 #ifdef WITH_GETLINE
     free (job->lines[i]);
 #endif
   }
+
+  /* Update shared counter atomically */
+  atomic_store (&job->cnt, local_cnt);
+
   return (void *) 0;
 }
 
@@ -2257,10 +2267,17 @@ init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
   int i = 0;
 #endif
 
+  /* Initialize error mutex once */
+  static int mutex_initialized = 0;
+  if (!mutex_initialized) {
+    pthread_mutex_init (&glog->error_mutex, NULL);
+    mutex_initialized = 1;
+  }
+
   for (b = 0; b < 2; b++) {
     for (k = 0; k < conf.jobs; k++) {
       jobs[b][k].p = 0;
-      jobs[b][k].cnt = 0;
+      atomic_store (&jobs[b][k].cnt, 0); // Use atomic store
       jobs[b][k].glog = glog;
       jobs[b][k].test = test;
       jobs[b][k].dry_run = dry_run;
@@ -2299,11 +2316,13 @@ read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char
 static void
 process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
   int k = 0;
-
   for (k = 0; k < conf.jobs; k++) {
     process_lines_thread (&jobs[b][k]);
-    *cnt += jobs[b][k].cnt;
-    jobs[b][k].cnt = 0;
+
+    /* Read atomic counter */
+    *cnt += atomic_load (&jobs[b][k].cnt);
+    atomic_store (&jobs[b][k].cnt, 0);
+
     *test &= jobs[b][k].test;
     jobs[b][k].p = 0;
   }
@@ -2488,7 +2507,7 @@ read_log (GLog *glog, int dry_run) {
   struct stat fdstat;
 
   /* Reset stop_processing flag for new parse attempt */
-  conf.stop_processing = 0;
+  atomic_store (&conf.stop_processing, 0);
 
   /* Ensure we have a valid pipe to read from stdin. Only checking for
    * conf.read_stdin without verifying for a valid FILE pointer would certainly

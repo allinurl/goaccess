@@ -33,6 +33,7 @@
 #endif
 #include <stdlib.h>
 #include <string.h>
+#include <stdatomic.h>
 
 #include "gstorage.h"
 
@@ -559,15 +560,23 @@ count_bw (int numdate, uint64_t resp_size) {
 /* Keep track of all invalid log strings. */
 static void
 count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
-  glog->invalid++;
+  atomic_fetch_add (&glog->invalid, 1);
   ht_inc_cnt_overall ("failed_requests", 1);
 
   if (conf.invalid_requests_log) {
     LOG_INVALID (("%s", line));
   }
 
-  if (logitem->errstr && glog->log_erridx < MAX_LOG_ERRORS) {
-    glog->errors[glog->log_erridx++] = xstrdup (logitem->errstr);
+  if (logitem->errstr) {
+    pthread_mutex_lock (&glog->error_mutex);
+
+    uint8_t idx = atomic_load (&glog->log_erridx);
+    if (idx < MAX_LOG_ERRORS) {
+      glog->errors[idx] = xstrdup (logitem->errstr);
+      atomic_store (&glog->log_erridx, idx + 1);
+    }
+
+    pthread_mutex_unlock (&glog->error_mutex);
   }
 }
 
@@ -578,10 +587,9 @@ count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
 */
 void
 uncount_invalid (GLog *glog) {
-  if (glog->invalid > conf.num_tests)
-    glog->invalid -= conf.num_tests;
-  else
-    glog->invalid = 0;
+  uint64_t current = atomic_load (&glog->invalid);
+  uint64_t new_val = (current > conf.num_tests) ? (current - conf.num_tests) : 0;
+  atomic_store (&glog->invalid, new_val);
 }
 
 /* Count down the number of processed hits.

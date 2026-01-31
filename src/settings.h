@@ -213,7 +213,7 @@ typedef struct GConf_
   int hour_spec_min;                /* hour specificity - min */
   int read_stdin;                   /* read from stdin */
   int serve_usecs;                  /* is there time served within req line */
-  int stop_processing;              /* stop all processing */
+  _Atomic int stop_processing;      /* stop all processing */
   int tailing_mode;                 /* in tailing-mode? */
 
   /* Array indices */
