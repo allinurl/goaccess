@@ -297,6 +297,9 @@ init_log_item (GLog *glog) {
 /* Free all members of a GLogItem */
 void
 free_glog (GLogItem *logitem) {
+  if (!logitem)
+    return;
+
   if (logitem->agent != NULL)
     free (logitem->agent);
   if (logitem->browser != NULL)
@@ -1979,7 +1982,8 @@ atomic_lpts_update (GLog *glog, GLogItem *logitem) {
 
 static int
 cleanup_logitem (int ret, GLogItem *logitem) {
-  free_glog (logitem);
+  if (logitem)
+    free_glog (logitem);
   return ret;
 }
 
@@ -2255,6 +2259,7 @@ process_lines_thread (void *arg) {
     if (job->logitems[i] != NULL && !job->dry_run && job->logitems[i]->errstr == NULL) {
       process_log (job->logitems[i]);
       free_glog (job->logitems[i]);
+      job->logitems[i] = NULL;
     }
   }
   return (void *) 0;
@@ -2319,6 +2324,17 @@ process_lines (GJob jobs[2][conf.jobs], uint32_t *cnt, int *test, int b) {
   int k = 0;
   for (k = 0; k < conf.jobs; k++) {
     process_lines_thread (&jobs[b][k]);
+
+    /* If interrupted, free any remaining logitems that weren't processed */
+    if (atomic_load (&conf.stop_processing)) {
+      int i;
+      for (i = 0; i < jobs[b][k].p; i++) {
+        if (jobs[b][k].logitems[i] != NULL) {
+          free_glog (jobs[b][k].logitems[i]);
+          jobs[b][k].logitems[i] = NULL;
+        }
+      }
+    }
 
     /* Read atomic counter */
     *cnt += atomic_load (&jobs[b][k].cnt);
