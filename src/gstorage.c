@@ -560,6 +560,7 @@ count_bw (int numdate, uint64_t resp_size) {
 /* Keep track of all invalid log strings. */
 static void
 count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
+  uint8_t idx = 0;
   atomic_fetch_add (&glog->invalid, 1);
   ht_inc_cnt_overall ("failed_requests", 1);
 
@@ -570,7 +571,7 @@ count_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   if (logitem->errstr) {
     pthread_mutex_lock (&glog->error_mutex);
 
-    uint8_t idx = atomic_load (&glog->log_erridx);
+    idx = atomic_load (&glog->log_erridx);
     if (idx < MAX_LOG_ERRORS) {
       glog->errors[idx] = xstrdup (logitem->errstr);
       atomic_store (&glog->log_erridx, idx + 1);

@@ -2004,10 +2004,11 @@ validate_and_parse_line (char *line, GLogItem *logitem) {
 /* Collect error messages without incrementing counters (for dry run/testing) */
 static void
 collect_invalid_errors (GLog *glog, GLogItem *logitem) {
+  uint8_t idx = 0;
   if (logitem->errstr) {
     pthread_mutex_lock (&glog->error_mutex);
 
-    uint8_t idx = atomic_load (&glog->log_erridx);
+    idx = atomic_load (&glog->log_erridx);
     if (idx < MAX_LOG_ERRORS) {
       glog->errors[idx] = xstrdup (logitem->errstr);
       atomic_store (&glog->log_erridx, idx + 1);
