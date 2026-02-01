@@ -991,61 +991,99 @@ out:
   close_win (win);
 }
 
-/* Render the processing spinner. This runs within its own thread. */
+static const char *const spin_blocks[] = { " ", "▏", "▎", "▍", "▌", "▋", "▊", "▉" };
+
+static const char spin_chars[] = "/-\\|";
+#define SPIN_FRAMES_COUNT  (sizeof(spin_blocks) / sizeof(spin_blocks[0]))
+
 static void
 ui_spinner (void *ptr_data) {
   GSpinner *sp = (GSpinner *) ptr_data;
   GColors *color = NULL;
 
-  static char const spin_chars[] = "/-\\|";
-  char buf[SPIN_LBL];
+  char buf[SPIN_LBL] = { 0 };
   const char *fn = NULL;
-  int i = 0;
-  long long tdiff = 0, psec = 0;
+  int spin_idx = 0;
+  int64_t tdiff = 0, psec = 0;
   time_t begin;
+
   struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
 
   if (sp->curses)
     color = (*sp->color) ();
 
   time (&begin);
+
+  /* Hide cursor only in interactive terminal (non-curses) */
+  if (!sp->curses && !conf.no_progress && isatty (fileno (stderr))) {
+    fputs ("\033[?25l", stderr);
+  }
+
   while (1) {
     pthread_mutex_lock (&sp->mutex);
-    if (sp->state == SPN_END) {
-      if (!sp->curses && !conf.no_progress)
-        fprintf (stderr, "\n");
 
+    if (sp->state == SPN_END) {
+      if (!sp->curses && !conf.no_progress && isatty (fileno (stderr))) {
+        fputs ("\033[?25h\033[2K\n", stderr); /* restore cursor + clear line + newline */
+      }
       pthread_mutex_unlock (&sp->mutex);
       return;
     }
 
     setlocale (LC_NUMERIC, "");
-    if (conf.no_progress) {
-      snprintf (buf, sizeof buf, SPIN_FMT, sp->label);
+    fn = *sp->filename ? *sp->filename : "processing";
+
+    tdiff = (int64_t) (time (NULL) - begin);
+    psec = (tdiff >= 1) ? (int64_t) (**(sp->processed) / (uint64_t) tdiff) : 0;
+
+    spin_idx = (spin_idx + 1) % SPIN_FRAMES_COUNT;
+
+    /* Build display string according to mode */
+    if (sp->curses) {
+      /* CURSES: clean string — no ANSI escapes, no spinner char inside */
+      if (conf.no_progress) {
+        snprintf (buf, sizeof buf, "%s", sp->label);
+      } else {
+        snprintf (buf, sizeof buf, "%s %s    %'13" PRIu64 "    %" PRIi64 "/s", sp->label, fn,
+                  **(sp->processed), psec);
+        /* Spinner will be drawn separately at sp->spin_x */
+      }
+    } else if (!conf.no_progress && isatty (fileno (stderr))) {
+      /* Colored terminal with unicode spinner */
+      snprintf (buf, sizeof buf,
+                "\033[1;34m%s\033[0m %s " "\033[32m%'" PRIi64 "/s\033[0m " "\033[90m[ %'13" PRIu64
+                " ]\033[0m %s", sp->label, fn, psec, **(sp->processed), spin_blocks[spin_idx]);
     } else {
-      fn = *sp->filename ? *sp->filename : "restoring";
-      tdiff = (long long) (time (NULL) - begin);
-      psec = tdiff >= 1 ? **(sp->processed) / tdiff : 0;
-      snprintf (buf, sizeof buf, SPIN_FMTM, sp->label, fn, **(sp->processed), psec);
+      /* Fallback: no color, redirected output, etc. */
+      snprintf (buf, sizeof buf, "%s %s [ %'13" PRIu64 " ] %" PRIi64 "/s  %c", sp->label, fn,
+                **(sp->processed), psec, spin_chars[spin_idx & 3]);
     }
+
     setlocale (LC_NUMERIC, "POSIX");
 
+    /* Output */
     if (sp->curses) {
-      /* CURSES */
+      /* Draw text part (without spinner) */
       draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color);
-      /* caret */
-      wattron (sp->win, COLOR_PAIR (color->pair->idx));
-      mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[i++ & 3]);
-      wattroff (sp->win, COLOR_PAIR (color->pair->idx));
+
+      /* Draw single spinner at right position */
+      if (!conf.no_progress) {
+        wattron (sp->win, COLOR_PAIR (color->pair->idx));
+        mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[spin_idx & 3]);
+        wattroff (sp->win, COLOR_PAIR (color->pair->idx));
+      }
       wrefresh (sp->win);
     } else if (!conf.no_progress) {
-      /* STDOUT */
-      fprintf (stderr, " \033[K%s\r", buf);
+      /* Terminal: overwrite line */
+      fprintf (stderr, "\033[2K\r%s", buf);
+      fflush (stderr);
     }
 
     pthread_mutex_unlock (&sp->mutex);
-    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
+
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
       FATAL ("nanosleep: %s", strerror (errno));
+    }
   }
 }
 
