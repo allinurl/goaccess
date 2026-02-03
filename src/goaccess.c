@@ -768,7 +768,7 @@ read_client (void *ptr_data) {
 
 /* Parse tailed lines */
 static void
-parse_tail_follow (GLog *glog, FILE *fp) {
+parse_tail_follow (GLog *glog, GFileHandle *fh) {
   GLogItem *logitem = NULL;
 #ifdef WITH_GETLINE
   char *buf = NULL;
@@ -777,10 +777,11 @@ parse_tail_follow (GLog *glog, FILE *fp) {
 #endif
 
   glog->bytes = 0;
+
 #ifdef WITH_GETLINE
-  while ((buf = fgetline (fp)) != NULL) {
+  while ((buf = gfile_getline (fh)) != NULL) {
 #else
-  while (fgets (buf, LINE_BUFFER, fp) != NULL) {
+  while (gfile_gets (buf, LINE_BUFFER, fh) != NULL) {
 #endif
     pthread_mutex_lock (&gdns_thread.mutex);
     if ((parse_line (glog, buf, 0, &logitem)) == 0 && logitem != NULL)
@@ -790,10 +791,12 @@ parse_tail_follow (GLog *glog, FILE *fp) {
       logitem = NULL;
     }
     pthread_mutex_unlock (&gdns_thread.mutex);
+
     glog->bytes += strlen (buf);
 #ifdef WITH_GETLINE
     free (buf);
 #endif
+
     /* If the ingress rate is greater than MAX_BATCH_LINES,
      * then we break and allow to re-render the UI */
     if (++glog->read % MAX_BATCH_LINES == 0)
@@ -802,7 +805,7 @@ parse_tail_follow (GLog *glog, FILE *fp) {
 }
 
 static void
-verify_inode (FILE *fp, GLog *glog) {
+verify_inode (GFileHandle *fh, GLog *glog) {
   struct stat fdstat;
 
   if (stat (glog->props.filename, &fdstat) == -1)
@@ -810,15 +813,45 @@ verify_inode (FILE *fp, GLog *glog) {
            strerror (errno));
 
   glog->props.size = fdstat.st_size;
+
   /* Either the log got smaller, probably was truncated so start reading from 0
    * and reset snippet.
    * If the log changed its inode, more likely the log was rotated, so we set
    * the initial snippet for the new log for future iterations */
   if (fdstat.st_ino != glog->props.inode || glog->snippet[0] == '\0' || 0 == glog->props.size) {
     glog->length = glog->bytes = 0;
-    set_initial_persisted_data (glog, fp, glog->props.filename);
+    set_initial_persisted_data (glog, fh, glog->props.filename);
   }
+
   glog->props.inode = fdstat.st_ino;
+}
+
+/* Check if a file is gzipped by examining magic bytes or extension
+ * Returns 1 if gzipped, 0 otherwise */
+static int
+is_gzipped_file_check (const char *filename) {
+  FILE *fp;
+  unsigned char magic[2];
+  int result = 0;
+  size_t len;
+
+  /* Quick check: does it end in .gz? */
+  len = strlen (filename);
+  if (len > 3 && strcmp (filename + len - 3, ".gz") == 0)
+    return 1;
+
+  /* Double-check by reading magic bytes */
+  if ((fp = fopen (filename, "rb")) == NULL)
+    return 0;
+
+  if (fread (magic, 1, 2, fp) == 2) {
+    /* gzip magic number is 0x1f 0x8b */
+    if (magic[0] == 0x1f && magic[1] == 0x8b)
+      result = 1;
+  }
+
+  fclose (fp);
+  return result;
 }
 
 /* Process appended log data
@@ -827,19 +860,38 @@ verify_inode (FILE *fp, GLog *glog) {
  * If log file changed, 1 is returned. */
 static int
 perform_tail_follow (GLog *glog) {
-  FILE *fp = NULL;
+  GFileHandle *fh = NULL;
   char buf[READ_BYTES + 1] = { 0 };
   uint16_t len = 0;
   uint64_t length = 0;
 
   if (glog->props.filename[0] == '-' && glog->props.filename[1] == '\0') {
-    parse_tail_follow (glog, glog->pipe);
-    /* did we read something from the pipe? */
-    if (0 == glog->bytes)
+    /* For stdin pipe, we need to wrap the FILE* into a GFileHandle */
+    fh = calloc (1, sizeof (GFileHandle));
+    if (!fh)
       return 0;
+    fh->fp = glog->pipe;
+#ifdef HAVE_ZLIB
+    fh->is_gzipped = 0;
+    fh->gzfp = NULL;
+#endif
 
+    parse_tail_follow (glog, fh);
+
+    /* did we read something from the pipe? */
+    if (0 == glog->bytes) {
+      free (fh);
+      return 0;
+    }
     glog->length += glog->bytes;
+    free (fh);
     goto out;
+  }
+
+  /* Skip tailing gzipped files - they are static archives and should not be monitored
+   * for changes in real-time mode. Only regular log files should be tailed. */
+  if (is_gzipped_file_check (glog->props.filename)) {
+    return 0;
   }
 
   length = file_size (glog->props.filename);
@@ -850,17 +902,17 @@ perform_tail_follow (GLog *glog) {
   if (length == glog->length)
     return 0;
 
-  if (!(fp = fopen (glog->props.filename, "r")))
+  if (!(fh = gfile_open (glog->props.filename, "r")))
     FATAL ("Unable to read the specified log file '%s'. %s", glog->props.filename,
            strerror (errno));
 
-  verify_inode (fp, glog);
+  verify_inode (fh, glog);
 
   len = MIN (glog->snippetlen, length);
   /* This is not ideal, but maybe the only reliable way to know if the
    * current log looks different than our first read/parse */
-  if ((fread (buf, len, 1, fp)) != 1 && ferror (fp))
-    FATAL ("Unable to fread the specified log file '%s'", glog->props.filename);
+  if ((gfile_read (buf, len, 1, fh)) != 1 && gfile_error (fh))
+    FATAL ("Unable to read the specified log file '%s'", glog->props.filename);
 
   /* For the case where the log got larger since the last iteration, we attempt
    * to compare the first READ_BYTES against the READ_BYTES we had since the last
@@ -869,9 +921,10 @@ perform_tail_follow (GLog *glog) {
   if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
     glog->length = glog->bytes = 0;
 
-  if (!fseeko (fp, glog->length, SEEK_SET))
-    parse_tail_follow (glog, fp);
-  fclose (fp);
+  if (!gfile_seek (fh, glog->length, SEEK_SET))
+    parse_tail_follow (glog, fh);
+
+  gfile_close (fh);
 
   glog->length += glog->bytes;
 
@@ -883,7 +936,6 @@ perform_tail_follow (GLog *glog) {
   }
 
 out:
-
   return 1;
 }
 

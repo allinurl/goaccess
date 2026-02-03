@@ -59,6 +59,7 @@
 
 #include "commons.h"
 #include "gslist.h"
+#include "fileio.h"
 
 typedef struct GLogProp_ {
   char *filename;               /* filename including path */
@@ -194,12 +195,12 @@ typedef struct GRawData_ {
 
 
 char *extract_by_delim (const char **str, const char *end);
-char *fgetline (FILE * fp);
+char *gfile_getline (GFileHandle * fh);
 char **test_format (Logs * logs, int *len);
 int parse_line (GLog * glog, char *line, int dry_run, GLogItem ** logitem_out);
 int parse_log (Logs * logs, int dry_run);
 int set_glog (Logs * logs, const char *filename);
-int set_initial_persisted_data (GLog * glog, FILE * fp, const char *fn);
+int set_initial_persisted_data (GLog * glog, GFileHandle * fh, const char *fn);
 int set_log (Logs * logs, const char *value);
 void free_glog (GLogItem * logitem);
 void free_logerrors (GLog * glog);

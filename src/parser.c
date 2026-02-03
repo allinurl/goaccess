@@ -2200,31 +2200,29 @@ read_lines_thread (void *arg) {
 }
 
 /* A replacement for GNU getline() to dynamically expand fgets buffer.
+ * Wrapper for fgetline to work with GFileHandle abstraction
  *
  * On error, NULL is returned.
  * On success, the malloc'd line is returned. */
 char *
-fgetline (FILE *fp) {
+gfile_getline (GFileHandle *fh) {
   char buf[LINE_BUFFER] = { 0 };
   char *line = NULL, *tmp = NULL;
   size_t linelen = 0, len = 0;
 
   while (1) {
-    if (!fgets (buf, sizeof (buf), fp)) {
+    if (!gfile_gets (buf, sizeof (buf), fh)) {
       if (conf.process_and_exit && errno == EAGAIN) {
         (void) nanosleep ((const struct timespec[]) { {0, 100000000L} }, NULL);
         continue;
       }
-
       /* Return partial line on EOF if we have data */
-      if (feof (fp) && line != NULL && linelen > 0)
+      if (gfile_eof (fh) && line != NULL && linelen > 0)
         return line;
-
       break;
     }
 
     len = strlen (buf);
-
     /* Skip empty reads but don't fail - could be transient. This is normal
      * when tailing files */
     if (len == 0)
@@ -2242,7 +2240,7 @@ fgetline (FILE *fp) {
     linelen += len;
 
     /* Complete line or EOF reached */
-    if (feof (fp) || buf[len - 1] == '\n')
+    if (gfile_eof (fh) || buf[len - 1] == '\n')
       return line;
   }
 
@@ -2300,18 +2298,17 @@ init_jobs (GJob jobs[2][conf.jobs], GLog *glog, int dry_run, int test) {
 
 /* Read lines from file */
 static void
-read_lines_from_file (FILE *fp, GLog *glog, GJob jobs[2][conf.jobs], int b, char **s) {
+read_lines_from_file (GFileHandle *fh, GLog *glog, GJob jobs[2][conf.jobs], int b, char **s) {
   int k = 0;
 
   for (k = 0; k < conf.jobs; k++) {
 #ifdef WITH_GETLINE
-    while ((*s = fgetline (fp)) != NULL) {
+    while ((*s = gfile_getline (fh)) != NULL) {
       jobs[b][k].lines[jobs[b][k].p] = *s;
 #else
-    while ((*s = fgets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fp)) != NULL) {
+    while ((*s = gfile_gets (jobs[b][k].lines[jobs[b][k].p], LINE_BUFFER, fh)) != NULL) {
 #endif
       glog->bytes += strlen (jobs[b][k].lines[jobs[b][k].p]);
-
       if (++(jobs[b][k].p) >= conf.chunk_size)
         break;  // goto next chunk
     }
@@ -2373,7 +2370,7 @@ free_jobs (GJob jobs[2][conf.jobs]) {
  * equal to the configured number of tests (NUM_TESTS), otherwise 0.
  */
 static int
-read_lines (FILE *fp, GLog *glog, int dry_run) {
+read_lines (GFileHandle *fh, GLog *glog, int dry_run) {
   int b = 0, k = 0, test = conf.num_tests > 0 ? 1 : 0;
   uint32_t cnt = 0;
   void *status = NULL;
@@ -2387,7 +2384,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
 
   b = 0;
   while (1) {   /* b = 0 or 1 */
-    read_lines_from_file (fp, glog, jobs, b, &s);
+    read_lines_from_file (fh, glog, jobs, b, &s);
 
     /* if nothing was read from the log, skip it for now */
     if (!glog->bytes) {
@@ -2474,7 +2471,7 @@ read_lines (FILE *fp, GLog *glog, int dry_run) {
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
-set_initial_persisted_data (GLog *glog, FILE *fp, const char *fn) {
+set_initial_persisted_data (GLog *glog, GFileHandle *fh, const char *fn) {
   size_t len;
   time_t now = time (0);
 
@@ -2486,12 +2483,12 @@ set_initial_persisted_data (GLog *glog, FILE *fp, const char *fn) {
     return 1;
 
   len = MIN (glog->props.size, READ_BYTES);
-  if ((fread (glog->snippet, len, 1, fp)) != 1 && ferror (fp))
-    FATAL ("Unable to fread the specified log file '%s'", fn);
+  if ((gfile_read (glog->snippet, len, 1, fh)) != 1 && gfile_error (fh))
+    FATAL ("Unable to read the specified log file '%s'", fn);
+
   glog->snippetlen = len;
   localtime_r (&now, &glog->start_time);
-
-  fseek (fp, 0, SEEK_SET);
+  gfile_seek (fh, 0, SEEK_SET);
 
   return 0;
 }
@@ -2519,7 +2516,7 @@ persist_last_parse (GLog *glog) {
  * On success, 0 is returned. */
 static int
 read_log (GLog *glog, int dry_run) {
-  FILE *fp = NULL;
+  GFileHandle *fh = NULL;
   int piping = 0;
   struct stat fdstat;
 
@@ -2530,12 +2527,19 @@ read_log (GLog *glog, int dry_run) {
    * conf.read_stdin without verifying for a valid FILE pointer would certainly
    * lead to issues. */
   if (glog->props.filename[0] == '-' && glog->props.filename[1] == '\0' && glog->pipe) {
-    fp = glog->pipe;
+    /* For stdin pipe, we need to wrap the FILE* into a GFileHandle */
+    fh = calloc (1, sizeof (GFileHandle));
+    if (!fh)
+      FATAL ("Unable to allocate memory for file handle");
+    fh->fp = glog->pipe;
+#ifdef HAVE_ZLIB
+    fh->is_gzipped = 0;
+    fh->gzfp = NULL;
+#endif
     glog->piping = piping = 1;
   }
-
   /* make sure we can open the log (if not reading from stdin) */
-  if (!piping && (fp = fopen (glog->props.filename, "r")) == NULL)
+  else if (!piping && (fh = gfile_open (glog->props.filename, "r")) == NULL)
     FATAL ("Unable to open the specified log file '%s'. %s", glog->props.filename,
            strerror (errno));
 
@@ -2543,13 +2547,15 @@ read_log (GLog *glog, int dry_run) {
   if (!piping && stat (glog->props.filename, &fdstat) == 0) {
     glog->props.inode = fdstat.st_ino;
     glog->props.size = glog->lp.size = fdstat.st_size;
-    set_initial_persisted_data (glog, fp, glog->props.filename);
+    set_initial_persisted_data (glog, fh, glog->props.filename);
   }
 
   /* read line by line */
-  if (read_lines (fp, glog, dry_run)) {
+  if (read_lines (fh, glog, dry_run)) {
     if (!piping)
-      fclose (fp);
+      gfile_close (fh);
+    else
+      free (fh); /* Just free the wrapper, don't close the pipe */
     return 1;
   }
 
@@ -2557,7 +2563,9 @@ read_log (GLog *glog, int dry_run) {
 
   /* close log file if not a pipe */
   if (!piping)
-    fclose (fp);
+    gfile_close (fh);
+  else
+    free (fh);  /* Just free the wrapper, don't close the pipe */
 
   return 0;
 }

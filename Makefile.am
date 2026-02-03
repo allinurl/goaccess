@@ -156,6 +156,8 @@ goaccess_SOURCES = \
    src/csv.h           \
    src/error.c         \
    src/error.h         \
+   src/fileio.c        \
+   src/fileio.h        \
    src/gdashboard.c    \
    src/gdashboard.h    \
    src/gdns.c          \
@@ -245,6 +247,10 @@ endif
 
 if WITH_RDYNAMIC
 AM_LDFLAGS = -rdynamic
+endif
+
+if WITH_ZLIB
+AM_LDFLAGS = -lz
 endif
 
 AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g
