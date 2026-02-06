@@ -91,7 +91,6 @@ Makefile.in
 # compiled resources
 /src/appcss.h
 /src/appjs.h
-/src/bootstrapcss.h
 /src/chartsjs.h
 /src/d3js.h
 /src/facss.h
@@ -102,7 +101,6 @@ Makefile.in
 
 # intermediate resources
 /resources/css/app.css.tmp
-/resources/css/bootstrap.min.css.tmp
 /resources/css/fa.min.css.tmp
 /resources/js/app.js.tmp
 /resources/js/charts.js.tmp

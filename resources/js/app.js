@@ -100,7 +100,7 @@ window.GoAccess = window.GoAccess || {
 		this.messageInterval = setInterval(() => {
 			if (currentMessageIndex < messages.length) {
 				// Update the loading status element with the current message
-				$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+				$('[title="Loading screen"] small').innerHTML = messages[currentMessageIndex];
 				currentMessageIndex++; // Move to the next message
 			}
 		}, 500);
@@ -149,7 +149,7 @@ window.GoAccess = window.GoAccess || {
 		// Stop the message rotation interval
 		clearInterval(this.messageInterval);
 		// Update the UI to indicate that no authentication is provided
-		$('.app-loading-status > small').innerHTML = 'No authentication provided.';
+		$('[title="Loading screen"] small').innerHTML = 'No authentication provided.';
 		// Proceed to initialize the app without WebSocket support
 		GoAccess.App.initialize();
 		this.isAppInitialized = true;
@@ -159,16 +159,16 @@ window.GoAccess = window.GoAccess || {
 		// Stop the message rotation interval
 		clearInterval(this.messageInterval);
 		// Update the UI to display the failure message
-		$('.app-loading-status > small').innerHTML = `Authentication failed: ${message}`;
+		$('[title="Loading screen"] small').innerHTML = `Authentication failed: ${message}`;
 		// Hide the loading spinner
-		$('.loading-container > .spinner').style.display = 'none';
+		$('[title="Loading screen"] i').style.display = 'none';
 	},
 
 	handleAuthenticationError: function (error) {
 		// Stop the message rotation interval
 		clearInterval(this.messageInterval);
 		// Update the UI to indicate an error occurred during the JWT fetch process
-		$('.app-loading-status > small').innerHTML = 'Error fetching authentication token.';
+		$('[title="Loading screen"] small').innerHTML = 'Error fetching authentication token.';
 	},
 
 	getPanelUI: function (panel) {
@@ -295,7 +295,7 @@ window.GoAccess = window.GoAccess || {
 			let currentMessageIndex = 0;
 			messageInterval = setInterval(() => {
 				if (currentMessageIndex < messages.length) {
-					$('.app-loading-status > small').innerHTML = messages[currentMessageIndex];
+					$('[title="Loading screen"] small').innerHTML = messages[currentMessageIndex];
 					currentMessageIndex++;
 				}
 			}, 100);
@@ -318,7 +318,7 @@ window.GoAccess = window.GoAccess || {
 		socket.onopen = function (event) {
 			clearInterval(messageInterval);
 			if (this.currentJWT)
-				$('.app-loading-status > small').innerHTML = 'Authentication successful.';
+				$('[title="Loading screen"] small').innerHTML = 'Authentication successful.';
 
 			this.currDelay = this.wsDelay;
 			this.retries = 0;
@@ -343,8 +343,8 @@ window.GoAccess = window.GoAccess || {
 
 		socket.onclose = function (event) {
 			clearInterval(messageInterval);
-			$('.app-loading-status > small').innerHTML = 'Unable to authenticate WebSocket.';
-			$('.loading-container > .spinner').style.display = 'none';
+			$('[title="Loading screen"] small').innerHTML = 'Unable to authenticate WebSocket.';
+			$('[title="Loading screen"] i').style.display = 'none';
 
 			GoAccess.Nav.WSClose();
 			window.clearInterval(pingId);
@@ -1053,7 +1053,7 @@ GoAccess.Nav = {
 
 	WSStatus: function () {
 		if (Object.keys(GoAccess.AppWSConn).length)
-			$$('.nav-ws-status', function (item) { item.style.display = 'block'; });
+			$$('.nav-ws-status', function (item) { item.style.display = 'inline-block'; });
 	},
 
 	WSClose: function () {
@@ -1306,7 +1306,7 @@ GoAccess.Panels = {
 			wrap.appendChild(row);
 		}
 
-		return row;
+		return wrap;
 	},
 
 	resetPanel: function (panel) {
@@ -2291,8 +2291,7 @@ GoAccess.App = {
 	initDom: function () {
 		$('nav').classList.remove('hide');
 		$('.container').classList.remove('hide');
-		$('.spinner').classList.add('hide');
-		$('.app-loading-status > small').style.display = 'none';
+		$('[title="Loading screen"]').style.display = "none";
 
 		if (GoAccess.AppPrefs['layout'] == 'horizontal' || GoAccess.AppPrefs['layout'] == 'wide') {
 			$('.container').classList.add('container-fluid');
