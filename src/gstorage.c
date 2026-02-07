@@ -513,7 +513,7 @@ set_data_metrics (GMetrics *ometrics, GMetrics **nmetrics, GPercTotals totals) {
   /* determine percentages for certain fields */
   float hits_perc = get_percentage (totals.hits, ometrics->hits);
   float visitors_perc = get_percentage (totals.visitors, ometrics->visitors);
-  float bw_perc = get_percentage (totals.bw, ometrics->bw.nbw);
+  float bw_perc = get_percentage (totals.bw, ometrics->nbw);
 
   metrics = new_gmetrics ();
 
@@ -528,7 +528,7 @@ set_data_metrics (GMetrics *ometrics, GMetrics **nmetrics, GPercTotals totals) {
   metrics->visitors_perc = visitors_perc < 0 ? 0 : visitors_perc;
 
   /* bandwidth field */
-  metrics->bw.nbw = ometrics->bw.nbw;
+  metrics->nbw = ometrics->nbw;
 
   /* time served fields */
   if (conf.serve_usecs && ometrics->hits > 0) {

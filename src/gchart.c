@@ -184,7 +184,7 @@ metric_has_data (GHolder *h, int metric_type) {
           has = 1;
         break;
       case CHART_METRIC_BW:
-        if (m->bw.nbw > 0)
+        if (m->nbw > 0)
           has = 1;
         break;
       case CHART_METRIC_AVGTS:
@@ -222,7 +222,7 @@ metric_has_data (GHolder *h, int metric_type) {
               return 1;
             break;
           case CHART_METRIC_BW:
-            if (m->bw.nbw > 0)
+            if (m->nbw > 0)
               return 1;
             break;
           case CHART_METRIC_AVGTS:
@@ -282,7 +282,7 @@ get_metric_value (GMetrics *metrics, int metric_type) {
   case CHART_METRIC_VISITORS:
     return metrics->visitors;
   case CHART_METRIC_BW:
-    return metrics->bw.nbw;
+    return metrics->nbw;
   case CHART_METRIC_AVGTS:
     return conf.serve_usecs ? metrics->avgts.nts : 0;
   case CHART_METRIC_CUMTS:

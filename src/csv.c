@@ -129,7 +129,7 @@ print_csv_metric_block (FILE *fp, GMetrics *nmetrics) {
 
   /* bandwidth */
   if (conf.bandwidth) {
-    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->bw.nbw);
+    fprintf (fp, "\"%" PRIu64 "\",", nmetrics->nbw);
     fprintf (fp, "\"%4.2f%%\",", nmetrics->bw_perc);
   }
 

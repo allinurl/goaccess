@@ -610,7 +610,7 @@ pbw (GJSON *json, GMetrics *nmetrics, int sp) {
 
   popen_obj_attr (json, "bytes", sp);
   /* print bandwidth */
-  pskeyu64val (json, "count", nmetrics->bw.nbw, isp, 0);
+  pskeyu64val (json, "count", nmetrics->nbw, isp, 0);
   /* print bandwidth percent */
   pskeyfval (json, "percent", nmetrics->bw_perc, isp, 1);
   pclose_obj (json, sp, 0);

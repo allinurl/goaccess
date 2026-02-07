@@ -105,6 +105,7 @@ typedef struct GDashData_ {
 typedef struct GDashMeta_ {
   uint64_t max_hits;            /* maximum value on the hits column */
   uint64_t max_visitors;        /* maximum value on the visitors column */
+  uint64_t max_bw;
 
   /* determine the maximum metric's length of these metrics */
   /* for instance, 1022 is the max value for the hits column and its length = 4 */
@@ -113,6 +114,7 @@ typedef struct GDashMeta_ {
   int visitors_len;
   int visitors_perc_len;
   int bw_len;
+  int bw_perc_len;
   int avgts_len;
   int cumts_len;
   int maxts_len;

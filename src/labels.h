@@ -84,6 +84,7 @@
 #define MTRC_VISITORS_SHORT_LBL  _( "Vis.")
 #define MTRC_VISITORS_PERC_LBL   _( "v%")
 #define MTRC_BW_LBL              _( "Tx. Amount")
+#define MTRC_BW_PERC_LBL         _( "tx%")
 #define MTRC_AVGTS_LBL           _( "Avg. T.S.")
 #define MTRC_CUMTS_LBL           _( "Cum. T.S.")
 #define MTRC_MAXTS_LBL           _( "Max. T.S.")

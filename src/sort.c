@@ -224,8 +224,8 @@ cmp_bw_desc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  uint64_t va = ia->metrics->bw.nbw;
-  uint64_t vb = ib->metrics->bw.nbw;
+  uint64_t va = ia->metrics->nbw;
+  uint64_t vb = ib->metrics->nbw;
 
   return (va < vb) - (va > vb);
 }
@@ -236,8 +236,8 @@ cmp_bw_asc (const void *a, const void *b) {
   const GHolderItem *ia = a;
   const GHolderItem *ib = b;
 
-  uint64_t va = ia->metrics->bw.nbw;
-  uint64_t vb = ib->metrics->bw.nbw;
+  uint64_t va = ia->metrics->nbw;
+  uint64_t vb = ib->metrics->nbw;
 
   return (va > vb) - (va < vb);
 }

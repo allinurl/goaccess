@@ -277,7 +277,7 @@ sort_sub_list (GHolder *h, GSort sort) {
     for (j = 0, iter = sub_list->head; iter; iter = iter->next, j++) {
       arr[j].metrics = new_gmetrics ();
 
-      arr[j].metrics->bw.nbw = iter->metrics->bw.nbw;
+      arr[j].metrics->nbw = iter->metrics->nbw;
       arr[j].metrics->data = xstrdup (iter->metrics->data);
       arr[j].metrics->hits = iter->metrics->hits;
       arr[j].metrics->id = iter->metrics->id;
@@ -461,7 +461,7 @@ set_single_metrics (GRawDataItem item, GHolder *h, char *data, uint32_t hits) {
   h->items[h->idx].metrics->hits = hits;
   h->items[h->idx].metrics->data = data;
   h->items[h->idx].metrics->visitors = visitors;
-  h->items[h->idx].metrics->bw.nbw = bw;
+  h->items[h->idx].metrics->nbw = bw;
   h->items[h->idx].metrics->avgts.nts = cumts / hits;
   h->items[h->idx].metrics->cumts.nts = cumts;
   h->items[h->idx].metrics->maxts.nts = maxts;
@@ -588,7 +588,7 @@ set_root_metrics (GRawDataItem item, GModule module, datatype type, GMetrics **n
   metrics->avgts.nts = cumts / hits;
   metrics->cumts.nts = cumts;
   metrics->maxts.nts = maxts;
-  metrics->bw.nbw = bw;
+  metrics->nbw = bw;
   metrics->data = data;
   metrics->hits = hits;
   metrics->visitors = visitors;
@@ -635,7 +635,7 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
 
   h->items[idx].metrics = metrics;
   h->items[idx].metrics->cumts.nts += nmetrics->cumts.nts;
-  h->items[idx].metrics->bw.nbw += nmetrics->bw.nbw;
+  h->items[idx].metrics->nbw += nmetrics->nbw;
   h->items[idx].metrics->hits += nmetrics->hits;
   h->items[idx].metrics->visitors += nmetrics->visitors;
   h->items[idx].metrics->avgts.nts = h->items[idx].metrics->cumts.nts / h->items[idx].metrics->hits;

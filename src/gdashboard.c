@@ -93,8 +93,6 @@ free_dashboard_data (GDashData item) {
 
   if (item.metrics->data)
     free (item.metrics->data);
-  if (item.metrics->bw.sbw)
-    free (item.metrics->bw.sbw);
   if (conf.serve_usecs && item.metrics->avgts.sts)
     free (item.metrics->avgts.sts);
   if (conf.serve_usecs && item.metrics->cumts.sts)
@@ -243,6 +241,8 @@ set_max_metrics (GDashMeta *meta, GDashData *idata) {
     meta->max_hits = idata->metrics->hits;
   if (meta->max_visitors < idata->metrics->visitors)
     meta->max_visitors = idata->metrics->visitors;
+  if (meta->max_bw < idata->metrics->nbw)
+    meta->max_bw = idata->metrics->nbw;
 }
 
 /* Set largest hits metric (length of the integer). */
@@ -301,18 +301,32 @@ set_max_visitors_perc_len (GDashMeta *meta, GDashData *idata) {
     meta->visitors_perc_len = llen;
 }
 
+/* Get the percent integer length for bandwidth percentage. */
+static void
+set_max_bw_perc_len (GDashMeta *meta, GDashData *idata) {
+  int vlen = intlen (idata->metrics->bw_perc);
+  int llen = strlen (MTRC_BW_PERC_LBL); // You need to define this label
+
+  if (vlen > meta->bw_perc_len)
+    meta->bw_perc_len = vlen;
+
+  if (llen > meta->bw_perc_len)
+    meta->bw_perc_len = llen;
+}
+
 /* Get the percent integer length. */
 static void
 set_max_bw_len (GDashMeta *meta, GDashData *idata) {
-  int vlen = strlen (idata->metrics->bw.sbw);
+  char *bw_str = filesize_str (idata->metrics->nbw);
+  int vlen = strlen (bw_str);
   int llen = strlen (MTRC_BW_LBL);
 
   if (vlen > meta->bw_len)
     meta->bw_len = vlen;
-  /* if outputting with column names, then determine if the value is
-   * longer than the length of the column name */
   if (llen > meta->bw_len)
     meta->bw_len = llen;
+
+  free (bw_str);
 }
 
 /* Get the percent integer length. */
@@ -427,9 +441,10 @@ set_metrics_len (GDashMeta *meta, GDashData *idata) {
   set_max_hit_perc_len (meta, idata);
   set_max_visitors_len (meta, idata);
   set_max_visitors_perc_len (meta, idata);
+  set_max_bw_len (meta, idata);
+  set_max_bw_perc_len (meta, idata); // ← NEW
 
   /* string-based length */
-  set_max_bw_len (meta, idata);
   set_max_avgts_len (meta, idata);
   set_max_cumts_len (meta, idata);
   set_max_maxts_len (meta, idata);
@@ -646,23 +661,21 @@ render_bw (GDashModule *data, GDashRender render, int *x) {
   GColors *color = get_color_by_item_module (COLOR_MTRC_BW, data->module);
   WINDOW *win = render.win;
   int y = render.y, w = render.w, idx = render.idx, sel = render.sel;
-  char *bw = data->data[idx].metrics->bw.sbw;
+  char *bw = filesize_str (data->data[idx].metrics->nbw); /* compute here */
 
   if (data->module == HOSTS && data->data[idx].is_subitem)
     goto out;
-
   if (sel) {
     char *fw = get_fixed_fmt_width (data->meta.bw_len, 's');
-    /* selected state */
     draw_header (win, bw, fw, y, *x, w, color_selected);
     free (fw);
   } else {
-    /* regular state */
     wattron (win, color->attr | COLOR_PAIR (color->pair->idx));
     mvwprintw (win, y, *x, "%*s", data->meta.bw_len, bw);
     wattroff (win, color->attr | COLOR_PAIR (color->pair->idx));
   }
 out:
+  free (bw);    /* free immediately */
   *x += data->meta.bw_len + DASH_SPACE;
 }
 
@@ -721,6 +734,26 @@ render_visitors_percent (GDashModule *data, GDashRender render, int *x) {
   color = get_color_by_item_module (item, data->module);
 
   render_percent (render, color, data->data[idx].metrics->visitors_perc, l, *x);
+
+out:
+  *x += l + 1 + DASH_SPACE;
+}
+
+/* Render the bandwidth percent metric for each panel */
+static void
+render_bw_percent (GDashModule *data, GDashRender render, int *x) {
+  GColorItem item = COLOR_MTRC_BW_PERC;
+  GColors *color;
+  int l = data->meta.bw_perc_len + 3, idx = render.idx;
+
+  if (data->module == HOSTS && data->data[idx].is_subitem)
+    goto out;
+
+  if (data->meta.max_bw == data->data[idx].metrics->nbw) /* clean! */
+    item = COLOR_MTRC_BW_PERC_MAX;
+
+  color = get_color_by_item_module (item, data->module);
+  render_percent (render, color, data->data[idx].metrics->bw_perc, l, *x);
 
 out:
   *x += l + 1 + DASH_SPACE;
@@ -825,9 +858,12 @@ render_metrics (GDashModule *data, GDashRender render) {
   if (output->percent)
     render_visitors_percent (data, render, &x);
 
-  /* render bandwidth if available */
-  if (conf.bandwidth && output->bw)
+  /* bandwidth + new bw % */
+  if (conf.bandwidth && output->bw) {
     render_bw (data, render, &x);
+    if (output->percent) // ← NEW
+      render_bw_percent (data, render, &x);
+  }
 
   /* render avgts, cumts and maxts if available */
   if (output->avgts && conf.serve_usecs)
@@ -931,8 +967,11 @@ render_cols (WINDOW *win, GDashModule *data, int *y) {
     rprint_col (win, *y, &x, data->meta.visitors_len, MTRC_VISITORS_SHORT_LBL);
   if (output->percent)
     rprint_col (win, *y, &x, data->meta.visitors_perc_len + 4, MTRC_VISITORS_PERC_LBL);
-  if (output->bw && conf.bandwidth)
+  if (conf.bandwidth && output->bw) {
     rprint_col (win, *y, &x, data->meta.bw_len, MTRC_BW_LBL);
+    if (output->percent)
+      rprint_col (win, *y, &x, data->meta.bw_perc_len + 4, MTRC_BW_PERC_LBL);
+  }
   if (output->avgts && conf.serve_usecs)
     rprint_col (win, *y, &x, DASH_SRV_TM_LEN, MTRC_AVGTS_LBL);
   if (output->cumts && conf.serve_usecs)
@@ -1301,8 +1340,8 @@ render_find_dialog (WINDOW *main_win, GScroll *gscroll) {
 }
 
 static void
-set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module,
-                  GPercTotals totals, int is_subitem) {
+set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals totals,
+                  int is_subitem) {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
   char *data = NULL;
@@ -1322,7 +1361,8 @@ set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module,
   idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);
   idata->metrics->visitors = metrics->visitors;
   idata->metrics->visitors_perc = get_percentage (totals.visitors, metrics->visitors);
-  idata->metrics->bw.sbw = filesize_str (metrics->bw.nbw);
+  idata->metrics->nbw = metrics->nbw;
+  idata->metrics->bw_perc = get_percentage (totals.bw, metrics->nbw);
   idata->metrics->data = xstrdup (data);
 
   if (conf.append_method && metrics->method)

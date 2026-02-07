@@ -164,13 +164,7 @@ typedef struct GMetrics {
 
   uint64_t hits;
   uint64_t visitors;
-
-  /* holder has a numeric value, while
-   * dashboard has a displayable string value */
-  union {
-    char *sbw;
-    uint64_t nbw;
-  } bw;
+  uint64_t nbw;
 
   /* holder has a numeric value, while
    * dashboard has a displayable string value */
