@@ -38,23 +38,53 @@
 
 #include "ui.h"
 
+/* IMPORTANT: These defines are BASE VALUES used for calculation.
+ * Actual positions are calculated dynamically in render_content() */
+
 #define DASH_HEAD_POS    0 /* position of header line */
 #define DASH_EMPTY_POS   1 /* empty line position */
-#define DASH_COLS_POS    2 /* position of column names */
-#define DASH_DASHES_POS  3 /* position of dashes under column names */
-#define DASH_DATA_POS    4 /* data line position */
 
-#define DASH_NON_DATA    5 /* number of rows without data stats */
+/* Chart positioning - these are fixed */
+#define DASH_CHART_START 2 /* first chart row */
+#define DASH_CHART_END   (DASH_CHART_START + DASH_CHART_HEIGHT - 1) /* last chart row */
+
+/* These are reference values - actual positions calculated dynamically */
+#define DASH_BLANK1_POS  (DASH_CHART_END + 1) /* blank after chart (for caret) */
+#define DASH_BLANK2_POS  (DASH_CHART_END + 2) /* blank before cols (if cols enabled) */
+#define DASH_COLS_POS    (DASH_CHART_END + 3) /* position of column names (if enabled) */
+#define DASH_DASHES_POS  (DASH_CHART_END + 4) /* position of dashes (if enabled) */
+#define DASH_DATA_POS    (DASH_CHART_END + 5) /* data line position (with cols) */
+
+/* Helper macros for calculations */
+#define DASH_NON_DATA    (DASH_DATA_POS) /* number of rows without data stats */
 #define DASH_COL_ROWS    2 /* number of rows for column values + dashed lines */
 
-#define DASH_COLLAPSED   12 /* number of rows per panel (collapsed) */
-#define DASH_EXPANDED    32 /* number of rows per panel (expanded) */
+/* Panel sizes - these determine how many rows each panel occupies
+ * Structure:
+ * With columns:    header + blank + chart(7) + blank + blank + cols + dashes + data(N) + blank = 13 + N
+ * Without columns: header + blank + chart(7) + blank + data(N) + blank = 11 + N
+ */
+#define DASH_COLLAPSED   (DASH_DATA_POS + 8 + 1) /* +1 for trailing blank */
+#define DASH_EXPANDED    (DASH_DATA_POS + 28 + 1) /* +1 for trailing blank */
 
+/* Other constants */
 #define DASH_INIT_X      1 /* start position (x-axis) */
-
-#define DASH_BW_LEN      11 /* max bandwidth string length, e.g., 151.69 MiB */
-#define DASH_SRV_TM_LEN  9 /* max time served length, e.g., 483.00 us */
+#define DASH_BW_LEN      11 /* max bandwidth string length */
+#define DASH_SRV_TM_LEN  9 /* max time served length */
 #define DASH_SPACE       1 /* space between columns (metrics) */
+
+typedef struct {
+  int header_pos;
+  int blank_after_header;
+  int chart_start;
+  int chart_end;
+  int blank_for_caret;
+  int blank_before_cols;
+  int cols_header_pos;
+  int cols_dashes_pos;
+  int data_start;
+  int data_end;
+} PanelLayout;
 
 /* Common render data line fields */
 typedef struct GDashRender_ {
@@ -125,7 +155,7 @@ int perform_next_find (GHolder * h, GScroll * scroll);
 int render_find_dialog (WINDOW * main_win, GScroll * scroll);
 int set_module_from_mouse_event (GScroll * scroll, GDash * dash, int y);
 uint32_t get_ht_size_by_module (GModule module);
-void display_content (WINDOW * win, GDash * dash, GScroll * scroll);
+void display_content (WINDOW * win, GDash * dash, GScroll * gscroll, GHolder * holder);
 void free_dashboard (GDash * dash);
 void load_data_to_dash (GHolder * h, GDash * dash, GModule module, GScroll * scroll);
 void reset_find (void);

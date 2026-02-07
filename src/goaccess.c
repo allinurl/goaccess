@@ -67,6 +67,7 @@
 #include "error.h"
 #include "gdashboard.h"
 #include "gdns.h"
+#include "gchart.h"
 #include "gholder.h"
 #include "goaccess.h"
 #include "gwsocket.h"
@@ -108,27 +109,27 @@ static int main_win_height = 0;
 /* *INDENT-OFF* */
 static GScroll gscroll = {
   {
-     {0, 0}, /* VISITORS        { scroll, offset} */
-     {0, 0}, /* REQUESTS        { scroll, offset} */
-     {0, 0}, /* REQUESTS_STATIC { scroll, offset} */
-     {0, 0}, /* NOT_FOUND       { scroll, offset} */
-     {0, 0}, /* HOSTS           { scroll, offset} */
-     {0, 0}, /* OS              { scroll, offset} */
-     {0, 0}, /* BROWSERS        { scroll, offset} */
-     {0, 0}, /* VISIT_TIMES     { scroll, offset} */
-     {0, 0}, /* VIRTUAL_HOSTS   { scroll, offset} */
-     {0, 0}, /* REFERRERS       { scroll, offset} */
-     {0, 0}, /* REFERRING_SITES { scroll, offset} */
-     {0, 0}, /* KEYPHRASES      { scroll, offset} */
-     {0, 0}, /* STATUS_CODES    { scroll, offset} */
-     {0, 0}, /* REMOTE_USER     { scroll, offset} */
-     {0, 0}, /* CACHE_STATUS    { scroll, offset} */
+     {0, 0, 0, 0, 1}, /* VISITORS - note the 1 at the end! */
+     {0, 0, 0, 0, 0}, /* REQUESTS */
+     {0, 0, 0, 0, 0}, /* REQUESTS_STATIC */
+     {0, 0, 0, 0, 0}, /* NOT_FOUND */
+     {0, 0, 0, 0, 0}, /* HOSTS */
+     {0, 0, 0, 0, 0}, /* OS */
+     {0, 0, 0, 0, 0}, /* BROWSERS */
+     {0, 0, 0, 0, 0}, /* VISIT_TIMES */
+     {0, 0, 0, 0, 0}, /* VIRTUAL_HOSTS */
+     {0, 0, 0, 0, 0}, /* REFERRERS */
+     {0, 0, 0, 0, 0}, /* REFERRING_SITES */
+     {0, 0, 0, 0, 0}, /* KEYPHRASES */
+     {0, 0, 0, 0, 0}, /* STATUS_CODES */
+     {0, 0, 0, 0, 0}, /* REMOTE_USER */
+     {0, 0, 0, 0, 0}, /* CACHE_STATUS */
 #ifdef HAVE_GEOLOCATION
-     {0, 0}, /* GEO_LOCATION    { scroll, offset} */
-     {0, 0}, /* ASN             { scroll, offset} */
+     {0, 0, 0, 0, 0}, /* GEO_LOCATION */
+     {0, 0, 0, 0, 0}, /* ASN */
 #endif
-     {0, 0}, /* MIME_TYPE       { scroll, offset} */
-     {0, 0}, /* TLS_TYPE        { scroll, offset} */
+     {0, 0, 0, 0, 0}, /* MIME_TYPE */
+     {0, 0, 0, 0, 0}, /* TLS_TYPE */
   },
   0,         /* current module */
   0,         /* main dashboard scroll */
@@ -421,7 +422,7 @@ render_screens (uint32_t offset) {
   /* display active label based on current module */
   update_active_module (header_win, gscroll.current);
 
-  display_content (main_win, dash, &gscroll);
+  display_content (main_win, dash, &gscroll, holder);
 }
 
 /* Collapse the current expanded module */
@@ -568,22 +569,39 @@ expand_on_mouse_click (void) {
   return 1;
 }
 
+/* Scroll up terminal dashboard */
+static void
+scroll_up_dashboard (void) {
+  gscroll.dash--;
+}
+
 /* Scroll down expanded module to the last row */
 static void
 scroll_down_expanded_module (void) {
   int exp_size = get_num_expanded_data_rows ();
   int *scroll_ptr, *offset_ptr;
+  int max_scroll;
 
   scroll_ptr = &gscroll.module[gscroll.current].scroll;
   offset_ptr = &gscroll.module[gscroll.current].offset;
 
   if (!gscroll.expanded)
     return;
-  if (*scroll_ptr >= dash->module[gscroll.current].idx_data - 1)
+
+  max_scroll = dash->module[gscroll.current].idx_data - 1;
+
+  /* Don't scroll past the last item */
+  if (*scroll_ptr >= max_scroll)
     return;
+
+  /* Increment scroll position */
   ++(*scroll_ptr);
-  if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
+
+  /* Adjust offset if we're scrolling beyond the visible area
+   * Keep the selection visible by ensuring it's within the window */
+  if (*scroll_ptr >= *offset_ptr + exp_size) {
     ++(*offset_ptr);
+  }
 }
 
 /* Scroll up expanded module */
@@ -596,17 +614,50 @@ scroll_up_expanded_module (void) {
 
   if (!gscroll.expanded)
     return;
+
   if (*scroll_ptr <= 0)
     return;
+
   --(*scroll_ptr);
+
+  /* Adjust offset if selection goes above visible area */
   if (*scroll_ptr < *offset_ptr)
     --(*offset_ptr);
 }
 
-/* Scroll up terminal dashboard */
+/* Page down expanded module */
 static void
-scroll_up_dashboard (void) {
-  gscroll.dash--;
+page_down_module (void) {
+  int exp_size = get_num_expanded_data_rows ();
+  int *scroll_ptr, *offset_ptr;
+  int max_scroll;
+
+  scroll_ptr = &gscroll.module[gscroll.current].scroll;
+  offset_ptr = &gscroll.module[gscroll.current].offset;
+
+  if (!gscroll.expanded)
+    return;
+
+  max_scroll = dash->module[gscroll.current].idx_data - 1;
+
+  /* Move down by page */
+  *scroll_ptr += exp_size;
+
+  /* Clamp to maximum */
+  if (*scroll_ptr > max_scroll)
+    *scroll_ptr = max_scroll;
+
+  /* Adjust offset to keep selection visible */
+  if (*scroll_ptr >= *offset_ptr + exp_size) {
+    *offset_ptr = *scroll_ptr - exp_size + 1;
+  }
+
+  /* Make sure offset doesn't go beyond valid range */
+  if (*offset_ptr + exp_size > max_scroll + 1) {
+    *offset_ptr = max_scroll - exp_size + 1;
+    if (*offset_ptr < 0)
+      *offset_ptr = 0;
+  }
 }
 
 /* Page up expanded module */
@@ -620,38 +671,18 @@ page_up_module (void) {
 
   if (!gscroll.expanded)
     return;
-  /* decrease scroll and offset by exp_size */
+
+  /* Move up by page */
   *scroll_ptr -= exp_size;
+
+  /* Clamp to minimum */
   if (*scroll_ptr < 0)
     *scroll_ptr = 0;
 
-  if (*scroll_ptr < *offset_ptr)
-    *offset_ptr -= exp_size;
-  if (*offset_ptr <= 0)
-    *offset_ptr = 0;
-}
-
-/* Page down expanded module */
-static void
-page_down_module (void) {
-  int exp_size = get_num_expanded_data_rows ();
-  int *scroll_ptr, *offset_ptr;
-
-  scroll_ptr = &gscroll.module[gscroll.current].scroll;
-  offset_ptr = &gscroll.module[gscroll.current].offset;
-
-  if (!gscroll.expanded)
-    return;
-
-  *scroll_ptr += exp_size;
-  if (*scroll_ptr >= dash->module[gscroll.current].idx_data - 1)
-    *scroll_ptr = dash->module[gscroll.current].idx_data - 1;
-  if (*scroll_ptr >= exp_size && *scroll_ptr >= *offset_ptr + exp_size)
-    *offset_ptr += exp_size;
-  if (*offset_ptr + exp_size >= dash->module[gscroll.current].idx_data - 1)
-    *offset_ptr = dash->module[gscroll.current].idx_data - exp_size;
-  if (*scroll_ptr < exp_size - 1)
-    *offset_ptr = 0;
+  /* Adjust offset to keep selection visible */
+  if (*scroll_ptr < *offset_ptr) {
+    *offset_ptr = *scroll_ptr;
+  }
 }
 
 /* Create a new find dialog window and render it. Upon closing the
@@ -1068,6 +1099,42 @@ term_tail_logs (Logs *logs) {
   }
 }
 
+static int
+cycle_metric (GScroll *scroll, GHolder *holders, GModule mod, int direction) {
+  int current_metric, found = 0, attempts = 0;
+  int available_metrics[CHART_METRIC_COUNT];
+  int num_available = get_available_metrics (mod, available_metrics);
+
+  if (num_available == 0)
+    return 0;
+
+  current_metric = scroll->module[mod].current_metric;
+
+  while (attempts < CHART_METRIC_COUNT && !found) {
+    if (direction > 0)
+      current_metric = (current_metric + 1) % CHART_METRIC_COUNT;
+    else
+      current_metric = (current_metric - 1 + CHART_METRIC_COUNT) % CHART_METRIC_COUNT;
+
+    for (int i = 0; i < num_available; i++) {
+      if (available_metrics[i] == current_metric) {
+        if (metric_has_data (&holders[mod], current_metric)) {
+          found = 1;
+          break;
+        }
+      }
+    }
+    attempts++;
+  }
+
+  if (found) {
+    scroll->module[mod].current_metric = current_metric;
+    return 1;
+  }
+
+  return 0;
+}
+
 /* Interfacing with the keyboard */
 static void
 get_keys (Logs *logs) {
@@ -1217,11 +1284,11 @@ get_keys (Logs *logs) {
       break;
     case 'g':  /* g = top */
       scroll_to_first_line ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
     case 'G':  /* G = down */
       scroll_to_last_line ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
       /* expand dashboard module */
     case KEY_RIGHT:
@@ -1232,12 +1299,12 @@ get_keys (Logs *logs) {
     case 111:  /* O */
     case KEY_ENTER:
       expand_current_module ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
     case KEY_DOWN: /* scroll main dashboard */
       if ((gscroll.dash + main_win_height) < dash->total_alloc) {
         gscroll.dash++;
-        display_content (main_win, dash, &gscroll);
+        display_content (main_win, dash, &gscroll, holder);
       }
       break;
     case KEY_MOUSE: /* handles mouse events */
@@ -1246,28 +1313,28 @@ get_keys (Logs *logs) {
       break;
     case 106:  /* j - DOWN expanded module */
       scroll_down_expanded_module ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
       /* scroll up main_win */
     case KEY_UP:
       if (gscroll.dash > 0) {
         scroll_up_dashboard ();
-        display_content (main_win, dash, &gscroll);
+        display_content (main_win, dash, &gscroll, holder);
       }
       break;
     case 2:    /* ^ b - page up */
     case 339:  /* ^ PG UP */
       page_up_module ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
     case 6:    /* ^ f - page down */
     case 338:  /* ^ PG DOWN */
       page_down_module ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
     case 107:  /* k - UP expanded module */
       scroll_up_expanded_module ();
-      display_content (main_win, dash, &gscroll);
+      display_content (main_win, dash, &gscroll, holder);
       break;
     case 'n':
       if (search_next_match (search) == 0)
@@ -1279,6 +1346,41 @@ get_keys (Logs *logs) {
         render_screens (offset);
       sigaction (SIGINT, &oldact, NULL);
       break;
+    case 'r':  /* toggle reverse bars */
+    case 'R':
+      {
+        GModule mod = gscroll.current;
+        gscroll.module[mod].reverse_bars = !gscroll.module[mod].reverse_bars;
+        display_content (main_win, dash, &gscroll, holder);
+      }
+      break;
+    case 'm':  /* cycle metrics forward */
+      {
+        GModule mod = gscroll.current;
+        if (cycle_metric (&gscroll, holder, mod, +1))
+          display_content (main_win, dash, &gscroll, holder);
+      }
+      break;
+
+    case 'M':  /* cycle metrics backward */
+      {
+        GModule mod = gscroll.current;
+        if (cycle_metric (&gscroll, holder, mod, -1))
+          display_content (main_win, dash, &gscroll, holder);
+      }
+      break;
+      break;
+    case 'l':  /* toggle log scale */
+    case 'L':
+      {
+        GModule mod = gscroll.current;
+        gscroll.module[mod].use_log_scale = !gscroll.module[mod].use_log_scale;
+
+        /* Refresh display whether expanded or collapsed */
+        display_content (main_win, dash, &gscroll, holder);
+      }
+      break;
+
     case 99:   /* c */
       if (conf.no_color)
         break;

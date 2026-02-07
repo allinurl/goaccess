@@ -381,10 +381,6 @@ value of 366 (or 50 in the real-time HTML output) items per panel.
 Turn off colored output. This is the default output on terminals that do not
 support colors.
 .TP
-\fB\-\-no-column-names
-Don't write column names in the terminal output. By default, it displays column
-names for each available metric in every panel.
-.TP
 \fB\-\-no-csv-summary
 Disable summary metrics on the CSV output.
 .TP
@@ -1240,6 +1236,14 @@ Scroll down within expanded module
 Scroll up within expanded module
 .IP "c"
 Set or change scheme color.
+.IP "r"
+Toggle reverse order of chart bars for the active module.
+.IP "m"
+Cycle chart metric forward for the active module (hits, visitors, bandwidth).
+.IP "M"
+Cycle chart metric backward for the active module.
+.IP "l"
+Toggle logarithmic scale for chart bars in the active module.
 .IP "TAB"
 Forward iteration of modules. Starts from current active module.
 .IP "SHIFT + TAB"

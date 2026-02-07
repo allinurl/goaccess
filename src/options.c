@@ -128,7 +128,6 @@ static const struct option long_opts[] = {
   {"max-items"            , required_argument , 0 , 0  }  ,
   {"no-color"             , no_argument       , 0 , 0  }  ,
   {"no-strict-status"     , no_argument       , 0 , 0  }  ,
-  {"no-column-names"      , no_argument       , 0 , 0  }  ,
   {"no-csv-summary"       , no_argument       , 0 , 0  }  ,
   {"no-global-config"     , no_argument       , 0 , 0  }  ,
   {"no-html-last-updated" , no_argument       , 0 , 0  }  ,
@@ -701,10 +700,6 @@ parse_long_opt (const char *name, const char *oarg) {
   /* no strict status */
   if (!strcmp ("no-strict-status", name))
     conf.no_strict_status = 1;
-
-  /* no columns */
-  if (!strcmp ("no-column-names", name))
-    conf.no_column_names = 1;
 
   /* no csv summary */
   if (!strcmp ("no-csv-summary", name))

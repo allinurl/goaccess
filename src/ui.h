@@ -173,6 +173,9 @@ typedef struct GFind_ {
 typedef struct GScrollModule_ {
   int scroll;
   int offset;
+  int current_metric;           /* 0=hits, 1=visitors, 2=bandwidth */
+  int use_log_scale;            /* 0=linear, 1=logarithmic */
+  int reverse_bars;             /* 1 = newest on right, 0 = oldest on left */
 } GScrollModule;
 
 /* Curses Scrolling */

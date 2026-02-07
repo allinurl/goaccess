@@ -158,6 +158,8 @@ goaccess_SOURCES = \
    src/error.h         \
    src/fileio.c        \
    src/fileio.h        \
+   src/gchart.c        \
+   src/gchart.h        \
    src/gdashboard.c    \
    src/gdashboard.h    \
    src/gdns.c          \
@@ -253,7 +255,7 @@ if WITH_ZLIB
 AM_LDFLAGS = -lz
 endif
 
-AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g
+AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g -lm
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
 AM_CFLAGS += -Wbad-function-cast -Wcast-align

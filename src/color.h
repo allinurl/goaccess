@@ -50,6 +50,9 @@ typedef enum CSTM_COLORS {
   COLOR_MTRC_VISITORS_PERC_MAX,
   COLOR_PANEL_COLS,
   COLOR_BARS,
+  COLOR_SUBBARS,
+  COLOR_CHART_AXIS,
+  COLOR_CHART_VALUES,
   COLOR_ERROR,
   COLOR_SELECTED,
   COLOR_PANEL_ACTIVE,
@@ -87,6 +90,7 @@ typedef struct GColors_ {
   GColorPair *pair;             /* color pair */
   int attr;                     /* color attributes, e.g., bold */
   short module;                 /* panel */
+  int pair_idx;
 } GColors;
 
 GColors *color_default (void);
