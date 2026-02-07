@@ -1,4 +1,5 @@
 /**
+ * ui.h -- various curses interfaces
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
@@ -7,24 +8,6 @@
  *
  * The MIT License (MIT)
  * Copyright (c) 2009-2025 Gerardo Orellana <hello @ goaccess.io>
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
  */
 
 #ifndef UI_H_INCLUDED
@@ -44,23 +27,21 @@
 #include <pthread.h>
 #endif
 
-/* string literals and translations */
 #include "labels.h"
 #include "commons.h"
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8 /* minimum window height */
-#define MIN_WIDTH         0 /* minimum window width */
-#define MAX_HEIGHT_FOOTER 1 /* height of the footer window */
-#define MAX_HEIGHT_HEADER 7 /* height of the header window */
-#define OVERALL_NUM_COLS  4 /* number of columns on the overall stats win */
+#define MIN_HEIGHT        8
+#define MIN_WIDTH         0
+#define MAX_HEIGHT_FOOTER 1
+#define MAX_HEIGHT_HEADER 7
+#define OVERALL_NUM_COLS  4
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
 #define SPIN_FMTM "[%s %s] {%'"PRIu64"} @ {%'lld/s}"
-#define SPIN_LBL 256 /* max length of the progress spinner */
-
-#define SPIN_UPDATE_INTERVAL 100000000 /* in nanoseconds */
+#define SPIN_LBL 256
+#define SPIN_UPDATE_INTERVAL 100000000
 
 /* Module JSON keys */
 #define VISITORS_ID        "visitors"
@@ -81,7 +62,6 @@
 #define ASN_ID             "asn"
 #define STATUS_CODES_ID    "status_codes"
 #define GENER_ID           "general"
-
 #define MIME_TYPE_ID       "mime_type"
 #define TLS_TYPE_ID        "tls_type"
 
@@ -160,10 +140,8 @@
 #define PANELS_WIN_W      50
 
 #include "color.h"
-#include "commons.h"
 #include "sort.h"
 
-/* Curses dashboard find */
 typedef struct GFind_ {
   GModule module;
   char *pattern;
@@ -175,16 +153,14 @@ typedef struct GFind_ {
   int icase;
 } GFind;
 
-/* Each panel contains its own scrolling and offset */
 typedef struct GScrollModule_ {
   int scroll;
   int offset;
-  int current_metric;           /* 0=hits, 1=visitors, 2=bandwidth */
-  int use_log_scale;            /* 0=linear, 1=logarithmic */
-  int reverse_bars;             /* 1 = newest on right, 0 = oldest on left */
+  int current_metric;
+  int use_log_scale;
+  int reverse_bars;
 } GScrollModule;
 
-/* Curses Scrolling */
 typedef struct GScroll_ {
   GScrollModule module[TOTAL_MODULES];
   GModule current;
@@ -192,7 +168,6 @@ typedef struct GScroll_ {
   int expanded;
 } GScroll;
 
-/* Spinner or Progress Indicator */
 typedef struct GSpinner_ {
   const char *label;
   GColors *(*color) (void);
@@ -212,8 +187,6 @@ typedef struct GSpinner_ {
   } state;
 } GSpinner;
 
-/* Controls metric output.
- * i.e., which metrics it should display */
 typedef struct GOutput_ {
   GModule module;
   int8_t visitors;
@@ -226,45 +199,37 @@ typedef struct GOutput_ {
   int8_t protocol;
   int8_t method;
   int8_t data;
-  int8_t graph;                 /* display bars when collapsed */
-  int8_t sub_graph;             /* display bars upon expanding it */
+  int8_t graph;
+  int8_t sub_graph;
 } GOutput;
 
-/* *INDENT-OFF* */
+/* Core UI functions */
 const GOutput *output_lookup (GModule module);
 GSpinner *new_gspinner (void);
-
-char *get_browser_type (char *line);
-char *get_overall_header (GHolder *h);
-char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str, int enable_case, int *toggle_case);
+char *get_overall_header (GHolder * h);
+char *input_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str,
+                    int enable_case, int *toggle_case);
+char *set_default_string (WINDOW * win, int pos_y, int pos_x, size_t max_width, const char *str);
 const char *module_to_desc (GModule module);
 const char *module_to_head (GModule module);
 const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
-GAgents *load_host_agents (const char *addr);
 int get_start_end_parsing_dates (char **start, char **end, const char *f);
-int render_confdlg (Logs * logs, GSpinner * spinner);
 void close_win (WINDOW * w);
-void display_general (WINDOW * win, GHolder *h);
-void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w, GColors * (*func) (void));
+void display_general (WINDOW * win, GHolder * h);
+void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
+                  GColors * (*func) (void));
 void end_spinner (void);
 void generate_time (void);
 void init_colors (int force);
 void init_windows (WINDOW ** header_win, WINDOW ** main_win);
-void load_agent_list (WINDOW * main_win, char *addr);
-void load_help_popup (WINDOW * main_win);
-void load_panels_win (WINDOW *main_win);
-void load_schemes_win (WINDOW * main_win);
-void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
 void lock_spinner (void);
-void set_curses_spinner (GSpinner *spinner);
+void set_curses_spinner (GSpinner * spinner);
 void set_input_opts (void);
-void set_wbkgd (WINDOW *main_win, WINDOW *header_win);
+void set_wbkgd (WINDOW * main_win, WINDOW * header_win);
 void term_size (WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
 void unlock_spinner (void);
 void update_active_module (WINDOW * header_win, GModule current);
-void update_header (WINDOW * header_win, int current);
-/* *INDENT-ON* */
 
 #endif

@@ -47,6 +47,7 @@
 #include "gkhash.h"
 #include "settings.h"
 #include "ui.h"
+#include "dialogs.h"
 #include "util.h"
 #include "websocket.h"
 #include "xmalloc.h"

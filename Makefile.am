@@ -154,6 +154,8 @@ goaccess_SOURCES = \
    src/commons.h       \
    src/csv.c           \
    src/csv.h           \
+   src/dialogs.c       \
+   src/dialogs.h       \
    src/error.c         \
    src/error.h         \
    src/fileio.c        \

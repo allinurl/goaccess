@@ -1,4 +1,5 @@
 /**
+ * dialogs.h -- UI dialog windows
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
@@ -27,17 +28,18 @@
  * SOFTWARE.
  */
 
-#ifndef GOACCESS_H_INCLUDED
-#define GOACCESS_H_INCLUDED
+#ifndef DIALOGS_H_INCLUDED
+#define DIALOGS_H_INCLUDED
 
 #include "ui.h"
-#include "dialogs.h"
+#include "sort.h"
 
-#define RAND_FN 7 + 1
-
-extern GSpinner *parsing_spinner;
-extern int active_gdns;         /* kill dns pthread flag */
-
-void read_client (void *ptr_data);
+void load_help_popup (WINDOW * main_win);
+void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
+void load_schemes_win (WINDOW * main_win);
+int render_confdlg (Logs * logs, GSpinner * spinner);
+GAgents *load_host_agents (const char *addr);
+void load_agent_list (WINDOW * main_win, char *addr);
+void load_panels_win (WINDOW * main_win);
 
 #endif
