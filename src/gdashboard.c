@@ -819,23 +819,22 @@ render_header (WINDOW *win, GDashModule *data, GModule cur_module, int *y) {
   GColors *(*func) (void);
   char ind;
   char *hd;
-  int k, w, h;
+  int w, h;
+  int panel_idx = get_module_index (data->module) + 1; /* 1-based position */
 
   getmaxyx (win, h, w);
   (void) h;
 
-  k = data->module + 1;
   ind = cur_module == data->module ? '>' : ' ';
   func = cur_module == data->module && conf.hl_header ? color_panel_active : color_panel_header;
 
-  hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, k, data->head) + 1);
-  sprintf (hd, "%c %d - %s", ind, k, data->head);
+  hd = xmalloc (snprintf (NULL, 0, "%c %d - %s", ind, panel_idx, data->head) + 1);
+  sprintf (hd, "%c %d - %s", ind, panel_idx, data->head);
 
   draw_header (win, hd, " %s", (*y), 0, w, func);
   free (hd);
 
   render_total_label (win, data, (*y), func);
-
   data->pos_y = (*y);
   (*y)++;
 }

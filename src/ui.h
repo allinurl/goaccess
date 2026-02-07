@@ -153,6 +153,12 @@
 #define ERR_WIN_HEIGHT    15
 #define ERR_WIN_WIDTH     71
 
+/* ORDER PANELS */
+#define PANELS_MENU_X     2
+#define PANELS_MENU_Y     4
+#define PANELS_WIN_H      22
+#define PANELS_WIN_W      50
+
 #include "color.h"
 #include "commons.h"
 #include "sort.h"
@@ -247,6 +253,7 @@ void init_colors (int force);
 void init_windows (WINDOW ** header_win, WINDOW ** main_win);
 void load_agent_list (WINDOW * main_win, char *addr);
 void load_help_popup (WINDOW * main_win);
+void load_panels_win (WINDOW *main_win);
 void load_schemes_win (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
 void lock_spinner (void);

@@ -1855,61 +1855,43 @@ load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
 }
 
 /* Help menu data (F1/h). */
-static const char *const help_main[] = {
-  "Copyright (C) 2009-2025 by Gerardo Orellana",
-  "https://goaccess.io - <hello@goaccess.io>",
-  "Released under the MIT License.",
+static const char *help_main[] = {
   "",
-  "See `man` page for more details",
+  "Copyright (C) 2009-2024 by Gerardo Orellana",
+  "https://goaccess.io - <hello@goaccess.io>",
+  "Released under the MIT License",
   "",
   "GoAccess is an open source real-time web log analyzer and",
-  "interactive viewer that runs in a terminal in *nix systems.",
-  "It provides fast and valuable HTTP statistics for system",
-  "administrators that require a visual server report on the",
-  "fly.",
+  "interactive viewer that runs in a terminal in *nix systems or",
+  "through your browser.",
   "",
-  "The data collected based on the parsing of the log is",
-  "divided into different modules. Modules are automatically",
-  "generated and presented to the user.",
+  "KEYS:",
   "",
-  "The main dashboard displays general statistics, top",
-  "visitors, requests, browsers, operating systems,",
-  "hosts, etc.",
+  "1-9,0     Jump to panel by position (1st, 2nd, ... 10th)",
+  "TAB       Forward module",
+  "SHIFT+TAB Backward module",
+  "^f        Scroll forward inside expanded module",
+  "^b        Scroll backward inside expanded module",
+  "s         Sort options for current module",
+  "p         Reorder panels",
+  "/         Search across all modules (regex allowed)",
+  "n         Find next occurrence",
+  "g         Move to the top/beginning of screen",
+  "G         Move to the bottom/end of screen",
+  "j         Scroll down within expanded module",
+  "k         Scroll up within expanded module",
+  "ENTER     Expand selected module",
+  "o/O       Expand selected module",
+  "q         Quit (or collapse if inside module)",
+  "c         Set/change color scheme",
+  "m/M       Cycle through chart metrics (forward/backward)",
+  "l/L       Toggle logarithmic scale for current panel",
+  "r/R       Toggle reverse chronological order in charts",
+  "?         This help",
   "",
-  "The user can make use of the following keys:",
-  " ^F1^  or ^h^    Main help",
-  " ^F5^            Redraw [main window]",
-  " ^q^             Quit the program, current window or module",
-  " ^o^ or ^ENTER^  Expand selected module",
-  " ^[Shift]0-9^    Set selected module to active",
-  " ^Up^ arrow      Scroll up main dashboard",
-  " ^Down^ arrow    Scroll down main dashboard",
-  " ^j^             Scroll down within expanded module",
-  " ^k^             Scroll up within expanded module",
-  " ^c^             Set or change scheme color",
-  " ^r^             Toggle reverse chart bars",
-  " ^m^             Cycle chart metric forward",
-  " ^M^             Cycle chart metric backward",
-  " ^l^             Toggle logarithmic chart scale",
-  " ^CTRL^ + ^f^    Scroll forward one screen within",
-  "                 active module",
-  " ^CTRL^ + ^b^    Scroll backward one screen within",
-  "                 active module",
-  " ^TAB^           Iterate modules (forward)",
-  " ^SHIFT^ + ^TAB^ Iterate modules (backward)",
-  " ^s^             Sort options for current module",
-  " ^/^             Search across all modules",
-  " ^n^             Find position of the next occurrence",
-  " ^g^             Move to the first item or top of screen",
-  " ^G^             Move to the last item or bottom of screen",
+  "Examples can be found by running 'man goaccess'.",
   "",
-  "Examples can be found by running `man goaccess`.",
-  "",
-  "If you believe you have found a bug, please drop me",
-  "an email with details.",
-  "",
-  "Feedback? Just shoot me an email to:",
-  "hello@goaccess.io",
+  "[Press any key to continue]"
 };
 
 /* Render the help dialog. */
@@ -1962,6 +1944,123 @@ load_help_popup (WINDOW *main_win) {
     wrefresh (win);
   }
   /* clean stuff up */
+  for (i = 0; i < n; ++i)
+    free (menu->items[i].name);
+  free (menu->items);
+  free (menu);
+
+  touchwin (main_win);
+  close_win (win);
+  wrefresh (main_win);
+}
+
+static void
+swap_modules (int idx1, int idx2) {
+  int tmp = module_list[idx1];
+  module_list[idx1] = module_list[idx2];
+  module_list[idx2] = tmp;
+}
+
+void
+load_panels_win (WINDOW *main_win) {
+  GMenu *menu;
+  WINDOW *win;
+  int c, quit = 1;
+  int i, n = 0;
+  int y, x, h = PANELS_WIN_H, w = PANELS_WIN_W;
+  int w2 = w - 2;
+  int menu_h;
+  char *tmp_name = NULL;
+  size_t idx = 0;
+
+  getmaxyx (stdscr, y, x);
+
+  /* Count active modules */
+  FOREACH_MODULE (idx, module_list) {
+    n++;
+  }
+
+  menu_h = n < 14 ? n : 14;
+
+  win = newwin (h, w, (y - h) / 2, (x - w) / 2);
+  keypad (win, TRUE);
+  wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+
+  /* Create menu */
+  menu = new_gmenu (win, menu_h, w - 4, PANELS_MENU_Y, PANELS_MENU_X);
+  menu->size = n;
+  menu->selectable = 0;
+
+  /* Add items to menu with position numbers */
+  menu->items = (GItem *) xcalloc (n, sizeof (GItem));
+
+  idx = 0;
+  i = 0;
+  FOREACH_MODULE (idx, module_list) {
+    GModule module = module_list[idx];
+    const char *label = module_to_label (module);
+    int pos = i + 1;
+
+    /* Show position number in the menu */
+    menu->items[i].name = xmalloc (snprintf (NULL, 0, "%d. %s", pos, label) + 1);
+    sprintf (menu->items[i].name, "%d. %s", pos, label);
+    i++;
+  }
+
+  post_gmenu (menu);
+  draw_header (win, "Reorder Panels", " %s", 1, 1, w2, color_panel_header);
+  mvwprintw (win, 2, 2, "Numbers shown are keyboard shortcuts");
+  mvwprintw (win, h - 2, 2, "[Up/Down] Navigate [Enter] Move Down [q] Close");
+  wrefresh (win);
+
+  while (quit) {
+    c = wgetch (stdscr);
+    switch (c) {
+    case KEY_DOWN:
+      gmenu_driver (menu, REQ_DOWN);
+      break;
+    case KEY_UP:
+      gmenu_driver (menu, REQ_UP);
+      break;
+    case 'w':
+    case 'W':
+    case 575:
+      if (menu->idx > 0) {
+        swap_modules (menu->idx, menu->idx - 1);
+
+        /* Swap menu items */
+        tmp_name = menu->items[menu->idx].name;
+        menu->items[menu->idx].name = menu->items[menu->idx - 1].name;
+        menu->items[menu->idx - 1].name = tmp_name;
+
+        menu->idx--;
+        post_gmenu (menu);
+      }
+      break;
+    case 's':
+    case 'S':
+    case 534:
+      if (menu->idx < n - 1) {
+        swap_modules (menu->idx, menu->idx + 1);
+
+        /* Swap menu items */
+        tmp_name = menu->items[menu->idx].name;
+        menu->items[menu->idx].name = menu->items[menu->idx + 1].name;
+        menu->items[menu->idx + 1].name = tmp_name;
+
+        menu->idx++;
+        post_gmenu (menu);
+      }
+      break;
+    case KEY_RESIZE:
+    case 'q':
+      quit = 0;
+      break;
+    }
+    wrefresh (win);
+  }
+
+  /* Clean up */
   for (i = 0; i < n; ++i)
     free (menu->items[i].name);
   free (menu->items);

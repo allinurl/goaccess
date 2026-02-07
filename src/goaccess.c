@@ -1173,102 +1173,26 @@ get_keys (Logs *logs) {
       sigaction (SIGINT, &oldact, NULL);
       render_screens (offset);
       break;
-    case 49:   /* 1 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, VISITORS) == 0)
-        render_screens (offset);
-      break;
-    case 50:   /* 2 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, REQUESTS) == 0)
-        render_screens (offset);
-      break;
+    case 49:   /* 1 - jump to first panel */
+    case 50:   /* 2 - jump to second panel */
     case 51:   /* 3 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, REQUESTS_STATIC) == 0)
-        render_screens (offset);
-      break;
     case 52:   /* 4 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, NOT_FOUND) == 0)
-        render_screens (offset);
-      break;
     case 53:   /* 5 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, HOSTS) == 0)
-        render_screens (offset);
-      break;
     case 54:   /* 6 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, OS) == 0)
-        render_screens (offset);
-      break;
     case 55:   /* 7 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, BROWSERS) == 0)
-        render_screens (offset);
-      break;
     case 56:   /* 8 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, VISIT_TIMES) == 0)
-        render_screens (offset);
-      break;
     case 57:   /* 9 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, VIRTUAL_HOSTS) == 0)
-        render_screens (offset);
-      break;
-    case 48:   /* 0 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, REFERRERS) == 0)
-        render_screens (offset);
-      break;
-    case 33:   /* shift + 1 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, REFERRING_SITES) == 0)
-        render_screens (offset);
-      break;
-    case 64:   /* shift + 2 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, KEYPHRASES) == 0)
-        render_screens (offset);
-      break;
-    case 35:   /* Shift + 3 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, STATUS_CODES) == 0)
-        render_screens (offset);
-      break;
-    case 36:   /* Shift + 4 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, REMOTE_USER) == 0)
-        render_screens (offset);
-      break;
-    case 37:   /* Shift + 5 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, CACHE_STATUS) == 0)
-        render_screens (offset);
-      break;
-#ifdef HAVE_GEOLOCATION
-    case 94:   /* Shift + 6 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, GEO_LOCATION) == 0)
-        render_screens (offset);
-      break;
-    case 38:   /* Shift + 7 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, ASN) == 0)
-        render_screens (offset);
-      break;
-#endif
-    case 42:   /* Shift + 7 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, MIME_TYPE) == 0)
-        render_screens (offset);
-      break;
-    case 40:   /* Shift + 8 */
-      /* reset expanded module */
-      if (set_module_to (&gscroll, TLS_TYPE) == 0)
-        render_screens (offset);
+    case 48:   /* 0 - jump to tenth panel */
+      {
+        int panel_idx = (c == 48) ? 9 : (c - 49); /* 0 = 10th panel (index 9) */
+        int num_modules = get_num_modules ();
+
+        if (panel_idx < num_modules) {
+          GModule target = module_list[panel_idx];
+          if (set_module_to (&gscroll, target) == 0)
+            render_screens (offset);
+        }
+      }
       break;
     case 9:    /* TAB */
       /* reset expanded module */
@@ -1345,6 +1269,23 @@ get_keys (Logs *logs) {
       if (render_search_dialog (search) == 0)
         render_screens (offset);
       sigaction (SIGINT, &oldact, NULL);
+      break;
+    case 'p':  /* reorder panels */
+    case 'P':
+      sigaction (SIGINT, &act, &oldact);
+      load_panels_win (main_win);
+      sigaction (SIGINT, &oldact, NULL);
+
+      /* Rebuild dashboard with new panel order */
+      pthread_mutex_lock (&gdns_thread.mutex);
+      free_holder (&holder);
+      pthread_cond_broadcast (&gdns_thread.not_empty);
+      pthread_mutex_unlock (&gdns_thread.mutex);
+
+      free_dashboard (dash);
+      allocate_holder ();
+      allocate_data ();
+      render_screens (offset);
       break;
     case 'r':  /* toggle reverse bars */
     case 'R':
