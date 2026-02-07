@@ -153,6 +153,15 @@ typedef struct GFind_ {
   int icase;
 } GFind;
 
+/* Helper: snapshot current spinner state (avoids holding mutex too long) */
+typedef struct {
+  int state;
+  bool curses;
+  uint64_t processed;
+  int64_t elapsed_sec;
+  const char *filename;
+} SpinnerSnapshot;
+
 typedef struct GScrollModule_ {
   int scroll;
   int offset;
@@ -180,6 +189,7 @@ typedef struct GSpinner_ {
   pthread_t thread;
   uint64_t **processed;
   char **filename;
+  time_t start_time;
   WINDOW *win;
   enum {
     SPN_RUN,

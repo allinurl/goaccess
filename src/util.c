@@ -107,6 +107,12 @@ static const char *const codes[600] = {
   [598] = STATUS_CODE_598, STATUS_CODE_599,
 };
 
+const char *
+basename_only (const char *path) {
+  const char *base = strrchr (path, '/');
+  return base ? base + 1 : path;
+}
+
 /* Return part of a string
  *
  * On error NULL is returned.

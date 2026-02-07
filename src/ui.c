@@ -806,88 +806,213 @@ input_string (WINDOW *win, int pos_y, int pos_x, size_t max_width, const char *s
   return s;
 }
 
-static const char *const spin_blocks[] = { " ", "▏", "▎", "▍", "▌", "▋", "▊", "▉" };
-
 static const char spin_chars[] = "/-\\|";
-#define SPIN_FRAMES_COUNT  (sizeof(spin_blocks) / sizeof(spin_blocks[0]))
+#define SPIN_FRAMES_COUNT  (sizeof(spin_chars) / sizeof(spin_chars[0]))
 
+static const char *const goaccess_mini_banner[] = {
+  "   ______      ___",
+  "  / ____/___  /   | _____________  __________",
+  " / / __/ __ \\/ /| |/ ___/ ___/ _ \\/ ___/ ___/",
+  "/ /_/ / /_/ / ___ / /__/ /__/  __(__  |__  ) ",
+  "\\____/\\____/_/  |_\\___/\\___/\\___/____/____/ ",
+  "",
+  "The MIT License (MIT) - Copyright (c) 2009-2026 Gerardo Orellana <hello@goaccess.io>",
+  NULL
+};
+
+/* Helper: format stats string safely */
+static void
+format_stats (uint64_t processed, int64_t elapsed_sec, char *out, size_t outsz) {
+  int64_t rate = (elapsed_sec >= 1) ? (int64_t) (processed / (uint64_t) elapsed_sec) : 0;
+  snprintf (out, outsz, "%'13" PRIu64 "   %" PRIi64 "/s", processed, rate);
+}
+
+static SpinnerSnapshot
+snapshot_state (GSpinner *sp) {
+  SpinnerSnapshot snap = { 0 };
+
+  lock_spinner ();
+
+  snap.state = sp->state;
+  snap.curses = sp->curses;
+
+  if (sp->processed && *(sp->processed)) {
+    snap.processed = **(sp->processed);
+  } else {
+    snap.processed = 0ULL;
+  }
+
+  snap.elapsed_sec = (time (NULL) - sp->start_time);
+  snap.filename = (sp->filename && *sp->filename) ? *sp->filename : "processing";
+
+  unlock_spinner ();
+
+  return snap;
+}
+
+/* Curses rendering – filename + stats via draw_header, bar in middle, spinner at spin_x */
+static void
+render_curses (GSpinner *sp, SpinnerSnapshot *snap, const char *stats, int *bounce_pos,
+               int *bounce_dir, int bounce_width, int spin_idx) {
+  GColors *color = (*sp->color) ();
+  char left_buf[256] = { 0 };
+  const char *fname = NULL;
+
+  int maxx = getmaxx (sp->win), text_width = 0, bar_start = 0, bar_max = 0, i = 0, fill_start;
+  if (maxx < 60)
+    maxx = 80;
+
+  /* Prepare left text: filename (basename) + stats */
+  fname = basename_only (snap->filename);
+  snprintf (left_buf, sizeof (left_buf), "%s  %s", fname, stats);
+
+  /* Draw left text using original draw_header style */
+  draw_header (sp->win, left_buf, " %s", sp->y, sp->x, sp->w, sp->color);
+
+  /* Calculate where the bar starts (right after text ends) */
+  text_width = strlen (left_buf) + 2; /* + padding */
+  bar_start = sp->x + text_width;
+  bar_max = maxx - bar_start - 5; /* leave space for spinner */
+
+  if (bar_max < 20) {
+    bar_max = 20;
+    bar_start = maxx - bar_max - 5;
+  }
+
+  /* White bold bouncing blocks */
+  fill_start = bar_start + *bounce_pos;
+  wattron (sp->win, COLOR_PAIR (color->pair->idx) | A_BOLD);
+  for (i = 0; i < bounce_width && fill_start + i < bar_start + bar_max; i++) {
+    mvwaddch (sp->win, sp->y, fill_start + i, ACS_BLOCK);
+  }
+  wattroff (sp->win, COLOR_PAIR (color->pair->idx) | A_BOLD);
+
+  /* Animate bounce */
+  *bounce_pos += *bounce_dir * 2;
+  if (*bounce_pos >= bar_max - bounce_width)
+    *bounce_dir = -1;
+  if (*bounce_pos <= 0)
+    *bounce_dir = 1;
+
+  /* Spinner at original sp->spin_x position */
+  if (!conf.no_progress) {
+    wattron (sp->win, COLOR_PAIR (color->pair->idx));
+    mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[spin_idx & 3]);
+    wattroff (sp->win, COLOR_PAIR (color->pair->idx));
+  }
+
+  wrefresh (sp->win);
+}
+
+/* Terminal (colored) rendering – same order */
+static void
+render_plain (FILE *out, SpinnerSnapshot *snap, const char *stats,
+              int *banner_shown, int *bounce_pos, int *bounce_dir, int bounce_width, int spin_idx) {
+
+  int i = 0, barlen = 0, pos = 0;
+  const char *fname = basename_only (snap->filename);
+  char bar[128] = "";
+  char spinner_char;
+
+  if (!*banner_shown) {
+    for (i = 0; goaccess_mini_banner[i]; i++) {
+      fprintf (out, "\033[1;36m%s\033[0m\n", goaccess_mini_banner[i]);
+    }
+    fprintf (out, "\n");
+    *banner_shown = true;
+  }
+
+  /* Build bouncing bar – smooth reverse direction */
+  barlen = 40;
+  pos = *bounce_pos; // current position
+
+  for (i = 0; i < barlen; i++) {
+    if (i >= pos && i < pos + bounce_width) {
+      bar[i] = '#';
+    } else {
+      bar[i] = '-';
+    }
+  }
+  bar[barlen] = '\0';
+
+  spinner_char = spin_chars[spin_idx & 3];
+
+  fprintf (out, "\033[2K\r" "\033[1;37m%s\033[0m " /* filename white */
+           "\033[1;34m%s\033[0m " /* stats blue */
+           "\033[90m[\033[1;32m%s\033[90m]\033[0m " /* bar green fill */
+           "\033[36m%c\033[0m", /* spinner cyan */
+           fname, stats, bar, spinner_char);
+
+  fflush (out);
+
+  /* Animate bounce – same logic as curses */
+  *bounce_pos += *bounce_dir * 2; // step size 2 for smoother feel
+
+  if (*bounce_pos >= barlen - bounce_width) {
+    *bounce_dir = -1;
+  }
+  if (*bounce_pos <= 0) {
+    *bounce_dir = 1;
+  }
+}
+
+/* Fallback (minimal) – filename → stats → spinner */
+static void
+render_fallback (FILE *out, SpinnerSnapshot *snap, const char *stats, int spin_idx) {
+  const char *fname = basename_only (snap->filename);
+  fprintf (out, "\r%s  %s  %c", fname, stats, spin_chars[spin_idx & 3]);
+  fflush (out);
+}
+
+/* Main spinner loop */
 static void
 ui_spinner (void *ptr_data) {
   GSpinner *sp = (GSpinner *) ptr_data;
-  GColors *color = NULL;
-  char buf[SPIN_LBL] = { 0 };
-  const char *fn = NULL;
-  int spin_idx = 0;
-  int64_t tdiff = 0, psec = 0;
-  time_t begin;
+
+  static int banner_shown = 0;
+  static int bounce_pos = 0;
+  static int bounce_dir = 1;
+  const int bounce_width = 8;
+  static int spin_idx = 0;
   struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
 
-  if (sp->curses)
-    color = (*sp->color) ();
-
-  time (&begin);
-
-  /* Hide cursor only in interactive terminal (non-curses) */
-  if (!sp->curses && !conf.no_progress && isatty (fileno (stderr))) {
+  /* Hide cursor only in interactive terminal */
+  int is_interactive = !sp->curses && !conf.no_progress && isatty (fileno (stderr));
+  if (is_interactive) {
     fputs ("\033[?25l", stderr);
   }
 
-  while (1) {
-    pthread_mutex_lock (&sp->mutex);
-    if (sp->state == SPN_END) {
-      if (!sp->curses && !conf.no_progress && isatty (fileno (stderr))) {
-        fputs ("\033[?25h\033[2K\n", stderr); /* restore cursor + clear line + newline */
+  time (&sp->start_time);
+
+  while (true) {
+    char stats[96] = { 0 };
+    SpinnerSnapshot snap = snapshot_state (sp);
+    if (snap.state == SPN_END) {
+      if (is_interactive) {
+        fputs ("\033[?25h\033[2K\n", stderr);
       }
-      pthread_mutex_unlock (&sp->mutex);
-      return;
+      break;
     }
 
-    setlocale (LC_NUMERIC, "");
-    fn = *sp->filename ? *sp->filename : "processing";
-    tdiff = (int64_t) (time (NULL) - begin);
-    psec = (tdiff >= 1) ? (int64_t) (**(sp->processed) / (uint64_t) tdiff) : 0;
-    spin_idx = (spin_idx + 1) % SPIN_FRAMES_COUNT;
+    /* If no progress is wanted, just sleep and loop */
+    if (conf.no_progress) {
+      nanosleep (&ts, NULL);
+      continue;
+    }
 
-    /* Build display string according to mode */
-    if (sp->curses) {
-      /* CURSES: clean string — no ANSI escapes, no spinner char inside */
-      if (conf.no_progress) {
-        snprintf (buf, sizeof buf, "%s", sp->label);
-      } else {
-        snprintf (buf, sizeof buf, "%s %s    %'13" PRIu64 "    %" PRIi64 "/s", sp->label, fn,
-                  **(sp->processed), psec);
-        /* Spinner will be drawn separately at sp->spin_x */
-      }
-    } else if (!conf.no_progress && isatty (fileno (stderr))) {
-      /* Colored terminal with unicode spinner */
-      snprintf (buf, sizeof buf,
-                "\033[1;34m%s\033[0m %s " "\033[32m%'" PRIi64 "/s\033[0m " "\033[90m[ %'13" PRIu64
-                " ]\033[0m %s", sp->label, fn, psec, **(sp->processed), spin_blocks[spin_idx]);
+    format_stats (snap.processed, snap.elapsed_sec, stats, sizeof (stats));
+
+    spin_idx = (spin_idx + 1) % 4;
+
+    if (snap.curses) {
+      render_curses (sp, &snap, stats, &bounce_pos, &bounce_dir, bounce_width, spin_idx);
+    } else if (isatty (fileno (stderr))) {
+      render_plain (stderr, &snap, stats, &banner_shown, &bounce_pos, &bounce_dir, bounce_width,
+                    spin_idx);
     } else {
-      /* Fallback: no color, redirected output, etc. */
-      snprintf (buf, sizeof buf, "%s %s [ %'13" PRIu64 " ] %" PRIi64 "/s  %c", sp->label, fn,
-                **(sp->processed), psec, spin_chars[spin_idx & 3]);
-    }
-    setlocale (LC_NUMERIC, "POSIX");
-
-    /* Output */
-    if (sp->curses) {
-      /* Draw text part (without spinner) */
-      draw_header (sp->win, buf, " %s", sp->y, sp->x, sp->w, sp->color);
-      /* Draw single spinner at right position */
-      if (!conf.no_progress) {
-        wattron (sp->win, COLOR_PAIR (color->pair->idx));
-        mvwaddch (sp->win, sp->y, sp->spin_x, spin_chars[spin_idx & 3]);
-        wattroff (sp->win, COLOR_PAIR (color->pair->idx));
-      }
-      wrefresh (sp->win);
-    } else if (!conf.no_progress) {
-      /* Terminal: overwrite line */
-      fprintf (stderr, "\033[2K\r%s", buf);
-      fflush (stderr);
+      render_fallback (stderr, &snap, stats, spin_idx);
     }
 
-    pthread_mutex_unlock (&sp->mutex);
     if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
       FATAL ("nanosleep: %s", strerror (errno));
     }

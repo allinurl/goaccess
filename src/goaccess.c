@@ -1373,10 +1373,6 @@ static void
 init_processing (void) {
   /* perform some additional checks before parsing panels */
   verify_panels ();
-  /* initialize storage */
-  pthread_mutex_lock (&parsing_spinner->mutex);
-  parsing_spinner->label = "SETTING UP STORAGE";
-  pthread_mutex_unlock (&parsing_spinner->mutex);
 
   init_storage ();
   insert_methods_protocols ();
@@ -1759,7 +1755,6 @@ main (int argc, char **argv) {
 
   /* main processing event */
   time (&start_proc);
-  parsing_spinner->label = "PARSING";
 
   if ((ret = parse_log (logs, 0))) {
     end_spinner ();
@@ -1769,10 +1764,6 @@ main (int argc, char **argv) {
   if (conf.stop_processing)
     goto clean;
   logs->offset = *logs->processed;
-
-  pthread_mutex_lock (&parsing_spinner->mutex);
-  parsing_spinner->label = "RENDERING";
-  pthread_mutex_unlock (&parsing_spinner->mutex);
 
   parse_initial_sort ();
   allocate_holder ();
