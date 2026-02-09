@@ -49,6 +49,10 @@
 
 static GFind find_t;
 
+/* Forward declarations */
+static int count_sub_items_recursive (GSubList * sl);
+static int count_visible_sub (GSubList * sl, uint8_t * node_exp, int node_exp_size, int *full_idx);
+
 /* Reset find indices */
 void
 reset_find (void) {
@@ -904,6 +908,29 @@ render_data_line (WINDOW *win, GDashModule *data, int *y, int j, GScroll *gscrol
 
   sel = expanded && j == gscroll->module[module].scroll ? 1 : 0;
 
+  /* Render +/- expand indicator for items with children */
+  if (expanded && data->data[j].has_children) {
+    int nfi = data->data[j].node_full_idx;
+    uint8_t *node_exp = gscroll->module[module].item_expanded;
+    int node_exp_size = gscroll->module[module].item_expanded_size;
+    char indicator = '+';
+
+    if (node_exp == NULL || nfi < 0 || nfi >= node_exp_size || node_exp[nfi])
+      indicator = '-';
+
+    if (sel) {
+      GColors *selc = get_color (COLOR_SELECTED);
+      wattron (win, selc->attr | COLOR_PAIR (selc->pair->idx));
+      mvwaddch (win, *y, 0, indicator);
+      wattroff (win, selc->attr | COLOR_PAIR (selc->pair->idx));
+    } else {
+      GColors *ind_color = get_color (COLOR_PANEL_COLS);
+      wattron (win, ind_color->attr | COLOR_PAIR (ind_color->pair->idx));
+      mvwaddch (win, *y, 0, indicator);
+      wattroff (win, ind_color->attr | COLOR_PAIR (ind_color->pair->idx));
+    }
+  }
+
   render.win = win;
   render.y = *y;
   render.w = w;
@@ -1042,7 +1069,8 @@ render_chart_row (WINDOW *win, GDashModule *data, GScroll *gscroll, GHolder *h, 
         .metric_type = metric_type,
         .use_log_scale = use_log_scale,
         .reverse_bars = reverse_bars,
-
+        .item_expanded = gscroll->module[module].item_expanded,
+        .item_expanded_size = gscroll->module[module].item_expanded_size,
       };
       draw_panel_chart (win, h, &opts);
     }
@@ -1147,6 +1175,7 @@ reset_scroll_offsets (GScroll *gscroll) {
     module = module_list[idx];
     gscroll->module[module].scroll = 0;
     gscroll->module[module].offset = 0;
+    reset_item_expanded (&gscroll->module[module]);
   }
 }
 
@@ -1172,15 +1201,132 @@ regexp_init (regex_t *regex, const char *pattern) {
   return 0;
 }
 
+/* Expand all ancestor nodes for a found item and compute its visible flat index.
+ *
+ * Walks the holder hierarchy. For the found item's root parent (parent_idx),
+ * expands that root. Then walks into the sub-list to find the sub-item at
+ * sub_idx position, expanding each intermediate parent along the way.
+ * Returns the flat index of the found item in the resulting visible layout. */
+static int
+expand_ancestors_and_calc_idx (GHolder *h, GModule module, GScroll *gscroll, int parent_idx,
+                               int sub_idx, int is_sub) {
+  uint8_t *node_exp = gscroll->module[module].item_expanded;
+  int node_exp_size = gscroll->module[module].item_expanded_size;
+  int flat_idx = 0, full_idx = 0;
+  int j;
+
+  /* Count visible rows for all root items before parent_idx */
+  for (j = 0; j < parent_idx && j < h[module].idx; j++) {
+    int my_full = full_idx;
+    flat_idx++;
+    full_idx++;
+    if (h[module].items[j].sub_list && h[module].items[j].sub_list->size > 0) {
+      int expanded = 1;
+      if (node_exp != NULL && my_full < node_exp_size)
+        expanded = node_exp[my_full];
+      if (expanded)
+        flat_idx += count_visible_sub (h[module].items[j].sub_list, node_exp, node_exp_size,
+                                       &full_idx);
+      else
+        full_idx += count_sub_items_recursive (h[module].items[j].sub_list);
+    }
+  }
+
+  /* Now at parent_idx */
+  {
+    int root_full = full_idx;
+    flat_idx++; /* the root item itself */
+    full_idx++;
+
+    /* If not searching in sub-items, return the root position */
+    if (!is_sub)
+      return flat_idx - 1;
+
+    /* Expand this root so its children are visible */
+    if (node_exp != NULL && root_full < node_exp_size)
+      node_exp[root_full] = 1;
+
+    /* Walk into sub-items to find the target at sub_idx.
+     * sub_count mirrors the flat 'i' counter in find_next_sub_item:
+     *   i=0 is the first level-1 sub, i increments for each level-1 sub
+     *   and for each nested level-2 sub in between. */
+    {
+      GSubList *sl = h[module].items[parent_idx].sub_list;
+      GSubItem *iter;
+      int sub_count = 0;
+
+      if (sl == NULL)
+        return flat_idx - 1;
+
+      for (iter = sl->head; iter; iter = iter->next) {
+        int my_sub_full = full_idx;
+
+        /* Check if this level-1 sub-item is the target */
+        if (sub_count == sub_idx) {
+          flat_idx++;
+          return flat_idx - 1;
+        }
+
+        flat_idx++;
+        full_idx++;
+        sub_count++;
+
+        /* If this sub-item has children, walk through them */
+        if (iter->sub_list && iter->sub_list->size > 0) {
+          /* Expand this intermediate parent so the found item's
+           * siblings at the next level are visible */
+          if (node_exp != NULL && my_sub_full < node_exp_size)
+            node_exp[my_sub_full] = 1;
+
+          {
+            GSubItem *nested;
+            for (nested = iter->sub_list->head; nested; nested = nested->next) {
+              if (sub_count == sub_idx) {
+                flat_idx++;
+                return flat_idx - 1;
+              }
+              flat_idx++;
+              full_idx++;
+              sub_count++;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  return flat_idx > 0 ? flat_idx - 1 : 0;
+}
+
 /* Set the dashboard scroll and offset based on the search index. */
 static void
-perform_find_dash_scroll (GScroll *gscroll, GModule module) {
+perform_find_dash_scroll (GScroll *gscroll, GModule module, GHolder *h) {
   int *scrll, *offset;
   int exp_size = get_num_expanded_data_rows ();
+  int total_nodes;
 
   /* reset gscroll offsets if we are changing module */
   if (gscroll->current != module)
     reset_scroll_offsets (gscroll);
+
+  /* Initialize per-node state if not yet set.
+   * Size = total nodes in the tree (roots + all sub-items). */
+  if (gscroll->module[module].item_expanded == NULL && h != NULL) {
+    total_nodes = h[module].idx + h[module].sub_items_size;
+    init_item_expanded (&gscroll->module[module], total_nodes);
+  }
+
+  /* Expand ancestors of the found item and compute flat index.
+   *
+   * find_t.next_sub_idx is set to (1 + i) by find_next_sub_item as a resume
+   * position. A value > 0 means the match is a sub-item at position (next_sub_idx - 1).
+   * A value of 0 means the match is at the root level. */
+  if (h != NULL) {
+    int is_sub_match = (find_t.next_sub_idx > 0) ? 1 : 0;
+    int match_sub_pos = is_sub_match ? find_t.next_sub_idx - 1 : 0;
+    find_t.next_idx = expand_ancestors_and_calc_idx (h, module, gscroll, find_t.next_parent_idx,
+                                                     match_sub_pos, is_sub_match);
+  }
 
   scrll = &gscroll->module[module].scroll;
   offset = &gscroll->module[module].offset;
@@ -1286,14 +1432,14 @@ perform_next_find (GHolder *h, GScroll *gscroll) {
       /* a match was found (data level) */
       else if (rc == 0 && !find_t.look_in_sub) {
         find_t.look_in_sub = 1;
-        perform_find_dash_scroll (gscroll, module);
+        perform_find_dash_scroll (gscroll, module, h);
         goto out;
       }
       /* look at sub list nodes */
       else {
         sub_list = h[module].items[j].sub_list;
         if (find_next_sub_item (sub_list, &regex) == 0) {
-          perform_find_dash_scroll (gscroll, module);
+          perform_find_dash_scroll (gscroll, module, h);
           goto out;
         }
       }
@@ -1372,6 +1518,8 @@ set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals t
 
   idata->metrics = new_gmetrics ();
   idata->is_subitem = depth;
+  idata->has_children = 0;
+  idata->node_full_idx = -1;
   idata->metrics->hits = metrics->hits;
   idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);
   idata->metrics->visitors = metrics->visitors;
@@ -1401,27 +1549,63 @@ out:
   (*idx)++;
 }
 
-/* Add an item from a sub list to the dashboard.
- *
- * If no items on the sub list, the function returns.
- * On success, sub list data is set into the dashboard structure. */
-static void
-add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int *i,
-                      int depth) {
-  GSubList *sub_list = item.sub_list;
+/* Recursively count all sub-items in a sub-list tree. */
+static int
+count_sub_items_recursive (GSubList *sl) {
   GSubItem *iter;
+  int count = 0;
+  if (sl == NULL)
+    return 0;
+  for (iter = sl->head; iter; iter = iter->next) {
+    count++;
+    if (iter->sub_list)
+      count += count_sub_items_recursive (iter->sub_list);
+  }
+  return count;
+}
+
+/* Recursively add sub-items to dashboard, respecting per-node expand state.
+ *
+ * full_idx: tracks position in full DFS traversal (for node_expanded[] indexing)
+ * node_exp/node_exp_size: per-node expand state array
+ * i: tracks the dash alloc_size counter
+ */
+static void
+add_sub_item_to_dash_recursive (GDash **dash, GSubList *sub_list, GModule module,
+                                GPercTotals totals, int *i, int depth, int *full_idx,
+                                uint8_t *node_exp, int node_exp_size) {
+  GSubItem *iter;
+  int *didx;
 
   if (sub_list == NULL)
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
+    int my_full_idx = *full_idx;
+    int has_kids = (iter->sub_list != NULL && iter->sub_list->size > 0) ? 1 : 0;
+
     set_dash_metrics (dash, iter->metrics, module, totals, depth);
-    /* recurse into nested sub-items */
-    if (iter->sub_list != NULL) {
-      GHolderItem child;
-      child.metrics = iter->metrics;
-      child.sub_list = iter->sub_list;
-      add_sub_item_to_dash (dash, child, module, totals, i, depth + 1);
+
+    /* Set node metadata on the just-added item */
+    didx = &(*dash)->module[module].idx_data;
+    (*dash)->module[module].data[(*didx) - 1].node_full_idx = my_full_idx;
+    (*dash)->module[module].data[(*didx) - 1].has_children = has_kids;
+
+    (*full_idx)++;
+
+    /* Recurse into nested sub-items only if this node is expanded */
+    if (has_kids) {
+      int should_expand = 1;
+      if (node_exp != NULL && my_full_idx < node_exp_size)
+        should_expand = node_exp[my_full_idx];
+
+      if (should_expand) {
+        add_sub_item_to_dash_recursive (dash, iter->sub_list, module, totals, i, depth + 1,
+                                        full_idx, node_exp, node_exp_size);
+      } else {
+        /* Skip all descendants in full_idx counting */
+        *full_idx += count_sub_items_recursive (iter->sub_list);
+      }
     }
   }
 }
@@ -1430,20 +1614,85 @@ add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotal
  *
  * On success, data is set into the dashboard structure. */
 static void
-add_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals) {
+add_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int full_idx) {
+  int *idx;
   set_dash_metrics (dash, item.metrics, module, totals, 0);
+  /* set node metadata (idx was already incremented by set_dash_metrics) */
+  idx = &(*dash)->module[module].idx_data;
+  (*dash)->module[module].data[(*idx) - 1].node_full_idx = full_idx;
+  (*dash)->module[module].data[(*idx) - 1].has_children =
+    (item.sub_list != NULL && item.sub_list->size > 0) ? 1 : 0;
+}
+
+/* Count visible sub-items recursively given per-node expand state. */
+static int
+count_visible_sub (GSubList *sl, uint8_t *node_exp, int node_exp_size, int *full_idx) {
+  GSubItem *iter;
+  int count = 0;
+
+  if (sl == NULL)
+    return 0;
+
+  for (iter = sl->head; iter; iter = iter->next) {
+    int my_full_idx = *full_idx;
+    count++;
+    (*full_idx)++;
+    if (iter->sub_list && iter->sub_list->size > 0) {
+      int is_expanded = 1;
+      if (node_exp != NULL && my_full_idx < node_exp_size)
+        is_expanded = node_exp[my_full_idx];
+      if (is_expanded)
+        count += count_visible_sub (iter->sub_list, node_exp, node_exp_size, full_idx);
+      else
+        *full_idx += count_sub_items_recursive (iter->sub_list);
+    }
+  }
+  return count;
+}
+
+/* Count total visible items (roots + expanded sub-items) for a holder. */
+static int
+count_visible_items (GHolder *h, uint8_t *node_exp, int node_exp_size) {
+  int count = 0, full_idx = 0, i;
+
+  for (i = 0; i < h->idx; i++) {
+    int my_full_idx = full_idx;
+    count++;
+    full_idx++;
+    if (h->items[i].sub_list && h->items[i].sub_list->size > 0) {
+      int is_expanded = 1;
+      if (node_exp != NULL && my_full_idx < node_exp_size)
+        is_expanded = node_exp[my_full_idx];
+      if (is_expanded)
+        count += count_visible_sub (h->items[i].sub_list, node_exp, node_exp_size, &full_idx);
+      else
+        full_idx += count_sub_items_recursive (h->items[i].sub_list);
+    }
+  }
+  return count;
 }
 
 /* Load holder's data into the dashboard structure. */
 void
 load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
   int alloc_size = 0;
-  int i, j;
+  int i, j, full_idx = 0;
   GPercTotals totals;
+  uint8_t *node_exp = NULL;
+  int node_exp_size = 0;
 
   alloc_size = dash->module[module].alloc_data;
-  if (gscroll->expanded && module == gscroll->current)
-    alloc_size += h->sub_items_size;
+  if (gscroll->expanded && module == gscroll->current) {
+    node_exp = gscroll->module[module].item_expanded;
+    node_exp_size = gscroll->module[module].item_expanded_size;
+
+    /* Calculate visible items based on per-node expand state */
+    alloc_size = count_visible_items (h, node_exp, node_exp_size);
+
+    /* Clamp to the original alloc (number of root items or max_choices) */
+    if (alloc_size < dash->module[module].alloc_data)
+      alloc_size = dash->module[module].alloc_data;
+  }
 
   dash->module[module].alloc_data = alloc_size;
   dash->module[module].data = new_gdata (alloc_size);
@@ -1456,9 +1705,24 @@ load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
     if (h->items[j].metrics->data == NULL)
       continue;
 
-    add_item_to_dash (&dash, h->items[j], module, totals);
-    if (gscroll->expanded && module == gscroll->current && h->sub_items_size)
-      add_sub_item_to_dash (&dash, h->items[j], module, totals, &i, 1);
+    {
+      int my_full_idx = full_idx;
+      full_idx++;
+      add_item_to_dash (&dash, h->items[j], module, totals, my_full_idx);
+
+      if (gscroll->expanded && module == gscroll->current && h->items[j].sub_list &&
+          h->items[j].sub_list->size > 0) {
+        int should_expand = 1;
+        if (node_exp != NULL && my_full_idx < node_exp_size)
+          should_expand = node_exp[my_full_idx];
+        if (should_expand) {
+          add_sub_item_to_dash_recursive (&dash, h->items[j].sub_list, module, totals, &i, 1,
+                                          &full_idx, node_exp, node_exp_size);
+        } else {
+          full_idx += count_sub_items_recursive (h->items[j].sub_list);
+        }
+      }
+    }
     j++;
   }
 }

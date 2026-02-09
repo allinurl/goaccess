@@ -99,6 +99,8 @@ typedef struct GDashRender_ {
 typedef struct GDashData_ {
   GMetrics *metrics;
   short is_subitem;
+  short has_children;           /* 1 if this node has sub-items */
+  int node_full_idx;            /* index into node_expanded[] (full DFS position) */
 } GDashData;
 
 /* Dashboard panel meta data */

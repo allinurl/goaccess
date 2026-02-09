@@ -77,6 +77,10 @@ typedef struct {
   int y_chart_start;
   int needs_top_padding;
   int num_items;                /* total number of chart items */
+
+  /* Per-item expand state for filtering visible chart bars */
+  const uint8_t *item_expanded; /* NULL = all expanded, else per-root-item state */
+  int item_expanded_size;       /* number of entries in item_expanded */
 } ChartDrawCtx;
 
 /* Main drawing function */

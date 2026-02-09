@@ -109,27 +109,27 @@ static int main_win_height = 0;
 /* *INDENT-OFF* */
 static GScroll gscroll = {
   {
-     {0, 0, 0, 0, 1}, /* VISITORS - note the 1 at the end! */
-     {0, 0, 0, 0, 0}, /* REQUESTS */
-     {0, 0, 0, 0, 0}, /* REQUESTS_STATIC */
-     {0, 0, 0, 0, 0}, /* NOT_FOUND */
-     {0, 0, 0, 0, 0}, /* HOSTS */
-     {0, 0, 0, 0, 0}, /* OS */
-     {0, 0, 0, 0, 0}, /* BROWSERS */
-     {0, 0, 0, 0, 0}, /* VISIT_TIMES */
-     {0, 0, 0, 0, 0}, /* VIRTUAL_HOSTS */
-     {0, 0, 0, 0, 0}, /* REFERRERS */
-     {0, 0, 0, 0, 0}, /* REFERRING_SITES */
-     {0, 0, 0, 0, 0}, /* KEYPHRASES */
-     {0, 0, 0, 0, 0}, /* STATUS_CODES */
-     {0, 0, 0, 0, 0}, /* REMOTE_USER */
-     {0, 0, 0, 0, 0}, /* CACHE_STATUS */
+     {0, 0, 0, 0, 1, NULL, 0}, /* VISITORS - note the 1 at the end! */
+     {0, 0, 0, 0, 0, NULL, 0}, /* REQUESTS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* REQUESTS_STATIC */
+     {0, 0, 0, 0, 0, NULL, 0}, /* NOT_FOUND */
+     {0, 0, 0, 0, 0, NULL, 0}, /* HOSTS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* OS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* BROWSERS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* VISIT_TIMES */
+     {0, 0, 0, 0, 0, NULL, 0}, /* VIRTUAL_HOSTS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* REFERRERS */
+     {0, 0, 0, 0, 0, NULL, 0}, /* REFERRING_SITES */
+     {0, 0, 0, 0, 0, NULL, 0}, /* KEYPHRASES */
+     {0, 0, 0, 0, 0, NULL, 0}, /* STATUS_CODES */
+     {0, 0, 0, 0, 0, NULL, 0}, /* REMOTE_USER */
+     {0, 0, 0, 0, 0, NULL, 0}, /* CACHE_STATUS */
 #ifdef HAVE_GEOLOCATION
-     {0, 0, 0, 0, 0}, /* GEO_LOCATION */
-     {0, 0, 0, 0, 0}, /* ASN */
+     {0, 0, 0, 0, 0, NULL, 0}, /* GEO_LOCATION */
+     {0, 0, 0, 0, 0, NULL, 0}, /* ASN */
 #endif
-     {0, 0, 0, 0, 0}, /* MIME_TYPE */
-     {0, 0, 0, 0, 0}, /* TLS_TYPE */
+     {0, 0, 0, 0, 0, NULL, 0}, /* MIME_TYPE */
+     {0, 0, 0, 0, 0, NULL, 0}, /* TLS_TYPE */
   },
   0,         /* current module */
   0,         /* main dashboard scroll */
@@ -155,10 +155,24 @@ house_keeping_holder (void) {
   pthread_mutex_unlock (&gdns_thread.mutex);
 }
 
+/* Free per-item expand state for all modules */
+static void
+free_scroll_state (void) {
+  GModule module;
+  size_t idx = 0;
+  FOREACH_MODULE (idx, module_list) {
+    module = module_list[idx];
+    free_item_expanded (&gscroll.module[module]);
+  }
+}
+
 /* Free malloc'd data across the whole program */
 static void
 house_keeping (void) {
   house_keeping_holder ();
+
+  /* SCROLL STATE */
+  free_scroll_state ();
 
   /* DASHBOARD */
   if (dash && !conf.output_stdout) {
@@ -431,6 +445,8 @@ collapse_current_module (void) {
   if (!gscroll.expanded)
     return 1;
 
+  /* Reset per-item expand state before collapsing */
+  reset_item_expanded (&gscroll.module[gscroll.current]);
   gscroll.expanded = 0;
   reset_scroll_offsets (&gscroll);
   free_dashboard (dash);
@@ -512,6 +528,66 @@ load_ip_agent_list (void) {
     load_agent_list (main_win, item.metrics->data);
 }
 
+/* Toggle expand/collapse of the selected item's children within expanded panel.
+ * direction: 1 = expand (show children), 0 = collapse (hide children) */
+static void
+toggle_selected_item_expand (int direction) {
+  GModule mod = gscroll.current;
+  int scroll_pos = gscroll.module[mod].scroll;
+  GDashModule *dmod = &dash->module[mod];
+  int nfi;
+  uint8_t new_state;
+
+  if (scroll_pos < 0 || scroll_pos >= dmod->idx_data)
+    return;
+
+  nfi = dmod->data[scroll_pos].node_full_idx;
+
+  /* Only toggle if the item actually has children */
+  if (!dmod->data[scroll_pos].has_children)
+    return;
+
+  if (nfi < 0 || nfi >= gscroll.module[mod].item_expanded_size)
+    return;
+
+  new_state = direction ? 1 : 0;
+  if (gscroll.module[mod].item_expanded[nfi] == new_state)
+    return;
+
+  gscroll.module[mod].item_expanded[nfi] = new_state;
+
+  /* When collapsing, keep scroll on the same item (which stays visible).
+   * After rebuild, the selected item will have moved to a new flat position
+   * because collapsed children are removed. Find its new position. */
+  {
+    int old_scroll = scroll_pos;
+    int target_nfi = nfi;
+
+    /* Rebuild dashboard to reflect changed visibility */
+    free_dashboard (dash);
+    allocate_data ();
+
+    /* Find the new flat position of the toggled item */
+    dmod = &dash->module[mod];
+    {
+      int k;
+      for (k = 0; k < dmod->idx_data; k++) {
+        if (dmod->data[k].node_full_idx == target_nfi) {
+          gscroll.module[mod].scroll = k;
+          if (k < gscroll.module[mod].offset)
+            gscroll.module[mod].offset = k;
+          return;
+        }
+      }
+    }
+    /* Fallback: clamp to last item */
+    if (dmod->idx_data > 0) {
+      gscroll.module[mod].scroll = dmod->idx_data - 1;
+      (void) old_scroll;
+    }
+  }
+}
+
 /* Expand the selected module */
 static void
 expand_current_module (void) {
@@ -520,9 +596,11 @@ expand_current_module (void) {
     return;
   }
 
-  /* expanded, nothing to do... */
-  if (gscroll.expanded)
+  /* Already expanded -- toggle expand on the selected item */
+  if (gscroll.expanded) {
+    toggle_selected_item_expand (1);
     return;
+  }
 
   reset_scroll_offsets (&gscroll);
   gscroll.expanded = 1;
@@ -530,6 +608,14 @@ expand_current_module (void) {
   free_holder_by_module (&holder, gscroll.current);
   free_dashboard (dash);
   allocate_holder_by_module (gscroll.current);
+
+  /* Initialize per-node expand state -- all expanded by default.
+   * Size = total nodes in the tree (roots + all sub-items). */
+  {
+    int total_nodes = holder[gscroll.current].idx + holder[gscroll.current].sub_items_size;
+    init_item_expanded (&gscroll.module[gscroll.current], total_nodes);
+  }
+
   allocate_data ();
 }
 
@@ -549,6 +635,13 @@ expand_module_from_ypos (int y) {
   free_holder_by_module (&holder, gscroll.current);
   free_dashboard (dash);
   allocate_holder_by_module (gscroll.current);
+
+  /* Initialize per-node expand state -- all expanded by default */
+  {
+    int total_nodes = holder[gscroll.current].idx + holder[gscroll.current].sub_items_size;
+    init_item_expanded (&gscroll.module[gscroll.current], total_nodes);
+  }
+
   allocate_data ();
 
   return 0;
@@ -1224,6 +1317,18 @@ get_keys (Logs *logs) {
     case KEY_ENTER:
       expand_current_module ();
       display_content (main_win, dash, &gscroll, holder);
+      break;
+    case '+':  /* expand selected item's children */
+      if (gscroll.expanded) {
+        toggle_selected_item_expand (1);
+        display_content (main_win, dash, &gscroll, holder);
+      }
+      break;
+    case '-':  /* collapse selected item's children */
+      if (gscroll.expanded) {
+        toggle_selected_item_expand (0);
+        display_content (main_win, dash, &gscroll, holder);
+      }
       break;
     case KEY_DOWN: /* scroll main dashboard */
       if ((gscroll.dash + main_win_height) < dash->total_alloc) {

@@ -1059,6 +1059,34 @@ unlock_spinner (void) {
     pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
+/* Initialize per-item expanded state for a module.
+ * All items start expanded (showing children) by default. */
+void
+init_item_expanded (GScrollModule *smod, int num_items) {
+  free_item_expanded (smod);
+  if (num_items <= 0)
+    return;
+  smod->item_expanded = xcalloc (num_items, sizeof (uint8_t));
+  smod->item_expanded_size = num_items;
+  memset (smod->item_expanded, 1, num_items);
+}
+
+/* Free per-item expanded state array. */
+void
+free_item_expanded (GScrollModule *smod) {
+  if (smod->item_expanded) {
+    free (smod->item_expanded);
+    smod->item_expanded = NULL;
+  }
+  smod->item_expanded_size = 0;
+}
+
+/* Reset per-item expanded state (frees and nullifies). */
+void
+reset_item_expanded (GScrollModule *smod) {
+  free_item_expanded (smod);
+}
+
 /* Allocate memory for a spinner instance and initialize its data.
  *
  * On success, the newly allocated GSpinner is returned. */

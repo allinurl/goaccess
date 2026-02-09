@@ -1,5 +1,5 @@
 /**
- * gchart.c -- TUI chart implementation 
+ * gchart.c -- TUI chart implementation
  *    ______      ___
  *   / ____/___  /   | _____________  __________
  *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
@@ -317,43 +317,122 @@ typedef struct {
   int flat_idx;
 } ChartItem;
 
-/* Recursively flatten a sub-list into the items array */
+/* Recursively count all sub-items in a sub-list tree (chart-local). */
+static int
+count_sub_items_recursive_chart (GSubList *sl) {
+  GSubItem *iter;
+  int count = 0;
+  if (sl == NULL)
+    return 0;
+  for (iter = sl->head; iter; iter = iter->next) {
+    count++;
+    if (iter->sub_list)
+      count += count_sub_items_recursive_chart (iter->sub_list);
+  }
+  return count;
+}
+
+/* Count visible sub-items recursively given per-node expand state (chart-local). */
+static int
+count_visible_sub_chart (GSubList *sl, const uint8_t *node_exp, int node_exp_size, int *full_idx) {
+  GSubItem *iter;
+  int count = 0;
+  if (sl == NULL)
+    return 0;
+  for (iter = sl->head; iter; iter = iter->next) {
+    int my_full = *full_idx;
+    count++;
+    (*full_idx)++;
+    if (iter->sub_list && iter->sub_list->size > 0) {
+      int expanded = 1;
+      if (node_exp != NULL && my_full < node_exp_size)
+        expanded = node_exp[my_full];
+      if (expanded)
+        count += count_visible_sub_chart (iter->sub_list, node_exp, node_exp_size, full_idx);
+      else
+        *full_idx += count_sub_items_recursive_chart (iter->sub_list);
+    }
+  }
+  return count;
+}
+
+/* Recursively flatten visible sub-items into the chart items array */
 static void
-flatten_sub_items (GSubList *sl, ChartItem *items, int *idx, int depth) {
+flatten_sub_items (GSubList *sl, ChartItem *items, int *idx, int depth, int *full_idx,
+                   const uint8_t *node_exp, int node_exp_size) {
   GSubItem *sub;
   if (sl == NULL)
     return;
   for (sub = sl->head; sub; sub = sub->next) {
+    int my_full = *full_idx;
     items[*idx] = (ChartItem) {
     .metrics = sub->metrics,.is_subitem = depth,.flat_idx = *idx};
     (*idx)++;
-    if (sub->sub_list != NULL)
-      flatten_sub_items (sub->sub_list, items, idx, depth + 1);
+    (*full_idx)++;
+    if (sub->sub_list != NULL && sub->sub_list->size > 0) {
+      int expanded = 1;
+      if (node_exp != NULL && my_full < node_exp_size)
+        expanded = node_exp[my_full];
+      if (expanded)
+        flatten_sub_items (sub->sub_list, items, idx, depth + 1, full_idx, node_exp, node_exp_size);
+      else
+        *full_idx += count_sub_items_recursive_chart (sub->sub_list);
+    }
   }
 }
 
 static int
-build_chart_items (GHolder *h, ChartItem **out) {
-  int i, count = h->idx, idx = 0;
+build_chart_items (GHolder *h, ChartItem **out, const uint8_t *item_expanded,
+                   int item_expanded_size) {
+  int i, count = h->idx, idx = 0, full_idx = 0;
   ChartItem *items;
 
-  if (h->module != HOSTS)
-    count += h->sub_items_size;
+  /* Only include sub-items if we have expand state (i.e., panel is expanded) */
+  if (h->module != HOSTS && item_expanded != NULL && item_expanded_size > 0) {
+    /* Count visible items using per-node expand state */
+    int fi = 0;
+    for (i = 0; i < h->idx; i++) {
+      int my_full = fi;
+      fi++;
+      if (h->items[i].sub_list && h->items[i].sub_list->size > 0) {
+        int expanded = 1;
+        if (my_full < item_expanded_size)
+          expanded = item_expanded[my_full];
+        if (expanded)
+          count +=
+            count_visible_sub_chart (h->items[i].sub_list, item_expanded, item_expanded_size, &fi);
+        else
+          fi += count_sub_items_recursive_chart (h->items[i].sub_list);
+      }
+    }
+  }
+  /* If item_expanded is NULL, we only render root items (count = h->idx already) */
 
   items = xcalloc (count, sizeof (ChartItem));
 
   for (i = 0; i < h->idx; i++) {
+    int my_full = full_idx;
     items[idx] = (ChartItem) {
     .metrics = h->items[i].metrics,.is_subitem = 0,.flat_idx = idx};
     idx++;
+    full_idx++;
 
-    if (h->module != HOSTS && h->items[i].sub_list) {
-      flatten_sub_items (h->items[i].sub_list, items, &idx, 1);
+    /* Only flatten sub-items if panel is expanded (item_expanded != NULL) */
+    if (h->module != HOSTS && item_expanded != NULL && h->items[i].sub_list &&
+        h->items[i].sub_list->size > 0) {
+      int should_expand = 1;
+      if (my_full < item_expanded_size)
+        should_expand = item_expanded[my_full];
+      if (should_expand)
+        flatten_sub_items (h->items[i].sub_list, items, &idx, 1, &full_idx, item_expanded,
+                           item_expanded_size);
+      else
+        full_idx += count_sub_items_recursive_chart (h->items[i].sub_list);
     }
   }
 
   *out = items;
-  return count;
+  return idx;
 }
 
 static uint64_t
@@ -620,7 +699,7 @@ draw_panel_chart (WINDOW *win, GHolder *h, const ChartDrawCtx *user_opts) {
   ctx.holder = h;
   ctx.x_start = ctx.show_axes ? 8 : 2;
 
-  ctx.num_items = build_chart_items (h, &items);
+  ctx.num_items = build_chart_items (h, &items, ctx.item_expanded, ctx.item_expanded_size);
   if (ctx.num_items == 0) {
     free (items);
     return;

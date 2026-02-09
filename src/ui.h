@@ -168,6 +168,11 @@ typedef struct GScrollModule_ {
   int current_metric;
   int use_log_scale;
   int reverse_bars;
+  /* Per-item expand/collapse state for hierarchical navigation.
+   * When NULL, all items are expanded (legacy behavior).
+   * Otherwise, item_expanded[i] == 1 means root item i's children are visible. */
+  uint8_t *item_expanded;
+  int item_expanded_size;
 } GScrollModule;
 
 typedef struct GScroll_ {
@@ -241,5 +246,10 @@ void term_size (WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
 void unlock_spinner (void);
 void update_active_module (WINDOW * header_win, GModule current);
+
+/* Per-item expand/collapse state management */
+void init_item_expanded (GScrollModule * smod, int num_items);
+void free_item_expanded (GScrollModule * smod);
+void reset_item_expanded (GScrollModule * smod);
 
 #endif
