@@ -56,6 +56,9 @@ function WorldMap(selection) {
 	// default value; will be set externally
 	let projectionType = 'mercator';
 	let initialScale;
+	let panelName = null;
+	let cityIndex = null;
+	let citySizeScale = null;
 
 	function innerW() {
 		return width - margin.left - margin.right;
@@ -65,18 +68,154 @@ function WorldMap(selection) {
 		return height - margin.top - margin.bottom;
 	}
 
-	function mapData(data) {
-		return data.reduce((countryData, region) => {
-			if (!region.items) countryData.push(region);
-			else region.items.forEach(item => countryData.push({
-				data: item.data,
-				hits: item.hits.count,
-				visitors: item.visitors.count,
-				bytes: item.bytes.count,
-				region: region.data
-			}));
-			return countryData;
-		}, []);
+	function buildCityIndex() {
+		if (cityIndex) return;
+		var cityData = window.cities10m;
+		if (!cityData) return;
+		cityIndex = {};
+		var features = topojson.feature(cityData, cityData.objects.cities).features;
+		features.forEach(function(f) {
+			var p = f.properties;
+			var iso = (p.ISO_A2 || '').toUpperCase();
+			var asciiKey = iso + '|' + (p.NAMEASCII || '').toLowerCase().trim();
+			cityIndex[asciiKey] = f;
+			var nameKey = iso + '|' + (p.NAME || '').toLowerCase().trim();
+			if (nameKey !== asciiKey)
+				cityIndex[nameKey] = f;
+		});
+	}
+
+	function collectCities(country, code) {
+		var out = [];
+		if (!country.items) return out;
+		country.items.forEach(function(city) {
+			out.push({
+				data: city.data,
+				countryCode: code,
+				hits: city.hits.count,
+				visitors: city.visitors.count,
+				bytes: city.bytes.count
+			});
+		});
+		return out;
+	}
+
+	function isCityVisible(coords) {
+		if (projectionType !== 'orthographic') return true;
+		var rotate = projection.rotate();
+		var center = [-rotate[0], -rotate[1]];
+		return d3.geoDistance(coords, center) < Math.PI / 2;
+	}
+
+	function getMapRenderState() {
+		if (!panelName) return null;
+
+		var fullData = (GoAccess.getPanelData(panelName) || {}).data || [];
+		var expanded = GoAccess.Util.getProp(GoAccess.AppState, panelName + '.expanded') || {};
+
+		var allCountries = [];
+		var highlightCodes = new Set();
+		var expandedCountryCodes = new Set();
+		var cities = [];
+
+		var expandedContinents = new Set();
+
+		// pass 1: detect expanded continents and collect countries
+		fullData.forEach(function(continent) {
+			if (!continent.items) return;
+
+			var continentKey = GoAccess.Util.hashCode(continent.data);
+			if (expanded[continentKey]) {
+				expandedContinents.add(continentKey);
+			}
+
+			continent.items.forEach(function(country) {
+				var code = country.data.split(' ')[0];
+				allCountries.push({
+					data: country.data,
+					hits: country.hits.count,
+					visitors: country.visitors.count,
+					bytes: country.bytes.count,
+					region: continent.data
+				});
+			});
+		});
+
+		var hasExpandedContinent = expandedContinents.size > 0;
+
+		// pass 2: resolve each continent independently
+		fullData.forEach(function(continent) {
+			if (!continent.items) return;
+
+			var continentKey = GoAccess.Util.hashCode(continent.data);
+			var isContinentExpanded = expandedContinents.has(continentKey);
+
+			// if nothing expanded, treat all continents as expanded
+			if (!hasExpandedContinent) {
+				isContinentExpanded = true;
+			}
+
+			if (!isContinentExpanded) return;
+
+			// detect expanded countries inside this continent
+			var localExpandedCountries = new Set();
+
+			continent.items.forEach(function(country) {
+				var code = country.data.split(' ')[0];
+				var countryKey = GoAccess.Util.hashCode(country.data);
+				if (expanded[countryKey]) {
+					localExpandedCountries.add(code);
+					expandedCountryCodes.add(code);
+				}
+			});
+
+			var hasLocalExpanded = localExpandedCountries.size > 0;
+
+			continent.items.forEach(function(country) {
+				var code = country.data.split(' ')[0];
+
+				// highlight logic
+				if (hasLocalExpanded) {
+					if (localExpandedCountries.has(code)) {
+						highlightCodes.add(code);
+					}
+				} else {
+					highlightCodes.add(code);
+				}
+
+				// city logic
+				if (hasLocalExpanded) {
+					if (localExpandedCountries.has(code)) {
+						cities = cities.concat(collectCities(country, code));
+					}
+				} else {
+					cities = cities.concat(collectCities(country, code));
+				}
+			});
+		});
+
+		// nothing expanded at all -> show everything
+		if (!hasExpandedContinent) {
+			highlightCodes = null;
+			cities = [];
+
+			fullData.forEach(function(continent) {
+				if (!continent.items) return;
+				continent.items.forEach(function(country) {
+					var code = country.data.split(' ')[0];
+					cities = cities.concat(collectCities(country, code));
+				});
+			});
+		}
+
+		return {
+			allCountries: allCountries,
+			highlightCodes: highlightCodes,
+			expandedCountryCodes: expandedCountryCodes.size
+				? expandedCountryCodes
+				: null,
+			cities: cities
+		};
 	}
 
 	function formatTooltip(data) {
@@ -179,20 +318,43 @@ function WorldMap(selection) {
 	}
 
 	function updateMap(selection, svg, data, countries, countryNameToGeoJson) {
-		data = mapData(data);
+		buildCityIndex();
+
+		var state = getMapRenderState();
+		var activeData;
+		if (state) {
+			activeData = state.allCountries;
+		} else {
+			// Fallback: flatten data the old way when panel is not set
+			activeData = data.reduce(function(acc, region) {
+				if (!region.items) acc.push(region);
+				else region.items.forEach(function(item) {
+					acc.push({
+						data: item.data,
+						hits: item.hits.count !== undefined ? item.hits.count : item.hits,
+						visitors: item.visitors.count !== undefined ? item.visitors.count : item.visitors,
+						bytes: item.bytes.count !== undefined ? item.bytes.count : item.bytes,
+						region: region.data
+					});
+				});
+				return acc;
+			}, []);
+			state = { allCountries: activeData, highlightCodes: null, expandedCountryCodes: null, cities: [] };
+		}
+
 		path = d3.geoPath()
 			.projection(projection);
 
 		const colorScale = d3.scaleQuantile()
-			.domain(data.map(d => d[metric]))
+			.domain(activeData.map(d => d[metric]))
 			.range(['#eafff1', '#a7e3d7', '#6cc5c0', '#44a2b1', '#246e96']);
 
-		if (data.length)
+		if (activeData.length)
 			drawLegend(selection, colorScale);
 
-		// Create a mapping from country name to data
+		// Create a mapping from country code to data
 		const dataByName = {};
-		data.forEach(d => {
+		activeData.forEach(d => {
 			const k = d.data.split(' ')[0];
 			dataByName[k] = d;
 		});
@@ -238,7 +400,13 @@ function WorldMap(selection) {
 			.duration(500)
 			.style('fill', function(d) {
 				const countryData = dataByName[d.id];
-				return countryData ? colorScale(countryData[metric]) : '#cccccc54';
+				if (!countryData) return '#cccccc54';
+				if (state.highlightCodes) {
+					return state.highlightCodes.has(d.id)
+						? colorScale(countryData[metric])
+						: '#cccccc30';
+				}
+				return colorScale(countryData[metric]);
 			})
 			.attr('opacity', 1);
 		country.exit()
@@ -246,10 +414,92 @@ function WorldMap(selection) {
 			.duration(500)
 			.attr('opacity', 0)
 			.remove();
+
+		// Update city markers
+		updateCities(selection, svg, state, colorScale);
+	}
+
+	function updateCities(selection, svg, state, colorScale) {
+		var g = svg.select('g');
+		var cityMarkers = [];
+
+		if (state.cities.length && cityIndex) {
+			state.cities.forEach(function(c) {
+				var key = c.countryCode.toUpperCase() + '|' + c.data.toLowerCase().trim();
+				var feature = cityIndex[key];
+				if (feature) {
+					cityMarkers.push({
+						feature: feature,
+						data: c.data,
+						hits: c.hits,
+						visitors: c.visitors,
+						bytes: c.bytes
+					});
+				}
+			});
+		}
+
+		var sizeExtent = d3.extent(cityMarkers, function(d) { return d[metric]; });
+		if (!sizeExtent[0] && !sizeExtent[1]) sizeExtent = [0, 1];
+		var sizeScale = d3.scaleSqrt()
+			.domain(sizeExtent)
+			.range([3, 10])
+			.clamp(true);
+		var strokeScale = d3.scaleSqrt()
+			.domain(sizeExtent)
+			.range([1, 2.5])
+			.clamp(true);
+
+		citySizeScale = sizeScale;
+
+		var circles = g.selectAll('.city-marker')
+			.data(cityMarkers, function(d) { return d.data + '|' + d.feature.properties.ISO_A2; });
+
+		circles.exit()
+			.transition().duration(300)
+			.attr('r', 0)
+			.remove();
+
+		var circlesEnter = circles.enter()
+			.append('circle')
+			.attr('class', 'city-marker')
+			.attr('r', 0)
+			.style('fill', '#ff6b6b')
+			.style('stroke', '#fff')
+			.style('cursor', 'pointer')
+			.on('mouseover', function(event, d) {
+				mouseover(event, selection, d);
+			})
+			.on('mouseout', function() {
+				mouseout(selection);
+			});
+
+		circlesEnter.merge(circles)
+			.transition().duration(500)
+			.attr('cx', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[0] : -9999;
+			})
+			.attr('cy', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[1] : -9999;
+			})
+			.attr('r', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return 0;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? sizeScale(d[metric]) : 0;
+			})
+			.style('fill', '#ff6b6b')
+			.style('stroke', '#fff')
+			.style('stroke-width', function(d) {
+				return strokeScale(d[metric]) + 'px';
+			});
 	}
 
 	function setBounds(projection, maxLat) {
-		// Top-left corner of the “viewable” lat
+		// Top-left corner of the ~viewable~ lat
 		const [yaw] = projection.rotate();
 		const xymax = projection([-yaw + 180 - 1e-6, -maxLat]);
 		const xymin = projection([-yaw - 180 + 1e-6, maxLat]);
@@ -325,8 +575,8 @@ function WorldMap(selection) {
 			}
 		}
 		else if (projectionType === 'orthographic') {
-			// Use the zoom transform’s k to compute a new scale,
-			// clamping to a maximum factor (here, 2× the initialScale).
+			// Use the zoom transform's k to compute a new scale,
+			// clamping to a maximum factor (here, 2x the initialScale).
 			let newScale = scale * initialScale;
 			const maxOrthoScale = initialScale * 2;
 			if (newScale > maxOrthoScale) newScale = maxOrthoScale;
@@ -347,6 +597,21 @@ function WorldMap(selection) {
 		}
 		g.selectAll('path')
 			.attr('d', path);
+		g.selectAll('.city-marker')
+			.attr('cx', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[0] : -9999;
+			})
+			.attr('cy', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[1] : -9999;
+			})
+			.attr('r', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return 0;
+				return citySizeScale ? citySizeScale(d[metric]) : 0;
+			});
 		tlast = [event.transform.x, event.transform.y];
 		slast = scale;
 	}
@@ -449,6 +714,12 @@ function WorldMap(selection) {
 		projectionType = _;
 		return chart;
 	};
+	// Getter-setter for panel name
+	chart.panel = function(_) {
+		if (!arguments.length) return panelName;
+		panelName = _;
+		return chart;
+	};
 
 	return chart;
 }
@@ -526,7 +797,7 @@ function AreaChart(dualYaxis) {
 		.x(X)
 		.y(Y1);
 
-	// The x-accessor for the path generator; xScale ∘ xValue.
+	// The x-accessor for the path generator; xScale xValue.
 	function X(d) {
 		return (xScale(d[0]) + xScale.bandwidth() / 2);
 	}
@@ -1139,7 +1410,7 @@ function BarChart(dualYaxis) {
 		return d3.range(domain[0], domain[1], Math.ceil(domain[1] / nTicks));
 	}
 
-	// The x-accessor for the path generator; xScale ∘ xValue.
+	// The x-accessor for the path generator; xScale - xValue.
 	function X(d) {
 		return (xScale(d[0]) + xScale.bandwidth() / 2);
 	}

@@ -159,4 +159,9 @@ void uncount_invalid (GLog * glog);
 void uncount_processed (GLog * glog);
 GMetrics *new_gmetrics (void);
 
+#ifdef HAVE_GEOLOCATION
+const char *get_continent_for_country (const char *country);
+void free_country_continent_map (void);
+#endif
+
 #endif // for #ifndef GSTORAGE_H

@@ -50,6 +50,59 @@
 #include "util.h"
 #include "xmalloc.h"
 
+#ifdef HAVE_GEOLOCATION
+/* Static hash map: country string -> continent string.
+ * Populated during parsing, queried during holder construction. */
+static
+khash_t (ss32) *
+  country_continent_map = NULL;
+
+static void
+set_country_continent (const char *country, const char *continent) {
+  khint_t k;
+  int ret;
+
+  if (country == NULL || continent == NULL)
+    return;
+  if (country_continent_map == NULL)
+    country_continent_map = kh_init (ss32);
+
+  k = kh_get (ss32, country_continent_map, country);
+  if (k != kh_end (country_continent_map))
+    return;     /* already exists */
+
+  k = kh_put (ss32, country_continent_map, xstrdup (country), &ret);
+  if (ret)
+    kh_val (country_continent_map, k) = xstrdup (continent);
+}
+
+const char *
+get_continent_for_country (const char *country) {
+  khint_t k;
+  if (country_continent_map == NULL || country == NULL)
+    return NULL;
+  k = kh_get (ss32, country_continent_map, country);
+  if (k == kh_end (country_continent_map))
+    return NULL;
+  return kh_val (country_continent_map, k);
+}
+
+void
+free_country_continent_map (void) {
+  khint_t k;
+  if (country_continent_map == NULL)
+    return;
+  for (k = kh_begin (country_continent_map); k != kh_end (country_continent_map); ++k) {
+    if (!kh_exist (country_continent_map, k))
+      continue;
+    free ((char *) kh_key (country_continent_map, k));
+    free (kh_val (country_continent_map, k));
+  }
+  kh_destroy (ss32, country_continent_map);
+  country_continent_map = NULL;
+}
+#endif
+
 /* private prototypes */
 /* key/data generators for each module */
 
@@ -1255,15 +1308,16 @@ gen_keyphrase_key (GKeyData *kdata, GLogItem *logitem) {
 /* Extract geolocation for the given host.
  *
  * On error, 1 is returned.
- * On success, the extracted continent and country are set and 0 is
+ * On success, the extracted continent, country, and city are set and 0 is
  * returned. */
 static int
-extract_geolocation (GLogItem *logitem, char *continent, char *country) {
+extract_geolocation (GLogItem *logitem, char *continent, char *country, char *city) {
+  char asn_unused[ASN_LEN] = "";
+
   if (!is_geoip_resource ())
     return 1;
 
-  geoip_get_country (logitem->host, country, logitem->type_ip);
-  geoip_get_continent (logitem->host, continent, logitem->type_ip);
+  set_geolocation (logitem->host, continent, country, city, asn_unused);
 
   return 0;
 }
@@ -1279,8 +1333,9 @@ static int
 gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
   char continent[CONTINENT_LEN] = "";
   char country[COUNTRY_LEN] = "";
+  char city[CITY_LEN] = "";
 
-  if (extract_geolocation (logitem, continent, country) == 1)
+  if (extract_geolocation (logitem, continent, country, city) == 1)
     return 1;
 
   if (country[0] != '\0')
@@ -1289,8 +1344,22 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
   if (continent[0] != '\0')
     logitem->continent = xstrdup (continent);
 
-  get_kdata (kdata, logitem->country, logitem->country);
-  get_kroot (kdata, logitem->continent, logitem->continent);
+  if (city[0] != '\0')
+    logitem->city = xstrdup (city);
+
+  /* Record the country-to-continent mapping for holder construction */
+  if (logitem->country && logitem->continent)
+    set_country_continent (logitem->country, logitem->continent);
+
+  /* If city is available, use city as data and country as root (3-level).
+   * Otherwise, use country as data and continent as root (2-level). */
+  if (conf.has_geocity && logitem->city) {
+    get_kdata (kdata, logitem->city, logitem->city);
+    get_kroot (kdata, logitem->country, logitem->country);
+  } else {
+    get_kdata (kdata, logitem->country, logitem->country);
+    get_kroot (kdata, logitem->continent, logitem->continent);
+  }
   kdata->numdate = logitem->numdate;
 
   return 0;

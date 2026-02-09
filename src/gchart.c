@@ -162,11 +162,59 @@ get_metric_name (int metric_type) {
 
 /* Data helpers */
 
+/* Check if a metric has data in a sub-list, recursing into nested sub-lists */
+static int
+sub_list_has_metric (GSubList *sl, int metric_type) {
+  GSubItem *sub;
+  GMetrics *m;
+
+  if (sl == NULL)
+    return 0;
+
+  for (sub = sl->head; sub; sub = sub->next) {
+    m = sub->metrics;
+    if (m) {
+      switch (metric_type) {
+      case CHART_METRIC_HITS:
+        if (m->hits > 0)
+          return 1;
+        break;
+      case CHART_METRIC_VISITORS:
+        if (m->visitors > 0)
+          return 1;
+        break;
+      case CHART_METRIC_BW:
+        if (m->nbw > 0)
+          return 1;
+        break;
+      case CHART_METRIC_AVGTS:
+        if (conf.serve_usecs && m->avgts.nts > 0)
+          return 1;
+        break;
+      case CHART_METRIC_CUMTS:
+        if (conf.serve_usecs && m->cumts.nts > 0)
+          return 1;
+        break;
+      case CHART_METRIC_MAXTS:
+        if (conf.serve_usecs && m->maxts.nts > 0)
+          return 1;
+        break;
+      default:
+        if (m->hits > 0)
+          return 1;
+        break;
+      }
+    }
+    if (sub->sub_list != NULL && sub_list_has_metric (sub->sub_list, metric_type))
+      return 1;
+  }
+  return 0;
+}
+
 int
 metric_has_data (GHolder *h, int metric_type) {
   int i, has = 0;
   GMetrics *m;
-  GSubItem *sub;
 
   if (!h || h->idx == 0)
     return 0;
@@ -209,41 +257,8 @@ metric_has_data (GHolder *h, int metric_type) {
     }
 
     if (h->module != HOSTS && h->items[i].sub_list) {
-      for (sub = h->items[i].sub_list->head; sub; sub = sub->next) {
-        m = sub->metrics;
-        if (m) {
-          switch (metric_type) {
-          case CHART_METRIC_HITS:
-            if (m->hits > 0)
-              return 1;
-            break;
-          case CHART_METRIC_VISITORS:
-            if (m->visitors > 0)
-              return 1;
-            break;
-          case CHART_METRIC_BW:
-            if (m->nbw > 0)
-              return 1;
-            break;
-          case CHART_METRIC_AVGTS:
-            if (conf.serve_usecs && m->avgts.nts > 0)
-              return 1;
-            break;
-          case CHART_METRIC_CUMTS:
-            if (conf.serve_usecs && m->cumts.nts > 0)
-              return 1;
-            break;
-          case CHART_METRIC_MAXTS:
-            if (conf.serve_usecs && m->maxts.nts > 0)
-              return 1;
-            break;
-          default:
-            if (m->hits > 0)
-              return 1;
-            break;
-          }
-        }
-      }
+      if (sub_list_has_metric (h->items[i].sub_list, metric_type))
+        return 1;
     }
   }
   return 0;
@@ -302,11 +317,25 @@ typedef struct {
   int flat_idx;
 } ChartItem;
 
+/* Recursively flatten a sub-list into the items array */
+static void
+flatten_sub_items (GSubList *sl, ChartItem *items, int *idx, int depth) {
+  GSubItem *sub;
+  if (sl == NULL)
+    return;
+  for (sub = sl->head; sub; sub = sub->next) {
+    items[*idx] = (ChartItem) {
+    .metrics = sub->metrics,.is_subitem = depth,.flat_idx = *idx};
+    (*idx)++;
+    if (sub->sub_list != NULL)
+      flatten_sub_items (sub->sub_list, items, idx, depth + 1);
+  }
+}
+
 static int
 build_chart_items (GHolder *h, ChartItem **out) {
   int i, count = h->idx, idx = 0;
   ChartItem *items;
-  GSubItem *sub;
 
   if (h->module != HOSTS)
     count += h->sub_items_size;
@@ -319,11 +348,7 @@ build_chart_items (GHolder *h, ChartItem **out) {
     idx++;
 
     if (h->module != HOSTS && h->items[i].sub_list) {
-      for (sub = h->items[i].sub_list->head; sub; sub = sub->next) {
-        items[idx] = (ChartItem) {
-        .metrics = sub->metrics,.is_subitem = 1,.flat_idx = idx};
-        idx++;
-      }
+      flatten_sub_items (h->items[i].sub_list, items, &idx, 1);
     }
   }
 

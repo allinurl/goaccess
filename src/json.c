@@ -963,6 +963,13 @@ print_json_sub_items (GJSON *json, GHolderItem *item, GPercTotals totals, int si
 
     popen_obj (json, iiisp);
     print_json_block (json, nmetrics, iiiisp);
+    /* recurse into nested sub-items */
+    if (iter->sub_list != NULL && iter->sub_list->size > 0) {
+      GHolderItem child;
+      child.metrics = iter->metrics;
+      child.sub_list = iter->sub_list;
+      print_json_sub_items (json, &child, totals, iter->sub_list->size, iiiisp);
+    }
     pclose_obj (json, iiisp, (i == sl->size - 1));
     free (nmetrics);
   }

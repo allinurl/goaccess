@@ -480,7 +480,7 @@ GoAccess.Util = {
 			}
 		}
 
-		return value == 0 ? String(val) : (val === undefined ? '—' : val);
+		return value == 0 ? String(val) : (val === undefined ? '-' : val);
 	},
 
 	isPanelHidden: function (panel) {
@@ -1395,8 +1395,11 @@ GoAccess.Charts = {
 		// Grab ui plot data for the selected panel
 		var plot = GoAccess.Util.getProp(GoAccess.AppState, panel + '.plot');
 
-		// Grab the data for the selected panel
-		data = data || this.processChartData(GoAccess.getPanelData(panel).data);
+		// Grab the data for the selected panel, respecting expanded state
+		if (!data) {
+			var subItems = GoAccess.Tables.getSubItemsData(panel);
+			data = this.processChartData(subItems.length ? subItems : GoAccess.getPanelData(panel).data);
+		}
 		return plot.chartReverse ? data.reverse() : data;
 	},
 
@@ -1473,7 +1476,7 @@ GoAccess.Charts = {
 
 	// Extract an array of objects that D3 can consume to process the chart.
 	// e.g., o = Object {hits: 37402, visitors: 6949, bytes:
-	// 505881789, avgts: 118609, cumts: 4436224010…}
+	// 505881789, avgts: 118609, cumts: 4436224010...}
 	processChartData: function (data) {
 		var out = [];
 		for (var i = 0; i < data.length; ++i)
@@ -1506,6 +1509,7 @@ GoAccess.Charts = {
 		chart.metric(plotUI['d3']['y0']['key']);
 		chart.opts(plotUI);
 		chart.projectionType(projectionType == 'wmap' ? 'mercator' : 'orthographic');
+		chart.panel(panel);
 
 		return chart;
 	},
@@ -1665,11 +1669,8 @@ GoAccess.Charts = {
 
 	// Reload (doesn't redraw) the given chart's data
 	reloadChart: function (chart, panel) {
-		var subItems = GoAccess.Tables.getSubItemsData(panel);
-		var data = (subItems.length ? subItems : GoAccess.getPanelData(panel).data).slice(0);
-
 		d3.select("#chart-" + panel)
-			.datum(this.processChartData(this.getPanelData(panel, data)))
+			.datum(this.getPanelData(panel))
 			.call(chart.width($("#chart-" + panel).offsetWidth))
 			.append("div").attr("class", "chart-tooltip-wrap");
 	},
@@ -1799,71 +1800,123 @@ GoAccess.Tables = {
 	},
 
 	getSubItemsData: function (panel) {
-		var out = [], items = this.chartData[panel];
-		for (var x in items) {
-			if (!items.hasOwnProperty(x))
-				continue;
-			out = out.concat(items[x]);
+		const expanded = GoAccess.Util.getProp(GoAccess.AppState, panel + '.expanded') || {};
+		const fullData = (GoAccess.getPanelData(panel) || {}).data || [];
+
+		let results = [];
+
+		fullData.forEach(function (continent) {
+			const continentKey = GoAccess.Util.hashCode(continent.data);
+			if (!expanded[continentKey]) return;
+			if (!continent.items) return;
+
+			continent.items.forEach(function (country) {
+				const countryKey = GoAccess.Util.hashCode(country.data);
+
+				if (expanded[countryKey] && country.items) {
+					// expanded country -> show e.g., its cities
+					results = results.concat(country.items);
+				} else {
+					// not expanded -> show e.g., country
+					results.push(country);
+				}
+			});
+		});
+
+		return results;
+	},
+
+	addChartData: function (panel, keyPath) {
+		if (!keyPath) return GoAccess.getPanelData(panel).data;
+
+		const parts = keyPath.split('|');
+		let current = GoAccess.getPanelData(panel).data;
+
+		// Traverse the tree to the target node
+		for (const part of parts) {
+			const found = current.find(item => GoAccess.Util.hashCode(item.data) === part);
+			if (!found || !found.items) return [];
+			current = found.items;
 		}
-		return out;
+
+		// Store the current level's items under this exact path
+		GoAccess.Util.setProp(this.chartData, panel + '.' + keyPath, current);
+
+		// For the chart: we return **only the items at the current drill level**
+		// (not all sub-items flattened - that was the old behavior)
+		return current;
 	},
 
-	addChartData: function (panel, key) {
-		var data = this.getDataByKey(panel, key);
-		var path = panel + '.' + key;
+	removeChartData: function (panel, keyPath) {
+		// Remove this specific path
+		const path = panel + '.' + keyPath;
+		if (GoAccess.Util.getProp(this.chartData, path)) {
+			// We don't have deleteProp -> set to null / empty
+			GoAccess.Util.setProp(this.chartData, path, null);
+		}
 
-		if (!data || !data.items)
-			return [];
-		GoAccess.Util.setProp(this.chartData, path, data.items);
+		// Find the deepest remaining expanded path (or fall back to top-level)
+		const expanded = GoAccess.Util.getProp(GoAccess.AppState, panel + '.expanded') || {};
+		let deepestPath = '';
+		let maxDepth = -1;
 
-		return this.getSubItemsData(panel);
-	},
+		for (const k in expanded) {
+			if (expanded[k] !== true) continue;
+			const depth = k.split('|').length;
+			if (depth > maxDepth) {
+				maxDepth = depth;
+				deepestPath = k;
+			}
+		}
 
-	removeChartData: function (panel, key) {
-		if (GoAccess.Util.getProp(this.chartData, panel + '.' + key))
-			delete this.chartData[panel][key];
-
-		if (!this.chartData[panel] || Object.keys(this.chartData[panel]).length == 0)
-			return GoAccess.getPanelData(panel).data;
-
-		return this.getSubItemsData(panel);
+		if (deepestPath) {
+			return GoAccess.Util.getProp(this.chartData, panel + '.' + deepestPath) || GoAccess.getPanelData(panel).data;
+		}
+		return GoAccess.getPanelData(panel).data;
 	},
 
 	isExpanded: function (panel, key) {
-		var path = panel + '.expanded.' + key;
-		return GoAccess.Util.getProp(GoAccess.AppState, path);
+		// getProp returns undefined if path doesn't exist -> treat as not expanded
+		return !!GoAccess.Util.getProp(GoAccess.AppState, panel + '.expanded.' + key);
 	},
 
 	toggleExpanded: function (panel, key) {
-		var path = panel + '.expanded.' + key, ret = true;
+		var path = panel + '.expanded.' + key;
+		var currentlyExpanded = this.isExpanded(panel, key);
 
-		if (this.isExpanded(panel, key)) {
-			delete GoAccess.AppState[panel]['expanded'][key];
+		if (currentlyExpanded) {
+			// Instead of delete -> set to false or null
+			GoAccess.Util.setProp(GoAccess.AppState, path, false);
+			// or: GoAccess.Util.setProp(GoAccess.AppState, path, null);
+			// or even remove the property completely if you prefer (see Option 2)
 		} else {
-			GoAccess.Util.setProp(GoAccess.AppState, path, true), ret = false;
+			GoAccess.Util.setProp(GoAccess.AppState, path, true);
 		}
 
-		return ret;
+		return currentlyExpanded; // returns true if it WAS expanded (now collapsed)
 	},
 
 	// Toggle children rows
 	toggleRow: function (ele) {
-		var hide = false, data = [];
-		var row = ele.parentNode;
-		var panel = row.getAttribute('data-panel'), key = row.getAttribute('data-key');
-		var plotUI = GoAccess.AppCharts[panel].opts();
+		const row = ele.closest('tr');
+		if (!row) return;
 
-		hide = this.toggleExpanded(panel, key);
+		const panel = row.getAttribute('data-panel');
+		let key = row.getAttribute('data-node-key') || row.getAttribute('data-key');
+		if (!key) return;
+
+		// If this is a nested row, we need to build the full path
+		// For simplicity, we'll assume nodeKey is unique enough for now.
+		// If collisions happen, we can later implement full path building.
+
+		const wasExpanded = this.toggleExpanded(panel, key);
+
 		this.renderTable(panel, this.getCurPage(panel));
-		if (!plotUI.redrawOnExpand)
-			return;
 
-		if (!hide) {
-			data = GoAccess.Charts.processChartData(this.addChartData(panel, key));
-		} else {
-			data = GoAccess.Charts.processChartData(this.removeChartData(panel, key));
-		}
-		GoAccess.Charts.drawPlot(panel, plotUI, data);
+		const plotUI = GoAccess.AppCharts[panel]?.opts?.();
+		if (!plotUI || !plotUI.redrawOnExpand) return;
+
+		GoAccess.Charts.reloadChart(GoAccess.AppCharts[panel], panel);
 	},
 
 	// Get current panel page
@@ -2006,26 +2059,31 @@ GoAccess.Tables = {
 
 	// Given a data item object, set all the row cells and return a
 	// table row that the template can consume.
-	renderRow: function (panel, callback, ui, dataItem, idx, subItem, parentId, expanded) {
-		var shadeParent = ((!subItem && idx % 2 != 0) ? 'shaded' : '');
-		var shadeChild = ((parentId % 2 != 0) ? 'shaded' : '');
+	renderRow: function (panel, callback, ui, dataItem, idx, subItem, parentId, expanded, level) {
+		var shade = ((!subItem && idx % 2 !== 0) ? 'shaded' : '') ||
+					(subItem && (parentId % 2 !== 0) ? 'shaded' : '');
+
+		var hasChildren = !!(dataItem.items && dataItem.items.length > 0);
+
 		return {
 			'panel'       : panel,
-			'idx'         : !subItem && (String((idx + 1) + this.pageOffSet(panel))),
+			'idx'         : !subItem ? String((idx + 1) + this.pageOffSet(panel)) : '',
 			'key'         : !subItem ? GoAccess.Util.hashCode(dataItem.data) : '',
-			'expanded'    : !subItem && expanded,
+			'nodeKey'     : GoAccess.Util.hashCode(dataItem.data || dataItem),
+			'level'       : level || 0,
+			'expanded'    : !!expanded,               // must be boolean
 			'parentId'    : subItem ? String(parentId) : '',
-			'className'   : subItem ? 'child ' + shadeChild : 'parent ' + shadeParent,
-			'hasSubItems' : ui.hasSubItems,
-			'items'       : dataItem.items ? dataItem.items.length : 0,
+			'className'   : (subItem ? 'child' : 'parent') + shade,
+			'hasSubItems' : hasChildren,              // true if has children
+			'items'       : hasChildren ? dataItem.items.length : 0,
 			'cells'       : callback.call(this),
 		};
 	},
 
-	renderRows: function (rows, panel, ui, dataItems, subItem, parentId) {
+	renderRows: function(rows, panel, ui, dataItems, subItem, parentId, level = 0) {
 		subItem = subItem || false;
-		// no data rows
-		if (dataItems.length == 0 && ui.items.length) {
+		level = level || 0; /* no data rows */
+		if (dataItems.length === 0 && ui.items.length) {
 			rows.push({
 				cells: [{
 					className: 'text-center',
@@ -2033,32 +2091,34 @@ GoAccess.Tables = {
 					value: 'No data on this panel.'
 				}]
 			});
+			return;
 		}
-
-		// Iterate over all data items for the given panel and
-		// generate a table row per date item.
-		var cellcb = null;
 		for (var i = 0; i < dataItems.length; ++i) {
-			var dataItem = dataItems[i], data = null, expanded = false;
-			switch(typeof dataItem) {
-			case 'string':
-				data = dataItem;
-				cellcb = function () {
+			var dataItem = dataItems[i];
+			var data = dataItem.data || dataItem;
+			var isString = typeof dataItem === 'string';
+			var cellcb;
+			if (isString) {
+				cellcb = function() {
 					return {
 						'colspan': ui.items.length,
 						'value': data
 					};
 				};
-				break;
-			default:
-				data = dataItem.data;
+			} else {
 				cellcb = this.iterUIItems.bind(this, panel, ui.items, dataItem, this.getObjectCell.bind(this));
 			}
-
-			expanded = this.isExpanded(panel, GoAccess.Util.hashCode(data));
-			rows.push(this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded));
-			if (dataItem.items && dataItem.items.length && expanded) {
-				this.renderRows(rows, panel, ui, dataItem.items, true, i, expanded);
+			/* Unique key for this node (important for nested expansion state) */
+			var nodeKey = !isString ? GoAccess.Util.hashCode(data) : null;
+			var expanded = nodeKey && this.isExpanded(panel, nodeKey); /* Build row with indentation level */
+			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded); /* Add level for CSS indentation */
+			row.level = level;
+			row.nodeKey = nodeKey; /* for future use in events */
+			row.isLeaf = !(dataItem.items && dataItem.items.length > 0);
+			row.showPlaceholder = ui.hasSubItems && !row.hasSubItems;
+			rows.push(row); /* Recurse into children if expanded */
+			if (!isString && dataItem.items && dataItem.items.length && expanded) {
+				this.renderRows(rows, panel, ui, dataItem.items, true, /* is sub-item */ i, /* parent index (or could use nodeKey) */ level + 1);
 			}
 		}
 	},

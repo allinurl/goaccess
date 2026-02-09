@@ -57,6 +57,7 @@
 #include "topojsonjs.h"
 #include "hoganjs.h"
 #include "countries110m.h"
+#include "cities10m.h"
 #include "chartsjs.h"
 #include "appjs.h"
 
@@ -1244,6 +1245,7 @@ print_json_defs (FILE *fp) {
 
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var countries110m=%.*s;", countries_json_length, countries_json);
+  fprintf (fp, "var cities10m=%.*s;", cities_json_length, cities_json);
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);

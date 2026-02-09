@@ -40,6 +40,7 @@
 #include "error.h"
 #include "gdns.h"
 #include "gkhash.h"
+#include "gstorage.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -59,6 +60,9 @@ static void add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, c
 static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
+#ifdef HAVE_GEOLOCATION
+static void add_geo_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
+#endif
 
 static const GPanel paneling[] = {
   {VISITORS        , add_data_to_holder , NULL},
@@ -77,7 +81,7 @@ static const GPanel paneling[] = {
   {REMOTE_USER     , add_data_to_holder , NULL},
   {CACHE_STATUS    , add_data_to_holder , NULL},
 #ifdef HAVE_GEOLOCATION
-  {GEO_LOCATION    , add_root_to_holder , NULL},
+  {GEO_LOCATION    , add_geo_to_holder  , NULL},
   {ASN             , add_data_to_holder , NULL} ,
 #endif
   {MIME_TYPE       , add_root_to_holder , NULL} ,
@@ -144,6 +148,7 @@ new_gsubitem (GModule module, GMetrics *nmetrics) {
 
   sub_item->metrics = nmetrics;
   sub_item->module = module;
+  sub_item->sub_list = NULL;
   sub_item->prev = NULL;
   sub_item->next = NULL;
 
@@ -176,6 +181,8 @@ delete_sub_list (GSubList *sub_list) {
 
   for (item = sub_list->head; item; item = next) {
     next = item->next;
+    if (item->sub_list != NULL)
+      delete_sub_list (item->sub_list);
     free (item->metrics->data);
     free (item->metrics);
     free (item);
@@ -256,56 +263,75 @@ get_item_idx_in_holder (GHolder *holder, const char *k) {
   return KEY_NOT_FOUND;
 }
 
+/* Sort a single GSubList in place: copy to array, sort, rebuild list.
+ * Preserves each sub-item's own sub_list for recursive nesting. */
+static void
+sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort) {
+  GHolderItem *arr;
+  GSubItem *iter;
+  GSubList *sub_list = *sl_ptr;
+  int j, k;
+
+  if (sub_list == NULL || sub_list->size == 0)
+    return;
+
+  arr = new_gholder_item (sub_list->size);
+
+  /* copy items from the linked-list into an array, preserving sub_list */
+  for (j = 0, iter = sub_list->head; iter; iter = iter->next, j++) {
+    arr[j].metrics = new_gmetrics ();
+    arr[j].metrics->nbw = iter->metrics->nbw;
+    arr[j].metrics->data = xstrdup (iter->metrics->data);
+    arr[j].metrics->hits = iter->metrics->hits;
+    arr[j].metrics->id = iter->metrics->id;
+    arr[j].metrics->visitors = iter->metrics->visitors;
+    arr[j].sub_list = iter->sub_list;
+    iter->sub_list = NULL; /* prevent double-free */
+    if (conf.serve_usecs) {
+      arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
+      arr[j].metrics->cumts.nts = iter->metrics->cumts.nts;
+      arr[j].metrics->maxts.nts = iter->metrics->maxts.nts;
+    }
+  }
+  sort_holder_items (arr, j, sort);
+  delete_sub_list (sub_list);
+
+  sub_list = new_gsublist ();
+  for (k = 0; k < j; k++) {
+    if (k > 0)
+      sub_list = *sl_ptr;
+
+    add_sub_item_back (sub_list, module, arr[k].metrics);
+    sub_list->tail->sub_list = arr[k].sub_list;
+    *sl_ptr = sub_list;
+    sub_list = NULL;
+  }
+
+  free (arr);
+  if (sub_list) {
+    delete_sub_list (sub_list);
+    sub_list = NULL;
+  }
+
+  /* recursively sort nested sub-lists */
+  sub_list = *sl_ptr;
+  if (sub_list != NULL) {
+    for (iter = sub_list->head; iter; iter = iter->next) {
+      if (iter->sub_list != NULL)
+        sort_single_sub_list (&iter->sub_list, module, sort);
+    }
+  }
+}
+
 /* Copy linked-list items to an array, sort, and move them back to the
  * list. Should be faster than sorting the list */
 static void
 sort_sub_list (GHolder *h, GSort sort) {
-  GHolderItem *arr;
-  GSubItem *iter;
-  GSubList *sub_list;
-  int i, j, k;
+  int i;
 
   /* iterate over root-level nodes */
   for (i = 0; i < h->idx; i++) {
-    sub_list = h->items[i].sub_list;
-    if (sub_list == NULL)
-      continue;
-
-    arr = new_gholder_item (sub_list->size);
-
-    /* copy items from the linked-list into an array */
-    for (j = 0, iter = sub_list->head; iter; iter = iter->next, j++) {
-      arr[j].metrics = new_gmetrics ();
-
-      arr[j].metrics->nbw = iter->metrics->nbw;
-      arr[j].metrics->data = xstrdup (iter->metrics->data);
-      arr[j].metrics->hits = iter->metrics->hits;
-      arr[j].metrics->id = iter->metrics->id;
-      arr[j].metrics->visitors = iter->metrics->visitors;
-      if (conf.serve_usecs) {
-        arr[j].metrics->avgts.nts = iter->metrics->avgts.nts;
-        arr[j].metrics->cumts.nts = iter->metrics->cumts.nts;
-        arr[j].metrics->maxts.nts = iter->metrics->maxts.nts;
-      }
-    }
-    sort_holder_items (arr, j, sort);
-    delete_sub_list (sub_list);
-
-    sub_list = new_gsublist ();
-    for (k = 0; k < j; k++) {
-      if (k > 0)
-        sub_list = h->items[i].sub_list;
-
-      add_sub_item_back (sub_list, h->module, arr[k].metrics);
-      h->items[i].sub_list = sub_list;
-      sub_list = NULL;
-    }
-
-    free (arr);
-    if (sub_list) {
-      delete_sub_list (sub_list);
-      sub_list = NULL;
-    }
+    sort_single_sub_list (&h->items[i].sub_list, h->module, sort);
   }
 }
 
@@ -645,6 +671,113 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
 
   h->sub_items_size++;
 }
+
+#ifdef HAVE_GEOLOCATION
+/* Find a sub-item in a GSubList by its data string.
+ * Returns the matching GSubItem, or NULL if not found. */
+static GSubItem *
+find_sub_item_by_data (GSubList *sl, const char *data) {
+  GSubItem *iter;
+  if (sl == NULL || data == NULL)
+    return NULL;
+  for (iter = sl->head; iter; iter = iter->next) {
+    if (strcmp (iter->metrics->data, data) == 0)
+      return iter;
+  }
+  return NULL;
+}
+
+/* Build 3-level GEO_LOCATION hierarchy: Continent > Country > City.
+ * Falls back to add_root_to_holder (2-level) when has_geocity is false. */
+static void
+add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
+  GMetrics *nmetrics;
+  GSubList *sub_list;
+  GSubItem *country_sub;
+  GMetrics *cont_metrics, *country_metrics;
+  char *root = NULL;
+  const char *continent = NULL;
+  int root_idx = KEY_NOT_FOUND, idx = 0;
+
+  if (!conf.has_geocity) {
+    add_root_to_holder (item, h, type, panel);
+    return;
+  }
+
+  /* city metrics from storage (city is the "data" key) */
+  if (set_root_metrics (item, h->module, type, &nmetrics) == 1)
+    return;
+
+  /* country is the "root" of the city in storage */
+  if (!(root = ht_get_root (h->module, item.nkey))) {
+    free_gmetrics (nmetrics);
+    return;
+  }
+
+  /* look up the continent for this country */
+  continent = get_continent_for_country (root);
+  if (continent == NULL) {
+    /* fallback: use country as root directly (2-level) */
+    free (root);
+    add_root_to_holder (item, h, type, panel);
+    free_gmetrics (nmetrics);
+    return;
+  }
+
+  /* Find or create continent as root GHolderItem */
+  if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, continent))) {
+    idx = h->idx;
+    cont_metrics = new_gmetrics ();
+    cont_metrics->data = xstrdup (continent);
+    h->items[idx].metrics = cont_metrics;
+    h->items[idx].sub_list = new_gsublist ();
+    h->idx++;
+  } else {
+    idx = root_idx;
+    cont_metrics = h->items[idx].metrics;
+  }
+
+  /* Find or create country as sub-item under continent */
+  sub_list = h->items[idx].sub_list;
+  country_sub = find_sub_item_by_data (sub_list, root);
+  if (country_sub == NULL) {
+    country_metrics = new_gmetrics ();
+    country_metrics->data = xstrdup (root);
+    add_sub_item_back (sub_list, h->module, country_metrics);
+    country_sub = sub_list->tail;
+    country_sub->sub_list = new_gsublist ();
+    h->sub_items_size++;
+  } else {
+    country_metrics = country_sub->metrics;
+  }
+
+  /* Add city as sub-item under country */
+  add_sub_item_back (country_sub->sub_list, h->module, nmetrics);
+  h->sub_items_size++;
+
+  /* Accumulate metrics upward: city -> country */
+  country_metrics->hits += nmetrics->hits;
+  country_metrics->visitors += nmetrics->visitors;
+  country_metrics->nbw += nmetrics->nbw;
+  country_metrics->cumts.nts += nmetrics->cumts.nts;
+  if (nmetrics->maxts.nts > country_metrics->maxts.nts)
+    country_metrics->maxts.nts = nmetrics->maxts.nts;
+  if (country_metrics->hits > 0)
+    country_metrics->avgts.nts = country_metrics->cumts.nts / country_metrics->hits;
+
+  /* Accumulate metrics upward: country -> continent */
+  cont_metrics->hits += nmetrics->hits;
+  cont_metrics->visitors += nmetrics->visitors;
+  cont_metrics->nbw += nmetrics->nbw;
+  cont_metrics->cumts.nts += nmetrics->cumts.nts;
+  if (nmetrics->maxts.nts > cont_metrics->maxts.nts)
+    cont_metrics->maxts.nts = nmetrics->maxts.nts;
+  if (cont_metrics->hits > 0)
+    cont_metrics->avgts.nts = cont_metrics->cumts.nts / cont_metrics->hits;
+
+  free (root);
+}
+#endif
 
 /* Load raw data into our holder structure */
 void

@@ -260,6 +260,7 @@ init_log_item (GLog *glog) {
   logitem->continent = NULL;
   logitem->asn = NULL;
   logitem->country = NULL;
+  logitem->city = NULL;
   logitem->date = NULL;
   logitem->errstr = NULL;
   logitem->host = NULL;
@@ -312,6 +313,8 @@ free_glog (GLogItem *logitem) {
     free (logitem->asn);
   if (logitem->country != NULL)
     free (logitem->country);
+  if (logitem->city != NULL)
+    free (logitem->city);
   if (logitem->date != NULL)
     free (logitem->date);
   if (logitem->errstr != NULL)

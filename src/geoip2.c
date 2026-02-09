@@ -193,8 +193,8 @@ geoip_set_asn (MMDB_entry_data_s name, MMDB_entry_data_s code, char *asn, int st
 /* Compose a string with the city name and state/region and store it
  * in the given buffer. */
 static void
-geoip_set_city (const char *city, const char *region, char *loc) {
-  snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
+geoip_set_city (const char *city, char *loc) {
+  snprintf (loc, CITY_LEN, "%s", city ? city : "N/A City");
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -256,7 +256,7 @@ geoip_query_city (MMDB_lookup_result_s res, char *location) {
       region = get_value (res, "subdivisions", "0", "names", "en", NULL);
     }
   }
-  geoip_set_city (city, region, location);
+  geoip_set_city (city, location);
   free (city);
   free (region);
 }

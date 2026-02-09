@@ -26,6 +26,7 @@ BUILT_SOURCES =       \
   src/topojsonjs.h    \
   src/hoganjs.h       \
   src/countries110m.h \
+  src/cities10m.h     \
   src/chartsjs.h      \
   src/appjs.h
 
@@ -38,10 +39,12 @@ CLEANFILES =                          \
   src/topojsonjs.h                    \
   src/hoganjs.h                       \
   src/countries110m.h                 \
+  src/cities10m.h                     \
   src/chartsjs.h                      \
   src/appjs.h                         \
   resources/tpls.html.tmp             \
   resources/countries-110m.json.tmp   \
+  resources/cities-10m.json.tmp       \
   resources/css/bootstrap.min.css.tmp \
   resources/css/fa.min.css.tmp        \
   resources/css/app.css.tmp           \
@@ -66,6 +69,14 @@ if HAS_SEDTR
 	./bin2c $(srcdir)/resources/countries-110m.json.tmp src/countries110m.h countries_json
 else
 	./bin2c $(srcdir)/resources/countries-110m.json src/countries110m.h countries_json
+endif
+# cities.json
+src/cities10m.h: bin2c$(EXEEXT) $(srcdir)/resources/cities-10m.json
+if HAS_SEDTR
+	cat $(srcdir)/resources/cities-10m.json | sed "s/^[[:space:]]*//" | sed "/^$$/d" | tr -d "\r\n" > $(srcdir)/resources/cities-10m.json.tmp
+	./bin2c $(srcdir)/resources/cities-10m.json.tmp src/cities10m.h cities_json
+else
+	./bin2c $(srcdir)/resources/cities-10m.json src/cities10m.h cities_json
 endif
 # Bootstrap
 src/bootstrapcss.h: bin2c$(EXEEXT) $(srcdir)/resources/css/bootstrap.min.css

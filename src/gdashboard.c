@@ -208,9 +208,10 @@ set_module_from_mouse_event (GScroll *gscroll, GDash *dash, int y) {
  * On error, NULL is returned.
  * On success, the newly allocated string is returned. */
 static char *
-render_child_node (const char *data) {
+render_child_node (const char *data, int depth) {
   char *buf;
   int len = 0;
+  int indent = (depth - 1) * 2 + 1;
 
   /* chars to use based on encoding used */
 #ifdef HAVE_LIBNCURSESW
@@ -224,9 +225,9 @@ render_child_node (const char *data) {
   if (data == NULL || *data == '\0')
     return NULL;
 
-  len = snprintf (NULL, 0, " %s%s %s", bend, horz, data);
+  len = snprintf (NULL, 0, "%*s%s%s %s", indent, "", bend, horz, data);
   buf = xmalloc (len + 3);
-  sprintf (buf, " %s%s %s", bend, horz, data);
+  sprintf (buf, "%*s%s%s %s", indent, "", bend, horz, data);
 
   return buf;
 }
@@ -1218,6 +1219,22 @@ find_next_sub_item (GSubList *sub_list, regex_t *regex) {
       find_t.next_idx++;
     }
     i++;
+    /* recurse into nested sub-items */
+    if (iter->sub_list != NULL) {
+      GSubItem *nested;
+      for (nested = iter->sub_list->head; nested; nested = nested->next) {
+        if (i >= find_t.next_sub_idx) {
+          rc = regexec (regex, nested->metrics->data, 0, NULL, 0);
+          if (rc == 0) {
+            find_t.next_idx++;
+            find_t.next_sub_idx = (1 + i);
+            return 0;
+          }
+          find_t.next_idx++;
+        }
+        i++;
+      }
+    }
   }
 
 out:
@@ -1339,14 +1356,13 @@ render_find_dialog (WINDOW *main_win, GScroll *gscroll) {
 }
 
 static void
-set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals totals,
-                  int is_subitem) {
+set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals totals, int depth) {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
   char *data = NULL;
   int *idx;
 
-  data = is_subitem ? render_child_node (metrics->data) : metrics->data;
+  data = depth ? render_child_node (metrics->data, depth) : metrics->data;
   if (!data)
     return;
 
@@ -1355,7 +1371,7 @@ set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals t
   meta = &(*dash)->module[module].meta;
 
   idata->metrics = new_gmetrics ();
-  idata->is_subitem = is_subitem;
+  idata->is_subitem = depth;
   idata->metrics->hits = metrics->hits;
   idata->metrics->hits_perc = get_percentage (totals.hits, metrics->hits);
   idata->metrics->visitors = metrics->visitors;
@@ -1377,7 +1393,7 @@ set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals t
   idata->metrics->maxts.sts = usecs_to_str (metrics->maxts.nts);
 
 out:
-  if (is_subitem)
+  if (depth)
     free (data);
 
   set_metrics_len (meta, idata);
@@ -1390,7 +1406,8 @@ out:
  * If no items on the sub list, the function returns.
  * On success, sub list data is set into the dashboard structure. */
 static void
-add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int *i) {
+add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int *i,
+                      int depth) {
   GSubList *sub_list = item.sub_list;
   GSubItem *iter;
 
@@ -1398,7 +1415,14 @@ add_sub_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotal
     return;
 
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
-    set_dash_metrics (dash, iter->metrics, module, totals, 1);
+    set_dash_metrics (dash, iter->metrics, module, totals, depth);
+    /* recurse into nested sub-items */
+    if (iter->sub_list != NULL) {
+      GHolderItem child;
+      child.metrics = iter->metrics;
+      child.sub_list = iter->sub_list;
+      add_sub_item_to_dash (dash, child, module, totals, i, depth + 1);
+    }
   }
 }
 
@@ -1434,7 +1458,7 @@ load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
 
     add_item_to_dash (&dash, h->items[j], module, totals);
     if (gscroll->expanded && module == gscroll->current && h->sub_items_size)
-      add_sub_item_to_dash (&dash, h->items[j], module, totals, &i);
+      add_sub_item_to_dash (&dash, h->items[j], module, totals, &i, 1);
     j++;
   }
 }

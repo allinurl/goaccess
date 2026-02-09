@@ -20,12 +20,19 @@
 <!-- TPL Panel Table -->
 <script id="tpl-table-row" type="text/template">
 	{{#rows}}
-		<tr class="{{#className}}{{className}}{{/className}} {{#hasSubItems}}{{#items}}expandable{{/items}}{{/hasSubItems}}" {{#idx}}data-pid="{{idx}}"{{/idx}} data-panel="{{panel}}" {{#key}}data-key="{{key}}"{{/key}}>
+		<tr class="{{#className}}{{className}} {{/className}}{{#hasSubItems}}{{#items}}expandable{{/items}}{{/hasSubItems}} level-{{level}}" data-panel="{{panel}}" {{#key}}data-key="{{key}}" {{/key}} {{#nodeKey}}data-node-key="{{nodeKey}}" {{/nodeKey}} data-level="{{level}}">
 			{{#hasSubItems}}
 			<td class="row-expandable text-center {{#items}}clickable{{/items}}">
 				{{#items}}<i class="fa {{#expanded}}fa-caret-down{{/expanded}}{{^expanded}}fa fa-caret-right{{/expanded}}"></i>{{/items}}
 				{{^items}}<i></i>{{/items}}
 			</td>
+			{{/hasSubItems}}
+			{{^hasSubItems}}
+			{{#showPlaceholder}}
+			<td class="row-expandable text-center">
+				<i></i>
+			</td>
+			{{/showPlaceholder}}
 			{{/hasSubItems}}
 			<td class="row-idx text-right">
 				{{#idx}}{{idx}}{{/idx}}

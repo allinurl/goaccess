@@ -188,20 +188,24 @@ typedef struct GMetrics {
   } maxts;
 } GMetrics;
 
+/* Forward declaration for recursive sub-items */
+typedef struct GSubList_ GSubList;
+
 /* Holder sub item */
 typedef struct GSubItem_ {
   GModule module;
   GMetrics *metrics;
+  GSubList *sub_list;
   struct GSubItem_ *prev;
   struct GSubItem_ *next;
 } GSubItem;
 
 /* Double linked-list of sub items */
-typedef struct GSubList_ {
+struct GSubList_ {
   int size;
   struct GSubItem_ *head;
   struct GSubItem_ *tail;
-} GSubList;
+};
 
 /* Holder item */
 typedef struct GHolderItem_ {

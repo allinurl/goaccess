@@ -161,9 +161,9 @@ print_csv_metric_block (FILE *fp, GMetrics *nmetrics) {
  * On error, it exits early.
  * On success, outputs item value. */
 static void
-print_csv_sub_items (FILE *fp, GHolder *h, int idx, GPercTotals totals) {
+print_csv_sub_items (FILE *fp, GSubList *sub_list, GModule module, int parent_idx,
+                     GPercTotals totals, int depth) {
   GMetrics *nmetrics;
-  GSubList *sub_list = h->items[idx].sub_list;
   GSubItem *iter;
 
   int i = 0;
@@ -175,11 +175,17 @@ print_csv_sub_items (FILE *fp, GHolder *h, int idx, GPercTotals totals) {
     set_data_metrics (iter->metrics, &nmetrics, totals);
 
     fprintf (fp, "\"%d\",", i); /* idx */
-    fprintf (fp, "\"%d\",", idx); /* parent idx */
-    fprintf (fp, "\"%s\",", module_to_id (h->module));
+    fprintf (fp, "\"%d\",", parent_idx); /* parent idx */
+    fprintf (fp, "\"%s\",", module_to_id (module));
+    fprintf (fp, "\"%d\",", depth); /* depth */
 
     /* output metrics */
     print_csv_metric_block (fp, nmetrics);
+
+    /* recurse into nested sub-items */
+    if (iter->sub_list != NULL)
+      print_csv_sub_items (fp, iter->sub_list, module, i, totals, depth + 1);
+
     free (nmetrics);
   }
 }
@@ -203,7 +209,7 @@ print_csv_data (FILE *fp, GHolder *h, GPercTotals totals) {
     print_csv_metric_block (fp, nmetrics);
 
     if (h->sub_items_size)
-      print_csv_sub_items (fp, h, i, totals);
+      print_csv_sub_items (fp, h->items[i].sub_list, h->module, i, totals, 1);
 
     free (nmetrics);
   }
