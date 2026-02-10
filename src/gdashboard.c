@@ -212,26 +212,46 @@ set_module_from_mouse_event (GScroll *gscroll, GDash *dash, int y) {
  * On error, NULL is returned.
  * On success, the newly allocated string is returned. */
 static char *
-render_child_node (const char *data, int depth) {
+render_child_node (const char *data, int depth, uint32_t parent_state, int is_last) {
   char *buf;
   int len = 0;
-  int indent = (depth - 1) * 2 + 1;
+  int i;
+  char prefix[512] = "";
 
   /* chars to use based on encoding used */
 #ifdef HAVE_LIBNCURSESW
-  const char *bend = "\xe2\x94\x9c";
-  const char *horz = "\xe2\x94\x80";
+  const char *branch = "\xe2\x94\x9c\xe2\x94\x80"; /* ├─ */
+  const char *last = "\xe2\x94\x94\xe2\x94\x80"; /* └─ */
+  const char *vert = "\xe2\x94\x82 "; /* │  */
+  const char *space = "  ";     /*    */
 #else
-  const char *bend = "|";
-  const char *horz = "`-";
+  const char *branch = "|-";
+  const char *last = "`-";
+  const char *vert = "| ";
+  const char *space = "  ";
 #endif
 
   if (data == NULL || *data == '\0')
     return NULL;
 
-  len = snprintf (NULL, 0, "%*s%s%s %s", indent, "", bend, horz, data);
-  buf = xmalloc (len + 3);
-  sprintf (buf, "%*s%s%s %s", indent, "", bend, horz, data);
+  /* Build the prefix by examining parent_state bits
+   * For each ancestor level, draw either │ or space */
+  for (i = 1; i < depth; i++) {
+    /* Check if ancestor at level i has more siblings */
+    if (parent_state & (1 << i)) {
+      strcat (prefix, vert); /* │  - ancestor has siblings below it */
+    } else {
+      strcat (prefix, space); /*    - ancestor was last child */
+    }
+  }
+
+  /* Add the final connector for this node */
+  strcat (prefix, is_last ? last : branch);
+  strcat (prefix, " ");
+
+  len = snprintf (NULL, 0, "%s%s", prefix, data);
+  buf = xmalloc (len + 1);
+  sprintf (buf, "%s%s", prefix, data);
 
   return buf;
 }
@@ -1502,13 +1522,15 @@ render_find_dialog (WINDOW *main_win, GScroll *gscroll) {
 }
 
 static void
-set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals totals, int depth) {
+set_dash_metrics (GDash **dash, GMetrics *metrics, GModule module, GPercTotals totals, int depth,
+                  uint32_t parent_state, int is_last) {
   GDashData *idata = NULL;
   GDashMeta *meta = NULL;
   char *data = NULL;
   int *idx;
 
-  data = depth ? render_child_node (metrics->data, depth) : metrics->data;
+  /* Call render_child_node with parent_state and is_last parameters */
+  data = depth ? render_child_node (metrics->data, depth, parent_state, is_last) : metrics->data;
   if (!data)
     return;
 
@@ -1569,28 +1591,50 @@ count_sub_items_recursive (GSubList *sl) {
  * full_idx: tracks position in full DFS traversal (for node_expanded[] indexing)
  * node_exp/node_exp_size: per-node expand state array
  * i: tracks the dash alloc_size counter
+ * parent_state: bit array tracking which ancestor levels have more siblings
  */
 static void
 add_sub_item_to_dash_recursive (GDash **dash, GSubList *sub_list, GModule module,
                                 GPercTotals totals, int *i, int depth, int *full_idx,
-                                uint8_t *node_exp, int node_exp_size) {
+                                uint8_t *node_exp, int node_exp_size, uint32_t parent_state) {
   GSubItem *iter;
   int *didx;
+  int count = 0;
+  int total_items = 0;
+  GSubItem *temp;
 
   if (sub_list == NULL)
     return;
 
+  /* First pass: count total items at this level */
+  for (temp = sub_list->head; temp; temp = temp->next)
+    total_items++;
+
+  /* Second pass: process each item */
   for (iter = sub_list->head; iter; iter = iter->next, (*i)++) {
     int my_full_idx = *full_idx;
     int has_kids = (iter->sub_list != NULL && iter->sub_list->size > 0) ? 1 : 0;
+    int is_last_child = (count == total_items - 1);
+    uint32_t new_parent_state = parent_state;
 
-    set_dash_metrics (dash, iter->metrics, module, totals, depth);
+    /* Update parent_state for children:
+     * If this node is NOT the last child, set the bit at this depth level.
+     * This tells children to draw │ at this column.
+     * If this node IS the last child, clear the bit at this depth level.
+     * This tells children to draw space at this column. */
+    if (!is_last_child) {
+      new_parent_state |= (1 << depth);
+    } else {
+      new_parent_state &= ~(1 << depth);
+    }
+
+    /* Add this item to dashboard with proper parent_state and is_last flag */
+    set_dash_metrics (dash, iter->metrics, module, totals, depth, parent_state, is_last_child);
 
     /* Set node metadata on the just-added item */
     didx = &(*dash)->module[module].idx_data;
     (*dash)->module[module].data[(*didx) - 1].node_full_idx = my_full_idx;
     (*dash)->module[module].data[(*didx) - 1].has_children = has_kids;
-
     (*full_idx)++;
 
     /* Recurse into nested sub-items only if this node is expanded */
@@ -1598,15 +1642,16 @@ add_sub_item_to_dash_recursive (GDash **dash, GSubList *sub_list, GModule module
       int should_expand = 1;
       if (node_exp != NULL && my_full_idx < node_exp_size)
         should_expand = node_exp[my_full_idx];
-
       if (should_expand) {
+        /* Pass new_parent_state to children so they know about our sibling status */
         add_sub_item_to_dash_recursive (dash, iter->sub_list, module, totals, i, depth + 1,
-                                        full_idx, node_exp, node_exp_size);
+                                        full_idx, node_exp, node_exp_size, new_parent_state);
       } else {
         /* Skip all descendants in full_idx counting */
         *full_idx += count_sub_items_recursive (iter->sub_list);
       }
     }
+    count++;
   }
 }
 
@@ -1616,7 +1661,10 @@ add_sub_item_to_dash_recursive (GDash **dash, GSubList *sub_list, GModule module
 static void
 add_item_to_dash (GDash **dash, GHolderItem item, GModule module, GPercTotals totals, int full_idx) {
   int *idx;
-  set_dash_metrics (dash, item.metrics, module, totals, 0);
+
+  /* Root level items: depth=0, no parent_state, not last (doesn't matter for roots) */
+  set_dash_metrics (dash, item.metrics, module, totals, 0, 0, 0);
+
   /* set node metadata (idx was already incremented by set_dash_metrics) */
   idx = &(*dash)->module[module].idx_data;
   (*dash)->module[module].data[(*idx) - 1].node_full_idx = full_idx;
@@ -1715,9 +1763,11 @@ load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
         int should_expand = 1;
         if (node_exp != NULL && my_full_idx < node_exp_size)
           should_expand = node_exp[my_full_idx];
+
         if (should_expand) {
+          uint32_t parent_state = 0; /* Root level has no parent state */
           add_sub_item_to_dash_recursive (&dash, h->items[j].sub_list, module, totals, &i, 1,
-                                          &full_idx, node_exp, node_exp_size);
+                                          &full_idx, node_exp, node_exp_size, parent_state);
         } else {
           full_idx += count_sub_items_recursive (h->items[j].sub_list);
         }
