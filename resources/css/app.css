@@ -1083,6 +1083,7 @@ nav li:hover {
 
 .dark .chart-tooltip th {
 	background-color: #1c1c1c;
+	color: #fff;
 }
 
 .dark .chart-tooltip tr {
@@ -1238,6 +1239,7 @@ html.dark.blue,
 
 .dark.blue .chart-tooltip th {
 	background-color: #334155;
+	color: #fff;
 }
 
 .dark.blue .report-title {
@@ -1409,6 +1411,7 @@ html.dark.gray,
 
 .dark.gray .chart-tooltip th {
 	background-color: #3a3a3a;
+	color: #fff;
 }
 
 .dark.gray .report-title {
@@ -1570,6 +1573,7 @@ html.dark.purple,
 
 .dark.purple .chart-tooltip th {
 	background-color: #3a2f66;
+	color: #fff;
 }
 
 .dark.purple .report-title {
