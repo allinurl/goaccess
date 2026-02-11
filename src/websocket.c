@@ -1421,9 +1421,16 @@ ws_respond (WSClient *client, const char *buffer, int len) {
     if (ws_realloc_send_buf (client, buffer, len) == 1)
       return bytes;
   }
-  /* send from cache buffer */
-  else {
-    bytes = ws_respond_cache (client);
+  /* send from cache buffer; if we sent a big buffer (i.e. HTML), we
+   * likely hit send(2) limits and need to drain the queue */
+  while (client->sockqueue) { /* XXX: Backoff? */
+    int cache_bytes = ws_respond_cache (client);
+    if (cache_bytes < 1 && !(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
+      LOG (("Error draining cache buffer for response: %s", strerror (errno)));
+      break;
+    } else {
+      bytes += cache_bytes;
+    }
   }
 
   return bytes;
