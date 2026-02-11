@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2025-03-28 18:05-0500\n"
+"POT-Creation-Date: 2026-02-06 19:41-0600\n"
 "PO-Revision-Date: 2025-04-28 21:05+0900\n"
 "Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -95,7 +95,7 @@ msgstr "ログファイルサイズ"
 msgid "Log Source"
 msgstr "ログ取得元"
 
-#: src/labels.h:72 src/labels.h:187
+#: src/labels.h:72 src/labels.h:188
 msgid "Referrers"
 msgstr "リファラ数"
 
@@ -107,7 +107,7 @@ msgstr "合計リクエスト数"
 msgid "Static Files"
 msgstr "静的ファイル数"
 
-#: src/labels.h:75 src/labels.h:159
+#: src/labels.h:75 src/labels.h:160
 msgid "Not Found"
 msgstr "404エラー数"
 
@@ -131,7 +131,7 @@ msgstr "ヒット数"
 msgid "h%"
 msgstr "ヒット率(%)"
 
-#: src/labels.h:83 src/labels.h:110
+#: src/labels.h:83 src/labels.h:111
 msgid "Visitors"
 msgstr "ユーザー数"
 
@@ -144,957 +144,979 @@ msgid "v%"
 msgstr "訪問率(%)"
 
 #: src/labels.h:87
+msgid "tx%"
+msgstr ""
+
+#: src/labels.h:88
 msgid "Avg. T.S."
 msgstr "平均処理時間"
 
-#: src/labels.h:88
+#: src/labels.h:89
 msgid "Cum. T.S."
 msgstr "合計処理時間"
 
-#: src/labels.h:89
+#: src/labels.h:90
 msgid "Max. T.S."
 msgstr "最大処理時間"
 
-#: src/labels.h:90
+#: src/labels.h:91
 msgid "Method"
 msgstr "要求"
 
-#: src/labels.h:91
+#: src/labels.h:92
 msgid "Mtd"
 msgstr "要求"
 
-#: src/labels.h:92
+#: src/labels.h:93
 msgid "Protocol"
 msgstr "プロトコル"
 
-#: src/labels.h:93
+#: src/labels.h:94
 msgid "Proto"
 msgstr "プロトコル"
 
-#: src/labels.h:94
+#: src/labels.h:95
 msgid "City"
 msgstr "地域"
 
-#: src/labels.h:95 src/labels.h:211 src/labels.h:215
+#: src/labels.h:96 src/labels.h:212 src/labels.h:216
 msgid "ASN"
 msgstr "ASN"
 
-#: src/labels.h:96
+#: src/labels.h:97
 msgid "Country"
 msgstr "国名"
 
-#: src/labels.h:97
+#: src/labels.h:98
 msgid "Hostname"
 msgstr "ホスト名"
 
-#: src/labels.h:98
+#: src/labels.h:99
 msgid "Data"
 msgstr "データ"
 
-#: src/labels.h:100
+#: src/labels.h:101
 msgid "Hits/Visitors"
 msgstr "ヒット数/ユーザー数"
 
-#: src/labels.h:104
+#: src/labels.h:105
 msgid "Unique visitors per day"
 msgstr "一日あたりのユニークユーザー数"
 
-#: src/labels.h:106
+#: src/labels.h:107
 msgid "Unique visitors per day - Including spiders"
 msgstr "一日あたりのユニークユーザー数（クローラも含める）"
 
-#: src/labels.h:108
+#: src/labels.h:109
 msgid "Hits having the same IP, date and agent are a unique visit."
 msgstr ""
 "IPアドレス、日付、ユーザーエージェントが全て同一だった場合、ユニークユーザー"
 "として扱われます。"
 
-#: src/labels.h:113
+#: src/labels.h:114
 msgid "Requested Files (URLs)"
 msgstr "リクエストされたファイル（URL）"
 
-#: src/labels.h:115
+#: src/labels.h:116
 msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "上位のリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理時間、メソッ"
 "ド、プロトコル]"
 
-#: src/labels.h:117
+#: src/labels.h:118
 msgid "Requests"
 msgstr "リクエスト数"
 
-#: src/labels.h:120 src/labels.h:124
+#: src/labels.h:121 src/labels.h:125
 msgid "Static Requests"
 msgstr "静的ファイルリクエスト数"
 
-#: src/labels.h:122
+#: src/labels.h:123
 msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "上位の静的ファイルリクエスト [ヒット数、平均処理時間、合計処理時間、最大処理"
 "時間、メソッド、プロトコル]"
 
-#: src/labels.h:127
+#: src/labels.h:128
 msgid "Time Distribution"
 msgstr "時間分布"
 
-#: src/labels.h:129
+#: src/labels.h:130
 msgid "Data sorted by hour [, avgts, cumts, maxts]"
 msgstr "上位のデータ [時刻、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:131
+#: src/labels.h:132
 msgid "Time"
 msgstr "時刻"
 
-#: src/labels.h:134 src/labels.h:138
+#: src/labels.h:135 src/labels.h:139
 msgid "Virtual Hosts"
 msgstr "バーチャルホスト"
 
-#: src/labels.h:136 src/labels.h:143 src/labels.h:150
+#: src/labels.h:137 src/labels.h:144 src/labels.h:151
 msgid "Data sorted by hits [, avgts, cumts, maxts]"
 msgstr "上位のデータ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:141
+#: src/labels.h:142
 msgid "Remote User (HTTP authentication)"
 msgstr "認証されたユーザー（HTTP認証）"
 
-#: src/labels.h:145
+#: src/labels.h:146
 msgid "Remote User"
 msgstr "認証されたユーザー"
 
-#: src/labels.h:148
+#: src/labels.h:149
 msgid "The cache status of the object served"
 msgstr "サーブされるオブジェクトのキャッシュ状態"
 
-#: src/labels.h:152
+#: src/labels.h:153
 msgid "Cache Status"
 msgstr "キャッシュの状態"
 
-#: src/labels.h:155
+#: src/labels.h:156
 msgid "Not Found URLs (404s)"
 msgstr "404エラーが返されたURL"
 
-#: src/labels.h:157
+#: src/labels.h:158
 msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
 msgstr ""
 "上位のnot foundなURL [ヒット数、平均処理時間、合計処理時間、最大処理時間、メ"
 "ソッド、プロトコル]"
 
-#: src/labels.h:162
+#: src/labels.h:163
 msgid "Visitor Hostnames and IPs"
 msgstr "ユーザーのホスト名とIPアドレス"
 
-#: src/labels.h:164
+#: src/labels.h:165
 msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "上位のユーザーホスト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:166
+#: src/labels.h:167
 msgid "Hosts"
 msgstr "ホスト名"
 
-#: src/labels.h:169
+#: src/labels.h:170
 msgid "Operating Systems"
 msgstr "オペレーティングシステム"
 
-#: src/labels.h:171
+#: src/labels.h:172
 msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
 msgstr "上位のOS [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:173
+#: src/labels.h:174
 msgid "OS"
 msgstr "OS"
 
-#: src/labels.h:176 src/labels.h:180
+#: src/labels.h:177 src/labels.h:181
 msgid "Browsers"
 msgstr "ブラウザ"
 
-#: src/labels.h:178
+#: src/labels.h:179
 msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
 msgstr "上位のブラウザ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:183
+#: src/labels.h:184
 msgid "Referrer URLs"
 msgstr "リファラのURL"
 
-#: src/labels.h:185
+#: src/labels.h:186
 msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "上位の要求元のリファラ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:190 src/labels.h:194
+#: src/labels.h:191 src/labels.h:195
 msgid "Referring Sites"
 msgstr "参照元サイト"
 
-#: src/labels.h:192
+#: src/labels.h:193
 msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "上位の参照元サイト [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:197
+#: src/labels.h:198
 msgid "Keyphrases from Google's search engine"
 msgstr "キーフレーズ（Google検索から）"
 
-#: src/labels.h:199
+#: src/labels.h:200
 msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "上位のキーフレーズ [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:201
+#: src/labels.h:202
 msgid "Keyphrases"
 msgstr "キーフレーズ"
 
-#: src/labels.h:204 src/labels.h:208
+#: src/labels.h:205 src/labels.h:209
 msgid "Geo Location"
 msgstr "位置情報"
 
-#: src/labels.h:206
+#: src/labels.h:207
 msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
 msgstr "地理区分 > 国別 [ヒット数、平均処理時間、合計処理時間、最大処理時間]"
 
-#: src/labels.h:213
+#: src/labels.h:214
 msgid "Autonomous System Numbers/Organizations (ASNs)"
 msgstr "Autonomous System Numbers/Organizations (ASNs)"
 
-#: src/labels.h:218
+#: src/labels.h:219
 msgid "HTTP Status Codes"
 msgstr "HTTPステータスコード"
 
-#: src/labels.h:220
+#: src/labels.h:221
 msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
 msgstr ""
 "上位のHTTPステータスコード [ヒット数、平均処理時間、合計処理時間、最大処理時"
 "間]"
 
-#: src/labels.h:222
+#: src/labels.h:223
 msgid "Status Codes"
 msgstr "ステータスコード"
 
-#: src/labels.h:225 src/labels.h:229
+#: src/labels.h:226 src/labels.h:230
 msgid "MIME Types"
 msgstr "MIMEタイプ"
 
-#: src/labels.h:227
+#: src/labels.h:228
 msgid "File types shipped out"
 msgstr "送出されたファイル種別"
 
-#: src/labels.h:232
+#: src/labels.h:233
 msgid "Encryption settings"
 msgstr "暗号化設定"
 
-#: src/labels.h:234
+#: src/labels.h:235
 msgid "TLS version and picked algorithm"
 msgstr "TLSのバージョンと選択されたアルゴリズム"
 
-#: src/labels.h:236
+#: src/labels.h:237
 msgid "TLS Settings"
 msgstr "TLSの設定"
 
-#: src/labels.h:240
+#: src/labels.h:241
 msgid "[ ] case sensitive"
 msgstr "[ ] 大文字と小文字を区別する"
 
-#: src/labels.h:242
+#: src/labels.h:243
 msgid "[x] case sensitive"
 msgstr "[x] 大文字と小文字を区別する"
 
-#: src/labels.h:244
+#: src/labels.h:245
 msgid "Regex allowed - ^g to cancel - TAB switch case"
 msgstr "正規表現が有効 - [^g] キャンセル - [TAB] 切り替え"
 
-#: src/labels.h:246
+#: src/labels.h:247
 msgid "Find pattern in all views"
 msgstr "すべてのビューでパターン検索を行う"
 
-#: src/labels.h:250
+#: src/labels.h:251
 msgid "Log Format Configuration"
 msgstr "ログ形式設定"
 
-#: src/labels.h:252
+#: src/labels.h:253
 msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
 msgstr "[SPACE] 切り替え - [ENTER] 決定 - [q] 終了"
 
-#: src/labels.h:254
+#: src/labels.h:255
 msgid "Log Format - [c] to add/edit format"
 msgstr "ログ形式 - [c] 追加/編集"
 
-#: src/labels.h:256
+#: src/labels.h:257
 msgid "Date Format - [d] to add/edit format"
 msgstr "日付形式 - [d] 追加/編集"
 
-#: src/labels.h:258
+#: src/labels.h:259
 msgid "Time Format - [t] to add/edit format"
 msgstr "時刻形式 - [t] 追加/編集"
 
-#: src/labels.h:260 src/labels.h:264
+#: src/labels.h:261 src/labels.h:265
 msgid "[UP/DOWN] to scroll - [q] to close window"
 msgstr "[↑/↓] スクロール - [q] ウィンドウを閉じる"
 
-#: src/labels.h:266
+#: src/labels.h:267
 #, c-format
 msgid "User Agents for %1$s"
 msgstr "%1$s のユーザーエージェント"
 
-#: src/labels.h:270
+#: src/labels.h:271
 msgid "Scheme Configuration"
 msgstr "スキーム設定"
 
-#: src/labels.h:272
+#: src/labels.h:273
 msgid "[ENTER] to use scheme - [q]uit"
 msgstr "[ENTER] スキーム選択 - [q] 終了"
 
-#: src/labels.h:276
+#: src/labels.h:277
 msgid "Sort active module by"
 msgstr "選択したカラムで並び替え"
 
-#: src/labels.h:278
+#: src/labels.h:279
 msgid "[ENTER] select - [TAB] sort - [q]uit"
 msgstr "[ENTER] 選択 - [TAB] ソート - [q] 終了"
 
-#: src/labels.h:282
+#: src/labels.h:283
 msgid "GoAccess Quick Help"
 msgstr "GoAccessクイックヘルプ"
 
-#: src/labels.h:284
+#: src/labels.h:285
 msgid "[UP/DOWN] to scroll - [q] to quit"
 msgstr "[↑/↓] スクロール - [q] 終了"
 
-#: src/labels.h:288
+#: src/labels.h:289
 msgid "In-Memory with On-Disk Persistent Storage."
 msgstr "ディスク上の永続化ストレージ付きのインメモリ。"
 
-#: src/labels.h:292
+#: src/labels.h:293
 msgid "Format Errors - Verify your log/date/time format"
 msgstr ""
 "解析に失敗しました - ログ/日付/時刻のフォーマット設定を確認してください"
 
-#: src/labels.h:294
+#: src/labels.h:295
+msgid "Use --invalid-requests option to store such lines in a file."
+msgstr ""
+
+#: src/labels.h:297
 msgid "No date format was found on your conf file."
 msgstr "設定ファイル内で日付形式がセットされていません。"
 
-#: src/labels.h:296
+#: src/labels.h:299
 msgid "No log format was found on your conf file."
 msgstr "設定ファイル内でログ形式がセットされていません。"
 
-#: src/labels.h:298
+#: src/labels.h:301
 msgid "No time format was found on your conf file."
 msgstr "設定ファイル内で時刻形式がセットされていません。"
 
-#: src/labels.h:300
+#: src/labels.h:303
 msgid "No default config file found."
 msgstr "デフォルトの設定ファイルが見つかりません。"
 
-#: src/labels.h:302
+#: src/labels.h:305
 msgid "You may specify one with"
 msgstr "いずれか指定してください"
 
-#: src/labels.h:304
+#: src/labels.h:307
 msgid "producing the following errors"
 msgstr "エラーが発生しました"
 
-#: src/labels.h:306
+#: src/labels.h:309
 #, c-format
 msgid "Parsed %1$d lines"
 msgstr "解析済み: %1$d 行"
 
-#: src/labels.h:308
+#: src/labels.h:311
 msgid "Please report it by opening an issue on GitHub"
 msgstr "GitHub上のIssueから問題を報告してください"
 
-#: src/labels.h:310
+#: src/labels.h:313
 msgid "Select a time format."
 msgstr "時刻形式を選択します。"
 
-#: src/labels.h:312
+#: src/labels.h:315
 msgid "Select a date format."
 msgstr "日付形式を選択します。"
 
-#: src/labels.h:314
+#: src/labels.h:317
 msgid "Select a log format."
 msgstr "ログ形式を選択します。"
 
-#: src/labels.h:316
+#: src/labels.h:319
 #, c-format
 msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' パネルは無効化されています"
 
-#: src/labels.h:318
+#: src/labels.h:321
 msgid "No input data was provided nor there's data to restore."
 msgstr "入力データが与えられておらず、復元データもありません。"
 
-#: src/labels.h:320
+#: src/labels.h:323
 msgid "Unable to allocate memory for a log instance."
 msgstr "ログインスタンスのためのメモリを割り当てられません。"
 
-#: src/labels.h:322
+#: src/labels.h:325
 msgid "Unable to find the given log."
 msgstr "与えられたログを見付けられません。"
 
-#: src/labels.h:326
+#: src/labels.h:329
 msgid "For more details visit"
 msgstr "詳細はこちら"
 
-#: src/labels.h:328
+#: src/labels.h:331
 msgid "Last Updated"
 msgstr "最終更新日時"
 
-#: src/labels.h:330
+#: src/labels.h:333
 msgid "WebSocket server ready to accept new client connections"
 msgstr "クライアントからのWebSocket接続を待っています"
 
-#: src/labels.h:333
+#: src/labels.h:336
 msgid "The following options can also be supplied to the command"
 msgstr "次のオプションはコマンドで指定することもできます"
 
-#: src/labels.h:335
+#: src/labels.h:338
 msgid "Examples can be found by running"
 msgstr "実行例"
 
-#: src/labels.h:338
+#: src/labels.h:341
 msgid "Server Statistics"
 msgstr "サーバー統計"
 
-#: src/labels.h:340
+#: src/labels.h:343
 msgid "Theme"
 msgstr "テーマ"
 
-#: src/labels.h:342
+#: src/labels.h:345
 msgid "Dark Gray"
 msgstr "ダークグレー"
 
-#: src/labels.h:344
+#: src/labels.h:347
 msgid "Bright"
 msgstr "ライト"
 
-#: src/labels.h:346
+#: src/labels.h:349
 msgid "Dark Blue"
 msgstr "ダークブルー"
 
-#: src/labels.h:348
+#: src/labels.h:351
 msgid "Dark Purple"
 msgstr "ダークパープル"
 
-#: src/labels.h:350
+#: src/labels.h:353
 msgid "Panels"
 msgstr "パネル"
 
-#: src/labels.h:352
+#: src/labels.h:355
 msgid "Items per Page"
 msgstr "ページあたりの表示数"
 
-#: src/labels.h:354
+#: src/labels.h:357
 msgid "Tables"
 msgstr "テーブル"
 
-#: src/labels.h:356
+#: src/labels.h:359
 msgid "Display Tables"
 msgstr "テーブル表示"
 
-#: src/labels.h:358
+#: src/labels.h:361
 msgid "Auto-Hide on Small Devices"
 msgstr "自動非表示設定（小型端末用）"
 
-#: src/labels.h:360
+#: src/labels.h:363
 msgid "Automatically hide tables on small screen devices"
 msgstr "画面が小さい場合に自動でテーブルを非表示にする"
 
-#: src/labels.h:362
+#: src/labels.h:365
 msgid "Toggle Panel"
 msgstr "パネルを切り替える"
 
-#: src/labels.h:364
+#: src/labels.h:367
 msgid "Layout"
 msgstr "レイアウト"
 
-#: src/labels.h:366
+#: src/labels.h:369
 msgid "Horizontal"
 msgstr "水平"
 
-#: src/labels.h:368
+#: src/labels.h:371
 msgid "Vertical"
 msgstr "垂直"
 
-#: src/labels.h:370
+#: src/labels.h:373
 msgid "WideScreen"
 msgstr "ワイドスクリーン"
 
-#: src/labels.h:372
+#: src/labels.h:375
 msgid "File Options"
 msgstr "ファイルオプション"
 
-#: src/labels.h:374
+#: src/labels.h:377
 msgid "Export as JSON"
 msgstr "JSON形式でエクスポート"
 
-#: src/labels.h:376
+#: src/labels.h:379
 msgid "Panel Options"
 msgstr "パネルオプション"
 
-#: src/labels.h:378
+#: src/labels.h:381
 msgid "Previous"
 msgstr "前へ"
 
-#: src/labels.h:380
+#: src/labels.h:383
 msgid "Next"
 msgstr "次へ"
 
-#: src/labels.h:382
+#: src/labels.h:385
 msgid "First"
 msgstr "最初へ"
 
-#: src/labels.h:384
+#: src/labels.h:387
 msgid "Last"
 msgstr "最後へ"
 
-#: src/labels.h:386
+#: src/labels.h:389
 msgid "Chart Options"
 msgstr "グラフ設定"
 
-#: src/labels.h:388
+#: src/labels.h:391
 msgid "Chart"
 msgstr "グラフ"
 
-#: src/labels.h:390
+#: src/labels.h:393
 msgid "Type"
 msgstr "タイプ"
 
-#: src/labels.h:392
+#: src/labels.h:395
 msgid "Area Spline"
 msgstr "平滑面グラフ"
 
-#: src/labels.h:394
+#: src/labels.h:397
 msgid "Bar"
 msgstr "棒グラフ"
 
-#: src/labels.h:396
+#: src/labels.h:399
 msgid "World Map"
 msgstr "世界地図"
 
-#: src/labels.h:398
+#: src/labels.h:401
 msgid "Azimuthal/Globe"
 msgstr "方位投影／地球儀"
 
-#: src/labels.h:400
+#: src/labels.h:403
 msgid "Plot Metric"
 msgstr "表示するデータ"
 
-#: src/labels.h:402
+#: src/labels.h:405
 msgid "Table Columns"
 msgstr "テーブルカラム"
 
-#: src/labels.h:406
+#: src/labels.h:409
 msgid "0xx Unofficial Codes"
 msgstr "0xx 非公式のコード"
 
-#: src/labels.h:408
+#: src/labels.h:411
 msgid "1xx Informational"
 msgstr "1xx 情報"
 
-#: src/labels.h:410
+#: src/labels.h:413
 msgid "2xx Success"
 msgstr "2xx 成功"
 
-#: src/labels.h:412
+#: src/labels.h:415
 msgid "3xx Redirection"
 msgstr "3xx リダイレクション"
 
-#: src/labels.h:414
+#: src/labels.h:417
 msgid "4xx Client Errors"
 msgstr "4xx クライアントエラー"
 
-#: src/labels.h:416
+#: src/labels.h:419
 msgid "5xx Server Errors"
 msgstr "5xx サーバーエラー"
 
-#: src/labels.h:419
+#: src/labels.h:422
 msgid "0 - Caddy: Unhandled - No configured routes"
 msgstr "0 - Caddy: Unhandled - 構成されていない経路"
 
-#: src/labels.h:421
+#: src/labels.h:424
 msgid "100 - Continue: Server received the initial part of the request"
 msgstr "100 - 継続: リクエストヘッダーを受理しました"
 
-#: src/labels.h:423
+#: src/labels.h:426
 msgid "101 - Switching Protocols: Client asked to switch protocols"
 msgstr ""
 "101 - プロトコル変更: HTTPヘッダーでリクエストされたプロトコルに切り替えます"
 
-#: src/labels.h:425
+#: src/labels.h:428
 msgid "200 - OK: The request sent by the client was successful"
 msgstr "200 - 成功: リクエストに成功しました"
 
-#: src/labels.h:427
+#: src/labels.h:430
 msgid "201 - Created: The request has been fulfilled and created"
 msgstr "201 - 作成: リクエストが成功して新たなリソースの作成が完了しました"
 
-#: src/labels.h:429
+#: src/labels.h:432
 msgid "202 - Accepted: The request has been accepted for processing"
 msgstr "202 - 受理: リクエストを受け取ったが処理されていません"
 
-#: src/labels.h:431
+#: src/labels.h:434
 msgid "203 - Non-authoritative Information: Response from a third party"
 msgstr ""
 "203 - 認証されていない情報: リクエストを正常に処理しましたが、返される情報は"
 "別の送信元から来る可能性があります"
 
-#: src/labels.h:433
+#: src/labels.h:436
 msgid "204 - No Content: Request did not return any content"
 msgstr ""
 "204 - コンテンツ無し: リクエストを正常に処理しましたが、返すべき情報がありま"
 "せん"
 
-#: src/labels.h:435
+#: src/labels.h:438
 msgid "205 - Reset Content: Server asked the client to reset the document"
 msgstr ""
 "205 - リセット要求: クライアントに対してドキュメントビューのリセットを行うよ"
 "う要求しました"
 
-#: src/labels.h:437
+#: src/labels.h:440
 msgid "206 - Partial Content: The partial GET has been successful"
 msgstr "206 - 部分応答: コンテンツの一部のみレスポンスを返しました"
 
-#: src/labels.h:439
+#: src/labels.h:442
 msgid "207 - Multi-Status: WebDAV; RFC 4918"
 msgstr "207 - 複数ステータス: (WebDAV拡張) RFC 4918"
 
-#: src/labels.h:441
+#: src/labels.h:444
 msgid "208 - Already Reported: WebDAV; RFC 5842"
 msgstr "208 - 報告済み: (WebDAV拡張) RFC 5842"
 
-#: src/labels.h:443
+#: src/labels.h:446
 msgid "218 - This is fine: Apache servers. A catch-all error condition"
 msgstr "218 - This is fine: Apacheサーバーにおけるその他全てのエラー条件下"
 
-#: src/labels.h:445
+#: src/labels.h:448
 msgid "300 - Multiple Choices: Multiple options for the resource"
 msgstr "300 - 選択が必要: リダイレクト先が複数指定されています"
 
-#: src/labels.h:447
+#: src/labels.h:450
 msgid "301 - Moved Permanently: Resource has permanently moved"
 msgstr "301 - 恒久的な移動: リクエストされたリソースは完全に移動されました"
 
-#: src/labels.h:449
+#: src/labels.h:452
 msgid "302 - Moved Temporarily (redirect)"
 msgstr "302 - 一時的な移動: リクエストされたリソースは一時的に移動されました"
 
-#: src/labels.h:451
+#: src/labels.h:454
 msgid "303 - See Other Document: The response is at a different URI"
 msgstr ""
 "303 - 別コンテンツ: リクエストされたリソースは別のURLで提供されています"
 
-#: src/labels.h:453
+#: src/labels.h:456
 msgid "304 - Not Modified: Resource has not been modified"
 msgstr "304 - 更新無し: リクエストされたリソースは更新されていません"
 
-#: src/labels.h:455
+#: src/labels.h:458
 msgid "305 - Use Proxy: Can only be accessed through the proxy"
 msgstr ""
 "305 - プロキシ使用: リクエストされたリソースはプロキシを使用して取得できます"
 
-#: src/labels.h:457
+#: src/labels.h:460
 msgid "307 - Temporary Redirect: Resource temporarily moved"
 msgstr "307 - 一時的な移動: リクエストされたリソースは一時的に移動されました"
 
-#: src/labels.h:459
+#: src/labels.h:462
 msgid "308 - Permanent Redirect"
 msgstr "308 - 恒久的なリダイレクト"
 
-#: src/labels.h:461
+#: src/labels.h:464
 msgid "400 - Bad Request: The syntax of the request is invalid"
 msgstr "400 - 不正なリクエスト: リクエストを処理できません"
 
-#: src/labels.h:463
+#: src/labels.h:466
 msgid "401 - Unauthorized: Request needs user authentication"
 msgstr "401 - 認証が必要: このリクエストを処理するには認証が必要です"
 
-#: src/labels.h:465
+#: src/labels.h:468
 msgid "402 - Payment Required"
 msgstr "402 - 課金が必要なコンテンツ"
 
-#: src/labels.h:467
+#: src/labels.h:470
 msgid "403 - Forbidden: Server is refusing to respond to it"
 msgstr "403 - アクセス禁止: このリクエストへのアクセスは禁止されています"
 
-#: src/labels.h:469
+#: src/labels.h:472
 msgid "404 - Not Found: Requested resource could not be found"
 msgstr "404 - リソース不明: リクエストされたリソースは存在しません"
 
-#: src/labels.h:471
+#: src/labels.h:474
 msgid "405 - Method Not Allowed: Request method not supported"
 msgstr ""
 "405 - 許可されていない: リクエストされたメソッドでのアクセスは禁止されていま"
 "す"
 
-#: src/labels.h:473
+#: src/labels.h:476
 msgid "406 - Not Acceptable"
 msgstr "406 - リクエストを受理できません"
 
-#: src/labels.h:475
+#: src/labels.h:478
 msgid "407 - Proxy Authentication Required"
 msgstr "407 - プロキシ認証が必要です"
 
-#: src/labels.h:477
+#: src/labels.h:480
 msgid "408 - Request Timeout: Server timed out waiting for the request"
 msgstr "408 - タイムアウト: リクエストがタイムアウトしました"
 
-#: src/labels.h:479
+#: src/labels.h:482
 msgid "409 - Conflict: Conflict in the request"
 msgstr "409 - 衝突: リクエストが衝突しました"
 
-#: src/labels.h:481
+#: src/labels.h:484
 msgid "410 - Gone: Resource requested is no longer available"
 msgstr "410 - 消滅: リクエストされたリソースは完全に削除されました"
 
-#: src/labels.h:483
+#: src/labels.h:486
 msgid "411 - Length Required: Invalid Content-Length"
 msgstr "411 - Content-Lengthヘッダーが必要です"
 
-#: src/labels.h:485
+#: src/labels.h:488
 msgid "412 - Precondition Failed: Server does not meet preconditions"
 msgstr "412 - サーバーに与えられた前提条件を満たしていません"
 
-#: src/labels.h:487
+#: src/labels.h:490
 msgid "413 - Payload Too Large"
 msgstr "413 - ペイロードが長すぎます"
 
-#: src/labels.h:489
+#: src/labels.h:492
 msgid "414 - Request-URI Too Long"
 msgstr "414 - リクエストされたURIが長すぎます"
 
-#: src/labels.h:491
+#: src/labels.h:494
 msgid "415 - Unsupported Media Type: Media type is not supported"
 msgstr "415 - サポートされていないメディアタイプ"
 
-#: src/labels.h:493
+#: src/labels.h:496
 msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
 msgstr ""
 "416 - リクエストされたContent-Lengthヘッダーの範囲がリソースより超過していま"
 "す"
 
-#: src/labels.h:495
+#: src/labels.h:498
 msgid "417 - Expectation Failed"
 msgstr "417 - 拡張ステータスコードが使えません"
 
-#: src/labels.h:497
+#: src/labels.h:500
 msgid "418 - I'm a teapot"
 msgstr "418 - 私はティーポットです"
 
-#: src/labels.h:499
+#: src/labels.h:502
 msgid "419 - Page Expired: Laravel Framework when a CSRF Token is missing"
 msgstr "419 - Page Expired: Laravelフレームワークで、CSRFトークンがないとき"
 
-#: src/labels.h:501
+#: src/labels.h:504
 msgid "420 - Method Failure: Spring Framework when a method has failed"
 msgstr "420 - Method Failure: Springフレームワークでメソッドが失敗したとき"
 
-#: src/labels.h:503
+#: src/labels.h:506
 msgid "421 - Misdirected Request"
 msgstr "421 - 不明なリクエスト"
 
-#: src/labels.h:505
+#: src/labels.h:508
 msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
 msgstr "422 - (WebDAV拡張) 処理できないエンティティ"
 
-#: src/labels.h:507
+#: src/labels.h:510
 msgid "423 - The resource that is being accessed is locked"
 msgstr "423 - このリソースはロックされています"
 
-#: src/labels.h:509
+#: src/labels.h:512
 msgid "424 - Failed Dependency: WebDAV"
 msgstr "424 - (WebDAV拡張) 依存関係でエラーが発生しました"
 
-#: src/labels.h:511
+#: src/labels.h:514
 msgid "426 - Upgrade Required: Client should switch to a different protocol"
 msgstr ""
 "426 - アップグレードが必要: プロトコルが古すぎてリクエストを処理できません"
 
-#: src/labels.h:513
+#: src/labels.h:516
 msgid "428 - Precondition Required"
 msgstr "428 - リクエストを条件付きにする必要があります"
 
-#: src/labels.h:515
+#: src/labels.h:518
 msgid "429 - Too Many Requests: The user has sent too many requests"
 msgstr "429 - 過重リクエスト: 制限されたリクエスト数を超えたので処理できません"
 
-#: src/labels.h:517
+#: src/labels.h:520
 msgid ""
 "430 - Request Header Fields Too Large: Too many URLs are requested within a "
 "certain time frame"
-msgstr "430 - Request Header Fields Too Large: 特定の時間枠内で、URLがリクエストされ過ぎました"
+msgstr ""
+"430 - Request Header Fields Too Large: 特定の時間枠内で、URLがリクエストされ"
+"過ぎました"
 
-#: src/labels.h:519
+#: src/labels.h:522
 msgid "431 - Request Header Fields Too Large"
 msgstr "431 - HTTPヘッダーが長すぎます"
 
-#: src/labels.h:521
+#: src/labels.h:524
 msgid "440 - Login Time-out: The client's session has expired"
 msgstr "440 - Login Time-out: クライアントセッションの期限が切れました"
 
-#: src/labels.h:523
+#: src/labels.h:526
 msgid "449 - Retry With: The server cannot honour the request"
 msgstr "449 - Retry With: サーバーはリクエストを承認できません"
 
-#: src/labels.h:525
+#: src/labels.h:528
 msgid ""
 "450 - Blocked by Windows Parental Controls: The Microsoft extension code "
 "indicated"
-msgstr "450 - Blocked by Windows Parental Controls: Microsoftの拡張コードが示唆されます"
+msgstr ""
+"450 - Blocked by Windows Parental Controls: Microsoftの拡張コードが示唆されま"
+"す"
 
-#: src/labels.h:527
+#: src/labels.h:530
 msgid "451 - Unavailable For Legal Reasons"
 msgstr "451 - 法的理由により利用不可"
 
-#: src/labels.h:529
+#: src/labels.h:532
 msgid "444 - (Nginx) Connection closed without sending any headers"
 msgstr "444 - (nginx) 接続を遮断しました"
 
-#: src/labels.h:531
+#: src/labels.h:534
 msgid "460 - AWS Elastic Load Balancing: Client closed the connection "
 msgstr "460 - AWS Elastic Load Balancing: クライアントが接続を閉じました"
 
-#: src/labels.h:533
+#: src/labels.h:536
 msgid ""
 "463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP "
 "addresses"
-msgstr "463 - AWS Elastic Load Balancing: ロードバランサが30以上のIPアドレスを受け取りました"
+msgstr ""
+"463 - AWS Elastic Load Balancing: ロードバランサが30以上のIPアドレスを受け取"
+"りました"
 
-#: src/labels.h:535
+#: src/labels.h:538
 msgid "464 - AWS Elastic Load Balancing: Incompatible protocol versions"
 msgstr "464 - AWS Elastic Load Balancing: 非互換なプロトコルのバージョン"
 
-#: src/labels.h:537
+#: src/labels.h:540
 msgid "494 - (Nginx) Request Header Too Large"
 msgstr "494 - (nginx) HTTPヘッダーが長すぎます"
 
-#: src/labels.h:539
+#: src/labels.h:542
 msgid "495 - (Nginx) SSL client certificate error"
 msgstr "495 - (nginx) SSLクライアント証明書エラー"
 
-#: src/labels.h:541
+#: src/labels.h:544
 msgid "496 - (Nginx) Client didn't provide certificate"
 msgstr "496 - (nginx) クライアントが証明書を提供しませんでした"
 
-#: src/labels.h:543
+#: src/labels.h:546
 msgid "497 - (Nginx) HTTP request sent to HTTPS port"
 msgstr "497 - (nginx) HTTPリクエストをHTTPSポートに送信しました"
 
-#: src/labels.h:545
+#: src/labels.h:548
 msgid "498 - Invalid Token: an expired or otherwise invalid token"
 msgstr "498 - Invalid Token: 期限切れか別の理由で不当なトークン"
 
-#: src/labels.h:547
+#: src/labels.h:550
 msgid "499 - (Nginx) Connection closed by client while processing request"
 msgstr ""
 "499 - (nginx) リクエストを処理中にクライアントによって接続を閉じられました"
 
-#: src/labels.h:549
+#: src/labels.h:552
 msgid "500 - Internal Server Error"
 msgstr "500 - 内部サーバーエラー"
 
-#: src/labels.h:551
+#: src/labels.h:554
 msgid "501 - Not Implemented"
 msgstr "501 - 実装されていません"
 
-#: src/labels.h:553
+#: src/labels.h:556
 msgid "502 - Bad Gateway: Received an invalid response from the upstream"
 msgstr ""
 "502 - 不正なゲートウェイ: 上位サーバーから不正なレスポンスを受信しました"
 
-#: src/labels.h:555
+#: src/labels.h:558
 msgid "503 - Service Unavailable: The server is currently unavailable"
 msgstr "503 - サービス利用不可: サーバーがダウンしました"
 
-#: src/labels.h:557
+#: src/labels.h:560
 msgid "504 - Gateway Timeout: The upstream server failed to send request"
 msgstr "504 - ゲートウェイタイムアウト: 上位サーバーがリクエストを返しません"
 
-#: src/labels.h:559
+#: src/labels.h:562
 msgid "505 - HTTP Version Not Supported"
 msgstr "505 - HTTPバージョンがサポートされていません"
 
-#: src/labels.h:561
+#: src/labels.h:564
 msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
 msgstr "509 - Bandwidth Limit Exceeded: サーバーが大域を超過しました"
 
-#: src/labels.h:563
+#: src/labels.h:566
 msgid "520 - CloudFlare - Web server is returning an unknown error"
 msgstr "520 - CloudFlare - Webサーバーが未知のエラーを返しています"
 
-#: src/labels.h:565
+#: src/labels.h:568
 msgid "521 - CloudFlare - Web server is down"
 msgstr "521 - CloudFlare - Webサーバーがダウンしています"
 
-#: src/labels.h:567
+#: src/labels.h:570
 msgid "522 - CloudFlare - Connection timed out"
 msgstr "522 - CloudFlare - 接続がタイムアウトしました"
 
-#: src/labels.h:569
+#: src/labels.h:572
 msgid "523 - CloudFlare - Origin is unreachable"
 msgstr "523 - CloudFlare - Originに到達できません"
 
-#: src/labels.h:571
+#: src/labels.h:574
 msgid "524 - CloudFlare - A timeout occurred"
 msgstr "524 - CloudFlare - タイムアウトが発生しました"
 
-#: src/labels.h:573
+#: src/labels.h:576
 msgid ""
 "525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS "
 "handshake"
-msgstr "525 - SSL Handshake Failed: CloudflareがSSL/TLSハンドシェイクをネゴシエートできませんでした"
+msgstr ""
+"525 - SSL Handshake Failed: CloudflareがSSL/TLSハンドシェイクをネゴシエートで"
+"きませんでした"
 
-#: src/labels.h:575
+#: src/labels.h:578
 msgid ""
 "526 - Invalid SSL Certificate: Cloudflare could not validate the SSL "
 "certificate"
-msgstr "526 - Invalid SSL Certificate: CloudflareがSSL証明書を検証できませんでした"
+msgstr ""
+"526 - Invalid SSL Certificate: CloudflareがSSL証明書を検証できませんでした"
 
-#: src/labels.h:577
+#: src/labels.h:580
 msgid "527 - Railgun Error: An interrupted connection"
 msgstr "527 - Railgun Error: 接続が中断されました"
 
-#: src/labels.h:579
+#: src/labels.h:582
 msgid "529 - Site is overloaded: A site can not process the request"
 msgstr "529 - Site is overloaded: サイトがリクエストを処理できません"
 
-#: src/labels.h:581
+#: src/labels.h:584
 msgid "530 - Site is frozen: A site has been frozen due to inactivity"
 msgstr "530 - Site is frozen: サイトは非活性のため凍結されました"
 
-#: src/labels.h:583
+#: src/labels.h:586
 msgid ""
 "540 - Temporarily Disabled: The requested endpoint has been temporarily "
 "disabled"
-msgstr "540 - Temporarily Disabled: リクエストされたエンドポイントは一時的に無効になっています"
+msgstr ""
+"540 - Temporarily Disabled: リクエストされたエンドポイントは一時的に無効に"
+"なっています"
 
-#: src/labels.h:585
+#: src/labels.h:588
 msgid "561 - Unauthorized: An error around authentication"
 msgstr "561 - Unauthorized: 認証に関するエラー"
 
-#: src/labels.h:587
+#: src/labels.h:590
 msgid ""
 "598 - Network read timeout error: some HTTP proxies to signal a network read "
 "timeout"
-msgstr "598 - Network read timeout error: 何らかのHTTPプロキシがネットワークの読み取り時の時間切れを発信しています"
+msgstr ""
+"598 - Network read timeout error: 何らかのHTTPプロキシがネットワークの読み取"
+"り時の時間切れを発信しています"
 
-#: src/labels.h:589
+#: src/labels.h:592
 msgid "599 - Network Connect Timeout Error: An error used by some HTTP proxies"
-msgstr "599 - Network Connect Timeout Error: 何らかのHTTPプロキシで使われているエラー"
+msgstr ""
+"599 - Network Connect Timeout Error: 何らかのHTTPプロキシで使われているエラー"
 
-#: src/labels.h:591
+#: src/labels.h:594
 msgid "783 - Unexpected Token: The request includes a JSON syntax error"
 msgstr "783 - Unexpected Token: リクエストにJSONの構文エラーが含まれます"
 
-#: src/labels.h:595
+#: src/labels.h:598
 msgid "Menu"
 msgstr "メニュー"
 
-#: src/labels.h:597
+#: src/labels.h:600
 msgid "Settings"
 msgstr "設定"
 
-#: src/labels.h:599
+#: src/labels.h:602
 msgid "WebSocket Status: Connected"
 msgstr "WebSocketの状態：接続済み"
 
-#: src/labels.h:601
+#: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr "WebSocketの状態：切断済み"
