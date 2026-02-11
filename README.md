@@ -8,8 +8,8 @@ viewer that runs in a **terminal** on &ast;nix systems or through your
 administrators that require a visual server report on the fly.
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2022011901)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?202201190)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2026021101)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2026021101)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -438,7 +438,7 @@ priority, we can run it as:
 and if you don't want to install it on your server, you can still run it from
 your local machine!
 
-    # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
+    # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess - --log-format=COMBINED
 
 **Note:** SSH requires `-n` so GoAccess can read from stdin. Also, make sure to
 use SSH keys for authentication as it won't work if a passphrase is required.
