@@ -93,8 +93,9 @@ queries via HTTP. See `--ignore-panel` in your configuration file to enable it.
 by default.
 .IP "Geo Location"
 Determines where an IP address is geographically located. Statistics are broken
-down by continent and country. It needs to be compiled with GeoLocation
-support.
+down by continent and country, and when city-level GeoIP data is available it
+also lists the individual cities for each hit. It needs to be compiled with
+GeoLocation support.
 .IP "HTTP Status Codes"
 The values of the numeric status code to HTTP requests.
 .IP "ASN"
@@ -127,6 +128,12 @@ This panel shows the SSL/TLS protocol used along the Cipher Suites. This panel
 is not enabled unless
 .I %K
 is given within the log-format variable.
+
+.P
+GoAccess panels can be reordered and their subitems expanded or collapsed from
+the terminal interface, keeping the most important metrics front and center.
+Chart metrics and scales are also adjustable on the fly via the interactive
+menu described below.
 
 .P
 .I NOTE:
@@ -165,6 +172,9 @@ will utilize the enhanced GeoIP2 databases.
 \fB\-\-with-getline
 Dynamically expands line buffer in order to parse full line requests instead of
 using a fixed size buffer of 4096.
+.TP
+\fB\-\-with-zlib
+Build with zlib support for reading gzipped logs. Disabled by default.
 .TP
 \fB\-\-with-openssl
 Compile GoAccess with OpenSSL support for its WebSocket server.
@@ -1228,8 +1238,14 @@ Redraw main window.
 Quit the program, current window or collapse active module
 .IP "o or ENTER"
 Expand selected module or open window
+.IP "+"
+Expand the selected item's children when a module is already expanded.
+.IP "-"
+Collapse the selected item's children when a module is already expanded.
 .IP "0-9 and Shift + 0"
 Set selected module to active
+.IP "p"
+Reorder the dashboard panels interactively (press `p` or `P`).
 .IP "j"
 Scroll down within expanded module
 .IP "k"
