@@ -204,7 +204,7 @@ free_holder_data (GHolderItem item) {
 /* Free all memory allocated in holder for a given module. */
 void
 free_holder_by_module (GHolder **holder, GModule module) {
-  int j;
+  uint32_t j;
 
   if ((*holder) == NULL)
     return;
@@ -223,7 +223,7 @@ free_holder_by_module (GHolder **holder, GModule module) {
 void
 free_holder (GHolder **holder) {
   GModule module;
-  int j;
+  uint32_t j;
   size_t idx = 0;
 
   if ((*holder) == NULL)
@@ -247,7 +247,7 @@ free_holder (GHolder **holder) {
  * On success, the key in holder is returned . */
 static int
 get_item_idx_in_holder (GHolder *holder, const char *k) {
-  int i;
+  uint32_t i;
   if (holder == NULL)
     return KEY_NOT_FOUND;
   if (holder->idx == 0)
@@ -337,7 +337,7 @@ sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort, int max_cho
  * list. Should be faster than sorting the list */
 static void
 sort_sub_list (GHolder *h, GSort sort) {
-  int i;
+  uint32_t i;
 
   /* iterate over root-level nodes */
   for (i = 0; i < h->idx; i++) {
@@ -434,7 +434,7 @@ add_host_child_to_holder (GHolder *h) {
 
   char *ip = h->items[h->idx].metrics->data;
   char *hostname = NULL;
-  int n = h->sub_items_size;
+  uint32_t n = h->sub_items_size;
 
   /* add child nodes */
   set_host_sub_list (h, sub_list);
@@ -829,10 +829,10 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
 
 /* Load raw data into our holder structure */
 void
-load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, int max_choices, int max_choices_sub) {
-  int i;
+load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, uint32_t max_choices, uint32_t max_choices_sub) {
+  uint32_t i;
   uint32_t size = 0;
-  int alloc_size = 0;
+  uint32_t alloc_size = 0;
   const GPanel *panel = panel_lookup (module);
   /* Hierarchical panels group multiple raw items under fewer root items */
   int is_hierarchical = (panel->insert == add_root_to_holder ||
@@ -851,8 +851,8 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, in
   size = raw_data->size;
   /* For hierarchical data, we don't know how many root items we'll create,
    * but it can't be more than size or max_choices */
-  alloc_size = size > max_choices ? max_choices : (int)size;
-  h->holder_size = is_hierarchical ? (int)size : (size > max_choices ? max_choices : (int)size);
+  alloc_size = size > max_choices ? max_choices : size;
+  h->holder_size = is_hierarchical ? size : (size > max_choices ? max_choices : size);
   h->ht_size = size;
   h->idx = 0;
   h->module = module;

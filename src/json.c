@@ -944,7 +944,8 @@ print_json_sub_items (GJSON *json, GHolderItem *item, GPercTotals totals, int si
   GMetrics *nmetrics;
   GSubItem *iter;
   GSubList *sl = item->sub_list;
-  int i = 0, iiisp = 0, iiiisp = 0;
+  uint32_t i = 0;
+  int iiisp = 0, iiiisp = 0;
 
   /* no sub items, nothing to output */
   if (size == 0)
@@ -980,7 +981,7 @@ print_json_sub_items (GJSON *json, GHolderItem *item, GPercTotals totals, int si
 static void
 print_json_host_geo (GJSON *json, GSubList *sl, int iisp) {
   GSubItem *iter;
-  int i;
+  uint32_t i;
   static const char *key[] = {
     "country",
     "city",
@@ -1016,7 +1017,8 @@ static void
 print_data_metrics (GJSON *json, GHolder *h, GPercTotals totals, int sp,
                     const struct GPanel_ *panel) {
   GMetrics *nmetrics;
-  int i, isp = 0, iisp = 0, iiisp = 0;
+  uint32_t i;
+  int isp = 0, iisp = 0, iiisp = 0;
 
   /* use tabs to prettify output */
   if (conf.json_pretty_print)

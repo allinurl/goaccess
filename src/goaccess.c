@@ -328,8 +328,8 @@ daemonize (void) {
 static void
 allocate_holder_by_module (GModule module) {
   GRawData *raw_data;
-  int max_choices = get_max_choices ();
-  int max_choices_sub = get_max_choices_sub ();
+  uint32_t max_choices = get_max_choices ();
+  uint32_t max_choices_sub = get_max_choices_sub ();
 
   /* extract data from the corresponding hash table */
   raw_data = parse_raw_data (module);
@@ -356,8 +356,9 @@ allocate_holder (void) {
 /* Extract data from the modules GHolder structure and load it into
  * the terminal dashboard */
 static void
-allocate_data_by_module (GModule module, int col_data) {
-  int size = 0, max_choices = get_max_choices ();
+allocate_data_by_module (GModule module, uint32_t col_data) {
+  uint32_t size = 0;
+  uint32_t max_choices = get_max_choices ();
 
   dash->module[module].head = module_to_head (module);
   dash->module[module].desc = module_to_desc (module);
@@ -390,7 +391,7 @@ allocate_data_by_module (GModule module, int col_data) {
 static void
 allocate_data (void) {
   GModule module;
-  int col_data = get_num_collapsed_data_rows ();
+  uint32_t col_data = get_num_collapsed_data_rows ();
   size_t idx = 0;
 
   dash = new_gdash ();

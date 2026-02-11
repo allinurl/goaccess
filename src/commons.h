@@ -204,7 +204,7 @@ typedef struct GSubItem_ {
 
 /* Double linked-list of sub items */
 struct GSubList_ {
-  int size;
+  uint32_t size;
   struct GSubItem_ *head;
   struct GSubItem_ *tail;
 };
@@ -219,12 +219,12 @@ typedef struct GHolderItem_ {
 typedef struct GHolder_ {
   GHolderItem *items;           /* holder items */
   GModule module;               /* current module  */
-  int idx;                      /* holder index  */
-  int holder_size;              /* number of allocated items */
+  uint32_t idx;                      /* holder index  */
+  uint32_t holder_size;              /* number of allocated items */
   uint32_t ht_size;             /* size of the hash table/store */
-  int sub_items_size;           /* number of sub items  */
-  int max_choices;              /* max items at root level */
-  int max_choices_sub;          /* max items at sub-item levels */
+  uint32_t sub_items_size;           /* number of sub items  */
+  uint32_t max_choices;              /* max items at root level */
+  uint32_t max_choices_sub;          /* max items at sub-item levels */
 } GHolder;
 
 /* Enum-to-string */
@@ -267,8 +267,8 @@ void free_agents_array (GAgents *agents);
 const char *enum2str (const GEnum map[], int len, int idx);
 const char *get_module_str (GModule module);
 float get_percentage (unsigned long long total, unsigned long long hit);
-int get_max_choices (void);
-int get_max_choices_sub (void);
+uint32_t get_max_choices (void);
+uint32_t get_max_choices_sub (void);
 int get_module_enum (const char *str);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);

@@ -83,7 +83,7 @@ static const GEnum enum_modules[] = {
  *
  * If is_sub is true, returns sub-item limits, otherwise returns panel limits.
  * The number of items per panel/level is returned. */
-static int
+static uint32_t
 get_max_choices_internal (int is_sub) {
   char *csv = NULL, *json = NULL, *html = NULL;
   int max = MAX_CHOICES;
@@ -123,13 +123,13 @@ get_max_choices_internal (int is_sub) {
 }
 
 /* Get number of items per panel to parse. */
-int
+uint32_t
 get_max_choices (void) {
   return get_max_choices_internal (0);
 }
 
 /* Get number of sub-items per hierarchy level to parse. */
-int
+uint32_t
 get_max_choices_sub (void) {
   return get_max_choices_internal (1);
 }

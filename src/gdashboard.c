@@ -111,7 +111,7 @@ free_dashboard_data (GDashData item) {
 void
 free_dashboard (GDash *dash) {
   GModule module;
-  int j;
+  uint32_t j;
   size_t idx = 0;
 
   FOREACH_MODULE (idx, module_list) {
@@ -149,23 +149,23 @@ get_find_current_module (GDash *dash, int offset) {
 /* Get the number of rows that a collapsed dashboard panel contains.
  *
  * On success, the number of rows is returned. */
-int
+uint32_t
 get_num_collapsed_data_rows (void) {
   /* Fixed structure with columns always present:
    * DASH_COLLAPSED - (header + blank + chart + blank + blank + cols + dashes + trailing)
    * = DASH_COLLAPSED - (1 + 1 + 7 + 1 + 1 + 1 + 1 + 1) = DASH_COLLAPSED - 14
    */
-  int overhead = 1 + 1 + DASH_CHART_HEIGHT + 1 + 1 + 2 + 1; /* 14 */
+  uint32_t overhead = 1 + 1 + DASH_CHART_HEIGHT + 1 + 1 + 2 + 1; /* 14 */
   return DASH_COLLAPSED - overhead;
 }
 
 /* Get the number of rows that an expanded dashboard panel contains.
  *
  * On success, the number of rows is returned. */
-int
+uint32_t
 get_num_expanded_data_rows (void) {
   /* Same calculation as collapsed, but with DASH_EXPANDED */
-  int overhead = 1 + 1 + DASH_CHART_HEIGHT + 1 + 1 + 2 + 1; /* 14 */
+  uint32_t overhead = 1 + 1 + DASH_CHART_HEIGHT + 1 + 1 + 2 + 1; /* 14 */
   return DASH_EXPANDED - overhead;
 }
 
@@ -509,16 +509,17 @@ get_fixed_fmt_width (int w, char type) {
 static void
 render_total_label (WINDOW *win, GDashModule *data, int y, GColors *(*func) (void)) {
   char *s;
-  int win_h, win_w, total, ht_size;
+  int win_h, win_w;
+  uint32_t total, ht_size;
 
   total = data->holder_size;
   ht_size = data->ht_size;
 
-  s = xmalloc (snprintf (NULL, 0, "%s: %d/%d", GEN_TOTAL, total, ht_size) + 1);
+  s = xmalloc (snprintf (NULL, 0, "%s: %" PRIu32 "/%" PRIu32, GEN_TOTAL, total, ht_size) + 1);
   getmaxyx (win, win_h, win_w);
   (void) win_h;
 
-  sprintf (s, "%s: %d/%d", GEN_TOTAL, total, ht_size);
+  sprintf (s, "%s: %" PRIu32 "/%" PRIu32, GEN_TOTAL, total, ht_size);
   draw_header (win, s, "%s", y, win_w - strlen (s) - 2, win_w, func);
   free (s);
 }
@@ -1236,7 +1237,7 @@ expand_ancestors_and_calc_idx (GHolder *h, GModule module, GScroll *gscroll, int
   int j;
 
   /* Count visible rows for all root items before parent_idx */
-  for (j = 0; j < parent_idx && j < h[module].idx; j++) {
+  for (j = 0; j < parent_idx && j < (int) h[module].idx; j++) {
     int my_full = full_idx;
     flat_idx++;
     full_idx++;
@@ -1595,7 +1596,7 @@ count_sub_items_recursive (GSubList *sl) {
  */
 static void
 add_sub_item_to_dash_recursive (GDash **dash, GSubList *sub_list, GModule module,
-                                GPercTotals totals, int *i, int depth, int *full_idx,
+                                GPercTotals totals, uint32_t *i, int depth, int *full_idx,
                                 uint8_t *node_exp, int node_exp_size, uint32_t parent_state) {
   GSubItem *iter;
   int *didx;
@@ -1701,7 +1702,8 @@ count_visible_sub (GSubList *sl, uint8_t *node_exp, int node_exp_size, int *full
 /* Count total visible items (roots + expanded sub-items) for a holder. */
 static int
 count_visible_items (GHolder *h, uint8_t *node_exp, int node_exp_size) {
-  int count = 0, full_idx = 0, i;
+  int count = 0, full_idx = 0;
+  uint32_t i;
 
   for (i = 0; i < h->idx; i++) {
     int my_full_idx = full_idx;
@@ -1723,8 +1725,9 @@ count_visible_items (GHolder *h, uint8_t *node_exp, int node_exp_size) {
 /* Load holder's data into the dashboard structure. */
 void
 load_data_to_dash (GHolder *h, GDash *dash, GModule module, GScroll *gscroll) {
-  int alloc_size = 0;
-  int i, j, full_idx = 0;
+  uint32_t alloc_size = 0;
+  uint32_t i, j;
+  int full_idx = 0;
   GPercTotals totals;
   uint8_t *node_exp = NULL;
   int node_exp_size = 0;

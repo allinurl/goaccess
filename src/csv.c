@@ -166,7 +166,7 @@ print_csv_sub_items (FILE *fp, GSubList *sub_list, GModule module, int parent_id
   GMetrics *nmetrics;
   GSubItem *iter;
 
-  int i = 0;
+  uint32_t i = 0;
 
   if (sub_list == NULL)
     return;
@@ -174,7 +174,7 @@ print_csv_sub_items (FILE *fp, GSubList *sub_list, GModule module, int parent_id
   for (iter = sub_list->head; iter; iter = iter->next, i++) {
     set_data_metrics (iter->metrics, &nmetrics, totals);
 
-    fprintf (fp, "\"%d\",", i); /* idx */
+    fprintf (fp, "\"%u\",", i); /* idx */
     fprintf (fp, "\"%d\",", parent_idx); /* parent idx */
     fprintf (fp, "\"%s\",", module_to_id (module));
     fprintf (fp, "\"%d\",", depth); /* depth */
@@ -196,12 +196,12 @@ print_csv_sub_items (FILE *fp, GSubList *sub_list, GModule module, int parent_id
 static void
 print_csv_data (FILE *fp, GHolder *h, GPercTotals totals) {
   GMetrics *nmetrics;
-  int i;
+  uint32_t i;
 
   for (i = 0; i < h->idx; i++) {
     set_data_metrics (h->items[i].metrics, &nmetrics, totals);
 
-    fprintf (fp, "\"%d\",", i); /* idx */
+    fprintf (fp, "\"%u\",", i); /* idx */
     fprintf (fp, ","); /* no parent */
     fprintf (fp, "\"%s\",", module_to_id (h->module));
 

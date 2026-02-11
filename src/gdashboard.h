@@ -134,11 +134,11 @@ typedef struct GDashModule_ {
   const char *head;             /* panel header */
   const char *desc;             /* panel description */
 
-  int alloc_data;               /* number of data items allocated. */
+  uint32_t alloc_data;          /* number of data items allocated. */
   /* e.g., MAX_CHOICES or holder size */
   int dash_size;                /* dashboard size */
-  int holder_size;              /* hash table size  */
-  int ht_size;                  /* hash table size  */
+  uint32_t holder_size;         /* hash table size  */
+  uint32_t ht_size;             /* hash table size  */
   int idx_data;                 /* idx data */
 
   unsigned short pos_y;         /* dashboard current Y position */
@@ -153,8 +153,8 @@ typedef struct GDash_ {
 /* Function Prototypes */
 GDashData *new_gdata (uint32_t size);
 GDash *new_gdash (void);
-int get_num_collapsed_data_rows (void);
-int get_num_expanded_data_rows (void);
+uint32_t get_num_collapsed_data_rows (void);
+uint32_t get_num_expanded_data_rows (void);
 int perform_next_find (GHolder * h, GScroll * scroll);
 int render_find_dialog (WINDOW * main_win, GScroll * scroll);
 int set_module_from_mouse_event (GScroll * scroll, GDash * dash, int y);

@@ -50,7 +50,7 @@ GHolder *new_gholder (uint32_t size);
 void *add_hostname_node (void *ptr_holder);
 void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);
-void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort, int max_choices, int max_choices_sub);
+void load_holder_data (GRawData * raw_data, GHolder * h, GModule module, GSort sort, uint32_t max_choices, uint32_t max_choices_sub);
 void load_host_to_holder (GHolder * h, char *ip);
 int dup_key_list (void *val, GSLList ** user_data);
 

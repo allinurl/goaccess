@@ -213,7 +213,8 @@ sub_list_has_metric (GSubList *sl, int metric_type) {
 
 int
 metric_has_data (GHolder *h, int metric_type) {
-  int i, has = 0;
+  uint32_t i;
+  int has = 0;
   GMetrics *m;
 
   if (!h || h->idx == 0)
@@ -384,7 +385,8 @@ flatten_sub_items (GSubList *sl, ChartItem *items, int *idx, int depth, int *ful
 static int
 build_chart_items (GHolder *h, ChartItem **out, const uint8_t *item_expanded,
                    int item_expanded_size) {
-  int i, count = h->idx, idx = 0, full_idx = 0;
+  uint32_t i;
+  int count = h->idx, idx = 0, full_idx = 0;
   ChartItem *items;
 
   /* Only include sub-items if we have expand state (i.e., panel is expanded) */
@@ -564,7 +566,8 @@ draw_chart_indicator (ChartDrawCtx *ctx) {
 
 static int
 get_chart_selected_root (const ChartDrawCtx *ctx) {
-  int cum = 0, j = 0, subsz = 0;
+  int cum = 0, subsz = 0;
+  uint32_t j;
   if (ctx->selected_idx < 0)
     return -1;
   if (ctx->holder->module != HOSTS)
