@@ -1,3 +1,36 @@
+Changes to GoAccess 1.10 - Wednesday, February 11, 2026
+
+  - Added new bar charts to the terminal UI for a quicker visual read of
+    metrics.
+  - Added city-level entries to the GEOLOCATION panel.
+  - Added optional zlib support to parse compressed log files.
+  - Added panel reordering in the TUI, letting you customize the dashboard
+    layout.
+  - Added sorting for panels in the HTML report.
+  - Added the ability to expand and collapse subitems within TUI panels for
+    easier navigation of large datasets.
+  - Added a TX Amount percent column to the TUI for clearer traffic share
+    insight.
+  - Added the ability to prepend the virtual host to a request via
+    --concat-vhost-req
+  - Fixed log tailing edge cases, including empty reads and date specificity
+    overrides from the CLI.
+  - Fixed stability issues in multi-threaded parsing and during Ctrl+C with
+    multiple jobs.
+  - Fixed inability to override date specificity from the CLI.
+  - Fixed dry-run lines being counted as processed during config format
+    testing.
+  - Improved the TUI spinner and progress display for smoother, clearer
+    feedback during parsing.
+  - Refreshed the HTML dashboard styling and theme visuals.
+  - Updated browser and OS detection lists, including macOS 26 (Tahoe) and
+    Alibaba Cloud Linux.
+  - Updated packaging targets, adding Debian Trixie while dropping Debian
+    Buster and i386 builds.
+  - Updated Swedish, Chinese and Japanese translations
+  - Updated Dockerfile to use openssl-dev for compatibility with
+    SSL_CIPHER_standard_name(3ssl).
+
 Changes to GoAccess 1.9.4 - Monday, March 31, 2025
 
   - Added an azimuthal (globe) projection to the HTML report for geolocation,
