@@ -61,6 +61,8 @@ extern struct tm now_tm;
 #define MAX_CHOICES          366
 /* real-time */
 #define MAX_CHOICES_RT        50
+/* real-time sub-items */
+#define MAX_CHOICES_SUB_RT    10
 /* max default items when date-spec = min */
 #define MAX_CHOICES_MINUTE  1440 /* 24hrs */
 
@@ -221,6 +223,8 @@ typedef struct GHolder_ {
   int holder_size;              /* number of allocated items */
   uint32_t ht_size;             /* size of the hash table/store */
   int sub_items_size;           /* number of sub items  */
+  int max_choices;              /* max items at root level */
+  int max_choices_sub;          /* max items at sub-item levels */
 } GHolder;
 
 /* Enum-to-string */
@@ -264,6 +268,7 @@ const char *enum2str (const GEnum map[], int len, int idx);
 const char *get_module_str (GModule module);
 float get_percentage (unsigned long long total, unsigned long long hit);
 int get_max_choices (void);
+int get_max_choices_sub (void);
 int get_module_enum (const char *str);
 int has_timestamp (const char *fmt);
 int str2enum (const GEnum map[], int len, const char *str);

@@ -327,6 +327,8 @@ daemonize (void) {
 static void
 allocate_holder_by_module (GModule module) {
   GRawData *raw_data;
+  int max_choices = get_max_choices ();
+  int max_choices_sub = get_max_choices_sub ();
 
   /* extract data from the corresponding hash table */
   raw_data = parse_raw_data (module);
@@ -335,7 +337,7 @@ allocate_holder_by_module (GModule module) {
     return;
   }
 
-  load_holder_data (raw_data, holder + module, module, module_sort[module]);
+  load_holder_data (raw_data, holder + module, module, module_sort[module], max_choices, max_choices_sub);
 }
 
 /* Iterate over all modules/panels and extract data from hash

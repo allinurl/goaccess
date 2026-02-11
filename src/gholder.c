@@ -266,11 +266,11 @@ get_item_idx_in_holder (GHolder *holder, const char *k) {
 /* Sort a single GSubList in place: copy to array, sort, rebuild list.
  * Preserves each sub-item's own sub_list for recursive nesting. */
 static void
-sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort) {
+sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort, int max_choices_sub) {
   GHolderItem *arr;
   GSubItem *iter;
   GSubList *sub_list = *sl_ptr;
-  int j, k;
+  int j, k, limit;
 
   if (sub_list == NULL || sub_list->size == 0)
     return;
@@ -296,8 +296,10 @@ sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort) {
   sort_holder_items (arr, j, sort);
   delete_sub_list (sub_list);
 
+  /* Only rebuild up to max_choices_sub items */
+  limit = (j < max_choices_sub) ? j : max_choices_sub;
   sub_list = new_gsublist ();
-  for (k = 0; k < j; k++) {
+  for (k = 0; k < limit; k++) {
     if (k > 0)
       sub_list = *sl_ptr;
 
@@ -305,6 +307,14 @@ sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort) {
     sub_list->tail->sub_list = arr[k].sub_list;
     *sl_ptr = sub_list;
     sub_list = NULL;
+  }
+
+  /* Free items beyond max_choices_sub */
+  for (k = limit; k < j; k++) {
+    if (arr[k].sub_list != NULL)
+      delete_sub_list (arr[k].sub_list);
+    free (arr[k].metrics->data);
+    free (arr[k].metrics);
   }
 
   free (arr);
@@ -318,7 +328,7 @@ sort_single_sub_list (GSubList **sl_ptr, GModule module, GSort sort) {
   if (sub_list != NULL) {
     for (iter = sub_list->head; iter; iter = iter->next) {
       if (iter->sub_list != NULL)
-        sort_single_sub_list (&iter->sub_list, module, sort);
+        sort_single_sub_list (&iter->sub_list, module, sort, max_choices_sub);
     }
   }
 }
@@ -331,7 +341,7 @@ sort_sub_list (GHolder *h, GSort sort) {
 
   /* iterate over root-level nodes */
   for (i = 0; i < h->idx; i++) {
-    sort_single_sub_list (&h->items[i].sub_list, h->module, sort);
+    sort_single_sub_list (&h->items[i].sub_list, h->module, sort, h->max_choices_sub);
   }
 }
 
@@ -369,7 +379,7 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
   set_geolocation (host, continent, country, city, asn);
 
   /* country */
-  if (country[0] != '\0') {
+  if (country[0] != '\0' && sub_list->size < h->max_choices_sub) {
     set_host_child_metrics (country, MTRC_ID_COUNTRY, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
@@ -380,7 +390,7 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
   }
 
   /* city */
-  if (city[0] != '\0') {
+  if (city[0] != '\0' && sub_list->size < h->max_choices_sub) {
     set_host_child_metrics (city, MTRC_ID_CITY, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
@@ -391,7 +401,7 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
   }
 
   /* ASN */
-  if (asn[0] != '\0') {
+  if (asn[0] != '\0' && sub_list->size < h->max_choices_sub) {
     set_host_child_metrics (asn, MTRC_ID_ASN, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
@@ -404,7 +414,7 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
 
   /* hostname */
   if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
-      !conf.real_time_html) {
+      !conf.real_time_html && sub_list->size < h->max_choices_sub) {
     hostname = reverse_ip (host);
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
@@ -436,11 +446,13 @@ add_host_child_to_holder (GHolder *h) {
   /* determine if we have the IP's hostname */
   if (!hostname) {
     dns_resolver (ip);
-  } else if (hostname) {
+  } else if (hostname && sub_list->size < h->max_choices_sub) {
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
     h->items[h->idx].sub_list = sub_list;
     h->sub_items_size++;
+    free (hostname);
+  } else if (hostname) {
     free (hostname);
   }
 
@@ -641,6 +653,12 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
 
   /* add data as a child node into holder */
   if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, root))) {
+    /* Check if we've reached max_choices for root items */
+    if (h->idx >= h->max_choices) {
+      free (root);
+      free_gmetrics (nmetrics);
+      return;
+    }
     idx = h->idx;
     sub_list = new_gsublist ();
     metrics = new_gmetrics ();
@@ -656,9 +674,7 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
     free (root);
   }
 
-  add_sub_item_back (sub_list, h->module, nmetrics);
-  h->items[idx].sub_list = sub_list;
-
+  /* Accumulate metrics into parent regardless of whether we add the sub-item */
   h->items[idx].metrics = metrics;
   h->items[idx].metrics->cumts.nts += nmetrics->cumts.nts;
   h->items[idx].metrics->nbw += nmetrics->nbw;
@@ -669,7 +685,14 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
   if (nmetrics->maxts.nts > h->items[idx].metrics->maxts.nts)
     h->items[idx].metrics->maxts.nts = nmetrics->maxts.nts;
 
-  h->sub_items_size++;
+  /* Only add sub-item if we haven't reached max_choices_sub for this sub-list */
+  if (sub_list->size < h->max_choices_sub) {
+    add_sub_item_back (sub_list, h->module, nmetrics);
+    h->items[idx].sub_list = sub_list;
+    h->sub_items_size++;
+  } else {
+    free_gmetrics (nmetrics);
+  }
 }
 
 #ifdef HAVE_GEOLOCATION
@@ -726,6 +749,12 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
 
   /* Find or create continent as root GHolderItem */
   if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, continent))) {
+    /* Check if we've reached max_choices for root items (continents) */
+    if (h->idx >= h->max_choices) {
+      free (root);
+      free_gmetrics (nmetrics);
+      return;
+    }
     idx = h->idx;
     cont_metrics = new_gmetrics ();
     cont_metrics->data = xstrdup (continent);
@@ -741,21 +770,33 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
   sub_list = h->items[idx].sub_list;
   country_sub = find_sub_item_by_data (sub_list, root);
   if (country_sub == NULL) {
-    country_metrics = new_gmetrics ();
-    country_metrics->data = xstrdup (root);
-    add_sub_item_back (sub_list, h->module, country_metrics);
-    country_sub = sub_list->tail;
-    country_sub->sub_list = new_gsublist ();
-    h->sub_items_size++;
+    /* Only add country if continent's sub-list hasn't reached max_choices_sub */
+    if (sub_list->size < h->max_choices_sub) {
+      country_metrics = new_gmetrics ();
+      country_metrics->data = xstrdup (root);
+      add_sub_item_back (sub_list, h->module, country_metrics);
+      country_sub = sub_list->tail;
+      country_sub->sub_list = new_gsublist ();
+      h->sub_items_size++;
+    } else {
+      /* Continent sub-list is full, accumulate to continent and skip country/city */
+      cont_metrics->hits += nmetrics->hits;
+      cont_metrics->visitors += nmetrics->visitors;
+      cont_metrics->nbw += nmetrics->nbw;
+      cont_metrics->cumts.nts += nmetrics->cumts.nts;
+      if (nmetrics->maxts.nts > cont_metrics->maxts.nts)
+        cont_metrics->maxts.nts = nmetrics->maxts.nts;
+      if (cont_metrics->hits > 0)
+        cont_metrics->avgts.nts = cont_metrics->cumts.nts / cont_metrics->hits;
+      free_gmetrics (nmetrics);
+      free (root);
+      return;
+    }
   } else {
     country_metrics = country_sub->metrics;
   }
 
-  /* Add city as sub-item under country */
-  add_sub_item_back (country_sub->sub_list, h->module, nmetrics);
-  h->sub_items_size++;
-
-  /* Accumulate metrics upward: city -> country */
+  /* Accumulate metrics upward: city -> country -> continent */
   country_metrics->hits += nmetrics->hits;
   country_metrics->visitors += nmetrics->visitors;
   country_metrics->nbw += nmetrics->nbw;
@@ -765,7 +806,6 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
   if (country_metrics->hits > 0)
     country_metrics->avgts.nts = country_metrics->cumts.nts / country_metrics->hits;
 
-  /* Accumulate metrics upward: country -> continent */
   cont_metrics->hits += nmetrics->hits;
   cont_metrics->visitors += nmetrics->visitors;
   cont_metrics->nbw += nmetrics->nbw;
@@ -775,16 +815,31 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
   if (cont_metrics->hits > 0)
     cont_metrics->avgts.nts = cont_metrics->cumts.nts / cont_metrics->hits;
 
+  /* Add city as sub-item under country (only if country's sub-list hasn't reached max_choices_sub) */
+  if (country_sub->sub_list->size < h->max_choices_sub) {
+    add_sub_item_back (country_sub->sub_list, h->module, nmetrics);
+    h->sub_items_size++;
+  } else {
+    free_gmetrics (nmetrics);
+  }
+
   free (root);
 }
 #endif
 
 /* Load raw data into our holder structure */
 void
-load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort) {
+load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, int max_choices, int max_choices_sub) {
   int i;
-  uint32_t size = 0, max_choices = get_max_choices ();
+  uint32_t size = 0;
+  int alloc_size = 0;
   const GPanel *panel = panel_lookup (module);
+  /* Hierarchical panels group multiple raw items under fewer root items */
+  int is_hierarchical = (panel->insert == add_root_to_holder ||
+#ifdef HAVE_GEOLOCATION
+                         panel->insert == add_geo_to_holder ||
+#endif
+                         0);
 
 #ifdef _DEBUG
   clock_t begin = clock ();
@@ -794,12 +849,17 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort) {
 #endif
 
   size = raw_data->size;
-  h->holder_size = size > max_choices ? max_choices : size;
+  /* For hierarchical data, we don't know how many root items we'll create,
+   * but it can't be more than size or max_choices */
+  alloc_size = size > max_choices ? max_choices : (int)size;
+  h->holder_size = is_hierarchical ? (int)size : (size > max_choices ? max_choices : (int)size);
   h->ht_size = size;
   h->idx = 0;
   h->module = module;
   h->sub_items_size = 0;
-  h->items = new_gholder_item (h->holder_size);
+  h->max_choices = max_choices;
+  h->max_choices_sub = max_choices_sub;
+  h->items = new_gholder_item (alloc_size);
 
   for (i = 0; i < h->holder_size; i++) {
     panel->insert (raw_data->items[i], h, raw_data->type, panel);

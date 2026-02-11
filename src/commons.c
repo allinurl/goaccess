@@ -79,25 +79,26 @@ static const GEnum enum_modules[] = {
 };
 /* *INDENT-ON* */
 
-/* Get number of items per panel to parse.
+/* Get number of items per panel/level to parse.
  *
- * The number of items per panel is returned. */
-int
-get_max_choices (void) {
+ * If is_sub is true, returns sub-item limits, otherwise returns panel limits.
+ * The number of items per panel/level is returned. */
+static int
+get_max_choices_internal (int is_sub) {
   char *csv = NULL, *json = NULL, *html = NULL;
   int max = MAX_CHOICES;
+  int rt_default = is_sub ? MAX_CHOICES_SUB_RT : MAX_CHOICES_RT;
 
   /* no max choices, return defaults */
   if (conf.max_items <= 0)
-    return conf.real_time_html ? MAX_CHOICES_RT : (conf.date_spec_hr ==
-                                                   2 ? MAX_CHOICES_MINUTE : MAX_CHOICES);
+    return conf.real_time_html ? rt_default : (conf.date_spec_hr == 2 ? MAX_CHOICES_MINUTE : MAX_CHOICES);
 
   /* TERM */
   if (!conf.output_stdout)
     return conf.max_items > MAX_CHOICES ? MAX_CHOICES : conf.max_items;
 
   /* REAL-TIME STDOUT */
-  /* real time HTML, display max rt choices */
+  /* real time HTML, display max rt choices - always cap at MAX_CHOICES_RT */
   if (conf.real_time_html)
     return conf.max_items > MAX_CHOICES_RT ? MAX_CHOICES_RT : conf.max_items;
 
@@ -119,6 +120,18 @@ get_max_choices (void) {
   free (json);
 
   return max;
+}
+
+/* Get number of items per panel to parse. */
+int
+get_max_choices (void) {
+  return get_max_choices_internal (0);
+}
+
+/* Get number of sub-items per hierarchy level to parse. */
+int
+get_max_choices_sub (void) {
+  return get_max_choices_internal (1);
 }
 
 /* Calculate a percentage.
