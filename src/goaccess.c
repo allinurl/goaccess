@@ -183,6 +183,7 @@ house_keeping (void) {
   /* GEOLOCATION */
 #ifdef HAVE_GEOLOCATION
   geoip_free ();
+  free_country_continent_map ();
 #endif
 
   /* INVALID REQUESTS */
