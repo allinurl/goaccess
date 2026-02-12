@@ -1,4 +1,4 @@
-.TH goaccess 1 "MAR 2025" GNU+Linux "User Manuals"
+.TH goaccess 1 "FEB 2026" GNU+Linux "User Manuals"
 .SH NAME
 goaccess \- fast web log analyzer and interactive viewer.
 .SH SYNOPSIS
@@ -6,17 +6,17 @@ goaccess \- fast web log analyzer and interactive viewer.
 .B goaccess [filename] [options...] [-c][-M][-H][-q][-d][...]
 .SH DESCRIPTION
 .B goaccess
-GoAccess is an open source real-time web log analyzer and interactive viewer
-that runs in a
+is an open source, real-time log analyzer and
+interactive viewer that runs in a
 .I terminal
-in *nix systems or through your
+on *nix systems or directly in your
 .I browser.
-.P
-It provides fast and valuable HTTP statistics for system administrators that
-require a visual server report on the fly.
-.P
-GoAccess parses the specified web log file and outputs the data to the X
-terminal. Features include:
+Designed with system administrators, DevOps engineers, and security
+professionals in mind, it delivers fast, actionable HTTP statistics and visual
+server reports on the fly. GoAccess parses your web server logs in real time
+and presents the data directly in the terminal or via a live HTML dashboard,
+making it easy to monitor traffic, detect anomalies, and troubleshoot issues
+instantly.
 
 .IP "General Statistics:"
 This panel gives a summary of several metrics, such as the number of valid and
@@ -178,6 +178,9 @@ Build with zlib support for reading gzipped logs. Disabled by default.
 .TP
 \fB\-\-with-openssl
 Compile GoAccess with OpenSSL support for its WebSocket server.
+\fB\-\-with-zlib
+Enables optional zlib support to allow parsing of compressed log files (e.g.,
+.gz) directly without manual decompression.
 .SH OPTIONS
 .P
 The following options can be supplied to the command or specified in the
@@ -1303,181 +1306,174 @@ To generate a CSV file:
 .IP
 # goaccess access.log --no-csv-summary -o report.csv
 .P
-GoAccess also allows great flexibility for real-time filtering and parsing. For
-instance, to quickly diagnose issues by monitoring logs since goaccess was
-started:
+GoAccess also allows real-time monitoring from stdin:
 .IP
 # tail -f access.log | goaccess -
 .P
-And even better, to filter while maintaining opened a pipe to preserve
-real-time analysis, we can make use of
-.I tail -f
-and
-a matching pattern tool such as
-.I grep, awk, sed,
-etc:
+To filter while keeping the pipe open for real-time analysis:
 .IP
 # tail -f access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -
 .P
-or to parse from the beginning of the file while maintaining the pipe opened
-and applying a filter
+Parse from the beginning of the file while maintaining the pipe:
 .IP
 # tail -f -n +0 access.log | grep -i --line-buffered 'firefox' | goaccess --log-format=COMBINED -o report.html --real-time-html -
 .P
-or to convert the log date timezone to a different timezone, e.g., Europe/Berlin
+Convert log date timezone to Europe/Berlin:
 .IP
 # goaccess access.log --log-format='%h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' --tz=Europe/Berlin --date-spec=min
+
 .SS
 MULTIPLE LOG FILES
 .P
-There are several ways to parse multiple logs with GoAccess. The simplest is to
-pass multiple log files to the command line:
+Parse multiple logs by passing them to the command line:
 .IP
 # goaccess access.log access.log.1
 .P
-It's even possible to parse files from a pipe while reading regular files:
+Parse from a pipe while also reading regular files (append \fB-\fR for stdin):
 .IP
 # cat access.log.2 | goaccess access.log access.log.1 -
 .P
 .I Note
-that the single dash is appended to the command line to let GoAccess know that
-it should read from the pipe.
+that the single dash is appended to the command line to let GoAccess know
+that it should read from the pipe.
 .P
-Now if we want to add more flexibility to GoAccess, we can do a series of
-pipes. For instance, if we would like to process all compressed log files
-.I access.log.*.gz
-in addition to the current log file, we can do:
+Process all compressed log files plus the current log:
 .IP
 # zcat access.log.*.gz | goaccess access.log -
 .P
 .I Note:
-On Mac OS X, use gunzip -c instead of zcat.
+On macOS, use \fBgunzip -c\fR instead of \fBzcat\fR.
+.I Note:
+If GoAccess was built with \fB--with-zlib\fR, it can parse
+\fB.gz\fR files directly without external decompression:
+.IP
+# goaccess access.log access.log.1.gz access.log.2.gz
+
 .SS
-REAL TIME HTML OUTPUT
+REAL-TIME HTML OUTPUT
 .P
-GoAccess has the ability to output real-time data in the HTML report. You can
-even email the HTML file since it is composed of a single file with no external
-file dependencies, how neat is that!
-.P
-The process of generating a real-time HTML report is very similar to the
-process of creating a static report. Only --real-time-html is needed to make it
-real-time.
+Generate a real-time HTML report:
 .IP
 # goaccess access.log -o /usr/share/nginx/html/site/report.html --real-time-html
 .P
-By default, GoAccess will use the host name of the generated report.
-Optionally, you can specify the URL to which the client's browser will connect
-to. See https://goaccess.io/faq for a more detailed example.
+Specify the WebSocket URL explicitly:
 .IP
 # goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io
 .P
-By default, GoAccess listens on port 7890, to use a different port other than
-7890, you can specify it as (make sure the port is opened):
+Use a custom port:
 .IP
 # goaccess access.log -o report.html --real-time-html --port=9870
 .P
-And to bind the WebSocket server to a different address other than 0.0.0.0, you
-can specify it as:
+Bind WebSocket to a specific address:
 .IP
 # goaccess access.log -o report.html --real-time-html --addr=127.0.0.1
 .P
 .I Note:
-To output real time data over a TLS/SSL connection, you need to use
-.I --ssl-cert=<cert.crt>
-and
-.I --ssl-key=<priv.key>.
+For TLS/SSL real-time output, use \fB--ssl-cert=<cert.crt>\fR and \fB--ssl-key=<priv.key>\fR.
+If GoAccess is running behind a reverse proxy, set the WebSocket URL to include
+the proxy path and port, e.g.:
+.IP
+# goaccess access.log -o report.html --real-time-html --ws-url=goaccess.io:8080/ws
+
 .SS
 WORKING WITH DATES
 .P
-Another useful pipe would be filtering dates out of the web log
-.P
-The following will get all HTTP requests starting on 05/Dec/2010 until the end
-of the file.
+All requests from a specific date to end of file:
 .IP
 # sed -n '/05\/Dec\/2010/,$ p' access.log | goaccess -a -
 .P
-or using relative dates such as yesterdays or tomorrows day:
+Using a relative date (one week ago):
 .IP
 # sed -n '/'$(date '+%d\/%b\/%Y' -d '1 week ago')'/,$ p' access.log | goaccess -a -
 .P
-If we want to parse only a certain time-frame from DATE a to DATE b, we can do:
+Parse a specific date range:
 .IP
 # sed -n '/5\/Nov\/2010/,/5\/Dec\/2010/ p' access.log | goaccess -a -
 .P
-If we want to preserve only certain amount of data and recycle storage, we can
-keep only a certain number of days. For instance to keep & show the last 5
-days:
+Keep only the last 5 days of data:
 .IP
 # goaccess access.log --keep-last=5
+
 .SS
 VIRTUAL HOSTS
 .P
-Assuming your log contains the virtual host (server blocks) field. For
-instance:
-.IP
-vhost.com:80 10.131.40.139 - - [02/Mar/2016:08:14:04 -0600] "GET /shop/bag-p-20
-HTTP/1.1" 200 6715 "-" "Apache (internal dummy connection)"
+Use \fB--concat-vhost-req\fR to prepend the virtual host or server block (%v) to the request field.
 .P
-And you would like to append the virtual host to the request in order to see
-which virtual host the top urls belong to
+Append virtual host manually:
 .IP
-awk '$8=$1$8' access.log | goaccess -a -
+# awk '$8=$1$8' access.log | goaccess -a -
 .P
-To exclude a list of virtual hosts you can do the following:
+Exclude a list of virtual hosts:
 .IP
 # grep -v "`cat exclude_vhost_list_file`" vhost_access.log | goaccess -
+
 .SS
-FILES & STATUS CODES
+FILES, STATUS CODES & BOTS
 .P
-To parse specific pages, e.g., page views, html, htm, php, etc. within a
-request:
+Parse only specific page types (html, htm, php):
 .IP
 # awk '$7~/\.html|\.htm|\.php/' access.log | goaccess -
 .P
-Note,
-.I $7
-is the request field for the common and combined log format, (without Virtual
-Host), if your log includes Virtual Host, then you probably want to use
-.I $8
-instead. It's best to check which field you are shooting for, e.g.:
+Parse page views without extensions:
 .IP
-# tail -10 access.log | awk '{print $8}'
+# awk '$7!~/\..*$/' access.log | goaccess -
 .P
-Or to parse a specific status code, e.g., 500 (Internal Server Error):
+Filter by a single status code (e.g., 500):
 .IP
 # awk '$9~/500/' access.log | goaccess -
+.P
+Filter by multiple status codes (3xx or 5xx):
+.IP
+# tail -f -n +0 access.log | awk '$9~/3[0-9]{2}|5[0-9]{2}/' | goaccess -o out.html -
+.P
+Estimate bot traffic:
+.IP
+# tail -F -n +0 access.log | grep -i --line-buffered 'bot' | goaccess -
+
 .SS
 SERVER
 .P
-Also, it is worth pointing out that if we want to run GoAccess at lower
-priority, we can run it as:
+Run GoAccess at lower CPU priority:
 .IP
 # nice -n 19 goaccess -f access.log -a
 .P
-and if you don't want to install it on your server, you can still run it from
-your local machine:
+Pipe logs from a remote server:
 .IP
 # ssh -n root@server 'tail -f /var/log/apache2/access.log' | goaccess -
 .P
-Note: SSH requires
-.I -n
-so GoAccess can read from stdin. Also, make sure to use SSH keys for
-authentication as it won't work if a passphrase is required.
+.I Note:
+SSH requires \fB-n\fR so GoAccess can read from stdin. Use SSH keys for
+authentication.
+
 .SS
 INCREMENTAL LOG PROCESSING
 .P
-GoAccess has the ability to process logs incrementally through its internal
-storage and dump its data to disk. It works in the following way:
-
-.nr step 1 1
-.IP \n[step] 3
-A dataset must be persisted first with
-.I --persist,
-then the same dataset can be loaded with
-.IP \n+[step]
-.I --restore.
-If new data is passed (piped or through a log file), it will append it to the
-original dataset.
+GoAccess can process logs incrementally by persisting data to disk, then
+restoring it and appending new data. GoAccess tracks inodes, the last line
+parsed, and the last timestamp per file.
+.P
+.I Note:
+If the inode doesn't match, all lines are parsed. If it matches, remaining
+lines are read and the count/timestamp updated. Log lines with a timestamp ≤
+the stored timestamp are skipped. Piped data works off the timestamp of the
+last line read.
+.P
+.I Warning:
+Piped data may produce duplicate entries since multiple consecutive lines can
+share the same timestamp. Best practice is to parse directly with GoAccess
+rather than piping for incremental processing.
+.P
+Persist last month's log:
+.IP
+# goaccess access.log.1 --persist
+.P
+Append this month's log and preserve:
+.IP
+# goaccess access.log --restore --persist
+.P
+Read persisted data only:
+.IP
+# goaccess --restore
 
 .P
 NOTES
