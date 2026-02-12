@@ -2,14 +2,18 @@ GoAccess [![C build](https://github.com/allinurl/goaccess/actions/workflows/buil
 ========
 
 ## What is it? ##
-GoAccess is an open source **real-time web log analyzer** and interactive
-viewer that runs in a **terminal** on &ast;nix systems or through your
-**browser**. It provides **fast** and valuable HTTP statistics for system
-administrators that require a visual server report on the fly.
+GoAccess is an open source, real-time web log analyzer and interactive viewer
+that runs in a terminal on *nix systems or directly in your browser. Designed
+with system administrators, DevOps engineers, and security professionals in
+mind, it delivers fast, actionable HTTP statistics and visual server reports on
+the fly. GoAccess parses your web server logs in real time and presents the
+data directly in the terminal or via a live HTML dashboard, making it easy to
+monitor traffic, detect anomalies, and troubleshoot issues instantly.
+
 More info at: [https://goaccess.io](https://goaccess.io/?src=gh).
 
-[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh.png?2026021101)](https://goaccess.io/)
-[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh.png?2026021101)](https://rt.goaccess.io/?src=gh)
+[![GoAccess Terminal Dashboard](https://goaccess.io/images/goaccess-real-time-term-gh-2026-1.png?2026021201)](https://goaccess.io/)
+[![GoAccess HTML Dashboard](https://goaccess.io/images/goaccess-real-time-html-gh-2026.png?2026021201)](https://rt.goaccess.io/?src=gh)
 
 ## Features ##
 GoAccess parses the specified web log file and outputs the data to the X
@@ -91,6 +95,10 @@ GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
 is to quickly analyze and view web server statistics in real time without
 needing to use your browser (_great if you want to do a quick analysis of your
 access log via SSH, or if you simply love working in the terminal_).
+
+It also serves as a practical tool for security monitoring, making it easy to
+spot suspicious activity, unusual traffic patterns, brute-force attempts,
+scanners, bots, and anomalous requests directly from your logs.
 
 While the terminal output is the default output, it has the capability to
 generate a complete, self-contained, real-time [**`HTML`**](https://rt.goaccess.io/?src=gh)
