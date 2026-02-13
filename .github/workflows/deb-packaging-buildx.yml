@@ -10,15 +10,11 @@ jobs:
       matrix:
         include:
           - arch: arm32v7
-            distro: ubuntu16.04
-          - arch: arm32v7
-            distro: ubuntu18.04
-          - arch: arm32v7
             distro: ubuntu22.04
           - arch: arm32v7
             distro: ubuntu24.04
           - arch: arm32v7
-            distro: ubuntu24.10            
+            distro: ubuntu25.10
           - arch: arm32v7
             distro: bullseye
           - arch: arm32v7
@@ -26,15 +22,11 @@ jobs:
           - arch: arm32v7
             distro: trixie
           - arch: aarch64
-            distro: ubuntu18.04
-          - arch: aarch64
-            distro: ubuntu20.04
-          - arch: aarch64
-            distro: ubuntu22.04            
+            distro: ubuntu22.04
           - arch: aarch64
             distro: ubuntu24.04
           - arch: aarch64
-            distro: ubuntu24.10            
+            distro: ubuntu25.10
           - arch: aarch64
             distro: bullseye
           - arch: aarch64
@@ -51,22 +43,12 @@ jobs:
             distro: bullseye
           - arch: i386
             distro: bookworm
-          - arch: amd64
-            distro: ubuntu16.04
-          - arch: i386
-            distro: ubuntu16.04
-          - arch: amd64
-            distro: ubuntu18.04
-          - arch: i386
-            distro: ubuntu18.04
-          - arch: amd64
-            distro: ubuntu20.04
           - arch: amd64
             distro: ubuntu22.04
           - arch: amd64
             distro: ubuntu24.04
           - arch: amd64
-            distro: ubuntu24.10            
+            distro: ubuntu25.10
 
     steps:
       - name: Checkout repository
@@ -153,15 +135,12 @@ jobs:
           echo "Found deb package: $DEB_FILE"
           
           case "${{ matrix.distro }}" in
-            bookworm) TEST_IMAGE="debian:bookworm" ;;
             bullseye) TEST_IMAGE="debian:bullseye" ;;
+            bookworm) TEST_IMAGE="debian:bookworm" ;;
             trixie) TEST_IMAGE="debian:trixie" ;;
-            ubuntu16.04) TEST_IMAGE="ubuntu:16.04" ;;
-            ubuntu18.04) TEST_IMAGE="ubuntu:18.04" ;;
-            ubuntu20.04) TEST_IMAGE="ubuntu:20.04" ;;
             ubuntu22.04) TEST_IMAGE="ubuntu:22.04" ;;
             ubuntu24.04) TEST_IMAGE="ubuntu:24.04" ;;
-            ubuntu24.10) TEST_IMAGE="ubuntu:24.10" ;;
+            ubuntu25.10) TEST_IMAGE="ubuntu:25.10" ;;
             *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
           esac
           echo "Using Docker image for testing: $TEST_IMAGE"
