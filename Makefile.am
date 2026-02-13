@@ -268,7 +268,9 @@ if WITH_ZLIB
 AM_LDFLAGS = -lz
 endif
 
-AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g -lm
+goaccess_LDADD = -lm
+
+AM_CFLAGS += -Wall -Wextra -Wnested-externs -Wformat=2 -g
 AM_CFLAGS += -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations
 AM_CFLAGS += -Wwrite-strings -Wshadow -Wpointer-arith -Wsign-compare
 AM_CFLAGS += -Wbad-function-cast -Wcast-align
