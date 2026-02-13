@@ -10,6 +10,7 @@ dist_noinst_DATA =                 \
   resources/js/app.js              \
   resources/js/charts.js           \
   resources/countries-110m.json    \
+  resources/cities-10m.json        \
   resources/js/d3.v7.min.js        \
   resources/js/topojson.v3.min.js  \
   resources/js/hogan.min.js
