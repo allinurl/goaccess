@@ -13,6 +13,7 @@ Changes to GoAccess 1.10 - Wednesday, February 11, 2026
     insight.
   - Added the ability to prepend the virtual host to a request via
     --concat-vhost-req
+  - Deprecated `--no-column-names` in favor of a unified TUI dashboard.
   - Fixed log tailing edge cases, including empty reads and date specificity
     overrides from the CLI.
   - Fixed stability issues in multi-threaded parsing and during Ctrl+C with
