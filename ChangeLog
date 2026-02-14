@@ -1,3 +1,8 @@
+Changes to GoAccess 1.10.1 - Saturday, February 14, 2026
+
+  - Fixed a crash when restoring persisted data via `--restore` that contained
+    GEOLOCATION data generated in versions ≤ v1.9.4 and loaded with v1.10.
+
 Changes to GoAccess 1.10 - Wednesday, February 11, 2026
 
   - Added new bar charts to the terminal UI for a quicker visual read of
