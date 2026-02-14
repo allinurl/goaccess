@@ -794,6 +794,10 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
     }
   } else {
     country_metrics = country_sub->metrics;
+    /* Handle mixed 2-level (persisted) and 3-level (live) data:
+     * older entries won't have a city sub-list. */
+    if (country_sub->sub_list == NULL)
+      country_sub->sub_list = new_gsublist ();
   }
 
   /* Accumulate metrics upward: city -> country -> continent */
