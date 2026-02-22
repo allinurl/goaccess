@@ -281,9 +281,11 @@ static const char *const browsers[][2] = {
   {"PaleMoon", "Firefox"},
   {"Focus", "Firefox"},
   {"Klar", "Firefox"},
+  {"Zen/", "Zen"},
   {"Firefox", "Firefox"},
 
   /* Based on Chromium: place all Chromium-based browsers here, including BeakerBrowser under Others for consistency */
+  {"Arc/", "Arc"},
   {"Brave", "Brave"},
   {"Vivaldi", "Vivaldi"},
   {"YaBrowser", "Yandex"},
