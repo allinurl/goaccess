@@ -57,6 +57,7 @@
 #include "error.h"
 #include "gslist.h"
 #include "sha1.h"
+#include "output.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -624,6 +625,13 @@ ws_stop (WSServer *server) {
 #ifdef HAVE_LIBSSL
   ws_ssl_cleanup (server);
 #endif
+
+  if (server->file_html)
+    free (server->file_html);
+  if (server->file_css)
+    free (server->file_css);
+  if (server->file_js)
+    free (server->file_js);
 
   free (server);
   free (fdstate);
@@ -1413,9 +1421,16 @@ ws_respond (WSClient *client, const char *buffer, int len) {
     if (ws_realloc_send_buf (client, buffer, len) == 1)
       return bytes;
   }
-  /* send from cache buffer */
-  else {
-    bytes = ws_respond_cache (client);
+  /* send from cache buffer; if we sent a big buffer (i.e. HTML), we
+   * likely hit send(2) limits and need to drain the queue */
+  while (client->sockqueue) { /* XXX: Backoff? */
+    int cache_bytes = ws_respond_cache (client);
+    if (cache_bytes < 1 && !(errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR)) {
+      LOG (("Error draining cache buffer for response: %s", strerror (errno)));
+      break;
+    } else {
+      bytes += cache_bytes;
+    }
   }
 
   return bytes;
@@ -1579,6 +1594,39 @@ ws_set_handshake_headers (WSHeaders *headers) {
   free (s);
 }
 
+static char*
+ws_load_file(char **file_buffer, const char *file_name, off_t *size)
+{
+  FILE *fp = NULL;
+  char *buf = NULL;
+  int read_len = -1;
+  if (*file_buffer != NULL) {
+    return *file_buffer;
+  }
+  fp = fopen (file_name, "r");
+  if (!fp) {
+    LOG (("Failed to open %s: %s\n", file_name, strerror (errno)));
+    return NULL;
+  }
+  *file_buffer = NULL;
+  *size = file_size (file_name);
+  buf = xmalloc (*size);
+  if (!buf) {
+    LOG (("Failed to allocate buffer for %s\n", file_name));
+    goto fail;
+  }
+  read_len = fread (buf, *size, 1, fp);
+  if (read_len < 1) {
+    LOG (("Failed to read whole file %s (read %d/%llu)\n", file_name, read_len, *size));
+    free (buf);
+    goto fail;
+  }
+  *file_buffer = buf;
+fail:
+  fclose (fp);
+  return *file_buffer;
+}
+
 /* Send the websocket handshake headers to the given client.
  *
  * On success, the number of sent bytes is returned. */
@@ -1608,8 +1656,111 @@ ws_send_handshake_headers (WSClient *client, WSHeaders *headers) {
   return bytes;
 }
 
-/* Given the HTTP connection headers, attempt to parse the web socket
- * handshake headers.
+/* Upgrade to a WebSocket and send the headers to the client.
+ *
+ * Returns the number of bytes written for the response. */
+static int
+ws_send_websocket_response (WSClient *client, WSServer *server, int bytes)
+{
+  /* Ensure we can authenticate the connection */
+  if (wsconfig.auth_secret && wsconfig.auth (client->headers->jwt, wsconfig.auth_secret) != 1) {
+    LOG (("Unable to authenticate connection %d [%s]...\n", client->listener, client->remote_ip));
+    http_error (client, WS_UNAUTHORIZED_STR);
+    return ws_set_status (client, WS_CLOSE, bytes);
+  }
+
+  ws_set_handshake_headers (client->headers);
+
+  /* handshake response */
+  ws_send_handshake_headers (client, client->headers);
+
+  /* upon success, call onopen() callback */
+  if (server->onopen && wsconfig.strict && !wsconfig.echomode)
+    server->onopen (server->pipeout, client);
+  client->headers->reading = 0;
+
+  /* do access logging */
+  gettimeofday (&client->end_proc, NULL);
+  if (wsconfig.accesslog)
+    access_log (client, 101);
+  LOG (("Active: %d\n", list_count (server->colist)));
+
+  return ws_set_status (client, WS_OK, bytes);
+}
+
+/* Serves a static resource to the client (the HTML report).
+ *
+ * Returns the number of bytes written for the response. */
+static int
+ws_send_http_response (WSClient *client, WSServer *server, int bytes, const char *buf, off_t size, const char *mime)
+{
+  char *str = NULL, *html_size_str = NULL;
+
+  html_size_str = u642str (size, 0);
+
+  client->headers->ws_resp = xstrdup (WS_OK_STR);
+
+  /* send headers */
+  str = xstrdup ("");
+
+  ws_append_str (&str, client->headers->ws_resp);
+  ws_append_str (&str, CRLF);
+
+  ws_append_str (&str, "Content-Length: ");
+  ws_append_str (&str, html_size_str);
+  ws_append_str (&str, CRLF);
+
+  ws_append_str (&str, "Content-Type: ");
+  ws_append_str (&str, mime);
+  ws_append_str (&str, CRLF CRLF);
+  bytes += ws_respond (client, str, strlen (str));
+  free (str);
+  free (html_size_str);
+
+  /* report html */
+  bytes += ws_respond (client, buf, size);
+
+  /* do access logging */
+  gettimeofday (&client->end_proc, NULL);
+  if (wsconfig.accesslog)
+    access_log (client, 200);
+  LOG (("Provided %s, %d bytes, %lld file size, %lld header size\n", mime, bytes, size, bytes - size));
+
+  return ws_set_status (client, WS_CLOSE, bytes);
+}
+
+/* Serve a static resource: HTML report, CSS, or JS. */
+static int
+ws_serve_resource (WSClient *client, WSServer *server, int bytes) {
+  char *resource_name = NULL;
+  if (strcmp(client->headers->path, "/") == 0
+      && wsconfig.html_path
+      && ws_load_file (&server->file_html, wsconfig.html_path, &server->size_html)) {
+    return ws_send_http_response (client, server, bytes, server->file_html, server->size_html, "text/html; charset=utf-8");
+  }
+  else if (strcmp(client->headers->path, "/" FILENAME_CSS) == 0
+      && wsconfig.html_path
+      && (resource_name = get_asset_filepath (wsconfig.html_path, FILENAME_CSS))
+      && ws_load_file (&server->file_css, resource_name, &server->size_css)) {
+    free (resource_name);
+    return ws_send_http_response (client, server, bytes, server->file_css, server->size_css, "text/css");
+  }
+  else if (strcmp(client->headers->path, "/" FILENAME_JS) == 0
+      && wsconfig.html_path
+      && (resource_name = get_asset_filepath (wsconfig.html_path, FILENAME_JS))
+      && ws_load_file (&server->file_js, resource_name, &server->size_js)) {
+    free (resource_name);
+    return ws_send_http_response (client, server, bytes, server->file_js, server->size_js, "text/javascript");
+  }
+  LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
+  if (resource_name)
+    free (resource_name);
+  http_error (client, WS_BAD_REQUEST_STR);
+  return ws_set_status (client, WS_CLOSE, bytes);
+}
+
+/* Given the HTTP connection headers, attempt to parse the passed headers and
+ * come up with an appropriate response.
  *
  * On success, the number of sent bytes is returned. */
 static int
@@ -1654,37 +1805,13 @@ ws_get_handshake (WSClient *client, WSServer *server) {
     return ws_set_status (client, WS_CLOSE, bytes);
   }
 
-  /* Ensure we have the required headers */
+  /* Ensure we have the required headers for WebSocket */
   if (ws_verify_req_headers (client->headers) != 0) {
-    LOG (("Missing headers for handshake %d [%s]...\n", client->listener, client->remote_ip));
-    http_error (client, WS_BAD_REQUEST_STR);
-    return ws_set_status (client, WS_CLOSE, bytes);
+    /* If not, check if it's a rquest for the HTML report, otherwise fail */
+    return ws_serve_resource (client, server, bytes);
   }
 
-  /* Ensure we can authenticate the connection */
-  if (wsconfig.auth_secret && wsconfig.auth (client->headers->jwt, wsconfig.auth_secret) != 1) {
-    LOG (("Unable to authenticate connection %d [%s]...\n", client->listener, client->remote_ip));
-    http_error (client, WS_UNAUTHORIZED_STR);
-    return ws_set_status (client, WS_CLOSE, bytes);
-  }
-
-  ws_set_handshake_headers (client->headers);
-
-  /* handshake response */
-  ws_send_handshake_headers (client, client->headers);
-
-  /* upon success, call onopen() callback */
-  if (server->onopen && wsconfig.strict && !wsconfig.echomode)
-    server->onopen (server->pipeout, client);
-  client->headers->reading = 0;
-
-  /* do access logging */
-  gettimeofday (&client->end_proc, NULL);
-  if (wsconfig.accesslog)
-    access_log (client, 101);
-  LOG (("Active: %d\n", list_count (server->colist)));
-
-  return ws_set_status (client, WS_OK, bytes);
+  return ws_send_websocket_response (client, server, bytes);
 }
 
 /* Send a data message to the given client.
@@ -3021,6 +3148,11 @@ ws_set_config_auth_secret (const char *auth_secret) {
 void
 ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret)) {
   wsconfig.auth = auth_cb;
+}
+
+void
+ws_set_config_html_path (const char *html_path) {
+  wsconfig.html_path = html_path;
 }
 
 /* Create a new websocket server context. */

@@ -101,8 +101,10 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #include "gslist.h"
 
+#define WS_OK_STR "HTTP/1.1 200 OK"
 #define WS_BAD_REQUEST_STR "HTTP/1.1 400 Invalid Request\r\n\r\n"
 #define WS_UNAUTHORIZED_STR "HTTP/1.1 401 Unauthorized\r\n\r\n"
+#define WS_NOT_FOUND_STR "HTTP/1.1 404 Not Found\n\r\n"
 #define WS_SWITCH_PROTO_STR "HTTP/1.1 101 Switching Protocols"
 #define WS_TOO_BUSY_STR "HTTP/1.1 503 Service Unavailable\r\n\r\n"
 
@@ -275,6 +277,7 @@ typedef struct WSConfig_ {
   const char *sslkey;
   const char *unix_socket;
   const char *auth_secret;
+  const char *html_path;
 
   /* Function pointer for JWT verification */
   int (*auth) (const char *jwt, const char *secret);
@@ -304,6 +307,14 @@ typedef struct WSServer_ {
   /* Connected Clients */
   GSLList *colist;
 
+  /* Cached Report Resources */
+  char *file_html;
+  off_t size_html;
+  char *file_css;
+  off_t size_css;
+  char *file_js;
+  off_t size_js;
+
 #ifdef HAVE_LIBSSL
   SSL_CTX *ctx;
 #endif
@@ -331,6 +342,7 @@ void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_set_config_auth_secret (const char *auth_secret);
 void ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret));
+void ws_set_config_html_path (const char *html_path);
 void ws_start (WSServer * server);
 void ws_stop (WSServer * server);
 WSServer *ws_init (const char *host, const char *port, void (*initopts) (void));
