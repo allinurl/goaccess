@@ -2,26 +2,41 @@ name: C build and Test
 
 on:
   push:
-    branches: [ "master" ]
+    branches:
+      - "master"
   pull_request:
-    branches: [ "master" ]
+    branches:
+      - "master"
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
-
     strategy:
+      fail-fast: false
       matrix:
-        config_params: ["", "--enable-debug", "--enable-debug", "--with-getline --enable-asan", "--enable-utf8 --enable-debug --with-getline", "--enable-utf8 --with-getline --enable-asan"]
-        os: [ubuntu-latest, macos-latest, macos-14]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - macos-14
+        config_params:
+          - ""
+          - "--enable-debug"
+          - "--with-getline --enable-asan"
+          - "--enable-utf8 --enable-debug --with-getline"
+          - "--enable-utf8 --with-getline --enable-asan"
         include:
-        - os: ubuntu-latest
-          setup-env: sudo apt-get update && sudo apt-get install -y build-essential autoconf gettext autopoint libncursesw5-dev libssl-dev git libmaxminddb-dev jq
-        - os: macos-latest
-          setup-env: brew install ncurses gettext autoconf automake libmaxminddb openssl@3 jq
-        - os: macos-14
-          setup-env: brew update && brew install ncurses gettext autoconf automake openssl@3 libmaxminddb jq
+          - os: ubuntu-latest
+            setup-env: |
+              sudo apt-get update
+              sudo apt-get install -y build-essential autoconf gettext autopoint libncursesw5-dev libssl-dev git libmaxminddb-dev jq
+          - os: macos-latest
+            setup-env: |
+              brew install ncurses gettext autoconf automake libmaxminddb openssl@3 jq
+          - os: macos-14
+            setup-env: |
+              brew update
+              brew install ncurses gettext autoconf automake openssl@3 libmaxminddb jq
 
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Setup env.
         run: ${{ matrix.setup-env }}
