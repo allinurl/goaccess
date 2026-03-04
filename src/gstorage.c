@@ -1338,6 +1338,9 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
   if (extract_geolocation (logitem, continent, country, city) == 1)
     return 1;
 
+  if (country[0] == '\0' && city[0] == '\0')
+    return 1;
+
   if (country[0] != '\0')
     logitem->country = xstrdup (country);
 
@@ -1353,12 +1356,15 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
 
   /* If city is available, use city as data and country as root (3-level).
    * Otherwise, use country as data and continent as root (2-level). */
-  if (conf.has_geocity && logitem->city) {
+  if (conf.has_geocity && logitem->city && logitem->country) {
     get_kdata (kdata, logitem->city, logitem->city);
     get_kroot (kdata, logitem->country, logitem->country);
-  } else {
+  } else if (logitem->country) {
     get_kdata (kdata, logitem->country, logitem->country);
-    get_kroot (kdata, logitem->continent, logitem->continent);
+    if (logitem->continent)
+      get_kroot (kdata, logitem->continent, logitem->continent);
+  } else {
+    return 1;
   }
   kdata->numdate = logitem->numdate;
 
