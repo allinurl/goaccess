@@ -866,7 +866,7 @@ render_header (WINDOW *win, GDashModule *data, GModule cur_module, int *y) {
 }
 
 /* Render available metrics per panel.
- * ###TODO: Have the abilitity to display metrics in specific order */
+ * ###TODO: Have the ability to display metrics in specific order */
 static void
 render_metrics (GDashModule *data, GDashRender render) {
   int x = get_xpos ();
@@ -997,7 +997,7 @@ rprint_col (WINDOW *win, int y, int *x, int len, const char *str) {
 }
 
 /* Render column names for available metrics.
- * ###TODO: Have the abilitity to display metrics in specific order */
+ * ###TODO: Have the ability to display metrics in specific order */
 static void
 render_cols (WINDOW *win, GDashModule *data, int *y) {
   GModule module = data->module;
