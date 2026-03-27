@@ -78,11 +78,30 @@ window.GoAccess = window.GoAccess || {
 
 	handleLocalStorage: function () {
 		// Check if the browser supports localStorage
-		if (GoAccess.Util.hasLocalStorage()) {
-			// Retrieve the AppPrefs object stored in localStorage
+		if (!GoAccess.Util.hasLocalStorage()) {
+			return;
+		}
+
+		try {
 			const ls = JSON.parse(localStorage.getItem('AppPrefs'));
+			if (!ls || typeof ls !== 'object') {
+				return;  // Invalid data, use defaults
+			}
+
+			// Validate critical properties maintain their expected types
+			if (ls.hiddenPanels && !Array.isArray(ls.hiddenPanels)) {
+				throw new Error('hiddenPanels is not an array');
+			}
+			if (ls.panelOrder && !Array.isArray(ls.panelOrder)) {
+				throw new Error('panelOrder is not an array');
+			}
+
 			// Merge stored preferences into the current application preferences
 			this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, ls);
+		} catch (e) {
+			// Old or corrupted preferences detected, discard them
+			localStorage.removeItem('AppPrefs');
+			// AppPrefs retains new defaults
 		}
 	},
 
