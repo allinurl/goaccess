@@ -109,6 +109,15 @@ typedef struct GLogItem_ {
   int is_static;
   int uniq_nkey;
   int agent_nkey;
+  uint8_t ir_event_category;
+  uint8_t ir_asset_class;
+  uint8_t ir_is_sensitive_target;
+  uint8_t ir_is_scanner_pattern;
+  uint8_t ir_is_auth_endpoint;
+  uint16_t ir_suspicion_score;
+  uint16_t ir_rarity_score;
+  uint16_t ir_burst_score;
+  uint64_t epoch_minute;
 
   /* UMS */
   char *mime_type;

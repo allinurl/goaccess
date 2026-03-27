@@ -196,6 +196,8 @@ goaccess_SOURCES = \
    src/gwsocket.h      \
    src/json.c          \
    src/json.h          \
+   src/ir.c            \
+   src/ir.h            \
    src/khash.h         \
    src/labels.h        \
    src/opesys.c        \

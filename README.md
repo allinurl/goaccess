@@ -100,6 +100,13 @@ It also serves as a practical tool for security monitoring, making it easy to
 spot suspicious activity, unusual traffic patterns, brute-force attempts,
 scanners, bots, and anomalous requests directly from your logs.
 
+This fork also includes a batch DFIR-oriented profile for offline HTTP log
+analysis:
+
+    ./goaccess access.log --log-format=COMBINED --profile ir-http -o report.html
+
+See [IR HTTP Profile](./docs/IR_MODE.md) for the current scope and usage.
+
 While the terminal output is the default output, it has the capability to
 generate a complete, self-contained, real-time [**`HTML`**](https://rt.goaccess.io/?src=gh)
 report, as well as a [**`JSON`**](https://goaccess.io/json?src=gh), and

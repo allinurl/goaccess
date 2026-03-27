@@ -74,6 +74,7 @@
 #include "json.h"
 #include "options.h"
 #include "output.h"
+#include "ir.h"
 #include "util.h"
 #include "websocket.h"
 #include "xmalloc.h"
@@ -179,6 +180,9 @@ house_keeping (void) {
     free_dashboard (dash);
     reset_find ();
   }
+
+  if (conf.ir_enabled)
+    ir_free ();
 
   /* GEOLOCATION */
 #ifdef HAVE_GEOLOCATION
@@ -1484,6 +1488,8 @@ init_processing (void) {
   verify_panels ();
 
   init_storage ();
+  if (conf.ir_enabled)
+    ir_init ();
   insert_methods_protocols ();
   set_spec_date_format ();
 
@@ -1635,6 +1641,7 @@ set_io (FILE **pipe) {
 static void
 parse_cmd_line (int argc, char **argv) {
   read_option_args (argc, argv);
+  ir_apply_profile_defaults ();
   set_default_static_files ();
 }
 
@@ -1869,6 +1876,9 @@ main (int argc, char **argv) {
     end_spinner ();
     goto clean;
   }
+
+  if (conf.ir_enabled)
+    ir_finalize ();
 
   if (conf.stop_processing)
     goto clean;

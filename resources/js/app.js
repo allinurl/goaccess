@@ -67,6 +67,9 @@ window.GoAccess = window.GoAccess || {
 		this.tokenRefreshLeadTime = 60;
 
 		this.handleLocalStorage();
+		/* Embedded report prefs must win over stale localStorage values so
+		 * static exports remain deterministic across runs. */
+		this.AppPrefs = GoAccess.Util.merge(this.AppPrefs, this.opts.prefs);
 		this.isAppInitialized = false;
 
 		// Initialize message rotation

@@ -176,6 +176,7 @@ typedef struct GConf_
   int ignore_statics;               /* ignore static files */
   int jobs;                         /* multi-thread jobs count */
   int json_pretty_print;            /* pretty print JSON data */
+  int ir_enabled;                   /* enable IR batch enrichments */
   int list_agents;                  /* show list of agents per host */
   int load_conf_dlg;                /* load curses config dialog */
   int load_global_config;           /* use global config file */
@@ -230,6 +231,7 @@ typedef struct GConf_
   int static_file_idx;              /* static extensions index */
   int geoip_db_idx;                 /* geoip db index */
   int browsers_hash_idx;            /* browsers hash index */
+  int profile;                      /* report profile */
 
   size_t static_file_max_len;
 

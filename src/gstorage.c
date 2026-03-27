@@ -44,6 +44,7 @@
 #include "browsers.h"
 #include "commons.h"
 #include "error.h"
+#include "ir.h"
 #include "gkhash.h"
 #include "opesys.h"
 #include "ui.h"
@@ -1626,6 +1627,8 @@ process_log (GLogItem *logitem) {
   }
 
   count_bw (numdate, logitem->resp_size);
+  if (conf.ir_enabled)
+    ir_process_log (logitem);
   /* don't ignore line but neither count as valid */
   if (logitem->ignorelevel != IGNORE_LEVEL_REQ)
     count_valid (numdate);

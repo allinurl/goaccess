@@ -45,6 +45,7 @@
 
 #include "error.h"
 #include "gkhash.h"
+#include "ir.h"
 #include "settings.h"
 #include "ui.h"
 #include "dialogs.h"
@@ -68,6 +69,7 @@ static void print_json_host_items (GJSON * json, GHolderItem * item,
                                    GPercTotals totals, int size, int iisp);
 static void print_json_sub_items (GJSON * json, GHolderItem * item,
                                   GPercTotals totals, int size, int iisp);
+static void print_ir_json_panels (GJSON *json);
 
 /* *INDENT-OFF* */
 static const GPanel paneling[] = {
@@ -303,6 +305,16 @@ pskeysval (GJSON *json, const char *key, const char *val, int sp, int last) {
     pjson (json, "%.*s\"%s\": \"%s\",%.*s", sp, TAB, key, val, nlines, NL);
   else
     pjson (json, "%.*s\"%s\": \"%s\"", sp, TAB, key, val);
+}
+
+static void
+pskeysval_escaped (GJSON *json, const char *key, const char *val, int sp, int last) {
+  pjson (json, "%.*s\"%s\": \"", sp, TAB, key);
+  escape_json_output (json, val ? val : "-");
+  if (!last)
+    pjson (json, "\",%.*s", nlines, NL);
+  else
+    pjson (json, "\"");
 }
 
 /* Output a JSON string key, array value pair. */
@@ -1115,7 +1127,154 @@ print_json_summary (GJSON *json, GHolder *holder) {
   poverall_bandwidth (json, isp);
   /* log path */
   poverall_log (json, isp);
-  pclose_obj (json, sp, num_panels () > 0 ? 0 : 1);
+  pclose_obj (json, sp, (num_panels () > 0 || conf.ir_enabled) ? 0 : 1);
+}
+
+static void
+print_ir_case_summary_data (GJSON *json, int sp) {
+  const IRCaseSummaryItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_case_summary (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].metric, iisp, 0);
+    pskeysval_escaped (json, "value", items[i].value, iisp, 0);
+    pskeysval_escaped (json, "details", items[i].details, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_sources_data (GJSON *json, int sp) {
+  const IRSuspiciousSourceItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_suspicious_sources (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].source, iisp, 0);
+    pskeyu64val (json, "hits", items[i].hits, iisp, 0);
+    pskeyu64val (json, "burst_max", items[i].burst_max, iisp, 0);
+    pskeyu64val (json, "status_4xx", items[i].status_4xx, iisp, 0);
+    pskeyu64val (json, "status_5xx", items[i].status_5xx, iisp, 0);
+    pskeyu64val (json, "sensitive_targets", items[i].sensitive_targets, iisp, 0);
+    pskeysval_escaped (json, "user_agent", items[i].user_agent, iisp, 0);
+    pskeysval_escaped (json, "asn", items[i].asn, iisp, 0);
+    pskeysval_escaped (json, "country", items[i].country, iisp, 0);
+    pskeyu64val (json, "suspicion_score", items[i].suspicion_score, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_timeline_data (GJSON *json, int sp) {
+  const IRTimelineItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_incident_timeline (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].minute_label, iisp, 0);
+    pskeyu64val (json, "hits", items[i].hits, iisp, 0);
+    pskeyu64val (json, "status_4xx", items[i].status_4xx, iisp, 0);
+    pskeyu64val (json, "status_5xx", items[i].status_5xx, iisp, 0);
+    pskeyu64val (json, "new_scanners", items[i].new_scanners, iisp, 0);
+    pskeyu64val (json, "burst_peak", items[i].burst_peak, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_recon_data (GJSON *json, int sp) {
+  const IRReconItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_recon_activity (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].source, iisp, 0);
+    pskeyu64val (json, "distinct_paths", items[i].distinct_paths, iisp, 0);
+    pskeyu64val (json, "ratio_404", items[i].ratio_404, iisp, 0);
+    pskeyu64val (json, "sensitive_patterns", items[i].sensitive_patterns, iisp, 0);
+    pskeyu64val (json, "extensions_targeted", items[i].extensions_targeted, iisp, 0);
+    pskeyu64val (json, "score_recon", items[i].score_recon, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_auth_data (GJSON *json, int sp) {
+  const IRAuthAbuseItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_auth_abuse (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].source, iisp, 0);
+    pskeyu64val (json, "auth_hits", items[i].auth_hits, iisp, 0);
+    pskeyu64val (json, "status_401", items[i].status_401, iisp, 0);
+    pskeyu64val (json, "status_403", items[i].status_403, iisp, 0);
+    pskeyu64val (json, "success_after_failures", items[i].success_after_failures, iisp, 0);
+    pskeyu64val (json, "score_auth_abuse", items[i].score_auth_abuse, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_targets_data (GJSON *json, int sp) {
+  const IRSensitiveTargetItem *items;
+  size_t i, size;
+  int isp = sp + 1, iisp = sp + 2;
+
+  items = ir_sensitive_targets (&size);
+  popen_arr_attr (json, "data", sp);
+  for (i = 0; i < size; ++i) {
+    popen_obj (json, isp);
+    pskeysval_escaped (json, "data", items[i].resource, iisp, 0);
+    pskeysval_escaped (json, "asset_class", items[i].asset_class, iisp, 0);
+    pskeyu64val (json, "hits", items[i].hits, iisp, 0);
+    pskeyu64val (json, "unique_sources", items[i].unique_sources, iisp, 0);
+    pskeyu64val (json, "suspicious_sources", items[i].suspicious_sources, iisp, 0);
+    pskeysval_escaped (json, "dominant_status", items[i].dominant_status, iisp, 0);
+    pskeyu64val (json, "impact_score", items[i].impact_score, iisp, 1);
+    pclose_obj (json, isp, i == size - 1);
+  }
+  pclose_arr (json, sp, 1);
+}
+
+static void
+print_ir_panel (GJSON *json, const char *id, void (*cb) (GJSON *, int), int last) {
+  int sp = 1;
+
+  popen_obj_attr (json, id, sp);
+  cb (json, sp + 1);
+  pclose_obj (json, sp, last);
+}
+
+static void
+print_ir_json_panels (GJSON *json) {
+  print_ir_panel (json, "case_summary", print_ir_case_summary_data, 0);
+  print_ir_panel (json, "suspicious_sources", print_ir_sources_data, 0);
+  print_ir_panel (json, "incident_timeline", print_ir_timeline_data, 0);
+  print_ir_panel (json, "recon_activity", print_ir_recon_data, 0);
+  print_ir_panel (json, "auth_abuse", print_ir_auth_data, 0);
+  print_ir_panel (json, "sensitive_targets", print_ir_targets_data, 1);
 }
 
 /* Iterate over all panels and generate json output. */
@@ -1142,6 +1301,12 @@ init_json_output (GHolder *holder) {
 
     panel->render (json, holder + module, totals, panel);
     pjson (json, (cnt++ != npanels - 1) ? ",%.*s" : "%.*s", nlines, NL);
+  }
+
+  if (conf.ir_enabled) {
+    if (npanels > 0)
+      pjson (json, ",%.*s", nlines, NL);
+    print_ir_json_panels (json);
   }
 
   pclose_obj (json, 0, 1);

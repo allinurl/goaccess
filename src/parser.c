@@ -67,6 +67,7 @@
 #include "error.h"
 #include "goaccess.h"
 #include "gstorage.h"
+#include "ir.h"
 #include "util.h"
 #include "websocket.h"
 #include "xmalloc.h"
@@ -291,6 +292,15 @@ init_log_item (GLog *glog) {
   memset (logitem->site, 0, sizeof (logitem->site));
   memset (logitem->agent_hex, 0, sizeof (logitem->agent_hex));
   logitem->dt = glog->start_time;
+  logitem->ir_event_category = 0;
+  logitem->ir_asset_class = 0;
+  logitem->ir_is_sensitive_target = 0;
+  logitem->ir_is_scanner_pattern = 0;
+  logitem->ir_is_auth_endpoint = 0;
+  logitem->ir_suspicion_score = 0;
+  logitem->ir_rarity_score = 0;
+  logitem->ir_burst_score = 0;
+  logitem->epoch_minute = 0;
 
   return logitem;
 }
@@ -2094,6 +2104,7 @@ enrich_logitem (GLogItem *logitem) {
   }
 
   logitem->uniq_key = get_uniq_visitor_key (logitem);
+  ir_enrich_logitem (logitem);
 }
 
 /* Parse a line from the log and store it accordingly taking into

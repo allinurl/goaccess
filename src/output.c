@@ -42,6 +42,7 @@
 #include "output.h"
 
 #include "error.h"
+#include "ir.h"
 #include "json.h"
 #include "settings.h"
 #include "ui.h"
@@ -68,6 +69,7 @@ static void hits_visitors_req_plot (FILE * fp, GHTMLPlot plot, int sp);
 
 static void print_metrics (FILE * fp, const GHTML * def, int sp);
 static void print_host_metrics (FILE * fp, const GHTML * def, int sp);
+static void print_ir_ui_defs (FILE *fp);
 
 /* *INDENT-OFF* */
 static const GHTML htmldef[] = {
@@ -1108,6 +1110,169 @@ print_panel_def_meta (FILE *fp, const GHTML *def, int sp) {
   print_def_metrics (fp, def, isp);
 }
 
+static void
+print_ir_sort_def (FILE *fp, const char *field, const char *order, int sp) {
+  int isp = conf.json_pretty_print ? sp + 1 : 0;
+
+  fpopen_obj_attr (fp, "sort", sp);
+  fpskeysval (fp, "field", field, isp, 0);
+  fpskeysval (fp, "order", order, isp, 1);
+  fpclose_obj (fp, sp, 0);
+}
+
+static void
+print_ir_items_open (FILE *fp, int sp) {
+  fpopen_arr_attr (fp, "items", sp);
+}
+
+static void
+print_ir_metric_def (FILE *fp, const char *key, const char *label,
+                     const char *dtype, const char *width, int last) {
+  GDefMetric def = {
+    .datakey = key,
+    .lbl = label,
+    .datatype = dtype,
+    .cwidth = width,
+  };
+  print_def_block (fp, def, conf.json_pretty_print ? 2 : 1, last);
+}
+
+static void
+print_ir_panel_common (FILE *fp, const char *id, const char *head,
+                       const char *desc, const char *sort_field,
+                       const char *sort_order) {
+  int sp = conf.json_pretty_print ? 1 : 0;
+  int isp = conf.json_pretty_print ? sp + 1 : 0;
+
+  fpopen_obj_attr (fp, id, sp);
+  print_def_meta (fp, head, desc, sp);
+  fpskeysval (fp, "id", id, isp, 0);
+  fpskeyival (fp, "table", 1, isp, 0);
+  fpskeyival (fp, "hasMap", 0, isp, 0);
+  print_ir_sort_def (fp, sort_field, sort_order, isp);
+  fpopen_arr_attr (fp, "plot", isp);
+  fpclose_arr (fp, isp, 0);
+}
+
+static void
+print_ir_case_summary_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "case_summary", "Case Summary",
+                         "Batch DFIR case overview", "data", "asc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Metric", "string", "24%", 0);
+  print_ir_metric_def (fp, "value", "Value", "string", "28%", 0);
+  print_ir_metric_def (fp, "details", "Details", "string", "48%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 0);
+}
+
+static void
+print_ir_sources_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "suspicious_sources", "Suspicious Sources",
+                         "Sources ranked by incident suspicion score",
+                         "suspicion_score", "desc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Source", "string", "16%", 0);
+  print_ir_metric_def (fp, "hits", "Hits", "numeric", "8%", 0);
+  print_ir_metric_def (fp, "burst_max", "Burst", "numeric", "8%", 0);
+  print_ir_metric_def (fp, "status_4xx", "4xx", "numeric", "8%", 0);
+  print_ir_metric_def (fp, "status_5xx", "5xx", "numeric", "8%", 0);
+  print_ir_metric_def (fp, "sensitive_targets", "Sensitive", "numeric", "8%", 0);
+  print_ir_metric_def (fp, "user_agent", "UA", "string", "20%", 0);
+  print_ir_metric_def (fp, "asn", "ASN", "string", "10%", 0);
+  print_ir_metric_def (fp, "country", "Country", "string", "8%", 0);
+  print_ir_metric_def (fp, "suspicion_score", "Score", "numeric", "6%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 0);
+}
+
+static void
+print_ir_timeline_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "incident_timeline", "Incident Timeline",
+                         "Minute-level timeline for cold log triage",
+                         "data", "asc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Minute", "string", "24%", 0);
+  print_ir_metric_def (fp, "hits", "Hits", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "status_4xx", "4xx", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "status_5xx", "5xx", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "new_scanners", "New Scanners", "numeric", "20%", 0);
+  print_ir_metric_def (fp, "burst_peak", "Burst Peak", "numeric", "20%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 0);
+}
+
+static void
+print_ir_recon_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "recon_activity", "Recon Activity",
+                         "Reconnaissance-oriented view by source",
+                         "score_recon", "desc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Source", "string", "22%", 0);
+  print_ir_metric_def (fp, "distinct_paths", "Paths", "numeric", "14%", 0);
+  print_ir_metric_def (fp, "ratio_404", "404 Ratio", "numeric", "14%", 0);
+  print_ir_metric_def (fp, "sensitive_patterns", "Sensitive Patterns", "numeric", "18%", 0);
+  print_ir_metric_def (fp, "extensions_targeted", "Extensions", "numeric", "14%", 0);
+  print_ir_metric_def (fp, "score_recon", "Recon Score", "numeric", "18%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 0);
+}
+
+static void
+print_ir_auth_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "auth_abuse", "Auth Abuse",
+                         "Authentication failures and success-after-failure patterns",
+                         "score_auth_abuse", "desc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Source", "string", "24%", 0);
+  print_ir_metric_def (fp, "auth_hits", "Auth Hits", "numeric", "14%", 0);
+  print_ir_metric_def (fp, "status_401", "401", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "status_403", "403", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "success_after_failures", "Success After Failures", "numeric", "22%", 0);
+  print_ir_metric_def (fp, "score_auth_abuse", "Score", "numeric", "16%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 0);
+}
+
+static void
+print_ir_targets_def (FILE *fp) {
+  int sp = conf.json_pretty_print ? 2 : 1;
+
+  print_ir_panel_common (fp, "sensitive_targets", "Sensitive Targets",
+                         "Resources ranked by incident impact",
+                         "impact_score", "desc");
+  print_ir_items_open (fp, sp);
+  print_ir_metric_def (fp, "data", "Resource", "string", "28%", 0);
+  print_ir_metric_def (fp, "asset_class", "Class", "string", "12%", 0);
+  print_ir_metric_def (fp, "hits", "Hits", "numeric", "10%", 0);
+  print_ir_metric_def (fp, "unique_sources", "Sources", "numeric", "12%", 0);
+  print_ir_metric_def (fp, "suspicious_sources", "Suspicious", "numeric", "14%", 0);
+  print_ir_metric_def (fp, "dominant_status", "Status", "string", "12%", 0);
+  print_ir_metric_def (fp, "impact_score", "Impact", "numeric", "12%", 1);
+  fpclose_arr (fp, sp, 1);
+  fpclose_obj (fp, conf.json_pretty_print ? 1 : 0, 1);
+}
+
+static void
+print_ir_ui_defs (FILE *fp) {
+  print_ir_case_summary_def (fp);
+  print_ir_sources_def (fp);
+  print_ir_timeline_def (fp);
+  print_ir_recon_def (fp);
+  print_ir_auth_def (fp);
+  print_ir_targets_def (fp);
+}
+
 /* Output definitions for the given panel. */
 static void
 print_json_def (FILE *fp, const GHTML *def) {
@@ -1246,7 +1411,6 @@ print_json_defs (FILE *fp) {
   fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var countries110m=%.*s;", countries_json_length, countries_json);
   fprintf (fp, "var cities10m=%.*s;", cities_json_length, cities_json);
-  fprintf (fp, "var html_prefs=%s;", conf.html_prefs ? conf.html_prefs : "{}");
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);
 
@@ -1255,6 +1419,9 @@ print_json_defs (FILE *fp) {
     if ((def = panel_lookup (module_list[idx]))) {
       print_json_def (fp, def);
     }
+  }
+  if (conf.ir_enabled) {
+    print_ir_ui_defs (fp);
   }
 
   fpclose_obj (fp, 0, 1);

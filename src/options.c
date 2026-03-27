@@ -48,6 +48,7 @@
 #include "options.h"
 
 #include "error.h"
+#include "ir.h"
 #include "labels.h"
 #include "util.h"
 #include "wsauth.h"
@@ -141,6 +142,7 @@ static const struct option long_opts[] = {
   {"persist"              , no_argument       , 0 , 0  }  ,
   {"pid-file"             , required_argument , 0 , 0  }  ,
   {"port"                 , required_argument , 0 , 0  }  ,
+  {"profile"              , required_argument , 0 , 0  }  ,
   {"process-and-exit"     , no_argument       , 0 , 0  }  ,
   {"real-os"              , no_argument       , 0 , 0  }  ,
   {"real-time-html"       , no_argument       , 0 , 0  }  ,
@@ -210,6 +212,7 @@ cmd_help (void)
   "  --html-refresh=<secs>           - Refresh HTML report every X seconds (>=1 or\n"
   "                                    <=60).\n"
   "  --json-pretty-print             - Format JSON output w/ tabs & newlines.\n"
+  "  --profile=<classic|ir-http>     - Select report profile defaults.\n"
   "  --max-items                     - Maximum number of items to show per panel.\n"
   "                                    See man page for limits.\n"
   "  --no-color                      - Disable colored output.\n"
@@ -989,6 +992,16 @@ parse_long_opt (const char *name, const char *oarg) {
   /* process and exit */
   if (!strcmp ("process-and-exit", name))
     conf.process_and_exit = 1;
+
+  /* report profile */
+  if (!strcmp ("profile", name)) {
+    if (!strcmp ("classic", oarg))
+      conf.profile = GO_PROFILE_CLASSIC;
+    else if (!strcmp ("ir-http", oarg))
+      conf.profile = GO_PROFILE_IR_HTTP;
+    else
+      FATAL ("Invalid --profile value. Expected classic or ir-http.");
+  }
 
   /* real os */
   if (!strcmp ("real-os", name))
