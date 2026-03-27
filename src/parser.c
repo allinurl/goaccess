@@ -56,6 +56,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <inttypes.h>
+#include <limits.h>
 #include <pthread.h>
 #include <libgen.h>
 
@@ -132,7 +133,9 @@ set_glog (Logs *logs, const char *filename) {
   GLog *tmp = NULL, *glog = NULL;
   int newlen = 0;
   char const *err;
-  char *fvh = NULL, *fn = NULL;
+  char *fvh = NULL, *fn = NULL, *temp_path = NULL;
+  char resolved[PATH_MAX] = {0};
+  const char *final_path = NULL;
 
   if (logs->size - 1 < logs->idx) {
     newlen = logs->size + 1;
@@ -148,8 +151,19 @@ set_glog (Logs *logs, const char *filename) {
   fn = xstrdup (filename); /* ensure fn is a string */
   glog = logs->glog;
   glog[logs->idx].errors = xcalloc (MAX_LOG_ERRORS, sizeof (char *));
-  glog[logs->idx].props.filename = xstrdup (fn);
-  glog[logs->idx].props.fname = xstrdup (basename (fn));
+
+  /* Resolve to absolute path for clearer display in spinners.
+   * realpath() returns NULL if file doesn't exist or realpath fails; fall back to original. */
+  final_path = fn;
+  if (realpath (fn, resolved) != NULL) {
+    final_path = resolved;
+  }
+
+  glog[logs->idx].props.filename = xstrdup (final_path);
+  /* Create temporary copy for basename() since it expects non-const argument. */
+  temp_path = xstrdup (final_path);
+  glog[logs->idx].props.fname = xstrdup (basename (temp_path));
+  free (temp_path);
 
   if (!glog->pipe && conf.fname_as_vhost) {
     if (!(fvh = regex_extract_string (glog[logs->idx].props.fname, conf.fname_as_vhost, 1, &err)))

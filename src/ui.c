@@ -862,8 +862,8 @@ render_curses (GSpinner *sp, SpinnerSnapshot *snap, const char *stats, int *boun
   if (maxx < 60)
     maxx = 80;
 
-  /* Prepare left text: filename (basename) + stats */
-  fname = basename_only (snap->filename);
+  /* Prepare left text: filename (full absolute path) + stats */
+  fname = snap->filename;
   snprintf (left_buf, sizeof (left_buf), "%s  %s", fname, stats);
 
   /* Draw left text using original draw_header style */
@@ -910,7 +910,7 @@ render_plain (FILE *out, SpinnerSnapshot *snap, const char *stats,
               int *banner_shown, int *bounce_pos, int *bounce_dir, int bounce_width, int spin_idx) {
 
   int i = 0, barlen = 0, pos = 0;
-  const char *fname = basename_only (snap->filename);
+  const char *fname = snap->filename;
   char bar[128] = "";
   char spinner_char;
 
@@ -959,7 +959,7 @@ render_plain (FILE *out, SpinnerSnapshot *snap, const char *stats,
 /* Fallback (minimal) – filename → stats → spinner */
 static void
 render_fallback (FILE *out, SpinnerSnapshot *snap, const char *stats, int spin_idx) {
-  const char *fname = basename_only (snap->filename);
+  const char *fname = snap->filename;
   fprintf (out, "\r%s  %s  %c", fname, stats, spin_chars[spin_idx & 3]);
   fflush (out);
 }
