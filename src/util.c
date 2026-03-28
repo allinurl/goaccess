@@ -468,8 +468,11 @@ find_output_type (char **filename, const char *ext, int alloc) {
       return 0;
 
     if ((dot = strrchr (conf.output_formats[i], '.')) != NULL && strcmp (dot + 1, ext) == 0) {
-      if (alloc)
+      if (alloc && filename) {
         *filename = xstrdup (conf.output_formats[i]);
+      } else if (filename) {
+        *filename = conf.output_formats[i];
+      }
       return 0;
     }
   }
