@@ -318,7 +318,7 @@
 #define ERR_PANEL_DISABLED             \
   _("'%1$s' panel is disabled")
 #define ERR_NO_DATA_PASSED             \
-  _("No input data was provided nor there's data to restore.")
+  _("No input data was provided nor was there data to restore.")
 #define ERR_LOG_REALLOC_FAILURE_MSG    \
   _("Unable to allocate memory for a log instance.")
 #define ERR_LOG_NOT_FOUND_MSG          \
