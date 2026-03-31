@@ -392,9 +392,11 @@ GoAccess.Util = {
 
 	// hash a string
 	hashCode: function (s) {
+		if (s == null) s = '';
+		else if (typeof s !== 'string') s = JSON.stringify(s);
 		return (s.split('').reduce(function (a, b) {
 			a = ((a << 5) - a) + b.charCodeAt(0);
-			return a&a;
+			return a & a;
 		}, 0) >>> 0).toString(16);
 	},
 
@@ -2081,14 +2083,12 @@ GoAccess.Tables = {
 	renderRow: function (panel, callback, ui, dataItem, idx, subItem, parentId, expanded, level) {
 		var shade = ((!subItem && idx % 2 !== 0) ? 'shaded' : '') ||
 					(subItem && (parentId % 2 !== 0) ? 'shaded' : '');
-
 		var hasChildren = !!(dataItem.items && dataItem.items.length > 0);
-
 		return {
 			'panel'       : panel,
 			'idx'         : !subItem ? String((idx + 1) + this.pageOffSet(panel)) : '',
-			'key'         : !subItem ? GoAccess.Util.hashCode(dataItem.data) : '',
-			'nodeKey'     : GoAccess.Util.hashCode(dataItem.data || dataItem),
+			'key'         : !subItem ? GoAccess.Util.hashCode(String(dataItem.data ?? '')) : '',
+			'nodeKey'     : GoAccess.Util.hashCode(String(dataItem.data ?? '')),
 			'level'       : level || 0,
 			'expanded'    : !!expanded,               // must be boolean
 			'parentId'    : subItem ? String(parentId) : '',
@@ -2114,7 +2114,7 @@ GoAccess.Tables = {
 		}
 		for (var i = 0; i < dataItems.length; ++i) {
 			var dataItem = dataItems[i];
-			var data = dataItem.data || dataItem;
+			var data = dataItem.data ?? dataItem;
 			var isString = typeof dataItem === 'string';
 			var cellcb;
 			if (isString) {
@@ -2128,7 +2128,7 @@ GoAccess.Tables = {
 				cellcb = this.iterUIItems.bind(this, panel, ui.items, dataItem, this.getObjectCell.bind(this));
 			}
 			/* Unique key for this node (important for nested expansion state) */
-			var nodeKey = !isString ? GoAccess.Util.hashCode(data) : null;
+			var nodeKey = !isString ? GoAccess.Util.hashCode(String(dataItem.data ?? '')) : null;
 			var expanded = nodeKey && this.isExpanded(panel, nodeKey); /* Build row with indentation level */
 			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded); /* Add level for CSS indentation */
 			row.level = level;
