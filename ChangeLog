@@ -1,3 +1,17 @@
+Changes to GoAccess 1.10.2 - Tuesday, March 31, 2026
+
+  - Added detection for Arc and Zen browsers in the HTML report.
+  - Added Georgian translation.
+  - Fixed a crash caused by invalid country/city parsing from the GeoIP
+    database.
+  - Fixed empty string data field crashing the HTML report on initial page
+    load when entries contain no Referer, unknown UA strings, missing Host
+    headers, or unresolvable GeoIP locations.
+  - Fixed local stored preference objects not being validated on load,
+    preventing corrupted localStorage from breaking the UI.
+  - Fixed relative paths not being resolved to absolute paths while ingesting
+    data.
+
 Changes to GoAccess 1.10.1 - Saturday, February 14, 2026
 
   - Fixed a crash when restoring persisted data via `--restore` that contained
