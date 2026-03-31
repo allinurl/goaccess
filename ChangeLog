@@ -7,10 +7,10 @@ Changes to GoAccess 1.10.2 - Tuesday, March 31, 2026
   - Fixed empty string data field crashing the HTML report on initial page
     load when entries contain no Referer, unknown UA strings, missing Host
     headers, or unresolvable GeoIP locations.
-  - Fixed local stored preference objects not being validated on load,
-    preventing corrupted localStorage from breaking the UI.
   - Fixed relative paths not being resolved to absolute paths while ingesting
     data.
+  - Fixed old local stored preference objects not being validated on load,
+    preventing corrupted localStorage from breaking the UI.
 
 Changes to GoAccess 1.10.1 - Saturday, February 14, 2026
 
