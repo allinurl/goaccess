@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-02-14 08:39-0600\n"
+"POT-Creation-Date: 2026-03-30 22:10-0500\n"
 "PO-Revision-Date: 2022-09-06 21:27+0900\n"
 "Last-Translator: David 창모 Yang <dcyang@users.noreply.github.com>\n"
 "Language-Team: Korean <dcyang@users.noreply.github.com>\n"
@@ -530,7 +530,8 @@ msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' 패널은 비활성 상태입니다"
 
 #: src/labels.h:321
-msgid "No input data was provided nor there's data to restore."
+#, fuzzy
+msgid "No input data was provided nor was there data to restore."
 msgstr "입력 데이터가 주어지지 않았고 복원할 데이터도 없음"
 
 #: src/labels.h:323

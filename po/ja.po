@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-02-14 08:39-0600\n"
+"POT-Creation-Date: 2026-03-30 22:10-0500\n"
 "PO-Revision-Date: 2025-04-28 21:05+0900\n"
 "Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -526,7 +526,8 @@ msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' パネルは無効化されています"
 
 #: src/labels.h:321
-msgid "No input data was provided nor there's data to restore."
+#, fuzzy
+msgid "No input data was provided nor was there data to restore."
 msgstr "入力データが与えられておらず、復元データもありません。"
 
 #: src/labels.h:323

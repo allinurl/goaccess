@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.9.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-02-14 08:39-0600\n"
+"POT-Creation-Date: 2026-03-30 22:10-0500\n"
 "PO-Revision-Date: 2026-02-20 14:35+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
@@ -534,7 +534,8 @@ msgid "'%1$s' panel is disabled"
 msgstr "'%1$s' პანელი გათიშულია"
 
 #: src/labels.h:321
-msgid "No input data was provided nor there's data to restore."
+#, fuzzy
+msgid "No input data was provided nor was there data to restore."
 msgstr ""
 "შესაყვანი მონაცემები მოწოდებული არაა და არც აღსადგენი მონაცემები არსებობს."
 
