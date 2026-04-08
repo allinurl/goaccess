@@ -187,6 +187,9 @@ display_version (void) {
 #ifdef HAVE_LIBSSL
   fprintf (stdout, "  --with-openssl\n");
 #endif
+#ifdef HAVE_ZLIB
+  fprintf (stdout, "  --with-zlib\n");
+#endif
 }
 
 /* Get the enumerated value given a string.
