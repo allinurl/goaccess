@@ -172,6 +172,9 @@ display_version (void) {
 #ifdef DEBUG
   fprintf (stdout, "  --enable-debug\n");
 #endif
+#ifdef __SANITIZE_ADDRESS__
+  fprintf (stdout, "  --enable-asan\n");
+#endif
 #ifdef HAVE_NCURSESW_NCURSES_H
   fprintf (stdout, "  --enable-utf8\n");
 #endif
