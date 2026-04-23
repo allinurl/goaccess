@@ -7,119 +7,132 @@ jobs:
   build_job:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
+          # Ubuntu 22.04 LTS - Jammy
           - arch: arm32v7
-            distro: ubuntu22.04
-          - arch: arm32v7
-            distro: ubuntu24.04
-          - arch: arm32v7
-            distro: ubuntu25.10
-          - arch: arm32v7
-            distro: bullseye
-          - arch: arm32v7
-            distro: bookworm
-          - arch: arm32v7
-            distro: trixie
-          - arch: aarch64
+            platform: linux/arm/v7
             distro: ubuntu22.04
           - arch: aarch64
+            platform: linux/arm64
+            distro: ubuntu22.04
+          - arch: amd64
+            platform: linux/amd64
+            distro: ubuntu22.04
+
+          # Ubuntu 24.04 LTS - Noble
+          - arch: arm32v7
+            platform: linux/arm/v7
             distro: ubuntu24.04
           - arch: aarch64
+            platform: linux/arm64
+            distro: ubuntu24.04
+          - arch: amd64
+            platform: linux/amd64
+            distro: ubuntu24.04
+
+          # Ubuntu 25.10 - Questing
+          - arch: arm32v7
+            platform: linux/arm/v7
             distro: ubuntu25.10
           - arch: aarch64
+            platform: linux/arm64
+            distro: ubuntu25.10
+          - arch: amd64
+            platform: linux/amd64
+            distro: ubuntu25.10
+
+          # Ubuntu 26.04 LTS - Resolute
+          - arch: arm32v7
+            platform: linux/arm/v7
+            distro: ubuntu26.04
+          - arch: aarch64
+            platform: linux/arm64
+            distro: ubuntu26.04
+          - arch: amd64
+            platform: linux/amd64
+            distro: ubuntu26.04
+
+          # Debian 11 - Bullseye
+          - arch: arm32v7
+            platform: linux/arm/v7
             distro: bullseye
           - arch: aarch64
+            platform: linux/arm64
+            distro: bullseye
+          - arch: amd64
+            platform: linux/amd64
+            distro: bullseye
+          - arch: i386
+            platform: linux/386
+            distro: bullseye
+
+          # Debian 12 - Bookworm
+          - arch: arm32v7
+            platform: linux/arm/v7
             distro: bookworm
           - arch: aarch64
+            platform: linux/arm64
+            distro: bookworm
+          - arch: amd64
+            platform: linux/amd64
+            distro: bookworm
+          - arch: i386
+            platform: linux/386
+            distro: bookworm
+
+          # Debian 13 - Trixie
+          - arch: arm32v7
+            platform: linux/arm/v7
+            distro: trixie
+          - arch: aarch64
+            platform: linux/arm64
             distro: trixie
           - arch: amd64
-            distro: bullseye
-          - arch: amd64
-            distro: bookworm
-          - arch: amd64
+            platform: linux/amd64
             distro: trixie
           - arch: i386
-            distro: bullseye
-          - arch: i386
-            distro: bookworm
-          - arch: amd64
-            distro: ubuntu22.04
-          - arch: amd64
-            distro: ubuntu24.04
-          - arch: amd64
-            distro: ubuntu25.10
+            platform: linux/386
+            distro: trixie
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: actions/checkout@v4
 
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Create artifacts directory
         run: mkdir -p "${GITHUB_WORKSPACE}/artifacts"
 
       - name: Build deb package
         run: |
+          set -euo pipefail
+
           echo "Matrix arch: ${{ matrix.arch }}"
+          echo "Matrix platform: ${{ matrix.platform }}"
           echo "Matrix distro: ${{ matrix.distro }}"
-          
-          # Convert the matrix distro into a shell variable.
+
           MY_DISTRO="${{ matrix.distro }}"
+
           if [[ "$MY_DISTRO" == ubuntu* ]]; then
-            # Remove the 'ubuntu' prefix to get the version tag.
             VERSION_TAG="${MY_DISTRO#ubuntu}"
-            DEFAULT_IMAGE="ubuntu:${VERSION_TAG}"
+            BASE_IMAGE="ubuntu:${VERSION_TAG}"
           else
-            DEFAULT_IMAGE="debian:${MY_DISTRO}"
+            BASE_IMAGE="debian:${MY_DISTRO}"
           fi
-          echo "Default IMAGE: ${DEFAULT_IMAGE}"
-          
-          # Determine the base image and platform based on the target architecture.
-          case "${{ matrix.arch }}" in
-            arm32v7)
-              if [[ "$MY_DISTRO" == ubuntu* ]]; then
-                BASE_IMAGE="arm32v7/ubuntu:${VERSION_TAG}"
-              else
-                BASE_IMAGE="arm32v7/debian:${MY_DISTRO}"
-              fi
-              PLATFORM="linux/arm/v7"
-              ;;
-            aarch64)
-              if [[ "$MY_DISTRO" == ubuntu* ]]; then
-                BASE_IMAGE="arm64v8/ubuntu:${VERSION_TAG}"
-              else
-                BASE_IMAGE="arm64v8/debian:${MY_DISTRO}"
-              fi
-              PLATFORM="linux/arm64"
-              ;;
-            i386)
-              if [[ "$MY_DISTRO" == ubuntu* ]]; then
-                BASE_IMAGE="i386/ubuntu:${VERSION_TAG}"
-              else
-                BASE_IMAGE="i386/debian:${MY_DISTRO}"
-              fi
-              PLATFORM="linux/386"
-              ;;
-            amd64)
-              BASE_IMAGE="$DEFAULT_IMAGE"
-              PLATFORM="linux/amd64"
-              ;;
-            *)
-              echo "Unsupported architecture: ${{ matrix.arch }}"
-              exit 1
-              ;;
-          esac
+
           echo "Using base image: ${BASE_IMAGE}"
-          echo "Using platform: ${PLATFORM}"
-          
-          docker run --rm --platform "${PLATFORM}" \
+          echo "Using platform: ${{ matrix.platform }}"
+
+          docker run --rm --platform "${{ matrix.platform }}" \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
             "${BASE_IMAGE}" bash -c "\
+              set -e && \
               apt-get update && \
               apt-get install -y ca-certificates wget curl lsb-release && \
               cd /artifacts && \
@@ -128,12 +141,20 @@ jobs:
               ./provision.dpkg.sh && \
               ls -lath && \
               echo 'Build Success'"
-      
+
       - name: Test deb package installation
         run: |
-          DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -name "goaccess_*.deb")
+          set -euo pipefail
+
+          DEB_FILE=$(find "${GITHUB_WORKSPACE}/artifacts" -maxdepth 1 -name "goaccess_*.deb" | head -n 1)
+
+          if [[ -z "$DEB_FILE" ]]; then
+            echo "No goaccess .deb package found"
+            exit 1
+          fi
+
           echo "Found deb package: $DEB_FILE"
-          
+
           case "${{ matrix.distro }}" in
             bullseye) TEST_IMAGE="debian:bullseye" ;;
             bookworm) TEST_IMAGE="debian:bookworm" ;;
@@ -141,27 +162,22 @@ jobs:
             ubuntu22.04) TEST_IMAGE="ubuntu:22.04" ;;
             ubuntu24.04) TEST_IMAGE="ubuntu:24.04" ;;
             ubuntu25.10) TEST_IMAGE="ubuntu:25.10" ;;
+            ubuntu26.04) TEST_IMAGE="ubuntu:26.04" ;;
             *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
           esac
+
           echo "Using Docker image for testing: $TEST_IMAGE"
-          
-          case "${{ matrix.arch }}" in
-            arm32v7) TEST_PLATFORM="linux/arm/v7" ;;
-            aarch64) TEST_PLATFORM="linux/arm64" ;;
-            i386) TEST_PLATFORM="linux/386" ;;
-            amd64) TEST_PLATFORM="linux/amd64" ;;
-            *) echo "Unsupported architecture: ${{ matrix.arch }}" && exit 1 ;;
-          esac
-          echo "Using platform for testing: $TEST_PLATFORM"
-          
-          docker run --rm --platform "$TEST_PLATFORM" \
+          echo "Using platform for testing: ${{ matrix.platform }}"
+
+          docker run --rm --platform "${{ matrix.platform }}" \
             -v "${GITHUB_WORKSPACE}/artifacts:/artifacts" \
             "$TEST_IMAGE" bash -c "\
+              set -e && \
               apt-get update && \
-              apt-get install -y /artifacts/$(basename $DEB_FILE) && \
+              apt-get install -y /artifacts/$(basename "$DEB_FILE") && \
               goaccess --version && \
               apt-get remove -y goaccess"
-      
+
       - name: Upload deb package
         uses: actions/upload-artifact@v4
         with:
