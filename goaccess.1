@@ -945,6 +945,13 @@ status codes, use this option multiple times.
 \fB\-\-keep-last=<num_days>
 Keep the last specified number of days in storage. This will recycle the storage tables. e.g., keep & show only the last 7 days.
 .TP
+\fB\-\-persist-retention=<num_days[d]>
+Retain only persisted data newer than now minus the given number of days when
+restoring from disk. The optional
+.I d
+suffix may be used, e.g.,
+.I --persist-retention=365d.
+.TP
 \fB\-\-no-ip-validation
 Disable client IP validation. Useful if IP addresses have been obfuscated before
 being logged.

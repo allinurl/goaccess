@@ -199,6 +199,7 @@ typedef struct GConf_
   int skip_term_resolver;           /* no terminal resolver */
   int is_json_log_format;           /* is a json log format */
   uint32_t keep_last;               /* number of days to keep in storage */
+  uint32_t persist_retention;        /* number of days to retain from persisted storage */
   uint32_t num_tests;               /* number of lines to test */
   uint64_t html_refresh;            /* refresh html report every X of seconds */
   uint64_t log_size;                /* log size override */
