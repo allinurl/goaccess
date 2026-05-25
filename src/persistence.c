@@ -32,6 +32,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <string.h>
+#include <time.h>
 #include <sys/stat.h>
 
 #include "persistence.h"
@@ -45,6 +46,56 @@
 
 static uint32_t *persisted_dates = NULL;
 static uint32_t persisted_dates_len = 0;
+
+static uint32_t
+normalize_date (uint32_t date) {
+  while (date > 99999999)
+    date /= 100;
+  return date;
+}
+
+static uint32_t
+get_retention_cutoff_date (void) {
+  char buf[DATE_LEN] = "";
+  time_t now = time (NULL);
+  struct tm tm;
+
+  if (!conf.persist_retention)
+    return 0;
+
+  now -= (time_t) conf.persist_retention * 86400;
+  if (!localtime_r (&now, &tm))
+    return 0;
+  if (strftime (buf, sizeof buf, "%Y%m%d", &tm) <= 0)
+    return 0;
+
+  return str2int (buf);
+}
+
+static int
+should_retain_date (uint32_t date) {
+  static uint32_t retention_cutoff = 0;
+
+  if (conf.persist_retention && !retention_cutoff)
+    retention_cutoff = get_retention_cutoff_date ();
+
+  if (retention_cutoff && normalize_date (date) < retention_cutoff)
+    return 0;
+
+  return 1;
+}
+
+static void
+rebuild_retained_overall (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
+
+  if (!conf.persist_retention || !overall)
+    return;
+
+  del_si32_free (overall, 1);
+  ins_si32 (overall, "total_requests", ht_sum_valid ());
+}
 
 /* Determine the path for the given database file.
  *
@@ -265,6 +316,9 @@ static int
 insert_restored_date (uint32_t date) {
   uint32_t i, len = 0;
 
+  if (!should_retain_date (date))
+    return 2;
+
   /* no keep last, simply insert the restored date to our storage */
   if (!conf.keep_last || persisted_dates_len < conf.keep_last)
     return ht_insert_date (date);
@@ -420,6 +474,8 @@ persist_si32 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -521,6 +577,8 @@ persist_is32 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -608,6 +666,8 @@ persist_ii32 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -636,6 +696,8 @@ persist_ii08 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -694,6 +756,8 @@ persist_u648 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -752,6 +816,8 @@ persist_iu64 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -811,6 +877,8 @@ persist_su64 (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, val, { tpl_pack (tn, 2); });
@@ -868,6 +936,8 @@ persist_igsl (GSMetric metric, const char *path, int module) {
 
   /* *INDENT-OFF* */
   HT_FOREACH_KEY (dates, date, {
+    if (!should_retain_date (date))
+      continue;
     if (!(hash = get_hash (module, date, metric)))
       return -1;
     kh_foreach (hash, key, node, {
@@ -1063,6 +1133,8 @@ persist_dates (void) {
   tn = tpl_map (fmt, &date);
   for (i = 0; i < len; ++i) {
     date = dates[i];
+    if (!should_retain_date (date))
+      continue;
     tpl_pack (tn, 1);
   }
   tpl_dump (tn, TPL_FILE, path);
@@ -1215,6 +1287,8 @@ restore_data (void) {
       restore_metric_type (module, module_metrics[i]);
     }
   }
+
+  rebuild_retained_overall ();
 
   if (migrated && !conf.persist)
     conf.persist = 1;

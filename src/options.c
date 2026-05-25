@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include <ctype.h>
 #include <string.h>
 #include <getopt.h>
@@ -139,6 +140,7 @@ static const struct option long_opts[] = {
   {"origin"               , required_argument , 0 , 0  }  ,
   {"output-format"        , required_argument , 0 , 0  }  ,
   {"persist"              , no_argument       , 0 , 0  }  ,
+  {"persist-retention"    , required_argument , 0 , 0  }  ,
   {"pid-file"             , required_argument , 0 , 0  }  ,
   {"port"                 , required_argument , 0 , 0  }  ,
   {"process-and-exit"     , no_argument       , 0 , 0  }  ,
@@ -331,6 +333,8 @@ cmd_help (void)
   "  --num-tests=<number>            - Number of lines to test. >= 0 (10 default)\n"
   "  --persist                       - Persist data to disk on exit to the given\n"
   "                                    --db-path or to /tmp.\n"
+  "  --persist-retention=<NDAYS[d]>  - Retain only persisted data newer than\n"
+  "                                    now - NDAYS when restoring.\n"
   "  --process-and-exit              - Parse log and exit without outputting data.\n"
   "  --real-os                       - Display real OS names. e.g, Windows XP,\n"
   "                                    Snow Leopard.\n"
@@ -376,6 +380,29 @@ cmd_help (void)
   exit (EXIT_FAILURE);
 }
 /* *INDENT-ON* */
+
+static int
+parse_days_option (const char *oarg, uint32_t *out) {
+  char *sEnd = NULL;
+  unsigned long days = 0;
+
+  if (!oarg || *oarg == '-')
+    return 1;
+
+  errno = 0;
+  days = strtoul (oarg, &sEnd, 10);
+  if (oarg == sEnd || errno == ERANGE)
+    return 1;
+  if (*sEnd == 'd' || *sEnd == 'D')
+    sEnd++;
+  if (*sEnd != '\0')
+    return 1;
+  if (days > UINT32_MAX)
+    return 1;
+
+  *out = days;
+  return 0;
+}
 
 /* Push a command line option to the given array if within bounds and if it's
  * not in the array. */
@@ -771,6 +798,11 @@ parse_long_opt (const char *name, const char *oarg) {
   if (!strcmp ("persist", name))
     conf.persist = 1;
 
+  /* persisted database retention window */
+  if (!strcmp ("persist-retention", name) &&
+      parse_days_option (oarg, &conf.persist_retention) != 0)
+    FATAL ("Invalid --persist-retention option.");
+
   /* restore data from disk */
   if (!strcmp ("restore", name))
     conf.restore = 1;
@@ -957,11 +989,10 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* number of days to keep in storage */
   if (!strcmp ("keep-last", name)) {
-    char *sEnd;
-    int keeplast = strtol (oarg, &sEnd, 10);
-    if (oarg == sEnd || *sEnd != '\0' || errno == ERANGE)
+    uint32_t keeplast = 0;
+    if (parse_days_option (oarg, &keeplast) != 0)
       return;
-    conf.keep_last = keeplast >= 0 ? keeplast : 0;
+    conf.keep_last = keeplast;
   }
 
   /* refresh html every X seconds */
