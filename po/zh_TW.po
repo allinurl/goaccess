@@ -1,0 +1,1096 @@
+# Traditional Chinese translations for goaccess.
+# Copyright (C) 2026 Free Software Foundation, Inc.
+# This file is distributed under the same license as the goaccess package.
+# Peter Dave Hello <hsu@peterdavehello.org>, 2026.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: goaccess 1.10.2\n"
+"Report-Msgid-Bugs-To: hello@goaccess.io\n"
+"POT-Creation-Date: 2026-02-14 08:39-0600\n"
+"PO-Revision-Date: 2026-05-30 17:48+0800\n"
+"Last-Translator: Peter Dave Hello <hsu@peterdavehello.org>\n"
+"Language-Team: Traditional Chinese (Taiwan)\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: src/labels.h:45
+msgid "en"
+msgstr "zh-TW"
+
+#: src/labels.h:48
+msgid "Exp. Panel"
+msgstr "展開面板"
+
+#: src/labels.h:49
+msgid "Help"
+msgstr "說明"
+
+#: src/labels.h:50
+msgid "Quit"
+msgstr "離開"
+
+#: src/labels.h:51
+msgid "Total"
+msgstr "總計"
+
+#: src/labels.h:54
+msgid "[x] ASC [ ] DESC"
+msgstr "[x] 遞增 [ ] 遞減"
+
+#: src/labels.h:55
+msgid "[ ] ASC [x] DESC"
+msgstr "[ ] 遞增 [x] 遞減"
+
+#: src/labels.h:58
+#, c-format
+msgid "[Active Panel: %1$s]"
+msgstr "[目前面板：%1$s]"
+
+#: src/labels.h:59
+msgid "[q]uit GoAccess"
+msgstr "[q] 離開 GoAccess"
+
+#: src/labels.h:60
+msgid "[?] Help [Enter] Exp. Panel"
+msgstr "[?] 說明 [Enter] 展開面板"
+
+#: src/labels.h:61
+msgid "Dashboard"
+msgstr "儀表板"
+
+#: src/labels.h:62
+msgid "Dashboard - Overall Analyzed Requests"
+msgstr "儀表板 - 整體已分析請求"
+
+#: src/labels.h:63
+msgid "Overall Analyzed Requests"
+msgstr "整體已分析請求"
+
+#: src/labels.h:65 src/labels.h:86
+msgid "Tx. Amount"
+msgstr "傳輸量"
+
+#: src/labels.h:66
+msgid "Date/Time"
+msgstr "日期/時間"
+
+#: src/labels.h:67
+msgid "Excl. IP Hits"
+msgstr "排除 IP 命中數"
+
+#: src/labels.h:68
+msgid "Failed Requests"
+msgstr "失敗請求"
+
+#: src/labels.h:69
+msgid "Log Parsing Time"
+msgstr "日誌解析時間"
+
+#: src/labels.h:70
+msgid "Log Size"
+msgstr "日誌大小"
+
+#: src/labels.h:71
+msgid "Log Source"
+msgstr "日誌來源"
+
+#: src/labels.h:72 src/labels.h:188
+msgid "Referrers"
+msgstr "來源頁面"
+
+#: src/labels.h:73
+msgid "Total Requests"
+msgstr "總請求數"
+
+#: src/labels.h:74
+msgid "Static Files"
+msgstr "靜態檔案"
+
+#: src/labels.h:75 src/labels.h:160
+msgid "Not Found"
+msgstr "找不到"
+
+#: src/labels.h:76
+msgid "Requested Files"
+msgstr "請求的檔案"
+
+#: src/labels.h:77
+msgid "Unique Visitors"
+msgstr "不重複訪客"
+
+#: src/labels.h:78
+msgid "Valid Requests"
+msgstr "有效請求"
+
+#: src/labels.h:81
+msgid "Hits"
+msgstr "命中數"
+
+#: src/labels.h:82
+msgid "h%"
+msgstr "命中佔比"
+
+#: src/labels.h:83 src/labels.h:111
+msgid "Visitors"
+msgstr "訪客"
+
+#: src/labels.h:84
+msgid "Vis."
+msgstr "訪客"
+
+#: src/labels.h:85
+msgid "v%"
+msgstr "訪客佔比"
+
+#: src/labels.h:87
+msgid "tx%"
+msgstr "傳輸佔比"
+
+#: src/labels.h:88
+msgid "Avg. T.S."
+msgstr "平均耗時"
+
+#: src/labels.h:89
+msgid "Cum. T.S."
+msgstr "累計耗時"
+
+#: src/labels.h:90
+msgid "Max. T.S."
+msgstr "最大耗時"
+
+#: src/labels.h:91
+msgid "Method"
+msgstr "請求方法"
+
+#: src/labels.h:92
+msgid "Mtd"
+msgstr "方法"
+
+#: src/labels.h:93
+msgid "Protocol"
+msgstr "通訊協定"
+
+#: src/labels.h:94
+msgid "Proto"
+msgstr "協定"
+
+#: src/labels.h:95
+msgid "City"
+msgstr "城市"
+
+#: src/labels.h:96 src/labels.h:212 src/labels.h:216
+msgid "ASN"
+msgstr "ASN"
+
+#: src/labels.h:97
+msgid "Country"
+msgstr "國家"
+
+#: src/labels.h:98
+msgid "Hostname"
+msgstr "主機名稱"
+
+#: src/labels.h:99
+msgid "Data"
+msgstr "資料"
+
+#: src/labels.h:101
+msgid "Hits/Visitors"
+msgstr "命中/訪客"
+
+#: src/labels.h:105
+msgid "Unique visitors per day"
+msgstr "每日不重複訪客"
+
+#: src/labels.h:107
+msgid "Unique visitors per day - Including spiders"
+msgstr "每日不重複訪客 - 含爬蟲"
+
+#: src/labels.h:109
+msgid "Hits having the same IP, date and agent are a unique visit."
+msgstr "相同 IP、日期及使用者代理的命中視為一次造訪。"
+
+#: src/labels.h:114
+msgid "Requested Files (URLs)"
+msgstr "請求的檔案 (URL)"
+
+#: src/labels.h:116
+msgid "Top requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr "依命中數排序的熱門請求 [, 平均耗時, 累計耗時, 最大耗時, 方法, 協定]"
+
+#: src/labels.h:118
+msgid "Requests"
+msgstr "請求"
+
+#: src/labels.h:121 src/labels.h:125
+msgid "Static Requests"
+msgstr "靜態請求"
+
+#: src/labels.h:123
+msgid "Top static requests sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"依命中數排序的熱門靜態請求 [, 平均耗時, 累計耗時, 最大耗時, 方法, 協定]"
+
+#: src/labels.h:128
+msgid "Time Distribution"
+msgstr "時間分佈"
+
+#: src/labels.h:130
+msgid "Data sorted by hour [, avgts, cumts, maxts]"
+msgstr "依小時排序的資料 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:132
+msgid "Time"
+msgstr "時間"
+
+#: src/labels.h:135 src/labels.h:139
+msgid "Virtual Hosts"
+msgstr "虛擬主機"
+
+#: src/labels.h:137 src/labels.h:144 src/labels.h:151
+msgid "Data sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的資料 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:142
+msgid "Remote User (HTTP authentication)"
+msgstr "遠端使用者 (HTTP 驗證)"
+
+#: src/labels.h:146
+msgid "Remote User"
+msgstr "遠端使用者"
+
+#: src/labels.h:149
+msgid "The cache status of the object served"
+msgstr "所提供物件的快取狀態"
+
+#: src/labels.h:153
+msgid "Cache Status"
+msgstr "快取狀態"
+
+#: src/labels.h:156
+msgid "Not Found URLs (404s)"
+msgstr "找不到的 URL (404)"
+
+#: src/labels.h:158
+msgid "Top not found URLs sorted by hits [, avgts, cumts, maxts, mthd, proto]"
+msgstr ""
+"依命中數排序的熱門 404 URL [, 平均耗時, 累計耗時, 最大耗時, 方法, 協定]"
+
+#: src/labels.h:163
+msgid "Visitor Hostnames and IPs"
+msgstr "訪客主機名稱與 IP"
+
+#: src/labels.h:165
+msgid "Top visitor hosts sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門訪客主機 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:167
+msgid "Hosts"
+msgstr "主機"
+
+#: src/labels.h:170
+msgid "Operating Systems"
+msgstr "作業系統"
+
+#: src/labels.h:172
+msgid "Top Operating Systems sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門作業系統 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:174
+msgid "OS"
+msgstr "作業系統"
+
+#: src/labels.h:177 src/labels.h:181
+msgid "Browsers"
+msgstr "瀏覽器"
+
+#: src/labels.h:179
+msgid "Top Browsers sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門瀏覽器 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:184
+msgid "Referrer URLs"
+msgstr "來源 URL"
+
+#: src/labels.h:186
+msgid "Top Requested Referrers sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門來源頁面 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:191 src/labels.h:195
+msgid "Referring Sites"
+msgstr "來源網站"
+
+#: src/labels.h:193
+msgid "Top Referring Sites sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門來源網站 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:198
+msgid "Keyphrases from Google's search engine"
+msgstr "來自 Google 搜尋引擎的關鍵字"
+
+#: src/labels.h:200
+msgid "Top Keyphrases sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門關鍵字 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:202
+msgid "Keyphrases"
+msgstr "關鍵字"
+
+#: src/labels.h:205 src/labels.h:209
+msgid "Geo Location"
+msgstr "地理位置"
+
+#: src/labels.h:207
+msgid "Continent > Country sorted by unique hits [, avgts, cumts, maxts]"
+msgstr "依不重複命中排序的洲 > 國家 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:214
+msgid "Autonomous System Numbers/Organizations (ASNs)"
+msgstr "自治系統號碼/組織 (ASN)"
+
+#: src/labels.h:219
+msgid "HTTP Status Codes"
+msgstr "HTTP 狀態碼"
+
+#: src/labels.h:221
+msgid "Top HTTP Status Codes sorted by hits [, avgts, cumts, maxts]"
+msgstr "依命中數排序的熱門 HTTP 狀態碼 [, 平均耗時, 累計耗時, 最大耗時]"
+
+#: src/labels.h:223
+msgid "Status Codes"
+msgstr "狀態碼"
+
+#: src/labels.h:226 src/labels.h:230
+msgid "MIME Types"
+msgstr "MIME 類型"
+
+#: src/labels.h:228
+msgid "File types shipped out"
+msgstr "送出的檔案類型"
+
+#: src/labels.h:233
+msgid "Encryption settings"
+msgstr "加密設定"
+
+#: src/labels.h:235
+msgid "TLS version and picked algorithm"
+msgstr "TLS 版本及選用的演算法"
+
+#: src/labels.h:237
+msgid "TLS Settings"
+msgstr "TLS 設定"
+
+#: src/labels.h:241
+msgid "[ ] case sensitive"
+msgstr "[ ] 區分大小寫"
+
+#: src/labels.h:243
+msgid "[x] case sensitive"
+msgstr "[x] 區分大小寫"
+
+#: src/labels.h:245
+msgid "Regex allowed - ^g to cancel - TAB switch case"
+msgstr "允許正規表示式 - ^g 取消 - TAB 切換區分大小寫"
+
+#: src/labels.h:247
+msgid "Find pattern in all views"
+msgstr "在所有檢視中尋找模式"
+
+#: src/labels.h:251
+msgid "Log Format Configuration"
+msgstr "日誌格式設定"
+
+#: src/labels.h:253
+msgid "[SPACE] to toggle - [ENTER] to proceed - [q] to quit"
+msgstr "[空白鍵] 切換 - [Enter] 繼續 - [q] 離開"
+
+#: src/labels.h:255
+msgid "Log Format - [c] to add/edit format"
+msgstr "日誌格式 - [c] 新增/編輯格式"
+
+#: src/labels.h:257
+msgid "Date Format - [d] to add/edit format"
+msgstr "日期格式 - [d] 新增/編輯格式"
+
+#: src/labels.h:259
+msgid "Time Format - [t] to add/edit format"
+msgstr "時間格式 - [t] 新增/編輯格式"
+
+#: src/labels.h:261 src/labels.h:265
+msgid "[UP/DOWN] to scroll - [q] to close window"
+msgstr "[↑/↓] 捲動 - [q] 關閉視窗"
+
+#: src/labels.h:267
+#, c-format
+msgid "User Agents for %1$s"
+msgstr "%1$s 的使用者代理程式"
+
+#: src/labels.h:271
+msgid "Scheme Configuration"
+msgstr "配色方案設定"
+
+#: src/labels.h:273
+msgid "[ENTER] to use scheme - [q]uit"
+msgstr "[Enter] 使用方案 - [q] 離開"
+
+#: src/labels.h:277
+msgid "Sort active module by"
+msgstr "目前模組排序方式"
+
+#: src/labels.h:279
+msgid "[ENTER] select - [TAB] sort - [q]uit"
+msgstr "[Enter] 選擇 - [TAB] 排序 - [q] 離開"
+
+#: src/labels.h:283
+msgid "GoAccess Quick Help"
+msgstr "GoAccess 快速說明"
+
+#: src/labels.h:285
+msgid "[UP/DOWN] to scroll - [q] to quit"
+msgstr "[↑/↓] 捲動 - [q] 離開"
+
+#: src/labels.h:289
+msgid "In-Memory with On-Disk Persistent Storage."
+msgstr "記憶體處理搭配磁碟持久儲存。"
+
+#: src/labels.h:293
+msgid "Format Errors - Verify your log/date/time format"
+msgstr "格式錯誤 - 請確認日誌/日期/時間格式"
+
+#: src/labels.h:295
+msgid "Use --invalid-requests option to store such lines in a file."
+msgstr "請使用 --invalid-requests 選項將這些行儲存至檔案。"
+
+#: src/labels.h:297
+msgid "No date format was found on your conf file."
+msgstr "在設定檔中找不到日期格式。"
+
+#: src/labels.h:299
+msgid "No log format was found on your conf file."
+msgstr "在設定檔中找不到日誌格式。"
+
+#: src/labels.h:301
+msgid "No time format was found on your conf file."
+msgstr "在設定檔中找不到時間格式。"
+
+#: src/labels.h:303
+msgid "No default config file found."
+msgstr "找不到預設設定檔。"
+
+#: src/labels.h:305
+msgid "You may specify one with"
+msgstr "可以透過以下方式指定"
+
+#: src/labels.h:307
+msgid "producing the following errors"
+msgstr "產生以下錯誤"
+
+#: src/labels.h:309
+#, c-format
+msgid "Parsed %1$d lines"
+msgstr "已解析 %1$d 行"
+
+#: src/labels.h:311
+msgid "Please report it by opening an issue on GitHub"
+msgstr "請在 GitHub 上開啟 issue 回報此問題"
+
+#: src/labels.h:313
+msgid "Select a time format."
+msgstr "請選擇時間格式。"
+
+#: src/labels.h:315
+msgid "Select a date format."
+msgstr "請選擇日期格式。"
+
+#: src/labels.h:317
+msgid "Select a log format."
+msgstr "請選擇日誌格式。"
+
+#: src/labels.h:319
+#, c-format
+msgid "'%1$s' panel is disabled"
+msgstr "'%1$s' 面板已停用"
+
+#: src/labels.h:321
+msgid "No input data was provided nor there's data to restore."
+msgstr "未提供輸入資料，也沒有可還原的資料。"
+
+#: src/labels.h:323
+msgid "Unable to allocate memory for a log instance."
+msgstr "無法為日誌實例分配記憶體。"
+
+#: src/labels.h:325
+msgid "Unable to find the given log."
+msgstr "找不到指定的日誌。"
+
+#: src/labels.h:329
+msgid "For more details visit"
+msgstr "更多詳細資訊請造訪"
+
+#: src/labels.h:331
+msgid "Last Updated"
+msgstr "最後更新"
+
+#: src/labels.h:333
+msgid "WebSocket server ready to accept new client connections"
+msgstr "WebSocket 伺服器已準備好接受新的用戶端連線"
+
+#: src/labels.h:336
+msgid "The following options can also be supplied to the command"
+msgstr "以下選項也可提供給此命令"
+
+#: src/labels.h:338
+msgid "Examples can be found by running"
+msgstr "可透過執行以下命令檢視範例"
+
+#: src/labels.h:341
+msgid "Server Statistics"
+msgstr "伺服器統計"
+
+#: src/labels.h:343
+msgid "Theme"
+msgstr "佈景主題"
+
+#: src/labels.h:345
+msgid "Dark Gray"
+msgstr "深灰"
+
+#: src/labels.h:347
+msgid "Bright"
+msgstr "明亮"
+
+#: src/labels.h:349
+msgid "Dark Blue"
+msgstr "深藍"
+
+#: src/labels.h:351
+msgid "Dark Purple"
+msgstr "深紫"
+
+#: src/labels.h:353
+msgid "Panels"
+msgstr "面板"
+
+#: src/labels.h:355
+msgid "Items per Page"
+msgstr "每頁筆數"
+
+#: src/labels.h:357
+msgid "Tables"
+msgstr "表格"
+
+#: src/labels.h:359
+msgid "Display Tables"
+msgstr "顯示表格"
+
+#: src/labels.h:361
+msgid "Auto-Hide on Small Devices"
+msgstr "小螢幕裝置自動隱藏"
+
+#: src/labels.h:363
+msgid "Automatically hide tables on small screen devices"
+msgstr "在小螢幕裝置上自動隱藏表格"
+
+#: src/labels.h:365
+msgid "Toggle Panel"
+msgstr "切換面板"
+
+#: src/labels.h:367
+msgid "Layout"
+msgstr "版面配置"
+
+#: src/labels.h:369
+msgid "Horizontal"
+msgstr "水平"
+
+#: src/labels.h:371
+msgid "Vertical"
+msgstr "垂直"
+
+#: src/labels.h:373
+msgid "WideScreen"
+msgstr "寬螢幕"
+
+#: src/labels.h:375
+msgid "File Options"
+msgstr "檔案選項"
+
+#: src/labels.h:377
+msgid "Export as JSON"
+msgstr "匯出為 JSON"
+
+#: src/labels.h:379
+msgid "Panel Options"
+msgstr "面板選項"
+
+#: src/labels.h:381
+msgid "Previous"
+msgstr "上一頁"
+
+#: src/labels.h:383
+msgid "Next"
+msgstr "下一頁"
+
+#: src/labels.h:385
+msgid "First"
+msgstr "第一頁"
+
+#: src/labels.h:387
+msgid "Last"
+msgstr "最後一頁"
+
+#: src/labels.h:389
+msgid "Chart Options"
+msgstr "圖表選項"
+
+#: src/labels.h:391
+msgid "Chart"
+msgstr "圖表"
+
+#: src/labels.h:393
+msgid "Type"
+msgstr "類型"
+
+#: src/labels.h:395
+msgid "Area Spline"
+msgstr "區域曲線圖"
+
+#: src/labels.h:397
+msgid "Bar"
+msgstr "長條圖"
+
+#: src/labels.h:399
+msgid "World Map"
+msgstr "世界地圖"
+
+#: src/labels.h:401
+msgid "Azimuthal/Globe"
+msgstr "方位投影/地球儀"
+
+#: src/labels.h:403
+msgid "Plot Metric"
+msgstr "繪圖指標"
+
+#: src/labels.h:405
+msgid "Table Columns"
+msgstr "表格欄位"
+
+#: src/labels.h:409
+msgid "0xx Unofficial Codes"
+msgstr "0xx 非官方狀態碼"
+
+#: src/labels.h:411
+msgid "1xx Informational"
+msgstr "1xx 資訊回應"
+
+#: src/labels.h:413
+msgid "2xx Success"
+msgstr "2xx 成功"
+
+#: src/labels.h:415
+msgid "3xx Redirection"
+msgstr "3xx 重新導向"
+
+#: src/labels.h:417
+msgid "4xx Client Errors"
+msgstr "4xx 用戶端錯誤"
+
+#: src/labels.h:419
+msgid "5xx Server Errors"
+msgstr "5xx 伺服器錯誤"
+
+#: src/labels.h:422
+msgid "0 - Caddy: Unhandled - No configured routes"
+msgstr "0 - Caddy：未處理 - 未設定路由"
+
+#: src/labels.h:424
+msgid "100 - Continue: Server received the initial part of the request"
+msgstr "100 - 繼續：伺服器已收到請求的起始部分"
+
+#: src/labels.h:426
+msgid "101 - Switching Protocols: Client asked to switch protocols"
+msgstr "101 - 切換通訊協定：用戶端要求切換通訊協定"
+
+#: src/labels.h:428
+msgid "200 - OK: The request sent by the client was successful"
+msgstr "200 - 成功：用戶端的請求已成功處理"
+
+#: src/labels.h:430
+msgid "201 - Created: The request has been fulfilled and created"
+msgstr "201 - 已建立：請求已完成並建立資源"
+
+#: src/labels.h:432
+msgid "202 - Accepted: The request has been accepted for processing"
+msgstr "202 - 已接受：請求已被接受處理"
+
+#: src/labels.h:434
+msgid "203 - Non-authoritative Information: Response from a third party"
+msgstr "203 - 非權威資訊：來自第三方的回應"
+
+#: src/labels.h:436
+msgid "204 - No Content: Request did not return any content"
+msgstr "204 - 無內容：請求未傳回任何內容"
+
+#: src/labels.h:438
+msgid "205 - Reset Content: Server asked the client to reset the document"
+msgstr "205 - 重設內容：伺服器要求用戶端重設文件"
+
+#: src/labels.h:440
+msgid "206 - Partial Content: The partial GET has been successful"
+msgstr "206 - 部分內容：部分 GET 請求成功"
+
+#: src/labels.h:442
+msgid "207 - Multi-Status: WebDAV; RFC 4918"
+msgstr "207 - 多重狀態：WebDAV; RFC 4918"
+
+#: src/labels.h:444
+msgid "208 - Already Reported: WebDAV; RFC 5842"
+msgstr "208 - 已回報：WebDAV; RFC 5842"
+
+#: src/labels.h:446
+msgid "218 - This is fine: Apache servers. A catch-all error condition"
+msgstr "218 - 正常：Apache 伺服器。涵蓋所有情況的錯誤狀態"
+
+#: src/labels.h:448
+msgid "300 - Multiple Choices: Multiple options for the resource"
+msgstr "300 - 多重選擇：資源有多個選項"
+
+#: src/labels.h:450
+msgid "301 - Moved Permanently: Resource has permanently moved"
+msgstr "301 - 永久移動：資源已永久移動"
+
+#: src/labels.h:452
+msgid "302 - Moved Temporarily (redirect)"
+msgstr "302 - 暫時移動 (重新導向)"
+
+#: src/labels.h:454
+msgid "303 - See Other Document: The response is at a different URI"
+msgstr "303 - 檢視其他文件：回應位於不同的 URI"
+
+#: src/labels.h:456
+msgid "304 - Not Modified: Resource has not been modified"
+msgstr "304 - 未修改：資源未被修改"
+
+#: src/labels.h:458
+msgid "305 - Use Proxy: Can only be accessed through the proxy"
+msgstr "305 - 使用 Proxy：只能透過 Proxy 存取"
+
+#: src/labels.h:460
+msgid "307 - Temporary Redirect: Resource temporarily moved"
+msgstr "307 - 暫時重新導向：資源暫時移動"
+
+#: src/labels.h:462
+msgid "308 - Permanent Redirect"
+msgstr "308 - 永久重新導向"
+
+#: src/labels.h:464
+msgid "400 - Bad Request: The syntax of the request is invalid"
+msgstr "400 - 錯誤請求：請求語法無效"
+
+#: src/labels.h:466
+msgid "401 - Unauthorized: Request needs user authentication"
+msgstr "401 - 未授權：請求需要使用者驗證"
+
+#: src/labels.h:468
+msgid "402 - Payment Required"
+msgstr "402 - 需要付款"
+
+#: src/labels.h:470
+msgid "403 - Forbidden: Server is refusing to respond to it"
+msgstr "403 - 禁止存取：伺服器拒絕回應"
+
+#: src/labels.h:472
+msgid "404 - Not Found: Requested resource could not be found"
+msgstr "404 - 找不到：找不到請求的資源"
+
+#: src/labels.h:474
+msgid "405 - Method Not Allowed: Request method not supported"
+msgstr "405 - 方法不允許：不支援此請求方法"
+
+#: src/labels.h:476
+msgid "406 - Not Acceptable"
+msgstr "406 - 無法接受"
+
+#: src/labels.h:478
+msgid "407 - Proxy Authentication Required"
+msgstr "407 - 需要 Proxy 驗證"
+
+#: src/labels.h:480
+msgid "408 - Request Timeout: Server timed out waiting for the request"
+msgstr "408 - 請求逾時：伺服器等候請求逾時"
+
+#: src/labels.h:482
+msgid "409 - Conflict: Conflict in the request"
+msgstr "409 - 衝突：請求中存在衝突"
+
+#: src/labels.h:484
+msgid "410 - Gone: Resource requested is no longer available"
+msgstr "410 - 已消失：請求的資源已無法使用"
+
+#: src/labels.h:486
+msgid "411 - Length Required: Invalid Content-Length"
+msgstr "411 - 需要長度：無效的 Content-Length"
+
+#: src/labels.h:488
+msgid "412 - Precondition Failed: Server does not meet preconditions"
+msgstr "412 - 先決條件失敗：伺服器不符合先決條件"
+
+#: src/labels.h:490
+msgid "413 - Payload Too Large"
+msgstr "413 - 承載內容過大"
+
+#: src/labels.h:492
+msgid "414 - Request-URI Too Long"
+msgstr "414 - 請求 URI 過長"
+
+#: src/labels.h:494
+msgid "415 - Unsupported Media Type: Media type is not supported"
+msgstr "415 - 不支援的媒體類型：不支援此媒體類型"
+
+#: src/labels.h:496
+msgid "416 - Requested Range Not Satisfiable: Cannot supply that portion"
+msgstr "416 - 請求範圍無法滿足：無法提供指定部分"
+
+#: src/labels.h:498
+msgid "417 - Expectation Failed"
+msgstr "417 - 預期失敗"
+
+#: src/labels.h:500
+msgid "418 - I'm a teapot"
+msgstr "418 - 我是茶壺"
+
+#: src/labels.h:502
+msgid "419 - Page Expired: Laravel Framework when a CSRF Token is missing"
+msgstr "419 - 頁面過期：Laravel 框架中缺少 CSRF Token"
+
+#: src/labels.h:504
+msgid "420 - Method Failure: Spring Framework when a method has failed"
+msgstr "420 - 方法失敗：Spring 框架中方法執行失敗"
+
+#: src/labels.h:506
+msgid "421 - Misdirected Request"
+msgstr "421 - 錯誤導向的請求"
+
+#: src/labels.h:508
+msgid "422 - Unprocessable Entity due to semantic errors: WebDAV"
+msgstr "422 - 因語意錯誤而無法處理的實體：WebDAV"
+
+#: src/labels.h:510
+msgid "423 - The resource that is being accessed is locked"
+msgstr "423 - 存取的資源已被鎖定"
+
+#: src/labels.h:512
+msgid "424 - Failed Dependency: WebDAV"
+msgstr "424 - 相依性失敗：WebDAV"
+
+#: src/labels.h:514
+msgid "426 - Upgrade Required: Client should switch to a different protocol"
+msgstr "426 - 需要升級：用戶端應切換通訊協定"
+
+#: src/labels.h:516
+msgid "428 - Precondition Required"
+msgstr "428 - 需要先決條件"
+
+#: src/labels.h:518
+msgid "429 - Too Many Requests: The user has sent too many requests"
+msgstr "429 - 請求過多：傳送了太多請求"
+
+#: src/labels.h:520
+msgid ""
+"430 - Request Header Fields Too Large: Too many URLs are requested within a "
+"certain time frame"
+msgstr ""
+"430 - 請求標頭欄位過大：在特定時間範圍內請求了"
+"太多 URL"
+
+#: src/labels.h:522
+msgid "431 - Request Header Fields Too Large"
+msgstr "431 - 請求標頭欄位過大"
+
+#: src/labels.h:524
+msgid "440 - Login Time-out: The client's session has expired"
+msgstr "440 - 登入逾時：用戶端工作階段已過期"
+
+#: src/labels.h:526
+msgid "449 - Retry With: The server cannot honour the request"
+msgstr "449 - 請重試：伺服器無法處理此請求"
+
+#: src/labels.h:528
+msgid ""
+"450 - Blocked by Windows Parental Controls: The Microsoft extension code "
+"indicated"
+msgstr ""
+"450 - 被 Windows 家長監護功能封鎖：由 Microsoft"
+" 擴充狀態碼表示"
+
+#: src/labels.h:530
+msgid "451 - Unavailable For Legal Reasons"
+msgstr "451 - 因法律原因無法使用"
+
+#: src/labels.h:532
+msgid "444 - (Nginx) Connection closed without sending any headers"
+msgstr "444 - (Nginx) 連線關閉且未傳送任何標頭"
+
+#: src/labels.h:534
+msgid "460 - AWS Elastic Load Balancing: Client closed the connection "
+msgstr "460 - AWS Elastic Load Balancing：用戶端關閉連線 "
+
+#: src/labels.h:536
+msgid ""
+"463 - AWS Elastic Load Balancing: The load balancer received more than 30 IP "
+"addresses"
+msgstr ""
+"463 - AWS Elastic Load Balancing：負載平衡器收到超過 30 個"
+" IP 位址"
+
+#: src/labels.h:538
+msgid "464 - AWS Elastic Load Balancing: Incompatible protocol versions"
+msgstr "464 - AWS Elastic Load Balancing：不相容的通訊協定版本"
+
+#: src/labels.h:540
+msgid "494 - (Nginx) Request Header Too Large"
+msgstr "494 - (Nginx) 請求標頭過大"
+
+#: src/labels.h:542
+msgid "495 - (Nginx) SSL client certificate error"
+msgstr "495 - (Nginx) SSL 用戶端憑證錯誤"
+
+#: src/labels.h:544
+msgid "496 - (Nginx) Client didn't provide certificate"
+msgstr "496 - (Nginx) 用戶端未提供憑證"
+
+#: src/labels.h:546
+msgid "497 - (Nginx) HTTP request sent to HTTPS port"
+msgstr "497 - (Nginx) HTTP 請求傳送至 HTTPS 連接埠"
+
+#: src/labels.h:548
+msgid "498 - Invalid Token: an expired or otherwise invalid token"
+msgstr "498 - 無效的 Token：已過期或無效的 Token"
+
+#: src/labels.h:550
+msgid "499 - (Nginx) Connection closed by client while processing request"
+msgstr "499 - (Nginx) 處理請求時用戶端關閉連線"
+
+#: src/labels.h:552
+msgid "500 - Internal Server Error"
+msgstr "500 - 伺服器內部錯誤"
+
+#: src/labels.h:554
+msgid "501 - Not Implemented"
+msgstr "501 - 未實作"
+
+#: src/labels.h:556
+msgid "502 - Bad Gateway: Received an invalid response from the upstream"
+msgstr "502 - 閘道錯誤：從上游收到無效回應"
+
+#: src/labels.h:558
+msgid "503 - Service Unavailable: The server is currently unavailable"
+msgstr "503 - 服務無法使用：伺服器目前無法使用"
+
+#: src/labels.h:560
+msgid "504 - Gateway Timeout: The upstream server failed to send request"
+msgstr "504 - 閘道逾時：上游伺服器未能傳送請求"
+
+#: src/labels.h:562
+msgid "505 - HTTP Version Not Supported"
+msgstr "505 - 不支援的 HTTP 版本"
+
+#: src/labels.h:564
+msgid "509 - Bandwidth Limit Exceeded: The server has exceeded the bandwidth"
+msgstr "509 - 超出頻寬限制：伺服器已超出頻寬"
+
+#: src/labels.h:566
+msgid "520 - CloudFlare - Web server is returning an unknown error"
+msgstr "520 - CloudFlare - 網頁伺服器傳回未知錯誤"
+
+#: src/labels.h:568
+msgid "521 - CloudFlare - Web server is down"
+msgstr "521 - CloudFlare - 網頁伺服器已停機"
+
+#: src/labels.h:570
+msgid "522 - CloudFlare - Connection timed out"
+msgstr "522 - CloudFlare - 連線逾時"
+
+#: src/labels.h:572
+msgid "523 - CloudFlare - Origin is unreachable"
+msgstr "523 - CloudFlare - 來源伺服器無法連線"
+
+#: src/labels.h:574
+msgid "524 - CloudFlare - A timeout occurred"
+msgstr "524 - CloudFlare - 發生逾時"
+
+#: src/labels.h:576
+msgid ""
+"525 - SSL Handshake Failed: Cloudflare could not negotiate a SSL/TLS "
+"handshake"
+msgstr ""
+"525 - SSL 交握失敗：Cloudflare 無法協商 SSL/TLS"
+" 交握"
+
+#: src/labels.h:578
+msgid ""
+"526 - Invalid SSL Certificate: Cloudflare could not validate the SSL "
+"certificate"
+msgstr ""
+"526 - 無效的 SSL 憑證：Cloudflare 無法驗證"
+" SSL 憑證"
+
+#: src/labels.h:580
+msgid "527 - Railgun Error: An interrupted connection"
+msgstr "527 - Railgun 錯誤：連線中斷"
+
+#: src/labels.h:582
+msgid "529 - Site is overloaded: A site can not process the request"
+msgstr "529 - 網站過載：網站無法處理此請求"
+
+#: src/labels.h:584
+msgid "530 - Site is frozen: A site has been frozen due to inactivity"
+msgstr "530 - 網站凍結：網站因閒置而被凍結"
+
+#: src/labels.h:586
+msgid ""
+"540 - Temporarily Disabled: The requested endpoint has been temporarily "
+"disabled"
+msgstr ""
+"540 - 暫時停用：請求的端點已被暫時"
+"停用"
+
+#: src/labels.h:588
+msgid "561 - Unauthorized: An error around authentication"
+msgstr "561 - 未授權：驗證相關錯誤"
+
+#: src/labels.h:590
+msgid ""
+"598 - Network read timeout error: some HTTP proxies to signal a network read "
+"timeout"
+msgstr ""
+"598 - 網路讀取逾時錯誤：部分 HTTP Proxy 回報網路"
+"讀取逾時"
+
+#: src/labels.h:592
+msgid "599 - Network Connect Timeout Error: An error used by some HTTP proxies"
+msgstr "599 - 網路連線逾時錯誤：部分 HTTP Proxy 使用的錯誤"
+
+#: src/labels.h:594
+msgid "783 - Unexpected Token: The request includes a JSON syntax error"
+msgstr "783 - 非預期的 Token：請求包含 JSON 語法錯誤"
+
+#: src/labels.h:598
+msgid "Menu"
+msgstr "選單"
+
+#: src/labels.h:600
+msgid "Settings"
+msgstr "設定"
+
+#: src/labels.h:602
+msgid "WebSocket Status: Connected"
+msgstr "WebSocket 狀態：已連線"
+
+#: src/labels.h:604
+msgid "WebSocket Status: Disconnected"
+msgstr "WebSocket 狀態：已斷線"
