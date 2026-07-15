@@ -154,6 +154,7 @@ const httpmethods http_methods[] = {
   { "CONNECT"          , 7  } ,
   { "PATCH"            , 5  } ,
   { "SEARCH"           , 6  } ,
+  { "QUERY"            , 5  } ,
   /* WebDav */
   { "PROPFIND"         , 8  } ,
   { "PROPPATCH"        , 9  } ,
