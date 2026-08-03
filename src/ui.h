@@ -158,6 +158,7 @@ typedef struct {
   int state;
   bool curses;
   uint64_t processed;
+  uint64_t total;
   int64_t elapsed_sec;
   const char *filename;
 } SpinnerSnapshot;
@@ -193,6 +194,9 @@ typedef struct GSpinner_ {
   pthread_mutex_t mutex;
   pthread_t thread;
   uint64_t **processed;
+  uint64_t progress;
+  uint64_t total;
+  int determinate;
   char **filename;
   time_t start_time;
   WINDOW *win;
@@ -240,6 +244,7 @@ void init_colors (int force);
 void init_windows (WINDOW ** header_win, WINDOW ** main_win);
 void lock_spinner (void);
 void set_curses_spinner (GSpinner * spinner);
+void set_spinner_progress (const char *label, uint64_t processed, uint64_t total);
 void set_input_opts (void);
 void set_wbkgd (WINDOW * main_win, WINDOW * header_win);
 void term_size (WINDOW * main_win, int *main_win_height);
