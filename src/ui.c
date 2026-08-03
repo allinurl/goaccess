@@ -836,14 +836,18 @@ snapshot_state (GSpinner *sp) {
   snap.state = sp->state;
   snap.curses = sp->curses;
 
-  if (sp->processed && *(sp->processed)) {
+  if (sp->determinate) {
+    snap.processed = sp->progress;
+    snap.total = sp->total;
+  } else if (sp->processed && *(sp->processed)) {
     snap.processed = **(sp->processed);
   } else {
     snap.processed = 0ULL;
   }
 
   snap.elapsed_sec = (time (NULL) - sp->start_time);
-  snap.filename = (sp->filename && *sp->filename) ? *sp->filename : "processing";
+  snap.filename = sp->determinate ? sp->label :
+    ((sp->filename && *sp->filename) ? *sp->filename : "processing");
 
   unlock_spinner ();
 
@@ -1000,7 +1004,12 @@ ui_spinner (void *ptr_data) {
       continue;
     }
 
-    format_stats (snap.processed, snap.elapsed_sec, stats, sizeof (stats));
+    if (snap.total) {
+      snprintf (stats, sizeof (stats), "%'" PRIu64 "/%'" PRIu64 " (%'" PRIu64 " pending)",
+                snap.processed, snap.total, snap.total - snap.processed);
+    } else {
+      format_stats (snap.processed, snap.elapsed_sec, stats, sizeof (stats));
+    }
 
     spin_idx = (spin_idx + 1) % 4;
 
@@ -1057,6 +1066,17 @@ void
 unlock_spinner (void) {
   if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
     pthread_mutex_unlock (&parsing_spinner->mutex);
+}
+
+/* Set a determinate spinner phase and its progress. */
+void
+set_spinner_progress (const char *label, uint64_t processed, uint64_t total) {
+  lock_spinner ();
+  parsing_spinner->label = label;
+  parsing_spinner->progress = processed;
+  parsing_spinner->total = total;
+  parsing_spinner->determinate = 1;
+  unlock_spinner ();
 }
 
 /* Initialize per-item expanded state for a module.
