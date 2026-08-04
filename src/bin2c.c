@@ -116,7 +116,7 @@ main (int argc, char *argv[]) {
   ident = argv[3];
   need_comma = 0;
 
-  fprintf (f_output, "const char %s[%lu] = {", ident, file_size);
+  fprintf (f_output, "const char %s[%zu] = {", ident, file_size);
   for (i = 0; i < file_size; ++i) {
     if (buf[i] == '\0') {
       fprintf (stderr,
@@ -134,7 +134,7 @@ main (int argc, char *argv[]) {
     fprintf (f_output, "0x%.2x", buf[i] & 0xff);
   }
   fprintf (f_output, "\n};\n\n");
-  fprintf (f_output, "const int %s_length = %lu;\n", ident, file_size);
+  fprintf (f_output, "const int %s_length = %zu;\n", ident, file_size);
 
 #ifdef USE_BZ2
   fprintf (f_output, "const int %s_length_uncompressed = %u;\n", ident, uncompressed_size);
