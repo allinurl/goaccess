@@ -96,4 +96,5 @@ typedef struct GDefMetric_ {
 
 void output_html (GHolder * holder, const char *filename);
 
+char *get_asset_filepath (const char *filename, const char *asset_fname);
 #endif
