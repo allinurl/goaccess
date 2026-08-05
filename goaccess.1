@@ -398,7 +398,9 @@ support colors.
 Disable summary metrics on the CSV output.
 .TP
 \fB\-\-no-progress
-Disable progress metrics [total requests/requests per second].
+Disable parsing and hostname resolution progress metrics. Parsing progress
+shows total requests and requests per second. Hostname resolution progress
+shows resolved, total and pending hostnames.
 .TP
 \fB\-\-no-tab-scroll
 Disable scrolling through panels when TAB is pressed or when a panel is
@@ -408,7 +410,7 @@ selected using a numeric key.
 Do not show the last updated field displayed in the HTML generated report.
 .TP
 \fB\-\-no-parsing-spinner
-Do now show the progress metrics and parsing spinner.
+Do not show the progress metrics or the parsing spinner.
 .TP
 \fB\-\-tz=<timezone>
 Outputs the report date/time data in the given timezone. Note that it uses the
@@ -729,7 +731,8 @@ Enable a list of user-agents by host. For faster parsing, do not enable this
 flag.
 .TP
 \fB\-d \-\-with-output-resolver
-Enable IP resolver on HTML|JSON output.
+Enable IP resolver on HTML|JSON|CSV output. Hostname resolution progress is
+shown unless progress metrics are disabled.
 .TP
 \fB\-e \-\-exclude-ip=<IP|IP-range>
 Exclude an IPv4 or IPv6 from being counted. Applicable solely during access log

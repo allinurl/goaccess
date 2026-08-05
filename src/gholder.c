@@ -41,6 +41,7 @@
 #include "gdns.h"
 #include "gkhash.h"
 #include "gstorage.h"
+#include "ui.h"
 #include "util.h"
 #include "xmalloc.h"
 
@@ -360,21 +361,28 @@ set_host_child_metrics (char *data, uint8_t id, GMetrics **nmetrics) {
   return 0;
 }
 
+static int
+is_static_output_resolver (void) {
+  return conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
+    !conf.real_time_html;
+}
+
 /* Set host panel data, including sub items.
  *
  * On success, the host panel data is set. */
 static void
 set_host_sub_list (GHolder *h, GSubList *sub_list) {
-  GMetrics *nmetrics;
 #ifdef HAVE_GEOLOCATION
+  GMetrics *nmetrics;
   char city[CITY_LEN] = "";
   char continent[CONTINENT_LEN] = "";
   char country[ASN_LEN] = "";
   char asn[ASN_LEN] = "";
 #endif
 
-  char *host = h->items[h->idx].metrics->data, *hostname = NULL;
 #ifdef HAVE_GEOLOCATION
+  char *host = h->items[h->idx].metrics->data;
+
   /* add geolocation child nodes */
   set_geolocation (host, continent, country, city, asn);
 
@@ -410,17 +418,41 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
     /* flag only */
     conf.has_geoasn = 1;
   }
+#else
+  (void) h;
+  (void) sub_list;
 #endif
 
-  /* hostname */
-  if (conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
-      !conf.real_time_html && sub_list->size < h->max_choices_sub) {
-    hostname = reverse_ip (host);
+}
+
+static void
+resolve_holder_hostnames (GHolder *h) {
+  GMetrics *nmetrics;
+  GSubList *sub_list;
+  char *hostname;
+  uint32_t i, resolved = 0, total = 0;
+
+  for (i = 0; i < h->idx; i++) {
+    sub_list = h->items[i].sub_list;
+    if (sub_list == NULL || sub_list->size < h->max_choices_sub)
+      total++;
+  }
+
+  set_spinner_progress ("Resolving hostnames", 0, total);
+  for (i = 0; i < h->idx; i++) {
+    sub_list = h->items[i].sub_list;
+    if (sub_list != NULL && sub_list->size >= h->max_choices_sub)
+      continue;
+
+    hostname = reverse_ip (h->items[i].metrics->data);
+    if (sub_list == NULL)
+      sub_list = new_gsublist ();
     set_host_child_metrics (hostname, MTRC_ID_HOSTNAME, &nmetrics);
     add_sub_item_back (sub_list, h->module, nmetrics);
-    h->items[h->idx].sub_list = sub_list;
+    h->items[i].sub_list = sub_list;
     h->sub_items_size++;
     free (hostname);
+    set_spinner_progress ("Resolving hostnames", ++resolved, total);
   }
 }
 
@@ -438,6 +470,12 @@ add_host_child_to_holder (GHolder *h) {
 
   /* add child nodes */
   set_host_sub_list (h, sub_list);
+
+  if (is_static_output_resolver ()) {
+    if (n == h->sub_items_size)
+      free (sub_list);
+    return;
+  }
 
   pthread_mutex_lock (&gdns_thread.mutex);
   hostname = ht_get_hostname (ip);
@@ -868,6 +906,8 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, ui
   for (i = 0; i < h->holder_size; i++) {
     panel->insert (raw_data->items[i], h, raw_data->type, panel);
   }
+  if (module == HOSTS && is_static_output_resolver ())
+    resolve_holder_hostnames (h);
   sort_holder_items (h->items, h->idx, sort);
   if (h->sub_items_size)
     sort_sub_list (h, sort);
