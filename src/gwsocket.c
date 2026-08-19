@@ -242,7 +242,7 @@ onopen (WSPipeOut *pipeout, WSClient *client) {
 
 /* validate_token_message()
  *
- * Parses a JSON payload (assumed to be null-terminated) that should have
+ * Parses a payloadsz-long JSON payload that should have
  * the form: {"action":"validate_token","token":"..."}
  * If the action is "validate_token", the token is verified using verify_jwt_token().
  * If verification is successful, the client's stored JWT is updated.
@@ -254,7 +254,7 @@ onopen (WSPipeOut *pipeout, WSClient *client) {
  */
 #ifdef HAVE_LIBSSL
 static int
-validate_token_message (const char *payload, WSClient *client) {
+validate_token_message (const char *payload, size_t payloadsz, WSClient *client) {
   json_stream json;
   enum json_type t = JSON_ERROR;
   size_t len = 0, level = 0;
@@ -263,7 +263,7 @@ validate_token_message (const char *payload, WSClient *client) {
   char *action = NULL;
   char *token = NULL;
 
-  json_open_string (&json, payload);
+  json_open_buffer (&json, payload, payloadsz);
   json_set_streaming (&json, false);
 
   /* Expect a JSON object */
@@ -340,46 +340,24 @@ validate_token_message (const char *payload, WSClient *client) {
 }
 #endif
 
-/* onmessage()
+/*
+ * Entry point for incoming messages. Token validation is delegated to
+ * validate_token_message().
  *
- * Entry point for incoming messages. This function first checks if the message
- * is a text message and ensures that the payload is null-terminated (so JSON
- * parsing will work correctly). It then delegates token validation to
- * validate_token_message(). In the future, onmessage() may handle other message
- * types.
- */
+ * On success, 1 is returned when the client authenticated.
+ * On failure, -1 is returned. Otherwise, 0 is returned. */
 #ifdef HAVE_LIBSSL
 static int
 onmessage (GO_UNUSED WSPipeOut *pipeout, WSClient *client) {
-  int ret = 1;
-  char *payload = client->message->payload;
-  int allocated = 0;
+  WSMessage *message = client->message;
 
-  /* If this is a text message, ensure the payload is null-terminated.
-   * Binary frames should not be modified.
-   */
-  if (client->message->opcode == WS_OPCODE_TEXT) {
-    if (memchr (payload, '\0', client->message->payloadsz) == NULL) {
-      char *tmp = malloc (client->message->payloadsz + 1);
-      if (!tmp) {
-        LOG (("Memory allocation error for client %d [%s]\n", client->listener, client->remote_ip));
-        return -1;
-      }
-      memcpy (tmp, payload, client->message->payloadsz);
-      tmp[client->message->payloadsz] = '\0';
-      payload = tmp;
-      allocated = 1;
-    }
-  }
+  if (message->opcode != WS_OPCODE_TEXT)
+    return 0;
 
-  /* Delegate processing to validate_token_message().
-   * In the future, you can add additional branches for other message types.
-   */
-  ret = validate_token_message (payload, client);
+  if (message->payload == NULL || message->payloadsz <= 0)
+    return 0;
 
-  if (allocated)
-    free (payload);
-  return ret;
+  return validate_token_message (message->payload, (size_t) message->payloadsz, client);
 }
 #endif
 
