@@ -38,6 +38,7 @@
 #include <netinet/in.h>
 #include <limits.h>
 #include <poll.h>
+#include <time.h>
 
 #if HAVE_LIBSSL
 #include <openssl/crypto.h>
@@ -159,6 +160,8 @@ typedef enum WSOPCODE {
   WS_OPCODE_PONG = 0x0A,
 } WSOpcode;
 
+typedef int (*WSAuthCallback) (const char *jwt, const char *secret, time_t *expires_at);
+
 typedef struct WSQueue_ {
   char *queued;                 /* queue data */
   int qlen;                     /* queue length */
@@ -235,6 +238,7 @@ typedef struct WSClient_ {
   WSFrame *frame;               /* frame headers */
   WSMessage *message;           /* message */
   WSStatus status;              /* connection status */
+  time_t auth_expiry;           /* absolute JWT expiration time */
 
   struct timeval start_proc;
   struct timeval end_proc;
@@ -277,7 +281,7 @@ typedef struct WSConfig_ {
   const char *auth_secret;
 
   /* Function pointer for JWT verification */
-  int (*auth) (const char *jwt, const char *secret);
+  WSAuthCallback auth;
 
   int echomode;
   int strict;
@@ -330,7 +334,7 @@ void ws_set_config_sslcert (const char *sslcert);
 void ws_set_config_sslkey (const char *sslkey);
 void ws_set_config_strict (int strict);
 void ws_set_config_auth_secret (const char *auth_secret);
-void ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret));
+void ws_set_config_auth_cb (WSAuthCallback auth_cb);
 void ws_start (WSServer * server);
 void ws_stop (WSServer * server);
 WSServer *ws_init (const char *host, const char *port, void (*initopts) (void));

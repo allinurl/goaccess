@@ -40,10 +40,10 @@
 #include "commons.h"
 #include "error.h"
 #include "goaccess.h"
-#include "pdjson.h"
 #include "json.h"
 #include "settings.h"
 #include "websocket.h"
+#include "wsmessage.h"
 #include "wsauth.h"
 #include "xmalloc.h"
 
@@ -240,112 +240,77 @@ onopen (WSPipeOut *pipeout, WSClient *client) {
   return 0;
 }
 
-/* validate_token_message()
+/* Mark an authentication control message as failed and close its client. */
+#ifdef HAVE_LIBSSL
+static void
+reject_token_message (WSClient *client, const char *reason) {
+  LOG (("%s for client %d [%s]\n", reason, client->listener, client->remote_ip));
+  client->status = WS_ERR | WS_CLOSE;
+}
+#endif
+
+/* Validate a bounded token-control payload and update the client's JWT.
  *
- * Parses a payloadsz-long JSON payload that should have
- * the form: {"action":"validate_token","token":"..."}
- * If the action is "validate_token", the token is verified using verify_jwt_token().
- * If verification is successful, the client's stored JWT is updated.
- *
- * Returns:
- *   1 if the message was a token validation message and authentication succeeded.
- *   0 if the message is not a token validation message.
- *  -1 if an error occurs (including validation failure).
- */
+ * On success, 1 is returned and the verified token replaces the stored JWT.
+ * On failure, -1 is returned and the client is marked for closure.
+ * For an unrelated client message, 0 is returned. */
 #ifdef HAVE_LIBSSL
 static int
 validate_token_message (const char *payload, size_t payloadsz, WSClient *client) {
-  json_stream json;
-  enum json_type t = JSON_ERROR;
-  size_t len = 0, level = 0;
-  enum json_type ctx = JSON_ERROR;
-  char *curr_key = NULL;
-  char *action = NULL;
-  char *token = NULL;
+  WSTokenMessage message = { 0 };
+  WSTokenParseResult parsed = WS_TOKEN_PARSE_ERROR;
+  char *new_token = NULL;
+  time_t auth_expiry = 0;
 
-  json_open_buffer (&json, payload, payloadsz);
-  json_set_streaming (&json, false);
+  parsed = ws_parse_token_message (payload, payloadsz, &message);
 
-  /* Expect a JSON object */
-  t = json_next (&json);
-  if (t != JSON_OBJECT) {
-    json_close (&json);
+  if (parsed == WS_TOKEN_PARSE_ERROR) {
+    reject_token_message (client, "Malformed WebSocket control message");
+    ws_free_token_message (&message);
     return -1;
   }
 
-  /* Iterate over the JSON tokens */
-  while ((t = json_next (&json)) != JSON_DONE && t != JSON_ERROR) {
-    ctx = json_get_context (&json, &level);
-    /* When (level % 2) != 0 and not in an array, the token is a key */
-    if ((level % 2) != 0 && ctx != JSON_ARRAY) {
-      if (curr_key)
-        free (curr_key);
-      curr_key = xstrdup (json_get_string (&json, &len));
-    } else {
-      /* Otherwise, token is a value for the last encountered key */
-      if (curr_key) {
-        char *val = xstrdup (json_get_string (&json, &len));
-        if (strcmp (curr_key, "action") == 0) {
-          action = val;
-        } else if (strcmp (curr_key, "token") == 0) {
-          token = val;
-        } else {
-          free (val);
-        }
-        free (curr_key);
-        curr_key = NULL;
-      }
-    }
-  }
-  if (curr_key)
-    free (curr_key);
-  json_close (&json);
-
-  /* If action is not "validate_token", then this message is not for token validation */
-  if (!action || strcmp (action, "validate_token") != 0) {
-    if (action)
-      free (action);
-    if (token)
-      free (token);
+  if (parsed == WS_TOKEN_PARSE_OTHER) {
+    ws_free_token_message (&message);
     return 0;
   }
 
-  /* For token validation, the token must exist */
-  if (!token) {
-    LOG (("Missing token in validate_token message from client %d [%s]\n", client->listener,
-          client->remote_ip));
-    free (action);
+  if (!message.is_validation) {
+    ws_free_token_message (&message);
+    return 0;
+  }
+
+  if (!message.is_valid) {
+    reject_token_message (client, "Invalid validate_token message");
+    ws_free_token_message (&message);
     return -1;
   }
 
-  /* Verify the token using the configured secret */
-  if (conf.ws_auth_secret && verify_jwt_token (token, conf.ws_auth_secret) != 1) {
-    LOG (("Authentication failed for client %d [%s]\n", client->listener, client->remote_ip));
-    free (action);
-    free (token);
-    client->status = WS_ERR | WS_CLOSE;
+  if (conf.ws_auth_secret == NULL ||
+      verify_jwt_token (message.token, conf.ws_auth_secret, &auth_expiry) != 1) {
+    reject_token_message (client, "Authentication failed");
+    ws_free_token_message (&message);
     return -1;
   }
 
-  /* Authentication succeeded: update client's stored token */
+  new_token = xstrdup (message.token);
   if (client->headers->jwt)
     free (client->headers->jwt);
 
-  client->headers->jwt = strdup (token);
+  client->headers->jwt = new_token;
+  client->auth_expiry = auth_expiry;
   LOG (("Token validated and updated for client %d [%s]\n", client->listener, client->remote_ip));
 
-  free (action);
-  free (token);
+  ws_free_token_message (&message);
   return 1;
 }
 #endif
 
-/*
- * Entry point for incoming messages. Token validation is delegated to
- * validate_token_message().
+/* Handle an incoming WebSocket message that may update authentication.
  *
  * On success, 1 is returned when the client authenticated.
- * On failure, -1 is returned. Otherwise, 0 is returned. */
+ * On failure, -1 is returned.
+ * For an unrelated or empty message, 0 is returned. */
 #ifdef HAVE_LIBSSL
 static int
 onmessage (GO_UNUSED WSPipeOut *pipeout, WSClient *client) {
@@ -450,7 +415,8 @@ start_server (void *ptr_data) {
 
   writer->server->onopen = onopen;
 #ifdef HAVE_LIBSSL
-  writer->server->onmessage = onmessage;
+  if (conf.ws_auth_secret)
+    writer->server->onmessage = onmessage;
 #endif
 
   pthread_mutex_lock (&writer->mutex);

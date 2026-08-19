@@ -51,6 +51,38 @@
 #include "settings.h"
 #include "xmalloc.h"
 
+/* JWT claim names and values issued by GoAccess. */
+#define JWT_CLAIM_ISSUER "iss"
+#define JWT_CLAIM_SUBJECT "sub"
+#define JWT_CLAIM_ISSUED_AT "iat"
+#define JWT_CLAIM_EXPIRATION "exp"
+#define JWT_CLAIM_AUDIENCE "aud"
+#define JWT_CLAIM_SCOPE "scope"
+#define JWT_EXPECTED_AUDIENCE "goaccess_ws"
+#define JWT_EXPECTED_SCOPE "report_access"
+#define JWT_FALLBACK_ISSUER "goaccess"
+
+typedef enum JWTClaim_ {
+  JWT_CLAIM_UNKNOWN = 0,
+  JWT_CLAIM_KIND_ISSUER,
+  JWT_CLAIM_KIND_SUBJECT,
+  JWT_CLAIM_KIND_ISSUED_AT,
+  JWT_CLAIM_KIND_EXPIRATION,
+  JWT_CLAIM_KIND_AUDIENCE,
+  JWT_CLAIM_KIND_SCOPE
+} JWTClaim;
+
+typedef struct JWTClaims_ {
+  time_t issued_at;
+  time_t expiration;
+  int has_issuer;
+  int has_subject;
+  int has_issued_at;
+  int has_expiration;
+  int has_audience;
+  int has_scope;
+} JWTClaims;
+
 char *
 read_secret_from_file (const char *path) {
   FILE *file = fopen (path, "r");
@@ -102,18 +134,21 @@ generate_ws_auth_secret (void) {
   return secret_hex;
 }
 
+/* Create the JSON claims payload used for a locally issued JWT.
+ *
+ * On success, a newly allocated payload is returned.
+ * On failure, NULL is returned. */
 static char *
 create_jwt_payload (const char *sub, long iat, long exp) {
-  const char *aud = "goaccess_ws";
-  const char *scope = "report_access";
   char *payload = NULL;
-  char hostname[HOST_NAME_MAX];
+  char hostname[HOST_NAME_MAX + 1] = { 0 };
 
   if (gethostname (hostname, sizeof (hostname)) != 0) {
     perror ("gethostname");
     // Fallback to a default issuer value if hostname retrieval fails.
-    strcpy (hostname, "goaccess");
+    strcpy (hostname, JWT_FALLBACK_ISSUER);
   }
+  hostname[sizeof (hostname) - 1] = '\0';
   // Allocate a buffer for the payload JSON.
   // Adjust the size if you plan on including more data.
   payload = xcalloc (1, MAX_JWT_PAYLOAD);
@@ -123,7 +158,7 @@ create_jwt_payload (const char *sub, long iat, long exp) {
   // Build the JSON payload.
   snprintf (payload, MAX_JWT_PAYLOAD,
             "{\"iss\":\"%s\",\"sub\":\"%s\",\"iat\":%ld,\"exp\":%ld,\"aud\":\"%s\",\"scope\":\"%s\"}",
-            hostname, sub, iat, exp, aud, scope);
+            hostname, sub, iat, exp, JWT_EXPECTED_AUDIENCE, JWT_EXPECTED_SCOPE);
 
   return payload;
 }
@@ -217,99 +252,242 @@ verify_jwt_signature (const char *jwt, const char *secret) {
   return valid;
 }
 
+/* Check whether the current JSON string exactly matches an expected value.
+ *
+ * On success, non-zero is returned.
+ * On failure, including strings with embedded NUL bytes, 0 is returned. */
 static int
-validate_jwt_claims (const char *payload_json) {
-  json_stream json;
-  enum json_type t = JSON_ERROR;
-  size_t len = 0, level = 0;
-  enum json_type ctx = JSON_ERROR;
-  char hostname[HOST_NAME_MAX] = { 0 };
-  char *curr_key = NULL;
+jwt_json_string_equals (json_stream *json, const char *expected) {
+  const char *value = NULL;
+  size_t expected_len = 0, value_len = 0;
 
-  /* Validation flags/values. */
-  int valid_iss = 0, valid_sub = 0, valid_aud = 0, valid_scope = 0;
-  long iat = 0, exp = 0;
-  time_t now = time (NULL);
+  value = json_get_string (json, &value_len);
+  expected_len = strlen (expected);
 
-  /* Get hostname for the issuer check. */
-  if (gethostname (hostname, sizeof (hostname)) != 0) {
-    perror ("gethostname");
-    strcpy (hostname, "goaccess");
-  }
+  if (value_len != expected_len + 1)
+    return 0;
 
-  /* Open JSON payload as a stream and disable streaming mode. */
-  json_open_string (&json, payload_json);
-  json_set_streaming (&json, false);
+  return memcmp (value, expected, expected_len + 1) == 0;
+}
 
-  /* The payload should be a JSON object. */
-  t = json_next (&json);
-  if (t != JSON_OBJECT) {
-    json_close (&json);
+/* Check whether the current JSON string is non-empty and contains no embedded NUL.
+ *
+ * On success, non-zero is returned.
+ * On failure, 0 is returned. */
+static int
+jwt_json_string_is_nonempty (json_stream *json) {
+  const char *value = NULL;
+  size_t value_len = 0;
+
+  value = json_get_string (json, &value_len);
+  if (value_len <= 1 || value[value_len - 1] != '\0')
+    return 0;
+
+  return memchr (value, '\0', value_len - 1) == NULL;
+}
+
+/* Identify a supported top-level JWT claim from the current JSON member name.
+ *
+ * On success, the matching claim kind is returned.
+ * For an unknown or intentionally ignored claim, JWT_CLAIM_UNKNOWN is returned. */
+static JWTClaim
+get_jwt_claim (json_stream *json, int verify_only) {
+  if (jwt_json_string_equals (json, JWT_CLAIM_ISSUED_AT))
+    return JWT_CLAIM_KIND_ISSUED_AT;
+  if (jwt_json_string_equals (json, JWT_CLAIM_EXPIRATION))
+    return JWT_CLAIM_KIND_EXPIRATION;
+
+  if (verify_only)
+    return JWT_CLAIM_UNKNOWN;
+
+  if (jwt_json_string_equals (json, JWT_CLAIM_ISSUER))
+    return JWT_CLAIM_KIND_ISSUER;
+  if (jwt_json_string_equals (json, JWT_CLAIM_SUBJECT))
+    return JWT_CLAIM_KIND_SUBJECT;
+  if (jwt_json_string_equals (json, JWT_CLAIM_AUDIENCE))
+    return JWT_CLAIM_KIND_AUDIENCE;
+  if (jwt_json_string_equals (json, JWT_CLAIM_SCOPE))
+    return JWT_CLAIM_KIND_SCOPE;
+
+  return JWT_CLAIM_UNKNOWN;
+}
+
+/* Parse the current JSON number as a positive time_t value.
+ *
+ * On success, non-zero is returned and timestamp is updated.
+ * On failure, 0 is returned and timestamp is left unchanged. */
+static int
+parse_jwt_numeric_date (json_stream *json, time_t *numeric_date) {
+  const char *value = NULL;
+  char *end = NULL;
+  intmax_t whole_seconds = 0;
+  long double parsed = 0.0;
+  size_t value_len = 0;
+  time_t converted = 0;
+
+  value = json_get_string (json, &value_len);
+  if (value_len <= 1 || value[value_len - 1] != '\0')
+    return 0;
+
+  errno = 0;
+  parsed = strtold (value, &end);
+  if (errno == ERANGE || parsed <= 0.0 || parsed > (long double) INTMAX_MAX ||
+      end != value + value_len - 1)
+    return 0;
+
+  whole_seconds = (intmax_t) parsed;
+  converted = (time_t) whole_seconds;
+  if (whole_seconds <= 0 || (intmax_t) converted != whole_seconds)
+    return 0;
+
+  *numeric_date = converted;
+  return 1;
+}
+
+/* Parse and validate one recognized JWT claim value.
+ *
+ * On success, non-zero is returned and claims is updated.
+ * On a duplicate, mistyped, or invalid claim, 0 is returned. */
+static int
+parse_jwt_claim_value (json_stream *json, JWTClaim claim, const char *hostname,
+                       JWTClaims *claims) {
+  enum json_type type = JSON_ERROR;
+
+  type = json_next (json);
+  if (type == JSON_ERROR || type == JSON_DONE)
+    return 0;
+
+  switch (claim) {
+  case JWT_CLAIM_KIND_ISSUER:
+    if (claims->has_issuer || type != JSON_STRING || !jwt_json_string_equals (json, hostname))
+      return 0;
+    claims->has_issuer = 1;
+    return 1;
+  case JWT_CLAIM_KIND_SUBJECT:
+    if (claims->has_subject || type != JSON_STRING || !jwt_json_string_is_nonempty (json))
+      return 0;
+    claims->has_subject = 1;
+    return 1;
+  case JWT_CLAIM_KIND_ISSUED_AT:
+    if (claims->has_issued_at || type != JSON_NUMBER ||
+        !parse_jwt_numeric_date (json, &claims->issued_at))
+      return 0;
+    claims->has_issued_at = 1;
+    return 1;
+  case JWT_CLAIM_KIND_EXPIRATION:
+    if (claims->has_expiration || type != JSON_NUMBER ||
+        !parse_jwt_numeric_date (json, &claims->expiration))
+      return 0;
+    claims->has_expiration = 1;
+    return 1;
+  case JWT_CLAIM_KIND_AUDIENCE:
+    if (claims->has_audience || type != JSON_STRING ||
+        !jwt_json_string_equals (json, JWT_EXPECTED_AUDIENCE))
+      return 0;
+    claims->has_audience = 1;
+    return 1;
+  case JWT_CLAIM_KIND_SCOPE:
+    if (claims->has_scope || type != JSON_STRING ||
+        !jwt_json_string_equals (json, JWT_EXPECTED_SCOPE))
+      return 0;
+    claims->has_scope = 1;
+    return 1;
+  case JWT_CLAIM_UNKNOWN:
     return 0;
   }
 
-  /* Iterate over each token (key or value) in the JSON object. */
-  while ((t = json_next (&json)) != JSON_DONE && t != JSON_ERROR) {
-    ctx = json_get_context (&json, &level);
-    /* keys typically appear when (level % 2) != 0 and not inside an array.
-     * otherwise, the token is a value. */
-    if ((level % 2) != 0 && ctx != JSON_ARRAY) {
-      /* This token is a key. Duplicate it to use for matching. */
-      if (curr_key)
-        free (curr_key);
-      curr_key = xstrdup (json_get_string (&json, &len));
-    } else {
-      /* Assume this token is the value for the last encountered key. */
-      if (curr_key) {
-        char *val = xstrdup (json_get_string (&json, &len));
-        if (strcmp (curr_key, "iss") == 0) {
-          /* "iss" must equal the hostname. */
-          valid_iss = (strcmp (val, hostname) == 0);
-        } else if (strcmp (curr_key, "sub") == 0) {
-          /* "sub" must be non-empty. */
-          valid_sub = (val[0] != '\0');
-        } else if (strcmp (curr_key, "aud") == 0) {
-          valid_aud = (strcmp (val, "goaccess_ws") == 0);
-        } else if (strcmp (curr_key, "scope") == 0) {
-          valid_scope = (strcmp (val, "report_access") == 0);
-        } else if (strcmp (curr_key, "iat") == 0) {
-          iat = strtol (val, NULL, 10);
-        } else if (strcmp (curr_key, "exp") == 0) {
-          exp = strtol (val, NULL, 10);
-        }
-        free (val);
-        free (curr_key);
-        curr_key = NULL;
-      }
-    }
-  }
-  if (curr_key)
-    free (curr_key);
-  json_close (&json);
-
-  /* Final validation */
-  if (conf.ws_auth_verify_only) {
-    if (iat > 0 && exp > iat && now >= iat && now <= exp)
-      return 1;
-    else
-      return 0;
-  } else {
-    if (valid_iss && valid_sub && valid_aud && valid_scope &&
-        iat > 0 && exp > iat && now >= iat && now <= exp)
-      return 1; // Valid JWT claims.
-    else
-      return 0; // One or more claim validations failed.
-  }
+  return 0;
 }
 
-/* verifies the JWT signature.
- * Returns 1 if valid, 0 if not.
- */
+/* Parse a complete JWT claims object without confusing nested values for members.
+ *
+ * On success, non-zero is returned and claims is updated.
+ * On malformed input or an invalid recognized claim, 0 is returned. */
+static int
+parse_jwt_claims_object (json_stream *json, const char *hostname, int verify_only,
+                         JWTClaims *claims) {
+  enum json_type type = JSON_ERROR;
+  JWTClaim claim = JWT_CLAIM_UNKNOWN;
+
+  if (json_next (json) != JSON_OBJECT)
+    return 0;
+
+  while ((type = json_next (json)) == JSON_STRING) {
+    claim = get_jwt_claim (json, verify_only);
+    if (claim == JWT_CLAIM_UNKNOWN) {
+      type = json_skip (json);
+      if (type == JSON_ERROR || type == JSON_DONE)
+        return 0;
+      continue;
+    }
+
+    if (!parse_jwt_claim_value (json, claim, hostname, claims))
+      return 0;
+  }
+
+  if (type != JSON_OBJECT_END)
+    return 0;
+
+  return json_next (json) == JSON_DONE;
+}
+
+/* Validate JWT claims and return the token's absolute expiration time.
+ *
+ * On success, 1 is returned and expires_at is updated.
+ * On failure, 0 is returned and expires_at is left unchanged. */
+static int
+validate_jwt_claims (const char *payload_json, size_t payload_len, time_t *expires_at) {
+  json_stream json;
+  JWTClaims claims = { 0 };
+  char hostname[HOST_NAME_MAX + 1] = { 0 };
+  time_t now = 0;
+  int parsed = 0, verify_only = 0;
+
+  if (payload_json == NULL || expires_at == NULL)
+    return 0;
+
+  verify_only = conf.ws_auth_verify_only;
+  if (!verify_only && gethostname (hostname, sizeof (hostname)) != 0) {
+    perror ("gethostname");
+    strcpy (hostname, JWT_FALLBACK_ISSUER);
+  }
+  hostname[sizeof (hostname) - 1] = '\0';
+
+  json_open_buffer (&json, payload_json, payload_len);
+  json_set_streaming (&json, false);
+  parsed = parse_jwt_claims_object (&json, hostname, verify_only, &claims);
+  json_close (&json);
+
+  if (!parsed || !claims.has_issued_at || !claims.has_expiration)
+    return 0;
+
+  now = time (NULL);
+  if (now == (time_t) -1 || claims.expiration <= claims.issued_at ||
+      now < claims.issued_at || now >= claims.expiration)
+    return 0;
+
+  if (!verify_only && (!claims.has_issuer || !claims.has_subject || !claims.has_audience ||
+                       !claims.has_scope))
+    return 0;
+
+  *expires_at = claims.expiration;
+  return 1;
+}
+
+/* Verify a JWT and return the token's absolute expiration time.
+ *
+ * On success, 1 is returned and expires_at is updated.
+ * On failure, 0 is returned and expires_at is set to zero. */
 int
-verify_jwt_token (const char *jwt, const char *secret) {
+verify_jwt_token (const char *jwt, const char *secret, time_t *expires_at) {
   char *payload_part = NULL, *payload_json = NULL, *token_dup = NULL, *std_payload = NULL;
   size_t payload_len = 0;
   int valid_signature = 0, valid_claims = 0;
+
+  if (expires_at == NULL)
+    return 0;
+
+  *expires_at = 0;
 
   /* Step 1: Verify the signature */
   valid_signature = verify_jwt_signature (jwt, secret);
@@ -352,7 +530,7 @@ verify_jwt_token (const char *jwt, const char *secret) {
   payload_json[payload_len] = '\0';
 
   /* Step 4: Validate the claims */
-  valid_claims = validate_jwt_claims (payload_json);
+  valid_claims = validate_jwt_claims (payload_json, payload_len, expires_at);
 
   /* Clean up */
   free (payload_json);

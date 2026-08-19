@@ -1,9 +1,9 @@
 /**
- *    ______      ___
- *   / ____/___  /   | _____________  __________
- *  / / __/ __ \/ /| |/ ___/ ___/ _ \/ ___/ ___/
- * / /_/ / /_/ / ___ / /__/ /__/  __(__  |__  )
- * \____/\____/_/  |_\___/\___/\___/____/____/
+ *    _______       _______            __        __
+ *   / ____/ |     / / ___/____  _____/ /_____  / /_
+ *  / / __ | | /| / /\__ \/ __ \/ ___/ //_/ _ \/ __/
+ * / /_/ / | |/ |/ /___/ / /_/ / /__/ ,< /  __/ /_
+ * \____/  |__/|__//____/\____/\___/_/|_|\___/\__/
  *
  * The MIT License (MIT)
  * Copyright (c) 2009-2026 Gerardo Orellana <hello @ goaccess.io>
@@ -27,19 +27,25 @@
  * SOFTWARE.
  */
 
-#ifndef WSAUTH_H_INCLUDED
-#define WSAUTH_H_INCLUDED
+#ifndef WSMESSAGE_H_INCLUDED
+#define WSMESSAGE_H_INCLUDED
 
-#include <time.h>
+#include <stddef.h>
 
-#define MAX_SECRET_SIZE 256
-#define MAX_JWT_PAYLOAD 512
-#define DEFAULT_EXPIRE_TIME 28800 // seconds
+typedef enum WSTokenParseResult_ {
+  WS_TOKEN_PARSE_ERROR = -1,
+  WS_TOKEN_PARSE_OTHER = 0,
+  WS_TOKEN_PARSE_OBJECT = 1,
+} WSTokenParseResult;
 
-char *create_jwt_token (void);
-char *generate_jwt (const char *secret, const char *payload);
-char *generate_ws_auth_secret (void);
-char *read_secret_from_file (const char *path);
-int verify_jwt_token (const char *jwt, const char *secret, time_t *expires_at);
+typedef struct WSTokenMessage_ {
+  char *token;
+  int is_validation;
+  int is_valid;
+} WSTokenMessage;
 
-#endif // for #ifndef WSAUTH_H
+void ws_free_token_message (WSTokenMessage * message);
+WSTokenParseResult ws_parse_token_message (const char *payload, size_t payloadsz,
+                                           WSTokenMessage * message);
+
+#endif // for #ifndef WSMESSAGE_H

@@ -624,6 +624,12 @@ After refreshing, GoAccess confirms the updated JWT’s validity with the
 WebSocket server by sending:
 .IP
     { "action": "validate_token", "token": "current-jwt" }
+.IP \(bu 4
+The WebSocket server tracks the verified JWT’s \fBexp\fR claim and closes the
+connection when it expires, even if the client does not send another message.
+.IP \(bu 4
+If token refresh fails or returns an unusable token, the browser clears its
+credentials and closes the authenticated WebSocket connection.
 .RE
 .IP
 \fBImportant Note:\fR For these options to function, you must specify

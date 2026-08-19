@@ -89,6 +89,43 @@ static struct pollfd *fdstate = NULL;
 static nfds_t nfdstate = 0;
 static WSConfig wsconfig = { 0 };
 
+/* Convert JWT expiration seconds into poll timeout milliseconds. */
+#define WS_MILLISECONDS_PER_SECOND 1000.0
+
+/* Check whether an authenticated client's JWT has expired.
+ *
+ * On expiration or clock failure, non-zero is returned.
+ * For unauthenticated or currently valid clients, 0 is returned. */
+static int
+ws_client_auth_expired (WSClient *client) {
+  time_t now = 0;
+
+  if (wsconfig.auth_secret == NULL || client->auth_expiry == 0)
+    return 0;
+
+  now = time (NULL);
+  if (now == (time_t) -1)
+    return 1;
+
+  return now >= client->auth_expiry;
+}
+
+/* Mark a client for closure when its JWT has expired.
+ *
+ * On expiration, non-zero is returned.
+ * For a currently valid client, 0 is returned. */
+static int
+ws_reject_expired_client (WSClient *client) {
+  if (!ws_client_auth_expired (client))
+    return 0;
+
+  if (!(client->status & WS_CLOSE))
+    LOG (("Authentication expired for client %d [%s]\n", client->listener, client->remote_ip));
+  client->status = WS_ERR | WS_CLOSE;
+
+  return 1;
+}
+
 static void handle_read_close (int *conn, WSClient * client, WSServer * server);
 static void handle_reads (int *conn, WSServer * server);
 static void handle_writes (int *conn, WSServer * server);
@@ -1662,7 +1699,8 @@ ws_get_handshake (WSClient *client, WSServer *server) {
   }
 
   /* Ensure we can authenticate the connection */
-  if (wsconfig.auth_secret && wsconfig.auth (client->headers->jwt, wsconfig.auth_secret) != 1) {
+  if (wsconfig.auth_secret &&
+      wsconfig.auth (client->headers->jwt, wsconfig.auth_secret, &client->auth_expiry) != 1) {
     LOG (("Unable to authenticate connection %d [%s]...\n", client->listener, client->remote_ip));
     http_error (client, WS_UNAUTHORIZED_STR);
     return ws_set_status (client, WS_CLOSE, bytes);
@@ -1687,12 +1725,16 @@ ws_get_handshake (WSClient *client, WSServer *server) {
   return ws_set_status (client, WS_OK, bytes);
 }
 
-/* Send a data message to the given client.
+/* Send a data message to a client whose authentication is current.
  *
- * On success, 0 is returned. */
+ * On success, 0 is returned.
+ * On expired authentication, -1 is returned and the client is marked for closure. */
 int
 ws_send_data (WSClient *client, WSOpcode opcode, const char *p, int sz) {
   char *buf = NULL;
+
+  if (ws_reject_expired_client (client))
+    return -1;
 
   buf = sanitize_utf8 (p, sz);
   ws_send_frame (client, opcode, buf, sz);
@@ -2185,6 +2227,47 @@ read_client_data (WSClient *client, WSServer *server) {
   return bytes;
 }
 
+/* Determine how long poll may wait before the next JWT expires.
+ *
+ * When an expiration deadline exists, its timeout in milliseconds is returned.
+ * When no authenticated client has a deadline, -1 is returned. */
+static int
+ws_get_auth_poll_timeout (WSServer *server) {
+  WSClient *client = NULL;
+  void *data = NULL;
+  double remaining = 0.0;
+  int candidate = 0, timeout = -1;
+  time_t now = 0;
+
+  if (wsconfig.auth_secret == NULL)
+    return -1;
+
+  now = time (NULL);
+  if (now == (time_t) -1)
+    return 0;
+
+  /* *INDENT-OFF* */
+  GSLIST_FOREACH (server->colist, data, {
+    client = data;
+    if (client->auth_expiry != 0) {
+      remaining = difftime (client->auth_expiry, now);
+      if (remaining <= 0.0)
+        return 0;
+
+      if (remaining >= INT_MAX / WS_MILLISECONDS_PER_SECOND)
+        candidate = INT_MAX;
+      else
+        candidate = (int) (remaining * WS_MILLISECONDS_PER_SECOND);
+
+      if (timeout == -1 || candidate < timeout)
+        timeout = candidate;
+    }
+  });
+  /* *INDENT-ON* */
+
+  return timeout;
+}
+
 /* Handle a tcp close connection. */
 static void
 handle_tcp_close (int conn, WSClient *client, WSServer *server) {
@@ -2224,6 +2307,43 @@ handle_tcp_close (int conn, WSClient *client, WSServer *server) {
   /* remove client from our list */
   ws_remove_client_from_list (client, server);
   LOG (("Connection Closed.\nActive: %d\n", list_count (server->colist)));
+}
+
+/* Close every connected client whose JWT has expired. */
+static void
+ws_close_expired_clients (WSServer *server) {
+  WSClient *client = NULL;
+  void *data = NULL;
+  int *listeners = NULL;
+  int count = 0, idx = 0, listener = 0;
+
+  if (wsconfig.auth_secret == NULL)
+    return;
+
+  if (server->colist == NULL)
+    return;
+
+  /* *INDENT-OFF* */
+  GSLIST_FOREACH (server->colist, data, {
+    client = data;
+    if (ws_reject_expired_client (client)) {
+      if (listeners == NULL) {
+        count = list_count (server->colist);
+        listeners = xcalloc (count, sizeof (*listeners));
+      }
+      listeners[idx++] = client->listener;
+    }
+  });
+  /* *INDENT-ON* */
+
+  while (idx > 0) {
+    listener = listeners[--idx];
+    client = ws_get_client_from_list (listener, &server->colist);
+    if (client != NULL)
+      handle_tcp_close (listener, client, server);
+  }
+
+  free (listeners);
 }
 
 /* Handle a tcp read close connection. */
@@ -2271,6 +2391,12 @@ handle_reads (int *conn, WSServer *server) {
 
   LOG (("Handling read %d [%s]...\n", client->listener, client->remote_ip));
 
+  if (ws_reject_expired_client (client)) {
+    handle_read_close (conn, client, server);
+    *conn = -1;
+    return;
+  }
+
 #ifdef HAVE_LIBSSL
   if (handle_ssl_pending_rw (conn, server, client) == 0)
     return;
@@ -2301,6 +2427,12 @@ handle_writes (int *conn, WSServer *server) {
 
   if (!(client = ws_get_client_from_list (*conn, &server->colist)))
     return;
+
+  if (ws_reject_expired_client (client)) {
+    handle_write_close (*conn, client, server);
+    *conn = -1;
+    return;
+  }
 
 #ifdef HAVE_LIBSSL
   if (handle_ssl_pending_rw (conn, server, client) == 0)
@@ -2837,7 +2969,7 @@ ws_socket (int *listener) {
  * descriptors until we have something to read or write. */
 void
 ws_start (WSServer *server) {
-  int listener = -1, ret = 0;
+  int listener = -1, poll_timeout = -1, ret = 0;
   struct pollfd *cfdstate = NULL, *pfd, *efd;
   nfds_t ncfdstate = 0;
   bool run = true;
@@ -2872,8 +3004,8 @@ ws_start (WSServer *server) {
       memcpy (cfdstate, fdstate, ncfdstate * sizeof (*cfdstate));
     }
 
-    /* yep, wait patiently */
-    if ((ret = poll (cfdstate, nfdstate, -1)) == -1) {
+    poll_timeout = ws_get_auth_poll_timeout (server);
+    if ((ret = poll (cfdstate, nfdstate, poll_timeout)) == -1) {
       switch (errno) {
       case EINTR:
         LOG (("A signal was caught on poll(2)\n"));
@@ -2927,6 +3059,8 @@ ws_start (WSServer *server) {
           handle_writes (&pfd->fd, server);
       }
     }
+
+    ws_close_expired_clients (server);
   }
 
   free (cfdstate);
@@ -3021,8 +3155,9 @@ ws_set_config_auth_secret (const char *auth_secret) {
   wsconfig.auth_secret = auth_secret;
 }
 
+/* Set the callback used to authenticate JWTs and obtain their expiration. */
 void
-ws_set_config_auth_cb (int (*auth_cb) (const char *jwt, const char *secret)) {
+ws_set_config_auth_cb (WSAuthCallback auth_cb) {
   wsconfig.auth = auth_cb;
 }
 
