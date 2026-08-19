@@ -40,6 +40,6 @@ char *create_jwt_token (void);
 char *generate_jwt (const char *secret, const char *payload);
 char *generate_ws_auth_secret (void);
 char *read_secret_from_file (const char *path);
-int verify_jwt_token (const char *jwt, const char *secret, time_t *expires_at);
+int verify_jwt_token (const char *jwt, const char *secret, time_t * expires_at);
 
 #endif // for #ifndef WSAUTH_H

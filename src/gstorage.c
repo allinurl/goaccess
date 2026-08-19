@@ -1694,8 +1694,7 @@ process_log (GLogItem *logitem) {
   /* Insert one unique visitor key per request to avoid the
    * overhead of storing one key per module */
   logitem->uniq_nkey =
-    ht_insert_unique_key (numdate, logitem->uniq_key, include_uniq (logitem),
-                          &logitem->uniq_first);
+    ht_insert_unique_key (numdate, logitem->uniq_key, include_uniq (logitem), &logitem->uniq_first);
   if (logitem->uniq_nkey == 0)
     return;
 

@@ -160,7 +160,7 @@ typedef enum WSOPCODE {
   WS_OPCODE_PONG = 0x0A,
 } WSOpcode;
 
-typedef int (*WSAuthCallback) (const char *jwt, const char *secret, time_t *expires_at);
+typedef int (*WSAuthCallback) (const char *jwt, const char *secret, time_t * expires_at);
 
 typedef struct WSQueue_ {
   char *queued;                 /* queue data */

@@ -228,12 +228,12 @@ typedef struct GHolderItem_ {
 typedef struct GHolder_ {
   GHolderItem *items;           /* holder items */
   GModule module;               /* current module  */
-  uint32_t idx;                      /* holder index  */
-  uint32_t holder_size;              /* number of allocated items */
+  uint32_t idx;                 /* holder index  */
+  uint32_t holder_size;         /* number of allocated items */
   uint32_t ht_size;             /* size of the hash table/store */
-  uint32_t sub_items_size;           /* number of sub items  */
-  uint32_t max_choices;              /* max items at root level */
-  uint32_t max_choices_sub;          /* max items at sub-item levels */
+  uint32_t sub_items_size;      /* number of sub items  */
+  uint32_t max_choices;         /* max items at root level */
+  uint32_t max_choices_sub;     /* max items at sub-item levels */
 } GHolder;
 
 /* Enum-to-string */

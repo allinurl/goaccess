@@ -833,7 +833,8 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
 
 /* Load raw data into our holder structure */
 void
-load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, uint32_t max_choices, uint32_t max_choices_sub) {
+load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, uint32_t max_choices,
+                  uint32_t max_choices_sub) {
   uint32_t i;
   uint32_t size = 0;
   uint32_t alloc_size = 0;

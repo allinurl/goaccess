@@ -134,7 +134,7 @@ set_glog (Logs *logs, const char *filename) {
   int newlen = 0;
   char const *err;
   char *fvh = NULL, *fn = NULL, *temp_path = NULL;
-  char resolved[PATH_MAX] = {0};
+  char resolved[PATH_MAX] = { 0 };
   const char *final_path = NULL;
 
   if (logs->size - 1 < logs->idx) {

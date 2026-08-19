@@ -349,8 +349,7 @@ parse_jwt_numeric_date (json_stream *json, time_t *numeric_date) {
  * On success, non-zero is returned and claims is updated.
  * On a duplicate, mistyped, or invalid claim, 0 is returned. */
 static int
-parse_jwt_claim_value (json_stream *json, JWTClaim claim, const char *hostname,
-                       JWTClaims *claims) {
+parse_jwt_claim_value (json_stream *json, JWTClaim claim, const char *hostname, JWTClaims *claims) {
   enum json_type type = JSON_ERROR;
 
   type = json_next (json);
@@ -462,7 +461,7 @@ validate_jwt_claims (const char *payload_json, size_t payload_len, time_t *expir
     return 0;
 
   now = time (NULL);
-  if (now == (time_t) -1 || claims.expiration <= claims.issued_at ||
+  if (now == (time_t) - 1 || claims.expiration <= claims.issued_at ||
       now < claims.issued_at || now >= claims.expiration)
     return 0;
 

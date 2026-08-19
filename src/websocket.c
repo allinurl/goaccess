@@ -104,7 +104,7 @@ ws_client_auth_expired (WSClient *client) {
     return 0;
 
   now = time (NULL);
-  if (now == (time_t) -1)
+  if (now == (time_t) - 1)
     return 1;
 
   return now >= client->auth_expiry;
@@ -2243,7 +2243,7 @@ ws_get_auth_poll_timeout (WSServer *server) {
     return -1;
 
   now = time (NULL);
-  if (now == (time_t) -1)
+  if (now == (time_t) - 1)
     return 0;
 
   /* *INDENT-OFF* */
@@ -2396,7 +2396,6 @@ handle_reads (int *conn, WSServer *server) {
     *conn = -1;
     return;
   }
-
 #ifdef HAVE_LIBSSL
   if (handle_ssl_pending_rw (conn, server, client) == 0)
     return;
@@ -2433,7 +2432,6 @@ handle_writes (int *conn, WSServer *server) {
     *conn = -1;
     return;
   }
-
 #ifdef HAVE_LIBSSL
   if (handle_ssl_pending_rw (conn, server, client) == 0)
     return;

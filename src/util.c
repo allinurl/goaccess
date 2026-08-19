@@ -810,7 +810,7 @@ visitor_fingerprint (const char *host, uint32_t agent_hash) {
   const char *p;
 
   for (p = host; *p; p++) {
-    h = (h ^ (uint8_t) *p) * FNV64_PRIME;
+    h = (h ^ (uint8_t) * p) * FNV64_PRIME;
   }
   h = (h ^ agent_hash) * FNV64_PRIME;
 

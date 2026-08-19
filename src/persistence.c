@@ -478,7 +478,8 @@ legacy_uniq_key_fingerprint (const char *key, uint32_t dbver) {
  *
  * If there is nothing to read, NULL is returned.
  * On success, the newly allocated set is returned. */
-static khash_t (u648) *
+static
+khash_t (u648) *
 load_visitors_data_keys (void) {
   tpl_node *tn = NULL;
   char *fn = NULL, *path = NULL;
@@ -535,7 +536,8 @@ is_visitors_dkey (khash_t (u648) *dkeys, uint32_t date, uint32_t member, uint32_
  *
  * If there is nothing to read, NULL is returned.
  * On success, a set keyed by (date << 32 | visitor sequence) is returned. */
-static khash_t (u648) *
+static
+khash_t (u648) *
 load_counted_visitors (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
@@ -630,8 +632,7 @@ migrate_unique_keys (const char *path, uint32_t dbver) {
         sval = val;
         /* conservative: a phantom mark only suppresses a future first
          * count, matching what the legacy encoding would have done */
-        if (counted &&
-            kh_get (u648, counted, ((uint64_t) date << 32) | val) != kh_end (counted))
+        if (counted && kh_get (u648, counted, ((uint64_t) date << 32) | val) != kh_end (counted))
           sval |= VISITOR_COUNTED_BIT;
 
         k = kh_put (u6432, hash, fp, &is_new);
