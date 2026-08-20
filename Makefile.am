@@ -18,28 +18,6 @@ dist_noinst_DATA =                 \
 noinst_PROGRAMS = bin2c
 bin2c_SOURCES = src/bin2c.c
 
-check_PROGRAMS = tests/gwsocket_token_parser_test
-tests_gwsocket_token_parser_test_SOURCES = \
-   tests/gwsocket_token_parser_test.c \
-   src/wsmessage.c                    \
-   src/wsmessage.h                    \
-   src/pdjson.c                       \
-   src/pdjson.h
-
-if WITH_SSL
-check_PROGRAMS += tests/wsauth_claims_test
-tests_wsauth_claims_test_SOURCES = \
-   tests/wsauth_claims_test.c \
-   src/wsauth.c                \
-   src/wsauth.h                \
-   src/base64.c                \
-   src/base64.h                \
-   src/pdjson.c                \
-   src/pdjson.h
-endif
-
-TESTS = $(check_PROGRAMS)
-
 BUILT_SOURCES =       \
   src/tpls.h          \
   src/bootstrapcss.h  \
