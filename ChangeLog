@@ -1,3 +1,6 @@
+  - Added resolved, total and pending hostname metrics to the progress display
+    when resolving IP addresses for static output.
+
 Changes to GoAccess 1.11 - Sunday, July 19, 2026
 
   - Added automatic, crash-safe migration of persisted databases to storage
