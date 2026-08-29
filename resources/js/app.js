@@ -2398,6 +2398,11 @@ GoAccess.App = {
 			if (GoAccess.Util.isPanelValid(panel) || GoAccess.Util.isPanelHidden(panel))
 				continue;
 			var sort = GoAccess.Util.getProp(GoAccess.AppState, panel + '.sort');
+			// Panels introduced by later data updates have no initial sort state
+			if (!sort) {
+				GoAccess.Util.setProp(GoAccess.AppState, panel + '.sort', ui[panel].sort);
+				continue;
+			}
 			// do not sort panels if they still hold the same sort properties
 			if (JSON.stringify(sort) === JSON.stringify(ui[panel].sort))
 				continue;
