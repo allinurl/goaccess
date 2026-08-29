@@ -157,6 +157,7 @@ typedef struct GFind_ {
 typedef struct {
   int state;
   bool curses;
+  int determinate;
   uint64_t processed;
   uint64_t total;
   int64_t elapsed_sec;
@@ -193,6 +194,7 @@ typedef struct GSpinner_ {
   int y;
   pthread_mutex_t mutex;
   pthread_t thread;
+  int thread_started;
   uint64_t **processed;
   uint64_t progress;
   uint64_t total;

@@ -361,6 +361,10 @@ set_host_child_metrics (char *data, uint8_t id, GMetrics **nmetrics) {
   return 0;
 }
 
+/* Check whether static output requires synchronous hostname resolution.
+ *
+ * On success, non-zero is returned.
+ * On failure, 0 is returned. */
 static int
 is_static_output_resolver (void) {
   return conf.enable_html_resolver && conf.output_stdout && !conf.no_ip_validation &&
@@ -425,6 +429,7 @@ set_host_sub_list (GHolder *h, GSubList *sub_list) {
 
 }
 
+/* Resolve and attach hostnames while updating spinner progress. */
 static void
 resolve_holder_hostnames (GHolder *h) {
   GMetrics *nmetrics;

@@ -163,20 +163,23 @@ generate_time (void) {
   localtime_r (&timestamp, &now_tm);
 }
 
-/* Set the loading spinner as ended and manage the mutex locking. */
+/* Stop the loading spinner and wait for its thread to finish. */
 void
 end_spinner (void) {
-  if (conf.no_parsing_spinner)
+  GSpinner *spinner = parsing_spinner;
+  int ret = 0;
+
+  if (spinner == NULL || !spinner->thread_started)
     return;
-  pthread_mutex_lock (&parsing_spinner->mutex);
-  parsing_spinner->state = SPN_END;
-  pthread_mutex_unlock (&parsing_spinner->mutex);
-  if (!parsing_spinner->curses) {
-    /* wait for the ui_spinner thread to finish */
-    struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
-    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
-      FATAL ("nanosleep: %s", strerror (errno));
-  }
+
+  pthread_mutex_lock (&spinner->mutex);
+  spinner->state = SPN_END;
+  pthread_mutex_unlock (&spinner->mutex);
+
+  ret = pthread_join (spinner->thread, NULL);
+  if (ret != 0)
+    FATAL ("Unable to join spinner thread: %s", strerror (ret));
+  spinner->thread_started = 0;
 }
 
 /* Set background colors to all windows. */
@@ -827,6 +830,10 @@ format_stats (uint64_t processed, int64_t elapsed_sec, char *out, size_t outsz) 
   snprintf (out, outsz, "%'13" PRIu64 "   %" PRIi64 "/s", processed, rate);
 }
 
+/* Capture a consistent snapshot of the spinner state.
+ *
+ * On success, the current spinner snapshot is returned.
+ * On failure, this function does not return. */
 static SpinnerSnapshot
 snapshot_state (GSpinner *sp) {
   SpinnerSnapshot snap = { 0 };
@@ -835,8 +842,9 @@ snapshot_state (GSpinner *sp) {
 
   snap.state = sp->state;
   snap.curses = sp->curses;
+  snap.determinate = sp->determinate;
 
-  if (sp->determinate) {
+  if (snap.determinate) {
     snap.processed = sp->progress;
     snap.total = sp->total;
   } else if (sp->processed && *(sp->processed)) {
@@ -846,7 +854,7 @@ snapshot_state (GSpinner *sp) {
   }
 
   snap.elapsed_sec = (time (NULL) - sp->start_time);
-  snap.filename = sp->determinate ? sp->label :
+  snap.filename = snap.determinate ? sp->label :
     ((sp->filename && *sp->filename) ? *sp->filename : "processing");
 
   unlock_spinner ();
@@ -968,73 +976,109 @@ render_fallback (FILE *out, SpinnerSnapshot *snap, const char *stats, int spin_i
   fflush (out);
 }
 
-/* Main spinner loop */
+/* Format the current spinner snapshot for display. */
 static void
+format_spinner_stats (const SpinnerSnapshot *snap, char *stats, size_t size) {
+  uint64_t pending = 0;
+
+  if (!snap->determinate) {
+    format_stats (snap->processed, snap->elapsed_sec, stats, size);
+    return;
+  }
+
+  if (snap->processed < snap->total)
+    pending = snap->total - snap->processed;
+  snprintf (stats, size, "%'" PRIu64 "/%'" PRIu64 " (%'" PRIu64 " pending)",
+            snap->processed, snap->total, pending);
+}
+
+/* Restore terminal output after the spinner finishes. */
+static void
+finish_spinner_output (const SpinnerSnapshot *snap, int is_interactive) {
+  if (snap->curses)
+    return;
+
+  if (is_interactive) {
+    if (snap->determinate)
+      fputs ("\033[?25h\n", stderr);
+    else
+      fputs ("\033[?25h\033[2K\n", stderr);
+    return;
+  }
+
+  if (snap->determinate && !conf.no_progress)
+    fputc ('\n', stderr);
+}
+
+/* Run the spinner until the controlling thread requests completion.
+ *
+ * On success, NULL is returned.
+ * On failure, this function does not return. */
+static void *
 ui_spinner (void *ptr_data) {
   GSpinner *sp = (GSpinner *) ptr_data;
-
-  static int banner_shown = 0;
-  static int bounce_pos = 0;
-  static int bounce_dir = 1;
+  static int banner_shown = 0, bounce_pos = 0, bounce_dir = 1, spin_idx = 0;
   const int bounce_width = 8;
-  static int spin_idx = 0;
+  int is_interactive = 0;
+  char stats[96];
+  SpinnerSnapshot snap;
   struct timespec ts = {.tv_sec = 0,.tv_nsec = SPIN_UPDATE_INTERVAL };
 
-  /* Hide cursor only in interactive terminal */
-  int is_interactive = !sp->curses && !conf.no_progress && isatty (fileno (stderr));
-  if (is_interactive) {
+  is_interactive = !sp->curses && !conf.no_progress && isatty (fileno (stderr));
+  if (is_interactive)
     fputs ("\033[?25l", stderr);
-  }
 
   time (&sp->start_time);
 
   while (true) {
-    char stats[96] = { 0 };
-    SpinnerSnapshot snap = snapshot_state (sp);
-    if (snap.state == SPN_END) {
-      if (is_interactive) {
-        fputs ("\033[?25h\033[2K\n", stderr);
-      }
+    memset (stats, 0, sizeof (stats));
+    snap = snapshot_state (sp);
+
+    if (snap.state == SPN_END && (!snap.determinate || conf.no_progress)) {
+      finish_spinner_output (&snap, is_interactive);
       break;
     }
 
-    /* If no progress is wanted, just sleep and loop */
     if (conf.no_progress) {
       nanosleep (&ts, NULL);
       continue;
     }
 
-    if (snap.total) {
-      snprintf (stats, sizeof (stats), "%'" PRIu64 "/%'" PRIu64 " (%'" PRIu64 " pending)",
-                snap.processed, snap.total, snap.total - snap.processed);
-    } else {
-      format_stats (snap.processed, snap.elapsed_sec, stats, sizeof (stats));
-    }
-
+    format_spinner_stats (&snap, stats, sizeof (stats));
     spin_idx = (spin_idx + 1) % 4;
 
-    if (snap.curses) {
+    if (snap.curses)
       render_curses (sp, &snap, stats, &bounce_pos, &bounce_dir, bounce_width, spin_idx);
-    } else if (isatty (fileno (stderr))) {
+    else if (is_interactive)
       render_plain (stderr, &snap, stats, &banner_shown, &bounce_pos, &bounce_dir, bounce_width,
                     spin_idx);
-    } else {
+    else
       render_fallback (stderr, &snap, stats, spin_idx);
+
+    if (snap.state == SPN_END) {
+      finish_spinner_output (&snap, is_interactive);
+      break;
     }
 
-    if (nanosleep (&ts, NULL) == -1 && errno != EINTR) {
+    if (nanosleep (&ts, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
-    }
   }
+
+  return NULL;
 }
 
-/* Create the processing spinner's thread */
+/* Create the processing spinner thread. */
 void
 ui_spinner_create (GSpinner *spinner) {
-  if (conf.no_parsing_spinner)
+  int ret = 0;
+
+  if (conf.no_parsing_spinner || spinner->thread_started)
     return;
-  pthread_create (&(spinner->thread), NULL, (void *) &ui_spinner, spinner);
-  pthread_detach (spinner->thread);
+
+  ret = pthread_create (&spinner->thread, NULL, ui_spinner, spinner);
+  if (ret != 0)
+    FATAL ("Unable to create spinner thread: %s", strerror (ret));
+  spinner->thread_started = 1;
 }
 
 /* Initialize processing spinner data. */
@@ -1054,23 +1098,26 @@ set_curses_spinner (GSpinner *spinner) {
   spinner->y = y - 1;
 }
 
-/* Determine if we need to lock the mutex. */
+/* Lock the spinner mutex when the spinner has been initialized. */
 void
 lock_spinner (void) {
-  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+  if (parsing_spinner != NULL)
     pthread_mutex_lock (&parsing_spinner->mutex);
 }
 
-/* Determine if we need to unlock the mutex. */
+/* Unlock the spinner mutex when the spinner has been initialized. */
 void
 unlock_spinner (void) {
-  if (parsing_spinner != NULL && parsing_spinner->state == SPN_RUN)
+  if (parsing_spinner != NULL)
     pthread_mutex_unlock (&parsing_spinner->mutex);
 }
 
 /* Set a determinate spinner phase and its progress. */
 void
 set_spinner_progress (const char *label, uint64_t processed, uint64_t total) {
+  if (parsing_spinner == NULL)
+    return;
+
   lock_spinner ();
   parsing_spinner->label = label;
   parsing_spinner->progress = processed;
