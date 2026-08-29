@@ -1772,19 +1772,32 @@ verify_missing_fields (GLogItem *logitem) {
   return logitem->errstr != NULL;
 }
 
+/* Check whether a parsed browser or OS type is classified as a crawler.
+ *
+ * On success, non-zero is returned.
+ * On failure, 0 is returned. */
+static int
+is_crawler_type (const char *type) {
+  return type && !strcmp (type, "Crawlers");
+}
+
 /* Determine if the request is from a robot or spider and check if we
  * need to ignore or show crawlers only.
  *
- * If the request line is not ignored, 0 is returned.
- * If the request line is ignored, 1 is returned. */
+ * On success (the request should be kept), 1 is returned.
+ * On failure (the request should be ignored), 0 is returned. */
 static int
-handle_crawler (const char *agent) {
+handle_crawler (const GLogItem *logitem) {
   int bot = 0;
 
   if (!conf.ignore_crawlers && !conf.crawlers_only)
     return 1;
 
-  bot = is_crawler (agent);
+  if (!logitem->browser_type && !logitem->os_type)
+    bot = is_crawler (logitem->agent);
+  else
+    bot = is_crawler_type (logitem->browser_type) || is_crawler_type (logitem->os_type);
+
   return (conf.ignore_crawlers && bot) || (conf.crawlers_only && !bot) ? 0 : 1;
 }
 
@@ -1851,7 +1864,7 @@ static int
 ignore_line (GLogItem *logitem) {
   if (excluded_ip (logitem) == 0)
     return IGNORE_LEVEL_PANEL;
-  if (handle_crawler (logitem->agent) == 0)
+  if (handle_crawler (logitem) == 0)
     return IGNORE_LEVEL_PANEL;
   if (ignore_referer (logitem->ref))
     return IGNORE_LEVEL_PANEL;
