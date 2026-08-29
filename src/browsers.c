@@ -47,6 +47,12 @@
 static char ***browsers_hash = NULL;
 
 static const char *const browsers[][2] = {
+  /* Specific signatures must precede the broader fallback tokens below. */
+  {"Apache-HttpClient", "HTTP Library"},
+  {"Java-http-client", "HTTP Library"},
+  {"node-fetch", "HTTP Library"},
+  {"GoogleHC", "Uptime"},
+
   /* Game Systems: place game console browsers here */
   {"Xbox One", "Game Systems"},
   {"Xbox", "Game Systems"},
@@ -165,7 +171,6 @@ static const char *const browsers[][2] = {
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
   {"Brainstorm", "Feeds"},
-  {"Mastodon", "Feeds"},
   {"Pleroma", "Feeds"},
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
@@ -194,8 +199,9 @@ static const char *const browsers[][2] = {
   {"Google-Read-Aloud", "Crawlers"},
   {"Google", "Crawlers"},
   {"WhatsApp", "Crawlers"},
-  {"AppleBot", "Crawlers"},
   {"Applebot-Extended", "Crawlers"},
+  {"Applebot", "Crawlers"},
+  {"AppleBot", "Crawlers"}, /* Retain compatibility with the legacy spelling. */
   {"facebookexternalhit", "Crawlers"},
   {"Facebot", "Crawlers"},
   {"Twitter", "Crawlers"},
@@ -253,7 +259,6 @@ static const char *const browsers[][2] = {
   {"WinHttp_WINHTTPREQUEST5", "Crawlers"},
   {"NetSystemsResearch", "Crawlers"},
   {"Nextcloud Server Crawler", "Crawlers"},
-  {"CFNetwork", "Crawlers"},
   {"GoScraper", "Crawlers"},
   {"Googlebot-Image", "Crawlers"},
   {"ZmEu", "Crawlers"},
@@ -272,8 +277,6 @@ static const char *const browsers[][2] = {
   {"PerplexityBot", "Crawlers"},
   {"Amazonbot", "Crawlers"},
   {"SkypeUriPreview", "Crawlers"},
-  {"OAI-SearchBot", "Crawlers"},
-  {"OAI-SearchBot", "Crawlers"}, /* duplicate-safe if you dedupe elsewhere */
 
   /* Based on Firefox: place all Firefox-based browsers here */
   {"Camino", "Others"},
@@ -303,12 +306,9 @@ static const char *const browsers[][2] = {
   /* HTTP Library or HTTP Server User Agents: place here */
   {"axios", "HTTP Library"}, /* NodeJS axios */
   {"lua-resty-http", "HTTP Library"}, /* Ngx luarestyhttp module */
-  {"Apache-HttpClient", "HTTP Library"},
   {"GuzzleHttp", "HTTP Library"},
   {"RestSharp", "HTTP Library"},
   {"http.rb", "HTTP Library"},
-  {"Java-http-client", "HTTP Library"},
-  {"node-fetch", "HTTP Library"},
 
   /* Citation Services: place here */
   {"Citoid", "Citation"}, /* MediaWiki Citoid */
@@ -338,7 +338,6 @@ static const char *const browsers[][2] = {
   {"NewRelicSynthetics", "Uptime"},
   {"DatadogSynthetics", "Uptime"},
   {"ELB-HealthChecker", "Uptime"},
-  {"GoogleHC", "Uptime"},
   {"kube-probe", "Uptime"},
   {"Fastly-HealthChecker", "Uptime"},
   {"Cloudflare-Healthchecks", "Uptime"},
@@ -353,6 +352,7 @@ static const char *const browsers[][2] = {
   {"ACI Site Scanner", "Security"}, /* Can't confirm specific vendor */
 
   /* Mozilla: catch-all for Mozilla-related user agents */
+  {"Mozilla", "Others"},
   {"mozilla", "Others"}
 };
 
