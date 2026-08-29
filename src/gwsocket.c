@@ -382,10 +382,9 @@ void
 stop_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
   pthread_t writer, reader;
   WSServer *server = NULL;
+  int ret = 0;
 
   if (!gwsreader || !gwswriter)
-    return;
-  if (!(server = gwswriter->server))
     return;
 
   pthread_mutex_lock (&gwsreader->mutex);
@@ -393,40 +392,39 @@ stop_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
     LOG (("Unable to write to self pipe on pipeout.\n"));
   pthread_mutex_unlock (&gwsreader->mutex);
 
-  /* if it fails to write, force stop */
   pthread_mutex_lock (&gwswriter->mutex);
-  if ((write (server->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
-    ws_stop (server);
+  server = gwswriter->server;
+  if (server && (write (server->self_pipe[1], "x", 1)) == -1 && errno != EAGAIN)
+    LOG (("Unable to write to WebSocket server self pipe.\n"));
   pthread_mutex_unlock (&gwswriter->mutex);
 
   reader = gwsreader->thread;
-  if (pthread_join (reader, NULL) != 0)
-    LOG (("Unable to join thread gwsreader: %s\n", strerror (errno)));
+  if ((ret = pthread_join (reader, NULL)) != 0)
+    LOG (("Unable to join thread gwsreader: %s\n", strerror (ret)));
 
   writer = gwswriter->thread;
-  if (pthread_join (writer, NULL) != 0)
-    LOG (("Unable to join thread gwswriter: %s\n", strerror (errno)));
+  if ((ret = pthread_join (writer, NULL)) != 0)
+    LOG (("Unable to join thread gwswriter: %s\n", strerror (ret)));
 }
 
-/* Start the WebSocket server and initialize default options. */
-static void
+/* Run the WebSocket server until the controlling thread requests completion.
+ *
+ * On success, NULL is returned.
+ * On failure, NULL is returned. */
+static void *
 start_server (void *ptr_data) {
   GWSWriter *writer = (GWSWriter *) ptr_data;
+  WSServer *server = writer->server;
 
-  writer->server->onopen = onopen;
-#ifdef HAVE_LIBSSL
-  if (conf.ws_auth_secret)
-    writer->server->onmessage = onmessage;
-#endif
+  ws_start (server);
+  fprintf (stderr, "Stopping WebSocket server...\n");
 
   pthread_mutex_lock (&writer->mutex);
-  set_self_pipe (writer->server->self_pipe);
+  writer->server = NULL;
+  ws_stop (server);
   pthread_mutex_unlock (&writer->mutex);
 
-  /* poll(2) will block in here */
-  ws_start (writer->server);
-  fprintf (stderr, "Stopping WebSocket server...\n");
-  ws_stop (writer->server);
+  return NULL;
 }
 
 /* Read and set the WebSocket config options. */
@@ -457,11 +455,15 @@ set_ws_opts (void) {
 #endif
 }
 
-/* Setup and start the WebSocket threads. */
+/* Set up and start the WebSocket threads.
+ *
+ * On success, 0 is returned.
+ * On failure, this function does not return. */
 int
 setup_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
-  int id;
-  pthread_t *thread;
+  WSServer *server = NULL;
+  pthread_t *thread = NULL;
+  int id = 0;
 
   if (pthread_mutex_init (&gwswriter->mutex, NULL))
     FATAL ("Failed init gwswriter mutex");
@@ -475,13 +477,23 @@ setup_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
   if ((gwswriter->server = ws_init ("0.0.0.0", "7890", set_ws_opts)) == NULL)
     FATAL ("Failed init websocket");
 
-  id = pthread_create (&(*thread), NULL, (void *) &start_server, gwswriter);
+  server = gwswriter->server;
+  server->onopen = onopen;
+#ifdef HAVE_LIBSSL
+  if (conf.ws_auth_secret)
+    server->onmessage = onmessage;
+#endif
+
+  set_self_pipe (server->self_pipe);
+  set_self_pipe (gwsreader->self_pipe);
+
+  id = pthread_create (&(*thread), NULL, start_server, gwswriter);
   if (id)
     FATAL ("Return code from pthread_create(): %d", id);
 
   /* read WS data thread */
   thread = &gwsreader->thread;
-  id = pthread_create (&(*thread), NULL, (void *) &read_client, gwsreader);
+  id = pthread_create (&(*thread), NULL, read_client, gwsreader);
   if (id)
     FATAL ("Return code from pthread_create(): %d", id);
 

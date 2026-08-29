@@ -875,19 +875,17 @@ fast_forward_client (int listener) {
   free (json);
 }
 
-/* Start reading data coming from the client side through the
- * WebSocket server. */
-void
+/* Read client data until the WebSocket server requests completion.
+ *
+ * On success, NULL is returned.
+ * On failure, NULL is returned. */
+void *
 read_client (void *ptr_data) {
   GWSReader *reader = (GWSReader *) ptr_data;
 
   /* check we have a fifo for reading */
   if (reader->fd == -1)
-    return;
-
-  pthread_mutex_lock (&reader->mutex);
-  set_self_pipe (reader->self_pipe);
-  pthread_mutex_unlock (&reader->mutex);
+    return NULL;
 
   while (1) {
     /* poll(2) will block */
@@ -895,6 +893,8 @@ read_client (void *ptr_data) {
       break;
   }
   close (reader->fd);
+
+  return NULL;
 }
 
 /* Parse tailed lines */
@@ -1511,6 +1511,8 @@ standard_output (Logs *logs) {
     if (conf.real_time_html)
       setup_ws_server (gwswriter, gwsreader);
     process_html (logs, html);
+    if (conf.real_time_html)
+      stop_ws_server (gwswriter, gwsreader);
   }
 
   free (csv);
@@ -1641,6 +1643,7 @@ parse_cmd_line (int argc, char **argv) {
   set_default_static_files ();
 }
 
+/* Record a termination request for processing by the main control flow. */
 static void
 handle_signal_action (GO_UNUSED int sig_number) {
   if (sig_number == SIGINT)
@@ -1653,8 +1656,6 @@ handle_signal_action (GO_UNUSED int sig_number) {
     fprintf (stderr, "\nSignal %d caught!\n", sig_number);
   fprintf (stderr, "Closing GoAccess...\n");
 
-  if (conf.output_stdout && conf.real_time_html)
-    stop_ws_server (gwswriter, gwsreader);
   conf.stop_processing = 1;
 }
 

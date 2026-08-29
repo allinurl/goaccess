@@ -38,6 +38,6 @@
 extern GSpinner *parsing_spinner;
 extern int active_gdns;         /* kill dns pthread flag */
 
-void read_client (void *ptr_data);
+void *read_client (void *ptr_data);
 
 #endif
