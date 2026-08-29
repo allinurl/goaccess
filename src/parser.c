@@ -72,6 +72,9 @@
 #include "websocket.h"
 #include "xmalloc.h"
 
+/* Conventional missing-value marker for standalone query-string fields. */
+#define MISSING_QUERY_STRING "-"
+
 /* Allocate memory for a new GRawData instance.
  *
  * On success, the newly allocated GRawData is returned . */
@@ -1204,7 +1207,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (logitem->qstr)
       return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0') {
+    if (tkn == NULL || *tkn == '\0' || !strcmp (tkn, MISSING_QUERY_STRING)) {
       free (tkn);
       return 0;
     }

@@ -78,7 +78,7 @@ terminal. Features include:
 GoAccess allows any custom log format string. Predefined options include, but
 not limited to:
 
-* Amazon CloudFront (Download Distribution).
+* Amazon CloudFront standard logs (legacy fixed schema).
 * Amazon Simple Storage Service (S3)
 * AWS Elastic Load Balancing
 * Combined Log Format (XLF/ELF) Apache | Nginx

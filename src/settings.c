@@ -76,7 +76,9 @@ static const GPreConfLog logs = {
   "%v %h %^[%d:%t %^] \"%r\" %s %b",                           /* CLF + VHost */
   "%v:%p %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF + VHost:Port */
   "%d %t %^ %m %U %q %^ %^ %h %u %R %s %^ %^ %L",               /* W3C */
-  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q\\t%^\\t%C\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",  /* CloudFront */
+  /* CloudFront legacy standard-log prefix; newer trailing fields are ignored. */
+  "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q"
+  "\\t%^\\t%C\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
   "%^ %dT%t.%^ %^ %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^ \"%^\" \"%v\"",    /* AWS Elastic Load Balancing */
   "%^ %^ %^ %v %^: %x.%^ %~%L %h %^/%s %b %m %U",               /* Squid Native */

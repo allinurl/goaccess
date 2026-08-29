@@ -629,7 +629,7 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
     "Common Log Format (CLF)",
     "Common Log Format (CLF) with Virtual Host",
     "W3C",
-    "CloudFront (Download Distribution)",
+    "CloudFront standard logs (legacy)",
     "Google Cloud Storage",
     "AWS Elastic Load Balancing (HTTP/S)",
     "Squid Native Format",
