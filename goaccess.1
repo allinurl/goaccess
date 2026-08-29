@@ -246,19 +246,25 @@ the following predefined log format names can be supplied to the
 log/date/time-format variables. GoAccess can also handle one predefined name in
 one variable and another predefined name in another variable.
 .IP
-  COMBINED     - Combined Log Format,
-  VCOMBINED    - Combined Log Format with Virtual Host,
-  COMMON       - Common Log Format,
-  VCOMMON      - Common Log Format with Virtual Host,
-  W3C          - W3C Extended Log File Format,
-  SQUID        - Native Squid Log Format,
-  CLOUDFRONT   - Amazon CloudFront Web Distribution,
-  CLOUDSTORAGE - Google Cloud Storage,
-  AWSELB       - Amazon Elastic Load Balancing,
-  AWSS3        - Amazon Simple Storage Service (S3)
-  AWSALB       - Amazon Application Load Balancer
-  CADDY        - Caddy's JSON Structured format (local/info format)
-  TRAEFIKCLF   - Traefik's CLF flavor
+  COMBINED       - Combined Log Format,
+  VCOMBINED      - Combined Log Format with full Virtual Host field,
+  VCOMBINED_PORT - Combined Log Format with required colon-delimited port,
+  COMMON         - Common Log Format,
+  VCOMMON        - Common Log Format with full Virtual Host field,
+  VCOMMON_PORT   - Common Log Format with required colon-delimited port,
+  W3C            - W3C Extended Log File Format,
+  SQUID          - Native Squid Log Format,
+  CLOUDFRONT     - Amazon CloudFront Web Distribution,
+  CLOUDSTORAGE   - Google Cloud Storage,
+  AWSELB         - Amazon Elastic Load Balancing,
+  AWSS3          - Amazon Simple Storage Service (S3)
+  AWSALB         - Amazon Application Load Balancer
+  CADDY          - Caddy's JSON Structured format (local/info format)
+  TRAEFIKCLF     - Traefik's CLF flavor
+.IP
+VCOMBINED and VCOMMON preserve the complete whitespace-delimited Virtual Host
+field, including a port when present. Their _PORT variants require a separate
+colon-delimited port and omit it from the reported Virtual Host value.
 .IP
 .I Note:
 Generally, you need quotes around values that include white spaces, commas,
@@ -1133,6 +1139,9 @@ date field matching the
 variable.
 .IP %v
 The canonical Server Name of the server serving the request (Virtual Host).
+.IP %p
+The server port. It must be a number from 0 through 65535 and is discarded
+after parsing.
 .IP %e
 This is the userid of the person requesting the document as determined by HTTP
 authentication.

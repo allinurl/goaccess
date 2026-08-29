@@ -48,8 +48,10 @@
 typedef enum LOGTYPE {
   COMBINED,
   VCOMBINED,
+  VCOMBINED_PORT,
   COMMON,
   VCOMMON,
+  VCOMMON_PORT,
   W3C,
   CLOUDFRONT,
   CLOUDSTORAGE,
@@ -80,8 +82,10 @@ typedef struct GPreConfDate_ {
 typedef struct GPreConfLog_ {
   const char *combined;
   const char *vcombined;
+  const char *vcombined_port;
   const char *common;
   const char *vcommon;
+  const char *vcommon_port;
   const char *w3c;
   const char *cloudfront;
   const char *cloudstorage;

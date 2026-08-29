@@ -746,6 +746,35 @@ parse_string (const char **str, const char *delims, int cnt) {
   return NULL;
 }
 
+/* Parse a virtual host without crossing its whitespace-delimited field.
+ *
+ * On success, the allocated virtual host is returned.
+ * On failure, NULL is returned. */
+static char *
+parse_vhost (const char **str, const char *end) {
+  const char *field_end = NULL, *separator = NULL;
+
+  if (*end != ':')
+    return parse_string (str, end, 1);
+
+  field_end = strpbrk (*str, " \t");
+  if (field_end == NULL)
+    field_end = *str + strlen (*str);
+
+  if (**str == '[') {
+    separator = memchr (*str, ']', field_end - *str);
+    if (separator == NULL || separator + 1 >= field_end || separator[1] != ':')
+      return NULL;
+    separator++;
+  } else {
+    separator = memchr (*str, ':', field_end - *str);
+    if (separator == NULL || separator == *str)
+      return NULL;
+  }
+
+  return parsed_string (separator, str, 1);
+}
+
 char *
 extract_by_delim (const char **str, const char *end) {
   return parse_string (&(*str), end, 1);
@@ -843,6 +872,11 @@ spec_err (GLogItem *logitem, int code, const char spec, const char *tkn) {
     fmt = "Incompatible format due to early parsed line ending '\\0'.";
     err = xmalloc (snprintf (NULL, 0, fmt, (tkn ? tkn : "-")) + 1);
     sprintf (err, fmt, (tkn ? tkn : "-"));
+    break;
+  case ERR_SPEC_VHOST_PORT:
+    fmt = "Virtual host for '%%%c' is missing the required colon-delimited port.";
+    err = xmalloc (snprintf (NULL, 0, fmt, spec) + 1);
+    sprintf (err, fmt, spec);
     break;
   }
   logitem->errstr = err;
@@ -983,7 +1017,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
 
   char *sEnd = NULL, *bEnd = NULL, *tkn = NULL;
   double serve_secs = 0.0;
-  uint64_t bandw = 0, serve_time = 0;
+  uint64_t bandw = 0, port = 0, serve_time = 0;
   int dspc = 0, fmtspcs = 0;
 
   errno = 0;
@@ -1056,10 +1090,34 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
   case 'v':
     if (logitem->vhost)
       return handle_default_case_token (str, p);
-    tkn = parse_string (&(*str), end, 1);
+    tkn = parse_vhost (&(*str), end);
+    if (tkn == NULL && *end == ':')
+      return spec_err (logitem, ERR_SPEC_VHOST_PORT, *p, NULL);
     if (tkn == NULL)
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     logitem->vhost = tkn;
+    break;
+  case 'p':
+    if (!(tkn = parse_string (&(*str), end, 1)))
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
+
+    for (bEnd = tkn; *bEnd != '\0'; bEnd++) {
+      if (!isdigit ((unsigned char) *bEnd)) {
+        spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
+        free (tkn);
+        return 1;
+      }
+    }
+
+    errno = 0;
+    port = strtoull (tkn, &bEnd, 10);
+    if (tkn == bEnd || *bEnd != '\0' || errno == ERANGE || port > UINT16_MAX) {
+      spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
+      free (tkn);
+      return 1;
+    }
+
+    free (tkn);
     break;
     /* remote user */
   case 'e':

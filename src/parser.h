@@ -50,6 +50,7 @@
 #define ERR_SPEC_LINE_INV          0x4
 #define ERR_LOG_NOT_FOUND          0x5
 #define ERR_LOG_REALLOC_FAILURE    0x6
+#define ERR_SPEC_VHOST_PORT        0x7
 
 
 #include <stdio.h>

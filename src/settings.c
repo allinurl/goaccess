@@ -51,26 +51,30 @@ static int nargc = 0;
 
 /* *INDENT-OFF* */
 static const GEnum LOGTYPE[] = {
-  {"COMBINED"     , COMBINED}     ,
-  {"VCOMBINED"    , VCOMBINED}    ,
-  {"COMMON"       , COMMON}       ,
-  {"VCOMMON"      , VCOMMON}      ,
-  {"W3C"          , W3C}          ,
-  {"CLOUDFRONT"   , CLOUDFRONT}   ,
-  {"CLOUDSTORAGE" , CLOUDSTORAGE} ,
-  {"AWSELB"       , AWSELB}       ,
-  {"SQUID"        , SQUID}        ,
-  {"AWSS3"        , AWSS3}        ,
-  {"CADDY"        , CADDY}        ,
-  {"AWSALB"       , AWSALB}       ,
-  {"TRAEFIKCLF"   , TRAEFIKCLF}   ,
+  {"COMBINED"       , COMBINED}       ,
+  {"VCOMBINED"      , VCOMBINED}      ,
+  {"VCOMBINED_PORT" , VCOMBINED_PORT} ,
+  {"COMMON"         , COMMON}         ,
+  {"VCOMMON"        , VCOMMON}        ,
+  {"VCOMMON_PORT"   , VCOMMON_PORT}   ,
+  {"W3C"            , W3C}            ,
+  {"CLOUDFRONT"     , CLOUDFRONT}     ,
+  {"CLOUDSTORAGE"   , CLOUDSTORAGE}   ,
+  {"AWSELB"         , AWSELB}         ,
+  {"SQUID"          , SQUID}          ,
+  {"AWSS3"          , AWSS3}          ,
+  {"CADDY"          , CADDY}          ,
+  {"AWSALB"         , AWSALB}         ,
+  {"TRAEFIKCLF"     , TRAEFIKCLF}     ,
 };
 
 static const GPreConfLog logs = {
   "%h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",                 /* NCSA */
-  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost  */
+  "%v %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",             /* NCSA + VHost */
+  "%v:%p %h %^[%d:%t %^] \"%r\" %s %b \"%R\" \"%u\"",           /* NCSA + VHost:Port */
   "%h %^[%d:%t %^] \"%r\" %s %b",                               /* CLF */
-  "%v:%^ %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF+VHost */
+  "%v %h %^[%d:%t %^] \"%r\" %s %b",                           /* CLF + VHost */
+  "%v:%p %h %^[%d:%t %^] \"%r\" %s %b",                         /* CLF + VHost:Port */
   "%d %t %^ %m %U %q %^ %^ %h %u %R %s %^ %^ %L",               /* W3C */
   "%d\\t%t\\t%^\\t%b\\t%h\\t%m\\t%v\\t%U\\t%s\\t%R\\t%u\\t%q\\t%^\\t%C\\t%^\\t%^\\t%^\\t%^\\t%T\\t%^\\t%K\\t%k\\t%^\\t%H\\t%^",  /* CloudFront */
   "\"%x\",\"%h\",%^,%^,\"%m\",\"%U\",\"%s\",%^,\"%b\",\"%D\",%^,\"%R\",\"%u\"", /* Cloud Storage */
@@ -383,10 +387,14 @@ get_selected_format_idx (void) {
     return COMMON;
   else if (strcmp (conf.log_format, logs.vcommon) == 0)
     return VCOMMON;
+  else if (strcmp (conf.log_format, logs.vcommon_port) == 0)
+    return VCOMMON_PORT;
   else if (strcmp (conf.log_format, logs.combined) == 0)
     return COMBINED;
   else if (strcmp (conf.log_format, logs.vcombined) == 0)
     return VCOMBINED;
+  else if (strcmp (conf.log_format, logs.vcombined_port) == 0)
+    return VCOMBINED_PORT;
   else if (strcmp (conf.log_format, logs.w3c) == 0)
     return W3C;
   else if (strcmp (conf.log_format, logs.cloudfront) == 0)
@@ -424,11 +432,17 @@ get_selected_format_str (size_t idx) {
   case VCOMBINED:
     fmt = alloc_string (logs.vcombined);
     break;
+  case VCOMBINED_PORT:
+    fmt = alloc_string (logs.vcombined_port);
+    break;
   case COMMON:
     fmt = alloc_string (logs.common);
     break;
   case VCOMMON:
     fmt = alloc_string (logs.vcommon);
+    break;
+  case VCOMMON_PORT:
+    fmt = alloc_string (logs.vcommon_port);
     break;
   case W3C:
     fmt = alloc_string (logs.w3c);
@@ -473,8 +487,10 @@ get_selected_date_str (size_t idx) {
   switch (idx) {
   case COMMON:
   case VCOMMON:
+  case VCOMMON_PORT:
   case COMBINED:
   case VCOMBINED:
+  case VCOMBINED_PORT:
   case AWSS3:
   case TRAEFIKCLF:
     fmt = alloc_string (dates.apache);
@@ -512,7 +528,9 @@ get_selected_time_str (size_t idx) {
   case COMBINED:
   case COMMON:
   case VCOMBINED:
+  case VCOMBINED_PORT:
   case VCOMMON:
+  case VCOMMON_PORT:
   case W3C:
   case AWSS3:
   case TRAEFIKCLF:

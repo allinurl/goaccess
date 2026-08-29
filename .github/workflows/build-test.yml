@@ -67,7 +67,9 @@ jobs:
           echo -e 'localhost:80 192.168.0.1 - - [01/Jul/2013:06:20:38 -0500] "GET / HTTP/1.1" 200 3829 "-" "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:21.0) Gecko/20100101 Firefox/21.0"\
           google.com:80 ::1 - - [01/Jul/2013:06:25:11 -0500] "OPTIONS * HTTP/1.0" 200 136 "-" "Apache (internal dummy connection)"\
           bing.com:80 142.250.190.142 - - [01/Jul/2013:06:41:31 -0500] "-" 408 0 "-" "-"\
+          [2001:db8::1]:443 2001:db8::2 - - [01/Jul/2013:06:45:00 -0500] "GET /ipv6 HTTP/1.1" 200 42 "-" "IPv6 test"\
           yahoo.com:80 74.6.143.25 - - [01/Jul/2013:07:20:02 -0500] "HEAD / HTTP/1.1" 200 213 "-" "Wget/1.14 (linux-gnu)"' > access.log
+          printf '%s\n' 'test ::1 - - [01/Jul/2013:07:25:00 -0500] "GET / HTTP/1.1" 200 0' > vcommon.log
           cat access.log
 
       - name: Set up output directory
@@ -80,12 +82,16 @@ jobs:
         run: ./goaccess access.log --log-format=VCOMBINED -o ${output_dir}/report.html
 
       - name: Run goaccess multi-thread
-        run: ./goaccess access.log --log-format='%v:%^ %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o ${output_dir}/report.html -j 2 -a --tz="Europe/Berlin"
+        run: ./goaccess access.log --log-format='%v:%p %h %^[%x] "%r" %s %b "%R" "%u"' --datetime-format='%d/%b/%Y:%H:%M:%S %z' -o ${output_dir}/report.html -j 2 -a --tz="Europe/Berlin"
 
       - name: Run goaccess multi-thread JSON output
         run: |
           ./goaccess access.log --log-format=VCOMBINED -o ${output_dir}/report.json -j 2 -a --json-pretty-print
-          cat ${output_dir}/report.json | jq .
+          jq -e 'any(.vhosts.data[]; .data == "localhost:80") and any(.vhosts.data[]; .data == "[2001:db8::1]:443")' ${output_dir}/report.json
+          ./goaccess access.log --log-format=VCOMBINED_PORT -o ${output_dir}/report-port.json -j 2 -a --json-pretty-print
+          jq -e 'any(.vhosts.data[]; .data == "localhost") and any(.vhosts.data[]; .data == "[2001:db8::1]")' ${output_dir}/report-port.json
+          ./goaccess vcommon.log --log-format=VCOMMON -o ${output_dir}/vcommon.json --json-pretty-print
+          jq -e '(.general.valid_requests == 1) and any(.vhosts.data[]; .data == "test")' ${output_dir}/vcommon.json
 
       - name: Run static output resolver
         run: |
