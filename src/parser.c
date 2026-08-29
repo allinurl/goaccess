@@ -75,6 +75,15 @@
 /* Conventional missing-value marker for standalone query-string fields. */
 #define MISSING_QUERY_STRING "-"
 
+/* TLS wire-protocol version codes emitted by Caddy's JSON access logger. */
+enum GTLSVersionCode {
+  TLS_VERSION_SSL3 = 0x0300,
+  TLS_VERSION_1_0 = 0x0301,
+  TLS_VERSION_1_1 = 0x0302,
+  TLS_VERSION_1_2 = 0x0303,
+  TLS_VERSION_1_3 = 0x0304,
+};
+
 /* Allocate memory for a new GRawData instance.
  *
  * On success, the newly allocated GRawData is returned . */
@@ -627,7 +636,41 @@ parse_req (char *line, char **method, char **protocol) {
   return dreq;
 }
 
+/* Map a numeric TLS wire-protocol version to its display name.
+ *
+ * On success, a pointer to the static display name is returned.
+ * On failure, NULL is returned. */
+static const char *
+get_numeric_tls_version (const char *token) {
+  char *end = NULL;
+  unsigned long version = 0;
+
+  errno = 0;
+  version = strtoul (token, &end, 10);
+  if (token == end || *end != '\0' || errno == ERANGE)
+    return NULL;
+
+  switch (version) {
+  case TLS_VERSION_SSL3:
+    return "SSLv3";
+  case TLS_VERSION_1_0:
+    return "TLSv1";
+  case TLS_VERSION_1_1:
+    return "TLSv1.1";
+  case TLS_VERSION_1_2:
+    return "TLSv1.2";
+  case TLS_VERSION_1_3:
+    return "TLSv1.3";
+  default:
+    return NULL;
+  }
+}
+
 #if defined(HAVE_LIBSSL) && defined(HAVE_CIPHER_STD_NAME)
+/* Resolve a numeric TLS cipher and consume the supplied token.
+ *
+ * On success, the resolved cipher is assigned and 0 is returned.
+ * On failure, 1 is returned. */
 static int
 extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
   SSL_CTX *ctx = NULL;
@@ -669,7 +712,8 @@ extract_tls_version_cipher (char *tkn, char **cipher, char **tls_version) {
     goto fail;
   }
   *cipher = xstrdup (sn);
-  *tls_version = xstrdup (SSL_CIPHER_get_version (c));
+  if (!*tls_version)
+    *tls_version = xstrdup (SSL_CIPHER_get_version (c));
 
   free (tkn);
   SSL_free (ssl);
@@ -1013,9 +1057,8 @@ normalize_mime_type (const char *mime, char *out, size_t out_size) {
 static int
 parse_specifier (GLogItem *logitem, const char **str, const char *p, const char *end) {
   struct tm tm;
-  const char *dfmt = conf.date_format;
-  const char *tfmt = conf.time_format;
-  const char *pch = NULL;
+  const char *dfmt = conf.date_format, *tfmt = conf.time_format;
+  const char *pch = NULL, *tls_version = NULL;
   char norm_mime[MAX_MIME_OUT] = { 0 };
 
   char *sEnd = NULL, *bEnd = NULL, *tkn = NULL;
@@ -1456,6 +1499,10 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
+    if ((tls_version = get_numeric_tls_version (tkn))) {
+      free (tkn);
+      tkn = xstrdup (tls_version);
+    }
     logitem->tls_type = tkn;
     break;
 

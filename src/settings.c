@@ -88,7 +88,7 @@ static const GPreConfLog logs = {
   "{ \"ts\": \"%x.%^\", \"request\": { \"client_ip\": \"%h\", \"proto\":"
   "\"%H\", \"method\": \"%m\", \"host\": \"%v\", \"uri\": \"%U\", \"headers\": {"
   "\"User-Agent\": [\"%u\"], \"Referer\": [\"%R\"] }, \"tls\": { \"cipher_suite\":"
-  "\"%k\", \"proto\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
+  "\"%k\", \"version\": \"%K\" } }, \"duration\": \"%T\", \"size\": \"%b\","
   "\"status\": \"%s\", \"resp_headers\": { \"Content-Type\": [\"%M\"] } }",
 
   "%^ %dT%t.%^ %v %h:%^ %^ %^ %T %^ %s %^ %^ %b \"%r\" \"%u\" %k %K %^", /* Amazon ALB */
