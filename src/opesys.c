@@ -28,8 +28,10 @@
  * SOFTWARE.
  */
 
-#include <string.h>
+#include <errno.h>
 #include <stddef.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "opesys.h"
 
@@ -43,7 +45,13 @@
 
 /* {"search string", "belongs to"} */
 static const char *const os[][2] = {
+  {"Windows Phone 10.0", "Windows"},
+  {"Windows Phone 8.1", "Windows"},
+  {"Windows Phone 8.0", "Windows"},
   {"Android", "Android"},
+  {"Xbox One", "Windows"},
+  {"Xbox", "Windows"},
+  {"Windows NT 11.0", "Windows"},
   {"Windows NT 10.0", "Windows"},
   {"Windows NT 6.3; ARM", "Windows"},
   {"Windows NT 6.3", "Windows"},
@@ -61,19 +69,23 @@ static const char *const os[][2] = {
   {"Windows 98", "Windows"},
   {"Windows 95", "Windows"},
   {"Windows CE", "Windows"},
-  {"Windows Phone 8.1", "Windows"},
-  {"Windows Phone 8.0", "Windows"},
   {"Windows", "Windows"},
 
   {"Googlebot", "Unix-like"},
   {"Mastodon", "Unix-like"},
   {"bingbot", "Windows"},
 
+  {"iPadOS", "iOS"},
   {"iPad", "iOS"},
   {"iPod", "iOS"},
   {"iPhone", "iOS"},
   {"CFNetwork", "iOS"},
   {"AppleTV", "iOS"},
+  {"visionOS", "iOS"},
+  {"watchOS", "iOS"},
+  {"tvOS", "iOS"},
+  {"KaiOS", "Linux"},
+  {"iOS", "iOS"},
   {"iTunes", "macOS"},
   {"OS X", "macOS"},
   {"macOS", "macOS"},
@@ -109,10 +121,11 @@ static const char *const os[][2] = {
 
   {"PlayStation", "BSD"},
 
+  {"CrOS", "Chrome OS"},
   {"Linux", "Linux"},
   {"linux", "Linux"},
 
-  {"CrOS", "Chrome OS"},
+  {"Fuchsia", "Others"},
   {"QNX", "Unix-like"},
   {"BB10", "Unix-like"},
 
@@ -127,8 +140,6 @@ static const char *const os[][2] = {
   {"Nokia", "Others"},
   {"Nintendo", "Others"},
   {"Apache", "Others"},
-  {"Xbox One", "Windows"},
-  {"Xbox", "Windows"},
 };
 
 /* Get the Android code name (if applicable).
@@ -138,7 +149,9 @@ static const char *const os[][2] = {
  * returned. */
 static char *
 get_real_android (const char *droid) {
-  if (strstr (droid, "16"))
+  if (strstr (droid, "17"))
+    return alloc_string ("Android 17");
+  else if (strstr (droid, "16"))
     return alloc_string ("Android 16");
   else if (strstr (droid, "15"))
     return alloc_string ("Android 15");
@@ -207,7 +220,7 @@ get_real_win (const char *win) {
   if (strstr (win, "11.0"))
     return alloc_string ("Windows 11");
   else if (strstr (win, "10.0"))
-    return alloc_string ("Windows 10");
+    return alloc_string ("Windows 10+");
   else if (strstr (win, "6.3"))
     return alloc_string ("Windows 8.1");
   else if (strstr (win, "6.2"))
@@ -225,6 +238,32 @@ get_real_win (const char *win) {
   return NULL;
 }
 
+/* Extract the leading major version from a macOS user-agent token.
+ *
+ * On success, the positive major version is returned.
+ * On failure, 0 is returned. */
+static long
+get_mac_os_major (const char *osx) {
+  char *end = NULL;
+  const char *version = NULL;
+  long major = 0;
+
+  if (!strncmp (osx, "OS X ", 5))
+    version = osx + 5;
+  else if (!strncmp (osx, "macOS/", 6) || !strncmp (osx, "macOS ", 6))
+    version = osx + 6;
+
+  if (!version)
+    return 0;
+
+  errno = 0;
+  major = strtol (version, &end, 10);
+  if (errno || end == version || (*end != '.' && *end != '\0') || major <= 0)
+    return 0;
+
+  return major;
+}
+
 /* Get the Mac OS X code name (if applicable).
  *
  * On error, the given name is allocated and returned.
@@ -232,20 +271,26 @@ get_real_win (const char *win) {
  * returned. */
 static char *
 get_real_mac_osx (const char *osx) {
-  if (strstr (osx, "26.0") || strstr (osx, "Tahoe"))
+  long major = 0;
+
+  major = get_mac_os_major (osx);
+
+  if (major == 27 || strstr (osx, "Golden Gate"))
+    return alloc_string ("macOS 27 Golden Gate");
+  else if (major == 26 || strstr (osx, "Tahoe"))
     return alloc_string ("macOS 26 Tahoe");
-  else if (strstr (osx, "15.0") || strstr (osx, "Sequoia"))
+  else if (major == 15 || strstr (osx, "Sequoia"))
     return alloc_string ("macOS 15 Sequoia");
-  else if (strstr (osx, "14.0") || strstr (osx, "Sonoma"))
+  else if (major == 14 || strstr (osx, "Sonoma"))
     return alloc_string ("macOS 14 Sonoma");
-  else if (strstr (osx, "13.0") || strstr (osx, "Ventura"))
+  else if (major == 13 || strstr (osx, "Ventura"))
     return alloc_string ("macOS 13 Ventura");
-  else if (strstr (osx, "12.0") || strstr (osx, "Monterey"))
+  else if (major == 12 || strstr (osx, "Monterey"))
     return alloc_string ("macOS 12 Monterey");
-  else if (strstr (osx, "11.0") || strstr (osx, "Big Sur"))
+  else if (major == 11 || strstr (osx, "Big Sur"))
     return alloc_string ("macOS 11 Big Sur");
   else if (strstr (osx, "10.15")) /* Catalina */
-    return alloc_string ("macOS 10.15 Catalina");
+    return alloc_string ("macOS 10.15+");
   else if (strstr (osx, "10.14")) /* Mojave */
     return alloc_string ("macOS 10.14 Mojave");
   else if (strstr (osx, "10.13")) /* High Sierra */
@@ -376,43 +421,67 @@ parse_android (char *agent) {
 static char *
 parse_os (char *str, char *tkn, char *os_type, int idx) {
   char *b;
-  int spaces = 0;
+  const char *rule = os[idx][0];
+  int reduced_android = 0, spaces = 0;
 
   xstrncpy (os_type, os[idx][1], OPESYS_TYPE_LEN);
   /* Windows */
-  if ((strstr (str, "Windows")) != NULL)
-    return conf.real_os && (b = get_real_win (tkn)) ? b : xstrdup (os[idx][0]);
+  if ((strstr (rule, "Windows Phone")) != NULL)
+    return xstrdup (rule);
+  if ((strstr (rule, "Windows")) != NULL)
+    return conf.real_os && (b = get_real_win (rule)) ? b : xstrdup (rule);
   /* Android */
-  if ((strstr (tkn, "Android")) != NULL) {
+  if ((strstr (rule, "Android")) != NULL) {
+    reduced_android = strstr (tkn, "Android 10; K") != NULL;
     tkn = parse_android (tkn);
+    if (conf.real_os && reduced_android)
+      return alloc_string ("Android 10+");
     return conf.real_os ? get_real_android (tkn) : xstrdup (tkn);
   }
   /* iOS */
-  if ((strstr (tkn, "CFNetwork")) != NULL) {
+  if ((strstr (rule, "CFNetwork")) != NULL) {
     if ((b = strchr (str, ' ')))
       *b = 0;
     return xstrdup (str);
   }
-  if (strstr (tkn, "iPad") || strstr (tkn, "iPod"))
+  if (!strcmp (rule, "iPad") || !strcmp (rule, "iPod"))
     return xstrdup (parse_ios (tkn, 4));
-  if (strstr (tkn, "iPhone"))
+  if (!strcmp (rule, "iPhone"))
     return xstrdup (parse_ios (tkn, 6));
   /* Mac OS X */
-  if (strstr (tkn, "OS X") || strstr (tkn, "macOS")) {
+  if (!strcmp (rule, "OS X") || !strcmp (rule, "macOS")) {
     tkn = parse_osx (tkn);
     return conf.real_os ? get_real_mac_osx (tkn) : xstrdup (tkn);
   }
   /* Darwin - capture the first part of agents such as:
    * Slack/248000 CFNetwork/808.0.2 Darwin/16.0.0 */
-  if ((strstr (tkn, "Darwin")) != NULL) {
+  if (!strcmp (rule, "Darwin")) {
     if ((b = strchr (str, ' ')))
       *b = 0;
     return xstrdup (str);
   }
   /* all others */
-  spaces = count_matches (os[idx][0], ' ');
+  spaces = count_matches (rule, ' ');
 
   return alloc_string (parse_others (tkn, spaces));
+}
+
+/* Find an OS token without treating embedded iOS browser tokens as an OS.
+ *
+ * On success, a pointer to the matching token is returned.
+ * On failure, NULL is returned. */
+static char *
+find_os_match (char *str, const char *rule) {
+  char *match = NULL;
+
+  match = strstr (str, rule);
+  if (strcmp (rule, "iOS"))
+    return match;
+
+  while (match && match != str && match[-1] != ' ' && match[-1] != '(' && match[-1] != ';')
+    match = strstr (match + 1, rule);
+
+  return match;
 }
 
 /* Given a user agent, determine the operating system used.
@@ -432,7 +501,7 @@ verify_os (char *str, char *os_type) {
 
   str = char_replace (str, '+', ' ');
   for (i = 0; i < ARRAY_SIZE (os); i++) {
-    if ((a = strstr (str, os[i][0])) != NULL)
+    if ((a = find_os_match (str, os[i][0])) != NULL)
       return parse_os (str, a, os_type, i);
   }
 
