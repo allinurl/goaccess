@@ -87,5 +87,13 @@ jobs:
           ./goaccess access.log --log-format=VCOMBINED -o ${output_dir}/report.json -j 2 -a --json-pretty-print
           cat ${output_dir}/report.json | jq .
 
+      - name: Run static output resolver
+        run: |
+          printf '%s\n' '127.0.0.1 - - [01/Jul/2013:06:20:38 -0500] "GET / HTTP/1.1" 200 1 "-" "resolver-test"' > resolver.log
+          resolver_output="$(./goaccess resolver.log --log-format=COMBINED --with-output-resolver -o ${output_dir}/resolver.json 2>&1)"
+          printf '%s\n' "${resolver_output}"
+          printf '%s\n' "${resolver_output}" | tr '\r' '\n' | grep -F '1/1 (0 pending)'
+          jq -e '(.hosts.data | length) == 1 and (.hosts.data[0].hostname | type) == "string" and (.hosts.data[0].hostname | length) > 0' ${output_dir}/resolver.json
+
       - name: Make distclean
         run: sudo make distclean

@@ -221,8 +221,11 @@ house_keeping (void) {
   free (gwsreader);
 }
 
+/* Stop active UI work and release process resources. */
 static void
 cleanup (int ret) {
+  end_spinner ();
+
   /* done, restore tty modes and reset terminal into
    * non-visual mode */
   if (!conf.output_stdout)
