@@ -218,6 +218,8 @@ goaccess_SOURCES = \
    src/tpl.h           \
    src/ui.c            \
    src/ui.h            \
+   src/utm.c           \
+   src/utm.h           \
    src/util.c          \
    src/util.h          \
    src/websocket.c     \

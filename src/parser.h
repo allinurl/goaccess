@@ -60,6 +60,7 @@
 #include "commons.h"
 #include "gslist.h"
 #include "fileio.h"
+#include "utm.h"
 
 typedef struct GLogProp_ {
   char *filename;               /* filename including path */
@@ -79,7 +80,6 @@ typedef struct GLogItem_ {
   char *asn;
   char *date;
   char *host;
-  char *keyphrase;
   char *method;
   char *os;
   char *os_type;
@@ -94,6 +94,9 @@ typedef struct GLogItem_ {
   char *vhost;
   char *userid;
   char *cache_status;
+  char *utm_path;
+
+  GUTM utm;
 
   char site[REF_SITE_LEN + 1];
 

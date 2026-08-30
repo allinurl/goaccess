@@ -29,6 +29,7 @@
  */
 
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/socket.h>
@@ -61,6 +62,7 @@ static void add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, c
 static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_tls_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
+static void add_utm_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
 #ifdef HAVE_GEOLOCATION
 static void add_geo_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
@@ -78,7 +80,6 @@ static const GPanel paneling[] = {
   {VIRTUAL_HOSTS   , add_data_to_holder , NULL},
   {REFERRERS       , add_data_to_holder , NULL},
   {REFERRING_SITES , add_data_to_holder , NULL},
-  {KEYPHRASES      , add_data_to_holder , NULL},
   {STATUS_CODES    , add_root_to_holder , NULL},
   {REMOTE_USER     , add_data_to_holder , NULL},
   {CACHE_STATUS    , add_data_to_holder , NULL},
@@ -88,8 +89,17 @@ static const GPanel paneling[] = {
 #endif
   {MIME_TYPE       , add_root_to_holder , NULL} ,
   {TLS_TYPE        , add_tls_to_holder  , NULL} ,
+  {UTM_CAMPAIGNS   , add_utm_to_holder  , NULL} ,
 };
 /* *INDENT-ON* */
+
+static const char *const utm_missing_labels[UTM_PRIMARY_LEVEL_COUNT] = {
+  UTM_MEDIUM_NOT_SET,
+  UTM_SOURCE_NOT_SET,
+  UTM_CAMPAIGN_NOT_SET,
+  UTM_CONTENT_NOT_SET,
+  UTM_TERM_NOT_SET,
+};
 
 
 /* Get a panel from the GPanel structure given a module.
@@ -772,6 +782,214 @@ find_sub_item_by_data (GSubList *sl, const char *data) {
   return NULL;
 }
 
+/* Check whether a UTM level is populated or explicitly missing.
+ *
+ * On success, non-zero is returned.
+ * On failure, 0 is returned. */
+static int
+has_utm_component (const GUTM *utm, size_t level) {
+  if (utm->value[level] != NULL)
+    return 1;
+  if (level < UTM_PRIMARY_LEVEL_COUNT && utm->missing[level])
+    return 1;
+
+  return 0;
+}
+
+/* Allocate the display value for a populated or explicitly missing UTM level.
+ *
+ * On success, the allocated display value is returned.
+ * On failure, NULL is returned. */
+static char *
+alloc_utm_display_value (const GUTM *utm, size_t level) {
+  const char *parameter = NULL, *value = NULL;
+  char *display = NULL;
+  int len = 0;
+
+  if (level < UTM_PRIMARY_LEVEL_COUNT && utm->missing[level])
+    return xstrdup (_(utm_missing_labels[level]));
+  if ((value = utm->value[level]) == NULL)
+    return NULL;
+  if (level < UTM_PRIMARY_LEVEL_COUNT)
+    return xstrdup (value);
+  if (!(parameter = get_utm_parameter_name ((GUTMLevel) level)))
+    return NULL;
+
+  len = snprintf (NULL, 0, "%s: %s", parameter, value);
+  if (len < 0)
+    return NULL;
+  display = xmalloc ((size_t) len + 1);
+  snprintf (display, (size_t) len + 1, "%s: %s", parameter, value);
+
+  return display;
+}
+
+/* Build a distinct holder identity for a present or missing UTM level.
+ *
+ * On success, the holder identity is returned.
+ * On failure, the level itself is returned. */
+static size_t
+get_utm_holder_identity (const GUTM *utm, size_t level) {
+  if (level < UTM_PRIMARY_LEVEL_COUNT && utm->missing[level])
+    return UTM_LEVEL_COUNT + level;
+
+  return level;
+}
+
+/* Find a UTM root item by its semantic identity and display value.
+ *
+ * On success, the matching holder item is returned.
+ * On failure, NULL is returned. */
+static GHolderItem *
+find_utm_root_item (GHolder *h, const char *value, size_t identity) {
+  uint32_t idx = 0;
+
+  for (idx = 0; idx < h->idx; idx++) {
+    if (h->items[idx].metrics->id == identity &&
+        strcmp (h->items[idx].metrics->data, value) == 0)
+      return &h->items[idx];
+  }
+
+  return NULL;
+}
+
+/* Find or create a root item for a UTM hierarchy.
+ *
+ * On success, the holder item is returned.
+ * On failure, NULL is returned. */
+static GHolderItem *
+get_utm_root_item (GHolder *h, const char *value, size_t identity) {
+  GHolderItem *item = NULL;
+  GMetrics *metrics = NULL;
+  uint32_t idx = 0;
+
+  item = find_utm_root_item (h, value, identity);
+  if (item != NULL)
+    return item;
+  if (h->idx >= h->max_choices)
+    return NULL;
+
+  idx = h->idx;
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (value);
+  metrics->id = (uint8_t) identity;
+  h->items[idx].metrics = metrics;
+  h->idx++;
+
+  return &h->items[idx];
+}
+
+/* Find a UTM sub-item by its semantic identity and display value.
+ *
+ * On success, the matching sub-item is returned.
+ * On failure, NULL is returned. */
+static GSubItem *
+find_utm_sub_item (GSubList *sub_list, const char *value, size_t identity) {
+  GSubItem *item = NULL;
+
+  for (item = sub_list->head; item; item = item->next) {
+    if (item->metrics->id == identity && strcmp (item->metrics->data, value) == 0)
+      return item;
+  }
+
+  return NULL;
+}
+
+/* Find or create a child item in a UTM hierarchy level.
+ *
+ * On success, the child item is returned.
+ * On failure, NULL is returned. */
+static GSubItem *
+get_utm_sub_item (GHolder *h, GSubList *sub_list, const char *value, size_t identity) {
+  GMetrics *metrics = NULL;
+  GSubItem *item = NULL;
+
+  item = find_utm_sub_item (sub_list, value, identity);
+  if (item != NULL)
+    return item;
+  if (sub_list->size >= h->max_choices_sub)
+    return NULL;
+
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (value);
+  metrics->id = (uint8_t) identity;
+  add_sub_item_back (sub_list, h->module, metrics);
+  h->sub_items_size++;
+
+  return sub_list->tail;
+}
+
+/* Build the UTM campaign hierarchy from all populated parameter levels. */
+static void
+add_utm_to_holder (GRawDataItem item, GHolder *h, datatype type,
+                   GO_UNUSED const GPanel *panel) {
+  char *display = NULL;
+  GHolderItem *root_item = NULL;
+  GMetrics *metrics = NULL;
+  GSubItem *sub_item = NULL;
+  GSubList **sub_list = NULL;
+  GUTM utm = { 0 };
+  size_t first_level = UTM_LEVEL_COUNT, identity = 0, level = 0;
+
+  if (set_root_metrics (item, h->module, type, &metrics) == 1)
+    return;
+  if (decode_utm_path (metrics->data, &utm) == 1) {
+    free_gmetrics (metrics);
+    return;
+  }
+
+  for (level = 0; level < UTM_LEVEL_COUNT; level++) {
+    if (has_utm_component (&utm, level)) {
+      first_level = level;
+      break;
+    }
+  }
+  if (first_level == UTM_LEVEL_COUNT) {
+    free_utm (&utm);
+    free_gmetrics (metrics);
+    return;
+  }
+
+  display = alloc_utm_display_value (&utm, first_level);
+  if (display == NULL) {
+    free_utm (&utm);
+    free_gmetrics (metrics);
+    return;
+  }
+  identity = get_utm_holder_identity (&utm, first_level);
+  root_item = get_utm_root_item (h, display, identity);
+  free (display);
+  display = NULL;
+  if (root_item == NULL) {
+    free_utm (&utm);
+    free_gmetrics (metrics);
+    return;
+  }
+  accumulate_holder_metrics (root_item->metrics, metrics);
+
+  sub_list = &root_item->sub_list;
+  for (level = first_level + 1; level < UTM_LEVEL_COUNT; level++) {
+    display = alloc_utm_display_value (&utm, level);
+    if (display == NULL)
+      continue;
+    if (*sub_list == NULL)
+      *sub_list = new_gsublist ();
+
+    identity = get_utm_holder_identity (&utm, level);
+    sub_item = get_utm_sub_item (h, *sub_list, display, identity);
+    free (display);
+    display = NULL;
+    if (sub_item == NULL)
+      break;
+
+    accumulate_holder_metrics (sub_item->metrics, metrics);
+    sub_list = &sub_item->sub_list;
+  }
+
+  free_utm (&utm);
+  free_gmetrics (metrics);
+}
+
 #ifdef HAVE_GEOLOCATION
 /* Build 3-level GEO_LOCATION hierarchy: Continent > Country > City.
  * Falls back to add_root_to_holder (2-level) when has_geocity is false. */
@@ -1071,6 +1289,7 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, ui
   /* Hierarchical panels group multiple raw items under fewer root items */
   int is_hierarchical = (panel->insert == add_root_to_holder ||
                          panel->insert == add_tls_to_holder ||
+                         panel->insert == add_utm_to_holder ||
 #ifdef HAVE_GEOLOCATION
                          panel->insert == add_geo_to_holder ||
 #endif

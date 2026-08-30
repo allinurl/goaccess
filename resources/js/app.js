@@ -999,13 +999,13 @@ GoAccess.Nav = {
 		case 'vhosts'          : return 'th-list';
 		case 'referrers'       : return 'external-link';
 		case 'referring_sites' : return 'external-link';
-		case 'keyphrases'      : return 'google';
 		case 'status_codes'    : return 'warning';
 		case 'remote_user'     : return 'users';
 		case 'geolocation'     : return 'map-marker';
 		case 'asn'             : return 'map-marker';
 		case 'mime_type'       : return 'file-o';
 		case 'tls_type'        : return 'warning';
+		case 'utm_campaigns'   : return 'tags';
 		default                : return 'pie-chart';
 		}
 	},
@@ -1861,25 +1861,24 @@ GoAccess.Tables = {
 	getSubItemsData: function (panel) {
 		const expanded = GoAccess.Util.getProp(GoAccess.AppState, panel + '.expanded') || {};
 		const fullData = (GoAccess.getPanelData(panel) || {}).data || [];
-
 		let results = [];
+		const appendVisible = function (items, parentPath) {
+			items.forEach(function (item) {
+				const itemKey = GoAccess.Util.hashCode(item.data);
+				const itemPath = parentPath + '|' + itemKey;
 
-		fullData.forEach(function (continent) {
-			const continentKey = GoAccess.Util.hashCode(continent.data);
-			if (!expanded[continentKey]) return;
-			if (!continent.items) return;
-
-			continent.items.forEach(function (country) {
-				const countryKey = GoAccess.Util.hashCode(country.data);
-
-				if (expanded[countryKey] && country.items) {
-					// expanded country -> show e.g., its cities
-					results = results.concat(country.items);
+				if (expanded[itemPath] && item.items) {
+					appendVisible(item.items, itemPath);
 				} else {
-					// not expanded -> show e.g., country
-					results.push(country);
+					results.push(item);
 				}
 			});
+		};
+
+		fullData.forEach(function (root) {
+			const rootKey = GoAccess.Util.hashCode(root.data);
+			if (expanded[rootKey] && root.items)
+				appendVisible(root.items, rootKey);
 		});
 
 		return results;
@@ -1963,10 +1962,6 @@ GoAccess.Tables = {
 		const panel = row.getAttribute('data-panel');
 		let key = row.getAttribute('data-node-key') || row.getAttribute('data-key');
 		if (!key) return;
-
-		// If this is a nested row, we need to build the full path
-		// For simplicity, we'll assume nodeKey is unique enough for now.
-		// If collisions happen, we can later implement full path building.
 
 		const wasExpanded = this.toggleExpanded(panel, key);
 
@@ -2137,7 +2132,7 @@ GoAccess.Tables = {
 		};
 	},
 
-	renderRows: function(rows, panel, ui, dataItems, subItem, parentId, level = 0) {
+	renderRows: function(rows, panel, ui, dataItems, subItem, parentId, level = 0, parentPath = '') {
 		subItem = subItem || false;
 		level = level || 0; /* no data rows */
 		if (dataItems.length === 0 && ui.items.length) {
@@ -2166,7 +2161,8 @@ GoAccess.Tables = {
 				cellcb = this.iterUIItems.bind(this, panel, ui.items, dataItem, this.getObjectCell.bind(this));
 			}
 			/* Unique key for this node (important for nested expansion state) */
-			var nodeKey = !isString ? GoAccess.Util.hashCode(String(dataItem.data ?? '')) : null;
+			var itemKey = !isString ? GoAccess.Util.hashCode(String(dataItem.data ?? '')) : null;
+			var nodeKey = itemKey && parentPath ? parentPath + '|' + itemKey : itemKey;
 			var expanded = nodeKey && this.isExpanded(panel, nodeKey); /* Build row with indentation level */
 			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded); /* Add level for CSS indentation */
 			row.level = level;
@@ -2175,7 +2171,7 @@ GoAccess.Tables = {
 			row.showPlaceholder = ui.hasSubItems && !row.hasSubItems;
 			rows.push(row); /* Recurse into children if expanded */
 			if (!isString && dataItem.items && dataItem.items.length && expanded) {
-				this.renderRows(rows, panel, ui, dataItem.items, true, /* is sub-item */ i, /* parent index (or could use nodeKey) */ level + 1);
+				this.renderRows(rows, panel, ui, dataItem.items, true, i, level + 1, nodeKey);
 			}
 		}
 	},

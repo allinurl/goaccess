@@ -115,10 +115,6 @@ static const GHTML htmldef[] = {
     {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
   }},
-  {KEYPHRASES, 1, 0, print_metrics, {
-    {CHART_VBAR, hits_visitors_plot, 0, 0, NULL, NULL},
-    {CHART_VBAR, hits_bw_plot, 0, 0, NULL, NULL},
-  }},
   {STATUS_CODES, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
@@ -146,6 +142,10 @@ static const GHTML htmldef[] = {
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},
   {TLS_TYPE, 1, 0, print_metrics, {
+    {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
+    {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
+  }},
+  {UTM_CAMPAIGNS, 1, 0, print_metrics, {
     {CHART_VBAR, hits_visitors_plot, 0, 1, NULL, NULL},
     {CHART_VBAR, hits_bw_plot, 0, 1, NULL, NULL},
   }},

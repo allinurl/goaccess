@@ -82,7 +82,6 @@ static const GPanel paneling[] = {
   {VIRTUAL_HOSTS       , print_json_data , NULL } ,
   {REFERRERS           , print_json_data , NULL } ,
   {REFERRING_SITES     , print_json_data , NULL } ,
-  {KEYPHRASES          , print_json_data , NULL } ,
   {STATUS_CODES        , print_json_data , print_json_sub_items } ,
   {REMOTE_USER         , print_json_data , NULL } ,
   {CACHE_STATUS        , print_json_data , NULL } ,
@@ -92,6 +91,7 @@ static const GPanel paneling[] = {
 #endif
   {MIME_TYPE           , print_json_data , print_json_sub_items } ,
   {TLS_TYPE            , print_json_data , print_json_sub_items } ,
+  {UTM_CAMPAIGNS       , print_json_data , print_json_sub_items } ,
 
 };
 /* *INDENT-ON* */

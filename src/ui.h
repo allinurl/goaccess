@@ -57,13 +57,13 @@
 #define BROWSERS_ID        "browsers"
 #define REFERRERS_ID       "referrers"
 #define REFERRING_SITES_ID "referring_sites"
-#define KEYPHRASES_ID      "keyphrases"
 #define GEO_LOCATION_ID    "geolocation"
 #define ASN_ID             "asn"
 #define STATUS_CODES_ID    "status_codes"
 #define GENER_ID           "general"
 #define MIME_TYPE_ID       "mime_type"
 #define TLS_TYPE_ID        "tls_type"
+#define UTM_CAMPAIGNS_ID   "utm_campaigns"
 
 /* Overall Statistics CSV/JSON Keys */
 #define OVERALL_STARTDATE "start_date"

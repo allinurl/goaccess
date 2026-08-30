@@ -49,6 +49,16 @@
 
 static GFind find_t;
 
+typedef struct GFindTreeState_ {
+  uint8_t *node_exp;
+  int node_exp_size;
+  int full_idx;
+  int sub_idx;
+  int target_sub_idx;
+  int target_full_idx;
+  int visible_idx;
+} GFindTreeState;
+
 /* Forward declarations */
 static int count_sub_items_recursive (GSubList * sl);
 static int count_visible_sub (GSubList * sl, uint8_t * node_exp, int node_exp_size, int *full_idx);
@@ -1222,101 +1232,148 @@ regexp_init (regex_t *regex, const char *pattern) {
   return 0;
 }
 
-/* Expand all ancestor nodes for a found item and compute its visible flat index.
+/* Recursively locate a sub-item and expand every ancestor on its path.
  *
- * Walks the holder hierarchy. For the found item's root parent (parent_idx),
- * expands that root. Then walks into the sub-list to find the sub-item at
- * sub_idx position, expanding each intermediate parent along the way.
- * Returns the flat index of the found item in the resulting visible layout. */
+ * On success, the target full-tree index is assigned and non-zero is returned.
+ * On failure, 0 is returned. */
 static int
-expand_ancestors_and_calc_idx (GHolder *h, GModule module, GScroll *gscroll, int parent_idx,
+expand_sub_item_path (GSubList *sub_list, GFindTreeState *state) {
+  GSubItem *iter = NULL;
+  int node_full_idx = 0;
+
+  if (sub_list == NULL)
+    return 0;
+
+  for (iter = sub_list->head; iter; iter = iter->next) {
+    node_full_idx = state->full_idx;
+    state->full_idx++;
+
+    if (state->sub_idx == state->target_sub_idx) {
+      state->target_full_idx = node_full_idx;
+      return 1;
+    }
+    state->sub_idx++;
+
+    if (iter->sub_list == NULL)
+      continue;
+    if (!expand_sub_item_path (iter->sub_list, state))
+      continue;
+
+    if (state->node_exp != NULL && node_full_idx < state->node_exp_size)
+      state->node_exp[node_full_idx] = 1;
+    return 1;
+  }
+
+  return 0;
+}
+
+/* Recursively locate a visible sub-item by its full-tree index.
+ *
+ * On success, the visible index is retained and non-zero is returned.
+ * On failure, 0 is returned. */
+static int
+find_visible_sub_item (GSubList *sub_list, GFindTreeState *state) {
+  GSubItem *iter = NULL;
+  int expanded = 0, node_full_idx = 0;
+
+  if (sub_list == NULL)
+    return 0;
+
+  for (iter = sub_list->head; iter; iter = iter->next) {
+    node_full_idx = state->full_idx;
+    if (node_full_idx == state->target_full_idx)
+      return 1;
+
+    state->full_idx++;
+    state->visible_idx++;
+
+    if (iter->sub_list == NULL || iter->sub_list->size == 0)
+      continue;
+
+    expanded = 1;
+    if (state->node_exp != NULL && node_full_idx < state->node_exp_size)
+      expanded = state->node_exp[node_full_idx];
+    if (expanded && find_visible_sub_item (iter->sub_list, state))
+      return 1;
+    if (!expanded)
+      state->full_idx += count_sub_items_recursive (iter->sub_list);
+  }
+
+  return 0;
+}
+
+/* Calculate the visible row index for a node in the full hierarchy.
+ *
+ * On success, the visible row index is returned.
+ * On failure, -1 is returned. */
+static int
+get_visible_item_index (GHolder *holder, GFindTreeState *state) {
+  uint32_t idx = 0;
+  int expanded = 0, node_full_idx = 0;
+
+  state->full_idx = 0;
+  state->visible_idx = 0;
+  for (idx = 0; idx < holder->idx; idx++) {
+    node_full_idx = state->full_idx;
+    if (node_full_idx == state->target_full_idx)
+      return state->visible_idx;
+
+    state->full_idx++;
+    state->visible_idx++;
+
+    if (holder->items[idx].sub_list == NULL || holder->items[idx].sub_list->size == 0)
+      continue;
+
+    expanded = 1;
+    if (state->node_exp != NULL && node_full_idx < state->node_exp_size)
+      expanded = state->node_exp[node_full_idx];
+    if (expanded && find_visible_sub_item (holder->items[idx].sub_list, state))
+      return state->visible_idx;
+    if (!expanded)
+      state->full_idx += count_sub_items_recursive (holder->items[idx].sub_list);
+  }
+
+  return -1;
+}
+
+/* Expand all ancestors of a found item and calculate its visible row index.
+ *
+ * On success, the visible row index is returned.
+ * On failure, 0 is returned. */
+static int
+expand_ancestors_and_calc_idx (GHolder *holder, GScrollModule *scroll, int parent_idx,
                                int sub_idx, int is_sub) {
-  uint8_t *node_exp = gscroll->module[module].item_expanded;
-  int node_exp_size = gscroll->module[module].item_expanded_size;
-  int flat_idx = 0, full_idx = 0;
-  int j;
+  GFindTreeState state = { 0 };
+  int idx = 0, root_full_idx = 0, visible_idx = 0;
 
-  /* Count visible rows for all root items before parent_idx */
-  for (j = 0; j < parent_idx && j < (int) h[module].idx; j++) {
-    int my_full = full_idx;
-    flat_idx++;
-    full_idx++;
-    if (h[module].items[j].sub_list && h[module].items[j].sub_list->size > 0) {
-      int expanded = 1;
-      if (node_exp != NULL && my_full < node_exp_size)
-        expanded = node_exp[my_full];
-      if (expanded)
-        flat_idx += count_visible_sub (h[module].items[j].sub_list, node_exp, node_exp_size,
-                                       &full_idx);
-      else
-        full_idx += count_sub_items_recursive (h[module].items[j].sub_list);
-    }
+  if (holder == NULL || scroll == NULL || parent_idx < 0 ||
+      parent_idx >= (int) holder->idx)
+    return 0;
+
+  state.node_exp = scroll->item_expanded;
+  state.node_exp_size = scroll->item_expanded_size;
+  for (idx = 0; idx < parent_idx; idx++) {
+    state.full_idx++;
+    state.full_idx += count_sub_items_recursive (holder->items[idx].sub_list);
   }
 
-  /* Now at parent_idx */
-  {
-    int root_full = full_idx;
-    flat_idx++; /* the root item itself */
-    full_idx++;
+  root_full_idx = state.full_idx;
+  state.target_full_idx = root_full_idx;
+  if (is_sub) {
+    if (state.node_exp != NULL && root_full_idx < state.node_exp_size)
+      state.node_exp[root_full_idx] = 1;
 
-    /* If not searching in sub-items, return the root position */
-    if (!is_sub)
-      return flat_idx - 1;
-
-    /* Expand this root so its children are visible */
-    if (node_exp != NULL && root_full < node_exp_size)
-      node_exp[root_full] = 1;
-
-    /* Walk into sub-items to find the target at sub_idx.
-     * sub_count mirrors the flat 'i' counter in find_next_sub_item:
-     *   i=0 is the first level-1 sub, i increments for each level-1 sub
-     *   and for each nested level-2 sub in between. */
-    {
-      GSubList *sl = h[module].items[parent_idx].sub_list;
-      GSubItem *iter;
-      int sub_count = 0;
-
-      if (sl == NULL)
-        return flat_idx - 1;
-
-      for (iter = sl->head; iter; iter = iter->next) {
-        int my_sub_full = full_idx;
-
-        /* Check if this level-1 sub-item is the target */
-        if (sub_count == sub_idx) {
-          flat_idx++;
-          return flat_idx - 1;
-        }
-
-        flat_idx++;
-        full_idx++;
-        sub_count++;
-
-        /* If this sub-item has children, walk through them */
-        if (iter->sub_list && iter->sub_list->size > 0) {
-          /* Expand this intermediate parent so the found item's
-           * siblings at the next level are visible */
-          if (node_exp != NULL && my_sub_full < node_exp_size)
-            node_exp[my_sub_full] = 1;
-
-          {
-            GSubItem *nested;
-            for (nested = iter->sub_list->head; nested; nested = nested->next) {
-              if (sub_count == sub_idx) {
-                flat_idx++;
-                return flat_idx - 1;
-              }
-              flat_idx++;
-              full_idx++;
-              sub_count++;
-            }
-          }
-        }
-      }
-    }
+    state.full_idx++;
+    state.target_sub_idx = sub_idx;
+    if (!expand_sub_item_path (holder->items[parent_idx].sub_list, &state))
+      return 0;
   }
 
-  return flat_idx > 0 ? flat_idx - 1 : 0;
+  visible_idx = get_visible_item_index (holder, &state);
+  if (visible_idx < 0)
+    return 0;
+
+  return visible_idx;
 }
 
 /* Set the dashboard scroll and offset based on the search index. */
@@ -1324,7 +1381,7 @@ static void
 perform_find_dash_scroll (GScroll *gscroll, GModule module, GHolder *h) {
   int *scrll, *offset;
   int exp_size = get_num_expanded_data_rows ();
-  int total_nodes;
+  int is_sub_match = 0, match_sub_pos = 0, total_nodes = 0;
 
   /* reset gscroll offsets if we are changing module */
   if (gscroll->current != module)
@@ -1339,14 +1396,14 @@ perform_find_dash_scroll (GScroll *gscroll, GModule module, GHolder *h) {
 
   /* Expand ancestors of the found item and compute flat index.
    *
-   * find_t.next_sub_idx is set to (1 + i) by find_next_sub_item as a resume
-   * position. A value > 0 means the match is a sub-item at position (next_sub_idx - 1).
-   * A value of 0 means the match is at the root level. */
+   * find_t.next_sub_idx is one past the match in the root's recursive DFS
+   * order. A value of 0 means the match is at the root level. */
   if (h != NULL) {
-    int is_sub_match = (find_t.next_sub_idx > 0) ? 1 : 0;
-    int match_sub_pos = is_sub_match ? find_t.next_sub_idx - 1 : 0;
-    find_t.next_idx = expand_ancestors_and_calc_idx (h, module, gscroll, find_t.next_parent_idx,
-                                                     match_sub_pos, is_sub_match);
+    is_sub_match = find_t.next_sub_idx > 0;
+    match_sub_pos = is_sub_match ? find_t.next_sub_idx - 1 : 0;
+    find_t.next_idx = expand_ancestors_and_calc_idx (&h[module], &gscroll->module[module],
+                                                     find_t.next_parent_idx, match_sub_pos,
+                                                     is_sub_match);
   }
 
   scrll = &gscroll->module[module].scroll;
@@ -1363,48 +1420,49 @@ perform_find_dash_scroll (GScroll *gscroll, GModule module, GHolder *h) {
   find_t.module = module;
 }
 
-/* Find the searched item within the given sub list.
+/* Recursively search sub-items in depth-first order.
  *
- * If not found, the GFind structure is reset and 1 is returned.
- * If found, a GFind structure is set and 0 is returned. */
+ * On success, the resume position is retained and 0 is returned.
+ * On failure, 1 is returned. */
 static int
-find_next_sub_item (GSubList *sub_list, regex_t *regex) {
-  GSubItem *iter;
-  int i = 0, rc;
+find_next_sub_item_recursive (GSubList *sub_list, regex_t *regex, int *position) {
+  GSubItem *iter = NULL;
+  int current = 0, rc = 0;
 
   if (sub_list == NULL)
-    goto out;
+    return 1;
 
   for (iter = sub_list->head; iter; iter = iter->next) {
-    if (i >= find_t.next_sub_idx) {
+    current = *position;
+    (*position)++;
+    if (current >= find_t.next_sub_idx) {
       rc = regexec (regex, iter->metrics->data, 0, NULL, 0);
       if (rc == 0) {
         find_t.next_idx++;
-        find_t.next_sub_idx = (1 + i);
+        find_t.next_sub_idx = current + 1;
         return 0;
       }
       find_t.next_idx++;
     }
-    i++;
-    /* recurse into nested sub-items */
-    if (iter->sub_list != NULL) {
-      GSubItem *nested;
-      for (nested = iter->sub_list->head; nested; nested = nested->next) {
-        if (i >= find_t.next_sub_idx) {
-          rc = regexec (regex, nested->metrics->data, 0, NULL, 0);
-          if (rc == 0) {
-            find_t.next_idx++;
-            find_t.next_sub_idx = (1 + i);
-            return 0;
-          }
-          find_t.next_idx++;
-        }
-        i++;
-      }
-    }
+    if (iter->sub_list != NULL &&
+        find_next_sub_item_recursive (iter->sub_list, regex, position) == 0)
+      return 0;
   }
 
-out:
+  return 1;
+}
+
+/* Find the searched item within the given sub-list tree.
+ *
+ * On success, the GFind structure is updated and 0 is returned.
+ * On failure, the GFind sub-item state is reset and 1 is returned. */
+static int
+find_next_sub_item (GSubList *sub_list, regex_t *regex) {
+  int position = 0;
+
+  if (find_next_sub_item_recursive (sub_list, regex, &position) == 0)
+    return 0;
+
   find_t.next_parent_idx++;
   find_t.next_sub_idx = 0;
   find_t.look_in_sub = 0;

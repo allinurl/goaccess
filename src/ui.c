@@ -79,7 +79,6 @@ static const GOutput outputting[] = {
   {VIRTUAL_HOSTS   , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REFERRERS       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REFERRING_SITES , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
-  {KEYPHRASES      , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {STATUS_CODES    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {REMOTE_USER     , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {CACHE_STATUS    , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
@@ -89,6 +88,7 @@ static const GOutput outputting[] = {
 #endif
   {MIME_TYPE       , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
   {TLS_TYPE        , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 0 , 0} ,
+  {UTM_CAMPAIGNS   , 1 , 1 , 1 , 1 , 1 , 1 , 1 , 0 , 0 , 1 , 1 , 1} ,
 };
 /* *INDENT-ON* */
 
@@ -263,7 +263,6 @@ module_to_label (GModule module) {
     VIRTUAL_HOSTS_LABEL,
     REFERRERS_LABEL,
     REFERRING_SITES_LABEL,
-    KEYPHRASES_LABEL,
     STATUS_CODES_LABEL,
     REMOTE_USER_LABEL,
     CACHE_STATUS_LABEL,
@@ -273,6 +272,7 @@ module_to_label (GModule module) {
 #endif
     MIME_TYPE_LABEL,
     TLS_TYPE_LABEL,
+    UTM_CAMPAIGNS_LABEL,
   };
   return _(modules[module]);
 }
@@ -294,7 +294,6 @@ module_to_id (GModule module) {
     VIRTUAL_HOSTS_ID,
     REFERRERS_ID,
     REFERRING_SITES_ID,
-    KEYPHRASES_ID,
     STATUS_CODES_ID,
     REMOTE_USER_ID,
     CACHE_STATUS_ID,
@@ -304,6 +303,7 @@ module_to_id (GModule module) {
 #endif
     MIME_TYPE_ID,
     TLS_TYPE_ID,
+    UTM_CAMPAIGNS_ID,
   };
   return _(modules[module]);
 }
@@ -325,7 +325,6 @@ module_to_head (GModule module) {
     VIRTUAL_HOSTS_HEAD,
     REFERRERS_HEAD,
     REFERRING_SITES_HEAD,
-    KEYPHRASES_HEAD,
     STATUS_CODES_HEAD,
     REMOTE_USER_HEAD,
     CACHE_STATUS_HEAD,
@@ -335,6 +334,7 @@ module_to_head (GModule module) {
 #endif
     MIME_TYPE_HEAD,
     TLS_TYPE_HEAD,
+    UTM_CAMPAIGNS_HEAD,
   };
   if (!conf.ignore_crawlers)
     modules[VISITORS] = VISITORS_HEAD_BOTS;
@@ -359,7 +359,6 @@ module_to_desc (GModule module) {
     VIRTUAL_HOSTS_DESC,
     REFERRERS_DESC,
     REFERRING_SITES_DESC,
-    KEYPHRASES_DESC,
     STATUS_CODES_DESC,
     REMOTE_USER_DESC,
     CACHE_STATUS_DESC,
@@ -369,6 +368,7 @@ module_to_desc (GModule module) {
 #endif
     MIME_TYPE_DESC,
     TLS_TYPE_DESC,
+    UTM_CAMPAIGNS_DESC,
   };
   return _(modules[module]);
 }

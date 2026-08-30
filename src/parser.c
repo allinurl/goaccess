@@ -290,7 +290,6 @@ init_log_item (GLog *glog) {
   logitem->date = NULL;
   logitem->errstr = NULL;
   logitem->host = NULL;
-  logitem->keyphrase = NULL;
   logitem->method = NULL;
   logitem->os = NULL;
   logitem->os_type = NULL;
@@ -308,6 +307,7 @@ init_log_item (GLog *glog) {
   logitem->vhost = NULL;
   logitem->userid = NULL;
   logitem->cache_status = NULL;
+  logitem->utm_path = NULL;
 
   /* UMS */
   logitem->mime_type = NULL;
@@ -349,8 +349,6 @@ free_glog (GLogItem *logitem) {
     free (logitem->errstr);
   if (logitem->host != NULL)
     free (logitem->host);
-  if (logitem->keyphrase != NULL)
-    free (logitem->keyphrase);
   if (logitem->method != NULL)
     free (logitem->method);
   if (logitem->os != NULL)
@@ -375,6 +373,10 @@ free_glog (GLogItem *logitem) {
     free (logitem->cache_status);
   if (logitem->vhost != NULL)
     free (logitem->vhost);
+  if (logitem->utm_path != NULL)
+    free (logitem->utm_path);
+
+  free_utm (&logitem->utm);
 
   if (logitem->mime_type != NULL)
     free (logitem->mime_type);
@@ -411,62 +413,6 @@ decode_url (char *url) {
   strip_newlines (out);
 
   return trim_str (out);
-}
-
-/* Process keyphrases from Google search, cache, and translate.
- * Note that the referer hasn't been decoded at the entry point
- * since there could be '&' within the search query.
- *
- * On error, 1 is returned.
- * On success, the extracted keyphrase is assigned and 0 is returned. */
-static int
-extract_keyphrase (char *ref, char **keyphrase) {
-  char *r, *ptr, *pch, *referer;
-  int encoded = 0;
-
-  if (!(strstr (ref, "http://www.google.")) &&
-      !(strstr (ref, "http://webcache.googleusercontent.com/")) &&
-      !(strstr (ref, "http://translate.googleusercontent.com/")) &&
-      !(strstr (ref, "https://www.google.")) &&
-      !(strstr (ref, "https://webcache.googleusercontent.com/")) &&
-      !(strstr (ref, "https://translate.googleusercontent.com/")))
-    return 1;
-
-  /* webcache.googleusercontent */
-  if ((r = strstr (ref, "/+&")) != NULL)
-    return 1;
-  /* webcache.googleusercontent */
-  else if ((r = strstr (ref, "/+")) != NULL)
-    r += 2;
-  /* webcache.googleusercontent */
-  else if ((r = strstr (ref, "q=cache:")) != NULL) {
-    pch = strchr (r, '+');
-    if (pch)
-      r += pch - r + 1;
-  }
-  /* www.google.* or translate.googleusercontent */
-  else if ((r = strstr (ref, "&q=")) != NULL || (r = strstr (ref, "?q=")) != NULL)
-    r += 3;
-  else if ((r = strstr (ref, "%26q%3D")) != NULL || (r = strstr (ref, "%3Fq%3D")) != NULL)
-    encoded = 1, r += 7;
-  else
-    return 1;
-
-  if (!encoded && (ptr = strchr (r, '&')) != NULL)
-    *ptr = '\0';
-  else if (encoded && (ptr = strstr (r, "%26")) != NULL)
-    *ptr = '\0';
-
-  referer = decode_url (r);
-  if (referer == NULL || *referer == '\0') {
-    free (referer);
-    return 1;
-  }
-
-  referer = char_replace (referer, '+', ' ');
-  *keyphrase = trim_str (referer);
-
-  return 0;
 }
 
 /* Parse a URI and extracts the *host* part from it
@@ -1244,6 +1190,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
     }
 
+    extract_utm (tkn, UTM_INPUT_URI, &logitem->utm);
     if ((logitem->req = decode_url (tkn)) == NULL) {
       spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
@@ -1261,6 +1208,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
       return 0;
     }
 
+    extract_utm (tkn, UTM_INPUT_QUERY, &logitem->utm);
     if ((logitem->qstr = decode_url (tkn)) == NULL) {
       spec_err (logitem, ERR_SPEC_TOKN_INV, *p, tkn);
       free (tkn);
@@ -1292,6 +1240,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (!(tkn = parse_string (&(*str), end, 1)))
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
 
+    extract_utm (tkn, UTM_INPUT_URI, &logitem->utm);
     logitem->req = parse_req (tkn, &logitem->method, &logitem->protocol);
     free (tkn);
     break;
@@ -1341,7 +1290,6 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
       tkn = alloc_string ("-");
     }
     if (strcmp (tkn, "-") != 0) {
-      extract_keyphrase (tkn, &logitem->keyphrase);
       extract_referer_site (tkn, logitem->site);
 
       /* hide referrers from report */

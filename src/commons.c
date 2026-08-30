@@ -66,7 +66,6 @@ static const GEnum enum_modules[] = {
   {"VIRTUAL_HOSTS"   , VIRTUAL_HOSTS}   ,
   {"REFERRERS"       , REFERRERS}       ,
   {"REFERRING_SITES" , REFERRING_SITES} ,
-  {"KEYPHRASES"      , KEYPHRASES}      ,
   {"STATUS_CODES"    , STATUS_CODES}    ,
   {"REMOTE_USER"     , REMOTE_USER}     ,
   {"CACHE_STATUS"    , CACHE_STATUS}    ,
@@ -76,6 +75,7 @@ static const GEnum enum_modules[] = {
 #endif
   {"MIME_TYPE"       , MIME_TYPE}       ,
   {"TLS_TYPE"        , TLS_TYPE}        ,
+  {"UTM_CAMPAIGNS"   , UTM_CAMPAIGNS}   ,
 };
 /* *INDENT-ON* */
 

@@ -141,7 +141,6 @@ static int gen_visitor_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_404_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_browser_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_host_key (GKeyData * kdata, GLogItem * logitem);
-static int gen_keyphrase_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_os_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_vhost_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_remote_user_key (GKeyData * kdata, GLogItem * logitem);
@@ -159,6 +158,7 @@ static int gen_asn_key (GKeyData * kdata, GLogItem * logitem);
 /* UMS */
 static int gen_mime_type_key (GKeyData * kdata, GLogItem * logitem);
 static int gen_tls_type_key (GKeyData * kdata, GLogItem * logitem);
+static int gen_utm_campaign_key (GKeyData * kdata, GLogItem * logitem);
 
 /* insertion metric routines */
 static void insert_data (GModule module, GKeyData * kdata);
@@ -344,20 +344,6 @@ static const GParse paneling[] = {
     NULL,
     NULL,
     0, /* vkey_data */
-  }, {
-    KEYPHRASES,
-    gen_keyphrase_key,
-    insert_data,
-    NULL,
-    insert_hit,
-    insert_visitor,
-    insert_bw,
-    insert_cumts,
-    insert_maxts,
-    NULL,
-    NULL,
-    NULL,
-    0, /* vkey_data */
   },
 #ifdef HAVE_GEOLOCATION
   {
@@ -480,6 +466,20 @@ static const GParse paneling[] = {
     gen_tls_type_key,
     insert_data,
     insert_rootmap,
+    insert_hit,
+    insert_visitor,
+    insert_bw,
+    insert_cumts,
+    insert_maxts,
+    NULL,
+    NULL,
+    NULL,
+    0, /* vkey_data */
+  }, {
+    UTM_CAMPAIGNS,
+    gen_utm_campaign_key,
+    insert_data,
+    NULL,
     insert_hit,
     insert_visitor,
     insert_bw,
@@ -1385,22 +1385,6 @@ gen_ref_site_key (GKeyData *kdata, GLogItem *logitem) {
   return 0;
 }
 
-/* A wrapper to generate a unique key for the keyphrases panel.
- *
- * On error, 1 is returned.
- * On success, the generated keyphrase key is assigned to our key data
- * structure. */
-static int
-gen_keyphrase_key (GKeyData *kdata, GLogItem *logitem) {
-  if (!logitem->keyphrase)
-    return 1;
-
-  get_kdata (kdata, logitem->keyphrase, logitem->keyphrase);
-  kdata->numdate = logitem->numdate;
-
-  return 0;
-}
-
 #ifdef HAVE_GEOLOCATION
 /* Extract geolocation for the given host.
  *
@@ -1470,8 +1454,7 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
 /* A wrapper to generate a unique key for the ASN panel.
  *
  * On error, 1 is returned.
- * On success, the generated keyphrase key is assigned to our key data
- * structure. */
+ * On success, the generated ASN key is assigned to our key data structure. */
 static int
 gen_asn_key (GKeyData *kdata, GLogItem *logitem) {
   char asn[ASN_LEN] = "";
@@ -1548,6 +1531,23 @@ gen_visit_time_key (GKeyData *kdata, GLogItem *logitem) {
 
   kdata->numdate = logitem->numdate;
   get_kdata (kdata, logitem->time, logitem->time);
+
+  return 0;
+}
+
+/* Generate a unique storage key for the UTM campaign hierarchy.
+ *
+ * On success, the encoded hierarchy key is assigned and 0 is returned.
+ * On failure, 1 is returned. */
+static int
+gen_utm_campaign_key (GKeyData *kdata, GLogItem *logitem) {
+  if (logitem->utm_path == NULL)
+    logitem->utm_path = encode_utm_path (&logitem->utm);
+  if (logitem->utm_path == NULL)
+    return 1;
+
+  get_kdata (kdata, logitem->utm_path, logitem->utm_path);
+  kdata->numdate = logitem->numdate;
 
   return 0;
 }

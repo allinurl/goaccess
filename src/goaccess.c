@@ -120,7 +120,6 @@ static GScroll gscroll = {
      {0, 0, 0, 0, 0, NULL, 0}, /* VIRTUAL_HOSTS */
      {0, 0, 0, 0, 0, NULL, 0}, /* REFERRERS */
      {0, 0, 0, 0, 0, NULL, 0}, /* REFERRING_SITES */
-     {0, 0, 0, 0, 0, NULL, 0}, /* KEYPHRASES */
      {0, 0, 0, 0, 0, NULL, 0}, /* STATUS_CODES */
      {0, 0, 0, 0, 0, NULL, 0}, /* REMOTE_USER */
      {0, 0, 0, 0, 0, NULL, 0}, /* CACHE_STATUS */
@@ -130,6 +129,7 @@ static GScroll gscroll = {
 #endif
      {0, 0, 0, 0, 0, NULL, 0}, /* MIME_TYPE */
      {0, 0, 0, 0, 0, NULL, 0}, /* TLS_TYPE */
+     {0, 0, 0, 0, 0, NULL, 0}, /* UTM_CAMPAIGNS */
   },
   0,         /* current module */
   0,         /* main dashboard scroll */

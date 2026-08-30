@@ -194,13 +194,6 @@
 #define REFERRING_SITES_LABEL          \
   N_("Referring Sites")
 
-#define KEYPHRASES_HEAD                \
-  N_("Keyphrases from Google's search engine")
-#define KEYPHRASES_DESC                \
-  N_("Top Keyphrases sorted by hits [, avgts, cumts, maxts]")
-#define KEYPHRASES_LABEL               \
-  N_("Keyphrases")
-
 #define GEO_LOCATION_HEAD              \
   N_("Geo Location")
 #define GEO_LOCATION_DESC              \
@@ -235,6 +228,23 @@
   N_("TLS version, cipher suite, and key exchange group")
 #define TLS_TYPE_LABEL                \
   N_("TLS Settings")
+
+#define UTM_CAMPAIGNS_HEAD            \
+  N_("UTM Campaigns")
+#define UTM_CAMPAIGNS_DESC            \
+  N_("Medium > Source > Campaign > Content > Term with optional campaign attributes")
+#define UTM_CAMPAIGNS_LABEL           \
+  N_("UTM Campaigns")
+#define UTM_MEDIUM_NOT_SET            \
+  N_("(utm_medium not set)")
+#define UTM_SOURCE_NOT_SET            \
+  N_("(utm_source not set)")
+#define UTM_CAMPAIGN_NOT_SET          \
+  N_("(utm_campaign not set)")
+#define UTM_CONTENT_NOT_SET           \
+  N_("(utm_content not set)")
+#define UTM_TERM_NOT_SET              \
+  N_("(utm_term not set)")
 
 /* Find Labels */
 #define CISENSITIVE                    \

@@ -85,12 +85,6 @@ by default.
 .IP "Referring Sites"
 This panel will display only the host part but not the whole URL. The URL where
 the request came from.
-.IP "Keyphrases"
-It reports keyphrases used on Google search, Google cache, and Google translate
-that have lead to your web server. At present, it only supports Google search
-queries via HTTP. See `--ignore-panel` in your configuration file to enable it.
-.I disabled
-by default.
 .IP "Geo Location"
 Determines where an IP address is geographically located. Statistics are broken
 down by continent and country, and when city-level GeoIP data is available it
@@ -131,6 +125,11 @@ suite, or directly beneath the protocol when no cipher is available. This
 panel is not enabled unless
 .I %K
 is given within the log-format variable.
+.IP "UTM Campaigns"
+This panel groups campaign traffic by medium, source, campaign, content, and
+term. It also recognizes campaign ID, source platform, creative format, and
+marketing tactic parameters when present. Values are extracted from the
+requested URL and displayed as an expandable hierarchy.
 
 .P
 GoAccess panels can be reordered and their subitems expanded or collapsed from
@@ -884,13 +883,13 @@ Enable parsing and displaying the given panel.
   VIRTUAL_HOSTS
   REFERRERS
   REFERRING_SITES
-  KEYPHRASES
   STATUS_CODES
   REMOTE_USER
   CACHE_STATUS
   GEO_LOCATION
   MIME_TYPE
   TLS_TYPE
+  UTM_CAMPAIGNS
 .TP
 \fB\-\-fname-as-vhost=<regex>
 Use log filename(s) as virtual host(s). POSIX regex is passed to extract
@@ -930,13 +929,13 @@ Ignore parsing and displaying the given panel.
   VIRTUAL_HOSTS
   REFERRERS
   REFERRING_SITES
-  KEYPHRASES
   STATUS_CODES
   REMOTE_USER
   CACHE_STATUS
   GEO_LOCATION
   MIME_TYPE
   TLS_TYPE
+  UTM_CAMPAIGNS
 .TP
 \fB\-\-ignore-referrer=<referrer>
 Ignore referrers from being counted. Wildcards allowed. e.g.,

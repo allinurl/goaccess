@@ -72,7 +72,6 @@ static const GPanel paneling[] = {
   {VIRTUAL_HOSTS   , print_csv_data} ,
   {REFERRERS       , print_csv_data} ,
   {REFERRING_SITES , print_csv_data} ,
-  {KEYPHRASES      , print_csv_data} ,
   {STATUS_CODES    , print_csv_data} ,
   {REMOTE_USER     , print_csv_data} ,
   {CACHE_STATUS    , print_csv_data} ,
@@ -82,6 +81,7 @@ static const GPanel paneling[] = {
 #endif
   {MIME_TYPE       , print_csv_data} ,
   {TLS_TYPE        , print_csv_data} ,
+  {UTM_CAMPAIGNS   , print_csv_data} ,
 };
 /* *INDENT-ON* */
 

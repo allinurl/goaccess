@@ -105,7 +105,6 @@ typedef enum MODULES {
   VIRTUAL_HOSTS,
   REFERRERS,
   REFERRING_SITES,
-  KEYPHRASES,
   STATUS_CODES,
   REMOTE_USER,
   CACHE_STATUS,
@@ -115,6 +114,7 @@ typedef enum MODULES {
 #endif
   MIME_TYPE,
   TLS_TYPE,
+  UTM_CAMPAIGNS,
 } GModule;
 
 /* Total number of per-module storage slots (first GSMetric entries) */
