@@ -845,8 +845,7 @@ find_utm_root_item (GHolder *h, const char *value, size_t identity) {
   uint32_t idx = 0;
 
   for (idx = 0; idx < h->idx; idx++) {
-    if (h->items[idx].metrics->id == identity &&
-        strcmp (h->items[idx].metrics->data, value) == 0)
+    if (h->items[idx].metrics->id == identity && strcmp (h->items[idx].metrics->data, value) == 0)
       return &h->items[idx];
   }
 
@@ -921,8 +920,7 @@ get_utm_sub_item (GHolder *h, GSubList *sub_list, const char *value, size_t iden
 
 /* Build the UTM campaign hierarchy from all populated parameter levels. */
 static void
-add_utm_to_holder (GRawDataItem item, GHolder *h, datatype type,
-                   GO_UNUSED const GPanel *panel) {
+add_utm_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
   char *display = NULL;
   GHolderItem *root_item = NULL;
   GMetrics *metrics = NULL;
@@ -1189,8 +1187,7 @@ get_tls_cipher_item (GHolder *h, GSubList *sub_list, const char *cipher) {
 
 /* Add or merge a TLS leaf metric into a hierarchy sub-list. */
 static void
-add_tls_leaf_metrics (GHolder *h, GSubList *sub_list, GMetrics *metrics,
-                      const char *display) {
+add_tls_leaf_metrics (GHolder *h, GSubList *sub_list, GMetrics *metrics, const char *display) {
   GSubItem *item = NULL;
   char *label = NULL;
 
@@ -1288,8 +1285,7 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, ui
   const GPanel *panel = panel_lookup (module);
   /* Hierarchical panels group multiple raw items under fewer root items */
   int is_hierarchical = (panel->insert == add_root_to_holder ||
-                         panel->insert == add_tls_to_holder ||
-                         panel->insert == add_utm_to_holder ||
+                         panel->insert == add_tls_to_holder || panel->insert == add_utm_to_holder ||
 #ifdef HAVE_GEOLOCATION
                          panel->insert == add_geo_to_holder ||
 #endif

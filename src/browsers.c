@@ -521,8 +521,7 @@ is_crawler_type (const char *type) {
   if (type == NULL)
     return 0;
 
-  return !strcmp (type, BROWSER_TYPE_CRAWLERS) ||
-    !strcmp (type, BROWSER_TYPE_AI_CRAWLERS);
+  return !strcmp (type, BROWSER_TYPE_CRAWLERS) || !strcmp (type, BROWSER_TYPE_AI_CRAWLERS);
 }
 
 /* Determine if the user-agent is a crawler.

@@ -1156,8 +1156,7 @@ set_browser_os (GLogItem *logitem) {
   logitem->browser = verify_browser (a1, browser_type);
   logitem->browser_type = xstrdup (browser_type);
 
-  if (is_crawler_type (logitem->browser_type) ||
-      !strcmp (logitem->browser_type, "Others")) {
+  if (is_crawler_type (logitem->browser_type) || !strcmp (logitem->browser_type, "Others")) {
     logitem->os = xstrdup (logitem->browser);
     logitem->os_type = xstrdup (browser_type);
   } else {

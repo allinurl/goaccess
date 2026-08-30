@@ -176,8 +176,7 @@ extract_utm (const char *input, GUTMInput type, GUTM *utm) {
 
   while (*cursor != '\0') {
     end = cursor;
-    while (*end != '\0' && *end != '&' && *end != '#' &&
-           !isspace ((unsigned char) *end))
+    while (*end != '\0' && *end != '&' && *end != '#' && !isspace ((unsigned char) *end))
       end++;
 
     equals = memchr (cursor, '=', (size_t) (end - cursor));
@@ -331,8 +330,7 @@ decode_utm_path (const char *path, GUTM *utm) {
   while (*cursor != '\0' && count < UTM_LEVEL_COUNT) {
     if (parse_utm_number (&cursor, &level) == 1 || level >= UTM_LEVEL_COUNT ||
         utm->value[level] != NULL ||
-        (level < UTM_PRIMARY_LEVEL_COUNT && utm->missing[level]) ||
-        *cursor != UTM_LEVEL_SEPARATOR)
+        (level < UTM_PRIMARY_LEVEL_COUNT && utm->missing[level]) || *cursor != UTM_LEVEL_SEPARATOR)
       goto fail;
     cursor++;
 

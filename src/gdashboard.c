@@ -1346,8 +1346,7 @@ expand_ancestors_and_calc_idx (GHolder *holder, GScrollModule *scroll, int paren
   GFindTreeState state = { 0 };
   int idx = 0, root_full_idx = 0, visible_idx = 0;
 
-  if (holder == NULL || scroll == NULL || parent_idx < 0 ||
-      parent_idx >= (int) holder->idx)
+  if (holder == NULL || scroll == NULL || parent_idx < 0 || parent_idx >= (int) holder->idx)
     return 0;
 
   state.node_exp = scroll->item_expanded;

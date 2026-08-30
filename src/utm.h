@@ -59,10 +59,10 @@ typedef struct GUTM_ {
   unsigned char missing[UTM_PRIMARY_LEVEL_COUNT];
 } GUTM;
 
-int decode_utm_path (const char *path, GUTM *utm);
-int extract_utm (const char *input, GUTMInput type, GUTM *utm);
-char *encode_utm_path (const GUTM *utm);
+int decode_utm_path (const char *path, GUTM * utm);
+int extract_utm (const char *input, GUTMInput type, GUTM * utm);
+char *encode_utm_path (const GUTM * utm);
 const char *get_utm_parameter_name (GUTMLevel level);
-void free_utm (GUTM *utm);
+void free_utm (GUTM * utm);
 
 #endif // for #ifndef UTM_H_INCLUDED
