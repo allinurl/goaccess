@@ -42,6 +42,7 @@
 #include "output.h"
 
 #include "error.h"
+#include "gkhash.h"
 #include "json.h"
 #include "settings.h"
 #include "ui.h"
@@ -574,6 +575,8 @@ print_def_metric (FILE *fp, const GDefMetric def, int sp) {
     fpskeysval (fp, "metaLabel", def.metalbl, isp, 0);
   if (def.datatype)
     fpskeysval (fp, "dataType", def.datatype, isp, 0);
+  if (def.secondary_datakey)
+    fpskeysval (fp, "secondaryKey", def.secondary_datakey, isp, 0);
   if (def.hlregex)
     fpskeysval (fp, "hlregex", def.hlregex, isp, 0);
   if (def.datakey)
@@ -674,6 +677,14 @@ print_def_overall_excluded (FILE *fp, int sp) {
     .lbl = T_EXCLUDE_IP,
     .datatype = "numeric",
   };
+
+#ifdef HAVE_LIBMAXMINDDB
+  if (conf.exclude_asn_idx || ht_get_excluded_asns ()) {
+    def.lbl = T_EXCLUDE_IP_ASN;
+    def.secondary_datakey = OVERALL_EXCL_ASN_HITS;
+  }
+#endif
+
   fpopen_obj_attr (fp, OVERALL_EXCL_HITS, sp);
   print_def_metric (fp, def, sp);
   fpclose_obj (fp, sp, 0);

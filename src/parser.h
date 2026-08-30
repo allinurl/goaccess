@@ -103,8 +103,10 @@ typedef struct GLogItem_ {
   uint64_t resp_size;
   uint64_t serve_time;
 
+  uint32_t asn_number;
   uint32_t numdate;
   uint32_t agent_hash;
+  int asn_resolved; /* 0: not run, 1: not found, 2: found. */
   int ignorelevel;
   int type_ip;
   int is_404;

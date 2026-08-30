@@ -502,6 +502,14 @@ poverall_excluded (GJSON *json, int sp) {
   pskeyu64val (json, OVERALL_EXCL_HITS, ht_get_excluded_ips (), sp, 0);
 }
 
+#ifdef HAVE_LIBMAXMINDDB
+/* Write to a buffer the number of requests excluded by ASN. */
+static void
+poverall_excluded_asn (GJSON *json, int sp) {
+  pskeyu64val (json, OVERALL_EXCL_ASN_HITS, ht_get_excluded_asns (), sp, 0);
+}
+#endif
+
 /* Write to a buffer the number of referrers under the overall object. */
 static void
 poverall_refs (GJSON *json, int sp) {
@@ -1103,6 +1111,10 @@ print_json_summary (GJSON *json, GHolder *holder) {
   poverall_files (json, isp);
   /* excluded hits */
   poverall_excluded (json, isp);
+#ifdef HAVE_LIBMAXMINDDB
+  /* ASN excluded hits */
+  poverall_excluded_asn (json, isp);
+#endif
   /* referrers */
   poverall_refs (json, isp);
   /* not found */

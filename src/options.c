@@ -68,6 +68,9 @@ static const struct option long_opts[] = {
   {"config-file"          , required_argument , 0 , 'p' } ,
   {"debug-file"           , required_argument , 0 , 'l' } ,
   {"exclude-ip"           , required_argument , 0 , 'e' } ,
+#ifdef HAVE_LIBMAXMINDDB
+  {"exclude-asn"          , required_argument , 0 , 0  } ,
+#endif
 #ifdef HAVE_LIBGEOIP
   {"std-geoip"            , no_argument       , 0 , 'g' } ,
 #endif
@@ -352,6 +355,10 @@ cmd_help (void)
   "  -g --std-geoip                  - Standard GeoIP database for less memory\n"
   "                                    consumption (legacy DB).\n"
 #endif
+#ifdef HAVE_LIBMAXMINDDB
+  "  --exclude-asn=<ASN>             - Exclude requests from an ASN. Accepts the\n"
+  "                                    numeric form or AS-prefixed form.\n"
+#endif
   "  --geoip-database=<path>         - Specify path to GeoIP database file.\n"
   "                                    i.e., GeoLiteCity.dat, GeoIPv6.dat ...\n"
   "\n"
@@ -617,6 +624,59 @@ validate_url_basic (const char *url) {
   }
 
   return 0;     /* No valid protocol */
+}
+#endif
+
+#ifdef HAVE_LIBMAXMINDDB
+/* Parse a numeric or AS-prefixed autonomous system number.
+ *
+ * On success, the normalized ASN is assigned and 0 is returned.
+ * On failure, 1 is returned. */
+static int
+parse_asn (const char *value, uint32_t *asn) {
+  char *end = NULL;
+  const char *number = value;
+  unsigned long long parsed = 0;
+
+  if (!value || !asn)
+    return 1;
+
+  if ((value[0] == 'A' || value[0] == 'a') && (value[1] == 'S' || value[1] == 's'))
+    number += 2;
+
+  if (!isdigit ((unsigned char) *number))
+    return 1;
+
+  errno = 0;
+  parsed = strtoull (number, &end, 10);
+  if (errno == ERANGE || *end != '\0' || parsed == 0 || parsed > UINT32_MAX)
+    return 1;
+
+  *asn = (uint32_t) parsed;
+  return 0;
+}
+
+/* Add an ASN exclusion while keeping the configuration array sorted. */
+static void
+add_excluded_asn (const char *value) {
+  uint32_t asn = 0;
+  int idx = 0;
+
+  if (parse_asn (value, &asn))
+    FATAL ("Invalid --exclude-asn value: %s", value ? value : "(null)");
+
+  while (idx < conf.exclude_asn_idx && conf.exclude_asns[idx] < asn)
+    idx++;
+
+  if (idx < conf.exclude_asn_idx && conf.exclude_asns[idx] == asn)
+    return;
+  if (conf.exclude_asn_idx >= MAX_EXCLUDE_ASNS)
+    FATAL ("Maximum number of --exclude-asn options reached: %d", MAX_EXCLUDE_ASNS);
+
+  memmove (&conf.exclude_asns[idx + 1], &conf.exclude_asns[idx],
+           (conf.exclude_asn_idx - idx) * sizeof (*conf.exclude_asns));
+  conf.exclude_asns[idx] = asn;
+  conf.exclude_asn_idx++;
 }
 #endif
 
@@ -1015,6 +1075,12 @@ parse_long_opt (const char *name, const char *oarg) {
 
   /* GEOIP OPTIONS
    * ========================= */
+#ifdef HAVE_LIBMAXMINDDB
+  /* exclude requests originating from an ASN */
+  if (!strcmp ("exclude-asn", name))
+    add_excluded_asn (oarg);
+#endif
+
   /* specifies the path of the GeoIP City database file */
   if (!strcmp ("geoip-database", name) && conf.geoip_db_idx < MAX_GEOIP_DBS)
     set_array_opt (oarg, conf.geoip_databases, &conf.geoip_db_idx, MAX_GEOIP_DBS);

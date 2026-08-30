@@ -31,11 +31,9 @@
 #include "commons.h"
 
 /* Global UI defaults */
-#define MIN_HEIGHT        8
+#define MIN_HEIGHT        9
 #define MIN_WIDTH         0
 #define MAX_HEIGHT_FOOTER 1
-#define MAX_HEIGHT_HEADER 7
-#define OVERALL_NUM_COLS  4
 
 /* Spinner Label Format */
 #define SPIN_FMT "%s"
@@ -76,6 +74,7 @@
 #define OVERALL_VISITORS  "unique_visitors"
 #define OVERALL_FILES     "unique_files"
 #define OVERALL_EXCL_HITS "excluded_hits"
+#define OVERALL_EXCL_ASN_HITS "excluded_asn_hits"
 #define OVERALL_REF       "unique_referrers"
 #define OVERALL_NOTFOUND  "unique_not_found"
 #define OVERALL_STATIC    "unique_static_files"
@@ -249,7 +248,7 @@ void set_curses_spinner (GSpinner * spinner);
 void set_spinner_progress (const char *label, uint64_t processed, uint64_t total);
 void set_input_opts (void);
 void set_wbkgd (WINDOW * main_win, WINDOW * header_win);
-void term_size (WINDOW * main_win, int *main_win_height);
+void term_size (WINDOW * header_win, WINDOW * main_win, int *main_win_height);
 void ui_spinner_create (GSpinner * spinner);
 void unlock_spinner (void);
 void update_active_module (WINDOW * header_win, GModule current);

@@ -181,6 +181,9 @@ const char *ht_get_country_continent (const char *country);
 char *ht_get_hostname (const char *host);
 char *ht_get_json_logfmt (const char *key);
 uint32_t ht_get_excluded_ips (void);
+#ifdef HAVE_LIBMAXMINDDB
+uint32_t ht_get_excluded_asns (void);
+#endif
 uint32_t ht_get_invalid (void);
 uint32_t ht_get_processed (void);
 uint32_t ht_get_processing_time (void);

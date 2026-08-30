@@ -271,6 +271,9 @@ geoip_set_continent (const char *continent, char *loc) {
  * buffer. */
 static void
 geoip_set_asn (const char *name, char *asn) {
+  if (!asn)
+    return;
+
   if (name)
     snprintf (asn, ASN_LEN, "%s", name);
   else
@@ -565,19 +568,30 @@ geoip_get_continent (const char *ip, char *location, GTypeIP type_ip) {
   }
 }
 
-void
-geoip_asn (char *host, char *asn) {
+/* Fetch the formatted ASN organization for an IP address.
+ *
+ * On success, the label is assigned and 0 is returned.
+ * On failure, the label is set to Unknown and 1 is returned. */
+int
+geoip_get_asn (const char *host, uint32_t *number, char *asn) {
   char *name = NULL;
+
+  if (number)
+    *number = 0;
 
   if (legacy_db || set_geoip_db (TYPE_ASN)) {
     geoip_set_asn (NULL, asn);
-    return;
+    return 1;
   }
 
   /* Custom GeoIP database */
   name = GeoIP_org_by_name (geo_location_data, (const char *) host);
   geoip_set_asn (name, asn);
+  if (!name)
+    return 1;
+
   free (name);
+  return 0;
 }
 
 /* Entry point to set GeoIP location into the corresponding buffers,
@@ -597,7 +611,7 @@ set_geolocation (char *host, char *continent, char *country, char *city, char *a
 
   /* set ASN data; callers that pass NULL skip the extra query */
   if (asn)
-    geoip_asn (host, asn);
+    geoip_get_asn (host, NULL, asn);
 
   /* set Country/City data */
   if (set_geoip_db (TYPE_COUNTRY) == 0 || set_geoip_db (TYPE_CITY) == 0) {

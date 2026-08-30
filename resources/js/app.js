@@ -660,6 +660,10 @@ GoAccess.OverallStats = {
 	renderBox: function (data, ui, row, x, idx) {
 		var wrap = $('#overall ul');
 		var box = document.createElement('li');
+		var value = GoAccess.Util.fmtValue(data[x], ui.items[x].dataType);
+
+		if (ui.items[x].secondaryKey && data.hasOwnProperty(ui.items[x].secondaryKey))
+			value += ' / ' + GoAccess.Util.fmtValue(data[ui.items[x].secondaryKey], ui.items[x].dataType);
 
 		// we need to append the element first, otherwise outerHTML won't work
 		wrap.appendChild(box);
@@ -668,7 +672,7 @@ GoAccess.OverallStats = {
 			'id': x,
 			'className': ui.items[x].className,
 			'label': ui.items[x].label,
-			'value': GoAccess.Util.fmtValue(data[x], ui.items[x].dataType),
+			'value': value,
 		});
 
 		return wrap;

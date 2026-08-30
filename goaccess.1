@@ -1021,6 +1021,18 @@ GEOLOCATION OPTIONS
 \fB\-g \-\-std-geoip
 Standard GeoIP database for less memory usage.
 .TP
+\fB\-\-exclude-asn=<ASN>
+Exclude requests whose client address resolves to the given Autonomous System
+Number. The option can be repeated and accepts either the numeric form, such as
+8075, or the AS-prefixed form, such as AS8075.
+
+This option is available only when GoAccess is built with GeoIP2 support and
+requires an ASN database supplied through
+.BR \-\-geoip-database .
+GoAccess exits with an error if ASN exclusions are configured without an
+ASN-capable database. Exclusions apply as records are parsed and do not remove
+matching records already restored from persistent storage.
+.TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat.
 

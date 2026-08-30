@@ -1873,6 +1873,10 @@ static int
 ignore_line (GLogItem *logitem) {
   if (excluded_ip (logitem) == 0)
     return IGNORE_LEVEL_PANEL;
+#ifdef HAVE_LIBMAXMINDDB
+  if (excluded_asn (logitem) == 0)
+    return IGNORE_LEVEL_PANEL;
+#endif
   if (handle_crawler (logitem) == 0)
     return IGNORE_LEVEL_PANEL;
   if (ignore_referer (logitem->ref))

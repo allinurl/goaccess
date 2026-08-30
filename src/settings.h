@@ -36,6 +36,7 @@
 #define MAX_LINE_CONF        4096
 #define MAX_EXTENSIONS        128
 #define MAX_GEOIP_DBS           3
+#define MAX_EXCLUDE_ASNS     1024 /* bound repeated ASN exclusion rules from configuration */
 #define MAX_IGNORE_IPS 1024 + 128
 #define MAX_IGNORE_REF         64
 #define MAX_CUSTOM_COLORS      64
@@ -106,6 +107,7 @@ typedef struct GConf_
   const char *enable_panels[TOTAL_MODULES];     /* array of panels to enable */
   const char *filenames[MAX_FILENAMES];         /* log files */
   const char *hide_referers[MAX_IGNORE_REF];    /* hide referrers from report */
+  uint32_t exclude_asns[MAX_EXCLUDE_ASNS];      /* sorted ASNs to exclude */
   const char *ignore_ips[MAX_IGNORE_IPS];       /* array of ips to ignore */
   const char *ignore_panels[TOTAL_MODULES];     /* array of panels to ignore */
   const char *ignore_referers[MAX_IGNORE_REF];  /* referrers to ignore */
@@ -225,6 +227,7 @@ typedef struct GConf_
   int enable_panel_idx;             /* enable panels index */
   int filenames_idx;                /* filenames index */
   int hide_referer_idx;             /* hide referrers index */
+  int exclude_asn_idx;              /* excluded ASNs index */
   int ignore_ip_idx;                /* ignored ips index */
   int ignore_panel_idx;             /* ignored panels index */
   int ignore_referer_idx;           /* ignored referrers index */

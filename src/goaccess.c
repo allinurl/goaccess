@@ -420,7 +420,6 @@ render_screens (uint32_t offset) {
   char time_str_buf[32];
 
   getmaxyx (stdscr, row, col);
-  term_size (main_win, &main_win_height);
 
   generate_time ();
   strftime (time_str_buf, sizeof (time_str_buf), "%d/%b/%Y:%T", &now_tm);
@@ -438,6 +437,7 @@ render_screens (uint32_t offset) {
 
   /* call general stats header */
   display_general (header_win, holder);
+  term_size (header_win, main_win, &main_win_height);
   wrefresh (header_win);
 
   /* display active label based on current module */
@@ -629,11 +629,16 @@ expand_current_module (void) {
 /* Expand the clicked module/panel given the Y event coordinate. */
 static int
 expand_module_from_ypos (int y) {
+  int main_x = 0, main_y = 0;
+
+  getbegyx (main_win, main_y, main_x);
+  (void) main_x;
+
   /* ignore header/footer clicks */
-  if (y < MAX_HEIGHT_HEADER || y == LINES - 1)
+  if (y < main_y || y >= LINES - MAX_HEIGHT_FOOTER)
     return 1;
 
-  if (set_module_from_mouse_event (&gscroll, dash, y))
+  if (set_module_from_mouse_event (&gscroll, dash, y - main_y))
     return 1;
 
   reset_scroll_offsets (&gscroll);
@@ -829,8 +834,6 @@ tail_term (void) {
   free_dashboard (dash);
   allocate_holder ();
   allocate_data ();
-
-  term_size (main_win, &main_win_height);
 }
 
 static void
@@ -1160,7 +1163,6 @@ window_resize (void) {
   werase (header_win);
   werase (main_win);
   werase (stdscr);
-  term_size (main_win, &main_win_height);
   refresh ();
 }
 
@@ -1689,6 +1691,15 @@ block_thread_signals (void) {
   pthread_sigmask (SIG_BLOCK, &sigset, &oldset);
 }
 
+#ifdef HAVE_LIBMAXMINDDB
+/* Require an ASN-capable MMDB whenever ASN exclusions are configured. */
+static void
+validate_asn_exclusions (void) {
+  if (conf.exclude_asn_idx && !conf.has_geoasn)
+    FATAL ("--exclude-asn requires an ASN GeoIP2 database supplied with --geoip-database.");
+}
+#endif
+
 /* Initialize various types of data. */
 static Logs *
 initializer (void) {
@@ -1709,6 +1720,9 @@ initializer (void) {
 
 #ifdef HAVE_GEOLOCATION
   init_geoip ();
+#endif
+#ifdef HAVE_LIBMAXMINDDB
+  validate_asn_exclusions ();
 #endif
 
   set_io (&pipe);

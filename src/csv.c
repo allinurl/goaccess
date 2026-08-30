@@ -265,6 +265,12 @@ print_csv_summary (FILE *fp) {
   total = ht_get_excluded_ips ();
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_HITS);
 
+#ifdef HAVE_LIBMAXMINDDB
+  /* ASN excluded hits */
+  total = ht_get_excluded_asns ();
+  fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_EXCL_ASN_HITS);
+#endif
+
   /* referrers */
   total = ht_get_size_datamap (REFERRERS);
   fprintf (fp, fmt, i++, GENER_ID, total, OVERALL_REF);

@@ -86,6 +86,7 @@ typedef struct GDefMetric_ {
   const char *cname;            /* metric class name */
   const char *cwidth;           /* metric column width */
   const char *datakey;          /* metric JSON data key */
+  const char *secondary_datakey; /* optional paired JSON data key */
   const char *datatype;         /* metric data value type */
   const char *lbl;              /* metric label (column name) */
   const char *metakey;          /* metric JSON meta key */

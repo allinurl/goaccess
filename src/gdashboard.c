@@ -188,15 +188,14 @@ get_xpos (void) {
   return DASH_INIT_X;
 }
 
-/* Determine which module should be expanded given the current mouse
- * position.
+/* Determine which module should be expanded from a dashboard-relative row.
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
 set_module_from_mouse_event (GScroll *gscroll, GDash *dash, int y) {
   int module = 0;
-  int offset = y - MAX_HEIGHT_HEADER - MAX_HEIGHT_FOOTER + 1;
+  int offset = y;
 
   if (gscroll->expanded) {
     module = get_find_current_module (dash, offset);

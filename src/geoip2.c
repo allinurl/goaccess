@@ -216,14 +216,21 @@ geoip_set_country (const char *country, const char *code, char *loc) {
     snprintf (loc, COUNTRY_LEN, "%s", "Unknown");
 }
 
-/* Compose a string with the ASN name and code and store it in the
- * given buffer. */
+/* Compose an ASN label from its numeric identifier and organization. */
 static void
-geoip_set_asn (MMDB_entry_data_s name, MMDB_entry_data_s code, char *asn, int status) {
-  if (status == 0)
-    snprintf (asn, ASN_LEN, "%05u: %.*s", code.uint32, name.data_size, name.utf8_string);
-  else
+geoip_set_asn (MMDB_entry_data_s name, uint32_t number, char *asn, int has_name) {
+  if (!asn)
+    return;
+
+  if (!number) {
     snprintf (asn, ASN_LEN, "%s", "00000: Unknown");
+    return;
+  }
+
+  if (has_name)
+    snprintf (asn, ASN_LEN, "%05u: %.*s", number, name.data_size, name.utf8_string);
+  else
+    snprintf (asn, ASN_LEN, "%05u: Unknown", number);
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -326,11 +333,12 @@ geoip_query_asn_code (MMDB_lookup_result_s res, MMDB_entry_data_s *code) {
   int status;
   const char *key[] = { "autonomous_system_number", NULL };
 
-  if (res.found_entry) {
-    status = MMDB_aget_value (&res.entry, code, key);
-    if (status != MMDB_SUCCESS || !code->has_data)
-      return 1;
-  }
+  if (!res.found_entry)
+    return 1;
+
+  status = MMDB_aget_value (&res.entry, code, key);
+  if (status != MMDB_SUCCESS || !code->has_data || code->type != MMDB_DATA_TYPE_UINT32)
+    return 1;
 
   return 0;
 }
@@ -344,37 +352,40 @@ geoip_query_asn_name (MMDB_lookup_result_s res, MMDB_entry_data_s *name) {
   int status;
   const char *key[] = { "autonomous_system_organization", NULL };
 
-  if (res.found_entry) {
-    status = MMDB_aget_value (&res.entry, name, key);
-    if (status != MMDB_SUCCESS || !name->has_data)
-      return 1;
-  }
+  if (!res.found_entry)
+    return 1;
+
+  status = MMDB_aget_value (&res.entry, name, key);
+  if (status != MMDB_SUCCESS || !name->has_data || name->type != MMDB_DATA_TYPE_UTF8_STRING)
+    return 1;
 
   return 0;
 }
 
-/* A wrapper to fetch the looked up result and set the ASN organization & code.
+/* Fetch the ASN number and formatted organization for an IP address.
  *
- * If no data is found, "Unknown" is set.
- * On success, the fetched value is set. */
-void
-geoip_asn (char *host, char *asn) {
+ * On success, the available outputs are assigned and 0 is returned.
+ * On failure, the outputs are reset, the label is set to Unknown, and 1 is returned. */
+int
+geoip_get_asn (const char *host, uint32_t *number, char *asn) {
   MMDB_lookup_result_s res = { 0 };
-  MMDB_entry_data_s name = { 0 };
-  MMDB_entry_data_s code = { 0 };
-  int status = 1;
+  MMDB_entry_data_s code = { 0 }, name = { 0 };
+  int has_name = 0;
 
-  geoip_lookup (&res, host, 1);
+  if (number)
+    *number = 0;
 
-  if (!res.found_entry)
-    goto out;
-  if ((status &= geoip_query_asn_name (res, &name)))
-    goto out;
-  if ((status |= geoip_query_asn_code (res, &code)))
-    goto out;
+  if (geoip_lookup (&res, host, 1) || geoip_query_asn_code (res, &code)) {
+    geoip_set_asn (name, 0, asn, 0);
+    return 1;
+  }
 
-out:
-  geoip_set_asn (name, code, asn, status);
+  if (number)
+    *number = code.uint32;
+  has_name = geoip_query_asn_name (res, &name) == 0;
+  geoip_set_asn (name, code.uint32, asn, has_name);
+
+  return 0;
 }
 
 /* A wrapper to fetch the looked up result and set the continent code.
@@ -424,7 +435,7 @@ set_geolocation (char *host, char *continent, char *country, char *city, char *a
   /* set ASN data; the ASN panel performs its own lookup, so callers that
    * pass NULL skip the extra query per line */
   if (geoip_asn_type && asn)
-    geoip_asn (host, asn);
+    geoip_get_asn (host, NULL, asn);
 
   if (!geoip_city_type && !geoip_country_type)
     return 0;

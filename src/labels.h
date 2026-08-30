@@ -64,7 +64,9 @@
 
 #define T_BW                     _( "Tx. Amount")
 #define T_DATETIME               _( "Date/Time")
+#define T_EXCLUDE_ASN            _( "Excl. ASN Hits")
 #define T_EXCLUDE_IP             _( "Excl. IP Hits")
+#define T_EXCLUDE_IP_ASN         _( "Excl. IP / ASN Hits")
 #define T_FAILED                 _( "Failed Requests")
 #define T_GEN_TIME               _( "Log Parsing Time")
 #define T_LOG                    _( "Log Size")

@@ -102,6 +102,13 @@ typedef struct Field_ {
   short oneliner;
 } Field;
 
+#define INITIAL_HEADER_HEIGHT 6 /* initial window size before statistics are available */
+#define HEADER_MAIN_GAP       1 /* blank row separating statistics from dashboard panels */
+#define OVERALL_START_X       2 /* left padding for the overall statistics grid */
+#define OVERALL_START_Y       2 /* rows reserved for the overall statistics heading */
+#define OVERALL_VALUE_GAP     1 /* space between a statistic label and its value */
+#define OVERALL_COLUMN_GAP    2 /* space separating adjacent statistic columns */
+
 /* Determine which metrics to output given a module
  *
  * On error, or if not found, NULL is returned.
@@ -193,25 +200,26 @@ set_wbkgd (WINDOW *main_win, WINDOW *header_win) {
   wrefresh (main_win);
 }
 
-/* Creates and the new terminal windows and set basic properties to
- * each of them. e.g., background color, enable the reading of
- * function keys. */
+/* Create and initialize the terminal header and dashboard windows. */
 void
 init_windows (WINDOW **header_win, WINDOW **main_win) {
-  int row = 0, col = 0;
+  int col = 0, main_height = 0, main_y = 0, row = 0;
+
   /* init standard screen */
   getmaxyx (stdscr, row, col);
   if (row < MIN_HEIGHT || col < MIN_WIDTH)
-    FATAL ("Minimum screen size - 0 columns by 7 lines");
+    FATAL ("Minimum screen size - %d columns by %d lines", MIN_WIDTH, MIN_HEIGHT);
 
   /* init header screen */
-  *header_win = newwin (6, col, 0, 0);
+  *header_win = newwin (INITIAL_HEADER_HEIGHT, col, 0, 0);
   if (*header_win == NULL)
     FATAL ("Unable to allocate memory for header_win.");
   keypad (*header_win, TRUE);
 
   /* init main screen */
-  *main_win = newwin (row - 8, col, 7, 0);
+  main_y = INITIAL_HEADER_HEIGHT + HEADER_MAIN_GAP;
+  main_height = row - main_y - MAX_HEIGHT_FOOTER;
+  *main_win = newwin (main_height, col, main_y, 0);
   if (*main_win == NULL)
     FATAL ("Unable to allocate memory for main_win.");
   keypad (*main_win, TRUE);
@@ -236,14 +244,23 @@ draw_header (WINDOW *win, const char *s, const char *fmt, int y, int x, int w,
 
 #pragma GCC diagnostic warning "-Wformat-nonliteral"
 
-/* Determine the actual size of the main window. */
+/* Resize and position the main window below the dynamic header. */
 void
-term_size (WINDOW *main_win, int *main_win_height) {
-  int term_h = 0, term_w = 0;
+term_size (WINDOW *header_win, WINDOW *main_win, int *main_win_height) {
+  int header_height = 0, main_y = 0, term_h = 0, term_w = 0;
+
   getmaxyx (stdscr, term_h, term_w);
-  *main_win_height = term_h - (MAX_HEIGHT_HEADER + MAX_HEIGHT_FOOTER);
-  wresize (main_win, *main_win_height, term_w);
-  wmove (main_win, *main_win_height, 0);
+  header_height = getmaxy (header_win);
+  main_y = header_height + HEADER_MAIN_GAP;
+  *main_win_height = term_h - main_y - MAX_HEIGHT_FOOTER;
+  if (*main_win_height < 1)
+    FATAL ("Terminal is too short to display the overall statistics.");
+
+  /* Shrinking first permits safe movement whether the header grew or shrank. */
+  if (wresize (main_win, 1, term_w) == ERR || mvwin (main_win, main_y, 0) == ERR ||
+      wresize (main_win, *main_win_height, term_w) == ERR)
+    FATAL ("Unable to resize the terminal dashboard.");
+  wmove (main_win, *main_win_height - 1, 0);
 }
 
 /* Get the module/panel label name for the given module enum value.
@@ -413,6 +430,17 @@ get_str_excluded_ips (void) {
   return u642str (ht_get_excluded_ips (), 0);
 }
 
+#ifdef HAVE_LIBMAXMINDDB
+/* Convert the number of ASN exclusions to a string.
+ *
+ * On success, the number of ASN exclusions as a string is returned.
+ * On failure, the process terminates. */
+static char *
+get_str_excluded_asns (void) {
+  return u642str (ht_get_excluded_asns (), 0);
+}
+#endif
+
 /* Convert the number of failed requests to a string.
  *
  * On success, the number of failed requests as a string is returned. */
@@ -569,49 +597,161 @@ render_overall_header (WINDOW *win, GHolder *h) {
   free (hd);
 }
 
-/* Render the overall statistics. This will attempt to determine the
- * right X and Y position given the current values. */
+/* Count the statistics that belong in the multi-column grid.
+ *
+ * On success, the number of grid statistics is returned.
+ * On failure, 0 is returned. */
+static size_t
+count_overall_metrics (const Field fields[], size_t n) {
+  size_t count = 0, i = 0;
+
+  if (!fields)
+    return 0;
+
+  for (i = 0; i < n; i++)
+    if (!fields[i].oneliner)
+      count++;
+
+  return count;
+}
+
+/* Find the widest label and value assigned to a grid column. */
 static void
-render_overall_statistics (WINDOW *win, Field fields[], size_t n) {
+get_overall_column_widths (const Field fields[], size_t n, size_t columns,
+                           size_t column, size_t *label_width, size_t *value_width) {
+  size_t i = 0, metric = 0;
+
+  *label_width = 0;
+  *value_width = 0;
+
+  for (i = 0; i < n; i++) {
+    if (fields[i].oneliner)
+      continue;
+
+    if (metric % columns == column) {
+      *label_width = MAX (*label_width, strlen (fields[i].field));
+      *value_width = MAX (*value_width, strlen (fields[i].value));
+    }
+    metric++;
+  }
+}
+
+/* Calculate the terminal width required for a statistics column count.
+ *
+ * On success, the required terminal width is returned.
+ * On failure, 0 is returned. */
+static size_t
+get_overall_grid_width (const Field fields[], size_t n, size_t columns) {
+  size_t column = 0, label_width = 0, required = OVERALL_START_X, value_width = 0;
+
+  if (!columns)
+    return 0;
+
+  for (column = 0; column < columns; column++) {
+    get_overall_column_widths (fields, n, columns, column, &label_width, &value_width);
+    required += label_width + OVERALL_VALUE_GAP + value_width + OVERALL_COLUMN_GAP;
+  }
+
+  return required;
+}
+
+/* Select the largest statistics column count that fits the terminal width.
+ *
+ * On success, a positive column count is returned.
+ * On failure, 1 is returned as the narrowest usable layout. */
+static size_t
+get_overall_columns (const Field fields[], size_t n, size_t term_width) {
+  size_t columns = count_overall_metrics (fields, n);
+
+  while (columns > 1) {
+    if (get_overall_grid_width (fields, n, columns) <= term_width)
+      return columns;
+    columns--;
+  }
+
+  return 1;
+}
+
+/* Calculate the header rows required by the statistics and full-width fields.
+ *
+ * On success, the required header height is returned.
+ * On failure, the heading-only height is returned. */
+static int
+get_overall_height (const Field fields[], size_t n, size_t columns) {
+  size_t full_width = 0, i = 0, metrics = 0, rows = 0;
+
+  if (!fields || !columns)
+    return OVERALL_START_Y;
+
+  metrics = count_overall_metrics (fields, n);
+  rows = (metrics + columns - 1) / columns;
+  for (i = 0; i < n; i++)
+    if (fields[i].oneliner)
+      full_width++;
+
+  return OVERALL_START_Y + rows + full_width;
+}
+
+/* Render one statistic at its calculated grid position. */
+static void
+render_overall_metric (WINDOW *win, const Field fields[], size_t n, size_t columns,
+                       size_t field, size_t metric) {
   GColors *color = NULL;
-  int x_field = 2, x_value;
-  size_t i, j, k, max_field = 0, max_value, mod_val, y;
+  int x_field = OVERALL_START_X, x_value = 0, y = 0;
+  size_t column = 0, current = 0, label_width = 0, value_width = 0;
 
-  for (i = 0, k = 0, y = 2; i < n; i++) {
-    /* new line every OVERALL_NUM_COLS */
-    mod_val = k % OVERALL_NUM_COLS;
-    /* reset position & length and increment row */
-    if (k > 0 && mod_val == 0) {
-      max_field = 0;
-      x_field = 2;
-      y++;
-    }
-    /* x pos = max length of field */
-    x_field += max_field;
+  column = metric % columns;
+  y = OVERALL_START_Y + metric / columns;
+  for (current = 0; current < column; current++) {
+    get_overall_column_widths (fields, n, columns, current, &label_width, &value_width);
+    x_field += label_width + OVERALL_VALUE_GAP + value_width + OVERALL_COLUMN_GAP;
+  }
+  get_overall_column_widths (fields, n, columns, column, &label_width, &value_width);
+  x_value = x_field + label_width + OVERALL_VALUE_GAP;
+
+  color = (*fields[field].colorlbl) ();
+  render_overall_field (win, fields[field].field, y, x_field, color);
+  color = (*fields[field].colorval) ();
+  render_overall_value (win, fields[field].value, y, x_value, color);
+}
+
+/* Render all full-width fields below the statistics grid. */
+static void
+render_overall_full_width (WINDOW *win, const Field fields[], size_t n,
+                           size_t columns) {
+  GColors *color = NULL;
+  int x_value = 0, y = 0;
+  size_t i = 0, metrics = 0;
+
+  metrics = count_overall_metrics (fields, n);
+  y = OVERALL_START_Y + (metrics + columns - 1) / columns;
+  for (i = 0; i < n; i++) {
+    if (!fields[i].oneliner)
+      continue;
+
+    x_value = OVERALL_START_X + strlen (fields[i].field) + OVERALL_VALUE_GAP;
     color = (*fields[i].colorlbl) ();
-    render_overall_field (win, fields[i].field, y, x_field, color);
-
-    /* get max length of field in the same column */
-    max_field = 0;
-    for (j = 0; j < n; j++) {
-      size_t len = strlen (fields[j].field);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_field && !fields[j].oneliner)
-        max_field = len;
-    }
-    /* get max length of value in the same column */
-    max_value = 0;
-    for (j = 0; j < n; j++) {
-      size_t len = strlen (fields[j].value);
-      if (j % OVERALL_NUM_COLS == mod_val && len > max_value && !fields[j].oneliner)
-        max_value = len;
-    }
-    /* spacers */
-    x_value = max_field + x_field + 1;
-    max_field += max_value + 2;
+    render_overall_field (win, fields[i].field, y, OVERALL_START_X, color);
     color = (*fields[i].colorval) ();
     render_overall_value (win, fields[i].value, y, x_value, color);
-    k += fields[i].oneliner ? OVERALL_NUM_COLS : 1;
+    y++;
   }
+}
+
+/* Render the width-aware overall statistics grid and full-width fields. */
+static void
+render_overall_statistics (WINDOW *win, const Field fields[], size_t n,
+                           size_t columns) {
+  size_t field = 0, metric = 0;
+
+  for (field = 0; field < n; field++) {
+    if (fields[field].oneliner)
+      continue;
+
+    render_overall_metric (win, fields, n, columns, field, metric);
+    metric++;
+  }
+  render_overall_full_width (win, fields, n, columns);
 }
 
 /* The entry point to render the overall statistics and free its data. */
@@ -620,7 +760,8 @@ display_general (WINDOW *win, GHolder *h) {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
-  size_t n, i;
+  int col = 0, header_height = 0;
+  size_t columns = 0, i = 0, n = 0;
 
   /* *INDENT-OFF* */
   Field fields[] = {
@@ -634,16 +775,25 @@ display_general (WINDOW *win, GHolder *h) {
     {T_LOG             , get_str_filesize ()       , colorlbl , colorval , 0} ,
     {T_FAILED          , get_str_failed_reqs ()    , colorlbl , colorval , 0} ,
     {T_EXCLUDE_IP      , get_str_excluded_ips ()   , colorlbl , colorval , 0} ,
+#ifdef HAVE_LIBMAXMINDDB
+    {T_EXCLUDE_ASN     , get_str_excluded_asns ()  , colorlbl , colorval , 0} ,
+#endif
     {T_UNIQUE404       , get_str_notfound_reqs ()  , colorlbl , colorval , 0} ,
     {T_BW              , get_str_bandwidth ()      , colorlbl , colorval , 0} ,
     {T_LOG_PATH        , get_str_logfile ()        , colorlbl , colorpth , 1}
   };
   /* *INDENT-ON* */
 
+  n = ARRAY_SIZE (fields);
+  col = getmaxx (stdscr);
+  columns = get_overall_columns (fields, n, col);
+  header_height = get_overall_height (fields, n, columns);
+  if (wresize (win, header_height, col) == ERR)
+    FATAL ("Unable to resize the terminal statistics header.");
+
   werase (win);
   render_overall_header (win, h);
-  n = ARRAY_SIZE (fields);
-  render_overall_statistics (win, fields, n);
+  render_overall_statistics (win, fields, n, columns);
   for (i = 0; i < n; i++) {
     free (fields[i].value);
   }

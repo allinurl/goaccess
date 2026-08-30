@@ -181,6 +181,9 @@ extern const size_t http_protocols_len;
 
 const char *get_mtr_str (GSMetric metric);
 int excluded_ip (GLogItem * logitem);
+#ifdef HAVE_LIBMAXMINDDB
+int excluded_asn (GLogItem * logitem);
+#endif
 int module_vkey_data (GModule module);
 uint32_t *i322ptr (uint32_t val);
 uint64_t *uint642ptr (uint64_t val);

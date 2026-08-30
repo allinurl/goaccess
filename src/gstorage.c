@@ -51,6 +51,12 @@
 #include "xmalloc.h"
 
 #ifdef HAVE_GEOLOCATION
+typedef enum {
+  ASN_LOOKUP_NOT_RUN,
+  ASN_LOOKUP_NOT_FOUND,
+  ASN_LOOKUP_FOUND,
+} GASNLookupState;
+
 /* Record the continent the GeoIP database resolved a country to. */
 static void
 set_country_continent (const char *country, const char *continent) {
@@ -759,6 +765,36 @@ count_process_and_invalid (GLog *glog, GLogItem *logitem, const char *line) {
   count_invalid (glog, logitem, line);
 }
 
+/* Increment an exclusion counter while serializing storage access. */
+static void
+count_excluded (const char *key) {
+  lock_spinner ();
+  ht_inc_cnt_overall (key, 1);
+  unlock_spinner ();
+}
+
+#ifdef HAVE_GEOLOCATION
+/* Resolve and cache the ASN metadata for a parsed log item.
+ *
+ * On success, the cached ASN is available and 0 is returned.
+ * On failure, the failed lookup is cached and 1 is returned. */
+static int
+resolve_asn (GLogItem *logitem) {
+  char asn[ASN_LEN] = "";
+  int status = 0;
+
+  if (logitem->asn_resolved != ASN_LOOKUP_NOT_RUN)
+    return logitem->asn_resolved != ASN_LOOKUP_FOUND;
+
+  status = geoip_get_asn (logitem->host, &logitem->asn_number, asn);
+  logitem->asn_resolved = status == 0 ? ASN_LOOKUP_FOUND : ASN_LOOKUP_NOT_FOUND;
+  if (asn[0] != '\0')
+    logitem->asn = xstrdup (asn);
+
+  return status;
+}
+#endif
+
 /* Keep track of all excluded log strings (IPs).
  *
  * If IP not range, 1 is returned.
@@ -766,11 +802,47 @@ count_process_and_invalid (GLog *glog, GLogItem *logitem, const char *line) {
 int
 excluded_ip (GLogItem *logitem) {
   if (conf.ignore_ip_idx && ip_in_range (logitem->host)) {
-    ht_inc_cnt_overall ("excluded_ip", 1);
+    count_excluded ("excluded_ip");
     return 0;
   }
   return 1;
 }
+
+#ifdef HAVE_LIBMAXMINDDB
+/* Check whether an ASN appears in the sorted exclusion list.
+ *
+ * If the ASN is present, 1 is returned.
+ * If the ASN is absent, 0 is returned. */
+static int
+asn_is_excluded (uint32_t asn) {
+  int high = conf.exclude_asn_idx, low = 0, mid = 0;
+
+  while (low < high) {
+    mid = low + (high - low) / 2;
+    if (conf.exclude_asns[mid] < asn)
+      low = mid + 1;
+    else
+      high = mid;
+  }
+
+  return low < conf.exclude_asn_idx && conf.exclude_asns[low] == asn;
+}
+
+/* Determine whether a request's resolved ASN should be excluded.
+ *
+ * If the request should be kept, 1 is returned.
+ * If the request is excluded, 0 is returned. */
+int
+excluded_asn (GLogItem *logitem) {
+  if (!conf.exclude_asn_idx || resolve_asn (logitem))
+    return 1;
+  if (!asn_is_excluded (logitem->asn_number))
+    return 1;
+
+  count_excluded ("excluded_asn");
+  return 0;
+}
+#endif
 
 /* A wrapper function to insert a data keymap string key.
  *
@@ -1456,15 +1528,11 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
  * On success, the generated ASN key is assigned to our key data structure. */
 static int
 gen_asn_key (GKeyData *kdata, GLogItem *logitem) {
-  char asn[ASN_LEN] = "";
-
   if (!is_geoip_resource ())
     return 1;
 
-  geoip_asn (logitem->host, asn);
-
-  if (asn[0] != '\0')
-    logitem->asn = xstrdup (asn);
+  if (resolve_asn (logitem) || !logitem->asn)
+    return 1;
 
   get_kdata (kdata, logitem->asn, logitem->asn);
   kdata->numdate = logitem->numdate;

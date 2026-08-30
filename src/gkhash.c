@@ -1410,6 +1410,23 @@ ht_get_excluded_ips (void) {
   return get_si32 (hash, "excluded_ip");
 }
 
+#ifdef HAVE_LIBMAXMINDDB
+/* Get the total number of requests excluded by ASN.
+ *
+ * On success, the stored counter is returned.
+ * On failure, 0 is returned. */
+uint32_t
+ht_get_excluded_asns (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * hash = get_hdb (db, MTRC_CNT_OVERALL);
+
+  if (!hash)
+    return 0;
+
+  return get_si32 (hash, "excluded_asn");
+}
+#endif
+
 uint32_t
 ht_get_invalid (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
