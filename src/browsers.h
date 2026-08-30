@@ -34,6 +34,9 @@
 #define MAX_LINE_BROWSERS   128
 #define MAX_CUSTOM_BROWSERS 256
 
+#define BROWSER_TYPE_AI_CRAWLERS "AI Crawlers"
+#define BROWSER_TYPE_CRAWLERS    "Crawlers"
+
 /* Each Browser contains the number of hits and the Browser's type */
 typedef struct GBrowser_ {
   char browser_type[BROWSER_TYPE_LEN];
@@ -42,6 +45,7 @@ typedef struct GBrowser_ {
 
 char *verify_browser (char *str, char *browser_type);
 int is_crawler (const char *agent);
+int is_crawler_type (const char *type);
 void free_browsers_hash (void);
 void parse_browsers_file (void);
 

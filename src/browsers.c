@@ -205,7 +205,34 @@ static const char *const browsers[][2] = {
   {"Tiny Tiny RSS", "Feeds"},
   {"Winds", "Feeds"},
 
+  /* AI Crawlers: self-identifying training, search and assistant agents. */
+  {"Google-CloudVertexBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"Cloudflare-AI-Search", BROWSER_TYPE_AI_CRAWLERS},
+  {"Claude-SearchBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"meta-externalfetcher", BROWSER_TYPE_AI_CRAWLERS},
+  {"meta-externalagent", BROWSER_TYPE_AI_CRAWLERS},
+  {"meta-webindexer", BROWSER_TYPE_AI_CRAWLERS},
+  {"MistralAI-User", BROWSER_TYPE_AI_CRAWLERS},
+  {"OAI-SearchBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"Perplexity-User", BROWSER_TYPE_AI_CRAWLERS},
+  {"PerplexityBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"ChatGPT-User", BROWSER_TYPE_AI_CRAWLERS},
+  {"DuckAssistBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"FacebookBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"Claude-User", BROWSER_TYPE_AI_CRAWLERS},
+  {"ClaudeBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"Bytespider", BROWSER_TYPE_AI_CRAWLERS},
+  {"ZipchatBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"slopsearch", BROWSER_TYPE_AI_CRAWLERS},
+  {"bigsur.ai", BROWSER_TYPE_AI_CRAWLERS},
+  {"Cotoyogi", BROWSER_TYPE_AI_CRAWLERS},
+  {"Anomura", BROWSER_TYPE_AI_CRAWLERS},
+  {"AI2Bot", BROWSER_TYPE_AI_CRAWLERS},
+  {"YouBot", BROWSER_TYPE_AI_CRAWLERS},
+  {"GPTBot", BROWSER_TYPE_AI_CRAWLERS},
+
   /* Crawlers: all bot and crawler user agents grouped together */
+  {"OAI-AdsBot", "Crawlers"},
   {"AdsBot", "Crawlers"},
   {"AdsBot-Google", "Crawlers"},
   {"APIs-Google", "Crawlers"},
@@ -242,8 +269,6 @@ static const char *const browsers[][2] = {
   {"yacybot", "Crawlers"},
   {"PycURL", "Crawlers"},
   {"PHP", "Crawlers"},
-  {"ClaudeBot", "Crawlers"},
-  {"Claude-User", "Crawlers"},
   {"AndroidDownloadManager", "Crawlers"},
   {"Embedly", "Crawlers"},
   {"ruby", "Crawlers"},
@@ -283,16 +308,13 @@ static const char *const browsers[][2] = {
   {"MauiBot", "Crawlers"},
   {"stagefright", "Crawlers"},
   {"ImagesiftBot", "Crawlers"},
-  {"Bytespider", "Crawlers"},
+  {"Amazonbot", "Crawlers"},
+  {"CCBot", "Crawlers"},
   {"WordPress/", "Crawlers"},
   {"Synapse", "Crawlers"},
   {"Yahoo! Slurp", "Crawlers"},
   {"GoogleMobile", "Crawlers"},
   {"ZoteroTranslationServer", "Crawlers"},
-  {"OAI-SearchBot", "Crawlers"},
-  {"GPTBot", "Crawlers"},
-  {"PerplexityBot", "Crawlers"},
-  {"Amazonbot", "Crawlers"},
   {"SkypeUriPreview", "Crawlers"},
 
   /* Based on Firefox: place all Firefox-based browsers here */
@@ -490,6 +512,19 @@ parse_browsers_file (void) {
   fclose (file);
 }
 
+/* Check whether a browser type belongs to a crawler category.
+ *
+ * On success, non-zero is returned.
+ * On failure, 0 is returned. */
+int
+is_crawler_type (const char *type) {
+  if (type == NULL)
+    return 0;
+
+  return !strcmp (type, BROWSER_TYPE_CRAWLERS) ||
+    !strcmp (type, BROWSER_TYPE_AI_CRAWLERS);
+}
+
 /* Determine if the user-agent is a crawler.
  *
  * On error or is not a crawler, 0 is returned.
@@ -506,7 +541,7 @@ is_crawler (const char *agent) {
     free (browser);
   free (a);
 
-  return strcmp (btype, "Crawlers") == 0 ? 1 : 0;
+  return is_crawler_type (btype);
 }
 
 /* Return the Opera 15 and beyond.
@@ -552,7 +587,7 @@ parse_crawler (char *str, char *match, char *type) {
   if (*match == '\0')
     return NULL;
 
-  xstrncpy (type, "Crawlers", BROWSER_TYPE_LEN);
+  xstrncpy (type, BROWSER_TYPE_CRAWLERS, BROWSER_TYPE_LEN);
 
   return xstrdup (match);
 }
@@ -667,8 +702,8 @@ verify_browser (char *str, char *type) {
   if (conf.unknowns_log)
     LOG_UNKNOWNS (("%-7s%s\n", "[BR]", str));
 
-  if (conf.unknowns_as_crawlers && strcmp (type, "Crawlers"))
-    xstrncpy (type, "Crawlers", BROWSER_TYPE_LEN);
+  if (conf.unknowns_as_crawlers && strcmp (type, BROWSER_TYPE_CRAWLERS))
+    xstrncpy (type, BROWSER_TYPE_CRAWLERS, BROWSER_TYPE_LEN);
   else
     xstrncpy (type, "Unknown", BROWSER_TYPE_LEN);
 

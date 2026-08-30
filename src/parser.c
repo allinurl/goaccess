@@ -1842,15 +1842,6 @@ verify_missing_fields (GLogItem *logitem) {
   return logitem->errstr != NULL;
 }
 
-/* Check whether a parsed browser or OS type is classified as a crawler.
- *
- * On success, non-zero is returned.
- * On failure, 0 is returned. */
-static int
-is_crawler_type (const char *type) {
-  return type && !strcmp (type, "Crawlers");
-}
-
 /* Determine if the request is from a robot or spider and check if we
  * need to ignore or show crawlers only.
  *
