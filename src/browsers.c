@@ -41,12 +41,31 @@
 #include "util.h"
 #include "xmalloc.h"
 
+#define BROWSER_TYPE_FEDIVERSE "Fediverse"
+
 /* ###NOTE: The size of the list is proportional to the run time,
  * which makes this pretty slow */
 
 static char ***browsers_hash = NULL;
 
 static const char *const browsers[][2] = {
+  /* Fediverse: known ActivityPub server user agents. */
+  {"PixelFedBot", BROWSER_TYPE_FEDIVERSE},
+  {"ActivityRelay", BROWSER_TYPE_FEDIVERSE},
+  {"ActivityPub", BROWSER_TYPE_FEDIVERSE},
+  {"Akkoma", BROWSER_TYPE_FEDIVERSE},
+  {"BookWyrm", BROWSER_TYPE_FEDIVERSE},
+  {"Friendica", BROWSER_TYPE_FEDIVERSE},
+  {"gotosocial", BROWSER_TYPE_FEDIVERSE},
+  {"HomeTown", BROWSER_TYPE_FEDIVERSE},
+  {"Lemmy", BROWSER_TYPE_FEDIVERSE},
+  {"Mastodon", BROWSER_TYPE_FEDIVERSE},
+  {"Misskey", BROWSER_TYPE_FEDIVERSE},
+  {"PeerTube", BROWSER_TYPE_FEDIVERSE},
+  {"Pixelfed", BROWSER_TYPE_FEDIVERSE},
+  {"Pleroma", BROWSER_TYPE_FEDIVERSE},
+  {"WriteFreely", BROWSER_TYPE_FEDIVERSE},
+
   /* Specific signatures must precede the broader fallback tokens below. */
   {"Apache-HttpClient", "HTTP Library"},
   {"Java-http-client", "HTTP Library"},
@@ -171,7 +190,6 @@ static const char *const browsers[][2] = {
   {"WordPress.com Reader", "Feeds"},
   {"YandexBlogs", "Feeds"},
   {"Brainstorm", "Feeds"},
-  {"Pleroma", "Feeds"},
   {"Akregator", "Feeds"},
   {"Apple-PubSub", "Feeds"},
   {"BTWebClient", "Feeds"},
@@ -216,7 +234,6 @@ static const char *const browsers[][2] = {
   {"netEstate", "Crawlers"},
   {"PiplBot", "Crawlers"},
   {"Baidu", "Crawlers"},
-  {"Mastodon", "Crawlers"},
   {"IstellaBot", "Crawlers"},
   {"heritrix", "Crawlers"},
   {"PagesInventory", "Crawlers"},

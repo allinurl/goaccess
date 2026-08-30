@@ -1,3 +1,5 @@
+  - Added a Fediverse browser category for identifiable ActivityPub server
+    traffic, separating it from traditional web crawlers.
   - Added resolved, total and pending hostname metrics to the progress display
     when resolving IP addresses for static output.
 
