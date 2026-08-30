@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.6.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2022-09-06 21:27+0900\n"
 "Last-Translator: David 창모 Yang <dcyang@users.noreply.github.com>\n"
 "Language-Team: Korean <dcyang@users.noreply.github.com>\n"
@@ -391,8 +391,8 @@ msgid "Encryption settings"
 msgstr "암호화 설정사항"
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
-msgstr "TLS 버전 및 선택한 알고리즘"
+msgid "TLS version, cipher suite, and key exchange group"
+msgstr ""
 
 #: src/labels.h:237
 msgid "TLS Settings"
@@ -1100,6 +1100,9 @@ msgstr ""
 #: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr ""
+
+#~ msgid "TLS version and picked algorithm"
+#~ msgstr "TLS 버전 및 선택한 알고리즘"
 
 #, fuzzy
 #~ msgid "Referers"

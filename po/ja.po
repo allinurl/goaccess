@@ -4,7 +4,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.3\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2025-04-28 21:05+0900\n"
 "Last-Translator: gemmaro <gemmaro.dev@gmail.com>\n"
 "Language-Team: Japanese\n"
@@ -386,8 +386,8 @@ msgid "Encryption settings"
 msgstr "暗号化設定"
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
-msgstr "TLSのバージョンと選択されたアルゴリズム"
+msgid "TLS version, cipher suite, and key exchange group"
+msgstr ""
 
 #: src/labels.h:237
 msgid "TLS Settings"
@@ -1121,3 +1121,6 @@ msgstr "WebSocketの状態：接続済み"
 #: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr "WebSocketの状態：切断済み"
+
+#~ msgid "TLS version and picked algorithm"
+#~ msgstr "TLSのバージョンと選択されたアルゴリズム"

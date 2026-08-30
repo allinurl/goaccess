@@ -124,8 +124,11 @@ is given within the log-format variable. See
 https://www.iana.org/assignments/media-types/media-types.xhtml for more
 details.
 .IP "Encryption Settings"
-This panel shows the SSL/TLS protocol used along the Cipher Suites. This panel
-is not enabled unless
+This panel shows the SSL/TLS protocol and cipher suite. If
+.I %g
+is present, the negotiated key exchange group is nested beneath its cipher
+suite, or directly beneath the protocol when no cipher is available. This
+panel is not enabled unless
 .I %K
 is given within the log-format variable.
 
@@ -1176,6 +1179,8 @@ The size of the object returned to the client.
 The "Referrer" HTTP request header.
 .IP %u
 The user-agent HTTP request header.
+.IP %g
+The negotiated TLS key exchange group. (In Nginx log_format: $ssl_curve)
 .IP %K
 The TLS encryption settings chosen for the connection. (In Apache LogFormat: %{SSL_PROTOCOL}x)
 .IP %k

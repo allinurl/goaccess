@@ -72,8 +72,8 @@
 #include "websocket.h"
 #include "xmalloc.h"
 
-/* Conventional missing-value marker for standalone query-string fields. */
-#define MISSING_QUERY_STRING "-"
+/* Conventional marker emitted when an optional log field has no value. */
+#define MISSING_LOG_VALUE "-"
 
 /* TLS wire-protocol version codes emitted by Caddy's JSON access logger. */
 enum GTLSVersionCode {
@@ -314,6 +314,8 @@ init_log_item (GLog *glog) {
   logitem->tls_type = NULL;
   logitem->tls_cypher = NULL;
   logitem->tls_type_cypher = NULL;
+  logitem->tls_type_cypher_group = NULL;
+  logitem->tls_group = NULL;
 
   memset (logitem->site, 0, sizeof (logitem->site));
   logitem->dt = glog->start_time;
@@ -382,6 +384,10 @@ free_glog (GLogItem *logitem) {
     free (logitem->tls_cypher);
   if (logitem->tls_type_cypher != NULL)
     free (logitem->tls_type_cypher);
+  if (logitem->tls_type_cypher_group != NULL)
+    free (logitem->tls_type_cypher_group);
+  if (logitem->tls_group != NULL)
+    free (logitem->tls_group);
 
   free (logitem);
 }
@@ -1250,7 +1256,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     if (logitem->qstr)
       return handle_default_case_token (str, p);
     tkn = parse_string (&(*str), end, 1);
-    if (tkn == NULL || *tkn == '\0' || !strcmp (tkn, MISSING_QUERY_STRING)) {
+    if (tkn == NULL || *tkn == '\0' || !strcmp (tkn, MISSING_LOG_VALUE)) {
       free (tkn);
       return 0;
     }
@@ -1468,6 +1474,20 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     }
     free (tkn);
     break;
+    /* TLS key exchange group, e.g., "X25519MLKEM768". */
+  case 'g':
+    if (logitem->tls_group)
+      return handle_default_case_token (str, p);
+    tkn = parse_string (&(*str), end, 1);
+    if (tkn == NULL)
+      return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
+    if (*tkn == '\0' || !strcmp (tkn, MISSING_LOG_VALUE)) {
+      free (tkn);
+      break;
+    }
+    logitem->tls_group = tkn;
+    break;
+
     /* UMS: Krypto (TLS) "ECDHE-RSA-AES128-GCM-SHA256" */
   case 'k':
     /* error to set this twice */

@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Goaccess\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2017-08-04 13:00-0300\n"
 "Last-Translator: Enrique Becerra <kabeza@gmail.com>\n"
 "Language-Team: \n"
@@ -377,7 +377,7 @@ msgid "Encryption settings"
 msgstr ""
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
+msgid "TLS version, cipher suite, and key exchange group"
 msgstr ""
 
 #: src/labels.h:237

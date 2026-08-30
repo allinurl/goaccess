@@ -60,6 +60,7 @@ typedef struct GPanel_ {
 static void add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
+static void add_tls_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_host_child_to_holder (GHolder * h);
 #ifdef HAVE_GEOLOCATION
 static void add_geo_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
@@ -86,7 +87,7 @@ static const GPanel paneling[] = {
   {ASN             , add_data_to_holder , NULL} ,
 #endif
   {MIME_TYPE       , add_root_to_holder , NULL} ,
-  {TLS_TYPE        , add_root_to_holder , NULL} ,
+  {TLS_TYPE        , add_tls_to_holder  , NULL} ,
 };
 /* *INDENT-ON* */
 
@@ -738,21 +739,40 @@ add_root_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED cons
   }
 }
 
-#ifdef HAVE_GEOLOCATION
-/* Find a sub-item in a GSubList by its data string.
- * Returns the matching GSubItem, or NULL if not found. */
+/* Accumulate source metrics into a parent hierarchy node. */
+static void
+accumulate_holder_metrics (GMetrics *dest, const GMetrics *source) {
+  dest->cumts.nts += source->cumts.nts;
+  dest->nbw += source->nbw;
+  dest->hits += source->hits;
+  dest->visitors += source->visitors;
+
+  if (source->maxts.nts > dest->maxts.nts)
+    dest->maxts.nts = source->maxts.nts;
+  if (dest->hits > 0)
+    dest->avgts.nts = dest->cumts.nts / dest->hits;
+}
+
+/* Find a hierarchy sub-item by its data string.
+ *
+ * On success, the matching sub-item is returned.
+ * On failure, NULL is returned. */
 static GSubItem *
 find_sub_item_by_data (GSubList *sl, const char *data) {
-  GSubItem *iter;
+  GSubItem *iter = NULL;
+
   if (sl == NULL || data == NULL)
     return NULL;
+
   for (iter = sl->head; iter; iter = iter->next) {
     if (strcmp (iter->metrics->data, data) == 0)
       return iter;
   }
+
   return NULL;
 }
 
+#ifdef HAVE_GEOLOCATION
 /* Build 3-level GEO_LOCATION hierarchy: Continent > Country > City.
  * Falls back to add_root_to_holder (2-level) when has_geocity is false. */
 static void
@@ -823,14 +843,7 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
       h->sub_items_size++;
     } else {
       /* Continent sub-list is full, accumulate to continent and skip country/city */
-      cont_metrics->hits += nmetrics->hits;
-      cont_metrics->visitors += nmetrics->visitors;
-      cont_metrics->nbw += nmetrics->nbw;
-      cont_metrics->cumts.nts += nmetrics->cumts.nts;
-      if (nmetrics->maxts.nts > cont_metrics->maxts.nts)
-        cont_metrics->maxts.nts = nmetrics->maxts.nts;
-      if (cont_metrics->hits > 0)
-        cont_metrics->avgts.nts = cont_metrics->cumts.nts / cont_metrics->hits;
+      accumulate_holder_metrics (cont_metrics, nmetrics);
       free_gmetrics (nmetrics);
       free (root);
       return;
@@ -844,23 +857,8 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
   }
 
   /* Accumulate metrics upward: city -> country -> continent */
-  country_metrics->hits += nmetrics->hits;
-  country_metrics->visitors += nmetrics->visitors;
-  country_metrics->nbw += nmetrics->nbw;
-  country_metrics->cumts.nts += nmetrics->cumts.nts;
-  if (nmetrics->maxts.nts > country_metrics->maxts.nts)
-    country_metrics->maxts.nts = nmetrics->maxts.nts;
-  if (country_metrics->hits > 0)
-    country_metrics->avgts.nts = country_metrics->cumts.nts / country_metrics->hits;
-
-  cont_metrics->hits += nmetrics->hits;
-  cont_metrics->visitors += nmetrics->visitors;
-  cont_metrics->nbw += nmetrics->nbw;
-  cont_metrics->cumts.nts += nmetrics->cumts.nts;
-  if (nmetrics->maxts.nts > cont_metrics->maxts.nts)
-    cont_metrics->maxts.nts = nmetrics->maxts.nts;
-  if (cont_metrics->hits > 0)
-    cont_metrics->avgts.nts = cont_metrics->cumts.nts / cont_metrics->hits;
+  accumulate_holder_metrics (country_metrics, nmetrics);
+  accumulate_holder_metrics (cont_metrics, nmetrics);
 
   /* Add city as sub-item under country (only if country's sub-list hasn't reached max_choices_sub) */
   if (country_sub->sub_list->size < h->max_choices_sub) {
@@ -874,6 +872,194 @@ add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
 }
 #endif
 
+/* Extract the TLS version component from an encoded hierarchy path.
+ *
+ * On success, the allocated version string is returned.
+ * On failure, NULL is returned. */
+static char *
+extract_tls_version_path (const char *path) {
+  const char *separator = NULL;
+  char *version = NULL;
+  size_t len = 0;
+
+  if (!path)
+    return NULL;
+
+  separator = strchr (path, TLS_HIERARCHY_SEPARATOR);
+  len = separator ? (size_t) (separator - path) : strlen (path);
+  if (len == 0)
+    return NULL;
+
+  version = xmalloc (len + 1);
+  memcpy (version, path, len);
+  version[len] = '\0';
+
+  return version;
+}
+
+/* Extract the group component beneath an encoded TLS parent path.
+ *
+ * On success, a pointer to the group component is returned.
+ * On failure, NULL is returned. */
+static const char *
+extract_tls_group_path (const char *path, const char *parent) {
+  size_t parent_len = 0;
+
+  if (!path || !parent)
+    return NULL;
+
+  parent_len = strlen (parent);
+  if (strncmp (path, parent, parent_len) != 0 ||
+      path[parent_len] != TLS_HIERARCHY_SEPARATOR || path[parent_len + 1] == '\0')
+    return NULL;
+
+  return path + parent_len + 1;
+}
+
+/* Find or create a TLS version root holder item.
+ *
+ * On success, the holder item is returned.
+ * On failure, NULL is returned. */
+static GHolderItem *
+get_tls_root_item (GHolder *h, const char *version) {
+  GMetrics *metrics = NULL;
+  int idx = KEY_NOT_FOUND;
+
+  idx = get_item_idx_in_holder (h, version);
+  if (idx != KEY_NOT_FOUND)
+    return &h->items[idx];
+  if (h->idx >= h->max_choices)
+    return NULL;
+
+  idx = h->idx;
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (version);
+  h->items[idx].metrics = metrics;
+  h->items[idx].sub_list = new_gsublist ();
+  h->idx++;
+
+  return &h->items[idx];
+}
+
+/* Find or create a TLS cipher parent beneath a version node.
+ *
+ * On success, the cipher sub-item is returned.
+ * On failure, NULL is returned. */
+static GSubItem *
+get_tls_cipher_item (GHolder *h, GSubList *sub_list, const char *cipher) {
+  GMetrics *metrics = NULL;
+  GSubItem *item = NULL;
+
+  item = find_sub_item_by_data (sub_list, cipher);
+  if (item) {
+    if (!item->sub_list)
+      item->sub_list = new_gsublist ();
+    return item;
+  }
+  if (sub_list->size >= h->max_choices_sub)
+    return NULL;
+
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (cipher);
+  add_sub_item_back (sub_list, h->module, metrics);
+  item = sub_list->tail;
+  item->sub_list = new_gsublist ();
+  h->sub_items_size++;
+
+  return item;
+}
+
+/* Add or merge a TLS leaf metric into a hierarchy sub-list. */
+static void
+add_tls_leaf_metrics (GHolder *h, GSubList *sub_list, GMetrics *metrics,
+                      const char *display) {
+  GSubItem *item = NULL;
+  char *label = NULL;
+
+  item = find_sub_item_by_data (sub_list, display);
+  if (item) {
+    accumulate_holder_metrics (item->metrics, metrics);
+    free_gmetrics (metrics);
+    return;
+  }
+  if (sub_list->size >= h->max_choices_sub) {
+    free_gmetrics (metrics);
+    return;
+  }
+
+  if (strcmp (metrics->data, display) != 0) {
+    label = xstrdup (display);
+    free (metrics->data);
+    metrics->data = label;
+  }
+  add_sub_item_back (sub_list, h->module, metrics);
+  h->sub_items_size++;
+}
+
+/* Build the TLS hierarchy as version, cipher suite, and key exchange group. */
+static void
+add_tls_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
+  GHolderItem *version_item = NULL;
+  GMetrics *metrics = NULL;
+  GSubItem *cipher_item = NULL;
+  GSubList *leaf_list = NULL;
+  const char *cipher = NULL, *group = NULL, *separator = NULL;
+  char *root = NULL, *version = NULL;
+
+  if (set_root_metrics (item, h->module, type, &metrics) == 1)
+    return;
+  if (!(root = ht_get_root (h->module, item.nkey))) {
+    free_gmetrics (metrics);
+    return;
+  }
+  if (!(version = extract_tls_version_path (root))) {
+    free (root);
+    free_gmetrics (metrics);
+    return;
+  }
+  if (!(version_item = get_tls_root_item (h, version))) {
+    free (version);
+    free (root);
+    free_gmetrics (metrics);
+    return;
+  }
+
+  accumulate_holder_metrics (version_item->metrics, metrics);
+  separator = strchr (root, TLS_HIERARCHY_SEPARATOR);
+  if (!separator) {
+    add_tls_leaf_metrics (h, version_item->sub_list, metrics, metrics->data);
+    free (version);
+    free (root);
+    return;
+  }
+
+  group = extract_tls_group_path (metrics->data, root);
+  if (!group) {
+    free (version);
+    free (root);
+    free_gmetrics (metrics);
+    return;
+  }
+
+  cipher = separator + 1;
+  leaf_list = version_item->sub_list;
+  if (*cipher != '\0') {
+    cipher_item = get_tls_cipher_item (h, version_item->sub_list, root);
+    if (!cipher_item) {
+      free (version);
+      free (root);
+      free_gmetrics (metrics);
+      return;
+    }
+    accumulate_holder_metrics (cipher_item->metrics, metrics);
+    leaf_list = cipher_item->sub_list;
+  }
+
+  add_tls_leaf_metrics (h, leaf_list, metrics, group);
+  free (version);
+  free (root);
+}
+
 /* Load raw data into our holder structure */
 void
 load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, uint32_t max_choices,
@@ -884,6 +1070,7 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, ui
   const GPanel *panel = panel_lookup (module);
   /* Hierarchical panels group multiple raw items under fewer root items */
   int is_hierarchical = (panel->insert == add_root_to_holder ||
+                         panel->insert == add_tls_to_holder ||
 #ifdef HAVE_GEOLOCATION
                          panel->insert == add_geo_to_holder ||
 #endif

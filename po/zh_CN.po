@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2025-04-19 02:11+0800\n"
 "Last-Translator: azio7<azio7@outlook.com>\n"
 "Language-Team: \n"
@@ -372,8 +372,8 @@ msgid "Encryption settings"
 msgstr "加密设置"
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
-msgstr "TLS版本及所选算法"
+msgid "TLS version, cipher suite, and key exchange group"
+msgstr ""
 
 #: src/labels.h:237
 msgid "TLS Settings"
@@ -1076,3 +1076,6 @@ msgstr "WebSocket 状态：已连接"
 #: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr "WebSocket 状态：已断开"
+
+#~ msgid "TLS version and picked algorithm"
+#~ msgstr "TLS版本及所选算法"

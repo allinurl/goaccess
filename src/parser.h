@@ -115,6 +115,8 @@ typedef struct GLogItem_ {
   char *tls_type;
   char *tls_cypher;
   char *tls_type_cypher;
+  char *tls_type_cypher_group;
+  char *tls_group;
 
   char *errstr;
   struct tm dt;

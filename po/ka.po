@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.9.4\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2026-02-20 14:35+0100\n"
 "Last-Translator: Ekaterine Papava <papava.e@gtu.ge>\n"
 "Language-Team: Georgian <(nothing)>\n"
@@ -394,8 +394,8 @@ msgid "Encryption settings"
 msgstr "დაშიფვრის პარამეტრები"
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
-msgstr "TLS-ის ვერსია და არჩეული ალგორითმი"
+msgid "TLS version, cipher suite, and key exchange group"
+msgstr ""
 
 #: src/labels.h:237
 msgid "TLS Settings"
@@ -1117,3 +1117,6 @@ msgstr "ვებსოკეტის სტატუსი: დაკავშ
 #: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr "ვებსოკეტის სტატუსი: გათიშულია"
+
+#~ msgid "TLS version and picked algorithm"
+#~ msgstr "TLS-ის ვერსია და არჩეული ალგორითმი"

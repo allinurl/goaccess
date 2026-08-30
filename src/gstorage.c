@@ -1289,15 +1289,35 @@ extract_tlsmajor (const char *token) {
   return NULL;
 }
 
-/* UMS: generate a TLS settings unique key
+/* Join two TLS hierarchy components into an allocated path.
  *
- * On error, 1 is returned.
- * On success, the generated key is assigned to our key data structure.
- */
+ * On success, the allocated path is returned.
+ * On failure, NULL is returned. */
+static char *
+join_tls_components (const char *parent, const char *child) {
+  char *path = NULL;
+  size_t child_len = 0, parent_len = 0;
+
+  if (!parent || !child)
+    return NULL;
+
+  child_len = strlen (child);
+  parent_len = strlen (parent);
+  path = xmalloc (parent_len + child_len + 2);
+  memcpy (path, parent, parent_len);
+  path[parent_len] = TLS_HIERARCHY_SEPARATOR;
+  memcpy (path + parent_len + 1, child, child_len + 1);
+
+  return path;
+}
+
+/* Generate a TLS settings hierarchy key.
+ *
+ * On success, the generated key is assigned and 0 is returned.
+ * On failure, 1 is returned. */
 static int
 gen_tls_type_key (GKeyData *kdata, GLogItem *logitem) {
-  const char *tls;
-  size_t tlen = 0, clen = 0;
+  const char *cipher = NULL, *tls = NULL;
 
   if (!logitem->tls_type)
     return 1;
@@ -1309,20 +1329,22 @@ gen_tls_type_key (GKeyData *kdata, GLogItem *logitem) {
     return 1;
 
   kdata->numdate = logitem->numdate;
-  if (!logitem->tls_cypher) {
+  if (!logitem->tls_cypher && !logitem->tls_group) {
     get_kroot (kdata, tls, tls);
     get_kdata (kdata, tls, tls);
     return 0;
   }
 
-  clen = strlen (logitem->tls_cypher);
-  tlen = strlen (tls);
+  cipher = logitem->tls_cypher ? logitem->tls_cypher : "";
+  logitem->tls_type_cypher = join_tls_components (tls, cipher);
 
-  logitem->tls_type_cypher = xmalloc (tlen + clen + 2);
-  memcpy (logitem->tls_type_cypher, tls, tlen);
-  logitem->tls_type_cypher[tlen] = '/';
-  /* includes terminating null */
-  memcpy (logitem->tls_type_cypher + tlen + 1, logitem->tls_cypher, clen + 1);
+  if (logitem->tls_group) {
+    logitem->tls_type_cypher_group =
+      join_tls_components (logitem->tls_type_cypher, logitem->tls_group);
+    get_kdata (kdata, logitem->tls_type_cypher_group, logitem->tls_type_cypher_group);
+    get_kroot (kdata, logitem->tls_type_cypher, logitem->tls_type_cypher);
+    return 0;
+  }
 
   get_kdata (kdata, logitem->tls_type_cypher, logitem->tls_type_cypher);
   get_kroot (kdata, tls, tls);

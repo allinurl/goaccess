@@ -35,6 +35,9 @@
 
 #define DB_PATH "/tmp"
 
+/* Separator used to encode TLS hierarchy paths in storage. */
+#define TLS_HIERARCHY_SEPARATOR '/'
+
 #define GAMTRC_TOTAL 9
 /* Enumerated App Metrics */
 typedef enum GAMetric_ {

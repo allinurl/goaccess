@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: goaccess 1.5.6\n"
 "Report-Msgid-Bugs-To: hello@goaccess.io\n"
-"POT-Creation-Date: 2026-03-30 22:10-0500\n"
+"POT-Creation-Date: 2026-08-29 18:57-0500\n"
 "PO-Revision-Date: 2022-04-21 10:17+0300\n"
 "Last-Translator: Artyom Karlov <artyom.karlov@gmail.com>\n"
 "Language-Team: \n"
@@ -395,8 +395,8 @@ msgid "Encryption settings"
 msgstr "Настройки шифрования"
 
 #: src/labels.h:235
-msgid "TLS version and picked algorithm"
-msgstr "Версия TLS и выбранный алгоритм"
+msgid "TLS version, cipher suite, and key exchange group"
+msgstr ""
 
 #: src/labels.h:237
 msgid "TLS Settings"
@@ -1108,6 +1108,9 @@ msgstr ""
 #: src/labels.h:604
 msgid "WebSocket Status: Disconnected"
 msgstr ""
+
+#~ msgid "TLS version and picked algorithm"
+#~ msgstr "Версия TLS и выбранный алгоритм"
 
 #, fuzzy
 #~ msgid "Referers"

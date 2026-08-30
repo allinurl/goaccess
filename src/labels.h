@@ -232,7 +232,7 @@
 #define TLS_TYPE_HEAD				\
   N_("Encryption settings")
 #define TLS_TYPE_DESC                 \
-  N_("TLS version and picked algorithm")
+  N_("TLS version, cipher suite, and key exchange group")
 #define TLS_TYPE_LABEL                \
   N_("TLS Settings")
 
