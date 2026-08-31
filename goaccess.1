@@ -240,8 +240,18 @@ The log-format variable followed by a space or
 .I \\\\t
 for tab-delimited, specifies the log format string.
 
-Note that if there are spaces within the format, the string needs to be
-enclosed in single/double quotes. Inner quotes need to be escaped.
+On the command line, a format containing spaces must be enclosed in quotes so
+the shell passes it as a single argument. Outer shell quotes must not be copied
+to the configuration file, where the value is read literally. For example:
+.nf
+log-format { "ClientHost": "%h", "DownstreamContentSize": "%b" }
+.fi
+.IP
+A JSON log-format must itself be valid JSON. Therefore, format specifiers must
+be enclosed in double quotes, including specifiers for values that are numbers
+in the input log, such as
+.I \(dqDownstreamContentSize\(dq: \(dq%b\(dq.
+The corresponding input value may still be a JSON number.
 .IP
 In addition to specifying the raw log/date/time formats, for simplicity, any of
 the following predefined log format names can be supplied to the
