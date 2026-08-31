@@ -56,7 +56,7 @@ typedef struct GLocation_ {
 
 int is_geoip_resource (void);
 int set_geolocation (char *host, char *continent, char *country, char *city, char *asn);
-int geoip_get_asn (const char *host, uint32_t *number, char *asn);
+int geoip_get_asn (const char *host, uint32_t * number, char *asn);
 void geoip_free (void);
 void geoip_get_continent (const char *ip, char *location, GTypeIP type_ip);
 void geoip_get_country (const char *ip, char *location, GTypeIP type_ip);
