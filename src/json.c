@@ -341,6 +341,23 @@ pskeyu64val (GJSON *json, const char *key, uint64_t val, int sp, int last) {
     pjson (json, "%.*s\"%s\": %" PRIu64 "", sp, TAB, key, val);
 }
 
+/* Write a scaled request rate as a JSON number. */
+static void
+pskey_request_rate (GJSON *json, const char *key, uint64_t val, int sp, int last) {
+  char *rate = NULL;
+
+  rate = u64_to_scaled_str (val, REQUEST_RATE_SCALE);
+  if (rate == NULL)
+    FATAL ("Invalid request-rate scale: %" PRIu64, (uint64_t) REQUEST_RATE_SCALE);
+
+  if (!last)
+    pjson (json, "%.*s\"%s\": %s,%.*s", sp, TAB, key, rate, nlines, NL);
+  else
+    pjson (json, "%.*s\"%s\": %s", sp, TAB, key, rate);
+
+  free (rate);
+}
+
 /* Write to a buffer a JSON string key, int value pair. */
 static void
 pskeyfval (GJSON *json, const char *key, float val, int sp, int last) {
@@ -458,6 +475,15 @@ poverall_start_end_date (GJSON *json, GHolder *h, int sp) {
 static void
 poverall_requests (GJSON *json, int sp) {
   pskeyu64val (json, OVERALL_REQ, ht_get_processed (), sp, 0);
+}
+
+/* Write the live requests-per-second rate under the overall object. */
+static void
+poverall_request_rate (GJSON *json, const GRealtimeStats *realtime, int sp) {
+  if (!realtime || !realtime->enabled)
+    return;
+
+  pskey_request_rate (json, OVERALL_REQ_PER_SEC, realtime->request_rate, sp, 0);
 }
 
 /* Write to a buffer the number of valid requests under the overall
@@ -1085,7 +1111,7 @@ num_panels (void) {
 
 /* Write to a buffer overall data. */
 static void
-print_json_summary (GJSON *json, GHolder *holder) {
+print_json_summary (GJSON *json, GHolder *holder, const GRealtimeStats *realtime) {
   int sp = 0, isp = 0;
 
   /* use tabs to prettify output */
@@ -1099,6 +1125,8 @@ print_json_summary (GJSON *json, GHolder *holder) {
   poverall_datetime (json, isp);
   /* total requests */
   poverall_requests (json, isp);
+  /* live requests per second */
+  poverall_request_rate (json, realtime, isp);
   /* valid requests */
   poverall_valid_reqs (json, isp);
   /* invalid requests */
@@ -1130,9 +1158,12 @@ print_json_summary (GJSON *json, GHolder *holder) {
   pclose_obj (json, sp, num_panels () > 0 ? 0 : 1);
 }
 
-/* Iterate over all panels and generate json output. */
+/* Generate JSON output for the summary and all enabled panels.
+ *
+ * On success, the allocated JSON buffer is returned.
+ * On failure, the process terminates. */
 static GJSON *
-init_json_output (GHolder *holder) {
+init_json_output (GHolder *holder, const GRealtimeStats *realtime) {
   GJSON *json = NULL;
   GModule module;
   GPercTotals totals;
@@ -1142,7 +1173,7 @@ init_json_output (GHolder *holder) {
   json = new_gjson ();
 
   popen_obj (json, 0);
-  print_json_summary (json, holder);
+  print_json_summary (json, holder, realtime);
 
   set_module_totals (&totals);
 
@@ -1163,9 +1194,10 @@ init_json_output (GHolder *holder) {
 
 /* Open and write to a dynamically sized output buffer.
  *
- * On success, the newly allocated buffer is returned . */
+ * On success, the newly allocated buffer is returned.
+ * On failure, NULL is returned. */
 char *
-get_json (GHolder *holder, int escape_html) {
+get_json (GHolder *holder, int escape_html, const GRealtimeStats *realtime) {
   GJSON *json = NULL;
   char *buf = NULL;
 
@@ -1173,7 +1205,7 @@ get_json (GHolder *holder, int escape_html) {
     return NULL;
 
   escape_html_output = escape_html;
-  if ((json = init_json_output (holder)) && json->size > 0) {
+  if ((json = init_json_output (holder, realtime)) && json->size > 0) {
     buf = xstrdup (json->buf);
     free_json (json);
   }
@@ -1200,7 +1232,7 @@ output_json (GHolder *holder, const char *filename) {
     nlines = 1;
 
   /* spit it out */
-  if ((json = init_json_output (holder)) && json->size > 0) {
+  if ((json = init_json_output (holder, NULL)) && json->size > 0) {
     fprintf (fp, "%s", json->buf);
     free_json (json);
   }

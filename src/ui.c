@@ -449,12 +449,31 @@ get_str_failed_reqs (void) {
   return u642str (ht_get_invalid (), 0);
 }
 
-/* Convert the number of processed requests to a string.
+/* Convert the number of processed requests and optional live rate to a string.
  *
- * On success, the number of processed requests as a string is returned. */
+ * On success, the number of processed requests as a string is returned.
+ * On failure, the process terminates. */
 static char *
-get_str_processed_reqs (void) {
-  return u642str (ht_get_processed (), 0);
+get_str_processed_reqs (const GRealtimeStats *realtime) {
+  char *rate = NULL, *requests = NULL, *str = NULL;
+  size_t len = 0;
+
+  requests = u642str (ht_get_processed (), 0);
+  if (!realtime || !realtime->enabled)
+    return requests;
+
+  rate = u64_to_scaled_str (realtime->request_rate, REQUEST_RATE_SCALE);
+  if (rate == NULL)
+    FATAL ("Invalid request-rate scale: %" PRIu64, (uint64_t) REQUEST_RATE_SCALE);
+
+  len = snprintf (NULL, 0, "%s / %s", requests, rate) + 1;
+  str = xmalloc (len);
+  snprintf (str, len, "%s / %s", requests, rate);
+
+  free (rate);
+  free (requests);
+
+  return str;
 }
 
 /* Convert the number of valid requests to a string.
@@ -717,8 +736,7 @@ render_overall_metric (WINDOW *win, const Field fields[], size_t n, size_t colum
 
 /* Render all full-width fields below the statistics grid. */
 static void
-render_overall_full_width (WINDOW *win, const Field fields[], size_t n,
-                           size_t columns) {
+render_overall_full_width (WINDOW *win, const Field fields[], size_t n, size_t columns) {
   GColors *color = NULL;
   int x_value = 0, y = 0;
   size_t i = 0, metrics = 0;
@@ -740,8 +758,7 @@ render_overall_full_width (WINDOW *win, const Field fields[], size_t n,
 
 /* Render the width-aware overall statistics grid and full-width fields. */
 static void
-render_overall_statistics (WINDOW *win, const Field fields[], size_t n,
-                           size_t columns) {
+render_overall_statistics (WINDOW *win, const Field fields[], size_t n, size_t columns) {
   size_t field = 0, metric = 0;
 
   for (field = 0; field < n; field++) {
@@ -756,7 +773,7 @@ render_overall_statistics (WINDOW *win, const Field fields[], size_t n,
 
 /* The entry point to render the overall statistics and free its data. */
 void
-display_general (WINDOW *win, GHolder *h) {
+display_general (WINDOW *win, GHolder *h, const GRealtimeStats *realtime) {
   GColors *(*colorlbl) (void) = color_overall_lbls;
   GColors *(*colorpth) (void) = color_overall_path;
   GColors *(*colorval) (void) = color_overall_vals;
@@ -765,7 +782,8 @@ display_general (WINDOW *win, GHolder *h) {
 
   /* *INDENT-OFF* */
   Field fields[] = {
-    {T_REQUESTS        , get_str_processed_reqs () , colorlbl , colorval , 0} ,
+    {realtime && realtime->enabled ? T_REQUESTS_PER_SEC : T_REQUESTS,
+                     get_str_processed_reqs (realtime), colorlbl, colorval, 0} ,
     {T_UNIQUE_VISITORS , get_str_visitors ()       , colorlbl , colorval , 0} ,
     {T_UNIQUE_FILES    , get_str_reqs ()           , colorlbl , colorval , 0} ,
     {T_REFERRER        , get_str_ref_reqs ()       , colorlbl , colorval , 0} ,

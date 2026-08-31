@@ -60,11 +60,13 @@ new_gwsreader (void) {
 
 /* Allocate memory for a new GWSWriter instance.
  *
- * On success, the newly allocated GWSWriter is returned. */
+ * On success, the newly allocated GWSWriter is returned.
+ * On failure, the process terminates. */
 GWSWriter *
 new_gwswriter (void) {
   GWSWriter *writer = xmalloc (sizeof (GWSWriter));
   memset (writer, 0, sizeof *writer);
+  writer->fd = -1;
 
   return writer;
 }
@@ -405,6 +407,11 @@ stop_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
   writer = gwswriter->thread;
   if ((ret = pthread_join (writer, NULL)) != 0)
     LOG (("Unable to join thread gwswriter: %s\n", strerror (ret)));
+
+  if (gwswriter->fd != -1) {
+    close (gwswriter->fd);
+    gwswriter->fd = -1;
+  }
 }
 
 /* Run the WebSocket server until the controlling thread requests completion.

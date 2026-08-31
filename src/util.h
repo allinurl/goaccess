@@ -82,6 +82,7 @@ char *substring (const char *str, int begin, int len);
 char *trim_str (char *str);
 char *u322str (uint32_t d, int width);
 char *u642str (uint64_t d, int width);
+char *u64_to_scaled_str (uint64_t value, uint64_t scale);
 char *unescape_str (const char *src);
 char *usecs_to_str (unsigned long long usec);
 const char *verify_status_code (int code);

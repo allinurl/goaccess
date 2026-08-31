@@ -95,6 +95,6 @@ typedef struct GDefMetric_ {
   const char *hlregex;          /* highlight regex value */
 } GDefMetric;
 
-void output_html (GHolder * holder, const char *filename);
+void output_html (GHolder * holder, const char *filename, const GRealtimeStats * realtime);
 
 #endif

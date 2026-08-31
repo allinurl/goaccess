@@ -63,6 +63,8 @@ extern struct tm now_tm;
 #define MAX_CHOICES_RT        50
 /* real-time sub-items */
 #define MAX_CHOICES_SUB_RT    10
+/* Preserve one decimal place when sharing a live requests-per-second rate. */
+#define REQUEST_RATE_SCALE    10ULL
 /* max default items when date-spec = min */
 #define MAX_CHOICES_MINUTE  1440 /* 24hrs */
 
@@ -235,6 +237,12 @@ typedef struct GHolder_ {
   uint32_t max_choices;         /* max items at root level */
   uint32_t max_choices_sub;     /* max items at sub-item levels */
 } GHolder;
+
+/* Runtime-only summary metrics produced while following live logs. */
+typedef struct GRealtimeStats_ {
+  uint64_t request_rate;        /* requests per second multiplied by REQUEST_RATE_SCALE */
+  int enabled;                  /* non-zero when live request-rate sampling is active */
+} GRealtimeStats;
 
 /* Enum-to-string */
 typedef struct GEnum_ {

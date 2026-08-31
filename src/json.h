@@ -45,7 +45,7 @@ typedef struct GJSON_ {
   size_t offset;                /* current write offset */
 } GJSON;
 
-char *get_json (GHolder * holder, int escape_html);
+char *get_json (GHolder * holder, int escape_html, const GRealtimeStats * realtime);
 
 void output_json (GHolder * holder, const char *filename);
 void set_json_nlines (int nl);

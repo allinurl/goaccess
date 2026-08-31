@@ -47,12 +47,14 @@
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
+#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <time.h>
 #include <unistd.h>
 #include <inttypes.h>
 
@@ -106,6 +108,19 @@ static WINDOW *header_win, *main_win;
 
 static int main_win_height = 0;
 
+#define REQUEST_RATE_SAMPLE_SECONDS 1
+#define NANOSECONDS_PER_SECOND 1000000000L
+
+/* Private state for sampling requests observed while following live logs. */
+typedef struct GRequestRateTracker_ {
+  struct timespec sampled_at;
+  uint64_t sampled_requests;
+  _Atomic uint64_t request_rate;
+  _Atomic int enabled;
+} GRequestRateTracker;
+
+static GRequestRateTracker request_rate_tracker;
+
 /* *INDENT-OFF* */
 static GScroll gscroll = {
   {
@@ -136,6 +151,131 @@ static GScroll gscroll = {
   0,         /* expanded flag */
 };
 /* *INDENT-ON* */
+
+/* Get the number of processed request lines.
+ *
+ * On success, the current request count is returned.
+ * On failure, 0 is returned. */
+static uint64_t
+get_live_request_total (void) {
+  return ht_get_processed ();
+}
+
+/* Start live request-rate sampling after the initial log import. */
+static void
+start_request_rate (void) {
+  struct timespec now = { 0 };
+
+  if (clock_gettime (CLOCK_MONOTONIC, &now) == -1)
+    FATAL ("Unable to start request-rate sampling: %s", strerror (errno));
+
+  request_rate_tracker.sampled_at = now;
+  request_rate_tracker.sampled_requests = get_live_request_total ();
+  atomic_store_explicit (&request_rate_tracker.request_rate, 0, memory_order_release);
+  atomic_store_explicit (&request_rate_tracker.enabled, 1, memory_order_release);
+}
+
+/* Calculate the elapsed monotonic time between two samples.
+ *
+ * On success, the elapsed seconds are returned.
+ * On failure, 0 is returned when the end precedes the start. */
+static long double
+get_elapsed_seconds (const struct timespec *start, const struct timespec *end) {
+  int64_t nanoseconds = 0, seconds = 0;
+
+  seconds = end->tv_sec - start->tv_sec;
+  nanoseconds = end->tv_nsec - start->tv_nsec;
+  if (nanoseconds < 0) {
+    seconds--;
+    nanoseconds += NANOSECONDS_PER_SECOND;
+  }
+  if (seconds < 0)
+    return 0.0L;
+
+  return (long double) seconds + (long double) nanoseconds / NANOSECONDS_PER_SECOND;
+}
+
+/* Sample the live request rate after a complete interval has elapsed.
+ *
+ * On success, non-zero is returned when the displayed rate changed.
+ * On failure or before a complete interval elapses, 0 is returned. */
+static int
+sample_request_rate (void) {
+  struct timespec now = { 0 };
+  uint64_t current = 0, delta = 0, previous_rate = 0, rate = 0;
+  long double elapsed = 0.0L;
+
+  if (!atomic_load_explicit (&request_rate_tracker.enabled, memory_order_acquire))
+    return 0;
+  if (clock_gettime (CLOCK_MONOTONIC, &now) == -1)
+    return 0;
+
+  elapsed = get_elapsed_seconds (&request_rate_tracker.sampled_at, &now);
+  if (elapsed < REQUEST_RATE_SAMPLE_SECONDS)
+    return 0;
+
+  current = get_live_request_total ();
+  if (current >= request_rate_tracker.sampled_requests)
+    delta = current - request_rate_tracker.sampled_requests;
+
+  rate = (uint64_t) ((long double) delta * REQUEST_RATE_SCALE / elapsed + 0.5L);
+  previous_rate = atomic_exchange_explicit (&request_rate_tracker.request_rate, rate,
+                                            memory_order_acq_rel);
+  request_rate_tracker.sampled_at = now;
+  request_rate_tracker.sampled_requests = current;
+
+  return previous_rate != rate;
+}
+
+/* Check whether the configured HTML refresh interval has elapsed.
+ *
+ * On success, non-zero is returned when the report is due for refresh.
+ * On failure, the process terminates. */
+static int
+html_refresh_due (struct timespec *last_refresh) {
+  struct timespec now = { 0 };
+  long double elapsed = 0.0L;
+  uint64_t interval = 0;
+
+  if (clock_gettime (CLOCK_MONOTONIC, &now) == -1)
+    FATAL ("Unable to sample the HTML refresh interval: %s", strerror (errno));
+
+  interval = conf.html_refresh ? conf.html_refresh : HTML_REFRESH;
+  elapsed = get_elapsed_seconds (last_refresh, &now);
+  if (elapsed < interval)
+    return 0;
+
+  *last_refresh = now;
+  return 1;
+}
+
+/* Take a thread-safe snapshot of the live summary metrics.
+ *
+ * On success, the current metrics are returned.
+ * On failure, a disabled zero-valued snapshot is returned. */
+static GRealtimeStats
+get_realtime_stats (void) {
+  GRealtimeStats realtime = { 0 };
+
+  realtime.enabled = atomic_load_explicit (&request_rate_tracker.enabled, memory_order_acquire);
+  if (realtime.enabled)
+    realtime.request_rate = atomic_load_explicit (&request_rate_tracker.request_rate,
+                                                  memory_order_acquire);
+
+  return realtime;
+}
+
+/* Check whether the selected output follows live request data.
+ *
+ * On success, non-zero is returned when request-rate sampling is needed.
+ * On failure, 0 is returned. */
+static int
+should_sample_request_rate (const Logs *logs) {
+  if (logs == NULL || conf.process_and_exit || logs->load_from_disk_only)
+    return 0;
+
+  return !conf.output_stdout || conf.real_time_html;
+}
 
 /* Free malloc'd holder */
 static void
@@ -416,6 +556,7 @@ clean_stdscrn (void) {
 static void
 render_screens (uint32_t offset) {
   GColors *color = get_color (COLOR_DEFAULT);
+  GRealtimeStats realtime = { 0 };
   int row, col;
   char time_str_buf[32];
 
@@ -436,7 +577,8 @@ render_screens (uint32_t offset) {
   refresh ();
 
   /* call general stats header */
-  display_general (header_win, holder);
+  realtime = get_realtime_stats ();
+  display_general (header_win, holder, &realtime);
   term_size (header_win, main_win, &main_win_height);
   wrefresh (header_win);
 
@@ -838,6 +980,7 @@ tail_term (void) {
 
 static void
 tail_html (void) {
+  GRealtimeStats realtime = { 0 };
   char *json = NULL;
 
   pthread_mutex_lock (&gdns_thread.mutex);
@@ -847,8 +990,9 @@ tail_html (void) {
 
   allocate_holder ();
 
+  realtime = get_realtime_stats ();
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (holder, 1);
+  json = get_json (holder, 1, &realtime);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)
@@ -863,10 +1007,12 @@ tail_html (void) {
 /* Fast-forward latest JSON data when client connection is opened. */
 static void
 fast_forward_client (int listener) {
+  GRealtimeStats realtime = { 0 };
   char *json = NULL;
 
+  realtime = get_realtime_stats ();
   pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (holder, 1);
+  json = get_json (holder, 1, &realtime);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   if (json == NULL)
@@ -1076,11 +1222,15 @@ out:
 /* Loop over and perform a follow for the given logs */
 static void
 tail_loop_html (Logs *logs) {
-  struct timespec refresh = {
-    .tv_sec = conf.html_refresh ? conf.html_refresh : HTML_REFRESH,
+  struct timespec last_refresh = { 0 };
+  struct timespec sample_interval = {
+    .tv_sec = REQUEST_RATE_SAMPLE_SECONDS,
     .tv_nsec = 0,
   };
-  int i = 0, ret = 0;
+  int i = 0, pending_update = 0, rate_changed = 0, ret = 0;
+
+  if (clock_gettime (CLOCK_MONOTONIC, &last_refresh) == -1)
+    FATAL ("Unable to start the HTML refresh interval: %s", strerror (errno));
 
   while (1) {
     if (conf.stop_processing)
@@ -1089,10 +1239,14 @@ tail_loop_html (Logs *logs) {
     for (i = 0, ret = 0; i < logs->size; ++i)
       ret |= perform_tail_follow (&logs->glog[i]); /* 0.2 secs */
 
-    if (1 == ret)
+    rate_changed = sample_request_rate ();
+    pending_update |= (ret || rate_changed);
+    if (html_refresh_due (&last_refresh) && pending_update) {
       tail_html ();
+      pending_update = 0;
+    }
 
-    if (nanosleep (&refresh, NULL) == -1 && errno != EINTR)
+    if (nanosleep (&sample_interval, NULL) == -1 && errno != EINTR)
       FATAL ("nanosleep: %s", strerror (errno));
   }
 }
@@ -1100,9 +1254,12 @@ tail_loop_html (Logs *logs) {
 /* Entry point to start processing the HTML output */
 static void
 process_html (Logs *logs, const char *filename) {
+  GRealtimeStats realtime = { 0 };
+
   /* render report */
+  realtime = get_realtime_stats ();
   pthread_mutex_lock (&gdns_thread.mutex);
-  output_html (holder, filename);
+  output_html (holder, filename, &realtime);
   pthread_mutex_unlock (&gdns_thread.mutex);
 
   /* not real time? */
@@ -1122,7 +1279,6 @@ process_html (Logs *logs, const char *filename) {
 
   set_ready_state ();
   tail_loop_html (logs);
-  close (gwswriter->fd);
 }
 
 /* Iterate over available panels and advance the panel pointer. */
@@ -1186,13 +1342,15 @@ static void
 term_tail_logs (Logs *logs) {
   struct timespec ts = {.tv_sec = 0,.tv_nsec = 200000000 }; /* 0.2 seconds */
   uint32_t offset = 0;
-  int i, ret;
+  int i = 0, rate_changed = 0, ret = 0;
 
   for (i = 0, ret = 0; i < logs->size; ++i)
     ret |= perform_tail_follow (&logs->glog[i]);
 
-  if (1 == ret) {
+  rate_changed = sample_request_rate ();
+  if (1 == ret)
     tail_term ();
+  if (1 == ret || rate_changed) {
     offset = *logs->processed - logs->offset;
     render_screens (offset);
   }
@@ -1899,6 +2057,9 @@ main (int argc, char **argv) {
   time (&end_proc);
 
   set_accumulated_time ();
+  if (should_sample_request_rate (logs))
+    start_request_rate ();
+
   if (conf.process_and_exit) {
   }
   /* stdout */

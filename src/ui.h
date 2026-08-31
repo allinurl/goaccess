@@ -64,23 +64,24 @@
 #define UTM_CAMPAIGNS_ID   "utm_campaigns"
 
 /* Overall Statistics CSV/JSON Keys */
-#define OVERALL_STARTDATE "start_date"
-#define OVERALL_ENDDATE   "end_date"
-#define OVERALL_DATETIME  "date_time"
-#define OVERALL_REQ       "total_requests"
-#define OVERALL_VALID     "valid_requests"
-#define OVERALL_GENTIME   "generation_time"
-#define OVERALL_FAILED    "failed_requests"
-#define OVERALL_VISITORS  "unique_visitors"
-#define OVERALL_FILES     "unique_files"
-#define OVERALL_EXCL_HITS "excluded_hits"
+#define OVERALL_STARTDATE     "start_date"
+#define OVERALL_ENDDATE       "end_date"
+#define OVERALL_DATETIME      "date_time"
+#define OVERALL_REQ           "total_requests"
+#define OVERALL_REQ_PER_SEC   "requests_per_second"
+#define OVERALL_VALID         "valid_requests"
+#define OVERALL_GENTIME       "generation_time"
+#define OVERALL_FAILED        "failed_requests"
+#define OVERALL_VISITORS      "unique_visitors"
+#define OVERALL_FILES         "unique_files"
+#define OVERALL_EXCL_HITS     "excluded_hits"
 #define OVERALL_EXCL_ASN_HITS "excluded_asn_hits"
-#define OVERALL_REF       "unique_referrers"
-#define OVERALL_NOTFOUND  "unique_not_found"
-#define OVERALL_STATIC    "unique_static_files"
-#define OVERALL_LOGSIZE   "log_size"
-#define OVERALL_BANDWIDTH "bandwidth"
-#define OVERALL_LOG       "log_path"
+#define OVERALL_REF           "unique_referrers"
+#define OVERALL_NOTFOUND      "unique_not_found"
+#define OVERALL_STATIC        "unique_static_files"
+#define OVERALL_LOGSIZE       "log_size"
+#define OVERALL_BANDWIDTH     "bandwidth"
+#define OVERALL_LOG           "log_path"
 
 /* CONFIG DIALOG */
 #define CONF_MENU_H       6
@@ -236,7 +237,7 @@ const char *module_to_id (GModule module);
 const char *module_to_label (GModule module);
 int get_start_end_parsing_dates (char **start, char **end, const char *f);
 void close_win (WINDOW * w);
-void display_general (WINDOW * win, GHolder * h);
+void display_general (WINDOW * win, GHolder * h, const GRealtimeStats * realtime);
 void draw_header (WINDOW * win, const char *s, const char *fmt, int y, int x, int w,
                   GColors * (*func) (void));
 void end_spinner (void);

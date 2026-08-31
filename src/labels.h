@@ -73,6 +73,7 @@
 #define T_LOG_PATH               _( "Log Source")
 #define T_REFERRER               _( "Referrers")
 #define T_REQUESTS               _( "Total Requests")
+#define T_REQUESTS_PER_SEC       _( "Total Requests / Req/s")
 #define T_STATIC_FILES           _( "Static Files")
 #define T_UNIQUE404              _( "Not Found")
 #define T_UNIQUE_FILES           _( "Requested Files")

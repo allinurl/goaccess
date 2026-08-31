@@ -343,6 +343,12 @@ The process of generating a real-time HTML report is very similar to the
 process of creating a static report. Only `--real-time-html` is needed to make
 it real-time.
 
+The General panel displays `Total Requests / Req/s` while following live logs.
+The request rate is sampled once per second from changes in Total Requests and
+starts after the initial import, so historical parsing speed is not reported as
+live traffic. `--html-refresh` controls how often those samples reach the
+browser, not the sampling window itself.
+
     # goaccess access.log -o /usr/share/nginx/html/your_site/report.html --real-time-html
 
 To view the report you can navigate to `http://your_site/report.html`.

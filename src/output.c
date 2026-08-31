@@ -507,10 +507,10 @@ hits_bw_req_plot (FILE *fp, GHTMLPlot plot, int sp) {
 
 /* Output JSON data definitions. */
 static void
-print_json_data (FILE *fp, GHolder *holder) {
+print_json_data (FILE *fp, GHolder *holder, const GRealtimeStats *realtime) {
   char *json = NULL;
 
-  if ((json = get_json (holder, 1)) == NULL)
+  if ((json = get_json (holder, 1, realtime)) == NULL)
     return;
 
   fprintf (fp, external_assets ? "" : "<script type='text/javascript'>");
@@ -595,12 +595,18 @@ print_def_block (FILE *fp, const GDefMetric def, int sp, int last) {
 
 /* Output JSON overall requests definition block. */
 static void
-print_def_overall_requests (FILE *fp, int sp) {
+print_def_overall_requests (FILE *fp, int sp, const GRealtimeStats *realtime) {
   GDefMetric def = {
     .lbl = T_REQUESTS,
     .datatype = "numeric",
     .cname = "black"
   };
+
+  if (realtime && realtime->enabled) {
+    def.lbl = T_REQUESTS_PER_SEC;
+    def.secondary_datakey = OVERALL_REQ_PER_SEC;
+  }
+
   fpopen_obj_attr (fp, OVERALL_REQ, sp);
   print_def_metric (fp, def, sp);
   fpclose_obj (fp, sp, 0);
@@ -1139,7 +1145,7 @@ print_json_def (FILE *fp, const GHTML *def) {
 
 /* Output overall definitions. */
 static void
-print_def_summary (FILE *fp, int sp) {
+print_def_summary (FILE *fp, int sp, const GRealtimeStats *realtime) {
   int isp = 0, iisp = 0;
   /* use tabs to prettify output */
   if (conf.json_pretty_print)
@@ -1148,7 +1154,7 @@ print_def_summary (FILE *fp, int sp) {
   /* open metrics block */
   fpopen_obj_attr (fp, "items", isp);
 
-  print_def_overall_requests (fp, iisp);
+  print_def_overall_requests (fp, iisp, realtime);
   print_def_overall_valid_reqs (fp, iisp);
   print_def_overall_invalid_reqs (fp, iisp);
   print_def_overall_processed_time (fp, iisp);
@@ -1227,7 +1233,7 @@ print_json_i18n_def (FILE *fp) {
 
 /* Output definitions for the given panel. */
 static void
-print_json_def_summary (FILE *fp) {
+print_json_def_summary (FILE *fp, const GRealtimeStats *realtime) {
   int sp = 0;
 
   /* use tabs to prettify output */
@@ -1237,14 +1243,14 @@ print_json_def_summary (FILE *fp) {
   /* output open panel attribute */
   fpopen_obj_attr (fp, GENER_ID, sp);
   print_def_meta (fp, _(T_HEAD), "", sp);
-  print_def_summary (fp, sp);
+  print_def_summary (fp, sp, realtime);
   /* output close panel attribute */
   fpclose_obj (fp, sp, 0);
 }
 
 /* Entry point to output definitions for all panels. */
 static void
-print_json_defs (FILE *fp) {
+print_json_defs (FILE *fp, const GRealtimeStats *realtime) {
   const GHTML *def;
   size_t idx = 0;
 
@@ -1261,7 +1267,7 @@ print_json_defs (FILE *fp) {
   fprintf (fp, "var user_interface=");
   fpopen_obj (fp, 0);
 
-  print_json_def_summary (fp);
+  print_json_def_summary (fp, realtime);
   FOREACH_MODULE (idx, module_list) {
     if ((def = panel_lookup (module_list[idx]))) {
       print_json_def (fp, def);
@@ -1305,7 +1311,7 @@ get_asset (const char *filename, const char *asset_fname) {
 
 /* entry point to generate a report writing it to the fp */
 void
-output_html (GHolder *holder, const char *filename) {
+output_html (GHolder *holder, const char *filename, const GRealtimeStats *realtime) {
   FILE *fp, *fjs = NULL, *fcs = NULL;
   char now[DATE_TIME] = { 0 };
   char *jwt = NULL;
@@ -1340,8 +1346,8 @@ output_html (GHolder *holder, const char *filename) {
   print_html_header (fp, fcs);
 
   print_html_body (fp, now);
-  print_json_defs ((fjs ? fjs : fp));
-  print_json_data ((fjs ? fjs : fp), holder);
+  print_json_defs ((fjs ? fjs : fp), realtime);
+  print_json_data ((fjs ? fjs : fp), holder, realtime);
   print_conn_def ((fjs ? fjs : fp), jwt);
 
   print_html_footer (fp, fjs);

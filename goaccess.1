@@ -488,6 +488,13 @@ Enable real-time HTML output.
 .IP
 GoAccess uses its own WebSocket server to push the data from the server to the
 client. See http://gwsocket.io for more details how the WebSocket server works.
+.IP
+While following live logs, the General panel displays the total requests and
+the current requests-per-second rate in the same summary field. The rate is
+sampled once per second from changes in the total request count and starts after
+the initial log import, so historical parsing throughput is not counted as live
+traffic. The \fB--html-refresh\fR interval controls how often the latest sample
+is sent to the browser, not the rate's sampling window.
 
 .TP
 \fB\-\-ws-auth=<jwt[:secret]> | jwt:verify:secret\fR

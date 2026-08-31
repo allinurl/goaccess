@@ -60,6 +60,9 @@
 #include "labels.h"
 #include "xmalloc.h"
 
+/* Maximum number of decimal digits in a uint64_t value. */
+#define UINT64_DECIMAL_DIGITS 20
+
 pthread_mutex_t tz_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 /* HTTP status codes categories */
@@ -1004,6 +1007,44 @@ u642str (uint64_t d, int width) {
   sprintf (s, "%*" PRIu64, width, d);
 
   return s;
+}
+
+/* Format an unsigned fixed-point value using a power-of-ten scale.
+ *
+ * On success, the allocated decimal string is returned.
+ * On failure, NULL is returned when the scale is zero or not a power of ten. */
+char *
+u64_to_scaled_str (uint64_t value, uint64_t scale) {
+  char fraction_buf[UINT64_DECIMAL_DIGITS + 1] = { 0 };
+  char *str = NULL;
+  int precision = 0;
+  size_t fraction_len = 0, len = 0, offset = 0, padding = 0;
+  uint64_t divisor = 0, fraction = 0, whole = 0;
+
+  if (scale == 0)
+    return NULL;
+
+  for (divisor = scale; divisor > 1; divisor /= 10) {
+    if (divisor % 10 != 0)
+      return NULL;
+    precision++;
+  }
+
+  whole = value / scale;
+  if (precision == 0)
+    return u642str (whole, 0);
+
+  fraction = value % scale;
+  snprintf (fraction_buf, sizeof fraction_buf, "%" PRIu64, fraction);
+  fraction_len = strlen (fraction_buf);
+  padding = (size_t) precision - fraction_len;
+  len = snprintf (NULL, 0, "%" PRIu64, whole) + 1 + (size_t) precision + 1;
+  str = xmalloc (len);
+  offset = snprintf (str, len, "%" PRIu64 ".", whole);
+  memset (str + offset, '0', padding);
+  memcpy (str + offset + padding, fraction_buf, fraction_len + 1);
+
+  return str;
 }
 
 /* Decodes the given URL-encoded string.
