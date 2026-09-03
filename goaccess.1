@@ -1085,7 +1085,12 @@ overwritten. This should be set to the first dataset. See examples below.
 .TP
 \fB\-\-restore
 Load previously stored data from disk. If reading persisted data only, the
-database files need to exist. See
+database files need to exist. The
+.I --http-method
+and
+.I --http-protocol
+settings must match those used to create the database because they determine
+how request keys are grouped. See
 .I --persist
 and examples below.
 .TP

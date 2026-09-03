@@ -76,6 +76,7 @@
 #include "json.h"
 #include "options.h"
 #include "output.h"
+#include "persistence.h"
 #include "util.h"
 #include "websocket.h"
 #include "xmalloc.h"
@@ -1987,6 +1988,8 @@ set_curses (Logs *logs, int *quit) {
   init_colors (0);
   init_windows (&header_win, &main_win);
   set_curses_spinner (parsing_spinner);
+  if (persisted_request_grouping_unknown ())
+    load_persistence_warning (main_win);
 
   /* Display configuration dialog if missing formats and not piping data in */
   if (!conf.read_stdin && (verify_formats () || conf.load_conf_dlg)) {
@@ -2019,6 +2022,8 @@ main (int argc, char **argv) {
   parse_cmd_line (argc, argv);
 
   logs = initializer ();
+  if (conf.restore)
+    preflight_persisted_data ();
 
   /* ignore outputting, process only */
   if (conf.process_and_exit) {

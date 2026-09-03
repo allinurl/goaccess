@@ -35,6 +35,7 @@
 #include "sort.h"
 
 void load_help_popup (WINDOW * main_win);
+void load_persistence_warning (WINDOW * main_win);
 void load_sort_win (WINDOW * main_win, GModule module, GSort * sort);
 void load_schemes_win (WINDOW * main_win);
 int render_confdlg (Logs * logs, GSpinner * spinner);

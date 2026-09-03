@@ -477,6 +477,9 @@ can be loaded with.
 2. `--restore`.  If new data is passed (piped or through a log file), it will
 append it to the original dataset.
 
+The `--http-method` and `--http-protocol` settings must match those used to
+create the database because they determine how request keys are grouped.
+
 ##### NOTES #####
 
 GoAccess keeps track of inodes of all the files processed (assuming files will

@@ -38,10 +38,21 @@
 
 #include "error.h"
 #include "gkhash.h"
+#include "labels.h"
 #include "sort.h"
 #include "tpl.h"
 #include "util.h"
 #include "xmalloc.h"
+
+#define DB_PROP_APPEND_METHOD   "append_method"
+#define DB_PROP_APPEND_PROTOCOL "append_protocol"
+#define DB_PROP_VERSION         "version"
+
+typedef enum {
+  PERSISTED_SETTING_DISABLED,
+  PERSISTED_SETTING_ENABLED,
+  PERSISTED_SETTING_UNKNOWN,
+} GPersistedSetting;
 
 static uint32_t *persisted_dates = NULL;
 static uint32_t persisted_dates_len = 0;
@@ -138,10 +149,125 @@ get_db_version (void) {
   khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   khint_t k;
 
-  k = kh_get (si32, db_props, "version");
+  k = kh_get (si32, db_props, DB_PROP_VERSION);
   if (k == kh_end (db_props))
     return 1;
   return kh_val (db_props, k);
+}
+
+/* Get a persisted database property.
+ *
+ * If the property is found, its value is assigned and non-zero is returned.
+ * If the property is absent, 0 is returned. */
+static int
+get_db_prop (khash_t (si32) *db_props, const char *key, uint32_t *value) {
+  khint_t k;
+
+  k = kh_get (si32, db_props, key);
+  if (k == kh_end (db_props))
+    return 0;
+
+  *value = kh_val (db_props, k);
+  return 1;
+}
+
+/* Add or replace a persisted database property. */
+static void
+set_db_prop (khash_t (si32) *db_props, const char *key, uint32_t value) {
+  khint_t k;
+  int ret = 0;
+
+  k = kh_put (si32, db_props, key, &ret);
+  if (ret == -1)
+    FATAL ("Unable to store persistence property '%s'.", key);
+  if (ret > 0)
+    kh_key (db_props, k) = xstrdup (key);
+
+  kh_val (db_props, k) = value;
+}
+
+/* Warn that request grouping cannot be validated for a legacy database. */
+static void
+warn_unknown_request_grouping (void) {
+  if (conf.output_stdout || conf.process_and_exit)
+    fprintf (stderr, "Warning: %s\n", PERSISTDLG_GROUPING);
+}
+
+/* Check whether a persisted grouping setting has a supported value.
+ *
+ * If the setting is valid, non-zero is returned.
+ * If the setting is invalid, 0 is returned. */
+static int
+valid_persisted_setting (uint32_t setting) {
+  return setting == PERSISTED_SETTING_DISABLED ||
+    setting == PERSISTED_SETTING_ENABLED || setting == PERSISTED_SETTING_UNKNOWN;
+}
+
+/* Validate request-key grouping against the persisted configuration. */
+static void
+validate_request_grouping (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+  uint32_t method = 0, protocol = 0;
+  int has_method, has_protocol;
+
+  has_method = get_db_prop (db_props, DB_PROP_APPEND_METHOD, &method);
+  has_protocol = get_db_prop (db_props, DB_PROP_APPEND_PROTOCOL, &protocol);
+
+  if (!has_method && !has_protocol) {
+    set_db_prop (db_props, DB_PROP_APPEND_METHOD, PERSISTED_SETTING_UNKNOWN);
+    set_db_prop (db_props, DB_PROP_APPEND_PROTOCOL, PERSISTED_SETTING_UNKNOWN);
+    warn_unknown_request_grouping ();
+    return;
+  }
+
+  if (!has_method || !has_protocol || !valid_persisted_setting (method) ||
+      !valid_persisted_setting (protocol))
+    FATAL ("Invalid request-grouping metadata in the persisted database.");
+
+  if (method == PERSISTED_SETTING_UNKNOWN || protocol == PERSISTED_SETTING_UNKNOWN) {
+    warn_unknown_request_grouping ();
+    return;
+  }
+
+  if (method == (uint32_t) conf.append_method &&
+      protocol == (uint32_t) conf.append_protocol)
+    return;
+
+  FATAL ("Persisted request grouping does not match the current configuration. "
+         "The database uses --http-method=%s and --http-protocol=%s, while the "
+         "current configuration uses --http-method=%s and --http-protocol=%s. "
+         "Restore with matching values, or rebuild the database in an empty "
+         "--db-path using the desired values.",
+         method ? "yes" : "no", protocol ? "yes" : "no",
+         conf.append_method ? "yes" : "no", conf.append_protocol ? "yes" : "no");
+}
+
+/* Check whether restored request-grouping metadata is unknown.
+ *
+ * If either grouping setting is unknown, non-zero is returned.
+ * If both settings are known, 0 is returned. */
+int
+persisted_request_grouping_unknown (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+  uint32_t method = 0, protocol = 0;
+
+  get_db_prop (db_props, DB_PROP_APPEND_METHOD, &method);
+  get_db_prop (db_props, DB_PROP_APPEND_PROTOCOL, &protocol);
+
+  return method == PERSISTED_SETTING_UNKNOWN || protocol == PERSISTED_SETTING_UNKNOWN;
+}
+
+/* Persist a grouping setting unless its legacy value is unknown. */
+static void
+persist_request_grouping (khash_t (si32) *db_props, const char *key, uint32_t value) {
+  uint32_t stored = 0;
+
+  if (get_db_prop (db_props, key, &stored) && stored == PERSISTED_SETTING_UNKNOWN)
+    return;
+
+  set_db_prop (db_props, key, value);
 }
 
 /* Given a database filename, restore a string key, uint32_t value back to the
@@ -2016,6 +2142,49 @@ restore_dates (void) {
   free (path);
 }
 
+/* Restore the database properties before loading the persisted dataset.
+ *
+ * If the properties database is found, non-zero is returned.
+ * If it is absent, 0 is returned. */
+static int
+restore_db_props (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
+  char *path = NULL;
+
+  if (!(path = check_restore_path ("SI32_DB_PROPS.db")))
+    return 0;
+
+  restore_global_si32 (db_props, path);
+  free (path);
+
+  return 1;
+}
+
+/* Check whether the database path contains persisted panel data.
+ *
+ * If persisted data is found, non-zero is returned.
+ * If the database path is empty, 0 is returned. */
+static int
+has_persisted_data (void) {
+  char *path = NULL;
+
+  if (!(path = check_restore_path ("I32_DATES.db")))
+    return 0;
+
+  free (path);
+  return 1;
+}
+
+/* Load and validate persistence metadata before output initialization. */
+void
+preflight_persisted_data (void) {
+  if (!restore_db_props () && !has_persisted_data ())
+    return;
+
+  validate_request_grouping ();
+}
+
 /* Entry function to restore a global hashes */
 static void
 restore_global (void) {
@@ -2023,15 +2192,9 @@ restore_global (void) {
   khash_t (si32) * overall = get_hdb (db, MTRC_CNT_OVERALL);
   khash_t (si32) * seqs = get_hdb (db, MTRC_SEQS);
   khash_t (iglp) * last_parse = get_hdb (db, MTRC_LAST_PARSE);
-  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   khash_t (si08) * meth_proto = get_hdb (db, MTRC_METH_PROTO);
 
   char *path = NULL;
-
-  if ((path = check_restore_path ("SI32_DB_PROPS.db"))) {
-    restore_global_si32 (db_props, path);
-    free (path);
-  }
 
   restore_dates ();
   if ((path = check_restore_path ("SI32_CNT_OVERALL.db"))) {
@@ -2096,14 +2259,10 @@ persist_db_props (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   char *path = NULL;
-  khint_t k;
-  int ret;
 
-  /* upsert: the restored props may carry an older version value */
-  k = kh_put (si32, db_props, "version", &ret);
-  if (ret > 0)
-    kh_key (db_props, k) = xstrdup ("version");
-  kh_val (db_props, k) = DB_VERSION;
+  persist_request_grouping (db_props, DB_PROP_APPEND_METHOD, conf.append_method);
+  persist_request_grouping (db_props, DB_PROP_APPEND_PROTOCOL, conf.append_protocol);
+  set_db_prop (db_props, DB_PROP_VERSION, DB_VERSION);
 
   if ((path = set_db_path ("SI32_DB_PROPS.db"))) {
     persist_global_si32 (db_props, path);

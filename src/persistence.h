@@ -33,5 +33,7 @@
 void restore_data (void);
 void persist_data (void);
 void free_persisted_data (void);
+void preflight_persisted_data (void);
+int persisted_request_grouping_unknown (void);
 
 #endif // for #ifndef PERSISTENCE_H

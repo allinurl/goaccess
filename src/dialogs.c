@@ -295,6 +295,41 @@ load_help_popup (WINDOW *main_win) {
   wrefresh (main_win);
 }
 
+/* Display the legacy persistence warning until the user acknowledges it. */
+void
+load_persistence_warning (WINDOW *main_win) {
+  WINDOW *textwin = NULL, *win = NULL;
+  int c = ERR, h = 0, term_h = 0, term_w = 0, w = 0;
+
+  getmaxyx (stdscr, term_h, term_w);
+  h = MIN (ERR_WIN_HEIGHT, term_h);
+  w = MIN (ERR_WIN_WIDTH, term_w);
+
+  win = newwin (h, w, (term_h - h) / 2, (term_w - w) / 2);
+  if (!win)
+    FATAL ("Unable to create persistence warning window.");
+
+  textwin = derwin (win, h - 5, w - 4, 3, 2);
+  if (!textwin)
+    FATAL ("Unable to create persistence warning text window.");
+
+  keypad (win, TRUE);
+  wborder (win, '|', '|', '-', '-', '+', '+', '+', '+');
+  draw_header (win, PERSISTDLG_HEAD, " %s", 1, 1, w - 2, color_error);
+  waddstr (textwin, PERSISTDLG_GROUPING);
+  mvwprintw (win, h - 2, 2, "[Press any key to continue]");
+  wrefresh (win);
+  wrefresh (textwin);
+
+  while (c == ERR && !conf.stop_processing)
+    c = wgetch (stdscr);
+
+  delwin (textwin);
+  touchwin (main_win);
+  close_win (win);
+  wrefresh (main_win);
+}
+
 /* Render the sort dialog. */
 void
 load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {

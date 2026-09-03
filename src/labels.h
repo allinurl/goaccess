@@ -297,6 +297,14 @@
 #define HELPDLG_DESC                   \
   _("[UP/DOWN] to scroll - [q] to quit")
 
+/* Persistence Warning Dialog */
+#define PERSISTDLG_HEAD                \
+  _("Persistence Warning")
+#define PERSISTDLG_GROUPING            \
+  _("This database predates request-grouping metadata.\n" \
+    "--http-method and --http-protocol cannot be validated.\n" \
+    "Rebuild it if request rows are grouped unexpectedly.")
+
 /* Storage Built-in Option */
 #define BUILT_WITH_DEFHASH             \
   _("In-Memory with On-Disk Persistent Storage.")
