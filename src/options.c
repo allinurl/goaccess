@@ -54,6 +54,12 @@
 
 #include "xmalloc.h"
 
+typedef struct GLogSourceIdentity_ {
+  dev_t device;
+  ino_t inode;
+  int resolved;
+} GLogSourceIdentity;
+
 static const char *short_options = "b:e:f:j:l:o:p:H:M:S:"
 #ifdef HAVE_LIBGEOIP
   "g"
@@ -390,6 +396,58 @@ static void
 set_array_opt (const char *oarg, const char *arr[], int *size, int max) {
   if (str_inarray (oarg, arr, *size) < 0 && *size < max)
     arr[(*size)++] = oarg;
+}
+
+/* Resolve the filesystem identity of a log source.
+ *
+ * On success, an identity with resolved set is returned.
+ * On failure, an identity with resolved cleared is returned. */
+static GLogSourceIdentity
+get_log_source_identity (const char *filename) {
+  GLogSourceIdentity identity = {0};
+  struct stat file_stat;
+
+  if (stat (filename, &file_stat) != 0)
+    return identity;
+
+  identity.device = file_stat.st_dev;
+  identity.inode = file_stat.st_ino;
+  identity.resolved = 1;
+  return identity;
+}
+
+/* Check whether two resolved identities identify the same log source.
+ *
+ * If both identities identify the same source, non-zero is returned.
+ * If either is unresolved or the sources differ, 0 is returned. */
+static int
+same_log_source (const GLogSourceIdentity *left, const GLogSourceIdentity *right) {
+  if (!left->resolved || !right->resolved)
+    return 0;
+
+  return left->device == right->device && left->inode == right->inode;
+}
+
+/* Add a log source unless it is already present under the same or an alias path. */
+static void
+add_log_filename (const char *filename, GLogSourceIdentity identities[]) {
+  GLogSourceIdentity identity = {0};
+  int i = 0;
+
+  for (i = 0; i < conf.filenames_idx; i++)
+    if (strcmp (filename, conf.filenames[i]) == 0)
+      return;
+
+  if (conf.filenames_idx >= MAX_FILENAMES)
+    return;
+
+  identity = get_log_source_identity (filename);
+  for (i = 0; i < conf.filenames_idx; i++)
+    if (same_log_source (&identity, &identities[i]))
+      return;
+
+  identities[conf.filenames_idx] = identity;
+  conf.filenames[conf.filenames_idx++] = filename;
 }
 
 #ifdef HAVE_LIBSSL
@@ -1139,6 +1197,7 @@ add_dash_filename (void) {
 /* Read the user's supplied command line options. */
 void
 read_option_args (int argc, char **argv) {
+  GLogSourceIdentity identities[MAX_FILENAMES] = {0};
   int o, idx = 0;
 
 #ifdef HAVE_LIBGEOIP
@@ -1150,8 +1209,7 @@ read_option_args (int argc, char **argv) {
       break;
     switch (o) {
     case 'f':
-      if (conf.filenames_idx < MAX_FILENAMES)
-        conf.filenames[conf.filenames_idx++] = optarg;
+      add_log_filename (optarg, identities);
       break;
     case 'S':
       if (strchr (optarg, '-')) {
@@ -1253,10 +1311,8 @@ read_option_args (int argc, char **argv) {
     if (!conf.read_stdin && strcmp ("-", argv[idx]) == 0)
       add_dash_filename ();
     /* read filenames */
-    else {
-      if (conf.filenames_idx < MAX_FILENAMES)
-        conf.filenames[conf.filenames_idx++] = argv[idx];
-    }
+    else
+      add_log_filename (argv[idx], identities);
   }
 
   /* Final validation:

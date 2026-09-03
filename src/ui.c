@@ -226,6 +226,20 @@ init_windows (WINDOW **header_win, WINDOW **main_win) {
   set_wbkgd (*main_win, *header_win);
 }
 
+/* Clear the separator rows after a dynamic header resize. */
+static void
+clear_header_main_gap (WINDOW *header_win) {
+  int col = 0, gap_y = 0, row = 0;
+
+  col = getmaxx (stdscr);
+  gap_y = getbegy (header_win) + getmaxy (header_win);
+
+  for (row = 0; row < HEADER_MAIN_GAP; row++)
+    mvwhline (stdscr, gap_y + row, 0, ' ', col);
+
+  wnoutrefresh (stdscr);
+}
+
 #pragma GCC diagnostic ignored "-Wformat-nonliteral"
 /* Draw a generic header with the ability to set a custom text to it. */
 void
@@ -260,6 +274,8 @@ term_size (WINDOW *header_win, WINDOW *main_win, int *main_win_height) {
   if (wresize (main_win, 1, term_w) == ERR || mvwin (main_win, main_y, 0) == ERR ||
       wresize (main_win, *main_win_height, term_w) == ERR)
     FATAL ("Unable to resize the terminal dashboard.");
+
+  clear_header_main_gap (header_win);
   wmove (main_win, *main_win_height - 1, 0);
 }
 
