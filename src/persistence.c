@@ -230,8 +230,7 @@ validate_request_grouping (void) {
     return;
   }
 
-  if (method == (uint32_t) conf.append_method &&
-      protocol == (uint32_t) conf.append_protocol)
+  if (method == (uint32_t) conf.append_method && protocol == (uint32_t) conf.append_protocol)
     return;
 
   FATAL ("Persisted request grouping does not match the current configuration. "

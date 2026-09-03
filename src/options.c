@@ -404,7 +404,7 @@ set_array_opt (const char *oarg, const char *arr[], int *size, int max) {
  * On failure, an identity with resolved cleared is returned. */
 static GLogSourceIdentity
 get_log_source_identity (const char *filename) {
-  GLogSourceIdentity identity = {0};
+  GLogSourceIdentity identity = { 0 };
   struct stat file_stat;
 
   if (stat (filename, &file_stat) != 0)
@@ -431,7 +431,7 @@ same_log_source (const GLogSourceIdentity *left, const GLogSourceIdentity *right
 /* Add a log source unless it is already present under the same or an alias path. */
 static void
 add_log_filename (const char *filename, GLogSourceIdentity identities[]) {
-  GLogSourceIdentity identity = {0};
+  GLogSourceIdentity identity = { 0 };
   int i = 0;
 
   for (i = 0; i < conf.filenames_idx; i++)
@@ -1197,7 +1197,7 @@ add_dash_filename (void) {
 /* Read the user's supplied command line options. */
 void
 read_option_args (int argc, char **argv) {
-  GLogSourceIdentity identities[MAX_FILENAMES] = {0};
+  GLogSourceIdentity identities[MAX_FILENAMES] = { 0 };
   int o, idx = 0;
 
 #ifdef HAVE_LIBGEOIP
