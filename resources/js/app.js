@@ -2110,6 +2110,7 @@ GoAccess.Tables = {
 		className += !['string'].includes(ui.dataType) ? 'text-right' : '';
 		return {
 			'className': className,
+			'isData': ui.key === 'data',
 			'percent': GoAccess.Util.getPercent(value),
 			'value': GoAccess.Util.fmtValue(GoAccess.Util.getCount(value), ui.dataType, null, null, ui.hlregex, ui.hlvalue, ui.hlidx)
 		};
@@ -2136,9 +2137,10 @@ GoAccess.Tables = {
 		};
 	},
 
-	renderRows: function(rows, panel, ui, dataItems, subItem, parentId, level = 0, parentPath = '') {
+	renderRows: function(rows, panel, ui, dataItems, subItem, parentId, parentTree = [], parentPath = '') {
+		var level = subItem ? parentTree.length + 1 : 0;
+
 		subItem = subItem || false;
-		level = level || 0; /* no data rows */
 		if (dataItems.length === 0 && ui.items.length) {
 			rows.push({
 				cells: [{
@@ -2157,6 +2159,7 @@ GoAccess.Tables = {
 			if (isString) {
 				cellcb = function() {
 					return {
+						'isData': true,
 						'colspan': ui.items.length,
 						'value': data
 					};
@@ -2167,15 +2170,20 @@ GoAccess.Tables = {
 			/* Unique key for this node (important for nested expansion state) */
 			var itemKey = !isString ? GoAccess.Util.hashCode(String(dataItem.data ?? '')) : null;
 			var nodeKey = itemKey && parentPath ? parentPath + '|' + itemKey : itemKey;
-			var expanded = nodeKey && this.isExpanded(panel, nodeKey); /* Build row with indentation level */
-			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded); /* Add level for CSS indentation */
-			row.level = level;
+			var expanded = nodeKey && this.isExpanded(panel, nodeKey);
+			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded, level);
+			/* Ancestor guides continue only while that ancestor has later siblings. */
+			row.tree = parentTree.map(function (guide) {
+				return { continues: guide.continues };
+			});
+			if (subItem)
+				row.tree.push({ branch: true, continues: i < dataItems.length - 1 });
 			row.nodeKey = nodeKey; /* for future use in events */
 			row.isLeaf = !(dataItem.items && dataItem.items.length > 0);
 			row.showPlaceholder = ui.hasSubItems && !row.hasSubItems;
 			rows.push(row); /* Recurse into children if expanded */
 			if (!isString && dataItem.items && dataItem.items.length && expanded) {
-				this.renderRows(rows, panel, ui, dataItem.items, true, i, level + 1, nodeKey);
+				this.renderRows(rows, panel, ui, dataItem.items, true, i, row.tree, nodeKey);
 			}
 		}
 	},

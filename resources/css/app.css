@@ -548,6 +548,52 @@ article table tbody.tbody-data td.row-idx {
 	font-weight: 700;
 }
 
+article table tbody.tbody-data td.row-data {
+	/* Keep each hierarchy step compact and aligned with the table's cell padding. */
+	--tree-indent: 1.5em;
+	--tree-padding: 8px;
+	position: relative;
+	padding-left: calc(var(--tree-padding) + var(--tree-depth, 0) * var(--tree-indent));
+}
+
+article table .tree-guides {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: var(--tree-padding);
+	display: flex;
+	opacity: 0.35;
+	pointer-events: none;
+	user-select: none;
+}
+
+article table .tree-guide {
+	position: relative;
+	width: var(--tree-indent);
+	flex-shrink: 0;
+}
+
+article table .tree-continues::before,
+article table .tree-branch::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	border-left: 1px solid currentColor;
+}
+
+article table .tree-branch:not(.tree-continues)::before {
+	bottom: 50%;
+}
+
+article table .tree-branch::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	width: 65%;
+	border-top: 1px solid currentColor;
+}
+
 article table>thead>tr.thead-cols {
 	border-bottom: 2px solid #cbd5e1;
 }

@@ -20,7 +20,7 @@
 <!-- TPL Panel Table -->
 <script id="tpl-table-row" type="text/template">
 	{{#rows}}
-		<tr class="{{#className}}{{className}} {{/className}}{{#hasSubItems}}{{#items}}expandable{{/items}}{{/hasSubItems}} level-{{level}}" data-panel="{{panel}}" {{#key}}data-key="{{key}}" {{/key}} {{#nodeKey}}data-node-key="{{nodeKey}}" {{/nodeKey}} data-level="{{level}}">
+		<tr class="{{#className}}{{className}} {{/className}}{{#hasSubItems}}{{#items}}expandable{{/items}}{{/hasSubItems}} level-{{level}}" data-panel="{{panel}}" {{#key}}data-key="{{key}}" {{/key}} {{#nodeKey}}data-node-key="{{nodeKey}}" {{/nodeKey}} data-level="{{level}}" style="--tree-depth: {{level}};">
 			{{#hasSubItems}}
 			<td class="row-expandable text-center {{#items}}clickable{{/items}}">
 				{{#items}}<i class="fa {{#expanded}}fa-caret-down{{/expanded}}{{^expanded}}fa fa-caret-right{{/expanded}}"></i>{{/items}}
@@ -38,7 +38,8 @@
 				{{#idx}}{{idx}}{{/idx}}
 			</td>
 			{{#cells}}
-				<td class="{{className}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+				<td class="{{className}}{{#isData}} row-data{{/isData}}" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+					{{#isData}}<span class="tree-guides" aria-hidden="true">{{#tree}}<span class="tree-guide{{#branch}} tree-branch{{/branch}}{{#continues}} tree-continues{{/continues}}"></span>{{/tree}}</span>{{/isData}}
 					<span class="value">{{{value}}}</span>{{#percent}}<span class="percent"> ({{percent}})</span>{{/percent}}
 				</td>
 			{{/cells}}
