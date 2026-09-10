@@ -1971,10 +1971,15 @@ GoAccess.Tables = {
 
 		this.renderTable(panel, this.getCurPage(panel));
 
-		const plotUI = GoAccess.AppCharts[panel]?.opts?.();
+		const chart = GoAccess.AppCharts[panel];
+		const plotUI = chart?.opts?.();
 		if (!plotUI || !plotUI.redrawOnExpand) return;
 
-		GoAccess.Charts.reloadChart(GoAccess.AppCharts[panel], panel);
+		if (!wasExpanded && chart.focusContinent) {
+			const continent = this.getDataByKey(panel, key);
+			if (continent) chart.focusContinent(continent.data);
+		}
+		GoAccess.Charts.reloadChart(chart, panel);
 	},
 
 	// Get current panel page
@@ -2172,7 +2177,7 @@ GoAccess.Tables = {
 			var nodeKey = itemKey && parentPath ? parentPath + '|' + itemKey : itemKey;
 			var expanded = nodeKey && this.isExpanded(panel, nodeKey);
 			var row = this.renderRow(panel, cellcb, ui, dataItem, i, subItem, parentId, expanded, level);
-			/* Ancestor guides continue only while that ancestor has later siblings. */
+			// Ancestor guides continue only while that ancestor has later siblings.
 			row.tree = parentTree.map(function (guide) {
 				return { continues: guide.continues };
 			});

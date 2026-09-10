@@ -16,6 +16,16 @@ const MAP_FULLSCREEN_BODY_CLASS = 'map-fullscreen-open';
 const MAP_FULLSCREEN_MIN_HEIGHT = 400;
 const MAP_FULLSCREEN_HORIZONTAL_MARGIN = 16;
 const MAP_LEGEND_HEIGHT = 30;
+// Geographic viewing centers in longitude/latitude degrees, keyed by GeoIP continent code.
+const MAP_CONTINENT_CENTERS = {
+	AF: [20, 0],
+	AN: [0, -90],
+	AS: [100, 35],
+	EU: [15, 50],
+	NA: [-100, 45],
+	OC: [140, -25],
+	SA: [-60, -15]
+};
 
 // Update the map control to describe the action it will perform.
 function setMapFullscreenControlState(control, expanded) {
@@ -638,6 +648,8 @@ function WorldMap(selection) {
 	}
 
 	function setProjection(type) {
+		var rotation = projection && renderedProjectionType === type ? projection.rotate() : [0, 0, 0];
+
 		if (type === 'mercator') {
 			const bScale = baseScale();
 			projection = d3.geoMercator()
@@ -649,13 +661,34 @@ function WorldMap(selection) {
 			projection = d3.geoOrthographic()
 				.scale(globeScale)
 				.translate([innerW() / 2, height / 2])
-				.rotate([0, 0, 0]);
+				.rotate(rotation);
 		}
 		initialScale = projection.scale();
 		path = d3.geoPath().projection(projection);
 	}
 
-	function zoomed(event, projection, path, scaleExtent, g) {
+	// Redraw map geometry and city markers using the current projection.
+	function redrawMap(g) {
+		g.selectAll('path')
+			.attr('d', path);
+		g.selectAll('.city-marker')
+			.attr('cx', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[0] : -9999;
+			})
+			.attr('cy', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
+				var coords = projection(d.feature.geometry.coordinates);
+				return coords ? coords[1] : -9999;
+			})
+			.attr('r', function(d) {
+				if (!isCityVisible(d.feature.geometry.coordinates)) return 0;
+				return citySizeScale ? citySizeScale(d[metric]) : 0;
+			});
+	}
+
+	function zoomed(event, scaleExtent, g) {
 		const scale = event.transform.k;
 		if (projectionType === 'mercator') {
 			const containerCenter = [innerW() / 2, height / 2];
@@ -705,23 +738,7 @@ function WorldMap(selection) {
 			latitude = Math.max(-90, Math.min(90, latitude));
 			projection.rotate([longitude, latitude, 0]);
 		}
-		g.selectAll('path')
-			.attr('d', path);
-		g.selectAll('.city-marker')
-			.attr('cx', function(d) {
-				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
-				var coords = projection(d.feature.geometry.coordinates);
-				return coords ? coords[0] : -9999;
-			})
-			.attr('cy', function(d) {
-				if (!isCityVisible(d.feature.geometry.coordinates)) return -9999;
-				var coords = projection(d.feature.geometry.coordinates);
-				return coords ? coords[1] : -9999;
-			})
-			.attr('r', function(d) {
-				if (!isCityVisible(d.feature.geometry.coordinates)) return 0;
-				return citySizeScale ? citySizeScale(d[metric]) : 0;
-			});
+		redrawMap(g);
 		tlast = [event.transform.x, event.transform.y];
 		slast = scale;
 	}
@@ -761,7 +778,7 @@ function WorldMap(selection) {
 		const zoom = d3.zoom()
 			.scaleExtent(scaleExtent)
 			.on('zoom', event => {
-				zoomed(event, projection, path, scaleExtent, g);
+				zoomed(event, scaleExtent, g);
 			});
 		svg.call(zoom);
 		return {
@@ -802,6 +819,22 @@ function WorldMap(selection) {
 			renderedProjectionType = projectionType;
 		});
 	}
+
+	// Center the globe on a continent while preserving its zoom.
+	// On success, the globe is rotated and the chart is returned.
+	// If the continent or projection is unsupported, the chart is returned unchanged.
+	chart.focusContinent = function(label) {
+		var center = MAP_CONTINENT_CENTERS[label.split(' ')[0]];
+		var svg = selection.select('svg.map');
+
+		if (projectionType !== 'orthographic' || !projection || !center || svg.empty())
+			return chart;
+
+		projection.rotate([-center[0], -center[1], 0]);
+		redrawMap(svg.select('g'));
+		return chart;
+	};
+
 	// Getter-setter for metric
 	chart.metric = function(_) {
 		if (!arguments.length) return metric;
