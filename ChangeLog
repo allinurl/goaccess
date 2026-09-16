@@ -1,3 +1,59 @@
+Changes to GoAccess 1.12 - Wednesday, September 16, 2026
+
+  - Added a dedicated "AI Crawlers" browser category, separating AI assistants
+    and model training bots from traditional search engine crawlers.
+  - Added a Fediverse browser category for identifiable ActivityPub server
+    traffic, separating it from traditional web crawlers.
+  - Added a live requests-per-second rate alongside total requests in the
+    terminal and HTML reports while following logs, and exposed it through the
+    WebSocket JSON output.
+  - Added a warning when restoring databases that predate request-grouping
+    metadata, and rejected restores whose `--http-method` or `--http-protocol`
+    settings no longer match the ones the database was created with.
+  - Added `--exclude-asn` to exclude requests whose client address resolves to
+    a given Autonomous System Number. It can be repeated, accepts either 8075
+    or AS8075, and requires a GeoIP2 ASN database.
+  - Added resolved, total and pending hostname metrics to the progress display
+    when resolving IP addresses for static output.
+  - Added the negotiated TLS key exchange group via `%g`, nested beneath its
+    cipher suite in the TLS panel.
+  - Added `VCOMBINED_PORT` and `VCOMMON_PORT` predefined log formats for
+    virtual host logs that carry a colon-delimited port.
+  - Fixed a shutdown race that could leave WebSocket server threads running.
+  - Fixed crawler filtering skipping bots whose operating system could not be
+    determined.
+  - Fixed panel sorting not being initialized for panels rendered after the
+    initial load of the HTML report.
+  - Fixed the globe projection not centering on an expanded continent, while
+    preserving the current zoom level and manual rotation.
+  - Fixed the printf format used for `size_t` values in bin2c, which warned on
+    32-bit platforms.
+  - Fixed the same log source being processed twice when it was passed more
+    than once through different paths.
+  - Fixed the spinner falling out of sync with the progress output while
+    resolving hostnames.
+  - Fixed user agent classification, correcting the Applebot spelling and
+    giving HTTP library and uptime signatures precedence over broader fallback
+    tokens.
+  - Fixed `VCOMBINED` and `VCOMMON` requiring a port after the virtual host,
+    which prevented logs without one from being parsed.
+  - Fixed WebSocket text frames being parsed as null-terminated strings rather
+    than by payload length.
+  - Hardened WebSocket authentication by tracking the verified JWT `exp` claim
+    and closing the connection once the token expires, and by clearing browser
+    credentials when a token refresh fails or returns an unusable token.
+  - Refined subitem indentation in the HTML report with a more compact layout
+    and subtle tree guides.
+  - Replaced the keyphrases panel with a UTM Campaigns panel reporting
+    `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` and `utm_term`.
+  - Updated operating system detection, adding iPadOS, visionOS, watchOS,
+    tvOS, KaiOS, Fuchsia, Xbox and Windows Phone.
+  - Updated the Caddy predefined format to match the current JSON access log
+    structure.
+  - Updated the CloudFront predefined format to the current standard log
+    schema, capturing the query string, virtual host and TLS fields while
+    safely ignoring newer trailing fields.
+
 Changes to GoAccess 1.11 - Sunday, July 19, 2026
 
   - Added automatic, crash-safe migration of persisted databases to storage
