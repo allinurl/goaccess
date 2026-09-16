@@ -304,7 +304,7 @@ Color highlight active terminal panel.
 \fB\-m \-\-with-mouse
 Enable mouse support on main terminal dashboard.
 .TP
-\fB\-\-\-color=<fg:bg[attrs, PANEL]>
+\fB\-\-color=<fg:bg[attrs, PANEL]>
 Specify custom colors for the terminal output.
 
 .I Color Syntax
@@ -452,11 +452,18 @@ root dir and open the html file in your browser. The browser will then open
 another WebSocket-connection to the ws-server you may setup here,
 to keep the dashboard up-to-date.
 .TP
-\fB\-\-addr
+\fB\-\-addr=<addr>
 Specify IP address to bind the server to. Otherwise it binds to 0.0.0.0.
 .IP
 Usually there is no need to specify the address, unless you intentionally would
 like to bind the server to a different address within your server.
+.TP
+\fB\-\-unix-socket=<addr>
+Specify the UNIX-domain socket address to bind the server to. It is used
+instead of
+.BR \-\-addr
+and
+.BR \-\-port .
 .TP
 \fB\-\-daemonize
 Run GoAccess as daemon (only if \fB\-\-real-time-html enabled).
@@ -847,7 +854,7 @@ processes in parallel. Setting chunk-size to an excessively large value might
 cause memory issues, particularly if there are many parallel threads running
 simultaneously.
 .TP
-\fB\-\-anonymize-level
+\fB\-\-anonymize-level=<1|2|3>
 Specifies the anonymization levels: 1 => default, 2 => strong, 3 => pedantic.
 .TS
 allbox;
@@ -867,12 +874,18 @@ T}	64	80	96
 Include static files that contain a query string. e.g.,
 /fonts/fontawesome-webfont.woff?v=4.0.3
 .TP
-\fB\-\-browsers-file=<path>
+\fB\-b \-\-browsers-file=<path>
 By default GoAccess parses an "essential/basic" curated list of browsers &
 crawlers. If you need to add additional browsers, use this option.
 Include an additional delimited list of browsers/crawlers/feeds etc.
 See config/browsers.list for an example or
 https://raw.githubusercontent.com/allinurl/goaccess/master/config/browsers.list
+.TP
+\fB\-\-concat-vhost-req
+Prepend the virtual host to the request field, so the top requests show which
+virtual host they belong to. It requires the virtual host
+.I %v
+to be part of the log-format variable.
 .TP
 \fB\-\-date-spec=<date|hr|min>
 Set the date specificity to either date (default), hr to display hours or min

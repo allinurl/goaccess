@@ -19,6 +19,8 @@ Changes to GoAccess 1.12 - Wednesday, September 16, 2026
     cipher suite in the TLS panel.
   - Added `VCOMBINED_PORT` and `VCOMMON_PORT` predefined log formats for
     virtual host logs that carry a colon-delimited port.
+  - Documented `--concat-vhost-req` and `--unix-socket`, which were accepted
+    but missing from the man page and the `--help` output.
   - Fixed a shutdown race that could leave WebSocket server threads running.
   - Fixed crawler filtering skipping bots whose operating system could not be
     determined.
@@ -44,6 +46,8 @@ Changes to GoAccess 1.12 - Wednesday, September 16, 2026
     credentials when a token refresh fails or returns an unusable token.
   - Refined subitem indentation in the HTML report with a more compact layout
     and subtle tree guides.
+  - Removed the deprecated `--no-column-names` from the `--help` output and
+    the sample configuration, where it lingered after being dropped in v1.10.
   - Replaced the keyphrases panel with a UTM Campaigns panel reporting
     `utm_source`, `utm_medium`, `utm_campaign`, `utm_content` and `utm_term`.
   - Updated operating system detection, adding iPadOS, visionOS, watchOS,
