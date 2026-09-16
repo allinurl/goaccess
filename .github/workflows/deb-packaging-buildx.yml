@@ -43,20 +43,6 @@ jobs:
             platform: linux/amd64
             distro: ubuntu26.04
 
-          # Debian 11 - Bullseye
-          - arch: arm32v7
-            platform: linux/arm/v7
-            distro: bullseye
-          - arch: aarch64
-            platform: linux/arm64
-            distro: bullseye
-          - arch: amd64
-            platform: linux/amd64
-            distro: bullseye
-          - arch: i386
-            platform: linux/386
-            distro: bullseye
-
           # Debian 12 - Bookworm
           - arch: arm32v7
             platform: linux/arm/v7
@@ -145,7 +131,6 @@ jobs:
           echo "Found deb package: $DEB_FILE"
 
           case "${{ matrix.distro }}" in
-            bullseye) TEST_IMAGE="debian:bullseye" ;;
             bookworm) TEST_IMAGE="debian:bookworm" ;;
             trixie) TEST_IMAGE="debian:trixie" ;;
             ubuntu22.04) TEST_IMAGE="ubuntu:22.04" ;;
