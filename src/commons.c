@@ -163,37 +163,28 @@ display_default_config_file (void) {
   }
 }
 
+/* Display the arguments given to configure at build time. */
+static void
+display_configure_args (void) {
+  fprintf (stdout, "\nBuild configure arguments:\n");
+
+  /* configure run with no arguments still yields a valid, fully default build */
+  if (GO_CONFIGURE_ARGS[0] == '\0') {
+    fprintf (stdout, "  (none)\n");
+    return;
+  }
+
+  fprintf (stdout, "  %s\n", GO_CONFIGURE_ARGS);
+}
+
 /* Display the current version. */
 void
 display_version (void) {
   fprintf (stdout, "GoAccess - %s.\n", GO_VERSION);
   fprintf (stdout, "%s: %s\n", INFO_MORE_INFO, GO_WEBSITE);
-  fprintf (stdout, "Copyright (C) 2009-2024 by Gerardo Orellana\n");
-  fprintf (stdout, "\nBuild configure arguments:\n");
-#ifdef DEBUG
-  fprintf (stdout, "  --enable-debug\n");
-#endif
-#ifdef __SANITIZE_ADDRESS__
-  fprintf (stdout, "  --enable-asan\n");
-#endif
-#ifdef HAVE_NCURSESW_NCURSES_H
-  fprintf (stdout, "  --enable-utf8\n");
-#endif
-#ifdef HAVE_LIBGEOIP
-  fprintf (stdout, "  --enable-geoip=legacy\n");
-#endif
-#ifdef HAVE_LIBMAXMINDDB
-  fprintf (stdout, "  --enable-geoip=mmdb\n");
-#endif
-#ifdef WITH_GETLINE
-  fprintf (stdout, "  --with-getline\n");
-#endif
-#ifdef HAVE_LIBSSL
-  fprintf (stdout, "  --with-openssl\n");
-#endif
-#ifdef HAVE_ZLIB
-  fprintf (stdout, "  --with-zlib\n");
-#endif
+  fprintf (stdout, "Copyright (C) 2009-2026 by Gerardo Orellana\n");
+
+  display_configure_args ();
 }
 
 /* Get the enumerated value given a string.

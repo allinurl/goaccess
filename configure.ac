@@ -271,6 +271,22 @@ AC_CHECK_FUNCS([strtol])
 AC_CHECK_FUNCS([strtoull])
 AC_CHECK_FUNCS([timegm])
 
+# Record the arguments given to configure so that --version reports the actual
+# build configuration instead of inferring it from feature test macros.
+# ac_safe_unquote (autoconf >= 2.72) drops the quoting autoconf adds around
+# arguments that do not need it, which is what `config.status --config` prints.
+# Older autoconf leaves it unset, so every argument stays quoted; it is applied
+# in a separate step because not every sed accepts an empty -e script.
+GO_CONFIGURE_ARGS=$ac_configure_args
+if test -n "$ac_safe_unquote"; then
+  GO_CONFIGURE_ARGS=`printf '%s\n' "$GO_CONFIGURE_ARGS" | sed "$ac_safe_unquote"`
+fi
+# Strip the leading space, then escape backslashes and double quotes so the
+# result is a valid C string literal.
+GO_CONFIGURE_ARGS=`printf '%s\n' "$GO_CONFIGURE_ARGS" | sed -e ['s/^ *//'] -e ['s/[\\\\"]/\\\\&/g']`
+AC_DEFINE_UNQUOTED([GO_CONFIGURE_ARGS], ["$GO_CONFIGURE_ARGS"],
+                   [Arguments given to configure at build time])
+
 AC_CONFIG_FILES([Makefile po/Makefile.in])
 AC_OUTPUT
 
