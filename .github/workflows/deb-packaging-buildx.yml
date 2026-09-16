@@ -32,17 +32,6 @@ jobs:
             platform: linux/amd64
             distro: ubuntu24.04
 
-          # Ubuntu 25.10 - Questing
-          - arch: arm32v7
-            platform: linux/arm/v7
-            distro: ubuntu25.10
-          - arch: aarch64
-            platform: linux/arm64
-            distro: ubuntu25.10
-          - arch: amd64
-            platform: linux/amd64
-            distro: ubuntu25.10
-
           # Ubuntu 26.04 LTS - Resolute
           - arch: arm32v7
             platform: linux/arm/v7
@@ -161,7 +150,6 @@ jobs:
             trixie) TEST_IMAGE="debian:trixie" ;;
             ubuntu22.04) TEST_IMAGE="ubuntu:22.04" ;;
             ubuntu24.04) TEST_IMAGE="ubuntu:24.04" ;;
-            ubuntu25.10) TEST_IMAGE="ubuntu:25.10" ;;
             ubuntu26.04) TEST_IMAGE="ubuntu:26.04" ;;
             *) echo "Unknown distro: ${{ matrix.distro }}" && exit 1 ;;
           esac
