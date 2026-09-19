@@ -78,6 +78,7 @@ struct GMenu_ {
 };
 
 GMenu *new_gmenu (WINDOW * parent, int h, int w, int y, int x);
+void free_gmenu (GMenu * menu);
 int post_gmenu (GMenu * menu);
 void gmenu_driver (GMenu * menu, int c);
 

@@ -62,6 +62,24 @@ new_gmenu (WINDOW *parent, int h, int w, int y, int x) {
   return menu;
 }
 
+/* Free a GMenu instance along with its item labels and derived window. */
+void
+free_gmenu (GMenu *menu) {
+  int i;
+
+  if (menu == NULL)
+    return;
+
+  for (i = 0; i < menu->size; ++i)
+    free (menu->items[i].name);
+  free (menu->items);
+
+  /* the derived window has to go before its parent, else ncurses refuses to
+   * delete a parent that still has subwindows */
+  delwin (menu->win);
+  free (menu);
+}
+
 /* Render actual menu item */
 static void
 draw_menu_item (GMenu *menu, char *s, int x, int y, int w, int checked, GColors *(*func) (void)) {

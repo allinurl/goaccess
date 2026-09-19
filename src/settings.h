@@ -62,6 +62,7 @@ typedef enum LOGTYPE {
   CADDY,
   AWSALB,
   TRAEFIKCLF,
+  LOGTYPE_MAX, /* count of predefined formats, not a format itself */
 } GLogType;
 
 /* predefined log times */

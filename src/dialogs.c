@@ -45,8 +45,15 @@
 #include "error.h"
 #include "gkhash.h"
 #include "gmenu.h"
+#include "settings.h"
 #include "util.h"
 #include "xmalloc.h"
+
+/* A predefined log format offered by the configuration dialog */
+typedef struct GConfFormat_ {
+  const char *label;
+  GLogType type;
+} GConfFormat;
 
 /* Add the given user agent value into our array of GAgents.
  *
@@ -135,7 +142,7 @@ load_agent_list (WINDOW *main_win, char *addr) {
   GAgents *agents = NULL;
   WINDOW *win;
   char buf[256];
-  int c, quit = 1, i;
+  int c, quit = 1;
   int y, x, list_h, list_w, menu_w, menu_h;
 
   if (!conf.list_agents)
@@ -180,19 +187,13 @@ load_agent_list (WINDOW *main_win, char *addr) {
     wrefresh (win);
   }
 
+out:
+  free_gmenu (menu);
+  free_agents_array (agents);
+
   touchwin (main_win);
   close_win (win);
-  win = NULL;
   wrefresh (main_win);
-
-out:
-  for (i = 0; i < menu->size; ++i)
-    free (menu->items[i].name);
-  if (menu->items)
-    free (menu->items);
-  free (menu);
-  free_agents_array (agents);
-  close_win (win);
 }
 
 /* Help menu data */
@@ -285,10 +286,7 @@ load_help_popup (WINDOW *main_win) {
     wrefresh (win);
   }
 
-  for (i = 0; i < n; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
 
   touchwin (main_win);
   close_win (win);
@@ -497,10 +495,7 @@ load_sort_win (WINDOW *main_win, GModule module, GSort *sort) {
     wrefresh (win);
   }
 
-  for (i = 0; i < n; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
 
   touchwin (main_win);
   close_win (win);
@@ -637,14 +632,59 @@ load_confdlg_error (WINDOW *parent_win, char **errors, int nerrors) {
     wrefresh (win);
   }
 
-  for (i = 0; i < nerrors; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
 
   touchwin (parent_win);
   close_win (win);
   wrefresh (parent_win);
+}
+
+/* *INDENT-OFF* */
+/* Menu label for each predefined log format. Each label carries its own
+ * GLogType because the format lookups are driven by the enum value, not by the
+ * menu row: pairing them keeps a format inserted into GLogType from shifting
+ * every entry below it onto the wrong format. */
+static const GConfFormat conf_log_formats[] = {
+  {"NCSA Combined Log Format"                         , COMBINED}       ,
+  {"NCSA Combined Log Format with Virtual Host"       , VCOMBINED}      ,
+  {"NCSA Combined Log Format with Virtual Host and separate Port", VCOMBINED_PORT} ,
+  {"Common Log Format (CLF)"                          , COMMON}         ,
+  {"Common Log Format (CLF) with Virtual Host"        , VCOMMON}        ,
+  {"Common Log Format (CLF) with Virtual Host and separate Port"  , VCOMMON_PORT}   ,
+  {"W3C"                                              , W3C}            ,
+  {"CloudFront standard logs (legacy)"                , CLOUDFRONT}     ,
+  {"Google Cloud Storage"                             , CLOUDSTORAGE}   ,
+  {"AWS Elastic Load Balancing (HTTP/S)"              , AWSELB}         ,
+  {"Squid Native Format"                              , SQUID}          ,
+  {"AWS Simple Storage Service (S3)"                  , AWSS3}          ,
+  {"CADDY JSON Structured"                            , CADDY}          ,
+  {"AWS Application Load Balancer"                    , AWSALB}         ,
+  {"Traefik CLF flavor"                               , TRAEFIKCLF}     ,
+};
+/* *INDENT-ON* */
+
+/* Build-time guard: every GLogType needs a menu label, else the array size
+ * below goes negative and the build fails instead of silently hiding a
+ * format from the dialog. */
+typedef char conf_log_formats_covers_logtype[ARRAY_SIZE (conf_log_formats) == LOGTYPE_MAX ? 1 : -1];
+
+/* Release the configuration dialog window, or hand it to the spinner thread
+ * when that thread is still rendering progress into it. */
+static void
+release_confdlg_win (GSpinner *spinner, WINDOW *win) {
+  if (spinner->win != win) {
+    close_win (win);
+    return;
+  }
+
+  if (spinner->thread_started) {
+    spinner->owns_win = 1;
+    return;
+  }
+
+  /* the thread never started, so nothing is left to draw into the window */
+  spinner->win = stdscr;
+  close_win (win);
 }
 
 int
@@ -656,24 +696,7 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
   char *cstm_log, *cstm_date, *cstm_time;
   int c, quit = 1, invalid = 1, y, x, h = CONF_WIN_H, w = CONF_WIN_W;
   int w2 = w - 2;
-  size_t i, n, sel;
-
-  static const char *const choices[] = {
-    "NCSA Combined Log Format",
-    "NCSA Combined Log Format with Virtual Host",
-    "Common Log Format (CLF)",
-    "Common Log Format (CLF) with Virtual Host",
-    "W3C",
-    "CloudFront standard logs (legacy)",
-    "Google Cloud Storage",
-    "AWS Elastic Load Balancing (HTTP/S)",
-    "Squid Native Format",
-    "AWS Simple Storage Service (S3)",
-    "CADDY JSON Structured",
-    "AWS Application Load Balancer",
-    "Traefik CLF flavor"
-  };
-  n = ARRAY_SIZE (choices);
+  size_t i, n = ARRAY_SIZE (conf_log_formats), sel = get_selected_format_idx ();
 
   getmaxyx (stdscr, y, x);
 
@@ -687,9 +710,8 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
 
   menu->items = (GItem *) xcalloc (n, sizeof (GItem));
   for (i = 0; i < n; ++i) {
-    menu->items[i].name = alloc_string (choices[i]);
-    sel = get_selected_format_idx ();
-    menu->items[i].checked = sel == i ? 1 : 0;
+    menu->items[i].name = alloc_string (conf_log_formats[i].label);
+    menu->items[i].checked = sel == (size_t) conf_log_formats[i].type ? 1 : 0;
   }
 
   post_gmenu (menu);
@@ -721,9 +743,9 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
       for (i = 0; i < n; ++i) {
         if (menu->items[i].checked != 1)
           continue;
-        date_format = get_selected_date_str (i);
-        log_format = get_selected_format_str (i);
-        time_format = get_selected_time_str (i);
+        date_format = get_selected_date_str (conf_log_formats[i].type);
+        log_format = get_selected_format_str (conf_log_formats[i].type);
+        time_format = get_selected_time_str (conf_log_formats[i].type);
         free (set_default_string (win, 12, 2, CONF_MENU_W, log_format));
         free (set_default_string (win, 15, 2, CONF_MENU_W, date_format));
         free (set_default_string (win, 18, 2, CONF_MENU_W, time_format));
@@ -830,10 +852,9 @@ render_confdlg (Logs *logs, GSpinner *spinner) {
   free (date_format);
   free (log_format);
 
-  for (i = 0; i < n; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
+
+  release_confdlg_win (spinner, win);
 
   return invalid ? 1 : 0;
 }
@@ -941,10 +962,7 @@ load_schemes_win (WINDOW *main_win) {
     wrefresh (win);
   }
 
-  for (i = 0; i < n; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
   free (choices);
 
   touchwin (main_win);
@@ -1048,10 +1066,7 @@ load_panels_win (WINDOW *main_win) {
     wrefresh (win);
   }
 
-  for (i = 0; i < n; ++i)
-    free (menu->items[i].name);
-  free (menu->items);
-  free (menu);
+  free_gmenu (menu);
 
   touchwin (main_win);
   close_win (win);

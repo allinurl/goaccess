@@ -187,6 +187,16 @@ end_spinner (void) {
   if (ret != 0)
     FATAL ("Unable to join spinner thread: %s", strerror (ret));
   spinner->thread_started = 0;
+
+  /* The config dialog hands over its window so the thread can draw progress
+   * inside the dialog box, so it can only be released once the thread is
+   * joined and no longer references it. */
+  if (!spinner->owns_win)
+    return;
+
+  close_win (spinner->win);
+  spinner->win = stdscr;
+  spinner->owns_win = 0;
 }
 
 /* Set background colors to all windows. */
