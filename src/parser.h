@@ -199,6 +199,7 @@ typedef struct GRawData_ {
   datatype type;
   int idx;                      /* first level index */
   int size;                     /* total num of items on ht */
+  int capacity;                 /* max items retained from the ht */
 } GRawData;
 
 

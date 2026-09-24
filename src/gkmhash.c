@@ -1641,30 +1641,34 @@ des_igkh (void *h) {
   kh_destroy (igkh, hash);
 }
 
-/* A wrapper to initialize a raw data structure.
+/* A wrapper to initialize a raw data structure that retains at most `limit`
+ * of a table's `ht_size` keys, or all of them given RAW_DATA_ALL.
  *
  * On success a GRawData structure is returned. */
 static GRawData *
-init_new_raw_data (GModule module, uint32_t ht_size) {
+init_new_raw_data (GModule module, datatype type, uint32_t ht_size, uint32_t limit) {
   GRawData *raw_data;
 
   raw_data = new_grawdata ();
   raw_data->idx = 0;
   raw_data->module = module;
+  raw_data->type = type;
   raw_data->size = ht_size;
-  raw_data->items = new_grawdata_item (ht_size);
+  raw_data->capacity = (limit == RAW_DATA_ALL || limit > ht_size) ? ht_size : limit;
+  raw_data->items = new_grawdata_item (raw_data->capacity);
 
   return raw_data;
 }
 
-/* Store the cache hits into raw_data.
+/* Store the top `limit` cache hits into raw_data.
  *
  * On error, NULL is returned.
  * On success the GRawData is returned */
 static GRawData *
-get_u32_raw_data (GModule module) {
+get_u32_raw_data (GModule module, uint32_t limit) {
   GKCacheModule *cache = get_cache_module (module);
   GRawData *raw_data;
+  GRawDataItem item = { 0 };
   uint32_t i, ht_size = 0;
 
   if (!cache || !cache->keymap)
@@ -1673,54 +1677,54 @@ get_u32_raw_data (GModule module) {
   for (i = 1; i <= cache->size; ++i)
     ht_size += cache->hits[i] > 0;
 
-  raw_data = init_new_raw_data (module, ht_size);
-  raw_data->type = U32;
+  raw_data = init_new_raw_data (module, U32, ht_size, limit);
 
   for (i = 1; i <= cache->size; ++i) {
     if (cache->hits[i] == 0)
       continue;
-    raw_data->items[raw_data->idx].nkey = i;
-    raw_data->items[raw_data->idx].hits = cache->hits[i];
-    raw_data->idx++;
+    item.nkey = i;
+    item.hits = cache->hits[i];
+    retain_raw_item (raw_data, item);
   }
 
   return raw_data;
 }
 
-/* Store the cache data strings into raw_data.
+/* Store the top `limit` cache data strings into raw_data.
  *
  * On error, NULL is returned.
  * On success the GRawData is returned */
 static GRawData *
-get_str_raw_data (GModule module) {
+get_str_raw_data (GModule module, uint32_t limit) {
   GKCacheModule *cache = get_cache_module (module);
   GRawData *raw_data;
+  GRawDataItem item = { 0 };
   uint32_t i;
 
   if (!cache || !cache->keymap)
     return NULL;
 
-  raw_data = init_new_raw_data (module, cache->datamap_size);
-  raw_data->type = STR;
+  raw_data = init_new_raw_data (module, STR, cache->datamap_size, limit);
 
   for (i = 1; i <= cache->size; ++i) {
     if (!cache->datamap[i])
       continue;
-    raw_data->items[raw_data->idx].nkey = i;
-    raw_data->items[raw_data->idx].data = cache->datamap[i];
-    raw_data->idx++;
+    item.nkey = i;
+    item.data = cache->datamap[i];
+    retain_raw_item (raw_data, item);
   }
 
   return raw_data;
 }
 
 /* Entry point to load the raw data from the data store into our
- * GRawData structure.
+ * GRawData structure, keeping only the top `limit` keys unless RAW_DATA_ALL
+ * is given.
  *
  * On error, NULL is returned.
  * On success the GRawData sorted is returned */
 GRawData *
-parse_raw_data (GModule module) {
+parse_raw_data (GModule module, uint32_t limit) {
   GRawData *raw_data = NULL;
 
 #ifdef _DEBUG
@@ -1732,12 +1736,12 @@ parse_raw_data (GModule module) {
 
   switch (module) {
   case VISITORS:
-    raw_data = get_str_raw_data (module);
+    raw_data = get_str_raw_data (module, limit);
     if (raw_data)
       sort_raw_str_data (raw_data, raw_data->idx);
     break;
   default:
-    raw_data = get_u32_raw_data (module);
+    raw_data = get_u32_raw_data (module, limit);
     if (raw_data)
       sort_raw_num_data (raw_data, raw_data->idx);
   }

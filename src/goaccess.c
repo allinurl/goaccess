@@ -474,8 +474,8 @@ allocate_holder_by_module (GModule module) {
   uint32_t max_choices = get_max_choices ();
   uint32_t max_choices_sub = get_max_choices_sub ();
 
-  /* extract data from the corresponding hash table */
-  raw_data = parse_raw_data (module);
+  /* extract only the top keys the module's holder consumes */
+  raw_data = parse_raw_data (module, get_holder_raw_limit (module, max_choices));
   if (!raw_data) {
     LOG_DEBUG (("raw data is NULL for module: %d.\n", module));
     return;
@@ -979,19 +979,15 @@ tail_term (void) {
   allocate_data ();
 }
 
+/* Serialize the holder and publish it as the latest report for every
+ * WebSocket client. */
 static void
-tail_html (void) {
+publish_report (void) {
   GRealtimeStats realtime = { 0 };
   char *json = NULL;
 
-  pthread_mutex_lock (&gdns_thread.mutex);
-  free_holder (&holder);
-  pthread_cond_broadcast (&gdns_thread.not_empty);
-  pthread_mutex_unlock (&gdns_thread.mutex);
-
-  allocate_holder ();
-
   realtime = get_realtime_stats ();
+  /* the overall summary reads storage the reverse DNS thread writes to */
   pthread_mutex_lock (&gdns_thread.mutex);
   json = get_json (holder, 1, &realtime);
   pthread_mutex_unlock (&gdns_thread.mutex);
@@ -999,30 +995,24 @@ tail_html (void) {
   if (json == NULL)
     return;
 
-  pthread_mutex_lock (&gwswriter->mutex);
-  broadcast_holder (gwswriter->fd, json, strlen (json));
-  pthread_mutex_unlock (&gwswriter->mutex);
-  free (json);
+  publish_snapshot (gwswriter, json);
 }
 
-/* Fast-forward latest JSON data when client connection is opened. */
+/* Rebuild the holder from storage and publish the refreshed report. */
+static void
+tail_html (void) {
+  /* Only this thread touches the holder: new WebSocket clients are served the
+   * last published snapshot, so none can observe a rebuild in progress. */
+  free_holder (&holder);
+  allocate_holder ();
+  publish_report ();
+}
+
+/* Fast-forward the latest published report when a client connection is
+ * opened. */
 static void
 fast_forward_client (int listener) {
-  GRealtimeStats realtime = { 0 };
-  char *json = NULL;
-
-  realtime = get_realtime_stats ();
-  pthread_mutex_lock (&gdns_thread.mutex);
-  json = get_json (holder, 1, &realtime);
-  pthread_mutex_unlock (&gdns_thread.mutex);
-
-  if (json == NULL)
-    return;
-
-  pthread_mutex_lock (&gwswriter->mutex);
-  send_holder_to_client (gwswriter->fd, listener, json, strlen (json));
-  pthread_mutex_unlock (&gwswriter->mutex);
-  free (json);
+  replay_snapshot (gwswriter, listener);
 }
 
 /* Read client data until the WebSocket server requests completion.
@@ -1278,6 +1268,9 @@ process_html (Logs *logs, const char *filename) {
   if (gwswriter->fd == -1)
     return;
 
+  /* seed the snapshot so clients connecting before the first live update
+   * receive the complete report */
+  publish_report ();
   set_ready_state ();
   tail_loop_html (logs);
 }

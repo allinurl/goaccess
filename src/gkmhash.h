@@ -32,6 +32,9 @@
 
 #include "gstorage.h"
 
+/* Raw data extraction limit that retains every key of a module's table */
+#define RAW_DATA_ALL 0
+
 typedef struct GKHashMetric_ GKHashMetric;
 
 /* Per-module cache backed by dense arrays indexed by cache key (ckey).
@@ -225,7 +228,7 @@ void des_igkh (void *h);
 void free_cache (GKCacheModule * cache);
 void init_storage (void);
 
-GRawData *parse_raw_data (GModule module);
+GRawData *parse_raw_data (GModule module, uint32_t limit);
 GSLList *ht_get_host_agent_list (GModule module, uint32_t key);
 GSLList *ht_get_keymap_list_from_key (GModule module, uint32_t key);
 /* *INDENT-ON* */

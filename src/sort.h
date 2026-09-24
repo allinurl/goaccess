@@ -75,6 +75,7 @@ extern const int sort_choices[][SORT_MAX_OPTS];
 
 GRawData *sort_raw_num_data (GRawData * raw_data, int ht_size);
 GRawData *sort_raw_str_data (GRawData * raw_data, int ht_size);
+void retain_raw_item (GRawData * raw_data, GRawDataItem item);
 const char *get_sort_field_key (GSortField field);
 const char *get_sort_field_str (GSortField field);
 const char *get_sort_order_str (GSortOrder order);

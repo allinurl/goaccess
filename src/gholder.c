@@ -1275,21 +1275,39 @@ add_tls_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
   free (root);
 }
 
+/* Check whether a panel groups multiple raw items under fewer root items.
+ *
+ * On success, non-zero is returned when the panel is hierarchical.
+ * On failure, 0 is returned. */
+static int
+is_hierarchical_panel (const GPanel *panel) {
+  return (panel->insert == add_root_to_holder ||
+          panel->insert == add_tls_to_holder || panel->insert == add_utm_to_holder ||
+#ifdef HAVE_GEOLOCATION
+          panel->insert == add_geo_to_holder ||
+#endif
+          0);
+}
+
+/* Get the number of top raw keys a module's holder consumes.
+ *
+ * On success, max_choices is returned for flat panels, which only render
+ * their top keys, or RAW_DATA_ALL for hierarchical panels, which aggregate
+ * every key into their root items. */
+uint32_t
+get_holder_raw_limit (GModule module, uint32_t max_choices) {
+  return is_hierarchical_panel (panel_lookup (module)) ? RAW_DATA_ALL : max_choices;
+}
+
 /* Load raw data into our holder structure */
 void
 load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, uint32_t max_choices,
                   uint32_t max_choices_sub) {
   uint32_t i;
-  uint32_t size = 0;
+  uint32_t size = 0, retained = 0;
   uint32_t alloc_size = 0;
   const GPanel *panel = panel_lookup (module);
-  /* Hierarchical panels group multiple raw items under fewer root items */
-  int is_hierarchical = (panel->insert == add_root_to_holder ||
-                         panel->insert == add_tls_to_holder || panel->insert == add_utm_to_holder ||
-#ifdef HAVE_GEOLOCATION
-                         panel->insert == add_geo_to_holder ||
-#endif
-                         0);
+  int is_hierarchical = is_hierarchical_panel (panel);
 
 #ifdef _DEBUG
   clock_t begin = clock ();
@@ -1299,10 +1317,13 @@ load_holder_data (GRawData *raw_data, GHolder *h, GModule module, GSort sort, ui
 #endif
 
   size = raw_data->size;
+  retained = raw_data->idx;
   /* For hierarchical data, we don't know how many root items we'll create,
    * but it can't be more than size or max_choices */
   alloc_size = size > max_choices ? max_choices : size;
-  h->holder_size = is_hierarchical ? size : (size > max_choices ? max_choices : size);
+  /* iterate the retained items only; the extraction may be bounded to the
+   * top keys while size still counts every key in the table */
+  h->holder_size = is_hierarchical ? retained : (retained > max_choices ? max_choices : retained);
   h->ht_size = size;
   h->idx = 0;
   h->module = module;

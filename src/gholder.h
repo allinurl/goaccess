@@ -47,6 +47,7 @@ typedef enum GAnonymizeLevels_ {
 
 /* Function Prototypes */
 GHolder *new_gholder (uint32_t size);
+uint32_t get_holder_raw_limit (GModule module, uint32_t max_choices);
 void *add_hostname_node (void *ptr_holder);
 void free_holder_by_module (GHolder ** holder, GModule module);
 void free_holder (GHolder ** holder);

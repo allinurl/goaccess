@@ -197,7 +197,8 @@ cmp_vis_asc (const void *a, const void *b) {
   return (va > vb) - (va < vb);
 }
 
-/* Sort GRawDataItem value descending */
+/* Sort GRawDataItem value descending. Ties keep the earlier key first so the
+ * top items retained from a table are deterministic. */
 static int
 cmp_raw_num_desc (const void *a, const void *b) {
   const GRawDataItem *ia = a;
@@ -206,7 +207,9 @@ cmp_raw_num_desc (const void *a, const void *b) {
   uint64_t va = ia->hits;
   uint64_t vb = ib->hits;
 
-  return (va < vb) - (va > vb);
+  if (va != vb)
+    return (va < vb) - (va > vb);
+  return (ia->nkey > ib->nkey) - (ia->nkey < ib->nkey);
 }
 
 /* Sort GRawDataItem value descending */
@@ -562,4 +565,68 @@ GRawData *
 sort_raw_str_data (GRawData *raw_data, int ht_size) {
   qsort (raw_data->items, ht_size, sizeof *(raw_data->items), cmp_raw_str_desc);
   return raw_data;
+}
+
+/* Move a retained raw item up the heap until its parent ranks no higher,
+ * keeping the lowest-ranked retained item at the root. */
+static void
+sift_up_raw_item (GRawDataItem *items, int slot, int (*cmp) (const void *, const void *)) {
+  GRawDataItem item = items[slot];
+  int parent = 0;
+
+  while (slot > 0) {
+    parent = (slot - 1) / 2;
+    if (cmp (&items[parent], &item) >= 0)
+      break;
+
+    items[slot] = items[parent];
+    slot = parent;
+  }
+  items[slot] = item;
+}
+
+/* Move the root raw item down the heap until both of its children rank
+ * higher than it. */
+static void
+sift_down_raw_item (GRawDataItem *items, int size, int (*cmp) (const void *, const void *)) {
+  GRawDataItem item = items[0];
+  int slot = 0, child = 0;
+
+  while ((child = 2 * slot + 1) < size) {
+    /* descend towards the lower-ranked child */
+    if (child + 1 < size && cmp (&items[child + 1], &items[child]) > 0)
+      child++;
+    if (cmp (&item, &items[child]) >= 0)
+      break;
+
+    items[slot] = items[child];
+    slot = child;
+  }
+  items[slot] = item;
+}
+
+/* Add a raw item to an extraction. Once a bounded extraction is full, the
+ * item replaces the lowest-ranked retained item only if it ranks higher, so
+ * memory stays proportional to the capacity rather than to the table size. */
+void
+retain_raw_item (GRawData *raw_data, GRawDataItem item) {
+  int (*cmp) (const void *, const void *) =
+    raw_data->type == STR ? cmp_raw_str_desc : cmp_raw_num_desc;
+  GRawDataItem *items = raw_data->items;
+
+  if (raw_data->idx < raw_data->capacity) {
+    items[raw_data->idx] = item;
+    /* an unbounded extraction is fully sorted afterwards; only a bounded one
+     * needs heap order to locate its lowest-ranked item */
+    if (raw_data->capacity < raw_data->size)
+      sift_up_raw_item (items, raw_data->idx, cmp);
+    raw_data->idx++;
+    return;
+  }
+
+  if (cmp (&item, &items[0]) >= 0)
+    return;
+
+  items[0] = item;
+  sift_down_raw_item (items, raw_data->idx, cmp);
 }

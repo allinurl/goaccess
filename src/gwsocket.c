@@ -112,7 +112,7 @@ clear_fifo_packet (GWSReader *gwserver) {
  * pipe.
  *
  * On success, 0 is returned . */
-int
+static int
 broadcast_holder (int fd, const char *buf, int len) {
   char *p = NULL, *ptr = NULL;
 
@@ -134,7 +134,7 @@ broadcast_holder (int fd, const char *buf, int len) {
  * pipe.
  *
  * On success, 0 is returned . */
-int
+static int
 send_holder_to_client (int fd, int listener, const char *buf, int len) {
   char *p = NULL, *ptr = NULL;
 
@@ -150,6 +150,30 @@ send_holder_to_client (int fd, int listener, const char *buf, int len) {
   free (p);
 
   return 0;
+}
+
+/* Retain a complete report as the latest snapshot and broadcast it to every
+ * connected client. The writer takes ownership of the given JSON buffer. */
+void
+publish_snapshot (GWSWriter *gwswriter, char *json) {
+  pthread_mutex_lock (&gwswriter->mutex);
+  free (gwswriter->snapshot);
+  gwswriter->snapshot = json;
+  gwswriter->snapshot_len = strlen (json);
+  broadcast_holder (gwswriter->fd, gwswriter->snapshot, gwswriter->snapshot_len);
+  pthread_mutex_unlock (&gwswriter->mutex);
+}
+
+/* Send the latest published report to a newly connected client. */
+void
+replay_snapshot (GWSWriter *gwswriter, int listener) {
+  pthread_mutex_lock (&gwswriter->mutex);
+  /* clients connecting before the first report is published receive it
+   * through the initial broadcast instead */
+  if (gwswriter->snapshot != NULL)
+    send_holder_to_client (gwswriter->fd, listener, gwswriter->snapshot,
+                           gwswriter->snapshot_len);
+  pthread_mutex_unlock (&gwswriter->mutex);
 }
 
 /* Attempt to read data from the named pipe on strict mode.
@@ -412,6 +436,10 @@ stop_ws_server (GWSWriter *gwswriter, GWSReader *gwsreader) {
     close (gwswriter->fd);
     gwswriter->fd = -1;
   }
+
+  free (gwswriter->snapshot);
+  gwswriter->snapshot = NULL;
+  gwswriter->snapshot_len = 0;
 }
 
 /* Run the WebSocket server until the controlling thread requests completion.
