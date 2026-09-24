@@ -171,8 +171,7 @@ replay_snapshot (GWSWriter *gwswriter, int listener) {
   /* clients connecting before the first report is published receive it
    * through the initial broadcast instead */
   if (gwswriter->snapshot != NULL)
-    send_holder_to_client (gwswriter->fd, listener, gwswriter->snapshot,
-                           gwswriter->snapshot_len);
+    send_holder_to_client (gwswriter->fd, listener, gwswriter->snapshot, gwswriter->snapshot_len);
   pthread_mutex_unlock (&gwswriter->mutex);
 }
 

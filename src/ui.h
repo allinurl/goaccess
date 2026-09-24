@@ -202,7 +202,7 @@ typedef struct GSpinner_ {
   char **filename;
   time_t start_time;
   WINDOW *win;
-  int owns_win; /* set when the window must be deleted once the thread stops */
+  int owns_win;                 /* set when the window must be deleted once the thread stops */
   enum {
     SPN_RUN,
     SPN_END
