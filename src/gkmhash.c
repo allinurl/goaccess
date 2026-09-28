@@ -94,6 +94,30 @@ const size_t module_metrics_len = ARRAY_SIZE (module_metrics);
 const size_t global_metrics_len = ARRAY_SIZE (global_metrics);
 /* *INDENT-ON* */
 
+/* Given a module, get its cache
+ *
+ * On error, NULL is returned.
+ * On success, a pointer to the module cache is returned. */
+static GKCacheModule *
+get_cache_module (GModule module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+
+  if (!db || !db->cache)
+    return NULL;
+  return &db->cache[module];
+}
+
+/* Check whether storage was initialized for a module, even if its panel is hidden.
+ *
+ * On success, non-zero is returned for initialized storage.
+ * On failure, 0 is returned for a module that was not loaded. */
+int
+ht_module_is_initialized (GModule module) {
+  GKCacheModule *cache = get_cache_module (module);
+
+  return cache && cache->keymap;
+}
+
 /* Allocate memory for a new store container GKHashStorage instance.
  *
  * On success, the newly allocated GKHashStorage is returned . */
@@ -159,11 +183,11 @@ static GKHashModule *
 init_gkhashmodule (void) {
   GKHashModule *storage = NULL;
   GModule module;
-  size_t idx = 0;
 
   storage = new_gkhmodule (TOTAL_MODULES);
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    if (!ht_module_is_initialized (module))
+      continue;
 
     storage[module].module = module;
     init_tables (module, storage);
@@ -208,11 +232,11 @@ free_module_metrics (GKHashModule *mhash, GModule module, uint8_t free_data) {
 static void
 free_stores (GKHashStorage *store) {
   GModule module;
-  size_t idx = 0;
 
   free_global_metrics (store->ghash);
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    if (!store->mhash[module].metrics[MTRC_KEYMAP].hash)
+      continue;
     free_module_metrics (store->mhash, module, 1);
   }
 
@@ -318,19 +342,6 @@ get_hash (int module, uint64_t key, GSMetric metric) {
   if ((store = get_store (hash, key)) == NULL)
     return NULL;
   return get_hash_from_store (store, module, metric);
-}
-
-/* Given a module, get its cache
- *
- * On error, NULL is returned.
- * On success, a pointer to the module cache is returned. */
-static GKCacheModule *
-get_cache_module (GModule module) {
-  GKDB *db = get_db_instance (DB_INSTANCE);
-
-  if (!db || !db->cache)
-    return NULL;
-  return &db->cache[module];
 }
 
 /* Reallocate a cache metric array to the new capacity and zero the newly
@@ -490,13 +501,11 @@ void
 free_cache (GKCacheModule *cache) {
   GKCacheModule *c = NULL;
   GModule module;
-  size_t idx = 0;
 
   if (!cache)
     return;
 
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
+  for (module = 0; module < TOTAL_MODULES; ++module) {
     c = &cache[module];
 
     des_ii32 (c->keymap, 0);

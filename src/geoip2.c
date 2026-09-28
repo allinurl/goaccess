@@ -41,6 +41,7 @@
 #endif
 
 #include "geoip1.h"
+#include "geolocation.h"
 
 #include "error.h"
 #include "labels.h"
@@ -67,6 +68,7 @@ is_geoip_resource (void) {
 void
 geoip_free (void) {
   int idx = 0;
+
   if (!is_geoip_resource ())
     return;
 
@@ -74,8 +76,12 @@ geoip_free (void) {
     MMDB_close (&mmdbs[idx]);
   free (mmdbs);
   mmdbs = NULL;
+  mmdb_cnt = 0;
+  geoip_asn_type = geoip_city_type = geoip_country_type = 0;
+  conf.has_geoasn = conf.has_geocity = conf.has_geocountry = 0;
 }
 
+/* Open a GeoIP database and record its supported lookup types. */
 static void
 set_geoip (const char *db) {
   int status = 0;
@@ -182,30 +188,6 @@ geoip_lookup (MMDB_lookup_result_s *res, const char *ip, int is_asn) {
   return 0;
 }
 
-/* Get continent name concatenated with code.
- *
- * If continent not found, "Unknown" is returned.
- * On success, the continent code & name is returned . */
-static const char *
-get_continent_name_and_code (const char *continentid) {
-  if (memcmp (continentid, "NA", 2) == 0)
-    return "NA North America";
-  else if (memcmp (continentid, "OC", 2) == 0)
-    return "OC Oceania";
-  else if (memcmp (continentid, "EU", 2) == 0)
-    return "EU Europe";
-  else if (memcmp (continentid, "SA", 2) == 0)
-    return "SA South America";
-  else if (memcmp (continentid, "AF", 2) == 0)
-    return "AF Africa";
-  else if (memcmp (continentid, "AN", 2) == 0)
-    return "AN Antarctica";
-  else if (memcmp (continentid, "AS", 2) == 0)
-    return "AS Asia";
-  else
-    return "-- Unknown";
-}
-
 /* Compose a string with the country name and code and store it in the
  * given buffer. */
 static void
@@ -245,7 +227,7 @@ geoip_set_city (const char *city, char *loc) {
 static void
 geoip_set_continent (const char *continent, char *loc) {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s", geo_continent_name (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }
@@ -275,33 +257,27 @@ get_value (MMDB_lookup_result_s res, ...) {
   if (entry_data.type != MMDB_DATA_TYPE_UTF8_STRING)
     FATAL ("Invalid data UTF8 GeoIP2 data %d:\n", entry_data.type);
 
+  if (!entry_data.data_size)
+    return NULL;
+
   if ((value = strndup (entry_data.utf8_string, entry_data.data_size)) == NULL)
     FATAL ("Unable to allocate buffer %s: ", strerror (errno));
 
   return value;
 }
 
-/* A wrapper to fetch the looked up result and set the city and region.
- *
- * If no data is found, NULL is set.
- * On success, the fetched value is set. */
+/* Resolve a city name, falling back to English and then the unknown label. */
 static void
 geoip_query_city (MMDB_lookup_result_s res, char *location) {
-  char *city = NULL, *region = NULL;
+  char *city = NULL;
 
   if (res.found_entry) {
     city = get_value (res, "city", "names", DOC_LANG, NULL);
-    region = get_value (res, "subdivisions", "0", "names", DOC_LANG, NULL);
-    if (!city) {
+    if (!city)
       city = get_value (res, "city", "names", "en", NULL);
-    }
-    if (!region) {
-      region = get_value (res, "subdivisions", "0", "names", "en", NULL);
-    }
   }
   geoip_set_city (city, location);
   free (city);
-  free (region);
 }
 
 /* A wrapper to fetch the looked up result and set the country and code.

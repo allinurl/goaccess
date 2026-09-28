@@ -433,11 +433,12 @@ verify_panels (void) {
   }
 #ifdef HAVE_GEOLOCATION
 #ifdef HAVE_LIBMAXMINDDB
-  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
+  /* Restores defer GEO/ASN visibility until their retained rows are loaded. */
+  if (!conf.geoip_db_idx && !conf.restore && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("GEO_LOCATION", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (GEO_LOCATION);
   }
-  if (!conf.geoip_db_idx && ignore_panel_idx < TOTAL_MODULES) {
+  if (!conf.geoip_db_idx && !conf.restore && ignore_panel_idx < TOTAL_MODULES) {
     if (str_inarray ("ASN", conf.ignore_panels, ignore_panel_idx) < 0)
       remove_module (ASN);
   }

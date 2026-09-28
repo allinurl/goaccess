@@ -38,6 +38,7 @@
 #endif
 
 #include "geoip1.h"
+#include "geolocation.h"
 
 #include "error.h"
 #include "util.h"
@@ -216,30 +217,6 @@ ip4to6 (const char *ipv4) {
   return NULL;
 }
 
-/* Get continent name concatenated with code.
- *
- * If continent not found, "Unknown" is returned.
- * On success, the continent code & name is returned . */
-static const char *
-get_continent_name_and_code (const char *continentid) {
-  if (memcmp (continentid, "NA", 2) == 0)
-    return "NA North America";
-  else if (memcmp (continentid, "OC", 2) == 0)
-    return "OC Oceania";
-  else if (memcmp (continentid, "EU", 2) == 0)
-    return "EU Europe";
-  else if (memcmp (continentid, "SA", 2) == 0)
-    return "SA South America";
-  else if (memcmp (continentid, "AF", 2) == 0)
-    return "AF Africa";
-  else if (memcmp (continentid, "AN", 2) == 0)
-    return "AN Antarctica";
-  else if (memcmp (continentid, "AS", 2) == 0)
-    return "AS Asia";
-  else
-    return "-- Unknown";
-}
-
 /* Compose a string with the country name and code and store it in the
  * given buffer. */
 static void
@@ -262,7 +239,7 @@ geoip_set_city (const char *city, const char *region, char *loc) {
 static void
 geoip_set_continent (const char *continent, char *loc) {
   if (continent)
-    snprintf (loc, CONTINENT_LEN, "%s", get_continent_name_and_code (continent));
+    snprintf (loc, CONTINENT_LEN, "%s", geo_continent_name (continent));
   else
     snprintf (loc, CONTINENT_LEN, "%s", "Unknown");
 }

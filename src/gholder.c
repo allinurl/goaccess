@@ -48,6 +48,7 @@
 
 #ifdef HAVE_GEOLOCATION
 #include "geoip1.h"
+#include "geolocation.h"
 #endif
 
 typedef struct GPanel_ {
@@ -989,102 +990,101 @@ add_utm_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const
 }
 
 #ifdef HAVE_GEOLOCATION
-/* Build 3-level GEO_LOCATION hierarchy: Continent > Country > City.
- * Falls back to add_root_to_holder (2-level) when has_geocity is false. */
+/* Find or create a continent in the geolocation holder.
+ *
+ * On success, the continent item is returned.
+ * On failure, NULL is returned when the root limit is reached. */
+static GHolderItem *
+get_geo_continent_item (GHolder *h, const char *continent) {
+  GHolderItem *item = NULL;
+  int idx = get_item_idx_in_holder (h, continent);
+
+  if (idx != KEY_NOT_FOUND)
+    return &h->items[idx];
+  if (h->idx >= h->max_choices)
+    return NULL;
+
+  item = &h->items[h->idx++];
+  item->metrics = new_gmetrics ();
+  item->metrics->data = xstrdup (continent);
+  item->sub_list = new_gsublist ();
+
+  return item;
+}
+
+/* Find or create a country beneath its continent.
+ *
+ * On success, the country item is returned.
+ * On failure, NULL is returned when the country limit is reached. */
+static GSubItem *
+get_geo_country_item (GHolder *h, GSubList *countries, const char *country) {
+  GSubItem *item = find_sub_item_by_data (countries, country);
+  GMetrics *metrics = NULL;
+
+  if (item)
+    return item;
+  if (countries->size >= h->max_choices_sub)
+    return NULL;
+
+  metrics = new_gmetrics ();
+  metrics->data = xstrdup (country);
+  add_sub_item_back (countries, h->module, metrics);
+  h->sub_items_size++;
+
+  return countries->tail;
+}
+
+/* Build the recorded hierarchy, including mixed country and city rows. */
 static void
 add_geo_to_holder (GRawDataItem item, GHolder *h, datatype type, GO_UNUSED const GPanel *panel) {
-  GMetrics *nmetrics;
-  GSubList *sub_list;
-  GSubItem *country_sub;
-  GMetrics *cont_metrics, *country_metrics;
-  char *root = NULL;
-  const char *continent = NULL;
-  int root_idx = KEY_NOT_FOUND, idx = 0;
+  GMetrics *metrics = NULL;
+  GHolderItem *continent_item = NULL;
+  GSubItem *country_item = NULL;
+  char *root = NULL, *display = NULL;
+  const char *city = NULL, *country = NULL, *continent = NULL;
 
-  if (!conf.has_geocity) {
-    add_root_to_holder (item, h, type, panel);
+  if (set_root_metrics (item, h->module, type, &metrics) == 1)
     return;
-  }
-
-  /* city metrics from storage (city is the "data" key) */
-  if (set_root_metrics (item, h->module, type, &nmetrics) == 1)
-    return;
-
-  /* country is the "root" of the city in storage */
   if (!(root = ht_get_root (h->module, item.nkey))) {
-    free_gmetrics (nmetrics);
+    free_gmetrics (metrics);
     return;
   }
 
-  /* look up the continent for this country */
-  continent = get_continent_for_country (root);
-  if (continent == NULL) {
-    /* fallback: use country as root directly (2-level) */
-    free (root);
-    add_root_to_holder (item, h, type, panel);
-    free_gmetrics (nmetrics);
-    return;
-  }
+  /* The stored identity, rather than the current MMDB, determines the level. */
+  city = geo_city_name (metrics->data, root);
+  country = city ? root : metrics->data;
+  continent = city ? get_continent_for_country (country) : root;
+  if (!continent)
+    continent = GEO_UNKNOWN;
 
-  /* Find or create continent as root GHolderItem */
-  if (KEY_NOT_FOUND == (root_idx = get_item_idx_in_holder (h, continent))) {
-    /* Check if we've reached max_choices for root items (continents) */
-    if (h->idx >= h->max_choices) {
-      free (root);
-      free_gmetrics (nmetrics);
-      return;
-    }
-    idx = h->idx;
-    cont_metrics = new_gmetrics ();
-    cont_metrics->data = xstrdup (continent);
-    h->items[idx].metrics = cont_metrics;
-    h->items[idx].sub_list = new_gsublist ();
-    h->idx++;
-  } else {
-    idx = root_idx;
-    cont_metrics = h->items[idx].metrics;
-  }
+  continent_item = get_geo_continent_item (h, continent);
+  if (!continent_item)
+    goto clean;
+  accumulate_holder_metrics (continent_item->metrics, metrics);
 
-  /* Find or create country as sub-item under continent */
-  sub_list = h->items[idx].sub_list;
-  country_sub = find_sub_item_by_data (sub_list, root);
-  if (country_sub == NULL) {
-    /* Only add country if continent's sub-list hasn't reached max_choices_sub */
-    if (sub_list->size < h->max_choices_sub) {
-      country_metrics = new_gmetrics ();
-      country_metrics->data = xstrdup (root);
-      add_sub_item_back (sub_list, h->module, country_metrics);
-      country_sub = sub_list->tail;
-      country_sub->sub_list = new_gsublist ();
-      h->sub_items_size++;
-    } else {
-      /* Continent sub-list is full, accumulate to continent and skip country/city */
-      accumulate_holder_metrics (cont_metrics, nmetrics);
-      free_gmetrics (nmetrics);
-      free (root);
-      return;
-    }
-  } else {
-    country_metrics = country_sub->metrics;
-    /* Handle mixed 2-level (persisted) and 3-level (live) data:
-     * older entries won't have a city sub-list. */
-    if (country_sub->sub_list == NULL)
-      country_sub->sub_list = new_gsublist ();
-  }
+  country_item = get_geo_country_item (h, continent_item->sub_list, country);
+  if (!country_item)
+    goto clean;
+  accumulate_holder_metrics (country_item->metrics, metrics);
 
-  /* Accumulate metrics upward: city -> country -> continent */
-  accumulate_holder_metrics (country_metrics, nmetrics);
-  accumulate_holder_metrics (cont_metrics, nmetrics);
+  if (!city)
+    goto clean;
+  if (!country_item->sub_list)
+    country_item->sub_list = new_gsublist ();
+  if (country_item->sub_list->size >= h->max_choices_sub)
+    goto clean;
 
-  /* Add city as sub-item under country (only if country's sub-list hasn't reached max_choices_sub) */
-  if (country_sub->sub_list->size < h->max_choices_sub) {
-    add_sub_item_back (country_sub->sub_list, h->module, nmetrics);
-    h->sub_items_size++;
-  } else {
-    free_gmetrics (nmetrics);
-  }
+  display = xstrdup (city);
+  free (metrics->data);
+  metrics->data = display;
+  add_sub_item_back (country_item->sub_list, h->module, metrics);
+  h->sub_items_size++;
+  metrics = NULL;
 
+clean:
   free (root);
+  if (metrics)
+    free_gmetrics (metrics);
 }
 #endif
 

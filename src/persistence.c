@@ -44,9 +44,15 @@
 #include "util.h"
 #include "xmalloc.h"
 
+#ifdef HAVE_GEOLOCATION
+#include "geolocation.h"
+#endif
+
 #define DB_PROP_APPEND_METHOD   "append_method"
 #define DB_PROP_APPEND_PROTOCOL "append_protocol"
 #define DB_PROP_VERSION         "version"
+/* Separate from the container format: this records geolocation key semantics. */
+#define DB_PROP_GEO_KEY_VERSION "geo_key_version"
 
 typedef enum {
   PERSISTED_SETTING_DISABLED,
@@ -268,6 +274,27 @@ persist_request_grouping (khash_t (si32) *db_props, const char *key, uint32_t va
 
   set_db_prop (db_props, key, value);
 }
+
+#ifdef HAVE_GEOLOCATION
+/* Filter legacy geolocation only when its identity format was not recorded. */
+static void
+restore_geo_key_format (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) *db_props = get_hdb (db, MTRC_DB_PROPS);
+  uint32_t version = 0;
+
+  if (!ht_module_is_initialized (GEO_LOCATION))
+    return;
+
+  if (get_db_prop (db_props, DB_PROP_GEO_KEY_VERSION, &version)) {
+    if (version != GEO_KEY_VERSION)
+      FATAL ("Unsupported persisted geolocation key version: %u.", version);
+    return;
+  }
+
+  discard_legacy_geo_cities ();
+}
+#endif
 
 /* Given a database filename, restore a string key, uint32_t value back to the
  * storage */
@@ -2262,6 +2289,11 @@ persist_db_props (void) {
   persist_request_grouping (db_props, DB_PROP_APPEND_METHOD, conf.append_method);
   persist_request_grouping (db_props, DB_PROP_APPEND_PROTOCOL, conf.append_protocol);
   set_db_prop (db_props, DB_PROP_VERSION, DB_VERSION);
+#ifdef HAVE_GEOLOCATION
+  /* Do not bless older GEO files when that module was ignored and never loaded. */
+  if (ht_module_is_initialized (GEO_LOCATION))
+    set_db_prop (db_props, DB_PROP_GEO_KEY_VERSION, GEO_KEY_VERSION);
+#endif
 
   if ((path = set_db_path ("SI32_DB_PROPS.db"))) {
     persist_global_si32 (db_props, path);
@@ -2273,7 +2305,6 @@ void
 persist_data (void) {
   GModule module;
   int i, n = 0;
-  size_t idx = 0;
 
   persist_error = 0;
   persist_global ();
@@ -2283,8 +2314,11 @@ persist_data (void) {
     persist_by_type (global_metrics[i], global_metrics[i].filename, -1);
 
   n = module_metrics_len;
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
+  /* Hidden empty panels still own storage that must be written to retire
+   * discarded legacy rows, including when new dates were parsed. */
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    if (!ht_module_is_initialized (module))
+      continue;
     for (i = 0; i < n; ++i) {
       persist_metric_type (module, module_metrics[i]);
     }
@@ -2325,6 +2359,10 @@ restore_data (void) {
     }
   }
 
+#ifdef HAVE_GEOLOCATION
+  restore_geo_key_format ();
+#endif
+
   if (migrated) {
     /* persist the migrated data in the current format before removing the
      * legacy files, so an interrupted or failed migration simply runs
@@ -2335,6 +2373,7 @@ restore_data (void) {
     if (!conf.persist)
       conf.persist = 1;
   }
+
 }
 
 void

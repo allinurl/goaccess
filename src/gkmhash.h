@@ -194,6 +194,7 @@ uint64_t ht_get_maxts (GModule module, uint32_t key);
 uint64_t ht_get_meta_data (GModule module, const char *key);
 uint64_t ht_sum_bw (void);
 void *get_hash (int module, uint64_t key, GSMetric metric);
+int ht_module_is_initialized (GModule module);
 void ht_get_bw_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_cumts_min_max (GModule module, uint64_t * min, uint64_t * max);
 void ht_get_hits_min_max (GModule module, uint32_t * min, uint32_t * max);

@@ -249,12 +249,16 @@ endif
 
 if GEOIP_LEGACY
 goaccess_SOURCES +=  \
+  src/geolocation.c \
+  src/geolocation.h \
   src/geoip1.c       \
   src/geoip1.h
 endif
 
 if GEOIP_MMDB
 goaccess_SOURCES +=  \
+   src/geolocation.c \
+   src/geolocation.h \
    src/geoip2.c      \
    src/geoip1.h
 endif

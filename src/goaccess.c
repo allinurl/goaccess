@@ -62,6 +62,7 @@
 
 #ifdef HAVE_GEOLOCATION
 #include "geoip1.h"
+#include "geolocation.h"
 #endif
 
 #include "browsers.h"
@@ -2047,6 +2048,12 @@ main (int argc, char **argv) {
   if (conf.stop_processing)
     goto clean;
   logs->offset = *logs->processed;
+
+#ifdef HAVE_GEOLOCATION
+  /* Appending logs may expire the last stored GEO/ASN rows under --keep-last. */
+  if (conf.restore)
+    verify_restored_geo_panels ();
+#endif
 
   parse_initial_sort ();
   allocate_holder ();

@@ -127,6 +127,7 @@ typedef struct GKHashMetric_ {
  * root value, i.e., Windows, and a unique key which is the combination of
  * date, IP and user agent */
 typedef struct GKeyData_ {
+  char *data_buffer;          /* caller-owned scratch space for a storage identity */
   const void *data;
   uint32_t dhash;
   uint32_t data_nkey;

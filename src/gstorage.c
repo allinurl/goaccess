@@ -39,6 +39,7 @@
 
 #ifdef HAVE_GEOLOCATION
 #include "geoip1.h"
+#include "geolocation.h"
 #endif
 
 #include "browsers.h"
@@ -503,6 +504,7 @@ static const GParse paneling[] = {
 static void
 new_modulekey (GKeyData *kdata) {
   GKeyData key = {
+    .data_buffer = NULL,
     .data = NULL,
     .data_nkey = 0,
     .root = NULL,
@@ -1505,10 +1507,11 @@ gen_geolocation_key (GKeyData *kdata, GLogItem *logitem) {
   if (logitem->country && logitem->continent)
     set_country_continent (logitem->country, logitem->continent);
 
-  /* If city is available, use city as data and country as root (3-level).
-   * Otherwise, use country as data and continent as root (2-level). */
+  /* City identities retain their country so shared labels cannot move traffic
+   * between parents. The identity also records the hierarchy for restoration. */
   if (conf.has_geocity && logitem->city && logitem->country) {
-    get_kdata (kdata, logitem->city, logitem->city);
+    geo_city_key (kdata->data_buffer, logitem->country, logitem->city);
+    get_kdata (kdata, kdata->data_buffer, kdata->data_buffer);
     get_kroot (kdata, logitem->country, logitem->country);
   } else if (logitem->country) {
     get_kdata (kdata, logitem->country, logitem->country);
@@ -1685,8 +1688,14 @@ set_datamap (GLogItem *logitem, GKeyData *kdata, const GParse *parse) {
 static void
 map_log (GLogItem *logitem, const GParse *parse, GModule module) {
   GKeyData kdata;
+#ifdef HAVE_GEOLOCATION
+  char city_key[GEO_CITY_KEY_LEN];
+#endif
 
   new_modulekey (&kdata);
+#ifdef HAVE_GEOLOCATION
+  kdata.data_buffer = city_key;
+#endif
   /* set key data into out structure */
   if (parse->key_data (&kdata, logitem) == 1)
     return;
