@@ -280,7 +280,7 @@ persist_request_grouping (khash_t (si32) *db_props, const char *key, uint32_t va
 static void
 restore_geo_key_format (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
-  khash_t (si32) *db_props = get_hdb (db, MTRC_DB_PROPS);
+  khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   uint32_t version = 0;
 
   if (!ht_module_is_initialized (GEO_LOCATION))

@@ -45,20 +45,20 @@ static const struct {
   const char *code;
   const char *label;
 } geo_continents[] = {
-  { "AF", "AF Africa" },
-  { "AN", "AN Antarctica" },
-  { "AS", "AS Asia" },
-  { "EU", "EU Europe" },
-  { "NA", "NA North America" },
-  { "OC", "OC Oceania" },
-  { "SA", "SA South America" },
+  {"AF", "AF Africa"},
+  {"AN", "AN Antarctica"},
+  {"AS", "AS Asia"},
+  {"EU", "EU Europe"},
+  {"NA", "NA North America"},
+  {"OC", "OC Oceania"},
+  {"SA", "SA South America"},
 };
 
 /* Restore filtering runs before the raw-data cache borrows these strings. */
 typedef struct GGeoRestore_ {
-  khash_t (is32) *data, *roots;
-  khash_t (ii32) *keys;
-  khash_t (imtv) *metrics;
+  khash_t (is32) * data, *roots;
+  khash_t (ii32) * keys;
+  khash_t (imtv) * metrics;
 } GGeoRestore;
 
 /* Resolve a continent code to its canonical display label.
@@ -80,7 +80,9 @@ geo_continent_name (const char *code) {
 /* Write a country-qualified city identity into caller-owned scratch space. */
 void
 geo_city_key (char key[GEO_CITY_KEY_LEN], const char *country, const char *city) {
-  int len = snprintf (key, GEO_CITY_KEY_LEN, GEO_CITY_KEY_PREFIX "%zu:%s%s", strlen (country), country, city);
+  int len =
+    snprintf (key, GEO_CITY_KEY_LEN, GEO_CITY_KEY_PREFIX "%zu:%s%s", strlen (country), country,
+              city);
 
   if (len < 0 || (size_t) len >= GEO_CITY_KEY_LEN)
     FATAL ("Geolocation identity exceeds its storage buffer.");
@@ -145,7 +147,7 @@ prune_geo_keys (GGeoRestore *store) {
 /* Recompute geolocation metadata after discarding legacy city aggregates. */
 static void
 rebuild_geo_metadata (uint32_t date, GGeoRestore *store) {
-  khash_t (su64) *metadata = get_hash (GEO_LOCATION, date, MTRC_METADATA);
+  khash_t (su64) * metadata = get_hash (GEO_LOCATION, date, MTRC_METADATA);
   GKMetricVals *metrics = NULL;
   khint_t k = 0, km = 0;
 
@@ -217,7 +219,7 @@ discard_geo_date (uint32_t date) {
 void
 discard_legacy_geo_cities (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
-  khash_t (igkh) *dates = get_hdb (db, MTRC_DATES);
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
   khint_t k = 0;
   int discarded = 0;
 
@@ -230,7 +232,8 @@ discard_legacy_geo_cities (void) {
   }
 
   if (discarded)
-    fprintf (stderr, "Warning: Skipped legacy GEO city rows that may contain traffic merged across countries. "
+    fprintf (stderr,
+             "Warning: Skipped legacy GEO city rows that may contain traffic merged across countries. "
              "Other report history is preserved. Reprocess the original logs in an empty --db-path "
              "for complete geolocation history.\n");
 }
@@ -242,8 +245,8 @@ discard_legacy_geo_cities (void) {
 static int
 has_geo_rows (GModule module) {
   GKDB *db = get_db_instance (DB_INSTANCE);
-  khash_t (igkh) *dates = get_hdb (db, MTRC_DATES);
-  khash_t (is32) *data = NULL;
+  khash_t (igkh) * dates = get_hdb (db, MTRC_DATES);
+  khash_t (is32) * data = NULL;
   khint_t k = 0;
 
   if (!dates)
