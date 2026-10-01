@@ -39,6 +39,7 @@
 #include <unistd.h>
 #include <limits.h>
 
+#include <openssl/crypto.h>
 #include <openssl/hmac.h>
 #include <openssl/rand.h>
 #include <openssl/evp.h>
@@ -187,6 +188,22 @@ create_jwt_token (void) {
   return jwt;
 }
 
+/* Compare a computed JWT signature against an untrusted one in constant time.
+ *
+ * On success, non-zero is returned when both signatures match.
+ * On failure, 0 is returned. */
+static int
+jwt_signature_equals (const char *expected, const char *actual) {
+  size_t expected_len = strlen (expected);
+
+  /* The signature length is fixed by the HMAC digest size and is not secret,
+   * so only the contents need a timing-safe comparison. */
+  if (strlen (actual) != expected_len)
+    return 0;
+
+  return CRYPTO_memcmp (expected, actual, expected_len) == 0;
+}
+
 static int
 verify_jwt_signature (const char *jwt, const char *secret) {
   char *token_dup = NULL, *header_part = NULL, *payload_part = NULL, *signature_part = NULL,
@@ -244,7 +261,7 @@ verify_jwt_signature (const char *jwt, const char *secret) {
     return 0;
   }
 
-  valid = (strcmp (computed_signature_url, signature_part) == 0);
+  valid = jwt_signature_equals (computed_signature_url, signature_part);
 
   free (computed_signature_url);
   free (token_dup);
