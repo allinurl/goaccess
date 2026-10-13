@@ -46,6 +46,15 @@
 #include "util.h"
 #include "xmalloc.h"
 
+/* Grow saved path offsets in batches to avoid reallocating for each member. */
+#define JSON_KEY_STACK_INC 16
+
+typedef struct GJSONKey_ {
+  char *path;
+  size_t *lengths;
+  size_t depth, capacity;
+} GJSONKey;
+
 static char **nargv;
 static int nargc = 0;
 
@@ -768,122 +777,94 @@ is_json_log_format (const char *fmt) {
   return 1;
 }
 
-/* Delete the given key from a nested object key or empty the key. */
+/* Save the parent path length and append an object member name. */
 static void
-dec_json_key (char *key, int has_dot) {
-  if (!key || has_dot < 0)
-    return;
-
-  /* Designed to iterate has_dot + 1 times */
-  /* if has_dot is 2, the loop will run three times (when i is 0, 1, and 2). Each
-   * iteration of the loop removes one dot from the end of the key string.
-   * Therefore, if has_dot is 2, it will remove up to three dots from the end of
-   * the key string. */
-  for (int i = 0; i <= has_dot; i++) {
-    char *last_dot = strrchr (key, '.');
-    if (last_dot)
-      *last_dot = '\0';
-    else {
-      *key = '\0';
-      return;
-    }
+push_json_key (GJSONKey *key, const char *name) {
+  if (key->depth == key->capacity) {
+    key->capacity += JSON_KEY_STACK_INC;
+    key->lengths = xrealloc (key->lengths, key->capacity * sizeof (*key->lengths));
   }
+
+  key->lengths[key->depth] = strlen (key->path);
+  if (key->depth > 0)
+    append_str (&key->path, ".");
+  append_str (&key->path, name);
+  key->depth++;
 }
 
+/* Restore the parent path after an object member's entire value ends. */
+static void
+pop_json_key (GJSONKey *key) {
+  key->path[key->lengths[--key->depth]] = '\0';
+}
 
-
-/* Given a JSON string, parse it and call the given function pointer after each
- * value.
+/* Parse a JSON string and call the callback for each scalar value.
  *
- * On error, a non-zero value is returned.
- * On success, 0 is returned. */
+ * On success, 0 is returned.
+ * On failure, -1 or the callback's non-zero return value is returned. */
 int
 parse_json_string (void *ptr_data, const char *str, int (*cb) (void *, char *, char *)) {
-  char *key = NULL, *val = NULL;
+  GJSONKey key = { 0 };
+  char *val = NULL;
   enum json_type ctx = JSON_ERROR, t = JSON_ERROR;
-  int ret = 0, has_dot = 0;
-  size_t len = 0, level = 0;
+  int ret = 0;
+  size_t count = 0;
   json_stream json;
 
   json_open_string (&json, str);
   do {
     t = json_next (&json);
+    ctx = json_get_context (&json, &count);
 
     switch (t) {
     case JSON_OBJECT:
-      if (key == NULL)
-        key = xstrdup ("");
+      if (key.path == NULL)
+        key.path = xstrdup ("");
       break;
     case JSON_ARRAY_END:
     case JSON_OBJECT_END:
-      dec_json_key (key, 0);
+      /* Array elements share their member's path, including nested containers. */
+      if (ctx == JSON_OBJECT)
+        pop_json_key (&key);
       break;
     case JSON_TRUE:
       val = xstrdup ("true");
-      if (!key || (ret = (*cb) (ptr_data, key, val)))
-        goto clean;
-      ctx = json_get_context (&json, &level);
-      if (ctx != JSON_ARRAY)
-        dec_json_key (key, 0);
-      free (val);
-      val = NULL;
       break;
     case JSON_FALSE:
       val = xstrdup ("false");
-      if (!key || (ret = (*cb) (ptr_data, key, val)))
-        goto clean;
-      ctx = json_get_context (&json, &level);
-      if (ctx != JSON_ARRAY)
-        dec_json_key (key, 0);
-      free (val);
-      val = NULL;
       break;
     case JSON_NULL:
       val = xstrdup ("-");
-      if (!key || (ret = (*cb) (ptr_data, key, val)))
-        goto clean;
-      ctx = json_get_context (&json, &level);
-      if (ctx != JSON_ARRAY)
-        dec_json_key (key, 0);
-      free (val);
-      val = NULL;
       break;
     case JSON_STRING:
     case JSON_NUMBER:
-      ctx = json_get_context (&json, &level);
-      /* key */
-      if ((level % 2) != 0 && ctx != JSON_ARRAY) {
-        /* check if key contains a dot, to account for it on dec_json_key */
-        has_dot = count_matches (json_get_string (&json, &len), '.');
-
-        if (strlen (key) != 0)
-          append_str (&key, ".");
-        append_str (&key, json_get_string (&json, &len));
-      }
-      /* val */
-      else if (key && (ctx == JSON_ARRAY || ((level % 2) == 0 && ctx != JSON_ARRAY))) {
-        val = xstrdup (json_get_string (&json, &len));
-        if (!key || (ret = (*cb) (ptr_data, key, val)))
-          goto clean;
-        if (ctx != JSON_ARRAY)
-          dec_json_key (key, has_dot);
-
-        free (val);
-        val = NULL;
-      }
+      if (ctx == JSON_OBJECT && count % 2 != 0)
+        push_json_key (&key, json_get_string (&json, NULL));
+      else if (key.path)
+        val = xstrdup (json_get_string (&json, NULL));
       break;
     case JSON_ERROR:
       ret = -1;
       goto clean;
-      break;
     default:
       break;
     }
-  } while (t != JSON_DONE && t != JSON_ERROR);
+
+    if (!val)
+      continue;
+    if (!key.path || (ret = (*cb) (ptr_data, key.path, val)))
+      goto clean;
+    if (ctx == JSON_OBJECT)
+      pop_json_key (&key);
+
+    free (val);
+    val = NULL;
+  } while (t != JSON_DONE);
 
 clean:
   free (val);
-  free (key);
+  free (key.path);
+  free (key.lengths);
   json_close (&json);
 
   return ret;
