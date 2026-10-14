@@ -196,6 +196,7 @@ geoip_set_country (const char *country, const char *code, char *loc) {
     snprintf (loc, COUNTRY_LEN, "%s %s", code, country);
   else
     snprintf (loc, COUNTRY_LEN, "%s", "Unknown");
+  utf8_trim_partial (loc);
 }
 
 /* Compose an ASN label from its numeric identifier and organization. */
@@ -213,6 +214,7 @@ geoip_set_asn (MMDB_entry_data_s name, uint32_t number, char *asn, int has_name)
     snprintf (asn, ASN_LEN, "%05u: %.*s", number, name.data_size, name.utf8_string);
   else
     snprintf (asn, ASN_LEN, "%05u: Unknown", number);
+  utf8_trim_partial (asn);
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -220,6 +222,7 @@ geoip_set_asn (MMDB_entry_data_s name, uint32_t number, char *asn, int has_name)
 static void
 geoip_set_city (const char *city, char *loc) {
   snprintf (loc, CITY_LEN, "%s", city ? city : "N/A City");
+  utf8_trim_partial (loc);
 }
 
 /* Compose a string with the continent name and store it in the given

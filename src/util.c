@@ -165,6 +165,43 @@ xstrncpy (char *dest, const char *source, const size_t dest_size) {
   }
 }
 
+/* Drop an incomplete UTF-8 sequence from the end of a NUL-terminated
+ * string.
+ *
+ * snprintf() truncates by bytes, so a multi-byte character that does not fit
+ * in a fixed-size buffer is cut in the middle, leaving a lead byte and
+ * possibly some continuation bytes at the end. The result is not valid UTF-8
+ * and is written as such to the JSON and HTML outputs. */
+void
+utf8_trim_partial (char *s) {
+  size_t len, i, need;
+  unsigned char c;
+
+  if (s == NULL || (len = strlen (s)) == 0)
+    return;
+
+  /* Walk back over continuation bytes (10xxxxxx) to the lead byte. */
+  i = len - 1;
+  while (i > 0 && len - i < 4 && ((unsigned char) s[i] & 0xC0) == 0x80)
+    i--;
+
+  c = (unsigned char) s[i];
+  if (c < 0x80)
+    return;
+
+  if (c >= 0xF0)
+    need = 4;
+  else if (c >= 0xE0)
+    need = 3;
+  else if (c >= 0xC0)
+    need = 2;
+  else
+    need = 1;
+
+  if (len - i < need)
+    s[i] = '\0';
+}
+
 /* A random string generator. */
 void
 genstr (char *dest, size_t len) {
