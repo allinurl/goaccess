@@ -225,6 +225,7 @@ geoip_set_country (const char *country, const char *code, char *loc) {
     snprintf (loc, COUNTRY_LEN, "%s %s", code, country);
   else
     snprintf (loc, COUNTRY_LEN, "%s", "Unknown");
+  utf8_trim_partial (loc);
 }
 
 /* Compose a string with the city name and state/region and store it
@@ -232,6 +233,7 @@ geoip_set_country (const char *country, const char *code, char *loc) {
 static void
 geoip_set_city (const char *city, const char *region, char *loc) {
   snprintf (loc, CITY_LEN, "%s, %s", city ? city : "N/A City", region ? region : "N/A Region");
+  utf8_trim_partial (loc);
 }
 
 /* Compose a string with the continent name and store it in the given
@@ -255,6 +257,7 @@ geoip_set_asn (const char *name, char *asn) {
     snprintf (asn, ASN_LEN, "%s", name);
   else
     snprintf (asn, ASN_LEN, "%s", "Unknown");
+  utf8_trim_partial (asn);
 }
 
 /* Get detailed information found in the GeoIP Database about the

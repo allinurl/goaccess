@@ -113,6 +113,7 @@ void genstr (char *dest, size_t len);
 void set_tz (void);
 void strip_newlines (char *str);
 void u64decode (uint64_t n, uint32_t * x, uint32_t * y);
+void utf8_trim_partial (char *s);
 void xstrncpy (char *dest, const char *source, const size_t dest_size);
 
 /* *INDENT-ON* */
