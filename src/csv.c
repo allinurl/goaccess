@@ -48,6 +48,11 @@
 #include "ui.h"
 #include "util.h"
 
+/* ASCII bytes below space must be represented as visible text in CSV fields. */
+#define CSV_ASCII_PRINTABLE_MIN 0x20
+/* DEL is the remaining ASCII control byte. */
+#define CSV_ASCII_DELETE        0x7f
+
 struct tm now_tm;
 
 /* Panel output */
@@ -100,19 +105,21 @@ panel_lookup (GModule module) {
   return NULL;
 }
 
-/* Iterate over the string and escape CSV output. */
+/* Write CSV field content with doubled quotes and visible ASCII controls. */
 static void
-escape_cvs_output (FILE *fp, char *s) {
-  while (*s) {
-    switch (*s) {
-    case '"':
-      fprintf (fp, "\"\"");
-      break;
-    default:
-      fputc (*s, fp);
-      break;
+escape_csv_output (FILE *fp, const char *s) {
+  const unsigned char *p = (const unsigned char *) s;
+
+  for (; *p; p++) {
+    if (*p < CSV_ASCII_PRINTABLE_MIN || *p == CSV_ASCII_DELETE) {
+      fprintf (fp, "\\x%02x", (unsigned int) *p);
+      continue;
     }
-    s++;
+    if (*p == '"') {
+      fputs ("\"\"", fp);
+      continue;
+    }
+    fputc (*p, fp);
   }
 }
 
@@ -152,7 +159,7 @@ print_csv_metric_block (FILE *fp, GMetrics *nmetrics) {
 
   /* data field */
   fprintf (fp, "\"");
-  escape_cvs_output (fp, nmetrics->data);
+  escape_csv_output (fp, nmetrics->data);
   fprintf (fp, "\"\r\n");
 }
 
