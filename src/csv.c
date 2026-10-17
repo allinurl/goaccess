@@ -105,7 +105,8 @@ panel_lookup (GModule module) {
   return NULL;
 }
 
-/* Write CSV field content with doubled quotes and visible ASCII controls. */
+/* Write CSV field content with doubled quotes, and with ASCII controls and
+ * bytes that are not part of well-formed UTF-8 as visible text. */
 static void
 escape_csv_output (FILE *fp, const char *s) {
   const unsigned char *p = (const unsigned char *) s;
@@ -117,6 +118,20 @@ escape_csv_output (FILE *fp, const char *s) {
     }
     if (*p == '"') {
       fputs ("\"\"", fp);
+      continue;
+    }
+    if (*p >= 0x80) {
+      /* A well-formed sequence is copied as it is; a byte of an ill-formed
+       * one is written like a control byte, so the file stays valid UTF-8
+       * and the byte can still be read. */
+      int valid, len = utf8_seq_len ((const char *) p, &valid);
+
+      if (!valid) {
+        fprintf (fp, "\\x%02x", (unsigned int) *p);
+        continue;
+      }
+      fwrite (p, 1, len, fp);
+      p += len - 1;
       continue;
     }
     fputc (*p, fp);
