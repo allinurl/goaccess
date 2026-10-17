@@ -202,6 +202,56 @@ utf8_trim_partial (char *s) {
     s[i] = '\0';
 }
 
+/* Determine the length of the UTF-8 sequence at the start of s.
+ *
+ * Well-formed means as RFC 3629 defines it: no overlong forms, no
+ * surrogates, nothing above U+10FFFF. An ill-formed sequence is measured as
+ * its maximal subpart, the unit the Unicode Standard (section 3.9) replaces
+ * with a single U+FFFD. s must be NUL-terminated; no byte past the NUL is
+ * read.
+ *
+ * On a well-formed sequence, *valid is set to 1 and its length, 1 to 4, is
+ * returned. Otherwise, *valid is set to 0 and the length of the maximal
+ * subpart, 1 to 3, is returned. */
+int
+utf8_seq_len (const char *s, int *valid) {
+  const unsigned char *u = (const unsigned char *) s;
+  unsigned char lo = 0x80, hi = 0xBF;
+  int n, i;
+
+  *valid = 0;
+  if (u[0] < 0x80) {
+    *valid = 1;
+    return 1;
+  }
+  if (u[0] >= 0xC2 && u[0] <= 0xDF)
+    n = 2;
+  else if (u[0] >= 0xE0 && u[0] <= 0xEF) {
+    n = 3;
+    if (u[0] == 0xE0)
+      lo = 0xA0;                /* overlong */
+    else if (u[0] == 0xED)
+      hi = 0x9F;                /* surrogates */
+  } else if (u[0] >= 0xF0 && u[0] <= 0xF4) {
+    n = 4;
+    if (u[0] == 0xF0)
+      lo = 0x90;                /* overlong */
+    else if (u[0] == 0xF4)
+      hi = 0x8F;                /* above U+10FFFF */
+  } else
+    return 1;
+
+  /* Only the second byte has the narrower range set above. */
+  for (i = 1; i < n; i++) {
+    if (u[i] < lo || u[i] > hi)
+      return i;
+    lo = 0x80;
+    hi = 0xBF;
+  }
+  *valid = 1;
+  return n;
+}
+
 /* A random string generator. */
 void
 genstr (char *dest, size_t len) {
