@@ -246,9 +246,20 @@ escape_json_other (GJSON *json, const char **s) {
     pjson (json, "\\u2028");
     *s += 2;
   } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 && (uint8_t) * (*s + 2) == 0xa9) {
-    /* Paragraph separator (U+2019) - 0xE2 0x80 0xA9 */
+    /* Paragraph separator (U+2029) - 0xE2 0x80 0xA9 */
     pjson (json, "\\u2029");
     *s += 2;
+  } else if ((uint8_t) ** s >= 0x80) {
+    /* Invalid UTF-8 would make the whole document invalid JSON: copy a
+     * well-formed sequence as it is, and write the ill-formed part that
+     * utf8_seq_len() measured as a single U+FFFD. */
+    int valid, len = utf8_seq_len (*s, &valid);
+
+    if (valid)
+      pjson (json, "%.*s", len, *s);
+    else
+      pjson (json, "\\ufffd");
+    *s += len - 1;
   } else {
     char buf[2];
     snprintf (buf, sizeof buf, "%c", **s);
