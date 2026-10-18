@@ -209,6 +209,9 @@ fpjson (FILE *fp, const char *fmt, ...) {
 /* Escape all other characters accordingly. */
 static void
 escape_json_other (GJSON *json, const char **s) {
+  char buf[8] = "", cbuf[2] = "";
+  int len = 0, valid = 0;
+
   /* Since JSON data is bootstrapped into the HTML document of a report,
    * then we perform the following four translations in case weird stuff
    * is put into the document.
@@ -238,7 +241,6 @@ escape_json_other (GJSON *json, const char **s) {
 
   if ((uint8_t) ** s <= 0x1f) {
     /* Control characters (U+0000 through U+001F) */
-    char buf[8];
     snprintf (buf, sizeof buf, "\\u%04x", **s);
     pjson (json, "%s", buf);
   } else if ((uint8_t) ** s == 0xe2 && (uint8_t) * (*s + 1) == 0x80 && (uint8_t) * (*s + 2) == 0xa8) {
@@ -253,7 +255,7 @@ escape_json_other (GJSON *json, const char **s) {
     /* Invalid UTF-8 would make the whole document invalid JSON: copy a
      * well-formed sequence as it is, and write the ill-formed part that
      * utf8_seq_len() measured as a single U+FFFD. */
-    int valid, len = utf8_seq_len (*s, &valid);
+    len = utf8_seq_len (*s, &valid);
 
     if (valid)
       pjson (json, "%.*s", len, *s);
@@ -261,9 +263,8 @@ escape_json_other (GJSON *json, const char **s) {
       pjson (json, "\\ufffd");
     *s += len - 1;
   } else {
-    char buf[2];
-    snprintf (buf, sizeof buf, "%c", **s);
-    pjson (json, "%s", buf);
+    snprintf (cbuf, sizeof cbuf, "%c", **s);
+    pjson (json, "%s", cbuf);
   }
 }
 

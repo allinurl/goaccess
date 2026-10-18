@@ -110,6 +110,7 @@ panel_lookup (GModule module) {
 static void
 escape_csv_output (FILE *fp, const char *s) {
   const unsigned char *p = (const unsigned char *) s;
+  int len = 0, valid = 0;
 
   for (; *p; p++) {
     if (*p < CSV_ASCII_PRINTABLE_MIN || *p == CSV_ASCII_DELETE) {
@@ -124,7 +125,7 @@ escape_csv_output (FILE *fp, const char *s) {
       /* A well-formed sequence is copied as it is; a byte of an ill-formed
        * one is written like a control byte, so the file stays valid UTF-8
        * and the byte can still be read. */
-      int valid, len = utf8_seq_len ((const char *) p, &valid);
+      len = utf8_seq_len ((const char *) p, &valid);
 
       if (!valid) {
         fprintf (fp, "\\x%02x", (unsigned int) *p);
