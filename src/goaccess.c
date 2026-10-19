@@ -437,7 +437,6 @@ daemonize (void) {
     exit (EXIT_SUCCESS);
   }
 
-  umask (0);
   /* attempt to create our own process group */
   sid = setsid ();
   if (sid < 0) {

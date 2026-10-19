@@ -2451,24 +2451,30 @@ handle_writes (int *conn, WSServer *server) {
     handle_write_close (*conn, client, server);
 }
 
-/* Create named pipe (FIFO) with the given pipe name.
+/* Create an owner-only named pipe (FIFO) with the given pipe name, reusing an
+ * existing FIFO only when it belongs to the current user.
  *
- * On error, 1 is returned.
+ * On error, the process exits.
  * On success, 0 is returned. */
 int
 ws_setfifo (const char *pipename) {
   struct stat fistat;
   const char *f = pipename;
 
-  if (access (f, F_OK) == 0)
+  if (lstat (f, &fistat) == 0) {
+    if (!S_ISFIFO (fistat.st_mode))
+      FATAL ("pipe is not a fifo: %s.", f);
+    if (fistat.st_uid != geteuid ())
+      FATAL ("fifo is not owned by the current user: %s.", f);
     return 0;
+  }
 
-  if (mkfifo (f, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH) < 0)
+  if (mkfifo (f, S_IRUSR | S_IWUSR) < 0)
     FATAL ("Unable to set fifo: %s.", strerror (errno));
-  if (stat (f, &fistat) < 0)
+  if (lstat (f, &fistat) < 0)
     FATAL ("Unable to stat fifo: %s.", strerror (errno));
   if (!S_ISFIFO (fistat.st_mode))
-    FATAL ("pipe is not a fifo: %s.", strerror (errno));
+    FATAL ("pipe is not a fifo: %s.", f);
 
   return 0;
 }
