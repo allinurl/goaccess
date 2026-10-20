@@ -2466,6 +2466,8 @@ ws_setfifo (const char *pipename) {
       FATAL ("pipe is not a fifo: %s.", f);
     if (fistat.st_uid != geteuid ())
       FATAL ("fifo is not owned by the current user: %s.", f);
+    if (fistat.st_mode & (S_IRWXG | S_IRWXO))
+      FATAL ("fifo is accessible by other users: %s. Remove it before restarting.", f);
     return 0;
   }
 

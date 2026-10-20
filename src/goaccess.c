@@ -1924,6 +1924,10 @@ generate_fifo_name (void) {
   return path;
 }
 
+/* Prepare the WebSocket FIFOs and optionally enter daemon mode.
+ *
+ * On success, 0 is returned.
+ * On an output FIFO open failure, 1 is returned; other setup failures exit. */
 static int
 spawn_ws (void) {
   gwswriter = new_gwswriter ();
@@ -1933,6 +1937,9 @@ spawn_ws (void) {
     conf.fifo_in = generate_fifo_name ();
   if (!conf.fifo_out)
     conf.fifo_out = generate_fifo_name ();
+
+  /* Check the input FIFO while startup errors are still visible. */
+  ws_setfifo (conf.fifo_in);
 
   /* open fifo for read */
   if ((gwsreader->fd = open_fifoout ()) == -1) {

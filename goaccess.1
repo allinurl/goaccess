@@ -470,6 +470,14 @@ Run GoAccess as daemon (only if \fB\-\-real-time-html enabled).
 .IP
 Note: It's important to make use of absolute paths across GoAccess'
 configuration.
+.IP
+When upgrading an existing daemon installation, check generated HTML reports
+and external JavaScript/CSS assets for write access by untrusted users, and
+FIFOs for access by other users. Stop GoAccess, remove affected generated files
+and FIFOs, then restart to recreate them with a suitable umask (for example,
+022 for web-readable reports or 077 for private reports). Upgrading does not
+change existing file permissions. Existing FIFOs must belong to the user
+running GoAccess and have no group or other permissions.
 .TP
 \fB\-\-user-name=<username>
 Run GoAccess as the specified user.
