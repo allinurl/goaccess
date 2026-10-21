@@ -105,6 +105,16 @@ not limited to:
 * Caddy's JSON Structured format.
 * Traefik's CLF flavor
 
+### Map data ###
+
+The HTML report uses [Natural Earth map data](https://www.naturalearthdata.com/),
+which is [in the public domain](https://www.naturalearthdata.com/about/terms-of-use/).
+The bundled country map includes a local adjustment to show Crimea as part of
+Ukraine, consistent with [UN General Assembly Resolution 68/262](https://docs.un.org/en/A/RES/68/262).
+Preserve this adjustment when updating `resources/countries-110m.json`.
+Country assignments for traffic come from the configured GeoIP database;
+changing the map outlines does not change report totals.
+
 ## Why GoAccess? ##
 GoAccess was designed to be a fast, terminal-based log analyzer. Its core idea
 is to quickly analyze and view web server statistics in real time without
