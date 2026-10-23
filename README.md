@@ -269,6 +269,10 @@ build GoAccess from source.
 `gettext`, `autopoint` etc. for compiling/building software from source. e.g.,
 `base-devel`, `build-essential`, `"Development Tools"`.
 
+## One-Click Deploy ##
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/GoAccess/)
+
 ## Storage ##
 
 #### Default Hash Tables ####
