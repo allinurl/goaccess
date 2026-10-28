@@ -235,7 +235,7 @@ static const char *help_main[] = {
   "",
   "Examples can be found by running 'man goaccess'.",
   "",
-  "[Press any key to continue]"
+  "[Press q to close help]"
 };
 
 /* Render the help dialog. */
