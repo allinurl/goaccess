@@ -174,40 +174,43 @@ gfile_read (void *buf, size_t size, size_t count, GFileHandle *fh) {
   return 0;
 }
 
-/* Seek to a position in the file */
+/* Seek to a position in the file.
+ *
+ * On success, 0 is returned.
+ * On failure, non-zero is returned. */
 int
-gfile_seek (GFileHandle *fh, long offset, int whence) {
+gfile_seek (GFileHandle *fh, off_t offset, int whence) {
   if (!fh)
     return -1;
 
 #ifdef HAVE_ZLIB
-  if (fh->is_gzipped && fh->gzfp) {
-    /* gzseek returns the current offset, or -1 on error */
-    z_off_t result = gzseek (fh->gzfp, offset, whence);
-    return (result == -1) ? -1 : 0;
-  }
+  if (fh->is_gzipped && fh->gzfp)
+    return (gzseek (fh->gzfp, offset, whence) == -1) ? -1 : 0;
 #endif
 
   if (fh->fp)
-    return fseek (fh->fp, offset, whence);
+    return fseeko (fh->fp, offset, whence);
 
   return -1;
 }
 
-/* Get current position in file */
-long
+/* Get the current position in the file.
+ *
+ * On success, the current offset is returned.
+ * On failure, -1 is returned. */
+off_t
 gfile_tell (GFileHandle *fh) {
   if (!fh)
     return -1;
 
 #ifdef HAVE_ZLIB
   if (fh->is_gzipped && fh->gzfp) {
-    return (long) gztell (fh->gzfp);
+    return gztell (fh->gzfp);
   }
 #endif
 
   if (fh->fp)
-    return ftell (fh->fp);
+    return ftello (fh->fp);
 
   return -1;
 }

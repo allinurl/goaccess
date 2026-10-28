@@ -31,6 +31,7 @@
 #define FILEIO_H_INCLUDED
 
 #include <stdio.h>
+#include <sys/types.h>
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -55,8 +56,8 @@ void gfile_close (GFileHandle * fh);
 char *gfile_gets (char *buf, int size, GFileHandle * fh);
 int gfile_eof (GFileHandle * fh);
 int gfile_read (void *buf, size_t size, size_t count, GFileHandle * fh);
-int gfile_seek (GFileHandle * fh, long offset, int whence);
-long gfile_tell (GFileHandle * fh);
+int gfile_seek (GFileHandle * fh, off_t offset, int whence);
+off_t gfile_tell (GFileHandle * fh);
 int gfile_error (GFileHandle * fh);
 
 #endif /* FILEIO_H_INCLUDED */
