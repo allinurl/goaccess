@@ -75,6 +75,11 @@
 /* Conventional marker emitted when an optional log field has no value. */
 #define MISSING_LOG_VALUE "-"
 
+typedef struct GCacheStatusRule_ {
+  const char *value, *status;
+  int prefix; /* Apache appends details only to some status messages. */
+} GCacheStatusRule;
+
 /* TLS wire-protocol version codes emitted by Caddy's JSON access logger. */
 enum GTLSVersionCode {
   TLS_VERSION_SSL3 = 0x0300,
@@ -505,23 +510,59 @@ extract_method (const char *token) {
   return NULL;
 }
 
-static int
-is_cache_hit (const char *tkn) {
-  if (strcasecmp ("MISS", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("BYPASS", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("EXPIRED", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("STALE", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("UPDATING", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("REVALIDATED", tkn) == 0)
-    return 1;
-  else if (strcasecmp ("HIT", tkn) == 0)
-    return 1;
-  return 0;
+/* Normalize a cache status, taking ownership of the allocated token.
+ *
+ * On success, an allocated status is returned, preserving existing short values.
+ * On failure, the unrecognized token is freed and NULL is returned. */
+static char *
+normalize_cache_status (char *tkn) {
+  static const char *const statuses[] = {
+    "MISS", "BYPASS", "EXPIRED", "STALE", "UPDATING", "REVALIDATED", "HIT", "INVALIDATED"
+  };
+  /* Match mod_cache's categories, including misses logged as bare reasons.
+   * Prefixes include separators so unrelated words cannot match a status. */
+  static const GCacheStatusRule apache_statuses[] = {
+    {"cache hit", "HIT", 0},
+    {"cache hit: ", "HIT", 1},
+    {"conditional cache hit: ", "REVALIDATED", 1},
+    {"cache miss: ", "MISS", 1},
+    {"conditional cache miss: ", "MISS", 1},
+    {"cache invalidated by ", "INVALIDATED", 1},
+    {"Response status ", "MISS", 1},
+    {"Broken expires header: ", "MISS", 1},
+    {"Expires header already expired; not cacheable", "MISS", 0},
+    {"s-maxage or max-age zero and no Last-Modified or Etag; not cacheable", "MISS", 0},
+    {"Query string present but no explicit expiration time", "MISS", 0},
+    {"HTTP Status 304 Not Modified", "MISS", 0},
+    {"No Last-Modified; Etag; Expires; Cache-Control:max-age or Cache-Control:s-maxage headers", "MISS", 0},
+    {"Cache-Control: no-store present", "MISS", 0},
+    {"Cache-Control: private present", "MISS", 0},
+    {"Authorization required", "MISS", 0},
+    {"Vary header contains '*'", "MISS", 0},
+    {"environment variable 'no-cache' is set", "MISS", 0},
+    {"r->no_cache present", "MISS", 0},
+    {"updated entity is older than cached entity", "MISS", 0},
+    {"invalid content length", "MISS", 0},
+  };
+  const GCacheStatusRule *rule = NULL;
+  size_t i;
+
+  for (i = 0; i < ARRAY_SIZE (statuses); ++i) {
+    if (strcasecmp (statuses[i], tkn) == 0)
+      return tkn;
+  }
+
+  for (i = 0; i < ARRAY_SIZE (apache_statuses); ++i) {
+    rule = &apache_statuses[i];
+    if (rule->prefix ? strncasecmp (rule->value, tkn, strlen (rule->value)) : strcasecmp (rule->value, tkn))
+      continue;
+
+    free (tkn);
+    return xstrdup (rule->status);
+  }
+
+  free (tkn);
+  return NULL;
 }
 
 /* Determine if the given token is a valid HTTP protocol.
@@ -1133,10 +1174,7 @@ parse_specifier (GLogItem *logitem, const char **str, const char *p, const char 
     tkn = parse_string (&(*str), end, 1);
     if (tkn == NULL)
       return spec_err (logitem, ERR_SPEC_TOKN_NUL, *p, NULL);
-    if (is_cache_hit (tkn))
-      logitem->cache_status = tkn;
-    else
-      free (tkn);
+    logitem->cache_status = normalize_cache_status (tkn);
     break;
     /* remote hostname (IP only) */
   case 'h':

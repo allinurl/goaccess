@@ -107,8 +107,10 @@ want to know if your request is being cached and served from the cache. This
 panel shows the cache status of the object the server served. This panel is not
 enabled unless
 .I %C
-is given within the log-format variable. The status can be either
- `MISS`, `BYPASS`, `EXPIRED`, `STALE`, `UPDATING`, `REVALIDATED` or `HIT`
+is given within the log-format variable. The status can be
+`MISS`, `BYPASS`, `EXPIRED`, `STALE`, `UPDATING`, `REVALIDATED`, `HIT` or
+`INVALIDATED`. Apache cache-status messages are also recognized and grouped
+under these statuses.
 .IP "MIME Types"
 This panel specifies Media Types (formerly known as MIME types) and Media
 Subtypes which will be assigned and listed underneath. This panel is not
@@ -1203,7 +1205,16 @@ after parsing.
 This is the userid of the person requesting the document as determined by HTTP
 authentication.
 .IP %C
-The cache status of the object the server served.
+The cache status of the object the server served. Accepts short status names
+such as HIT and MISS, or Apache's %{cache-status}e messages. Quote this field
+in the Apache log and use "%C" at the corresponding position in GoAccess's
+log-format, since Apache messages contain spaces.
+.sp
+Apache cache hits map to HIT, conditional cache hits to REVALIDATED, and
+ordinary or conditional cache misses to MISS. Known uncacheable-response
+reasons are also counted as MISS. Cache invalidations are reported separately
+as INVALIDATED. Stale responses that Apache labels as cache hits remain HIT.
+Unrecognized cache values are ignored without discarding the request.
 .IP %h
 host (the client IP address, either IPv4 or IPv6)
 .IP %r
