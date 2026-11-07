@@ -2033,6 +2033,8 @@ main (int argc, char **argv) {
   logs = initializer ();
   if (conf.restore)
     preflight_persisted_data ();
+  else
+    init_anonymization (0, 0, 0);
 
   /* ignore outputting, process only */
   if (conf.process_and_exit) {

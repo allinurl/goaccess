@@ -1938,7 +1938,7 @@ ignore_line (GLogItem *logitem) {
  * On success the unique visitor fingerprint is returned */
 static uint64_t
 get_uniq_visitor_key (GLogItem *logitem) {
-  return visitor_fingerprint (logitem->host, logitem->agent_hash);
+  return anonymize_visitor (visitor_fingerprint (logitem->host, logitem->agent_hash));
 }
 
 /* Compare a stored prefix fingerprint with the current log.

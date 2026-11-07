@@ -92,6 +92,7 @@ int convert_date (char *res, const char *data, const char *from, const char *to,
 int count_matches (const char *s1, char c);
 int find_output_type (char **filename, const char *ext, int alloc);
 int hide_referer (const char *host);
+int mask_ip_address (const char *host, char *masked, size_t size, unsigned int level);
 int ignore_referer (const char *host);
 int intlen (uint64_t num);
 int invalid_ipaddr (const char *str, int *ipvx);

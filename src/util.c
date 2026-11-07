@@ -908,6 +908,33 @@ visitor_fingerprint (const char *host, uint32_t agent_hash) {
   return h ? h : UINT64_MAX;
 }
 
+/* Mask an IPv4/IPv6 address at one of the three supported privacy levels.
+ *
+ * On success, 1 is returned. On an invalid address, level or buffer, 0 is returned. */
+int
+mask_ip_address (const char *host, char *masked, size_t size, unsigned int level) {
+  /* Retained bytes for levels 1, 2 and 3: IPv4 /24,/16,/8; IPv6 /64,/48,/32. */
+  static const unsigned int keep4[] = { 3, 2, 1 }, keep6[] = { 8, 6, 4 };
+  struct in_addr addr4 = { 0 };
+  struct in6_addr addr6 = { 0 };
+  unsigned int keep = 0;
+
+  if (level == 0 || level > ARRAY_SIZE (keep4))
+    return 0;
+
+  if (inet_pton (AF_INET, host, &addr4) == 1) {
+    keep = keep4[level - 1];
+    memset ((uint8_t *) &addr4 + keep, 0, sizeof (addr4) - keep);
+    return inet_ntop (AF_INET, &addr4, masked, size) != NULL;
+  }
+  if (inet_pton (AF_INET6, host, &addr6) != 1)
+    return 0;
+
+  keep = keep6[level - 1];
+  memset (addr6.s6_addr + keep, 0, sizeof (addr6.s6_addr) - keep);
+  return inet_ntop (AF_INET6, &addr6, masked, size) != NULL;
+}
+
 /* Decode a uint64_t number into the original two uint32_t  */
 void
 u64decode (uint64_t n, uint32_t *x, uint32_t *y) {

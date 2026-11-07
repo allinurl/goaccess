@@ -493,6 +493,10 @@ init_cache_modules (void) {
     cache[module].keymap = new_ii32_ht ();
   }
 
+  /* Hidden hosts must also be restored and rewritten when masking old data. */
+  if (conf.anonymize_ip && !cache[HOSTS].keymap)
+    cache[HOSTS].keymap = new_ii32_ht ();
+
   return cache;
 }
 

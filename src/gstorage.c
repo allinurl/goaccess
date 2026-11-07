@@ -1214,7 +1214,12 @@ gen_host_key (GKeyData *kdata, GLogItem *logitem) {
   if (!logitem->host)
     return 1;
 
-  get_kdata (kdata, logitem->host, logitem->host);
+  if (conf.anonymize_ip) {
+    anonymize_host (logitem->host, kdata->data_buffer);
+    get_kdata (kdata, kdata->data_buffer, kdata->data_buffer);
+  } else {
+    get_kdata (kdata, logitem->host, logitem->host);
+  }
   kdata->numdate = logitem->numdate;
 
   return 0;
@@ -1689,13 +1694,13 @@ static void
 map_log (GLogItem *logitem, const GParse *parse, GModule module) {
   GKeyData kdata;
 #ifdef HAVE_GEOLOCATION
-  char city_key[GEO_CITY_KEY_LEN];
+  char data_buffer[MAX (GEO_CITY_KEY_LEN, INET6_ADDRSTRLEN)];
+#else
+  char data_buffer[INET6_ADDRSTRLEN];
 #endif
 
   new_modulekey (&kdata);
-#ifdef HAVE_GEOLOCATION
-  kdata.data_buffer = city_key;
-#endif
+  kdata.data_buffer = data_buffer;
   /* set key data into out structure */
   if (parse->key_data (&kdata, logitem) == 1)
     return;

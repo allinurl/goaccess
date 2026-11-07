@@ -60,7 +60,6 @@ typedef struct GPanel_ {
 
 /* *INDENT-OFF* */
 static void add_data_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
-static void add_host_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_root_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_tls_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
 static void add_utm_to_holder (GRawDataItem item, GHolder * h, datatype type, const GPanel * panel);
@@ -74,7 +73,7 @@ static const GPanel paneling[] = {
   {REQUESTS        , add_data_to_holder , NULL},
   {REQUESTS_STATIC , add_data_to_holder , NULL},
   {NOT_FOUND       , add_data_to_holder , NULL},
-  {HOSTS           , add_host_to_holder , add_host_child_to_holder} ,
+  {HOSTS           , add_data_to_holder , add_host_child_to_holder} ,
   {OS              , add_root_to_holder , NULL},
   {BROWSERS        , add_root_to_holder , NULL},
   {VISIT_TIMES     , add_data_to_holder , NULL},
@@ -588,77 +587,6 @@ add_data_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *
     panel->holder_callback (h);
 
   h->idx++;
-}
-
-/* A wrapper to set a host item */
-static void
-set_host (GRawDataItem item, GHolder *h, const GPanel *panel, char *data, uint32_t hits) {
-  set_single_metrics (item, h, xstrdup (data), hits);
-  if (panel->holder_callback)
-    panel->holder_callback (h);
-  h->idx++;
-}
-
-/* Set all panel data. This will set data for panels that do not
- * contain sub items. A function pointer is used for post data set. */
-static void
-add_host_to_holder (GRawDataItem item, GHolder *h, datatype type, const GPanel *panel) {
-  char buf4[INET_ADDRSTRLEN];
-  char buf6[INET6_ADDRSTRLEN];
-  char *data = NULL;
-  uint32_t hits = 0;
-  unsigned i;
-
-  struct in6_addr addr6, mask6, nwork6;
-  struct in_addr addr4, mask4, nwork4;
-
-  const char *arr4[] = { "255.255.255.0", "255.255.0.0", "255.0.0.0" };
-  const char *arr6[] = {
-    "ffff:ffff:ffff:ffff:0000:0000:0000:0000",
-    "ffff:ffff:ffff:0000:0000:0000:0000:0000",
-    "ffff:ffff:0000:0000:0000:0000:0000:0000"
-  };
-
-  const char *m4 = arr4[0];
-  const char *m6 = arr6[0];
-
-  if (map_data (h->module, item, type, &data, &hits) == 1)
-    return;
-
-  if (!conf.anonymize_ip) {
-    add_data_to_holder (item, h, type, panel);
-    free (data);
-    return;
-  }
-
-  if (conf.anonymize_level == ANONYMIZE_STRONG || conf.anonymize_level == ANONYMIZE_PEDANTIC) {
-    m4 = arr4[conf.anonymize_level - 1];
-    m6 = arr6[conf.anonymize_level - 1];
-  }
-
-  if (1 == inet_pton (AF_INET, data, &addr4)) {
-    if (1 == inet_pton (AF_INET, m4, &mask4)) {
-      memset (buf4, 0, sizeof *buf4);
-      nwork4.s_addr = addr4.s_addr & mask4.s_addr;
-
-      if (inet_ntop (AF_INET, &nwork4, buf4, INET_ADDRSTRLEN) != NULL) {
-        set_host (item, h, panel, buf4, hits);
-        free (data);
-      }
-    }
-  } else if (1 == inet_pton (AF_INET6, data, &addr6)) {
-    if (1 == inet_pton (AF_INET6, m6, &mask6)) {
-      memset (buf6, 0, sizeof *buf6);
-      for (i = 0; i < 16; i++) {
-        nwork6.s6_addr[i] = addr6.s6_addr[i] & mask6.s6_addr[i];
-      }
-
-      if (inet_ntop (AF_INET6, &nwork6, buf6, INET6_ADDRSTRLEN) != NULL) {
-        set_host (item, h, panel, buf6, hits);
-        free (data);
-      }
-    }
-  }
 }
 
 /* Set all root panel data. This will set the root nodes. */

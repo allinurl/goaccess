@@ -156,6 +156,8 @@ dist_conf_DATA += config/browsers.list
 dist_conf_DATA += config/podcast.list
 
 goaccess_SOURCES = \
+   src/anonymize.c     \
+   src/anonymize.h     \
    src/base64.c        \
    src/base64.h        \
    src/browsers.c      \
@@ -214,6 +216,8 @@ goaccess_SOURCES = \
    src/pdjson.h        \
    src/settings.c      \
    src/settings.h      \
+   src/siphash.c       \
+   src/siphash.h       \
    src/sha256.c        \
    src/sha256.h        \
    src/sort.c          \

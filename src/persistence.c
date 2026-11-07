@@ -35,6 +35,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dirent.h>
 #include <string.h>
 #include <sys/stat.h>
 
@@ -58,6 +59,11 @@
 #define DB_PROP_VERSION         "version"
 /* Separate from the container format: this records geolocation key semantics. */
 #define DB_PROP_GEO_KEY_VERSION "geo_key_version"
+/* Masked hosts and keyed visitors use separate files until migration completes. */
+#define DB_PROP_ANONYMIZE_VERSION "anonymize_version"
+#define DB_PROP_ANONYMIZE_LEVEL "anonymize_level"
+#define DB_PROP_ANONYMIZE_KEY_HI "anonymize_key_hi"
+#define DB_PROP_ANONYMIZE_KEY_LO "anonymize_key_lo"
 
 typedef enum {
   PERSISTED_SETTING_DISABLED,
@@ -73,10 +79,11 @@ static uint32_t persisted_dates_len = 0;
  * On error, a fatal error is thrown.
  * On success, the databases path string is returned. */
 static char *
-set_db_path (const char *fn) {
+build_db_path (const char *fn, int anonymized) {
   struct stat info;
   char *rpath = NULL, *path = NULL;
   const char *dbpath = NULL;
+  const char *prefix = anonymized && is_anonymized_database (fn) ? ANONYMIZE_DB_PREFIX : "";
 
   if (!conf.db_path)
     dbpath = DB_PATH;
@@ -93,11 +100,19 @@ set_db_path (const char *fn) {
   else if (!(info.st_mode & S_IFDIR))
     FATAL ("Database path is not a directory.");
 
-  path = xmalloc (snprintf (NULL, 0, "%s/%s", rpath, fn) + 1);
-  sprintf (path, "%s/%s", rpath, fn);
+  path = xmalloc (snprintf (NULL, 0, "%s/%s%s", rpath, prefix, fn) + 1);
+  sprintf (path, "%s/%s%s", rpath, prefix, fn);
   free (rpath);
 
   return path;
+}
+
+/* Select a write path using the current database's IP masking mode.
+ *
+ * On success, the allocated path is returned; invalid paths are fatal. */
+static char *
+set_db_path (const char *fn) {
+  return build_db_path (fn, conf.anonymize_ip);
 }
 
 /* Dump to disk the database file and frees its memory. The data is written
@@ -433,7 +448,8 @@ persist_global_ss32 (khash_t (ss32) *hash, const char *fn) {
  * On success, the valid path is returned */
 static char *
 check_restore_path (const char *fn) {
-  char *path = set_db_path (fn);
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  char *path = build_db_path (fn, db->anonymize.restored_level != 0);
   if (access (path, F_OK) != -1)
     return path;
 
@@ -582,7 +598,7 @@ legacy_uniq_key_fingerprint (const char *key, uint32_t dbver) {
   memcpy (hostcp, host, len);
   hostcp[len] = '\0';
 
-  fp = visitor_fingerprint (hostcp, agent_hash);
+  fp = anonymize_visitor (visitor_fingerprint (hostcp, agent_hash));
   free (hostcp);
 
   return fp;
@@ -1583,6 +1599,7 @@ persist_imtv (GModule module) {
  * the storage */
 static int
 restore_u6432 (GSMetric metric, const char *path, int module) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (u6432) * hash = NULL;
   tpl_node *tn;
   char fmt[] = "A(iA(Uu))";
@@ -1602,6 +1619,8 @@ restore_u6432 (GSMetric metric, const char *path, int module) {
       break;
 
     while (tpl_unpack (tn, 2) > 0) {
+      if (conf.anonymize_ip && !db->anonymize.restored_level)
+        key = anonymize_visitor (key);
       k = kh_put (u6432, hash, key, &ret);
       if (ret > 0)
         kh_val (hash, k) = val;
@@ -2169,8 +2188,21 @@ has_persisted_data (void) {
 /* Load and validate persistence metadata before output initialization. */
 void
 preflight_persisted_data (void) {
-  if (!restore_db_props () && !has_persisted_data ())
+  GKDB *db = get_db_instance (DB_INSTANCE);
+  khash_t (si32) *props = get_hdb (db, MTRC_DB_PROPS);
+  uint32_t version = 0, level = 0, key_hi = 0, key_lo = 0;
+
+  if (!restore_db_props () && !has_persisted_data ()) {
+    init_anonymization (0, 0, 0);
     return;
+  }
+
+  if (get_db_prop (props, DB_PROP_ANONYMIZE_VERSION, &version) &&
+      (!version || !get_db_prop (props, DB_PROP_ANONYMIZE_LEVEL, &level) ||
+       !get_db_prop (props, DB_PROP_ANONYMIZE_KEY_HI, &key_hi) ||
+       !get_db_prop (props, DB_PROP_ANONYMIZE_KEY_LO, &key_lo)))
+    FATAL ("Incomplete persisted IP anonymization settings.");
+  init_anonymization (version, level, u64encode (key_hi, key_lo));
 
   validate_request_grouping ();
 }
@@ -2249,10 +2281,18 @@ persist_db_props (void) {
   GKDB *db = get_db_instance (DB_INSTANCE);
   khash_t (si32) * db_props = get_hdb (db, MTRC_DB_PROPS);
   char *path = NULL;
+  uint64_t key_id = 0;
 
   persist_request_grouping (db_props, DB_PROP_APPEND_METHOD, conf.append_method);
   persist_request_grouping (db_props, DB_PROP_APPEND_PROTOCOL, conf.append_protocol);
   set_db_prop (db_props, DB_PROP_VERSION, DB_VERSION);
+  if (conf.anonymize_ip) {
+    key_id = anonymization_key_id ();
+    set_db_prop (db_props, DB_PROP_ANONYMIZE_VERSION, ANONYMIZE_VERSION);
+    set_db_prop (db_props, DB_PROP_ANONYMIZE_LEVEL, conf.anonymize_level);
+    set_db_prop (db_props, DB_PROP_ANONYMIZE_KEY_HI, key_id >> 32);
+    set_db_prop (db_props, DB_PROP_ANONYMIZE_KEY_LO, (uint32_t) key_id);
+  }
 #ifdef HAVE_GEOLOCATION
   /* Do not bless older GEO files when that module was ignored and never loaded. */
   if (ht_module_is_initialized (GEO_LOCATION))
@@ -2265,12 +2305,40 @@ persist_db_props (void) {
   }
 }
 
+/* Retire original IP tables only after saving the converted dataset. */
+static void
+retire_unmasked_databases (void) {
+  char *dirpath = NULL, *path = NULL;
+  DIR *dir = NULL;
+  struct dirent *entry = NULL;
+
+  if (!conf.anonymize_ip)
+    return;
+
+  dirpath = build_db_path ("", 0);
+  if (!(dir = opendir (dirpath)))
+    FATAL ("Unable to retire unmasked databases in '%s': %s", dirpath, strerror (errno));
+
+  while ((entry = readdir (dir))) {
+    if (!is_anonymized_database (entry->d_name))
+      continue;
+    path = build_db_path (entry->d_name, 0);
+    if (unlink (path) != 0 && errno != ENOENT)
+      FATAL ("Unable to remove unmasked database '%s': %s", path, strerror (errno));
+    free (path);
+  }
+  closedir (dir);
+  free (dirpath);
+}
+
+/* Save the dataset and publish its metadata after all table writes succeed. */
 void
 persist_data (void) {
   GModule module;
   int i, n = 0;
 
   persist_error = 0;
+  persist_anonymization_key ();
   persist_global ();
 
   n = global_metrics_len;
@@ -2290,19 +2358,23 @@ persist_data (void) {
 
   /* the version metadata is written last so an interrupted or failed persist
    * never marks an incomplete dataset as current */
-  if (persist_error == 0)
+  if (persist_error == 0) {
     persist_db_props ();
-  else
+    if (persist_error == 0)
+      retire_unmasked_databases ();
+  } else {
     LOG_DEBUG (("Failed to write one or more database files; version metadata withheld\n"));
+  }
 }
 
 /* Entry function to restore hashes */
 void
 restore_data (void) {
+  GKDB *db = get_db_instance (DB_INSTANCE);
   int migrated = 0, skip = 0;
+  int privacy_migration = 0;
   GModule module;
   int i, n = 0;
-  size_t idx = 0;
 
   restore_global ();
 
@@ -2314,8 +2386,9 @@ restore_data (void) {
   }
 
   n = module_metrics_len;
-  FOREACH_MODULE (idx, module_list) {
-    module = module_list[idx];
+  for (module = 0; module < TOTAL_MODULES; ++module) {
+    if (!ht_module_is_initialized (module))
+      continue;
     for (i = 0; i < n; ++i) {
       migrated += migrate_metric (module, module_metrics[i], &skip);
       if (!skip)
@@ -2327,13 +2400,23 @@ restore_data (void) {
   restore_geo_key_format ();
 #endif
 
-  if (migrated) {
+  anonymize_restored_hosts ();
+
+  privacy_migration = conf.anonymize_ip && !db->anonymize.restored_level &&
+    (conf.persist || migrated) && has_persisted_data ();
+  if (migrated || privacy_migration) {
     /* persist the migrated data in the current format before removing the
      * legacy files, so an interrupted or failed migration simply runs
      * again */
     persist_data ();
+    /* Commit the identity conversion before accepting new log records. A
+     * failed conversion must not advance resume markers past unsaved IDs. */
+    if (privacy_migration && persist_error)
+      FATAL ("Unable to save IP anonymization conversion; fix the database write error and retry.");
     if (persist_error == 0)
       unlink_migrated_files ();
+    if (privacy_migration)
+      db->anonymize.restored_level = conf.anonymize_level;
     if (!conf.persist)
       conf.persist = 1;
   }

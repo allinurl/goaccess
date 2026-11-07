@@ -38,13 +38,6 @@
 #include "commons.h"
 #include "sort.h"
 
-/* Default Anonymization Levels */
-typedef enum GAnonymizeLevels_ {
-  ANONYMIZE_DEFAULT = 1,
-  ANONYMIZE_STRONG,
-  ANONYMIZE_PEDANTIC,
-} GAnonymizeLevels;
-
 /* Function Prototypes */
 GHolder *new_gholder (uint32_t size);
 uint32_t get_holder_raw_limit (GModule module, uint32_t max_choices);

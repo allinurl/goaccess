@@ -32,6 +32,7 @@
 
 #include <stdint.h>
 
+#include "anonymize.h"
 #include "gslist.h"
 #include "gstorage.h"
 #include "khash.h"
@@ -84,6 +85,7 @@ typedef struct GKHashDB_ {
 
 /* DB */
 struct GKDB_ {
+  GAnonymize anonymize;         /* one key per database, independent of visitor count */
   GKHashDB *hdb;                /* app-level hash tables */
   Logs *logs;                   /* logs parsing per db instance */
   GKCacheModule *cache;         /* cache modules */
