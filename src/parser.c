@@ -1941,24 +1941,27 @@ get_uniq_visitor_key (GLogItem *logitem) {
   return visitor_fingerprint (logitem->host, logitem->agent_hash);
 }
 
-/* Determine if the current log has the content from the last time it was
- * parsed. It does this by comparing READ_BYTES against the beginning of the
- * log.
+/* Compare a stored prefix fingerprint with the current log.
  *
- * Returns 1 if the content is likely the same or no data to compare
- * Returns 0 if it has different content */
+ * On a matching prefix, or absent prior file size, non-zero is returned.
+ * On a different or unavailable prefix, 0 is returned. */
 static int
 is_likely_same_log (GLog *glog, const GLastParse *lp) {
-  size_t size = 0;
+  const uint8_t *fingerprint = NULL;
 
   if (!lp->size)
     return 1;
 
-  /* Must be a LOG */
-  size = MIN (glog->snippetlen, lp->snippetlen);
-  if (glog->snippet[0] != '\0' && lp->snippet[0] != '\0' &&
-      memcmp (glog->snippet, lp->snippet, size) == 0)
-    return 1;
+  if (!glog->snippet[0] || !lp->snippetlen)
+    return 0;
+
+  if (lp->snippetlen == glog->lp.snippetlen)
+    fingerprint = glog->lp.fingerprint;
+  else if (lp->snippetlen == glog->restore_snippetlen)
+    fingerprint = glog->restore_fingerprint;
+
+  if (fingerprint)
+    return memcmp (fingerprint, lp->fingerprint, SHA256_DIGEST_SIZE) == 0;
 
   return 0;
 }
@@ -2592,19 +2595,21 @@ read_lines (GFileHandle *fh, GLog *glog, int dry_run) {
   return test;
 }
 
-/* Read the given log file and attempt to mmap a fixed number of bytes so we
- * can compare its content on future runs.
+/* Read and fingerprint the log prefix for file recognition on future runs.
  *
  * On error, 1 is returned.
  * On success, 0 is returned. */
 int
 set_initial_persisted_data (GLog *glog, GFileHandle *fh, const char *fn) {
+  GLastParse lp = { 0 };
   size_t len;
   time_t now = time (0);
 
-  /* reset the snippet */
   memset (glog->snippet, 0, sizeof (glog->snippet));
   glog->snippetlen = 0;
+  glog->lp.snippetlen = 0;
+  glog->restore_snippetlen = 0;
+  memset (glog->lp.fingerprint, 0, sizeof (glog->lp.fingerprint));
 
   if (glog->props.size == 0)
     return 1;
@@ -2614,21 +2619,28 @@ set_initial_persisted_data (GLog *glog, GFileHandle *fh, const char *fn) {
     FATAL ("Unable to read the specified log file '%s'", fn);
 
   glog->snippetlen = len;
+  glog->lp.snippetlen = len;
+  sha256_digest (glog->snippet, len, glog->lp.fingerprint);
+
+  /* A file may have grown since a short prefix was saved. Hash that original
+   * length once here, rather than once per parsed line during restoration. */
+  lp = ht_get_last_parse (glog->props.inode);
+  if (lp.snippetlen && lp.snippetlen < len) {
+    glog->restore_snippetlen = lp.snippetlen;
+    sha256_digest (glog->snippet, lp.snippetlen, glog->restore_fingerprint);
+  }
+
   localtime_r (&now, &glog->start_time);
   gfile_seek (fh, 0, SEEK_SET);
 
   return 0;
 }
 
+/* Store the position and fingerprint of the last parsed log. */
 static void
 persist_last_parse (GLog *glog) {
-  /* insert last parsed data for the recently file parsed */
   if (glog->props.inode && glog->props.size) {
     glog->lp.line = glog->read;
-    glog->lp.snippetlen = glog->snippetlen;
-
-    memcpy (glog->lp.snippet, glog->snippet, glog->snippetlen);
-
     ht_insert_last_parse (glog->props.inode, &glog->lp);
   }
   /* probably from a pipe */

@@ -198,6 +198,8 @@ goaccess_SOURCES = \
    src/json.h          \
    src/khash.h         \
    src/labels.h        \
+   src/lastparse.c     \
+   src/lastparse.h     \
    src/opesys.c        \
    src/opesys.h        \
    src/options.c       \
@@ -212,6 +214,8 @@ goaccess_SOURCES = \
    src/pdjson.h        \
    src/settings.c      \
    src/settings.h      \
+   src/sha256.c        \
+   src/sha256.h        \
    src/sort.c          \
    src/sort.h          \
    src/tpl.c           \

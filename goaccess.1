@@ -1105,6 +1105,13 @@ PERSISTENCE STORAGE OPTIONS
 \fB\-\-persist
 Persist parsed data into disk. If database files exist, files will be
 overwritten. This should be set to the first dataset. See examples below.
+.IP
+Log resume markers store a SHA-256 fingerprint of the log prefix instead of
+raw log text. Older markers are read automatically and replaced when the
+database is next persisted. After conversion, use an updated GoAccess to
+resume processing; older versions cannot read the new marker format.
+Existing backups are not modified. This does not anonymize host records or
+remove sensitive values from other stored fields.
 .TP
 \fB\-\-restore
 Load previously stored data from disk. If reading persisted data only, the
@@ -1567,14 +1574,13 @@ Read persisted data only:
 NOTES
 
 GoAccess keeps track of inodes of all the files processed (assuming files will
-stay on the same partition), in addition, it extracts a snippet of data from
-the log along with the last line parsed of each file and the timestamp of the
-last line parsed. e.g.,
+stay on the same partition). It stores a fingerprint and length of a prefix
+of each log, along with the last line parsed and its timestamp. e.g.,
 inode:29627417|line:20012|ts:20171231235059
 
-First it compares if the snippet matches the log being parsed, if it does, it
-assumes the log hasn't changed dramatically, e.g., hasn't been truncated. If
-the inode does not match the current file, it parses all lines. If the current
+First it compares if the prefix fingerprint matches the log being parsed. If
+it does, it assumes the log hasn't changed dramatically, e.g., hasn't been
+truncated. If the inode does not match the current file, it parses all lines. If the current
 file matches the inode, it then reads the remaining lines and updates the count
 of lines parsed and the timestamp. As an extra precaution, it won't parse log
 lines with a timestamp ≤ than the one stored.

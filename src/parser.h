@@ -60,6 +60,7 @@
 #include "commons.h"
 #include "gslist.h"
 #include "fileio.h"
+#include "sha256.h"
 #include "utm.h"
 
 typedef struct GLogProp_ {
@@ -132,7 +133,7 @@ typedef struct GLastParse_ {
   int64_t ts;
   uint64_t size;
   uint16_t snippetlen;
-  char snippet[READ_BYTES + 1];
+  uint8_t fingerprint[SHA256_DIGEST_SIZE];
 } GLastParse;
 
 /* Overall parsed log properties */
@@ -147,6 +148,9 @@ typedef struct GLog_ {
 
   uint16_t snippetlen;
   char snippet[READ_BYTES + 1];
+  /* A prior run may have fingerprinted a shorter prefix before the file grew. */
+  uint16_t restore_snippetlen;
+  uint8_t restore_fingerprint[SHA256_DIGEST_SIZE];
   GLastParse lp;
   GLogProp props;
   struct tm start_time;

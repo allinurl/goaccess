@@ -43,6 +43,7 @@
 #include "error.h"
 #include "gkhash.h"
 #include "labels.h"
+#include "lastparse.h"
 #include "sort.h"
 #include "tpl.h"
 #include "util.h"
@@ -420,47 +421,6 @@ persist_global_ss32 (khash_t (ss32) *hash, const char *fn) {
   for (k = 0; k < kh_end (hash); ++k) {
     if (!kh_exist (hash, k) || !(key = kh_key (hash, k)) || !(val = kh_value (hash, k)))
       continue;
-    tpl_pack (tn, 1);
-  }
-
-  close_tpl (tn, fn);
-}
-
-/* Given a database filename, restore a uint64_t key, GLastParse value back to
- * the storage */
-static void
-restore_global_iglp (khash_t (iglp) *hash, const char *fn) {
-  tpl_node *tn;
-  uint64_t key;
-  GLastParse val = { 0 };
-  char fmt[] = "A(US(uIUvc#))";
-
-  tn = tpl_map (fmt, &key, &val, READ_BYTES);
-  tpl_load (tn, TPL_FILE, fn);
-  while (tpl_unpack (tn, 1) > 0) {
-    ins_iglp (hash, key, &val);
-  }
-  tpl_free (tn);
-}
-
-/* Given a hash and a filename, persist to disk a uint64_t key, uint32_t value */
-static void
-persist_global_iglp (khash_t (iglp) *hash, const char *fn) {
-  tpl_node *tn;
-  khint_t k;
-  uint64_t key;
-  GLastParse val = { 0 };
-  char fmt[] = "A(US(uIUvc#))";
-
-  if (!hash || kh_size (hash) == 0)
-    return;
-
-  tn = tpl_map (fmt, &key, &val, READ_BYTES);
-  for (k = 0; k < kh_end (hash); ++k) {
-    if (!kh_exist (hash, k))
-      continue;
-    key = kh_key (hash, k);
-    val = kh_value (hash, k);
     tpl_pack (tn, 1);
   }
 
@@ -2240,7 +2200,7 @@ restore_global (void) {
     free (path);
   }
   if ((path = check_restore_path ("IGLP_LAST_PARSE.db"))) {
-    restore_global_iglp (last_parse, path);
+    load_last_parse (last_parse, path);
     free (path);
   }
   if ((path = check_restore_path ("SS32_COUNTRY_CONTINENT.db"))) {
@@ -2268,7 +2228,7 @@ persist_global (void) {
     free (path);
   }
   if ((path = set_db_path ("IGLP_LAST_PARSE.db"))) {
-    persist_global_iglp (last_parse, path);
+    close_tpl (pack_last_parse (last_parse), path);
     free (path);
   }
   if ((path = set_db_path ("SI08_METH_PROTO.db"))) {

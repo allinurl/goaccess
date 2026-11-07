@@ -1075,26 +1075,35 @@ parse_tail_follow (GLog *glog, GFileHandle *fh) {
   }
 }
 
+/* Reset the position and resume marker when the active file changes. */
+static void
+reset_log_position (GFileHandle *fh, GLog *glog) {
+  if (gfile_seek (fh, 0, SEEK_SET) != 0)
+    FATAL ("Unable to rewind the specified log file '%s'.", glog->props.filename);
+
+  glog->length = glog->bytes = 0;
+  glog->read = 0;
+  memset (&glog->lp, 0, sizeof (glog->lp));
+  glog->lp.size = glog->props.size;
+  set_initial_persisted_data (glog, fh, glog->props.filename);
+}
+
+/* Refresh file metadata and reset the position after rotation or truncation. */
 static void
 verify_inode (GFileHandle *fh, GLog *glog) {
   struct stat fdstat;
+  int reset = 0;
 
   if (stat (glog->props.filename, &fdstat) == -1)
     FATAL ("Unable to stat the specified log file '%s'. %s", glog->props.filename,
            strerror (errno));
 
-  glog->props.size = fdstat.st_size;
-
-  /* Either the log got smaller, probably was truncated so start reading from 0
-   * and reset snippet.
-   * If the log changed its inode, more likely the log was rotated, so we set
-   * the initial snippet for the new log for future iterations */
-  if (fdstat.st_ino != glog->props.inode || glog->snippet[0] == '\0' || 0 == glog->props.size) {
-    glog->length = glog->bytes = 0;
-    set_initial_persisted_data (glog, fh, glog->props.filename);
-  }
-
+  reset = fdstat.st_ino != glog->props.inode || (uint64_t) fdstat.st_size < glog->length ||
+    glog->snippet[0] == '\0';
+  glog->props.size = glog->lp.size = fdstat.st_size;
   glog->props.inode = fdstat.st_ino;
+  if (reset)
+    reset_log_position (fh, glog);
 }
 
 /* Check if a file is gzipped by examining magic bytes or extension
@@ -1190,7 +1199,7 @@ perform_tail_follow (GLog *glog) {
    * parse. If it's different, then it means the file may got truncated but grew
    * faster than the last iteration (odd, but possible), so we read from 0* */
   if (glog->snippet[0] != '\0' && buf[0] != '\0' && memcmp (glog->snippet, buf, len) != 0)
-    glog->length = glog->bytes = 0;
+    reset_log_position (fh, glog);
 
   if (!gfile_seek (fh, glog->length, SEEK_SET))
     parse_tail_follow (glog, fh);
