@@ -811,34 +811,48 @@ excluded_ip (GLogItem *logitem) {
 }
 
 #ifdef HAVE_LIBMAXMINDDB
-/* Check whether an ASN appears in the sorted exclusion list.
+/* Check whether an ASN appears in a sorted ASN list.
  *
  * If the ASN is present, 1 is returned.
  * If the ASN is absent, 0 is returned. */
 static int
-asn_is_excluded (uint32_t asn) {
-  int high = conf.exclude_asn_idx, low = 0, mid = 0;
+asn_in_list (uint32_t asn, const uint32_t *list, int len) {
+  int high = len, low = 0, mid = 0;
 
   while (low < high) {
     mid = low + (high - low) / 2;
-    if (conf.exclude_asns[mid] < asn)
+    if (list[mid] < asn)
       low = mid + 1;
     else
       high = mid;
   }
 
-  return low < conf.exclude_asn_idx && conf.exclude_asns[low] == asn;
+  return low < len && list[low] == asn;
 }
 
-/* Determine whether a request's resolved ASN should be excluded.
+/* Determine whether a request should be kept based on its resolved ASN.
+ *
+ * With --include-asn, only requests from a listed ASN are kept; requests
+ * without a resolvable ASN are dropped. --exclude-asn is applied after that.
  *
  * If the request should be kept, 1 is returned.
  * If the request is excluded, 0 is returned. */
 int
 excluded_asn (GLogItem *logitem) {
-  if (!conf.exclude_asn_idx || resolve_asn (logitem))
+  int keep = 1;
+
+  if (!conf.exclude_asn_idx && !conf.include_asn_idx)
     return 1;
-  if (!asn_is_excluded (logitem->asn_number))
+
+  if (resolve_asn (logitem))
+    keep = !conf.include_asn_idx;
+  else if (conf.include_asn_idx &&
+           !asn_in_list (logitem->asn_number, conf.include_asns, conf.include_asn_idx))
+    keep = 0;
+  else if (asn_in_list (logitem->asn_number, conf.exclude_asns, conf.exclude_asn_idx))
+    keep = 0;
+
+  if (keep)
     return 1;
 
   count_excluded ("excluded_asn");
