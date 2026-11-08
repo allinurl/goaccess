@@ -52,6 +52,10 @@
 #define CSV_ASCII_PRINTABLE_MIN 0x20
 /* DEL is the remaining ASCII control byte. */
 #define CSV_ASCII_DELETE        0x7f
+/* UTF-8 C1 controls use C2 followed by their U+0080 through U+009F value. */
+#define CSV_UTF8_C1_LEAD        0xc2
+#define CSV_C1_MIN              0x80
+#define CSV_C1_MAX              0x9f
 
 struct tm now_tm;
 
@@ -105,8 +109,7 @@ panel_lookup (GModule module) {
   return NULL;
 }
 
-/* Write CSV field content with doubled quotes, and with ASCII controls and
- * bytes that are not part of well-formed UTF-8 as visible text. */
+/* Write CSV field content with escaped quotes, controls and invalid UTF-8. */
 static void
 escape_csv_output (FILE *fp, const char *s) {
   const unsigned char *p = (const unsigned char *) s;
@@ -122,16 +125,19 @@ escape_csv_output (FILE *fp, const char *s) {
       continue;
     }
     if (*p >= 0x80) {
-      /* A well-formed sequence is copied as it is; a byte of an ill-formed
-       * one is written like a control byte, so the file stays valid UTF-8
-       * and the byte can still be read. */
+      /* Escape invalid bytes individually so the file stays valid UTF-8
+       * and the original bytes remain readable. */
       len = utf8_seq_len ((const char *) p, &valid);
 
       if (!valid) {
         fprintf (fp, "\\x%02x", (unsigned int) *p);
         continue;
       }
-      fwrite (p, 1, len, fp);
+      /* Some UTF-8 terminals interpret C1 controls as escape sequences. */
+      if (*p == CSV_UTF8_C1_LEAD && p[1] >= CSV_C1_MIN && p[1] <= CSV_C1_MAX)
+        fprintf (fp, "\\u%04x", (unsigned int) p[1]);
+      else
+        fwrite (p, 1, len, fp);
       p += len - 1;
       continue;
     }
