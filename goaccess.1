@@ -1073,6 +1073,22 @@ GoAccess exits with an error if ASN exclusions are configured without an
 ASN-capable database. Exclusions apply as records are parsed and do not remove
 matching records already restored from persistent storage.
 .TP
+\fB\-\-include-asn=<ASN>
+Only include requests whose client address resolves to the given Autonomous
+System Number. All other requests, including those whose address does not
+resolve to any ASN (e.g., private addresses), are dropped and counted as
+excluded ASN hits. The option can be repeated and accepts either the numeric
+form, such as 15169, or the AS-prefixed form, such as AS15169. It can be
+combined with
+.BR \-\-exclude-asn ,
+which is applied to the requests that remain.
+
+Like
+.BR \-\-exclude-asn ,
+this option requires GeoIP2 support and an ASN database supplied through
+.BR \-\-geoip-database ,
+and it does not remove records already restored from persistent storage.
+.TP
 \fB\-\-geoip-database=<geofile>
 Specify path to GeoIP database file. i.e., GeoLiteCity.dat.
 

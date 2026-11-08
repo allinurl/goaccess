@@ -1844,11 +1844,13 @@ block_thread_signals (void) {
 }
 
 #ifdef HAVE_LIBMAXMINDDB
-/* Require an ASN-capable MMDB whenever ASN exclusions are configured. */
+/* Require an ASN-capable MMDB whenever ASN exclusions or inclusions are configured. */
 static void
 validate_asn_exclusions (void) {
   if (conf.exclude_asn_idx && !conf.has_geoasn)
     FATAL ("--exclude-asn requires an ASN GeoIP2 database supplied with --geoip-database.");
+  if (conf.include_asn_idx && !conf.has_geoasn)
+    FATAL ("--include-asn requires an ASN GeoIP2 database supplied with --geoip-database.");
 }
 #endif
 

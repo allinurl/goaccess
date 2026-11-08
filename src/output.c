@@ -685,7 +685,7 @@ print_def_overall_excluded (FILE *fp, int sp) {
   };
 
 #ifdef HAVE_LIBMAXMINDDB
-  if (conf.exclude_asn_idx || ht_get_excluded_asns ()) {
+  if (conf.exclude_asn_idx || conf.include_asn_idx || ht_get_excluded_asns ()) {
     def.lbl = T_EXCLUDE_IP_ASN;
     def.secondary_datakey = OVERALL_EXCL_ASN_HITS;
   }

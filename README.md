@@ -71,7 +71,8 @@ terminal. Features include:
 
 * **ASN (Autonomous System Number mapping)**<br>
   Great for detecting malicious traffic patterns and block them accordingly.
-  Whole networks can also be dropped as they are parsed with `--exclude-asn`.
+  Whole networks can also be dropped as they are parsed with `--exclude-asn`,
+  or the report can be limited to specific networks with `--include-asn`.
 
 * **Color Scheme Customizable**<br>
   Tailor GoAccess to suit your own color taste/schemes. Either through the
@@ -484,6 +485,12 @@ dropped as it is parsed. `--exclude-asn` can be repeated and takes either the
 numeric or the AS-prefixed form:
 
     # goaccess access.log --geoip-database=/usr/local/share/GeoIP/GeoLite2-ASN.mmdb --exclude-asn=AS8075 --exclude-asn=15169
+
+To do the opposite and only keep traffic from specific networks, use
+`--include-asn`. Requests from any other ASN, or from addresses that don't
+resolve to an ASN at all, are dropped:
+
+    # goaccess access.log --geoip-database=/usr/local/share/GeoIP/GeoLite2-ASN.mmdb --include-asn=AS15169
 
 Exclusions apply to records as they are read, so they won't remove matching
 records already restored from persistent storage.
