@@ -860,7 +860,12 @@ moving it; a missing or invalid key prevents restoration. Older GoAccess
 versions cannot restore the converted database.
 .IP
 Visitor fingerprints are pseudonymous identifiers, not irreversible
-anonymization. Someone with the key can test guessed addresses against them.
+anonymization. Anyone with both the database and IP_PRIVACY.key can test
+candidate addresses and user agents against the stored fingerprints and may
+recover full IP addresses. Treat the database directory and any backup or copy
+that includes the key as sensitive data requiring the same protection as full
+IP addresses. Owner-only permissions on the key do not protect copies made by
+someone who can read it.
 This option does not remove IP addresses or other personal data embedded in
 URLs, referrers, user IDs or other log fields.
 .TP
