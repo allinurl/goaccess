@@ -16,7 +16,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - macos-14
+          - macos-15
         config_params:
           - ""
           - "--enable-debug"
@@ -31,7 +31,7 @@ jobs:
           - os: macos-latest
             setup-env: |
               brew install ncurses gettext autoconf automake libmaxminddb openssl@3 jq
-          - os: macos-14
+          - os: macos-15
             setup-env: |
               brew update
               brew install ncurses gettext autoconf automake openssl@3 libmaxminddb jq
